@@ -22,10 +22,10 @@
 	animals:carcass_bird_small          153 102  77
 	animals:carcass_bird_small_burned    74  74  74
 	animals:carcass_bird_small_cooked   108  85  66
-	animals:carcass_fish_large    		153 102  77
+	animals:carcass_fish_large          153 102  77
 	animals:carcass_fish_large_burned    74  74  74
 	animals:carcass_fish_large_cooked   108  85  66
-	animals:carcass_fish_small 			153 102  77
+	animals:carcass_fish_small          153 102  77
 	animals:carcass_fish_small_burned    74  74  74
 	animals:carcass_fish_small_cooked   108  85  66
 	animals:carcass_invert_large        153 102  77
