@@ -236,7 +236,6 @@ local on_place_seedling = function(itemstack, placer, pointed_thing)
       if udef and udef.on_rightclick and
 	 not (placer and placer:is_player() and
 	      placer:get_player_control().sneak) then
-	    print(dump2(udef.on_rightclick))
 	    return udef.on_rightclick(pointed_thing.under, ground,
 				      placer, itemstack,
 				      pointed_thing) or itemstack
@@ -250,7 +249,7 @@ end
 
 -------------------------------------------------------------
 --
---Non-consummables
+--All regular plants
 --
 
 
@@ -278,7 +277,7 @@ for i in ipairs(plantlist) do
 	local gs = {snappy = 3, herbaceous_plant = 1, attached_node = 1, flammable = 1, seedling = 1, temp_pass = 1} --seedlings
 	local g_seed = {snappy = 3, dig_immediate = 2, flammable = 1, attached_node = 1, seed = 1, temp_pass = 1}
 
-  if type == "crumbly" then		--moss, dirt mat-like things
+	if type == "crumbly" then		--moss, dirt mat-like things
 		g = {crumbly = 3, herbaceous_plant = 1, falling_node = 1, attached_node = 1, flammable = 1, flora = 1, temp_pass = 1}
 	elseif type == "woody_plant" then
 		g = {choppy = 3, woody_plant = 1, attached_node = 1, flammable = 1, flora = 1, temp_pass = 1}
@@ -290,7 +289,7 @@ for i in ipairs(plantlist) do
 	elseif type == "mushroom" then
 		g = {crumbly = 3, attached_node = 1, flammable = 1, mushroom = 1, temp_pass = 1}
 		gs = {crumbly = 3, attached_node = 1, flammable = 1, mushroom = 1, seedling = 1, temp_pass = 1}
-		g_seed = {crumbly = 3, attached_node = 1, flammable = 1, mushroom = 1, seedl = 1, temp_pass = 1}
+		g_seed = {crumbly = 3, attached_node = 1, flammable = 1, mushroom = 1, seed = 1, temp_pass = 1}
 	else
 		g = {snappy = 3, attached_node = 1, flammable = 1, flora = 1, temp_pass = 1}
 	end
@@ -559,351 +558,10 @@ for i in ipairs(plantlist) do
 		always_known = true,
 	})
 
+	exile_add_food_hooks("nodes_nature:"..plantname)
 
 
 end
-
-
-
---Consummables
-
-
-for i in ipairs(plantlist2) do
-	local plantname = plantlist2[i][1]
-	local plantdesc = plantlist2[i][2]
-	local selbox = plantlist2[i][3]
-	local vscale = plantlist2[i][4]
-	local type = plantlist2[i][5]
-	local draw = plantlist2[i][6]
-	local p2 = plantlist2[i][7]
-  local u_hp = plantlist2[i][8]
-	local u_th = plantlist2[i][9]
-	local u_hu = plantlist2[i][10]
-	local u_en = plantlist2[i][11]
-	local u_te = plantlist2[i][12]
-	local u_rep = plantlist2[i][13]
-	local seed_desc = plantlist2[i][14]
-	local seed_image = plantlist2[i][15]
-	local growth = plantlist2[i][16] --for seeds
-	local c_food_pois = plantlist2[i][17]
-
-	if not growth then
-		growth = plant_base_growth
-	end
-
-
-
-	if selbox == nil then
-		selbox = {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4}
-	end
-
-	local s = nodes_nature.node_sound_leaves_defaults()
-
-	local g = nil
-	local gs = {snappy = 3, herbaceous_plant = 1, attached_node = 1, flammable = 1, seedling = 1, temp_pass = 1} --seedlings
-	local g_seed = {snappy = 3, dig_immediate = 2, flammable = 1, attached_node = 1, seed = 1, temp_pass = 1} --seeds
-
-	if type == "crumbly" then		--moss, dirt mat-like things
-		g = {crumbly = 3, herbaceous_plant = 1, falling_node = 1, attached_node = 1, flammable = 1, flora = 1, temp_pass = 1}
-	elseif type == "woody_plant" then
-		g = {choppy = 3, woody_plant = 1, attached_node = 1, flammable = 1, flora = 1, temp_pass = 1}
-		s = nodes_nature.node_sound_wood_defaults()
-	elseif type == "herbaceous_plant" then
-		g = {snappy = 3, herbaceous_plant = 1, attached_node = 1, flammable = 1, flora = 1, temp_pass = 1}
-	elseif type == "fibrous_plant" then
-		g = {snappy = 3, fibrous_plant = 1, attached_node = 1, flammable = 1, flora = 1, temp_pass = 1}
-	elseif type == "mushroom" then
-		g = {crumbly = 3, attached_node = 1, flammable = 1, mushroom = 1, temp_pass = 1}
-		gs = {crumbly = 3, attached_node = 1, flammable = 1, mushroom = 1, seedling = 1, temp_pass = 1}
-		g_seed = {snappy = 3, dig_immediate = 2, flammable = 1, attached_node = 1, mushroom = 1, seed = 1, temp_pass = 1}
-	else
-		g = {snappy = 3, attached_node = 1, flammable = 1, flora = 1, temp_pass = 1}
-	end
-
-
-	--singlenode bushes etc
-	if draw == "nodebox" then
-		minetest.register_node("nodes_nature:"..plantname, {
-			description = plantdesc,
-			drawtype = "nodebox",
-			node_box = {
-				type = "fixed",
-				fixed = {
-					selbox,
-				},
-			},
-			tiles = {"nodes_nature_"..plantname..".png"},
-			stack_max = minimal.stack_max_medium,
-			paramtype = "light",
-			paramtype2 = "facedir",
-			sunlight_propagates = false,
-			is_ground_content = false,
-			walkable = false,
-			buildable_to = true,
-			groups = g,
-			sounds = s,
-			on_use = function(itemstack, user, pointed_thing)
-				--food poisoning
-				if random() < c_food_pois then
-					HEALTH.add_new_effect(user, {"Food Poisoning", 1})
-				end
-
-				return HEALTH.use_item(itemstack, user, u_hp, u_th, u_hu, u_en, u_te, u_rep)
-			end,
-		})
-
-		--bush seedling
-		minetest.register_node("nodes_nature:"..plantname.."_seedling", {
-			description = "Young "..plantdesc,
-			drawtype = "nodebox",
-			node_box = {
-				type = "fixed",
-				fixed = {
-					{-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
-				},
-			},
-			tiles = {"nodes_nature_"..plantname..".png"},
-			stack_max = minimal.stack_max_medium,
-			paramtype = "light",
-			paramtype2 = "facedir",
-			floodable = true,
-			sunlight_propagates = true,
-			is_ground_content = false,
-			walkable = false,
-			buildable_to = true,
-			groups = gs,
-			sounds = s,
-			on_construct = function(pos)
-				--set initial timer, growth rate depends on soil
-				local timer_min, timer_max = seed_soil_response(pos)
-				if timer_min then
-					minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-				else
-				   minetest.get_node_timer(pos):start(plant_base_timer)
-				end
-			end,
-
-			on_timer = function(pos,elapsed)
-			   local timer_min, timer_max = seed_soil_response(pos)
-			   if not timer_min then
-			      if minetest.get_node(pos).name ~= "ignore" then
-				 return false -- not on soil anymore? Stop timer
-			      else
-				 return true -- it's unloaded, skip the timer
-			      end
-			   end
-			   local timer_avg = timer_min + timer_max / 2
-			   elapsed = elapsed - timer_max
-			   if grow_seed(pos, nil, "nodes_nature:"..plantname, nil, timer_avg, elapsed) then
-			      return
-			   else
-			      minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-			   end
-			end,
-			after_place_node = function(pos, placer, itemstack, pointed_thing)
-			   after_place_seedling(pos, placer, itemstack, pointed_thing)
-			end,
-			on_dig = function(pos, node, digger)
-			   on_dig_seedling(pos, node, digger)
-			end,
-			on_place = function(itemstack, placer, pointed_thing)
-			   return on_place_seedling(itemstack, placer, pointed_thing)
-			end,
-		})
-
-
-  else
-    minetest.register_node("nodes_nature:"..plantname, {
-      description = plantdesc,
-      drawtype = draw or "plantlike",
-      waving = 1,
-      visual_scale = vscale,
-      tiles = {"nodes_nature_"..plantname..".png"},
-      inventory_image = "nodes_nature_"..plantname..".png",
-      wield_image = "nodes_nature_"..plantname..".png",
-			stack_max = minimal.stack_max_medium,
-      paramtype = "light",
-			paramtype2 = "meshoptions",
-			place_param2 = p2 or 1,
-			floodable = true,
-      sunlight_propagates = true,
-      walkable = false,
-      buildable_to = true,
-      groups = g,
-      sounds = s,
-      selection_box = {
-        type = "fixed",
-        fixed = selbox,
-      },
-			on_use = function(itemstack, user, pointed_thing)
-				return HEALTH.use_item(itemstack, user, u_hp, u_th, u_hu, u_en, u_te, u_rep)
-			end,
-    })
-
-		--seedling
-		minetest.register_node("nodes_nature:"..plantname.."_seedling", {
-      description = "Young "..plantdesc,
-      drawtype = draw or "plantlike",
-      waving = 1,
-      visual_scale = vscale,
-      tiles = {"nodes_nature_"..plantname.."_seedling.png"},
-      inventory_image = "nodes_nature_"..plantname.."_seedling.png",
-      wield_image = "nodes_nature_"..plantname.."_seedling.png",
-			stack_max = minimal.stack_max_medium,
-      paramtype = "light",
-			paramtype2 = "meshoptions",
-			place_param2 = p2 or 1,
-			floodable = true,
-      sunlight_propagates = true,
-      walkable = false,
-      buildable_to = true,
-      groups = gs,
-      sounds = s,
-      selection_box = {
-        type = "fixed",
-        fixed = {
-					{-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
-				},
-      },
-			on_construct = function(pos)
-				--set initial timer, growth rate depends on soil
-				local timer_min, timer_max = seed_soil_response(pos)
-				if timer_min then
-					minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-				else
-				   minetest.get_node_timer(pos):start(plant_base_timer)
-				end
-			end,
-
-			on_timer = function(pos,elapsed)
-			   local timer_min, timer_max = seed_soil_response(pos)
-			   if not timer_min then
-			      if minetest.get_node(pos).name ~= "ignore" then
-				 return false -- not on soil anymore? Stop timer
-			      else
-				 return true -- it's unloaded, skip the timer
-			      end
-			   end
-			   local timer_avg = timer_min + timer_max / 2
-			   elapsed = elapsed - timer_max
-			   if grow_seed(pos, nil, "nodes_nature:"..plantname, nil, timer_avg, elapsed) then
-			      return
-			   else
-			      minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-			   end
-			end,
-			after_place_node = function(pos, placer, itemstack, pointed_thing)
-			   after_place_seedling(pos, placer, itemstack, pointed_thing)
-			end,
-			on_dig = function(pos, node, digger)
-			   on_dig_seedling(pos, node, digger)
-			end,
-			on_place = function(itemstack, placer, pointed_thing)
-			   return on_place_seedling(itemstack, placer, pointed_thing)
-			end,
-    })
-	end
-
-
-	minetest.register_craft({
-		type = "fuel",
-		recipe = "nodes_nature:"..plantname,
-		burntime = 1,
-	})
-
-
-		--seeds and spores
-		if not seed_image then
-			if type == "mushroom" then
-				seed_image = "nodes_nature_spores.png"
-			else
-				seed_image = "nodes_nature_seeds.png"
-			end
-		end
-
-		if not seed_desc then
-			if type == "mushroom" then
-				seed_desc = plantdesc.." Spores"
-			else
-				seed_desc = plantdesc.." Seeds"
-			end
-		end
-
-		minetest.register_node("nodes_nature:"..plantname.."_seed", {
-			description = seed_desc,
-			drawtype = "nodebox",
-			tiles = {seed_image},
-			inventory_image = seed_image,
-			node_box = {
-				type = "fixed",
-				fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
-			},
-			stack_max = minimal.stack_max_light,
-			use_texture_alpha = "clip",
-			paramtype = "light",
-			floodable = true,
-			sunlight_propagates = true,
-			walkable = false,
-			buildable_to = true,
-			groups = g_seed,
-			sounds = nodes_nature.node_sound_defaults(),
-			on_construct = function(pos)
-				--duration of growth, per species
-				local meta = minetest.get_meta(pos)
-				meta:set_int("growth", growth)
-				--set initial timer, growth rate depends on soil
-				local timer_min, timer_max = seed_soil_response(pos)
-				if timer_min then
-					minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-				else
-				   minetest.get_node_timer(pos):start(plant_base_timer)
-				end
-			end,
-
-			on_timer = function(pos,elapsed)
-			   local timer_min, timer_max = seed_soil_response(pos)
-			   if not timer_min then
-			      if minetest.get_node(pos).name ~= "ignore" then
-				 return false -- not on soil anymore? Stop timer
-			      else
-				 return true -- it's unloaded, skip the timer
-			      end
-			   end
-			   local timer_avg = timer_min + timer_max / 2
-			   elapsed = elapsed - timer_max
-			   if grow_seed(pos, "nodes_nature:"..plantname.."_seed", "nodes_nature:"..plantname, p2,
-					timer_avg, elapsed) then
-			      return
-			   else
-			      if timer_min then
-				 minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-			      end
-			   end
-			end,
-			after_place_node = function(pos, placer, itemstack, pointed_thing)
-			   after_place_seedling(pos, placer, itemstack, pointed_thing)
-			end,
-			on_dig = function(pos, node, digger)
-			   on_dig_seedling(pos, node, digger)
-			end,
-			on_place = function(itemstack, placer, pointed_thing)
-			   return on_place_seedling(itemstack, placer, pointed_thing)
-			end,
-		})
-
-
-		--extract seeds
-		crafting.register_recipe({
-			type = "threshing_spot",
-			output = "nodes_nature:"..plantname.."_seed 6",
-			items = {"nodes_nature:"..plantname},
-			level = 1,
-			always_known = true,
-		})
-
-
-end
-
 
 -----------------------------------------
 ---CANES
@@ -1114,30 +772,74 @@ for i in ipairs(searooted_list) do
 
 			after_destruct  = function(pos, oldnode)
 				minetest.set_node(pos, {name = substrate})
-			end
+			end,
 		})
 	end
-
+	exile_add_food_hooks("nodes_nature:"..name)
 
 end
 
---edible sea_lettuce
-minetest.override_item("nodes_nature:sea_lettuce",{
-	on_use = function(itemstack, user, pointed_thing)
+--exile_experimental plants, need Exile v4 biomes to spawn?
+minetest.register_node("nodes_nature:chalin", {
+			  description = "Chalin",
+			  drawtype = "plantlike",
+			  tiles = {"nodes_nature_chalin.png"},
+			  inventory_image = "nodes_nature_chalin.png",
+			  wield_image = "nodes_nature_chalin.png",
+			  stack_max = minimal.stack_max_medium,
+			  paramtype = "light",
+			  paramtype2 = "meshoptions",
+			  place_param2 = 2,
+			  sunlight_propagates = true,
+			  walkable = false,
+			  climbable = true,
+			  --floodable = true,
+			  selection_box = {
+			     type = "fixed",
+			     fixed = {-0.1875, -0.5, -0.1875, 0.1875, 0.5, 0.1875},
+			  },
+			  groups = {choppy = 3, woody_plant = 1, flammable = 1, flora = 1, cane_plant = 1, temp_pass = 1},
+			  sounds = nodes_nature.node_sound_wood_defaults(),
 
-		--food poisoning
-		if random() <  0.05 then
-			HEALTH.add_new_effect(user, {"Food Poisoning", 1})
-		end
+			  after_dig_node = function(pos, node, metadata, digger)
+			     dig_up(pos, node, digger)
+			  end,
+})
 
-		--parasites
-		if random() < 0.01 then
-			HEALTH.add_new_effect(user, {"Intestinal Parasites"})
-		end
-
-		--hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-		return HEALTH.use_item(itemstack, user, 0, 0, 5, -10, 0)
-	end,
+--a bit experimental, doesn't reproduce
+minetest.register_node("nodes_nature:glow_worm", {
+			  description = "Glow Worm",
+			  drawtype = "plantlike",
+			  waving = 1,
+			  visual_scale = 1,
+			  light_source = 2,
+			  tiles = {"nodes_nature_glow_worm.png"},
+			  stack_max = minimal.stack_max_medium,
+			  inventory_image = "nodes_nature_glow_worm.png",
+			  wield_image = "nodes_nature_glow_worm.png",
+			  paramtype = "light",
+			  paramtype2 = "meshoptions",
+			  place_param2 = 3,
+			  floodable = true,
+			  sunlight_propagates = true,
+			  walkable = false,
+			  buildable_to = true,
+			  groups = {snappy = 3, flammable = 1, temp_pass = 1, bioluminescent = 1},
+			  sounds = nodes_nature.node_sound_leaves_defaults(),
+			  selection_box = {
+			     type = "fixed",
+			     fixed = {-0.3, 0.5, -0.3, 0.3, 0.35, 0.3},
+			     floodable = true,
+			     sunlight_propagates = true,
+			     walkable = false,
+			     buildable_to = true,
+			     groups = {snappy = 3, flammable = 1, temp_pass = 1, bioluminescent = 1},
+			     sounds = nodes_nature.node_sound_leaves_defaults(),
+			     selection_box = {
+				type = "fixed",
+				fixed = {-0.3, 0.5, -0.3, 0.3, 0.35, 0.3},
+			     },
+			  },
 })
 
 
@@ -1165,35 +867,6 @@ minetest.override_item("nodes_nature:anperla_seed",{
 	stack_max = minimal.stack_max_medium,
 	walkable = true,
 })
-
-
---oil seed crop
-minetest.override_item("nodes_nature:vansano_seed",{
-	on_use = function(itemstack, user, pointed_thing)
-		--food poisoning
-		if random() < 0.001 then
-			HEALTH.add_new_effect(user, {"Food Poisoning", 1})
-		end
-
-		--hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-		return HEALTH.use_item(itemstack, user, 0, 0, 1, 0, 0)
-	end,
-})
-
----------------------------------------
---tikusati's stimulant in the seeds too
-minetest.override_item("nodes_nature:tikusati_seed",{
-	on_use = function(itemstack, user, pointed_thing)
-		--food poisoning
-		if random() < 0.001 then
-			HEALTH.add_new_effect(user, {"Food Poisoning", 1})
-		end
-
-		--hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-		return HEALTH.use_item(itemstack, user, 0, 0, -2, 2, 0)
-	end,
-})
-
 
 --marbhan has a Neurotoxin
 minetest.override_item("nodes_nature:marbhan",{
@@ -1347,16 +1020,6 @@ end
 --bulk recipes x6
 for i in ipairs(plantlist) do
 	local plantname = plantlist[i][1]
-	crafting.register_recipe({
-		type = "threshing_spot",
-		output = "nodes_nature:"..plantname.."_seed 36",
-		items = {"nodes_nature:"..plantname.." 6"},
-		level = 1,
-		always_known = true,
-	})
-end
-for i in ipairs(plantlist2) do
-	local plantname = plantlist2[i][1]
 	crafting.register_recipe({
 		type = "threshing_spot",
 		output = "nodes_nature:"..plantname.."_seed 36",
