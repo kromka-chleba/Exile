@@ -3,14 +3,16 @@
 
 --Modding info:
 --[[
- To add new foods, define a node, then pass a table with its info to
+ To add new foods, define your node(s), then pass a table with food info to
 exile_add_food(table). Its on_use will be set automatically.
+ Make sure all your nodes have been defined BEFORE you send any tables!
+ exile_add_food() will override a node's on_use.
 
  For cookable things, define the node, and a name_cooked/name_burned version,
-then pass the cooking data to exile_add_bake(table). Its on_construct and
-on_timer will be set automatically.  Then add the cooked version to the
-food table.
+then pass the cooking data to exile_add_bake(table). Don't forget to add the
+cooked version to the food table.
  If the burned version is not also added to foods, it will be inedible.
+ exile_add_bake() will override a node's on_construct and on_timer.
 
  If a food can only be cooked in a pot, don't define a name_cooked node,
 but add it to the food table anyway. The cooking pot will make a soup using
@@ -19,42 +21,19 @@ over a fire.
 #TODO: Test this ^^ after the cooking pot supports both tables
 ]]--
 
---[[
-Some notes:
-
-Calculating sensible values for food:
-(intervals/day) * hunger_rate = daily basal food needs
-i.e. 20min/1min * 2 = 40 units per day
-
-Therefore 40 units = 2000 calories.
-calories -> units = 2000/40 = 50 cal/unit
-
-Sugar 3900 cal/kg = 78 units/kg  172 per lb.
-Bread 2600 cal/kg = 52 units/kg  115 per lb.
-Potato. 750 cal/kg = 15 u/kg     33 per lb.
-Meat 2000 cal/kg = 40 u/kg       88 per lb.
-cabbage 240 cal/kg = 4.8 u/kg    10.5 per lb.
-]]--
-
-food_table = {
-   --name	     	      	       hp  thr hngr energy temp
-["tech:maraka_bread_cooked"]        = {0,  0,  24,  14,    0},
-["tech:maraka_bread_burned"]        = {0,  0,  12,  7,     0},
-["tech:peeled_anperla_cooked"]      = {0,  4,  24,  14,    0},
---example: burned anperla tubers are inedible
-["tech:mashed_anperla_cooked"]      = {0,  24, 144, 84,    0},
-["tech:mashed_anperla_burned"]      = {0,  12, 72,  42,    0},
-}
-
 local cook_rate = 6   -- speed of the cook timer; tenth of a minute seems fine
 
-bake_table = {
-   --name                        temp, duration, cooked, burned
-["tech:maraka_bread"]        = { 160,  10 },
-["tech:peeled_anperla"]      = { 100,  7  },
-["tech:mashed_anperla"]      = { 100,  35 },
-}
+dofile(minetest.get_modpath('health')..'/food_data.lua')
 
+local function do_food_harm(user, nodename)
+   if not food_harm_table[nodename] then return end
+   local fht = food_harm_table[nodename]
+   for i = 1, #fht do
+      if math.random() < fht[i][2] then
+	 HEALTH.add_new_effect(user, {fht[i][1], fht[i][3]})
+      end
+   end
+end
 
 function exile_eatdrink_playermade(itemstack, user)
    local imeta = itemstack:get_meta()
@@ -70,6 +49,7 @@ end
 
 function exile_eatdrink(itemstack, user)
    local name = itemstack:get_name()
+
    if minetest.registered_aliases[name] then
       name = minetest.registered_aliases[name]
    end
@@ -78,60 +58,82 @@ function exile_eatdrink(itemstack, user)
 				"This is inedible.")
       return
    end
+   do_food_harm(user, name)
    local t = food_table[name]
    return HEALTH.use_item(itemstack, user, t[1], t[2], t[3], t[4], t[5], t[6])
 end
 
+-- Overrides for edible and bakable nodes
+local eat_redef = {
+   on_use = function(itemstack, user, pointed_thing)
+      return exile_eatdrink(itemstack, user)
+end}
+
+local bake_redef = {
+   on_construct = function(...)
+      exile_start_bake(...)
+   end,
+   on_timer = function(...)
+      return exile_bake(...)
+end}
+
 function exile_add_food(table)
-   --Add new foods, mod must send a table in the above format
+   --Add new foods, mod must send a table in the food_data.lua format
    for k, v in pairs(table) do
       food_table[k] = v
+      if minetest.registered_nodes[k] then
+	 minetest.override_item(name, eat_redef)
+      end
    end
 end
 function exile_add_bake(table)
-   --Add new bakables, mod must send a table in the above format
+   --Add new bakables, mod must send a table in the food_data.lua format
    for k, v in pairs(table) do
       bake_table[k] = v
+      if minetest.registered_nodes[k] then
+	 minetest.override_item(name, bake_redef)
+      end
+   end
+end
+function exile_add_harm(table)
+   --Add new food harm, mod must send a table in the food_data.lua format
+   for k, v in pairs(table) do
+      food_harm_table[k] = v
    end
 end
 
--- Table node setup
---Sets the on_construct/on_timer for registered foods
+function exile_add_food_hooks(name)
+   if food_table[name] then
+      minetest.override_item(name, eat_redef)
+   end
+   if bake_table[name] then
+      minetest.override_item(name, bake_redef)
+   end
+   if string.match(name, "_cooked") then
+	 minetest.override_item(name, bake_redef)
+   end
+end
 
-minetest.after(1, function() -- don't run overrides until after registration
-   local eat_redef = { on_use = function(itemstack, user, pointed_thing)
-			  --TODO: add risk of fpois, parasites, etc
-			  return exile_eatdrink(itemstack, user)
-		     end}
-   local bake_redef = {  on_construct = function(...)
-			exile_start_bake(...)
-		 end,
-		     on_timer = function(...)
-			return exile_bake(...)
-		 end}
+
+-- Finalized table list
+--Outputs a compilned list of all added foods to the minetest log, info level
+minetest.after(1, function()
    minetest.log("info", "Finalized list of food_table entries:")
    for k, v in pairs(food_table) do
-      if not minetest.registered_nodes[k] then
-	 minetest.log("error", "Food table contains an unknown node: "..k)
-      else
+      if minetest.registered_nodes[k] then
 	 minetest.log("info",k)
-	 minetest.override_item(k, eat_redef)
       end
    end
    minetest.log("info","-------")
    minetest.log("info", "Finalized list of bake_table entries:")
    for k, v in pairs(bake_table) do
       if not minetest.registered_nodes[k] then
-	 minetest.log("error", "Bake table contains an undefined node: "..k)
+	 minetest.log("info", "Bake table contains an undefined node: "..k)
       else
 	 if minetest.registered_nodes[k.."_cooked"] then
 	    minetest.log("info",k)
-	    minetest.override_item(k, bake_redef)
-	    if minetest.registered_nodes[k.."_burned"] then
-	       minetest.override_item(k.."_cooked", bake_redef)
-	    end
 	 else
-	    minetest.log("info", "undefined (cooking pot-only) node: "..
+	    minetest.log("info", "undefined node (cooking pot only entry): "..
 			    k.."_cooked")
 	 end
       end
@@ -154,6 +156,7 @@ function exile_bake(pos, elapsed)
    local name_burned = selfname.."_burned"
    local heat = bake_table[selfname][1]
    local length = bake_table[selfname][2]
+   local burntime = math.floor( length * .40 + 10 ) * -1
    local meta = minetest.get_meta(pos)
    local baking = meta:get_int("baking")
 
@@ -180,7 +183,7 @@ function exile_bake(pos, elapsed)
    elseif temp < fire_temp then
       --not lit yet
       return true
-   elseif temp > fire_temp * 2  or baking < (length / 2 * -1) then
+   elseif temp > fire_temp * 2  or baking < burntime then
       if minetest.registered_nodes[name_burned] then
 	 --too hot or too long on the fire, burn
 	 minetest.set_node(pos, {name = name_burned})
