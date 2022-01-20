@@ -44,3 +44,7 @@
  If you’re not sure about some change or whatever, maybe open a discussion, or file an issue and we can talk it over. Or just make a draft `PR` and we’ll figure it out.
 
  The `master` branch is where development is going on right now, with the `0.2.3` branch receiving backports for anyone on an older (5.3.0) version of Minetest.
+
+# Rebasing Stale Branches
+“The primary reason for rebasing is to maintain a linear project history.”<sup>[[1]](https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase)</sup>
+
