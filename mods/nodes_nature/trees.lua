@@ -288,7 +288,7 @@ for i in ipairs(tree_list) do
 				end
 			end,
 		})
-		exile_add_food_hook("nodes_nature:"..fruitname)
+		exile_add_food_hooks("nodes_nature:"..fruitname)
 		register_leafdecay({
 			trunks = {"nodes_nature:"..treename.."_tree"},
 			leaves = {"nodes_nature:"..treename.."_leaves", "nodes_nature:"..fruitname},
@@ -312,6 +312,9 @@ end
 
 --maraka thorns
 minetest.override_item("nodes_nature:maraka_leaves",{damage_per_second = 1})
+
+--tangkal fruit is good food, but bulky
+minetest.override_item("nodes_nature:tangkal_fruit",{stack_max = minimal.stack_max_medium/2})
 
 --exile_experimental trees
 minetest.override_item("nodes_nature:sasaran_cone",{
