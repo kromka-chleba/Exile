@@ -288,7 +288,7 @@ for i in ipairs(tree_list) do
 				end
 			end,
 		})
-
+		exile_add_food_hooks("nodes_nature:"..fruitname)
 		register_leafdecay({
 			trunks = {"nodes_nature:"..treename.."_tree"},
 			leaves = {"nodes_nature:"..treename.."_leaves", "nodes_nature:"..fruitname},
@@ -313,48 +313,26 @@ end
 --maraka thorns
 minetest.override_item("nodes_nature:maraka_leaves",{damage_per_second = 1})
 
+--tangkal fruit is good food, but bulky
+minetest.override_item("nodes_nature:tangkal_fruit",{stack_max = minimal.stack_max_medium/2})
 
---maraka nut is dangerous poisonous until processed,
--- causes photosensitivity, risk of hepatotoxicity
---you can eat it raw if you want to take the risk... famine food for the desperate
-minetest.override_item("nodes_nature:maraka_nut",{
-	on_use = function(itemstack, user, pointed_thing)
-	   minetest.chat_send_player(user:get_player_name(),
-				     "This nut is terribly bitter and hurts your stomach.")
-		--food poisoning
-		if random() < 0.001 then
-			HEALTH.add_new_effect(user, {"Food Poisoning", 1})
-		end
+--exile_experimental trees
+minetest.override_item("nodes_nature:sasaran_cone",{
+			  on_use = function(itemstack, user, pointed_thing)
 
-		--toxins
-		if random() < 0.005 then
-			HEALTH.add_new_effect(user, {"Hepatotoxicity", floor(random(1,4))})
-		end
-		if random() < 0.3 then
-			HEALTH.add_new_effect(user, {"Photosensitivity", 1})
-		end
+			     --food poisoning
+			     if random() < 0.08 then
+				HEALTH.add_new_effect(user, {"Food Poisoning", 1})
+			     end
 
+			     --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
+			     return HEALTH.use_item(itemstack, user, 0, 0, 1, 0, 0)
 
-		--hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-		return HEALTH.use_item(itemstack, user, 0, 0, 5, 5, 0)
-	end,
+			  end,
 })
 
---tangkal_fruit is good food, but bulky, contains small amounts of alcohol
-minetest.override_item("nodes_nature:tangkal_fruit",{
-	stack_max = minimal.stack_max_medium/4,
-	on_use = function(itemstack, user, pointed_thing)
-		--food poisoning
-		if random() < 0.001 then
-			HEALTH.add_new_effect(user, {"Food Poisoning", 1})
-		end
 
-		--drunk
-		if random() < 0.005 then
-			HEALTH.add_new_effect(user, {"Drunk", 1})
-		end
-
-		--hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-		return HEALTH.use_item(itemstack, user, 0, 5, 10, 10, 0)
-	end,
+minetest.override_item("nodes_nature:kagum_pod",{
+ light_source = 2,
+ groups = {dig_immediate=3, flammable=1, leafdecay = 3, leafdecay_drop = 1, bioluminescent= 1},
 })
