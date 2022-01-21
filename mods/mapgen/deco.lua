@@ -43,7 +43,7 @@ local canes_list   = { --- Schematics
 	{"nodes_nature:chalin", 7, 1, 1 ,255, 255, 255, 255, 230, 155, 105 }, --Exile v4 cane plant, found in dry woodlands
 	}
 local canes = {}
-for i in ipairs(canes_list) do
+for i in ipairs(canes_list) do -- 
 	local shape = { name = canes_list[i][1], param2 = 2 }
 	canes[i]    = {
 		size = {y = canes_list[i][2], x = canes_list[i][3], z = canes_list[i][4]},
@@ -113,7 +113,7 @@ local decoration_list = {
 	{ --[[ Sediments: cave sand                    ]]    "cave_sand"                         , "simple"   , sand_on                            , nil,           04,     nil     ,  {offset = -0.40, scale = 3.0000, spread = {x =  32, y =  32, z =  32}, seed = 795515, octaves = 2, persist = 0.9},             31000,       -31000,               nil, "nodes_nature:sand"             , nil          , nil,         nil                  ,  -1,           "all_floors, force_placement"   ,      nil, nil,   nil, },
 	{ --[[ Sediments: cave clay                    ]]    "cave_clay"                         , "simple"   , clay_on                            , nil,           04,     nil     ,  {offset = -0.40, scale = 3.0000, spread = {x =  32, y =  32, z =  32}, seed =  87005, octaves = 2, persist = 0.9},             31000,       -31000,               nil, "nodes_nature:clay"             , nil          , nil,         nil                  ,  -1,           "all_floors, force_placement"   ,      nil, nil,   nil, },
 	{ --[[ Sediments: cave silt                    ]]    "cave_silt"                         , "simple"   , silt_on                            , nil,           04,     nil     ,  {offset = -0.40, scale = 3.0000, spread = {x =  32, y =  32, z =  32}, seed =  87005, octaves = 2, persist = 0.9},             31000,       -31000,               nil, "nodes_nature:silt"             , nil          , nil,         nil                  ,  -1,           "all_floors, force_placement"   ,      nil, nil,   nil, },
-	 ---- Cave mushrooms -- artifact species escaped from cultivation                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+	  ---- Cave mushrooms -- artifact species escaped from cultivation                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 	{ --[[ Mushrooms: lambakap  (food and water)   ]]    "nodes_nature:lambakap"             , "simple"   , mushrooms_on                       , nil,           80,     0.010000,  nil                                                                                                              ,               -80,         -950,               nil, "nodes_nature:lambakap"         , nil          , nil,         nil                  , nil,           "all_floors"                    ,      nil, nil,   nil, },
 	{ --[[ Mushrooms: reshedaar (wood source)      ]]    "nodes_nature:reshedaar"            , "simple"   , mushrooms_on                       , nil,           80,     0.010000,  nil                                                                                                              ,               -80,         -950,               nil, "nodes_nature:reshedaar"        , nil          , nil,         nil                  , nil,           "all_floors"                    ,      nil, nil,   nil, },
 	{ --[[ Mushrooms: mahal     (fibre source)     ]]    "nodes_nature:mahal"                , "simple"   , mushrooms_on                       , nil,           80,     0.010000,  nil                                                                                                              ,               -80,         -950,               nil, "nodes_nature:mahal"            , nil          , nil,         nil                  , nil,           "all_floors"                    ,      nil, nil,   nil, },
@@ -127,7 +127,7 @@ local decoration_list = {
 	{ --[[   Animals: sneachan                     ]]    "animals:sneachan_eggs"             , "simple"   , all_soils_on                       , nil,           80,     0.002000,  nil                                                                                                              , lowland_ymax     ,            3,               nil, "animals:sneachan_eggs"         , nil          , nil,         nil                  , nil,           "all_floors"                    ,      nil, nil,   nil, },
 	{ --[[  Multiple: moss                         ]]    "nodes_nature:moss"                 , "simple"   , all_soils_on                       , nil,           16,     nil     ,  {offset =  0.00, scale = 0.0050, spread = {x = 100, y = 100, z = 100}, seed =   1000, octaves = 3, persist = 0.9}, lowland_ymax     , lowland_ymin,               nil, "nodes_nature:moss"             , nil          , nil,         nil                  , nil,           nil                             ,      nil, nil,   nil, },
 	{ --[[  Multiple: denser moss in marsh         ]]    "nodes_nature:moss"                 , "simple"   , moss_on                            , nil,           16,     nil     ,  {offset =  0.00, scale = 0.0900, spread = {x =  16, y =  16, z =  16}, seed =   1640, octaves = 3, persist = 0.8},             31000,            1,               nil, "nodes_nature:moss"             , nil          , nil,         nil                  , nil,           nil                             ,      nil, nil,   nil, },
-	 ---- Exile v4 experimental biome additions          name                                  deco_type    place_on                             place_offset_y sidelen fill_ratio noise_params                                                                                                      y_max                     y_min  flags               decoration                        spawn_by       num_spawn_by schematic              place_offset_y flags                             rotation param2 param2_max
+	  ---- Exile v4 experimental-biome additions         name                                  deco_type    place_on                             place_offset_y sidelen fill_ratio noise_params                                                                                                      y_max                     y_min  flags               decoration                        spawn_by       num_spawn_by schematic              place_offset_y flags                             rotation param2 param2_max
 	{ --[[     Trees: sasaran in dry woodland      ]]    "nodes_nature:sasaran_tree1_lowland", "schematic", dry_woodland_on                    ,  -4,           80,     0.007500,  nil                                                                                                              ,                35, lowland_ymin,               nil, nil                             , nil          , nil,         find("sasaran1")     ,  -4,           "place_center_x, place_center_z", "random", nil,   nil, },
 	{ --[[     Trees: sasaran in dry woodland      ]]    "nodes_nature:sasaran_tree1"        , "schematic", dry_woodland_on                    ,  -4,           80,     0.001000,  nil                                                                                                              ,                75,           35,               nil, nil                             , nil          , nil,         find("sasaran1")     ,  -4,           "place_center_x, place_center_z", "random", nil,   nil, },
 	{ --[[     Trees: kagum on salt silt   169     ]]    "nodes_nature:kagum_tree"           , "schematic", "nodes_nature:silt_wet_salty"      ,   0,           80,     nil     ,  {offset = 0, scale = 0.065, spread = {x = 128, y = 128, z = 128}, seed = 51122, octaves = 3, persist = 0.5}      ,                 3,           -1,               nil, nil                             , nil          , nil,         find("kagum1")       ,   0,           "place_center_x, place_center_z", "random", nil,   nil, },
@@ -162,8 +162,8 @@ for i in ipairs(decoration_list) do
 		}
 	)
 end
--------- Start node timers ---
-local egg_names = {
+---- Start node timers ----
+local egg_names = {  -- list of strings
 	"gundu_eggs",
 	"sarkamos_eggs",
 	"impethu_eggs",
@@ -173,26 +173,25 @@ local egg_names = {
 	"pegasun_eggs",
 	"sneachan_eggs",
 	}
-local eggs_nearby = {}
+local eggs_nearby = {}  -- list of decoration IDs
 for i in ipairs(egg_names) do -- get decoration IDs
-	table.insert(eggs_nearby, minetest.get_decoration_id("animals:"..egg_names[i]))
+	table.insert(eggs_nearby, minetest.get_decoration_id("animals:"..egg_names[i])) -- add the current egg found
 	end
 minetest.set_gen_notify({decoration = true}, eggs_nearby)
 minetest.register_on_generated(
-	function(minp, maxp, blockseed) -- start nodetimers
+	function(minp, maxp, blockseed) -- start node timers
 		local gennotify = minetest.get_mapgen_object("gennotify")
 		local poslist = {}
-		for i in ipairs(egg_names) do
-			for j, pos in ipairs(gennotify["decoration#"..eggs_nearby[i]] or {}) do
+		for i in ipairs(egg_names) do -- iterate across the list of strings
+			for j, pos in ipairs(gennotify["decoration#"..eggs_nearby[i]] or {}) do -- iterate across the 
 				local eggs_pos = {x = pos.x, y = pos.y + 1, z = pos.z}
-				table.insert(poslist, eggs_pos)
-				minetest.chat_send_all("woot")
+				table.insert(poslist, eggs_pos) -- append this position to the list
 				end
 			end
 		if #poslist ~= 0 then
 			for i = 1, #poslist do
-				local pos = poslist[i]
-				minetest.get_node_timer(pos):start(1)
+				local pos = poslist[i] -- grab this position from the list
+				minetest.get_node_timer(pos):start(1) -- start the node timer for this egg
 				end
 			end
 		end
