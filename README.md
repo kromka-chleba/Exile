@@ -5,11 +5,11 @@ for `Minetest 5.4`
 CAUTION: _Some people may find parts of this game difficult or disturbing._
 
 ## Installation
-Installation from the Minetest `ContentDB` is preferred; just add it from the in-game menu.
+Installation from the Minetest `ContentDB` is preferred; just add _Exile_ from the in-game menu.
 
-If extracting manually, Exile should be in the `games` folder like so:
+If extracting manually, _Exile_ should be in the `games` folder like so:
 
-    Minetest > games > exile > mods/menu/.../etc.
+	Minetest > games > exile > mods/menu/.../etc.
 
 Since `0.2.3`, Exile requires `naturalslopeslib` (`nsl`). If you’re installing the source from `git`, you’ll need to install `nsl` as well. Extract it into the `Exile/mods/` folder or use `git pull --recurse submodules` if you have cloned the repository.
 
@@ -18,9 +18,9 @@ Challenging, at times brutal, wilderness survival with simple technology.
 Use your wits to find food, water, and shelter before succumbing to the elements, while exploring the mysterious world, and developing your capacities to endure your exile.
 
 ### Features
-*Player health effects*: Hypothermia, exhaustion, disease, ...  
-*Dynamic nature*: Seasonal weather, erosion, water flows through soil, ...  
-*Building matters*: Make shelters from the rain, kilns, smelters, ...  
+*Player health effects* — Hypothermia, exhaustion, disease, …  
+*Dynamic natural world* — Seasonal weather, erosion, water flows through soil, …  
+*Plausible building materials* — Make shelters from the rain, kilns, smelters, …  
 
 ## World settings
 Valleys is the standard `mapgen` for _Exile_. `Carpathian` is also supported, for a somewhat more difficult and slower-paced game.
@@ -73,16 +73,16 @@ The variable `time_speed` defaults to `72`, and at this rate a player who logs o
 
 Changing speed to `60` will make days last 24 minutes and a new season every real-world day, but he will see the seasons in reverse. At `time_speed` of `96`, days last only 15 minutes, but the player might see spring (year 1) on day 1, summer (year 2) on day 2, etc.
 
-Set `exile_hud_update` to 1.0 second for multiplayer servers on the Internet; a LAN server can probably handle 0.2 seconds.
+Set `exile_hud_update` to `1.0` second for multiplayer servers on the Internet; a LAN server can probably handle `0.2` seconds.
 
 ## Mods for multiplayer
 - [Wield3d](https://github.com/stujones11/wield3d) is recommended.
 - `Alternode` was used to add the “infotext” popups in the spawn shelter on the [Land of Catastrophe](https://github.com/AntumMT/mod-alternode) server.
 
 ## Development
-Exile is open-source software — that means the game is as good as you choose to make it. It also means development can be erratic and haphazard at times, so be patient!
+_Exile_ is open-source software — that means the game is as good as you choose to make it. It also means development can be erratic and haphazard at times, so be patient!
 
-Exile is currently in “Alpha,” therefore expect there can be bugs, missing features, performance issues, and perhaps compatibility-breaking updates.
+_Exile_ is currently in “Alpha,” therefore expect there can be bugs, missing features, performance issues, and perhaps compatibility-breaking updates.
 Despite this, _Exile_ does have enough features to be a playable game and should be stable and mostly bug-free.
 
 See the [GitHub repository](https://github.com/jeremyshannon/Exile/) for known bugs, and to report new ones.
@@ -91,4 +91,4 @@ See the [GitHub repository](https://github.com/jeremyshannon/Exile/) for known b
 Gratitude is due to all those whose mods have been adapted for use in _Exile_ (see `./mod/` folders for details).
 
 Thanks also to all who have given feedback, fixes, etc.  
-A full, up-to-date list of contributors can be found on the GitHub repository, under the Insights tab.
+A full, up-to-date list of contributors can be found on the GitHub repository, under the `Insights` tab.
