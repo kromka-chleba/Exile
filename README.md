@@ -24,7 +24,7 @@ Use your wits to find food, water, and shelter before succumbing to the elements
 *Dynamic natural world* — Seasonal weather, erosion, water flows through soil, …  
 *Plausible building materials* — Make shelters from the rain, kilns, smelters, …  
 
-## World settings
+## World Settings
 Valleys is the standard `mapgen` for _Exile_. `Carpathian` is also supported, for a somewhat more difficult and slower-paced game.
 
 `Flat` mostly works, but `Merki`, and therefore the `Glow Paint` and `Herbal Medicine` made from it, will be unavailable. Enable it in `game.conf` if you’d like to try it anyway.
@@ -49,7 +49,7 @@ Running out of water, or becoming exhausted from the heat, is a real risk.
 After that will come the sub-zero conditions of winter.
 Starvation and freezing are hard to avoid without preparation.
 
-### Some tips and tricks:
+### Some Tips and Tricks
 - **Beds**           are important: If you’re exhausted you get hypothermia/heat stroke.
                      Get under shelter in a nice temperature.
 - **Time**:          Do your crafting, organizing, planning while you rest.
@@ -92,14 +92,14 @@ Starvation and freezing are hard to avoid without preparation.
 - **Iron smelting**: This is hard. It needs plenty of charcoal, 
                      and a space below the iron mixture for slag to drain out.
 
-## Settings for multiplayer
+## Settings for Multiplayer
 The variable `time_speed` defaults to `72`, and at this rate a player who logs on at 8:00 AM every day will get a change in season every 2.5 days.
 
 Changing speed to `60` will make days last 24 minutes and a new season every real-world day, but he will see the seasons in reverse. At `time_speed` of `96`, days last only 15 minutes, but the player might see spring (year 1) on day 1, summer (year 2) on day 2, etc.
 
 Set `exile_hud_update` to `1.0` second for multiplayer servers on the Internet; a LAN server can probably handle `0.2` seconds.
 
-## Mods for multiplayer
+## Mods for Multiplayer
 - [Wield3d](https://github.com/stujones11/wield3d) is recommended.
 - `Alternode` was used to add the “infotext” popups in the spawn shelter on the [Land of Catastrophe](https://github.com/AntumMT/mod-alternode) server.
 
