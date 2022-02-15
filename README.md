@@ -5,13 +5,15 @@ for `Minetest 5.4`
 CAUTION: _Some people may find parts of this game difficult or disturbing._
 
 ## Installation
-Installation from the Minetest `ContentDB` is preferred; just add _Exile_ from the in-game menu.
+Installation from the Minetest `ContentDB` is preferred; just add _Exile_ from the in-game menu &gg; `Content` &gg; `Browse online content` &gg; search in the textbox &gg; click on the `Install` plus sign.
 
-If extracting manually, _Exile_ should be in the `games` folder like so:
+If extracting manually, _Exile_ should be placed in the `games` folder of your user’s Minetest settings, like so:
 
 	Minetest > games > exile > mods/menu/.../etc.
 
-Since `0.2.3`, Exile requires `naturalslopeslib` (`nsl`). If you’re installing the source from `git`, you’ll need to install `nsl` as well. Extract it into the `Exile/mods/` folder or use `git pull --recurse submodules` if you have cloned the repository.
+Where `Minetest` is `~/.minetest` in most Linux, and macOS configurations, `~/.var/app/net.minetest.Minetest/.minetest` in Linux Flatpak, and `%USERHOME%\Roaming\Minetest` in most Windows versions.
+
+Since `0.2.3`, _Exile_ requires `naturalslopeslib` (`nsl`). If you’re installing the source from `git`, you’ll need to install `nsl` as well. Extract it into the `./Exile/mods/` folder or use `git pull --recurse submodules` if you have cloned the repository.
 
 ## Gameplay
 Challenging, at times brutal, wilderness survival with simple technology.
@@ -30,7 +32,7 @@ Valleys is the standard `mapgen` for _Exile_. `Carpathian` is also supported, fo
 ## Gameplay Guide
 Check out `doc > walkthrough` for a more detailed guide.
 
-Many different strategies might work, and part of the fun is figuring out what does, and catastrophically does not, work.
+Many different strategies might work, and part of the fun is figuring out what does, and catastrophically does not, work. &smile; &frown;
 
 Here are some early steps you might pass though:
 1. **Make basic tools**. Find a suitable camp site soon before you get tired.
@@ -40,8 +42,9 @@ Here are some early steps you might pass though:
 5. **Farm food**, drugs, and fibre to build up supplies.
 6. **Explore and gather** resources for more advanced tools.
 
-You start in spring. Soon the hot dry weather of summer will arrive.
-Running out of water, or getting exhausted by the heat is a real risk.
+You start in spring. Maybe some pangs of winter linger, so beware the night.
+Enjoy the rains while you can. Soon the hot, dry weather of summer will arrive.
+Running out of water, or becoming exhausted from the heat, is a real risk.
 After that will come the sub-zero conditions of winter.
 Starvation and freezing are hard to avoid without preparation.
 
@@ -82,7 +85,7 @@ Set `exile_hud_update` to `1.0` second for multiplayer servers on the Internet; 
 ## Development
 _Exile_ is open-source software — that means the game is as good as you choose to make it. It also means development can be erratic and haphazard at times, so be patient!
 
-_Exile_ is currently in “Alpha,” therefore expect there can be bugs, missing features, performance issues, and perhaps compatibility-breaking updates.
+_Exile_ is currently in “Alpha,” therefore you can expect that there may be bugs, missing features, performance issues, and perhaps compatibility-breaking updates.
 Despite this, _Exile_ does have enough features to be a playable game and should be stable and mostly bug-free.
 
 See the [GitHub repository](https://github.com/jeremyshannon/Exile/) for known bugs, and to report new ones.
