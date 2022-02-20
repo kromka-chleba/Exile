@@ -624,13 +624,19 @@ end)
 
 -- Register helper nodes
 if minetest.get_modpath("exile_env_sounds") then
-	--specifics for Exile game
 	wielded_light.register_lightable_node("air", nil, "")
+	--specifics for Exile game
+
+	--water
 	wielded_light.register_lightable_node("nodes_nature:freshwater_source", {groups={liquid=1}}, "freshwater_")
 	wielded_light.register_lightable_node("nodes_nature:freshwater_flowing", {groups={liquid=1,floodable=0}}, "freshwater_flowing_")
 	wielded_light.register_lightable_node("nodes_nature:salt_water_source", {groups={liquid=1}}, "salt_water_")
 	wielded_light.register_lightable_node("nodes_nature:salt_water_flowing", {groups={liquid=1,floodable=0}}, "salt_water_flowing_")
 
+	-- Trees 
+	wielded_light.register_lightable_node("nodes_nature:tree_mark", nil, "trees_")
+
+	-- Ladders / Rope
 	wielded_light.register_lightable_node("ropes:ropeladder", nil, "ladder_")
 	wielded_light.register_lightable_node("ropes:rope", nil, "rope_")
 	wielded_light.register_lightable_node("tech:wooden_ladder", nil, "tech_")
