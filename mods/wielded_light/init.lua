@@ -641,6 +641,23 @@ if minetest.get_modpath("exile_env_sounds") then
 	wielded_light.register_lightable_node("ropes:rope", nil, "rope_")
 	wielded_light.register_lightable_node("tech:wooden_ladder", nil, "tech_")
 	wielded_light.register_lightable_node("artifacts:antiquorium_ladder", nil, "artifacts_")
+
+	-- Set light levels for wielded items
+	-- Original illumination mod set 4 light level ranges
+
+	-- faint, 4, 3-7
+	wielded_light.register_item_light('artifacts:sculpture_mg_bloom', 4)	--5
+	wielded_light.register_item_light('artifacts:sculpture_mg_dancers', 4)	--5
+	wielded_light.register_item_light('artifacts:sculpture_mg_bonsai', 4)	--5
+	wielded_light.register_item_light('artifacts:moonglass', 4)		--5
+	wielded_light.register_item_light('artifacts:moon_stone', 4)		--7
+	wielded_light.register_item_light('artifacts:star_stone', 4)		--3
+	-- dim, 8, 8-10
+	wielded_light.register_item_light('tech:torch', 8)			--8
+	-- mid, 12, 11-12
+	
+	-- full, 14, 13-15
+	wielded_light.register_item_light('artifacts:sun_stone', 14)		--13
 else
 	-- original code block for other games
 	local water_name = "default:water_source"
