@@ -623,14 +623,29 @@ wielded_light.register_player_lightstep(function (player)
 end)
 
 -- Register helper nodes
-local water_name = "default:water_source"
-if minetest.get_modpath("hades_core") then
-	water_name = "hades_core:water_source"
-end
+if minetest.get_modpath("exile_env_sounds") then
+	--specifics for Exile game
+	wielded_light.register_lightable_node("air", nil, "")
+	wielded_light.register_lightable_node("nodes_nature:freshwater_source", {groups={liquid=1}}, "freshwater_")
+	wielded_light.register_lightable_node("nodes_nature:freshwater_flowing", {groups={liquid=1,floodable=0}}, "freshwater_flowing_")
+	wielded_light.register_lightable_node("nodes_nature:salt_water_source", {groups={liquid=1}}, "salt_water_")
+	wielded_light.register_lightable_node("nodes_nature:salt_water_flowing", {groups={liquid=1,floodable=0}}, "salt_water_flowing_")
 
-wielded_light.register_lightable_node("air", nil, "")
-wielded_light.register_lightable_node(water_name, nil, "water_")
-wielded_light.register_lightable_node("default:river_water_source", nil, "river_water_")
+	wielded_light.register_lightable_node("ropes:ropeladder", nil, "ladder_")
+	wielded_light.register_lightable_node("ropes:rope", nil, "rope_")
+	wielded_light.register_lightable_node("tech:wooden_ladder", nil, "tech_")
+	wielded_light.register_lightable_node("artifacts:antiquorium_ladder", nil, "artifacts_")
+else
+	-- original code block for other games
+	local water_name = "default:water_source"
+	if minetest.get_modpath("hades_core") then
+		water_name = "hades_core:water_source"
+	end
+
+	wielded_light.register_lightable_node("air", nil, "")
+	wielded_light.register_lightable_node(water_name, nil, "water_")
+	wielded_light.register_lightable_node("default:river_water_source", nil, "river_water_")
+end
 
 ---TEST
 --wielded_light.register_item_light('default:dirt', 14)
