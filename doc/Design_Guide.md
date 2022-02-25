@@ -119,15 +119,15 @@ A place were every nation sends the condemned, the unwanted, and the politically
 
 You task is to cheat fate and live.
 
-The reason this land is cursed is the stuff of many legends and myths. It is believed to have been the location of the world’s first and greatest city, yet no trace of it remains. Legend has it that the inhabitants in their arrogance and pride brought about their own destruction. A great cataclysm that rendered the land the hostile place it now is.
+The reason this land is cursed is the stuff of numerous legends and myths. It is believed to have been the location of the world’s first and greatest city, yet no trace of it remains. Legend has it that the inhabitants in their arrogance and pride brought about their own destruction. A great cataclysm that rendered the land the hostile place it now is.
 
-The Ancients were scattered to the four corners of the world — exiled from their city.
+The Ancients were scattered to the four corners of the world — exiled from their glorious city.
 Many nations claim descent from these people, though of course it is probably all just stories.
 
 The technology of the Ancients is said to have been far beyond anything now existing.
 Some say it was magic. Some say skill. Some say there is no difference. 
 
-The world of today is at an early Iron Age level — that is the only technology with which you have any familiarity. But this also means that your culture is still close enough to life in the natural world, that you might stand a chance rebuilding it from nothing, in the ruined land. That is, if you can find others like yourself….
+The world of today remains at an early Iron Age level — that is the only technology with which you have any familiarity. But this also means that your culture is still close enough to life in the natural world, that you might stand a chance rebuilding it from nothing, in the ruined land. That is, if you can find others like yourself….
 
 Your second task, if you choose, is to figure out if the stories are true.
 

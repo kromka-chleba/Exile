@@ -1,42 +1,42 @@
 # Changelog:
 
 ## [2022-01-21][2022-01-21__0.3.5] — 0.3.5 and 0.2.8
-  - Blankets to keep warm.
+  - Woven blankets to keep exiles warmer early in the game.
   - Foods can now burn if left cooking too long.
   - Mobs should no longer `stun`-lock when hit repeatedly.
   - Nerf: Increased fall damage.
   - You can use a `Stick` to bar a door, to prevent entry.
   - New animations, thanks to ***MisterE***.
   - Track how many incarnations you’ve had in the `Character` tab.
-  - `Glow Worm`s in caves.
+  - `Glow Worm`s in caves.02 
   - Nerf: `Stick`s don’t connect with right-angle corners anymore.
-  - Nerf: `Mudbrick` turns to clay when broken, in the same manner as bricks lose mortar.
+  - Nerf: `Mudbrick` becomes clay when broken, in the same manner as bricks lose their mortar.
   - Mapgen: `carpathian` is now supported, for a harder game world.
   - No more beach spiders.
-  - New food system infrastructure.
-  - Experimental biomes, enable under settings to test.
+  - New food-system infrastructure.
+  - Experimental biomes — enable under global settings to test them.
   - Miscellaneous bug-fixes and quality of life improvements.
-   
+
 ## [2021-11-01][2021-11-01__0.3.4] — 0.3.4 and 0.2.7
   - New player API: Head tracking, multiplayer skins, male and female characters.
   - Added an introduction screen for new players, and a chat display of the day/season/year with in-universe style.
   - Place snow/ice/water on top of a clay `Water Pot`, and melting will fill it.
-  - Buff: Food value of meat.
+  - Buff: Increased food-value of meat.
   - Improved `Torch` stacking by rounding-off burn times.
   - New chat commands: `/set_tempscale`, `/date`.
-  - Better indoors check on `Minetest 5.4.x`.
+  - Better indoors-check on `Minetest 5.4.x`.
 
 ## [2021-09-25][2021-09-25__0.3.3] — 0.3.3 and 0.2.6
   - Plants now grow even when players are away from the area.
   - Fireproof: `Iron Doors` and `Iron Trapdoors`.
   - Ability to mix `Wet Loam` and agricultural soil.
   - Renamed `Stone Chopper` to `Stone Knife` for clarity.
-  - More bug fixes and improvements.
+  - More bug-fixes and improvements.
 
 ## [2021-09-12][2021-09-12__0.3.2] — 0.3.2 and 0.2.5
   - Glassworking! Make windows, and make glass bottles that can hold water, and which stack.
   - Agricultural soils erode down to a soil slab instead of vanishing.
-  - Fixed a baking crash.
+  - Fixed a crash related to baking foods.
 
 ## [2021-07-18][2021-07-18__0.3.1] — 0.3.1 and 0.2.4
   - `Oil Lamp`s can be switched off with right-click, and lit with `Fire Stick`s.
@@ -44,7 +44,7 @@
   - Various bug-fixes.
 
 ## [2021-06-12][2021-06-12__0.3.0] — 0.3.0 and 0.2.3
-  - Initial release for `Minetest 5.4.0`, use Exile 0.2 series for 5.3.0 version.
+  - Initial release for `Minetest 5.4.0`, use Exile 0.2 series for the 5.3.0 version.
   - New dependency: `naturalslopeslib` provides better hillsides.
   - Ability to throw `Torch`es for light.
   - Settings for `breaktaker`.
@@ -61,9 +61,9 @@
   - Character tab.
   - Health effects.
   - Drugs: `Tiku`, `Tang`, `Metastim`.
-  - Added `megamorph` surface air-shafts.
+  - Surface air-shafts via `megamorph`.
   - Fixed clothing infinite tolerance bug.
-  - Added `Iron Fittings` for carpentry crafting.
+  - Added `Iron Fittings` for carpentry products.
   - Young vs. old `Tangkal` trees.
   - Added `Tiken` woody cane.
   - Cave sediments and mushrooms.
@@ -75,7 +75,7 @@
 
 ## [2020-09-25][2020-09-25__0.2.1] — 0.2.1
   - Fixed exile-letter crash.
-  - Fixed saltwater surface sediment crash.
+  - Fixed saltwater-surface sediment crash.
   - Fixed multiplayer health-tab crash.
   - Animals balanced and bug-fixed.
   - Adjusted ice freezing and thawing.
@@ -87,12 +87,11 @@
   - New mobs: `Darkasthaan`, `Impethu`, `Pegasun`, `Sneachan`.
   - Cookable animal carcasses.
   - Graffiti: glow paint.
-  - New building materials: `Rammed Earth`, bricks and mortar, roof tiles, wooden doors/floors/stair, mortared masonry.
+  - New building materials: `Rammed Earth`, bricks and mortar, roof tiles, wooden doors/floors/stairs, mortared masonry.
   - Fixed dungeon loot.
-  - Added more artifacts. (`Airboat`, art, transporter, `Wayfinder`, 
-  ….)
+  - Added more artifacts. (`Airboat`, art, transporter, `Wayfinder`, ….)
   - Added three artifact species of mushrooms for sustaining fibre, food/water, and sticks, absent sunlight.
-  - Split Geomoria mod's biomes into realms (highways, and city structures).
+  - Split Geomoria mod’s biomes into realms (highways, and city structures).
   - Added more `geomorphs`.
   - `Gneiss` and `Jade` for deep-underground biome.
   - Better-looking `Bones`.
@@ -128,6 +127,7 @@
  <!-- Sat Sep 25 14:15:22 2021 UTC-0700 -->
  <!-- 2021-09-25 21:15:22      UTC+0000 -->
  <!-- This was the initial release of v0.3.3 but is now deprecated in favor of v0.3.3g -->
+ <!-- (https://content.minetest.net/packages/Mantar/exile/releases/9461/download/) is v0.3.3g-->
 
 [2021-09-12__0.3.2]: (https://github.com/DokimiCU/Exile/commits/350ed936b3370fae204cd2c31e0491525dc7928d)
  <!-- Unix time 1631484548 -->
@@ -183,4 +183,4 @@
  <!-- 2020-03-11 00:10:03      UTC+0000 -->
  <!-- This was the first commit on GitHub. 
 	Presumably the code was developed for more than at least one day.
-	The date Dokimi began working on the code does not appear to have been publicized. -->
+	The date Dokimi began working on the code does not appear to have been publicised. -->
