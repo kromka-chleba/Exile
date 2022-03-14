@@ -20,6 +20,9 @@ Components must be 1 block radius around the pad. Above pad must be kept clear.
 Only need one of each
 
 ]]
+
+
+local S = minetest.get_translator("transporter")
 ------------------------------------
 local rand = math.random
 --minimum distance transporters muct be apart (nodes)
@@ -34,6 +37,20 @@ local recent_teleports = {}
 
 
 
+-- Set owner for protected items.
+function transporter_after_place_node( pos, placer, itemstack, pointed_thing )
+	local iDef=itemstack:get_definition()
+	local iName=itemstack:get_name()
+	if iDef.protected then
+	-- Check if protected node and set owner if it is
+		local pn = placer:get_player_name()
+		local meta = minetest.get_meta(pos)
+		meta:set_string("owner", pn)
+		-- XXX shouldn't be clobbering existing info text
+		meta:set_string("infotext", iDef.description .. "\n" .. S("Owned by @1", pn))
+		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
+	end
+end
 
 ------------------------------------------------------------
 --TRANSPORTER PAD
@@ -329,7 +346,40 @@ end
 
 
 
+local function transporter_power_rightclick(pos, node, player, itemstack, pointed_thing)
+	local iName = itemstack:get_name()
+	local nName = node.name
+	local power = "artifacts:transporter_power" 
+	local depleted = "artifacts:transporter_power_dep"
+	local swap_a
+	local swap_b
+	if iName == power and nName == depleted  then
+		swap_a = power
+		swap_b = depleted
+	elseif iName == depleted and nName == power then
+		swap_a = depleted
+		swap_b = power
+	else
+		-- Nothing to do unless holding a charged core
+		return itemstack
+	end
 
+	local pInv = player:get_inventory()
+	local new = ItemStack(swap_b)
+
+	if pInv:room_for_item("main", new) then
+	local pn = player:get_player_name()
+	local meta = minetest.get_meta(pos)
+
+	local description=itemstack:get_definition().description
+		pInv:add_item("main", new)
+		-- XXX shouldn't be clobbering existing info text
+		meta:set_string("infotext", description .. "\n" .. S("Owned by @1", pn))
+		minetest.swap_node(pos, {name=swap_a})
+		itemstack:take_item()
+		return itemstack
+	end
+end
 
 --
 local function transporter_rightclick(pos, node, player, itemstack, pointed_thing)
@@ -386,7 +436,6 @@ local function active_transporter_rightclick(pos, node, player, itemstack, point
 		local random = meta_tran:get_string("tmp_random")
 
 		do_teleport(pos, dest, random, player, range, regulator, power)
-
 	else
 		minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
 	end
@@ -726,6 +775,7 @@ minetest.register_node('artifacts:transporter_pad', {
 	description = 'Transporter Pad',
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
+	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	node_box = {
@@ -743,6 +793,7 @@ minetest.register_node('artifacts:transporter_pad', {
 	},
 	groups = { cracky = 2 },
 	on_rightclick = transporter_rightclick,
+	after_place_node = transporter_after_place_node,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 })
 
@@ -751,6 +802,7 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 	description = 'Transporter Pad (Charging)',
 	tiles = {'artifacts_antiquorium.png^artifacts_moon_glass.png'},
 	stack_max = minimal.stack_max_bulky,
+	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	light_source = 3,
@@ -816,6 +868,7 @@ minetest.register_node('artifacts:transporter_pad_active', {
 	description = 'Transporter Pad (active)',
 	tiles = {'artifacts_antiquorium.png^artifacts_sun_stone.png'},
 	stack_max = minimal.stack_max_bulky,
+	protected = true,
 	light_source = 6,
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -866,6 +919,7 @@ minetest.register_node('artifacts:transporter_power', {
 	},
 	light_source = 2,
 	stack_max = minimal.stack_max_bulky *2,
+	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	use_texture_alpha = "clip",
@@ -889,6 +943,8 @@ minetest.register_node('artifacts:transporter_power', {
 	},
 	groups = { oddly_breakable_by_hand = 3 },
 	sounds = nodes_nature.node_sound_glass_defaults(),
+	after_place_node = transporter_after_place_node,
+	on_rightclick = transporter_power_rightclick,
 })
 
 
@@ -932,12 +988,15 @@ minetest.register_node('artifacts:transporter_power_dep', {
 		--finished product, length
 		return charge_power(pos, "artifacts:transporter_power_dep", "artifacts:transporter_power", 5)
 	end,
+	after_place_node = transporter_after_place_node,
+	on_rightclick = transporter_power_rightclick,
 })
 
 minetest.register_node('artifacts:transporter_focalizer', {
 	description = 'Transporter Focalizer',
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
+	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	node_box = {
@@ -958,12 +1017,14 @@ minetest.register_node('artifacts:transporter_focalizer', {
 	},
 	groups = { cracky = 3 },
 	sounds = nodes_nature.node_sound_glass_defaults(),
+	after_place_node = transporter_after_place_node,
 })
 
 minetest.register_node('artifacts:transporter_stabilizer', {
 	description = 'Transporter Stabilizer',
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
+	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	node_box = {
@@ -980,12 +1041,14 @@ minetest.register_node('artifacts:transporter_stabilizer', {
 	},
 	groups = { cracky = 3 },
 	sounds = nodes_nature.node_sound_glass_defaults(),
+	after_place_node = transporter_after_place_node,
 })
 
 minetest.register_node('artifacts:transporter_regulator', {
 	description = 'Transporter Regulator',
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
+	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	node_box = {
@@ -1006,6 +1069,7 @@ minetest.register_node('artifacts:transporter_regulator', {
 	},
 	groups = { cracky = 3 },
 	sounds = nodes_nature.node_sound_glass_defaults(),
+	after_place_node = transporter_after_place_node,
 })
 
 
@@ -1020,3 +1084,4 @@ minetest.register_tool('artifacts:transporter_key', {
 
 
 ---------------------------------------------------------
+
