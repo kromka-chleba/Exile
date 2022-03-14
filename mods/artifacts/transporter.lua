@@ -957,6 +957,7 @@ minetest.register_node('artifacts:transporter_power_dep', {
 		'artifacts_moon_glass.png',
 	},
 	stack_max = minimal.stack_max_bulky *2,
+	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	use_texture_alpha = "clip",
