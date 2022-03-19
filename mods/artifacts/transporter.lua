@@ -775,7 +775,6 @@ minetest.register_node('artifacts:transporter_pad', {
 	description = 'Transporter Pad',
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
-	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	node_box = {
@@ -802,7 +801,6 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 	description = 'Transporter Pad (Charging)',
 	tiles = {'artifacts_antiquorium.png^artifacts_moon_glass.png'},
 	stack_max = minimal.stack_max_bulky,
-	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	light_source = 3,
@@ -868,7 +866,6 @@ minetest.register_node('artifacts:transporter_pad_active', {
 	description = 'Transporter Pad (active)',
 	tiles = {'artifacts_antiquorium.png^artifacts_sun_stone.png'},
 	stack_max = minimal.stack_max_bulky,
-	protected = true,
 	light_source = 6,
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -919,7 +916,6 @@ minetest.register_node('artifacts:transporter_power', {
 	},
 	light_source = 2,
 	stack_max = minimal.stack_max_bulky *2,
-	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	use_texture_alpha = "clip",
@@ -957,7 +953,6 @@ minetest.register_node('artifacts:transporter_power_dep', {
 		'artifacts_moon_glass.png',
 	},
 	stack_max = minimal.stack_max_bulky *2,
-	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	use_texture_alpha = "clip",
@@ -997,7 +992,6 @@ minetest.register_node('artifacts:transporter_focalizer', {
 	description = 'Transporter Focalizer',
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
-	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	node_box = {
@@ -1025,7 +1019,6 @@ minetest.register_node('artifacts:transporter_stabilizer', {
 	description = 'Transporter Stabilizer',
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
-	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	node_box = {
@@ -1049,7 +1042,6 @@ minetest.register_node('artifacts:transporter_regulator', {
 	description = 'Transporter Regulator',
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
-	protected = true,
 	drawtype = "nodebox",
 	paramtype = "light",
 	node_box = {
