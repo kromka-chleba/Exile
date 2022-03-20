@@ -78,7 +78,15 @@ local function teleport_effects(target_pos, pos, player, player_name, regulator,
 
 
 	--swap out power core
-	minetest.set_node(power, {name = "artifacts:transporter_power_dep"})
+	
+	-- XXX all this to add infotext here.  
+	local meta = minetest.get_meta(power)
+	local pn = meta:get_string("owner")
+	local new = ItemStack("artifacts:transporter_power_dep")
+	local description=new:get_definition().description
+	-- XXX shouldn't be clobbering existing info text
+	meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
+	minetest.swap_node(power, {name = "artifacts:transporter_power_dep"})
 	--go to target
 	player:set_pos(target_pos)
 
@@ -371,7 +379,7 @@ local function transporter_power_rightclick(pos, node, player, itemstack, pointe
 	local description=itemstack:get_definition().description
 		pInv:add_item("main", new)
 		-- XXX shouldn't be clobbering existing info text
-		meta:set_string("infotext", description .. "\n" .. S("Owned by @1", pn))
+		meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
 		minetest.swap_node(pos, {name=swap_a})
 		itemstack:take_item()
 		return itemstack
@@ -751,7 +759,12 @@ local function charge_power(pos, selfname, name, length)
 
 	if charging <= 0 then
 		--finished
-		minetest.set_node(pos, {name = name})
+		local pn = meta:get_string("owner")
+		local new = ItemStack(name)
+		local description=new:get_definition().description
+		-- XXX shouldn't be clobbering existing info text
+		meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
+		minetest.swap_node(pos, {name=name})
 		return false
 	elseif temp < charge_temp then
 		return true
