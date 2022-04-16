@@ -8,12 +8,16 @@
 -- lines containing : use text left of : as the key
 -- to make it easy to replace lines by key
 --
+
+minimal=minimal
+local S=minimal.S()
+
 function minimal.parse_infotext(meta)
 	local lines = {}
 	local keys = {}
 	local i = 1;
 	local infotext_string = meta:get_string("infotext")
-	if not infotext_string then
+	if infotext_string == '' then
 		return nil,nil
 	end
 	for str in infotext_string:gmatch("([^%s]+)") do
@@ -43,7 +47,7 @@ function minimal.set_infotext(pos,lines)
 	if owner then
 		desc = minetest.registered_nodes[minetest.get_node(pos).name].description
 		new_lines[1] = desc
-		new_lines[2] = "Owner: " .. owner
+		new_lines[2] = S("Owner: ") .. owner
 	else 
 		new_lines[1] = ""
 		new_lines[2] = ""
