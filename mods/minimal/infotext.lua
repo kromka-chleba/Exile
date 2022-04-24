@@ -10,7 +10,15 @@
 --
 
 minimal=minimal
-local S=minimal.S()
+local S=minimal.S
+
+local fixed_order = {
+	"1", 1,
+	"Owner", 2,
+	"TP Name", 3,
+	"TP Destination", 4,
+	"Dye", 5,
+}
 
 function minimal.parse_infotext(meta)
 	local lines = {}
@@ -25,12 +33,15 @@ function minimal.parse_infotext(meta)
 		local key = str:find(':',1,true)
 		if not key then
 			key = i -- default to using the index value
-		else 
+		else
+			-- Last version of a key found is used
 			key = str:sub(1, key - 1)
 		end
 		keys[key] = i
 		i = i + 1
 	end
+print ("old_lines: "..dump(lines))
+print ("old_keys: "..dump(keys))
 	return lines,keys
 end
 
@@ -54,8 +65,8 @@ function minimal.set_infotext(pos,lines)
 	end
 
 	local c = 3 -- line count 
-
-	-- passwd a string, convert it to the expected table
+print ("new_lines: "..dump(new_lines))
+	-- passed a string, convert it to the expected table
 	if lines and type(lines) == 'string' then
 		local line=lines
 		lines={}
@@ -67,27 +78,32 @@ function minimal.set_infotext(pos,lines)
 		end
 		lines[key] = line
 	end
+print ("passed_lines"..dump(lines))
 	-- find old entries we're replacing
-	for key,index in pairs(old_keys) do
-		-- ignore first 2 lines
-		if index > 2 then
-			if lines and lines[key] then
-				-- key found in passed values so replace it using old index value
-				new_lines[index] = lines[index]
-				lines[key] = nil -- clear out passed lines processed
-			else
-				new_lines[index] = old_lines[index]
+	if old_keys then 
+		for key,index in pairs(old_keys) do
+			-- First two lines are hardcoded as description/owner
+			-- Numbered keys are processed below
+print (index .." - ".. key)
+			if index > 2 and tonumber(key) == nil then
+				local l = fixed_order[key] or index  -- override output lines with fixed_order
+				if lines and lines[key] then
+print ("lines["..key.."] = "..lines[key])
+					new_lines[l] = lines[key]
+					lines[key] = nil -- clear out passed lines processed
+				else
+					new_lines[l] = old_lines[index]
+				end
+				c = c + 1
 			end
-			c = c + 1
-			old_lines[index] = nil  -- clear out old lines processed
 		end
-	end
-	
-	-- append remaining entries from old_lines
-	for _, str in ipairs(old_lines) do
-		if str then
-			mew_lines[c] = str
-			c = c + 1
+print ("new_lines"..dump(new_lines))	
+		-- append numbered keys from old_keys
+		for key, index in ipairs(old_keys) do
+			if index ~= 1 then -- index 1 hard coded to node description above
+				mew_lines[c] = old_lines[index];
+				c = c + 1
+			end
 		end
 	end
 
