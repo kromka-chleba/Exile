@@ -460,14 +460,12 @@ function doors.trapdoor_toggle(pos, node, clicker)
 		return false
 	end
 ]]--
-
 	local def = minetest.registered_nodes[node.name]
 	local cname = clicker:get_player_name()
 	if def.protected and minetest.is_protected(pos, cname) then
 	   minetest.chat_send_player(cname,"You can't open this door, ",cname)
 	   return false
 	end
-
 
 	if string.sub(node.name, -5) == "_open" then
 		minetest.sound_play(def.sound_close,
@@ -503,6 +501,13 @@ function doors.register_trapdoor(name, def)
 	local name_opened = name.."_open"
 
 	def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		local def = minetest.registered_nodes[node.name]
+		local cname = clicker:get_player_name()
+		if def.protected and minetest.is_protected(pos, cname) then
+		   minetest.chat_send_player(cname,"You can't open this door, ",cname)
+		   return false
+		end
+
 		--0,2,6, 8 = X;  1,3,15,17 Z
 		if node.param2 % 2 == 1 then -- Z
 		   Seek(pos, node, clicker, { x = 0, y = 0, z =  1 },
