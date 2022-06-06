@@ -98,7 +98,7 @@ local energy = mobkit.recall(self,'energy')
 local age = mobkit.recall(self,'age')
 if not age then age=0 end
 if not energy then energy = 0 end
-print ("core_hp_water: "..hp.."ENG: "..energy.."Age: "..age)
+print ("core_hp_water: "..hp.."    ENG: "..energy.."    Age: "..age)
   if hp <= 0 then
     mobkit.clear_queue_high(self)
     animals.handle_drops(self)
