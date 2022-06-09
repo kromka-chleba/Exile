@@ -45,7 +45,6 @@ end
 ----------------------------------------------------
 -- drop on death what is defined in the entity table
 function animals.handle_drops(self)
-print ("DEAD")
    if not self.drops then
      return
    end
@@ -98,7 +97,6 @@ local energy = mobkit.recall(self,'energy')
 local age = mobkit.recall(self,'age')
 if not age then age=0 end
 if not energy then energy = 0 end
-print ("core_hp_water: "..hp.."    ENG: "..energy.."    Age: "..age)
   if hp <= 0 then
     mobkit.clear_queue_high(self)
     animals.handle_drops(self)
@@ -355,15 +353,13 @@ end
 
 
 local function aqua_path_safe(start_pos,p)
-	local path=minetest.raycast(start_pos,p,true,true)
+	local path=minetest.raycast(start_pos,p,false,true)
 	for pointed_thing in path do
 		local node=mobkit.nodeatpos(pointed_thing.intersection_point)
 		if node and node.drawtype ~= 'liquid' then
-print ('BAD PATH')
 			return false
 		end
 	end
-print ('Good PATH')
 	return true
 end
 
@@ -435,7 +431,6 @@ end
 -- turn around  from opos and swim away until out of sight
 function animals.hq_swimfrompos(self,prty,opos,speed)
   local timer = time() + 2
-print('run from pos:'..dump( opos))
   local func = function(self)
 
     if time() > timer then
@@ -446,16 +441,13 @@ print('run from pos:'..dump( opos))
     local distance = vector.distance(pos,opos)
     -- rotate 30 degrees to right from current yaw
     local yaw = self.object:get_yaw() - pi/6
-print("yaw: "..yaw)
     if distance > 0.5 then
 	-- or 180 from pos we're running from if no longer close to it
     	yaw = get_yaw_to_object(pos, opos) - pi
-print("new yaw:"..yaw)
     end
 
 
     if (distance/1.5) < self.view_range then
-print("distance: "..distance.." -- POS: "..dump(pos).."OPOS: "..dump(opos))
       local swimto, height = aqua_radar_dumb(pos,yaw,1)
       if height and height > pos.y then
         local vel = self.object:get_velocity()
