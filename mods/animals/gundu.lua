@@ -24,8 +24,19 @@ local lifespan = energy_max * 6
 
 -----------------------------------
 local function brain(self)
+	local pos = mobkit.get_stand_pos(self)
+	local yaw = self.object:get_yaw()
+	local fpos = mobkit.pos_translate2d(pos,yaw,1)
+	local node = mobkit.nodeatpos(fpos)
+
+	if node and node.drawtype ~= 'liquid' then
+print("BRAIN: "..yaw)
+		mobkit.clear_queue_high(self)
+		mobkit.hq_aqua_turn(self,68,yaw+2,2)
+	end
+
+
 	if mobkit.timer(self,1) then
-		local pos = mobkit.get_stand_pos(self)
 		local age, energy = animals.core_life(self, lifespan, pos)
 		--die from exhaustion or age
 		if not age then
@@ -115,7 +126,7 @@ print('Sink at night')
 				vel.y = vel.y+0.2
 				self.object:set_velocity(vel)
 print('Rise During Day')
-				mobkit.hq_aqua_roam(self,10, random(1, self.max_speed+.5))
+				mobkit.hq_aqua_roam(self,10, random(1, self.max_speed))
 
 			else
 				--no special movement
