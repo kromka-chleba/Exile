@@ -57,7 +57,7 @@ print("priority: "..prty)
 			if not self.isinliquid then
 print("Not in water")
 				mobkit.clear_queue_high(self)
-				animals.hq_swimfrompos(self,66,pos,self.max_speed/2)
+				animals.hq_swimfrompos(self,66,pos,1)
 			end
 		end
 
