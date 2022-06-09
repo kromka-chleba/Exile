@@ -375,7 +375,8 @@ local function aqua_radar_dumb(pos,yaw,range,reverse)
        local nodeu = mobkit.nodeatpos(mobkit.pos_shift(p,{y=1}))
        local noded = mobkit.nodeatpos(mobkit.pos_shift(p,{y=-1}))
        if ((nodeu and nodeu.drawtype == 'liquid') or (noded and noded.drawtype == 'liquid')) 
-	       and aqua_path_safe(start_pos,p) then
+--	       and aqua_path_safe(start_pos,p) then
+then
          return true
        else
          return false
@@ -384,7 +385,8 @@ local function aqua_radar_dumb(pos,yaw,range,reverse)
        local h,_ = mobkit.get_terrain_height(p)
        if h then
          local node2 = mobkit.nodeatpos({x=p.x,y=h+1.99,z=p.z})
-         if node2 and node2.drawtype == 'liquid' and aqua_path_safe(start_pos,{x=p.x,y=h+1.99,z=p.z}) then 
+         if node2 and node2.drawtype == 'liquid' then
+		 --and aqua_path_safe(start_pos,{x=p.x,y=h+1.99,z=p.z}) then 
 		 return true, h 
 	 end
        else
