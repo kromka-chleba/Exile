@@ -374,9 +374,8 @@ local function aqua_radar_dumb(pos,yaw,range,reverse)
      if node.drawtype == 'liquid' then
        local nodeu = mobkit.nodeatpos(mobkit.pos_shift(p,{y=1}))
        local noded = mobkit.nodeatpos(mobkit.pos_shift(p,{y=-1}))
-       if ((nodeu and nodeu.drawtype == 'liquid') or (noded and noded.drawtype == 'liquid')) 
+       if ((nodeu and nodeu.drawtype == 'liquid') or (noded and noded.drawtype == 'liquid')) then
 --	       and aqua_path_safe(start_pos,p) then
-then
          return true
        else
          return false
