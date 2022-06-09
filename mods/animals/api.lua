@@ -444,8 +444,8 @@ print('run from pos:'..dump( opos))
 
     local pos = mobkit.get_stand_pos(self)
     local distance = vector.distance(pos,opos)
-    -- Assume 180 from current yaw
-    local yaw = self.object:get_yaw() - pi
+    -- rotate 30 degrees to right from current yaw
+    local yaw = self.object:get_yaw() - pi/6
 print("yaw: "..yaw)
     if distance > 0.5 then
 	-- or 180 from pos we're running from if no longer close to it
