@@ -117,8 +117,7 @@ animals.capture = function(self, clicker)
 			if what_type == "boolean" or what_type == "number" then
 				value = tostring(value)
 			end
-			if what_type == "table" and key == 'memory' then 
-				print (what_type.." : " .. key .. " : " .. dump(value)) 
+			if key == 'memory' then 
 				value = minetest.serialize(value)
 			end
 			stack_meta:set_string(key, value)

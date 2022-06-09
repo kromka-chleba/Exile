@@ -30,7 +30,6 @@ local function brain(self)
 	local node = mobkit.nodeatpos(fpos)
 
 	if node and node.drawtype ~= 'liquid' then
-print("BRAIN: "..yaw)
 		mobkit.clear_queue_high(self)
 		mobkit.hq_aqua_turn(self,68,yaw+2,2)
 	end
@@ -50,7 +49,6 @@ print("BRAIN: "..yaw)
 
 
 		local prty = mobkit.get_queue_priority(self)
-print("priority: "..prty)
 		-------------------
 		--High priority actions
 		local pred = nil
@@ -66,7 +64,6 @@ print("priority: "..prty)
 
 			--Return to water
 			if not self.isinliquid then
-print("Not in water")
 				mobkit.clear_queue_high(self)
 				animals.hq_swimfrompos(self,66,pos,1)
 			end
@@ -113,7 +110,6 @@ print("Not in water")
 			local tod = minetest.get_timeofday()
 
 			if tod <0.06 or tod >0.94 then
-print('Sink at night')
 				--sink at night to lay eggs
 				local vel = self.object:get_velocity()
 				vel.y = vel.y-0.2
@@ -125,12 +121,10 @@ print('Sink at night')
 				local vel = self.object:get_velocity()
 				vel.y = vel.y+0.2
 				self.object:set_velocity(vel)
-print('Rise During Day')
 				mobkit.hq_aqua_roam(self,10, random(1, self.max_speed))
 
 			else
 				--no special movement
-print('Nothing Special')
 				mobkit.hq_aqua_roam(self,5, random(0.5, self.max_speed/2))
 
 			end
