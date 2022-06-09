@@ -26,7 +26,6 @@ local lifespan = energy_max * 6
 local function brain(self)
 	if mobkit.timer(self,1) then
 		local pos = mobkit.get_stand_pos(self)
-
 		local age, energy = animals.core_life(self, lifespan, pos)
 		--die from exhaustion or age
 		if not age then
@@ -58,7 +57,7 @@ print("priority: "..prty)
 			if not self.isinliquid then
 print("Not in water")
 				mobkit.clear_queue_high(self)
-				animals.hq_swimfrompos(self,55,pos,self.max_speed/2)
+				animals.hq_swimfrompos(self,66,pos,self.max_speed/2)
 			end
 		end
 
