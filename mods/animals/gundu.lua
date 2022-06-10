@@ -27,7 +27,7 @@ local function brain(self)
 	-- Make sure the block in front is liquid.
 	local pos = mobkit.get_stand_pos(self)
 	local yaw = self.object:get_yaw()
-	local fpos = mobkit.pos_translate2d(pos,yaw,1)
+	local fpos = mobkit.pos_translate2d(pos,yaw,1) --front position
 	local node = mobkit.nodeatpos(fpos)
 	if node and node.drawtype ~= 'liquid' then
 		-- rise a little 
@@ -41,14 +41,16 @@ local function brain(self)
 
 
 	if mobkit.timer(self,1) then
-		local age, energy = animals.core_life(self, lifespan, pos)
-		--die from exhaustion or age
-		if not age then
+		-- die from damage - run before animals.core_life() 
+		--
+		if not animals.core_hp_water(self) then
 			return
 		end
+		-- Also recharges health from energy
+		local age, energy = animals.core_life(self, lifespan, pos)
 
-		--die from damage
-		if not animals.core_hp_water(self) then
+		--die from exhaustion or age
+		if not age then
 			return
 		end
 
