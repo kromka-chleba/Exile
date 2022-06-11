@@ -1,8 +1,9 @@
-# textdomain: techsleeping mat
+# textdomain: tech
 
 # backpacks.lua
-Woven Bag=Bolsa de Mimbre
-Fabric Bag=Bolsa de Tela
+Woven Bag=Mochila de Mimbre
+Fabric Bag=Mochila de Tela
+Wicker Bag=Mochila de Zarzo
 
 # beds.lua
 Sleeping Spot=Lugar para Dormir
@@ -12,6 +13,12 @@ Mattress=Colchon
 Bed=Cama
 
 # bricks_and_mortar.lua
+Limestone=Caliza
+Ironstone=Mineral de Hierro
+Granite=Granito
+Basalt=Basalto
+Gneiss=Gneis
+Jade=Jade
 Crushed Lime=Cal
 Quicklime=Cal Viva
 Slaked Lime=Cal Hidratada
@@ -19,7 +26,7 @@ Slaked Lime (ruined)=Cal Hidratada Arruinada
 Lime Mortar=Mortero de Cal
 Loose Bricks (unfired)=Ladrillos Sueltos sin Curar
 Loose Bricks=Ladrillos Sueltos
-Brick and Mortar=Ladrillos con Mortera
+Brick and Mortar=Ladrillos con Mortero
 Loose Roof Tile (unfired)=Tejas Sueltas sin Curar
 Loose Roof Tile=Tejas Sueltas
 Roof Tile=Tejado
@@ -42,6 +49,12 @@ Light Fabric Trousers=Pantalon de Tela Ligera
 Thick Fabric Trousers=Pantalon de Tela Gruesa
 Light Fabric Tunic=Tunica de Tela Ligera
 Thick Fabric Tunic=Tunica de Tela Gruesa
+
+# cooking-pot.lua
+Soup=Sopa
+Cooking Pot=Olla Ceramica
+Cooking Pot (unfired)=Olla Ceramica sin Curar
+@1 soup=Sopa de @1
 
 # doors.lua
 Wattle Door=Puerta de Zarzo
@@ -91,10 +104,9 @@ Green Glass Sand Mix=Mezcla para Vidrio Verde
 Green Glass Ingot=Lingote de Vidrio Verde
 Potash Block=Bloque de Potasa
 Potash=Potasa
+Clay Water Pot with Potash Solution=Vasija con Potasa Diluida
 Potash Solution Source=Fuente de Potasa Diluida
 Flowing Potash Solution=Corriente de Potasa Diluida
-Clay Water Pot With Potash Solution=Vasija con Potasa Diluida
-Clay Water Pot With Potash=Vasija con Potasa
 Clear Glass Sand Mix=Mezcla para Vidrio Transparente
 Clear Glass Ingot=Lingote de Vidrio Transparente
 Pane Casting Tray=Bandeja de Fundición 
@@ -106,6 +118,11 @@ Green Glass Window=Ventana de Vidrio Verde
 Clear Glass Window=Ventana de Vidrio Transparente
 Green Glass Bottle=Botella de Vidrio Verde
 Clear Glass Bottle=Botella de Vidrio Transparente
+Green Glass Bottle With Fresh Water=Botella de Vidrio Verde con Agua Fresca
+Clear Glass Bottle With Fresh Water=Botella de Vidrio Transparente con Agua Fresca
+Green Glass Bottle With Salt Water=Botella de Vidrio Verde cos Agua Salada
+Clear Glass Bottle With Salt Water=Botella de Vidrio Transparente cos Agua Salada
+
 
 # graffiti.lua
 Painting Kit (lime white)=Kit de Pintura Blanco Caliza
@@ -150,9 +167,9 @@ Vegetable Oil=Aceite Vegetal
 
 # pottery.lua
 Broken Pottery=Ceramica Rota
-Clay Water Pot=Vacija Ceramica
-Clay Water Pot (unfired)=Vacija Ceramica sin Curar
-Clay Storage Pot (unfired)=Vacija Ceramica de Almacenamiento sin Curar
+Clay Water Pot=Vasija Ceramica
+Clay Water Pot (unfired)=Vasija Ceramica sin Curar
+Clay Storage Pot (unfired)=Vasija Ceramica de Almacenamiento sin Curar
 Clay Oil Lamp (unfired)=Lampara Ceramica sin Curar
 Clay Oil Lamp=Lampara Ceramica
 Clay Oil Lamp (lit)=Lampara Ceramica Encendida
@@ -163,11 +180,15 @@ Oil lamp (1/4 full)=Lampara de Aceite Llena a un cuarto
 Oil lamp (1/2 full)=Lampara de Aceite Llena a la mitad
 Oil lamp (3/4 full)=Lampara de Aceite casi Llena
 Oil lamp=Lampara de Aceite
-Clay Water Pot with Freshwater=Vacija Ceramica con Agua Fresca
+Clay Water Pot with Freshwater=Vasija Ceramica con Agua Fresca
+Clay Water Pot with Salt Water=Vasija Ceramica con Agua Salada
 
 # storage.lua
-Clay Storage Pot=Vacija Ceramica de Almacenamiento
+Clay Storage Pot=Vasija Ceramica de Almacenamiento
+Primitive Wooden Chest=Cofre de Madera Rudimentario
 Wooden Chest=Cofre de Madera
+Wicker Storage Basket=Cesto de Zarzo
+Woven Storage Basket=Cesto de Mimbre
 Iron Chest=Cofre de Hierro
 Owned by @1=Propiedad de @1
 
@@ -194,12 +215,15 @@ lever=Palanca
 Crafting Spot=Lugar para Fabricar
 Mixing Spot=Lugar para Mezclar
 Threshing Spot=Lugar para Trillar
-Weaving Frame=Marco para Tejer Mimbre
+Weaving Spot=Lugar para Tejer
+Grinding Spot=Lugar para Amolar
+Hammering Spot=Lugar para Martillar
+Weaving Frame=Marco para Tejer
 Grinding stone=Piedra de Amolar
 Basalt Mortar and Pestle=Mortero de Basalto
 Granite Mortar and Pestle=Mortero de Granito
 Limestone Mortar and Pestle=Mortero de Caliza
-Chopping Block=Tronco de Corte
+Chopping Block=Tronco para Cortar
 Hammering Block=Tronco de Martillado
 Anvil=Yunque
 Carpentry Bench=Banco de Carpintería
@@ -213,3 +237,6 @@ Glass furnace=Horno para Vidrio
 Wooden Ladder=Escalera de Madera
 Wooden Floor Boards=Piso de Madera Laminado
 Wooden Stairs=Escalinata de Madera
+Wooden Water Pot=Vasija de Madera
+Wooden Water Pot with Freshwater=Vasija de Madera con Agua Fresca
+Wooden Water Pot with Salt Water=Vasija de Madera con Agua Salada
