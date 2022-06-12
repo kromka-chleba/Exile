@@ -5,7 +5,7 @@ Adds a god to pray, and the Blessed status
 
 Authors of source code
 ----------------------
-Ozcodex (Unlicense/Public Domain)
+ozcodex (Unlicense/Public Domain)
 
 
 Authors of media (textures)
