@@ -29,6 +29,7 @@ end
 minetest.register_on_respawnplayer(function(player)
 	local meta = player:get_meta()
 	meta:set_int("total_prayers", 0)
+	meta:set_int("last_prayer", 0)
 end)
 
 local function is_owner(pos, name)
@@ -83,12 +84,15 @@ minetest.register_node("religion:efigy", {
 		local meta = player:get_meta()
 		local current_player = player:get_player_name()
 		local total_prayers = meta:get_int("total_prayers")
-		local lived_days = minetest.get_day_count() - meta:get_int("char_start_date")
+		local last_prayer = meta:get_int("last_prayer")
+		local current_day = minetest.get_day_count()
+		local lived_days = current_day - meta:get_int("char_start_date")
 
-		if total_prayers <= lived_days then
+		if total_prayers == 0 or last_prayer < current_day then
 			-- raise a prayer
 			minetest.chat_send_player(current_player, S("You offer up a prayer to your god"))
 			meta:set_int("total_prayers", total_prayers + 1)
+			meta:set_int("last_prayer", current_day)
 			-- wait before define what happens
 			minetest.after(pray_time, function()
 				local picked = math.random(0,total_weight)

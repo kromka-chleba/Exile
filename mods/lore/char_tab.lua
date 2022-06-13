@@ -46,15 +46,27 @@ local function sfinv_get(self, player, context)
   local effects_list = meta:get_string("effects_list")
   local effects_list = minetest.deserialize(effects_list) or {}
   local bio = meta:get_string("bio")
+  local prayers = meta:get_int("total_prayers")
   --backwards compatibility
   if bio == "" then
     --generate biography
     bio = lore.generate_bio(player)
   end
+  --generate traits
+  local traits = "\n "
+  if prayers == 0 then
+    traits = traits..'Atheist'
+  elseif prayers <= days*(1/2) then
+    traits = traits..'Doubter'
+  elseif prayers <= days*(3/4) then
+    traits = traits..'Adherent'
+  else
+    traits = traits..'Devotee'
+  end
 
-  local y = 3.1
+  --generate healt effects form
+  local y = 4.1
   local eff_form = ""
-
 
   for _, effect in ipairs(effects_list) do
     --convert into readable
@@ -80,7 +92,8 @@ local function sfinv_get(self, player, context)
 	"label[4,0.1; Days Survived: " .. days .. "]"..
 	"label[4,0.6; Lives: " .. lives .. "]"..
   "label[0.1,1.1; Biography: " .. bio .. "]"..
-  "label[0.1,3.1; Health Effects:]"..
+  "label[0.1,3.1; Traits: " .. traits .. "]"..
+  "label[0.1,4.1; Health Effects:]"..
   eff_form
 
 
