@@ -6,8 +6,30 @@
 -- Load support for game translation.
 local S = minetest.get_translator("religion")
 
-local blessing_chance = 10 -- probability of getting a blessing 
-local pray_time = 5 -- time in seconds before getting a responce from god
+-- time in seconds before getting a responce from god
+local pray_time = 2 
+
+-- the higher the weight, higher is the probability of getting it 
+local pray_responses = {
+	{message="and nothing happens", weight=100},
+	{message="and you feel refreshed", weight=20},
+	{message="you feel how your faith is strengthened", weight=20},
+	{message="a voice inside you tells you that god is dead, but you decide to ignore it", weight=20},
+	{message="something inside you tells you that this is not working", weight=10},
+	{message="and you feel a soft breeze that comforts you", weight=10},
+}
+
+-- calculate once the total weight of prayer responses 
+local total_weight = 0;
+for prayer = 1,#pray_responses do
+	total_weight = total_weight + pray_responses[prayer].weight
+end
+
+-- reset prayers counter on respawn
+minetest.register_on_respawnplayer(function(player)
+	local meta = player:get_meta()
+	meta:set_int("total_prayers", 0)
+end)
 
 local function is_owner(pos, name)
 	local owner = minetest.get_meta(pos):get_string("owner")
@@ -59,30 +81,31 @@ minetest.register_node("religion:efigy", {
 
 	on_rightclick = function(pos, node, player, itemstack, pointed_thing)
 		local meta = player:get_meta()
-		local last_prayer_day = meta:get_int("last_prayer")
-		local current_day = minetest.get_day_count()
-		if( current_day > last_prayer_day) then
+		local current_player = player:get_player_name()
+		local total_prayers = meta:get_int("total_prayers")
+		local lived_days = minetest.get_day_count() - meta:get_int("char_start_date")
+
+		if total_prayers <= lived_days then
 			-- raise a prayer
-			minetest.chat_send_player(player:get_player_name(), S("You raise a prayer to your god"))
-			meta:set_int("last_prayer", current_day)
+			minetest.chat_send_player(current_player, S("You offer up a prayer to your god"))
+			meta:set_int("total_prayers", total_prayers + 1)
 			-- wait before define what happens
 			minetest.after(pray_time, function()
-				if(math.random(0,100) <= blessing_chance) then
-					minetest.chat_send_all(S('@1 got a blessing!',player:get_player_name()))
-					-- You god blesses you refilling all your needs
-					-- TODO: there are a better way to do this? with health:quick_physics?
-					meta:set_int("thirst", 100)
-					meta:set_int("hunger", 1000)
-					meta:set_int("energy", 1000)
-					meta:set_int("temperature", 37)
-				else
-					-- Maybe this feedback can be skiped and just let nothing happen?
-					minetest.chat_send_player(player:get_player_name(), S("and nothing happens"))
+				local picked = math.random(0,total_weight)
+				local blessing = ''
+				local accumulator = 0
+				for prayer = 1,#pray_responses do
+					accumulator = accumulator + pray_responses[prayer].weight
+					if picked <= accumulator then
+						blessing = pray_responses[prayer].message
+						break
+					end
 				end
+				minetest.chat_send_player(current_player, S(blessing))
 			end)
 		else
 			-- wait for another day
-			minetest.chat_send_player(player:get_player_name(), S("You have to wait before raise another prayer"))
+			minetest.chat_send_player(current_player, S("You have already said your prayers for today"))
 		end
 		
 	end,
