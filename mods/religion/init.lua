@@ -119,7 +119,6 @@ minetest.register_node("religion:efigy", {
 ------------------------------------
 --RECIPES
 
---sleeping_mat from cheap thatch
 crafting.register_recipe({
 	type = "crafting_spot",
 	output = "religion:efigy",
