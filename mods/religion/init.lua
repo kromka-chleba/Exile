@@ -44,7 +44,7 @@ minetest.register_node("religion:efigy", {
 	description = S("Effigy"),
 	inventory_image = "efigy_inv.png",
 	wield_image = "efigy_inv.png",
-	tiles = {"thatch.png"},
+	tiles = {"tech_thatch.png"},
 	stack_max = 1,
 	drawtype = "nodebox",
 	node_box = {
