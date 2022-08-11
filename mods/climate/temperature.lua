@@ -224,8 +224,9 @@ end
 local adjust_active_temp = function(pos, temp)
 
    --average temp (make sure it matches climate)
-   local av_temp = 15
-   local av_temp_depth = -12 --Depth calculated to reach av_temp
+   local av_temp = minetest.get_mapgen_setting("exile_av_temp") or 15
+   --Depth calculated to reach av_temp
+   local av_temp_depth = minetest.get_mapgen_setting("exile_av_temp_depth") or -12 
    local name = minetest.get_node(pos).name
    local water = minetest.get_item_group(name,"water")
 
