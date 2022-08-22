@@ -9,7 +9,7 @@ local hud = {}
 local overlaid = {}
 local hudupdateseconds = tonumber(minetest.settings:get("exile_hud_update"))
 
-local show_stats = minetest.settings:get_bool("exile_raw_stats")
+local show_stats = minetest.settings:get_bool("exile_hud_raw_stats")
 
 local setup_hud = function(player)
 
