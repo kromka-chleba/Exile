@@ -126,65 +126,63 @@ local setup_hud = function(player)
 	    text = "hud_sick.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
 	})
 	
-	if show_stats then
 	
-		hud_data.p_health_text = player:hud_add({
-			hud_elem_type = "text",
-			offset = {x = hud_health_x, y = hud_vert_pos + hud_text_y},
-			number = stat_col,
-			position = {x = .5, y = 1},
-			text = ""
-		})
+	hud_data.p_health_text = player:hud_add({
+		hud_elem_type = "text",
+		offset = {x = hud_health_x, y = hud_vert_pos + hud_text_y},
+		number = stat_col,
+		position = {x = .5, y = 1},
+		text = ""
+	})
+
+	hud_data.p_hunger_text = player:hud_add({
+		hud_elem_type = "text",
+		offset = {x = hud_hunger_x, y = hud_vert_pos + hud_text_y},
+		number = stat_col,
+		position = {x = .5, y = 1},
+		text = ""
+	})
+
+	hud_data.p_thirst_text = player:hud_add({
+		hud_elem_type = "text",
+		offset = {x = hud_thirst_x, y = hud_vert_pos + hud_text_y},
+		number = stat_col,
+		position = {x = .5, y = 1},
+		text = ""
+	})
+
+	hud_data.p_energy_text = player:hud_add({
+		hud_elem_type = "text",
+		offset = {x = hud_energy_x, y = hud_vert_pos + hud_text_y},
+		number = stat_col,
+		position = {x = .5, y = 1},
+		text = ""
+	})
+
+	hud_data.p_body_temp_text = player:hud_add({
+		hud_elem_type = "text",
+		offset = {x = hud_body_temp_x, y = hud_vert_pos + hud_text_y},
+		number = stat_col,
+		position = {x = .5, y = 1},
+		text = ""
+	})
+
+	hud_data.p_air_temp_text = player:hud_add({
+		hud_elem_type = "text",
+		offset = {x = hud_air_temp_x, y = hud_vert_pos + hud_text_y},
+		number = stat_col,
+		position = {x = .5, y = 1},
+		text = ""
 	
-		hud_data.p_hunger_text = player:hud_add({
-			hud_elem_type = "text",
-			offset = {x = hud_hunger_x, y = hud_vert_pos + hud_text_y},
-			number = stat_col,
-			position = {x = .5, y = 1},
-			text = ""
-		})
-	
-		hud_data.p_thirst_text = player:hud_add({
-			hud_elem_type = "text",
-			offset = {x = hud_thirst_x, y = hud_vert_pos + hud_text_y},
-			number = stat_col,
-			position = {x = .5, y = 1},
-			text = ""
-		})
-	
-		hud_data.p_energy_text = player:hud_add({
-			hud_elem_type = "text",
-			offset = {x = hud_energy_x, y = hud_vert_pos + hud_text_y},
-			number = stat_col,
-			position = {x = .5, y = 1},
-			text = ""
-		})
-	
-		hud_data.p_body_temp_text = player:hud_add({
-			hud_elem_type = "text",
-			offset = {x = hud_body_temp_x, y = hud_vert_pos + hud_text_y},
-			number = stat_col,
-			position = {x = .5, y = 1},
-			text = ""
-		})
-	
-		hud_data.p_air_temp_text = player:hud_add({
-			hud_elem_type = "text",
-			offset = {x = hud_air_temp_x, y = hud_vert_pos + hud_text_y},
-			number = stat_col,
-			position = {x = .5, y = 1},
-			text = ""
-	    
-		})
-	
-		hud_data.p_sick_text = player:hud_add({
-			hud_elem_type = "text",
-			offset = {x = hud_sick_x, y = hud_vert_pos + hud_text_y},
-			number = stat_col,
-			position = {x = .5, y = 1},
-			text = ""
-		})
-	end
+	})
+
+	hud_data.p_sick_text = player:hud_add({
+		hud_elem_type = "text",
+		offset = {x = hud_sick_x, y = hud_vert_pos + hud_text_y},
+		number = stat_col,
+		position = {x = .5, y = 1},
+		text = ""
+	})
 
 end
 
@@ -272,10 +270,12 @@ local function health(player, hud_data)
 	local t = v .." %"
 	local hud = hud_data.p_health
 	player:hud_change(hud, "text", "hud_health.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
+	local hud2 = hud_data.p_health_text
+	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if show_stats then
-		local hud2 = hud_data.p_health_text
-		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
+	else
+		player:hud_change(hud2, "text", "")
 	end
 end
 
@@ -286,10 +286,12 @@ local function energy(player, hud_data, meta)
 	local t = v .." %"
 	local hud = hud_data.p_energy
 	player:hud_change(hud, "text", "hud_energy.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
+	local hud2 = hud_data.p_energy_text
+	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if show_stats then
-		local hud2 = hud_data.p_energy_text
-		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
+	else
+		player:hud_change(hud2, "text", "")
 	end
 end
 
@@ -300,10 +302,12 @@ local function thirst(player, hud_data, meta)
 	local stat_col = color(v)
 	local hud =  hud_data.p_thirst
 	player:hud_change(hud, "text", "hud_thirst.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
+	local hud2 = hud_data.p_thirst_text
+	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if show_stats then
-		local hud2 = hud_data.p_thirst_text
-		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
+	else
+		player:hud_change(hud2, "text", "")
 	end
 end
 
@@ -314,10 +318,12 @@ local function hunger(player,  hud_data, meta)
 	local stat_col = color(v)
 	local hud =  hud_data.p_hunger
 	player:hud_change(hud, "text", "hud_hunger.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
+	local hud2 = hud_data.p_hunger_text
+	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if show_stats then
-		local hud2 = hud_data.p_hunger_text
-		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
+	else
+		player:hud_change(hud2, "text", "")
 	end
 end
 
@@ -330,10 +336,12 @@ local function temp(player, hud_data, meta)
 	local hud2 = hud_data.p_body_temp_type
 	player:hud_change(hud, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
 	player:hud_change(hud2, "text", ttype..".png")
+	local hud2 = hud_data.p_body_temp_text
+	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if show_stats then
-		local hud2 = hud_data.p_body_temp_text
-		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
+	else
+		player:hud_change(hud2, "text", "")
 	end
 end
 
@@ -376,10 +384,12 @@ local function enviro_temp(player, hud_data, meta)
 	local newhud2 = hud_data.p_air_temp_type
 	player:hud_change(newhud, "text", "hud_air_temp.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
 	player:hud_change(newhud2, "text", ttype..".png")
+	local hud2 = hud_data.p_air_temp_text
+	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if show_stats then
-		local hud2 = hud_data.p_air_temp_text
-		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
+	else
+		player:hud_change(hud2, "text", "")
 	end
 end
 
@@ -398,10 +408,12 @@ local function effects(player, hud_data, meta)
 	end
 	local hud = hud_data.p_sick
 	player:hud_change(hud, "text", "hud_sick.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
+	local hud2 = hud_data.p_sick_text
+	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if show_stats then
-		local hud2 = hud_data.p_sick_text
-		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
+	else
+		player:hud_change(hud2, "text", "")
 	end
 end
 
@@ -434,3 +446,24 @@ minetest.register_globalstep(function(dtime)
   end
 end)
 
+minetest.register_chatcommand("show_stats", {
+    params = "true or false",
+    description = "Enable or disable stats showing below icons.",
+    func = function(name, param)
+		if param == "" or param == "help" then
+			local wlist = "/show_stats:\n"..
+			"Enable or disable stats showing below icons.\n" ..
+			"Valid settings are true or false."
+			return false, wlist
+		end
+		if param ~= "true" and param ~= "false" then
+			return false, "Invalid value, use true or false."
+		elseif param == "true" then
+			minetest.settings:set_bool("exile_hud_raw_stats", true)
+			show_stats = true
+		elseif param == "false" then
+			minetest.settings:set_bool("exile_hud_raw_stats", false)
+			show_stats = false
+		end     
+	end
+})
