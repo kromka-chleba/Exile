@@ -11,6 +11,24 @@ local hudupdateseconds = tonumber(minetest.settings:get("exile_hud_update"))
 
 local show_stats = minetest.settings:get_bool("exile_hud_raw_stats")
 
+local hud_opacity = minetest.settings:get("exile_hud_icon_transparency")
+
+-- These are color values for the various status levels. They have to be modified
+-- per-function below because textures expect one color format and text another.
+-- This is a minetest caveat.
+
+-- In texture coloring we simply concat a #.
+--		"#"..stat_color
+
+-- In text coloring we concat an 0x and convert the resulting string to a number.
+--		tostring("0x"..stat_color)
+
+local stat_fine 	= "FFFFFF"
+local stat_slight 	= "FDFF46"
+local stat_problem 	= "FF8100"
+local stat_major 	= "DF0000"
+local stat_extreme	= "8008FF"
+
 local setup_hud = function(player)
 
 	player:hud_set_flags({healthbar = false})
@@ -39,7 +57,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_health_x, y = hud_vert_pos},
 		position = {x = .5, y = 1},
-	    text = "health_fine.png"
+	    text = "hud_health.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
 	})
 	
 	hud_data.p_hunger = player:hud_add({
@@ -47,7 +65,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_hunger_x, y = hud_vert_pos},
 		position = {x = .5, y = 1},
-	    text = "hunger_fine.png"
+	    text = "hud_hunger.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
 	})
 	
 	hud_data.p_thirst = player:hud_add({
@@ -55,7 +73,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_thirst_x, y = hud_vert_pos},
 		position = {x = .5, y = 1},
-	    text = "thirst_fine.png"
+	    text = "hud_thirst.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
 	})
 	
 	hud_data.p_energy = player:hud_add({
@@ -63,7 +81,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_energy_x, y = hud_vert_pos},
 		position = {x = .5, y = 1},
-	    text = "energy_fine.png"
+	    text = "hud_energy.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
 	})
 	
 	hud_data.p_body_temp = player:hud_add({
@@ -71,7 +89,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_body_temp_x, y = hud_vert_pos},
 		position = {x = .5, y = 1},
-	    text = "body_temp_fine.png"
+	    text = "hud_body_temp.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
 	})
 	
 	hud_data.p_body_temp_type = player:hud_add({
@@ -79,7 +97,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_body_temp_x, y = hud_vert_pos + hud_extra_y},
 		position = {x = .5, y = 1},
-	    text = "temp_normal.png"
+	    text = "hud_temp_normal.png^[opacity:"..hud_opacity -- don't colorize
 	})
 	
 	hud_data.p_air_temp = player:hud_add({
@@ -87,7 +105,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_air_temp_x, y = hud_vert_pos},
 		position = {x = .5, y = 1},
-	    text = "air_temp_fine.png"
+	    text = "hud_air_temp.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
 	    
 	})
 	
@@ -96,7 +114,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_air_temp_x, y = hud_vert_pos + hud_extra_y},
 		position = {x = .5, y = 1},
-	    text = "temp_normal.png"
+	    text = "hud_temp_normal.png^[opacity:"..hud_opacity -- don't colorize
 	    
 	})
 	
@@ -105,7 +123,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_sick_x, y = hud_vert_pos},
 		position = {x = .5, y = 1},
-	    text = "sick_fine.png"
+	    text = "hud_sick.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
 	})
 	
 	if show_stats then
@@ -174,52 +192,37 @@ minetest.register_on_joinplayer(function(player) setup_hud(player) end)
 
 -- status indicator colors for use in stat display option
 
-local stat_fine 	= 0xFFFFFF
-local stat_slight 	= 0xFDFF46
-local stat_problem 	= 0xFF8100
-local stat_major 	= 0xDF0000
-local stat_extreme	= 0x8008FF
-
 local function color(v)
-	local icon_col = "fine"
 	local stat_col = stat_fine
 	if v <= 20 then
-		icon_col = "extreme"
 		stat_col = stat_extreme
 	elseif v <= 40 then
-		icon_col = "major"
 		stat_col = stat_major
 	elseif v <= 60 then
-		icon_col = "problem"
 		stat_col = stat_problem
 	elseif v <= 80 then
-		icon_col = "slight"
 		stat_col = stat_slight
 	end
-	return icon_col, stat_col
+	return stat_col
 end
 
 local function color_bodytemp(v)
-	local icon_col = "fine"
 	local stat_col = stat_fine
-	local ttype = "temp_normal"
+	local ttype = "hud_temp_normal"
 	if v > 47 or v < 27 then
-		icon_col = "extreme"
 		stat_col = stat_extreme
-		if v > 47 then ttype = "temp_hot" end
-		if v < 27 then ttype = "temp_cold" end
+		if v > 47 then ttype = "hud_temp_hot" end
+		if v < 27 then ttype = "hud_temp_cold" end
 	elseif v > 43 or v < 32 then
-		icon_col = "major"
 		stat_col = stat_major
-		if v > 43 then ttype = "temp_hot" end
-		if v < 32 then ttype = "temp_cold" end
+		if v > 43 then ttype = "hud_temp_hot" end
+		if v < 32 then ttype = "hud_temp_cold" end
 	elseif v > 38 or v < 37 then
-		icon_col = "problem"
 		stat_col = stat_problem
-		if v > 38 then ttype = "temp_hot" end
-		if v < 37 then ttype = "temp_cold" end
+		if v > 38 then ttype = "hud_temp_hot" end
+		if v < 37 then ttype = "hud_temp_cold" end
 	end
-	return icon_col, stat_col, ttype
+	return stat_col, ttype
 end
 
 local function color_envirotemp(v, meta)
@@ -232,49 +235,46 @@ local function color_envirotemp(v, meta)
 	local danger_high = stress_high +40
 	local overlay
 
-	local icon_col = "fine"
 	local stat_col = stat_fine
-	local ttype = "temp_normal"
+	local ttype = "hud_temp_normal"
 
 	if v > danger_high or v < danger_low then
 		icon_col = "extreme"
 		stat_col = stat_extreme
-		if v > danger_high then ttype = "temp_hot" end
-		if v < danger_low then ttype = "temp_cold" end
+		if v > danger_high then ttype = "hud_temp_hot" end
+		if v < danger_low then ttype = "hud_temp_cold" end
 	elseif v > stress_high or v < stress_low then
-		icon_col = "major"
 		stat_col = stat_major
-		if v > stress_high then ttype = "temp_hot" end
-		if v < stress_low then ttype = "temp_cold" end
+		if v > stress_high then ttype = "hud_temp_hot" end
+		if v < stress_low then ttype = "hud_temp_cold" end
 	elseif v > comfort_high or v < comfort_low then
-		icon_col = "slight"
 		stat_col = stat_slight
-		if v > comfort_high then ttype = "temp_hot" end
-		if v < comfort_low then ttype = "temp_cold" end
+		if v > comfort_high then ttype = "hud_temp_hot" end
+		if v < comfort_low then ttype = "hud_temp_cold" end
 	end
 	if v < stress_low then
 	   overlay = "weather_hud_frost.png"
-	   ttype = "temp_cold"
+	   ttype = "hud_temp_cold"
 	end
 	if v > stress_high then
 	   overlay = "weather_hud_heat.png"
-	   ttype = "temp_hot"
+	   ttype = "hud_temp_hot"
 	end
 
-	return icon_col, stat_col, ttype, overlay
+	return stat_col, ttype, overlay
 end
 
 
 local function health(player, hud_data)
 	local v = player:get_hp()
 	v = (v/20)*100
-	local icon_col, stat_col = color(v)
+	local stat_col = color(v)
 	local t = v .." %"
 	local hud = hud_data.p_health
-	player:hud_change(hud, "text", "health_"..icon_col..".png")
+	player:hud_change(hud, "text", "hud_health.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
 	if show_stats then
 		local hud2 = hud_data.p_health_text
-		player:hud_change(hud2, "number", stat_col)
+		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
 	end
 end
@@ -282,13 +282,13 @@ end
 local function energy(player, hud_data, meta)
 	local v = meta:get_int("energy")
 	v = (v/1000)*100
-	local icon_col, stat_col = color(v)
+	local stat_col = color(v)
 	local t = v .." %"
 	local hud = hud_data.p_energy
-	player:hud_change(hud, "text", "energy_"..icon_col..".png")
+	player:hud_change(hud, "text", "hud_energy.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
 	if show_stats then
 		local hud2 = hud_data.p_energy_text
-		player:hud_change(hud2, "number", stat_col)
+		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
 	end
 end
@@ -297,12 +297,12 @@ local function thirst(player, hud_data, meta)
 	local v = meta:get_int("thirst")
 	v = (v/100)*100
 	local t = v .." %"
-	local icon_col, stat_col = color(v)
+	local stat_col = color(v)
 	local hud =  hud_data.p_thirst
-	player:hud_change(hud, "text", "thirst_"..icon_col..".png")
+	player:hud_change(hud, "text", "hud_thirst.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
 	if show_stats then
 		local hud2 = hud_data.p_thirst_text
-		player:hud_change(hud2, "number", stat_col)
+		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
 	end
 end
@@ -311,12 +311,12 @@ local function hunger(player,  hud_data, meta)
 	local v = meta:get_int("hunger")
 	v = (v/1000)*100
 	local t = v .." %"
-	local icon_col, stat_col = color(v)
+	local stat_col = color(v)
 	local hud =  hud_data.p_hunger
-	player:hud_change(hud, "text", "hunger_"..icon_col..".png")
+	player:hud_change(hud, "text", "hud_hunger.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
 	if show_stats then
 		local hud2 = hud_data.p_hunger_text
-		player:hud_change(hud2, "number", stat_col)
+		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
 	end
 end
@@ -324,15 +324,15 @@ end
 
 local function temp(player, hud_data, meta)
 	local v = meta:get_int("temperature")
-	local icon_col, stat_col, ttype, overlay = color_bodytemp(v)
+	local stat_col, ttype, overlay = color_bodytemp(v)
 	local t = climate.get_temp_string(v, meta)
 	local hud =  hud_data.p_body_temp
 	local hud2 = hud_data.p_body_temp_type
-	player:hud_change(hud, "text", "body_temp_"..icon_col..".png")
+	player:hud_change(hud, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
 	player:hud_change(hud2, "text", ttype..".png")
 	if show_stats then
 		local hud2 = hud_data.p_body_temp_text
-		player:hud_change(hud2, "number", stat_col)
+		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
 	end
 end
@@ -357,7 +357,7 @@ local function enviro_temp(player, hud_data, meta)
 	local player_pos = player:get_pos()
 	player_pos.y = player_pos.y + 0.6 --adjust to body height
 	local v = math.floor(climate.get_point_temp(player_pos))
-	local icon_col, stat_col, ttype, overlay = color_envirotemp(v, meta)
+	local stat_col, ttype, overlay = color_envirotemp(v, meta)
 	if overlay then
 	   if not overlaid[pname] then
 	      do_overlay(player, pname, player_pos, overlay)
@@ -374,38 +374,33 @@ local function enviro_temp(player, hud_data, meta)
 	local t = climate.get_temp_string(v, meta)
 	local newhud = hud_data.p_air_temp
 	local newhud2 = hud_data.p_air_temp_type
-	player:hud_change(newhud, "text", "air_temp_"..icon_col..".png")
+	player:hud_change(newhud, "text", "hud_air_temp.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
 	player:hud_change(newhud2, "text", ttype..".png")
 	if show_stats then
 		local hud2 = hud_data.p_air_temp_text
-		player:hud_change(hud2, "number", stat_col)
+		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
 	end
 end
 
 local function effects(player, hud_data, meta)
-	local icon_col = "fine"
 	local stat_col = stat_fine
 	local v = meta:get_int("effects_num")
 	local t = "x"..v
 	if v > 0 then
-		icon_col = "slight"
 		stat_col = stat_slight
 	elseif v > 1 then
-		icon_col = "problem"
 		stat_col = stat_problem
 	elseif v > 2 then
-		icon_col = "major"
 		stat_col = stat_major
 	elseif v > 3 then
-		icon_col = "extreme"
 		stat_col = stat_extreme
 	end
 	local hud = hud_data.p_sick
-	player:hud_change(hud, "text", "sick_"..icon_col..".png")
+	player:hud_change(hud, "text", "hud_sick.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
 	if show_stats then
 		local hud2 = hud_data.p_sick_text
-		player:hud_change(hud2, "number", stat_col)
+		player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 		player:hud_change(hud2, "text", t)
 	end
 end
