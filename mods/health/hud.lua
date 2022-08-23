@@ -467,3 +467,36 @@ minetest.register_chatcommand("show_stats", {
 		end     
 	end
 })
+
+minetest.register_chatcommand("icon_transparency", {
+    params = "<int>",
+    description = "Set stat icon transparency between 0 and 255 or default (127)",
+    func = function(name, param)
+		if param == "" or param == "help" then
+			local wlist = "/show_stats:\n"..
+			"Set stat icon transparency between 0 and 255.\n"..
+			"Valid value is an integer between 0 and 255 or default.\n"
+			return false, wlist
+		end
+		if param == "default" then
+			minetest.settings:set("exile_hud_icon_transparency", 127)
+			hud_opacity = 127
+		else
+			local num = tonumber(param)
+			if type(num) == "number" then
+				if num < 0 then minetest.settings:set("exile_hud_icon_transparency", 0)
+				hud_opacity = 0
+				return false, "Icon transparency set to 0"
+				elseif num > 255 then minetest.settings:set("exile_hud_icon_transparency", 255)
+				hud_opacity = 255
+				return false, "Icon transparency set to 255"
+				else minetest.settings:set("exile_hud_icon_transparency", math.floor(num))
+				hud_opacity = num
+				return false, "Icon transparency set to"..math.floor(num)
+				end
+			else
+				return false, "Invalid value. Please use a whole number between 0 and 255"
+			end
+		end	
+	end
+})
