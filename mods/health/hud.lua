@@ -9,9 +9,9 @@ local hud = {}
 local overlaid = {}
 local hudupdateseconds = tonumber(minetest.settings:get("exile_hud_update"))
 
-local show_stats = minetest.settings:get_bool("exile_hud_raw_stats")
+local show_stats = minetest.settings:get_bool("exile_hud_raw_stats") or false
 
-local hud_opacity = minetest.settings:get("exile_hud_icon_transparency")
+local hud_opacity = minetest.settings:get("exile_hud_icon_transparency") or 127
 
 -- These are color values for the various status levels. They have to be modified
 -- per-function below because textures expect one color format and text another.
@@ -34,7 +34,7 @@ local setup_hud = function(player)
 	player:hud_set_flags({healthbar = false})
 	local playername = player:get_player_name()
 	
-	local hud_vert_pos 		= -128	-- all HUD icon vertical position
+	local hud_vert_pos 		= -128		-- all HUD icon vertical position
 	local hud_extra_y		= -16		-- pixel offset for hot/cold icons
 	local hud_text_y		= 32		-- optional text stat offset
 	
