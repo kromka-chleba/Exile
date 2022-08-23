@@ -335,7 +335,7 @@ local function temp(player, hud_data, meta)
 	local hud =  hud_data.p_body_temp
 	local hud2 = hud_data.p_body_temp_type
 	player:hud_change(hud, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
-	player:hud_change(hud2, "text", ttype..".png")
+	player:hud_change(hud2, "text", ttype..".png^[opacity:"..hud_opacity) -- don't colorize)
 	local hud2 = hud_data.p_body_temp_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if show_stats then
@@ -383,7 +383,7 @@ local function enviro_temp(player, hud_data, meta)
 	local newhud = hud_data.p_air_temp
 	local newhud2 = hud_data.p_air_temp_type
 	player:hud_change(newhud, "text", "hud_air_temp.png^[colorize:#"..stat_col.."^[opacity:"..hud_opacity)
-	player:hud_change(newhud2, "text", ttype..".png")
+	player:hud_change(newhud2, "text", ttype..".png^[opacity:"..hud_opacity) -- don't colorize)
 	local hud2 = hud_data.p_air_temp_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if show_stats then
