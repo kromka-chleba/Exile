@@ -492,7 +492,7 @@ minetest.register_chatcommand("icon_transparency", {
 				return false, "Icon transparency set to 255"
 				else minetest.settings:set("exile_hud_icon_transparency", math.floor(num))
 				hud_opacity = num
-				return false, "Icon transparency set to"..math.floor(num)
+				return false, "Icon transparency set to "..math.floor(num)
 				end
 			else
 				return false, "Invalid value. Please use a whole number between 0 and 255"
