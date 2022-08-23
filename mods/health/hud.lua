@@ -447,24 +447,23 @@ minetest.register_globalstep(function(dtime)
 end)
 
 minetest.register_chatcommand("show_stats", {
-    params = "true or false",
+	params = "help",
     description = "Enable or disable stats showing below icons.",
     func = function(name, param)
-		if param == "" or param == "help" then
+		local var = minetest.settings:get_bool("exile_hud_raw_stats")
+		if param == "help" then
 			local wlist = "/show_stats:\n"..
-			"Enable or disable stats showing below icons.\n" ..
-			"Valid settings are true or false."
+			"Toggle stats showing below icons."
 			return false, wlist
-		end
-		if param ~= "true" and param ~= "false" then
-			return false, "Invalid value, use true or false."
-		elseif param == "true" then
-			minetest.settings:set_bool("exile_hud_raw_stats", true)
-			show_stats = true
-		elseif param == "false" then
-			minetest.settings:set_bool("exile_hud_raw_stats", false)
-			show_stats = false
-		end     
+		else	
+			if var then
+				minetest.settings:set_bool("exile_hud_raw_stats", false)
+				show_stats = false
+			else
+				minetest.settings:set_bool("exile_hud_raw_stats", true)
+				show_stats = true
+			end
+		end   
 	end
 })
 
