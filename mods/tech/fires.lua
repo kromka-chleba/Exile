@@ -716,11 +716,28 @@ end
 
 --set saved fuel
 local after_place_fire = function(pos, placer, itemstack, pointed_thing)
+	local fuel = 0
+	local swap_node = nil
+	if itemstack:get_name() == 'tech:small_wood_fire_ext' then
+		-- combine extinquished small fires to a large fire
+		local pt_pos = minetest.get_pointed_thing_position(pointed_thing)
+		local pt_name = minetest.get_node(pt_pos).name
+		local pt_meta = nil
+		if pt_name == 'tech:small_wood_fire_ext' then
+			pt_meta = minetest.get_meta(pt_pos)
+			fuel = pt_meta:get_int("fuel") or 0
+			minetest.remove_node(pt_pos)
+			swap_node = 'tech:large_wood_fire_ext'
+		end
+	end
 	local meta = minetest.get_meta(pos)
 	local stack_meta = itemstack:get_meta()
-	local fuel = stack_meta:get_int("fuel")
+	fuel = fuel + stack_meta:get_int("fuel")
 	if fuel >0 then
 		meta:set_int("fuel", fuel)
+	end
+	if swap_node then
+		minimal.switch_node(pos,{name=swap_node})
 	end
 end
 
