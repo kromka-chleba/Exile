@@ -26,7 +26,7 @@ function minimal.safe_landing_spot(pos)
 				      def_top.walkable == true ) then
       return false -- loaded a solid node
    end
-   if dest_bot.name ~= "ignore" and ( def_bot and
+   if dest_bot.name ~= "ignore" and ( _bot and
 				      def_bot.walkable == true ) then
       return false
    end
@@ -48,4 +48,22 @@ function minimal.safe_landing_spot(pos)
    else
       return true
    end
+end
+
+function minimal.slabs_rightclick_combine(pos, node, clicker, itemstack, pointed_thing)
+print("here")
+	print(dump(node))
+
+	if itemstack:get_name() == node.name then
+		-- combine slabs
+		local stack_meta = itemstack:get_meta()
+		local pt_meta = minetest.get_meta(pos)
+		local fuel = pt_meta:get_int("fuel") + stack_meta:get_int("fuel")
+		pt_meta:set_int("fuel",fuel)
+		swap_node = 'tech:large_wood_fire_ext'
+		minimal.switch_node(pos,{name=swap_node})
+		itemstack:take_item()
+		return itemstack
+	end
+	return false
 end
