@@ -26,7 +26,7 @@ function minimal.safe_landing_spot(pos)
 				      def_top.walkable == true ) then
       return false -- loaded a solid node
    end
-   if dest_bot.name ~= "ignore" and ( _bot and
+   if dest_bot.name ~= "ignore" and ( def_bot and
 				      def_bot.walkable == true ) then
       return false
    end
