@@ -13,11 +13,11 @@ local function killplayer(name)
 		   player_inv:set_list(list_name,{})
 	   end
    end
+   clothing:update_temp(player)
    player:set_hp(0)
 end
 
 local function restart_confirm (name, message)
-print('restart confirm')
 	if (chat_confirm[name] == 'restart') then
 		if message == 'Yes' or message == "yes" then
 			minetest.log("action", name .. " gave up the ghost.")
