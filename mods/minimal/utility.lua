@@ -58,8 +58,8 @@ function minimal.slabs_combine(pos, node, itemstack, swap_node)
 	if itemstack:get_name() == node.name then
 		-- combine slabs
 		local stack_meta = itemstack:get_meta()
-		local fuel = stack_meta:get_int("fuel")
-		if fuel ~= nil then
+		if meta_table and meta_table.fuel ~= nil then
+			local fuel = meta_table.fuel
 			local pt_meta = minetest.get_meta(pos)
 			fuel = fuel + pt_meta:get_int("fuel")
 			pt_meta:set_int("fuel",fuel)
