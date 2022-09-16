@@ -72,13 +72,14 @@ local function teleport_effects(target_pos, pos, player, player_name, regulator,
 
 	--swap out power core
 
-	-- XXX all this to add infotext here.
-	local meta = minetest.get_meta(power)
-	local pn = meta:get_string("owner")
-	local description = minetest.registered_nodes["artifacts:transporter_power_dep"].description
-	-- XXX shouldn't be clobbering existing info text
-	meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
+-- 	-- XXX all this to add infotext here.
+-- 	local meta = minetest.get_meta(power)
+-- 	local pn = meta:get_string("owner")
+-- 	local description = minetest.registered_nodes["artifacts:transporter_power_dep"].description
+-- 	-- XXX shouldn't be clobbering existing info text
+-- 	meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
 	minetest.swap_node(power, {name = "artifacts:transporter_power_dep"})
+	minimal.set_infotext(power) -- set node description and owner
 	set_charging(power, 5, 20)
 	--go to target
 	player:set_pos(target_pos)
@@ -266,11 +267,12 @@ local function do_teleport(pos, target_pos, random, player, range, regulator, po
 		meta_tran:set_string("target_name", "")
 		meta_tran:set_string("target_pos", "")
 		local tran_name = meta_tran:get_string("tran_name")
-		if tran_name ~= "" then
-			meta_tran:set_string("infotext", "Name: "..tran_name)
-		else
-			meta_tran:set_string("infotext", "")
-		end
+		minimal.set_infotext(pos,"Location: "..trans_name)
+-- 		if tran_name ~= "" then
+-- 			meta_tran:set_string("infotext", "Location: "..tran_name)
+-- 		else
+-- 			meta_tran:set_string("infotext", "")
+-- 		end
 		minetest.sound_play("artifacts_transport_fail", {pos = pos, gain = 1, max_hear_distance = 6})
 
 
@@ -370,13 +372,15 @@ local function transporter_power_rightclick(pos, node, player, itemstack, pointe
 	local pInv = player:get_inventory()
 	local new = ItemStack(swap_b)
 
-	local meta = minetest.get_meta(pos)
-	local pn = meta:get_string('owner')
-	local description = itemstack:get_definition().description
+-- 	local meta = minetest.get_meta(pos)
+-- 	local pn = meta:get_string('owner')
+-- 	local description = itemstack:get_definition().description
+-- 	-- XXX shouldn't be clobbering existing info text
+-- 	meta:set_string("infotext", description .. "\n" .. S("Owned by @1", pn))
+
 	itemstack:take_item()
-	-- XXX shouldn't be clobbering existing info text
-	meta:set_string("infotext", description .. "\n" .. S("Owned by @1", pn))
 	minimal.switch_node(pos, {name=swap_a})
+	minimal.set_infotext(pos) -- Set description and owner of swapped core
 	if pInv:room_for_item("main", new) then
 	   pInv:add_item("main", new)
 	   return itemstack
@@ -493,7 +497,7 @@ local function set_from_key(itemstack, placer, pointed_thing)
 				meta_tran:set_string("target_pos", "")
 				local tran_name = meta_tran:get_string("tran_name")
 				if tran_name ~= "" then
-					meta_tran:set_string("infotext", "Name: "..tran_name)
+					meta_tran:set_string("infotext", "Location: "..tran_name)
 				else
 					meta_tran:set_string("infotext", "")
 				end
@@ -561,8 +565,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local meta_tran = minetest.get_meta(pos_tran)
 		meta_tran:set_string("target_name", target_name)
 		meta_tran:set_string("target_pos", target_pos)
-		local infotext = meta_tran:get_string("infotext")
-		meta_tran:set_string("infotext", infotext.. "\nDestination: "..target_name)
+--XXX should be able to send meta_tran instead of pos_tran 
+		minimal.set_infotext(pos_tran,"Destination: "..target_name)
+--		local infotext = meta_tran:get_string("infotext")
+--		meta_tran:set_string("infotext", infotext.. "\nDestination: "..target_name)
 
 		local player_name = player:get_player_name()
 		minetest.sound_play( 'artifacts_key', { pos = pos_tran, gain = 1, max_hear_distance = 5,})
@@ -684,8 +690,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		--set name and infotext of transporter
 		local meta_tran = minetest.get_meta(minetest.string_to_pos(target))
-		local infotext = meta_tran:get_string("infotext")
-		meta_tran:set_string("infotext", infotext.. "\nName: "..target_name)
+--XXX Should be able to pass meta_trans instead of target
+		minimal.set_infotext(target,"Location: "..target_name)
+--		local infotext = meta_tran:get_string("infotext")
+--		meta_tran:set_string("infotext", infotext.. "\nLocation: "..target_name)
 		meta_tran:set_string("tran_name", target_name)
 
 
@@ -748,11 +756,13 @@ local function charge_power(pos, selfname, name, length)
 
 	if charging <= 0 then
 		--finished
-		local pn = meta:get_string("owner")
-		local description = minetest.registered_nodes[name].description
-		-- XXX shouldn't be clobbering existing info text
-		meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
+--		local pn = meta:get_string("owner")
+--		local description = minetest.registered_nodes[name].description
+--		-- XXX shouldn't be clobbering existing info text
+--		meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
 		minetest.swap_node(pos, {name=name})
+--XXX Should be able to use meta instead of pos
+		minimal.set_infotext(pos) -- Set Description and Owner
 		meta:set_float("temp", 14)
 		return false
 	elseif temp < charge_temp then
