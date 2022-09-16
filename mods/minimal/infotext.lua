@@ -13,109 +13,155 @@ minimal=minimal
 local S=minimal.S
 
 local fixed_order = {
-	"1", 1,
-	"Owner", 2,
-	"TP Name", 3,
-	"TP Destination", 4,
-	"Dye", 5,
+	"", 		-- node description 
+	"Owner",	-- Node Owner
+	"Location", 	-- Transporter Location
+	"Destination",  -- Transporter Destination
+	"Description",  -- Trigger Description
+	"Bundle",	-- Dye Bundles
+	"Bed",		-- Beds
 }
-
-function minimal.parse_infotext(meta)
-	local lines = {}
-	local keys = {}
-	local i = 1;
-	local infotext_string = meta:get_string("infotext")
-	if infotext_string == '' then
-		return nil,nil
+-- Split infotext line into keyed or unkeyed list. 
+function minimal.infotext_parse_key(line,keyed_list,unkeyed_list)
+	local key = line:find(':',1,true)
+	if not key then
+		table.insert(unkeyed_list,line)
+	else
+		--remove ':' from key
+		key = str:sub(1, key - 1)
+		keyed_list[key] = line
 	end
-	for str in infotext_string:gmatch("([^%s]+)") do
-		lines[i]=str
-		local key = str:find(':',1,true)
-		if not key then
-			key = i -- default to using the index value
-		else
-			-- Last version of a key found is used
-			key = str:sub(1, key - 1)
-		end
-		keys[key] = i
-		i = i + 1
-	end
-print ("old_lines: "..dump(lines))
-print ("old_keys: "..dump(keys))
-	return lines,keys
 end
 
-function minimal.set_infotext(pos,lines)
-	if type(pos) == "string" then
-		pos = minetest.string_to_pos(pos)
+-- Get infotext from meta data and split it into lines.
+-- sort it into keyed and unkeyed lists and return the lists
+function minimal.infotext_parse_infotext(meta)
+	local keyed = {} 
+	local unkeyed = {} -- lines without keys
+	local infotext_string = meta:get_string("infotext")
+	if infotext_string ~= '' then
+		for line in infotext_string:gmatch("([^%s]+)") do
+			minimal.infotext_parse_keys(line,keyed,unkeyed)
+		end
 	end
-	local meta = minetest.get_meta(pos)
-	local old_lines,old_keys=minimal.parse_infotext(meta)
-	local new_lines={}
-	-- generate ownership lines if owned node
-	local owner = meta:get_string('owner')
-	local desc
-	if owner then
-		desc = minetest.registered_nodes[minetest.get_node(pos).name].description
-		new_lines[1] = desc
-		new_lines[2] = S("Owner: ") .. owner
-	else 
-		new_lines[1] = ""
-		new_lines[2] = ""
-	end
+print ("old_lines: "..dump(lines))
+print ("unkeyed_lines:"..dump(unkeyed))
+	return lines,unkeyed
+end
 
-	local c = 3 -- line count 
-print ("new_lines: "..dump(new_lines))
+-- Accept a string with a single infotext line or a table of multiple strings
+-- split the lines into keyed and unkeyed lists provided.
+function minimal.infotext_parse_new(lines,keyed, unkeyed)
 	-- passed a string, convert it to the expected table
 	if lines and type(lines) == 'string' then
 		local line=lines
 		lines={}
-		local key = line:find(":",1,true)
-		if not key then
-			key = "1" -- default to an indexed entry
-		else
-			key = line:sub(1,key - 1)
-		end
-		lines[key] = line
-	end
-print ("passed_lines"..dump(lines))
-	-- find old entries we're replacing
-	if old_keys then 
-		for key,index in pairs(old_keys) do
-			-- First two lines are hardcoded as description/owner
-			-- Numbered keys are processed below
-print (index .." - ".. key)
-			if index > 2 and tonumber(key) == nil then
-				local l = fixed_order[key] or index  -- override output lines with fixed_order
-				if lines and lines[key] then
-print ("lines["..key.."] = "..lines[key])
-					new_lines[l] = lines[key]
-					lines[key] = nil -- clear out passed lines processed
-				else
-					new_lines[l] = old_lines[index]
-				end
-				c = c + 1
-			end
-		end
-print ("new_lines"..dump(new_lines))	
-		-- append numbered keys from old_keys
-		for key, index in ipairs(old_keys) do
-			if index ~= 1 then -- index 1 hard coded to node description above
-				mew_lines[c] = old_lines[index];
-				c = c + 1
-			end
-		end
+		table.insert(lines,line)
 	end
 
-	-- append remaining passed lines if any
-	if lines then
-		for _, str in pairs(lines) do
-			if str then
-				new_lines[c] = str
-				c = c + 1
+	for _,line in ipairs(lines) do
+		minimal.infotext_parse_key(line,keyed,unkeyed)
+	end
+	return lines
+end
+
+function table.removekey(table, key)
+	local value = table[key]
+	table[key] = nil
+	return value
+end
+-- Append keys to the output removing them from the append_list, and optionally a second list
+-- Intended for 2 passes, one with the new infotext lines and the old lines from meta data as
+-- the remove list. The second pass is with only the old lines and no additional remove lines.
+function minimal.infotext_append_keys(output_list, append_list, remove_list)
+	-- Any more keys in new_lines
+	if append_list and #append_lines > 0 then
+		for key,line in pairs(append_list) do
+			local new_line = table.removekey(append_list,key)
+			if remove_list then
+				table.removekey(remove_list,key)
+			end
+			table.insert(output_list,new_line)
+		end
+	end
+end
+
+
+-- Main funtion called from other modules.
+-- Takes the pos of the node being modifide, in string or pos object form and
+-- a single line of text or a list of text lines to add/replace.
+-- Lines should ideally be keyed as follows:
+
+-- key: Infotext line to add/replace
+
+-- New keys replace old keys.
+-- If called with no lines, and no existing info text, The description of the node and 
+-- name of the owner will be added.  Any info text added will also include these lines
+-- using data from the node's description and owner meta data.
+
+function minimal.set_infotext(pos,add_lines)
+	if type(pos) == "string" then
+		pos = minetest.string_to_pos(pos)
+	end
+	local meta = minetest.get_meta(pos)
+	local old_lines,unkeyed = minimal.infotext_parse_infotext(meta)
+	
+	local output_lines={}
+	
+	-- Line 1 is always the item description
+	local desc = minetest.registered_nodes[minetest.get_node(pos).name].description
+	output_lines[1] = desc
+	-- Line 2 is always Owner if set
+	local owner = meta:get_string('owner')
+	if owner then
+		output_lines[2] = S("Owner: ") .. owner
+	end
+	
+	local new_lines = minimal.infotext_parse_new(add_lines,unkeyed)
+print ("Before Ordered Lines")
+print ("old_lines"..dump(old_lines))
+print ("new_lines"..dump(new_lines))
+print ("output_lines: "..dump(output_lines))
+	-- Use fixed_order list to find output_lines
+	for i, ordered_key in ipairs(fixed_order) do 
+		if i > 2 then  -- First 2 lines are done already
+			local old_line=table.removekey(old_lines, old_keys[ordered_key]);
+			local new_line=table.removekey(new_lines, ordered_key);
+			if new_line then
+				table.insert(output_lines,new_line)
+			elseif old_line then
+				table.insert(output_lines,old_line)
 			end
 		end
 	end
+print ("After Ordered Lines")
+print ("old_lines"..dump(old_lines))
+print ("new_lines"..dump(new_lines))
+print ("output_lines: "..dump(output_lines))
+	minimal.infotext_append_keys(output_lines,new_lines,old_lines)
+print ("After Append new Keys")
+print ("old_lines"..dump(old_lines))
+print ("new_lines"..dump(new_lines))
+print ("output_lines: "..dump(output_lines))
+	minimal.infotext_append_keys(output_lines,old_lines)
+print ("After Append old Keys")
+print ("old_lines"..dump(old_lines))
+print ("new_lines"..dump(new_lines))
+print ("output_lines: "..dump(output_lines))
+	-- append unkeyed lines
+	if #unkeyed > 0 then
+		for _, line in ipairs(unkeyed) do
+			-- Exclude the node description from unkeyed lines
+			if line and line ~= output_lines[1] then
+				table.append(output_lines, line)
+			end
+		end
+	end
+print ("After Append unkeyed lines")
+print ("old_lines"..dump(old_lines))
+print ("new_lines"..dump(new_lines))
+print ("unkeyed: "..dump(unkeyed))
+print ("output_lines: "..dump(output_lines))
 
 	-- combine lines into string and set infotext
 	local text="";
