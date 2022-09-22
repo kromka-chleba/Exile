@@ -137,6 +137,36 @@ local decoration_list = {
 	{ --[[ All arids: Tashvish                     ]]    "nodes_nature:tashvish"             , "simple"   , drylands_on                        , nil,           80,     0.300000,  nil                                                                                                              ,      lowland_ymax, lowland_ymin, "nodes_nature:tashvish"         , nil          , nil,         nil                  , nil                             ,      nil,   4,   nil, },
 	{ --[[ Underground: Cave worms on cave roof    ]]    "nodes_nature:glow_worm"            , "simple"   , glow_worm_on                       , nil,           16,     nil     ,  {offset = -0.04, scale = 0.4, spread = {x= 64,y= 64,z= 64}, seed=11002, octaves = 3, persist = 0.9}              ,               -15,        -1000, "nodes_nature:glow_worm"        , nil          , nil,         nil                  , "all_ceilings"                  ,      nil,   3,   nil, },
 }
+
+----Cobbles----
+for i in ipairs(rock_list) do
+    local rock_name = rock_list[i][1]
+    -- for each type of cobble
+    for j = 1, 3 do
+        local deco = {
+              "nodes_nature:" .. rock_name .. "_cobble" .. j,   -- name
+              "simple",                                         -- deco_type
+              "nodes_nature:" .. rock_name,                     -- place_on
+              nil,                                              -- place_offset_y
+              80,                                               -- sidelen
+              0.05,                                             -- fill_ratio
+              nil,                                              -- noise_params
+              31000,                                            -- y_max
+              -31000,                                           -- y_min
+              "nodes_nature:" .. rock_name .. "_cobble" .. j,   -- decoration
+              nil,                                              -- spawn_by
+              nil,                                              -- num_spawn_by
+              nil,                                              -- schematic
+              "all_floors",                                     -- flags
+              nil,                                              -- rotation
+              nil,                                              -- param2
+              nil,                                              -- param2_max
+              }
+        table.insert(decoration_list, deco)
+    end
+end
+
+----Register----
 for i in ipairs(decoration_list) do
 	minetest.register_decoration(
 		{
