@@ -8,7 +8,7 @@ plant_base_timer = 40
 
 
 plantlist = {
-	{"moss", S("Moss"),{-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}, 1, "crumbly", "nodebox", nil, S("Moss Spores"), "nodes_nature_spores.png", plant_base_growth *3, 1, "green"},
+	{"moss", S("Moss"),{-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}, 1, "snappy", "nodebox", nil, S("Moss Spores"), "nodes_nature_spores.png", plant_base_growth *3, 1, "green"},
 	{"gitiri", "Gitiri", nil, 1.2, "woody_plant", nil, 2, nil, nil, plant_base_growth * 2, 1, "green"},
 	{"sari", "Sari", nil, 1, "fibrous_plant", nil, 2, nil, nil, plant_base_growth *0.5, 1, "yellow"},
 	{"tanai", "Tanai", nil, 1, "fibrous_plant", nil, 4, nil, nil, plant_base_growth*1.5, 1, "crimson"},
@@ -21,8 +21,8 @@ plantlist = {
 	{"tashvish", "Tashvish", nil, 1, "fibrous_plant", nil, 4, nil, nil, plant_base_growth*1.5},
 
 	--artifact
-	{"reshedaar", "Reshedaar", {-0.25, -0.5, -0.25, 0.25, -0.125, 0.25}, 1, "crumbly", "nodebox", nil, S("Reshedaar Spores"), "nodes_nature_spores.png", plant_base_growth *3, 1, "indigo"},
-	{"mahal", "Mahal", {-0.25, -0.5, -0.25, 0.25, -0.125, 0.25}, 1, "crumbly", "nodebox", nil, S("Mahal Spores"), "nodes_nature_spores.png", plant_base_growth *3, 1},
+	{"reshedaar", "Reshedaar", {-0.25, -0.5, -0.25, 0.25, -0.125, 0.25}, 1, "fibrous_plant", "nodebox", nil, S("Reshedaar Spores"), "nodes_nature_spores.png", plant_base_growth *3, 1, "indigo"},
+	{"mahal", "Mahal", {-0.25, -0.5, -0.25, 0.25, -0.125, 0.25}, 1, "woody_plant", "nodebox", nil, S("Mahal Spores"), "nodes_nature_spores.png", plant_base_growth *3, 1},
 --Consumables
   --drugs
 	{"tikusati", "Tikusati", nil, 1, "herbaceous_plant", nil, 2,  nil, nil, plant_base_growth, nil, "yellow"},
@@ -38,7 +38,7 @@ plantlist = {
 	{"galanta", "Galanta", nil, 1, "herbaceous_plant", nil, 4, nil, nil, plant_base_growth *0.8, 1, "green"},
 	{"momo", "Momo", nil, 1, "herbaceous_plant", nil, 2, nil, nil, plant_base_growth *2, 1, "red"},
 	--artifact
-	{"lambakap", "Lambakap", {-0.25, -0.5, -0.25, 0.25, -0.125, 0.25}, 1, "crumbly", "nodebox", 0, S("Lambakap Spores"), "nodes_nature_spores.png", plant_base_growth *3, 1, "red"},
+	{"lambakap", "Lambakap", {-0.25, -0.5, -0.25, 0.25, -0.125, 0.25}, 1, "mushroom", "nodebox", 0, S("Lambakap Spores"), "nodes_nature_spores.png", plant_base_growth *3, 1, "red"},
 
 }
 
