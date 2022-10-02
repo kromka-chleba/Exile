@@ -176,7 +176,7 @@ local function grow_seed(pos, seed_name, plant_name, place_p2, timer_avg, elapse
 		if minetest.get_item_group(node_under.name, "agricultural_soil") >= 1 then
 			if math.random()<0.0001 then
 				local deplete_name = node_under.name.."_depleted"
-				minetest.set_node(pos_under, {name = deplete_name})
+				minetest.swap_node(pos_under, {name = deplete_name})
 			end
 		end
 		--grow faster in rain
@@ -707,7 +707,7 @@ local function rooted_place(itemstack, placer, pointed_thing, node_name, substra
 			minetest.get_item_group(node_top.name, "water") > 0 then
 		if not minetest.is_protected(pos, player_name) and
 				not minetest.is_protected(pos_top, player_name) then
-			minetest.set_node(pos, {name = node_name,
+			minetest.swap_node(pos, {name = node_name,
 				param2 = height * 16})
 			if not (creative and creative.is_enabled_for
 					and creative.is_enabled_for(player_name)) then
@@ -782,7 +782,7 @@ for i in ipairs(searooted_list) do
 			end,
 
 			after_destruct  = function(pos, oldnode)
-				minetest.set_node(pos, {name = substrate})
+				minetest.swap_node(pos, {name = substrate})
 			end
 		})
 
@@ -814,7 +814,7 @@ for i in ipairs(searooted_list) do
 			end,
 
 			after_destruct  = function(pos, oldnode)
-				minetest.set_node(pos, {name = substrate})
+				minetest.swap_node(pos, {name = substrate})
 			end,
 		})
 	end
