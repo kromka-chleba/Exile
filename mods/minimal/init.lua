@@ -22,6 +22,7 @@ minimal.FS = function(...)
 end
 local modpath=minetest.get_modpath('minimal')
 dofile(modpath..'/item_names.lua')
+dofile(modpath..'/compat.lua')
 dofile(modpath..'/settingswarn.lua')
 dofile(modpath..'/aliases.lua')
 dofile(modpath..'/overrides.lua')
