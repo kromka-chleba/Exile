@@ -67,7 +67,15 @@ end
 -- Overrides for edible and bakable nodes
 local eat_redef = {
    on_use = function(itemstack, user, pointed_thing)
-      return exile_eatdrink(itemstack, user)
+	   local pt_pos = minetest.get_pointed_thing_position(pointed_thing)
+	   local pname = user:get_player_name()
+	   if minimal.click_count_ready(pname, pt_pos, 2, 2) then
+		return exile_eatdrink(itemstack, user)
+	   else
+		minetest.chat_send_player(user:get_player_name(),
+			S("Double click to eat"))
+	   end
+
 end}
 
 local function bake_error(pos, selfname)
