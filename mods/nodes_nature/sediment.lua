@@ -508,64 +508,22 @@ local sediment_list = {
 				sound_wet = sounds.sand_wet}),
 }
 
--- this is only for paint
-local red_ochre = sediment.new({name = "red_ochre",
-				description = S("Red Ochre"),
-				hardness = hardness.medium,
-                                fertility = 2, sound = sounds.dirt,
-				sound_wet = sounds.dirt_wet})
-sediment.register_dry(red_ochre)
-sediment.register_wet(red_ochre)
-sediment.register_wet_salty(red_ochre)
-sediment.do_slopes(red_ochre)
-
-
-
 local soil_list = {
     --Forest & Woodland
-   soil.new({name = "rich_forest_soil",
-	     description = S("Rich Forest Soil"),
-	     sediment = sediment_list.loam}),
-   soil.new({name = "rich_woodland_soil",
-	     description = S("Rich Woodland Soil"),
-	     sediment = sediment_list.loam}),
-   soil.new({name = "forest_soil",
-	     description = S("Forest Soil"),
-	     sediment = sediment_list.silt}),
    soil.new({name = "woodland_soil",
 	     description = S("Woodland Soil"),
 	     sediment = sediment_list.silt}),
-   soil.new({name = "upland_forest_soil",
-	     description = S("Upland Forest Soil"),
-	     sediment = sediment_list.clay}),
-   soil.new({name = "upland_woodland_soil",
-	     description = S("Upland Woodland Soil"),
-	     sediment = sediment_list.clay}),
 
     --Wetlands
    soil.new({name = "marshland_soil",
 	     description = S("Marshland Soil"),
 	     sediment = sediment_list.silt}),
-   soil.new({name = "swamp_forest_soil",
-	     description = S("Swamp Forest Soil"),
-	     sediment = sediment_list.silt}),
 
     --Shrubland & Grassland
-    soil.new({name = "coastal_shrubland_soil",
-	      description = S("Coastal Shrubland Soil"),
-	      sediment = sediment_list.silt}),
-    soil.new({name = "coastal_grassland_soil",
-	      description = S("Coastal Grassland Soil"),
-	      sediment = sediment_list.clay}),
     soil.new({name = "grassland_soil", description = S("Grassland Soil"),
-	      sediment = sediment_list.clay}),
-    soil.new({name = "shrubland_soil", description = S("Shrubland Soil"),
 	      sediment = sediment_list.clay}),
 
     --Barrenland & Duneland
-    soil.new({name = "barrenland_soil",
-	      description = S("Barren Grassland Soil"),
-	      sediment = sediment_list.gravel}),
     soil.new({name = "duneland_soil",
 	      description = S("Duneland Soil"),
 	      sediment = sediment_list.sand}),
