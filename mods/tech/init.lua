@@ -54,3 +54,4 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
+
