@@ -74,7 +74,6 @@ local function till_soil(itemstack, placer, pointed_thing, uses)
 end
 
 
-
 ---------------------------------------
 --Tools
 
@@ -248,7 +247,6 @@ minetest.register_tool("tech:adze_jade", {
 	sound = {breaks = "tech_tool_breaks"},
 })
 
-
 --stone club. A weapon. Not very good for anything else
 --can stun catch animals
 minetest.register_tool("tech:stone_club", {
@@ -318,6 +316,34 @@ minetest.register_tool("tech:axe_iron", {
 	on_place = crafting.make_on_place({"axe","axe_mixing"}, 2, { x = 8, y = 3 }),
 	groups = {axe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing, "tech:axe_iron_placed")
+        end,
+})
+
+-- Placed iron axe
+minetest.register_node(
+    "tech:axe_iron_placed", {
+        description = S("Placed Iron Axe"),
+        drawtype = "mesh",
+        mesh = "axe_placed.obj",
+        tiles = {name = "tech_axe_iron_placed.png"},
+        paramtype = "light",
+        paramtype2 = "facedir",
+        drop = "tech:axe_iron",
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+	selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
+        end,
 })
 
 
@@ -501,9 +527,6 @@ local function place_hammer(itemstack, placer, pointed_thing, placed_name)
     return itemstack
 end
 
--- opens the hammering spot GUI
-local open_hammering_spot = crafting.make_on_rightclick("hammering_block", 2, { x = 8, y = 3 })
-
 -- opens the hammering spot GUI if the hammer is placed on a solid node
 local function open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
     local good_on = {{"stone", 1}, {"masonry", 1}, {"boulder", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}}
@@ -566,7 +589,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         drop = "tech:hammer_granite",
         sounds = nodes_nature.node_sound_stone_defaults(),
-        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1},
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -619,7 +642,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         drop = "tech:hammer_basalt",
         sounds = nodes_nature.node_sound_stone_defaults(),
-        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1},
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
 	node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
