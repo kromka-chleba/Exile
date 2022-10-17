@@ -1,0 +1,12 @@
+# textdomain: religion
+Blessed=
+Effigy=
+@1 Effigy=
+You offer up a prayer to your god=
+and nothing happens=
+You have already said your prayers for today=
+and you feel refreshed=
+you feel how your faith is strengthened=
+something inside you tells you that this is not working=
+and you feel a soft breeze that comforts you=
+a voice inside you tells you that god is dead, but you decide to ignore it=
