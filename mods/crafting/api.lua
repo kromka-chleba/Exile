@@ -18,12 +18,15 @@
 
 crafting = {
 	recipes = {},
+	tab_labels = {},
 	recipes_by_id = {},
 	registered_on_crafts = {},
 }
 
-function crafting.register_type(name)
+function crafting.register_type(name, label)
 	crafting.recipes[name] = {}
+	-- add a label for tabs - default to the name
+	crafting.tab_labels[name] = (label or name)
 end
 
 local recipe_counter = 0
@@ -33,16 +36,22 @@ function crafting.register_recipe(def)
 	assert(def.items,  "Items needed in recipe definition")
 
 	def.level = def.level or 1
-
-	local tab = crafting.recipes[def.type]
-	assert(tab,        "Unknown craft type " .. def.type)
-
-	recipe_counter = recipe_counter + 1
-	def.id = recipe_counter
-	crafting.recipes_by_id[recipe_counter] = def
-	tab[#tab + 1] = def
-
-	return def.id
+	local types = def.type
+	local returns = {}
+	if type(def.type) == 'string' then
+		types = { def.type } 
+	end
+	for _, ctype in ipairs(types) do
+		local tab = crafting.recipes[ctype]
+		assert(tab,        "Unknown craft type " .. ctype)
+		recipe_counter = recipe_counter + 1
+		def.id = recipe_counter
+		def.type = ctype
+		crafting.recipes_by_id[recipe_counter] = def
+		tab[#tab + 1] = def
+		returns[#returns + 1] = def.id
+	end
+	return returns
 end
 
 local unlocked_cache = {}
@@ -189,12 +198,20 @@ function crafting.get_all_for_player(player, type, level)
 	return crafting.get_all(type, level, item_hash, unlocked)
 end
 
-function crafting.can_craft(name, type, level, recipe)
+function crafting.can_craft(name, ctype, level, recipe)
 	local unlocked = crafting.get_unlocked(name)
-
-	return recipe.type == type and recipe.level <= level and
-		(recipe.always_known or unlocked[recipe.output])
-end
+	if type(ctype) == 'string' then
+		ctype = { ctype }
+	end
+print (dump({name,ctype,level,recipe}))
+	for _,station in ipairs(ctype) do
+		if recipe.type == station and recipe.level <= level and
+			(recipe.always_known or unlocked[recipe.output]) then
+			return true
+		end
+	end
+	return false
+end	
 
 local function give_all_to_player(inv, list)
 	for _, item in pairs(list) do

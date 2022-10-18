@@ -288,7 +288,6 @@ crafting.register_recipe({
 	always_known = true,
 })
 
-
 --peel tubers
 crafting.register_recipe({
 	type = "crafting_spot",

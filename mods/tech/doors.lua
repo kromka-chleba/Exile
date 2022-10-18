@@ -123,7 +123,6 @@ crafting.register_recipe({
 	always_known = true,
 })
 
-
 --------------------
 crafting.register_recipe({
 	type = "carpentry_bench",

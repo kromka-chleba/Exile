@@ -79,8 +79,9 @@ for i in ipairs(stone_list) do
 		stairs.register_stair_and_slab(
 			name.."_brick",
 			"nodes_nature:"..name.."_brick",
-			"masonry_bench",
+			"masonry_bench_bricks",
 			"true",
+			"masonry_bench_bricks",
 			{cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
 			{"nodes_nature_"..name.."_brick.png" },
 			desc.." Brick Stair",
@@ -90,7 +91,7 @@ for i in ipairs(stone_list) do
 		)
 
 	crafting.register_recipe({
-	      type = "masonry_bench",
+	      type = "masonry_bench_bricks",
 	      output = "nodes_nature:"..name.."_brick",
 	      items = {"nodes_nature:"..name.."_block"},
 	      level = 1,
@@ -186,47 +187,49 @@ for i in ipairs(rock_list) do
 			sounds = nodes_nature.node_sound_stone_defaults(),
 		})
 
-		--hammer out blocks etc from boulder
-		crafting.register_recipe({
-			type = "hammering_block",
-			output = "nodes_nature:"..name.."_block",
-			items = {"nodes_nature:"..name.."_boulder"},
-			level = 1,
-			always_known = true,
-		})
+		minetest.register_on_mods_loaded(function()
+			--hammer out blocks etc from boulder
+			crafting.register_recipe({
+				type = {"masonry_bench","hammer","hammering_block"},
+				output = "nodes_nature:"..name.."_block",
+				items = {"nodes_nature:"..name.."_boulder"},
+				level = 1,
+				always_known = true,
+			})
 
-                crafting.register_recipe({
-                      type = "hammering_block",
-                      output = "nodes_nature:"..name.."_cobble2 8",
-                      items = {"nodes_nature:"..name.."_boulder"},
-                      level = 1,
-                      always_known = true,
-		})
+			crafting.register_recipe({
+			      type = {"masonry_bench","hammer","hammering_block"},
+			      output = "nodes_nature:"..name.."_cobble1 8",
+			      items = {"nodes_nature:"..name.."_boulder"},
+			      level = 1,
+			      always_known = true,
+			})
 
-		crafting.register_recipe({
-			type = "masonry_bench",
-			output = "nodes_nature:"..name.."_block",
-			items = {"nodes_nature:"..name.."_boulder"},
-			level = 1,
-			always_known = true,
-		})
+			crafting.register_recipe({
+				type = "masonry_bench",
+				output = "nodes_nature:"..name.."_block",
+				items = {"nodes_nature:"..name.."_boulder"},
+				level = 1,
+				always_known = true,
+			})
 
-		crafting.register_recipe({
-			type = "masonry_bench",
-			output = "nodes_nature:"..name.."_brick",
-			items = {"nodes_nature:"..name.."_boulder"},
-			level = 1,
-			always_known = true,
-		})
+			crafting.register_recipe({
+				type = "masonry_bench",
+				output = "nodes_nature:"..name.."_brick",
+				items = {"nodes_nature:"..name.."_boulder"},
+				level = 1,
+				always_known = true,
+			})
 
-		--recycle block (e.g. so can get iron ore)
-		crafting.register_recipe({
-			type = "mixing_spot",
-			output = "nodes_nature:"..name.."_boulder",
-			items = {"nodes_nature:"..name.."_block"},
-			level = 1,
-			always_known = true,
-		})
+			--recycle block (e.g. so can get iron ore)
+			crafting.register_recipe({
+				type = {"hammer","mixing_spot"},
+				output = "nodes_nature:"..name.."_boulder",
+				items = {"nodes_nature:"..name.."_block"},
+				level = 1,
+				always_known = true,
+			})
+		end)
 
 		--stairs and slabs
 
@@ -234,8 +237,9 @@ for i in ipairs(rock_list) do
 		stairs.register_stair_and_slab(
 			name.."_brick",
 			"nodes_nature:"..name.."_brick",
-			"masonry_bench",
+			"masonry_bench_bricks",
 			"true",
+			"masonry_bench_mixing",
 			{cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
 			{"nodes_nature_"..name.."_brick.png" },
 			desc.." Brick Stair",
@@ -248,8 +252,9 @@ for i in ipairs(rock_list) do
 		stairs.register_stair_and_slab(
 			name.."_block",
 			"nodes_nature:"..name.."_block",
-			"masonry_bench",
+			"masonry_bench_blocks",
 			"false",
+			"masonry_bench_mixing",
 			{cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
 			{"nodes_nature_"..name.."_block.png" },
 			desc.." Block Stair",
@@ -278,7 +283,8 @@ for i in ipairs(rock_list) do
 			 drop = "nodes_nature:"..name.."_cobble1",
 			 on_place = function(itemstack, placer, pointed_thing)
 				 return cobble_on_place(itemstack, placer, pointed_thing, name)
-			end,
+			 end,
+			 on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
                          selection_box = {
                             type = "fixed",
                             fixed = {-5/16, -8/16, -5/16, 5/16, -4/16, 5/16},

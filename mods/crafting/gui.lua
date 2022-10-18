@@ -182,7 +182,21 @@ local function sanitize(badstring)
 end
 
 function crafting.result_select_on_receive_results(player, type, level, context, fields)
-	if fields.prev then
+	-- Was a tab selected?
+	if fields.crafting_nav_tabs then
+		local tid = tonumber(fields.crafting_nav_tabs)
+		if tid and tid > 0 then
+			context.selected_tab = tid
+			--Tab selelected change formspec
+			--XXX
+			--local tab_name = context.nav[tid]
+			--local tab = crafting.tab[id]
+			--if id and page then
+		--		sfinv.set_page(player, id)
+		--	end
+		end
+		return true
+	elseif fields.prev then
 		context.crafting_page = (context.crafting_page or 1) - 1
 		return true
 	elseif fields.next then
@@ -204,6 +218,7 @@ function crafting.result_select_on_receive_results(player, type, level, context,
 				local inv    = player:get_inventory()
 				local recipe = crafting.get_recipe(tonumber(num))
 				local name   = player:get_player_name()
+print (dump(type))
 				if not crafting.can_craft(name, type, level, recipe) then
 					minetest.log("error", "[crafting] Player clicked a button they shouldn't have been able to")
 					return true
@@ -237,19 +252,61 @@ end
 
 local node_fs_context = {}
 local node_serial = 0
+-- table of formname tabs and tab labels for tabheader by formname
+local formname_tabs = {
+	-- types = table of crafting types to make tabs
+	-- labels = label to use on the tabs
+} 
 
-function crafting.make_on_rightclick(type, level, inv_size)
+local function make_on_show_function(ctype, level, inv_size, context)
 	node_serial = node_serial + 1
 	local formname = "crafting:node_" .. node_serial
 
-	local function show(player, context)
-		local formspec = crafting.make_result_selector(player, type, level, inv_size, context)
-		formspec = "size[" .. inv_size.x  .. "," .. (inv_size.y + 5.6) ..
-				"]list[current_player;main;0," .. (inv_size.y + 1.7) ..";8,1;]" ..
-				"list[current_player;main;0," .. (inv_size.y + 2.85) ..";8,3;8]" .. formspec
-		minetest.show_formspec(player:get_player_name(), formname, formspec)
+	-- type can be a list of crafting types to appear as tabs
+	if type(ctype) == 'table' then
+		formname_tabs[formname] = {}
+		formname_tabs[formname].types = ctype
 	end
 
+	local function show(player, context)
+		local types=ctype
+		local craft_type = ctype
+		local tab_labels = nil
+		local formspec_tabs = ""
+		local selected_tab = context.selected_tab or 1
+		if formname_tabs[formname] then
+			types = formname_tabs[formname].types
+			tab_labels = formname_tabs[formname].labels
+			if not types[selected_tab] then
+				selected_tab = 1 -- tab doesn't exist most be old context
+			end
+			context.selected_tab = selected_tab
+			-- Generate and save tab labels
+			if not tab_labels then 
+				tab_labels = ""
+				for _, tab in ipairs(types) do
+					local label = crafting.tab_labels[tab] or tab -- default to using tab name as label
+						tab_labels = tab_labels..label..','
+				end
+				tab_labels = tab_labels:sub(1, -2) -- remove last , 
+				formname_tabs[formname].labels = tab_labels
+			end
+			formname_tabs[formname].labels = tab_labels
+			if formname_tabs[formname].types[selected_tab] then
+				craft_type = formname_tabs[formname].types[selected_tab]
+			end
+		end
+		if tab_labels and tab_labels ~= "" then
+			formspec_tabs = "tabheader[0,0;crafting_nav_tabs;" .. tab_labels ..
+				";" .. selected_tab .. ";true;false]"
+		end
+		local formspec = "size[" .. inv_size.x  .. "," .. (inv_size.y + 3.6) .."]"
+				.. formspec_tabs
+				.. "list[current_player;main;0," .. (inv_size.y + 1.7) ..";8,1;]"
+				.. "list[current_player;main;0," .. (inv_size.y + 2.85) ..";8,3;8]"
+				.. crafting.make_result_selector(player, craft_type, level, inv_size, context)
+		minetest.show_formspec(player:get_player_name(), formname, formspec)
+	end
 	minetest.register_on_player_receive_fields(function(player, _formname, fields)
 		if formname ~= _formname then
 			return
@@ -260,12 +317,17 @@ function crafting.make_on_rightclick(type, level, inv_size)
 			return false
 		end
 
-		if crafting.result_select_on_receive_results(player, type, level, context, fields) then
+		if crafting.result_select_on_receive_results(player, ctype, level, context, fields) then
 			show(player, context)
 		end
 		return true
 	end)
+	return show
+end
 
+
+function crafting.make_on_rightclick(type, level, inv_size)
+	local show = make_on_show_function(type, level, inv_size)
 	return function(pos, node, player)
 		local meta = minetest.get_meta(pos)
 		local name = player:get_player_name()
@@ -275,7 +337,28 @@ function crafting.make_on_rightclick(type, level, inv_size)
 		context.type  = type
 		context.level = level
 		context.creator = meta:get_string('creator')
-
+		context.tab = 1
 		show(player, context)
 	end
 end
+
+function crafting.make_on_place(type, level, inv_size)
+	local show = make_on_show_function(type, level, inv_size)
+	return function(itemstack, placer, pointed_thing)
+		local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
+		local pt_node=minetest.get_node(pt_pos)
+		if pt_node and  minetest.registered_nodes[pt_node.name].on_rightclick then
+			return minetest.registered_nodes[pt_node.name].on_rightclick(pt_pos,pt_node,placer,itemstack,pointed_thing)
+		end
+		local meta = itemstack:get_meta()
+		local name = placer:get_player_name()
+		local context = node_fs_context[name] or {}
+		node_fs_context[name] = context
+		context.pos   = vector.new(pt_pos)
+		context.type  = type
+		context.level = level
+		context.creator = meta:get_string('creator')
+		show(placer, context)
+	end
+end
+
