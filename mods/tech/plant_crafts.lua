@@ -288,7 +288,6 @@ crafting.register_recipe({
 	always_known = true,
 })
 
-
 --peel tubers
 crafting.register_recipe({
 	type = "crafting_spot",
@@ -297,6 +296,7 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
+
 
 --
 --mortar and pestle

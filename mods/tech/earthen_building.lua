@@ -24,8 +24,9 @@ minetest.register_node("tech:drystack", {
 stairs.register_stair_and_slab(
 	"drystack",
 	"tech:drystack",
-	"mixing_spot",
+	{"hand_mixing","mixing_spot"},
 	"true",
+	{"hand_mixing","mixing_spot"},
 	{cracky = 3, crumbly = 1, oddly_breakable_by_hand = 1, falling_node = 1},
 	{"tech_drystack.png"},
 	"Drystack Stair",
@@ -50,8 +51,9 @@ minetest.register_node('tech:mudbrick', {
 stairs.register_stair_and_slab(
 	"mudbrick",
 	"tech:mudbrick",
-	"brick_makers_bench",
+	{"brick_makers_bench_mixing","mixing_spot"},
 	"true",
+	{"brick_makers_bench_mixing","mixing_spot"},
 	{crumbly = 2, cracky = 3, oddly_breakable_by_hand = 1,},
 	{"tech_mudbrick.png"},
 	"Mudbrick Stair",
@@ -83,8 +85,9 @@ minetest.register_node('tech:rammed_earth', {
 stairs.register_stair_and_slab(
 	"rammed_earth",
 	"tech:rammed_earth",
-	"brick_makers_bench",
+	{"brick_makers_bench_mixing","mixing_spot"},
 	"true",
+	{"brick_makers_bench_mixing","mixing_spot"},
 	{crumbly = 1, cracky = 3, falling_node = 1},
 	{
 		"tech_rammed_earth.png",
@@ -278,8 +281,9 @@ minetest.register_node('tech:thatch', {
 stairs.register_stair_and_slab(
 	"thatch",
 	"tech:thatch",
-	"weaving_frame",
+	"weaving_frame_mixing",
 	"true",
+	"weaving_frame_mixing",
 	{snappy=3, flammable=1, fall_damage_add_percent = -15},
 	{"tech_thatch.png"},
 	"Thatch Stair",
@@ -341,7 +345,7 @@ crafting.register_recipe({
 
 --recycle rammed_earth with some loss
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = "brick_makers_bench_mixing",
 	output = "nodes_nature:clay",
 	items = {"tech:rammed_earth"},
 	level = 1,
@@ -358,10 +362,9 @@ crafting.register_recipe({
 	always_known = true,
 })
 
-
 --recycle wattle with some loss
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = "hand_wattle",
 	output = "tech:stick 4",
 	items = {"tech:wattle"},
 	level = 1,
@@ -379,7 +382,7 @@ crafting.register_recipe({
 
 --recycle loose wattle with some loss
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = "hand_wattle",
 	output = "tech:stick 2",
 	items = {"tech:wattle_loose"},
 	level = 1,
@@ -388,7 +391,7 @@ crafting.register_recipe({
 
 --convert loose wattle to wattle
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = "hand_wattle",
 	output = "tech:wattle",
 	items = {"tech:wattle_loose 2"},
 	level = 1,
@@ -397,7 +400,7 @@ crafting.register_recipe({
 
 --convert wattle to loose wattle
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = "hand_wattle",
 	output = "tech:wattle_loose 2",
 	items = {"tech:wattle"},
 	level = 1,
@@ -412,22 +415,25 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
+
 --convert wattle to wattle door frame
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = "hand_wattle",
 	output = "tech:wattle_door_frame",
 	items = {"tech:wattle"},
 	level = 1,
 	always_known = true,
 })
+
 --convert wattle door frame to wattle
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = "hand_wattle",
 	output = "tech:wattle",
 	items = {"tech:wattle_door_frame"},
 	level = 1,
 	always_known = true,
 })
+
 
 ----Thatch from  fibre
 crafting.register_recipe({

@@ -204,8 +204,9 @@ function sediment.register_stair_and_slab(sed)
     stairs.register_stair_and_slab(
         sed.name,
         sed.dry_node_name,
-        "mixing_spot",
+	{"mixing_spot","soil_mixing"},
         "true",
+	{"mixing_spot","soil_mixing"},
         {falling_node = 1, crumbly = sed.hardness},
         {sed.texture_name},
         sed.description.." Stair",
@@ -252,6 +253,7 @@ function soil.register_dry(soil)
         tiles = {soil.texture_name, sed.texture_name,
                  {name = sed.texture_name.."^"..soil.texture_side_name}},
         _ag_soil = sed.ag_soil,
+        _wet_name = soil.wet_node_name,
     }
     local sed_props = get_dry_node_props(sed)
     local soil_props = merge_tables(sed_props, additional_properties)
@@ -266,6 +268,7 @@ function soil.register_wet(soil)
         tiles = {soil.texture_name.."^"..textures.wet, sed.texture_name.."^"..textures.wet,
                  {name = sed.texture_name.."^"..soil.texture_side_name.."^"..textures.wet}},
         _ag_soil = sed.ag_soil_wet,
+        _dry_name = dry_node_name,
     }
     local sed_props = get_wet_node_props(sed)
     local soil_props = merge_tables(sed_props, additional_properties)
@@ -411,23 +414,41 @@ function agricultural_soil.register_wet_depleted(ag_soil)
 end
 
 function agricultural_soil.register_recipe(agri_soil)
-    crafting.register_recipe({
-            type = "mixing_spot",
-            output = agri_soil.dry_node_name,
-            items = {agri_soil.sediment.dry_node_name.." 1","group:fertilizer 1"},
-            level = 1,
-            always_known = true,
-    })
+	minetest.register_on_mods_loaded(function()
+		crafting.register_recipe({
+		    type = "mixing_spot",
+		    output = agri_soil.dry_node_name,
+		    items = {agri_soil.sediment.dry_node_name.." 1","group:fertilizer 1"},
+		    level = 1,
+		    always_known = true,
+		})
+		crafting.register_recipe({
+		    type = "soil_mixing",
+		    output = agri_soil.dry_node_name,
+		    items = {agri_soil.sediment.dry_node_name.." 1","group:fertilizer 1"},
+		    level = 1,
+		    always_known = true,
+		})
+	end)
 end
 
 function agricultural_soil.register_recipe_wet(agri_soil)
-    crafting.register_recipe({
-            type = "mixing_spot",
-            output = agri_soil.wet_node_name,
-            items = {agri_soil.sediment.wet_node_name.." 1","group:fertilizer 1"},
-            level = 1,
-            always_known = true,
-    })
+	minetest.register_on_mods_loaded(function()
+	    crafting.register_recipe({
+		    type = "mixing_spot",
+		    output = agri_soil.wet_node_name,
+		    items = {agri_soil.sediment.wet_node_name.." 1","group:fertilizer 1"},
+		    level = 1,
+		    always_known = true,
+	    })
+	    crafting.register_recipe({
+		    type = "soil_mixing",
+		    output = agri_soil.wet_node_name,
+		    items = {agri_soil.sediment.wet_node_name.." 1","group:fertilizer 1"},
+		    level = 1,
+		    always_known = true,
+	    })
+	end)
 end
 
 -- Functions for making sets: sediment + soil + agricultural soil
@@ -543,21 +564,24 @@ local soil_list = {
 }
 
 -- Recipes for loam
-crafting.register_recipe({
-	type = "mixing_spot",
-	output = "nodes_nature:loam 3",
-	items = {"nodes_nature:clay 1","nodes_nature:silt 1","nodes_nature:sand 1"},
-	level = 1,
-	always_known = true,
-})
 
-crafting.register_recipe({
-	type = "mixing_spot",
-	output = "nodes_nature:loam_wet 3",
-	items = {"nodes_nature:clay_wet 1","nodes_nature:silt_wet 1","nodes_nature:sand_wet 1"},
-	level = 1,
-	always_known = true,
-})
+minetest.register_on_mods_loaded(function()
+	crafting.register_recipe({
+		type = "mixing_spot",
+		output = "nodes_nature:loam 3",
+		items = {"nodes_nature:clay 1","nodes_nature:silt 1","nodes_nature:sand 1"},
+		level = 1,
+		always_known = true,
+	})
+
+	crafting.register_recipe({
+		type = "mixing_spot",
+		output = "nodes_nature:loam_wet 3",
+		items = {"nodes_nature:clay_wet 1","nodes_nature:silt_wet 1","nodes_nature:sand_wet 1"},
+		level = 1,
+		always_known = true,
+	})
+end)
 
 -- Actually registers (almost) all soils in the game
 -- see red_ochre above
