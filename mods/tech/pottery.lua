@@ -663,7 +663,7 @@ minetest.register_node("tech:lataren", {
 crafting.register_recipe({
 	type = "crafting_spot",
 	output = "tech:lataren",
-	items = {"tech:iron_ingot","tech:pane_clear","tech:coarse_fibre"},
+	items = {"tech:iron_ingot","tech:pane_clear","tech:coarse_fibre 6"},
 	level = 1,
 	always_known = true,
 })
