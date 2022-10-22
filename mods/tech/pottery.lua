@@ -394,7 +394,7 @@ minetest.register_node("tech:clay_oil_lamp", {
 
 --Pot from clay
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_water_pot_unfired 1",
 	items = {"nodes_nature:clay_wet 4"},
 	level = 1,
@@ -402,7 +402,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = {"mixing_spot","hand_pottery"},
 	output = "nodes_nature:clay 4",
 	items = {"tech:clay_water_pot_unfired 1"},
 	level = 1,
@@ -412,7 +412,7 @@ crafting.register_recipe({
 
 --storage Pot from clay
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_storage_pot_unfired 1",
 	items = {"nodes_nature:clay_wet 6"},
 	level = 1,
@@ -420,7 +420,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = {"mixing_spot","hand_pottery"},
 	output = "nodes_nature:clay 6",
 	items = {"tech:clay_storage_pot_unfired 1"},
 	level = 1,
@@ -429,7 +429,7 @@ crafting.register_recipe({
 
 --oil lamp
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_oil_lamp_unfired 1",
 	items = {"nodes_nature:clay_wet"},
 	level = 1,
@@ -437,7 +437,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = {"mixing_spot","hand_pottery"},
 	output = "nodes_nature:clay",
 	items = {"tech:clay_oil_lamp_unfired 1"},
 	level = 1,
@@ -446,7 +446,7 @@ crafting.register_recipe({
 
 --Break up pots
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = {"mixing_spot","hand_pottery"},
 	output = "tech:broken_pottery",
 	items = {"group:pottery"},
 	level = 1,
@@ -455,7 +455,7 @@ crafting.register_recipe({
 
 --Combine broken pottery slabs and vice versa
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = {"mixing_spot","hand_pottery"},
 	output = "tech:broken_pottery_block",
 	items = {"tech:broken_pottery 2"},
 	level = 1,
@@ -463,7 +463,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = {"mixing_spot","hand_pottery"},
 	output = "tech:broken_pottery 2",
 	items = {"tech:broken_pottery_block"},
 	level = 1,

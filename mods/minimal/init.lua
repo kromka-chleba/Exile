@@ -33,6 +33,7 @@ dofile(modpath..'/metadata.lua')
 dofile(modpath..'/triggers.lua')
 dofile(modpath..'/debug.lua')
 dofile(modpath..'/hand.lua')
+dofile(modpath..'/debug.lua')
 
 -- GUI related stuff
 
