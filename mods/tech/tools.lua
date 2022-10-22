@@ -229,6 +229,7 @@ minetest.register_tool("tech:adze_basalt", {
 })
 
 
+
 --many more uses than granite.
 minetest.register_tool("tech:adze_jade", {
 	description = S("Jade Adze"),
@@ -342,7 +343,7 @@ minetest.register_node(
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
+            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing,2)
         end,
 })
 
