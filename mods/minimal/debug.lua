@@ -3,7 +3,7 @@
 --
 exile = exile
 exile.debug = exile.debug or {
-	__DEBUG__ = true
+	__DEBUG__ = false
 }
 
 
