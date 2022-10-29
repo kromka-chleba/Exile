@@ -6,8 +6,8 @@
 -- Internationalization
 local S = tech.S
 
-local lantern_max_fuel = 2700 -- 45 minutes
-local lantern_burn_rate = 1 -- seconds
+local lantern_max_fuel = 3000
+local lantern_burn_rate = 5 -- seconds
 local lantern_refill_ratio = 1/8 -- needs 8x vegetable oil to fill the tank
 
 -- to minimal?
