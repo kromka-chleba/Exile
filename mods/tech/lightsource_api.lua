@@ -87,7 +87,7 @@ function lightsource.burn_fuel(pos, unlit_name, put_out_by_moisture, max_fuel)
         return false -- stop timer
     else
         lightsource.spawn_particles(pos)
-        meta:set_int("fuel", fuel - 1)
+        meta:set_int("fuel", fuel - math.random(-1, 3))
         return true -- next iteration
     end
 end
@@ -109,9 +109,9 @@ function lightsource.refill(pos, clicker, itemstack, fuel_name, max_fuel, refill
     local meta = minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
     if stack_name == fuel_name then
-        if fuel and max_fuel - fuel > refill_ratio * max_fuel then
-            -- sprinkle with some randomness
-            fuel = fuel + refill_ratio * max_fuel + math.random(-0.005 * max_fuel, 0.01 * max_fuel)
+        if fuel and fuel < max_fuel then
+            fuel = fuel + refill_ratio * max_fuel
+            if fuel > max_fuel then fuel = max_fuel end -- yeah, I know lol
             meta:set_int("fuel", fuel)
             local name = clicker:get_player_name()
             if not minetest.is_creative_enabled(name) then
