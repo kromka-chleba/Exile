@@ -684,6 +684,108 @@ minetest.register_node(
         end,
 })
 
+-- dirt particles
+function dirt_particle(pos, node_name)
+    return {
+        amount = 10,
+        time = 0.5,
+        minpos = {x = pos.x - 0.5, y = pos.y - 0.50, z = pos.z - 0.5},
+        maxpos = {x = pos.x + 0.5, y = pos.y, z = pos.z + 0.5},
+        minvel = {x= -0.1, y= 2, z= -0.1},
+        maxvel = {x= 0.1, y= 4, z= 0.1},
+        minacc = {x= 0, y= -10, z= 0},
+        maxacc = {x= 0, y= -10, z= 0},
+        minexptime = 3,
+        maxexptime = 3,
+        minsize = 0.4,
+        maxsize = 1,
+        collisiondetection = true,
+        vertical = true,
+        node = {name = node_name, param2 = 0},
+    }
+end
+
+-- Iron Hoe
+minetest.register_tool("tech:hoe_iron", {
+	description = S("Iron Hoe"),
+	inventory_image = "tech_tool_hoe_iron.png",
+	tool_capabilities = {
+		full_punch_interval = base_punch_int,
+		groupcaps={
+                        crumbly = {times= {[1]=iron_crum1, [2]=iron_crum2, [3]=iron_crum3}, uses=iron_use, maxlevel=iron_max_lvl},
+			snappy = {times= {[3]=stone_snap3}, uses=iron_use *0.8, maxlevel=iron_max_lvl},
+		},
+		damage_groups = {fleshy = iron_dmg},
+	},
+	groups = {hoe = 1, craftedby = 1},
+	sound = {breaks = "tech_tool_breaks"},
+        on_use = function(itemstack, user, pointed_thing)
+            if pointed_thing.type ~= "node" then
+	        return
+            end
+            local under = minetest.get_node(pointed_thing.under)
+            local node_name = under.name
+            if minetest.get_item_group(node_name, "spreading") ~= 0 then
+                local particle = dirt_particle(pointed_thing.above, node_name)
+                minetest.add_particlespawner(particle)
+                minetest.sound_play("nodes_nature_dig_crumbly", {pos = pointed_thing.under, gain = 0.5})
+                local timer = minetest.get_node_timer(pointed_thing.under)
+                local meta = minetest.get_meta(pointed_thing.under)
+                if not timer:is_started() then
+                    timer:start(10)
+                    meta:set_int("till_number", 1)
+                else
+                    local till_number = meta:get_int("till_number")
+                    if till_number < 2 then
+                        meta:set_int("till_number", till_number + 1)
+                    else
+                        meta:set_int("till_number", 0)
+                        till_soil(itemstack, placer, pointed_thing, base_use)
+                    end
+                end
+            end
+        end,
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing, "tech:hoe_iron_placed")
+        end,
+})
+
+-- Placed iron hoe
+minetest.register_node(
+    "tech:hoe_iron_placed", {
+        description = S("Placed Iron Hoe"),
+        drawtype = "mesh",
+        mesh = "hoe_placed.obj",
+        tiles = {name = "tech_axe_iron_placed.png"},
+        paramtype = "light",
+        paramtype2 = "facedir",
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+	selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+            -- possible future crafting?
+        end,
+        on_dig = function(pos, node, digger)
+            on_dig_tool(pos, node, digger, "tech:hoe_iron")
+        end,
+})
+
+--hoe
+crafting.register_recipe({
+	type = "anvil",
+	output = "tech:hoe_iron",
+	items = {'tech:iron_ingot', 'tech:stick'},
+	level = 1,
+	always_known = true,
+})
+
 ---------------------------------------
 --Recipes
 
