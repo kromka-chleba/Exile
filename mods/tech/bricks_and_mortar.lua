@@ -910,6 +910,6 @@ local mb_mixing = 'masonry_bench_mixing'
 --register_mortar_nodes (list, mortar_type,brick_mortar_type, block_mortar_type, 
 --		brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
 
-register_mortar_nodes (sediments, { bmb_ }, { bmb_bricks }, { bmb_blocks }, { bmb_mixing }, { bmb_mixing }, true)
+register_mortar_nodes (sediments, { bmb }, { bmb_bricks }, { bmb_blocks }, { bmb_mixing }, { bmb_mixing }, true)
 register_mortar_nodes (stones, { mb }, { mb_bricks }, { mb_blocks }, { mb_mixing }, { mb_mixing })
 
