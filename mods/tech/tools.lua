@@ -196,6 +196,7 @@ local crude_crum0 = 100 -- really long dig time - effectively disabled
 --choppy
 local crude_chop3 = minimal.hand_chop * crude
 local crude_chop2 = crude_chop3 * minimal.t_scale2
+local crude_chop0 = 100 -- really long dig time - effectively disabled
 --cracky
 --none at this level
 
