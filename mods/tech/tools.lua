@@ -74,6 +74,7 @@ local function till_soil(itemstack, placer, pointed_thing, uses)
 end
 
 
+
 ---------------------------------------
 --Tools
 
@@ -418,7 +419,7 @@ minetest.register_tool("tech:pickaxe_iron", {
 
 ----craft stone chopper from gravel
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand"},
 	output = "tech:stone_chopper 1",
 	items = {"nodes_nature:gravel"},
 	level = 1,
@@ -427,7 +428,7 @@ crafting.register_recipe({
 
 ----digging stick from sticks
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand","knife"},
 	output = "tech:digging_stick 1",
 	items = {"tech:stick 2"},
 	level = 1,
@@ -669,64 +670,4 @@ crafting.register_recipe({
 	always_known = true,
 })
 ]]
-
--- Register knife craft recipies after all modules loaded
-crafting.register_recipe({
-	type = "knife",
-	output = "tech:peeled_anperla",
-	items = {"nodes_nature:anperla_seed"},
-	level = 1,
-	always_known = true,
-})
-crafting.register_recipe({
-	type = "knife",
-	output = "tech:small_wood_fire_unlit",
-	items = {"tech:stick 6", "group:fibrous_plant 1"},
-	level = 1,
-	always_known = true,
-})
-crafting.register_recipe({
-	type = "knife",
-	output = "tech:large_wood_fire_unlit",
-	items = {"tech:stick 12", "group:fibrous_plant 2"},
-	level = 1,
-	always_known = true,
-})
--- Axe Crafting
-crafting.register_recipe({
-	type   = "axe",
-	output = "tech:chopping_block",
-	items  = {'group:log'},
-	level  = 1,
-	always_known = true,
-	})
-crafting.register_recipe({
-	type   = "axe",
-	output = "tech:brick_makers_bench",
-	items  = {'tech:stick 24'},
-	level  = 1,
-	always_known = true,
-	})
-crafting.register_recipe({
-	type   = "axe",
-	output = "tech:carpentry_bench",
-	items  = {'tech:iron_ingot 4', 'nodes_nature:maraka_log 2'},
-	level  = 1,
-	always_known = true,
-	})
-crafting.register_recipe({
-	type = "axe",
-	output = "tech:large_wood_fire_unlit",
-	items = {"tech:stick 12", "group:fibrous_plant 2"},
-	level = 1,
-	always_known = true,
-})
-crafting.register_recipe({
-	type = "axe",
-	output = "tech:large_wood_fire_unlit 2",
-	items = {"group:log", "group:fibrous_plant 4"},
-	level = 1,
-	always_known = true,
-})
-
 
