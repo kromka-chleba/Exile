@@ -203,7 +203,12 @@ minetest.register_node(
 --
 
 -- digging stick... specialist for digging. Can also till
-local digging_stick_crafting = crafting.make_on_rightclick({"threshing_spot","soil_mixing"}, 2, { x = 8, y = 3 })
+
+local open_digging_stick = {
+	crafting.make_on_rightclick({"threshing_spot","soil_mixing"}, 1, { x = 8, y = 3 }),
+	crafting.make_on_rightclick({"threshing_spot","soil_mixing"}, 2, { x = 8, y = 3 }),
+}
+
 minetest.register_tool("tech:digging_stick", {
 	description = S("Digging Stick"),
 	inventory_image = "tech_tool_digging_stick.png^[transformR90",
@@ -219,12 +224,7 @@ minetest.register_tool("tech:digging_stick", {
 	sound = {breaks = "tech_tool_breaks"},
         _punch_number = 6, -- how many times you need to hit soil to till it
         on_place = function(itemstack, placer, pointed_thing)
-            if placer:get_player_control().sneak then
-                return place_tool(itemstack, placer, pointed_thing, "tech:digging_stick_placed")
-            end
-	    if not soil.till(itemstack, placer, pointed_thing, base_use) then
-                return digging_stick_on_place[1](itemstack, placer, pointed_thing)
-            end
+            return place_tool(itemstack, placer, pointed_thing, "tech:digging_stick_placed")
         end,
 })
 
@@ -248,7 +248,7 @@ minetest.register_node(
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            digging_stick_crafting(pos, node, clicker, itemstack, pointed_thing)
+            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger, "tech:digging_stick")
@@ -660,7 +660,7 @@ minetest.register_node(
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            -- possible future crafting?
+            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger, "tech:hoe_iron")
