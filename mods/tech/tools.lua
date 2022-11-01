@@ -20,59 +20,6 @@ local base_punch_int = minimal.hand_punch_int
 
 -----------------------------------
 
---Till soil
-local function till_soil(itemstack, placer, pointed_thing, uses)
-	--agriculture
-	if pointed_thing.type ~= "node" then
-		return
-	end
-
-	local under = minetest.get_node(pointed_thing.under)
-	-- am I clicking on something with existing on_rightclick function?
-	local def = minetest.registered_nodes[under.name]
-	if def and def.on_rightclick then
-		return def.on_rightclick(pointed_thing.under, under, placer, itemstack)
-	end
-
-	local p = {x=pointed_thing.under.x, y=pointed_thing.under.y+1, z=pointed_thing.under.z}
-	local above = minetest.get_node(p)
-
-	-- return if any of the nodes is not registered
-	local node_name = under.name
-	local nodedef = minetest.registered_nodes[node_name]
-
-	if not nodedef then
-		return
-	end
-	if not minetest.registered_nodes[above.name] then
-		return
-	end
-
-	-- check if the node above the pointed thing is air
-	if above.name ~= "air" then
-		return
-	end
-
-	--living surface level sediment
-
-	if minetest.get_item_group(node_name, "spreading") ~= 0 then
-
-		--figure out what soil it is from dropped
-		local ag_soil = nodedef._ag_soil
-
-		minetest.swap_node(pointed_thing.under, {name = ag_soil})
-		minetest.sound_play("nodes_nature_dig_crumbly", {pos = pointed_thing.under, gain = 0.5,})
-
-
-		itemstack:add_wear(65535/(uses-1))
-
-		return itemstack
-	end
-
-
-
-end
-
 --Hammers
 
 --Places hammer
@@ -263,17 +210,20 @@ minetest.register_tool("tech:digging_stick", {
 	tool_capabilities = {
 		full_punch_interval = base_punch_int*1.1,
 		groupcaps={
-			crumbly = {times= {[1]=crude_crum1, [2]=crude_crum2, [3]=crude_crum3}, uses=base_use, maxlevel=crude_max_lvl}
+                    crumbly = {times= {[1]=crude_crum1, [2]=crude_crum2, [3]=crude_crum3}, uses=base_use, maxlevel=crude_max_lvl},
+                    tilling = {uses = base_use},
 		},
 		damage_groups = {fleshy= crude_dmg},
 	},
-	groups = {shovel = 1, craftedby = 1},
+	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
+        _punch_number = 6, -- how many times you need to hit soil to till it
         on_place = function(itemstack, placer, pointed_thing)
             if placer:get_player_control().sneak then
                 return place_tool(itemstack, placer, pointed_thing, "tech:digging_stick_placed")
-            else
-                till_soil(itemstack, placer, pointed_thing, base_use)
+            end
+	    if not soil.till(itemstack, placer, pointed_thing, base_use) then
+                return digging_stick_on_place[1](itemstack, placer, pointed_thing)
             end
         end,
 })
@@ -596,7 +546,9 @@ minetest.register_tool("tech:shovel_iron", {
 	groups = {shovel = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
 	on_place = function(itemstack, placer, pointed_thing)
-		return till_soil(itemstack, placer, pointed_thing, iron_use)
+            if not soil.till(itemstack, placer, pointed_thing, iron_use) then
+                digging_stick_on_place[2](itemstack, placer, pointed_thing) 
+            end
 	end
 })
 
@@ -667,27 +619,6 @@ minetest.register_node(
         end,
 })
 
--- dirt particles
-function dirt_particle(pos, node_name)
-    return {
-        amount = 10,
-        time = 0.5,
-        minpos = {x = pos.x - 0.5, y = pos.y - 0.50, z = pos.z - 0.5},
-        maxpos = {x = pos.x + 0.5, y = pos.y, z = pos.z + 0.5},
-        minvel = {x= -0.1, y= 2, z= -0.1},
-        maxvel = {x= 0.1, y= 4, z= 0.1},
-        minacc = {x= 0, y= -10, z= 0},
-        maxacc = {x= 0, y= -10, z= 0},
-        minexptime = 1.5,
-        maxexptime = 1.5,
-        minsize = 0.4,
-        maxsize = 1,
-        collisiondetection = true,
-        vertical = false,
-        node = {name = node_name, param2 = 0},
-    }
-end
-
 -- Iron Hoe
 minetest.register_tool("tech:hoe_iron", {
 	description = S("Iron Hoe"),
@@ -697,37 +628,13 @@ minetest.register_tool("tech:hoe_iron", {
 		groupcaps={
                         crumbly = {times= {[1]=iron_crum1, [2]=iron_crum2, [3]=iron_crum3}, uses=iron_use, maxlevel=iron_max_lvl},
 			snappy = {times= {[3]=stone_snap3}, uses=iron_use *0.8, maxlevel=iron_max_lvl},
+                        tilling = {uses = base_use},
 		},
 		damage_groups = {fleshy = iron_dmg},
 	},
 	groups = {hoe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
-        on_use = function(itemstack, user, pointed_thing)
-            if pointed_thing.type ~= "node" then
-	        return
-            end
-            local under = minetest.get_node(pointed_thing.under)
-            local node_name = under.name
-            if minetest.get_item_group(node_name, "spreading") ~= 0 then
-                local particle = dirt_particle(pointed_thing.above, node_name)
-                minetest.add_particlespawner(particle)
-                minetest.sound_play("nodes_nature_dig_crumbly", {pos = pointed_thing.under, gain = 0.5})
-                local timer = minetest.get_node_timer(pointed_thing.under)
-                local meta = minetest.get_meta(pointed_thing.under)
-                if not timer:is_started() then
-                    timer:start(10)
-                    meta:set_int("till_number", 1)
-                else
-                    local till_number = meta:get_int("till_number")
-                    if till_number < 2 then
-                        meta:set_int("till_number", till_number + 1)
-                    else
-                        meta:set_int("till_number", 0)
-                        till_soil(itemstack, placer, pointed_thing, base_use)
-                    end
-                end
-            end
-        end,
+        _punch_number = 3, -- how many times you need to hit soil to till it
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:hoe_iron_placed")
         end,
