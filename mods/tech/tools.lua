@@ -626,8 +626,7 @@ minetest.register_tool("tech:hoe_iron", {
 	tool_capabilities = {
 		full_punch_interval = base_punch_int,
 		groupcaps={
-                        crumbly = {times= {[1]=iron_crum1, [2]=iron_crum2, [3]=iron_crum3}, uses=iron_use, maxlevel=iron_max_lvl},
-			snappy = {times= {[3]=stone_snap3}, uses=iron_use *0.8, maxlevel=iron_max_lvl},
+                        crumbly = {times= {[1]=crude_crum1, [2]=crude_crum2, [3]=crude_crum3}, uses=base_use, maxlevel=crude_max_lvl},
                         tilling = {uses = base_use},
 		},
 		damage_groups = {fleshy = iron_dmg},
