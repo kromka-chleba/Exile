@@ -678,12 +678,12 @@ function dirt_particle(pos, node_name)
         maxvel = {x= 0.1, y= 4, z= 0.1},
         minacc = {x= 0, y= -10, z= 0},
         maxacc = {x= 0, y= -10, z= 0},
-        minexptime = 3,
-        maxexptime = 3,
+        minexptime = 1.5,
+        maxexptime = 1.5,
         minsize = 0.4,
         maxsize = 1,
         collisiondetection = true,
-        vertical = true,
+        vertical = false,
         node = {name = node_name, param2 = 0},
     }
 end
