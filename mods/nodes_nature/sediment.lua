@@ -310,10 +310,13 @@ end
 local function soil_on_punch(pos, node, puncher, pointed_thing)
     local itemstack = puncher.get_wielded_item(puncher)
     local tool_name = itemstack:get_name()
-    if tool_name ~= "" and minetest.registered_tools[tool_name].groups.hoe == 1 then
+    if tool_name == "" then
+        return
+    end
+    if minetest.registered_tools[tool_name].groups.hoe == 1 then
         local particle = dirt_particle(pointed_thing.above, node.name)
         minetest.add_particlespawner(particle)
-        minetest.sound_play("nodes_nature_dig_crumbly", {pos = pos, gain = 0.5})
+        -- minetest.sound_play("nodes_nature_dig_crumbly", {pos = pos, gain = 0.5})
         local punch_number = minetest.registered_tools[tool_name]._punch_number
         local timer = minetest.get_node_timer(pos)
         local meta = minetest.get_meta(pos)
