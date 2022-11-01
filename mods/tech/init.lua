@@ -11,7 +11,7 @@ end
 
 local modpath = minetest.get_modpath('tech')
 
-
+dofile(modpath .. "/lightsource_api.lua")
 dofile(modpath..'/craft_stations.lua')
 dofile(modpath..'/tools.lua')
 dofile(modpath..'/lever.lua')
@@ -33,7 +33,6 @@ dofile(modpath .. "/clothing.lua")
 dofile(modpath .. "/grafitti.lua")
 dofile(modpath .. "/bricks_and_mortar.lua")
 dofile(modpath .. "/cooking_pot.lua")
-dofile(modpath .. "/lightsource_api.lua")
 dofile(modpath .. "/lantern.lua")
 -------------------------------
 

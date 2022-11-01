@@ -6,9 +6,10 @@
 -- Internationalization
 local S = tech.S
 
-local lantern_max_fuel = 3000
-local lantern_burn_rate = 5 -- seconds
-local lantern_refill_ratio = 1/8 -- needs 8x vegetable oil to fill the tank
+local lantern_desc = lightsource_description.new(
+    {lit_name = "tech:lantern_lit", unlit_name = "tech:lantern_unlit",
+     fuel_name = "tech:vegetable_oil", max_fuel = 3000,
+     burn_rate = 5, refill_ratio = 1/8, put_out_by_moisture = false})
 
 -- to minimal?
 -- right click on a node with an item to craft another node
@@ -152,14 +153,21 @@ minetest.register_node("tech:lantern_unlit", {
 	groups = {dig_immediate=3, temp_pass = 1, falling_node = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
         on_construct = function(pos)
-            local meta = minetest.get_meta(pos)
-            lightsource.update_fuel_infotext(0, lantern_max_fuel, pos, meta)
+            -- lightsource.restore_from_inventory(pos, itemstack)
+            lightsource.update_fuel_infotext(lantern_desc, pos)
+        end,
+        after_place_node = function(pos, placer, itemstack, pointed_thing)
+            lightsource.restore_from_inventory(lantern_desc, pos, itemstack)
+            lightsource.update_fuel_infotext(lantern_desc, pos)
+        end,
+        on_dig = function(pos, node, digger)
+            lightsource.save_to_inventory(lantern_desc, pos, digger, false)
         end,
         on_ignite = function(pos, user)
-            lightsource.ignite(pos, "tech:lantern_lit", lantern_max_fuel)
+            lightsource.ignite(lantern_desc, pos)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            lightsource.refill(pos, clicker, itemstack, "tech:vegetable_oil", lantern_max_fuel, lantern_refill_ratio)
+            lightsource.refill(lantern_desc, pos, clicker, itemstack)
         end,
 })
 
@@ -194,19 +202,19 @@ minetest.register_node("tech:lantern_lit", {
 	groups = {dig_immediate=3, temp_pass = 1, falling_node = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
         on_construct = function(pos)
-            lightsource.start_burning(pos, lantern_max_fuel, lantern_burn_rate)
+            lightsource.start_burning(lantern_desc, pos)
 	end,
         on_timer = function(pos, elapsed)
-            return lightsource.burn_fuel(pos, "tech:lantern_unlit", false, lantern_max_fuel)
+            return lightsource.burn_fuel(lantern_desc, pos)
 	end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
-            lightsource.restore_from_inventory(pos, itemstack)
+            lightsource.restore_from_inventory(lantern_desc, pos, itemstack)
         end,
         on_dig = function(pos, node, digger)
-            lightsource.save_to_inventory(pos, node, digger, "tech:lantern_lit")
+            lightsource.save_to_inventory(lantern_desc, pos, digger, true)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            lightsource.refill(pos, clicker, itemstack, "tech:vegetable_oil", lantern_max_fuel, lantern_refill_ratio)
+            lightsource.refill(lantern_desc, pos, clicker, itemstack)
         end,
 })
 

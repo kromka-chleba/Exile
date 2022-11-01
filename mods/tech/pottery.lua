@@ -261,9 +261,11 @@ minetest.register_node("tech:clay_oil_lamp_unfired", {
 	end,
 })
 
-local clay_lamp_max_fuel = 1550
-local clay_lamp_burn_rate = 5
-local clay_lamp_refill_ratio = 1/2
+local oil_lamp_desc = lightsource_description.new(
+    {lit_name = "tech:clay_oil_lamp", unlit_name = "tech:clay_oil_lamp_unlit",
+     fuel_name = "tech:vegetable_oil", max_fuel = 1550,
+     burn_rate = 5, refill_ratio = 1/2, put_out_by_moisture = true})
+
 
 --fired oil clay lamp
 minetest.register_node("tech:clay_oil_lamp_unlit", {
@@ -297,26 +299,26 @@ minetest.register_node("tech:clay_oil_lamp_unlit", {
 	groups = {dig_immediate=3, pottery = 1, temp_pass = 1, falling_node = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	floodable = true,
-        on_construct = function(pos)
-            local meta = minetest.get_meta(pos)
-            lightsource.update_fuel_infotext(0, clay_lamp_max_fuel, pos, meta)
-        end,
 	on_flood = function(pos, oldnode, newnode)
             minetest.add_item(pos, ItemStack("tech:clay_oil_lamp_unlit 1"))
             return false
 	end,
-	on_dig = function(pos, node, digger)
-            lightsource.save_to_inventory(pos, node, digger, "tech:clay_oil_lamp_unlit")
-	end,
-	after_place_node = function(pos, placer, itemstack, pointed_thing)
-            lightsource.restore_from_inventory(pos, itemstack)
-	end,
-	on_ignite = function(pos, user)
-            lightsource.ignite(pos, "tech:clay_oil_lamp", clay_lamp_max_fuel)
-	end,
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            lightsource.refill(pos, clicker, itemstack, "tech:vegetable_oil", clay_lamp_max_fuel, clay_lamp_refill_ratio)
-	end,
+        on_construct = function(pos)
+            lightsource.update_fuel_infotext(oil_lamp_desc, pos)
+        end,
+        after_place_node = function(pos, placer, itemstack, pointed_thing)
+            lightsource.restore_from_inventory(oil_lamp_desc, pos, itemstack)
+            lightsource.update_fuel_infotext(oil_lamp_desc, pos)
+        end,
+        on_dig = function(pos, node, digger)
+            lightsource.save_to_inventory(oil_lamp_desc, pos, digger, false)
+        end,
+        on_ignite = function(pos, user)
+            lightsource.ignite(oil_lamp_desc, pos)
+        end,
+        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+            lightsource.refill(oil_lamp_desc, pos, clicker, itemstack)
+        end,
 })
 
 --full oil clay lamp
@@ -363,18 +365,21 @@ minetest.register_node("tech:clay_oil_lamp", {
             minetest.add_item(pos, ItemStack("tech:clay_oil_lamp_unlit 1"))
             return false
 	end,
-	on_dig = function(pos, node, digger)
-            lightsource.save_to_inventory(pos, node, digger, "tech:clay_oil_lamp_unlit")
+        on_construct = function(pos)
+            lightsource.start_burning(oil_lamp_desc, pos)
 	end,
-	on_construct = function(pos)
-            lightsource.start_burning(pos, clay_lamp_max_fuel, clay_lamp_burn_rate)
+        on_timer = function(pos, elapsed)
+            return lightsource.burn_fuel(oil_lamp_desc, pos)
 	end,
-	on_timer =function(pos, elapsed)
-            return lightsource.burn_fuel(pos, "tech:clay_oil_lamp_unlit", false, clay_lamp_max_fuel)
-	end,
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            lightsource.refill(pos, clicker, itemstack, "tech:vegetable_oil", clay_lamp_max_fuel, clay_lamp_refill_ratio)
-	end,
+        after_place_node = function(pos, placer, itemstack, pointed_thing)
+            lightsource.restore_from_inventory(oil_lamp_desc, pos, itemstack)
+        end,
+        on_dig = function(pos, node, digger)
+            lightsource.save_to_inventory(oil_lamp_desc, pos, digger, false)
+        end,
+        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+            lightsource.refill(oil_lamp_desc, pos, clicker, itemstack)
+        end,
 })
 
 ---------------------------------------
