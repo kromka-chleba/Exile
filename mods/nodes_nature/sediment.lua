@@ -297,7 +297,6 @@ function soil.till(itemstack, puncher, pointed_thing)
         --figure out what soil it is from dropped
         local ag_soil = nodedef._ag_soil
         minetest.swap_node(pointed_thing.under, {name = ag_soil})
-        minetest.sound_play("nodes_nature_dig_crumbly", {pos = pointed_thing.under, gain = 0.5,})
         local uses = itemstack:get_tool_capabilities().groupcaps.tilling.uses
         local player_inv = puncher:get_inventory()
         player_inv:remove_item("main", itemstack)
