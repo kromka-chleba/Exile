@@ -214,7 +214,7 @@ minetest.register_node("tech:lantern_lit", {
             lightsource.save_to_inventory(lantern_desc, pos, digger, true)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            lightsource.refill(lantern_desc, pos, clicker, itemstack)
+            lightsource.extinguish(lantern_desc, pos)
         end,
 })
 
