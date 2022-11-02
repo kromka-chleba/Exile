@@ -322,7 +322,7 @@ minetest.register_node(
         paramtype = "light",
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
-        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1},
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -370,7 +370,7 @@ minetest.register_node(
         paramtype = "light",
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
-        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1},
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -419,7 +419,7 @@ minetest.register_node(
         paramtype = "light",
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
-        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1},
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
