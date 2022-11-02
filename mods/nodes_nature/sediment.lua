@@ -99,6 +99,27 @@ local function erode_deplete_ag_soil(pos, depleted_name)
 	end
 end
 
+-- dirt particles
+function dirt_particle(pos, node_name)
+    return {
+        amount = 10,
+        time = 0.5,
+        minpos = {x = pos.x - 0.5, y = pos.y - 0.50, z = pos.z - 0.5},
+        maxpos = {x = pos.x + 0.5, y = pos.y, z = pos.z + 0.5},
+        minvel = {x= -0.1, y= 2, z= -0.1},
+        maxvel = {x= 0.1, y= 4, z= 0.1},
+        minacc = {x= 0, y= -10, z= 0},
+        maxacc = {x= 0, y= -10, z= 0},
+        minexptime = 1.5,
+        maxexptime = 1.5,
+        minsize = 0.4,
+        maxsize = 1,
+        collisiondetection = true,
+        vertical = false,
+        node = {name = node_name, param2 = 0},
+    }
+end
+
 --For using fertilizer on punch
 local function fertilize_ag_soil(pos, puncher, restored_name)
    --hit it with fertilizer to restore
@@ -245,6 +266,75 @@ function soil.new(args)
     return soil
 end
 
+--Till soil
+function soil.till(itemstack, puncher, pointed_thing)
+    --agriculture
+    if pointed_thing.type ~= "node" then
+        return
+    end
+    local under = minetest.get_node(pointed_thing.under)
+    -- am I clicking on something with existing on_rightclick function?
+    local def = minetest.registered_nodes[under.name]
+    if def and def.on_rightclick then
+        return def.on_rightclick(pointed_thing.under, under, puncher, itemstack)
+    end
+    local p = {x=pointed_thing.under.x, y=pointed_thing.under.y+1, z=pointed_thing.under.z}
+    local above = minetest.get_node(p)
+    -- return if any of the nodes is not registered
+    local node_name = under.name
+    local nodedef = minetest.registered_nodes[node_name]
+    if not nodedef then
+        return
+    end
+    if not minetest.registered_nodes[above.name] then
+        return
+    end
+    -- check if the node above the pointed thing is air
+    if above.name ~= "air" then
+        return
+    end
+    --living surface level sediment
+    if minetest.get_item_group(node_name, "spreading") ~= 0 then
+        --figure out what soil it is from dropped
+        local ag_soil = nodedef._ag_soil
+        minetest.swap_node(pointed_thing.under, {name = ag_soil})
+        local uses = itemstack:get_tool_capabilities().groupcaps.tilling.uses
+        local player_inv = puncher:get_inventory()
+        player_inv:remove_item("main", itemstack)
+        itemstack:add_wear(65535 / uses)
+        player_inv:add_item("main", itemstack)
+    end
+end
+
+--Soil on_punch tilling
+local function soil_on_punch(pos, node, puncher, pointed_thing)
+    local itemstack = puncher.get_wielded_item(puncher)
+    local tool_name = itemstack:get_name()
+    if tool_name == "" then
+        return
+    end
+    if minetest.registered_tools[tool_name].groups.hoe == 1 then
+        local particle = dirt_particle(pointed_thing.above, node.name)
+        minetest.add_particlespawner(particle)
+        -- minetest.sound_play("nodes_nature_dig_crumbly", {pos = pos, gain = 0.5})
+        local punch_number = minetest.registered_tools[tool_name]._punch_number
+        local timer = minetest.get_node_timer(pos)
+        local meta = minetest.get_meta(pos)
+        if not timer:is_started() then
+            timer:start(10)
+            meta:set_int("till_number", 1)
+        else
+            local till_number = meta:get_int("till_number")
+            if till_number < punch_number - 1 then
+                meta:set_int("till_number", till_number + 1)
+            else
+                meta:set_int("till_number", 0)
+                soil.till(itemstack, puncher, pointed_thing)
+            end
+        end
+    end
+end
+
 function soil.register_dry(soil)
     local sed = soil.sediment
     local additional_properties = {
@@ -252,6 +342,7 @@ function soil.register_dry(soil)
         groups = merge_tables(sed.groups, {spreading = 1}),
         tiles = {soil.texture_name, sed.texture_name,
                  {name = sed.texture_name.."^"..soil.texture_side_name}},
+        on_punch = soil_on_punch,
         _ag_soil = sed.ag_soil,
         _wet_name = soil.wet_node_name,
     }
@@ -267,6 +358,7 @@ function soil.register_wet(soil)
         groups = merge_tables(sed.groups_wet, {spreading = 1}),
         tiles = {soil.texture_name.."^"..textures.wet, sed.texture_name.."^"..textures.wet,
                  {name = sed.texture_name.."^"..soil.texture_side_name.."^"..textures.wet}},
+        on_punch = soil_on_punch,
         _ag_soil = sed.ag_soil_wet,
         _dry_name = dry_node_name,
     }
