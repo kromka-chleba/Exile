@@ -11,6 +11,8 @@ local S = tech.S
 local base_firing = ncrafting.base_firing
 local firing_int = ncrafting.firing_int
 sediment = sediment
+lightsource = lightsource
+lightsource_description = lightsource_description
 
 ---
 --Broken Pottery
@@ -263,7 +265,7 @@ minetest.register_node("tech:clay_oil_lamp_unfired", {
 
 local oil_lamp_desc = lightsource_description.new(
     {lit_name = "tech:clay_oil_lamp", unlit_name = "tech:clay_oil_lamp_unlit",
-     fuel_name = "tech:vegetable_oil", max_fuel = 1550,
+     fuel_name = "tech:vegetable_oil", max_fuel = 3100,
      burn_rate = 5, refill_ratio = 1/2, put_out_by_moisture = true})
 
 
@@ -378,7 +380,8 @@ minetest.register_node("tech:clay_oil_lamp", {
             lightsource.save_to_inventory(oil_lamp_desc, pos, digger, false)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            lightsource.refill(oil_lamp_desc, pos, clicker, itemstack)
+	   lightsource.extinguish(oil_lamp_desc, pos)
+	   lightsource.update_fuel_infotext(oil_lamp_desc, pos)
         end,
 })
 
