@@ -92,7 +92,7 @@ local function check_for_air(pos)
 end
 
 function lightsource.extinguish(desc, pos)
-    minetest.set_node(pos, {name = desc.unlit_name})
+    minetest.swap_node(pos, {name = desc.unlit_name})
     minetest.check_for_falling(pos)
 end
 
@@ -112,9 +112,13 @@ function lightsource.burn_fuel(desc, pos)
     local has_air = check_for_air(pos)
     local moisture = check_for_moisture(pos)
     lightsource.update_fuel_infotext(desc, pos)
-    if fuel < 1 or not has_air or moisture and desc.put_out_by_moisture then
-        lightsource.extinguish(desc, pos)
-        return false -- stop timer
+    if fuel < 1 then
+       minetest.set_node(pos, {name = desc.unlit_name})
+       minetest.check_for_falling(pos)
+       return false -- stop timer
+    elseif not has_air or moisture and desc.put_out_by_moisture then
+       lightsource.extinguish(desc, pos)
+       return false -- stop timer
     else
         -- lightsource.spawn_particles(desc, pos)
         meta:set_int("fuel", fuel - math.random(-1, 3))
