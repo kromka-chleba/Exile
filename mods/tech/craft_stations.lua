@@ -821,14 +821,14 @@ crafting.register_recipe({ -- Glass furnace from bricks for the main structure a
 
 
 
---grinding stone
+--Granite grinding stone
 --for grinding stone tools
 minetest.register_node(
-    "tech:grinding_stone",{
-        description = S("Grinding stone"),
+    "tech:grinding_stone_granite",{
+        description = S("Granite Grinding Stone"),
         drawtype = "mesh",
         mesh = "grinding_stone.obj",
-        tiles = {"tech_grinding_stone.png"},
+        tiles = {"tech_grinding_stone_granite.png"},
         stack_max = minimal.stack_max_bulky,
         paramtype = "light",
         paramtype2 = "facedir",
@@ -847,11 +847,76 @@ minetest.register_node(
 
 crafting.register_recipe({
         type   = {"crafting_spot", "hand"},
-        output = "tech:grinding_stone",
+        output = "tech:grinding_stone_granite",
         items  = {"nodes_nature:granite_boulder", "group:granite_cobble", "nodes_nature:sand 3"},
         level  = 1,
         always_known = true,
 })
+
+--Limestone grinding stone
+--for grinding stone tools
+minetest.register_node(
+    "tech:grinding_stone_limestone",{
+        description = S("Limestone Grinding Stone"),
+        drawtype = "mesh",
+        mesh = "grinding_stone.obj",
+        tiles = {"tech_grinding_stone_limestone.png"},
+        stack_max = minimal.stack_max_bulky,
+        paramtype = "light",
+        paramtype2 = "facedir",
+        groups = {falling_node = 1, dig_immediate = 3, craftedby = 1},
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+        selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
+})
+
+crafting.register_recipe({
+        type   = {"crafting_spot", "hand"},
+        output = "tech:grinding_stone_limestone",
+        items  = {"nodes_nature:limestone_boulder", "group:limestone_cobble", "nodes_nature:sand 3"},
+        level  = 1,
+        always_known = true,
+})
+
+--Basalt grinding stone
+--for grinding stone tools
+minetest.register_node(
+    "tech:grinding_stone_basalt",{
+        description = S("Basalt Grinding Stone"),
+        drawtype = "mesh",
+        mesh = "grinding_stone.obj",
+        tiles = {"tech_grinding_stone_basalt.png"},
+        stack_max = minimal.stack_max_bulky,
+        paramtype = "light",
+        paramtype2 = "facedir",
+        groups = {falling_node = 1, dig_immediate = 3, craftedby = 1},
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+        selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
+})
+
+crafting.register_recipe({
+        type   = {"crafting_spot", "hand"},
+        output = "tech:grinding_stone_basalt",
+        items  = {"nodes_nature:basalt_boulder", "group:basalt_cobble", "nodes_nature:sand 3"},
+        level  = 1,
+        always_known = true,
+})
+
 
    -- legacy stations
 if legacy_stations == true then
