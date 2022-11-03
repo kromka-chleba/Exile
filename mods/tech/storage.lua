@@ -5,6 +5,7 @@
 -- Internationalization
 local S = tech.S
 
+local c_alpha = minimal.compat_alpha
 ---------------------------------------------------
 local function get_storage_formspec(pos, w, h, meta)
 	local creator = meta:get_string('creator')
@@ -361,7 +362,7 @@ minetest.register_node("tech:wooden_chest", {
 			"tech_wooden_chest_front.png"},
 	paramtype = "light",
 	paramtype2 = "facedir",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	stack_max = minimal.stack_max_bulky,
 	drawtype = "nodebox",
 	node_box = {
@@ -440,7 +441,7 @@ minetest.register_node("tech:iron_chest", {
 			"tech_iron_chest_front.png"},
 	paramtype = "light",
 	paramtype2 = "facedir",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	protected = true,
 	stack_max = minimal.stack_max_bulky,
 	drawtype = "nodebox",
