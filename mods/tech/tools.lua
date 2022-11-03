@@ -121,7 +121,7 @@ minetest.register_tool("tech:stone_chopper", {
 	tool_capabilities = {
 		full_punch_interval = base_punch_int,
 		groupcaps={
-			choppy = {times={[3]=crude_chop0}, uses=base_use*0.75, maxlevel=crude_max_lvl},
+			choppy = {times={[3]=crude_chop3}, uses=base_use*0.75, maxlevel=crude_max_lvl},
 			snappy= {times={[1]=crude_snap1, [2]=crude_snap2, [3]=crude_snap3}, uses=base_use, maxlevel=crude_max_lvl},
 			crumbly = {times={[3]=crude_crum0}, uses=base_use*0.5, maxlevel=crude_max_lvl}
 		},
