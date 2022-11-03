@@ -313,6 +313,9 @@ local function soil_on_punch(pos, node, puncher, pointed_thing)
     if tool_name == "" then
         return
     end
+    if not minetest.registered_tools[tool_name] then
+        return
+    end
     if minetest.registered_tools[tool_name].groups.hoe == 1 then
         local particle = dirt_particle(pointed_thing.above, node.name)
         minetest.add_particlespawner(particle)
