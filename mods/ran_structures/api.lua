@@ -1,3 +1,4 @@
+ran_structures = ran_structures
 ran_structures.registered_structures = {}
 
 --local disabled_structures = minetest.settings:get("mcl_disabled_structures")
@@ -35,7 +36,10 @@ local function generate_loot(pos, def, pr)
 end
 
 local function construct_nodes(pos,def,pr)
-	local nn = minetest.find_nodes_in_area(vector.offset(pos,-def.sidelen/2,0,-def.sidelen/2),vector.offset(pos,def.sidelen/2,def.sidelen,def.sidelen/2),def.construct_nodes)
+   local nn = minetest.find_nodes_in_area(
+      vector.offset(pos,-def.sidelen/2,0,-def.sidelen/2),
+      vector.offset(pos,def.sidelen/2,def.sidelen,def.sidelen/2),
+      def.construct_nodes)
 	for _,p in pairs(nn) do
 		ran_structures.init_node_construct(p)
 	end
@@ -58,12 +62,17 @@ function ran_structures.find_highest_y(pp)
 	return y
 end
 
-local function smooth_cube(nn,pos,plane,amnt)
+local function smooth_cube(nn,pos,plane,amount)
 	local r = {}
-	local amnt = amnt or 9
+	local amnt = amount or 9
 	table.sort(nn,function(a, b)
 		if false or plane then
-			return vector.distance(vector.new(pos.x,0,pos.z), vector.new(a.x,0,a.z)) < vector.distance(vector.new(pos.x,0,pos.z), vector.new(b.x,0,b.z))
+		   return vector.distance(
+		      vector.new(pos.x,0,pos.z),
+		      vector.new(a.x,0,a.z)) < vector.distance(vector.new(
+								  pos.x,0,
+								  pos.z),
+		      vector.new(b.x,0,b.z))
 		else
 			return vector.distance(pos, a) < vector.distance(pos, b)
 		end
@@ -93,7 +102,10 @@ local function get_foundation_nodes(ground_p1,ground_p2,pos,sidelen,node_stone)
 		"group:sediment"}
 		 --< Game specific, ideally needs generalizing
 	local depth = find_ground(pos,minetest.find_nodes_in_area(ground_p1,ground_p2,replace),node_stone)
-	local nn = smooth_cube(minetest.find_nodes_in_area(vector.offset(ground_p1,0,-1,0),vector.offset(ground_p2,0,-depth,0),replace),vector.offset(pos,0,-depth,0),true,sidelen * 64)
+	local nn = smooth_cube(minetest.find_nodes_in_area(
+				  vector.offset(ground_p1,0,-1,0),
+				  vector.offset(ground_p2,0,-depth,0),replace),
+			       vector.offset(pos,0,-depth,0),true,sidelen * 64)
 	local stone = {}
 	local filler = {}
 	local top = {}
@@ -159,13 +171,24 @@ function ran_structures.place_structure(pos, def, pr, blockseed)
 		local ground_p1 = vector.offset(pos,-def.sidelen/2,-1,-def.sidelen/2)
 		local ground_p2 = vector.offset(pos,def.sidelen/2,-1,def.sidelen/2)
 
-		local solid = minetest.find_nodes_in_area(ground_p1,ground_p2,{"group:cracky", "group:crumbly"}) --<<! MCL uses group:solid
+		--<<! MCL uses group:solid
+		local solid = minetest.find_nodes_in_area(ground_p1,ground_p2,
+					{"group:cracky",
+					 "group:crumbly"})
 		if #solid < ( def.sidelen * def.sidelen ) then
 			if def.make_foundation then
-				foundation(vector.offset(pos,-def.sidelen/2 - 3,-1,-def.sidelen/2 - 3),vector.offset(pos,def.sidelen/2 + 3,-1,def.sidelen/2 + 3),pos,def.sidelen)
+			   foundation(vector.offset(
+					 pos,-def.sidelen/2 - 3,
+					 -1,-def.sidelen/2 - 3),
+				      vector.offset(pos,def.sidelen/2 + 3,
+						    -1,def.sidelen/2 + 3),
+				      pos,def.sidelen)
 			else
 				if log_enabled then
-					minetest.log("warning","[ran_structures] "..def.name.." at "..minetest.pos_to_string(pp).." not placed. No solid ground.")
+				   minetest.log("warning","[ran_structures] "..
+						def.name.." at "..
+						minetest.pos_to_string(pp)..
+						" not placed. No solid ground.")
 				end
 				return false
 			end
@@ -173,7 +196,9 @@ function ran_structures.place_structure(pos, def, pr, blockseed)
 	end
 	if def.on_place and not def.on_place(pos,def,pr,blockseed) then
 		if log_enabled then
-			minetest.log("warning","[ran_structures] "..def.name.." at "..minetest.pos_to_string(pp).." not placed. Conditions not satisfied.")
+		   minetest.log("warning","[ran_structures] "..def.name..
+				" at "..minetest.pos_to_string(pp)..
+				" not placed. Conditions not satisfied.")
 		end
 		return false
 	end
@@ -210,7 +235,10 @@ function ran_structures.place_structure(pos, def, pr, blockseed)
 	end
 end
 
-function ran_structures.register_structure(name,def,nospawn) --nospawn means it will be placed by another (non-nospawn) structure that contains it's structblock i.e. it will not be placed by mapgen directly
+function ran_structures.register_structure(name,def,nospawn)
+   --nospawn means it will be placed by another (non-nospawn) structure
+   -- that contains it's structblock i.e. it will not be placed by mapgen
+   -- directly
 	--if ran_structures.is_disabled(name) then return end
 	local structblock = "ran_structures:structblock_"..name
 	local flags = "place_center_x, place_center_z, force_placement"
@@ -239,7 +267,12 @@ function ran_structures.register_structure(name,def,nospawn) --nospawn means it 
 					y_max = def.y_max,
 					y_min = def.y_min
 				})
-				minetest.register_node(":"..structblock, {drawtype="airlike", walkable = false, pointable = false,groups = sbgroups,sunlight_propagates = true,})
+				minetest.register_node(":"..structblock,
+						{drawtype="airlike",
+						 walkable = false,
+						 pointable = false,
+						 groups = sbgroups,
+						 sunlight_propagates = true,})
 				def.structblock = structblock
 				def.deco_id = minetest.get_decoration_id("ran_structures:deco_"..name)
 				minetest.set_gen_notify({decoration=true}, { def.deco_id })

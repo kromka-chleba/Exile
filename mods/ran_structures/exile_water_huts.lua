@@ -6,6 +6,8 @@ local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
 --local S = minetest.get_translator(modname)
 
+ran_structures = ran_structures
+
 local seed = minetest.get_mapgen_setting("seed")
 local water_level = minetest.get_mapgen_setting("water_level")
 local pr = PseudoRandom(seed)
@@ -44,7 +46,7 @@ ran_structures.register_structure("exile_water_huts",{
 	y_max = water_level-4,
 	y_min = 2,
 	filenames = schems,
-	y_offset = function(pr) return pr:next(-3,-1) end,
+	y_offset = function() return pr:next(-3,-1) end,
 	loot = {
 		["tech:clay_storage_pot"] = {
 			stacks_min = 3,

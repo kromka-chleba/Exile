@@ -20,14 +20,24 @@ local replacement = {
 
 local function ecb_place(blockpos, action, calls_remaining, param)
 	if calls_remaining >= 1 then return end
-	minetest.place_schematic(param.pos, param.schematic, param.rotation, param.replacements, param.force_placement, param.flags)
+	minetest.place_schematic(param.pos, param.schematic, param.rotation,
+				 param.replacements, param.force_placement,
+				 param.flags)
 	if param.after_placement_callback and param.p1 and param.p2 then
-		param.after_placement_callback(param.p1, param.p2, param.size, param.rotation, param.pr, param.callback_param)
+	   param.after_placement_callback(param.p1, param.p2, param.size,
+					  param.rotation, param.pr,
+					  param.callback_param)
 	end
 end
 
-function ran_structures.place_schematic(pos, schematic, rotation, replacements, force_placement, flags, after_placement_callback, pr, callback_param)
-	local s = loadstring(minetest.serialize_schematic(schematic, "lua", {lua_use_comments = false, lua_num_indent_spaces = 0}) .. " return schematic")()
+function ran_structures.place_schematic(pos, schematic, rotation,
+					replacements, force_placement, flags,
+					after_placement_callback, pr,
+					callback_param)
+   local s = loadstring(minetest.serialize_schematic(schematic, "lua",
+					{lua_use_comments = false,
+					 lua_num_indent_spaces = 0})
+			.. " return schematic")()
 	if s and s.size then
 		local x, z = s.size.x, s.size.z
 		if rotation then
@@ -43,15 +53,25 @@ function ran_structures.place_schematic(pos, schematic, rotation, replacements, 
 		end
 		local p1 = {x=pos.x    , y=pos.y           , z=pos.z    }
 		local p2 = {x=pos.x+x-1, y=pos.y+s.size.y-1, z=pos.z+z-1}
-		minetest.log("verbose", "[ran_structures] size=" ..minetest.pos_to_string(s.size) .. ", rotation=" .. tostring(rotation) .. ", emerge from "..minetest.pos_to_string(p1) .. " to " .. minetest.pos_to_string(p2))
-		local param = {pos=vector.new(pos), schematic=s, rotation=rotation, replacements=replacement, force_placement=force_placement, flags=flags, p1=p1, p2=p2, after_placement_callback = after_placement_callback, size=vector.new(s.size), pr=pr, callback_param=callback_param}
+		minetest.log("verbose", "[ran_structures] size=" ..
+			     minetest.pos_to_string(s.size) .. ", rotation="..
+			     tostring(rotation) .. ", emerge from "..
+			     minetest.pos_to_string(p1) .. " to " ..
+			     minetest.pos_to_string(p2))
+		local param = {pos=vector.new(pos), schematic=s,
+			       rotation=rotation, replacements=replacements,
+			       force_placement=force_placement, flags=flags,
+			       p1=p1, p2=p2,
+			       after_placement_callback = after_placement_callback,
+			       size=vector.new(s.size), pr=pr,
+			       callback_param=callback_param}
 		minetest.emerge_area(p1, p2, ecb_place, param)
 		return true
 	end
 end
 
-function ran_structures.get_struct(file)
-	local localfile = modpath.."/schematics/"..file
+function ran_structures.get_struct(filename)
+	local localfile = modpath.."/schematics/"..filename
 	local file, errorload = io.open(localfile, "rb")
 	if errorload then
 		minetest.log("error", "[ran_structures] Could not open this struct: "..localfile)
@@ -127,7 +147,9 @@ local function shrine_placement_callback(p1, p2, size, rotation, pr)
 	end
 
 	-- Also replace stairs
-	local stairs = minetest.find_nodes_in_area(p1, p2, {"mcl_stairs:stair_stonebrick", "mcl_stairs:stair_stonebrick_outer", "mcl_stairs:stair_stonebrick_inner"})
+	local stairs = minetest.find_nodes_in_area(p1, p2,
+   {"mcl_stairs:stair_stonebrick", "mcl_stairs:stair_stonebrick_outer",
+   "mcl_stairs:stair_stonebrick_inner"})
 	for s=1, #stairs do
 		local stair = minetest.get_node(stairs[s])
 		local r_type = pr:next(1, 100)

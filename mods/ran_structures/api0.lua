@@ -1,3 +1,5 @@
+ran_structures = ran_structures
+
 -------------------------------------------------------------------
 --From mcl_mapgen_core api (how much is actually needed is unknown)
 local registered_generators = {}
@@ -68,19 +70,26 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
 
 	ran_structures.add_chunk(minp)
 	if logging then
-		minetest.log("action", "[mcl_mapgen_core] Generating chunk " .. minetest.pos_to_string(minp) .. " ... " .. minetest.pos_to_string(maxp).."..."..tostring(roundN(((os.clock() - t1)*1000),2)).."ms")
+	   minetest.log("action", "[mcl_mapgen_core] Generating chunk "..
+			minetest.pos_to_string(minp) .. " ... " ..
+			minetest.pos_to_string(maxp).."..."..
+			tostring(roundN(((os.clock() - t1)*1000),2)).."ms")
 	end
 end)
 
 function minetest.register_on_generated(node_function)
-	--ran_structures.register_generator("mod_"..minetest.get_current_modname().."_"..tostring(#registered_generators+1), nil, node_function)
-	ran_structures.register_generator("mod_ran_structures_"..tostring(#registered_generators+1), nil, node_function)
+   --ran_structures.register_generator("mod_"..minetest.get_current_modname().."_"..
+   --tostring(#registered_generators+1), nil, node_function)
+   ran_structures.register_generator("mod_ran_structures_"..
+				     tostring(#registered_generators+1), nil,
+				     node_function)
 end
 
-function ran_structures.register_generator(id, lvm_function, node_function, priority, needs_param2)
+function ran_structures.register_generator(id, lvm_function, node_function,
+					   ppriority, needs_param2)
 	if not id then return end
 
-	local priority = priority or 5000
+	local priority = ppriority or 5000
 
 	if lvm_function then lvm = lvm + 1 end
 	if node_function then nodes = nodes + 1 end
