@@ -5,6 +5,8 @@
 -- Internationalization
 local S = tech.S
 
+local c_alpha = minimal.compat_alpha
+
 ---------------------------------
 --DRYSTACK
 -- walls made from stacked stones (no mortar, hence dry)
@@ -131,7 +133,7 @@ minetest.register_node('tech:wattle', {
 		'tech:thatch'
 	},
 	paramtype = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	tiles = {"tech_wattle_top.png",
 		 "tech_wattle_top.png",
 		 "tech_wattle.png",
@@ -173,7 +175,7 @@ minetest.register_node('tech:wattle_loose', {
 		'tech:thatch'
 	},
 	paramtype = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	tiles = {"tech_wattle_top.png",
 		 "tech_wattle_top.png",
 		 "tech_wattle_loose.png",
@@ -238,7 +240,7 @@ minetest.register_node('tech:wattle_door_frame', {
 	},
 	paramtype = "light",
 	paramtype2 = "facedir",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	tiles = {"tech_wattle_top.png",
 		 "tech_wattle_top.png",
 		 "tech_wattle.png",

@@ -1,5 +1,7 @@
 -- doors/init.lua
 
+local c_alpha = minimal.compat_alpha
+
 -- our API object
 doors = {}
 
@@ -74,7 +76,7 @@ minetest.register_node("doors:hidden", {
 	drawtype = "nodebox",
 	paramtype = "light",
 	paramtype2 = "facedir",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	sunlight_propagates = false,
 	-- has to be walkable for falling nodes to stop falling.
 	walkable = true,
@@ -425,7 +427,7 @@ function doors.register(name, def)
 	def.drawtype = "mesh"
 	def.paramtype = "light"
 	def.paramtype2 = "facedir"
-	def.use_texture_alpha = "clip"
+	def.use_texture_alpha = c_alpha.clip
 	def.sunlight_propagates = false
 	def.walkable = true
 	def.is_ground_content = false

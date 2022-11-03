@@ -1,3 +1,4 @@
+local c_alpha = minimal.compat_alpha
 
 grafitti = {
     _palettes = {}
@@ -89,7 +90,7 @@ function g.register_grafitti(name, def)
             sunlight_propagates = true,
             light_source = def.light or 0,
             floodable = true,
-	    use_texture_alpha = "clip",
+	    use_texture_alpha = c_alpha.clip,
             paramtype = "light",
             paramtype2 = "wallmounted",
             groups = {attached_node=1, not_in_creative_inventory=1, grafitti=1, temp_pass = 1},

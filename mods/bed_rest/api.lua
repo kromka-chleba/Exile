@@ -1,4 +1,5 @@
 
+local c_alpha = minimal.compat_alpha
 
 local function destruct_bed(pos, n)
 	local node = minetest.get_node(pos)
@@ -33,7 +34,7 @@ function bed_rest.register_bed(name, def)
 		tiles = def.tiles.bottom,
 		paramtype = "light",
 		paramtype2 = "facedir",
-		use_texture_alpha = "clip",
+		use_texture_alpha = c_alpha.clip,
 		is_ground_content = false,
 		stack_max = def.stack_max,
 		groups = def.groups,
@@ -173,7 +174,7 @@ function bed_rest.register_bed(name, def)
 		tiles = def.tiles.top,
 		paramtype = "light",
 		paramtype2 = "facedir",
-		use_texture_alpha = "clip",
+		use_texture_alpha = c_alpha.clip,
 		is_ground_content = false,
 		pointable = false,
 		groups = {choppy = 2, oddly_breakable_by_hand = 2, flammable = 3, bed = 2, temp_pass = 1},
