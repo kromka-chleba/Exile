@@ -190,7 +190,7 @@ minetest.register_node("tech:lantern_lit", {
 	stack_max = minimal.stack_max_medium,
 	sunlight_propagates = true,
 	light_source = 11,
-	use_texture_alpha = c_alpha.clip,
+	--use_texture_alpha = c_alpha.blend, -- flame vanishes on MT 5.3.0
 	paramtype = "light",
 	paramtype2 = "facedir",
         selection_box = {
