@@ -275,7 +275,6 @@ for i in ipairs(rock_list) do
 		 on_place = function(itemstack, placer, pointed_thing)
 			 return cobble_on_place(itemstack, placer, pointed_thing, name)
 		 end,
-		 on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
 		 selection_box = {
 		    type = "fixed",
 		    fixed = {-5/16, -8/16, -5/16, 5/16, -4/16, 5/16},
