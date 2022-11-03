@@ -820,33 +820,41 @@ crafting.register_recipe({ -- Glass furnace from bricks for the main structure a
 
 
 
--- legacy stations
-if legacy_stations == true then
-   --grinding stone
-   --for grinding stone tools
-   minetest.register_node("tech:grinding_stone",{
-        description   = S("Grinding stone"),
-        drawtype      = "nodebox",
-        tiles         = {"nodes_nature_granite.png"},
-        stack_max     = minimal.stack_max_bulky,
-        paramtype     = "light",
-        paramtype2    = "facedir",
-        groups        = {falling_node = 1, dig_immediate = 3, craftedby = 1},
-        node_box      = {
-                type  = "fixed",
-                fixed = {
-                        {-0.3750, -0.5000, -0.3125,  0.3750, -0.4375,  0.3125},
-                        {-0.4375, -0.4375, -0.3750,  0.4375, -0.1875,  0.3750},
-                        {-0.1875, -0.1875,  0.0000,  0.0000, -0.0625,  0.2500},
-                        { 0.4375, -0.3750, -0.3125,  0.5000, -0.1875,  0.3125},
-                        {-0.5000, -0.3750, -0.3125, -0.4375, -0.1875,  0.3125},
-                        {-0.3750, -0.3750, -0.4375,  0.3750, -0.1875, -0.3750},
-                        {-0.3750, -0.3750,  0.3750,  0.3750, -0.1875,  0.4375},
-                        }
-                },
-        sounds        = nodes_nature.node_sound_stone_defaults(),
+
+--grinding stone
+--for grinding stone tools
+minetest.register_node(
+    "tech:grinding_stone",{
+        description = S("Grinding stone"),
+        drawtype = "mesh",
+        mesh = "grinding_stone.obj",
+        tiles = {"tech_grinding_stone.png"},
+        stack_max = minimal.stack_max_bulky,
+        paramtype = "light",
+        paramtype2 = "facedir",
+        groups = {falling_node = 1, dig_immediate = 3, craftedby = 1},
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+        selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        sounds = nodes_nature.node_sound_stone_defaults(),
         on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
-   })
+})
+
+crafting.register_recipe({
+        type   = {"crafting_spot", "hand"},
+        output = "tech:grinding_stone",
+        items  = {"nodes_nature:granite_boulder", "group:granite_cobble", "nodes_nature:sand 3"},
+        level  = 1,
+        always_known = true,
+})
+
+   -- legacy stations
+if legacy_stations == true then
    --chopping_block --crude wood crafts,
    minetest.register_node("tech:chopping_block", {
         description   = S("Chopping Block"),
@@ -897,13 +905,6 @@ end
 
 if legacy_station_recipes == true then
    --grinding_stone from craft spot
-   crafting.register_recipe({
-	 type   = {"crafting_spot", "hand"},
-	 output = "tech:grinding_stone",
-	 items  = {'nodes_nature:granite_boulder', 'nodes_nature:sand 8'},
-	 level  = 1,
-	 always_known = true,
-   })
    crafting.register_recipe({ --chopping_block
 	 type   = {"crafting_spot", "chopping_block", "hand"},
 	 output = "tech:chopping_block",
