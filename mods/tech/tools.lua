@@ -15,6 +15,8 @@ which should be useful given the limits on resources and space they face.
 -- Internationalization
 local S = tech.S
 
+local c_alpha = minimal.compat_alpha
+
 local base_use = 500
 local base_punch_int = minimal.hand_punch_int
 
@@ -556,6 +558,7 @@ minetest.register_node(
         drop = "tech:hammer_granite",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -609,6 +612,7 @@ minetest.register_node(
         drop = "tech:hammer_basalt",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1},
+	use_texture_alpha = c_alpha.clip,
 	node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
