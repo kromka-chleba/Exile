@@ -6,6 +6,7 @@
 ------------------------------------
 
 
+local c_alpha = minimal.compat_alpha
 
 
 ------------------------------------
@@ -355,7 +356,7 @@ for i in ipairs(list) do
 			type = "fixed",
 			fixed = box
 		},
-		use_texture_alpha = "clip",
+		use_texture_alpha = c_alpha.clip,
 		sunlight_propagates = true,
 		sounds = sound,
 		groups = {oddly_breakable_by_hand = hardness, attached_node = 1, temp_pass = 1},
@@ -546,7 +547,7 @@ minetest.register_node("artifacts:singing_stone", {
   --light_source = 1,
 	paramtype = "light",
 	paramtype2 = "wallmounted",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	sunlight_propagates = true,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	groups = {oddly_breakable_by_hand = 3, attached_node = 1, temp_pass = 1},
@@ -591,7 +592,7 @@ minetest.register_node("artifacts:singing_stone_b", {
   --light_source = 3,
 	paramtype = "light",
 	paramtype2 = "wallmounted",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	sunlight_propagates = true,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	groups = {oddly_breakable_by_hand = 3, attached_node = 1, temp_pass = 1, not_in_creative_inventory = 1},
@@ -630,7 +631,7 @@ minetest.register_node("artifacts:singing_stone_c", {
   --light_source = 3,
 	paramtype = "light",
 	paramtype2 = "wallmounted",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	sunlight_propagates = true,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	groups = {oddly_breakable_by_hand = 3, attached_node = 1, temp_pass = 1, not_in_creative_inventory = 1},
