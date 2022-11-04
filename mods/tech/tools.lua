@@ -228,7 +228,7 @@ minetest.register_tool("tech:digging_stick", {
 	},
 	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
-        _punch_number = 6, -- how many times you need to hit soil to till it
+        _punch_number = 7, -- how many times you need to hit soil to till it
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:digging_stick_placed")
         end,
@@ -550,17 +550,17 @@ minetest.register_tool("tech:shovel_iron", {
 		full_punch_interval = base_punch_int*1.1,
 		groupcaps={
 			crumbly = {times= {[1]=iron_crum1, [2]=iron_crum2, [3]=iron_crum3}, uses=iron_use, maxlevel=iron_max_lvl},
-			snappy = {times= {[3]=stone_snap3}, uses=iron_use *0.8, maxlevel=iron_max_lvl},
+			snappy = {times= {[3]=stone_snap3}, uses=iron_use * 0.8, maxlevel=iron_max_lvl},
+                        tilling = {uses = iron_use * 0.8}, -- not too good for tilling
 		},
 		damage_groups = {fleshy= iron_dmg},
 	},
-	groups = {shovel = 1, craftedby = 1},
+	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
+        _punch_number = 5,
 	on_place = function(itemstack, placer, pointed_thing)
-            if not soil.till(itemstack, placer, pointed_thing, iron_use) then
-                digging_stick_on_place[2](itemstack, placer, pointed_thing) 
-            end
-	end
+            -- placing after I make a model
+	end,
 })
 
 
