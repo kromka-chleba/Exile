@@ -1,5 +1,18 @@
 # Changelog:
 
+## [2022-11-04][2022-11-04__0.3.9] — 0.3.9
+  - New HUD design
+  - Iron lantern for mid-late game players
+  - iron nails to add protection to nodes
+  - bed can now store a blanket
+  - cobbles, small loose stones to complement boulders
+  - ability to combine small wood fires after burning
+  - animal probe can get player stats
+  - options for double-click to eat: /eat2x, and wide hud: /hud16 
+  - "crafted by" labels for craft stations
+  - Folded Minetest 5.3.0 compatibility into mainline
+  - More bugfixes than you can shake a digging stick at
+
 ## [2022-08-05][2022-08-05__0.3.8d] — 0.3.8d and 0.2.11d
   - Minor bugfixes
 
