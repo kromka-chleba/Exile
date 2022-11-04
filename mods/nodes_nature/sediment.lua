@@ -317,7 +317,8 @@ local function soil_on_punch(pos, node, puncher, pointed_thing)
         return
     end
     if minetest.registered_tools[tool_name].groups.hoe == 1 then
-        local particle = dirt_particle(pointed_thing.above, node.name)
+        local above = {x = pos.x, y = pos.y + 1, z = pos.z}
+        local particle = dirt_particle(above, node.name)
         minetest.add_particlespawner(particle)
         -- minetest.sound_play("nodes_nature_dig_crumbly", {pos = pos, gain = 0.5})
         local punch_number = minetest.registered_tools[tool_name]._punch_number
