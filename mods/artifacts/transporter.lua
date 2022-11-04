@@ -22,6 +22,7 @@ Only need one of each
 ]]
 
 artifacts = artifacts
+local c_alpha = minimal.compat_alpha
 local S = artifacts.S
 local FS = artifacts.FS
 ------------------------------------
@@ -821,7 +822,7 @@ minetest.register_node('artifacts:transporter_power', {
 	stack_max = minimal.stack_max_bulky *2,
 	drawtype = "nodebox",
 	paramtype = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -855,7 +856,7 @@ minetest.register_node('artifacts:transporter_power_dep', {
 	stack_max = minimal.stack_max_bulky *2,
 	drawtype = "nodebox",
 	paramtype = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	node_box = {
 		type = "fixed",
 		fixed = {

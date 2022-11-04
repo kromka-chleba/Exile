@@ -6,6 +6,8 @@
 -- Internationalization
 local S = tech.S
 
+local c_alpha = minimal.compat_alpha
+
 local lantern_desc = lightsource_description.new(
     {lit_name = "tech:lantern_lit", unlit_name = "tech:lantern_unlit",
      fuel_name = "tech:vegetable_oil", max_fuel = 3000,
@@ -36,7 +38,7 @@ minetest.register_node("tech:lantern_case", {
         mesh = "lantern.obj",
 	stack_max = minimal.stack_max_medium,
 	sunlight_propagates = true,
-        use_texture_alpha = true,
+	use_texture_alpha = c_alpha.clip,
 	paramtype = "light",
 	paramtype2 = "facedir",
         selection_box = {
@@ -72,7 +74,7 @@ minetest.register_node("tech:lantern_case_wick", {
         mesh = "lantern.obj",
 	stack_max = minimal.stack_max_medium,
 	sunlight_propagates = true,
-        use_texture_alpha = true,
+	use_texture_alpha = c_alpha.clip,
 	paramtype = "light",
 	paramtype2 = "facedir",
         selection_box = {
@@ -104,7 +106,7 @@ minetest.register_node("tech:lantern_case_glass", {
         mesh = "lantern.obj",
 	stack_max = minimal.stack_max_medium,
 	sunlight_propagates = true,
-        use_texture_alpha = true,
+	use_texture_alpha = c_alpha.clip,
 	paramtype = "light",
 	paramtype2 = "facedir",
         selection_box = {
@@ -139,7 +141,7 @@ minetest.register_node("tech:lantern_unlit", {
         mesh = "lantern.obj",
 	stack_max = minimal.stack_max_medium,
 	sunlight_propagates = true,
-        use_texture_alpha = true,
+	use_texture_alpha = c_alpha.clip,
 	paramtype = "light",
 	paramtype2 = "facedir",
         selection_box = {
@@ -188,7 +190,7 @@ minetest.register_node("tech:lantern_lit", {
 	stack_max = minimal.stack_max_medium,
 	sunlight_propagates = true,
 	light_source = 11,
-        use_texture_alpha = true,
+	--use_texture_alpha = c_alpha.blend, -- flame vanishes on MT 5.3.0
 	paramtype = "light",
 	paramtype2 = "facedir",
         selection_box = {

@@ -7,6 +7,7 @@
 -- Internationalization
 local S = tech.S
 
+local c_alpha = minimal.compat_alpha
 local legacy_stations = true
 local legacy_station_recipes = false
 
@@ -153,7 +154,7 @@ minetest.register_node("tech:crafting_spot", {
 		},
 	stack_max     = 1,
 	paramtype     = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	walkable      = false,
 	buildable_to  = true,
 	floodable     = true,
@@ -182,7 +183,7 @@ minetest.register_node("tech:mixing_spot", {
 		},
 	stack_max     = 1,
 	paramtype     = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	walkable      = false,
 	buildable_to  = true,
 	floodable     = true,
@@ -211,7 +212,7 @@ minetest.register_node("tech:threshing_spot", {
 		},
 	stack_max         = 1,
 	paramtype         = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	walkable          = false,
 	buildable_to      = true,
 	floodable         = true,
@@ -245,7 +246,7 @@ minetest.register_node("tech:weaving_spot",{
 		},
 	stack_max     = 1,
 	paramtype     = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	walkable      = false,
 	buildable_to  = true,
 	floodable     = true,
@@ -278,7 +279,7 @@ minetest.register_node("tech:grinding_spot",{
 		},
 	stack_max     = 1,
 	paramtype     = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	walkable      = false,
 	buildable_to  = true,
 	floodable     = true,
@@ -311,7 +312,7 @@ minetest.register_node("tech:hammering_spot",{
 		},
 	stack_max     = 1,
 	paramtype     = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	walkable      = false,
 	buildable_to  = true,
 	floodable     = true,

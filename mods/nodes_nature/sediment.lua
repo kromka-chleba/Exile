@@ -363,7 +363,7 @@ function soil.register_wet(soil)
                  {name = sed.texture_name.."^"..soil.texture_side_name.."^"..textures.wet}},
         on_punch = soil_on_punch,
         _ag_soil = sed.ag_soil_wet,
-        _dry_name = dry_node_name,
+        _dry_name = sed.dry_node_name,
     }
     local sed_props = get_wet_node_props(sed)
     local soil_props = merge_tables(sed_props, additional_properties)

@@ -3,6 +3,8 @@
 -- Internationalization
 local S = tech.S
 
+local c_alpha = minimal.compat_alpha
+
 --interval
 local base_burn_rate = 6
 --how much to burn
@@ -187,7 +189,7 @@ minetest.register_node("tech:torch", {
 		    animation = {type = "vertical_frames", aspect_w = 16, aspect_h = 16, length = 3.3}
 	}},
 	stack_max = minimal.stack_max_medium,
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	paramtype = "light",
 	paramtype2 = "wallmounted",
 	sunlight_propagates = true,
@@ -284,7 +286,7 @@ minetest.register_node("tech:torch_wall", {
 	}},
 	paramtype = "light",
 	paramtype2 = "wallmounted",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	sunlight_propagates = true,
 	walkable = false,
 	light_source = light_power,
@@ -338,7 +340,7 @@ minetest.register_node("tech:torch_ceiling", {
 	}},
 	paramtype = "light",
 	paramtype2 = "wallmounted",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	sunlight_propagates = true,
 	walkable = false,
 	light_source = light_power,

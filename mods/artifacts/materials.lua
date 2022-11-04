@@ -3,6 +3,7 @@
 --exotic building materials
 ------------------------------------
 
+local c_alpha = minimal.compat_alpha
 
 
 
@@ -18,7 +19,7 @@ minetest.register_node("artifacts:moon_glass", {
 	light_source = 5,
 	paramtype = "light",
 	sunlight_propagates  = true,
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	groups = {cracky = 1,},
 	after_place_node = minimal.protection_after_place_node,
@@ -53,7 +54,7 @@ minetest.register_node("artifacts:sun_stone", {
 	paramtype2 = "wallmounted",
 	is_ground_content = false,
 	sunlight_propagates = true,
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	temp_effect = 4,
 	temp_effect_max = 40,
 	sounds = nodes_nature.node_sound_glass_defaults(),
@@ -103,7 +104,7 @@ minetest.register_node("artifacts:moon_stone", {
 	paramtype2 = "wallmounted",
 	is_ground_content = false,
 	sunlight_propagates = true,
-  use_texture_alpha = "blend",
+  use_texture_alpha = c_alpha.blend,
   temp_effect = -4,
   temp_effect_max = 0,
 	sounds = nodes_nature.node_sound_glass_defaults(),
@@ -134,7 +135,7 @@ minetest.register_node("artifacts:star_stone", {
 	light_source = 3,
 	paramtype = "light",
 	paramtype2 = "wallmounted",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	sunlight_propagates = true,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	groups = {oddly_breakable_by_hand = 3, attached_node = 1, temp_pass = 1},

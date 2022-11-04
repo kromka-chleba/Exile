@@ -15,6 +15,8 @@ which should be useful given the limits on resources and space they face.
 -- Internationalization
 local S = tech.S
 
+local c_alpha = minimal.compat_alpha
+
 local base_use = 500
 local base_punch_int = minimal.hand_punch_int
 
@@ -163,7 +165,7 @@ minetest.register_tool("tech:stone_chopper", {
 	tool_capabilities = {
 		full_punch_interval = base_punch_int,
 		groupcaps={
-			choppy = {times={[3]=crude_chop0}, uses=base_use*0.75, maxlevel=crude_max_lvl},
+			choppy = {times={[3]=crude_chop3}, uses=base_use*0.75, maxlevel=crude_max_lvl},
 			snappy= {times={[1]=crude_snap1, [2]=crude_snap2, [3]=crude_snap3}, uses=base_use, maxlevel=crude_max_lvl},
 			crumbly = {times={[3]=crude_crum0}, uses=base_use*0.5, maxlevel=crude_max_lvl}
 		},
@@ -867,6 +869,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -922,6 +925,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
 	node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},

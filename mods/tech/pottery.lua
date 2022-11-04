@@ -7,6 +7,8 @@
 -- Internationalization
 local S = tech.S
 
+local c_alpha = minimal.compat_alpha
+
 --firing difficulty
 local base_firing = ncrafting.base_firing
 local firing_int = ncrafting.firing_int
@@ -237,7 +239,7 @@ minetest.register_node("tech:clay_oil_lamp_unfired", {
 	stack_max = minimal.stack_max_medium,
 	paramtype = "light",
 	paramtype2 = "facedir",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -284,7 +286,7 @@ minetest.register_node("tech:clay_oil_lamp_unlit", {
 	stack_max = minimal.stack_max_medium,
 	paramtype = "light",
 	paramtype2 = "facedir",
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -344,7 +346,7 @@ minetest.register_node("tech:clay_oil_lamp", {
 	stack_max = minimal.stack_max_medium,
 	sunlight_propagates = true,
 	light_source = 7,
-	use_texture_alpha = "clip",
+	use_texture_alpha = c_alpha.clip,
 	paramtype = "light",
 	paramtype2 = "facedir",
 	node_box = {
