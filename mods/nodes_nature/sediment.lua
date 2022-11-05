@@ -409,10 +409,14 @@ function agricultural_soil.register_dry(ag_soil)
     local sed = ag_soil.sediment
     local props = {
         description = ag_soil.description,
+        drawtype = "mesh",
+        mesh = "nodes_nature_tilled_soil.obj",
         tiles = {
-            {name = sed.texture_name.."^"..ag_soil.texture_name},
-            sed.texture_name,
-            {name = sed.texture_name.."^"..ag_soil.texture_side_name}},
+            "[combine:32x32:0,0="
+                ..sed.texture_name..":0,16="
+                ..sed.texture_name..":16,0="
+                ..sed.texture_name.."^nodes_nature_tilled_soil.png"
+        },
         stack_max = minimal.stack_max_bulky,
         groups = merge_tables(sed.groups, {agricultural_soil = 1}),
         sounds = sed.sound,
@@ -434,10 +438,14 @@ function agricultural_soil.register_wet(ag_soil)
     local sed = ag_soil.sediment
     local props = {
         description = S("Wet @1", ag_soil.description),
+        drawtype = "mesh",
+        mesh = "nodes_nature_tilled_soil.obj",
         tiles = {
-            {name = sed.texture_name.."^"..ag_soil.texture_name.."^"..textures.wet},
-            sed.texture_name.."^"..textures.wet,
-            {name = sed.texture_name.."^"..ag_soil.texture_side_name.."^"..textures.wet}},
+            "[combine:32x32:0,0="
+                ..sed.texture_name..":0,16="
+                ..sed.texture_name..":16,0="
+                ..sed.texture_name.."^nodes_nature_tilled_soil.png^"..textures.wet
+        },
         stack_max = minimal.stack_max_bulky,
         groups = merge_tables(sed.groups_wet, {agricultural_soil = 1}),
         sounds = sed.sound_wet,
@@ -458,10 +466,14 @@ function agricultural_soil.register_depleted(ag_soil)
     local sed = ag_soil.sediment
     local props = {
         description = S("Depleted @1", ag_soil.description),
+        drawtype = "mesh",
+        mesh = "nodes_nature_tilled_soil.obj",
         tiles = {
-            {name = sed.texture_name.."^"..ag_soil.texture_depleted_name},
-            sed.texture_name,
-            {name = sed.texture_name.."^"..ag_soil.texture_depleted_side_name}},
+            "[combine:32x32:0,0="
+                ..sed.texture_name..":0,16="
+                ..sed.texture_name..":16,0="
+                ..sed.texture_name.."^nodes_nature_tilled_soil_depleted.png"
+        },
         stack_max = minimal.stack_max_bulky,
         groups = merge_tables(sed.groups, {depleted_agricultural_soil = 1}),
         sounds = sed.sound,
@@ -486,10 +498,14 @@ function agricultural_soil.register_wet_depleted(ag_soil)
     local sed = ag_soil.sediment
     local props = {
         description = S("Wet Depleted @1", ag_soil.description),
+        drawtype = "mesh",
+        mesh = "nodes_nature_tilled_soil.obj",
         tiles = {
-            {name = sed.texture_name.."^"..ag_soil.texture_depleted_name.."^"..textures.wet},
-            sed.texture_name.."^"..textures.wet,
-            {name = sed.texture_name.."^"..ag_soil.texture_depleted_side_name.."^"..textures.wet}},
+            "[combine:32x32:0,0="
+                ..sed.texture_name..":0,16="
+                ..sed.texture_name..":16,0="
+                ..sed.texture_name.."^nodes_nature_tilled_soil_depleted.png^"..textures.wet
+        },
         stack_max = minimal.stack_max_bulky,
         groups = merge_tables(sed.groups_wet, {depleted_agricultural_soil = 1}),
         sounds = sed.sound_wet,
