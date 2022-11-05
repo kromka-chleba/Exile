@@ -16,7 +16,6 @@
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 crafting.register_type("inv")
-crafting.register_type("furnace")
 
 local player_inv_hashes = {}
 
@@ -73,45 +72,3 @@ if minetest.global_exists("sfinv") then
 
 	minetest.after(1, check_for_changes)
 end
-
-minetest.register_node("crafting:work_bench", {
-	description = "Work Bench",
-	groups = { snappy = 1, not_in_creative_inventory=1 },
-	on_rightclick = crafting.make_on_rightclick("inv", 2, { x = 8, y = 3 }),
-})
-
-crafting.create_async_station("crafting:furnace", "furnace", 1, {
-	description = "Furnace",
-	tiles = {
-		"crafting_furnace_top.png", "crafting_furnace_bottom.png",
-		"crafting_furnace_side.png", "crafting_furnace_side.png",
-		"crafting_furnace_side.png", "crafting_furnace_front.png"
-	},
-	paramtype2 = "facedir",
-	groups = {cracky=2, not_in_creative_inventory=1},
-	legacy_facedir_simple = true,
-	is_ground_content = false,
-}, {
-	description = "Furnace (active)",
-	tiles = {
-		"crafting_furnace_top.png", "crafting_furnace_bottom.png",
-		"crafting_furnace_side.png", "crafting_furnace_side.png",
-		"crafting_furnace_side.png",
-		{
-			image = "crafting_furnace_front_active.png",
-			backface_culling = false,
-			animation = {
-				type = "vertical_frames",
-				aspect_w = 16,
-				aspect_h = 16,
-				length = 1.5
-			},
-		}
-	},
-	paramtype2 = "facedir",
-	light_source = 8,
-	drop = "crafting:furnace",
-	groups = {cracky=2, not_in_creative_inventory=1},
-	legacy_facedir_simple = true,
-	is_ground_content = false,
-})
