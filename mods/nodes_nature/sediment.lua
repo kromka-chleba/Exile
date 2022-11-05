@@ -273,14 +273,8 @@ function soil.till(itemstack, puncher, pointed_thing)
         return
     end
     local under = minetest.get_node(pointed_thing.under)
-    -- am I clicking on something with existing on_rightclick function?
-    local def = minetest.registered_nodes[under.name]
-    if def and def.on_rightclick then
-        return def.on_rightclick(pointed_thing.under, under, puncher, itemstack)
-    end
     local p = {x=pointed_thing.under.x, y=pointed_thing.under.y+1, z=pointed_thing.under.z}
     local above = minetest.get_node(p)
-    -- return if any of the nodes is not registered
     local node_name = under.name
     local nodedef = minetest.registered_nodes[node_name]
     if not nodedef then
@@ -300,9 +294,8 @@ function soil.till(itemstack, puncher, pointed_thing)
         minetest.swap_node(pointed_thing.under, {name = ag_soil})
         local uses = itemstack:get_tool_capabilities().groupcaps.tilling.uses
         local player_inv = puncher:get_inventory()
-        player_inv:remove_item("main", itemstack)
         itemstack:add_wear(65535 / uses)
-        player_inv:add_item("main", itemstack)
+        puncher:set_wielded_item(itemstack)
     end
 end
 
