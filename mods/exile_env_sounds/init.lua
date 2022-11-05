@@ -23,7 +23,7 @@ local function posav(npos, num)
 		pos_av.y = pos_av.y + pos.y
 		pos_av.z = pos_av.z + pos.z
 	end
-	pos_av = vector.divide(posav, num)
+	pos_av = vector.divide(pos_av, num)
 
   return 	pos_av
 end
