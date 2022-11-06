@@ -1,5 +1,6 @@
 -- Crafting Mod - semi-realistic crafting in minetest
 -- Copyright (C) 2018 rubenwardy <rw@rubenwardy.com>
+-- Copyright (C) 2022 Jan Wielkiewicz <tona_kosmicznego_smiecia@interia.pl>
 --
 -- This library is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU Lesser General Public
