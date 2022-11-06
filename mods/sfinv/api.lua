@@ -60,7 +60,7 @@ function sfinv.make_formspec(player, context, content, show_inv, size)
 end
 
 function sfinv.get_homepage_name(player)
-	return "sfinv:crafting"
+	return "survival:crafting"
 end
 
 function sfinv.get_formspec(player, context)
@@ -127,18 +127,21 @@ function sfinv.set_player_inventory_formspec(player, context)
 	player:set_inventory_formspec(fs)
 end
 
+-- should be renamed to select_page
+-- this one gets called when user changes the page
 function sfinv.set_page(player, pagename)
-	local context = sfinv.get_or_create_context(player)
-	local oldpage = sfinv.pages[context.page]
-	if oldpage and oldpage.on_leave then
-		oldpage:on_leave(player, context)
-	end
-	context.page = pagename
-	local page = sfinv.pages[pagename]
-	if page.on_enter then
-		page:on_enter(player, context)
-	end
-	sfinv.set_player_inventory_formspec(player, context)
+    local context = sfinv.get_or_create_context(player) -- stores current pages, names, etc.
+    local oldpage = sfinv.pages[context.page] -- the page that was selected previously
+    if oldpage and oldpage.on_leave then
+        oldpage:on_leave(player, context)
+    end
+    context.page = pagename
+    local page = sfinv.pages[pagename]
+    if page.on_enter then
+        page:on_enter(player, context)
+    end
+     -- this one should be responsible for displaying tabs
+    sfinv.set_player_inventory_formspec(player, context)
 end
 
 function sfinv.get_page(player)

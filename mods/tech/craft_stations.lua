@@ -11,12 +11,11 @@ local c_alpha = minimal.compat_alpha
 local legacy_stations = true
 local legacy_station_recipes = false
 
-if not minetest.is_creative_enabled() then
-    crafting.make_global_inventory_tab("crafting", "Crafting", "hand")
-    crafting.make_global_inventory_tab("pottery", "Pottery", "hand_pottery")
-    crafting.make_global_inventory_tab("wattle", "Wattle", "hand_wattle")
-    crafting.make_global_inventory_tab("mixing", "Mixing", "hand_mixing")
-end
+-- Crafting tabs for the inventory
+crafting.make_global_inventory_tab("survival:crafting", S("Crafting"), "hand", {creative = false})
+crafting.make_global_inventory_tab("survival:pottery", S("Pottery"), "hand_pottery", {creative = false})
+crafting.make_global_inventory_tab("survival:wattle", S("Wattle"), "hand_wattle", {creative = false})
+crafting.make_global_inventory_tab("survival:mixing", S("Mixing"), "hand_mixing", {creative = false})
 
 --Register
 --some crafts are more convienently registered at the same time as the resource,

@@ -23,11 +23,11 @@ local function get_global_tab_updater(tab_name)
     local updater
     updater = function()
         for _, player in pairs(minetest.get_connected_players() or {}) do
-            if sfinv.get_or_create_context(player).page == "sfinv:"..tab_name then
+            if sfinv.get_or_create_context(player).page == tab_name then
                 local hash = crafting.calc_inventory_list_hash(player:get_inventory(), "main")
                 local old_hash = player_inv_hashes[player:get_player_name()]
                 if hash ~= old_hash then
-                    sfinv.set_page(player, "sfinv:"..tab_name)
+                    sfinv.set_page(player, tab_name)
                 end
             end
         end
@@ -254,11 +254,17 @@ print (dump(type))
 	end
 end
 
-function crafting.make_global_inventory_tab(tab_name, desc, crafting_name)
+function crafting.make_global_inventory_tab(tab_name, desc, crafting_name, gamemode)
     if minetest.global_exists("sfinv") then
         sfinv.register_page(
-            "sfinv:"..tab_name, {
+            tab_name, {
                 title = desc,
+                -- this one enables or disables tabs in global inventory
+                is_in_nav = function(self, player, context)
+                    local creative_enabled = creative.is_enabled_for(player:get_player_name())
+                    return gamemode.creative and creative_enabled or
+                        not gamemode.creative and not creative_enabled
+		end,
                 get = function(self, player, context)
                     local formspec = crafting.make_result_selector(player, crafting_name, 1, { x = 8, y = 3 }, context)
                     formspec = formspec .. "list[detached:creative_trash;main;0,3.4;1,1;]" ..
