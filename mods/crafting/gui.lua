@@ -15,6 +15,26 @@
 -- License along with this library; if not, write to the Free Software
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
+local player_inv_hashes = {}
+
+-- this bad boy checks for inventory changes to update the global inventory tabs
+local function get_global_tab_updater(tab_name)
+    local updater
+    updater = function()
+        for _, player in pairs(minetest.get_connected_players() or {}) do
+            if sfinv.get_or_create_context(player).page == "sfinv:"..tab_name then
+                local hash = crafting.calc_inventory_list_hash(player:get_inventory(), "main")
+                local old_hash = player_inv_hashes[player:get_player_name()]
+                if hash ~= old_hash then
+                    sfinv.set_page(player, "sfinv:"..tab_name)
+                end
+            end
+        end
+        minetest.after(1, updater)
+    end
+    return updater
+end
+
 
 local function get_item_description(name)
 	if name:sub(1, 6) == "group:" then
@@ -233,21 +253,26 @@ print (dump(type))
 	end
 end
 
-if minetest.global_exists("sfinv") then
-	sfinv.override_page("sfinv:crafting", {
-		get = function(self, player, context)
-			local formspec = crafting.make_result_selector(player, "inv", 1, { x = 8, y = 3 }, context)
-			formspec = formspec .. "list[detached:creative_trash;main;0,3.4;1,1;]" ..
-					"image[0.05,3.5;0.8,0.8;creative_trash_icon.png]"
-			return sfinv.make_formspec(player, context, formspec, true)
-		end,
-		on_player_receive_fields = function(self, player, context, fields)
-			if crafting.result_select_on_receive_results(player, "inv", 1, context, fields) then
-				sfinv.set_player_inventory_formspec(player)
-			end
-			return true
-		end
-	})
+function crafting.make_global_inventory_tab(tab_name, desc, crafting_name)
+    if minetest.global_exists("sfinv") then
+        sfinv.register_page(
+            "sfinv:"..tab_name, {
+                title = desc,
+                get = function(self, player, context)
+                    local formspec = crafting.make_result_selector(player, crafting_name, 1, { x = 8, y = 3 }, context)
+                    formspec = formspec .. "list[detached:creative_trash;main;0,3.4;1,1;]" ..
+                        "image[0.05,3.5;0.8,0.8;creative_trash_icon.png]"
+                    return sfinv.make_formspec(player, context, formspec, true)
+                end,
+                on_player_receive_fields = function(self, player, context, fields)
+                    if crafting.result_select_on_receive_results(player, crafting_name, 1, context, fields) then
+                        sfinv.set_player_inventory_formspec(player)
+                    end
+                    return true
+                end
+        })
+        minetest.after(1, get_global_tab_updater(tab_name)) -- updates the tabs
+    end
 end
 
 local node_fs_context = {}

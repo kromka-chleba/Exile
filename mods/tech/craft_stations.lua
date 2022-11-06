@@ -11,6 +11,13 @@ local c_alpha = minimal.compat_alpha
 local legacy_stations = true
 local legacy_station_recipes = false
 
+if not minetest.is_creative_enabled() then
+    crafting.make_global_inventory_tab("crafting", "Crafting", "hand")
+    crafting.make_global_inventory_tab("pottery", "Pottery", "hand_pottery")
+    crafting.make_global_inventory_tab("wattle", "Wattle", "hand_wattle")
+    crafting.make_global_inventory_tab("mixing", "Mixing", "hand_mixing")
+end
+
 --Register
 --some crafts are more convienently registered at the same time as the resource,
 --hence why not all are here.
@@ -676,58 +683,6 @@ minetest.register_node("tech:glass_furnace", {
 	 always_known = true,
    })
 
-
-
-
----------------------------------------
---Recipes
----- Hand crafts (inv) ----
-crafting.register_recipe({ ----craft crafting spot for free
-	type   = "inv",
-	output = "tech:crafting_spot",
-	items  = {},
-	level  = 1,
-	always_known = true,
-	})
-crafting.register_recipe({ ----craft mixing spot for free
-	type   = "inv",
-	output = "tech:mixing_spot",
-	items  = {},
-	level  = 1,
-	always_known = true,
-	})
-crafting.register_recipe({ ----craft threshing spot for free
-	type   = "inv",
-	output = "tech:threshing_spot",
-	items  = {},
-	level  = 1,
-	always_known = true,
-	})
-
---IB removed since weaving frame is back	
---weaving_frame for free (location limited)
---crafting.register_recipe({ 
---	type   = "inv",
---	output = "tech:weaving_spot",
---	items  = {},
---	level  = 1,
---	always_known = true,
---	})
-
-crafting.register_recipe({ ----grinding_stone for free (location limited)
-	type   = "inv",
-	output = "tech:grinding_spot",
-	items  = {},
-	level  = 1,
-	always_known = true,
-	})
-crafting.register_recipe({ --hammering block for free (location limited)
-	type   = "inv",
-	output = "tech:hammering_spot",
-	items  = {},
-	level  = 1,
-	always_known = true,
-	})
 ---- Boulders ----
 --grind a mortar_and_pestle
 crafting.register_recipe({
