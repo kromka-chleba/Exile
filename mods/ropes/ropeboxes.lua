@@ -214,7 +214,7 @@ local rope_def = {
 	groups = {choppy=2, flammable=2, not_in_creative_inventory=1},
 	sounds =  nodes_nature.node_sound_leaves_defaults(),
 	sounds = {
-            footstep = "ropes_creak",
+            footstep = {name = "ropes_creak", gain = 0.5},
             dig = "__group",
             dug = "__group",
 	},
@@ -250,7 +250,7 @@ local rope_bottom_def = {
 	drawtype = "nodebox",
 	groups = {choppy=2, flammable=2, not_in_creative_inventory=1},
 	sounds = {
-            footstep = "ropes_creak",
+            footstep = {name = "ropes_creak", gain = 0.5},
             dig = "__group",
             dug = "__group",
 	},
