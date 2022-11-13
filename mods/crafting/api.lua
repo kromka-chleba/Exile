@@ -71,7 +71,6 @@ minetest.register_on_mods_loaded( function ()
 			recipe.type = { recipe.type }
 		end
 		for _,station in ipairs(recipe.type) do
---print ('XXX: '..station)
 			local tab = crafting.recipes[station]
 			assert(tab,        "Unknown craft type " .. station)
 			tab[#tab + 1] = recipe
@@ -230,7 +229,6 @@ function crafting.can_craft(name, ctype, level, recipe)
 	if type(recipe.type) == 'string' then
 		rtypes = { recipe.type }
 	end
-print (dump({name,ctype,level,recipe}))
 	for _,station in ipairs(ctype) do
 		for _,rec_type in ipairs(rtypes) do
 			if  rec_type == station and recipe.level <= level and
