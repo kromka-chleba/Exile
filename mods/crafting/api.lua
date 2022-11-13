@@ -48,16 +48,7 @@ function crafting.register_recipe(def)
 	end
 	local recipes = crafting.recipes_by_id
 	local by_output = crafting.recipes_by_output
-	--if by_output[output] then
-	--	local orig = by_output[output]
---print ("!!!OUTPUT EXISTS!!!"..output)
-		--XXX Already exists
-		-- check if same recipe
-		-- check if adding new craft stations
---		def.id = by_output[output].id
---	else
-		def.id = #crafting.recipes_by_id + 1
---	end
+        def.id = #crafting.recipes_by_id + 1
 	crafting.recipes_by_output[output] = def
 	crafting.recipes_by_id[def.id] = def
 	return def.id
