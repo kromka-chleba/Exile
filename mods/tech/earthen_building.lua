@@ -439,7 +439,7 @@ crafting.register_recipe({
 
 ----Thatch from  fibre
 crafting.register_recipe({
-	type = "weaving_frame",
+	type = "hand",
 	output = "tech:thatch",
 	items = {"group:fibrous_plant 8"},
 	level = 1,

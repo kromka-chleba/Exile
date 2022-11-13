@@ -23,8 +23,8 @@ crafting.make_global_inventory_tab("survival:mixing", S("Mixing"), "hand_mixing"
 crafting.register_type("crafting_spot")
 --crafting.register_type("mixing_spot")...has to be done in nodes_nature
 --crafting.register_type("threshing_spot")...has to be done in nodes_nature
-crafting.register_type("weaving_frame", 'Crafting')
-crafting.register_type("weaving_frame_mixing", 'mixing')
+crafting.register_type("weaving_frame", "Weaving")
+crafting.register_type("weaving_frame_mixing", "Mixing")
 crafting.register_type("grinding_stone")
 crafting.register_type("mortar_and_pestle")
 --crafting.register_type("chopping_block")...has to be done in nodes_nature
