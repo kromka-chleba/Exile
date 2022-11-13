@@ -9,11 +9,15 @@ local path = minetest.get_modpath("nodes_nature")
 
 --crafting spots
 crafting.register_type("mixing_spot")
-crafting.register_type("threshing_spot")
+crafting.register_type("threshing_spot", "Threshing")
 crafting.register_type("hammering_block")
 crafting.register_type("chopping_block")
-crafting.register_type("masonry_bench")
-
+crafting.register_type("masonry_bench", "Crafting")
+crafting.register_type("masonry_bench_bricks", "Bricks")
+crafting.register_type("masonry_bench_bricks_mortar", "Bricks & Mortar")
+crafting.register_type("masonry_bench_blocks", "Blocks")
+crafting.register_type("masonry_bench_blocks_mortar", "Blocks & Mortar")
+crafting.register_type("masonry_bench_mixing", "Mixing")
 --------------------------------
 
 dofile(path.."/sounds.lua")
@@ -30,3 +34,4 @@ dofile(path.."/liquids.lua")
 dofile(path.."/flora_spread.lua")
 dofile(path.."/dripping_water.lua")
 dofile(path.."/moisture_spread.lua")
+dofile(path.."/compost.lua")

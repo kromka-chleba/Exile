@@ -18,32 +18,57 @@
 
 crafting = {
 	recipes = {},
+	tab_labels = {},
 	recipes_by_id = {},
+	recipes_by_output = {},
 	registered_on_crafts = {},
 }
 
-function crafting.register_type(name)
+function crafting.register_type(name, label)
 	crafting.recipes[name] = {}
+	-- add a label for tabs - default to the name
+	crafting.tab_labels[name] = (label or name)
 end
 
-local recipe_counter = 0
 function crafting.register_recipe(def)
 	assert(def.output, "Output needed in recipe definition")
 	assert(def.type,   "Type needed in recipe definition")
 	assert(def.items,  "Items needed in recipe definition")
 
 	def.level = def.level or 1
-
-	local tab = crafting.recipes[def.type]
-	assert(tab,        "Unknown craft type " .. def.type)
-
-	recipe_counter = recipe_counter + 1
-	def.id = recipe_counter
-	crafting.recipes_by_id[recipe_counter] = def
-	tab[#tab + 1] = def
-
+	-- Can be more then one craft station for a recipe
+	-- Need to store as a table.
+	if type(def.type) == 'string' then
+		def.type = { def.type } 
+	end
+	-- Support multiple output items via a serialzed string
+	output = def.output
+	if type(def.output) == 'table' then
+		output = minetest.serialize(def.output)
+	end
+	local recipes = crafting.recipes_by_id
+	local by_output = crafting.recipes_by_output
+        def.id = #crafting.recipes_by_id + 1
+	crafting.recipes_by_output[output] = def
+	crafting.recipes_by_id[def.id] = def
 	return def.id
 end
+
+-- have to wait for all modules load before generating
+-- station lists
+minetest.register_on_mods_loaded( function ()
+	for _,recipe in ipairs(crafting.recipes_by_id) do
+		if type(recipe.type) == "string" then
+			recipe.type = { recipe.type }
+		end
+		for _,station in ipairs(recipe.type) do
+			local tab = crafting.recipes[station]
+			assert(tab,        "Unknown craft type " .. station)
+			tab[#tab + 1] = recipe
+		end
+	end
+end)
+
 
 local unlocked_cache = {}
 function crafting.get_unlocked(name)
@@ -128,10 +153,8 @@ function crafting.get_all(type, level, item_hash, unlocked)
 	assert(crafting.recipes[type], "No such craft type!")
 
 	local results = {}
-
 	for _, recipe in pairs(crafting.recipes[type]) do
 		local craftable = true
-
 		if recipe.level <= level and (recipe.always_known or unlocked[recipe.output]) then
 			-- Check all ingredients are available
 			local items = {}
@@ -167,7 +190,6 @@ function crafting.set_item_hashes_from_list(inv, listname, item_hash)
 		if not stack:is_empty() then
 			local itemname = stack:get_name()
 			item_hash[itemname] = (item_hash[itemname] or 0) + stack:get_count()
-
 			local def = minetest.registered_items[itemname]
 			if def and def.groups then
 				for groupname, _ in pairs(def.groups) do
@@ -189,12 +211,25 @@ function crafting.get_all_for_player(player, type, level)
 	return crafting.get_all(type, level, item_hash, unlocked)
 end
 
-function crafting.can_craft(name, type, level, recipe)
+function crafting.can_craft(name, ctype, level, recipe)
 	local unlocked = crafting.get_unlocked(name)
-
-	return recipe.type == type and recipe.level <= level and
-		(recipe.always_known or unlocked[recipe.output])
-end
+	if type(ctype) == 'string' then
+		ctype = { ctype }
+	end
+	rtypes = recipe.type
+	if type(recipe.type) == 'string' then
+		rtypes = { recipe.type }
+	end
+	for _,station in ipairs(ctype) do
+		for _,rec_type in ipairs(rtypes) do
+			if  rec_type == station and recipe.level <= level and
+					(recipe.always_known or unlocked[recipe.output]) then
+				return true
+			end
+		end
+	end
+	return false
+end	
 
 local function give_all_to_player(inv, list)
 	for _, item in pairs(list) do

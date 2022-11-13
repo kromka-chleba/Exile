@@ -217,17 +217,16 @@ bed_rest.register_bed("tech:bed", {
 
 --sleeping_spot is free
 crafting.register_recipe({
-	type = "inv",
+	type = {"hand"},
 	output = "tech:sleeping_spot",
 	items = {},
 	level = 1,
 	always_known = true,
 })
 
-
 --sleeping_mat from cheap thatch
 crafting.register_recipe({
-	type = "weaving_frame",
+	type = "hand",
 	output = "tech:sleeping_mat",
 	items = {"tech:thatch"},
 	level = 1,
@@ -236,7 +235,7 @@ crafting.register_recipe({
 
 --Primitve bed from sticks and mats
 crafting.register_recipe({
-	type = "weaving_frame",
+	type = "hand",
 	output = "tech:primitive_bed",
 	items = {"tech:sleeping_mat 4", "tech:stick 36"},
 	level = 1,

@@ -19,7 +19,6 @@
 dofile(minetest.get_modpath("crafting") .. "/api.lua")
 dofile(minetest.get_modpath("crafting") .. "/async_craft.lua")
 dofile(minetest.get_modpath("crafting") .. "/gui.lua")
-dofile(minetest.get_modpath("crafting") .. "/stations.lua")
 
 if minetest.global_exists("awards") then
 	awards.register_on_unlock(function(name, award)

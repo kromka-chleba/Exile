@@ -229,7 +229,7 @@ minetest.register_node("nodes_nature:snow_block", {
 	sounds = nodes_nature.node_sound_snow_defaults(),
 })
 
-
+-- hand_mixing doesn't exist yet, wait till all mods loaded
 crafting.register_recipe({
 	type = "mixing_spot",
 	output = "nodes_nature:snow_block",
