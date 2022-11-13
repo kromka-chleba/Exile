@@ -116,3 +116,11 @@ minetest.override_item(
             restore_from_inventory(pos, itemstack)
         end
 })
+
+crafting.register_recipe({
+	type = "shovel_agriculture",
+	output = "nodes_nature:compost_unfermented",
+	items = {"group:fibrous_plant 16"},
+	level = 1,
+	always_known = true,
+})

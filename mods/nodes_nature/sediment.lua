@@ -518,43 +518,6 @@ function agricultural_soil.register_wet_depleted(ag_soil)
     minetest.register_node(ag_soil.wet_depleted_node_name, props)
 end
 
-function agricultural_soil.register_recipe(agri_soil)
-	crafting.register_recipe({
-	    type = "mixing_spot",
-	    output = agri_soil.dry_node_name,
-	    items = {agri_soil.sediment.dry_node_name.." 1","group:fertilizer 1"},
-	    level = 1,
-	    always_known = true,
-	})
-	crafting.register_recipe({
-	    type = "soil_mixing",
-	    output = agri_soil.dry_node_name,
-	    items = {agri_soil.sediment.dry_node_name.." 1","group:fertilizer 1"},
-	    level = 1,
-	    always_known = true,
-	})
-end
-
-function agricultural_soil.register_recipe_wet(agri_soil)
-    crafting.register_recipe({
-	    type = "mixing_spot",
-	    output = agri_soil.wet_node_name,
-	    items = {agri_soil.sediment.wet_node_name.." 1","group:fertilizer 1"},
-	    level = 1,
-	    always_known = true,
-    })
-    crafting.register_recipe({
-	    type = "soil_mixing",
-	    output = agri_soil.wet_node_name,
-	    items = {agri_soil.sediment.wet_node_name.." 1","group:fertilizer 1"},
-	    level = 1,
-	    always_known = true,
-    })
-end
-
--- Functions for making sets: sediment + soil + agricultural soil
----------------------------------------------------
-
 -- Registers sediments, their slabs, wet, salty, slopes etc. and crafting recipes
 function sediment.register_sed_variants(sed)
     sediment.register_dry(sed)
@@ -575,8 +538,6 @@ function sediment.register_agri_soil_variants(sed)
     agricultural_soil.register_wet(agri)
     agricultural_soil.register_depleted(agri)
     agricultural_soil.register_wet_depleted(agri)
-    agricultural_soil.register_recipe(agri)
-    agricultural_soil.register_recipe_wet(agri)
 end
 
 -- Registers soils with "grasses" and their variants including slopes

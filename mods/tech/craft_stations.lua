@@ -55,6 +55,7 @@ crafting.register_type("knife_mixing", "Mixing")
 crafting.register_type("hammer", "Crafting") 	-- Hammering spot replacement
 crafting.register_type("hammer_mixing", "Mixing")
 crafting.register_type('shovel', "Crafting") 	-- farming tools - including digging stick; replace threshing spot
+crafting.register_type("shovel_agriculture", "Agriculture") -- compost, etc.
 crafting.register_type('soil_mixing', "Mixing") 	-- tab for shovel
 crafting.register_type('axe', "Crafting")    	-- includes adze - replace chopping bock
 crafting.register_type('axe_mixing', "Mixing")    	

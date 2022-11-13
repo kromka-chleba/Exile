@@ -213,8 +213,8 @@ minetest.register_node(
 -- digging stick... specialist for digging. Can also till
 
 local open_digging_stick = {
-	crafting.make_on_rightclick({"threshing_spot","soil_mixing"}, 1, { x = 8, y = 3 }),
-	crafting.make_on_rightclick({"threshing_spot","soil_mixing"}, 2, { x = 8, y = 3 }),
+	crafting.make_on_rightclick({"threshing_spot","soil_mixing", "shovel_agriculture"}, 1, { x = 8, y = 3 }),
+	crafting.make_on_rightclick({"threshing_spot","soil_mixing", "shovel_agriculture"}, 2, { x = 8, y = 3 }),
 }
 
 minetest.register_tool("tech:digging_stick", {
