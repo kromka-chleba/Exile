@@ -22,9 +22,9 @@ local base_punch_int = minimal.hand_punch_int
 
 -----------------------------------
 
---Hammers
+--Tool placing
 
---Places hammer
+--Places a tool
 local function place_tool(itemstack, placer, pointed_thing, placed_name)
     local place_item = ItemStack(placed_name)
     local above = minetest.get_node(pointed_thing.above)
@@ -76,9 +76,7 @@ local open_chopping_spot = {
     crafting.make_on_rightclick({"axe","axe_mixing"}, 2, { x = 8, y = 3 }),
 }
 
-
 local open_knife = crafting.make_on_rightclick({"knife",'knife_mixing'}, 2, { x = 8, y = 3 })
-
 
 -- checks if the node has one of the groups from good_on
 local function is_spot_valid(node, good_on)
@@ -171,7 +169,6 @@ minetest.register_tool("tech:stone_chopper", {
 		},
 		damage_groups = {fleshy= crude_dmg},
 	},
-	on_place = crafting.make_on_place({"knife",'knife_mixing'}, 2, { x = 8, y = 3 }),
 	groups = {knife = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -310,7 +307,6 @@ minetest.register_tool("tech:adze_granite", {
 		},
 		damage_groups = {fleshy = stone_dmg},
 	},
-	on_place = crafting.make_on_place({"axe","axe_mixing"}, 2, { x = 8, y = 3 }),
 	groups = {axe = 1,craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -358,7 +354,6 @@ minetest.register_tool("tech:adze_basalt", {
 		},
 		damage_groups = {fleshy = stone_dmg},
 	},
-	on_place = crafting.make_on_place({"axe","axe_mixing"}, 2, { x = 8, y = 3 }),
 	groups = {axe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -407,7 +402,6 @@ minetest.register_tool("tech:adze_jade", {
 		},
 		damage_groups = {fleshy = stone_dmg},
 	},
-	on_place = crafting.make_on_place({"axe","axe_mixing"}, 2, { x = 8, y = 3 }),
 	groups = {axe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -508,7 +502,6 @@ minetest.register_tool("tech:axe_iron", {
 		},
 		damage_groups = {fleshy = iron_dmg},
 	},
-	on_place = crafting.make_on_place({"axe","axe_mixing"}, 2, { x = 8, y = 3 }),
 	groups = {axe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -824,37 +817,6 @@ crafting.register_recipe({
 
 
 --Hammers
-
---Places hammer
-local function place_hammer(itemstack, placer, pointed_thing, placed_name)
-    local place_item = ItemStack(placed_name)
-    itemstack:take_item(1)
-    minetest.item_place_node(place_item, placer, pointed_thing)
-    return itemstack
-end
-
--- opens the hammering spot GUI if the hammer is placed on a solid node
-local function open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
-    local good_on = {{"stone", 1}, {"masonry", 1}, {"boulder", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}}
-    local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
-    local ground = minetest.get_node(pos_under)
-    local is_good_for_hammering = false
-    for i in ipairs(good_on) do
-        local group = good_on[i][1]
-        local num = good_on[i][2]
-        if minetest.get_item_group(ground.name, group) == num then
-            is_good_for_hammering = true
-            break
-        end
-    end
-    if is_good_for_hammering then
-        open_hammering_spot(pos, node, clicker, itemstack, pointed_thing)
-    else
-        minetest.chat_send_player(
-            clicker:get_player_name(),
-            "Can't do hammering here! Needs: stone, masonry, tree, or a log.")
-    end
-end
 
 -- Granite hammer
 minetest.register_tool(
