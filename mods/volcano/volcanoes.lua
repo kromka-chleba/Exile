@@ -56,7 +56,7 @@ local snow_line = 165 -- above this elevation snow is added to the dirt type
 local snow_border = 15 -- transitional zone
 
 local c_ocean_sed = minetest.get_content_id("nodes_nature:gravel_wet_salty")
-local c_dune_soil = minetest.get_content_id("nodes_nature:duneland_soil")
+local c_dune_soil = minetest.get_content_id("nodes_nature:volcanic_ash")
 local c_sand = minetest.get_content_id("nodes_nature:sand")
 local c_gravel = minetest.get_content_id("nodes_nature:gravel")
 local c_snow = minetest.get_content_id("nodes_nature:snow")
