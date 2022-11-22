@@ -84,7 +84,7 @@ local dry_speed = 600
 local wet_speed = 800
 
 minetest.override_item(
-    compost_unfermented.dry_node_name,
+    sediment.get_dry_name("compost_unfermented"),
     {
         on_timer = function(pos, elapsed)
             return ferment_compost(pos, compost.dry_node_name, dry_speed)
@@ -101,7 +101,7 @@ minetest.override_item(
 })
 
 minetest.override_item(
-    compost_unfermented.wet_node_name,
+    sediment.get_wet_name("compost_unfermented"),
     {
         on_timer = function(pos, elapsed)
             return ferment_compost(pos, compost.wet_node_name, wet_speed)

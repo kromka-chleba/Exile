@@ -20,9 +20,9 @@ lightsource_description = lightsource_description
 --Broken Pottery
 --if you smash it up, or from failed firings
 --slab
-minetest.register_node("tech:broken_pottery", {
-	description = S("Broken Pottery"),
-	tiles = {"tech_broken_pottery.png"},
+minetest.register_node("tech:ruined_pottery_slab", {
+	description = S("Broken Pottery Slab"),
+	tiles = {"tech_ruined_pottery.png"},
 	stack_max = minimal.stack_max_bulky *2,
 	paramtype = "light",
 	drawtype = "nodebox",
@@ -33,18 +33,17 @@ minetest.register_node("tech:broken_pottery", {
 	groups = {cracky = 3, falling_node = 1, oddly_breakable_by_hand = 3},
 	sounds = nodes_nature.node_sound_gravel_defaults(),
         on_rightclick = function (pos,node,clicker,itemstack,pointed_thing)
-           return minimal.slabs_combine(pos,node,itemstack,"tech:broken_pottery_block")
+           return minimal.slabs_combine(pos,node,itemstack,"tech:ruined_pottery")
 	end,
 })
 
 -- Broken pottery full blocks and soil
 local broken_pottery =
-   sediment.new({name = "broken_pottery_block",
+   sediment.new({name = "ruined_pottery",
 		 description = S("Broken Pottery"),
 		 hardness = sediment.hardness.soft,
 		 fertility = 5, sound = sediment.sounds.gravel,
-		 sound_wet = sediment.sounds.gravel_wet,
-		 texture_name = "tech_broken_pottery.png", mod_name = "tech"})
+		 sound_wet = sediment.sounds.gravel_wet,})
 sediment.register_dry(broken_pottery)
 sediment.register_wet(broken_pottery)
 sediment.register_wet_salty(broken_pottery)
@@ -449,7 +448,7 @@ crafting.register_recipe({
 --Break up pots
 crafting.register_recipe({
 	type = {"mixing_spot","hand_pottery"},
-	output = "tech:broken_pottery",
+	output = "tech:ruined_pottery_slab",
 	items = {"group:pottery"},
 	level = 1,
 	always_known = true,
@@ -458,16 +457,16 @@ crafting.register_recipe({
 --Combine broken pottery slabs and vice versa
 crafting.register_recipe({
 	type = {"mixing_spot","hand_pottery"},
-	output = "tech:broken_pottery_block",
-	items = {"tech:broken_pottery 2"},
+	output = "tech:ruined_pottery",
+	items = {"tech:ruined_pottery_slab 2"},
 	level = 1,
 	always_known = true,
 })
 
 crafting.register_recipe({
 	type = {"mixing_spot","hand_pottery"},
-	output = "tech:broken_pottery 2",
-	items = {"tech:broken_pottery_block"},
+	output = "tech:ruined_pottery_slab 2",
+	items = {"tech:ruined_pottery"},
 	level = 1,
 	always_known = true,
 })

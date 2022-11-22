@@ -387,7 +387,7 @@ minetest.after(0, function()
   options['nodes_nature:clay'] =  { 1, 1, 2 }
   options['nodes_nature:loam'] =  { 1, 1, 2 }
   options['tech:wood_ash'] =  { 1, 1, 2 }
-  options['tech:broken_pottery'] =  { 1, 1, 2 }
+  options['tech:ruined_pottery_slab'] =  { 1, 1, 2 }
 
 
   --cheap processed materials (rarity 2)

@@ -40,3 +40,9 @@ minetest.register_alias("tech:mashed_anperal_burned",
 
 minetest.register_alias("tech:clay_oil_lamp_empty",
 			"tech:clay_oil_lamp_unlit")
+
+minetest.register_alias("tech:broken_pottery",
+			"tech:ruined_pottery_slab")
+
+minetest.register_alias("tech:broken_pottery_block",
+			"tech:ruined_pottery")
