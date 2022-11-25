@@ -383,7 +383,8 @@ function soil.get_dry_node_props(soil_desc)
             sediment.get_dry_node_props(sed), {
                 description = soil_desc.description,
                 groups = merge_tables(sed.groups, {spreading = 1}),
-                tiles = {soil.get_dry_texture_name(soil_desc.name), sediment.get_dry_texture_name(sed.name),
+                tiles = {soil.get_dry_texture_name(soil_desc.name),
+                         sediment.get_dry_texture_name(sed.name),
                          {name = soil.get_side_texture_name(soil_desc.name, sed.name)}},
                 _ag_soil = agricultural_soil.get_dry_name(sed.name),
         })
@@ -402,7 +403,8 @@ function soil.get_wet_node_props(soil_desc)
             sediment.get_wet_node_props(sed), {
                 description = S("Wet @1", soil_desc.description),
                 groups = merge_tables(sed.groups_wet, {spreading = 1}),
-                tiles = {soil.get_wet_texture_name(soil_desc.name), sediment.get_wet_texture_name(sed.name),
+                tiles = {soil.get_wet_texture_name(soil_desc.name),
+                         sediment.get_wet_texture_name(sed.name),
                          {name = soil.get_wet_side_texture_name(soil_desc.name, sed.name)}},
                 _ag_soil = agricultural_soil.get_wet_name(sed.name),
         })
