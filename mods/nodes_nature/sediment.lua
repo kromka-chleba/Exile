@@ -68,40 +68,39 @@ end
 
 --soil degrades from farming
 local function erode_deplete_ag_soil(pos, depleted_name)
-	local c = math.random()
-	--rain makes this more likely (erosive, washes nutrient out)
-	local adjust = 1
-	if climate.get_rain(pos) then
-	   adjust = 2
-	end
+    local depletion_probability = 0.01
+    local erosion_probability = 0.04
+    --rain makes this more likely (erosive, washes nutrient out)
+    if climate.get_rain(pos) then
+        depletion_probability = 0.02
+        erosion_probability = 0.08
+    end
+    if math.random() <= erosion_probability then
+        --erode if exposed, and near water or raining
+        local positions = minetest.find_nodes_in_area(
+            {x = pos.x - 1, y = pos.y, z = pos.z - 1},
+            {x = pos.x + 1, y = pos.y, z = pos.z + 1},
+            {"group:water", "air"})
 
-	if c < (0.05 * adjust) then -- 90-95% chance nothing happens
-	   return true
-	end
-	--4-8% chance of rain/water erosion
-	if c > (0.01 * adjust) then
-		--erode if exposed, and near water or raining
-		local positions = minetest.find_nodes_in_area(
-			{x = pos.x - 1, y = pos.y, z = pos.z - 1},
-			{x = pos.x + 1, y = pos.y, z = pos.z + 1},
-			{"group:water", "air"})
-
-		if #positions >= 1 then
-			local name = minetest.get_node(pos).name
-			local new = name:gsub("%_depleted","")
-			new = new:gsub("%_agricultural_soil","")
-			--would prefer stairs:slab, but sand/etc lacks wet
-			new = new:gsub("%nature:","%nature:slope_pike_")
-			minetest.swap_node(pos, {name = new})
-			return false
-		end
-
-	elseif minetest.get_node({x=pos.x, y=(pos.y+1), z=pos.z}) == 'air' then
-	        -- ^ don't deplete a planted node; already handled in life.lua
-		-- and a 1-2% chance to be depleted via neglect
-		minetest.swap_node(pos, {name = depleted_name})
-		return false
-	end
+        if #positions >= 1 then
+            local name = minetest.get_node(pos).name
+            local new = name:gsub("%_depleted","")
+            new = new:gsub("%_agricultural_soil","")
+            --would prefer stairs:slab, but sand/etc lacks wet
+            new = new:gsub("%nature:","%nature:slope_pike_")
+            minetest.swap_node(pos, {name = new})
+            return false
+        end
+    end
+    if math.random() <= depletion_probability then
+        if minetest.get_node({x=pos.x, y=(pos.y+1), z=pos.z}).name == 'air' then
+            -- ^ don't deplete a planted node; already handled in life.lua
+            -- and a 1-2% chance to be depleted via neglect
+            minetest.set_node(pos, {name = depleted_name})
+            return false
+        end
+    end
+    return true
 end
 
 -- dirt particles
@@ -167,16 +166,6 @@ function sediment.get_wet_salty_texture_name(basename)
     local texture_name = sediment.get_wet_texture_name(basename)
     return texture_name.."^"..textures.salty
 end
-
--- function sediment.get_dry_agri_soil_name(basename)
---     local node_name = sediment.get_dry_name(basename)
---     return node_name:gsub(basename, basename.."_agricultural_soil")
--- end
-
--- function sediment.get_wet_agri_soil_name(basename)
---     local node_name = sediment.get_wet_name(basename)
---     return node_name:gsub(basename, basename.."_agricultural_soil")
--- end
 
 function sediment.new(args)
     local groups =
@@ -335,7 +324,7 @@ function soil.till(itemstack, puncher, pointed_thing)
     if minetest.get_item_group(node_name, "spreading") ~= 0 then
         --figure out what soil it is from dropped
         local ag_soil = nodedef._ag_soil
-        minetest.swap_node(pointed_thing.under, {name = ag_soil})
+        minimal.switch_node(pointed_thing.under, {name = ag_soil})
         local uses = itemstack:get_tool_capabilities().groupcaps.tilling.uses
         local player_inv = puncher:get_inventory()
         itemstack:add_wear(65535 / uses)
@@ -396,6 +385,7 @@ function soil.get_dry_node_props(soil_desc)
                 groups = merge_tables(sed.groups, {spreading = 1}),
                 tiles = {soil.get_dry_texture_name(soil_desc.name), sediment.get_dry_texture_name(sed.name),
                          {name = soil.get_side_texture_name(soil_desc.name, sed.name)}},
+                _ag_soil = agricultural_soil.get_dry_name(sed.name),
         })
     return merge_tables(props, soil.get_base_props(soil_desc))
 end
@@ -414,6 +404,7 @@ function soil.get_wet_node_props(soil_desc)
                 groups = merge_tables(sed.groups_wet, {spreading = 1}),
                 tiles = {soil.get_wet_texture_name(soil_desc.name), sediment.get_wet_texture_name(sed.name),
                          {name = soil.get_wet_side_texture_name(soil_desc.name, sed.name)}},
+                _ag_soil = agricultural_soil.get_wet_name(sed.name),
         })
     return merge_tables(props, soil.get_base_props(soil_desc))
 end
@@ -496,21 +487,23 @@ function agricultural_soil.get_base_props(ag_soil)
             --speed of erosion, degrade to depleted
             minetest.get_node_timer(pos):start(math.random(90, 300))
         end,
-        on_timer = function(pos, elapsed)
-            return erode_deplete_ag_soil(pos, ag_soil.depleted_node_name)
-        end,
     }
     return props
 end
 
 function agricultural_soil.get_dry_node_props(ag_soil)
     local sed = ag_soil.sediment
+    local depleted_name = agricultural_soil.get_dry_depleted_name(sed.name)
     local props =
         merge_tables(
             sediment.get_dry_node_props(sed), {
                 description = ag_soil.description,
                 groups = merge_tables(sed.groups, {agricultural_soil = 1}),
                 tiles = {agricultural_soil.get_dry_texture_name(sed.name)},
+                _depleted_name = depleted_name, -- does nothing yet
+                on_timer = function(pos, elapsed)
+                    return erode_deplete_ag_soil(pos, depleted_name)
+                end,
         })
     return merge_tables(props, agricultural_soil.get_base_props(ag_soil))
 end
@@ -523,12 +516,17 @@ end
 
 function agricultural_soil.get_wet_node_props(ag_soil)
     local sed = ag_soil.sediment
+    local depleted_name = agricultural_soil.get_wet_depleted_name(sed.name)
     local props =
         merge_tables(
             sediment.get_wet_node_props(sed), {
                 description = S("Wet @1", ag_soil.description),
                 groups = merge_tables(sed.groups_wet, {agricultural_soil = 1}),
                 tiles = {agricultural_soil.get_wet_texture_name(sed.name)},
+                _depleted_name = depleted_name, -- does nothing yet
+                on_timer = function(pos, elapsed)
+                    return erode_deplete_ag_soil(pos, depleted_name)
+                end,
         })
     return merge_tables(props, agricultural_soil.get_base_props(ag_soil))
 end
