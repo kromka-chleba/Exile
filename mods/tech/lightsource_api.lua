@@ -93,6 +93,7 @@ end
 
 function lightsource.extinguish(desc, pos)
     minetest.swap_node(pos, {name = desc.unlit_name})
+    lightsource.update_fuel_infotext(desc, pos)
     minetest.check_for_falling(pos)
 end
 
