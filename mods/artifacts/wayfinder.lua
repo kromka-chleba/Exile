@@ -23,8 +23,12 @@ local function set_target(stack, param)
 	end
 
 	if param.playername then
-		local player = minetest.get_player_by_name(param.playername)
-		minetest.chat_send_player(param.playername, minetest.colorize("#00ff00", "WAYFINDER BONDED TO: "..param.target_name.." "..param.target_pos_string))
+		minetest.chat_send_player(
+		   param.playername,
+		   minetest.colorize("#00ff00",
+				     "WAYFINDER BONDED TO: "..
+				     param.target_name.." "..
+				     param.target_pos_string))
 	end
 end
 
@@ -84,7 +88,9 @@ end
 local function on_use_function(itemstack, player, pointed_thing)
 	-- possible only on nodes
 	if pointed_thing.type ~= "node" then
-		--minetest.chat_send_player(player:get_player_name(), minetest.colorize("#cc6600", "WAYFINDER CAN ONLY BOND TO ANTIQUORIUM"))
+	   --minetest.chat_send_player(player:get_player_name(),
+	   --minetest.colorize("#cc6600",
+	   --"WAYFINDER CAN ONLY BOND TO ANTIQUORIUM"))
 		return
 	end
 
@@ -98,7 +104,10 @@ local function on_use_function(itemstack, player, pointed_thing)
 	end
 
 	if node.name ~= "artifacts:waystone" then
-		minetest.chat_send_player(player:get_player_name(), minetest.colorize("#cc6600", "WAYFINDER CAN ONLY BOND TO WAYSTONE"))
+	   minetest.chat_send_player(
+	      player:get_player_name(),
+	      minetest.colorize("#cc6600",
+				"WAYFINDER CAN ONLY BOND TO WAYSTONE"))
 		return
 	end
 
@@ -150,15 +159,17 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 -- update inventory
+local steplimit = 0
 minetest.register_globalstep(function(dtime)
+	if not minetest.is_singleplayer and steplimit < 0.4 then
+	   return
+	end
+	steplimit = 0
 	for i,player in ipairs(minetest.get_connected_players()) do
-		if player:get_inventory() then
-			for i,stack in ipairs(player:get_inventory():get_list("main")) do
-				if i > 8 then
-					break
-				end
+	   if player:get_inventory() then
+			for j,stack in ipairs(player:get_inventory():get_list("main")) do
 				if string.sub(stack:get_name(), 0, 19) == "artifacts:wayfinder" then
-					player:get_inventory():set_stack("main", i, get_compass_stack(player, stack))
+					player:get_inventory():set_stack("main", j, get_compass_stack(player, stack))
 				end
 			end
 		end
