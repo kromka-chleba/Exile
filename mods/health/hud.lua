@@ -361,16 +361,17 @@ local function temp(player, hud_data, meta)
 	local stat_col, ttype = color_bodytemp(v)
 	local t = climate.get_temp_string(v, meta)
 	local hud1 = hud_data.p_body_temp
+	local hud2 = hud_data.p_body_temp_type
 	local opac = hud_data.opacity or mthudopacity
 	player:hud_change(hud1, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac)
-	local hud2 = hud_data.p_body_temp_text
 	player:hud_change(hud2, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
-	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
+	local hud3 = hud_data.p_body_temp_text
+	player:hud_change(hud3, "number", tonumber("0x"..stat_col))
 	if ( hud_data.showstats and hud_data.showstats == true ) or
 	   ( hud_data.showstats == nil and mtshowstats == true ) then
-		player:hud_change(hud2, "text", t)
+		player:hud_change(hud3, "text", t)
 	else
-		player:hud_change(hud2, "text", "")
+		player:hud_change(hud3, "text", "")
 	end
 end
 
