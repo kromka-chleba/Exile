@@ -47,7 +47,7 @@ local broken_pottery =
 sediment.register_dry(broken_pottery)
 sediment.register_wet(broken_pottery)
 sediment.register_wet_salty(broken_pottery)
-sediment.register_agri_soil_variants(broken_pottery)
+sediment.register_all_sed_derivatives({[1] = broken_pottery})
 
 -------------------------------------------------------------------
 --THIS SHOULD BE MOVED somewhere GENERALIZED to handle non-pottery pots

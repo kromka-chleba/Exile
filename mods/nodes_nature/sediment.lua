@@ -3,11 +3,13 @@
 --
 ----------------------------------------------------------
 
--- TODO:
--- inherit "drop" somehow
-
 -- Internationalization
 local S = nodes_nature.S
+
+-- TODO
+-- 1. better way of handling descriptions?
+-- 2. make a more useful sediment description?
+-- 3. use minetest built-in table procedures instead of merge_tables.
 
 -- Useful objects for node definitions
 sediment = {}
@@ -27,6 +29,7 @@ local textures = {
     agri_side_depleted = "nodes_nature_ag_dep_side.png",
     tilled_soil = "nodes_nature_tilled_soil.png",
     tilled_soil_depleted = "nodes_nature_tilled_soil_depleted.png",
+    fertile_soil = "nodes_nature_fertile_soil.png",
 }
 
 sediment.sounds = {
@@ -125,16 +128,23 @@ function dirt_particle(pos, node_name)
 end
 
 --For using fertilizer on punch
-local function fertilize_ag_soil(pos, puncher, restored_name)
-   --hit it with fertilizer to restore
-   local itemstack = puncher:get_wielded_item()
-   local ist_name = itemstack:get_name()
-
-   if minetest.get_item_group(ist_name, "fertilizer") >= 1 then
-      minetest.swap_node(pos, {name = restored_name})
-      local inv = puncher:get_inventory()
-      inv:remove_item("main", ist_name)
-   end
+local function fertilize_ag_soil(pos, puncher)
+    --hit it with fertilizer to restore
+    local itemstack = puncher:get_wielded_item()
+    local item_name = itemstack:get_name()
+    local node_name = minetest.get_node(pos).name
+    local nodedef = minetest.registered_nodes[node_name]
+    local inv = puncher:get_inventory()
+    if minetest.get_item_group(item_name, "fertilizer") >= 1
+        and nodedef._rich_name then
+        minetest.swap_node(pos, {name = nodedef._rich_name})
+        inv:remove_item("main", item_name)
+    elseif (item_name == "nodes_nature:compost" or
+            item_name == "nodes_nature:compost_wet") and nodedef._fertile_name then
+        minetest.swap_node(pos, {name = nodedef._fertile_name})
+        inv:remove_item("main", item_name)
+    end
+    
 end
 
 -- Sediments
@@ -321,7 +331,8 @@ function soil.till(itemstack, puncher, pointed_thing)
         return
     end
     --living surface level sediment
-    if minetest.get_item_group(node_name, "spreading") ~= 0 then
+    if minetest.get_item_group(node_name, "spreading") == 1 or
+        minetest.get_item_group(node_name, "fertile_soil") then
         --figure out what soil it is from dropped
         local ag_soil = nodedef._ag_soil
         minimal.switch_node(pointed_thing.under, {name = ag_soil})
@@ -425,6 +436,127 @@ function soil.do_slopes(soil_desc)
     end
 end
 
+-- Fertile soil mixes
+-----------------------------------
+fertile_soil = {}
+
+function fertile_soil.get_dry_name(basename)
+    return sediment.get_dry_name(basename).."_fertile_soil"
+end
+
+function fertile_soil.get_wet_name(basename)
+    return fertile_soil.get_dry_name(basename).."_wet"
+end
+
+function fertile_soil.get_wet_salty_name(basename)
+    return fertile_soil.get_wet_name(basename).."_salty"
+end
+
+function fertile_soil.get_dry_texture_name(basename)
+    return sediment.get_dry_texture_name(basename).."^"..textures.fertile_soil
+end
+
+function fertile_soil.get_wet_texture_name(basename)
+    return fertile_soil.get_dry_texture_name(basename).."^"..textures.wet
+end
+
+function fertile_soil.get_wet_salty_texture_name(basename)
+    return fertile_soil.get_wet_texture_name(basename).."^"..textures.salty
+end
+
+function fertile_soil.new(args)
+    local soil_desc = {
+        name = args.sediment.name.."_fertile_soil",
+        description = args.description,
+        sediment = args.sediment,
+    }
+    return soil_desc
+end
+
+function fertile_soil.get_base_props(soil_desc)
+    local sed = soil_desc.sediment
+    local props = {
+        _dry_name = fertile_soil.get_dry_name(sed.name),
+        _wet_name = fertile_soil.get_wet_name(sed.name),
+        _wet_salty_name = fertile_soil.get_wet_salty_name(sed.name),
+        on_punch = soil_on_punch,
+    }
+    return props
+end
+
+function fertile_soil.get_dry_node_props(soil_desc)
+    local sed = soil_desc.sediment
+    local props =
+        merge_tables(
+            sediment.get_dry_node_props(sed), {
+                description = soil_desc.description,
+                groups = merge_tables(sed.groups, {fertile_soil = 1}),
+                tiles = {fertile_soil.get_dry_texture_name(sed.name)},
+                drop = fertile_soil.get_dry_name(sed.name),
+                _ag_soil = agricultural_soil.get_dry_name(sed.name.."_fertile_soil"),
+        })
+    return merge_tables(props, fertile_soil.get_base_props(soil_desc))
+end
+
+function fertile_soil.register_dry(soil_desc)
+    minetest.register_node(fertile_soil.get_dry_name(soil_desc.sediment.name),
+                           fertile_soil.get_dry_node_props(soil_desc))
+end
+
+function fertile_soil.get_wet_node_props(soil_desc)
+    local sed = soil_desc.sediment
+    local props =
+        merge_tables(
+            sediment.get_wet_node_props(sed), {
+                description = S("Wet @1", soil_desc.description),
+                groups = merge_tables(sed.groups, {fertile_soil = 1}),
+                tiles = {fertile_soil.get_wet_texture_name(sed.name)},
+                drop = fertile_soil.get_wet_name(sed.name),
+                _ag_soil = agricultural_soil.get_wet_name(sed.name.."_fertile_soil"),
+        })
+    return merge_tables(props, fertile_soil.get_base_props(soil_desc))
+end
+
+function fertile_soil.register_wet(soil_desc)
+    minetest.register_node(fertile_soil.get_wet_name(soil_desc.sediment.name),
+                           fertile_soil.get_wet_node_props(soil_desc))
+end
+
+function fertile_soil.register_crafting_recipe_dry(soil_desc)
+    local sed = soil_desc.sediment
+    crafting.register_recipe({
+            type = "shovel_agriculture",
+            output = fertile_soil.get_dry_name(sed.name),
+            items = {sediment.get_dry_name(sed.name),
+                     "nodes_nature:compost"},
+            level = 1,
+            always_known = true,
+    })
+end
+
+function fertile_soil.register_crafting_recipe_wet(soil_desc)
+    local sed = soil_desc.sediment
+    crafting.register_recipe({
+            type = "shovel_agriculture",
+            output = fertile_soil.get_wet_name(sed.name),
+            items = {sediment.get_wet_name(sed.name),
+                     "nodes_nature:compost"},
+            level = 1,
+            always_known = true,
+    })
+end
+
+function fertile_soil.do_slopes(soil_desc)
+    local doslopes = minetest.settings:get_bool('exile_enableslopes')
+    local slopechance = minetest.settings:get('exile_slopechance') or 20
+    if doslopes then
+        naturalslopeslib.register_slope(
+            fertile_soil.get_dry_name(soil_desc.sediment.name), {}, slopechance)
+        naturalslopeslib.register_slope(
+            fertile_soil.get_wet_name(soil_desc.sediment.name), {}, slopechance)
+    end
+end
+
 -- Agricultural soils
 -----------------------------------
 agricultural_soil = {}
@@ -445,35 +577,52 @@ function agricultural_soil.get_wet_depleted_name(basename)
     return agricultural_soil.get_wet_name(basename).."_depleted"
 end
 
-function agricultural_soil.get_base_texture_name(sedname)
+function agricultural_soil.get_base_texture_name(sedname, texture_name)
+    local base_texture = sediment.get_dry_texture_name(sedname)
+    if texture_name then
+        base_texture = texture_name
+    end
     return "[combine:32x32:0,0="
-        ..sediment.get_dry_texture_name(sedname)..":0,16="
-        ..sediment.get_dry_texture_name(sedname)..":16,0="
-        ..sediment.get_dry_texture_name(sedname)
+        .."("..base_texture..")"..":0,16="
+        .."("..base_texture..")"..":16,0="
+        .."("..base_texture..")"
 end
 
-function agricultural_soil.get_dry_texture_name(sedname)
-    return agricultural_soil.get_base_texture_name(sedname).."^"..textures.tilled_soil
+function agricultural_soil.get_dry_texture_name(sedname, texture_name)
+    return
+        agricultural_soil.get_base_texture_name(sedname, texture_name)..
+        "^"..textures.tilled_soil
 end
 
-function agricultural_soil.get_wet_texture_name(sedname)
-    return agricultural_soil.get_dry_texture_name(sedname).."^"..textures.wet
+function agricultural_soil.get_wet_texture_name(sedname, texture_name)
+    return
+        agricultural_soil.get_dry_texture_name(sedname, texture_name)..
+        "^"..textures.wet
 end
 
-function agricultural_soil.get_dry_depleted_texture_name(sedname)
-    return agricultural_soil.get_base_texture_name(sedname).."^"..textures.tilled_soil_depleted
+function agricultural_soil.get_dry_depleted_texture_name(sedname, texture_name)
+    return
+        agricultural_soil.get_base_texture_name(sedname, texture_name)..
+        "^"..textures.tilled_soil_depleted
 end
 
-function agricultural_soil.get_wet_depleted_texture_name(sedname)
-    return agricultural_soil.get_dry_depleted_texture_name(sedname).."^"..textures.wet
+function agricultural_soil.get_wet_depleted_texture_name(sedname, texture_name)
+    return
+        agricultural_soil.get_dry_depleted_texture_name(sedname, texture_name)..
+        "^"..textures.wet
 end
 
 function agricultural_soil.new(args)
+    if args.depleted_name then
+        args.depleted_name_wet = args.depleted_name.."_wet"
+    end
     local ag_soil = {
         name = args.name,
+        depleted_name = args.depleted_name,
+        depleted_name_wet = args.depleted_name_wet,
         description = args.description,
         sediment = args.sediment,
-        texture_name = textures.agri_top,
+        texture_name = args.texture_name,
     }
     return ag_soil
 end
@@ -495,16 +644,22 @@ end
 
 function agricultural_soil.get_dry_node_props(ag_soil)
     local sed = ag_soil.sediment
-    local depleted_name = agricultural_soil.get_dry_depleted_name(sed.name)
+    local depleted_name = ag_soil.depleted_name or
+        agricultural_soil.get_dry_depleted_name(sed.name)
     local props =
         merge_tables(
             sediment.get_dry_node_props(sed), {
                 description = ag_soil.description,
                 groups = merge_tables(sed.groups, {agricultural_soil = 1}),
-                tiles = {agricultural_soil.get_dry_texture_name(sed.name)},
+                tiles = {
+                    agricultural_soil.get_dry_texture_name(sed.name, ag_soil.texture_name)},
                 _depleted_name = depleted_name, -- does nothing yet
+                _fertile_name = agricultural_soil.get_dry_name(sed.name.."_fertile_soil"),
                 on_timer = function(pos, elapsed)
                     return erode_deplete_ag_soil(pos, depleted_name)
+                end,
+                on_punch = function(pos, node, puncher, pointed_thing)
+                    fertilize_ag_soil(pos, puncher)
                 end,
         })
     return merge_tables(props, agricultural_soil.get_base_props(ag_soil))
@@ -518,16 +673,22 @@ end
 
 function agricultural_soil.get_wet_node_props(ag_soil)
     local sed = ag_soil.sediment
-    local depleted_name = agricultural_soil.get_wet_depleted_name(sed.name)
+    local depleted_name = ag_soil.depleted_name_wet or
+        agricultural_soil.get_wet_depleted_name(sed.name)
     local props =
         merge_tables(
             sediment.get_wet_node_props(sed), {
                 description = S("Wet @1", ag_soil.description),
                 groups = merge_tables(sed.groups_wet, {agricultural_soil = 1}),
-                tiles = {agricultural_soil.get_wet_texture_name(sed.name)},
+                tiles =
+                    {agricultural_soil.get_wet_texture_name(sed.name, ag_soil.texture_name)},
                 _depleted_name = depleted_name, -- does nothing yet
+                _fertile_name = agricultural_soil.get_wet_name(sed.name.."_fertile_soil"),
                 on_timer = function(pos, elapsed)
                     return erode_deplete_ag_soil(pos, depleted_name)
+                end,
+                on_punch = function(pos, node, puncher, pointed_thing)
+                    fertilize_ag_soil(pos, puncher)
                 end,
         })
     return merge_tables(props, agricultural_soil.get_base_props(ag_soil))
@@ -546,9 +707,12 @@ function agricultural_soil.get_dry_depleted_node_props(ag_soil)
             sediment.get_dry_node_props(sed), {
                 description = S("Depleted @1", ag_soil.description),
                 groups = merge_tables(sed.groups, {depleted_agricultural_soil = 1}),
-                tiles = {agricultural_soil.get_dry_depleted_texture_name(sed.name)},
+                _rich_name = agricultural_soil.get_dry_name(sed.name),
+                _fertile_name = agricultural_soil.get_dry_name(sed.name.."_fertile_soil"),
+                tiles =
+                    {agricultural_soil.get_dry_depleted_texture_name(sed.name, ag_soil.texture_name)},
                 on_punch = function(pos, node, puncher, pointed_thing)
-                    fertilize_ag_soil(pos, puncher, ag_soil.dry_node_name)
+                    fertilize_ag_soil(pos, puncher)
                 end,
         })
     return merge_tables(props, agricultural_soil.get_base_props(ag_soil))
@@ -567,9 +731,12 @@ function agricultural_soil.get_wet_depleted_node_props(ag_soil)
             sediment.get_wet_node_props(sed), {
                 description = S("Wet Depleted @1", ag_soil.description),
                 groups = merge_tables(sed.groups_wet, {depleted_agricultural_soil = 1}),
-                tiles = {agricultural_soil.get_wet_depleted_texture_name(sed.name)},
+                _rich_name = agricultural_soil.get_wet_name(sed.name),
+                _fertile_name = agricultural_soil.get_wet_name(sed.name.."_fertile_soil"),
+                tiles =
+                    {agricultural_soil.get_wet_depleted_texture_name(sed.name, ag_soil.texture_name)},
                 on_punch = function(pos, node, puncher, pointed_thing)
-                    fertilize_ag_soil(pos, puncher, ag_soil.dry_node_name)
+                    fertilize_ag_soil(pos, puncher)
                 end,
         })
     return merge_tables(props, agricultural_soil.get_base_props(ag_soil))
@@ -592,15 +759,21 @@ end
 
 -- Registers agricultural soils and their variants
 -- (dry, wet, depleted) and recipes to craft them
-function sediment.register_agri_soil_variants(sed)
-    local agri =
-        agricultural_soil.new({name = sed.name,
-                               description = S("@1 Agricultural Soil", sed.description),
-                               sediment = sed})
+function agricultural_soil.register_all_variants(agri)
     agricultural_soil.register_dry(agri)
     agricultural_soil.register_wet(agri)
-    agricultural_soil.register_depleted(agri)
-    agricultural_soil.register_wet_depleted(agri)
+    if not agri.depleted_name then
+        agricultural_soil.register_depleted(agri)
+        agricultural_soil.register_wet_depleted(agri)
+    end
+end
+
+function fertile_soil.register_all_variants(fs)
+    fertile_soil.register_dry(fs)
+    fertile_soil.register_wet(fs)
+    fertile_soil.register_crafting_recipe_dry(fs)
+    fertile_soil.register_crafting_recipe_wet(fs)
+    fertile_soil.do_slopes(fs)
 end
 
 -- Registers soils with "grasses" and their variants including slopes
@@ -614,10 +787,32 @@ end
 
 -- Registers sediments, their variants (slabs, wet, salty, etc.) and agricultural soils
 -- including crafting recipes
-function sediment.register_all_sed_and_agri_variants(sed_list)
+function sediment.register_all_sed_derivatives(sed_list)
     for _, sed in pairs(sed_list) do
+        local agri =
+            agricultural_soil.new(
+                {name = sed.name,
+                 description = S("@1 Agricultural Soil", sed.description),
+                 sediment = sed
+            })
+        local fs =
+            fertile_soil.new(
+                {name = sed.name,
+                 description = S("@1 Fertile Soil", sed.description),
+                 sediment = sed
+            })
+        local agri_fs =
+            agricultural_soil.new(
+                {name = fs.name,
+                 description = S("@1 Fertile Agricultural Soil", sed.description),
+                 sediment = sed,
+                 texture_name = fertile_soil.get_dry_texture_name(sed.name),
+                 depleted_name = agricultural_soil.get_dry_name(sed.name),
+            })
         sediment.register_sed_variants(sed)
-        sediment.register_agri_soil_variants(sed)
+        agricultural_soil.register_all_variants(agri)
+        fertile_soil.register_all_variants(fs)
+        agricultural_soil.register_all_variants(agri_fs)
     end
 end
 
@@ -750,5 +945,5 @@ crafting.register_recipe({
 
 -- Actually registers (almost) all soils in the game
 -- see red_ochre above
-sediment.register_all_sed_and_agri_variants(sediment_list)
+sediment.register_all_sed_derivatives(sediment_list)
 sediment.register_soil_variants(soil_list)
