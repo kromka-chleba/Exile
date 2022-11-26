@@ -86,6 +86,8 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
    local meta = minetest.get_meta(pos)
    local itemname = itemstack:get_name()
    local status = meta:get_string("status")
+   local timer = minetest.get_node_timer(pos)
+
    if status == "" then  -- unprepared pot
       local liquid = liquid_store.contents(itemname)
       if liquid == "nodes_nature:freshwater_source" then
@@ -95,7 +97,7 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
 		.."Note: Add food to the pot to make soup")
 	 meta:set_string("formspec", pot_formspec)
 	 meta:set_int("baking", cook_time)
-	 minetest.get_node_timer(pos):start(6)
+	 timer:start(6)
 	 if itemname ~= liquid then -- it's stored in a container
 	    return liquid_store.drain_store(clicker, itemstack)
 	 else
@@ -106,7 +108,9 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
 -- XXX Was going to add ability to take water out of a prepared pot but more complicated
 -- then expected will try again later
 --   elseif ptype == "Soup" then -- Pot has water, but not cooking
-
+   end
+   if status ~= "" and timer:is_started() == false then
+      timer:start(6) -- timer died somehow? restart it here
    end
    --TODO: use oil for fried food, saltwater for salted food (to preserve it)
 end
@@ -181,10 +185,17 @@ local function pot_cook(pos, elapsed)
 	if status == "finished" then
 		-- Handle burning food here
 	    --TODO: burned: reduce th value of pot_contents, emit more smoke
-	else 
+	else
 		if kind == "Soup" then -- or kind == "etc"; this only runs if we're cooking
 		      if baking <= 0 then
-			 local firstingr = inv[1]:get_description()
+			 local firstingr
+			 for i = 1, #inv do
+			    local ingr = inv[i]:get_description()
+			    if ingr ~= "" then
+			       firstingr = ingr
+			       break
+			    end
+			 end
 			 if firstingr then
 			    firstingr = firstingr:gsub(" %(uncooked%)","")
 			    firstingr = firstingr:gsub("Unbaked ","")
@@ -268,7 +279,7 @@ minetest.register_node("tech:cooking_pot", {
 	   local meta = minetest.get_meta(pos)
 	   local inv = meta:get_inventory()
 	   local ptype = meta:get_string("type")
-	   if ( not inv:is_empty("main") 
+	   if ( not inv:is_empty("main")
 	      or ptype ~= "") then -- type is empty on uprepared pot
 	      return false
 	   end
