@@ -1,5 +1,9 @@
 # Changelog:
 
+## [2022-11-26][2022-11-26__0.3.9b] — 0.3.9b
+  - Volcanic ash on volcanoes
+  - Bugfixes
+
 ## [2022-11-04][2022-11-04__0.3.9] — 0.3.9
   - New HUD design
   - Iron lantern for mid-late game players
