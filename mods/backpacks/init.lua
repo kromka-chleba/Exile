@@ -61,7 +61,7 @@ local after_place_node = function(pos, placer, itemstack, pointed_thing)
 	-- causes contents of backpacks stored in inventory to be forgotton
 	local stuff = minetest.deserialize(itemstack:get_metadata())
 	if stuff then
-		local deprecated_inventory = stuff.inventory.main 
+		local deprecated_inventory = stuff.inventory.main
 		-- inv_main will be empty if stuff exists so safe to overwrite
 		inv_main = minetest.serialize(deprecated_inventory)
 	end
@@ -117,7 +117,7 @@ local on_dig = function(pos, node, digger, width, height)
 	local new = ItemStack(node)
 	if player_inv:room_for_item("main", new) then
 		--Call default node_dig() to remove node and make item
-		--Causes preserve_metadata() to be called. 
+		--Causes preserve_metadata() to be called.
 		return minetest.node_dig(pos, node, digger)
 	end
 	return false
@@ -125,9 +125,10 @@ end
 local on_receive_fields = function (pos, formname, fields, sender, width, height)
 	local label = fields.label
 	if label then
-		local meta = minetest.get_meta(pos)
-		meta:set_string('label', label)
-		on_construct(pos, width, height)
+	   local meta = minetest.get_meta(pos)
+	   local cleanlabel = minimal.sanitize_string(label)
+	   meta:set_string('label', cleanlabel)
+	   on_construct(pos, width, height)
 	end
 end
 

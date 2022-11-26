@@ -12,7 +12,7 @@ local function get_storage_formspec(pos, w, h, meta)
 	local label = meta:get_string('label')
 	minimal.infotext_merge(pos, 'Label: '..label, meta)
 	local formspec_size_h = 3.85 + h
-	local main_offset = 0.25 + h 
+	local main_offset = 0.25 + h
 	local trash_offset = 0.45 + h + 2
 	local label_offset = trash_offset + .35
 	local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
@@ -60,10 +60,11 @@ end
 local on_receive_fields = function(pos, formname, fields, sender, width, height)
 		local label = fields.label
 		if label and label ~= '' then
-			local meta = minetest.get_meta(pos)
-			meta:set_string('label', label)
-			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, width, height)
+		   local meta = minetest.get_meta(pos)
+		   local cleanlabel = minimal.sanitize_string(label)
+		   meta:set_string('label', cleanlabel)
+		   minimal.infotext_merge(pos,'Label: '..cleanlabel, meta)
+		   on_construct(pos, width, height)
 		end
 end
 
