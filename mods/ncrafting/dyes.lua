@@ -441,13 +441,12 @@ minetest.register_node(":ncrafting:dye_table", {
 	      local plants = bmeta:get_string("ncrafting:bundled_plant")
 	      local treatment = bmeta:get_string("ncrafting:bundle_treatment")
 	      local result = ""
-	      if dye_source[plants] then
-		 if dye_source[plants].method == treatment then
+	      if ( dye_source[plants] and
+		   dye_source[plants].method == treatment ) then
 		    result = "ncrafting:dye_"..dye_source[plants].color.." 2"
-		 else
-		    minetest.sound_play("snappy.ogg", {pos = pos,
-						       max_hear_distance = 8})
-		 end
+	      else
+		    minetest.sound_play("snappy",{pos = pos, gain = 5,
+						  max_hear_distance = 8})
 	      end
 	      inv:set_stack("craftresult", 1, ItemStack(result))
 	      inv:set_stack("craft", 1, ItemStack(""))
