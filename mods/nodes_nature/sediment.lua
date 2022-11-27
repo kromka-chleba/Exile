@@ -89,6 +89,11 @@ local function erode_deplete_ag_soil(pos, depleted_name)
             local name = minetest.get_node(pos).name
             local new = name:gsub("%_depleted","")
             new = new:gsub("%_agricultural_soil","")
+            if math.random() <= 0.60 then
+                -- prevents infinite supply of fertile soil
+                -- 60% chance to get sediment
+                new = new:gsub("%_fertile_soil","")
+            end
             --would prefer stairs:slab, but sand/etc lacks wet
             new = new:gsub("%nature:","%nature:slope_pike_")
             minetest.swap_node(pos, {name = new})
@@ -490,7 +495,7 @@ function fertile_soil.get_dry_node_props(soil_desc)
         merge_tables(
             sediment.get_dry_node_props(sed), {
                 description = soil_desc.description,
-                groups = merge_tables(sed.groups, {fertile_soil = 1}),
+                groups = merge_tables(sed.groups, {fertile_soil = sed.fertility}),
                 tiles = {fertile_soil.get_dry_texture_name(sed.name)},
                 drop = fertile_soil.get_dry_name(sed.name),
                 _ag_soil = agricultural_soil.get_dry_name(sed.name.."_fertile_soil"),
@@ -509,7 +514,7 @@ function fertile_soil.get_wet_node_props(soil_desc)
         merge_tables(
             sediment.get_wet_node_props(sed), {
                 description = S("Wet @1", soil_desc.description),
-                groups = merge_tables(sed.groups, {fertile_soil = 1}),
+                groups = merge_tables(sed.groups, {fertile_soil = sed.fertility}),
                 tiles = {fertile_soil.get_wet_texture_name(sed.name)},
                 drop = fertile_soil.get_wet_name(sed.name),
                 _ag_soil = agricultural_soil.get_wet_name(sed.name.."_fertile_soil"),
