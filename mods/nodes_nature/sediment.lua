@@ -184,13 +184,19 @@ end
 
 function sediment.new(args)
     local groups =
-        {falling_node = 1, crumbly = args.hardness, sediment = args.fertility}
+        {falling_node = 1, crumbly = args.hardness,
+         sediment = args.id,
+         rocky_substrate = args.rocky_substrate, -- inorganic matter content 0-4
+         organic_substrate = args.organic_substrate, -- organic matter content 0-4
+         fertility = args.fertility, -- values 0-4
+         density = args.density, -- soil density (clay - dense, loam - not), values 0-4
+        }
     local mod_name = minetest.get_current_modname() -- allows making artificial soils
     local sed = {
         name = args.name,
         description = args.description,
         hardness = args.hardness,
-        fertility = args.fertility,
+        id = args.id,
         texture_name = args.texture_name,
         sound = args.sound,
         sound_wet = args.sound_wet,
@@ -495,8 +501,8 @@ function fertile_soil.get_dry_node_props(soil_desc)
         merge_tables(
             sediment.get_dry_node_props(sed), {
                 description = soil_desc.description,
-                groups = merge_tables(sed.groups, {fertile_soil = sed.fertility}),
                 tiles = {fertile_soil.get_dry_texture_name(sed.name)},
+                groups = merge_tables(sed.groups, {fertile_soil = 1}),
                 drop = fertile_soil.get_dry_name(sed.name),
                 _ag_soil = agricultural_soil.get_dry_name(sed.name.."_fertile_soil"),
         })
@@ -514,8 +520,8 @@ function fertile_soil.get_wet_node_props(soil_desc)
         merge_tables(
             sediment.get_wet_node_props(sed), {
                 description = S("Wet @1", soil_desc.description),
-                groups = merge_tables(sed.groups, {fertile_soil = sed.fertility}),
                 tiles = {fertile_soil.get_wet_texture_name(sed.name)},
+                groups = merge_tables(sed.groups_wet, {fertile_soil = 1}),
                 drop = fertile_soil.get_wet_name(sed.name),
                 _ag_soil = agricultural_soil.get_wet_name(sed.name.."_fertile_soil"),
         })
@@ -827,39 +833,81 @@ end
 
 -- list of sediments to be used for mapgen
 local sediment_list = {
-   sand = sediment.new({name = "sand",
-			description = S("Sand"), hardness = hardness.soft,
-			fertility = 4, sound = sounds.sand,
-			sound_wet = sounds.sand_wet}),
-   silt = sediment.new({name = "silt",
-			description = S("Silt"), hardness = hardness.soft,
-			fertility = 3, sound = sounds.dirt,
-			sound_wet = sounds.dirt_wet}),
-   clay = sediment.new({name = "clay",
-			description = S("Clay"), hardness = hardness.medium,
-			fertility = 2, sound = sounds.dirt,
-			sound_wet = sounds.dirt_wet}),
-   gravel = sediment.new({name = "gravel",
-			  description = S("Gravel"), hardness = hardness.soft,
-			  fertility = 5, sound = sounds.gravel,
-			  sound_wet = sounds.gravel_wet}),
-   loam = sediment.new({name = "loam",
-			description = S("Loam"), hardness = hardness.soft,
-			fertility = 1, sound = sounds.dirt,
-			sound_wet = sounds.dirt_wet}),
-   volcanic_ash = sediment.new({name = "volcanic_ash",
-				description = S("Volcanic ash"),
-				hardness = hardness.soft,
-				fertility = 1, sound = sounds.sand,
-				sound_wet = sounds.sand_wet}),
+    sand = sediment.new(
+        {name = "sand",
+         description = S("Sand"), hardness = hardness.soft,
+         id = 4, sound = sounds.sand,
+         sound_wet = sounds.sand_wet,
+         rocky_substrate = 4,
+         organic_substrate = 0,
+         fertility = 1,
+         density = 2,
+    }),
+    silt = sediment.new(
+        {name = "silt",
+         description = S("Silt"), hardness = hardness.soft,
+         id = 3, sound = sounds.dirt,
+         sound_wet = sounds.dirt_wet,
+         rocky_substrate = 1,
+         organic_substrate = 3,
+         fertility = 3,
+         density = 3,
+    }),
+    clay = sediment.new(
+        {name = "clay",
+         description = S("Clay"), hardness = hardness.medium,
+         id = 2, sound = sounds.dirt,
+         sound_wet = sounds.dirt_wet,
+         rocky_substrate = 2,
+         organic_substrate = 2,
+         fertility = 2,
+         density = 4,
+    }),
+    gravel = sediment.new(
+        {name = "gravel",
+         description = S("Gravel"), hardness = hardness.soft,
+         id = 5, sound = sounds.gravel,
+         sound_wet = sounds.gravel_wet,
+         rocky_substrate = 4,
+         organic_substrate = 0,
+         fertility = 1,
+         density = 4,
+    }),
+    loam = sediment.new(
+        {name = "loam",
+         description = S("Loam"), hardness = hardness.soft,
+         id = 1, sound = sounds.dirt,
+         sound_wet = sounds.dirt_wet,
+         rocky_substrate = 1,
+         organic_substrate = 4,
+         fertility = 4,
+         density = 1,
+    }),
+    volcanic_ash = sediment.new(
+        {name = "volcanic_ash",
+         description = S("Volcanic ash"),
+         hardness = hardness.soft,
+         id = 1, sound = sounds.sand,
+         sound_wet = sounds.sand_wet,
+         rocky_substrate = 4,
+         organic_substrate = 0,
+         fertility = 4,
+         density = 1,
+    }),
 }
 
 -- this is only for paint
-local red_ochre = sediment.new({name = "red_ochre",
-				description = S("Red Ochre"),
-				hardness = hardness.medium,
-                                fertility = 2, sound = sounds.dirt,
-				sound_wet = sounds.dirt_wet})
+local red_ochre = sediment.new(
+    {name = "red_ochre",
+     description = S("Red Ochre"),
+     hardness = hardness.medium,
+     id = 2, sound = sounds.dirt,
+     sound_wet = sounds.dirt_wet,
+     rocky_substrate = 2,
+     organic_substrate = 2,
+     fertility = 2,
+     density = 4,
+})
 sediment.register_dry(red_ochre)
 sediment.register_wet(red_ochre)
 sediment.register_wet_salty(red_ochre)
