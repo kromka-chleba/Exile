@@ -8,7 +8,7 @@ local S = minetest.get_translator("backpacks")
 local function get_formspec(pos, w, h)
 	local meta = minetest.get_meta(pos)
 	local creator = meta:get_string('creator')
-	local label = meta:get_string('label')
+	local label = minimal.sanitize_string(meta:get_string('label'))
 
 	local formspec_size_h = 3.85 + h
 	local main_offset = 1.85 + h

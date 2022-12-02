@@ -128,6 +128,5 @@ function minimal.sanitize_string(badstring)
    for i in ipairs(disallowed) do
       badstring = badstring:gsub(disallowed[i],"")
    end
-   print("Sanitized: ",badstring)
    return badstring
 end
