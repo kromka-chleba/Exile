@@ -131,3 +131,19 @@ function minimal.sanitize_string(badstring)
    print("Sanitized: ",badstring)
    return badstring
 end
+
+-- merges content of t1 and t2 into a new table
+-- if t1 and t2 contain identical keys, values from
+-- t1 are overwritten with values from t2
+function minimal.merge_tables(t1, t2)
+    local new_table = {}
+    --copy table
+    for key, value in pairs(t1) do
+        new_table[key] = value
+    end
+    --merge tables
+    for key, value in pairs(t2) do
+        new_table[key] = value
+    end
+    return new_table
+end
