@@ -198,6 +198,7 @@ local on_dig_seedling = function(pos,node, digger)
         minetest.add_item(pos, new_stack)
     end
 end
+
 local after_place_seedling = function(pos, placer, itemstack, pointed_thing)
     local meta = minetest.get_meta(pos)
     local stack_meta = itemstack:get_meta()
@@ -329,9 +330,11 @@ function plant.new(args)
         bioluminescence = args.bioluminescence,
         plant_type = args.plant_type,
         texture_scale = args.texture_scale or 1,
-        dye = args.dye,
-        selection_box = args.selection_box or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
-        seedling_selection_box = args.seedling_selection_box or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
+        extra_groups = args.extra_groups,
+        dye_candidate = args.dyecandidate,
+        dominant_color = args.dominant_color,
+        nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
+        seedling_nodebox = args.seedling_nodebox or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
         waving = waving,
     }
     return def
@@ -366,7 +369,7 @@ function plant.get_groups(plant_def)
     local plant_type = plant_def.plant_type
     local groups = plant_groups[plant_type]
     local base = base_groups.base
-    if plant_def.dyecandidate then
+    if plant_def.dye_candidate then
         groups.ncrafting_dye_candidate = 1
     end
     if plant_type == "mushroom" then
@@ -374,7 +377,13 @@ function plant.get_groups(plant_def)
     else
         base = minimal.merge_tables(base, base_groups.plant)
     end
-    return minimal.merge_tables(base, groups)
+    if plant_def.bioluminescence then
+        base = minimal.merge_tables(base, {bioluminescent = 1})
+    end
+    if plant_def.extra_groups then
+        base = minimal.merge_tables(base, plant_def.extra_groups)
+    end
+    return minimal.merge_tables(groups, base)
 end
 
 function plant.get_seedling_groups(plant_def)
@@ -413,23 +422,18 @@ function plant.get_base_props(plant_def)
     local props = {
         description = plant_def.description,
         tiles = {plant.get_texture_name(plant_def.name)},
-        inventory_image = plant.get_texture_name(plant_def.name),
-        wield_image = plant.get_texture_name(plant_def.name),
         stack_max = minimal.stack_max_medium,
-        drawtype = "plantlike",
         paramtype = "light",
-        paramtype2 = "meshoptions",
-        place_param2 = plant_def.mesh_type or 1,
-        waving = plant_def.waving,
         visual_scale = plant_def.texture_scale,
+        _ncrafting_dye_dcolor = plant_def.dominant_color,
+        light_source = plant_def.bioluminescence,
         floodable = true,
         sunlight_propagates = true,
         walkable = false,
         buildable_to = true,
-        drawtype = "plantlike",
         selection_box = {
             type = "fixed",
-            fixed = plant_def.selection_box,
+            fixed = plant_def.nodebox,
         },
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
@@ -437,13 +441,22 @@ function plant.get_base_props(plant_def)
     return props
 end
 
+function plant.get_plantlike_props(plant_def)
+    local props = {
+        inventory_image = plant.get_texture_name(plant_def.name),
+        wield_image = plant.get_texture_name(plant_def.name),
+        drawtype = "plantlike",
+        paramtype2 = "meshoptions",
+        place_param2 = plant_def.mesh_type or 1,
+        waving = plant_def.waving,
+    }
+    return minimal.merge_tables(plant.get_base_props(plant_def), props)
+end
+
 function plant.get_seedling_base_props(plant_def)
     local plantname = plant.get_name(plant_def.name)
     local props = {
         description = S("Young @1", plant_def.description),
-        tiles = {plant.get_seedling_texture_name(plant_def.name)},
-        inventory_image = plant.get_seedling_texture_name(plant_def.name),
-        wield_image = plant.get_seedling_texture_name(plant_def.name),
         groups = plant.get_seedling_groups(plant_def),
         on_construct = function(pos)
             --set initial timer, growth rate depends on soil
@@ -481,23 +494,33 @@ function plant.get_seedling_base_props(plant_def)
     return minimal.merge_tables(plant.get_base_props(plant_def), props)
 end
 
+function plant.get_plantlike_seedling_props(plant_def)
+    local base = minimal.merge_tables(
+        plant.get_plantlike_props(plant_def),
+        plant.get_seedling_base_props(plant_def))
+    local props = {
+        tiles = {plant.get_seedling_texture_name(plant_def.name)},
+        inventory_image = plant.get_seedling_texture_name(plant_def.name),
+        wield_image = plant.get_seedling_texture_name(plant_def.name),
+    }
+    return minimal.merge_tables(base, props)
+end
+
 function plant.get_3D_props(plant_def)
     local props = {
         drawtype = "nodebox",
         paramtype = "light",
         paramtype2 = "facedir",
-        -- we don't want to inherit these, hence "nil"
-        inventory_image = nil,
-        wield_image = nil,
         is_ground_content = false,
         sunlight_propagates = true,
         node_box = {
             type = "fixed",
-            fixed = {
-                plant_def.selection_box,
-            },
+            fixed = plant_def.nodebox,
         },
-        
+        selection_box = {
+            type = "fixed",
+            fixed = plant_def.nodebox,
+        },
     }
     return minimal.merge_tables(plant.get_base_props(plant_def), props)
 end
@@ -508,21 +531,21 @@ function plant.register_3D(plant_def)
 end
 
 function plant.get_3D_seedling_props(plant_def)
-    local props = minimal.merge_tables(
-        plant.get_3D_props(plant_def), {
-            node_box = {
-                type = "fixed",
-                fixed = {
-                    plant_def.seedling_selection_box,
-                },
-                selection_box = {
-                    type = "fixed",
-                    fixed = plant_def.seedling_selection_box,
-                },
-            },
-    })
-    return minimal.merge_tables(
-        plant.get_seedling_base_props(plant_def), props)
+    local base = minimal.merge_tables(
+        plant.get_3D_props(plant_def),
+        plant.get_seedling_base_props(plant_def))
+    local props = {
+        tiles = {plant.get_texture_name(plant_def.name)},
+        node_box = {
+            type = "fixed",
+            fixed = plant_def.seedling_nodebox,
+        },
+        selection_box = {
+            type = "fixed",
+            fixed = plant_def.seedling_nodebox,
+        },
+    }
+    return minimal.merge_tables(base, props)
 end
 
 function plant.register_3D_seedling(plant_def)
@@ -532,12 +555,17 @@ end
 
 function plant.register_plantlike(plant_def)
     minetest.register_node(plant.get_name(plant_def.name),
-                           plant.get_base_props(plant_def))
+                           plant.get_plantlike_props(plant_def))
 end
 
-function plant.register_seedling(plant_def)
+-- function plant.register_seedling(plant_def)
+--     minetest.register_node(plant.get_seedling_name(plant_def.name),
+--                            plant.get_seedling_base_props(plant_def))
+-- end
+
+function plant.register_plantlike_seedling(plant_def)
     minetest.register_node(plant.get_seedling_name(plant_def.name),
-                           plant.get_seedling_base_props(plant_def))
+                           plant.get_plantlike_seedling_props(plant_def))
 end
 
 function plant.get_seed_base_props(plant_def)
@@ -559,11 +587,14 @@ function plant.get_seed_base_props(plant_def)
         wield_image = seed_texture,
         stack_max = minimal.stack_max_light,
         use_texture_alpha = c_alpha.clip,
-        waving = 0,
         drawtype = "nodebox",
         groups = plant.get_seed_groups(plant_def),
         sounds = nodes_nature.node_sound_defaults(),
         node_box = {
+            type = "fixed",
+            fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
+        },
+        selection_box = {
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
         },
@@ -624,7 +655,7 @@ function plant.register_fuel(plant_def)
     })
 end
 
-function plant.make_threshing_recipes(plant_def)
+function plant.register_threshing_recipes(plant_def)
     crafting.register_recipe({
             type = "threshing_spot",
             output = plant.get_seed_name(plant_def.name).." 6",
@@ -639,12 +670,35 @@ function plant.add_food_hooks(plant_def)
     exile_add_food_hooks(plant.get_name(plant_def.name))
 end
 
-local wrotycz =
-    plant.new({name = "wrotycz", description = S("Wrotycz"),
-               drawtype = "plantlike", mesh_type = 1,
-               plant_type = "herbaceous_plant", waving = true,
-               growth = 3})
+-- DEV EXAMPLES FOR NOW
+-- local wrotycz =
+--     plant.new({name = "wrotycz", description = S("Wrotycz"),
+--                drawtype = "plantlike", mesh_type = 1,
+--                plant_type = "herbaceous_plant", waving = true,
+--                growth = 3, dye_candidate = true, dominant_color = "yellow"})
 
-plant.register_seed(wrotycz)
-plant.register_seedling(wrotycz)
-plant.register_plantlike(wrotycz)
+-- plant.register_seed(wrotycz)
+-- plant.register_plantlike_seedling(wrotycz)
+-- plant.register_plantlike(wrotycz)
+-- plant.register_threshing_recipes(wrotycz)
+
+-- local lambakap_nodebox = {
+--     {-0.125, -0.5, -0.125, 0.125, -0.375, 0.125},
+--     {-0.1875, -0.375, -0.1875, 0.1875, -0.1875, 0.1875},
+--     {-0.1875, -0.1875, -0.1875, -0.0625, 0, 0.1875},
+--     {0.0625, -0.1875, -0.1875, 0.1875, 0, 0.1875},
+--     {-0.0625, -0.1875, -0.1875, 0.0625, 0, -0.0625},
+--     {-0.0625, -0.1875, 0.0625, 0.0625, 0, 0.1875},
+-- }
+
+-- local lambakap =
+--     plant.new({name = "lambakap", description = S("Lambakap"),
+--                drawtype = "nodebox", nodebox = lambakap_nodebox,
+--                plant_type = "mushroom", waving = false,
+--                growth = 3, dye_candidate = true, dominant_color = "red",
+--                bioluminescence = 2, extra_groups = {flammable = 6, flora = 1}})
+
+-- plant.register_seed(lambakap)
+-- plant.register_3D_seedling(lambakap)
+-- plant.register_3D(lambakap)
+-- plant.register_threshing_recipes(lambakap)
