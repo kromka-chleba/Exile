@@ -1,7 +1,7 @@
 --restart.lua
 --A chat command to allow users to start over
 
---Local table to store pending confirmations.  
+--Local table to store pending confirmations. 
 local chat_confirm = {}
 local timestamp = {}
 
@@ -35,7 +35,7 @@ local function killplayer(name)
    local restart_list = {}
    for _, list_name in ipairs({'main','craft','cloths'}) do
 	if not player_inv:is_empty(list_name) then
-		for _, stack in ipairs(inv:get_list(list_name)) do
+		for _, stack in ipairs(player_inv:get_list(list_name)) do
 			if stack:get_name() ~= "" then
 				local meta=minetest.serialize(stack:get_meta():to_table())
 				restart_list:insert({
