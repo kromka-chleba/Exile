@@ -10,6 +10,7 @@ bed_rest = bed_rest
 player_api = player_api
 player_monoids = player_monoids
 clothing = clothing
+minimal = minimal
 
 -- after this many IRL days, beds in multiplayer will no longer be protected
 local days_until_timeout = 7
@@ -138,7 +139,7 @@ end
 
 local function blanket_find(inv,listName)
    local cinv = inv:get_list(listName)
-   local blanket = nil  --ItemStack("")
+   local blanket
    for i = 1, #cinv do
       local stack = ItemStack(cinv[i])
       if stack:get_count() > 0 then
@@ -179,7 +180,7 @@ local function wear_blanket(player, bed_pos, donning)
    local name = player:get_player_name()
    local plyrInv = player:get_inventory()
    local frominvl = "cloths"  local toinvl = "main" local putInv = bedInv
-   local newstack = ItemStack('')
+   local newstack
    if donning then
 	frominvl = "main"
 	toinvl = "cloths"
@@ -194,7 +195,7 @@ local function wear_blanket(player, bed_pos, donning)
 	end
    else
 		   -- Find it in players 'cloths' inventory
-		   newstack = blanket_find(plyrInv,frominvl) 
+		   newstack = blanket_find(plyrInv,frominvl)
    end
 
    if newstack and newstack:get_count() > 0 then
@@ -220,7 +221,7 @@ local function wear_blanket(player, bed_pos, donning)
 				  {pos = ppos, gain = .8, max_hear_distance = 2})
 		end
    end
-   if not bedInv:is_empty('main') then 
+   if not bedInv:is_empty('main') then
 	   bed_meta:set_string('infotext','Bed: Contains Blanket')
    end
    clothing:update_temp(player)
@@ -294,7 +295,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 
 	-- lay down, provided we have a valid bed position
 	elseif bed_pos then
-	   local velo = player:get_velocity()
+	   local velo = player:get_velocity() or player:get_player_velocity()
 	   if velo.x ~= 0 then return end
 	   if velo.y ~= 0 then return end
 	   if velo.z ~= 0 then return end
