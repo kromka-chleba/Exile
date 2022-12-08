@@ -131,7 +131,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
    end
    for i = 1, #inv do
       local fname = inv[i]:get_name()
-      if fname ~= '' then
+      if fname and fname ~= '' then
 	      local fcount = inv[i]:get_count()
 	      local fdesc = minetest.registered_nodes[fname].description
 	      contents=contents..' '..fdesc..' ('..fcount..'), '
