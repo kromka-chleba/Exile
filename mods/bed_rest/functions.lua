@@ -266,7 +266,8 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 	   bed_rest.player[name] = nil
 	   bed_rest.level[name] = nil
 
-		-- skip here to prevent sending player specific changes (used for leaving players)
+	   -- skip here to prevent sending player specific changes
+	   -- (used for players who may have left, and have no player object)
 		if skip then
 		   bed_rest.bed_position[name] = nil
 			return
@@ -280,7 +281,11 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		bed_rest.bed_position[name] = nil
 
 		--remove blanket
-		wear_blanket(player, bedp, false)
+		if bedp then
+		   wear_blanket(player, bedp, false)
+		elseif bed_pos then
+		   wear_blanket(player, bed_pos, false)
+		end
 
 		-- physics, eye_offset, etc
 		player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
