@@ -22,7 +22,7 @@ local function stash_inventory(player, stash, list)
 	end
 	-- Append new entries to the list
 	for _, stack in ipairs(list) do
-		stash_table:insert(stack)
+	   table.insert(stash_table, stack)
 	end
 	-- save the stash to player meta
 	pmeta:set_string(stash, minetest.serialize(stash_table))
@@ -30,6 +30,12 @@ end
 
 local function killplayer(name)
    local player=minetest.get_player_by_name(name)
+   if ( minetest.is_creative_enabled(name)
+	or minetest.get_player_privs(name).creative ~= nil ) then
+      -- Don't remove inventory from creative mode players, just kill 'em
+      player:set_hp(0)
+      return
+   end
    local player_inv = player:get_inventory()
    local epoch=os.time()
    local restart_list = {}
@@ -38,7 +44,7 @@ local function killplayer(name)
 		for _, stack in ipairs(player_inv:get_list(list_name)) do
 			if stack:get_name() ~= "" then
 				local meta=minetest.serialize(stack:get_meta():to_table())
-				restart_list:insert({
+				table.insert(restart_list, {
 					epoch=epoch,
 					stack=stack:to_string(),
 					meta=meta
