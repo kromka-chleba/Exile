@@ -504,7 +504,7 @@ function fertile_soil.get_dry_node_props(soil_desc)
                 tiles = {fertile_soil.get_dry_texture_name(sed.name)},
                 groups = merge_tables(sed.groups, {fertile_soil = 1}),
                 drop = fertile_soil.get_dry_name(sed.name),
-                _ag_soil = agricultural_soil.get_dry_name(sed.name.."_fertile_soil"),
+                _depleted_name = fertile_soil.get_dry_name(soil_desc.sediment.name),
         })
     return merge_tables(props, fertile_soil.get_base_props(soil_desc))
 end
@@ -523,7 +523,7 @@ function fertile_soil.get_wet_node_props(soil_desc)
                 tiles = {fertile_soil.get_wet_texture_name(sed.name)},
                 groups = merge_tables(sed.groups_wet, {fertile_soil = 1}),
                 drop = fertile_soil.get_wet_name(sed.name),
-                _ag_soil = agricultural_soil.get_wet_name(sed.name.."_fertile_soil"),
+                _depleted_name = fertile_soil.get_wet_name(soil_desc.sediment.name),
         })
     return merge_tables(props, fertile_soil.get_base_props(soil_desc))
 end
@@ -664,7 +664,7 @@ function agricultural_soil.get_dry_node_props(ag_soil)
                 groups = merge_tables(sed.groups, {agricultural_soil = 1}),
                 tiles = {
                     agricultural_soil.get_dry_texture_name(sed.name, ag_soil.texture_name)},
-                _depleted_name = depleted_name, -- does nothing yet
+                _depleted_name = depleted_name,
                 _fertile_name = agricultural_soil.get_dry_name(sed.name.."_fertile_soil"),
                 on_timer = function(pos, elapsed)
                     return erode_deplete_ag_soil(pos, depleted_name)
@@ -693,7 +693,7 @@ function agricultural_soil.get_wet_node_props(ag_soil)
                 groups = merge_tables(sed.groups_wet, {agricultural_soil = 1}),
                 tiles =
                     {agricultural_soil.get_wet_texture_name(sed.name, ag_soil.texture_name)},
-                _depleted_name = depleted_name, -- does nothing yet
+                _depleted_name = depleted_name,
                 _fertile_name = agricultural_soil.get_wet_name(sed.name.."_fertile_soil"),
                 on_timer = function(pos, elapsed)
                     return erode_deplete_ag_soil(pos, depleted_name)

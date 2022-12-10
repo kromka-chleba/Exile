@@ -17,9 +17,13 @@ exile_add_food_hooks = exile_add_food_hooks
 creative = creative
 wielded_light = wielded_light
 
+local plant_base_timer = 5
+local seed_growing_time = 5 -- 40
+
 ------------------------------
 -- Seeds/seedling soil timers
---if the soil quality changes under the seed it will slow/speed the timer
+-- if the soil quality changes under the seed it will slow/speed the timer
+-- this procedure returns a timer
 local function seed_soil_response(pos)
 
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
@@ -72,105 +76,160 @@ local function seed_soil_response(pos)
     return timer_min, timer_max
 end
 
-
--- Seeds growth
-local function grow_seed(pos, seed_name, plant_name, place_p2, timer_avg, elapsed)
-
+local function is_on_sediment(pos)
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
     local node_under = minetest.get_node(pos_under)
-    local mushroom = false
+    return minetest.get_item_group(node_under.name, "sediment") > 0
+end
 
-    --if not on sediment abort
-    if minetest.get_item_group(node_under.name, "sediment") == 0 then
-        return
-    end
+local function is_plant(pos)
+    local plant_name = minetest.get_node(pos).name
+    return minetest.get_item_group(plant_name, "flora") > 0
+end
 
-    --cannot grow indoors (unless a mushroom)
-    if minetest.get_item_group(plant_name, "mushroom") == 0 then
-        local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
-        if not light or light < 13 then
-            return
-        end
-    else mushroom = true
-    end
+local function is_mushroom(pos)
+    local plant_name = minetest.get_node(pos).name
+    return minetest.get_item_group(plant_name, "mushroom") > 0
+end
 
-    --extreme temps will kill
+local function is_dark(pos)
+    local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+    return not light or light < 13
+end
+
+local function is_temperature_extreme(pos)
     local temp = climate.get_point_temp(pos)
-    if temp < -30 or temp > 60 then
-        minetest.remove_node(pos)
-        return true -- this plant's done
-    end
+    return temp < -30 or temp > 60
+end
 
-    --
-    local meta = minetest.get_meta(pos)
-    local growth = meta:get_int("growth")
-    --happens if they fall, no meta is set
-    if growth == 0 then
-        growth = plant_base_growth
-    end
+local function is_temperature_good(pos)
+    local temp = climate.get_point_temp(pos)
+    return temp > 0 or temp < 40
+end
 
-    --We've been away, let's catch up on missing growth
-    if elapsed and elapsed > timer_avg then
-        if pos.y < -15 and  temp >= 0 or temp <= 40 then
+local function are_conditions_good(pos)
+    --if not on sediment abort
+    if not is_on_sediment(pos) then
+        return false
+    end
+    --semi-extreme temps stop growth
+    if not is_temperature_good(pos) then
+        return false
+    end
+    --cannot grow indoors (unless a mushroom)
+    if not (is_mushroom(pos) and is_dark(pos)) then
+        return false
+    end
+    return true
+end
+
+-- returns growth to catch up or false if the plant has died 
+local function catch_up_timer(pos, elapsed, last_updated, timer_avg, growth)
+    local temp = climate.get_point_temp(pos)
+    local mushroom = is_mushroom(pos)
+    if elapsed and elapsed - last_updated > timer_avg then
+        if pos.y < -15 and temp >= 0 or temp <= 40 then
             if mushroom then
                 --This is an underground shroom, assume steady temp
-                growth = growth - ( elapsed / timer_avg )
+                return growth - ( elapsed / timer_avg )
             else
                 -- underground plant, but we've got light so give it 50%
-                growth = growth - ( elapsed / timer_avg / 2)
+                return growth - ( elapsed / timer_avg / 2)
             end
         else
             local change = crop_rewind(elapsed, timer_avg, mushroom)
             if change == -1 then
                 --Exteme heat or cold killed the plant
                 minetest.remove_node(pos)
-                return true
+                return false -- kill the timer
             end
-            growth = growth - change
+            return growth - change
         end
     end
+    return growth -- we weren't away actually
+end
 
-    --after first cycle turn seeds into seedlings
-    if seed_name ~= nil then
-        if minetest.get_item_group(seed_name, "seed") == 1 then
-            minetest.set_node(pos, {name = plant_name.."_seedling", param2= place_p2})
-            meta:set_int("growth", growth)
-            --return
-        end
+local function deplete_soil(pos)
+    local node_name = minetest.get_node(pos).name
+    local nodedef = minetest.registered_nodes[node_name]
+    if nodedef._depleted_name then
+        minetest.swap_node(pos, {name = nodedef._depleted_name})
     end
+end
 
-    --semi-extreme temps stop growth
-    if temp < 0 or temp > 40 then
-        return
-    end
-    -- new plant, or grow
-    if growth <= 1 then
-        minetest.set_node(pos, {name = plant_name, param2= place_p2})
+local function kill_or_stop_growing(pos)
+    -- extreme temps will kill
+    if is_temperature_extreme(pos) then
+        minetest.remove_node(pos)
         return true
-    else
-        --still growing
-        --chance to deplete soil
-        if minetest.get_item_group(node_under.name, "agricultural_soil") >= 1 then
-            if math.random()<0.0001 then
-                local deplete_name = node_under.name.."_depleted"
-                minetest.swap_node(pos_under, {name = deplete_name})
-            end
-        end
-        --grow faster in rain
-        if climate.get_rain(pos) then
-            growth = growth - 4
-            if growth < 1 then
-                growth = 1
-            end
-            meta:set_int("growth", growth)
-        else
-            growth = growth - 1
-            if growth < 1 then
-                growth = 1
-            end
-            meta:set_int("growth", growth)
-        end
     end
+    -- stop growth if conditions not suitable
+    if not are_conditions_good(pos) then
+        return true
+    end
+    -- the plant survives this time
+    return false
+end
+
+local function grow_seed(pos)
+    local node_name = minetest.get_node(pos).name
+    local nodedef = minetest.registered_nodes[node_name]
+    if not kill_or_stop_growing(pos) then
+        return true -- unless dead, try again when conditions are good
+    end
+    minetest.set_node(pos, {name = nodedef._next_life_stage})
+    return false -- the seed becomes a seedling (stops the timer)
+end
+
+-- Grows a plant
+local function grow_plant(pos, elapsed, growing_time)
+    minetest.log("error", "I'm here")
+    local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
+    if not kill_or_stop_growing(pos) then
+        return true -- the plant can't grow, waits for better times
+    end
+    local meta = minetest.get_meta(pos)
+    local growth = meta:get_int("growth")
+    --happens if they fall, no meta is set
+    if not growth then
+        growth = growing_time
+    end
+    local last_updated = meta:get_int("last_updated") or elapsed
+    --We've been away, let's catch up on missing growth
+    local timer_min, timer_max = seed_soil_response(pos)
+    local timer_avg = (timer_min + timer_max) / 2
+    growth = catch_up_timer(pos, elapsed, last_updated, timer_avg, growth)
+    -- if catch_up_timer returns false it means the plant has died
+    -- due to extreme weather
+    if not growth then return end
+    --after first cycle turn seeds into seedlings
+    -- new plant, or grow
+    local plant_name = minetest.get_node(pos).name
+    local plant_nodedef = minetest.registered_nodes[plant_name]
+    if growth <= 1 then
+        minetest.set_node(pos, {name = plant_nodedef._next_life_stage})
+        return true
+    end
+    --still growing
+    --chance to deplete soil
+    if math.random() < 0.0001 then
+        deplete_soil(pos_under)
+    end
+    --grow faster in rain
+    if climate.get_rain(pos) then
+        growth = growth - 4
+        if growth < 1 then
+            growth = 1
+        end
+        meta:set_int("growth", growth)
+    else
+        growth = growth - 1
+        if growth < 1 then
+            growth = 1
+        end
+        meta:set_int("growth", growth)
+    end
+    meta:set_int("last_updated", elapsed)
 end
 
 ---------------------------
@@ -323,7 +382,7 @@ function plant.new(args)
         name = args.name,
         description = args.description,
         soil_preferences = args.soil_preferences,
-        growth = args.growth,
+        growing_time = args.growing_time,
         light_range = args.light_range,
         mesh_type = args.mesh_type, -- see the comment above
         drawtype = args.drawtype, -- plantlike, nodebox, mesh
@@ -425,7 +484,6 @@ function plant.get_base_props(plant_def)
         stack_max = minimal.stack_max_medium,
         paramtype = "light",
         visual_scale = plant_def.texture_scale,
-        _ncrafting_dye_dcolor = plant_def.dominant_color,
         light_source = plant_def.bioluminescence,
         floodable = true,
         sunlight_propagates = true,
@@ -437,6 +495,7 @@ function plant.get_base_props(plant_def)
         },
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
+        _ncrafting_dye_dcolor = plant_def.dominant_color,
     }
     return props
 end
@@ -453,36 +512,23 @@ function plant.get_plantlike_props(plant_def)
     return minimal.merge_tables(plant.get_base_props(plant_def), props)
 end
 
+local function start_growing_plant(pos, growing_time)
+    local timer_min = growing_time - 0.1 * growing_time
+    local timer_max = growing_time + 0.1 * growing_time
+    minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
+end
+
 function plant.get_seedling_base_props(plant_def)
     local plantname = plant.get_name(plant_def.name)
     local props = {
         description = S("Young @1", plant_def.description),
         groups = plant.get_seedling_groups(plant_def),
+        _next_life_stage = plantname,
         on_construct = function(pos)
-            --set initial timer, growth rate depends on soil
-            local timer_min, timer_max = seed_soil_response(pos)
-            if timer_min then
-                minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-            else
-                minetest.get_node_timer(pos):start(plant_base_timer)
-            end
+            start_growing_plant(pos, plant_def.growing_time)
         end,
         on_timer = function(pos, elapsed)
-            local timer_min, timer_max = seed_soil_response(pos)
-            if not timer_min then
-                if minetest.get_node(pos).name ~= "ignore" then
-                    return false -- not on soil anymore? Stop timer
-                else
-                    return true -- it's unloaded, skip the timer
-                end
-            end
-            local timer_avg = timer_min + timer_max / 2
-            elapsed = elapsed - timer_max
-            if grow_seed(pos, nil, plantname, nil, timer_avg, elapsed) then
-                return false -- done
-            else
-                minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-            end
+            return grow_plant(pos, elapsed, plant_def.growing_time)
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             after_place_seedling(pos, placer, itemstack, pointed_thing)
@@ -558,20 +604,20 @@ function plant.register_plantlike(plant_def)
                            plant.get_plantlike_props(plant_def))
 end
 
--- function plant.register_seedling(plant_def)
---     minetest.register_node(plant.get_seedling_name(plant_def.name),
---                            plant.get_seedling_base_props(plant_def))
--- end
-
 function plant.register_plantlike_seedling(plant_def)
     minetest.register_node(plant.get_seedling_name(plant_def.name),
                            plant.get_plantlike_seedling_props(plant_def))
 end
 
+local function start_growing_seed(pos)
+    local timer_min = seed_growing_time - 0.25 * seed_growing_time
+    local timer_max = seed_growing_time + 0.25 * seed_growing_time
+    minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
+end
+
 function plant.get_seed_base_props(plant_def)
     local plantname = plant.get_name(plant_def.name)
     local seed_name = plant.get_seed_name(plant_def.name)
-    local growth = plant_def.growth
     local seed_texture, seed_description
     if plant_def.plant_type == "mushroom" then
         seed_texture = "nodes_nature_spores.png"
@@ -598,35 +644,12 @@ function plant.get_seed_base_props(plant_def)
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
         },
+        _next_life_stage = plant.get_seedling_name(plant_def.name),
         on_construct = function(pos)
-            --duration of growth, per species
-            local meta = minetest.get_meta(pos)
-            meta:set_int("growth", growth)
-            --set initial timer, growth rate depends on soil
-            local timer_min, timer_max = seed_soil_response(pos)
-            if timer_min then
-                minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-            else
-                minetest.get_node_timer(pos):start(plant_base_timer)
-            end
+            start_growing_seed(pos)
         end,
         on_timer = function(pos,elapsed)
-            local timer_min, timer_max = seed_soil_response(pos)
-            if not timer_min then
-                if minetest.get_node(pos).name ~= "ignore" then
-                    return false -- not on soil anymore? Stop timer
-                else
-                    return true -- it's unloaded, skip the timer
-                end
-            end
-            local timer_avg = timer_min + timer_max / 2
-            elapsed = elapsed - timer_max
-            if grow_seed(pos, seed_name, plantname,
-                         p2, timer_avg, elapsed) then
-                return
-            else
-                minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
-            end
+            return grow_seed(pos)
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             after_place_seedling(pos, placer, itemstack, pointed_thing)
@@ -671,34 +694,34 @@ function plant.add_food_hooks(plant_def)
 end
 
 -- DEV EXAMPLES FOR NOW
--- local wrotycz =
---     plant.new({name = "wrotycz", description = S("Wrotycz"),
---                drawtype = "plantlike", mesh_type = 1,
---                plant_type = "herbaceous_plant", waving = true,
---                growth = 3, dye_candidate = true, dominant_color = "yellow"})
+local wrotycz =
+    plant.new({name = "wrotycz", description = S("Wrotycz"),
+               drawtype = "plantlike", mesh_type = 1,
+               plant_type = "herbaceous_plant", waving = true,
+               growing_time = 15, dye_candidate = true, dominant_color = "yellow"})
 
--- plant.register_seed(wrotycz)
--- plant.register_plantlike_seedling(wrotycz)
--- plant.register_plantlike(wrotycz)
--- plant.register_threshing_recipes(wrotycz)
+plant.register_seed(wrotycz)
+plant.register_plantlike_seedling(wrotycz)
+plant.register_plantlike(wrotycz)
+plant.register_threshing_recipes(wrotycz)
 
--- local lambakap_nodebox = {
---     {-0.125, -0.5, -0.125, 0.125, -0.375, 0.125},
---     {-0.1875, -0.375, -0.1875, 0.1875, -0.1875, 0.1875},
---     {-0.1875, -0.1875, -0.1875, -0.0625, 0, 0.1875},
---     {0.0625, -0.1875, -0.1875, 0.1875, 0, 0.1875},
---     {-0.0625, -0.1875, -0.1875, 0.0625, 0, -0.0625},
---     {-0.0625, -0.1875, 0.0625, 0.0625, 0, 0.1875},
--- }
+local lambakap_nodebox = {
+    {-0.125, -0.5, -0.125, 0.125, -0.375, 0.125},
+    {-0.1875, -0.375, -0.1875, 0.1875, -0.1875, 0.1875},
+    {-0.1875, -0.1875, -0.1875, -0.0625, 0, 0.1875},
+    {0.0625, -0.1875, -0.1875, 0.1875, 0, 0.1875},
+    {-0.0625, -0.1875, -0.1875, 0.0625, 0, -0.0625},
+    {-0.0625, -0.1875, 0.0625, 0.0625, 0, 0.1875},
+}
 
--- local lambakap =
---     plant.new({name = "lambakap", description = S("Lambakap"),
---                drawtype = "nodebox", nodebox = lambakap_nodebox,
---                plant_type = "mushroom", waving = false,
---                growth = 3, dye_candidate = true, dominant_color = "red",
---                bioluminescence = 2, extra_groups = {flammable = 6, flora = 1}})
+local lambakap =
+    plant.new({name = "lambakap", description = S("Lambakap"),
+               drawtype = "nodebox", nodebox = lambakap_nodebox,
+               plant_type = "mushroom", waving = false,
+               growing_time = 3, dye_candidate = true, dominant_color = "red",
+               bioluminescence = 2, extra_groups = {flammable = 6, flora = 1}})
 
--- plant.register_seed(lambakap)
--- plant.register_3D_seedling(lambakap)
--- plant.register_3D(lambakap)
--- plant.register_threshing_recipes(lambakap)
+plant.register_seed(lambakap)
+plant.register_3D_seedling(lambakap)
+plant.register_3D(lambakap)
+plant.register_threshing_recipes(lambakap)
