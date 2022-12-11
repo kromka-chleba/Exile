@@ -98,17 +98,25 @@ local plant_list = {
      dye_candidate = true, dominant_color = "yellow"},
 
     -- Mushrooms
+
+    --lambakap. is also a mushroom.
+    --slow growing food and water source, main crop for longterm underground living.
     {name = "lambakap", description = S("Lambakap"),
      drawtype = "nodebox", nodebox = lambakap_nodebox,
      lifeform_type = "mushroom", plant_type = "mushroom",
      growing_time = 3, dye_candidate = true, dominant_color = "red",
      bioluminescence = 2, extra_groups = {flammable = 6}},
-    
+
+    --reshedaar.  is also a mushroom.
+    --slow growing fibre mushroom, main fibre crop for longterm underground living.
+    --(can't be bioluminescent or conflicts with recipe)
     {name = "reshedaar", description = S("Reshedaar"),
      drawtype = "nodebox", nodebox = reshedaar_nodebox,
      lifeform_type = "mushroom", plant_type = "fibrous_plant",
      growing_time = 3, dye_candidate = true, dominant_color = "red",},
 
+    --Mahal. is also a mushroom.
+    --slow growing woody mushroom, main stick crop for longterm underground living.
     {name = "mahal", description = S("Mahal"),
      drawtype = "nodebox", nodebox = mahal_nodebox,
      lifeform_type = "mushroom", plant_type = "woody_plant",
@@ -268,13 +276,13 @@ minetest.override_item(
             minetest.chat_send_player(user:get_player_name(),
                                       "This plant has a foul musty flavor.")
             --food poisoning
-            if random() < 0.001 then
+            if math.random() < 0.001 then
                 HEALTH.add_new_effect(user, {"Food Poisoning", 1})
             end
 
             --toxin
-            if random() < 0.75 then
-                HEALTH.add_new_effect(user, {"Neurotoxicity", floor(random(1,4))})
+            if math.random() < 0.75 then
+                HEALTH.add_new_effect(user, {"Neurotoxicity", math.floor(math.random(1,4))})
             end
 
             --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
@@ -291,13 +299,13 @@ minetest.override_item(
             minetest.chat_send_player(user:get_player_name(),
                                       "Your stomach hurts terribly.")
             --food poisoning
-            if random() < 0.001 then
+            if math.random() < 0.001 then
                 HEALTH.add_new_effect(user, {"Food Poisoning", 1})
             end
 
             --toxin
-            if random() < 0.75 then
-                HEALTH.add_new_effect(user, {"Hepatotoxicity", floor(random(1,4))})
+            if math.random() < 0.75 then
+                HEALTH.add_new_effect(user, {"Hepatotoxicity", math.floor(math.random(1,4))})
             end
 
             --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
@@ -312,7 +320,7 @@ minetest.override_item(
         on_use = function(itemstack, user, pointed_thing)
 
             --only cure mild
-            if random()<0.75 then
+            if math.random()<0.75 then
                 HEALTH.remove_new_effect(user, {"Food Poisoning", 1})
                 HEALTH.remove_new_effect(user, {"Fungal Infection", 1})
                 HEALTH.remove_new_effect(user, {"Dust Fever", 1})
@@ -328,7 +336,7 @@ minetest.override_item(
     "nodes_nature:merki",{
         on_use = function(itemstack, user, pointed_thing)
 
-            if random()<0.15 then
+            if math.random()<0.15 then
                 HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
             end
 
