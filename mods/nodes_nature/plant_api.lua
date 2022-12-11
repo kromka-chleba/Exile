@@ -16,15 +16,15 @@ creative = creative
 wielded_light = wielded_light
 
 -- Globals
-plant_base_growth = 15 --500
-plant_base_timer = 5
+plant_base_growing_time = 10 --500
+plant_base_timer = 2 -- 40
 seed_growing_time = 5 -- 40
 
 ------------------------------
 -- Seeds/seedling soil timers
 -- if the soil quality changes under the seed it will slow/speed the timer
 -- this procedure returns a timer
-local function seed_soil_response(pos)
+local function seed_soil_response(pos, growing_time)
 
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
     local node_under = minetest.get_node(pos_under).name
@@ -38,7 +38,7 @@ local function seed_soil_response(pos)
     local ag_soil = minetest.get_item_group(node_under, "agricultural_soil")
     local dep_ag_soil = minetest.get_item_group(node_under, "depleted_agricultural_soil")
 
-    local timer_min = plant_base_timer
+    local timer_min = growing_time
 
 
     --apply bonus or penalty by by soil type and wetness
@@ -119,29 +119,29 @@ local function are_conditions_good(pos)
 end
 
 -- returns growth to catch up or false if the plant has died 
-local function catch_up_timer(pos, elapsed, last_updated, timer_avg, growth)
+local function catch_up_timer(pos, elapsed, last_updated, growing_left)
     local temp = climate.get_point_temp(pos)
     local mushroom = is_mushroom(pos)
-    if elapsed and elapsed - last_updated > timer_avg then
+    if elapsed and elapsed - last_updated > plant_base_timer then
         if pos.y < -15 and temp >= 0 or temp <= 40 then
             if mushroom then
                 --This is an underground shroom, assume steady temp
-                return growth - ( elapsed / timer_avg )
+                return growing_left - ( elapsed / plant_base_timer )
             else
                 -- underground plant, but we've got light so give it 50%
-                return growth - ( elapsed / timer_avg / 2)
+                return growing_left - ( elapsed / plant_base_timer / 2)
             end
         else
-            local change = crop_rewind(elapsed, timer_avg, mushroom)
+            local change = crop_rewind(elapsed, plant_base_timer, mushroom)
             if change == -1 then
                 --Exteme heat or cold killed the plant
                 minetest.remove_node(pos)
                 return false -- kill the timer
             end
-            return growth - change
+            return growing_left - change
         end
     end
-    return growth -- we weren't away actually
+    return growing_left -- we weren't away actually
 end
 
 local function deplete_soil(pos)
@@ -183,47 +183,46 @@ local function grow_plant(pos, elapsed, growing_time)
         return true -- the plant can't grow, waits for better times
     end
     local meta = minetest.get_meta(pos)
-    local growth = meta:get_int("growth")
-    -- set initial growth
-    if not growth then
-        growth = growing_time
+    local growing_left = meta:get_int("growing_left")
+    minetest.log("error", dump(growing_left))
+    -- set initial growing_left
+    if growing_left <= 0 then
+        growing_left = growing_time or plant_base_growing_time
     end
     local last_updated = meta:get_int("last_updated") or elapsed
     --We've been away, let's catch up on missing growth
-    local timer_min, timer_max = seed_soil_response(pos)
-    local timer_avg = (timer_min + timer_max) / 2
-    growth = catch_up_timer(pos, elapsed, last_updated, timer_avg, growth)
+    growing_left = catch_up_timer(pos, elapsed, last_updated, growing_left)
     -- if catch_up_timer returns false it means the plant has died
     -- due to extreme weather
-    if not growth then return end
-    --after first cycle turn seeds into seedlings
+    if not growing_left then return false end
     -- new plant, or grow
     local plant_name = minetest.get_node(pos).name
     local plant_nodedef = minetest.registered_nodes[plant_name]
-    if growth <= 1 then
+    if growing_left <= 1 then
         minetest.set_node(pos, {name = plant_nodedef._next_life_stage})
-        return true
+        return false
     end
     --still growing
     --chance to deplete soil
-    if math.random() < 0.0001 then
+    if math.random() <= 0.0001 then
         deplete_soil(pos_under)
     end
     --grow faster in rain
     if climate.get_rain(pos) then
-        growth = growth - 4
-        if growth < 1 then
-            growth = 1
+        growing_left = growing_left - 4
+        if growing_left < 1 then
+            growing_left = 1
         end
-        meta:set_int("growth", growth)
+        meta:set_int("growing_left", growing_left)
     else
-        growth = growth - 1
-        if growth < 1 then
-            growth = 1
+        growing_left = growing_left - 1
+        if growing_left < 1 then
+            growing_left = 1
         end
-        meta:set_int("growth", growth)
+        meta:set_int("growing_left", growing_left)
     end
     meta:set_int("last_updated", elapsed)
+    return true
 end
 
 ---------------------------
@@ -236,12 +235,12 @@ local on_dig_seedling = function(pos,node, digger)
         return false
     end
     local meta = minetest.get_meta(pos)
-    local growth = meta:get_int("growth")
-    if not growth then growth = plant_base_growth end
+    local growing_left = meta:get_int("growing_left")
+    if not growing_left then growing_left = plant_base_growing_time end
 
     local new_stack = ItemStack(node.name)
     local stack_meta = new_stack:get_meta()
-    stack_meta:set_int("growth", growth)
+    stack_meta:set_int("growing_left", growing_left)
 
     minetest.remove_node(pos)
     local player_inv = digger:get_inventory()
@@ -255,12 +254,12 @@ end
 local after_place_seedling = function(pos, placer, itemstack, pointed_thing)
     local meta = minetest.get_meta(pos)
     local stack_meta = itemstack:get_meta()
-    local growth = stack_meta:get_int("growth")
-    if growth == 0 then -- new seeds have no meta
-        growth = meta:get_int("growth") -- but it's set on the node already
+    local growing_left = stack_meta:get_int("growing_left")
+    if growing_left == 0 then -- new seeds have no meta
+        growing_left = meta:get_int("growing_left") -- but it's set on the node already
     end
-    if not growth then growth = plant_base_growth end
-    meta:set_int("growth", growth)
+    if not growing_left then growing_left = plant_base_growing_time end
+    meta:set_int("growing_left", growing_left)
 end
 
 ---------------------------
@@ -583,9 +582,9 @@ function plant.register_bamboolike(plant_def)
         plant.get_bamboolike_props(plant_def))
 end
 
-local function start_growing_plant(pos, growing_time)
-    local timer_min = growing_time - 0.1 * growing_time
-    local timer_max = growing_time + 0.1 * growing_time
+local function start_growing_plant(pos)
+    local timer_min = plant_base_timer - 0.1 * plant_base_timer
+    local timer_max = plant_base_timer + 0.1 * plant_base_timer
     minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
 end
 
@@ -596,7 +595,7 @@ function plant.get_seedling_base_props(plant_def)
         groups = plant.get_seedling_groups(plant_def),
         _next_life_stage = plantname,
         on_construct = function(pos)
-            start_growing_plant(pos, plant_def.growing_time)
+            start_growing_plant(pos)
         end,
         on_timer = function(pos, elapsed)
             return grow_plant(pos, elapsed, plant_def.growing_time)

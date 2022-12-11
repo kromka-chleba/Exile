@@ -41,60 +41,61 @@ local plant_list = {
     {name = "wrotycz", description = S("Wrotycz"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = 15, dye_candidate = true, dominant_color = "yellow"},
+     growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "yellow"},
 
     {name = "wiha", description = S("Wiha"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growth * 2,
+     growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red"},
 
     {name = "momo", description = S("Momo"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growth * 2,
+     growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red"},
 
     {name = "galanta", description = S("Galanta"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growth * 0.8,
+     growing_time = plant_base_growing_time * 0.8,
      dye_candidate = true, dominant_color = "green"},
 
     {name = "vansano", description = S("Vansano"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growth * 1.2,
+     growing_time = plant_base_growing_time * 1.2,
      dye_candidate = true, dominant_color = "green"},
 
     {name = "anperla", description = S("Anperla"),
      plant_type = "herbaceous_plant", waving = true,
      drawtype = "plantlike", mesh_type = 3,
-     growing_time = plant_base_growth * 2,
+     growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green"},
 
     {name = "hakimi", description = S("Hakimi"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 0,
-     growing_time = plant_base_growth * 2,
+     growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "blue"},
 
     {name = "orom", description = S("Orom"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growth * 2,
+     growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "black"},
 
     {name = "veke", description = S("Veke"),
      drawtype = "plantlike", mesh_type = 0,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growth * 2,
+     growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "black"},
 
     {name = "tikusati", description = S("Tikusati"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growth * 2,
+     growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow"},
 
     -- Mushrooms
@@ -104,7 +105,8 @@ local plant_list = {
     {name = "lambakap", description = S("Lambakap"),
      drawtype = "nodebox", nodebox = lambakap_nodebox,
      lifeform_type = "mushroom", plant_type = "mushroom",
-     growing_time = 3, dye_candidate = true, dominant_color = "red",
+     growing_time = plant_base_growing_time * 3,
+     dye_candidate = true, dominant_color = "red",
      bioluminescence = 2, extra_groups = {flammable = 6}},
 
     --reshedaar.  is also a mushroom.
@@ -113,64 +115,66 @@ local plant_list = {
     {name = "reshedaar", description = S("Reshedaar"),
      drawtype = "nodebox", nodebox = reshedaar_nodebox,
      lifeform_type = "mushroom", plant_type = "fibrous_plant",
-     growing_time = 3, dye_candidate = true, dominant_color = "red",},
+     growing_time = plant_base_growing_time * 3,
+     dye_candidate = true, dominant_color = "red",},
 
     --Mahal. is also a mushroom.
     --slow growing woody mushroom, main stick crop for longterm underground living.
     {name = "mahal", description = S("Mahal"),
      drawtype = "nodebox", nodebox = mahal_nodebox,
      lifeform_type = "mushroom", plant_type = "woody_plant",
-     growing_time = 3, dye_candidate = true, dominant_color = "red",
+     growing_time = plant_base_growing_time * 3,
+     dye_candidate = true, dominant_color = "red",
      bioluminescence = 1,},
 
     {name = "merki", description = S("Merki"),
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
-     mesh_type = 0, growing_time = plant_base_growth * 2,
+     mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "blue"},
 
     {name = "nebiyi", description = S("Nebiyi"),
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
-     mesh_type = 1, growing_time = plant_base_growth,
+     mesh_type = 1, growing_time = plant_base_growing_time,
      dye_candidate = true, dominant_color = "indigo"},
 
     {name = "marbhan", description = S("Marbhan"),
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
-     mesh_type = 2, growing_time = plant_base_growth * 2,
+     mesh_type = 2, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red"},
 
     {name = "zufani", description = S("Zufani"),
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
-     mesh_type = 2, growing_time = plant_base_growth * 2,
+     mesh_type = 2, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow"},
 
     -- Woody
     {name = "tsaplop", description = S("Tsaplop"),
      drawtype = "plantlike", plant_type = "woody_plant",
-     mesh_type = 0, growing_time = plant_base_growth * 2,
+     mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
      visual_scale = 1.2},
 
     {name = "jogalan", description = S("Jogalan"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
-     mesh_type = 0, growing_time = plant_base_growth * 2,
+     mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "black"},
 
     {name = "gitiri", description = S("Gitiri"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
-     mesh_type = 2, growing_time = plant_base_growth * 2,
+     mesh_type = 2, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
      visual_scale = 1.2},
 
     {name = "bronach", description = S("Bronach"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
-     mesh_type = 3, growing_time = plant_base_growth * 2,
+     mesh_type = 3, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "crimson",
      visual_scale = 1.5},
     
@@ -178,63 +182,63 @@ local plant_list = {
     {name = "sari", description = S("Sari"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growth * 0.5,
+     growing_time = plant_base_growing_time * 0.5,
      dye_candidate = true, dominant_color = "yellow"},
 
     {name = "tanai", description = S("Tanai"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growth * 1.5,
+     growing_time = plant_base_growing_time * 1.5,
      dye_candidate = true, dominant_color = "crimson"},
 
     {name = "thoka", description = S("Thoka"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growth * 2},
+     growing_time = plant_base_growing_time * 2},
 
     {name = "alaf", description = S("Alaf"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growth * 2,
+     growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow"},
 
     {name = "damo", description = S("Damo"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growth,
+     growing_time = plant_base_growing_time,
      dye_candidate = true, dominant_color = "green"},
 
     {name = "tashvish", description = S("Tashvish"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growth * 1.5},
+     growing_time = plant_base_growing_time * 1.5},
 
     -- Moss
     {name = "moss", description = S("Moss"),
      drawtype = "nodebox", nodebox = moss_nodebox,
-     plant_type = "moss", growing_time = plant_base_growth * 3,
+     plant_type = "moss", growing_time = plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "green",},
 
     -- Canes
     {name = "cana", description = S("Cana"),
      drawtype = "plantlike", plant_type = "cane", waving = false,
-     growing_time = 3, dye_candidate = true, dominant_color = "yellow",
+     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1},
 
     {name = "gemedi", description = S("Gemedi"),
      drawtype = "plantlike", plant_type = "cane", waving = false,
-     growing_time = 3, dye_candidate = true, dominant_color = "yellow",
+     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1},
 
     -- Bamboos
     {name = "chalin", description = S("Chalin"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
-     growing_time = 3, dye_candidate = true, dominant_color = "yellow",
+     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, climbable = true},
 
     {name = "tiken", description = S("Tiken"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
-     growing_time = 3, dye_candidate = true, dominant_color = "yellow",
+     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, thorns = true},
 }
 
@@ -256,6 +260,7 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:anperla_seed",{
         tiles = {'nodes_nature_silt.png'},
+        wield_image = nil,
         node_box = {
             type = "fixed",
             fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
