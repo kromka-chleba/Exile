@@ -36,13 +36,21 @@ local mahal_nodebox = {
 
 local moss_nodebox = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}
 
+local wrotycz_soil_prefs =
+    soil_preferences.new({
+            rocky_substrate = {min = 2, max = 2w},
+            organic_substrate = {min = 2, max = 2},
+            density = {min = 4, max = 4},
+    })
+
 local plant_list = {
     -- Herbs
     {name = "wrotycz", description = S("Wrotycz"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
-     dye_candidate = true, dominant_color = "yellow"},
+     dye_candidate = true, dominant_color = "yellow",
+     soil_preferences = wrotycz_soil_prefs},
 
     {name = "wiha", description = S("Wiha"),
      drawtype = "plantlike", mesh_type = 4,

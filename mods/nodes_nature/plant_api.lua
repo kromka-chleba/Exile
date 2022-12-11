@@ -16,64 +16,82 @@ creative = creative
 wielded_light = wielded_light
 
 -- Globals
-plant_base_growing_time = 10 --500
-plant_base_timer = 2 -- 40
-seed_growing_time = 5 -- 40
+plant_base_growing_time = 600
+plant_base_timer = 40
+seed_growing_time = 5
+
+soil_preferences = {}
+
+function soil_preferences.new(args)
+    local prefs = {
+        rocky_substrate = args.rocky_substrate,
+        organic_substrate = args.organic_substrate,
+        density = args.density,
+    }
+    return prefs
+end
+
+function soil_preferences.is_sediment_good(sed_name, plant_prefs)
+    local rocky_substrate = minetest.get_item_group(sed_name, "rocky_substrate")
+    local organic_substrate = minetest.get_item_group(sed_name, "organic_substrate")
+    local density = minetest.get_item_group(sed_name, "density")
+    if not plant_prefs then return true end
+    if rocky_substrate then
+        if not (rocky_substrate >= plant_prefs.rocky_substrate.min
+                and rocky_substrate <= plant_prefs.rocky_substrate.max) then
+            return false
+        end
+    end
+    if organic_substrate then
+        if not (organic_substrate >= plant_prefs.organic_substrate.min
+                and organic_substrate <= plant_prefs.organic_substrate.max) then
+            return false
+        end
+    end
+    if density then
+        if not (density >= plant_prefs.density.min
+                and density <= plant_prefs.density.max) then
+            return false
+        end
+    end
+    return true
+end
 
 ------------------------------
 -- Seeds/seedling soil timers
 -- if the soil quality changes under the seed it will slow/speed the timer
 -- this procedure returns a timer
-local function seed_soil_response(pos, growing_time)
-
+local function seed_soil_response(pos, soil_prefs)
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
     local node_under = minetest.get_node(pos_under).name
-
     local sediment = minetest.get_item_group(node_under, "sediment")
     if sediment == 0 then
-        return false
+        return 0
     end
-
     local wetness = minetest.get_item_group(node_under, "wet_sediment")
-    local ag_soil = minetest.get_item_group(node_under, "agricultural_soil")
-    local dep_ag_soil = minetest.get_item_group(node_under, "depleted_agricultural_soil")
-
-    local timer_min = growing_time
-
-
-    --apply bonus or penalty by by soil type and wetness
+    local progress = 1
     if wetness == 1 then
-        --moisture is good
-        timer_min = timer_min * 0.75
-    elseif wetness == 2 then
-        --salt water is very bad
-        timer_min = timer_min * 1000
+        progress = progress + 2
+    elseif wetness == 2 then -- salty
+        return 0
     end
-
-    if sediment == 1 then
-        --loam is best
-        timer_min = timer_min * .80
-    elseif sediment == 3 then
-        --silt is nearly as good as loam
-        timer_min = timer_min * .90
-    elseif sediment == 2 then
-        --clay is poor, needs to be broken up; i.e. into ag_soil
-        timer_min = timer_min * 1.50
-    elseif sediment == 4 or sediment == 5 then
-        --sand and gravel are terrible
-        timer_min = timer_min * 1.80
+    local is_soil_good = soil_preferences.is_sediment_good(node_under, soil_prefs)
+    local ag_soil = minetest.get_item_group(node_under, "agricultural_soil")
+    local fertile_soil = minetest.get_item_group(node_under, "fertile_soil")
+    if is_soil_good then
+        progress = progress + 2
     end
-
-    if ag_soil == 1 then
-        --cultivation boom
-        timer_min = timer_min * 0.60
-    elseif dep_ag_soil == 1 then
-        --lesser cultivation boom
-        timer_min = timer_min * 0.80
+    -- normal and fertile agri soils can partially cancell effects of bad soil
+    if fertile_soil == 1 or ag_soil == 1 then
+        progress = progress + 1
+    elseif not is_soil_good then
+        return 0
     end
-
-    local timer_max = timer_min * 1.1
-    return timer_min, timer_max
+    local fertility = minetest.get_item_group(node_under, "fertility")
+    if fertility > 0 then
+        progress = progress + fertility
+    end
+    return progress
 end
 
 local function is_on_sediment(pos)
@@ -84,12 +102,13 @@ end
 
 local function is_mushroom(pos)
     local plant_name = minetest.get_node(pos).name
+    local nodedef = minetest.registered_nodes[plant_name]
     return minetest.get_item_group(plant_name, "mushroom") > 0
 end
 
 local function is_dark(pos)
-    local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
-    return not light or light < 13
+    local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z})
+    return not light or light < 3
 end
 
 local function is_temperature_extreme(pos)
@@ -112,7 +131,7 @@ local function are_conditions_good(pos)
         return false
     end
     --cannot grow indoors (unless a mushroom)
-    if not (is_mushroom(pos) and is_dark(pos)) then
+    if not is_mushroom(pos) and is_dark(pos) then
         return false
     end
     return true
@@ -169,7 +188,7 @@ end
 local function grow_seed(pos)
     local node_name = minetest.get_node(pos).name
     local nodedef = minetest.registered_nodes[node_name]
-    if not kill_or_stop_growing(pos) then
+    if kill_or_stop_growing(pos) then
         return true -- unless dead, try again when conditions are good
     end
     minetest.set_node(pos, {name = nodedef._next_life_stage})
@@ -177,14 +196,13 @@ local function grow_seed(pos)
 end
 
 -- Grows a plant
-local function grow_plant(pos, elapsed, growing_time)
+local function grow_plant(pos, elapsed, growing_time, soil_prefs)
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
-    if not kill_or_stop_growing(pos) then
+    if kill_or_stop_growing(pos) then
         return true -- the plant can't grow, waits for better times
     end
     local meta = minetest.get_meta(pos)
     local growing_left = meta:get_int("growing_left")
-    minetest.log("error", dump(growing_left))
     -- set initial growing_left
     if growing_left <= 0 then
         growing_left = growing_time or plant_base_growing_time
@@ -207,20 +225,19 @@ local function grow_plant(pos, elapsed, growing_time)
     if math.random() <= 0.0001 then
         deplete_soil(pos_under)
     end
+    local progress = seed_soil_response(pos, soil_prefs)
+    if progress <= 0 then
+        return true -- soil is terrible, no growing here
+    end
+    growing_left = growing_left - progress
     --grow faster in rain
     if climate.get_rain(pos) then
         growing_left = growing_left - 4
-        if growing_left < 1 then
-            growing_left = 1
-        end
-        meta:set_int("growing_left", growing_left)
-    else
-        growing_left = growing_left - 1
-        if growing_left < 1 then
-            growing_left = 1
-        end
-        meta:set_int("growing_left", growing_left)
     end
+    if growing_left < 1 then
+        growing_left = 1
+    end
+    meta:set_int("growing_left", growing_left)
     meta:set_int("last_updated", elapsed)
     return true
 end
@@ -442,7 +459,7 @@ function plant.get_groups(plant_def)
     if plant_def.dye_candidate then
         groups.ncrafting_dye_candidate = 1
     end
-    if lifeform_type == "mushroom" then
+    if plant_def.lifeform_type == "mushroom" then
         base = minimal.merge_tables(base, base_groups.mushroom)
     end
     if plant_def.bioluminescence then
@@ -455,9 +472,9 @@ function plant.get_groups(plant_def)
 end
 
 function plant.get_seedling_groups(plant_def)
-    local base = base_groups.seedling
+    local base = {}
     base.ncrafting_dye_candidate = nil -- can't make dyes from seedlings
-    if lifeform_type == "mushroom" then
+    if plant_def.lifeform_type == "mushroom" then
         base = minimal.merge_tables(
             plant_groups["mushroom"],
             base_groups.mushroom)
@@ -468,7 +485,7 @@ end
 function plant.get_seed_groups(plant_def)
     local base = {}
     base.ncrafting_dye_candidate = nil -- can't make dyes from seeds
-    if lifeform_type == "mushroom" then
+    if plant_def.lifeform_type == "mushroom" then
         base = minimal.merge_tables(
             base_groups.spore,
             base_groups.mushroom)
@@ -598,7 +615,9 @@ function plant.get_seedling_base_props(plant_def)
             start_growing_plant(pos)
         end,
         on_timer = function(pos, elapsed)
-            return grow_plant(pos, elapsed, plant_def.growing_time)
+            return grow_plant(pos, elapsed,
+                              plant_def.growing_time,
+                              plant_def.soil_preferences)
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             after_place_seedling(pos, placer, itemstack, pointed_thing)

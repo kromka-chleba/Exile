@@ -188,7 +188,7 @@ function sediment.new(args)
          sediment = args.id,
          rocky_substrate = args.rocky_substrate, -- inorganic matter content 0-4
          organic_substrate = args.organic_substrate, -- organic matter content 0-4
-         fertility = args.fertility, -- values 0-4
+         fertility = args.fertility, -- values 0-4 (+ 2 for fertile soils)
          density = args.density, -- soil density (clay - dense, loam - not), values 0-4
         }
     local mod_name = minetest.get_current_modname() -- allows making artificial soils
@@ -502,7 +502,9 @@ function fertile_soil.get_dry_node_props(soil_desc)
             sediment.get_dry_node_props(sed), {
                 description = soil_desc.description,
                 tiles = {fertile_soil.get_dry_texture_name(sed.name)},
-                groups = merge_tables(sed.groups, {fertile_soil = 1}),
+                groups = merge_tables(sed.groups,
+                                      {fertile_soil = 1,
+                                       fertility = sed.groups.fertility + 2}),
                 drop = fertile_soil.get_dry_name(sed.name),
                 _depleted_name = fertile_soil.get_dry_name(soil_desc.sediment.name),
         })
@@ -521,7 +523,9 @@ function fertile_soil.get_wet_node_props(soil_desc)
             sediment.get_wet_node_props(sed), {
                 description = S("Wet @1", soil_desc.description),
                 tiles = {fertile_soil.get_wet_texture_name(sed.name)},
-                groups = merge_tables(sed.groups_wet, {fertile_soil = 1}),
+                groups = merge_tables(sed.groups_wet,
+                                      {fertile_soil = 1,
+                                       fertility = sed.groups.fertility + 2}),
                 drop = fertile_soil.get_wet_name(sed.name),
                 _depleted_name = fertile_soil.get_wet_name(soil_desc.sediment.name),
         })
