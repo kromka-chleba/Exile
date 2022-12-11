@@ -1,5 +1,5 @@
 ---------------------------------------------------------
---Plants and Mushrooms (and all things growing)
+--API for Plants and Mushrooms
 
 -- Internationalization
 local S = nodes_nature.S
@@ -10,15 +10,15 @@ local random = math.random
 local floor = math.floor
 local c_alpha = minimal.compat_alpha
 
-plant_base_growth = plant_base_growth
-plant_base_timer = plant_base_timer
 crop_rewind = crop_rewind
 exile_add_food_hooks = exile_add_food_hooks
 creative = creative
 wielded_light = wielded_light
 
-local plant_base_timer = 5
-local seed_growing_time = 5 -- 40
+-- Globals
+plant_base_growth = 15 --500
+plant_base_timer = 5
+seed_growing_time = 5 -- 40
 
 ------------------------------
 -- Seeds/seedling soil timers
@@ -80,11 +80,6 @@ local function is_on_sediment(pos)
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
     local node_under = minetest.get_node(pos_under)
     return minetest.get_item_group(node_under.name, "sediment") > 0
-end
-
-local function is_plant(pos)
-    local plant_name = minetest.get_node(pos).name
-    return minetest.get_item_group(plant_name, "flora") > 0
 end
 
 local function is_mushroom(pos)
@@ -183,14 +178,13 @@ end
 
 -- Grows a plant
 local function grow_plant(pos, elapsed, growing_time)
-    minetest.log("error", "I'm here")
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
     if not kill_or_stop_growing(pos) then
         return true -- the plant can't grow, waits for better times
     end
     local meta = minetest.get_meta(pos)
     local growth = meta:get_int("growth")
-    --happens if they fall, no meta is set
+    -- set initial growth
     if not growth then
         growth = growing_time
     end
@@ -309,11 +303,11 @@ end
 local sounds = {
     ["default_leaves"] = nodes_nature.node_sound_leaves_defaults(),
     ["woody_plant"] = nodes_nature.node_sound_wood_defaults(),
+    ["bamboo"] = nodes_nature.node_sound_wood_defaults(),
 }
 
 local base_groups = {
-    base = {temp_pass = 1, attached_node = 1},
-    plant = {flora = 1},
+    base = {temp_pass = 1, attached_node = 1, flora = 1},
     mushroom = {mushroom = 1},
     seed = {
         seed = 1,
@@ -334,16 +328,11 @@ local base_groups = {
         flammable = 2,
         seedling = 1,
     },
-    -- not sure if default is needed
-    default = {
-        snappy = 3,
-        flammable = 2,
-    },
 }
 
 local plant_groups = {
-    ["crumbly"] = {
-        crumbly = 3,
+    ["moss"] = {
+        snappy = 2,
         herbaceous_plant = 1,
         flammable = 5,
     },
@@ -357,9 +346,26 @@ local plant_groups = {
         herbaceous_plant = 1,
         flammable = 3,
     },
+    ["fibrous_plant"] = {
+        snappy = 3,
+        fibrous_plant = 1,
+        flammable = 1,
+    },
     ["mushroom"] = {
         snappy = 3,
         flammable = 3,
+    },
+    ["cane"] = {
+        snappy = 3,
+        fibrous_plant = 1,
+        flammable = 1,
+        cane_plant = 1,
+    },
+    ["bamboo"] = {
+        choppy = 3,
+        woody_plant = 1,
+        flammable = 1,
+        cane_plant = 1,
     },
 }
 
@@ -378,6 +384,8 @@ function plant.new(args)
     if args.waving then
         waving = 1
     end
+    local thorns
+    if args.thorns then thorns = 1 end
     local def = {
         name = args.name,
         description = args.description,
@@ -387,14 +395,18 @@ function plant.new(args)
         mesh_type = args.mesh_type, -- see the comment above
         drawtype = args.drawtype, -- plantlike, nodebox, mesh
         bioluminescence = args.bioluminescence,
+        lifeform_type = args.lifeform_type,
         plant_type = args.plant_type,
         texture_scale = args.texture_scale or 1,
         extra_groups = args.extra_groups,
-        dye_candidate = args.dyecandidate,
+        dye_candidate = args.dye_candidate,
         dominant_color = args.dominant_color,
+        thorns = thorns,
+        climbable = args.climbable,
         nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
         seedling_nodebox = args.seedling_nodebox or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
         waving = waving,
+        seed_number = args.seed_number or 6,
     }
     return def
 end
@@ -431,10 +443,8 @@ function plant.get_groups(plant_def)
     if plant_def.dye_candidate then
         groups.ncrafting_dye_candidate = 1
     end
-    if plant_type == "mushroom" then
+    if lifeform_type == "mushroom" then
         base = minimal.merge_tables(base, base_groups.mushroom)
-    else
-        base = minimal.merge_tables(base, base_groups.plant)
     end
     if plant_def.bioluminescence then
         base = minimal.merge_tables(base, {bioluminescent = 1})
@@ -448,7 +458,7 @@ end
 function plant.get_seedling_groups(plant_def)
     local base = base_groups.seedling
     base.ncrafting_dye_candidate = nil -- can't make dyes from seedlings
-    if plant_type == "mushroom" then
+    if lifeform_type == "mushroom" then
         base = minimal.merge_tables(
             plant_groups["mushroom"],
             base_groups.mushroom)
@@ -459,7 +469,7 @@ end
 function plant.get_seed_groups(plant_def)
     local base = {}
     base.ncrafting_dye_candidate = nil -- can't make dyes from seeds
-    if plant_type == "mushroom" then
+    if lifeform_type == "mushroom" then
         base = minimal.merge_tables(
             base_groups.spore,
             base_groups.mushroom)
@@ -489,6 +499,8 @@ function plant.get_base_props(plant_def)
         sunlight_propagates = true,
         walkable = false,
         buildable_to = true,
+        climbable = plant_def.climbable,
+        damage_per_second = plant_def.thorns,
         selection_box = {
             type = "fixed",
             fixed = plant_def.nodebox,
@@ -510,6 +522,65 @@ function plant.get_plantlike_props(plant_def)
         waving = plant_def.waving,
     }
     return minimal.merge_tables(plant.get_base_props(plant_def), props)
+end
+
+function plant.get_canelike_props(plant_def)
+    local base = plant.get_plantlike_props(plant_def)
+    base.place_param2 = 2
+    base.selection_box = {
+        type = "fixed",
+        fixed = {-0.1875, -0.5, -0.1875, 0.1875, 0.5, 0.1875},
+    }
+    base.groups.attached_node = nil
+    base.after_dig_node = function(pos, node, metadata, digger)
+        dig_up(pos, node, digger)
+    end
+    base.floodable = false
+    local plant_name = plant.get_name(plant_def.name)
+    base.on_place = function(itemstack, placer, pointed_thing)
+        local under = pointed_thing.under
+        local node = minetest.get_node(under)
+        local udef = minetest.registered_nodes[node.name]
+
+        if node.name == plant_name then
+            return
+        end
+        -- Run any on_rightclick function of pointed node
+        if udef and udef.on_rightclick and
+            not (placer and placer:is_player() and
+                 placer:get_player_control().sneak) then
+            return udef.on_rightclick(under, node, placer,
+                                      itemstack, pointed_thing) or itemstack
+        end
+        local face = vector.direction(pointed_thing.above,
+                                      pointed_thing.under)
+        if face.y == -1 then
+            minetest.item_place_node(itemstack, placer,
+                                     pointed_thing)
+            return itemstack
+        else
+            return itemstack
+        end
+    end
+    return base
+end
+
+function plant.register_canelike(plant_def)
+    minetest.register_node(
+        plant.get_name(plant_def.name),
+        plant.get_canelike_props(plant_def))
+end
+
+function plant.get_bamboolike_props(plant_def)
+    local base = plant.get_canelike_props(plant_def)
+    base.buildable_to = false
+    return base
+end
+
+function plant.register_bamboolike(plant_def)
+    minetest.register_node(
+        plant.get_name(plant_def.name),
+        plant.get_bamboolike_props(plant_def))
 end
 
 local function start_growing_plant(pos, growing_time)
@@ -618,13 +689,19 @@ end
 function plant.get_seed_base_props(plant_def)
     local plantname = plant.get_name(plant_def.name)
     local seed_name = plant.get_seed_name(plant_def.name)
+    local next_life_stage = plant.get_seedling_name(plant_def.name)
     local seed_texture, seed_description
-    if plant_def.plant_type == "mushroom" then
+    if plant_def.lifeform_type == "mushroom" or
+        plant_def.plant_type == "moss" then
         seed_texture = "nodes_nature_spores.png"
         seed_description = S("@1 Spores", plant_def.description)
     else
         seed_texture = "nodes_nature_seeds.png"
         seed_description = S("@1 Seeds", plant_def.description)
+    end
+    if plant_def.plant_type == "cane" or
+        plant_def.plant_type == "bamboo" then
+        next_life_stage = plant.get_name(plant_def.name)
     end
     local props = {
         description = plant_def.seed_description or seed_description,
@@ -644,7 +721,7 @@ function plant.get_seed_base_props(plant_def)
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
         },
-        _next_life_stage = plant.get_seedling_name(plant_def.name),
+        _next_life_stage = next_life_stage,
         on_construct = function(pos)
             start_growing_seed(pos)
         end,
@@ -681,8 +758,15 @@ end
 function plant.register_threshing_recipes(plant_def)
     crafting.register_recipe({
             type = "threshing_spot",
-            output = plant.get_seed_name(plant_def.name).." 6",
+            output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number,
             items = {plant.get_name(plant_def.name)},
+            level = 1,
+            always_known = true,
+    })
+    crafting.register_recipe({
+            type = "threshing_spot",
+            output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number * 6,
+            items = {plant.get_name(plant_def.name).." 6"},
             level = 1,
             always_known = true,
     })
@@ -693,35 +777,25 @@ function plant.add_food_hooks(plant_def)
     exile_add_food_hooks(plant.get_name(plant_def.name))
 end
 
--- DEV EXAMPLES FOR NOW
-local wrotycz =
-    plant.new({name = "wrotycz", description = S("Wrotycz"),
-               drawtype = "plantlike", mesh_type = 1,
-               plant_type = "herbaceous_plant", waving = true,
-               growing_time = 15, dye_candidate = true, dominant_color = "yellow"})
-
-plant.register_seed(wrotycz)
-plant.register_plantlike_seedling(wrotycz)
-plant.register_plantlike(wrotycz)
-plant.register_threshing_recipes(wrotycz)
-
-local lambakap_nodebox = {
-    {-0.125, -0.5, -0.125, 0.125, -0.375, 0.125},
-    {-0.1875, -0.375, -0.1875, 0.1875, -0.1875, 0.1875},
-    {-0.1875, -0.1875, -0.1875, -0.0625, 0, 0.1875},
-    {0.0625, -0.1875, -0.1875, 0.1875, 0, 0.1875},
-    {-0.0625, -0.1875, -0.1875, 0.0625, 0, -0.0625},
-    {-0.0625, -0.1875, 0.0625, 0.0625, 0, 0.1875},
-}
-
-local lambakap =
-    plant.new({name = "lambakap", description = S("Lambakap"),
-               drawtype = "nodebox", nodebox = lambakap_nodebox,
-               plant_type = "mushroom", waving = false,
-               growing_time = 3, dye_candidate = true, dominant_color = "red",
-               bioluminescence = 2, extra_groups = {flammable = 6, flora = 1}})
-
-plant.register_seed(lambakap)
-plant.register_3D_seedling(lambakap)
-plant.register_3D(lambakap)
-plant.register_threshing_recipes(lambakap)
+function plant.register_all(plant_def_list)
+    for _, plant_def in ipairs(plant_def_list) do
+        plant_def = plant.new(plant_def)
+        plant.register_seed(plant_def)
+        if plant_def.drawtype == "nodebox" then
+            plant.register_3D_seedling(plant_def)
+            plant.register_3D(plant_def)
+        elseif plant_def.drawtype == "plantlike" then
+            plant.register_plantlike(plant_def)
+            if plant_def.plant_type == "cane" then
+                plant.register_canelike(plant_def)
+            elseif plant_def.plant_type == "bamboo" then
+                plant.register_bamboolike(plant_def)
+            else
+                -- canes and bamboos don't have seedlings
+                plant.register_plantlike_seedling(plant_def)
+            end
+        end
+        plant.register_threshing_recipes(plant_def)
+        plant.add_food_hooks(plant_def)
+    end
+end

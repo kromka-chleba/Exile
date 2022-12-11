@@ -21,12 +21,14 @@ crafting.register_type("masonry_bench_mixing", "Mixing")
 --------------------------------
 
 dofile(path.."/sounds.lua")
+dofile(path.."/plant_api.lua")
 dofile(path.."/data_plant.lua")
 dofile(path.."/data_rock.lua")
 
 dofile(path.."/sediment.lua")
 dofile(path.."/rock.lua")
 dofile(path.."/ore.lua")
+dofile(path.."/plants_and_mushrooms.lua")
 dofile(path.."/life.lua")
 dofile(path.."/trees.lua")
 dofile(path.."/liquids.lua")
@@ -35,4 +37,4 @@ dofile(path.."/flora_spread.lua")
 dofile(path.."/dripping_water.lua")
 dofile(path.."/moisture_spread.lua")
 dofile(path.."/compost.lua")
-dofile(path.."/plant_api.lua")
+
