@@ -202,7 +202,7 @@ local function grow_plant(pos, elapsed, growing_time, soil_prefs)
         return true -- the plant can't grow, waits for better times
     end
     local meta = minetest.get_meta(pos)
-    local growing_left = meta:get_int("growing_left")
+    local growing_left = meta:get_int("growth")
     -- set initial growing_left
     if growing_left <= 0 then
         growing_left = growing_time or plant_base_growing_time
@@ -237,7 +237,7 @@ local function grow_plant(pos, elapsed, growing_time, soil_prefs)
     if growing_left < 1 then
         growing_left = 1
     end
-    meta:set_int("growing_left", growing_left)
+    meta:set_int("growth", growing_left)
     meta:set_int("last_updated", elapsed)
     return true
 end
@@ -252,12 +252,12 @@ local on_dig_seedling = function(pos,node, digger)
         return false
     end
     local meta = minetest.get_meta(pos)
-    local growing_left = meta:get_int("growing_left")
+    local growing_left = meta:get_int("growth")
     if not growing_left then growing_left = plant_base_growing_time end
 
     local new_stack = ItemStack(node.name)
     local stack_meta = new_stack:get_meta()
-    stack_meta:set_int("growing_left", growing_left)
+    stack_meta:set_int("growth", growing_left)
 
     minetest.remove_node(pos)
     local player_inv = digger:get_inventory()
@@ -271,12 +271,12 @@ end
 local after_place_seedling = function(pos, placer, itemstack, pointed_thing)
     local meta = minetest.get_meta(pos)
     local stack_meta = itemstack:get_meta()
-    local growing_left = stack_meta:get_int("growing_left")
+    local growing_left = stack_meta:get_int("growth")
     if growing_left == 0 then -- new seeds have no meta
-        growing_left = meta:get_int("growing_left") -- but it's set on the node already
+        growing_left = meta:get_int("growth") -- but it's set on the node already
     end
     if not growing_left then growing_left = plant_base_growing_time end
-    meta:set_int("growing_left", growing_left)
+    meta:set_int("growth", growing_left)
 end
 
 ---------------------------

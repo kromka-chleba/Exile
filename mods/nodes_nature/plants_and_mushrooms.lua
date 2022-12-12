@@ -38,7 +38,7 @@ local moss_nodebox = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}
 
 local wrotycz_soil_prefs =
     soil_preferences.new({
-            rocky_substrate = {min = 2, max = 2w},
+            rocky_substrate = {min = 2, max = 2},
             organic_substrate = {min = 2, max = 2},
             density = {min = 4, max = 4},
     })
