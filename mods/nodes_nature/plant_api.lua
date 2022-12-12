@@ -16,9 +16,9 @@ creative = creative
 wielded_light = wielded_light
 
 -- Globals
-plant_base_growing_time = 600
-plant_base_timer = 40
-seed_growing_time = 5
+plant_base_growing_time = 20 -- 600
+plant_base_timer = 1 -- 40
+seed_growing_time = 5 -- 40
 
 soil_preferences = {}
 
@@ -191,7 +191,7 @@ local function grow_seed(pos)
     if kill_or_stop_growing(pos) then
         return true -- unless dead, try again when conditions are good
     end
-    minetest.set_node(pos, {name = nodedef._next_life_stage})
+    minetest.place_node(pos, {name = nodedef._next_life_stage})
     return false -- the seed becomes a seedling (stops the timer)
 end
 
@@ -217,7 +217,7 @@ local function grow_plant(pos, elapsed, growing_time, soil_prefs)
     local plant_name = minetest.get_node(pos).name
     local plant_nodedef = minetest.registered_nodes[plant_name]
     if growing_left <= 1 then
-        minetest.set_node(pos, {name = plant_nodedef._next_life_stage})
+        minetest.place_node(pos, {name = plant_nodedef._next_life_stage})
         return false
     end
     --still growing
@@ -245,7 +245,7 @@ end
 ---------------------------
 -- Save/restore seedling timers on dig/place
 --
-local on_dig_seedling = function(pos,node, digger)
+local on_dig_seedling = function(pos, node, digger)
     if not digger then return false end
 
     if minetest.is_protected(pos, digger:get_player_name()) then
@@ -343,6 +343,7 @@ local base_groups = {
         attached_node = 1,
         flammable = 2,
         seedling = 1,
+        not_in_creative_inventory = 1,
     },
 }
 
@@ -437,9 +438,10 @@ function plant.get_seed_name(basename)
     return mod_name..":"..basename.."_seed"
 end
 
-function plant.get_seedling_name(basename)
+function plant.get_seedling_name(basename, nr)
+    local nr = nr or ""
     local mod_name = minetest.get_current_modname()
-    return mod_name..":"..basename.."_seedling"
+    return mod_name..":"..basename.."_seedling"..nr
 end
 
 function plant.get_texture_name(basename)
@@ -492,7 +494,7 @@ function plant.get_seed_groups(plant_def)
     else
         base = base_groups.seed
     end
-    return minimal.merge_tables(base, base_groups.seedling)
+    return minimal.merge_tables(base, base_groups.seed)
 end
 
 function plant.get_sounds(plant_def)
@@ -534,7 +536,7 @@ function plant.get_plantlike_props(plant_def)
         wield_image = plant.get_texture_name(plant_def.name),
         drawtype = "plantlike",
         paramtype2 = "meshoptions",
-        place_param2 = plant_def.mesh_type or 1,
+        place_param2 = plant_def.mesh_type,
         waving = plant_def.waving,
     }
     return minimal.merge_tables(plant.get_base_props(plant_def), props)
@@ -641,6 +643,19 @@ function plant.get_plantlike_seedling_props(plant_def)
     return minimal.merge_tables(base, props)
 end
 
+function plant.register_plantlike_seedlings(plant_def, nr)
+    for i = 1, nr - 1 do
+        local props = plant.get_plantlike_seedling_props(plant_def)
+        props._next_life_stage = plant.get_seedling_name(plant_def.name, i + 1)
+        props.visual_scale = i / nr
+        local seedling_name = plant.get_seedling_name(plant_def.name, i)
+        minetest.register_node(seedling_name, props)
+    end
+    -- the last seedling
+    local props = plant.get_plantlike_seedling_props(plant_def)
+    minetest.register_node(plant.get_seedling_name(plant_def.name, nr), props)
+end
+
 function plant.get_3D_props(plant_def)
     local props = {
         drawtype = "nodebox",
@@ -694,7 +709,7 @@ function plant.register_plantlike(plant_def)
 end
 
 function plant.register_plantlike_seedling(plant_def)
-    minetest.register_node(plant.get_seedling_name(plant_def.name),
+    minetest.register_node(plant.get_seedling_name(plant_def.name, 1),
                            plant.get_plantlike_seedling_props(plant_def))
 end
 
@@ -707,7 +722,7 @@ end
 function plant.get_seed_base_props(plant_def)
     local plantname = plant.get_name(plant_def.name)
     local seed_name = plant.get_seed_name(plant_def.name)
-    local next_life_stage = plant.get_seedling_name(plant_def.name)
+    local next_life_stage = plant.get_seedling_name(plant_def.name, 1)
     local seed_texture, seed_description
     if plant_def.lifeform_type == "mushroom" or
         plant_def.plant_type == "moss" then
@@ -810,7 +825,7 @@ function plant.register_all(plant_def_list)
                 plant.register_bamboolike(plant_def)
             else
                 -- canes and bamboos don't have seedlings
-                plant.register_plantlike_seedling(plant_def)
+                plant.register_plantlike_seedlings(plant_def, 5)
             end
         end
         plant.register_threshing_recipes(plant_def)

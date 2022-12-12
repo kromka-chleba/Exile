@@ -84,7 +84,7 @@ local plant_list = {
 
     {name = "hakimi", description = S("Hakimi"),
      drawtype = "plantlike", waving = true,
-     plant_type = "herbaceous_plant", mesh_type = 0,
+     plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "blue"},
 
@@ -268,7 +268,9 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:anperla_seed",{
         tiles = {'nodes_nature_silt.png'},
-        wield_image = nil,
+        description = S("Anperla tuber"),
+        inventory_image = "",
+        wield_image = "",
         node_box = {
             type = "fixed",
             fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
