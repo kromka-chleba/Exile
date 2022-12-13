@@ -245,7 +245,7 @@ minetest.register_tool("tech:aligner", {
 
 ----stick from sticks
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand","knife"},
 	output = "tech:aligner 1",
 	items = {"tech:stick 2"},
 	level = 1,
