@@ -200,15 +200,15 @@ local function aligner(itemstack, user, pointed_thing, grab)
    end
    local p2type = ndef.paramtype2
    local p2 = node.param2
-   local nocolor = minetest.strip_param2_color(p2, p2type) or p2
-   local color = node.param2 - nocolor
+   local color = minetest.strip_param2_color(p2, p2type) or p2
+   local nocolor = node.param2 - color
    local meta = itemstack:get_meta()
    if grab then
       meta:set_string("aligner_type", p2type)
       meta:set_string("aligner_value", nocolor)
    else
-      local altype = meta:get_string("aligner_type", p2type)
-      local alp2 = meta:get_string("aligner_value", p2)
+      local altype = meta:get_string("aligner_type")
+      local alp2 = meta:get_string("aligner_value")
       if altype ~= p2type or alp2 == nil then
 	 return -- Not the same type of param2, can't safely copy to this
       end
