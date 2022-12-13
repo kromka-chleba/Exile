@@ -699,7 +699,7 @@ function plant.get_3D_seedling_props(plant_def)
 end
 
 function plant.register_3D_seedling(plant_def)
-    minetest.register_node(plant.get_seedling_name(plant_def.name),
+    minetest.register_node(plant.get_seedling_name(plant_def.name, 1),
                            plant.get_3D_seedling_props(plant_def))
 end
 
