@@ -16,9 +16,9 @@ creative = creative
 wielded_light = wielded_light
 
 -- Globals
-plant_base_growing_time = 20 -- 600
-plant_base_timer = 1 -- 40
-seed_growing_time = 5 -- 40
+plant_base_growing_time = 600
+plant_base_timer = 40
+seed_growing_time = 40
 
 soil_preferences = {}
 
