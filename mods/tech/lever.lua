@@ -5,8 +5,11 @@
 -- Internationalization
 local S = tech.S
 
-lever = {}
+-- Declare global
+creative = creative
 
+-- Set up namespace
+lever = {}
 
 lever.ROTATE_FACE = 1
 lever.ROTATE_AXIS = 2
@@ -17,6 +20,22 @@ lever.rotate_simple = function(pos, node, user, mode, new_param2)
 	if mode ~= lever.ROTATE_FACE then
 		return false
 	end
+end
+
+local function should_rotate(ndef, node, pos, itemstack, user, new_param2, mode)
+	-- Node provides a handler, so let the handler decide instead if the node can be rotated
+	if ndef.on_rotate then
+		-- Copy pos and node because callback can modify it
+		local result = ndef.on_rotate(vector.new(pos),
+				{name = node.name, param1 = node.param1, param2 = node.param2},
+				user, mode, new_param2)
+		return result
+	elseif ndef.on_rotate == false then
+		return false
+	elseif ndef.can_dig and not ndef.can_dig(pos, user) then
+		return false
+	end
+	return true
 end
 
 -- For attached wallmounted nodes: returns true if rotation is valid
@@ -87,7 +106,7 @@ end
 lever.rotate.colorwallmounted = lever.rotate.wallmounted
 
 -- Handles rotation
-lever.handler = function(itemstack, user, pointed_thing, mode, uses)
+lever.handler = function(itemstack, user, pointed_thing, mode)
 	if pointed_thing.type ~= "node" then
 		return
 	end
@@ -111,7 +130,6 @@ lever.handler = function(itemstack, user, pointed_thing, mode, uses)
 		return itemstack
 	end
 
-	local should_rotate = true
 	local new_param2
 	if fn then
 		new_param2 = fn(pos, node, mode)
@@ -119,34 +137,18 @@ lever.handler = function(itemstack, user, pointed_thing, mode, uses)
 		new_param2 = node.param2
 	end
 
-	-- Node provides a handler, so let the handler decide instead if the node can be rotated
-	if ndef.on_rotate then
-		-- Copy pos and node because callback can modify it
-		local result = ndef.on_rotate(vector.new(pos),
-				{name = node.name, param1 = node.param1, param2 = node.param2},
-				user, mode, new_param2)
-		if result == false then -- Disallow rotation
-			return itemstack
-		elseif result == true then
-			should_rotate = false
-		end
-	elseif ndef.on_rotate == false then
-		return itemstack
-	elseif ndef.can_dig and not ndef.can_dig(pos, user) then
-		return itemstack
-	end
-
-	if should_rotate and new_param2 ~= node.param2 then
+	if should_rotate(ndef, node, pos, itemstack, user,
+			 new_param2, mode) then
+	   if new_param2 ~= node.param2 then
 		node.param2 = new_param2
 		minetest.swap_node(pos, node)
 		minetest.check_for_falling(pos)
-	end
-
-	if not (creative and creative.is_enabled_for and
+		if not (creative and creative.is_enabled_for and
 			creative.is_enabled_for(player_name)) then
-		itemstack:add_wear(65535 / ((uses or 200) - 1))
+		   itemstack:add_wear(65535 / ((ndef._uses or 200) - 1))
+		end
+	   end
 	end
-
 	return itemstack
 end
 
@@ -155,12 +157,13 @@ minetest.register_tool("tech:lever", {
 	description = S("lever") .. "\n" .. S("(left-click rotates face, right-click rotates axis)"),
 	inventory_image = "tech_tool_lever.png",
 	groups = {tool = 1},
+	_uses = 400,
 	on_use = function(itemstack, user, pointed_thing)
-		lever.handler(itemstack, user, pointed_thing, lever.ROTATE_FACE, 400)
+		lever.handler(itemstack, user, pointed_thing, lever.ROTATE_FACE)
 		return itemstack
 	end,
 	on_place = function(itemstack, user, pointed_thing)
-		lever.handler(itemstack, user, pointed_thing, lever.ROTATE_AXIS, 400)
+		lever.handler(itemstack, user, pointed_thing, lever.ROTATE_AXIS)
 		return itemstack
 	end,
 })
@@ -170,6 +173,80 @@ minetest.register_tool("tech:lever", {
 crafting.register_recipe({
 	type = {"crafting_spot","hand","knife"},
 	output = "tech:lever 1",
+	items = {"tech:stick 2"},
+	level = 1,
+	always_known = true,
+})
+
+-- aligner
+
+local function aligner(itemstack, user, pointed_thing, grab)
+   if pointed_thing.type ~= "node" then
+      return
+   end
+
+   local pos = pointed_thing.under
+   local player_name = user and user:get_player_name() or ""
+
+   if minetest.is_protected(pos, player_name) then
+      minetest.record_protection_violation(pos, player_name)
+      return
+   end
+
+   local node = minetest.get_node(pos)
+   local ndef = minetest.registered_nodes[node.name]
+   if not ndef then
+      return itemstack
+   end
+   local p2type = ndef.paramtype2
+   local p2 = node.param2
+   local nocolor = minetest.strip_param2_color(p2, p2type) or p2
+   local color = node.param2 - nocolor
+   local meta = itemstack:get_meta()
+   if grab then
+      meta:set_string("aligner_type", p2type)
+      meta:set_string("aligner_value", nocolor)
+   else
+      local altype = meta:get_string("aligner_type", p2type)
+      local alp2 = meta:get_string("aligner_value", p2)
+      if altype ~= p2type or alp2 == nil then
+	 return -- Not the same type of param2, can't safely copy to this
+      end
+      local new_param2 = color + alp2 -- combine our node color with the new p2
+      if should_rotate(ndef, node, pos, itemstack, user, new_param2) then
+	 node.param2 = new_param2
+	 minetest.swap_node(pos, node) -- and set it
+	 if not (creative and creative.is_enabled_for and
+		 creative.is_enabled_for(player_name)) then
+	    itemstack:add_wear(65535 / ((ndef._uses or 200) - 1))
+	 end
+      end
+      return itemstack
+   end
+end
+
+minetest.register_tool("tech:aligner", {
+	  description = S("alignment tool") .. "\n" ..
+	     S("(left-click samples a node, right-click "..
+	       "applies its facing to others)"),
+	inventory_image = "tech_tool_lever.png^[transformFX",
+	groups = {tool = 1},
+	_uses = 400,
+	on_use = function(itemstack, user, pointed_thing)
+		aligner(itemstack, user, pointed_thing, false)
+		return itemstack
+	end,
+	on_place = function(itemstack, user, pointed_thing)
+		aligner(itemstack, user, pointed_thing, true)
+		return itemstack
+	end,
+})
+
+
+----stick from sticks
+crafting.register_recipe({
+	type = "crafting_spot",
+	output = "tech:aligner 1",
 	items = {"tech:stick 2"},
 	level = 1,
 	always_known = true,
