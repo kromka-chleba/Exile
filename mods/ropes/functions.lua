@@ -28,7 +28,6 @@ local data = {}
 local c_air = minetest.get_content_id("air")
 
 function wielded_light.get_unlit_vmid(idx)
-   print("Input: :",dump(idx), " ",type(idx))
    local name = minetest.get_name_from_content_id(idx)
    local unlit = wielded_light.get_lighting_node(name)
    if unlit then
