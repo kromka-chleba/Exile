@@ -48,7 +48,8 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
             return itemstack
         else
             -- if yes use the on_rightclick of the pointed thing instead
-            return minetest.registered_nodes[under.name].on_rightclick(pointed_thing.under, under, placer, itemstack, pointed_thing)
+	   return minetest.registered_nodes[under.name].on_rightclick(
+	      pointed_thing.under, under, placer, itemstack, pointed_thing)
         end
     end
 end
@@ -177,8 +178,7 @@ minetest.register_tool("tech:stone_chopper", {
 })
 
 -- Placed stone knife
-minetest.register_node(
-    "tech:stone_knife_placed", {
+minetest.register_node("tech:stone_knife_placed", {
         description = S("Placed Stone Knife"),
         drawtype = "mesh",
         mesh = "stone_knife_placed.obj",
@@ -220,7 +220,9 @@ minetest.register_tool("tech:digging_stick", {
 	tool_capabilities = {
 		full_punch_interval = base_punch_int*1.1,
 		groupcaps={
-                    crumbly = {times= {[1]=crude_crum1, [2]=crude_crum2, [3]=crude_crum3}, uses=base_use, maxlevel=crude_max_lvl},
+		   crumbly = {times= {[1]=crude_crum1, [2]=crude_crum2,
+				 [3]=crude_crum3}, uses=base_use,
+			      maxlevel=crude_max_lvl},
                     tilling = {uses = base_use},
 		},
 		damage_groups = {fleshy= crude_dmg},
@@ -234,8 +236,7 @@ minetest.register_tool("tech:digging_stick", {
 })
 
 -- Placed digging stick
-minetest.register_node(
-    "tech:digging_stick_placed", {
+minetest.register_node("tech:digging_stick_placed", {
         description = S("Placed Digging Stick"),
         drawtype = "mesh",
         mesh = "digging_stick_placed.obj",
@@ -244,6 +245,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -315,8 +317,7 @@ minetest.register_tool("tech:adze_granite", {
 })
 
 -- Placed granite adze
-minetest.register_node(
-    "tech:adze_granite_placed", {
+minetest.register_node("tech:adze_granite_placed", {
         description = S("Placed Granite Adze"),
         drawtype = "mesh",
         mesh = "adze_placed.obj",
@@ -325,6 +326,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -362,8 +364,7 @@ minetest.register_tool("tech:adze_basalt", {
 })
 
 -- Placed basalt adze
-minetest.register_node(
-    "tech:adze_basalt_placed", {
+minetest.register_node("tech:adze_basalt_placed", {
         description = S("Placed Basalt Adze"),
         drawtype = "mesh",
         mesh = "adze_placed.obj",
@@ -372,6 +373,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -410,8 +412,7 @@ minetest.register_tool("tech:adze_jade", {
 })
 
 -- Placed jade adze
-minetest.register_node(
-    "tech:adze_jade_placed", {
+minetest.register_node("tech:adze_jade_placed", {
         description = S("Placed Jade Adze"),
         drawtype = "mesh",
         mesh = "adze_placed.obj",
@@ -420,6 +421,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -510,8 +512,7 @@ minetest.register_tool("tech:axe_iron", {
 })
 
 -- Placed iron axe
-minetest.register_node(
-    "tech:axe_iron_placed", {
+minetest.register_node("tech:axe_iron_placed", {
         description = S("Placed Iron Axe"),
         drawtype = "mesh",
         mesh = "axe_placed.obj",
@@ -520,6 +521,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -569,6 +571,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -635,6 +638,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
@@ -658,7 +662,9 @@ minetest.register_tool("tech:hoe_iron", {
 	tool_capabilities = {
 		full_punch_interval = base_punch_int,
 		groupcaps={
-                        crumbly = {times= {[1]=crude_crum1, [2]=crude_crum2, [3]=crude_crum3}, uses=base_use, maxlevel=crude_max_lvl},
+		   crumbly = {times= {[1]=crude_crum1, [2]=crude_crum2,
+				 [3]=crude_crum3},
+			      uses=base_use, maxlevel=crude_max_lvl},
                         tilling = {uses = iron_use},
 		},
 		damage_groups = {fleshy = iron_dmg},
@@ -672,8 +678,7 @@ minetest.register_tool("tech:hoe_iron", {
 })
 
 -- Placed iron hoe
-minetest.register_node(
-    "tech:hoe_iron_placed", {
+minetest.register_node("tech:hoe_iron_placed", {
         description = S("Placed Iron Hoe"),
         drawtype = "mesh",
         mesh = "hoe_placed.obj",
@@ -682,6 +687,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         sounds = nodes_nature.node_sound_stone_defaults(),
         groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},

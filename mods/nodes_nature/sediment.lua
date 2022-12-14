@@ -6,6 +6,8 @@
 -- Internationalization
 local S = nodes_nature.S
 
+local c_alpha = minimal.compat_alpha
+
 -- Useful objects for node definitions
 sediment = {}
 sediment.hardness = {
@@ -172,6 +174,7 @@ local function get_dry_node_props(sed)
         tiles = {sed.texture_name},
         stack_max = minimal.stack_max_bulky,
         groups = sed.groups,
+	use_texture_alpha = c_alpha.clip,
         drop = sed.dry_node_name,
         sounds = sed.sound,
         _wet_name = sed.wet_node_name,
@@ -191,6 +194,7 @@ local function get_wet_node_props(sed)
         tiles = {sed.texture_name.."^"..textures.wet},
         stack_max = minimal.stack_max_bulky,
         groups = sed.groups_wet,
+	use_texture_alpha = c_alpha.clip,
         drop = sed.wet_node_name,
         sounds = sed.sound_wet,
         _dry_name = sed.dry_node_name,
@@ -412,6 +416,7 @@ function agricultural_soil.register_dry(ag_soil)
         },
         stack_max = minimal.stack_max_bulky,
         groups = merge_tables(sed.groups, {agricultural_soil = 1}),
+	use_texture_alpha = c_alpha.clip,
         sounds = sed.sound,
         drop = sed.dry_node_name,
         _wet_name = ag_soil.wet_node_name,
@@ -441,6 +446,7 @@ function agricultural_soil.register_wet(ag_soil)
         },
         stack_max = minimal.stack_max_bulky,
         groups = merge_tables(sed.groups_wet, {agricultural_soil = 1}),
+	use_texture_alpha = c_alpha.clip,
         sounds = sed.sound_wet,
         drop = sed.wet_node_name,
         _dry_name = ag_soil.dry_node_name,
@@ -469,6 +475,7 @@ function agricultural_soil.register_depleted(ag_soil)
         },
         stack_max = minimal.stack_max_bulky,
         groups = merge_tables(sed.groups, {depleted_agricultural_soil = 1}),
+	use_texture_alpha = c_alpha.clip,
         sounds = sed.sound,
         drop = sed.dry_node_name,
         _wet_name = ag_soil.wet_depleted_node_name,
@@ -501,6 +508,7 @@ function agricultural_soil.register_wet_depleted(ag_soil)
         },
         stack_max = minimal.stack_max_bulky,
         groups = merge_tables(sed.groups_wet, {depleted_agricultural_soil = 1}),
+	use_texture_alpha = c_alpha.clip,
         sounds = sed.sound_wet,
         drop = sed.wet_node_name,
         _dry_name = ag_soil.dry_node_name,

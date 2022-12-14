@@ -3,7 +3,7 @@
 --
 exile = exile
 exile.debug = {}
-__DEBUG__ = true
+__DEBUG__ = false
 
 function exile.debug.print(message)
 	if __DEBUG__ then

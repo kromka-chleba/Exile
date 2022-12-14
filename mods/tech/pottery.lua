@@ -51,7 +51,7 @@ sediment.register_wet_salty(broken_pottery)
 sediment.register_agri_soil_variants(broken_pottery)
 
 -------------------------------------------------------------------
---THIS SHOULD BE MOVED somewhere GENERALIZED to handle non-pottery pots
+--#TODO: THIS SHOULD BE MOVED somewhere GENERALIZED to handle non-pottery pots
 function water_pot(pos, pot_name, elapsed)
 	local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
 	--collect rain

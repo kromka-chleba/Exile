@@ -58,7 +58,7 @@ crafting.register_type('shovel', "Crafting") 	-- farming tools - including diggi
 crafting.register_type("shovel_agriculture", "Agriculture") -- compost, etc.
 crafting.register_type('soil_mixing', "Mixing") 	-- tab for shovel
 crafting.register_type('axe', "Crafting")    	-- includes adze - replace chopping bock
-crafting.register_type('axe_mixing', "Mixing")    	
+crafting.register_type('axe_mixing', "Mixing")
 crafting.register_type('cobble') 	-- Replacing grinding stone
 crafting.register_type('pickaxe') 	-- nothing yet
 
@@ -751,7 +751,7 @@ crafting.register_recipe({
 	level  = 2,
 	always_known = true,
 	})
-	
+
 crafting.register_recipe({ --spinning wheel. wood,
 	type   = {"carpentry_bench", "axe"},
 	output = "tech:spinning_wheel",
@@ -821,6 +821,7 @@ minetest.register_node(
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {falling_node = 1, dig_immediate = 3, craftedby = 1},
+	use_texture_alpha = c_alpha.clip,
         node_box = {
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
