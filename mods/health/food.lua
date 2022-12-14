@@ -24,12 +24,12 @@ over a fire.
 -- Internationalization
 local S = HEALTH.S
 
+dofile(minetest.get_modpath('health')..'/data_food.lua')
+
 -- Declare globals
 food_harm_table = food_harm_table
 food_table = food_table
 bake_table = bake_table
-
-dofile(minetest.get_modpath('health')..'/data_food.lua')
 
 local function do_food_harm(user, nodename)
    if not food_harm_table[nodename] then return end
