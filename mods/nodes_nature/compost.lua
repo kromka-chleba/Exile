@@ -5,10 +5,10 @@ local S = nodes_nature.S
 
 -- Compost
 -----------------------------------
-local compost_decomposing_time = 30 -- 18000 -- 15 in-game days
-local decomposition_interval = 1 --600
-local dry_speed = 1 --600
-local wet_speed = 1 --800
+local compost_decomposing_time = 12000 -- 10 in-game days
+local decomposition_interval = 600 -- every 600s
+local dry_speed = 600
+local wet_speed = 800
 
 local function start_decomposing(pos)
     local meta = minetest.get_meta(pos)
