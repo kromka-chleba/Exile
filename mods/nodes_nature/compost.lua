@@ -5,10 +5,10 @@ local S = nodes_nature.S
 
 -- Compost
 -----------------------------------
-local compost_decomposing_time = 18000 -- 15 in-game days
-local decomposition_interval = 600
-local dry_speed = 600
-local wet_speed = 800
+local compost_decomposing_time = 30 -- 18000 -- 15 in-game days
+local decomposition_interval = 1 --600
+local dry_speed = 1 --600
+local wet_speed = 1 --800
 
 local function start_decomposing(pos)
     local meta = minetest.get_meta(pos)
@@ -17,6 +17,13 @@ local function start_decomposing(pos)
         meta:set_int("decomposition", compost_decomposing_time)
     end
     minetest.get_node_timer(pos):start(decomposition_interval)
+end
+
+local function catch_up_timer(elapsed, last_updated, decomposition, speed)
+    if elapsed and elapsed - last_updated > decomposition_interval then
+        return decomposition - elapsed / decomposition_interval * speed
+    end
+    return decomposition
 end
 
 local function save_to_inventory(pos, digger, undecomposed_name)
@@ -49,9 +56,14 @@ local function restore_from_inventory(pos, itemstack)
     end
 end
 
-local function decompose_compost(pos, decomposed_name, speed)
+local function decompose_compost(pos, decomposed_name, speed, elapsed)
     local meta = minetest.get_meta(pos)
     local decomposition = meta:get_int("decomposition")
+    local last_updated = meta:get_int("last_updated")
+    if last_updated == 0 then
+        meta:set_int("last_updated", elapsed)
+    end
+    local decomposition = catch_up_timer(elapsed, last_updated, decomposition, speed)
     if decomposition < 1 then
         minetest.swap_node(pos, {name = decomposed_name})
         return false
@@ -94,7 +106,7 @@ minetest.override_item(
     undecomposed_dry_name,
     {
         on_timer = function(pos, elapsed)
-            return decompose_compost(pos, compost_dry_name, dry_speed)
+            return decompose_compost(pos, compost_dry_name, dry_speed, elapsed)
         end,
         on_construct = function(pos)
             start_decomposing(pos)
@@ -111,7 +123,7 @@ minetest.override_item(
     undecomposed_wet_name,
     {
         on_timer = function(pos, elapsed)
-            return decompose_compost(pos, compost_wet_name, wet_speed)
+            return decompose_compost(pos, compost_wet_name, wet_speed, elapsed)
         end,
         on_construct = function(pos, wet_speed)
             start_decomposing(pos)

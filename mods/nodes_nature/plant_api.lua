@@ -172,7 +172,6 @@ local function catch_up_life_stage(pos, growing_time, growing_left)
             minetest.place_node(pos, {name = nodedef._next_life_stage})
         end
         growing_left = growing_left + growing_time
-        minetest.log("error", dump(growing_left))
     end
 end
 
