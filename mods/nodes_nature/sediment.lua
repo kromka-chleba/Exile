@@ -497,6 +497,7 @@ end
 
 function fertile_soil.get_dry_node_props(soil_desc)
     local sed = soil_desc.sediment
+    local name = fertile_soil.get_dry_name(sed.name)
     local props =
         merge_tables(
             sediment.get_dry_node_props(sed), {
@@ -506,7 +507,8 @@ function fertile_soil.get_dry_node_props(soil_desc)
                                       {fertile_soil = 1,
                                        fertility = sed.groups.fertility + 2}),
                 drop = fertile_soil.get_dry_name(sed.name),
-                _depleted_name = fertile_soil.get_dry_name(soil_desc.sediment.name),
+                _depleted_name = agricultural_soil.get_dry_name(sed.name),
+                _ag_soil = agricultural_soil.get_dry_name(sed.name.."_fertile_soil"),
         })
     return merge_tables(props, fertile_soil.get_base_props(soil_desc))
 end
@@ -518,6 +520,7 @@ end
 
 function fertile_soil.get_wet_node_props(soil_desc)
     local sed = soil_desc.sediment
+    local name = fertile_soil.get_wet_name(sed.name)
     local props =
         merge_tables(
             sediment.get_wet_node_props(sed), {
@@ -527,7 +530,8 @@ function fertile_soil.get_wet_node_props(soil_desc)
                                       {fertile_soil = 1,
                                        fertility = sed.groups.fertility + 2}),
                 drop = fertile_soil.get_wet_name(sed.name),
-                _depleted_name = fertile_soil.get_wet_name(soil_desc.sediment.name),
+                _depleted_name = agricultural_soil.get_wet_name(sed.name),
+                _ag_soil = agricultural_soil.get_wet_name(sed.name.."_fertile_soil"),
         })
     return merge_tables(props, fertile_soil.get_base_props(soil_desc))
 end
