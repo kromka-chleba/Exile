@@ -39,15 +39,13 @@ function crafting.register_recipe(def)
 	-- Can be more then one craft station for a recipe
 	-- Need to store as a table.
 	if type(def.type) == 'string' then
-		def.type = { def.type } 
+		def.type = { def.type }
 	end
 	-- Support multiple output items via a serialzed string
-	output = def.output
+	local output = def.output
 	if type(def.output) == 'table' then
 		output = minetest.serialize(def.output)
 	end
-	local recipes = crafting.recipes_by_id
-	local by_output = crafting.recipes_by_output
         def.id = #crafting.recipes_by_id + 1
 	crafting.recipes_by_output[output] = def
 	crafting.recipes_by_id[def.id] = def
@@ -216,7 +214,7 @@ function crafting.can_craft(name, ctype, level, recipe)
 	if type(ctype) == 'string' then
 		ctype = { ctype }
 	end
-	rtypes = recipe.type
+	local rtypes = recipe.type
 	if type(recipe.type) == 'string' then
 		rtypes = { recipe.type }
 	end
@@ -229,7 +227,7 @@ function crafting.can_craft(name, ctype, level, recipe)
 		end
 	end
 	return false
-end	
+end
 
 local function give_all_to_player(inv, list)
 	for _, item in pairs(list) do

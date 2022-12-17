@@ -50,6 +50,7 @@ minetest.register_node("tech:lantern_case", {
             fixed = {-3/16, -8/16, -3/16, 3/16, 7/16, 3/16},
         },
 	groups = {dig_immediate=3, temp_pass = 1, falling_node = 1},
+	use_texture_alpha = c_alpha.clip,
 	sounds = nodes_nature.node_sound_stone_defaults(),
         on_construct = function(pos)
             local meta = minetest.get_meta(pos)
@@ -86,6 +87,7 @@ minetest.register_node("tech:lantern_case_wick", {
             fixed = {-3/16, -8/16, -3/16, 3/16, 7/16, 3/16},
         },
 	groups = {dig_immediate=3, temp_pass = 1, falling_node = 1},
+	use_texture_alpha = c_alpha.clip,
 	sounds = nodes_nature.node_sound_stone_defaults(),
         on_construct = function(pos)
             local meta = minetest.get_meta(pos)

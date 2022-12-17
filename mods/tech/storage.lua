@@ -9,7 +9,7 @@ local c_alpha = minimal.compat_alpha
 ---------------------------------------------------
 local function get_storage_formspec(pos, w, h, meta)
 	local creator = meta:get_string('creator')
-	local label = meta:get_string('label')
+	local label = minimal.sanitize_string(meta:get_string('label'))
 	minimal.infotext_merge(pos, 'Label: '..label, meta)
 	local formspec_size_h = 3.85 + h
 	local main_offset = 0.25 + h

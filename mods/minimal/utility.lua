@@ -120,7 +120,7 @@ function minimal.click_count_ready(name, pos, count, timeout)
 end
 
 function minimal.sanitize_string(badstring)
-   local disallowed = { "\\", "{", "}", "^",
+   local disallowed = { "\\", "{", "}", "^", ";",
 			--lua magic characters
 			"%(", "%)", "%[", "%]", "%.", "%$",
 			"%^", "%%", "%+", "%-", "%*", "%?"  }
@@ -128,7 +128,6 @@ function minimal.sanitize_string(badstring)
    for i in ipairs(disallowed) do
       badstring = badstring:gsub(disallowed[i],"")
    end
-   print("Sanitized: ",badstring)
    return badstring
 end
 

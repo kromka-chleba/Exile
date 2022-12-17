@@ -492,7 +492,7 @@ end)
 minetest.register_on_leaveplayer(function(player, timed_out)
       --TODO: Find a way to save this on singleplayer or for 1st hosted player
       local meta = player:get_meta()
-      local velo = player:get_velocity()
+      local velo = player:get_velocity() or player:get_player_velocity()
       meta:set_string("player_velocity", minetest.pos_to_string(velo))
 end)
 

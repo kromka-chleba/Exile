@@ -6,10 +6,7 @@
 -- Internationalization
 local S = nodes_nature.S
 
--- TODO
--- 1. better way of handling descriptions?
--- 2. make a more useful sediment description?
--- 3. use minetest built-in table procedures instead of merge_tables.
+local c_alpha = minimal.compat_alpha
 
 -- Useful objects for node definitions
 sediment = {}
@@ -221,6 +218,7 @@ function sediment.get_base_props(sed)
         _dry_name = sediment.get_dry_name(sed.name),
         _wet_name = sediment.get_wet_name(sed.name),
         _wet_salty_name = sediment.get_wet_salty_name(sed.name),
+        use_texture_alpha = c_alpha.clip,
     }
     return props
 end
