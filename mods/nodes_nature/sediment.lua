@@ -70,7 +70,7 @@ end
 -----------------------------------
 
 --soil degrades from farming
-local function erode_deplete_ag_soil(pos, depleted_name)
+local function erode_deplete_ag_soil(pos)
     local depletion_probability = 0.01
     local erosion_probability = 0.04
     --rain makes this more likely (erosive, washes nutrient out)
@@ -100,11 +100,16 @@ local function erode_deplete_ag_soil(pos, depleted_name)
             return false
         end
     end
+    local node_name = minetest.get_node(pos).name
+    local nodedef = minetest.registered_nodes[node_name]
+    if minetest.get_item_group(node_name, "fertile_soil") then
+        depletion_probability = depletion_probability / 3
+    end
     if math.random() <= depletion_probability then
         if minetest.get_node({x=pos.x, y=(pos.y+1), z=pos.z}).name == 'air' then
             -- ^ don't deplete a planted node; already handled in life.lua
             -- and a 1-2% chance to be depleted via neglect
-            minetest.set_node(pos, {name = depleted_name})
+            minetest.set_node(pos, {name = nodedef._depleted_name})
             return false
         end
     end
@@ -675,7 +680,7 @@ function agricultural_soil.get_dry_node_props(ag_soil)
                 _depleted_name = depleted_name,
                 _fertile_name = agricultural_soil.get_dry_name(sed.name.."_fertile_soil"),
                 on_timer = function(pos, elapsed)
-                    return erode_deplete_ag_soil(pos, depleted_name)
+                    return erode_deplete_ag_soil(pos)
                 end,
                 on_punch = function(pos, node, puncher, pointed_thing)
                     fertilize_ag_soil(pos, puncher)
@@ -704,7 +709,7 @@ function agricultural_soil.get_wet_node_props(ag_soil)
                 _depleted_name = depleted_name,
                 _fertile_name = agricultural_soil.get_wet_name(sed.name.."_fertile_soil"),
                 on_timer = function(pos, elapsed)
-                    return erode_deplete_ag_soil(pos, depleted_name)
+                    return erode_deplete_ag_soil(pos)
                 end,
                 on_punch = function(pos, node, puncher, pointed_thing)
                     fertilize_ag_soil(pos, puncher)
