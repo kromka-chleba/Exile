@@ -163,7 +163,6 @@ local function catch_up_timer(pos, elapsed, last_updated, growing_left, growth_r
     return growing_left -- we weren't away actually
 end
 
--- yeah, this code is quite sloppy but should do the job, it's not rocket science
 local function catch_up_life_stage(pos, growing_time, growing_left)
     while growing_left < 0 do
         local node_name = minetest.get_node(pos).name
@@ -173,6 +172,8 @@ local function catch_up_life_stage(pos, growing_time, growing_left)
         end
         growing_left = growing_left + growing_time
     end
+    local meta = minetest.get_meta(pos)
+    meta:set_int("growth", growing_left)
 end
 
 local function deplete_soil(pos)
