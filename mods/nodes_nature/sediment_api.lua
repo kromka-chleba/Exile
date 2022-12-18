@@ -142,17 +142,32 @@ local function fertilize_ag_soil(pos, puncher)
     local node_name = minetest.get_node(pos).name
     local nodedef = minetest.registered_nodes[node_name]
     local inv = puncher:get_inventory()
+    local fertilized = false
+    local replace_with = ""
     if minetest.get_item_group(item_name, "fertilizer") >= 1
         and nodedef._rich_name then
         minetest.swap_node(pos, {name = nodedef._rich_name})
-        inv:remove_item("main", item_name)
-    elseif (item_name == "nodes_nature:compost" or
-            item_name == "nodes_nature:compost_wet" or
-            item_name == "stairs:slab_compost") and nodedef._fertile_name then
-        minetest.swap_node(pos, {name = nodedef._fertile_name})
-        inv:remove_item("main", item_name)
+        if item_name == "tech:wood_ash_block" then
+            replace_with = "tech:wood_ash"
+        end
+        fertilized = true
     end
-    
+    if nodedef._fertile_name then
+        if item_name == "nodes_nature:compost" or
+            item_name == "nodes_nature:compost_wet" then
+            replace_with = "stairs:slab_compost"
+            fertilized = true
+            minetest.swap_node(pos, {name = nodedef._fertile_name})
+        elseif item_name == "stairs:slab_compost" then
+            replace_with = ""
+            fertilized = true
+            minetest.swap_node(pos, {name = nodedef._fertile_name})
+        end
+    end
+    if fertilized then
+        inv:remove_item("main", item_name)
+        inv:add_item("main", replace_with)
+    end
 end
 
 -- Sediments
