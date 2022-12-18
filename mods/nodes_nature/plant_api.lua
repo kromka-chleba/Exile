@@ -612,6 +612,7 @@ local function start_growing_plant(pos, growing_time)
     local timer_max = plant_base_timer + 0.1 * plant_base_timer
     local meta = minetest.get_meta(pos)
     meta:set_int("growth", growing_time)
+    meta:set_int("last_updated", 0)
     minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
 end
 
