@@ -630,6 +630,9 @@ function plant.get_seedling_base_props(plant_def)
                               plant_def.growing_time,
                               plant_def.soil_preferences)
         end,
+        on_place = function(itemstack, placer, pointed_thing)
+            return on_place_seedling(itemstack, placer, pointed_thing)
+        end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             after_place_seedling(pos, placer, itemstack, pointed_thing)
         end,
