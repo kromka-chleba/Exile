@@ -120,6 +120,23 @@ minetest.override_item(
 })
 
 minetest.override_item(
+    "stairs:slab_compost_undecomposed",
+    {
+        on_timer = function(pos, elapsed)
+            return decompose_compost(pos, "stairs:slab_compost", dry_speed, elapsed)
+        end,
+        on_construct = function(pos)
+            start_decomposing(pos)
+        end,
+        on_dig = function(pos, node, digger)
+            save_to_inventory(pos, digger, "stairs:slab_compost_undecomposed")
+        end,
+        after_place_node = function(pos, placer, itemstack, pointed_thing)
+            restore_from_inventory(pos, itemstack)
+        end
+})
+
+minetest.override_item(
     undecomposed_wet_name,
     {
         on_timer = function(pos, elapsed)
@@ -140,6 +157,14 @@ crafting.register_recipe({
 	type = "shovel_agriculture",
 	output = "nodes_nature:compost_undecomposed",
 	items = {"group:fibrous_plant 16"},
+	level = 1,
+	always_known = true,
+})
+
+crafting.register_recipe({
+	type = "shovel_agriculture",
+	output = "stairs:slab_compost_undecomposed",
+	items = {"group:fibrous_plant 8"},
 	level = 1,
 	always_known = true,
 })

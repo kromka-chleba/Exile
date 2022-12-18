@@ -147,7 +147,8 @@ local function fertilize_ag_soil(pos, puncher)
         minetest.swap_node(pos, {name = nodedef._rich_name})
         inv:remove_item("main", item_name)
     elseif (item_name == "nodes_nature:compost" or
-            item_name == "nodes_nature:compost_wet") and nodedef._fertile_name then
+            item_name == "nodes_nature:compost_wet" or
+            item_name == "stairs:slab_compost") and nodedef._fertile_name then
         minetest.swap_node(pos, {name = nodedef._fertile_name})
         inv:remove_item("main", item_name)
     end
@@ -548,9 +549,17 @@ function fertile_soil.register_crafting_recipe_dry(soil_desc)
     local sed = soil_desc.sediment
     crafting.register_recipe({
             type = "shovel_agriculture",
-            output = fertile_soil.get_dry_name(sed.name),
+            output = fertile_soil.get_dry_name(sed.name).." 2",
             items = {sediment.get_dry_name(sed.name),
                      "nodes_nature:compost"},
+            level = 1,
+            always_known = true,
+    })
+    crafting.register_recipe({
+            type = "shovel_agriculture",
+            output = fertile_soil.get_dry_name(sed.name),
+            items = {sediment.get_dry_name(sed.name),
+                     "stairs:slab_compost"},
             level = 1,
             always_known = true,
     })
