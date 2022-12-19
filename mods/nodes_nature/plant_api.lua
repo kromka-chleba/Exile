@@ -355,7 +355,7 @@ local base_groups = {
 
 local plant_groups = {
     ["moss"] = {
-        snappy = 2,
+        crumbly = 3,
         herbaceous_plant = 1,
         flammable = 5,
     },
