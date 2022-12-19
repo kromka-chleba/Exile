@@ -168,7 +168,8 @@ local function catch_up_life_stage(pos, growing_time, growing_left)
         local node_name = minetest.get_node(pos).name
         local nodedef = minetest.registered_nodes[node_name]
         if nodedef._next_life_stage then
-            minetest.place_node(pos, {name = nodedef._next_life_stage})
+            minetest.set_node(pos, {name = nodedef._next_life_stage,
+                                    param2 = nodedef.place_param2})
         end
         growing_left = growing_left + growing_time
     end
@@ -204,7 +205,8 @@ local function grow_seed(pos)
     if kill_or_stop_growing(pos) then
         return true -- unless dead, try again when conditions are good
     end
-    minetest.place_node(pos, {name = nodedef._next_life_stage})
+    minetest.set_node(pos, {name = nodedef._next_life_stage,
+                            param2 = nodedef.place_param2})
     return false -- the seed becomes a seedling (stops the timer)
 end
 
