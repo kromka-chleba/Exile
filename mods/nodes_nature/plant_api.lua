@@ -335,9 +335,9 @@ local base_groups = {
     mushroom = {mushroom = 1},
     seed = {
         seed = 1,
-        snappy = 3,
         flammable = 2,
-        dig_immediate = 2
+        dig_immediate = 3,
+        falling_node = 1,
     },
     spore = {
         seed = 1,
