@@ -746,10 +746,6 @@ function plant.get_seed_base_props(plant_def)
         seed_texture = "nodes_nature_seeds.png"
         seed_description = S("@1 Seeds", plant_def.description)
     end
-    if plant_def.plant_type == "cane" or
-        plant_def.plant_type == "bamboo" then
-        next_life_stage = plant.get_name(plant_def.name)
-    end
     local props = {
         description = plant_def.seed_description or seed_description,
         tiles = {seed_texture},
@@ -837,10 +833,8 @@ function plant.register_all(plant_def_list)
                 plant.register_canelike(plant_def)
             elseif plant_def.plant_type == "bamboo" then
                 plant.register_bamboolike(plant_def)
-            else
-                -- canes and bamboos don't have seedlings
-                plant.register_plantlike_seedlings(plant_def, 5)
             end
+            plant.register_plantlike_seedlings(plant_def, 5)
         end
         plant.register_threshing_recipes(plant_def)
         plant.add_food_hooks(plant_def)
