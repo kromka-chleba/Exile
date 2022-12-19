@@ -152,7 +152,9 @@ local function fertilize_ag_soil(pos, puncher)
         end
         fertilized = true
     end
-    if nodedef._fertile_name then
+
+    if nodedef._fertile_name and
+        not string.find(node_name, "fertile") then
         if item_name == "nodes_nature:compost" or
             item_name == "nodes_nature:compost_wet" then
             replace_with = "stairs:slab_compost"
