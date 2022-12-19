@@ -679,6 +679,7 @@ function agricultural_soil.get_base_props(ag_soil)
     local props = {
         drawtype = "mesh",
         mesh = "nodes_nature_tilled_soil.obj",
+        paramtype = "light",
         _dry_name = agricultural_soil.get_dry_name(ag_soil.name),
         _wet_name = agricultural_soil.get_wet_name(ag_soil.name),
         _wet_salty_name = sediment.get_wet_salty_name(ag_soil.sediment.name),
