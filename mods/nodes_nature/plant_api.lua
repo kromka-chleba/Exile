@@ -426,6 +426,7 @@ function plant.new(args)
         extra_groups = args.extra_groups,
         dye_candidate = args.dye_candidate,
         dominant_color = args.dominant_color,
+        fruit = args.fruit,
         thorns = thorns,
         climbable = args.climbable,
         nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
@@ -460,6 +461,46 @@ end
 function plant.get_seedling_texture_name(basename)
     local mod_name = minetest.get_current_modname()
     return mod_name.."_"..basename.."_seedling.png"
+end
+
+function plant.get_flowering_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name..":"..basename.."_flowering"
+end
+
+function plant.get_fruiting_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name..":"..basename.."_fruiting"
+end
+
+function plant.get_fruit_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name..":"..basename.."_fruit"
+end
+
+function plant.get_fruitless_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name..":"..basename.."_fruitless"
+end
+
+function plant.get_flowering_texture_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name.."_"..basename.."_flowering"..".png"
+end
+
+function plant.get_fruiting_texture_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name.."_"..basename.."_fruiting"..".png"
+end
+
+function plant.get_fruit_texture_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name.."_"..basename.."_fruit"..".png"
+end
+
+function plant.get_fruitless_texture_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name.."_"..basename.."_fruitless"..".png"
 end
 
 function plant.get_groups(plant_def)
@@ -667,7 +708,99 @@ function plant.register_plantlike_seedlings(plant_def, nr)
     end
     -- the last seedling
     local props = plant.get_plantlike_seedling_props(plant_def)
+    if plant_def.fruit then
+        props._next_life_stage = plant.get_flowering_name(plant_def.name)
+    end
     minetest.register_node(plant.get_seedling_name(plant_def.name, nr), props)
+end
+
+function plant.get_plantlike_flowering_props(plant_def)
+    local base = plant.get_plantlike_props(plant_def)
+    base.description = S("Flowering @1", plant_def.description)
+    base.tiles = {plant.get_flowering_texture_name(plant_def.name)}
+    base._next_life_stage = plant.get_fruiting_name(plant_def.name)
+    base.inventory_image = plant.get_flowering_texture_name(plant_def.name)
+    base.wield_image = plant.get_flowering_texture_name(plant_def.name)
+    base.on_construct = function(pos)
+        start_growing_plant(pos, plant_def.growing_time)
+    end
+    base.on_timer = function(pos, elapsed)
+        return grow_plant(pos, elapsed,
+                          plant_def.growing_time,
+                          plant_def.soil_preferences)
+    end
+    base.on_place = function(itemstack, placer, pointed_thing)
+        return on_place_seedling(itemstack, placer, pointed_thing)
+    end
+    base.after_place_node = function(pos, placer, itemstack, pointed_thing)
+        after_place_seedling(pos, placer, itemstack, pointed_thing)
+    end
+    base.on_dig = function(pos, node, digger)
+        on_dig_seedling(pos, node, digger)
+    end
+    return base
+end
+
+function plant.get_plantlike_fruiting_props(plant_def)
+    local base = plant.get_plantlike_flowering_props(plant_def)
+    base.tiles = {plant.get_fruiting_texture_name(plant_def.name)}
+    base._fruitless_name = plant.get_fruitless_name(plant_def.name)
+    base._fruit_name = plant.get_fruit_name(plant_def.name)
+    base.inventory_image = plant.get_fruiting_texture_name(plant_def.name)
+    base.wield_image = plant.get_fruiting_texture_name(plant_def.name)
+    base.on_punch = function(pos, node, puncher, pointed_thing)
+        local node_name = minetest.get_node(pos).name
+        local nodedef = minetest.registered_nodes[node_name]
+        if nodedef._fruitless_name then
+            minetest.set_node(pos, {name = nodedef._fruitless_name,
+                                    param2 = nodedef.place_param2})
+        end
+        local inv = puncher:get_inventory()
+        local new_stack = ItemStack(nodedef._fruit_name)
+        if inv:room_for_item("main", new_stack) then
+            inv:add_item("main", new_stack)
+        else
+            minetest.add_item(pos, new_stack)
+        end
+    end
+    return base
+end
+
+function plant.register_fruit(plant_def)
+    local props = {
+        description = S("@1 Fruit", plant_def.description),
+        inventory_image = plant.get_fruit_texture_name(plant_def.name),
+        wield_image = plant.get_fruit_texture_name(plant_def.name),
+        groups = {ncrafting_dye_candidate = 1},
+        stack_max = minimal.stack_max_medium,
+    }
+    minetest.register_craftitem(plant.get_fruit_name(plant_def.name), props)
+    exile_add_food_hooks(plant.get_fruit_name(plant_def.name))
+end
+
+function plant.get_plantlike_fruitless_props(plant_def)
+    local base = plant.get_plantlike_flowering_props(plant_def)
+    base.description = S("Fruitless @1", plant_def.description)
+    base.inventory_image = plant.get_fruitless_texture_name(plant_def.name)
+    base.wield_image = plant.get_fruitless_texture_name(plant_def.name)
+    base._next_life_stage = plant.get_flowering_name(plant_def.name)
+    base.tiles = {plant.get_fruitless_texture_name(plant_def.name)}
+    return base
+end
+
+function plant.register_plantlike_flowering(plant_def)
+    local props = plant.get_plantlike_flowering_props(plant_def)
+    minetest.register_node(plant.get_flowering_name(plant_def.name), props)
+end
+
+function plant.register_plantlike_fruiting(plant_def)
+    local props = plant.get_plantlike_fruiting_props(plant_def)
+    minetest.register_node(plant.get_fruiting_name(plant_def.name), props)
+end
+
+function plant.register_plantlike_fruitless(plant_def)
+    local props = plant.get_plantlike_fruitless_props(plant_def)
+    minetest.register_node(plant.get_fruitless_name(plant_def.name), props)
 end
 
 function plant.get_3D_props(plant_def)
@@ -799,17 +932,21 @@ function plant.register_fuel(plant_def)
 end
 
 function plant.register_threshing_recipes(plant_def)
+    local source = plant.get_name(plant_def.name)
+    if plant_def.fruit then
+        source = plant.get_fruit_name(plant_def.name)
+    end
     crafting.register_recipe({
             type = "threshing_spot",
             output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number,
-            items = {plant.get_name(plant_def.name)},
+            items = {source},
             level = 1,
             always_known = true,
     })
     crafting.register_recipe({
             type = "threshing_spot",
             output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number * 6,
-            items = {plant.get_name(plant_def.name).." 6"},
+            items = {source.." 6"},
             level = 1,
             always_known = true,
     })
@@ -835,6 +972,12 @@ function plant.register_all(plant_def_list)
                 plant.register_bamboolike(plant_def)
             end
             plant.register_plantlike_seedlings(plant_def, 5)
+        end
+        if plant_def.fruit then
+            plant.register_plantlike_flowering(plant_def)
+            plant.register_plantlike_fruiting(plant_def)
+            plant.register_plantlike_fruitless(plant_def)
+            plant.register_fruit(plant_def)
         end
         plant.register_threshing_recipes(plant_def)
         plant.add_food_hooks(plant_def)

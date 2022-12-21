@@ -68,6 +68,7 @@ food_table = {
 	--drugs
 	["nodes_nature:tikusati"]           = { 0,  0,  -2,  2,  0 },
 	--toxic
+        ["nodes_nature:wrotycz_fruit"]      = { 0,  0,   2,  0,  0 },
 	["nodes_nature:nebiyi"]             = { 0,  0,   0,  0,  0 },
 	["nodes_nature:marbhan"]            = { 0,  0,   0,  0,  0 },
 	["nodes_nature:maraka_nut"]         = { 0,  0,   5,  5,  0 },
@@ -112,6 +113,10 @@ food_harm_table = {
 	["nodes_nature:zufani"]          = { { "Food Poisoning",      0.010, 1} },
 	["nodes_nature:galanta"]         = { { "Food Poisoning",      0.008, 1} },
 	["nodes_nature:momo"]            = { { "Food Poisoning",      0.001, 1} },
+
+        --fruit
+        ["nodes_nature:wrotycz_fruit"]   = { { "Food Poisoning",      0.100, 1},
+                                             { "Hepatotoxicity",      0.005, 1} },
 
 	--Trees fruit
 	["nodes_nature:maraka_nut"]      = { { "Food Poisoning",      0.001, 1},
