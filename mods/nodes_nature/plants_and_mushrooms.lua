@@ -50,7 +50,8 @@ local plant_list = {
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
-     soil_preferences = wrotycz_soil_prefs, fruit = true},
+     soil_preferences = wrotycz_soil_prefs, fruit = true,
+     lbm = true},
 
     {name = "wiha", description = S("Wiha"),
      drawtype = "plantlike", mesh_type = 4,

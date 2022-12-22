@@ -421,9 +421,11 @@ function plant.new(args)
         drawtype = args.drawtype, -- plantlike, nodebox, mesh
         bioluminescence = args.bioluminescence,
         lifeform_type = args.lifeform_type,
+        seedling_number = args.seedling_number or 5,
         plant_type = args.plant_type,
         texture_scale = args.texture_scale or 1,
         extra_groups = args.extra_groups,
+        lbm = args.lbm or false,
         dye_candidate = args.dye_candidate,
         dominant_color = args.dominant_color,
         fruit = args.fruit,
@@ -656,7 +658,10 @@ local function start_growing_plant(pos, growing_time)
     local meta = minetest.get_meta(pos)
     meta:set_int("growth", growing_time)
     meta:set_int("last_updated", 0)
-    minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
+    local timer = minetest.get_node_timer(pos)
+    if not timer:is_started() then
+        timer:start(math.random(timer_min, timer_max))
+    end
 end
 
 function plant.get_seedling_base_props(plant_def)
@@ -698,7 +703,8 @@ function plant.get_plantlike_seedling_props(plant_def)
     return minimal.merge_tables(base, props)
 end
 
-function plant.register_plantlike_seedlings(plant_def, nr)
+function plant.register_plantlike_seedlings(plant_def)
+    local nr = plant_def.seedling_number
     for i = 1, nr - 1 do
         local props = plant.get_plantlike_seedling_props(plant_def)
         props._next_life_stage = plant.get_seedling_name(plant_def.name, i + 1)
@@ -863,7 +869,10 @@ end
 local function start_growing_seed(pos)
     local timer_min = seed_growing_time - 0.25 * seed_growing_time
     local timer_max = seed_growing_time + 0.25 * seed_growing_time
-    minetest.get_node_timer(pos):start(math.random(timer_min, timer_max))
+    local timer = minetest.get_node_timer(pos)
+    if not timer:is_started() then
+        timer:start(math.random(timer_min, timer_max))
+    end
 end
 
 function plant.get_seed_base_props(plant_def)
@@ -957,6 +966,32 @@ function plant.add_food_hooks(plant_def)
     exile_add_food_hooks(plant.get_name(plant_def.name))
 end
 
+function plant.register_timer_start_lbm(plant_def)
+    local plant_name = plant.get_name(plant_def.name)
+    local name_list = {
+        plant.get_seed_name(plant_def.name),
+        plant.get_flowering_name(plant_def.name),
+        --we don't have plant aging yet
+        --plant.get_fruiting_name(plant_def.name),
+        plant.get_fruitless_name(plant_def.name),
+    }
+    for i = 1, plant_def.seedling_number do
+        local name = plant.get_seedling_name(plant_def.name, i)
+        table.insert(name_list, name)
+    end
+    local mesh_type = plant_def.mesh_type
+    minetest.register_lbm({
+            label = "Starts plant timers",
+            name = plant_name.."timer_starter",
+            nodenames = name_list,
+            run_at_every_load = true,
+            action = function(pos, node, dtime_s)
+                minetest.set_node(pos, {name = node.name,
+                                          param2 = mesh_type})
+            end,
+    })
+end
+
 function plant.register_all(plant_def_list)
     for _, plant_def in ipairs(plant_def_list) do
         plant_def = plant.new(plant_def)
@@ -972,6 +1007,9 @@ function plant.register_all(plant_def_list)
                 plant.register_bamboolike(plant_def)
             end
             plant.register_plantlike_seedlings(plant_def, 5)
+            if plant_def.lbm then
+                plant.register_timer_start_lbm(plant_def)
+            end
         end
         if plant_def.fruit then
             plant.register_plantlike_flowering(plant_def)
