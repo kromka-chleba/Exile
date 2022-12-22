@@ -30,6 +30,10 @@ food_table = {
 	["nodes_nature:tikusati_seed"]      = { 0,  0,  -2,  2,  0 },
 	--food and water                       hp  th   hu  en  te
 	["nodes_nature:wiha"]               = { 0,  4,   2,  0,  0 },
+        ["nodes_nature:wiha_fruitless"]     = { 0,  3,   1,  0,  0 },
+        ["nodes_nature:wiha_flowering"]     = { 0,  4,   2,  0,  0 },
+        ["nodes_nature:wiha_fruiting"]      = { 0,  8,   4,  0,  0 },
+        ["nodes_nature:wiha_fruit"]         = { 0,  4,   2,  0,  0 },
 	["nodes_nature:zufani"]             = { 0,  0,   6,  0,  0 },
 	["nodes_nature:galanta"]            = { 0,  1,   3,  0,  0 },
 	["nodes_nature:lambakap"]           = { 0, 10,  10,  0,  0 },

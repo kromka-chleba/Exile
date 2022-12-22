@@ -800,16 +800,19 @@ end
 function plant.register_plantlike_flowering(plant_def)
     local props = plant.get_plantlike_flowering_props(plant_def)
     minetest.register_node(plant.get_flowering_name(plant_def.name), props)
+    exile_add_food_hooks(plant.get_flowering_name(plant_def.name))
 end
 
 function plant.register_plantlike_fruiting(plant_def)
     local props = plant.get_plantlike_fruiting_props(plant_def)
     minetest.register_node(plant.get_fruiting_name(plant_def.name), props)
+    exile_add_food_hooks(plant.get_fruiting_name(plant_def.name))
 end
 
 function plant.register_plantlike_fruitless(plant_def)
     local props = plant.get_plantlike_fruitless_props(plant_def)
     minetest.register_node(plant.get_fruitless_name(plant_def.name), props)
+    exile_add_food_hooks(plant.get_fruitless_name(plant_def.name))
 end
 
 function plant.get_3D_props(plant_def)

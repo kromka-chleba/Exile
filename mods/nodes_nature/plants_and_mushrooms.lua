@@ -57,7 +57,8 @@ local plant_list = {
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
-     dye_candidate = true, dominant_color = "red"},
+     dye_candidate = true, dominant_color = "red",
+     fruit = true, lbm = true},
 
     {name = "momo", description = S("Momo"),
      drawtype = "plantlike", mesh_type = 2,
