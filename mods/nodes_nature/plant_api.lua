@@ -141,7 +141,8 @@ end
 local function catch_up_timer(pos, elapsed, last_updated, growing_left, growth_rate)
     local temp = climate.get_point_temp(pos)
     local mushroom = is_mushroom(pos)
-    if elapsed and elapsed - last_updated > plant_base_timer then
+    local elapsed = elapsed - last_updated
+    if elapsed > plant_base_timer then
         if pos.y < -15 and temp >= 0 or temp <= 40 then
             if mushroom then
                 --This is an underground shroom, assume steady temp
@@ -151,13 +152,15 @@ local function catch_up_timer(pos, elapsed, last_updated, growing_left, growth_r
                 return growing_left - growth_rate * ( elapsed / plant_base_timer / 2)
             end
         else
+            -- change only takes rain, sun and temp into account
             local change = crop_rewind(elapsed, plant_base_timer, mushroom)
             if change == -1 then
                 --Exteme heat or cold killed the plant
                 minetest.remove_node(pos)
                 return false -- kill the timer
             end
-            return growing_left - change
+            -- growth_rate is comes from soil quality
+            return growing_left - change - growth_rate * (elapsed / plant_base_timer / 2)
         end
     end
     return growing_left -- we weren't away actually
@@ -213,9 +216,6 @@ end
 -- Grows a plant
 local function grow_plant(pos, elapsed, growing_time, soil_prefs)
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
-    if kill_or_stop_growing(pos) then
-        return true -- the plant can't grow, waits for better times
-    end
     local meta = minetest.get_meta(pos)
     local growing_left = meta:get_int("growth")
     local last_updated = meta:get_int("last_updated") or elapsed
@@ -231,6 +231,9 @@ local function grow_plant(pos, elapsed, growing_time, soil_prefs)
     if growing_left < 0 then
         catch_up_life_stage(pos, growing_time, growing_left)
         return false
+    end
+    if kill_or_stop_growing(pos) then
+        return true -- the plant can't grow, waits for better times
     end
     --still growing
     --chance to deplete soil
