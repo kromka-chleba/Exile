@@ -42,6 +42,9 @@ food_table = {
 	["nodes_nature:amma_nut"]           = { 0,  0,   1, 10,  0 },
 	["nodes_nature:daoja_berry"]        = { 0,  0,   4,  0,  0 },
 	["nodes_nature:momo"]               = { 0,  1,  12,  0,  0 },
+        ["nodes_nature:momo_fruit"]         = { 0,  1,  12,  0,  0 },
+        ["nodes_nature:momo_fruiting"]      = { 0,  1,  15,  0,  0 },
+        ["nodes_nature:momo_fruitless"]     = { 0,  1,   3,  0,  0 },
 	["nodes_nature:tsaplop"]            = { 0,  10, 10,  0,  0 },
 	["nodes_nature:snow"]               = { 0, 50,  0,-100, -1 },
 	["nodes_nature:snow_block"]         = { 0,100,  0,-200, -2 },
@@ -72,6 +75,7 @@ food_table = {
 	--drugs
 	["nodes_nature:tikusati"]           = { 0,  0,  -2,  2,  0 },
 	--toxic
+        ["nodes_nature:momo_flowering"]     = { 0,  1,   3,  0,  0 },
         ["nodes_nature:wrotycz_fruit"]      = { 0,  0,   2,  0,  0 },
 	["nodes_nature:nebiyi"]             = { 0,  0,   0,  0,  0 },
 	["nodes_nature:marbhan"]            = { 0,  0,   0,  0,  0 },
@@ -117,10 +121,15 @@ food_harm_table = {
 	["nodes_nature:zufani"]          = { { "Food Poisoning",      0.010, 1} },
 	["nodes_nature:galanta"]         = { { "Food Poisoning",      0.008, 1} },
 	["nodes_nature:momo"]            = { { "Food Poisoning",      0.001, 1} },
+        ["nodes_nature:momo_fruiting"]   = { { "Food Poisoning",      0.001, 1} },
+        ["nodes_nature:momo_fruitless"]  = { { "Food Poisoning",      0.001, 1} },
+        ["nodes_nature:momo_flowering"]  = { { "Food Poisoning",      0.400, 1},
+            { "Hepatotoxicity", 0.3, math.floor(math.random(1,2)) }},
 
         --fruit
         ["nodes_nature:wrotycz_fruit"]   = { { "Food Poisoning",      0.100, 1},
-                                             { "Hepatotoxicity",      0.005, 1} },
+            { "Hepatotoxicity",      0.005, 1} },
+        ["nodes_nature:momo_fruit"]      = { { "Food Poisoning",      0.001, 1} },
 
 	--Trees fruit
 	["nodes_nature:maraka_nut"]      = { { "Food Poisoning",      0.001, 1},
