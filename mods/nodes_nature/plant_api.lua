@@ -526,7 +526,6 @@ end
 
 function plant.get_seedling_groups(plant_def)
     local base = {}
-    base.ncrafting_dye_candidate = 0 -- can't make dyes from seedlings
     if plant_def.lifeform_type == "mushroom" then
         base = minimal.merge_tables(
             plant_groups["mushroom"],
@@ -537,7 +536,6 @@ end
 
 function plant.get_seed_groups(plant_def)
     local base = {}
-    base.ncrafting_dye_candidate = nil -- can't make dyes from seeds
     if plant_def.lifeform_type == "mushroom" then
         base = minimal.merge_tables(
             base_groups.spore,
@@ -599,7 +597,7 @@ function plant.get_canelike_props(plant_def)
         type = "fixed",
         fixed = {-0.1875, -0.5, -0.1875, 0.1875, 0.5, 0.1875},
     }
-    base.groups.attached_node = nil
+    base.groups.attached_node = 0
     base.after_dig_node = function(pos, node, metadata, digger)
         dig_up(pos, node, digger)
     end
@@ -778,8 +776,8 @@ function plant.register_fruit(plant_def)
     local props = {
         description = S("@1 Fruit", plant_def.description),
         inventory_image = plant.get_fruit_texture_name(plant_def.name),
+        groups = {},
         wield_image = plant.get_fruit_texture_name(plant_def.name),
-        groups = {ncrafting_dye_candidate = 1},
         stack_max = minimal.stack_max_medium,
     }
     if plant_def.dye_candidate then
@@ -1027,6 +1025,9 @@ function plant.register_all(plant_def_list)
                 plant.register_canelike(plant_def)
             elseif plant_def.plant_type == "bamboo" then
                 plant.register_bamboolike(plant_def)
+            elseif not plant_def.fruit then
+                --register mature plant only when we don't have fruits and flowers
+                plant.register_plantlike(plant_def)
             end
             plant.register_plantlike_seedlings(plant_def, 5)
             if plant_def.lbm then
@@ -1041,10 +1042,8 @@ function plant.register_all(plant_def_list)
             minetest.register_alias(plant.get_name(plant_def.name),
                                     plant.get_fruiting_name(plant_def.name))
         else
-            --register mature plant only when we don't have other stages
-            plant.register_plantlike(plant_def)
+            plant.register_threshing_recipes(plant_def)
         end
-        plant.register_threshing_recipes(plant_def)
         plant.add_food_hooks(plant_def)
     end
 end
