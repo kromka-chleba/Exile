@@ -69,7 +69,7 @@ local function on_dig_tool(pos, node, digger, name)
 end
 
 -- opens the hammering spot GUI
-local open_hammering_spot = crafting.make_on_rightclick("hammering_block", 2, { x = 8, y = 3 })
+local open_hammering_spot = crafting.make_on_rightclick({"hammer", "hammer_mixing"}, 2, { x = 8, y = 3 })
 
 -- opens the chopping spot GUI
 local open_chopping_spot = {
