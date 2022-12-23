@@ -512,9 +512,6 @@ function plant.get_groups(plant_def)
     local plant_type = plant_def.plant_type
     local groups = plant_groups[plant_type]
     local base = base_groups.base
-    if plant_def.dye_candidate then
-        groups.ncrafting_dye_candidate = 1
-    end
     if plant_def.lifeform_type == "mushroom" then
         base = minimal.merge_tables(base, base_groups.mushroom)
     end
@@ -529,7 +526,7 @@ end
 
 function plant.get_seedling_groups(plant_def)
     local base = {}
-    base.ncrafting_dye_candidate = nil -- can't make dyes from seedlings
+    base.ncrafting_dye_candidate = 0 -- can't make dyes from seedlings
     if plant_def.lifeform_type == "mushroom" then
         base = minimal.merge_tables(
             plant_groups["mushroom"],
@@ -579,7 +576,6 @@ function plant.get_base_props(plant_def)
         },
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
-        _ncrafting_dye_dcolor = plant_def.dominant_color,
     }
     return props
 end
@@ -747,6 +743,9 @@ function plant.get_plantlike_flowering_props(plant_def)
     base.on_dig = function(pos, node, digger)
         on_dig_seedling(pos, node, digger)
     end
+    if plant_def.dye_candidate then
+        base.groups.ncrafting_dye_candidate = 1
+    end
     return base
 end
 
@@ -783,6 +782,10 @@ function plant.register_fruit(plant_def)
         groups = {ncrafting_dye_candidate = 1},
         stack_max = minimal.stack_max_medium,
     }
+    if plant_def.dye_candidate then
+        props.groups.ncrafting_dye_candidate = 1
+        props._ncrafting_dye_dcolor = plant_def.dominant_color
+    end
     minetest.register_craftitem(plant.get_fruit_name(plant_def.name), props)
     exile_add_food_hooks(plant.get_fruit_name(plant_def.name))
 end
@@ -799,6 +802,11 @@ end
 
 function plant.register_plantlike_flowering(plant_def)
     local props = plant.get_plantlike_flowering_props(plant_def)
+    -- adding dyes here to avoid seedlings as dye candidates
+    if plant_def.dye_candidate then
+        props.groups.ncrafting_dye_candidate = 1
+        props._ncrafting_dye_dcolor = plant_def.dominant_color
+    end
     minetest.register_node(plant.get_flowering_name(plant_def.name), props)
     exile_add_food_hooks(plant.get_flowering_name(plant_def.name))
 end
@@ -863,8 +871,13 @@ function plant.register_3D_seedling(plant_def)
 end
 
 function plant.register_plantlike(plant_def)
-    minetest.register_node(plant.get_name(plant_def.name),
-                           plant.get_plantlike_props(plant_def))
+    local props = plant.get_plantlike_props(plant_def)
+    -- adding dyes here to avoid seedlings as dye candidates
+    if plant_def.dye_candidate then
+        props.groups.ncrafting_dye_candidate = 1
+        props._ncrafting_dye_dcolor = plant_def.dominant_color
+    end
+    minetest.register_node(plant.get_name(plant_def.name), props)
 end
 
 function plant.register_plantlike_seedling(plant_def)
@@ -947,24 +960,28 @@ function plant.register_fuel(plant_def)
 end
 
 function plant.register_threshing_recipes(plant_def)
-    local source = plant.get_name(plant_def.name)
-    if plant_def.fruit then
-        source = plant.get_fruit_name(plant_def.name)
+    local function reg_recipe(source)
+        crafting.register_recipe({
+                type = "threshing_spot",
+                output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number,
+                items = {source},
+                level = 1,
+                always_known = true,
+        })
+        crafting.register_recipe({
+                type = "threshing_spot",
+                output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number * 6,
+                items = {source.." 6"},
+                level = 1,
+                always_known = true,
+        })
     end
-    crafting.register_recipe({
-            type = "threshing_spot",
-            output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number,
-            items = {source},
-            level = 1,
-            always_known = true,
-    })
-    crafting.register_recipe({
-            type = "threshing_spot",
-            output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number * 6,
-            items = {source.." 6"},
-            level = 1,
-            always_known = true,
-    })
+    if plant_def.fruit then
+        reg_recipe(plant.get_fruit_name(plant_def.name))
+        reg_recipe(plant.get_fruiting_name(plant_def.name))
+    else
+        reg_recipe(plant.get_name(plant_def.name))
+    end
 end
 
 function plant.add_food_hooks(plant_def)
@@ -1006,7 +1023,6 @@ function plant.register_all(plant_def_list)
             plant.register_3D_seedling(plant_def)
             plant.register_3D(plant_def)
         elseif plant_def.drawtype == "plantlike" then
-            plant.register_plantlike(plant_def)
             if plant_def.plant_type == "cane" then
                 plant.register_canelike(plant_def)
             elseif plant_def.plant_type == "bamboo" then
@@ -1022,6 +1038,11 @@ function plant.register_all(plant_def_list)
             plant.register_plantlike_fruiting(plant_def)
             plant.register_plantlike_fruitless(plant_def)
             plant.register_fruit(plant_def)
+            minetest.register_alias(plant.get_name(plant_def.name),
+                                    plant.get_fruiting_name(plant_def.name))
+        else
+            --register mature plant only when we don't have other stages
+            plant.register_plantlike(plant_def)
         end
         plant.register_threshing_recipes(plant_def)
         plant.add_food_hooks(plant_def)
