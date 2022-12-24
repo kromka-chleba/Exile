@@ -429,7 +429,7 @@ function plant.new(args)
         texture_scale = args.texture_scale or 1,
         extra_groups = args.extra_groups,
         lbm = args.lbm or false,
-        dye_candidate = args.dye_candidate,
+        dye_candidate = args.dye_candidate or false,
         dominant_color = args.dominant_color,
         fruit = args.fruit,
         thorns = thorns,
@@ -1041,9 +1041,8 @@ function plant.register_all(plant_def_list)
             plant.register_fruit(plant_def)
             minetest.register_alias(plant.get_name(plant_def.name),
                                     plant.get_fruiting_name(plant_def.name))
-        else
-            plant.register_threshing_recipes(plant_def)
         end
+        plant.register_threshing_recipes(plant_def)
         plant.add_food_hooks(plant_def)
     end
 end
