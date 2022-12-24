@@ -233,8 +233,7 @@ local plant_list = {
     -- Canes
     {name = "cana", description = S("Cana"),
      drawtype = "plantlike", plant_type = "cane", waving = false,
-     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
-     seed_number = 1},
+     growing_time = plant_base_growing_time * 2, seed_number = 1},
 
     {name = "gemedi", description = S("Gemedi"),
      drawtype = "plantlike", plant_type = "cane", waving = false,
