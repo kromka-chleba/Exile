@@ -252,6 +252,8 @@ minetest.register_abm({
 	interval = 161,
 	chance = 5,
 	catch_up = false,
+        min_y = -30,
+        max_y = 500,
 	action = function(pos, node)
 
 		--get drop so we know what it grows on
@@ -268,11 +270,12 @@ minetest.register_abm({
 			return
 		end
 
+                local drop_nodedef = minetest.registered_nodes[drop]
 		--spread if suitable nearby
 		local positions = minetest.find_nodes_in_area_under_air(
 			{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
 			{x = pos.x + 1, y = pos.y + 2, z = pos.z + 1},
-			{drop})
+			{drop, drop_nodedef._wet_name})
 
 		if #positions == 0 then
 			return
@@ -280,10 +283,14 @@ minetest.register_abm({
 
 		local pos2 = positions[math.random(#positions)]
 		local pos2_ab = {x = pos2.x, y = pos2.y + 1, z = pos2.z}
+                local spread_name = nodedef._dry_name
+                local sed_name = minetest.get_node(pos2).name
+                if minetest.get_item_group(sed_name, "wet_sediment") == 1 then
+                    spread_name = nodedef._wet_name
+                end
 		if minimal.get_daylight(pos, 0.5) >= 13 and
 		  minimal.get_daylight(pos2_ab, 0.5) >= 13 then
-			minetest.set_node(pos2, {name = node.name})
+			minetest.set_node(pos2, {name = spread_name})
 		end
-
 	end
 })
