@@ -83,7 +83,7 @@ local compost =
 sediment.register_dry(compost)
 sediment.register_wet(compost)
 sediment.register_wet_salty(compost)
-sediment.register_stair_and_slab(compost)
+sediment.register_slab(compost)
 
 local compost_undecomposed =
     sediment.new({name = "compost_undecomposed",
@@ -95,7 +95,7 @@ local compost_undecomposed =
 sediment.register_dry(compost_undecomposed)
 sediment.register_wet(compost_undecomposed)
 sediment.register_wet_salty(compost_undecomposed)
-sediment.register_stair_and_slab(compost_undecomposed)
+sediment.register_slab(compost_undecomposed)
 
 local compost_dry_name = sediment.get_dry_name("compost")
 local compost_wet_name = sediment.get_wet_name("compost")

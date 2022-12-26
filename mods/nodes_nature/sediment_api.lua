@@ -305,6 +305,21 @@ function sediment.register_stair_and_slab(sed)
     )
 end
 
+function sediment.register_slab(sed)
+    stairs.register_slab(
+        sed.name,
+        sediment.get_dry_name(sed.name),
+	{"mixing_spot","soil_mixing"},
+        "true",
+	{"mixing_spot","soil_mixing"},
+        {falling_node = 1, crumbly = sed.hardness},
+        {sediment.get_dry_texture_name(sed.name)},
+        sed.description.." Slab",
+        minimal.stack_max_bulky * 2,
+        sed.sound
+    )
+end
+
 function sediment.do_slopes(sed)
     local doslopes = minetest.settings:get_bool('exile_enableslopes')
     local slopechance = minetest.settings:get('exile_slopechance') or 20
