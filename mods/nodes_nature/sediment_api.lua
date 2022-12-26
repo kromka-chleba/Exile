@@ -588,6 +588,14 @@ function fertile_soil.register_crafting_recipe_wet(soil_desc)
             type = "shovel_agriculture",
             output = fertile_soil.get_wet_name(sed.name),
             items = {sediment.get_wet_name(sed.name),
+                     "stairs:slab_compost"},
+            level = 1,
+            always_known = true,
+    })
+    crafting.register_recipe({
+            type = "shovel_agriculture",
+            output = fertile_soil.get_wet_name(sed.name).." 2",
+            items = {sediment.get_wet_name(sed.name),
                      "nodes_nature:compost"},
             level = 1,
             always_known = true,
