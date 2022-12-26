@@ -841,8 +841,13 @@ function plant.get_3D_props(plant_def)
 end
 
 function plant.register_3D(plant_def)
+    local props = plant.get_3D_props(plant_def)
+    if plant_def.dye_candidate then
+        props.groups.ncrafting_dye_candidate = 1
+        props._ncrafting_dye_dcolor = plant_def.dominant_color
+    end
     minetest.register_node(plant.get_name(plant_def.name),
-                           plant.get_3D_props(plant_def))
+                           props)
 end
 
 function plant.get_3D_seedling_props(plant_def)
