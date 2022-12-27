@@ -133,7 +133,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
       local fname = inv[i]:get_name()
       if fname and fname ~= '' then
 	      local fcount = inv[i]:get_count()
-	      local fdesc = minetest.registered_nodes[fname].description
+	      local fdesc = minetest.registered_items[fname].description
 	      contents=contents..' '..fdesc..' ('..fcount..'), '
       end
       if food_table[fname] or food_table[fname.."_cooked"] then
