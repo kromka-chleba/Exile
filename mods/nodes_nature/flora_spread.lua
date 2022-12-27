@@ -286,12 +286,23 @@ minetest.register_abm({
                     end
                 end
             end
-            -- FIXME: we want this somewhere else (if at all)
-            -- --remove in dark
-            -- local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
-            -- if light ~= nil and light < 10 then
-            --     minetest.set_node(pos, {name = drop})
-            --     return
-            -- end
+	end
+})
+
+minetest.register_abm({
+	label = "Remove buried and covered grass",
+	nodenames = {"group:spreading"},
+	interval = 212,
+	chance = 1,
+	catch_up = false,
+        min_y = -30,
+        max_y = 500,
+	action = function(pos, node)
+            local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
+            local soil_nodedef = minetest.registered_nodes[node.name]
+            local light_above = minimal.get_daylight(pos_above, 0.5)
+            if not light_above or light_above < 10 then
+                minetest.set_node(pos, {name = soil_nodedef.drop})
+            end
 	end
 })
