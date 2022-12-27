@@ -135,11 +135,7 @@ end
 -- if t1 and t2 contain identical keys, values from
 -- t1 are overwritten with values from t2
 function minimal.merge_tables(t1, t2)
-    local new_table = {}
-    --copy table
-    for key, value in pairs(t1) do
-        new_table[key] = value
-    end
+    local new_table = table.copy(t1)
     --merge tables
     for key, value in pairs(t2) do
         new_table[key] = value

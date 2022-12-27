@@ -254,6 +254,8 @@ end
 
 function sediment.register_dry(sed)
     local props = sediment.get_dry_node_props(sed)
+    props = table.copy(props)
+    props.groups.bare_sediment = 1
     minetest.register_node(sediment.get_dry_name(sed.name), props)
 end
 
@@ -270,6 +272,8 @@ end
 
 function sediment.register_wet(sed)
     local props = sediment.get_wet_node_props(sed)
+    props = table.copy(props)
+    props.groups.bare_sediment = 1
     minetest.register_node(sediment.get_wet_name(sed.name), props)
 end
 
