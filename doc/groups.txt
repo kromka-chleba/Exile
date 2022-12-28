@@ -50,6 +50,7 @@ Sediment
 `fertilizer`: restores depleted agricultural soil on punch
 `agricultural_soil`: Gives a boost to plant growth.
 `depleted_agricultural_soil`: gives a small boost to plant growth.
+`bare_sediment`: defines a sediment that grass could spread to.
 
 
 Temperature:

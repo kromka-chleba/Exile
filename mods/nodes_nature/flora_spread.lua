@@ -248,7 +248,7 @@ minetest.register_abm({
 minetest.register_abm({
 	label = "Surface spread",
 	nodenames = {"group:spreading"},
-	neighbors = {"air", "group:sediment"},
+	neighbors = {"air", "group:bare_sediment"},
 	interval = 161,
 	chance = 5,
 	catch_up = false,
@@ -268,20 +268,31 @@ minetest.register_abm({
 			return
 		end
 
+		-- Don't spread at night
+		local tod = minetest.get_timeofday()
+		 if tod < 0.2 or tod > 0.8 then return end
+
 		--spread if suitable nearby
 		local positions = minetest.find_nodes_in_area_under_air(
 			{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
 			{x = pos.x + 1, y = pos.y + 2, z = pos.z + 1},
-			{drop})
+			{"group:bare_sediment"})
 
 		if #positions == 0 then
-			return
+		   -- Probably bare sediment with a plant or something
+		   -- No quick way to detect that with _nodes_under_air
+		   return
 		end
 
 		local pos2 = positions[math.random(#positions)]
 		local pos2_ab = {x = pos2.x, y = pos2.y + 1, z = pos2.z}
-		if minimal.get_daylight(pos, 0.5) >= 13 and
-		  minimal.get_daylight(pos2_ab, 0.5) >= 13 then
+		-- Check against drop
+		local target = minetest.get_node(pos2)
+		local tdef = minetest.registered_nodes[target.name]
+		if not tdef.drop or tdef.drop ~= drop then
+		   return -- either it's player made stairs or wrong type
+		end
+		if minimal.get_daylight(pos2_ab, 0.5) >= 13 then
 			minetest.set_node(pos2, {name = node.name})
 		end
 

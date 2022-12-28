@@ -150,12 +150,13 @@ local function get_dry_node_props(sed)
         description = sed.description,
         tiles = {sed.texture_name},
         stack_max = minimal.stack_max_bulky,
-        groups = sed.groups,
+        groups = table.copy(sed.groups),
         drop = sed.dry_node_name,
         sounds = sed.sound,
         _wet_name = sed.wet_node_name,
         _wet_salty_name = sed.wet_salty_node_name,
     }
+    props.groups.bare_sediment = 1
     return props
 end
 
@@ -169,11 +170,12 @@ local function get_wet_node_props(sed)
         description = S("Wet @1", sed.description),
         tiles = {sed.texture_name.."^"..textures.wet},
         stack_max = minimal.stack_max_bulky,
-        groups = sed.groups_wet,
+        groups = table.copy(sed.groups_wet),
         drop = sed.wet_node_name,
         sounds = sed.sound_wet,
         _dry_name = sed.dry_node_name,
     }
+    props.groups.bare_sediment = 1
     return props
 end
 
@@ -238,6 +240,7 @@ function soil.new(args)
         sediment = args.sediment,
         dry_node_name = node_name,
         wet_node_name = node_name.."_wet",
+
         texture_name = mod_name.."_"..args.name..".png",
         texture_side_name = mod_name.."_"..args.name.."_side.png",
     }
@@ -263,7 +266,8 @@ function soil.register_wet(soil)
     local sed = soil.sediment
     local additional_properties = {
         description = S("Wet @1", soil.description),
-        groups = merge_tables(sed.groups_wet, {spreading = 1}),
+	groups = merge_tables(sed.groups, {wet_sediment = 1, puts_out_fire = 1,
+				       spreading = 1}),
         tiles = {soil.texture_name.."^"..textures.wet, sed.texture_name.."^"..textures.wet,
                  {name = sed.texture_name.."^"..soil.texture_side_name.."^"..textures.wet}},
         _ag_soil = sed.ag_soil_wet,
