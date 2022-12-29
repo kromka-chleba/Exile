@@ -135,11 +135,11 @@ local function get_season_name()
     return season_name
 end
 
-local nr = 1
+local nr = 0
 
 local function season_loop()
     --local season_name = get_season_name()
-    local season_name = season_names[nr % 8]
+    local season_name = season_names[nr % 8 + 1]
     change_seasonal_lbm(season_name)
     change_seasonal_abm(season_name)
     minetest.after(10, season_loop)
@@ -187,4 +187,3 @@ end
 register_placeholder_lbm()
 register_placeholder_abms()
 minetest.after(2, season_loop)
-
