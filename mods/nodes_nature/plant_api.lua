@@ -54,7 +54,17 @@ local seasonal_types = {
         _winter_late = "_dead",
     },
     whole_season = {
-        _spring_early = "_seedling3",
+        _spring_early = "_seedling5",
+        _spring_late = "",
+        _summer_early = "",
+        _summer_late = "",
+        _fall_early = "",
+        _fall_late = "",
+        _winter_early = "_dead",
+        _winter_late = "_dead",
+    },
+    whole_season_woody = {
+        _spring_early = "",
         _spring_late = "",
         _summer_early = "",
         _summer_late = "",

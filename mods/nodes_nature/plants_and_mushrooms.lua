@@ -180,7 +180,7 @@ local plant_list = {
      waving = true,
      mesh_type = 2, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
-     visual_scale = 1.2},
+     visual_scale = 1.2, seasonal_type = "whole_season_woody"},
 
     {name = "bronach", description = S("Bronach"),
      drawtype = "plantlike", plant_type = "woody_plant",
