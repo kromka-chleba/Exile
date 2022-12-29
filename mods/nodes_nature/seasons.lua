@@ -43,9 +43,10 @@ end
 local function update_plant(pos, node, season_name)
     local nodedef = minetest.registered_nodes[node.name]
     local new_name = nodedef["_"..season_name]
+    local next_nodedef = minetest.registered_nodes[new_name]
     if new_name and new_name ~= node.name then
         minetest.set_node(pos, {name = new_name,
-                                param2 = nodedef.place_param2})
+                                param2 = next_nodedef.place_param2})
     end
 end
 
@@ -142,7 +143,7 @@ local function season_loop()
     local season_name = season_names[nr % 8 + 1]
     change_seasonal_lbm(season_name)
     change_seasonal_abm(season_name)
-    minetest.after(10, season_loop)
+    minetest.after(20, season_loop)
     minetest.log("error", season_name)
     nr = nr + 1
     --minetest.after(1200, season_loop)
