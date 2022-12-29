@@ -89,7 +89,8 @@ local plant_list = {
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = plant_base_growing_time * 2,
-     dye_candidate = true, dominant_color = "blue"},
+     dye_candidate = true, dominant_color = "blue",
+     fruit = true, seasonal_type = "mainly_flower"},
 
     {name = "orom", description = S("Orom"),
      drawtype = "plantlike", mesh_type = 1,
