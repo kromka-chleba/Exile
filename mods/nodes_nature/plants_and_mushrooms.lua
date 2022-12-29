@@ -149,7 +149,8 @@ local plant_list = {
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
      mesh_type = 1, growing_time = plant_base_growing_time,
-     dye_candidate = true, dominant_color = "indigo"},
+     dye_candidate = true, dominant_color = "indigo",
+     seasonal_type = "late_mushroom"},
 
     {name = "marbhan", description = S("Marbhan"),
      drawtype = "plantlike",
