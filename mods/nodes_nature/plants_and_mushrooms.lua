@@ -161,7 +161,8 @@ local plant_list = {
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
      mesh_type = 2, growing_time = plant_base_growing_time * 2,
-     dye_candidate = true, dominant_color = "yellow"},
+     dye_candidate = true, dominant_color = "yellow",
+     seasonal_type = "late_mushroom"},
 
     -- Woody
     {name = "tsaplop", description = S("Tsaplop"),

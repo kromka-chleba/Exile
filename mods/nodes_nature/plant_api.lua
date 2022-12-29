@@ -53,6 +53,16 @@ local seasonal_types = {
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
+    late_mushroom = {
+        _spring_early = "_dead",
+        _spring_late = "_seed",
+        _summer_early = "_seed",
+        _summer_late = "_seedling5",
+        _fall_early = "",
+        _fall_late = "",
+        _winter_early = "_dead",
+        _winter_late = "_dead",
+    },
     mainly_flower = {
         _spring_early = "_seedling3",
         _spring_late = "_flowering",
