@@ -40,6 +40,15 @@ local function override_abm(name, abm_spec)
     abm_spec.mod_origin = "nodes_nature"
 end
 
+local function update_plant(pos, node, season_name)
+    local nodedef = minetest.registered_nodes[node.name]
+    local new_name = nodedef["_"..season_name]
+    if new_name and new_name ~= node.name then
+        minetest.set_node(pos, {name = new_name,
+                                param2 = nodedef.place_param2})
+    end
+end
+
 local function change_seasonal_lbm(season_name)
     local lbm_name = "nodes_nature:season_changer"
     override_lbm(
@@ -49,11 +58,7 @@ local function change_seasonal_lbm(season_name)
             nodenames = {"group:seasonal"},
             run_at_every_load = true,
             action = function(pos, node, dtime_s)
-                local nodedef = minetest.registered_nodes[node.name]
-                if nodedef["_"..season_name] then
-                    minetest.set_node(pos, {name = nodedef["_"..season_name],
-                                            param2 = nodedef.place_param2})
-                end
+                update_plant(pos, node, season_name)
             end,
     })
 end
@@ -71,12 +76,7 @@ local function activate_seasonal_abm(season_name)
             max_y = 500,
             nodenames = {"group:seasonal"},
             action = function(pos, node, dtime_s)
-                local nodedef = minetest.registered_nodes[node.name]
-                if nodedef["_"..season_name] then
-                    minetest.log("error", node.name)
-                    minetest.set_node(pos, {name = nodedef["_"..season_name],
-                                            param2 = nodedef.place_param2})
-                end
+                update_plant(pos, node, season_name)
             end,
     })
 end
@@ -139,7 +139,7 @@ local nr = 1
 
 local function season_loop()
     --local season_name = get_season_name()
-    local season_name = season_names[nr % 8 + 1]
+    local season_name = season_names[nr % 8]
     change_seasonal_lbm(season_name)
     change_seasonal_abm(season_name)
     minetest.after(10, season_loop)
