@@ -29,6 +29,17 @@ local function override_lbm(name, lbm_spec)
     lbm_spec.mod_origin = "nodes_nature"
 end
 
+local function override_abm(name, abm_spec)
+    for i = 1, #minetest.registered_abms do
+        if minetest.registered_abms[i].name == name then
+            minetest.registered_abms[i].name = ""
+            minetest.registered_abms[i] = abm_spec
+            break
+        end
+    end
+    abm_spec.mod_origin = "nodes_nature"
+end
+
 local function change_seasonal_lbm(season_name)
     local lbm_name = "nodes_nature:season_changer"
     override_lbm(
@@ -40,12 +51,57 @@ local function change_seasonal_lbm(season_name)
             action = function(pos, node, dtime_s)
                 local nodedef = minetest.registered_nodes[node.name]
                 if nodedef["_"..season_name] then
+                    minetest.set_node(pos, {name = nodedef["_"..season_name],
+                                            param2 = nodedef.place_param2})
+                end
+            end,
+    })
+end
+
+local function activate_seasonal_abm(season_name)
+    local abm_name = "nodes_nature:"..season_name
+    override_abm(
+        abm_name, {
+            label = "Season changer: "..season_name,
+            name = abm_name,
+            interval = 2,
+            chance = 1,
+            catch_up = false,
+            min_y = -30,
+            max_y = 500,
+            nodenames = {"group:seasonal"},
+            action = function(pos, node, dtime_s)
+                local nodedef = minetest.registered_nodes[node.name]
+                if nodedef["_"..season_name] then
                     minetest.log("error", node.name)
                     minetest.set_node(pos, {name = nodedef["_"..season_name],
                                             param2 = nodedef.place_param2})
                 end
             end,
     })
+end
+
+local function change_seasonal_abm(season_name)
+    for i = 1, #season_names do
+        if season_name ~= season_names[i] then
+            local abm_name = "nodes_nature:"..season_names[i]
+            override_abm(
+                abm_name, {
+                    label = "Season changer: "..season_names[i],
+                    name = abm_name,
+                    nodenames = {"group:seasonal"},
+                    interval = 10,
+                    chance = 1,
+                    catch_up = false,
+                    min_y = -30,
+                    max_y = 500,
+                    action = function(pos, node, dtime_s)
+                        -- nothing here
+                    end,
+            })
+        end
+    end
+    activate_seasonal_abm(season_name)
 end
 
 local function get_season_and_day()
@@ -85,6 +141,7 @@ local function season_loop()
     --local season_name = get_season_name()
     local season_name = season_names[nr % 8 + 1]
     change_seasonal_lbm(season_name)
+    change_seasonal_abm(season_name)
     minetest.after(10, season_loop)
     minetest.log("error", season_name)
     nr = nr + 1
@@ -100,9 +157,27 @@ local function register_placeholder_lbm()
             run_at_every_load = true,
             action = function(pos, node, dtime_s)
                 -- nothing here
-                minetest.log("error", node.name)
             end,
     })
+end
+
+-- register placeholder
+local function register_placeholder_abms()
+    for i = 1, #season_names do
+        minetest.register_abm({
+                label = "Season changer: "..season_names[i],
+                name = "nodes_nature:"..season_names[i],
+                interval = 10,
+                chance = 1,
+                catch_up = false,
+                min_y = -30,
+                max_y = 500,
+                nodenames = {"group:seasonal"},
+                action = function(pos, node, dtime_s)
+                    -- nothing here
+                end,
+        })
+    end
 end
 
 -- starts the loop after 2 seconds after everything (hopefully) finishes loading
@@ -110,5 +185,6 @@ end
 -- returned nil
 
 register_placeholder_lbm()
+register_placeholder_abms()
 minetest.after(2, season_loop)
 
