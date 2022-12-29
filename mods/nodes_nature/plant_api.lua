@@ -22,6 +22,39 @@ seed_growing_time = 40
 
 soil_preferences = {}
 
+local seasonal_types = {
+    early = {
+        _spring_early = "_seedling3",
+        _spring_late = "_flowering",
+        _summer_early = "_fruiting",
+        _summer_late = "_dead",
+        _fall_early = "_dead",
+        _fall_late = "_dead",
+        _winter_early = "_dead",
+        _winter_late = "_seed",
+    },
+    medium = {
+        _spring_early = "_seed",
+        _spring_late = "_seedling3",
+        _summer_early = "_flowering",
+        _summer_late = "_fruiting",
+        _fall_early = "_fruiting",
+        _fall_late = "_dead",
+        _winter_early = "_dead",
+        _winter_late = "_dead",
+    },
+    late = {
+        _spring_early = "_dead",
+        _spring_late = "_seed",
+        _summer_early = "_seedling3",
+        _summer_late = "_flowering",
+        _fall_early = "_fruiting",
+        _fall_late = "_dead",
+        _winter_early = "_dead",
+        _winter_late = "_dead",
+    },
+}
+
 function soil_preferences.new(args)
     local prefs = {
         rocky_substrate = args.rocky_substrate,
@@ -414,6 +447,10 @@ function plant.new(args)
     end
     local thorns
     if args.thorns then thorns = 1 end
+    local seasons = args.seasons
+    if not args.seasons and args.seasonal_type then
+        seasons = seasonal_types[args.seasonal_type]
+    end
     local def = {
         name = args.name,
         description = args.description,
@@ -427,6 +464,7 @@ function plant.new(args)
         seedling_number = args.seedling_number or 5,
         plant_type = args.plant_type,
         texture_scale = args.texture_scale or 1,
+        seasons = seasons,
         extra_groups = args.extra_groups,
         lbm = args.lbm or false,
         dye_candidate = args.dye_candidate or false,
@@ -488,6 +526,16 @@ function plant.get_fruitless_name(basename)
     return mod_name..":"..basename.."_fruitless"
 end
 
+function plant.get_dead_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name..":"..basename.."_dead"
+end
+
+function plant.get_dead_fruitless_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name..":"..basename.."_dead_fruitless"
+end
+
 function plant.get_flowering_texture_name(basename)
     local mod_name = minetest.get_current_modname()
     return mod_name.."_"..basename.."_flowering"..".png"
@@ -508,6 +556,16 @@ function plant.get_fruitless_texture_name(basename)
     return mod_name.."_"..basename.."_fruitless"..".png"
 end
 
+function plant.get_dead_fruitless_texture_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name.."_"..basename.."_dead_fruitless"..".png"
+end
+
+function plant.get_dead_texture_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name.."_"..basename.."_dead"..".png"
+end
+
 function plant.get_groups(plant_def)
     local plant_type = plant_def.plant_type
     local groups = plant_groups[plant_type]
@@ -521,6 +579,9 @@ function plant.get_groups(plant_def)
     if plant_def.extra_groups then
         base = minimal.merge_tables(base, plant_def.extra_groups)
     end
+    if plant_def.seasons or plant_def.seasonal_type then
+        base = minimal.merge_tables(base, {seasonal = 1})
+    end
     return minimal.merge_tables(groups, base)
 end
 
@@ -530,6 +591,9 @@ function plant.get_seedling_groups(plant_def)
         base = minimal.merge_tables(
             plant_groups["mushroom"],
             base_groups.mushroom)
+    end
+    if plant_def.seasons or plant_def.seasonal_type then
+        base = minimal.merge_tables(base, {seasonal = 1})
     end
     return minimal.merge_tables(base, base_groups.seedling)
 end
@@ -543,6 +607,9 @@ function plant.get_seed_groups(plant_def)
     else
         base = base_groups.seed
     end
+    if plant_def.seasons or plant_def.seasonal_type then
+        base = minimal.merge_tables(base, {seasonal = 1})
+    end
     return minimal.merge_tables(base, base_groups.seed)
 end
 
@@ -555,6 +622,8 @@ function plant.get_sounds(plant_def)
 end
 
 function plant.get_base_props(plant_def)
+    local name = plant.get_name(plant_def.name)
+    local seasons = plant_def.seasons
     local props = {
         description = plant_def.description,
         tiles = {plant.get_texture_name(plant_def.name)},
@@ -575,6 +644,19 @@ function plant.get_base_props(plant_def)
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
     }
+    if seasons then
+        props = minimal.merge_tables(
+            props, {
+                _spring_early = name..seasons._spring_early,
+                _spring_late = name..seasons._spring_late,
+                _summer_early = name..seasons._summer_early,
+                _summer_late = name..seasons._summer_late,
+                _fall_early = name..seasons._fall_early,
+                _fall_late = name..seasons._fall_late,
+                _winter_early = name..seasons._winter_early,
+                _winter_late = name..seasons._winter_late,
+        })
+    end
     return props
 end
 
@@ -749,6 +831,7 @@ end
 
 function plant.get_plantlike_fruiting_props(plant_def)
     local base = plant.get_plantlike_flowering_props(plant_def)
+    base.description = S("Fruiting @1", plant_def.description)
     base.tiles = {plant.get_fruiting_texture_name(plant_def.name)}
     base._fruitless_name = plant.get_fruitless_name(plant_def.name)
     base._fruit_name = plant.get_fruit_name(plant_def.name)
@@ -770,6 +853,52 @@ function plant.get_plantlike_fruiting_props(plant_def)
         end
     end
     return base
+end
+
+function plant.get_plantlike_dead_fruitless_props(plant_def)
+    local base = plant.get_plantlike_props(plant_def)
+    base.description = S("Dead Fruitless @1", plant_def.description)
+    base.inventory_image = plant.get_dead_fruitless_texture_name(plant_def.name)
+    base.wield_image = plant.get_dead_fruitless_texture_name(plant_def.name)
+    base.tiles = {plant.get_dead_fruitless_texture_name(plant_def.name)}
+    return base
+end
+
+function plant.register_plantlike_dead_fruitless(plant_def)
+    local props = plant.get_plantlike_dead_fruitless_props(plant_def)
+    minetest.register_node(plant.get_dead_fruitless_name(plant_def.name), props)
+end
+
+function plant.get_plantlike_dead_props(plant_def)
+    local base = plant.get_plantlike_props(plant_def)
+    base.tiles = {plant.get_dead_texture_name(plant_def.name)}
+    base._fruitless_name = plant.get_dead_fruitless_name(plant_def.name)
+    base._fruit_name = plant.get_fruit_name(plant_def.name)
+    base.inventory_image = plant.get_dead_texture_name(plant_def.name)
+    base.wield_image = plant.get_dead_texture_name(plant_def.name)
+    base._next_life_stage = ""
+    base.on_punch = function(pos, node, puncher, pointed_thing)
+        local node_name = minetest.get_node(pos).name
+        local nodedef = minetest.registered_nodes[node_name]
+        if nodedef._fruitless_name then
+            minetest.set_node(pos, {name = nodedef._fruitless_name,
+                                    param2 = nodedef.place_param2})
+        end
+        local inv = puncher:get_inventory()
+        local new_stack = ItemStack(nodedef._fruit_name)
+        if inv:room_for_item("main", new_stack) then
+            inv:add_item("main", new_stack)
+        else
+            minetest.add_item(pos, new_stack)
+        end
+    end
+    return base
+end
+
+function plant.register_plantlike_dead_fruiting(plant_def)
+    local props = plant.get_plantlike_dead_props(plant_def)
+    minetest.register_node(plant.get_dead_name(plant_def.name), props)
+    exile_add_food_hooks(plant.get_dead_name(plant_def.name))
 end
 
 function plant.register_fruit(plant_def)
@@ -1038,6 +1167,7 @@ function plant.register_all(plant_def_list)
             if plant_def.lbm then
                 plant.register_timer_start_lbm(plant_def)
             end
+
         end
         if plant_def.fruit then
             plant.register_plantlike_flowering(plant_def)
@@ -1046,6 +1176,10 @@ function plant.register_all(plant_def_list)
             plant.register_fruit(plant_def)
             minetest.register_alias(plant.get_name(plant_def.name),
                                     plant.get_fruiting_name(plant_def.name))
+            if plant_def.seasonal_type or plant_def.seasons then
+                plant.register_plantlike_dead_fruiting(plant_def)
+                plant.register_plantlike_dead_fruitless(plant_def)
+            end
         end
         plant.register_threshing_recipes(plant_def)
         plant.add_food_hooks(plant_def)
