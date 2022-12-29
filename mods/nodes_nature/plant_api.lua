@@ -27,8 +27,8 @@ local seasonal_types = {
         _spring_early = "_seedling3",
         _spring_late = "_flowering",
         _summer_early = "_fruiting",
-        _summer_late = "_dead",
-        _fall_early = "_dead",
+        _summer_late = "_fruiting",
+        _fall_early = "_fruiting",
         _fall_late = "_dead",
         _winter_early = "_dead",
         _winter_late = "_seed",
@@ -224,8 +224,10 @@ local function catch_up_life_stage(pos, growing_time, growing_left)
         local node_name = minetest.get_node(pos).name
         local nodedef = minetest.registered_nodes[node_name]
         if nodedef._next_life_stage then
-            minetest.set_node(pos, {name = nodedef._next_life_stage,
-                                    param2 = nodedef.place_param2})
+            local p2 = nodedef.place_param2
+            minetest.remove_node(pos)
+            minetest.place_node(pos, {name = nodedef._next_life_stage,
+                                    param2 = p2})
         end
         growing_left = growing_left + growing_time
     end
@@ -261,8 +263,8 @@ local function grow_seed(pos)
     if kill_or_stop_growing(pos) then
         return true -- unless dead, try again when conditions are good
     end
-    minetest.set_node(pos, {name = nodedef._next_life_stage,
-                            param2 = nodedef.place_param2})
+    minetest.remove_node(pos)
+    minetest.place_node(pos, {name = nodedef._next_life_stage})
     return false -- the seed becomes a seedling (stops the timer)
 end
 
@@ -769,9 +771,6 @@ function plant.get_seedling_base_props(plant_def)
         description = S("Young @1", plant_def.description),
         groups = plant.get_seedling_groups(plant_def),
         _next_life_stage = plantname,
-        on_construct = function(pos)
-            start_growing_plant(pos, plant_def.growing_time)
-        end,
         on_timer = function(pos, elapsed)
             return grow_plant(pos, elapsed,
                               plant_def.growing_time,
@@ -782,6 +781,7 @@ function plant.get_seedling_base_props(plant_def)
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             after_place_seedling(pos, placer, itemstack, pointed_thing)
+            start_growing_plant(pos, plant_def.growing_time)
         end,
         on_dig = function(pos, node, digger)
             on_dig_seedling(pos, node, digger)
@@ -826,9 +826,6 @@ function plant.get_plantlike_flowering_props(plant_def)
     base._next_life_stage = plant.get_fruiting_name(plant_def.name)
     base.inventory_image = plant.get_flowering_texture_name(plant_def.name)
     base.wield_image = plant.get_flowering_texture_name(plant_def.name)
-    base.on_construct = function(pos)
-        start_growing_plant(pos, plant_def.growing_time)
-    end
     base.on_timer = function(pos, elapsed)
         return grow_plant(pos, elapsed,
                           plant_def.growing_time,
@@ -839,6 +836,7 @@ function plant.get_plantlike_flowering_props(plant_def)
     end
     base.after_place_node = function(pos, placer, itemstack, pointed_thing)
         after_place_seedling(pos, placer, itemstack, pointed_thing)
+        start_growing_plant(pos, plant_def.growing_time)
     end
     base.on_dig = function(pos, node, digger)
         on_dig_seedling(pos, node, digger)
@@ -861,8 +859,10 @@ function plant.get_plantlike_fruiting_props(plant_def)
         local node_name = minetest.get_node(pos).name
         local nodedef = minetest.registered_nodes[node_name]
         if nodedef._fruitless_name then
-            minetest.set_node(pos, {name = nodedef._fruitless_name,
-                                    param2 = nodedef.place_param2})
+            local p2 = nodedef.place_param2
+            minetest.remove_node(pos)
+            minetest.place_node(pos, {name = nodedef._fruitless_name,
+                                    param2 = p2})
         end
         local inv = puncher:get_inventory()
         local new_stack = ItemStack(nodedef._fruit_name)
@@ -904,8 +904,10 @@ function plant.get_plantlike_dead_props(plant_def)
             local node_name = minetest.get_node(pos).name
             local nodedef = minetest.registered_nodes[node_name]
             if nodedef._fruitless_name then
-                minetest.set_node(pos, {name = nodedef._fruitless_name,
-                                        param2 = nodedef.place_param2})
+                local p2 = nodedef.place_param2
+                minetest.remove_node(pos)
+                minetest.place_node(pos, {name = nodedef._fruitless_name,
+                                          param2 = p2})
             end
             local inv = puncher:get_inventory()
             local new_stack = ItemStack(nodedef._fruit_name)
@@ -1083,14 +1085,12 @@ function plant.get_seed_base_props(plant_def)
             fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
         },
         _next_life_stage = next_life_stage,
-        on_construct = function(pos)
-            start_growing_seed(pos)
-        end,
         on_timer = function(pos,elapsed)
             return grow_seed(pos)
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             after_place_seedling(pos, placer, itemstack, pointed_thing)
+            start_growing_seed(pos)
         end,
         on_dig = function(pos, node, digger)
             on_dig_seedling(pos, node, digger)
@@ -1166,7 +1166,8 @@ function plant.register_timer_start_lbm(plant_def)
             nodenames = name_list,
             run_at_every_load = true,
             action = function(pos, node, dtime_s)
-                minetest.set_node(pos, {name = node.name,
+                minetest.remove_node(pos)
+                minetest.place_node(pos, {name = node.name,
                                           param2 = mesh_type})
             end,
     })
