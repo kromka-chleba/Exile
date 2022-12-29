@@ -194,7 +194,8 @@ local plant_list = {
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "fibrous_plant", waving = true,
      growing_time = plant_base_growing_time * 0.5,
-     dye_candidate = true, dominant_color = "yellow"},
+     dye_candidate = true, dominant_color = "yellow",
+     seasonal_type = "whole_season"},
 
     {name = "tanai", description = S("Tanai"),
      drawtype = "plantlike", mesh_type = 4,

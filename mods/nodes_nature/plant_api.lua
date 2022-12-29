@@ -53,6 +53,16 @@ local seasonal_types = {
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
+    whole_season = {
+        _spring_early = "_seedling3",
+        _spring_late = "",
+        _summer_early = "",
+        _summer_late = "",
+        _fall_early = "",
+        _fall_late = "",
+        _winter_early = "_dead",
+        _winter_late = "_dead",
+    }
 }
 
 function soil_preferences.new(args)
@@ -872,24 +882,28 @@ end
 function plant.get_plantlike_dead_props(plant_def)
     local base = plant.get_plantlike_props(plant_def)
     base.tiles = {plant.get_dead_texture_name(plant_def.name)}
-    base._fruitless_name = plant.get_dead_fruitless_name(plant_def.name)
-    base._fruit_name = plant.get_fruit_name(plant_def.name)
     base.inventory_image = plant.get_dead_texture_name(plant_def.name)
     base.wield_image = plant.get_dead_texture_name(plant_def.name)
     base._next_life_stage = ""
-    base.on_punch = function(pos, node, puncher, pointed_thing)
-        local node_name = minetest.get_node(pos).name
-        local nodedef = minetest.registered_nodes[node_name]
-        if nodedef._fruitless_name then
-            minetest.set_node(pos, {name = nodedef._fruitless_name,
-                                    param2 = nodedef.place_param2})
-        end
-        local inv = puncher:get_inventory()
-        local new_stack = ItemStack(nodedef._fruit_name)
-        if inv:room_for_item("main", new_stack) then
-            inv:add_item("main", new_stack)
-        else
-            minetest.add_item(pos, new_stack)
+    base.description = S("Dead @1", plant_def.description)
+    if plant_def.fruit then
+        base.description = S("Dead Fruiting @1", plant_def.description)
+        base._fruitless_name = plant.get_dead_fruitless_name(plant_def.name)
+        base._fruit_name = plant.get_fruit_name(plant_def.name)
+        base.on_punch = function(pos, node, puncher, pointed_thing)
+            local node_name = minetest.get_node(pos).name
+            local nodedef = minetest.registered_nodes[node_name]
+            if nodedef._fruitless_name then
+                minetest.set_node(pos, {name = nodedef._fruitless_name,
+                                        param2 = nodedef.place_param2})
+            end
+            local inv = puncher:get_inventory()
+            local new_stack = ItemStack(nodedef._fruit_name)
+            if inv:room_for_item("main", new_stack) then
+                inv:add_item("main", new_stack)
+            else
+                minetest.add_item(pos, new_stack)
+            end
         end
     end
     return base
@@ -898,8 +912,9 @@ end
 function plant.register_plantlike_dead_fruiting(plant_def)
     local props = plant.get_plantlike_dead_props(plant_def)
     minetest.register_node(plant.get_dead_name(plant_def.name), props)
-    exile_add_food_hooks(plant.get_dead_name(plant_def.name))
 end
+
+plant.register_plantlike_dead = plant.register_plantlike_dead_fruiting
 
 function plant.register_fruit(plant_def)
     local props = {
@@ -1167,7 +1182,6 @@ function plant.register_all(plant_def_list)
             if plant_def.lbm then
                 plant.register_timer_start_lbm(plant_def)
             end
-
         end
         if plant_def.fruit then
             plant.register_plantlike_flowering(plant_def)
@@ -1180,6 +1194,8 @@ function plant.register_all(plant_def_list)
                 plant.register_plantlike_dead_fruiting(plant_def)
                 plant.register_plantlike_dead_fruitless(plant_def)
             end
+        elseif plant_def.seasonal_type or plant_def.seasons then
+            plant.register_plantlike_dead_fruiting(plant_def)
         end
         plant.register_threshing_recipes(plant_def)
         plant.add_food_hooks(plant_def)
