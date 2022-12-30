@@ -256,7 +256,9 @@ for i in ipairs(rock_list) do
 
 	local cobble_groups = {cracky = hardness,
 			       falling_node = 1,
-			       oddly_breakable_by_hand = 3,}
+			       oddly_breakable_by_hand = 3,
+			       temp_pass = 1, temp_flow = 1
+	}
 	cobble_groups[name.."_cobble"] = 1
 
 	-- cobbles
