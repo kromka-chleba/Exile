@@ -1,20 +1,21 @@
 --login.lua
 --A login screen to show to new players
 
-local logintext = ( "\n  You can scarcely hear the sound of them\n"..
-		       "reading the list of your crimes over the\n" ..
-		       "louder jeering of your kinsmen, but it's already\n"..
-		       "too late to protest your innocence.\n"..
-		       "\n  You are stripped of all possessions and given\n"..
-		       "a writ describing your assorted crimes and the\n"..
-		       "punishment that is to be given, and then you\n"..
-		       "are pushed through a gateway to die in the\n"..
+local logintext = ( "  You can scarcely hear the sound of them "..
+		       "reading the list of your crimes over the " ..
+		       "louder jeering of your kinsmen, but it's already "..
+		       "too late to protest your innocence. "..
+		       "\n  You are stripped of all possessions and given "..
+		       "a writ describing your assorted crimes and the "..
+		       "punishment that is to be given, and then you "..
+		       "are pushed through a gateway to die in the "..
 		       "cursed land of the Ancients, as an.." )
 
 local loginspec = ("formspec_version[3]"..
 		       "size[7,7.5]"..
 		   "bgcolor[;both;#bbb]"..
-		   "label[0.5,0.5;"..logintext.."]"..
+		   "background9[0,0;7,7.5;9slice.png;false;10]"..
+		   "hypertext[0.5,0.75;6,5;introtext;"..logintext.."]"..
 		   "image[1.5,6;6,2;logo.png]" )
 
 
