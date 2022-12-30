@@ -51,14 +51,15 @@ local plant_list = {
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
      soil_preferences = wrotycz_soil_prefs, fruit = true,
-     seasonal_type = "late"},
+     seasonal_type = "late", winter_fruit = true,},
 
     {name = "wiha", description = S("Wiha"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
-     fruit = true, seasonal_type = "early"},
+     fruit = true, seasonal_type = "early",
+     winter_fruit = true,},
 
     {name = "momo", description = S("Momo"),
      drawtype = "plantlike", mesh_type = 2,
@@ -83,14 +84,17 @@ local plant_list = {
      plant_type = "herbaceous_plant", waving = true,
      drawtype = "plantlike", mesh_type = 3,
      growing_time = plant_base_growing_time * 2,
-     dye_candidate = true, dominant_color = "green"},
+     dye_candidate = true, dominant_color = "green",
+     winter_fruit = false, seasonal_type = "tuber",
+     fruit = true},
 
     {name = "hakimi", description = S("Hakimi"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "blue",
-     fruit = true, seasonal_type = "mainly_flower"},
+     fruit = true, winter_fruit = true,
+     seasonal_type = "mainly_flower"},
 
     {name = "orom", description = S("Orom"),
      drawtype = "plantlike", mesh_type = 1,
@@ -109,7 +113,8 @@ local plant_list = {
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
-     fruit = true, seasonal_type = "medium"},
+     fruit = true, seasonal_type = "medium",
+     winter_fruit = true,},
 
     -- Mushrooms
 

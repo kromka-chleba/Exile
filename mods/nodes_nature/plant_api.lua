@@ -92,7 +92,17 @@ local seasonal_types = {
         _fall_late = "",
         _winter_early = "_dead",
         _winter_late = "_dead",
-    }
+    },
+    tuber = {
+        _spring_early = "_seedling5",
+        _spring_late = "_flowering",
+        _summer_early = "_fruiting",
+        _summer_late = "_fruiting",
+        _fall_early = "_fruitless",
+        _fall_late = "_dead",
+        _winter_early = "_dead",
+        _winter_late = "_dead",
+    },
 }
 
 function soil_preferences.new(args)
@@ -512,6 +522,7 @@ function plant.new(args)
         dye_candidate = args.dye_candidate or false,
         dominant_color = args.dominant_color,
         fruit = args.fruit,
+        winter_fruit = args.winter_fruit,
         thorns = thorns,
         climbable = args.climbable,
         nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
@@ -916,7 +927,7 @@ function plant.get_plantlike_dead_props(plant_def)
     base.wield_image = plant.get_dead_texture_name(plant_def.name)
     base._next_life_stage = ""
     base.description = S("Dead @1", plant_def.description)
-    if plant_def.fruit then
+    if plant_def.fruit and plant_def.winter_fruit then
         base.description = S("Dead Fruiting @1", plant_def.description)
         base._fruitless_name = plant.get_dead_fruitless_name(plant_def.name)
         base._fruit_name = plant.get_fruit_name(plant_def.name)
@@ -1223,10 +1234,12 @@ function plant.register_all(plant_def_list)
                                     plant.get_fruiting_name(plant_def.name))
             if plant_def.seasonal_type or plant_def.seasons then
                 plant.register_plantlike_dead_fruiting(plant_def)
-                plant.register_plantlike_dead_fruitless(plant_def)
+                if plant_def.winter_fruit then
+                    plant.register_plantlike_dead_fruitless(plant_def)
+                end
             end
         elseif plant_def.seasonal_type or plant_def.seasons then
-            plant.register_plantlike_dead_fruiting(plant_def)
+            plant.register_plantlike_dead(plant_def)
         end
         plant.register_threshing_recipes(plant_def)
         plant.add_food_hooks(plant_def)
