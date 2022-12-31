@@ -7,6 +7,42 @@ local S = nodes_nature.S
 
 ---------------------------------------
 
+minetest.register_chatcommand(
+    "set_day", {
+        params = S("<day>"),
+        description = S("Sets date."),
+        privs = {settime = true},
+        func = function(name, param)
+            if param == "" or not tonumber(param) then
+                return false, S("Wrong argument, needs a number!")
+            end
+            local old_time = minetest.get_timeofday()
+            local day = math.floor(param)
+            local current_day = minetest.get_day_count() % 80 + 1
+            local days_to_skip
+            if day > current_day then
+                days_to_skip = day - current_day
+            elseif day < current_day then
+                days_to_skip = 80 - current_day + day
+            else
+                return true, S("Nothing to change, the date stays as is.")
+            end
+            local days_left = days_to_skip
+            local function loop()
+                if days_left > 0 then
+                    days_left = days_left - 1
+                    minetest.set_timeofday(1)
+                    minetest.after(0.05, loop)
+                else
+                    minetest.after(0.05, function () minetest.set_timeofday(old_time) end)
+                end
+            end
+            loop()
+            local new_current_day = minetest.get_day_count() % 80 + 1
+            return true, S("Date chagned!")
+        end,
+})
+
 local season_names = {
     "spring_early",
     "spring_late",
@@ -143,7 +179,7 @@ local function season_loop()
     local season_name = season_names[nr % 8 + 1]
     change_seasonal_lbm(season_name)
     change_seasonal_abm(season_name)
-    minetest.after(20, season_loop)
+    minetest.after(15, season_loop)
     minetest.log("error", season_name)
     nr = nr + 1
     --minetest.after(1200, season_loop)
@@ -168,7 +204,7 @@ local function register_placeholder_abms()
         minetest.register_abm({
                 label = "Season changer: "..season_names[i],
                 name = "nodes_nature:"..season_names[i],
-                interval = 10,
+                interval = 5,
                 chance = 1,
                 catch_up = false,
                 min_y = -30,
