@@ -51,7 +51,8 @@ local plant_list = {
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
      soil_preferences = wrotycz_soil_prefs, fruit = true,
-     seasonal_type = "late", winter_fruit = true,},
+     seasonal_type = "late", winter_fruit = true,
+     dry_fruit = true},
 
     {name = "wiha", description = S("Wiha"),
      drawtype = "plantlike", mesh_type = 4,
@@ -74,14 +75,16 @@ local plant_list = {
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 0.4,
      dye_candidate = true, dominant_color = "green",
-     seasonal_type = "whole_season"},
+     seasonal_type = "whole_season",
+     edible_seedling = true},
 
     {name = "vansano", description = S("Vansano"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 1.2,
      dye_candidate = true, dominant_color = "green",
-     fruit = true, seasonal_type = "long", winter_fruit = false},
+     fruit = true, seasonal_type = "long", winter_fruit = false,
+     dry_fruit = true},
 
     {name = "anperla", description = S("Anperla"),
      plant_type = "herbaceous_plant", waving = true,
@@ -97,7 +100,8 @@ local plant_list = {
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "blue",
      fruit = true, winter_fruit = true,
-     seasonal_type = "mainly_flower"},
+     seasonal_type = "mainly_flower",
+     dry_fruit = true},
 
     {name = "orom", description = S("Orom"),
      drawtype = "plantlike", mesh_type = 1,
@@ -117,7 +121,7 @@ local plant_list = {
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
      fruit = true, seasonal_type = "medium",
-     winter_fruit = true,},
+     winter_fruit = true, dry_fruit = true},
 
     -- Mushrooms
 
@@ -234,7 +238,7 @@ local plant_list = {
      plant_type = "fibrous_plant", waving = true,
      growing_time = plant_base_growing_time,
      dye_candidate = true, dominant_color = "green",
-     seasonal_type = "whole_season"},
+     seasonal_type = "whole_season", edible_seedling = true},
 
     {name = "tashvish", description = S("Tashvish"),
      drawtype = "plantlike", mesh_type = 4,

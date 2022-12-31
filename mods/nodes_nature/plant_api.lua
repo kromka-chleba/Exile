@@ -543,6 +543,8 @@ function plant.new(args)
         dominant_color = args.dominant_color,
         fruit = args.fruit,
         winter_fruit = args.winter_fruit,
+        edible_seedling = args.edible_seedling,
+        dry_fruit = args.dry_fruit,
         thorns = thorns,
         climbable = args.climbable,
         nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
@@ -861,6 +863,9 @@ function plant.register_plantlike_seedlings(plant_def)
         props.visual_scale = i / nr
         local seedling_name = plant.get_seedling_name(plant_def.name, i)
         minetest.register_node(seedling_name, props)
+        if plant_def.edible_seedling then
+            exile_add_food_hooks(seedling_name)
+        end
     end
     -- the last seedling
     local props = plant.get_plantlike_seedling_props(plant_def)
@@ -868,6 +873,9 @@ function plant.register_plantlike_seedlings(plant_def)
         props._next_life_stage = plant.get_flowering_name(plant_def.name)
     end
     minetest.register_node(plant.get_seedling_name(plant_def.name, nr), props)
+    if plant_def.edible_seedling then
+        exile_add_food_hooks(plant.get_seedling_name(plant_def.name, nr))
+    end
 end
 
 function plant.get_plantlike_flowering_props(plant_def)
@@ -995,6 +1003,9 @@ function plant.register_fruit(plant_def)
     if plant_def.dye_candidate then
         props.groups.ncrafting_dye_candidate = 1
         props._ncrafting_dye_dcolor = plant_def.dominant_color
+    end
+    if plant_def.dry_fruit then
+        props.description = S("@1 Dry Fruit", plant_def.description)
     end
     minetest.register_craftitem(plant.get_fruit_name(plant_def.name), props)
     exile_add_food_hooks(plant.get_fruit_name(plant_def.name))
