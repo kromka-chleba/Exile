@@ -27,14 +27,16 @@ minetest.register_chatcommand(
             else
                 return true, S("Nothing to change, the date stays as is.")
             end
-            local days_left = days_to_skip
+            -- life is a tragedy but sometimes also a comedy
+            -- there's no /set_date command in minetest so we wrote one
             local function loop()
-                if days_left > 0 then
-                    days_left = days_left - 1
+                if days_to_skip > 0 then
+                    days_to_skip = days_to_skip - 1
                     minetest.set_timeofday(1)
                     minetest.after(0.05, loop)
                 else
                     minetest.after(0.05, function () minetest.set_timeofday(old_time) end)
+                    minetest.after(0.5, climate.refresh)
                 end
             end
             loop()
@@ -159,7 +161,7 @@ local function get_season_name()
         season_name = "summer"
     elseif season == 3 then
         season_name = "fall"
-    elseif season == 3 then
+    elseif season == 4 then
         season_name = "winter"
     end
 
@@ -175,8 +177,8 @@ end
 local nr = 0
 
 local function season_loop()
-    --local season_name = get_season_name()
-    local season_name = season_names[nr % 8 + 1]
+    local season_name = get_season_name()
+    --local season_name = season_names[nr % 8 + 1]
     change_seasonal_lbm(season_name)
     change_seasonal_abm(season_name)
     minetest.after(15, season_loop)

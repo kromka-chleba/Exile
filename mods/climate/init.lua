@@ -365,6 +365,11 @@ local function set_world_temperature()
     store:set_float("ran_walk", ran_walk)
 end
 
+function climate.refresh()
+    set_world_temperature()
+    select_new_active_weather()
+end
+
 --------------------------
 -- Main step
 --------------------------
