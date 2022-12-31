@@ -250,6 +250,7 @@ minetest.register_abm({
 	nodenames = {"group:bare_sediment"},
 	neighbors = {"group:spreading"},
 	interval = 161,
+        min_y = 5,
 	chance = 15,
 	catch_up = false,
 	action = function(pos, node)
@@ -305,4 +306,27 @@ minetest.register_abm({
 		minetest.set_node(pos, {name = sname, param2 = node.param2})
 	end
 
+})
+
+minetest.register_abm({
+	label = "Remove buried and covered grass",
+	nodenames = {"group:spreading"},
+	interval = 211,
+	chance = 1,
+	catch_up = false,
+        min_y = -30,
+        max_y = 500,
+	action = function(pos, node)
+            local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
+            local soil_nodedef = minetest.registered_nodes[node.name]
+            local light_above = minimal.get_daylight(pos_above, 0.5)
+	    local toname = soil_nodedef.drop
+            if not light_above or light_above < 10 then
+		local id = soil_nodedef.groups.natural_slope
+		if id then -- We're a slope, preserve that
+		   toname = nsl.get_all_slopes(toname)[id]
+		end
+		minetest.set_node(pos, {name = toname, param2 = node.param2})
+	    end
+	end
 })
