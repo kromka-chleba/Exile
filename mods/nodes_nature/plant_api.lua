@@ -43,13 +43,23 @@ local seasonal_types = {
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
+    long = {
+        _spring_early = "_seedling5",
+        _spring_late = "_fruitless",
+        _summer_early = "_flowering",
+        _summer_late = "_fruiting",
+        _fall_early = "_fruiting",
+        _fall_late = "_fruiting",
+        _winter_early = "_dead",
+        _winter_late = "_dead",
+    },
     late = {
         _spring_early = "_dead",
-        _spring_late = "_seed",
-        _summer_early = "_seedling3",
+        _spring_late = "_seedling3",
+        _summer_early = "_seedling5",
         _summer_late = "_flowering",
         _fall_early = "_fruiting",
-        _fall_late = "_dead",
+        _fall_late = "_fruiting",
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
@@ -75,6 +85,16 @@ local seasonal_types = {
     },
     whole_season = {
         _spring_early = "_seedling5",
+        _spring_late = "",
+        _summer_early = "",
+        _summer_late = "",
+        _fall_early = "",
+        _fall_late = "",
+        _winter_early = "_dead",
+        _winter_late = "_dead",
+    },
+    cane = {
+        _spring_early = "",
         _spring_late = "",
         _summer_early = "",
         _summer_late = "",
@@ -922,6 +942,11 @@ end
 
 function plant.get_plantlike_dead_props(plant_def)
     local base = plant.get_plantlike_props(plant_def)
+    if plant_def.plant_type == "cane" then
+        base = plant.get_canelike_props(plant_def)
+    elseif plant_def.plant_type == "bamboo" then
+        base = plant.get_bamboolike_props(plant_def)
+    end
     base.tiles = {plant.get_dead_texture_name(plant_def.name)}
     base.inventory_image = plant.get_dead_texture_name(plant_def.name)
     base.wield_image = plant.get_dead_texture_name(plant_def.name)

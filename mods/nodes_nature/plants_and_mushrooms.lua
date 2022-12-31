@@ -66,19 +66,22 @@ local plant_list = {
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
-     fruit = true},
+     fruit = true, winter_fruit = false,
+     seasonal_type = "late"},
 
     {name = "galanta", description = S("Galanta"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 0.8,
-     dye_candidate = true, dominant_color = "green"},
+     growing_time = plant_base_growing_time * 0.4,
+     dye_candidate = true, dominant_color = "green",
+     seasonal_type = "whole_season"},
 
     {name = "vansano", description = S("Vansano"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 1.2,
-     dye_candidate = true, dominant_color = "green"},
+     dye_candidate = true, dominant_color = "green",
+     fruit = true, seasonal_type = "long", winter_fruit = false},
 
     {name = "anperla", description = S("Anperla"),
      plant_type = "herbaceous_plant", waving = true,
@@ -162,7 +165,8 @@ local plant_list = {
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
      mesh_type = 2, growing_time = plant_base_growing_time * 2,
-     dye_candidate = true, dominant_color = "red"},
+     dye_candidate = true, dominant_color = "red",
+     seasonal_type = "late_mushroom"},
 
     {name = "zufani", description = S("Zufani"),
      drawtype = "plantlike",
@@ -196,7 +200,7 @@ local plant_list = {
      waving = true,
      mesh_type = 3, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "crimson",
-     visual_scale = 1.5},
+     visual_scale = 1.5, seasonal_type = "whole_season_woody"},
     
     -- Grasses
     {name = "sari", description = S("Sari"),
@@ -210,7 +214,8 @@ local plant_list = {
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
      growing_time = plant_base_growing_time * 1.5,
-     dye_candidate = true, dominant_color = "crimson"},
+     dye_candidate = true, dominant_color = "crimson",
+     seasonal_type = "whole_season"},
 
     {name = "thoka", description = S("Thoka"),
      drawtype = "plantlike", mesh_type = 4,
@@ -221,18 +226,21 @@ local plant_list = {
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
-     dye_candidate = true, dominant_color = "yellow"},
+     dye_candidate = true, dominant_color = "yellow",
+     seasonal_type = "whole_season"},
 
     {name = "damo", description = S("Damo"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
      growing_time = plant_base_growing_time,
-     dye_candidate = true, dominant_color = "green"},
+     dye_candidate = true, dominant_color = "green",
+     seasonal_type = "whole_season"},
 
     {name = "tashvish", description = S("Tashvish"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growing_time * 1.5},
+     growing_time = plant_base_growing_time * 1.5,
+     seasonal_type = "whole_season"},
 
     -- Moss
     {name = "moss", description = S("Moss"),
@@ -248,18 +256,18 @@ local plant_list = {
     {name = "gemedi", description = S("Gemedi"),
      drawtype = "plantlike", plant_type = "cane", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
-     seed_number = 1},
+     seed_number = 1, seasonal_type = "cane"},
 
     -- Bamboos
     {name = "chalin", description = S("Chalin"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
-     seed_number = 1, climbable = true},
+     seed_number = 1, climbable = true, seasonal_type = "whole_season_woody"},
 
     {name = "tiken", description = S("Tiken"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
-     seed_number = 1, thorns = true},
+     seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
 }
 
 -- makes all plants in the game
