@@ -5,7 +5,7 @@
 -- cane growth
 --spreading surfaces
 
-
+nsl = naturalslopeslib
 
 ----------------------------------------------------------------
 -- Flora
@@ -247,43 +247,62 @@ minetest.register_abm({
 
 minetest.register_abm({
 	label = "Surface spread",
-	nodenames = {"group:spreading"},
-	neighbors = {"air", "group:sediment"},
-	interval = 805,
-	chance = 1,
+	nodenames = {"group:bare_sediment"},
+	neighbors = {"group:spreading"},
+	interval = 161,
+	chance = 15,
 	catch_up = false,
 	action = function(pos, node)
 
-		--get drop so we know what it grows on
+		-- Don't spread at night
+		local tod = minetest.get_timeofday()
+		if tod < 0.2 or tod > 0.8 then return end
+
+		local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
+		local above_name = minetest.get_node(pos_above).name
+		if ( above_name ~= "air" or minimal.get_daylight(
+			pos_above, 0.5) < 13 ) then
+		   return -- This node is in darkness, covered
+		end
+
+		-- Get dry drop so we know what type of base sediment we are
 		local nodedef = minetest.registered_nodes[node.name]
-		local drop = nodedef.drop
+		local drop = nodedef.drop:gsub("%_wet","")
 		if not nodedef or not drop then
-			return
+		   return
 		end
 
-		--remove in dark
-		local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
-		if light ~= nil and light < 10 then
-			minetest.set_node(pos, {name = drop})
-			return
-		end
-
-		--spread if suitable nearby
+		-- Look for correct grass type nearby
 		local positions = minetest.find_nodes_in_area_under_air(
-			{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
-			{x = pos.x + 1, y = pos.y + 2, z = pos.z + 1},
-			{drop})
+		   {x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
+		   {x = pos.x + 1, y = pos.y + 2, z = pos.z + 1},
+		   {"group:spreading"})
 
 		if #positions == 0 then
-			return
+		   return
 		end
 
-		local pos2 = positions[math.random(#positions)]
-		local pos2_ab = {x = pos2.x, y = pos2.y + 1, z = pos2.z}
-		if minimal.get_daylight(pos, 0.5) >= 13 and
-		  minimal.get_daylight(pos2_ab, 0.5) >= 13 then
-			minetest.set_node(pos2, {name = node.name})
+		local sourcepos = positions[math.random(#positions)]
+		-- Check against drop
+		local source = minetest.get_node(sourcepos)
+		local sname = nsl.get_regular_node_name(source.name)
+		   or source.name -- Ignore natural slopes variations
+		sname = sname:gsub("%_wet","") -- ..and compare dry vs dry!
+
+		local sdef = minetest.registered_nodes[sname]
+		if ( not sdef.drop ) or sdef.drop ~= drop then
+		   return -- Wrong grass/dirt type, can't spread here
 		end
 
+		local id = nodedef.groups.natural_slope
+		if id then -- We're a slope, preserve that
+		   sname = nsl.get_all_slopes(sname)[id]
+		end
+		if minetest.get_item_group(node.name, "wet_sediment") == 1 then
+		   -- Preserve wetness too, sname is always the dry node
+		   sname = sname.."_wet"
+		end
+		minetest.set_node(pos, {name = sname, param2 = node.param2})
 	end
+
 })
