@@ -177,7 +177,8 @@ local plant_list = {
      lifeform_type = "mushroom", plant_type = "mushroom",
      mesh_type = 2, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
-     seasonal_type = "late_mushroom"},
+     seasonal_type = "late_mushroom", fruit = true,
+     only_dead_fruit = true, winter_fruit = true},
 
     -- Woody
     {name = "tsaplop", description = S("Tsaplop"),
@@ -276,6 +277,14 @@ local plant_list = {
 
 -- makes all plants in the game
 plant.register_all(plant_list)
+
+----------------------------------------------
+--Name overrides
+
+minetest.override_item(
+    "nodes_nature:zufani_fruit", {
+        description = S("Zufani amber"),
+})
 
 ----------------------------------------------
 --Extra effects

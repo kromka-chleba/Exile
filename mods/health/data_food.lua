@@ -34,6 +34,7 @@ food_table = {
         ["nodes_nature:wiha_fruiting"]      = { 0,  8,   4,  0,  0 },
         ["nodes_nature:wiha_fruit"]         = { 0,  4,   2,  0,  0 },
 	["nodes_nature:zufani"]             = { 0,  0,   6,  0,  0 },
+        ["nodes_nature:zufani_fruit"]       = { 0,  0,   4,  4,  0 },
         ["nodes_nature:damo_seedling1"]     = { 0,  1,   1,  0,  0 },
         ["nodes_nature:damo_seedling2"]     = { 0,  1,   1,  0,  0 },
         ["nodes_nature:damo_seedling3"]     = { 0,  1,   1,  0,  0 },

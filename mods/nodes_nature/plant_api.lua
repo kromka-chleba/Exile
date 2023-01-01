@@ -543,6 +543,7 @@ function plant.new(args)
         dominant_color = args.dominant_color,
         fruit = args.fruit,
         winter_fruit = args.winter_fruit,
+        only_dead_fruit = args.only_dead_fruit,
         edible_seedling = args.edible_seedling,
         dry_fruit = args.dry_fruit,
         thorns = thorns,
@@ -1200,10 +1201,14 @@ function plant.register_threshing_recipes(plant_def)
                 always_known = true,
         })
     end
-    if plant_def.fruit then
+    if plant_def.fruit and not plant_def.only_dead_fruit then
         reg_recipe(plant.get_fruit_name(plant_def.name))
         reg_recipe(plant.get_fruiting_name(plant_def.name))
     else
+        reg_recipe(plant.get_name(plant_def.name))
+    end
+    if plant_def.only_dead_fruit then
+        reg_recipe(plant.get_fruit_name(plant_def.name))
         reg_recipe(plant.get_name(plant_def.name))
     end
 end
@@ -1262,19 +1267,26 @@ function plant.register_all(plant_def_list)
             end
         end
         if plant_def.fruit then
-            plant.register_plantlike_flowering(plant_def)
-            plant.register_plantlike_fruiting(plant_def)
-            plant.register_plantlike_fruitless(plant_def)
             plant.register_fruit(plant_def)
-            minetest.register_alias(plant.get_name(plant_def.name),
-                                    plant.get_fruiting_name(plant_def.name))
+            -- for Zufani ambers
+            if not plant_def.only_dead_fruit then
+                plant.register_plantlike_flowering(plant_def)
+                plant.register_plantlike_fruiting(plant_def)
+                plant.register_plantlike_fruitless(plant_def)
+                -- compatibility with old worlds
+                minetest.register_alias(plant.get_name(plant_def.name),
+                                        plant.get_fruiting_name(plant_def.name))
+            else
+                plant.register_plantlike(plant_def)
+            end
             if plant_def.seasonal_type or plant_def.seasons then
                 plant.register_plantlike_dead_fruiting(plant_def)
                 if plant_def.winter_fruit then
                     plant.register_plantlike_dead_fruitless(plant_def)
                 end
             end
-        elseif plant_def.seasonal_type or plant_def.seasons then
+        end
+        if plant_def.seasonal_type or plant_def.seasons then
             plant.register_plantlike_dead(plant_def)
         end
         plant.register_threshing_recipes(plant_def)
