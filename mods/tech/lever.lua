@@ -227,7 +227,7 @@ end
 
 minetest.register_tool("tech:aligner", {
 	  description = S("alignment tool") .. "\n" ..
-	     S("(left-click samples a node, right-click "..
+	     S("(right-click samples a node, left-click "..
 	       "applies its facing to others)"),
 	inventory_image = "tech_tool_lever.png^[transformFX",
 	groups = {tool = 1},
