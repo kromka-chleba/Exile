@@ -200,7 +200,7 @@ local function aligner(itemstack, user, pointed_thing, grab)
    end
    local p2type = ndef.paramtype2
    local p2 = node.param2
-   local color = minetest.strip_param2_color(p2, p2type) or p2
+   local color = minetest.strip_param2_color(p2, p2type) or 0
    local nocolor = node.param2 - color
    local meta = itemstack:get_meta()
    if grab then
