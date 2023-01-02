@@ -83,6 +83,10 @@ local function update_plant(pos, node, season_name)
     local new_name = nodedef["_"..season_name]
     local next_nodedef = minetest.registered_nodes[new_name]
     if new_name and new_name ~= node.name then
+        local timer = minetest.get_node_timer(pos)
+        if timer:is_started() then
+            return
+        end
         minetest.set_node(pos, {name = new_name,
                                 param2 = next_nodedef.place_param2})
     end
@@ -143,7 +147,9 @@ local function change_seasonal_abm(season_name)
     activate_seasonal_abm(season_name)
 end
 
-local function get_season_and_day()
+seasons = {}
+
+function seasons.get_season_and_day()
     -- days into the current year
     local days = minetest.get_day_count() % 80
     local season_days = days % 20 + 1
@@ -152,8 +158,8 @@ local function get_season_and_day()
     return season_nr, season_days
 end
 
-local function get_season_name()
-    local season, day = get_season_and_day()
+function seasons.get_season_name()
+    local season, day = seasons.get_season_and_day()
     local season_name = ""
     if season == 1 then
         season_name = "spring"
@@ -177,7 +183,7 @@ end
 local nr = 0
 
 local function season_loop()
-    local season_name = get_season_name()
+    local season_name = seasons.get_season_name()
     --local season_name = season_names[nr % 8 + 1]
     change_seasonal_lbm(season_name)
     change_seasonal_abm(season_name)

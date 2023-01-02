@@ -221,7 +221,7 @@ end
 
 local function is_temperature_good(pos)
     local temp = climate.get_point_temp(pos)
-    return temp > 0 or temp < 40
+    return temp > 5 or temp < 40
 end
 
 local function are_conditions_good(pos)
@@ -294,13 +294,48 @@ local function deplete_soil(pos)
 end
 
 local function kill_or_stop_growing(pos)
+    local node = minetest.get_node(pos)
+    local nodedef = minetest.registered_nodes[node.name]
+    local fruiting_plant = false
+    local flowering_plant = false
+    local seedling = false
+    if minetest.get_item_group(node.name, "fruiting_plant") > 0 then
+        fruiting_plant = true
+    end
+    if minetest.get_item_group(node.name, "flowering_plant") > 0 then
+        flowering_plant = true
+    end
+    if minetest.get_item_group(node.name, "seedling") > 0 then
+        seedling = true
+    end
     -- extreme temps will kill
     if is_temperature_extreme(pos) then
-        minetest.remove_node(pos)
+        if fruiting_plant and nodedef._dead_fruitless_name then
+            minetest.set_node(pos, {name = nodedef._dead_fruitless_name,
+                                    param2 = nodedef.place_param2})
+        else
+            minetest.set_node(pos, {name = nodedef._dead_name,
+                                    param2 = nodedef.place_param2})
+        end
         return true
     end
     -- stop growth if conditions not suitable
     if not are_conditions_good(pos) then
+        local season = seasons.get_season_name()
+        if season == "winter_early" or
+            season == "winter_late" then
+            minetest.log("error", "kill!")
+            if seedling then
+                minetest.remove_node(pos)
+            elseif flowering_plant and nodedef._dead_fruitless_name then
+                minetest.set_node(pos, {name = nodedef._dead_fruitless_name,
+                                        param2 = nodedef.place_param2})
+            else
+                minetest.set_node(pos, {name = nodedef._dead_name,
+                                        param2 = nodedef.place_param2})
+            end
+            return true
+        end
         return true
     end
     -- the plant survives this time
@@ -731,7 +766,15 @@ function plant.get_base_props(plant_def)
                 _fall_late = name..seasons._fall_late,
                 _winter_early = name..seasons._winter_early,
                 _winter_late = name..seasons._winter_late,
+                _dead_name = plant.get_dead_name(plant_def.name),
         })
+        if plant_def.fruit and plant_def.winter_fruit then
+            props = minimal.merge_tables(
+                props, {
+                    _dead_fruitless_name =
+                        plant.get_dead_fruitless_name(plant_def.name),
+            })
+        end
     end
     return props
 end
@@ -886,6 +929,7 @@ function plant.get_plantlike_flowering_props(plant_def)
     base._next_life_stage = plant.get_fruiting_name(plant_def.name)
     base.inventory_image = plant.get_flowering_texture_name(plant_def.name)
     base.wield_image = plant.get_flowering_texture_name(plant_def.name)
+    base.groups = minimal.merge_tables(base.groups, {flowering_plant = 1})
     base.on_timer = function(pos, elapsed)
         return grow_plant(pos, elapsed,
                           plant_def.growing_time,
@@ -914,6 +958,8 @@ function plant.get_plantlike_fruiting_props(plant_def)
     base._fruitless_name = plant.get_fruitless_name(plant_def.name)
     base._fruit_name = plant.get_fruit_name(plant_def.name)
     base.inventory_image = plant.get_fruiting_texture_name(plant_def.name)
+    base.groups = minimal.merge_tables(base.groups, {fruiting_plant = 1,
+                                                     flowering_plant = 0})
     base.wield_image = plant.get_fruiting_texture_name(plant_def.name)
     base.on_punch = function(pos, node, puncher, pointed_thing)
         local node_name = minetest.get_node(pos).name
