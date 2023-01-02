@@ -286,6 +286,11 @@ minetest.override_item(
         description = S("Zufani amber"),
 })
 
+minetest.override_item(
+    "nodes_nature:momo_fruit", {
+        description = S("Momo pepper"),
+})
+
 ----------------------------------------------
 --Extra effects
 
