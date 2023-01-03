@@ -1,5 +1,15 @@
 # Changelog:
 
+## [2022-12-31][2022-12-31__0.3.9d] — 0.3.9d
+  - Add an alignment tool to complement the lever
+  - Fix grass spreading, grass dying in shade, and landscape waffling
+  - Gateway effects for incoming characters, courtesy of Dokimi
+  - Better intro screen
+  - Bugfixes
+
+## [2022-12-076][2022-12-07__0.3.9c] — 0.3.9c
+  - Misc bugfixes
+
 ## [2022-11-26][2022-11-26__0.3.9b] — 0.3.9b
   - Volcanic ash on volcanoes
   - Bugfixes
