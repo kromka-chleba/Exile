@@ -27,6 +27,8 @@ local textures = {
     tilled_soil = "nodes_nature_tilled_soil.png",
     tilled_soil_depleted = "nodes_nature_tilled_soil_depleted.png",
     fertile_soil = "nodes_nature_fertile_soil.png",
+    winter = "nodes_nature_winter.png",
+    winter_side = "nodes_nature_winter_side.png",
 }
 
 sediment.sounds = {
@@ -343,12 +345,39 @@ soil.get_wet_name = sediment.get_wet_name
 soil.get_dry_texture_name = sediment.get_dry_texture_name
 soil.get_wet_texture_name = sediment.get_wet_texture_name
 
+function soil.get_winter_name(basename)
+    local name = soil.get_dry_name(basename)
+    return name.."_winter"
+end
+
+function soil.get_winter_wet_name(basename)
+    local name = soil.get_dry_name(basename)
+    return name.."_winter_wet"
+end
+
 function soil.get_side_texture_name(basename, sedname)
     return sediment.get_dry_texture_name(sedname).."^"..soil.get_dry_texture_name(basename.."_side")
 end
 
 function soil.get_wet_side_texture_name(basename, sedname)
     return soil.get_side_texture_name(basename, sedname).."^"..textures.wet
+end
+
+function soil.get_winter_texture_name(basename, sedname)
+    return soil.get_dry_texture_name(basename).."^[colorize:#3b2914:150"
+end
+
+function soil.get_winter_side_texture_name(basename, sedname)
+    return sediment.get_dry_texture_name(sedname).."^("..
+        soil.get_dry_texture_name(basename.."_side").."^[colorize:#3b2914:150)"
+end
+
+function soil.get_winter_wet_texture_name(basename, sedname)
+    return soil.get_winter_texture_name(basename, sedname).."^"..textures.wet
+end
+
+function soil.get_winter_wet_side_texture_name(basename, sedname)
+    return soil.get_winter_side_texture_name(basename, sedname).."^"..textures.wet
 end
 
 function soil.new(args)
@@ -449,6 +478,7 @@ function soil.get_dry_node_props(soil_desc)
                          sediment.get_dry_texture_name(sed.name),
                          {name = soil.get_side_texture_name(soil_desc.name, sed.name)}},
                 _ag_soil = agricultural_soil.get_dry_name(sed.name),
+                _winter_name = soil.get_winter_name(soil_desc.name),
         })
     return merge_tables(props, soil.get_base_props(soil_desc))
 end
@@ -469,6 +499,7 @@ function soil.get_wet_node_props(soil_desc)
                          sediment.get_wet_texture_name(sed.name),
                          {name = soil.get_wet_side_texture_name(soil_desc.name, sed.name)}},
                 _ag_soil = agricultural_soil.get_wet_name(sed.name),
+                _winter_name = soil.get_winter_wet_name(soil_desc.name),
         })
     return merge_tables(props, soil.get_base_props(soil_desc))
 end
@@ -476,6 +507,42 @@ end
 function soil.register_wet(soil_desc)
     minetest.register_node(soil.get_wet_name(soil_desc.name),
                            soil.get_wet_node_props(soil_desc))
+end
+
+function soil.get_winter_props(soil_desc)
+    local sed = soil_desc.sediment
+    local props = table.copy(soil.get_dry_node_props(soil_desc))
+    props.description = S("Winter @1", soil_desc.description)
+    props.groups = merge_tables(sed.groups,
+                                {spreading = 0, winter_soil = 1})
+    props.tiles = {soil.get_winter_texture_name(soil_desc.name, sed.name),
+                   sediment.get_dry_texture_name(sed.name),
+                   {name = soil.get_winter_side_texture_name(soil_desc.name, sed.name)}}
+    props._dry_name = soil.get_winter_name(soil_desc.name)
+    props._wet_name = soil.get_winter_wet_name(soil_desc.name)
+    props._non_winter_name = soil.get_dry_name(soil_desc.name)
+    return props
+end
+
+function soil.register_winter(soil_desc)
+    local props = soil.get_winter_props(soil_desc)
+    minetest.register_node(soil.get_winter_name(soil_desc.name),
+                           props)
+end
+
+function soil.register_winter_wet(soil_desc)
+    local props = table.copy(soil.get_winter_props(soil_desc))
+    local sed = soil_desc.sediment
+    props.description = S("Winter_Wet @1", soil_desc.description)
+    props.groups = merge_tables(sed.groups_wet,
+                                {spreading = 0, winter_soil = 1})
+    props.tiles = {soil.get_winter_wet_texture_name(soil_desc.name, sed.name),
+                   sediment.get_wet_texture_name(sed.name),
+                   {name = soil.get_winter_wet_side_texture_name(soil_desc.name, sed.name)}}
+    props.sounds = sed.sound_wet
+    props._non_winter_name = soil.get_wet_name(soil_desc.name)
+    minetest.register_node(soil.get_winter_wet_name(soil_desc.name),
+                           props)
 end
 
 function soil.do_slopes(soil_desc)
@@ -857,6 +924,8 @@ function sediment.register_soil_variants(soil_list)
     for _, s in ipairs(soil_list) do
         soil.register_dry(s)
         soil.register_wet(s)
+        soil.register_winter(s)
+        soil.register_winter_wet(s)
         soil.do_slopes(s)
     end
 end
