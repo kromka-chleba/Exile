@@ -305,10 +305,10 @@ minetest.override_item(
 -- tuber
 minetest.override_item(
     "nodes_nature:anperla_seed",{
-        tiles = {'nodes_nature_silt.png'},
+        tiles = {"nodes_nature_silt.png"},
         description = S("Anperla tuber"),
-        inventory_image = "",
-        wield_image = "",
+        wield_image = "nodes_nature_tuber.png",
+        inventory_image = "nodes_nature_tuber.png",
         node_box = {
             type = "fixed",
             fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
