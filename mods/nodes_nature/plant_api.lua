@@ -341,14 +341,24 @@ local function kill_or_stop_growing(pos)
     return false
 end
 
-local function grow_seed(pos)
+local function grow_seed(pos, elapsed)
     local node_name = minetest.get_node(pos).name
     local nodedef = minetest.registered_nodes[node_name]
-    if kill_or_stop_growing(pos) then
+    local season = seasons.get_season_name()
+    local meta = minetest.get_meta(pos)
+    if not meta:get_int("first_updated") then
+        meta:set_int("first_updated", elapsed)
+    end
+    if not are_conditions_good(pos) then
         return true -- unless dead, try again when conditions are good
     end
+    local first_updated = meta:get_int("first_updated")
     minetest.remove_node(pos)
     minetest.place_node(pos, {name = nodedef._next_life_stage})
+    local meta = minetest.get_meta(pos)
+    -- set last_updated for the new node to trigger life cycle catch up
+    meta:set_int("last_updated", first_updated)
+    meta:set_int("elapsed", elapsed)
     return false -- the seed becomes a seedling (stops the timer)
 end
 
@@ -360,6 +370,8 @@ local function grow_plant(pos, elapsed, growing_time, soil_prefs)
     local last_updated = meta:get_int("last_updated") or elapsed
     --We've been away, let's catch up on missing growth
     local progress = seed_soil_response(pos, soil_prefs)
+    -- this one is just in case the seed set elapsed to trigger catch up
+    local elapsed = meta:get_int("elapsed") or elapsed
     growing_left = catch_up_timer(pos, elapsed, last_updated, growing_left, progress)
     -- if catch_up_timer returns false it means the plant has died
     -- due to extreme weather
@@ -1204,8 +1216,8 @@ function plant.get_seed_base_props(plant_def)
             fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
         },
         _next_life_stage = next_life_stage,
-        on_timer = function(pos,elapsed)
-            return grow_seed(pos)
+        on_timer = function(pos, elapsed)
+            return grow_seed(pos, elapsed)
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             after_place_seedling(pos, placer, itemstack, pointed_thing)
