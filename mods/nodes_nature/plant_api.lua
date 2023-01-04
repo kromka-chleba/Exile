@@ -931,6 +931,9 @@ function plant.register_plantlike_seedlings(plant_def)
     if plant_def.edible_seedling then
         exile_add_food_hooks(plant.get_seedling_name(plant_def.name, nr))
     end
+    -- compatibility with old worlds
+    minetest.register_alias(plant.get_name(plant_def.name).."_seedling",
+                            plant.get_seedling_name(plant_def.name, nr))
 end
 
 function plant.get_plantlike_flowering_props(plant_def)
@@ -1158,6 +1161,9 @@ end
 function plant.register_3D_seedling(plant_def)
     minetest.register_node(plant.get_seedling_name(plant_def.name, 1),
                            plant.get_3D_seedling_props(plant_def))
+    -- compatibility with old worlds
+    minetest.register_alias(plant.get_name(plant_def.name).."_seedling",
+                            plant.get_seedling_name(plant_def.name, 1))
 end
 
 function plant.register_plantlike(plant_def)
