@@ -486,6 +486,7 @@ end
 function soil.register_dry(soil_desc)
     minetest.register_node(soil.get_dry_name(soil_desc.name),
                            soil.get_dry_node_props(soil_desc))
+    soil.do_slopes(soil.get_dry_name(soil_desc.name))
 end
 
 function soil.get_wet_node_props(soil_desc)
@@ -507,6 +508,7 @@ end
 function soil.register_wet(soil_desc)
     minetest.register_node(soil.get_wet_name(soil_desc.name),
                            soil.get_wet_node_props(soil_desc))
+    soil.do_slopes(soil.get_wet_name(soil_desc.name))
 end
 
 function soil.get_winter_props(soil_desc)
@@ -528,6 +530,7 @@ function soil.register_winter(soil_desc)
     local props = soil.get_winter_props(soil_desc)
     minetest.register_node(soil.get_winter_name(soil_desc.name),
                            props)
+    soil.do_slopes(soil.get_winter_name(soil_desc.name))
 end
 
 function soil.register_winter_wet(soil_desc)
@@ -543,14 +546,14 @@ function soil.register_winter_wet(soil_desc)
     props._non_winter_name = soil.get_wet_name(soil_desc.name)
     minetest.register_node(soil.get_winter_wet_name(soil_desc.name),
                            props)
+    soil.do_slopes(soil.get_winter_wet_name(soil_desc.name))
 end
 
-function soil.do_slopes(soil_desc)
+function soil.do_slopes(node_name)
     local doslopes = minetest.settings:get_bool('exile_enableslopes')
     local slopechance = minetest.settings:get('exile_slopechance') or 20
     if doslopes then
-        naturalslopeslib.register_slope(soil.get_dry_name(soil_desc.name), {}, slopechance)
-        naturalslopeslib.register_slope(soil.get_wet_name(soil_desc.name), {}, slopechance)
+        naturalslopeslib.register_slope(node_name, {}, slopechance)
     end
 end
 
@@ -926,7 +929,6 @@ function sediment.register_soil_variants(soil_list)
         soil.register_wet(s)
         soil.register_winter(s)
         soil.register_winter_wet(s)
-        soil.do_slopes(s)
     end
 end
 

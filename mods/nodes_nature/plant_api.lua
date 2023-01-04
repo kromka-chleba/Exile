@@ -987,6 +987,12 @@ function plant.get_plantlike_dead_fruitless_props(plant_def)
     base.inventory_image = plant.get_dead_fruitless_texture_name(plant_def.name)
     base.wield_image = plant.get_dead_fruitless_texture_name(plant_def.name)
     base.tiles = {plant.get_dead_fruitless_texture_name(plant_def.name)}
+    for i = 1, #seasons.season_names, 1 do
+        local lifestage = base["_"..seasons.season_names[i]]
+        if string.find(lifestage, "dead") then
+            base["_"..seasons.season_names[i]] = plant.get_dead_fruitless_name(plant_def.name)
+        end
+    end
     return base
 end
 
