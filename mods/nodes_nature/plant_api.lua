@@ -221,7 +221,7 @@ end
 
 local function is_temperature_good(pos)
     local temp = climate.get_point_temp(pos)
-    return temp > 5 or temp < 40
+    return temp > 5 and temp < 40
 end
 
 local function are_conditions_good(pos)
@@ -324,7 +324,6 @@ local function kill_or_stop_growing(pos)
         local season = seasons.get_season_name()
         if season == "winter_early" or
             season == "winter_late" then
-            minetest.log("error", "kill!")
             if seedling then
                 minetest.remove_node(pos)
             elseif flowering_plant and nodedef._dead_fruitless_name then
