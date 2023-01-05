@@ -409,7 +409,6 @@ end
 --
 local on_dig_seedling = function(pos, node, digger)
     if not digger then return false end
-
     if minetest.is_protected(pos, digger:get_player_name()) then
         return false
     end
@@ -420,13 +419,19 @@ local on_dig_seedling = function(pos, node, digger)
     local new_stack = ItemStack(node.name)
     local stack_meta = new_stack:get_meta()
     stack_meta:set_int("growth", growing_left)
-
     minetest.remove_node(pos)
     local player_inv = digger:get_inventory()
-    if player_inv:room_for_item("main", new_stack) then
-        player_inv:add_item("main", new_stack)
-    else
-        minetest.add_item(pos, new_stack)
+    local chance = 1
+    if minetest.get_item_group(node.name, "seedling") > 0 and
+        minetest.get_item_group(node.name, "fibrous_plant") > 0 then
+        chance = minetest.get_item_group(node.name, "seedling") / 10
+    end
+    if math.random() <= chance then
+        if player_inv:room_for_item("main", new_stack) then
+            player_inv:add_item("main", new_stack)
+        else
+            minetest.add_item(pos, new_stack)
+        end
     end
 end
 
@@ -714,6 +719,9 @@ function plant.get_seedling_groups(plant_def)
             plant_groups["mushroom"],
             base_groups.mushroom)
     end
+    if plant_def.plant_type == "fibrous_plant" then
+        base = minimal.merge_tables(base, {fibrous_plant = 1})
+    end
     if plant_def.seasons or plant_def.seasonal_type then
         base = minimal.merge_tables(base, {seasonal = 1})
     end
@@ -916,6 +924,7 @@ function plant.register_plantlike_seedlings(plant_def)
         local props = plant.get_plantlike_seedling_props(plant_def)
         props._next_life_stage = plant.get_seedling_name(plant_def.name, i + 1)
         props.visual_scale = i / nr
+        props.groups.seedling = i
         local seedling_name = plant.get_seedling_name(plant_def.name, i)
         minetest.register_node(seedling_name, props)
         if plant_def.edible_seedling then
@@ -927,6 +936,7 @@ function plant.register_plantlike_seedlings(plant_def)
     if plant_def.fruit then
         props._next_life_stage = plant.get_flowering_name(plant_def.name)
     end
+    props.groups.seedling = 5
     minetest.register_node(plant.get_seedling_name(plant_def.name, nr), props)
     if plant_def.edible_seedling then
         exile_add_food_hooks(plant.get_seedling_name(plant_def.name, nr))
