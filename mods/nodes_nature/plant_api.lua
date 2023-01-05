@@ -337,7 +337,7 @@ local function kill_or_stop_growing(pos)
         end
         return true
     end
-    -- the plant survives this time
+    -- returning false allows growth
     return false
 end
 
