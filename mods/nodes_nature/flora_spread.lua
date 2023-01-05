@@ -5,7 +5,7 @@
 -- cane growth
 --spreading surfaces
 
-
+nsl = naturalslopeslib
 
 ----------------------------------------------------------------
 -- Flora
@@ -250,7 +250,8 @@ minetest.register_abm({
 	nodenames = {"group:bare_sediment"},
 	neighbors = {"group:spreading"},
 	interval = 161,
-	chance = 5,
+        min_y = 5,
+	chance = 15,
 	catch_up = false,
         min_y = -30,
         max_y = 500,
@@ -260,6 +261,9 @@ minetest.register_abm({
             if above_name ~= "air" then
                 return
             end
+            -- Don't spread at night
+            local tod = minetest.get_timeofday()
+            if tod < 0.2 or tod > 0.8 then return end
             local positions = minetest.find_nodes_in_area_under_air(
                 {x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
                 {x = pos.x + 1, y = pos.y + 2, z = pos.z + 1},
@@ -273,26 +277,31 @@ minetest.register_abm({
                 local soil_pos = positions[i]
                 local soil_name = minetest.get_node(soil_pos).name
                 local soil_nodedef = minetest.registered_nodes[soil_name]
-                local drop = soil_nodedef.drop
-                if drop == sed_nodedef._dry_name or
-                    drop == sed_nodedef._wet_name then
+                local drop = string.gsub(soil_nodedef.drop, "_wet", "")
+                if drop == string.gsub(sed_nodedef.drop, "_wet", "") then
                     if light_above and light_above >= 13 then
+                        local replace_with = ""
                         if minetest.get_item_group(node.name, "wet_sediment") == 1 then
-                            minetest.set_node(pos, {name = soil_nodedef._wet_name})
+                            replace_with = soil_nodedef._wet_name
                         else
-                            minetest.set_node(pos, {name = soil_nodedef._dry_name})
+                            replace_with = soil_nodedef._dry_name
                         end
+                        local id = sed_nodedef.groups.natural_slope
+                        if id then -- We're a slope, preserve that
+                            replace_with = nsl.get_all_slopes(replace_with)[id]
+                        end
+                        minetest.set_node(pos, {name = replace_with, param2 = node.param2})
                         break
                     end
                 end
             end
-	end
+        end
 })
 
 minetest.register_abm({
 	label = "Remove buried and covered grass",
 	nodenames = {"group:spreading"},
-	interval = 212,
+	interval = 211,
 	chance = 1,
 	catch_up = false,
         min_y = -30,

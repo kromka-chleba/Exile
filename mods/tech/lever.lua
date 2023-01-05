@@ -200,7 +200,7 @@ local function aligner(itemstack, user, pointed_thing, grab)
    end
    local p2type = ndef.paramtype2
    local p2 = node.param2
-   local color = minetest.strip_param2_color(p2, p2type) or p2
+   local color = minetest.strip_param2_color(p2, p2type) or 0
    local nocolor = node.param2 - color
    local meta = itemstack:get_meta()
    if grab then
@@ -227,7 +227,7 @@ end
 
 minetest.register_tool("tech:aligner", {
 	  description = S("alignment tool") .. "\n" ..
-	     S("(left-click samples a node, right-click "..
+	     S("(right-click samples a node, left-click "..
 	       "applies its facing to others)"),
 	inventory_image = "tech_tool_lever.png^[transformFX",
 	groups = {tool = 1},

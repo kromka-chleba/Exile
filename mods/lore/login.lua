@@ -1,23 +1,30 @@
 --login.lua
 --A login screen to show to new players
 
-local logintext = ( "\n  You can scarcely hear the sound of them\n"..
-		       "reading the list of your crimes over the\n" ..
-		       "louder jeering of your kinsmen, but it's already\n"..
-		       "too late to protest your innocence.\n"..
-		       "\n  You are stripped of all possessions and given\n"..
-		       "a writ describing your assorted crimes and the\n"..
-		       "punishment that is to be given, and then you\n"..
-		       "are pushed through a gateway to die in the\n"..
+local logintext = ( "  You can scarcely hear the sound of them "..
+		       "reading the list of your crimes over the " ..
+		       "louder jeering of your kinsmen, but it's already "..
+		       "too late to protest your innocence. "..
+		       "\n  You are stripped of all possessions and given "..
+		       "a writ describing your assorted crimes and the "..
+		       "punishment that is to be given, and then you "..
+		       "are pushed through a gateway to die in the "..
 		       "cursed land of the Ancients, as an.." )
 
-local loginspec = (-- "formspec_version 4"..
-		       "size[6,6.5]"..
-		   "label[0.5,0;"..logintext.."]"..
-		   "image[1.5,5;6,2;logo.png]" )
-		      
+local loginspec = ("formspec_version[3]"..
+		       "size[7,7.5]"..
+		   "bgcolor[;both;#bbb]"..
+		   "background9[0,0;7,7.5;9slice.png;false;10]"..
+		   "hypertext[0.5,0.75;6,5;introtext;"..logintext.."]"..
+		   "image[1.5,6;6,2;logo.png]" )
+
 
 minetest.register_on_newplayer(function(player)
+      local props = player:get_properties()
+      -- hide new players until they read the intro (is_visible fails?)
+      props.visual_size = {x=0.0001,y=0.0001,z=0.0001}
+      props.nametag = " "
+      player:set_properties(props)
       minetest.show_formspec(player:get_player_name(),"lore:login",loginspec)
 end)
 
@@ -49,10 +56,48 @@ minetest.register_on_newplayer(safepoint_and_rspawn)
 minetest.register_on_respawnplayer(safepoint_and_rspawn)
 
 
+
+------------------------------------------------------------------------------
+-- Gateway effects
+------------------------------------------------------------------------------
+--effects at source
+local function doGatewayFX(player)
+    local pos = player:get_pos()
+    minetest.sound_play( {name="lore_gateway", gain=1}, {pos=pos, max_hear_distance=100})
+    minetest.add_particlespawner({
+      amount = 10,
+      time = 1,
+      minpos = {x=pos.x-1, y=pos.y, z=pos.z-1},
+      maxpos = {x=pos.x+1, y=pos.y+1, z=pos.z+1},
+      minvel = {x = -2,  y = 0,  z = -2},
+      maxvel = {x = 2, y = 0, z = 2},
+      minacc = {x = -4, y = 0, z = -4},
+      maxacc = {x = 4, y = 0.5, z = 4},
+      minexptime = 0.5,
+      maxexptime = 2,
+      minsize = 1,
+      maxsize = 10,
+      texture = "gateway_sparks.png",
+      glow = 15,
+    })
+end
+
+
+minetest.register_on_respawnplayer(function(player)
+      minetest.after(0.1, function() doGatewayFX(player) end)
+end)
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
       --maybe unnecessary, but guarantee they won't be penalized for reading
       if formname == "lore:login" then
-	 reset_attributes(player)
+	 reset_attributes(player) -- All stats back to starting values
+	 doGatewayFX(player)
+	 local props = player:get_properties()
+	 props.nametag = "" -- An empty tag defaults to player's name
+	 props.is_visible = true -- Bang! new player appears in the world
+	 props.visual_size = {x=1,y=1,z=1}
+	 minetest.after(0.25, function()
+			   player:set_properties(props)
+	 end)
       end
 end)
-      
