@@ -202,8 +202,12 @@ end
 local function bundlename(meta, plant, treatment)
    local fmt_plant = ""
    local fmt_treatment
+   local prefix = ""
    if plant == nil then
       plant = meta:get_string("ncrafting:bundled_plant")
+   end
+   if meta and meta:get_string("ncrafting:bundle_failed") == "true" then
+      prefix = "useless "
    end
    if treatment == nil and meta then
       treatment = meta:get_string("ncrafting:bundle_treatment")
@@ -216,7 +220,7 @@ local function bundlename(meta, plant, treatment)
    else
       fmt_treatment = ", untreated"
    end
-   return "bundle "..fmt_plant..fmt_treatment
+   return prefix.."bundle "..fmt_plant..fmt_treatment
 end
 
 bundledef = {
@@ -234,21 +238,26 @@ bundledef = {
       local imeta = itemstack:get_meta()
       local plant = imeta:get_string("ncrafting:bundled_plant")
       local treatment = imeta:get_string("ncrafting:bundle_treatment")
+      local failed = imeta:get_string("ncrafting:bundle_failed")
       meta:set_string("ncrafting:bundled_plant", plant)
       meta:set_string("ncrafting:bundle_treatment", treatment)
-      meta:set_string("infotext", bundlename(nil, plant, treatment))
+      meta:get_string("ncrafting:bundle_failed",failed)
+      meta:set_string("infotext", bundlename(imeta, plant, treatment))
    end,
    preserve_metadata = function(pos, oldnode, oldmeta, drops)
       local bundled_plant = oldmeta["ncrafting:bundled_plant"] or "none"
       local treatment = oldmeta["ncrafting:bundle_treatment"]
+      local failed = oldmeta["ncrafting:bundle_failed"]
       local stack_meta = drops[1]:get_meta()
       stack_meta:set_string("ncrafting:bundled_plant", bundled_plant)
       stack_meta:set_string("ncrafting:bundle_treatment", treatment)
-      stack_meta:set_string("description", bundlename(nil, bundled_plant,
+      stack_meta:get_string("ncrafting:bundle_failed",failed)
+      stack_meta:set_string("description", bundlename(stack_meta, bundled_plant,
 						      treatment))
   end,
 }
 
+-- Create node definitions for new bundles (nb) and treated bundles (tb)
 for name, number in pairs(bundlelist) do
    local nbdef = table.copy(bundledef)
    nbdef.color = dye_to_colorstring(number)
@@ -283,6 +292,9 @@ for name, number in pairs(bundlelist) do
    minetest.register_node(":ncrafting:bundle_"..name, nbdef)
    tbdef.on_construct = function(pos, width, height)
       local meta = minetest.get_meta(pos)
+      if meta["ncrafting:bundle_failed"] == "true" then
+	 return -- this is a failed bundle, don't treat it further
+      end
       meta:set_string("infotext",  bundlename(meta))
       ncrafting.start_bake(pos, 15) -- 1.5 minutes to bake
    end
@@ -431,7 +443,7 @@ minetest.register_node(":ncrafting:dye_table", {
 	      local bundle = ItemStack("ncrafting:bundle_"..dcolor)
 	      local imeta = bundle:get_meta()
 	      imeta:set_string("ncrafting:bundled_plant", plantname)
-	      imeta:set_string("description", bundlename(nil, plantname, nil))
+	      imeta:set_string("description", bundlename(imeta, plantname, nil))
 	      inv:set_stack("craftresult", 1, bundle)
 	      inv:set_stack("craft", 1, ItemStack(""))
 	   end
@@ -444,12 +456,17 @@ minetest.register_node(":ncrafting:dye_table", {
 	      if ( dye_source[plants] and
 		   dye_source[plants].method == treatment ) then
 		    result = "ncrafting:dye_"..dye_source[plants].color.." 2"
+		    inv:set_stack("craft", 1, ItemStack(""))
 	      else
 		    minetest.sound_play("snappy",{pos = pos, gain = 5,
 						  max_hear_distance = 8})
+		    bmeta:set_string("ncrafting:bundle_failed", "true")
+		    bmeta:set_string("description", bundlename(bmeta,
+							       plants,
+							       treatment))
+		    inv:set_stack("craft", 1, bundle)
 	      end
 	      inv:set_stack("craftresult", 1, ItemStack(result))
-	      inv:set_stack("craft", 1, ItemStack(""))
 	   end
 	   adjust_button(pos)
 	end,
