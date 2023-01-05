@@ -709,7 +709,7 @@ function plant.get_groups(plant_def)
     if plant_def.seasons or plant_def.seasonal_type then
         base = minimal.merge_tables(base, {seasonal = 1})
     end
-    return minimal.merge_tables(groups, base)
+    return table.copy(minimal.merge_tables(groups, base))
 end
 
 function plant.get_seedling_groups(plant_def)
@@ -725,7 +725,7 @@ function plant.get_seedling_groups(plant_def)
     if plant_def.seasons or plant_def.seasonal_type then
         base = minimal.merge_tables(base, {seasonal = 1})
     end
-    return minimal.merge_tables(base, base_groups.seedling)
+    return table.copy(minimal.merge_tables(base, base_groups.seedling))
 end
 
 function plant.get_seed_groups(plant_def)
@@ -740,7 +740,7 @@ function plant.get_seed_groups(plant_def)
     if plant_def.seasons or plant_def.seasonal_type then
         base = minimal.merge_tables(base, {seasonal = 1})
     end
-    return minimal.merge_tables(base, base_groups.seed)
+    return table.copy(minimal.merge_tables(base, base_groups.seed))
 end
 
 function plant.get_sounds(plant_def)
@@ -795,7 +795,7 @@ function plant.get_base_props(plant_def)
             })
         end
     end
-    return props
+    return table.copy(props)
 end
 
 function plant.get_plantlike_props(plant_def)
@@ -807,7 +807,7 @@ function plant.get_plantlike_props(plant_def)
         place_param2 = plant_def.mesh_type,
         waving = plant_def.waving,
     }
-    return minimal.merge_tables(plant.get_base_props(plant_def), props)
+    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
 end
 
 function plant.get_canelike_props(plant_def)
@@ -823,6 +823,9 @@ function plant.get_canelike_props(plant_def)
     end
     base.floodable = false
     local plant_name = plant.get_name(plant_def.name)
+    if plant_def.dye_candidate then
+        base.groups.ncrafting_dye_candidate = 1
+    end
     base.on_place = function(itemstack, placer, pointed_thing)
         local under = pointed_thing.under
         local node = minetest.get_node(under)
@@ -848,7 +851,7 @@ function plant.get_canelike_props(plant_def)
             return itemstack
         end
     end
-    return base
+    return table.copy(base)
 end
 
 function plant.register_canelike(plant_def)
@@ -860,7 +863,7 @@ end
 function plant.get_bamboolike_props(plant_def)
     local base = plant.get_canelike_props(plant_def)
     base.buildable_to = false
-    return base
+    return table.copy(base)
 end
 
 function plant.register_bamboolike(plant_def)
@@ -903,7 +906,7 @@ function plant.get_seedling_base_props(plant_def)
             on_dig_seedling(pos, node, digger)
         end,
     }
-    return minimal.merge_tables(plant.get_base_props(plant_def), props)
+    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
 end
 
 function plant.get_plantlike_seedling_props(plant_def)
@@ -915,7 +918,7 @@ function plant.get_plantlike_seedling_props(plant_def)
         inventory_image = plant.get_seedling_texture_name(plant_def.name),
         wield_image = plant.get_seedling_texture_name(plant_def.name),
     }
-    return minimal.merge_tables(base, props)
+    return table.copy(minimal.merge_tables(base, props))
 end
 
 function plant.register_plantlike_seedlings(plant_def)
@@ -972,7 +975,7 @@ function plant.get_plantlike_flowering_props(plant_def)
     if plant_def.dye_candidate then
         base.groups.ncrafting_dye_candidate = 1
     end
-    return base
+    return table.copy(base)
 end
 
 function plant.get_plantlike_fruiting_props(plant_def)
@@ -982,8 +985,9 @@ function plant.get_plantlike_fruiting_props(plant_def)
     base._fruitless_name = plant.get_fruitless_name(plant_def.name)
     base._fruit_name = plant.get_fruit_name(plant_def.name)
     base.inventory_image = plant.get_fruiting_texture_name(plant_def.name)
-    base.groups = minimal.merge_tables(base.groups, {fruiting_plant = 1,
-                                                     flowering_plant = 0})
+    base.groups.fruiting_plant = 1
+    base.groups.flowering_plant = nil
+    base.groups.ncrafting_dye_candidate = nil
     base.wield_image = plant.get_fruiting_texture_name(plant_def.name)
     base.on_punch = function(pos, node, puncher, pointed_thing)
         local node_name = minetest.get_node(pos).name
@@ -1002,7 +1006,7 @@ function plant.get_plantlike_fruiting_props(plant_def)
             minetest.add_item(pos, new_stack)
         end
     end
-    return base
+    return table.copy(base)
 end
 
 function plant.get_plantlike_dead_fruitless_props(plant_def)
@@ -1017,7 +1021,7 @@ function plant.get_plantlike_dead_fruitless_props(plant_def)
             base["_"..seasons.season_names[i]] = plant.get_dead_fruitless_name(plant_def.name)
         end
     end
-    return base
+    return table.copy(base)
 end
 
 function plant.register_plantlike_dead_fruitless(plant_def)
@@ -1032,6 +1036,7 @@ function plant.get_plantlike_dead_props(plant_def)
     elseif plant_def.plant_type == "bamboo" then
         base = plant.get_bamboolike_props(plant_def)
     end
+    base.groups.ncrafting_dye_candidate = nil
     base.tiles = {plant.get_dead_texture_name(plant_def.name)}
     base.inventory_image = plant.get_dead_texture_name(plant_def.name)
     base.wield_image = plant.get_dead_texture_name(plant_def.name)
@@ -1059,7 +1064,7 @@ function plant.get_plantlike_dead_props(plant_def)
             end
         end
     end
-    return base
+    return table.copy(base)
 end
 
 function plant.register_plantlike_dead_fruiting(plant_def)
@@ -1095,7 +1100,7 @@ function plant.get_plantlike_fruitless_props(plant_def)
     base.wield_image = plant.get_fruitless_texture_name(plant_def.name)
     base._next_life_stage = plant.get_flowering_name(plant_def.name)
     base.tiles = {plant.get_fruitless_texture_name(plant_def.name)}
-    return base
+    return table.copy(base)
 end
 
 function plant.register_plantlike_flowering(plant_def)
@@ -1165,7 +1170,7 @@ function plant.get_3D_seedling_props(plant_def)
             fixed = plant_def.seedling_nodebox,
         },
     }
-    return minimal.merge_tables(base, props)
+    return table.copy(minimal.merge_tables(base, props))
 end
 
 function plant.register_3D_seedling(plant_def)
@@ -1246,7 +1251,7 @@ function plant.get_seed_base_props(plant_def)
             return on_place_seedling(itemstack, placer, pointed_thing)
         end,
     }
-    return minimal.merge_tables(plant.get_base_props(plant_def), props)
+    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
 end
 
 function plant.register_seed(plant_def)

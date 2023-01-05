@@ -155,8 +155,7 @@ local plant_list = {
     {name = "merki", description = S("Merki"),
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
-     mesh_type = 0, growing_time = plant_base_growing_time * 2,
-     dye_candidate = true, dominant_color = "blue"},
+     mesh_type = 0, growing_time = plant_base_growing_time * 2},
 
     {name = "nebiyi", description = S("Nebiyi"),
      drawtype = "plantlike",
@@ -225,6 +224,7 @@ local plant_list = {
     {name = "thoka", description = S("Thoka"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
+     dye_candidate = true,
      growing_time = plant_base_growing_time * 2},
 
     {name = "alaf", description = S("Alaf"),
@@ -244,6 +244,7 @@ local plant_list = {
     {name = "tashvish", description = S("Tashvish"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
+     dye_candidate = true,
      growing_time = plant_base_growing_time * 1.5,
      seasonal_type = "whole_season"},
 
