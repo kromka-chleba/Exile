@@ -8,6 +8,8 @@ local S = nodes_nature.S
 
 local c_alpha = minimal.compat_alpha
 
+registered_sediments = {}
+
 -- Useful objects for node definitions
 sediment = {}
 sediment.hardness = {
@@ -259,6 +261,7 @@ function sediment.register_dry(sed)
     props = table.copy(props)
     props.groups.bare_sediment = 1
     minetest.register_node(sediment.get_dry_name(sed.name), props)
+    table.insert(registered_sediments, sediment.get_dry_name(sed.name))
 end
 
 function sediment.get_wet_node_props(sed)
@@ -277,6 +280,7 @@ function sediment.register_wet(sed)
     props = table.copy(props)
     props.groups.bare_sediment = 1
     minetest.register_node(sediment.get_wet_name(sed.name), props)
+    table.insert(registered_sediments, sediment.get_wet_name(sed.name))
 end
 
 function sediment.get_wet_salty_node_props(sed)
@@ -487,6 +491,7 @@ function soil.register_dry(soil_desc)
     minetest.register_node(soil.get_dry_name(soil_desc.name),
                            soil.get_dry_node_props(soil_desc))
     soil.do_slopes(soil.get_dry_name(soil_desc.name))
+    table.insert(registered_sediments, soil.get_dry_name(soil_desc.name))
 end
 
 function soil.get_wet_node_props(soil_desc)
@@ -509,14 +514,15 @@ function soil.register_wet(soil_desc)
     minetest.register_node(soil.get_wet_name(soil_desc.name),
                            soil.get_wet_node_props(soil_desc))
     soil.do_slopes(soil.get_wet_name(soil_desc.name))
+    table.insert(registered_sediments, soil.get_wet_name(soil_desc.name))
 end
 
 function soil.get_winter_props(soil_desc)
     local sed = soil_desc.sediment
     local props = table.copy(soil.get_dry_node_props(soil_desc))
     props.description = S("Winter @1", soil_desc.description)
-    props.groups = merge_tables(sed.groups,
-                                {spreading = 0, winter_soil = 1})
+    props.groups.spreading = nil
+    props.groups.winter_soil = 1
     props.tiles = {soil.get_winter_texture_name(soil_desc.name, sed.name),
                    sediment.get_dry_texture_name(sed.name),
                    {name = soil.get_winter_side_texture_name(soil_desc.name, sed.name)}}
@@ -531,14 +537,15 @@ function soil.register_winter(soil_desc)
     minetest.register_node(soil.get_winter_name(soil_desc.name),
                            props)
     soil.do_slopes(soil.get_winter_name(soil_desc.name))
+    table.insert(registered_sediments, soil.get_winter_name(soil_desc.name))
 end
 
 function soil.register_winter_wet(soil_desc)
     local props = table.copy(soil.get_winter_props(soil_desc))
     local sed = soil_desc.sediment
     props.description = S("Winter_Wet @1", soil_desc.description)
-    props.groups = merge_tables(sed.groups_wet,
-                                {spreading = 0, winter_soil = 1})
+    props.groups.spreading = nil
+    props.groups.winter_soil = 1
     props.tiles = {soil.get_winter_wet_texture_name(soil_desc.name, sed.name),
                    sediment.get_wet_texture_name(sed.name),
                    {name = soil.get_winter_wet_side_texture_name(soil_desc.name, sed.name)}}
@@ -547,6 +554,7 @@ function soil.register_winter_wet(soil_desc)
     minetest.register_node(soil.get_winter_wet_name(soil_desc.name),
                            props)
     soil.do_slopes(soil.get_winter_wet_name(soil_desc.name))
+    table.insert(registered_sediments, soil.get_winter_wet_name(soil_desc.name))
 end
 
 function soil.do_slopes(node_name)
@@ -626,6 +634,7 @@ end
 function fertile_soil.register_dry(soil_desc)
     minetest.register_node(fertile_soil.get_dry_name(soil_desc.sediment.name),
                            fertile_soil.get_dry_node_props(soil_desc))
+    table.insert(registered_sediments, fertile_soil.get_dry_name(soil_desc.sediment.name))
 end
 
 function fertile_soil.get_wet_node_props(soil_desc)
@@ -649,6 +658,7 @@ end
 function fertile_soil.register_wet(soil_desc)
     minetest.register_node(fertile_soil.get_wet_name(soil_desc.sediment.name),
                            fertile_soil.get_wet_node_props(soil_desc))
+    table.insert(registered_sediments, fertile_soil.get_wet_name(soil_desc.sediment.name))
 end
 
 function fertile_soil.register_crafting_recipe_dry(soil_desc)
@@ -815,6 +825,7 @@ function agricultural_soil.register_dry(ag_soil)
     local name = ag_soil.name
     minetest.register_node(agricultural_soil.get_dry_name(name),
                            agricultural_soil.get_dry_node_props(ag_soil))
+    table.insert(registered_sediments, agricultural_soil.get_dry_name(name))
 end
 
 function agricultural_soil.get_wet_node_props(ag_soil)
@@ -844,6 +855,7 @@ function agricultural_soil.register_wet(ag_soil)
     local name = ag_soil.name
     minetest.register_node(agricultural_soil.get_wet_name(name),
                            agricultural_soil.get_wet_node_props(ag_soil))
+    table.insert(registered_sediments, agricultural_soil.get_wet_name(name))
 end
 
 function agricultural_soil.get_dry_depleted_node_props(ag_soil)
@@ -868,6 +880,7 @@ function agricultural_soil.register_depleted(ag_soil)
     local name = ag_soil.name
     minetest.register_node(agricultural_soil.get_dry_depleted_name(name),
                            agricultural_soil.get_dry_depleted_node_props(ag_soil))
+    table.insert(registered_sediments, agricultural_soil.get_dry_depleted_name(name))
 end
 
 function agricultural_soil.get_wet_depleted_node_props(ag_soil)
@@ -892,6 +905,7 @@ function agricultural_soil.register_wet_depleted(ag_soil)
     local name = ag_soil.name
     minetest.register_node(agricultural_soil.get_wet_depleted_name(name),
                            agricultural_soil.get_wet_depleted_node_props(ag_soil))
+    table.insert(registered_sediments, agricultural_soil.get_wet_depleted_name(name))
 end
 
 -- Registers sediments, their slabs, wet, salty, slopes etc. and crafting recipes

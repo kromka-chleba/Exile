@@ -166,15 +166,45 @@ local function catch_up_timer(pos, elapsed, last_updated, growing_left, growth_r
     return growing_left -- we weren't away actually
 end
 
+local function grow_roots(pos)
+    local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
+    local plant_name = minetest.get_node(pos).name
+    local plant_nodedef = minetest.registered_nodes[plant_name]
+    local under_name = minetest.get_node(pos_under).name
+    local nodedef_under = minetest.registered_nodes[under_name]
+    local max_root_nr = plant_nodedef.groups.plant_with_roots
+    if not nodedef_under.groups.sediment then
+        return
+    elseif not nodedef_under.groups.roots then
+        minetest.set_node(pos_under, {name = under_name.."_roots"})
+    end
+    local meta = minetest.get_meta(pos_under)
+    local root_name = meta:get_string("root_name")
+    if root_name == "" then
+        meta:set_string("root_name", plant_nodedef._root_name)
+    end
+    local root_nr = meta:get_int("root_nr")
+    if root_nr < max_root_nr then
+    local new_roots = root_nr + math.random(0, math.ceil(max_root_nr / 3))
+    if new_roots > max_root_nr then
+        new_roots = max_root_nr
+    end
+    meta:set_int("root_nr", new_roots)
+    end
+end
+
 local function catch_up_life_stage(pos, growing_time, growing_left)
     while growing_left < 0 do
         local node_name = minetest.get_node(pos).name
         local nodedef = minetest.registered_nodes[node_name]
+        if nodedef.groups.plant_with_roots then
+            grow_roots(pos)
+        end
         if nodedef._next_life_stage then
             local p2 = nodedef.place_param2
             minetest.remove_node(pos)
             minetest.place_node(pos, {name = nodedef._next_life_stage,
-                                    param2 = p2})
+                                      param2 = p2})
         end
         growing_left = growing_left + growing_time
     end
@@ -291,6 +321,11 @@ local function grow_plant(pos, elapsed, growing_time, soil_prefs)
     if progress <= 0 then
         return true -- soil is terrible, no growing here
     end
+    if plant_nodedef.groups.plant_with_roots and
+        not plant_nodedef.groups.seedling then
+        -- roots grow depending on conditions
+        if math.random() < progress / 10 then grow_roots(pos) end
+    end
     growing_left = growing_left - progress
     --grow faster in rain
     if climate.get_rain(pos) then
@@ -346,11 +381,11 @@ end
 ---------------------------
 -- Prevent placing seed anywhere but sediment
 --
-local on_place_seedling = function(itemstack, placer, pointed_thing)
+local on_place_plant = function(itemstack, placer, pointed_thing)
     local ground = minetest.get_node(pointed_thing.under)
     local above = minetest.get_node(pointed_thing.above)
-    if minetest.get_item_group(ground.name,"sediment") == 0
-        or above.name ~= "air" then
+    if minetest.get_item_group(ground.name, "sediment") == 0 or
+        above.name ~= "air" then
         local udef = minetest.registered_nodes[ground.name]
         if udef and udef.on_rightclick and
             not (placer and placer:is_player() and
@@ -494,6 +529,7 @@ function plant.new(args)
         only_dead_fruit = args.only_dead_fruit,
         edible_seedling = args.edible_seedling,
         dry_fruit = args.dry_fruit,
+        roots = args.roots,
         thorns = thorns,
         climbable = args.climbable,
         nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
@@ -512,6 +548,11 @@ end
 function plant.get_seed_name(basename)
     local mod_name = minetest.get_current_modname()
     return mod_name..":"..basename.."_seed"
+end
+
+function plant.get_root_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name..":"..basename.."_root"
 end
 
 function plant.get_seedling_name(basename, nr)
@@ -600,6 +641,9 @@ function plant.get_groups(plant_def)
     if plant_def.bioluminescence then
         base = minimal.merge_tables(base, {bioluminescent = 1})
     end
+    if plant_def.roots then
+        base = minimal.merge_tables(base, {plant_with_roots = plant_def.roots})
+    end
     if plant_def.extra_groups then
         base = minimal.merge_tables(base, plant_def.extra_groups)
     end
@@ -671,6 +715,9 @@ function plant.get_base_props(plant_def)
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
     }
+    if plant_def.roots then
+        props._root_name = plant.get_root_name(plant_def.name)
+    end
     if seasons then
         props = minimal.merge_tables(
             props, {
@@ -793,7 +840,7 @@ function plant.get_seedling_base_props(plant_def)
                               plant_def.soil_preferences)
         end,
         on_place = function(itemstack, placer, pointed_thing)
-            return on_place_seedling(itemstack, placer, pointed_thing)
+            return on_place_plant(itemstack, placer, pointed_thing)
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             after_place_seedling(pos, placer, itemstack, pointed_thing)
@@ -860,7 +907,7 @@ function plant.get_plantlike_flowering_props(plant_def)
                           plant_def.soil_preferences)
     end
     base.on_place = function(itemstack, placer, pointed_thing)
-        return on_place_seedling(itemstack, placer, pointed_thing)
+        return on_place_plant(itemstack, placer, pointed_thing)
     end
     base.after_place_node = function(pos, placer, itemstack, pointed_thing)
         after_place_seedling(pos, placer, itemstack, pointed_thing)
@@ -1145,7 +1192,7 @@ function plant.get_seed_base_props(plant_def)
             on_dig_seedling(pos, node, digger)
         end,
         on_place = function(itemstack, placer, pointed_thing)
-            return on_place_seedling(itemstack, placer, pointed_thing)
+            return on_place_plant(itemstack, placer, pointed_thing)
         end,
     }
     return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
@@ -1154,6 +1201,12 @@ end
 function plant.register_seed(plant_def)
     minetest.register_node(
         plant.get_seed_name(plant_def.name),
+        plant.get_seed_base_props(plant_def))
+end
+
+function plant.register_root(plant_def)
+    minetest.register_node(
+        plant.get_root_name(plant_def.name),
         plant.get_seed_base_props(plant_def))
 end
 
@@ -1269,6 +1322,9 @@ function plant.register_all(plant_def_list)
         end
         if plant_def.seasonal_type or plant_def.seasons then
             plant.register_plantlike_dead(plant_def)
+        end
+        if plant_def.roots then
+            plant.register_root(plant_def)
         end
         plant.register_threshing_recipes(plant_def)
         plant.add_food_hooks(plant_def)

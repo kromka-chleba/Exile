@@ -286,6 +286,9 @@ minetest.register_abm({
                         else
                             replace_with = soil_nodedef._dry_name
                         end
+                        if sed_nodedef.groups.roots then
+                            replace_with = replace_with.."_roots"
+                        end
                         local id = sed_nodedef.groups.natural_slope
                         if id then -- We're a slope, preserve that
                             replace_with = nsl.get_all_slopes(replace_with)[id]

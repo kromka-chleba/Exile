@@ -8,6 +8,8 @@
 local S = nodes_nature.S
 ---------------------------------------------
 
+local c_alpha = minimal.compat_alpha
+
 -- list of sediments to be used for mapgen
 local sediment_list = {
     sand = sediment.new(
@@ -177,3 +179,49 @@ crafting.register_recipe({
 -- see red_ochre above
 sediment.register_all_sed_derivatives(sediment_list)
 sediment.register_soil_variants(soil_list)
+
+-- Soils with roots
+for i = 1, #registered_sediments do
+    local name = registered_sediments[i]
+    local nodedef = minetest.registered_nodes[name]
+    local props = table.copy(nodedef)
+    props.description = S("@1 With Roots", props.description)
+    props.groups.roots = 1
+    props.use_texture_alpha = c_alpha.blend
+    props.overlay_tiles = {{name = "nodes_nature_roots.png"}, "", ""}
+    if props._non_winter_name then
+        props._non_winter_name = props._non_winter_name.."_roots"
+    end
+    if props._winter_name then
+        props._winter_name = props._winter_name.."_roots"
+    end
+    props._dry_name = props._dry_name.."_roots"
+    props._wet_name = props._wet_name.."_roots"
+    if not props.on_dig then
+        props.on_dig = function(pos, node, digger)
+            if not digger then return false end
+            if minetest.is_protected(pos, digger:get_player_name()) then
+                return false
+            end
+            local meta = minetest.get_meta(pos)
+            local number_of_roots = meta:get_int("root_nr")
+            local root_name = meta:get_string("root_name")
+            local player_inv = digger:get_inventory()
+            local sed_stack = ItemStack(nodedef.drop)
+            if player_inv:room_for_item("main", sed_stack) then
+                player_inv:add_item("main", sed_stack)
+            else
+                minetest.add_item(pos, sed_stack)
+            end
+            local root_stack = ItemStack(root_name.." "..number_of_roots)
+            if player_inv:room_for_item("main", root_stack) then
+                player_inv:add_item("main", root_stack)
+            else
+                minetest.add_item(pos, root_stack)
+            end
+            minetest.remove_node(pos)
+            minetest.check_for_falling(pos)
+        end
+    end
+    minetest.register_node(name.."_roots", props)
+end

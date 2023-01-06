@@ -92,7 +92,7 @@ local plant_list = {
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
      winter_fruit = false, seasonal_type = "tuber",
-     fruit = true},
+     fruit = true, roots = 8},
 
     {name = "hakimi", description = S("Hakimi"),
      drawtype = "plantlike", waving = true,
@@ -305,7 +305,7 @@ minetest.override_item(
 
 -- tuber
 minetest.override_item(
-    "nodes_nature:anperla_seed",{
+    "nodes_nature:anperla_root",{
         tiles = {"nodes_nature_silt.png"},
         description = S("Anperla tuber"),
         wield_image = "nodes_nature_tuber.png",
