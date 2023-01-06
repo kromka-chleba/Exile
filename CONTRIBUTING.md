@@ -4,13 +4,17 @@
 Fork this repository on Codeberg, using the `fork` button.
 Then clone your fork locally:
 
-	$ git clone https://codeberg.org/YOUR_USERNAME/Exile.git
+	$ git clone https://codeberg.org/YOUR_USERNAME/Exile.git --recurse-submodules
 
 Using `cd Exile`, move into the directory, and then `add` my repository as a `remote` codebase:
 
 	$ git remote add -f upstream https://codeberg.org/Mantar/Exile
 
 Having the `upstream` defined is necessary in order to have a fork into which your changes get pulled by the project maintainer.
+
+If you are using Git Bash on windows, be sure to set
+        $ checkout.defaultRemote=origin
+in your configuration.
 
 ## Updating Your Local Copy
 Check-out the `branch` labeled `master`, which is where the main `upstream` resides:
