@@ -68,6 +68,35 @@ local function flora_spread(pos, node)
 	end
 end
 
+minetest.register_lbm({
+	label = "Add roots under plants",
+        name = "nodes_nature:root_lbm",
+	nodenames = {"group:plant_with_roots"},
+        run_at_every_load = false,
+        min_y = -10,
+        max_y = 300,
+	action = function(pos, node)
+            local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
+            local plant_name = node.name
+            local plant_nodedef = minetest.registered_nodes[plant_name]
+            local name_under = minetest.get_node(pos_under).name
+            local nodedef_under = minetest.registered_nodes[name_under]
+            local timer = minetest.get_node_timer(pos)
+            if timer:is_started() then
+                return
+            end
+            if not nodedef_under.groups.sediment then
+                return
+            elseif not nodedef_under.groups.roots then
+                minetest.set_node(pos_under, {name = name_under.."_roots"})
+            end
+            local meta = minetest.get_meta(pos_under)
+            meta:set_string("root_name", plant_nodedef._root_name)
+            local max_root_nr = plant_nodedef.groups.plant_with_roots
+            meta:set_int("root_nr", math.ceil(math.random(0, max_root_nr)))
+        end
+})
+
 local function undersea_flora_spread(pos, node)
    local nodedef = minetest.registered_nodes[node.name]
    local substrate = nodedef.node_dig_prediction

@@ -654,7 +654,7 @@ function plant.get_groups(plant_def)
 end
 
 function plant.get_seedling_groups(plant_def)
-    local base = {}
+    local base = plant.get_groups(plant_def)
     if plant_def.lifeform_type == "mushroom" then
         base = minimal.merge_tables(
             plant_groups["mushroom"],
@@ -750,6 +750,7 @@ function plant.get_plantlike_props(plant_def)
         paramtype2 = "meshoptions",
         place_param2 = plant_def.mesh_type,
         waving = plant_def.waving,
+        groups = plant.get_groups(plant_def)
     }
     return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
 end
