@@ -521,7 +521,6 @@ function plant.new(args)
         texture_scale = args.texture_scale or 1,
         seasons = seasons,
         extra_groups = args.extra_groups,
-        lbm = args.lbm or false,
         dye_candidate = args.dye_candidate or false,
         dominant_color = args.dominant_color,
         fruit = args.fruit,
@@ -1253,33 +1252,6 @@ function plant.add_food_hooks(plant_def)
     exile_add_food_hooks(plant.get_name(plant_def.name))
 end
 
-function plant.register_timer_start_lbm(plant_def)
-    local plant_name = plant.get_name(plant_def.name)
-    local name_list = {
-        plant.get_seed_name(plant_def.name),
-        plant.get_flowering_name(plant_def.name),
-        --we don't have plant aging yet
-        --plant.get_fruiting_name(plant_def.name),
-        plant.get_fruitless_name(plant_def.name),
-    }
-    for i = 1, plant_def.seedling_number do
-        local name = plant.get_seedling_name(plant_def.name, i)
-        table.insert(name_list, name)
-    end
-    local mesh_type = plant_def.mesh_type
-    minetest.register_lbm({
-            label = "Starts plant timers",
-            name = plant_name.."timer_starter",
-            nodenames = name_list,
-            run_at_every_load = true,
-            action = function(pos, node, dtime_s)
-                minetest.remove_node(pos)
-                minetest.place_node(pos, {name = node.name,
-                                          param2 = mesh_type})
-            end,
-    })
-end
-
 function plant.register_all(plant_def_list)
     for _, plant_def in ipairs(plant_def_list) do
         plant_def = plant.new(plant_def)
@@ -1297,9 +1269,6 @@ function plant.register_all(plant_def_list)
                 plant.register_plantlike(plant_def)
             end
             plant.register_plantlike_seedlings(plant_def, 5)
-            if plant_def.lbm then
-                plant.register_timer_start_lbm(plant_def)
-            end
         end
         if plant_def.fruit then
             plant.register_fruit(plant_def)
