@@ -292,7 +292,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"crafting_spot","knife", "mortar_and_pestle"},
 	output = "tech:peeled_anperla",
-	items = {"nodes_nature:anperla_seed"},
+	items = {"nodes_nature:anperla_tuber"},
 	level = 1,
 	always_known = true,
 })
@@ -304,14 +304,14 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "mortar_and_pestle",
 	output = "tech:peeled_anperla 6",
-	items = {"nodes_nature:anperla_seed 6"},
+	items = {"nodes_nature:anperla_tuber 6"},
 	level = 1,
 	always_known = true,
 })
 crafting.register_recipe({
 	type = "mortar_and_pestle",
 	output = "tech:peeled_anperla 36",
-	items = {"nodes_nature:anperla_seed 36"},
+	items = {"nodes_nature:anperla_tuber 36"},
 	level = 1,
 	always_known = true,
 })
