@@ -537,7 +537,7 @@ function plant.register_plantlike_seedlings(plant_def)
     end
     -- the last seedling
     local props = plant.get_plantlike_seedling_props(plant_def)
-    if plant_def.fruit then
+    if plant_def.fruit and plant_def.lifeform_type ~= "mushroom" then
         props._next_life_stage = plant.get_flowering_name(plant_def.name)
     end
     props.groups.seedling = 5
