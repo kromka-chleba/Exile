@@ -49,7 +49,7 @@ minetest.register_node('tech:unretted_cana_bundle', {
 	description = S('Unretted Cana Bundle'),
 	tiles = {"tech_unretted_cana_bundle.png"},
 	stack_max = minimal.stack_max_bulky * 2,
-	groups = {snappy=3, flammable=1},
+	groups = {snappy=3, flammable=1, falling_node=1 },
 	sounds = nodes_nature.node_sound_leaves_defaults(),
 	on_burn = function(pos)
 		if math.random()<0.5 then
@@ -75,7 +75,7 @@ minetest.register_node('tech:retted_cana_bundle', {
 	description = S('Retted Cana Bundle'),
 	tiles = {"tech_retted_cana_bundle.png"},
 	stack_max = minimal.stack_max_bulky * 2,
-	groups = {snappy=3, flammable=1},
+	groups = {snappy=3, flammable=1, falling_node=1 },
 	sounds = nodes_nature.node_sound_leaves_defaults(),
 })
 
