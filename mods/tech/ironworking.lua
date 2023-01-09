@@ -367,7 +367,7 @@ stairs.register_stair_and_slab(
         "tech:slag",
         "mixing_spot",
         "true",
-        {cracky = 3, fall_node = 1, crumbly = 1},
+        {cracky = 3, falling_node = 1, crumbly = 1},
         {"tech_iron_and_slag.png"},
         "Slag Stair",
         "Slag Slab",
