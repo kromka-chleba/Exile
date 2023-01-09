@@ -543,13 +543,14 @@ end
 function soil.register_winter_wet(soil_desc)
     local props = table.copy(soil.get_winter_props(soil_desc))
     local sed = soil_desc.sediment
-    props.description = S("Winter_Wet @1", soil_desc.description)
+    props.description = S("Winter Wet @1", soil_desc.description)
     props.groups.spreading = nil
     props.groups.winter_soil = 1
     props.tiles = {soil.get_winter_wet_texture_name(soil_desc.name, sed.name),
                    sediment.get_wet_texture_name(sed.name),
                    {name = soil.get_winter_wet_side_texture_name(soil_desc.name, sed.name)}}
     props.sounds = sed.sound_wet
+    props.drop = sediment.get_wet_name(sed.name)
     props._non_winter_name = soil.get_wet_name(soil_desc.name)
     minetest.register_node(soil.get_winter_wet_name(soil_desc.name),
                            props)
