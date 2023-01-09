@@ -84,7 +84,8 @@ local function override_abm(abm_spec)
     abm_spec.mod_origin = "nodes_nature"
 end
 
-local function update_plant(pos, node, season_name)
+local function update_plant(pos, node)
+    local season_name = seasons.get_season_name()
     local nodedef = minetest.registered_nodes[node.name]
     local new_name = nodedef["_"..season_name]
     local next_nodedef = minetest.registered_nodes[new_name]
@@ -96,45 +97,6 @@ local function update_plant(pos, node, season_name)
         minetest.set_node(pos, {name = new_name,
                                 param2 = next_nodedef.place_param2})
     end
-end
-
-local function activate_seasonal_abm(season_name)
-    local abm_name = "nodes_nature:"..season_name
-    override_abm({
-            label = "Season changer: "..season_name,
-            name = abm_name,
-            interval = 15,
-            chance = 1,
-            catch_up = false,
-            min_y = -30,
-            max_y = 300,
-            nodenames = {"group:seasonal"},
-            action = function(pos, node, dtime_s)
-                update_plant(pos, node, season_name)
-            end,
-    })
-end
-
-local function change_seasonal_abm(season_name)
-    for i = 1, #season_names do
-        if season_name ~= season_names[i] then
-            local abm_name = "nodes_nature:"..season_names[i]
-            override_abm({
-                    label = "Season changer: "..season_names[i],
-                    name = abm_name,
-                    nodenames = {"group:seasonal"},
-                    interval = 50,
-                    chance = 1,
-                    catch_up = false,
-                    min_y = -30,
-                    max_y = 500,
-                    action = function(pos, node, dtime_s)
-                        -- nothing here
-                    end,
-            })
-        end
-    end
-    activate_seasonal_abm(season_name)
 end
 
 local function inactivate_abm(abm_spec)
@@ -221,6 +183,21 @@ local non_winter_soil_abm = {
     end,
 }
 
+local seasonal_plant_abm = {
+    label = "Seasonal plant changer",
+    name = "nodes_nature:seasonal_plant_abm",
+    name = abm_name,
+    interval = 15,
+    chance = 1,
+    catch_up = false,
+    min_y = -30,
+    max_y = 300,
+    nodenames = {"group:seasonal"},
+    action = function(pos, node, dtime_s)
+        update_plant(pos, node)
+    end,
+}
+
 local last_season = ""
 
 local function change_soil(season_name)
@@ -270,28 +247,12 @@ end
 
 local function season_loop()
     local season_name = seasons.get_season_name()
-    change_seasonal_abm(season_name)
     change_soil(season_name)
     minetest.after(1200, season_loop)
 end
 
 -- register placeholder
 local function register_placeholder_abms()
-    for i = 1, #season_names do
-        minetest.register_abm({
-                label = "Season changer: "..season_names[i],
-                name = "nodes_nature:"..season_names[i],
-                interval = 15,
-                chance = 1,
-                catch_up = false,
-                min_y = -30,
-                max_y = 500,
-                nodenames = {"group:seasonal"},
-                action = function(pos, node, dtime_s)
-                    -- nothing here
-                end,
-        })
-    end
     local winter_soil_abm = table.copy(winter_soil_abm)
     winter_soil_abm.action = function(pos, node, dtime_s)
         -- nothing here
@@ -311,4 +272,5 @@ end
 register_placeholder_abms()
 minetest.register_lbm(winter_soil_lbm)
 minetest.register_lbm(non_winter_soil_lbm)
+minetest.register_abm(seasonal_plant_abm)
 minetest.after(2, season_loop)
