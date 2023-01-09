@@ -177,7 +177,7 @@ function ncrafting.do_soak(pos, name, length)
 
    --check if wet,
    local node_a = minetest.get_node({x=pos.x, y=pos.y + 1, z=pos.z})
-   if minetest.get_item_group(node_a.name, "water") > 0 then
+   if minetest.get_item_group(node_a.name, "water") == 1 then
       if soaking <= 0 then
 	 --finished
 	 minimal.switch_node(pos, {name = name})
