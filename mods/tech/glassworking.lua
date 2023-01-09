@@ -241,6 +241,8 @@ minetest.register_node("tech:potash_source", {
 	diggable = false,
 	buildable_to = true,
 	is_ground_content = false,
+	liquid_move_physics = false,
+	move_resistance = 0,
 	drop = "",
 	drowning = 1,
 	liquidtype = "flowing",
