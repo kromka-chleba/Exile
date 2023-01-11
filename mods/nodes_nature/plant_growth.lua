@@ -284,7 +284,7 @@ function plant.grow_seed(pos, elapsed)
     local nodedef = minetest.registered_nodes[node_name]
     local season = seasons.get_season_name()
     local meta = minetest.get_meta(pos)
-    if not meta:get_int("first_updated") then
+    if meta:get_int("first_updated") == 0 then
         meta:set_int("first_updated", elapsed)
     end
     if not are_conditions_good(pos) then
@@ -309,7 +309,10 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     --We've been away, let's catch up on missing growth
     local progress = seed_soil_response(pos, soil_prefs)
     -- this one is just in case the seed set elapsed to trigger catch up
-    local elapsed = meta:get_int("elapsed") or elapsed
+    local elapsed = elapsed
+    if meta:get_int("elapsed") > 0 then
+        elapsed = meta:get_int("elapsed")
+    end
     growing_left = catch_up_timer(pos, elapsed, last_updated, growing_left, progress)
     -- if catch_up_timer returns false it means the plant has died
     -- due to extreme weather
