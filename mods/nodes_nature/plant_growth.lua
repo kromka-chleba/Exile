@@ -47,9 +47,8 @@ end
 function plant.start_growing_plant(pos, growing_time)
     local timer_min = plant_base_timer - 0.1 * plant_base_timer
     local timer_max = plant_base_timer + 0.1 * plant_base_timer
-    local meta = minetest.get_meta(pos)
-    meta:set_int("growth", growing_time)
-    meta:set_int("last_updated", 0)
+    minimal.node_set_int(pos, "growth", growing_time)
+    minimal.node_set_int(pos, "last_updated", 0)
     local timer = minetest.get_node_timer(pos)
     if not timer:is_started() then
         timer:start(math.random(timer_min, timer_max))
@@ -61,7 +60,7 @@ end
 -- if the soil quality changes under the seed it will slow/speed the timer
 -- this procedure returns a timer
 local function seed_soil_response(pos, soil_prefs)
-    local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
+    local pos_under = minimal.get_pos_under(pos)
     local node_under = minetest.get_node(pos_under).name
     local sediment = minetest.get_item_group(node_under, "sediment")
     if sediment == 0 then
@@ -94,19 +93,17 @@ local function seed_soil_response(pos, soil_prefs)
 end
 
 local function is_on_sediment(pos)
-    local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
-    local node_under = minetest.get_node(pos_under)
-    return minetest.get_item_group(node_under.name, "sediment") > 0
+    local pos_under = minimal.get_pos_under(pos)
+    return minimal.get_group(pos_under, "sediment") > 0
 end
 
 local function is_mushroom(pos)
-    local plant_name = minetest.get_node(pos).name
-    local nodedef = minetest.registered_nodes[plant_name]
-    return minetest.get_item_group(plant_name, "mushroom") > 0
+    return minimal.get_group(pos, "mushroom") > 0
 end
 
 local function is_dark(pos)
-    local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z})
+    local pos_above = minimal.get_pos_above(pos)
+    local light = minimal.get_daylight(pos_above)
     return not light or light < 3
 end
 
@@ -167,48 +164,42 @@ end
 
 local function grow_roots(pos)
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
-    local plant_name = minetest.get_node(pos).name
-    local plant_nodedef = minetest.registered_nodes[plant_name]
-    local under_name = minetest.get_node(pos_under).name
-    local nodedef_under = minetest.registered_nodes[under_name]
+    local plant_nodedef = minimal.get_nodedef(pos)
+    local nodedef_under = minimal.get_nodedef(pos_under)
     local max_root_nr = plant_nodedef.groups.plant_with_roots
     if not nodedef_under.groups.sediment then
         return
     elseif not nodedef_under.groups.roots then
-        minetest.set_node(pos_under, {name = under_name.."_roots"})
+        minetest.set_node(pos_under, {name = nodedef_under.name.."_roots"})
     end
-    local meta = minetest.get_meta(pos_under)
-    local root_name = meta:get_string("root_name")
+    local root_name = minimal.node_get_string(pos, "root_name")
     if root_name == "" then
-        meta:set_string("root_name", plant_nodedef._root_name)
+        minimal.node_set_string(pos, "root_name", plant_nodedef._root_name)
     end
-    local root_nr = meta:get_int("root_nr")
+    local root_nr = minimal.node_get_int(pos, "root_nr")
     if root_nr < max_root_nr then
-    local new_roots = root_nr + math.random(0, math.ceil(max_root_nr / 3))
-    if new_roots > max_root_nr then
-        new_roots = max_root_nr
-    end
-    meta:set_int("root_nr", new_roots)
+        local new_roots = root_nr + math.random(0, math.ceil(max_root_nr / 3))
+        if new_roots > max_root_nr then
+            new_roots = max_root_nr
+        end
+        minimal.node_set_int(pos, "root_nr", new_roots)
     end
 end
 
 local function catch_up_life_stage(pos, growing_time, growing_left)
     while growing_left < 0 do
-        local node_name = minetest.get_node(pos).name
-        local nodedef = minetest.registered_nodes[node_name]
+        local nodedef = minimal.get_nodedef(pos)
         if nodedef.groups.plant_with_roots then
             grow_roots(pos)
         end
         if nodedef._next_life_stage then
             local p2 = nodedef.place_param2
-            minetest.remove_node(pos)
-            minetest.place_node(pos, {name = nodedef._next_life_stage,
+            minimal.force_place(pos, {name = nodedef._next_life_stage,
                                       param2 = p2})
         end
         growing_left = growing_left + growing_time
     end
-    local meta = minetest.get_meta(pos)
-    meta:set_int("growth", growing_left)
+    minimal.node_set_int(pos, "growth", growing_left)
 end
 
 local function deplete_soil(pos)
@@ -273,41 +264,24 @@ function plant.start_growing_seed(pos)
     end
 end
 
-
 function plant.grow_seed(pos, elapsed)
-    local node_name = minetest.get_node(pos).name
-    local nodedef = minetest.registered_nodes[node_name]
+    local nodedef = minimal.get_nodedef(pos)
     local season = seasons.get_season_name()
-    local meta = minetest.get_meta(pos)
-    if meta:get_int("first_updated") == 0 then
-        meta:set_int("first_updated", elapsed)
-    end
     if not are_conditions_good(pos) then
         return true -- unless dead, try again when conditions are good
     end
-    local first_updated = meta:get_int("first_updated")
-    minetest.remove_node(pos)
-    minetest.place_node(pos, {name = nodedef._next_life_stage})
-    local meta = minetest.get_meta(pos)
-    -- set last_updated for the new node to trigger life cycle catch up
-    meta:set_int("last_updated", first_updated)
-    meta:set_int("elapsed", elapsed)
+    minimal.force_place(pos, {name = nodedef._next_life_stage})
     return false -- the seed becomes a seedling (stops the timer)
 end
 
 -- Grows a plant
 function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
-    local meta = minetest.get_meta(pos)
-    local growing_left = meta:get_int("growth")
-    local last_updated = meta:get_int("last_updated") or elapsed
+    local growing_left = minimal.node_get_int(pos, "growth")
+    local last_updated = minimal.node_get_int(pos, "last_updated") or elapsed
     --We've been away, let's catch up on missing growth
     local progress = seed_soil_response(pos, soil_prefs)
     -- this one is just in case the seed set elapsed to trigger catch up
-    local elapsed = elapsed
-    if meta:get_int("elapsed") > 0 then
-        elapsed = meta:get_int("elapsed")
-    end
     growing_left = catch_up_timer(pos, elapsed, last_updated, growing_left, progress)
     -- if catch_up_timer returns false it means the plant has died
     -- due to extreme weather
@@ -340,7 +314,7 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     if climate.get_rain(pos) then
         growing_left = growing_left - 4
     end
-    meta:set_int("growth", growing_left)
-    meta:set_int("last_updated", elapsed)
+    minimal.node_set_int(pos, "growth", growing_left)
+    minimal.node_set_int(pos, "last_updated", elapsed)
     return true
 end
