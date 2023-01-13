@@ -142,3 +142,47 @@ function minimal.merge_tables(t1, t2)
     end
     return new_table
 end
+
+function minimal.get_nodedef(pos)
+    local node_name = minetest.get_node(pos).name
+    local nodedef = minetest.registered_nodes[node_name]
+    return nodedef
+end
+
+function minimal.node_set_int(pos, name, value)
+    local meta = minetest.get_meta(pos)
+    meta:set_int(name, value)
+end
+
+function minimal.node_get_int(pos, name)
+    local meta = minetest.get_meta(pos)
+    return meta:get_int(name)
+end
+
+function minimal.node_set_string(pos, name, value)
+    local meta = minetest.get_meta(pos)
+    meta:set_string(name, value)
+end
+
+function minimal.node_get_string(pos, name)
+    local meta = minetest.get_meta(pos)
+    return meta:get_string(name)
+end
+
+function minimal.force_place(pos, node)
+    minetest.remove_node(pos)
+    minetest.place_node(pos, node)
+end
+
+function minimal.get_pos_under(pos)
+    return {x = pos.x, y = pos.y - 1, z = pos.z}
+end
+
+function minimal.get_pos_above(pos)
+    return {x = pos.x, y = pos.y + 1, z = pos.z}
+end
+
+function minimal.get_group(pos, group_name)
+    local node_name = minetest.get_node(pos).name
+    return minetest.get_item_group(node_name, group_name)
+end
