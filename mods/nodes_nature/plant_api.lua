@@ -383,6 +383,7 @@ function plant.get_base_props(plant_def)
         },
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
+        _seed_name = plant.get_seed_name(plant_def.name),
     }
     if plant_def.roots then
         props._root_name = plant.get_root_name(plant_def.name)

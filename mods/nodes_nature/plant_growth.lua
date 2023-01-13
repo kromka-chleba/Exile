@@ -222,18 +222,12 @@ end
 local function kill_or_stop_growing(pos)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
-    local fruiting_plant = false
-    local flowering_plant = false
-    local seedling = false
-    if minetest.get_item_group(node.name, "fruiting_plant") > 0 then
-        fruiting_plant = true
-    end
-    if minetest.get_item_group(node.name, "flowering_plant") > 0 then
-        flowering_plant = true
-    end
-    if minetest.get_item_group(node.name, "seedling") > 0 then
-        seedling = true
-    end
+    local fruiting_plant =
+        minetest.get_item_group(node.name, "fruiting_plant") > 0
+    local flowering_plant =
+        minetest.get_item_group(node.name, "flowering_plant") > 0
+    local seedling =
+        minetest.get_item_group(node.name, "seedling") > 0
     -- extreme temps will kill
     if is_temperature_extreme(pos) then
         if fruiting_plant and nodedef._dead_fruitless_name then
@@ -251,7 +245,8 @@ local function kill_or_stop_growing(pos)
         if season == "winter_early" or
             season == "winter_late" then
             if seedling then
-                minetest.remove_node(pos)
+                minetest.set_node(pos, {name = nodedef._seed_name,
+                                        param2 = nodedef.place_param2})
             elseif flowering_plant and nodedef._dead_fruitless_name then
                 minetest.set_node(pos, {name = nodedef._dead_fruitless_name,
                                         param2 = nodedef.place_param2})
