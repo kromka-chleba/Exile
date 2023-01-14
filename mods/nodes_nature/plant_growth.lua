@@ -101,10 +101,20 @@ local function is_mushroom(pos)
     return minimal.get_group(pos, "mushroom") > 0
 end
 
-local function is_dark(pos)
+local function get_light(pos)
     local pos_above = minimal.get_pos_above(pos)
-    local light = minimal.get_daylight(pos_above)
-    return not light or light < 3
+    local natural = minimal.get_daylight(pos_above, 0.5) or 0
+    local artificial = minetest.get_node_light(pos_above, 0.5) or 0
+    if artificial > natural then
+        return artificial
+    end
+    return natural
+end
+
+local function is_dark(pos)
+    local light = get_light(pos)
+    minetest.log("error", light)
+    return not light or light < 8
 end
 
 local function is_temperature_extreme(pos)
@@ -281,7 +291,11 @@ local function growth_progress(pos, elapsed)
     if elapsed > plant_base_timer then
         return progress_with_catch_up(pos, elapsed)
     else
-        return calculate_growth_progress(pos)
+        if kill_or_stop_growing(pos, elapsed) then
+            return 0 -- the plant can't grow, waits for better times
+        else
+            return calculate_growth_progress(pos)
+        end
     end
 end
 
@@ -320,13 +334,9 @@ end
 function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     local meta = minetest.get_meta(pos)
     local elapsed = elapsed + seed_elapsed(meta)
-    if kill_or_stop_growing(pos, elapsed) then
-        return true -- the plant can't grow, waits for better times
-    end
-    progress = growth_progress(pos, elapsed)
-    local growing_left = meta:get_int("growth")
-    meta:set_int("growth", growing_left - progress)
-    growing_left = growing_left - progress
+    local progress = growth_progress(pos, elapsed)
+    local growing_left = meta:get_int("growth") - progress
+    meta:set_int("growth", growing_left)
     if growing_left < 0 then
         catch_up_life_stage(pos, growing_time, growing_left)
         return false
