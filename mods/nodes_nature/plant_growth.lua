@@ -44,17 +44,6 @@ function soil_preferences.is_sediment_good(sed_name, plant_prefs)
     return true
 end
 
-function plant.start_growing_plant(pos, growing_time)
-    local timer_min = plant_base_timer - 0.1 * plant_base_timer
-    local timer_max = plant_base_timer + 0.1 * plant_base_timer
-    minimal.node_set_int(pos, "growth", growing_time)
-    minimal.node_set_int(pos, "growing_time", growing_time)
-    local timer = minetest.get_node_timer(pos)
-    if not timer:is_started() then
-        timer:start(math.random(timer_min, timer_max))
-    end
-end
-
 ------------------------------
 -- Seeds/seedling soil timers
 -- if the soil quality changes under the seed it will slow/speed the timer
@@ -103,8 +92,8 @@ end
 
 local function get_light(pos)
     local pos_above = minimal.get_pos_above(pos)
-    local natural = minimal.get_daylight(pos_above, 0.5) or 0
-    local artificial = minetest.get_node_light(pos_above, 0.5) or 0
+    local natural = minimal.get_daylight(pos_above) or 0
+    local artificial = minetest.get_node_light(pos_above) or 0
     if artificial > natural then
         return artificial
     end
@@ -113,7 +102,6 @@ end
 
 local function is_dark(pos)
     local light = get_light(pos)
-    minetest.log("error", light)
     return not light or light < 8
 end
 
@@ -127,13 +115,20 @@ local function is_temperature_good(pos)
     return temp > 5 and temp < 40
 end
 
-local function are_conditions_good(pos)
+local function is_soil_and_temp_good(pos)
     --if not on sediment abort
     if not is_on_sediment(pos) then
         return false
     end
     --semi-extreme temps stop growth
     if not is_temperature_good(pos) then
+        return false
+    end
+    return true
+end
+
+local function are_conditions_good(pos)
+    if not is_soil_and_temp_good(pos) then
         return false
     end
     --cannot grow indoors (unless a mushroom)
@@ -249,7 +244,7 @@ local function kill_or_stop_growing(pos, elapsed)
     return false
 end
 
-local function growing_side_effects(pos)
+local function growing_side_effects(pos, progress)
     local plant_nodedef = minimal.get_nodedef(pos)
     --chance to deplete soil
     if math.random() <= 0.0001 then
@@ -265,7 +260,7 @@ end
 local function calculate_growth_progress(pos, good_cycles, rain_cycles)
     local good_cycles = good_cycles or 1
     local rain_cycles = rain_cycles or 0
-    if climate.get_rain(pos) then
+    if rain_cycles == 0 and climate.get_rain(pos) then
         rain_cycles = 1
     end
     local soil = seed_soil_response(pos, soil_prefs)
@@ -278,6 +273,14 @@ local function progress_with_catch_up(pos, elapsed)
     local good_time, rain_time = good_time_rain_time(elapsed, is_mushroom(pos))
     local good_cycles = good_time / plant_base_timer
     local rain_cycles = good_time / plant_base_timer
+    -- climate history is stored in 60s chunks
+    -- prevent calculating progress for just one chunk when elapsed is lower than that
+    if good_time == 60 then
+        good_cycles = elapsed / plant_base_timer
+        if rain_time == 60 then
+            rain_cycles = elapsed / plant_base_timer
+        end
+    end
     local progress = calculate_growth_progress(pos, good_cycles, rain_cycles)
     if pos.y < 15 and are_conditions_good(pos) then
         progress = calculate_growth_progress(pos, elapsed / plant_base_timer)
@@ -321,14 +324,29 @@ end
 
 function plant.grow_seed(pos, elapsed)
     local nodedef = minimal.get_nodedef(pos)
-    local season = seasons.get_season_name()
-    if not are_conditions_good(pos) then
+    local good_time = good_time_rain_time(elapsed, is_mushroom(pos))
+    -- if conditions were good for germination we don't care about the present
+    if elapsed > seed_growing_time and good_time >= 60 then
+        -- pass elapsed to seedlings so we can catch up from there
+        minimal.force_place(pos, {name = nodedef._next_life_stage})
+        minimal.node_set_int(pos, "elapsed", elapsed)
+        return false
+    elseif not is_soil_and_temp_good(pos) then
         return true -- unless dead, try again when conditions are good
     end
     minimal.force_place(pos, {name = nodedef._next_life_stage})
-    -- pass elapsed to seedlings so we can catch up from there
-    minimal.node_set_int(pos, "elapsed", elapsed)
     return false -- the seed becomes a seedling (stops the timer)
+end
+
+function plant.start_growing_plant(pos, growing_time)
+    local timer_min = plant_base_timer - 0.1 * plant_base_timer
+    local timer_max = plant_base_timer + 0.1 * plant_base_timer
+    minimal.node_set_int(pos, "growth", growing_time)
+    minimal.node_set_int(pos, "growing_time", growing_time)
+    local timer = minetest.get_node_timer(pos)
+    if not timer:is_started() then
+        timer:start(math.random(timer_min, timer_max))
+    end
 end
 
 function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
@@ -337,6 +355,7 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     local progress = growth_progress(pos, elapsed)
     local growing_left = meta:get_int("growth") - progress
     meta:set_int("growth", growing_left)
+    --growing_side_effects(pos, progress)
     if growing_left < 0 then
         catch_up_life_stage(pos, growing_time, growing_left)
         return false
