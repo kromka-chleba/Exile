@@ -156,7 +156,11 @@ end
 
 function minimal.node_get_int(pos, name)
     local meta = minetest.get_meta(pos)
-    return meta:get_int(name)
+    if meta:get(name) then
+        return meta:get_int(name)
+    else
+        return false
+    end
 end
 
 function minimal.node_set_string(pos, name, value)
@@ -166,7 +170,11 @@ end
 
 function minimal.node_get_string(pos, name)
     local meta = minetest.get_meta(pos)
-    return meta:get_string(name)
+    if meta:get(name) then
+        return meta:get_string(name)
+    else
+        return false
+    end
 end
 
 function minimal.force_place(pos, node)

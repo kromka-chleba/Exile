@@ -48,7 +48,7 @@ function plant.start_growing_plant(pos, growing_time)
     local timer_min = plant_base_timer - 0.1 * plant_base_timer
     local timer_max = plant_base_timer + 0.1 * plant_base_timer
     minimal.node_set_int(pos, "growth", growing_time)
-    minimal.node_set_int(pos, "last_updated", 0)
+    minimal.node_set_int(pos, "growing_time", growing_time)
     local timer = minetest.get_node_timer(pos)
     if not timer:is_started() then
         timer:start(math.random(timer_min, timer_max))
@@ -133,37 +133,8 @@ local function are_conditions_good(pos)
     return true
 end
 
--- returns growth to catch up or false if the plant has died 
-local function catch_up_timer(pos, elapsed, last_updated, growing_left, growth_rate)
-    local temp = climate.get_point_temp(pos)
-    local mushroom = is_mushroom(pos)
-    local elapsed = elapsed - last_updated
-    if elapsed > plant_base_timer then
-        if pos.y < -15 and temp >= 0 or temp <= 40 then
-            if mushroom then
-                --This is an underground shroom, assume steady temp
-                return growing_left - growth_rate * ( elapsed / plant_base_timer)
-            else
-                -- underground plant, but we've got light so give it 50%
-                return growing_left - growth_rate * ( elapsed / plant_base_timer / 2)
-            end
-        else
-            -- change only takes rain, sun and temp into account
-            local change = crop_rewind(elapsed, plant_base_timer, mushroom)
-            if change == -1 then
-                --Exteme heat or cold killed the plant
-                minetest.remove_node(pos)
-                return false -- kill the timer
-            end
-            -- growth_rate is comes from soil quality
-            return growing_left - change - growth_rate * (elapsed / plant_base_timer / 2)
-        end
-    end
-    return growing_left -- we weren't away actually
-end
-
 local function grow_roots(pos)
-    local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
+    local pos_under = minimal.get_pos_under(pos)
     local plant_nodedef = minimal.get_nodedef(pos)
     local nodedef_under = minimal.get_nodedef(pos_under)
     local max_root_nr = plant_nodedef.groups.plant_with_roots
@@ -176,7 +147,7 @@ local function grow_roots(pos)
     if root_name == "" then
         minimal.node_set_string(pos, "root_name", plant_nodedef._root_name)
     end
-    local root_nr = minimal.node_get_int(pos, "root_nr")
+    local root_nr = minimal.node_get_int(pos, "root_nr") or 0
     if root_nr < max_root_nr then
         local new_roots = root_nr + math.random(0, math.ceil(max_root_nr / 3))
         if new_roots > max_root_nr then
@@ -210,7 +181,7 @@ local function deplete_soil(pos)
     end
 end
 
-local function kill_or_stop_growing(pos)
+local function kill_plant(pos, natural_death)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
     local fruiting_plant =
@@ -219,15 +190,39 @@ local function kill_or_stop_growing(pos)
         minetest.get_item_group(node.name, "flowering_plant") > 0
     local seedling =
         minetest.get_item_group(node.name, "seedling") > 0
+    local dead_names = {natural = "", induced = ""}
+    if seedling then
+        dead_names.natural = nodedef._seed_name
+        dead_names.induced = "air"
+    elseif flowering_plant and nodedef._dead_fruitless_name then
+        dead_names.natural = nodedef._dead_fruitless_name
+        dead_names.induced = nodedef._dead_fruitless_name
+    else
+        dead_names.natural = nodedef._dead_name
+        dead_names.induced = nodedef._dead_name
+        if fruiting_plant and nodedef._dead_fruitless_name then
+            dead_names.induced = nodedef._dead_fruitless_name
+        end
+    end
+    local dead_name = ""
+    if natural_death then
+        dead_name = dead_names.natural
+    else
+        dead_name = dead_names.induced
+    end
+    minetest.set_node(pos, {name = dead_name,
+                            param2 = nodedef.place_param2})
+end
+
+local function kill_or_stop_growing(pos, elapsed)
+    -- plant died
+    if climate.plant_killed(elapsed) then
+        kill_plant(pos, false)
+        return true
+    end
     -- extreme temps will kill
     if is_temperature_extreme(pos) then
-        if fruiting_plant and nodedef._dead_fruitless_name then
-            minetest.set_node(pos, {name = nodedef._dead_fruitless_name,
-                                    param2 = nodedef.place_param2})
-        else
-            minetest.set_node(pos, {name = nodedef._dead_name,
-                                    param2 = nodedef.place_param2})
-        end
+        kill_plant(pos, false)
         return true
     end
     -- stop growth if conditions not suitable
@@ -235,22 +230,68 @@ local function kill_or_stop_growing(pos)
         local season = seasons.get_season_name()
         if season == "winter_early" or
             season == "winter_late" then
-            if seedling then
-                minetest.set_node(pos, {name = nodedef._seed_name,
-                                        param2 = nodedef.place_param2})
-            elseif flowering_plant and nodedef._dead_fruitless_name then
-                minetest.set_node(pos, {name = nodedef._dead_fruitless_name,
-                                        param2 = nodedef.place_param2})
-            else
-                minetest.set_node(pos, {name = nodedef._dead_name,
-                                        param2 = nodedef.place_param2})
-            end
+            kill_plant(pos, true)
             return true
         end
         return true
     end
     -- returning false allows growth
     return false
+end
+
+local function growing_side_effects(pos)
+    local plant_nodedef = minimal.get_nodedef(pos)
+    --chance to deplete soil
+    if math.random() <= 0.0001 then
+        deplete_soil(pos_under)
+    end
+    if plant_nodedef.groups.plant_with_roots and
+        not plant_nodedef.groups.seedling then
+        -- roots grow depending on conditions
+        if math.random() < progress / 10 then grow_roots(pos) end
+    end
+end
+
+local function calculate_growth_progress(pos, good_cycles, rain_cycles)
+    local good_cycles = good_cycles or 1
+    local rain_cycles = rain_cycles or 0
+    if climate.get_rain(pos) then
+        rain_cycles = 1
+    end
+    local soil = seed_soil_response(pos, soil_prefs)
+    local progress = good_cycles * soil + rain_cycles * 4
+    return progress
+end
+
+local function progress_with_catch_up(pos, elapsed)
+    -- number of cycles
+    local good_time, rain_time = good_time_rain_time(elapsed, is_mushroom(pos))
+    local good_cycles = good_time / plant_base_timer
+    local rain_cycles = good_time / plant_base_timer
+    local progress = calculate_growth_progress(pos, good_cycles, rain_cycles)
+    if pos.y < 15 and are_conditions_good(pos) then
+        progress = calculate_growth_progress(pos, elapsed / plant_base_timer)
+        -- if is not a mushroom then assume we're in a cave or vent
+        if not is_mushroom(pos) then progress = progress / 2 end
+    end
+    return progress
+end
+
+local function growth_progress(pos, elapsed)
+    if elapsed > plant_base_timer then
+        return progress_with_catch_up(pos, elapsed)
+    else
+        return calculate_growth_progress(pos)
+    end
+end
+
+local function seed_elapsed(meta)
+    local seed_elapsed = meta:get_int("elapsed")
+    if seed_elapsed > plant_base_timer then
+        meta:set_int("elapsed", 0)
+        return seed_elapsed
+    end
+    return 0
 end
 
 ------------------ Global functions of the API ------------------
@@ -271,50 +312,24 @@ function plant.grow_seed(pos, elapsed)
         return true -- unless dead, try again when conditions are good
     end
     minimal.force_place(pos, {name = nodedef._next_life_stage})
+    -- pass elapsed to seedlings so we can catch up from there
+    minimal.node_set_int(pos, "elapsed", elapsed)
     return false -- the seed becomes a seedling (stops the timer)
 end
 
--- Grows a plant
 function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
-    local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
-    local growing_left = minimal.node_get_int(pos, "growth")
-    local last_updated = minimal.node_get_int(pos, "last_updated") or elapsed
-    --We've been away, let's catch up on missing growth
-    local progress = seed_soil_response(pos, soil_prefs)
-    -- this one is just in case the seed set elapsed to trigger catch up
-    growing_left = catch_up_timer(pos, elapsed, last_updated, growing_left, progress)
-    -- if catch_up_timer returns false it means the plant has died
-    -- due to extreme weather
-    if not growing_left then return false end
-    -- new plant, or grow
-    local plant_name = minetest.get_node(pos).name
-    local plant_nodedef = minetest.registered_nodes[plant_name]
+    local meta = minetest.get_meta(pos)
+    local elapsed = elapsed + seed_elapsed(meta)
+    if kill_or_stop_growing(pos, elapsed) then
+        return true -- the plant can't grow, waits for better times
+    end
+    progress = growth_progress(pos, elapsed)
+    local growing_left = meta:get_int("growth")
+    meta:set_int("growth", growing_left - progress)
+    growing_left = growing_left - progress
     if growing_left < 0 then
         catch_up_life_stage(pos, growing_time, growing_left)
         return false
     end
-    if kill_or_stop_growing(pos) then
-        return true -- the plant can't grow, waits for better times
-    end
-    --still growing
-    --chance to deplete soil
-    if math.random() <= 0.0001 then
-        deplete_soil(pos_under)
-    end
-    if progress <= 0 then
-        return true -- soil is terrible, no growing here
-    end
-    if plant_nodedef.groups.plant_with_roots and
-        not plant_nodedef.groups.seedling then
-        -- roots grow depending on conditions
-        if math.random() < progress / 10 then grow_roots(pos) end
-    end
-    growing_left = growing_left - progress
-    --grow faster in rain
-    if climate.get_rain(pos) then
-        growing_left = growing_left - 4
-    end
-    minimal.node_set_int(pos, "growth", growing_left)
-    minimal.node_set_int(pos, "last_updated", elapsed)
     return true
 end
