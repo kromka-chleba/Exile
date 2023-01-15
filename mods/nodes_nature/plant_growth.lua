@@ -138,36 +138,48 @@ local function are_conditions_good(pos)
     return true
 end
 
-local function grow_roots(pos)
+local function get_root_number(pos)
     local pos_under = minimal.get_pos_under(pos)
-    local plant_nodedef = minimal.get_nodedef(pos)
     local nodedef_under = minimal.get_nodedef(pos_under)
-    local max_root_nr = plant_nodedef.groups.plant_with_roots
+    local meta = minetest.get_meta(pos_under)
+    local nr = meta:get_float("root_nr")
+    return nr
+end
+
+local function set_roots(pos, nr, root_name)
+    local pos_under = minimal.get_pos_under(pos)
+    local nodedef_under = minimal.get_nodedef(pos_under)
     if not nodedef_under.groups.sediment then
         return
     elseif not nodedef_under.groups.roots then
         minetest.set_node(pos_under, {name = nodedef_under.name.."_roots"})
     end
-    local root_name = minimal.node_get_string(pos, "root_name")
-    if root_name == "" then
-        minimal.node_set_string(pos, "root_name", plant_nodedef._root_name)
-    end
-    local root_nr = minimal.node_get_int(pos, "root_nr") or 0
-    if root_nr < max_root_nr then
-        local new_roots = root_nr + math.random(0, math.ceil(max_root_nr / 3))
-        if new_roots > max_root_nr then
-            new_roots = max_root_nr
-        end
-        minimal.node_set_int(pos, "root_nr", new_roots)
+    local meta = minetest.get_meta(pos_under)
+    meta:set_string("root_name", root_name)
+    meta:set_float("root_nr", nr)
+end
+
+local function add_roots(pos, nr, root_name)
+    local old_nr = get_root_number(pos)
+    set_roots(pos, old_nr + nr, root_name)
+end
+
+local function grow_roots(pos, progress)
+    local plant_nodedef = minimal.get_nodedef(pos)
+    local max_root_nr = plant_nodedef.groups.plant_with_roots
+    local current_nr = get_root_number(pos)
+    --local nr = progress * math.random(0.005, 0.02)
+    local nr = 0.01 * math.random(1, 10) * progress
+    if nr + current_nr > max_root_nr then
+        set_roots(pos, max_root_nr, plant_nodedef._root_name)
+    else
+        add_roots(pos, nr, plant_nodedef._root_name)
     end
 end
 
 local function catch_up_life_stage(pos, growing_time, growing_left)
     while growing_left < 0 do
         local nodedef = minimal.get_nodedef(pos)
-        if nodedef.groups.plant_with_roots then
-            grow_roots(pos)
-        end
         if nodedef._next_life_stage then
             local p2 = nodedef.place_param2
             minimal.force_place(pos, {name = nodedef._next_life_stage,
@@ -245,16 +257,12 @@ local function kill_or_stop_growing(pos, elapsed)
 end
 
 local function growing_side_effects(pos, progress)
-    local plant_nodedef = minimal.get_nodedef(pos)
+    local pos_under = minimal.get_pos_under(pos)
     --chance to deplete soil
     if math.random() <= 0.0001 then
         deplete_soil(pos_under)
     end
-    if plant_nodedef.groups.plant_with_roots and
-        not plant_nodedef.groups.seedling then
-        -- roots grow depending on conditions
-        if math.random() < progress / 10 then grow_roots(pos) end
-    end
+    grow_roots(pos, progress)
 end
 
 local function calculate_growth_progress(pos, good_cycles, rain_cycles)
@@ -355,7 +363,7 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     local progress = growth_progress(pos, elapsed)
     local growing_left = meta:get_int("growth") - progress
     meta:set_int("growth", growing_left)
-    --growing_side_effects(pos, progress)
+    growing_side_effects(pos, progress)
     if growing_left < 0 then
         catch_up_life_stage(pos, growing_time, growing_left)
         return false

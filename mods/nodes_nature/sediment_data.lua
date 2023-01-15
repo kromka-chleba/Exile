@@ -204,7 +204,7 @@ for i = 1, #registered_sediments do
                 return false
             end
             local meta = minetest.get_meta(pos)
-            local number_of_roots = meta:get_int("root_nr")
+            local number_of_roots = math.floor(meta:get_float("root_nr"))
             local root_name = meta:get_string("root_name")
             local player_inv = digger:get_inventory()
             local sed_stack = ItemStack(nodedef.drop)
