@@ -9,6 +9,8 @@ local S = nodes_nature.S
 plant = plant or {}
 soil_preferences = {}
 
+local base_health = 100
+
 function soil_preferences.new(args)
     local prefs = {
         rocky_substrate = args.rocky_substrate,
@@ -102,7 +104,13 @@ end
 
 local function is_dark(pos)
     local light = get_light(pos)
-    return not light or light < 8
+    return light < 8
+end
+
+local function is_dark_when_day(pos)
+    local pos_above = minimal.get_pos_above(pos)
+    local light = minimal.get_daylight(pos_above, 0.5) or 0
+    return light < 8
 end
 
 local function is_temperature_extreme(pos)
@@ -149,7 +157,9 @@ end
 local function set_roots(pos, nr, root_name)
     local pos_under = minimal.get_pos_under(pos)
     local nodedef_under = minimal.get_nodedef(pos_under)
-    if not nodedef_under.groups.sediment then
+    if not nodedef_under.groups.sediment or
+        nodedef_under.groups.wet_sediment == 2 or
+        nodedef_under.natural_slope then
         return
     elseif not nodedef_under.groups.roots then
         minetest.set_node(pos_under, {name = nodedef_under.name.."_roots"})
@@ -176,19 +186,6 @@ local function grow_roots(pos, progress)
     else
         add_roots(pos, nr, plant_nodedef._root_name)
     end
-end
-
-local function catch_up_life_stage(pos, growing_time, growing_left)
-    while growing_left < 0 do
-        local nodedef = minimal.get_nodedef(pos)
-        if nodedef._next_life_stage then
-            local p2 = nodedef.place_param2
-            minimal.force_place(pos, {name = nodedef._next_life_stage,
-                                      param2 = p2})
-        end
-        growing_left = growing_left + growing_time
-    end
-    minimal.node_set_int(pos, "growth", growing_left)
 end
 
 local function deplete_soil(pos)
@@ -230,20 +227,43 @@ local function kill_plant(pos, natural_death)
     end
     minetest.set_node(pos, {name = dead_name,
                             param2 = nodedef.place_param2})
+    minimal.node_set_int(pos, "busted", 1)
 end
 
-local function kill_or_stop_growing(pos, elapsed)
-    -- plant died
-    if climate.plant_killed(elapsed) then
+local function was_light_here(pos, elapsed)
+    -- 30 cycles without light kill a plant
+    if is_dark(pos) and
+        is_dark_when_day(pos) and
+        not is_mushroom(pos) and
+        elapsed > base_health * plant_base_timer then
+        return false
+    end
+    return true
+end
+
+local function kill_no_light(pos, elapsed)
+    local meta = minetest.get_meta(pos)
+    if not was_light_here(pos, elapsed) then
         kill_plant(pos, false)
         return true
     end
-    -- extreme temps will kill
+end
+
+local function kill_extreme_temp(pos, elapsed)
     if is_temperature_extreme(pos) then
         kill_plant(pos, false)
         return true
     end
-    -- stop growth if conditions not suitable
+end
+
+local function kill_climate_history(pos, elapsed)
+    if climate.plant_killed(elapsed) then
+        kill_plant(pos, false)
+        return true
+    end
+end
+
+local function kill_in_winter(pos, elapsed)
     if not are_conditions_good(pos) then
         local season = seasons.get_season_name()
         if season == "winter_early" or
@@ -253,8 +273,21 @@ local function kill_or_stop_growing(pos, elapsed)
         end
         return true
     end
-    -- returning false allows growth
-    return false
+end
+
+local function catch_up_life_stage(pos, growing_time, growing_left, elapsed)
+    while growing_left < 0 do
+        local nodedef = minimal.get_nodedef(pos)
+        if nodedef._next_life_stage then
+            local p2 = nodedef.place_param2
+            minimal.force_place(pos, {name = nodedef._next_life_stage,
+                                      param2 = p2})
+        end
+        growing_left = growing_left + growing_time
+    end
+    minimal.node_set_int(pos, "growth", growing_left)
+    -- after we're done with growth we can check for season
+    kill_climate_history(pos, elapsed)
 end
 
 local function growing_side_effects(pos, progress)
@@ -277,38 +310,58 @@ local function calculate_growth_progress(pos, good_cycles, rain_cycles)
     return progress
 end
 
-local function progress_with_catch_up(pos, elapsed)
+local function time_to_cycles(time)
+    return time / plant_base_timer
+end
+
+local function progress_surface(pos, elapsed)
     -- number of cycles
     local good_time, rain_time = good_time_rain_time(elapsed, is_mushroom(pos))
-    local good_cycles = good_time / plant_base_timer
-    local rain_cycles = good_time / plant_base_timer
+    local good_cycles = time_to_cycles(good_time)
+    local rain_cycles = time_to_cycles(rain_time)
     -- climate history is stored in 60s chunks
     -- prevent calculating progress for just one chunk when elapsed is lower than that
     if good_time == 60 then
-        good_cycles = elapsed / plant_base_timer
+        good_cycles = time_to_cycles(elapsed)
         if rain_time == 60 then
-            rain_cycles = elapsed / plant_base_timer
+            rain_cycles = time_to_cycles(elapsed)
         end
     end
     local progress = calculate_growth_progress(pos, good_cycles, rain_cycles)
-    if pos.y < 15 and are_conditions_good(pos) then
-        progress = calculate_growth_progress(pos, elapsed / plant_base_timer)
-        -- if is not a mushroom then assume we're in a cave or vent
-        if not is_mushroom(pos) then progress = progress / 2 end
-    end
     return progress
 end
 
-local function growth_progress(pos, elapsed)
-    if elapsed > plant_base_timer then
-        return progress_with_catch_up(pos, elapsed)
-    else
-        if kill_or_stop_growing(pos, elapsed) then
-            return 0 -- the plant can't grow, waits for better times
-        else
-            return calculate_growth_progress(pos)
-        end
+local function progress_underground(pos, elapsed)
+    local good_cycles = time_to_cycles(elapsed)
+    local base_progress = calculate_growth_progress(pos, good_cycles)
+    if is_mushroom(pos) then
+        return base_progress
     end
+    local dark_day = is_dark_when_day(pos)
+    local dark_now = is_dark(pos)
+    if (dark_day and not dark_now) or
+        (not dark_day and not dark_now) then
+        return base_progress
+    elseif not dark_day and dark_now then
+        return base_progress / 2
+    end
+    return 0
+end
+
+local function past_growth_progress(pos, elapsed)
+    if elapsed > plant_base_timer then
+        if pos.y < -15 then
+            return progress_underground(pos, elapsed)
+        else
+            return progress_surface(pos, elapsed)
+        end
+    else
+        return 0
+    end
+end
+
+local function current_growth_progress(pos, elapsed)
+    return calculate_growth_progress(pos)
 end
 
 local function seed_elapsed(meta)
@@ -351,6 +404,7 @@ function plant.start_growing_plant(pos, growing_time)
     local timer_min = plant_base_timer - 0.1 * plant_base_timer
     local timer_max = plant_base_timer + 0.1 * plant_base_timer
     minimal.node_set_int(pos, "growth", growing_time)
+    minimal.node_set_int(pos, "health", base_health)
     minimal.node_set_int(pos, "growing_time", growing_time)
     local timer = minetest.get_node_timer(pos)
     if not timer:is_started() then
@@ -361,13 +415,31 @@ end
 function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     local meta = minetest.get_meta(pos)
     local elapsed = elapsed + seed_elapsed(meta)
-    local progress = growth_progress(pos, elapsed)
-    local growing_left = meta:get_int("growth") - progress
-    meta:set_int("growth", growing_left)
-    growing_side_effects(pos, progress)
-    if growing_left < 0 then
-        catch_up_life_stage(pos, growing_time, growing_left)
+    local current_progress = current_growth_progress(pos, elapsed)
+    local past_progress = past_growth_progress(pos, elapsed)
+    local health = meta:get_int("health")
+    if kill_no_light(pos, elapsed) then
+        -- we had no light so exit before catch up
         return false
     end
+    if health <= 0 then
+        kill_plant(pos, true)
+    end
+    if not are_conditions_good(pos) then
+        current_progress = 0
+        meta:set_int("health", health - 1)
+    elseif health < base_health then
+        meta:set_int("health", health + 1)
+    end
+    local progress = past_progress + current_progress
+    local growing_left = meta:get_int("growth") - progress
+    meta:set_int("growth", growing_left)
+    if growing_left < 0 then
+        catch_up_life_stage(pos, growing_time, growing_left, elapsed)
+    end
+    if kill_extreme_temp(pos, elapsed) then
+        return false
+    end
+    growing_side_effects(pos, progress)
     return true
 end

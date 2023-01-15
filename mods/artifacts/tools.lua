@@ -301,13 +301,21 @@ local farmers_probe = function(user, pointed_thing)
 
 
   local meta = minetest.get_meta(pointed_thing.under)
-  local measure = meta:get_int("growth")
+  local growth = meta:get_int("growth")
+  local health = meta:get_int("health")
 
-  if measure <= 0 then
+  if growth <= 0 then
     minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
   else
     minetest.chat_send_player(name, minetest.colorize("#00ff00", "GROWTH UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+    minetest.chat_send_player(name, minetest.colorize("#cc6600", growth))
+  end
+
+  if health <= 0 then
+      minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+  else
+      minetest.chat_send_player(name, minetest.colorize("#00ff00", "HEALTH:"))
+      minetest.chat_send_player(name, minetest.colorize("#cc6600", health))
   end
 
 end

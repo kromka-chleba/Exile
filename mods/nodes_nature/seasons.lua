@@ -91,7 +91,8 @@ local function update_plant(pos, node)
     local next_nodedef = minetest.registered_nodes[new_name]
     if new_name and new_name ~= node.name then
         local timer = minetest.get_node_timer(pos)
-        if timer:is_started() then
+        local busted = minimal.node_get_int(pos, "busted")
+        if timer:is_started() or busted then
             return
         end
         minetest.set_node(pos, {name = new_name,
