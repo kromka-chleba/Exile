@@ -167,6 +167,7 @@ end
 local function grow_roots(pos, progress)
     local plant_nodedef = minimal.get_nodedef(pos)
     local max_root_nr = plant_nodedef.groups.plant_with_roots
+    if not max_root_nr then return end
     local current_nr = get_root_number(pos)
     --local nr = progress * math.random(0.005, 0.02)
     local nr = 0.01 * math.random(1, 10) * progress
