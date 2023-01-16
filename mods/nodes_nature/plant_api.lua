@@ -641,7 +641,7 @@ function plant.get_plantlike_dead_props(plant_def)
     base.tiles = {plant.get_dead_texture_name(plant_def.name)}
     base.inventory_image = plant.get_dead_texture_name(plant_def.name)
     base.wield_image = plant.get_dead_texture_name(plant_def.name)
-    base._next_life_stage = ""
+    base._next_life_stage = false
     base.description = S("Dead @1", plant_def.description)
     if plant_def.fruit and plant_def.winter_fruit then
         base.description = S("Dead Fruiting @1", plant_def.description)

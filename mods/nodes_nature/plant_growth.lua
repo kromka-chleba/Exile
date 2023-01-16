@@ -418,6 +418,10 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     local current_progress = current_growth_progress(pos, elapsed)
     local past_progress = past_growth_progress(pos, elapsed)
     local health = meta:get_int("health")
+    if not meta:get("health") then
+        health = base_health
+        meta:set_int("health", health)
+    end
     if kill_no_light(pos, elapsed) then
         -- we had no light so exit before catch up
         return false
