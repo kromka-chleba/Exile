@@ -265,14 +265,18 @@ local function kill_climate_history(pos, elapsed)
     end
 end
 
+local function is_winter()
+    local season = seasons.get_season_name()
+    if season == "winter_early" or
+        season == "winter_late" then
+        return true
+    end
+    return false
+end
+
 local function kill_in_winter(pos, elapsed)
-    if not are_conditions_good(pos) then
-        local season = seasons.get_season_name()
-        if season == "winter_early" or
-            season == "winter_late" then
-            kill_plant(pos, true)
-            return true
-        end
+    if not are_conditions_good(pos) and is_winter() then
+        kill_plant(pos, true)
         return true
     end
 end
@@ -422,7 +426,7 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     local past_progress = past_growth_progress(pos, elapsed)
     local health = meta:get_int("health")
     if not meta:get("health") then
-        health = base_health
+        health = base_health + base_health * math.random(-1, 1) * 0.1
         meta:set_int("health", health)
     end
     if kill_no_light(pos, elapsed) then
@@ -434,7 +438,11 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     end
     if not are_conditions_good(pos) then
         current_progress = 0
-        meta:set_int("health", health - 1)
+        if is_winter() then
+            meta:set_int("health", health - 3)
+        else
+            meta:set_int("health", health - 1)
+        end
     elseif health < base_health then
         meta:set_int("health", health + 1)
     end
