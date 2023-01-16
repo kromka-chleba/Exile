@@ -227,7 +227,9 @@ local function kill_plant(pos, natural_death)
     end
     minetest.set_node(pos, {name = dead_name,
                             param2 = nodedef.place_param2})
-    minimal.node_set_int(pos, "busted", 1)
+    if not natural_death then
+        minimal.node_set_int(pos, "busted", 1)
+    end
 end
 
 local function was_light_here(pos, elapsed)
