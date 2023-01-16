@@ -282,8 +282,10 @@ local function catch_up_life_stage(pos, growing_time, growing_left, elapsed)
         local nodedef = minimal.get_nodedef(pos)
         if nodedef._next_life_stage then
             local p2 = nodedef.place_param2
+            local health = minimal.node_get_int(pos, "health")
             minimal.force_place(pos, {name = nodedef._next_life_stage,
                                       param2 = p2})
+            local health = minimal.node_set_int(pos, "health", health)
         end
         growing_left = growing_left + growing_time
     end
@@ -406,7 +408,6 @@ function plant.start_growing_plant(pos, growing_time)
     local timer_min = plant_base_timer - 0.1 * plant_base_timer
     local timer_max = plant_base_timer + 0.1 * plant_base_timer
     minimal.node_set_int(pos, "growth", growing_time)
-    minimal.node_set_int(pos, "health", base_health)
     minimal.node_set_int(pos, "growing_time", growing_time)
     local timer = minetest.get_node_timer(pos)
     if not timer:is_started() then
