@@ -68,13 +68,13 @@ food_table = {
 	--drugs
 	["nodes_nature:tikusati"]           = { 0,  0,  -2,  2,  0 },
 	--toxic
-	["nodes_nature:nebiyi"]             = { 0,  0,   0,  0,  0 },
-	["nodes_nature:marbhan"]            = { 0,  0,   0,  0,  0 },
+	["nodes_nature:nebiyi"]             = { 0,  0,   1,  -10,  0 },
+	["nodes_nature:marbhan"]            = { 0,  0,   1,  -10,  0 },
 	["nodes_nature:maraka_nut"]         = { 0,  0,   5,  5,  0 },
 	["nodes_nature:sasaran_cone"]       = { 0,  0,   1,  0,  0 },
-	--medicine
-	["nodes_nature:hakimi"]             = { 0,  0,   0,  0,  0 },
-	["nodes_nature:merki"]              = { 0,  0,   0,  0,  0 },
+	--medicine                              hp  th   hu  en  te
+	["nodes_nature:hakimi"]             = { 1,  0,   0,  -5,  0 },
+	["nodes_nature:merki"]              = { 1,  0,   0,  -5,  0 },
 	}
 
 bake_table = {
