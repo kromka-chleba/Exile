@@ -633,7 +633,6 @@ minetest.register_node("tech:roof_tile", {
 	tiles = {"tech_roof_tiles.png"},
 	stack_max = minimal.stack_max_medium,
   drawtype = "nodebox",
-	paramtype = "light",
   paramtype2 = "facedir",
   node_box = {
 		type = "fixed",
@@ -666,7 +665,6 @@ minetest.register_node("tech:roof_tile_oc", {
 	tiles = {"tech_roof_tiles.png"},
 	stack_max = minimal.stack_max_medium,
   drawtype = "nodebox",
-	paramtype = "light",
   paramtype2 = "facedir",
   node_box = {
 		type = "fixed",
@@ -700,7 +698,6 @@ minetest.register_node("tech:roof_tile_ic", {
 	tiles = {"tech_roof_tiles.png"},
 	stack_max = minimal.stack_max_medium,
   drawtype = "nodebox",
-	paramtype = "light",
   paramtype2 = "facedir",
   node_box = {
 		type = "fixed",
