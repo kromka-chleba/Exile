@@ -64,15 +64,15 @@ food_table = {
 	--drugs
 	["nodes_nature:tikusati"]           = { 0,  0,  -2,  2,  0 },
 	--toxic
-	["nodes_nature:nebiyi"]             = { 0,  0,   0,  0,  0 },
-	["nodes_nature:marbhan"]            = { 0,  0,   0,  0,  0 },
+	["nodes_nature:nebiyi"]             = { 0,  0,   1,  -10,  0 },
+	["nodes_nature:marbhan"]            = { 0,  0,   1,  -10,  0 },
 	-- Maraka nut is dangerous poisonous until processed,
 	-- causes photosensitivity, and risk of hepatotoxicity.
 	-- You can eat it raw if you want to take the risk... famine food for the desperate.
 	["nodes_nature:maraka_nut"]         = { 0,  0,   5,  5,  0 },
-	--medicine
-	["nodes_nature:hakimi"]             = { 0,  0,   0,  0,  0 },
-	["nodes_nature:merki"]              = { 0,  0,   0,  0,  0 },
+	--medicine                              hp  th   hu  en  te
+	["nodes_nature:hakimi"]             = { 1,  0,   0,  -5,  0 },
+	["nodes_nature:merki"]              = { 1,  0,   0,  -5,  0 },
 	}
 
 bake_table = {
