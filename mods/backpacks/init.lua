@@ -21,6 +21,7 @@ local function get_formspec(pos, w, h)
 		"list[current_name;main;0,0.3;"..w..","..h.."]",
 		"field[0.5,"..label_offset..";5,1;label;Label:;"..label.."]",
 		"field_close_on_enter[label;false]",
+		"button[5,"..label_offset..";1,0.25;labelset;Set]",
 		"label["..craftedby_offset_x..","..(label_offset-.35)..";Crafted by:]",
 		"label["..creator_offset_x..","..label_offset..";"..creator.."]",
 		"list[current_player;main;0,"..main_offset..";8,2]",
