@@ -464,7 +464,8 @@ minetest.register_node(":ncrafting:dye_table", {
 		    bmeta:set_string("description", bundlename(bmeta,
 							       plants,
 							       treatment))
-		    inv:set_stack("craft", 1, bundle)
+		    result = bundle
+		    inv:set_stack("craft", 1, ItemStack(""))
 	      end
 	      inv:set_stack("craftresult", 1, ItemStack(result))
 	   end
