@@ -87,11 +87,23 @@ minetest.register_on_respawnplayer(function(player)
       minetest.after(0.1, function() doGatewayFX(player) end)
 end)
 
+function play_themesong(name)
+   minetest.after(8, function()
+		     minetest.sound_play({ name = "exile_theme" },
+			{ to_player = name })
+   end)
+end
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
       --maybe unnecessary, but guarantee they won't be penalized for reading
       if formname == "lore:login" then
 	 reset_attributes(player) -- All stats back to starting values
 	 doGatewayFX(player)
+	 local pname = player:get_player_name()
+	 minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
+					 "/music/exile_theme.ogg",
+				      to_player = pname
+				    }, play_themesong )
 	 local props = player:get_properties()
 	 props.nametag = "" -- An empty tag defaults to player's name
 	 props.is_visible = true -- Bang! new player appears in the world
