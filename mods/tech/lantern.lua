@@ -191,7 +191,7 @@ minetest.register_node("tech:lantern_lit", {
         mesh = "lantern.obj",
 	stack_max = minimal.stack_max_medium,
 	sunlight_propagates = true,
-	light_source = 11,
+	light_source = 10,
 	use_texture_alpha = c_alpha.blend, -- flame vanishes on MT 5.3.0
 	paramtype = "light",
 	paramtype2 = "facedir",

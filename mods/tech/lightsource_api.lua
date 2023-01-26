@@ -130,8 +130,9 @@ end
 function lightsource.ignite(desc, pos)
     local meta = minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
+    local node = minetest.get_node(pos)
     if fuel and fuel > 0 then
-        minimal.switch_node(pos, {name = desc.lit_name})
+        minimal.switch_node(pos, {name = desc.lit_name, param2 = node.param2})
         minetest.registered_nodes[desc.lit_name].on_construct(pos)
         meta:set_int("fuel", fuel)
     end

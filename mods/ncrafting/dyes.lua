@@ -107,7 +107,7 @@ local function CandidateList()
    -- as a dye source yet
    dye_candidates = ncrafting.loadstore("dye_candidates") or {}
 
-   for nm, def in pairs(minetest.registered_nodes) do
+   for nm, def in pairs(minetest.registered_items) do
       if is_excluded(nm) then
 	 def.groups.ncrafting_dye_candidate = nil
 	 dye_candidates[nm] = nil
@@ -212,8 +212,8 @@ local function bundlename(meta, plant, treatment)
    if treatment == nil and meta then
       treatment = meta:get_string("ncrafting:bundle_treatment")
    end
-   if minetest.registered_nodes[plant] then
-      fmt_plant = "of "..minetest.registered_nodes[plant].description
+   if minetest.registered_items[plant] then
+      fmt_plant = "of "..minetest.registered_items[plant].description
    end
    if treatment and treatment ~= "" then
       fmt_treatment = ", "..methodstring[treatment]

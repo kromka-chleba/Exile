@@ -68,6 +68,35 @@ local function flora_spread(pos, node)
 	end
 end
 
+minetest.register_lbm({
+	label = "Add roots under plants",
+        name = "nodes_nature:root_lbm",
+	nodenames = {"group:plant_with_roots"},
+        run_at_every_load = false,
+        min_y = -10,
+        max_y = 300,
+	action = function(pos, node)
+            local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
+            local plant_name = node.name
+            local plant_nodedef = minetest.registered_nodes[plant_name]
+            local name_under = minetest.get_node(pos_under).name
+            local nodedef_under = minetest.registered_nodes[name_under]
+            local timer = minetest.get_node_timer(pos)
+            if timer:is_started() then
+                return
+            end
+            if not nodedef_under.groups.sediment then
+                return
+            elseif not nodedef_under.groups.roots then
+                minetest.set_node(pos_under, {name = name_under.."_roots"})
+            end
+            local meta = minetest.get_meta(pos_under)
+            meta:set_string("root_name", plant_nodedef._root_name)
+            local max_root_nr = plant_nodedef.groups.plant_with_roots
+            meta:set_int("root_nr", math.ceil(math.random(0, max_root_nr)))
+        end
+})
+
 local function undersea_flora_spread(pos, node)
    local nodedef = minetest.registered_nodes[node.name]
    local substrate = nodedef.node_dig_prediction
@@ -253,59 +282,52 @@ minetest.register_abm({
         min_y = 5,
 	chance = 15,
 	catch_up = false,
+        min_y = -30,
+        max_y = 500,
 	action = function(pos, node)
-
-		-- Don't spread at night
-		local tod = minetest.get_timeofday()
-		if tod < 0.2 or tod > 0.8 then return end
-
-		local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
-		local above_name = minetest.get_node(pos_above).name
-		if ( above_name ~= "air" or minimal.get_daylight(
-			pos_above, 0.5) < 13 ) then
-		   return -- This node is in darkness, covered
-		end
-
-		-- Get dry drop so we know what type of base sediment we are
-		local nodedef = minetest.registered_nodes[node.name]
-		local drop = nodedef.drop:gsub("%_wet","")
-		if not nodedef or not drop then
-		   return
-		end
-
-		-- Look for correct grass type nearby
-		local positions = minetest.find_nodes_in_area_under_air(
-		   {x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
-		   {x = pos.x + 1, y = pos.y + 2, z = pos.z + 1},
-		   {"group:spreading"})
-
-		if #positions == 0 then
-		   return
-		end
-
-		local sourcepos = positions[math.random(#positions)]
-		-- Check against drop
-		local source = minetest.get_node(sourcepos)
-		local sname = nsl.get_regular_node_name(source.name)
-		   or source.name -- Ignore natural slopes variations
-		sname = sname:gsub("%_wet","") -- ..and compare dry vs dry!
-
-		local sdef = minetest.registered_nodes[sname]
-		if ( not sdef.drop ) or sdef.drop ~= drop then
-		   return -- Wrong grass/dirt type, can't spread here
-		end
-
-		local id = nodedef.groups.natural_slope
-		if id then -- We're a slope, preserve that
-		   sname = nsl.get_all_slopes(sname)[id]
-		end
-		if minetest.get_item_group(node.name, "wet_sediment") == 1 then
-		   -- Preserve wetness too, sname is always the dry node
-		   sname = sname.."_wet"
-		end
-		minetest.set_node(pos, {name = sname, param2 = node.param2})
-	end
-
+            local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
+            local above_name = minetest.get_node(pos_above).name
+            if above_name ~= "air" then
+                return
+            end
+            -- Don't spread at night
+            local tod = minetest.get_timeofday()
+            if tod < 0.2 or tod > 0.8 then return end
+            local positions = minetest.find_nodes_in_area_under_air(
+                {x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
+                {x = pos.x + 1, y = pos.y + 2, z = pos.z + 1},
+                {"group:spreading"})
+            if #positions == 0 then
+                return
+            end
+            local sed_nodedef = minetest.registered_nodes[node.name]
+            local light_above = minimal.get_daylight(pos_above, 0.5)
+            for i = 1, #positions do
+                local soil_pos = positions[i]
+                local soil_name = minetest.get_node(soil_pos).name
+                local soil_nodedef = minetest.registered_nodes[soil_name]
+                local drop = string.gsub(soil_nodedef.drop, "_wet", "")
+                if drop == string.gsub(sed_nodedef.drop, "_wet", "") then
+                    if light_above and light_above >= 13 then
+                        local replace_with = ""
+                        if minetest.get_item_group(node.name, "wet_sediment") == 1 then
+                            replace_with = soil_nodedef._wet_name
+                        else
+                            replace_with = soil_nodedef._dry_name
+                        end
+                        if sed_nodedef.groups.roots then
+                            replace_with = replace_with.."_roots"
+                        end
+                        local id = sed_nodedef.groups.natural_slope
+                        if id then -- We're a slope, preserve that
+                            replace_with = nsl.get_all_slopes(replace_with)[id]
+                        end
+                        minetest.set_node(pos, {name = replace_with, param2 = node.param2})
+                        break
+                    end
+                end
+            end
+        end
 })
 
 minetest.register_abm({
@@ -320,13 +342,8 @@ minetest.register_abm({
             local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
             local soil_nodedef = minetest.registered_nodes[node.name]
             local light_above = minimal.get_daylight(pos_above, 0.5)
-	    local toname = soil_nodedef.drop
             if not light_above or light_above < 10 then
-		local id = soil_nodedef.groups.natural_slope
-		if id then -- We're a slope, preserve that
-		   toname = nsl.get_all_slopes(toname)[id]
-		end
-		minetest.set_node(pos, {name = toname, param2 = node.param2})
-	    end
+                minetest.set_node(pos, {name = soil_nodedef.drop})
+            end
 	end
 })

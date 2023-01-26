@@ -167,7 +167,7 @@ minetest.register_node("tech:green_glass_ingot", {
 -- Crafts
 -- Mix sand and ash 50/50
 crafting.register_recipe({
-	type = "hammering_block",
+	type = "hammer",
 	output = "tech:green_glass_mix 2",
 	items = {'tech:wood_ash_block 1', 'nodes_nature:sand 1'},
 	level = 1,
@@ -424,7 +424,7 @@ minetest.register_node("tech:clear_glass_ingot", {
 -- Crafts
 -- Mix sand and potash and lime approx 70/15/15 (1/2 + 1/4 sand, 1/8 pearlash, 1/8 lime )
 crafting.register_recipe({
-	type = "hammering_block",
+	type = "hammer",
 	output = "tech:clear_glass_mix 8",
 	items = {'tech:potash 1', 'tech:quicklime 1', 'nodes_nature:sand 6'},
 	level = 1,

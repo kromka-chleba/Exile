@@ -130,3 +130,67 @@ function minimal.sanitize_string(badstring)
    end
    return badstring
 end
+
+-- merges content of t1 and t2 into a new table
+-- if t1 and t2 contain identical keys, values from
+-- t1 are overwritten with values from t2
+function minimal.merge_tables(t1, t2)
+    local new_table = table.copy(t1)
+    --merge tables
+    for key, value in pairs(t2) do
+        new_table[key] = value
+    end
+    return new_table
+end
+
+function minimal.get_nodedef(pos)
+    local node_name = minetest.get_node(pos).name
+    local nodedef = minetest.registered_nodes[node_name]
+    return nodedef
+end
+
+function minimal.node_set_int(pos, name, value)
+    local meta = minetest.get_meta(pos)
+    meta:set_int(name, value)
+end
+
+function minimal.node_get_int(pos, name)
+    local meta = minetest.get_meta(pos)
+    if meta:get(name) then
+        return meta:get_int(name)
+    else
+        return false
+    end
+end
+
+function minimal.node_set_string(pos, name, value)
+    local meta = minetest.get_meta(pos)
+    meta:set_string(name, value)
+end
+
+function minimal.node_get_string(pos, name)
+    local meta = minetest.get_meta(pos)
+    if meta:get(name) then
+        return meta:get_string(name)
+    else
+        return false
+    end
+end
+
+function minimal.force_place(pos, node)
+    minetest.remove_node(pos)
+    minetest.place_node(pos, node)
+end
+
+function minimal.get_pos_under(pos)
+    return {x = pos.x, y = pos.y - 1, z = pos.z}
+end
+
+function minimal.get_pos_above(pos)
+    return {x = pos.x, y = pos.y + 1, z = pos.z}
+end
+
+function minimal.get_group(pos, group_name)
+    local node_name = minetest.get_node(pos).name
+    return minetest.get_item_group(node_name, group_name)
+end

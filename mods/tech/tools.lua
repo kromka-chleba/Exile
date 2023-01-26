@@ -69,7 +69,7 @@ local function on_dig_tool(pos, node, digger, name)
 end
 
 -- opens the hammering spot GUI
-local open_hammering_spot = crafting.make_on_rightclick("hammering_block", 2, { x = 8, y = 3 })
+local open_hammering_spot = crafting.make_on_rightclick({"hammer", "hammer_mixing"}, 2, { x = 8, y = 3 })
 
 -- opens the chopping spot GUI
 local open_chopping_spot = {
@@ -615,7 +615,7 @@ minetest.register_tool("tech:pickaxe_iron", {
 		groupcaps={
 			choppy = {times={[3]=stone_chop3}, uses=iron_use *0.8, maxlevel=iron_max_lvl},
 			snappy = {times={[3]=stone_snap3}, uses=iron_use *0.8, maxlevel=iron_max_lvl},
-			crumbly = {times={[2]=stone_crum2, [3]=stone_crum3}, uses= iron_use, maxlevel=iron_max_lvl},
+			crumbly = {times={[1]=stone_crum1, [2]=stone_crum2, [3]=stone_crum3}, uses= iron_use, maxlevel=iron_max_lvl},
 			cracky = {times= {[2]=iron_crac2, [3]=iron_crac3}, uses=iron_use, maxlevel=iron_max_lvl},
 		},
 		damage_groups = {fleshy = iron_dmg},

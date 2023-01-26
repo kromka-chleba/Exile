@@ -230,10 +230,14 @@ local function moisture_spread(pos, node)
 
 	--dry version
 	local nodedef = minetest.registered_nodes[nodename]
-	local dry_name = nodedef._dry_name
-	if not nodedef or not dry_name then
+	local water_type = minetest.get_item_group(nodename, "wet_sediment")
+        --1= fresh or 2 = salty
+        
+	if not nodedef or not water_type then
 		return
 	end
+
+        local dry_name = nodedef._dry_name
 
 	--evaporation
 	if climate.can_evaporate(pos) then
@@ -241,10 +245,6 @@ local function moisture_spread(pos, node)
 		minetest.swap_node(pos, {name = dry_name})
 		return
 	end
-
-	--1= fresh or 2 = salty
-	local water_type = minetest.get_item_group(nodename, "wet_sediment")
-
 
 	--move through the soil, with a bias downwards
 	local pos_sed = minetest.find_nodes_in_area(

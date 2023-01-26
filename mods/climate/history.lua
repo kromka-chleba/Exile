@@ -85,47 +85,73 @@ end
 
 
 ------------------------------
--- checks the climate record, and returns how much growth to simulate
--- a -1 indicates killing temperatures were reached, and the crop is dead
---This function is only valid for the surface, underground crops are separate
-function crop_rewind(duration, timer_avg, mushroom)
-   local growth_ticks = 0
-   local timeradjust = 60/timer_avg -- how many growth ticks per 60 second chunk
-   local chunks = floor(duration / 60)
-   for i = 0,chunks,1 do
-      local conditions = history(i)
-      if conditions == nil then -- we don't have any history!
-	 growth_ticks = 0
-	 return growth_ticks
-      end
-      if conditions.kill == true then
-	 growth_ticks = -1
-	 return growth_ticks
-      end
-      if ( conditions.sun == true or mushroom == true )
-      and conditions.grow == true then
-	 if conditions.rain == true then
-	    growth_ticks = growth_ticks + ( 4 * timeradjust )
-	 else
-	    growth_ticks = growth_ticks + ( 1 * timeradjust )
-	 end
-      end
-   end
-   return floor(growth_ticks)
+-- returns time in seconds when conditions were good for growing
+-- and time when it rained
+function good_time_rain_time(duration, mushroom)
+    local good_chunks = 0
+    local rain_chunks = 0
+    local chunks = floor(duration / 60)
+    for i = 0,chunks,1 do
+        local conditions = history(i)
+        if conditions == nil then -- we don't have any history!
+            return good_chunks, rain_chunks
+        end
+        if (conditions.sun == true or mushroom == true)
+            and conditions.grow == true then
+            good_chunks = good_chunks + 1
+            if conditions.rain == true then
+                rain_chunks = rain_chunks + 1
+            end
+        end
+    end
+    return good_chunks * 60, rain_chunks * 60
+end
+
+-- counts number of chunks having a given property
+local function number_of_chunks(property)
+    local chunks = floor(duration / 60)
+    local total = 0
+    for i = 0,chunks,1 do
+        local conditions = history(i)
+        if conditions[property] == true then
+	    total = total + 1
+        end
+    end
+    return total
 end
 
 ------------------------------
 -- checks the climate record, and returns how long it rained
 function climate.rain_amount(duration)
-   local chunks = floor(duration / 60)
-   local total = 0
-   for i = 0,chunks,1 do
-      local conditions = history(i)
-	 if conditions.rain == true then
-	    total = total + 1
-	 end
-   end
-   return total
+    return number_of_chunks("rain")
+end
+
+-- gets time in seconds it rained
+function climate.rain_time(duration)
+    return number_of_chunks("rain") * 60
+end
+
+-- gets time in seconds it was sunny
+function climate.sun_time(duration)
+    return number_of_chunks("sun") * 60
+end
+
+-- gets time weather was good for growing
+function climate.grow_time(duration)
+    return number_of_chunks("grow") * 60
+end
+
+-- returns true if plant was killed
+-- duplicating the code for performance
+function climate.plant_killed(duration)
+    local chunks = floor(duration / 60)
+    for i = 0,chunks,1 do
+        local conditions = history(i)
+        if conditions and conditions.kill == true then
+	    return true
+        end
+    end
+    return false
 end
 
 local last_rained -- caches the gametime value of the last rain

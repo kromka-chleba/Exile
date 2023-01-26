@@ -330,7 +330,7 @@ local function fire_pottery(pos, selfname, name, length)
 		if firing < length and temp < fire_temp/2 then
 			--firing began but is now interupted
 			--causes firing to fail
-			minetest.swap_node(pos, {name = "tech:broken_pottery"})
+			minetest.swap_node(pos, {name = "tech:ruined_pottery"})
 			return false
 		else
 			--no fire lit yet

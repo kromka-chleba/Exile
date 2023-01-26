@@ -114,7 +114,15 @@ end
 
 
 
-
+local function hatch_egg(pos)
+    local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+    if light and light > 4 then
+        minetest.remove_node(pos)
+        return
+    else
+        return animals.hatch_egg(pos, 'air', 'air', "animals:kubwakubwa", energy_egg, young_per_egg)
+    end
+end
 
 
 ---------------
@@ -137,8 +145,8 @@ minetest.register_node("animals:kubwakubwa_eggs", {
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
 	end,
-	on_timer =function(pos, elapsed)
-	      return animals.hatch_egg(pos, 'air', 'air', "animals:kubwakubwa", energy_egg, young_per_egg)
+	on_timer = function(pos, elapsed)
+            return hatch_egg(pos)
 	end,
 })
 
