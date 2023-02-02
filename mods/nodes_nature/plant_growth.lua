@@ -225,8 +225,7 @@ local function kill_plant(pos, natural_death)
     else
         dead_name = dead_names.induced
     end
-    minetest.set_node(pos, {name = dead_name,
-                            param2 = nodedef.place_param2})
+    minimal.force_place_keep_param2(pos, dead_name)
     if not natural_death then
         minimal.node_set_int(pos, "busted", 1)
     end
@@ -265,14 +264,7 @@ local function kill_climate_history(pos, elapsed)
     end
 end
 
-local function is_winter()
-    local season = seasons.get_season_name()
-    if season == "winter_early" or
-        season == "winter_late" then
-        return true
-    end
-    return false
-end
+local is_winter = seasons.is_winter
 
 local function kill_in_winter(pos, elapsed)
     if not are_conditions_good(pos) and is_winter() then
@@ -285,10 +277,8 @@ local function catch_up_life_stage(pos, growing_time, growing_left, elapsed)
     while growing_left < 0 do
         local nodedef = minimal.get_nodedef(pos)
         if nodedef._next_life_stage then
-            local p2 = nodedef.place_param2
             local health = minimal.node_get_int(pos, "health")
-            minimal.force_place(pos, {name = nodedef._next_life_stage,
-                                      param2 = p2})
+            minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
             local health = minimal.node_set_int(pos, "health", health)
         end
         growing_left = growing_left + growing_time
@@ -381,9 +371,30 @@ local function seed_elapsed(meta)
     return 0
 end
 
+local function add_to_param2(pos, nr)
+    local nodedef = minimal.get_nodedef(pos)
+    local name = nodedef.name
+    -- is a seed, doesn't have place_param2
+    if not nodedef.place_param2 and nodedef._next_life_stage then
+        local seedling_name = nodedef._next_life_stage
+        nodedef = minetest.registered_nodes[seedling_name]
+    end
+    local new_param2 = nodedef.place_param2 + nr
+    minetest.set_node(pos, {name = name, param2 = new_param2})
+end
+
+function plant.set_to_domesticated(pos)
+    add_to_param2(pos, 64)
+end
+
+function plant.set_to_half_wild(pos)
+    add_to_param2(pos, 128)
+end
+
 ------------------ Global functions of the API ------------------
 
 function plant.start_growing_seed(pos)
+    plant.set_to_domesticated(pos)
     local timer_min = seed_growing_time - 0.25 * seed_growing_time
     local timer_max = seed_growing_time + 0.25 * seed_growing_time
     local timer = minetest.get_node_timer(pos)
@@ -398,13 +409,13 @@ function plant.grow_seed(pos, elapsed)
     -- if conditions were good for germination we don't care about the present
     if elapsed > seed_growing_time and good_time >= 60 then
         -- pass elapsed to seedlings so we can catch up from there
-        minimal.force_place(pos, {name = nodedef._next_life_stage})
+        minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
         minimal.node_set_int(pos, "elapsed", elapsed)
         return false
     elseif not is_soil_and_temp_good(pos) then
         return true -- unless dead, try again when conditions are good
     end
-    minimal.force_place(pos, {name = nodedef._next_life_stage})
+    minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
     return false -- the seed becomes a seedling (stops the timer)
 end
 

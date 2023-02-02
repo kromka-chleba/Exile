@@ -69,8 +69,7 @@ local on_place_plant = function(itemstack, placer, pointed_thing)
             return itemstack
         end
     end
-
-    return minetest.item_place_node(itemstack,placer,pointed_thing)
+    return minetest.item_place_node(itemstack, placer, pointed_thing)
 end
 
 ---------------------------
@@ -594,10 +593,10 @@ function plant.get_plantlike_fruiting_props(plant_def)
         local node_name = minetest.get_node(pos).name
         local nodedef = minetest.registered_nodes[node_name]
         if nodedef._fruitless_name then
-            local p2 = nodedef.place_param2
-            minetest.remove_node(pos)
-            minetest.place_node(pos, {name = nodedef._fruitless_name,
-                                    param2 = p2})
+            minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
+        end
+        if node.param2 < 64 then
+            plant.set_to_half_wild(pos)
         end
         local inv = puncher:get_inventory()
         local new_stack = ItemStack(nodedef._fruit_name)

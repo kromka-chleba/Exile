@@ -180,6 +180,7 @@ end
 function minimal.force_place(pos, node)
     minetest.remove_node(pos)
     minetest.place_node(pos, node)
+    minetest.set_node(pos, node)
 end
 
 function minimal.get_pos_under(pos)
@@ -193,4 +194,14 @@ end
 function minimal.get_group(pos, group_name)
     local node_name = minetest.get_node(pos).name
     return minetest.get_item_group(node_name, group_name)
+end
+
+function minimal.get_param2(pos)
+    local node = minetest.get_node(pos)
+    return node.param2
+end
+
+function minimal.force_place_keep_param2(pos, name)
+    local param2 = minimal.get_param2(pos)
+    minimal.force_place(pos, {name = name, param2 = param2})
 end
