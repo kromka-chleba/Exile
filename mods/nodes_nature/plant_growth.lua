@@ -180,7 +180,7 @@ local function grow_roots(pos, progress)
     if not max_root_nr then return end
     local current_nr = get_root_number(pos)
     --local nr = progress * math.random(0.005, 0.02)
-    local nr = 0.01 * math.random(1, 10) * progress
+    local nr = 0.001 * math.random(1, 10) * progress
     if nr + current_nr > max_root_nr then
         set_roots(pos, max_root_nr, plant_nodedef._root_name)
     else
