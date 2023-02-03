@@ -179,7 +179,6 @@ end
 
 function minimal.force_place(pos, node)
     minetest.remove_node(pos)
-    minetest.place_node(pos, node)
     minetest.set_node(pos, node)
 end
 

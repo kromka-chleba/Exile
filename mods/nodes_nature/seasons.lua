@@ -92,7 +92,7 @@ local function update_plant(pos, node)
         local next_nodedef = minetest.registered_nodes[new_name]
         if new_name and new_name ~= node.name then
             minetest.remove_node(pos)
-            minetest.set_node(pos, {name = new_name,
+            minetest.swap_node(pos, {name = new_name,
                                     param2 = next_nodedef.place_param2})
         end
     end

@@ -381,7 +381,7 @@ local function add_to_param2(pos, nr)
     end
     if nodedef.place_param2 then
         local new_param2 = nodedef.place_param2 + nr
-        minetest.set_node(pos, {name = name, param2 = new_param2})
+        minetest.swap_node(pos, {name = name, param2 = new_param2})
     end
 end
 
@@ -400,9 +400,7 @@ function plant.start_growing_seed(pos)
     local timer_min = seed_growing_time - 0.25 * seed_growing_time
     local timer_max = seed_growing_time + 0.25 * seed_growing_time
     local timer = minetest.get_node_timer(pos)
-    if not timer:is_started() then
-        timer:start(math.random(timer_min, timer_max))
-    end
+    timer:start(math.random(timer_min, timer_max))
 end
 
 function plant.grow_seed(pos, elapsed)
@@ -425,11 +423,8 @@ function plant.start_growing_plant(pos, growing_time)
     local timer_min = plant_base_timer - 0.1 * plant_base_timer
     local timer_max = plant_base_timer + 0.1 * plant_base_timer
     minimal.node_set_int(pos, "growth", growing_time)
-    minimal.node_set_int(pos, "growing_time", growing_time)
     local timer = minetest.get_node_timer(pos)
-    if not timer:is_started() then
-        timer:start(math.random(timer_min, timer_max))
-    end
+    timer:start(math.random(timer_min, timer_max))
 end
 
 function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)

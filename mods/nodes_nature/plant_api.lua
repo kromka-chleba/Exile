@@ -500,7 +500,7 @@ function plant.get_seedling_base_props(plant_def)
         on_place = function(itemstack, placer, pointed_thing)
             return on_place_plant(itemstack, placer, pointed_thing)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        on_construct = function(pos)
             plant.start_growing_plant(pos, plant_def.growing_time)
         end,
         on_dig = function(pos, node, digger)
@@ -566,7 +566,7 @@ function plant.get_plantlike_flowering_props(plant_def)
     base.on_place = function(itemstack, placer, pointed_thing)
         return on_place_plant(itemstack, placer, pointed_thing)
     end
-    base.after_place_node = function(pos, placer, itemstack, pointed_thing)
+    base.on_construct = function(pos)
         plant.start_growing_plant(pos, plant_def.growing_time)
     end
     base.on_dig = function(pos, node, digger)
@@ -831,7 +831,7 @@ function plant.get_seed_base_props(plant_def)
         on_timer = function(pos, elapsed)
             return plant.grow_seed(pos, elapsed)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        on_construct = function(pos)
             plant.start_growing_seed(pos)
         end,
         on_dig = function(pos, node, digger)
