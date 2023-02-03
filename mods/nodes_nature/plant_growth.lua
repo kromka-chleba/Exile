@@ -199,6 +199,9 @@ end
 local function kill_plant(pos, natural_death)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
+    if minetest.get_item_group(node.name, "flora") == 0 then
+        return
+    end
     local fruiting_plant =
         minetest.get_item_group(node.name, "fruiting_plant") > 0
     local flowering_plant =
@@ -226,9 +229,6 @@ local function kill_plant(pos, natural_death)
         dead_name = dead_names.induced
     end
     minimal.force_place_keep_param2(pos, dead_name)
-    if not natural_death then
-        minimal.node_set_int(pos, "busted", 1)
-    end
 end
 
 local function was_light_here(pos, elapsed)
@@ -423,6 +423,13 @@ function plant.start_growing_plant(pos, growing_time)
     local timer_min = plant_base_timer - 0.1 * plant_base_timer
     local timer_max = plant_base_timer + 0.1 * plant_base_timer
     minimal.node_set_int(pos, "growth", growing_time)
+    if minimal.get_param2(pos) < 64 then
+        plant.set_to_domesticated(pos)
+        -- random chance to kill the plant when replanting
+        if math.random() < 1/4 then
+            minetest.after(3, function () kill_plant(pos, false) end)
+        end
+    end
     local timer = minetest.get_node_timer(pos)
     timer:start(math.random(timer_min, timer_max))
 end
