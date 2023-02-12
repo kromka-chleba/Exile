@@ -306,7 +306,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "mortar_and_pestle",
 	output = "tech:tiku",
-	items = {'nodes_nature:tikusati_seed 12', 'nodes_nature:wiha', "tech:vegetable_oil"},
+	items = {'nodes_nature:tikusati_seed 12', 'nodes_nature:wiha_fruit', "tech:vegetable_oil"},
 	level = 1,
 	always_known = true,
 })
