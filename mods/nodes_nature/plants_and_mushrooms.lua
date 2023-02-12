@@ -370,7 +370,7 @@ minetest.override_item(
 
 --hakimi is antibacterial, antifungal
 minetest.override_item(
-    "nodes_nature:hakimi",{
+    "nodes_nature:hakimi_flowering",{
         on_use = function(itemstack, user, pointed_thing)
 
             --only cure mild
