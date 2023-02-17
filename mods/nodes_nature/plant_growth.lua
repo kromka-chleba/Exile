@@ -224,9 +224,9 @@ local function kill_plant(pos, natural_death)
     end
     local dead_name = ""
     if natural_death then
-        dead_name = dead_names.natural
+        dead_name = dead_names.natural or "air"
     else
-        dead_name = dead_names.induced
+        dead_name = dead_names.induced or "air"
     end
     minimal.force_place_keep_param2(pos, dead_name)
 end
