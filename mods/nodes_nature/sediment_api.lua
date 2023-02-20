@@ -97,7 +97,9 @@ local function erode_deplete_ag_soil(pos)
             end
             --would prefer stairs:slab, but sand/etc lacks wet
             new = new:gsub("%nature:","%nature:slope_pike_")
-            minetest.swap_node(pos, {name = new})
+            if minetest.registered_nodes[new] then
+                minetest.swap_node(pos, {name = new})
+            end
             return false
         end
     end
