@@ -608,7 +608,7 @@ function fertile_soil.get_base_props(soil_desc)
     local props = {
         _dry_name = fertile_soil.get_dry_name(sed.name),
         _wet_name = fertile_soil.get_wet_name(sed.name),
-        _wet_salty_name = fertile_soil.get_wet_salty_name(sed.name),
+        _wet_salty_name = sediment.get_wet_salty_name(sed.name),
         on_punch = soil_on_punch,
     }
     return props
