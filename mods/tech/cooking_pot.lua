@@ -118,6 +118,10 @@ end
 local function pot_receive_fields(pos, formname, fields, sender)
    local meta = minetest.get_meta(pos)
    local inv = meta:get_inventory():get_list("main")
+   if not inv then -- This is a bugged pot from before commit 851e0ec744
+      meta:get_inventory():set_size("main", 8) -- So, fix it
+      inv = meta:get_inventory():get_list("main")
+   end
    local total = { 0, 0, 0, 0, 0 }
    if meta:get_string("status") == "finished" then -- reset the pot for next cook
       if meta:get_inventory():is_empty("main") then
