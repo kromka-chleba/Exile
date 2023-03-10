@@ -33,7 +33,7 @@ if io.open(wp.."/env_meta.txt", "r") == nil then
    -- This is a hack to see if it's a new world; if so, apply global setting
    biomes_enable = minetest.settings:get_bool("exile_v4_biomes", biome_default)
    minetest.set_mapgen_setting("use_exile_v4_biomes",
-			       tostring(biomes_enable))
+			       tostring(biomes_enable), true)
 elseif biomes_enable == nil then -- pre-existing world, but with no setting?
    biomes_enable = biome_default -- set the default, then
    minetest.set_mapgen_setting("use_exile_v4_biomes", tostring(biome_default), true)
