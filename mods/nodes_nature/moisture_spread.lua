@@ -3,6 +3,8 @@
 --move wettness through sediment
 --other water effects
 
+local nodes_nature = nodes_nature
+local rt = nodes_nature.replacement_types
 
 ----------------------------------------------------------------
 --freeze water
@@ -242,7 +244,7 @@ local function moisture_spread(pos, node)
 	--evaporation
 	if climate.can_evaporate(pos) then
 		--lose it's own water to the atmosphere
-		minetest.swap_node(pos, {name = dry_name})
+		tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
 		return
 	end
 
@@ -259,23 +261,16 @@ local function moisture_spread(pos, node)
 		local name2 = minetest.get_node(pos2).name
 		if minetest.get_item_group(name2, "wet_sediment") == 0 then
 			--lose it's own water, and move it
-			minetest.swap_node(pos, {name = dry_name})
+			tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
 			--set wet version of what draining into
 			local nodedef2 = minetest.registered_nodes[name2]
 			if not nodedef2 then
 				return
 			end
 			if water_type == 1 then
-				minetest.swap_node(pos2, {name = nodedef2._wet_name})
+				tgcr.make_replacement(pos2, rt.REPLACEMENT_WET)
 			else
-				--can it absorb salt or is it "destroyed" e.g. surface, ag
-				local salt = nodedef2._wet_salty_name
-				if not salt then
-					--set it to it's salted parent material
-					minetest.swap_node(pos2, {name = nodedef2.drop})
-				else
-					minetest.swap_node(pos2, {name = nodedef2._wet_salty_name})
-				end
+				tgcr.make_replacement(pos2, rt.REPLACEMENT_SALTY)
 			end
 			return
 		end
@@ -292,7 +287,7 @@ local function moisture_spread(pos, node)
 		--select a random one
 		local pos2 = pos_air[math.random(#pos_air)]
 		--lose it's own water, and move it
-		minetest.swap_node(pos, {name = dry_name})
+		tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
 		--source or flowing?
 		if puddle_detect(pos2) then
 			if water_type == 1 then
@@ -323,9 +318,7 @@ minetest.register_abm({
 	--neighbors = {"group:sediment"},
 	interval = 121,
 	chance = 15,
-	action = function(...)
-		moisture_spread(...)
-	end
+	action = moisture_spread
 })
 
 
@@ -356,7 +349,7 @@ local function water_soak(pos, node)
 				if not nodedef2 then
 					return
 				end
-				minetest.swap_node(pos2, {name = nodedef2._wet_name})
+				tgcr.make_replacement(pos2, rt.REPLACEMENT_WET)
 				return
 			else
 				--set salty wet version of what draining into
@@ -364,7 +357,7 @@ local function water_soak(pos, node)
 				if not nodedef2 then
 					return
 				end
-				minetest.swap_node(pos2, {name = nodedef2._wet_salty_name})
+				tgcr.make_replacement(pos2, rt.REPLACEMENT_SALTY)
 				return
 			end
 		end
@@ -502,7 +495,7 @@ local function rain_soak(pos, node)
 			if not nodedef then
 				return
 			end
-			minetest.swap_node(pos, {name = nodedef._wet_name})
+			tgcr.make_replacement(pos, rt.REPLACEMENT_WET)
 			return
 		elseif math.random()<0.3 then
 			local posa = {x = pos.x, y = pos.y + 1, z = pos.z}

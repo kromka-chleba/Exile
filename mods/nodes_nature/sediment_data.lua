@@ -90,7 +90,6 @@ local red_ochre = sediment.new(
 sediment.register_dry(red_ochre)
 sediment.register_wet(red_ochre)
 sediment.register_wet_salty(red_ochre)
-sediment.do_slopes(red_ochre)
 
 
 

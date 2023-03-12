@@ -20,6 +20,7 @@ crafting.register_type("masonry_bench_blocks_mortar", "Blocks & Mortar")
 crafting.register_type("masonry_bench_mixing", "Mixing")
 --------------------------------
 
+dofile(path.."/replacement_types.lua")
 dofile(path.."/sounds.lua")
 dofile(path.."/seasons.lua")
 dofile(path.."/plant_seasonal_types.lua")
