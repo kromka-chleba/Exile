@@ -277,8 +277,8 @@ function sediment.register_dry(sed)
 	local dry_name = sediment.get_dry_name(sed.name)
 	minetest.register_node(dry_name, props)
 	sediment.do_slopes(dry_name)
-	tgcr.register_replacement(sediment.get_wet_name(sed.name), dry_name, c.REPLACEMENT_WET)
-	tgcr.register_replacement(sediment.get_wet_salty_name(sed.name), dry_name, c.REPLACEMENT_SALTY)
+	tgcr.register_replacement(dry_name, sediment.get_wet_name(sed.name), c.REPLACEMENT_WET)
+	tgcr.register_replacement(dry_name, sediment.get_wet_salty_name(sed.name), c.REPLACEMENT_SALTY)
 	table.insert(registered_sediments, dry_name)
 end
 
@@ -300,7 +300,7 @@ function sediment.register_wet(sed)
 	local wet_name = sediment.get_wet_name(sed.name)
 	minetest.register_node(wet_name, props)
 	sediment.do_slopes(wet_name)
-	tgcr.register_replacement(sediment.get_dry_name(sed.name), wet_name, c.REPLACEMENT_DRY)
+	tgcr.register_replacement(wet_name, sediment.get_dry_name(sed.name), c.REPLACEMENT_DRY)
 	table.insert(registered_sediments, wet_name)
 end
 
@@ -320,7 +320,7 @@ function sediment.register_wet_salty(sed)
 	local wet_salty_name = sediment.get_wet_salty_name(sed.name)
 	minetest.register_node(wet_salty_name, props)
 	sediment.do_slopes(wet_salty_name)
-	tgcr.register_replacement(sediment.get_dry_name(sed.name), wet_salty_name, c.REPLACEMENT_DRY)
+	tgcr.register_replacement(wet_salty_name, sediment.get_dry_name(sed.name), c.REPLACEMENT_DRY)
 	--table.insert(registered_sediments, wet_salty_name) -- FIXME?
 end
 
@@ -508,8 +508,8 @@ function soil.register_dry(soil_desc)
 	local dry_name = soil.get_dry_name(soil_desc.name)
 	minetest.register_node(dry_name, soil.get_dry_node_props(soil_desc))
 	soil.do_slopes(dry_name)
-	tgcr.register_replacement(soil.get_wet_name(soil_desc.name), dry_name, c.REPLACEMENT_WET)
-	tgcr.register_replacement(sediment.get_wet_salty_name(soil_desc.sediment.name), dry_name, c.REPLACEMENT_SALTY)
+	tgcr.register_replacement(dry_name, soil.get_wet_name(soil_desc.name), c.REPLACEMENT_WET)
+	tgcr.register_replacement(dry_name, sediment.get_wet_salty_name(soil_desc.sediment.name), c.REPLACEMENT_SALTY)
 	table.insert(registered_sediments, dry_name)
 end
 
@@ -533,7 +533,7 @@ function soil.register_wet(soil_desc)
 	local wet_name = soil.get_wet_name(soil_desc.name)
 	minetest.register_node(wet_name, soil.get_wet_node_props(soil_desc))
 	soil.do_slopes(wet_name)
-	tgcr.register_replacement(soil.get_dry_name(soil_desc.name), wet_name, c.REPLACEMENT_DRY)
+	tgcr.register_replacement(wet_name, soil.get_dry_name(soil_desc.name), c.REPLACEMENT_DRY)
 	table.insert(registered_sediments, wet_name)
 end
 
@@ -557,8 +557,9 @@ function soil.register_winter(soil_desc)
 	local props = soil.get_winter_props(soil_desc)
 	minetest.register_node(winter_name, props)
 	soil.do_slopes(winter_name)
-	tgcr.register_replacement(soil.get_winter_wet_name(soil_desc.name), winter_name, c.REPLACEMENT_WET)
-	tgcr.register_replacement(sediment.get_wet_salty_name(soil_desc.sediment.name), winter_name, c.REPLACEMENT_SALTY)
+	local winter_wet_name = soil.get_winter_wet_name(soil_desc.name)
+	tgcr.register_replacement(winter_name, winter_wet_name, c.REPLACEMENT_WET)
+	tgcr.register_replacement(winter_name, sediment.get_wet_salty_name(soil_desc.sediment.name), c.REPLACEMENT_SALTY)
 	table.insert(registered_sediments, winter_name)
 end
 
@@ -579,7 +580,7 @@ function soil.register_winter_wet(soil_desc)
 	props._non_winter_name = soil.get_wet_name(soil_desc.name)
 	minetest.register_node(winter_wet_name, props)
 	soil.do_slopes(winter_wet_name)
-	tgcr.register_replacement(soil.get_winter_name(soil_desc.name), winter_wet_name, c.REPLACEMENT_DRY)
+	tgcr.register_replacement(winter_wet_name, soil.get_winter_name(soil_desc.name), c.REPLACEMENT_DRY)
 	table.insert(registered_sediments, winter_wet_name)
 end
 
@@ -655,8 +656,8 @@ function fertile_soil.register_dry(soil_desc)
 	local dry_name = fertile_soil.get_dry_name(soil_desc.sediment.name)
 	minetest.register_node(dry_name, fertile_soil.get_dry_node_props(soil_desc))
 	fertile_soil.do_slopes(dry_name)
-	tgcr.register_replacement(fertile_soil.get_wet_name(soil_desc.name), dry_name, c.REPLACEMENT_WET)
-	tgcr.register_replacement(sediment.get_wet_salty_name(soil_desc.sediment.name), winter_name, c.REPLACEMENT_SALTY)
+	tgcr.register_replacement(dry_name, fertile_soil.get_wet_name(soil_desc.name), c.REPLACEMENT_WET)
+	tgcr.register_replacement(dry_name, sediment.get_wet_salty_name(soil_desc.sediment.name), c.REPLACEMENT_SALTY)
 	table.insert(registered_sediments, dry_name)
 end
 
@@ -682,7 +683,7 @@ function fertile_soil.register_wet(soil_desc)
 	local wet_name = fertile_soil.get_wet_name(soil_desc.sediment.name)
 	minetest.register_node(wet_name, fertile_soil.get_wet_node_props(soil_desc))
 	fertile_soil.do_slopes(wet_name)
-	tgcr.register_replacement(soil.get_winter_name(soil_desc.name), winter_wet_name, c.REPLACEMENT_DRY)
+	tgcr.register_replacement(wet_name, fertile_soil.get_dry_name(soil_desc.sediment.name), c.REPLACEMENT_DRY)
 	table.insert(registered_sediments, wet_name)
 end
 
@@ -841,8 +842,8 @@ function agricultural_soil.register_dry(ag_soil)
 	local name = ag_soil.name
 	local dry_name = agricultural_soil.get_dry_name(name)
 	minetest.register_node(dry_name, agricultural_soil.get_dry_node_props(ag_soil))
-	tgcr.register_replacement(agricultural_soil.get_wet_name(name), dry_name, c.REPLACEMENT_WET)
-	tgcr.register_replacement(sediment.get_wet_salty_name(ag_soil.sediment.name), dry_name, c.REPLACEMENT_SALTY)
+	tgcr.register_replacement(dry_name, agricultural_soil.get_wet_name(name), c.REPLACEMENT_WET)
+	tgcr.register_replacement(dry_name, sediment.get_wet_salty_name(ag_soil.sediment.name), c.REPLACEMENT_SALTY)
 	table.insert(registered_sediments, dry_name)
 end
 
@@ -873,7 +874,7 @@ function agricultural_soil.register_wet(ag_soil)
 	local name = ag_soil.name
 	local wet_name = agricultural_soil.get_wet_name(name)
 	minetest.register_node(wet_name, agricultural_soil.get_wet_node_props(ag_soil))
-	tgcr.register_replacement(agricultural_soil.get_dry_name(name), wet_name, c.REPLACEMENT_DRY)
+	tgcr.register_replacement(wet_name, agricultural_soil.get_dry_name(name), c.REPLACEMENT_DRY)
 	table.insert(registered_sediments, wet_name)
 end
 
@@ -899,8 +900,8 @@ function agricultural_soil.register_depleted(ag_soil)
 	local name = ag_soil.name
 	local depleted_name = agricultural_soil.get_dry_depleted_name(name)
 	minetest.register_node(depleted_name, agricultural_soil.get_dry_depleted_node_props(ag_soil))
-	tgcr.register_replacement(agricultural_soil.get_wet_depleted_name(name), depleted_name, c.REPLACEMENT_WET)
-	tgcr.register_replacement(sediment.get_wet_salty_name(ag_soil.sediment.name), depleted_name, c.REPLACEMENT_SALTY)
+	tgcr.register_replacement(depleted_name, agricultural_soil.get_wet_depleted_name(name), c.REPLACEMENT_WET)
+	tgcr.register_replacement(depleted_name, sediment.get_wet_salty_name(ag_soil.sediment.name), c.REPLACEMENT_SALTY)
 	table.insert(registered_sediments, depleted_name)
 end
 
@@ -926,7 +927,7 @@ function agricultural_soil.register_wet_depleted(ag_soil)
 	local name = ag_soil.name
 	local wet_depleted_name = agricultural_soil.get_wet_depleted_name(name)
 	minetest.register_node(wet_depleted_name, agricultural_soil.get_wet_depleted_node_props(ag_soil))
-	tgcr.register_replacement(agricultural_soil.get_dry_depleted_name(name), wet_depleted_name, c.REPLACEMENT_DRY)
+	tgcr.register_replacement(wet_depleted_name, agricultural_soil.get_dry_depleted_name(name), c.REPLACEMENT_DRY)
 	table.insert(registered_sediments, wet_depleted_name)
 end
 
