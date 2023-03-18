@@ -307,7 +307,7 @@ local function calculate_growth_progress(pos, good_cycles, rain_cycles)
         rain_cycles = 1
     end
     local soil = seed_soil_response(pos, soil_prefs)
-    local progress = good_cycles * soil + rain_cycles * 4
+    local progress = soil * (good_cycles + rain_cycles * 4)
     return progress
 end
 
