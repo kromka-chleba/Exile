@@ -158,11 +158,14 @@ local function set_roots(pos, nr, root_name)
     local pos_under = minimal.get_pos_under(pos)
     local nodedef_under = minimal.get_nodedef(pos_under)
     if not nodedef_under.groups.sediment or
-        nodedef_under.groups.wet_sediment == 2 or
-        nodedef_under.natural_slope then
+        nodedef_under.groups.wet_sediment == 2 then
         return
     elseif not nodedef_under.groups.roots then
-        minetest.set_node(pos_under, {name = nodedef_under.name.."_roots"})
+        if nodedef_under.groups.natural_slope then
+            minetest.set_node(pos_under, {name = nodedef_under.drop.."_roots"})
+        else
+            minetest.set_node(pos_under, {name = nodedef_under.name.."_roots"})
+        end
     end
     local meta = minetest.get_meta(pos_under)
     meta:set_string("root_name", root_name)
