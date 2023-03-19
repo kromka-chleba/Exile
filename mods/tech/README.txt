@@ -29,23 +29,64 @@ Authors of media (textures)
 Unless stated, Dokimi (CC BY-SA 3.0).
 
 Jan Wielkiewicz (CC BY-SA 3.0)
-- hammer textures
+- Models entirely by me:
+  * adze.blend
+  * axe.blend
+  * digging_stick.blend
+  * grinding_stone.blend
+  * hammer.blend
+  * hoe.blend
+  * lantern.blend
+  * lataren.blend --huh, we still have this typo version
+  * pickaxe.blend
+  * shovel.blend
+  * stone_knife.blend
+  * adze_placed.obj
+  * axe_placed.obj
+  * digging_stick_placed.obj
+  * grinding_stone.obj
+  * hammer_placed.obj
+  * hoe_placed.obj
+  * lantern.obj
+  * lataren.obj --typo version, use the other one
+  * pickaxe_placed.obj
+  * shovel_placed.obj
+  * stone_knife_placed.obj
+- Textures entirely by me:
+  * tech_lantern_animation.png
+- Hammer textures
   modified tech_stick.png originally by BlockMen
   modified granite, basalt, jade textures by Dokimi
   * tech_tool_hammer_granite.png
   * tech_tool_hammer_basalt.png
   * tech_tool_hammer_jade.png
-- hammer model
-- adze model
-- axe model
-- placed adze texture
+- Placed adze texture
   modified granite, basalt, jade, wood textures by Dokimi
-  modified rope texture from mods/ropes - a "CC" license, needs verification
+  modified rope texture from mods/ropes (CC 0)
   * tech_tool_adze_granite_placed.png
   * tech_tool_adze_basalt_placed.png
   * tech_tool_adze_jade_placed.png
-- placed axe texture
-  modified wood textures by Dokimi
+- Placed iron tools (axe, pickaxe, hoe and shovel)
+  * tech_axe_iron_placed.png (modified wood textures by Dokimi, metal part by me)
+- Grinding stone textures (modified basalt, limestone, granite by Dokimi)
+  * tech_grinding_stone_basalt.png
+  * tech_grinding_stone_granite.png
+  * tech_grinding_stone_limestone.png
+- Placed stone knife
+  * tech_stone_knife_placed.png (modified basalt texture by Dokimi)
+- Lantern textures:
+  * tech_lataren.png (modified glass and flame by Dokimi)
+  * tech_lantern_wick.png (modified rope texture from mods/ropes (CC 0))
+  * tech_lantern_case_glass.png (modified glass by Dokimi, metal part by me)
+  * tech_lantern_case.png (entirely my job)
+- Tool inventory textures:
+  modified tech_stick.png originally by BlockMen)
+  modified tool textures originally by Dokimi)
+  * tech_tool_axe_iron.png
+  * tech_tool_hoe_iron.png
+  * tech_tool_mace_iron.png
+  * tech_tool_pickaxe_iron.png
+  * tech_tool_shovel_iron.png
 
 cx384, WTFPL:
 - tech_charcoal.png

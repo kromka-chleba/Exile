@@ -87,7 +87,7 @@ minetest.register_lbm({
             end
             if not nodedef_under.groups.sediment then
                 return
-            elseif not nodedef_under.groups.roots then
+            elseif not nodedef_under.groups.roots == 1 then
                 minetest.set_node(pos_under, {name = name_under.."_roots"})
             end
             local meta = minetest.get_meta(pos_under)

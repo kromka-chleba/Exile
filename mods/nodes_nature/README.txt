@@ -66,15 +66,78 @@ From Minetest Game Default:
     http://freesound.org/people/Ryding/sounds/94337/
       default_snow_footstep.*.ogg
 
-
-
-
 Authors of media (textures, models)
 ------------------------
 Dokimi (CC BY-SA 3.0)
 Jan Wielkiewicz (CC BY-SA 3.0)
     cobble models (modified boulder by Dokimi)
     volcanic ash (modified sand, basalt textures by Dokimi)
+    nodes_nature_tilled_soil_depleted.png (original by Dokimi)
+    nodes_nature_tilled_soil.png (original by Dokimi)
+    ** Made entirely by me:
+    nodes_nature_wrotycz_flowering.png
+    nodes_nature_wrotycz_fruiting.png
+    nodes_nature_wrotycz_dead_fruiting.png
+    nodes_nature_wrotycz_dead_fruitless.png
+    nodes_nature_wrotycz_dead.png
+    nodes_nature_anperla_fruit.png
+    nodes_nature_hakimi_fruit.png
+    nodes_nature_momo_fruit.png
+    nodes_nature_panasee_fruit.png
+    nodes_nature_tangkal_fruit.png
+    nodes_nature_tikusati_fruit.png
+    nodes_nature_vansano_fruit.png
+    nodes_nature_wiha_fruit.png
+    nodes_nature_wrotycz_fruit.png
+    nodes_nature_zufani_fruit.png
+    nodes_nature_compost.png
+    nodes_nature_compost_undecomposed.png
+    tilled_soil.blend
+    nodes_nature_tilled_soil.obj
+    ** Flowering plant textures (original textures by Dokimi):
+    nodes_nature_anperla_flowering.png
+    nodes_nature_momo_flowering.png
+    nodes_nature_tikusati_flowering.png
+    nodes_nature_vansano_flowering.png
+    nodes_nature_wiha_flowering.png
+    ** Fruiting plant textures (original textures by Dokimi):
+    nodes_nature_anperla_fruiting.png
+    nodes_nature_hakimi_fruiting.png
+    nodes_nature_momo_fruiting.png
+    nodes_nature_tikusati_fruiting.png
+    nodes_nature_vansano_fruiting.png
+    ** Dead plant/mushroom textures (original textures by Dokimi):
+    nodes_nature_alaf_dead.png
+    nodes_nature_anperla_dead.png
+    nodes_nature_bronach_dead.png
+    nodes_nature_chalin_dead.png
+    nodes_nature_damo_dead.png
+    nodes_nature_galanta_dead.png
+    nodes_nature_gemedi_dead.png
+    nodes_nature_gitiri_dead.png
+    nodes_nature_hakimi_dead_fruitless.png
+    nodes_nature_hakimi_dead.png
+    nodes_nature_marbhan_dead.png
+    nodes_nature_momo_dead.png
+    nodes_nature_nebiyi_dead.png
+    nodes_nature_sari_dead.png
+    nodes_nature_tanai_dead.png
+    nodes_nature_tashvish_dead.png
+    nodes_nature_tiken_dead.png
+    nodes_nature_tikusati_dead_fruitless.png
+    nodes_nature_tikusati_dead.png
+    nodes_nature_vansano_dead.png
+    nodes_nature_wiha_dead_fruitless.png
+    nodes_nature_wiha_dead.png
+    nodes_nature_zufani_dead_fruitless.png
+    nodes_nature_zufani_dead.png
+    ** Modified plant textures (original by Dokimi):
+    nodes_nature_bronach_seedling.png (improved contrast)
+    nodes_nature_bronach.png (improved contrast)
+    ** Modified snow textures (original by Gambit CC BY-SA 3.0):
+    nodes_nature_frosty.png
+    nodes_nature_frosty_side.png
+    nodes_nature_icy.png
     
 From Minetest Game Default:
   Gambit (CC BY-SA 3.0):

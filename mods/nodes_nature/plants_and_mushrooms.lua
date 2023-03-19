@@ -284,12 +284,17 @@ plant.register_all(plant_list)
 
 minetest.override_item(
     "nodes_nature:zufani_fruit", {
-        description = S("Zufani amber"),
+        description = S("Zufani Amber"),
 })
 
 minetest.override_item(
     "nodes_nature:momo_fruit", {
-        description = S("Momo pepper"),
+        description = S("Momo Pepper"),
+})
+
+minetest.override_item(
+    "nodes_nature:wiha_fruit", {
+        description = S("Wiha Berries"),
 })
 
 ----------------------------------------------
@@ -370,7 +375,7 @@ minetest.override_item(
 
 --hakimi is antibacterial, antifungal
 minetest.override_item(
-    "nodes_nature:hakimi",{
+    "nodes_nature:hakimi_flowering",{
         on_use = function(itemstack, user, pointed_thing)
 
             --only cure mild

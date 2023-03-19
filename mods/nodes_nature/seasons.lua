@@ -85,18 +85,16 @@ local function override_abm(abm_spec)
 end
 
 local function update_plant(pos, node)
-    local season_name = seasons.get_season_name()
-    local nodedef = minetest.registered_nodes[node.name]
-    local new_name = nodedef["_"..season_name]
-    local next_nodedef = minetest.registered_nodes[new_name]
-    if new_name and new_name ~= node.name then
-        local timer = minetest.get_node_timer(pos)
-        local busted = minimal.node_get_int(pos, "busted")
-        if timer:is_started() or busted then
-            return
+    if node.param2 < 64 or node.param2 >= 128 and seasons.is_winter() then
+        local season_name = seasons.get_season_name()
+        local nodedef = minetest.registered_nodes[node.name]
+        local new_name = nodedef["_"..season_name]
+        local next_nodedef = minetest.registered_nodes[new_name]
+        if new_name and new_name ~= node.name then
+            minetest.remove_node(pos)
+            minetest.swap_node(pos, {name = new_name,
+                                    param2 = next_nodedef.place_param2})
         end
-        minetest.set_node(pos, {name = new_name,
-                                param2 = next_nodedef.place_param2})
     end
 end
 
@@ -244,6 +242,15 @@ function seasons.get_season_name()
     end
 
     return season_name
+end
+
+function seasons.is_winter()
+    local season = seasons.get_season_name()
+    if season == "winter_early" or
+        season == "winter_late" then
+        return true
+    end
+    return false
 end
 
 local function season_loop()

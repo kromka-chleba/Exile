@@ -21,7 +21,7 @@ wielded_light = wielded_light
 -- Globals
 plant = plant or {}
 
-plant_base_growing_time = 200
+plant_base_growing_time = 300
 plant_base_timer = 40
 seed_growing_time = 40
 
@@ -69,8 +69,7 @@ local on_place_plant = function(itemstack, placer, pointed_thing)
             return itemstack
         end
     end
-
-    return minetest.item_place_node(itemstack,placer,pointed_thing)
+    return minetest.item_place_node(itemstack, placer, pointed_thing)
 end
 
 ---------------------------
@@ -501,7 +500,7 @@ function plant.get_seedling_base_props(plant_def)
         on_place = function(itemstack, placer, pointed_thing)
             return on_place_plant(itemstack, placer, pointed_thing)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        on_construct = function(pos)
             plant.start_growing_plant(pos, plant_def.growing_time)
         end,
         on_dig = function(pos, node, digger)
@@ -567,7 +566,7 @@ function plant.get_plantlike_flowering_props(plant_def)
     base.on_place = function(itemstack, placer, pointed_thing)
         return on_place_plant(itemstack, placer, pointed_thing)
     end
-    base.after_place_node = function(pos, placer, itemstack, pointed_thing)
+    base.on_construct = function(pos)
         plant.start_growing_plant(pos, plant_def.growing_time)
     end
     base.on_dig = function(pos, node, digger)
@@ -594,10 +593,10 @@ function plant.get_plantlike_fruiting_props(plant_def)
         local node_name = minetest.get_node(pos).name
         local nodedef = minetest.registered_nodes[node_name]
         if nodedef._fruitless_name then
-            local p2 = nodedef.place_param2
-            minetest.remove_node(pos)
-            minetest.place_node(pos, {name = nodedef._fruitless_name,
-                                    param2 = p2})
+            minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
+        end
+        if node.param2 < 64 then
+            plant.set_to_half_wild(pos)
         end
         local inv = puncher:get_inventory()
         local new_stack = ItemStack(nodedef._fruit_name)
@@ -616,6 +615,11 @@ function plant.get_plantlike_dead_fruitless_props(plant_def)
     base.inventory_image = plant.get_dead_fruitless_texture_name(plant_def.name)
     base.wield_image = plant.get_dead_fruitless_texture_name(plant_def.name)
     base.tiles = {plant.get_dead_fruitless_texture_name(plant_def.name)}
+    base.on_construct = function(pos)
+        if minimal.get_param2(pos) < 64 then
+            plant.set_to_domesticated(pos)
+        end
+    end
     for i = 1, #seasons.season_names, 1 do
         local lifestage = base["_"..seasons.season_names[i]]
         if string.find(lifestage, "dead") then
@@ -643,6 +647,11 @@ function plant.get_plantlike_dead_props(plant_def)
     base.wield_image = plant.get_dead_texture_name(plant_def.name)
     base._next_life_stage = false
     base.description = S("Dead @1", plant_def.description)
+    base.on_construct = function(pos)
+        if minimal.get_param2(pos) < 64 then
+            plant.set_to_domesticated(pos)
+        end
+    end
     if plant_def.fruit and plant_def.winter_fruit then
         base.description = S("Dead Fruiting @1", plant_def.description)
         base._fruitless_name = plant.get_dead_fruitless_name(plant_def.name)
@@ -832,7 +841,7 @@ function plant.get_seed_base_props(plant_def)
         on_timer = function(pos, elapsed)
             return plant.grow_seed(pos, elapsed)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        on_construct = function(pos)
             plant.start_growing_seed(pos)
         end,
         on_dig = function(pos, node, digger)
