@@ -60,7 +60,7 @@ exile_safe_spawn_lives (Number of lives spawned at safe point) int 0 0 100
 # 
 # These are now ready for general use, with only minor tweaks left to be done.
 # Note: Enabling this will only take effect on new worlds.
-exile_v4_biomes (Enable the new v4 biomes) bool false
+exile_v4_biomes (Enable the new v4 biomes) bool true
 
 
 ## Settings for Climate

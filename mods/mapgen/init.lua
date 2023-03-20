@@ -21,7 +21,7 @@ minetest.register_alias("mapgen_water_source", "nodes_nature:salt_water_source")
 minetest.register_alias("mapgen_river_water_source", "nodes_nature:freshwater_source")
 
 local enable_v4_biomes
-local biome_default = false
+local biome_default = true
 
 
 --Get experimental biome settings
@@ -35,8 +35,8 @@ if io.open(wp.."/env_meta.txt", "r") == nil then
    minetest.set_mapgen_setting("use_exile_v4_biomes",
 			       tostring(biomes_enable), true)
 elseif biomes_enable == nil then -- pre-existing world, but with no setting?
-   biomes_enable = biome_default -- set the default, then
-   minetest.set_mapgen_setting("use_exile_v4_biomes", tostring(biome_default), true)
+   biomes_enable = biome_default -- assume old world, & set to false, then
+   minetest.set_mapgen_setting("use_exile_v4_biomes", tostring(false), true)
 else                           -- get_mapgen_settings gives us a string, so:
    biomes_enable = biomes_enable == "true" -- convert it to a boolean
  end
