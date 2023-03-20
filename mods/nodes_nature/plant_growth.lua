@@ -382,10 +382,8 @@ local function add_to_param2(pos, nr)
         local seedling_name = nodedef._next_life_stage
         nodedef = minetest.registered_nodes[seedling_name]
     end
-    if nodedef.place_param2 then
-        local new_param2 = nodedef.place_param2 + nr
-        minetest.swap_node(pos, {name = name, param2 = new_param2})
-    end
+    local new_param2 = ( nodedef.place_param2 or 0) + nr
+    minetest.swap_node(pos, {name = name, param2 = new_param2})
 end
 
 function plant.set_to_domesticated(pos)
