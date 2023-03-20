@@ -265,7 +265,7 @@ local populate_woe = function(player)
 	local gend = player_api.get_gender(player)
 	return {
 	  "May "..genderPL[gend].." name be forgotten.",
-	  genderSU[gend].."is proscribed.",
+	  genderSU[gend].." is proscribed.",
 	  "Never suffer "..genderOL[gend].." to return.",
 	  "May the gods have mercy upon "..genderOL[gend]..".",
 	  "Let none come to "..genderPL[gend].." aid.",
