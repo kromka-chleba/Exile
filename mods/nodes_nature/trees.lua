@@ -86,40 +86,64 @@ end
 --Mark
 --used to regrow fruit, leaves, trunks on trees
 
-minetest.register_node("nodes_nature:tree_mark", {
-	description = S("Tree Marker"),
-	drawtype = "airlike",
-	paramtype = "light",
-	sunlight_propagates = true,
-	walkable = false,
-	pointable = false,
-	diggable = false,
-	buildable_to = true,
-	drop = "",
-	groups = {not_in_creative_inventory = 1},
-	on_timer = function(pos, elapsed)
-		local meta = minetest.get_meta(pos)
-		local saved_name = meta:get_string("saved_name")
-		local saved_param2 = meta:get_string("saved_param2")
-		local leaf_name = meta:get_string("leaf_name")
-		local tree_name = meta:get_string("tree_name")
+minetest.register_node(
+    "nodes_nature:tree_mark", {
+        description = S("Tree Marker"),
+        drawtype = "airlike",
+        paramtype = "light",
+        sunlight_propagates = true,
+        walkable = false,
+        pointable = false,
+        diggable = false,
+        buildable_to = true,
+        drop = "",
+        groups = {not_in_creative_inventory = 1},
+        on_construct = function(pos)
+            
+        end,
+        on_timer = function(pos, elapsed)
+            if seasons.is_winter() then
+                return true
+            end
+            local meta = minetest.get_meta(pos)
+            local saved_name = meta:get_string("saved_name")
+            local saved_param2 = meta:get_string("saved_param2")
+            local leaf_name = meta:get_string("leaf_name")
+            local tree_name = meta:get_string("tree_name")
 
-		local positions = minetest.find_nodes_in_area(
-			{x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-			{x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
-			{leaf_name, tree_name })
+            local positions = minetest.find_nodes_in_area(
+                {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+                {x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
+                {leaf_name, tree_name})
 
-		if #positions == 0 then
-			minetest.remove_node(pos)
-		elseif climate.get_rain(pos, 15) or
-		   climate.time_since_rain(elapsed) > 0 then
-			--needs rain for growth
-			minetest.set_node(pos, {name = saved_name, param2 = saved_param2})
-		else
-			--no rain, so wait
-			return true
-		end
-	end
+            if #positions == 0 then
+                minetest.remove_node(pos)
+            elseif climate.get_rain(pos, 15) or
+                climate.time_since_rain(elapsed) > 0 then
+                --needs rain for growth
+                minetest.set_node(pos, {name = saved_name, param2 = saved_param2})
+            else
+                --no rain, so wait
+                return true
+            end
+        end
+})
+
+minetest.register_node(
+    "nodes_nature:tree_mark_seasons", {
+        description = S("Tree Marker for Seasons"),
+        drawtype = "airlike",
+        paramtype = "light",
+        sunlight_propagates = true,
+        walkable = false,
+        pointable = false,
+        diggable = false,
+        buildable_to = true,
+        drop = "",
+        groups = {not_in_creative_inventory = 1},
+        on_construct = function(pos)
+            
+        end,
 })
 
 
@@ -129,6 +153,22 @@ tree_list = tree_list -- declare globals from data_plant.lua
 tree_base_tree_growth = tree_base_tree_growth
 tree_base_leaf_growth = tree_base_leaf_growth
 tree_base_fruit_growth = tree_base_fruit_growth
+
+local function save_to_tree_mark(pos, oldnode, treename, by_player)
+    local param2 = 0
+    if by_player then
+        param2 = 16
+    end
+    minetest.log("error", "set tree mark")
+    minetest.log("error", param2)
+    minetest.set_node(pos, {name = "nodes_nature:tree_mark", param2 = param2})
+    local meta = minetest.get_meta(pos)
+    meta:set_string("saved_name", oldnode.name)
+    meta:set_string("saved_param2", oldnode.param2)
+    meta:set_string("leaf_name", "nodes_nature:"..treename.."_leaves")
+    meta:set_string("tree_name", "nodes_nature:"..treename.."_tree")
+end
+
 for i in ipairs(tree_list) do
 	local treename = tree_list[i][1]
 	local treedesc = tree_list[i][2]
@@ -174,18 +214,14 @@ for i in ipairs(tree_list) do
 		sounds = nodes_nature.node_sound_wood_defaults(),
 		on_place = minetest.rotate_node,
 		after_place_node = function(pos, placer, itemstack)
-			minetest.set_node(pos, {name = "nodes_nature:"..treename.."_tree", param3 = 1})
+			minetest.set_node(pos, {name = "nodes_nature:"..treename.."_tree", param2 = 1 + 128})
 		end,
-		after_dig_node = function(pos, oldnode, oldmetadata, digger)
-			if oldnode.param3 ~= 1 then
-				minetest.set_node(pos, {name = "nodes_nature:tree_mark"})
-				local meta = minetest.get_meta(pos)
-				meta:set_string("saved_name", "nodes_nature:"..treename.."_tree")
-				meta:set_string("saved_param2", 0)
-				meta:set_string("leaf_name", "nodes_nature:"..treename.."_leaves")
-				meta:set_string("tree_name", "nodes_nature:"..treename.."_tree")
-				minetest.get_node_timer(pos):start(math.random(tree_base_tree_growth/2, tree_base_tree_growth))
-			end
+		after_destruct = function(pos, node)
+                    if node.param2 < 128 then
+                        minetest.log("error", "CHOP?")
+                        save_to_tree_mark(pos, node, treename, true)
+                        minetest.get_node_timer(pos):start(math.random(tree_base_tree_growth/2, tree_base_tree_growth))
+                    end
 		end,
 	})
 
@@ -277,19 +313,22 @@ for i in ipairs(tree_list) do
 		groups = {choppy = 3, flammable = 2, woody_plant = 1, leafdecay = 1, leafdecay_drop = 1},
 		sounds = nodes_nature.node_sound_leaves_defaults(),
 		after_place_node = function(pos, placer, itemstack)
-			minetest.set_node(pos, {name = "nodes_nature:"..treename.."_leaves", param2 = 0})
+			minetest.set_node(pos, {name = "nodes_nature:"..treename.."_leaves", param2 = 4 + 128})
 		end,
-		after_dig_node = function(pos, oldnode, oldmetadata, digger)
-			if oldnode.param2 ~= 0 then 
-				minetest.set_node(pos, {name = "nodes_nature:tree_mark"})
-				local meta = minetest.get_meta(pos)
-				meta:set_string("saved_name", "nodes_nature:"..treename.."_leaves")
-				meta:set_string("saved_param2", oldnode.param2)
-				meta:set_string("leaf_name", "nodes_nature:"..treename.."_leaves")
-				meta:set_string("tree_name", "nodes_nature:"..treename.."_tree")
-				minetest.get_node_timer(pos):start(math.random(tree_base_leaf_growth/2, tree_base_leaf_growth))
-			end
+		after_destruct = function(pos, node)
+                    if node.param2 < 128 then
+                        minetest.log("error", "RAKED")
+                        minetest.log("error", dump(node))
+                        save_to_tree_mark(pos, node, treename, false)
+                    end
 		end,
+                on_dig = function(pos, node, digger)
+                    if node.param2 < 128 then
+                        minetest.log("error", "digged!")
+                        save_to_tree_mark(pos, node, treename, true)
+                        minetest.get_node_timer(pos):start(math.random(tree_base_leaf_growth/2, tree_base_leaf_growth))
+                    end
+                end,
 	})
 
 	--fruit
@@ -315,19 +354,21 @@ for i in ipairs(tree_list) do
 			sounds = nodes_nature.node_sound_defaults(),
 			_ncrafting_dye_dcolor = dominantcolor,
 			after_place_node = function(pos, placer, itemstack)
-				minetest.set_node(pos, {name = "nodes_nature:"..fruitname, param2 = 0})
+				minetest.set_node(pos, {name = "nodes_nature:"..fruitname, param2 = 0 + 128})
 			end,
-			after_dig_node = function(pos, oldnode, oldmetadata, digger)
-				if oldnode.param2 ~= 0 then
-					minetest.set_node(pos, {name = "nodes_nature:tree_mark"})
-					local meta = minetest.get_meta(pos)
-					meta:set_string("saved_name", "nodes_nature:"..fruitname)
-					meta:set_string("saved_param2", p2_fruit)
-					meta:set_string("leaf_name", "nodes_nature:"..treename.."_leaves")
-					meta:set_string("tree_name", "nodes_nature:"..treename.."_tree")
-					minetest.get_node_timer(pos):start(math.random(tree_base_fruit_growth/2, tree_base_fruit_growth))
-				end
+			after_destruct = function(pos, node, oldmetadata, digger)
+                            if node.param2 < 128 then
+                                minetest.log("error", "FRUITED")
+                                save_to_tree_mark(pos, node, treename, false)
+                            end
 			end,
+                        on_dig = function(pos, node, digger)
+                            if node.param2 < 128 then
+                                minetest.log("error", "digged!")
+                                save_to_tree_mark(pos, node, treename, true)
+                                minetest.get_node_timer(pos):start(math.random(tree_base_leaf_growth/2, tree_base_leaf_growth))
+                            end
+                        end,
 		})
 		exile_add_food_hooks("nodes_nature:"..fruitname)
 		register_leafdecay({
