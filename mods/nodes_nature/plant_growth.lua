@@ -111,7 +111,10 @@ local function calculate_average_light(pos)
     local pos_above = minimal.get_pos_above(pos)
     local sum = 0
     for i = 0, 20 do
-        sum = sum + minimal.get_daylight(pos_above, i / 20)
+        local light = minimal.get_daylight(pos_above, i / 20)
+        -- Light can be also nil for some weird reason...
+        if not light then light = 0 end
+        sum = sum + light
     end
     return sum / 20
 end
