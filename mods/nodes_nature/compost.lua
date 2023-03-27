@@ -156,7 +156,7 @@ minetest.override_item(
 crafting.register_recipe({
 	type = "shovel_agriculture",
 	output = "nodes_nature:compost_undecomposed",
-	items = {"group:fibrous_plant 16"},
+	items = {"group:compostable 16"},
 	level = 1,
 	always_known = true,
 })
@@ -164,7 +164,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "shovel_agriculture",
 	output = "stairs:slab_compost_undecomposed",
-	items = {"group:fibrous_plant 8"},
+	items = {"group:compostable 8"},
 	level = 1,
 	always_known = true,
 })

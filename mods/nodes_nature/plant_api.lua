@@ -122,11 +122,13 @@ local plant_groups = {
         crumbly = 3,
         herbaceous_plant = 1,
         flammable = 5,
+        compostable = 1,
     },
     ["woody_plant"] = {
         choppy = 3,
         woody_plant = 1,
         flammable = 2,
+        compostable = 1,
     },
     ["herbaceous_plant"] = {
         snappy = 3,
@@ -137,6 +139,7 @@ local plant_groups = {
         snappy = 3,
         fibrous_plant = 1,
         flammable = 1,
+        compostable = 1,
     },
     ["mushroom"] = {
         snappy = 3,
@@ -147,12 +150,14 @@ local plant_groups = {
         fibrous_plant = 1,
         flammable = 1,
         cane_plant = 1,
+        compostable = 1,
     },
     ["bamboo"] = {
         choppy = 3,
         woody_plant = 1,
         flammable = 1,
         cane_plant = 1,
+        compostable = 1,
     },
 }
 
@@ -615,6 +620,7 @@ function plant.get_plantlike_dead_fruitless_props(plant_def)
     base.inventory_image = plant.get_dead_fruitless_texture_name(plant_def.name)
     base.wield_image = plant.get_dead_fruitless_texture_name(plant_def.name)
     base.tiles = {plant.get_dead_fruitless_texture_name(plant_def.name)}
+    base.groups.compostable = 1
     base.on_construct = function(pos)
         if minimal.get_param2(pos) < 64 then
             plant.set_to_domesticated(pos)
@@ -642,6 +648,7 @@ function plant.get_plantlike_dead_props(plant_def)
         base = plant.get_bamboolike_props(plant_def)
     end
     base.groups.ncrafting_dye_candidate = nil
+    base.groups.compostable = 1
     base.tiles = {plant.get_dead_texture_name(plant_def.name)}
     base.inventory_image = plant.get_dead_texture_name(plant_def.name)
     base.wield_image = plant.get_dead_texture_name(plant_def.name)
