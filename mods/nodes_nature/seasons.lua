@@ -58,7 +58,7 @@ minetest.register_chatcommand(
             end
             loop()
             local new_current_day = minetest.get_day_count() % 80 + 1
-            return true, S("Date chagned!")
+            return true, S("Date changed!")
         end,
 })
 
@@ -197,31 +197,6 @@ local seasonal_plant_abm = {
     end,
 }
 
-local function drop_leaves(pos, node)
-    if seasons.is_winter() then
-        minetest.remove_node(pos)
-    end
-end
-
-local function regrow_leaves(pos, node)
-    if not seasons.is_winter() and node.param2 < 64 then
-        local meta = minetest.get_meta(pos)
-        local saved_name = meta:get_string("saved_name")
-        local saved_param2 = meta:get_string("saved_param2")
-        local leaf_name = meta:get_string("leaf_name")
-        local tree_name = meta:get_string("tree_name")
-
-        local positions = minetest.find_nodes_in_area(
-            {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-            {x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
-            {leaf_name, tree_name })
-
-        if #positions > 0 then
-            minetest.set_node(pos, {name = saved_name, param2 = saved_param2})
-        end
-    end
-end
-
 local leaf_drop_abm = {
     label = "Removes leaves in winter.",
     name = "nodes_nature:remove_leaves",
@@ -232,21 +207,9 @@ local leaf_drop_abm = {
     max_y = 300,
     nodenames = {"group:leafdecay"},
     action = function(pos, node, dtime_s)
-        drop_leaves(pos, node)
-    end,
-}
-
-local leaf_regrowth_abm = {
-    label = "Regrows leaves.",
-    name = "nodes_nature:regrow_leaves",
-    interval = 10,
-    chance = 0.1,
-    catch_up = false,
-    min_y = -30,
-    max_y = 300,
-    nodenames = {"nodes_nature:tree_mark"},
-    action = function(pos, node, dtime_s)
-        regrow_leaves(pos, node)
+       if seasons.is_winter() then
+	  minetest.remove_node(pos)
+       end
     end,
 }
 
@@ -335,5 +298,4 @@ minetest.register_lbm(winter_soil_lbm)
 minetest.register_lbm(non_winter_soil_lbm)
 minetest.register_abm(seasonal_plant_abm)
 minetest.register_abm(leaf_drop_abm)
-minetest.register_abm(leaf_regrowth_abm)
 minetest.after(2, season_loop)

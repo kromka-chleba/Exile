@@ -123,7 +123,10 @@ minetest.register_node(
                 --needs rain for growth
                 minetest.set_node(pos, {name = saved_name, param2 = saved_param2})
             else
-                --no rain, so wait
+		     --no rain, so wait, but a shorter time
+		     minetest.get_node_timer(pos):set(
+			tree_base_fruit_growth +
+			math.random(1,1200), 0)
                 return true
             end
         end
@@ -320,6 +323,11 @@ for i in ipairs(tree_list) do
                         minetest.log("error", "RAKED")
                         minetest.log("error", dump(node))
                         save_to_tree_mark(pos, node, treename, false)
+			local _, day = seasons.get_season_and_day()
+			local remaining = 20 - day
+                        minetest.get_node_timer(pos):start(
+			   math.random(remaining * 1200,
+				       (remaining+5)*1200))
                     end
 		end,
                 on_dig = function(pos, node, digger)
