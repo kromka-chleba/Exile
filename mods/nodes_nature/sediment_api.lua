@@ -658,7 +658,7 @@ function fertile_soil.register_dry(soil_desc)
 	local dry_name = fertile_soil.get_dry_name(soil_desc.sediment.name)
 	minetest.register_node(dry_name, fertile_soil.get_dry_node_props(soil_desc))
 	fertile_soil.do_slopes(dry_name)
-	tgcr.register_replacement(dry_name, fertile_soil.get_wet_name(soil_desc.name), c.REPLACEMENT_WET)
+	tgcr.register_replacement(dry_name, fertile_soil.get_wet_name(soil_desc.sediment.name), c.REPLACEMENT_WET)
 	tgcr.register_replacement(dry_name, sediment.get_wet_salty_name(soil_desc.sediment.name), c.REPLACEMENT_SALTY)
 	table.insert(registered_sediments, dry_name)
 end
