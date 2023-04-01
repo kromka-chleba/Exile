@@ -129,7 +129,15 @@ local plant_list = {
      growing_time = plant_base_growing_time * 1.2,
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "long", winter_fruit = false,
-      thorns = true},
+     thorns = true},
+
+    {name = "yellow_malina", description = S("Malina"),
+     drawtype = "plantlike", mesh_type = 3,
+     plant_type = "woody_plant", waving = true,
+     growing_time = plant_base_growing_time * 1.2,
+     dye_candidate = true, dominant_color = "green",
+     fruit = true, seasonal_type = "long", winter_fruit = false,
+     thorns = true},
 
     -- Mushrooms
 
