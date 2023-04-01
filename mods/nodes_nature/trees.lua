@@ -132,24 +132,6 @@ minetest.register_node(
         end
 })
 
-minetest.register_node(
-    "nodes_nature:tree_mark_seasons", {
-        description = S("Tree Marker for Seasons"),
-        drawtype = "airlike",
-        paramtype = "light",
-        sunlight_propagates = true,
-        walkable = false,
-        pointable = false,
-        diggable = false,
-        buildable_to = true,
-        drop = "",
-        groups = {not_in_creative_inventory = 1},
-        on_construct = function(pos)
-            
-        end,
-})
-
-
 ---------------------------------------------------------
 
 tree_list = tree_list -- declare globals from data_plant.lua
@@ -162,8 +144,6 @@ local function save_to_tree_mark(pos, oldnode, treename, by_player)
     if by_player then
         param2 = 16
     end
-    minetest.log("error", "set tree mark")
-    minetest.log("error", param2)
     minetest.set_node(pos, {name = "nodes_nature:tree_mark", param2 = param2})
     local meta = minetest.get_meta(pos)
     meta:set_string("saved_name", oldnode.name)
@@ -221,7 +201,6 @@ for i in ipairs(tree_list) do
 		end,
 		after_destruct = function(pos, node)
                     if node.param2 < 128 then
-                        minetest.log("error", "CHOP?")
                         save_to_tree_mark(pos, node, treename, true)
                         minetest.get_node_timer(pos):start(math.random(tree_base_tree_growth/2, tree_base_tree_growth))
                     end
@@ -320,8 +299,6 @@ for i in ipairs(tree_list) do
 		end,
 		after_destruct = function(pos, node)
                     if node.param2 < 128 then
-                        minetest.log("error", "RAKED")
-                        minetest.log("error", dump(node))
                         save_to_tree_mark(pos, node, treename, false)
 			local _, day = seasons.get_season_and_day()
 			local remaining = 20 - day
@@ -330,10 +307,9 @@ for i in ipairs(tree_list) do
 				       (remaining+5)*1200))
                     end
 		end,
-                on_dig = function(pos, node, digger)
-                    if node.param2 < 128 then
-                        minetest.log("error", "digged!")
-                        save_to_tree_mark(pos, node, treename, true)
+                after_dig_node = function(pos, oldnode, oldmetadata, digger)
+                    if oldnode.param2 < 128 then
+                        save_to_tree_mark(pos, oldnode, treename, true)
                         minetest.get_node_timer(pos):start(math.random(tree_base_leaf_growth/2, tree_base_leaf_growth))
                     end
                 end,
@@ -366,14 +342,12 @@ for i in ipairs(tree_list) do
 			end,
 			after_destruct = function(pos, node, oldmetadata, digger)
                             if node.param2 < 128 then
-                                minetest.log("error", "FRUITED")
                                 save_to_tree_mark(pos, node, treename, false)
                             end
 			end,
-                        on_dig = function(pos, node, digger)
-                            if node.param2 < 128 then
-                                minetest.log("error", "digged!")
-                                save_to_tree_mark(pos, node, treename, true)
+                        after_dig_node = function(pos, oldnode, oldmetadata, digger)
+                            if oldnode.param2 < 128 then
+                                save_to_tree_mark(pos, oldnode, treename, true)
                                 minetest.get_node_timer(pos):start(math.random(tree_base_leaf_growth/2, tree_base_leaf_growth))
                             end
                         end,
