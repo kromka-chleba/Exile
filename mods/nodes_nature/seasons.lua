@@ -205,7 +205,7 @@ local leaf_drop_abm = {
     catch_up = false,
     min_y = -30,
     max_y = 300,
-    nodenames = {"group:leafdecay"},
+    nodenames = {"group:drops_leaves"},
     action = function(pos, node, dtime_s)
        if seasons.is_winter() then
 	  minetest.remove_node(pos)

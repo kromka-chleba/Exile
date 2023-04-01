@@ -278,7 +278,10 @@ for i in ipairs(tree_list) do
 		)
 	end
 
-
+        local drops_leaves = 1
+        if treename == "sasaran" then
+            drops_leaves = 0
+        end
 
 	--leaves
 	minetest.register_node("nodes_nature:"..treename.."_leaves", {
@@ -292,7 +295,7 @@ for i in ipairs(tree_list) do
 		place_param2 = 4,
 		walkable = false,
 		climbable = true,
-		groups = {choppy = 3, flammable = 2, woody_plant = 1, leafdecay = 1, leafdecay_drop = 1},
+		groups = {choppy = 3, flammable = 2, woody_plant = 1, leafdecay = 1, leafdecay_drop = 1, drops_leaves = drops_leaves},
 		sounds = nodes_nature.node_sound_leaves_defaults(),
 		after_place_node = function(pos, placer, itemstack)
 			minetest.set_node(pos, {name = "nodes_nature:"..treename.."_leaves", param2 = 4 + 128})
@@ -334,7 +337,7 @@ for i in ipairs(tree_list) do
 				type = "fixed",
 				fixed = selbox_fruit
 			},
-			groups = {dig_immediate=3, flammable=2, leafdecay = 3, leafdecay_drop = 1, ncrafting_dye_candidate = dyecandidate },
+			groups = {dig_immediate=3, flammable=2, leafdecay = 3, leafdecay_drop = 1, ncrafting_dye_candidate = dyecandidate, drops_leaves = drops_leaves},
 			sounds = nodes_nature.node_sound_defaults(),
 			_ncrafting_dye_dcolor = dominantcolor,
 			after_place_node = function(pos, placer, itemstack)
