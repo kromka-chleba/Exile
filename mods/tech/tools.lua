@@ -48,8 +48,14 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
             return itemstack
         else
             -- if yes use the on_rightclick of the pointed thing instead
-	   return minetest.registered_nodes[under.name].on_rightclick(
-	      pointed_thing.under, under, placer, itemstack, pointed_thing)
+            local on_rightclick = minetest.registered_nodes[under.name].on_rightclick(
+                pointed_thing.under, under, placer, itemstack, pointed_thing)
+            if on_rightclick then
+                return on_rightclick
+            else
+                -- can't access on_rightclick because the node belongs to another player
+                return itemstack
+            end
         end
     end
 end
