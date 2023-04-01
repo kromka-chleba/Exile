@@ -287,7 +287,7 @@ minetest.register_abm({
 	action = function(pos, node)
             local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
             local above_name = minetest.get_node(pos_above).name
-            if above_name ~= "air" then
+            if above_name ~= "air" and minimal.get_group(pos_above, "flora") <= 0 then
                 return
             end
             -- Don't spread at night

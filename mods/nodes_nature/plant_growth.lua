@@ -104,13 +104,35 @@ end
 
 local function is_dark(pos)
     local light = get_light(pos)
-    return light < 8
+    return light < 4
+end
+
+local function calculate_average_light(pos)
+    local pos_above = minimal.get_pos_above(pos)
+    local sum = 0
+    for i = 0, 20 do
+        local light = minimal.get_daylight(pos_above, i / 20)
+        -- Light can be also nil for some weird reason...
+        if not light then light = 0 end
+        sum = sum + light
+    end
+    return sum / 20
+end
+
+local function get_light_cofactor(pos)
+    local average_daily_light = calculate_average_light(pos) / 9.25
+    local current_light = get_light(pos) / 15
+    if average_daily_light < 1 then
+        return current_light
+    else
+        return average_daily_light
+    end
 end
 
 local function is_dark_when_day(pos)
     local pos_above = minimal.get_pos_above(pos)
     local light = minimal.get_daylight(pos_above, 0.5) or 0
-    return light < 8
+    return light < 4
 end
 
 local function is_temperature_extreme(pos)
@@ -316,8 +338,9 @@ local function time_to_cycles(time)
 end
 
 local function progress_surface(pos, elapsed)
+    local mushroom = is_mushroom(pos)
     -- number of cycles
-    local good_time, rain_time = good_time_rain_time(elapsed, is_mushroom(pos))
+    local good_time, rain_time = good_time_rain_time(elapsed, mushroom)
     local good_cycles = time_to_cycles(good_time)
     local rain_cycles = time_to_cycles(rain_time)
     -- climate history is stored in 60s chunks
@@ -328,25 +351,22 @@ local function progress_surface(pos, elapsed)
             rain_cycles = time_to_cycles(elapsed)
         end
     end
+    local light_cofactor = get_light_cofactor(pos)
+    if mushroom then
+        light_cofactor = 1
+    end
     local progress = calculate_growth_progress(pos, good_cycles, rain_cycles)
-    return progress
+    return progress * light_cofactor
 end
 
 local function progress_underground(pos, elapsed)
     local good_cycles = time_to_cycles(elapsed)
-    local base_progress = calculate_growth_progress(pos, good_cycles)
+    local progress = calculate_growth_progress(pos, good_cycles)
     if is_mushroom(pos) then
-        return base_progress
+        return progress
     end
-    local dark_day = is_dark_when_day(pos)
-    local dark_now = is_dark(pos)
-    if (dark_day and not dark_now) or
-        (not dark_day and not dark_now) then
-        return base_progress
-    elseif not dark_day and dark_now then
-        return base_progress / 2
-    end
-    return 0
+    local light_cofactor = get_light_cofactor(pos)
+    return progress * light_cofactor
 end
 
 local function past_growth_progress(pos, elapsed)
@@ -362,7 +382,12 @@ local function past_growth_progress(pos, elapsed)
 end
 
 local function current_growth_progress(pos, elapsed)
-    return calculate_growth_progress(pos)
+    if is_mushroom(pos) then
+        return calculate_growth_progress(pos)
+    else
+        local light_cofactor = get_light_cofactor(pos)
+        return calculate_growth_progress(pos) * light_cofactor
+    end
 end
 
 local function seed_elapsed(meta)
