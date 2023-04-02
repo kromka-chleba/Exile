@@ -75,6 +75,18 @@ Jan Wielkiewicz (CC BY-SA 3.0)
     nodes_nature_tilled_soil_depleted.png (original by Dokimi)
     nodes_nature_tilled_soil.png (original by Dokimi)
     ** Made entirely by me:
+    nodes_nature_malina_dead.png
+    nodes_nature_malina_flowering.png
+    nodes_nature_malina_fruiting.png
+    nodes_nature_malina_fruitless.png
+    nodes_nature_malina_fruit.png
+    nodes_nature_malina_seedling.png
+    nodes_nature_yellow_malina_dead.png
+    nodes_nature_yellow_malina_flowering.png
+    nodes_nature_yellow_malina_fruiting.png
+    nodes_nature_yellow_malina_fruitless.png
+    nodes_nature_yellow_malina_fruit.png
+    nodes_nature_yellow_malina_seedling.png
     nodes_nature_wrotycz_flowering.png
     nodes_nature_wrotycz_fruiting.png
     nodes_nature_wrotycz_dead_fruiting.png

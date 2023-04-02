@@ -123,6 +123,22 @@ local plant_list = {
      fruit = true, seasonal_type = "medium",
      winter_fruit = true, dry_fruit = true},
 
+    {name = "malina", description = S("Malina"),
+     drawtype = "plantlike", mesh_type = 3,
+     plant_type = "woody_plant", waving = true,
+     growing_time = plant_base_growing_time * 1.2,
+     dye_candidate = true, dominant_color = "green",
+     fruit = true, seasonal_type = "long", winter_fruit = false,
+     thorns = true},
+
+    {name = "yellow_malina", description = S("Malina"),
+     drawtype = "plantlike", mesh_type = 3,
+     plant_type = "woody_plant", waving = true,
+     growing_time = plant_base_growing_time * 1.2,
+     dye_candidate = true, dominant_color = "green",
+     fruit = true, seasonal_type = "long", winter_fruit = false,
+     thorns = true},
+
     -- Mushrooms
 
     --lambakap. is also a mushroom.

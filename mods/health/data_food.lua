@@ -33,6 +33,8 @@ food_table = {
         ["nodes_nature:wiha_flowering"]     = { 0,  4,   2,  0,  0 },
         ["nodes_nature:wiha_fruiting"]      = { 0,  8,   4,  0,  0 },
         ["nodes_nature:wiha_fruit"]         = { 0,  4,   2,  0,  0 },
+        ["nodes_nature:malina_fruit"]       = { 0,  2,   4,  0,  0 },
+        ["nodes_nature:yellow_malina_fruit"]= { 0,  3,   4,  0,  0 },
 	["nodes_nature:zufani"]             = { 0,  0,   6,  0,  0 },
         ["nodes_nature:zufani_fruit"]       = { 0,  0,   4,  4,  0 },
         ["nodes_nature:damo_seedling1"]     = { 0,  1,   1,  0,  0 },
@@ -147,6 +149,8 @@ food_harm_table = {
         ["nodes_nature:wrotycz_fruit"]   = { { "Food Poisoning",      0.100, 1},
             { "Hepatotoxicity",      0.005, 1} },
         ["nodes_nature:momo_fruit"]      = { { "Food Poisoning",      0.001, 1} },
+        ["nodes_nature:malina_fruit"]      = { { "Food Poisoning",      0.001, 1} },
+        ["nodes_nature:yellow_malina_fruit"]      = { { "Food Poisoning",      0.001, 1} },
 
 	--Trees fruit
 	["nodes_nature:maraka_nut"]      = { { "Food Poisoning",      0.001, 1},
