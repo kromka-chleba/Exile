@@ -65,7 +65,18 @@ local function restart_confirm (name, message)
 		if message == 'Yes' or message == "yes" then
 			minetest.log("action", name .. " gave up the ghost.")
 			timestamp[name] = minetest.get_gametime()
-			killplayer(name)
+                        local remaining = 30
+                        local function loop()
+                            if remaining <= 0 then
+                                minetest.chat_send_player(name, "POP!")
+                                killplayer(name)
+                            else
+                                minetest.chat_send_player(name, "Restart in: "..remaining.." seconds.")
+                                remaining = remaining - 1
+                                minetest.after(1, loop)
+                            end
+                        end
+                        loop()
 		else
 			minetest.chat_send_player(name, "You've come to your senses and decided to keep trying")
 		end
