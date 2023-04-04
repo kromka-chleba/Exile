@@ -129,7 +129,7 @@ local plant_list = {
      growing_time = plant_base_growing_time * 1.2,
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "long", winter_fruit = false,
-     thorns = true},
+     move_resistance = 3, thorns = true},
 
     {name = "yellow_malina", description = S("Malina"),
      drawtype = "plantlike", mesh_type = 3,
@@ -137,7 +137,7 @@ local plant_list = {
      growing_time = plant_base_growing_time * 1.2,
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "long", winter_fruit = false,
-     thorns = true},
+     move_resistance = 3, thorns = true},
 
     -- Mushrooms
 
@@ -200,7 +200,7 @@ local plant_list = {
      drawtype = "plantlike", plant_type = "woody_plant",
      mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
-     visual_scale = 1.2},
+     visual_scale = 1.2, thorns = true, move_resistance = 4},
 
     {name = "jogalan", description = S("Jogalan"),
      drawtype = "plantlike", plant_type = "woody_plant",
@@ -284,7 +284,8 @@ local plant_list = {
     {name = "chalin", description = S("Chalin"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
-     seed_number = 1, climbable = true, seasonal_type = "whole_season_woody"},
+     seed_number = 1, climbable = true, seasonal_type = "whole_season_woody",
+     move_resistance = 1},
 
     {name = "tiken", description = S("Tiken"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
