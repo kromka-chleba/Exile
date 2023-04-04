@@ -75,6 +75,7 @@ food_table = {
      ["animals:carcass_fish_large"]         = { 0,  3,  35,-12,  0 },
      ["animals:carcass_fish_large_cooked"]  = { 0,  3,  70,  6,  0 },
      ["animals:carcass_fish_large_burned"]  = { 0, -1,  11,-13,  0 },
+     ["bones:bones"]                        = { 0, -1,  10, -1,  0 },
 	--eggs
 	["animals:darkasthaan_eggs"]        = { 0,  1,  10,  0,  0 },
 	["animals:gundu_eggs"]              = { 0, 10,  30,  0,  0 },
@@ -186,6 +187,8 @@ food_harm_table = {
 	                                     { "Intestinal Parasites",0.04,  1} },
 	["animals:carcass_fish_large_cooked"] = { { "Food Poisoning", 0.004, 1} },
 	["animals:carcass_fish_large_burned"] = { { "Food Poisoning", 0.002, 1} },
+        ["bones:bones"]                       = { { "Food Poisoning",      0.1,   1},
+                                                { "Intestinal Parasites",0.01,  1} },
 	--eggs
 	["animals:darkasthaan_eggs"]     = { { "Food Poisoning",      0.1,
 					       math.floor(math.random(1,4))},

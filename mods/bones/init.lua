@@ -7,6 +7,7 @@
 local S = minetest.get_translator("bones")
 
 creative = creative
+exile_add_food_hooks = exile_add_food_hooks
 
 bones = {}
 
@@ -334,3 +335,5 @@ minetest.register_on_dieplayer(function(player)
 		minimal.infotext_merge(pos,'Status: '..S("@1's bones", player_name),meta)
 	end
 end)
+
+exile_add_food_hooks("bones:bones")
