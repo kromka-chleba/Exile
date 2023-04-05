@@ -75,6 +75,9 @@ Jan Wielkiewicz (CC BY-SA 3.0)
     nodes_nature_tilled_soil_depleted.png (original by Dokimi)
     nodes_nature_tilled_soil.png (original by Dokimi)
     ** Made entirely by me:
+    nodes_nature_gevaari_seedling.png
+    nodes_nature_gevaari.png
+    nodes_nature_gevaari_dead.png
     nodes_nature_malina_dead.png
     nodes_nature_malina_flowering.png
     nodes_nature_malina_fruiting.png

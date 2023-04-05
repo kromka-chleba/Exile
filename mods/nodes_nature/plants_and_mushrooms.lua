@@ -139,6 +139,13 @@ local plant_list = {
      fruit = true, seasonal_type = "long", winter_fruit = false,
      move_resistance = 3, thorns = true},
 
+    {name = "gevaari", description = S("Gevaari"),
+     drawtype = "plantlike", plant_type = "herbaceous_plant",
+     mesh_type = 1, growing_time = plant_base_growing_time * 3,
+     dye_candidate = true, dominant_color = "green",
+     seasonal_type = "whole_season",
+     visual_scale = 1.5, thorns = true, move_resistance = 4},
+
     -- Mushrooms
 
     --lambakap. is also a mushroom.

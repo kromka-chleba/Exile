@@ -90,6 +90,7 @@ food_table = {
         ["nodes_nature:wrotycz_fruit"]      = { 0,  0,   2,  0,  0 },
 	["nodes_nature:nebiyi"]             = { 0,  0,   1,  -10,  0 },
 	["nodes_nature:marbhan"]            = { 0,  0,   1,  -10,  0 },
+        ["nodes_nature:gevaari"]            = { -2,  0,   1,  -10,  0 },
 	["nodes_nature:maraka_nut"]         = { 0,  0,   5,  5,  0 },
 	["nodes_nature:sasaran_cone"]       = { 0,  0,   1,  0,  0 },
 	--medicine                              hp  th   hu  en  te
@@ -126,6 +127,8 @@ food_harm_table = {
 	["nodes_nature:tikusati"]        = { { "Food Poisoning",      0.001, 1} },
 	["nodes_nature:nebiyi"]          = { { "Food Poisoning",      0.001, 1} },
 	["nodes_nature:marbhan"]         = { { "Food Poisoning",      0.001, 1} },
+        ["nodes_nature:gevaari"]         = { { "Food Poisoning",      0.001, 1},
+            { "Hepatotoxicity",      1.0, 1}},
 	["nodes_nature:hakimi"]          = { { "Food Poisoning",      0.001, 1} },
 	["nodes_nature:merki"]           = { { "Food Poisoning",      0.001, 1} },
 	["nodes_nature:zufani"]          = { { "Food Poisoning",      0.010, 1} },
