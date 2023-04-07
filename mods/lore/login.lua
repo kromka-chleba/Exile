@@ -89,7 +89,7 @@ end)
 
 function play_themesong(name)
    minetest.after(8, function()
-		     minetest.sound_play({ name = "exile_theme" },
+		     minetest.sound_play({ name = "exile_theme", gain = 0.75 },
 			{ to_player = name })
    end)
 end
