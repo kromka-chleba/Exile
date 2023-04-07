@@ -193,6 +193,7 @@ function plant.new(args)
         seedling_number = args.seedling_number or 5,
         plant_type = args.plant_type,
         texture_scale = args.texture_scale or 1,
+        move_resistance = args.move_resistance,
         seasons = seasons,
         extra_groups = args.extra_groups,
         dye_candidate = args.dye_candidate or false,
@@ -377,6 +378,7 @@ function plant.get_base_props(plant_def)
         light_source = plant_def.bioluminescence,
         floodable = true,
         sunlight_propagates = true,
+        move_resistance = plant_def.move_resistance,
         walkable = false,
         buildable_to = true,
         climbable = plant_def.climbable,
@@ -391,6 +393,16 @@ function plant.get_base_props(plant_def)
     }
     if plant_def.roots then
         props._root_name = plant.get_root_name(plant_def.name)
+    end
+    if plant_def.thorns then
+        props.on_punch = function(pos, node, puncher, pointed_thing)
+            local itemstack = puncher:get_wielded_item()
+            local item_name = itemstack:get_name()
+            if item_name == "" then
+                local hp = puncher:get_hp()
+                puncher:set_hp(hp-1)
+            end
+        end
     end
     if seasons then
         props = minimal.merge_tables(
@@ -445,6 +457,7 @@ function plant.get_canelike_props(plant_def)
     if plant_def.dye_candidate then
         base.groups.ncrafting_dye_candidate = 1
     end
+    base.move_resistance = plant_def.move_resistance or 2
     base.on_place = function(itemstack, placer, pointed_thing)
         local under = pointed_thing.under
         local node = minetest.get_node(under)
@@ -482,6 +495,7 @@ end
 function plant.get_bamboolike_props(plant_def)
     local base = plant.get_canelike_props(plant_def)
     base.buildable_to = false
+    base.move_resistance = plant_def.move_resistance or 5
     return table.copy(base)
 end
 
