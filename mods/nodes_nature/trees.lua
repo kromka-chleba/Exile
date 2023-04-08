@@ -199,7 +199,7 @@ for i in ipairs(tree_list) do
 		after_place_node = function(pos, placer, itemstack)
 			minetest.set_node(pos, {name = "nodes_nature:"..treename.."_tree", param2 = 1 + 128})
 		end,
-		after_destruct = function(pos, node)
+		after_dig_node = function(pos, node)
                     if node.param2 < 128 then
                         save_to_tree_mark(pos, node, treename, true)
                         minetest.get_node_timer(pos):start(math.random(tree_base_tree_growth/2, tree_base_tree_growth))
