@@ -16,14 +16,14 @@ minetest.register_chatcommand("dewaffle", {
 	      local rad = tonumber(param)
 	      if rad and rad ~= 0 then
 		 local pos = minetest.get_player_by_name(name):get_pos()
-		 local minp = vector.normalize(vector.subtract(pos,rad))
-		 local maxp = vector.normalize(vector.add(pos,rad))
+		 local minp = vector.round(vector.subtract(pos,rad))
+		 local maxp = vector.round(vector.add(pos,rad))
 		 minetest.log("action", name.." ran a dewaffle on "..
 		   minp.x.."/"..minp.y.."/"..minp.z.. " through "..
 		   maxp.x.."/"..maxp.y.."/"..maxp.z.. ", a radius of "..rad)
 		 minetest.chat_send_player(name,"Dewaffling in a radius of "..
 					   tostring(rad))
-		 naturalslopeslib.area_chance_update_shape(minp, maxp, 0.01)
+		 naturalslopeslib.area_chance_update_shape(minp, maxp, 0.02)
 	      else
 		 minetest.chat_send_player(name,
 					   "I don't understand a radius of "
