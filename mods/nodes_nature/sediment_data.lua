@@ -186,6 +186,7 @@ for i = 1, #registered_sediments do
     local props = table.copy(nodedef)
     props.description = S("@1 With Roots", props.description)
     props.groups.roots = 1
+    props.groups.spreading = 0
     props.use_texture_alpha = c_alpha.blend
     props.overlay_tiles = {{name = "nodes_nature_roots.png"}, "", ""}
     if props._non_winter_name then
