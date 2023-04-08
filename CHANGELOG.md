@@ -1,5 +1,13 @@
 # Changelog:
 
+## [2023-04-07][2023-04-07__0.3.9e] — 0.3.9e
+  - Add theme song "Earth and Stone" by Kevin Hartnell
+  - Wattle connects to drystack
+  - Keep leftover plant bundles that are not dyes, to see what you've tried
+  - Added a dewaffler utility to fix broken terrain caused by the prior bug
+  - Fix for opaque white fog banks
+  - Usual round of bugfixes
+
 ## [2022-12-31][2022-12-31__0.3.9d] — 0.3.9d
   - Add an alignment tool to complement the lever
   - Fix grass spreading, grass dying in shade, and landscape waffling
