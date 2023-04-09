@@ -28,7 +28,7 @@ fog.sky_data = {
 
 
 fog.cloud_data = {
-	color = "#FFFFFFFE",
+	color = "#FFFFFFE0",
 	density = 1,
 	height = 2,
 	thickness = 428,
