@@ -180,7 +180,7 @@ function ncrafting.do_soak(pos, name, length)
    if minetest.get_item_group(node_a.name, "water") == 1 then
       if soaking <= 0 then
 	 --finished
-	 minetest.seth_node(pos, {name = name})
+	 minetest.set_node(pos, {name = name})
 	 ncrafting.set_treatment(meta, "soak")
 	 return false
       else
