@@ -311,7 +311,7 @@ local function fire_pottery(pos, selfname, name, length)
 
 	--check if wet, falls to bits and thats it for your pot
 	if climate.get_rain(pos) or minetest.find_node_near(pos, 1, {"group:water"}) then
-		minimal.swap_node(pos, {name = 'nodes_nature:clay'})
+		minetest.set_node(pos, {name = 'nodes_nature:clay'})
 		return false
 	end
 
