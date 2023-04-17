@@ -84,7 +84,7 @@ function crafting.make_result_selector(player, type, level, size, context)
 	formspec[#formspec + 1] = ","
 	formspec[#formspec + 1] = tostring(size.y)
 	formspec[#formspec + 1] = "]"
-	
+
 	-- Crafted by label
 	local creator = context.creator
 	if creator and creator ~= '' then
@@ -117,10 +117,8 @@ function crafting.make_result_selector(player, type, level, size, context)
 	local y = 0
 	local y_offset = 0.2
 	for i = start_i, math.min(#recipes, start_i * num_per_page)  do
-		local result = recipes[i]
-		if not result then
-		   return
-		end
+	   local result = recipes[i]
+	   if result then
 		local recipe = result.recipe
 
 		local itemname = ItemStack(recipe.output):get_name()
@@ -171,6 +169,7 @@ function crafting.make_result_selector(player, type, level, size, context)
 		if y == size.y then
 			break
 		end
+	   end
 	end
 
 	while y < size.y do
