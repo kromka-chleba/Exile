@@ -39,35 +39,44 @@ minetest.register_craftitem("artifacts:light_meter", {
 })
 
 ------------------------------------
+-- General probe setup
+------------------------------------
+
+local function init_probe(user, pointed_thing)
+  if pointed_thing.type ~= "node" then
+    return
+  end
+
+  local under = minetest.get_node(pointed_thing.under)
+  local node_name = under.name
+  local nodedef = minetest.registered_nodes[node_name]
+  if not nodedef then
+    return
+  end
+  local name = user:get_player_name()
+  local meta = minetest.get_meta(pointed_thing.under)
+  return  name, meta, node_name, nodedef
+end
+
+
+------------------------------------
 --TEMPERATURE PROBE
 --get node temperature
 ------------------------------------
 
 local temp_probe = function(user, pointed_thing)
 
-  if pointed_thing.type ~= "node" then
-    return
-  end
-
-  local under = minetest.get_node(pointed_thing.under)
-
-  local node_name = under.name
-  local nodedef = minetest.registered_nodes[node_name]
-  if not nodedef then
-    return
-  end
-
-
-  local name =user:get_player_name()
-
-	minetest.chat_send_player(name, minetest.colorize("#00ff00", "OBJECT TEMPERATURE MEASUREMENT:"))
-
+   local name = init_probe(user, pointed_thing)
+   if not name then
+      return
+   end
   local temp = climate.get_point_temp(pointed_thing.under)
   local measure = climate.get_temp_string(temp, user:get_meta())
+
+  minetest.chat_send_player(name, minetest.colorize("#00ff00", "OBJECT TEMPERATURE MEASUREMENT:"))
   minetest.chat_send_player(name, minetest.colorize("#cc6600","TEMPERATURE = "))
   minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
   --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
-
 end
 
 
@@ -92,24 +101,12 @@ minetest.register_craftitem("artifacts:temp_probe", {
 
 local fuel_probe = function(user, pointed_thing)
 
-  if pointed_thing.type ~= "node" then
+   local name, meta = init_probe(user, pointed_thing)
+   if not name then
     return
   end
 
-  local under = minetest.get_node(pointed_thing.under)
-
-  local node_name = under.name
-  local nodedef = minetest.registered_nodes[node_name]
-  if not nodedef then
-    return
-  end
-
-
-  local name =user:get_player_name()
-
-
-  local meta = minetest.get_meta(pointed_thing.under)
-  local measure = meta:get_int("fuel")
+   local measure = meta:get_int("fuel")
 
   if measure <= 0 then
     minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
@@ -138,24 +135,10 @@ minetest.register_craftitem("artifacts:fuel_probe", {
 ------------------------------------
 
 local smelter_probe = function(user, pointed_thing)
-
-  if pointed_thing.type ~= "node" then
-    return
+  local name, meta, node_name = init_probe(user, pointed_thing)
+  if not name then
+     return
   end
-
-  local under = minetest.get_node(pointed_thing.under)
-
-  local node_name = under.name
-  local nodedef = minetest.registered_nodes[node_name]
-  if not nodedef then
-    return
-  end
-
-
-  local name =user:get_player_name()
-
-
-  local meta = minetest.get_meta(pointed_thing.under)
   local measure = meta:get_int("roast")
 
   if measure <= 0 or node_name ~= 'tech:iron_and_slag' then
@@ -187,25 +170,17 @@ minetest.register_craftitem("artifacts:smelter_probe", {
 ------------------------------------
 
 local potters_probe = function(user, pointed_thing)
-
-  if pointed_thing.type ~= "node" then
-    return
+  local name, meta = init_probe(user, pointed_thing)
+  if not name then
+     return
   end
 
-  local under = minetest.get_node(pointed_thing.under)
-
-  local node_name = under.name
-  local nodedef = minetest.registered_nodes[node_name]
-  if not nodedef then
-    return
+  local measure = meta:get("firing")
+  if measure == nil then
+     measure = meta:get_int("roast")
+  else
+     measure = tonumber(measure)
   end
-
-
-  local name =user:get_player_name()
-
-
-  local meta = minetest.get_meta(pointed_thing.under)
-  local measure = meta:get_int("firing") or meta:get_int("roast")
 
   if measure <= 0 then
     minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
@@ -235,24 +210,11 @@ minetest.register_craftitem("artifacts:potters_probe", {
 ------------------------------------
 
 local chefs_probe = function(user, pointed_thing)
-
-  if pointed_thing.type ~= "node" then
-    return
+  local name, meta = init_probe(user, pointed_thing)
+  if not name then
+     return
   end
 
-  local under = minetest.get_node(pointed_thing.under)
-
-  local node_name = under.name
-  local nodedef = minetest.registered_nodes[node_name]
-  if not nodedef then
-    return
-  end
-
-
-  local name =user:get_player_name()
-
-
-  local meta = minetest.get_meta(pointed_thing.under)
   local measure = meta:get_int("baking")
 
   if measure <= 0 then
@@ -284,23 +246,11 @@ minetest.register_craftitem("artifacts:chefs_probe", {
 
 local farmers_probe = function(user, pointed_thing)
 
-  if pointed_thing.type ~= "node" then
-    return
+  local name, meta = init_probe(user, pointed_thing)
+  if not name then
+     return
   end
 
-  local under = minetest.get_node(pointed_thing.under)
-
-  local node_name = under.name
-  local nodedef = minetest.registered_nodes[node_name]
-  if not nodedef then
-    return
-  end
-
-
-  local name =user:get_player_name()
-
-
-  local meta = minetest.get_meta(pointed_thing.under)
   local measure = meta:get_int("growth")
 
   if measure <= 0 then
@@ -413,12 +363,15 @@ local animal_probe = function(user, pointed_thing)
 	if not ent.memory then -- not a mobkit entity with a memory
 		return
 	end
-	local r_ent_e = math.floor(mobkit.recall(ent,'energy'))
-	local r_ent_a = math.floor(mobkit.recall(ent,'age'))
+	local r_ent_e = mobkit.recall(ent,'energy')
+	local r_ent_a = mobkit.recall(ent,'age')
 
 	if not r_ent_e or not r_ent_a then
 		return
 	end
+	r_ent_e = math.floor(r_ent_e)
+	r_ent_a = math.floor(r_ent_a)
+
 	minetest.chat_send_player(name, minetest.colorize("#00ff00", "ANIMAL CONDITION:"))
 	minetest.chat_send_player(name, minetest.colorize("#cc6600","Age: "..r_ent_a.. " sec    Energy: "..r_ent_e.." units"))
   end
