@@ -61,7 +61,7 @@ function ncrafting.set_firing(pos, length, interval)
 	minetest.get_node_timer(pos):start(interval)
 end
 
-function ncrafting.fire_pottery(pos, selfname, name, length)
+function ncrafting.fire_pottery(pos, selfname, name, length, firing_temp)
 	local meta = minetest.get_meta(pos)
 	local firing = meta:get_int("firing")
 
@@ -76,7 +76,7 @@ function ncrafting.fire_pottery(pos, selfname, name, length)
 
 	--check if above firing temp
 	local temp = climate.get_point_temp(pos)
-	local fire_temp = 600
+	local fire_temp = firing_temp or 600
 
 	if firing <= 0 then
 		--finished firing

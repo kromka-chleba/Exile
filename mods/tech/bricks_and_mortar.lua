@@ -30,6 +30,7 @@ crush limestone - > crushed lime
 local S = tech.S
 local FS = tech.FS
 
+
 local random = math.random
 
 --LIME MORTAR
@@ -294,57 +295,6 @@ crafting.register_recipe({
 
 --step one bricks, it's same deal as pottery
 --
---Pottery firing functions
-local function set_firing(pos, length, interval)
-	-- and firing count
-	local meta = minetest.get_meta(pos)
-	meta:set_int("firing", length)
-	--check heat interval
-	minetest.get_node_timer(pos):start(interval)
-end
-
-
-
-local function fire_pottery(pos, selfname, name, length)
-	local meta = minetest.get_meta(pos)
-	local firing = meta:get_int("firing")
-
-	--check if wet, falls to bits and thats it for your pot
-	if climate.get_rain(pos) or minetest.find_node_near(pos, 1, {"group:water"}) then
-		minetest.set_node(pos, {name = 'nodes_nature:clay'})
-		return false
-	end
-
-	--exchange accumulated heat
-	climate.heat_transfer(pos, selfname)
-
-	--check if above firing temp
-	local temp = climate.get_point_temp(pos)
-	local fire_temp = 850
-
-	if firing <= 0 then
-		--finished firing
-		minetest.swap_node(pos, {name = name})
-		return false
-	elseif temp < fire_temp then
-		if firing < length and temp < fire_temp/2 then
-			--firing began but is now interupted
-			--causes firing to fail
-			minetest.swap_node(pos, {name = "tech:broken_pottery"})
-			return false
-		else
-			--no fire lit yet
-			return true
-		end
-	elseif temp >= fire_temp then
-		--do firing
-		meta:set_int("firing", firing - 1)
-		return true
-	end
-
-end
-
-
 
 minetest.register_node('tech:loose_brick_unfired', {
 	description = S('Loose Bricks (unfired)'),
@@ -385,10 +335,11 @@ minetest.register_node('tech:loose_brick_unfired', {
 	sounds = nodes_nature.node_sound_stone_defaults(),
   on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
-		set_firing(pos, 40, 10)
+		ncrafting.set_firing(pos, 40, 10)
 	end,
 	on_timer = function(pos, elapsed)
-		return fire_pottery(pos, 'tech:loose_brick_unfired', 'tech:loose_brick', 40)
+	   return ncrafting.fire_pottery(pos, 'tech:loose_brick_unfired',
+					 'tech:loose_brick', 40, 850)
 	end,
 })
 
@@ -555,10 +506,11 @@ minetest.register_node("tech:roof_tile_loose_unfired", {
 	sounds = nodes_nature.node_sound_stone_defaults(),
   on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
-		set_firing(pos, 40, 10)
+		ncrafting.set_firing(pos, 40, 10)
 	end,
 	on_timer = function(pos, elapsed)
-		return fire_pottery(pos, 'tech:roof_tile_loose_unfired', 'tech:roof_tile_loose', 40)
+	   return ncrafting.fire_pottery(pos, 'tech:roof_tile_loose_unfired',
+					 'tech:roof_tile_loose', 40, 850)
 	end,
 })
 
