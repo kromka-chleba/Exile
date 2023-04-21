@@ -49,6 +49,57 @@ function ncrafting.particle_smokesmall(pos)
    }
 end
 
+-----------------------------------------------
+-- Roasting functions
+-- Used for basic things like iron that don't
+--  shatter or burn, but can optionally get wet
+
+function ncrafting.set_roast(pos, length, interval)
+	-- and firing count
+	local meta = minetest.get_meta(pos)
+	meta:set_int("roast", length)
+	--check heat interval
+	minetest.get_node_timer(pos):start(interval)
+end
+
+function ncrafting.roast(pos, selfname, name, length, heat, wet_result)
+	local meta = minetest.get_meta(pos)
+	local roast = meta:get_int("roast")
+
+	--check if wet stop
+	if climate.get_rain(pos) or minetest.find_node_near(pos, 1, {"group:water"}) then
+	   if wet_result then
+	      minetest.set_node(pos, {name = wet_result})
+	      return true
+	   else -- nothing happens, just no progress this round
+	      return false
+	   end
+	end
+
+	--exchange accumulated heat
+	climate.heat_transfer(pos, selfname)
+
+	--check if above firing temp
+	local temp = climate.get_point_temp(pos)
+	local fire_temp = heat
+
+	if roast <= 0 then
+	   --finished firing
+	   minetest.set_node(pos, {name = name})
+	   minetest.check_for_falling(pos)
+	   return false
+	elseif temp < fire_temp then
+	   --not lit yet
+	   return true
+	elseif temp >= fire_temp then
+	   --do firing
+	   meta:set_int("roast", roast - 1)
+	   return true
+	end
+end
+
+
+
 
 -----------------------------------------------
 -- Pottery firing functions
