@@ -205,7 +205,7 @@ local potters_probe = function(user, pointed_thing)
 
 
   local meta = minetest.get_meta(pointed_thing.under)
-  local measure = meta:get_int("firing")
+  local measure = meta:get_int("firing") or meta:get_int("roast")
 
   if measure <= 0 then
     minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
