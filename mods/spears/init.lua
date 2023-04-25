@@ -11,7 +11,8 @@ dofile(minetest.get_modpath("spears").."/functions.lua")
 
 dofile(minetest.get_modpath("spears").."/tools.lua")
 
+local log_mods = minetest.settings:get_bool("log_mods")
 
-if minetest.settings:get("log_mods") then
-	minetest.log("action", "spears loaded")
+if minetest.settings:get_bool("log_mods") then
+	minetest.log("action", "[MOD] Spears loaded")
 end
