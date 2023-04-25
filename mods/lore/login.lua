@@ -100,10 +100,16 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 reset_attributes(player) -- All stats back to starting values
 	 doGatewayFX(player)
 	 local pname = player:get_player_name()
-	 minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
-					 "/music/exile_theme.ogg",
-				      to_player = pname
-				    }, play_themesong )
+	 if minimal.mt_required_version(5,4,0) then
+	    minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
+					    "/music/exile_theme.ogg",
+					 to_player = pname
+				       }, play_themesong )
+	 else
+	    minetest.dynamic_add_media(minetest.get_modpath("lore")..
+				       "/music/exile_theme.ogg")
+	    play_themesong(pname)
+	 end
 	 local props = player:get_properties()
 	 props.nametag = "" -- An empty tag defaults to player's name
 	 props.is_visible = true -- Bang! new player appears in the world
