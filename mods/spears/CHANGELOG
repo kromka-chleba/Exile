@@ -1,3 +1,12 @@
+Version 2.4:
+- Functions rewrite, fixed many vector/variable declarations and unknown node handling
+- Added pigiron support
+
+Version 2.3:
+- Updated to Minetest 5.6.0 API
+- Changed receipts to avoid being confused with arrows
+- Various cleansing and fixes
+
 Version 2.2:
 - "Hit detection" based on spearhead position
 - Spears go through buildable_to nodes (snow)
