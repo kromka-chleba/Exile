@@ -287,7 +287,7 @@ minetest.register_tool("artifacts:antiquorium_chisel", {
 	tool_capabilities = {
 		full_punch_interval = 1.0,
 		groupcaps={
-			cracky = {times={[1]=6.5, [2]=5.5, [3]=4.50}, uses=3000, maxlevel=3},
+			cracky = {times={[1]=6.5, [2]=5.5, [3]=4.50}, uses=600, maxlevel=3},
 		},
 		damage_groups = {fleshy = 1},
 	},
