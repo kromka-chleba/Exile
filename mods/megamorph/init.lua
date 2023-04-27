@@ -380,7 +380,7 @@ minetest.after(0, function()
   options['nodes_nature:granite_boulder'] =  { 1, 1, 2 }
   options['nodes_nature:basalt_boulder'] =  { 1, 1, 2 }
   options['nodes_nature:limestone_boulder'] =  { 1, 1, 2 }
-  options['nodes_nature:ironstone_boulder'] =  { 1, 1, 2 }
+  options['nodes_nature:ironstone_boulder'] =  { 1, 2, 2 }
   options['nodes_nature:gravel'] =  { 1, 1, 2 }
   options['nodes_nature:sand'] =  { 1, 1, 2 }
   options['nodes_nature:silt'] =  { 1, 1, 2 }
@@ -480,12 +480,12 @@ minetest.after(0, function()
   options['tech:torch'] =  { 1, 6, nil }
   options['tech:vegetable_oil'] =  { 1, 6, nil }
   options['tech:coarse_fabric'] =  { 1, 6, nil }
-  options['tech:mattress'] =  { 1, 6, 1 }
+  options['tech:mattress'] =  { 1, 12, 1 }
   --options["backpacks:backpack_fabric_bag"] =  { 1, 6, 1 }
 
-  options['artifacts:airboat'] =  { 1, 6, nil }
+  options['artifacts:airboat'] =  { 1, 8, nil }
   options['artifacts:mapping_kit'] =  { 1, 6, nil }
-  options['artifacts:antiquorium_chisel'] =  { 1, 6, nil }
+  options['artifacts:antiquorium_chisel'] =  { 1, 8, nil }
 
   options['artifacts:transporter_key'] =  { 1, 6, nil }
   options['artifacts:transporter_regulator'] =  { 1, 6, nil }
@@ -504,7 +504,7 @@ minetest.after(0, function()
   options['artifacts:sculpture_g_arch_trickster'] =  { 1, 6, nil }
   options['artifacts:sculpture_g_arch_mother'] =  { 1, 6, nil }
 
-  options['artifacts:metastim'] =  { 1, 6, nil }
+  options['artifacts:metastim'] =  { 1, 8, nil }
 
 
 	for name, d in pairs(options) do
