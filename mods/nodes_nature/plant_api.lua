@@ -26,31 +26,6 @@ plant_base_timer = 40
 seed_growing_time = 40
 
 ---------------------------
--- Save/restore seedling timers on dig/place
---
-local on_dig_seedling = function(pos, node, digger)
-    if not digger then return false end
-    if minetest.is_protected(pos, digger:get_player_name()) then
-        return false
-    end
-    local new_stack = ItemStack(node.name)
-    minetest.remove_node(pos)
-    local player_inv = digger:get_inventory()
-    local chance = 1
-    if minetest.get_item_group(node.name, "seedling") > 0 and
-        minetest.get_item_group(node.name, "fibrous_plant") > 0 then
-        chance = minetest.get_item_group(node.name, "seedling") / 10
-    end
-    if math.random() <= chance then
-        if player_inv:room_for_item("main", new_stack) then
-            player_inv:add_item("main", new_stack)
-        else
-            minetest.add_item(pos, new_stack)
-        end
-    end
-end
-
----------------------------
 -- Prevent placing seed anywhere but sediment
 --
 local on_place_plant = function(itemstack, placer, pointed_thing)
@@ -228,6 +203,12 @@ function plant.get_root_name(basename)
     local mod_name = minetest.get_current_modname()
     return mod_name..":"..basename.."_root"
 end
+
+function plant.get_root_texture_name(basename)
+    local mod_name = minetest.get_current_modname()
+    return mod_name.."_"..basename.."_root.png"
+end
+
 
 function plant.get_seedling_name(basename, nr)
     local nr = nr or ""
@@ -522,9 +503,6 @@ function plant.get_seedling_base_props(plant_def)
         on_construct = function(pos)
             plant.start_growing_plant(pos, plant_def.growing_time)
         end,
-        on_dig = function(pos, node, digger)
-            on_dig_seedling(pos, node, digger)
-        end,
     }
     return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
 end
@@ -587,9 +565,6 @@ function plant.get_plantlike_flowering_props(plant_def)
     end
     base.on_construct = function(pos)
         plant.start_growing_plant(pos, plant_def.growing_time)
-    end
-    base.on_dig = function(pos, node, digger)
-        on_dig_seedling(pos, node, digger)
     end
     if plant_def.dye_candidate then
         base.groups.ncrafting_dye_candidate = 1
@@ -865,9 +840,6 @@ function plant.get_seed_base_props(plant_def)
         on_construct = function(pos)
             plant.start_growing_seed(pos)
         end,
-        on_dig = function(pos, node, digger)
-            on_dig_seedling(pos, node, digger)
-        end,
         on_place = function(itemstack, placer, pointed_thing)
             return on_place_plant(itemstack, placer, pointed_thing)
         end,
@@ -882,9 +854,13 @@ function plant.register_seed(plant_def)
 end
 
 function plant.register_root(plant_def)
+    local props = plant.get_seed_base_props(plant_def)
+    props.inventory_image = plant.get_root_texture_name(plant_def.name)
+    props.wield_image = plant.get_root_texture_name(plant_def.name)
+    props.description = S("@1 Root", plant_def.description)
     minetest.register_node(
         plant.get_root_name(plant_def.name),
-        plant.get_seed_base_props(plant_def))
+        props)
 end
 
 function plant.register_fuel(plant_def)

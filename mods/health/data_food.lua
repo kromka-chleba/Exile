@@ -21,6 +21,8 @@ food_table = {
 	["tech:maraka_bread_cooked"]        = { 0,  0,  24, 14,  0 },
 	["tech:maraka_bread_burned"]        = { 0,  0,  12,  7,  0 },
 	["tech:peeled_anperla_cooked"]      = { 0,  2,  12,  7,  0 },
+        ["nodes_nature:rzepicha_root"]      = { 0,  4,  35,  5,  0 },
+        ["nodes_nature:rzepicha_root_winter"]      = { 0,  4,  35,  5,  0 },
 	--example: burned anperla tubers are inedible, so no entry
 	["tech:mashed_anperla_cooked"]      = { 0, 12,  72, 42,  0 },
 	["tech:mashed_anperla_burned"]      = { 0,  6,  36, 21,  0 },
@@ -147,6 +149,8 @@ food_harm_table = {
         ["nodes_nature:momo_fruitless"]  = { { "Food Poisoning",      0.001, 1} },
         ["nodes_nature:momo_flowering"]  = { { "Food Poisoning",      0.400, 1},
             { "Hepatotoxicity", 0.3, math.floor(math.random(1,2)) }},
+        ["nodes_nature:rzepicha_root"]     = { { "Food Poisoning",      0.001, 1} },
+        ["nodes_nature:rzepicha_root_winter"]     = { { "Food Poisoning",      0.001, 1} },
 
         --fruit
         ["nodes_nature:wrotycz_fruit"]   = { { "Food Poisoning",      0.100, 1},

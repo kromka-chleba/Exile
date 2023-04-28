@@ -94,6 +94,14 @@ local plant_list = {
      winter_fruit = false, seasonal_type = "tuber",
      fruit = true, roots = 8},
 
+    {name = "rzepicha", description = S("Rzepicha"),
+     plant_type = "herbaceous_plant", waving = true,
+     drawtype = "plantlike", mesh_type = 0,
+     growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "green",
+     winter_fruit = false, seasonal_type = "tuber",
+     fruit = true},
+
     {name = "hakimi", description = S("Hakimi"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
@@ -331,7 +339,6 @@ minetest.override_item(
         groups = {snappy = 3, attached_node = 1, flammable = 3, mushroom = 1, temp_pass = 1, bioluminescent= 1}
 })
 
-
 -- tuber
 minetest.override_item(
     "nodes_nature:anperla_root",{
@@ -350,6 +357,49 @@ minetest.override_item(
         stack_max = minimal.stack_max_medium,
         walkable = true,
 })
+
+minetest.register_craftitem(
+    "nodes_nature:rzepicha_root",
+    {
+        description = S("Rzepicha root"),
+        inventory_image = "nodes_nature_rzepicha_root.png",
+        wield_image = "nodes_nature_rzepicha_root.png",
+        groups = {},
+    }
+)
+
+minetest.register_craftitem(
+    "nodes_nature:rzepicha_root_winter",
+    {
+        description = S("Rzepicha root"),
+        inventory_image = "nodes_nature_rzepicha_root_winter.png",
+        wield_image = "nodes_nature_rzepicha_root_winter.png",
+        groups = {},
+    }
+)
+
+exile_add_food_hooks("nodes_nature:rzepicha_root")
+exile_add_food_hooks("nodes_nature:rzepicha_root_winter")
+
+minetest.override_item(
+    "nodes_nature:rzepicha_fruitless",
+    {drop = "nodes_nature:rzepicha_root"}
+)
+
+minetest.override_item(
+    "nodes_nature:rzepicha_fruiting",
+    {drop = "nodes_nature:rzepicha_root"}
+)
+
+minetest.override_item(
+    "nodes_nature:rzepicha_flowering",
+    {drop = "nodes_nature:rzepicha_root"}
+)
+
+minetest.override_item(
+    "nodes_nature:rzepicha_dead",
+    {drop = "nodes_nature:rzepicha_root_winter"}
+)
 
 --marbhan has a Neurotoxin
 minetest.override_item(
