@@ -230,6 +230,13 @@ local plant_list = {
      dye_candidate = true, dominant_color = "green",
      visual_scale = 1.2, seasonal_type = "whole_season_woody"},
 
+    {name = "badyl", description = S("Badyl"),
+     drawtype = "plantlike", plant_type = "woody_plant",
+     waving = true,
+     mesh_type = 0, growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "red",
+     visual_scale = 1.2, seasonal_type = "whole_season_woody"},
+
     {name = "bronach", description = S("Bronach"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
