@@ -15,6 +15,7 @@ Currently the following meshes are choosable:
 local S = nodes_nature.S
 
 local random = math.random
+seasons = seasons
 ---------------------------------------------------------
 --
 -- Leafdecay
@@ -28,7 +29,7 @@ local function leafdecay_after_destruct(pos, oldnode, def)
 		local node = minetest.get_node(v)
 		local timer = minetest.get_node_timer(v)
 		if node.param2 == 0 and not timer:is_started() then
-			timer:start(math.random(20, 120) / 10)
+			timer:start(random(20, 120) / 10)
 		end
 	end
 end
@@ -50,9 +51,9 @@ local function leafdecay_on_timer(pos, def)
 		if minetest.get_item_group(item, "leafdecay_drop") ~= 0 or
 				not is_leaf then
 			minetest.add_item({
-				x = pos.x - 0.5 + math.random(),
-				y = pos.y - 0.5 + math.random(),
-				z = pos.z - 0.5 + math.random(),
+				x = pos.x - 0.5 + random(),
+				y = pos.y - 0.5 + random(),
+				z = pos.z - 0.5 + random(),
 			}, item)
 		end
 	end
@@ -89,7 +90,7 @@ end
 minetest.register_node(
     "nodes_nature:tree_mark", {
         description = S("Tree Marker"),
-        drawtype = "airlike",
+	drawtype = "airlike",
         paramtype = "light",
         sunlight_propagates = true,
         walkable = false,
@@ -99,38 +100,66 @@ minetest.register_node(
         drop = "",
         groups = {not_in_creative_inventory = 1},
         on_construct = function(pos)
-            
+
         end,
         on_timer = function(pos, elapsed)
-            if seasons.is_winter() then
-                return true
-            end
+
+	    if seasons.is_winter() then
+                 return true
+	    end
+	    local ntimer = minetest.get_node_timer(pos)
+	    local timeout = ntimer:get_timeout()
+	    if timeout > tree_base_tree_growth then -- shorten long timers
+	       ntimer:set(tree_base_fruit_growth / 2 + random(1,1200), 0)
+	    end
             local meta = minetest.get_meta(pos)
             local saved_name = meta:get_string("saved_name")
+	    if saved_name == "" then
+	       minetest.remove_node(pos) -- Tree mark w/no name from schematic
+	       return false
+	    end
             local saved_param2 = meta:get_string("saved_param2")
             local leaf_name = meta:get_string("leaf_name")
             local tree_name = meta:get_string("tree_name")
-
             local positions = minetest.find_nodes_in_area(
                 {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
                 {x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
                 {leaf_name, tree_name})
 
             if #positions == 0 then
-                minetest.remove_node(pos)
+	       local season_nr, season_days = seasons.get_season_and_day()
+	       if season_nr == 1 and season_days < 11 then
+		  return true -- wait until late spring to give up on regrowth
+	       end
+	       minetest.remove_node(pos) -- it's dead, Jim!
             elseif climate.get_rain(pos, 15) or
                 climate.time_since_rain(elapsed) > 0 then
                 --needs rain for growth
-                minetest.set_node(pos, {name = saved_name, param2 = saved_param2})
+	        minetest.set_node(pos, {name = saved_name,
+				       param2 = saved_param2})
             else
 		     --no rain, so wait, but a shorter time
 		     minetest.get_node_timer(pos):set(
-			tree_base_fruit_growth +
-			math.random(1,1200), 0)
+			tree_base_fruit_growth / 2 +
+			random(1,1200), 0)
                 return true
             end
         end
 })
+
+-- DEBUG: uncomment to make tree marks visible and pointable
+--[[
+   minetest.override_item(
+      "nodes_nature:tree_mark", {
+	 tiles = {"climate_air.png"},
+	 post_effect_color = {a = 5, r = 254, g = 254, b = 254},
+	 color = {a=0, r=254, g = 254, b = 254},
+	 use_texture_alpha = "blend",
+	 drawtype = "allfaces",
+	 pointable = true
+   })
+end
+]]--
 
 ---------------------------------------------------------
 
@@ -166,7 +195,8 @@ for i in ipairs(tree_list) do
 	local flamesusceptibility = hardness * 2
 
 	if not selbox_fruit then
-		selbox_fruit = {-3 / 16, -7 / 16, -3 / 16, 3 / 16, 4 / 16, 3 / 16}
+	   selbox_fruit = {-3 / 16, -7 / 16, -3 / 16,
+			   3 / 16, 4 / 16, 3 / 16}
 	end
 
 	local gl = {log = 1, choppy = hardness,
@@ -197,12 +227,16 @@ for i in ipairs(tree_list) do
 		sounds = nodes_nature.node_sound_wood_defaults(),
 		on_place = minetest.rotate_node,
 		after_place_node = function(pos, placer, itemstack)
-			minetest.set_node(pos, {name = "nodes_nature:"..treename.."_tree", param2 = 1 + 128})
+		   minetest.set_node(pos, {name = "nodes_nature:"..
+					      treename.."_tree",
+					   param2 = 1 + 128})
 		end,
 		after_dig_node = function(pos, node)
                     if node.param2 < 128 then
                         save_to_tree_mark(pos, node, treename, true)
-                        minetest.get_node_timer(pos):start(math.random(tree_base_tree_growth/2, tree_base_tree_growth))
+                        minetest.get_node_timer(pos):start(
+			   random(tree_base_tree_growth/2,
+				  tree_base_tree_growth))
                     end
 		end,
 	})
@@ -303,17 +337,28 @@ for i in ipairs(tree_list) do
 		after_destruct = function(pos, node)
                     if node.param2 < 128 then
                         save_to_tree_mark(pos, node, treename, false)
-			local _, day = seasons.get_season_and_day()
-			local remaining = 20 - day
-                        minetest.get_node_timer(pos):start(
-			   math.random(remaining * 1200,
-				       (remaining+5)*1200))
+			local season, day = seasons.get_season_and_day()
+			if season == 4 then
+			   local remaining = 20 - day
+			   minetest.get_node_timer(pos):start(
+			      random(remaining * 1200,
+				     (remaining+5)*1200))
+			else
+			   minetest.log("info", "Node at "..
+					pos.x.."/"..pos.y.."/"..pos.z..
+					" was destroyed outside winter")
+			   minetest.get_node_timer(pos):start(
+			      random(tree_base_leaf_growth/2,
+				     tree_base_leaf_growth))
+			end
                     end
 		end,
                 after_dig_node = function(pos, oldnode, oldmetadata, digger)
                     if oldnode.param2 < 128 then
                         save_to_tree_mark(pos, oldnode, treename, true)
-                        minetest.get_node_timer(pos):start(math.random(tree_base_leaf_growth/2, tree_base_leaf_growth))
+                        minetest.get_node_timer(pos):start(
+			   random(tree_base_leaf_growth/2,
+				  tree_base_leaf_growth))
                     end
                 end,
 	})
@@ -337,21 +382,39 @@ for i in ipairs(tree_list) do
 				type = "fixed",
 				fixed = selbox_fruit
 			},
-			groups = {dig_immediate=3, flammable=2, leafdecay = 3, leafdecay_drop = 1, ncrafting_dye_candidate = dyecandidate, drops_leaves = drops_leaves},
+			groups = {dig_immediate=3, flammable=2, leafdecay = 3,
+				  leafdecay_drop = 1,
+				  ncrafting_dye_candidate = dyecandidate,
+				  drops_leaves = drops_leaves},
 			sounds = nodes_nature.node_sound_defaults(),
 			_ncrafting_dye_dcolor = dominantcolor,
 			after_place_node = function(pos, placer, itemstack)
-				minetest.set_node(pos, {name = "nodes_nature:"..fruitname, param2 = 0 + 128})
+			   minetest.set_node(pos,
+					     {name = "nodes_nature:"..
+						 fruitname, param2 = 0 + 128})
 			end,
 			after_destruct = function(pos, node, oldmetadata, digger)
                             if node.param2 < 128 then
                                 save_to_tree_mark(pos, node, treename, false)
-                            end
+				local season, day = seasons.get_season_and_day()
+				if season == 4 then
+				   local remaining = 20 - day
+				   minetest.get_node_timer(pos):start(
+				      random(remaining * 1200,
+					     (remaining+5)*1200))
+				else
+				   minetest.get_node_timer(pos):start(
+				      random(tree_base_leaf_growth/2,
+					     tree_base_leaf_growth))
+				end
+			    end
 			end,
                         after_dig_node = function(pos, oldnode, oldmetadata, digger)
                             if oldnode.param2 < 128 then
                                 save_to_tree_mark(pos, oldnode, treename, true)
-                                minetest.get_node_timer(pos):start(math.random(tree_base_leaf_growth/2, tree_base_leaf_growth))
+                                minetest.get_node_timer(pos):start(
+				   random(tree_base_fruit_growth/2,
+					  tree_base_fruit_growth))
                             end
                         end,
 		})
