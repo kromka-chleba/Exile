@@ -43,6 +43,26 @@ local wrotycz_soil_prefs =
             density = {min = 4, max = 4},
     })
 
+--[[
+    The best ratio for these plant types should be:
+    1/3 - edible plants, 1/3 - inedible, 1/3 - slightly toxic
+    Inedible means hard/impossible to eat or low nutritional value, e.g. grass
+    Rarely we should have plants that are extremely toxic
+
+    The current state (careful, I counted manually):
+    29.04.2023
+
+    37 total plants and mushrooms
+    12 are edible or are medicines
+    3 are extremely toxic
+    1 is mildly toxic (wrotycz)
+    22 are inedible
+
+    Looks like we need more slightly toxic plants.
+    Also edible plants of low nutritional value.
+--]]
+
+
 local plant_list = {
     -- Herbs
     {name = "wrotycz", description = S("Wrotycz"),
@@ -233,6 +253,13 @@ local plant_list = {
     {name = "badyl", description = S("Badyl"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
+     mesh_type = 0, growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "red",
+     visual_scale = 1.2, seasonal_type = "whole_season_woody"},
+
+    {name = "drapacz", description = S("Drapacz"),
+     drawtype = "plantlike", plant_type = "woody_plant",
+     waving = true, thorns = true, move_resistance = 4,
      mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
      visual_scale = 1.2, seasonal_type = "whole_season_woody"},
