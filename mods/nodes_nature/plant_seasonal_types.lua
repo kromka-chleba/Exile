@@ -97,6 +97,16 @@ seasonal_types = {
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
+    succulent_flowering = {
+        _spring_early = "_fruitless",
+        _spring_late = "_flowering",
+        _summer_early = "_flowering",
+        _summer_late = "_fruiting",
+        _fall_early = "_fruitless",
+        _fall_late = "_fruitless",
+        _winter_early = "_dead",
+        _winter_late = "_dead",
+    },
     tuber = {
         _spring_early = "_seedling5",
         _spring_late = "_flowering",

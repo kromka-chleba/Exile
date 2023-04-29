@@ -174,6 +174,13 @@ local plant_list = {
      seasonal_type = "whole_season",
      visual_scale = 1.5, thorns = true, move_resistance = 4},
 
+    {name = "obesa", description = S("Obesa"),
+     drawtype = "plantlike", plant_type = "herbaceous_plant",
+     mesh_type = 0, growing_time = plant_base_growing_time * 3,
+     dye_candidate = true, dominant_color = "green",
+     seasonal_type = "succulent_flowering", fruit = true,
+     visual_scale = 1.5, thorns = true, move_resistance = 4},
+
     -- Mushrooms
 
     --lambakap. is also a mushroom.
