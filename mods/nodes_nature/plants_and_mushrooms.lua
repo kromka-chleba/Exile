@@ -131,6 +131,13 @@ local plant_list = {
      seasonal_type = "mainly_flower",
      dry_fruit = true},
 
+    {name = "ziarnoplon", description = S("Ziarnoplon"),
+     drawtype = "plantlike", waving = true,
+     plant_type = "herbaceous_plant", mesh_type = 3,
+     growing_time = plant_base_growing_time,
+     dye_candidate = true, dominant_color = "yellow",
+     fruit = true, seasonal_type = "early_flower"},
+
     {name = "orom", description = S("Orom"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,

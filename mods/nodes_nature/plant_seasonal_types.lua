@@ -67,6 +67,16 @@ seasonal_types = {
         _winter_early = "_dead",
         _winter_late = "_seed",
     },
+    early_flower = {
+        _spring_early = "_flowering",
+        _spring_late = "_flowering",
+        _summer_early = "_fruiting",
+        _summer_late = "_fruitless",
+        _fall_early = "_fruitless",
+        _fall_late = "_fruitless",
+        _winter_early = "_dead",
+        _winter_late = "_seed",
+    },
     whole_season = {
         _spring_early = "_seedling5",
         _spring_late = "",
