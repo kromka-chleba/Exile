@@ -313,7 +313,7 @@ for i in ipairs(tree_list) do
 	end
 
         local drops_leaves = 1
-        if treename == "sasaran" then
+        if treename == "sasaran" or treename == "jalowiec" then
             drops_leaves = 0
         end
 
