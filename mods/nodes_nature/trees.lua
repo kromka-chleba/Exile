@@ -453,3 +453,10 @@ minetest.override_item("nodes_nature:kagum_pod",{
  light_source = 2,
  groups = kagum_groups,
 })
+
+minetest.override_item("nodes_nature:jalowiec_leaves", {damage_per_second = 1})
+
+minetest.override_item(
+    "nodes_nature:jalowiec_cone", {
+        wield_image = "nodes_nature_jalowiec_cone_wield.png",
+})

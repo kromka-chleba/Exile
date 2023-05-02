@@ -35,6 +35,7 @@ food_table = {
         ["nodes_nature:wiha_flowering"]     = { 0,  4,   2,  0,  0 },
         ["nodes_nature:wiha_fruiting"]      = { 0,  8,   4,  0,  0 },
         ["nodes_nature:wiha_fruit"]         = { 0,  4,   2,  0,  0 },
+        ["nodes_nature:jalowiec_cone"]      = { 0,  1,   1,  0,  0 },
         ["nodes_nature:ziarnoplon_fruitless"]     = { 0,  3,   1,  0,  0 },
         ["nodes_nature:ziarnoplon_flowering"]     = { 0,  2,   1,  -6,  0 },
         ["nodes_nature:ziarnoplon_fruiting"]      = { 0,  3,   4,  -4,  0 },
