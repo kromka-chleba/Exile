@@ -354,6 +354,11 @@ local plant_list = {
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
+
+    {name = "saguati", description = S("Saguati"),
+     drawtype = "plantlike", plant_type = "bamboo", waving = false,
+     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "green",
+     seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
 }
 
 -- makes all plants in the game
