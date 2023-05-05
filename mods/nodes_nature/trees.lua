@@ -313,7 +313,7 @@ for i in ipairs(tree_list) do
 	end
 
         local drops_leaves = 1
-        if treename == "sasaran" then
+        if treename == "sasaran" or treename == "jalowiec" then
             drops_leaves = 0
         end
 
@@ -452,4 +452,11 @@ kagum_groups.bioluminescent = 1
 minetest.override_item("nodes_nature:kagum_pod",{
  light_source = 2,
  groups = kagum_groups,
+})
+
+minetest.override_item("nodes_nature:jalowiec_leaves", {damage_per_second = 1})
+
+minetest.override_item(
+    "nodes_nature:jalowiec_cone", {
+        wield_image = "nodes_nature_jalowiec_cone_wield.png",
 })

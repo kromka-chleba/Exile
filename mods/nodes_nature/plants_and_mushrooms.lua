@@ -43,6 +43,26 @@ local wrotycz_soil_prefs =
             density = {min = 4, max = 4},
     })
 
+--[[
+    The best ratio for these plant types should be:
+    1/3 - edible plants, 1/3 - inedible, 1/3 - slightly toxic
+    Inedible means hard/impossible to eat or low nutritional value, e.g. grass
+    Rarely we should have plants that are extremely toxic
+
+    The current state (careful, I counted manually):
+    29.04.2023
+
+    37 total plants and mushrooms
+    12 are edible or are medicines
+    3 are extremely toxic
+    1 is mildly toxic (wrotycz)
+    22 are inedible
+
+    Looks like we need more slightly toxic plants.
+    Also edible plants of low nutritional value.
+--]]
+
+
 local plant_list = {
     -- Herbs
     {name = "wrotycz", description = S("Wrotycz"),
@@ -94,6 +114,14 @@ local plant_list = {
      winter_fruit = false, seasonal_type = "tuber",
      fruit = true, roots = 8},
 
+    {name = "rzepicha", description = S("Rzepicha"),
+     plant_type = "herbaceous_plant", waving = true,
+     drawtype = "plantlike", mesh_type = 0,
+     growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "green",
+     winter_fruit = false, seasonal_type = "tuber",
+     fruit = true},
+
     {name = "hakimi", description = S("Hakimi"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
@@ -102,6 +130,13 @@ local plant_list = {
      fruit = true, winter_fruit = true,
      seasonal_type = "mainly_flower",
      dry_fruit = true},
+
+    {name = "ziarnoplon", description = S("Ziarnoplon"),
+     drawtype = "plantlike", waving = true,
+     plant_type = "herbaceous_plant", mesh_type = 3,
+     growing_time = plant_base_growing_time,
+     dye_candidate = true, dominant_color = "yellow",
+     fruit = true, seasonal_type = "early_flower"},
 
     {name = "orom", description = S("Orom"),
      drawtype = "plantlike", mesh_type = 1,
@@ -138,6 +173,20 @@ local plant_list = {
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "long", winter_fruit = false,
      move_resistance = 3, thorns = true},
+
+    {name = "gevaari", description = S("Gevaari"),
+     drawtype = "plantlike", plant_type = "herbaceous_plant",
+     mesh_type = 1, growing_time = plant_base_growing_time * 3,
+     dye_candidate = true, dominant_color = "green",
+     seasonal_type = "whole_season",
+     visual_scale = 1.5, thorns = true, move_resistance = 4},
+
+    {name = "obesa", description = S("Obesa"),
+     drawtype = "plantlike", plant_type = "herbaceous_plant",
+     mesh_type = 0, growing_time = plant_base_growing_time * 3,
+     dye_candidate = true, dominant_color = "green",
+     seasonal_type = "succulent_flowering", fruit = true,
+     visual_scale = 1.5, thorns = true, move_resistance = 4},
 
     -- Mushrooms
 
@@ -213,6 +262,20 @@ local plant_list = {
      waving = true,
      mesh_type = 2, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
+     visual_scale = 1.2, seasonal_type = "whole_season_woody"},
+
+    {name = "badyl", description = S("Badyl"),
+     drawtype = "plantlike", plant_type = "woody_plant",
+     waving = true,
+     mesh_type = 0, growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "red",
+     visual_scale = 1.2, seasonal_type = "whole_season_woody"},
+
+    {name = "drapacz", description = S("Drapacz"),
+     drawtype = "plantlike", plant_type = "woody_plant",
+     waving = true, thorns = true, move_resistance = 4,
+     mesh_type = 0, growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "red",
      visual_scale = 1.2, seasonal_type = "whole_season_woody"},
 
     {name = "bronach", description = S("Bronach"),
@@ -291,6 +354,11 @@ local plant_list = {
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
+
+    {name = "saguati", description = S("Saguati"),
+     drawtype = "plantlike", plant_type = "bamboo", waving = false,
+     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "green",
+     seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
 }
 
 -- makes all plants in the game
@@ -324,7 +392,6 @@ minetest.override_item(
         groups = {snappy = 3, attached_node = 1, flammable = 3, mushroom = 1, temp_pass = 1, bioluminescent= 1}
 })
 
-
 -- tuber
 minetest.override_item(
     "nodes_nature:anperla_root",{
@@ -343,6 +410,49 @@ minetest.override_item(
         stack_max = minimal.stack_max_medium,
         walkable = true,
 })
+
+minetest.register_craftitem(
+    "nodes_nature:rzepicha_root",
+    {
+        description = S("Rzepicha root"),
+        inventory_image = "nodes_nature_rzepicha_root.png",
+        wield_image = "nodes_nature_rzepicha_root.png",
+        groups = {},
+    }
+)
+
+minetest.register_craftitem(
+    "nodes_nature:rzepicha_root_winter",
+    {
+        description = S("Rzepicha root"),
+        inventory_image = "nodes_nature_rzepicha_root_winter.png",
+        wield_image = "nodes_nature_rzepicha_root_winter.png",
+        groups = {},
+    }
+)
+
+exile_add_food_hooks("nodes_nature:rzepicha_root")
+exile_add_food_hooks("nodes_nature:rzepicha_root_winter")
+
+minetest.override_item(
+    "nodes_nature:rzepicha_fruitless",
+    {drop = "nodes_nature:rzepicha_root"}
+)
+
+minetest.override_item(
+    "nodes_nature:rzepicha_fruiting",
+    {drop = "nodes_nature:rzepicha_root"}
+)
+
+minetest.override_item(
+    "nodes_nature:rzepicha_flowering",
+    {drop = "nodes_nature:rzepicha_root"}
+)
+
+minetest.override_item(
+    "nodes_nature:rzepicha_dead",
+    {drop = "nodes_nature:rzepicha_root_winter"}
+)
 
 --marbhan has a Neurotoxin
 minetest.override_item(
