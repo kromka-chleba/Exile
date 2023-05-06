@@ -178,8 +178,7 @@ local plant_list = {
      drawtype = "plantlike", plant_type = "herbaceous_plant",
      mesh_type = 1, growing_time = plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "green",
-     seasonal_type = "whole_season",
-     texture_scale = 1.2, thorns = true, move_resistance = 4},
+     seasonal_type = "whole_season", thorns = true, move_resistance = 4},
 
     {name = "obesa", description = S("Obesa"),
      drawtype = "plantlike", plant_type = "herbaceous_plant",
@@ -269,11 +268,11 @@ local plant_list = {
      waving = true,
      mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
-     texture_scale = 1.5, seasonal_type = "whole_season_woody"},
+     texture_scale = 1, seasonal_type = "whole_season_woody"},
 
     {name = "drapacz", description = S("Drapacz"),
      drawtype = "plantlike", plant_type = "woody_plant",
-     waving = true, thorns = true, move_resistance = 4,
+     waving = false, thorns = true, move_resistance = 4,
      mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
      texture_scale = 1.2, seasonal_type = "whole_season_woody"},
