@@ -179,14 +179,14 @@ local plant_list = {
      mesh_type = 1, growing_time = plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "whole_season",
-     visual_scale = 1.5, thorns = true, move_resistance = 4},
+     texture_scale = 1.2, thorns = true, move_resistance = 4},
 
     {name = "obesa", description = S("Obesa"),
      drawtype = "plantlike", plant_type = "herbaceous_plant",
      mesh_type = 0, growing_time = plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "succulent_flowering", fruit = true,
-     visual_scale = 1.5, thorns = true, move_resistance = 4},
+     texture_scale = 1.2, thorns = true, move_resistance = 4},
 
     -- Mushrooms
 
@@ -249,7 +249,7 @@ local plant_list = {
      drawtype = "plantlike", plant_type = "woody_plant",
      mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
-     visual_scale = 1.2, thorns = true, move_resistance = 4},
+     texture_scale = 1.2, thorns = true, move_resistance = 4},
 
     {name = "jogalan", description = S("Jogalan"),
      drawtype = "plantlike", plant_type = "woody_plant",
@@ -262,28 +262,28 @@ local plant_list = {
      waving = true,
      mesh_type = 2, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
-     visual_scale = 1.2, seasonal_type = "whole_season_woody"},
+     texture_scale = 1.2, seasonal_type = "whole_season_woody"},
 
     {name = "badyl", description = S("Badyl"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
      mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
-     visual_scale = 1.2, seasonal_type = "whole_season_woody"},
+     texture_scale = 1.5, seasonal_type = "whole_season_woody"},
 
     {name = "drapacz", description = S("Drapacz"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true, thorns = true, move_resistance = 4,
      mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
-     visual_scale = 1.2, seasonal_type = "whole_season_woody"},
+     texture_scale = 1.2, seasonal_type = "whole_season_woody"},
 
     {name = "bronach", description = S("Bronach"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
      mesh_type = 3, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "crimson",
-     visual_scale = 1.5, seasonal_type = "whole_season_woody"},
+     texture_scale = 1.2, seasonal_type = "whole_season_woody"},
     
     -- Grasses
     {name = "sari", description = S("Sari"),
