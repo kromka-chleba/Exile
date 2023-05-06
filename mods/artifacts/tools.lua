@@ -49,13 +49,14 @@ local function init_probe(user, pointed_thing)
 
   local under = minetest.get_node(pointed_thing.under)
   local node_name = under.name
+  local param2 = under.param2
   local nodedef = minetest.registered_nodes[node_name]
   if not nodedef then
     return
   end
   local name = user:get_player_name()
   local meta = minetest.get_meta(pointed_thing.under)
-  return  name, meta, node_name, nodedef
+  return  name, meta, node_name, nodedef, param2
 end
 
 
@@ -246,26 +247,70 @@ minetest.register_craftitem("artifacts:chefs_probe", {
 
 local farmers_probe = function(user, pointed_thing)
 
-  local name, meta = init_probe(user, pointed_thing)
+  local name, meta, node_name, nodedef, param2 = init_probe(user, pointed_thing)
   if not name then
      return
   end
 
   local growth = meta:get_int("growth")
   local health = meta:get_int("health")
+  local fertility = nodedef.groups.fertility
 
-  if growth <= 0 then
-    minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
-  else
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "GROWTH UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", growth))
+  local chat_display = function(label, value)
+      minetest.chat_send_player(name, minetest.colorize("#00ff00", label))
+      minetest.chat_send_player(name, minetest.colorize("#cc6600", value))
   end
 
-  if health <= 0 then
-      minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+  local chat_warning = function(msg)
+      minetest.chat_send_player(name, minetest.colorize("#cc6600", msg)) 
+  end
+
+  local check_plant_type = function()
+      if param2 < 64 then
+          chat_display("PLANT TYPE:", "Wild")
+          return "wild"
+      elseif param2 < 128 then
+          chat_display("PLANT TYPE:", "Domesticated")
+          return "dom"
+      else
+          chat_display("PLANT TYPE:", "Half-wild")
+          return "half"
+      end
+  end
+
+  local check_growth = function()
+      if growth <= 0 then
+          chat_warning("PLANT GROWTH NOT MEASURABLE!")
+      else
+          chat_display("GROWTH UNITS REMAINING:", growth)
+      end
+  end
+
+  local check_health = function()
+      if health <= 0 then
+          chat_warning("PLANT HEALTH NOT MEASURABLE!")
+      else
+          chat_display("HEALTH:", health)
+      end
+  end
+
+  if nodedef.groups.flora then
+      local plant_type = check_plant_type()
+      if plant_type == "dom" or plant_type == "half" then
+          check_growth()
+          check_health()
+      end
+  elseif nodedef.groups.sediment and fertility then
+      if nodedef.groups.wet_sediment == 1 then
+          chat_display("STATE:", "wet")
+      elseif nodedef.groups.wet_sediment == 2 then
+          chat_display("STATE:", "salty")
+      else
+          chat_display("STATE:", "dry")
+      end
+      chat_display("FERTILITY:", fertility)
   else
-      minetest.chat_send_player(name, minetest.colorize("#00ff00", "HEALTH:"))
-      minetest.chat_send_player(name, minetest.colorize("#cc6600", health))
+      chat_warning("NOT MEASURABLE: NEEDS A PLANT OR SOIL")
   end
 
 end
