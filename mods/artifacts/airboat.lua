@@ -61,7 +61,8 @@ function airboat.attach (self, player, pname)
 			{x = 0, y = 0, z = 0})
    end)
    minetest.sound_play("artifacts_airboat_gear",
-		       {pos = self.pos, gain = 1, max_hear_distance = 6})
+		       {pos = self.object:get_pos().pos, gain = 1,
+			max_hear_distance = 6})
    player:set_look_horizontal(self.object:get_yaw())
 end
 
