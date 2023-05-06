@@ -13,9 +13,9 @@ local legacy_station_recipes = false
 
 -- Crafting tabs for the inventory
 crafting.make_global_inventory_tab("survival:crafting", S("Crafting"), "hand", {creative = false})
--- crafting.make_global_inventory_tab("survival:pottery", S("Pottery"), "hand_pottery", {creative = false})
--- crafting.make_global_inventory_tab("survival:wattle", S("Wattle"), "hand_wattle", {creative = false})
--- crafting.make_global_inventory_tab("survival:mixing", S("Mixing"), "hand_mixing", {creative = false})
+crafting.make_global_inventory_tab("survival:pottery", S("Pottery"), "hand_pottery", {creative = false})
+crafting.make_global_inventory_tab("survival:wattle", S("Wattle"), "hand_wattle", {creative = false})
+crafting.make_global_inventory_tab("survival:mixing", S("Mixing"), "hand_mixing", {creative = false})
 
 --Register
 --some crafts are more convienently registered at the same time as the resource,
