@@ -572,6 +572,24 @@ function plant.get_plantlike_flowering_props(plant_def)
     return table.copy(base)
 end
 
+local function fruiting_on_punch(pos, node, puncher, pointed_thing)
+    local node_name = minetest.get_node(pos).name
+    local nodedef = minetest.registered_nodes[node_name]
+    if nodedef._fruitless_name then
+        minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
+    end
+    if node.param2 < 64 then
+        plant.set_to_half_wild(pos)
+    end
+    local inv = puncher:get_inventory()
+    local new_stack = ItemStack(nodedef._fruit_name)
+    if inv:room_for_item("main", new_stack) then
+        inv:add_item("main", new_stack)
+    else
+        minetest.add_item(pos, new_stack)
+    end
+end
+
 function plant.get_plantlike_fruiting_props(plant_def)
     local base = plant.get_plantlike_flowering_props(plant_def)
     base.description = S("Fruiting @1", plant_def.description)
@@ -583,23 +601,7 @@ function plant.get_plantlike_fruiting_props(plant_def)
     base.groups.flowering_plant = nil
     base.groups.ncrafting_dye_candidate = nil
     base.wield_image = plant.get_fruiting_texture_name(plant_def.name)
-    base.on_punch = function(pos, node, puncher, pointed_thing)
-        local node_name = minetest.get_node(pos).name
-        local nodedef = minetest.registered_nodes[node_name]
-        if nodedef._fruitless_name then
-            minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
-        end
-        if node.param2 < 64 then
-            plant.set_to_half_wild(pos)
-        end
-        local inv = puncher:get_inventory()
-        local new_stack = ItemStack(nodedef._fruit_name)
-        if inv:room_for_item("main", new_stack) then
-            inv:add_item("main", new_stack)
-        else
-            minetest.add_item(pos, new_stack)
-        end
-    end
+    base.on_punch = fruiting_on_punch
     return table.copy(base)
 end
 
@@ -652,23 +654,7 @@ function plant.get_plantlike_dead_props(plant_def)
         base.description = S("Dead Fruiting @1", plant_def.description)
         base._fruitless_name = plant.get_dead_fruitless_name(plant_def.name)
         base._fruit_name = plant.get_fruit_name(plant_def.name)
-        base.on_punch = function(pos, node, puncher, pointed_thing)
-            local node_name = minetest.get_node(pos).name
-            local nodedef = minetest.registered_nodes[node_name]
-            if nodedef._fruitless_name then
-                local p2 = nodedef.place_param2
-                minetest.remove_node(pos)
-                minetest.place_node(pos, {name = nodedef._fruitless_name,
-                                          param2 = p2})
-            end
-            local inv = puncher:get_inventory()
-            local new_stack = ItemStack(nodedef._fruit_name)
-            if inv:room_for_item("main", new_stack) then
-                inv:add_item("main", new_stack)
-            else
-                minetest.add_item(pos, new_stack)
-            end
-        end
+        base.on_punch = fruiting_on_punch
     end
     return table.copy(base)
 end
