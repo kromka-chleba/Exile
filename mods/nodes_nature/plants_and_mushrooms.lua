@@ -109,7 +109,7 @@ local plant_list = {
     {name = "anperla", description = S("Anperla"),
      plant_type = "herbaceous_plant", waving = true,
      drawtype = "plantlike", mesh_type = 3,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "green",
      winter_fruit = false, seasonal_type = "tuber",
      fruit = true, roots = 8},
@@ -134,7 +134,7 @@ local plant_list = {
     {name = "ziarnoplon", description = S("Ziarnoplon"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
-     growing_time = plant_base_growing_time,
+     growing_time = plant_base_growing_time * 0.4,
      dye_candidate = true, dominant_color = "yellow",
      fruit = true, seasonal_type = "early_flower"},
 
@@ -161,28 +161,28 @@ local plant_list = {
     {name = "malina", description = S("Malina"),
      drawtype = "plantlike", mesh_type = 3,
      plant_type = "woody_plant", waving = true,
-     growing_time = plant_base_growing_time * 1.2,
+     growing_time = plant_base_growing_time * 2.5,
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "long", winter_fruit = false,
      move_resistance = 3, thorns = true},
 
     {name = "yellow_malina", description = S("Malina"),
-     drawtype = "plantlike", mesh_type = 3,
+     drawtype = "plantlike", mesh_type = 2,
      plant_type = "woody_plant", waving = true,
-     growing_time = plant_base_growing_time * 1.2,
+     growing_time = plant_base_growing_time * 2.5,
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "long", winter_fruit = false,
      move_resistance = 3, thorns = true},
 
     {name = "gevaari", description = S("Gevaari"),
      drawtype = "plantlike", plant_type = "herbaceous_plant",
-     mesh_type = 1, growing_time = plant_base_growing_time * 3,
+     mesh_type = 1, growing_time = plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "whole_season", thorns = true, move_resistance = 4},
 
     {name = "obesa", description = S("Obesa"),
      drawtype = "plantlike", plant_type = "herbaceous_plant",
-     mesh_type = 0, growing_time = plant_base_growing_time * 3,
+     mesh_type = 0, growing_time = plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "succulent_flowering", fruit = true,
      texture_scale = 1.2, thorns = true, move_resistance = 4},
@@ -246,7 +246,7 @@ local plant_list = {
     -- Woody
     {name = "tsaplop", description = S("Tsaplop"),
      drawtype = "plantlike", plant_type = "woody_plant",
-     mesh_type = 0, growing_time = plant_base_growing_time * 2,
+     mesh_type = 0, growing_time = plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "green",
      texture_scale = 1.2, thorns = true, move_resistance = 4},
 
@@ -273,7 +273,7 @@ local plant_list = {
     {name = "drapacz", description = S("Drapacz"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = false, thorns = true, move_resistance = 4,
-     mesh_type = 0, growing_time = plant_base_growing_time * 2,
+     mesh_type = 0, growing_time = plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "red",
      texture_scale = 1.2, seasonal_type = "whole_season_woody"},
 
@@ -356,7 +356,7 @@ local plant_list = {
 
     {name = "saguati", description = S("Saguati"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
-     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "green",
+     growing_time = plant_base_growing_time * 4, dye_candidate = true, dominant_color = "green",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
 }
 
