@@ -294,7 +294,7 @@ local farmers_probe = function(user, pointed_thing)
       end
   end
 
-  if nodedef.groups.flora then
+  if nodedef.groups.flora or nodedef.groups.mushroom then
       local plant_type = check_plant_type()
       if plant_type == "dom" or plant_type == "half" then
           check_growth()
