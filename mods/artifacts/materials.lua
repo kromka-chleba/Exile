@@ -163,23 +163,24 @@ minetest.register_node("artifacts:antiquorium", {
 
 minetest.register_node("artifacts:antiquorium_ladder", {
 	description = "Antiquorium Ladder",
-	drawtype = "signlike",
+	drawtype = "nodebox",
 	stack_max = minimal.stack_max_medium,
-	tiles = {"artifacts_antiquorium_ladder.png"},
+	tiles = {
+	   "artifacts_antiquorium_ladder.png",
+	   "artifacts_antiquorium_ladder.png^[colorize:#505050",
+	},
 	inventory_image = "artifacts_antiquorium_ladder.png",
 	wield_image = "artifacts_antiquorium_ladder.png",
 	paramtype = "light",
 	paramtype2 = "wallmounted",
 	sunlight_propagates = true,
-	walkable = false,
+	walkable = true,
 	climbable = true,
 	is_ground_content = false,
-	selection_box = {
-		type = "wallmounted",
-		--wall_top = = <default>
-		--wall_bottom = = <default>
-		wall_side = {-0.5,-0.4,-0.4,-0.4,0.4,0.4},
-		--wall_side = = <default>
+	node_box = {
+	        type = "fixed",
+	        fixed = {-0.4,-0.5, -0.5,
+			  0.4,-0.48,  0.5},
 	},
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	groups = {cracky = 2},
