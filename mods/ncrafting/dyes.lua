@@ -214,6 +214,8 @@ local function bundlename(meta, plant, treatment)
    end
    if minetest.registered_items[plant] then
       fmt_plant = "of "..minetest.registered_items[plant].description
+   else
+      minetest.log("error","NCRAFTING: Bundle could not get name of plant: ",plant)
    end
    if treatment and treatment ~= "" then
       fmt_treatment = ", "..methodstring[treatment]
