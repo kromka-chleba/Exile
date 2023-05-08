@@ -75,12 +75,14 @@ local base_groups = {
         flammable = 2,
         dig_immediate = 3,
         falling_node = 1,
+        temp_pass = 1,
     },
     spore = {
         seed = 1,
         snappy = 3,
         flammable = 3,
-        dig_immediate = 2
+        dig_immediate = 2,
+        temp_pass = 1,
     },
     seedling = {
         snappy = 3,
@@ -89,6 +91,7 @@ local base_groups = {
         flammable = 2,
         seedling = 1,
         not_in_creative_inventory = 1,
+        temp_pass = 1,
     },
 }
 
