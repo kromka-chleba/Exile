@@ -104,7 +104,47 @@ local function sfinv_get(self, player, context)
     bio = lore.generate_bio(player)
   end
 
-  local y = 3.1
+--generate traits
+  local traits = "\n "
+  if lives <= 2 then
+    traits = traits..'Newborn. '
+  elseif lives <= 3 then
+    traits = traits..'Resilient. '
+  elseif lives <= 5 then
+    traits = traits..'Phoenix. '
+  elseif lives <= 10 then
+    traits = traits..'Old Soul. '
+  elseif lives <= 20 then
+    traits = traits..'Reincarnated. '
+  elseif lives <= 30 then
+    traits = traits..'Immortal. '
+  elseif lives <= 50 then
+    traits = traits..'Eternal. '
+  else
+    traits = traits..'Transcendent. '
+  end
+
+  if days >= 3 and days <= 7 then
+    traits = traits..'Novice Outdoorsman. '
+  elseif days <= 12 then
+    traits = traits..'Beginner Forager. '
+  elseif days <= 20 then
+    traits = traits..'Intermediate Scavenger. '
+  elseif days <= 10 then
+    traits = traits..'Advanced Survivor. '
+  elseif days <= 80 then
+    traits = traits..'Wilderness Expert. '
+  elseif days <= 160 then
+    traits = traits..'Master Survivalist. '
+  elseif days <= 400 then
+    traits = traits..'Seasoned Explorer. '
+  elseif days <= 800 then
+    traits = traits..'Elite Bushcrafter. '
+  else
+    traits = traits..'Legendary Adventurer. '
+  end
+
+  local y = 4.1
   local eff_form = ""
 
 
@@ -132,7 +172,8 @@ local function sfinv_get(self, player, context)
 	"label[4,0.1; Days Survived: " .. days .. "]"..
 	"label[4,0.6; Lives: " .. lives .. "]"..
   "label[0.1,1.1; Biography: " .. bio .. "]"..
-  "label[0.1,3.1; Health Effects:]"..
+  "label[0.1,3.1; Traits: " .. traits .. "]"..
+  "label[0.1,4.1; Health Effects:]"..
   eff_form
 
 
