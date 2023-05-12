@@ -151,7 +151,58 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 
 end
 
+--Function for filled buckets to call on_use... as return (so gives item)
+function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user, pointed_thing)
+	-- Must be pointing to node
+	if pointed_thing.type ~= "node" then
+		return
+	end
 
+	local node = minetest.get_node_or_nil(pointed_thing.under)
+	local ndef = node and minetest.registered_nodes[node.name]
+
+	-- Call on_rightclick if the pointed node defines it
+	if ndef and ndef.on_rightclick and
+			not (user and user:is_player() and
+			user:get_player_control().sneak) then
+		return ndef.on_rightclick(
+			pointed_thing.under,
+			node, user,
+			itemstack)
+	end
+
+	local lpos
+	local stored = find_stored(node.name, source)
+	-- Check if pointing to a buildable node
+	if ( ndef and ndef.buildable_to ) or stored then
+		-- buildable; replace or fill the node
+		lpos = pointed_thing.under
+	else
+		-- not buildable to; place the liquid above
+		-- check if the node above can be replaced
+
+		lpos = pointed_thing.above
+		node = minetest.get_node_or_nil(lpos)
+		local above_ndef = node and minetest.registered_nodes[node.name]
+
+		if not above_ndef or not above_ndef.buildable_to then
+			-- do not remove the bucket with the liquid
+			return itemstack
+		end
+	end
+	if check_protection(lpos, user
+			and user:get_player_name()
+			or "", "place "..source) then
+		return
+	end
+	if stored then -- Dump contents into liquid store
+	   minimal.switch_node(lpos, {name = stored})
+	   return handle_stacks(user, itemstack, nodename_empty)
+	end
+
+	minetest.set_node(lpos, {name = source})
+	return handle_stacks(user, itemstack, nodename_empty)
+end
 
 
 -- Register a new stored liquid...
@@ -188,56 +239,8 @@ function liquid_store.register_stored_liquid(source, nodename, nodename_empty, t
 			groups = groups,
 			sounds = nodes_nature.node_sound_defaults(),
 
-			on_use = function(itemstack, user, pointed_thing)
-				-- Must be pointing to node
-				if pointed_thing.type ~= "node" then
-					return
-				end
-
-				local node = minetest.get_node_or_nil(pointed_thing.under)
-				local ndef = node and minetest.registered_nodes[node.name]
-
-				-- Call on_rightclick if the pointed node defines it
-				if ndef and ndef.on_rightclick and
-						not (user and user:is_player() and
-						user:get_player_control().sneak) then
-					return ndef.on_rightclick(
-						pointed_thing.under,
-						node, user,
-						itemstack)
-				end
-
-				local lpos
-				local stored = find_stored(node.name, source)
-				-- Check if pointing to a buildable node
-				if ( ndef and ndef.buildable_to ) or stored then
-					-- buildable; replace or fill the node
-					lpos = pointed_thing.under
-				else
-					-- not buildable to; place the liquid above
-					-- check if the node above can be replaced
-
-					lpos = pointed_thing.above
-					node = minetest.get_node_or_nil(lpos)
-					local above_ndef = node and minetest.registered_nodes[node.name]
-
-					if not above_ndef or not above_ndef.buildable_to then
-						-- do not remove the bucket with the liquid
-						return itemstack
-					end
-				end
-				if check_protection(lpos, user
-						and user:get_player_name()
-						or "", "place "..source) then
-					return
-				end
-				if stored then -- Dump contents into liquid store
-				   minimal.switch_node(lpos, {name = stored})
-				   return handle_stacks(user, itemstack, nodename_empty)
-				end
-
-				minetest.set_node(lpos, {name = source})
-				return handle_stacks(user, itemstack, nodename_empty)
+			on_use = function(...)
+				return liquid_store.on_use_filled_bucket(source,nodename_empty,...)
 			end,
 		})
 
