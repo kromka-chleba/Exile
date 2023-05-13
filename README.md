@@ -13,7 +13,8 @@ If extracting manually, _Exile_ should be placed in the `games` folder of your u
 
 Where `Minetest` is `~/.minetest` in most Linux, and macOS configurations, `~/.var/app/net.minetest.Minetest/.minetest` in Linux Flatpak, and `%USERHOME%\Roaming\Minetest` in most Windows versions.
 
-Since `0.2.3`, _Exile_ requires `naturalslopeslib` (`nsl`). If you’re installing the source from `git`, you’ll need to install `nsl` as well. Extract it into the `./Exile/mods/` folder or use `git pull --recurse submodules` if you have cloned the repository.
+Since `0.2.3`, _Exile_ requires `naturalslopeslib` (`nsl`). If you’re installing the source from `git`, you’ll need to install `nsl` as well. Extract it into the `./Exile/mods/` folder.
+you can use `git submodule init` and `git submodule update` if you have cloned the repository.
 
 ## Gameplay
 Challenging, at times brutal, wilderness survival with simple technology.
