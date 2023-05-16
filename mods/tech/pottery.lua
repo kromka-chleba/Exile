@@ -387,6 +387,94 @@ minetest.register_node("tech:clay_oil_lamp", {
         end,
 })
 
+--------------------------------------
+--Watering Can
+
+local watering_can_nodebox = {
+	-- lid
+	{-0.2, 0.2,-0.2, 0.2, 0.3, 0.2},
+	-- handle
+    {-0.05, 0.05, -0.25, 0.05, 0.15, -0.45}, -- upper
+    {-0.05, -0.1, -0.35, 0.05, 0.05, -0.45}, -- mid
+    {-0.05, -0.2, -0.25, 0.05, -0.1, -0.45}, -- low
+    -- spout
+    {-0.1, 0.1, 0.25, 0.1, 0.2, 0.5}, -- upper
+    {-0.1, -0.4, 0.25, 0.1, 0.1, 0.4},
+    -- body
+    {-0.25, -0.4, -0.25, 0.25, 0.2, 0.25},
+    -- base
+    {-0.3, -0.5,-0.4, 0.3, -0.35, 0.4},
+}
+
+-- watering can
+-- can turn a block in it's wet variant
+-- fills itselft with rain
+-- acts similar to clay_water_pot
+
+minetest.register_node("tech:clay_watering_can", {
+	description = S("Clay Watering Can"),
+	tiles = {
+		"tech_watering_can_empty.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png"
+	},
+	drawtype = "nodebox",
+	stack_max = minimal.stack_max_bulky,
+	paramtype = "light",
+	node_box = {
+		type = "fixed",
+		fixed = watering_can_nodebox
+	},
+	liquids_pointable = true,
+	groups = {dig_immediate = 3, pottery = 1, temp_pass = 1},
+	sounds = nodes_nature.node_sound_stone_defaults(),
+	on_use = function(itemstack, user, pointed_thing)
+		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
+	end,
+		--collect rain water
+	on_construct = function(pos)
+		minetest.get_node_timer(pos):start(math.random(30,60))
+	end,
+	on_timer =function(pos, elapsed)
+		return water_pot(pos, "tech:clay_watering_can", elapsed)
+	end,
+
+})
+
+--unfired watering can
+minetest.register_node("tech:clay_watering_can_unfired", {
+	description = S("Clay Watering Can (unfired)"),
+	tiles = {
+		"nodes_nature_clay.png",
+		"nodes_nature_clay.png",
+		"nodes_nature_clay.png",
+		"nodes_nature_clay.png",
+		"nodes_nature_clay.png",
+		"nodes_nature_clay.png"
+	},
+	drawtype = "nodebox",
+	stack_max = minimal.stack_max_bulky,
+	paramtype = "light",
+	node_box = {
+		type = "fixed",
+		fixed = watering_can_nodebox
+	},
+	groups = {dig_immediate=3, temp_pass = 1, heatable = 20},
+	sounds = nodes_nature.node_sound_stone_defaults(),
+	on_construct = function(pos)
+		--length(i.e. difficulty of firing), interval for checks (speed)
+		ncrafting.set_firing(pos, base_firing, firing_int)
+	end,
+	on_timer = function(pos, elapsed)
+		--finished product, length
+		return ncrafting.fire_pottery(pos, "tech:clay_watering_can_unfired", "tech:clay_watering_can", base_firing)
+	end,
+})
+
+
 ---------------------------------------
 --Recipes
 
@@ -472,6 +560,23 @@ crafting.register_recipe({
 	always_known = true,
 })
 
+-- clay watering can
+crafting.register_recipe({
+	type = "crafting_spot",
+	output = "tech:clay_watering_can_unfired 1",
+	items = {"nodes_nature:clay_wet 5"},
+	level = 1,
+	always_known = true,
+})
+
+crafting.register_recipe({
+	type = "crafting_spot",
+	output = "nodes_nature:clay 5",
+	items = {"tech:clay_watering_can_unfired 1"},
+	level = 1,
+	always_known = true,
+})
+
 
 -----------------------------------------------
 --Register water stores
@@ -553,4 +658,84 @@ minetest.override_item("tech:clay_water_pot_freshwater",{
 			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
 		end
 	end
+})
+
+--clay watering can with fresh water
+liquid_store.register_stored_liquid(
+	"nodes_nature:freshwater_source",
+	"tech:clay_watering_can_freshwater",
+	"tech:clay_watering_can",
+	{
+		"tech_watering_can_water.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png"
+	},
+	{
+		type = "fixed",
+		fixed = watering_can_nodebox
+	},
+	S("Clay Watering Can with Freshwater"),
+	{dig_immediate = 2})
+--clay watering can with salt water
+liquid_store.register_stored_liquid(
+	"nodes_nature:salt_water_source",
+	"tech:clay_watering_can_salt_water",
+	"tech:clay_watering_can",
+	{
+		"tech_watering_can_water.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png"
+	},
+	{
+		type = "fixed",
+		fixed = watering_can_nodebox
+	},
+	S("Clay Watering Can with Salt Water"),
+	{dig_immediate = 2})
+
+-- add water to a node with the watering can
+local function water_soil(itemstack, user, pointed_thing, water_source, node_suffix, empty_container)
+	-- if pointed thing is a soil block, water it
+	if pointed_thing.type == "node" then
+		local pos = pointed_thing.under
+		local node = minetest.get_node(pos)
+		if minetest.get_item_group(node.name, "sediment") > 0 then
+			-- check if watered block exists
+			local wet_node_name = node.name .. node_suffix
+			if minetest.registered_nodes[wet_node_name] then
+				-- replace with watered version
+				-- keeping the node orientation
+				minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
+				-- and empty the bucket
+				-- remove clay watering can and return empty one
+				itemstack:take_item()
+				return ItemStack("tech:clay_watering_can")
+			else
+				-- continue as normal
+				return liquid_store.on_use_filled_bucket(water_source, empty_container, itemstack, user, pointed_thing)
+			end
+		end
+	end
+	-- continue as normal
+	return liquid_store.on_use_filled_bucket(water_source, empty_container, itemstack, user, pointed_thing)
+end
+
+--make Watering can able to water a block on click
+minetest.override_item("tech:clay_watering_can_freshwater", {
+	on_use = function(itemstack, user, pointed_thing)
+		return water_soil(itemstack, user, pointed_thing, "nodes_nature:freshwater_source", "_wet","tech:clay_watering_can")
+	end,
+})
+
+--make Watering can able to water a block on click
+minetest.override_item("tech:clay_watering_can_salt_water", {
+	on_use = function(itemstack, user, pointed_thing)
+		return water_soil(itemstack, user, pointed_thing, "nodes_nature:salt_water_source", "_wet_salty","tech:clay_watering_can")
+	end,
 })

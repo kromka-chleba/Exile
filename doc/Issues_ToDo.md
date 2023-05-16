@@ -176,7 +176,6 @@ Urgent Fixes needed:
   - Scythe.
   - A use for broken pottery.
   - Ash crafts (glass).
-  - Watering can (make soil wet).
   - Pottery wheel and more sophisticated glazed pottery.
   - Iron doors (e.g. for furnaces, nonflammable).
   - Automation (via cogs, gears, windmills etc.).
