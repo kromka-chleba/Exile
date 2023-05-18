@@ -422,7 +422,7 @@ minetest.register_privilege("set_weather", {
 minetest.register_chatcommand("set_weather", {
  params = "<weather> or help",
  description = "Set the Climate active weather",
- privs = {privs=true},
+ privs = {set_weather=true},
  func = function(name, param)
     if minetest.check_player_privs(name, {set_weather = true}) then
        --check valid
