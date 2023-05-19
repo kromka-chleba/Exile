@@ -188,7 +188,7 @@ local function pot_cook(pos, elapsed)
 	local status = meta:get_string("status")
 	if status == "finished" then
 		-- Handle burning food here
-	    --TODO: burned: reduce th value of pot_contents, emit more smoke
+	    --TODO: burned: reduce the value of pot_contents, emit more smoke
 	else
 		if kind == "Soup" then -- or kind == "etc"; this only runs if we're cooking
 		      if baking <= 0 then
@@ -256,6 +256,32 @@ local function calc_baking_time(stack)
    return time
 end
 
+-- On dig, ask if the player wants to dump the pot, losing the contents
+local spillitspec = ("formspec_version[3]"..
+		       "size[7,4.5]"..
+		   "bgcolor[;both;#bbb]"..
+		   "hypertext[0.5,0.75;6,2;introtext;"..
+		   S("This pot is full and heavy. Spill it?").."]"..
+		   "button[2,6;2,1;spillit;"..S("Yes").."]"..
+		   "button[4,6;2,1;spillit;"..S("No").."]")
+local SpillPots = {}
+
+minetest.register_on_player_receive_fields(function(player,formname,fields)
+      local playername = player:get_player_name()
+      local potpos = SpillPots[playername]
+      if formname ~= "tech:SpillCookingPot" or potpos == nil then
+	 return
+      end
+      minetest.close_formspec(player:get_player_name(), formname)
+      if fields.spillit == "Yes" then
+	 local pot = minetest.get_node(potpos)
+	 local potmeta = minetest.get_meta(potpos)
+	 potmeta:set_string("type", "")
+	 minetest.node_dig(potpos, pot, player)
+      end
+      SpillPots.playername = ""
+end)
+
 minetest.register_node("tech:cooking_pot", {
 	description = S("Cooking Pot"),
 	tiles = {"tech_pottery.png",
@@ -282,9 +308,13 @@ minetest.register_node("tech:cooking_pot", {
 	on_dig = function(pos, node, digger)
 	   local meta = minetest.get_meta(pos)
 	   local inv = meta:get_inventory()
-	   local ptype = meta:get_string("type")
+	   local pottype = meta:get_string("type")
+	   local playername = digger:get_player_name()
 	   if ( not inv:is_empty("main")
-	      or ptype ~= "") then -- type is empty on uprepared pot
+		or pottype ~= "") then -- type is empty on uprepared pot
+	      minetest.show_formspec(playername,
+				     "tech:SpillCookingPot", spillitspec)
+	      SpillPots[playername] = pos
 	      return false
 	   end
 	   minetest.node_dig(pos, node, digger)
