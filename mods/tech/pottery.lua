@@ -561,7 +561,7 @@ crafting.register_recipe({
 
 -- clay watering can
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_watering_can_unfired 1",
 	items = {"nodes_nature:clay_wet 5"},
 	level = 1,
@@ -569,7 +569,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "nodes_nature:clay 5",
 	items = {"tech:clay_watering_can_unfired 1"},
 	level = 1,
