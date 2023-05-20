@@ -55,6 +55,9 @@ Soup=
 Cooking Pot=
 Cooking Pot (unfired)=
 @1 soup=
+This pot is full and heavy. Spill it?=
+Yes=
+No=
 
 # doors.lua
 Wattle Door=

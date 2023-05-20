@@ -259,11 +259,10 @@ end
 -- On dig, ask if the player wants to dump the pot, losing the contents
 local spillitspec = ("formspec_version[3]"..
 		       "size[7,4.5]"..
-		   "bgcolor[;both;#bbb]"..
 		   "hypertext[0.5,0.75;6,2;introtext;"..
 		   S("This pot is full and heavy. Spill it?").."]"..
-		   "button[2,6;2,1;spillit;"..S("Yes").."]"..
-		   "button[4,6;2,1;spillit;"..S("No").."]")
+		   "button_exit[1,3;2,1;spillit;"..S("Yes").."]"..
+		   "button_exit[4,3;2,1;exit;"..S("No").."]")
 local SpillPots = {}
 
 minetest.register_on_player_receive_fields(function(player,formname,fields)
@@ -272,14 +271,13 @@ minetest.register_on_player_receive_fields(function(player,formname,fields)
       if formname ~= "tech:SpillCookingPot" or potpos == nil then
 	 return
       end
-      minetest.close_formspec(player:get_player_name(), formname)
-      if fields.spillit == "Yes" then
+      if fields.spillit then
 	 local pot = minetest.get_node(potpos)
 	 local potmeta = minetest.get_meta(potpos)
 	 potmeta:set_string("type", "")
 	 minetest.node_dig(potpos, pot, player)
       end
-      SpillPots.playername = ""
+      SpillPots.playername = nil
 end)
 
 minetest.register_node("tech:cooking_pot", {
