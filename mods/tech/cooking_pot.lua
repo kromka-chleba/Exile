@@ -304,10 +304,13 @@ minetest.register_node("tech:cooking_pot", {
 	   return pot_rightclick(...)
 	end,
 	on_dig = function(pos, node, digger)
+	   local playername = digger:get_player_name()
+	   if minetest.is_protected(pos, playername) then
+	      return false
+	   end
 	   local meta = minetest.get_meta(pos)
 	   local inv = meta:get_inventory()
 	   local pottype = meta:get_string("type")
-	   local playername = digger:get_player_name()
 	   if ( not inv:is_empty("main")
 		or pottype ~= "") then -- type is empty on uprepared pot
 	      minetest.show_formspec(playername,
