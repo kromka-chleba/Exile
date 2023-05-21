@@ -277,7 +277,7 @@ minetest.register_on_player_receive_fields(function(player,formname,fields)
 	 potmeta:set_string("type", "")
 	 minetest.node_dig(potpos, pot, player)
       end
-      SpillPots.playername = nil
+      SpillPots[playername] = nil
 end)
 
 minetest.register_node("tech:cooking_pot", {
