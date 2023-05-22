@@ -85,7 +85,10 @@ function eat_ok (itemstack, user, pointed_thing)
 		end
 		single_click[pname] = not eat2x
 	end
-	if ( single_click[pname] ) or minimal.click_count_ready(pname, pt_pos, 2, 2) then
+	if ( single_click[pname] ) or minimal.click_count_ready(pname,
+								"eat2x",
+								pt_pos,
+								2, 2) then
 		return true
 	else
 	minetest.chat_send_player(pname, S("double click to eat"))

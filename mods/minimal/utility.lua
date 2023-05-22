@@ -71,23 +71,23 @@ function minimal.slabs_combine(pos, node, itemstack, swap_node)
 end
 
 local __click_count_ready = {}
-function minimal.click_count_ready(name, pos, count, timeout)
-	-- { playername = { timeout=time() + __timeout, count = __use_count } }
+function minimal.click_count_ready(name, id, pos, count, timeout)
+	-- { playername_id = { timeout=time() + __timeout, count = __use_count } }
 	local timeout = timeout or 2 -- 2 second window for timeout
 	local count = count or 3 -- number of clicks
-	local ready = __click_count_ready[name]
+	local ready = __click_count_ready[name.."_"..id]
 	if ready and ready.pos == pos then
 		ready.count = ready.count + 1
 		if os.time() < ready.timeout then
 			if ready.count >= count then
-				__click_count_ready[name]  = nil
+				__click_count_ready[name.."_"..id]  = nil
 				return true
 			else
 				return false
 			end
 		end
 	end
-	__click_count_ready[name] = {
+	__click_count_ready[name.."_"..id] = {
 		timeout = os.time() + timeout,
 		count = 1,
 		pos = pos,
