@@ -4,6 +4,7 @@
 -- Load support for MT game translation.
 local S = minetest.get_translator("player_api")
 
+player_monoids =  player_monoids
 player_api = {}
 
 -- Player animation blending
@@ -30,6 +31,8 @@ local player_model = {}
 local player_textures = {}
 local player_anim = {}
 local player_sneak = {}
+local player_crawl = {}
+
 player_api.player_attached = {}
 
 function player_api.get_animation(player)
@@ -84,7 +87,7 @@ end
 
 local last_look = {}
 
-local function move_head(player, on_water)
+local function move_head(player, tilt_up)
 	local look_at_dir = player:get_look_dir()
 	local pname = player:get_player_name()
 	local lastlook = last_look[pname]
@@ -102,7 +105,7 @@ local function move_head(player, on_water)
 	local pitch = yaw_to_degrees(math.asin(look_at_dir.y))
 	if pitch > 70 then pitch = 70 end
 	if pitch < -50 then pitch = -50 end
-	if anim_base == "swim" then
+	if tilt_up then
 		pitch = pitch + 70
 	end
 
@@ -114,7 +117,8 @@ local function move_head(player, on_water)
 		head_offset = 6.3
 	end
 	local head_position = {x=0, y=head_offset, z=0}
-	player:set_bone_position("Head", head_position, head_rotation) --set the head movement
+	--set the head movement
+	player:set_bone_position("Head", head_position, head_rotation)
 end
 
 -- Called when a player's appearance needs to be updated
@@ -192,128 +196,205 @@ function minetest.calculate_knockback(player, ...)
 	return old_calculate_knockback(player, ...)
 end
 
+-- Particles for underwater players
+local function bubbles(pl_pos)
+   return {
+      amount = 6,
+      time = 1,
+      minpos = pl_pos,
+      maxpos = pl_pos,
+      minvel = {x=0, y=0, z=0},
+      maxvel = {x=1, y=5, z=1},
+      minacc = {x=0, y=0, z=0},
+      maxacc = {x=1, y=1, z=1},
+      minexptime = 0.2,
+      maxexptime = 1.0,
+      minsize = 1,
+      maxsize = 1.5,
+      collisiondetection = false,
+      vertical = false,
+      texture = "bubble.png",
+   }
+end
+
+local function check_player_surroundings(player, pos)
+   local node_name = minetest.get_node(pos).name
+   local pos_above = {x= pos.x, y= pos.y+1, z= pos.z}
+   local node_name_above = minetest.get_node(pos_above).name
+   local node_above_is_solid = false
+   if minetest.registered_nodes[node_name_above].walkable == true then
+      node_above_is_solid = true
+   end
+   if minetest.registered_nodes[node_name] then
+      if minetest.registered_nodes[node_name]["liquidtype"] == "source" or
+	 minetest.registered_nodes[node_name]["liquidtype"] == "flowing" then
+	 local pos_below = {x= pos.x, y= pos.y-1, z= pos.z}
+	 local node_name_below = minetest.get_node(pos_below).name
+	 if minetest.registered_nodes[node_name_below] and minetest.registered_nodes[node_name_above] then
+	    local node_below_is_liquid
+	    if minetest.registered_nodes[node_name_below]["liquidtype"] == "source" or
+	       minetest.registered_nodes[node_name_below]["liquidtype"] == "flowing" then
+	       node_below_is_liquid = true
+	    else
+		     node_below_is_liquid = false
+	    end
+	    local node_above_is_liquid
+	    if minetest.registered_nodes[node_name_above]["liquidtype"] == "source" or
+	       minetest.registered_nodes[node_name_above]["liquidtype"] == "flowing" then
+	       node_above_is_liquid = true
+	    else
+		     node_above_is_liquid = false
+	    end
+	    local node_above_is_air
+	    if minetest.registered_nodes[node_name_above] == "air" then
+	       node_above_is_air = true
+	    else
+	       node_above_is_air = false
+	    end
+	    if	((node_below_is_liquid) and not(node_above_is_air)) or
+	       (not(node_below_is_liquid) and node_above_is_liquid) then
+	       return true, node_above_is_solid
+	    else
+		     return false, node_above_is_solid
+	    end
+	 else
+	    return true, node_above_is_solid
+	 end
+      else
+	       return false, node_above_is_solid
+      end
+   end
+end
+
+local prop_table = { -- select gender + t/f for crawling eye_height/collision
+   ["male"] = {
+      [true ] = { eye_height = 0.73, collisionbox =
+		     {-0.3, 0.0, -0.3, 0.3, 0.9, 0.3}},
+      [false] = { eye_height = 1.45,  collisionbox =
+		     {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3}} },
+   ["female"] = {
+      [true ] = { eye_height = 0.70, collisionbox =
+		     {-0.3, 0.0, -0.3, 0.3, 0.9, 0.3}},
+      [false] = { eye_height = 1.38, collisionbox =
+		     {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3}} }
+}
+
+local function make_boolean_array_table(count, tablein)
+   if count == 0 then return end
+   if tablein == nil then tablein = {} end
+   tablein[true] = {}
+   tablein[false] = {}
+   make_boolean_array_table(count-1,tablein[true])
+   make_boolean_array_table(count-1,tablein[false])
+   return tablein
+end
+
+local animtable = make_boolean_array_table(4)
+
+--       InWater,Moving,Crawl,UsingTools
+animtable[false][false][false][false] = "stand"
+animtable[false][false][false][true ] = "mine"
+animtable[false][false][true ][false] = "crouch"
+animtable[false][false][true ][true ] = "crouch_mine"
+animtable[false][true ][false][false] = "walk"
+animtable[false][true ][false][true ] = "walk_mine"
+animtable[false][true ][true ][false] = "crawl"
+animtable[false][true ][true ][true ] = "crawl_mine"
+animtable[true ][false][false][false] = "stand"
+animtable[true ][false][false][true ] = "mine"
+animtable[true ][false][true ][false] = "stand"
+animtable[true ][false][true ][true ] = "mine"
+animtable[true ][true ][false][false] = "swim"
+animtable[true ][true ][false][true ] = "swim_mine"
+animtable[true ][true ][true ][false] = "swim"
+animtable[true ][true ][true ][true ] = "swim_mine"
+
+local function toggle_crawl(player, name, state)
+   local gender = player_api.get_gender(player)
+   -- swap eye height/collision
+   player:set_properties(prop_table[gender][state])
+   if state == true then -- reduce movement speed
+      player_monoids.speed:add_change(player,
+				      0.3,
+				      "force_crawl")
+   else
+      player_monoids.speed:del_change(player,
+				      "force_crawl")
+   end
+   player_crawl[name] = state
+end
+
 -- Check each player and apply animations
 local timer = 0
 minetest.register_globalstep(function(dtime)
-	for _, player in pairs(minetest.get_connected_players()) do
-		local name = player:get_player_name()
-		local model_name = player_model[name]
-		local model = model_name and models[model_name]
-		if model and not player_attached[name] then
-			local controls = player:get_player_control()
-			local animation_speed_mod = model.animation_speed or 30
+      for _, player in pairs(minetest.get_connected_players()) do
+	 local name = player:get_player_name()
+	 local model_name = player_model[name]
+	 local model = model_name and models[model_name]
+	 if model and not player_attached[name] then
+	    -- Is the player dead?
+	    if player:get_hp() == 0 and
+	       player_anim[name] ~= "lay" then
+	       player_set_animation(player, "lay")
+	       player:set_bone_position("Head",
+					{x=0,y=0,z=0},
+					90)
+	    else
+		     local player_pos = player:get_pos()
+		     local controls = player:get_player_control()
+		     local animation_speed_mod = model.animation_speed or 30
 
-			-- Determine if the player is sneaking, and reduce animation speed if so
-			if controls.sneak then
-				animation_speed_mod = animation_speed_mod / 2
-			end
+		     --Determine if the player is in a water node
+		     local on_water, cant_stand =
+			check_player_surroundings(player, player_pos)
 
-			local on_water
-			--Determine if the player is in a water node
-			local player_pos = player:get_pos()
-			local node_name = minetest.get_node(player_pos).name
-			if minetest.registered_nodes[node_name] then
-				if minetest.registered_nodes[node_name]["liquidtype"] == "source" or
-					minetest.registered_nodes[node_name]["liquidtype"] == "flowing" then
-						local player_pos_below = {x= player_pos.x, y= player_pos.y-1, z= player_pos.z}
-						local node_name_below = minetest.get_node(player_pos_below).name
-						local player_pos_above = {x= player_pos.x, y= player_pos.y+1, z= player_pos.z}
-						local node_name_above = minetest.get_node(player_pos_above).name
-						if minetest.registered_nodes[node_name_below] and minetest.registered_nodes[node_name_above] then
-							local node_below_is_liquid
-							if minetest.registered_nodes[node_name_below]["liquidtype"] == "source" or
-								minetest.registered_nodes[node_name_below]["liquidtype"] == "flowing" then
-									node_below_is_liquid = true
-							else
-									node_below_is_liquid = false
-							end
-							local node_above_is_liquid
-							if minetest.registered_nodes[node_name_above]["liquidtype"] == "source" or
-								minetest.registered_nodes[node_name_above]["liquidtype"] == "flowing" then
-									node_above_is_liquid = true
-							else
-									node_above_is_liquid = false
-							end
-							local node_above_is_air
-							if minetest.registered_nodes[node_name_above] == "air" then
-								node_above_is_air = true
-							else
-								node_above_is_air = false
-							end
-							if	((node_below_is_liquid) and not(node_above_is_air)) or
-								(not(node_below_is_liquid) and node_above_is_liquid) then
-								on_water = true
-							else
-								on_water = false
-							end
-						else
-							on_water = true
-						end
-				else
-						on_water = false
-				end
-			end
+		     local moving =  controls.up or controls.down or
+			controls.left or controls.right
+		     local using_tool = controls.LMB or controls.RMB
 
-			--Set head pitch if not on singleplayer and first person view
-			--minetest.chat_send_all(tostring(player:get_fov()))
-			--if not(minetest.is_singleplayer() and (player:get_fov() == 0)) then
-				--minetest.chat_send_all("test")
-				move_head(player, on_water)
-			--end
+		     local sneaking = controls.sneak
 
-			-- Apply animations based on what the player is doing
-			if player:get_hp() == 0 then
-				player_set_animation(player, "lay")
-			-- Determine if the player is walking
-			elseif controls.up or controls.down or controls.left or controls.right then
-				if player_sneak[name] ~= controls.sneak then
-					player_anim[name] = nil
-					player_sneak[name] = controls.sneak
-				end
-				if controls.LMB or controls.RMB then
-					if not(on_water) then
-						player_set_animation(player, "walk_mine", animation_speed_mod)
-					else
-						player_set_animation(player, "swim_mine", animation_speed_mod)
-					end
-				else
-					if not(on_water) then
-						player_set_animation(player, "walk", animation_speed_mod)
-					else
-						player_set_animation(player, "swim", animation_speed_mod)
-					end
-				end
-			elseif controls.LMB or controls.RMB then
-			   player_set_animation(player, "mine", animation_speed_mod)
-			else
-			   player_set_animation(player, "stand", animation_speed_mod)
+		     if cant_stand and not player_crawl[name] then
+			toggle_crawl(player, name, true)
+		     end
+
+		     if player_sneak[name] ~= controls.sneak then
+			-- reset anim when switching sneak on/off. why??
+			player_anim[name] = nil
+			player_sneak[name] = controls.sneak
+			if controls.sneak then -- Double tap to crawl
+			   if ( not player_crawl[name] and
+				minimal.click_count_ready(name, "crawl",
+							  2, 1) ) then
+			      toggle_crawl(player, name, true)
+			   elseif ( not cant_stand ) then
+				 toggle_crawl(player, name, false)
+			   end
 			end
-			if on_water and player_pos.y < 0 then
-				timer = timer + dtime
-				if timer > 1 then
-					player_pos.y = player_pos.y + 1
-					minetest.add_particlespawner({
-						amount = 6,
-						time = 1,
-						minpos = player_pos,
-						maxpos = player_pos,
-						minvel = {x=0, y=0, z=0},
-						maxvel = {x=1, y=5, z=1},
-						minacc = {x=0, y=0, z=0},
-						maxacc = {x=1, y=1, z=1},
-						minexptime = 0.2,
-						maxexptime = 1.0,
-						minsize = 1,
-						maxsize = 1.5,
-						collisiondetection = false,
-						vertical = false,
-						texture = "bubble.png",
-					})
-					timer = 0
-				end
+		     end
+		     local crawling = player_crawl[name] or false
+
+		     if sneaking or crawling then
+			animation_speed_mod = animation_speed_mod / 2
+		     end
+
+		     player_set_animation(player,
+					  animtable[on_water][moving]
+					  [crawling][using_tool],
+					  animation_speed_mod)
+		     move_head(player, on_water or controls.sneak)
+
+		     if on_water and player_pos.y < 0 then
+			timer = timer + dtime
+			if timer > 1 then
+			   player_pos.y = player_pos.y + 1
+			   minetest.add_particlespawner(bubbles(player_pos))
+			   timer = 0
 			end
-		end
-	end
+		     end
+	    end
+	 end
+      end
 end)
 
 function player_api.get_gender_formspec(name)
