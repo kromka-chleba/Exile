@@ -221,13 +221,17 @@ local function check_player_surroundings(player, pos)
    local node_name = minetest.get_node(pos).name
    local pos_above = {x= pos.x, y= pos.y+1, z= pos.z}
    local node_name_above = minetest.get_node(pos_above).name
+   local node_above_def = minetest.registered_nodes[node_name_above]
    local node_above_is_solid = false
-   if minetest.registered_nodes[node_name_above].walkable == true then
-      node_above_is_solid = true
+   if ( node_above_def and node_above_def.walkable == true and
+	node_above_def.climbable == false ) then
+      if node_above_def.drawtype == "normal" then
+	 node_above_is_solid = true
+      end -- #TODO: elseif; handle nodeboxes with a raycast? other cases
    end
    if minetest.registered_nodes[node_name] then
-      if minetest.registered_nodes[node_name]["liquidtype"] == "source" or
-	 minetest.registered_nodes[node_name]["liquidtype"] == "flowing" then
+      if ( minetest.registered_nodes[node_name]["liquidtype"] == "source" or
+	   minetest.registered_nodes[node_name]["liquidtype"] == "flowing" ) then
 	 local pos_below = {x= pos.x, y= pos.y-1, z= pos.z}
 	 local node_name_below = minetest.get_node(pos_below).name
 	 if minetest.registered_nodes[node_name_below] and minetest.registered_nodes[node_name_above] then
@@ -371,6 +375,10 @@ minetest.register_globalstep(function(dtime)
 				 toggle_crawl(player, name, false)
 			   end
 			end
+		     end
+		     if ( controls.jump and player_crawl[name] and
+			  not cant_stand ) then -- Stand when jumping
+			toggle_crawl(player, name, false)
 		     end
 		     local crawling = player_crawl[name] or false
 
