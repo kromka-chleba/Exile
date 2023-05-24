@@ -145,8 +145,10 @@ local function blanket_find(inv,listName)
       if stack:get_count() > 0 then
 	 local def = stack:get_definition()
 	 if def.groups.blanket and def.groups.blanket > 0 then
+	    local meta = stack:get_meta()
 	    blanket = ItemStack(def.name)
 	    inv:remove_item(listName, blanket)
+	    blanket:get_meta():from_table(meta:to_table())
 	    return blanket
 	 end
       end
