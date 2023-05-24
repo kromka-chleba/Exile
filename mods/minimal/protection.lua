@@ -9,7 +9,7 @@ function minimal.protection_nail_use( itemstack, user, pointed_thing )
 	local owner = user:get_player_name()
 	if pointed_thing.type == 'node' then 
 		local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-		if minimal.click_count_ready(owner, pt_pos, __nail_use_count) then 
+		if minimal.click_count_ready(owner, "nail", pt_pos, __nail_use_count) then 
 			local pt_node=minetest.get_node(pt_pos)
 			if not (pt_node.name == 'tech:stick' 
 				or minetest.get_item_group(pt_node.name, 'flora') > 0
