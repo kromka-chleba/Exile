@@ -337,12 +337,11 @@ minetest.register_globalstep(function(dtime)
 	 local model = model_name and models[model_name]
 	 if model and not player_attached[name] then
 	    -- Is the player dead?
-	    if player:get_hp() == 0 and
-	       player_anim[name] ~= "lay" then
+	    if player:get_hp() == 0 then
 	       player_set_animation(player, "lay")
 	       player:set_bone_position("Head",
-					{x=0,y=0,z=0},
-					90)
+					{ x=0, y=6.3, z=0 },
+					{ x=0, y=  0, z=0 })
 	    else
 		     local player_pos = player:get_pos()
 		     local controls = player:get_player_control()
