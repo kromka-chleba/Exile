@@ -3,15 +3,18 @@
 -- This may need to moved someplace else eventually.
 
 S=minimal.S
-local __nail_use_count = 3 
+creative = creative
+
+local __nail_use_count = 3
 
 function minimal.protection_nail_use( itemstack, user, pointed_thing )
 	local owner = user:get_player_name()
-	if pointed_thing.type == 'node' then 
+	local playsound = false
+	if pointed_thing.type == 'node' then
 		local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-		if minimal.click_count_ready(owner, "nail", pt_pos, __nail_use_count) then 
+		if minimal.click_count_ready(owner, "nail", pt_pos, __nail_use_count) then
 			local pt_node=minetest.get_node(pt_pos)
-			if not (pt_node.name == 'tech:stick' 
+			if not (pt_node.name == 'tech:stick'
 				or minetest.get_item_group(pt_node.name, 'flora') > 0
 			) then
 				local pt_meta=minetest.get_meta(pt_pos)
@@ -20,13 +23,13 @@ function minimal.protection_nail_use( itemstack, user, pointed_thing )
 					pt_meta:set_string('nailed', owner)
 					itemstack:take_item()
 					minimal.infotext_merge(pt_pos, nil, pt_meta)
+					-- play hammering sound
+					playsound = true
 				end
 			end
-		else
-			-- play hammering sound
 		end
 	end
-	return itemstack
+	return itemstack, playsound
 end
 
 
@@ -45,7 +48,7 @@ function minimal.protection_on_dig(pos,oldnode,digger)
 		local owner = meta:get_string('owner')
 		if owner == digger:get_player_name() then
 			--give digger back the nails
-			inv = digger:get_inventory()
+			local inv = digger:get_inventory()
 			if inv:room_for_item("main", 'tech:nails') then
 				inv:add_item("main",'tech:nails')
 			else
