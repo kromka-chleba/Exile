@@ -204,3 +204,58 @@ function minimal.force_place_keep_param2(pos, name)
     local param2 = minimal.get_param2(pos)
     minimal.force_place(pos, {name = name, param2 = param2})
 end
+
+
+-- Yes or no dialog
+--
+-- "question" will be displayed to the player
+-- "function_call" will be executed when the player clicks
+-- "attached_data_table" will be passed through to function_call
+--
+-- format for the function:
+-- local function name(clicked_yes, data_table, player, playername)
+--
+-- be careful with what you feed into data_table, if it contains an
+-- inv that players can alter, it might cause  item duplication glitches
+
+local open_yesno = {}
+function minimal.yes_or_no(playername, question,
+			   function_call, attached_data_table)
+   if not playername then
+      return
+   end
+   minetest.after( 0.1, function()
+     minetest.show_formspec(
+      playername, "minimal:yesno_form",
+      "formspec_version[3]"..
+      "size[7,4.5]"..
+      "hypertext[0.5,0.75;6,2;introtext;"..
+      question.."]"..
+      "button_exit[1,3;2,1;Yes;"..S("Yes").."]"..
+      "button_exit[4,3;2,1;No;"..S("No").."]"
+     )
+   end)
+   open_yesno[playername] = { fcall = function_call,
+			      data = attached_data_table }
+end
+
+minetest.register_on_player_receive_fields(function(player,
+						    formname,fields)
+      if formname ~= "minimal:yesno_form" then
+	 return
+      end
+      local playername = player:get_player_name()
+      local stored = open_yesno[playername]
+      if not stored then
+	 minetest.log("error", "Couldn't find an open yesno dialog"..
+		      " for "..playername)
+	 return
+      end
+      if fields.Yes then
+	 stored.fcall(true, stored.data, player, playername)
+      end
+      if fields.No then
+	 stored.fcall(false, stored.data, player, playername)
+      end
+      open_yesno[playername] = nil
+end)
