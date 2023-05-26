@@ -682,11 +682,15 @@ minetest.register_node(":ncrafting:dye_pot", {
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
 	   if fields.dump then -- pushed the "dump pot" button
+	      local playername = sender:get_player_name()
+	      if minetest.is_protected(pos, playername) then
+		 return false
+	      end
 	      local meta = minetest.get_meta(pos)
 	      local inv = meta:get_inventory()
 	      if ( inv:is_empty("craft") and
 		   inv:is_empty("craftresult") ) then
-		 minimal.yes_or_no(sender:get_player_name(),
+		 minimal.yes_or_no(playername,
 				   S("Dump out the pot?"),
 				   potdump,
 				   { potpos = pos } )
