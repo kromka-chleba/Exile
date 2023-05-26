@@ -1,11 +1,15 @@
 --
 local modpath = minetest.get_modpath('nodecrafting')
 
+
 ncrafting = {
  base_firing = 25,
  firing_int = 10,
  cook_rate = 6   -- cook timer; tenth of a minute seems fine
 }
+
+-- Internationalization
+ncrafting.S = minetest.get_translator("tech")
 
 dofile(modpath..'/dyes.lua')
 

@@ -1,5 +1,8 @@
 --dyes.lua
 
+-- Internationalization
+local S = ncrafting.S
+
 local spins = 24 -- how many 1/4 turns to stir before dye takes hold
 local stirspeed = 0.25 -- How many second per 1/4 turn
 local stirringplayers = {}
@@ -481,16 +484,29 @@ minetest.register_node(":ncrafting:dye_table", {
 --#TODO: Add a way to dump a dye pot, or put water in to clear the dye
 
 local pot_formspec = "size[8,4.1]"..
+   "button_exit[6,0;2,1;dump;"..S("Dump").."]"..
    "list[current_name;main;4,0;1,1]"..
    "list[current_player;main;0,2.3;8,4]"..
    "listring[current_name;main]"..
    "listring[current_player;main]"
 
-local function clear_pot(pos)
+
+local function clear_pot(pos) -- Initial set up for new pot
    local meta = minetest.get_meta(pos)
    meta:set_string("formspec", pot_formspec)
    local inv = meta:get_inventory()
    inv:set_size("main", 1)
+end
+
+local function potdump(clicked_yes, data_table, player, playername)
+   -- Dump out a pot's contents, clearing it for new dye
+   if clicked_yes then
+      local pos = data_table.potpos
+      local pot = minetest.get_node(pos)
+      pot.param2 = 250
+      minetest.set_node(pos, pot)
+      clear_pot(pos)
+   end
 end
 
 local spin_table = { [2] = 5, [5] = 3, [3] = 4,  [4] = 2 }
@@ -594,6 +610,7 @@ local function add_dye(pos, stack, def)
    return false
 end
 
+
 minetest.register_node(":ncrafting:dye_pot", {
 	description = "Dye Pot",
 	tiles = {
@@ -662,5 +679,18 @@ minetest.register_node(":ncrafting:dye_pot", {
 	      inv:remove_item(listname, stack)
 	   end
 	   minetest.get_meta(pos):set_string("dye_soak", 1)
+	end,
+	on_receive_fields = function(pos, formname, fields, sender)
+	   if fields.dump then -- pushed the "dump pot" button
+	      local meta = minetest.get_meta(pos)
+	      local inv = meta:get_inventory()
+	      if ( inv:is_empty("craft") and
+		   inv:is_empty("craftresult") ) then
+		 minimal.yes_or_no(sender:get_player_name(),
+				   S("Dump out the pot?"),
+				   potdump,
+				   { potpos = pos } )
+	      end
+	   end
 	end,
 })
