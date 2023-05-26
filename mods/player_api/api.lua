@@ -389,7 +389,7 @@ minetest.register_globalstep(function(dtime)
 					  animtable[on_water][moving]
 					  [crawling][using_tool],
 					  animation_speed_mod)
-		     move_head(player, on_water or controls.sneak)
+		     move_head(player, on_water or crawling)
 
 		     if on_water and player_pos.y < 0 then
 			timer = timer + dtime
