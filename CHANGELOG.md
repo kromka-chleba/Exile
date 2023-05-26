@@ -1,5 +1,14 @@
 # Changelog:
 
+## [2023-05-25][2023-05-25__0.3.10] — 0.3.10
+  - Added a watering can, to turn dry soil wet
+  - Ability to crouch/crawl by double-tapping shift
+  - Can now dump a cooking pot's contents out
+  - Can also empty unused dye from a dye pot
+  - Antiquorium ladders are solid now
+  - Spears are craftable again
+  - Minor fog improvements
+
 ## [2023-04-07][2023-04-07__0.3.9e] — 0.3.9e
   - Add theme song "Earth and Stone" by Kevin Hartnell
   - Wattle connects to drystack
