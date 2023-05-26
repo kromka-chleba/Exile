@@ -257,28 +257,14 @@ local function calc_baking_time(stack)
 end
 
 -- On dig, ask if the player wants to dump the pot, losing the contents
-local spillitspec = ("formspec_version[3]"..
-		       "size[7,4.5]"..
-		   "hypertext[0.5,0.75;6,2;introtext;"..
-		   S("This pot is full and heavy. Spill it?").."]"..
-		   "button_exit[1,3;2,1;spillit;"..S("Yes").."]"..
-		   "button_exit[4,3;2,1;exit;"..S("No").."]")
-local SpillPots = {}
-
-minetest.register_on_player_receive_fields(function(player,formname,fields)
-      local playername = player:get_player_name()
-      local potpos = SpillPots[playername]
-      if formname ~= "tech:SpillCookingPot" or potpos == nil then
-	 return
-      end
-      if fields.spillit then
-	 local pot = minetest.get_node(potpos)
-	 local potmeta = minetest.get_meta(potpos)
-	 potmeta:set_string("type", "")
-	 minetest.node_dig(potpos, pot, player)
-      end
-      SpillPots[playername] = nil
-end)
+local function spill_pot(returnedyes, data, player, playername)
+   if returnedyes then
+      local pot = minetest.get_node(data.spillpos)
+      local potmeta = minetest.get_meta(data.spillpos)
+      potmeta:set_string("type", "")
+      minetest.node_dig(data.spillpos, pot, player)
+   end
+end
 
 minetest.register_node("tech:cooking_pot", {
 	description = S("Cooking Pot"),
@@ -313,9 +299,10 @@ minetest.register_node("tech:cooking_pot", {
 	   local pottype = meta:get_string("type")
 	   if ( not inv:is_empty("main")
 		or pottype ~= "") then -- type is empty on uprepared pot
-	      minetest.show_formspec(playername,
-				     "tech:SpillCookingPot", spillitspec)
-	      SpillPots[playername] = pos
+	      minimal.yes_or_no(playername,
+				S("This pot is full and heavy. "..
+				  "Spill it?"), spill_pot,
+				{ spillpos = pos } )
 	      return false
 	   end
 	   minetest.node_dig(pos, node, digger)
