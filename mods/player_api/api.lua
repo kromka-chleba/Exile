@@ -223,8 +223,11 @@ local function check_player_surroundings(player, pos)
    local node_name_above = minetest.get_node(pos_above).name
    local node_above_def = minetest.registered_nodes[node_name_above]
    local node_above_is_solid = false
+   local on_a_ladder = minetest.registered_nodes[node_name].climbable or
+      node_above_def.climbable
+   local on_water = false
    if ( node_above_def and node_above_def.walkable == true and
-	node_above_def.climbable == false ) then
+	on_a_ladder == false ) then
       if node_above_def.drawtype == "normal" then
 	 node_above_is_solid = true
       end -- #TODO: elseif; handle nodeboxes with a raycast? other cases
@@ -257,17 +260,18 @@ local function check_player_surroundings(player, pos)
 	    end
 	    if	((node_below_is_liquid) and not(node_above_is_air)) or
 	       (not(node_below_is_liquid) and node_above_is_liquid) then
-	       return true, node_above_is_solid
+	       on_water = true
 	    else
-		     return false, node_above_is_solid
+		     on_water = false
 	    end
 	 else
-	    return true, node_above_is_solid
+	       on_water = true
 	 end
       else
-	       return false, node_above_is_solid
+	       on_water = false
       end
    end
+   return on_water, node_above_is_solid, on_a_ladder
 end
 
 local prop_table = { -- select gender + t/f for crawling eye_height/collision
@@ -348,7 +352,7 @@ minetest.register_globalstep(function(dtime)
 		     local animation_speed_mod = model.animation_speed or 30
 
 		     --Determine if the player is in a water node
-		     local on_water, cant_stand =
+		     local on_water, cant_stand, on_ladder =
 			check_player_surroundings(player, player_pos)
 
 		     local moving =  controls.up or controls.down or
@@ -365,13 +369,13 @@ minetest.register_globalstep(function(dtime)
 			-- reset anim when switching sneak on/off. why??
 			player_anim[name] = nil
 			player_sneak[name] = controls.sneak
-			if controls.sneak then -- Double tap to crawl
-			   if ( not player_crawl[name] and
+			if controls.sneak  then -- Double tap to crawl
+			   if ( not player_crawl[name] and not on_ladder and
 				minimal.click_count_ready(name, "crawl",
 							  2, 1) ) then
 			      toggle_crawl(player, name, true)
-			   elseif ( not cant_stand ) then
-				 toggle_crawl(player, name, false)
+			   elseif ( not cant_stand ) and player_crawl[name] then
+			      toggle_crawl(player, name, false)
 			   end
 			end
 		     end
