@@ -48,7 +48,7 @@ end
 
 --convert fuel number to a string
 function lightsource.update_fuel_infotext(desc, pos)
-    local fuel_string = ""
+    local fuel_string
     local meta = minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
     if not fuel or fuel < 1 then
@@ -92,7 +92,9 @@ local function check_for_air(pos)
 end
 
 function lightsource.extinguish(desc, pos)
-    minetest.swap_node(pos, {name = desc.unlit_name})
+    local node = minetest.get_node(pos)
+    node.name = desc.unlit_name
+    minetest.swap_node(pos, node)
     lightsource.update_fuel_infotext(desc, pos)
     minetest.check_for_falling(pos)
 end
@@ -110,19 +112,14 @@ end
 function lightsource.burn_fuel(desc, pos)
     local meta = minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
-    local has_air = check_for_air(pos)
-    local moisture = check_for_moisture(pos)
-    lightsource.update_fuel_infotext(desc, pos)
-    if fuel < 1 then
-       minetest.set_node(pos, {name = desc.unlit_name})
-       minetest.check_for_falling(pos)
-       return false -- stop timer
-    elseif not has_air or moisture and desc.put_out_by_moisture then
+    if ( fuel < 1 or not check_for_air(pos) or
+	 desc.put_out_by_moisture and check_for_moisture(pos) )then
        lightsource.extinguish(desc, pos)
        return false -- stop timer
     else
         -- lightsource.spawn_particles(desc, pos)
         meta:set_int("fuel", fuel - math.random(-1, 3))
+	lightsource.update_fuel_infotext(desc, pos)
         return true -- next iteration
     end
 end
@@ -130,9 +127,10 @@ end
 function lightsource.ignite(desc, pos)
     local meta = minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
-    local node = minetest.get_node(pos)
     if fuel and fuel > 0 then
-        minimal.switch_node(pos, {name = desc.lit_name, param2 = node.param2})
+        local node = minetest.get_node(pos)
+        node.name = desc.lit_name
+        minimal.switch_node(pos, node) -- preserve param2
         minetest.registered_nodes[desc.lit_name].on_construct(pos)
         meta:set_int("fuel", fuel)
     end
