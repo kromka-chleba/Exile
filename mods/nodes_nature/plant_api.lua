@@ -350,9 +350,27 @@ function plant.get_sounds(plant_def)
     end
 end
 
-function plant.get_base_props(plant_def)
+function plant.get_seasonal_props(plant_def)
     local name = plant.get_name(plant_def.name)
     local seasons = plant_def.seasons
+    if seasons then
+        return {
+            _spring_early = name..seasons._spring_early,
+            _spring_late = name..seasons._spring_late,
+            _summer_early = name..seasons._summer_early,
+            _summer_late = name..seasons._summer_late,
+            _fall_early = name..seasons._fall_early,
+            _fall_late = name..seasons._fall_late,
+            _winter_early = name..seasons._winter_early,
+            _winter_late = name..seasons._winter_late,
+            _dead_name = plant.get_dead_name(plant_def.name),
+        }
+    end
+    return {}
+end
+
+function plant.get_base_props(plant_def)
+    local name = plant.get_name(plant_def.name)
     local props = {
         description = plant_def.description,
         tiles = {plant.get_texture_name(plant_def.name)},
@@ -388,28 +406,14 @@ function plant.get_base_props(plant_def)
             end
         end
     end
-    if seasons then
+    if plant_def.fruit and plant_def.winter_fruit then
         props = minimal.merge_tables(
             props, {
-                _spring_early = name..seasons._spring_early,
-                _spring_late = name..seasons._spring_late,
-                _summer_early = name..seasons._summer_early,
-                _summer_late = name..seasons._summer_late,
-                _fall_early = name..seasons._fall_early,
-                _fall_late = name..seasons._fall_late,
-                _winter_early = name..seasons._winter_early,
-                _winter_late = name..seasons._winter_late,
-                _dead_name = plant.get_dead_name(plant_def.name),
+                _dead_fruitless_name =
+                    plant.get_dead_fruitless_name(plant_def.name),
         })
-        if plant_def.fruit and plant_def.winter_fruit then
-            props = minimal.merge_tables(
-                props, {
-                    _dead_fruitless_name =
-                        plant.get_dead_fruitless_name(plant_def.name),
-            })
-        end
     end
-    return table.copy(props)
+    return minimal.merge_tables(props, plant.get_seasonal_props(plant_def))
 end
 
 function plant.get_plantlike_props(plant_def)
@@ -809,9 +813,14 @@ function plant.get_seed_base_props(plant_def)
         tiles = {seed_texture},
         inventory_image = seed_texture,
         wield_image = seed_texture,
-        stack_max = minimal.stack_max_light,
         use_texture_alpha = c_alpha.clip,
+        stack_max = minimal.stack_max_light,
+        paramtype = "light",
         drawtype = "nodebox",
+        floodable = true,
+        sunlight_propagates = true,
+        walkable = false,
+        buildable_to = true,
         groups = plant.get_seed_groups(plant_def),
         sounds = nodes_nature.node_sound_defaults(),
         node_box = {
@@ -823,6 +832,7 @@ function plant.get_seed_base_props(plant_def)
             fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
         },
         _next_life_stage = next_life_stage,
+        _seed_name = plant.get_seed_name(plant_def.name),
         on_timer = function(pos, elapsed)
             return plant.grow_seed(pos, elapsed)
         end,
@@ -833,7 +843,7 @@ function plant.get_seed_base_props(plant_def)
             return on_place_plant(itemstack, placer, pointed_thing)
         end,
     }
-    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
+    return minimal.merge_tables(props, plant.get_seasonal_props(plant_def))
 end
 
 function plant.register_seed(plant_def)
