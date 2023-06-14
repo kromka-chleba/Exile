@@ -71,9 +71,14 @@ local function seed_soil_response(pos, soil_prefs)
         progress = progress + 2
     end
     -- normal and fertile agri soils can partially cancell effects of bad soil
-    if fertile_soil == 1 or ag_soil == 1 then
-        progress = progress + 1
-    elseif not is_soil_good then
+    if fertile_soil == 1 then
+        -- this is a hack because fertility doesn't work right now
+        progress = progress + 2
+    end
+    if ag_soil == 1 then
+        progress = progress + 2
+    end
+    if not is_soil_good then
         return 0
     end
     local fertility = minetest.get_item_group(node_under, "fertility")
