@@ -255,6 +255,8 @@ local farmers_probe = function(user, pointed_thing)
   local growth = meta:get_int("growth")
   local health = meta:get_int("health")
   local fertility = nodedef.groups.fertility
+  local roots = nodedef.groups.roots
+  local root_nr = meta:get_float("root_nr")
 
   local chat_display = function(label, value)
       minetest.chat_send_player(name, minetest.colorize("#00ff00", label))
@@ -309,6 +311,9 @@ local farmers_probe = function(user, pointed_thing)
           chat_display("STATE:", "dry")
       end
       chat_display("FERTILITY:", fertility)
+      if roots == 1 then
+          chat_display("ROOTS:", root_nr)
+      end
   else
       chat_warning("NOT MEASURABLE: NEEDS A PLANT OR SOIL")
   end
