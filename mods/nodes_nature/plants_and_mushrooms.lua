@@ -416,6 +416,7 @@ minetest.register_craftitem(
         description = S("Rzepicha root"),
         inventory_image = "nodes_nature_rzepicha_root.png",
         wield_image = "nodes_nature_rzepicha_root.png",
+        stack_max = minimal.stack_max_medium,
         groups = {},
     }
 )
@@ -426,6 +427,7 @@ minetest.register_craftitem(
         description = S("Rzepicha root"),
         inventory_image = "nodes_nature_rzepicha_root_winter.png",
         wield_image = "nodes_nature_rzepicha_root_winter.png",
+        stack_max = minimal.stack_max_medium,
         groups = {},
     }
 )
