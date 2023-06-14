@@ -166,7 +166,7 @@ local plant_list = {
      fruit = true, seasonal_type = "long", winter_fruit = false,
      move_resistance = 3, thorns = true},
 
-    {name = "yellow_malina", description = S("Malina"),
+    {name = "yellow_malina", description = S("Yellow Malina"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "woody_plant", waving = true,
      growing_time = plant_base_growing_time * 2.5,
