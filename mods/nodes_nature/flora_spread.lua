@@ -72,7 +72,7 @@ minetest.register_lbm({
 	label = "Add roots under plants",
         name = "nodes_nature:root_lbm",
 	nodenames = {"group:plant_with_roots"},
-        run_at_every_load = false,
+        run_at_every_load = true,
         min_y = -10,
         max_y = 300,
 	action = function(pos, node)
@@ -87,7 +87,7 @@ minetest.register_lbm({
             end
             if not nodedef_under.groups.sediment then
                 return
-            elseif not nodedef_under.groups.roots == 1 then
+            elseif not nodedef_under.groups.roots then
                 minetest.set_node(pos_under, {name = name_under.."_roots"})
             end
             local meta = minetest.get_meta(pos_under)
