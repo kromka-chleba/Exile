@@ -239,6 +239,32 @@ minetest.register_craftitem("artifacts:chefs_probe", {
 	end,
 })
 
+local function chat_display(name, label, value)
+    minetest.chat_send_player(name, minetest.colorize("#00ff00", label))
+    minetest.chat_send_player(name, minetest.colorize("#cc6600", value))
+end
+
+local function chat_warning(name, msg)
+    minetest.chat_send_player(name, minetest.colorize("#cc6600", msg))
+end
+
+------------------------------------
+--ADMINS PROBE
+--get node groups
+------------------------------------
+
+local admins_probe = function(user, pointed_thing)
+    local name, meta, node_name, nodedef, param2 = init_probe(user, pointed_thing)
+    if not name then
+        return
+    end
+    local groups = minetest.serialize(nodedef.groups)
+    groups = groups:gsub("return ", "")
+    groups = groups:gsub("{", "")
+    groups = groups:gsub("}", "")
+    groups = groups:gsub(",", ", ")
+    chat_display(name, "GROUPS: ", groups)
+end
 
 ------------------------------------
 --FARMERS PROBE
@@ -258,41 +284,32 @@ local farmers_probe = function(user, pointed_thing)
   local roots = nodedef.groups.roots
   local root_nr = meta:get_float("root_nr")
 
-  local chat_display = function(label, value)
-      minetest.chat_send_player(name, minetest.colorize("#00ff00", label))
-      minetest.chat_send_player(name, minetest.colorize("#cc6600", value))
-  end
-
-  local chat_warning = function(msg)
-      minetest.chat_send_player(name, minetest.colorize("#cc6600", msg)) 
-  end
-
   local check_plant_type = function()
       if param2 < 64 then
-          chat_display("PLANT TYPE:", "Wild")
+          chat_display(name, "PLANT TYPE:", "Wild")
           return "wild"
       elseif param2 < 128 then
-          chat_display("PLANT TYPE:", "Domesticated")
+          chat_display(name, "PLANT TYPE:", "Domesticated")
           return "dom"
       else
-          chat_display("PLANT TYPE:", "Half-wild")
+          chat_display(name, "PLANT TYPE:", "Half-wild")
           return "half"
       end
   end
 
   local check_growth = function()
       if growth <= 0 then
-          chat_warning("PLANT GROWTH NOT MEASURABLE!")
+          chat_warning(name, "PLANT GROWTH NOT MEASURABLE!")
       else
-          chat_display("GROWTH UNITS REMAINING:", growth)
+          chat_display(name, "GROWTH UNITS REMAINING:", growth)
       end
   end
 
   local check_health = function()
       if health <= 0 then
-          chat_warning("PLANT HEALTH NOT MEASURABLE!")
+          chat_warning(name, "PLANT HEALTH NOT MEASURABLE!")
       else
-          chat_display("HEALTH:", health)
+          chat_display(name, "HEALTH:", health)
       end
   end
 
@@ -304,18 +321,18 @@ local farmers_probe = function(user, pointed_thing)
       end
   elseif nodedef.groups.sediment and fertility then
       if nodedef.groups.wet_sediment == 1 then
-          chat_display("STATE:", "wet")
+          chat_display(name, "STATE:", "wet")
       elseif nodedef.groups.wet_sediment == 2 then
-          chat_display("STATE:", "salty")
+          chat_display(name, "STATE:", "salty")
       else
-          chat_display("STATE:", "dry")
+          chat_display(name, "STATE:", "dry")
       end
-      chat_display("FERTILITY:", fertility)
+      chat_display(name, "FERTILITY:", fertility)
       if roots == 1 then
-          chat_display("ROOTS:", root_nr)
+          chat_display(name, "ROOTS:", root_nr)
       end
   else
-      chat_warning("NOT MEASURABLE: NEEDS A PLANT OR SOIL")
+      chat_warning(name, "NOT MEASURABLE: NEEDS A PLANT OR SOIL")
   end
 
 end
@@ -443,5 +460,18 @@ minetest.register_craftitem("artifacts:animal_probe", {
 
 	on_use = function(itemstack, user, pointed_thing)
 		animal_probe(user, pointed_thing)
+	end,
+})
+
+
+-- Group probe (only for developers)
+minetest.register_craftitem("artifacts:admins_probe", {
+	description = "Admin's Probe",
+	inventory_image = "artifacts_admins_probe.png",
+  wield_image = "artifacts_admins_probe.png^[transformR90",
+	stack_max = 1,
+
+	on_use = function(itemstack, user, pointed_thing)
+		admins_probe(user, pointed_thing)
 	end,
 })
