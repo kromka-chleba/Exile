@@ -837,10 +837,14 @@ function plant.get_seed_base_props(plant_def)
             return plant.grow_seed(pos, elapsed)
         end,
         on_construct = function(pos)
+            plant.set_to_half_wild(pos)
             plant.start_growing_seed(pos)
         end,
         on_place = function(itemstack, placer, pointed_thing)
             return on_place_plant(itemstack, placer, pointed_thing)
+        end,
+        after_place_node = function(pos, placer, itemstack, pointed_thing)
+            plant.set_to_domesticated(pos)
         end,
     }
     return minimal.merge_tables(props, plant.get_seasonal_props(plant_def))

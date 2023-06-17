@@ -13,59 +13,41 @@ nsl = naturalslopeslib
 
 
 local function flora_spread(pos, node)
-	pos.y = pos.y - 1
-	local under = minetest.get_node(pos)
-	pos.y = pos.y + 1
-
-
-	if minetest.get_item_group(under.name, "sediment") == 0 then
-		return
-	end
-
-	--extreme temps will kill, semi-extreme stop growth
-	local temp = climate.get_point_temp(pos)
-	if temp < -30 or temp > 60 then
-		minetest.remove_node(pos)
-	elseif temp < 0 or temp > 40 then
-		return
-	end
-
-	--cannot grow indoors
-	local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
-	if not light or light < 13 then
-		return
-	end
-
-	local pos0 = vector.subtract(pos, 4)
-	local pos1 = vector.add(pos, 4)
-	-- Testing shows that a threshold of 3 results in an appropriate maximum
-	-- density of approximately 7 flora per 9x9 area.
-	if #minetest.find_nodes_in_area(pos0, pos1, "group:flora") > 3 then
-		return
-	end
-
-	local soils = minetest.find_nodes_in_area_under_air(
-		pos0, pos1, "group:sediment")
-	local num_soils = #soils
-	if num_soils >= 1 then
-		for si = 1, math.min(3, num_soils) do
-			local soil = soils[math.random(num_soils)]
-			local soil_name = minetest.get_node(soil).name
-			local soil_above = {x = soil.x, y = soil.y + 1, z = soil.z}
-			light = minimal.get_daylight(soil_above)
-			if light and light >= 13 and soil_name == under.name then
-				local plant = node.name
-				local seedling_nodedef = minetest.registered_nodes[plant.."_seed"]
-				if not seedling_nodedef then
-					--use adult plant
-					minetest.set_node(soil_above, {name = plant, param2= node.param2})
-				else
-					--use seedling
-					minetest.set_node(soil_above, {name = plant.."_seed"})
-				end
-			end
-		end
-	end
+    pos.y = pos.y - 1
+    local under = minetest.get_node(pos)
+    -- prevent spreading to slopes
+    local under_nodedef = minimal.get_nodedef(pos)
+    local slope = under_nodedef.groups.natural_slope
+    local under_name = under.name
+    if slope then
+        under_name = nsl.get_regular_node_name(under.name)
+    end
+    pos.y = pos.y + 1
+    if minetest.get_item_group(under_name, "sediment") == 0 then
+        return
+    end
+    local pos0 = vector.subtract(pos, 4)
+    local pos1 = vector.add(pos, 4)
+    -- Testing shows that a threshold of 3 results in an appropriate maximum
+    -- density of approximately 7 flora per 9x9 area.
+    if #minetest.find_nodes_in_area(pos0, pos1, "group:flora") > 3 then
+        return
+    end
+    local plant_nodedef = minimal.get_nodedef(pos)
+    local seed_name = plant_nodedef._seed_name
+    local soils = minetest.find_nodes_in_area_under_air(
+        pos0, pos1, "group:sediment")
+    local num_soils = #soils
+    if num_soils >= 1 then
+        for si = 1, math.random(1, num_soils) do
+            local soil = soils[math.random(num_soils)]
+            local soil_name = minetest.get_node(soil).name
+            local above_soil = {x = soil.x, y = soil.y + 1, z = soil.z}
+            if soil_name == under_name then
+                minetest.set_node(above_soil, {name = seed_name})
+            end
+        end
+    end
 end
 
 minetest.register_lbm({
