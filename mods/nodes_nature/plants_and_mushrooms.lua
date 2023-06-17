@@ -217,7 +217,7 @@ local plant_list = {
      bioluminescence = 1,},
 
     {name = "merki", description = S("Merki"),
-     drawtype = "plantlike",
+     drawtype = "plantlike", bioluminescence = 2,
      lifeform_type = "mushroom", plant_type = "mushroom",
      mesh_type = 0, growing_time = plant_base_growing_time * 2},
 
@@ -383,13 +383,6 @@ minetest.override_item(
 
 ----------------------------------------------
 --Extra effects
-
---glowing mushroom
-minetest.override_item(
-    "nodes_nature:merki",{
-        light_source = 2,
-        groups = {snappy = 3, attached_node = 1, flammable = 3, mushroom = 1, temp_pass = 1, bioluminescent= 1}
-})
 
 -- tuber
 minetest.override_item(
