@@ -8,23 +8,21 @@
 nsl = naturalslopeslib
 
 ----------------------------------------------------------------
--- Flora
+-- Flora & mushrooms
 --
 
-
 local function flora_spread(pos, node)
-    pos.y = pos.y - 1
-    local under = minetest.get_node(pos)
+    local pos_under = minimal.get_pos_under(pos)
+    if minimal.get_group(pos_under, "sediment") == 0 then
+        return
+    end
+    local under = minetest.get_node(pos_under)
     -- prevent spreading to slopes
-    local under_nodedef = minimal.get_nodedef(pos)
+    local under_nodedef = minimal.get_nodedef(pos_under)
     local slope = under_nodedef.groups.natural_slope
     local under_name = under.name
     if slope then
         under_name = nsl.get_regular_node_name(under.name)
-    end
-    pos.y = pos.y + 1
-    if minetest.get_item_group(under_name, "sediment") == 0 then
-        return
     end
     local pos0 = vector.subtract(pos, 4)
     local pos1 = vector.add(pos, 4)
@@ -42,7 +40,7 @@ local function flora_spread(pos, node)
         for si = 1, math.random(1, num_soils) do
             local soil = soils[math.random(num_soils)]
             local soil_name = minetest.get_node(soil).name
-            local above_soil = {x = soil.x, y = soil.y + 1, z = soil.z}
+            local above_soil = minimal.get_pos_above(soil)
             if soil_name == under_name then
                 minetest.set_node(above_soil, {name = seed_name})
             end
@@ -115,90 +113,28 @@ end
 
 minetest.register_abm({
 	label = "Flora spread",
-	nodenames = {"group:flora"},
+	nodenames = {"group:mature_flora", "group:fruiting_plant"},
 	interval = 260,
 	chance = 60,
-	max_y = 800,
+	max_y = 400,
+	min_y = -2000,
+	action = function(pos, node)
+            -- plants and mushrooms
+            flora_spread(pos, node)
+	end,
+})
+
+minetest.register_abm({
+	label = "Sea flora spread",
+	nodenames = {"group:flora_sea"},
+	interval = 260,
+	chance = 60,
+	max_y = 1,
 	min_y = -15,
 	action = function(pos, node)
-	   if minetest.get_item_group(node.name, "flora_sea") == 0 then
-	      flora_spread(pos, node)
-	   else
-	      undersea_flora_spread(pos, node)
-	   end
+            undersea_flora_spread(pos, node)
 	end,
 })
-
-
-------------------------------------------------------------
--- Mushrooms
---
-
-
--- Mushroom spread
-local function mushroom_spread(pos, node)
-	--don't do for young
-	if minetest.get_item_group(node.name, "seedling") >= 1 then
-		return
-	end
-
-	pos.y = pos.y - 1
-	local under = minetest.get_node(pos)
-	pos.y = pos.y + 1
-
-
-	if minetest.get_item_group(under.name, "sediment") == 0 then
-		return
-	end
-
-	--extreme temps will kill, semi-extreme stop growth
-	local temp = climate.get_point_temp(pos)
-	if temp < -30 or temp > 60 then
-		minetest.remove_node(pos)
-	elseif temp < 0 or temp > 40 then
-		return
-	end
-
-	local positions = minetest.find_nodes_in_area_under_air(
-		{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
-		{x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
-		{"group:sediment"})
-
-	if #positions == 0 then
-		return
-	end
-
-	local pos2 = positions[math.random(#positions)]
-	pos2.y = pos2.y + 1
-	if minimal.get_daylight(pos, 0.5) <= 14 and
-	   minimal.get_daylight(pos2, 0.5) <= 14 then
-		local plant = node.name
-		local seedling_nodedef = minetest.registered_nodes[plant.."_seed"]
-		if not seedling_nodedef then
-			--use adult plant
-			local nodedef = minetest.registered_nodes[plant]
-			minetest.set_node(pos2, {name = plant, param2= nodedef.place_param2})
-		else
-			--use seedling
-			minetest.set_node(pos2, {name = plant.."_seed"})
-		end
-	end
-end
-
-----------------------
-minetest.register_abm({
-	label = "Mushroom spread",
-	nodenames = {"group:mushroom"},
-	interval = 280,
-	chance = 80,
-	catch_up = true,
-	action = function(...)
-		mushroom_spread(...)
-	end,
-})
-
-
-
 
 ---------------------------------
 local function grow_cane(pos, node)
