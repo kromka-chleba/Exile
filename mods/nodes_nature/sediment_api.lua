@@ -269,6 +269,7 @@ function sediment.get_dry_node_props(sed)
         drop = sediment.get_dry_name(sed.name),
         sounds = sed.sound,
     }
+    props.groups.dry_sediment = 1
     return merge_tables(sediment.get_base_props(sed), props)
 end
 

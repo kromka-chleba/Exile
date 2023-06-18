@@ -479,45 +479,31 @@ minetest.register_abm({
 ------------------------------------------------------------------
 --soak water into soil, catch water in puddles
 local function rain_soak(pos, node)
-	if pos.y < -15 then
-		return
-	end
-	local name = node.name
-
-
-	if climate.get_rain(pos) then
-		--dry sediment absorbs water, wet and solids can trap puddles
-		if minetest.get_item_group(name, "sediment") >0
-		and minetest.get_item_group(name, "wet_sediment") == 0
-		then
-			--set wet version of what draining into
-			local nodedef = minetest.registered_nodes[name]
-			if not nodedef then
-				return
-			end
-			tgcr.make_replacement(pos, rt.REPLACEMENT_WET)
-			return
-		elseif math.random()<0.3 then
-			local posa = {x = pos.x, y = pos.y + 1, z = pos.z}
-			if puddle_detect(posa) then
-				minetest.set_node(posa, {name = "nodes_nature:freshwater_source"})
-			end
-		end
-
-	end
+    if climate.get_rain(pos) then
+        --dry sediment absorbs water
+        if minetest.get_item_group(node.name, "wet_sediment") == 0 then
+            --set wet version of what draining into
+            tgcr.make_replacement(pos, rt.REPLACEMENT_WET)
+            return
+        elseif math.random() < 0.3 then
+            -- wet can trap puddles
+            local posa = minimal.get_pos_above(pos)
+            if minetest.get_node(posa).name == "air" and puddle_detect(posa) then
+                minetest.set_node(posa, {name = "nodes_nature:freshwater_source"})
+            end
+        end
+    end
 end
 
 
 --
 minetest.register_abm({
 	label = "Rain Soak",
-	--calling for stone is for puddles only, but means calling all stone
-	--nodenames = {"group:sediment", "group:stone", "group:soft_stone"},
 	nodenames = {"group:sediment"},
 	interval = 92,
 	chance = 180,
 	min_y = -15,
 	action = function(...)
-		rain_soak(...)
+            rain_soak(...)
 	end
 })

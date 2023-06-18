@@ -13,25 +13,24 @@ local c_alpha = minimal.compat_alpha
 --significantly raining/wet
 --i.e. will expose to significant water, put out fires etc
 climate.get_rain = function(pos, l)
-	if pos.y < -30 then
-		return false
-	end
-	--check if raining and outside
-	if not l then
-		l = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
-	end
+    --check if raining and outside
+    if not l then
+        l = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+    end
+    if not l == 15 or pos.y < -30 then
+        return false
+    end
 
-	local w = climate.active_weather.name
+    local w = climate.active_weather.name
 
-	if l == 15
-	and (w == 'overcast_heavy_rain'
-	or w == 'overcast_rain'
-	or w == 'thunderstorm'
-	or w == 'superstorm') then
-		return true
-	else
-		return false
-	end
+    if (w == 'overcast_heavy_rain'
+        or w == 'overcast_rain'
+        or w == 'thunderstorm'
+        or w == 'superstorm') then
+        return true
+    else
+        return false
+    end
 end
 
 --significant snowing
