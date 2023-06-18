@@ -334,22 +334,26 @@ local plant_list = {
 
     -- Canes
     {name = "cana", description = S("Cana"),
+     mesh_type = 2,
      drawtype = "plantlike", plant_type = "cane", waving = false,
      growing_time = plant_base_growing_time * 2, seed_number = 1},
 
     {name = "gemedi", description = S("Gemedi"),
+     mesh_type = 2,
      drawtype = "plantlike", plant_type = "cane", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, seasonal_type = "cane"},
 
     -- Bamboos
     {name = "chalin", description = S("Chalin"),
+     mesh_type = 2,
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, climbable = true, seasonal_type = "whole_season_woody",
      move_resistance = 1},
 
     {name = "tiken", description = S("Tiken"),
+     mesh_type = 2,
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},

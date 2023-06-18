@@ -438,7 +438,7 @@ end
 -- Mature cane plant, seedlings defined elsewhere
 function plant.get_canelike_props(plant_def)
     local base = plant.get_plantlike_mature_props(plant_def)
-    base.place_param2 = 2
+    base.place_param2 = plant_def.mesh_type or 2
     base.selection_box = {
         type = "fixed",
         fixed = {-0.1875, -0.5, -0.1875, 0.1875, 0.5, 0.1875},
