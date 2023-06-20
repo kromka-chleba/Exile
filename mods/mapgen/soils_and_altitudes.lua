@@ -1,3 +1,16 @@
+
+-- Altitudes
+local land_max            =    600
+local land_min            =      1
+local highland_max         =    200
+local upland_max           =    100
+local lowland_max          =     50
+local coastal_max          =     10
+-- Marine Altitudes
+local beach_max            =      5
+local beach_min            =    -10
+local shallow_ocean_min    =    -30
+
 -- Soils for decorations
 
 local forest_on = {
