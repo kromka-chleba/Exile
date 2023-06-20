@@ -1,6 +1,8 @@
 -- Load files
 local path = minetest.get_modpath("mapgen")
 
+-- Globals
+deco = deco or {}
 
 minetest.set_mapgen_setting("mg_flags", "caves, nodungeons, light, decorations, biomes", true)
 minetest.set_mapgen_setting("mgvalleys_spflags", "altitude_chill, humid_rivers, vary_river_depth, altitude_dry", true)
@@ -57,6 +59,10 @@ else
    dofile(path.."/old_biomes.lua")
    dofile(path.."/ores.lua")
    dofile(path.."/old_deco.lua")
+end
+
+function deco.find_schematic(object)
+    return minetest.get_modpath("mapgen").."/schematics/"..object..".mts"
 end
 
 ---------------------------------------------
