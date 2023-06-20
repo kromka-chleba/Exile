@@ -143,6 +143,19 @@ function minimal.merge_tables(t1, t2)
     return new_table
 end
 
+function minimal.concat_tables(table_list)
+    local new_table = {}
+    local index = 1
+    for tabl_nr = 1, #table_list do
+        local current_table = table_list[tabl_nr]
+        for z = 1, #current_table do
+            new_table[index] = current_table[z]
+            index = index + 1
+        end
+    end
+    return table.copy(new_table)
+end
+
 function minimal.get_nodedef(pos)
     local node_name = minetest.get_node(pos).name
     local nodedef = minetest.registered_nodes[node_name]
