@@ -5,7 +5,7 @@ deco = deco or {}
 
 -- Import
 local path = minetest.get_modpath("mapgen")
-dofile(path.."/soils.lua")
+dofile(path.."/soils_and_altitudes.lua")
 
 local cave_life = {
     {--[[Mushrooms:lambakap(foodandwater)]]
