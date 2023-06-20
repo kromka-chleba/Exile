@@ -118,4 +118,43 @@ local cane_list = {
         y_min = beach_max,
         schematic = tiken,
     },
+
+    {--[[Allbarren:Saguati]]
+        name = "saguati",
+        deco_type = "schematic",
+        place_on = barrenland_on,
+        sidelen = 80,
+        fill_ratio = 0.000800,
+        y_max = highland_max,
+        y_min = beach_max,
+        schematic = deco.find_schematic("saguati"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
+    {--[[Allbarren:Saguati tall]]
+        name = "saguati_tall",
+        deco_type = "schematic",
+        place_on = barrenland_on,
+        sidelen = 80,
+        fill_ratio = 0.000300,
+        y_max = highland_max,
+        y_min = beach_max,
+        schematic = deco.find_schematic("saguati_tall"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
+    {--[[Allbarren:Saguati short]]
+        name = "saguati_short",
+        deco_type = "schematic",
+        place_on = barrenland_on,
+        sidelen = 80,
+        fill_ratio = 0.000200,
+        y_max = highland_max,
+        y_min = beach_max,
+        schematic = deco.find_schematic("saguati_short"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
 }
