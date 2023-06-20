@@ -5,13 +5,13 @@ deco = deco or {}
 
 -- Import
 local path = minetest.get_modpath("mapgen")
-dofile(path.."/soils_and_altitudes.lua")
+local sna = dofile(path.."/soils_and_altitudes.lua")
 
 local cave_life = {
     {--[[Mushrooms:lambakap(foodandwater)]]
         name = "nodes_nature:lambakap",
         deco_type = "simple",
-        place_on = cave_mushrooms_on,
+        place_on = sna.cave_mushrooms_on,
         sidelen = 80,
         fill_ratio = 0.010000,
         y_max = -80,
@@ -23,7 +23,7 @@ local cave_life = {
     {--[[Mushrooms:reshedaar(woodsource)]]
         name = "nodes_nature:reshedaar",
         deco_type = "simple",
-        place_on = cave_mushrooms_on,
+        place_on = sna.cave_mushrooms_on,
         sidelen = 80,
         fill_ratio = 0.010000,
         y_max = -80,
@@ -35,7 +35,7 @@ local cave_life = {
     {--[[Mushrooms:mahal(fibresource)]]
         name = "nodes_nature:mahal",
         deco_type = "simple",
-        place_on = cave_mushrooms_on,
+        place_on = sna.cave_mushrooms_on,
         sidelen = 80,
         fill_ratio = 0.010000,
         y_max = -80,
@@ -47,7 +47,7 @@ local cave_life = {
     {--[[Underground:Cave worms on cave roof]]
         name = "nodes_nature:glow_worm",
         deco_type = "simple",
-        place_on = glow_worm_on,
+        place_on = sna.glow_worm_on,
         sidelen = 16,
         noise_params = {offset=-0.04, scale=0.4000, spread={x=64, y=64, z=64}, seed=11002, octaves=2, persist=0.9},
         y_max = -15,
@@ -62,7 +62,7 @@ local cave_sediments = {
     {--[[Sediments:cavegravel]]
         name = "cave_gravel",
         deco_type = "simple",
-        place_on = gravel_on,
+        place_on = sna.gravel_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.50, scale=3.0000, spread={x=32, y=32, z=32}, seed=873515, octaves=2, persist=0.9},
@@ -75,7 +75,7 @@ local cave_sediments = {
     {--[[Sediments:cavesand]]
         name = "cave_sand",
         deco_type = "simple",
-        place_on = sand_on,
+        place_on = sna.sand_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.50, scale=3.0000, spread={x=32, y=32, z=32}, seed=795515, octaves=2, persist=0.9},
@@ -88,7 +88,7 @@ local cave_sediments = {
     {--[[Sediments:caveclay]]
         name = "cave_clay",
         deco_type = "simple",
-        place_on = clay_on,
+        place_on = sna.clay_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.50, scale=3.0000, spread={x=32, y=32, z=32}, seed=87005, octaves=2, persist=0.9},
@@ -101,7 +101,7 @@ local cave_sediments = {
     {--[[Sediments:cavesilt]]
         name = "cave_silt",
         deco_type = "simple",
-        place_on = silt_on,
+        place_on = sna.silt_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.50, scale=3.0000, spread={x=32, y=32, z=32}, seed=87005, octaves=2, persist=0.9},
@@ -114,7 +114,7 @@ local cave_sediments = {
     {--[[Sediments:cavegravelwet]]
         name = "cave_gravel_w",
         deco_type = "simple",
-        place_on = gravel_on,
+        place_on = sna.gravel_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.70, scale=3.0000, spread={x=32, y=32, z=32}, seed=174415, octaves=2, persist=0.9},
@@ -127,7 +127,7 @@ local cave_sediments = {
     {--[[Sediments:cavesandwet]]
         name = "cave_sand_w",
         deco_type = "simple",
-        place_on = sand_on,
+        place_on = sna.sand_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.70, scale=3.0000, spread={x=32, y=32, z=32}, seed=796565, octaves=2, persist=0.9},
@@ -140,7 +140,7 @@ local cave_sediments = {
     {--[[Sediments:caveclaywet]]
         name = "cave_clay_w",
         deco_type = "simple",
-        place_on = clay_on,
+        place_on = sna.clay_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.70, scale=3.0000, spread={x=32, y=32, z=32}, seed=87005, octaves=2, persist=0.9},
@@ -153,7 +153,7 @@ local cave_sediments = {
     {--[[Sediments:cavesiltwet]]
         name = "cave_silt_w",
         deco_type = "simple",
-        place_on = silt_on,
+        place_on = sna.silt_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.70, scale=3.0000, spread={x=32, y=32, z=32}, seed=85025, octaves=2, persist=0.9},
@@ -164,3 +164,7 @@ local cave_sediments = {
     },
 }
 
+return {
+    cave_life = cave_life,
+    cave_sediments = cave_sediments,
+}

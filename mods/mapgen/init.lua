@@ -51,6 +51,10 @@ else
    minetest.log("action","v4 biomes setting is invalid!")
 end
 
+function deco.find_schematic(object)
+    return minetest.get_modpath("mapgen").."/schematics/"..object..".mts"
+end
+
 if enable_v4_biomes then
    dofile(path.."/biomes.lua")
    dofile(path.."/ores.lua")
@@ -59,10 +63,6 @@ else
    dofile(path.."/old_biomes.lua")
    dofile(path.."/ores.lua")
    dofile(path.."/old_deco.lua")
-end
-
-function deco.find_schematic(object)
-    return minetest.get_modpath("mapgen").."/schematics/"..object..".mts"
 end
 
 ---------------------------------------------
