@@ -5,7 +5,7 @@ deco = deco or {}
 
 -- Import
 local path = minetest.get_modpath("mapgen")
-dofile(path.."/soils_and_altitudes.lua")
+local sna = dofile(path.."/soils_and_altitudes.lua")
 
 local boulders = {
     {--[[Boulders:granite boulder]]
@@ -86,12 +86,12 @@ local extra_soils = {
     {--[[topsoilintrusions:rich]]
         name = "nodes_nature:rich_forest_soil",
         deco_type = "simple",
-        place_on = forest_on,
+        place_on = sna.forest_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.60, scale=1.0000, spread={x=32, y=32, z=32}, seed=1995, octaves=2, persist=1.0},
-        y_max = lowland_max,
-        y_min = beach_max,
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
         decoration = "nodes_nature:rich_forest_soil",
         flags = "force_placement",
     },
@@ -99,12 +99,12 @@ local extra_soils = {
     {--[[topsoilintrusions:rich]]
         name = "nodes_nature:rich_woodland_soil",
         deco_type = "simple",
-        place_on = woodland_on,
+        place_on = sna.woodland_on,
         place_offset_y = -1,
         sidelen = 04,
         noise_params = {offset=-0.60, scale=1.0000, spread={x=32, y=32, z=32}, seed=1995, octaves=2, persist=1.0},
-        y_max = lowland_max,
-        y_min = beach_max,
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
         decoration = "nodes_nature:rich_woodland_soil",
         flags = "force_placement",
     },
@@ -190,6 +190,12 @@ local cobbles = minimal.concat_tables(
         generate_cobbles("cave", cobble_cave_fill_ratio, {}),
         generate_cobbles("beach", cobble_beach_fill_ratio, beach_cobble_on),
         generate_cobbles("gravel", cobble_gravel_fill_ratio, gravel_cobble_on),
-        generate_cobbles("soil", cobble_soil_fill_ratio, all_soils_on),
+        generate_cobbles("soil", cobble_soil_fill_ratio, sna.all_soils_on),
     }
 )
+
+return {
+    boulders = boulders,
+    cobbles = cobbles,
+    extra_soils = extra_soils,
+}

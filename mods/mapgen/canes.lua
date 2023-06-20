@@ -5,7 +5,7 @@ deco = deco or {}
 
 -- Import
 local path = minetest.get_modpath("mapgen")
-dofile(path.."/soils_and_altitudes.lua")
+local sna = dofile(path.."/soils_and_altitudes.lua")
 
 -- this needs investigation later
 local function trash_encapsulation()
@@ -45,88 +45,88 @@ local cane_list = {
     {--[[wetland:cana]]
         name = "sf_nn:cana",
         deco_type = "schematic",
-        place_on = wetland_on,
+        place_on = sna.wetland_on,
         sidelen = 80,
         fill_ratio = 0.008000,
-        y_max = upland_max,
-        y_min = beach_max,
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
         schematic = cana,
     },
 
     {--[[Marshland:cana]]
         name = "nodes_nature:cana",
         deco_type = "schematic",
-        place_on = marshland_on,
+        place_on = sna.marshland_on,
         sidelen = 16,
         noise_params = {offset=0.00, scale=2.0000, spread={x=16, y=16, z=16}, seed=578, octaves=3, persist=0.7},
-        y_max = coastal_max+5,
-        y_min = beach_max,
+        y_max = sna.coastal_max+5,
+        y_min = sna.beach_max,
         schematic = cana,
     },
 
     {--[[Grassland:gemedi]]
         name = "nodes_nature:gemedi",
         deco_type = "schematic",
-        place_on = grassland_on,
+        place_on = sna.grassland_on,
         sidelen = 16,
         noise_params = {offset=0.00, scale=1.0000, spread={x=128, y=128, z=128}, seed=998, octaves=2, persist=0.8},
-        y_max = coastal_max,
-        y_min = beach_max,
+        y_max = sna.coastal_max,
+        y_min = sna.beach_max,
         schematic = gemedi,
     },
 
     {--[[forestChalin]]
         name = "fr_nn:chalin",
         deco_type = "schematic",
-        place_on = forest_on,
+        place_on = sna.forest_on,
         sidelen = 80,
         fill_ratio = 0.008000,
-        y_max = highland_max,
-        y_min = beach_max,
+        y_max = sna.highland_max,
+        y_min = sna.beach_max,
         schematic = chalin,
     },
 
     {--[[woodlandChalinclumps]]
         name = "wl_nn:chalin",
         deco_type = "schematic",
-        place_on = woodland_on,
+        place_on = sna.woodland_on,
         sidelen = 16,
         noise_params = {offset=0.00, scale=0.1000, spread={x=16, y=16, z=16}, seed=1881, octaves=2, persist=1},
-        y_max = upland_max,
-        y_min = beach_max,
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
         schematic = chalin,
     },
 
     {--[[ShrublandChalinclumps]]
         name = "sh_nn:chalin",
         deco_type = "schematic",
-        place_on = shrubland_on,
+        place_on = sna.shrubland_on,
         sidelen = 16,
         noise_params = {offset=0.00, scale=0.1000, spread={x=16, y=16, z=16}, seed=1881, octaves=3, persist=1},
-        y_max = upland_max,
-        y_min = beach_max,
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
         schematic = chalin,
     },
 
     {--[[Duneland:tiken]]
         name = "nodes_nature:tiken",
         deco_type = "schematic",
-        place_on = duneland_on,
+        place_on = sna.duneland_on,
         sidelen = 16,
         noise_params = {offset=0.00, scale=1.0000, spread={x=64, y=64, z=64}, seed=998, octaves=2, persist=0.9},
-        y_max = beach_max+3,
-        y_min = beach_max,
+        y_max = sna.beach_max+3,
+        y_min = sna.beach_max,
         schematic = tiken,
     },
 
     {--[[Allbarren:Saguati]]
         name = "saguati",
         deco_type = "schematic",
-        place_on = barrenland_on,
+        place_on = sna.barrenland_on,
         sidelen = 80,
         fill_ratio = 0.000800,
-        y_max = highland_max,
-        y_min = beach_max,
+        y_max = sna.highland_max,
+        y_min = sna.beach_max,
         schematic = deco.find_schematic("saguati"),
         flags = "place_center_x, place_center_z",
         rotation = "random",
@@ -135,11 +135,11 @@ local cane_list = {
     {--[[Allbarren:Saguati tall]]
         name = "saguati_tall",
         deco_type = "schematic",
-        place_on = barrenland_on,
+        place_on = sna.barrenland_on,
         sidelen = 80,
         fill_ratio = 0.000300,
-        y_max = highland_max,
-        y_min = beach_max,
+        y_max = sna.highland_max,
+        y_min = sna.beach_max,
         schematic = deco.find_schematic("saguati_tall"),
         flags = "place_center_x, place_center_z",
         rotation = "random",
@@ -148,13 +148,17 @@ local cane_list = {
     {--[[Allbarren:Saguati short]]
         name = "saguati_short",
         deco_type = "schematic",
-        place_on = barrenland_on,
+        place_on = sna.barrenland_on,
         sidelen = 80,
         fill_ratio = 0.000200,
-        y_max = highland_max,
-        y_min = beach_max,
+        y_max = sna.highland_max,
+        y_min = sna.beach_max,
         schematic = deco.find_schematic("saguati_short"),
         flags = "place_center_x, place_center_z",
         rotation = "random",
     },
+}
+
+return {
+    cane_list = cane_list,
 }

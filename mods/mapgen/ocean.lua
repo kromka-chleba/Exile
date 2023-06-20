@@ -5,7 +5,7 @@ deco = deco or {}
 
 -- Import
 local path = minetest.get_modpath("mapgen")
-dofile(path.."/soils_and_altitudes.lua")
+local sna = dofile(path.."/soils_and_altitudes.lua")
 
 local sea_weeds = {
     {--[[Oceans:kelp]]
@@ -92,4 +92,8 @@ local sea_weeds = {
         flags = "force_placement",
         param2 = 16,
     },
+}
+
+return {
+    sea_weeds = sea_weeds,
 }
