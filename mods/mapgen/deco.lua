@@ -40,6 +40,25 @@ register_from_list("Cave Life", caves.cave_life)
 register_from_list("Sea Weeds", ocean.sea_weeds)
 register_from_list("Eggs", eggs.eggs)
 
+-- Calls function 'fun' for every decoration named 'deco_name'
+-- just after generation.
+-- fun is a function with arguments:
+-- pos, minp, maxp, blockseed, extra_args (an object)
+local function do_after_generation(deco_name, fun, extra_args)
+    local id = minetest.get_decoration_id(deco_name)
+    minetest.set_gen_notify({decoration = true}, {id})
+    minetest.register_on_generated(
+        function(minp, maxp, blockseed)
+            local gennotify = minetest.get_mapgen_object("gennotify")
+            local pos_list = gennotify["decoration#"..id] or {}
+            for _, pos in ipairs(pos_list) do
+                local pos = minimal.get_pos_above(pos)
+                fun(pos, minp, maxp, blockseed, extra_args)
+            end
+        end
+    )
+end
+
 ---- Start node timers ----
 local egg_names = {  -- list of strings
     "gundu_eggs",
@@ -78,3 +97,21 @@ minetest.register_on_generated(
         end
     end
 )
+
+-- after generation
+local function remove_floating_canes(pos, minp, maxp, blockseed, extra_args)
+    if minimal.get_group(pos, "cane_plant") > 0 then
+        return
+    end
+    local pos_top = {x = pos.x, y = pos.y + 8, z = pos.z}
+    local floating_canes =
+        minetest.find_nodes_in_area(pos, pos_top, {"group:cane_plant"})
+    for i = 1, #floating_canes do
+        minetest.remove_node(floating_canes[i])
+    end
+end
+
+-- This removes floating canes after generation (the final solution)
+for _, cane in ipairs(canes.cane_list) do
+    do_after_generation(cane.name, remove_floating_canes)
+end
