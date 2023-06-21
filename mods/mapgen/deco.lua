@@ -26,9 +26,9 @@ end
 
 register_from_list("Boulders", rns.boulders)
 register_from_list("Extra Soils", rns.extra_soils)
-register_from_list("Cobbles", rns.cobbles)
 register_from_list("Trees", trees.tree_list)
 register_from_list("Canes", canes.cane_list)
+register_from_list("Cobbles", rns.cobbles)
 register_from_list("Fibrous Plants", fnw.fibrous_plants)
 register_from_list("Woody Plants", fnw.woody_plants)
 register_from_list("Moss", fnw.moss_and_stuff)
