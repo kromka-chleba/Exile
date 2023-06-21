@@ -61,42 +61,22 @@ end
 
 ---- Start node timers ----
 local egg_names = {  -- list of strings
-    "gundu_eggs",
-    "sarkamos_eggs",
-    "impethu_eggs",
-    "kubwakubwa_eggs",
-    "kubwakubwa_eggs_forest",
-    "kubwakubwa_eggs_barren",
-    "darkasthaan_eggs",
-    "pegasun_eggs",
-    "pegasun_eggs_badland",
-    "sneachan_eggs",
-    "sneachan_eggs_badland",
+    "animals:gundu_eggs",
+    "animals:sarkamos_eggs",
+    "animals:impethu_eggs",
+    "animals:kubwakubwa_eggs",
+    "animals:kubwakubwa_eggs_forest",
+    "animals:kubwakubwa_eggs_barren",
+    "animals:darkasthaan_eggs",
+    "animals:pegasun_eggs",
+    "animals:pegasun_eggs_badland",
+    "animals:sneachan_eggs",
+    "animals:sneachan_eggs_badland",
 }
 
-local eggs_nearby = {}  -- list of decoration IDs
-for i in ipairs(egg_names) do -- get decoration IDs
-    table.insert(eggs_nearby, minetest.get_decoration_id("animals:"..egg_names[i])) -- add the current egg found
+local function start_egg_timers(pos, minp, maxp, blockseed, extra_args)
+    minetest.get_node_timer(pos):start(1)
 end
-minetest.set_gen_notify({decoration = true}, eggs_nearby)
-minetest.register_on_generated(
-    function(minp, maxp, blockseed) -- start node timers
-        local gennotify = minetest.get_mapgen_object("gennotify")
-        local poslist = {}
-        for i in ipairs(egg_names) do -- iterate across the list of strings
-            for j, pos in ipairs(gennotify["decoration#"..eggs_nearby[i]] or {}) do -- iterate across the
-                local eggs_pos = {x = pos.x, y = pos.y + 1, z = pos.z}
-                table.insert(poslist, eggs_pos) -- append this position to the list
-            end
-        end
-        if #poslist ~= 0 then
-            for i = 1, #poslist do
-                local pos = poslist[i] -- grab this position from the list
-                minetest.get_node_timer(pos):start(1) -- start the node timer for this egg
-            end
-        end
-    end
-)
 
 local function remove_floating_canes(pos, minp, maxp, blockseed, extra_args)
     if minimal.get_group(pos, "cane_plant") > 0 then
@@ -137,6 +117,11 @@ local plants_with_tubers = {
 --------------------------------------------------------------------
 -- Modifying decorations after generation
 --------------------------------------------------------------------
+
+-- Start egg timers
+for _, egg in ipairs(egg_names) do
+    do_after_generation(egg, start_egg_timers)
+end
 
 -- Removes floating canes after generation (the final solution)
 for _, cane in ipairs(canes.cane_list) do
