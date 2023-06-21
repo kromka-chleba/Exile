@@ -98,7 +98,6 @@ minetest.register_on_generated(
     end
 )
 
--- after generation
 local function remove_floating_canes(pos, minp, maxp, blockseed, extra_args)
     if minimal.get_group(pos, "cane_plant") > 0 then
         return
@@ -111,7 +110,40 @@ local function remove_floating_canes(pos, minp, maxp, blockseed, extra_args)
     end
 end
 
--- This removes floating canes after generation (the final solution)
+local function add_roots(pos, minp, maxp, blockseed, extra_args)
+    local plant_nodedef = minimal.get_nodedef(pos)
+    if not plant_nodedef.groups.plant_with_roots
+        or plant_nodedef.groups.plant_with_roots == 0 then
+        return
+    end
+    local pos_under = minimal.get_pos_under(pos)
+    local name_under = minetest.get_node(pos_under).name
+    if minetest.get_item_group(name_under, "sediment") == 0 then
+        return
+    elseif minetest.get_item_group(name_under, "roots") == 0 then
+        minetest.set_node(pos_under, {name = name_under.."_roots"})
+    end
+    local meta = minetest.get_meta(pos_under)
+    meta:set_string("root_name", plant_nodedef._root_name)
+    local max_root_nr = plant_nodedef.groups.plant_with_roots
+    meta:set_int("root_nr", math.ceil(math.random(0, max_root_nr)))
+end
+
+-- List of decoration names
+local plants_with_tubers = {
+    "nodes_nature:anperla",
+}
+
+--------------------------------------------------------------------
+-- Modifying decorations after generation
+--------------------------------------------------------------------
+
+-- Removes floating canes after generation (the final solution)
 for _, cane in ipairs(canes.cane_list) do
     do_after_generation(cane.name, remove_floating_canes)
+end
+
+-- Adds root soil and tubers under plants with roots
+for _, plant in ipairs(plants_with_tubers) do
+    do_after_generation(plant, add_roots)
 end
