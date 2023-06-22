@@ -81,7 +81,11 @@ local function merge_tables (t1, t2)
     return new_table
 end
 
-local defer_tgcr = {
+-- the next two lines cannot be merged into "local defer_tgcr = {", because
+-- defer_tgcr.perform_deferred_registration would not see the defer_tgcr local
+-- variable
+local defer_tgcr
+defer_tgcr = {
 	data = {},
 	register_replacement = function(source_node_name, target_node_name, replacement_kind, activation_source_name)
 		defer_tgcr.data[1+#defer_tgcr.data] = function()
