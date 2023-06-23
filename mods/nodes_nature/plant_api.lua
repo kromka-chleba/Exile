@@ -69,7 +69,7 @@ local sounds = {
 
 local base_groups = {
     base = {temp_pass = 1, attached_node = 1, flora = 1},
-    mushroom = {mushroom = 1},
+    mushroom = {mushroom = 1, flora = 1},
     seed = {
         seed = 1,
         flammable = 2,
@@ -429,9 +429,16 @@ function plant.get_plantlike_props(plant_def)
     return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
 end
 
-function plant.get_canelike_props(plant_def)
+function plant.get_plantlike_mature_props(plant_def)
     local base = plant.get_plantlike_props(plant_def)
-    base.place_param2 = 2
+    base.groups.mature_flora = 1
+    return table.copy(base)
+end
+
+-- Mature cane plant, seedlings defined elsewhere
+function plant.get_canelike_props(plant_def)
+    local base = plant.get_plantlike_mature_props(plant_def)
+    base.place_param2 = plant_def.mesh_type or 2
     base.selection_box = {
         type = "fixed",
         fixed = {-0.1875, -0.5, -0.1875, 0.1875, 0.5, 0.1875},
@@ -606,6 +613,7 @@ function plant.get_plantlike_fruiting_props(plant_def)
     base.inventory_image = plant.get_fruiting_texture_name(plant_def.name)
     base.groups.fruiting_plant = 1
     base.groups.flowering_plant = nil
+    base.groups.mature_flora = 1
     base.groups.ncrafting_dye_candidate = nil
     base.wield_image = plant.get_fruiting_texture_name(plant_def.name)
     base.on_punch = fruiting_on_punch
@@ -662,6 +670,7 @@ function plant.get_plantlike_dead_props(plant_def)
         base._fruitless_name = plant.get_dead_fruitless_name(plant_def.name)
         base._fruit_name = plant.get_fruit_name(plant_def.name)
         base.on_punch = fruiting_on_punch
+        base.groups.fruiting_plant = 1
     end
     return table.copy(base)
 end
@@ -750,6 +759,7 @@ function plant.register_3D(plant_def)
         props.groups.ncrafting_dye_candidate = 1
         props._ncrafting_dye_dcolor = plant_def.dominant_color
     end
+    props.groups.mature_flora = 1
     minetest.register_node(plant.get_name(plant_def.name),
                            props)
 end
@@ -780,8 +790,9 @@ function plant.register_3D_seedling(plant_def)
                             plant.get_seedling_name(plant_def.name, 1))
 end
 
+-- A mature, non-seasonal plant. Grasses and such.
 function plant.register_plantlike(plant_def)
-    local props = plant.get_plantlike_props(plant_def)
+    local props = plant.get_plantlike_mature_props(plant_def)
     -- adding dyes here to avoid seedlings as dye candidates
     if plant_def.dye_candidate then
         props.groups.ncrafting_dye_candidate = 1
@@ -837,10 +848,14 @@ function plant.get_seed_base_props(plant_def)
             return plant.grow_seed(pos, elapsed)
         end,
         on_construct = function(pos)
+            plant.set_to_half_wild(pos)
             plant.start_growing_seed(pos)
         end,
         on_place = function(itemstack, placer, pointed_thing)
             return on_place_plant(itemstack, placer, pointed_thing)
+        end,
+        after_place_node = function(pos, placer, itemstack, pointed_thing)
+            plant.set_to_domesticated(pos)
         end,
     }
     return minimal.merge_tables(props, plant.get_seasonal_props(plant_def))
@@ -933,6 +948,7 @@ function plant.register_all(plant_def_list)
                 minetest.register_alias(plant.get_name(plant_def.name),
                                         plant.get_fruiting_name(plant_def.name))
             else
+                -- here only Zufani
                 plant.register_plantlike(plant_def)
             end
             if plant_def.seasonal_type or plant_def.seasons then

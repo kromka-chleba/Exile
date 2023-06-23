@@ -217,7 +217,7 @@ local plant_list = {
      bioluminescence = 1,},
 
     {name = "merki", description = S("Merki"),
-     drawtype = "plantlike",
+     drawtype = "plantlike", bioluminescence = 2,
      lifeform_type = "mushroom", plant_type = "mushroom",
      mesh_type = 0, growing_time = plant_base_growing_time * 2},
 
@@ -334,22 +334,26 @@ local plant_list = {
 
     -- Canes
     {name = "cana", description = S("Cana"),
+     mesh_type = 2,
      drawtype = "plantlike", plant_type = "cane", waving = false,
      growing_time = plant_base_growing_time * 2, seed_number = 1},
 
     {name = "gemedi", description = S("Gemedi"),
+     mesh_type = 2,
      drawtype = "plantlike", plant_type = "cane", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, seasonal_type = "cane"},
 
     -- Bamboos
     {name = "chalin", description = S("Chalin"),
+     mesh_type = 2,
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, climbable = true, seasonal_type = "whole_season_woody",
      move_resistance = 1},
 
     {name = "tiken", description = S("Tiken"),
+     mesh_type = 2,
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
@@ -383,13 +387,6 @@ minetest.override_item(
 
 ----------------------------------------------
 --Extra effects
-
---glowing mushroom
-minetest.override_item(
-    "nodes_nature:merki",{
-        light_source = 2,
-        groups = {snappy = 3, attached_node = 1, flammable = 3, mushroom = 1, temp_pass = 1, bioluminescent= 1}
-})
 
 -- tuber
 minetest.override_item(

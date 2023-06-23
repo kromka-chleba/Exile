@@ -427,7 +427,6 @@ end
 ------------------ Global functions of the API ------------------
 
 function plant.start_growing_seed(pos)
-    plant.set_to_domesticated(pos)
     local timer_min = seed_growing_time - 0.25 * seed_growing_time
     local timer_max = seed_growing_time + 0.25 * seed_growing_time
     local timer = minetest.get_node_timer(pos)
