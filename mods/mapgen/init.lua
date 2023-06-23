@@ -1,6 +1,8 @@
 -- Load files
 local path = minetest.get_modpath("mapgen")
 
+-- Globals
+deco = deco or {}
 
 minetest.set_mapgen_setting("mg_flags", "caves, nodungeons, light, decorations, biomes", true)
 minetest.set_mapgen_setting("mgvalleys_spflags", "altitude_chill, humid_rivers, vary_river_depth, altitude_dry", true)
@@ -47,6 +49,10 @@ elseif biomes_enable == false then
    minetest.log("action","Exile v4 biomes disabled")
 else
    minetest.log("action","v4 biomes setting is invalid!")
+end
+
+function deco.find_schematic(object)
+    return minetest.get_modpath("mapgen").."/schematics/"..object..".mts"
 end
 
 if enable_v4_biomes then
