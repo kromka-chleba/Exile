@@ -62,7 +62,7 @@ local function labels_valid(labels)
     return true
 end
 
-local function set_labels(hash, new_labels)
+local function add_labels(hash, new_labels)
     local labels = get_labels(hash)
     if not labels then
         minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
@@ -73,6 +73,21 @@ local function set_labels(hash, new_labels)
         end
         mod_storage:set_int(hash, ms.encode_labels(labels))
     end
+end
+
+local function remove_labels(hash, labels)
+    local old_labels = get_labels(hash)
+    if not old_labels then
+        minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
+    end
+    for i, old_name in pairs(old_labels) do
+        for _, name in pairs(labels) do
+            if old_name == name then
+                old_labels[i] = nil
+            end
+        end
+    end
+    mod_storage:set_int(hash, ms.encode_labels(old_labels))
 end
 
 local function player_tracker()
