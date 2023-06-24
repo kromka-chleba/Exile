@@ -20,6 +20,10 @@ function ms.get_labels()
     return table.copy(registered_labels)
 end
 
+function ms.is_label(name)
+    return ids_by_name[name]
+end
+
 function ms.register_label(name, nr)
     if nr < 1 or nr > 48 then
         minetest.log("error", "Mapchunk shepherd: Label nr needs to be 0-47 and is "..nr)
@@ -66,3 +70,5 @@ function ms.decode_labels(encoded)
     end
     return decoded_ids
 end
+
+ms.register_label("chunk_tracked", 1)

@@ -2,52 +2,77 @@
 -- License: GNU GPLv3
 -- Copyright © Jan Wielkiewicz 2023
 
-local tracking_interval = 1
-local visited_mapchunks = {} -- hash, labels
+-- Globals
+ms = mapchunk_shepherd
+
+local tracking_interval = 2
+local mod_storage = minetest.get_mod_storage()
 
 local function mapchunk_hash(pos)
     local pos = vector.divide(pos, 80)
-    pos = vector.floor(pos)        
+    pos = vector.floor(pos)
     return minetest.hash_node_position(pos)
 end
 
-local function is_tracked(hash)
-    for saved_hash, labels in pairs(visited_mapchunks) do
-        if saved_hash == hash then
-            return true
+local function neighboring_mapchunks(hash)
+    local pos = minetest.get_position_from_hash(hash)
+    local hashes = {}
+    for z = -1, 1 do
+        for y = -1, 1 do
+            for x = -1, 1 do
+                local v = vector.new(x, y, z)
+                v = vector.multiply(v, 80)
+                local mapchunk_pos = vector.add(pos, v)
+                table.insert(hashes, mapchunk_hash(mapchunk_pos))
+            end
         end
     end
-    return false
+    return hashes
+end
+
+local function is_tracked(hash)
+    local value = mod_storage:get_int(hash)
+    if value == 0 then
+        return false
+    else
+        return value
+    end
 end
 
 local function save_mapchunk(hash)
     if not is_tracked(hash) then
-        visited_mapchunks[hash] = {tracked = true}
+        mod_storage:set_int(hash, ms.encode_labels({"chunk_tracked"}))
     end
 end
 
-local function set_labels(hash, labels)
-    if is_tracked(hash) then
-        for label, value in pairs(labels) do
-            visited_mapchunks[hash][label] = value
+local function get_labels(hash)
+    local encoded = is_tracked(hash)
+    if encoded then
+        return ms.decode_labels(encoded)
+    end
+end
+
+local function labels_valid(labels)
+    for _, label in pairs(labels) do
+        if not ms.is_label(label) then
+            minetest.log("error", "Mapchunk shepherd: "..label.." is not a valid label!")
+            return false
         end
     end
+    return true
 end
 
--- Gets mapchunk labels by their names
--- of label_names is nil, all labels are returned
-local function get_labels(hash, label_names)
-    if not is_tracked(hash) then
-        return
+local function set_labels(hash, new_labels)
+    local labels = get_labels(hash)
+    if not labels then
+        minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
     end
-    if not label_names then
-        return visited_mapchunks[hash]
+    if labels_valid(new_labels) then
+        for _, nlabel in pairs(new_labels) do
+            table.insert(labels, nlabel)
+        end
+        mod_storage:set_int(hash, ms.encode_labels(labels))
     end
-    local labels = {}
-    for _, name in pairs(label_names) do
-        labels[name] = visited_mapchunks[hash][name]
-    end
-    return labels
 end
 
 local function player_tracker()
@@ -56,6 +81,7 @@ local function player_tracker()
         local pos = player:get_pos()
         local hash = mapchunk_hash(pos)
         save_mapchunk(hash)
+        minetest.log("error", dump(get_labels(hash)))
     end
     minetest.after(tracking_interval, player_tracker)
 end
