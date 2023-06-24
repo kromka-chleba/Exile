@@ -11,6 +11,7 @@ local mod_storage = minetest.get_mod_storage()
 local function mapchunk_hash(pos)
     local pos = vector.divide(pos, 80)
     pos = vector.floor(pos)
+    pos = vector.multiply(pos, 80)
     return minetest.hash_node_position(pos)
 end
 
@@ -88,6 +89,12 @@ local function remove_labels(hash, labels)
         end
     end
     mod_storage:set_int(hash, ms.encode_labels(old_labels))
+end
+
+local function mapchunk_borders(hash)
+    local pos_min = minetest.get_position_from_hash(hash)
+    local pos_max = vector.add(pos_min, 79)
+    return pos_min, pos_max
 end
 
 local function player_tracker()
