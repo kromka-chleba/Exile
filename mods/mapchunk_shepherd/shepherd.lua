@@ -5,7 +5,7 @@
 -- Globals
 ms = mapchunk_shepherd
 
-local tracking_interval = 2
+local tracking_interval = 10
 local mod_storage = minetest.get_mod_storage()
 -- By default chunksize is 5
 local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
@@ -25,7 +25,8 @@ local function chunksize_changed()
     end
 end
 
-local function mapchunk_hash(pos)
+-- A global function to get hash from pos
+function ms.mapchunk_hash(pos)
     local pos = vector.divide(pos, chunk_side)
     pos = vector.floor(pos)
     pos = vector.multiply(pos, chunk_side)
@@ -42,7 +43,7 @@ local function neighboring_mapchunks(hash)
                 local v = vector.new(x, y, z)
                 v = vector.multiply(v, chunk_side)
                 local mapchunk_pos = vector.add(pos, v)
-                table.insert(hashes, mapchunk_hash(mapchunk_pos))
+                table.insert(hashes, ms.mapchunk_hash(mapchunk_pos))
             end
         end
     end
@@ -58,10 +59,20 @@ local function is_tracked(hash)
     end
 end
 
-local function save_mapchunk(hash)
-    if not is_tracked(hash) then
+local function save_mapchunk(hash, force)
+    if force or not is_tracked(hash) then
         mod_storage:set_int(hash, ms.encode_labels({"chunk_tracked"}))
     end
+end
+
+-- Clears labels other than "chunk_tracked"
+local function reset_mapchunk(hash)
+    mod_storage:set_int(hash, ms.encode_labels({"chunk_tracked"}))
+end
+
+-- Removes the hash from history
+local function remove_mapchunk(hash)
+    mod_storage:set_int(hash, 0)
 end
 
 local function get_labels(hash)
@@ -109,18 +120,51 @@ local function remove_labels(hash, labels)
     mod_storage:set_int(hash, ms.encode_labels(old_labels))
 end
 
-local function mapchunk_borders(hash)
+-- A global function to get mapchunk borders
+function ms.mapchunk_borders(hash)
     local pos_min = minetest.get_position_from_hash(hash)
     local pos_max = vector.add(pos_min, 79)
     return pos_min, pos_max
 end
 
+local function run_scanners(hash)
+    local labels = get_labels(hash)
+    local pos1, pos2 = ms.mapchunk_borders(hash)
+    for name, scanner in pairs(ms.scanners) do
+        --minetest.log("error", "Running scanner: "..name)
+        local labels_added, labels_removed = scanner(pos1, pos2, labels)
+        if labels_added then
+            add_labels(hash, labels_added)
+        end
+        if labels_removed then
+            remove_labels(hash, labels_removed)
+        end
+    end
+end
+
+local function run_workers(hash)
+    local labels = get_labels(hash)
+    for name, worker in pairs(ms.workers) do
+        --minetest.log("error", "Running worker: "..name)
+        local labels_added, labels_removed = worker(pos1, pos2, labels)
+    end
+end
+
+-- Main loop of the shepherd
 local function player_tracker()
     local players = minetest.get_connected_players()
     for _, player in ipairs(players) do
         local pos = player:get_pos()
-        local hash = mapchunk_hash(pos)
-        save_mapchunk(hash)
+        local hash = ms.mapchunk_hash(pos)
+        local neighbors = neighboring_mapchunks(hash)
+        for _, neighbor in pairs(neighbors) do
+            if not is_tracked(hash) then
+                save_mapchunk(neighbor, true)
+                run_scanners(neighbor)
+            else
+                run_workers(neighbor)
+            end
+        end
         minetest.log("error", dump(get_labels(hash)))
     end
     minetest.after(tracking_interval, player_tracker)
