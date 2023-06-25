@@ -7,11 +7,29 @@ ms = mapchunk_shepherd
 
 local tracking_interval = 2
 local mod_storage = minetest.get_mod_storage()
+-- By default chunksize is 5
+local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
+local chunk_side = blocks_per_chunk * 16
+-- this logic comes from Minetest source code, see src/mapgen/mapgen.cpp
+local mapchunk_offset = -16 * math.floor(blocks_per_chunk / 2)
+local old_chunksize = mod_storage:get_int("chunksize")
+
+local function chunksize_changed()
+    if old_chunksize == 0 then
+        mod_storage:set_int("chunksize", blocks_per_chunk)
+        return false
+    elseif old_chunksize ~= blocks_per_chunk then
+        return true
+    else
+        return false
+    end
+end
 
 local function mapchunk_hash(pos)
-    local pos = vector.divide(pos, 80)
+    local pos = vector.divide(pos, chunk_side)
     pos = vector.floor(pos)
-    pos = vector.multiply(pos, 80)
+    pos = vector.multiply(pos, chunk_side)
+    pos = vector.add(pos, mapchunk_offset)
     return minetest.hash_node_position(pos)
 end
 
@@ -22,7 +40,7 @@ local function neighboring_mapchunks(hash)
         for y = -1, 1 do
             for x = -1, 1 do
                 local v = vector.new(x, y, z)
-                v = vector.multiply(v, 80)
+                v = vector.multiply(v, chunk_side)
                 local mapchunk_pos = vector.add(pos, v)
                 table.insert(hashes, mapchunk_hash(mapchunk_pos))
             end
@@ -108,4 +126,18 @@ local function player_tracker()
     minetest.after(tracking_interval, player_tracker)
 end
 
-minetest.after(2, player_tracker)
+------------------------------------------------------------------
+-- Here the trackers is started
+------------------------------------------------------------------
+
+-- Prevent starting Mapchunk Shepherd if chunksize changed for the world.
+-- This avoids data corruption.
+if chunksize_changed() then
+    minetest.log("error", "Mapchunk Shepherd: chunksize changed to "..
+                 blocks_per_chunk.." from "..old_chunksize..".")
+    minetest.log("error", "Mapchunk Shepherd: Changing chunksize can corrupt stored data."..
+                 " Refusing to start.")
+else
+    -- Start the tracker
+    minetest.after(2, player_tracker)
+end
