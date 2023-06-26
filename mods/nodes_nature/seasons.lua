@@ -62,28 +62,6 @@ minetest.register_chatcommand(
         end,
 })
 
-local function override_lbm(lbm_spec)
-    for i = 1, #minetest.registered_lbms do
-        if minetest.registered_lbms[i].name == lbm_spec.name then
-            minetest.registered_lbms[i].name = ""
-            minetest.registered_lbms[i] = lbm_spec
-            break
-        end
-    end
-    lbm_spec.mod_origin = "nodes_nature"
-end
-
-local function override_abm(abm_spec)
-    for i = 1, #minetest.registered_abms do
-        if minetest.registered_abms[i].name == abm_spec.name then
-            minetest.registered_abms[i].name = ""
-            minetest.registered_abms[i] = abm_spec
-            break
-        end
-    end
-    abm_spec.mod_origin = "nodes_nature"
-end
-
 local function update_plant(pos, node)
     if node.param2 < 64 or node.param2 >= 128 and seasons.is_winter() then
         local season_name = seasons.get_season_name()
@@ -96,14 +74,6 @@ local function update_plant(pos, node)
                                     param2 = next_nodedef.place_param2})
         end
     end
-end
-
-local function inactivate_abm(abm_spec)
-    local abm_spec = table.copy(abm_spec)
-    abm_spec.action = function(pos, node, dtime_s)
-        -- nothing here
-    end
-    override_abm(abm_spec)
 end
 
 local function soil_to_winter(pos, node)
@@ -125,62 +95,6 @@ local function soil_to_non_winter(pos, node)
     end
     minetest.set_node(pos, {name = new_name, param2 = node.param2})
 end
-
-local winter_soil_lbm = {
-    label = "Changes soils to winter soils.",
-    name = "nodes_nature:winter_soil_lbm",
-    nodenames = {"group:spreading"},
-    run_at_every_load = true,
-    action = function(pos, node, dtime_s)
-        local season_name = seasons.get_season_name()
-        if season_name == "winter_early" or
-            season_name == "winter_late" then
-            soil_to_winter(pos, node)
-        end
-    end,
-}
-
-local non_winter_soil_lbm = {
-    label = "Changes winter soils to soils.",
-    name = "nodes_nature:non_winter_soil_lbm",
-    nodenames = {"group:winter_soil"},
-    run_at_every_load = true,
-    action = function(pos, node, dtime_s)
-        local season_name = seasons.get_season_name()
-        if not (season_name == "winter_early" or
-                season_name == "winter_late") then
-            soil_to_non_winter(pos, node)
-        end
-    end,
-}
-
-local winter_soil_abm = {
-    label = "Changes soils to winter forms.",
-    name = "nodes_nature:winter_soil_abm",
-    interval = 50,
-    chance = 1,
-    catch_up = false,
-    min_y = -30,
-    max_y = 300,
-    nodenames = {"group:spreading"},
-    action = function(pos, node, dtime_s)
-        soil_to_winter(pos, node)
-    end,
-}
-
-local non_winter_soil_abm = {
-    label = "Changes soils to non-winter forms.",
-    name = "nodes_nature:non_winter_soil_abm",
-    interval = 50,
-    chance = 1,
-    catch_up = false,
-    min_y = -30,
-    max_y = 300,
-    nodenames = {"group:winter_soil"},
-    action = function(pos, node, dtime_s)
-        soil_to_non_winter(pos, node)
-    end,
-}
 
 local seasonal_plant_abm = {
     label = "Seasonal plant changer",
@@ -212,22 +126,6 @@ local leaf_drop_abm = {
        end
     end,
 }
-
-local last_season = ""
-
-local function change_soil(season_name)
-    if last_season ~= season_name then
-        last_season = season_name
-        if season_name == "winter_early" or
-            season_name == "winter_late" then
-            override_abm(winter_soil_abm)
-            inactivate_abm(non_winter_soil_abm)
-        else
-            override_abm(non_winter_soil_abm)
-            inactivate_abm(winter_soil_abm)
-        end
-    end
-end
 
 function seasons.get_season_and_day()
     -- days into the current year
@@ -271,31 +169,13 @@ end
 
 local function season_loop()
     local season_name = seasons.get_season_name()
-    change_soil(season_name)
     minetest.after(1200, season_loop)
-end
-
--- register placeholder
-local function register_placeholder_abms()
-    local winter_soil_abm = table.copy(winter_soil_abm)
-    winter_soil_abm.action = function(pos, node, dtime_s)
-        -- nothing here
-    end
-    local non_winter_soil_abm = table.copy(non_winter_soil_abm)
-    non_winter_soil_abm.action = function(pos, node, dtime_s)
-        -- nothing here
-    end
-    minetest.register_abm(winter_soil_abm)
-    minetest.register_abm(non_winter_soil_abm)
 end
 
 -- starts the loop after 2 seconds after everything (hopefully) finishes loading
 -- starting this right away caused a crash because minetest.get_day_count()
 -- returned nil
 
-register_placeholder_abms()
-minetest.register_lbm(winter_soil_lbm)
-minetest.register_lbm(non_winter_soil_lbm)
 minetest.register_abm(seasonal_plant_abm)
 minetest.register_abm(leaf_drop_abm)
 minetest.after(2, season_loop)
