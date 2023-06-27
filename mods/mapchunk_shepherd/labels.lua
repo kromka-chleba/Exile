@@ -71,4 +71,34 @@ function ms.decode_labels(encoded)
     return decoded_ids
 end
 
+function ms.labels_valid(labels)
+    for _, label in pairs(labels) do
+        if not ms.is_label(label) then
+
+            return false
+        end
+    end
+    return true
+end
+
+-- Checks if table labels1 contains all labels from labels2
+function ms.contains_labels(labels1, labels2)
+    if #labels2 == 0 then
+        return false
+    end
+    for _, label2 in pairs(labels2) do
+        local pass = false
+        for _, label1 in pairs(labels1) do
+            if label1 == label2 then
+                pass = true
+                break
+            end
+        end
+        if not pass then
+            return false
+        end
+    end
+    return true
+end
+
 ms.register_label("chunk_tracked", 1)

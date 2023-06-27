@@ -15,19 +15,25 @@ ms.workers = {}
 -- fun() needs to return two variables: labels_added,
 -- labels_removed; labels to remove or add to a mapchunk
 
-function ms.register_scanner(name, fun)
-    if not ms.scanners[name] then
-        ms.scanners[name] = fun
+function ms.register_scanner(args)
+    local needed_labels = args.needed_labels or {"chunk_tracked"}
+    if not ms.scanners[args.name] then
+        ms.scanners[args.name] =
+            {scanner_function = args.fun,
+             needed_labels = needed_labels}
     end
 end
 
-function ms.register_worker(name, fun)
-    if not ms.workers[name] then
-        ms.scanners[name] = fun
+function ms.register_worker(args)
+    local needed_labels = args.needed_labels or {"chunk_tracked"}
+    if not ms.workers[args.name] then
+        ms.workers[args.name] =
+            {worker_function = args.fun,
+             needed_labels = needed_labels}
     end
 end
 
-function ms.create_simple_finder(nodes_to_find, labels_to_assign)
+function ms.create_simple_finder(nodes_to_find, labels_to_add, labels_to_remove)
     local ids = {}
     for _, name in pairs(nodes_to_find) do
         table.insert(ids, minetest.get_content_id(name))
@@ -47,7 +53,7 @@ function ms.create_simple_finder(nodes_to_find, labels_to_assign)
                     local index = area:index(x, y, z)
                     for _, id in pairs(ids) do
                         if data[index] == id then
-                            return labels_to_assign
+                            return labels_to_add, labels_to_remove
                         end
                     end
                 end
@@ -56,7 +62,7 @@ function ms.create_simple_finder(nodes_to_find, labels_to_assign)
     end
 end
 
-function ms.create_simple_replacer(find_replace_pairs, labels_to_assign)
+function ms.create_simple_replacer(find_replace_pairs, labels_to_add, labels_to_remove)
     local ids = {}
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -88,7 +94,7 @@ function ms.create_simple_replacer(find_replace_pairs, labels_to_assign)
         vm:set_data(data)
         vm:write_to_map(true)
         if found then
-            return labels_to_assign
+            return labels_to_add, labels_to_remove
         end
     end
 end
