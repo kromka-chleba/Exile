@@ -128,28 +128,63 @@ local function handle_labels(hash, labels_added, labels_removed)
     end
 end
 
-local function run_scanners(hash)
-    local labels = get_labels(hash)
-    local pos1, pos2 = ms.mapchunk_borders(hash)
-    for name, scanner in pairs(ms.scanners) do
-        --minetest.log("error", "Running scanner: "..name)
-        if ms.contains_labels(labels, scanner.needed_labels) then
-            local labels_added, labels_removed =
-                scanner.scanner_function(pos1, pos2, labels)
-            handle_labels(hash, labels_added, labels_removed)
+---------------------------------------------------------------------
+-- Main loops of the shepherd
+---------------------------------------------------------------------
+
+local scan_queue = {}
+local work_queue = {}
+
+local scan_interval = 0.5
+local scan_timer = 0
+local current_scanner = 1
+
+local function scanner_loop(dtime)
+    scan_timer = scan_timer + dtime
+    if scan_timer > scan_interval and #scan_queue > 0 then
+        scan_timer = 0
+        if #ms.scanners > 0 then
+            local hash = scan_queue[1]
+            local labels = get_labels(hash)
+            local pos1, pos2 = ms.mapchunk_borders(hash)
+            local scanner = ms.scanners[current_scanner]
+            if ms.contains_labels(labels, scanner.needed_labels) then
+                local labels_added, labels_removed =
+                    scanner.scanner_function(pos1, pos2, labels)
+                handle_labels(hash, labels_added, labels_removed)
+            end
+            current_scanner = current_scanner + 1
+        end
+        if current_scanner > #ms.scanners then
+            table.remove(scan_queue, 1)
+            current_scanner = 1
         end
     end
 end
 
-local function run_workers(hash)
-    local labels = get_labels(hash)
-    local pos1, pos2 = ms.mapchunk_borders(hash)
-    for name, worker in pairs(ms.workers) do
-        --minetest.log("error", "Running worker: "..name)
-        if ms.contains_labels(labels, worker.needed_labels) then
-            local labels_added, labels_removed =
-                worker.worker_function(pos1, pos2, labels)
-            handle_labels(hash, labels_added, labels_removed)
+local work_interval = 1
+local work_timer = 0
+local current_worker = 1
+
+local function worker_loop(dtime)
+    work_timer = work_timer + dtime
+    if work_timer > work_interval and #work_queue > 0 then
+        work_timer = 0
+        if #ms.workers > 0 then
+            local hash = work_queue[1]
+            local labels = get_labels(hash)
+            local pos1, pos2 = ms.mapchunk_borders(hash)
+            local worker = ms.workers[current_worker]
+            if ms.contains_labels(labels, worker.needed_labels) then
+                local labels_added, labels_removed =
+                    worker.worker_function(pos1, pos2, labels)
+                handle_labels(hash, labels_added, labels_removed)
+            end
+            current_worker = current_worker + 1
+        end
+        if current_worker > #ms.workers then
+            table.remove(work_queue, 1)
+            current_worker = 1
         end
     end
 end
@@ -161,15 +196,13 @@ local function player_tracker()
         local pos = player:get_pos()
         local hash = ms.mapchunk_hash(pos)
         local neighbors = neighboring_mapchunks(hash)
-        --local neighbors = {hash}
+        minetest.log("error", dump(get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
-            if not is_tracked(hash) then
+            if not is_tracked(neighbor) then
                 save_mapchunk(neighbor, true)
-                run_scanners(neighbor)
-                minetest.log("error", dump(get_labels(hash)))
+                table.insert(scan_queue, neighbor)
             else
-                run_workers(neighbor)
-                minetest.log("error", dump(get_labels(hash)))
+                table.insert(work_queue, neighbor)
             end
         end
     end
@@ -189,5 +222,7 @@ if chunksize_changed() then
                  " Refusing to start.")
 else
     -- Start the tracker
+    minetest.register_globalstep(scanner_loop)
+    minetest.register_globalstep(worker_loop)
     minetest.after(2, player_tracker)
 end

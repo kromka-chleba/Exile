@@ -15,21 +15,45 @@ ms.workers = {}
 -- fun() needs to return two variables: labels_added,
 -- labels_removed; labels to remove or add to a mapchunk
 
+function is_scanner_registered(name)
+    for i = 1, #ms.scanners do
+        if ms.scanners[i].name == name then
+            return true
+        end
+    end
+    return false
+end
+
+function is_worker_registered(name)
+    for i = 1, #ms.workers do
+        if ms.workers[i].name == name then
+            return true
+        end
+    end
+    return false
+end
+
 function ms.register_scanner(args)
     local needed_labels = args.needed_labels or {"chunk_tracked"}
-    if not ms.scanners[args.name] then
-        ms.scanners[args.name] =
-            {scanner_function = args.fun,
+    if not is_scanner_registered(args.name) then
+        table.insert(
+            ms.scanners,
+            {name = args.name,
+             scanner_function = args.fun,
              needed_labels = needed_labels}
+        )
     end
 end
 
 function ms.register_worker(args)
     local needed_labels = args.needed_labels or {"chunk_tracked"}
-    if not ms.workers[args.name] then
-        ms.workers[args.name] =
-            {worker_function = args.fun,
+    if not is_worker_registered(args.name) then
+        table.insert(
+            ms.workers,
+            {name = args.name,
+             worker_function = args.fun,
              needed_labels = needed_labels}
+        )
     end
 end
 
