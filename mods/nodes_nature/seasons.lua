@@ -8,6 +8,7 @@ local S = nodes_nature.S
 ---------------------------------------
 
 nsl = naturalslopeslib
+ms = mapchunk_shepherd
 
 seasons = {}
 
@@ -167,9 +168,104 @@ function seasons.is_winter()
     return false
 end
 
+local function get_spreading_soil_names()
+    local soil_names = {}
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        if minetest.get_item_group(name, "spreading") > 0 then
+            table.insert(soil_names, name)
+        end
+    end
+    return soil_names
+end
+
+local function spring_to_winter_pairs()
+    local soil_pairs = {}
+    local spring_soils = get_spreading_soil_names()
+    for _, name in pairs(spring_soils) do
+        local nodedef = minetest.registered_nodes[name]
+        if not nodedef then
+            minetest.log("error", name)
+        end
+        local winter_name = nodedef._winter_name
+        local slope = minetest.get_item_group(name, "natural_slope")
+        if slope > 0 then
+            winter_name = nsl.get_all_slopes(winter_name)[slope]
+        end
+        soil_pairs[name] = winter_name
+    end
+    return soil_pairs
+end
+
+local function get_winter_soil_names()
+    local spring_to_winter = spring_to_winter_pairs()
+    local names = {}
+    for _, winter in pairs(spring_to_winter) do
+        table.insert(names, winter)
+    end
+    return names
+end
+
+local function winter_to_spring_pairs()
+    local soil_pairs = {}
+    local spring_to_winter = spring_to_winter_pairs()
+    for spring, winter in pairs(spring_to_winter) do
+        soil_pairs[winter] = spring
+    end
+    return soil_pairs
+end
+
+local spring_soils = get_spreading_soil_names()
+local winter_soils = get_winter_soil_names()
+local spring_to_winter = spring_to_winter_pairs()
+local winter_to_spring = winter_to_spring_pairs()
+
+ms.register_label("winter_soil", 3)
+ms.register_label("spring_soil", 4)
+
+local spring_soil_finder =
+    ms.create_simple_finder(
+        spring_soils,
+        {"spring_soil"}
+    )
+
+local winter_soil_finder =
+    ms.create_simple_finder(
+        winter_soils,
+        {"winter_soil"}
+    )
+
+local spring_soil_replacer =
+    ms.create_simple_replacer(
+        spring_to_winter,
+        {"winter_soil"},
+        {"spring_soil"}
+    )
+
+local winter_soil_replacer =
+    ms.create_simple_replacer(
+        winter_to_spring,
+        {"spring_soil"},
+        {"winter_soil"}
+    )
+
+
+local function swap_soils()
+    if seasons.is_winter() then
+        ms.remove_worker("winter_soil_replacer")
+        ms.register_worker({name = "spring_soil_replacer",
+                            fun = spring_soil_replacer,
+                            needed_labels = {"spring_soil"}})
+    else
+        ms.remove_worker("spring_soil_replacer")
+        ms.register_worker({name = "winter_soil_replacer",
+                            fun = winter_soil_replacer,
+                            needed_labels = {"winter_soil"}})
+    end
+end
+
 local function season_loop()
-    local season_name = seasons.get_season_name()
-    minetest.after(1200, season_loop)
+    swap_soils()
+    minetest.after(4, season_loop)
 end
 
 -- starts the loop after 2 seconds after everything (hopefully) finishes loading
@@ -179,3 +275,6 @@ end
 minetest.register_abm(seasonal_plant_abm)
 minetest.register_abm(leaf_drop_abm)
 minetest.after(2, season_loop)
+
+ms.register_scanner({name = "spring_soil_finder",
+                     fun = spring_soil_finder})
