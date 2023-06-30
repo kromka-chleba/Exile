@@ -150,6 +150,7 @@ local current_scanner = 1
 
 local function run_scanners()
     if #scan_queue > 0 and #ms.scanners > 0 then
+        minetest.log("error", "scan queue: "..#scan_queue)
         local hash = scan_queue[1]
         local labels = get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
@@ -172,7 +173,7 @@ local current_worker = 1
 
 local function run_workers()
     if #work_queue > 0 then
-        minetest.log("error", #work_queue)
+        minetest.log("error", "work queue: "..#work_queue)
         if #ms.workers > 0 then
             local hash = work_queue[1]
             local labels = get_labels(hash)
