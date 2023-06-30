@@ -10,7 +10,7 @@
 -- not recommended.
 
 -- Globals
-ms = mapchunk_shepherd
+local ms = mapchunk_shepherd
 
 local registered_labels = {}
 local ids_by_name = {}
