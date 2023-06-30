@@ -60,6 +60,22 @@ function ms.register_worker(args)
     end
 end
 
+function ms.remove_scanner(name)
+    for i = 1, #ms.scanners do
+        if ms.scanners[i].name == name then
+            ms.scanners[i] = nil
+        end
+    end
+end
+
+function ms.remove_worker(name)
+    for i = 1, #ms.workers do
+        if ms.workers[i].name == name then
+            ms.workers[i] = nil
+        end
+    end
+end
+
 function ms.create_simple_finder(nodes_to_find, labels_to_add, labels_to_remove)
     local ids = {}
     for _, name in pairs(nodes_to_find) do
