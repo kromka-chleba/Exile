@@ -202,6 +202,24 @@ local function run_workers()
     end
 end
 
+local function save_scan_work(neighbor)
+    if not is_tracked(neighbor) then
+        save_mapchunk(neighbor)
+        table.insert(scan_queue, neighbor)
+    elseif not was_scanned(neighbor) then
+        table.insert(scan_queue, neighbor)
+        scan_queue = ms.delete_duplicates(scan_queue)
+    else
+        for _, worker in pairs(ms.workers) do
+            local labels = get_labels(neighbor)
+            if ms.contains_labels(labels, worker.needed_labels) then
+                table.insert(work_queue, neighbor)
+                work_queue = ms.delete_duplicates(work_queue)
+            end
+        end
+    end
+end
+
 -- Main loop of the shepherd
 local function player_tracker()
     local players = minetest.get_connected_players()
@@ -215,20 +233,9 @@ local function player_tracker()
         neighbors = filter_underground_mapchunks(neighbors)
         minetest.log("error", dump(get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
-            if not is_tracked(neighbor) then
-                save_mapchunk(neighbor)
-                table.insert(scan_queue, neighbor)
-            elseif not was_scanned(neighbor) then
-                table.insert(scan_queue, neighbor)
-                scan_queue = ms.delete_duplicates(scan_queue)
-            else
-                for _, worker in pairs(ms.workers) do
-                    local labels = get_labels(neighbor)
-                    if ms.contains_labels(labels, worker.needed_labels) then
-                        table.insert(work_queue, neighbor)
-                        work_queue = ms.delete_duplicates(work_queue)
-                    end
-                end
+            local pos_min, pos_max = ms.mapchunk_borders(neighbor)
+            if minetest.compare_block_status(pos_min, "loaded") then
+                save_scan_work(neighbor)
             end
         end
     end
