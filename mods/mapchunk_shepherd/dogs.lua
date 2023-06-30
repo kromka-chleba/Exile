@@ -34,7 +34,8 @@ function is_worker_registered(name)
 end
 
 function ms.register_scanner(args)
-    local needed_labels = args.needed_labels or {"chunk_tracked"}
+    local needed_labels = args.needed_labels or {}
+    table.insert(needed_labels, "chunk_tracked")
     if not is_scanner_registered(args.name) then
         table.insert(
             ms.scanners,
@@ -46,7 +47,9 @@ function ms.register_scanner(args)
 end
 
 function ms.register_worker(args)
-    local needed_labels = args.needed_labels or {"chunk_tracked"}
+    local needed_labels = args.needed_labels or {}
+    table.insert(needed_labels, "chunk_tracked")
+    table.insert(needed_labels, "scanned")
     if not is_worker_registered(args.name) then
         table.insert(
             ms.workers,

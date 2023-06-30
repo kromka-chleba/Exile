@@ -84,7 +84,7 @@ end
 -- Checks if table labels1 contains all labels from labels2
 function ms.contains_labels(labels1, labels2)
     if #labels2 == 0 then
-        return false
+        return true
     end
     for _, label2 in pairs(labels2) do
         local pass = false
@@ -101,4 +101,20 @@ function ms.contains_labels(labels1, labels2)
     return true
 end
 
+-- Don't change this
+-- I'm using this for the queue also,
+-- not only labels.
+function ms.delete_duplicates(labels)
+    local paired = {}
+    for _, label in pairs(labels) do
+        paired[label] = label
+    end
+    local clean = {}
+    for _, label in pairs(paired) do
+        table.insert(clean, label)
+    end
+    return clean
+end
+
 ms.register_label("chunk_tracked", 1)
+ms.register_label("scanned", 2)
