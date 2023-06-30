@@ -210,7 +210,7 @@ local function player_tracker()
                 table.insert(scan_queue, neighbor)
                 scan_queue = ms.delete_duplicates(scan_queue)
             else
-                table.insert(work_queue, hash)
+                table.insert(work_queue, neighbor)
                 work_queue = ms.delete_duplicates(work_queue)
             end
         end
