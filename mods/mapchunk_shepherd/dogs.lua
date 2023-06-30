@@ -3,7 +3,7 @@
 -- Copyright © Jan Wielkiewicz 2023
 
 -- Globals
-ms = mapchunk_shepherd
+local ms = mapchunk_shepherd
 
 ms.scanners = {}
 ms.workers = {}
@@ -15,7 +15,7 @@ ms.workers = {}
 -- fun() needs to return two variables: labels_added,
 -- labels_removed; labels to remove or add to a mapchunk
 
-function is_scanner_registered(name)
+local function is_scanner_registered(name)
     for i = 1, #ms.scanners do
         if ms.scanners[i].name == name then
             return true
@@ -24,7 +24,7 @@ function is_scanner_registered(name)
     return false
 end
 
-function is_worker_registered(name)
+local function is_worker_registered(name)
     for i = 1, #ms.workers do
         if ms.workers[i].name == name then
             return true
