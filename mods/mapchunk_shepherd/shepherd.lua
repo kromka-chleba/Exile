@@ -5,7 +5,6 @@
 -- Globals
 ms = mapchunk_shepherd
 
-local tracking_interval = 4
 local mod_storage = minetest.get_mod_storage()
 -- By default chunksize is 5
 local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
@@ -27,7 +26,8 @@ end
 
 -- A global function to get hash from pos
 function ms.mapchunk_hash(pos)
-    local pos = vector.divide(pos, chunk_side)
+    local pos = vector.floor(pos)
+    pos = vector.divide(pos, chunk_side)
     pos = vector.floor(pos)
     pos = vector.multiply(pos, chunk_side)
     pos = vector.add(pos, mapchunk_offset)
@@ -52,16 +52,40 @@ end
 
 local function is_tracked(hash)
     local value = mod_storage:get_int(hash)
-    if value == 0 then
-        return false
+    if value > 0 then
+        return true
     else
-        return value
+        return false
+    end
+end
+
+local function get_labels(hash)
+    local encoded = mod_storage:get_int(hash)
+    if encoded then
+        return ms.decode_labels(encoded)
+    else
+        return {}
+    end
+end
+
+local function add_labels(hash, new_labels)
+    local labels = get_labels(hash)
+    if ms.labels_valid(new_labels) then
+        for _, nlabel in pairs(new_labels) do
+            table.insert(labels, nlabel)
+        end
+        labels = ms.delete_duplicates(labels)
+        mod_storage:set_int(hash, ms.encode_labels(labels))
+    else
+        minetest.log("error", "Mapchunk shepherd: "..label.." is not a valid label!")
     end
 end
 
 local function save_mapchunk(hash, force)
-    if force or not is_tracked(hash) then
+    if force then
         mod_storage:set_int(hash, ms.encode_labels({"chunk_tracked"}))
+    elseif not is_tracked(hash) then
+        add_labels(hash, {"chunk_tracked"})
     end
 end
 
@@ -75,31 +99,18 @@ local function remove_mapchunk(hash)
     mod_storage:set_int(hash, 0)
 end
 
-local function get_labels(hash)
-    local encoded = is_tracked(hash)
-    if encoded then
-        return ms.decode_labels(encoded)
-    end
-end
-
-local function add_labels(hash, new_labels)
+local function was_scanned(hash)
     local labels = get_labels(hash)
-    if not labels then
-        minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
-    end
-    if ms.labels_valid(new_labels) then
-        for _, nlabel in pairs(new_labels) do
-            table.insert(labels, nlabel)
-        end
-        mod_storage:set_int(hash, ms.encode_labels(labels))
+    if ms.contains_labels(labels, {"scanned"}) then
+        return true
     else
-        minetest.log("error", "Mapchunk shepherd: "..label.." is not a valid label!")
+        return false
     end
 end
 
 local function remove_labels(hash, labels)
     local old_labels = get_labels(hash)
-    if not old_labels then
+    if not is_tracked(hash) then
         minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
     end
     for i, old_name in pairs(old_labels) do
@@ -135,41 +146,33 @@ end
 local scan_queue = {}
 local work_queue = {}
 
-local scan_interval = 0.5
-local scan_timer = 0
 local current_scanner = 1
 
-local function scanner_loop(dtime)
-    scan_timer = scan_timer + dtime
-    if scan_timer > scan_interval and #scan_queue > 0 then
-        scan_timer = 0
-        if #ms.scanners > 0 then
-            local hash = scan_queue[1]
-            local labels = get_labels(hash)
-            local pos1, pos2 = ms.mapchunk_borders(hash)
-            local scanner = ms.scanners[current_scanner]
-            if ms.contains_labels(labels, scanner.needed_labels) then
-                local labels_added, labels_removed =
-                    scanner.scanner_function(pos1, pos2, labels)
-                handle_labels(hash, labels_added, labels_removed)
-            end
-            current_scanner = current_scanner + 1
+local function run_scanners()
+    if #scan_queue > 0 and #ms.scanners > 0 then
+        local hash = scan_queue[1]
+        local labels = get_labels(hash)
+        local pos1, pos2 = ms.mapchunk_borders(hash)
+        local scanner = ms.scanners[current_scanner]
+        if ms.contains_labels(labels, scanner.needed_labels) then
+            local labels_added, labels_removed =
+                scanner.scanner_function(pos1, pos2, labels)
+            handle_labels(hash, labels_added, labels_removed)
         end
+        current_scanner = current_scanner + 1
         if current_scanner > #ms.scanners then
             table.remove(scan_queue, 1)
             current_scanner = 1
+            add_labels(hash, {"scanned"})
         end
     end
 end
 
-local work_interval = 1
-local work_timer = 0
 local current_worker = 1
 
-local function worker_loop(dtime)
-    work_timer = work_timer + dtime
-    if work_timer > work_interval and #work_queue > 0 then
-        work_timer = 0
+local function run_workers()
+    if #work_queue > 0 then
+        minetest.log("error", #work_queue)
         if #ms.workers > 0 then
             local hash = work_queue[1]
             local labels = get_labels(hash)
@@ -181,10 +184,10 @@ local function worker_loop(dtime)
                 handle_labels(hash, labels_added, labels_removed)
             end
             current_worker = current_worker + 1
-        end
-        if current_worker > #ms.workers then
-            table.remove(work_queue, 1)
-            current_worker = 1
+            if current_worker > #ms.workers then
+                table.remove(work_queue, 1)
+                current_worker = 1
+            end
         end
     end
 end
@@ -192,21 +195,58 @@ end
 -- Main loop of the shepherd
 local function player_tracker()
     local players = minetest.get_connected_players()
-    for _, player in ipairs(players) do
+    for _, player in pairs(players) do
         local pos = player:get_pos()
+        if not pos then
+            return
+        end
         local hash = ms.mapchunk_hash(pos)
         local neighbors = neighboring_mapchunks(hash)
         minetest.log("error", dump(get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
             if not is_tracked(neighbor) then
-                save_mapchunk(neighbor, true)
+                save_mapchunk(neighbor)
                 table.insert(scan_queue, neighbor)
+            elseif not was_scanned(neighbor) then
+                table.insert(scan_queue, neighbor)
+                scan_queue = ms.delete_duplicates(scan_queue)
             else
-                table.insert(work_queue, neighbor)
+                table.insert(work_queue, hash)
+                work_queue = ms.delete_duplicates(work_queue)
             end
         end
     end
-    minetest.after(tracking_interval, player_tracker)
+end
+
+local tracker_timer = 0
+local tracker_interval = 4.123
+local scan_timer = 0
+local scan_interval = 1.331
+local work_timer = 0
+local work_interval = 2.003
+
+-- 1: track, 2: scan, 3: work
+local task_index = 1
+
+local function main_loop(dtime)
+    tracker_timer = tracker_timer + dtime
+    if tracker_timer > tracker_interval and task_index == 1 then
+        tracker_timer = 0
+        player_tracker()
+        task_index = 2
+    end
+    scan_timer = scan_timer + dtime
+    if scan_timer > scan_interval and task_index == 2 then
+        scan_timer = 0
+        run_scanners()
+        task_index = 3
+    end
+    work_timer = work_timer + dtime
+    if work_timer > work_interval and task_index == 3 then
+        work_timer = 0
+        run_workers()
+        task_index = 1
+    end
 end
 
 ------------------------------------------------------------------
@@ -222,7 +262,5 @@ if chunksize_changed() then
                  " Refusing to start.")
 else
     -- Start the tracker
-    minetest.register_globalstep(scanner_loop)
-    minetest.register_globalstep(worker_loop)
-    minetest.after(2, player_tracker)
+    minetest.register_globalstep(main_loop)
 end
