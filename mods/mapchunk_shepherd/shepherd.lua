@@ -37,9 +37,9 @@ end
 local function neighboring_mapchunks(hash)
     local pos = minetest.get_position_from_hash(hash)
     local hashes = {}
-    for z = -1, 1 do
-        for y = -1, 1 do
-            for x = -1, 1 do
+    for z = -2, 2 do
+        for y = -2, 2 do
+            for x = -2, 2 do
                 local v = vector.new(x, y, z)
                 v = vector.multiply(v, chunk_side)
                 local mapchunk_pos = vector.add(pos, v)
@@ -48,6 +48,17 @@ local function neighboring_mapchunks(hash)
         end
     end
     return hashes
+end
+
+local function filter_underground_mapchunks(hashes)
+    local clean = {}
+    for _, hash in pairs(hashes) do
+        local pos_min, pos_max = ms.mapchunk_borders(hash)
+        if pos_max.y >= -15 then
+            table.insert(clean, hash)
+        end
+    end
+    return clean
 end
 
 local function is_tracked(hash)
@@ -201,6 +212,7 @@ local function player_tracker()
         end
         local hash = ms.mapchunk_hash(pos)
         local neighbors = neighboring_mapchunks(hash)
+        neighbors = filter_underground_mapchunks(neighbors)
         minetest.log("error", dump(get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
             if not is_tracked(neighbor) then
