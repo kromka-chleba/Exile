@@ -172,23 +172,21 @@ end
 local current_worker = 1
 
 local function run_workers()
-    if #work_queue > 0 then
+    if #work_queue > 0 and #ms.workers > 0 then
         minetest.log("error", "work queue: "..#work_queue)
-        if #ms.workers > 0 then
-            local hash = work_queue[1]
-            local labels = get_labels(hash)
-            local pos1, pos2 = ms.mapchunk_borders(hash)
-            local worker = ms.workers[current_worker]
-            if ms.contains_labels(labels, worker.needed_labels) then
-                local labels_added, labels_removed =
-                    worker.worker_function(pos1, pos2, labels)
-                handle_labels(hash, labels_added, labels_removed)
-            end
-            current_worker = current_worker + 1
-            if current_worker > #ms.workers then
-                table.remove(work_queue, 1)
-                current_worker = 1
-            end
+        local hash = work_queue[1]
+        local labels = get_labels(hash)
+        local pos1, pos2 = ms.mapchunk_borders(hash)
+        local worker = ms.workers[current_worker]
+        if ms.contains_labels(labels, worker.needed_labels) then
+            local labels_added, labels_removed =
+                worker.worker_function(pos1, pos2, labels)
+            handle_labels(hash, labels_added, labels_removed)
+        end
+        current_worker = current_worker + 1
+        if current_worker > #ms.workers then
+            table.remove(work_queue, 1)
+            current_worker = 1
         end
     end
 end
