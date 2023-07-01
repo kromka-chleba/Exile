@@ -95,6 +95,8 @@ Urgent Fixes needed:
 ### Features ideas:
 - MISC:
   - Easy start option (start with axe, bag, clothes, water pot, mattress, food).
+  - Hard start option (start with only two inventory slots (two hands), craft a 
+    belt to have the full usual 8 and then a small bag to have the secondary 8)
   - Once a sophisticated camp has been built it is too easy to just stay there 
     and live the good life. Needs something to be able to go horribly wrong, 
     big enough to force a migration, rebuild, temporary escape. (story teller)
