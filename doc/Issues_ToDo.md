@@ -161,6 +161,7 @@ Urgent Fixes needed:
 - CLOTHING
   - Speed effects. (Likely to cause issues with bed physics.)
 - TECH
+  - Craftable simple shoes for a speed or stability buff.
   - More sophisticated fires: heat and output controlled by airflow.
   - More graffiti in more colors. (Old health symbols can be reused here.)
   - Inventory storage on canoe.
