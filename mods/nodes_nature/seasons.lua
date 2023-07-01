@@ -168,19 +168,25 @@ function seasons.is_winter()
     return false
 end
 
-local function get_spreading_soil_names()
+local function get_spreading_soil_names(include_slopes)
     local soil_names = {}
     for name, nodedef in pairs(minetest.registered_nodes) do
         if minetest.get_item_group(name, "spreading") > 0 then
-            table.insert(soil_names, name)
+            local slope = minetest.get_item_group(name, "natural_slope")
+            if slope == 0 then
+                table.insert(soil_names, name)
+            end
+            if include_slopes and slope > 0 then
+                table.insert(soil_names, name)
+            end
         end
     end
     return soil_names
 end
 
-local function spring_to_winter_pairs()
+local function spring_to_winter_pairs(include_slopes)
     local soil_pairs = {}
-    local spring_soils = get_spreading_soil_names()
+    local spring_soils = get_spreading_soil_names(include_slopes)
     for _, name in pairs(spring_soils) do
         local nodedef = minetest.registered_nodes[name]
         if not nodedef then
@@ -196,8 +202,8 @@ local function spring_to_winter_pairs()
     return soil_pairs
 end
 
-local function get_winter_soil_names()
-    local spring_to_winter = spring_to_winter_pairs()
+local function get_winter_soil_names(include_slopes)
+    local spring_to_winter = spring_to_winter_pairs(include_slopes)
     local names = {}
     for _, winter in pairs(spring_to_winter) do
         table.insert(names, winter)
@@ -205,9 +211,9 @@ local function get_winter_soil_names()
     return names
 end
 
-local function winter_to_spring_pairs()
+local function winter_to_spring_pairs(include_slopes)
     local soil_pairs = {}
-    local spring_to_winter = spring_to_winter_pairs()
+    local spring_to_winter = spring_to_winter_pairs(include_slopes)
     for spring, winter in pairs(spring_to_winter) do
         soil_pairs[winter] = spring
     end
@@ -216,8 +222,8 @@ end
 
 local spring_soils = get_spreading_soil_names()
 local winter_soils = get_winter_soil_names()
-local spring_to_winter = spring_to_winter_pairs()
-local winter_to_spring = winter_to_spring_pairs()
+local spring_to_winter = spring_to_winter_pairs(true)
+local winter_to_spring = winter_to_spring_pairs(true)
 
 ms.register_label("winter_soil", 3)
 ms.register_label("spring_soil", 4)
