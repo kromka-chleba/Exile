@@ -176,7 +176,7 @@ Urgent Fixes needed:
   - Compost.
   - Bellows that displaces `air_temp` nodes.
   - Scythe.
-  - A use for broken pottery.
+  - A use for broken pottery. (Isn't this a good additive for agricultural soil?)
   - Ash crafts (glass).
   - Pottery wheel and more sophisticated glazed pottery.
   - Iron doors (e.g. for furnaces, nonflammable).
