@@ -37,9 +37,11 @@ end
 local function neighboring_mapchunks(hash)
     local pos = minetest.get_position_from_hash(hash)
     local hashes = {}
-    for z = -2, 2 do
-        for y = -2, 2 do
-            for x = -2, 2 do
+    local diameter = tonumber(minetest.settings:get("viewing_range")) * 2
+    local nr = math.ceil(diameter / chunk_side)
+    for z = -nr, nr do
+        for y = -nr, nr do
+            for x = -nr, nr do
                 local v = vector.new(x, y, z)
                 v = vector.multiply(v, chunk_side)
                 local mapchunk_pos = vector.add(pos, v)
