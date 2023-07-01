@@ -23,7 +23,7 @@ Urgent Fixes needed:
     (For now recommended to wait a while on the death screen.)
 - Animals:
   - Some spiders were getting `nil` energy. 
-    (From egg spawning? Maybe only in dev., not happening now?)
+    (From egg spawning? Maybe only in dev., not happening now?) (Probably so, one way to fix this is keep a reserve of energy from the egg. Or, simply give all the energy to the egg and let the spider die.)
   - `mobs_chicken_white.png` is being called by something. 
     (The chicken model itself? Isn’t in the code anywhere...)
   - Stability of animal populations over time is unknown.
