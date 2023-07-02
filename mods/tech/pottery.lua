@@ -20,9 +20,9 @@ lightsource_description = lightsource_description
 --Broken Pottery
 --if you smash it up, or from failed firings
 --slab
-minetest.register_node("tech:broken_pottery", {
-	description = S("Broken Pottery"),
-	tiles = {"tech_broken_pottery.png"},
+minetest.register_node("tech:ruined_pottery_slab", {
+	description = S("Broken Pottery Slab"),
+	tiles = {"tech_ruined_pottery.png"},
 	stack_max = minimal.stack_max_bulky *2,
 	paramtype = "light",
 	drawtype = "nodebox",
@@ -33,25 +33,24 @@ minetest.register_node("tech:broken_pottery", {
 	groups = {cracky = 3, falling_node = 1, oddly_breakable_by_hand = 3},
 	sounds = nodes_nature.node_sound_gravel_defaults(),
         on_rightclick = function (pos,node,clicker,itemstack,pointed_thing)
-           return minimal.slabs_combine(pos,node,itemstack,"tech:broken_pottery_block")
+           return minimal.slabs_combine(pos,node,itemstack,"tech:ruined_pottery")
 	end,
 })
 
 -- Broken pottery full blocks and soil
 local broken_pottery =
-   sediment.new({name = "broken_pottery_block",
+   sediment.new({name = "ruined_pottery",
 		 description = S("Broken Pottery"),
 		 hardness = sediment.hardness.soft,
 		 fertility = 5, sound = sediment.sounds.gravel,
-		 sound_wet = sediment.sounds.gravel_wet,
-		 texture_name = "tech_broken_pottery.png", mod_name = "tech"})
+		 sound_wet = sediment.sounds.gravel_wet,})
 sediment.register_dry(broken_pottery)
 sediment.register_wet(broken_pottery)
 sediment.register_wet_salty(broken_pottery)
-sediment.register_agri_soil_variants(broken_pottery)
+sediment.register_all_sed_derivatives({[1] = broken_pottery})
 
 -------------------------------------------------------------------
---THIS SHOULD BE MOVED somewhere GENERALIZED to handle non-pottery pots
+--#TODO: THIS SHOULD BE MOVED somewhere GENERALIZED to handle non-pottery pots
 function water_pot(pos, pot_name, elapsed)
 	local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
 	--collect rain
@@ -484,7 +483,7 @@ minetest.register_node("tech:clay_watering_can_unfired", {
 
 --Pot from clay
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_water_pot_unfired 1",
 	items = {"nodes_nature:clay_wet 4"},
 	level = 1,
@@ -492,7 +491,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = {"mixing_spot","hand_pottery"},
 	output = "nodes_nature:clay 4",
 	items = {"tech:clay_water_pot_unfired 1"},
 	level = 1,
@@ -502,7 +501,7 @@ crafting.register_recipe({
 
 --storage Pot from clay
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_storage_pot_unfired 1",
 	items = {"nodes_nature:clay_wet 6"},
 	level = 1,
@@ -510,7 +509,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = {"mixing_spot","hand_pottery"},
 	output = "nodes_nature:clay 6",
 	items = {"tech:clay_storage_pot_unfired 1"},
 	level = 1,
@@ -519,7 +518,7 @@ crafting.register_recipe({
 
 --oil lamp
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_oil_lamp_unfired 1",
 	items = {"nodes_nature:clay_wet"},
 	level = 1,
@@ -527,7 +526,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = "mixing_spot",
+	type = {"mixing_spot","hand_pottery"},
 	output = "nodes_nature:clay",
 	items = {"tech:clay_oil_lamp_unfired 1"},
 	level = 1,
@@ -536,8 +535,8 @@ crafting.register_recipe({
 
 --Break up pots
 crafting.register_recipe({
-	type = "mixing_spot",
-	output = "tech:broken_pottery",
+	type = {"mixing_spot","hand_pottery"},
+	output = "tech:ruined_pottery_slab",
 	items = {"group:pottery"},
 	level = 1,
 	always_known = true,
@@ -545,24 +544,24 @@ crafting.register_recipe({
 
 --Combine broken pottery slabs and vice versa
 crafting.register_recipe({
-	type = "mixing_spot",
-	output = "tech:broken_pottery_block",
-	items = {"tech:broken_pottery 2"},
+	type = {"mixing_spot","hand_pottery"},
+	output = "tech:ruined_pottery",
+	items = {"tech:ruined_pottery_slab 2"},
 	level = 1,
 	always_known = true,
 })
 
 crafting.register_recipe({
-	type = "mixing_spot",
-	output = "tech:broken_pottery 2",
-	items = {"tech:broken_pottery_block"},
+	type = {"mixing_spot","hand_pottery"},
+	output = "tech:ruined_pottery_slab 2",
+	items = {"tech:ruined_pottery"},
 	level = 1,
 	always_known = true,
 })
 
 -- clay watering can
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_watering_can_unfired 1",
 	items = {"nodes_nature:clay_wet 5"},
 	level = 1,
@@ -570,7 +569,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = "crafting_spot",
+	type = {"crafting_spot","hand_pottery"},
 	output = "nodes_nature:clay 5",
 	items = {"tech:clay_watering_can_unfired 1"},
 	level = 1,
@@ -705,6 +704,13 @@ local function water_soil(itemstack, user, pointed_thing, water_source, node_suf
 	if pointed_thing.type == "node" then
 		local pos = pointed_thing.under
 		local node = minetest.get_node(pos)
+    
+    -- if pointed thing is ACTUALLY a plant (flora or seed group), find the node underneath it :D
+    if ( (minetest.get_item_group(node.name, "flora") > 0 or minetest.get_item_group(node.name, "seed") > 0) ) then
+      pos = {["x"] = pos.x, ["y"] = pos.y - 1, ["z"] = pos.z} -- cruddy construction of a pos and subtracting the y by 1
+      node = minetest.get_node(pos)
+    end
+    
 		if minetest.get_item_group(node.name, "sediment") > 0 then
 			-- check if watered block exists
 			local wet_node_name = node.name .. node_suffix
