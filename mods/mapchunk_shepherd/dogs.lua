@@ -76,7 +76,11 @@ function ms.remove_worker(name)
     end
 end
 
-function ms.create_simple_finder(nodes_to_find, labels_to_add, labels_to_remove)
+function ms.create_simple_finder(args)
+    local nodes_to_find = args.to_find
+    local labels_to_add = args.add_labels
+    local labels_to_remove = args.remove_labels
+    local not_found = args.not_found_labels
     local ids = {}
     for _, name in pairs(nodes_to_find) do
         table.insert(ids, minetest.get_content_id(name))
@@ -102,10 +106,15 @@ function ms.create_simple_finder(nodes_to_find, labels_to_add, labels_to_remove)
                 end
             end
         end
+        return not_found
     end
 end
 
-function ms.create_simple_replacer(find_replace_pairs, labels_to_add, labels_to_remove)
+function ms.create_simple_replacer(args)
+    local find_replace_pairs = args.find_replace_pairs
+    local labels_to_add = args.add_labels
+    local labels_to_remove = args.remove_labels
+    local not_found = args.not_found_labels
     local ids = {}
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -138,6 +147,8 @@ function ms.create_simple_replacer(find_replace_pairs, labels_to_add, labels_to_
         vm:write_to_map(true)
         if found then
             return labels_to_add, labels_to_remove
+        else
+            return not_found
         end
     end
 end

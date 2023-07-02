@@ -227,31 +227,37 @@ local winter_to_spring = winter_to_spring_pairs(true)
 
 ms.register_label("winter_soil", 3)
 ms.register_label("spring_soil", 4)
+ms.register_label("no_spring_soil", 5)
 
 local spring_soil_finder =
     ms.create_simple_finder(
-        spring_soils,
-        {"spring_soil"}
+        {to_find = spring_soils,
+         add_labels = {"spring_soil"},
+         not_found_labels = {"no_spring_soil"},
+        }
     )
 
 local winter_soil_finder =
     ms.create_simple_finder(
-        winter_soils,
-        {"winter_soil"}
+        {to_find = winter_soils,
+         add_labels = {"winter_soil"},
+        }
     )
 
 local spring_soil_replacer =
     ms.create_simple_replacer(
-        spring_to_winter,
-        {"winter_soil"},
-        {"spring_soil"}
+        {find_replace_pairs = spring_to_winter,
+         add_labels = {"winter_soil"},
+         remove_labels = {"spring_soil"},
+        }
     )
 
 local winter_soil_replacer =
     ms.create_simple_replacer(
-        winter_to_spring,
-        {"spring_soil"},
-        {"winter_soil"}
+        {find_replace_pairs = winter_to_spring,
+         add_labels = {"spring_soil"},
+         remove_labels = {"winter_soil"},
+        }
     )
 
 
