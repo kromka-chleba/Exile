@@ -705,6 +705,13 @@ local function water_soil(itemstack, user, pointed_thing, water_source, node_suf
 	if pointed_thing.type == "node" then
 		local pos = pointed_thing.under
 		local node = minetest.get_node(pos)
+    
+    -- if pointed thing is ACTUALLY a plant (flora or seed group), find the node underneath it :D
+    if ( (minetest.get_item_group(node.name, "flora") > 0 or minetest.get_item_group(node.name, "seed") > 0) ) then
+      pos = {["x"] = pos.x, ["y"] = pos.y - 1, ["z"] = pos.z} -- cruddy construction of a pos and subtracting the y by 1
+      node = minetest.get_node(pos)
+    end
+    
 		if minetest.get_item_group(node.name, "sediment") > 0 then
 			-- check if watered block exists
 			local wet_node_name = node.name .. node_suffix
