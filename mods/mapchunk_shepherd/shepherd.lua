@@ -24,12 +24,16 @@ local function chunksize_changed()
     end
 end
 
--- A global function to get hash from pos
-function ms.mapchunk_hash(pos)
+function ms.node_pos_to_mapchunk_pos(pos)
     pos = vector.subtract(pos, mapchunk_offset)
     pos = vector.divide(pos, chunk_side)
     pos = vector.floor(pos)
-    minetest.log("error", dump(pos))
+    return pos
+end
+
+-- A global function to get hash from pos
+function ms.mapchunk_hash(pos)
+    pos = ms.node_pos_to_mapchunk_pos(pos)
     pos = vector.multiply(pos, chunk_side)
     pos = vector.add(pos, mapchunk_offset)
     return minetest.hash_node_position(pos)
@@ -168,6 +172,11 @@ local function run_scanners()
         local hash = scan_queue[1]
         local labels = get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
+        if not minetest.compare_block_status(pos1, "active") then
+            table.remove(scan_queue, 1)
+            current_scanner = 1
+            return
+        end
         local scanner = ms.scanners[current_scanner]
         if ms.contains_labels(labels, scanner.needed_labels) then
             local labels_added, labels_removed =
@@ -191,6 +200,11 @@ local function run_workers()
         local hash = work_queue[1]
         local labels = get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
+        if not minetest.compare_block_status(pos1, "active") then
+            table.remove(work_queue, 1)
+            current_worker = 1
+            return
+        end
         local worker = ms.workers[current_worker]
         if ms.contains_labels(labels, worker.needed_labels) then
             local labels_added, labels_removed =
@@ -237,7 +251,7 @@ local function player_tracker()
         minetest.log("error", dump(get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
             local pos_min, pos_max = ms.mapchunk_borders(neighbor)
-            if minetest.compare_block_status(pos_min, "loaded") then
+            if minetest.compare_block_status(pos_min, "active") then
                 save_scan_work(neighbor)
             end
         end
@@ -245,11 +259,11 @@ local function player_tracker()
 end
 
 local tracker_timer = 0
-local tracker_interval = 4.123
+local tracker_interval = 0.5
 local scan_timer = 0
-local scan_interval = 1.331
+local scan_interval = 0.3
 local work_timer = 0
-local work_interval = 2.003
+local work_interval = 0.3
 
 -- 1: track, 2: scan, 3: work
 local task_index = 1
