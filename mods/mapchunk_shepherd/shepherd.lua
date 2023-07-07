@@ -26,9 +26,10 @@ end
 
 -- A global function to get hash from pos
 function ms.mapchunk_hash(pos)
-    local pos = vector.floor(pos)
+    pos = vector.subtract(pos, mapchunk_offset)
     pos = vector.divide(pos, chunk_side)
     pos = vector.floor(pos)
+    minetest.log("error", dump(pos))
     pos = vector.multiply(pos, chunk_side)
     pos = vector.add(pos, mapchunk_offset)
     return minetest.hash_node_position(pos)
@@ -139,7 +140,7 @@ end
 -- A global function to get mapchunk borders
 function ms.mapchunk_borders(hash)
     local pos_min = minetest.get_position_from_hash(hash)
-    local pos_max = vector.add(pos_min, 79)
+    local pos_max = vector.add(pos_min, chunk_side - 1)
     return pos_min, pos_max
 end
 
