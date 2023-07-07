@@ -143,9 +143,9 @@ function ms.create_simple_replacer(args)
                 end
             end
         end
-        vm:set_data(data)
-        vm:write_to_map(true)
         if found then
+            vm:set_data(data)
+            vm:write_to_map(false)
             return labels_to_add, labels_to_remove
         else
             return not_found
