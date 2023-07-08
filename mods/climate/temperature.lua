@@ -11,13 +11,13 @@ local c_alpha = minimal.compat_alpha
 --OUTDOORS AND EXPOSED TO ELEMENTS
 
 --significantly raining/wet
+--WARNING: this is also used for shelter checking
+--so be careful while modifying.
 --i.e. will expose to significant water, put out fires etc
 climate.get_rain = function(pos, l)
     --check if raining and outside
-    if not l then
-        l = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
-    end
-    if not l == 15 or pos.y < -30 then
+    local l = l or minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5) or 0
+    if l < 15 or pos.y < -30 then
         return false
     end
 
