@@ -279,33 +279,33 @@ local function player_tracker()
 end
 
 local tracker_timer = 0
-local tracker_interval = 0.5
+local tracker_interval = 4
 local scan_timer = 0
-local scan_interval = 0.3
+local scan_interval = 0.1
 local work_timer = 0
-local work_interval = 0.3
+local work_interval = 0.1
 
--- 1: track, 2: scan, 3: work
-local task_index = 1
-
-local function main_loop(dtime)
+local function player_tracker_loop(dtime)
     tracker_timer = tracker_timer + dtime
-    if tracker_timer > tracker_interval and task_index == 1 then
+    if tracker_timer > tracker_interval then
         tracker_timer = 0
         player_tracker()
-        task_index = 2
     end
+end
+
+local function scanner_loop(dtime)
     scan_timer = scan_timer + dtime
-    if scan_timer > scan_interval and task_index == 2 then
+    if scan_timer > scan_interval then
         scan_timer = 0
         run_scanners()
-        task_index = 3
     end
+end
+
+local function worker_loop(dtime)
     work_timer = work_timer + dtime
-    if work_timer > work_interval and task_index == 3 then
+    if work_timer > work_interval then
         work_timer = 0
         run_workers()
-        task_index = 1
     end
 end
 
@@ -322,5 +322,7 @@ if chunksize_changed() then
                  " Refusing to start.")
 else
     -- Start the tracker
-    minetest.register_globalstep(main_loop)
+    minetest.register_globalstep(player_tracker_loop)
+    minetest.register_globalstep(scanner_loop)
+    minetest.register_globalstep(worker_loop)
 end
