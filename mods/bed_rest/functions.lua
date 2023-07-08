@@ -117,8 +117,8 @@ local function break_taker(name, prefs)
 	local sess_l = bed_rest.session_limit[name]
 	local tn = os.time()
 
-	local nobreaks = minetest.settings:get('exile_nobreaktaker') or false
-	if prefs == "off" or ( prefs == "" and nobreaks == true ) then
+	local nobreak = minetest.settings:get_bool('exile_nobreaktaker') or false
+	if prefs == "off" or ( prefs == "" and nobreak == true ) then
 	   return
 	end
 
@@ -472,12 +472,14 @@ minetest.register_chatcommand("breaktaker", {
     func = function(name, param)
        if param == "" or param == "help" then
 	  local wlist = "/breaktaker:\n"..
-	  "Switch the breaktaker notice off or on for you."
+	     "Switch the breaktaker notice off or on for you.\n"..
+	     "Choose default to use the server's setting instead."
 	  return false, wlist
        end
-       if param ~= "on" and param ~= "off" then
-	  return false, "Valid choices are on or off"
+       if param ~= "on" and param ~= "off" and param ~= "default" then
+	  return false, "Valid choices are on, off or default"
        end
+       if param == "default" then param = "" end
        local player = minetest.get_player_by_name(name)
        local meta = player:get_meta()
        meta:set_string("BreaktakerPref", param)

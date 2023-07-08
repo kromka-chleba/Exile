@@ -37,7 +37,8 @@ exile_hud_update (Number of seconds before HUD updates) float 0.1 0.1 4
 # At 60 it will be constant at two hours, at 90 it will take 3 hours.
 exile_breaktime (Set delay before the first break notice) int 30 30 90
 
-# Whether to display the notification screen at all.
+# If true, turns off breaktaker by default for all players.
+# Individual players may still re-enable it with personal overrides.
 exile_nobreaktaker (Disable the notice to take a break) bool false
 
 ## Settings for respawning
