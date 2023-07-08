@@ -166,8 +166,17 @@ local work_queue = {}
 
 local current_scanner = 1
 
+local scanners = {}
+
 local function run_scanners()
-    if #scan_queue > 0 and #ms.scanners > 0 then
+    if ms.scanners_changed then
+        scanners = table.copy(ms.scanners)
+        ms.scanners_changed = false
+        current_scanner = 1
+        scan_queue = {}
+        return
+    end
+    if #scan_queue > 0 and #scanners > 0 then
         minetest.log("error", "scan queue: "..#scan_queue)
         local hash = scan_queue[1]
         local labels = get_labels(hash)
@@ -177,14 +186,15 @@ local function run_scanners()
             current_scanner = 1
             return
         end
-        local scanner = ms.scanners[current_scanner]
-        if ms.contains_labels(labels, scanner.needed_labels) then
+        local scanner = scanners[current_scanner]
+        if ms.contains_labels(labels, scanner.needed_labels) and
+            ms.has_one_of(labels, scanner.has_one_of) then
             local labels_added, labels_removed =
                 scanner.scanner_function(pos1, pos2, labels)
             handle_labels(hash, labels_added, labels_removed)
         end
         current_scanner = current_scanner + 1
-        if current_scanner > #ms.scanners then
+        if current_scanner > #scanners then
             table.remove(scan_queue, 1)
             current_scanner = 1
             add_labels(hash, {"scanned"})
@@ -194,8 +204,17 @@ end
 
 local current_worker = 1
 
+local workers = {}
+
 local function run_workers()
-    if #work_queue > 0 and #ms.workers > 0 then
+    if ms.workers_changed then
+        workers = table.copy(ms.workers)
+        ms.workers_changed = false
+        current_worker = 1
+        work_queue = {}
+        return
+    end
+    if #work_queue > 0 and #workers > 0 then
         minetest.log("error", "work queue: "..#work_queue)
         local hash = work_queue[1]
         local labels = get_labels(hash)
@@ -205,14 +224,15 @@ local function run_workers()
             current_worker = 1
             return
         end
-        local worker = ms.workers[current_worker]
-        if ms.contains_labels(labels, worker.needed_labels) then
+        local worker = workers[current_worker]
+        if ms.contains_labels(labels, worker.needed_labels) and
+            ms.has_one_of(labels, worker.has_one_of) then
             local labels_added, labels_removed =
                 worker.worker_function(pos1, pos2, labels)
             handle_labels(hash, labels_added, labels_removed)
         end
         current_worker = current_worker + 1
-        if current_worker > #ms.workers then
+        if current_worker > #workers then
             table.remove(work_queue, 1)
             current_worker = 1
         end
@@ -227,7 +247,7 @@ local function save_scan_work(neighbor)
         table.insert(scan_queue, neighbor)
         scan_queue = ms.delete_duplicates(scan_queue)
     else
-        for _, worker in pairs(ms.workers) do
+        for _, worker in pairs(workers) do
             local labels = get_labels(neighbor)
             if ms.contains_labels(labels, worker.needed_labels) then
                 table.insert(work_queue, neighbor)

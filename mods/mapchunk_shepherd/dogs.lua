@@ -7,6 +7,11 @@ local ms = mapchunk_shepherd
 
 ms.scanners = {}
 ms.workers = {}
+ms.scanners_changed = true
+ms.workers_changed = true
+
+local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
+local chunk_side = blocks_per_chunk * 16
 
 -- fun needs to be a function fun(pos1, pos2, labels)
 -- where pos1 is minimal position in a mapchunk,
@@ -26,7 +31,7 @@ end
 
 local function is_worker_registered(name)
     for i = 1, #ms.workers do
-        if ms.workers[i].name == name then
+        if ms.workers[i] and ms.workers[i].name == name then
             return true
         end
     end
@@ -35,19 +40,24 @@ end
 
 function ms.register_scanner(args)
     local needed_labels = args.needed_labels or {}
+    local has_one_of = args.has_one_of or {}
     table.insert(needed_labels, "chunk_tracked")
     if not is_scanner_registered(args.name) then
         table.insert(
             ms.scanners,
             {name = args.name,
              scanner_function = args.fun,
-             needed_labels = needed_labels}
+             needed_labels = needed_labels,
+             has_one_of = has_one_of
+            }
         )
     end
+    ms.scanners_changed = true
 end
 
 function ms.register_worker(args)
     local needed_labels = args.needed_labels or {}
+    local has_one_of = args.has_one_of or {}
     table.insert(needed_labels, "chunk_tracked")
     table.insert(needed_labels, "scanned")
     if not is_worker_registered(args.name) then
@@ -55,23 +65,28 @@ function ms.register_worker(args)
             ms.workers,
             {name = args.name,
              worker_function = args.fun,
-             needed_labels = needed_labels}
+             needed_labels = needed_labels,
+             has_one_of = has_one_of,
+            }
         )
     end
+    ms.workers_changed = true
 end
 
 function ms.remove_scanner(name)
     for i = 1, #ms.scanners do
         if ms.scanners[i].name == name then
-            ms.scanners[i] = nil
+            ms.scanners_changed = true
+            table.remove(ms.scanners, i)
         end
     end
 end
 
 function ms.remove_worker(name)
     for i = 1, #ms.workers do
-        if ms.workers[i].name == name then
-            ms.workers[i] = nil
+        if ms.workers[i] and ms.workers[i].name == name then
+            ms.workers_changed = true
+            table.remove(ms.workers, i)
         end
     end
 end
@@ -94,15 +109,10 @@ function ms.create_simple_finder(args)
             MaxEdge = emax,
         }
         local data = vm:get_data()
-        for z = pos_min.z, pos_max.z do
-            for y = pos_min.y, pos_max.y do
-                for x = pos_min.x, pos_max.x do
-                    local index = area:index(x, y, z)
-                    for _, id in pairs(ids) do
-                        if data[index] == id then
-                            return labels_to_add, labels_to_remove
-                        end
-                    end
+        for i = 1, #data do
+            for _, id in pairs(ids) do
+                if data[i] == id then
+                    return labels_to_add, labels_to_remove
                 end
             end
         end
@@ -131,16 +141,11 @@ function ms.create_simple_replacer(args)
         }
         local found = false
         local data = vm:get_data()
-        for z = pos_min.z, pos_max.z do
-            for y = pos_min.y, pos_max.y do
-                for x = pos_min.x, pos_max.x do
-                    local index = area:index(x, y, z)
-                    local replacement = ids[data[index]]
-                    if replacement then
-                        data[index] = replacement
-                        found = true
-                    end
-                end
+        for i = 1, #data do
+            local replacement = ids[data[i]]
+            if replacement then
+                data[i] = replacement
+                found = true
             end
         end
         if found then
