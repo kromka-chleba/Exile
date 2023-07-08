@@ -101,6 +101,20 @@ function ms.contains_labels(labels1, labels2)
     return true
 end
 
+function ms.has_one_of(labels1, labels2)
+    if #labels2 == 0 then
+        return true
+    end
+    for _, label2 in pairs(labels2) do
+        for _, label1 in pairs(labels1) do
+            if label1 == label2 then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 -- Don't change this
 -- I'm using this for the queue also,
 -- not only labels.
