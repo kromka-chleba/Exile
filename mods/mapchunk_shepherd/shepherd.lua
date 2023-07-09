@@ -177,7 +177,7 @@ local function run_scanners()
         return
     end
     if #scan_queue > 0 and #scanners > 0 then
-        minetest.log("error", "scan queue: "..#scan_queue)
+        --minetest.log("error", "scan queue: "..#scan_queue)
         local hash = scan_queue[1]
         local labels = get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
@@ -215,7 +215,7 @@ local function run_workers()
         return
     end
     if #work_queue > 0 and #workers > 0 then
-        minetest.log("error", "work queue: "..#work_queue)
+        --minetest.log("error", "work queue: "..#work_queue)
         local hash = work_queue[1]
         local labels = get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
@@ -249,7 +249,8 @@ local function save_scan_work(neighbor)
     else
         for _, worker in pairs(workers) do
             local labels = get_labels(neighbor)
-            if ms.contains_labels(labels, worker.needed_labels) then
+            if ms.contains_labels(labels, worker.needed_labels) and
+                ms.has_one_of(labels, worker.has_one_of) then
                 table.insert(work_queue, neighbor)
                 work_queue = ms.delete_duplicates(work_queue)
             end
@@ -268,7 +269,7 @@ local function player_tracker()
         local hash = ms.mapchunk_hash(pos)
         local neighbors = neighboring_mapchunks(hash)
         neighbors = filter_underground_mapchunks(neighbors)
-        minetest.log("error", dump(get_labels(hash)))
+        --minetest.log("error", dump(get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
             local pos_min, pos_max = ms.mapchunk_borders(neighbor)
             if minetest.compare_block_status(pos_min, "active") then
