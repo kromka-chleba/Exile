@@ -44,8 +44,20 @@ local function neighboring_mapchunks(hash)
     local hashes = {}
     local diameter = tonumber(minetest.settings:get("viewing_range")) * 2
     local nr = math.ceil(diameter / chunk_side)
+    local y_min = 0
+    local y_max = 0
+    if pos.y == mapchunk_offset then
+        y_min = 0
+        y_max = 3
+    elseif pos.y == mapchunk_offset + chunk_side then
+        y_min = -1
+        y_max = 2
+    else
+        y_min = -2
+        y_max = 1
+    end
     for z = -nr, nr do
-        for y = -nr, nr do
+        for y = y_min, y_max do
             for x = -nr, nr do
                 local v = vector.new(x, y, z)
                 v = vector.multiply(v, chunk_side)
@@ -168,22 +180,39 @@ local current_scanner = 1
 
 local scanners = {}
 
+local previous_failure = false
+local scanner_break = 0.01
+
 local function run_scanners()
     if ms.scanners_changed then
         scanners = table.copy(ms.scanners)
         ms.scanners_changed = false
         current_scanner = 1
         scan_queue = {}
-        return
+        minetest.after(scanner_break, run_scanners)
     end
     if #scan_queue > 0 and #scanners > 0 then
         --minetest.log("error", "scan queue: "..#scan_queue)
         local hash = scan_queue[1]
         local labels = get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
-        if not minetest.compare_block_status(pos1, "active") then
+        local failed = ms.contains_labels(labels, {"scanner_failed"})
+        if failed then
+            current_scanner = 1
+            if previous_failure == hash and math.random() < 0.5 then
+                -- 50% chance to remove recurrent failure
+                table.remove(scan_queue, 1)
+                minetest.after(scanner_break, run_scanners)
+                return
+            else
+                previous_failure = hash
+            end
+        end
+        if not minetest.compare_block_status(pos1, "loaded") or
+            was_scanned(hash) and not failed then
             table.remove(scan_queue, 1)
             current_scanner = 1
+            minetest.after(scanner_break, run_scanners)
             return
         end
         local scanner = scanners[current_scanner]
@@ -197,14 +226,21 @@ local function run_scanners()
         if current_scanner > #scanners then
             table.remove(scan_queue, 1)
             current_scanner = 1
-            add_labels(hash, {"scanned"})
+            if minetest.compare_block_status(pos1, "loaded") then
+                add_labels(hash, {"scanned"})
+            end
         end
+        minetest.after(scanner_break, run_scanners)
+        return
     end
+    minetest.after(1, run_scanners)
+    return
 end
 
 local current_worker = 1
 
 local workers = {}
+local worker_break = 0.01
 
 local function run_workers()
     if ms.workers_changed then
@@ -212,6 +248,7 @@ local function run_workers()
         ms.workers_changed = false
         current_worker = 1
         work_queue = {}
+        minetest.after(worker_break, run_workers)
         return
     end
     if #work_queue > 0 and #workers > 0 then
@@ -219,9 +256,10 @@ local function run_workers()
         local hash = work_queue[1]
         local labels = get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
-        if not minetest.compare_block_status(pos1, "active") then
+        if not minetest.compare_block_status(pos1, "loaded") then
             table.remove(work_queue, 1)
             current_worker = 1
+            minetest.after(worker_break, run_workers)
             return
         end
         local worker = workers[current_worker]
@@ -236,29 +274,66 @@ local function run_workers()
             table.remove(work_queue, 1)
             current_worker = 1
         end
+        minetest.after(worker_break, run_workers)
+        return
+    end
+    minetest.after(1, run_workers)
+    return
+end
+
+local function add_to_scan_queue(hash)
+    local scan = true
+    for _, chunk in pairs(scan_queue) do
+        if chunk == hash then
+            scan = false
+        end
+    end
+    if scan then
+        table.insert(scan_queue, hash)
     end
 end
 
+local function add_to_work_queue(hash)
+    local work = true
+    for _, chunk in pairs(work_queue) do
+        if chunk == hash then
+            scan = false
+        end
+    end
+    if work then
+        table.insert(work_queue, hash)
+    end
+end
+
+-- Part of the tracker
 local function save_scan_work(neighbor)
+    local labels = get_labels(neighbor)
     if not is_tracked(neighbor) then
         save_mapchunk(neighbor)
         table.insert(scan_queue, neighbor)
     elseif not was_scanned(neighbor) then
-        table.insert(scan_queue, neighbor)
-        scan_queue = ms.delete_duplicates(scan_queue)
+        add_to_scan_queue(neighbor)
+    elseif ms.contains_labels(labels, {"scanner_failed"}) then
+        if math.random() < 0.2 then
+            -- 20% chance of rescanning on failure
+            add_to_scan_queue(neighbor)
+        end
     else
         for _, worker in pairs(workers) do
-            local labels = get_labels(neighbor)
             if ms.contains_labels(labels, worker.needed_labels) and
-                ms.has_one_of(labels, worker.has_one_of) then
-                table.insert(work_queue, neighbor)
-                work_queue = ms.delete_duplicates(work_queue)
+                ms.has_one_of(labels, worker.has_one_of) or
+                ms.contains_labels(labels, worker.needed_labels) and
+                ms.has_one_of(labels, worker.has_one_of) and
+                ms.contains_labels(labels, {"worker_failed"})
+            then
+                add_to_work_queue(neighbor)
             end
         end
     end
 end
 
--- Main loop of the shepherd
+-- Player tracker - responsible for saving mapchunks
+-- and adding chunks into scan and work queues.
 local function player_tracker()
     local players = minetest.get_connected_players()
     for _, player in pairs(players) do
@@ -272,7 +347,7 @@ local function player_tracker()
         --minetest.log("error", dump(get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
             local pos_min, pos_max = ms.mapchunk_borders(neighbor)
-            if minetest.compare_block_status(pos_min, "active") then
+            if minetest.compare_block_status(pos_min, "loaded") then
                 save_scan_work(neighbor)
             end
         end
@@ -280,33 +355,13 @@ local function player_tracker()
 end
 
 local tracker_timer = 0
-local tracker_interval = 4
-local scan_timer = 0
-local scan_interval = 0.1
-local work_timer = 0
-local work_interval = 0.1
+local tracker_interval = 10
 
 local function player_tracker_loop(dtime)
     tracker_timer = tracker_timer + dtime
     if tracker_timer > tracker_interval then
         tracker_timer = 0
         player_tracker()
-    end
-end
-
-local function scanner_loop(dtime)
-    scan_timer = scan_timer + dtime
-    if scan_timer > scan_interval then
-        scan_timer = 0
-        run_scanners()
-    end
-end
-
-local function worker_loop(dtime)
-    work_timer = work_timer + dtime
-    if work_timer > work_interval then
-        work_timer = 0
-        run_workers()
     end
 end
 
@@ -324,6 +379,6 @@ if chunksize_changed() then
 else
     -- Start the tracker
     minetest.register_globalstep(player_tracker_loop)
-    minetest.register_globalstep(scanner_loop)
-    minetest.register_globalstep(worker_loop)
+    minetest.after(5, run_scanners)
+    minetest.after(5, run_workers)
 end
