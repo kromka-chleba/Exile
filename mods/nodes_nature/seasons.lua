@@ -77,41 +77,6 @@ local function update_plant(pos, node)
     end
 end
 
-local function soil_to_winter(pos, node)
-    local nodedef = minetest.registered_nodes[node.name]
-    local new_name = nodedef._winter_name
-    local id = nodedef.groups.natural_slope
-    if id then -- We're a slope, preserve that
-        new_name = nsl.get_all_slopes(new_name)[id]
-    end
-    minetest.set_node(pos, {name = new_name, param2 = node.param2})
-end
-
-local function soil_to_non_winter(pos, node)
-    local nodedef = minetest.registered_nodes[node.name]
-    local new_name = nodedef._non_winter_name
-    local id = nodedef.groups.natural_slope
-    if id then -- We're a slope, preserve that
-        new_name = nsl.get_all_slopes(new_name)[id]
-    end
-    minetest.set_node(pos, {name = new_name, param2 = node.param2})
-end
-
-local seasonal_plant_abm = {
-    label = "Seasonal plant changer",
-    name = "nodes_nature:seasonal_plant_abm",
-    name = abm_name,
-    interval = 15,
-    chance = 1,
-    catch_up = false,
-    min_y = -30,
-    max_y = 300,
-    nodenames = {"group:seasonal"},
-    action = function(pos, node, dtime_s)
-        update_plant(pos, node)
-    end,
-}
-
 local leaf_drop_abm = {
     label = "Removes leaves in winter.",
     name = "nodes_nature:remove_leaves",
@@ -275,7 +240,99 @@ local function swap_soils()
     end
 end
 
+ms.register_label("spring_early_plants", 6)
+ms.register_label("spring_late_plants", 7)
+
+ms.register_label("summer_early_plants", 8)
+ms.register_label("summer_late_plants", 9)
+
+ms.register_label("fall_early_plants", 10)
+ms.register_label("fall_late_plants", 11)
+
+ms.register_label("winter_early_plants", 12)
+ms.register_label("winter_late_plants", 13)
+
+ms.register_label("seasonal_plants", 14)
+
+local function get_seasonal_plant_names()
+    local plant_names = {}
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        if minetest.get_item_group(name, "seasonal") > 0 then
+            table.insert(plant_names, name)
+        end
+    end
+    return plant_names
+end
+
+local function get_plant_season_pairs(current_season)
+    local plant_pairs = {}
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        if minetest.get_item_group(name, "seasonal") > 0 then
+            local replacement = nodedef["_"..current_season]
+            if replacement then
+                plant_pairs[name] = replacement
+            end
+        end
+    end
+    return plant_pairs
+end
+
+local function get_plant_labels_but_this(season_name)
+    local labels = {}
+    for _, season in pairs(season_names) do
+        if season ~= season_name then
+            table.insert(labels, season.."_plants")
+        end
+    end
+    return labels
+end
+
+local seasonal_plants = false
+local pairs_by_season = {}
+
+local plant_finder = false
+local plant_replacer = false
+local replacer_season = false
+
+local function swap_plants(season_name)
+    if not seasonal_plants then
+        seasonal_plants = get_seasonal_plant_names()
+    end
+    if not plant_finder then
+        plant_finder = ms.create_simple_finder(
+            {to_find = seasonal_plants,
+             add_labels = {"seasonal_plants"},
+        })
+        ms.register_scanner({name = "seasonal_plant_finder",
+                             fun = plant_finder})
+    end
+    if not pairs_by_season[season_name] then
+        pairs_by_season[season_name] = get_plant_season_pairs(season_name)
+    end
+    if not replacer_season then
+        replacer_season = season_name
+    end
+    if not plant_replacer or replacer_season ~= season_name then
+        local labels = get_plant_labels_but_this(season_name)
+        table.insert(labels, "seasonal_plants")
+        plant_replacer =
+            ms.create_param2_aware_replacer(
+                {find_replace_pairs = pairs_by_season[season_name],
+                 add_labels = {season_name.."_plants"},
+                 remove_labels = labels,
+                 lower_than = 64, --exclude domesticated and half-wild
+                }
+            )
+        ms.remove_worker("seasonal_plant_replacer")
+        ms.register_worker({name = "seasonal_plant_replacer",
+                            fun = plant_replacer,
+                            has_one_of = labels})
+    end
+end
+
 local function season_loop()
+    local season_name = seasons.get_season_name()
+    swap_plants(season_name)
     swap_soils()
     minetest.after(4, season_loop)
 end
@@ -284,7 +341,6 @@ end
 -- starting this right away caused a crash because minetest.get_day_count()
 -- returned nil
 
-minetest.register_abm(seasonal_plant_abm)
 minetest.register_abm(leaf_drop_abm)
 minetest.after(2, season_loop)
 

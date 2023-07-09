@@ -157,3 +157,47 @@ function ms.create_simple_replacer(args)
         end
     end
 end
+
+function ms.create_param2_aware_replacer(args)
+    local find_replace_pairs = args.find_replace_pairs
+    local labels_to_add = args.add_labels
+    local labels_to_remove = args.remove_labels
+    local not_found = args.not_found_labels
+    local lower_than = args.lower_than or 257
+    local higher_than = args.higher_than or -1
+    local ids = {}
+    for to_find, replacement in pairs(find_replace_pairs) do
+        local find_id = minetest.get_content_id(to_find)
+        local replacement_id = minetest.get_content_id(replacement)
+        ids[find_id] = replacement_id
+    end
+    return function(pos1, pos2, labels)
+        local pos_min, pos_max = pos1, pos2
+        local vm = VoxelManip()
+        local emin, emax = vm:read_from_map(pos_min, pos_max)
+        local area = VoxelArea:new{
+            MinEdge = emin,
+            MaxEdge = emax,
+        }
+        local found = false
+        local data = vm:get_data()
+        local data_param2 = vm:get_param2_data()
+        for i = 1, #data do
+            local replacement = ids[data[i]]
+            if replacement then
+                if data_param2[i] > higher_than and
+                    data_param2[i] < lower_than then
+                    data[i] = replacement
+                    found = true
+                end
+            end
+        end
+        if found then
+            vm:set_data(data)
+            vm:write_to_map(false)
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end
