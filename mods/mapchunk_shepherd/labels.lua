@@ -132,3 +132,5 @@ end
 
 ms.register_label("chunk_tracked", 1)
 ms.register_label("scanned", 2)
+ms.register_label("scanner_failed", 3)
+ms.register_label("worker_failed", 4)

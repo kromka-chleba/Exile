@@ -10,6 +10,8 @@ ms.workers = {}
 ms.scanners_changed = true
 ms.workers_changed = true
 
+local ignore_id = minetest.get_content_id("ignore")
+
 local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
 local chunk_side = blocks_per_chunk * 16
 
@@ -76,8 +78,8 @@ end
 function ms.remove_scanner(name)
     for i = 1, #ms.scanners do
         if ms.scanners[i].name == name then
-            ms.scanners_changed = true
             table.remove(ms.scanners, i)
+            ms.scanners_changed = true
         end
     end
 end
@@ -85,16 +87,17 @@ end
 function ms.remove_worker(name)
     for i = 1, #ms.workers do
         if ms.workers[i] and ms.workers[i].name == name then
-            ms.workers_changed = true
             table.remove(ms.workers, i)
+            ms.workers_changed = true
         end
     end
 end
 
 function ms.create_simple_finder(args)
     local nodes_to_find = args.to_find
-    local labels_to_add = args.add_labels
-    local labels_to_remove = args.remove_labels
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "scanner_failed")
     local not_found = args.not_found_labels
     local ids = {}
     for _, name in pairs(nodes_to_find) do
@@ -113,6 +116,8 @@ function ms.create_simple_finder(args)
             for _, id in pairs(ids) do
                 if data[i] == id then
                     return labels_to_add, labels_to_remove
+                elseif data[i] == ignore_id then
+                    return {"scanner_failed"}, {"scanned"}
                 end
             end
         end
@@ -122,8 +127,9 @@ end
 
 function ms.create_simple_replacer(args)
     local find_replace_pairs = args.find_replace_pairs
-    local labels_to_add = args.add_labels
-    local labels_to_remove = args.remove_labels
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
     local ids = {}
     for to_find, replacement in pairs(find_replace_pairs) do
@@ -146,6 +152,8 @@ function ms.create_simple_replacer(args)
             if replacement then
                 data[i] = replacement
                 found = true
+            elseif data[i] == ignore_id then
+                return {"worker_failed"}
             end
         end
         if found then
@@ -160,8 +168,9 @@ end
 
 function ms.create_param2_aware_replacer(args)
     local find_replace_pairs = args.find_replace_pairs
-    local labels_to_add = args.add_labels
-    local labels_to_remove = args.remove_labels
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
     local lower_than = args.lower_than or 257
     local higher_than = args.higher_than or -1
@@ -189,6 +198,8 @@ function ms.create_param2_aware_replacer(args)
                     data_param2[i] < lower_than then
                     data[i] = replacement
                     found = true
+                elseif data[i] == ignore_id then
+                    return {"worker_failed"}
                 end
             end
         end

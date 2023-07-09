@@ -190,9 +190,9 @@ local winter_soils = get_winter_soil_names()
 local spring_to_winter = spring_to_winter_pairs(true)
 local winter_to_spring = winter_to_spring_pairs(true)
 
-ms.register_label("winter_soil", 3)
-ms.register_label("spring_soil", 4)
-ms.register_label("no_spring_soil", 5)
+ms.register_label("winter_soil", 5)
+ms.register_label("spring_soil", 6)
+ms.register_label("no_spring_soil", 7)
 
 local spring_soil_finder =
     ms.create_simple_finder(
@@ -240,19 +240,19 @@ local function swap_soils()
     end
 end
 
-ms.register_label("spring_early_plants", 6)
-ms.register_label("spring_late_plants", 7)
+ms.register_label("spring_early_plants", 8)
+ms.register_label("spring_late_plants", 9)
 
-ms.register_label("summer_early_plants", 8)
-ms.register_label("summer_late_plants", 9)
+ms.register_label("summer_early_plants", 10)
+ms.register_label("summer_late_plants", 11)
 
-ms.register_label("fall_early_plants", 10)
-ms.register_label("fall_late_plants", 11)
+ms.register_label("fall_early_plants", 12)
+ms.register_label("fall_late_plants", 13)
 
-ms.register_label("winter_early_plants", 12)
-ms.register_label("winter_late_plants", 13)
+ms.register_label("winter_early_plants", 14)
+ms.register_label("winter_late_plants", 15)
 
-ms.register_label("seasonal_plants", 14)
+ms.register_label("seasonal_plants", 16)
 
 local function get_seasonal_plant_names()
     local plant_names = {}
