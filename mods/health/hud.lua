@@ -492,7 +492,7 @@ minetest.register_globalstep(function(dtime)
 end)
 
 minetest.register_chatcommand("show_stats", {
-	params = S("help"),
+	params = S("[ help | clear ]"),
 	description = S("Enable or disable stats showing below icons. "..
 			"Pass 'clear' as a parameter to revert to defaults."),
     func = function(name, param)
