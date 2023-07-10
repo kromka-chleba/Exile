@@ -10,10 +10,22 @@ ms.workers = {}
 ms.scanners_changed = true
 ms.workers_changed = true
 
+local placeholder_id_pairs = {}
 local ignore_id = minetest.get_content_id("ignore")
 
 local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
 local chunk_side = blocks_per_chunk * 16
+
+minetest.register_on_mods_loaded(function()
+        local id_pairs = {}
+        for _, nodedef in pairs(minetest.registered_nodes) do
+            local name = nodedef.name
+            local id = minetest.get_content_id(name)
+            id_pairs[id] = id
+        end
+        id_pairs[ignore_id] = false
+        placeholder_id_pairs = id_pairs
+end)
 
 -- fun needs to be a function fun(pos1, pos2, labels)
 -- where pos1 is minimal position in a mapchunk,
@@ -131,7 +143,7 @@ function ms.create_simple_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
-    local ids = {}
+    local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
         local replacement_id = minetest.get_content_id(replacement)
@@ -174,7 +186,7 @@ function ms.create_param2_aware_replacer(args)
     local not_found = args.not_found_labels
     local lower_than = args.lower_than or 257
     local higher_than = args.higher_than or -1
-    local ids = {}
+    local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
         local replacement_id = minetest.get_content_id(replacement)
