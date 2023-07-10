@@ -193,7 +193,7 @@ local function run_scanners()
         minetest.after(longer_break, run_scanners)
     end
     if #scan_queue > 0 and #scanners > 0 then
-        --minetest.log("error", "scan queue: "..#scan_queue)
+        minetest.log("warning", "scan queue: "..#scan_queue)
         local hash = scan_queue[1]
         local labels = get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
@@ -253,7 +253,7 @@ local function run_workers()
         return
     end
     if #work_queue > 0 and #workers > 0 then
-        --minetest.log("error", "work queue: "..#work_queue)
+        minetest.log("warning", "work queue: "..#work_queue)
         local hash = work_queue[1]
         local labels = get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)

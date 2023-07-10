@@ -413,7 +413,6 @@ local function add_to_param2(pos, nr)
         nodedef = minetest.registered_nodes[seedling_name]
     end
     local new_param2 = (nodedef.place_param2 or 0) + nr
-    minetest.log("error", "new param2: "..new_param2)
     minetest.swap_node(pos, {name = name, param2 = new_param2})
 end
 
