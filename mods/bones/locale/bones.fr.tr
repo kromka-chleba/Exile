@@ -2,7 +2,7 @@
 
 # init.lua
 Bones=Dépouille
-@1's old bones=Vielle dépouille de @1
+@1's old bones=Vieille dépouille de @1
 @1 died at @2.=@1 est mort à @2.
 @1 died at @2, and dropped their inventory.=@1 est mort à @2 et a laissé tomber son inventaire.
 @1 died at @2, and bones were placed.=@1 est mort à @2 et sa dépouille a été placée.
