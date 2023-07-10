@@ -392,6 +392,10 @@ function plant.get_base_props(plant_def)
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
         _seed_name = plant.get_seed_name(plant_def.name),
+        after_place_node = function(pos, placer, itemstack, pointed_thing)
+            plant.set_to_domesticated(pos)
+            plant.death_chance_on_replant(pos)
+        end,
     }
     if plant_def.roots then
         props._root_name = plant.get_root_name(plant_def.name)
@@ -627,9 +631,14 @@ function plant.get_plantlike_dead_fruitless_props(plant_def)
     base.wield_image = plant.get_dead_fruitless_texture_name(plant_def.name)
     base.tiles = {plant.get_dead_fruitless_texture_name(plant_def.name)}
     base.groups.compostable = 1
-    base.on_construct = function(pos)
+    base.after_place_node = function(pos)
         if minimal.get_param2(pos) < 64 then
             plant.set_to_domesticated(pos)
+        end
+    end
+    base.on_construct = function(pos)
+        if minimal.get_param2(pos) >= 128 then
+            plant.set_to_wild(pos)
         end
     end
     for i = 1, #seasons.season_names, 1 do
@@ -660,7 +669,7 @@ function plant.get_plantlike_dead_props(plant_def)
     base.wield_image = plant.get_dead_texture_name(plant_def.name)
     base._next_life_stage = false
     base.description = S("Dead @1", plant_def.description)
-    base.on_construct = function(pos)
+    base.after_place_node = function(pos)
         if minimal.get_param2(pos) < 64 then
             plant.set_to_domesticated(pos)
         end

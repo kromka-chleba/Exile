@@ -412,8 +412,13 @@ local function add_to_param2(pos, nr)
         local seedling_name = nodedef._next_life_stage
         nodedef = minetest.registered_nodes[seedling_name]
     end
-    local new_param2 = ( nodedef.place_param2 or 0) + nr
+    local new_param2 = (nodedef.place_param2 or 0) + nr
+    minetest.log("error", "new param2: "..new_param2)
     minetest.swap_node(pos, {name = name, param2 = new_param2})
+end
+
+function plant.set_to_wild(pos)
+    add_to_param2(pos, 0)
 end
 
 function plant.set_to_domesticated(pos)
@@ -449,17 +454,20 @@ function plant.grow_seed(pos, elapsed)
     return false -- the seed becomes a seedling (stops the timer)
 end
 
+function plant.death_chance_on_replant(pos)
+    plant.set_to_domesticated(pos)
+    -- random chance to kill the plant when replanting
+    if math.random() < 1/4 then
+        local timer = minetest.get_node_timer(pos)
+        timer:stop()
+        minetest.after(3, function () kill_plant(pos, false) end)
+    end
+end
+
 function plant.start_growing_plant(pos, growing_time)
     local timer_min = plant_base_timer - 0.1 * plant_base_timer
     local timer_max = plant_base_timer + 0.1 * plant_base_timer
     minimal.node_set_int(pos, "growth", growing_time)
-    if minimal.get_param2(pos) < 64 then
-        plant.set_to_domesticated(pos)
-        -- random chance to kill the plant when replanting
-        if math.random() < 1/4 then
-            minetest.after(3, function () kill_plant(pos, false) end)
-        end
-    end
     local timer = minetest.get_node_timer(pos)
     timer:start(math.random(timer_min, timer_max))
 end
@@ -470,6 +478,7 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     local current_progress = current_growth_progress(pos, elapsed)
     local past_progress = past_growth_progress(pos, elapsed)
     local health = meta:get_int("health")
+    local param2 = minimal.get_param2(pos)
     if not meta:get("health") then
         health = base_health + base_health * math.random(-1, 1) * 0.1
         meta:set_int("health", health)
@@ -477,6 +486,10 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     if kill_no_light(pos, elapsed) then
         -- we had no light so exit before catch up
         return false
+    end
+    if param2 >= 128 and is_winter() then
+        plant.set_to_wild(pos)
+        kill_plant(pos, true)
     end
     if health <= 0 then
         kill_plant(pos, true)
