@@ -25,12 +25,15 @@ seasons.season_names = {
 
 local season_names = seasons.season_names
 
+local set_day_pending = false
+
 minetest.register_chatcommand(
     "set_day", {
         params = S("<day>"),
         description = S("Sets date."),
         privs = {settime = true},
         func = function(name, param)
+            set_day_pending = true
             if param == "" or not tonumber(param) then
                 return false, S("Wrong argument, needs a number!")
             end
@@ -59,6 +62,7 @@ minetest.register_chatcommand(
             end
             loop()
             local new_current_day = minetest.get_day_count() % 80 + 1
+            set_day_pending = false
             return true, S("Date changed!")
         end,
 })
@@ -335,9 +339,12 @@ local function swap_plants(season_name)
 end
 
 local function season_loop()
-    local season_name = seasons.get_season_name()
-    swap_plants(season_name)
-    swap_soils()
+    -- Prevent running stuff when date is changed to avoid glitches
+    if not set_day_pending then
+        local season_name = seasons.get_season_name()
+        swap_plants(season_name)
+        swap_soils()
+    end
     minetest.after(4, season_loop)
 end
 

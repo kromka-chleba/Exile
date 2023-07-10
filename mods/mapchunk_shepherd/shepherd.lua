@@ -180,6 +180,7 @@ local current_scanner = 1
 
 local scanners = {}
 
+local longer_break = 2 -- two seconds
 local previous_failure = false
 local scanner_break = 0.005
 
@@ -189,7 +190,7 @@ local function run_scanners()
         ms.scanners_changed = false
         current_scanner = 1
         scan_queue = {}
-        minetest.after(scanner_break, run_scanners)
+        minetest.after(longer_break, run_scanners)
     end
     if #scan_queue > 0 and #scanners > 0 then
         --minetest.log("error", "scan queue: "..#scan_queue)
@@ -233,7 +234,7 @@ local function run_scanners()
         minetest.after(scanner_break, run_scanners)
         return
     end
-    minetest.after(1, run_scanners)
+    minetest.after(longer_break, run_scanners)
     return
 end
 
@@ -248,7 +249,7 @@ local function run_workers()
         ms.workers_changed = false
         current_worker = 1
         work_queue = {}
-        minetest.after(worker_break, run_workers)
+        minetest.after(longer_break, run_workers)
         return
     end
     if #work_queue > 0 and #workers > 0 then
@@ -277,7 +278,7 @@ local function run_workers()
         minetest.after(worker_break, run_workers)
         return
     end
-    minetest.after(1, run_workers)
+    minetest.after(longer_break, run_workers)
     return
 end
 
