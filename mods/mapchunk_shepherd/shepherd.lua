@@ -181,7 +181,7 @@ local current_scanner = 1
 local scanners = {}
 
 local previous_failure = false
-local scanner_break = 0.01
+local scanner_break = 0.005
 
 local function run_scanners()
     if ms.scanners_changed then
@@ -240,7 +240,7 @@ end
 local current_worker = 1
 
 local workers = {}
-local worker_break = 0.01
+local worker_break = 0.005
 
 local function run_workers()
     if ms.workers_changed then
