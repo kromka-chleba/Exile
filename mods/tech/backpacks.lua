@@ -11,11 +11,19 @@ local S = tech.S
 --Register
 
 
+-- Woven sack
+backpacks.register_backpack("woven_sack", S("Woven Sack"), "tech_woven.png", 8,2, {snappy = 3, dig_immediate = 3, temp_pass = 1, craftedby = 1}, nodes_nature.node_sound_leaves_defaults())
+
+
 -- Woven
-backpacks.register_backpack("woven_bag", S("Woven Bag"), "tech_woven.png", 8,2, {snappy = 3, dig_immediate = 3, temp_pass = 1, craftedby = 1}, nodes_nature.node_sound_leaves_defaults())
+backpacks.register_backpack("woven_bag", S("Woven Bag"), "tech_woven.png", 8,3, {snappy = 3, dig_immediate = 3, temp_pass = 1, craftedby = 1}, nodes_nature.node_sound_leaves_defaults())
+
+-- Wicker basket
+backpacks.register_backpack("wicker_basket", S("Wicker Basket"), "tech_wicker.png", 8,2, {snappy = 3, dig_immediate = 3, temp_pass = 1, craftedby = 1}, nodes_nature.node_sound_leaves_defaults())
+
 
 -- Wicker
-backpacks.register_backpack("wicker_bag", S("Wicker Bag"), "tech_wicker.png", 8,2, {snappy = 3, dig_immediate = 3, temp_pass = 1, craftedby = 1}, nodes_nature.node_sound_leaves_defaults())
+backpacks.register_backpack("wicker_bag", S("Wicker Bag"), "tech_wicker.png", 8,3, {snappy = 3, dig_immediate = 3, temp_pass = 1, craftedby = 1}, nodes_nature.node_sound_leaves_defaults())
 
 
 -- fabric
@@ -29,14 +37,35 @@ backpacks.register_backpack("fabric_bag", S("Fabric Bag"), "tech_coarse_fabric.p
 --Hand crafts (crafting_spot)
 --
 
+
+----woven sack from fibrous_plant
+crafting.register_recipe({
+	type = "weaving_frame",
+	output = "backpacks:backpack_woven_sack 1",
+	items = {"ropes:cord 8"},
+	level = 1,
+	always_known = true,
+})
+
+
 ----woven from fibrous_plant
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "backpacks:backpack_woven_bag 1",
-	items = {"group:fibrous_plant 48"},
+	items = {"ropes:cord 16"},
 	level = 1,
 	always_known = true,
 })
+
+----wicker basket from sticks
+crafting.register_recipe({
+	type = "weaving_frame",
+	output = "backpacks:backpack_wicker_basket 1",
+	items = {"tech:stick 24"},
+	level = 1,
+	always_known = true,
+})
+
 
 ----wicker from sticks
 crafting.register_recipe({

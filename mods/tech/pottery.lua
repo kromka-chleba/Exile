@@ -184,6 +184,53 @@ minetest.register_node("tech:clay_water_pot_unfired", {
 })
 
 
+--- bottle gourd
+
+minetest.register_node("tech:gordu_bottle", {
+	description = S("Gordu Bottle"),
+	tiles = {
+		"tech_water_gourd_empty.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png"
+	},
+	drawtype = "nodebox",
+	stack_max = minimal.stack_max_bulky,
+	paramtype = "light",
+	node_box = {
+	type = "fixed",
+	fixed = {
+		{-0.2500, -0.5000, -0.2500, 0.3125, 0.06250, 0.3125},
+		{-0.1250, 0.06250, -0.1250, 0.1875, 0.3750, 0.1875}
+	}
+	},
+	liquids_pointable = true,
+	on_use = function(itemstack, user, pointed_thing)
+		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
+	end,
+		--collect rain water
+	on_construct = function(pos)
+		minetest.get_node_timer(pos):start(math.random(30,60))
+	end,
+	on_timer =function(pos, elapsed)
+		return water_pot(pos, "tech:gordu_bottle", elapsed)
+	end,
+	groups = {dig_immediate = 3, temp_pass = 1},
+	sounds = nodes_nature.node_sound_stone_defaults(),
+
+})
+
+
+
+
+
+
+
+
+
+
 --------------------------------------
 --unfired storage pot (see storage for fired version)
 minetest.register_node("tech:clay_storage_pot_unfired", {
@@ -582,6 +629,57 @@ crafting.register_recipe({
 --Register water stores
 --source, nodename, nodename_empty, tiles, node_box, desc, groups
 
+
+
+--bottle gourd with salt water
+liquid_store.register_stored_liquid(
+	"nodes_nature:salt_water_source",
+	"tech:gordu_bottle_salt_water",
+	"tech:gordu_bottle",
+	{
+		"tech_water_gourd_water.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png"
+	},
+	{
+		type = "fixed",
+		fixed = {
+		{-0.2500, -0.5000, -0.2500, 0.3125, 0.06250, 0.3125},
+		{-0.1250, 0.06250, -0.1250, 0.1875, 0.3750, 0.1875}
+	},
+	},
+	S("Gordu Bottle with Salt Water"),
+	{dig_immediate = 2})
+
+
+--bottle gourd with fresh water
+liquid_store.register_stored_liquid(
+	"nodes_nature:freshwater_source",
+	"tech:gordu_bottle_freshwater",
+	"tech:gordu_bottle",
+	{
+		"tech_water_gourd_water.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png",
+		"tech_gourd_side.png"
+	},
+	{
+		type = "fixed",
+		fixed = {
+		{-0.2500, -0.5000, -0.2500, 0.3125, 0.06250, 0.3125},
+		{-0.1250, 0.06250, -0.1250, 0.1875, 0.3750, 0.1875}
+	},
+	},
+	S("Gordu Bottle with Freshwater"),
+	{dig_immediate = 2})
+
+
+
 --clay pot with salt water
 liquid_store.register_stored_liquid(
 	"nodes_nature:salt_water_source",
@@ -659,6 +757,33 @@ minetest.override_item("tech:clay_water_pot_freshwater",{
 		end
 	end
 })
+
+
+
+--make freshwater gourd drinkable on click
+minetest.override_item("tech:gordu_bottle_freshwater",{
+	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		local meta = clicker:get_meta()
+		local thirst = meta:get_int("thirst")
+		--only drink if thirsty
+		if thirst < 100 then
+
+			local water = 100 --you're skulling a whole bucket
+			thirst = thirst + water
+			if thirst > 100 then
+				thirst = 100
+			end
+
+			--could add disease risk, but different sources have different risks
+			--e.g. rain vs mud puddle
+
+			meta:set_int("thirst", thirst)
+			minimal.switch_node(pos, {name = "tech:gordu_bottle"})
+			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
+		end
+	end
+})
+
 
 --clay watering can with fresh water
 liquid_store.register_stored_liquid(
