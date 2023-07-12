@@ -133,6 +133,25 @@ minetest.register_tool("tech:stone_chopper", {
 
 
 
+--wooden club. A weapon. Not very good for anything else
+--can stun catch animals
+minetest.register_tool("tech:wooden_club", {
+	description = S("Wooden Club"),
+	inventory_image = "tech_tool_wooden_club.png",
+	tool_capabilities = {
+		full_punch_interval = base_punch_int * 1.1,
+		groupcaps={
+			choppy = {times={[3]=crude_chop3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
+			snappy = {times={[3]=crude_snap3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
+			crumbly = {times= {[3]=crude_crum3}, uses=base_use*0.5, maxlevel=crude_max_lvl}
+		},
+		damage_groups = {fleshy=crude_dmg*1.5},
+	},
+	groups = {club = 1, craftedby = 1},
+	sound = {breaks = "tech_tool_breaks"},
+})
+
+
 --
 -- Crumbly
 --
@@ -264,7 +283,6 @@ minetest.register_tool("tech:stone_club", {
 
 
 
-
 --------------------------
 --3rd level
 --iron tools.
@@ -381,11 +399,11 @@ minetest.register_tool("tech:pickaxe_iron", {
 --Hand crafts (inv)
 --
 
-----craft stone chopper from gravel
+----craft stone chopper from cobbles
 crafting.register_recipe({
 	type = "crafting_spot",
 	output = "tech:stone_chopper 1",
-	items = {"nodes_nature:gravel"},
+	items = {"group:basalt_cobble 2"},
 	level = 1,
 	always_known = true,
 })
@@ -400,6 +418,15 @@ crafting.register_recipe({
 	always_known = true,
 })
 
+----wooden club from sticks
+crafting.register_recipe({
+	type = "crafting_spot",
+	output = "tech:wooden_club 1",
+	items = {"tech:stick 2"},
+	level = 1,
+	always_known = true,
+})
+
 
 --
 --Polished Stone
@@ -409,7 +436,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "grinding_stone",
 	output = "tech:adze_granite",
-	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	items = {"group:granite_cobble", 'tech:stick', 'ropes:cord', 'nodes_nature:sand'},
 	level = 1,
 	always_known = true,
 })
@@ -417,7 +444,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "grinding_stone",
 	output = "tech:adze_jade",
-	items = {"group:jade_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	items = {"group:jade_cobble", 'tech:stick', 'ropes:cord', 'nodes_nature:sand'},
 	level = 1,
 	always_known = true,
 })
@@ -425,7 +452,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "grinding_stone",
 	output = "tech:adze_basalt",
-	items = {"group:basalt_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	items = {"group:basalt_cobble", 'tech:stick', 'ropes:cord', 'nodes_nature:sand'},
 	level = 1,
 	always_known = true,
 })
@@ -542,7 +569,7 @@ minetest.register_tool(
 crafting.register_recipe({
 	type = "grinding_stone",
 	output = "tech:hammer_granite",
-	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	items = {"group:granite_cobble", 'tech:stick', 'ropes:cord', 'nodes_nature:sand'},
 	level = 1,
 	always_known = true,
 })
@@ -596,7 +623,7 @@ minetest.register_tool(
 crafting.register_recipe({
 	type = "grinding_stone",
 	output = "tech:hammer_basalt",
-	items = {"group:basalt_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	items = {"group:basalt_cobble", 'tech:stick', 'ropes:cord', 'nodes_nature:sand'},
 	level = 1,
 	always_known = true,
 })

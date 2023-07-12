@@ -303,7 +303,7 @@ minetest.override_item("stairs:slab_thatch",
 --Recipes
 
 --
---Hand crafts (Cradting spot)
+--Hand crafts (Crafting spot)
 --
 
 ----craft drystack from gravel
@@ -327,7 +327,7 @@ crafting.register_recipe({
 
 ----mudbrick from clay and fibre
 crafting.register_recipe({
-	type = "brick_makers_bench",
+	type = "crafting_spot",
 	output = "tech:mudbrick",
 	items = {"nodes_nature:clay_wet", "group:fibrous_plant"},
 	level = 1,
@@ -433,11 +433,13 @@ crafting.register_recipe({
 	always_known = true,
 })
 
+
+
 ----Thatch from  fibre
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:thatch",
-	items = {"group:fibrous_plant 8"},
+	items = {"group:fibrous_plant 5, ropes:cord 1"},
 	level = 1,
 	always_known = true,
 })
@@ -455,7 +457,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_storage_basket",
-	items = {"group:fibrous_plant 96"},
+	items = {"ropes:cord 32"},
 	level = 1,
 	always_known = true,
 })

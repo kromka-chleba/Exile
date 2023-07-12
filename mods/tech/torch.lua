@@ -396,7 +396,7 @@ minetest.register_node("tech:torch_ceiling", {
 crafting.register_recipe({
 	type = "crafting_spot",
 	output = "tech:torch 1",
-	items = {"tech:stick 1", "group:fibrous_plant 4"},
+	items = {"tech:stick 1", "group:fibrous_plant 3", "ropes:cord"},
 	level = 1,
 	always_known = true,
 })

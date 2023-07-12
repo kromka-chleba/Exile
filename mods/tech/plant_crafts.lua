@@ -288,7 +288,6 @@ crafting.register_recipe({
 	always_known = true,
 })
 
-
 --peel tubers
 crafting.register_recipe({
 	type = "crafting_spot",
@@ -296,6 +295,22 @@ crafting.register_recipe({
 	items = {"nodes_nature:anperla_seed"},
 	level = 1,
 	always_known = true,
+})
+
+--craft bottle from gordu
+crafting.register_recipe({
+	type = "crafting_spot",
+	output = "tech:gordu_bottle",
+	items = {"nodes_nature:gordu"},
+	level = 1,
+	always_known = true,
+})
+
+minetest.register_craftitem("tech:gordu_bottle", {
+	description = S("Gordu Bottle"),
+	inventory_image = "tech_bottle_gordu_icon.png",
+	stack_max = minimal.stack_max_bulky,
+	groups = {},
 })
 
 --

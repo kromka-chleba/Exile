@@ -4,9 +4,16 @@
 -- Internationalization
 local S = tech.S
 
+
+---------------------------------------------------------------
+------- basically all fiber crafts are made from some type of cord/yarn first
+
+
 ----------------------------------------------------------------
 --PRIMITIVE
 --from crude woven fibres,
+
+
 
 --Hat
 player_api.register_cloth("tech:woven_hat", {
@@ -22,10 +29,30 @@ player_api.register_cloth("tech:woven_hat", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_hat",
-	items = {'group:fibrous_plant 24'},
+	items = {'ropes:cord 8'},
 	level = 1,
 	always_known = true,
 })
+
+--Sun Hat
+player_api.register_cloth("tech:sun_hat", {
+	description = S("Sun Hat"),
+	inventory_image = "tech_inv_sun_hat.png",
+	texture = "tech_uv_sun_hat.png",
+	stack_max = minimal.stack_max_bulky,
+	groups = {cloth = 1, clothing_hat = 1,},
+	customfields= {temp_min = 0, temp_max = 2}
+})
+
+
+crafting.register_recipe({
+	type = "weaving_frame",
+	output = "tech:sun_hat",
+	items = {'ropes:cord 6', 'tech:stick 1'},
+	level = 1,
+	always_known = true,
+})
+
 
 --Cape
 player_api.register_cloth("tech:woven_cape", {
@@ -40,7 +67,7 @@ player_api.register_cloth("tech:woven_cape", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_cape",
-	items = {'group:fibrous_plant 48'},
+	items = {'ropes:cord 16'},
 	level = 1,
 	always_known = true,
 })
@@ -59,7 +86,7 @@ player_api.register_cloth("tech:woven_poncho", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_poncho",
-	items = {'group:fibrous_plant 48'},
+	items = {'ropes:cord 16'},
 	level = 1,
 	always_known = true,
 })
@@ -79,7 +106,7 @@ player_api.register_cloth("tech:woven_leggings", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_leggings",
-	items = {'group:fibrous_plant 36'},
+	items = {'ropes:cord 12'},
 	level = 1,
 	always_known = true,
 })
@@ -91,12 +118,12 @@ player_api.register_cloth("tech:woven_blanket", {
 	texture = "tech_woven_blanket.png",
 	stack_max = minimal.stack_max_bulky,
 	groups = {blanket=1, clothing_blanket=1, cloth=6},
-	customfields = {temp_min = 3, temp_max = -2}
+	customfields = {temp_min = 3, temp_max = 0}
 })
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_blanket",
-	items = {'group:fibrous_plant 60'},
+	items = {'ropes:cord 20'},
 	level = 1,
 	always_known = true,
 })
