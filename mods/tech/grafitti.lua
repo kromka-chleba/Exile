@@ -4,6 +4,7 @@
 --various symbols and patterns, enough to make it possible to form a symbolic vocabulary.
 
 --colours:
+-- simple scratching with stone
 --lime white
 --glow paint (a light)
 --carbon black --!!
@@ -133,6 +134,90 @@ crafting.register_recipe({
 
 ----------------------------------------------------------
 --carbon black
+
+grafitti.register_grafitti("tech:cb_a", {image = "tech_paint_cb_a.png"})
+grafitti.register_grafitti("tech:cb_b", {image = "tech_paint_cb_b.png"})
+grafitti.register_grafitti("tech:cb_k", {image = "tech_paint_cb_k.png"})
+grafitti.register_grafitti("tech:cb_d", {image = "tech_paint_cb_d.png"})
+grafitti.register_grafitti("tech:cb_i", {image = "tech_paint_cb_i.png"})
+grafitti.register_grafitti("tech:cb_f", {image = "tech_paint_cb_f.png"})
+grafitti.register_grafitti("tech:cb_g", {image = "tech_paint_cb_g.png"})
+grafitti.register_grafitti("tech:cb_h", {image = "tech_paint_cb_h.png"})
+grafitti.register_grafitti("tech:cb_ii", {image = "tech_paint_cb_ii.png"})
+grafitti.register_grafitti("tech:cb_j", {image = "tech_paint_cb_j.png"})
+grafitti.register_grafitti("tech:cb_ng", {image = "tech_paint_cb_ng.png"})
+grafitti.register_grafitti("tech:cb_l", {image = "tech_paint_cb_l.png"})
+grafitti.register_grafitti("tech:cb_m", {image = "tech_paint_cb_m.png"})
+grafitti.register_grafitti("tech:cb_n", {image = "tech_paint_cb_n.png"})
+grafitti.register_grafitti("tech:cb_u", {image = "tech_paint_cb_u.png"})
+grafitti.register_grafitti("tech:cb_p", {image = "tech_paint_cb_p.png"})
+grafitti.register_grafitti("tech:cb_r", {image = "tech_paint_cb_r.png"})
+grafitti.register_grafitti("tech:cb_s", {image = "tech_paint_cb_s.png"})
+grafitti.register_grafitti("tech:cb_t", {image = "tech_paint_cb_t.png"})
+grafitti.register_grafitti("tech:cb_uu", {image = "tech_paint_cb_uu.png"})
+grafitti.register_grafitti("tech:cb_v", {image = "tech_paint_cb_v.png"})
+grafitti.register_grafitti("tech:cb_ee", {image = "tech_paint_cb_ee.png"})
+grafitti.register_grafitti("tech:cb_oh", {image = "tech_paint_cb_oh.png"})
+grafitti.register_grafitti("tech:cb_ur", {image = "tech_paint_cb_ur.png"})
+grafitti.register_grafitti("tech:cb_th", {image = "tech_paint_cb_th.png"})
+grafitti.register_grafitti("tech:cb_R", {image = "tech_paint_cb_R.png"})
+
+grafitti.palette_build("tech:carbon_black")
+
+grafitti.register_brush("tech:paint_carbon_black", {
+    description = S("Painting Kit (carbon black)"),
+    inventory_image = "tech_paint_brush_carbon.png",
+    wield_image = "tech_paint_brush_carbon.png^[transformR270",
+    palette = "tech:carbon_black"
+})
+
+
+crafting.register_recipe({
+	type = "mortar_and_pestle",
+	output = "tech:paint_carbon_black",
+	items = {'tech:charcoal 16', 'tech:stick', 'group:fibrous_plant 4', 'tech:vegetable_oil 4'},
+	level = 1,
+	always_known = true,
+})
+
+
+
+----------------------------------------------------------
+--simple scratcher
+
+grafitti.register_grafitti("tech:scr_1", {image = "tech_paint_scr_1.png"})
+grafitti.register_grafitti("tech:scr_2", {image = "tech_paint_scr_2.png"})
+grafitti.register_grafitti("tech:scr_3", {image = "tech_paint_scr_3.png"})
+grafitti.register_grafitti("tech:scr_4", {image = "tech_paint_scr_4.png"})
+grafitti.register_grafitti("tech:scr_5", {image = "tech_paint_scr_5.png"})
+grafitti.register_grafitti("tech:scr_down", {image = "tech_paint_scr_down.png"})
+grafitti.register_grafitti("tech:scr_left", {image = "tech_paint_scr_left.png"})
+grafitti.register_grafitti("tech:scr_n", {image = "tech_paint_scr_n.png"})
+grafitti.register_grafitti("tech:scr_right", {image = "tech_paint_scr_right.png"})
+grafitti.register_grafitti("tech:scr_U", {image = "tech_paint_scr_U.png"})
+grafitti.register_grafitti("tech:scr_up", {image = "tech_paint_scr_up.png"})
+
+grafitti.palette_build("tech:scratching")
+
+grafitti.register_brush("tech:paint_scratching", {
+    description = S("Painting Kit (scratching)"),
+    inventory_image = "tech_paint_scratcher.png",
+    wield_image = "tech_paint_scratcher.png^[transformR270",
+    palette = "tech:scratching"
+})
+
+
+crafting.register_recipe({
+	type = "crafting_spot",
+	output = "tech:paint_scratching",
+	items = {'group:basalt_cobble 2'},
+	level = 1,
+	always_known = true,
+})
+
+
+
+
 
 
 

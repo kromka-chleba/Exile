@@ -87,6 +87,9 @@ minetest.register_node('tech:retted_cana_bundle', {
 --coarse: cheaper. used for ropes, bags etc
 --fine: more raw material (because would be discarding a lot), used for clothes, beds etc
 
+
+
+
 --processed and spun
 --coarse fibre
 minetest.register_craftitem("tech:coarse_fibre", {
