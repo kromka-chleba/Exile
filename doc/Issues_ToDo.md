@@ -133,7 +133,7 @@ Urgent Fixes needed:
   - Seasonal behavior.
   - _Rimworld_-style colonists.
 - LORE/LOOT/DUNGEONS
-  - Artifacts (loot): scuba, tree grower.
+  - Artifacts (loot): scuba, tree grower. (I've added a simple submarine.)
   - Dangerous “pandora’s box” loot.
   - Surface ruins left by the Ancients.
   - `Geomoria`-mod decorations.
