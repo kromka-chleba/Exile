@@ -1021,6 +1021,8 @@ function sediment.register_all_sed_derivatives(sed_list)
     end
 end
 
-defer_tgcr.perform_deferred_registration()
+minetest.register_on_mods_loaded(function()
+	defer_tgcr.perform_deferred_registration()
+end)
 
 -- vim: set ts=4 sw=4 :
