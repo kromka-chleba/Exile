@@ -38,7 +38,8 @@ local revertsky = function()
 		local player = minetest.get_player_by_name(playername)
 		-- check if the player is still online
 		if player then
-			player:set_sky({type = "regular", sky_color = {sky.sky_color}})
+		   player:set_sky({type = "regular", sky_color = {sky.sky_color}})
+		   player:override_day_night_ratio(sky.ratio)
 		end
 	end
 
@@ -147,11 +148,13 @@ lightning.strike = function(pos, cosmetic)
 		if distance < lightning.effect_range then
 			local sky = {}
 			sky.sky_color = player:get_sky(true)
+			sky.ratio = player:get_day_night_ratio()
 
 			local name = player:get_player_name()
 			if ps[name] == nil then
 				ps[name] = sky
 				player:set_sky({type = "plain", base_color = "#CCFFFFFF"})
+				player:override_day_night_ratio(1)
 			end
 		end
 	end
