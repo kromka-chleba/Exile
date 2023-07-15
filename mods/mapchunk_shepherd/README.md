@@ -7,14 +7,14 @@ Authors of source code
 ----------------------
 Jan Wielkiewicz (GPLv3)
 
-##General idea
+## General idea
 
 The Mapchunk Shepherd is a system responsible for:
 * Tracking player movement to obtain information about the map
 * Assigning labels to pieces of the map
 * Modifying/updating specific pieces of the map
 
-##Features
+## Features
 * Uses the Voxel Manipulator so should be pretty fast
 * Dynamic modification of the map
 * Workers and scanners can be unregistered and registered on the fly (unlike ABMs and LBMs)
@@ -22,7 +22,7 @@ The Mapchunk Shepherd is a system responsible for:
 * Unlike ABMs, it can modify mapchunks far away from the player because it uses "loaded" chunks
 * Unlike ABMs and LBMs, processes/scans only specific chunks (with specific labels)
 
-##Terminology
+## Terminology
 * Mapblock:
 Usually a 16x16x16 cubic piece of the map.
 
