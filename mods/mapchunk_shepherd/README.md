@@ -79,3 +79,11 @@ Extra "Needed labels" can be defined to restrict workers to only specific chunks
 For example a worker replacing spring soil with winter soil will only pick up chunks having the "has_spring_soil"
 label and replace the label with "has_winter_soil".
 Workers replace nodes on these mapchunks and assign specific labels, then the hash is removed from the queue.
+
+* Failed chunk:
+Sometimes a scanner or a worker can fail.
+This usually happens when the loaded mapchunk contains "ignore" nodes.
+If a scanner or worker fails, "scanner_failed" or "worker_failed" labels are assigned respectively.
+Failed chunks are then again added into scan and work queues by the player tracker.
+If a chunk fails often, it is temporarily blacklisted (removed from the queue) and picked up later after some time.
+This prevents the system from choking on failed chunks which usually fix themselves spontaneously.
