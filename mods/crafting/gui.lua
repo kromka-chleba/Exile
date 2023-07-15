@@ -49,7 +49,7 @@ end
 
 function crafting.make_result_selector(player, type, level, size, context)
 	local page = context.crafting_page or 1
-
+  
 	local full_recipes = crafting.get_all_for_player(player, type, level)
 	local recipes
 	if context.crafting_query then
@@ -70,10 +70,14 @@ function crafting.make_result_selector(player, type, level, size, context)
 
 	local num_per_page = size.x * size.y
 	local max_pages = math.floor(0.999 + #recipes / num_per_page)
-	if page > max_pages or page < 1 then
+  
+  if (max_pages == 0) then -- if max_pages is 0 then make it all 0!!! :D
+    page = 0
+    max_pages = 0
+	elseif page > max_pages or page < 1 then
 		page = ((page - 1) % max_pages) + 1
-		context.crafting_page = page
 	end
+  context.crafting_page = page -- update context.crafting_page to any modifications made by above code
 
 	local start_i  = (page - 1) * num_per_page + 1
 
