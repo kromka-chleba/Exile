@@ -40,7 +40,7 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
         -- check if the pointed item has on_rightclick ...
         if not minetest.registered_nodes[under.name].on_rightclick then
             -- if they're both numbers somehow, best to assume it's a bamboo plant lol
-            if (type(minetest.registered_nodes[above.name].groups.woody_plant) == "number" and type(minetest.registered_nodes[above.name].groups.cane_plant) == "number") then 
+            if (minetest.get_item_group(above.name,"woody_plant") ~= 0 and minetest.get_item_group(above.name,"cane_plant") ~= 0) then 
               -- replace bamboo with air so that the tool places appropriately
               minetest.swap_node(pointed_thing.above,minetest.registered_nodes["air"])
             end
