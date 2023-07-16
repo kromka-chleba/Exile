@@ -39,6 +39,11 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
         minetest.registered_nodes[under_front.name].walkable then
         -- check if the pointed item has on_rightclick ...
         if not minetest.registered_nodes[under.name].on_rightclick then
+            -- if they're both numbers somehow, best to assume it's a bamboo plant lol
+            if (minetest.get_item_group(above.name,"woody_plant") ~= 0 and minetest.get_item_group(above.name,"cane_plant") ~= 0) then 
+              -- replace bamboo with air so that the tool places appropriately
+              minetest.swap_node(pointed_thing.above,minetest.registered_nodes["air"])
+            end
             local wear = itemstack:get_wear()
             -- place if not
             itemstack:take_item(1)
