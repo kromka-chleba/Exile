@@ -67,6 +67,7 @@ function ms.get_labels(hash)
 end
 
 function ms.add_labels(hash, new_labels)
+    local new_labels = table.copy(new_labels)
     local labels = ms.get_labels(hash)
     if ms.labels_valid(new_labels) then
         for _, nlabel in pairs(new_labels) do
@@ -99,24 +100,45 @@ end
 
 function ms.was_scanned(hash)
     local labels = ms.get_labels(hash)
-    if ms.contains_labels(labels, {"scanned"}) then
-        return true
-    else
-        return false
-    end
+    return ms.contains_labels(labels, {"scanned"})
+end
+
+function ms.was_mapgen_scanned(hash)
+    local labels = ms.get_labels(hash)
+    return ms.contains_labels(labels, {"mapgen_scanned"})
 end
 
 function ms.remove_labels(hash, labels)
+    -- copy to avoid modifying the table somewhere far far away
+    local labels = table.copy(labels)
     local old_labels = ms.get_labels(hash)
     if not ms.is_tracked(hash) then
         minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
     end
-    for i, old_name in pairs(old_labels) do
+    local new_labels = {}
+    for _, old_name in pairs(old_labels) do
+        local removed = false
         for _, name in pairs(labels) do
             if old_name == name then
-                old_labels[i] = nil
+                removed = true
+                minetest.log("error", name)
+                break
             end
         end
+        if not removed then
+            table.insert(new_labels, old_name)
+        end
     end
-    mod_storage:set_int(hash, ms.encode_labels(old_labels))
+    mod_storage:set_int(hash, ms.encode_labels(new_labels))
+end
+
+function ms.handle_labels(hash, labels_added, labels_removed)
+    if labels_added then
+        local labels_added = table.copy(labels_added)
+        ms.add_labels(hash, labels_added)
+    end
+    if labels_removed then
+        local labels_removed = table.copy(labels_removed)
+        ms.remove_labels(hash, labels_removed)
+    end
 end
