@@ -54,15 +54,6 @@ local function filter_underground_mapchunks(hashes)
     return clean
 end
 
-local function handle_labels(hash, labels_added, labels_removed)
-    if labels_added then
-        ms.add_labels(hash, labels_added)
-    end
-    if labels_removed then
-        ms.remove_labels(hash, labels_removed)
-    end
-end
-
 ---------------------------------------------------------------------
 -- Main loops of the shepherd
 ---------------------------------------------------------------------
@@ -115,7 +106,7 @@ local function run_scanners()
             ms.has_one_of(labels, scanner.has_one_of) then
             local labels_added, labels_removed =
                 scanner.scanner_function(pos1, pos2, labels)
-            handle_labels(hash, labels_added, labels_removed)
+            ms.handle_labels(hash, labels_added, labels_removed)
         end
         current_scanner = current_scanner + 1
         if current_scanner > #scanners then
@@ -162,7 +153,7 @@ local function run_workers()
             ms.has_one_of(labels, worker.has_one_of) then
             local labels_added, labels_removed =
                 worker.worker_function(pos1, pos2, labels)
-            handle_labels(hash, labels_added, labels_removed)
+            ms.handle_labels(hash, labels_added, labels_removed)
         end
         current_worker = current_worker + 1
         if current_worker > #workers then
@@ -203,26 +194,30 @@ end
 -- Part of the tracker
 local function save_scan_work(neighbor)
     local labels = ms.get_labels(neighbor)
+
     if not ms.is_tracked(neighbor) then
         ms.save_mapchunk(neighbor)
         table.insert(scan_queue, neighbor)
-    elseif not ms.was_scanned(neighbor) then
+        return
+    end
+
+    if not ms.was_scanned(neighbor) then
         add_to_scan_queue(neighbor)
     elseif ms.contains_labels(labels, {"scanner_failed"}) then
         if math.random() < 0.2 then
             -- 20% chance of rescanning on failure
             add_to_scan_queue(neighbor)
         end
-    else
-        for _, worker in pairs(workers) do
-            if ms.contains_labels(labels, worker.needed_labels) and
-                ms.has_one_of(labels, worker.has_one_of) or
-                ms.contains_labels(labels, worker.needed_labels) and
-                ms.has_one_of(labels, worker.has_one_of) and
-                ms.contains_labels(labels, {"worker_failed"})
-            then
-                add_to_work_queue(neighbor)
-            end
+    end
+
+    for _, worker in pairs(workers) do
+        if ms.contains_labels(labels, worker.needed_labels) and
+            ms.has_one_of(labels, worker.has_one_of) or
+            ms.contains_labels(labels, worker.needed_labels) and
+            ms.has_one_of(labels, worker.has_one_of) and
+            ms.contains_labels(labels, {"worker_failed"})
+        then
+            add_to_work_queue(neighbor)
         end
     end
 end

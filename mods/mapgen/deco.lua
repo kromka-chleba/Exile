@@ -1,5 +1,6 @@
 -- Globals
 deco = deco or {}
+local ms = mapchunk_shepherd
 
 -- Import
 local path = minetest.get_modpath("mapgen")
@@ -132,3 +133,19 @@ end
 for _, plant in ipairs(plants_with_tubers) do
     do_after_generation(plant, add_roots)
 end
+
+ms.create_deco_finder({
+        deco_list = fnw.fibrous_plants,
+        add_labels = {
+            "spring_soil",
+            "seasonal_plants",
+        }
+})
+
+ms.create_deco_finder({
+        deco_list = fnw.woody_plants,
+        add_labels = {
+            "spring_soil",
+            "seasonal_plants",
+        }
+})

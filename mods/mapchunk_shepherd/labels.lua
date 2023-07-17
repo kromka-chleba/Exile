@@ -74,7 +74,6 @@ end
 function ms.labels_valid(labels)
     for _, label in pairs(labels) do
         if not ms.is_label(label) then
-
             return false
         end
     end
@@ -134,7 +133,7 @@ ms.register_label("chunk_tracked", 1)
 ms.register_label("scanned", 2)
 ms.register_label("scanner_failed", 3)
 ms.register_label("worker_failed", 4)
-ms.register_label("placeholder_5", 5)
+ms.register_label("mapgen_scanned", 5)
 ms.register_label("placeholder_6", 6)
 ms.register_label("placeholder_7", 7)
 ms.register_label("placeholder_8", 8)

@@ -292,7 +292,7 @@ local function get_plant_labels_but_this(season_name)
             table.insert(labels, season.."_plants")
         end
     end
-    return labels
+    return table.copy(labels)
 end
 
 local seasonal_plants = false
@@ -311,8 +311,9 @@ local function swap_plants(season_name)
             {to_find = seasonal_plants,
              add_labels = {"seasonal_plants"},
         })
-        ms.register_scanner({name = "seasonal_plant_finder",
-                             fun = plant_finder})
+        -- Turning this off because now we have mapgen scanners in the shepherd
+        -- ms.register_scanner({name = "seasonal_plant_finder",
+        --                      fun = plant_finder})
     end
     if not pairs_by_season[season_name] then
         pairs_by_season[season_name] = get_plant_season_pairs(season_name)
@@ -355,5 +356,6 @@ end
 minetest.register_abm(leaf_drop_abm)
 minetest.after(2, season_loop)
 
-ms.register_scanner({name = "spring_soil_finder",
-                     fun = spring_soil_finder})
+-- Turning this off because now we have mapgen scanners in the shepherd
+-- ms.register_scanner({name = "spring_soil_finder",
+--                      fun = spring_soil_finder})

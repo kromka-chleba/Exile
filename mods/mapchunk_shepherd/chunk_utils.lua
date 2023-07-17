@@ -121,7 +121,6 @@ function ms.remove_labels(hash, labels)
         for _, name in pairs(labels) do
             if old_name == name then
                 removed = true
-                minetest.log("error", name)
                 break
             end
         end
