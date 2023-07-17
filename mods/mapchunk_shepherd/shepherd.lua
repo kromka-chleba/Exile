@@ -5,39 +5,13 @@
 -- Globals
 local ms = mapchunk_shepherd
 
-local mod_storage = minetest.get_mod_storage()
--- By default chunksize is 5
-local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
-local chunk_side = blocks_per_chunk * 16
--- this logic comes from Minetest source code, see src/mapgen/mapgen.cpp
-local mapchunk_offset = -16 * math.floor(blocks_per_chunk / 2)
-local old_chunksize = mod_storage:get_int("chunksize")
+local modpath = minetest.get_modpath('mapchunk_shepherd')
+local dimensions = dofile(modpath.."/chunk_dimensions.lua")
 
-local function chunksize_changed()
-    if old_chunksize == 0 then
-        mod_storage:set_int("chunksize", blocks_per_chunk)
-        return false
-    elseif old_chunksize ~= blocks_per_chunk then
-        return true
-    else
-        return false
-    end
-end
-
-function ms.node_pos_to_mapchunk_pos(pos)
-    pos = vector.subtract(pos, mapchunk_offset)
-    pos = vector.divide(pos, chunk_side)
-    pos = vector.floor(pos)
-    return pos
-end
-
--- A global function to get hash from pos
-function ms.mapchunk_hash(pos)
-    pos = ms.node_pos_to_mapchunk_pos(pos)
-    pos = vector.multiply(pos, chunk_side)
-    pos = vector.add(pos, mapchunk_offset)
-    return minetest.hash_node_position(pos)
-end
+local mapchunk_offset = dimensions.mapchunk_offset
+local chunk_side = dimensions.chunk_side
+local old_chunksize = dimensions.old_chunksize
+local blocks_per_chunk = dimensions.blocks_per_chunk
 
 local function neighboring_mapchunks(hash)
     local pos = minetest.get_position_from_hash(hash)
@@ -80,92 +54,12 @@ local function filter_underground_mapchunks(hashes)
     return clean
 end
 
-local function is_tracked(hash)
-    local value = mod_storage:get_int(hash)
-    if value > 0 then
-        return true
-    else
-        return false
-    end
-end
-
-local function get_labels(hash)
-    local encoded = mod_storage:get_int(hash)
-    if encoded then
-        return ms.decode_labels(encoded)
-    else
-        return {}
-    end
-end
-
-local function add_labels(hash, new_labels)
-    local labels = get_labels(hash)
-    if ms.labels_valid(new_labels) then
-        for _, nlabel in pairs(new_labels) do
-            table.insert(labels, nlabel)
-        end
-        labels = ms.delete_duplicates(labels)
-        mod_storage:set_int(hash, ms.encode_labels(labels))
-    else
-        minetest.log("error", "Mapchunk shepherd: "..label.." is not a valid label!")
-    end
-end
-
-local function save_mapchunk(hash, force)
-    if force then
-        mod_storage:set_int(hash, ms.encode_labels({"chunk_tracked"}))
-    elseif not is_tracked(hash) then
-        add_labels(hash, {"chunk_tracked"})
-    end
-end
-
--- Clears labels other than "chunk_tracked"
-local function reset_mapchunk(hash)
-    mod_storage:set_int(hash, ms.encode_labels({"chunk_tracked"}))
-end
-
--- Removes the hash from history
-local function remove_mapchunk(hash)
-    mod_storage:set_int(hash, 0)
-end
-
-local function was_scanned(hash)
-    local labels = get_labels(hash)
-    if ms.contains_labels(labels, {"scanned"}) then
-        return true
-    else
-        return false
-    end
-end
-
-local function remove_labels(hash, labels)
-    local old_labels = get_labels(hash)
-    if not is_tracked(hash) then
-        minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
-    end
-    for i, old_name in pairs(old_labels) do
-        for _, name in pairs(labels) do
-            if old_name == name then
-                old_labels[i] = nil
-            end
-        end
-    end
-    mod_storage:set_int(hash, ms.encode_labels(old_labels))
-end
-
--- A global function to get mapchunk borders
-function ms.mapchunk_borders(hash)
-    local pos_min = minetest.get_position_from_hash(hash)
-    local pos_max = vector.add(pos_min, chunk_side - 1)
-    return pos_min, pos_max
-end
-
 local function handle_labels(hash, labels_added, labels_removed)
     if labels_added then
-        add_labels(hash, labels_added)
+        ms.add_labels(hash, labels_added)
     end
     if labels_removed then
-        remove_labels(hash, labels_removed)
+        ms.remove_labels(hash, labels_removed)
     end
 end
 
@@ -195,7 +89,7 @@ local function run_scanners()
     if #scan_queue > 0 and #scanners > 0 then
         minetest.log("warning", "scan queue: "..#scan_queue)
         local hash = scan_queue[1]
-        local labels = get_labels(hash)
+        local labels = ms.get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
         local failed = ms.contains_labels(labels, {"scanner_failed"})
         if failed then
@@ -210,7 +104,7 @@ local function run_scanners()
             end
         end
         if not minetest.compare_block_status(pos1, "loaded") or
-            was_scanned(hash) and not failed then
+            ms.was_scanned(hash) and not failed then
             table.remove(scan_queue, 1)
             current_scanner = 1
             minetest.after(scanner_break, run_scanners)
@@ -228,7 +122,7 @@ local function run_scanners()
             table.remove(scan_queue, 1)
             current_scanner = 1
             if minetest.compare_block_status(pos1, "loaded") then
-                add_labels(hash, {"scanned"})
+                ms.add_labels(hash, {"scanned"})
             end
         end
         minetest.after(scanner_break, run_scanners)
@@ -255,7 +149,7 @@ local function run_workers()
     if #work_queue > 0 and #workers > 0 then
         minetest.log("warning", "work queue: "..#work_queue)
         local hash = work_queue[1]
-        local labels = get_labels(hash)
+        local labels = ms.get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
         if not minetest.compare_block_status(pos1, "loaded") then
             table.remove(work_queue, 1)
@@ -308,11 +202,11 @@ end
 
 -- Part of the tracker
 local function save_scan_work(neighbor)
-    local labels = get_labels(neighbor)
-    if not is_tracked(neighbor) then
-        save_mapchunk(neighbor)
+    local labels = ms.get_labels(neighbor)
+    if not ms.is_tracked(neighbor) then
+        ms.save_mapchunk(neighbor)
         table.insert(scan_queue, neighbor)
-    elseif not was_scanned(neighbor) then
+    elseif not ms.was_scanned(neighbor) then
         add_to_scan_queue(neighbor)
     elseif ms.contains_labels(labels, {"scanner_failed"}) then
         if math.random() < 0.2 then
@@ -345,7 +239,7 @@ local function player_tracker()
         local hash = ms.mapchunk_hash(pos)
         local neighbors = neighboring_mapchunks(hash)
         neighbors = filter_underground_mapchunks(neighbors)
-        --minetest.log("error", dump(get_labels(hash)))
+        --minetest.log("error", dump(ms.get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
             local pos_min, pos_max = ms.mapchunk_borders(neighbor)
             if minetest.compare_block_status(pos_min, "loaded") then
@@ -372,7 +266,7 @@ end
 
 -- Prevent starting Mapchunk Shepherd if chunksize changed for the world.
 -- This avoids data corruption.
-if chunksize_changed() then
+if ms.chunksize_changed() then
     minetest.log("error", "Mapchunk Shepherd: chunksize changed to "..
                  blocks_per_chunk.." from "..old_chunksize..".")
     minetest.log("error", "Mapchunk Shepherd: Changing chunksize can corrupt stored data."..
