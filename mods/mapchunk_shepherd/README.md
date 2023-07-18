@@ -49,12 +49,17 @@ A cuboid space around a player consisting of whole mapchunks including the mapch
 A string assigned to a mapchunk with a corresponding binary ID.
 It describes the contents of the chunk, e.g. "has_trees" or "has_diamonds".
 It is stored in Minetest's mod storage, saved on the disk separately for each world.
-Currently the Shepherd supports only 48 labels because it stores them in a 48-bit int.
-Storing labels in the int saves space.
+Labels are stored in a string using minetest.serialize so the number of possible labels is virtually unlimited.
 
 * Scanner:
 A Voxel Manipulator that scans a mapchunk for certain nodes and assigns or removes labels accordingly.
 For example a scanner could search for trees and assign the "has_trees" label.
+
+* Mapgen "Scanner" (Deco Finder):
+Finds mapchunks that contain given mapgen decorations and adds labels to the mapchunks.
+It uses minetest.register_on_generated and gennotify so labels are added during mapchunk generation.
+One good use case is for example finding surface chunks by finding surface-only decorations.
+Doesn't use Voxel Manip and is more efficient for finding decorations than a scanner.
 
 * Worker:
 A Voxel Manipulator that modifies previously scanned mapchunks.
