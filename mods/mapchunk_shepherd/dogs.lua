@@ -27,10 +27,9 @@ minetest.register_on_mods_loaded(function()
         placeholder_id_pairs = id_pairs
 end)
 
--- fun needs to be a function fun(pos1, pos2, labels)
+-- fun needs to be a function fun(pos1, pos2)
 -- where pos1 is minimal position in a mapchunk,
 -- pos2 is maximal position in a mapchunk,
--- labels are labels provided by the shepherd.
 -- fun() needs to return two variables: labels_added,
 -- labels_removed; labels to remove or add to a mapchunk
 
@@ -53,6 +52,7 @@ local function is_worker_registered(name)
 end
 
 function ms.register_scanner(args)
+    local args = table.copy(args)
     local needed_labels = args.needed_labels or {}
     local has_one_of = args.has_one_of or {}
     table.insert(needed_labels, "chunk_tracked")
@@ -70,10 +70,12 @@ function ms.register_scanner(args)
 end
 
 function ms.register_worker(args)
+    local args = table.copy(args)
     local needed_labels = args.needed_labels or {}
     local has_one_of = args.has_one_of or {}
     table.insert(needed_labels, "chunk_tracked")
-    table.insert(needed_labels, "scanned")
+    table.insert(has_one_of, "scanned")
+    table.insert(has_one_of, "mapgen_scanned")
     if not is_worker_registered(args.name) then
         table.insert(
             ms.workers,
@@ -106,6 +108,7 @@ function ms.remove_worker(name)
 end
 
 function ms.create_simple_finder(args)
+    local args = table.copy(args)
     local nodes_to_find = args.to_find
     local labels_to_add = args.add_labels or {}
     local labels_to_remove = args.remove_labels or {}
@@ -115,7 +118,7 @@ function ms.create_simple_finder(args)
     for _, name in pairs(nodes_to_find) do
         table.insert(ids, minetest.get_content_id(name))
     end
-    return function(pos1, pos2, labels)
+    return function(pos1, pos2)
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
@@ -138,6 +141,7 @@ function ms.create_simple_finder(args)
 end
 
 function ms.create_simple_replacer(args)
+    local args = table.copy(args)
     local find_replace_pairs = args.find_replace_pairs
     local labels_to_add = args.add_labels or {}
     local labels_to_remove = args.remove_labels or {}
@@ -149,7 +153,7 @@ function ms.create_simple_replacer(args)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos1, pos2, labels)
+    return function(pos1, pos2)
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
@@ -179,6 +183,7 @@ function ms.create_simple_replacer(args)
 end
 
 function ms.create_param2_aware_replacer(args)
+    local args = table.copy(args)
     local find_replace_pairs = args.find_replace_pairs
     local labels_to_add = args.add_labels or {}
     local labels_to_remove = args.remove_labels or {}
@@ -192,7 +197,7 @@ function ms.create_param2_aware_replacer(args)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos1, pos2, labels)
+    return function(pos1, pos2)
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
@@ -222,5 +227,32 @@ function ms.create_param2_aware_replacer(args)
         else
             return not_found
         end
+    end
+end
+
+function ms.create_deco_finder(args)
+    local args = table.copy(args)
+    local deco_list = args.deco_list
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    for _, deco in pairs(deco_list) do
+        local id = minetest.get_decoration_id(deco.name)
+        minetest.set_gen_notify({decoration = true}, {id})
+        minetest.register_on_generated(
+            function(minp, maxp, blockseed)
+                local gennotify = minetest.get_mapgen_object("gennotify")
+                local pos_list = gennotify["decoration#"..id] or {}
+                if #pos_list > 0 then
+                    local hash = ms.mapchunk_hash(minp)
+                    local labels = ms.get_labels(hash)
+                    if not ms.contains_labels(labels, labels_to_add) then
+                        ms.save_mapchunk(hash)
+                        ms.handle_labels(hash, labels_to_add, labels_to_remove)
+                        ms.add_labels(hash, {"mapgen_scanned"})
+                        --minetest.log("error", dump(minp))
+                    end
+                end
+            end
+        )
     end
 end
