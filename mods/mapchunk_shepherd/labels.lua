@@ -11,77 +11,58 @@
 
 -- Globals
 local ms = mapchunk_shepherd
+ms.labels = {}
 
 local registered_labels = {}
-local ids_by_name = {}
-local names_by_id = {}
 
-function ms.get_labels()
+function ms.labels.get_registered()
     return table.copy(registered_labels)
 end
 
-function ms.is_label(name)
-    return ids_by_name[name]
+function ms.labels.is_label(name)
+    if registered_labels[name] then
+        return true
+    end
+    return false
 end
 
-function ms.register_label(name, nr)
-    if nr < 1 or nr > 48 then
-        minetest.log("error", "Mapchunk shepherd: Label nr needs to be 0-47 and is "..nr)
-    end
-    if registered_labels[nr] then
-        minetest.log("error", "Mapchunk shepherd: Label with number "..nr.." already exists!")
+function ms.labels.register(name)
+    if registered_labels[name] then
+        minetest.log("error", "Mapchunk shepherd: Label with name \""..name.."\" already exists!")
         return
+    else
+        registered_labels[name] = {name = name}
     end
-    for _, label in pairs(registered_labels) do
-        if name == label.name then
-            minetest.log("error", "Mapchunk shepherd: Label with name \""..name.."\" already exists!")
-            return
-        end
-    end
-    local id = 2^(nr - 1)
-    registered_labels[nr] = {name = name, id = id}
-    ids_by_name[name] = id
-    names_by_id[id] = name
 end
 
-function ms.encode_labels(label_names)
-    local encoded = 0
-    local ids = {}
-    for _, label in pairs(label_names) do
-        local id = ids_by_name[label]
-        -- this makes sure each id is added only once
-        ids[label] = id
-    end
-    for _, id in pairs(ids) do
-        encoded = encoded + id
-    end
-    return encoded
-end
-
-function ms.decode_labels(encoded)
-    local encoded = encoded
-    local decoded_ids = {}
-    for i = 47, 0, -1 do
-        local id = 2^i
-        if encoded - id >= 0 then
-            table.insert(decoded_ids, names_by_id[id])
-            encoded = encoded - id
-        end
-    end
-    return decoded_ids
-end
-
-function ms.labels_valid(labels)
+function ms.labels.is_valid(labels)
     for _, label in pairs(labels) do
-        if not ms.is_label(label) then
+        if not ms.labels.is_label(label) then
             return false
         end
     end
     return true
 end
 
+function ms.labels.encode(label_names)
+    local to_encode = {}
+    for _, label in pairs(label_names) do
+        -- Only uses valid labels
+        if ms.labels.is_valid({label}) then
+            table.insert(to_encode, label)
+        else
+            minetest.log("error", "Mapchunk shepherd: Label \""..label.."\" is not a valid label!")
+        end
+    end
+    return minetest.serialize(to_encode)
+end
+
+function ms.labels.decode(encoded)
+    return minetest.deserialize(encoded)
+end
+
 -- Checks if table labels1 contains all labels from labels2
-function ms.contains_labels(labels1, labels2)
+function ms.labels.contains(labels1, labels2)
     if #labels2 == 0 then
         return true
     end
@@ -100,7 +81,7 @@ function ms.contains_labels(labels1, labels2)
     return true
 end
 
-function ms.has_one_of(labels1, labels2)
+function ms.labels.has_one_of(labels1, labels2)
     if #labels2 == 0 then
         return true
     end
@@ -117,7 +98,7 @@ end
 -- Don't change this
 -- I'm using this for the queue also,
 -- not only labels.
-function ms.delete_duplicates(labels)
+function ms.labels.delete_duplicates(labels)
     local paired = {}
     for _, label in pairs(labels) do
         paired[label] = label
@@ -129,11 +110,8 @@ function ms.delete_duplicates(labels)
     return clean
 end
 
-ms.register_label("chunk_tracked", 1)
-ms.register_label("scanned", 2)
-ms.register_label("scanner_failed", 3)
-ms.register_label("worker_failed", 4)
-ms.register_label("mapgen_scanned", 5)
-ms.register_label("placeholder_6", 6)
-ms.register_label("placeholder_7", 7)
-ms.register_label("placeholder_8", 8)
+ms.labels.register("chunk_tracked")
+ms.labels.register("scanned")
+ms.labels.register("scanner_failed")
+ms.labels.register("worker_failed")
+ms.labels.register("mapgen_scanned")

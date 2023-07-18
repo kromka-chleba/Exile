@@ -49,18 +49,15 @@ function ms.chunksize_changed()
 end
 
 function ms.is_tracked(hash)
-    local value = mod_storage:get_int(hash)
-    if value > 0 then
-        return true
-    else
-        return false
-    end
+    local value = mod_storage:get_string(hash)
+    local labels = ms.labels.decode(value)
+    return labels
 end
 
 function ms.get_labels(hash)
-    local encoded = mod_storage:get_int(hash)
-    if encoded then
-        return ms.decode_labels(encoded)
+    local encoded = mod_storage:get_string(hash)
+    if encoded ~= "" then
+        return ms.labels.decode(encoded)
     else
         return {}
     end
@@ -69,12 +66,12 @@ end
 function ms.add_labels(hash, new_labels)
     local new_labels = table.copy(new_labels)
     local labels = ms.get_labels(hash)
-    if ms.labels_valid(new_labels) then
+    if ms.labels.is_valid(new_labels) then
         for _, nlabel in pairs(new_labels) do
             table.insert(labels, nlabel)
         end
-        labels = ms.delete_duplicates(labels)
-        mod_storage:set_int(hash, ms.encode_labels(labels))
+        labels = ms.labels.delete_duplicates(labels)
+        mod_storage:set_string(hash, ms.labels.encode(labels))
     else
         minetest.log("error", "Mapchunk shepherd: "..label.." is not a valid label!")
     end
@@ -82,7 +79,7 @@ end
 
 function ms.save_mapchunk(hash, force)
     if force then
-        mod_storage:set_int(hash, ms.encode_labels({"chunk_tracked"}))
+        mod_storage:set_string(hash, ms.labels.encode({"chunk_tracked"}))
     elseif not ms.is_tracked(hash) then
         ms.add_labels(hash, {"chunk_tracked"})
     end
@@ -90,22 +87,22 @@ end
 
 -- Clears labels other than "chunk_tracked"
 function ms.reset_mapchunk(hash)
-    mod_storage:set_int(hash, ms.encode_labels({"chunk_tracked"}))
+    mod_storage:set_string(hash, ms.labels.encode({"chunk_tracked"}))
 end
 
 -- Removes the hash from history
 function ms.remove_mapchunk(hash)
-    mod_storage:set_int(hash, 0)
+    mod_storage:set_string(hash, "")
 end
 
 function ms.was_scanned(hash)
     local labels = ms.get_labels(hash)
-    return ms.contains_labels(labels, {"scanned"})
+    return ms.labels.contains(labels, {"scanned"})
 end
 
 function ms.was_mapgen_scanned(hash)
     local labels = ms.get_labels(hash)
-    return ms.contains_labels(labels, {"mapgen_scanned"})
+    return ms.labels.contains(labels, {"mapgen_scanned"})
 end
 
 function ms.remove_labels(hash, labels)
@@ -128,7 +125,7 @@ function ms.remove_labels(hash, labels)
             table.insert(new_labels, old_name)
         end
     end
-    mod_storage:set_int(hash, ms.encode_labels(new_labels))
+    mod_storage:set_string(hash, ms.labels.encode(new_labels))
 end
 
 function ms.handle_labels(hash, labels_added, labels_removed)
@@ -140,4 +137,14 @@ function ms.handle_labels(hash, labels_added, labels_removed)
         local labels_removed = table.copy(labels_removed)
         ms.remove_labels(hash, labels_removed)
     end
+end
+
+function ms.contains_labels(hash, labels)
+    local chunk_labels = ms.get_labels(hash)
+    return ms.labels.contains(chunk_labels, labels)
+end
+
+function ms.has_one_of(hash, labels)
+    local chunk_labels = ms.get_labels(hash)
+    return ms.labels.has_one_of(chunk_labels, labels)
 end

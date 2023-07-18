@@ -244,9 +244,8 @@ function ms.create_deco_finder(args)
                 local pos_list = gennotify["decoration#"..id] or {}
                 if #pos_list > 0 then
                     local hash = ms.mapchunk_hash(minp)
-                    local labels = ms.get_labels(hash)
-                    if not ms.contains_labels(labels, labels_to_add) then
-                        ms.save_mapchunk(hash)
+                    if not ms.contains_labels(hash, labels_to_add) then
+                        ms.save_mapchunk(hash, true)
                         ms.handle_labels(hash, labels_to_add, labels_to_remove)
                         ms.add_labels(hash, {"mapgen_scanned"})
                         --minetest.log("error", dump(minp))

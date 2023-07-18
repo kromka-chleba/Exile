@@ -80,9 +80,8 @@ local function run_scanners()
     if #scan_queue > 0 and #scanners > 0 then
         minetest.log("warning", "scan queue: "..#scan_queue)
         local hash = scan_queue[1]
-        local labels = ms.get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
-        local failed = ms.contains_labels(labels, {"scanner_failed"})
+        local failed = ms.contains_labels(hash, {"scanner_failed"})
         if failed then
             current_scanner = 1
             if previous_failure == hash and math.random() < 0.5 then
@@ -102,10 +101,10 @@ local function run_scanners()
             return
         end
         local scanner = scanners[current_scanner]
-        if ms.contains_labels(labels, scanner.needed_labels) and
-            ms.has_one_of(labels, scanner.has_one_of) then
+        if ms.contains_labels(hash, scanner.needed_labels) and
+            ms.has_one_of(hash, scanner.has_one_of) then
             local labels_added, labels_removed =
-                scanner.scanner_function(pos1, pos2, labels)
+                scanner.scanner_function(pos1, pos2)
             ms.handle_labels(hash, labels_added, labels_removed)
         end
         current_scanner = current_scanner + 1
@@ -140,7 +139,6 @@ local function run_workers()
     if #work_queue > 0 and #workers > 0 then
         minetest.log("warning", "work queue: "..#work_queue)
         local hash = work_queue[1]
-        local labels = ms.get_labels(hash)
         local pos1, pos2 = ms.mapchunk_borders(hash)
         if not minetest.compare_block_status(pos1, "loaded") then
             table.remove(work_queue, 1)
@@ -149,10 +147,10 @@ local function run_workers()
             return
         end
         local worker = workers[current_worker]
-        if ms.contains_labels(labels, worker.needed_labels) and
-            ms.has_one_of(labels, worker.has_one_of) then
+        if ms.contains_labels(hash, worker.needed_labels) and
+            ms.has_one_of(hash, worker.has_one_of) then
             local labels_added, labels_removed =
-                worker.worker_function(pos1, pos2, labels)
+                worker.worker_function(pos1, pos2)
             ms.handle_labels(hash, labels_added, labels_removed)
         end
         current_worker = current_worker + 1
@@ -192,32 +190,32 @@ local function add_to_work_queue(hash)
 end
 
 -- Part of the tracker
-local function save_scan_work(neighbor)
-    local labels = ms.get_labels(neighbor)
+local function save_scan_work(hash)
+    local labels = ms.get_labels(hash)
 
-    if not ms.is_tracked(neighbor) then
-        ms.save_mapchunk(neighbor)
-        table.insert(scan_queue, neighbor)
+    if not ms.is_tracked(hash) then
+        ms.save_mapchunk(hash)
+        table.insert(scan_queue, hash)
         return
     end
 
-    if not ms.was_scanned(neighbor) then
-        add_to_scan_queue(neighbor)
-    elseif ms.contains_labels(labels, {"scanner_failed"}) then
+    if not ms.was_scanned(hash) then
+        add_to_scan_queue(hash)
+    elseif ms.contains_labels(hash, {"scanner_failed"}) then
         if math.random() < 0.2 then
             -- 20% chance of rescanning on failure
-            add_to_scan_queue(neighbor)
+            add_to_scan_queue(hash)
         end
     end
 
     for _, worker in pairs(workers) do
-        if ms.contains_labels(labels, worker.needed_labels) and
-            ms.has_one_of(labels, worker.has_one_of) or
-            ms.contains_labels(labels, worker.needed_labels) and
-            ms.has_one_of(labels, worker.has_one_of) and
-            ms.contains_labels(labels, {"worker_failed"})
+        if ms.contains_labels(hash, worker.needed_labels) and
+            ms.has_one_of(hash, worker.has_one_of) or
+            ms.contains_labels(hash, worker.needed_labels) and
+            ms.has_one_of(hash, worker.has_one_of) and
+            ms.contains_labels(hash, {"worker_failed"})
         then
-            add_to_work_queue(neighbor)
+            add_to_work_queue(hash)
         end
     end
 end
