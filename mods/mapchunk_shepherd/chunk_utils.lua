@@ -109,9 +109,9 @@ function ms.remove_labels(hash, labels)
     -- copy to avoid modifying the table somewhere far far away
     local labels = table.copy(labels)
     local old_labels = ms.get_labels(hash)
-    -- if not ms.is_tracked(hash) then
-    --     minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
-    -- end
+    if not ms.is_tracked(hash) then
+        minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
+    end
     local new_labels = {}
     for _, old_name in pairs(old_labels) do
         local removed = false
