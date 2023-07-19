@@ -56,10 +56,15 @@ end
 
 function ms.get_labels(hash)
     local encoded = mod_storage:get_string(hash)
-    if encoded ~= "" then
-        return ms.labels.decode(encoded)
+    if encoded == "" then
+       return {}
+    end
+    local value = minetest.deserialize(encoded)
+    if value then
+       return value
     else
-        return {}
+       minetest.log("ERROR", "Get_labels failed for hash: ",hash," / ",encoded)
+       return {}
     end
 end
 
