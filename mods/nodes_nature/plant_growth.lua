@@ -307,9 +307,15 @@ local function catch_up_life_stage(pos, growing_time, growing_left, elapsed)
     while growing_left < 0 do
         local nodedef = minimal.get_nodedef(pos)
         if nodedef._next_life_stage then
-            local health = minimal.node_get_int(pos, "health")
+            local meta = minetest.get_meta(pos)
+	    local health
+	    if not meta:get("health") then
+	       health = base_health + base_health * math.random(-1, 1) * 0.1
+	    else
+	       health = meta:get_int("health")
+	    end
             minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
-            local health = minimal.node_set_int(pos, "health", health)
+            meta:set_int("health", health)
         end
         growing_left = growing_left + growing_time
     end
