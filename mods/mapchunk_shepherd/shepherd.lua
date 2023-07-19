@@ -78,7 +78,7 @@ local function run_scanners()
         minetest.after(longer_break, run_scanners)
     end
     if #scan_queue > 0 and #scanners > 0 then
-        minetest.log("warning", "scan queue: "..#scan_queue)
+        --minetest.log("warning", "scan queue: "..#scan_queue)
         local hash = scan_queue[1]
         local pos1, pos2 = ms.mapchunk_borders(hash)
         local failed = ms.contains_labels(hash, {"scanner_failed"})
@@ -137,7 +137,7 @@ local function run_workers()
         return
     end
     if #work_queue > 0 and #workers > 0 then
-        minetest.log("warning", "work queue: "..#work_queue)
+        --minetest.log("warning", "work queue: "..#work_queue)
         local hash = work_queue[1]
         local pos1, pos2 = ms.mapchunk_borders(hash)
         if not minetest.compare_block_status(pos1, "loaded") then
@@ -270,3 +270,16 @@ else
     minetest.after(5, run_scanners)
     minetest.after(5, run_workers)
 end
+
+minetest.register_chatcommand(
+    "shepherd_status", {
+        description = S("Prints status of the Mapchunk Shepherd."),
+        privs = {},
+        func = function(name, param)
+            local nr_of_chunks = ms.tracked_chunk_counter()
+            local tracked_chunks_status = S("Tracked chunks: ")..nr_of_chunks
+            local scan_queue_status = S("Scan queue: ")..#scan_queue
+            local work_queue_status = S("Work queue: ")..#work_queue
+            return true, tracked_chunks_status.."\n"..scan_queue_status.."\n"..work_queue_status
+        end,
+})

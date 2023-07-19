@@ -82,21 +82,47 @@ function ms.add_labels(hash, new_labels)
     end
 end
 
+local function bump_counter()
+    local counter = mod_storage:get_int("counter")
+    counter = counter + 1
+    mod_storage:set_int("counter", counter)
+end
+
+local function debump_counter()
+    local counter = mod_storage:get_int("counter")
+    counter = counter - 1
+    if counter < 0 then
+        counter = 0
+    end
+    mod_storage:set_int("counter", counter)
+end
+
+function ms.tracked_chunk_counter()
+    return mod_storage:get_int("counter")
+end
+
 function ms.save_mapchunk(hash, force)
+    if not ms.is_tracked(hash) then
+        ms.add_labels(hash, {"chunk_tracked"})
+        bump_counter()
+    end
     if force then
         mod_storage:set_string(hash, ms.labels.encode({"chunk_tracked"}))
-    elseif not ms.is_tracked(hash) then
-        ms.add_labels(hash, {"chunk_tracked"})
     end
 end
 
 -- Clears labels other than "chunk_tracked"
 function ms.reset_mapchunk(hash)
-    mod_storage:set_string(hash, ms.labels.encode({"chunk_tracked"}))
+    if is_tracked(hash) then
+        mod_storage:set_string(hash, ms.labels.encode({"chunk_tracked"}))
+    end
 end
 
 -- Removes the hash from history
 function ms.remove_mapchunk(hash)
+    if ms.is_tracked(hash) then
+        debump_counter()
+    end
     mod_storage:set_string(hash, "")
 end
 
