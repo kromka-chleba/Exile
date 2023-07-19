@@ -359,3 +359,43 @@ minetest.after(2, season_loop)
 -- Turning this off because now we have mapgen scanners in the shepherd
 -- ms.register_scanner({name = "spring_soil_finder",
 --                      fun = spring_soil_finder})
+
+local spring_labels = {
+    "spring_soil",
+    "seasonal_plants",
+}
+
+minetest.register_lbm({
+        name = "nodes_nature:spring_chunk_lbm",
+	label = "Spring soil finder for mapchunk shepherd",
+	nodenames = spring_soils,
+        run_at_every_load = false,
+	action = function(pos, node)
+            local hash = ms.mapchunk_hash(pos)
+            if not ms.contains_labels(hash, spring_labels) then
+                ms.save_mapchunk(hash, true)
+                ms.handle_labels(hash, spring_labels)
+                ms.add_labels(hash, {"mapgen_scanned"})
+            end
+	end,
+})
+
+local winter_labels = {
+    "winter_soil",
+    "seasonal_plants",
+}
+
+minetest.register_lbm({
+        name = "nodes_nature:winter_chunk_lbm",
+	label = "Winter soil finder for mapchunk shepherd",
+	nodenames = winter_soils,
+        run_at_every_load = false,
+	action = function(pos, node)
+            local hash = ms.mapchunk_hash(pos)
+            if not ms.contains_labels(hash, winter_labels) then
+                ms.save_mapchunk(hash, true)
+                ms.handle_labels(hash, winter_labels)
+                ms.add_labels(hash, {"mapgen_scanned"})
+            end
+	end,
+})
