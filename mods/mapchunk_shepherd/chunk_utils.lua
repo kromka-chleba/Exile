@@ -63,7 +63,7 @@ function ms.get_labels(hash)
     if value then
        return value
     else
-       minetest.log("ERROR", "Get_labels failed for hash: ",hash," / ",encoded)
+       minetest.log("error", "Get_labels failed for hash: ",hash," / ",encoded)
        return {}
     end
 end
