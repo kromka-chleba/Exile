@@ -482,6 +482,7 @@ local after_place = function(pos, placer, itemstack, pointed_thing)
 end
 
 local on_secondary_use = function(itemstack, user, pointed_thing)
+   if pointed_thing.type == "object" then return end -- canoe/airboat
    local meta = itemstack:get_meta()
    local letter_text = setup_letter(user, meta)
    local form = get_formspec(meta, letter_text)
