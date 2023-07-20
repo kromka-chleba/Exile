@@ -283,3 +283,21 @@ minetest.register_chatcommand(
             return true, tracked_chunks_status.."\n"..scan_queue_status.."\n"..work_queue_status
         end,
 })
+
+minetest.register_chatcommand(
+    "chunk_labels", {
+        description = S("Prints labels of the chunk where the player stands."),
+        privs = {},
+        func = function(name, param)
+            local player = minetest.get_player_by_name(name)
+            local pos = player:get_pos()
+            local hash = ms.mapchunk_hash(pos)
+            local labels = ms.get_labels(hash)
+            labels = minetest.serialize(labels)
+            labels = labels:gsub("return ", "")
+            labels = labels:gsub("{", "")
+            labels = labels:gsub("}", "")
+            labels = labels:gsub(",", ", ")
+            return true, S("hash: ")..hash.."\n"..S("labels: ")..labels
+        end,
+})
