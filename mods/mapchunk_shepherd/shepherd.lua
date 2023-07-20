@@ -77,11 +77,22 @@ local function run_scanners()
         scan_queue = {}
         minetest.after(longer_break, run_scanners)
     end
-    if #scan_queue > 0 and #scanners > 0 then
+    local hash = scan_queue[1]
+    if not hash then
+        minetest.after(scanner_break, run_scanners)
+        return
+    end
+    local pos1, pos2 = ms.mapchunk_borders(hash)
+    local failed = ms.contains_labels(hash, {"scanner_failed"})
+    if not minetest.compare_block_status(pos1, "loaded") or
+        ms.was_scanned(hash) and not failed then
+        table.remove(scan_queue, 1)
+        current_scanner = 1
+        minetest.after(scanner_break, run_scanners)
+        return
+    end
+    if #scanners > 0 then
         --minetest.log("warning", "scan queue: "..#scan_queue)
-        local hash = scan_queue[1]
-        local pos1, pos2 = ms.mapchunk_borders(hash)
-        local failed = ms.contains_labels(hash, {"scanner_failed"})
         if failed then
             current_scanner = 1
             if previous_failure == hash and math.random() < 0.5 then
@@ -92,13 +103,6 @@ local function run_scanners()
             else
                 previous_failure = hash
             end
-        end
-        if not minetest.compare_block_status(pos1, "loaded") or
-            ms.was_scanned(hash) and not failed then
-            table.remove(scan_queue, 1)
-            current_scanner = 1
-            minetest.after(scanner_break, run_scanners)
-            return
         end
         local scanner = scanners[current_scanner]
         if ms.contains_labels(hash, scanner.needed_labels) and
@@ -136,16 +140,20 @@ local function run_workers()
         minetest.after(longer_break, run_workers)
         return
     end
-    if #work_queue > 0 and #workers > 0 then
+    local hash = work_queue[1]
+    if not hash then
+        minetest.after(worker_break, run_workers)
+        return
+    end
+    local pos1, pos2 = ms.mapchunk_borders(hash)
+    if not minetest.compare_block_status(pos1, "loaded") then
+        table.remove(work_queue, 1)
+        current_worker = 1
+        minetest.after(worker_break, run_workers)
+        return
+    end
+    if #workers > 0 then
         --minetest.log("warning", "work queue: "..#work_queue)
-        local hash = work_queue[1]
-        local pos1, pos2 = ms.mapchunk_borders(hash)
-        if not minetest.compare_block_status(pos1, "loaded") then
-            table.remove(work_queue, 1)
-            current_worker = 1
-            minetest.after(worker_break, run_workers)
-            return
-        end
         local worker = workers[current_worker]
         if ms.contains_labels(hash, worker.needed_labels) and
             ms.has_one_of(hash, worker.has_one_of) then
