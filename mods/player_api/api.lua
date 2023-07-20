@@ -339,14 +339,21 @@ minetest.register_globalstep(function(dtime)
 	 local name = player:get_player_name()
 	 local model_name = player_model[name]
 	 local model = model_name and models[model_name]
-	 if model and not player_attached[name] then
-	    -- Is the player dead?
-	    if player:get_hp() == 0 then
-	       player_set_animation(player, "lay")
-	       player:set_bone_position("Head",
+	 if model then -- Detect newly attached player, remove crawl state
+	    if player_attached[name] and player_crawl[name] then
+			toggle_crawl(player, name, false)
+			player:set_bone_position("Head",
+						 { x=0, y=6.3, z=0 },
+						 { x=0, y=  0, z=0 })
+	    end
+	    if not player_attached[name] then
+	       -- Is the player dead?
+	       if player:get_hp() == 0 then
+		  player_set_animation(player, "lay")
+		  player:set_bone_position("Head",
 					{ x=0, y=6.3, z=0 },
 					{ x=0, y=  0, z=0 })
-	    else
+	       else
 		     local player_pos = player:get_pos()
 		     local controls = player:get_player_control()
 		     local animation_speed_mod = model.animation_speed or 30
@@ -361,8 +368,14 @@ minetest.register_globalstep(function(dtime)
 
 		     local sneaking = controls.sneak
 
-		     if cant_stand and not player_crawl[name] then
+		     local cancrawl = not ( player_anim[name] == "lay" or
+				       on_water == true or
+				       on_ladder == true )
+
+		     if cant_stand and not player_crawl[name] and cancrawl then
 			toggle_crawl(player, name, true)
+		     elseif not cancrawl and player_crawl[name] then
+			toggle_crawl(player, name, false)
 		     end
 
 		     if player_sneak[name] ~= controls.sneak then
@@ -370,7 +383,7 @@ minetest.register_globalstep(function(dtime)
 			player_anim[name] = nil
 			player_sneak[name] = controls.sneak
 			if controls.sneak  then -- Double tap to crawl
-			   if ( not player_crawl[name] and not on_ladder and
+			   if ( not player_crawl[name] and cancrawl and
 				minimal.click_count_ready(name, "crawl",
 							  2, 1) ) then
 			      toggle_crawl(player, name, true)
@@ -403,6 +416,7 @@ minetest.register_globalstep(function(dtime)
 			   timer = 0
 			end
 		     end
+	       end
 	    end
 	 end
       end
