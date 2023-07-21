@@ -140,12 +140,20 @@ local plant_list = {
      seasonal_type = "mainly_flower",
      dry_fruit = true},
 
-    {name = "ziarnoplon", description = S("Ziarnoplon"),
+    {name = "ziarnoplon", description = S("Ziarnopłon"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = plant_base_growing_time * 0.4,
      dye_candidate = true, dominant_color = "yellow",
      fruit = true, seasonal_type = "early_flower"},
+
+    {name = "srebroplon", description = S("Srebropłon"),
+     drawtype = "plantlike", waving = true,
+     plant_type = "herbaceous_plant", mesh_type = 3,
+     growing_time = plant_base_growing_time * 0.4,
+     dye_candidate = true, dominant_color = "blue",
+     fruit = true, seasonal_type = "early_flower",
+     bioluminescence = 3},
 
     {name = "orom", description = S("Orom"),
      drawtype = "plantlike", mesh_type = 1,

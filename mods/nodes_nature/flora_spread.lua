@@ -236,3 +236,25 @@ minetest.register_abm({
             end
 	end
 })
+
+minetest.register_abm({
+	label = "Ziarnoplon mutation",
+	nodenames = {"nodes_nature:ziarnoplon_flowering",
+                     "nodes_nature:srebroplon_flowering"},
+	interval = 301,
+	chance = 500,
+	catch_up = false,
+        min_y = -30,
+        max_y = 500,
+	action = function(pos, node)
+            if node.name == "nodes_nature:ziarnoplon_flowering" then
+                if math.random() > 0.99 then
+                    minimal.force_place_keep_param2(pos, "nodes_nature:srebroplon_flowering")
+                end
+            else
+                if math.random() > 0.70 then
+                    minimal.force_place_keep_param2(pos, "nodes_nature:ziarnoplon_flowering")
+                end
+            end
+	end
+})

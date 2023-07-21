@@ -301,6 +301,18 @@ local kind_of_edible_plants = {
         param2 = 3,
     },
 
+    {--[[woodland:srebroplon]]
+        name = "wl_nn:srebroplon",
+        deco_type = "simple",
+        place_on = sna.woodland_on,
+        sidelen = 80,
+        fill_ratio = 0.000090,
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:ziarnoplon",
+        param2 = 3,
+    },
+
     {--[[woodland:hakimi]]
         name = "wl_nn:hakimi",
         deco_type = "simple",
