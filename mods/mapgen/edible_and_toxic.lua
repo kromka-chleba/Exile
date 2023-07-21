@@ -21,6 +21,18 @@ local edible_plants = {
         param2 = 4,
     },
 
+    {--[[wetland:Malinka]]
+        name = "nodes_nature:malinka",
+        deco_type = "simple",
+        place_on = sna.wetland_on,
+        sidelen = 80,
+        fill_ratio = 0.001200,
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:malinka",
+        param2 = 1,
+    },
+
     {--[[forest:Vansano]]
         name = "fr_nn:vansano",
         deco_type = "simple",
