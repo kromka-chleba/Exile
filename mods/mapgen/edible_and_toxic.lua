@@ -225,6 +225,18 @@ local edible_plants = {
         param2 = 3,
     },
 
+    {--[[Duneland:barszcz]]
+        name = "dl_nn:barszcz",
+        deco_type = "simple",
+        place_on = sna.duneland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0010, spread={x=32, y=32, z=32}, seed=93, octaves=2, persist=0.8},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:barszcz",
+        param2 = 3,
+    },
+
     {--[[Allbarren:Obesa]]
         name = "nodes_nature:obesa_fruitless",
         deco_type = "simple",
@@ -351,6 +363,18 @@ local toxic_plants = {
         y_min = sna.beach_max,
         decoration = "nodes_nature:wrotycz_flowering",
         param2 = 1,
+    },
+
+    {--[[Grassland:barszcz]]
+        name = "gs_nn:barszcz",
+        deco_type = "simple",
+        place_on = sna.grassland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0010, spread={x=32, y=32, z=32}, seed=93, octaves=2, persist=0.8},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:barszcz",
+        param2 = 3,
     },
 
     {--[[shrubland:nebiyi]]
