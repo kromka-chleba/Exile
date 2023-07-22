@@ -47,7 +47,7 @@ function spears_set_entity(spear_type, base_damage, toughness)
 		initial_properties = {
 			physical = false,
 			visual = "item",
-			visual_size = {x = 0.3, y = 0.3, z = 0.3},
+			visual_size = {x = 0.5, y = 0.5, z = 0.5},
 			wield_item = "spears:spear_" .. spear_type,
 			collisionbox = {-0.3, -0.3, -0.3, 0.3, 0.3, 0.3},
 		},
@@ -88,7 +88,8 @@ function spears_set_entity(spear_type, base_damage, toughness)
 				local direction = vector.normalize(velocity)
 				local yaw = minetest.dir_to_yaw(direction)
 				local pitch = math.acos(velocity.y/speed) - math.pi/3
-				local spearhead_pos = vector.add(pos, vector.multiply(direction, 0.5))
+				local spearhead_pos = vector.add(pos, vector.multiply(direction, 0.8))
+				local spearbutt_pos = vector.add(pos, vector.multiply(direction, -0.8))				
 				self.object:set_rotation({x = 0, y = yaw + math.pi/2, z = pitch})
 				-- Hit someone?
 				local objects_in_radius = minetest.get_objects_inside_radius(spearhead_pos, 0.6)
@@ -104,28 +105,35 @@ function spears_set_entity(spear_type, base_damage, toughness)
 					end
 				end
 				-- Hit a node?
-				local node = minetest.get_node(spearhead_pos)
+				local node = minetest.get_node(vector.add(spearhead_pos, vector.multiply(direction, 0.3)))
+				local middle_node = minetest.get_node(spearbutt_pos)				
 				local check_node = spears_check_node(node.name)
+				local check_middle_node = spears_check_node(middle_node.name)
 				if check_node == SPEARS_NODE_UNKNOWN then
 					self.object:remove()
 					minetest.add_item(pos, {name='spears:spear_' .. spear_type, wear = wear})
-				elseif check_node ~= SPEARS_NODE_THROUGH then
+				elseif check_node ~= SPEARS_NODE_THROUGH or check_middle_node ~= SPEARS_NODE_THROUGH then
 					wear = spears_wear(wear, toughness)
 					if wear >= 65535 then
 						minetest.sound_play("default_tool_breaks", {pos = pos}, true)
 						self.object:remove()
 						minetest.add_item(pos, {name='defaut:stick'})
 						return false
+					elseif check_middle_node ~= SPEARS_NODE_THROUGH then
+						minetest.sound_play("default_metal_footstep", {pos = pos}, true)
+						self.object:remove()
+						minetest.add_item(pos, {name='spears:spear_' .. spear_type, wear = wear})
+						return false
 					elseif check_node == SPEARS_NODE_CRACKY then
 						minetest.sound_play("default_metal_footstep", {pos = pos}, true)
 						self.object:remove()
 						minetest.add_item(pos, {name='spears:spear_' .. spear_type, wear = wear})
 						return false
-					elseif check_node == SPEARS_NODE_STICKY then
+					elseif check_node == SPEARS_NODE_STICKY and check_middle_node == SPEARS_NODE_THROUGH then
 						self.object:set_acceleration(SPEARS_V_ZERO)
 						self.object:set_velocity(SPEARS_V_ZERO)
 						minetest.sound_play("default_place_node", {pos = pos}, true)
-						self._stickpos = spearhead_pos
+						self._stickpos = vector.add(spearhead_pos,vector.multiply(direction, 0.2))
 						self._wear = wear
 					end
 				else -- Get drag
