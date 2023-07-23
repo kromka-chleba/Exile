@@ -234,7 +234,7 @@ local edible_plants = {
         y_max = sna.lowland_max,
         y_min = sna.beach_max,
         decoration = "nodes_nature:barszcz",
-        param2 = 3,
+        param2 = 2,
     },
 
     {--[[Allbarren:Obesa]]

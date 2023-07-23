@@ -66,7 +66,7 @@ local wrotycz_soil_prefs =
 local plant_list = {
     -- Herbs
     {name = "barszcz", description = S("Barszcz"),
-     drawtype = "plantlike", mesh_type = 3,
+     drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
