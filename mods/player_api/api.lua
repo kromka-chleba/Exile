@@ -219,6 +219,7 @@ end
 
 local function check_player_surroundings(player, pos)
    local node_name = minetest.get_node(pos).name
+   local node_def = minetest.registered_nodes[node_name]
    local pos_above = {x= pos.x, y= pos.y+1, z= pos.z}
    local node_name_above = minetest.get_node(pos_above).name
    local node_above_def = minetest.registered_nodes[node_name_above]
@@ -228,7 +229,8 @@ local function check_player_surroundings(player, pos)
    local on_water = false
    if ( node_above_def and node_above_def.walkable == true and
 	on_a_ladder == false ) then
-      if node_above_def.drawtype == "normal" then
+      if ( node_above_def.drawtype == "normal" and -- above is solid
+	   node_def.drawtype ~= "normal" ) then -- and we're not noclipping
 	 node_above_is_solid = true
       end -- #TODO: elseif; handle nodeboxes with a raycast? other cases
    end
