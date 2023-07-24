@@ -13,6 +13,11 @@ local chunk_side = dimensions.chunk_side
 local old_chunksize = dimensions.old_chunksize
 local blocks_per_chunk = dimensions.blocks_per_chunk
 
+local function loaded_or_active(pos)
+    return minetest.compare_block_status(pos, "loaded") or
+        minetest.compare_block_status(pos, "active")
+end
+
 local function neighboring_mapchunks(hash)
     local pos = minetest.get_position_from_hash(hash)
     local hashes = {}
@@ -84,7 +89,7 @@ local function run_scanners()
     end
     local pos1, pos2 = ms.mapchunk_borders(hash)
     local failed = ms.contains_labels(hash, {"scanner_failed"})
-    if not minetest.compare_block_status(pos1, "loaded") or
+    if not loaded_or_active(pos1) or
         ms.was_scanned(hash) and not failed then
         table.remove(scan_queue, 1)
         current_scanner = 1
@@ -115,7 +120,7 @@ local function run_scanners()
         if current_scanner > #scanners then
             table.remove(scan_queue, 1)
             current_scanner = 1
-            if minetest.compare_block_status(pos1, "loaded") then
+            if loaded_or_active(pos1) then
                 ms.add_labels(hash, {"scanned"})
             end
         end
@@ -146,7 +151,7 @@ local function run_workers()
         return
     end
     local pos1, pos2 = ms.mapchunk_borders(hash)
-    if not minetest.compare_block_status(pos1, "loaded") then
+    if not loaded_or_active(pos1) then
         table.remove(work_queue, 1)
         current_worker = 1
         minetest.after(worker_break, run_workers)
@@ -243,7 +248,7 @@ local function player_tracker()
         --minetest.log("error", dump(ms.get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
             local pos_min, pos_max = ms.mapchunk_borders(neighbor)
-            if minetest.compare_block_status(pos_min, "loaded") then
+            if loaded_or_active(pos_min) then
                 save_scan_work(neighbor)
             end
         end
