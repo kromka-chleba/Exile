@@ -30,6 +30,20 @@ function ms.mapchunk_hash(pos)
     return minetest.hash_node_position(pos)
 end
 
+function ms.save_time(hash)
+    local time = minetest.get_gametime()
+    mod_storage:set_int(hash.."_time", time)
+end
+
+function ms.reset_time(hash)
+    mod_storage:set_int(hash"_time", 0)
+end
+
+function ms.time_since_last_change(hash)
+    local current_time = minetest.get_gametime()
+    return current_time - mod_storage:get_int(hash.."_time")
+end
+
 -- A global function to get mapchunk borders
 function ms.mapchunk_borders(hash)
     local pos_min = minetest.get_position_from_hash(hash)
@@ -78,6 +92,7 @@ function ms.add_labels(hash, new_labels)
         end
         labels = ms.labels.delete_duplicates(labels)
         mod_storage:set_string(hash, ms.labels.encode(labels))
+        ms.save_time(hash)
     else
         minetest.log("error", "Mapchunk shepherd: "..label.." is not a valid label!")
     end
@@ -106,9 +121,11 @@ function ms.save_mapchunk(hash, force)
     if not ms.is_tracked(hash) then
         ms.add_labels(hash, {"chunk_tracked"})
         bump_counter()
+        ms.save_time(hash)
     end
     if force then
         mod_storage:set_string(hash, ms.labels.encode({"chunk_tracked"}))
+        ms.save_time(hash)
     end
 end
 
@@ -116,6 +133,7 @@ end
 function ms.reset_mapchunk(hash)
     if is_tracked(hash) then
         mod_storage:set_string(hash, ms.labels.encode({"chunk_tracked"}))
+        ms.reset_time(hash)
     end
 end
 
@@ -125,16 +143,12 @@ function ms.remove_mapchunk(hash)
         debump_counter()
     end
     mod_storage:set_string(hash, "")
+    ms.reset_time(hash)
 end
 
 function ms.was_scanned(hash)
     local labels = ms.get_labels(hash)
     return ms.labels.contains(labels, {"scanned"})
-end
-
-function ms.was_mapgen_scanned(hash)
-    local labels = ms.get_labels(hash)
-    return ms.labels.contains(labels, {"mapgen_scanned"})
 end
 
 function ms.remove_labels(hash, labels)
@@ -150,6 +164,7 @@ function ms.remove_labels(hash, labels)
         for _, name in pairs(labels) do
             if old_name == name then
                 removed = true
+                ms.save_time(hash)
                 break
             end
         end

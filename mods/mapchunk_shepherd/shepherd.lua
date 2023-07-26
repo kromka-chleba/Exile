@@ -120,7 +120,7 @@ local function run_scanners()
         if current_scanner > #scanners then
             table.remove(scan_queue, 1)
             current_scanner = 1
-            if loaded_or_active(pos1) then
+            if loaded_or_active(pos1) and not ms.was_scanned(hash) then
                 ms.add_labels(hash, {"scanned"})
             end
         end
@@ -194,7 +194,7 @@ local function add_to_work_queue(hash)
     local work = true
     for _, chunk in pairs(work_queue) do
         if chunk == hash then
-            scan = false
+            work = false
         end
     end
     if work then
@@ -293,7 +293,7 @@ minetest.register_chatcommand(
             local tracked_chunks_status = S("Tracked chunks: ")..nr_of_chunks
             local scan_queue_status = S("Scan queue: ")..#scan_queue
             local work_queue_status = S("Work queue: ")..#work_queue
-            return true, tracked_chunks_status.."\n"..scan_queue_status.."\n"..work_queue_status
+            return true, tracked_chunks_status.."\n"..scan_queue_status.."\n"..work_queue_status.."\n "
         end,
 })
 
@@ -306,11 +306,14 @@ minetest.register_chatcommand(
             local pos = player:get_pos()
             local hash = ms.mapchunk_hash(pos)
             local labels = ms.get_labels(hash)
+            local last_changed = ms.time_since_last_change(hash)
             labels = minetest.serialize(labels)
             labels = labels:gsub("return ", "")
             labels = labels:gsub("{", "")
             labels = labels:gsub("}", "")
             labels = labels:gsub(",", ", ")
-            return true, S("hash: ")..hash.."\n"..S("labels: ")..labels
+            return true, S("hash: ")..hash.."\n"
+                ..S("last changed: ")..last_changed..S(" seconds ago").."\n"
+                ..S("labels: ")..labels.."\n "
         end,
 })

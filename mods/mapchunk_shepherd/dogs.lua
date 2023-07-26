@@ -74,8 +74,7 @@ function ms.register_worker(args)
     local needed_labels = args.needed_labels or {}
     local has_one_of = args.has_one_of or {}
     table.insert(needed_labels, "chunk_tracked")
-    table.insert(has_one_of, "scanned")
-    table.insert(has_one_of, "mapgen_scanned")
+    table.insert(needed_labels, "scanned")
     if not is_worker_registered(args.name) then
         table.insert(
             ms.workers,
@@ -247,7 +246,7 @@ function ms.create_deco_finder(args)
                     if not ms.contains_labels(hash, labels_to_add) then
                         ms.save_mapchunk(hash, true)
                         ms.handle_labels(hash, labels_to_add, labels_to_remove)
-                        ms.add_labels(hash, {"mapgen_scanned"})
+                        ms.add_labels(hash, {"scanned"})
                         --minetest.log("error", dump(minp))
                     end
                 end
