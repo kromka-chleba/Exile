@@ -133,6 +133,13 @@ function animals.core_life(self, lifespan, pos)
     return nil
   end
 
+  --die from high temp
+  local temp = climate.get_point_temp(pos)
+  if temp > 100 then
+     energy = energy - temp
+     mobkit.hurt(self, temp)
+  end
+
   --temperature stress
   if random() < 0.2 then
     local temp = climate.get_point_temp(pos)
