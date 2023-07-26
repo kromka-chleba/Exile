@@ -21,6 +21,18 @@ local edible_plants = {
         param2 = 4,
     },
 
+    {--[[wetland:Malinka]]
+        name = "nodes_nature:malinka",
+        deco_type = "simple",
+        place_on = sna.wetland_on,
+        sidelen = 80,
+        fill_ratio = 0.001200,
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:malinka",
+        param2 = 1,
+    },
+
     {--[[forest:Vansano]]
         name = "fr_nn:vansano",
         deco_type = "simple",
@@ -213,6 +225,18 @@ local edible_plants = {
         param2 = 3,
     },
 
+    {--[[Duneland:barszcz]]
+        name = "dl_nn:barszcz",
+        deco_type = "simple",
+        place_on = sna.duneland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0010, spread={x=32, y=32, z=32}, seed=93, octaves=2, persist=0.8},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:barszcz",
+        param2 = 2,
+    },
+
     {--[[Allbarren:Obesa]]
         name = "nodes_nature:obesa_fruitless",
         deco_type = "simple",
@@ -271,6 +295,18 @@ local kind_of_edible_plants = {
         place_on = sna.woodland_on,
         sidelen = 80,
         fill_ratio = 0.030000,
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:ziarnoplon",
+        param2 = 3,
+    },
+
+    {--[[woodland:srebroplon]]
+        name = "wl_nn:srebroplon",
+        deco_type = "simple",
+        place_on = sna.woodland_on,
+        sidelen = 80,
+        fill_ratio = 0.000090,
         y_max = sna.lowland_max,
         y_min = sna.beach_max,
         decoration = "nodes_nature:ziarnoplon",
@@ -339,6 +375,18 @@ local toxic_plants = {
         y_min = sna.beach_max,
         decoration = "nodes_nature:wrotycz_flowering",
         param2 = 1,
+    },
+
+    {--[[Grassland:barszcz]]
+        name = "gs_nn:barszcz",
+        deco_type = "simple",
+        place_on = sna.grassland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0010, spread={x=32, y=32, z=32}, seed=93, octaves=2, persist=0.8},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:barszcz",
+        param2 = 3,
     },
 
     {--[[shrubland:nebiyi]]
