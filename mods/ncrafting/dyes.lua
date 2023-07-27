@@ -503,6 +503,11 @@ local function potdump(clicked_yes, data_table, player, playername)
    if clicked_yes then
       local pos = data_table.potpos
       local pot = minetest.get_node(pos)
+      local inv = minetest.get_meta(pos):get_inventory()
+      if not inv:is_empty("main") then
+	 minetest.item_drop(inv:get_stack("main", 1), player, pos)
+      end
+      -- #TODO: Add a particle "splash" here
       pot.param2 = 250
       minetest.set_node(pos, pot)
       clear_pot(pos)
@@ -691,7 +696,7 @@ minetest.register_node(":ncrafting:dye_pot", {
 	      if ( inv:is_empty("craft") and
 		   inv:is_empty("craftresult") ) then
 		 minimal.yes_or_no(playername,
-				   S("Dump out the pot?"),
+				   S("Dump the dye from the pot?"),
 				   potdump,
 				   { potpos = pos } )
 	      end
