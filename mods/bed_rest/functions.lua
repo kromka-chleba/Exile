@@ -299,6 +299,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		player_api.player_attached[name] = false
 		player_monoids.speed:del_change(player, "bed_rest:resting")
 		player_monoids.jump:del_change(player, "bed_rest:resting")
+		player_monoids.gravity:del_change(player, "bed_rest:resting")
 		hud_flags.wielditem = true
 		player_api.set_animation(player, "stand")
 
@@ -348,8 +349,8 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		player_monoids.jump:del_change(player, "health:physics_HE")
 		player_monoids.speed:add_change(player, 0, "bed_rest:resting")
 		player_monoids.jump:add_change(player, 0, "bed_rest:resting")
+		player_monoids.gravity:add_change(player, 0, "bed_rest:resting")
 		minetest.after(0.2, function() stopmove(player,p) end)
-		player:add_velocity({x=0,y=0,z=0})
 		player:set_pos(p)
 		player_api.player_attached[name] = true
 		hud_flags.wielditem = false
