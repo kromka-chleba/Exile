@@ -62,7 +62,7 @@ minetest.register_globalstep(function(dtime)
 			data.dtime = 0
 
 			local desc = stack.get_meta
-				and stack:get_meta():get_string("description")
+				and stack:get_short_description()
 
 			if not desc or desc == "" then
 				-- Try to use default description when none is set in the meta
