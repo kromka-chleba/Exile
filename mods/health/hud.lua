@@ -48,6 +48,17 @@ local hud_body_temp_x	= 300 * hud_scale
 
 local icon_scale = {x = hud_scale, y = hud_scale}  -- all HUD icon image scale
 
+wielded_hud = {}
+wielded_hud.list = {}
+
+function wielded_hud.register_hudwield(itemname, updatefunc, unwieldfunc)
+   -- functions should accept (player, pname, playermeta)
+   -- updatefunc should set up and/or update your hud elements
+   -- unwieldfunc is called so you can clean up and delete hud elements
+   wielded_hud.list[itemname] = { update = updatefunc,
+				  unwield = unwieldfunc }
+end
+
 local function tobool(str)
    if str == "true" then
       return true
@@ -471,6 +482,15 @@ minetest.register_globalstep(function(dtime)
 		temp(player, hud_data, meta)
 		enviro_temp(player, hud_data, meta)
 		effects(player, hud_data, meta)
+		local wi = player:get_wielded_item():get_name()
+		if hud_data.wh ~= wi then -- changed, remove it
+		   wielded_hud.list[wi].unwield(player, name, meta)
+		   hud_data.wh = nil
+		end
+		if wielded_hud.list[wi] then
+		   hud_data.wh = wi
+		   wielded_hud.list[wi].update(player, name, meta)
+		end
 
 		local lb = tobool(meta:get_string("hud16"))
 

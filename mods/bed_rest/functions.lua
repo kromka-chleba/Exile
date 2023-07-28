@@ -248,11 +248,16 @@ local function get_look_yaw(pos)
 end
 
 
+local function stopmove(player, pos)
+   local velo = player:get_velocity() or player:get_player_velocity()
+   player:add_velocity(-velo)
+   if pos then player:set_pos(pos) end
+end
+
 -----------------------------------------------------------------
 local function lay_down(player, level, pos, bed_pos, state, skip)
 	local name = player:get_player_name()
 	local hud_flags = player:hud_get_flags()
-	local po = player:get_physics_override()
 
 	if not player or not name then
 		return
@@ -292,16 +297,15 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		-- physics, eye_offset, etc
 		player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
 		player_api.player_attached[name] = false
-		po.speed = 1
-		po.jump = 1
-		po.sneak = true
-		po.gravity = 1
-		player:set_physics_override(po)
+		player_monoids.speed:del_change(player, "bed_rest:resting")
+		player_monoids.jump:del_change(player, "bed_rest:resting")
+		player_monoids.gravity:del_change(player, "bed_rest:resting")
 		hud_flags.wielditem = true
 		player_api.set_animation(player, "stand")
 
 	-- lay down, provided we have a valid bed position
 	elseif bed_pos then
+	   stopmove(player)
 	   local velo = player:get_velocity() or player:get_player_velocity()
 	   if velo.x ~= 0 then return end
 	   if velo.y ~= 0 then return end
@@ -343,11 +347,10 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		player_monoids.jump:del_change(player, "health:physics")
 		player_monoids.speed:del_change(player, "health:physics_HE")
 		player_monoids.jump:del_change(player, "health:physics_HE")
-		po.speed = 0
-		po.jump = 0
-		po.sneak = false
-		po.gravity = 0
-		player:set_physics_override(po)
+		player_monoids.speed:add_change(player, 0, "bed_rest:resting")
+		player_monoids.jump:add_change(player, 0, "bed_rest:resting")
+		player_monoids.gravity:add_change(player, 0, "bed_rest:resting")
+		minetest.after(0.2, function() stopmove(player,p) end)
 		player:set_pos(p)
 		player_api.player_attached[name] = true
 		hud_flags.wielditem = false
