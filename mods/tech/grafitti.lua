@@ -150,7 +150,7 @@ grafitti.register_grafitti("tech:scr_up", {image = "tech_paint_scr_up.png"})
 grafitti.palette_build("tech:scratching")
 
 grafitti.register_brush("tech:paint_scratching", {
-    description = S("Painting Kit (scratching)"),
+    description = S("Stone Etcher"),
     inventory_image = "tech_paint_scratcher.png",
     wield_image = "tech_paint_scratcher.png^[transformR270",
     palette = "tech:scratching"
