@@ -38,20 +38,32 @@ end
 function ms.labels.is_valid(labels)
     for _, label in pairs(labels) do
         if not ms.labels.is_label(label) then
+            minetest.log("error", "Mapchunk shepherd: "..label.." is not a valid label!")
             return false
         end
     end
     return true
 end
 
-function ms.labels.encode(label_names)
+function ms.labels.add_timestamp(labels)
+    local labels = table.copy(labels)
+    local with_timestamp = {}
+    local time = minetest.get_gametime()
+    for _, label in pairs(labels) do
+        table.insert(with_timestamp, {label, time})
+    end
+    return with_timestamp
+end
+
+function ms.labels.encode(labels_with_timestamp)
     local to_encode = {}
-    for _, label in pairs(label_names) do
+    for _, label in pairs(labels_with_timestamp) do
+        local name = label[1]
         -- Only uses valid labels
-        if ms.labels.is_valid({label}) then
+        if ms.labels.is_valid({name}) then
             table.insert(to_encode, label)
         else
-            minetest.log("error", "Mapchunk shepherd: Label \""..label.."\" is not a valid label!")
+            minetest.log("error", "Mapchunk shepherd: Label \""..name.."\" is not a valid label!")
         end
     end
     return minetest.serialize(to_encode)
@@ -95,19 +107,62 @@ function ms.labels.has_one_of(labels1, labels2)
     return false
 end
 
--- Don't change this
--- I'm using this for the queue also,
--- not only labels.
-function ms.labels.delete_duplicates(labels)
+local function get_paired_labels(labels)
     local paired = {}
     for _, label in pairs(labels) do
-        paired[label] = label
+        local name = label[1]
+        -- if not name then
+        --     minetest.log("error", dump(labels))
+        -- else
+            paired[name] = label
+            --end
     end
+    return paired
+end
+
+function ms.labels.delete_duplicates(old_labels, new_labels)
+    local old_labels = table.copy(old_labels)
+    local new_labels = table.copy(new_labels)
+    local paired_old = get_paired_labels(old_labels)
+    local paired_new = get_paired_labels(new_labels)
     local clean = {}
-    for _, label in pairs(paired) do
+    for name, old_label in pairs(paired_old) do
+        old_empty = false
+        if not paired_new[name] then
+            table.insert(clean, old_label)
+        end
+    end
+    for _, new_label in pairs(paired_new) do
+        table.insert(clean, new_label)
+    end
+    return clean
+end
+
+function ms.labels.remove(old_labels, removed_labels)
+    local old_labels = table.copy(old_labels)
+    local removed_labels = table.copy(removed_labels)
+    local paired_old = get_paired_labels(old_labels)
+    --local paired_removed = get_paired_labels(removed_labels)
+    local clean = {}
+    for _, name in pairs(removed_labels) do
+        if paired_old[name] then
+            paired_old[name] = nil
+        end
+    end
+    for _, label in pairs(paired_old) do
         table.insert(clean, label)
     end
     return clean
+end
+
+function ms.labels.extract_names(labels)
+    table.copy(labels)
+    local label_names = {}
+    for _, label in pairs(labels) do
+        local name = label[1]
+        table.insert(label_names, name)
+    end
+    return label_names
 end
 
 ms.labels.register("chunk_tracked")

@@ -71,30 +71,28 @@ end
 function ms.get_labels(hash)
     local encoded = mod_storage:get_string(hash)
     if encoded == "" then
-       return {}
+        return {}
     end
     local value = minetest.deserialize(encoded)
     if value then
-       return value
+        return value
     else
-       minetest.log("error", "Get_labels failed for hash: "..
-		    dump(hash).." / "..dump(encoded))
-       return {}
+        minetest.log("error", "Get_labels failed for hash: "..
+                     dump(hash).." / "..dump(encoded))
+        return {}
     end
 end
 
 function ms.add_labels(hash, new_labels)
+    -- new_labels - label names without timestamps
     local new_labels = table.copy(new_labels)
-    local labels = ms.get_labels(hash)
+    local old_labels = ms.get_labels(hash)
+    local to_add = {}
     if ms.labels.is_valid(new_labels) then
-        for _, nlabel in pairs(new_labels) do
-            table.insert(labels, nlabel)
-        end
-        labels = ms.labels.delete_duplicates(labels)
-        mod_storage:set_string(hash, ms.labels.encode(labels))
+        new_labels = ms.labels.add_timestamp(new_labels)
+        to_add = ms.labels.delete_duplicates(old_labels, new_labels)
+        mod_storage:set_string(hash, ms.labels.encode(to_add))
         ms.save_time(hash)
-    else
-        minetest.log("error", "Mapchunk shepherd: "..label.." is not a valid label!")
     end
 end
 
@@ -124,7 +122,8 @@ function ms.save_mapchunk(hash, force)
         ms.save_time(hash)
     end
     if force then
-        mod_storage:set_string(hash, ms.labels.encode({"chunk_tracked"}))
+        local label = ms.labels.add_timestamp({"chunk_tracked"})
+        mod_storage:set_string(hash, ms.labels.encode(label))
         ms.save_time(hash)
     end
 end
@@ -132,7 +131,8 @@ end
 -- Clears labels other than "chunk_tracked"
 function ms.reset_mapchunk(hash)
     if is_tracked(hash) then
-        mod_storage:set_string(hash, ms.labels.encode({"chunk_tracked"}))
+        local label = ms.labels.add_timestamp({"chunk_tracked"})
+        mod_storage:set_string(hash, ms.labels.encode(label))
         ms.reset_time(hash)
     end
 end
@@ -148,31 +148,24 @@ end
 
 function ms.was_scanned(hash)
     local labels = ms.get_labels(hash)
-    return ms.labels.contains(labels, {"scanned"})
+    local label_names = ms.labels.extract_names(labels)
+    return ms.labels.contains(label_names, {"scanned"})
 end
 
-function ms.remove_labels(hash, labels)
+function ms.remove_labels(hash, removed_labels)
     -- copy to avoid modifying the table somewhere far far away
-    local labels = table.copy(labels)
+    local removed_labels = table.copy(removed_labels)
     local old_labels = ms.get_labels(hash)
     if not ms.is_tracked(hash) then
         minetest.log("error", "Mapchunk shepherd: "..hash.." is not tracked!")
+        minetest.log("error", "Mapchunk shepherd: tried to remove labels: "..dump(removed_labels))
+        ms.save_mapchunk(hash, true)
+        return
     end
-    local new_labels = {}
-    for _, old_name in pairs(old_labels) do
-        local removed = false
-        for _, name in pairs(labels) do
-            if old_name == name then
-                removed = true
-                ms.save_time(hash)
-                break
-            end
-        end
-        if not removed then
-            table.insert(new_labels, old_name)
-        end
+    if ms.labels.is_valid(removed_labels) then
+        local labels = ms.labels.remove(old_labels, removed_labels)
+        mod_storage:set_string(hash, ms.labels.encode(labels))
     end
-    mod_storage:set_string(hash, ms.labels.encode(new_labels))
 end
 
 function ms.handle_labels(hash, labels_added, labels_removed)
@@ -188,10 +181,12 @@ end
 
 function ms.contains_labels(hash, labels)
     local chunk_labels = ms.get_labels(hash)
-    return ms.labels.contains(chunk_labels, labels)
+    local label_names = ms.labels.extract_names(chunk_labels)
+    return ms.labels.contains(label_names, labels)
 end
 
 function ms.has_one_of(hash, labels)
     local chunk_labels = ms.get_labels(hash)
-    return ms.labels.has_one_of(chunk_labels, labels)
+    local label_names = ms.labels.extract_names(chunk_labels)
+    return ms.labels.has_one_of(label_names, labels)
 end

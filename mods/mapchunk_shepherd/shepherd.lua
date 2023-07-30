@@ -309,8 +309,8 @@ minetest.register_chatcommand(
             local last_changed = ms.time_since_last_change(hash)
             labels = minetest.serialize(labels)
             labels = labels:gsub("return ", "")
-            labels = labels:gsub("{", "")
-            labels = labels:gsub("}", "")
+            labels = labels:gsub("{{", "{")
+            labels = labels:gsub("}}", "}")
             labels = labels:gsub(",", ", ")
             return true, S("hash: ")..hash.."\n"
                 ..S("last changed: ")..last_changed..S(" seconds ago").."\n"
