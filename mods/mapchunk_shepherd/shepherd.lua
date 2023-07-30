@@ -48,17 +48,6 @@ local function neighboring_mapchunks(hash)
     return hashes
 end
 
-local function filter_underground_mapchunks(hashes)
-    local clean = {}
-    for _, hash in pairs(hashes) do
-        local pos_min, pos_max = ms.mapchunk_borders(hash)
-        if pos_max.y >= -15 then
-            table.insert(clean, hash)
-        end
-    end
-    return clean
-end
-
 ---------------------------------------------------------------------
 -- Main loops of the shepherd
 ---------------------------------------------------------------------
@@ -244,7 +233,6 @@ local function player_tracker()
         end
         local hash = ms.mapchunk_hash(pos)
         local neighbors = neighboring_mapchunks(hash)
-        neighbors = filter_underground_mapchunks(neighbors)
         --minetest.log("error", dump(ms.get_labels(hash)))
         for _, neighbor in pairs(neighbors) do
             local pos_min, pos_max = ms.mapchunk_borders(neighbor)
