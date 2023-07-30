@@ -484,7 +484,9 @@ minetest.register_globalstep(function(dtime)
 		effects(player, hud_data, meta)
 		local wi = player:get_wielded_item():get_name()
 		if hud_data.wh ~= wi then -- changed, remove it
-		   wielded_hud.list[wi].unwield(player, name, meta)
+		   if wielded_hud.list[hud_data.wh] then
+		      wielded_hud.list[hud_data.wh].unwield(player, name, meta)
+		   end
 		   hud_data.wh = nil
 		end
 		if wielded_hud.list[wi] then
