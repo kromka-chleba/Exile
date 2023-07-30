@@ -1095,13 +1095,13 @@ crafting.register_recipe({
 end
 
 
---bulk recipes x6
+--bulk recipes x4 use 4 -> 24 here because anperla tuber has medium bulk = 24
 for i in ipairs(plantlist) do
 	local plantname = plantlist[i][1]
 	crafting.register_recipe({
 		type = "threshing_spot",
-		output = "nodes_nature:"..plantname.."_seed 36",
-		items = {"nodes_nature:"..plantname.." 6"},
+		output = "nodes_nature:"..plantname.."_seed 24",
+		items = {"nodes_nature:"..plantname.." 4"},
 		level = 1,
 		always_known = true,
 	})
