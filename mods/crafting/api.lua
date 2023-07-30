@@ -318,15 +318,32 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 		local imeta=itemstack:get_meta()
 		imeta:set_string('creator', name)
 	end
-	-- Add output
-	if inv:room_for_item("main", itemstack) then
-	   inv:add_item(outlistname, itemstack)
-	else
-	   local pos = minetest.get_player_by_name(name):get_pos()
-	   minetest.chat_send_player(name, "No room in inventory!")
-	   minetest.add_item(pos, itemstack)
-	end
-	return true
+  
+  local max_amt = itemstack:get_stack_max()
+  local count = itemstack:get_count() -- use stack's size for iterating
+  local subtract_loop = math.ceil(count / max_amt) -- crafted stack size divided by its stack max then ceil'd (so a stack max and a half will not be 1.5 but rather 2)
+	-- Loop time
+  for _ = 1, subtract_loop, 1 do -- loop through the amount of times stack is over its max, if 1 then only run code once
+    if (count > max_amt) then
+      itemstack:set_count(max_amt) -- set stack to max
+      count = count - max_amt -- lower count by stack max
+    elseif (count > 0) then -- if no modifications necessary then just set it to count
+      itemstack:set_count(count)
+    end
+    
+    -- add output
+    if (count > 0) then -- just in case something goes wrong and an itemstack below or equal to 0 in count is made
+      if inv:room_for_item("main", itemstack) then
+         inv:add_item(outlistname, itemstack)
+      else
+         local pos = minetest.get_player_by_name(name):get_pos()
+         minetest.chat_send_player(name, "No room in inventory!")
+         minetest.add_item(pos, itemstack)
+      end
+    end
+  end
+  
+  return true
 end
 
 local function to_hex(str)
