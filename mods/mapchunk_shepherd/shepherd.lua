@@ -23,20 +23,8 @@ local function neighboring_mapchunks(hash)
     local hashes = {}
     local diameter = tonumber(minetest.settings:get("viewing_range")) * 2
     local nr = math.ceil(diameter / chunk_side)
-    local y_min = 0
-    local y_max = 0
-    if pos.y == mapchunk_offset then
-        y_min = 0
-        y_max = 3
-    elseif pos.y == mapchunk_offset + chunk_side then
-        y_min = -1
-        y_max = 2
-    else
-        y_min = -2
-        y_max = 1
-    end
     for z = -nr, nr do
-        for y = y_min, y_max do
+        for y = -nr, nr do
             for x = -nr, nr do
                 local v = vector.new(x, y, z)
                 v = vector.multiply(v, chunk_side)
