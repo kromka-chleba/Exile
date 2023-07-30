@@ -289,11 +289,26 @@ minetest.register_chatcommand(
         description = S("Prints status of the Mapchunk Shepherd."),
         privs = {},
         func = function(name, param)
+            local scanner_names = {}
+            local worker_names = {}
+            for _, scanner in pairs(scanners) do
+                table.insert(scanner_names, scanner.name)
+            end
+            scanner_names = minetest.serialize(scanner_names)
+            scanner_names = scanner_names:gsub("return ", "")
+            for _, worker in pairs(workers) do
+                table.insert(worker_names, worker.name)
+            end
+            worker_names = minetest.serialize(worker_names)
+            worker_names = worker_names:gsub("return ", "")
             local nr_of_chunks = ms.tracked_chunk_counter()
             local tracked_chunks_status = S("Tracked chunks: ")..nr_of_chunks
             local scan_queue_status = S("Scan queue: ")..#scan_queue
             local work_queue_status = S("Work queue: ")..#work_queue
-            return true, tracked_chunks_status.."\n"..scan_queue_status.."\n"..work_queue_status.."\n "
+            local scanner_status = S("Scanners: ")..scanner_names
+            local worker_status = S("Workers: ")..worker_names
+            return true, tracked_chunks_status.."\n"..scan_queue_status.."\n"..
+                work_queue_status.."\n"..scanner_status.."\n"..worker_status.."\n"
         end,
 })
 
