@@ -62,7 +62,8 @@ function ms.register_scanner(args)
             {name = args.name,
              scanner_function = args.fun,
              needed_labels = needed_labels,
-             has_one_of = has_one_of
+             has_one_of = has_one_of,
+             scan_every = args.scan_every,
             }
         )
     end
@@ -82,6 +83,7 @@ function ms.register_worker(args)
              worker_function = args.fun,
              needed_labels = needed_labels,
              has_one_of = has_one_of,
+             work_every = args.work_every,
             }
         )
     end

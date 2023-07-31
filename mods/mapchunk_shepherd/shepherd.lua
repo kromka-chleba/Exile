@@ -179,32 +179,67 @@ local function add_to_work_queue(hash)
     end
 end
 
+-- returns true if at least one label has its elapsed time
+-- greater than time
+local function labels_baked(labels, time)
+    for _, label in pairs(labels) do
+        if ms.labels.time_elapsed(label) > time then
+            return true
+        end
+    end
+    return false
+end
+
+local function good_for_scanner(hash, scanner, labels)
+    local labels = labels or ms.get_labels(hash)
+    local scan_every = scanner.scan_every
+    local has_labels = ms.contains_labels(hash, scanner.needed_labels) and
+        ms.has_one_of(hash, scanner.has_one_of)
+    if scan_every and labels_baked(labels, scan_every) then
+        return true
+    elseif has_labels and not ms.was_scanned(hash) then
+        return true
+    elseif ms.contains_labels(hash, {"scanner_failed"}) then
+        if math.random() < 0.2 then
+            -- 20% chance of rescanning on failure
+            return true
+        end
+    end
+    return false
+end
+
+local function good_for_worker(hash, worker, labels)
+    local labels = labels or ms.get_labels(hash)
+    local work_every = worker.work_every
+    local has_labels = ms.contains_labels(hash, worker.needed_labels) and
+        ms.has_one_of(hash, worker.has_one_of)
+    if has_labels or
+        has_labels and ms.contains_labels(hash, {"worker_failed"})
+    then
+        if work_every then
+            return labels_baked(labels, work_every)
+        else
+            return true
+        end
+    end
+    return false
+end
+
 -- Part of the tracker
 local function save_scan_work(hash)
     local labels = ms.get_labels(hash)
-
     if not ms.is_tracked(hash) then
         ms.save_mapchunk(hash)
         table.insert(scan_queue, hash)
         return
     end
-
-    if not ms.was_scanned(hash) then
-        add_to_scan_queue(hash)
-    elseif ms.contains_labels(hash, {"scanner_failed"}) then
-        if math.random() < 0.2 then
-            -- 20% chance of rescanning on failure
+    for _, scanner in pairs(scanners) do
+        if good_for_scanner(hash, scanner, labels) then
             add_to_scan_queue(hash)
         end
     end
-
     for _, worker in pairs(workers) do
-        if ms.contains_labels(hash, worker.needed_labels) and
-            ms.has_one_of(hash, worker.has_one_of) or
-            ms.contains_labels(hash, worker.needed_labels) and
-            ms.has_one_of(hash, worker.has_one_of) and
-            ms.contains_labels(hash, {"worker_failed"})
-        then
+        if good_for_worker(hash, worker, labels) then
             add_to_work_queue(hash)
         end
     end
