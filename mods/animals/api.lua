@@ -110,6 +110,34 @@ if not energy then energy = 0 end
   end
 end
 
+
+local function get_mean_temp(pos) -- this could be put somewhere else like in climate or minimal
+  local temps = {}
+  
+  if (type(pos) ~= "table") then -- no pos table is given then
+    return 0
+  elseif (type(pos.x) ~= "number" or type(pos.y) ~= "number" or type(pos.z) ~= "number") then -- incase an invalid pos is given
+    return 0
+  end
+  
+  for x = -1, 1, 1 do -- create matrix of possible positions
+    for y = -1, 1, 1 do
+      for z = -1, 1, 1 do
+        local npos = {x = (pos.x - x), y = (pos.y - y), z = (pos.z - z)} -- matrix the pos :D
+        
+        temps[#temps + 1] = climate.get_point_temp(npos)
+      end
+    end
+  end
+  
+  local mtemp = 0 -- start with a number so it can be calculated
+  for _,num in pairs(temps) do
+    mtemp = mtemp + num
+  end
+  
+  return mtemp / #temps -- return the "mean" of the matrix'd temps
+end
+
 ----------------------------------------------------
 --core health, energy and age
 function animals.core_life(self, lifespan, pos)
@@ -138,7 +166,10 @@ function animals.core_life(self, lifespan, pos)
 
   --die from high temp
   local temp = climate.get_point_temp(pos)
-  if temp > 100 then -- if it's boiling time
+  if (temp > 100) then -- get the mathematical "mean" of the pos and the surroundings nodes
+    temp = get_mean_temp(pos)
+  end
+  if temp > 100 then -- if it's still boiling time
     -- make the animal exhausted and hurt them (instant death)
      energy = 0
      mobkit.hurt(self, temp)
