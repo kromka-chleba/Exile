@@ -58,6 +58,9 @@ function animals.handle_drops(self)
      if chance < (100/item.chance) then
        --leave time for death animation to end
        minetest.after(5, function()
+         if (type(self.object) == "userdata") then -- if entity then
+           pos = self.object:get_pos() or pos -- get entity's pos or if pos is nil, use old pos
+         end
          minetest.add_item(pos, item.name.." "..tostring(amount))
        end)
      end
@@ -135,8 +138,9 @@ function animals.core_life(self, lifespan, pos)
 
   --die from high temp
   local temp = climate.get_point_temp(pos)
-  if temp > 100 then
-     energy = energy - temp
+  if temp > 100 then -- if it's boiling time
+    -- make the animal exhausted and hurt them (instant death)
+     energy = 0
      mobkit.hurt(self, temp)
   end
 
