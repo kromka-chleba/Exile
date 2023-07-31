@@ -127,7 +127,6 @@ function ms.labels.delete_duplicates(old_labels, new_labels)
     local paired_new = get_paired_labels(new_labels)
     local clean = {}
     for name, old_label in pairs(paired_old) do
-        old_empty = false
         if not paired_new[name] then
             table.insert(clean, old_label)
         end
@@ -163,6 +162,11 @@ function ms.labels.extract_names(labels)
         table.insert(label_names, name)
     end
     return label_names
+end
+
+function ms.labels.time_elapsed(label)
+    local time = label[2]
+    return minetest.get_gametime() - time
 end
 
 ms.labels.register("chunk_tracked")
