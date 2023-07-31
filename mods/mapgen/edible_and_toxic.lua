@@ -309,7 +309,7 @@ local kind_of_edible_plants = {
         fill_ratio = 0.000090,
         y_max = sna.lowland_max,
         y_min = sna.beach_max,
-        decoration = "nodes_nature:ziarnoplon",
+        decoration = "nodes_nature:srebroplon",
         param2 = 3,
     },
 
