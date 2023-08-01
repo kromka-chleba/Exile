@@ -148,6 +148,7 @@ function ms.create_simple_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
+    local chance = args.chance or 1
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -167,7 +168,9 @@ function ms.create_simple_replacer(args)
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
-                data[i] = replacement
+                if chance >= math.random() then
+                    data[i] = replacement
+                end
                 found = true
             elseif data[i] == ignore_id then
                 return {"worker_failed"}
@@ -192,6 +195,7 @@ function ms.create_param2_aware_replacer(args)
     local not_found = args.not_found_labels
     local lower_than = args.lower_than or 257
     local higher_than = args.higher_than or -1
+    local chance = args.chance or 1
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -214,7 +218,9 @@ function ms.create_param2_aware_replacer(args)
             if replacement then
                 if data_param2[i] > higher_than and
                     data_param2[i] < lower_than then
-                    data[i] = replacement
+                    if chance >= math.random() then
+                        data[i] = replacement
+                    end
                     found = true
                 elseif data[i] == ignore_id then
                     return {"worker_failed"}
