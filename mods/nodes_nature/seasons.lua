@@ -261,6 +261,7 @@ ms.labels.register("winter_early_plants")
 ms.labels.register("winter_late_plants")
 
 ms.labels.register("seasonal_plants")
+ms.labels.register("seasonal_trees")
 
 local function get_seasonal_plant_names()
     local plant_names = {}

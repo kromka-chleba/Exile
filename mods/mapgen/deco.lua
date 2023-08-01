@@ -151,3 +151,10 @@ ms.create_deco_finder({
             "seasonal_plants",
         }
 })
+
+ms.create_deco_finder({
+        deco_list = trees.tree_list,
+        add_labels = {
+            "seasonal_trees",
+        }
+})
