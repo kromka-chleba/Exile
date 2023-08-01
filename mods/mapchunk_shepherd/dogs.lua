@@ -246,7 +246,7 @@ function ms.create_deco_finder(args)
                 if #pos_list > 0 then
                     local hash = ms.mapchunk_hash(minp)
                     if not ms.contains_labels(hash, labels_to_add) then
-                        ms.save_mapchunk(hash, true)
+                        ms.save_mapchunk(hash)
                         ms.handle_labels(hash, labels_to_add, labels_to_remove)
                         ms.add_labels(hash, {"scanned"})
                         --minetest.log("error", dump(minp))
