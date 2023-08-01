@@ -32,7 +32,7 @@ backpacks.register_backpack("fabric_bag", S("Fabric Bag"), "tech_coarse_fabric.p
 ----woven from fibrous_plant
 crafting.register_recipe({
 	type = "weaving_frame",
-	output = "backpacks:backpack_woven_bag 1",
+	output = "backpacks:backpack_woven_bag",
 	items = {"group:fibrous_plant 48"},
 	level = 1,
 	always_known = true,
@@ -41,7 +41,7 @@ crafting.register_recipe({
 ----wicker from sticks
 crafting.register_recipe({
 	type = "weaving_frame",
-	output = "backpacks:backpack_wicker_bag 1",
+	output = "backpacks:backpack_wicker_bag",
 	items = {"tech:stick 48"},
 	level = 1,
 	always_known = true,
@@ -55,7 +55,7 @@ crafting.register_recipe({
 ----fabric from...fabric
 crafting.register_recipe({
 	type = "loom",
-	output = "backpacks:backpack_fabric_bag 1",
+	output = "backpacks:backpack_fabric_bag",
 	items = {"tech:coarse_fabric 6"},
 	level = 1,
 	always_known = true,
