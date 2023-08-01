@@ -270,6 +270,9 @@ local rope_bottom_def = {
 	},
 
 	on_construct = function( pos )
+    minetest.sound_play("ropes_new",{
+        pos = pos, gain = (math.random(5,15)/100), pitch = (math.random(90,110)/100), max_hear_distance = 14, fade = 1,
+    })
 		local timer = minetest.get_node_timer( pos )
 		timer:start( 1 )
 	end,
