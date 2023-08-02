@@ -64,8 +64,8 @@ function HEALTH.get_default_attributes() -- for other scripts to utilize to get 
     move = move,
     jump = jump,
     
-    temp_min = temp_min,
-    temp_max = temp_max,
+    clothing_temp_min = temp_min,
+    clothing_temp_max = temp_max,
   }
 end
 
@@ -83,33 +83,90 @@ function HEALTH.set_default_attributes(player)
     if (type(value) == "number" and name ~= "health") then
       value = math.ceil(value)
       
-      if (name == "temp_min" or name == "temp_max") then
-        name = "clothing_"..name
-      end
+      --if (name == "temp_min" or name == "temp_max") then
+        --name = "clothing_"..name
+      --end
       
       meta:set_int(name,value)
     elseif (type(value) == "string") then
       meta:set_string(name,value)
     end
   end
-	--meta:set_int("thirst", 100)
-	--meta:set_int("hunger", 1000)
-	--meta:set_int("energy", 1000)
-	--meta:set_int("temperature", 37)
-	--meta:set_int("heal_rate", heal_rate)
-	--meta:set_int("thirst_rate", thirst_rate)
-	--meta:set_int("hunger_rate", hunger_rate)
-	--meta:set_int("recovery_rate", recovery_rate)
-	--meta:set_int("move", move)
-	--meta:set_int("jump", jump)
-	--meta:set_int("clothing_temp_min", temp_min)
-	--meta:set_int("clothing_temp_max", temp_max )
 end
 HEALTH.reset_attributes = HEALTH.set_default_attributes -- ditto definition
 
-function HEALTH.get_player_stats()
+function HEALTH.get_player_stats(player)
+  local meta = player:get_meta()
   
+  return meta:to_table()
 end
+
+
+-- allows any code that depends on HEALTH to use modify_hp to reliably modify player health
+function HEALTH.modify_hp(player,value)
+  assert(type(player) == "userdata","health.modify_hp: player is not a valid 'userdata'")
+  assert(player:is_player() == true,"health.modify_hp: player is not a 'player'")
+  assert(type(value) == "number","health.modify_hp: number not provided for health modification")
+  
+  local phealth = player:get_hp()
+  
+  phealth = phealth - value
+  
+  if (phealth > max_health) then
+    phealth = 20
+  elseif (phealth < 0) then
+    phealth = 0
+  end
+  
+  player:set_hp(phealth)
+end
+
+-- allows any code that depends on HEALTH to use modify_int to reliably modify stats like hunger or thirst
+function HEALTH.modify_int(player,name,value)
+  assert(type(player) == "userdata","health.modify_int: player is not a valid 'userdata'")
+  assert(player:is_player() == true,"health.modify_int: player is not a 'player'")
+  assert(type(value) == "number","health.modify_int: provided value is not a number")
+  
+  local meta = player:get_meta()
+  
+  if (type(name) ~= "string") then
+    name = tostring(name)
+    name = string.lower(name)
+  else
+    name = string.lower(name)
+  end
+  
+  if (meta:get(name) == nil) then
+    return
+  end
+  
+  local stat = meta:get_int(name)
+  
+  if (type(value) == "number") then
+    stat = meta:get_int(name)
+    
+    value = math.ceil(value)
+    
+    stat = stat + value
+    
+    if (name == "hunger" or name == "energy") then
+      if (stat > 1000) then
+        stat = 1000
+      elseif (stat < 0) then
+        stat = 0
+      end
+    elseif (name == "thirst" or name == "temperature") then
+      if (stat > 100) then
+        stat = 100
+      elseif (stat < 0) then
+        stat = 0
+      end
+    end
+    
+    meta:set_int(name,stat)
+  end
+end
+
 
 
 --[[
@@ -572,29 +629,8 @@ if minetest.settings:get_bool("enable_damage") then
 				--
 
 				--update and min max
-				local health1, thirst1, hunger1, energy1, temperature1
-
-				thirst1 = thirst + t_rate
-				if thirst1 < 0 then
-					thirst1 = 0
-				elseif thirst1 > 100 then
-					thirst1 = 100
-				end
-
-				hunger1 = hunger + hun_rate
-				if hunger1 < 0 then
-					hunger1 = 0
-				elseif hunger1 > 1000 then
-					hunger1 = 1000
-				end
-
-				energy1 = energy + r_rate
-				if energy1 < 0 then
-					energy1 = 0
-				elseif energy1 > 1000 then
-					energy1 = 1000
-				end
-
+				local health1, temperature1
+        
 				health1 = health + h_rate
 
 				if temperature > 37 then
@@ -622,10 +658,10 @@ if minetest.settings:get_bool("enable_damage") then
 				--update
 				--
 				player:set_hp(health1)
-				meta:set_int("thirst", thirst1)
-				meta:set_int("hunger", hunger1)
-				meta:set_int("energy", energy1)
 				meta:set_int("temperature", temperature1)
+        HEALTH.modify_int(player,"thirst",t_rate)        
+        HEALTH.modify_int(player,"hunger",hun_rate)
+        HEALTH.modify_int(player,"energy",r_rate)
 				--update form so can see change while looking
 				sfinv.set_player_inventory_formspec(player)
 

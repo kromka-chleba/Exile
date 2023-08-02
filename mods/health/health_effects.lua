@@ -53,6 +53,12 @@ various minor effects (symptoms) shared by many diseases (e.g. vomiting). Called
 local random = math.random
 
 ------------------------------------------------------------------
+-- FUNCTION DUMP
+------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------
 -- VERIFYING FUNCTIONS
 ------------------------------------------------------------------
 
@@ -121,6 +127,10 @@ function HEALTH.illness_ref(name,severity,modify)
     
     move = battrbs.move,
     jump = battrbs.jump,
+    
+    time = {4,6},
+    
+    life_num = 0,
   }
   if (type(modify) == "table") then
     for key,value in pairs(modify) do
@@ -134,9 +144,9 @@ function HEALTH.illness_ref(name,severity,modify)
         key = "temperature"
       elseif (key == "h_rate") then
         key = "heal_rate"
-      elseif (key == "thr") then
-        key = "thirst"
-      elseif (key == "hun") then
+      elseif (key == "thr" or key == "thr_rate") then
+        key = "thirst_rate"
+      elseif (key == "hun" or key == "hun_rate") then
         key = "hunger_rate"
       elseif (key == "r_rate") then
         key = "recovery_rate"
@@ -146,21 +156,30 @@ function HEALTH.illness_ref(name,severity,modify)
         key = "jump"
       end
       
-      if (illness_ref[key]) then
-        illness_ref[key] = value
-      end
+      illness_ref[key] = value
     end
   end
+  -- "shortcut" defined variables for ease of programming/typing
   local temp = illness_ref.temperature
   local h_rate = illness_ref.heal_rate
-  local thr = illness_ref.thirst_rate
-  local hun = illness_ref.hunger_rate
+  local thr_rate = illness_ref.thirst_rate
+  local hun_rate = illness_ref.hunger_rate
   local r_rate = illness_ref.recovery_rate
   local mov = illness_ref.move
   local jum = illness_ref.jump
   
+  -- "shortcut" 'functions' (must be made into a table in code)
+  local stagger
+  local vomit
+  local organ_failure
+  local auditory_hallucination
+  
   local fever_temp = (temp + 2)
   
+------------------------------------------------------------------
+---- ENVIRONMENTAL FACTORS \/\/
+
+
   if (name == "fungal infection") then
     if (severity > 4) then
       severity = 4
@@ -196,6 +215,63 @@ function HEALTH.illness_ref(name,severity,modify)
         temp = temp + 1
       end
     end
+  elseif (name == "dust fever") then
+    if (severity > 4) then
+      severity = 4
+    end
+    
+    fever_temp = 39
+    
+    if (severity == 1) then
+      --slow recovery, movement
+      r_rate = r_rate - 4
+      jum = jum - 1
+      --fever
+      if (temp <= fever_temp) then
+        temp = temp + 1
+      end
+
+    elseif (severity == 2) then
+      --slow recovery, movement
+      r_rate = r_rate - 8
+      mov = mov - 1
+      jum = jum - 2
+      --fever
+      if (temp <= fever_temp) then
+        temp = temp + 1
+      end
+
+    elseif (severity == 3) then
+      --slow recovery, movement
+      r_rate = r_rate - 16
+      mov = mov - 2
+      jum = jum - 4
+      --fever
+      fever_temp = fever_temp + 1 -- 40
+      if (temp <= fever_temp) then
+        temp = temp + 1
+      end
+
+    elseif (severity == 4) then
+      --slow recovery, movement
+      r_rate = r_rate - 32
+      mov = mov - 4
+      jum = jum - 8
+      --fever
+      fever_temp = fever_temp + 2 -- 41
+      if (temp <= fever_temp) then
+        temp = temp + 1
+      end
+    end
+  elseif (name == "wetness") then
+    -- NEEDS CODE
+    
+  
+---- ENVIRONMENTAL FACTORS /\/\
+------------------------------------------------------------------
+---- FOOD RELATED / FOOD BORNE \/\/
+
+
   elseif (name == "food poisoning") then
     if (severity > 4) then
       severity = 4
@@ -210,7 +286,7 @@ function HEALTH.illness_ref(name,severity,modify)
       jum = jum - 2
       --some vomiting
       if random()<0.3 then
-        illness_ref.vomit = {1, 3, 1, 10, 1, 5, 1, 5}
+        vomit = {1, 3, 1, 10, 1, 5, 1, 5}
       end
 
     elseif (severity == 2) then
@@ -220,7 +296,7 @@ function HEALTH.illness_ref(name,severity,modify)
       jum = jum - 4
       --some vomiting
       if random()<0.6 then
-        illness_ref.vomit = {1, 4, 1, 10, 1, 10, 1, 10}
+        vomit = {1, 4, 1, 10, 1, 10, 1, 10}
       end
 
     elseif (severity == 3) then
@@ -233,9 +309,9 @@ function HEALTH.illness_ref(name,severity,modify)
         temp = temp + random(2,3)
       end
       --vomiting
-      illness_ref.vomit = {1, 5, 1, 10, 5, 10, 5, 10}
+      vomit = {1, 5, 1, 10, 5, 10, 5, 10}
       --mild staggering
-      illness_ref.stagger = {1, 5, 1, 5, 3}
+      stagger = {1, 5, 1, 5, 3}
 
     elseif (severity == 4) then
       --slow recovery, movement
@@ -247,20 +323,346 @@ function HEALTH.illness_ref(name,severity,modify)
         temp = temp + random(2,3)
       end
       --vomiting
-      illness_ref.vomit = {5, 10, 1, 10, 5, 10, 5, 10}
+      vomit = {5, 10, 1, 10, 5, 10, 5, 10}
       --mild staggering
-      illness_ref.stagger = {1, 5, 1, 5, 3}
+      stagger = {1, 5, 1, 5, 3}
     end
+  elseif (name == "intestinal parasites") then
+    r_rate = r_rate - 2
+    hun_rate = hun_rate - 6
+  elseif (name == "indigestion") then -- WIP
+    -- NEEDS CODE
+  
+---- FOOD RELATED / FOOD BORNE /\/\
+------------------------------------------------------------------
+---- ALCOHOLISM \/\/
+  
+  
+---- DRUNK
+  elseif (name == "drunk") then
+    if (severity > 4) then
+      severity = 4
+    end
+    
+    local max_drunk = illness_ref.max_drunk or 1
+    
+    if (severity == 1) then
+      if max_drunk < 1 then
+        max_drunk = 1
+      end
+
+      r_rate = r_rate - 1
+      mov = mov - 2
+      jum = jum - 5
+      --mild staggering
+      stagger = {1, 5, 1, 5, 3}
+
+    elseif (severity == 2) then
+      if max_drunk < 2 then
+        max_drunk = 2
+      end
+
+      r_rate = r_rate - 2
+      mov = mov - 5
+      jum = jum - 10
+      --staggering
+      stagger = {5, 10, 0.5, 5, 4}
+
+    elseif (severity == 3) then
+      if max_drunk < 3 then
+        max_drunk = 3
+      end
+
+      r_rate = r_rate - 4
+      mov = mov - 10
+      jum = jum - 15
+      --vomit chance
+      if random()<0.5 then
+        vomit = {1, 3, 1, 10, 1, 5, 1, 5}
+      end
+      --major staggering
+      stagger = {30, 60, 0.5, 1, 4}
+
+    elseif (severity == 4) then -- alcohol poisoning
+      if max_drunk < 4 then
+        max_drunk = 4
+      end
+
+      r_rate = r_rate - 4
+      h_rate = h_rate - 2
+      mov = mov - 20
+      jum = jum - 20
+
+      --vomiting and hypothermia
+      vomit = {1, 5, 1, 10, 5, 10, 5, 10 }
+      if (temp >= 34) then
+        temp = temp - random(1,3)
+      end
+      --damage
+      if random()<0.25 then
+        organ_failure = {1, 3, 1, 8, 2, 3}
+      end
+      --major staggering
+      stagger = {30, 60, 0.5, 1, 4}
+    end
+    
+    illness_ref.max_drunk = max_drunk
+    
+  
+---- ALCOHOLISM /\/\
+------------------------------------------------------------------
+---- DRUG EFFECTS \/\/
+
+
+---- HANGOVER -- FROM DUGS OR ALCOHOL
+  elseif (name == "hangover") then
+    if (severity > 4) then
+      severity = 4
+    end
+    
+    if (severity == 1) then
+      mov = mov - 2
+      jum = jum - 2
+
+    elseif (severity == 2) then
+      mov = mov - 4
+      jum = jum - 4
+
+    elseif (severity == 3) then
+      mov = mov - 6
+      jum = jum - 6
+      --mild staggering
+      stagger = {1, 5, 1, 5, 3}
+
+    elseif (severity == 4) then
+      mov = mov - 8
+      jum = jum - 8
+      --mild staggering
+      stagger = {1, 5, 1, 5, 3}
+    end
+  
+---- TIKU STIMULANT DRUG HIGH
+  elseif (name == "tiku high") then
+    if (severity > 4) then
+      severity = 4
+    end
+    
+    local max_drunk = illness_ref["max_drunk"] or 1
+    
+    if (severity == 1) then
+      if max_drunk < 1 then
+        max_drunk = 1
+      end
+
+      r_rate = r_rate + 6
+      hun_rate = hun_rate - 2
+      mov = mov + 24
+      jum = jum + 12
+      if random()<0.1 then
+        auditory_hallucination = {1, 3, 3, 10, 0.01, 0.02}
+      end
+
+    elseif (severity == 2) then
+      if max_drunk < 2 then
+        max_drunk = 2
+      end
+      r_rate = r_rate + 12
+      hun_rate = hun_rate - 4
+      mov = mov + 36
+      jum = jum + 24
+      -- mild fever
+      if (temp < 38 and random()<0.3) then
+        temp = temp + random(2,3)
+      end
+      if random()<0.1 then
+        auditory_hallucination = {1, 4, 2, 10, 0.02, 0.08}
+      end
+
+
+    elseif (severity == 3) then
+      if max_drunk < 3 then
+        max_drunk = 3
+      end
+      r_rate = r_rate + 24
+      hun_rate = hun_rate - 8
+      mov = mov + 48
+      jum = jum + 45
+      -- mild fever
+      if (temp <= 38 and random()<0.6) then
+        temp = temp + random(2,3)
+      end
+      --time to go crazy
+      auditory_hallucination = {30, 60, 0.4, 1, 0.5, 4}
+      --mild staggering
+      stagger = { 1, 5, 1, 5, 3}
+
+
+    elseif (severity == 4) then
+      if max_drunk < 4 then
+        max_drunk = 4
+      end
+      r_rate = r_rate - 24
+      hun_rate = hun_rate - 8
+      mov = mov - 5
+      jum = jum - 5
+
+      --  fever
+      if (temp <= 43) then
+        temp = temp + random(2,4)
+      end
+      --time to go crazy
+      auditory_hallucination = {30, 60, 0.5, 1, 1, 4}
+      --major staggering
+      stagger = {30, 60, 0.5, 1, 4}
+      --vomit chance
+      if (random()<0.75) then
+        vomit = {1, 3, 1, 10, 1, 5, 1, 5 }
+      end
+      --damage
+      if random()<0.33 then
+        organ_failure = {1, 5, 1, 8, 1, 2}
+      end
+    end
+    
+    illness_ref.max_drunk = max_drunk
+    
+    
+  elseif (name == "meta stim") then -- WIP
+    
+    
+---- DRUG EFFECTS /\/\
+------------------------------------------------------------------
+---- TOXICITY \/\/
+
+
+-- NEUROLOGICAL/BRAIN TOXICITY
+  elseif (name == "neurotoxicity") then
+    if (severity > 4) then
+      severity = 4
+    end
+    
+    if (severity == 1) then
+      --restrict movement
+      mov = mov - 7
+      jum = jum - 7
+      --major staggering
+      stagger = {10, 15, 0.3, 1, 4}
+
+    elseif (severity == 2) then
+      --restrict movement
+      mov = mov - 15
+      jum = jum - 15
+      --major staggering
+      stagger = {20, 30, 0.3, 1, 4}
+      --damage
+      if random()<0.05 then
+        stagger = {1, 3, 1, 5, 1, 5}
+      end
+
+    elseif (severity == 3) then
+      --restrict movement
+      mov = mov - 30
+      jum = jum - 30
+      --major staggering
+      stagger = {50, 60, 0.3, 1, 4}
+      --damage
+      if random()<0.25 then
+        organ_failure = {1, 3, 1, 5, 1, 5}
+      end
+
+    elseif (severity == 4) then
+      --restrict movement
+      mov = mov - 30
+      jum = jum - 30
+      --major staggering
+      stagger = {50, 60, 0.3, 1, 4}
+      --damage
+      organ_failure = {1, 3, 1, 5, 1, 5}
+    end
+    
+    
+---- LIVER TOXICITY
+  elseif (name == "hepatotoxicity") then
+    if (severity > 4) then
+      severity = 4
+    end
+    
+    if (severity == 1) then
+      vomit = {2, 6, 0.75, 3, 1, 2, 5, 10}
+			mov = mov - 7
+			jum = jum - 7
+			r_rate = r_rate - 7
+			h_rate = h_rate - 1
+			--damage
+			if random()<0.05 then
+				organ_failure = {1, 2, 1, 5, 5, 8}
+			end
+
+		elseif (severity == 2) then
+			vomit = {5, 10, 0.75, 3, 1, 5, 10, 20}
+			mov = mov - 15
+			jum = jum - 15
+			r_rate = r_rate - 15
+			h_rate = h_rate - 3
+			--damage
+			if random()<0.25 then
+				organ_failure = {1, 2, 1, 5, 5, 8}
+			end
+
+		elseif (severity == 3) then
+			vomit = {10, 20, 0.75, 3, 1, 5, 20, 40 }
+			mov = mov - 30
+			jum = jum - 30
+			r_rate = r_rate - 30
+			h_rate = h_rate - 6
+			--damage
+			if random()<0.5 then
+				organ_failure = { 1, 2, 1, 5, 5, 8}
+			end
+
+		elseif (severity == 4) then
+			vomit = {10, 20, 0.75, 3, 2, 10, 40, 60 }
+			mov = mov - 30
+			jum = jum - 30
+			r_rate = r_rate - 60
+			h_rate = h_rate - 6
+			--damage
+			organ_failure = {1, 2, 1, 5, 5, 8}
+
+    end
+    
+    
+---- SENSITIVITY TO LIGHT
+  elseif (name == "photosensitivity") then
+    if (severity > 4) then
+      severity = 4
+    end
+    
+    
+    
+---- TOXICITY /\/\
+------------------------------------------------------------------
+  
   end
   
   -- setting variables to shortcut variables
   illness_ref.temperature = temp
   illness_ref.heal_rate = h_rate
-  illness_ref.thirst_rate = thr
-  illness_ref.hunger_rate = hun
+  illness_ref.thirst_rate = thr_rate
+  illness_ref.hunger_rate = hun_rate
   illness_ref.recovery_rate = r_rate
   illness_ref.move = mov
   illness_ref.jump = jum
+  
+  -- setting table parameters for potential functions, does not add if nil
+  illness_ref.vomit = vomit
+  illness_ref.stagger = stagger
+  illness_ref.organ_failure = organ_failure
+  illness_ref.auditory_hallucination = auditory_hallucination
+  
+  -- resetting of illness_ref values to potential new values
+  illness_ref.name = name
+  illness_ref.severity = severity
 end
 
 ------------------------------------------------------------------
@@ -269,7 +671,7 @@ end
 
 
 --throw up losing some food and water
-local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
+local function vomit(player, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
 	--vomit repeatedly after time
   local life_num = get_life_num(player)
   
@@ -291,20 +693,8 @@ local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max,
 			local ranh = random(h_min, h_max)
 
 			--must directly set them, as time delay means it isn't feeding into main health loop
-			local thirst = meta:get_int("thirst")
-			local hunger = meta:get_int("hunger")
-
-			thirst = thirst - rant
-			hunger = hunger - ranh
-			if thirst < 0 then
-				thirst = 0
-			end
-			if hunger < 0 then
-				hunger = 0
-			end
-
-			meta:set_int("thirst", thirst)
-			meta:set_int("hunger", hunger)
+      HEALTH.modify_int(player,"thirst",-rant)
+      HEALTH.modify_int(player,"hunger",-ranh)
 		end)
 	end
 end
@@ -601,7 +991,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 		jum = jum - 2
 		--some vomiting
 		if random()<0.3 then
-			vomit(player, meta, 1, 3, 1, 10, 1, 5, 1, 5 )
+			vomit(player, 1, 3, 1, 10, 1, 5, 1, 5 )
 		end
 
 	elseif order == 2 then
@@ -611,7 +1001,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 		jum = jum - 4
 		--some vomiting
 		if random()<0.6 then
-			vomit(player, meta, 1, 4, 1, 10, 1, 10, 1, 10 )
+			vomit(player, 1, 4, 1, 10, 1, 10, 1, 10 )
 		end
 
 	elseif order == 3 then
@@ -624,7 +1014,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 			temperature = temperature + random(2,3)
 		end
 		--vomiting
-		vomit(player, meta, 1, 5, 1, 10, 5, 10, 5, 10 )
+		vomit(player, 1, 5, 1, 10, 5, 10, 5, 10 )
 		--mild staggering
 		stagger(player, 1, 5, 1, 5, 3)
 
@@ -638,7 +1028,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 			temperature = temperature + random(2,3)
 		end
 		--vomiting
-		vomit(player, meta, 5, 10, 1, 10, 5, 10, 5, 10 )
+		vomit(player, 5, 10, 1, 10, 5, 10, 5, 10 )
 		--mild staggering
 		stagger(player, 1, 5, 1, 5, 3)
 	end
@@ -868,7 +1258,7 @@ function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum, h_rat
 		jum = jum - 20
 
 		--vomiting and hypothermia
-		vomit(player, meta, 1, 5, 1, 10, 5, 10, 5, 10 )
+		vomit(player, 1, 5, 1, 10, 5, 10, 5, 10 )
 		if temperature >= 34 then
 			temperature = temperature - random(1,3)
 		end
@@ -1058,7 +1448,7 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, m
 		stagger(player, 30, 60, 0.5, 1, 4)
 		--vomit chance
 		if random()<0.75 then
-			vomit(player, meta, 1, 3, 1, 10, 1, 5, 1, 5 )
+			vomit(player, 1, 3, 1, 10, 1, 5, 1, 5 )
 		end
 		--damage
 		if random()<0.33 then
@@ -1175,7 +1565,7 @@ function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_ra
 	if random()<0.3 then
 
 		if order == 1 then
-			vomit(player, meta, 2, 6, 0.75, 3, 1, 2, 5, 10 )
+			vomit(player, 2, 6, 0.75, 3, 1, 2, 5, 10 )
 			mov = mov - 7
 			jum = jum - 7
 			r_rate = r_rate - 7
@@ -1186,7 +1576,7 @@ function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_ra
 			end
 
 		elseif order == 2 then
-			vomit(player, meta, 5, 10, 0.75, 3, 1, 5, 10, 20 )
+			vomit(player, 5, 10, 0.75, 3, 1, 5, 10, 20 )
 			mov = mov - 15
 			jum = jum - 15
 			r_rate = r_rate - 15
@@ -1197,7 +1587,7 @@ function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_ra
 			end
 
 		elseif order == 3 then
-			vomit(player, meta, 10, 20, 0.75, 3, 1, 5, 20, 40 )
+			vomit(player, 10, 20, 0.75, 3, 1, 5, 20, 40 )
 			mov = mov - 30
 			jum = jum - 30
 			r_rate = r_rate - 30
@@ -1208,7 +1598,7 @@ function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_ra
 			end
 
 		elseif order == 4 then
-			vomit(player, meta, 10, 20, 0.75, 3, 2, 10, 40, 60 )
+			vomit(player, 10, 20, 0.75, 3, 2, 10, 40, 60 )
 			mov = mov - 30
 			jum = jum - 30
 			r_rate = r_rate - 60

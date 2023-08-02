@@ -156,27 +156,6 @@ function HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_chang
 		health = 20
 	end
 
-	thirst = thirst + thirst_change
-	if thirst < 0 then
-		thirst = 0
-	elseif thirst > 100 then
-		thirst = 100
-	end
-
-	hunger = hunger + hunger_change
-	if hunger < 0 then
-		hunger = 0
-	elseif hunger > 1000 then
-		hunger = 1000
-	end
-
-	energy = energy + energy_change
-	if energy < 0 then
-		energy = 0
-	elseif energy > 1000 then
-		energy = 1000
-	end
-
 	if temp_change then
 	   temperature = temperature + temp_change
 	end
@@ -187,9 +166,9 @@ function HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_chang
   quick_physics(user, name, health, energy, thirst, hunger, temperature)
 
 	user:set_hp(health)
-	meta:set_int("thirst", thirst)
-	meta:set_int("hunger", hunger)
-	meta:set_int("energy", energy)
+  HEALTH.modify_int(user,"thirst",thirst_change)
+  HEALTH.modify_int(user,"hunger",hunger_change)
+  HEALTH.modify_int(user,"energy",energy_change)
 	meta:set_int("temperature", temperature)
   --update form so can see change while looking
   sfinv.set_player_inventory_formspec(user)
@@ -254,19 +233,25 @@ if minetest.settings:get_bool("enable_damage") then
 				or controls.right
 				or controls.RMB
 				then
-					energy = energy - 3
+					--energy = energy - 3
+          HEALTH.modify_int(player,"energy",-3)
           --thirsty work
           if random()<0.07 then
-            thirst = thirst - 1
-            hunger = hunger - 2
+            HEALTH.modify_int(player,"thirst",-1)
+            HEALTH.modify_int(player,"hunger",-2)
+            --thirst = thirst - 1
+            --hunger = hunger - 2
           end
 				elseif controls.LMB
 				or controls.jump then
-					energy = energy - 8
+					--energy = energy - 8
+          HEALTH.modify_int(player,"energy",-8)
           --thirsty work
           if random()<0.07 then
-            thirst = thirst - 2
-            hunger = hunger - 4
+            HEALTH.modify_int(player,"thirst",-2)
+            HEALTH.modify_int(player,"hunger",-4)
+            --thirst = thirst - 2
+            --hunger = hunger - 4
           end
 				end
 
@@ -281,7 +266,7 @@ if minetest.settings:get_bool("enable_damage") then
         --[safe] comfort zone ->[low cost]->stress zone ->[high cost]-> danger zone->[damage]
 
         local comfort_low = meta:get_int("clothing_temp_min")
-	local comfort_high = meta:get_int("clothing_temp_max") + 1
+        local comfort_high = meta:get_int("clothing_temp_max") + 1
 	-- comfort is rounded off in display, so you can be half a degree
 	-- over and still in the white. Don't confuse players by penalizing!
         local stress_low = comfort_low - 10
