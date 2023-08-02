@@ -55,6 +55,7 @@ function ms.register_scanner(args)
     local args = table.copy(args)
     local needed_labels = args.needed_labels or {}
     local has_one_of = args.has_one_of or {}
+    local rescan_labels = args.rescan_labels or {}
     table.insert(needed_labels, "chunk_tracked")
     if not is_scanner_registered(args.name) then
         table.insert(
@@ -64,6 +65,7 @@ function ms.register_scanner(args)
              needed_labels = needed_labels,
              has_one_of = has_one_of,
              scan_every = args.scan_every,
+             rescan_labels = rescan_labels,
             }
         )
     end
@@ -74,6 +76,7 @@ function ms.register_worker(args)
     local args = table.copy(args)
     local needed_labels = args.needed_labels or {}
     local has_one_of = args.has_one_of or {}
+    local rework_labels = args.rework_labels or {}
     table.insert(needed_labels, "chunk_tracked")
     table.insert(needed_labels, "scanned")
     if not is_worker_registered(args.name) then
@@ -84,6 +87,7 @@ function ms.register_worker(args)
              needed_labels = needed_labels,
              has_one_of = has_one_of,
              work_every = args.work_every,
+             rework_labels = rework_labels,
             }
         )
     end

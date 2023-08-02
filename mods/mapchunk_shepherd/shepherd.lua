@@ -190,19 +190,36 @@ local function labels_baked(labels, time)
     return false
 end
 
+local function pick_labels(labels, wanted_names)
+    local clean = {}
+    for _, label in pairs(labels) do
+        for _, name in pairs(wanted_names) do
+            if label[1] == name then
+                table.insert(clean, label)
+                break
+            end
+        end
+    end
+    return clean
+end
+
 local function good_for_scanner(hash, scanner, labels)
     local labels = labels or ms.get_labels(hash)
     local scan_every = scanner.scan_every
     local has_labels = ms.contains_labels(hash, scanner.needed_labels) and
         ms.has_one_of(hash, scanner.has_one_of)
-    if scan_every and labels_baked(labels, scan_every) then
-        return true
-    elseif has_labels and not ms.was_scanned(hash) then
-        return true
-    elseif ms.contains_labels(hash, {"scanner_failed"}) then
-        if math.random() < 0.2 then
-            -- 20% chance of rescanning on failure
+    local timer_labels = pick_labels(labels, scanner.rescan_labels)
+    if has_labels then
+        if scan_every and labels_baked(timer_labels, scan_every) or
+            #timer_labels == 0 then
             return true
+        elseif not ms.was_scanned(hash) then
+            return true
+        elseif ms.contains_labels(hash, {"scanner_failed"}) then
+            if math.random() < 0.2 then
+                -- 20% chance of rescanning on failure
+                return true
+            end
         end
     end
     return false
@@ -217,7 +234,11 @@ local function good_for_worker(hash, worker, labels)
         has_labels and ms.contains_labels(hash, {"worker_failed"})
     then
         if work_every then
-            return labels_baked(labels, work_every)
+            local timer_labels = pick_labels(labels, worker.rework_labels)
+            if #timer_labels == 0 then
+                return true
+            end
+            return labels_baked(timer_labels, work_every)
         else
             return true
         end
@@ -291,8 +312,8 @@ if ms.chunksize_changed() then
 else
     -- Start the tracker
     minetest.register_globalstep(player_tracker_loop)
-    minetest.after(5, run_scanners)
-    minetest.after(5, run_workers)
+    minetest.after(1, run_scanners)
+    minetest.after(1, run_workers)
 end
 
 minetest.register_chatcommand(
