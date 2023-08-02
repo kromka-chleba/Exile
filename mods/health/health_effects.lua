@@ -53,6 +53,41 @@ various minor effects (symptoms) shared by many diseases (e.g. vomiting). Called
 local random = math.random
 
 ------------------------------------------------------------------
+-- VERIFYING FUNCTIONS
+------------------------------------------------------------------
+
+local function get_life_num(player) -- gets player's "lives" and returns it
+  --assert(type(player) == "userdata","get_life_num: invalid argument for 'player'")
+  --assert(player:is_player(),"get_life_num: player is not a player")
+  if (type(player) ~= "userdata") then
+    return 0,"get_life_num: invalid argument for 'player'"
+  end
+  if (player:is_player() ~= true) then
+    return 0,"get_life_num: 'player' is not a player"
+  end
+  
+  local pmeta = player:get_meta()
+  
+  return pmeta:get_int("lives") or 0
+end
+
+local function is_illness_valid(player,life_num) -- general function that will decide whether a sickness should continue or not
+  --if (type(sickdata) ~= "table") then
+    --return false
+  --end
+  
+  --local life_num = sickdata.life_num
+  
+  if (type(life_num) ~= "number") then
+    return false
+  elseif (life_num == get_life_num(player)) then -- if assigned life_num to effect was the current player then say illness is valid and good to go :D (poor player lol)
+    return true
+  else
+    return false
+  end
+end
+
+------------------------------------------------------------------
 --COMPONENT EFFECTS
 ------------------------------------------------------------------
 
@@ -60,6 +95,8 @@ local random = math.random
 --throw up losing some food and water
 local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
 	--vomit repeatedly after time
+  local life_num = get_life_num(player)
+  
 	local ranrep = random(repeat_min, repeat_max)
 
 	local randel = 0
@@ -67,7 +104,10 @@ local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max,
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
-
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
+      
 			local pos = player:get_pos()
 			minetest.sound_play("health_vomit", {pos = pos, gain = 0.5, max_hear_distance = 2})
 
@@ -96,6 +136,8 @@ end
 
 --stagger, make player hard to control
 local function stagger(player, repeat_min, repeat_max, delay_min, delay_max, stag)
+  
+  local life_num = get_life_num(player)
 
 	local name = player:get_player_name()
 
@@ -106,6 +148,10 @@ local function stagger(player, repeat_min, repeat_max, delay_min, delay_max, sta
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
+        
 			if not bed_rest.player[name] then
 				local xr = random(-stag, stag)
 				local zr = random(-stag, stag)
@@ -119,7 +165,8 @@ end
 
 --organ failure... time to die...
 local function organ_failure(player, repeat_min, repeat_max, delay_min, delay_max, dam_min, dam_max)
-
+  local life_num = get_life_num(player)
+  
 	local ranrep = random(repeat_min, repeat_max)
 	local name = player:get_player_name()
 	minetest.sound_play("health_heart", {to_player = name, gain = 0.5})
@@ -129,7 +176,10 @@ local function organ_failure(player, repeat_min, repeat_max, delay_min, delay_ma
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
-
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
+      
 			local ran_dam =  random(dam_min, dam_max)
 
 			local health = player:get_hp()
@@ -152,6 +202,8 @@ end
 --hallucinate
 local function auditory_hallucination(player, repeat_min, repeat_max, delay_min, delay_max, min_gain, max_gain)
 	--hear things repeatedly after time
+  local life_num = get_life_num(player)
+  
 	local ranrep = random(repeat_min, repeat_max)
 	local name = player:get_player_name()
 
@@ -160,6 +212,10 @@ local function auditory_hallucination(player, repeat_min, repeat_max, delay_min,
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
+        
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
 
 			local pos = player:get_pos()
 			-- happens after randel delay, so player may be gone

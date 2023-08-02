@@ -373,7 +373,7 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 	end
 
 	--temp malus..severe..having this happen would make you very ill
-	if temperature > 100 or temperature < 0 then
+	if temperature >= 100 or temperature <= 0 then -- now will cause immediate death
 		--you dead
 		h_rate = h_rate - 10000
 		r_rate = r_rate - 10000
