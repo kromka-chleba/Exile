@@ -7,8 +7,8 @@ local S = nodes_nature.S
 
 ---------------------------------------
 
-nsl = naturalslopeslib
-ms = mapchunk_shepherd
+local nsl = naturalslopeslib
+local ms = mapchunk_shepherd
 
 seasons = {}
 
