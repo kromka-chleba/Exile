@@ -88,6 +88,182 @@ local function is_illness_valid(player,life_num) -- general function that will d
 end
 
 ------------------------------------------------------------------
+-- HEALTH EFFECT REF TABLE
+------------------------------------------------------------------
+
+function HEALTH.illness_ref(name,severity,modify)
+  if (type(name) ~= "string") then
+    return false,"HEALTH.illness_ref: no name specified"
+  end
+  if (type(severity) ~= "number") then
+    severity = 1
+  elseif (severity <= 0) then
+    severity = 1
+  else
+    severity = math.ceil(severity)
+  end
+  
+  name = string.lower(name)
+  
+  local battrbs = HEALTH.get_default_attributes()
+  
+  local illness_ref = {
+    name = "",
+    severity = 1,
+    player = "nil",
+    
+    temperature = battrbs.temperature,
+    
+    heal_rate = battrbs.heal_rate,
+    thirst_rate = battrbs.thirst_rate,
+    hunger_rate = battrbs.hunger_rate,
+    recovery_rate = battrbs.recovery_rate,
+    
+    move = battrbs.move,
+    jump = battrbs.jump,
+  }
+  if (type(modify) == "table") then
+    for key,value in pairs(modify) do
+      if (type(key) ~= "string") then
+        key = tostring(key)
+      else
+        key = string.lower(key)
+      end
+      
+      if (key == "temp") then
+        key = "temperature"
+      elseif (key == "h_rate") then
+        key = "heal_rate"
+      elseif (key == "thr") then
+        key = "thirst"
+      elseif (key == "hun") then
+        key = "hunger_rate"
+      elseif (key == "r_rate") then
+        key = "recovery_rate"
+      elseif (key == "mov") then
+        key = "move"
+      elseif (key == "jum") then
+        key = "jump"
+      end
+      
+      if (illness_ref[key]) then
+        illness_ref[key] = value
+      end
+    end
+  end
+  local temp = illness_ref.temperature
+  local h_rate = illness_ref.heal_rate
+  local thr = illness_ref.thirst_rate
+  local hun = illness_ref.hunger_rate
+  local r_rate = illness_ref.recovery_rate
+  local mov = illness_ref.move
+  local jum = illness_ref.jump
+  
+  local fever_temp = (temp + 2)
+  
+  if (name == "fungal infection") then
+    if (severity > 4) then
+      severity = 4
+    end
+    
+    fever_temp = 39
+    
+    if (severity == 1) then
+      --slow recovery, movement
+      r_rate = r_rate - 1
+      mov = mov - 1
+      jum = jum - 1
+
+    elseif (severity == 2) then
+      --slow recovery, movement
+      r_rate = r_rate - 2
+      mov = mov - 2
+      jum = jum - 2
+
+    elseif (severity == 3) then
+      --slow recovery, movement
+      r_rate = r_rate - 4
+      mov = mov - 8
+      jum = jum - 8
+
+    elseif (severity == 4) then
+      --slow recovery, movement
+      r_rate = r_rate - 8
+      mov = mov - 16
+      jum = jum - 16
+      --fever
+      if (temp <= 39) then
+        temp = temp + 1
+      end
+    end
+  elseif (name == "food poisoning") then
+    if (severity > 4) then
+      severity = 4
+    end
+    
+    fever_temp = 42
+    
+    if (severity == 1) then
+      --slow recovery, movement
+      r_rate = r_rate - 1
+      mov = mov - 2
+      jum = jum - 2
+      --some vomiting
+      if random()<0.3 then
+        illness_ref.vomit = {1, 3, 1, 10, 1, 5, 1, 5}
+      end
+
+    elseif (severity == 2) then
+      --slow recovery, movement
+      r_rate = r_rate - 2
+      mov = mov - 4
+      jum = jum - 4
+      --some vomiting
+      if random()<0.6 then
+        illness_ref.vomit = {1, 4, 1, 10, 1, 10, 1, 10}
+      end
+
+    elseif (severity == 3) then
+      --slow recovery, movement
+      r_rate = r_rate - 4
+      mov = mov - 20
+      jum = jum - 20
+      --fever
+      if (temp <= fever_temp) then
+        temp = temp + random(2,3)
+      end
+      --vomiting
+      illness_ref.vomit = {1, 5, 1, 10, 5, 10, 5, 10}
+      --mild staggering
+      illness_ref.stagger = {1, 5, 1, 5, 3}
+
+    elseif (severity == 4) then
+      --slow recovery, movement
+      r_rate = r_rate - 8
+      mov = mov - 30
+      jum = jum - 30
+      --fever
+      if (temp <= fever_temp) then
+        temp = temp + random(2,3)
+      end
+      --vomiting
+      illness_ref.vomit = {5, 10, 1, 10, 5, 10, 5, 10}
+      --mild staggering
+      illness_ref.stagger = {1, 5, 1, 5, 3}
+    end
+  end
+  
+  -- setting variables to shortcut variables
+  illness_ref.temperature = temp
+  illness_ref.heal_rate = h_rate
+  illness_ref.thirst_rate = thr
+  illness_ref.hunger_rate = hun
+  illness_ref.recovery_rate = r_rate
+  illness_ref.move = mov
+  illness_ref.jump = jum
+end
+
+------------------------------------------------------------------
 --COMPONENT EFFECTS
 ------------------------------------------------------------------
 

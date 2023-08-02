@@ -34,6 +34,8 @@ local interval = 60
 --use standard values base, so it doesn't compound each time called
 --Only adjusted values saved in player meta so they can be accessed without recalculating
 --cf hunger etc which do get change and have no base value
+local max_health = 20
+
 local heal_rate = 1 -- 4
 local thirst_rate = -1
 local hunger_rate = -3 -- -2
@@ -45,24 +47,69 @@ local jump = 0
 local temp_min = 18--20
 local temp_max = 32--30
 
---e.g. for new players
-local function set_default_attibutes(player)
-	local meta = player:get_meta()
-	meta:set_int("thirst", 100)
-	meta:set_int("hunger", 1000)
-	meta:set_int("energy", 1000)
-	meta:set_int("temperature", 37)
-	meta:set_int("heal_rate", heal_rate)
-	meta:set_int("thirst_rate", thirst_rate)
-	meta:set_int("hunger_rate", hunger_rate)
-	meta:set_int("recovery_rate", recovery_rate)
-	meta:set_int("move", move)
-	meta:set_int("jump", jump)
-	meta:set_int("clothing_temp_min", temp_min)
-	meta:set_int("clothing_temp_max", temp_max )
-
+function HEALTH.get_default_attributes() -- for other scripts to utilize to get base attributes of a fresh player
+  return {
+    health = max_health,
+    thirst = 100,
+    hunger = 1000,
+    energy = 1000,
+    temperature = 37,
+    oxygen = 10, -- for suffocation or drowning
+    
+    heal_rate = heal_rate,
+    thirst_rate = thirst_rate,
+    hunger_rate = hunger_rate,
+    recovery_rate = recovery_rate,
+    
+    move = move,
+    jump = jump,
+    
+    temp_min = temp_min,
+    temp_max = temp_max,
+  }
 end
 
+--e.g. for new players
+function HEALTH.set_default_attributes(player)
+	local meta = player:get_meta()
+  
+  local attrb = HEALTH.get_default_attributes()
+  
+  for name,value in pairs(attrb) do
+    if (type(name) ~= "string") then
+      name = tostring(name)
+    end
+    
+    if (type(value) == "number" and name ~= "health") then
+      value = math.ceil(value)
+      
+      if (name == "temp_min" or name == "temp_max") then
+        name = "clothing_"..name
+      end
+      
+      meta:set_int(name,value)
+    elseif (type(value) == "string") then
+      meta:set_string(name,value)
+    end
+  end
+	--meta:set_int("thirst", 100)
+	--meta:set_int("hunger", 1000)
+	--meta:set_int("energy", 1000)
+	--meta:set_int("temperature", 37)
+	--meta:set_int("heal_rate", heal_rate)
+	--meta:set_int("thirst_rate", thirst_rate)
+	--meta:set_int("hunger_rate", hunger_rate)
+	--meta:set_int("recovery_rate", recovery_rate)
+	--meta:set_int("move", move)
+	--meta:set_int("jump", jump)
+	--meta:set_int("clothing_temp_min", temp_min)
+	--meta:set_int("clothing_temp_max", temp_max )
+end
+HEALTH.reset_attributes = HEALTH.set_default_attributes -- ditto definition
+
+function HEALTH.get_player_stats()
+  
+end
 
 
 --[[
@@ -435,12 +482,8 @@ end
 --Main
 --
 minetest.register_on_newplayer(function(player)
-	set_default_attibutes(player)
+	HEALTH.set_default_attributes(player)
 end)
-
-function reset_attributes(player)
-   set_default_attibutes(player)
-end
 
 function HEALTH.update_player_physics(player)
    local name = player:get_player_name()
@@ -484,7 +527,7 @@ minetest.register_on_dieplayer(function(player)
 end)
 
 minetest.register_on_respawnplayer(function(player)
-	set_default_attibutes(player)
+	HEALTH.set_default_attributes(player)
 	sfinv.set_player_inventory_formspec(player)
 	clothing:update_temp(player)
 end)
