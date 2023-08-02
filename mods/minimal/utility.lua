@@ -218,9 +218,8 @@ function minimal.force_place_keep_param2(pos, name)
     minimal.force_place(pos, {name = name, param2 = param2})
 end
 
--- LUA MATH LIBRARY OVERRIDES
 
-function math.clamp(num,min,max) -- math.clamp implementation from my function library (TPH/TubberPupperHusker)
+function minimal.math_clamp(num,min,max) -- math.clamp implementation from my function library (TPH/TubberPupperHusker)
   -- PARAMETERS: num;"number" - number to be clamped | min;"number" - minimum number that 'num' can be | max;"number" - maximum number that 'num' can be
   -- RETURNS: number - 'num' that is clamped (or not if 'num' is between 'min' and 'max')
   -- FUNCTION: clamps a specified number between a min & max
@@ -247,7 +246,6 @@ function math.clamp(num,min,max) -- math.clamp implementation from my function l
 end
 
 
---
 
 
 -- Yes or no dialog
