@@ -5,6 +5,8 @@
 
 local nodes_nature = nodes_nature
 local rt = nodes_nature.replacement_types
+local ms = mapchunk_shepherd
+local seasons = seasons
 
 ----------------------------------------------------------------
 --freeze water
@@ -239,15 +241,6 @@ local function moisture_spread(pos, node)
 		return
 	end
 
-        local dry_name = nodedef._dry_name
-
-	--evaporation
-	if climate.can_evaporate(pos) then
-		--lose it's own water to the atmosphere
-		tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
-		return
-	end
-
 	--move through the soil, with a bias downwards
 	local pos_sed = minetest.find_nodes_in_area(
 		{x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
@@ -310,8 +303,8 @@ local function moisture_spread(pos, node)
 
 end
 
---
---
+
+
 minetest.register_abm({
 	label = "Moisture Spread",
 	nodenames = {"group:wet_sediment"},
@@ -475,35 +468,174 @@ minetest.register_abm({
 	end
 })
 
+-----------------------------------
+-- Rain soak
 
-------------------------------------------------------------------
---soak water into soil, catch water in puddles
-local function rain_soak(pos, node)
-    if climate.get_rain(pos) then
-        --dry sediment absorbs water
-        if minetest.get_item_group(node.name, "wet_sediment") == 0 then
-            --set wet version of what draining into
-            tgcr.make_replacement(pos, rt.REPLACEMENT_WET)
-            return
-        elseif math.random() < 0.3 then
-            -- wet can trap puddles
-            local posa = minimal.get_pos_above(pos)
-            if minetest.get_node(posa).name == "air" and puddle_detect(posa) then
-                minetest.set_node(posa, {name = "nodes_nature:freshwater_source"})
-            end
+ms.labels.register("last_rain")
+ms.labels.register("last_evaporated")
+
+local function get_dry_wet_pairs()
+    local soil_pairs = {}
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        if minetest.get_item_group(name, "dry_sediment") > 0 then
+            soil_pairs[name] = nodedef._wet_name or name
         end
+    end
+    return soil_pairs
+end
+
+local dry_to_wet = get_dry_wet_pairs()
+
+local function get_wet_dry_pairs()
+    local soil_pairs = {}
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        if minetest.get_item_group(name, "wet_sediment") > 0 then
+            soil_pairs[name] = nodedef._dry_name or name
+        end
+    end
+    return soil_pairs
+end
+
+local wet_to_dry = get_wet_dry_pairs()
+
+minetest.log("error", dump(wet_to_dry))
+
+local light_rain_replacer =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = dry_to_wet,
+         add_labels = {"last_rain"},
+         chance = 1/50,
+         higher_than = 14,
+        }
+    )
+
+local heavy_rain_replacer =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = dry_to_wet,
+         add_labels = {"last_rain"},
+         chance = 1/15,
+         higher_than = 14,
+        }
+    )
+
+local thunderstorm_replacer =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = dry_to_wet,
+         add_labels = {"last_rain"},
+         chance = 1/8,
+         higher_than = 14,
+        }
+    )
+
+local light_evaporator =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = wet_to_dry,
+         add_labels = {"last_evaporated"},
+         chance = 1/15,
+         higher_than = 10,
+        }
+    )
+
+-- The Evaporator - destroyer of worlds, the sovereign of drought and thirst
+local the_evaporator =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = wet_to_dry,
+         add_labels = {"last_evaporated"},
+         chance = 1/2,
+         higher_than = 10,
+        }
+    )
+
+local rain_loop_interval = 5
+local current_soaker = false
+local soaker_running = false
+local soaker_changed = true
+local evaporator_running = false
+local rain_replacer = false
+local is_raining = false
+
+local current_evaporator = false
+local evap_replacer = false
+local evap_interval = 10
+local evap_changed = true
+
+local function pick_rain_replacer(weather)
+    local new_soaker = false
+    is_raining = true
+    if weather == "overcast_rain" then
+        rain_replacer = light_rain_replacer
+        new_soaker = "light"
+    elseif weather == "overcast_heavy_rain" then
+        rain_replacer = heavy_rain_replacer
+        new_soaker = "heavy"
+    elseif weather == "thunderstorm" or
+        weather == "superstorm" then
+        rain_replacer = thunderstorm_replacer
+        new_soaker = "storm"
+    else
+        rain_replacer = false
+        soaker_changed = false
+        is_raining = false
+    end
+
+    if new_soaker ~= current_soaker then
+        current_soaker = new_soaker
+        soaker_changed = true
     end
 end
 
+local function pick_evaporator(season)
+    local new_evaporator = false
+    if season == "summer_early" or season == "summer_late" then
+        evap_replacer = the_evaporator
+        new_evaporator = "the_evaporator"
+        evap_interval = 200
+    else
+        evap_replacer = light_evaporator
+        new_evaporator = "light"
+        evap_interval = 400
+    end
+    if current_evaporator ~= new_evaporator then
+        current_evaporator = new_evaporator
+        evap_changed = true
+    end
+end
 
---
-minetest.register_abm({
-	label = "Rain Soak",
-	nodenames = {"group:sediment"},
-	interval = 92,
-	chance = 180,
-	min_y = -15,
-	action = function(...)
-            rain_soak(...)
-	end
-})
+local function rain_loop()
+    local weather = climate.active_weather.name
+    local season = seasons.get_season_name()
+    pick_rain_replacer(weather)
+    if is_raining then
+        if not soaker_running or soaker_changed then
+            soaker_running = true
+            evaporator_running = false
+            ms.remove_worker("evaporation_worker")
+            ms.register_worker({name = "rain_soak_worker",
+                                fun = rain_replacer,
+                                has_one_of = {"spring_soil",
+                                              "winter_soil"},
+                                work_every = 10,
+                                rework_labels = {"last_rain"},
+            })
+            soaker_changed = false
+        end
+    else
+        pick_evaporator(season)
+        if not evaporator_running or evap_changed then
+            soaker_running = false
+            evaporator_running = true
+            ms.remove_worker("rain_soak_worker")
+            ms.register_worker({name = "evaporation_worker",
+                                fun = evap_replacer,
+                                has_one_of = {"last_rain",
+                                              "last_evaporated"},
+                                work_every = evap_interval,
+                                rework_labels = {"last_evaporated"},
+            })
+            evap_changed = false
+        end
+    end
+    minetest.after(rain_loop_interval, rain_loop)
+end
+
+minetest.after(2, rain_loop)
