@@ -11,7 +11,9 @@ ms.scanners_changed = true
 ms.workers_changed = true
 
 local placeholder_id_pairs = {}
+local placeholder_id_finder_pairs = {}
 local ignore_id = minetest.get_content_id("ignore")
+local air_id = minetest.get_content_id("air")
 
 local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
 local chunk_side = blocks_per_chunk * 16
@@ -22,6 +24,7 @@ minetest.register_on_mods_loaded(function()
             local name = nodedef.name
             local id = minetest.get_content_id(name)
             id_pairs[id] = id
+            placeholder_id_finder_pairs[id] = false
         end
         id_pairs[ignore_id] = false
         placeholder_id_pairs = id_pairs
@@ -296,6 +299,83 @@ function ms.create_light_aware_replacer(args)
         if found then
             vm:set_data(data)
             vm:write_to_map(false)
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end
+
+-- Places nodes on top of a node if light above the node is good
+function ms.create_light_aware_top_placer(args)
+    local args = table.copy(args)
+    -- Labels
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
+    local not_found = args.not_found_labels
+    -- Node properties
+    local lower_than = args.lower_than or 16
+    local higher_than = args.higher_than or -1
+    local chance = args.chance or 1
+    -- Find ids
+    local nodes_to_find = args.to_find
+    local find_ids = table.copy(placeholder_id_finder_pairs)
+    for _, name in pairs(nodes_to_find) do
+        table.insert(find_ids, minetest.get_content_id(name))
+        local f_id = minetest.get_content_id(name)
+        find_ids[f_id] = f_id
+    end
+    -- Replace ids
+    local find_replace_pairs = args.find_replace_pairs
+    local replace_ids = table.copy(placeholder_id_pairs)
+    for to_find, replacement in pairs(find_replace_pairs) do
+        local find_id = minetest.get_content_id(to_find)
+        local replacement_id = minetest.get_content_id(replacement)
+        replace_ids[find_id] = replacement_id
+    end
+    
+    return function(pos1, pos2)
+        local t1 = minetest.get_us_time()
+        local pos_min, pos_max = pos1, pos2
+        local vm = VoxelManip()
+        local emin, emax = vm:read_from_map(pos_min, pos_max)
+        local area = VoxelArea:new{
+            MinEdge = emin,
+            MaxEdge = emax,
+        }
+        local found = false
+        local data = vm:get_data()
+        local data_light = vm:get_light_data()
+        for i = 1, #data do
+            local find_id = find_ids[data[i]]
+            if find_id then
+                if data[i] == find_id then
+                    local above = area:position(i)
+                    above.y = above.y + 1
+                    local above_index = area:indexp(above)
+                    if not data_light[above_index] then
+                        -- exit if at the edge of the chunk
+                        break
+                    end
+                    local replacement = replace_ids[data[above_index]]
+                    if data_light[above_index] > higher_than and
+                        data_light[above_index] < lower_than
+                    then
+                        if chance >= math.random() then
+                            data[above_index] = replacement
+                            found = true
+                        end
+                    end
+                elseif data[i] == ignore_id then
+                    return {"worker_failed"}
+                end
+            end
+        end
+        if found then
+            vm:set_data(data)
+            vm:write_to_map(false)
+            minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found
