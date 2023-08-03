@@ -287,7 +287,7 @@ local function player_tracker()
     end
 end
 
-local tracker_timer = 0
+local tracker_timer = 6
 local tracker_interval = 10
 
 local function player_tracker_loop(dtime)
