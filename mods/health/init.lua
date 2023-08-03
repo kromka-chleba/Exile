@@ -102,30 +102,14 @@ function HEALTH.get_player_stats(player)
 end
 
 
--- allows any code that depends on HEALTH to use modify_hp to reliably modify player health
-function HEALTH.modify_hp(player,value)
-  assert(type(player) == "userdata","health.modify_hp: player is not a valid 'userdata'")
-  assert(player:is_player() == true,"health.modify_hp: player is not a 'player'")
-  assert(type(value) == "number","health.modify_hp: number not provided for health modification")
-  
-  local phealth = player:get_hp()
-  
-  phealth = phealth - value
-  
-  if (phealth > max_health) then
-    phealth = 20
-  elseif (phealth < 0) then
-    phealth = 0
-  end
-  
-  player:set_hp(phealth)
-end
 
--- allows any code that depends on HEALTH to use modify_int to reliably modify stats like hunger or thirst
-function HEALTH.modify_int(player,name,value)
-  assert(type(player) == "userdata","health.modify_int: player is not a valid 'userdata'")
-  assert(player:is_player() == true,"health.modify_int: player is not a 'player'")
-  assert(type(value) == "number","health.modify_int: provided value is not a number")
+function HEALTH.set_int(player,name,value)
+  assert(type(player) == "userdata","health.set_int: player is not a valid 'userdata'")
+  assert(player:is_player() == true,"health.set_int: player is not a 'player'")
+  
+  if (type(value) ~= "number") then
+    value = 0
+  end
   
   local meta = player:get_meta()
   
@@ -137,34 +121,101 @@ function HEALTH.modify_int(player,name,value)
   end
   
   if (meta:get(name) == nil) then
-    return
+    return 0
+  end
+  
+  value = math.ceil(value)
+  
+  if (name == "hunger" or name == "energy") then
+    if (value > 1000) then
+      value = 1000
+    elseif (value < 0) then
+      value = 0
+    end
+  elseif (name == "thirst" or name == "temperature") then
+    if (value > 100) then
+      value = 100
+    elseif (value < 0) then
+      value = 0
+    end
+  end
+  
+  meta:set_int(name,value)
+  
+  return value -- return modified value
+end
+
+-- allows any code that depends on HEALTH to use modify_hp to reliably modify player health
+function HEALTH.modify_hp(player,value)
+  assert(type(player) == "userdata","health.modify_hp: player is not a valid 'userdata'")
+  assert(player:is_player() == true,"health.modify_hp: player is not a 'player'")
+  
+  if (type(value) ~= "number") then
+    value = 0
+  end
+  
+  local phealth = player:get_hp()
+  
+  phealth = phealth + value
+  
+  if (phealth > max_health) then
+    phealth = 20
+  elseif (phealth < 0) then
+    phealth = 0
+  end
+  
+  player:set_hp(phealth)
+  
+  return phealth -- return modified health
+end
+
+-- allows any code that depends on HEALTH to use modify_int to reliably modify stats like hunger or thirst
+function HEALTH.modify_int(player,name,value)
+  assert(type(player) == "userdata","health.modify_int: player is not a valid 'userdata'")
+  assert(player:is_player() == true,"health.modify_int: player is not a 'player'")
+  
+  if (type(value) ~= "number") then
+    value = 0
+  end
+  
+  local meta = player:get_meta()
+  
+  if (type(name) ~= "string") then
+    name = tostring(name)
+    name = string.lower(name)
+  else
+    name = string.lower(name)
+  end
+  
+  if (meta:get(name) == nil) then
+    return 0
   end
   
   local stat = meta:get_int(name)
   
-  if (type(value) == "number") then
-    stat = meta:get_int(name)
-    
-    value = math.ceil(value)
-    
-    stat = stat + value
-    
-    if (name == "hunger" or name == "energy") then
-      if (stat > 1000) then
-        stat = 1000
-      elseif (stat < 0) then
-        stat = 0
-      end
-    elseif (name == "thirst" or name == "temperature") then
-      if (stat > 100) then
-        stat = 100
-      elseif (stat < 0) then
-        stat = 0
-      end
+  stat = meta:get_int(name)
+  
+  value = math.ceil(value)
+  
+  return HEALTH.set_int(player,name,(stat + value)) -- return modified value
+  --[[
+  if (name == "hunger" or name == "energy") then
+    if (stat > 1000) then
+      stat = 1000
+    elseif (stat < 0) then
+      stat = 0
     end
-    
-    meta:set_int(name,stat)
+  elseif (name == "thirst" or name == "temperature") then
+    if (stat > 100) then
+      stat = 100
+    elseif (stat < 0) then
+      stat = 0
+    end
   end
+  
+  meta:set_int(name,stat)
+  --]]
+  --return stat -- return modified value
 end
 
 
@@ -622,43 +673,27 @@ if minetest.settings:get_bool("enable_damage") then
 				--apply rate adjustments so they are correct for current player status
 				local h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature  = HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
 
-				--
-				--update attributes based on adjusted rates
-				--XXX1 is the new (healt/thirst etc) value
-				--so can be compared with old value, (which was useful...at one point)
-				--
-
-				--update and min max
-				local health1, temperature1
-        
-				health1 = health + h_rate
+				--update
+        local temperature1 = 0
 
 				if temperature > 37 then
-					temperature1 = temperature - 1
+					temperature1 = temperature1 - 1
 					if temperature > 47 then
-						health1 = health1 - 1
+						h_rate = h_rate - 1
 					end
 
 				elseif temperature < 37 then
-					temperature1 = temperature + 1
+					temperature1 = temperature1 + 1
 					if temperature < 27 then
-						health1 = health1 - 1
+						h_rate = h_rate - 1
 					end
-				else
-					temperature1 = temperature
-				end
-
-				if health1 < 0 then
-					health1 = 0
-				elseif health1 > 20 then
-					health1 = 20
 				end
 
 
 				--update
 				--
-				player:set_hp(health1)
-				meta:set_int("temperature", temperature1)
+				HEALTH.modify_hp(player,h_rate)
+				HEALTH.modify_int(player,"temperature",temperature1)
         HEALTH.modify_int(player,"thirst",t_rate)        
         HEALTH.modify_int(player,"hunger",hun_rate)
         HEALTH.modify_int(player,"energy",r_rate)

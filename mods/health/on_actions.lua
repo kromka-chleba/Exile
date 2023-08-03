@@ -5,6 +5,13 @@
 -----------------------------
 local random = math.random
 
+local function modify_hp(...)
+  return HEALTH.modify_hp(...)
+end
+local function modify_int(...)
+  return HEALTH.modify_int(...)
+end
+
 -----------------------------
 --Quick physics
 -- update the physics immediately, without going through all of malus_bonus
@@ -139,37 +146,22 @@ function HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_chang
 	local name = user:get_player_name()
 	local meta = user:get_meta()
 
-	local health = user:get_hp()
-	local thirst = meta:get_int("thirst")
-	local hunger = meta:get_int("hunger")
-	local energy = meta:get_int("energy")
-	local temperature = meta:get_int("temperature")
-
   local mov = meta:get_int("move")
 	local jum = meta:get_int("jump")
 
-	--calc change with min max
-	health = health + hp_change
-	if health < 0 then
-		health = 0
-	elseif health > 20 then
-		health = 20
-	end
-
-	if temp_change then
-	   temperature = temperature + temp_change
-	end
+	local health = modify_hp(user,hp_change)
+  local thirst = modify_int(user,"thirst",thirst_change)
+  local hunger = modify_int(user,"hunger",hunger_change)
+  local energy = modify_int(user,"energy",energy_change)
+  local temperature = modify_int(user,"temperature",temp_change)
 
 	--set new values
 	-- and update malus (need for setting correct physics) --conflicts with Health Effects!
 	--HEALTH.malus_bonus(user, name, meta, health, energy, thirst, hunger, temperature)
   quick_physics(user, name, health, energy, thirst, hunger, temperature)
 
-	user:set_hp(health)
-  HEALTH.modify_int(user,"thirst",thirst_change)
-  HEALTH.modify_int(user,"hunger",hunger_change)
-  HEALTH.modify_int(user,"energy",energy_change)
-	meta:set_int("temperature", temperature)
+	
+  
   --update form so can see change while looking
   sfinv.set_player_inventory_formspec(user)
 
@@ -217,10 +209,10 @@ if minetest.settings:get_bool("enable_damage") then
 				-- if we're dead, no more healing/etc
 				if health > 0 and
 				   player:get_armor_groups().immortal ~= 1 then
-				local thirst = meta:get_int("thirst")
-				local hunger = meta:get_int("hunger")
-				local energy = meta:get_int("energy")
-				local temperature = meta:get_int("temperature")
+				local thirst = 0 -- to change by
+				local hunger = 0 -- to change by
+				local energy = meta:get_int("energy") -- full value
+				local temperature = meta:get_int("temperature") -- full value
 
 				----------------
 				--movement/digging
@@ -233,25 +225,19 @@ if minetest.settings:get_bool("enable_damage") then
 				or controls.right
 				or controls.RMB
 				then
-					--energy = energy - 3
-          HEALTH.modify_int(player,"energy",-3)
+					energy = energy - 3
           --thirsty work
           if random()<0.07 then
-            HEALTH.modify_int(player,"thirst",-1)
-            HEALTH.modify_int(player,"hunger",-2)
-            --thirst = thirst - 1
-            --hunger = hunger - 2
+            thirst = thirst - 1
+            hunger = hunger - 2
           end
 				elseif controls.LMB
 				or controls.jump then
-					--energy = energy - 8
-          HEALTH.modify_int(player,"energy",-8)
+					energy = energy - 8
           --thirsty work
           if random()<0.07 then
-            HEALTH.modify_int(player,"thirst",-2)
-            HEALTH.modify_int(player,"hunger",-4)
-            --thirst = thirst - 2
-            --hunger = hunger - 4
+            thirst = thirst - 2
+            hunger = hunger - 4
           end
 				end
 
@@ -288,7 +274,7 @@ if minetest.settings:get_bool("enable_damage") then
         --burn or freeze
         if enviro_temp < danger_low or enviro_temp > danger_high then
           --tissue damaging freeze/burn
-          health = health - 1
+          modify_hp(player,-1)
           energy = energy - costex
         --exhaustion from temp
         elseif energy > 0 then
@@ -298,7 +284,7 @@ if minetest.settings:get_bool("enable_damage") then
 						if enviro_temp < stress_low or enviro_temp > stress_high then
 							energy = energy - costd
 						else
-							energy = energy - costs
+							energy = energy -costs
 						end
 					end
         end
@@ -307,8 +293,7 @@ if minetest.settings:get_bool("enable_damage") then
         if energy <= 0
         and (enviro_temp < stress_low or enviro_temp > stress_high) then
           --heat or cool to ambient temperature
-          temperature = (temperature*0.95) + (enviro_temp*0.05)
-          meta:set_int("temperature", temperature)
+          HEALTH.set_int(player,"temperature",(temperature*0.95) + (enviro_temp*0.05))
         end
 
 
@@ -371,7 +356,7 @@ if minetest.settings:get_bool("enable_damage") then
 				if random()<0.5 then
 
 					if dam_weather then
-            health = health - 1
+            modify_hp(player,-1)
 						energy = energy - 15
 						if energy < 0 then
 							energy = 0
@@ -418,31 +403,11 @@ if minetest.settings:get_bool("enable_damage") then
         ------------------
         --Final Housekeeping
 
-        --cap energy etc
-        if energy < 0 then
-          energy = 0
-        elseif energy > 1000 then
-          energy = 1000
-        end
+        --update
+        HEALTH.set_int(player,"energy",energy)
+        modify_int(player,"hunger",hunger)
+        modify_int(player,"thirst",thirst)
 
-        if thirst < 0 then
-          thirst = 0
-        elseif thirst > 100 then
-          thirst = 100
-        end
-
-        if hunger < 0 then
-          hunger = 0
-        elseif hunger > 1000 then
-          hunger = 1000
-        end
-
-
-				--update
-				meta:set_int("energy", energy)
-        meta:set_int("thirst", thirst)
-        meta:set_int("hunger", hunger)
-        player:set_hp(health)
 				--update form so can see change while looking
 				sfinv.set_player_inventory_formspec(player)
 
