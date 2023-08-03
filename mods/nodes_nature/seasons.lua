@@ -106,6 +106,8 @@ function seasons.get_season_and_day()
     return season_nr, season_days
 end
 
+local last_season = "spring_early"
+
 function seasons.get_season_name()
     local season, day = seasons.get_season_and_day()
     local season_name = ""
@@ -123,6 +125,10 @@ function seasons.get_season_name()
         season_name = season_name.."_early"
     else
         season_name = season_name.."_late"
+    end
+
+    if set_day_pending then
+        return last_season
     end
 
     return season_name
@@ -344,6 +350,7 @@ local function season_loop()
     -- Prevent running stuff when date is changed to avoid glitches
     if not set_day_pending then
         local season_name = seasons.get_season_name()
+        last_season = season_name
         swap_plants(season_name)
         swap_soils()
     end
