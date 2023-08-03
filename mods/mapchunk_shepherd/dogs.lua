@@ -241,6 +241,68 @@ function ms.create_param2_aware_replacer(args)
     end
 end
 
+function ms.create_light_aware_replacer(args)
+    local args = table.copy(args)
+    local find_replace_pairs = args.find_replace_pairs
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
+    local not_found = args.not_found_labels
+    local lower_than = args.lower_than or 16
+    local higher_than = args.higher_than or -1
+    local chance = args.chance or 1
+    local ids = table.copy(placeholder_id_pairs)
+    for to_find, replacement in pairs(find_replace_pairs) do
+        local find_id = minetest.get_content_id(to_find)
+        local replacement_id = minetest.get_content_id(replacement)
+        ids[find_id] = replacement_id
+    end
+    return function(pos1, pos2)
+        local pos_min, pos_max = pos1, pos2
+        local vm = VoxelManip()
+        local emin, emax = vm:read_from_map(pos_min, pos_max)
+        local area = VoxelArea:new{
+            MinEdge = emin,
+            MaxEdge = emax,
+        }
+        local found = false
+        local data = vm:get_data()
+        local data_light = vm:get_light_data()
+        for i = 1, #data do
+            local replacement = ids[data[i]]
+            if replacement then
+                local above = area:position(i)
+                above.y = above.y + 1
+                local above_index = area:indexp(above)
+                local random_pick = false
+                if not data_light[above_index] then
+                    above_index = i
+                    random_pick = true
+                    -- we can't read pos above at the top boundary
+                    -- that's why we're picking randomly lol
+                end
+                if data_light[above_index] > higher_than and
+                    data_light[above_index] < lower_than or random_pick
+                then
+                    if chance >= math.random() then
+                        data[i] = replacement
+                    end
+                    found = true
+                elseif data[i] == ignore_id then
+                    return {"worker_failed"}
+                end
+            end
+        end
+        if found then
+            vm:set_data(data)
+            vm:write_to_map(false)
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end
+
 function ms.create_deco_finder(args)
     local args = table.copy(args)
     local deco_list = args.deco_list
