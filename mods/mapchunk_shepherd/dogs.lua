@@ -336,7 +336,6 @@ function ms.create_light_aware_top_placer(args)
     end
     
     return function(pos1, pos2)
-        local t1 = minetest.get_us_time()
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
@@ -375,7 +374,6 @@ function ms.create_light_aware_top_placer(args)
         if found then
             vm:set_data(data)
             vm:write_to_map(false)
-            minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found
