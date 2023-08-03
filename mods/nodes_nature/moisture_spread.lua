@@ -96,8 +96,6 @@ local function thaw_frozen(pos, node)
       local name = node.name
       if name == "nodes_nature:snow_block" then
 	 minetest.set_node(p, {name = "nodes_nature:freshwater_source"})
-      elseif name == "nodes_nature:snow" then
-	 minetest.remove_node(p)
       elseif name == "nodes_nature:ice" then
 	 local under = minetest.get_node({x = p.x, y = p.y-1, z =p.z})
 	 if under.name == "nodes_nature:salt_water_source" then
@@ -117,7 +115,7 @@ end
 
 minetest.register_abm({
 	label = "Thaw Ice and snow",
-	nodenames = {"nodes_nature:ice", "nodes_nature:snow_block", "nodes_nature:snow", "nodes_nature:sea_ice"},
+	nodenames = {"nodes_nature:ice", "nodes_nature:snow_block", "nodes_nature:sea_ice"},
 	interval = 103,
 	chance = 5,
 	action = function(...)
@@ -406,6 +404,7 @@ minetest.register_abm({
 ms.labels.register("last_rain")
 ms.labels.register("last_snow")
 ms.labels.register("last_evaporated")
+ms.labels.register("last_thawed")
 
 local function get_dry_wet_pairs()
     local soil_pairs = {}
@@ -669,6 +668,43 @@ local function initialize_evaporator()
     evap_changed = false
 end
 
+----------------------
+-- Thawing
+
+local thaw_pairs = {
+    ["nodes_nature:snow"] = "air",
+}
+
+local light_thawer =
+    ms.create_simple_replacer(
+        {find_replace_pairs = thaw_pairs,
+         add_labels = {"last_thawed"},
+         chance = 1/5,
+        }
+    )
+
+local total_thawer =
+    ms.create_simple_replacer(
+        {find_replace_pairs = thaw_pairs,
+         remove_labels = {"last_snow",
+                          "last_thawed"},
+        }
+    )
+
+local current_thawer = false
+local thawer_changed = true
+local thawer_running = false
+local thawer_interval = false
+local thawer = false
+
+local function disable_thawer()
+    if thawer_running then
+        ms.remove_worker("thawing_worker")
+        thawer_running = false
+        current_thawer = "none"
+    end
+end
+
 local weather_loop_interval = 5
 
 local function weather_loop()
@@ -688,6 +724,35 @@ local function weather_loop()
         pick_evaporator(season)
         if not evaporator_running or evap_changed then
             initialize_evaporator()
+        end
+    end
+
+    if seasons.is_winter() then
+        -- no thawer
+        disable_thawer()
+    elseif season == "spring_early" then
+        -- light thawer
+        if current_thawer ~= "light" then
+            disable_thawer()
+            ms.register_worker({name = "thawing_worker",
+                                fun = light_thawer,
+                                needed_labels = {"last_snow"},
+                                work_every = 60,
+                                rework_labels = {"last_evaporated"},
+            })
+            thawer_running = true
+            current_thawer = "light"
+        end
+    else
+        -- total thawer
+        if current_thawer ~= "total" then
+            disable_thawer()
+            ms.register_worker({name = "thawing_worker",
+                                fun = total_thawer,
+                                needed_labels = {"last_snow"},
+            })
+            thawer_running = true
+            current_thawer = "total"
         end
     end
     minetest.after(weather_loop_interval, weather_loop)
