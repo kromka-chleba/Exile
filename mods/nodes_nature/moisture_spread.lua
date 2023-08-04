@@ -630,7 +630,7 @@ local function initialize_soaker()
                         fun = rain_replacer,
                         has_one_of = {"spring_soil",
                                       "winter_soil"},
-                        work_every = 25,
+                        work_every = 40,
                         rework_labels = {"last_rain"},
     })
     soaker_changed = false
@@ -646,7 +646,7 @@ local function initialize_snower()
                         fun = snow_placer,
                         has_one_of = {"spring_soil",
                                       "winter_soil"},
-                        work_every = 30,
+                        work_every = 45,
                         rework_labels = {"last_snow"},
     })
     snower_changed = false
@@ -737,7 +737,7 @@ local function weather_loop()
             ms.register_worker({name = "thawing_worker",
                                 fun = light_thawer,
                                 needed_labels = {"last_snow"},
-                                work_every = 60,
+                                work_every = 120,
                                 rework_labels = {"last_evaporated"},
             })
             thawer_running = true
