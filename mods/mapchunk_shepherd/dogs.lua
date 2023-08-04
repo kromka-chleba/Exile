@@ -7,6 +7,8 @@ local ms = mapchunk_shepherd
 
 ms.scanners = {}
 ms.workers = {}
+ms.scanners_by_name = {}
+ms.workers_by_name = {}
 ms.scanners_changed = true
 ms.workers_changed = true
 
@@ -57,16 +59,16 @@ function ms.register_scanner(args)
     local rescan_labels = args.rescan_labels or {}
     table.insert(needed_labels, "chunk_tracked")
     if not is_scanner_registered(args.name) then
-        table.insert(
-            ms.scanners,
-            {name = args.name,
-             scanner_function = args.fun,
-             needed_labels = needed_labels,
-             has_one_of = has_one_of,
-             scan_every = args.scan_every,
-             rescan_labels = rescan_labels,
-            }
-        )
+        local scanner = {
+            name = args.name,
+            scanner_function = args.fun,
+            needed_labels = needed_labels,
+            has_one_of = has_one_of,
+            scan_every = args.scan_every,
+            rescan_labels = rescan_labels,
+        }
+        table.insert(ms.scanners, scanner)
+        ms.scanners_by_name[args.name] = scanner
     end
     ms.scanners_changed = true
 end
@@ -79,16 +81,16 @@ function ms.register_worker(args)
     table.insert(needed_labels, "chunk_tracked")
     table.insert(needed_labels, "scanned")
     if not is_worker_registered(args.name) then
-        table.insert(
-            ms.workers,
-            {name = args.name,
-             worker_function = args.fun,
-             needed_labels = needed_labels,
-             has_one_of = has_one_of,
-             work_every = args.work_every,
-             rework_labels = rework_labels,
-            }
-        )
+        local worker = {
+            name = args.name,
+            worker_function = args.fun,
+            needed_labels = needed_labels,
+            has_one_of = has_one_of,
+            work_every = args.work_every,
+            rework_labels = rework_labels,
+        }
+        table.insert(ms.workers, worker)
+        ms.workers_by_name[args.name] = worker
     end
     ms.workers_changed = true
 end
@@ -96,6 +98,7 @@ end
 function ms.remove_scanner(name)
     for i = 1, #ms.scanners do
         if ms.scanners[i].name == name then
+            ms.scanners_by_name[name] = nil
             table.remove(ms.scanners, i)
             ms.scanners_changed = true
         end
@@ -105,6 +108,7 @@ end
 function ms.remove_worker(name)
     for i = 1, #ms.workers do
         if ms.workers[i] and ms.workers[i].name == name then
+            ms.workers_by_name[name] = nil
             table.remove(ms.workers, i)
             ms.workers_changed = true
         end
