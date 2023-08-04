@@ -59,11 +59,12 @@ local function run_scanners()
         scan_queue = {}
         minetest.after(longer_break, run_scanners)
     end
-    local hash = scan_queue[1]
-    if not hash then
+    local chunk = scan_queue[1]
+    if not chunk then
         minetest.after(scanner_break, run_scanners)
         return
     end
+    local hash = chunk.hash
     local pos1, pos2 = ms.mapchunk_borders(hash)
     local failed = ms.contains_labels(hash, {"scanner_failed"})
     if not loaded_or_active(pos1) or
@@ -87,8 +88,7 @@ local function run_scanners()
             end
         end
         local scanner = scanners[current_scanner]
-        if ms.contains_labels(hash, scanner.needed_labels) and
-            ms.has_one_of(hash, scanner.has_one_of) then
+        if chunk.scanners[scanner.name] or chunk.scanners["all"] then
             local labels_added, labels_removed =
                 scanner.scanner_function(pos1, pos2)
             ms.handle_labels(hash, labels_added, labels_removed)
@@ -122,11 +122,12 @@ local function run_workers()
         minetest.after(longer_break, run_workers)
         return
     end
-    local hash = work_queue[1]
-    if not hash then
+    local chunk = work_queue[1]
+    if not chunk then
         minetest.after(worker_break, run_workers)
         return
     end
+    local hash = chunk.hash
     local pos1, pos2 = ms.mapchunk_borders(hash)
     if not loaded_or_active(pos1) then
         table.remove(work_queue, 1)
@@ -137,8 +138,7 @@ local function run_workers()
     if #workers > 0 then
         --minetest.log("warning", "work queue: "..#work_queue)
         local worker = workers[current_worker]
-        if ms.contains_labels(hash, worker.needed_labels) and
-            ms.has_one_of(hash, worker.has_one_of) then
+        if chunk.workers[worker.name] or chunk.workers["all"] then
             local labels_added, labels_removed =
                 worker.worker_function(pos1, pos2)
             ms.handle_labels(hash, labels_added, labels_removed)
@@ -155,27 +155,37 @@ local function run_workers()
     return
 end
 
-local function add_to_scan_queue(hash)
-    local scan = true
+local function add_to_scan_queue(hash, scanner_name)
+    local exists = false
     for _, chunk in pairs(scan_queue) do
-        if chunk == hash then
-            scan = false
+        if chunk.hash == hash then
+            chunk.scanners[scanner_name] = true
+            exists = true
+            break
         end
     end
-    if scan then
-        table.insert(scan_queue, hash)
+    if not exists then
+        local chunk = {hash = hash,
+                       scanners = {}}
+        chunk.scanners[scanner_name] = true
+        table.insert(scan_queue, chunk)
     end
 end
 
-local function add_to_work_queue(hash)
-    local work = true
+local function add_to_work_queue(hash, worker_name)
+    local exists = false
     for _, chunk in pairs(work_queue) do
-        if chunk == hash then
-            work = false
+        if chunk.hash == hash then
+            chunk.workers[worker_name] = true
+            exists = true
+            break
         end
     end
-    if work then
-        table.insert(work_queue, hash)
+    if not exists then
+        local chunk = {hash = hash,
+                       workers = {}}
+        chunk.workers[worker_name] = true
+        table.insert(work_queue, chunk)
     end
 end
 
@@ -251,17 +261,16 @@ local function save_scan_work(hash)
     local labels = ms.get_labels(hash)
     if not ms.is_tracked(hash) then
         ms.save_mapchunk(hash)
-        table.insert(scan_queue, hash)
         return
     end
     for _, scanner in pairs(scanners) do
         if good_for_scanner(hash, scanner, labels) then
-            add_to_scan_queue(hash)
+            add_to_scan_queue(hash, scanner.name)
         end
     end
     for _, worker in pairs(workers) do
         if good_for_worker(hash, worker, labels) then
-            add_to_work_queue(hash)
+            add_to_work_queue(hash, worker.name)
         end
     end
 end
