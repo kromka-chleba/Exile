@@ -34,6 +34,26 @@ local function math_clamp(...) -- num,min,max
   return minimal.math_clamp(...)
 end
 
+function HEALTH.typeof(obj)
+  if (type(obj) == "userdata") then
+    if (obj["is_player"]) then
+      if (obj:is_player() == true) then
+        return "player"
+      else
+        return "luaentity"
+      end
+    elseif (obj["get_wear"] and obj["get_stack_max"]) then
+      return "itemstack"
+    elseif (obj["get_int"] and obj["get_string"]) then
+      return "metadata"
+    elseif (obj["get_timeout"] and obj["get_elapsed"]) then
+      return "nodetimer"
+    end
+  else
+    return type(obj)
+  end
+end
+
 -----------------------------
 --Player Attibutes
 --
@@ -99,8 +119,13 @@ function HEALTH.reset_attributes(...) -- ditto definition
   HEALTH.set_default_attributes(...)
 end
 
-function HEALTH.get_player_stats(player)
-  local meta = player:get_meta()
+function HEALTH.get_meta_stats(meta)
+  assert(type(meta) == "userdata","health.get_meta_stats: meta/player is not a valid 'userdata'")
+  if (HEALTH.typeof(meta) == "player") then
+    meta = meta:get_meta()
+  elseif not (HEALTH.typeof(meta) == "metadata") then
+    error("health.get_meta_stats: invalid parameter given for meta/player")
+  end
   
   local fields = meta:to_table().fields
   
@@ -111,6 +136,17 @@ function HEALTH.get_player_stats(player)
     end
   end
   
+  return fields
+end
+
+function HEALTH.get_player_stats(player)
+  assert(type(player) == "userdata","get_player_stats: player is not a valid 'userdata'")
+  assert(HEALTH.typeof(player) == "player","get_player_stats: player is not a 'player'")
+  
+  local meta = player:get_meta()
+  
+  local fields = HEALTH.get_meta_stats(meta)
+  
   fields.health = player:get_hp()
   
   return fields,meta
@@ -118,15 +154,20 @@ end
 
 
 
+
+
 function HEALTH.set_int(player,name,value)
-  assert(type(player) == "userdata","health.set_int: player is not a valid 'userdata'")
-  assert(player:is_player() == true,"health.set_int: player is not a 'player'")
+  assert(type(player) == "userdata","health.set_int: player/meta is not a valid 'userdata'")
+  local meta = player -- assumes "player" may be metadata
+  if (HEALTH.typeof(player) == "player") then
+    meta = player:get_meta()
+  elseif not (HEALTH.typeof(player) == "metadata") then
+    error("health.set_int: invalid parameter given for player/meta")
+  end
   
   if (type(value) ~= "number") then
     value = 0
   end
-  
-  local meta = player:get_meta()
   
   if (type(name) ~= "string") then
     name = tostring(name)
@@ -175,15 +216,17 @@ end
 
 -- allows any code that depends on HEALTH to use modify_int to reliably modify stats like hunger or thirst
 function HEALTH.modify_int(player,name,value)
-  assert(type(player) == "userdata","health.modify_int: player is not a valid 'userdata'")
-  assert(type(player["is_player"]) == "function","health.modify_int: player is not a 'player'")
-  assert(player:is_player() == true,"health.modify_int: player is not a 'player'")
+  assert(type(player) == "userdata","health.modify_int: player/meta is not a valid 'userdata'")
+  local meta = player -- assumes "player" may be metadata
+  if (HEALTH.typeof(player) == "player") then
+    meta = player:get_meta()
+  elseif not (HEALTH.typeof(player) == "metadata") then
+    error("health.modify_int: invalid parameter given for player/meta")
+  end
   
   if (type(value) ~= "number") then
     value = 0
   end
-  
-  local meta = player:get_meta()
   
   if (type(name) ~= "string") then
     name = tostring(name)
@@ -202,21 +245,29 @@ function HEALTH.modify_int(player,name,value)
   
   value = math.ceil(value)
   
-  return HEALTH.set_int(player,name,(stat + value)) -- return modified value
+  return HEALTH.set_int(meta,name,(stat + value)) -- return modified value
 end
 
 
 -- malus & bonus (does not calculate illness)
-function HEALTH.q_malus_bonus(player)
+function HEALTH.q_malus_bonus(player,meta)
+  assert(HEALTH.typeof(player) == "player","health.q_malus_bonus: provided 'player' is not a player!")
+  
   local name = player:get_player_name()
-  if (name == "") then
-    error("health.q_malus_bonus: provided 'player' is not a player!")
-  end
   local bstats = HEALTH.get_default_attributes() -- get base starting stats
-  local stats,meta = HEALTH.get_player_stats(player) -- get player's current stats
+  local stats = {}
+  
+  -- incase meta is not provided then
+  if (HEALTH.typeof(meta) ~= "metadata") then
+    meta = player:get_meta()
+    stats = HEALTH.get_meta_stats(meta)
+  else
+    -- if meta is provided
+    stats = HEALTH.get_meta_stats(meta)
+  end
   
   -- player's current stats as variables
-  local health = stats.health
+  local health = player:get_hp()
   local energy = stats.energy
   local hunger = stats.hunger
   local thirst = stats.thirst
@@ -396,19 +447,15 @@ function HEALTH.q_malus_bonus(player)
   end
   
   -- set new rates
-  stats.heal_rate = HEALTH.set_int(player,"heal_rate",h_rate)
-	stats.thirst_rate = HEALTH.set_int(player,"thirst_rate",t_rate)
-	stats.hunger_rate = HEALTH.set_int(player,"hunger_rate",hun_rate)
-	stats.recovery_rate = HEALTH.set_int(player,"recovery_rate",r_rate)
-	stats.move = HEALTH.set_int(player,"move",mov)
-	stats.jump = HEALTH.set_int(player,"jump",jum)
+  stats.heal_rate = HEALTH.set_int(meta,"heal_rate",h_rate)
+	stats.thirst_rate = HEALTH.set_int(meta,"thirst_rate",t_rate)
+	stats.hunger_rate = HEALTH.set_int(meta,"hunger_rate",hun_rate)
+	stats.recovery_rate = HEALTH.set_int(meta,"recovery_rate",r_rate)
+	stats.move = HEALTH.set_int(meta,"move",mov)
+	stats.jump = HEALTH.set_int(meta,"jump",jum)
   
   --return adjusted rates so can be applied if necessary
 	return stats
-end
-
-function HEALTH.sickness_calculation(player)
-  local stats = HEALTH.q_malus_bonus(player)
 end
 
 
@@ -486,13 +533,40 @@ register_tab()
 --runs through player's current effects, runs the function for that effect
 --takes all the same variables, and outputs as any effect may use them.
 --adjusted outputs feed back into malus_bonus
-local function do_effects_list(player, health, energy, thirst, hunger, temperature, h_rate, r_rate, t_rate, hun_rate,  mov, jum)
-  local meta = player:get_meta()
+local function do_effects_list(player, meta)
+  
+  local health = player:get_hp()
+  
+  local h_rate = meta:get_int("heal_rate")
+  local r_rate = meta:get_int("recovery_rate")
+  local t_rate = meta:get_int("thirst_rate")
+  local hun_rate = meta:get_int("hunger_rate")
+  local mov = meta:get_int("move")
+  local jum = meta:get_int("jump")
+  
+  local energy = meta:get_int("energy")
+  local thirst = meta:get_int("thirst")
+  local hunger = meta:get_int("hunger")
+  local temperature = meta:get_int("temperature")
+  
 	local effects_list = meta:get_string("effects_list")
 	effects_list = minetest.deserialize(effects_list) or {}
+  
+  local stats = {}
+  stats.health = health
+  stats.heal_rate = h_rate
+  stats.recovery_rate = r_rate
+  stats.thirst_rate = t_rate
+  stats.hunger_rate = hun_rate
+  stats.move = mov
+  stats.jump = jum
+  stats.energy = energy
+  stats.thirst = thirst
+  stats.hunger = hunger
+  stats.temperature = temperature
 
 	if not effects_list then
-		return h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature
+		return stats
 	end
 
 	for _, effect in ipairs(effects_list) do
@@ -505,11 +579,18 @@ local function do_effects_list(player, health, energy, thirst, hunger, temperatu
 		if name == "Food Poisoning" then
 			r_rate, mov, jum, temperature = HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, jum, temperature)
 		end
-
+    stats.recovery_rate = stats.recovery_rate + r_rate
+    stats.move = stats.move + mov
+    stats.jump = stats.jump + jum
+    stats.temperature = stats.temperature + temperature
 		----------
 		if name == "Fungal Infection" then
 			r_rate, mov, jum, temperature = HEALTH.fungal_infection(order, player, meta, effects_list, r_rate, mov, jum, temperature)
 		end
+    stats.recovery_rate = stats.recovery_rate + r_rate
+    stats.move = stats.move + mov
+    stats.jump = stats.jump + jum
+    stats.temperature = stats.temperature + temperature
 
 		----------
 		if name == "Dust Fever" then
@@ -535,6 +616,7 @@ local function do_effects_list(player, health, energy, thirst, hunger, temperatu
 		if name == "Tiku High" then
 			r_rate, hun_rate, mov, jum, temperature = HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, mov, jum, temperature)
 		end
+    
 
 		----------
 		if name == "Neurotoxicity" then
@@ -545,6 +627,7 @@ local function do_effects_list(player, health, energy, thirst, hunger, temperatu
 		if name == "Hepatotoxicity" then
 			mov, jum, r_rate, h_rate = HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_rate, h_rate)
 		end
+    
 
 		----------
 		if name == "Photosensitivity" then
@@ -557,10 +640,51 @@ local function do_effects_list(player, health, energy, thirst, hunger, temperatu
 		end
 
 
+  end
+  
+  stats.recovery_rate = r_rate
+  stats.heal_rate = h_rate
+  stats.hunger_rate = hun_rate
+  stats.thirst_rate = t_rate
+  stats.move = mov
+  stats.jump = jum
+  stats.temperature = temperature
+  
+	return stats
+
+end
+
+
+-- gets quick malus_bonus and adds sicknesses on top of it all
+function HEALTH.malus_bonus(player,meta)
+  local stats = HEALTH.q_malus_bonus(player,meta)
+  
+  local mov = stats.move
+  local jum = stats.jump
+  
+  stats = do_effects_list(player,meta)
+  
+  for name,value in pairs(stats) do
+    if (type(value) == "number") then
+      HEALTH.set_int(meta,name,value)
+    elseif (type(value) == "string") then
+      meta:set_string(value)
+    end
+  end
+  
+  local HE_mov = stats.move
+  local HE_jum = stats.jump
+  
+  if not bed_rest.player[name] then
+		--split physics from hunger etc from that from health effects
+		--this means quick_physics can fiddle with one half, without overriding the half from effects
+		HE_mov = HE_mov - mov
+		HE_jum = HE_jum - jum
+		player_monoids.speed:add_change(player, 1 + (HE_mov/100), "health:physics_HE")
+		player_monoids.jump:add_change(player, 1 + (HE_jum/100), "health:physics_HE")
 	end
-
-	return h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature
-
+  
+  return stats
 end
 
 
@@ -575,6 +699,7 @@ end
 --also give name and meta, bc anything calling it should already have that
 -- returns the adjusted rates so they can be used if desired
 --
+--[[
 function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
 
 	--use standard values, so it doesn't compound each time adjusted.
@@ -777,7 +902,7 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 	return h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature
 
 end
-
+--]]
 
 -----------------------------
 --Main
@@ -787,15 +912,16 @@ minetest.register_on_newplayer(function(player)
 end)
 
 function HEALTH.update_player_physics(player)
-   local name = player:get_player_name()
+   --local name = player:get_player_name()
    local meta = player:get_meta()
-   local health = player:get_hp()
-   local thirst = meta:get_int("thirst")
-   local hunger = meta:get_int("hunger")
-   local energy = meta:get_int("energy")
-   local temperature = meta:get_int("temperature")
-   HEALTH.malus_bonus(player, name, meta, health, energy,
-		      thirst, hunger, temperature)
+   --local health = player:get_hp()
+   --local thirst = meta:get_int("thirst")
+   --local hunger = meta:get_int("hunger")
+   --local energy = meta:get_int("energy")
+   --local temperature = meta:get_int("temperature")
+   HEALTH.malus_bonus(player,meta)
+   --HEALTH.malus_bonus(player, name, meta, health, energy,
+		      --thirst, hunger, temperature)
 end
 
 minetest.register_on_joinplayer(function(player)
@@ -864,7 +990,11 @@ if minetest.settings:get_bool("enable_damage") then
 
 
 				--apply rate adjustments so they are correct for current player status
-				local h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature  = HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
+				--local h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature  = HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
+        local stats = HEALTH.malus_bonus(player,meta)
+        
+        energy = stats.energy
+        temperature = stats.temperature
 
 				--update
         local temperature1 = 0
@@ -886,10 +1016,10 @@ if minetest.settings:get_bool("enable_damage") then
 				--update
 				--
 				HEALTH.modify_hp(player,h_rate)
-				HEALTH.modify_int(player,"temperature",temperature1)
-        HEALTH.modify_int(player,"thirst",t_rate)        
-        HEALTH.modify_int(player,"hunger",hun_rate)
-        HEALTH.modify_int(player,"energy",r_rate)
+				HEALTH.modify_int(meta,"temperature",temperature1)
+        HEALTH.modify_int(meta,"thirst",t_rate)        
+        HEALTH.modify_int(meta,"hunger",hun_rate)
+        HEALTH.modify_int(meta,"energy",r_rate)
 				--update form so can see change while looking
 				sfinv.set_player_inventory_formspec(player)
 

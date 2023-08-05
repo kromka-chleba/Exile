@@ -84,13 +84,19 @@ local function is_illness_valid(player,life_num) -- general function that will d
   
   --local life_num = sickdata.life_num
   
-  if (type(life_num) ~= "number") then
-    return false
-  elseif (life_num == get_life_num(player)) then -- if assigned life_num to effect was the current player then say illness is valid and good to go :D (poor player lol)
-    return true
-  else
+  local hp = player:get_hp()
+  
+  if (hp <= 0) then
     return false
   end
+  
+  if (type(life_num) ~= "number") then
+    return false
+  elseif not (life_num == get_life_num(player)) then -- if assigned life_num to effect was NOT the current player then say illness is invalid
+    return false
+  end
+  
+  return true -- is everything is good to go, say the illness is valid (poor player lol)
 end
 
 ------------------------------------------------------------------

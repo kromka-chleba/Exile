@@ -20,116 +20,6 @@ end
 --only need the physics part as rates etc get applied from main health function
 --MUST MATCH malus_bonus as it will get overriden by that when it kicks in!!!!
 
-local function quick_physics(player, name, health, energy, thirst, hunger, temperature)
-  --use standard values
-  local mov = 0
-  local jum = 0
-
-  --
-  --update rates
-  --
-
-  --bonus/malus from health
-  if health <= 1 then
-    mov = mov - 50
-    jum = jum - 50
-  elseif health < 4 then
-    mov = mov - 25
-    jum = jum - 25
-  elseif health < 8 then
-    mov = mov - 20
-    jum = jum - 20
-  elseif health < 12 then
-    mov = mov - 15
-    jum = jum - 15
-  elseif health < 16 then
-    mov = mov - 10
-    jum = jum - 10
-  end
-
-  --bonus/malus from energy
-  if energy > 800 then
-    mov = mov + 15
-    jum = jum + 15
-  elseif energy < 1 then
-    mov = mov - 30
-    jum = jum - 30
-  elseif energy < 200 then
-    mov = mov - 20
-    jum = jum - 20
-  elseif energy < 400 then
-    mov = mov - 10
-    jum = jum - 10
-  elseif energy < 600 then
-    mov = mov - 1
-    jum = jum - 1
-  end
-
-
-  --bonus/malus from thirst
-  if thirst > 80 then
-    mov = mov + 1
-    jum = jum + 1
-  elseif thirst < 1 then
-    mov = mov - 30
-    jum = jum - 30
-  elseif thirst < 20 then
-    mov = mov - 20
-    jum = jum - 20
-  elseif thirst < 40 then
-    mov = mov - 10
-    jum = jum - 10
-  elseif thirst < 60 then
-    mov = mov - 1
-    jum = jum - 1
-  end
-
-  --bonus/malus from hunger
-  if hunger > 800 then
-    mov = mov + 1
-    jum = jum + 1
-  elseif hunger < 1 then
-    mov = mov - 30
-    jum = jum - 30
-  elseif hunger < 200 then
-    mov = mov - 20
-    jum = jum - 20
-  elseif hunger < 400 then
-    mov = mov - 10
-    jum = jum - 10
-  elseif hunger < 600 then
-    mov = mov - 1
-    jum = jum - 1
-  end
-
-  --temp malus..severe..having this happen would make you very ill
-  if temperature >= 100 or temperature <= 0 then
-		--you dead
-		mov = mov - 10000
-		jum = jum - 10000
-  elseif temperature > 47 or temperature < 27 then
-    mov = mov - 80
-    jum = jum - 80
-  elseif temperature > 43 or temperature < 32 then
-    mov = mov - 40
-    jum = jum - 40
-  elseif temperature > 38 or temperature < 37 then
-    mov = mov - 20
-    jum = jum - 20
-  end
-
-
-  --apply player physics
-  --don't do in bed or it buggers the physics
-  if not bed_rest.player[name] then
-    player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics")
-    player_monoids.jump:add_change(player, 1 + (jum/100), "health:physics")
-  end
-
-
-
-end
-
 
 -----------------------------
 --On Actions
@@ -150,15 +40,15 @@ function HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_chang
 	--local jum = meta:get_int("jump")
 
 	local health = modify_hp(user,hp_change)
-  local thirst = modify_int(user,"thirst",thirst_change)
-  local hunger = modify_int(user,"hunger",hunger_change)
-  local energy = modify_int(user,"energy",energy_change)
-  local temperature = modify_int(user,"temperature",temp_change)
+  local thirst = modify_int(meta,"thirst",thirst_change)
+  local hunger = modify_int(meta,"hunger",hunger_change)
+  local energy = modify_int(meta,"energy",energy_change)
+  local temperature = modify_int(meta,"temperature",temp_change)
 
 	--set new values
 	-- and update malus (need for setting correct physics) --conflicts with Health Effects!
 	--HEALTH.malus_bonus(user, name, meta, health, energy, thirst, hunger, temperature)
-  HEALTH.q_malus_bonus(user)
+  HEALTH.q_malus_bonus(user,meta)
   --quick_physics(user, name, health, energy, thirst, hunger, temperature)
 
 	
@@ -294,7 +184,7 @@ if minetest.settings:get_bool("enable_damage") then
         if energy <= 0
         and (enviro_temp < stress_low or enviro_temp > stress_high) then
           --heat or cool to ambient temperature
-          HEALTH.set_int(player,"temperature",(temperature*0.95) + (enviro_temp*0.05))
+          HEALTH.set_int(meta,"temperature",(temperature*0.95) + (enviro_temp*0.05))
         end
 
 
@@ -405,9 +295,9 @@ if minetest.settings:get_bool("enable_damage") then
         --Final Housekeeping
 
         --update
-        HEALTH.set_int(player,"energy",energy)
-        modify_int(player,"hunger",hunger)
-        modify_int(player,"thirst",thirst)
+        HEALTH.set_int(meta,"energy",energy)
+        modify_int(meta,"hunger",hunger)
+        modify_int(meta,"thirst",thirst)
 
 				--update form so can see change while looking
 				sfinv.set_player_inventory_formspec(player)
