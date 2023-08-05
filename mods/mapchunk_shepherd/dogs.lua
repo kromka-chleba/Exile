@@ -7,6 +7,8 @@ local ms = mapchunk_shepherd
 
 ms.scanners = {}
 ms.workers = {}
+ms.scanners_by_name = {}
+ms.workers_by_name = {}
 ms.scanners_changed = true
 ms.workers_changed = true
 
@@ -18,17 +20,13 @@ local air_id = minetest.get_content_id("air")
 local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
 local chunk_side = blocks_per_chunk * 16
 
-minetest.register_on_mods_loaded(function()
-        local id_pairs = {}
-        for _, nodedef in pairs(minetest.registered_nodes) do
-            local name = nodedef.name
-            local id = minetest.get_content_id(name)
-            id_pairs[id] = id
-            placeholder_id_finder_pairs[id] = false
-        end
-        id_pairs[ignore_id] = false
-        placeholder_id_pairs = id_pairs
-end)
+-- iterate over ids of all possible existing nodes
+for i = 1, 32768 do
+    placeholder_id_finder_pairs[i] = false
+    placeholder_id_pairs[i] = i
+end
+
+placeholder_id_pairs[ignore_id] = false
 
 -- fun needs to be a function fun(pos1, pos2)
 -- where pos1 is minimal position in a mapchunk,
@@ -61,16 +59,16 @@ function ms.register_scanner(args)
     local rescan_labels = args.rescan_labels or {}
     table.insert(needed_labels, "chunk_tracked")
     if not is_scanner_registered(args.name) then
-        table.insert(
-            ms.scanners,
-            {name = args.name,
-             scanner_function = args.fun,
-             needed_labels = needed_labels,
-             has_one_of = has_one_of,
-             scan_every = args.scan_every,
-             rescan_labels = rescan_labels,
-            }
-        )
+        local scanner = {
+            name = args.name,
+            scanner_function = args.fun,
+            needed_labels = needed_labels,
+            has_one_of = has_one_of,
+            scan_every = args.scan_every,
+            rescan_labels = rescan_labels,
+        }
+        table.insert(ms.scanners, scanner)
+        ms.scanners_by_name[args.name] = scanner
     end
     ms.scanners_changed = true
 end
@@ -83,16 +81,16 @@ function ms.register_worker(args)
     table.insert(needed_labels, "chunk_tracked")
     table.insert(needed_labels, "scanned")
     if not is_worker_registered(args.name) then
-        table.insert(
-            ms.workers,
-            {name = args.name,
-             worker_function = args.fun,
-             needed_labels = needed_labels,
-             has_one_of = has_one_of,
-             work_every = args.work_every,
-             rework_labels = rework_labels,
-            }
-        )
+        local worker = {
+            name = args.name,
+            worker_function = args.fun,
+            needed_labels = needed_labels,
+            has_one_of = has_one_of,
+            work_every = args.work_every,
+            rework_labels = rework_labels,
+        }
+        table.insert(ms.workers, worker)
+        ms.workers_by_name[args.name] = worker
     end
     ms.workers_changed = true
 end
@@ -100,6 +98,7 @@ end
 function ms.remove_scanner(name)
     for i = 1, #ms.scanners do
         if ms.scanners[i].name == name then
+            ms.scanners_by_name[name] = nil
             table.remove(ms.scanners, i)
             ms.scanners_changed = true
         end
@@ -109,6 +108,7 @@ end
 function ms.remove_worker(name)
     for i = 1, #ms.workers do
         if ms.workers[i] and ms.workers[i].name == name then
+            ms.workers_by_name[name] = nil
             table.remove(ms.workers, i)
             ms.workers_changed = true
         end
@@ -334,7 +334,6 @@ function ms.create_light_aware_top_placer(args)
         local replacement_id = minetest.get_content_id(replacement)
         replace_ids[find_id] = replacement_id
     end
-    
     return function(pos1, pos2)
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
@@ -353,15 +352,12 @@ function ms.create_light_aware_top_placer(args)
                     local above = area:position(i)
                     above.y = above.y + 1
                     local above_index = area:indexp(above)
-                    if not data_light[above_index] then
-                        -- exit if at the edge of the chunk
-                        break
-                    end
                     local replacement = replace_ids[data[above_index]]
-                    if data_light[above_index] > higher_than and
+                    if data_light[above_index] and
+                        data_light[above_index] > higher_than and
                         data_light[above_index] < lower_than
                     then
-                        if chance >= math.random() then
+                        if chance >= math.random() and replacement then
                             data[above_index] = replacement
                             found = true
                         end
@@ -399,7 +395,6 @@ function ms.create_deco_finder(args)
                         ms.save_mapchunk(hash)
                         ms.handle_labels(hash, labels_to_add, labels_to_remove)
                         ms.add_labels(hash, {"scanned"})
-                        --minetest.log("error", dump(minp))
                     end
                 end
             end

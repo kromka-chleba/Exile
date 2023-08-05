@@ -43,139 +43,142 @@ end
 local scan_queue = {}
 local work_queue = {}
 
-local current_scanner = 1
-
 local scanners = {}
+local scanners_by_name = {}
 
 local longer_break = 2 -- two seconds
 local previous_failure = false
-local scanner_break = 0.005
+local small_break = 0.005
 
-local function run_scanners()
+local scanner_running = false
+
+local function scanner_break()
+    scanner_running = false
+end
+
+local function run_scanners(dtime)
+    if scanner_running then
+        return
+    end
+    scanner_running = true
     if ms.scanners_changed then
         scanners = table.copy(ms.scanners)
+        scanners_by_name = table.copy(ms.scanners_by_name)
         ms.scanners_changed = false
-        current_scanner = 1
         scan_queue = {}
-        minetest.after(longer_break, run_scanners)
-    end
-    local hash = scan_queue[1]
-    if not hash then
-        minetest.after(scanner_break, run_scanners)
+        minetest.after(longer_break, scanner_break)
         return
+    end
+    if #scanners == 0 then
+        minetest.after(longer_break, scanner_break)
+        return
+    end
+    local chunk = scan_queue[1]
+    if not chunk then
+        minetest.after(small_break, scanner_break)
+        return
+    end
+    --minetest.log("error", "scan queue: "..#scan_queue)
+    local hash = chunk.hash
+    local failed = ms.contains_labels(hash, {"scanner_failed"})
+    if failed then
+        if previous_failure == hash and math.random() < 0.7 then
+            -- 70% chance to remove recurrent failure
+            table.remove(scan_queue, 1)
+            minetest.after(small_break, scanner_break)
+            return
+        else
+            previous_failure = hash
+        end
     end
     local pos1, pos2 = ms.mapchunk_borders(hash)
-    local failed = ms.contains_labels(hash, {"scanner_failed"})
-    if not loaded_or_active(pos1) or
-        ms.was_scanned(hash) and not failed then
-        table.remove(scan_queue, 1)
-        current_scanner = 1
-        minetest.after(scanner_break, run_scanners)
-        return
+    for scanner_name, _ in pairs(chunk.scanners) do
+        local scanner = scanners_by_name[scanner_name]
+        local labels_added, labels_removed =
+            scanner.scanner_function(pos1, pos2)
+        ms.handle_labels(hash, labels_added, labels_removed)
     end
-    if #scanners > 0 then
-        --minetest.log("warning", "scan queue: "..#scan_queue)
-        if failed then
-            current_scanner = 1
-            if previous_failure == hash and math.random() < 0.5 then
-                -- 50% chance to remove recurrent failure
-                table.remove(scan_queue, 1)
-                minetest.after(scanner_break, run_scanners)
-                return
-            else
-                previous_failure = hash
-            end
-        end
-        local scanner = scanners[current_scanner]
-        if ms.contains_labels(hash, scanner.needed_labels) and
-            ms.has_one_of(hash, scanner.has_one_of) then
-            local labels_added, labels_removed =
-                scanner.scanner_function(pos1, pos2)
-            ms.handle_labels(hash, labels_added, labels_removed)
-        end
-        current_scanner = current_scanner + 1
-        if current_scanner > #scanners then
-            table.remove(scan_queue, 1)
-            current_scanner = 1
-            if loaded_or_active(pos1) and not ms.was_scanned(hash) then
-                ms.add_labels(hash, {"scanned"})
-            end
-        end
-        minetest.after(scanner_break, run_scanners)
-        return
+    if loaded_or_active(pos1) and not ms.was_scanned(hash) then
+        ms.add_labels(hash, {"scanned"})
     end
-    minetest.after(longer_break, run_scanners)
-    return
+    table.remove(scan_queue, 1)
+    scanner_running = false
 end
-
-local current_worker = 1
 
 local workers = {}
-local worker_break = 0.005
+local workers_by_name = {}
+local worker_running = false
 
-local function run_workers()
+local function worker_break()
+    worker_running = false
+end
+
+local function run_workers(dtime)
+    if worker_running then
+        return
+    end
+    worker_running = true
     if ms.workers_changed then
         workers = table.copy(ms.workers)
+        workers_by_name = table.copy(ms.workers_by_name)
         ms.workers_changed = false
-        current_worker = 1
         work_queue = {}
-        minetest.after(longer_break, run_workers)
+        minetest.after(longer_break, worker_break)
         return
     end
-    local hash = work_queue[1]
-    if not hash then
-        minetest.after(worker_break, run_workers)
+    if #workers == 0 then
+        minetest.after(longer_break, worker_break)
         return
     end
+    local chunk = work_queue[1]
+    if not chunk then
+        minetest.after(small_break, worker_break)
+        return
+    end
+    --minetest.log("error", "work queue: "..#work_queue)
+    local hash = chunk.hash
     local pos1, pos2 = ms.mapchunk_borders(hash)
-    if not loaded_or_active(pos1) then
-        table.remove(work_queue, 1)
-        current_worker = 1
-        minetest.after(worker_break, run_workers)
-        return
+    for worker_name, _ in pairs(chunk.workers) do
+        local worker = workers_by_name[worker_name]
+        local labels_added, labels_removed =
+            worker.worker_function(pos1, pos2)
+        ms.handle_labels(hash, labels_added, labels_removed)
     end
-    if #workers > 0 then
-        --minetest.log("warning", "work queue: "..#work_queue)
-        local worker = workers[current_worker]
-        if ms.contains_labels(hash, worker.needed_labels) and
-            ms.has_one_of(hash, worker.has_one_of) then
-            local labels_added, labels_removed =
-                worker.worker_function(pos1, pos2)
-            ms.handle_labels(hash, labels_added, labels_removed)
-        end
-        current_worker = current_worker + 1
-        if current_worker > #workers then
-            table.remove(work_queue, 1)
-            current_worker = 1
-        end
-        minetest.after(worker_break, run_workers)
-        return
-    end
-    minetest.after(longer_break, run_workers)
-    return
+    table.remove(work_queue, 1)
+    worker_running = false
 end
 
-local function add_to_scan_queue(hash)
-    local scan = true
+local function add_to_scan_queue(hash, scanner_name)
+    local exists = false
     for _, chunk in pairs(scan_queue) do
-        if chunk == hash then
-            scan = false
+        if chunk.hash == hash then
+            chunk.scanners[scanner_name] = true
+            exists = true
+            break
         end
     end
-    if scan then
-        table.insert(scan_queue, hash)
+    if not exists then
+        local chunk = {hash = hash,
+                       scanners = {}}
+        chunk.scanners[scanner_name] = true
+        table.insert(scan_queue, chunk)
     end
 end
 
-local function add_to_work_queue(hash)
-    local work = true
+local function add_to_work_queue(hash, worker_name)
+    local exists = false
     for _, chunk in pairs(work_queue) do
-        if chunk == hash then
-            work = false
+        if chunk.hash == hash then
+            chunk.workers[worker_name] = true
+            exists = true
+            break
         end
     end
-    if work then
-        table.insert(work_queue, hash)
+    if not exists then
+        local chunk = {hash = hash,
+                       workers = {}}
+        chunk.workers[worker_name] = true
+        table.insert(work_queue, chunk)
     end
 end
 
@@ -211,7 +214,7 @@ local function good_for_scanner(hash, scanner, labels)
     local timer_labels = pick_labels(labels, scanner.rescan_labels)
     if has_labels then
         if scan_every and labels_baked(timer_labels, scan_every) or
-            #timer_labels == 0 then
+            scan_every and #timer_labels == 0 then
             return true
         elseif not ms.was_scanned(hash) then
             return true
@@ -251,17 +254,16 @@ local function save_scan_work(hash)
     local labels = ms.get_labels(hash)
     if not ms.is_tracked(hash) then
         ms.save_mapchunk(hash)
-        table.insert(scan_queue, hash)
         return
     end
     for _, scanner in pairs(scanners) do
         if good_for_scanner(hash, scanner, labels) then
-            add_to_scan_queue(hash)
+            add_to_scan_queue(hash, scanner.name)
         end
     end
     for _, worker in pairs(workers) do
         if good_for_worker(hash, worker, labels) then
-            add_to_work_queue(hash)
+            add_to_work_queue(hash, worker.name)
         end
     end
 end
@@ -312,8 +314,8 @@ if ms.chunksize_changed() then
 else
     -- Start the tracker
     minetest.register_globalstep(player_tracker_loop)
-    minetest.after(1, run_scanners)
-    minetest.after(1, run_workers)
+    minetest.register_globalstep(run_scanners)
+    minetest.register_globalstep(run_workers)
 end
 
 minetest.register_chatcommand(
