@@ -476,8 +476,8 @@ minetest.register_entity("animals:pegasun_male",{
 		walk={range={x=71, y=90}, speed=24, loop=true},
 		fast={range={x=91, y=110}, speed=24, loop=true},
 		stand={
-			{range={x=1, y=30}, speed=28, loop=true},
-			{range={x=31, y=70}, speed=32, loop=true},
+			{range={x=1, y=0}, speed=28, loop=true},
+			{range={x=31, y=0}, speed=32, loop=true},
 		},
 	},
 	sounds = {
@@ -592,8 +592,8 @@ minetest.register_entity("animals:pegasun",{
 		walk={range={x=71, y=90}, speed=24, loop=true},
 		fast={range={x=91, y=110}, speed=24, loop=true},
 		stand={
-			{range={x=1, y=30}, speed=28, loop=true},
-			{range={x=31, y=70}, speed=32, loop=true},
+			{range={x=1, y=0}, speed=28, loop=true},
+			{range={x=31, y=0}, speed=32, loop=true},
 		},
 	},
 	sounds = {

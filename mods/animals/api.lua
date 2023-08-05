@@ -1289,3 +1289,15 @@ function animals.mate_assess(self, name)
   end
 
 end
+
+-------- Mobkit function rewrites
+
+local creative_mode_cache = minetest.settings:get_bool("creative_mode")
+function animals.get_nearby_player(self)
+  local plyr = mobkit.get_nearby_player(self)
+  if (plyr) then
+    if (minetest.check_player_privs(plyr,{creative == true}) or creative_mode_cache == true) then
+      return plyr
+    end
+  end
+end
