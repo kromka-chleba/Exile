@@ -11,7 +11,9 @@ ms.scanners_changed = true
 ms.workers_changed = true
 
 local placeholder_id_pairs = {}
+local placeholder_id_finder_pairs = {}
 local ignore_id = minetest.get_content_id("ignore")
+local air_id = minetest.get_content_id("air")
 
 local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
 local chunk_side = blocks_per_chunk * 16
@@ -22,6 +24,7 @@ minetest.register_on_mods_loaded(function()
             local name = nodedef.name
             local id = minetest.get_content_id(name)
             id_pairs[id] = id
+            placeholder_id_finder_pairs[id] = false
         end
         id_pairs[ignore_id] = false
         placeholder_id_pairs = id_pairs
@@ -55,6 +58,7 @@ function ms.register_scanner(args)
     local args = table.copy(args)
     local needed_labels = args.needed_labels or {}
     local has_one_of = args.has_one_of or {}
+    local rescan_labels = args.rescan_labels or {}
     table.insert(needed_labels, "chunk_tracked")
     if not is_scanner_registered(args.name) then
         table.insert(
@@ -62,7 +66,9 @@ function ms.register_scanner(args)
             {name = args.name,
              scanner_function = args.fun,
              needed_labels = needed_labels,
-             has_one_of = has_one_of
+             has_one_of = has_one_of,
+             scan_every = args.scan_every,
+             rescan_labels = rescan_labels,
             }
         )
     end
@@ -73,9 +79,9 @@ function ms.register_worker(args)
     local args = table.copy(args)
     local needed_labels = args.needed_labels or {}
     local has_one_of = args.has_one_of or {}
+    local rework_labels = args.rework_labels or {}
     table.insert(needed_labels, "chunk_tracked")
-    table.insert(has_one_of, "scanned")
-    table.insert(has_one_of, "mapgen_scanned")
+    table.insert(needed_labels, "scanned")
     if not is_worker_registered(args.name) then
         table.insert(
             ms.workers,
@@ -83,6 +89,8 @@ function ms.register_worker(args)
              worker_function = args.fun,
              needed_labels = needed_labels,
              has_one_of = has_one_of,
+             work_every = args.work_every,
+             rework_labels = rework_labels,
             }
         )
     end
@@ -147,6 +155,7 @@ function ms.create_simple_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
+    local chance = args.chance or 1
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -166,7 +175,9 @@ function ms.create_simple_replacer(args)
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
-                data[i] = replacement
+                if chance >= math.random() then
+                    data[i] = replacement
+                end
                 found = true
             elseif data[i] == ignore_id then
                 return {"worker_failed"}
@@ -191,6 +202,7 @@ function ms.create_param2_aware_replacer(args)
     local not_found = args.not_found_labels
     local lower_than = args.lower_than or 257
     local higher_than = args.higher_than or -1
+    local chance = args.chance or 1
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -213,8 +225,147 @@ function ms.create_param2_aware_replacer(args)
             if replacement then
                 if data_param2[i] > higher_than and
                     data_param2[i] < lower_than then
-                    data[i] = replacement
+                    if chance >= math.random() then
+                        data[i] = replacement
+                    end
                     found = true
+                elseif data[i] == ignore_id then
+                    return {"worker_failed"}
+                end
+            end
+        end
+        if found then
+            vm:set_data(data)
+            vm:write_to_map(false)
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end
+
+function ms.create_light_aware_replacer(args)
+    local args = table.copy(args)
+    local find_replace_pairs = args.find_replace_pairs
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
+    local not_found = args.not_found_labels
+    local lower_than = args.lower_than or 16
+    local higher_than = args.higher_than or -1
+    local chance = args.chance or 1
+    local ids = table.copy(placeholder_id_pairs)
+    for to_find, replacement in pairs(find_replace_pairs) do
+        local find_id = minetest.get_content_id(to_find)
+        local replacement_id = minetest.get_content_id(replacement)
+        ids[find_id] = replacement_id
+    end
+    return function(pos1, pos2)
+        local pos_min, pos_max = pos1, pos2
+        local vm = VoxelManip()
+        local emin, emax = vm:read_from_map(pos_min, pos_max)
+        local area = VoxelArea:new{
+            MinEdge = emin,
+            MaxEdge = emax,
+        }
+        local found = false
+        local data = vm:get_data()
+        local data_light = vm:get_light_data()
+        for i = 1, #data do
+            local replacement = ids[data[i]]
+            if replacement then
+                local above = area:position(i)
+                above.y = above.y + 1
+                local above_index = area:indexp(above)
+                local random_pick = false
+                if not data_light[above_index] then
+                    above_index = i
+                    random_pick = true
+                    -- we can't read pos above at the top boundary
+                    -- that's why we're picking randomly lol
+                end
+                if data_light[above_index] > higher_than and
+                    data_light[above_index] < lower_than or random_pick
+                then
+                    if chance >= math.random() then
+                        data[i] = replacement
+                    end
+                    found = true
+                elseif data[i] == ignore_id then
+                    return {"worker_failed"}
+                end
+            end
+        end
+        if found then
+            vm:set_data(data)
+            vm:write_to_map(false)
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end
+
+-- Places nodes on top of a node if light above the node is good
+function ms.create_light_aware_top_placer(args)
+    local args = table.copy(args)
+    -- Labels
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
+    local not_found = args.not_found_labels
+    -- Node properties
+    local lower_than = args.lower_than or 16
+    local higher_than = args.higher_than or -1
+    local chance = args.chance or 1
+    -- Find ids
+    local nodes_to_find = args.to_find
+    local find_ids = table.copy(placeholder_id_finder_pairs)
+    for _, name in pairs(nodes_to_find) do
+        table.insert(find_ids, minetest.get_content_id(name))
+        local f_id = minetest.get_content_id(name)
+        find_ids[f_id] = f_id
+    end
+    -- Replace ids
+    local find_replace_pairs = args.find_replace_pairs
+    local replace_ids = table.copy(placeholder_id_pairs)
+    for to_find, replacement in pairs(find_replace_pairs) do
+        local find_id = minetest.get_content_id(to_find)
+        local replacement_id = minetest.get_content_id(replacement)
+        replace_ids[find_id] = replacement_id
+    end
+    
+    return function(pos1, pos2)
+        local pos_min, pos_max = pos1, pos2
+        local vm = VoxelManip()
+        local emin, emax = vm:read_from_map(pos_min, pos_max)
+        local area = VoxelArea:new{
+            MinEdge = emin,
+            MaxEdge = emax,
+        }
+        local found = false
+        local data = vm:get_data()
+        local data_light = vm:get_light_data()
+        for i = 1, #data do
+            local find_id = find_ids[data[i]]
+            if find_id then
+                if data[i] == find_id then
+                    local above = area:position(i)
+                    above.y = above.y + 1
+                    local above_index = area:indexp(above)
+                    if not data_light[above_index] then
+                        -- exit if at the edge of the chunk
+                        break
+                    end
+                    local replacement = replace_ids[data[above_index]]
+                    if data_light[above_index] > higher_than and
+                        data_light[above_index] < lower_than
+                    then
+                        if chance >= math.random() then
+                            data[above_index] = replacement
+                            found = true
+                        end
+                    end
                 elseif data[i] == ignore_id then
                     return {"worker_failed"}
                 end
@@ -245,9 +396,9 @@ function ms.create_deco_finder(args)
                 if #pos_list > 0 then
                     local hash = ms.mapchunk_hash(minp)
                     if not ms.contains_labels(hash, labels_to_add) then
-                        ms.save_mapchunk(hash, true)
+                        ms.save_mapchunk(hash)
                         ms.handle_labels(hash, labels_to_add, labels_to_remove)
-                        ms.add_labels(hash, {"mapgen_scanned"})
+                        ms.add_labels(hash, {"scanned"})
                         --minetest.log("error", dump(minp))
                     end
                 end

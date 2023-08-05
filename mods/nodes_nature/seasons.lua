@@ -7,8 +7,8 @@ local S = nodes_nature.S
 
 ---------------------------------------
 
-nsl = naturalslopeslib
-ms = mapchunk_shepherd
+local nsl = naturalslopeslib
+local ms = mapchunk_shepherd
 
 seasons = {}
 
@@ -261,6 +261,7 @@ ms.labels.register("winter_early_plants")
 ms.labels.register("winter_late_plants")
 
 ms.labels.register("seasonal_plants")
+ms.labels.register("seasonal_trees")
 
 local function get_seasonal_plant_names()
     local plant_names = {}
@@ -375,7 +376,7 @@ minetest.register_lbm({
             if not ms.contains_labels(hash, spring_labels) then
                 ms.save_mapchunk(hash, true)
                 ms.handle_labels(hash, spring_labels)
-                ms.add_labels(hash, {"mapgen_scanned"})
+                ms.add_labels(hash, {"scanned"})
             end
 	end,
 })
@@ -395,7 +396,7 @@ minetest.register_lbm({
             if not ms.contains_labels(hash, winter_labels) then
                 ms.save_mapchunk(hash, true)
                 ms.handle_labels(hash, winter_labels)
-                ms.add_labels(hash, {"mapgen_scanned"})
+                ms.add_labels(hash, {"scanned"})
             end
 	end,
 })

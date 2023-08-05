@@ -5,6 +5,8 @@
 
 local nodes_nature = nodes_nature
 local rt = nodes_nature.replacement_types
+local ms = mapchunk_shepherd
+local seasons = seasons
 
 ----------------------------------------------------------------
 --freeze water
@@ -94,8 +96,6 @@ local function thaw_frozen(pos, node)
       local name = node.name
       if name == "nodes_nature:snow_block" then
 	 minetest.set_node(p, {name = "nodes_nature:freshwater_source"})
-      elseif name == "nodes_nature:snow" then
-	 minetest.remove_node(p)
       elseif name == "nodes_nature:ice" then
 	 local under = minetest.get_node({x = p.x, y = p.y-1, z =p.z})
 	 if under.name == "nodes_nature:salt_water_source" then
@@ -115,81 +115,13 @@ end
 
 minetest.register_abm({
 	label = "Thaw Ice and snow",
-	nodenames = {"nodes_nature:ice", "nodes_nature:snow_block", "nodes_nature:snow", "nodes_nature:sea_ice"},
+	nodenames = {"nodes_nature:ice", "nodes_nature:snow_block", "nodes_nature:sea_ice"},
 	interval = 103,
 	chance = 5,
 	action = function(...)
 		thaw_frozen(...)
 	end
 })
-
-
-
-------------------------------------------------------------------
---
-local function snow_accumulate(pos, node)
-	if pos.y < -15 then
-		return
-	end
-
-	--
-	local posu = {x = pos.x, y = pos.y - 1, z = pos.z}
-	local under_name = minetest.get_node(posu).name
-
-	if under_name == "air" then
-		return
-	end
-
-	--is snowing
-	if not climate.get_snow(pos) then
-		return
-	end
-
-	local nodedef = minetest.registered_nodes[under_name]
-	if not nodedef then
-		return
-	end
-
-	--walkable under i.e. not on water etc
-	local walk = nodedef.walkable
-	if not walk then
-		return
-	end
-
-	--pile up snow
-	if under_name == "nodes_nature:snow" then
-		minetest.swap_node(posu, {name = "nodes_nature:snow_block"})
-		return
-	end
-
-	--not on stairs, meshes etc
-	local draw = nodedef.drawtype
-	if draw ~= 'normal' then
-		return
-	end
-
-	--thin snow
-	minetest.set_node(pos, {name = "nodes_nature:snow"})
-
-end
-
-
---
-minetest.register_abm({
-	label = "snow accumulate",
-	nodenames = {"air", "nodes_nature:snow"},
-	neighbors = {"group:crumbly","group:cracky", "group:snappy"},
-	interval = 72,
-	chance = 770,
-	min_y = -15,
-	action = function(...)
-		snow_accumulate(...)
-	end
-})
-
-
-
-
 
 --puddle detect
 --check for sides that can hold water
@@ -236,15 +168,6 @@ local function moisture_spread(pos, node)
         --1= fresh or 2 = salty
         
 	if not nodedef or not water_type then
-		return
-	end
-
-        local dry_name = nodedef._dry_name
-
-	--evaporation
-	if climate.can_evaporate(pos) then
-		--lose it's own water to the atmosphere
-		tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
 		return
 	end
 
@@ -310,8 +233,8 @@ local function moisture_spread(pos, node)
 
 end
 
---
---
+
+
 minetest.register_abm({
 	label = "Moisture Spread",
 	nodenames = {"group:wet_sediment"},
@@ -475,35 +398,364 @@ minetest.register_abm({
 	end
 })
 
+-----------------------------------
+-- Rain soak
 
-------------------------------------------------------------------
---soak water into soil, catch water in puddles
-local function rain_soak(pos, node)
-    if climate.get_rain(pos) then
-        --dry sediment absorbs water
-        if minetest.get_item_group(node.name, "wet_sediment") == 0 then
-            --set wet version of what draining into
-            tgcr.make_replacement(pos, rt.REPLACEMENT_WET)
-            return
-        elseif math.random() < 0.3 then
-            -- wet can trap puddles
-            local posa = minimal.get_pos_above(pos)
-            if minetest.get_node(posa).name == "air" and puddle_detect(posa) then
-                minetest.set_node(posa, {name = "nodes_nature:freshwater_source"})
-            end
+ms.labels.register("last_rain")
+ms.labels.register("last_snow")
+ms.labels.register("last_evaporated")
+ms.labels.register("last_thawed")
+
+local function get_dry_wet_pairs()
+    local soil_pairs = {}
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        if minetest.get_item_group(name, "dry_sediment") > 0 then
+            soil_pairs[name] = nodedef._wet_name or name
         end
+    end
+    return soil_pairs
+end
+
+local dry_to_wet = get_dry_wet_pairs()
+
+local function get_wet_dry_pairs()
+    local soil_pairs = {}
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        if minetest.get_item_group(name, "wet_sediment") > 0 then
+            soil_pairs[name] = nodedef._dry_name or name
+        end
+    end
+    return soil_pairs
+end
+
+local wet_to_dry = get_wet_dry_pairs()
+
+local light_rain_replacer =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = dry_to_wet,
+         add_labels = {"last_rain"},
+         chance = 1/50,
+         higher_than = 14,
+        }
+    )
+
+local heavy_rain_replacer =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = dry_to_wet,
+         add_labels = {"last_rain"},
+         chance = 1/15,
+         higher_than = 14,
+        }
+    )
+
+local thunderstorm_replacer =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = dry_to_wet,
+         add_labels = {"last_rain"},
+         chance = 1/8,
+         higher_than = 14,
+        }
+    )
+
+local current_soaker = false
+local soaker_running = false
+local soaker_changed = true
+local evaporator_running = false
+local rain_replacer = false
+local is_raining = false
+
+local function pick_rain_replacer(weather)
+    local new_soaker = false
+    is_raining = true
+    if weather == "overcast_rain" then
+        rain_replacer = light_rain_replacer
+        new_soaker = "light"
+    elseif weather == "overcast_heavy_rain" then
+        rain_replacer = heavy_rain_replacer
+        new_soaker = "heavy"
+    elseif weather == "thunderstorm" or
+        weather == "superstorm" then
+        rain_replacer = thunderstorm_replacer
+        new_soaker = "storm"
+    else
+        rain_replacer = false
+        soaker_changed = false
+        is_raining = false
+    end
+
+    if new_soaker ~= current_soaker then
+        current_soaker = new_soaker
+        soaker_changed = true
     end
 end
 
+-----------------------
+-- Evaporation
 
---
-minetest.register_abm({
-	label = "Rain Soak",
-	nodenames = {"group:sediment"},
-	interval = 92,
-	chance = 180,
-	min_y = -15,
-	action = function(...)
-            rain_soak(...)
-	end
-})
+local current_evaporator = false
+local evap_replacer = false
+local evap_interval = 10
+local evap_changed = true
+
+local light_evaporator =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = wet_to_dry,
+         add_labels = {"last_evaporated"},
+         chance = 1/15,
+         higher_than = 10,
+        }
+    )
+
+-- The Evaporator - destroyer of worlds, the sovereign of drought and thirst
+local the_evaporator =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = wet_to_dry,
+         add_labels = {"last_evaporated"},
+         chance = 1/2,
+         higher_than = 10,
+        }
+    )
+
+local function pick_evaporator(season)
+    local new_evaporator = false
+    if season == "summer_early" or season == "summer_late" then
+        evap_replacer = the_evaporator
+        new_evaporator = "the_evaporator"
+        evap_interval = 200
+    else
+        evap_replacer = light_evaporator
+        new_evaporator = "light"
+        evap_interval = 400
+    end
+    if current_evaporator ~= new_evaporator then
+        current_evaporator = new_evaporator
+        evap_changed = true
+    end
+end
+
+---------------
+-- Snow
+
+local function get_nodes_for_snow()
+    local good = {}
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        --walkable under i.e. not on water etc
+        local walk = nodedef.walkable
+        --not on stairs, meshes etc
+        local draw = nodedef.drawtype
+        if (minetest.get_item_group(name, "crumbly") > 0 or
+            minetest.get_item_group(name, "cracky") > 0 or
+            minetest.get_item_group(name, "snappy") > 0) and
+            walk and draw == "normal"
+        then
+            table.insert(good, name)
+        end
+    end
+    return good
+end
+
+local snow_replace_pairs = {
+    ["air"] = "nodes_nature:snow",
+}
+
+local nodes_for_snow = get_nodes_for_snow()
+
+local light_snow_placer =
+    ms.create_light_aware_top_placer(
+        {to_find = nodes_for_snow,
+         find_replace_pairs = snow_replace_pairs,
+         add_labels = {"last_snow"},
+         chance = 1/50,
+         higher_than = 14,
+        }
+    )
+
+local heavy_snow_placer =
+    ms.create_light_aware_top_placer(
+        {to_find = nodes_for_snow,
+         find_replace_pairs = snow_replace_pairs,
+         add_labels = {"last_snow"},
+         chance = 1/15,
+         higher_than = 14,
+        }
+    )
+
+local snowstorm_placer =
+    ms.create_light_aware_top_placer(
+        {to_find = nodes_for_snow,
+         find_replace_pairs = snow_replace_pairs,
+         add_labels = {"last_snow"},
+         chance = 1/8,
+         higher_than = 14,
+        }
+    )
+
+local current_snower = false
+local snow_placer = false
+local snower_changed = true
+local snow_interval = 20
+local is_snowing = false
+local snower_running = false
+
+local function pick_snower(weather)
+    local new_snower = false
+    is_snowing = true
+    if weather == "overcast_snow" then
+        snow_placer = light_snow_placer
+        new_snower = "light"
+    elseif weather == "overcast_heavy_snow" then
+        snow_placer = heavy_snow_placer
+        new_snower = "heavy"
+    elseif weather == "snowstorm" then
+        snow_placer = snowstorm_placer
+        new_snower = "storm"
+    else
+        snow_placer = false
+        snower_changed = false
+        is_snowing = false
+    end
+
+    if new_snower ~= current_snower then
+        current_snower = new_snower
+        snower_changed = true
+    end
+end
+
+local function initialize_soaker()
+    soaker_running = true
+    evaporator_running = false
+    ms.remove_worker("evaporation_worker")
+    ms.remove_worker("snow_place_worker")
+    ms.register_worker({name = "rain_soak_worker",
+                        fun = rain_replacer,
+                        has_one_of = {"spring_soil",
+                                      "winter_soil"},
+                        work_every = 25,
+                        rework_labels = {"last_rain"},
+    })
+    soaker_changed = false
+end
+
+local function initialize_snower()
+    soaker_running = false
+    evaporator_running = false
+    snower_running = true
+    ms.remove_worker("evaporation_worker")
+    ms.remove_worker("rain_soak_worker")
+    ms.register_worker({name = "snow_place_worker",
+                        fun = snow_placer,
+                        has_one_of = {"spring_soil",
+                                      "winter_soil"},
+                        work_every = 30,
+                        rework_labels = {"last_snow"},
+    })
+    snower_changed = false
+end
+
+local function initialize_evaporator()
+    soaker_running = false
+    evaporator_running = true
+    snower_running = false
+    ms.remove_worker("rain_soak_worker")
+    ms.remove_worker("snow_place_worker")
+    ms.register_worker({name = "evaporation_worker",
+                        fun = evap_replacer,
+                        has_one_of = {"last_rain",
+                                      "last_evaporated"},
+                        work_every = evap_interval,
+                        rework_labels = {"last_evaporated"},
+    })
+    evap_changed = false
+end
+
+----------------------
+-- Thawing
+
+local thaw_pairs = {
+    ["nodes_nature:snow"] = "air",
+}
+
+local light_thawer =
+    ms.create_simple_replacer(
+        {find_replace_pairs = thaw_pairs,
+         add_labels = {"last_thawed"},
+         chance = 1/5,
+        }
+    )
+
+local total_thawer =
+    ms.create_simple_replacer(
+        {find_replace_pairs = thaw_pairs,
+         remove_labels = {"last_snow",
+                          "last_thawed"},
+        }
+    )
+
+local current_thawer = false
+local thawer_changed = true
+local thawer_running = false
+local thawer_interval = false
+local thawer = false
+
+local function disable_thawer()
+    if thawer_running then
+        ms.remove_worker("thawing_worker")
+        thawer_running = false
+        current_thawer = "none"
+    end
+end
+
+local weather_loop_interval = 5
+
+local function weather_loop()
+    local weather = climate.active_weather.name
+    local season = seasons.get_season_name()
+    pick_rain_replacer(weather)
+    pick_snower(weather)
+    if is_raining then
+        if not soaker_running or soaker_changed then
+            initialize_soaker()
+        end
+    elseif is_snowing then
+        if not snower_running or snower_changed then
+            initialize_snower()
+        end
+    else
+        pick_evaporator(season)
+        if not evaporator_running or evap_changed then
+            initialize_evaporator()
+        end
+    end
+
+    if seasons.is_winter() then
+        -- no thawer
+        disable_thawer()
+    elseif season == "spring_early" then
+        -- light thawer
+        if current_thawer ~= "light" then
+            disable_thawer()
+            ms.register_worker({name = "thawing_worker",
+                                fun = light_thawer,
+                                needed_labels = {"last_snow"},
+                                work_every = 60,
+                                rework_labels = {"last_evaporated"},
+            })
+            thawer_running = true
+            current_thawer = "light"
+        end
+    else
+        -- total thawer
+        if current_thawer ~= "total" then
+            disable_thawer()
+            ms.register_worker({name = "thawing_worker",
+                                fun = total_thawer,
+                                needed_labels = {"last_snow"},
+            })
+            thawer_running = true
+            current_thawer = "total"
+        end
+    end
+    minetest.after(weather_loop_interval, weather_loop)
+end
+
+minetest.after(2, weather_loop)
