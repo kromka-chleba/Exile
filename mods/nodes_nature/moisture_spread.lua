@@ -430,7 +430,7 @@ local function light_rain_replacer()
     return ms.create_light_aware_replacer(
         {find_replace_pairs = get_dry_wet_pairs(),
          add_labels = {"last_rain"},
-         chance = 1/50,
+         chance = 1/40,
          higher_than = 14,
         }
     )
@@ -440,7 +440,7 @@ local function heavy_rain_replacer()
     return ms.create_light_aware_replacer(
         {find_replace_pairs = get_dry_wet_pairs(),
          add_labels = {"last_rain"},
-         chance = 1/15,
+         chance = 1/10,
          higher_than = 14,
         }
     )
@@ -450,7 +450,7 @@ local function thunderstorm_replacer()
     return ms.create_light_aware_replacer(
         {find_replace_pairs = get_dry_wet_pairs(),
          add_labels = {"last_rain"},
-         chance = 1/8,
+         chance = 1/4,
          higher_than = 14,
         }
     )
