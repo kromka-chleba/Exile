@@ -16,7 +16,7 @@ local floor = math.floor
 --energy
 local energy_max = 8000--secs it can survive without food
 local energy_egg = energy_max/2 --energy that goes to egg
-local egg_timer  = 60*60
+local egg_timer  = 60*25 --60*60
 local young_per_egg = 1		--will get this/energy_egg starting energy
 
 local lifespan = energy_max * 10
@@ -25,14 +25,13 @@ local lifespan_male = lifespan * 1.2 --if the flock male dies they go extinct
 
 -----------------------------------
 local function brain(self)
-
 	--die from damage
 	if not animals.core_hp(self) then
 		return
 	end
 
 	if mobkit.timer(self,1) then
-
+    
 		local pos = mobkit.get_stand_pos(self)
 
 		local age, energy = animals.core_life(self, lifespan, pos)
@@ -110,11 +109,11 @@ local function brain(self)
 					animals.flock(self, 25, 3)
 				elseif random()< 0.01 then
 					animals.territorial(self, energy, false)
-				elseif random() < 0.05 then
+				elseif random() < 0.1 then
 
 					--reproduction
 					if self.hp >= self.max_hp
-					and energy >= energy_max - 100 then
+					and energy >= (energy_egg * 1.5) then
 
 						--are we already pregnant?
 						local preg = mobkit.recall(self,'pregnant') or false
@@ -145,8 +144,22 @@ local function brain(self)
 				end
 
 			elseif energy < energy_max then
-
+        if not (random() <= 0.9 and animals.prey_hunt(self,30)) then
+          if (random() <= 0.8) then
+            if (animals.eat_flora(pos,0.08) == true) then
+              energy = energy + 20
+            else
+              --wander random
+              mobkit.animate(self,'walk')
+              animals.hq_roam_walkable_group(self, 'herbaceous_plant', 15)
+            end
+          else
+            mobkit.animate(self,'walk')
+						mobkit.hq_roam(self,10)
+          end
+        end
 				--feed via a method
+        --[[
 				if random()< 0.85 then
 					--scratch dirt
 					if animals.eat_spreading_under(pos, 0.001) == true then
@@ -176,6 +189,7 @@ local function brain(self)
 						--animals.hq_roam_surface_group(self, 'spreading', 10)
 					end
 				end
+        --]]
 			end
 
 		end
@@ -315,8 +329,23 @@ local function brain_male(self)
 				end
 
 			elseif energy < energy_max then
-
+        
 				--feed via a method
+        if not (random() <= 0.6 and animals.prey_hunt(self,30)) then
+          if (random() <= 0.6) then
+            if (animals.eat_flora(pos,0.08) == true) then
+              energy = energy + 20
+            else
+              --wander random
+              mobkit.animate(self,'walk')
+              animals.hq_roam_walkable_group(self, 'herbaceous_plant', 15)
+            end
+          else
+            mobkit.animate(self,'walk')
+						mobkit.hq_roam(self,10)
+          end
+        end
+        --[[
 				if random()< 0.75 then
 					--scratch dirt
 					if animals.eat_spreading_under(pos, 0.001) == true then
@@ -346,6 +375,7 @@ local function brain_male(self)
 						--animals.hq_roam_surface_group(self, 'spreading', 10)
 					end
 				end
+        --]]
 			end
 
 		end
