@@ -410,52 +410,51 @@ local function get_dry_wet_pairs()
     local soil_pairs = {}
     for name, nodedef in pairs(minetest.registered_nodes) do
         if minetest.get_item_group(name, "dry_sediment") > 0 then
-            soil_pairs[name] = nodedef._wet_name or name
+            soil_pairs[name] = tgcr.find_replacement(name, rt.REPLACEMENT_WET)
         end
     end
     return soil_pairs
 end
-
-local dry_to_wet = get_dry_wet_pairs()
 
 local function get_wet_dry_pairs()
     local soil_pairs = {}
     for name, nodedef in pairs(minetest.registered_nodes) do
         if minetest.get_item_group(name, "wet_sediment") > 0 then
-            soil_pairs[name] = nodedef._dry_name or name
+            soil_pairs[name] = tgcr.find_replacement(name, rt.REPLACEMENT_DRY)
         end
     end
     return soil_pairs
 end
 
-local wet_to_dry = get_wet_dry_pairs()
-
-local light_rain_replacer =
-    ms.create_light_aware_replacer(
-        {find_replace_pairs = dry_to_wet,
+local function light_rain_replacer()
+    return ms.create_light_aware_replacer(
+        {find_replace_pairs = get_dry_wet_pairs(),
          add_labels = {"last_rain"},
          chance = 1/50,
          higher_than = 14,
         }
     )
+end
 
-local heavy_rain_replacer =
-    ms.create_light_aware_replacer(
-        {find_replace_pairs = dry_to_wet,
+local function heavy_rain_replacer()
+    return ms.create_light_aware_replacer(
+        {find_replace_pairs = get_dry_wet_pairs(),
          add_labels = {"last_rain"},
          chance = 1/15,
          higher_than = 14,
         }
     )
+end
 
-local thunderstorm_replacer =
-    ms.create_light_aware_replacer(
-        {find_replace_pairs = dry_to_wet,
+local function thunderstorm_replacer()
+    return ms.create_light_aware_replacer(
+        {find_replace_pairs = get_dry_wet_pairs(),
          add_labels = {"last_rain"},
          chance = 1/8,
          higher_than = 14,
         }
     )
+end
 
 local current_soaker = false
 local soaker_running = false
@@ -468,14 +467,14 @@ local function pick_rain_replacer(weather)
     local new_soaker = false
     is_raining = true
     if weather == "overcast_rain" then
-        rain_replacer = light_rain_replacer
+        rain_replacer = light_rain_replacer()
         new_soaker = "light"
     elseif weather == "overcast_heavy_rain" then
-        rain_replacer = heavy_rain_replacer
+        rain_replacer = heavy_rain_replacer()
         new_soaker = "heavy"
     elseif weather == "thunderstorm" or
         weather == "superstorm" then
-        rain_replacer = thunderstorm_replacer
+        rain_replacer = thunderstorm_replacer()
         new_soaker = "storm"
     else
         rain_replacer = false
@@ -497,33 +496,35 @@ local evap_replacer = false
 local evap_interval = 10
 local evap_changed = true
 
-local light_evaporator =
-    ms.create_light_aware_replacer(
-        {find_replace_pairs = wet_to_dry,
+local function light_evaporator()
+    return ms.create_light_aware_replacer(
+        {find_replace_pairs = get_wet_dry_pairs(),
          add_labels = {"last_evaporated"},
          chance = 1/15,
          higher_than = 10,
         }
     )
+end
 
 -- The Evaporator - destroyer of worlds, the sovereign of drought and thirst
-local the_evaporator =
-    ms.create_light_aware_replacer(
-        {find_replace_pairs = wet_to_dry,
+local function the_evaporator()
+    return ms.create_light_aware_replacer(
+        {find_replace_pairs = get_wet_dry_pairs(),
          add_labels = {"last_evaporated"},
          chance = 1/2,
          higher_than = 10,
         }
     )
+end
 
 local function pick_evaporator(season)
     local new_evaporator = false
     if season == "summer_early" or season == "summer_late" then
-        evap_replacer = the_evaporator
+        evap_replacer = the_evaporator()
         new_evaporator = "the_evaporator"
         evap_interval = 200
     else
-        evap_replacer = light_evaporator
+        evap_replacer = light_evaporator()
         new_evaporator = "light"
         evap_interval = 400
     end
@@ -558,37 +559,38 @@ local snow_replace_pairs = {
     ["air"] = "nodes_nature:snow",
 }
 
-local nodes_for_snow = get_nodes_for_snow()
-
-local light_snow_placer =
-    ms.create_light_aware_top_placer(
-        {to_find = nodes_for_snow,
+local function light_snow_placer()
+    return ms.create_light_aware_top_placer(
+        {to_find = get_nodes_for_snow(),
          find_replace_pairs = snow_replace_pairs,
          add_labels = {"last_snow"},
          chance = 1/50,
          higher_than = 14,
         }
     )
+end
 
-local heavy_snow_placer =
-    ms.create_light_aware_top_placer(
-        {to_find = nodes_for_snow,
+local function heavy_snow_placer()
+    return ms.create_light_aware_top_placer(
+        {to_find = get_nodes_for_snow(),
          find_replace_pairs = snow_replace_pairs,
          add_labels = {"last_snow"},
          chance = 1/15,
          higher_than = 14,
         }
     )
+end
 
-local snowstorm_placer =
-    ms.create_light_aware_top_placer(
-        {to_find = nodes_for_snow,
+local function snowstorm_placer()
+    return ms.create_light_aware_top_placer(
+        {to_find = get_nodes_for_snow(),
          find_replace_pairs = snow_replace_pairs,
          add_labels = {"last_snow"},
          chance = 1/8,
          higher_than = 14,
         }
     )
+end
 
 local current_snower = false
 local snow_placer = false
@@ -601,13 +603,13 @@ local function pick_snower(weather)
     local new_snower = false
     is_snowing = true
     if weather == "overcast_snow" then
-        snow_placer = light_snow_placer
+        snow_placer = light_snow_placer()
         new_snower = "light"
     elseif weather == "overcast_heavy_snow" then
-        snow_placer = heavy_snow_placer
+        snow_placer = heavy_snow_placer()
         new_snower = "heavy"
     elseif weather == "snowstorm" then
-        snow_placer = snowstorm_placer
+        snow_placer = snowstorm_placer()
         new_snower = "storm"
     else
         snow_placer = false
@@ -758,4 +760,6 @@ local function weather_loop()
     minetest.after(weather_loop_interval, weather_loop)
 end
 
-minetest.after(2, weather_loop)
+minetest.register_on_mods_loaded(function ()
+        minetest.after(2, weather_loop)
+end)
