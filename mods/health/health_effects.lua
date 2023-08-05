@@ -94,7 +94,132 @@ local function is_illness_valid(player,life_num) -- general function that will d
 end
 
 ------------------------------------------------------------------
+
+--COMPONENT EFFECTS
+------------------------------------------------------------------
+
+
+--throw up losing some food and water
+local function vomit(player, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
+	--vomit repeatedly after time
+  local life_num = get_life_num(player)
+  
+	local ranrep = random(repeat_min, repeat_max)
+
+	local randel = 0
+
+	for i=1, ranrep do
+		randel = randel + random(delay_min, delay_max)
+		minetest.after(randel, function()
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
+      
+			local pos = player:get_pos()
+			minetest.sound_play("health_vomit", {pos = pos, gain = 0.5, max_hear_distance = 2})
+
+			local rant =  random(t_min, t_max)
+			local ranh = random(h_min, h_max)
+
+			--must directly set them, as time delay means it isn't feeding into main health loop
+      HEALTH.modify_int(player,"thirst",-rant)
+      HEALTH.modify_int(player,"hunger",-ranh)
+		end)
+	end
+end
+
+
+--stagger, make player hard to control
+local function stagger(player, repeat_min, repeat_max, delay_min, delay_max, stag)
+  
+  local life_num = get_life_num(player)
+
+	local name = player:get_player_name()
+
+	--move erraticly repeatedly after time
+	local ranrep = random(repeat_min, repeat_max)
+	local randel = 0
+
+	for i=1, ranrep do
+		randel = randel + random(delay_min, delay_max)
+		minetest.after(randel, function()
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
+        
+			if not bed_rest.player[name] then
+				local xr = random(-stag, stag)
+				local zr = random(-stag, stag)
+				player:add_velocity({x=xr, y=0, z=zr})
+				--player_api.set_animation(player, "walk", 10) --doesn't work
+			end
+		end)
+	end
+end
+
+
+--organ failure... time to die...
+local function organ_failure(player, repeat_min, repeat_max, delay_min, delay_max, dam_min, dam_max)
+  local life_num = get_life_num(player)
+  
+	local ranrep = random(repeat_min, repeat_max)
+	local name = player:get_player_name()
+	minetest.sound_play("health_heart", {to_player = name, gain = 0.5})
+
+	local randel = 0
+
+	for i=1, ranrep do
+		randel = randel + random(delay_min, delay_max)
+		minetest.after(randel, function()
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
+      
+			local ran_dam =  random(dam_min, dam_max)
+      
+      HEALTH.modify_hp(player,-ran_dam)
+		end)
+	end
+
+end
+
+
+--hallucinate
+local function auditory_hallucination(player, repeat_min, repeat_max, delay_min, delay_max, min_gain, max_gain)
+	--hear things repeatedly after time
+  local life_num = get_life_num(player)
+  
+	local ranrep = random(repeat_min, repeat_max)
+	local name = player:get_player_name()
+
+	local randel = 0
+
+	for i=1, ranrep do
+		randel = randel + random(delay_min, delay_max)
+		minetest.after(randel, function()
+        
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
+
+			local pos = player:get_pos()
+			-- happens after randel delay, so player may be gone
+			if pos == nil then return end
+
+			pos = {x=pos.x+random(-15,15), y=pos.y+random(-15,15), z=pos.z+random(-15,15)}
+
+			minetest.sound_play("health_hallucinate", {to_player = name, pos = pos, gain = random(min_gain,max_gain)})
+
+		end)
+	end
+end
+
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
 -- HEALTH EFFECT REF TABLE
+------------------------------------------------------------------
+------------------------------------------------------------------
 ------------------------------------------------------------------
 
 function HEALTH.illness_ref(name,severity,modify)
@@ -129,6 +254,7 @@ function HEALTH.illness_ref(name,severity,modify)
     jump = battrbs.jump,
     
     time = {4,6},
+    delay = {2,4},
     
     life_num = 0,
   }
@@ -176,6 +302,8 @@ function HEALTH.illness_ref(name,severity,modify)
   
   local fever_temp = (temp + 2)
   
+  
+  local self = illness_ref -- for use by possible defined functions
 ------------------------------------------------------------------
 ---- ENVIRONMENTAL FACTORS \/\/
 
@@ -664,136 +792,11 @@ function HEALTH.illness_ref(name,severity,modify)
   illness_ref.name = name
   illness_ref.severity = severity
 end
-
 ------------------------------------------------------------------
 --COMPONENT EFFECTS
 ------------------------------------------------------------------
-
-
---throw up losing some food and water
-local function vomit(player, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
-	--vomit repeatedly after time
-  local life_num = get_life_num(player)
-  
-	local ranrep = random(repeat_min, repeat_max)
-
-	local randel = 0
-
-	for i=1, ranrep do
-		randel = randel + random(delay_min, delay_max)
-		minetest.after(randel, function()
-      if (is_illness_valid(player,life_num) ~= true) then
-        return
-      end
-      
-			local pos = player:get_pos()
-			minetest.sound_play("health_vomit", {pos = pos, gain = 0.5, max_hear_distance = 2})
-
-			local rant =  random(t_min, t_max)
-			local ranh = random(h_min, h_max)
-
-			--must directly set them, as time delay means it isn't feeding into main health loop
-      HEALTH.modify_int(player,"thirst",-rant)
-      HEALTH.modify_int(player,"hunger",-ranh)
-		end)
-	end
-end
-
-
---stagger, make player hard to control
-local function stagger(player, repeat_min, repeat_max, delay_min, delay_max, stag)
-  
-  local life_num = get_life_num(player)
-
-	local name = player:get_player_name()
-
-	--move erraticly repeatedly after time
-	local ranrep = random(repeat_min, repeat_max)
-	local randel = 0
-
-	for i=1, ranrep do
-		randel = randel + random(delay_min, delay_max)
-		minetest.after(randel, function()
-      if (is_illness_valid(player,life_num) ~= true) then
-        return
-      end
-        
-			if not bed_rest.player[name] then
-				local xr = random(-stag, stag)
-				local zr = random(-stag, stag)
-				player:add_velocity({x=xr, y=0, z=zr})
-				--player_api.set_animation(player, "walk", 10) --doesn't work
-			end
-		end)
-	end
-end
-
-
---organ failure... time to die...
-local function organ_failure(player, repeat_min, repeat_max, delay_min, delay_max, dam_min, dam_max)
-  local life_num = get_life_num(player)
-  
-	local ranrep = random(repeat_min, repeat_max)
-	local name = player:get_player_name()
-	minetest.sound_play("health_heart", {to_player = name, gain = 0.5})
-
-	local randel = 0
-
-	for i=1, ranrep do
-		randel = randel + random(delay_min, delay_max)
-		minetest.after(randel, function()
-      if (is_illness_valid(player,life_num) ~= true) then
-        return
-      end
-      
-			local ran_dam =  random(dam_min, dam_max)
-
-			local health = player:get_hp()
-			health = health - ran_dam
-
-			if health < 0 then
-				health = 0
-			elseif health > 20 then
-				health = 20
-			end
-
-			player:set_hp(health)
-
-		end)
-	end
-
-end
-
-
---hallucinate
-local function auditory_hallucination(player, repeat_min, repeat_max, delay_min, delay_max, min_gain, max_gain)
-	--hear things repeatedly after time
-  local life_num = get_life_num(player)
-  
-	local ranrep = random(repeat_min, repeat_max)
-	local name = player:get_player_name()
-
-	local randel = 0
-
-	for i=1, ranrep do
-		randel = randel + random(delay_min, delay_max)
-		minetest.after(randel, function()
-        
-      if (is_illness_valid(player,life_num) ~= true) then
-        return
-      end
-
-			local pos = player:get_pos()
-			-- happens after randel delay, so player may be gone
-			if pos == nil then return end
-
-			pos = {x=pos.x+random(-15,15), y=pos.y+random(-15,15), z=pos.z+random(-15,15)}
-
-			minetest.sound_play("health_hallucinate", {to_player = name, pos = pos, gain = random(min_gain,max_gain)})
-
-		end)
-	end
-end
+------------------------------------------------------------------
+------------------------------------------------------------------
 
 
 --tunnel vision

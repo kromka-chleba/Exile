@@ -5,10 +5,10 @@
 -----------------------------
 local random = math.random
 
-local function modify_hp(...)
+local function modify_hp(...) -- player, hp_amt
   return HEALTH.modify_hp(...)
 end
-local function modify_int(...)
+local function modify_int(...) -- player, int_name, int_value
   return HEALTH.modify_int(...)
 end
 
@@ -103,7 +103,7 @@ local function quick_physics(player, name, health, energy, thirst, hunger, tempe
   end
 
   --temp malus..severe..having this happen would make you very ill
-  if temperature > 100 or temperature < 0 then
+  if temperature >= 100 or temperature <= 0 then
 		--you dead
 		mov = mov - 10000
 		jum = jum - 10000
@@ -146,8 +146,8 @@ function HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_chang
 	local name = user:get_player_name()
 	local meta = user:get_meta()
 
-  local mov = meta:get_int("move")
-	local jum = meta:get_int("jump")
+  --local mov = meta:get_int("move")
+	--local jum = meta:get_int("jump")
 
 	local health = modify_hp(user,hp_change)
   local thirst = modify_int(user,"thirst",thirst_change)
@@ -158,7 +158,8 @@ function HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_chang
 	--set new values
 	-- and update malus (need for setting correct physics) --conflicts with Health Effects!
 	--HEALTH.malus_bonus(user, name, meta, health, energy, thirst, hunger, temperature)
-  quick_physics(user, name, health, energy, thirst, hunger, temperature)
+  HEALTH.q_malus_bonus(user)
+  --quick_physics(user, name, health, energy, thirst, hunger, temperature)
 
 	
   

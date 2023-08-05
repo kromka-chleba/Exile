@@ -29,6 +29,12 @@ dofile(minetest.get_modpath('health')..'/food.lua')
 local interval = 60
 
 -----------------------------
+-- function dump
+local function math_clamp(...) -- num,min,max
+  return minimal.math_clamp(...)
+end
+
+-----------------------------
 --Player Attibutes
 --
 --use standard values base, so it doesn't compound each time called
@@ -83,22 +89,31 @@ function HEALTH.set_default_attributes(player)
     if (type(value) == "number" and name ~= "health") then
       value = math.ceil(value)
       
-      --if (name == "temp_min" or name == "temp_max") then
-        --name = "clothing_"..name
-      --end
-      
       meta:set_int(name,value)
     elseif (type(value) == "string") then
       meta:set_string(name,value)
     end
   end
 end
-HEALTH.reset_attributes = HEALTH.set_default_attributes -- ditto definition
+function HEALTH.reset_attributes(...) -- ditto definition
+  HEALTH.set_default_attributes(...)
+end
 
 function HEALTH.get_player_stats(player)
   local meta = player:get_meta()
   
-  return meta:to_table()
+  local fields = meta:to_table().fields
+  
+  for key,value in pairs(fields) do -- apparently all data is turned into strings???
+    value = tonumber(value) -- turn into a number to check if the thing is actually a number
+    if (type(value) == "number") then
+      fields[key] = value
+    end
+  end
+  
+  fields.health = player:get_hp()
+  
+  return fields,meta
 end
 
 
@@ -127,17 +142,9 @@ function HEALTH.set_int(player,name,value)
   value = math.ceil(value)
   
   if (name == "hunger" or name == "energy") then
-    if (value > 1000) then
-      value = 1000
-    elseif (value < 0) then
-      value = 0
-    end
+    value = math_clamp(value,0,1000)
   elseif (name == "thirst" or name == "temperature") then
-    if (value > 100) then
-      value = 100
-    elseif (value < 0) then
-      value = 0
-    end
+    value = math_clamp(value,0,100)
   end
   
   meta:set_int(name,value)
@@ -148,6 +155,7 @@ end
 -- allows any code that depends on HEALTH to use modify_hp to reliably modify player health
 function HEALTH.modify_hp(player,value)
   assert(type(player) == "userdata","health.modify_hp: player is not a valid 'userdata'")
+  assert(type(player["is_player"]) == "function","health.modify_hp: player is not a 'player'")
   assert(player:is_player() == true,"health.modify_hp: player is not a 'player'")
   
   if (type(value) ~= "number") then
@@ -158,11 +166,7 @@ function HEALTH.modify_hp(player,value)
   
   phealth = phealth + value
   
-  if (phealth > max_health) then
-    phealth = 20
-  elseif (phealth < 0) then
-    phealth = 0
-  end
+  phealth = math_clamp(phealth,0,20)
   
   player:set_hp(phealth)
   
@@ -172,6 +176,7 @@ end
 -- allows any code that depends on HEALTH to use modify_int to reliably modify stats like hunger or thirst
 function HEALTH.modify_int(player,name,value)
   assert(type(player) == "userdata","health.modify_int: player is not a valid 'userdata'")
+  assert(type(player["is_player"]) == "function","health.modify_int: player is not a 'player'")
   assert(player:is_player() == true,"health.modify_int: player is not a 'player'")
   
   if (type(value) ~= "number") then
@@ -198,26 +203,213 @@ function HEALTH.modify_int(player,name,value)
   value = math.ceil(value)
   
   return HEALTH.set_int(player,name,(stat + value)) -- return modified value
-  --[[
-  if (name == "hunger" or name == "energy") then
-    if (stat > 1000) then
-      stat = 1000
-    elseif (stat < 0) then
-      stat = 0
-    end
-  elseif (name == "thirst" or name == "temperature") then
-    if (stat > 100) then
-      stat = 100
-    elseif (stat < 0) then
-      stat = 0
-    end
-  end
-  
-  meta:set_int(name,stat)
-  --]]
-  --return stat -- return modified value
 end
 
+
+-- malus & bonus (does not calculate illness)
+function HEALTH.q_malus_bonus(player)
+  local name = player:get_player_name()
+  if (name == "") then
+    error("health.q_malus_bonus: provided 'player' is not a player!")
+  end
+  local bstats = HEALTH.get_default_attributes() -- get base starting stats
+  local stats,meta = HEALTH.get_player_stats(player) -- get player's current stats
+  
+  -- player's current stats as variables
+  local health = stats.health
+  local energy = stats.energy
+  local hunger = stats.hunger
+  local thirst = stats.thirst
+  local temperature = stats.temperature
+  
+  -- base stats to prevent compounding
+  local h_rate = bstats.heal_rate
+	local t_rate = bstats.thirst_rate
+	local hun_rate = bstats.hunger_rate
+	local r_rate = bstats.recovery_rate
+	local mov = bstats.move
+	local jum = bstats.jump
+  
+  
+  --(hunger/Energy has 10x stock)
+	--0-20 starving/severe dehydrated: malus, no heal
+	--20-40 malnourished/dehydrated: malus
+	--40-60 hungry/thirsty: small malus
+	--60-80 good:
+	--80-100 overfull: small malus
+
+	--80-100 well rested. bonus
+	--60-80 rested.
+	--40-60 tired. small malus
+	--20-40 fatigued. malus
+	--0-20 exhausted. malus no heal
+
+	--<27 death
+	--27-32: severe hypo. malus no heal
+	--32-37: hypothermia. malus
+	--36-38: normal
+	--38-43: hyperthermia. malus.
+	--43-47: severe heat stroke. malus no heal
+	-->47 death
+
+	--
+	--update rates
+	--
+
+	--bonus/malus from health
+	if health <= 1 then
+		mov = mov - 50
+		jum = jum - 50
+		h_rate = h_rate - 3
+		r_rate = r_rate - 4
+	elseif health < 4 then
+		mov = mov - 25
+		jum = jum - 25
+		h_rate = h_rate - 2
+		r_rate = r_rate - 2
+	elseif health < 8 then
+		mov = mov - 20
+		jum = jum - 20
+		h_rate = h_rate - 1
+		r_rate = r_rate - 1
+	elseif health < 12 then
+		mov = mov - 15
+		jum = jum - 15
+	elseif health < 16 then
+		mov = mov - 10
+		jum = jum - 10
+	end
+
+	--bonus/malus from energy
+	if energy > 800 then
+		h_rate = h_rate + 2
+		mov = mov + 15
+		jum = jum + 15
+	elseif energy < 1 then
+		h_rate = h_rate - 1
+		mov = mov - 40
+		jum = jum - 40
+		t_rate = t_rate - 12
+		hun_rate = hun_rate - 24
+	elseif energy < 200 then
+		h_rate = h_rate - 1
+		mov = mov - 20
+		jum = jum - 20
+		t_rate = t_rate - 4
+		hun_rate = hun_rate - 8
+	elseif energy < 400 then
+		mov = mov - 10
+		jum = jum - 10
+		t_rate = t_rate - 3
+		hun_rate = hun_rate - 4
+	elseif energy < 600 then
+		mov = mov - 5
+		jum = jum - 5
+		t_rate = t_rate - 2
+		hun_rate = hun_rate - 2
+	elseif energy < 700 then
+		hun_rate = hun_rate - 1
+	end
+
+
+	--bonus/malus from thirst
+	if thirst > 80 then
+		h_rate = h_rate + 1
+		r_rate = r_rate + 2
+		mov = mov + 1
+		jum = jum + 1
+	elseif thirst < 1 then
+		h_rate = h_rate - 12
+		r_rate = r_rate - 10
+		mov = mov - 30
+		jum = jum - 30
+	elseif thirst < 20 then
+		h_rate = h_rate - 2
+		r_rate = r_rate - 2
+		mov = mov - 20
+		jum = jum - 20
+	elseif thirst < 40 then
+		h_rate = h_rate - 1
+		r_rate = r_rate - 1
+		mov = mov - 10
+		jum = jum - 10
+	elseif thirst < 60 then
+		mov = mov - 1
+		jum = jum - 1
+	end
+
+	--bonus/malus from hunger
+	if hunger > 800 then
+		h_rate = h_rate + 1
+		r_rate = r_rate + 2
+		mov = mov + 1
+		jum = jum + 1
+	elseif hunger < 1 then
+		h_rate = h_rate - 12
+		r_rate = r_rate - 10
+		mov = mov - 30
+		jum = jum - 30
+	elseif hunger < 200 then
+		h_rate = h_rate - 2
+		r_rate = r_rate - 2
+		mov = mov - 20
+		jum = jum - 20
+	elseif hunger < 400 then
+		h_rate = h_rate - 1
+		r_rate = r_rate - 1
+		mov = mov - 10
+		jum = jum - 10
+	elseif hunger < 600 then
+		mov = mov - 1
+		jum = jum - 1
+	end
+
+	--temp malus..severe..having this happen would make you very ill
+	if temperature >= 100 or temperature <= 0 then -- now will cause immediate death
+		--you dead
+		h_rate = h_rate - 10000
+		r_rate = r_rate - 10000
+		mov = mov - 10000
+		jum = jum - 10000
+	elseif temperature > 47 or temperature < 27 then
+		h_rate = h_rate - 16
+		r_rate = r_rate - 64
+		mov = mov - 80
+		jum = jum - 80
+	elseif temperature > 43 or temperature < 32 then
+		h_rate = h_rate - 8
+		r_rate = r_rate - 32
+		mov = mov - 40
+		jum = jum - 40
+	elseif temperature > 38 or temperature < 37 then
+		h_rate = h_rate - 4
+		r_rate = r_rate - 8
+		mov = mov - 20
+		jum = jum - 20
+	end
+
+  --apply player physics
+  --don't do in bed or it buggers the physics
+  if not bed_rest.player[name] then
+    player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics")
+    player_monoids.jump:add_change(player, 1 + (jum/100), "health:physics")
+  end
+  
+  -- set new rates
+  stats.heal_rate = HEALTH.set_int(player,"heal_rate",h_rate)
+	stats.thirst_rate = HEALTH.set_int(player,"thirst_rate",t_rate)
+	stats.hunger_rate = HEALTH.set_int(player,"hunger_rate",hun_rate)
+	stats.recovery_rate = HEALTH.set_int(player,"recovery_rate",r_rate)
+	stats.move = HEALTH.set_int(player,"move",mov)
+	stats.jump = HEALTH.set_int(player,"jump",jum)
+  
+  --return adjusted rates so can be applied if necessary
+	return stats
+end
+
+function HEALTH.sickness_calculation(player)
+  local stats = HEALTH.q_malus_bonus(player)
+end
 
 
 --[[
@@ -294,7 +486,8 @@ register_tab()
 --runs through player's current effects, runs the function for that effect
 --takes all the same variables, and outputs as any effect may use them.
 --adjusted outputs feed back into malus_bonus
-local function do_effects_list(meta, player, health, energy, thirst, hunger, temperature, h_rate, r_rate, t_rate, hun_rate,  mov, jum)
+local function do_effects_list(player, health, energy, thirst, hunger, temperature, h_rate, r_rate, t_rate, hun_rate,  mov, jum)
+  local meta = player:get_meta()
 	local effects_list = meta:get_string("effects_list")
 	effects_list = minetest.deserialize(effects_list) or {}
 
@@ -554,7 +747,7 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 	--health effects
 	local HE_mov
 	local HE_jum
-	h_rate, r_rate, t_rate, hun_rate, HE_mov, HE_jum, health, energy, thirst, hunger, temperature = do_effects_list(meta, player, health, energy, thirst, hunger, temperature, h_rate, r_rate, t_rate, hun_rate,  mov, jum)
+	h_rate, r_rate, t_rate, hun_rate, HE_mov, HE_jum, health, energy, thirst, hunger, temperature = do_effects_list(player, health, energy, thirst, hunger, temperature, h_rate, r_rate, t_rate, hun_rate,  mov, jum)
 
 
 	--save adjusted rates for access (e.g. by a medical tab/equipment etc)
