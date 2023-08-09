@@ -294,8 +294,10 @@ local function brain_male(self)
 					end
 				end
 
-			elseif energy < energy_max then
-        local function FEED()
+    elseif energy < energy_max then
+      
+				--feed via a method
+        if (random() <= 0.8) or energy <= 800 then
           if (random() <= 0.9) then
             if (animals.eat_flora(pos,0.01) == true) then
               energy = energy + 20
@@ -304,17 +306,11 @@ local function brain_male(self)
               mobkit.animate(self,'walk')
               animals.hq_roam_walkable_group(self, 'herbaceous_plant', 15)
             end
-            return true
           else
-            animals.prey_hunt(self,30)
-            return true
-          end
-        end
-				--feed via a method
-        if (random() <= 0.8) or energy <= 800 then
-          if (FEED() ~= true) then
-            mobkit.animate(self,'walk')
-            mobkit.hq_roam(self,10)
+            if not animals.prey_hunt(self,30) then
+              mobkit.animate(self,'walk')
+              mobkit.hq_roam(self,20)
+            end
           end
         else
           mobkit.animate(self,'walk')
