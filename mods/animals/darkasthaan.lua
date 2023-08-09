@@ -148,7 +148,7 @@ minetest.register_node("animals:darkasthaan_eggs", {
 
 ----------------------------------------------
 -- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
-animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:sneachan")
+animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan")
 animals.add_interactors("rivals","darkasthaan","animals:darkasthaan")
 
 
@@ -169,7 +169,7 @@ minetest.register_entity("animals:darkasthaan",{
 
 
 	--damage
-	max_hp = 200,
+	max_hp = 120,
 	lung_capacity = 40,
 	min_temp = 10,
 	max_temp = 50,

@@ -255,7 +255,7 @@ local function brain_male(self)
 				animals.fight_or_flight_plyr(self, plyr, 55, 0.6)
 			end
 
-			animals.predator_avoid(self, 55, 0.6)
+			animals.predator_avoid(self, 55, 0.8)
 
 		end
 

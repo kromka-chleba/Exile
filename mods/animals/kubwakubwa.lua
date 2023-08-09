@@ -159,7 +159,7 @@ minetest.register_node("animals:kubwakubwa_eggs", {
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
 animals.add_interactors("predators","kubwakubwa","animals:darkasthaan")
 animals.add_interactors("prey","kubwakubwa","animals:pegasun","animals:sneachan", "animals:impethu")
-animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa")
+animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa","animals:pegasun_male")
 
 
 ----------------------------------------------
@@ -169,7 +169,7 @@ minetest.register_entity("animals:kubwakubwa",{
 	--core
 	physical = true,
 	collide_with_objects = true,
-	collisionbox = {-0.14, -0.01, -0.14, 0.14, 0.27, 0.14},
+	collisionbox = {-0.12, -0.01, -0.12, 0.12, 0.06, 0.12},
 	visual = "mesh",
 	mesh = "animals_kubwakubwa.b3d",
 	textures = {"animals_kubwakubwa.png"},
@@ -179,7 +179,7 @@ minetest.register_entity("animals:kubwakubwa",{
 
 
 	--damage
-	max_hp = 80,
+	max_hp = 45,
 	lung_capacity = 20,
 	min_temp = -15,
 	max_temp = 50,
@@ -224,7 +224,7 @@ minetest.register_entity("animals:kubwakubwa",{
 	view_range = 4,					-- nodes/meters
 
 	--attack
-	attack={range=0.5, damage_groups={fleshy=4}},
+	attack={range=0.4, damage_groups={fleshy=4}},
 	armor_groups = {fleshy=100},
 
 	--on actions

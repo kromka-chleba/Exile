@@ -936,7 +936,7 @@ local function lq_jumpattack_eat(self,height,target)
 
 	local func=function(self)
 		if not mobkit.is_alive(target) then return true end
-
+    
 		if self.isonground then
 			if phase==1 then	-- collision bug workaround
 				local vel = self.object:get_velocity()
@@ -958,7 +958,9 @@ local function lq_jumpattack_eat(self,height,target)
 		elseif phase==3 then	-- in air
 			local tgtpos = target:get_pos()
 			local pos = self.object:get_pos()
-
+      
+      local dist = vector.distance(tgtpos,pos)
+      
 			-- calculate attack spot
 			local yaw = self.object:get_yaw()
 			local dir = minetest.yaw_to_dir(yaw)
@@ -974,14 +976,36 @@ local function lq_jumpattack_eat(self,height,target)
 					-- play attack sound if defined
 				mobkit.make_sound(self,'attack')
 				phase=4
-        if random()>0.2 then
-          local ent = target:get_luaentity()
-          local ent_e = (mobkit.recall(ent,'energy') or 1)
-          local self_e = (mobkit.recall(self,'energy') or 1)
-          mobkit.remember(self,'energy', (ent_e*0.7) + self_e)
-          ent.object:remove()
-          return true
+        local ent = target:get_luaentity()
+        local dmg = 1
+        if (type(self.attack) == "table") then
+          if (type(self.attack.damage_groups) == "table") then
+            dmg = self.attack.damage_groups.fleshy or 1
+          end
         end
+        local ent_hp = ent.hp or 1
+        local ent_mhp = ent.max_hp or 1
+        
+        mobkit.hurt(ent,dmg) -- hurt opponent
+        
+        -- eat bits of opponent
+        local ent_e = (mobkit.recall(ent,'energy') or 1)
+        local self_e = (mobkit.recall(self,'energy') or 1)
+        local energygain = (ent_e * (dmg / ent_mhp) ) -- omnomnom
+        
+        mobkit.remember(self,'energy', (energygain * 0.6)  + self_e)
+        mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
+        
+        if (type(ent.hp) == "number") then
+          if (ent.hp <= 0) then
+            local ent_e = (mobkit.recall(ent,'energy') or 1)
+            local self_e = (mobkit.recall(self,'energy') or 1)
+            mobkit.remember(self,'energy', (ent_e*0.8) + self_e)
+            ent.object:remove()
+            return true
+          end
+        end
+        
 			end
 		end
 	end
