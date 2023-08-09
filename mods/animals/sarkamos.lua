@@ -64,7 +64,7 @@ local function brain(self)
 			--feeding
 			if energy < energy_max then
 			   --You are prey
-			   local plyr = mobkit.get_nearby_player(self)
+			   local plyr = animals.get_nearby_player(self)
 			   if plyr then
 			      animals.fight_or_flight_plyr_water(self, plyr, 25, 0.4)
 			   end
