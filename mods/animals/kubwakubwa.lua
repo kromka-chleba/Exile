@@ -20,6 +20,7 @@ local egg_timer  = 60*10
 local young_per_egg = 4		--will get this/energy_egg starting energy
 
 local lifespan = energy_max * 6
+local mature_age = energy_max / 2
 
 
 
@@ -87,10 +88,11 @@ local function brain(self)
 			--reproduction
 			--asexual parthogenesis, eggs
 			--when in prime condition
-			if random() < 0.01
+			if random() < 0.1
 			and not rival
 			and self.hp >= self.max_hp
-			and energy >= energy_egg + 100 then
+			and energy >= energy_egg + 100
+      and age >= mature_age then
 				energy = animals.place_egg(pos, "animals:kubwakubwa_eggs", energy, energy_egg, 'air')
 			end
 

@@ -21,7 +21,7 @@ local young_per_egg = 1		--will get this/energy_egg starting energy
 
 local lifespan = energy_max * 10
 local lifespan_male = lifespan * 1.2 --if the flock male dies they go extinct
-
+local mature_age = lifespan / 28
 
 -----------------------------------
 local function brain(self)
@@ -109,7 +109,7 @@ local function brain(self)
 					animals.flock(self, 25, 3)
 				elseif random()< 0.01 then
 					animals.territorial(self, energy, false)
-				elseif random() < 0.1 then
+				elseif random() < 0.1 and age >= mature_age then
 
 					--reproduction
 					if self.hp >= self.max_hp
@@ -144,52 +144,18 @@ local function brain(self)
 				end
 
 			elseif energy < energy_max then
-        if not (random() <= 0.9 and animals.prey_hunt(self,30)) then
-          if (random() <= 0.8) then
-            if (animals.eat_flora(pos,0.08) == true) then
-              energy = energy + 20
-            else
-              --wander random
-              mobkit.animate(self,'walk')
-              animals.hq_roam_walkable_group(self, 'herbaceous_plant', 15)
-            end
+        if not (random() <= 0.8 and animals.prey_hunt(self,30)) then
+          if (animals.eat_flora(pos,0.005) == true) then
+            energy = energy + 20
           else
+            --wander random
             mobkit.animate(self,'walk')
-						mobkit.hq_roam(self,10)
+            animals.hq_roam_walkable_group(self, 'herbaceous_plant', 15)
           end
+        else
+          mobkit.animate(self,'walk')
+          mobkit.hq_roam(self,10)
         end
-				--feed via a method
-        --[[
-				if random()< 0.85 then
-					--scratch dirt
-					if animals.eat_spreading_under(pos, 0.001) == true then
-						energy = energy + 6
-					else
-						--wander to food source
-						mobkit.animate(self,'walk')
-						--mobkit.hq_roam(self,10)
-						animals.hq_roam_surface_group(self, 'spreading', 20)
-					end
-				elseif random()< 0.75 then
-					--veg
-					if animals.eat_flora(pos, 0.005) == true then
-						energy = energy + 20
-					else
-						--wander random
-						mobkit.animate(self,'walk')
-						--mobkit.hq_roam(self,10)
-						animals.hq_roam_walkable_group(self, 'flora', 10)
-					end
-				else
-					--hunt
-					if not animals.prey_hunt(self, 25) then
-						--random search
-						mobkit.animate(self,'walk')
-						mobkit.hq_roam(self,10)
-						--animals.hq_roam_surface_group(self, 'spreading', 10)
-					end
-				end
-        --]]
 			end
 
 		end
@@ -303,7 +269,7 @@ local function brain_male(self)
 					animals.flock(self, 25, 1)
 				elseif random()< 0.85 then
 					animals.territorial(self, energy, false)
-				elseif random() < 0.1 then
+				elseif random() < 0.1 and age >= mature_age then
 
 					--reproduction
 					if self.hp >= self.max_hp
@@ -329,53 +295,31 @@ local function brain_male(self)
 				end
 
 			elseif energy < energy_max then
-        
-				--feed via a method
-        if not (random() <= 0.6 and animals.prey_hunt(self,30)) then
-          if (random() <= 0.6) then
-            if (animals.eat_flora(pos,0.08) == true) then
+        local function FEED()
+          if (random() <= 0.9) then
+            if (animals.eat_flora(pos,0.01) == true) then
               energy = energy + 20
             else
               --wander random
               mobkit.animate(self,'walk')
               animals.hq_roam_walkable_group(self, 'herbaceous_plant', 15)
             end
+            return true
           else
-            mobkit.animate(self,'walk')
-						mobkit.hq_roam(self,10)
+            animals.prey_hunt(self,30)
+            return true
           end
         end
-        --[[
-				if random()< 0.75 then
-					--scratch dirt
-					if animals.eat_spreading_under(pos, 0.001) == true then
-						energy = energy + 6
-					else
-						--wander random
-						mobkit.animate(self,'walk')
-						--mobkit.hq_roam(self,10)
-						animals.hq_roam_surface_group(self, 'spreading', 20)
-					end
-				elseif random()< 0.5 then
-					--veg
-					if animals.eat_flora(pos, 0.005) == true then
-						energy = energy + 20
-					else
-						--wander random
-						mobkit.animate(self,'walk')
-						--mobkit.hq_roam(self,10)
-						animals.hq_roam_walkable_group(self, 'flora', 10)
-					end
-				else
-					--hunt
-					if not animals.prey_hunt(self, 25) then
-						--random search
-						mobkit.animate(self,'walk')
-						mobkit.hq_roam(self,10)
-						--animals.hq_roam_surface_group(self, 'spreading', 10)
-					end
-				end
-        --]]
+				--feed via a method
+        if (random() <= 0.8) or energy <= 800 then
+          if (FEED() ~= true) then
+            mobkit.animate(self,'walk')
+            mobkit.hq_roam(self,10)
+          end
+        else
+          mobkit.animate(self,'walk')
+          mobkit.hq_roam(self,10)
+        end
 			end
 
 		end
