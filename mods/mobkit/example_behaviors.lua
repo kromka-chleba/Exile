@@ -8,6 +8,7 @@ local max = math.max
 local min = math.min
 local tan = math.tan
 local pow = math.pow
+local dbg = minetest.chat_send_all
 
 local abr = tonumber(minetest.get_mapgen_setting('active_block_range')) or 3
 
@@ -98,9 +99,9 @@ function mobkit.get_next_waypoint(self,tpos)
 	if height and not liquidflag 
 	and not (nogopos and mobkit.isnear2d(pos2,nogopos,0.1)) then
 
-		local heightl, _, _ = mobkit.is_neighbor_node_reachable(self,mobkit.neighbor_shift(neighbor,-1))
+		local heightl = mobkit.is_neighbor_node_reachable(self,mobkit.neighbor_shift(neighbor,-1))
 		if heightl and abs(heightl-height)<0.001 then
-			local heightr, _, _ = mobkit.is_neighbor_node_reachable(self,mobkit.neighbor_shift(neighbor,1))
+			local heightr = mobkit.is_neighbor_node_reachable(self,mobkit.neighbor_shift(neighbor,1))
 			if heightr and abs(heightr-height)<0.001 then
 				dir.y = 0
 				local dirn = vector.normalize(dir)
@@ -150,9 +151,9 @@ function mobkit.get_next_waypoint_fast(self,tpos,nogopos)
 	
 	if height and not liquidflag then
 		local fast = false
-		heightl, _, _ = mobkit.is_neighbor_node_reachable(self,mobkit.neighbor_shift(neighbor,-1))
+		heightl = mobkit.is_neighbor_node_reachable(self,mobkit.neighbor_shift(neighbor,-1))
 		if heightl and abs(heightl-height)<0.001 then
-			heightr, _, _ = mobkit.is_neighbor_node_reachable(self,mobkit.neighbor_shift(neighbor,1))
+			heightr = mobkit.is_neighbor_node_reachable(self,mobkit.neighbor_shift(neighbor,1))
 			if heightr and abs(heightr-height)<0.001 then
 				fast = true
 				dir.y = 0
@@ -179,7 +180,7 @@ end
 function mobkit.goto_next_waypoint(self,tpos)
 	local height, pos2 = mobkit.get_next_waypoint(self,tpos)
 	
-	if not height or type(height) == "boolean" then return false end
+	if not height then return false end
 	
 	if height <= 0.01 then
 		local yaw = self.object:get_yaw()
@@ -422,11 +423,11 @@ if not neighbor then return true end		--temp debug
 				if height then mobkit.dumbstep(self,height,tpos)
 				else	
 					for i=1,4 do --scan left
-						height, tpos, _ = mobkit.is_neighbor_node_reachable(self,(8+neighbor-i-1)%8+1)
+						height, tpos = mobkit.is_neighbor_node_reachable(self,(8+neighbor-i-1)%8+1)
 						if height then mobkit.dumbstep(self,height,tpos)
 							break
 						end		--scan right
-						height, tpos, _ = mobkit.is_neighbor_node_reachable(self,(neighbor+i-1)%8+1)
+						height, tpos = mobkit.is_neighbor_node_reachable(self,(neighbor+i-1)%8+1)
 						if height then mobkit.dumbstep(self,height,tpos)
 							break
 						end
