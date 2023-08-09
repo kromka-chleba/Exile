@@ -993,14 +993,14 @@ local function lq_jumpattack_eat(self,height,target)
         local self_e = (mobkit.recall(self,'energy') or 1)
         local energygain = (ent_e * (dmg / ent_mhp) ) -- omnomnom
         
-        mobkit.remember(self,'energy', (energygain * 0.6)  + self_e)
+        mobkit.remember(self,'energy', (energygain * 0.4)  + self_e)
         mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
         
         if (type(ent.hp) == "number") then
           if (ent.hp <= 0) then
             local ent_e = (mobkit.recall(ent,'energy') or 1)
             local self_e = (mobkit.recall(self,'energy') or 1)
-            mobkit.remember(self,'energy', (ent_e*0.8) + self_e)
+            mobkit.remember(self,'energy', (ent_e*0.55) + self_e)
             ent.object:remove()
             return true
           end

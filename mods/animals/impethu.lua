@@ -189,7 +189,7 @@ minetest.register_entity("animals:impethu",{
 	timeout = 0,
 
 	--damage
-	max_hp = 10,
+	max_hp = 3,
 	lung_capacity = 10,
 	min_temp = -15,
 	max_temp = 50,
