@@ -1290,8 +1290,78 @@ function animals.mate_assess(self, name)
 
 end
 
+animals.interactors = {}
+function animals.add_interactors(itype,creature,...) -- interactiontype, creature to be set with properties, all possible creatures to add
+  -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
+  -- for example, animals.add_interactor("rivals","pegasun","animals:pegasun") would add the entity "animals:pegasun" to the rivals of "pegasun"
+  if (type(itype) ~= "string") then
+    return
+  else
+    itype = string.lower(itype)
+  end
+  
+  if (type(creature) ~= "string") then
+    return
+  else
+    creature = string.lower(creature)
+  end
+  
+  local posscreatures = {...} -- convert possible creatures into an easily accessible table
+  
+  local interactable = animals.interactors[creature] -- finds the creature's table provided within animals.interactors
+  if (type(interactable) ~= "table") then -- creates new one if not found
+    animals.interactors[creature] = {}
+    
+    interactable = animals.interactors[creature]
+  end
+  
+  local itable = animals.interactors[creature][itype] -- finds the specified interactiontype table within creature's table
+  if (type(itable) ~= "table") then -- create new table with the interactiontype
+    animals.interactors[creature][itype] = {}
+    
+    itable = animals.interactors[creature][itype]
+  end
+  
+  for _,interactor in pairs(posscreatures) do
+    if (type(interactor) == "string") then
+      -- add said creature as an "interactor" within the provided interactiontype (if specified creature is an entity name)
+      itable[#itable + 1] = interactor
+    end
+  end
+  
+  return true
+end
+
+function animals.get_interactors(creature,itype) -- creature to get stats from, interationtype
+  -- get a table of the creatures that interact with the specified creature in the specified interactiontype way
+  if (type(itype) ~= "string") then
+    return {}
+  else
+    itype = string.lower(itype)
+  end
+  
+  if (type(creature) ~= "string") then
+    return {}
+  else
+    creature = string.lower(creature)
+  end
+  
+  local interactable = animals.interactors[creature]
+  if (type(interactable) ~= "table") then
+    return {}
+  end
+  
+  local itable = interactable[itype]
+  if (type(itable) ~= "table") then
+    return {}
+  end
+  -- return an empty table or the specified table of interaction type
+  return itable
+end
+
 -------- Mobkit function rewrites
 
+-- makes it so animals do not see or interact with the player (if the animals use this instead of mobkit's)
 local creative_mode_cache = minetest.settings:get_bool("creative_mode")
 function animals.get_nearby_player(self)
   local plyr = mobkit.get_nearby_player(self)

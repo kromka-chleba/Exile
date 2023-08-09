@@ -56,7 +56,7 @@ local function brain(self)
 
 
 			--Threats
-			local plyr = mobkit.get_nearby_player(self)
+			local plyr = animals.get_nearby_player(self)
 			if plyr then
 				animals.fight_or_flight_plyr(self, plyr, 55, 0.75)
 			end
@@ -146,6 +146,11 @@ minetest.register_node("animals:darkasthaan_eggs", {
 
 
 
+----------------------------------------------
+-- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
+animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:sneachan")
+animals.add_interactors("rivals","darkasthaan","animals:darkasthaan")
+
 
 ----------------------------------------------
 
@@ -171,8 +176,8 @@ minetest.register_entity("animals:darkasthaan",{
 
 	--interaction
 	--predators = {"animals:darkasthaan"},
-	rivals = {"animals:darkasthaan"},
-	prey = {"animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:sneachan"},
+	rivals = animals.get_interactors("darkasthaan","rivals"), --{"animals:darkasthaan"},
+	prey = animals.get_interactors("darkasthaan","prey"), --{"animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:sneachan"},
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

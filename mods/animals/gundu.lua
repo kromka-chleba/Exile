@@ -220,6 +220,14 @@ minetest.register_node("animals:gundu_eggs", {
 
 
 
+
+----------------------------------------------
+-- SETTING OF GUNDU INTERACTOR SETTINGS
+animals.add_interactors("predators","gundu","animals:sarkamos")
+animals.add_interactors("rivals","gundu","animals:gundu")
+animals.add_interactors("friends","gundu","animals:gundu")
+
+
 ----------------------------------------------
 
 --The Animal
@@ -242,9 +250,9 @@ minetest.register_entity("animals:gundu",{
 	max_temp = 35,
 
 	--interaction
-	predators = {"animals:sarkamos"},
-	rivals = {"animals:gundu"},
-	friends = {"animals:gundu"},
+	predators = animals.get_interactors("gundu","predators"), --{"animals:sarkamos"},
+	rivals = animals.get_interactors("gundu","rivals"), --{"animals:gundu"},
+	friends = animals.get_interactors("gundu","friends"), --{"animals:gundu"},
 	--prey = {"animals:impethu"},
 
 	on_step = mobkit.stepfunc,

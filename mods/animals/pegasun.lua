@@ -434,11 +434,19 @@ minetest.register_node("animals:pegasun_eggs", {
 
 
 
-
+----------------------------------------------
+-- SETTING OF PEGASUN INTERACTOR SETTINGS
+animals.add_interactors("predators","pegasun","animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("prey","pegasun","animals:sneachan", "animals:impethu")
+animals.add_interactors("friends","pegasun","animals:pegasun", "animals:pegasun_male")
+animals.add_interactors("rivals","pegasun","animals:pegasun")
 
 
 ----------------------------------------------
 --THE MALE
+
+animals.add_interactors("friends","pegasun_male","animals:pegasun")
+animals.add_interactors("rivals","pegasun_male","animals:pegasun_male")
 
 minetest.register_entity("animals:pegasun_male",{
 	--core
@@ -459,10 +467,10 @@ minetest.register_entity("animals:pegasun_male",{
 	max_temp = 45,
 
 	--interaction
-	predators = {"animals:kubwakubwa", "animals:darkasthaan"},
-	prey = {"animals:sneachan", "animals:impethu"},
-	friends = {"animals:pegasun"},
-	rivals = {"animals:pegasun_male"},
+	predators = animals.get_interactors("pegasun","predators"), --predators = {"animals:kubwakubwa", "animals:darkasthaan"},
+	prey = animals.get_interactors("pegasun","prey"), --{"animals:sneachan", "animals:impethu"},
+	friends = animals.get_interactors("pegasun_male","friends"), --{"animals:pegasun"},
+	rivals = animals.get_interactors("pegasun_male","rivals"), --{"animals:pegasun_male"},
 	sex = "male",
 
 	on_step = mobkit.stepfunc,
@@ -576,10 +584,10 @@ minetest.register_entity("animals:pegasun",{
 	max_temp = 45,
 
 	--interaction
-	predators = {"animals:kubwakubwa", "animals:darkasthaan"},
-	prey = {"animals:sneachan", "animals:impethu"},
-	friends = {"animals:pegasun", "animals:pegasun_male"},
-	rivals = {"animals:pegasun"},
+	predators = animals.get_interactors("pegasun","predators"), --{"animals:kubwakubwa", "animals:darkasthaan"},
+	prey = animals.get_interactors("pegasun","prey"), --{"animals:sneachan", "animals:impethu"},
+	friends = animals.get_interactors("pegasun","friends"), --{"animals:pegasun", "animals:pegasun_male"},
+	rivals = animals.get_interactors("pegasun","rivals"), --{"animals:pegasun"},
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
@@ -660,7 +668,6 @@ minetest.register_entity("animals:pegasun",{
 		animals.stun_catch_mob(self, clicker, 0.25)
 	end,
 })
-
 
 
 --spawn egg (i.e. live animal in inventory)

@@ -188,6 +188,11 @@ minetest.register_node("animals:sneachan_eggs", {
 
 
 
+----------------------------------------------
+-- SETTING OF SNEACHAN INTERACTOR SETTINGS
+animals.add_interactors("predators","sneachan","animals:pegasun", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("rivals","sneachan","animals:sneachan", "animals:impethu")
+
 
 ----------------------------------------------
 
@@ -211,8 +216,8 @@ minetest.register_entity("animals:sneachan",{
 	max_temp = 48,
 
 	--interaction
-	predators = {"animals:pegasun", "animals:kubwakubwa", "animals:darkasthaan"},
-	rivals = {"animals:sneachan", "animals:impethu"},
+	predators = animals.get_interactors("sneachan","predators"), --{"animals:pegasun", "animals:kubwakubwa", "animals:darkasthaan"},
+	rivals = animals.get_interactors("sneachan","rivals"), --{"animals:sneachan", "animals:impethu"},
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

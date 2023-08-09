@@ -56,7 +56,7 @@ local function brain(self)
 		if prty < 50 then
 
 			--Threats
-			local plyr = mobkit.get_nearby_player(self)
+			local plyr = animals.get_nearby_player(self)
 			if plyr then
 				animals.fight_or_flight_plyr(self, plyr, 55, 0.15)
 			end
@@ -155,6 +155,12 @@ minetest.register_node("animals:kubwakubwa_eggs", {
 
 
 
+----------------------------------------------
+-- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
+animals.add_interactors("predators","kubwakubwa","animals:darkasthaan")
+animals.add_interactors("prey","kubwakubwa","animals:pegasun","animals:sneachan", "animals:impethu")
+animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa")
+
 
 ----------------------------------------------
 
@@ -179,9 +185,9 @@ minetest.register_entity("animals:kubwakubwa",{
 	max_temp = 50,
 
 	--interaction
-	predators = {"animals:darkasthaan"},
-	rivals = {"animals:kubwakubwa"},
-	prey = {"animals:impethu", "animals:pegasun", "animals:sneachan"},
+	predators = animals.get_interactors("kubwakubwa","predators"), --{"animals:darkasthaan"},
+	rivals = animals.get_interactors("kubwakubwa","rivals"), --{"animals:kubwakubwa"},
+	prey = animals.get_interactors("kubwakubwa","rivals"), --{"animals:impethu", "animals:pegasun", "animals:sneachan"},
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

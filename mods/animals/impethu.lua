@@ -167,6 +167,11 @@ minetest.register_node("animals:impethu_eggs", {
 
 
 
+----------------------------------------------
+-- SETTING OF IMPETHU INTERACTOR SETTINGS
+animals.add_interactors("predators","impethu","animals:pegasun", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("rivals","impethu","animals:sneachan", "animals:impethu")
+
 
 ----------------------------------------------
 
@@ -190,8 +195,8 @@ minetest.register_entity("animals:impethu",{
 	max_temp = 50,
 
 	--interaction
-	predators = {"animals:kubwakubwa", "animals:darkasthaan", "animals:pegasun"},
-	rivals = {"animals:impethu", "animals:sneachan"},
+	predators = animals.get_interactors("impethu","predators"), --{"animals:kubwakubwa", "animals:darkasthaan", "animals:pegasun"},
+	rivals = animals.get_interactors("impethu","rivals"), --{"animals:impethu", "animals:sneachan"},
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

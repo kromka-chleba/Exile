@@ -143,6 +143,11 @@ minetest.register_node("animals:sarkamos_eggs", {
 
 
 
+----------------------------------------------
+-- SETTING OF SARKAMOS INTERACTOR SETTINGS
+animals.add_interactors("prey","sarkamos","animals:gundu")
+animals.add_interactors("rivals","sarkamos","animals:sarkamos")
+
 
 ----------------------------------------------
 
@@ -167,8 +172,8 @@ minetest.register_entity("animals:sarkamos",{
 
 	--interaction
 	--predators = {"animals:sarkamos"},
-	rivals = {"animals:sarkamos"},
-	prey = {"animals:gundu"},
+	rivals = animals.get_interactors("sarkamos","rivals"), --{"animals:sarkamos"},
+	prey = animals.get_interactors("sarkamos","prey"), --{"animals:gundu"},
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
