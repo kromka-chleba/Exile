@@ -45,13 +45,13 @@ local pos_to_spawn = function(name, pos)
 end
 
 
---use stunning weapon plus chance to catch
-animals.stun_catch_mob = function(self, clicker,chance)
+--use stunning weapon plus chance to catch (or if canhand == true)
+animals.stun_catch_mob = function(self, clicker,chance,canhand)
 	local item = clicker:get_wielded_item()
 	item = item:get_name()
 	item = minetest.get_item_group(item,"club")
 
-	if item ~=0 then
+	if (item ~=0 or canhand == true) then
 		--hit
 		mobkit.make_sound(self,'punch')
 		--catch chance

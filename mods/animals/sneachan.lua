@@ -268,7 +268,7 @@ minetest.register_entity("animals:sneachan",{
 		if not clicker or not clicker:is_player() then
 			return
 		end
-		animals.stun_catch_mob(self, clicker, 0.75)
+		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
 })
 
