@@ -467,7 +467,8 @@ local is_raining = false
 local function pick_rain_replacer(weather)
     local new_soaker = false
     is_raining = true
-    if weather == "overcast_rain" then
+    if weather == "overcast_light_rain" or
+        weather == "light_rain" then
         rain_replacer = light_rain_replacer()
         new_soaker = "light"
     elseif weather == "overcast_heavy_rain" then
@@ -603,7 +604,9 @@ local snower_running = false
 local function pick_snower(weather)
     local new_snower = false
     is_snowing = true
-    if weather == "overcast_snow" then
+    if weather == "overcast_snow" or
+        weather == "light_snow" or
+        weather == "overcast_light_snow" then
         snow_placer = light_snow_placer()
         new_snower = "light"
     elseif weather == "overcast_heavy_snow" then
