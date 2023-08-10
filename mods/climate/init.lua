@@ -80,12 +80,22 @@ local plvl_mid = 25
 
 --what weather is on, and how long it will last, and temp
 --random values that should get overriden by mod storage
-climate.active_weather = climate.registered_weathers[
-   climate.weather_index[math.random(#climate.weather_index)]]
-climate.active_temp = math.random(15,25)
-climate.sea_temp = climate.active_temp * math.random(0.6,8)
-local active_weather_interval = 1
 
+-- Set weather to something nice for start
+local good_start_weathers = {
+    "overcast",
+    "light_rain",
+    "overcast_light_rain",
+    "light_haze",
+    "light_snow",
+    "overcast_light_snow",
+    "clear",
+}
+local good_random = good_start_weathers[math.random(1, #good_start_weathers)]
+climate.active_weather = climate.registered_weathers[good_random]
+climate.active_temp = math.random(10, 20)
+climate.active_sea_temp = climate.active_temp * math.random(0.6,8)
+local active_weather_interval = 30
 
 --random walk, for temp
 local ran_walk_range = 10
@@ -219,75 +229,73 @@ end
 -------------------------
 --SAVE AND LOAD
 
---[[
---on_leave seems incapable of saving stuff :-(
-minetest.register_on_leaveplayer(function(player)
-	--save climate info it your the last one out
-	local num_p = minetest.get_connected_players()
-	if #num_p <=1 then
-		local name = climate.active_weather.name
-		local t = climate.active_temp
-		store:set_string("weather", name)
-		store:set_float("temp", t)
-	end
+local function save_weather()
+    --save state so can be reloaded.
+    --only actually needed on log out,... but that doesn't work
+    store:set_string("weather", climate.active_weather.name)
+    store:set_float("temp", climate.active_temp)
+    store:set_float("sea_temp", climate.active_sea_temp)
+    store:set_float("ran_walk", ran_walk)
+end
+
+-- this works, register_on_leaveplayer doesn't
+minetest.register_on_shutdown(function()
+        save_weather()
 end)
-]]--
 
-minetest.register_on_joinplayer(function(player)
-   --get weather from storage, override random start values
-   local num_p = minetest.get_connected_players()
-   if #num_p <=1 then
+minetest.register_on_joinplayer(
+    function(player)
+        local p_name = player:get_player_name()
+        -- load any prior weather overrides
+        local ovr = player:get_meta():get_string("weather_override")
+        if ovr ~= "" then
+            climate.set_override(p_name, player, ovr)
+        else
+            update_player_sounds(p_name)
+        end
+        set_sky_clouds(player)
+        --set weather effects for this player
+        minetest.chat_send_player(p_name, exiledatestring())
+end)
 
-      local w_name = store:get_string("weather")
-
-      if w_name ~= "" then
-	 --check valid
-	 local weather = climate.registered_weathers[w_name]
-	 if weather then
+--get weather from storage, override random start values
+local function load_saved_weather()
+    local w_name = store:get_string("weather")
+    if w_name ~= "" then
+        --check valid
+        local weather = climate.registered_weathers[w_name]
+        if weather then
 	    climate.active_weather = weather
 	    minetest.log("action", "Loaded a valid weather: "..w_name)
-	 else
-	    minetest.log("error", "Invalid weather loaded: "..w_name)
-	 end
-      else
-	 minetest.log("warning", "No previous weather could be loaded")
-      end
+            minetest.log("action", "Loaded a valid weather: "..w_name)
+        else
+	    minetest.log("action", "Invalid weather loaded: "..w_name)
+        end
+    else
+        minetest.log("action", "No previous weather could be loaded")
+        save_weather() -- save initial random data
+    end
 
-      --same again, but for temperature
-      local temp = store:get_float("temp")
-      if temp then
-	 climate.active_temp = temp
-      end
-      local stemp = store:get_float("sea_temp")
-      if stemp then
-	 climate.active_sea_temp = stemp
-      end
-
-      --same again, but for ran_walk
-      local ranw = store:get_float("ran_walk")
-      if ranw then
-	 ran_walk = ranw
-      end
-
-      --load climate_history
-      local ch = store:get_string("climate_history")
-      if ch ~= nil then
-	 load_climate_history(ch)
-      end
-   end
-
-   local p_name = player:get_player_name()
-   -- load any prior weather overrides
-   local ovr = player:get_meta():get_string("weather_override")
-   if ovr ~= "" then
-      climate.set_override(p_name, player, ovr)
-   else
-      update_player_sounds(p_name)
-   end
-   set_sky_clouds(player)
-   --set weather effects for this player
-   minetest.chat_send_player(p_name, exiledatestring())
-end)
+    --same again, but for temperature
+    local temp = store:get_float("temp")
+    if temp then
+        climate.active_temp = temp
+    end
+    local stemp = store:get_float("sea_temp")
+    if stemp then
+        climate.active_sea_temp = stemp
+    end
+    --same again, but for ran_walk
+    local ranw = store:get_float("ran_walk")
+    if ranw then
+        ran_walk = ranw
+    end
+    --load climate_history
+    local ch = store:get_string("climate_history")
+    if ch ~= nil then
+        load_climate_history(ch)
+    end
+end
 
 --------------------
 --world functions
@@ -357,12 +365,7 @@ local function set_world_temperature()
     --sum waves plus some random noise
     climate.active_temp =  dc_wav + dn_wav + ran_walk
     climate.active_sea_temp = sea_wav + ((dn_wav + ran_walk) * 0.3)
-    --save state so can be reloaded.
-    --only actually needed on log out,... but that doesn't work
-    store:set_string("weather", climate.active_weather.name)
-    store:set_float("temp", climate.active_temp)
-    store:set_float("sea_temp", climate.active_sea_temp)
-    store:set_float("ran_walk", ran_walk)
+    save_weather()
 end
 
 function climate.refresh()
@@ -378,6 +381,9 @@ local timer = 0
 local timer_r = 0
 local timer_s = 0
 
+-- Overwrite random start values if the world is not brand new
+load_saved_weather()
+
 minetest.register_globalstep(function(dtime)
   timer = timer + dtime
   timer_r = timer_r + dtime
@@ -385,12 +391,10 @@ minetest.register_globalstep(function(dtime)
   --update weather state
   if timer > active_weather_interval then
      --timer has expired, switch to a new weather state
-     --print(" Updating weather at "..minetest.get_gametime())
      --reset timer and interval
      timer = 0
      active_weather_interval = set_active_interval()
      --save interval
-     --mod_storage:set_float('active_weather_interval', active_weather_interval)
      set_world_temperature()
      select_new_active_weather()
   end
