@@ -21,7 +21,7 @@ local young_per_egg = 1		--will get this/energy_egg starting energy
 
 local lifespan = energy_max * 10
 local lifespan_male = lifespan * 1.2 --if the flock male dies they go extinct
-local mature_age = lifespan / 28
+local mature_age = 2850
 
 -----------------------------------
 local function brain(self)
@@ -144,6 +144,21 @@ local function brain(self)
 				end
 
 			elseif energy < energy_max then
+        local hngperc = (energy_max * 0.65)/energy -- if energy is equal or less than 65% of energy_max, it will be 1 or higher
+        if (random() <= hngperc) then
+          if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
+            if (animals.eat_flora(pos,0.01) == true) then
+              energy = energy + 50
+            else
+              mobkit.animate(self,'walk')
+              animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- go for group, ignore group, priority
+            end
+          end
+        else
+          mobkit.animate(self,'walk')
+          mobkit.hq_roam(self,10)
+        end
+        --[[
         if not (random() <= 0.8 and animals.prey_hunt(self,30)) then
           if (animals.eat_flora(pos,0.01) == true) then
             energy = energy + 50
@@ -156,6 +171,7 @@ local function brain(self)
           mobkit.animate(self,'walk')
           mobkit.hq_roam(self,10)
         end
+        --]]
 			end
 
 		end
@@ -295,8 +311,21 @@ local function brain_male(self)
 				end
 
     elseif energy < energy_max then
-      
-				--feed via a method
+      local hngperc = (energy_max * 0.2)/energy -- if energy is equal or less than a quarter of energy_max, it will be 1 or higher
+      --feed via a method
+      if (random() <= hngperc) then
+        if (animals.eat_flora(pos,0.005) == true) then
+          energy = energy + 50
+        elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
+          --wander randomly for plants
+            mobkit.animate(self,'walk')
+            animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- go for group, ignore group, priority
+        end
+      else
+        mobkit.animate(self,'walk')
+        mobkit.hq_roam(self,10)
+      end
+        --[[
         if (random() <= 0.95 or energy <= 800) then
           if (random() <= 0.9) then
             if (animals.eat_flora(pos,0.005) == true) then
@@ -316,6 +345,7 @@ local function brain_male(self)
           mobkit.animate(self,'walk')
           mobkit.hq_roam(self,10)
         end
+        --]]
 			end
 
 		end
@@ -360,7 +390,7 @@ minetest.register_node("animals:pegasun_eggs", {
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
 	end,
 	on_timer =function(pos, elapsed)
-		if random()<=0.5 then
+		if random()<=0.3 then -- 30% for female, 70% for male
 			return animals.hatch_egg(pos, 'air', 'air', "animals:pegasun", energy_egg, young_per_egg)
 		else
 			return animals.hatch_egg(pos, 'air', 'air', "animals:pegasun_male", energy_egg, young_per_egg)
