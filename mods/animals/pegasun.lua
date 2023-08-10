@@ -16,7 +16,7 @@ local floor = math.floor
 --energy
 local energy_max = 8000--secs it can survive without food
 local energy_egg = energy_max/2 --energy that goes to egg
-local egg_timer  = 60*25 --60*60
+local egg_timer  = 60*30 --60*60
 local young_per_egg = 1		--will get this/energy_egg starting energy
 
 local lifespan = energy_max * 10
@@ -145,12 +145,12 @@ local function brain(self)
 
 			elseif energy < energy_max then
         if not (random() <= 0.8 and animals.prey_hunt(self,30)) then
-          if (animals.eat_flora(pos,0.005) == true) then
-            energy = energy + 20
+          if (animals.eat_flora(pos,0.01) == true) then
+            energy = energy + 50
           else
             --wander random
             mobkit.animate(self,'walk')
-            animals.hq_roam_walkable_group(self, 'herbaceous_plant', 15)
+            animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- go for group, ignore group, priority
           end
         else
           mobkit.animate(self,'walk')
@@ -269,12 +269,11 @@ local function brain_male(self)
 					animals.flock(self, 25, 1)
 				elseif random()< 0.85 then
 					animals.territorial(self, energy, false)
-				elseif random() < 0.1 and age >= mature_age then
+				elseif random() < 0.3 and age >= mature_age then -- males more promiscuous (from 0.1 to 0.3)
 
 					--reproduction
 					if self.hp >= self.max_hp
-					and energy >= energy_max/2 then
-
+					and energy >= energy_max * 0.25 then -- mate at 25% of energy_max (8000 * 0.25 = 2000)
 						--set status as randy
 						--find nearby prospect and try to mate
 						mobkit.remember(self, 'sexual', true)
@@ -284,6 +283,7 @@ local function brain_male(self)
 							--go get her!
 							mobkit.make_sound(self,'mating')
 							if random() < 0.5 then
+                mobkit.remember(self, "energy", energy - 600) -- energy use for mating lol
 								animals.hq_mate(self, 25, mate)
 							end
 						end
@@ -297,14 +297,14 @@ local function brain_male(self)
     elseif energy < energy_max then
       
 				--feed via a method
-        if (random() <= 0.8) or energy <= 800 then
+        if (random() <= 0.95 or energy <= 800) then
           if (random() <= 0.9) then
-            if (animals.eat_flora(pos,0.01) == true) then
-              energy = energy + 20
+            if (animals.eat_flora(pos,0.005) == true) then
+              energy = energy + 50
             else
               --wander random
               mobkit.animate(self,'walk')
-              animals.hq_roam_walkable_group(self, 'herbaceous_plant', 15)
+              animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- go for group, ignore group, priority
             end
           else
             if not animals.prey_hunt(self,30) then

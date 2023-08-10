@@ -362,8 +362,19 @@ end
 
 ----------------------------------------------
 --roam to a walkable (by group) i.e. walk into the node itself c.f. under
-function animals.hq_roam_walkable_group(self, group, prty)
+function animals.hq_roam_walkable_group(self, groups, iggroups, prty) -- self, groups (table or string), ignoregroups (table or string), priority
   local timer = time() + 15
+  
+  if (type(groups) == "string") then
+    groups = {groups}
+  elseif (type(groups) ~= "table") then
+    groups = {}
+  end
+  if (type(iggroups) == "string") then
+    iggroups = {iggroups}
+  elseif (type(iggroups) ~= "table") then
+    iggroups = {}
+  end
 
   local func=function(self)
 
@@ -380,8 +391,26 @@ function animals.hq_roam_walkable_group(self, group, prty)
        if height and not liquidflag then
         --is it the correct?
         local n_node = minetest.get_node(tpos).name
-
-        if minetest.get_item_group(n_node, group) > 0 then
+        
+        local nodeapp = true -- node appropriate -- if node should be walked to
+        for _,group in pairs(iggroups) do
+          if (minetest.get_item_group(n_node,group) > 0) then -- if node is in a group that is to be ignored...
+            nodeapp = false
+            break
+          end
+        end
+        if (nodeapp == false) then
+          return true
+        end
+        nodeapp = false -- set false to be set true by next for loop
+        for _,group in pairs(groups) do
+          if (minetest.get_item_group(n_node,group) > 0) then -- if node is in a specified group then...
+            nodeapp = true
+            break
+          end
+        end
+        
+        if (nodeapp == true) then
           mobkit.dumbstep(self, height, tpos, 0.3)
         else
           return true
