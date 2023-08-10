@@ -134,7 +134,7 @@ minetest.register_node("animals:darkasthaan_eggs", {
 		type = "fixed",
 		fixed = {-0.125, -0.5, -0.125,  0.125, -0.375, 0.125},
 	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
 	sounds = nodes_nature.node_sound_defaults(),
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))

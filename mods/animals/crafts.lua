@@ -113,6 +113,16 @@ for i in ipairs(list) do
 	local box = list[i][3]
 	local stack = list[i][4]
 	local heat = list[i][5]
+  
+  local carcass = 1
+  if (string.match(name,"bird")) then
+    carcass = 3
+  elseif (string.match(name,"fish")) then
+    carcass = 5
+  end
+  if (string.match(name,"large")) then
+    carcass = carcass + 1
+  end
 
   --raw
   minetest.register_node("animals:carcass_"..name, {
@@ -125,7 +135,7 @@ for i in ipairs(list) do
   		fixed = box
   	},
   	stack_max = stack/2,
-  	groups = {snappy = 3, dig_immediate = 3, falling_node = 1, temp_pass = 1, heatable = heat},
+  	groups = {snappy = 3, dig_immediate = 3, falling_node = 1, temp_pass = 1, raw_cooked = 1, heatable = heat, carcass = carcass},
   	sounds = nodes_nature.node_sound_defaults(),
   })
 
@@ -140,7 +150,7 @@ for i in ipairs(list) do
       fixed = box
     },
     stack_max = stack,
-    groups = {snappy = 3, dig_immediate = 3, falling_node = 1, temp_pass = 1},
+    groups = {snappy = 3, dig_immediate = 3, falling_node = 1, temp_pass = 1, raw_cooked = 2, carcass = carcass},
     sounds = nodes_nature.node_sound_defaults(),
   })
 
@@ -155,7 +165,7 @@ for i in ipairs(list) do
       fixed = box
     },
     stack_max = stack,
-    groups = {snappy = 3, dig_immediate = 3, falling_node = 1, temp_pass = 1},
+    groups = {snappy = 3, dig_immediate = 3, falling_node = 1, temp_pass = 1, raw_cooked = 3, carcass = carcass},
     sounds = nodes_nature.node_sound_defaults(),
   })
 
