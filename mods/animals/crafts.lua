@@ -114,14 +114,21 @@ for i in ipairs(list) do
 	local stack = list[i][4]
 	local heat = list[i][5]
   
-  local carcass = 1
-  if (string.match(name,"bird")) then
-    carcass = 3
+  local carcass = 0
+  if (string.match(name,"invert")) then -- arthropods and insects
+    carcass = 1
+  elseif (string.match(name,"bird")) then
+    carcass = 4
   elseif (string.match(name,"fish")) then
-    carcass = 5
+    carcass = 7
   end
-  if (string.match(name,"large")) then
+  if (carcass == 0) then -- unknown carcass type
+    carcass = 1000
+  end
+  if (string.match(name,"medium")) then
     carcass = carcass + 1
+  elseif (string.match(name,"large")) then
+    carcass = carcass + 2
   end
 
   --raw
