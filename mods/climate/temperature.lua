@@ -33,6 +33,17 @@ climate.get_rain = function(pos, l)
     end
 end
 
+function climate.get_active_temp()
+    return climate.active_temp
+end
+
+function climate.freezing_temp()
+    if climate.get_active_temp() <= 0 then
+        return true
+    end
+    return false
+end
+
 --significant snowing
 --e.g. enough for snow build up
 climate.get_snow = function(pos, l)

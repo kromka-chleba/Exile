@@ -18,8 +18,8 @@ local function water_freeze(pos, node)
 		local water_type = minetest.get_item_group(n_name, "water")
 		if water_type == 1 then
 		   minetest.set_node(pos, {name = "nodes_nature:ice"})
-		elseif water_type == 2 then
-		   minetest.set_node(pos, {name = "nodes_nature:sea_ice"})
+		-- elseif water_type == 2 then
+		--    minetest.set_node(pos, {name = "nodes_nature:sea_ice"})
 		end
 
 	end
@@ -103,19 +103,15 @@ local function thaw_frozen(pos, node)
 	 else
 	    minetest.set_node(p, {name = "nodes_nature:freshwater_source"})
 	 end
-      elseif name == "nodes_nature:sea_ice" then
-	 minetest.set_node(p, {name = "nodes_nature:salt_water_source"})
-	 return
       end
       minetest.check_for_falling(p)
       return
    end
 end
 
-
 minetest.register_abm({
 	label = "Thaw Ice and snow",
-	nodenames = {"nodes_nature:ice", "nodes_nature:snow_block", "nodes_nature:sea_ice"},
+	nodenames = {"nodes_nature:ice", "nodes_nature:snow_block"},
 	interval = 103,
 	chance = 5,
 	action = function(...)
@@ -405,7 +401,10 @@ ms.labels.register("last_rain")
 ms.labels.register("last_snow")
 ms.labels.register("last_evaporated")
 ms.labels.register("last_thawed")
+ms.labels.register("last_freezed")
 ms.labels.register("ocean")
+ms.labels.register("coast")
+
 
 local function get_dry_wet_pairs()
     local soil_pairs = {}
@@ -679,6 +678,7 @@ end
 
 local thaw_pairs = {
     ["nodes_nature:snow"] = "air",
+    ["nodes_nature:sea_ice"] = "nodes_nature:salt_water_source",
 }
 
 local light_thawer =
@@ -693,7 +693,8 @@ local total_thawer =
     ms.create_simple_replacer(
         {find_replace_pairs = thaw_pairs,
          remove_labels = {"last_snow",
-                          "last_thawed"},
+                          "last_thawed",
+                          "last_freezed"},
         }
     )
 
@@ -711,17 +712,134 @@ local function disable_thawer()
     end
 end
 
+local function start_light_thawer()
+    if current_thawer ~= "light" then
+        disable_thawer()
+        ms.register_worker({name = "thawing_worker",
+                            fun = light_thawer,
+                            has_one_of = {"last_snow",
+                                          "last_freezed"},
+                            work_every = 120,
+                            rework_labels = {"last_evaporated"},
+        })
+        thawer_running = true
+        current_thawer = "light"
+    end
+end
+
+local function start_total_thawer()
+    if current_thawer ~= "total" then
+        disable_thawer()
+        ms.register_worker({name = "thawing_worker",
+                            fun = total_thawer,
+                            has_one_of = {"last_snow",
+                                          "last_freezed"},
+        })
+        thawer_running = true
+        current_thawer = "total"
+    end
+end
+
 --------------------
 --- Icer
 
+local icer_running = false
+local current_icer = false
+local icer_changed = true
+local icer_interval = 70
+
 -- Finds ocean
 ms.create_biome_finder({
-        biome_list = {"Shallow Water",
-                      "Deep Water"},
+        biome_list = {
+            "Shallow Water",
+            "Deep Water",
+            "Sandy Beach",
+            "Silty Beach",
+            "Gravel Beach",
+            "Sandy Coast",
+            "Silty Coast",
+            "Gravel Coast",
+        },
         add_labels = {
             "ocean",
         }
 })
+
+ms.create_biome_finder({
+        biome_list = {
+            "Sandy Beach",
+            "Silty Beach",
+            "Gravel Beach",
+            "Sandy Coast",
+            "Silty Coast",
+            "Gravel Coast",
+        },
+        add_labels = {
+            "coast",
+        }
+})
+
+local freeze_pairs = {
+    ["nodes_nature:salt_water_source"] = "nodes_nature:sea_ice"
+}
+
+local light_icer =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = freeze_pairs,
+         add_labels = {"last_freezed"},
+         chance = 1/25,
+         higher_than = 14,
+        }
+    )
+
+local ice_queen =
+    ms.create_light_aware_replacer(
+        {find_replace_pairs = freeze_pairs,
+         add_labels = {"last_freezed"},
+         chance = 1/5,
+         higher_than = 14,
+        }
+    )
+
+local function disable_icer()
+    if icer_running then
+        ms.remove_worker("freezing_worker")
+        icer_running = false
+        current_icer = "none"
+    end
+end
+
+local function start_light_icer()
+    if not icer_running or icer_changed then
+        if current_icer ~= "light" then
+            disable_icer()
+            ms.register_worker({name = "freezing_worker",
+                                fun = light_icer,
+                                work_every = icer_interval,
+                                has_one_of = {"ocean", "coast"},
+                                rework_labels = {"last_freezed"},
+            })
+            icer_running = true
+            current_icer = "light"
+        end
+    end
+end
+
+local function start_ice_queen()
+    if not icer_running or icer_changed then
+        if current_icer ~= "ice_queen" then
+            disable_icer()
+            ms.register_worker({name = "freezing_worker",
+                                fun = ice_queen,
+                                work_every = icer_interval,
+                                has_one_of = {"ocean", "coast"},
+                                rework_labels = {"last_freezed"},
+            })
+            icer_running = true
+            current_icer = "ice_queen"
+        end
+    end
+end
 
 local weather_loop_interval = 5
 
@@ -745,37 +863,31 @@ local function weather_loop()
         end
     end
 
-    if seasons.is_winter() then
+    local freezing = climate.freezing_temp()
+
+    if freezing then
+        if climate.get_active_temp() <= -10 then
+            start_ice_queen()
+        else
+            start_light_icer()
+        end
         -- no thawer
         disable_thawer()
-    elseif season == "spring_early" then
-        -- light thawer
-        if current_thawer ~= "light" then
-            disable_thawer()
-            ms.register_worker({name = "thawing_worker",
-                                fun = light_thawer,
-                                needed_labels = {"last_snow"},
-                                work_every = 120,
-                                rework_labels = {"last_evaporated"},
-            })
-            thawer_running = true
-            current_thawer = "light"
-        end
-    else
+    elseif season ~= "spring_early" and
+        not seasons.is_winter() then
         -- total thawer
-        if current_thawer ~= "total" then
-            disable_thawer()
-            ms.register_worker({name = "thawing_worker",
-                                fun = total_thawer,
-                                needed_labels = {"last_snow"},
-            })
-            thawer_running = true
-            current_thawer = "total"
-        end
+        start_total_thawer()
+        disable_icer()
+    else
+        -- light thawer
+        start_light_thawer()
+        disable_icer()
     end
+
     minetest.after(weather_loop_interval, weather_loop)
 end
 
+-- Start the weather loop
 minetest.register_on_mods_loaded(function ()
         minetest.after(2, weather_loop)
 end)
