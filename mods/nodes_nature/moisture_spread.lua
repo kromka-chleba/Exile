@@ -405,6 +405,7 @@ ms.labels.register("last_rain")
 ms.labels.register("last_snow")
 ms.labels.register("last_evaporated")
 ms.labels.register("last_thawed")
+ms.labels.register("ocean")
 
 local function get_dry_wet_pairs()
     local soil_pairs = {}
@@ -706,6 +707,18 @@ local function disable_thawer()
         current_thawer = "none"
     end
 end
+
+--------------------
+--- Icer
+
+-- Finds ocean
+ms.create_biome_finder({
+        biome_list = {"Shallow Water",
+                      "Deep Water"},
+        add_labels = {
+            "ocean",
+        }
+})
 
 local weather_loop_interval = 5
 
