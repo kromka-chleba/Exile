@@ -1416,10 +1416,10 @@ end
 
 -- makes it so animals do not see or interact with the player (if the animals use this instead of mobkit's)
 local creative_mode_cache = minetest.settings:get_bool("creative_mode")
-function animals.get_nearby_player(self)
+function animals.get_nearby_player(self,forceplyr)
   local plyr = mobkit.get_nearby_player(self)
   if (plyr) then
-    if not (minetest.check_player_privs(plyr,{creative == true}) or creative_mode_cache == true) then
+    if (not (minetest.check_player_privs(plyr,"creative") or creative_mode_cache == true)) or (forceplyr == true) then
       return plyr
     end
   end
