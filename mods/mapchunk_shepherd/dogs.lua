@@ -401,3 +401,27 @@ function ms.create_deco_finder(args)
         )
     end
 end
+
+function ms.create_biome_finder(args)
+    local args = table.copy(args)
+    local biome_list = args.biome_list
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    for _, biome in pairs(biome_list) do
+        minetest.register_on_generated(
+            function(minp, maxp, blockseed)
+                local id = minetest.get_biome_id(biome)
+                local hash = ms.mapchunk_hash(minp)
+                local biomemap = minetest.get_mapgen_object("biomemap")
+                for i = 1, #biomemap do
+                    if biomemap[i] == id then
+                        ms.save_mapchunk(hash)
+                        ms.handle_labels(hash, labels_to_add, labels_to_remove)
+                        ms.add_labels(hash, {"scanned"})
+                        break
+                    end
+                end
+            end
+        )
+    end
+end
