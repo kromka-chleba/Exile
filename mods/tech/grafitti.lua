@@ -137,6 +137,42 @@ crafting.register_recipe({
 	always_known = true,
 })
 
+
+----------------------------------------------------------
+--simple scratcher
+
+grafitti.register_grafitti("tech:scr_1", {image = "tech_paint_scr_1.png"})
+grafitti.register_grafitti("tech:scr_2", {image = "tech_paint_scr_2.png"})
+grafitti.register_grafitti("tech:scr_3", {image = "tech_paint_scr_3.png"})
+grafitti.register_grafitti("tech:scr_4", {image = "tech_paint_scr_4.png"})
+grafitti.register_grafitti("tech:scr_5", {image = "tech_paint_scr_5.png"})
+grafitti.register_grafitti("tech:scr_down", {image = "tech_paint_scr_down.png"})
+grafitti.register_grafitti("tech:scr_left", {image = "tech_paint_scr_left.png"})
+grafitti.register_grafitti("tech:scr_n", {image = "tech_paint_scr_n.png"})
+grafitti.register_grafitti("tech:scr_right", {image = "tech_paint_scr_right.png"})
+grafitti.register_grafitti("tech:scr_u", {image = "tech_paint_scr_u.png"})
+grafitti.register_grafitti("tech:scr_up", {image = "tech_paint_scr_up.png"})
+
+grafitti.palette_build("tech:scratching")
+
+grafitti.register_brush("tech:paint_scratching", {
+    description = S("Stone Etcher"),
+    inventory_image = "tech_paint_scratcher.png",
+    wield_image = "tech_paint_scratcher.png^[transformR270",
+    palette = "tech:scratching"
+})
+
+
+crafting.register_recipe({
+	type = "crafting_spot",
+	output = "tech:paint_scratching",
+	items = {'tech:stone_chopper'},
+	level = 1,
+	always_known = true,
+})
+
+
+
 ----------------------------------------------------------
 --carbon black
 
