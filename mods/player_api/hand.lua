@@ -20,9 +20,17 @@ minetest.register_item(":", {
 			},
 		damage_groups = {fleshy=minimal.hand_dmg},
 	},
-	on_place = crafting.make_on_place(
-		{"hand", "hand_pottery", "hand_wattle", "hand_mixing"},
-		2, { x = 8, y = 3 }),
+	on_place = function(itemstack, placer, pointed_thing)
+    local controls = placer:get_player_control()
+    
+    if (controls.sneak) then
+      return
+    end
+    
+    local func = crafting.make_on_place({"hand", "hand_pottery", "hand_wattle", "hand_mixing"},
+		2, { x = 8, y = 3 })
+    func(itemstack, placer, pointed_thing)
+  end,
 })
 
 
