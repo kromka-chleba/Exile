@@ -178,8 +178,8 @@ minetest.register_entity("animals:darkasthaan",{
 
 	--interaction
 	--predators = {"animals:darkasthaan"},
-	rivals = animals.get_interactors("darkasthaan","rivals"), --{"animals:darkasthaan"},
-	prey = animals.get_interactors("darkasthaan","prey"), --{"animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:sneachan"},
+	rivals = animals.get_interactors("darkasthaan","rivals"),
+	prey = animals.get_interactors("darkasthaan","prey"), 
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

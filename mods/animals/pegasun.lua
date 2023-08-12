@@ -402,10 +402,10 @@ minetest.register_entity("animals:pegasun_male",{
 	max_temp = 45,
 
 	--interaction
-	predators = animals.get_interactors("pegasun","predators"), --predators = {"animals:kubwakubwa", "animals:darkasthaan"},
-	prey = animals.get_interactors("pegasun","prey"), --{"animals:sneachan", "animals:impethu"},
-	friends = animals.get_interactors("pegasun_male","friends"), --{"animals:pegasun"},
-	rivals = animals.get_interactors("pegasun_male","rivals"), --{"animals:pegasun_male"},
+	predators = animals.get_interactors("pegasun","predators"), -- use base pegasun predators
+	prey = animals.get_interactors("pegasun","prey"), -- use base pegasun prey
+	friends = animals.get_interactors("pegasun_male","friends"),
+	rivals = animals.get_interactors("pegasun_male","rivals"),
 	sex = "male",
 
 	on_step = mobkit.stepfunc,
@@ -519,10 +519,10 @@ minetest.register_entity("animals:pegasun",{
 	max_temp = 45,
 
 	--interaction
-	predators = animals.get_interactors("pegasun","predators"), --{"animals:kubwakubwa", "animals:darkasthaan"},
-	prey = animals.get_interactors("pegasun","prey"), --{"animals:sneachan", "animals:impethu"},
-	friends = animals.get_interactors("pegasun","friends"), --{"animals:pegasun", "animals:pegasun_male"},
-	rivals = animals.get_interactors("pegasun","rivals"), --{"animals:pegasun"},
+	predators = animals.get_interactors("pegasun","predators"),
+	prey = animals.get_interactors("pegasun","prey"),
+	friends = animals.get_interactors("pegasun","friends"),
+	rivals = animals.get_interactors("pegasun","rivals"),
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

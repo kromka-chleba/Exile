@@ -178,19 +178,20 @@ function animals.core_life(self, lifespan, pos)
 
   -- get temp
   local temp = climate.get_point_temp(pos)
-  if (temp > 100 and temp <= 500) then -- get the mathematical "mean" of the pos and the surroundings nodes
+  if (temp > 100 and temp <= 500) then -- get the mathematical "mean" of the pos and the surroundings nodes (workaround to torches)
     temp = get_mean_temp(pos)
   end
 
   --temperature stress
   if temp < self.min_temp or temp > self.max_temp then
+    -- if this temperature is uncomfortable, try to find somewhere else!
     animals.hq_roam_comfort_temp(self,80, self.max_temp / 2)
-    
+    -- lose energy from discomfort
     energy = energy - math.random(4,8)
     
   -- get really hurt or die from high temp
     if temp > self.max_temp * 2 then
-       mobkit.hurt(self,math.ceil(4 * (temp / self.max_temp)))
+       mobkit.hurt(self,math.ceil(3 * (temp / self.max_temp)))
        if (self.hp <= 0) then
          -- if animal successfully burned to death then
          energy = 0

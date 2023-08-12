@@ -172,8 +172,8 @@ minetest.register_entity("animals:sarkamos",{
 
 	--interaction
 	--predators = {"animals:sarkamos"},
-	rivals = animals.get_interactors("sarkamos","rivals"), --{"animals:sarkamos"},
-	prey = animals.get_interactors("sarkamos","prey"), --{"animals:gundu"},
+	rivals = animals.get_interactors("sarkamos","rivals"), 
+	prey = animals.get_interactors("sarkamos","prey"),
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

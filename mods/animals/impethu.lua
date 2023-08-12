@@ -195,8 +195,8 @@ minetest.register_entity("animals:impethu",{
 	max_temp = 50,
 
 	--interaction
-	predators = animals.get_interactors("impethu","predators"), --{"animals:kubwakubwa", "animals:darkasthaan", "animals:pegasun"},
-	rivals = animals.get_interactors("impethu","rivals"), --{"animals:impethu", "animals:sneachan"},
+	predators = animals.get_interactors("impethu","predators"), 
+	rivals = animals.get_interactors("impethu","rivals"), 
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
