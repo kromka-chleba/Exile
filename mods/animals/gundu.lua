@@ -164,7 +164,7 @@ local function brain(self)
 			--reproduction
 			--asexual parthogenesis, eggs
 			--no threats, darkness, peak condition
-			if (random() < 0.02 or energy >= 9000)
+			if (random() < 0.03 or energy >= (energy_max*1.125)) -- 9000 (8000 * 1.125)
 			and not rival
 			and not pred
 			and lightm <= 11
