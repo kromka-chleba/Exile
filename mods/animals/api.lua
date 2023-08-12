@@ -164,26 +164,22 @@ function animals.core_life(self, lifespan, pos)
     return nil
   end
 
-  --die from high temp
+  -- get temp
   local temp = climate.get_point_temp(pos)
-  if (temp > 100) then -- get the mathematical "mean" of the pos and the surroundings nodes
+  if (temp > 100 and temp <= 500) then -- get the mathematical "mean" of the pos and the surroundings nodes
     temp = get_mean_temp(pos)
-  end
-  if temp > 100 then -- if it's still boiling time
-    -- make the animal exhausted and hurt them (instant death)
-     energy = 0
-     mobkit.hurt(self, temp)
   end
 
   --temperature stress
-  if random() < 0.2 then
-    local temp = climate.get_point_temp(pos)
-    if temp < self.min_temp or temp > self.max_temp then
-      energy = energy - 6
-    end
-    if temp > self.max_temp * 4 then
-       mobkit.hurt(self,2)
-    end
+  if temp < self.min_temp or temp > self.max_temp then
+    energy = energy - math.random(4,8)
+  end
+  -- get really hurt or die from high temp
+  if temp > self.max_temp * 2 then
+     mobkit.hurt(self,math.ceil(4 * (temp / self.max_temp)))
+     if (self.hp <= 0) then
+       energy = 0
+      end
   end
 
 
