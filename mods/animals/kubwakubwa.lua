@@ -171,7 +171,7 @@ minetest.register_entity("animals:kubwakubwa",{
 	--core
 	physical = true,
 	collide_with_objects = true,
-	collisionbox = {-0.12, -0.01, -0.12, 0.12, 0.06, 0.12},
+	collisionbox = {-0.14, -0.01, -0.14, 0.14, 0.27, 0.14},
 	visual = "mesh",
 	mesh = "animals_kubwakubwa.b3d",
 	textures = {"animals_kubwakubwa.png"},
@@ -187,9 +187,9 @@ minetest.register_entity("animals:kubwakubwa",{
 	max_temp = 50,
 
 	--interaction
-	predators = animals.get_interactors("kubwakubwa","predators"), --{"animals:darkasthaan"},
-	rivals = animals.get_interactors("kubwakubwa","rivals"), --{"animals:kubwakubwa"},
-	prey = animals.get_interactors("kubwakubwa","rivals"), --{"animals:impethu", "animals:pegasun", "animals:sneachan"},
+	predators = animals.get_interactors("kubwakubwa","predators"),
+	rivals = animals.get_interactors("kubwakubwa","rivals"),
+	prey = animals.get_interactors("kubwakubwa","rivals"),
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
