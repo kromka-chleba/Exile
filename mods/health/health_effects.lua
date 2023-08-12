@@ -262,6 +262,8 @@ function HEALTH.illness_ref(name,severity,modify)
     time = {4,6},
     delay = {2,4},
     
+    on_condition = false,
+    
     life_num = 0,
   }
   if (type(modify) == "table") then

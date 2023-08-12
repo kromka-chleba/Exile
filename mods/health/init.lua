@@ -912,16 +912,8 @@ minetest.register_on_newplayer(function(player)
 end)
 
 function HEALTH.update_player_physics(player)
-   --local name = player:get_player_name()
    local meta = player:get_meta()
-   --local health = player:get_hp()
-   --local thirst = meta:get_int("thirst")
-   --local hunger = meta:get_int("hunger")
-   --local energy = meta:get_int("energy")
-   --local temperature = meta:get_int("temperature")
    HEALTH.malus_bonus(player,meta)
-   --HEALTH.malus_bonus(player, name, meta, health, energy,
-		      --thirst, hunger, temperature)
 end
 
 minetest.register_on_joinplayer(function(player)
