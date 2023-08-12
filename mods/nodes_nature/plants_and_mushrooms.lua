@@ -272,6 +272,7 @@ local plant_list = {
      drawtype = "plantlike", plant_type = "woody_plant",
      mesh_type = 0, growing_time = plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "green",
+     seasonal_type = "whole_season_woody",
      texture_scale = 1.2, thorns = true, move_resistance = 4},
 
     {name = "jogalan", description = S("Jogalan"),
