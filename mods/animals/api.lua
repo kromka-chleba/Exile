@@ -184,15 +184,18 @@ function animals.core_life(self, lifespan, pos)
 
   --temperature stress
   if temp < self.min_temp or temp > self.max_temp then
+    animals.hq_roam_comfort_temp(self,80, self.max_temp / 2)
+    
     energy = energy - math.random(4,8)
-  end
+    
   -- get really hurt or die from high temp
-  if temp > self.max_temp * 2 then
-     mobkit.hurt(self,math.ceil(4 * (temp / self.max_temp)))
-     if (self.hp <= 0) then
-       energy = 0
-       self.burnt = true
-      end
+    if temp > self.max_temp * 2 then
+       mobkit.hurt(self,math.ceil(4 * (temp / self.max_temp)))
+       if (self.hp <= 0) then
+         energy = 0
+         self.burnt = true
+        end
+    end
   end
 
 
