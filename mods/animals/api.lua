@@ -192,6 +192,7 @@ function animals.core_life(self, lifespan, pos)
     if temp > self.max_temp * 2 then
        mobkit.hurt(self,math.ceil(4 * (temp / self.max_temp)))
        if (self.hp <= 0) then
+         -- if animal successfully burned to death then
          energy = 0
          self.burnt = true
         end
