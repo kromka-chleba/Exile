@@ -258,3 +258,34 @@ minetest.register_abm({
             end
 	end
 })
+
+minetest.register_abm({
+	label = "Root regrowth",
+	nodenames = {"group:roots"},
+	interval = 1600,
+	chance = 3,
+	catch_up = true,
+	action = function(pos, node)
+            local meta = minetest.get_meta(pos)
+            local name = meta:get_string("root_name")
+            local nr = meta:get_float("root_nr")
+            local pos_above = minimal.get_pos_above(pos)
+            local above_name = minetest.get_node(pos_above).name
+            if above_name ~= "air" or name == "" then
+                return
+            end
+            local temp = climate.get_point_temp(pos_above)
+            local winter = seasons.is_winter()
+            if temp <= 10 and winter or
+                temp < 5 and not winter then
+                return
+            end
+            if nr >= 1 then
+                local seedling_name = string.gsub(name, "_root", "_seedling5")
+                minetest.place_node(pos_above, {name = seedling_name})
+            else
+                local seedling_name = string.gsub(name, "_root", "_seedling2")
+                minetest.place_node(pos_above, {name = seedling_name})
+            end
+	end
+})
