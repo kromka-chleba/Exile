@@ -62,7 +62,7 @@ function animals.handle_drops(self)
            pos = self.object:get_pos() or pos -- get entity's pos or if pos is nil, use old pos
          end
         -- if the animal was burned to death
-        if (self.burnt) then
+        if (self.burnt == true) then
           -- look for possible "burn" versions of the item to be dropped
           local possitem = item.name.."_burned"
           if (minetest.registered_items[possitem]) then
@@ -196,7 +196,7 @@ function animals.core_life(self, lifespan, pos)
          -- if animal successfully burned to death then
          energy = 0
          self.burnt = true
-        end
+      end
     end
   end
 
