@@ -57,10 +57,22 @@ function animals.handle_drops(self)
 
      if chance < (100/item.chance) then
        --leave time for death animation to end
-       minetest.after(5, function()
+       minetest.after(4.9, function()
          if (type(self.object) == "userdata") then -- if entity then
            pos = self.object:get_pos() or pos -- get entity's pos or if pos is nil, use old pos
          end
+        -- if the animal was burned to death
+        if (self.burnt) then
+          -- look for possible "burn" versions of the item to be dropped
+          local possitem = item.name.."_burned"
+          if (minetest.registered_items[possitem]) then
+            item.name = possitem
+          end
+          possitem = item.name.."_burnt"
+          if (minetest.registered_items[possitem]) then
+            item.name = possitem
+          end
+        end
          minetest.add_item(pos, item.name.." "..tostring(amount))
        end)
      end
@@ -179,6 +191,7 @@ function animals.core_life(self, lifespan, pos)
      mobkit.hurt(self,math.ceil(4 * (temp / self.max_temp)))
      if (self.hp <= 0) then
        energy = 0
+       self.burnt = true
       end
   end
 
