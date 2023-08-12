@@ -431,6 +431,24 @@ minetest.override_item(
         walkable = true,
 })
 
+minetest.override_item(
+    "nodes_nature:barszcz_root",{
+        tiles = {"nodes_nature_red_ochre.png"},
+        description = S("Barszcz root"),
+        wield_image = "nodes_nature_barszcz_root.png",
+        inventory_image = "nodes_nature_barszcz_root.png",
+        node_box = {
+            type = "fixed",
+            fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
+        },
+        selection_box = {
+            type = "fixed",
+            fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
+        },
+        stack_max = minimal.stack_max_medium,
+        walkable = true,
+})
+
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root",
     {
