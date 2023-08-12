@@ -659,6 +659,7 @@ function plant.get_plantlike_dead_props(plant_def)
     local base = plant.get_plantlike_props(plant_def)
     if plant_def.plant_type == "cane" then
         base = plant.get_canelike_props(plant_def)
+        base.groups.cane_plant = nil
     elseif plant_def.plant_type == "bamboo" then
         base = plant.get_bamboolike_props(plant_def)
     end
