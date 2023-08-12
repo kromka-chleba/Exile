@@ -358,7 +358,7 @@ local plant_list = {
 
     -- Canes
     {name = "cana", description = S("Cana"),
-     mesh_type = 2,
+     mesh_type = 2, seasonal_type = "cane",
      drawtype = "plantlike", plant_type = "cane", waving = false,
      growing_time = plant_base_growing_time * 2, seed_number = 1},
 
