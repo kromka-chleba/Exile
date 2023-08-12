@@ -144,14 +144,17 @@ local function brain(self)
 				end
 
 			elseif energy < energy_max then
-        local hngperc = (energy_max * 0.55)/energy -- if energy is equal or less than 65% of energy_max, it will be 1 or higher
+        local hngperc = (energy_max * 0.55)/energy -- if energy is equal or less than 55% of energy_max, it will be 1 or higher
+        
         if (random() <= hngperc) then
+          -- females much hungrier and predatory than males (gotta fill up for those babies y'know)
           if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
             if (animals.eat_flora(pos,0.01) == true) then
               energy = energy + 50
             else
               mobkit.animate(self,'walk')
-              animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- go for group, ignore group, priority
+              -- look for flora that's not a cane_plant
+              animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- self, go for group, ignore group, priority
             end
           end
         else
@@ -297,13 +300,14 @@ local function brain_male(self)
 				end
 
     elseif energy < energy_max then
-      local hngperc = (energy_max * 0.2)/energy -- if energy is equal or less than a quarter of energy_max, it will be 1 or higher
-      --feed via a method
+      local hngperc = (energy_max * 0.2)/energy -- if energy is equal or less than 20% of energy_max, it will be 1 or higher
+      
       if (random() <= hngperc) then
-        if (animals.eat_flora(pos,0.005) == true) then
+        --feed via a method
+        if (animals.eat_flora(pos,0.005) == true) then -- mmm plants
           energy = energy + 50
         elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
-          --wander randomly for plants
+          --wander randomly for plants if can't find prey
             mobkit.animate(self,'walk')
             animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- go for group, ignore group, priority
         end

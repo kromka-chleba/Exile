@@ -125,6 +125,7 @@ for i in ipairs(list) do
   if (carcass == 0) then -- unknown carcass type
     carcass = 1000
   end
+  -- small would be the base value - 1 for invert, 4 for bird, 7 for fish
   if (string.match(name,"medium")) then
     carcass = carcass + 1
   elseif (string.match(name,"large")) then

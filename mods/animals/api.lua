@@ -1361,6 +1361,7 @@ animals.interactors = {}
 function animals.add_interactors(itype,creature,...) -- interactiontype, creature to be set with properties, all possible creatures to add
   -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
   -- for example, animals.add_interactor("rivals","pegasun","animals:pegasun") would add the entity "animals:pegasun" to the rivals of "pegasun"
+  -- lowercase strings for easier finding and indexing
   if (type(itype) ~= "string") then
     return
   else
@@ -1373,7 +1374,7 @@ function animals.add_interactors(itype,creature,...) -- interactiontype, creatur
     creature = string.lower(creature)
   end
   
-  local posscreatures = {...} -- convert possible creatures into an easily accessible table
+  local posscreatures = {...} -- convert specified creatures into an easily accessible table (the ... for multiple args)
   
   local interactable = animals.interactors[creature] -- finds the creature's table provided within animals.interactors
   if (type(interactable) ~= "table") then -- creates new one if not found
@@ -1383,7 +1384,7 @@ function animals.add_interactors(itype,creature,...) -- interactiontype, creatur
   end
   
   local itable = animals.interactors[creature][itype] -- finds the specified interactiontype table within creature's table
-  if (type(itable) ~= "table") then -- create new table with the interactiontype
+  if (type(itable) ~= "table") then -- create new table with the interactiontype if it isn't specified
     animals.interactors[creature][itype] = {}
     
     itable = animals.interactors[creature][itype]
@@ -1412,12 +1413,12 @@ function animals.get_interactors(creature,itype) -- creature to get stats from, 
   else
     creature = string.lower(creature)
   end
-  
+  -- get the creature's interactors table
   local interactable = animals.interactors[creature]
   if (type(interactable) ~= "table") then
     return {}
   end
-  
+  -- get who the creature interacts in what specified way
   local itable = interactable[itype]
   if (type(itable) ~= "table") then
     return {}
@@ -1431,8 +1432,10 @@ end
 -- makes it so animals do not see or interact with the player (if the animals use this instead of mobkit's)
 local creative_mode_cache = minetest.settings:get_bool("creative_mode")
 function animals.get_nearby_player(self,forceplyr)
-  local plyr = mobkit.get_nearby_player(self)
+  -- "forceplyr" bool parameter to force a player despite creative mode
+  local plyr = mobkit.get_nearby_player(self) -- get player from mobkit
   if (plyr) then
+    -- if player, then check if player is in creative...
     if (not (minetest.check_player_privs(plyr,"creative") or creative_mode_cache == true)) or (forceplyr == true) then
       return plyr
     end
