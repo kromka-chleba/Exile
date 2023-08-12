@@ -190,6 +190,9 @@ minetest.register_entity("animals:kubwakubwa",{
 	predators = animals.get_interactors("kubwakubwa","predators"),
 	rivals = animals.get_interactors("kubwakubwa","rivals"),
 	prey = animals.get_interactors("kubwakubwa","rivals"),
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

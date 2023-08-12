@@ -180,6 +180,9 @@ minetest.register_entity("animals:darkasthaan",{
 	--predators = {"animals:darkasthaan"},
 	rivals = animals.get_interactors("darkasthaan","rivals"),
 	prey = animals.get_interactors("darkasthaan","prey"), 
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

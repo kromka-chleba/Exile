@@ -527,6 +527,9 @@ minetest.register_entity("animals:pegasun",{
 	prey = animals.get_interactors("pegasun","prey"),
 	friends = animals.get_interactors("pegasun","friends"),
 	rivals = animals.get_interactors("pegasun","rivals"),
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

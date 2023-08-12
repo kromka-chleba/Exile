@@ -196,7 +196,10 @@ minetest.register_entity("animals:impethu",{
 
 	--interaction
 	predators = animals.get_interactors("impethu","predators"), 
-	rivals = animals.get_interactors("impethu","rivals"), 
+	rivals = animals.get_interactors("impethu","rivals"),
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

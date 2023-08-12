@@ -250,11 +250,14 @@ minetest.register_entity("animals:gundu",{
 	max_temp = 35,
 
 	--interaction
-	predators = animals.get_interactors("gundu","predators"), --{"animals:sarkamos"},
-	rivals = animals.get_interactors("gundu","rivals"), --{"animals:gundu"},
-	friends = animals.get_interactors("gundu","friends"), --{"animals:gundu"},
+	predators = animals.get_interactors("gundu","predators"),
+	rivals = animals.get_interactors("gundu","rivals"),
+	friends = animals.get_interactors("gundu","friends"),
 	--prey = {"animals:impethu"},
-
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 2,
+  
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
 	get_staticdata = mobkit.statfunc,

@@ -185,7 +185,10 @@ function animals.core_life(self, lifespan, pos)
   --temperature stress
   if temp < self.min_temp or temp > self.max_temp then
     -- if this temperature is uncomfortable, try to find somewhere else!
-    animals.hq_roam_comfort_temp(self,80, self.max_temp / 2)
+    if (self.class ~= 2) then
+      -- only for land creatures
+      animals.hq_roam_comfort_temp(self,80, self.max_temp / 2)
+    end
     -- lose energy from discomfort
     energy = energy - math.random(4,8)
     
@@ -204,8 +207,11 @@ function animals.core_life(self, lifespan, pos)
 
   --heal using energy
   if self.hp < self.max_hp and energy > 10 then
-    mobkit.heal(self,1)
-    energy = energy - 1
+    if not (not self.isinliquid and self.class == 2) then
+      -- if not a fish out of water then (fish in water will heal up nicely :D)
+      mobkit.heal(self,1)
+      energy = energy - 1
+    end
   end
 
   return age, energy

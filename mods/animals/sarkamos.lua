@@ -174,6 +174,9 @@ minetest.register_entity("animals:sarkamos",{
 	--predators = {"animals:sarkamos"},
 	rivals = animals.get_interactors("sarkamos","rivals"), 
 	prey = animals.get_interactors("sarkamos","prey"),
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 2,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
