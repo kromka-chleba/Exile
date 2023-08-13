@@ -61,19 +61,20 @@ function animals.handle_drops(self)
          if (type(self.object) == "userdata") then -- if entity then
            pos = self.object:get_pos() or pos -- get entity's pos or if pos is nil, use old pos
          end
+         item = item.name  -- convert into string to avoid conflicts (and override)
         -- if the animal was burned to death
         if (self.burnt == true) then
           -- look for possible "burn" versions of the item to be dropped
-          local possitem = item.name.."_burned"
+          local possitem = item.."_burned"
           if (minetest.registered_items[possitem]) then
-            item.name = possitem
+            item = ItemStack(possitem):get_name()
           end
-          possitem = item.name.."_burnt"
+          possitem = item.."_burnt"
           if (minetest.registered_items[possitem]) then
-            item.name = possitem
+            item = ItemStack(possitem):get_name()
           end
         end
-         minetest.add_item(pos, item.name.." "..tostring(amount))
+         minetest.add_item(pos, item.." "..tostring(amount))
        end)
      end
 
