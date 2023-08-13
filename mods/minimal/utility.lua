@@ -246,6 +246,18 @@ function minimal.math_clamp(num,min,max) -- math.clamp implementation from my fu
 end
 
 
+-- check if a provided player is in creative mode
+local creative_mode_cache = minetest.settings:get_bool("creative_mode")
+function minimal.player_in_creative(plyr)
+  if (minetest.is_player(plyr)) then
+    if (minetest.check_player_privs(plyr,"creative") or creative_mode_cache == true) then
+      return true
+    end
+  end
+  
+  return false
+end
+
 
 
 -- Yes or no dialog
