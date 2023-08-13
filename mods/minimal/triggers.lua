@@ -126,10 +126,10 @@ local function setweather(player, pname, pos, nmeta, metastring)
    if usedrecently(pos, pname) then
       return -- Don't keep doing it
    end
-   climate.set_override(pname, player, metastring)
+   climate.set_weather_override(pname, player, metastring)
 end
 local function resetweather(player, pname, pos, nmeta, metastring)
-   climate.set_override(pname, player, "")
+   climate.set_weather_override(pname, player, "")
 end
 
 triggers.defs = {
@@ -175,7 +175,16 @@ local noinputfield = {
    ["tr_setinv"] = true,
    ["tr_resetweather"] = true,
 }
-
+--Register a function to add as a trigger
+-- ex: triggers.register("tr_mytrigger", mytriggerfunc, false
+--                       {"My Trigger", "This does custom stuff"}}
+function triggers.register(name, trfunction, inputfield, infotable)
+   triggers.defs[name] = trfunction
+   info[name] = infotable
+   if inputfield == true then
+      noinputfield[name] = true
+   end
+end
 function triggers.activate(pos, player, nodemeta)
    if not player or not minetest.is_player(player) then
       minetest.log("error", "Attempted to run a trigger at "..pos.x..
@@ -227,13 +236,8 @@ for nm, val in pairs(info) do
    comma = ","
 end
 
-local function setformspec(pos)
-   --local node = minetest.get_node(pos)
-   local nodemeta = minetest.get_meta(pos)
-   local sel = nodemeta:get_string("tr_selected")
-   if sel == "" then sel = "tr_reset" end
-   local value = nodemeta:get_string(sel)
-   local spec =  "formspec_version[6]size[10.5,11]"..
+local function triggerpage(sel, value)
+   local spec =
       "dropdown[0.6,0.6;3,0.8;Trigger;"..
       dropdownstring..";"..index[sel]..";true]"..
       "label[3.3,2;"..info[sel][2].."]"
@@ -251,15 +255,26 @@ local function setformspec(pos)
    end
    spec = spec.."button[7.85,3.375;1.25,0.75;btn_set;" .. S("Set") .. "]" ..
       "button[9.25,3.375;1.25,0.75;btn_unset;" .. S("Unset") .. "]"
-
    if sel == "tr_setinv" then
       spec = spec.."list[context;main;0,4;8,4;]list[current_player;"..
 	 "main;0,8;8,4;]"
    end
+   return spec
+end
+
+local function setformspec(pos)
+   local nodemeta = minetest.get_meta(pos)
+   local sel = nodemeta:get_string("tr_selected")
+   if sel == "" then sel = "tr_reset" end
+   local value = nodemeta:get_string(sel)
+   local spec =  "formspec_version[6]size[10.5,11]"..triggerpage(sel, value)
    nodemeta:set_string("formspec", spec)
 end
 
 function recfields(pos, formname, fields, sender)
+   local node = minetest.get_node(pos)
+   local trtype = minetest.get_item_group(node.name, "trigger")
+   if trtype == nil or trtype == 0 then return end
    local nmeta = minetest.get_meta(pos)
    local sel
    if fields.Trigger then
@@ -294,7 +309,6 @@ minetest.register_node("minimal:trigger", {
         groups = {temp_pass = 1, trigger = 1},
 	use_texture_alpha = "blend",
 })
-
 
 if minetest.is_creative_enabled() then
    minetest.override_item('minimal:trigger', {

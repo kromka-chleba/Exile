@@ -5,7 +5,7 @@
 -- for use by other mods (e.g. health)
 
 local c_alpha = minimal.compat_alpha
-
+local S = core.get_translator("climate")
 
 -------------------------------
 --OUTDOORS AND EXPOSED TO ELEMENTS
@@ -192,7 +192,65 @@ climate.get_damage_weather = function(pos, l)
 	end
 end
 
+-------------------------------
+--TEMPERATURE ZONES
 
+zone = zone
+local zonecheck = zone.zonecheck
+
+local function zonespec(def)
+   local mode = def["mode"] or "relative"
+   local prefix = ""
+   local value = def["value"] or "0"
+   if mode == "absolute" then
+      prefix = "="
+   end
+   local spec = "hypertext[7,1.5;2,3.5;tempadjusthelp;"..
+      "Use = for absolute temp, +/- for relative adjustment.]"..
+      "textarea[3.3,3;3,1.5;tempadjuststring;" ..
+      S("Value:") .. ";" .. prefix..value .. "]"
+   return spec
+end
+
+local function handlefields(fields)
+   local mode = "relative" -- default
+   local taj = fields.tempadjuststring
+   local prefix = string.sub(taj, 0, 1)
+   local value = tonumber(taj) or -- automatically handle relative +/-
+      tonumber(string.sub(taj,2)) -- but strip the "=" off absolute
+   if not value then return end
+   if prefix == "=" then
+      mode = "absolute"
+   end
+   return { mode = mode, value = value }
+end
+
+zone.register("cli-tmp",
+	      { "Temperature zone", "Alters temperature inside it" },
+	      zonespec,
+	      handlefields
+)
+
+local function adjust_for_temp_zones(pos, cur_temp)
+   local validzones = zone.check(pos, "cli-tmp")
+   local abslist = {}
+   local relativetotal = 0
+   for this = 1, #validzones do
+      local depth = validzones[this].depth
+      local settings = validzones[this].settings
+      if settings.mode == "absolute" then
+	 table.insert(abslist, { depth = depth, value = settings.value })
+      elseif settings.mode == "relative" then
+	 relativetotal = relativetotal + ( settings.value * depth )
+      end
+   end
+   cur_temp = cur_temp + relativetotal
+   for each = 1, #abslist do -- add up all absolute zones and apply
+      cur_temp = (abslist[each].value - cur_temp)
+	 * abslist[each].depth + cur_temp
+   end
+   return cur_temp
+end
 
 ---------------------------------
 --POINT TEMPERATURE
@@ -219,7 +277,7 @@ local adjust_for_shelter = function(pos, temp, av_temp)
 	if light and light <= 14 then
 		if light <= 10 then     -- 1-10
 			temp = (temp*0.25)+(av_temp*0.75)
-		elseif light <= 12 then -- 11-12 
+		elseif light <= 12 then -- 11-12
 			temp = (temp*0.5)+(av_temp*0.5)
 		else                    -- 13-14
 			temp = (temp*0.75)+(av_temp*0.25)
@@ -235,11 +293,11 @@ end
 local adjust_active_temp = function(pos, temp)
 
    --average temp (make sure it matches climate)
-   local av_temp = minetest.settings:get("exile_av_temp") 
+   local av_temp = minetest.settings:get("exile_av_temp")
    av_temp = av_temp and tonumber(av_temp) or 15
    --Depth calculated to reach av_temp
-   local av_temp_depth = minetest.settings:get("exile_av_temp_depth") 
-   av_temp_depth = av_temp_depth and tonumber(av_temp_depth) or -12 
+   local av_temp_depth = minetest.settings:get("exile_av_temp_depth")
+   av_temp_depth = av_temp_depth and tonumber(av_temp_depth) or -12
    local name = minetest.get_node(pos).name
    local water = minetest.get_item_group(name,"water")
 
@@ -715,10 +773,6 @@ local radiate_temp = function(target_pos, source_pos, temp_effect)
 end
 
 
-
-
-
-
 --Function for getting the temperature of a specific location
 climate.get_point_temp = function(pos)
 
@@ -730,9 +784,10 @@ climate.get_point_temp = function(pos)
 		return t_effect_max
 	end
 
-  --correct the general temperature for location
-	local temp = climate.active_temp
-  temp = adjust_active_temp(pos, temp)
+   --correct the general temperature for location
+   local temp = climate.active_temp
+   temp = adjust_active_temp(pos, temp)
+   temp = adjust_for_temp_zones(pos, temp)
 
   --take into account heat and cooling sources nearby
   local r = 4
@@ -798,4 +853,3 @@ climate.get_temp_string = function(v, meta)
    end
    return t
 end
-

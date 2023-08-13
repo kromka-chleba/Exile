@@ -233,7 +233,7 @@ end
 
 function climate.clear_player_particle(p_name, w_name)
    if not w_name then
-      w_name = climate.override[p_name]
+      w_name = climate.weather_override[p_name]
    end
    if particle_table[w_name] then
       if particle_table[w_name].plist[p_name] then
@@ -256,7 +256,7 @@ minetest.register_globalstep(function(dtime)
 	    --do active weather particles
 	    for _, player in pairs(minetest.get_connected_players()) do
 	       local nm = player:get_player_name()
-	       if not climate.override[nm] then
+	       if not climate.weather_override[nm] then
 		  aw.particle_function(player)
 	       end
 	    end

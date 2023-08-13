@@ -102,7 +102,7 @@ local ran_walk_range = 10
 local ran_walk = math.random(-ran_walk_range,ran_walk_range)
 
 --cache of players with weather overrides
-climate.override = {}
+climate.weather_override = {}
 
 --------------------------
 -- Functions
@@ -135,7 +135,7 @@ end
 --------------------
 --player functions
 function climate.get_player_weather(p_name)
-   local ovr = climate.override[p_name]
+   local ovr = climate.weather_override[p_name]
    local wth = climate.registered_weathers[ovr]
    if ovr == nil or wth == nil then
       return climate.active_weather
@@ -201,7 +201,7 @@ local function set_sky_clouds(player)
 	player:set_stars(active_weather.star_data)
 end
 
-function climate.set_override(p_name, p_obj, w_name)
+function climate.set_weather_override(p_name, p_obj, w_name)
    if p_name and not p_obj then
       p_obj = minetest.get_player_by_name(p_name)
    end
@@ -209,14 +209,14 @@ function climate.set_override(p_name, p_obj, w_name)
       p_name = p_obj:get_player_name()
    end
    local p_meta = p_obj:get_meta()
-   if climate.override[p_name] then
-      --remove old override, particles first
+   if climate.weather_override[p_name] then
+      --remove old weather_override, particles first
       climate.clear_player_particle(p_name)
-      climate.override[p_name] = nil
+      climate.weather_override[p_name] = nil
    end
    local wth = climate.registered_weathers[w_name]
    if wth then
-      climate.override[p_name] = w_name
+      climate.weather_override[p_name] = w_name
       climate.add_player_particle(p_name, w_name, wth)
       p_meta:set_string("weather_override", w_name)
    else
@@ -249,7 +249,7 @@ minetest.register_on_joinplayer(
         -- load any prior weather overrides
         local ovr = player:get_meta():get_string("weather_override")
         if ovr ~= "" then
-            climate.set_override(p_name, player, ovr)
+            climate.set_weather_override(p_name, player, ovr)
         else
             update_player_sounds(p_name)
         end
@@ -526,7 +526,7 @@ minetest.register_chatcommand("set_tempscale", {
     end,
 })
 
-minetest.register_chatcommand("set_override", {
+minetest.register_chatcommand("set_woverride", {
     params = "<weather name>",
     description = "Sets your weather override",
     func = function(name, param)
@@ -534,12 +534,12 @@ minetest.register_chatcommand("set_override", {
 	  return false
        end
        if param == "none" then
-	  climate.set_override(name, nil, "")
+	  climate.set_weather_override(name, nil, "")
 	  return
        end
        local weather = climate.registered_weathers[param]
        if weather then
-	  climate.set_override(name, nil, param)
+	  climate.set_weather_override(name, nil, param)
        else
 	  return false, "argument must be a valid weather name, or none"
        end
