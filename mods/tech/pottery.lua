@@ -709,11 +709,37 @@ local function water_soil(itemstack, user, pointed_thing, water_source, node_suf
     if ( (minetest.get_item_group(node.name, "flora") > 0 or minetest.get_item_group(node.name, "seed") > 0) ) then
       pos = {["x"] = pos.x, ["y"] = pos.y - 1, ["z"] = pos.z} -- cruddy construction of a pos and subtracting the y by 1
       node = minetest.get_node(pos)
+      
+      --[[ easily implemented condition for if the selected plant's sediment is wet, then don't dump water and return (remove this if the other return is used instead)
+      if (string.match(node.name,"wet")) then
+        return
+      end
+      --]]
     end
+    
+    --[[ easily implemented condition for if the selected sediment is wet, then don't dump water and return
+    if (string.match(node.name,"wet")) then
+      return
+    end
+    --]]
     
 		if minetest.get_item_group(node.name, "sediment") > 0 then
 			-- check if watered block exists
 			local wet_node_name = node.name .. node_suffix
+      
+      -- some possible name conditions for improperly named nodes (in accordance to node_suffix "_wet")
+      if not minetest.registered_nodes[wet_node_name] and string.match(node.name,"depleted") then -- depleted nodes with roots have "depleted" behind the "roots", so I declare this if statement first
+        -- IF the provided node is "depleted", look for its proper depleted wet variant
+        wet_node_name = string.gsub(wet_node_name,"_depleted","")
+        wet_node_name = wet_node_name.."_depleted" -- we didn't erase "_wet" from the name
+        minetest.log("error",wet_node_name)
+      end
+      if not minetest.registered_nodes[wet_node_name] and string.match(node.name,"roots") then
+        -- IF the provided node is "roots", look for its proper roots wet variant
+        wet_node_name = string.gsub(wet_node_name,"_roots","")
+        wet_node_name = wet_node_name.."_roots" -- we didn't erase "_wet" from the name
+        minetest.log("error",wet_node_name)
+      end
 			if minetest.registered_nodes[wet_node_name] then
 				-- replace with watered version
 				-- keeping the node orientation
