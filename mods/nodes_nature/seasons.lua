@@ -24,10 +24,36 @@ seasons.season_names = {
 }
 
 local season_names = seasons.season_names
-
+local set_day_please = false
+local days_to_skip = false
 local set_day_pending = false
+
 -- the variable below controls the season
 local current_season = ""
+
+-- life is a tragedy but sometimes also a comedy
+-- there's no /set_date command in minetest so we wrote one
+local function move_time_forward(days)
+    local days = days
+    local old_time = minetest.get_timeofday()
+    local function loop()
+        if days > 0 then
+            days = days - 1
+            minetest.set_timeofday(1)
+            minetest.after(0.05, loop)
+        else
+            minetest.after(0.05, function () minetest.set_timeofday(old_time) end)
+            minetest.after(0.5, climate.refresh)
+            set_day_pending = false
+        end
+    end
+    loop()
+end
+
+local function request_set_day(days)
+    days_to_skip = days
+    set_day_please = true
+end
 
 minetest.register_chatcommand(
     "set_day", {
@@ -35,14 +61,15 @@ minetest.register_chatcommand(
         description = S("Sets date."),
         privs = {settime = true},
         func = function(name, param)
-            set_day_pending = true
+            if set_day_pending then
+                return false, S("I'm setting day, wait!")
+            end
             if param == "" or not tonumber(param) then
                 return false, S("Wrong argument, needs a number!")
             end
-            local old_time = minetest.get_timeofday()
             local day = math.floor(param)
             local current_day = minetest.get_day_count() % 80 + 1
-            local days_to_skip
+            local days_to_skip = 0
             if day > current_day then
                 days_to_skip = day - current_day
             elseif day < current_day then
@@ -50,22 +77,8 @@ minetest.register_chatcommand(
             else
                 return true, S("Nothing to change, the date stays as is.")
             end
-            -- life is a tragedy but sometimes also a comedy
-            -- there's no /set_date command in minetest so we wrote one
-            local function loop()
-                if days_to_skip > 0 then
-                    days_to_skip = days_to_skip - 1
-                    minetest.set_timeofday(1)
-                    minetest.after(0.05, loop)
-                else
-                    minetest.after(0.05, function () minetest.set_timeofday(old_time) end)
-                    minetest.after(0.5, climate.refresh)
-                end
-            end
-            loop()
-            local new_current_day = minetest.get_day_count() % 80 + 1
-            set_day_pending = false
-            return true, S("Date changed!")
+            request_set_day(days_to_skip)
+            return true, S("Date change requested!")
         end,
 })
 
@@ -334,12 +347,11 @@ local function initialize_plant_replacer(season_name)
              lower_than = 64, --exclude domesticated and half-wild
             }
         )
-    ms.remove_worker(current_plant_replacer)
-    local replacer_name = "plants_to_"..season_name.."_worker"
-    ms.register_worker({name = replacer_name,
+    ms.remove_worker("seasonal_plant_worker")
+    ms.register_worker({name = "seasonal_plant_worker",
                         fun = plant_replacer,
                         has_one_of = labels})
-    current_plant_replacer = replacer_name
+    current_plant_replacer = season_name
 end
 
 local function swap_plants(season_name)
@@ -357,6 +369,11 @@ end
 local season_loop_interval = 5
 
 local function season_loop()
+    if set_day_please then
+        set_day_pending = true
+        set_day_please = false
+        move_time_forward(days_to_skip)
+    end
     -- Prevent running stuff when date is changed to avoid glitches
     if not set_day_pending then
         update_season()
