@@ -152,11 +152,15 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 end
 
 --Function for filled buckets to call on_use... as return (so gives item)
-function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user, pointed_thing)
+function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user, pointed_thing, dump)
 	-- Must be pointing to node
 	if pointed_thing.type ~= "node" then
 		return
 	end
+  -- if dump isn't a specified boolean, set to true (so watering cans do not dump their contents)
+  if (type(dump) ~= "boolean") then
+    dump = true
+  end
 
 	local node = minetest.get_node_or_nil(pointed_thing.under)
 	local ndef = node and minetest.registered_nodes[node.name]
@@ -199,9 +203,12 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	   minimal.switch_node(lpos, {name = stored})
 	   return handle_stacks(user, itemstack, nodename_empty)
 	end
-
-	minetest.set_node(lpos, {name = source})
-	return handle_stacks(user, itemstack, nodename_empty)
+  
+  -- dump the water ONLY if "dump" is true (if false, do not dump)
+  if dump then
+    minetest.set_node(lpos, {name = source})
+    return handle_stacks(user, itemstack, nodename_empty)
+  end
 end
 
 
