@@ -199,6 +199,7 @@ function animals.core_life(self, lifespan, pos)
        if (self.hp <= 0 and temp >= self.max_temp * 4) then
          -- if animal successfully burned to death then
          energy = 0
+         mobkit.hurt(self,1) -- this should stop the "burned but still alive" issue
          self.burnt = true
       end
     end
