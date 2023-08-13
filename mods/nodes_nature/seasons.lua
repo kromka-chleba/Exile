@@ -26,6 +26,8 @@ seasons.season_names = {
 local season_names = seasons.season_names
 
 local set_day_pending = false
+-- the variable below controls the season
+local current_season = ""
 
 minetest.register_chatcommand(
     "set_day", {
@@ -67,20 +69,6 @@ minetest.register_chatcommand(
         end,
 })
 
-local function update_plant(pos, node)
-    if node.param2 < 64 or node.param2 >= 128 and seasons.is_winter() then
-        local season_name = seasons.get_season_name()
-        local nodedef = minetest.registered_nodes[node.name]
-        local new_name = nodedef["_"..season_name]
-        local next_nodedef = minetest.registered_nodes[new_name]
-        if new_name and new_name ~= node.name then
-            minetest.remove_node(pos)
-            minetest.swap_node(pos, {name = new_name,
-                                    param2 = next_nodedef.place_param2})
-        end
-    end
-end
-
 local leaf_drop_abm = {
     label = "Removes leaves in winter.",
     name = "nodes_nature:remove_leaves",
@@ -97,6 +85,7 @@ local leaf_drop_abm = {
     end,
 }
 
+-- Don't use this in the seasonal loop
 function seasons.get_season_and_day()
     -- days into the current year
     local days = minetest.get_day_count() % 80
@@ -106,9 +95,8 @@ function seasons.get_season_and_day()
     return season_nr, season_days
 end
 
-local last_season = "spring_early"
-
-function seasons.get_season_name()
+-- This one is only for the seasonal loop
+local function update_season()
     local season, day = seasons.get_season_and_day()
     local season_name = ""
     if season == 1 then
@@ -127,15 +115,21 @@ function seasons.get_season_name()
         season_name = season_name.."_late"
     end
 
-    if set_day_pending then
-        return last_season
+    if season_name ~= current_season then
+        current_season = season_name
     end
-
-    return season_name
 end
 
-function seasons.is_winter()
-    local season = seasons.get_season_name()
+-- Gives you the current season as set in the seasonal loop
+-- may be slightly outdated by whatever the current loop interval is
+-- but prevents race conditions.
+-- See "season_loop_interval" and "season_loop".
+function seasons.get_season_name()
+    return current_season
+end
+
+function seasons.is_winter(season_name)
+    local season = season_name or seasons.get_season_name()
     if season == "winter_early" or
         season == "winter_late" then
         return true
@@ -239,18 +233,24 @@ local winter_soil_replacer =
         }
     )
 
+local current_soil_replacer = ""
 
-local function swap_soils()
-    if seasons.is_winter() then
+local function swap_soils(season_name)
+    local winter = seasons.is_winter(season_name)
+    if winter and current_soil_replacer ~= "winter" then
         ms.remove_worker("winter_soil_replacer")
         ms.register_worker({name = "spring_soil_replacer",
                             fun = spring_soil_replacer,
                             needed_labels = {"spring_soil"}})
-    else
+        current_soil_replacer = "winter"
+    end
+
+    if not winter and current_soil_replacer ~= "spring" then
         ms.remove_worker("spring_soil_replacer")
         ms.register_worker({name = "winter_soil_replacer",
                             fun = winter_soil_replacer,
                             needed_labels = {"winter_soil"}})
+        current_soil_replacer = "spring"
     end
 end
 
@@ -303,13 +303,9 @@ local function get_plant_labels_but_this(season_name)
 end
 
 local seasonal_plants = false
-local pairs_by_season = {}
-
 local plant_finder = false
-local plant_replacer = false
-local replacer_season = false
 
-local function swap_plants(season_name)
+local function initialize_plant_scanner()
     if not seasonal_plants then
         seasonal_plants = get_seasonal_plant_names()
     end
@@ -318,43 +314,57 @@ local function swap_plants(season_name)
             {to_find = seasonal_plants,
              add_labels = {"seasonal_plants"},
         })
-        -- Turning this off because now we have mapgen scanners in the shepherd
-        -- ms.register_scanner({name = "seasonal_plant_finder",
-        --                      fun = plant_finder})
+        ms.register_scanner({name = "seasonal_plant_finder",
+                             fun = plant_finder})
     end
+end
+
+local pairs_by_season = {}
+local plant_replacer = false
+local current_plant_replacer = ""
+
+local function initialize_plant_replacer(season_name)
+    local labels = get_plant_labels_but_this(season_name)
+    table.insert(labels, "seasonal_plants")
+    plant_replacer =
+        ms.create_param2_aware_replacer(
+            {find_replace_pairs = pairs_by_season[season_name],
+             add_labels = {season_name.."_plants"},
+             remove_labels = labels,
+             lower_than = 64, --exclude domesticated and half-wild
+            }
+        )
+    ms.remove_worker(current_plant_replacer)
+    local replacer_name = "plants_to_"..season_name.."_worker"
+    ms.register_worker({name = replacer_name,
+                        fun = plant_replacer,
+                        has_one_of = labels})
+    current_plant_replacer = replacer_name
+end
+
+local function swap_plants(season_name)
+    -- Turning this off because now we have mapgen scanners in the shepherd
+    -- leaving for testing the shepherd
+    -- initialize_plant_scanner()
     if not pairs_by_season[season_name] then
         pairs_by_season[season_name] = get_plant_season_pairs(season_name)
     end
-    if not replacer_season then
-        replacer_season = season_name
-    end
-    if not plant_replacer or replacer_season ~= season_name then
-        local labels = get_plant_labels_but_this(season_name)
-        table.insert(labels, "seasonal_plants")
-        plant_replacer =
-            ms.create_param2_aware_replacer(
-                {find_replace_pairs = pairs_by_season[season_name],
-                 add_labels = {season_name.."_plants"},
-                 remove_labels = labels,
-                 lower_than = 64, --exclude domesticated and half-wild
-                }
-            )
-        ms.remove_worker("seasonal_plant_replacer")
-        ms.register_worker({name = "seasonal_plant_replacer",
-                            fun = plant_replacer,
-                            has_one_of = labels})
+    if season_name ~= current_plant_replacer then
+        initialize_plant_replacer(season_name)
     end
 end
+
+local season_loop_interval = 5
 
 local function season_loop()
     -- Prevent running stuff when date is changed to avoid glitches
     if not set_day_pending then
+        update_season()
         local season_name = seasons.get_season_name()
-        last_season = season_name
         swap_plants(season_name)
-        swap_soils()
+        swap_soils(season_name)
     end
-    minetest.after(4, season_loop)
+    minetest.after(season_loop_interval, season_loop)
 end
 
 -- starts the loop after 2 seconds after everything (hopefully) finishes loading
