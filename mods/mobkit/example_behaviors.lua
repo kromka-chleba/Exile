@@ -371,7 +371,7 @@ function mobkit.lq_fallover(self)
 		if init then
 			local vel = self.object:get_velocity()
 			self.object:set_velocity(mobkit.pos_shift(vel,{y=1}))
-			mobkit.animate(self,'stand')
+			mobkit.animate(self,'dead')
 			init = false
 		end
 		zrot=zrot+pi*0.05

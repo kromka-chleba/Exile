@@ -215,6 +215,7 @@ minetest.register_entity("animals:impethu",{
 			{range={x=12, y=24}, speed=5, loop=true},
 			{range={x=24, y=31}, speed=5, loop=true},
 		},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		warn = {

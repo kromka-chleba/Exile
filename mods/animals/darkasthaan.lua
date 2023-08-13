@@ -194,7 +194,8 @@ minetest.register_entity("animals:darkasthaan",{
 	animation = {
 		walk={range={x=1,y=21},speed=15,loop=true},
 		fast={range={x=1,y=21},speed=35,loop=true},
-		stand={range={x=0,y=0},speed=5,loop=true},
+		stand={range={x=25,y=45},speed=5,loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		warn = {

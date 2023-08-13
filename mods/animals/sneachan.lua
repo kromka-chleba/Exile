@@ -229,7 +229,8 @@ minetest.register_entity("animals:sneachan",{
 	animation = {
 		walk={range={x=0, y=20}, speed=20, loop=true},
 		fast={range={x=0, y=20}, speed=40, loop=true},
-		stand={range={x=0, y=0}, speed=10, loop=true},
+		stand={range={x=0, y=20}, speed=10, loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		warn = {

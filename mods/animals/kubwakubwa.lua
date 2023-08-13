@@ -205,6 +205,7 @@ minetest.register_entity("animals:kubwakubwa",{
 		walk={range={x=0,y=20},speed=20,loop=true},
 		fast={range={x=0,y=20},speed=50,loop=true},
 		stand={range={x=20,y=40},speed=10,loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		warn = {

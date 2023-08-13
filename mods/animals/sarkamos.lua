@@ -189,6 +189,7 @@ minetest.register_entity("animals:sarkamos",{
 		def={range={x=1,y=59},speed=40,loop=true},
 		fast={range={x=1,y=59},speed=80,loop=true},
 		stand={range={x=1,y=15},speed=15,loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		flee = {
