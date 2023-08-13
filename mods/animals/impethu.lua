@@ -169,7 +169,7 @@ minetest.register_node("animals:impethu_eggs", {
 
 ----------------------------------------------
 -- SETTING OF IMPETHU INTERACTOR SETTINGS
-animals.add_interactors("predators","impethu","animals:pegasun", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("predators","impethu","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
 animals.add_interactors("rivals","impethu","animals:sneachan", "animals:impethu")
 
 

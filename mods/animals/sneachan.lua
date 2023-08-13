@@ -190,7 +190,7 @@ minetest.register_node("animals:sneachan_eggs", {
 
 ----------------------------------------------
 -- SETTING OF SNEACHAN INTERACTOR SETTINGS
-animals.add_interactors("predators","sneachan","animals:pegasun", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("predators","sneachan","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
 animals.add_interactors("rivals","sneachan","animals:sneachan", "animals:impethu")
 
 
