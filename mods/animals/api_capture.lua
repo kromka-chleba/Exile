@@ -20,7 +20,10 @@ local create_mob = function(placer, itemstack, name, pos)
 			mobkit.remember(ent,key,value)
 		end
 	end
-	itemstack:take_item() -- since mob is unique we remove egg once spawned
+  -- if player isn't in creative
+  if (animals.player_in_creative(placer) ~= true) then
+    itemstack:take_item() -- since mob is unique we remove egg once spawned
+  end
 	return ent
 end
 
