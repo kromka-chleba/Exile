@@ -94,7 +94,7 @@ local good_start_weathers = {
 local good_random = good_start_weathers[math.random(1, #good_start_weathers)]
 climate.active_weather = climate.registered_weathers[good_random]
 climate.active_temp = math.random(10, 20)
-climate.active_sea_temp = climate.active_temp * math.random(0.6,8)
+climate.active_sea_temp = climate.active_temp - math.random(2, 8)
 local active_weather_interval = 30
 
 --random walk, for temp
