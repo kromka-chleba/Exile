@@ -15,7 +15,10 @@ function minimal.protection_nail_use( itemstack, user, pointed_thing )
 		if minimal.click_count_ready(owner, "nail", pt_pos, __nail_use_count) then
 			local pt_node=minetest.get_node(pt_pos)
 			if not (pt_node.name == 'tech:stick'
-				or minetest.get_item_group(pt_node.name, 'flora') > 0
+				or minetest.get_item_group(pt_node.name,
+							   'flora') > 0
+				or minetest.get_item_group(pt_node.name,
+							   'unclaimable') > 0
 			) then
 				local pt_meta=minetest.get_meta(pt_pos)
 				if not pt_meta:contains('owner') then
