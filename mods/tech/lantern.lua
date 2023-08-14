@@ -17,13 +17,14 @@ local lantern_desc = lightsource_description.new(
 -- right click on a node with an item to craft another node
 local function take_item_replace_node(pos, node, clicker, itemstack, pointed_thing, item_name, node_name)
     local stack_name = itemstack:get_name()
-    local meta = minetest.get_meta(pos)
+    if not clicker:is_player() then return end
+    local name = clicker:get_player_name()
+    if minetest.is_protected(pos, name) then return end
     if stack_name == item_name then
-        local name = clicker:get_player_name()
         if not minetest.is_creative_enabled(name) then
             itemstack:take_item()
         end
-        minetest.set_node(pos, {name = node_name})
+        minetest.swap_node(pos, {name = node_name})
         return itemstack
     end
 end
@@ -165,6 +166,9 @@ minetest.register_node("tech:lantern_unlit", {
             lightsource.update_fuel_infotext(lantern_desc, pos)
         end,
         on_dig = function(pos, node, digger)
+	    if digger:is_player() then
+	       minimal.protection_on_dig(pos,node,digger)
+	    end
             lightsource.save_to_inventory(lantern_desc, pos, digger, false)
         end,
         on_ignite = function(pos, user)
@@ -215,6 +219,9 @@ minetest.register_node("tech:lantern_lit", {
             lightsource.restore_from_inventory(lantern_desc, pos, itemstack)
         end,
         on_dig = function(pos, node, digger)
+	    if digger:is_player() then
+	       minimal.protection_on_dig(pos,node,digger)
+	    end
             lightsource.save_to_inventory(lantern_desc, pos, digger, true)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
