@@ -255,6 +255,7 @@ function HEALTH.illness_ref(name,severity,modify)
     thirst_rate = battrbs.thirst_rate,
     hunger_rate = battrbs.hunger_rate,
     recovery_rate = battrbs.recovery_rate,
+    breathing_rate = battrbs.breathing_rate, -- not yet implemented
     
     move = battrbs.move,
     jump = battrbs.jump,
@@ -262,7 +263,8 @@ function HEALTH.illness_ref(name,severity,modify)
     time = {4,6},
     delay = {2,4},
     
-    on_condition = false,
+    logic = "nil", -- should be a function - only necessary if an illness has differing qualities
+    on_condition = "nil", -- should be a function - only necessary if an illness requires certain conditions
     
     life_num = 0,
   }
@@ -480,7 +482,7 @@ function HEALTH.illness_ref(name,severity,modify)
       severity = 4
     end
     
-    local max_drunk = illness_ref.max_drunk or 1
+    local max_drunk = self["max_drunk"] or 1
     
     if (severity == 1) then
       if max_drunk < 1 then
@@ -542,7 +544,7 @@ function HEALTH.illness_ref(name,severity,modify)
       stagger = {30, 60, 0.5, 1, 4}
     end
     
-    illness_ref.max_drunk = max_drunk
+    self.max_drunk = max_drunk
     
   
 ---- ALCOHOLISM /\/\
@@ -583,7 +585,7 @@ function HEALTH.illness_ref(name,severity,modify)
       severity = 4
     end
     
-    local max_drunk = illness_ref["max_drunk"] or 1
+    local max_drunk = self["max_drunk"] or 1
     
     if (severity == 1) then
       if max_drunk < 1 then
@@ -660,11 +662,36 @@ function HEALTH.illness_ref(name,severity,modify)
       end
     end
     
-    illness_ref.max_drunk = max_drunk
+    self.max_drunk = max_drunk
     
     
   elseif (name == "meta stim") then -- WIP
+    if (severity > 4) then
+      severity = 4
+    end
     
+    self.on_condition = function(player,meta)
+      if (minetest.is_player(player)) then
+        local pos = player:get_pos()
+        pos.y = pos.y + 0.8
+        local light = minetest.get_node_light(pos) or 0
+        if light >= 14 then
+          return true
+        end
+      end
+      
+      return false
+    end
+    
+    if (severity == 1) then
+      
+    elseif (severity == 2) then
+      
+    elseif (severity == 3) then
+      
+    elseif (severity == 4) then
+      
+    end
     
 ---- DRUG EFFECTS /\/\
 ------------------------------------------------------------------
@@ -774,31 +801,71 @@ function HEALTH.illness_ref(name,severity,modify)
       severity = 4
     end
     
+    self.on_condition = function(player,meta)
+      if (minetest.is_player(player)) then
+        local pos = player:get_pos()
+        pos.y = pos.y + 0.8
+        local light = minetest.get_node_light(pos) or 0
+        if light >= 13 then
+          return true
+        end
+      end
+      
+      return false
+    end
+    
+    if (severity == 1) then
+      h_rate = h_rate - 3
+			r_rate = r_rate - 8
+			stagger = {1, 2, 1, 5, 1}
+
+		elseif (severity == 2) then
+			h_rate = h_rate - 6
+			r_rate = r_rate - 12
+			stagger = {1, 3, 1, 5, 1}
+
+		elseif (severity == 3) then
+			h_rate = h_rate - 12
+			r_rate = r_rate - 24
+			stagger = {1, 2, 1, 5, 1}
+
+		elseif (severity == 4) then
+			h_rate = h_rate - 9
+			r_rate = r_rate - 48
+			stagger = {1, 4, 1, 5, 1}
+		end
     
     
 ---- TOXICITY /\/\
 ------------------------------------------------------------------
-  
   end
+
+  -- VARIABLE SETTING
   
   -- setting variables to shortcut variables
-  illness_ref.temperature = temp
-  illness_ref.heal_rate = h_rate
-  illness_ref.thirst_rate = thr_rate
-  illness_ref.hunger_rate = hun_rate
-  illness_ref.recovery_rate = r_rate
-  illness_ref.move = mov
-  illness_ref.jump = jum
+  self.temperature = temp
+  self.heal_rate = h_rate
+  self.thirst_rate = thr_rate
+  self.hunger_rate = hun_rate
+  self.recovery_rate = r_rate
+  self.move = mov
+  self.jump = jum
   
   -- setting table parameters for potential functions, does not add if nil
-  illness_ref.vomit = vomit
-  illness_ref.stagger = stagger
-  illness_ref.organ_failure = organ_failure
-  illness_ref.auditory_hallucination = auditory_hallucination
+  self.vomit = vomit
+  self.stagger = stagger
+  self.organ_failure = organ_failure
+  self.auditory_hallucination = auditory_hallucination
   
   -- resetting of illness_ref values to potential new values
-  illness_ref.name = name
-  illness_ref.severity = severity
+  self.name = name
+  self.severity = severity
+  
+  if (self.name == "") then
+    self.name = "unknown"
+  end
+  
+  return self
 end
 ------------------------------------------------------------------
 --COMPONENT EFFECTS
