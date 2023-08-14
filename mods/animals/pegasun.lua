@@ -426,6 +426,7 @@ minetest.register_entity("animals:pegasun_male",{
 			{range={x=1, y=0}, speed=28, loop=true},
 			{range={x=31, y=0}, speed=32, loop=true},
 		},
+		dead = { range={x=0, y=0}, speed=0, loop=true},
 	},
 	sounds = {
 		warn = {
