@@ -316,7 +316,7 @@ function mod.get_p2(shape, rot)
 
 	local p2 = shape.param2
 
-	if not p2 or not rot or rot == 0 or mod.no_rotate[shape.node] then
+	if not p2 or not rot or rot == 0 then
 		return p2
 	end
 
