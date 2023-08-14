@@ -272,6 +272,7 @@ local plant_list = {
      drawtype = "plantlike", plant_type = "woody_plant",
      mesh_type = 0, growing_time = plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "green",
+     seasonal_type = "whole_season_woody",
      texture_scale = 1.2, thorns = true, move_resistance = 4},
 
     {name = "jogalan", description = S("Jogalan"),
@@ -358,7 +359,7 @@ local plant_list = {
 
     -- Canes
     {name = "cana", description = S("Cana"),
-     mesh_type = 2,
+     mesh_type = 2, seasonal_type = "cane",
      drawtype = "plantlike", plant_type = "cane", waving = false,
      growing_time = plant_base_growing_time * 2, seed_number = 1},
 
@@ -419,6 +420,24 @@ minetest.override_item(
         description = S("Anperla tuber"),
         wield_image = "nodes_nature_tuber.png",
         inventory_image = "nodes_nature_tuber.png",
+        node_box = {
+            type = "fixed",
+            fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
+        },
+        selection_box = {
+            type = "fixed",
+            fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
+        },
+        stack_max = minimal.stack_max_medium,
+        walkable = true,
+})
+
+minetest.override_item(
+    "nodes_nature:barszcz_root",{
+        tiles = {"nodes_nature_red_ochre.png"},
+        description = S("Barszcz root"),
+        wield_image = "nodes_nature_barszcz_root.png",
+        inventory_image = "nodes_nature_barszcz_root.png",
         node_box = {
             type = "fixed",
             fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},

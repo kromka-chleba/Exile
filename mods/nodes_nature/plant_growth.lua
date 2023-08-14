@@ -241,7 +241,8 @@ local function kill_plant(pos, natural_death)
     local dead_names = {natural = "", induced = ""}
     if seedling then
         dead_names.natural = nodedef._seed_name
-        dead_names.induced = "air"
+        -- to be replaced with a generic dead seedling
+        dead_names.induced = node.name
     elseif flowering_plant and nodedef._dead_fruitless_name then
         dead_names.natural = nodedef._dead_fruitless_name
         dead_names.induced = nodedef._dead_fruitless_name
