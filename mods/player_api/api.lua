@@ -217,63 +217,66 @@ local function bubbles(pl_pos)
    }
 end
 
-local function check_player_surroundings(player, pos)
+local checked = {} -- cache surroundings for players that are still
+
+local function check_player_surroundings(player, pos, name)
+   local function its_a_liquid(def)
+      if def.liquidtype == "source" or def.liquidtype == "flowing" then
+	 return true
+      else return false end
+   end
+   local cn = checked[name] or {}
+   if cn.pos and vector.equals(cn.pos, pos) then
+      return cn[1], cn[2], cn[3], cn[4]
+   end
+   local mrn = minetest.registered_nodes
+
    local node_name = minetest.get_node(pos).name
-   local node_def = minetest.registered_nodes[node_name]
    local pos_above = {x= pos.x, y= pos.y+1, z= pos.z}
    local node_name_above = minetest.get_node(pos_above).name
-   local node_above_def = minetest.registered_nodes[node_name_above]
+   local pos_below = {x= pos.x, y= pos.y-1, z= pos.z}
+   local node_name_below = minetest.get_node(pos_below).name
+
+   local node_def = minetest.registered_nodes[node_name]
+   local node_above_def = mrn[node_name_above]
+   local node_below_def = mrn[node_name_below]
+
    local node_above_is_solid = false
-   local on_a_ladder = minetest.registered_nodes[node_name].climbable or
-      node_above_def.climbable
-   local on_water = false
+   local no_crouching = mrn[node_name].climbable or
+      node_above_def.climbable -- no crawling on ladders
+   local is_flying = false
    if ( node_above_def and node_above_def.walkable == true and
-	on_a_ladder == false ) then
+	no_crouching == false ) then
       if ( node_above_def.drawtype == "normal" and -- above is solid
 	   node_def.drawtype ~= "normal" ) then -- and we're not noclipping
 	 node_above_is_solid = true
       end -- #TODO: elseif; handle nodeboxes with a raycast? other cases
    end
-   if minetest.registered_nodes[node_name] then
-      if ( minetest.registered_nodes[node_name]["liquidtype"] == "source" or
-	   minetest.registered_nodes[node_name]["liquidtype"] == "flowing" ) then
-	 local pos_below = {x= pos.x, y= pos.y-1, z= pos.z}
-	 local node_name_below = minetest.get_node(pos_below).name
-	 if minetest.registered_nodes[node_name_below] and minetest.registered_nodes[node_name_above] then
-	    local node_below_is_liquid
-	    if minetest.registered_nodes[node_name_below]["liquidtype"] == "source" or
-	       minetest.registered_nodes[node_name_below]["liquidtype"] == "flowing" then
-	       node_below_is_liquid = true
-	    else
-		     node_below_is_liquid = false
-	    end
-	    local node_above_is_liquid
-	    if minetest.registered_nodes[node_name_above]["liquidtype"] == "source" or
-	       minetest.registered_nodes[node_name_above]["liquidtype"] == "flowing" then
-	       node_above_is_liquid = true
-	    else
-		     node_above_is_liquid = false
-	    end
-	    local node_above_is_air
-	    if minetest.registered_nodes[node_name_above] == "air" then
-	       node_above_is_air = true
-	    else
-	       node_above_is_air = false
-	    end
+   local node_above_is_air = ( node_above_def.drawtype == "airlike" )
+   if node_def.drawtype == "airlike" and node_above_is_air
+      and node_below_def.drawtype == "airlike" then
+      no_crouching = true -- approximate guess for player flying
+      is_flying = true
+   end
+   local on_water = false
+   if mrn[node_name] then
+      if its_a_liquid(node_def) then
+	 if mrn[node_name_below] and mrn[node_name_above] then
+	    local node_below_is_liquid = its_a_liquid(node_below_def)
+	    local node_above_is_liquid = its_a_liquid(node_above_def)
 	    if	((node_below_is_liquid) and not(node_above_is_air)) or
 	       (not(node_below_is_liquid) and node_above_is_liquid) then
 	       on_water = true
-	    else
-		     on_water = false
 	    end
 	 else
-	       on_water = true
+	    on_water = true
 	 end
-      else
-	       on_water = false
       end
    end
-   return on_water, node_above_is_solid, on_a_ladder
+   checked[name] = { ["pos"] = pos, [1] = on_water,
+      [2] = node_above_is_solid, [3] = no_crouching, [4] = is_flying }
+   return on_water, node_above_is_solid, no_crouching, is_flying
+   -- #TODO: Try using part of the swim animation for flying?
 end
 
 local prop_table = { -- select gender + t/f for crawling eye_height/collision
@@ -361,8 +364,8 @@ minetest.register_globalstep(function(dtime)
 		     local animation_speed_mod = model.animation_speed or 30
 
 		     --Determine if the player is in a water node
-		     local on_water, cant_stand, on_ladder =
-			check_player_surroundings(player, player_pos)
+		     local on_water, cant_stand, cant_crouch =
+			check_player_surroundings(player, player_pos, name)
 
 		     local moving =  controls.up or controls.down or
 			controls.left or controls.right
@@ -372,7 +375,7 @@ minetest.register_globalstep(function(dtime)
 
 		     local cancrawl = not ( player_anim[name] == "lay" or
 				       on_water == true or
-				       on_ladder == true )
+				       cant_crouch == true )
 
 		     if cant_stand and not player_crawl[name] and cancrawl then
 			toggle_crawl(player, name, true)
