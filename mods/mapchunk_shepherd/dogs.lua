@@ -377,6 +377,45 @@ function ms.create_light_aware_top_placer(args)
     end
 end
 
+-- ideally logic from this file minetest/src/mapgen/mg_decoration.cpp
+-- should be replicated in this function but I'm too lazy to do that
+local function get_corners(deco, size)
+    local corners = {}
+    for z = 0, size.z, size.z do
+        for y = 0, size.y, size.y do
+            for x = 0, size.x, size.x do
+                local v = vector.new(x, y, z)
+                table.insert(corners, v)
+            end
+        end
+    end
+    local place_center_x = string.find(deco.flags, "place_center_x")
+    local place_center_y = string.find(deco.flags, "place_center_y")
+    local place_center_z = string.find(deco.flags, "place_center_z")
+    local x_offset = 0
+    local y_offset = 0
+    local z_offset = 0
+    if place_center_x then
+        x_offset = math.floor(size.x / 2)
+    end
+    if place_center_y then
+        y_offset = math.floor(size.y / 2)
+    elseif deco.place_offset_y then
+        y_offset = - deco.place_offset_y
+    end
+    if place_center_z then
+        z_offset = math.floor(size.z / 2)
+    end
+    local offset = vector.new(x_offset, y_offset, z_offset)
+    local corners_with_offset = {}
+    for _, corner in pairs(corners) do
+        local corner = corner
+        corner = vector.subtract(corner, offset)
+        table.insert(corners_with_offset, corner)
+    end
+    return corners_with_offset
+end
+
 function ms.create_deco_finder(args)
     local args = table.copy(args)
     local deco_list = args.deco_list
@@ -385,16 +424,43 @@ function ms.create_deco_finder(args)
     for _, deco in pairs(deco_list) do
         local id = minetest.get_decoration_id(deco.name)
         minetest.set_gen_notify({decoration = true}, {id})
+        local corners = false
+        if deco.schematic then
+            local schematic = minetest.read_schematic(deco.schematic, {})
+            corners = get_corners(deco, schematic.size)
+        end
         minetest.register_on_generated(
             function(minp, maxp, blockseed)
                 local gennotify = minetest.get_mapgen_object("gennotify")
                 local pos_list = gennotify["decoration#"..id] or {}
                 if #pos_list > 0 then
                     local hash = ms.mapchunk_hash(minp)
-                    if not ms.contains_labels(hash, labels_to_add) then
-                        ms.save_mapchunk(hash)
-                        ms.handle_labels(hash, labels_to_add, labels_to_remove)
-                        ms.add_labels(hash, {"scanned"})
+                    local function check_and_labels(hash)
+                        if not ms.contains_labels(hash, labels_to_add) then
+                            ms.save_mapchunk(hash)
+                            ms.handle_labels(hash, labels_to_add, labels_to_remove)
+                            ms.add_labels(hash, {"scanned"})
+                        end
+                    end
+                    check_and_labels(hash)
+                    if not corners then
+                        -- exit if it's not a schematic
+                        return
+                    end
+                    for _, pos in pairs(pos_list) do
+                        local previous_hash = ""
+                        for _, corner in pairs(corners) do
+                            --add a 5% margin for schematic just in case
+                            local wide = vector.multiply(corner, 1.05)
+                            wide = vector.add(wide, 1)
+                            wide = vector.floor(wide)
+                            wide = vector.subtract(wide, 1)
+                            local corner_pos = vector.add(pos, wide)
+                            local corner_hash = ms.mapchunk_hash(corner_pos)
+                            if previous_hash ~= corner_hash then
+                                check_and_labels(corner_hash)
+                            end
+                        end
                     end
                 end
             end
