@@ -16,23 +16,22 @@ local floor = math.floor
 --energy
 local energy_max = 8000--secs it can survive without food
 local energy_egg = energy_max/2 --energy that goes to egg
-local egg_timer  = 60*60
+local egg_timer  = 60*30 --60*60
 local young_per_egg = 1		--will get this/energy_egg starting energy
 
 local lifespan = energy_max * 10
 local lifespan_male = lifespan * 1.2 --if the flock male dies they go extinct
-
+local mature_age = 2850
 
 -----------------------------------
 local function brain(self)
-
 	--die from damage
 	if not animals.core_hp(self) then
 		return
 	end
 
 	if mobkit.timer(self,1) then
-
+    
 		local pos = mobkit.get_stand_pos(self)
 
 		local age, energy = animals.core_life(self, lifespan, pos)
@@ -57,7 +56,7 @@ local function brain(self)
 
 
 			--Threats
-			local plyr = mobkit.get_nearby_player(self)
+			local plyr = animals.get_nearby_player(self)
 			if plyr then
 				animals.fight_or_flight_plyr(self, plyr, 55, 0.01)
 			end
@@ -110,11 +109,11 @@ local function brain(self)
 					animals.flock(self, 25, 3)
 				elseif random()< 0.01 then
 					animals.territorial(self, energy, false)
-				elseif random() < 0.05 then
+				elseif random() < 0.1 and age >= mature_age then
 
 					--reproduction
 					if self.hp >= self.max_hp
-					and energy >= energy_max - 100 then
+					and energy >= (energy_egg * 1.5) then
 
 						--are we already pregnant?
 						local preg = mobkit.recall(self,'pregnant') or false
@@ -145,37 +144,23 @@ local function brain(self)
 				end
 
 			elseif energy < energy_max then
-
-				--feed via a method
-				if random()< 0.85 then
-					--scratch dirt
-					if animals.eat_spreading_under(pos, 0.001) == true then
-						energy = energy + 6
-					else
-						--wander to food source
-						mobkit.animate(self,'walk')
-						--mobkit.hq_roam(self,10)
-						animals.hq_roam_surface_group(self, 'spreading', 20)
-					end
-				elseif random()< 0.75 then
-					--veg
-					if animals.eat_flora(pos, 0.005) == true then
-						energy = energy + 20
-					else
-						--wander random
-						mobkit.animate(self,'walk')
-						--mobkit.hq_roam(self,10)
-						animals.hq_roam_walkable_group(self, 'flora', 10)
-					end
-				else
-					--hunt
-					if not animals.prey_hunt(self, 25) then
-						--random search
-						mobkit.animate(self,'walk')
-						mobkit.hq_roam(self,10)
-						--animals.hq_roam_surface_group(self, 'spreading', 10)
-					end
-				end
+        local hngperc = (energy_max * 0.55)/energy -- if energy is equal or less than 55% of energy_max, it will be 1 or higher
+        
+        if (random() <= hngperc) then
+          -- females much hungrier and predatory than males (gotta fill up for those babies y'know)
+          if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
+            if (animals.eat_flora(pos,0.01) == true) then
+              energy = energy + 50
+            else
+              mobkit.animate(self,'walk')
+              -- look for flora that's not a cane_plant
+              animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- self, go for group, ignore group, priority
+            end
+          end
+        else
+          mobkit.animate(self,'walk')
+          mobkit.hq_roam(self,10)
+        end
 			end
 
 		end
@@ -236,12 +221,12 @@ local function brain_male(self)
 
 
 			--Threats
-			local plyr = mobkit.get_nearby_player(self)
+			local plyr = animals.get_nearby_player(self)
 			if plyr then
 				animals.fight_or_flight_plyr(self, plyr, 55, 0.6)
 			end
 
-			animals.predator_avoid(self, 55, 0.6)
+			animals.predator_avoid(self, 55, 0.8)
 
 		end
 
@@ -289,12 +274,11 @@ local function brain_male(self)
 					animals.flock(self, 25, 1)
 				elseif random()< 0.85 then
 					animals.territorial(self, energy, false)
-				elseif random() < 0.1 then
+				elseif random() < 0.3 and age >= mature_age then -- males more promiscuous (from 0.1 to 0.3)
 
 					--reproduction
 					if self.hp >= self.max_hp
-					and energy >= energy_max/2 then
-
+					and energy >= energy_max * 0.25 then -- mate at 25% of energy_max (8000 * 0.25 = 2000)
 						--set status as randy
 						--find nearby prospect and try to mate
 						mobkit.remember(self, 'sexual', true)
@@ -304,6 +288,7 @@ local function brain_male(self)
 							--go get her!
 							mobkit.make_sound(self,'mating')
 							if random() < 0.5 then
+                mobkit.remember(self, "energy", energy - 600) -- energy use for mating lol
 								animals.hq_mate(self, 25, mate)
 							end
 						end
@@ -314,39 +299,23 @@ local function brain_male(self)
 					end
 				end
 
-			elseif energy < energy_max then
-
-				--feed via a method
-				if random()< 0.75 then
-					--scratch dirt
-					if animals.eat_spreading_under(pos, 0.001) == true then
-						energy = energy + 6
-					else
-						--wander random
-						mobkit.animate(self,'walk')
-						--mobkit.hq_roam(self,10)
-						animals.hq_roam_surface_group(self, 'spreading', 20)
-					end
-				elseif random()< 0.5 then
-					--veg
-					if animals.eat_flora(pos, 0.005) == true then
-						energy = energy + 20
-					else
-						--wander random
-						mobkit.animate(self,'walk')
-						--mobkit.hq_roam(self,10)
-						animals.hq_roam_walkable_group(self, 'flora', 10)
-					end
-				else
-					--hunt
-					if not animals.prey_hunt(self, 25) then
-						--random search
-						mobkit.animate(self,'walk')
-						mobkit.hq_roam(self,10)
-						--animals.hq_roam_surface_group(self, 'spreading', 10)
-					end
-				end
-			end
+    elseif energy < energy_max then
+      local hngperc = (energy_max * 0.2)/energy -- if energy is equal or less than 20% of energy_max, it will be 1 or higher
+      
+      if (random() <= hngperc) then
+        --feed via a method
+        if (animals.eat_flora(pos,0.005) == true) then -- mmm plants
+          energy = energy + 50
+        elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
+          --wander randomly for plants if can't find prey
+            mobkit.animate(self,'walk')
+            animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- go for group, ignore group, priority
+        end
+      else
+        mobkit.animate(self,'walk')
+        mobkit.hq_roam(self,10)
+      end
+    end
 
 		end
 
@@ -384,13 +353,13 @@ minetest.register_node("animals:pegasun_eggs", {
 		type = "fixed",
 		fixed = {-0.125, -0.5, -0.125,  0.125, -0.125, 0.125},
 	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1,  temp_pass = 1, edible = 1},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1,  temp_pass = 1, edible = 1, egg = 2},
 	sounds = nodes_nature.node_sound_defaults(),
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
 	end,
 	on_timer =function(pos, elapsed)
-		if random()<=0.5 then
+		if random()<=0.3 then -- 30% for female, 70% for male
 			return animals.hatch_egg(pos, 'air', 'air', "animals:pegasun", energy_egg, young_per_egg)
 		else
 			return animals.hatch_egg(pos, 'air', 'air', "animals:pegasun_male", energy_egg, young_per_egg)
@@ -404,11 +373,19 @@ minetest.register_node("animals:pegasun_eggs", {
 
 
 
-
+----------------------------------------------
+-- SETTING OF PEGASUN INTERACTOR SETTINGS
+animals.add_interactors("predators","pegasun","animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("prey","pegasun","animals:sneachan", "animals:impethu")
+animals.add_interactors("friends","pegasun","animals:pegasun", "animals:pegasun_male")
+animals.add_interactors("rivals","pegasun","animals:pegasun")
 
 
 ----------------------------------------------
 --THE MALE
+
+animals.add_interactors("friends","pegasun_male","animals:pegasun")
+animals.add_interactors("rivals","pegasun_male","animals:pegasun_male")
 
 minetest.register_entity("animals:pegasun_male",{
 	--core
@@ -429,10 +406,10 @@ minetest.register_entity("animals:pegasun_male",{
 	max_temp = 45,
 
 	--interaction
-	predators = {"animals:kubwakubwa", "animals:darkasthaan"},
-	prey = {"animals:sneachan", "animals:impethu"},
-	friends = {"animals:pegasun"},
-	rivals = {"animals:pegasun_male"},
+	predators = animals.get_interactors("pegasun","predators"), -- use base pegasun predators
+	prey = animals.get_interactors("pegasun","prey"), -- use base pegasun prey
+	friends = animals.get_interactors("pegasun_male","friends"),
+	rivals = animals.get_interactors("pegasun_male","rivals"),
 	sex = "male",
 
 	on_step = mobkit.stepfunc,
@@ -446,9 +423,10 @@ minetest.register_entity("animals:pegasun_male",{
 		walk={range={x=71, y=90}, speed=24, loop=true},
 		fast={range={x=91, y=110}, speed=24, loop=true},
 		stand={
-			{range={x=1, y=30}, speed=28, loop=true},
-			{range={x=31, y=70}, speed=32, loop=true},
+			{range={x=1, y=0}, speed=28, loop=true},
+			{range={x=31, y=0}, speed=32, loop=true},
 		},
+		dead = { range={x=0, y=0}, speed=0, loop=true},
 	},
 	sounds = {
 		warn = {
@@ -546,10 +524,13 @@ minetest.register_entity("animals:pegasun",{
 	max_temp = 45,
 
 	--interaction
-	predators = {"animals:kubwakubwa", "animals:darkasthaan"},
-	prey = {"animals:sneachan", "animals:impethu"},
-	friends = {"animals:pegasun", "animals:pegasun_male"},
-	rivals = {"animals:pegasun"},
+	predators = animals.get_interactors("pegasun","predators"),
+	prey = animals.get_interactors("pegasun","prey"),
+	friends = animals.get_interactors("pegasun","friends"),
+	rivals = animals.get_interactors("pegasun","rivals"),
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
@@ -562,9 +543,10 @@ minetest.register_entity("animals:pegasun",{
 		walk={range={x=71, y=90}, speed=24, loop=true},
 		fast={range={x=91, y=110}, speed=24, loop=true},
 		stand={
-			{range={x=1, y=30}, speed=28, loop=true},
+			{range={x=1, y=31}, speed=28, loop=true},
 			{range={x=31, y=70}, speed=32, loop=true},
 		},
+    dead = { range = {x=0, y=0}, speed = 0, loop=true},
 	},
 	sounds = {
 		warn = {
@@ -630,7 +612,6 @@ minetest.register_entity("animals:pegasun",{
 		animals.stun_catch_mob(self, clicker, 0.25)
 	end,
 })
-
 
 
 --spawn egg (i.e. live animal in inventory)

@@ -64,7 +64,7 @@ local function brain(self)
 			--feeding
 			if energy < energy_max then
 			   --You are prey
-			   local plyr = mobkit.get_nearby_player(self)
+			   local plyr = animals.get_nearby_player(self)
 			   if plyr then
 			      animals.fight_or_flight_plyr_water(self, plyr, 25, 0.4)
 			   end
@@ -129,7 +129,7 @@ minetest.register_node("animals:sarkamos_eggs", {
 	description = S('Sarkamos Eggs'),
 	tiles = {"animals_gundu_eggs.png"},
 	stack_max = minimal.stack_max_bulky,
-	groups = {snappy = 3, edible = 1},
+	groups = {snappy = 3, edible = 1, egg = 3},
 	sounds = nodes_nature.node_sound_defaults(),
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
@@ -142,6 +142,11 @@ minetest.register_node("animals:sarkamos_eggs", {
 
 
 
+
+----------------------------------------------
+-- SETTING OF SARKAMOS INTERACTOR SETTINGS
+animals.add_interactors("prey","sarkamos","animals:gundu")
+animals.add_interactors("rivals","sarkamos","animals:sarkamos")
 
 
 ----------------------------------------------
@@ -167,8 +172,11 @@ minetest.register_entity("animals:sarkamos",{
 
 	--interaction
 	--predators = {"animals:sarkamos"},
-	rivals = {"animals:sarkamos"},
-	prey = {"animals:gundu"},
+	rivals = animals.get_interactors("sarkamos","rivals"), 
+	prey = animals.get_interactors("sarkamos","prey"),
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 2,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
@@ -181,6 +189,7 @@ minetest.register_entity("animals:sarkamos",{
 		def={range={x=1,y=59},speed=40,loop=true},
 		fast={range={x=1,y=59},speed=80,loop=true},
 		stand={range={x=1,y=15},speed=15,loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		flee = {

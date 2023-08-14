@@ -59,7 +59,7 @@ local function brain(self)
 
 
 			--Threats
-			local plyr = mobkit.get_nearby_player(self)
+			local plyr = animals.get_nearby_player(self)
 			if plyr then
 				animals.fight_or_flight_plyr(self, plyr, 55, 0.01)
 			end
@@ -165,7 +165,7 @@ minetest.register_node("animals:sneachan_eggs", {
 		type = "fixed",
 		fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08},
 	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
 	sounds = nodes_nature.node_sound_defaults(),
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
@@ -188,6 +188,11 @@ minetest.register_node("animals:sneachan_eggs", {
 
 
 
+----------------------------------------------
+-- SETTING OF SNEACHAN INTERACTOR SETTINGS
+animals.add_interactors("predators","sneachan","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("rivals","sneachan","animals:sneachan", "animals:impethu")
+
 
 ----------------------------------------------
 
@@ -205,14 +210,14 @@ minetest.register_entity("animals:sneachan",{
 	timeout = 0,
 
 	--damage
-	max_hp = 10,
+	max_hp = 3,
 	lung_capacity = 10,
 	min_temp = -28,
 	max_temp = 48,
 
 	--interaction
-	predators = {"animals:pegasun", "animals:kubwakubwa", "animals:darkasthaan"},
-	rivals = {"animals:sneachan", "animals:impethu"},
+	predators = animals.get_interactors("sneachan","predators"),
+	rivals = animals.get_interactors("sneachan","rivals"),
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
@@ -225,6 +230,7 @@ minetest.register_entity("animals:sneachan",{
 		walk={range={x=0, y=20}, speed=20, loop=true},
 		fast={range={x=0, y=20}, speed=40, loop=true},
 		stand={range={x=0, y=20}, speed=10, loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		warn = {
@@ -263,7 +269,7 @@ minetest.register_entity("animals:sneachan",{
 		if not clicker or not clicker:is_player() then
 			return
 		end
-		animals.stun_catch_mob(self, clicker, 0.75)
+		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
 })
 

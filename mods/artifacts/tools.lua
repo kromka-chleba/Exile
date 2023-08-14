@@ -438,17 +438,18 @@ local animal_probe = function(user, pointed_thing)
 	if not ent.memory then -- not a mobkit entity with a memory
 		return
 	end
+  local r_ent_hp = ent.hp
 	local r_ent_e = mobkit.recall(ent,'energy')
 	local r_ent_a = mobkit.recall(ent,'age')
 
-	if not r_ent_e or not r_ent_a then
+	if not r_ent_e or not r_ent_a or not r_ent_hp then
 		return
 	end
 	r_ent_e = math.floor(r_ent_e)
 	r_ent_a = math.floor(r_ent_a)
 
 	minetest.chat_send_player(name, minetest.colorize("#00ff00", "ANIMAL CONDITION:"))
-	minetest.chat_send_player(name, minetest.colorize("#cc6600","Age: "..r_ent_a.. " sec    Energy: "..r_ent_e.." units"))
+	minetest.chat_send_player(name, minetest.colorize("#cc6600","Health: "..r_ent_hp.." units    Age: "..r_ent_a.. " sec    Energy: "..r_ent_e.." units"))
   end
 end
 

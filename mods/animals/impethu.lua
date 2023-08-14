@@ -58,7 +58,7 @@ local function brain(self)
 
 
 			--Threats
-			local plyr = mobkit.get_nearby_player(self)
+			local plyr = animals.get_nearby_player(self)
 			if plyr then
 				animals.fight_or_flight_plyr(self, plyr, 55, 0.02)
 			end
@@ -147,7 +147,7 @@ minetest.register_node("animals:impethu_eggs", {
 		type = "fixed",
 		fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08},
 	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
 	sounds = nodes_nature.node_sound_defaults(),
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
@@ -167,6 +167,11 @@ minetest.register_node("animals:impethu_eggs", {
 
 
 
+----------------------------------------------
+-- SETTING OF IMPETHU INTERACTOR SETTINGS
+animals.add_interactors("predators","impethu","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("rivals","impethu","animals:sneachan", "animals:impethu")
+
 
 ----------------------------------------------
 
@@ -184,14 +189,17 @@ minetest.register_entity("animals:impethu",{
 	timeout = 0,
 
 	--damage
-	max_hp = 10,
+	max_hp = 3,
 	lung_capacity = 10,
 	min_temp = -15,
 	max_temp = 50,
 
 	--interaction
-	predators = {"animals:kubwakubwa", "animals:darkasthaan", "animals:pegasun"},
-	rivals = {"animals:impethu", "animals:sneachan"},
+	predators = animals.get_interactors("impethu","predators"), 
+	rivals = animals.get_interactors("impethu","rivals"),
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
@@ -207,6 +215,7 @@ minetest.register_entity("animals:impethu",{
 			{range={x=12, y=24}, speed=5, loop=true},
 			{range={x=24, y=31}, speed=5, loop=true},
 		},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		warn = {
@@ -245,7 +254,7 @@ minetest.register_entity("animals:impethu",{
 		if not clicker or not clicker:is_player() then
 			return
 		end
-		animals.stun_catch_mob(self, clicker, 0.75)
+		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
 })
 

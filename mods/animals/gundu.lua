@@ -77,7 +77,7 @@ local function brain(self)
 
 		if prty < 50 then
 			--Threats
-			local plyr = mobkit.get_nearby_player(self)
+			local plyr = animals.get_nearby_player(self)
 			if plyr then
 				animals.fight_or_flight_plyr_water(self, plyr, 55, 0)
 			end
@@ -164,7 +164,7 @@ local function brain(self)
 			--reproduction
 			--asexual parthogenesis, eggs
 			--no threats, darkness, peak condition
-			if (random() < 0.02 or energy >= 9000)
+			if (random() < 0.03 or energy >= (energy_max*1.125)) -- 9000 (8000 * 1.125)
 			and not rival
 			and not pred
 			and lightm <= 11
@@ -207,7 +207,7 @@ minetest.register_node("animals:gundu_eggs", {
 	description = S('Gundu Eggs'),
 	tiles = {"animals_gundu_eggs.png"},
 	stack_max = minimal.stack_max_bulky,
-	groups = {snappy = 3, edible = 1},
+	groups = {snappy = 3, edible = 1, egg = 3},
 	sounds = nodes_nature.node_sound_defaults(),
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
@@ -218,6 +218,14 @@ minetest.register_node("animals:gundu_eggs", {
 })
 
 
+
+
+
+----------------------------------------------
+-- SETTING OF GUNDU INTERACTOR SETTINGS
+animals.add_interactors("predators","gundu","animals:sarkamos")
+animals.add_interactors("rivals","gundu","animals:gundu")
+animals.add_interactors("friends","gundu","animals:gundu")
 
 
 ----------------------------------------------
@@ -242,11 +250,14 @@ minetest.register_entity("animals:gundu",{
 	max_temp = 35,
 
 	--interaction
-	predators = {"animals:sarkamos"},
-	rivals = {"animals:gundu"},
-	friends = {"animals:gundu"},
+	predators = animals.get_interactors("gundu","predators"),
+	rivals = animals.get_interactors("gundu","rivals"),
+	friends = animals.get_interactors("gundu","friends"),
 	--prey = {"animals:impethu"},
-
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 2,
+  
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
 	get_staticdata = mobkit.statfunc,
@@ -258,6 +269,7 @@ minetest.register_entity("animals:gundu",{
 		def={range={x=1,y=35},speed=30,loop=true},
 		fast={range={x=1,y=35},speed=60,loop=true},
 		stand={range={x=36,y=75},speed=20,loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		flee = {

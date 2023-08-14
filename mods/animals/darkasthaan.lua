@@ -16,10 +16,11 @@ local floor = math.floor
 --energy
 local energy_max = 12000--secs it can survive without food
 local energy_egg = energy_max/3 --energy that goes to egg
-local egg_timer  = 60*15
+local egg_timer  = 60*40
 local young_per_egg = 3		--will get this/energy_egg starting energy
 
 local lifespan = energy_max * 7
+local mature_age = lifespan / 10
 
 
 
@@ -56,7 +57,7 @@ local function brain(self)
 
 
 			--Threats
-			local plyr = mobkit.get_nearby_player(self)
+			local plyr = animals.get_nearby_player(self)
 			if plyr then
 				animals.fight_or_flight_plyr(self, plyr, 55, 0.75)
 			end
@@ -87,10 +88,11 @@ local function brain(self)
 			--reproduction
 			--asexual parthogenesis, eggs
 			--when in prime condition
-			if random() < 0.01
+			if random() < 0.1
 			and not rival
 			and self.hp >= self.max_hp
-			and energy >= energy_egg*2 then
+			and energy >= energy_egg*2
+      and age >= mature_age then
 				energy = animals.place_egg(pos, "animals:darkasthaan_eggs", energy, energy_egg, 'air')
 			end
 
@@ -132,7 +134,7 @@ minetest.register_node("animals:darkasthaan_eggs", {
 		type = "fixed",
 		fixed = {-0.125, -0.5, -0.125,  0.125, -0.375, 0.125},
 	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
 	sounds = nodes_nature.node_sound_defaults(),
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
@@ -145,6 +147,11 @@ minetest.register_node("animals:darkasthaan_eggs", {
 
 
 
+
+----------------------------------------------
+-- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
+animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan")
+animals.add_interactors("rivals","darkasthaan","animals:darkasthaan")
 
 
 ----------------------------------------------
@@ -171,8 +178,11 @@ minetest.register_entity("animals:darkasthaan",{
 
 	--interaction
 	--predators = {"animals:darkasthaan"},
-	rivals = {"animals:darkasthaan"},
-	prey = {"animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:sneachan"},
+	rivals = animals.get_interactors("darkasthaan","rivals"),
+	prey = animals.get_interactors("darkasthaan","prey"), 
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
@@ -185,6 +195,7 @@ minetest.register_entity("animals:darkasthaan",{
 		walk={range={x=1,y=21},speed=15,loop=true},
 		fast={range={x=1,y=21},speed=35,loop=true},
 		stand={range={x=25,y=45},speed=5,loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		warn = {
