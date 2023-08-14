@@ -361,7 +361,16 @@ local function total_leaf_dropper()
     return ms.create_simple_replacer(
         {find_replace_pairs = nn.leaves_to_mark,
          add_labels = {"leaves_dropped"},
-         remove_labels = {"seasonal_trees"},
+         remove_labels = {"seasonal_trees", "leaves"},
+        }
+    )
+end
+
+local function spring_leaf_grower()
+    return ms.create_simple_replacer(
+        {find_replace_pairs = nn.mark_to_leaves,
+         add_labels = {"leaves"},
+         chance = 1/30,
         }
     )
 end
@@ -394,14 +403,26 @@ local function start_total_leaf_grower(season_name)
     current_leaf_worker = season_name
 end
 
+local function start_spring_leaf_grower(season_name)
+    ms.remove_worker("seasonal_leaf_worker")
+    ms.register_worker({name = "seasonal_leaf_worker",
+                        fun = spring_leaf_grower(),
+                        work_every = 10,
+                        rework_labels = {"leaves"},
+                        needed_labels = {"leaves_dropped"}})
+    current_leaf_worker = season_name
+end
+
 local function swap_leaves(season_name)
-    if seasons.is_winter(season_name) and
-        current_leaf_worker ~= season_name then
-        start_total_leaf_dropper(season_name)
+    if current_leaf_worker == season_name then
+        return
     end
 
-    if not seasons.is_winter(season_name) and
-        current_leaf_worker ~= season_name then
+    if seasons.is_winter(season_name) then
+        start_total_leaf_dropper(season_name)
+    elseif season_name == "spring_early" then
+        start_spring_leaf_grower(season_name)
+    else
         start_total_leaf_grower(season_name)
     end
 end
