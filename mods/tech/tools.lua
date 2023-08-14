@@ -66,6 +66,7 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
 end
 
 local function on_dig_tool(pos, node, digger, name)
+    minimal.protection_on_dig(pos,node,digger)
     local meta = minetest.get_meta(pos)
     local wear = meta:get_int("wear")
     local stack = ItemStack(name)
