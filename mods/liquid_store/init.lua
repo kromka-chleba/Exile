@@ -207,6 +207,9 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
   -- dump the water ONLY if "dump" is true (if false, do not dump)
   if dump then
     minetest.set_node(lpos, {name = source})
+    if (minimal.player_in_creative(user)) then
+      return
+    end
     return handle_stacks(user, itemstack, nodename_empty)
   end
 end
