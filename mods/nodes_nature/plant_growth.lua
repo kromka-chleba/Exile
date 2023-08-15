@@ -6,7 +6,7 @@ local S = nodes_nature.S
 
 ---------------------------------------------------------
 
-plant = plant or {}
+plant = {}
 soil_preferences = {}
 
 local base_health = 100

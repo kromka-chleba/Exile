@@ -13,7 +13,6 @@ local random = math.random
 local floor = math.floor
 local c_alpha = minimal.compat_alpha
 
-crop_rewind = crop_rewind
 exile_add_food_hooks = exile_add_food_hooks
 creative = creative
 wielded_light = wielded_light
