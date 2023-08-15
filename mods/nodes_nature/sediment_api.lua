@@ -462,7 +462,9 @@ function soil.till(itemstack, puncher, pointed_thing)
         minimal.switch_node(pointed_thing.under, {name = ag_soil})
         local uses = itemstack:get_tool_capabilities().groupcaps.tilling.uses
         local player_inv = puncher:get_inventory()
-        itemstack:add_wear(65535 / uses)
+        if not (minimal.player_in_creative(puncher)) then
+          itemstack:add_wear(65535 / uses)
+        end
         puncher:set_wielded_item(itemstack)
     end
 end
