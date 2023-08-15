@@ -148,7 +148,7 @@ function lightsource.refill(desc, pos, clicker, itemstack)
             if fuel > desc.max_fuel then fuel = desc.max_fuel end -- yeah, I know lol
             meta:set_int("fuel", fuel)
             local name = clicker:get_player_name()
-            if not minetest.is_creative_enabled(name) then
+            if not minimal.player_in_creative(name) then
                 itemstack:take_item()
             end
             lightsource.update_fuel_infotext(desc, pos)

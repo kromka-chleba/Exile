@@ -21,7 +21,7 @@ local function take_item_replace_node(pos, node, clicker, itemstack, pointed_thi
     local name = clicker:get_player_name()
     if minetest.is_protected(pos, name) then return end
     if stack_name == item_name then
-        if not minetest.is_creative_enabled(name) then
+        if not minimal.player_in_creative(name) then
             itemstack:take_item()
         end
         minetest.swap_node(pos, {name = node_name})
