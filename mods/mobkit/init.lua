@@ -674,33 +674,34 @@ function mobkit.physics(self)
 	local vel=self.object:get_velocity()
 	local vnew = vector.new(vel)
 		-- dumb friction
-		
+	local colinfo = self.colinfo
+
 	if self.isonground and not self.isinliquid then
 		vnew = {x= vel.x> 0.2 and vel.x*mobkit.friction or 0,
 				y=vel.y,
 				z=vel.z > 0.2 and vel.z*mobkit.friction or 0}
 	end
-	
+
 	-- bounciness
 	if self.springiness and self.springiness > 0 then
-		
+
 		if colinfo and colinfo.collides then
 			for _,c in ipairs(colinfo.collisions) do
 				if c.old_velocity[c.axis] > 0.1 then
 					vnew[c.axis] = vnew[c.axis] * self.springiness * -1
 				end
-			end	
+			end
 		elseif not colinfo then					-- MT 5.2 and earlier
-			for _,k in ipairs({'y','z','x'}) do			
-				if vel[k]==0 and abs(self.lastvelocity[k])> 0.1 then 
-					vnew[k]=-self.lastvelocity[k]*self.springiness 
+			for _,k in ipairs({'y','z','x'}) do
+				if vel[k]==0 and abs(self.lastvelocity[k])> 0.1 then
+					vnew[k]=-self.lastvelocity[k]*self.springiness
 				end
 			end
 		end
 	end
-	
+
 	self.object:set_velocity(vnew)
-	
+
 	-- buoyancy
 	local surface = nil
 	local surfnodename = nil
@@ -728,7 +729,6 @@ function mobkit.physics(self)
 --		self.isinliquid = false
 		self.object:set_acceleration({x=0,y=mobkit.gravity,z=0})
 	end
-	
 end
 
 function mobkit.vitals(self)
