@@ -339,7 +339,7 @@ local animal_probe = function(user, pointed_thing)
 
   local name = user:get_player_name()
   local pt_ref = pointed_thing.ref
-  if pt_ref:is_player() then
+  if minetest.is_player(pt_ref) then
 	local pt_meta = pt_ref:get_meta()
 	local stats = {
 		health = pt_ref:get_hp(),
@@ -360,6 +360,9 @@ local animal_probe = function(user, pointed_thing)
 	))
   else
 	local ent = pt_ref:get_luaentity()
+  if (type(ent) == "nil") then
+    return
+  end
 	if not ent.memory then -- not a mobkit entity with a memory
 		return
 	end
