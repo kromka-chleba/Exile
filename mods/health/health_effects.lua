@@ -56,28 +56,33 @@ local random = math.random
 -- FUNCTION DUMP
 ------------------------------------------------------------------
 
-
+local function math_clamp(...)
+  return minimal.math_clamp(...)
+end
 
 ------------------------------------------------------------------
 -- VERIFYING FUNCTIONS
 ------------------------------------------------------------------
 
-local function get_life_num(player) -- gets player's "lives" and returns it
+ -- gets player's "lives" and returns it
+local function get_life_num(meta)
   --assert(type(player) == "userdata","get_life_num: invalid argument for 'player'")
   --assert(player:is_player(),"get_life_num: player is not a player")
-  if (type(player) ~= "userdata") then
-    return 0,"get_life_num: invalid argument for 'player'"
+  if (type(meta) ~= "userdata") then
+    return 0,"get_life_num: invalid argument for 'meta/player'"
   end
-  if (player:is_player() ~= true) then
-    return 0,"get_life_num: 'player' is not a player"
+  if (minetest.is_player(meta)) then
+    meta = meta:get_meta()
+  end
+  if (HEALTH.typeof(meta) ~= "metadata") then
+    return 0,"get_life_num: could not get metadata"
   end
   
-  local pmeta = player:get_meta()
-  
-  return pmeta:get_int("lives") or 0
+  return meta:get_int("lives") or unpack({0,"get_life_num: could not get 'lives'"})
 end
 
-local function is_illness_valid(player,life_num) -- general function that will decide whether a sickness should continue or not
+ -- general function that will decide whether a sickness should continue or not
+local function is_illness_valid(player,life_num)
   --if (type(sickdata) ~= "table") then
     --return false
   --end
@@ -89,7 +94,8 @@ local function is_illness_valid(player,life_num) -- general function that will d
   if (hp <= 0) then
     return false
   end
-  
+  local arg,arg2 = get_life_num(player)
+  minetest.log("error",tostring(arg)..tostring(arg2))
   if (type(life_num) ~= "number") then
     return false
   elseif not (life_num == get_life_num(player)) then -- if assigned life_num to effect was NOT the current player then say illness is invalid
@@ -113,6 +119,8 @@ local function vomit(player, repeat_min, repeat_max, delay_min, delay_max, t_min
 	local ranrep = random(repeat_min, repeat_max)
 
 	local randel = 0
+  
+  local pmeta = player:get_meta()
 
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
@@ -128,8 +136,8 @@ local function vomit(player, repeat_min, repeat_max, delay_min, delay_max, t_min
 			local ranh = random(h_min, h_max)
 
 			--must directly set them, as time delay means it isn't feeding into main health loop
-      HEALTH.modify_int(player,"thirst",-rant)
-      HEALTH.modify_int(player,"hunger",-ranh)
+      HEALTH.modify_int(pmeta,"thirst",-rant)
+      HEALTH.modify_int(pmeta,"hunger",-ranh)
 		end)
 	end
 end
@@ -247,6 +255,7 @@ function HEALTH.illness_ref(name,severity,modify)
   local illness_ref = {
     name = "",
     severity = 1,
+    max_severity = 4,
     player = "nil",
     
     temperature = battrbs.temperature,
@@ -263,8 +272,11 @@ function HEALTH.illness_ref(name,severity,modify)
     time = {4,6},
     delay = {2,4},
     
+    cures = {},
+    
     logic = "nil", -- should be a function - only necessary if an illness has differing qualities
     on_condition = "nil", -- should be a function - only necessary if an illness requires certain conditions
+    -- on_condition = function(player,meta) end
     
     life_num = 0,
   }
@@ -319,9 +331,7 @@ function HEALTH.illness_ref(name,severity,modify)
 
 
   if (name == "fungal infection") then
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     fever_temp = 39
     
@@ -354,9 +364,7 @@ function HEALTH.illness_ref(name,severity,modify)
       end
     end
   elseif (name == "dust fever") then
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     fever_temp = 39
     
@@ -411,9 +419,7 @@ function HEALTH.illness_ref(name,severity,modify)
 
 
   elseif (name == "food poisoning") then
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     fever_temp = 42
     
@@ -466,8 +472,15 @@ function HEALTH.illness_ref(name,severity,modify)
       stagger = {1, 5, 1, 5, 3}
     end
   elseif (name == "intestinal parasites") then
-    r_rate = r_rate - 2
-    hun_rate = hun_rate - 6
+    self.max_severity = 1
+    
+    severity = math_clamp(severity,0,self.max_severity)
+    
+    if (severity == 1) then
+      r_rate = r_rate - 2
+      hun_rate = hun_rate - 6
+    end
+    
   elseif (name == "indigestion") then -- WIP
     -- NEEDS CODE
   
@@ -478,9 +491,7 @@ function HEALTH.illness_ref(name,severity,modify)
   
 ---- DRUNK
   elseif (name == "drunk") then
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     local max_drunk = self["max_drunk"] or 1
     
@@ -554,9 +565,7 @@ function HEALTH.illness_ref(name,severity,modify)
 
 ---- HANGOVER -- FROM DUGS OR ALCOHOL
   elseif (name == "hangover") then
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     if (severity == 1) then
       mov = mov - 2
@@ -581,9 +590,7 @@ function HEALTH.illness_ref(name,severity,modify)
   
 ---- TIKU STIMULANT DRUG HIGH
   elseif (name == "tiku high") then
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     local max_drunk = self["max_drunk"] or 1
     
@@ -666,9 +673,7 @@ function HEALTH.illness_ref(name,severity,modify)
     
     
   elseif (name == "meta stim") then -- WIP
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     self.on_condition = function(player,meta)
       if (minetest.is_player(player)) then
@@ -700,9 +705,7 @@ function HEALTH.illness_ref(name,severity,modify)
 
 -- NEUROLOGICAL/BRAIN TOXICITY
   elseif (name == "neurotoxicity") then
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     if (severity == 1) then
       --restrict movement
@@ -746,9 +749,7 @@ function HEALTH.illness_ref(name,severity,modify)
     
 ---- LIVER TOXICITY
   elseif (name == "hepatotoxicity") then
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     if (severity == 1) then
       vomit = {2, 6, 0.75, 3, 1, 2, 5, 10}
@@ -797,9 +798,7 @@ function HEALTH.illness_ref(name,severity,modify)
     
 ---- SENSITIVITY TO LIGHT
   elseif (name == "photosensitivity") then
-    if (severity > 4) then
-      severity = 4
-    end
+    severity = math_clamp(severity,0,self.max_severity)
     
     self.on_condition = function(player,meta)
       if (minetest.is_player(player)) then
@@ -863,6 +862,28 @@ function HEALTH.illness_ref(name,severity,modify)
   
   if (self.name == "") then
     self.name = "unknown"
+  end
+  
+  local function do_timer()
+    
+  end
+  
+  -- addition of base functions;
+  -- progression of disease without timer
+  self.hard_progress = function()
+    self.severity = minimal.math_clamp(self.severity + 1,0,self.max_severity)
+  end
+  -- regression of disease without timer
+  self.hard_regress = function()
+    self.severity = minimal.math_clamp(self.severity - 1,0,self.max_severity)
+  end
+  -- complete curing
+  self.cease = function()
+    self.severity = 0
+  end
+  -- worst of the symptoms
+  self.maximize = function()
+    self.severity = self.max_severity
   end
   
   return self
