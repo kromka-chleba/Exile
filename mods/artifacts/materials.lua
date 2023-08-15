@@ -177,6 +177,7 @@ minetest.register_node("artifacts:antiquorium_ladder", {
 	walkable = true,
 	climbable = true,
 	is_ground_content = false,
+	use_texture_alpha = c_alpha.clip,
 	node_box = {
 	        type = "fixed",
 	        fixed = {-0.4,-0.5, -0.5,
