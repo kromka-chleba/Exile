@@ -218,7 +218,7 @@ local function bundlename(meta, plant, treatment)
    if minetest.registered_items[plant] then
       fmt_plant = "of "..minetest.registered_items[plant].description
    else
-      minetest.log("error","NCRAFTING: Bundle could not get name of plant: ",plant)
+      minetest.log("error","NCRAFTING: Bundle could not get name of plant: "..plant)
    end
    if treatment and treatment ~= "" then
       fmt_treatment = ", "..methodstring[treatment]
@@ -300,7 +300,6 @@ for name, number in pairs(bundlelist) do
       if meta["ncrafting:bundle_failed"] == "true" then
 	 return -- this is a failed bundle, don't treat it further
       end
-      meta:set_string("infotext",  bundlename(meta))
       ncrafting.start_bake(pos, 15) -- 1.5 minutes to bake
    end
    tbdef.on_timer = function(pos, elapsed)
