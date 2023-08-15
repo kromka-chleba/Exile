@@ -398,6 +398,62 @@ local function get_corners(deco, size)
     return corners_with_offset
 end
 
+function ms.create_neighbor_aware_replacer(args)
+    local args = table.copy(args)
+    local find_replace_pairs = args.find_replace_pairs
+    local neighbors = args.neighbors
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
+    local not_found = args.not_found_labels
+    local chance = args.chance or 1
+    local ids = table.copy(placeholder_id_pairs)
+    for to_find, replacement in pairs(find_replace_pairs) do
+        local find_id = minetest.get_content_id(to_find)
+        local replacement_id = minetest.get_content_id(replacement)
+        ids[find_id] = replacement_id
+    end
+    local neighbor_ids = {}
+    for _, neighbor in pairs(neighbors) do
+        local id = minetest.get_content_id(neighbor)
+        neighbor_ids[id] = true
+    end
+    return function(pos1, pos2)
+        --local t1 = minetest.get_us_time()
+        local pos_min, pos_max = pos1, pos2
+        local vm = VoxelManip()
+        local emin, emax = vm:read_from_map(pos_min, pos_max)
+        local found = false
+        local data = vm:get_data()
+        for i = 1, #data do
+            local replacement = ids[data[i]]
+            if replacement then
+                if neighbor_ids[data[i - 1]] or
+                    neighbor_ids[data[i + 1]] or
+                    neighbor_ids[data[i - chunk_side]] or
+                    neighbor_ids[data[i + chunk_side]] or
+                    neighbor_ids[data[i - chunk_side^2]] or
+                    neighbor_ids[data[i + chunk_side^2]] then
+                    if chance >= math.random() then
+                        data[i] = replacement
+                    end
+                end
+                found = true
+            elseif data[i] == ignore_id then
+                return {"worker_failed"}
+            end
+        end
+        if found then
+            vm:set_data(data)
+            vm:write_to_map(false)
+            --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end
+
 function ms.create_deco_finder(args)
     local args = table.copy(args)
     local deco_list = args.deco_list
