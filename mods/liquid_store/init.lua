@@ -122,8 +122,11 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 		if not (source_neighbor and liquiddef.force_renew) then
 			minetest.add_node(pointed_thing.under, {name = "air"})
 		end
-
-		return new_wield
+    
+    -- return filled bucket if player is not in creative
+    if not (minimal.player_in_creative(user)) then
+      return new_wield
+    end
 
 	elseif storeddef ~= nil then
 	   if check_protection(pointed_thing.under, user:get_player_name(),"take ".. node.name) then
@@ -139,7 +142,10 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 					   giving_back)
 	   minimal.switch_node(pointed_thing.under,
 			      {name = storeddef.nodename_empty})
-	   return new_wield
+      -- return filled bucket if player is not in creative
+      if not (minimal.player_in_creative(user)) then
+        return new_wield
+      end
 	else
 		-- non-liquid nodes will have their on_punch triggered
 		local node_def = minetest.registered_nodes[node.name]
