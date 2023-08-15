@@ -130,10 +130,6 @@ function ms.create_simple_finder(args)
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local data = vm:get_data()
         for i = 1, #data do
             for _, id in pairs(ids) do
@@ -166,10 +162,6 @@ function ms.create_simple_replacer(args)
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local found = false
         local data = vm:get_data()
         for i = 1, #data do
@@ -210,13 +202,10 @@ function ms.create_param2_aware_replacer(args)
         ids[find_id] = replacement_id
     end
     return function(pos1, pos2)
+        --local t1 = minetest.get_us_time()
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local found = false
         local data = vm:get_data()
         local data_param2 = vm:get_param2_data()
@@ -237,6 +226,7 @@ function ms.create_param2_aware_replacer(args)
         if found then
             vm:set_data(data)
             vm:write_to_map(false)
+            --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found
@@ -261,22 +251,17 @@ function ms.create_light_aware_replacer(args)
         ids[find_id] = replacement_id
     end
     return function(pos1, pos2)
+        --local t1 = minetest.get_us_time()
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local found = false
         local data = vm:get_data()
         local data_light = vm:get_light_data()
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
-                local above = area:position(i)
-                above.y = above.y + 1
-                local above_index = area:indexp(above)
+                local above_index = i + 80
                 local random_pick = false
                 if not data_light[above_index] then
                     above_index = i
@@ -299,6 +284,7 @@ function ms.create_light_aware_replacer(args)
         if found then
             vm:set_data(data)
             vm:write_to_map(false)
+            --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found
@@ -335,13 +321,10 @@ function ms.create_light_aware_top_placer(args)
         replace_ids[find_id] = replacement_id
     end
     return function(pos1, pos2)
+        --local t1 = minetest.get_us_time()
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local found = false
         local data = vm:get_data()
         local data_light = vm:get_light_data()
@@ -349,9 +332,7 @@ function ms.create_light_aware_top_placer(args)
             local find_id = find_ids[data[i]]
             if find_id then
                 if data[i] == find_id then
-                    local above = area:position(i)
-                    above.y = above.y + 1
-                    local above_index = area:indexp(above)
+                    local above_index = i + 80
                     local replacement = replace_ids[data[above_index]]
                     if data_light[above_index] and
                         data_light[above_index] > higher_than and
@@ -370,6 +351,7 @@ function ms.create_light_aware_top_placer(args)
         if found then
             vm:set_data(data)
             vm:write_to_map(false)
+            --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found
