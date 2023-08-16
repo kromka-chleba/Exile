@@ -28,9 +28,9 @@ end
 
 placeholder_id_pairs[ignore_id] = false
 
--- fun needs to be a function fun(pos1, pos2)
--- where pos1 is minimal position in a mapchunk,
--- pos2 is maximal position in a mapchunk,
+-- fun needs to be a function fun(pos_min, pos_max)
+-- where pos_min is minimal position in a mapchunk,
+-- pos_max is maximal position in a mapchunk,
 -- fun() needs to return two variables: labels_added,
 -- labels_removed; labels to remove or add to a mapchunk
 
@@ -126,8 +126,7 @@ function ms.create_simple_finder(args)
     for _, name in pairs(nodes_to_find) do
         table.insert(ids, minetest.get_content_id(name))
     end
-    return function(pos1, pos2)
-        local pos_min, pos_max = pos1, pos2
+    return function(pos_min, pos_max)
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local data = vm:get_data()
@@ -158,8 +157,7 @@ function ms.create_simple_replacer(args)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos1, pos2)
-        local pos_min, pos_max = pos1, pos2
+    return function(pos_min, pos_max)
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
@@ -201,9 +199,8 @@ function ms.create_param2_aware_replacer(args)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos1, pos2)
+    return function(pos_min, pos_max)
         --local t1 = minetest.get_us_time()
-        local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
@@ -250,9 +247,8 @@ function ms.create_light_aware_replacer(args)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos1, pos2)
+    return function(pos_min, pos_max)
         --local t1 = minetest.get_us_time()
-        local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
@@ -320,9 +316,8 @@ function ms.create_light_aware_top_placer(args)
         local replacement_id = minetest.get_content_id(replacement)
         replace_ids[find_id] = replacement_id
     end
-    return function(pos1, pos2)
+    return function(pos_min, pos_max)
         --local t1 = minetest.get_us_time()
-        local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
@@ -418,9 +413,8 @@ function ms.create_neighbor_aware_replacer(args)
         local id = minetest.get_content_id(neighbor)
         neighbor_ids[id] = true
     end
-    return function(pos1, pos2)
+    return function(pos_min, pos_max)
         --local t1 = minetest.get_us_time()
-        local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
