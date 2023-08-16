@@ -130,10 +130,6 @@ function ms.create_simple_finder(args)
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local data = vm:get_data()
         for i = 1, #data do
             for _, id in pairs(ids) do
@@ -166,10 +162,6 @@ function ms.create_simple_replacer(args)
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local found = false
         local data = vm:get_data()
         for i = 1, #data do
@@ -210,13 +202,10 @@ function ms.create_param2_aware_replacer(args)
         ids[find_id] = replacement_id
     end
     return function(pos1, pos2)
+        --local t1 = minetest.get_us_time()
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local found = false
         local data = vm:get_data()
         local data_param2 = vm:get_param2_data()
@@ -237,6 +226,7 @@ function ms.create_param2_aware_replacer(args)
         if found then
             vm:set_data(data)
             vm:write_to_map(false)
+            --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found
@@ -261,22 +251,17 @@ function ms.create_light_aware_replacer(args)
         ids[find_id] = replacement_id
     end
     return function(pos1, pos2)
+        --local t1 = minetest.get_us_time()
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local found = false
         local data = vm:get_data()
         local data_light = vm:get_light_data()
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
-                local above = area:position(i)
-                above.y = above.y + 1
-                local above_index = area:indexp(above)
+                local above_index = i + 80
                 local random_pick = false
                 if not data_light[above_index] then
                     above_index = i
@@ -299,6 +284,7 @@ function ms.create_light_aware_replacer(args)
         if found then
             vm:set_data(data)
             vm:write_to_map(false)
+            --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found
@@ -335,13 +321,10 @@ function ms.create_light_aware_top_placer(args)
         replace_ids[find_id] = replacement_id
     end
     return function(pos1, pos2)
+        --local t1 = minetest.get_us_time()
         local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
-        local area = VoxelArea:new{
-            MinEdge = emin,
-            MaxEdge = emax,
-        }
         local found = false
         local data = vm:get_data()
         local data_light = vm:get_light_data()
@@ -349,9 +332,7 @@ function ms.create_light_aware_top_placer(args)
             local find_id = find_ids[data[i]]
             if find_id then
                 if data[i] == find_id then
-                    local above = area:position(i)
-                    above.y = above.y + 1
-                    local above_index = area:indexp(above)
+                    local above_index = i + 80
                     local replacement = replace_ids[data[above_index]]
                     if data_light[above_index] and
                         data_light[above_index] > higher_than and
@@ -370,6 +351,102 @@ function ms.create_light_aware_top_placer(args)
         if found then
             vm:set_data(data)
             vm:write_to_map(false)
+            --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end
+
+-- ideally logic from this file minetest/src/mapgen/mg_decoration.cpp
+-- should be replicated in this function but I'm too lazy to do that
+local function get_corners(deco, size)
+    local corners = {}
+    for z = 0, size.z, size.z do
+        for y = 0, size.y, size.y do
+            for x = 0, size.x, size.x do
+                local v = vector.new(x, y, z)
+                table.insert(corners, v)
+            end
+        end
+    end
+    local place_center_x = string.find(deco.flags, "place_center_x")
+    local place_center_y = string.find(deco.flags, "place_center_y")
+    local place_center_z = string.find(deco.flags, "place_center_z")
+    local x_offset = 0
+    local y_offset = 0
+    local z_offset = 0
+    if place_center_x then
+        x_offset = math.floor(size.x / 2)
+    end
+    if place_center_y then
+        y_offset = math.floor(size.y / 2)
+    elseif deco.place_offset_y then
+        y_offset = - deco.place_offset_y
+    end
+    if place_center_z then
+        z_offset = math.floor(size.z / 2)
+    end
+    local offset = vector.new(x_offset, y_offset, z_offset)
+    local corners_with_offset = {}
+    for _, corner in pairs(corners) do
+        local corner = corner
+        corner = vector.subtract(corner, offset)
+        table.insert(corners_with_offset, corner)
+    end
+    return corners_with_offset
+end
+
+function ms.create_neighbor_aware_replacer(args)
+    local args = table.copy(args)
+    local find_replace_pairs = args.find_replace_pairs
+    local neighbors = args.neighbors
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
+    local not_found = args.not_found_labels
+    local chance = args.chance or 1
+    local ids = table.copy(placeholder_id_pairs)
+    for to_find, replacement in pairs(find_replace_pairs) do
+        local find_id = minetest.get_content_id(to_find)
+        local replacement_id = minetest.get_content_id(replacement)
+        ids[find_id] = replacement_id
+    end
+    local neighbor_ids = {}
+    for _, neighbor in pairs(neighbors) do
+        local id = minetest.get_content_id(neighbor)
+        neighbor_ids[id] = true
+    end
+    return function(pos1, pos2)
+        --local t1 = minetest.get_us_time()
+        local pos_min, pos_max = pos1, pos2
+        local vm = VoxelManip()
+        local emin, emax = vm:read_from_map(pos_min, pos_max)
+        local found = false
+        local data = vm:get_data()
+        for i = 1, #data do
+            local replacement = ids[data[i]]
+            if replacement then
+                if neighbor_ids[data[i - 1]] or
+                    neighbor_ids[data[i + 1]] or
+                    neighbor_ids[data[i - chunk_side]] or
+                    neighbor_ids[data[i + chunk_side]] or
+                    neighbor_ids[data[i - chunk_side^2]] or
+                    neighbor_ids[data[i + chunk_side^2]] then
+                    if chance >= math.random() then
+                        data[i] = replacement
+                    end
+                end
+                found = true
+            elseif data[i] == ignore_id then
+                return {"worker_failed"}
+            end
+        end
+        if found then
+            vm:set_data(data)
+            vm:write_to_map(false)
+            --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found
@@ -385,16 +462,43 @@ function ms.create_deco_finder(args)
     for _, deco in pairs(deco_list) do
         local id = minetest.get_decoration_id(deco.name)
         minetest.set_gen_notify({decoration = true}, {id})
+        local corners = false
+        if deco.schematic then
+            local schematic = minetest.read_schematic(deco.schematic, {})
+            corners = get_corners(deco, schematic.size)
+        end
         minetest.register_on_generated(
             function(minp, maxp, blockseed)
                 local gennotify = minetest.get_mapgen_object("gennotify")
                 local pos_list = gennotify["decoration#"..id] or {}
                 if #pos_list > 0 then
                     local hash = ms.mapchunk_hash(minp)
-                    if not ms.contains_labels(hash, labels_to_add) then
-                        ms.save_mapchunk(hash)
-                        ms.handle_labels(hash, labels_to_add, labels_to_remove)
-                        ms.add_labels(hash, {"scanned"})
+                    local function check_and_labels(hash)
+                        if not ms.contains_labels(hash, labels_to_add) then
+                            ms.save_mapchunk(hash)
+                            ms.handle_labels(hash, labels_to_add, labels_to_remove)
+                            ms.add_labels(hash, {"scanned"})
+                        end
+                    end
+                    check_and_labels(hash)
+                    if not corners then
+                        -- exit if it's not a schematic
+                        return
+                    end
+                    for _, pos in pairs(pos_list) do
+                        local previous_hash = ""
+                        for _, corner in pairs(corners) do
+                            --add a 5% margin for schematic just in case
+                            local wide = vector.multiply(corner, 1.05)
+                            wide = vector.add(wide, 1)
+                            wide = vector.floor(wide)
+                            wide = vector.subtract(wide, 1)
+                            local corner_pos = vector.add(pos, wide)
+                            local corner_hash = ms.mapchunk_hash(corner_pos)
+                            if previous_hash ~= corner_hash then
+                                check_and_labels(corner_hash)
+                            end
+                        end
                     end
                 end
             end

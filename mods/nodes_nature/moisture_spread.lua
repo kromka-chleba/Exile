@@ -634,7 +634,8 @@ local function initialize_soaker()
     ms.register_worker({name = "rain_soak_worker",
                         fun = rain_replacer,
                         has_one_of = {"spring_soil",
-                                      "winter_soil"},
+                                      "winter_soil",
+                                      "coast"},
                         work_every = 40,
                         rework_labels = {"last_rain"},
     })
@@ -650,7 +651,8 @@ local function initialize_snower()
     ms.register_worker({name = "snow_place_worker",
                         fun = snow_placer,
                         has_one_of = {"spring_soil",
-                                      "winter_soil"},
+                                      "winter_soil",
+                                      "coast"},
                         work_every = 45,
                         rework_labels = {"last_snow"},
     })

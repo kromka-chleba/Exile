@@ -9,6 +9,7 @@ local S = nodes_nature.S
 
 local nsl = naturalslopeslib
 local ms = mapchunk_shepherd
+local nn = nodes_nature
 
 seasons = {}
 
@@ -81,22 +82,6 @@ minetest.register_chatcommand(
             return true, S("Date change requested!")
         end,
 })
-
-local leaf_drop_abm = {
-    label = "Removes leaves in winter.",
-    name = "nodes_nature:remove_leaves",
-    interval = 10,
-    chance = 0.1,
-    catch_up = false,
-    min_y = -30,
-    max_y = 300,
-    nodenames = {"group:drops_leaves"},
-    action = function(pos, node, dtime_s)
-       if seasons.is_winter() then
-	  minetest.remove_node(pos)
-       end
-    end,
-}
 
 -- Don't use this in the seasonal loop
 function seasons.get_season_and_day()
@@ -366,6 +351,83 @@ local function swap_plants(season_name)
     end
 end
 
+--------------------
+-- Leaf drop
+
+ms.labels.register("leaves_dropped")
+ms.labels.register("leaves")
+
+local function total_leaf_dropper()
+    return ms.create_simple_replacer(
+        {find_replace_pairs = nn.leaves_to_mark,
+         add_labels = {"leaves_dropped"},
+         remove_labels = {"seasonal_trees", "leaves"},
+        }
+    )
+end
+
+local function spring_leaf_grower()
+    return ms.create_neighbor_aware_replacer(
+        {find_replace_pairs = nn.mark_to_leaves,
+         add_labels = {"leaves"},
+         chance = 1/30,
+         neighbors = nn.tree_neighbors,
+        }
+    )
+end
+
+local function total_leaf_grower()
+    return ms.create_simple_replacer(
+        {find_replace_pairs = nn.mark_to_leaves,
+         add_labels = {"leaves"},
+         remove_labels = {"leaves_dropped"},
+        }
+    )
+end
+
+local current_leaf_worker = ""
+
+local function start_total_leaf_dropper(season_name)
+    ms.remove_worker("seasonal_leaf_worker")
+    ms.register_worker({name = "seasonal_leaf_worker",
+                        fun = total_leaf_dropper(),
+                        has_one_of = {"seasonal_trees",
+                                      "leaves"}})
+    current_leaf_worker = season_name
+end
+
+local function start_total_leaf_grower(season_name)
+    ms.remove_worker("seasonal_leaf_worker")
+    ms.register_worker({name = "seasonal_leaf_worker",
+                        fun = total_leaf_grower(),
+                        needed_labels = {"leaves_dropped"}})
+    current_leaf_worker = season_name
+end
+
+local function start_spring_leaf_grower(season_name)
+    ms.remove_worker("seasonal_leaf_worker")
+    ms.register_worker({name = "seasonal_leaf_worker",
+                        fun = spring_leaf_grower(),
+                        work_every = 200,
+                        rework_labels = {"leaves"},
+                        needed_labels = {"leaves_dropped"}})
+    current_leaf_worker = season_name
+end
+
+local function swap_leaves(season_name)
+    if current_leaf_worker == season_name then
+        return
+    end
+
+    if seasons.is_winter(season_name) then
+        start_total_leaf_dropper(season_name)
+    elseif season_name == "spring_early" then
+        start_spring_leaf_grower(season_name)
+    else
+        start_total_leaf_grower(season_name)
+    end
+end
+
 local season_loop_interval = 5
 
 local function season_loop()
@@ -380,6 +442,7 @@ local function season_loop()
         local season_name = seasons.get_season_name()
         swap_plants(season_name)
         swap_soils(season_name)
+        swap_leaves(season_name)
     end
     minetest.after(season_loop_interval, season_loop)
 end
@@ -388,8 +451,9 @@ end
 -- starting this right away caused a crash because minetest.get_day_count()
 -- returned nil
 
-minetest.register_abm(leaf_drop_abm)
-minetest.after(2, season_loop)
+minetest.register_on_mods_loaded(function ()
+        minetest.after(2, season_loop)
+end)
 
 -- Turning this off because now we have mapgen scanners in the shepherd
 -- ms.register_scanner({name = "spring_soil_finder",
