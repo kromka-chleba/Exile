@@ -21,7 +21,7 @@ local create_mob = function(placer, itemstack, name, pos)
 		end
 	end
   -- if player isn't in creative
-  if (animals.player_in_creative(placer) ~= true) then
+  if not (minimal.player_in_creative(placer)) then
     itemstack:take_item() -- since mob is unique we remove egg once spawned
   end
 	return ent
