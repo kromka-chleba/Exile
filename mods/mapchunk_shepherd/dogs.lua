@@ -150,14 +150,15 @@ function ms.create_simple_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
-    local chance = args.chance or 1
+    local replacer_chance = args.chance
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos_min, pos_max)
+    return function(pos_min, pos_max, chance)
+        local chance = chance or replacer_chance or 1
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
@@ -192,14 +193,15 @@ function ms.create_param2_aware_replacer(args)
     local not_found = args.not_found_labels
     local lower_than = args.lower_than or 257
     local higher_than = args.higher_than or -1
-    local chance = args.chance or 1
+    local replacer_chance = args.chance
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos_min, pos_max)
+    return function(pos_min, pos_max, chance)
+        local chance = chance or replacer_chance or 1
         --local t1 = minetest.get_us_time()
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
@@ -240,14 +242,15 @@ function ms.create_light_aware_replacer(args)
     local not_found = args.not_found_labels
     local lower_than = args.lower_than or 16
     local higher_than = args.higher_than or -1
-    local chance = args.chance or 1
+    local replacer_chance = args.chance
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos_min, pos_max)
+    return function(pos_min, pos_max, chance)
+        local chance = chance or replacer_chance or 1
         --local t1 = minetest.get_us_time()
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
@@ -299,7 +302,7 @@ function ms.create_light_aware_top_placer(args)
     -- Node properties
     local lower_than = args.lower_than or 16
     local higher_than = args.higher_than or -1
-    local chance = args.chance or 1
+    local replacer_chance = args.chance
     -- Find ids
     local nodes_to_find = args.to_find
     local find_ids = table.copy(placeholder_id_finder_pairs)
@@ -316,7 +319,8 @@ function ms.create_light_aware_top_placer(args)
         local replacement_id = minetest.get_content_id(replacement)
         replace_ids[find_id] = replacement_id
     end
-    return function(pos_min, pos_max)
+    return function(pos_min, pos_max, chance)
+        local chance = chance or replacer_chance or 1
         --local t1 = minetest.get_us_time()
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
@@ -401,7 +405,7 @@ function ms.create_neighbor_aware_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
-    local chance = args.chance or 1
+    local replacer_chance = args.chance
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -413,7 +417,8 @@ function ms.create_neighbor_aware_replacer(args)
         local id = minetest.get_content_id(neighbor)
         neighbor_ids[id] = true
     end
-    return function(pos_min, pos_max)
+    return function(pos_min, pos_max, chance)
+        local chance = chance or replacer_chance or 1
         --local t1 = minetest.get_us_time()
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
