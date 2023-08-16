@@ -278,8 +278,7 @@ minetest.register_abm({
 --
 
 local function add_wear(player_name, itemstack, sound_pos)
-	if not (creative and creative.is_enabled_for
-			and creative.is_enabled_for(player_name)) then
+	if not (minimal.player_in_creative(player_name)) then
 		-- Wear tool
 		local wdef = itemstack:get_definition()
 		itemstack:add_wear(2000)

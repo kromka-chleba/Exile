@@ -392,8 +392,10 @@ function plant.get_base_props(plant_def)
         sounds = plant.get_sounds(plant_def),
         _seed_name = plant.get_seed_name(plant_def.name),
         after_place_node = function(pos, placer, itemstack, pointed_thing)
-            plant.set_to_domesticated(pos)
-            plant.death_chance_on_replant(pos)
+            if not (minimal.player_in_creative(placer)) then
+              plant.set_to_domesticated(pos)
+              plant.death_chance_on_replant(pos)
+            end
         end,
     }
     if plant_def.roots then

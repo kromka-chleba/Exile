@@ -255,8 +255,10 @@ function g.register_brush(brush_name, def)
             local wallmounted = minetest.dir_to_wallmounted(dir)
             minetest.add_node(pointed_thing.above, {name = meta:get_string("grafitti"), param2=wallmounted})
             minetest.sound_play("grafitti_paint",	{pos = pointed_thing.above, max_hear_distance = 4, gain = 1})
-
-            itemstack:add_wear(65535/(2000-1))
+            
+            if not (minimal.player_in_creative(user)) then
+              itemstack:add_wear(65535/(2000-1))
+            end
 
             return itemstack
         end

@@ -730,6 +730,10 @@ local function water_soil(itemstack, user, pointed_thing, water_source, node_suf
 				-- keeping the node orientation
 				minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
 				-- and empty the bucket
+        if (minimal.player_in_creative(user)) then
+          -- unless player is in creative!
+          return
+        end
 				-- remove clay watering can and return empty one
 				itemstack:take_item()
 				return ItemStack("tech:clay_watering_can")
