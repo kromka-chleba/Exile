@@ -1436,18 +1436,6 @@ function animals.get_interactors(creature,itype) -- creature to get stats from, 
   return itable
 end
 
--- check if a provided player is in creative mode
-local creative_mode_cache = minetest.settings:get_bool("creative_mode")
-function animals.player_in_creative(plyr)
-  if (minetest.is_player(plyr)) then
-    if (minetest.check_player_privs(plyr,"creative") or creative_mode_cache == true) then
-      return true
-    end
-  end
-  
-  return false
-end
-
 -------- Mobkit function rewrites
 
 -- makes it so animals do not see or interact with the player (if the animals use this instead of mobkit's) if player is in creative
@@ -1456,8 +1444,8 @@ function animals.get_nearby_player(self,forceplyr)
   -- "forceplyr" bool parameter to force a player despite creative mode
   local plyr = mobkit.get_nearby_player(self) -- get player from mobkit
   if (plyr) then
-    -- if player, then check if player is in creative...
-    if (not animals.player_in_creative(plyr) or forceplyr == true) then
+    -- if player, then check if player is NOT in creative...
+    if (not minimal.player_in_creative(plyr) or forceplyr == true) then
       return plyr
     end
   end

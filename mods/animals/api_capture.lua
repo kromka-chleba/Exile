@@ -21,7 +21,7 @@ local create_mob = function(placer, itemstack, name, pos)
 		end
 	end
   -- if player isn't in creative
-  if (animals.player_in_creative(placer) ~= true) then
+  if not (minimal.player_in_creative(placer)) then
     itemstack:take_item() -- since mob is unique we remove egg once spawned
   end
 	return ent
@@ -51,10 +51,10 @@ end
 --use stunning weapon plus chance to catch (or if canhand == true)
 animals.stun_catch_mob = function(self, clicker,chance,canhand)
 	local item = clicker:get_wielded_item()
-	item = item:get_name()
-	item = minetest.get_item_group(item,"club")
+	local item_name = item:get_name()
+	item = minetest.get_item_group(item_name,"club")
 
-	if (item ~=0 or canhand == true) then
+	if (item ~=0 or (canhand == true and item_name == "")) then
 		--hit
 		mobkit.make_sound(self,'punch')
 		--catch chance
