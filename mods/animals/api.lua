@@ -1289,3 +1289,144 @@ function animals.mate_assess(self, name)
   end
 
 end
+
+animals.interactors = {}
+function animals.add_interactors(itype,creature,...) -- interactiontype, creature to be set with properties, all possible creatures to add
+  -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
+  -- for example, animals.add_interactor("rivals","pegasun","animals:pegasun") would add the entity "animals:pegasun" to the rivals of "pegasun"
+  -- lowercase strings for easier finding and indexing
+  if (type(itype) ~= "string") then
+    return
+  else
+    itype = string.lower(itype)
+  end
+  
+  if (type(creature) ~= "string") then
+    return
+  else
+    creature = string.lower(creature)
+  end
+  
+  local posscreatures = {...} -- convert specified creatures into an easily accessible table (the ... for multiple args)
+  
+  local interactable = animals.interactors[creature] -- finds the creature's table provided within animals.interactors
+  if (type(interactable) ~= "table") then -- creates new one if not found
+    animals.interactors[creature] = {}
+    
+    interactable = animals.interactors[creature]
+  end
+  
+  local itable = animals.interactors[creature][itype] -- finds the specified interactiontype table within creature's table
+  if (type(itable) ~= "table") then -- create new table with the interactiontype if it isn't specified
+    animals.interactors[creature][itype] = {}
+    
+    itable = animals.interactors[creature][itype]
+  end
+  
+  for _,interactor in pairs(posscreatures) do
+    if (type(interactor) == "string") then
+      -- add said creature as an "interactor" within the provided interactiontype (if specified creature is an entity name)
+      itable[#itable + 1] = interactor
+    end
+  end
+  
+  return true
+end
+
+function animals.get_interactors(creature,itype) -- creature to get stats from, interationtype
+  -- get a table of the creatures that interact with the specified creature in the specified interactiontype way
+  if (type(itype) ~= "string") then
+    return {}
+  else
+    itype = string.lower(itype)
+  end
+  
+  if (type(creature) ~= "string") then
+    return {}
+  else
+    creature = string.lower(creature)
+  end
+  -- get the creature's interactors table
+  local interactable = animals.interactors[creature]
+  if (type(interactable) ~= "table") then
+    return {}
+  end
+  -- get who the creature interacts in what specified way
+  local itable = interactable[itype]
+  if (type(itable) ~= "table") then
+    return {}
+  end
+  -- return an empty table or the specified table of interaction type
+  return itable
+end
+
+-------- Mobkit function rewrites
+
+-- makes it so animals do not see or interact with the player (if the animals use this instead of mobkit's) if player is in creative
+
+function animals.get_nearby_player(self,forceplyr)
+  -- "forceplyr" bool parameter to force a player despite creative mode
+  local plyr = mobkit.get_nearby_player(self) -- get player from mobkit
+  if (plyr) then
+    -- if player, then check if player is NOT in creative...
+    if (not minimal.player_in_creative(plyr) or forceplyr == true) then
+      return plyr
+    end
+  end
+end
+
+-- Taken directly from mobkit to properly calculate fall damage
+function animals.vitals(self)
+	-- vitals: fall damage
+	local vel = self.object:get_velocity()
+	local velocity_delta = abs(self.lastvelocity.y - vel.y)
+  
+  if (velocity_delta > mobkit.safe_velocity) then
+    -- let's see if there's a node with fall_damage_add_percent first
+    local node = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y = -1}))
+    
+    if (type(node) == "table") then
+      local multiplier = node.groups.fall_damage_add_percent -- used for fall damage calculation
+      if (type(multiplier) == "number") then
+        -- convert multiplier into a usable decimal
+        multiplier = multiplier/100
+        if (multiplier <= 0) then
+          -- if it's negative, make positive, and subtract it by 1 to get the result of which velocity should be of itself (-70 = 0.3)
+          multiplier = -multiplier
+          multiplier = 1 - multiplier
+        else
+          multiplier = 1 + multiplier
+        end
+        
+        velocity_delta = floor(velocity_delta * multiplier)
+      end
+      
+      if (node.drawtype == "airlike") then
+        -- this ouchy code got initiated in air
+        -- sometimes this happens when trampolining and it will hurt the mob by a lot...
+        -- so let's pretend they landed on something soft and multiply the velocity_delta by 0.5 :D (because this'll also activate when mobs land on other mobs or players)
+        velocity_delta = velocity_delta * 0.5
+      end
+    end
+  end
+  
+	if velocity_delta > mobkit.safe_velocity then
+    -- alright, time to do some damage if it's still over safe_velocity
+    local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
+    
+    self.hp = self.hp - damage
+	end
+	
+	-- vitals: oxygen
+	if self.lung_capacity then
+		local colbox = self.object:get_properties().collisionbox
+		local headnode = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})) -- node at hitbox top
+		if headnode and headnode.drawtype == 'liquid' then 
+			self.oxygen = self.oxygen - self.dtime
+		else
+			self.oxygen = self.lung_capacity
+		end
+			
+		if self.oxygen <= 0 then self.hp=0 end	-- drown
+	end
+end

@@ -390,7 +390,7 @@ minetest.register_node("animals:pegasun_eggs", {
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
 	end,
 	on_timer =function(pos, elapsed)
-		if random()<=0.5 then
+		if random()<=0.4 then -- 40% for female, 60% for male
 			return animals.hatch_egg(pos, 'air', 'air', "animals:pegasun", energy_egg, young_per_egg)
 		else
 			return animals.hatch_egg(pos, 'air', 'air', "animals:pegasun_male", energy_egg, young_per_egg)
