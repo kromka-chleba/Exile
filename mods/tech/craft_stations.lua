@@ -127,7 +127,7 @@ local function on_place_loclim_spot(itemstack, placer, pointed_thing, grouplist,
 	or (vcheck == true and valid == false) then
 
 		minetest.chat_send_player(placer:get_player_name(),
-		"Cannot place here! Needs: "..msg..".")
+		S("Cannot place here! Needs a whole block of: ")..msg..".")
 
 		local udef = minetest.registered_nodes[ground.name]
 		if udef and udef.on_rightclick and
