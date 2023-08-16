@@ -36,8 +36,10 @@ local function inject_metastim(itemstack, player, pointed_thing)
     texture = "health_superpower.png",
     glow = 15,
   })
-
-  itemstack:add_wear(65535/(20-1))
+  
+  if not (minimal.player_in_creative(player)) then
+    itemstack:add_wear(65535/(20-1))
+  end
 
   return itemstack
 

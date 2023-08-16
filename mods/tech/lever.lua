@@ -143,8 +143,7 @@ lever.handler = function(itemstack, user, pointed_thing, mode)
 		node.param2 = new_param2
 		minetest.swap_node(pos, node)
 		minetest.check_for_falling(pos)
-		if not (creative and creative.is_enabled_for and
-			creative.is_enabled_for(player_name)) then
+		if not (minimal.player_in_creative(user)) then
 		   itemstack:add_wear(65535 / ((ndef._uses or 200) - 1))
 		end
 	   end

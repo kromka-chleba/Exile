@@ -24,7 +24,10 @@ function minimal.protection_nail_use( itemstack, user, pointed_thing )
 				if not pt_meta:contains('owner') then
 					pt_meta:set_string("owner", owner)
 					pt_meta:set_string('nailed', owner)
-					itemstack:take_item()
+          -- take nails if player isn't in creative
+          if not (minimal.player_in_creative(user)) then
+            itemstack:take_item()
+          end
 					minimal.infotext_merge(pt_pos, nil, pt_meta)
 					-- play hammering sound
 					playsound = true
@@ -50,14 +53,16 @@ function minimal.protection_on_dig(pos,oldnode,digger)
 	if meta:contains('nailed') then
 		local owner = meta:get_string('owner')
 		if owner == digger:get_player_name() then
-			--give digger back the nails
-			local inv = digger:get_inventory()
-			if inv:room_for_item("main", 'tech:nails') then
-				inv:add_item("main",'tech:nails')
-			else
-				minetest.chat_send_player(digger, "No room in inventory!")
-				minetest.add_item(pos, 'tech:nails')
-			end
+			--give digger back the nails (if they're not in creative)
+      if not (minimal.player_in_creative(owner)) then
+        local inv = digger:get_inventory()
+        if inv:room_for_item("main", 'tech:nails') then
+          inv:add_item("main",'tech:nails')
+        else
+          minetest.chat_send_player(digger, "No room in inventory!")
+          minetest.add_item(pos, 'tech:nails')
+        end
+      end
 			meta:set_string('nailed', "")
 		end
 	end
