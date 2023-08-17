@@ -674,7 +674,7 @@ local function start_light_thawer()
                             fun = light_thawer,
                             has_one_of = {"last_snow",
                                           "last_freezed"},
-                            rework_labels = {"last_evaporated"},
+                            rework_labels = {"last_thawed"},
                             work_every = 120,
                             chance = 1/7,
         })
