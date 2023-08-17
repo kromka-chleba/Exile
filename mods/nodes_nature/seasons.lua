@@ -370,7 +370,6 @@ local function spring_leaf_grower()
     return ms.create_neighbor_aware_replacer(
         {find_replace_pairs = nn.mark_to_leaves,
          add_labels = {"leaves"},
-         chance = 1/30,
          neighbors = nn.tree_neighbors,
         }
     )
@@ -409,6 +408,7 @@ local function start_spring_leaf_grower(season_name)
     ms.register_worker({name = "seasonal_leaf_worker",
                         fun = spring_leaf_grower(),
                         work_every = 200,
+                        chance = 1/30,
                         rework_labels = {"leaves"},
                         needed_labels = {"leaves_dropped"}})
     current_leaf_worker = season_name

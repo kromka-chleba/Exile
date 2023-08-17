@@ -426,31 +426,10 @@ local function get_wet_dry_pairs()
     return soil_pairs
 end
 
-local function light_rain_replacer()
+local function soaker()
     return ms.create_light_aware_replacer(
         {find_replace_pairs = get_dry_wet_pairs(),
          add_labels = {"last_rain"},
-         chance = 1/40,
-         higher_than = 14,
-        }
-    )
-end
-
-local function heavy_rain_replacer()
-    return ms.create_light_aware_replacer(
-        {find_replace_pairs = get_dry_wet_pairs(),
-         add_labels = {"last_rain"},
-         chance = 1/10,
-         higher_than = 14,
-        }
-    )
-end
-
-local function thunderstorm_replacer()
-    return ms.create_light_aware_replacer(
-        {find_replace_pairs = get_dry_wet_pairs(),
-         add_labels = {"last_rain"},
-         chance = 1/4,
          higher_than = 14,
         }
     )
@@ -462,20 +441,21 @@ local soaker_changed = true
 local evaporator_running = false
 local rain_replacer = false
 local is_raining = false
+local soak_chance = 1/40
 
 local function pick_rain_replacer(weather)
     local new_soaker = false
     is_raining = true
     if weather == "overcast_light_rain" or
         weather == "light_rain" then
-        rain_replacer = light_rain_replacer()
+        soak_chance = 1/40
         new_soaker = "light"
     elseif weather == "overcast_heavy_rain" then
-        rain_replacer = heavy_rain_replacer()
+        soak_chance = 1/10
         new_soaker = "heavy"
     elseif weather == "thunderstorm" or
         weather == "superstorm" then
-        rain_replacer = thunderstorm_replacer()
+        soak_chance = 1/4
         new_soaker = "storm"
     else
         rain_replacer = false
@@ -485,6 +465,7 @@ local function pick_rain_replacer(weather)
 
     if new_soaker ~= current_soaker then
         current_soaker = new_soaker
+        rain_replacer = soaker()
         soaker_changed = true
     end
 end
@@ -496,23 +477,12 @@ local current_evaporator = false
 local evap_replacer = false
 local evap_interval = 10
 local evap_changed = true
+local evap_chance = 1/15
 
-local function light_evaporator()
+local function evaporator()
     return ms.create_light_aware_replacer(
         {find_replace_pairs = get_wet_dry_pairs(),
          add_labels = {"last_evaporated"},
-         chance = 1/15,
-         higher_than = 10,
-        }
-    )
-end
-
--- The Evaporator - destroyer of worlds, the sovereign of drought and thirst
-local function the_evaporator()
-    return ms.create_light_aware_replacer(
-        {find_replace_pairs = get_wet_dry_pairs(),
-         add_labels = {"last_evaporated"},
-         chance = 1/2,
          higher_than = 10,
         }
     )
@@ -521,16 +491,18 @@ end
 local function pick_evaporator(season)
     local new_evaporator = false
     if season == "summer_early" or season == "summer_late" then
-        evap_replacer = the_evaporator()
+        -- The Evaporator - destroyer of worlds, the sovereign of drought and thirst
         new_evaporator = "the_evaporator"
         evap_interval = 200
+        evap_chance = 1/2
     else
-        evap_replacer = light_evaporator()
         new_evaporator = "light"
         evap_interval = 400
+        evap_chance = 1/15
     end
     if current_evaporator ~= new_evaporator then
         current_evaporator = new_evaporator
+        evap_replacer = evaporator()
         evap_changed = true
     end
 end
@@ -560,34 +532,11 @@ local snow_replace_pairs = {
     ["air"] = "nodes_nature:snow",
 }
 
-local function light_snow_placer()
+local function snow()
     return ms.create_light_aware_top_placer(
         {to_find = get_nodes_for_snow(),
          find_replace_pairs = snow_replace_pairs,
          add_labels = {"last_snow"},
-         chance = 1/50,
-         higher_than = 14,
-        }
-    )
-end
-
-local function heavy_snow_placer()
-    return ms.create_light_aware_top_placer(
-        {to_find = get_nodes_for_snow(),
-         find_replace_pairs = snow_replace_pairs,
-         add_labels = {"last_snow"},
-         chance = 1/15,
-         higher_than = 14,
-        }
-    )
-end
-
-local function snowstorm_placer()
-    return ms.create_light_aware_top_placer(
-        {to_find = get_nodes_for_snow(),
-         find_replace_pairs = snow_replace_pairs,
-         add_labels = {"last_snow"},
-         chance = 1/8,
          higher_than = 14,
         }
     )
@@ -599,6 +548,7 @@ local snower_changed = true
 local snow_interval = 20
 local is_snowing = false
 local snower_running = false
+local snower_chance = 1/50
 
 local function pick_snower(weather)
     local new_snower = false
@@ -606,13 +556,13 @@ local function pick_snower(weather)
     if weather == "overcast_snow" or
         weather == "light_snow" or
         weather == "overcast_light_snow" then
-        snow_placer = light_snow_placer()
+        snower_chance = 1/50
         new_snower = "light"
     elseif weather == "overcast_heavy_snow" then
-        snow_placer = heavy_snow_placer()
+        snower_chance = 1/15
         new_snower = "heavy"
     elseif weather == "snowstorm" then
-        snow_placer = snowstorm_placer()
+        snower_chance = 1/8
         new_snower = "storm"
     else
         snow_placer = false
@@ -622,6 +572,7 @@ local function pick_snower(weather)
 
     if new_snower ~= current_snower then
         current_snower = new_snower
+        snow_placer = snow()
         snower_changed = true
     end
 end
@@ -638,6 +589,7 @@ local function initialize_soaker()
                                       "coast"},
                         work_every = 40,
                         rework_labels = {"last_rain"},
+                        chance = soak_chance,
     })
     soaker_changed = false
 end
@@ -653,8 +605,9 @@ local function initialize_snower()
                         has_one_of = {"spring_soil",
                                       "winter_soil",
                                       "coast"},
-                        work_every = 45,
                         rework_labels = {"last_snow"},
+                        work_every = 45,
+                        chance = snower_chance,
     })
     snower_changed = false
 end
@@ -671,6 +624,7 @@ local function initialize_evaporator()
                                       "last_evaporated"},
                         work_every = evap_interval,
                         rework_labels = {"last_evaporated"},
+                        chance = evap_chance,
     })
     evap_changed = false
 end
@@ -687,7 +641,6 @@ local light_thawer =
     ms.create_simple_replacer(
         {find_replace_pairs = thaw_pairs,
          add_labels = {"last_thawed"},
-         chance = 1/5,
         }
     )
 
@@ -721,8 +674,9 @@ local function start_light_thawer()
                             fun = light_thawer,
                             has_one_of = {"last_snow",
                                           "last_freezed"},
-                            work_every = 120,
                             rework_labels = {"last_evaporated"},
+                            work_every = 120,
+                            chance = 1/7,
         })
         thawer_running = true
         current_thawer = "light"
@@ -736,6 +690,7 @@ local function start_total_thawer()
                             fun = total_thawer,
                             has_one_of = {"last_snow",
                                           "last_freezed"},
+                            chance = 1,
         })
         thawer_running = true
         current_thawer = "total"
@@ -748,7 +703,7 @@ end
 local icer_running = false
 local current_icer = false
 local icer_changed = true
-local icer_interval = 70
+local icer_interval = 10
 
 -- Finds ocean
 ms.create_biome_finder({
@@ -785,20 +740,10 @@ local freeze_pairs = {
     ["nodes_nature:salt_water_source"] = "nodes_nature:sea_ice"
 }
 
-local light_icer =
+local icer =
     ms.create_light_aware_replacer(
         {find_replace_pairs = freeze_pairs,
          add_labels = {"last_freezed"},
-         chance = 1/25,
-         higher_than = 14,
-        }
-    )
-
-local ice_queen =
-    ms.create_light_aware_replacer(
-        {find_replace_pairs = freeze_pairs,
-         add_labels = {"last_freezed"},
-         chance = 1/5,
          higher_than = 14,
         }
     )
@@ -816,10 +761,11 @@ local function start_light_icer()
         if current_icer ~= "light" then
             disable_icer()
             ms.register_worker({name = "freezing_worker",
-                                fun = light_icer,
+                                fun = icer,
                                 work_every = icer_interval,
                                 has_one_of = {"ocean", "coast"},
                                 rework_labels = {"last_freezed"},
+                                chance = 1/25,
             })
             icer_running = true
             current_icer = "light"
@@ -832,10 +778,11 @@ local function start_ice_queen()
         if current_icer ~= "ice_queen" then
             disable_icer()
             ms.register_worker({name = "freezing_worker",
-                                fun = ice_queen,
+                                fun = icer,
                                 work_every = icer_interval,
                                 has_one_of = {"ocean", "coast"},
                                 rework_labels = {"last_freezed"},
+                                chance = 1/5,
             })
             icer_running = true
             current_icer = "ice_queen"
