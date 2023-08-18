@@ -389,8 +389,8 @@ local function do_overlay(player, pname, pos, overlay)
    local handle = player:hud_add({
 	 name = overlay,
 	 hud_elem_type = "image",
-	 position = {x = 0, y = 0},
-	 alignment = {x = 1, y = 1},
+	 position = {x = 0.5, y = 0.5},
+	 alignment = {x = 0, y = 0},
 	 scale = { x = -100, y = -100},
 	 z_index = hud.z_index,
 	 text = overlay,
