@@ -237,6 +237,8 @@ end
 ------------------------------------------------------------------
 
 function HEALTH.illness_ref(name,severity,modify)
+  -- treat this as a "multiplier" do not parse regular values to be changed (don't have temperate be 37 for example to provide a base value)
+  
   if (type(name) ~= "string") then
     return false,"HEALTH.illness_ref: no name specified"
   end
@@ -250,24 +252,23 @@ function HEALTH.illness_ref(name,severity,modify)
   
   name = string.lower(name)
   
-  local battrbs = HEALTH.get_default_attributes()
-  
   local illness_ref = {
     name = "",
     severity = 1,
     max_severity = 4,
     player = "nil",
     
-    temperature = battrbs.temperature,
+    temperature = 0,
+    fever_max = 2, -- (39C)
     
-    heal_rate = battrbs.heal_rate,
-    thirst_rate = battrbs.thirst_rate,
-    hunger_rate = battrbs.hunger_rate,
-    recovery_rate = battrbs.recovery_rate,
-    breathing_rate = battrbs.breathing_rate, -- not yet implemented
+    heal_rate = 0,
+    thirst_rate = 0,
+    hunger_rate = 0,
+    recovery_rate = 0,
+    breathing_rate = 0, -- not yet implemented
     
-    move = battrbs.move,
-    jump = battrbs.jump,
+    move = 0,
+    jump = 0,
     
     time = {4,6},
     delay = {2,4},
@@ -315,14 +316,13 @@ function HEALTH.illness_ref(name,severity,modify)
   local r_rate = illness_ref.recovery_rate
   local mov = illness_ref.move
   local jum = illness_ref.jump
+  local fv_max = illness_ref.fever_max
   
   -- "shortcut" 'functions' (must be made into a table in code)
   local stagger
   local vomit
   local organ_failure
   local auditory_hallucination
-  
-  local fever_temp = (temp + 2)
   
   
   local self = illness_ref -- for use by possible defined functions
@@ -332,8 +332,6 @@ function HEALTH.illness_ref(name,severity,modify)
 
   if (name == "fungal infection") then
     severity = math_clamp(severity,0,self.max_severity)
-    
-    fever_temp = 39
     
     if (severity == 1) then
       --slow recovery, movement
@@ -359,23 +357,18 @@ function HEALTH.illness_ref(name,severity,modify)
       mov = mov - 16
       jum = jum - 16
       --fever
-      if (temp <= 39) then
-        temp = temp + 1
-      end
+      temp = temp + 1
+      
     end
   elseif (name == "dust fever") then
     severity = math_clamp(severity,0,self.max_severity)
-    
-    fever_temp = 39
     
     if (severity == 1) then
       --slow recovery, movement
       r_rate = r_rate - 4
       jum = jum - 1
       --fever
-      if (temp <= fever_temp) then
-        temp = temp + 1
-      end
+      temp = temp + 1
 
     elseif (severity == 2) then
       --slow recovery, movement
@@ -383,9 +376,7 @@ function HEALTH.illness_ref(name,severity,modify)
       mov = mov - 1
       jum = jum - 2
       --fever
-      if (temp <= fever_temp) then
-        temp = temp + 1
-      end
+      temp = temp + 1
 
     elseif (severity == 3) then
       --slow recovery, movement
@@ -393,10 +384,8 @@ function HEALTH.illness_ref(name,severity,modify)
       mov = mov - 2
       jum = jum - 4
       --fever
-      fever_temp = fever_temp + 1 -- 40
-      if (temp <= fever_temp) then
-        temp = temp + 1
-      end
+      fv_max = 3 -- (40C)
+      temp = temp + 1
 
     elseif (severity == 4) then
       --slow recovery, movement
@@ -404,10 +393,9 @@ function HEALTH.illness_ref(name,severity,modify)
       mov = mov - 4
       jum = jum - 8
       --fever
-      fever_temp = fever_temp + 2 -- 41
-      if (temp <= fever_temp) then
-        temp = temp + 1
-      end
+      fv_max = 4 -- (41C)
+      temp = temp + 1
+      
     end
   elseif (name == "wetness") then
     -- NEEDS CODE
@@ -421,7 +409,7 @@ function HEALTH.illness_ref(name,severity,modify)
   elseif (name == "food poisoning") then
     severity = math_clamp(severity,0,self.max_severity)
     
-    fever_temp = 42
+    fv_max = 5 -- (42C)
     
     if (severity == 1) then
       --slow recovery, movement
@@ -449,9 +437,7 @@ function HEALTH.illness_ref(name,severity,modify)
       mov = mov - 20
       jum = jum - 20
       --fever
-      if (temp <= fever_temp) then
-        temp = temp + random(2,3)
-      end
+      temp = temp + random(2,3)
       --vomiting
       vomit = {1, 5, 1, 10, 5, 10, 5, 10}
       --mild staggering
@@ -463,9 +449,7 @@ function HEALTH.illness_ref(name,severity,modify)
       mov = mov - 30
       jum = jum - 30
       --fever
-      if (temp <= fever_temp) then
-        temp = temp + random(2,3)
-      end
+      temp = temp + random(2,3)
       --vomiting
       vomit = {5, 10, 1, 10, 5, 10, 5, 10}
       --mild staggering
@@ -496,9 +480,7 @@ function HEALTH.illness_ref(name,severity,modify)
     local max_drunk = self["max_drunk"] or 1
     
     if (severity == 1) then
-      if max_drunk < 1 then
-        max_drunk = 1
-      end
+      max_drunk = math_clamp(max_drunk,severity,math.huge)
 
       r_rate = r_rate - 1
       mov = mov - 2
@@ -507,9 +489,7 @@ function HEALTH.illness_ref(name,severity,modify)
       stagger = {1, 5, 1, 5, 3}
 
     elseif (severity == 2) then
-      if max_drunk < 2 then
-        max_drunk = 2
-      end
+      max_drunk = math_clamp(max_drunk,severity,math.huge)
 
       r_rate = r_rate - 2
       mov = mov - 5
@@ -518,9 +498,7 @@ function HEALTH.illness_ref(name,severity,modify)
       stagger = {5, 10, 0.5, 5, 4}
 
     elseif (severity == 3) then
-      if max_drunk < 3 then
-        max_drunk = 3
-      end
+      max_drunk = math_clamp(max_drunk,severity,math.huge)
 
       r_rate = r_rate - 4
       mov = mov - 10
@@ -533,9 +511,7 @@ function HEALTH.illness_ref(name,severity,modify)
       stagger = {30, 60, 0.5, 1, 4}
 
     elseif (severity == 4) then -- alcohol poisoning
-      if max_drunk < 4 then
-        max_drunk = 4
-      end
+      max_drunk = math_clamp(max_drunk,severity,math.huge)
 
       r_rate = r_rate - 4
       h_rate = h_rate - 2
@@ -594,10 +570,10 @@ function HEALTH.illness_ref(name,severity,modify)
     
     local max_drunk = self["max_drunk"] or 1
     
+    fv_max = 1
+    
     if (severity == 1) then
-      if max_drunk < 1 then
-        max_drunk = 1
-      end
+      max_drunk = math_clamp(max_drunk,severity,math.huge)
 
       r_rate = r_rate + 6
       hun_rate = hun_rate - 2
@@ -608,15 +584,14 @@ function HEALTH.illness_ref(name,severity,modify)
       end
 
     elseif (severity == 2) then
-      if max_drunk < 2 then
-        max_drunk = 2
-      end
+      max_drunk = math_clamp(max_drunk,severity,math.huge)
+      
       r_rate = r_rate + 12
       hun_rate = hun_rate - 4
       mov = mov + 36
       jum = jum + 24
       -- mild fever
-      if (temp < 38 and random()<0.3) then
+      if (random()<0.3) then
         temp = temp + random(2,3)
       end
       if random()<0.1 then
@@ -625,15 +600,14 @@ function HEALTH.illness_ref(name,severity,modify)
 
 
     elseif (severity == 3) then
-      if max_drunk < 3 then
-        max_drunk = 3
-      end
+      max_drunk = math_clamp(max_drunk,severity,math.huge)
+      
       r_rate = r_rate + 24
       hun_rate = hun_rate - 8
       mov = mov + 48
       jum = jum + 45
       -- mild fever
-      if (temp <= 38 and random()<0.6) then
+      if (random()<0.6) then
         temp = temp + random(2,3)
       end
       --time to go crazy
@@ -643,18 +617,17 @@ function HEALTH.illness_ref(name,severity,modify)
 
 
     elseif (severity == 4) then
-      if max_drunk < 4 then
-        max_drunk = 4
-      end
+      max_drunk = math_clamp(max_drunk,severity,math.huge)
+      
       r_rate = r_rate - 24
       hun_rate = hun_rate - 8
       mov = mov - 5
       jum = jum - 5
 
       --  fever
-      if (temp <= 43) then
-        temp = temp + random(2,4)
-      end
+      fv_max = 6 -- (43C)
+      temp = temp + random(2,4)
+      
       --time to go crazy
       auditory_hallucination = {30, 60, 0.5, 1, 1, 4}
       --major staggering
@@ -838,6 +811,10 @@ function HEALTH.illness_ref(name,severity,modify)
 ---- TOXICITY /\/\
 ------------------------------------------------------------------
   end
+  
+  -- MODIFICATION OF MULTIPLIERS
+  
+  temp = math.clamp(temp,-math.huge,fv_max) -- bring temp modifier down between bounds
 
   -- VARIABLE SETTING
   
@@ -849,6 +826,8 @@ function HEALTH.illness_ref(name,severity,modify)
   self.recovery_rate = r_rate
   self.move = mov
   self.jump = jum
+  
+  self.fever_max = fv_max
   
   -- setting table parameters for potential functions, does not add if nil
   self.vomit = vomit
