@@ -102,6 +102,7 @@ minetest.register_chatcommand("restart",{
 	privs = {
 		interact = true,
 	},
+        description = "Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try yourself at survival again.",
 	func = restart
 })
 
@@ -109,6 +110,7 @@ minetest.register_chatcommand("respawn",{
 	privs = {
 		interact = true,
 	},
+        description = "This command is an alias for /restart. See there for further information.",
 	func = restart
 })
 
