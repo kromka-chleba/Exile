@@ -43,7 +43,7 @@ end
 
 local __eat_click_settings_cache = {}
 minetest.register_chatcommand("eat2x", {
-        params = "true or false",
+        params = "true | false",
         description = "Toggles double-click to eat",
         func = function(name, param)
         local player = minetest.get_player_by_name(name)
