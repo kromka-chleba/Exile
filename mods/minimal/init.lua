@@ -49,7 +49,7 @@ end
 
 
 minetest.register_chatcommand("hud16", {
-	params = "true or false",
+	params = "true | false",
 	description = "Toggle wide hud hotbar on or off for player",
 	func = function(name, param)
 	local player = minetest.get_player_by_name(name)

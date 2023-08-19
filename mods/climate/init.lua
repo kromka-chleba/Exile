@@ -459,7 +459,7 @@ minetest.register_privilege("set_weather", {
 
 
 minetest.register_chatcommand("set_weather", {
- params = "<weather> or help",
+ params = "<weather> | help",
  description = "Set the Climate active weather",
  privs = {set_weather=true},
  func = function(name, param)
@@ -501,18 +501,18 @@ minetest.register_chatcommand("set_weather", {
 -------------
 
 minetest.register_chatcommand("set_tempscale", {
-    params = "f, c, or k",
+    params = "c | f | k",
     description = "Sets the temperature scale used for your own display",
     func = function(name, param)
        if param == "" or param == "help" then
 	  local wlist = "/set_tempscale:\n"..
 	  "Sets the temperature scale used for your own display.\n" ..
-	  "Valid settings are f for Fahrenheit, c for Celsius, and "..
+	  "Valid settings are c for Celsius, f for Fahrenheit, and "..
 	  "k for Kelvin."
 	  return false, wlist
        end
        if param ~= "f" and param ~= "c" and param ~= "k" then
-	  return false, "Invalid scale. Use f, c, or k."
+	  return false, "Invalid scale. Use c, f, or k."
        end
        local player = minetest.get_player_by_name(name)
        local meta = player:get_meta()
