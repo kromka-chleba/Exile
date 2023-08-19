@@ -470,7 +470,7 @@ end
 
 --------------------------------------------
 minetest.register_chatcommand("breaktaker", {
-    params = "on or off",
+    params = "on | off",
     description = "Switch the break taker off or on per user",
     func = function(name, param)
        if param == "" or param == "help" then
