@@ -189,7 +189,8 @@ local function pot_cook(pos, elapsed)
 		      if baking <= 0 then
 			 local firstingr
 			 for i = 1, #inv do
-			    local ingr = inv[i]:get_description()
+			    local ingr = inv[i]:get_description() or
+			       inv[i]:get_short_description()
 			    if ingr ~= "" then
 			       firstingr = ingr
 			       break
@@ -209,7 +210,7 @@ local function pot_cook(pos, elapsed)
 			 local portion = divide_portions(total)
 			 portion[2] = portion[2] + (100 / portions)
 			 imeta:set_string("eat_value", minetest.serialize(portion))
-			 imeta:set_string("description", S("@1 soup",firstingr))
+			 imeta:set_string("description", S("@1 soup",firstingr or "Odd"))
 			 meta:get_inventory(pos):set_list("main", inv)
 			 minimal.infotext_merge(pos, {
 				"Contents: "..S("@1 soup",firstingr),
