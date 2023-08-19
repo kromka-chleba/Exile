@@ -94,8 +94,7 @@ local function is_illness_valid(player,life_num)
   if (hp <= 0) then
     return false
   end
-  local arg,arg2 = get_life_num(player)
-  minetest.log("error",tostring(arg)..tostring(arg2))
+  
   if (type(life_num) ~= "number") then
     return false
   elseif not (life_num == get_life_num(player)) then -- if assigned life_num to effect was NOT the current player then say illness is invalid
@@ -270,8 +269,8 @@ function HEALTH.illness_ref(name,severity,modify)
     move = 0,
     jump = 0,
     
-    time = {4,6},
-    delay = {2,4},
+    time = {3,6},
+    chances = {0.2,1}, -- progression, regression (progression is calculated first)
     
     cures = {},
     
@@ -813,7 +812,6 @@ function HEALTH.illness_ref(name,severity,modify)
   end
   
   -- MODIFICATION OF MULTIPLIERS
-  
   temp = math.clamp(temp,-math.huge,fv_max) -- bring temp modifier down between bounds
 
   -- VARIABLE SETTING
@@ -843,26 +841,62 @@ function HEALTH.illness_ref(name,severity,modify)
     self.name = "unknown"
   end
   
-  local function do_timer()
+  -- DO_TIMER:
+  --if not set will set the timer, save to meta
+  --otherwise it will tick down
+  --if zero it will return true so progression can take place
+  --[[
+  local function do_timer(meta, t_name, t_min, t_max) -- player meta, timer name, timer min, timer max
+    --is timer present?
+    if not meta:contains(t_name) then
+      local duration = random(t_min, t_max)
+      meta:set_int(t_name, duration)
+    else
+      --count down
+      local time = meta:get_int(t_name)
+      time = time - 1
+      if time <= 0 then
+        meta:set_int(t_name,0)
+        return true
+      else
+        meta:set_int(t_name,time)
+      end
+    end
     
+    return false
   end
+  --]]
   
   -- addition of base functions;
   -- progression of disease without timer
   self.hard_progress = function()
-    self.severity = minimal.math_clamp(self.severity + 1,0,self.max_severity)
+    self.severity = math_clamp(self.severity + 1,0,self.max_severity)
   end
   -- regression of disease without timer
   self.hard_regress = function()
-    self.severity = minimal.math_clamp(self.severity - 1,0,self.max_severity)
+    self.severity = math_clamp(self.severity - 1,0,self.max_severity)
   end
-  -- complete curing
-  self.cease = function()
-    self.severity = 0
+  -- curing
+  self.cure = function(svty) -- severity
+    if (type(svty) ~= "number") then
+      svty = math.huge
+    end
+    if (svty >= self.severity) then
+      self.severity = 0
+    end
   end
   -- worst of the symptoms
   self.maximize = function()
     self.severity = self.max_severity
+  end
+  
+  -- progression & regression handler
+  self.progression_regression = function()
+    if (random() <= self.chances[1]) then
+      self.hard_progress()
+    elseif (random() <= self.chances[2]) then
+      self.hard_regress()
+    end
   end
   
   return self
@@ -910,6 +944,7 @@ local function do_timer(meta, t_name, t_min, t_max)
 			meta:set_int(t_name,time)
 			return false
 		end
+    minetest.log("error",tostring(t_name)..":time:"..tostring(time))
 	end
 end
 

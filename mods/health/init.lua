@@ -134,6 +134,9 @@ function HEALTH.get_meta_stats(meta)
     if (type(value) == "number") then
       fields[key] = value
     end
+    if (key == "effects_list") then
+      fields[key] = minetest.deserialize(value)
+    end
   end
   
   return fields
@@ -155,15 +158,33 @@ end
 
 
 
-
-function HEALTH.set_int(player,name,value)
-  assert(type(player) == "userdata","health.set_int: player/meta is not a valid 'userdata'")
-  local meta = player -- assumes "player" may be metadata
-  if (HEALTH.typeof(player) == "player") then
-    meta = player:get_meta()
-  elseif not (HEALTH.typeof(player) == "metadata") then
-    error("health.set_int: invalid parameter given for player/meta")
+-- allows any code that depends on HEALTH to use modify_hp to reliably modify player health
+function HEALTH.modify_hp(player,value)
+  assert(type(player) == "userdata","health.modify_hp: player is not a valid 'userdata'")
+  assert(type(player["is_player"]) == "function","health.modify_hp: player is not a 'player'")
+  assert(player:is_player() == true,"health.modify_hp: player is not a 'player'")
+  
+  if (type(value) ~= "number") then
+    value = 0
   end
+  
+  local phealth = player:get_hp()
+  
+  phealth = phealth + value
+  
+  phealth = math_clamp(phealth,0,max_health)
+  
+  player:set_hp(phealth)
+  
+  return phealth -- return modified health
+end
+
+function HEALTH.set_int(meta,name,value)
+  assert(type(meta) == "userdata","health.set_int: player/meta is not a valid 'userdata'")
+  if (HEALTH.typeof(meta) == "player") then
+    meta = meta:get_meta()
+  end
+  assert(HEALTH.typeof(meta) == "metadata","health.set_int: invalid first parameter given for player/meta")
   
   if (type(value) ~= "number") then
     value = 0
@@ -193,36 +214,13 @@ function HEALTH.set_int(player,name,value)
   return value -- return modified value
 end
 
--- allows any code that depends on HEALTH to use modify_hp to reliably modify player health
-function HEALTH.modify_hp(player,value)
-  assert(type(player) == "userdata","health.modify_hp: player is not a valid 'userdata'")
-  assert(type(player["is_player"]) == "function","health.modify_hp: player is not a 'player'")
-  assert(player:is_player() == true,"health.modify_hp: player is not a 'player'")
-  
-  if (type(value) ~= "number") then
-    value = 0
-  end
-  
-  local phealth = player:get_hp()
-  
-  phealth = phealth + value
-  
-  phealth = math_clamp(phealth,0,20)
-  
-  player:set_hp(phealth)
-  
-  return phealth -- return modified health
-end
-
 -- allows any code that depends on HEALTH to use modify_int to reliably modify stats like hunger or thirst
-function HEALTH.modify_int(player,name,value)
-  assert(type(player) == "userdata","health.modify_int: player/meta is not a valid 'userdata'")
-  local meta = player -- assumes "player" may be metadata
-  if (HEALTH.typeof(player) == "player") then
-    meta = player:get_meta()
-  elseif not (HEALTH.typeof(player) == "metadata") then
-    error("health.modify_int: invalid parameter given for player/meta")
+function HEALTH.modify_int(meta,name,value)
+  assert(type(meta) == "userdata","health.modify_int: player/meta is not a valid 'userdata'")
+  if (HEALTH.typeof(meta) == "player") then
+    meta = meta:get_meta()
   end
+  assert(HEALTH.typeof(meta) == "metadata","health.modify_int: invalid first parameter given for player/meta")
   
   if (type(value) ~= "number") then
     value = 0
@@ -544,9 +542,6 @@ local function do_effects_list(player, meta)
   local mov = meta:get_int("move")
   local jum = meta:get_int("jump")
   
-  local energy = meta:get_int("energy")
-  local thirst = meta:get_int("thirst")
-  local hunger = meta:get_int("hunger")
   local temperature = meta:get_int("temperature")
   
 	local effects_list = meta:get_string("effects_list")
@@ -560,9 +555,6 @@ local function do_effects_list(player, meta)
   stats.hunger_rate = hun_rate
   stats.move = mov
   stats.jump = jum
-  stats.energy = energy
-  stats.thirst = thirst
-  stats.hunger = hunger
   stats.temperature = temperature
 
 	if not effects_list then
@@ -574,23 +566,16 @@ local function do_effects_list(player, meta)
 		local name = effect[1]
 		local order = effect[2]
 
-
+    minetest.log("error",tostring(name)..":"..tostring(order))
 		----------
 		if name == "Food Poisoning" then
 			r_rate, mov, jum, temperature = HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, jum, temperature)
 		end
-    stats.recovery_rate = stats.recovery_rate + r_rate
-    stats.move = stats.move + mov
-    stats.jump = stats.jump + jum
-    stats.temperature = stats.temperature + temperature
+    
 		----------
 		if name == "Fungal Infection" then
 			r_rate, mov, jum, temperature = HEALTH.fungal_infection(order, player, meta, effects_list, r_rate, mov, jum, temperature)
 		end
-    stats.recovery_rate = stats.recovery_rate + r_rate
-    stats.move = stats.move + mov
-    stats.jump = stats.jump + jum
-    stats.temperature = stats.temperature + temperature
 
 		----------
 		if name == "Dust Fever" then
@@ -662,7 +647,14 @@ function HEALTH.malus_bonus(player,meta)
   local mov = stats.move
   local jum = stats.jump
   
-  stats = do_effects_list(player,meta)
+  local modstats = do_effects_list(player,meta)
+  
+  for sname,svalue in pairs(stats) do
+    local stat = modstats[sname]
+    if (type(stat) ~= "nil") then
+      stats[sname] = stat
+    end
+  end
   
   for name,value in pairs(stats) do
     if (type(value) == "number") then
@@ -699,210 +691,7 @@ end
 --also give name and meta, bc anything calling it should already have that
 -- returns the adjusted rates so they can be used if desired
 --
---[[
-function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
-
-	--use standard values, so it doesn't compound each time adjusted.
-	--Only saved to player meta so they can be accessed without recalculating
-	local h_rate = heal_rate
-	local t_rate = thirst_rate
-	local hun_rate = hunger_rate
-	local r_rate = recovery_rate
-	local mov = move
-	local jum = jump
-
-
-	--(hunger/Energy has 10x stock)
-	--0-20 starving/severe dehydrated: malus, no heal
-	--20-40 malnourished/dehydrated: malus
-	--40-60 hungry/thirsty: small malus
-	--60-80 good:
-	--80-100 overfull: small malus
-
-	--80-100 well rested. bonus
-	--60-80 rested.
-	--40-60 tired. small malus
-	--20-40 fatigued. malus
-	--0-20 exhausted. malus no heal
-
-	--<27 death
-	--27-32: severe hypo. malus no heal
-	--32-37: hypothermia. malus
-	--36-38: normal
-	--38-43: hyperthermia. malus.
-	--43-47: severe heat stroke. malus no heal
-	-->47 death
-
-	--
-	--update rates
-	--
-
-	--bonus/malus from health
-	if health <= 1 then
-		mov = mov - 50
-		jum = jum - 50
-		h_rate = h_rate - 3
-		r_rate = r_rate - 4
-	elseif health < 4 then
-		mov = mov - 25
-		jum = jum - 25
-		h_rate = h_rate - 2
-		r_rate = r_rate - 2
-	elseif health < 8 then
-		mov = mov - 20
-		jum = jum - 20
-		h_rate = h_rate - 1
-		r_rate = r_rate - 1
-	elseif health < 12 then
-		mov = mov - 15
-		jum = jum - 15
-	elseif health < 16 then
-		mov = mov - 10
-		jum = jum - 10
-	end
-
-	--bonus/malus from energy
-	if energy > 800 then
-		h_rate = h_rate + 2
-		mov = mov + 15
-		jum = jum + 15
-	elseif energy < 1 then
-		h_rate = h_rate - 1
-		mov = mov - 40
-		jum = jum - 40
-		t_rate = t_rate - 12
-		hun_rate = hun_rate - 24
-	elseif energy < 200 then
-		h_rate = h_rate - 1
-		mov = mov - 20
-		jum = jum - 20
-		t_rate = t_rate - 4
-		hun_rate = hun_rate - 8
-	elseif energy < 400 then
-		mov = mov - 10
-		jum = jum - 10
-		t_rate = t_rate - 3
-		hun_rate = hun_rate - 4
-	elseif energy < 600 then
-		mov = mov - 5
-		jum = jum - 5
-		t_rate = t_rate - 2
-		hun_rate = hun_rate - 2
-	elseif energy < 700 then
-		hun_rate = hun_rate - 1
-	end
-
-
-	--bonus/malus from thirst
-	if thirst > 80 then
-		h_rate = h_rate + 1
-		r_rate = r_rate + 2
-		mov = mov + 1
-		jum = jum + 1
-	elseif thirst < 1 then
-		h_rate = h_rate - 12
-		r_rate = r_rate - 10
-		mov = mov - 30
-		jum = jum - 30
-	elseif thirst < 20 then
-		h_rate = h_rate - 2
-		r_rate = r_rate - 2
-		mov = mov - 20
-		jum = jum - 20
-	elseif thirst < 40 then
-		h_rate = h_rate - 1
-		r_rate = r_rate - 1
-		mov = mov - 10
-		jum = jum - 10
-	elseif thirst < 60 then
-		mov = mov - 1
-		jum = jum - 1
-	end
-
-	--bonus/malus from hunger
-	if hunger > 800 then
-		h_rate = h_rate + 1
-		r_rate = r_rate + 2
-		mov = mov + 1
-		jum = jum + 1
-	elseif hunger < 1 then
-		h_rate = h_rate - 12
-		r_rate = r_rate - 10
-		mov = mov - 30
-		jum = jum - 30
-	elseif hunger < 200 then
-		h_rate = h_rate - 2
-		r_rate = r_rate - 2
-		mov = mov - 20
-		jum = jum - 20
-	elseif hunger < 400 then
-		h_rate = h_rate - 1
-		r_rate = r_rate - 1
-		mov = mov - 10
-		jum = jum - 10
-	elseif hunger < 600 then
-		mov = mov - 1
-		jum = jum - 1
-	end
-
-	--temp malus..severe..having this happen would make you very ill
-	if temperature >= 100 or temperature <= 0 then -- now will cause immediate death
-		--you dead
-		h_rate = h_rate - 10000
-		r_rate = r_rate - 10000
-		mov = mov - 10000
-		jum = jum - 10000
-	elseif temperature > 47 or temperature < 27 then
-		h_rate = h_rate - 16
-		r_rate = r_rate - 64
-		mov = mov - 80
-		jum = jum - 80
-	elseif temperature > 43 or temperature < 32 then
-		h_rate = h_rate - 8
-		r_rate = r_rate - 32
-		mov = mov - 40
-		jum = jum - 40
-	elseif temperature > 38 or temperature < 37 then
-		h_rate = h_rate - 4
-		r_rate = r_rate - 8
-		mov = mov - 20
-		jum = jum - 20
-	end
-
-	--health effects
-	local HE_mov
-	local HE_jum
-	h_rate, r_rate, t_rate, hun_rate, HE_mov, HE_jum, health, energy, thirst, hunger, temperature = do_effects_list(player, health, energy, thirst, hunger, temperature, h_rate, r_rate, t_rate, hun_rate,  mov, jum)
-
-
-	--save adjusted rates for access (e.g. by a medical tab/equipment etc)
-	meta:set_int("heal_rate", h_rate)
-	meta:set_int("thirst_rate", t_rate)
-	meta:set_int("hunger_rate", hun_rate)
-	meta:set_int("recovery_rate", r_rate)
-	meta:set_int("move", HE_mov)
-	meta:set_int("jump", HE_jum)
-
-	--apply player physics
-	--don't do in bed or it buggers the physics
-	if not bed_rest.player[name] then
-		player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics")
-		player_monoids.jump:add_change(player, 1 + (jum/100), "health:physics")
-		--split physics from hunger etc from that from health effects
-		--this means quick_physics can fiddle with one half, without overriding the half from effects
-		HE_mov = HE_mov - mov
-		HE_jum = HE_jum - jum
-		player_monoids.speed:add_change(player, 1 + (HE_mov/100), "health:physics_HE")
-		player_monoids.jump:add_change(player, 1 + (HE_jum/100), "health:physics_HE")
-
-
-	end
-
-	--return adjusted rates so can be applied if necessary
-	return h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature
-
-end
---]]
+-- old malus_bonus stuff was here
 
 -----------------------------
 --Main
