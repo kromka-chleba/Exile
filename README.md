@@ -98,7 +98,9 @@ The variable `time_speed` defaults to `72`, and at this rate a player who logs o
 
 Changing speed to `60` will make days last 24 minutes and a new season every real-world day, but he will see the seasons in reverse. At `time_speed` of `96`, days last only 15 minutes, but the player might see spring (year 1) on day 1, summer (year 2) on day 2, etc.
 
-Set `exile_hud_update` to `1.0` second for multiplayer servers on the Internet; a LAN server can probably handle `0.2` seconds.
+It is recommended to set `exile_hud_update` to `1.0` second for multiplayer servers on the Internet; a LAN server can probably handle `0.2` seconds.
+
+If you're compiling your own Minetest, it may be useful to edit src/server/luaentity_sao.cpp to remove lines 347-351, removing the code from `actionstream << puncher->getDescription` through `") punched "` on down to ` << std::endl;` as that code will result in a great deal of unwanted log messages caused by animals attacking each other.
 
 ## Mods for Multiplayer
 - [Wield3d](https://github.com/stujones11/wield3d) is recommended.
