@@ -29,7 +29,11 @@ local function stash_inventory(player, stash, list)
 end
 
 local function killplayer(name)
-   local player=minetest.get_player_by_name(name)
+    local player = minetest.get_player_by_name(name)
+    if not player then
+        -- exit if the player left or we somehow got garbage
+        return
+    end
    if ( minetest.is_creative_enabled(name)
 	or minetest.get_player_privs(name).creative ~= nil ) then
       -- Don't remove inventory from creative mode players, just kill 'em
