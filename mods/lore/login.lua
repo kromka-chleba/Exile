@@ -23,25 +23,21 @@ local loginspec = ("formspec_version[3]"..
 		   "hypertext[0.5,0.75;6,5;introtext;"..logintext.."]"..
 		   "image[1.5,6;6,2;logo.png]" )
 
-local newplayer = {} -- visual_size doesn't work in on_newplayer, only in on_join
 
-minetest.register_on_joinplayer(function(player)
-      local name = player:get_player_name()
-      if newplayer[name] and newplayer[name] == true then
-	 local props = player:get_properties()
-	 -- hide new players until they read the intro (is_visible fails?)
-	 props.nametag = " "
-	 player:set_properties(props)
-	 player_monoids.visual_size:add_change(player,
-					       {x=0, y=0, z=0},
-					       "login:invis")
-	 newplayer[name] = false
-      end
-end)
+local newplayer = {} -- visual_size doesn't work in on_newplayer, only in on_join
 
 minetest.register_on_newplayer(function(player)
       newplayer[player:get_player_name()] = true
       minetest.show_formspec(player:get_player_name(),"lore:login",loginspec)
+end)
+-- process continues in on_joinplayer
+minetest.register_on_joinplayer(function(player)
+      local name = player:get_player_name()
+      if newplayer[name] and newplayer[name] == true then
+	 -- hide new players until they read the intro
+	 player_api.set_invisible(player, true)
+	 newplayer[name] = false
+      end
 end)
 
 local rspawn_available = false
@@ -111,8 +107,8 @@ function play_themesong(name)
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-      --maybe unnecessary, but guarantee they won't be penalized for reading
       if formname == "lore:login" then
+	 -- Guarantee they won't be penalized for reading:
 	 reset_attributes(player) -- All stats back to starting values
 	 doGatewayFX(player)
 	 local pname = player:get_player_name()
@@ -126,13 +122,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				       "/music/exile_theme.ogg")
 	    play_themesong(pname)
 	 end
-	 local props = player:get_properties()
-	 props.nametag = "" -- An empty tag defaults to player's name
 	 -- Bang! new player appears in the world
 	 minetest.after(0.25, function()
-			   player:set_properties(props)
-			   player_monoids.visual_size:del_change(player,
-								 "login:invis")
+			   player_api.set_invisible(player, false)
 	 end)
       end
 end)

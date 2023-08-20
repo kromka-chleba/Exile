@@ -477,3 +477,29 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	player_api.set_cloths(player) --set the default clothes
 	player_api.set_texture(player)
 end)
+
+local invisible = {}
+
+function player_api.set_invisible(player, vanish)
+   local props = player:get_properties()
+   if vanish then
+      invisible[player:get_player_name()] = true
+      props.nametag = " " -- blank out nametag
+      player:set_properties(props)
+      -- props.is_visible doesn't work on players, so shrink them to 0 size
+      player_monoids.visual_size:add_change(player, {x=0, y=0, z=0},
+					    "player_api:invis")
+   else
+      invisible[player:get_player_name()] = nil
+      props.nametag = "" -- An empty tag defaults to player's name
+      player:set_properties(props)
+      player_monoids.visual_size:del_change(player,"player_api:invis")
+   end
+end
+
+function player_api.is_invisible(player)
+   if invisible[player:get_player_name()] then
+      return true
+   end
+   return false
+end
