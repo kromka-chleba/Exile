@@ -6,7 +6,7 @@
 -- fire, food, water, and crafting.
 
 --Tutorial nodes
-minetest.register_node("tutorial:invisible_wall", {
+minetest.register_node("tutorial_exile:invisible_wall", {
         description = "Tutorial boundary wall",
         tiles = {"climate_air.png"},
         drawtype = "airlike",
@@ -26,7 +26,7 @@ minetest.register_node("tutorial:invisible_wall", {
 
 minetest.register_ore({
   ore_type        = "stratum",
-  ore             = "tutorial:invisible_wall",
+  ore             = "tutorial_exile:invisible_wall",
   wherein         = {"air"},
   clust_scarcity  = 1,
   y_max           = 9000,
@@ -34,7 +34,7 @@ minetest.register_ore({
   stratum_thickness = 1,
 })
 
-minetest.register_node('tutorial:wall', {
+minetest.register_node('tutorial_exile:wall', {
         description = 'Tutorial wall',
         tiles = {
                 "tech_rammed_earth.png",
@@ -43,14 +43,14 @@ minetest.register_node('tutorial:wall', {
 })
 
 if minetest.is_creative_enabled() then
-   minetest.override_item("tutorial:invisible_wall", {
+   minetest.override_item("tutorial_exile:invisible_wall", {
 		drawtype = "glasslike",
 		pointable = true,
 		diggable = true,
 		groups = {crumbly = 1, cracky = 3,
 			  temp_pass = 1},
    })
-   minetest.override_item('tutorial:wall', {
+   minetest.override_item('tutorial_exile:wall', {
 			     groups = {crumbly = 1, cracky = 3},
    })
 end
