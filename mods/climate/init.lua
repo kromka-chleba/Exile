@@ -529,7 +529,11 @@ minetest.register_chatcommand("set_tempscale", {
 minetest.register_chatcommand("set_woverride", {
     params = "<weather name>",
     description = "Sets your weather override",
+    privs = {set_weather=true},
     func = function(name, param)
+       if minetest.check_player_privs(name, {set_weather = false}) then
+	  return
+       end
        if param == "" or param == "help" then
 	  return false
        end
