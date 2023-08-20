@@ -48,7 +48,7 @@ function bed_rest.register_bed(name, def)
 			fixed = def.selectionbox,
 		},
 
-		walkable = def.walkable or true,
+		walkable = def.walkable,
 		buildable_to = def.buildable_to or false,
 		floodable = def.floodable or false,
 		on_punch = def.on_punch,
@@ -194,7 +194,7 @@ function bed_rest.register_bed(name, def)
 			return bed_rest.can_dig(p, player)
 		end,
 
-		walkable = def.walkable or true,
+		walkable = def.walkable,
 		buildable_to = def.buildable_to or false,
 		floodable = def.floodable or false,
 		on_punch = def.on_punch,
@@ -202,5 +202,4 @@ function bed_rest.register_bed(name, def)
 	})
 
 	minetest.register_alias(name, name .. "_bottom")
-
 end
