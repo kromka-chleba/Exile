@@ -102,7 +102,7 @@ function ms.register_worker(args)
             rework_labels = rework_labels,
             chance = args.chance,
             catch_up = args.catch_up,
-            catch_up_function = basic_catch_up,
+            catch_up_function = args.catch_up_function or basic_catch_up,
         }
         if args.chance then
             worker.worker_function = function(pos_min, pos_max)
