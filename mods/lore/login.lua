@@ -18,13 +18,24 @@ local loginspec = ("formspec_version[3]"..
 		   "hypertext[0.5,0.75;6,5;introtext;"..logintext.."]"..
 		   "image[1.5,6;6,2;logo.png]" )
 
+local newplayer = {} -- visual_size doesn't work in on_newplayer, only in on_join
+
+minetest.register_on_joinplayer(function(player)
+      local name = player:get_player_name()
+      if newplayer[name] and newplayer[name] == true then
+	 local props = player:get_properties()
+	 -- hide new players until they read the intro (is_visible fails?)
+	 props.nametag = " "
+	 player:set_properties(props)
+	 player_monoids.visual_size:add_change(player,
+					       {x=0, y=0, z=0},
+					       "login:invis")
+	 newplayer[name] = false
+      end
+end)
 
 minetest.register_on_newplayer(function(player)
-      local props = player:get_properties()
-      -- hide new players until they read the intro (is_visible fails?)
-      props.visual_size = {x=0.0001,y=0.0001,z=0.0001}
-      props.nametag = " "
-      player:set_properties(props)
+      newplayer[player:get_player_name()] = true
       minetest.show_formspec(player:get_player_name(),"lore:login",loginspec)
 end)
 
@@ -112,10 +123,11 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 end
 	 local props = player:get_properties()
 	 props.nametag = "" -- An empty tag defaults to player's name
-	 props.is_visible = true -- Bang! new player appears in the world
-	 props.visual_size = {x=1,y=1,z=1}
+	 -- Bang! new player appears in the world
 	 minetest.after(0.25, function()
 			   player:set_properties(props)
+			   player_monoids.visual_size:del_change(player,
+								 "login:invis")
 	 end)
       end
 end)
