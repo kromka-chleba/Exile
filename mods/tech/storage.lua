@@ -431,7 +431,8 @@ minetest.register_node("tech:wooden_chest", {
 	end,
 })
 
---iron chest
+----------------------------------------------------
+--Iron chest
 minetest.register_node("tech:iron_chest", {
 	description = S("Iron Chest"),
 	tiles = {"tech_iron_chest_top.png",
@@ -468,6 +469,10 @@ minetest.register_node("tech:iron_chest", {
 	end,
 
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		if placer then
+		   local name = placer:get_player_name() or ""
+		   minetest.get_meta(pos):set_string("owner", name)
+		end
 		--Update formspec and infotext
 		on_construct(pos, 8, 8)
 	end,
