@@ -107,28 +107,35 @@ function play_themesong(name)
    end)
 end
 
+local function first_spawn(player)
+   -- Guarantee they won't be penalized for reading:
+   reset_attributes(player) -- All stats back to starting values
+   doGatewayFX(player)
+   local pname = player:get_player_name()
+   if minimal.mt_required_version(5,4,0) then
+      minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
+				      "/music/exile_theme.ogg",
+				   to_player = pname
+				 }, play_themesong )
+   else
+      minetest.dynamic_add_media(minetest.get_modpath("lore")..
+				 "/music/exile_theme.ogg")
+      play_themesong(pname)
+   end
+   -- Bang! new player appears in the world
+   minetest.after(0.25, function()
+		     player_api.set_invisible(player, false)
+   end)
+end
+
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
       if formname == "lore:login" then
 	 if tutorial_available then
-	    tutorial.init(player)
-	 end
-	 -- Guarantee they won't be penalized for reading:
-	 reset_attributes(player) -- All stats back to starting values
-	 doGatewayFX(player)
-	 local pname = player:get_player_name()
-	 if minimal.mt_required_version(5,4,0) then
-	    minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
-					    "/music/exile_theme.ogg",
-					 to_player = pname
-				       }, play_themesong )
+	    tutorial.init(player, first_spawn)
+	    return
 	 else
-	    minetest.dynamic_add_media(minetest.get_modpath("lore")..
-				       "/music/exile_theme.ogg")
-	    play_themesong(pname)
+	    first_spawn(player)
 	 end
-	 -- Bang! new player appears in the world
-	 minetest.after(0.25, function()
-			   player_api.set_invisible(player, false)
-	 end)
       end
 end)
