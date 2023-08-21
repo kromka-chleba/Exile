@@ -9,18 +9,39 @@ local disable_tutorial = minetest.settings:get("exile_notutorialprompt") or true
 -- #TODO: switch this to "or false" when it's debugged and ready to use
 -- Set this to true in minetest.conf if the tutorial is completed in singleplayer
 
+local S = minetest.get_translator("tutorial_exile")
 tutorial = {}
 
 local pstore = {} -- store status of players so we can restore it after tutorial
 
-local confirmspec = ""
+local welcome = S("Welcome to Exile!")
+local intro = S("tut_intro") -- Make translator's job easier
+if string.match(intro, "tut_intro") then -- no translation, use default text
+   intro =
+      "Exile is an original game with unique mechanics\n"..
+      "that will be unfamiliar to players of other voxel\n"..
+      "games. It may be difficult to learn."
+end
+local ask = S("tut_ask")
+if string.match(ask, "tut_ask") then
+   ask =
+      "Would you like to take a short tutorial on\n"..
+      "how to play the game?"
+end
+
+local confirmspec = "formspec_version[6]"..
+   "size[8,7]"..
+   "hypertext[0.375,0.5;8,5;tut_dialog;"..
+   welcome.."\n\n"..intro.."\n\n"..ask.."]"..
+   "button_exit[2,6;1,0.5;take_tut;Yes]"..
+   "button_exit[5,6;1,0.5;refuse_tut;No]"
 
 function tutorial.init(player, exitfunc)
    if disable_tutorial then return end
    local name = player:get_player_name()
    pstore[name] = {}
    pstore[name].exit = exitfunc
-   minetest.show_formspec(name, confirmspec)
+   minetest.show_formspec(name, "tutorial_exile:confirm", confirmspec)
 end
 
 local function store_player(player)
@@ -40,7 +61,9 @@ local function restore_player(player)
    player:set_pos(ps.pos)
    player:set_hp(ps.hp)
    -- #TODO: Restore stats, inventory
-   ps.exit(player) -- call spawn function
+   if ps.exit then
+      ps.exit(player) -- call spawn function
+   end
 end
 
 local function get_valid_tutorial_region(player)
@@ -52,10 +75,14 @@ end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
       if formname == "tutorial_exile:confirm" then
+	 if not fields.take_tut then -- pressed refuse, or closed the form
+	    pstore[player:get_player_name()] = nil
+	    return
+	 end
 	 local tut_region = get_valid_tutorial_region(player)
 	 store_player(player)
 	 player:set_pos(tut_region.spawnpos)
-	 player:set_armorgroups({ fleshy = 100, immortal = 1})
+	 player:set_armor_groups({ fleshy = 100, immortal = 1})
       end
 end)
 
@@ -113,3 +140,21 @@ if minetest.is_creative_enabled() then
 			     groups = {crumbly = 1, cracky = 3},
    })
 end
+
+-- Debug commands
+
+minetest.register_chatcommand("test_tut",{
+	privs = "server",
+	func = function(name,param)
+	   disable_tutorial = false
+	   minetest.chat_send_player(name, "Starting tutorial")
+	   tutorial.init(minetest.get_player_by_name(name), nil)
+	end
+})
+minetest.register_chatcommand("quit_tut",{
+	privs = "server",
+	func = function(name,param)
+	   minetest.chat_send_player(name, "Stopping tutorial")
+	   tutorial.exit(minetest.get_player_by_name(name))
+	end
+})
