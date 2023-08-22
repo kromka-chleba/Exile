@@ -130,9 +130,9 @@ function nodes_nature.node_sound_glass_defaults(table)
 	table.dig = table.dig or
 			{name = "nodes_nature_glass_footstep", gain = 0.5}
 	table.place = table.place or
-			{name = "nodes_nature_place_glass", gain = 1.0}
+			{name = "nodes_nature_place_glass", gain = 0.3}
 	table.dug = table.dug or
-			{name = "nodes_nature_remove_glass", gain = 1.0}
+			{name = "nodes_nature_remove_glass", gain = 0.3}
 	nodes_nature.node_sound_defaults(table)
 	return table
 end
