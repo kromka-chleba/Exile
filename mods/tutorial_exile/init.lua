@@ -37,7 +37,10 @@ local confirmspec = "formspec_version[6]"..
    "button_exit[5,6;1,0.5;refuse_tut;No]"
 
 function tutorial.init(player, exitfunc)
-   if disable_tutorial then return end
+   if disable_tutorial then
+      if exitfunc then exitfunc(player) end
+      return
+   end
    local name = player:get_player_name()
    pstore[name] = {}
    pstore[name].exit = exitfunc
@@ -146,9 +149,11 @@ end
 minetest.register_chatcommand("test_tut",{
 	privs = "server",
 	func = function(name,param)
+	   local tmp = disable_tutorial
 	   disable_tutorial = false
 	   minetest.chat_send_player(name, "Starting tutorial")
 	   tutorial.init(minetest.get_player_by_name(name), nil)
+	   disable_tutorial = tmp
 	end
 })
 minetest.register_chatcommand("quit_tut",{

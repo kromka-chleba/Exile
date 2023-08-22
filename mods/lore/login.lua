@@ -65,9 +65,6 @@ local function safepoint_and_rspawn(player)
       end
 end
 
-minetest.register_on_newplayer(safepoint_and_rspawn)
-minetest.register_on_respawnplayer(safepoint_and_rspawn)
-
 
 
 ------------------------------------------------------------------------------
@@ -98,6 +95,7 @@ end
 
 minetest.register_on_respawnplayer(function(player)
       minetest.after(0.1, function() doGatewayFX(player) end)
+      return safepoint_and_rspawn(player)
 end)
 
 function play_themesong(name)
@@ -110,6 +108,7 @@ end
 local function first_spawn(player)
    -- Guarantee they won't be penalized for reading:
    reset_attributes(player) -- All stats back to starting values
+   safepoint_and_rspawn(player)
    doGatewayFX(player)
    local pname = player:get_player_name()
    if minimal.mt_required_version(5,4,0) then

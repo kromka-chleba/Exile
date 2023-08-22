@@ -494,8 +494,8 @@ function player_api.set_invisible(player, vanish)
    else
       invisible[player:get_player_name()] = nil
       props.nametag = "" -- An empty tag defaults to player's name
-      player_monoids.visual_size:del_change(player,"player_api:invis")
       player:set_properties(props)
+      player_monoids.visual_size:del_change(player,"player_api:invis")
    end
 end
 
