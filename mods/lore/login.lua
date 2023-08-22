@@ -39,15 +39,16 @@ end)
 
 local rspawn_available = false
 local tutorial_available = false
-for _, name in ipairs(minetest.get_modnames()) do
-	if name == "rspawn" then
-		rspawn_available = true
-	end
-	if name == "tutorial_exile" then
-		tutorial_available = true
-	end
-end
-
+minetest.register_on_mods_loaded(function()
+      for _, name in ipairs(minetest.get_modnames()) do
+	 if name == "rspawn" then
+	    rspawn_available = true
+	 end
+	 if name == "tutorial_exile" then
+	    tutorial_available = true
+	 end
+      end
+end)
 
 local function safepoint_and_rspawn(player)
       --If rspawn is enabled, send new players to the safe point if enabled
