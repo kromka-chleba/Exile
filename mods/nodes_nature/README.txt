@@ -166,3 +166,7 @@ From Australia, by demon_boy (https://github.com/vlapsley) CC BY-SA 3.0:
   nagaeo - aus_staghorn_coral_pink.png
   koaeako - aus_sea_grass.png
   imoaru - aus_kelp_giant_brown.png
+
+From rubberduck on opengameart (https://opengameart.org/users/rubberduck) CC0:
+ nodes_nature_place_glass.ogg (glass_02.ogg from 100 CC0 SFX pack)
+ nodes_nature_remove_glass.ogg (glass_05.ogg from 100 CC0 SFX pack)
