@@ -36,9 +36,11 @@ local function get_storage_formspec(pos, w, h, meta)
 end
 
 
-local function is_owner(pos, name)
+local function can_interact(pos, name)
 	local owner = minetest.get_meta(pos):get_string("owner")
-	if owner == "" or owner == name or minetest.check_player_privs(name, "protection_bypass") then
+	if owner == ""
+	or owner == name
+	or minetest.check_player_privs(name, "protection_bypass") then
 		return true
 	end
 	return false
@@ -51,12 +53,12 @@ local function can_dig(pos, player)
 	if player then
 		name = player:get_player_name()
 	end
-	return is_owner(pos, name) and inv:is_empty("main")
+	return can_interact(pos, name) and inv:is_empty("main")
 end
 
 
 local function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
-	if is_owner(pos, player:get_player_name()) then
+	if can_interact(pos, player:get_player_name()) then
 		return count
 	end
 	return 0
@@ -64,7 +66,7 @@ end
 
 
 local function allow_metadata_inventory_put(pos, listname, index, stack, player)
-	if is_owner(pos, player:get_player_name())
+	if can_interact(pos, player:get_player_name())
 	and not string.match(stack:get_name(), "backpacks:") then
 		return stack:get_count()
 	end
@@ -73,7 +75,7 @@ end
 
 
 local function allow_metadata_inventory_take(pos, listname, index, stack, player)
-	if is_owner(pos, player:get_player_name()) then
+	if can_interact(pos, player:get_player_name()) then
 		return stack:get_count()
 	end
 	return 0
