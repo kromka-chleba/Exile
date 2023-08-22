@@ -1,7 +1,11 @@
 --login.lua
 --A login screen to show to new players
 
-local logintext = ( "  You can scarcely hear the sound of them "..
+local S = minetest.get_translator("lore")
+
+local logintext = S("login_text")
+if string.match(logintext, "login_text") then -- Untranslated? Use default
+   logintext =       ( "  You can scarcely hear the sound of them "..
 		       "reading the list of your crimes over the " ..
 		       "louder jeering of your kinsmen, but it's already "..
 		       "too late to protest your innocence. "..
@@ -10,6 +14,7 @@ local logintext = ( "  You can scarcely hear the sound of them "..
 		       "punishment that is to be given, and then you "..
 		       "are pushed through a gateway to die in the "..
 		       "cursed land of the Ancients, as an.." )
+end
 
 local loginspec = ("formspec_version[3]"..
 		       "size[7,7.5]"..
