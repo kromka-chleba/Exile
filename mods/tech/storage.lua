@@ -45,6 +45,39 @@ local function is_owner(pos, name)
 end
 
 
+local function can_dig(pos, player)
+	local inv = minetest.get_meta(pos):get_inventory()
+	local name = ""
+	if player then
+		name = player:get_player_name()
+	end
+	return is_owner(pos, name) and inv:is_empty("main")
+end
+
+
+local function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
+	if is_owner(pos, player:get_player_name()) then
+		return count
+	end
+	return 0
+end
+
+
+local function allow_metadata_inventory_put(pos, listname, index, stack, player)
+	if is_owner(pos, player:get_player_name())
+	and not string.match(stack:get_name(), "backpacks:") then
+		return stack:get_count()
+	end
+	return 0
+end
+
+
+local function allow_metadata_inventory_take(pos, listname, index, stack, player)
+	if is_owner(pos, player:get_player_name()) then
+		return stack:get_count()
+	end
+	return 0
+end
 
 
 local on_construct = function(pos, width, height)
@@ -107,36 +140,10 @@ minetest.register_node("tech:clay_storage_pot", {
 		on_receive_fields(pos,formname,fields, sender, 8, 4)
 	end,
 
-	can_dig = function(pos, player)
-		local inv = minetest.get_meta(pos):get_inventory()
-		local name = ""
-		if player then
-			name = player:get_player_name()
-		end
-		return is_owner(pos, name) and inv:is_empty("main")
-	end,
-
-	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-		if is_owner(pos, player:get_player_name()) then
-			return count
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name())
-		and not string.match(stack:get_name(), "backpacks:") then
-			return stack:get_count()
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name()) then
-			return stack:get_count()
-		end
-		return 0
-	end,
+	can_dig = can_dig,
+	allow_metadata_inventory_move = allow_metadata_inventory_move,
+	allow_metadata_inventory_put = allow_metadata_inventory_put,
+	allow_metadata_inventory_take = allow_metadata_inventory_take,
 
 	on_blast = function(pos)
 	end,
@@ -178,36 +185,10 @@ minetest.register_node("tech:primitive_wooden_chest", {
 		on_receive_fields(pos, formname, fields, sender, 8, 4)
 	end,
 
-	can_dig = function(pos, player)
-		local inv = minetest.get_meta(pos):get_inventory()
-		local name = ""
-		if player then
-			name = player:get_player_name()
-		end
-		return is_owner(pos, name) and inv:is_empty("main")
-	end,
-
-	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-		if is_owner(pos, player:get_player_name()) then
-			return count
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name())
-		and not string.match(stack:get_name(), "backpacks:") then
-			return stack:get_count()
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name()) then
-			return stack:get_count()
-		end
-		return 0
-	end,
+	can_dig = can_dig,
+	allow_metadata_inventory_move = allow_metadata_inventory_move,
+	allow_metadata_inventory_put = allow_metadata_inventory_put,
+	allow_metadata_inventory_take = allow_metadata_inventory_take,
 
 	on_blast = function(pos)
 	end,
@@ -247,36 +228,10 @@ minetest.register_node("tech:wicker_storage_basket", {
 		on_receive_fields(pos, formname, fields, sender, 8, 4)
 	end,
 
-	can_dig = function(pos, player)
-		local inv = minetest.get_meta(pos):get_inventory()
-		local name = ""
-		if player then
-			name = player:get_player_name()
-		end
-		return is_owner(pos, name) and inv:is_empty("main")
-	end,
-
-	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-		if is_owner(pos, player:get_player_name()) then
-			return count
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name())
-		and not string.match(stack:get_name(), "backpacks:") then
-			return stack:get_count()
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name()) then
-			return stack:get_count()
-		end
-		return 0
-	end,
+	can_dig = can_dig,
+	allow_metadata_inventory_move = allow_metadata_inventory_move,
+	allow_metadata_inventory_put = allow_metadata_inventory_put,
+	allow_metadata_inventory_take = allow_metadata_inventory_take,
 
 	on_blast = function(pos)
 	end,
@@ -316,36 +271,10 @@ minetest.register_node("tech:woven_storage_basket", {
 		on_receive_fields(pos, formname, fields, sender, 8, 4)
 	end,
 
-	can_dig = function(pos, player)
-		local inv = minetest.get_meta(pos):get_inventory()
-		local name = ""
-		if player then
-			name = player:get_player_name()
-		end
-		return is_owner(pos, name) and inv:is_empty("main")
-	end,
-
-	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-		if is_owner(pos, player:get_player_name()) then
-			return count
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name())
-		and not string.match(stack:get_name(), "backpacks:") then
-			return stack:get_count()
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name()) then
-			return stack:get_count()
-		end
-		return 0
-	end,
+	can_dig = can_dig,
+	allow_metadata_inventory_move = allow_metadata_inventory_move,
+	allow_metadata_inventory_put = allow_metadata_inventory_put,
+	allow_metadata_inventory_take = allow_metadata_inventory_take,
 
 	on_blast = function(pos)
 	end,
@@ -396,36 +325,10 @@ minetest.register_node("tech:wooden_chest", {
 		on_receive_fields(pos, formname, fields, sender, 8, 8)
 	end,
 
-	can_dig = function(pos, player)
-		local inv = minetest.get_meta(pos):get_inventory()
-		local name = ""
-		if player then
-			name = player:get_player_name()
-		end
-		return is_owner(pos, name) and inv:is_empty("main")
-	end,
-
-	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-		if is_owner(pos, player:get_player_name()) then
-			return count
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name())
-		and not string.match(stack:get_name(), "backpacks:") then
-			return stack:get_count()
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name()) then
-			return stack:get_count()
-		end
-		return 0
-	end,
+	can_dig = can_dig,
+	allow_metadata_inventory_move = allow_metadata_inventory_move,
+	allow_metadata_inventory_put = allow_metadata_inventory_put,
+	allow_metadata_inventory_take = allow_metadata_inventory_take,
 
 	on_blast = function(pos)
 	end,
@@ -481,36 +384,10 @@ minetest.register_node("tech:iron_chest", {
 		on_receive_fields(pos, formname, fields, sender, 8, 8)
 	end,
 
-	can_dig = function(pos, player)
-		local inv = minetest.get_meta(pos):get_inventory()
-		local name = ""
-		if player then
-			name = player:get_player_name()
-		end
-		return is_owner(pos, name) and inv:is_empty("main")
-	end,
-
-	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-		if is_owner(pos, player:get_player_name()) then
-			return count
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name())
-		and not string.match(stack:get_name(), "backpacks:") then
-			return stack:get_count()
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name()) then
-			return stack:get_count()
-		end
-		return 0
-	end,
+	can_dig = can_dig,
+	allow_metadata_inventory_move = allow_metadata_inventory_move,
+	allow_metadata_inventory_put = allow_metadata_inventory_put,
+	allow_metadata_inventory_take = allow_metadata_inventory_take,
 
 	on_blast = function(pos)
 	end,
