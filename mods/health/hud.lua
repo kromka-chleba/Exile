@@ -295,7 +295,7 @@ end
 
 local function health(player, hud_data)
 	local v = player:get_hp()
-	v = (v/20)*100
+	v = (v/HEALTH.max_hp)*100
 	local stat_col = color(v)
 	local t = v .." %"
 	local hud1 = hud_data.p_health
@@ -568,19 +568,11 @@ minetest.register_chatcommand("icon_transparency", {
        else
 	  local num = tonumber(param)
 	  if type(num) == "number" then
-	     if num < 0 then
-		meta:set_string("exile_hud_icon_transparency", "0")
-		hud_data.opacity = 0
-		return false, S("Icon transparency set to 0")
-	     elseif num > 255 then
-		meta:set_string("exile_hud_icon_transparency", "255")
-		hud_data.opacity = 255
-		return false, S("Icon transparency set to 255")
-	     else
-		meta:set_string("exile_hud_icon_transparency", tostring(math.floor(num)))
-		hud_data.opacity = num
-		return false, S("Icon transparency set to ")..math.floor(num)
-	     end
+      num = minimal.math_clamp(num,0,255)
+      num = math.floor(num)
+      meta:set_string("exile_hud_icon_transparency", tostring(num))
+      hud_data.opacity = num
+      return false, S("Icon transparency set to ")..num
 	  else
 	     return false, S("Invalid value. Please use a whole number between 0 and 255")
 	  end

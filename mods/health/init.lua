@@ -60,7 +60,7 @@ end
 --use standard values base, so it doesn't compound each time called
 --Only adjusted values saved in player meta so they can be accessed without recalculating
 --cf hunger etc which do get change and have no base value
-local max_health = 20
+HEALTH.max_hp = 20
 
 local heal_rate = 1 -- 4
 local thirst_rate = -1
@@ -75,7 +75,7 @@ local temp_max = 32--30
 
 function HEALTH.get_default_attributes() -- for other scripts to utilize to get base attributes of a fresh player
   return {
-    health = max_health,
+    health = HEALTH.max_hp,
     thirst = 100,
     hunger = 1000,
     energy = 1000,
@@ -172,7 +172,7 @@ function HEALTH.modify_hp(player,value)
   
   phealth = phealth + value
   
-  phealth = math_clamp(phealth,0,max_health)
+  phealth = math_clamp(phealth,0,HEALTH.max_hp)
   
   player:set_hp(phealth)
   
