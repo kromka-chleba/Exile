@@ -105,7 +105,23 @@ local function is_illness_valid(player,life_num)
 end
 
 ------------------------------------------------------------------
+<<<<<<< HEAD
 
+=======
+-- HEALTH & EFFECTS FUNCTION ADDITIONS
+------------------------------------------------------------------
+
+local function set_effect()
+  
+end
+
+function HEALTH.do_effect()
+  
+end
+
+------------------------------------------------------------------
+------------------------------------------------------------------
+>>>>>>> 629b7fa0 (I again don't remember what I did, sorry, hopefully it shows up in commit history)
 --COMPONENT EFFECTS
 ------------------------------------------------------------------
 
@@ -937,6 +953,7 @@ local function do_timer(meta, t_name, t_min, t_max)
 		--count down
 		local time = meta:get_int(t_name)
 		time = time - 1
+    minetest.log("error",tostring(t_name)..":time:"..tostring(time))
 		if time <= 0 then
 			meta:set_int(t_name,0)
 			return true
@@ -944,7 +961,7 @@ local function do_timer(meta, t_name, t_min, t_max)
 			meta:set_int(t_name,time)
 			return false
 		end
-    minetest.log("error",tostring(t_name)..":time:"..tostring(time))
+    
 	end
 end
 
