@@ -271,7 +271,7 @@ function HEALTH.illness_ref(name,severity,modify)
     name = "",
     severity = 1,
     max_severity = 4,
-    player = "nil",
+    player = "",
     
     temperature = 0,
     fever_max = 2, -- (39C)
@@ -286,12 +286,14 @@ function HEALTH.illness_ref(name,severity,modify)
     jump = 0,
     
     time = {3,6},
-    chances = {0.2,1}, -- progression, regression (progression is calculated first)
+    chances = {0.1,1}, -- progression, regression (progression is calculated first)
     
     cures = {},
     
-    logic = "nil", -- should be a function - only necessary if an illness has differing qualities
-    on_condition = "nil", -- should be a function - only necessary if an illness requires certain conditions
+    logic = nil, -- should be a function - only necessary if an illness has differing qualities - runs if on_condition isn't specified
+    false_logic = nil, -- should be a function - ran opposite of logic
+    on_condition = nil, -- should be a function - only necessary if an illness requires certain conditions
+    -- only runs logic if true, runs false_logic otherwise
     -- on_condition = function(player,meta) end
     
     life_num = 0,
@@ -659,7 +661,7 @@ function HEALTH.illness_ref(name,severity,modify)
     
     self.max_drunk = max_drunk
     
-    
+-- META STIM META-STIM
   elseif (name == "meta stim") then -- WIP
     severity = math_clamp(severity,0,self.max_severity)
     
@@ -676,15 +678,121 @@ function HEALTH.illness_ref(name,severity,modify)
       return false
     end
     
-    if (severity == 1) then
-      
-    elseif (severity == 2) then
-      
-    elseif (severity == 3) then
-      
-    elseif (severity == 4) then
-      
+    self.false_logic = function(player,meta)
+      player_monoids.fly:del_change(player, "health:metastim")
+      player_monoids.gravity:del_change(player, "health:metastim")
+
+      --get photosensitivity
+      HEALTH.add_new_effect(player,{"Photosensitivity",self.severity})
     end
+    
+    self.logic = function(player,meta)
+      if (self.severity ~= 4) then
+        return
+      end
+      
+      if pos.y < 200 then
+				player_monoids.fly:add_change(player, true, "health:metastim")
+				player_monoids.gravity:add_change(player, 0.1, "health:metastim")
+				--player_monoids.noclip:add_change(player, true, "health:metastim") --does weird stuff with stagger?
+			else
+				--no flying into space!
+				player_monoids.fly:del_change(player, "health:metastim")
+				player_monoids.gravity:del_change(player, "health:metastim")
+			end
+
+			--I am a GOD!
+			minetest.sound_play( {name="health_superpower", gain=1}, {pos=pos, max_hear_distance=20})
+			minetest.add_particlespawner({
+				amount = 80,
+				time = 18,
+				minpos = {x=pos.x+7, y=pos.y+7, z=pos.z+7},
+				maxpos = {x=pos.x-7, y=pos.y-7, z=pos.z-7},
+				minvel = {x = -5,  y = -5,  z = -5},
+				maxvel = {x = 5, y = 5, z = 5},
+				minacc = {x = -3, y = -3, z = -3},
+				maxacc = {x = 3, y = 3, z = 3},
+				minexptime = 0.2,
+				maxexptime = 1,
+				minsize = 0.5,
+				maxsize = 2,
+				texture = "health_superpower.png",
+				glow = 15,
+			})
+    end
+    
+    local max_metastim = self.max_metastim or 0
+    
+    if (severity == 1) then
+			--Get boosters
+			h_rate = h_rate + 8
+			r_rate = r_rate + 32
+			hun_rate = hun_rate + 5
+			t_rate = t_rate + 5
+
+
+		elseif (severity == 2) then
+			if max_metastim < 2 then
+				max_metastim = 2
+			end
+
+			--Get boosters
+			h_rate = h_rate + 16
+			r_rate = r_rate + 64
+			hun_rate = hun_rate + 10
+			t_rate = t_rate + 10
+
+			--cures mild ailments
+      self.cures = {
+        food_poisoning = 2,
+        dust_fever = 2,
+        fungal_infection = 2,
+        hangover = 2,
+        "Intestinal Parasites",
+      }
+
+		elseif (severity == 3) then
+			--Get boosters
+			h_rate = h_rate + 32
+			r_rate = r_rate + 128
+			hun_rate = hun_rate + 20
+			t_rate = t_rate + 20
+
+			--cures serious ailments
+      self.cures = {
+        food_poisoning = 4,
+        dust_fever = 4,
+        fungal_infection = 4,
+        hangover = 4,
+        drunk = 4,
+        tiku_high = 4,
+        neurotoxicity = 4,
+        hepatotoxicity = 4,
+        "Intestinal Parasites",
+      }
+
+		elseif (severity == 4) then
+			--Get boosters
+			h_rate = h_rate + 32
+			r_rate = r_rate + 128
+			hun_rate = hun_rate + 20
+			t_rate = t_rate + 20
+
+			--cures serious ailments
+			self.cures = {
+        food_poisoning = 4,
+        dust_fever = 4,
+        fungal_infection = 4,
+        hangover = 4,
+        drunk = 4,
+        tiku_high = 4,
+        neurotoxicity = 4,
+        hepatotoxicity = 4,
+        "Intestinal Parasites",
+      }
+    end
+    
+    max_metastim = math_clamp(severity,1,self.max_severity)
     
 ---- DRUG EFFECTS /\/\
 ------------------------------------------------------------------
