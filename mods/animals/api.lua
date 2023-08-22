@@ -179,7 +179,7 @@ function animals.core_life(self, lifespan, pos)
 
   -- get temp
   local temp = climate.get_point_temp(pos)
-  if (temp > 100 and temp <= 500) then -- get the mathematical "mean" of the pos and the surroundings nodes (workaround to torches)
+  if (temp == 450) then -- get the mathematical "mean" of the pos and the surroundings nodes (workaround to torches)
     temp = get_mean_temp(pos)
   end
 
