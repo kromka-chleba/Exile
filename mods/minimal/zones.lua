@@ -30,6 +30,7 @@ local zonedef_default = {
    base = vector.new(), -- base for relative positions
    zt_sel = nil, -- selection of trigger type, a string named like the type
    zt_tabsel = "1", -- currently active tab
+   zt_label = "",
    shape = zs.absolute,
    logarithmic = "false", -- Do non-absolute zones fade logarithmically w/distance
    triggerpos = {}, -- list of known triggers that connect to this
@@ -446,7 +447,9 @@ local function zone_range(def)
       "label[1.5,4.5;( Absolute is either inside or out. )]"..
       "label[1.5,5;( Radial and cubic fade towards the edge. )]"..
       "dropdown[1,5.5;3,1;rangetype;Absolute,Radial,Cylindrical,Cubic;"..
-      tostring(def.shape)..";true]"
+      tostring(def.shape)..";true]"..
+      "field[3,8;6,0.5;zt_label;Label;"..def.zt_label.."]"
+
    if def.shape > 1 then
       formspec = formspec .. "label[4.25,6;with]"..
 	 "checkbox[5,6;falloff;Logarithmic falloff;"..
@@ -545,6 +548,7 @@ local function ztrecfields(pos, formname, fields, sender)
       sel = def["zt_sel"] or rindex[1]
    end
    dofield("zt_tabsel", "zt_tabsel")
+   dofield("zt_label", "zt_label")
    dofield("rangetype", "shape")
    dofield("falloff", "logarithmic")
    ADJbuttons(def, fields)
@@ -576,7 +580,9 @@ local function ztrecfields(pos, formname, fields, sender)
    end
    local fs = zone_formspec(zonelist[id])
    nmeta:set_string("formspec", fs)
+   nmeta:set_string("infotext", def.zt_label)
 end
+
 -- Nodes -----------------------------------------------------------------
 
 minetest.register_node("minimal:zone_trigger", {
