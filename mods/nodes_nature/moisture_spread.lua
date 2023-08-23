@@ -405,6 +405,7 @@ ms.labels.register("last_freezed")
 ms.labels.register("ocean")
 ms.labels.register("coast")
 ms.labels.register("no_soil")
+ms.labels.register("mountains")
 
 
 local function get_dry_wet_pairs()
@@ -431,7 +432,8 @@ local soil_labels =
     {"spring_soil",
      "winter_soil",
      "coast",
-     "volcano"}
+     "volcano",
+     "mountains",}
 
 local function soaker()
     return ms.create_light_aware_replacer(
@@ -740,6 +742,17 @@ ms.create_biome_finder({
         },
         add_labels = {
             "coast",
+        }
+})
+
+ms.create_biome_finder({
+        biome_list = {
+            "Highland",
+            "Highland Scree",
+            "Highland Rock",
+        },
+        add_labels = {
+            "mountains",
         }
 })
 
