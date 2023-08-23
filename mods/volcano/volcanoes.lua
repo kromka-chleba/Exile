@@ -6,6 +6,11 @@
 
 local modpath = minetest.get_modpath(minetest.get_current_modname())
 
+local ms = mapchunk_shepherd
+
+if ms then
+    ms.labels.register("volcano")
+end
 
 --
 local water_level = tonumber(minetest.get_mapgen_setting("water_level"))
@@ -173,6 +178,18 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	vm:get_data(data)
 	vm:get_param2_data(p2data)
 
+        -- Add the "volcano" label to volcano chunks
+        if ms then
+            local hash = ms.mapchunk_hash(emin)
+            local labels_to_add = {"volcano"}
+            local labels_to_remove = {}
+            if not ms.contains_labels(hash, labels_to_add) then
+                ms.save_mapchunk(hash)
+                ms.handle_labels(hash, labels_to_add, labels_to_remove)
+                ms.add_labels(hash, {"scanned"})
+            end
+        end
+
 	local sidelen = mapgen_chunksize * 16 --length of a mapblock
 	local chunk_lengths = {x = sidelen, y = sidelen, z = sidelen} --table of chunk edges
 
@@ -338,7 +355,6 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	vm:set_data(data)
 	vm:set_param2_data(p2data)
 	--calc lighting
-	vm:set_lighting({day = 0, night = 0})
 	vm:calc_lighting()
 	vm:update_liquids()
 	--write it to world

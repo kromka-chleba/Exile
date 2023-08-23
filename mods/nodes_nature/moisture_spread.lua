@@ -404,6 +404,7 @@ ms.labels.register("last_thawed")
 ms.labels.register("last_freezed")
 ms.labels.register("ocean")
 ms.labels.register("coast")
+ms.labels.register("no_soil")
 
 
 local function get_dry_wet_pairs()
@@ -426,11 +427,19 @@ local function get_wet_dry_pairs()
     return soil_pairs
 end
 
+local soil_labels =
+    {"spring_soil",
+     "winter_soil",
+     "coast",
+     "volcano"}
+
 local function soaker()
     return ms.create_light_aware_replacer(
         {find_replace_pairs = get_dry_wet_pairs(),
          add_labels = {"last_rain"},
          higher_than = 14,
+         not_found_labels = {"no_soil"},
+         not_found_remove = soil_labels,
         }
     )
 end
@@ -538,6 +547,8 @@ local function snow()
          find_replace_pairs = snow_replace_pairs,
          add_labels = {"last_snow"},
          higher_than = 14,
+         not_found_labels = {"no_soil"},
+         not_found_remove = soil_labels,
         }
     )
 end
@@ -584,9 +595,7 @@ local function initialize_soaker()
     ms.remove_worker("snow_place_worker")
     ms.register_worker({name = "rain_soak_worker",
                         fun = rain_replacer,
-                        has_one_of = {"spring_soil",
-                                      "winter_soil",
-                                      "coast"},
+                        has_one_of = soil_labels,
                         work_every = 40,
                         rework_labels = {"last_rain"},
                         chance = soak_chance,
@@ -602,9 +611,7 @@ local function initialize_snower()
     ms.remove_worker("rain_soak_worker")
     ms.register_worker({name = "snow_place_worker",
                         fun = snow_placer,
-                        has_one_of = {"spring_soil",
-                                      "winter_soil",
-                                      "coast"},
+                        has_one_of = soil_labels,
                         rework_labels = {"last_snow"},
                         work_every = 45,
                         chance = snower_chance,
