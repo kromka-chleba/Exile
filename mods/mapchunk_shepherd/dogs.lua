@@ -293,7 +293,7 @@ function ms.create_light_aware_replacer(args)
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
-                local above_index = i + 80
+                local above_index = i + chunk_side
                 local random_pick = false
                 if not data_light[above_index] then
                     above_index = i
@@ -363,7 +363,7 @@ function ms.create_light_aware_top_placer(args)
             local find_id = find_ids[data[i]]
             if find_id then
                 if data[i] == find_id then
-                    local above_index = i + 80
+                    local above_index = i + chunk_side
                     local replacement = replace_ids[data[above_index]]
                     if data_light[above_index] and
                         data_light[above_index] > higher_than and
