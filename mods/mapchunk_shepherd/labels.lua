@@ -169,6 +169,22 @@ function ms.labels.time_elapsed(label)
     return minetest.get_gametime() - time
 end
 
+function ms.labels.oldest_elapsed_time(all_labels, needed_names)
+    local elapsed = 0
+    for _, name in pairs(needed_names) do
+        for _, label in pairs(all_labels) do
+            if label[1] == name then
+                local t = ms.labels.time_elapsed(label)
+                if t > elapsed then
+                    -- by default picking time of the oldest label
+                    elapsed = t
+                end
+            end
+        end
+    end
+    return elapsed
+end
+
 ms.labels.register("chunk_tracked")
 ms.labels.register("scanned")
 ms.labels.register("scanner_failed")

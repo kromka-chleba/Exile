@@ -28,9 +28,17 @@ end
 
 placeholder_id_pairs[ignore_id] = false
 
--- fun needs to be a function fun(pos1, pos2)
--- where pos1 is minimal position in a mapchunk,
--- pos2 is maximal position in a mapchunk,
+function ms.placeholder_id_pairs()
+    return table.copy(placeholder_id_pairs)
+end
+
+function ms.placeholder_id_finder_pairs()
+    return table.copy(placeholder_id_finder_pairs)
+end
+
+-- fun needs to be a function fun(pos_min, pos_max)
+-- where pos_min is minimal position in a mapchunk,
+-- pos_max is maximal position in a mapchunk,
 -- fun() needs to return two variables: labels_added,
 -- labels_removed; labels to remove or add to a mapchunk
 
@@ -80,15 +88,43 @@ function ms.register_worker(args)
     local rework_labels = args.rework_labels or {}
     table.insert(needed_labels, "chunk_tracked")
     table.insert(needed_labels, "scanned")
+    local function basic_catch_up(hash, chance)
+        local labels = ms.get_labels(hash)
+        local elapsed = ms.labels.oldest_elapsed_time(labels, rework_labels)
+        if elapsed == 0 then
+            return chance
+        end
+        local missed_cycles = elapsed / args.work_every
+        local new_chance = chance * missed_cycles
+        return new_chance
+    end
     if not is_worker_registered(args.name) then
         local worker = {
             name = args.name,
-            worker_function = args.fun,
+            worker_function = function(pos_min, pos_max)
+                return args.fun(pos_min, pos_max)
+            end,
             needed_labels = needed_labels,
             has_one_of = has_one_of,
             work_every = args.work_every,
             rework_labels = rework_labels,
+            chance = args.chance,
+            catch_up = args.catch_up,
+            catch_up_function = args.catch_up_function or basic_catch_up,
         }
+        if args.chance then
+            worker.worker_function = function(pos_min, pos_max)
+                local chance = worker.chance
+                return args.fun(pos_min, pos_max, chance)
+            end
+        end
+        if args.catch_up then
+            worker.worker_function = function(pos_min, pos_max)
+                local hash = ms.mapchunk_hash(pos_min)
+                local new_chance = worker.catch_up_function(hash, worker.chance)
+                return args.fun(pos_min, pos_max, new_chance)
+            end
+        end
         table.insert(ms.workers, worker)
         ms.workers_by_name[args.name] = worker
     end
@@ -126,8 +162,7 @@ function ms.create_simple_finder(args)
     for _, name in pairs(nodes_to_find) do
         table.insert(ids, minetest.get_content_id(name))
     end
-    return function(pos1, pos2)
-        local pos_min, pos_max = pos1, pos2
+    return function(pos_min, pos_max)
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local data = vm:get_data()
@@ -151,15 +186,14 @@ function ms.create_simple_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
-    local chance = args.chance or 1
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos1, pos2)
-        local pos_min, pos_max = pos1, pos2
+    return function(pos_min, pos_max, chance)
+        local chance = chance or 1
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
@@ -194,16 +228,15 @@ function ms.create_param2_aware_replacer(args)
     local not_found = args.not_found_labels
     local lower_than = args.lower_than or 257
     local higher_than = args.higher_than or -1
-    local chance = args.chance or 1
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos1, pos2)
+    return function(pos_min, pos_max, chance)
+        local chance = chance or 1
         --local t1 = minetest.get_us_time()
-        local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
@@ -243,16 +276,15 @@ function ms.create_light_aware_replacer(args)
     local not_found = args.not_found_labels
     local lower_than = args.lower_than or 16
     local higher_than = args.higher_than or -1
-    local chance = args.chance or 1
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos1, pos2)
+    return function(pos_min, pos_max, chance)
+        local chance = chance or 1
         --local t1 = minetest.get_us_time()
-        local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
@@ -261,7 +293,7 @@ function ms.create_light_aware_replacer(args)
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
-                local above_index = i + 80
+                local above_index = i + chunk_side
                 local random_pick = false
                 if not data_light[above_index] then
                     above_index = i
@@ -303,7 +335,6 @@ function ms.create_light_aware_top_placer(args)
     -- Node properties
     local lower_than = args.lower_than or 16
     local higher_than = args.higher_than or -1
-    local chance = args.chance or 1
     -- Find ids
     local nodes_to_find = args.to_find
     local find_ids = table.copy(placeholder_id_finder_pairs)
@@ -320,9 +351,9 @@ function ms.create_light_aware_top_placer(args)
         local replacement_id = minetest.get_content_id(replacement)
         replace_ids[find_id] = replacement_id
     end
-    return function(pos1, pos2)
+    return function(pos_min, pos_max, chance)
+        local chance = chance or 1
         --local t1 = minetest.get_us_time()
-        local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
@@ -332,7 +363,7 @@ function ms.create_light_aware_top_placer(args)
             local find_id = find_ids[data[i]]
             if find_id then
                 if data[i] == find_id then
-                    local above_index = i + 80
+                    local above_index = i + chunk_side
                     local replacement = replace_ids[data[above_index]]
                     if data_light[above_index] and
                         data_light[above_index] > higher_than and
@@ -406,7 +437,6 @@ function ms.create_neighbor_aware_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
-    local chance = args.chance or 1
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -418,9 +448,9 @@ function ms.create_neighbor_aware_replacer(args)
         local id = minetest.get_content_id(neighbor)
         neighbor_ids[id] = true
     end
-    return function(pos1, pos2)
+    return function(pos_min, pos_max, chance)
+        local chance = chance or 1
         --local t1 = minetest.get_us_time()
-        local pos_min, pos_max = pos1, pos2
         local vm = VoxelManip()
         local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
