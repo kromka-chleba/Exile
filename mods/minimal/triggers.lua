@@ -134,7 +134,7 @@ local function resetweather(player, pname, pos, nmeta, metastring)
 end
 
 local function hide_hud(player, pname, pos, nmeta, metastring)
-   HEALTH.hide_hud_elements(player, nil, metastring, )
+   HEALTH.hide_hud_elements(player, nil, metastring)
 end
 local function showall_hud(player, pname, pos, nmeta, metastring)
    HEALTH.show_hud_elements(player, nil, "all")

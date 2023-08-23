@@ -69,7 +69,7 @@ end
 
 local typelist = { "health", "energy", "thirst", "hunger",
 		   "temp", "enviro_temp", "effects" }
-function HEALTH.hide_hud_elements(meta, list, player, hide)
+function HEALTH.hide_hud_elements(player, meta, list, hide)
    -- Takes a string of elements to hide, or "all", sets them hidden
    -- Needs either player or meta to apply changes to
    -- hide, if true, inverts this function to show elements
@@ -88,6 +88,11 @@ end
 
 function HEALTH.show_hud_elements(meta, list, player)
    HEALTH.hide_hud_elements(meta, list, player, true)
+end
+
+local function are_stats_visible(hud_data)
+   return (( hud_data.showstats and hud_data.showstats == true ) or
+      ( hud_data.showstats == nil and mtshowstats == true ) )
 end
 
 local setup_hud = function(player)
@@ -329,9 +334,7 @@ local function health(player, hud_data, hidden)
 
 	local hud2 = hud_data.p_health_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and (
-	   ( hud_data.showstats and hud_data.showstats == true ) or
-	   ( hud_data.showstats == nil and mtshowstats == true ) ) then
+	if not hidden and are_stats_visible(hud_data) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
@@ -350,9 +353,7 @@ local function energy(player, hud_data, meta, hidden)
 	local hud2 = hud_data.p_energy_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 
-	if not hidden and (
-	   ( hud_data.showstats and hud_data.showstats == true ) or
-	   ( hud_data.showstats == nil and mtshowstats == true ) ) then
+	if not hidden and are_stats_visible(hud_data) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
@@ -370,9 +371,7 @@ local function thirst(player, hud_data, meta, hidden)
 	player:hud_change(hud1, "text", "hud_thirst.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	local hud2 = hud_data.p_thirst_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and (
-	   ( hud_data.showstats and hud_data.showstats == true ) or
-	   ( hud_data.showstats == nil and mtshowstats == true ) ) then
+	if not hidden and are_stats_visible(hud_data) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
@@ -390,9 +389,7 @@ local function hunger(player, hud_data, meta, hidden)
 	player:hud_change(hud1, "text", "hud_hunger.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	local hud2 = hud_data.p_hunger_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and (
-	   ( hud_data.showstats and hud_data.showstats == true ) or
-	   ( hud_data.showstats == nil and mtshowstats == true ) ) then
+	if not hidden and are_stats_visible(hud_data) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
@@ -411,9 +408,7 @@ local function temp(player, hud_data, meta, hidden)
 	local hud2 = hud_data.p_body_temp_text
 	player:hud_change(hud2, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and (
-	   ( hud_data.showstats and hud_data.showstats == true ) or
-	   ( hud_data.showstats == nil and mtshowstats == true ) ) then
+	if not hidden and are_stats_visible(hud_data) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
@@ -462,9 +457,7 @@ local function enviro_temp(player, hud_data, meta, hidden)
 	player:hud_change(newhud2, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
 	local hud2 = hud_data.p_air_temp_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and (
-	   ( hud_data.showstats and hud_data.showstats == true ) or
-	   ( hud_data.showstats == nil and mtshowstats == true ) ) then
+	if not hidden and are_stats_visible(hud_data) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
@@ -490,9 +483,7 @@ local function effects(player, hud_data, meta, hidden)
 	player:hud_change(hud1, "text", "hud_sick.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	local hud2 = hud_data.p_sick_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and (
-	   ( hud_data.showstats and hud_data.showstats == true ) or
-	   ( hud_data.showstatsd == nil and mtshowstats == true ) ) then
+	if not hidden and are_stats_visible(hud_data) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
