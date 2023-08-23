@@ -23,7 +23,7 @@ local chunk_side = blocks_per_chunk * 16
 -- iterate over ids of all possible existing nodes
 for i = 1, 32768 do
     placeholder_id_finder_pairs[i] = false
-    placeholder_id_pairs[i] = i
+    placeholder_id_pairs[i] = false
 end
 
 placeholder_id_pairs[ignore_id] = false
@@ -186,6 +186,7 @@ function ms.create_simple_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
+    local not_found_remove = args.not_found_remove
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -214,7 +215,7 @@ function ms.create_simple_replacer(args)
             vm:write_to_map(false)
             return labels_to_add, labels_to_remove
         else
-            return not_found
+            return not_found, not_found_remove
         end
     end
 end
@@ -226,6 +227,7 @@ function ms.create_param2_aware_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
+    local not_found_remove = args.not_found_remove
     local lower_than = args.lower_than or 257
     local higher_than = args.higher_than or -1
     local ids = table.copy(placeholder_id_pairs)
@@ -262,7 +264,7 @@ function ms.create_param2_aware_replacer(args)
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
-            return not_found
+            return not_found, not_found_remove
         end
     end
 end
@@ -274,6 +276,7 @@ function ms.create_light_aware_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
+    local not_found_remove = args.not_found_remove
     local lower_than = args.lower_than or 16
     local higher_than = args.higher_than or -1
     local ids = table.copy(placeholder_id_pairs)
@@ -319,7 +322,7 @@ function ms.create_light_aware_replacer(args)
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
-            return not_found
+            return not_found, not_found_remove
         end
     end
 end
@@ -332,6 +335,7 @@ function ms.create_light_aware_top_placer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
+    local not_found_remove = args.not_found_remove
     -- Node properties
     local lower_than = args.lower_than or 16
     local higher_than = args.higher_than or -1
@@ -385,7 +389,7 @@ function ms.create_light_aware_top_placer(args)
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
-            return not_found
+            return not_found, not_found_remove
         end
     end
 end
@@ -437,6 +441,7 @@ function ms.create_neighbor_aware_replacer(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
+    local not_found_remove = args.not_found_remove
     local ids = table.copy(placeholder_id_pairs)
     for to_find, replacement in pairs(find_replace_pairs) do
         local find_id = minetest.get_content_id(to_find)
@@ -479,7 +484,7 @@ function ms.create_neighbor_aware_replacer(args)
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
-            return not_found
+            return not_found, not_found_remove
         end
     end
 end
