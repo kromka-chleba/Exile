@@ -3,8 +3,8 @@
 --move wettness through sediment
 --other water effects
 
-local nodes_nature = nodes_nature
-local rt = nodes_nature.replacement_types
+local nn = nodes_nature
+local rt = nn.replacement_types
 local ms = mapchunk_shepherd
 local seasons = seasons
 
@@ -419,7 +419,7 @@ end
 local function get_wet_dry_pairs()
     local soil_pairs = {}
     for name, nodedef in pairs(minetest.registered_nodes) do
-        if minetest.get_item_group(name, "wet_sediment") > 0 then
+        if minetest.get_item_group(name, "wet_sediment") == 1 then
             soil_pairs[name] = tgcr.find_replacement(name, rt.REPLACEMENT_DRY)
         end
     end
@@ -475,15 +475,15 @@ end
 
 local current_evaporator = false
 local evap_replacer = false
-local evap_interval = 10
+local evap_interval = 30 -- this is a placeholder
 local evap_changed = true
 local evap_chance = 1/15
 
 local function evaporator()
-    return ms.create_light_aware_replacer(
+    return nn.create_evaporator(
         {find_replace_pairs = get_wet_dry_pairs(),
+         neighbors = {"air"},
          add_labels = {"last_evaporated"},
-         higher_than = 10,
         }
     )
 end

@@ -28,6 +28,14 @@ end
 
 placeholder_id_pairs[ignore_id] = false
 
+function ms.placeholder_id_pairs()
+    return table.copy(placeholder_id_pairs)
+end
+
+function ms.placeholder_id_finder_pairs()
+    return table.copy(placeholder_id_finder_pairs)
+end
+
 -- fun needs to be a function fun(pos_min, pos_max)
 -- where pos_min is minimal position in a mapchunk,
 -- pos_max is maximal position in a mapchunk,

@@ -14,6 +14,10 @@ local chunk_side = dimensions.chunk_side
 local old_chunksize = dimensions.old_chunksize
 local blocks_per_chunk = dimensions.blocks_per_chunk
 
+function ms.chunk_side()
+    return chunk_side
+end
+
 -- Converts node coordinates to mapchunk coordinates
 function ms.node_pos_to_mapchunk_pos(pos)
     pos = vector.subtract(pos, mapchunk_offset)
