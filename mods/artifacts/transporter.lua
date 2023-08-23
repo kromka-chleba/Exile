@@ -140,17 +140,16 @@ local function check_teleport_dest(dest, pos, range, random)
 	local dest_ok  = true
 	--check if in range
 	local dist = vector.distance(pos, dest)
-
 	if random == "locked" then
 		if dist < MIN_DIST then
 			dest_ok = false
 			return dest_ok
 		end
-	else
 		if dist > range then
-		   minetest.log("action", "Attempted to teleport too far: "..dump(dist).." > "..dump(range))
-			dest_ok = false
-			return dest_ok
+		   minetest.log("action", "Attempted to teleport too far: "..
+				dump(dist).." > "..dump(range))
+		   dest_ok = false
+		   return dest_ok
 		end
 	end
 
