@@ -176,6 +176,22 @@ local function update_player_sounds(p_name, pos)
    prev_sound[p_name] = active_weather.name
 end
 
+-- get moon's phase (returns 0 to 12)
+local function get_moon_phase()
+  local phscount = 12 -- there are 12 phases
+  local days = minetest.get_day_count() % 80 -- get current year's date
+  
+  days = days % 40 + 1 -- refresh phases every 40th day (2 times per year) (add 1 to get an accurate date)
+  -- starts bright, turns dark, goes bright, ditto
+  
+  phscount = phscount + 1
+  for i = 1, (phscount), 1 do
+    if (days/40 <= i/(phscount)) then
+      return (i - 1)
+    end
+  end
+end
+
 --------------------
 --set the sky, for on join and when new weather set
 local function set_sky_clouds(player)
@@ -196,9 +212,29 @@ local function set_sky_clouds(player)
 	actmp = actmp - 15 -- move centerpoint
 	wth.moon_data.scale = wth.moon_data.scale + (-actmp / 50 + 0.3)
 	wth.sun_data.scale = wth.sun_data.scale + (actmp / 50 + 0.3)
+  if (wth.moon_data.visible == true) then
+    local frame = -(37 * get_moon_phase())
+    wth.moon_data.texture = "[combine:37x37:0,0="..wth.moon_data.texture..":0,"..frame.."=moon_phases.png"
+  end
 	player:set_moon(wth.moon_data)
 	player:set_sun(wth.sun_data)
 	player:set_stars(active_weather.star_data)
+end
+
+-- update sky for moon phases (accessible to climate depends)
+function climate.update_sky(player)
+  if not (minetest.is_player(player)) then
+    return
+  end
+  
+  set_sky_clouds(player)
+end
+
+-- updates sky boxes for all players (accessible to climate depends)
+function climate.update_skies()
+  for _,player in ipairs(minetest.get_connected_players()) do
+    climate.update_sky(player)
+  end
 end
 
 function climate.set_weather_override(p_name, p_obj, w_name)
@@ -549,3 +585,19 @@ minetest.register_chatcommand("set_woverride", {
        end
     end
 })
+
+-- MOON PHASE CHECKING LOOP
+
+local mphl_interval = (5*60) -- moon_phase_loop_interval (25% an Exile day or 8 minutes)
+local function moon_phase_loop()
+  --local tod = minetest.get_timeofday() or 0
+  
+  -- only set skies while the moon is not up (nvm lol, keeping the old code lines just in case though)
+  --if not (tod < 0.23 or tod > 0.75) then
+    climate.update_skies()
+  --end
+  
+  minetest.after(mphl_interval,moon_phase_loop)
+end
+
+minetest.after(mphl_interval,moon_phase_loop) -- sky is set on player join, check again after interval
