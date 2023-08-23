@@ -1,3 +1,4 @@
+
 --namespace
 triggers = {}
 triggers.player = {} -- for timeouts on effects
@@ -132,6 +133,14 @@ local function resetweather(player, pname, pos, nmeta, metastring)
    climate.set_weather_override(pname, player, "")
 end
 
+local function hide_hud(player, pname, pos, nmeta, metastring)
+   HEALTH.hide_hud_elements(player, nil, metastring, )
+end
+local function showall_hud(player, pname, pos, nmeta, metastring)
+   HEALTH.show_hud_elements(player, nil, "all")
+end
+
+
 triggers.defs = {
    ["tr_reset"] = reset_player,
    ["tr_hurt"] = hurt_player,
@@ -146,6 +155,8 @@ triggers.defs = {
    ["tr_giveitem"] = giveitem,
    ["tr_setweather"] = setweather,
    ["tr_resetweather"] = resetweather,
+   ["tr_hudhide"] = hide_hud,
+   ["tr_hudshow"] = showall_hud,
 }
 
 local info = {
@@ -166,6 +177,10 @@ local info = {
    ["tr_setweather"]={"Set weather", "Changes weather displayed to player"..
 			 "\nUse /set_weather help to list available weather."},
    ["tr_resetweather"]={"Reset weather", "Restores normal weather for player"},
+   ["tr_hudhide"]={"Hide hud elements",
+		   "Hide health/energy/thirst/hunger/\n"..
+		      "temp/enviro_temp/effects by names, or all"},
+   ["tr_hudshow"]={"Show hud elements","Restore all hidden hud elements"},
 }
 
 -- table of triggers with no input field
@@ -174,6 +189,7 @@ local noinputfield = {
    ["tr_clearinv"] = true,
    ["tr_setinv"] = true,
    ["tr_resetweather"] = true,
+   ["tr_hudshow"] = true
 }
 --Register a function to add as a trigger
 -- ex: triggers.register("tr_mytrigger", mytriggerfunc, false

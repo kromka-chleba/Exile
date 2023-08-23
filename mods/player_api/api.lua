@@ -6,6 +6,8 @@ local S = minetest.get_translator("player_api")
 
 player_monoids =  player_monoids
 player_api = {}
+triggers = triggers
+local fire_trigger = triggers.activate
 
 -- Player animation blending
 -- Note: This is currently broken due to a bug in Irrlicht, leave at 0
@@ -272,6 +274,9 @@ local function check_player_surroundings(player, pos, name)
 	    on_water = true
 	 end
       end
+   end
+   if minetest.registered_nodes[node_name].groups.trigger == 1 then
+      fire_trigger(pos, player)
    end
    checked[name] = { ["pos"] = pos, [1] = on_water,
       [2] = node_above_is_solid, [3] = no_crouching, [4] = is_flying }
