@@ -144,6 +144,38 @@ if minetest.is_creative_enabled() then
    })
 end
 
+local lpname = "tut_lighted_path"
+local lpdef = {
+        description = 'Lighted Path',
+        tiles = { {
+	   name = lpname,
+	   animation = { type = "vertical_frames",
+			 aspect_w = 1,
+			 aspect_h = 1,
+			 length = 3 }
+	}},
+	diggable = true,
+	groups = { not_in_creative_inventory = 1,
+		   oddly_breakable_by_hand = 1, },
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+	   local name = itemstack:get_name()
+	   local pfx = "tutorial_exile:tut_lighted_path"
+	   local num = tonumber((name:gsub(pfx,"")))
+	   num = num +1 if num == 9 then num = 1 end
+	   itemstack:replace(pfx..tostring(num))
+	end,
+}
+for i = 1, 8 do
+   local def = table.copy(lpdef)
+   local name = lpname..tostring(i)
+   def.tiles[1].name = name..".png"
+   if i == 1 then
+      def.groups.not_in_creative_inventory = 0
+   end
+   minetest.register_node("tutorial_exile:"..name, def)
+end
+
+
 -- Debug commands
 
 minetest.register_chatcommand("test_tut",{
