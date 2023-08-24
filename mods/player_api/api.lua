@@ -275,7 +275,7 @@ local function check_player_surroundings(player, pos, name)
 	 end
       end
    end
-   if minetest.registered_nodes[node_name].groups.trigger == 1 then
+   if node_def and node_def.groups.trigger == 1 then
       fire_trigger(pos, player)
    end
    checked[name] = { ["pos"] = pos, [1] = on_water,
