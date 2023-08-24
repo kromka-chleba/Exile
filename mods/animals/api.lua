@@ -213,7 +213,7 @@ function animals.core_life(self, lifespan, pos)
     if not (not self.isinliquid and self.class == 2) then
       -- if not a fish out of water then (fish in water will heal up nicely :D)
       mobkit.heal(self,1)
-      energy = energy - 1
+      energy = energy - 5
     end
   end
 
@@ -230,7 +230,7 @@ function animals.place_egg(pos, egg_name, energy, energy_egg, medium)
   local e = energy
   local animal_name = string.gsub(egg_name,"_eggs","")
   animal_name = string.gsub(animal_name,"_egg","") -- incase it is singular
-  local objcount = #animals.get_entities_inside_radius(animal_name,pos,mo_check_radius,true)
+  local objcount = #animals.get_entities_inside_radius(animal_name,pos,mo_check_radius)
 
   if minetest.get_node(p).name == medium and objcount < max_objects then
 
@@ -263,7 +263,7 @@ function animals.hatch_egg(pos, medium_name, replace_name, name, energy_egg, you
 
   local cnt = 0
   local start_e = math.floor(energy_egg/young_per_egg)
-  local objcount = #animals.get_entities_inside_radius(name, pos, mo_check_radius,true)
+  local objcount = #animals.get_entities_inside_radius(name, pos, mo_check_radius)
   while cnt < young_per_egg and objcount < max_objects do
     local ran_pos = air[random(#air)]
     local ent = minetest.add_entity(ran_pos, name)
