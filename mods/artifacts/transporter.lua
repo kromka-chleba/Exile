@@ -46,6 +46,28 @@ local function set_charging(pos, length, interval)
 	minetest.get_node_timer(pos):start(interval)
 end
 
+local function transporter_particles(pos, percentage)
+   local adjust = 60 +  percentage
+   local adj_str = "^[colorize:#ff0000:"..tostring(adjust)
+   print("Adj:",adj_str," / ",type(adjust)," : ",adjust)
+   minetest.add_particlespawner({
+	 amount = 15,
+	 time = 0.75,
+	 minpos = {x=pos.x, y=pos.y+0.3, z=pos.z},
+	 maxpos = {x=pos.x, y=pos.y+2, z=pos.z},
+	 minvel = {x = 1,  y = -6,  z = 1},
+	 maxvel = {x = -1, y = 2, z = -1},
+	 minacc = {x = 0, y = -2, z = 0},
+	 maxacc = {x = 0, y = -6, z = 0},
+	 minexptime = 0.2,
+	 maxexptime = 1,
+	 minsize = 1,
+	 maxsize = 10,
+	 texture = "artifacts_sparks.png"..adj_str,
+	 glow = 14,
+   })
+end
+
 --actually move
 local function teleport_effects(target_pos, pos, player, player_name, regulator, power, random)
 	local origin = player:get_pos()
@@ -53,22 +75,7 @@ local function teleport_effects(target_pos, pos, player, player_name, regulator,
 
 	--effects at source
 	minetest.sound_play( {name="artifacts_transport", gain=1}, {pos=pos, max_hear_distance=100})
-	minetest.add_particlespawner({
-		amount = 15,
-		time = 0.75,
-		minpos = {x=pos.x, y=pos.y+0.3, z=pos.z},
-		maxpos = {x=pos.x, y=pos.y+2, z=pos.z},
-		minvel = {x = 1,  y = -6,  z = 1},
-		maxvel = {x = -1, y = 2, z = -1},
-		minacc = {x = 0, y = -2, z = 0},
-		maxacc = {x = 0, y = -6, z = 0},
-		minexptime = 0.2,
-		maxexptime = 1,
-		minsize = 1,
-		maxsize = 10,
-		texture = "artifacts_sparks.png",
-		glow = 15,
-	})
+	transporter_particles(pos)
 
 	--swap out power core
 	minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
@@ -79,22 +86,7 @@ local function teleport_effects(target_pos, pos, player, player_name, regulator,
 
 	--effects at target
 	minetest.sound_play( {name="artifacts_transport", gain=1}, {pos=target_pos, max_hear_distance=100})
-	minetest.add_particlespawner({
-		amount = 15,
-		time = 0.75,
-		minpos = {x=target_pos.x, y=target_pos.y+0.3, z=target_pos.z},
-		maxpos = {x=target_pos.x, y=target_pos.y+2, z=target_pos.z},
-		minvel = {x = 1,  y = -6,  z = 1},
-		maxvel = {x = -1, y = 2, z = -1},
-		minacc = {x = 0, y = -2, z = 0},
-		maxacc = {x = 0, y = -6, z = 0},
-		minexptime = 0.2,
-		maxexptime = 1,
-		minsize = 1,
-		maxsize = 10,
-		texture = "artifacts_sparks.png",
-		glow = 15,
-	})
+	transporter_particles(target_pos)
 
 	--dangerous effects (super heated air)
 	if not regulator then
@@ -757,22 +749,7 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 	on_timer = function(pos, elapsed)
 		minimal.switch_node(pos, {name = "artifacts:transporter_pad_active"})
 		minetest.sound_play("artifacts_transport_charged", {pos = pos, gain = 2, max_hear_distance = 20})
-		minetest.add_particlespawner({
-			amount = 15,
-			time = 0.75,
-			minpos = {x=pos.x, y=pos.y+0.3, z=pos.z},
-			maxpos = {x=pos.x, y=pos.y+2, z=pos.z},
-			minvel = {x = 1,  y = -6,  z = 1},
-			maxvel = {x = -1, y = 2, z = -1},
-			minacc = {x = 0, y = -2, z = 0},
-			maxacc = {x = 0, y = -6, z = 0},
-			minexptime = 0.2,
-			maxexptime = 1,
-			minsize = 1,
-			maxsize = 10,
-			texture = "artifacts_sparks.png",
-			glow = 15,
-		})
+		transporter_particles(pos)
 	end,
 })
 
