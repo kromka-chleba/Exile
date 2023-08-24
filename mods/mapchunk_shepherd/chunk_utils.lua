@@ -194,3 +194,14 @@ function ms.has_one_of(hash, labels)
     local label_names = ms.labels.extract_names(chunk_labels)
     return ms.labels.has_one_of(label_names, labels)
 end
+
+function ms.labels_to_position(pos, labels_to_add, labels_to_remove)
+    local hash = ms.mapchunk_hash(pos)
+    local labels_to_add = labels_to_add or {}
+    local labels_to_remove = labels_to_remove or {}
+    if not ms.contains_labels(hash, labels_to_add) then
+        ms.save_mapchunk(hash)
+        ms.handle_labels(hash, labels_to_add, labels_to_remove)
+        ms.add_labels(hash, {"scanned"})
+    end
+end

@@ -5,7 +5,8 @@
 -- cane growth
 --spreading surfaces
 
-nsl = naturalslopeslib
+local nsl = naturalslopeslib
+local ms = mapchunk_shepherd
 
 ----------------------------------------------------------------
 -- Flora & mushrooms
@@ -43,6 +44,8 @@ local function flora_spread(pos, node)
             local above_soil = minimal.get_pos_above(soil)
             if soil_name == under_name then
                 minetest.set_node(above_soil, {name = seed_name})
+                ms.labels_to_position(above_soil,
+                                      {"seasonal_plants"})
             end
         end
     end
@@ -212,6 +215,10 @@ minetest.register_abm({
                             replace_with = nsl.get_all_slopes(replace_with)[id]
                         end
                         minetest.set_node(pos, {name = replace_with, param2 = node.param2})
+                        ms.labels_to_position(pos,
+                                              {"spring_soil"},
+                                              {"no_spring_soil", "no_soil",
+                                               "bare_soil"})
                         break
                     end
                 end
