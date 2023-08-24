@@ -6,6 +6,8 @@
 -- Internationalization
 local S = nodes_nature.S
 
+local ms = mapchunk_shepherd
+
 local c_alpha = minimal.compat_alpha
 local c = nodes_nature.replacement_types
 
@@ -277,6 +279,26 @@ function sediment.get_base_props(sed)
         _wet_name = sediment.get_wet_name(sed.name),
         _wet_salty_name = sediment.get_wet_salty_name(sed.name),
         use_texture_alpha = c_alpha.clip,
+        after_place_node = function(pos, placer, itemstack, pointed_thing)
+            if pos.y < -15 then
+                -- No labels when underground
+                return
+            end
+            local labels = {}
+            local remove_labels = {"no_soil"}
+            if minimal.get_group(pos, "spreading") > 0 then
+                table.insert(labels, "spring_soil")
+                table.insert(remove_labels, "no_spring_soil")
+                table.insert(remove_labels, "bare_soil")
+            elseif minimal.get_group(pos, "winter_soil") > 0 then
+                table.insert(labels, "winter_soil")
+                table.insert(remove_labels, "no_winter_soil")
+                table.insert(remove_labels, "bare_soil")
+            else
+                table.insert(labels, "bare_soil")
+            end
+            ms.labels_to_position(pos, labels, remove_labels)
+        end,
     }
     return props
 end
