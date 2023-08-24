@@ -11,6 +11,10 @@ local min = math.min
 local tan = math.tan
 local pow = math.pow
 
+local function math_clamp(...) -- num, min, max
+  return minimal.math_clamp(...)
+end
+
 local max_objects = 30
 local mo_check_radius = 40 -- maxobject check radius
 
@@ -1046,14 +1050,16 @@ local function lq_jumpattack_eat(self,height,target)
 				mobkit.make_sound(self,'attack')
 				phase=4
         local ent = target:get_luaentity()
+        local ent_hp = ent.hp or 1
+        local ent_mhp = ent.max_hp or 1
         local dmg = 1
         if (type(self.attack) == "table") then
           if (type(self.attack.damage_groups) == "table") then
             dmg = self.attack.damage_groups.fleshy or 1
+            
+            dmg = math_clamp(dmg,0,ent_mhp) -- clamp damage between 0 and entity max health to prevent excessive energygain
           end
         end
-        local ent_hp = ent.hp or 1
-        local ent_mhp = ent.max_hp or 1
         
         mobkit.hurt(ent,dmg) -- hurt opponent
         
@@ -1065,14 +1071,12 @@ local function lq_jumpattack_eat(self,height,target)
         mobkit.remember(self,'energy', (energygain * 0.4)  + self_e)
         mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
         
-        if (type(ent.hp) == "number") then
-          if (ent.hp <= 0) then
-            local ent_e = (mobkit.recall(ent,'energy') or 1)
-            local self_e = (mobkit.recall(self,'energy') or 1)
-            mobkit.remember(self,'energy', (ent_e*0.75) + self_e)
-            ent.object:remove()
-            return true
-          end
+        if (ent.hp <= dmg) then
+          local ent_e = (mobkit.recall(ent,'energy') or 1)
+          local self_e = (mobkit.recall(self,'energy') or 1)
+          mobkit.remember(self,'energy', (energygain*0.4) + self_e) -- add another 40% for nomming fully
+          ent.object:remove()
+          return true
         end
         
 			end
