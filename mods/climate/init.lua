@@ -186,10 +186,9 @@ local function get_moon_phase()
   days = days % 40 + 1 -- refresh phases every 40th day (2 times per year) (add 1 to get an accurate date)
   -- starts bright, turns dark, goes bright, ditto
   
-  phscount = phscount + 1
-  for i = 1, (phscount), 1 do
+  for i = 1, phscount, 1 do
     if (days/40 <= i/(phscount)) then
-      return (i - 1), bounds, phscount
+      return (i - 1), bounds, (phscount)
     end
   end
 end
