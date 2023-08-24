@@ -422,7 +422,8 @@ local soil_labels =
      "winter_soil",
      "coast",
      "volcano",
-     "mountains",}
+     "mountains",
+     "bare_soil"}
 
 local function soaker()
     return ms.create_light_aware_replacer(
@@ -538,8 +539,6 @@ local function snow()
          find_replace_pairs = snow_replace_pairs,
          add_labels = {"last_snow"},
          higher_than = 14,
-         not_found_labels = {"no_soil"},
-         not_found_remove = soil_labels,
         }
     )
 end
