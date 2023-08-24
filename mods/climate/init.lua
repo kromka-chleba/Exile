@@ -176,9 +176,62 @@ local function update_player_sounds(p_name, pos)
    prev_sound[p_name] = active_weather.name
 end
 
+-- get moon's phase (returns 0 to 12)
+local function get_moon_phase()
+  local bounds = {x = 37, y = 37}
+  local phscount = 12 -- there are 12 base phases
+  
+  local days = minetest.get_day_count() % 80 -- get current year's date
+  
+  days = days % 40 + 1 -- refresh phases every 40th day (2 times per year) (add 1 to get an accurate date)
+  -- starts bright, turns dark, goes bright, ditto
+  
+  phscount = phscount + 1
+  for i = 1, (phscount), 1 do
+    if (days/40 <= i/(phscount)) then
+      return (i - 1), bounds, phscount
+    end
+  end
+end
+
+local function get_moon_texture(texture,spctype)
+  -- spctype for setting custom moon phases
+  if (type(texture) == "table") then
+    texture = texture.texture
+  end
+  if (type(texture) ~= "string") then
+    return ""
+  end
+  if (texture ~= "moon.png") then -- do not conflict with other provided textures
+    return texture
+  end
+  
+  local frame,bounds,phscount = get_moon_phase() -- specified frame, x & y image bounds, and total count of phases
+  frame = -(bounds.y * get_moon_phase())
+  
+  if (spctype ~= nil) then -- if a spctype is specified, then seek other specified moon textures
+    frame = -(bounds.y * phscount) -- set frame to maximum
+  elseif (spctype == "number") then -- manually setting the frame, hmm?
+    spctype = minimal.math_clamp(spctype,0,phscount)
+    frame = -(bounds.y * math.ceil(spctype))
+  end
+  -- yields an invisible texture (as the position beyond the 12th frame is not yet a specified texture, until someone does make it so :o)
+  -- adds possibilities for "blood moon", "solar eclipse", and other possible moon modifiers IF specified and IF made in the vertical frame (add at bottom of the vertical png)
+  if (spctype == "nil") then
+    frame = frame - bounds.y
+  end
+  
+  texture = "[combine:"..bounds.x.."x"..bounds.y.."..:0,"..frame.."="..texture -- using combine as a discount verticalframe to prevent conflict if more moon modifiers are added
+  -- e.g. "[combine:37x37:0,1=moon.png" = phase 1 or waxing crescent of moon vertical png
+  
+  return texture
+end
+
 --------------------
 --set the sky, for on join and when new weather set
-local function set_sky_clouds(player)
+local function set_sky_clouds(player,...)
+  local args = {...} -- custom args, for example if an alternative moon phase is asked for
+  
 	local p_name = player:get_player_name()
 	local active_weather = climate.get_player_weather(p_name)
 
@@ -196,9 +249,28 @@ local function set_sky_clouds(player)
 	actmp = actmp - 15 -- move centerpoint
 	wth.moon_data.scale = wth.moon_data.scale + (-actmp / 50 + 0.3)
 	wth.sun_data.scale = wth.sun_data.scale + (actmp / 50 + 0.3)
+  if (wth.moon_data.visible == true and wth.moon_data.texture == "moon.png") then
+    wth.moon_data.texture = get_moon_texture(wth.moon_data,args[1])
+  end
 	player:set_moon(wth.moon_data)
 	player:set_sun(wth.sun_data)
 	player:set_stars(active_weather.star_data)
+end
+
+-- update sky for moon phases (accessible to climate depends)
+function climate.update_sky(player,...)
+  if not (minetest.is_player(player)) then
+    return
+  end
+  
+  set_sky_clouds(player,...)
+end
+
+-- updates sky boxes for all players (accessible to climate depends)
+function climate.update_skies(...)
+  for _,player in ipairs(minetest.get_connected_players()) do
+    climate.update_sky(player,...)
+  end
 end
 
 function climate.set_weather_override(p_name, p_obj, w_name)
@@ -549,3 +621,19 @@ minetest.register_chatcommand("set_woverride", {
        end
     end
 })
+
+-- MOON PHASE CHECKING LOOP
+
+local mphl_interval = (5*60) -- moon_phase_loop_interval (25% an Exile day or 8 minutes)
+local function moon_phase_loop()
+  --local tod = minetest.get_timeofday() or 0
+  
+  -- only set skies while the moon is not up (nvm lol, keeping the old code lines just in case though)
+  --if not (tod < 0.23 or tod > 0.75) then
+    climate.update_skies()
+  --end
+  
+  minetest.after(mphl_interval,moon_phase_loop)
+end
+
+minetest.after(mphl_interval,moon_phase_loop) -- sky is set on player join, check again after interval
