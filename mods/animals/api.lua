@@ -208,7 +208,7 @@ function animals.core_life(self, lifespan, pos)
 
 
   --heal using energy
-  if self.hp < self.max_hp and energy > 10 then
+  if self.hp < self.max_hp and energy > 10 and random() <= 0.75 then
     if not (not self.isinliquid and self.class == 2) then
       -- if not a fish out of water then (fish in water will heal up nicely :D)
       mobkit.heal(self,1)
