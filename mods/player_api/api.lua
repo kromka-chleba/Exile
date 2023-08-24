@@ -239,16 +239,15 @@ local function check_player_surroundings(player, pos, name)
    local pos_below = {x= pos.x, y= pos.y-1, z= pos.z}
    local node_name_below = minetest.get_node(pos_below).name
 
-   local node_def = minetest.registered_nodes[node_name]
-   local node_above_def = mrn[node_name_above]
-   local node_below_def = mrn[node_name_below]
+   local node_def = mrn[node_name] or mrn["air"]
+   local node_above_def = mrn[node_name_above] or mrn["ignore"]
+   local node_below_def = mrn[node_name_below] or mrn["ignore"]
 
    local node_above_is_solid = false
-   local no_crouching = mrn[node_name].climbable or
+   local no_crouching = node_def.climbable or
       node_above_def.climbable -- no crawling on ladders
    local is_flying = false
-   if ( node_above_def and node_above_def.walkable == true and
-	no_crouching == false ) then
+   if node_above_def.walkable == true and no_crouching == false then
       if ( node_above_def.drawtype == "normal" and -- above is solid
 	   node_def.drawtype ~= "normal" ) then -- and we're not noclipping
 	 node_above_is_solid = true
@@ -261,15 +260,14 @@ local function check_player_surroundings(player, pos, name)
       is_flying = true
    end
    local on_water = false
-   if mrn[node_name] then
-      if its_a_liquid(node_def) then
-	 if mrn[node_name_below] and mrn[node_name_above] then
-	    local node_below_is_liquid = its_a_liquid(node_below_def)
-	    local node_above_is_liquid = its_a_liquid(node_above_def)
-	    if	((node_below_is_liquid) and not(node_above_is_air)) or
-	       (not(node_below_is_liquid) and node_above_is_liquid) then
-	       on_water = true
-	    end
+   if its_a_liquid(node_def) then
+      local node_below_is_liquid = its_a_liquid(node_below_def)
+      local node_above_is_liquid = its_a_liquid(node_above_def)
+      if (node_below_is_liquid or not mrn[node_name_below]) then
+	 -- #TODO: check y distance from floor to see if we should swim anyway
+	 if ( mrn[node_name_above] and (node_above_is_air)) or
+	    not node_above_is_liquid then
+	    on_water = false
 	 else
 	    on_water = true
 	 end
