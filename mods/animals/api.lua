@@ -11,7 +11,12 @@ local min = math.min
 local tan = math.tan
 local pow = math.pow
 
+local function math_clamp(...) -- num, min, max
+  return minimal.math_clamp(...)
+end
+
 local max_objects = 30
+local mo_check_radius = 40 -- maxobject check radius
 
 animals = animals
 mobkit = mobkit
@@ -157,6 +162,9 @@ function animals.core_life(self, lifespan, pos)
 
   local energy = mobkit.recall(self,'energy')
   local age = mobkit.recall(self,'age')
+  local hbnate = mobkit.recall(self,'hibernate')
+  
+  local energy_loss = self.energy_loss or 0.25
 
   --stops some crashes in creative?
   if not energy then
@@ -165,9 +173,16 @@ function animals.core_life(self, lifespan, pos)
   if not age then
     age = 0
   end
+  if not hbnate then
+    hbnate = false
+  end
 
   age = age + 1
-  energy = energy - 1
+  if (hbnate == false) then
+    energy = energy - energy_loss
+  elseif (random() <= 0.005) then -- 0.5% chance to lose energy during hibernation
+    energy = energy - energy_loss
+  end
 
   --die from exhaustion, old age
   if energy <=0 or age > lifespan then
@@ -179,7 +194,7 @@ function animals.core_life(self, lifespan, pos)
 
   -- get temp
   local temp = climate.get_point_temp(pos)
-  if (temp > 100 and temp <= 500) then -- get the mathematical "mean" of the pos and the surroundings nodes (workaround to torches)
+  if (temp == 450) then -- get the mathematical "mean" of the pos and the surroundings nodes (workaround to torches)
     temp = get_mean_temp(pos)
   end
 
@@ -189,6 +204,7 @@ function animals.core_life(self, lifespan, pos)
     if (self.class ~= 2) then
       -- only for land creatures
       animals.hq_roam_comfort_temp(self,80, self.max_temp / 2)
+      hbnate = false -- moving around, thus not hibernating
     end
     -- lose energy from discomfort
     energy = energy - math.random(4,8)
@@ -208,15 +224,20 @@ function animals.core_life(self, lifespan, pos)
 
 
   --heal using energy
-  if self.hp < self.max_hp and energy > 10 then
+  if self.hp < self.max_hp and energy > 10 and random() <= 0.75 then
     if not (not self.isinliquid and self.class == 2) then
       -- if not a fish out of water then (fish in water will heal up nicely :D)
       mobkit.heal(self,1)
-      energy = energy - 1
+      energy = energy - 5
     end
   end
+  
+  if (hbnate == true) then
+    mobkit.clear_queue_low(self)
+    mobkit.animate(self,"dead")
+  end
 
-  return age, energy
+  return age, energy, hbnate
 end
 
 
@@ -224,10 +245,12 @@ end
 ----------------------------------------------------
 --put an egg in the world, return energy
 function animals.place_egg(pos, egg_name, energy, energy_egg, medium)
-
+  
   local p = mobkit.get_node_pos(pos)
   local e = energy
-  local objcount = #minetest.get_objects_inside_radius(pos, 30)
+  local animal_name = string.gsub(egg_name,"_eggs","")
+  animal_name = string.gsub(animal_name,"_egg","") -- incase it is singular
+  local objcount = #animals.get_entities_inside_radius(animal_name,pos,mo_check_radius)
 
   if minetest.get_node(p).name == medium and objcount < max_objects then
 
@@ -260,7 +283,7 @@ function animals.hatch_egg(pos, medium_name, replace_name, name, energy_egg, you
 
   local cnt = 0
   local start_e = math.floor(energy_egg/young_per_egg)
-  local objcount = #minetest.get_objects_inside_radius(pos, 30)
+  local objcount = #animals.get_entities_inside_radius(name, pos, mo_check_radius)
   while cnt < young_per_egg and objcount < max_objects do
     local ran_pos = air[random(#air)]
     local ent = minetest.add_entity(ran_pos, name)
@@ -679,11 +702,13 @@ function animals.on_punch(self, tool_capabilities, puncher, prty, chance)
   if mobkit.is_alive(self) then
     --do damage
     mobkit.clear_queue_high(self)
-    mobkit.hurt(self,tool_capabilities.damage_groups.fleshy or 1)
+    local hbnate = mobkit.recall(self,'hibernate')
+    local dmg = tool_capabilities.damage_groups.fleshy or 1
+    mobkit.hurt(self,dmg)
     mobkit.make_sound(self,'punch')
     --fight or flight
-    --flee if hurt
-    if self.hp < self.max_hp/10 then
+    --flee if hurt (or hibernating!)
+    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or hbnate == true then 
       mobkit.animate(self,'fast')
       mobkit.make_sound(self,'warn')
       mobkit.hq_runfrom(self, prty, puncher)
@@ -1029,14 +1054,16 @@ local function lq_jumpattack_eat(self,height,target)
 				mobkit.make_sound(self,'attack')
 				phase=4
         local ent = target:get_luaentity()
+        local ent_hp = ent.hp or 1
+        local ent_mhp = ent.max_hp or 1
         local dmg = 1
         if (type(self.attack) == "table") then
           if (type(self.attack.damage_groups) == "table") then
             dmg = self.attack.damage_groups.fleshy or 1
+            
+            dmg = math_clamp(dmg,0,ent_mhp) -- clamp damage between 0 and entity max health to prevent excessive energygain
           end
         end
-        local ent_hp = ent.hp or 1
-        local ent_mhp = ent.max_hp or 1
         
         mobkit.hurt(ent,dmg) -- hurt opponent
         
@@ -1045,17 +1072,15 @@ local function lq_jumpattack_eat(self,height,target)
         local self_e = (mobkit.recall(self,'energy') or 1)
         local energygain = (ent_e * (dmg / ent_mhp) ) -- omnomnom
         
-        mobkit.remember(self,'energy', (energygain * 0.4)  + self_e)
+        mobkit.remember(self,'energy', (energygain*0.4)  + self_e) -- take 40%
         mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
         
-        if (type(ent.hp) == "number") then
-          if (ent.hp <= 0) then
-            local ent_e = (mobkit.recall(ent,'energy') or 1)
-            local self_e = (mobkit.recall(self,'energy') or 1)
-            mobkit.remember(self,'energy', (ent_e*0.75) + self_e)
-            ent.object:remove()
-            return true
-          end
+        if (ent.hp <= dmg) then
+          local ent_e = (mobkit.recall(ent,'energy') or 1)
+          local self_e = (mobkit.recall(self,'energy') or 1)
+          mobkit.remember(self,'energy', (energygain*0.25) + self_e) -- add another 25% for nomming fully
+          ent.object:remove()
+          return true
         end
         
 			end
@@ -1366,6 +1391,63 @@ function animals.mate_assess(self, name)
 
 end
 
+function animals.get_entities_inside_radius(creature,pos,radius,match_string)
+  if (type(radius) ~= "number") then
+    radius = 30
+  end
+  -- will use string.match if true
+  if (type(match_string) ~= "boolean") then
+    match_string = true
+  end
+  -- if provided creature is an entity or objectref
+  if (type(creature) == "userdata") then
+    if (type(creature["get_luaentity"]) == "function") then
+      creature = creature:get_luaentity()
+    end
+    if (type(creature) ~= "nil" and type(creature) ~= "boolean" and type(creature) ~= "string") then
+      creature = creature["name"]
+    else
+      creature = ""
+    end
+  end
+  
+  if (type(creature) ~= "string") then
+    creature = "*"
+  end
+  if (type(pos) ~= "table") then
+    return
+  end
+  if (type(pos.x) ~= "number" or type(pos.y) ~= "number" or type(pos.z) ~= "number") then
+    minetest.log("warning","animals.get_entities_inside_radius: provided position is invalid")
+    return
+  end
+  
+  local objs = minetest.get_objects_inside_radius(pos,radius)
+  local aobjs = {}
+  
+  for _,v in pairs(objs) do
+    local name = ""
+    local obj
+    if (type(v) ~= "nil") then
+      obj = v:get_luaentity()
+    end
+    if (type(obj) ~= "nil") then
+      name = obj.name
+    end
+    if (type(name) == "string") then
+      -- if match_string is true, then will use string.match() 
+      if (name == creature or creature == "*" or (match_string == true and string.match(creature,name))) then
+        aobjs[#aobjs + 1] = v
+      end
+    end
+  end
+  
+  return aobjs
+end
+
+
+
+-- Animals Interactors Interactions
 animals.interactors = {}
 function animals.add_interactors(itype,creature,...) -- interactiontype, creature to be set with properties, all possible creatures to add
   -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
@@ -1500,9 +1582,9 @@ function animals.vitals(self)
 		if headnode and headnode.drawtype == 'liquid' then 
 			self.oxygen = self.oxygen - self.dtime
 		else
-			self.oxygen = self.lung_capacity
+			self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
 		end
 			
-		if self.oxygen <= 0 then self.hp=0 end	-- drown
+		if self.oxygen <= 0 then mobkit.hurt(self,self.max_hp*0.1) end	-- drown by 10% of max_hp
 	end
 end

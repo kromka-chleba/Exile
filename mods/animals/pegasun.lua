@@ -288,7 +288,7 @@ local function brain_male(self)
 							--go get her!
 							mobkit.make_sound(self,'mating')
 							if random() < 0.5 then
-                mobkit.remember(self, "energy", energy - 600) -- energy use for mating lol
+                mobkit.remember(self, "energy", energy - 1000) -- energy use for mating lol
 								animals.hq_mate(self, 25, mate)
 							end
 						end
@@ -404,6 +404,7 @@ minetest.register_entity("animals:pegasun_male",{
 	lung_capacity = 25,
 	min_temp = -20,
 	max_temp = 45,
+  energy_loss = 1,
 
 	--interaction
 	predators = animals.get_interactors("pegasun","predators"), -- use base pegasun predators
@@ -522,6 +523,7 @@ minetest.register_entity("animals:pegasun",{
 	lung_capacity = 20,
 	min_temp = -20,
 	max_temp = 45,
+  energy_loss = 1,
 
 	--interaction
 	predators = animals.get_interactors("pegasun","predators"),
