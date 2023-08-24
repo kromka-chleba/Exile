@@ -404,6 +404,7 @@ minetest.register_entity("animals:pegasun_male",{
 	lung_capacity = 25,
 	min_temp = -20,
 	max_temp = 45,
+  energy_loss = 1,
 
 	--interaction
 	predators = animals.get_interactors("pegasun","predators"), -- use base pegasun predators
@@ -522,6 +523,7 @@ minetest.register_entity("animals:pegasun",{
 	lung_capacity = 20,
 	min_temp = -20,
 	max_temp = 45,
+  energy_loss = 1,
 
 	--interaction
 	predators = animals.get_interactors("pegasun","predators"),

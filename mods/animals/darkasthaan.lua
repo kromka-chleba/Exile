@@ -15,7 +15,7 @@ local floor = math.floor
 
 --energy
 local energy_max = 12000--secs it can survive without food
-local energy_egg = 1000--energy_max/3 --energy that goes to egg
+local energy_egg = energy_max/3 --energy that goes to egg
 local egg_timer  = 60*40
 local young_per_egg = 3		--will get this/energy_egg starting energy
 

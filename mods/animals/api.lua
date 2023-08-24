@@ -163,6 +163,8 @@ function animals.core_life(self, lifespan, pos)
   local energy = mobkit.recall(self,'energy')
   local age = mobkit.recall(self,'age')
   local hbnate = mobkit.recall(self,'hibernate')
+  
+  local energy_loss = self.energy_loss or 0.1
 
   --stops some crashes in creative?
   if not energy then
@@ -177,9 +179,9 @@ function animals.core_life(self, lifespan, pos)
 
   age = age + 1
   if (hbnate == false) then
-    energy = energy - 1
+    energy = energy - energy_loss
   elseif (random() <= 0.005) then -- 0.5% chance to lose energy during hibernation
-    energy = energy - 1
+    energy = energy - energy_loss
   end
 
   --die from exhaustion, old age
@@ -1068,13 +1070,13 @@ local function lq_jumpattack_eat(self,height,target)
         local self_e = (mobkit.recall(self,'energy') or 1)
         local energygain = (ent_e * (dmg / ent_mhp) ) -- omnomnom
         
-        mobkit.remember(self,'energy', (energygain * 0.4)  + self_e)
+        mobkit.remember(self,'energy', (energygain*0.4)  + self_e) -- take 40%
         mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
         
         if (ent.hp <= dmg) then
           local ent_e = (mobkit.recall(ent,'energy') or 1)
           local self_e = (mobkit.recall(self,'energy') or 1)
-          mobkit.remember(self,'energy', (energygain*0.4) + self_e) -- add another 40% for nomming fully
+          mobkit.remember(self,'energy', (energygain*0.25) + self_e) -- add another 25% for nomming fully
           ent.object:remove()
           return true
         end
