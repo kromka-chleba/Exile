@@ -21,6 +21,7 @@ crafting.register_type("masonry_bench_mixing", "Mixing")
 --------------------------------
 
 dofile(path.."/replacement_types.lua")
+dofile(path.."/shepherd_labels.lua")
 dofile(path.."/sounds.lua")
 dofile(path.."/sediment_api.lua")
 dofile(path.."/compost.lua")

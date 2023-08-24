@@ -397,17 +397,6 @@ minetest.register_abm({
 -----------------------------------
 -- Rain soak
 
-ms.labels.register("last_rain")
-ms.labels.register("last_snow")
-ms.labels.register("last_evaporated")
-ms.labels.register("last_thawed")
-ms.labels.register("last_freezed")
-ms.labels.register("ocean")
-ms.labels.register("coast")
-ms.labels.register("no_soil")
-ms.labels.register("mountains")
-
-
 local function get_dry_wet_pairs()
     local soil_pairs = {}
     for name, nodedef in pairs(minetest.registered_nodes) do

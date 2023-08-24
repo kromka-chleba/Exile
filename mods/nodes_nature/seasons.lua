@@ -196,10 +196,6 @@ local winter_soils = get_winter_soil_names()
 local spring_to_winter = spring_to_winter_pairs(true, true)
 local winter_to_spring = winter_to_spring_pairs(true, true)
 
-ms.labels.register("winter_soil")
-ms.labels.register("spring_soil")
-ms.labels.register("no_spring_soil")
-
 local spring_soil_finder =
     ms.create_simple_finder(
         {to_find = spring_soils,
@@ -251,21 +247,6 @@ local function swap_soils(season_name)
         current_soil_replacer = "spring"
     end
 end
-
-ms.labels.register("spring_early_plants")
-ms.labels.register("spring_late_plants")
-
-ms.labels.register("summer_early_plants")
-ms.labels.register("summer_late_plants")
-
-ms.labels.register("fall_early_plants")
-ms.labels.register("fall_late_plants")
-
-ms.labels.register("winter_early_plants")
-ms.labels.register("winter_late_plants")
-
-ms.labels.register("seasonal_plants")
-ms.labels.register("seasonal_trees")
 
 local function get_seasonal_plant_names()
     local plant_names = {}
@@ -353,9 +334,6 @@ end
 
 --------------------
 -- Leaf drop
-
-ms.labels.register("leaves_dropped")
-ms.labels.register("leaves")
 
 local function total_leaf_dropper()
     return ms.create_simple_replacer(
