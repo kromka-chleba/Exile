@@ -6,6 +6,7 @@ local nn = nodes_nature
 
 local placeholder_id_pairs = ms.placeholder_id_pairs()
 local placeholder_id_finder_pairs = ms.placeholder_id_finder_pairs()
+local ignore_id = minetest.get_content_id("ignore")
 
 local chunk_side = ms.chunk_side()
 
