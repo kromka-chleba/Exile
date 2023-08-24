@@ -218,6 +218,9 @@ minetest.register_entity("animals:sneachan",{
 	--interaction
 	predators = animals.get_interactors("sneachan","predators"),
 	rivals = animals.get_interactors("sneachan","rivals"),
+  
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

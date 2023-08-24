@@ -262,7 +262,7 @@ function animals.hatch_egg(pos, medium_name, replace_name, name, energy_egg, you
 
   local cnt = 0
   local start_e = math.floor(energy_egg/young_per_egg)
-  local objcount = #minetest.get_objects_inside_radius(pos, 30)
+  local objcount = #animals.get_entities_inside_radius(name, pos, 30)
   while cnt < young_per_egg and objcount < max_objects do
     local ran_pos = air[random(#air)]
     local ent = minetest.add_entity(ran_pos, name)
