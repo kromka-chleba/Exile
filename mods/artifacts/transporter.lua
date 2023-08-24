@@ -47,7 +47,7 @@ local function set_charging(pos, length, interval)
 end
 
 local function transporter_particles(pos, percentage)
-   local adjust = 60 +  percentage
+   local adjust = 160 * (0.01 * percentage)
    local adj_str = "^[colorize:#ff0000:"..tostring(adjust)
    print("Adj:",adj_str," / ",type(adjust)," : ",adjust)
    minetest.add_particlespawner({
