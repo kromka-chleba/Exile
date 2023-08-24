@@ -68,12 +68,14 @@ local function transporter_particles(pos, percentage)
 end
 
 --actually move
-local function teleport_effects(target_pos, pos, player, player_name, regulator, power, random)
+local function teleport_effects(target_pos, pos, player, player_name,
+				regulator, power, random)
 	local origin = player:get_pos()
 	target_pos.y = target_pos.y + 0.5
 
 	--effects at source
-	minetest.sound_play( {name="artifacts_transport", gain=1}, {pos=pos, max_hear_distance=100})
+	minetest.sound_play( {name="artifacts_transport", gain=1},
+	   {pos=pos, max_hear_distance=100})
 	transporter_particles(pos)
 
 	--swap out power core
@@ -84,23 +86,23 @@ local function teleport_effects(target_pos, pos, player, player_name, regulator,
 	player:set_pos(target_pos)
 
 	--effects at target
-	minetest.sound_play( {name="artifacts_transport", gain=1}, {pos=target_pos, max_hear_distance=100})
+	minetest.sound_play( {name="artifacts_transport", gain=1},
+	   {pos=target_pos, max_hear_distance=100})
 	transporter_particles(target_pos)
 
 	--dangerous effects (super heated air)
 	if not regulator then
 		local node = minetest.get_node(target_pos).name
 		if node == 'air' then
-			--minetest.set_node(target_pos, {name = 'nodes_nature:lava_flowing'})
-			minetest.set_node(target_pos, {name = 'climate:air_temp'})
-			local rmeta = minetest.get_meta(target_pos)
-			rmeta:set_float("temp", 3000)
+		   minetest.set_node(target_pos, {name = 'climate:air_temp'})
+		   local rmeta = minetest.get_meta(target_pos)
+		   rmeta:set_float("temp", 3000)
 		end
 	end
 
 	--failsafe. (if emerge area failed, and end up in rock)
-	--hopefully only an issue for random teleports, unless someone's screwed with
-	--your teleporter pad
+	-- hopefully only an issue for random teleports,
+	-- Unless someone's screwed with your teleporter pad
 	--means you get zapped instead of thrown to a random place,
 	-- which serves the purpose of a fail either way
 	if random ~= 'locked' then
@@ -147,25 +149,35 @@ local function check_teleport_dest(dest, pos, range, random)
 	-- check the destination node for pad, and the two nodes
 	-- above for "walkthrough"
 	-- "ignore" is ok, we could not emerge in time then.
-	local dest_bot = minetest.get_node({ x = dest.x, y = dest.y  , z = dest.z })
-	local dest_mid = minetest.get_node({ x = dest.x, y = dest.y+1, z = dest.z })
-	local dest_top = minetest.get_node({ x = dest.x, y = dest.y+2, z = dest.z })
+	local dest_bot = minetest.get_node({ x = dest.x,
+					     y = dest.y  ,
+					     z = dest.z })
+	local dest_mid = minetest.get_node({ x = dest.x,
+					     y = dest.y+1,
+					     z = dest.z })
+	local dest_top = minetest.get_node({ x = dest.x,
+					     y = dest.y+2,
+					     z = dest.z })
 
 	if random == "locked" then
-		if dest_bot.name ~= 'ignore'
-		and dest_bot.name ~= 'artifacts:transporter_pad'
-		and dest_bot.name ~= 'artifacts:transporter_pad_charging'
-		and dest_bot.name ~= 'artifacts:transporter_pad_active' then
-			minetest.log("action", "Attempted to teleport to non-transporter pad: "..dest_bot.name)
-			dest_ok = false
-			return dest_ok
-		end
+	   if dest_bot.name ~= 'ignore'
+	      and dest_bot.name ~= 'artifacts:transporter_pad'
+	      and dest_bot.name ~= 'artifacts:transporter_pad_charging'
+	      and dest_bot.name ~= 'artifacts:transporter_pad_active' then
+	      minetest.log("action",
+			   "Attempted to teleport to non-transporter pad: "..
+			   dest_bot.name)
+	      dest_ok = false
+	      return dest_ok
+	   end
 	end
 
 	if dest_mid.name ~= 'ignore' and dest_mid.name ~= 'air' then
 		local def = minetest.registered_nodes[dest_mid.name]
 		if def and def.walkable then
-			minetest.log("action", "Attempt to teleport blocked by lower node: "..dest_mid.name)
+		   minetest.log("action",
+				"Attempt to teleport blocked by lower node: "..
+				dest_mid.name)
 			dest_ok = false
 			return dest_ok
 		end
@@ -174,7 +186,9 @@ local function check_teleport_dest(dest, pos, range, random)
 	if dest_top.name ~= 'ignore' and dest_top.name ~= 'air' then
 		local def = minetest.registered_nodes[dest_top.name]
 		if def and def.walkable then
-			minetest.log("action", "Attempt to teleport blocked by upper node: "..dest_top.name)
+		   minetest.log("action",
+				"Attempt to teleport blocked by upper node: "..
+				dest_top.name)
 			dest_ok = false
 			return dest_ok
 		end
@@ -191,7 +205,9 @@ local function find_random_dest(pos)
 
 	local cnt = 0
 	while cnt < 30 do
-		local randpos = {x = pos.x + rand(-r,r), y = pos.y + rand(-r, r), z = pos.z + rand(-r,r)}
+	   local randpos = {x = pos.x + rand(-r,r),
+			    y = pos.y + rand(-r, r),
+			    z = pos.z + rand(-r,r)}
 		local dest_ok = check_teleport_dest(randpos, pos, MIN_DIST, true)
 		if dest_ok then
 			target_pos = randpos
@@ -204,7 +220,8 @@ local function find_random_dest(pos)
 end
 
 --Main teleport function
-local function do_teleport(pos, target_pos, random, player, range, regulator, power)
+local function do_teleport(pos, target_pos, random, player,
+			   range, regulator, power)
 
 	-- prevent teleport spamming
 	local player_name = player:get_player_name()
@@ -212,14 +229,19 @@ local function do_teleport(pos, target_pos, random, player, range, regulator, po
 		return
 	end
 
-	minetest.log("action", "Transporter activated by: "..player_name.." at "..pos.x.."/"..pos.y.."/"..pos.z)
+	minetest.log("action", "Transporter activated by: "..
+		     player_name.." at "..pos.x.."/"..pos.y.."/"..pos.z)
 
 	if random == "random" then
 		target_pos = find_random_dest(target_pos)
 		if not target_pos then
 			--failed to find a viable spot
-			minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
-			minetest.log("action", "Attempted to teleport randomly but could not find a target")
+		   minetest.sound_play("artifacts_transport_error",
+				       {pos = pos, gain = 1,
+					max_hear_distance = 6})
+		   minetest.log("action",
+				"Attempted to teleport randomly but could "..
+				"not find a target")
 			return
 		end
 	end
@@ -232,11 +254,12 @@ local function do_teleport(pos, target_pos, random, player, range, regulator, po
 		local meta_tran = minetest.get_meta(pos)
 		meta_tran:set_string("target_name", "")
 		meta_tran:set_string("target_pos", "")
-		local tran_name = meta_tran:get_string("tran_name")
 		minimal.infotext_delete_key(meta_tran,"Destination")
-		minetest.sound_play("artifacts_transport_fail", {pos = pos, gain = 1, max_hear_distance = 6})
+		minetest.sound_play("artifacts_transport_fail",
+				    {pos = pos, gain = 1, max_hear_distance = 6})
 	else
-		teleport_effects(target_pos, pos, player, player_name, regulator, power, random)
+	   teleport_effects(target_pos, pos, player, player_name,
+			    regulator, power, random)
 	end
 end
 
@@ -274,30 +297,38 @@ local function assess_transporter(pos)
 	local regulator = false
 
 	--get the position so it can be swapped out
-	local power = minetest.find_node_near(pos, 1, {"artifacts:transporter_power"})
+	local power = minetest.find_node_near(pos, 1,
+					      {"artifacts:transporter_power"})
 
-	if minetest.find_node_near(pos, 1, {"artifacts:transporter_focalizer"}) then
+	if minetest.find_node_near(pos, 1,
+				   {"artifacts:transporter_focalizer"}) then
 		range = FULL_RANGE
 	else
-		minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
+	   minetest.sound_play("artifacts_transport_error",
+			       {pos = pos, gain = 1, max_hear_distance = 6})
 	end
 
-	if minetest.find_node_near(pos, 1, {"artifacts:transporter_stabilizer"}) then
+	if minetest.find_node_near(pos, 1,
+				   {"artifacts:transporter_stabilizer"}) then
 		stabilizer = true
 	else
-		minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
+	   minetest.sound_play("artifacts_transport_error",
+			       {pos = pos, gain = 1, max_hear_distance = 6})
 	end
 
-	if minetest.find_node_near(pos, 1, {"artifacts:transporter_regulator"}) then
+	if minetest.find_node_near(pos, 1,
+				   {"artifacts:transporter_regulator"}) then
 		regulator = true
 	else
-		minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
+	   minetest.sound_play("artifacts_transport_error",
+			       {pos = pos, gain = 1, max_hear_distance = 6})
 	end
 
 	return power, range, stabilizer, regulator
 end
 
-local function transporter_power_rightclick(pos, node, player, itemstack, pointed_thing)
+local function transporter_power_rightclick(pos, node, player,
+					    itemstack, pointed_thing)
 	local iName = itemstack:get_name()
 	local nName = node.name
 	local power = "artifacts:transporter_power"
@@ -330,20 +361,25 @@ local function transporter_power_rightclick(pos, node, player, itemstack, pointe
 end
 
 --
-local function transporter_rightclick(pos, node, player, itemstack, pointed_thing)
+local function transporter_rightclick(pos, node, player,
+				      itemstack, pointed_thing)
 	if itemstack:get_name() == "artifacts:transporter_key" then
 		--don't conflict with key
 		return
 	end
 
 	--assess status
-	local power, range, stabilizer, regulator  = assess_transporter(pos)
+	local power, _, stabilizer, _  = assess_transporter(pos)
 	if power then
 
 		local dpos, random = get_transporter_target(pos, stabilizer)
 
-		local p1 = { x = dpos.x - MIN_DIST, y = dpos.y - MIN_DIST, z = dpos.z - MIN_DIST}
-		local p2 = { x = dpos.x + MIN_DIST, y = dpos.y + MIN_DIST, z = dpos.z + MIN_DIST}
+		local p1 = { x = dpos.x - MIN_DIST,
+			     y = dpos.y - MIN_DIST,
+			     z = dpos.z - MIN_DIST}
+		local p2 = { x = dpos.x + MIN_DIST,
+			     y = dpos.y + MIN_DIST,
+			     z = dpos.z + MIN_DIST}
 
 		minetest.emerge_area(p1, p2)
 
@@ -351,29 +387,35 @@ local function transporter_rightclick(pos, node, player, itemstack, pointed_thin
 
 		--create charging pad and copy over meta data
 		local meta_tran = minetest.get_meta(pos)
-		minimal.switch_node(pos, {name="artifacts:transporter_pad_charging"})
-		minetest.sound_play("artifacts_transport_charge", {pos = pos, gain = 2, max_hear_distance = 20})
+		minimal.switch_node(pos,
+				    {name="artifacts:transporter_pad_charging"})
+		minetest.sound_play("artifacts_transport_charge",
+				    {pos = pos, gain = 2, max_hear_distance = 20})
 		meta_tran:set_string("tmp_dest", dest)
 		meta_tran:set_string("tmp_random", random)
 	else
-		minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
+	   minetest.sound_play("artifacts_transport_error",
+			       {pos = pos, gain = 1, max_hear_distance = 6})
 	end
 
 end
 
 
-local function active_transporter_rightclick(pos, node, player, itemstack, pointed_thing)
+local function active_transporter_rightclick(pos, node, player,
+					     itemstack, pointed_thing)
 	--recheck incase it's been buggered with during wait
-	local power, range, stabilizer, regulator  = assess_transporter(pos)
+	local power, range, _, regulator  = assess_transporter(pos)
 	if power then
 
 		local meta_tran = minetest.get_meta(pos)
-		local dest = minetest.string_to_pos(meta_tran:get_string("tmp_dest"))
+		local dest = minetest.string_to_pos(
+		   meta_tran:get_string("tmp_dest"))
 		local random = meta_tran:get_string("tmp_random")
 
 		do_teleport(pos, dest, random, player, range, regulator, power)
 	else
-		minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
+	   minetest.sound_play("artifacts_transport_error",
+			       {pos = pos, gain = 1, max_hear_distance = 6})
 	end
 
 end
@@ -397,65 +439,38 @@ local function set_from_key(itemstack, placer, pointed_thing)
 	local pos = placer:get_pos()
 
 	if node ~= "artifacts:transporter_pad" then
-		minetest.chat_send_player(player_name, minetest.colorize("#cc6600", "KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD"))
+	   minetest.chat_send_player(player_name,
+				     minetest.colorize("#cc6600",
+			"KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD"))
 		return
 	end
 
 
 	if node == "artifacts:transporter_pad" then
 		local meta_tran = minetest.get_meta(pt_under)
-		local power, range, stabilizer, regulator  = assess_transporter(pt_under) --really just need range
+		local _, range, _, _  = assess_transporter(pt_under)
+		-- really just need range (for what?)
 		local ok_string = "Bond Transporter to Target"
 
 		--only one link
 		local tran_target = meta_tran:get_string("target_pos")
 		if tran_target ~= "" then
 			ok_string = "Replace Transporter Bond with NEW Target"
-
-			--[[--requires area to be loaded to work
-			--check if target is even usable
-			local dest_ok = check_teleport_dest(minetest.string_to_pos(tran_target), pt_under, range)
-			if dest_ok then
-				minetest.chat_send_player(player_name, minetest.colorize("#cc6600", "TRANSPORTER ALREADY BONDED"))
-				minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
-				return
-			else
-				--wipe faulty bond
-				meta_tran:set_string("target_name", "")
-				meta_tran:set_string("target_pos", "")
-				local tran_name = meta_tran:get_string("tran_name")
-				if tran_name ~= "" then
-					meta_tran:set_string("infotext", "Location: "..tran_name)
-				else
-					meta_tran:set_string("infotext", "")
-				end
-				minetest.sound_play("artifacts_transport_fail", {pos = pos, gain = 1, max_hear_distance = 6})
-				return
-			end
-			]]
 		end
 		--get meta and see if key has a saved location
 		local meta = itemstack:get_meta()
 		local posstring = meta:get_string("target_pos")
 
 		--use saved location to set transporter's target.
-		if posstring ~= "" and not minetest.is_protected(pt_under, player_name) then
+		if posstring ~= ""
+		   and not minetest.is_protected(pt_under, player_name) then
 
-			--[[--requires area to be loaded to work
 
-			local dest_ok = check_teleport_dest(minetest.string_to_pos(posstring), pt_under, range)
+		   -- call a formspec to make it harder to accidently set a
+		   -- transporter to the wrong location
 
-			if not dest_ok then
-				minetest.chat_send_player(player_name, minetest.colorize("#cc6600", "KEY: TARGET NOT VIABLE"))
-				minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
-				return
-			end
-			]]
-
-			--call a formspec to make it harder to accidently set a transporter to the wrong location
-
-			--temporary save transporter position, and the target pos and name
-			--so can be used by formspec
+		   -- temporary save transporter position, target pos and name
+		   -- so it can be used by formspec
 			local player_meta = placer:get_meta()
 			local tmp_tran_pos = minetest.pos_to_string(pt_under)
 			local target_name = meta:get_string("target_name")
@@ -465,26 +480,33 @@ local function set_from_key(itemstack, placer, pointed_thing)
 
 			minetest.show_formspec(player_name, "set_from_trans_key",
 					"size[10,2.5]" ..
-					"label[1,1;Target name: "..target_name.."]"..
+					"label[1,1;Target name: "..
+					target_name.."]"..
 					"button_exit[0.7,2;3,1;cancel;Cancel]"..
-					"button_exit[3.7,2;5,1;ok;" .. ok_string .. "]" )
+					"button_exit[3.7,2;5,1;ok;" ..
+					ok_string .. "]" )
 
 		elseif posstring == "" then
-			minetest.chat_send_player(player_name, minetest.colorize("#cc6600", "KEY IS BLANK!: use leftclick to save this location"))
-			minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
+		   minetest.chat_send_player(player_name,
+					     minetest.colorize("#cc6600",
+			"KEY IS BLANK!: use leftclick to save this location"))
+		   minetest.sound_play("artifacts_transport_error",
+				       {pos = pos, gain = 1,
+					max_hear_distance = 6})
 		end
 	end
-
 end
 
 
 -- Set from key from formspec
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-	if formname == "set_from_trans_key" and (fields.ok or fields.key_enter) then
+      if formname == "set_from_trans_key" and
+	 (fields.ok or fields.key_enter) then
 
 		--get temp saved data
 		local player_meta = player:get_meta()
-		local pos_tran = minetest.string_to_pos(player_meta:get_string("tmp_tran_pos"))
+		local pos_tran = minetest.string_to_pos(
+		   player_meta:get_string("tmp_tran_pos"))
 		local target_name = player_meta:get_string("tmp_target_name")
 		local target_pos = player_meta:get_string("tmp_target_pos")
 
@@ -493,12 +515,20 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local meta_tran = minetest.get_meta(pos_tran)
 		meta_tran:set_string("target_name", target_name)
 		meta_tran:set_string("target_pos", target_pos)
-		minimal.infotext_merge(pos_tran,"Destination: "..target_name,meta_tran)
+		minimal.infotext_merge(pos_tran,"Destination: "
+				       ..target_name,meta_tran)
 
 		local player_name = player:get_player_name()
-		minetest.sound_play( 'artifacts_key', { pos = pos_tran, gain = 1, max_hear_distance = 5,})
-		minetest.chat_send_player(player_name, minetest.colorize("#00ff00", "TRANSPORTER DESTINATION SET TO: "..target_name.." at "..target_pos))
-		minetest.sound_play("artifacts_transport_fail", {pos = player:get_pos(), gain = 1, max_hear_distance = 6})
+		minetest.sound_play( 'artifacts_key',
+				     { pos = pos_tran, gain = 1,
+				       max_hear_distance = 5,})
+		minetest.chat_send_player(player_name,
+			minetest.colorize("#00ff00",
+					  "TRANSPORTER DESTINATION SET TO: "..
+					  target_name.." at "..target_pos))
+		minetest.sound_play("artifacts_transport_fail",
+				    {pos = player:get_pos(), gain = 1,
+				     max_hear_distance = 6})
 
 		--clear temp
 		player_meta:set_string("tmp_tran_pos", "")
@@ -514,64 +544,67 @@ end)
 --Save a location
 local function save_to_key(itemstack, player, pointed_thing)
 
-	-- possible only on nodes
-	if pointed_thing.type ~= "node" then
-		return
-	end
+   -- possible only on nodes
+   if pointed_thing.type ~= "node" then
+      return
+   end
 
-	local pt_under = pointed_thing.under
-	local node = minetest.get_node(pt_under).name
-	local player_name = player:get_player_name()
+   local pt_under = pointed_thing.under
+   local node = minetest.get_node(pt_under).name
+   local player_name = player:get_player_name()
 
-	if node ~= "artifacts:transporter_pad" then
-		minetest.chat_send_player(player_name, minetest.colorize("#cc6600", "KEY CAN ONLY SAVE FROM TRANSPORTER PAD"))
-		return
-	end
+   if node ~= "artifacts:transporter_pad" then
+      minetest.chat_send_player(player_name,
+				minetest.colorize("#cc6600",
+				  "KEY CAN ONLY SAVE FROM TRANSPORTER PAD"))
+      return
+   end
 
 
-	if node == "artifacts:transporter_pad" then
+   if node == "artifacts:transporter_pad" then
 
-		--get meta and see if it has a saved location
-		local meta = itemstack:get_meta()
-		local posstring = meta:get_string("target_pos")
+      --get meta and see if it has a saved location
+      local meta = itemstack:get_meta()
+      local posstring = meta:get_string("target_pos")
 
-		if posstring ~= "" then
-			--key already bonded, give chance to wipe it
-			--minetest.chat_send_player(player_name, minetest.colorize("#cc6600", "KEY ALREADY BONDED: use rightclick to set transporter to this key's location"))
-			local target_name = meta:get_string("target_name")
-			minetest.show_formspec(player_name, "wipe_trans_key",
-					"size[10,2.5]" ..
-					"label[1,1;Key's target name: "..target_name.."]"..
-					"button_exit[0.7,2;3,1;cancel;Cancel]"..
-					"button_exit[3.7,2;5,1;ok;Wipe Key]")
-			return
+      if posstring ~= "" then
+	 --key already bonded, give chance to wipe it
+	 local target_name = meta:get_string("target_name")
+	 minetest.show_formspec(player_name, "wipe_trans_key",
+				"size[10,2.5]" ..
+				"label[1,1;Key's target name: "..
+				target_name.."]"..
+				"button_exit[0.7,2;3,1;cancel;Cancel]"..
+				"button_exit[3.7,2;5,1;ok;Wipe Key]")
+	 return
 
-		elseif posstring == "" then
-			--save location to the key
-			-- show the formspec to player
-			local tmp_target_pos = minetest.pos_to_string(pt_under)
-			meta:set_string("tmp_target_pos", tmp_target_pos)
+      elseif posstring == "" then
+	 --save location to the key
+	 -- show the formspec to player
+	 local tmp_target_pos = minetest.pos_to_string(pt_under)
+	 meta:set_string("tmp_target_pos", tmp_target_pos)
 
-			--different form depending on if transporter already has a name
-			local meta_tran = minetest.get_meta(pt_under)
-			local tran_name = meta_tran:get_string("tran_name")
-			if tran_name == "" then
-				minetest.show_formspec(player_name, "create_transporter_key_nameless",
-						"size[10,2.5]" ..
-						"field[1,1;8,1;name;Destination name:;".."]"..
-						"button_exit[0.7,2;3,1;cancel;Cancel]"..
-						"button_exit[3.7,2;5,1;ok;Create Bonded Key]" )
-				return itemstack
-			else
-				minetest.show_formspec(player_name, "create_transporter_key",
-						"size[10,2.5]" ..
-						"label[1,1;Destination name: "..tran_name.."]"..
-						"button_exit[0.7,2;3,1;cancel;Cancel]"..
-						"button_exit[3.7,2;5,1;ok;Create Bonded Key]" )
-				return itemstack
-			end
-		end
-	end
+	 --different form depending on if transporter already has a name
+	 local meta_tran = minetest.get_meta(pt_under)
+	 local tran_name = meta_tran:get_string("tran_name")
+	 if tran_name == "" then
+	    minetest.show_formspec(player_name,
+				   "create_transporter_key_nameless",
+				   "size[10,2.5]" ..
+				   "field[1,1;8,1;name;Destination name:;".."]"..
+				   "button_exit[0.7,2;3,1;cancel;Cancel]"..
+				   "button_exit[3.7,2;5,1;ok;Create Bonded Key]" )
+	    return itemstack
+	 else
+	    minetest.show_formspec(player_name, "create_transporter_key",
+				   "size[10,2.5]" ..
+				   "label[1,1;Destination name: "..tran_name.."]"..
+				   "button_exit[0.7,2;3,1;cancel;Cancel]"..
+				   "button_exit[3.7,2;5,1;ok;Create Bonded Key]" )
+	    return itemstack
+	 end
+      end
+   end
 end
 
 
@@ -584,7 +617,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			meta:set_string("target_name", "target_name")
 			meta:set_string("description", "Transporter Key")
 
-			minetest.sound_play("artifacts_transport_error", {pos = player:get_pos(), gain = 1, max_hear_distance = 6})
+			minetest.sound_play("artifacts_transport_error",
+					    {pos = player:get_pos(), gain = 1,
+					     max_hear_distance = 6})
 
 			player:set_wielded_item(stack)
 
@@ -595,7 +630,8 @@ end)
 
 -- Save key from formspec (first time transporter saved from, sets location name)
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-	if formname == "create_transporter_key_nameless" and fields.name and (fields.ok or fields.key_enter) then
+      if formname == "create_transporter_key_nameless"
+	 and fields.name and (fields.ok or fields.key_enter) then
 		local player_name = player:get_player_name()
 		local stack=player:get_wielded_item()
 		local meta=stack:get_meta()
@@ -609,17 +645,23 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		end
 
 		meta:set_string("target_name", target_name)
-		meta:set_string("description", "Transporter Key to "..target_name)
+		meta:set_string("description",
+				"Transporter Key to "..target_name)
 
 		meta:set_string("tmp_target_pos", "")
 
 		--set name and infotext of transporter
-		local meta_tran = minetest.get_meta(minetest.string_to_pos(target))
-		minimal.infotext_merge(target,"Location: "..target_name,meta_tran)
+		local meta_tran = minetest.get_meta(
+		   minetest.string_to_pos(target))
+		minimal.infotext_merge(target,"Location: "..
+				       target_name,meta_tran)
 		meta_tran:set_string("tran_name", target_name)
 
-		minetest.chat_send_player(player_name, minetest.colorize("#00ff00", "TRANSPORTER KEY CREATED TO: "..target_name))
-		minetest.sound_play("artifacts_transport_fail", {pos = player:get_pos(), gain = 1, max_hear_distance = 6})
+		minetest.chat_send_player(player_name,
+					  minetest.colorize("#00ff00",
+				"TRANSPORTER KEY CREATED TO: "..target_name))
+		minetest.sound_play("artifacts_transport_fail",
+				    {pos = player:get_pos(), gain = 1, max_hear_distance = 6})
 
 		player:set_wielded_item(stack)
 	end
@@ -629,7 +671,8 @@ end)
 
 -- Save key from formspec (location already named)
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-	if formname == "create_transporter_key" and (fields.ok or fields.key_enter) then
+      if formname == "create_transporter_key" and
+	 (fields.ok or fields.key_enter) then
 		local player_name = player:get_player_name()
 		local stack=player:get_wielded_item()
 		local meta=stack:get_meta()
@@ -637,16 +680,22 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local target = meta:get_string("tmp_target_pos")
 		meta:set_string("target_pos", target)
 
-		local meta_tran = minetest.get_meta(minetest.string_to_pos(target))
+		local meta_tran = minetest.get_meta(
+		   minetest.string_to_pos(target))
 		local target_name = meta_tran:get_string("tran_name")
 
 		meta:set_string("target_name", target_name)
-		meta:set_string("description", "Transporter Key to "..target_name)
+		meta:set_string("description",
+				"Transporter Key to "..target_name)
 
 		meta:set_string("tmp_target_pos", "")
 
-		minetest.chat_send_player(player_name, minetest.colorize("#00ff00", "TRANSPORTER KEY CREATED TO: "..target_name))
-		minetest.sound_play("artifacts_transport_fail", {pos = player:get_pos(), gain = 1, max_hear_distance = 6})
+		minetest.chat_send_player(player_name,
+					  minetest.colorize("#00ff00",
+				"TRANSPORTER KEY CREATED TO: "..target_name))
+		minetest.sound_play("artifacts_transport_fail",
+				    {pos = player:get_pos(), gain = 1,
+				     max_hear_distance = 6})
 
 		player:set_wielded_item(stack)
 	end
@@ -746,8 +795,9 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 		minetest.get_node_timer(pos):start(20)
 	end,
 	on_timer = function(pos, elapsed)
-		minimal.switch_node(pos, {name = "artifacts:transporter_pad_active"})
-		minetest.sound_play("artifacts_transport_charged", {pos = pos, gain = 2, max_hear_distance = 20})
+	   minimal.switch_node(pos, {name = "artifacts:transporter_pad_active"})
+	   minetest.sound_play("artifacts_transport_charged",
+			       {pos = pos, gain = 2, max_hear_distance = 20})
 		transporter_particles(pos)
 	end,
 })
@@ -781,9 +831,9 @@ minetest.register_node('artifacts:transporter_pad_active', {
 		minetest.get_node_timer(pos):start(30)
 	end,
 	on_timer = function(pos, elapsed)
-		local meta_tran = minetest.get_meta(pos)
-		minimal.switch_node(pos, {name = "artifacts:transporter_pad"})
-		minetest.sound_play("artifacts_transport_fail", {pos = pos, gain = 1, max_hear_distance = 6})
+	   minimal.switch_node(pos, {name = "artifacts:transporter_pad"})
+	   minetest.sound_play("artifacts_transport_fail",
+			       {pos = pos, gain = 1, max_hear_distance = 6})
 	end,
 })
 
@@ -951,4 +1001,3 @@ minetest.register_tool('artifacts:transporter_key', {
 
 
 ---------------------------------------------------------
-
