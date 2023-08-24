@@ -702,12 +702,13 @@ function animals.on_punch(self, tool_capabilities, puncher, prty, chance)
   if mobkit.is_alive(self) then
     --do damage
     mobkit.clear_queue_high(self)
+    local hbnate = mobkit.recall(self,'hibernate')
     local dmg = tool_capabilities.damage_groups.fleshy or 1
     mobkit.hurt(self,dmg)
     mobkit.make_sound(self,'punch')
     --fight or flight
-    --flee if hurt
-    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) then
+    --flee if hurt (or hibernating!)
+    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or hbnate == true then 
       mobkit.animate(self,'fast')
       mobkit.make_sound(self,'warn')
       mobkit.hq_runfrom(self, prty, puncher)
@@ -1581,9 +1582,9 @@ function animals.vitals(self)
 		if headnode and headnode.drawtype == 'liquid' then 
 			self.oxygen = self.oxygen - self.dtime
 		else
-			self.oxygen = self.lung_capacity
+			self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
 		end
 			
-		if self.oxygen <= 0 then self.hp=0 end	-- drown
+		if self.oxygen <= 0 then mobkit.hurt(self,self.max_hp*0.1) end	-- drown by 10% of max_hp
 	end
 end
