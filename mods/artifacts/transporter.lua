@@ -194,8 +194,6 @@ local function check_teleport_dest(dest, pos, range, random)
 		end
 	end
 	return dest_ok
-
-
 end
 
 --get a random teleport destination
@@ -208,7 +206,8 @@ local function find_random_dest(pos)
 	   local randpos = {x = pos.x + rand(-r,r),
 			    y = pos.y + rand(-r, r),
 			    z = pos.z + rand(-r,r)}
-		local dest_ok = check_teleport_dest(randpos, pos, MIN_DIST, true)
+	   local dest_ok = check_teleport_dest(randpos, pos, MIN_DIST,
+					       "random")
 		if dest_ok then
 			target_pos = randpos
 			break
