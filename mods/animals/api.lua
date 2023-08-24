@@ -224,10 +224,12 @@ end
 ----------------------------------------------------
 --put an egg in the world, return energy
 function animals.place_egg(pos, egg_name, energy, energy_egg, medium)
-
+  
   local p = mobkit.get_node_pos(pos)
   local e = energy
-  local objcount = #minetest.get_objects_inside_radius(pos, 30)
+  local animal_name = string.gsub(egg_name,"_eggs","")
+  animal_name = string.gsub(animal_name,"_egg","") -- incase it is singular
+  local objcount = #animals.get_entities_inside_radius(animal_name,pos,30)
 
   if minetest.get_node(p).name == medium and objcount < max_objects then
 
@@ -1366,6 +1368,58 @@ function animals.mate_assess(self, name)
 
 end
 
+function animals.get_entities_inside_radius(creature,pos,radius)
+  if (type(radius) ~= "number") then
+    radius = 30
+  end
+  -- if provided creature is an entity or objectref
+  if (type(creature) == "userdata") then
+    if (type(creature["get_luaentity"]) == "function") then
+      creature = creature:get_luaentity()
+    end
+    if (type(creature) ~= "nil" and type(creature) ~= "boolean" and type(creature) ~= "string") then
+      creature = creature["name"]
+    else
+      creature = ""
+    end
+  end
+  
+  if (type(creature) ~= "string") then
+    creature = "*"
+  end
+  if (type(pos) ~= "table") then
+    return
+  end
+  if (type(pos.x) ~= "number" or type(pos.y) ~= "number" or type(pos.z) ~= "number") then
+    minetest.log("warning","animals.get_entities_inside_radius: provided position is invalid")
+    return
+  end
+  
+  local objs = minetest.get_objects_inside_radius(pos,radius)
+  local aobjs = {}
+  
+  for _,v in pairs(objs) do
+    local name = ""
+    local obj
+    if (type(v) ~= "nil") then
+      obj = v:get_luaentity()
+    end
+    if (type(obj) ~= "nil") then
+      name = obj.name
+    end
+    if (type(name) == "string") then
+      if (name == creature or creature == "*") then
+        aobjs[#aobjs + 1] = v
+      end
+    end
+  end
+  
+  return aobjs
+end
+
+
+
+-- Animals Interactors Interactions
 animals.interactors = {}
 function animals.add_interactors(itype,creature,...) -- interactiontype, creature to be set with properties, all possible creatures to add
   -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
