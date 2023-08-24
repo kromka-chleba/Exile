@@ -233,7 +233,7 @@ function animals.core_life(self, lifespan, pos)
   end
   
   if (hbnate == true) then
-    mobkit.clear_queue_high(self)
+    mobkit.clear_queue_low(self)
     mobkit.animate(self,"dead")
   end
 
@@ -702,11 +702,12 @@ function animals.on_punch(self, tool_capabilities, puncher, prty, chance)
   if mobkit.is_alive(self) then
     --do damage
     mobkit.clear_queue_high(self)
-    mobkit.hurt(self,tool_capabilities.damage_groups.fleshy or 1)
+    local dmg = tool_capabilities.damage_groups.fleshy or 1
+    mobkit.hurt(self,dmg)
     mobkit.make_sound(self,'punch')
     --fight or flight
     --flee if hurt
-    if self.hp < self.max_hp/10 then
+    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) then
       mobkit.animate(self,'fast')
       mobkit.make_sound(self,'warn')
       mobkit.hq_runfrom(self, prty, puncher)
