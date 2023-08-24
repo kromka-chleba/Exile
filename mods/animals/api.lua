@@ -164,7 +164,7 @@ function animals.core_life(self, lifespan, pos)
   local age = mobkit.recall(self,'age')
   local hbnate = mobkit.recall(self,'hibernate')
   
-  local energy_loss = self.energy_loss or 0.1
+  local energy_loss = self.energy_loss or 0.25
 
   --stops some crashes in creative?
   if not energy then
