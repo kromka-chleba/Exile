@@ -48,7 +48,7 @@ local function set_charging(pos, length, interval)
 end
 
 local function transporter_particles(pos, percentage)
-   local adjust = 160 * (0.01 * percentage)
+   local adjust = math.floor(160 * (0.01 * percentage))
    local adj_str = "^[colorize:#ff0000:"..tostring(adjust)
    minetest.add_particlespawner({
 	 amount = 15,
@@ -239,7 +239,7 @@ local function do_teleport(pos, target_pos, random, player,
 
 	local inrange, stretch = check_teleport_distance(target_pos, pos, range)
 
-	if stretch > 0 and rand() > .05 then
+	if stretch > 0 and rand() > .10 then
 	   random = random
 	end
 
