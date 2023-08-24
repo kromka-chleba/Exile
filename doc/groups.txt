@@ -81,6 +81,19 @@ Plant groups
 `bioluminescent`: a living thing that glows.
 `woodslab`: a log that's been cut in half, e.g. stairs/slabs
 
+
+Animals groups
+--------------
+`class`: 1 for "land-borne", 2 for "sea-borne", 3 for "amphibious", 4 for "flying" (not functional)
+`burnt`: false or true (true means it will try to find items with a "burned" or "burnt" suffix), should not be set manually
+
+Misc Animals groups/data
+--------------
+`carcass`: animal carcasses; 1-3 is "invert" (invertebrate), 4-6 is "bird", 7-9 is "fish". +1 is medium, +2 is large
+`egg`: animal eggs; 1 for "invert" (invertebrate), 2 for "bird", 3 for "fish"
+`raw-cooked`: for animal carcasses; 1 for raw, 2 for cooked, 3 for burnt
+
+
 pottery groups
 --------------
 `pottery`: can be broken into broken pottery
