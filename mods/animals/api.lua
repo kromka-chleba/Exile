@@ -158,6 +158,7 @@ function animals.core_life(self, lifespan, pos)
 
   local energy = mobkit.recall(self,'energy')
   local age = mobkit.recall(self,'age')
+  local hbnate = mobkit.recall(self,'hibernate')
 
   --stops some crashes in creative?
   if not energy then
@@ -166,9 +167,16 @@ function animals.core_life(self, lifespan, pos)
   if not age then
     age = 0
   end
+  if not hbnate then
+    hbnate = false
+  end
 
   age = age + 1
-  energy = energy - 1
+  if (hbnate == false) then
+    energy = energy - 1
+  elseif (random() <= 0.005) then -- 0.5% chance to lose energy during hibernation
+    energy = energy - 1
+  end
 
   --die from exhaustion, old age
   if energy <=0 or age > lifespan then
@@ -190,6 +198,7 @@ function animals.core_life(self, lifespan, pos)
     if (self.class ~= 2) then
       -- only for land creatures
       animals.hq_roam_comfort_temp(self,80, self.max_temp / 2)
+      hbnate = false -- moving around, thus not hibernating
     end
     -- lose energy from discomfort
     energy = energy - math.random(4,8)
@@ -216,8 +225,13 @@ function animals.core_life(self, lifespan, pos)
       energy = energy - 5
     end
   end
+  
+  if (hbnate == true) then
+    mobkit.clear_queue_high(self)
+    mobkit.animate(self,"dead")
+  end
 
-  return age, energy
+  return age, energy, hbnate
 end
 
 

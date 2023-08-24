@@ -15,7 +15,7 @@ local floor = math.floor
 
 --energy
 local energy_max = 12000--secs it can survive without food
-local energy_egg = energy_max/3 --energy that goes to egg
+local energy_egg = 1000--energy_max/3 --energy that goes to egg
 local egg_timer  = 60*40
 local young_per_egg = 3		--will get this/energy_egg starting energy
 
@@ -36,7 +36,7 @@ local function brain(self)
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, lifespan, pos)
+		local age, energy, hbnate = animals.core_life(self, lifespan, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -59,7 +59,9 @@ local function brain(self)
 			--Threats
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
-				animals.fight_or_flight_plyr(self, plyr, 55, 0.75)
+        prty = 55
+				animals.fight_or_flight_plyr(self, plyr, prty, 0.75)
+        hbnate = false -- not hibernating anymore
 			end
 
 			--currently has none
@@ -70,8 +72,8 @@ local function brain(self)
 		----------------------
 		--Low priority actions
 
-		if prty < 20 then
-
+		if prty < 20 and hbnate ~= true then
+  
 			--territorial behaviour
 			local rival = animals.territorial(self, energy, true)
 
@@ -83,6 +85,10 @@ local function brain(self)
 					--random search for darkness
 					animals.hq_roam_dark(self,15)
 				end
+        
+        if (energy <= 1000) then
+          hbnate = true
+        end
 			end
 
 			--reproduction
@@ -95,21 +101,25 @@ local function brain(self)
       and age >= mature_age then
 				energy = animals.place_egg(pos, "animals:darkasthaan_eggs", energy, energy_egg, 'air')
 			end
-
+    elseif (hbnate == true) then
+      if animals.prey_hunt(self,40) then -- if found food then get outta hibernation
+        hbnate = false
+      end
 		end
 
 		-------------------
 		--generic behaviour
-		if mobkit.is_queue_empty_high(self) then
+		if mobkit.is_queue_empty_high(self) and hbnate ~= true then
 			mobkit.animate(self,'walk')
 			animals.hq_roam_dark(self,10,1)
 		end
-
+    
 		-----------------
 		--housekeeping
 		--save energy, age
 		mobkit.remember(self,'energy',energy)
 		mobkit.remember(self,'age',age)
+    mobkit.remember(self,'hibernate',hbnate) -- to prevent energy loss with no prey around
 
 	end
 end
