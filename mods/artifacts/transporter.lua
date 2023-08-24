@@ -32,7 +32,8 @@ local MIN_DIST = 30
 
 --standard  range, fully functioning range
 local STAN_RANGE = 300
-local FULL_RANGE = 3000
+local SAFE_RANGE = 3000
+local FULL_RANGE = 6000
 
 --to stop excessive back and forth
 local recent_teleports = {}
@@ -47,7 +48,7 @@ local function set_charging(pos, length, interval)
 end
 
 local function transporter_particles(pos, percentage)
-   local adjust = 160 * (0.01 * percentage)
+   local adjust = math.floor(160 * (0.01 * percentage))
    local adj_str = "^[colorize:#ff0000:"..tostring(adjust)
    minetest.add_particlespawner({
 	 amount = 15,
@@ -69,14 +70,14 @@ end
 
 --actually move
 local function teleport_effects(target_pos, pos, player, player_name,
-				regulator, power, random)
+				regulator, power, random, stretch)
 	local origin = player:get_pos()
 	target_pos.y = target_pos.y + 0.5
 
 	--effects at source
 	minetest.sound_play( {name="artifacts_transport", gain=1},
 	   {pos=pos, max_hear_distance=100})
-	transporter_particles(pos)
+	transporter_particles(pos, stretch)
 
 	--swap out power core
 	minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
@@ -88,7 +89,7 @@ local function teleport_effects(target_pos, pos, player, player_name,
 	--effects at target
 	minetest.sound_play( {name="artifacts_transport", gain=1},
 	   {pos=target_pos, max_hear_distance=100})
-	transporter_particles(target_pos)
+	transporter_particles(target_pos, stretch)
 
 	--dangerous effects (super heated air)
 	if not regulator then
@@ -128,24 +129,29 @@ local function teleport_effects(target_pos, pos, player, player_name,
 
 end
 
+local function check_teleport_distance(dest, pos, range)
+   -- Checks the teleport is in range, returns true if valid range,
+   --  and a stretch value (in %) if the range is outside safe limits
+   local dist = vector.distance(pos, dest)
+   if dist < MIN_DIST then
+      return false, 0
+   end
+   if dist > range then
+      if dist > FULL_RANGE then
+	 minetest.log("action", "Attempted to teleport too far: "..
+		      dump(dist).." > "..dump(range))
+	 return false, 100
+      else
+	 local stretch = math.floor(( dist - SAFE_RANGE )/ 3000 * 100)
+	 return true, stretch
+      end
+   end
+   return true, 0
+end
+
 --ensure destination is usable
 local function check_teleport_dest(dest, pos, range, random)
 	local dest_ok  = true
-	--check if in range
-	local dist = vector.distance(pos, dest)
-	if random == "locked" then
-		if dist < MIN_DIST then
-			dest_ok = false
-			return dest_ok
-		end
-		if dist > range then
-		   minetest.log("action", "Attempted to teleport too far: "..
-				dump(dist).." > "..dump(range))
-		   dest_ok = false
-		   return dest_ok
-		end
-	end
-
 	-- check the destination node for pad, and the two nodes
 	-- above for "walkthrough"
 	-- "ignore" is ok, we could not emerge in time then.
@@ -231,6 +237,12 @@ local function do_teleport(pos, target_pos, random, player,
 	minetest.log("action", "Transporter activated by: "..
 		     player_name.." at "..pos.x.."/"..pos.y.."/"..pos.z)
 
+	local inrange, stretch = check_teleport_distance(target_pos, pos, range)
+
+	if stretch > 0 and rand() > .10 then
+	   random = random
+	end
+
 	if random == "random" then
 		target_pos = find_random_dest(target_pos)
 		if not target_pos then
@@ -246,7 +258,11 @@ local function do_teleport(pos, target_pos, random, player,
 	end
 
 	--check for usability
-	local dest_ok = check_teleport_dest(target_pos, pos, range, random)
+	local dest_ok = false
+	if inrange then
+	   dest_ok = check_teleport_dest(target_pos, pos, range, random)
+	end
+
 
 	if not dest_ok then
 		--lose link
@@ -258,7 +274,7 @@ local function do_teleport(pos, target_pos, random, player,
 				    {pos = pos, gain = 1, max_hear_distance = 6})
 	else
 	   teleport_effects(target_pos, pos, player, player_name,
-			    regulator, power, random)
+			    regulator, power, random, stretch)
 	end
 end
 
@@ -301,7 +317,7 @@ local function assess_transporter(pos)
 
 	if minetest.find_node_near(pos, 1,
 				   {"artifacts:transporter_focalizer"}) then
-		range = FULL_RANGE
+		range = SAFE_RANGE
 	else
 	   minetest.sound_play("artifacts_transport_error",
 			       {pos = pos, gain = 1, max_hear_distance = 6})
@@ -368,7 +384,7 @@ local function transporter_rightclick(pos, node, player,
 	end
 
 	--assess status
-	local power, _, stabilizer, _  = assess_transporter(pos)
+	local power, range, stabilizer, _  = assess_transporter(pos)
 	if power then
 
 		local dpos, random = get_transporter_target(pos, stabilizer)
@@ -386,12 +402,14 @@ local function transporter_rightclick(pos, node, player,
 
 		--create charging pad and copy over meta data
 		local meta_tran = minetest.get_meta(pos)
+		local _, stretch = check_teleport_distance(pos, dpos, range)
 		minimal.switch_node(pos,
 				    {name="artifacts:transporter_pad_charging"})
 		minetest.sound_play("artifacts_transport_charge",
 				    {pos = pos, gain = 2, max_hear_distance = 20})
 		meta_tran:set_string("tmp_dest", dest)
 		meta_tran:set_string("tmp_random", random)
+		meta_tran:set_string("stretch", stretch)
 	else
 	   minetest.sound_play("artifacts_transport_error",
 			       {pos = pos, gain = 1, max_hear_distance = 6})
@@ -797,7 +815,8 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 	   minimal.switch_node(pos, {name = "artifacts:transporter_pad_active"})
 	   minetest.sound_play("artifacts_transport_charged",
 			       {pos = pos, gain = 2, max_hear_distance = 20})
-		transporter_particles(pos)
+	   local color = tonumber(minetest.get_meta(pos):get("stretch") or 0)
+	   transporter_particles(pos, color)
 	end,
 })
 
