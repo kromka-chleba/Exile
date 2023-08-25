@@ -80,9 +80,9 @@ local function teleport_effects(target_pos, pos, player, player_name,
 	transporter_particles(pos, stretch)
 
 	--swap out power core
-	minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
-	minimal.infotext_set(power) -- set node description and owner
-	set_charging(power, 5, 20)
+	--minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
+	--minimal.infotext_set(power) -- set node description and owner
+	--set_charging(power, 5, 20)
 	--go to target
 	player:set_pos(target_pos)
 
@@ -239,37 +239,26 @@ local function do_teleport(pos, target_pos, random, player,
 
 	local inrange, stretch = check_teleport_distance(target_pos, pos, range)
 
-	if stretch > 0 and rand() > .10 then
-	   random = random
-	end
-
-	if random == "random" then
-		target_pos = find_random_dest(target_pos)
-		if not target_pos then
-			--failed to find a viable spot
-		   minetest.sound_play("artifacts_transport_error",
-				       {pos = pos, gain = 1,
-					max_hear_distance = 6})
-		   minetest.log("action",
-				"Attempted to teleport randomly but could "..
-				"not find a target")
-			return
-		end
-	end
-
 	--check for usability
 	local dest_ok = false
 	if inrange then
+	   if random == "random" then
+	      target_pos = find_random_dest(target_pos)
+	      if not target_pos then
+		 --failed to find a viable spot
+		 minetest.sound_play("artifacts_transport_error",
+				     {pos = pos, gain = 1,
+				      max_hear_distance = 6})
+		 minetest.log("action",
+			      "Attempted to teleport randomly but could "..
+			      "not find a target")
+		 return
+	      end
+	   end
 	   dest_ok = check_teleport_dest(target_pos, pos, range, random)
 	end
 
-
 	if not dest_ok then
-		--lose link
-		local meta_tran = minetest.get_meta(pos)
-		meta_tran:set_string("target_name", "")
-		meta_tran:set_string("target_pos", "")
-		minimal.infotext_delete_key(meta_tran,"Destination")
 		minetest.sound_play("artifacts_transport_fail",
 				    {pos = pos, gain = 1, max_hear_distance = 6})
 	else
@@ -378,31 +367,60 @@ end
 --
 local function transporter_rightclick(pos, node, player,
 				      itemstack, pointed_thing)
-	if itemstack:get_name() == "artifacts:transporter_key" then
-		--don't conflict with key
-		return
-	end
+   if itemstack:get_name() == "artifacts:transporter_key" then
+      --don't conflict with key
+      return
+   end
 
-	--assess status
-	local power, range, stabilizer, _  = assess_transporter(pos)
-	if power then
+   --assess status
+   local power, range, stabilizer, _  = assess_transporter(pos)
+   if power then
 
-		local dpos, random = get_transporter_target(pos, stabilizer)
+      local dpos, random = get_transporter_target(pos, stabilizer)
 
-		local p1 = { x = dpos.x - MIN_DIST,
-			     y = dpos.y - MIN_DIST,
-			     z = dpos.z - MIN_DIST}
-		local p2 = { x = dpos.x + MIN_DIST,
-			     y = dpos.y + MIN_DIST,
-			     z = dpos.z + MIN_DIST}
+      local inrange, stretch = check_teleport_distance(pos, dpos, range)
 
-		minetest.emerge_area(p1, p2)
+      if not inrange then return end
+      if stretch > 0 then
+	 if 10 + rand(0, 100) >= stretch then
+	    -- 10% base chance for at/near the pad
+	    if stretch * rand() > 33 then -- near miss of the pad
+	       random = "random"
+	    end
+	 else -- big miss, maybe as much as 900m away with max stretch
+	    local function scatter()
+	       return ( rand(0,800)-400 ) * (stretch * 0.02)
+	       -- higher stretch increases the effect non-linearly
+	    end
+	    local function wobble()
+	       -- between -4 and +4 degrees at 100% stretch
+	       return (rand() * 4 - 2) * (stretch * 0.02) * (math.pi /180)
+	    end
+	    local dir = vector.direction(pos, dpos)
+	    local dist = vector.distance(pos, dpos)
+	    local newdir = vector.rotate_around_axis(dir, vector.new(0,1,0),
+						     wobble())
+	    local tdist = dist + scatter()
+	    local newmove = vector.multiply(newdir, tdist)
+	    local new_dpos = vector.floor(vector.add(pos, newmove))
+	    random = "random"
+	    dpos = new_dpos
+	 end
+      end
 
-		local dest = minetest.pos_to_string(dpos)
+      local p1 = { x = dpos.x - MIN_DIST,
+		   y = dpos.y - MIN_DIST,
+		   z = dpos.z - MIN_DIST}
+      local p2 = { x = dpos.x + MIN_DIST,
+		   y = dpos.y + MIN_DIST,
+		   z = dpos.z + MIN_DIST}
 
-		--create charging pad and copy over meta data
-		local meta_tran = minetest.get_meta(pos)
-		local _, stretch = check_teleport_distance(pos, dpos, range)
+      minetest.emerge_area(p1, p2)
+
+      local dest = minetest.pos_to_string(dpos)
+
+      --create charging pad and copy over meta data
+      local meta_tran = minetest.get_meta(pos)
 		minimal.switch_node(pos,
 				    {name="artifacts:transporter_pad_charging"})
 		minetest.sound_play("artifacts_transport_charge",
@@ -628,6 +646,7 @@ end
 --wipe transporter key
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if formname == "wipe_trans_key" and fields.ok then
+	   -- #TODO: test, see if we need to ensure wielded item hasn't changed?
 		local stack=player:get_wielded_item()
 		local meta=stack:get_meta()
 			meta:set_string("target_pos", "")
@@ -809,7 +828,7 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 	groups = {},
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(20)
+		minetest.get_node_timer(pos):start(2)
 	end,
 	on_timer = function(pos, elapsed)
 	   minimal.switch_node(pos, {name = "artifacts:transporter_pad_active"})
@@ -846,7 +865,7 @@ minetest.register_node('artifacts:transporter_pad_active', {
 	on_rightclick = active_transporter_rightclick,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(30)
+		minetest.get_node_timer(pos):start(3)
 	end,
 	on_timer = function(pos, elapsed)
 	   minimal.switch_node(pos, {name = "artifacts:transporter_pad"})
