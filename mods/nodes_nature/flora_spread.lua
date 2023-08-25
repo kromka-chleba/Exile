@@ -117,6 +117,10 @@ local function grow_cane(pos, node)
     local current_node = node.name
     local kill = false
 
+    if minetest.get_item_group(current_node, "seedling") > 0 then
+        return -- don't grow seedlings
+    end
+
     while ((minetest.get_item_group(current_node, "sediment") == 0 and
             pos.y - current_pos.y < 9)) do
         if minetest.get_item_group(current_node, "cane_plant") ~= 1 then
