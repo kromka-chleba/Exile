@@ -7,6 +7,7 @@
 
 local nsl = naturalslopeslib
 local ms = mapchunk_shepherd
+local plant = plant
 
 ----------------------------------------------------------------
 -- Flora & mushrooms
@@ -112,46 +113,73 @@ minetest.register_abm({
 
 ---------------------------------
 local function grow_cane(pos, node)
-	pos.y = pos.y - 1
-	local under = minetest.get_node(pos)
-	pos.y = pos.y + 1
+    local current_pos = vector.new(pos)
+    local current_node = node.name
+    local kill = false
 
-	if minetest.get_item_group(under.name, "wet_sediment") ~= 1 then
-		return
-	end
+    while ((minetest.get_item_group(current_node, "sediment") == 0 and
+            pos.y - current_pos.y < 9)) do
+        if minetest.get_item_group(current_node, "cane_plant") ~= 1 then
+            kill = true
+        end
+        current_pos.y = current_pos.y - 1
+        current_node = minetest.get_node(current_pos).name
+    end
 
-	---extreme stop growth
-	local temp = climate.get_point_temp(pos)
-	if temp < 10 or temp > 40 then
-		return
-	end
+    local wet_sediment = minetest.get_item_group(current_node, "wet_sediment")
+    local sediment = minetest.get_item_group(current_node, "sediment")
 
-	local plant_name = node.name
+    if wet_sediment == 2 or sediment <= 0 then
+        -- kill if salty or not sediment
+        kill = true
+    elseif wet_sediment <= 0 then
+        -- dry so no growing
+        return
+    end
 
-	local height = 0
-	while node.name == plant_name and height < 5 do
-		height = height + 1
-		pos.y = pos.y + 1
-		node = minetest.get_node(pos)
-	end
+    if kill then
+        for i = 1, 8 do
+            current_pos.y = current_pos.y + 1
+            current_node = minetest.get_node(pos).name
+            if minetest.get_item_group(current_node, "cane_plant") > 0 then
+                plant.kill(current_pos, true)
+            end
+        end
+        return
+    end
 
-	if height == 5 or node.name ~= "air" then
-		return
-	end
+    ---extreme stop growth
+    local temp = climate.get_point_temp(pos)
+    if temp < 10 or temp > 40 then
+        return
+    end
 
-	if minimal.get_daylight(pos) < 13 then
-		return
-	end
-	local nodedef = minetest.registered_nodes[plant_name]
-	minetest.set_node(pos, {name = plant_name, param2= nodedef.place_param2})
-	return true
+    local plant_name = node.name
+
+    local height = 0
+    while node.name == plant_name and height < 6 do
+        height = height + 1
+        pos.y = pos.y + 1
+        node = minetest.get_node(pos)
+    end
+
+    if height == 6 or node.name ~= "air" then
+        return
+    end
+
+    if minimal.get_daylight(pos) < 13 then
+        return
+    end
+    local nodedef = minetest.registered_nodes[plant_name]
+    minetest.set_node(pos, {name = plant_name, param2 = nodedef.place_param2})
+    return true
 end
 
 
 minetest.register_abm({
 	label = "Grow cane",
 	nodenames = {"group:cane_plant"},
-	neighbors = {"group:sediment"},
+        neighbors = {"group:sediment"},
 	interval = 220,
 	chance = 3,
 	catch_up = true,

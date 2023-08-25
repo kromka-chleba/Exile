@@ -226,7 +226,7 @@ local function deplete_soil(pos)
     end
 end
 
-local function kill_plant(pos, natural_death)
+function plant.kill(pos, natural_death)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
     if minetest.get_item_group(node.name, "flora") == 0 then
@@ -276,21 +276,21 @@ end
 local function kill_no_light(pos, elapsed)
     local meta = minetest.get_meta(pos)
     if not was_light_here(pos, elapsed) then
-        kill_plant(pos, false)
+        plant.kill(pos, false)
         return true
     end
 end
 
 local function kill_extreme_temp(pos, elapsed)
     if is_temperature_extreme(pos) then
-        kill_plant(pos, false)
+        plant.kill(pos, false)
         return true
     end
 end
 
 local function kill_climate_history(pos, elapsed)
     if climate.plant_killed(elapsed) then
-        kill_plant(pos, false)
+        plant.kill(pos, false)
         return true
     end
 end
@@ -299,7 +299,7 @@ local is_winter = seasons.is_winter
 
 local function kill_in_winter(pos, elapsed)
     if not are_conditions_good(pos) and is_winter() then
-        kill_plant(pos, true)
+        plant.kill(pos, true)
         return true
     end
 end
@@ -466,7 +466,7 @@ function plant.death_chance_on_replant(pos)
     if math.random() < 1/4 then
         local timer = minetest.get_node_timer(pos)
         timer:stop()
-        minetest.after(3, function () kill_plant(pos, false) end)
+        minetest.after(3, function () plant.kill(pos, false) end)
     end
 end
 
@@ -495,10 +495,10 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     end
     if param2 >= 128 and is_winter() then
         plant.set_to_wild(pos)
-        kill_plant(pos, true)
+        plant.kill(pos, true)
     end
     if health <= 0 then
-        kill_plant(pos, true)
+        plant.kill(pos, true)
     end
     if not are_conditions_good(pos) then
         current_progress = 0
