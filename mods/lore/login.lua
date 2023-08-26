@@ -20,7 +20,7 @@ end
 local loginspec = ("formspec_version[3]"..
 		       "size[7,7.5]"..
 		   "bgcolor[;both;#bbb]"..
-		   "background9[0,0;7,7.5;9slice.png;false;10]"..
+		   "background9[0,0;7,7.5;9slice-deep.png;false;10]"..
 		   "hypertext[0.5,0.75;6,5;introtext;"..logintext.."]"..
 		   "image[1.5,6;6,2;logo.png]" )
 
@@ -39,7 +39,7 @@ minetest.register_on_joinplayer(function(player)
 	 player_api.set_invisible(player, true)
 	 newplayer[name] = false
       end
-      player:set_formspec_prepend("background9[0,0;,;9slice.png;true;10]")
+      player:set_formspec_prepend("background9[0,0;,;9slice-deep.png;true;10]")
 end)
 
 local rspawn_available = false
