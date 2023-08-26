@@ -40,10 +40,6 @@ minetest.register_on_joinplayer(function(player)
 	 player_api.set_invisible(player, true)
 	 newplayer[name] = false
       end
-      player:set_formspec_prepend(
-	 "background9[0,0;,;9slice-hollow.png;true;10]"..
-	 "style_type[button;bgimg=9slice.png;bgimg_middle=10]"
-      )
 end)
 
 local rspawn_available = false
