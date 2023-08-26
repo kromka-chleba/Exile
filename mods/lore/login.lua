@@ -39,8 +39,7 @@ minetest.register_on_joinplayer(function(player)
 	 player_api.set_invisible(player, true)
 	 newplayer[name] = false
       end
-      player:set_formspec_prepend("bgcolor[;both;#bbb]"..
-				  "background9[0,0;,;9slice.png;true;10]")
+      player:set_formspec_prepend("background9[0,0;,;9slice.png;true;10]")
 end)
 
 local rspawn_available = false
