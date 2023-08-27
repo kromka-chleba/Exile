@@ -67,7 +67,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 local oldtheme = meta:get("gui_theme") or "default"
 	 local oldtempscale = meta:get("tempscale") or mttempscale
 
-	 print(dump(fields))
 	 local reopen = false
 	 local num = tonumber(fields.gui_theme) -- table[1] ~= table["1"] !
 	 if theme_fromnum[num] and theme_fromnum[num] ~= oldtheme then
@@ -99,7 +98,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	    meta:set_string("nobreaktaker", fields.breaktaker)
 	 end
 	 if reopen == true then
-	    print("Reopening")
 	    minetest.close_formspec(name, "player_settings")
 	    minetest.after(0.1, function()
 			      minimal.show_player_settings(name, meta)
