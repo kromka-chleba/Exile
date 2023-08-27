@@ -9,82 +9,6 @@ local ms = mapchunk_shepherd
 local seasons = seasons
 
 ----------------------------------------------------------------
---freeze water
-local function water_freeze(pos, node)
-	local n_name = node.name
-
-	if climate.can_freeze(pos) then
-
-		local water_type = minetest.get_item_group(n_name, "water")
-		if water_type == 1 then
-		   minetest.set_node(pos, {name = "nodes_nature:ice"})
-		-- elseif water_type == 2 then
-		--    minetest.set_node(pos, {name = "nodes_nature:sea_ice"})
-		end
-
-	end
-end
-
-----------------------------------------------------------------
---evaporate water
-local function water_evap(pos, node)
-
-	--evaporation
-	if climate.can_evaporate(pos) then
-		--lose it's own water to the atmosphere
-		minetest.remove_node(pos)
-		return
-	end
-
-end
-
---------------------------
---move sources down, otherwise erosion leaves them stranded
-local function fall_water(pos,node)
-
-	local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
-	local under_name = minetest.get_node(pos_under).name
-
-	if under_name == "nodes_nature:freshwater_flowing" or under_name == "nodes_nature:salt_water_flowing" then
-		minetest.remove_node(pos)
-		minetest.set_node(pos_under, {name = node.name})
-		return pos
-	end
-
-	--Fresh water should not float on top of the ocean
-	if ( under_name == "nodes_nature:salt_water_source" and
-	     node.name == "nodes_nature:freshwater_source" ) then
-	   minetest.remove_node(pos)
-	   return nil
-	end
-	return pos
-end
-
-local function water_handler(pos, node)
-   pos = fall_water(pos, node)
-   if pos == nil then
-      return -- the water is not there anymore
-   end
-   if climate.active_temp < 2 then
-      water_freeze(pos, node)
-   else
-      water_evap(pos, node)
-   end
-end
-
---
-minetest.register_abm({
-	label = "Water Source Handling",
-	nodenames = {"nodes_nature:freshwater_source", "nodes_nature:salt_water_source"},
-	interval = 120,
-	chance = 10,
-	action = function(...)
-		water_handler(...)
-	end
-})
-
-
-----------------------------------------------------------------
 --Thaw snow and ice
 
 local function thaw_frozen(pos, node)
@@ -118,186 +42,6 @@ minetest.register_abm({
 		thaw_frozen(...)
 	end
 })
-
---puddle detect
---check for sides that can hold water
---intended to be call for an air node with solid below
---i.e. somewhere to put a puddle
-local function puddle_detect(pos)
-	local sides = {
-		{x = pos.x + 1, y = pos.y, z = pos.z},
-		{x = pos.x - 1, y = pos.y, z = pos.z},
-		{x = pos.x, y = pos.y, z = pos.z + 1},
-		{x = pos.x, y = pos.y, z = pos.z - 1}
-	}
-	local puddle = true
-	for i, v in ipairs(sides) do
-		local s_name = minetest.get_node(v).name
-		if minetest.get_item_group(s_name, "wet_sediment") == 0
-		and minetest.get_item_group(s_name, "soft_stone") == 0
-		and minetest.get_item_group(s_name, "masonry") == 0
-		and minetest.get_item_group(s_name, "stone") == 0  then
-			puddle = false
-			break
-		end
-	end
-	if puddle then
-		return true
-	else
-		return false
-	end
-end
-
-----------------------------------------------------------------
--- Wet nodes: move water down into dry sediment
---drain if exposed side or under
---evaporate at surface in hot sun
-
-local function moisture_spread(pos, node)
-
-
-	local nodename = node.name
-
-	--dry version
-	local nodedef = minetest.registered_nodes[nodename]
-	local water_type = minetest.get_item_group(nodename, "wet_sediment")
-        --1= fresh or 2 = salty
-        
-	if not nodedef or not water_type then
-		return
-	end
-
-	--move through the soil, with a bias downwards
-	local pos_sed = minetest.find_nodes_in_area(
-		{x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-		{x = pos.x + 1, y = pos.y, z = pos.z + 1},
-		{"group:sediment"})
-
-	if #pos_sed > 0 then
-		--select a random one
-		local pos2 = pos_sed[math.random(#pos_sed)]
-		--is it dry?
-		local name2 = minetest.get_node(pos2).name
-		if minetest.get_item_group(name2, "wet_sediment") == 0 then
-			--lose it's own water, and move it
-			tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
-			--set wet version of what draining into
-			local nodedef2 = minetest.registered_nodes[name2]
-			if not nodedef2 then
-				return
-			end
-			if water_type == 1 then
-				tgcr.make_replacement(pos2, rt.REPLACEMENT_WET)
-			else
-				tgcr.make_replacement(pos2, rt.REPLACEMENT_SALTY)
-			end
-			return
-		end
-	end
-
-	--leach out
-	--move out of the soil, only downwards
-	local pos_air = minetest.find_nodes_in_area(
-		{x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-		{x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
-		{"air"})
-
-	if #pos_air > 0 then
-		--select a random one
-		local pos2 = pos_air[math.random(#pos_air)]
-		--lose it's own water, and move it
-		tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
-		--source or flowing?
-		if puddle_detect(pos2) then
-			if water_type == 1 then
-				minetest.set_node(pos2, {name = "nodes_nature:freshwater_source"})
-			else
-				minetest.set_node(pos2, {name = "nodes_nature:salt_water_source"})
-			end
-		else
-			if water_type == 1 then
-				minetest.set_node(pos2, {name = "nodes_nature:freshwater_flowing"})
-			else
-				minetest.set_node(pos2, {name = "nodes_nature:salt_water_flowing"})
-			end
-		end
-		return
-	end
-
-
-
-
-end
-
-
-
-minetest.register_abm({
-	label = "Moisture Spread",
-	nodenames = {"group:wet_sediment"},
-	--neighbors = {"group:sediment"},
-	interval = 121,
-	chance = 15,
-	action = moisture_spread
-})
-
-
-----------------------------------------------------------------
--- Water soaks into sediment
-local function water_soak(pos, node)
-
-	local nodename = node.name
-
-	--move into the soil, with a bais downwards
-	local pos_sed = minetest.find_nodes_in_area(
-		{x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-		{x = pos.x + 1, y = pos.y, z = pos.z + 1},
-		{"group:sediment"})
-
-	if #pos_sed > 0 then
-		--select a random one
-		local pos2 = pos_sed[math.random(#pos_sed)]
-		--is it dry?
-		local name2 = minetest.get_node(pos2).name
-		if minetest.get_item_group(name2, "wet_sediment") == 0 then
-			--
-			if nodename == "nodes_nature:freshwater_source" then
-				--non-renew
-				minetest.swap_node(pos, {name = "air"})
-				--set wet version of what draining into
-				local nodedef2 = minetest.registered_nodes[name2]
-				if not nodedef2 then
-					return
-				end
-				tgcr.make_replacement(pos2, rt.REPLACEMENT_WET)
-				return
-			else
-				--set salty wet version of what draining into
-				local nodedef2 = minetest.registered_nodes[name2]
-				if not nodedef2 then
-					return
-				end
-				tgcr.make_replacement(pos2, rt.REPLACEMENT_SALTY)
-				return
-			end
-		end
-	end
-
-end
-
---
---
-minetest.register_abm({
-	label = "Water Soak",
-	nodenames = {"nodes_nature:freshwater_source", "nodes_nature:salt_water_source"},
-	neighbors = {"group:sediment"},
-	interval = 147,
-	chance = 100,
-	action = function(...)
-		water_soak(...)
-	end
-})
-
-
 
 ----------------------------------------------------------------
 -- flowing Water erode
@@ -798,6 +542,25 @@ local function start_ice_queen()
     end
 end
 
+local air_to_liquid = {
+    ["air"] = "nodes_nature:freshwater_source",
+}
+
+local function start_moisture_spread()
+    local moisture_spread =
+        nn.create_soak_out_move_down({
+                wet_to_dry = get_wet_dry_pairs(),
+                air_to_liquid = air_to_liquid,
+                add_labels = {"moisture_spread"},
+        })
+    ms.register_worker({name = "moisture_spread_worker",
+                        fun = moisture_spread,
+                        work_every = 30,
+                        has_one_of = soil_labels,
+                        rework_labels = {"moisture_spread"},
+    })
+end
+
 local weather_loop_interval = 5
 
 local function weather_loop()
@@ -847,4 +610,5 @@ end
 -- Start the weather loop
 minetest.register_on_mods_loaded(function ()
         minetest.after(2, weather_loop)
+        start_moisture_spread()
 end)

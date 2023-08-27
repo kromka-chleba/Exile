@@ -11,6 +11,9 @@ ms.labels.register("winter_soil")
 ms.labels.register("no_spring_soil")
 ms.labels.register("no_winter_soil")
 
+-- Moisture
+ms.labels.register("moisture_spread")
+
 -- Plants
 ms.labels.register("spring_early_plants")
 ms.labels.register("spring_late_plants")
