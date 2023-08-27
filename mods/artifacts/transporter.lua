@@ -80,9 +80,9 @@ local function teleport_effects(target_pos, pos, player, player_name,
 	transporter_particles(pos, stretch)
 
 	--swap out power core
-	--minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
-	--minimal.infotext_set(power) -- set node description and owner
-	--set_charging(power, 5, 20)
+	minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
+	minimal.infotext_set(power) -- set node description and owner
+	set_charging(power, 5, 20)
 	--go to target
 	player:set_pos(target_pos)
 
@@ -828,7 +828,7 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 	groups = {},
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(2)
+		minetest.get_node_timer(pos):start(20)
 	end,
 	on_timer = function(pos, elapsed)
 	   minimal.switch_node(pos, {name = "artifacts:transporter_pad_active"})
@@ -865,7 +865,7 @@ minetest.register_node('artifacts:transporter_pad_active', {
 	on_rightclick = active_transporter_rightclick,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(3)
+		minetest.get_node_timer(pos):start(30)
 	end,
 	on_timer = function(pos, elapsed)
 	   minimal.switch_node(pos, {name = "artifacts:transporter_pad"})
