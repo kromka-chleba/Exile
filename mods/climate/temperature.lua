@@ -836,7 +836,7 @@ end
 climate.get_temp_string = function(v, meta)
    local scale = minetest.settings:get('exile_temp_scale')
    if meta then
-      local tempscalepref = meta:get_string("TempScalePref")
+      local tempscalepref = meta:get_string("tempscale")
       if tempscalepref ~= "" then -- override the sitewide temp scale
 	 scale = tempscalepref
       end

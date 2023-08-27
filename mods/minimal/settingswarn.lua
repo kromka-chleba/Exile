@@ -17,3 +17,11 @@ local HUS = tonumber(minetest.settings:get("exile_hud_update"))
 if HUS < 1 and not minetest.is_singleplayer() then
    minetest.log("warning", "It is recommended to set hud update speed to 1 second on multiplayer servers")
 end
+
+local mttempscale = minetest.settings:get('exile_temp_scale') or "Celsius"
+local tempindex = { ["Celsius"] = 1, ["Fahrenheit"] = 2, ["Kelvin"] = 3 }
+if not tempindex[mttempscale] then
+   minetest.log("error", "WARNING: exile_temp_scale is set to an invalid value:"..
+		" "..mttempscale.."\n"..
+		"Valid values are Celsius, Fahrenheit, or Kelvin. Using Celsius")
+end

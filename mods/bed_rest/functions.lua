@@ -112,13 +112,13 @@ local function get_formspec()
 end
 
 --check session length and encourage player to take a real break
-local function break_taker(name, prefs)
+local function break_taker(name, disabled)
 	local ts = bed_rest.session_start[name]
 	local sess_l = bed_rest.session_limit[name]
 	local tn = os.time()
 
 	local nobreak = minetest.settings:get_bool('exile_nobreaktaker') or false
-	if prefs == "off" or ( prefs == "" and nobreak == true ) then
+	if disabled == "true" or ( prefs == "" and nobreak == true ) then
 	   return
 	end
 
@@ -331,7 +331,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		end
 
 		--check with break taker
-		break_taker(name,player:get_meta():get_string("BreaktakerPref"))
+		break_taker(name,player:get_meta():get_string("nobreaktaker"))
 
 		--wear a blanket from inventory
 		wear_blanket(player, bed_pos, true)

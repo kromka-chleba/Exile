@@ -90,6 +90,14 @@ function HEALTH.show_hud_elements(meta, list, player)
    HEALTH.hide_hud_elements(meta, list, player, true)
 end
 
+function HEALTH.hud_update_settings(player_name, table)
+   local hud_data = hud[player_name]
+   for nm, val in pairs(table) do
+      hud_data[nm] = val
+   end
+end
+
+
 local function are_stats_visible(hud_data)
    return (( hud_data.showstats and hud_data.showstats == true ) or
       ( hud_data.showstats == nil and mtshowstats == true ) )
@@ -105,7 +113,7 @@ local setup_hud = function(player)
 	hud[playername] = hud_data
 
 	local meta = player:get_meta()
-	local show_stats = meta:get("exile_hud_show_stats")
+	local show_stats = meta:get("hud_show_stats")
 	if show_stats then
 	   if tobool(show_stats) == true then
 	      hud_data.showstats = true
@@ -114,7 +122,7 @@ local setup_hud = function(player)
 	   end
 	end
 
-	local hud_opacity = meta:get("exile_hud_icon_transparency")
+	local hud_opacity = meta:get("hud_opacity")
 	if hud_opacity then
 	   hud_data.opacity = tonumber(hud_opacity)
 	else
@@ -560,16 +568,16 @@ minetest.register_chatcommand("show_stats", {
 		      "clear' to revert to defaults")
 		   return false, wlist
 		elseif param == "clear" then
-		   meta:set_string("exile_hud_show_stats", "")
+		   meta:set_string("show_stats", "")
 		   hud_data.showstats = nil
 		   return true, S("Cleared setting")
 		else
-		   local show_stats = meta:get("exile_hud_show_stats")
+		   local show_stats = meta:get("hud_show_stats")
 		   if not show_stats then
 		      show_stats = tostring(mtshowstats)
 		   end
 		   local newval = not tobool(show_stats)
-		   meta:set_string("exile_hud_show_stats", tostring(newval))
+		   meta:set_string("hud_show_stats", tostring(newval))
 		   hud_data.showstats = newval
 		   if newval == true then
 		      return true, S("Enabled stats.")
@@ -595,22 +603,22 @@ minetest.register_chatcommand("icon_transparency", {
 	  return false, wlist
        end
        if param == "default" then
-	  meta:set_string("exile_hud_icon_transparency", "")
+	  meta:set_string("hud_opacity", "")
 	  hud_data.opacity = nil
 	  return true, S("Returned setting to default")
        else
 	  local num = tonumber(param)
 	  if type(num) == "number" then
 	     if num < 0 then
-		meta:set_string("exile_hud_icon_transparency", "0")
+		meta:set_string("hud_opacity", "0")
 		hud_data.opacity = 0
 		return false, S("Icon transparency set to 0")
 	     elseif num > 255 then
-		meta:set_string("exile_hud_icon_transparency", "255")
+		meta:set_string("hud_opacity", "255")
 		hud_data.opacity = 255
 		return false, S("Icon transparency set to 255")
 	     else
-		meta:set_string("exile_hud_icon_transparency", tostring(math.floor(num)))
+		meta:set_string("hud_opacity", tostring(math.floor(num)))
 		hud_data.opacity = num
 		return false, S("Icon transparency set to ")..math.floor(num)
 	     end

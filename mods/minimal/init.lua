@@ -34,6 +34,7 @@ dofile(modpath..'/triggers.lua')
 dofile(modpath..'/zones.lua')
 dofile(modpath..'/debug.lua')
 dofile(modpath..'/themes.lua')
+dofile(modpath..'/playersettings.lua')
 
 -- GUI related stuff
 
