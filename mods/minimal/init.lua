@@ -33,6 +33,7 @@ dofile(modpath..'/metadata.lua')
 dofile(modpath..'/triggers.lua')
 dofile(modpath..'/zones.lua')
 dofile(modpath..'/debug.lua')
+dofile(modpath..'/themes.lua')
 
 -- GUI related stuff
 
@@ -73,22 +74,9 @@ minetest.register_chatcommand("hud16", {
 
 minetest.register_on_joinplayer(function(player)
 	-- Set formspec prependl
-	local formspec = "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]"
-	local name = player:get_player_name()
-	local info = minetest.get_player_information(name)
-	print(type(info.formspec_version),info.formspec_version)
-	if info.formspec_version > 1 then
-	   formspec = formspec ..
-	      "background9[0,0;,;9slice-hollow.png;true;10]"..
-	      "style_type[button;bgimg=9slice.png;bgimg_middle=10]"
-	      --"background9[5,5;1,1;gui_formbg.png;true;10]"
-	else
-	   formspec = formspec ..
-	   "background[5,5;1,1;gui_formbg.png;true]"
-	end
-	player:set_formspec_prepend(formspec)
-	-- Set hotbar textures
 	local meta = player:get_meta()
+	minimal.apply_gui_theme(player, meta)
+	-- Set hotbar textures
 	local hud = meta:get_string("hud16") or minetest.settings:get('exile_hud_wide_hotbar') or 'false'
 	minimal.set_hotbar(player,hud)
 	player:hud_set_hotbar_selected_image("gui_hotbar_selected.png")

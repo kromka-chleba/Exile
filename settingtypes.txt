@@ -16,6 +16,9 @@ ncrafting_worldseed (Use world seed for dye generation) bool true
 
 ## Settings for displays
 
+# Name of the gui theme that will be used by default, leave empty
+# or set to default to use the standard default setting.
+exile_default_gui_theme (Change the default gui theme) string default
 
 # Select the temperature scale to display in the HUD.
 exile_temp_scale (Temperature scale) enum Celsius Celsius,Fahrenheit,Kelvin
