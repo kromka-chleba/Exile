@@ -4,6 +4,7 @@ dofile(minetest.get_modpath("player_api") .. "/api.lua")
 dofile(minetest.get_modpath("player_api") .. "/hand.lua")
 dofile(minetest.get_modpath("player_api") .. "/base_texture.lua")
 dofile(minetest.get_modpath("player_api") .. "/cloths.lua")
+dofile(minetest.get_modpath("player_api") .. "/controls.lua")
 
 animation_table = {
 		-- Standard animations.
