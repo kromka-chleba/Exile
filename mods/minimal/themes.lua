@@ -57,28 +57,3 @@ function minimal.set_gui_theme(player, meta, themename)
    minimal.apply_gui_theme(player, meta)
    return true
 end
-
-minetest.register_chatcommand("set_theme", {
-    params = "<themename> | list | clear",
-    description = "Sets your gui theme",
-    func = function(name, param)
-       if param == "" then
-	  return true, "Please enter list to list available themes, \n"..
-	     " clear to remove your preferences, or a theme name."
-       end
-       if param == "list" then
-	  return true, minimal.get_gui_theme_list("\n")
-       end
-       local p = minetest.get_player_by_name(name)
-       if param == "gui" then
-	  minimal.show_player_settings(name, p:get_meta() )
-       end
-       local worked = minimal.set_gui_theme(p,
-					    nil,
-					    param)
-       if not worked then
-	  return false, "invalid theme name"
-       end
-       return worked
-    end
-})

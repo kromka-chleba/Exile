@@ -571,32 +571,6 @@ minetest.register_chatcommand("set_weather", {
 
 -------------
 
-minetest.register_chatcommand("set_tempscale", {
-    params = "c | f | k",
-    description = "Sets the temperature scale used for your own display",
-    func = function(name, param)
-       if param == "" or param == "help" then
-	  local wlist = "/set_tempscale:\n"..
-	  "Sets the temperature scale used for your own display.\n" ..
-	  "Valid settings are c for Celsius, f for Fahrenheit, and "..
-	  "k for Kelvin."
-	  return false, wlist
-       end
-       if param ~= "f" and param ~= "c" and param ~= "k" then
-	  return false, "Invalid scale. Use c, f, or k."
-       end
-       local player = minetest.get_player_by_name(name)
-       local meta = player:get_meta()
-       if param == "f" then
-	  meta:set_string("TempScalePref", "Fahrenheit")
-       elseif param == "k" then
-	  meta:set_string("TempScalePref", "Kelvin")
-       else
-	  meta:set_string("TempScalePref", "Celsius")
-       end
-    end,
-})
-
 minetest.register_chatcommand("set_woverride", {
     params = "<weather name>",
     description = "Sets your weather override",

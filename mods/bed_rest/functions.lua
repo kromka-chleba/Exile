@@ -93,10 +93,10 @@ local quote_list = {
 
 
 local function get_formspec()
-	local title = "BREAK TIME!"
-	local message1 = "You've been here long enough to justify a real break.\nThink of this as a reminder from your better self.\nGo get some rest. Leave Exile behind. You can come back any time."
-	local message2 = minetest.colorize("#aaaa22",
-		   "(Disable this notice with /breaktaker off)" )
+   local title = "BREAK TIME!"
+   local message1 = "You've been here long enough to justify a real break.\n"..
+      "Think of this as a reminder from your better self.\nGo get some rest."..
+      " Leave Exile behind. You can come back any time."
 	local quote = quote_list[math.random(1,#quote_list)]
 
 	local formspec = {
@@ -105,7 +105,6 @@ local function get_formspec()
 		"label[9.375,1.5;", minetest.formspec_escape(title), "]",
 		"label[2.375,3.5;", minetest.formspec_escape(message1), "]",
 		"label[2.375,7.5;", minetest.formspec_escape(quote), "]",
-		"label[12,12.5;", minetest.formspec_escape(message2), "]"
 	}
 
 	return table.concat(formspec, "")
@@ -467,24 +466,3 @@ minetest.register_on_joinplayer(function(player)
       end
 end
 )
-
---------------------------------------------
-minetest.register_chatcommand("breaktaker", {
-    params = "on | off",
-    description = "Switch the break taker off or on per user",
-    func = function(name, param)
-       if param == "" or param == "help" then
-	  local wlist = "/breaktaker:\n"..
-	     "Switch the breaktaker notice off or on for you.\n"..
-	     "Choose default to use the server's setting instead."
-	  return false, wlist
-       end
-       if param ~= "on" and param ~= "off" and param ~= "default" then
-	  return false, "Valid choices are on, off or default"
-       end
-       if param == "default" then param = "" end
-       local player = minetest.get_player_by_name(name)
-       local meta = player:get_meta()
-       meta:set_string("BreaktakerPref", param)
-    end,
-})

@@ -49,30 +49,6 @@ function minimal.set_hotbar(player,pref)
 	end
 end
 
-
-minetest.register_chatcommand("hud16", {
-	params = "true | false",
-	description = "Toggle wide hud hotbar on or off for player",
-	func = function(name, param)
-	local player = minetest.get_player_by_name(name)
-	local meta = player:get_meta()
-	local hud16=meta:get_string("hud16") or minetest.settings:get("exile_hud_wide_hotbar") or "false"
-	if param and param ~="" then
-		local wlist = "/hud16:\n"..
-		"Toggle wide HUD hotbar off or on for you."
-		return false, wlist
-	end
-	if hud16 == "true" then
-		hud16 = "false"
-	else
-		hud16 = "true"
-	end
-	meta:set_string("hud16", hud16)
-	minimal.set_hotbar(player,hud16)
-	end,
-})
-
-
 minetest.register_on_joinplayer(function(player)
 	-- Set formspec prependl
 	local meta = player:get_meta()
