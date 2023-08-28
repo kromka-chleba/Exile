@@ -60,8 +60,15 @@ function minimal.show_player_settings(playername, meta)
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
+      local name = player:get_player_name()
+      if fields.player_settings == "" then
+	 -- Pressed a button named "player_settings", from char tab or elsewhere
+	 local meta = player:get_meta()
+	 minetest.after(0.1, function()
+			   minimal.show_player_settings(name, meta)
+	 end)
+      end
       if formname == "player_settings" then
-	 local name = player:get_player_name()
 	 local meta = player:get_meta()
 	 -- dropdowns always return a value, so we check if it's changed
 	 local oldtheme = meta:get("gui_theme") or "default"

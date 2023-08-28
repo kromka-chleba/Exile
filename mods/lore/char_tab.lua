@@ -129,11 +129,13 @@ local function sfinv_get(self, player, context)
   end
 
 	local formspec = "label[0.1,0.1; Name: " .. name .. "]"..
-	"label[4,0.1; Days Survived: " .. days .. "]"..
-	"label[4,0.6; Lives: " .. lives .. "]"..
-  "label[0.1,1.1; Biography: " .. bio .. "]"..
-  "label[0.1,3.1; Health Effects:]"..
-  eff_form
+	   "label[4,0.1; Days Survived: " .. days .. "]"..
+	   "label[4,0.6; Lives: " .. lives .. "]"..
+	   "label[0.1,1.1; Biography: " .. bio .. "]"..
+	   "style[player_settings;border=false]"..
+	   "image_button_exit[7,0.15;0.75,0.75;gear.png;player_settings;]"..
+	   "label[0.1,3.1; Health Effects:]"..
+	   eff_form
 
 
 	return formspec

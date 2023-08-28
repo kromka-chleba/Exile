@@ -19,3 +19,10 @@ KevDoy (CC BY-SA 3.0):
 
 Jordach (CC BY-SA 3.0)
   wieldhand.png
+
+MSavioti (CC0)
+  gear.png (modified)
+
+Mantar (CC0)
+ 9slice-*.png
+
