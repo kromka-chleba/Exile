@@ -30,9 +30,9 @@ if not temp_tonum[mttempscale] then -- invalid setting, warned in settingswarn.l
 end
 
 function minimal.show_player_settings(playername, meta)
-   local hud16 = tobool(meta:get("hud16")) or mtwidehud
-   local showstats = tobool(meta:get("hud_show_stats")) or mtshowstats
-   local breaktaker = tobool(meta:get("nobreaktaker")) or mtnobreak
+   local hud16 = meta:get("hud16") or mtwidehud
+   local showstats = meta:get("hud_show_stats") or mtshowstats
+   local breaktaker = meta:get("breaktaker") or (not mtnobreak)
    local tempscale = meta:get("tempscale") or mttempscale
    local tempnum = temp_tonum[tempscale] or temp_tonum[mttempscale]
    local theme = meta:get("gui_theme") or "default"
@@ -102,7 +102,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				       { showstats = tobool(fields.showstats) })
 	 end
 	 if fields.breaktaker then
-	    meta:set_string("nobreaktaker", fields.breaktaker)
+	    meta:set_string("breaktaker", fields.breaktaker)
 	 end
 	 if reopen == true then
 	    minetest.close_formspec(name, "player_settings")
