@@ -114,7 +114,7 @@ end
 --check session length and encourage player to take a real break
 local function break_taker(name, enabled)
 	local ts = bed_rest.session_start[name]
-	local sess_l =  3 -- bed_rest.session_limit[name]
+	local sess_l =  bed_rest.session_limit[name]
 	local tn = os.time()
 
 	local nobreak = minetest.settings:get_bool('exile_nobreaktaker') or false
