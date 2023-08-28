@@ -75,96 +75,246 @@ end
 function nn.create_soak_out_move_down(args)
     local args = table.copy(args)
     local wet_to_dry = args.wet_to_dry
-    local air_to_liquid = args.air_to_liquid
+    local buildable_to_liquid = args.buildable_to_liquid
     local labels_to_add = args.add_labels or {}
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
     local wet_to_dry_ids = table.copy(placeholder_id_pairs)
     local dry_to_wet_ids = table.copy(placeholder_id_pairs)
-    local air_to_liquid_ids = table.copy(placeholder_id_pairs)
+    local buildable_to_liquid_ids = table.copy(placeholder_id_pairs)
+    local air_id = minetest.get_content_id(args.air)
     for wet, dry in pairs(wet_to_dry) do
         local wet_id = minetest.get_content_id(wet)
         local dry_id = minetest.get_content_id(dry)
         wet_to_dry_ids[wet_id] = dry_id
         dry_to_wet_ids[dry_id] = wet_id
     end
-    for air, liquid in pairs(air_to_liquid) do
-        local air_id = minetest.get_content_id(air)
+    for air, liquid in pairs(buildable_to_liquid) do
+        local buildable_id = minetest.get_content_id(air)
         local liquid_id = minetest.get_content_id(liquid)
-        air_to_liquid_ids[air_id] = liquid_id
+        buildable_to_liquid_ids[buildable_id] = liquid_id
     end
-    return function(pos_min, pos_max, chance)
+    return function(pos_min, pos_max, vm_data, chance)
         --local t1 = minetest.get_us_time()
-        local vm = VoxelManip()
-        local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
-        local data = vm:get_data()
-        for i = 1, #data do
-            local replacement = wet_to_dry_ids[data[i]]
-            if replacement then
-                local below_index = i - chunk_side
-                local dry_below = dry_to_wet_ids[data[below_index]]
-                if dry_below then
-                    -- Move water downwards
-                    if (i % chunk_side^2 - i % chunk_side) % 80 ~= 0 then
-                        data[i] = replacement
-                        data[below_index] = dry_below
+        local data = vm_data.nodes
+
+        local function one_iteration()
+            for i = 1, #data do
+                local replacement = wet_to_dry_ids[data[i]]
+                if replacement then
+                    local below_index = i - chunk_side
+                    local dry_below = dry_to_wet_ids[data[below_index]]
+                    local z = math.floor((i - 1) / chunk_side^2) -- z is 0 to 79
+                    local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side) -- y is 0 to 79
+                    if dry_below then
+                        -- Move water downwards
+                        if y >= 1 then
+                            data[i] = replacement
+                            data[below_index] = dry_below
+                        end
+                    else
+                        local air_table = {}
+                        local dry_table = {}
+                        
+                        local function add_air(index)
+                            if buildable_to_liquid_ids[data[index]] then
+                                table.insert(air_table, index)
+                            end
+                        end
+                        
+                        local function add_dry(index)
+                            if dry_to_wet_ids[data[index]] then
+                                table.insert(dry_table, index)
+                            end
+                        end
+                        
+                        local function add_both(index)
+                            add_air(index)
+                            add_dry(index)
+                        end
+                        
+                        local function check(index, add)
+                            -- x border
+                            if index % chunk_side ~= 1 then
+                                add(index - 1)
+                            end
+                            if index % chunk_side ~= 0 then
+                                add(index + 1)
+                            end
+                            -- z border
+                            if index > chunk_side^2 then
+                                add(index - chunk_side^2)
+                            end
+                            if index < #data - chunk_side^2 then
+                                add(index + chunk_side^2)
+                            end
+                        end
+                        
+                        local function try_wetting_dry()
+                            if #dry_table >= 1 then
+                                -- move sideways
+                                local dry_index = dry_table[math.random(1, #dry_table)]
+                                data[i] = replacement
+                                if dry_to_wet_ids[data[dry_index]] then
+                                    -- I don't know why but somehow this becomes wet before I do anything
+                                    data[dry_index] = dry_to_wet_ids[data[dry_index]]
+                                end
+                                return true
+                            end
+                            return false
+                        end
+                        
+                        local function try_soaking_out()
+                            if #air_table >= 1 then
+                                -- soak out
+                                local air_index = air_table[math.random(1, #air_table)]
+                                data[i] = replacement
+                                data[air_index] = buildable_to_liquid_ids[data[air_index]]
+                            end
+                        end
+
+                        -- y border
+                        if y >= 1 then
+                            check(below_index, add_both)
+                        end
+
+                        -- try wetting neighbors below (downwards bias)
+                        if not try_wetting_dry() then
+                            -- and if not found check above
+                            check(i, add_dry)
+                        end
+
+                        -- try wetting neighbors above
+                        if not try_wetting_dry() then
+                            -- couldn't find dry nodes, soaking out
+                            try_soaking_out()
+                        end
                     end
-                else
-                    local air_table = {}
-                    local dry_table = {}
-                    local function add(index)
-                        if air_to_liquid_ids[data[index]] then
-                            table.insert(air_table, index)
-                        end
-                        if dry_to_wet_ids[data[index]] then
-                            table.insert(dry_table, index)
-                        end
-                    end
-                    local function check(index)
-                        -- x border
-                        if index % chunk_side ~= 1 then
-                            add(index - 1)
-                        end
-                        if index % chunk_side ~= 0 then
-                            add(index + 1)
-                        end
-                        -- z border
-                        if index > chunk_side^2 then
-                            add(index - chunk_side^2)
-                        end
-                        if index < #data - chunk_side^2 then
-                            add(index + chunk_side^2)
-                        end
-                    end
-                    check(i)
-                    -- y border
-                    if (i % chunk_side^2 - i % chunk_side) % 80 ~= 0 then
-                        check(below_index)
-                    end
-                    if #dry_table >= 1 then
-                        -- move sideways
-                        local dry_index = dry_table[math.random(1, #dry_table)]
-                        data[i] = replacement
-                        data[dry_index] = dry_to_wet_ids[data[dry_index]]
-                    elseif #air_table >= 1 then
-                        -- soak out
-                        local air_index = air_table[math.random(1, #air_table)]
-                        data[i] = replacement
-                        data[air_index] = air_to_liquid_ids[data[air_index]]
-                    end
+                    found = true
+                elseif data[i] == ignore_id then
+                    return {"worker_failed"}
                 end
-                found = true
-            elseif data[i] == ignore_id then
-                return {"worker_failed"}
             end
         end
+
+        one_iteration()
+        
         if found then
-            vm:set_data(data)
-	    vm:write_to_map(false)
-            --vm:update_liquids()
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end
+
+function nn.create_gravity_soak_in(args)
+    local args = table.copy(args)
+    local wet_to_dry = args.wet_to_dry
+    local buildable_to_liquid = args.buildable_to_liquid
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
+    local not_found = args.not_found_labels
+    local wet_to_dry_ids = table.copy(placeholder_id_pairs)
+    local dry_to_wet_ids = table.copy(placeholder_id_pairs)
+    local buildable_to_liquid_ids = table.copy(placeholder_id_pairs)
+    local liquid_to_air_ids = table.copy(placeholder_id_pairs)
+    local air_id = minetest.get_content_id(args.air)
+    for wet, dry in pairs(wet_to_dry) do
+        local wet_id = minetest.get_content_id(wet)
+        local dry_id = minetest.get_content_id(dry)
+        wet_to_dry_ids[wet_id] = dry_id
+        dry_to_wet_ids[dry_id] = wet_id
+    end
+    for air, liquid in pairs(buildable_to_liquid) do
+        local buildable_id = minetest.get_content_id(air)
+        local liquid_id = minetest.get_content_id(liquid)
+        buildable_to_liquid_ids[buildable_id] = liquid_id
+        liquid_to_air_ids[liquid_id] = air_id
+    end
+    return function(pos_min, pos_max, vm_data, chance)
+        local t1 = minetest.get_us_time()
+        local found = false
+        local data = vm_data.nodes
+
+        local function one_iteration()
+            for i = 1, #data do
+                local replacement = liquid_to_air_ids[data[i]]
+                local z = math.floor((i - 1) / chunk_side^2) -- z is 0 to 79
+                local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side) -- y is 0 to 79
+                if replacement then
+                    local below_index = i - chunk_side
+                    local dry_below = dry_to_wet_ids[data[below_index]]
+                    if dry_below then
+                        -- Soak in
+                        if y >= 1 then
+                            minetest.log("error", "Soak in?")
+                            data[i] = replacement
+                            data[below_index] = dry_below
+                        end
+                    else
+                        local air_table = {}
+                        local dry_table = {}
+                        local function add(index)
+                            if buildable_to_liquid_ids[data[index]] then
+                                table.insert(air_table, index)
+                            end
+                            if dry_to_wet_ids[data[index]] then
+                                table.insert(dry_table, index)
+                            end
+                        end
+                        local function check(index)
+                            -- x border
+                            if index % chunk_side ~= 1 then
+                                add(index - 1)
+                            end
+                            if index % chunk_side ~= 0 then
+                                add(index + 1)
+                            end
+                            -- z border
+                            if index > chunk_side^2 then
+                                add(index - chunk_side^2)
+                            end
+                            if index < #data - chunk_side^2 then
+                                add(index + chunk_side^2)
+                            end
+                        end
+                        -- y border
+                        if y >= 1 then
+                            check(below_index)
+                        end
+                        check(i)
+                        if #dry_table >= 1 then
+                            -- soak in sideways
+                            local dry_index = dry_table[math.random(1, #dry_table)]
+                            data[i] = replacement
+                            data[dry_index] = dry_to_wet_ids[data[dry_index]]
+                        elseif #air_table >= 1 then
+                            -- move water source
+                            local index = math.ceil(math.random(1, #air_table) / 2)
+                            local air_index = air_table[index]
+                            data[i] = replacement
+                            data[air_index] = buildable_to_liquid_ids[data[air_index]]
+                        end
+                    end
+                    found = true
+                elseif data[i] == ignore_id then
+                    return {"worker_failed"}
+                end
+            end
+        end
+
+        one_iteration()
+        one_iteration()
+        one_iteration()
+        one_iteration()
+        one_iteration()
+        
+        if found then
+            minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found

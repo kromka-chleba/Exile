@@ -145,20 +145,26 @@ local function get_dry_wet_pairs()
     local soil_pairs = {}
     for name, nodedef in pairs(minetest.registered_nodes) do
         if minetest.get_item_group(name, "dry_sediment") > 0 then
-            soil_pairs[name] = tgcr.find_replacement(name, rt.REPLACEMENT_WET)
+            local replacement = tgcr.find_replacement(name, rt.REPLACEMENT_WET)
+            if name ~= replacement then
+                soil_pairs[name] = replacement
+            end
         end
     end
-    return soil_pairs
+    return table.copy(soil_pairs)
 end
 
 local function get_wet_dry_pairs()
     local soil_pairs = {}
     for name, nodedef in pairs(minetest.registered_nodes) do
         if minetest.get_item_group(name, "wet_sediment") == 1 then
-            soil_pairs[name] = tgcr.find_replacement(name, rt.REPLACEMENT_DRY)
+            local replacement = tgcr.find_replacement(name, rt.REPLACEMENT_DRY)
+            if name ~= replacement then
+                soil_pairs[name] = replacement
+            end
         end
     end
-    return soil_pairs
+    return table.copy(soil_pairs)
 end
 
 local soil_labels =
@@ -542,15 +548,44 @@ local function start_ice_queen()
     end
 end
 
-local air_to_liquid = {
-    ["air"] = "nodes_nature:freshwater_source",
-}
+local function get_buildable_to()
+    local good = {}
+    table.insert(good, "air")
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        local build = nodedef.buildable_to
+        if build and string.find(name, "nodes_nature") then
+            table.insert(good, name)
+        end
+    end
+    return good
+end
+
+local function get_buildable_to()
+    local good = {}
+    table.insert(good, "air")
+    for name, nodedef in pairs(minetest.registered_nodes) do
+        local floodable = nodedef.floodable
+        if floodable and string.find(name, "nodes_nature") then
+            table.insert(good, name)
+        end
+        if nodedef.liquidtype == "flowing" then
+            table.insert(good, name)
+        end
+    end
+    return good
+end
 
 local function start_moisture_spread()
+    local buildable_to = get_buildable_to()
+    local buildable_to_liquid = {}
+    for _, name in pairs(buildable_to) do
+        buildable_to_liquid[name] = "nodes_nature:freshwater_source"
+    end
     local moisture_spread =
         nn.create_soak_out_move_down({
                 wet_to_dry = get_wet_dry_pairs(),
-                air_to_liquid = air_to_liquid,
+                buildable_to_liquid = buildable_to_liquid,
+                air = "air",
                 add_labels = {"moisture_spread"},
         })
     ms.register_worker({name = "moisture_spread_worker",
@@ -558,6 +593,20 @@ local function start_moisture_spread()
                         work_every = 30,
                         has_one_of = soil_labels,
                         rework_labels = {"moisture_spread"},
+    })
+    
+    local soak_in_grav =
+        nn.create_gravity_soak_in({
+                wet_to_dry = get_wet_dry_pairs(),
+                buildable_to_liquid = buildable_to_liquid,
+                air = "air",
+                add_labels = {"water_gravity"},
+        })
+    ms.register_worker({name = "soak_in_gravity_worker",
+                        fun = soak_in_grav,
+                        work_every = 30,
+                        has_one_of = soil_labels,
+                        rework_labels = {"water_gravity"},
     })
 end
 

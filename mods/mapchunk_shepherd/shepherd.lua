@@ -138,6 +138,7 @@ local function process_chunk(chunk)
     if param2_changed then
         vm:set_param2_data(vm_data.param2)
     end
+    vm:update_liquids()
     vm:write_to_map(light_changed)
 end
 
