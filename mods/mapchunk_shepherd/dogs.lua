@@ -101,8 +101,8 @@ function ms.register_worker(args)
     if not is_worker_registered(args.name) then
         local worker = {
             name = args.name,
-            worker_function = function(pos_min, pos_max)
-                return args.fun(pos_min, pos_max)
+            worker_function = function(pos_min, pos_max, vm_data)
+                return args.fun(pos_min, pos_max, vm_data)
             end,
             needed_labels = needed_labels,
             has_one_of = has_one_of,
@@ -113,13 +113,13 @@ function ms.register_worker(args)
             catch_up_function = args.catch_up_function or basic_catch_up,
         }
         if args.chance then
-            worker.worker_function = function(pos_min, pos_max)
+            worker.worker_function = function(pos_min, pos_max, vm_data, chance)
                 local chance = worker.chance
-                return args.fun(pos_min, pos_max, chance)
+                return args.fun(pos_min, pos_max, vm_data, chance)
             end
         end
         if args.catch_up then
-            worker.worker_function = function(pos_min, pos_max)
+            worker.worker_function = function(pos_min, pos_max, vm_data, chance)
                 local hash = ms.mapchunk_hash(pos_min)
                 local new_chance = worker.catch_up_function(hash, worker.chance)
                 return args.fun(pos_min, pos_max, new_chance)
@@ -193,12 +193,10 @@ function ms.create_simple_replacer(args)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos_min, pos_max, chance)
+    return function(pos_min, pos_max, vm_data, chance)
         local chance = chance or 1
-        local vm = VoxelManip()
-        local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
-        local data = vm:get_data()
+        local data = vm_data.nodes
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
@@ -211,8 +209,6 @@ function ms.create_simple_replacer(args)
             end
         end
         if found then
-            vm:set_data(data)
-            vm:write_to_map(false)
             return labels_to_add, labels_to_remove
         else
             return not_found, not_found_remove
@@ -236,14 +232,12 @@ function ms.create_param2_aware_replacer(args)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos_min, pos_max, chance)
+    return function(pos_min, pos_max, vm_data, chance)
         local chance = chance or 1
         --local t1 = minetest.get_us_time()
-        local vm = VoxelManip()
-        local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
-        local data = vm:get_data()
-        local data_param2 = vm:get_param2_data()
+        local data = vm_data.nodes
+        local data_param2 = vm_data.param2
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
@@ -259,8 +253,6 @@ function ms.create_param2_aware_replacer(args)
             end
         end
         if found then
-            vm:set_data(data)
-            vm:write_to_map(false)
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
@@ -285,14 +277,12 @@ function ms.create_light_aware_replacer(args)
         local replacement_id = minetest.get_content_id(replacement)
         ids[find_id] = replacement_id
     end
-    return function(pos_min, pos_max, chance)
+    return function(pos_min, pos_max, vm_data, chance)
         local chance = chance or 1
         --local t1 = minetest.get_us_time()
-        local vm = VoxelManip()
-        local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
-        local data = vm:get_data()
-        local data_light = vm:get_light_data()
+        local data = vm_data.nodes
+        local data_light = vm_data.light
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
@@ -317,8 +307,6 @@ function ms.create_light_aware_replacer(args)
             end
         end
         if found then
-            vm:set_data(data)
-            vm:write_to_map(false)
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
@@ -355,14 +343,12 @@ function ms.create_light_aware_top_placer(args)
         local replacement_id = minetest.get_content_id(replacement)
         replace_ids[find_id] = replacement_id
     end
-    return function(pos_min, pos_max, chance)
+    return function(pos_min, pos_max, vm_data, chance)
         local chance = chance or 1
         --local t1 = minetest.get_us_time()
-        local vm = VoxelManip()
-        local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
-        local data = vm:get_data()
-        local data_light = vm:get_light_data()
+        local data = vm_data.nodes
+        local data_light = vm_data.light
         for i = 1, #data do
             local find_id = find_ids[data[i]]
             if find_id then
@@ -384,8 +370,6 @@ function ms.create_light_aware_top_placer(args)
             end
         end
         if found then
-            vm:set_data(data)
-            vm:write_to_map(false)
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
@@ -453,13 +437,11 @@ function ms.create_neighbor_aware_replacer(args)
         local id = minetest.get_content_id(neighbor)
         neighbor_ids[id] = true
     end
-    return function(pos_min, pos_max, chance)
+    return function(pos_min, pos_max, vm_data, chance)
         local chance = chance or 1
         --local t1 = minetest.get_us_time()
-        local vm = VoxelManip()
-        local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
-        local data = vm:get_data()
+        local data = vm_data.nodes
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
@@ -479,8 +461,6 @@ function ms.create_neighbor_aware_replacer(args)
             end
         end
         if found then
-            vm:set_data(data)
-            vm:write_to_map(false)
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
