@@ -149,7 +149,7 @@ function doors.door_toggle(pos, node, clicker, itemstack)
 
 	if def.protected and minetest.is_protected(pos, cname) then
 	   minetest.chat_send_player(cname,"You can't open this door, ",cname)
-	   return false
+	   return itemstack
 	end
 
 	local cdir = minetest.dir_to_facedir(clicker:get_look_dir())
@@ -508,7 +508,7 @@ function doors.register_trapdoor(name, def)
 		local cname = clicker:get_player_name()
 		if def.protected and minetest.is_protected(pos, cname) then
 		   minetest.chat_send_player(cname,"You can't open this door, ",cname)
-		   return false
+		   return itemstack
 		end
 
 		--0,2,6, 8 = X;  1,3,15,17 Z
