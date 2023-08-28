@@ -161,6 +161,7 @@ local function run_workers(dtime)
     if param2_changed then
         vm:set_param2_data(vm_data.param2)
     end
+    vm:update_liquids()
     vm:write_to_map(light_changed)
     --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
     table.remove(work_queue, 1)

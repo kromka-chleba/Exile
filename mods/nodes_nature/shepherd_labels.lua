@@ -13,6 +13,7 @@ ms.labels.register("no_winter_soil")
 
 -- Moisture
 ms.labels.register("moisture_spread")
+ms.labels.register("water_gravity")
 
 -- Plants
 ms.labels.register("spring_early_plants")
