@@ -248,11 +248,18 @@ local function get_look_yaw(pos)
 end
 
 
-local function stopmove(player, pos)
+local function stopmove(player, pos, lives, meta)
+   if lives then
+      local newlives = player:get_meta():get_string("lives")
+      if lives < tonumber(newlives) then
+	 return -- Player has died before this fired
+      end
+   end
    local velo = player:get_velocity() or player:get_player_velocity()
    player:add_velocity(-velo)
    if pos then player:set_pos(pos) end
 end
+
 
 -----------------------------------------------------------------
 local function lay_down(player, level, pos, bed_pos, state, skip)
@@ -306,6 +313,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 	-- lay down, provided we have a valid bed position
 	elseif bed_pos then
 	   stopmove(player)
+	   local pmeta = player:get_meta()
 	   local velo = player:get_velocity() or player:get_player_velocity()
 	   if velo.x ~= 0 then return end
 	   if velo.y ~= 0 then return end
@@ -350,7 +358,10 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		player_monoids.speed:add_change(player, 0, "bed_rest:resting")
 		player_monoids.jump:add_change(player, 0, "bed_rest:resting")
 		player_monoids.gravity:add_change(player, 0, "bed_rest:resting")
-		minetest.after(0.2, function() stopmove(player,p) end)
+		local lives = tonumber(pmeta:get_string("lives"))
+		minetest.after(0.2, function()
+				  stopmove(player,p, lives, pmeta)
+		end)
 		player:set_pos(p)
 		player_api.player_attached[name] = true
 		hud_flags.wielditem = false
@@ -449,7 +460,9 @@ minetest.register_on_dieplayer(function(player)
 	player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
 	player:set_look_horizontal(math.random(1, 180) / 100)
 	player_api.player_attached[name] = false
-	player:set_physics_override(1, 1, 1)
+	player_monoids.speed:del_change(player, "bed_rest:resting")
+	player_monoids.jump:del_change(player, "bed_rest:resting")
+	player_monoids.gravity:del_change(player, "bed_rest:resting")
 	hud_flags.wielditem = true
 	player_api.set_animation(player, "stand")
 
