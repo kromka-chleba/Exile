@@ -2,12 +2,18 @@ minimal = minimal
 
 local themes = {
    ["Antiglass"] =
+      "bgcolor[#080808BB;true]"..
       "background9[0,0;,;9slice-hollow.png;true;10]"..
       "style_type[button;bgimg=9slice.png;bgimg_middle=10]"..
       "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]",
    ["Antiblue"] =
+      "bgcolor[#000008BB;true]"..
       "background9[0,0;,;9slice-deep.png;true;10]"..
       "style_type[button;bgimg=9slice.png;bgimg_middle=10]"..
+      "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]",
+   ["Legacy Grey"] =
+      "bgcolor[#080808BB;true]"..
+      "background9[5,5;1,1;gui_formbg.png;true;10]"..
       "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]",
 }
 
