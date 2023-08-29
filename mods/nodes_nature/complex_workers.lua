@@ -29,14 +29,12 @@ function nn.create_evaporator(args)
         local id = minetest.get_content_id(neighbor)
         neighbor_ids[id] = true
     end
-    return function(pos_min, pos_max, chance)
+    return function(pos_min, pos_max, vm_data, chance)
         local chance = chance or 1
         --local t1 = minetest.get_us_time()
-        local vm = VoxelManip()
-        local emin, emax = vm:read_from_map(pos_min, pos_max)
         local found = false
-        local data = vm:get_data()
-        local data_light = vm:get_light_data()
+        local data = vm_data.nodes
+        local data_light = vm_data.light
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
@@ -66,8 +64,6 @@ function nn.create_evaporator(args)
             end
         end
         if found then
-            vm:set_data(data)
-            vm:write_to_map(false)
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else

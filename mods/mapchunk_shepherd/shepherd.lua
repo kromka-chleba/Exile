@@ -91,11 +91,11 @@ local function run_scanners(dtime)
             previous_failure = hash
         end
     end
-    local pos1, pos2 = ms.mapchunk_borders(hash)
+    local pos_min, pos_max = ms.mapchunk_borders(hash)
     for scanner_name, _ in pairs(chunk.scanners) do
         local scanner = scanners_by_name[scanner_name]
         local labels_added, labels_removed =
-            scanner.scanner_function(pos1, pos2)
+            scanner.scanner_function(pos_min, pos_max)
         ms.handle_labels(hash, labels_added, labels_removed)
     end
     if loaded_or_active(pos1) and not ms.was_scanned(hash) then
@@ -137,13 +137,32 @@ local function run_workers(dtime)
     end
     --minetest.log("error", "work queue: "..#work_queue)
     local hash = chunk.hash
-    local pos1, pos2 = ms.mapchunk_borders(hash)
+    local pos_min, pos_max = ms.mapchunk_borders(hash)
+    --local t1 = minetest.get_us_time()
+    local vm = VoxelManip()
+    vm:read_from_map(pos_min, pos_max)
+    local vm_data = {
+        nodes = vm:get_data(),
+        param2 = vm:get_param2_data(),
+        light = vm:get_light_data(),
+    }
+    local light_changed = false
+    local param2_changed = false
     for worker_name, _ in pairs(chunk.workers) do
         local worker = workers_by_name[worker_name]
-        local labels_added, labels_removed =
-            worker.worker_function(pos1, pos2)
+        local labels_added, labels_removed, light_changed, param2_changed =
+            worker.worker_function(pos_min, pos_max, vm_data, chance)
         ms.handle_labels(hash, labels_added, labels_removed)
     end
+    vm:set_data(vm_data.nodes)
+    if light_changed then
+        vm:set_light_data(vm_data.light)
+    end
+    if param2_changed then
+        vm:set_param2_data(vm_data.param2)
+    end
+    vm:write_to_map(light_changed)
+    --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
     table.remove(work_queue, 1)
     worker_running = false
 end
