@@ -334,7 +334,7 @@ minetest.register_node("tech:clay_oil_lamp", {
                     animation = {type = "vertical_frames", aspect_w = 16, aspect_h = 16, length = 3.3}
 		},
 		{
-                    name = "tech_oil_lamp_side2_animated.png",
+                    name = "tech_oil_lamp_side_animated.png^[transformFX",
                     animation = {type = "vertical_frames", aspect_w = 16, aspect_h = 16, length = 3.3}
 		},
 		"tech_oil_lamp_front.png",
