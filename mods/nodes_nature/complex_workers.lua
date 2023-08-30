@@ -72,7 +72,10 @@ function nn.create_evaporator(args)
     end
 end
 
+-- Moisture spread --
+
 function nn.create_soak_out_move_down(args)
+    -- Arguments and labels
     local args = table.copy(args)
     local wet_to_dry = args.wet_to_dry
     local buildable_to_liquid = args.buildable_to_liquid
@@ -80,10 +83,10 @@ function nn.create_soak_out_move_down(args)
     local labels_to_remove = args.remove_labels or {}
     table.insert(labels_to_remove, "worker_failed")
     local not_found = args.not_found_labels
+    -- Preparing node IDs
     local wet_to_dry_ids = table.copy(placeholder_id_pairs)
     local dry_to_wet_ids = table.copy(placeholder_id_pairs)
     local buildable_to_liquid_ids = table.copy(placeholder_id_pairs)
-    local air_id = minetest.get_content_id(args.air)
     for wet, dry in pairs(wet_to_dry) do
         local wet_id = minetest.get_content_id(wet)
         local dry_id = minetest.get_content_id(dry)
@@ -95,8 +98,11 @@ function nn.create_soak_out_move_down(args)
         local liquid_id = minetest.get_content_id(liquid)
         buildable_to_liquid_ids[buildable_id] = liquid_id
     end
+    -- The actual worker function
     return function(pos_min, pos_max, vm_data, chance)
         --local t1 = minetest.get_us_time()
+        local hash = ms.mapchunk_hash(pos_min)
+        nn.moisture_orphans[hash] = {}
         local found = false
         local data = vm_data.nodes
 
@@ -107,13 +113,13 @@ function nn.create_soak_out_move_down(args)
                 local dry_below = dry_to_wet_ids[data[below_index]]
                 local z = math.floor((i - 1) / chunk_side^2) -- z is 0 to 79
                 local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side) -- y is 0 to 79
-                if dry_below then
+                local x = (i - 1) % 80
+                local node_pos = vector.new(x, y, z)
+                if dry_below and y >= 1 then
                     -- Move water downwards
-                    if y >= 1 then
-                        data[i] = replacement
-                        data[below_index] = dry_below
-                    end
-                else
+                    data[i] = replacement
+                    data[below_index] = dry_below
+                elseif not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0) then
                     local air_table = {}
                     local dry_table = {}
                     
@@ -145,20 +151,10 @@ function nn.create_soak_out_move_down(args)
                         if below then
                             add_fun = double_add
                         end
-                        -- x border
-                        if index % chunk_side ~= 1 then
-                            add_fun(index - 1)
-                        end
-                        if index % chunk_side ~= 0 then
-                            add_fun(index + 1)
-                        end
-                        -- z border
-                        if index > chunk_side^2 then
-                            add_fun(index - chunk_side^2)
-                        end
-                        if index < #data - chunk_side^2 then
-                            add_fun(index + chunk_side^2)
-                        end
+                        add_fun(index - 1)
+                        add_fun(index + 1)
+                        add_fun(index - chunk_side^2)
+                        add_fun(index + chunk_side^2)
                     end
 
                     if y >= 1 then
@@ -181,8 +177,12 @@ function nn.create_soak_out_move_down(args)
                         data[i] = replacement
                         data[air_index] = buildable_to_liquid_ids[data[air_index]]
                     end
+                else
+                    -- border here
+                    table.insert(nn.moisture_orphans[hash], vector.add(pos_min, node_pos))
                 end
                 found = true
+                -- "if replacement" ends here
             elseif data[i] == ignore_id then
                 return {"worker_failed"}
             end
