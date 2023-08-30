@@ -103,6 +103,29 @@ local function are_stats_visible(hud_data)
       ( hud_data.showstats == nil and mtshowstats == true ) )
 end
 
+function HEALTH.blink_hud_elements(playername, list, setblink, player)
+   -- Takes a string of elements or "all", sets them blinking
+   -- Needs either playername or player to apply changes to
+   -- setblink is the state, true/false/nil
+   if not playername and not player then
+      error("Tried to blink hud elements for non-existent player!")
+   end
+   if not playername then playername = player:get_player_name() end
+   for i = 1, #typelist do
+      if string.match(list, typelist[i]) or string == "all" then
+	 hud[playername]["blink"][typelist[i]] = setblink
+      end
+   end
+end
+
+local blinkingnow = false
+local function blink(bool)
+   if not bool or blinkingnow == true then
+      return ""
+   end
+   return "^[multiply:#000000"
+end
+
 local setup_hud = function(player)
 
 	player:hud_set_flags({healthbar = false})
@@ -111,6 +134,7 @@ local setup_hud = function(player)
 	local hud_data = {}
 
 	hud[playername] = hud_data
+	hud_data.blink = {}
 
 	local meta = player:get_meta()
 	local show_stats = meta:get("hud_show_stats")
@@ -135,7 +159,7 @@ local setup_hud = function(player)
 		scale = icon_scale,
 		offset = {x = hud_health_x - longbarpos[lb].x, y = hud_vert_pos + longbarpos[lb].y},
 		position = {x = .5, y = 1},
-	    text = "hud_health.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
+		text = "hud_health.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
 	})
 
 	hud_data.p_hunger = player:hud_add({
@@ -338,7 +362,9 @@ local function health(player, hud_data, hidden)
 	local hud1 = hud_data.p_health
 	local opac = hud_data.opacity or mthudopacity
 	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_health.png^[colorize:#"..stat_col.."^[opacity:"..opac)
+	player:hud_change(hud1, "text", "hud_health.png^[colorize:#"..
+			  stat_col.."^[opacity:"..opac..
+			  blink(hud_data.blink["health"]))
 
 	local hud2 = hud_data.p_health_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
@@ -357,7 +383,8 @@ local function energy(player, hud_data, meta, hidden)
 	local hud1 = hud_data.p_energy
 	local opac = hud_data.opacity or mthudopacity
 	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_energy.png^[colorize:#"..stat_col.."^[opacity:"..opac)
+	player:hud_change(hud1, "text", "hud_energy.png^[colorize:#"..stat_col.."^[opacity:"..opac..
+			  blink(hud_data.blink["energy"]))
 	local hud2 = hud_data.p_energy_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 
@@ -376,7 +403,8 @@ local function thirst(player, hud_data, meta, hidden)
 	local hud1 =  hud_data.p_thirst
 	local opac = hud_data.opacity or mthudopacity
 	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_thirst.png^[colorize:#"..stat_col.."^[opacity:"..opac)
+	player:hud_change(hud1, "text", "hud_thirst.png^[colorize:#"..stat_col.."^[opacity:"..opac..
+			  blink(hud_data.blink["thirst"]))
 	local hud2 = hud_data.p_thirst_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if not hidden and are_stats_visible(hud_data) then
@@ -394,7 +422,8 @@ local function hunger(player, hud_data, meta, hidden)
 	local hud1 =  hud_data.p_hunger
 	local opac = hud_data.opacity or mthudopacity
 	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_hunger.png^[colorize:#"..stat_col.."^[opacity:"..opac)
+	player:hud_change(hud1, "text", "hud_hunger.png^[colorize:#"..stat_col.."^[opacity:"..opac..
+			  blink(hud_data.blink["hunger"]))
 	local hud2 = hud_data.p_hunger_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if not hidden and are_stats_visible(hud_data) then
@@ -412,7 +441,8 @@ local function temp(player, hud_data, meta, hidden)
 	local hud1 = hud_data.p_body_temp
 	local opac = hud_data.opacity or mthudopacity
 	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac)
+	player:hud_change(hud1, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac..
+			  blink(hud_data.blink["temp"]))
 	local hud2 = hud_data.p_body_temp_text
 	player:hud_change(hud2, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
@@ -461,7 +491,8 @@ local function enviro_temp(player, hud_data, meta, hidden)
 	local newhud2 = hud_data.p_air_temp_type
 	local opac = hud_data.opacity or mthudopacity
 	if hidden then opac = 0 end
-	player:hud_change(newhud, "text", "hud_air_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac)
+	player:hud_change(newhud, "text", "hud_air_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac..
+			  blink(hud_data.blink["enviro_temp"]))
 	player:hud_change(newhud2, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
 	local hud2 = hud_data.p_air_temp_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
@@ -488,7 +519,8 @@ local function effects(player, hud_data, meta, hidden)
 	local hud1 = hud_data.p_sick
 	local opac = hud_data.opacity or mthudopacity
 	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_sick.png^[colorize:#"..stat_col.."^[opacity:"..opac)
+	player:hud_change(hud1, "text", "hud_sick.png^[colorize:#"..stat_col.."^[opacity:"..opac..
+			  blink(hud_data.blink["effects"]))
 	local hud2 = hud_data.p_sick_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
 	if not hidden and are_stats_visible(hud_data) then
@@ -499,10 +531,12 @@ local function effects(player, hud_data, meta, hidden)
 end
 
 local timer = 0
+local blinktimer = 0
 
 minetest.register_globalstep(function(dtime)
   timer = timer + dtime
-
+  blinktimer = blinktimer + dtime
+  if blinktimer > 0.5 then blinktimer = 0 ; blinkingnow = not blinkingnow end
   if timer > hudupdateseconds then
    for _0, player in ipairs(minetest.get_connected_players()) do
 
