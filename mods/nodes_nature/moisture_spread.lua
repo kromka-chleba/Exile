@@ -579,13 +579,119 @@ local seawater = {
     "nodes_nature:salt_water_source",
 }
 
+--puddle detect
+--check for sides that can hold water
+--intended to be call for an air node with solid below
+--i.e. somewhere to put a puddle
+local function puddle_detect(pos)
+    local sides = {
+        {x = pos.x + 1, y = pos.y, z = pos.z},
+        {x = pos.x - 1, y = pos.y, z = pos.z},
+        {x = pos.x, y = pos.y, z = pos.z + 1},
+        {x = pos.x, y = pos.y, z = pos.z - 1}
+    }
+    local puddle = true
+    for i, v in ipairs(sides) do
+        local s_name = minetest.get_node(v).name
+        if minetest.get_item_group(s_name, "wet_sediment") == 0
+            and minetest.get_item_group(s_name, "soft_stone") == 0
+            and minetest.get_item_group(s_name, "masonry") == 0
+            and minetest.get_item_group(s_name, "stone") == 0  then
+            puddle = false
+            break
+        end
+    end
+    if puddle then
+        return true
+    else
+        return false
+    end
+end
+
+local function moisture_spread(pos)
+    local node = minetest.get_node(pos)
+    local nodename = node.name
+
+    --dry version
+    local nodedef = minetest.registered_nodes[nodename]
+    local water_type = minetest.get_item_group(nodename, "wet_sediment")
+    --1= fresh or 2 = salty
+
+    if not nodedef or not water_type then
+        return
+    end
+
+    --move through the soil, with a bias downwards
+    local dry_table = minetest.find_nodes_in_area(
+        {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+        {x = pos.x + 1, y = pos.y, z = pos.z + 1},
+        {"group:dry_sediment"})
+
+    if #dry_table > 0 then
+        local dry_pos = dry_table[math.random(1, #dry_table)]
+        local dry_name = minetest.get_node(dry_pos).name
+        if minetest.get_item_group(name2, "wet_sediment") == 0 then
+            tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
+            tgcr.make_replacement(dry_pos, rt.REPLACEMENT_WET)
+        end
+        return
+    end
+
+    local pos_above = vector.new(pos)
+    pos_above.y = pos_above.y + 1
+    local node_above = minetest.get_node(pos_above)
+
+    if minetest.get_item_group(node_above.name, "wet_sediment") == 0 then
+        -- hydrostatic pressure, needs wet above to leach out
+        return
+    end
+
+    --leach out
+    --move out of the soil, only downwards
+    local pos_air = minetest.find_nodes_in_area(
+        {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+        {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
+        {"air"})
+
+    if #pos_air > 0 then
+        --select a random one
+        local pos2 = pos_air[math.random(#pos_air)]
+        --lose it's own water, and move it
+        tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
+        --source or flowing?
+        if puddle_detect(pos2) then
+            if water_type == 1 then
+                minetest.set_node(pos2, {name = "nodes_nature:freshwater_source"})
+            else
+                minetest.set_node(pos2, {name = "nodes_nature:salt_water_source"})
+            end
+        else
+            if water_type == 1 then
+                minetest.set_node(pos2, {name = "nodes_nature:freshwater_flowing"})
+            else
+                minetest.set_node(pos2, {name = "nodes_nature:salt_water_flowing"})
+            end
+        end
+    end
+end
+
+nn.moisture_orphans = {}
+
+local function handle_orphans(hash)
+    local orphans = nn.moisture_orphans[hash]
+    for _, pos in pairs(orphans) do
+        moisture_spread(pos)
+        --minetest.set_node(pos, {name = "air"})
+    end
+end
+
 local function start_moisture_spread()
     local buildable_to = get_buildable_to()
     local buildable_to_liquid = {}
     for _, name in pairs(buildable_to) do
         buildable_to_liquid[name] = "nodes_nature:freshwater_source"
     end
-    local moisture_spread =
+    local moisture_spread_worker =
         nn.create_soak_out_move_down({
                 wet_to_dry = get_wet_dry_pairs(),
                 buildable_to_liquid = buildable_to_liquid,
@@ -593,10 +699,11 @@ local function start_moisture_spread()
                 add_labels = {"moisture_spread"},
         })
     ms.register_worker({name = "moisture_spread_worker",
-                        fun = moisture_spread,
+                        fun = moisture_spread_worker,
                         work_every = 30,
                         has_one_of = soil_labels,
                         rework_labels = {"moisture_spread"},
+                        afterworker = handle_orphans,
     })
     
     local soak_in_grav =
