@@ -112,6 +112,11 @@ function ms.register_worker(args)
             catch_up = args.catch_up,
             catch_up_function = args.catch_up_function or basic_catch_up,
         }
+        if args.afterworker then
+            worker.afterworker = function(hash)
+                return args.afterworker(hash)
+            end
+        end
         if args.chance then
             worker.worker_function = function(pos_min, pos_max, vm_data, chance)
                 local chance = worker.chance

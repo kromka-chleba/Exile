@@ -138,7 +138,7 @@ local function run_workers(dtime)
     --minetest.log("error", "work queue: "..#work_queue)
     local hash = chunk.hash
     local pos_min, pos_max = ms.mapchunk_borders(hash)
-    --local t1 = minetest.get_us_time()
+    local t1 = minetest.get_us_time()
     local vm = VoxelManip()
     vm:read_from_map(pos_min, pos_max)
     local vm_data = {
@@ -163,6 +163,13 @@ local function run_workers(dtime)
     end
     vm:update_liquids()
     vm:write_to_map(light_changed)
+    local t1 = minetest.get_us_time()
+    for worker_name, _ in pairs(chunk.workers) do
+        local afterworker = workers_by_name[worker_name].afterworker
+        if afterworker then
+            afterworker(hash)
+        end
+    end
     --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
     table.remove(work_queue, 1)
     worker_running = false
