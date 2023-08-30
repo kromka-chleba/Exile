@@ -209,6 +209,8 @@ function nn.create_gravity_soak_in(args)
     local dry_to_wet_ids = table.copy(placeholder_id_pairs)
     local buildable_to_liquid_ids = table.copy(placeholder_id_pairs)
     local liquid_to_air_ids = table.copy(placeholder_id_pairs)
+    local seawater = args.seawater
+    local seawater_ids = {}
     local air_id = minetest.get_content_id(args.air)
     for wet, dry in pairs(wet_to_dry) do
         local wet_id = minetest.get_content_id(wet)
@@ -221,6 +223,10 @@ function nn.create_gravity_soak_in(args)
         local liquid_id = minetest.get_content_id(liquid)
         buildable_to_liquid_ids[buildable_id] = liquid_id
         liquid_to_air_ids[liquid_id] = air_id
+    end
+    for _, seawater in pairs(seawater) do
+        local seawater_id = minetest.get_content_id(seawater)
+        seawater_ids[seawater_id] = true
     end
     return function(pos_min, pos_max, vm_data, chance)
         --local t1 = minetest.get_us_time()
@@ -235,13 +241,16 @@ function nn.create_gravity_soak_in(args)
                 if replacement then
                     local below_index = i - chunk_side
                     local dry_below = dry_to_wet_ids[data[below_index]]
-                    if dry_below then
+                    local seawater_below = seawater_ids[data[below_index]]
+                    local not_y_border = y >= 1
+                    if dry_below and not_y_border then
                         -- Soak in
-                        if y >= 1 then
-                            --minetest.log("error", "Soak in?")
-                            data[i] = replacement
-                            data[below_index] = dry_below
-                        end
+                        --minetest.log("error", "Soak in?")
+                        data[i] = replacement
+                        data[below_index] = dry_below
+                    elseif seawater_below and not_y_border then
+                        -- Remove if seawater below
+                        data[i] = replacement
                     else
                         local air_table = {}
                         local dry_table = {}
@@ -270,7 +279,7 @@ function nn.create_gravity_soak_in(args)
                             end
                         end
                         -- y border
-                        if y >= 1 then
+                        if not_y_border then
                             check(below_index)
                         end
                         check(i)

@@ -575,6 +575,10 @@ local function get_buildable_to()
     return good
 end
 
+local seawater = {
+    "nodes_nature:salt_water_source",
+}
+
 local function start_moisture_spread()
     local buildable_to = get_buildable_to()
     local buildable_to_liquid = {}
@@ -599,6 +603,7 @@ local function start_moisture_spread()
         nn.create_gravity_soak_in({
                 wet_to_dry = get_wet_dry_pairs(),
                 buildable_to_liquid = buildable_to_liquid,
+                seawater = seawater,
                 air = "air",
                 add_labels = {"water_gravity"},
         })
