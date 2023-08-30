@@ -8,6 +8,8 @@ local models = player_api.registered_models
 -- Localize for better performance.
 local player_attached = player_api.player_attached
 
+local USE_KEY = "aux1" --  or "zoom" #TODO: Make it configurable
+
 -- Prevent knockback for attached players
 local old_calculate_knockback = minetest.calculate_knockback
 function minetest.calculate_knockback(player, ...)
@@ -142,8 +144,40 @@ local function check_player_surroundings(player, pos, name)
    -- #TODO: Try using part of the swim animation for flying?
 end
 
+local registered_use_nodes = {}
+local registered_use_items = {}
+
+local function handle_use_key(player, ppos)
+   local witem = player:get_wielded_item()
+   local eye_height = player:get_properties().eye_height
+   ppos.y = ppos.y + eye_height
+   local lookdir = vector.multiply(player:get_look_dir(), 4) -- out to 5 nodes?
+   --print("lookdir dist: ",vector.distance(vector.new(), lookdir))
+   local pointpos = vector.add(ppos, lookdir)
+   local pointed_thing = minetest.raycast(ppos, pointpos, false, false):next()
+   local pointed_node
+   if pointed_thing then
+      pointed_node = minetest.get_node(pointed_thing.under)
+      local pdef = minetest.registered_nodes[pointed_node.name]
+      if pdef._on_use_node then -- use pointed node's definition first
+	 pdef._on_use_node(player, pointed_node, pointed_thing, witem)
+	 return
+      end
+      local nodecall = registered_use_nodes[pointed_node.name]
+      if nodecall then -- use registered standard use second
+	 nodecall(player, pointed_node, pointed_thing, witem)
+	 return
+      end
+   end
+   local wnm = witem:get_name()
+   local wdef = minetest.registered_items[wnm]
+   if wdef._on_use_item then
+      wdef._on_use_item(player, witem, pointed_thing)
+   end
+end
+
 local prop_table = { -- select gender + t/f for crawling eye_height/collision
-   ["male"] = {
+   ["male"] = { -- #TODO: move this into a monoid?
       [true ] = { eye_height = 0.73, collisionbox =
 		     {-0.3, 0.0, -0.3, 0.3, 0.9, 0.3}},
       [false] = { eye_height = 1.45,  collisionbox =
@@ -272,6 +306,10 @@ minetest.register_globalstep(function(dtime)
 
 		     if sneaking or crawling then
 			animation_speed_mod = animation_speed_mod / 2
+		     end
+
+		     if controls[USE_KEY] then
+			handle_use_key(player, player_pos)
 		     end
 
 		     set_anim(player,
