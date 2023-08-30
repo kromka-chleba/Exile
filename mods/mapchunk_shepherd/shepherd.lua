@@ -140,6 +140,12 @@ local function process_chunk(chunk)
     end
     vm:update_liquids()
     vm:write_to_map(light_changed)
+    for worker_name, _ in pairs(chunk.workers) do
+        local afterworker = workers_by_name[worker_name].afterworker
+        if afterworker then
+            afterworker(hash)
+        end
+    end
 end
 
 local min_working_time = math.huge
