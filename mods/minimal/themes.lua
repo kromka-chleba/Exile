@@ -2,7 +2,7 @@ minimal = minimal
 
 local themes = {
    ["Antiglass"] =
-      "bgcolor[#080808BB;true]"..
+      "bgcolor[#080808BB;false]"..
       "background9[0,0;,;9slice-hollow.png;true;10]"..
       "style_type[button;bgimg=9slice.png;bgimg_middle=10]"..
       "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]",
