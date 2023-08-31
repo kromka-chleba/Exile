@@ -604,7 +604,7 @@ liquid_store.register_stored_liquid(
 		}
 	},
 	S("Clay Water Pot with Salt Water"),
-	{dig_immediate = 2})
+	{dig_immediate=2, pottery = 1})
 
 
 --clay pot with freshwater
@@ -631,7 +631,7 @@ liquid_store.register_stored_liquid(
 		}
 	},
 	S("Clay Water Pot with Freshwater"),
-	{dig_immediate = 2})
+	{dig_immediate = 2, pottery = 1})
 
 
 --make freshwater Pot drinkable on click
@@ -676,7 +676,7 @@ liquid_store.register_stored_liquid(
 		fixed = watering_can_nodebox
 	},
 	S("Clay Watering Can with Freshwater"),
-	{dig_immediate = 2})
+	{dig_immediate = 2, pottery = 1})
 --clay watering can with salt water
 liquid_store.register_stored_liquid(
 	"nodes_nature:salt_water_source",
@@ -695,7 +695,7 @@ liquid_store.register_stored_liquid(
 		fixed = watering_can_nodebox
 	},
 	S("Clay Watering Can with Salt Water"),
-	{dig_immediate = 2})
+	{dig_immediate = 2, pottery = 1})
 
 -- add water to a node with the watering can
 local function water_soil(itemstack, user, pointed_thing, water_source, node_suffix, empty_container)

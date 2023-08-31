@@ -205,7 +205,7 @@ minetest.register_node("tech:wooden_tang", {
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	groups = {dig_immediate = 3, flammable = 1, temp_pass = 1},
+	groups = {dig_immediate = 3, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
   on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
     --lets skull an entire vat of booze, what could possibly go wrong...
@@ -380,7 +380,7 @@ minetest.register_node("tech:wooden_tang_unfermented", {
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	groups = {dig_immediate = 3, flammable = 1, temp_pass = 1},
+	groups = {dig_immediate = 3, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 
 	on_dig = function(pos, node, digger)
