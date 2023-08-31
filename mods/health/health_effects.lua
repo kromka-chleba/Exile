@@ -117,9 +117,6 @@ local function is_illness_valid(player,life_num)
 end
 
 ------------------------------------------------------------------
-<<<<<<< HEAD
-
-=======
 -- HEALTH & EFFECTS FUNCTION ADDITIONS
 ------------------------------------------------------------------
 
