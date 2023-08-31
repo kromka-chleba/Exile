@@ -686,31 +686,32 @@ local function water_source_down(pos)
         if minetest.get_item_group(dry_name, "wet_sediment") == 0 then
             minetest.remove_node(pos)
             tgcr.make_replacement(dry_pos, rt.REPLACEMENT_WET)
-        return
-    end
+            return
+        end
 
-    local air_table = minetest.find_nodes_in_area(
-        {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-        {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
-        buildable_to)
+        local air_table = minetest.find_nodes_in_area(
+            {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+            {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
+            buildable_to)
 
-    if #air_table > 0 then
-        --select a random one
-        local air_pos = air_table[math.random(#air_table)]
-        minetest.remove_node(pos)
-        minetest.set_node(air_pos, {name = node.name})
-        minetest.check_for_falling(air_pos)
-        return
-    end
+        if #air_table > 0 then
+            --select a random one
+            local air_pos = air_table[math.random(#air_table)]
+            minetest.remove_node(pos)
+            minetest.set_node(air_pos, {name = node.name})
+            minetest.check_for_falling(air_pos)
+            return
+        end
 
-    local pos_under = vector.new(pos)
-    pos_under.y = pos_under.y - 1
-    local node_under = minetest.get_node(pos_under)
+        local pos_under = vector.new(pos)
+        pos_under.y = pos_under.y - 1
+        local node_under = minetest.get_node(pos_under)
 
-    --Fresh water should not float on top of the ocean
-    if pos_under.name == "nodes_nature:salt_water_source" and
-        node.name == "nodes_nature:freshwater_source" then
-        minetest.remove_node(pos)
+        --Fresh water should not float on top of the ocean
+        if pos_under.name == "nodes_nature:salt_water_source" and
+            node.name == "nodes_nature:freshwater_source" then
+            minetest.remove_node(pos)
+        end
     end
 end
 
