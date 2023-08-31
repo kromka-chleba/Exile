@@ -552,22 +552,10 @@ local function get_buildable_to()
     local good = {}
     table.insert(good, "air")
     for name, nodedef in pairs(minetest.registered_nodes) do
-        local build = nodedef.buildable_to
-        if build and string.find(name, "nodes_nature") then
-            table.insert(good, name)
-        end
-    end
-    return good
-end
-
-local function get_buildable_to()
-    local good = {}
-    table.insert(good, "air")
-    for name, nodedef in pairs(minetest.registered_nodes) do
         local floodable = nodedef.floodable
-        if floodable and string.find(name, "nodes_nature") then
-            table.insert(good, name)
-        end
+        -- if floodable and string.find(name, "nodes_nature") then
+        --     table.insert(good, name)
+        -- end
         if nodedef.liquidtype == "flowing" then
             table.insert(good, name)
         end
@@ -630,7 +618,7 @@ local function moisture_spread(pos)
     if #dry_table > 0 then
         local dry_pos = dry_table[math.random(1, #dry_table)]
         local dry_name = minetest.get_node(dry_pos).name
-        if minetest.get_item_group(name2, "wet_sediment") == 0 then
+        if minetest.get_item_group(dry_name, "wet_sediment") == 0 then
             tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
             tgcr.make_replacement(dry_pos, rt.REPLACEMENT_WET)
         end
@@ -675,18 +663,77 @@ local function moisture_spread(pos)
     end
 end
 
-nn.moisture_orphans = {}
+-- I set this below after all mods get loaded
+local buildable_to = {}
 
-local function handle_orphans(hash)
-    local orphans = nn.moisture_orphans[hash]
-    for _, pos in pairs(orphans) do
-        moisture_spread(pos)
-        --minetest.set_node(pos, {name = "air"})
+local function water_source_down(pos)
+    local node = minetest.get_node(pos)
+
+    if minetest.get_item_group(node.name, "water") == 0 then
+        -- not water
+        return
+    end
+
+    local dry_table = minetest.find_nodes_in_area(
+        {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+        {x = pos.x + 1, y = pos.y, z = pos.z + 1},
+        {"group:dry_sediment"})
+
+    if #dry_table > 0 then
+        -- soak into dry sediment
+        local dry_pos = dry_table[math.random(1, #dry_table)]
+        local dry_name = minetest.get_node(dry_pos).name
+        if minetest.get_item_group(dry_name, "wet_sediment") == 0 then
+            minetest.remove_node(pos)
+            tgcr.make_replacement(dry_pos, rt.REPLACEMENT_WET)
+        return
+    end
+
+    local air_table = minetest.find_nodes_in_area(
+        {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+        {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
+        buildable_to)
+
+    if #air_table > 0 then
+        --select a random one
+        local air_pos = air_table[math.random(#air_table)]
+        minetest.remove_node(pos)
+        minetest.set_node(air_pos, {name = node.name})
+        minetest.check_for_falling(air_pos)
+        return
+    end
+
+    local pos_under = vector.new(pos)
+    pos_under.y = pos_under.y - 1
+    local node_under = minetest.get_node(pos_under)
+
+    --Fresh water should not float on top of the ocean
+    if pos_under.name == "nodes_nature:salt_water_source" and
+        node.name == "nodes_nature:freshwater_source" then
+        minetest.remove_node(pos)
     end
 end
 
+nn.moisture_orphans = {}
+nn.water_orphans = {}
+
+local function handle_sediment_orphans(hash)
+    local orphans = nn.moisture_orphans[hash]
+    for _, pos in pairs(orphans) do
+        moisture_spread(pos)
+    end
+    nn.moisture_orphans[hash] = {}
+end
+
+local function handle_water_orphans(hash)
+    local orphans = nn.water_orphans[hash]
+    for _, pos in pairs(orphans) do
+        water_source_down(pos)
+    end
+    nn.water_orphans[hash] = {}
+end
+
 local function start_moisture_spread()
-    local buildable_to = get_buildable_to()
     local buildable_to_liquid = {}
     for _, name in pairs(buildable_to) do
         buildable_to_liquid[name] = "nodes_nature:freshwater_source"
@@ -703,7 +750,7 @@ local function start_moisture_spread()
                         work_every = 30,
                         has_one_of = soil_labels,
                         rework_labels = {"moisture_spread"},
-                        afterworker = handle_orphans,
+                        afterworker = handle_sediment_orphans,
     })
     
     local soak_in_grav =
@@ -719,6 +766,7 @@ local function start_moisture_spread()
                         work_every = 30,
                         has_one_of = soil_labels,
                         rework_labels = {"water_gravity"},
+                        afterworker = handle_water_orphans,
     })
 end
 
@@ -771,5 +819,6 @@ end
 -- Start the weather loop
 minetest.register_on_mods_loaded(function ()
         minetest.after(2, weather_loop)
+        buildable_to = get_buildable_to()
         start_moisture_spread()
 end)

@@ -138,8 +138,8 @@ local function process_chunk(chunk)
     if param2_changed then
         vm:set_param2_data(vm_data.param2)
     end
-    vm:update_liquids()
     vm:write_to_map(light_changed)
+    vm:update_liquids()
     for worker_name, _ in pairs(chunk.workers) do
         local afterworker = workers_by_name[worker_name].afterworker
         if afterworker then
