@@ -138,7 +138,7 @@ local function run_workers(dtime)
     --minetest.log("error", "work queue: "..#work_queue)
     local hash = chunk.hash
     local pos_min, pos_max = ms.mapchunk_borders(hash)
-    local t1 = minetest.get_us_time()
+    --local t1 = minetest.get_us_time()
     local vm = VoxelManip()
     vm:read_from_map(pos_min, pos_max)
     local vm_data = {
@@ -161,9 +161,8 @@ local function run_workers(dtime)
     if param2_changed then
         vm:set_param2_data(vm_data.param2)
     end
-    vm:update_liquids()
     vm:write_to_map(light_changed)
-    local t1 = minetest.get_us_time()
+    vm:update_liquids()
     for worker_name, _ in pairs(chunk.workers) do
         local afterworker = workers_by_name[worker_name].afterworker
         if afterworker then
