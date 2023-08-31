@@ -742,7 +742,7 @@ function Geomorph:write_stair(shape, rot, loc)
 				dy = x - min.x
 			elseif p2 == 2 then
 				dy = max.z - z
-			elseif p2 == 3 then
+			else --elseif p2 == 3 then
 				dy = max.x - x
 			end
 
