@@ -114,7 +114,7 @@ minetest.register_craftitem("tech:tiku", {
 
 --Pot of Tang
 liquid_store.register_stored_liquid(
-  "",
+  "tech:tang_liquid",
 	"tech:tang",
 	"tech:clay_water_pot",
 	{
@@ -138,7 +138,7 @@ liquid_store.register_stored_liquid(
   S("Tang"),
 	{dig_immediate=2, pottery = 1, temp_pass = 1})
 liquid_store.register_stored_liquid(
-  "",
+  "tech:tang_liquid",
 	"tech:wooden_tang",
 	"tech:wooden_water_pot",
 	{
@@ -249,7 +249,7 @@ minetest.override_item("tech:wooden_tang",{
 
 --Pot of new Tang, must be left to ferment
 liquid_store.register_stored_liquid(
-  "",
+  "tech:tang_unfermented_liquid",
 	"tech:tang_unfermented",
 	"tech:clay_water_pot",
 	{
@@ -274,7 +274,7 @@ liquid_store.register_stored_liquid(
 	{dig_immediate=2, pottery = 1, temp_pass = 1})
 -- wooden pot of unfermented tang
 liquid_store.register_stored_liquid(
-  "",
+  "tech:tang_unfermented_liquid",
 	"tech:wooden_tang_unfermented",
 	"tech:wooden_water_pot",
 	{
