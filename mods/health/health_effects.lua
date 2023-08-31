@@ -60,6 +60,18 @@ local function math_clamp(...)
   return minimal.math_clamp(...)
 end
 
+local function get_name(str) 
+  if (type(str) ~= "string") then
+    return ""
+  end
+  
+  str = string.lower(str)
+  
+  str = str.gsub(str,"_"," ")
+  
+  return str
+end
+
 ------------------------------------------------------------------
 -- VERIFYING FUNCTIONS
 ------------------------------------------------------------------
@@ -343,10 +355,11 @@ function HEALTH.illness_ref(name,severity,modify)
   
   
   local self = illness_ref -- for use by possible defined functions
+  
 ------------------------------------------------------------------
 ---- ENVIRONMENTAL FACTORS \/\/
 
-
+-- FUNGAL INFECTION
   if (name == "fungal infection") then
     severity = math_clamp(severity,0,self.max_severity)
     
@@ -377,6 +390,7 @@ function HEALTH.illness_ref(name,severity,modify)
       temp = temp + 1
       
     end
+-- DUST FEVER
   elseif (name == "dust fever") then
     severity = math_clamp(severity,0,self.max_severity)
     
@@ -414,6 +428,7 @@ function HEALTH.illness_ref(name,severity,modify)
       temp = temp + 1
       
     end
+-- WETNESS
   elseif (name == "wetness") then
     -- NEEDS CODE
     
@@ -422,7 +437,7 @@ function HEALTH.illness_ref(name,severity,modify)
 ------------------------------------------------------------------
 ---- FOOD RELATED / FOOD BORNE \/\/
 
-
+-- FOOD POISONING
   elseif (name == "food poisoning") then
     severity = math_clamp(severity,0,self.max_severity)
     
@@ -472,6 +487,7 @@ function HEALTH.illness_ref(name,severity,modify)
       --mild staggering
       stagger = {1, 5, 1, 5, 3}
     end
+-- INTESTINAL PARASITES
   elseif (name == "intestinal parasites") then
     self.max_severity = 1
     
@@ -662,7 +678,7 @@ function HEALTH.illness_ref(name,severity,modify)
     self.max_drunk = max_drunk
     
 -- META STIM META-STIM
-  elseif (name == "meta stim") then -- WIP
+  elseif (name == "meta stim") then
     severity = math_clamp(severity,0,self.max_severity)
     
     self.on_condition = function(player,meta)
@@ -1002,11 +1018,18 @@ function HEALTH.illness_ref(name,severity,modify)
   end
   -- curing
   self.cure = function(svty) -- severity
+    -- if provided "svty" is not a number then
+    if (type(svty) == "string") then
+      svty = tonumber(svty)
+    end
     if (type(svty) ~= "number") then
       svty = math.huge
     end
+    -- if provided severity is greater than current severity then it can lowered in severity :D
     if (svty >= self.severity) then
-      self.severity = 0
+      self.severity = math_clamp(self.severity - 1,0,self.severity)
+    elseif (random() <= 0.1) then -- small chance of permitting gradual timer regression
+      
     end
   end
   -- worst of the symptoms
@@ -1016,9 +1039,9 @@ function HEALTH.illness_ref(name,severity,modify)
   
   -- progression & regression handler
   self.progression_regression = function()
-    if (random() <= self.chances[1]) then
+    if (random() <= self.chances[1]) then -- progression
       self.hard_progress()
-    elseif (random() <= self.chances[2]) then
+    elseif (random() <= self.chances[2]) then -- regression
       self.hard_regress()
     end
   end
