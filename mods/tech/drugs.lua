@@ -113,20 +113,19 @@ minetest.register_craftitem("tech:tiku", {
 --Tang, alcoholic drink
 
 --Pot of Tang
-minetest.register_node("tech:tang", {
-  description = S("Tang"),
-	tiles = {
-		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang.png",--"tech_pot_tang.png",
+liquid_store.register_stored_liquid(
+  "",
+	"tech:tang",
+	"tech:clay_water_pot",
+	{
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png"
 	},
-	drawtype = "nodebox",
-	stack_max = 1,--minimal.stack_max_bulky,
-	paramtype = "light",
-	node_box = {
+  {
 		type = "fixed",
 		fixed = {
 			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
@@ -136,9 +135,36 @@ minetest.register_node("tech:tang", {
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	groups = {dig_immediate=3, pottery = 1, temp_pass = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
-  on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+  S("Tang"),
+	{dig_immediate=2, pottery = 1, temp_pass = 1})
+liquid_store.register_stored_liquid(
+  "",
+	"tech:wooden_tang",
+	"tech:wooden_water_pot",
+	{
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang.png",--"tech_pot_tang.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+  {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+  S("Tang"),
+	{dig_immediate=2, pottery = 1, temp_pass = 1})
+
+-- overrides for clay and wooden tang
+minetest.override_item("tech:tang",{
+    on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
     --lets skull an entire vat of booze, what could possibly go wrong...
 		local meta = clicker:get_meta()
 		local thirst = meta:get_int("thirst")
@@ -177,37 +203,9 @@ minetest.register_node("tech:tang", {
 			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
 		end
 	end
-
-
 })
-
--- wooden pot of tang
-minetest.register_node("tech:wooden_tang", {
-  description = S("Tang"),
-	tiles = {
-		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang.png",--"tech_pot_tang.png",
-		"tech_primitive_wood.png",
-		"tech_primitive_wood.png",
-		"tech_primitive_wood.png",
-		"tech_primitive_wood.png",
-		"tech_primitive_wood.png"
-	},
-	drawtype = "nodebox",
-	stack_max = 1,--minimal.stack_max_bulky,
-	paramtype = "light",
-	node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
-			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
-			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
-			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
-			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
-		}
-	},
-	groups = {dig_immediate = 3, temp_pass = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
-  on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+minetest.override_item("tech:wooden_tang",{
+    on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
     --lets skull an entire vat of booze, what could possibly go wrong...
 		local meta = clicker:get_meta()
 		local thirst = meta:get_int("thirst")
@@ -246,10 +244,8 @@ minetest.register_node("tech:wooden_tang", {
 			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
 		end
 	end
-
-
 })
-
+-------------
 
 
 --save usage into inventory, to prevent infinite supply

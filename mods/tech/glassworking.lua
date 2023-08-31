@@ -305,7 +305,7 @@ liquid_store.register_stored_liquid(
 		}
 	},
 	S("Wooden Water Pot with Potash Solution"),
-	{dig_immediate = 2, pottery = 1})
+	{dig_immediate = 2})
 
 liquid_store.register_liquid("tech:potash_source", "tech:potash_flowing", false)
 

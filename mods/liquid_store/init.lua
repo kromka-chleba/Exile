@@ -167,6 +167,13 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
   if (type(dump) ~= "boolean") then
     dump = true
   end
+  -- do not dump an unregistered source!
+  if (type(source) ~= "string") then
+    source = ""
+  end
+  if not (minetest.registered_nodes[source]) or source == "" then
+    dump = false
+  end
 
 	local node = minetest.get_node_or_nil(pointed_thing.under)
 	local ndef = node and minetest.registered_nodes[node.name]
@@ -234,7 +241,7 @@ end
 -- This function can be called from any mod (that depends on liquid_store).
 -- Also need to register the liquid itself seperately
 
-function liquid_store.register_stored_liquid(source, nodename, nodename_empty, tiles, node_box, desc, groups)
+function liquid_store.register_stored_liquid(source, nodename, nodename_empty, tiles, node_box, desc, groups, dumpable)
 
 	liquid_store.stored_liquids[nodename] = {
 		nodename = nodename,
