@@ -747,7 +747,7 @@ local function start_moisture_spread()
         })
     ms.register_worker({name = "moisture_spread_worker",
                         fun = moisture_spread_worker,
-                        work_every = 30,
+                        work_every = 38,
                         has_one_of = soil_labels,
                         rework_labels = {"moisture_spread"},
                         afterworker = handle_sediment_orphans,
@@ -763,7 +763,7 @@ local function start_moisture_spread()
         })
     ms.register_worker({name = "soak_in_gravity_worker",
                         fun = soak_in_grav,
-                        work_every = 30,
+                        work_every = 50,
                         has_one_of = soil_labels,
                         rework_labels = {"water_gravity"},
                         afterworker = handle_water_orphans,
