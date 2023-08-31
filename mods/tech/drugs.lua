@@ -160,7 +160,7 @@ liquid_store.register_stored_liquid(
 		}
 	},
   S("Tang"),
-	{dig_immediate=2, pottery = 1, temp_pass = 1})
+	{dig_immediate=2, temp_pass = 1})
 
 -- overrides for clay and wooden tang
 minetest.override_item("tech:tang",{
@@ -247,6 +247,56 @@ minetest.override_item("tech:wooden_tang",{
 })
 -------------
 
+--Pot of new Tang, must be left to ferment
+liquid_store.register_stored_liquid(
+  "",
+	"tech:tang_unfermented",
+	"tech:clay_water_pot",
+	{
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang_uf.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png"
+	},
+  {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+  S("Tang (unfermented)"),
+	{dig_immediate=2, pottery = 1, temp_pass = 1})
+liquid_store.register_stored_liquid(
+  "",
+	"tech:wooden_tang_unfermented",
+	"tech:wooden_water_pot",
+	{
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang_uf.png",--"tech_pot_tang.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+  {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+  S("Tang"),
+	{dig_immediate=2, temp_pass = 1})
+
 
 --save usage into inventory, to prevent infinite supply
 local on_dig_tang = function(pos, node, digger, pot_type)
@@ -285,13 +335,83 @@ end
 local after_place_tang = function(pos, placer, itemstack, pointed_thing)
 	local meta = minetest.get_meta(pos)
 	local stack_meta = itemstack:get_meta()
-	local ferment = stack_meta:get_int("ferment")
+	local ferment = stack_meta:get_int("ferment") or math.random(300,360) -- in case there is no ferment
 	if ferment >0 then
 		meta:set_int("ferment", ferment)
 	end
 end
 
+-- function overrides for unfermented tang
+minetest.override_item("tech:tang_unfermented",{
+  on_dig = function(pos, node, digger)
+		on_dig_tang(pos, node, digger)
+	end,
 
+	on_construct = function(pos)
+		--duration of ferment
+		local meta = minetest.get_meta(pos)
+		meta:set_int("ferment", math.random(300,360))
+		--ferment
+		minetest.get_node_timer(pos):start(5)
+	end,
+
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		after_place_tang(pos, placer, itemstack, pointed_thing)
+	end,
+
+	on_timer = function(pos, elapsed)
+		local meta = minetest.get_meta(pos)
+		local ferment = meta:get_int("ferment")
+		if ferment < 1 then
+			minetest.swap_node(pos, {name = "tech:tang"})
+			--minetest.check_for_falling(pos)
+			return false
+		else
+      --ferment if at right temp
+      local temp = climate.get_point_temp(pos)
+      if temp > 10 and temp < 34 then
+        meta:set_int("ferment", ferment - 1)
+      end
+			return true
+		end
+	end,
+})
+minetest.override_item("tech:wooden_tang_unfermented",{
+  on_dig = function(pos, node, digger)
+		on_dig_tang(pos, node, digger,"wooden")
+	end,
+
+	on_construct = function(pos)
+		--duration of ferment
+		local meta = minetest.get_meta(pos)
+		meta:set_int("ferment", math.random(300,360))
+		--ferment
+		minetest.get_node_timer(pos):start(5)
+	end,
+
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		after_place_tang(pos, placer, itemstack, pointed_thing)
+	end,
+
+	on_timer =function(pos, elapsed)
+		local meta = minetest.get_meta(pos)
+		local ferment = meta:get_int("ferment")
+		if ferment < 1 then
+			minetest.swap_node(pos, {name = "tech:wooden_tang"})
+			--minetest.check_for_falling(pos)
+			return false
+		else
+      --ferment if at right temp
+      local temp = climate.get_point_temp(pos)
+      if temp > 10 and temp < 34 then
+        meta:set_int("ferment", ferment - 1)
+      end
+			return true
+		end
+	end,
+})
+
+--[[
 --Pot of new Tang, must be left to ferment
 minetest.register_node("tech:tang_unfermented", {
   description = S("Tang (unfermented)"),
@@ -412,6 +532,7 @@ minetest.register_node("tech:wooden_tang_unfermented", {
 		end
 	end,
 })
+--]]
 
 -----------------------------------
 --HALLUCINOGENS
