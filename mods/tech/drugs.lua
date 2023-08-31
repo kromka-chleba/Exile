@@ -277,7 +277,7 @@ liquid_store.register_stored_liquid(
 	"tech:wooden_tang_unfermented",
 	"tech:wooden_water_pot",
 	{
-		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang_uf.png",--"tech_pot_tang.png",
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang_uf.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -294,7 +294,7 @@ liquid_store.register_stored_liquid(
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-  S("Tang"),
+  S("Tang (unfermented)"),
 	{dig_immediate=2, temp_pass = 1})
 
 
