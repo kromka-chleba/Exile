@@ -334,7 +334,8 @@ end
 
 local function get_or_create_ferment(meta)
   local ferment = meta:get_int("ferment")
-  if (type(ferment) ~= "number") then
+  
+  if (ferment == 0) then
     ferment = math.random(300,360)
     meta:set_int("ferment",ferment)
   end
@@ -398,11 +399,7 @@ minetest.override_item("tech:wooden_tang_unfermented",{
 	end,
 
 	on_construct = function(pos)
-		--duration of ferment
-		local meta = minetest.get_meta(pos)
-		meta:set_int("ferment", math.random(300,360))
-		--ferment
-		minetest.get_node_timer(pos):start(5)
+		on_construct_tang(pos)
 	end,
 
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
