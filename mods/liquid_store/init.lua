@@ -143,9 +143,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	   minimal.switch_node(pointed_thing.under,
 			      {name = storeddef.nodename_empty})
       -- return filled bucket if player is not in creative
-      if not (minimal.player_in_creative(user)) then
-        return new_wield
-      end
+      return new_wield
 	else
 		-- non-liquid nodes will have their on_punch triggered
 		local node_def = minetest.registered_nodes[node.name]
