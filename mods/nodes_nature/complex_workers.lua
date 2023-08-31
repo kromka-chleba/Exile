@@ -247,8 +247,8 @@ function nn.create_gravity_soak_in(args)
                     local x = (i - 1) % 80
                     local node_pos = vector.new(x, y, z)
                     local dry_below = dry_to_wet_ids[data[i - chunk_side]]
-                    if y >= 1 and dry_below then
-                        local seawater_below = seawater_ids[data[i - chunk_side]]
+                    local seawater_below = seawater_ids[data[i - chunk_side]]
+                    if y >= 1 and (dry_below or seawater_below) then
                         if dry_below then
                             -- Soak in
                             data[i] = replacement
