@@ -142,7 +142,7 @@ liquid_store.register_stored_liquid(
 	"tech:wooden_tang",
 	"tech:wooden_water_pot",
 	{
-		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang.png",--"tech_pot_tang.png",
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -164,7 +164,7 @@ liquid_store.register_stored_liquid(
 
 -- overrides for clay and wooden tang
 minetest.override_item("tech:tang",{
-    on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+  on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
     --lets skull an entire vat of booze, what could possibly go wrong...
 		local meta = clicker:get_meta()
 		local thirst = meta:get_int("thirst")
@@ -205,7 +205,7 @@ minetest.override_item("tech:tang",{
 	end
 })
 minetest.override_item("tech:wooden_tang",{
-    on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+  on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
     --lets skull an entire vat of booze, what could possibly go wrong...
 		local meta = clicker:get_meta()
 		local thirst = meta:get_int("thirst")
@@ -272,6 +272,7 @@ liquid_store.register_stored_liquid(
 	},
   S("Tang (unfermented)"),
 	{dig_immediate=2, pottery = 1, temp_pass = 1})
+-- wooden pot of unfermented tang
 liquid_store.register_stored_liquid(
   "",
 	"tech:wooden_tang_unfermented",
@@ -393,7 +394,7 @@ minetest.override_item("tech:wooden_tang_unfermented",{
 		after_place_tang(pos, placer, itemstack, pointed_thing)
 	end,
 
-	on_timer =function(pos, elapsed)
+	on_timer = function(pos, elapsed)
 		local meta = minetest.get_meta(pos)
 		local ferment = meta:get_int("ferment")
 		if ferment < 1 then
@@ -572,6 +573,14 @@ crafting.register_recipe({
 	type = "mortar_and_pestle",
 	output = "tech:tang_unfermented",
 	items = {'nodes_nature:tangkal_fruit 12', "tech:clay_water_pot_freshwater"},
+	level = 1,
+	always_known = true,
+})
+-- make tang unfermented in wooden pot
+crafting.register_recipe({
+	type = "mortar_and_pestle",
+	output = "tech:wooden_tang_unfermented",
+	items = {'nodes_nature:tangkal_fruit 12', "tech:wooden_water_pot_freshwater"},
 	level = 1,
 	always_known = true,
 })

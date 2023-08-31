@@ -142,7 +142,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 					   giving_back)
 	   minimal.switch_node(pointed_thing.under,
 			      {name = storeddef.nodename_empty})
-      -- return filled bucket if player is not in creative
+      
       return new_wield
 	else
 		-- non-liquid nodes will have their on_punch triggered
@@ -239,7 +239,7 @@ end
 -- This function can be called from any mod (that depends on liquid_store).
 -- Also need to register the liquid itself seperately
 
-function liquid_store.register_stored_liquid(source, nodename, nodename_empty, tiles, node_box, desc, groups, dumpable)
+function liquid_store.register_stored_liquid(source, nodename, nodename_empty, tiles, node_box, desc, groups)
 
 	liquid_store.stored_liquids[nodename] = {
 		nodename = nodename,
