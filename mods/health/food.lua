@@ -132,9 +132,10 @@ end
 
 -- Overrides for edible and bakable nodes
 local eat_redef = {
-   on_use = function(itemstack, user, pointed_thing)
-		return exile_eatdrink(itemstack, user, pointed_thing)
-end}
+   --on_use = function(itemstack, user, pointed_thing)
+		--return exile_eatdrink(itemstack, user, pointed_thing)
+   --end
+}
 
 local function bake_error(pos, selfname)
    local posstr = minetest.pos_to_string(pos)
@@ -190,8 +191,13 @@ function exile_add_harm(table)
 end
 
 function exile_add_food_hooks(name)
-   if (minetest.get_item_group(name,'edible') > 0) or food_table[name] then
-      minetest.override_item(name, eat_redef)
+   if food_table[name] then
+      if minetest.get_item_group(name,'edible') == 0 then
+	 minetest.log("warning", "No edible group set for "..name..", patching")
+	 local groups = minetest.registered_items[name].groups
+	 groups.edible = 1
+	 minetest.override_item(name, {groups = groups})
+      end
    end
    if bake_table[name] then
       minetest.override_item(name, bake_redef)
@@ -205,7 +211,7 @@ end
 minetest.register_on_mods_loaded(function()
 	for name,_ in pairs(minetest.registered_nodes) do
 		if minetest.get_item_group(name,'edible') > 0 then
-			exile_add_food_hooks(name)
+		   exile_add_food_hooks(name)
 		end
 	end
 end)

@@ -90,7 +90,7 @@ local function check_player_surroundings(player, pos, name)
       else return false end
    end
    local cn = checked[name] or {}
-   if cn.pos and vector.equals(cn.pos, pos) then
+   if cn.pos and vector.equals(cn.pos, vector.round(pos)) then
       return cn[1], cn[2], cn[3], cn[4]
    end
    local mrn = minetest.registered_nodes
@@ -138,42 +138,50 @@ local function check_player_surroundings(player, pos, name)
    if node_def and node_def.groups.trigger == 1 then
       fire_trigger(pos, player)
    end
-   checked[name] = { ["pos"] = pos, [1] = on_water,
+   checked[name] = { ["pos"] = vector.round(pos), [1] = on_water,
       [2] = node_above_is_solid, [3] = no_crouching, [4] = is_flying }
    return on_water, node_above_is_solid, no_crouching, is_flying
    -- #TODO: Try using part of the swim animation for flying?
 end
 
 local registered_use_nodes = {}
-local registered_use_items = {}
 
 local function handle_use_key(player, ppos)
+   local using_tool = false
    local witem = player:get_wielded_item()
    local eye_height = player:get_properties().eye_height
    ppos.y = ppos.y + eye_height
    local lookdir = vector.multiply(player:get_look_dir(), 4) -- out to 5 nodes?
-   --print("lookdir dist: ",vector.distance(vector.new(), lookdir))
    local pointpos = vector.add(ppos, lookdir)
    local pointed_thing = minetest.raycast(ppos, pointpos, false, false):next()
    local pointed_node
    if pointed_thing then
       pointed_node = minetest.get_node(pointed_thing.under)
       local pdef = minetest.registered_nodes[pointed_node.name]
-      if pdef._on_use_node then -- use pointed node's definition first
-	 pdef._on_use_node(player, pointed_node, pointed_thing, witem)
-	 return
-      end
       local nodecall = registered_use_nodes[pointed_node.name]
-      if nodecall then -- use registered standard use second
+     if pdef._on_use_node then -- use pointed node's definition first
+	 pdef._on_use_node(player, pointed_node, pointed_thing, witem)
+	 using_tool = true
+      elseif nodecall then -- use registered standard use second
 	 nodecall(player, pointed_node, pointed_thing, witem)
-	 return
+	 using_tool = true
       end
-   end
+   else pointed_thing = {} end
    local wnm = witem:get_name()
    local wdef = minetest.registered_items[wnm]
-   if wdef._on_use_item then
-      wdef._on_use_item(player, witem, pointed_thing)
+   if not using_tool and wdef then
+      if wdef._on_use_item then
+	 wdef._on_use_item(player, witem, pointed_thing)
+	 using_tool = true
+      elseif wdef.groups.edible then
+	 exile_eatdrink(witem, player, pointed_thing)
+	 using_tool = true
+      end
    end
+   if not minimal.player_in_creative(player)  then
+      player:set_wielded_item(witem)
+   end
+   return using_tool
 end
 
 local prop_table = { -- select gender + t/f for crawling eye_height/collision
@@ -239,7 +247,9 @@ end
 
 -- Check each player and apply animations
 local timer = 0
+local dtimer = 0
 minetest.register_globalstep(function(dtime)
+      dtimer = dtimer + dtime
       for _, player in pairs(minetest.get_connected_players()) do
 	 local name = player:get_player_name()
 	 local pinfo = get_anim(player, name)
@@ -308,8 +318,10 @@ minetest.register_globalstep(function(dtime)
 			animation_speed_mod = animation_speed_mod / 2
 		     end
 
-		     if controls[USE_KEY] then
-			handle_use_key(player, player_pos)
+		     if controls[USE_KEY] and dtimer > 0.5 then
+			dtimer = 0
+			using_tool = handle_use_key(player, player_pos)
+			   or using_tool
 		     end
 
 		     set_anim(player,

@@ -53,6 +53,7 @@ local function show_motd(player)
    if minetest.is_singleplayer() then return end
    local motd = minetest.settings:get("exile_motd")
    if ( not motd ) or motd == "" or motd == "\"\"" then return end
+   motd = motd:gsub("\\n","\n")
    local meta = player:get_meta()
    local hash = minetest.sha1(motd)
    local oldhash = meta:get("seen_motd")
@@ -60,7 +61,6 @@ local function show_motd(player)
       if hash == oldhash then return end
    end
    meta:set_string("seen_motd",hash)
-   minetest.chat_send_player(playername, "MotD")
    local spec = "formspec_version[3]"..
 		"size[7,7.5]"..
 		"styletype[scrollbar;bgimg=artifacts_antiquorium.png]"..
