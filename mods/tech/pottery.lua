@@ -107,7 +107,7 @@ end
 minetest.register_node("tech:clay_water_pot", {
 	description = S("Clay Water Pot"),
 	tiles = {
-		"tech_water_pot_empty.png",
+		"tech_pottery.png^tech_pot_empty.png",--"tech_water_pot_empty.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -412,7 +412,7 @@ local watering_can_nodebox = {
 minetest.register_node("tech:clay_watering_can", {
 	description = S("Clay Watering Can"),
 	tiles = {
-		"tech_watering_can_empty.png",
+		"tech_pottery.png^tech_watering_can_empty.png",--"tech_watering_can_empty.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -586,7 +586,7 @@ liquid_store.register_stored_liquid(
 	"tech:clay_water_pot_salt_water",
 	"tech:clay_water_pot",
 	{
-		"tech_water_pot_water.png",
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_water.png",--"tech_water_pot_water.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -613,7 +613,7 @@ liquid_store.register_stored_liquid(
 	"tech:clay_water_pot_freshwater",
 	"tech:clay_water_pot",
 	{
-		"tech_water_pot_water.png",
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_water.png",--"tech_water_pot_water.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -664,7 +664,7 @@ liquid_store.register_stored_liquid(
 	"tech:clay_watering_can_freshwater",
 	"tech:clay_watering_can",
 	{
-		"tech_watering_can_water.png",
+		"tech_pottery.png^tech_watering_can_empty.png^tech_pot_water.png",--"tech_watering_can_water.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -683,7 +683,7 @@ liquid_store.register_stored_liquid(
 	"tech:clay_watering_can_salt_water",
 	"tech:clay_watering_can",
 	{
-		"tech_watering_can_water.png",
+		"tech_pottery.png^tech_watering_can_empty.png^tech_pot_water.png",--"tech_watering_can_water.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",

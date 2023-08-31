@@ -24,7 +24,7 @@ crafting.register_recipe({
 minetest.register_node("tech:wooden_water_pot", {
 	description = S("Wooden Water Pot"),
 	tiles = {
-		"tech_wooden_water_pot_empty.png",
+		"tech_primitive_wood.png^tech_pot_empty.png",--"tech_wooden_water_pot_empty.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -80,7 +80,7 @@ liquid_store.register_stored_liquid(
 	"tech:wooden_water_pot_salt_water",
 	"tech:wooden_water_pot",
 	{
-		"tech_wooden_water_pot_water.png",
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_water.png",--"tech_wooden_water_pot_water.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -107,7 +107,7 @@ liquid_store.register_stored_liquid(
 	"tech:wooden_water_pot_freshwater",
 	"tech:wooden_water_pot",
 	{
-		"tech_wooden_water_pot_water.png",
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_water.png",--"tech_wooden_water_pot_water.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",

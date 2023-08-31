@@ -116,7 +116,7 @@ minetest.register_craftitem("tech:tiku", {
 minetest.register_node("tech:tang", {
   description = S("Tang"),
 	tiles = {
-		"tech_pot_tang.png",
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang.png",--"tech_pot_tang.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -181,18 +181,97 @@ minetest.register_node("tech:tang", {
 
 })
 
+-- wooden pot of tang
+minetest.register_node("tech:wooden_tang", {
+  description = S("Tang"),
+	tiles = {
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang.png",--"tech_pot_tang.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+	drawtype = "nodebox",
+	stack_max = 1,--minimal.stack_max_bulky,
+	paramtype = "light",
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+	groups = {dig_immediate = 3, flammable = 1, temp_pass = 1},
+	sounds = nodes_nature.node_sound_stone_defaults(),
+  on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+    --lets skull an entire vat of booze, what could possibly go wrong...
+		local meta = clicker:get_meta()
+		local thirst = meta:get_int("thirst")
+		local hunger = meta:get_int("hunger")
+    local energy = meta:get_int("energy")
+		--only drink if thirsty
+		if thirst < 100 then
+
+			--you're skulling a whole bucket
+			thirst = thirst + 100
+			if thirst > 100 then
+				thirst = 100
+			end
+
+      --all energy and half food equivalent of the fruit
+      --gets given as energy
+      energy = energy + 180
+      if energy > 1000 then
+        energy = 1000
+      end
+
+			hunger = hunger + 60
+			if hunger > 1000 then
+				hunger = 1000
+			end
+
+      --drunkness
+			if random() < 0.75 then
+				HEALTH.add_new_effect(clicker, {"Drunk", 1})
+			end
+
+
+			meta:set_int("thirst", thirst)
+      meta:set_int("energy", energy)
+			minetest.swap_node(pos, {name = "tech:wooden_water_pot"})
+			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
+		end
+	end
+
+
+})
+
 
 
 --save usage into inventory, to prevent infinite supply
-local on_dig_tang = function(pos, node, digger)
+local on_dig_tang = function(pos, node, digger, pot_type)
 	if minetest.is_protected(pos, digger:get_player_name()) then
 		return false
 	end
+  
+  if (type(pot_type) == "string") then
+    pot_type = string.lower(pot_type)
+  else
+    pot_type = ""
+  end
+  
 
 	local meta = minetest.get_meta(pos)
 	local ferment = meta:get_int("ferment")
 
 	local new_stack = ItemStack("tech:tang_unfermented")
+  if (string.match(pot_type,"wooden")) then
+    new_stack = ItemStack("tech:wooden_tang_unfermented")
+  end
 	local stack_meta = new_stack:get_meta()
 	stack_meta:set_int("ferment", ferment)
 
@@ -221,7 +300,7 @@ end
 minetest.register_node("tech:tang_unfermented", {
   description = S("Tang (unfermented)"),
 	tiles = {
-		"tech_pot_tang_uf.png",
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang_uf.png",--"tech_pot_tang_uf.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -265,6 +344,66 @@ minetest.register_node("tech:tang_unfermented", {
 		local ferment = meta:get_int("ferment")
 		if ferment < 1 then
 			minetest.swap_node(pos, {name = "tech:tang"})
+			--minetest.check_for_falling(pos)
+			return false
+		else
+      --ferment if at right temp
+      local temp = climate.get_point_temp(pos)
+      if temp > 10 and temp < 34 then
+        meta:set_int("ferment", ferment - 1)
+      end
+			return true
+		end
+	end,
+})
+-- Wooden pot of new tang, ditto to above
+minetest.register_node("tech:wooden_tang_unfermented", {
+  description = S("Tang (unfermented)"),
+	tiles = {
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang_uf.png",--"tech_pot_tang_uf.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+	drawtype = "nodebox",
+	stack_max = 1,--minimal.stack_max_bulky,
+	paramtype = "light",
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+	groups = {dig_immediate = 3, flammable = 1, temp_pass = 1},
+	sounds = nodes_nature.node_sound_stone_defaults(),
+
+	on_dig = function(pos, node, digger)
+		on_dig_tang(pos, node, digger,"wooden")
+	end,
+
+	on_construct = function(pos)
+		--duration of ferment
+		local meta = minetest.get_meta(pos)
+		meta:set_int("ferment", math.random(300,360))
+		--ferment
+		minetest.get_node_timer(pos):start(5)
+	end,
+
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		after_place_tang(pos, placer, itemstack, pointed_thing)
+	end,
+
+	on_timer =function(pos, elapsed)
+		local meta = minetest.get_meta(pos)
+		local ferment = meta:get_int("ferment")
+		if ferment < 1 then
+			minetest.swap_node(pos, {name = "tech:wooden_tang"})
 			--minetest.check_for_falling(pos)
 			return false
 		else

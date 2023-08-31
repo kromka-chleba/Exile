@@ -262,7 +262,7 @@ liquid_store.register_stored_liquid(
 	"tech:clay_water_pot_potash",
 	"tech:clay_water_pot",
 	{
-		"tech_water_pot_potash.png",
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_potash.png",--"tech_water_pot_potash.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -321,7 +321,7 @@ minetest.register_abm(
 minetest.register_node("tech:dry_potash_pot", {
 	description = S("Clay Water Pot With Potash"),
 	tiles = {
-		"tech_water_pot_empty.png",
+		"tech_pottery.png^tech_pot_empty.png",--"tech_water_pot_empty.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
