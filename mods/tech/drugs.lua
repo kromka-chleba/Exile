@@ -91,7 +91,7 @@ minetest.register_craftitem("tech:tiku", {
 	description = S("Tiku (stimulant)"),
 	inventory_image = "tech_tiku.png",
 	stack_max = minimal.stack_max_medium *2,
-	groups = {flammable = 1},
+	groups = {flammable = 1, drug = 1},
 
   on_use = function(itemstack, user, pointed_thing)
 
@@ -136,7 +136,7 @@ liquid_store.register_stored_liquid(
 		}
 	},
   S("Tang"),
-	{dig_immediate=2, pottery = 1, temp_pass = 1})
+	{dig_immediate=2, pottery = 1, temp_pass = 1, drug = 1})
 liquid_store.register_stored_liquid(
   "tech:tang_liquid",
 	"tech:wooden_tang",
@@ -160,7 +160,7 @@ liquid_store.register_stored_liquid(
 		}
 	},
   S("Tang"),
-	{dig_immediate=2, temp_pass = 1})
+	{dig_immediate=2, temp_pass = 1, drug = 1})
 
 -- overrides for clay and wooden tang
 minetest.override_item("tech:tang",{
