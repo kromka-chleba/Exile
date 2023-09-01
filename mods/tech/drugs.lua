@@ -356,11 +356,42 @@ end
 local on_construct_tang = function(pos)
   --duration of ferment
 		local meta = minetest.get_meta(pos)
-    local ferment = get_or_create_ferment(meta)
-		--meta:set_int("ferment", math.random(300,360))
+    meta:set_int("ferment", math.random(300,360))
 		--ferment
 		minetest.get_node_timer(pos):start(5)
 end
+
+local clay_use_tang_uf = minetest.registered_nodes["tech:tang_unfermented"].on_use
+local wooden_use_tang_uf = minetest.registered_nodes["tech:wooden_tang_unfermented"].on_use
+
+local on_use_tang = function(itemstack, user, pointed_thing, pot_type) -- EXTREMELY hacky way of saving ferment metadata
+  local func = clay_use_tang_uf
+  -- decide which old on_use we're gon use
+  if (pot_type == "wooden") then
+    func = wooden_use_tang_uf
+  end
+  if (type(func) ~= "function") then
+    return
+  end
+  
+  local returned = {func(itemstack, user, pointed_thing),false} -- on_use result with a boolean
+  
+  if (type(returned) == "userdata") then
+    if (type(returned["get_name"]) == "function") then -- I aint riskin nothin, check if get_name is a function lol
+      if (returned:get_name() ~= itemstack:get_name()) then
+        -- basically if the pot isn't technically the same, then do the after_place_tang function
+        returned[2] = true
+      end
+    end
+  end
+  
+  if (returned[2] == true) then
+    after_place_tang(pointed_thing.under, user, itemstack, pointed_thing)
+  end
+  
+  return returned[1] -- gotta return something
+end
+-- WILL NOT TRANSFER METADATA FROM A PLACED POT (sadly)
 
 -- function overrides for unfermented tang
 minetest.override_item("tech:tang_unfermented",{
@@ -392,6 +423,10 @@ minetest.override_item("tech:tang_unfermented",{
 			return true
 		end
 	end,
+  
+  on_use = function(...)
+    return on_use_tang(...)
+  end,
 })
 minetest.override_item("tech:wooden_tang_unfermented",{
   on_dig = function(pos, node, digger)
@@ -422,6 +457,10 @@ minetest.override_item("tech:wooden_tang_unfermented",{
 			return true
 		end
 	end,
+  
+  on_use = function(itemstack, user, pointed_thing)
+    return on_use_tang(itemstack, user, pointed_thing, "wooden")
+  end,
 })
 
 -----------------------------------
