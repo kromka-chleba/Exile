@@ -173,8 +173,13 @@ local function handle_use_key(player, ppos)
       if wdef._on_use_item then
 	 wdef._on_use_item(player, witem, pointed_thing)
 	 using_tool = true
-      elseif wdef.groups.edible then
-	 exile_eatdrink(witem, player, pointed_thing)
+      elseif wdef.groups.edible or wnm == "tech:soup" then
+	 -- old soup won't have edible=2, so we need a case for the name
+	 if wdef.groups.edible == 1 then
+	    exile_eatdrink(witem, player, pointed_thing)
+	 else --all future playermade foods should have edible=2 though
+	    exile_eatdrink_playermade(witem, player, pointed_thing)
+	 end
 	 using_tool = true
       end
    end
@@ -246,10 +251,15 @@ local function toggle_crawl(player, name, state)
 end
 
 -- Check each player and apply animations
-local timer = 0
-local dtimer = 0
+local bub_timer = 0
+local use_timer = {}
+local spawnbubbles = false
 minetest.register_globalstep(function(dtime)
-      dtimer = dtimer + dtime
+      bub_timer = bub_timer + dtime
+      if bub_timer > 1.0 then
+	 spawnbubbles = true
+	 bub_timer = 0
+      end
       for _, player in pairs(minetest.get_connected_players()) do
 	 local name = player:get_player_name()
 	 local pinfo = get_anim(player, name)
@@ -318,10 +328,17 @@ minetest.register_globalstep(function(dtime)
 			animation_speed_mod = animation_speed_mod / 2
 		     end
 
-		     if controls[USE_KEY] and dtimer > 0.5 then
-			dtimer = 0
-			using_tool = handle_use_key(player, player_pos)
-			   or using_tool
+		     if not use_timer[name] then
+			use_timer[name] = 0
+		     elseif use_timer[name] > 0 then
+			   use_timer[name] = use_timer[name] - dtime
+		     end
+		     if controls[USE_KEY] then
+			using_tool = true
+			if use_timer[name] <= 0 then
+			   use_timer[name] = 1
+			   handle_use_key(player, player_pos)
+			end
 		     end
 
 		     set_anim(player,
@@ -330,17 +347,17 @@ minetest.register_globalstep(function(dtime)
 		     move_head(player, on_water or crawling)
 
 		     if on_water and player_pos.y < 0 then
-			timer = timer + dtime
-			if timer > 1 then
+			-- #TODO: use player surroundings instead of y pos
+			if spawnbubbles then
 			   player_pos.y = player_pos.y + 1
 			   minetest.add_particlespawner(bubbles(player_pos))
-			   timer = 0
 			end
 		     end
 	       end
 	    end
 	 end
       end
+      spawnbubbles = false
 end)
 
 minetest.register_on_leaveplayer(function(player)
