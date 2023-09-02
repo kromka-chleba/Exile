@@ -57,23 +57,6 @@ function wielded_hud.register_hudwield(itemname, updatefunc, unwieldfunc)
 				  unwield = unwieldfunc }
 end
 
--- inventory quickslot numbering (visual aid)
-local hud_font_w = 8
-local hud_font_h = 15
-local hud_quickslot_size = 56
-local hud_quickslot_borderw = 5
-local hud_quickslotnum_color = "FFFFFF"
-local hud_quickslotnum_offset = 2
-local hud_quickslotnum_y	= (hud_quickslot_size + hud_font_h + hud_quickslotnum_offset + hud_quickslot_borderw) * hud_scale   -- quickslotnum text baseline heigth
-local hud_quickslotnum1_x = (hud_quickslot_borderw + hud_quickslotnum_offset + hud_quickslot_size*-4) * hud_scale
-local hud_quickslotnum2_x = (hud_quickslot_borderw + hud_quickslotnum_offset + hud_quickslot_size*-3) * hud_scale
-local hud_quickslotnum3_x = (hud_quickslot_borderw + hud_quickslotnum_offset + hud_quickslot_size*-2) * hud_scale
-local hud_quickslotnum4_x = (hud_quickslot_borderw + hud_quickslotnum_offset + hud_quickslot_size*-1) * hud_scale
-local hud_quickslotnum5_x = (hud_quickslot_borderw + hud_quickslotnum_offset + hud_quickslot_size* 0) * hud_scale
-local hud_quickslotnum6_x = (hud_quickslot_borderw + hud_quickslotnum_offset + hud_quickslot_size* 1) * hud_scale
-local hud_quickslotnum7_x = (hud_quickslot_borderw + hud_quickslotnum_offset + hud_quickslot_size* 2) * hud_scale
-local hud_quickslotnum8_x = (hud_quickslot_borderw + hud_quickslotnum_offset + hud_quickslot_size* 3) * hud_scale
-
 local function tobool(str)
    if str == "true" then
       return true
@@ -231,70 +214,6 @@ local setup_hud = function(player)
 		offset = {x = hud_sick_x, y = hud_vert_pos + hud_text_y + longbarpos[lb].y},
 		position = {x = .5, y = 1},
 		text = ""
-	})
-
-	hud_data.p_quickslotnum1_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_quickslotnum1_x, y = hud_vert_pos + hud_quickslotnum_y},
-		position = {x = .5, y = 1},
-		number = tonumber("0x"..hud_quickslotnum_color), --make it very visible
-		text = "1"
-	})
-
-	hud_data.p_quickslotnum2_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_quickslotnum2_x, y = hud_vert_pos + hud_quickslotnum_y},
-		position = {x = .5, y = 1},
-		number = tonumber("0x"..hud_quickslotnum_color), --make it very visible
-		text = "2"
-	})
-
-	hud_data.p_quickslotnum3_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_quickslotnum3_x, y = hud_vert_pos + hud_quickslotnum_y},
-		position = {x = .5, y = 1},
-		number = tonumber("0x"..hud_quickslotnum_color), --make it very visible
-		text = "3"
-	})
-
-	hud_data.p_quickslotnum4_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_quickslotnum4_x, y = hud_vert_pos + hud_quickslotnum_y},
-		position = {x = .5, y = 1},
-		number = tonumber("0x"..hud_quickslotnum_color), --make it very visible
-		text = "4"
-	})
-
-	hud_data.p_quickslotnum5_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_quickslotnum5_x, y = hud_vert_pos + hud_quickslotnum_y},
-		position = {x = .5, y = 1},
-		number = tonumber("0x"..hud_quickslotnum_color), --make it very visible
-		text = "5"
-	})
-
-	hud_data.p_quickslotnum6_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_quickslotnum6_x, y = hud_vert_pos + hud_quickslotnum_y},
-		position = {x = .5, y = 1},
-		number = tonumber("0x"..hud_quickslotnum_color), --make it very visible
-		text = "6"
-	})
-
-	hud_data.p_quickslotnum7_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_quickslotnum7_x, y = hud_vert_pos + hud_quickslotnum_y},
-		position = {x = .5, y = 1},
-		number = tonumber("0x"..hud_quickslotnum_color), --make it very visible
-		text = "7"
-	})
-
-	hud_data.p_quickslotnum8_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_quickslotnum8_x, y = hud_vert_pos + hud_quickslotnum_y},
-		position = {x = .5, y = 1},
-		number = tonumber("0x"..hud_quickslotnum_color), --make it very visible
-		text = "8"
 	})
 
 end
