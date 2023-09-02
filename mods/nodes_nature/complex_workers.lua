@@ -71,3 +71,253 @@ function nn.create_evaporator(args)
         end
     end
 end
+
+-- Moisture spread --
+
+function nn.create_soak_out_move_down(args)
+    -- Arguments and labels
+    local args = table.copy(args)
+    local wet_to_dry = args.wet_to_dry
+    local buildable_to_liquid = args.buildable_to_liquid
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
+    local not_found = args.not_found_labels
+    -- Preparing node IDs
+    local wet_to_dry_ids = table.copy(placeholder_id_pairs)
+    local dry_to_wet_ids = table.copy(placeholder_id_pairs)
+    local buildable_to_liquid_ids = table.copy(placeholder_id_pairs)
+    for wet, dry in pairs(wet_to_dry) do
+        local wet_id = minetest.get_content_id(wet)
+        local dry_id = minetest.get_content_id(dry)
+        wet_to_dry_ids[wet_id] = dry_id
+        dry_to_wet_ids[dry_id] = wet_id
+    end
+    for air, liquid in pairs(buildable_to_liquid) do
+        local buildable_id = minetest.get_content_id(air)
+        local liquid_id = minetest.get_content_id(liquid)
+        buildable_to_liquid_ids[buildable_id] = liquid_id
+    end
+    -- The actual worker function
+    return function(pos_min, pos_max, vm_data, chance)
+        --local t1 = minetest.get_us_time()
+        local hash = ms.mapchunk_hash(pos_min)
+        nn.moisture_orphans[hash] = {}
+        local found = false
+        local data = vm_data.nodes
+
+        for i = 1, #data do
+            local replacement = wet_to_dry_ids[data[i]]
+            if replacement then
+                local below_index = i - chunk_side
+                local dry_below = dry_to_wet_ids[data[below_index]]
+                -- z, y, x have values 0 - 79
+                local z = math.floor((i - 1) / chunk_side^2)
+                local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
+                local x = (i - 1) % 80
+                local node_pos = vector.new(x, y, z)
+                if dry_below and y >= 1 then
+                    -- Move water downwards
+                    data[i] = replacement
+                    data[below_index] = dry_below
+                elseif not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0) then
+                    local air_table = {}
+                    local dry_table = {}
+                    
+                    local function add(index)
+                        if dry_to_wet_ids[data[index]] then
+                            table.insert(dry_table, index)
+                        end
+                    end
+
+                    local above_index = false
+                    if y < 79 then
+                        above_index = i + chunk_side
+                    end
+
+                    local function double_add(index)
+                        if buildable_to_liquid_ids[data[index]] and
+                            dry_to_wet_ids[data[above_index]] then
+                            -- checking for water above to simulate hydrostatic pressure
+                            table.insert(air_table, index)
+                        end
+                        if dry_to_wet_ids[data[index]] then
+                            table.insert(dry_table, index)
+                            table.insert(dry_table, index)
+                        end
+                    end
+                    
+                    local function check(index, below)
+                        local add_fun = add
+                        if below then
+                            add_fun = double_add
+                        end
+                        add_fun(index - 1)
+                        add_fun(index + 1)
+                        add_fun(index - chunk_side^2)
+                        add_fun(index + chunk_side^2)
+                    end
+
+                    if y >= 1 then
+                        check(below_index, true)
+                    end
+                    
+                    check(i)
+
+                    if #dry_table >= 1 then
+                        -- move sideways
+                        local dry_index = dry_table[math.random(1, #dry_table)]
+                        data[i] = replacement
+                        if dry_to_wet_ids[data[dry_index]] then
+                            -- I don't know why but somehow this becomes wet before I do anything
+                            data[dry_index] = dry_to_wet_ids[data[dry_index]]
+                        end
+                    elseif #air_table >= 1 then
+                        -- soak out
+                        local air_index = air_table[math.random(1, #air_table)]
+                        data[i] = replacement
+                        data[air_index] = buildable_to_liquid_ids[data[air_index]]
+                    end
+                else
+                    -- border here
+                    table.insert(nn.moisture_orphans[hash], vector.add(pos_min, node_pos))
+                end
+                found = true
+                -- "if replacement" ends here
+            elseif data[i] == ignore_id then
+                return {"worker_failed"}
+            end
+        end
+
+        if found then
+            -- minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end
+
+function nn.create_gravity_soak_in(args)
+    local args = table.copy(args)
+    local wet_to_dry = args.wet_to_dry
+    local buildable_to_liquid = args.buildable_to_liquid
+    local labels_to_add = args.add_labels or {}
+    local labels_to_remove = args.remove_labels or {}
+    table.insert(labels_to_remove, "worker_failed")
+    local not_found = args.not_found_labels
+    local wet_to_dry_ids = table.copy(placeholder_id_pairs)
+    local dry_to_wet_ids = table.copy(placeholder_id_pairs)
+    local buildable_to_liquid_ids = table.copy(placeholder_id_pairs)
+    local liquid_to_air_ids = table.copy(placeholder_id_pairs)
+    local seawater = args.seawater
+    local seawater_ids = table.copy(placeholder_id_pairs)
+    local air_id = minetest.get_content_id(args.air)
+    for wet, dry in pairs(wet_to_dry) do
+        local wet_id = minetest.get_content_id(wet)
+        local dry_id = minetest.get_content_id(dry)
+        wet_to_dry_ids[wet_id] = dry_id
+        dry_to_wet_ids[dry_id] = wet_id
+    end
+    for air, liquid in pairs(buildable_to_liquid) do
+        local buildable_id = minetest.get_content_id(air)
+        local liquid_id = minetest.get_content_id(liquid)
+        buildable_to_liquid_ids[buildable_id] = liquid_id
+        liquid_to_air_ids[liquid_id] = air_id
+    end
+    for _, seawater in pairs(seawater) do
+        local seawater_id = minetest.get_content_id(seawater)
+        seawater_ids[seawater_id] = true
+    end
+    return function(pos_min, pos_max, vm_data, chance)
+        --local t1 = minetest.get_us_time()
+        local found = false
+        local data = vm_data.nodes
+        local hash = ms.mapchunk_hash(pos_min)
+
+        local function one_iteration()
+            nn.water_orphans[hash] = {}
+            local previous_i = false
+            for i = 1, #data do
+                local replacement = liquid_to_air_ids[data[i]]
+                if replacement and i ~= previous_i then
+                    -- z, y, x have values 0 - 79
+                    local z = math.floor((i - 1) / chunk_side^2)
+                    local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
+                    local x = (i - 1) % 80
+                    local node_pos = vector.new(x, y, z)
+                    local dry_below = dry_to_wet_ids[data[i - chunk_side]]
+                    local seawater_below = seawater_ids[data[i - chunk_side]]
+                    if y >= 1 and (dry_below or seawater_below) then
+                        if dry_below then
+                            -- Soak in
+                            data[i] = replacement
+                            data[i - chunk_side] = dry_below
+                        elseif seawater_below then
+                            -- Remove if seawater below
+                            data[i] = replacement
+                        end
+                    elseif not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0) then
+                        local air_table = {}
+                        local dry_table = {}
+                        local function add(index)
+                            if buildable_to_liquid_ids[data[index]] then
+                                table.insert(air_table, index)
+                            end
+                            if dry_to_wet_ids[data[index]] then
+                                table.insert(dry_table, index)
+                            end
+                        end
+                        local function check(index)
+                            -- x border
+                            add(index - 1)
+                            add(index + 1)
+                            add(index - chunk_side^2)
+                            add(index + chunk_side^2)
+                        end
+                        check(i - chunk_side) -- below
+                        check(i - chunk_side) -- add twice for downwards bias
+                        check(i)
+
+                        if #dry_table >= 1 then
+                            -- soak in sideways
+                            local dry_index = dry_table[math.random(1, #dry_table)]
+                            data[i] = replacement
+                            data[dry_index] = dry_to_wet_ids[data[dry_index]]
+                        elseif #air_table >= 1 then
+                            -- move water source
+                            local air_index = air_table[math.random(1, #air_table)]
+                            data[i] = replacement
+                            data[air_index] = buildable_to_liquid_ids[data[air_index]]
+                            previous_i = air_index
+                            local air_z = math.floor((air_index - 1) / chunk_side^2)
+                            local air_y = math.floor((air_index - 1 - air_z * chunk_side^2) / chunk_side)
+                            local air_x = (air_index - 1) % 80
+                            local air_pos = vector.new(air_x, air_y, air_z)
+                        end
+                    else
+                        -- borders here
+                        table.insert(nn.water_orphans[hash], vector.add(pos_min, node_pos))
+                    end
+                    found = true
+                elseif data[i] == ignore_id then
+                    return {"worker_failed"}
+                end
+            end
+        end
+
+        -- this speeds up things a little
+        one_iteration()
+        one_iteration()
+        one_iteration()
+        one_iteration()
+        one_iteration()
+        
+        if found then
+            -- minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
+            return labels_to_add, labels_to_remove
+        else
+            return not_found
+        end
+    end
+end

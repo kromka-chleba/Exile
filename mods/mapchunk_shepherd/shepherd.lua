@@ -113,32 +113,9 @@ local function worker_break()
     worker_running = false
 end
 
-local function run_workers(dtime)
-    if worker_running then
-        return
-    end
-    worker_running = true
-    if ms.workers_changed then
-        workers = table.copy(ms.workers)
-        workers_by_name = table.copy(ms.workers_by_name)
-        ms.workers_changed = false
-        work_queue = {}
-        minetest.after(longer_break, worker_break)
-        return
-    end
-    if #workers == 0 then
-        minetest.after(longer_break, worker_break)
-        return
-    end
-    local chunk = work_queue[1]
-    if not chunk then
-        minetest.after(small_break, worker_break)
-        return
-    end
-    --minetest.log("error", "work queue: "..#work_queue)
+local function process_chunk(chunk)
     local hash = chunk.hash
     local pos_min, pos_max = ms.mapchunk_borders(hash)
-    --local t1 = minetest.get_us_time()
     local vm = VoxelManip()
     vm:read_from_map(pos_min, pos_max)
     local vm_data = {
@@ -162,7 +139,90 @@ local function run_workers(dtime)
         vm:set_param2_data(vm_data.param2)
     end
     vm:write_to_map(light_changed)
-    --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
+    vm:update_liquids()
+    for worker_name, _ in pairs(chunk.workers) do
+        local afterworker = workers_by_name[worker_name].afterworker
+        if afterworker then
+            afterworker(hash)
+        end
+    end
+end
+
+local min_working_time = math.huge
+local max_working_time = 0
+local worker_exec_times = {}
+
+local function record_worker_stats(time)
+    local elapsed = (minetest.get_us_time() - time) / 1000
+    --minetest.log("error", string.format("elapsed time: %g ms", elapsed))
+    if elapsed < min_working_time then
+        min_working_time = elapsed
+    end
+    if elapsed > max_working_time then
+        max_working_time = elapsed
+    end
+    table.insert(worker_exec_times, elapsed)
+    -- 100 data points for the moving average
+    if #worker_exec_times > 100 then
+        table.remove(worker_exec_times, 1)
+    end
+end
+
+-- this gives you the moving average of working time
+local function get_average_working_time()
+    local sum = 0
+    if #worker_exec_times == 0 then
+        return 0
+    end
+    for _, time in pairs(worker_exec_times) do
+        sum = sum + time
+    end
+    return math.ceil(sum / #worker_exec_times)
+end
+
+-- this gives you the moving median of working time
+local function get_median_working_time()
+    local times_copy = table.copy(worker_exec_times)
+    table.sort(times_copy)
+    local median = 0
+    if #times_copy == 0 then
+        return 0
+    end
+    if #times_copy % 2 == 0 then
+        median = (times_copy[#times_copy / 2] +
+                  times_copy[#times_copy / 2 + 1]) / 2
+    else
+        median = times_copy[math.ceil(#times_copy / 2)]
+    end
+    return math.ceil(median)
+end
+
+local function run_workers(dtime)
+    if worker_running then
+        return
+    end
+    worker_running = true
+    if ms.workers_changed then
+        workers = table.copy(ms.workers)
+        workers_by_name = table.copy(ms.workers_by_name)
+        ms.workers_changed = false
+        work_queue = {}
+        minetest.after(longer_break, worker_break)
+        return
+    end
+    if #workers == 0 then
+        minetest.after(longer_break, worker_break)
+        return
+    end
+    local chunk = work_queue[1]
+    if not chunk then
+        minetest.after(small_break, worker_break)
+        return
+    end
+    --minetest.log("error", "work queue: "..#work_queue)
+    local t1 = minetest.get_us_time()
+    process_chunk(chunk)
+    record_worker_stats(t1)
     table.remove(work_queue, 1)
     worker_running = false
 end
@@ -358,10 +418,16 @@ minetest.register_chatcommand(
             local tracked_chunks_status = S("Tracked chunks: ")..nr_of_chunks
             local scan_queue_status = S("Scan queue: ")..#scan_queue
             local work_queue_status = S("Work queue: ")..#work_queue
+            local work_time_status = S("Working time: ")..
+                S("Min: ")..math.ceil(min_working_time).." ms | "..
+                S("Max: ")..math.ceil(max_working_time).." ms | "..
+                S("Moving median: ")..get_median_working_time().." ms | "..
+                S("Moving average: ")..get_average_working_time().." ms"
             local scanner_status = S("Scanners: ")..scanner_names
             local worker_status = S("Workers: ")..worker_names
             return true, tracked_chunks_status.."\n"..scan_queue_status.."\n"..
-                work_queue_status.."\n"..scanner_status.."\n"..worker_status.."\n"
+                work_queue_status.."\n"..work_time_status.."\n"..scanner_status..
+                "\n"..worker_status.."\n"
         end,
 })
 
