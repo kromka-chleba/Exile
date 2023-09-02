@@ -8,7 +8,7 @@ local S = core.get_translator(minimal.modname)
 
 local usedlist = {} -- temporarily remember who has activated each trigger
 
-local function usedrecently(pos, pname)
+local function used_before(pos, pname)
    -- Allows a trigger to be used by a player just once per server start
    -- #TODO: is it worth saving this to prevent stop/start to reuse triggers?
    local posstr = vector.to_string(pos)
@@ -111,7 +111,7 @@ local function setinventory(player, pname, pos, nmeta, metastring)
    plinv:set_list(metastring, triginv)
 end
 local function giveitem(player, pname, pos, nmeta, metastring)
-   if usedrecently(pos, pname) then
+   if used_before(pos, pname) then
       return -- You'll have to try harder for freebies, Jack
    end
    local stack = ItemStack(metastring)
@@ -124,7 +124,7 @@ local function giveitem(player, pname, pos, nmeta, metastring)
 end
 
 local function setweather(player, pname, pos, nmeta, metastring)
-   if usedrecently(pos, pname) then
+   if used_before(pos, pname) then
       return -- Don't keep doing it
    end
    climate.set_weather_override(pname, player, metastring)
