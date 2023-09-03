@@ -193,7 +193,7 @@ local function winter_to_spring_pairs(include_slopes, include_roots)
     end
     return soil_pairs
 end
-
+--[[
 local spring_soils = get_seasonal_soil_names()
 local winter_soils = get_winter_soil_names()
 local spring_to_winter = spring_to_winter_pairs(true, true)
@@ -484,3 +484,4 @@ minetest.register_lbm({
             end
         end,
 })
+]]--
