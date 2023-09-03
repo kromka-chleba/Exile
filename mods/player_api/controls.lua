@@ -272,6 +272,7 @@ minetest.register_globalstep(function(dtime)
 						 { x=0, y=6.3, z=0 },
 						 { x=0, y=  0, z=0 })
 	    end
+	    local controls = player:get_player_control()
 	    if not player_attached[name] then
 	       -- Is the player dead?
 	       if player:get_hp() == 0 then
@@ -281,7 +282,6 @@ minetest.register_globalstep(function(dtime)
 					{ x=0, y=  0, z=0 })
 	       else
 		     local player_pos = player:get_pos()
-		     local controls = player:get_player_control()
 		     local animation_speed_mod = model.animation_speed or 30
 
 		     --Determine if the player is in a water node
@@ -328,17 +328,8 @@ minetest.register_globalstep(function(dtime)
 			animation_speed_mod = animation_speed_mod / 2
 		     end
 
-		     if not use_timer[name] then
-			use_timer[name] = 0
-		     elseif use_timer[name] > 0 then
-			   use_timer[name] = use_timer[name] - dtime
-		     end
 		     if controls[USE_KEY] then
 			using_tool = true
-			if use_timer[name] <= 0 then
-			   use_timer[name] = 1
-			   handle_use_key(player, player_pos)
-			end
 		     end
 
 		     set_anim(player,
@@ -355,6 +346,19 @@ minetest.register_globalstep(function(dtime)
 		     end
 	       end
 	    end
+	    if not use_timer[name] then
+	       use_timer[name] = 0
+	    elseif use_timer[name] > 0 then
+	       use_timer[name] = use_timer[name] - dtime
+	    end
+	    if controls[USE_KEY] and player:get_hp() > 0 then
+	       if use_timer[name] <= 0 then
+		  use_timer[name] = 1
+		  local player_pos = player:get_pos()
+		  handle_use_key(player, player_pos)
+	       end
+	    end
+
 	 end
       end
       spawnbubbles = false
