@@ -237,8 +237,10 @@ function nn.create_gravity_soak_in(args)
         local data = vm_data.nodes
         local hash = ms.mapchunk_hash(pos_min)
 
-        local function one_iteration()
-            nn.water_orphans[hash] = {}
+        local orphans = {}
+        nn.water_orphans[hash] = {}
+
+        local function one_iteration(last)
             local previous_i = false
             for i = 1, #data do
                 local replacement = liquid_to_air_ids[data[i]]
@@ -259,7 +261,7 @@ function nn.create_gravity_soak_in(args)
                             -- Remove if seawater below
                             data[i] = replacement
                         end
-                    elseif not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0) then
+                    elseif not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79) then
                         local air_table = {}
                         local dry_table = {}
                         local function add(index)
@@ -292,14 +294,15 @@ function nn.create_gravity_soak_in(args)
                             data[i] = replacement
                             data[air_index] = buildable_to_liquid_ids[data[air_index]]
                             previous_i = air_index
-                            local air_z = math.floor((air_index - 1) / chunk_side^2)
-                            local air_y = math.floor((air_index - 1 - air_z * chunk_side^2) / chunk_side)
-                            local air_x = (air_index - 1) % 80
-                            local air_pos = vector.new(air_x, air_y, air_z)
+                            if last then
+                                table.insert(orphans, air_index)
+                            end
                         end
                     else
                         -- borders here
-                        table.insert(nn.water_orphans[hash], vector.add(pos_min, node_pos))
+                        if last then
+                            table.insert(orphans, i)
+                        end
                     end
                     found = true
                 elseif data[i] == ignore_id then
@@ -313,10 +316,20 @@ function nn.create_gravity_soak_in(args)
         one_iteration()
         one_iteration()
         one_iteration()
-        one_iteration()
+        one_iteration(true)
+
+        for _, orphan in pairs(orphans) do
+            if liquid_to_air_ids[data[orphan]] then
+                local air_z = math.floor((orphan - 1) / chunk_side^2)
+                local air_y = math.floor((orphan - 1 - air_z * chunk_side^2) / chunk_side)
+                local air_x = (orphan - 1) % 80
+                local air_pos = vector.new(air_x, air_y, air_z)
+                table.insert(nn.water_orphans[hash], vector.add(pos_min, air_pos))
+            end
+        end
         
         if found then
-            -- minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
+            --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove
         else
             return not_found

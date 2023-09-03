@@ -67,7 +67,7 @@ for i in ipairs(list) do
 	liquid_alternative_flowing = "nodes_nature:"..name.."_flowing",
 	liquid_alternative_source = "nodes_nature:"..name.."_source",
 	liquid_viscosity = 1,
-        liquid_range = 1,
+        liquid_range = 0,
         liquid_renewable = renew,
 	post_effect_color = {a = post_alpha, r = 30, g = 60, b = 90},
 	groups = {water = water_g, cools_lava = 1, puts_out_fire = 1, falling_node = 1, float = 1},

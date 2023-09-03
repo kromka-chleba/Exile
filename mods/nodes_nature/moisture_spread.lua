@@ -661,6 +661,9 @@ local buildable_to = {}
 local function water_source_down(pos)
     local node = minetest.get_node(pos)
 
+    minetest.check_for_falling(pos)
+    node = minetest.get_node(pos)
+
     if minetest.get_item_group(node.name, "water") == 0 then
         -- not water
         return
