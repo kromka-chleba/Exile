@@ -625,40 +625,32 @@ local function moisture_spread(pos)
         return
     end
 
-    local pos_above = vector.new(pos)
-    pos_above.y = pos_above.y + 1
-    local node_above = minetest.get_node(pos_above)
+    local wet_table = minetest.find_nodes_in_area(
+        {x = pos.x - 1, y = pos.y, z = pos.z - 1},
+        {x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
+        {"group:wet_sediment"})
 
-    if minetest.get_item_group(node_above.name, "wet_sediment") == 0 then
-        -- hydrostatic pressure, needs wet above to leach out
+    -- don't leach out if less than 15 / 18 wet neighbors
+    if #wet_table < 15 then
         return
     end
 
-    --leach out
-    --move out of the soil, only downwards
-    local pos_air = minetest.find_nodes_in_area(
+    local air_table = minetest.find_nodes_in_area(
         {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
         {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
         {"air"})
 
-    if #pos_air > 0 then
+    if #air_table >= 2 then
         --select a random one
-        local pos2 = pos_air[math.random(#pos_air)]
+        local pos_air = air_table[math.random(1, #air_table)]
         --lose it's own water, and move it
-        tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
-        --source or flowing?
-        if puddle_detect(pos2) then
-            if water_type == 1 then
-                minetest.set_node(pos2, {name = "nodes_nature:freshwater_source"})
-            else
-                minetest.set_node(pos2, {name = "nodes_nature:salt_water_source"})
-            end
-        else
-            if water_type == 1 then
-                minetest.set_node(pos2, {name = "nodes_nature:freshwater_flowing"})
-            else
-                minetest.set_node(pos2, {name = "nodes_nature:salt_water_flowing"})
-            end
+        local pos_above = vector.new(pos_air)
+        pos_above.y = pos_above.y + 1
+        local node_above = minetest.get_node(pos_above)
+        if node_above.name == "air" then
+            -- only leach out if there are 2 nodes of air
+            tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
+            minetest.set_node(pos_air, {name = "nodes_nature:freshwater_source"})
         end
     end
 end
@@ -668,6 +660,9 @@ local buildable_to = {}
 
 local function water_source_down(pos)
     local node = minetest.get_node(pos)
+
+    minetest.check_for_falling(pos)
+    node = minetest.get_node(pos)
 
     if minetest.get_item_group(node.name, "water") == 0 then
         -- not water
