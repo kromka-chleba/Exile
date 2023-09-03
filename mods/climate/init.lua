@@ -115,6 +115,8 @@ function climate.mean_year_temp()
 end
 
 local function get_seasonal_waves()
+    return 13,13 -- average
+--[[
     --get seasonal wave
     local dc = minetest.get_day_count() - 10
     --diff +/- from yearly mean (seasonal variation)
@@ -127,6 +129,7 @@ local function get_seasonal_waves()
     --  Temperatures and the Surface Temperature of Lakes", Wiley Online Library
     local sea_wav = (dc_amp-5) * math.sin((dc - 2) * dc_period) + dc_mean
     return dc_wav, sea_wav
+]]--
 end
 
 --------------------
@@ -426,7 +429,7 @@ local function fair_select_weather()
 end
 
 local function select_new_active_weather()
-    --select a new active_weather from probabilities
+--[[    --select a new active_weather from probabilities
     --it will loop through and try to change the weather
     if climate.lock_weather then return end
 
@@ -438,7 +441,7 @@ local function select_new_active_weather()
         climate.active_weather = get_weather_table(new_weather_name)
         store:set_string("weather", climate.active_weather.name)
     end
-    --do for each player
+]]--    --do for each player
     for _,player in ipairs(minetest.get_connected_players()) do
         --set sky and clouds for new state using the new active_weather
         set_sky_clouds(player)
@@ -460,7 +463,7 @@ local function set_world_temperature()
     local dn_wav = dn_amp * math.cos(tod * dn_period)
 
     --random walk...an incremental fluctuation that is capped
-    ran_walk = ran_walk + math.random(-2, 2)
+    ran_walk = 0 -- ran_walk + math.random(-2, 2)
     if ran_walk > ran_walk_range or ran_walk < -ran_walk_range then
         ran_walk = ran_walk/1.04
     end
