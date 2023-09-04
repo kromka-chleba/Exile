@@ -6,7 +6,7 @@ local upper_limit      =  31000
 local lower_limit      = -31000
 --- Terrestrial Altitudes
 local highland_max     =    200
-local highland_min     =    101 
+local highland_min     =    101
 local upland_max       =    100
 local upland_min       =     51
 local lowland_max      =     50
@@ -14,9 +14,9 @@ local lowland_min      =     11
 local coastal_max      =     10
 local coastal_min      =      5
 local tidal_max        =      4         -- prev: beach_max
-local tidal_min        =      1 
+local tidal_min        =      1
 --- Marine Altitudes
-local littoral_max     =      0 
+local littoral_max     =      0
 local littoral_min     =    -10         -- prev: beach_min
 local neritic_max      =    -11  -- prev: shallow_ocean_max
 local neritic_min      =    -30  -- prev: shallow_ocean_min
@@ -53,11 +53,17 @@ local sw_forest_wet    = "nodes_nature:swamp_forest_soil_wet"
 local c_grland         = "nodes_nature:coastal_grassland_soil"
 local grland           = "nodes_nature:grassland_soil"
 local grland_wet       = "nodes_nature:grassland_soil_wet"
+local up_grland        = "nodes_nature:upland_grassland_soil"
 local c_shland         = "nodes_nature:coastal_shrubland_soil"
 local shland           = "nodes_nature:shrubland_soil"
 local shland_wet       = "nodes_nature:shrubland_soil_wet"
+local up_shland        = "nodes_nature:upland_shrubland_soil"
+local c_barren         = "nodes_nature:coastal_barrenland_soil"
 local barren           = "nodes_nature:barrenland_soil"
+local up_barren        = "nodes_nature:upland_barrenland_soil"
+local c_dune           = "nodes_nature:coastal_duneland_soil"
 local dune             = "nodes_nature:duneland_soil"
+local up_dune          = "nodes_nature:upland_duneland_soil"
 local hland            = "nodes_nature:highland_soil"
 ---Soil Nodes
 local sand             = "nodes_nature:sand"
@@ -143,7 +149,7 @@ local biome_list = {
         humidity_point = high,
         _color = {r = 75, g = 114, b = 72},
     },
-    
+
     --[[02]]
     {
         name = "Coastal Woodland",
@@ -163,7 +169,7 @@ local biome_list = {
         humidity_point = high,
         _color = {r = 85, g = 84, b = 32},
     },
-    
+
     --[[03]]
     {
         name = "Lowland Forest",
@@ -183,7 +189,7 @@ local biome_list = {
         humidity_point = x_high,
         _color = {r = 85, g = 104, b = 62},
     },
-    
+
     --[[04]]
     {
         name = "Lowland Woodland",
@@ -203,7 +209,7 @@ local biome_list = {
         humidity_point = x_high,
         _color = {r = 95, g = 74, b = 22},
     },
-    
+
     --[[05]]
     {
         name = "Upland Forest",
@@ -223,7 +229,7 @@ local biome_list = {
         humidity_point = x_high,
         _color = {r = 95, g = 94, b = 62},
     },
-    
+
     --[[06]]
     {
         name = "Upland Woodland",
@@ -264,7 +270,7 @@ local biome_list = {
         humidity_point = x_high+5,
         _color = {r = 110, g = 73, b = 42},
     },
-    
+
     --[[08]]
     {
         name = "Marshland",
@@ -305,7 +311,7 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 163, g = 160, b = 84},
     },
-    
+
     --[[10]]
     {
         name = "Coastal Grassland",
@@ -325,7 +331,7 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 173, g = 140, b = 74},
     },
-    
+
     --[[11]]
     {
         name = "Lowland Shrubland",
@@ -345,7 +351,7 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 173, g = 150, b = 74},
     },
-    
+
     --[[12]]
     {
         name = "Lowland Grassland",
@@ -365,11 +371,11 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 183, g = 130, b = 64},
     },
-    
+
     --[[13]]
     {
         name = "Upland Shrubland",
-        node_top = shland,
+        node_top = up_shland,
         depth_top = 1,
         node_filler = clay,
         depth_filler = 2,
@@ -385,11 +391,11 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 183, g = 140, b = 64},
     },
-    
+
     --[[14]]
     {
         name = "Upland Grassland",
-        node_top = grland,
+        node_top = up_grland,
         depth_top = 1,
         node_filler = clay,
         depth_filler = 1,
@@ -405,13 +411,13 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 193, g = 120, b = 54},
     },
-    
+
 
     --Barrenlands & Dunelands
     --[[15]]
     {
         name = "Coastal Barrenland",
-        node_top = barren,
+        node_top = c_barren,
         depth_top = 1,
         node_filler = gravel,
         depth_filler = 2,
@@ -427,11 +433,11 @@ local biome_list = {
         humidity_point = x_low,
         _color = {r = 252, g = 226, b = 180},
     },
-    
+
     --[[16]]
     {
         name = "Coastal Duneland",
-        node_top = dune,
+        node_top = c_dune,
         depth_top = 1,
         node_filler = sand,
         depth_filler = 2,
@@ -447,7 +453,7 @@ local biome_list = {
         humidity_point = x_low,
         _color = {r = 245, g = 123, b = 36},
     },
-    
+
     --[[17]]
     {
         name = "Lowland Barrenland",
@@ -467,7 +473,7 @@ local biome_list = {
         humidity_point = x_low,
         _color = {r = 222, g = 216, b = 170},
     },
-    
+
     --[[18]]
     {
         name = "Lowland Duneland",
@@ -487,11 +493,11 @@ local biome_list = {
         humidity_point = x_low,
         _color = {r = 215, g = 113, b = 46},
     },
-    
+
     --[[19]]
     {
         name = "Upland Barrenland",
-        node_top = barren,
+        node_top = up_barren,
         depth_top = 1,
         node_filler = gravel,
         depth_filler = 1,
@@ -507,11 +513,11 @@ local biome_list = {
         humidity_point = x_low,
         _color = {r = 215, g = 216, b = 160},
     },
-    
+
     --[[20]]
     {
         name = "Upland Duneland",
-        node_top = dune,
+        node_top = up_dune,
         depth_top = 1,
         node_filler = sand,
         depth_filler = 1,
@@ -527,7 +533,7 @@ local biome_list = {
         humidity_point = x_low,
         _color = {r = 205, g = 103, b = 36},
     },
-    
+
 
     --Highland
     --[[21]]
@@ -549,7 +555,7 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 76, g = 61, b = 54},
     },
-    
+
     --[[22]]
     {
         name = "Highland Scree",
@@ -569,7 +575,7 @@ local biome_list = {
         humidity_point = low,
         _color = {r = 70, g = 70, b = 70},
     },
-    
+
     --[[23]]
     {
         name = "Highland Rock",
@@ -610,7 +616,7 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 144, g = 141, b = 118},
     },
-    
+
     --[[25]]
     {
         name = "Silty Beach",
@@ -630,7 +636,7 @@ local biome_list = {
         humidity_point = high,
         _color = {r = 108, g = 85, b = 66},
     },
-    
+
     --[[26]]
     {
         name = "Gravel Beach",
@@ -650,7 +656,7 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 103, g = 101, b = 93},
     },
-    
+
     --[[27]]
     {
         name = "Sandy Coast",
@@ -670,7 +676,7 @@ local biome_list = {
         humidity_point = low,
         _color = {r = 144, g = 141, b = 128},
     },
-    
+
     --[[28]]
     {
         name = "Silty Coast",
@@ -690,7 +696,7 @@ local biome_list = {
         humidity_point = high,
         _color = {r = 108, g = 85, b = 76},
     },
-    
+
     --[[29]]
     {
         name = "Gravel Coast",
@@ -730,7 +736,7 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 33, g = 55, b = 75},
     },
-    
+
     --[[31]]
     {
         name = "Deep Water",
@@ -749,7 +755,7 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 18, g = 25, b = 59},
     },
-    
+
     --[[32]]
     {
         name = "Underground",
@@ -762,7 +768,7 @@ local biome_list = {
         humidity_point = middle,
         _color = {r = 15, g = 15, b = 15},
     },
-    
+
     --[[33]]
     {
         name = "Deep Underground",
