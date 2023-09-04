@@ -43,27 +43,35 @@ return {
 
     grassland_on = {
         "nodes_nature:coastal_grassland_soil", "nodes_nature:coastal_grassland_soil_wet",
-        "nodes_nature:grassland_soil", "nodes_nature:grassland_soil_wet"
+        "nodes_nature:grassland_soil", "nodes_nature:grassland_soil_wet",
+        "nodes_nature:upland_grassland_soil", "nodes_nature:upland_grassland_soil_wet",
     },
 
     shrubland_on = {
         "nodes_nature:coastal_shrubland_soil", "nodes_nature:coastal_shrubland_soil_wet",
-        "nodes_nature:shrubland_soil", "nodes_nature:shrubland_soil_wet"
+        "nodes_nature:shrubland_soil", "nodes_nature:shrubland_soil_wet",
+        "nodes_nature:upland_shrubland_soil", "nodes_nature:upland_shrubland_soil_wet"
     },
 
     grass_shrub_on = {
         "nodes_nature:coastal_grassland_soil", "nodes_nature:coastal_grassland_soil_wet",
         "nodes_nature:grassland_soil", "nodes_nature:grassland_soil_wet",
         "nodes_nature:coastal_shrubland_soil", "nodes_nature:coastal_shrubland_soil_wet",
-        "nodes_nature:shrubland_soil", "nodes_nature:shrubland_soil_wet"
+        "nodes_nature:shrubland_soil", "nodes_nature:shrubland_soil_wet",
+        "nodes_nature:upland_grassland_soil", "nodes_nature:upland_grassland_soil_wet",
+        "nodes_nature:upland_shrubland_soil", "nodes_nature:upland_shrubland_soil_wet"
     },
 
     duneland_on = {
-        "nodes_nature:duneland_soil", "nodes_nature:duneland_soil_wet"
+        "nodes_nature:coastal_duneland_soil", "nodes_nature:coastal_duneland_soil_wet",
+        "nodes_nature:duneland_soil", "nodes_nature:duneland_soil_wet",
+        "nodes_nature:upland_duneland_soil", "nodes_nature:upland_duneland_soil_wet"
     },
 
     barrenland_on = {
-        "nodes_nature:barrenland_soil", "nodes_nature:barrenland_soil_wet"
+        "nodes_nature:coastal_barrenland_soil", "nodes_nature:coastal_barrenland_soil_wet",
+        "nodes_nature:barrenland_soil", "nodes_nature:barrenland_soil_wet",
+        "nodes_nature:upland_barrenland_soil", "nodes_nature:upland_barrenland_soil_wet"
     },
 
     highland_on = {
@@ -71,8 +79,12 @@ return {
     },
 
     badland_on = {
+        "nodes_nature:coastal_duneland_soil", "nodes_nature:coastal_duneland_soil_wet",
         "nodes_nature:duneland_soil", "nodes_nature:duneland_soil_wet",
+        "nodes_nature:upland_duneland_soil", "nodes_nature:upland_duneland_soil_wet",
+        "nodes_nature:coastal_barrenland_soil", "nodes_nature:coastal_barrenland_soil_wet",
         "nodes_nature:barrenland_soil", "nodes_nature:barrenland_soil_wet",
+        "nodes_nature:upland_barrenland_soil", "nodes_nature:upland_barrenland_soil_wet",
         "nodes_nature:highland_soil", "nodes_nature:highland_soil_wet"
     },
 
@@ -87,10 +99,16 @@ return {
         "nodes_nature:marshland_soil", "nodes_nature:marshland_soil_wet",
         "nodes_nature:coastal_grassland_soil", "nodes_nature:coastal_grassland_soil_wet",
         "nodes_nature:grassland_soil", "nodes_nature:grassland_soil_wet",
+        "nodes_nature:upland_grassland_soil", "nodes_nature:upland_grassland_soil_wet",
         "nodes_nature:coastal_shrubland_soil", "nodes_nature:coastal_shrubland_soil_wet",
         "nodes_nature:shrubland_soil", "nodes_nature:shrubland_soil_wet",
+        "nodes_nature:upland_shrubland_soil", "nodes_nature:upland_shrubland_soil_wet",
+        "nodes_nature:coastal_duneland_soil", "nodes_nature:coastal_duneland_soil_wet",
         "nodes_nature:duneland_soil", "nodes_nature:duneland_soil_wet",
+        "nodes_nature:upland_duneland_soil", "nodes_nature:upland_duneland_soil_wet",
+        "nodes_nature:coastal_barrenland_soil", "nodes_nature:coastal_barrenland_soil_wet",
         "nodes_nature:barrenland_soil", "nodes_nature:barrenland_soil_wet",
+        "nodes_nature:upland_barrenland_soil", "nodes_nature:upland_barrenland_soil_wet",
         "nodes_nature:highland_soil", "nodes_nature:highland_soil_wet",
     },
 
@@ -105,8 +123,10 @@ return {
         "nodes_nature:marshland_soil", "nodes_nature:marshland_soil_wet",
         "nodes_nature:coastal_grassland_soil", "nodes_nature:coastal_grassland_soil_wet",
         "nodes_nature:grassland_soil", "nodes_nature:grassland_soil_wet",
+        "nodes_nature:upland_grassland_soil", "nodes_nature:upland_grassland_soil_wet",
         "nodes_nature:coastal_shrubland_soil", "nodes_nature:coastal_shrubland_soil_wet",
         "nodes_nature:shrubland_soil", "nodes_nature:shrubland_soil_wet",
+        "nodes_nature:upland_shrubland_soil", "nodes_nature:upland_shrubland_soil_wet"
     },
 
     glow_worm_on = {
