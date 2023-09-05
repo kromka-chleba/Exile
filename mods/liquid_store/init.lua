@@ -69,8 +69,6 @@ end
 
 -- store metadata into a provided stack (grab liquid)
 local function liquid_metadata(pos, oldnode, t_stack)
-  local oldmeta = minetest.get_meta(pos)
-  
   local nodedata = minetest.registered_nodes[oldnode.name]
   
   if (type(nodedata) ~= "table") then
@@ -79,6 +77,8 @@ local function liquid_metadata(pos, oldnode, t_stack)
   
   -- custom metadata function I created for certain nodes
   if (type(nodedata["_preserve_metadata"]) == "function") then
+    local oldmeta = minetest.get_meta(pos)
+    
     return nodedata._preserve_metadata(pos, oldnode, oldmeta, t_stack)
   end
 end
@@ -96,7 +96,7 @@ local function liquid_after_place(pos, placer, itemstack, pointed_thing)
   
   -- only runs if provided node has the function itself
   if (type(node["after_place_node"]) == "function") then
-    node.after_place_node(pos,placer,itemstack,pointed_thing)
+    return node.after_place_node(pos,placer,itemstack,pointed_thing)
   end
 end
 
