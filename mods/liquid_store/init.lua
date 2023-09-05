@@ -285,13 +285,14 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
   
   local node = minetest.get_node(pos) -- grab a possible liquid if correct
   local nodedata = minetest.registered_nodes[node.name]
+  local stored = find_stored(itemstack:get_name(), node.name)
   
   if (minetest.is_player(placer)) then
     if (minetest.is_protected(pos, placer:get_player_name()) or minetest.is_protected(pos_top, placer:get_player_name()) ) then
       return
     end
     
-    if (type(nodedata) == "table" and not placer:get_player_control().sneak) then
+    if (type(nodedata) == "table" and not placer:get_player_control().sneak and not stored) then
       if (type(nodedata["on_rightclick"]) == "function") then
         return nodedata.on_rightclick(pos, node, placer, itemstack, pointed_thing)
       end
@@ -300,7 +301,6 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
   
   local top_node = minetest.get_node(pos_top) -- check if can be placed
   local top_nodedata = minetest.registered_nodes[top_node.name] or {drawtype = "airlike"} -- incase it's nil
-  local stored = find_stored(itemstack:get_name(), node.name)
   
   if stored then
     -- if a possible liquid and an empty bucket
