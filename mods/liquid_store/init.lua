@@ -254,8 +254,6 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	   minimal.switch_node(lpos, {name = stored})
      liquid_after_place(lpos, user, itemstack, pointed_thing)
      
-     
-     
 	   return handle_stacks(user, itemstack, nodename_empty)
 	end
   
@@ -302,11 +300,11 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
       return
     end
     
-    if (type(nodedata) == "table" and not placer:get_player_control().sneak and not isliquid) then
-      if (type(nodedata["on_rightclick"]) == "function") then
-        return nodedata.on_rightclick(pos, node, placer, itemstack, pointed_thing)
-      end
-    end
+    --if (type(nodedata) == "table" and not placer:get_player_control().sneak and not isliquid) then
+      --if (type(nodedata["on_rightclick"]) == "function") then
+        --return nodedata.on_rightclick(pos, node, placer, itemstack, pointed_thing)
+      --end
+    --end
   end
   
   local top_node = minetest.get_node(pos_top) -- check if can be placed
