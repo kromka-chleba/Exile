@@ -61,7 +61,6 @@ local function get_after_destruct(name, renewable)
             local new_pos = vector.new(pos)
             for i = 1, 100 do
                 new_pos.y = new_pos.y + 1
-                minetest.log("error", i)
                 local node = minetest.get_node(new_pos)
                 if node.name == "air" or
                     node.name == "nodes_nature:"..name.."_flowing" then
