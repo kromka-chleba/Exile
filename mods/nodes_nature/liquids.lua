@@ -72,8 +72,30 @@ for i in ipairs(list) do
 	post_effect_color = {a = post_alpha, r = 30, g = 60, b = 90},
 	groups = {water = water_g, cools_lava = 1, puts_out_fire = 1, falling_node = 1, float = 1},
 	sounds = nodes_nature.node_sound_water_defaults(),
+        after_destruct = function(pos, oldnode)
+            local node = minetest.get_node(pos)
+            if node.name == "air" then
+                return
+            end
+            local replaced = false
+            local function try_overflowing(level)
+                if replaced then return end
+                local lev = level or 0
+                local air_table = minetest.find_nodes_in_area(
+                    {x = pos.x - 1, y = pos.y + lev, z = pos.z - 1},
+                    {x = pos.x + 1, y = pos.y + lev, z = pos.z + 1},
+                    {"air", "nodes_nature:"..name.."_flowing"})
+                if #air_table > 0 then
+                    local air_pos = air_table[math.random(1, #air_table)]
+                    replaced = true
+                    minetest.set_node(air_pos, {name = oldnode.name})
+                end
+            end
+            try_overflowing(-1)
+            try_overflowing()
+            try_overflowing(1)
+        end,
   })
-
 
   minetest.register_node("nodes_nature:"..name.."_flowing", {
 	description = S("@1 Flowing", desc),
