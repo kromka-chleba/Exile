@@ -71,7 +71,7 @@ end
 local function liquid_metadata(pos, oldnode, t_stack)
   local nodedata = minetest.registered_nodes[oldnode.name]
   
-  if (type(nodedata) ~= "table") then
+  if (type(nodedata) ~= "table" and type(t_stack) ~= "userdata") then
     return
   end
   
