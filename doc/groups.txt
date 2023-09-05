@@ -12,6 +12,7 @@ edible - Nodes that are edible - auto adds on_use callbacks to eat
 `nobones`: Don't put this item into bones piles. e.g. crafting spots
 		Note: This destroys the item upon player death
 `unclaimable`: Cannot be nailed down or otherwise owned. e.g. crafting spots
+`drug`: indicates whether or not an item or node is a substance of drug-like explicit interest
 
 Digging:
 ---------
@@ -34,6 +35,7 @@ Fire:
 Liquids:
 --------
 `water`: 1 = fresh, 2 = salt
+`liquid_storage`: indicates whether or not a node (bucket) stores liquid
 
 
 
