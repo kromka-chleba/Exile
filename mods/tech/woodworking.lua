@@ -48,6 +48,9 @@ minetest.register_node("tech:wooden_water_pot", {
 	on_use = function(itemstack, user, pointed_thing)
 		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	end,
+  on_place = function(itemstack, placer, pointed_thing)
+    return liquid_store.on_place("tech:wooden_water_pot", itemstack, placer, pointed_thing)
+  end,
 		--collect rain water
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(30,60))
