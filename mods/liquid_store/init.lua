@@ -67,6 +67,39 @@ local function find_stored(empty, sourcename)
    return stored_name
 end
 
+-- store metadata into a provided stack (grab liquid)
+local function liquid_metadata(pos, oldnode, t_stack)
+  local nodedata = minetest.registered_nodes[oldnode.name]
+  
+  if (type(nodedata) ~= "table") then
+    return
+  end
+  
+  -- custom metadata function I created for certain nodes
+  if (type(nodedata["_preserve_metadata"]) == "function") then
+    local oldmeta = minetest.get_meta(pos)
+    
+    return nodedata._preserve_metadata(pos, oldnode, oldmeta, t_stack)
+  end
+end
+
+-- store metadata into a node (place liquid)
+local function liquid_after_place(pos, placer, itemstack, pointed_thing)
+  local node = minetest.get_node_or_nil(pos)
+  if (type(node) ~= "table") then
+    return
+  end
+  node = minetest.registered_nodes[node.name]
+  if (type(node) ~= "table") then
+    return
+  end
+  
+  -- only runs if provided node has the function itself
+  if (type(node["after_place_node"]) == "function") then
+    return node.after_place_node(pos,placer,itemstack,pointed_thing)
+  end
+end
+
 function liquid_store.drain_store(player, itemstack)
    local itemname = itemstack:get_name()
    local sdef = liquid_store.stored_liquids[itemname]
@@ -87,7 +120,9 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 		-- do nothing if it's neither object nor node
 		return
 	end
-
+  
+  minetest.check_for_falling(pointed_thing.under) -- install gravity
+  
 
 	-- Check if pointing to a liquid source
 	local node = minetest.get_node(pointed_thing.under)
@@ -125,6 +160,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
     
     -- return filled bucket if player is not in creative
     if not (minimal.player_in_creative(user)) then
+      liquid_metadata(pointed_thing.under,node,new_wield)
       return new_wield
     end
 
@@ -142,10 +178,9 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 					   giving_back)
 	   minimal.switch_node(pointed_thing.under,
 			      {name = storeddef.nodename_empty})
-      -- return filled bucket if player is not in creative
-      if not (minimal.player_in_creative(user)) then
-        return new_wield
-      end
+      
+      liquid_metadata(pointed_thing.under,node,new_wield)
+      return new_wield
 	else
 		-- non-liquid nodes will have their on_punch triggered
 		local node_def = minetest.registered_nodes[node.name]
@@ -166,6 +201,13 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
   -- if dump isn't a specified boolean, set to true (so watering cans do not dump their contents)
   if (type(dump) ~= "boolean") then
     dump = true
+  end
+  -- do not dump an unregistered source!
+  if (type(source) ~= "string") then
+    source = ""
+  end
+  if not (minetest.registered_nodes[source]) or source == "" then
+    dump = false
   end
 
 	local node = minetest.get_node_or_nil(pointed_thing.under)
@@ -200,6 +242,7 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 			return itemstack
 		end
 	end
+  minetest.check_for_falling(lpos) -- gravity installed
 	if check_protection(lpos, user
 			and user:get_player_name()
 			or "", "place "..source) then
@@ -207,7 +250,10 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	end
 	if stored then -- Dump contents into liquid store
 	   minimal.switch_node(lpos, {name = stored})
-	   return handle_stacks(user, itemstack, nodename_empty)
+     
+     local stack = handle_stacks(user, itemstack, nodename_empty)
+     liquid_after_place(lpos, user, itemstack, pointed_thing)
+	   return stack
 	end
   
   -- dump the water ONLY if "dump" is true (if false, do not dump)
@@ -216,7 +262,9 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
     if (minimal.player_in_creative(user)) then
       return
     end
-    return handle_stacks(user, itemstack, nodename_empty)
+    local stack = handle_stacks(user, itemstack, nodename_empty)
+    liquid_after_place(lpos, user, itemstack, pointed_thing)
+    return stack
   end
 end
 
