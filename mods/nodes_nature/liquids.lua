@@ -56,12 +56,31 @@ local function get_after_destruct(name, renewable)
                 minetest.set_node(air_pos, {name = oldnode.name})
             end
         end
+        local function to_the_surface()
+            if state.replaced then return end
+            local new_pos = vector.new(pos)
+            for i = 1, 100 do
+                new_pos.y = new_pos.y + 1
+                minetest.log("error", i)
+                local node = minetest.get_node(new_pos)
+                if node.name == "air" or
+                    node.name == "nodes_nature:"..name.."_flowing" then
+                    state.replaced = true
+                    minetest.set_node(new_pos, {name = oldnode.name})
+                    break
+                elseif node.name ~= "nodes_nature:"..name.."_source" then
+                    -- we hit a ceiling
+                    break
+                end
+            end
+        end
         if renewable then
             try_mixing_into(pos, name, state)
         end
         try_overflowing(-1)
         try_overflowing()
         try_overflowing(1)
+        to_the_surface()
     end
 end
 
