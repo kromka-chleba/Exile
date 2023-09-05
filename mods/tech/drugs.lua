@@ -162,88 +162,50 @@ liquid_store.register_stored_liquid(
   S("Tang"),
 	{dig_immediate=2, temp_pass = 1, drug = 1})
 
+local function drink_tang(pot_type, pos, node, clicker, itemstack, pointed_thing)
+  if (pot_type ~= "wooden") then
+    pot_type = "clay"
+  end
+  --lets skull an entire vat of booze, what could possibly go wrong...
+  local meta = clicker:get_meta()
+  local thirst = meta:get_int("thirst")
+  local hunger = meta:get_int("hunger")
+  local energy = meta:get_int("energy")
+  --only drink if thirsty
+  if thirst < 100 then
+
+    --you're skulling a whole bucket
+    thirst = 100 -- no point in adding to if this is the maximum
+
+    --all energy and half food equivalent of the fruit
+    --gets given as energy
+    energy = minimal.math_clamp(energy + 180, 1000, 0)
+    hunger = minimal.math_clamp(hunger + 60, 1000, 0)
+
+    --drunkness
+    if random() < 0.75 then
+      HEALTH.add_new_effect(clicker, {"Drunk", 1})
+    end
+
+
+    meta:set_int("thirst", thirst)
+    meta:set_int("energy", energy)
+    
+    minetest.swap_node(pos, {name = "tech:"..pot_type.."_water_pot"})
+    minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
+  end
+end
+
 -- overrides for clay and wooden tang
 minetest.override_item("tech:tang",{
-  on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-    --lets skull an entire vat of booze, what could possibly go wrong...
-		local meta = clicker:get_meta()
-		local thirst = meta:get_int("thirst")
-		local hunger = meta:get_int("hunger")
-    local energy = meta:get_int("energy")
-		--only drink if thirsty
-		if thirst < 100 then
-
-			--you're skulling a whole bucket
-			thirst = thirst + 100
-			if thirst > 100 then
-				thirst = 100
-			end
-
-      --all energy and half food equivalent of the fruit
-      --gets given as energy
-      energy = energy + 180
-      if energy > 1000 then
-        energy = 1000
-      end
-
-			hunger = hunger + 60
-			if hunger > 1000 then
-				hunger = 1000
-			end
-
-      --drunkness
-			if random() < 0.75 then
-				HEALTH.add_new_effect(clicker, {"Drunk", 1})
-			end
-
-
-			meta:set_int("thirst", thirst)
-      meta:set_int("energy", energy)
-			minetest.swap_node(pos, {name = "tech:clay_water_pot"})
-			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
-		end
-	end
+  on_rightclick = function(...)
+    drink_tang("",...)
+  end
 })
 minetest.override_item("tech:wooden_tang",{
-  on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-    --lets skull an entire vat of booze, what could possibly go wrong...
-		local meta = clicker:get_meta()
-		local thirst = meta:get_int("thirst")
-		local hunger = meta:get_int("hunger")
-    local energy = meta:get_int("energy")
-		--only drink if thirsty
-		if thirst < 100 then
-
-			--you're skulling a whole bucket
-			thirst = thirst + 100
-			if thirst > 100 then
-				thirst = 100
-			end
-
-      --all energy and half food equivalent of the fruit
-      --gets given as energy
-      energy = energy + 180
-      if energy > 1000 then
-        energy = 1000
-      end
-
-			hunger = hunger + 60
-			if hunger > 1000 then
-				hunger = 1000
-			end
-
-      --drunkness
-			if random() < 0.75 then
-				HEALTH.add_new_effect(clicker, {"Drunk", 1})
-			end
-
-
-			meta:set_int("thirst", thirst)
-      meta:set_int("energy", energy)
-			minetest.swap_node(pos, {name = "tech:wooden_water_pot"})
-			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
-		end
-	end
+  on_rightclick = function(...)
+    drink_tang("wooden",...)
+  end
 })
 -------------
 
@@ -298,6 +260,16 @@ liquid_store.register_stored_liquid(
   S("Tang (unfermented)"),
 	{dig_immediate=2, temp_pass = 1})
 
+-- find ferment or create a ferment meta
+local function get_or_create_ferment(meta)
+  local ferment = meta:get_int("ferment")
+  
+  if (ferment == 0) then
+    ferment = math.random(300,360)
+  end
+  
+  return ferment
+end
 
 --save usage into inventory, to prevent infinite supply
 local on_dig_tang = function(pos, node, digger, pot_type)
@@ -313,7 +285,7 @@ local on_dig_tang = function(pos, node, digger, pot_type)
   
 
 	local meta = minetest.get_meta(pos)
-	local ferment = meta:get_int("ferment")
+	local ferment = get_or_create_ferment(meta)
 
 	local new_stack = ItemStack("tech:tang_unfermented")
   if (string.match(pot_type,"wooden")) then
@@ -330,17 +302,6 @@ local on_dig_tang = function(pos, node, digger, pot_type)
 	else
 		minetest.add_item(pos, new_stack)
 	end
-end
-
-local function get_or_create_ferment(meta)
-  local ferment = meta:get_int("ferment")
-  
-  if (ferment == 0) then
-    ferment = math.random(300,360)
-    --meta:set_int("ferment",ferment)
-  end
-  
-  return ferment
 end
 
 --set saved
@@ -402,10 +363,6 @@ minetest.override_item("tech:tang_unfermented",{
   _preserve_metadata = function(...)
     preserve_metadata_tang(...)
   end,
-  
-  --on_use = function(...)
-    --return on_use_tang(...)
-  --end,
 })
 minetest.override_item("tech:wooden_tang_unfermented",{
   on_dig = function(pos, node, digger)
@@ -440,10 +397,6 @@ minetest.override_item("tech:wooden_tang_unfermented",{
   _preserve_metadata = function(...)
     preserve_metadata_tang(...)
   end,
-  
-  --on_use = function(itemstack, user, pointed_thing)
-    --return on_use_tang(itemstack, user, pointed_thing, "wooden")
-  --end,
 })
 
 -----------------------------------

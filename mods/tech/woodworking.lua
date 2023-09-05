@@ -24,7 +24,7 @@ crafting.register_recipe({
 minetest.register_node("tech:wooden_water_pot", {
 	description = S("Wooden Water Pot"),
 	tiles = {
-		"tech_primitive_wood.png^tech_pot_empty.png",--"tech_wooden_water_pot_empty.png",
+		"tech_primitive_wood.png^tech_pot_empty.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
