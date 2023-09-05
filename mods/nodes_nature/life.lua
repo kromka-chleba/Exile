@@ -12,7 +12,6 @@ local c_alpha = minimal.compat_alpha
 plant_base_growing_time = plant_base_growing_time
 plant_base_timer = plant_base_timer
 exile_add_food_hooks = exile_add_food_hooks
-creative = creative
 wielded_light = wielded_light
 
 ----------------------------------------------------------------------
@@ -50,8 +49,7 @@ local function rooted_place(itemstack, placer, pointed_thing, node_name, substra
 				not minetest.is_protected(pos_top, player_name) then
 			minetest.swap_node(pos, {name = node_name,
 				param2 = height * 16})
-			if not (creative and creative.is_enabled_for
-					and creative.is_enabled_for(player_name)) then
+			if not (minimal.player_in_creative(player_name)) then
 				itemstack:take_item()
 			end
 		else

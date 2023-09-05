@@ -14,7 +14,6 @@ local floor = math.floor
 local c_alpha = minimal.compat_alpha
 
 exile_add_food_hooks = exile_add_food_hooks
-creative = creative
 wielded_light = wielded_light
 
 -- Globals
@@ -392,7 +391,7 @@ function plant.get_base_props(plant_def)
         sounds = plant.get_sounds(plant_def),
         _seed_name = plant.get_seed_name(plant_def.name),
         after_place_node = function(pos, placer, itemstack, pointed_thing)
-            if not (minimal.player_in_creative(placer)) then
+            if minetest.is_player(placer) and not (minimal.player_in_creative(placer)) then
               plant.set_to_domesticated(pos)
               plant.death_chance_on_replant(pos)
             end
