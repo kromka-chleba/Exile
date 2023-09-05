@@ -300,11 +300,11 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
       return
     end
     
-    --if (type(nodedata) == "table" and not placer:get_player_control().sneak and not isliquid) then
-      --if (type(nodedata["on_rightclick"]) == "function") then
-        --return nodedata.on_rightclick(pos, node, placer, itemstack, pointed_thing)
-      --end
-    --end
+    if (type(nodedata) == "table" and not placer:get_player_control().sneak and not isliquid and minetest.get_item_group(node.name,"liquid_storage") == 0) then
+      if (type(nodedata["on_rightclick"]) == "function") then
+        return nodedata.on_rightclick(pos, node, placer, itemstack, pointed_thing)
+      end
+    end
   end
   
   local top_node = minetest.get_node(pos_top) -- check if can be placed
@@ -349,6 +349,8 @@ function liquid_store.register_stored_liquid(source, nodename, nodename_empty, t
 
 
 	if nodename ~= nil then
+    groups.liquid_storage = 1 -- contains liquid
+    
 		minetest.register_node(nodename, {
 			description = desc,
 			tiles = tiles,
