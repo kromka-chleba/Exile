@@ -283,16 +283,26 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
   local pos = pointed_thing.under
   local pos_top = pointed_thing.above
   
+  local isliquid = false -- to prevent placement if a liquid that can't be grabbed
+  
   local node = minetest.get_node(pos) -- grab a possible liquid if correct
   local nodedata = minetest.registered_nodes[node.name]
   local stored = find_stored(itemstack:get_name(), node.name)
+  if (stored) then
+    isliquid = true
+  end
+  if (type(nodedata) == "table") then
+    if (nodedata.drawtype == "liquid") then
+      isliquid = true
+    end
+  end
   
   if (minetest.is_player(placer)) then
     if (minetest.is_protected(pos, placer:get_player_name()) or minetest.is_protected(pos_top, placer:get_player_name()) ) then
       return
     end
     
-    if (type(nodedata) == "table" and not placer:get_player_control().sneak and not stored) then
+    if (type(nodedata) == "table" and not placer:get_player_control().sneak and not isliquid) then
       if (type(nodedata["on_rightclick"]) == "function") then
         return nodedata.on_rightclick(pos, node, placer, itemstack, pointed_thing)
       end
