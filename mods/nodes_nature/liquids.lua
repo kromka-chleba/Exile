@@ -11,18 +11,67 @@ local c_alpha = minimal.compat_alpha
 
 --Water
 local list = {
-    {"salt_water", S("Salt Water"), 2, 230, 140, true},
-    {"freshwater", S("Freshwater"), 1, 180, 100, false},
-
+    {name = "salt_water",
+     desc = S("Salt Water"),
+     water_g = 2,
+     post_alpha = 140,
+     renew = true,
+    },
+    {name = "freshwater",
+     desc = S("Freshwater"),
+     water_g = 1,
+     post_alpha = 100,
+     renew = false
+    },
 }
 
-for i in ipairs(list) do
-    local name = list[i][1]
-    local desc = list[i][2]
-    local water_g = list[i][3]
-    local alpha = c_alpha.blend -- list[i][4]
-    local post_alpha = list[i][5]
-    local renew = list[i][6]
+local function try_mixing_into(pos, name, state)
+    local water_table = minetest.find_nodes_in_area(
+        {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+        {x = pos.x + 1, y = pos.y, z = pos.z + 1},
+        {"nodes_nature:"..name.."_source"})
+    if #water_table > 0 then
+        state.replaced = true
+    end
+end
+
+local function get_after_destruct(name, renewable)
+    return function (pos, oldnode)
+        local node = minetest.get_node(pos)
+        if node.name == "air" or
+            node.name == "nodes_nature:"..name.."_flowing" then
+            return
+        end
+        local state = {replaced = false}
+        local function try_overflowing(level)
+            if state.replaced then return end
+            local lev = level or 0
+            local air_table = minetest.find_nodes_in_area(
+                {x = pos.x - 1, y = pos.y + lev, z = pos.z - 1},
+                {x = pos.x + 1, y = pos.y + lev, z = pos.z + 1},
+                {"air", "nodes_nature:"..name.."_flowing"})
+            if #air_table > 0 then
+                local air_pos = air_table[math.random(1, #air_table)]
+                state.replaced = true
+                minetest.set_node(air_pos, {name = oldnode.name})
+            end
+        end
+        if renewable then
+            try_mixing_into(pos, name, state)
+        end
+        try_overflowing(-1)
+        try_overflowing()
+        try_overflowing(1)
+    end
+end
+
+for _, water in pairs(list) do
+    local name = water.name
+    local desc = water.desc
+    local water_g = water.water_g
+    local alpha = c_alpha.blend
+    local post_alpha = water.post_alpha
+    local renew = water.renew
 
     minetest.register_node(
         "nodes_nature:"..name.."_source", {
@@ -68,28 +117,9 @@ for i in ipairs(list) do
             post_effect_color = {a = post_alpha, r = 30, g = 60, b = 90},
             groups = {water = water_g, cools_lava = 1, puts_out_fire = 1, falling_node = 1, float = 1},
             sounds = nodes_nature.node_sound_water_defaults(),
-            after_destruct = function(pos, oldnode)
-                local node = minetest.get_node(pos)
-                if node.name == "air" then
-                    return
-                end
-                local replaced = false
-                local function try_overflowing(level)
-                    if replaced then return end
-                    local lev = level or 0
-                    local air_table = minetest.find_nodes_in_area(
-                        {x = pos.x - 1, y = pos.y + lev, z = pos.z - 1},
-                        {x = pos.x + 1, y = pos.y + lev, z = pos.z + 1},
-                        {"air", "nodes_nature:"..name.."_flowing"})
-                    if #air_table > 0 then
-                        local air_pos = air_table[math.random(1, #air_table)]
-                        replaced = true
-                        minetest.set_node(air_pos, {name = oldnode.name})
-                    end
-                end
-                try_overflowing(-1)
-                try_overflowing()
-                try_overflowing(1)
+            after_destruct = get_after_destruct(name, renew),
+            on_construct = function (pos)
+                minetest.check_single_for_falling(pos)
             end,
     })
 
@@ -369,7 +399,11 @@ minetest.register_node(
         liquid_renewable = false,
         damage_per_second = 4 * 2,
         post_effect_color = {a = 191, r = 255, g = 64, b = 0},
-        groups = {igniter = 1, temp_effect = 1, temp_pass = 1},
+        groups = {igniter = 1, temp_effect = 1, temp_pass = 1, falling_node = 1, float = 1},
+        after_destruct = get_after_destruct("lava", false),
+        on_construct = function (pos)
+            minetest.check_single_for_falling(pos)
+        end,
 })
 
 minetest.register_node(
@@ -428,6 +462,9 @@ minetest.register_node(
 
 --cool when next to a cooling node
 local cool_lava = function(pos, node)
+    -- remove the node first to avoid infinite lava
+    -- see get_after_destruct for details
+    minetest.remove_node(pos)
     minetest.set_node(pos, {name = "nodes_nature:basalt"})
     minetest.sound_play(
         "nodes_nature_cool_lava",
