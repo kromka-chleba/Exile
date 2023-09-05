@@ -9,41 +9,6 @@ local ms = mapchunk_shepherd
 local seasons = seasons
 
 ----------------------------------------------------------------
---Thaw snow and ice
-
-local function thaw_frozen(pos, node)
-   --position gets overwritten by climate function otherwise,
-   --not clear why
-   local p = pos
-   if climate.can_thaw(p) then
-
-      local name = node.name
-      if name == "nodes_nature:snow_block" then
-	 minetest.set_node(p, {name = "nodes_nature:freshwater_source"})
-      elseif name == "nodes_nature:ice" then
-	 local under = minetest.get_node({x = p.x, y = p.y-1, z =p.z})
-	 if under.name == "nodes_nature:salt_water_source" then
-	    minetest.remove_node(p)
-	 else
-	    minetest.set_node(p, {name = "nodes_nature:freshwater_source"})
-	 end
-      end
-      minetest.check_for_falling(p)
-      return
-   end
-end
-
-minetest.register_abm({
-	label = "Thaw Ice and snow",
-	nodenames = {"nodes_nature:ice", "nodes_nature:snow_block"},
-	interval = 103,
-	chance = 5,
-	action = function(...)
-		thaw_frozen(...)
-	end
-})
-
-----------------------------------------------------------------
 -- flowing Water erode
 --will rearrange sediments until out of the path of flow..
 --and cannot shift them anywhere else
@@ -296,7 +261,6 @@ end
 local current_snower = false
 local snow_placer = false
 local snower_changed = true
-local snow_interval = 20
 local is_snowing = false
 local snower_running = false
 local snower_chance = 1/50
@@ -333,13 +297,18 @@ local function initialize_soaker()
     evaporator_running = false
     ms.remove_worker("evaporation_worker")
     ms.remove_worker("snow_place_worker")
-    ms.register_worker({name = "rain_soak_worker",
-                        fun = rain_replacer,
-                        has_one_of = soil_labels,
-                        work_every = 40,
-                        rework_labels = {"last_rain"},
-                        chance = soak_chance,
-    })
+    local function register()
+        ms.register_worker(
+            {name = "rain_soak_worker",
+             fun = rain_replacer,
+             has_one_of = soil_labels,
+             work_every = 60,
+             rework_labels = {"last_rain"},
+             chance = soak_chance,
+        })
+    end
+    -- delay before it gets starts soaking
+    minetest.after(25, register)
     soaker_changed = false
 end
 
@@ -349,13 +318,17 @@ local function initialize_snower()
     snower_running = true
     ms.remove_worker("evaporation_worker")
     ms.remove_worker("rain_soak_worker")
-    ms.register_worker({name = "snow_place_worker",
-                        fun = snow_placer,
-                        has_one_of = soil_labels,
-                        rework_labels = {"last_snow"},
-                        work_every = 45,
-                        chance = snower_chance,
-    })
+    local function register()
+        ms.register_worker({name = "snow_place_worker",
+                            fun = snow_placer,
+                            has_one_of = soil_labels,
+                            rework_labels = {"last_snow"},
+                            work_every = 80,
+                            chance = snower_chance,
+        })
+    end
+    -- delay before it gets starts snowing
+    minetest.after(25, register)
     snower_changed = false
 end
 
@@ -382,6 +355,8 @@ end
 local thaw_pairs = {
     ["nodes_nature:snow"] = "air",
     ["nodes_nature:sea_ice"] = "nodes_nature:salt_water_source",
+    ["nodes_nature:ice"] = "nodes_nature:freshwater_source",
+    ["nodes_nature:snow_block"] = "nodes_nature:freshwater_source",
 }
 
 local light_thawer =
@@ -450,7 +425,7 @@ end
 local icer_running = false
 local current_icer = false
 local icer_changed = true
-local icer_interval = 10
+local icer_interval = 60
 
 -- Finds ocean
 ms.create_biome_finder({
@@ -495,7 +470,8 @@ ms.create_biome_finder({
 })
 
 local freeze_pairs = {
-    ["nodes_nature:salt_water_source"] = "nodes_nature:sea_ice"
+    ["nodes_nature:salt_water_source"] = "nodes_nature:sea_ice",
+    ["nodes_nature:freshwater_source"] = "nodes_nature:ice",
 }
 
 local icer =
@@ -743,7 +719,7 @@ local function start_moisture_spread()
         })
     ms.register_worker({name = "moisture_spread_worker",
                         fun = moisture_spread_worker,
-                        work_every = 38,
+                        work_every = 65,
                         has_one_of = soil_labels,
                         rework_labels = {"moisture_spread"},
                         afterworker = handle_sediment_orphans,
