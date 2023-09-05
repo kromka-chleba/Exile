@@ -120,7 +120,9 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 		-- do nothing if it's neither object nor node
 		return
 	end
-
+  
+  minetest.check_for_falling(pointed_thing.under) -- install gravity
+  
 
 	-- Check if pointing to a liquid source
 	local node = minetest.get_node(pointed_thing.under)
@@ -240,6 +242,7 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 			return itemstack
 		end
 	end
+  minetest.check_for_falling(lpos) -- gravity installed
 	if check_protection(lpos, user
 			and user:get_player_name()
 			or "", "place "..source) then
