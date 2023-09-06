@@ -179,6 +179,7 @@ end
 -- Check whether pos is inside the specified zone
 -- Returns a depth number, 0 for not inside, 1 is max depth/effect
 local function inside_depth(pos, zdef)
+   if not zdef.base then return 0 end
    local p1 = vector.add(zdef.pos1, zdef.base)
    local p2 = vector.add(zdef.pos2, zdef.base)
    local midpoint = vector.add(zdef.midpoint, zdef.base)
