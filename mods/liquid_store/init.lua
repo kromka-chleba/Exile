@@ -215,15 +215,12 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	local node = minetest.get_node_or_nil(pointed_thing.under)
 	local ndef = node and minetest.registered_nodes[node.name]
 
-	-- Call on_rightclick if the pointed node defines it
-	if ndef and ndef.on_rightclick and
-			not (user and user:is_player() and
-			user:get_player_control().sneak) then
-		return ndef.on_rightclick(
-			pointed_thing.under,
-			node, user,
-			itemstack)
-	end
+	-- Call on_rightclick if the pointed node defines it (do not on_rightclick for liquids)
+  if (type(ndef) == "table" and minetest.is_player(user)) then
+    if (type(ndef["on_rightclick"]) == "function" and ndef.drawtype ~= "liquid" and not user:get_player_control().sneak) then
+      return ndef.on_rightclick(pointed_thing.under, node, user, itemstack)
+    end
+  end
 
 	local lpos
 	local stored = find_stored(node.name, source)
