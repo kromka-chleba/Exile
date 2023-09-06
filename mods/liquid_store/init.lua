@@ -225,7 +225,7 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	local lpos
 	local stored = find_stored(node.name, source)
 	-- Check if pointing to a buildable node
-	if ( ndef and ndef.buildable_to ) or stored then
+	if ndef.drawtype ~= "liquid" and ( ndef and ndef.buildable_to ) or stored then
 		-- buildable; replace or fill the node
 		lpos = pointed_thing.under
 	else
