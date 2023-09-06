@@ -87,12 +87,25 @@ local function add_zbts(id)
    end
 end
 
-local function clear_zbt(id, rmtype)
+local function clear_zbt(id, rmtype, nosink)
    if not zonelist[id] then
       error("attempted to remove zbt data for nonexistant id!")
    end
    zonelist[id]["ztrd_"..rmtype] = ""
-   table.remove(zonebytype[id], rmtype)
+   zonebytype[rmtype][id] = nil
+   if nosink == true then
+      sink_zone(zonelist[id])
+   end
+end
+
+local function clear_zbts_for_id(id)
+   -- Removes all zbts for an id, for use prior to expiring it
+   if not zonelist[id] then
+      error("attempted to remove zbt data for nonexistant id!")
+   end
+   for nm, _ in pairs(zonebytype) do
+      clear_zbt(id, nm, true)
+   end
    sink_zone(zonelist[id])
 end
 
@@ -283,7 +296,8 @@ local function check_for_expiry()
       end
    end
    for i = 1, #expireme do
-      expireme[i] = nil
+      minetest.log("action", "Expired id: ",expireme[i])
+      expireme[i] = nil  -- do nothing yet, just empty the table
    end
 end
 
