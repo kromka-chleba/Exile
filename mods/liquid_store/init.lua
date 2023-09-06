@@ -265,8 +265,8 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
     if (minimal.player_in_creative(user)) then
       return
     end
-    local stack = handle_stacks(user, itemstack, nodename_empty)
-    return stack
+    
+    return handle_stacks(user, itemstack, nodename_empty)
   end
 end
 
@@ -293,6 +293,8 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
     if (nodedata.drawtype == "liquid") then
       isliquid = true
     end
+  else -- do not place if can't find nodedata
+    return
   end
   
   if (minetest.is_player(placer)) then
@@ -308,18 +310,29 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
   end
   
   local top_node = minetest.get_node(pos_top) -- check if can be placed
-  local top_nodedata = minetest.registered_nodes[top_node.name] or {drawtype = "airlike"} -- incase it's nil
+  local top_nodedata = minetest.registered_nodes[top_node.name]
+  
+  if (type(top_nodedata) ~= "table") then -- do not place if can't find nodedata
+    return
+  end
   
   if stored then
     -- if a possible liquid and an empty bucket
     return liquid_store.on_use_empty_bucket(itemstack, placer, pointed_thing)
-  elseif (type(minetest.registered_nodes[place_name]) == "table" and top_nodedata.drawtype == "airlike") then
-    -- place the bucket
+  elseif (type(minetest.registered_nodes[place_name]) == "table") then
+    -- verify if can place bucket
+    if (nodedata.buildable_to ~= true and top_nodedata.buildable_to == true or isliquid == true) then
+      -- if any of the above is correct, place above the node
+      pos = pos_top
+    elseif (nodedata.buildable_to ~= true and top_nodedata.buildable_to ~= true) then
+      return -- can't place bucket
+    end
     if not (minimal.player_in_creative(placer)) then
       itemstack:take_item()
     end
-    minetest.set_node(pos_top,{name = place_name})
-    liquid_after_place(pos_top, placer, itemstack, pointed_thing)
+    -- place the bucket
+    minetest.set_node(pos,{name = place_name})
+    liquid_after_place(pos, placer, itemstack, pointed_thing)
   end
   
   return itemstack
