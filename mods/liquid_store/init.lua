@@ -71,7 +71,7 @@ end
 local function liquid_metadata(pos, oldnode, t_stack)
   local nodedata = minetest.registered_nodes[oldnode.name]
   
-  if (type(nodedata) ~= "table") then
+  if (type(nodedata) ~= "table" and type(t_stack) ~= "userdata") then
     return
   end
   
@@ -93,6 +93,8 @@ local function liquid_after_place(pos, placer, itemstack, pointed_thing)
   if (type(node) ~= "table") then
     return
   end
+  
+  minetest.check_for_falling(pos) -- check for falling nodes
   
   -- only runs if provided node has the function itself
   if (type(node["after_place_node"]) == "function") then
@@ -213,20 +215,17 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	local node = minetest.get_node_or_nil(pointed_thing.under)
 	local ndef = node and minetest.registered_nodes[node.name]
 
-	-- Call on_rightclick if the pointed node defines it
-	if ndef and ndef.on_rightclick and
-			not (user and user:is_player() and
-			user:get_player_control().sneak) then
-		return ndef.on_rightclick(
-			pointed_thing.under,
-			node, user,
-			itemstack)
-	end
+	-- Call on_rightclick if the pointed node defines it (do not on_rightclick for liquids)
+  if (type(ndef) == "table" and minetest.is_player(user)) then
+    if (type(ndef["on_rightclick"]) == "function" and ndef.drawtype ~= "liquid" and not user:get_player_control().sneak) then
+      return ndef.on_rightclick(pointed_thing.under, node, user, itemstack)
+    end
+  end
 
 	local lpos
 	local stored = find_stored(node.name, source)
 	-- Check if pointing to a buildable node
-	if ( ndef and ndef.buildable_to ) or stored then
+	if ndef.drawtype ~= "liquid" and ( ndef and ndef.buildable_to ) or stored then
 		-- buildable; replace or fill the node
 		lpos = pointed_thing.under
 	else
@@ -242,7 +241,7 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 			return itemstack
 		end
 	end
-  minetest.check_for_falling(lpos) -- gravity installed
+  
 	if check_protection(lpos, user
 			and user:get_player_name()
 			or "", "place "..source) then
@@ -250,22 +249,90 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	end
 	if stored then -- Dump contents into liquid store
 	   minimal.switch_node(lpos, {name = stored})
-     
-     local stack = handle_stacks(user, itemstack, nodename_empty)
      liquid_after_place(lpos, user, itemstack, pointed_thing)
-	   return stack
+     
+	   return handle_stacks(user, itemstack, nodename_empty)
 	end
   
   -- dump the water ONLY if "dump" is true (if false, do not dump)
   if dump then
     minetest.set_node(lpos, {name = source})
+    liquid_after_place(lpos, user, itemstack, pointed_thing)
+    
     if (minimal.player_in_creative(user)) then
       return
     end
-    local stack = handle_stacks(user, itemstack, nodename_empty)
-    liquid_after_place(lpos, user, itemstack, pointed_thing)
-    return stack
+    
+    return handle_stacks(user, itemstack, nodename_empty)
   end
+end
+
+function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
+  if (pointed_thing.type ~= "node" or type(itemstack) ~= "userdata") then
+    return
+  end
+  if (type(place_name) ~= "string") then
+    itemstack:get_name() 
+  end
+  
+  local pos = pointed_thing.under
+  local pos_top = pointed_thing.above
+  
+  local isliquid = false -- to prevent placement if a liquid that can't be grabbed
+  
+  local node = minetest.get_node(pos) -- grab a possible liquid if correct
+  local nodedata = minetest.registered_nodes[node.name]
+  local stored = find_stored(itemstack:get_name(), node.name)
+  if (stored) then
+    isliquid = true
+  end
+  if (type(nodedata) == "table") then
+    if (nodedata.drawtype == "liquid") then
+      isliquid = true
+    end
+  else -- do not place if can't find nodedata
+    return
+  end
+  
+  if (minetest.is_player(placer)) then
+    if (minetest.is_protected(pos, placer:get_player_name()) or minetest.is_protected(pos_top, placer:get_player_name()) ) then
+      return
+    end
+    
+    if (type(nodedata) == "table" and not placer:get_player_control().sneak and not isliquid and minetest.get_item_group(node.name,"liquid_storage") == 0) then
+      if (type(nodedata["on_rightclick"]) == "function") then
+        return nodedata.on_rightclick(pos, node, placer, itemstack, pointed_thing)
+      end
+    end
+  end
+  
+  local top_node = minetest.get_node(pos_top) -- check if can be placed
+  local top_nodedata = minetest.registered_nodes[top_node.name]
+  
+  if (type(top_nodedata) ~= "table") then -- do not place if can't find nodedata
+    return
+  end
+  
+  if stored then
+    -- if a possible liquid and an empty bucket
+    return liquid_store.on_use_empty_bucket(itemstack, placer, pointed_thing)
+  elseif (type(minetest.registered_nodes[place_name]) == "table") then
+    -- verify if can place bucket
+    if (nodedata.buildable_to ~= true and top_nodedata.buildable_to == true or isliquid == true) then
+      -- if any of the above is correct, place above the node
+      pos = pos_top
+    elseif (nodedata.buildable_to ~= true and top_nodedata.buildable_to ~= true) then
+      return -- can't place bucket
+    end
+    if not (minimal.player_in_creative(placer)) then
+      itemstack:take_item()
+    end
+    -- place the bucket
+    minetest.set_node(pos,{name = place_name})
+    liquid_after_place(pos, placer, itemstack, pointed_thing)
+  end
+  
+  return itemstack
 end
 
 
@@ -292,6 +359,8 @@ function liquid_store.register_stored_liquid(source, nodename, nodename_empty, t
 
 
 	if nodename ~= nil then
+    groups.liquid_storage = 1 -- contains liquid
+    
 		minetest.register_node(nodename, {
 			description = desc,
 			tiles = tiles,
@@ -306,6 +375,10 @@ function liquid_store.register_stored_liquid(source, nodename, nodename_empty, t
 			on_use = function(...)
 				return liquid_store.on_use_filled_bucket(source,nodename_empty,...)
 			end,
+      
+      on_place = function(...)
+        return liquid_store.on_place(nodename,...)
+      end,
 		})
 
 	end
