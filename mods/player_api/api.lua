@@ -199,6 +199,7 @@ local invisible = {}
 
 function player_api.set_invisible(player, vanish)
    local props = player:get_properties()
+   if not props then return end -- player has disconnected
    if vanish then
       invisible[player:get_player_name()] = true
       props.nametag = " " -- blank out nametag
