@@ -5,8 +5,9 @@
 --  observed in the following pull-request comment:
 --  https://codeberg.org/Mantar/Exile/pulls/495#issuecomment-1105503
 
-local m_hud_data = {} -- minimal hud
+local m_hud_data = {} -- minimal hud data store
 
+-- table of player hotbar slotnum hud elem ID stores
 m_hud_data.hotbar_slotnums = {}
 
 -- FIXME: The values below were determined experimentally and should instead be
@@ -107,7 +108,7 @@ minimal.update_hotbar_slotnums = function(player, hotbar_itemcount)
   -- number-label only slots which have keyboard shortcuts
   local hotbar_slotnum_last_idx = math.min(hotbar_itemcount, 10)
 
-  -- get hotbar slotnum hud elem global store for the given player,
+  -- get hotbar slotnum hud elem ID store for the given player,
   --  or create it if does not exist
   local player_hotbar_slotnums = m_hud_data.hotbar_slotnums[player:get_player_name()]
   if type(player_hotbar_slotnums) ~= "table" then
@@ -158,7 +159,7 @@ minimal.update_hotbar_slotnums = function(player, hotbar_itemcount)
     -- relative x (offset) coord of hotbar slot number to be created
     hotbar_slotnum_x_rel = (
       -- components hierarchically:
-      0  -- at: vert. center of screen (req: position.x == .5)
+      0  -- at: horiz. center of screen (req: position.x == .5)
       -- `hotbar_slot_size` seems fixed in Minetest v5.7.0
       +hotbar_slot_shift * hotbar_slot_size  -- at: curr. slot "boundary"'s left edge
       -- depends on chosen hotbar img
@@ -168,7 +169,7 @@ minimal.update_hotbar_slotnums = function(player, hotbar_itemcount)
       +hotbar_slotnum_offset_x
     )
 
-    -- create hotbar slot number hud element & save reference to global store
+    -- create hotbar slot number hud element & save its ID
     -- key of text elem is the index number of the hotbar slot
     player_hotbar_slotnums[hotbar_slot_idx] = player:hud_add({
       hud_elem_type = "text",
