@@ -59,13 +59,11 @@ function animals.handle_drops(self)
      local amount = random (item.min, item.max)
      local chance = random(1,100)
      local pos = self.object:get_pos()
+     pos.y = pos.y+0.5
 
      if chance < (100/item.chance) then
        --leave time for death animation to end
        minetest.after(5, function()
-         if (type(self.object) == "userdata") then -- if entity then
-           pos = self.object:get_pos() or pos -- get entity's pos or if pos is nil, use old pos
-         end
          minetest.add_item(pos, item.name.." "..tostring(amount))
        end)
      end
