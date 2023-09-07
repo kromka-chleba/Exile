@@ -40,11 +40,11 @@ function minimal.set_hotbar(player,pref)
 		-- use wide hotbar
 		player:hud_set_hotbar_image("gui_hotbar16.png")
 		player:hud_set_hotbar_itemcount(16)
-		minimal.update_quickslot(player,16)
+		minimal.update_hotbar_slotnums(player,16)
 	else
 		player:hud_set_hotbar_image("gui_hotbar.png")
 		player:hud_set_hotbar_itemcount(8)
-		minimal.update_quickslot(player,8)
+		minimal.update_hotbar_slotnums(player,8)
 	end
 end
 
