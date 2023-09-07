@@ -66,6 +66,7 @@ function animals.handle_drops(self)
          if (type(self.object) == "userdata") then -- if entity then
            pos = self.object:get_pos() or pos -- get entity's pos or if pos is nil, use old pos
          end
+	 pos.y = pos.y+0.5
          item = item.name  -- convert into string to avoid conflicts (and override)
         -- if the animal was burned to death
         if (self.burnt == true) then
