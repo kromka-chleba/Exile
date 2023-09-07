@@ -35,6 +35,7 @@ dofile(modpath..'/zones.lua')
 dofile(modpath..'/debug.lua')
 dofile(modpath..'/themes.lua')
 dofile(modpath..'/playersettings.lua')
+dofile(modpath..'/minimal_hud.lua')
 
 -- GUI related stuff
 
@@ -43,9 +44,11 @@ function minimal.set_hotbar(player,pref)
 		-- use wide hotbar
 		player:hud_set_hotbar_image("gui_hotbar16.png")
 		player:hud_set_hotbar_itemcount(16)
+		minimal.update_hotbar_slotnums(player,16)
 	else
 		player:hud_set_hotbar_image("gui_hotbar.png")
 		player:hud_set_hotbar_itemcount(8)
+		minimal.update_hotbar_slotnums(player,8)
 	end
 end
 
@@ -70,15 +73,14 @@ end
 ]]
 
 minetest.register_on_joinplayer(function(player)
-      local p_name = player:get_player_name()
-      --Custom small inventory
-      minetest.get_inventory({type="player", name=p_name}):set_size("main", 16)
-      --enable shadows if using minetest 5.6.0+
-      if minimal.mt_required_version(5,6,0) then
-	 minetest.log("action", "MT5.6.0+, enabling shadows for "..p_name)
-	 player:set_lighting({
-	    shadows = { intensity = 0.33 }
-      })
-      end
+	local p_name = player:get_player_name()
+	--Custom small inventory
+	minetest.get_inventory({type="player", name=p_name}):set_size("main", 16)
+	--enable shadows if using minetest 5.6.0+
+	if minimal.mt_required_version(5,6,0) then
+		minetest.log("action", "MT5.6.0+, enabling shadows for "..p_name)
+		player:set_lighting({
+			shadows = { intensity = 0.33 }
+		})
+	end
 end)
-
