@@ -49,11 +49,15 @@ function minimal.protection_after_place_node( pos, placer, itemstack, pointed_th
 end
 
 function minimal.protection_on_dig(pos,oldnode,digger)
-	local meta = minetest.get_meta(pos)
-	if meta:contains('nailed') then
-		local owner = meta:get_string('owner')
-		if owner == digger:get_player_name() then
-			--give digger back the nails (if they're not in creative)
+   local meta = minetest.get_meta(pos)
+   if not meta:contains('nailed') then return end
+   local owner = meta:get_string('owner')
+   if owner == digger:get_player_name() then
+      local def = minetest.registered_nodes[oldnode.name]
+      if not def or not def.can_dig(pos, digger) then
+	 return
+      end
+      --give digger back the nails (if they're not in creative)
       if not (minimal.player_in_creative(owner)) then
         local inv = digger:get_inventory()
         if inv:room_for_item("main", 'tech:nails') then
@@ -63,9 +67,9 @@ function minimal.protection_on_dig(pos,oldnode,digger)
           minetest.add_item(pos, 'tech:nails')
         end
       end
-			meta:set_string('nailed', "")
-		end
-	end
+      meta:set_string('owner', "")
+      meta:set_string('nailed', "")
+   end
 end
 
 
