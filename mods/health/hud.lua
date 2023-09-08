@@ -64,6 +64,11 @@ local function tobool(str)
    return false
 end
 
+local function are_stats_visible(hud_data)
+   return (( hud_data.showstats and hud_data.showstats == true ) or
+      ( hud_data.showstats == nil and mtshowstats == true ) )
+end
+
 local setup_hud = function(player)
 
 	player:hud_set_flags({healthbar = false})
@@ -373,15 +378,15 @@ local function temp(player, hud_data, meta)
 	local hud2 = hud_data.p_body_temp_type
 	local opac = hud_data.opacity or mthudopacity
 	player:hud_change(hud1, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac)
-	player:hud_change(hud2, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
-	local hud3 = hud_data.p_body_temp_text
-	player:hud_change(hud3, "number", tonumber("0x"..stat_col))
-	if ( hud_data.showstats and hud_data.showstats == true ) or
-	   ( hud_data.showstats == nil and mtshowstats == true ) then
-		player:hud_change(hud3, "text", t)
+	local hudtype = hud_data.p_body_temp_type
+	local hudtext = hud_data.p_body_temp_text
+	player:hud_change(hudtype, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
+	player:hud_change(hudtext, "number", tonumber("0x"..stat_col))
+	if are_stats_visible(hud_data) then
+		player:hud_change(hudtext, "text", t)
 	else
-		player:hud_change(hud3, "text", "")
-	end
+		player:hud_change(hudtext, "text", "")
+   end
 end
 
 local function do_overlay(player, pname, pos, overlay)
