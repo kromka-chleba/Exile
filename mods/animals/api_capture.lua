@@ -50,6 +50,7 @@ end
 
 --use stunning weapon plus chance to catch
 animals.stun_catch_mob = function(self, clicker,chance)
+	if self.hp <= 0 then return end
 	local item = clicker:get_wielded_item()
 	local item_name = item:get_name()
 	item = minetest.get_item_group(item_name,"club")
