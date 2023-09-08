@@ -431,7 +431,6 @@ local function hunger(player, hud_data, meta, hidden)
 	end
 end
 
-
 local function temp(player, hud_data, meta, hidden)
 	local v = meta:get_int("temperature")
 	local stat_col, ttype = color_bodytemp(v)
@@ -441,14 +440,15 @@ local function temp(player, hud_data, meta, hidden)
 	if hidden then opac = 0 end
 	player:hud_change(hud1, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac..
 			  blink(hud_data.blink["temp"]))
-	local hud2 = hud_data.p_body_temp_text
-	player:hud_change(hud2, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
-	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
+	local hudtype = hud_data.p_body_temp_type
+	local hudtext = hud_data.p_body_temp_text
+	player:hud_change(hudtype, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
+	player:hud_change(hudtext, "number", tonumber("0x"..stat_col))
 	if not hidden and are_stats_visible(hud_data) then
-		player:hud_change(hud2, "text", t)
+		player:hud_change(hudtext, "text", t)
 	else
-		player:hud_change(hud2, "text", "")
-	end
+		player:hud_change(hudtext, "text", "")
+   end
 end
 
 local function do_overlay(player, pname, pos, overlay)
