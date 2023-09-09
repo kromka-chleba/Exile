@@ -435,7 +435,7 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:barszcz_root",{
         tiles = {"nodes_nature_red_ochre.png"},
-        description = S("Barszcz root"),
+        description = S("Paratiki root"),
         wield_image = "nodes_nature_barszcz_root.png",
         inventory_image = "nodes_nature_barszcz_root.png",
         node_box = {
@@ -458,6 +458,16 @@ minetest.register_craftitem(
         wield_image = "nodes_nature_rzepicha_root.png",
         stack_max = minimal.stack_max_medium,
         groups = {},
+        on_place = function(itemstack, placer, pointed_thing)
+            local above = minetest.get_node(pointed_thing.above)
+            local pos_below = minimal.get_pos_under(pointed_thing.above)
+            local sediment = minimal.get_group(pos_below, "sediment")
+            if sediment > 0 and above.name == "air" then
+                minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_fruitless"})
+                plant.set_to_domesticated(pointed_thing.above)
+            end
+            return itemstack
+        end,
     }
 )
 
@@ -469,6 +479,16 @@ minetest.register_craftitem(
         wield_image = "nodes_nature_rzepicha_root_winter.png",
         stack_max = minimal.stack_max_medium,
         groups = {},
+        on_place = function(itemstack, placer, pointed_thing)
+            local above = minetest.get_node(pointed_thing.above)
+            local pos_below = minimal.get_pos_under(pointed_thing.above)
+            local sediment = minimal.get_group(pos_below, "sediment")
+            if sediment > 0 and above.name == "air" then
+                minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_seedling5"})
+                plant.set_to_domesticated(pointed_thing.above)
+            end
+            return itemstack
+        end,
     }
 )
 
