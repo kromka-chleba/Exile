@@ -344,7 +344,7 @@ end
 
 --eggs
 minetest.register_node("animals:pegasun_eggs", {
-	description = S('Pegasun Egg'),
+	description = S('Pekahunu Egg'),
 	tiles = {"animals_gundu_eggs.png"},
 	stack_max = minimal.stack_max_medium,
 	drawtype = "nodebox",
@@ -499,7 +499,7 @@ minetest.register_entity("animals:pegasun_male",{
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:pegasun_male", S("Live Pegasun (male)"), "animals_pegasun_item.png", minimal.stack_max_medium, energy_egg)
+animals.register_egg("animals:pegasun_male", S("Live Pekahunu (male)"), "animals_pegasun_item.png", minimal.stack_max_medium, energy_egg)
 
 
 
@@ -617,4 +617,4 @@ minetest.register_entity("animals:pegasun",{
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:pegasun", S("Live Pegasun (female)"), "animals_pegasun_item.png", minimal.stack_max_medium, energy_egg)
+animals.register_egg("animals:pegasun", S("Live Pekahunu (female)"), "animals_pegasun_item.png", minimal.stack_max_medium, energy_egg)
