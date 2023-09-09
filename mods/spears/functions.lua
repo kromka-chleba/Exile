@@ -47,17 +47,27 @@ function spears_set_entity(spear_type, base_damage, toughness)
 		initial_properties = {
 			physical = false,
 			visual = "item",
-			visual_size = {x = 0.5, y = 0.5, z = 0.5},
+			visual_size = {x = 0.3, y = 0.3, z = 0.3},
 			wield_item = "spears:spear_" .. spear_type,
-			collisionbox = {-0.3, -0.3, -0.3, 0.3, 0.3, 0.3},
+			collisionbox = {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
 		},
 
 		on_activate = function (self, staticdata, dtime_s)
 			self.object:set_armor_groups({immortal = 1})
 		end,
-		
+
 		on_punch = function (self, puncher)
-			if puncher:is_player() then -- Grab the spear
+		   if minetest.settings:get_bool("creative_mode") then
+		      local wi = puncher:get_wielded_item(puncher)
+		      if wi then
+			 local nm = wi:get_name()
+			 if string.match(nm, "spears:") then
+			    self.object:remove()
+			    return
+			 end
+		      end
+		   end
+		   if puncher:is_player() then -- Grab the spear
 				local stack = {name='spears:spear_' .. spear_type, wear = self._wear}
 				local inv = puncher:get_inventory()
 				if inv:room_for_item("main", stack) then
