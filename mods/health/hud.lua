@@ -69,6 +69,18 @@ local function are_stats_visible(hud_data)
       ( hud_data.showstats == nil and mtshowstats == true ) )
 end
 
+local stdpos = { x = .5, y = 1}
+
+local function make_image_hud(player, offset, text)
+   return player:hud_add({ hud_elem_type = "image", scale = icon_scale,
+			   offset = offset, position = stdpos, text = text })
+end
+
+local function make_text_hud(player, offset)
+   return player:hud_add{ hud_elem_type = "text", offset = offset,
+			  position = stdpos, text = "" }
+end
+
 local setup_hud = function(player)
 
 	player:hud_set_flags({healthbar = false})
@@ -79,147 +91,69 @@ local setup_hud = function(player)
 	hud[playername] = hud_data
 
 	local meta = player:get_meta()
-	local show_stats = meta:get("exile_hud_show_stats")
-	if show_stats then
-	   if tobool(show_stats) == true then
-	      hud_data.showstats = true
-	   elseif tobool(show_stats) == false then
-	      hud_data.showstats = false
-	   end
-	end
+	hud_data.show_stats = tobool(meta:get("exile_hud_show_stats"))
 
-	local hud_opacity = meta:get("exile_hud_icon_transparency")
-	if hud_opacity then
-	   hud_data.opacity = tonumber(hud_opacity)
-	else
-	   hud_opacity = mthudopacity
-	end
 	local lb = tobool(meta:get_string("hud16"))
 
-	hud_data.p_health = player:hud_add({
-		hud_elem_type = "image",
-		scale = icon_scale,
-		offset = {x = hud_health_x - longbarpos[lb].x, y = hud_vert_pos + longbarpos[lb].y},
-		position = {x = .5, y = 1},
-	    text = "hud_health.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
-	})
+	hud_data.p_health = make_image_hud(player,
+	   {x = hud_health_x - longbarpos[lb].x,
+	    y = hud_vert_pos + longbarpos[lb].y},
+	   "hud_health.png" )
 
-	hud_data.p_hunger = player:hud_add({
-		hud_elem_type = "image",
-		scale = icon_scale,
-		offset = {x = hud_hunger_x, y = hud_vert_pos},
-		position = {x = .5, y = 1},
-	    text = "hud_hunger.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
-	})
+	hud_data.p_hunger = make_image_hud(player,
+	   {x = hud_hunger_x, y = hud_vert_pos},
+	   "hud_hunger.png" )
 
-	hud_data.p_thirst = player:hud_add({
-		hud_elem_type = "image",
-		scale = icon_scale,
-		offset = {x = hud_thirst_x, y = hud_vert_pos},
-		position = {x = .5, y = 1},
-	    text = "hud_thirst.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
-	})
+	hud_data.p_thirst = make_image_hud(player,
+	   {x = hud_thirst_x, y = hud_vert_pos},
+	   "hud_thirst.png" )
 
-	hud_data.p_energy = player:hud_add({
-		hud_elem_type = "image",
-		scale = icon_scale,
-		offset = {x = hud_energy_x, y = hud_vert_pos},
-		position = {x = .5, y = 1},
-	    text = "hud_energy.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
-	})
+	hud_data.p_energy = make_image_hud(player,
+	   {x = hud_energy_x, y = hud_vert_pos},
+	   "hud_energy.png" )
 
-	hud_data.p_body_temp = player:hud_add({
-		hud_elem_type = "image",
-		scale = icon_scale,
-		offset = {x = hud_body_temp_x, y = hud_vert_pos},
-		position = {x = .5, y = 1},
-	    text = "hud_body_temp.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
-	})
+	hud_data.p_body_temp = make_image_hud(player,
+	   {x = hud_body_temp_x, y = hud_vert_pos},
+	   "hud_body_temp.png" )
 
-	hud_data.p_body_temp_type = player:hud_add({
-		hud_elem_type = "image",
-		scale = icon_scale,
-		offset = {x = hud_body_temp_x, y = hud_vert_pos + hud_extra_y},
-		position = {x = .5, y = 1},
-	    text = "hud_temp_normal.png^[opacity:"..hud_opacity -- don't colorize
-	})
+	hud_data.p_body_temp_type = make_image_hud(player,
+	   {x = hud_body_temp_x, y = hud_vert_pos + hud_extra_y},
+	   "hud_temp_normal.png" )
 
-	hud_data.p_air_temp = player:hud_add({
-		hud_elem_type = "image",
-		scale = icon_scale,
-		offset = {x = hud_air_temp_x, y = hud_vert_pos},
-		position = {x = .5, y = 1},
-	    text = "hud_air_temp.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
+	hud_data.p_air_temp = make_image_hud(player,
+	   {x = hud_air_temp_x, y = hud_vert_pos},
+	   "hud_air_temp.png" )
 
-	})
+	hud_data.p_air_temp_type = make_image_hud(player,
+	   {x = hud_air_temp_x, y = hud_vert_pos + hud_extra_y},
+	   "hud_temp_normal.png" )
 
-	hud_data.p_air_temp_type = player:hud_add({
-		hud_elem_type = "image",
-		scale = icon_scale,
-		offset = {x = hud_air_temp_x, y = hud_vert_pos + hud_extra_y},
-		position = {x = .5, y = 1},
-	    text = "hud_temp_normal.png^[opacity:"..hud_opacity -- don't colorize
+	hud_data.p_sick = make_image_hud(player,
+	   {x = hud_sick_x + longbarpos[lb].x,
+	    y = hud_vert_pos + longbarpos[lb].y},
+	   "hud_sick.png" )
 
-	})
+	hud_data.p_health_text = make_text_hud(player,
+	   {x = hud_health_x + longbarpos[lb].x,
+	    y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
 
-	hud_data.p_sick = player:hud_add({
-		hud_elem_type = "image",
-		scale = icon_scale,
-		offset = {x = hud_sick_x + longbarpos[lb].x, y = hud_vert_pos + longbarpos[lb].y},
-		position = {x = .5, y = 1},
-	    text = "hud_sick.png^[colorize:#"..stat_fine.."^[opacity:"..hud_opacity
-	})
+	hud_data.p_hunger_text = make_text_hud(player,
+	   {x = hud_hunger_x, y = hud_vert_pos + hud_text_y} )
 
+	hud_data.p_thirst_text = make_text_hud(player,
+	   {x = hud_thirst_x, y = hud_vert_pos + hud_text_y} )
 
-	hud_data.p_health_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_health_x + longbarpos[lb].x, y = hud_vert_pos + hud_text_y + longbarpos[lb].y},
-		position = {x = .5, y = 1},
-		text = ""
-	})
+	hud_data.p_energy_text = make_text_hud(player,
+	   {x = hud_energy_x, y = hud_vert_pos + hud_text_y} )
 
-	hud_data.p_hunger_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_hunger_x, y = hud_vert_pos + hud_text_y},
-		position = {x = .5, y = 1},
-		text = ""
-	})
+	hud_data.p_body_temp_text = make_text_hud(player,
+	   {x = hud_body_temp_x, y = hud_vert_pos + hud_text_y} )
 
-	hud_data.p_thirst_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_thirst_x, y = hud_vert_pos + hud_text_y},
-		position = {x = .5, y = 1},
-		text = ""
-	})
+	hud_data.p_air_temp_text = make_text_hud(player,
+	   {x = hud_air_temp_x, y = hud_vert_pos + hud_text_y} )
 
-	hud_data.p_energy_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_energy_x, y = hud_vert_pos + hud_text_y},
-		position = {x = .5, y = 1},
-		text = ""
-	})
-
-	hud_data.p_body_temp_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_body_temp_x, y = hud_vert_pos + hud_text_y},
-		position = {x = .5, y = 1},
-		text = ""
-	})
-
-	hud_data.p_air_temp_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_air_temp_x, y = hud_vert_pos + hud_text_y},
-		position = {x = .5, y = 1},
-		text = ""
-
-	})
-
-	hud_data.p_sick_text = player:hud_add({
-		hud_elem_type = "text",
-		offset = {x = hud_sick_x, y = hud_vert_pos + hud_text_y + longbarpos[lb].y},
-		position = {x = .5, y = 1},
-		text = ""
-	})
+	hud_data.p_sick_text = make_text_hud(player,
+	   {x = hud_sick_x, y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
 
 end
 
@@ -375,7 +309,6 @@ local function temp(player, hud_data, meta)
 	local stat_col, ttype = color_bodytemp(v)
 	local t = climate.get_temp_string(v, meta)
 	local hud1 = hud_data.p_body_temp
-	local hud2 = hud_data.p_body_temp_type
 	local opac = hud_data.opacity or mthudopacity
 	player:hud_change(hud1, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	local hudtype = hud_data.p_body_temp_type
