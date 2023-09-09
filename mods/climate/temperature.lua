@@ -431,8 +431,7 @@ function climate.heat_transfer(pos, nodename, replace)
 	local pos_max = {x=pos.x +1, y=pos.y +1, z=pos.z +1}
 	local pos_min = {x=pos.x -1, y=pos.y -1, z=pos.z -1}
 	local air, cn = minetest.find_nodes_in_area(pos_min, pos_max,
-			    {'air', 'group:water', 'climate:air_temp',
-			     "climate:air_temp_visible"	})
+			    {'air', 'group:water'})
 	--including group:temp_pass causes problems for doing pottery etc in groups (cools down bc of neighbors).
 	--taking them out of temp_pass would allow exploits (e.g. furnaces built from pots)
 	-- it seems good to let air_temp self cool. Any other temp_pass nodes that ought to be here
@@ -443,7 +442,7 @@ function climate.heat_transfer(pos, nodename, replace)
 	--dis_speed: 100 % means disspates fast. 0% means disspates slow
 
 	local dis_speed =  minetest.get_item_group(nodename, "heatable") /100
-	local dis_rate = ( 0.02 + (amb*0.035) ) * dis_speed
+	local dis_rate = ( 0.02 + (amb*0.025) ) * dis_speed
 
 	temp_m = temp_m *(1 - dis_rate)
 	meta:set_float("temp", temp_m)
