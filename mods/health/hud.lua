@@ -84,8 +84,8 @@ function HEALTH.hide_hud_elements(player, meta, list, hide)
    meta:set_string("hidehud", minetest.serialize(hidetable))
 end
 
-function HEALTH.show_hud_elements(meta, list, player)
-   HEALTH.hide_hud_elements(meta, list, player, true)
+function HEALTH.show_hud_elements(player, meta, list)
+   HEALTH.hide_hud_elements(player, meta, list, true)
 end
 
 function HEALTH.hud_update_settings(player_name, table)

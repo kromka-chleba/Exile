@@ -124,9 +124,6 @@ local function giveitem(player, pname, pos, nmeta, metastring)
 end
 
 local function setweather(player, pname, pos, nmeta, metastring)
-   if used_before(pos, pname) then
-      return -- Don't keep doing it
-   end
    climate.set_weather_override(pname, player, metastring)
 end
 local function resetweather(player, pname, pos, nmeta, metastring)
