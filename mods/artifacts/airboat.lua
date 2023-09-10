@@ -356,7 +356,7 @@ minetest.register_node("artifacts:airboat_nodebox", {
 		"artifacts_airboat_top.png",
 		"artifacts_airboat_base.png",
 		"artifacts_airboat_right.png",
-		"artifacts_airboat_left.png",
+		"artifacts_airboat_right.png^[transformFX", -- flip right to left, use 1 less texture file
 		"artifacts_airboat_front.png",
 		"artifacts_airboat_back.png",
 	},
