@@ -785,8 +785,8 @@ climate.get_point_temp = function(pos)
 
    --correct the general temperature for location
    local temp = climate.active_temp
-   temp = adjust_active_temp(pos, temp)
    temp = adjust_for_temp_zones(pos, temp)
+   temp = adjust_active_temp(pos, temp)
 
   --take into account heat and cooling sources nearby
   local r = 4
