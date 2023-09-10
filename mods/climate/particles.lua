@@ -272,7 +272,7 @@ minetest.register_globalstep(function(dtime)
 	    wtable.timer = wtable.timer + dtime
 	    if wtable.timer > wtable.duration then
 	       for name, pobj in pairs(wtable.plist) do
-		  if pobj then
+		  if pobj and minetest.get_player_by_name(name) then
 		     particle_table[cw_nm].w_func(pobj)
 		  else
 		     wtable.plist[name] = nil
