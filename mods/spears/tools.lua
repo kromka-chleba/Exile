@@ -48,4 +48,5 @@ if minetest.get_modpath("minimal") then
     spears_register_spear('stone', 'Stone', 8, 20, 'tech:stone_chopper',
                           "hand")
     spears_register_spear('iron', 'Iron', 14, 30, 'tech:iron_ingot', "anvil")
+    minetest.register_alias("spears:spear_steel", "spears:spear_iron")
 end
