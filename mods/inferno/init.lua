@@ -315,6 +315,13 @@ function inferno.ignite(pos, nodename)
    return false
 end
 
+local function sound_play(spos)
+   minetest.sound_play(
+      "inferno_fire_sticks",
+      {pos = spos, gain = 0.5, max_hear_distance = 8}
+   )
+end
+
 -- Fire Sticks
 minetest.register_tool("inferno:fire_sticks", {
 	description = S("Fire Sticks"),
@@ -322,40 +329,41 @@ minetest.register_tool("inferno:fire_sticks", {
 	sound = {breaks = "tech_tool_breaks"},
 
 	on_use = function(itemstack, user, pointed_thing)
-		local sound_pos = pointed_thing.above or user:get_pos()
-		minetest.sound_play(
-			"inferno_fire_sticks",
-			{pos = sound_pos, gain = 0.5, max_hear_distance = 8}
-		)
-		local player_name = user:get_player_name()
-		if pointed_thing.type == "node" then
-			local node_under = minetest.get_node(pointed_thing.under).name
-			local pos_under = pointed_thing.under
-			if inferno.ignite(pos_under, node_under) then
-			   return add_wear(player_name, itemstack, sound_pos)
-			end
+	   local sound_pos = pointed_thing.above or user:get_pos()
+	   local player_name = user:get_player_name()
+	   if pointed_thing.type ~= "node" then return itemstack end
+	   local node_under = minetest.get_node(pointed_thing.under).name
+	   local pos_under = pointed_thing.under
+	   if inferno.ignite(pos_under, node_under) then
+	      sound_play(sound_pos)
+	      return add_wear(player_name, itemstack, sound_pos)
+	   end
 
-			local nodedef = minetest.registered_nodes[node_under]
-			if not nodedef then
-				return
-			end
-			if minetest.is_protected(pointed_thing.under, player_name) then
-				minetest.chat_send_player(player_name, "This area is protected")
-				return
-			end
-			local chance = nodedef.groups.flammable
-			if (chance and chance < 6) or chance == nil then
-			   if nodedef.on_ignite then
-			      nodedef.on_ignite(pointed_thing.under, user)
-			   elseif chance and ( math.random(1, chance) == 1 and
-				    minetest.get_node(pointed_thing.above).name == "air" ) then
-			      minetest.set_node(pointed_thing.above, {name = "inferno:basic_flame"})
-			   end
-			end
-		end
-
-		return add_wear(player_name, itemstack, sound_pos)
-
+	   local nodedef = minetest.registered_nodes[node_under]
+	   if not nodedef then
+	      return
+	   end
+	   if minetest.is_protected(pointed_thing.under, player_name) then
+	      minetest.chat_send_player(player_name, "This area is protected")
+	      return
+	   end
+	   local chance = nodedef.groups.flammable
+	   if (chance and chance < 6) or chance == nil then
+	      if nodedef.on_ignite then
+		 sound_play(sound_pos)
+		 nodedef.on_ignite(pointed_thing.under, user)
+		 return add_wear(player_name, itemstack, sound_pos)
+	      elseif chance and minetest.get_node(pointed_thing.above).name
+		 == "air" then
+		 sound_play(sound_pos)
+		 if math.random(1, chance) == 1 then
+			 minetest.set_node(pointed_thing.above,
+					   {name = "inferno:basic_flame"})
+		 end
+		 return add_wear(player_name, itemstack, sound_pos)
+	      end
+	   end
+	   return itemstack
 	end
 })
 
