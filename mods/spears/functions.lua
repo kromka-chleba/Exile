@@ -1,4 +1,16 @@
 function spears_throw (itemstack, player, pointed_thing)
+	local pointed_a = pointed_thing.above
+	local pointed_b = pointed_thing.under
+	if pointed_thing.type == "node" then
+	   local node = minetest.get_node(pointed_b)
+	   local def = minetest.registered_nodes[node.name]
+	   if def and def.on_rightclick then
+	      def.on_rightclick(pointed_b, node, player, itemstack, pointed_thing)
+	      return
+	   end
+	elseif pointed_thing.type == "object" then
+	   return
+	end
 	local spear = itemstack:get_name() .. '_entity'
 	local player_pos = player:get_pos()
 	local head_pos = vector.new(player_pos.x, player_pos.y + player:get_properties().eye_height, player_pos.z)
@@ -8,10 +20,7 @@ function spears_throw (itemstack, player, pointed_thing)
 	local yaw = player:get_look_horizontal()
 	local rotation = vector.new(0, yaw + math.pi/2, pitch + math.pi/6)
 	local wear = itemstack:get_wear()
-	local pointed_a = pointed_thing.above
-	local pointed_b = pointed_thing.under	
 	if pointed_thing.type == "node" and vector.distance(pointed_a, throw_pos) < 1 then -- Stick into node
-		local node = minetest.get_node(pointed_b)
 		local check_node = spears_check_node(node.name)
 		if check_node == SPEARS_NODE_UNKNOWN then
 			return false
