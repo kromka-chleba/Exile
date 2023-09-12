@@ -279,7 +279,7 @@ minetest.register_node("tech:clay_oil_lamp_unlit", {
 		"tech_oil_lamp_top.png",
 		"tech_oil_lamp_bottom.png",
 		"tech_oil_lamp_side.png",
-		"tech_oil_lamp_side2.png",
+		"tech_oil_lamp_side.png^[transformFX",
 		"tech_oil_lamp_front.png",
 		"tech_oil_lamp_front.png"
 	},
