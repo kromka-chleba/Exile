@@ -178,6 +178,7 @@ function backpacks.register_backpack(name, desc, texture, width, height, groups,
 		groups = groups,
 		stack_max = 1,
 		sounds = sounds,
+		node_placement_prediction = "",
 		on_construct = function(pos)
 			on_construct(pos, width, height)
 		end,
