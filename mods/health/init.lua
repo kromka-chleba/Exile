@@ -419,11 +419,16 @@ function HEALTH.q_malus_bonus(player,meta)
 		r_rate = r_rate - 32
 		mov = mov - 40
 		jum = jum - 40
-	elseif temperature > 38 or temperature < 37 then
+	elseif temperature > 39 or temperature < 35 then
 		h_rate = h_rate - 4
 		r_rate = r_rate - 8
 		mov = mov - 20
 		jum = jum - 20
+  elseif temperature ~= 37 then
+    -- do not hurt player hp for having a different body temp
+    r_rate = r_rate - 4
+    mov = mov - 4
+    jum = jum - 4
 	end
 
   --apply player physics
@@ -763,36 +768,24 @@ if minetest.settings:get_bool("enable_damage") then
 				-- don't damage us if we're already dead
 				if health > 0 and
 				   player:get_armor_groups().immortal ~= 1 then
-				local energy = meta:get_int("energy")
-				local temperature = meta:get_int("temperature")
-
-
-				--apply rate adjustments so they are correct for current player status
+				
         local stats = HEALTH.malus_bonus(player,meta)
+        local temperature = stats.temperature
+        
+        --apply rate adjustments so they are correct for current player status
         local h_rate = stats.heal_rate
         local hun_rate = stats.hunger_rate
         local t_rate = stats.thirst_rate
         local r_rate = stats.recovery_rate
-        
-        energy = stats.energy
-        temperature = stats.temperature
 
 				--update
         local temperature1 = 0
 
 				if temperature > 37 then
 					temperature1 = temperature1 - 1
-					if temperature > 47 then
-						h_rate = h_rate - 1
-					end
-
 				elseif temperature < 37 then
 					temperature1 = temperature1 + 1
-					if temperature < 27 then
-						h_rate = h_rate - 1
-					end
 				end
-
 
 				--update
 				--
