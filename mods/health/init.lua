@@ -561,7 +561,6 @@ local function do_effects_list(player, meta)
 		local name = effect[1]
 		local order = effect[2]
 
-    minetest.log("error",tostring(name)..":"..tostring(order))
 		----------
 		if name == "Food Poisoning" then
 			r_rate, mov, jum, temperature = HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, jum, temperature)

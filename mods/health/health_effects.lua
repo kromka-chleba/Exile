@@ -135,15 +135,13 @@ end
 
 
 --throw up losing some food and water
-local function vomit(player, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
+local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
 	--vomit repeatedly after time
   local life_num = get_life_num(player)
   
 	local ranrep = random(repeat_min, repeat_max)
 
 	local randel = 0
-  
-  local pmeta = player:get_meta()
 
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
@@ -155,12 +153,12 @@ local function vomit(player, repeat_min, repeat_max, delay_min, delay_max, t_min
 			local pos = player:get_pos()
 			minetest.sound_play("health_vomit", {pos = pos, gain = 0.5, max_hear_distance = 2})
 
-			local rant =  random(t_min, t_max)
+			local rant = random(t_min, t_max)
 			local ranh = random(h_min, h_max)
 
 			--must directly set them, as time delay means it isn't feeding into main health loop
-      HEALTH.modify_int(pmeta,"thirst",-rant)
-      HEALTH.modify_int(pmeta,"hunger",-ranh)
+      HEALTH.modify_int(meta,"thirst",-rant)
+      HEALTH.modify_int(meta,"hunger",-ranh)
 		end)
 	end
 end
@@ -1224,7 +1222,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 		jum = jum - 2
 		--some vomiting
 		if random()<0.3 then
-			vomit(player, 1, 3, 1, 10, 1, 5, 1, 5 )
+			vomit(player, meta, 1, 3, 1, 10, 1, 5, 1, 5 )
 		end
 
 	elseif order == 2 then
@@ -1234,7 +1232,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 		jum = jum - 4
 		--some vomiting
 		if random()<0.6 then
-			vomit(player, 1, 4, 1, 10, 1, 10, 1, 10 )
+			vomit(player, meta, 1, 4, 1, 10, 1, 10, 1, 10 )
 		end
 
 	elseif order == 3 then
@@ -1247,7 +1245,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 			temperature = temperature + random(2,3)
 		end
 		--vomiting
-		vomit(player, 1, 5, 1, 10, 5, 10, 5, 10 )
+		vomit(player, meta, 1, 5, 1, 10, 5, 10, 5, 10 )
 		--mild staggering
 		stagger(player, 1, 5, 1, 5, 3)
 
@@ -1261,7 +1259,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 			temperature = temperature + random(2,3)
 		end
 		--vomiting
-		vomit(player, 5, 10, 1, 10, 5, 10, 5, 10 )
+		vomit(player, meta, 5, 10, 1, 10, 5, 10, 5, 10 )
 		--mild staggering
 		stagger(player, 1, 5, 1, 5, 3)
 	end
@@ -1491,7 +1489,7 @@ function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum, h_rat
 		jum = jum - 20
 
 		--vomiting and hypothermia
-		vomit(player, 1, 5, 1, 10, 5, 10, 5, 10 )
+		vomit(player, meta, 1, 5, 1, 10, 5, 10, 5, 10 )
 		if temperature >= 34 then
 			temperature = temperature - random(1,3)
 		end
@@ -1681,7 +1679,7 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, m
 		stagger(player, 30, 60, 0.5, 1, 4)
 		--vomit chance
 		if random()<0.75 then
-			vomit(player, 1, 3, 1, 10, 1, 5, 1, 5 )
+			vomit(player, meta, 1, 3, 1, 10, 1, 5, 1, 5 )
 		end
 		--damage
 		if random()<0.33 then
@@ -1798,7 +1796,7 @@ function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_ra
 	if random()<0.3 then
 
 		if order == 1 then
-			vomit(player, 2, 6, 0.75, 3, 1, 2, 5, 10 )
+			vomit(player, meta, 2, 6, 0.75, 3, 1, 2, 5, 10 )
 			mov = mov - 7
 			jum = jum - 7
 			r_rate = r_rate - 7
@@ -1809,7 +1807,7 @@ function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_ra
 			end
 
 		elseif order == 2 then
-			vomit(player, 5, 10, 0.75, 3, 1, 5, 10, 20 )
+			vomit(player, meta, 5, 10, 0.75, 3, 1, 5, 10, 20 )
 			mov = mov - 15
 			jum = jum - 15
 			r_rate = r_rate - 15
@@ -1820,7 +1818,7 @@ function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_ra
 			end
 
 		elseif order == 3 then
-			vomit(player, 10, 20, 0.75, 3, 1, 5, 20, 40 )
+			vomit(player, meta, 10, 20, 0.75, 3, 1, 5, 20, 40 )
 			mov = mov - 30
 			jum = jum - 30
 			r_rate = r_rate - 30
@@ -1831,7 +1829,7 @@ function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_ra
 			end
 
 		elseif order == 4 then
-			vomit(player, 10, 20, 0.75, 3, 2, 10, 40, 60 )
+			vomit(player, meta, 10, 20, 0.75, 3, 2, 10, 40, 60 )
 			mov = mov - 30
 			jum = jum - 30
 			r_rate = r_rate - 60
