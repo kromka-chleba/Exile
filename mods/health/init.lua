@@ -34,6 +34,8 @@ local function math_clamp(...) -- num,min,max
   return minimal.math_clamp(...)
 end
 
+-- quick "typeof" function that could possibly be moved to minimal
+-- I use this to figure out what's what, could have more definition to it in the future
 function HEALTH.typeof(obj)
   if (type(obj) == "userdata") then
     if (obj["is_player"]) then
@@ -62,17 +64,6 @@ end
 --cf hunger etc which do get change and have no base value
 HEALTH.max_hp = 20
 
-local heal_rate = 1 -- 4
-local thirst_rate = -1
-local hunger_rate = -3 -- -2
-local recovery_rate = 4 -- 5
-local move = 0
-local jump = 0
-
---no clothing temperature comfort zone
-local temp_min = 18--20
-local temp_max = 32--30
-
 function HEALTH.get_default_attributes() -- for other scripts to utilize to get base attributes of a fresh player
   return {
     health = HEALTH.max_hp,
@@ -82,16 +73,17 @@ function HEALTH.get_default_attributes() -- for other scripts to utilize to get 
     temperature = 37,
     oxygen = 10, -- for suffocation or drowning
     
-    heal_rate = heal_rate,
-    thirst_rate = thirst_rate,
-    hunger_rate = hunger_rate,
-    recovery_rate = recovery_rate,
+    heal_rate = 1, -- 4
+    thirst_rate = -1,
+    hunger_rate = -3, -- -2
+    recovery_rate = 4, -- 5
     
-    move = move,
-    jump = jump,
+    move = 0,
+    jump = 0,
     
-    clothing_temp_min = temp_min,
-    clothing_temp_max = temp_max,
+    --no clothing temperature comfort zone
+    clothing_temp_min = 18, -- 20
+    clothing_temp_max = 32, -- 30
   }
 end
 
@@ -101,12 +93,13 @@ function HEALTH.set_default_attributes(player)
   
   local attrb = HEALTH.get_default_attributes()
   
+  player:set_hp(attrb.health)
   for name,value in pairs(attrb) do
     if (type(name) ~= "string") then
       name = tostring(name)
     end
     
-    if (type(value) == "number" and name ~= "health") then
+    if (type(value) == "number" and name ~= "health") then -- don't try to set an int for health
       value = math.ceil(value)
       
       meta:set_int(name,value)
@@ -115,25 +108,28 @@ function HEALTH.set_default_attributes(player)
     end
   end
 end
-function HEALTH.reset_attributes(...) -- ditto definition
+function HEALTH.reset_attributes(...) -- ditto definition (was defined in old code for some reason, isn't used)
   HEALTH.set_default_attributes(...)
 end
 
+-- I use assert() to force an error if something isn't right. The first stated condition is how it should be, and if the
+-- condition isn't so, it will error. assert(true ~= true) will error as true does equal true, but will not error if assert(true == true)
 function HEALTH.get_meta_stats(meta)
   assert(type(meta) == "userdata","health.get_meta_stats: meta/player is not a valid 'userdata'")
-  if (HEALTH.typeof(meta) == "player") then
+  if (minetest.is_player(meta)) then
     meta = meta:get_meta()
   elseif not (HEALTH.typeof(meta) == "metadata") then
     error("health.get_meta_stats: invalid parameter given for meta/player")
   end
   
-  local fields = meta:to_table().fields
+  local fields = meta:to_table().fields -- metadata is fun
   
   for key,value in pairs(fields) do -- apparently all data is turned into strings???
     value = tonumber(value) -- turn into a number to check if the thing is actually a number
     if (type(value) == "number") then
       fields[key] = value
     end
+    -- effects_list is a serialized table
     if (key == "effects_list") then
       fields[key] = minetest.deserialize(value)
     end
@@ -143,8 +139,7 @@ function HEALTH.get_meta_stats(meta)
 end
 
 function HEALTH.get_player_stats(player)
-  assert(type(player) == "userdata","get_player_stats: player is not a valid 'userdata'")
-  assert(HEALTH.typeof(player) == "player","get_player_stats: player is not a 'player'")
+  assert(minetest.is_player(player) == true,"get_player_stats: player is not a 'player'")
   
   local meta = player:get_meta()
   
@@ -160,9 +155,7 @@ end
 
 -- allows any code that depends on HEALTH to use modify_hp to reliably modify player health
 function HEALTH.modify_hp(player,value)
-  assert(type(player) == "userdata","health.modify_hp: player is not a valid 'userdata'")
-  assert(type(player["is_player"]) == "function","health.modify_hp: player is not a 'player'")
-  assert(player:is_player() == true,"health.modify_hp: player is not a 'player'")
+  assert(minetest.is_player(player) == true,"health.modify_hp: player is not a 'player'")
   
   if (type(value) ~= "number") then
     value = 0
@@ -170,21 +163,20 @@ function HEALTH.modify_hp(player,value)
   
   local phealth = player:get_hp()
   
-  phealth = phealth + value
-  
-  phealth = math_clamp(phealth,0,HEALTH.max_hp)
+  phealth = math_clamp(phealth + value,0,HEALTH.max_hp)
   
   player:set_hp(phealth)
   
   return phealth -- return modified health
 end
 
+-- sets meta values between certain limits and updates meta
 function HEALTH.set_int(meta,name,value)
-  assert(type(meta) == "userdata","health.set_int: player/meta is not a valid 'userdata'")
-  if (HEALTH.typeof(meta) == "player") then
+  assert(type(meta) == "userdata","health.set_int: meta/player is not a valid 'userdata'")
+  if (minetest.is_player(meta)) then
     meta = meta:get_meta()
   end
-  assert(HEALTH.typeof(meta) == "metadata","health.set_int: invalid first parameter given for player/meta")
+  assert(HEALTH.typeof(meta) == "metadata","health.set_int: invalid first parameter given for meta/player")
   
   if (type(value) ~= "number") then
     value = 0
@@ -203,6 +195,7 @@ function HEALTH.set_int(meta,name,value)
   
   value = math.ceil(value)
   
+  -- check for names to set custom limits
   if (name == "hunger" or name == "energy") then
     value = math_clamp(value,0,1000)
   elseif (name == "thirst" or name == "temperature") then
@@ -211,7 +204,7 @@ function HEALTH.set_int(meta,name,value)
   
   meta:set_int(name,value)
   
-  return value -- return modified value
+  return value -- return provided value
 end
 
 -- allows any code that depends on HEALTH to use modify_int to reliably modify stats like hunger or thirst
@@ -233,36 +226,32 @@ function HEALTH.modify_int(meta,name,value)
     name = string.lower(name)
   end
   
-  if (meta:get(name) == nil) then
+  if (meta:get(name) == nil) then -- if key doesn't exist
     return 0
   end
   
   local stat = meta:get_int(name)
   
-  stat = meta:get_int(name)
+  value = math.ceil(value) -- no floats
   
-  value = math.ceil(value)
-  
-  return HEALTH.set_int(meta,name,(stat + value)) -- return modified value
+  return HEALTH.set_int(meta,name,(stat + value)) -- return modified value (use set_int to keep metadata within limits)
 end
 
-
--- malus & bonus (does not calculate illness)
+-----------------------------
+-- quick malus & bonus (does not calculate illness)
+-- calculates player status in reference to the player's meta and health
 function HEALTH.q_malus_bonus(player,meta)
-  assert(HEALTH.typeof(player) == "player","health.q_malus_bonus: provided 'player' is not a player!")
+  assert(minetest.is_player(player) == true,"health.q_malus_bonus: provided 'player' is not a player!")
   
   local name = player:get_player_name()
   local bstats = HEALTH.get_default_attributes() -- get base starting stats
   local stats = {}
   
-  -- incase meta is not provided then
+  -- incase meta is not provided then (get it! :D)
   if (HEALTH.typeof(meta) ~= "metadata") then
     meta = player:get_meta()
-    stats = HEALTH.get_meta_stats(meta)
-  else
-    -- if meta is provided
-    stats = HEALTH.get_meta_stats(meta)
   end
+  stats = HEALTH.get_meta_stats(meta)
   
   -- player's current stats as variables
   local health = player:get_hp()
@@ -305,7 +294,7 @@ function HEALTH.q_malus_bonus(player,meta)
 	--update rates
 	--
 
-	--bonus/malus from health
+	--bonus/malus from health (old calculations by dokimi, I have not touched these - TPH)
 	if health <= 1 then
 		mov = mov - 50
 		jum = jum - 50
@@ -455,6 +444,7 @@ function HEALTH.q_malus_bonus(player,meta)
   --return adjusted rates so can be applied if necessary
 	return stats
 end
+-----------------------------
 
 
 --[[
@@ -636,11 +626,15 @@ local function do_effects_list(player, meta)
   stats.temperature = temperature
   
 	return stats
-
 end
+-----------------------------
 
+-----------------------------
+--Bonus Malus... so can be called whenever player status is changed
+-- gets q_malus_bonus and adjusts them based on player status
+--saves adjusted rates and applies physics.
+-- returns the adjusted rates so they can be used if desired
 
--- gets quick malus_bonus and adds sicknesses on top of it all
 function HEALTH.malus_bonus(player,meta)
   local stats = HEALTH.q_malus_bonus(player,meta)
   
@@ -649,13 +643,16 @@ function HEALTH.malus_bonus(player,meta)
   
   local modstats = do_effects_list(player,meta)
   
-  for sname,svalue in pairs(stats) do
+  -- update q_malus_bonus stats to do_effects_list stats
+  for sname,svalue in pairs(stats) do -- stat name, stat value
     local stat = modstats[sname]
     if (type(stat) ~= "nil") then
+      -- update stat if found
       stats[sname] = stat
     end
   end
   
+  -- update player's meta
   for name,value in pairs(stats) do
     if (type(value) == "number") then
       HEALTH.set_int(meta,name,value)
@@ -669,7 +666,7 @@ function HEALTH.malus_bonus(player,meta)
   
   if not bed_rest.player[name] then
 		--split physics from hunger etc from that from health effects
-		--this means quick_physics can fiddle with one half, without overriding the half from effects
+		--this means q_malus_bonus can fiddle with one half, without overriding the half from effects
 		HE_mov = HE_mov - mov
 		HE_jum = HE_jum - jum
 		player_monoids.speed:add_change(player, 1 + (HE_mov/100), "health:physics_HE")
@@ -678,6 +675,7 @@ function HEALTH.malus_bonus(player,meta)
   
   return stats
 end
+-----------------------------
 
 
 
@@ -757,22 +755,24 @@ if minetest.settings:get_bool("enable_damage") then
 		if timer > interval then
 
 			for _,player in ipairs(minetest.get_connected_players()) do
-
+        local attrbs = HEALTH.get_default_attributes()
+        
 				local name = player:get_player_name()
 				local meta = player:get_meta()
 				local health = player:get_hp()
 				-- don't damage us if we're already dead
 				if health > 0 and
 				   player:get_armor_groups().immortal ~= 1 then
-				local thirst = meta:get_int("thirst")
-				local hunger = meta:get_int("hunger")
 				local energy = meta:get_int("energy")
 				local temperature = meta:get_int("temperature")
 
 
 				--apply rate adjustments so they are correct for current player status
-				--local h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature  = HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
         local stats = HEALTH.malus_bonus(player,meta)
+        local h_rate = stats.heal_rate
+        local hun_rate = stats.hunger_rate
+        local t_rate = stats.thirst_rate
+        local r_rate = stats.recovery_rate
         
         energy = stats.energy
         temperature = stats.temperature

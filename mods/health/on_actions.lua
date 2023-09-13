@@ -12,14 +12,6 @@ local function modify_int(...) -- player, int_name, int_value
   return HEALTH.modify_int(...)
 end
 
------------------------------
---Quick physics
--- update the physics immediately, without going through all of malus_bonus
---(using malus_bonus itself produces conflicts)
---for things that need to instantly update physics i.e. need the flow on from reduced hunger now.
---only need the physics part as rates etc get applied from main health function
---MUST MATCH malus_bonus as it will get overriden by that when it kicks in!!!!
-
 
 -----------------------------
 --On Actions
@@ -36,23 +28,16 @@ function HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_chang
 	local name = user:get_player_name()
 	local meta = user:get_meta()
 
-  --local mov = meta:get_int("move")
-	--local jum = meta:get_int("jump")
-
+  -- set new values
 	local health = modify_hp(user,hp_change)
   local thirst = modify_int(meta,"thirst",thirst_change)
   local hunger = modify_int(meta,"hunger",hunger_change)
   local energy = modify_int(meta,"energy",energy_change)
   local temperature = modify_int(meta,"temperature",temp_change)
 
-	--set new values
 	-- and update malus (need for setting correct physics) --conflicts with Health Effects!
-	--HEALTH.malus_bonus(user, name, meta, health, energy, thirst, hunger, temperature)
   HEALTH.q_malus_bonus(user,meta)
-  --quick_physics(user, name, health, energy, thirst, hunger, temperature)
 
-	
-  
   --update form so can see change while looking
   sfinv.set_player_inventory_formspec(user)
 

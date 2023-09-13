@@ -254,7 +254,7 @@ end
 ------------------------------------------------------------------
 ------------------------------------------------------------------
 ------------------------------------------------------------------
--- HEALTH EFFECT REF TABLE
+-- HEALTH EFFECT REF TABLE (NOT YET FUNCTIONAL)
 ------------------------------------------------------------------
 ------------------------------------------------------------------
 ------------------------------------------------------------------
@@ -977,32 +977,6 @@ function HEALTH.illness_ref(name,severity,modify)
     self.name = "unknown"
   end
   
-  -- DO_TIMER:
-  --if not set will set the timer, save to meta
-  --otherwise it will tick down
-  --if zero it will return true so progression can take place
-  --[[
-  local function do_timer(meta, t_name, t_min, t_max) -- player meta, timer name, timer min, timer max
-    --is timer present?
-    if not meta:contains(t_name) then
-      local duration = random(t_min, t_max)
-      meta:set_int(t_name, duration)
-    else
-      --count down
-      local time = meta:get_int(t_name)
-      time = time - 1
-      if time <= 0 then
-        meta:set_int(t_name,0)
-        return true
-      else
-        meta:set_int(t_name,time)
-      end
-    end
-    
-    return false
-  end
-  --]]
-  
   -- addition of base functions;
   -- progression of disease without timer
   self.hard_progress = function()
@@ -1041,6 +1015,8 @@ function HEALTH.illness_ref(name,severity,modify)
       self.hard_regress()
     end
   end
+  
+  -- THIS IS ALL WIP, DO NOT USE
   
   return self
 end
