@@ -112,3 +112,45 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 end
       end
 end)
+
+
+----------------------------------------------------------------------
+-- Password change
+
+local pwspec =
+   "formspec_version[6]"..
+   "size[6,6]"..
+   "button_exit[5,0.25;0.8,0.75;exit_form;X]"..
+   "pwdfield[1,1.75;4,0.5;oldpwd;Old password]"..
+   "pwdfield[1,2.75;4,0.5;newpwd;New password]"..
+   "pwdfield[1,3.75;4,0.5;confirmpwd;Confirm password]"..
+   "button_exit[2.25,5;1.5,0.75;setpw;Set]"
+
+minetest.register_chatcommand("password", {
+    params = "<none>",
+    description = "Change your password",
+    privs = {},
+    func = function(name, param)
+       minetest.show_formspec(name, "pw_change", pwspec)
+    end
+})
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+      if formname ~= "pw_change" then return end
+      if fields.exit_form then return end
+      if fields.newpwd == fields.oldpwd then return end -- no change
+      local name = player:get_player_name()
+      local auth_data = minetest.get_auth_handler()
+      local oldauth = auth_data.get_auth(name).password
+      if minetest.check_password_entry(name, oldauth, fields.oldpwd) then
+	 if fields.newpwd == fields.confirmpwd then
+	    local hash = minetest.get_password_hash(name, fields.newpwd)
+	    minetest.set_player_password(name, hash)
+	    minetest.chat_send_player(name,"Password updated!")
+	 else
+	    minetest.chat_send_player(name,"new passwords do not match")
+	 end
+      else
+	 minetest.chat_send_player(name,"old password is incorrect")
+      end
+end)
