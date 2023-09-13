@@ -1056,7 +1056,7 @@ local function do_timer(meta, t_name, t_min, t_max)
 		--count down
 		local time = meta:get_int(t_name)
 		time = time - 1
-    minetest.log("error",tostring(t_name)..":time:"..tostring(time))
+    
 		if time <= 0 then
 			meta:set_int(t_name,0)
 			return true
