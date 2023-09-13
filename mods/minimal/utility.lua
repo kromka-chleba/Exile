@@ -5,7 +5,7 @@ function minimal.switch_node(pos, node, after_place)
    -- timers etc. are started, but metadata is left intact
    
    -- after_place is to be a table of 3 parameters:
-   -- placer, itemstack, pointed_thing - though does not need to be set
+   -- placer, itemstack, pointed_thing - though does not need to be specified for switch_node to work
    local node_def = minetest.registered_nodes[node.name]
    if not node_def then
       minetest.log("error","Attempted to switch_node to an invalid node: "..node.name)
@@ -16,11 +16,10 @@ function minimal.switch_node(pos, node, after_place)
       node_def.on_construct(pos)
    end
   if (type(after_place) == "table") then
-    if (type(node_def.after_place_node) == "function") then -- in case someone decides to be funny and define it as a boolean
-      -- allow for several options and simple definitions
-      local placer = after_place["placer"] or after_place["user"] or after_place[1]
-      local itemstack = after_place["itemstack"] or after_place[2]
-      local pointed_thing = after_place["pointed_thing"] or after_place[3]
+    if (node_def.after_place_node) then
+      local placer = after_place[1]
+      local itemstack = after_place[2]
+      local pointed_thing = after_place[3]
       
       node_def.after_place_node(pos, placer, itemstack, pointed_thing)
     end
