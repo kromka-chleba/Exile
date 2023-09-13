@@ -248,8 +248,8 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 		return
 	end
 	if stored then -- Dump contents into liquid store
-	   minimal.switch_node(lpos, {name = stored})
-     liquid_after_place(lpos, user, itemstack, pointed_thing)
+	   minimal.switch_node(lpos, {name = stored}, {user, itemstack, pointed_thing})
+     minetest.check_for_falling(lpos)
      
 	   return handle_stacks(user, itemstack, nodename_empty)
 	end
