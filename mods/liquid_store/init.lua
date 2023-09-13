@@ -83,25 +83,6 @@ local function liquid_metadata(pos, oldnode, t_stack)
   end
 end
 
--- store metadata into a node (place liquid)
-local function liquid_after_place(pos, placer, itemstack, pointed_thing)
-  local node = minetest.get_node_or_nil(pos)
-  if (type(node) ~= "table") then
-    return
-  end
-  node = minetest.registered_nodes[node.name]
-  if (type(node) ~= "table") then
-    return
-  end
-  
-  minetest.check_for_falling(pos) -- check for falling nodes
-  
-  -- only runs if provided node has the function itself
-  if (type(node["after_place_node"]) == "function") then
-    return node.after_place_node(pos,placer,itemstack,pointed_thing)
-  end
-end
-
 function liquid_store.drain_store(player, itemstack)
    local itemname = itemstack:get_name()
    local sdef = liquid_store.stored_liquids[itemname]
@@ -248,16 +229,16 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 		return
 	end
 	if stored then -- Dump contents into liquid store
-	   minimal.switch_node(lpos, {name = stored})
-     liquid_after_place(lpos, user, itemstack, pointed_thing)
+	   minimal.switch_node(lpos, {name = stored}, {user, itemstack, pointed_thing})
      
 	   return handle_stacks(user, itemstack, nodename_empty)
 	end
   
   -- dump the water ONLY if "dump" is true (if false, do not dump)
   if dump then
-    minetest.set_node(lpos, {name = source})
-    liquid_after_place(lpos, user, itemstack, pointed_thing)
+    minimal.switch_node(lpos, {name = source}, {user, itemstack, pointed_thing})
+    
+    minetest.check_for_falling(lpos)
     
     if (minimal.player_in_creative(user)) then
       return
@@ -328,8 +309,8 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
       itemstack:take_item()
     end
     -- place the bucket
-    minetest.set_node(pos,{name = place_name})
-    liquid_after_place(pos, placer, itemstack, pointed_thing)
+    minimal.switch_node(pos, {name = place_name}, {placer, itemstack, pointed_thing})
+    minetest.check_for_falling(pos)
   end
   
   return itemstack

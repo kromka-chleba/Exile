@@ -1,16 +1,29 @@
 minimal = minimal
 
-function minimal.switch_node(pos, node)
+function minimal.switch_node(pos, node, after_place)
    --Swap a node, but run its on_construct, so that
    -- timers etc. are started, but metadata is left intact
-   if not minetest.registered_nodes[node.name] then
+   
+   -- after_place is to be a table of 3 parameters:
+   -- placer, itemstack, pointed_thing - though does not need to be specified for switch_node to work
+   local node_def = minetest.registered_nodes[node.name]
+   if not node_def then
       minetest.log("error","Attempted to switch_node to an invalid node: "..node.name)
       return
    end
    minetest.swap_node(pos, node)
-   if minetest.registered_nodes[node.name].on_construct then
-      minetest.registered_nodes[node.name].on_construct(pos)
+   if node_def.on_construct then
+      node_def.on_construct(pos)
    end
+  if (type(after_place) == "table") then
+    if (node_def.after_place_node) then
+      local placer = after_place[1]
+      local itemstack = after_place[2]
+      local pointed_thing = after_place[3]
+      
+      node_def.after_place_node(pos, placer, itemstack, pointed_thing)
+    end
+  end
 end
 
 function minimal.safe_landing_spot(pos)
