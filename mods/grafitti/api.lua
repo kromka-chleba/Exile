@@ -235,7 +235,7 @@ function g.paint(itemstack, user, pointed_thing, palette)
 
    if ( pointed_thing.type == "nothing" or
 	meta:get_string("grafitti") == "" ) then
-      g.show_palette(user, palette)
+      grafitti.show_palette(user, palette)
       return nil
    end
 
@@ -261,15 +261,15 @@ function g.register_brush(brush_name, def)
         groups = { brush=1 },
 
         on_place = function(itemstack, placer, pointed_thing)
-	   g.show_palette(placer, def.palette)
+	   grafitti.show_palette(placer, def.palette)
         end,
 
         on_secondary_use = function(itemstack, user, pointed_thing)
-          g.show_palette(user, def.palette)
+          grafitti.show_palette(user, def.palette)
         end,
 
         on_use = function(itemstack, user, pointed_thing)
-	   g.paint(itemstack, user, pointed_thing, def.palette)
+	   grafitti.paint(itemstack, user, pointed_thing, def.palette)
 	end
     })
 
