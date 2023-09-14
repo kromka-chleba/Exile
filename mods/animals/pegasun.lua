@@ -144,9 +144,10 @@ local function brain(self)
 				end
 
 			elseif energy < energy_max then
-        local hngperc = (energy_max * 0.55)/energy -- if energy is equal or less than 55% of energy_max, it will be 1 or higher
+        local hng_percent = (energy_max * 0.55)/energy -- hunger_percent - creates a percentage by dividing a percentage of energy_max by the current energy. The lower the energy, the higher the percentage
+        -- if energy is equal or less than 55% of energy_max, it will be 1 or higher
         
-        if (random() <= hngperc) then
+        if (random() <= hng_percent) then
           -- females much hungrier and predatory than males (gotta fill up for those babies y'know)
           if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
             if (animals.eat_flora(pos,0.01) == true) then
@@ -300,9 +301,10 @@ local function brain_male(self)
 				end
 
     elseif energy < energy_max then
-      local hngperc = (energy_max * 0.2)/energy -- if energy is equal or less than 20% of energy_max, it will be 1 or higher
+      local hng_percent  = (energy_max * 0.2)/energy -- hunger_percent
+      -- if energy is equal or less than 20% of energy_max, it will be 1 or higher
       
-      if (random() <= hngperc) then
+      if (random() <= hng_percent ) then
         --feed via a method
         if (animals.eat_flora(pos,0.005) == true) then -- mmm plants
           energy = energy + 50
