@@ -91,7 +91,7 @@ local function brain(self)
 					if animals.eat_sediment_under(pos, 0.001) == true then
 						energy = energy + 3
 					elseif  animals.eat_flora(pos, 0.001) == true then
-						energy = energy + 4
+						energy = energy + 8
 					else
 						--wander random
 						mobkit.animate(self,'walk')
@@ -123,7 +123,7 @@ local function brain(self)
 
 			--reproduction
 			--asexual parthogenesis, eggs
-			if random() < 0.005
+			if random() < 0.01
 			and not rival
 			and not pred
 			and self.hp >= self.max_hp
