@@ -16,9 +16,9 @@ local floor = math.floor
 --energy
 local energy_max = 8000--secs it can survive without food
 local energy_egg = energy_max/2 --energy that goes to egg
-local hb_min = 1000 -- hibernate minimum requirement
 local egg_timer  = 60*35
 local young_per_egg = 4		--will get this/energy_egg starting energy
+local hb_min = (energy_egg / young_per_egg) * 0.4 -- hibernate minimum requirement (40% of young_per_egg energy value)
 
 local lifespan = energy_max * 6
 local mature_age = energy_max / 2
