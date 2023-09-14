@@ -21,6 +21,10 @@ local young_per_egg = 5		--will get this/energy_egg starting energy
 
 local lifespan = energy_max * 5
 
+-- temperature
+local min_temp = -4
+local max_temp = 48
+
 
 
 -----------------------------------
@@ -171,6 +175,11 @@ minetest.register_node("animals:sneachan_eggs", {
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
 	end,
 	on_timer =function(pos, elapsed)
+    local temp = climate.get_point_temp(pos)
+    if (temp <= min_temp) then
+      -- don't hatch and keep timer going if temp is lower than min_temp
+      return true
+    end
 		local light = (minetest.get_node_light(pos) or 0)
 		if light <= 10 then
 			return animals.hatch_egg(pos, 'air', 'air', "animals:sneachan", energy_egg, young_per_egg)
@@ -212,8 +221,8 @@ minetest.register_entity("animals:sneachan",{
 	--damage
 	max_hp = 3,
 	lung_capacity = 10,
-	min_temp = 1,
-	max_temp = 48,
+	min_temp = min_temp,
+	max_temp = max_temp,
 
 	--interaction
 	predators = animals.get_interactors("sneachan","predators"),

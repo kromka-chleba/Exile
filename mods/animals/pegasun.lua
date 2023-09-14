@@ -402,7 +402,7 @@ minetest.register_entity("animals:pegasun_male",{
 	--damage
 	max_hp = 45,
 	lung_capacity = 25,
-	min_temp = -20,
+	min_temp = -30,
 	max_temp = 45,
   energy_loss = 1,
 
