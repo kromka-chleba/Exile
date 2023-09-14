@@ -171,28 +171,33 @@ minetest.register_node("bones:bones", {
 
 local function may_replace(pos, player)
 	local node_name = minetest.get_node(pos).name
-	local node_definition = minetest.registered_nodes[node_name]
-
+	local node_def = minetest.registered_nodes[node_name]
+	print("may replace: ",node_name)
 	-- if the node is unknown, we return false
-	if not node_definition then
+	if not node_def then
+	   print("node def false")
 		return false
 	end
 
 	-- allow replacing air and liquids
-	if node_name == "air" or node_definition.liquidtype ~= "none" then
+	if (node_def.drawtype == "airlike" and node_def.buildable_to == true)
+	   or node_def.liquidtype ~= "none" then
+	   print("air/liq true")
 		return true
 	end
 
 	-- don't replace filled chests and other nodes that don't allow it
-	local can_dig_func = node_definition.can_dig
+	local can_dig_func = node_def.can_dig
 	if can_dig_func and not can_dig_func(pos, player) then
+	   print("can_dig false")
 		return false
 	end
 
 	-- default to each nodes buildable_to; if a placed block would replace it, why shouldn't bones?
 	-- flowers being squished by bones are more realistical than a squished stone, too
 	-- exception are of course any protected buildable_to
-	return node_definition.buildable_to and not minetest.is_protected(pos, player:get_player_name())
+	print("buildable:",node_def.buildable_to)
+	return node_def.buildable_to and not minetest.is_protected(pos, player:get_player_name())
 end
 
 local drop = function(pos, itemstack)
@@ -253,12 +258,18 @@ minetest.register_on_dieplayer(function(player)
 
 	-- check if it's possible to place bones, if not find space near player
 	if bones_mode == "bones" and not may_replace(pos, player) then
-		local air = minetest.find_node_near(pos, 1, {"air"})
+	   local above = vector.new(pos.x,pos.y+1,pos.z)
+	   if may_replace(above) then
+	      pos = above
+	   else
+	      local air = minetest.find_node_near(pos, 1, {"air",
+							   "group:water"} )
 		if air and not minetest.is_protected(air, player_name) then
 			pos = air
 		else
 			bones_mode = "drop"
 		end
+	   end
 	end
 
 	if bones_mode == "drop" then
