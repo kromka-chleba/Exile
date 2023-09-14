@@ -6,6 +6,8 @@
 
 local fall_damage_multiplier = 1.5
 
+minetest.override_item("air", { groups = { air = 1} })
+
 --A new item_place that allows disabling sneak-rightclick behavior for nodes
 --Needed for tech:stick
 function minetest.item_place(itemstack, placer, pointed_thing, param2)
