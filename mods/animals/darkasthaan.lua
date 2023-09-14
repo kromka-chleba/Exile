@@ -185,7 +185,7 @@ minetest.register_entity("animals:darkasthaan",{
 	max_hp = 200,
 	lung_capacity = 40,
 	min_temp = 10,
-	max_temp = 50,
+	max_temp = 60,
 
 	--interaction
 	--predators = {"animals:darkasthaan"},
