@@ -189,11 +189,11 @@ function g.palette_build(formspec_name)
     end)
 end
 
-local function show_palette(painter, formspec_name)
+function g.show_palette(painter, formspec_name)
     minetest.show_formspec(painter:get_player_name(), formspec_name, g._palettes[formspec_name])
 end
 
-local function paint(itemstack, user, pointed_thing, palette)
+function g.paint(itemstack, user, pointed_thing, palette)
    local player_name = user:get_player_name()
    local meta = itemstack:get_meta()
 
@@ -261,15 +261,15 @@ function g.register_brush(brush_name, def)
         groups = { brush=1 },
 
         on_place = function(itemstack, placer, pointed_thing)
-	   show_palette(placer, def.palette)
+	   g.show_palette(placer, def.palette)
         end,
 
         on_secondary_use = function(itemstack, user, pointed_thing)
-          show_palette(user, def.palette)
+          g.show_palette(user, def.palette)
         end,
 
         on_use = function(itemstack, user, pointed_thing)
-	   paint(itemstack, user, pointed_thing, def.palette)
+	   g.paint(itemstack, user, pointed_thing, def.palette)
 	end
     })
 
