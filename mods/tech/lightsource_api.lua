@@ -88,7 +88,7 @@ local function check_for_moisture(pos)
 end
 
 local function check_for_air(pos)
-    return minetest.find_node_near(pos, 1, {"air"})
+    return minetest.find_node_near(pos, 1, {"group:air"})
 end
 
 function lightsource.extinguish(desc, pos)

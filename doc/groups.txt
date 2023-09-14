@@ -22,6 +22,9 @@ Values from 1 - 3, with 1 being hardest
 `crumbly`: loose things e.g. sand
 `snappy`: soft, tearable things e.g. plants.
 
+Air:
+--------
+`air`: is air or similar; e.g. air_temp nodes and lit nodes from wielded_light
 
 Fire:
 -----
