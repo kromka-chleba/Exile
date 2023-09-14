@@ -212,6 +212,13 @@ function animals.core_life(self, lifespan, pos)
     
     local killer_min_temp = self.min_temp * 1.3
     local killer_max_temp = self.max_temp * 2
+    -- don't use zero (doesn't go well with calculations lol)
+    if (killer_min_temp == 0) then
+      killer_min_temp = -1
+    end
+    if (killer_max_temp == 0) then
+      killer_max_temp = 2
+    end
     -- if min_temp is positive (get a smaller number)
     if (killer_min_temp > self.min_temp) then
       killer_min_temp = self.min_temp - (killer_min_temp - self.min_temp) -- subtract by difference
