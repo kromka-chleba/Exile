@@ -210,40 +210,26 @@ function animals.core_life(self, lifespan, pos)
     -- lose energy from discomfort
     energy = energy - math.random(4,8)
     
-    local killer_min_temp = self.min_temp * 1.3
-    local killer_max_temp = self.max_temp * 2
-    -- don't use zero (doesn't go well with calculations lol)
-    if (killer_min_temp == 0) then
-      killer_min_temp = -1
-    end
-    if (killer_max_temp == 0) then
-      killer_max_temp = 2
-    end
-    -- if min_temp is positive (get a smaller number)
-    if (killer_min_temp > self.min_temp) then
-      killer_min_temp = self.min_temp - (killer_min_temp - self.min_temp) -- subtract by difference
-    end
-    -- if max_temp is negative (get a larger number)
-    if (killer_max_temp < self.max_temp) then
-      killer_max_temp = self.max_temp + -killer_max_temp
-    end
+    local killer_min_temp = self.min_temp - 5
+    local killer_max_temp = self.max_temp + 20
+    local burn_max_temp = killer_max_temp + 60
     
   -- get really hurt or die from high temp
     if temp > killer_max_temp then -- use addition instead of multiplication to account for negative numbers
-      local dmg = math.ceil(3.5 * (temp / self.max_temp))
+      local dmg = math.ceil(3.5 * (temp / self.max_temp)) -- damage calculation
       if (dmg < 0) then -- incase max_temp is in negatives and thus the calculation returns a negative number
         dmg = -dmg
       end
-      dmg = math_clamp(dmg,0,self.hp)
+      dmg = math_clamp(dmg,0,self.hp) -- clamp dmg due to weird mobkit.hurt() functionality
       mobkit.hurt(self,dmg)
       -- only retrieve burned flesh if max_temp is exceedingly hot
-      if (self.hp <= 0 and temp >= self.max_temp * 4) then
+      if (self.hp <= 0 and temp >= burn_max_temp) then
         -- if animal successfully burned to death then
         energy = 0
         self.burnt = true
       end
+    -- get really hurt or die from being too cold!!
     elseif temp < killer_min_temp then
-      -- freezing!!!
       local dmg = math.ceil(1.3 * (temp / self.min_temp))
       if (dmg < 0) then -- incase min_temp is in negatives and thus the calculation returns a negative number
         dmg = -dmg
