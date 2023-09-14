@@ -178,7 +178,8 @@ minetest.register_node("animals:sneachan_eggs", {
     local temp = climate.get_point_temp(pos)
     if (temp <= min_temp) then
       -- don't hatch and keep timer going if temp is lower than min_temp
-      return true
+      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+      return false
     end
 		local light = (minetest.get_node_light(pos) or 0)
 		if light <= 10 then
