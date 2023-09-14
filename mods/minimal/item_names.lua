@@ -1,6 +1,6 @@
 -- Based on 4itemnames mod by 4aiman
 
-local item_names = {} -- [player_name] = { hud, dtime, itemname } 
+local item_names = {} -- [player_name] = { hud, dtime, itemname }
 local dlimit = 3  -- HUD element will be hidden after this many seconds
 local air_hud_mod = minetest.get_modpath("4air")
 local hud_mod = minetest.get_modpath("hud")
@@ -8,7 +8,7 @@ local hudbars_mod = minetest.get_modpath("hudbars")
 
 local function set_hud(player)
 	local player_name = player:get_player_name()
-	local off = {x=0, y=-70}
+	local off = {x=0, y=-75}
 	if air_hud_mod or hud_mod then
 		off.y = off.y - 20
 	elseif hudbars_mod then
@@ -37,6 +37,28 @@ minetest.register_on_leaveplayer(function(player)
 	item_names[player:get_player_name()] = nil
 end)
 
+local function get_use_string(def)
+   -- Figure out what the item is good for, add UI hints accordingly
+   local desc = ""
+   if def.name == "" then return "" end
+   if def.on_use or def.tool_capabilities then
+      desc = desc.."^"
+   end
+   if def._on_use_item
+      or def.groups.edible or def.name == "tech:soup" then
+      if desc ~= ""  then desc = desc.." / " end
+      desc = desc.. "◊"
+   end
+   if def.on_secondary_use then -- on_use is set for all sorts of things?
+      if desc ~= ""  then desc = desc.." / " end
+      desc = desc.. "v"
+   end
+   if desc ~= "" then
+      desc = " ( "..desc.." )"
+   end
+   return desc
+end
+
 minetest.register_globalstep(function(dtime)
 	for _, player in pairs(minetest.get_connected_players()) do
 		local data = item_names[player:get_player_name()]
@@ -63,12 +85,14 @@ minetest.register_globalstep(function(dtime)
 
 			local desc = stack.get_meta
 				and stack:get_meta():get_string("description")
+			local def = minetest.registered_items[itemname]
 
 			if not desc or desc == "" then
 				-- Try to use default description when none is set in the meta
-				local def = minetest.registered_items[itemname]
 				desc = def and def.description or ""
 			end
+			desc = desc..get_use_string(def)
+
 			player:hud_change(data.hud, 'text', desc)
 		end
 	end
