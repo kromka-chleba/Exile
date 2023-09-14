@@ -211,15 +211,27 @@ function animals.core_life(self, lifespan, pos)
     energy = energy - math.random(4,8)
     
   -- get really hurt or die from high temp
-    if temp > self.max_temp * 2 then
-       mobkit.hurt(self,math.ceil(3 * (temp / self.max_temp)))
-       -- only retrieve burned flesh if max_temp is exceedingly hot
-       if (self.hp <= 0 and temp >= self.max_temp * 4) then
-         -- if animal successfully burned to death then
-         energy = 0
-         mobkit.hurt(self,1) -- this should stop the "burned but still alive" issue
-         self.burnt = true
+    if temp > (self.max_temp + self.max_temp) then -- use addition instead of multiplication to account for negative numbers
+      local dmg = math.ceil(3.5 * (temp / self.max_temp))
+      if (dmg < 0) then -- incase max_temp is in negatives and thus the calculation returns a negative number
+        dmg = -dmg
       end
+      dmg = math_clamp(dmg,0,self.hp)
+      mobkit.hurt(self,dmg)
+      -- only retrieve burned flesh if max_temp is exceedingly hot
+      if (self.hp <= 0 and temp >= self.max_temp * 4) then
+        -- if animal successfully burned to death then
+        energy = 0
+        self.burnt = true
+      end
+    elseif (temp < self.min_temp + (self.min_temp * 0.3) ) then
+      -- freezing!!!
+      local dmg = math.ceil(1.3 * (temp / self.min_temp))
+      if (dmg < 0) then -- incase min_temp is in negatives and thus the calculation returns a negative number
+        dmg = -dmg
+      end
+      dmg = math_clamp(dmg,0,self.hp)
+      mobkit.hurt(self,dmg)
     end
   end
 
