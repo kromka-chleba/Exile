@@ -480,8 +480,6 @@ minetest.register_node(":ncrafting:dye_table", {
 -----------------------------------------------
 -- Dye pot
 
---#TODO: Add a way to dump a dye pot, or put water in to clear the dye
-
 local pot_formspec = "size[8,4.1]"..
    "button_exit[6,0;2,1;dump;"..S("Dump").."]"..
    "list[current_name;main;4,0;1,1]"..
