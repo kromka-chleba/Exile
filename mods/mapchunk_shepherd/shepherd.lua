@@ -128,7 +128,7 @@ local function process_chunk(chunk)
     for worker_name, _ in pairs(chunk.workers) do
         local worker = workers_by_name[worker_name]
         local labels_added, labels_removed, light_changed, param2_changed =
-            worker.worker_function(pos_min, pos_max, vm_data, chance)
+            worker.worker_function(pos_min, pos_max, vm_data)
         ms.handle_labels(hash, labels_added, labels_removed)
     end
     vm:set_data(vm_data.nodes)
