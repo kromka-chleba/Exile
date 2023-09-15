@@ -90,6 +90,7 @@ function airboat.on_rightclick(self, clicker)
 	   clicker:set_detach()
 	   player_api.player_attached[name] = false
 	   minetest.after(0.2, function()
+			     if not minetest.is_player(clicker) then return end
 			     player_api.set_animation(clicker, "stand" , 30)
 			     clicker:set_eye_offset({x = 0, y = 0, z = 0},
 				{x = 0, y = 0, z = 0})
