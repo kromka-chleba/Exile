@@ -406,16 +406,6 @@ function animals.hq_roam_comfort_temp(self,prty)
         if (h and not lf) then -- if height somethin' and if provided pos is not a liquid
           height, tpos, liquidflag = h, tp, lf -- set height, tpos, and liquidflag
           
-          if (prty >= 50) then
-            -- LET'S GET OUTTA HERE
-            if (tpos.x) then
-              tpos.x = tpos.x + math.random(-2,2)
-            end
-            if (tpos.z) then
-              tpos.z = tpos.z + math.random(-2,2)
-            end
-          end
-          
           tempn = climate.get_point_temp(tpos)
           
           if temp_comfy(self,tempn) then
