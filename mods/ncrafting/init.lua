@@ -116,6 +116,19 @@ function ncrafting.set_firing(pos, length, interval)
 	minetest.get_node_timer(pos):start(interval)
 end
 
+function ncrafting.on_dig_pottery(pos, node, digger, length)
+	local meta = minetest.get_meta(pos)
+	local firing = meta:get_int("firing")
+	if firing < length and firing > 0 then
+	   node.name = "tech:broken_pottery"
+	   digger:punch(digger, 1, {full_punch_interval = 1,  -- OOH, BURN!
+				    damage_groups = { fleshy = 1 }, nil })
+	   minetest.set_node(pos, node)
+	else
+	   core.node_dig(pos, node, digger)
+	end
+end
+
 function ncrafting.fire_pottery(pos, selfname, name, length, firing_temp)
 	local meta = minetest.get_meta(pos)
 	local firing = meta:get_int("firing")

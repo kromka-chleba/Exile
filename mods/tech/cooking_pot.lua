@@ -362,10 +362,16 @@ minetest.register_node("tech:cooking_pot_unfired", {
 		type = "fixed",
 		fixed = pot_box,
 	},
-	groups = {dig_immediate=3, temp_pass = 1, falling_node = 1, heatable = 20},
+	groups = {dig_immediate=3, temp_pass = 1,
+		  falling_node = 1, heatable = 20},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
-	   ncrafting.set_firing(pos, ncrafting.base_firing, ncrafting.firing_int)
+	   ncrafting.set_firing(pos, ncrafting.base_firing,
+				ncrafting.firing_int)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger,
+					   ncrafting.base_firing)
 	end,
 	on_timer = function(pos, elapsed)
 		--finished product, length
