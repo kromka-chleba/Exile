@@ -43,6 +43,21 @@ local function flee_sound(self)
 	mobkit.make_sound(self,'flee')
 end
 
+-- ask if the temperature is comfy for the lil creature
+local function temp_comfy(self,temp)
+  if (type(temp) ~= "number") then
+    return false
+  end
+  local min_temp = self.min_temp or 0
+  local max_temp = self.max_temp or 20
+  
+  if (temp >= min_temp and temp <= max_temp) then
+    -- goldilocks certified
+    return true
+  end
+  return false
+end
+
 --------------------------------------------------------------------------
 --Life and death
 --------------------------------------------------------------------------
@@ -204,7 +219,7 @@ function animals.core_life(self, lifespan, pos)
     -- if this temperature is uncomfortable, try to find somewhere else!
     if (self.class ~= 2) then
       -- only for land creatures
-      animals.hq_roam_comfort_temp(self,80, self.max_temp / 2)
+      animals.hq_roam_comfort_temp(self,80)
       hbnate = false -- moving around, thus not hibernating
     end
     -- lose energy from discomfort
@@ -356,7 +371,7 @@ end
 
 ----------------------------------------------
 --roam to places with comfortable temperature
-function animals.hq_roam_comfort_temp(self,prty, opt_temp)
+function animals.hq_roam_comfort_temp(self,prty)
   local timer = time() + 30
 
   local func = function(self)
@@ -365,23 +380,63 @@ function animals.hq_roam_comfort_temp(self,prty, opt_temp)
     end
 
     if mobkit.is_queue_empty_low(self) and self.isonground then
-       local pos = mobkit.get_stand_pos(self)
-       local neighbor = random(8)
-
-       local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
-
-       if height and not liquidflag then
-	  local temp = climate.get_point_temp(pos)
-	  local tempn = climate.get_point_temp(tpos)
-	  local dif = abs(opt_temp - temp)
-	  local difn = abs(opt_temp - tempn)
-
-	  if difn <= dif then
-	     mobkit.dumbstep(self,height,tpos,0.3)
-	  else
-	     return true
-	  end
-       end
+      local min_temp = self.min_temp or 0
+      local max_temp = self.max_temp or 20
+      
+      local pos = mobkit.get_stand_pos(self)
+      local temp = climate.get_point_temp(pos)
+      
+      if (temp_comfy(self,temp)) then
+        -- if temperature is comfortable then end the search
+        return true
+      end
+      
+      
+      local function get_reachable_node()
+        local neighbor = random(8)
+        
+        return mobkit.is_neighbor_node_reachable(self,neighbor)
+      end
+      
+      local tempn = 0
+      
+      local height, tpos, liquidflag
+      for i = 1, 5, 1 do -- try 5 times to find a good node
+        local h, tp, lf = get_reachable_node() -- shortened versions of "height, tpos, liquidflag"
+        if (h and not lf) then -- if height somethin' and if provided pos is not a liquid
+          height, tpos, liquidflag = h, tp, lf -- set height, tpos, and liquidflag
+          
+          if (prty >= 50) then
+            -- LET'S GET OUTTA HERE
+            if (tpos.x) then
+              tpos.x = tpos.x * math.random(2,3)
+            end
+            if (tpos.z) then
+              tpos.z = tpos.z * math.random(2,3)
+            end
+          end
+          
+          tempn = climate.get_point_temp(tpos)
+          
+          if temp_comfy(self,tempn) then
+            -- found a good pos to go to, break loop
+            break
+            -- if a good pos can't be found, will run to the last searched in look of better ones
+          end
+        end
+      end
+      
+      if height and not liquidflag then
+        -- run to that safe (or somewhat safe) pos!
+        local spd_f = 0.3 -- speed factor
+        if (prty >= 50) then
+          spd_f = spd_f * (2.2 * (prty/50) )
+        end
+        mobkit.dumbstep(self,height,tpos,spd_f)
+      else
+        -- could not find a proper node, end search
+        return true
+      end
     end
   end
   mobkit.queue_high(self,func,prty)
