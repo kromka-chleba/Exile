@@ -139,7 +139,7 @@ end
 --eggs
 minetest.register_node("animals:impethu_eggs", {
 	description = S('Impethu Eggs'),
-	tiles = {"animals_gundu_eggs.png"},
+	tiles = {"animals_sneachan_eggs.png^[multiply:#c49a82"},
 	stack_max = minimal.stack_max_medium,
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -191,8 +191,8 @@ minetest.register_entity("animals:impethu",{
 	--damage
 	max_hp = 3,
 	lung_capacity = 10,
-	min_temp = -15,
-	max_temp = 50,
+	min_temp = 2,
+	max_temp = 56,
 
 	--interaction
 	predators = animals.get_interactors("impethu","predators"), 
