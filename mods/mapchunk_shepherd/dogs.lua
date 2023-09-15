@@ -88,6 +88,11 @@ function ms.register_worker(args)
     local rework_labels = args.rework_labels or {}
     table.insert(needed_labels, "chunk_tracked")
     table.insert(needed_labels, "scanned")
+    if type(args.fun) ~= "function" then
+        minetest.log("error", "Mapchunk shepherd: Trying to register worker \""..
+                     args.name.."\" but argument \"fun\" is not a function!")
+        return
+    end
     local function basic_catch_up(hash, chance)
         local labels = ms.get_labels(hash)
         local elapsed = ms.labels.oldest_elapsed_time(labels, rework_labels)
