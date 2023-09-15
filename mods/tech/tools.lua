@@ -33,24 +33,35 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
                              y = pointed_thing.above.y - 1,
                              z = pointed_thing.above.z}
     local under_front = minetest.get_node(under_front_pos)
-    -- check if not walkable - there's empty space over the node (air, water, etc.)
+    -- check if not walkable - there's empty space over the node
+    --  (air, water, etc.)
     if not minetest.registered_nodes[above.name].walkable and
         -- check if walkable below to avoid throwing tools into abyss
         minetest.registered_nodes[under_front.name].walkable then
         -- check if the pointed item has on_rightclick ...
         if not minetest.registered_nodes[under.name].on_rightclick then
-            -- if they're both numbers somehow, best to assume it's a bamboo plant lol
-            if (minetest.get_item_group(above.name,"woody_plant") ~= 0 and minetest.get_item_group(above.name,"cane_plant") ~= 0) then 
+	   -- if they're both numbers somehow, best to assume it's
+	   --  a bamboo plant lol
+	   if (minetest.get_item_group(above.name,"woody_plant") ~= 0
+	       and minetest.get_item_group(above.name,"cane_plant") ~= 0) then
               -- replace bamboo with air so that the tool places appropriately
-              minetest.swap_node(pointed_thing.above,minetest.registered_nodes["air"])
-            end
-            local wear = itemstack:get_wear()
-            -- place if not
-            itemstack:take_item(1)
-            minetest.item_place_node(place_item, placer, pointed_thing)
-            local meta = minetest.get_meta(pointed_thing.above)
-            meta:set_int("wear", wear)
-            return itemstack
+              minetest.swap_node(pointed_thing.above,
+				 minetest.registered_nodes["air"])
+	   end
+	   local wear = itemstack:get_wear()
+	   -- place if not
+	   itemstack:take_item(1)
+	   local ppos = pointed_thing.above
+	   minetest.item_place_node(place_item, placer, pointed_thing)
+	   local meta = minetest.get_meta(pointed_thing.above)
+	   meta:set_int("wear", wear)
+	   local pname = "non-player"
+	   if minetest.is_player(placer) then
+	      pname = placer:get_player_name()
+	   end
+	   minetest.log("action", pname.." placed "..placed_name.." at "..
+			ppos.x.."/"..ppos.y.."/"..ppos.z)
+	   return itemstack
         else
             -- if yes use the on_rightclick of the pointed thing instead
             local on_rightclick = minetest.registered_nodes[under.name].on_rightclick(
@@ -58,7 +69,7 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
             if on_rightclick then
                 return on_rightclick
             else
-                -- can't access on_rightclick because the node belongs to another player
+	       -- can't access on_rightclick because the node belongs to another player
                 return itemstack
             end
         end
