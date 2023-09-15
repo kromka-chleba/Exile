@@ -118,13 +118,12 @@ function ms.register_worker(args)
             end
         end
         if args.chance then
-            worker.worker_function = function(pos_min, pos_max, vm_data, chance)
-                local chance = worker.chance
-                return args.fun(pos_min, pos_max, vm_data, chance)
+            worker.worker_function = function(pos_min, pos_max, vm_data)
+                return args.fun(pos_min, pos_max, vm_data, worker.chance)
             end
         end
         if args.catch_up then
-            worker.worker_function = function(pos_min, pos_max, vm_data, chance)
+            worker.worker_function = function(pos_min, pos_max, vm_data)
                 local hash = ms.mapchunk_hash(pos_min)
                 local new_chance = worker.catch_up_function(hash, worker.chance)
                 return args.fun(pos_min, pos_max, new_chance)
