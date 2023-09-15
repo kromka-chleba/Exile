@@ -61,7 +61,8 @@ end
 
 minetest.register_globalstep(function(dtime)
 	for _, player in pairs(minetest.get_connected_players()) do
-		local data = item_names[player:get_player_name()]
+		local pname = player:get_player_name()
+		local data = item_names[pname]
 		if not data or not data.hud then
 			data = {} -- Update on next step
 			set_hud(player)
@@ -86,14 +87,18 @@ minetest.register_globalstep(function(dtime)
 			local desc = stack.get_meta
 				and stack:get_meta():get_string("description")
 			local def = minetest.registered_items[itemname]
-
-			if not desc or desc == "" then
+			if not def then
+			   minetest.log("action", pname.." wielded an invalid"..
+					" object, "..itemname)
+			else
+			   if not desc or desc == "" then
 				-- Try to use default description when none is set in the meta
 				desc = def and def.description or ""
-			end
-			desc = desc..get_use_string(def)
+			   end
+			   desc = desc..get_use_string(def)
 
-			player:hud_change(data.hud, 'text', desc)
+			   player:hud_change(data.hud, 'text', desc)
+			end
 		end
 	end
 end)
