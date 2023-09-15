@@ -409,10 +409,10 @@ function animals.hq_roam_comfort_temp(self,prty)
           if (prty >= 50) then
             -- LET'S GET OUTTA HERE
             if (tpos.x) then
-              tpos.x = tpos.x * math.random(2,3)
+              tpos.x = tpos.x + math.random(-2,2)
             end
             if (tpos.z) then
-              tpos.z = tpos.z * math.random(2,3)
+              tpos.z = tpos.z + math.random(-2,2)
             end
           end
           

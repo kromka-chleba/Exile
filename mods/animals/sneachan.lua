@@ -22,7 +22,7 @@ local young_per_egg = 5		--will get this/energy_egg starting energy
 local lifespan = energy_max * 5
 
 -- temperature
-local min_temp = 5
+local min_temp = 3
 local max_temp = 50
 
 
