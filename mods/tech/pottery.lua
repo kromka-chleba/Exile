@@ -180,6 +180,9 @@ minetest.register_node("tech:clay_water_pot_unfired", {
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, base_firing, firing_int)
 	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, base_firing)
+	end,
 	on_timer = function(pos, elapsed)
 		--finished product, length
 		return ncrafting.fire_pottery(pos, "tech:clay_water_pot_unfired", "tech:clay_water_pot", base_firing)
@@ -217,6 +220,9 @@ minetest.register_node("tech:clay_storage_pot_unfired", {
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, base_firing+5, firing_int)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, base_firing*5)
 	end,
 	on_timer = function(pos, elapsed)
 		--finished product, length
@@ -261,6 +267,9 @@ minetest.register_node("tech:clay_oil_lamp_unfired", {
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, base_firing, firing_int)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, base_firing)
 	end,
 	on_timer = function(pos, elapsed)
 		--finished product, length
@@ -470,6 +479,9 @@ minetest.register_node("tech:clay_watering_can_unfired", {
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, base_firing, firing_int)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, base_firing)
 	end,
 	on_timer = function(pos, elapsed)
 		--finished product, length

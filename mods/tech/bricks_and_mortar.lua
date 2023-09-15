@@ -291,6 +291,9 @@ minetest.register_node('tech:loose_brick_unfired', {
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
 	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, 40)
+	end,
 	on_timer = function(pos, elapsed)
 	   return ncrafting.fire_pottery(pos, 'tech:loose_brick_unfired',
 					 'tech:loose_brick', 40, 850)
@@ -461,6 +464,9 @@ minetest.register_node("tech:roof_tile_loose_unfired", {
   on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, 40)
 	end,
 	on_timer = function(pos, elapsed)
 	   return ncrafting.fire_pottery(pos, 'tech:roof_tile_loose_unfired',
