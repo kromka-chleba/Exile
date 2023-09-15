@@ -31,12 +31,21 @@ wielded_light = wielded_light
 --
 
 local function dig_up(pos, node, digger)
-	if digger == nil then return end
 	local lnode = wielded_light.get_unlit_node(node)
 	local np = {x = pos.x, y = pos.y + 1, z = pos.z}
 	local unode = wielded_light.get_unlit_node(minetest.get_node(np))
-	if lnode.name == unode.name then
-		minetest.node_dig(np, unode, digger)
+	local count = 0
+	while lnode.name == unode.name do
+	   count = count + 1
+	   minetest.set_node(np, {name = "air"})
+	   np.y = np.y + 1
+	   unode = wielded_light.get_unlit_node(minetest.get_node(np))
+	end
+	if count > 0 then
+	   local inv = digger:get_inventory()
+	   local leftover = inv:add_item('main',
+					 lnode.name.." "..tostring(count))
+	   if leftover then minetest.add_item(pos, leftover) end
 	end
 end
 
