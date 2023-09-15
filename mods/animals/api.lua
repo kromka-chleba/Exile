@@ -54,6 +54,11 @@ local function temp_comfy(self,temp)
   if (temp >= min_temp and temp <= max_temp) then
     -- goldilocks certified
     return true
+  -- return whether too hot or too cold for possible analysis
+  elseif (temp < min_temp) then
+    return false,"cold"
+  elseif (temp > max_temp) then
+    return false,"hot"
   end
   return false
 end
@@ -217,17 +222,29 @@ function animals.core_life(self, lifespan, pos)
   --temperature stress
   if temp < self.min_temp or temp > self.max_temp then
     -- if this temperature is uncomfortable, try to find somewhere else!
+    
+    local killer_min_temp = self.min_temp - 10
+    local killer_max_temp = self.max_temp + 25
+    local burn_max_temp = killer_max_temp + 55
+    
     if (self.class ~= 2) then
       -- only for land creatures
-      animals.hq_roam_comfort_temp(self,80)
+      if (temp > killer_max_temp or temp < killer_min_temp) then
+      -- clear all queues, you gotta get outta here! We dyin!
+        mobkit.clear_queue_low(self)
+        mobkit.clear_queue_high(self)
+        animals.hq_roam_comfort_temp(self,65)
+      else
+        -- not as critical (uncomfortable, but not dying)
+        animals.hq_roam_comfort_temp(self,42)
+      end
+      
       hbnate = false -- moving around, thus not hibernating
     end
     -- lose energy from discomfort
     energy = energy - math.random(4,8)
     
-    local killer_min_temp = self.min_temp - 10
-    local killer_max_temp = self.max_temp + 25
-    local burn_max_temp = killer_max_temp + 55
+    
     
   -- get really hurt or die from high temp
     if temp > killer_max_temp then -- use addition instead of multiplication to account for negative numbers
@@ -379,7 +396,7 @@ function animals.hq_roam_comfort_temp(self,prty)
       return true
     end
 
-    if mobkit.is_queue_empty_low(self) and self.isonground then
+    if (mobkit.is_queue_empty_low(self) or prty >= 35) and self.isonground then -- mobkit.is_queue_empty_low(self)
       local min_temp = self.min_temp or 0
       local max_temp = self.max_temp or 20
       
@@ -391,27 +408,37 @@ function animals.hq_roam_comfort_temp(self,prty)
         return true
       end
       
-      
-      local function get_reachable_node()
-        local neighbor = random(8)
-        
-        return mobkit.is_neighbor_node_reachable(self,neighbor)
-      end
-      
-      local tempn = 0
-      
       local height, tpos, liquidflag
-      for i = 1, 5, 1 do -- try 5 times to find a good node
-        local h, tp, lf = get_reachable_node() -- shortened versions of "height, tpos, liquidflag"
+      local best_temp
+      for i = 1, 8, 1 do -- try 8 times to find a good node
+        local h, tp, lf = mobkit.is_neighbor_node_reachable(self,i) -- shortened versions of "height, tpos, liquidflag"
         if (h and not lf) then -- if height somethin' and if provided pos is not a liquid
-          height, tpos, liquidflag = h, tp, lf -- set height, tpos, and liquidflag
+          local tempn = climate.get_point_temp(tp)
+          local temp_c,temp_s = temp_comfy(self,tempn) -- temp_comfy (is the provided pos a comfortable temp?), temp_status (utilized to check whether too hot or too cold)
           
-          tempn = climate.get_point_temp(tpos)
-          
-          if temp_comfy(self,tempn) then
-            -- found a good pos to go to, break loop
-            break
-            -- if a good pos can't be found, will run to the last searched in look of better ones
+          if (temp_s or temp_c == true) then
+            -- let's make sure the animal goes to the best suitable temperature
+            local old_bt = best_temp -- old_best_temp - used for comparison
+            if (type(best_temp) ~= "number" or
+            (temp_s == "hot" and tempn < best_temp and tempn > min_temp) or 
+            (temp_s == "cold" and tempn > best_temp and tempn < max_temp) -- additional check to prevent creatures running into fires to warm themselves
+            ) then
+              -- if a best_temp hasn't been specified or a better temperature has been found for seeking comfy temperatures
+              -- then change best_temp! :D
+              best_temp = tempn
+            end
+            
+            if ((random(4) == 4 and tempn == best_temp) or best_temp ~= old_bt) then -- 1 in 4 chance to choose a different position (only if best_temp is equal to tempn - no running into fire or coldness) 
+              -- update height, tpos, and liquidflag if a better position has been found
+              height, tpos, liquidflag = h, tp, lf -- set height, tpos, and liquidflag
+            end
+            
+            if (temp_c == true) then
+              -- found a good pos to go to, break loop
+              break
+              -- if a good pos can't be found, the above if statement mess will determine the most optimal area to go
+              -- to look for better temperatures
+            end
           end
         end
       end
@@ -419,8 +446,8 @@ function animals.hq_roam_comfort_temp(self,prty)
       if height and not liquidflag then
         -- run to that safe (or somewhat safe) pos!
         local spd_f = 0.3 -- speed factor
-        if (prty >= 50) then
-          spd_f = spd_f * (2.2 * (prty/50) )
+        if (prty >= 35) then
+          spd_f = spd_f * (2 * (prty/35) )
         end
         mobkit.dumbstep(self,height,tpos,spd_f)
       else
