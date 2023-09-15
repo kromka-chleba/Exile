@@ -226,8 +226,8 @@ function animals.core_life(self, lifespan, pos)
     energy = energy - math.random(4,8)
     
     local killer_min_temp = self.min_temp - 10
-    local killer_max_temp = self.max_temp + 20
-    local burn_max_temp = killer_max_temp + 60
+    local killer_max_temp = self.max_temp + 25
+    local burn_max_temp = killer_max_temp + 55
     
   -- get really hurt or die from high temp
     if temp > killer_max_temp then -- use addition instead of multiplication to account for negative numbers
