@@ -380,7 +380,7 @@ minetest.register_node("tech:clay_oil_lamp", {
             lightsource.restore_from_inventory(oil_lamp_desc, pos, itemstack)
         end,
         on_dig = function(pos, node, digger)
-            lightsource.save_to_inventory(oil_lamp_desc, pos, digger, false)
+            lightsource.save_to_inventory(oil_lamp_desc, pos, digger, true)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 	   lightsource.extinguish(oil_lamp_desc, pos)
