@@ -29,6 +29,15 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
     local place_item = ItemStack(placed_name)
     local above = minetest.get_node(pointed_thing.above)
     local under = minetest.get_node(pointed_thing.under)
+    -- check if the pointed item has on_rightclick ...
+    if minetest.registered_nodes[under.name].on_rightclick then
+       -- if yes use the on_rightclick of the pointed thing instead
+       local on_rightclick = minetest.registered_nodes[under.name].on_rightclick(
+	  pointed_thing.under, under, placer, itemstack, pointed_thing)
+       if on_rightclick then
+	  return on_rightclick
+       end
+    end
     local under_front_pos = {x = pointed_thing.above.x,
                              y = pointed_thing.above.y - 1,
                              z = pointed_thing.above.z}
@@ -38,8 +47,6 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
     if not minetest.registered_nodes[above.name].walkable and
         -- check if walkable below to avoid throwing tools into abyss
         minetest.registered_nodes[under_front.name].walkable then
-        -- check if the pointed item has on_rightclick ...
-        if not minetest.registered_nodes[under.name].on_rightclick then
 	   -- if they're both numbers somehow, best to assume it's
 	   --  a bamboo plant lol
 	   if (minetest.get_item_group(above.name,"woody_plant") ~= 0
@@ -62,18 +69,8 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
 	   minetest.log("action", pname.." placed "..placed_name.." at "..
 			ppos.x.."/"..ppos.y.."/"..ppos.z)
 	   return itemstack
-        else
-            -- if yes use the on_rightclick of the pointed thing instead
-            local on_rightclick = minetest.registered_nodes[under.name].on_rightclick(
-                pointed_thing.under, under, placer, itemstack, pointed_thing)
-            if on_rightclick then
-                return on_rightclick
-            else
-	       -- can't access on_rightclick because the node belongs to another player
-                return itemstack
-            end
         end
-    end
+    return itemstack
 end
 
 local function on_dig_tool(pos, node, digger, name)
