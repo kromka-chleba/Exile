@@ -21,6 +21,7 @@ function spears_throw (itemstack, player, pointed_thing)
 	local rotation = vector.new(0, yaw + math.pi/2, pitch + math.pi/6)
 	local wear = itemstack:get_wear()
 	if pointed_thing.type == "node" and vector.distance(pointed_a, throw_pos) < 1 then -- Stick into node
+		local node = minetest.get_node(pointed_b)
 		local check_node = spears_check_node(node.name)
 		if check_node == SPEARS_NODE_UNKNOWN then
 			return false
