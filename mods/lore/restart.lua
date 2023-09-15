@@ -1,8 +1,7 @@
 --restart.lua
 --A chat command to allow users to start over
 
---Local table to store pending confirmations. 
-local chat_confirm = {}
+--Local table to store pending confirmations.
 local timestamp = {}
 
 
@@ -44,19 +43,19 @@ local function killplayer(name)
    local epoch=os.time()
    local restart_list = {}
    for _, list_name in ipairs({'main','craft','cloths'}) do
-	if not player_inv:is_empty(list_name) then
-		for _, stack in ipairs(player_inv:get_list(list_name)) do
-			if stack:get_name() ~= "" then
-				local meta=minetest.serialize(stack:get_meta():to_table())
-				table.insert(restart_list, {
-					epoch=epoch,
-					stack=stack:to_string(),
-					meta=meta
-				})
-			end
-		end
-		player_inv:set_list(list_name,{}) -- delete the inventory.
-	end
+      if not player_inv:is_empty(list_name) then
+	 for _, stack in ipairs(player_inv:get_list(list_name)) do
+	    if stack:get_name() ~= "" then
+	       local meta=minetest.serialize(stack:get_meta():to_table())
+	       table.insert(restart_list, {
+			       epoch=epoch,
+			       stack=stack:to_string(),
+			       meta=meta
+	       })
+	    end
+	 end
+	 player_inv:set_list(list_name,{}) -- delete the inventory.
+      end
    end
    stash_inventory(player,'restart_list',restart_list)
    -- Disable effects of clothes
@@ -64,30 +63,29 @@ local function killplayer(name)
    player:set_hp(0)
 end
 
-local function restart_confirm (name, message)
-	if (chat_confirm[name] == 'restart') then
-		if message == 'Yes' or message == "yes" then
-			minetest.log("action", name .. " gave up the ghost.")
-			timestamp[name] = minetest.get_gametime()
-			killplayer(name)
-		else
-			minetest.chat_send_player(name, "You've come to your senses and decided to keep trying")
-		end
-		chat_confirm[name] = nil
-		return true
-	end
-	return false -- let other modules see it.
+local function restart_confirm (confirmed, _, player, name)
+   if confirmed == true then
+      if not minetest.is_player(player) then return end
+      minetest.log("action", name .. " gave up the ghost.")
+      minetest.chat_send_player(name, "POP!")
+      killplayer(name)
+   else
+      minetest.chat_send_player(name, "You've come to your senses and "..
+				"decided to keep trying")
+   end
 end
 
 local function restart (name, param)
 	local nowtime = minetest.get_gametime()
 	if timestamp[name] and ( timestamp[name] +300 ) > nowtime then
-	   minetest.chat_send_player(name, "You can't use this command more than once per 5 minutes.")
+	   minetest.chat_send_player(name, "You can't use this command more "..
+				     "than once per 5 minutes.")
 	   return
 	else
 	   timestamp[name] = nil
-	   minetest.chat_send_player(name, "Restarting does not leave bones.  Your inventory will be deleted.\nAre you sure?  Reply with: Yes")
-	   chat_confirm[name]="restart";
+	   minimal.yes_or_no(name, "Restarting does not leave bones!\n "..
+			     "Your inventory will be deleted.\n"..
+			     "Are you sure?", restart_confirm)
 	end
 end
 
@@ -95,7 +93,10 @@ minetest.register_chatcommand("restart",{
 	privs = {
 		interact = true,
 	},
-        description = "Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try yourself at survival again.",
+        description = "Give up on your current character without leaving a "..
+	   "trace. Everything you hold will be lost. Have a new Exile "..
+	   "appear in this world in their stead and try yourself at "..
+	   "survival again.",
 	func = restart
 })
 
@@ -103,9 +104,8 @@ minetest.register_chatcommand("respawn",{
 	privs = {
 		interact = true,
 	},
-        description = "This command is an alias for /restart. See there for further information.",
+        description = "This command is an alias for /restart. See there for "..
+	   "further information.",
 	func = restart
 })
-
-minetest.register_on_chat_message(restart_confirm)
 
