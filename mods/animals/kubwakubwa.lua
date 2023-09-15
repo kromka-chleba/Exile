@@ -147,7 +147,7 @@ end
 --eggs
 minetest.register_node("animals:kubwakubwa_eggs", {
 	description = S('Kubwakubwa Eggs'),
-	tiles = {"animals_gundu_eggs.png"},
+	tiles = {"animals_kubwakubwa_eggs.png"},
 	stack_max = minimal.stack_max_medium,
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -196,8 +196,8 @@ minetest.register_entity("animals:kubwakubwa",{
 	--damage
 	max_hp = 20,
 	lung_capacity = 20,
-	min_temp = -15,
-	max_temp = 50,
+	min_temp = -4,
+	max_temp = 56,
 
 	--interaction
 	predators = animals.get_interactors("kubwakubwa","predators"),
