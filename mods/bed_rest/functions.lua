@@ -249,8 +249,10 @@ end
 
 
 local function stopmove(player, pos, lives, meta)
+   if (not player) or (not player:is_player()) then return end
+   if not meta then meta = player:get_meta() end
    if lives then
-      local newlives = player:get_meta():get_string("lives")
+      local newlives = meta:get_string("lives")
       if lives < tonumber(newlives) then
 	 return -- Player has died before this fired
       end
