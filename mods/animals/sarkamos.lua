@@ -11,15 +11,6 @@ local S = animals.S
 local random = math.random
 local floor = math.floor
 
---energy
-local energy_max = 14000--secs it can survive without food
-local energy_egg = energy_max/8 --energy that goes to egg
-local egg_timer  = 60*45
-local young_per_egg = 2		--will get this/energy_egg starting energy
-
-local lifespan = energy_max * 8
-
-
 
 
 -----------------------------------
@@ -34,7 +25,7 @@ local function brain(self)
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, lifespan, pos)
+		local age, energy = animals.core_life(self, self.lifespan, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -62,7 +53,7 @@ local function brain(self)
 			local rival = animals.territorial_water(self, energy, false)
 
 			--feeding
-			if energy < energy_max then
+			if energy < self.energy_max then
 			   --You are prey
 			   local plyr = animals.get_nearby_player(self)
 			   if plyr then
@@ -75,7 +66,7 @@ local function brain(self)
 			   end
 			end
 
-			if energy >= energy_max then
+			if energy >= self.energy_max then
 			   -- heavy with eggs, sink to look for a laying spot
 			   self.object:add_velocity({ x = 0, y = -0.2,
 						      z = 0})
@@ -92,8 +83,8 @@ local function brain(self)
 			and not rival
 			and light < 10
 			and self.hp >= self.max_hp
-			and energy >= energy_max then
-			   energy = animals.place_egg(pos, "animals:sarkamos_eggs", energy, energy_egg, 'nodes_nature:salt_water_source')
+			and energy >= self.energy_max then
+			   energy = animals.place_egg(self, pos, energy, 'nodes_nature:salt_water_source')
 			end
 
 		end
@@ -124,35 +115,15 @@ end
 -- the CREATURE
 ---------------
 
---eggs
-minetest.register_node("animals:sarkamos_eggs", {
-	description = S('Sarkamos Eggs'),
-	tiles = {"animals_gundu_eggs.png"},
-	stack_max = minimal.stack_max_bulky,
-	groups = {snappy = 3, edible = 1, egg = 3},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-		return animals.hatch_egg(pos, 'nodes_nature:salt_water_source', 'nodes_nature:salt_water_flowing', "animals:sarkamos", energy_egg, young_per_egg)
-	end,
-})
-
-
-
-
-
 ----------------------------------------------
 -- SETTING OF SARKAMOS INTERACTOR SETTINGS
 animals.add_interactors("prey","sarkamos","animals:gundu")
 animals.add_interactors("rivals","sarkamos","animals:sarkamos")
 
-
 ----------------------------------------------
-
 --The Animal
-minetest.register_entity("animals:sarkamos",{
+local self_data = {
+  name = "animals:sarkamos",
 	--core
 	physical = true,
 	collide_with_objects = true,
@@ -164,17 +135,12 @@ minetest.register_entity("animals:sarkamos",{
 	makes_footstep_sound = false,
 	timeout = 0,
 
-	--damage
+	-- animal stats
 	max_hp = 200,
 	lung_capacity = 40,
+  -- comfort temps
 	min_temp = 1,
 	max_temp = 35,
-
-	--interaction
-	--predators = {"animals:sarkamos"},
-	rivals = animals.get_interactors("sarkamos","rivals"), 
-	prey = animals.get_interactors("sarkamos","prey"),
-  
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 2,
 
@@ -222,6 +188,10 @@ minetest.register_entity("animals:sarkamos",{
 	--attack
 	attack={range=0.6, damage_groups={fleshy=10}},
 	armor_groups = {fleshy=100},
+  
+  --interaction
+	rivals = animals.get_interactors("sarkamos","rivals"), 
+	prey = animals.get_interactors("sarkamos","prey"),
 
 	--on actions
 	drops = {
@@ -236,8 +206,38 @@ minetest.register_entity("animals:sarkamos",{
 		end
 		animals.stun_catch_mob(self, clicker, 0.01)
 	end,
+}
+---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
+-- energy and eggs
+self_data.energy_max = 14000   --secs it can survive without food
+self_data.energy_egg = self_data.energy_max/8  --energy that goes to egg
+self_data.egg_timer = 60*40
+self_data.young_per_egg = 2   --will get this/energy_egg starting energy
+-- lifespan
+self_data.lifespan = self_data.energy_max * 8
+---------------------;
+minetest.register_entity("animals:sarkamos",self_data)
+
+----------------------------------------------
+--eggs
+minetest.register_node("animals:sarkamos_eggs", {
+	description = S('Sarkamos Eggs'),
+	tiles = {"animals_gundu_eggs.png"},
+	stack_max = minimal.stack_max_bulky,
+	groups = {snappy = 3, edible = 1, egg = 3},
+	sounds = nodes_nature.node_sound_defaults(),
+	on_construct = function(pos)
+    local egg_timer = self_data.egg_timer
+		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+	end,
+	on_timer =function(pos, elapsed)
+    local energy_egg = self_data.energy_egg
+    local young_per_egg = self_data.young_per_egg
+    
+		return animals.hatch_egg(self_data, pos, 'nodes_nature:salt_water_source', 'nodes_nature:salt_water_flowing')
+	end,
 })
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:sarkamos", S("Live Sarkamos"), "animals_sarkamos_item.png", minimal.stack_max_medium/2, energy_egg)
+animals.register_egg("animals:sarkamos", S("Live Sarkamos"), "animals_sarkamos_item.png", minimal.stack_max_medium/2, self_data)

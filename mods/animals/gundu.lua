@@ -12,14 +12,6 @@ local S = animals.S
 local random = math.random
 local floor = math.floor
 
---energy
-local energy_max = 8000--secs it can survive without food
-local energy_egg = energy_max/6 --energy that goes to egg
-local egg_timer  = 60*45
-local young_per_egg = 5		--will get this/energy_egg starting energy
-
-local lifespan = energy_max * 6
-
 local function pos_is_liquid(pos)
 	local node=mobkit.nodeatpos(pos)
 	if node and node.drawtype ~= 'liquid' then
@@ -62,7 +54,7 @@ local function brain(self)
 			return
 		end
 		-- Also recharges health from energy
-		local age, energy = animals.core_life(self, lifespan, pos)
+		local age, energy = animals.core_life(self, self.lifespan, pos)
 
 		--die from exhaustion or age
 		if not age then
@@ -125,13 +117,13 @@ local function brain(self)
 
 				if light >= 9 then
 					--much light much food
-					if energy < energy_max then
+					if energy < self.energy_max then
 						energy = energy + 5
 					end
 
 				elseif light >= 5 then
 					--some light
-					if energy < energy_max then
+					if energy < self.energy_max then
 						energy = energy + 2
 					end
 				end
@@ -164,14 +156,14 @@ local function brain(self)
 			--reproduction
 			--asexual parthogenesis, eggs
 			--no threats, darkness, peak condition
-			if (random() < 0.03 or energy >= (energy_max*1.125)) -- 9000 (8000 * 1.125)
+			if (random() < 0.03 or energy >= (self.energy_max*1.125)) -- 9000 (8000 * 1.125)
 			and not rival
 			and not pred
 			and lightm <= 11
 			and ( tod <0.5 ) -- only lay at night
 			and self.hp >= self.max_hp
-			and energy >= energy_max - 100 then
-				energy = animals.place_egg(pos, "animals:gundu_eggs", energy, energy_egg, 'nodes_nature:salt_water_source')
+			and energy >= self.energy_max - 100 then
+				energy = animals.place_egg(pos, "animals:gundu_eggs", energy, self.energy_egg, 'nodes_nature:salt_water_source')
 			end
 
 		end
@@ -202,36 +194,15 @@ end
 -- the CREATURE
 ---------------
 
---eggs
-minetest.register_node("animals:gundu_eggs", {
-	description = S('Gundu Eggs'),
-	tiles = {"animals_gundu_eggs.png"},
-	stack_max = minimal.stack_max_bulky,
-	groups = {snappy = 3, edible = 1, egg = 3},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-		return animals.hatch_egg(pos, 'nodes_nature:salt_water_source', 'nodes_nature:salt_water_flowing', "animals:gundu", energy_egg, young_per_egg)
-	end,
-})
-
-
-
-
-
 ----------------------------------------------
 -- SETTING OF GUNDU INTERACTOR SETTINGS
 animals.add_interactors("predators","gundu","animals:sarkamos")
 animals.add_interactors("rivals","gundu","animals:gundu")
 animals.add_interactors("friends","gundu","animals:gundu")
 
-
 ----------------------------------------------
-
 --The Animal
-minetest.register_entity("animals:gundu",{
+local self_data = {
 	--core
 	physical = true,
 	collide_with_objects = true,
@@ -243,18 +214,12 @@ minetest.register_entity("animals:gundu",{
 	makes_footstep_sound = false,
 	timeout = 0,
 
-	--damage
+	-- animal stats
 	max_hp = 40,
 	lung_capacity = 20,
+  -- comfort temps
 	min_temp = -2,
 	max_temp = 35,
-
-	--interaction
-	predators = animals.get_interactors("gundu","predators"),
-	rivals = animals.get_interactors("gundu","rivals"),
-	friends = animals.get_interactors("gundu","friends"),
-	--prey = {"animals:impethu"},
-  
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 2,
   
@@ -302,6 +267,11 @@ minetest.register_entity("animals:gundu",{
 	--attack
 	attack={range=0.3, damage_groups={fleshy=1}},
 	armor_groups = {fleshy=100},
+  
+  --interaction
+	predators = animals.get_interactors("gundu","predators"),
+	rivals = animals.get_interactors("gundu","rivals"),
+	friends = animals.get_interactors("gundu","friends"),
 
 	--on actions
 	drops = {
@@ -316,8 +286,38 @@ minetest.register_entity("animals:gundu",{
 		end
 		animals.stun_catch_mob(self, clicker, 0.1)
 	end,
+}
+---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
+-- energy and eggs
+self_data.energy_max = 8000   --secs it can survive without food
+self_data.energy_egg = self_data.energy_max/6  --energy that goes to egg
+self_data.egg_timer = 60*45
+self_data.young_per_egg = 5   --will get this/energy_egg starting energy
+-- lifespan
+self_data.lifespan = self_data.energy_max * 6
+---------------------;
+minetest.register_entity("animals:gundu",self_data)
+
+----------------------------------------------
+--eggs
+minetest.register_node("animals:gundu_eggs", {
+	description = S('Gundu Eggs'),
+	tiles = {"animals_gundu_eggs.png"},
+	stack_max = minimal.stack_max_bulky,
+	groups = {snappy = 3, edible = 1, egg = 3},
+	sounds = nodes_nature.node_sound_defaults(),
+	on_construct = function(pos)
+    local egg_timer = self_data.egg_timer
+		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+	end,
+	on_timer =function(pos, elapsed)
+    local energy_egg = self_data.energy_egg
+    local young_per_egg = self_data.young_per_egg
+    
+		return animals.hatch_egg(pos, 'nodes_nature:salt_water_source', 'nodes_nature:salt_water_flowing', "animals:gundu", energy_egg, young_per_egg)
+	end,
 })
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:gundu", S("Live Gundu"), "animals_gundu_item.png", minimal.stack_max_medium/2, energy_egg)
+animals.register_egg("animals:gundu", S("Live Gundu"), "animals_gundu_item.png", minimal.stack_max_medium/2, self_data.energy_egg)
