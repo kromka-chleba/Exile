@@ -232,7 +232,7 @@ self_data.energy_max = 8000   --secs it can survive without food
 self_data.energy_egg = self_data.energy_max/2  --energy that goes to egg
 self_data.egg_timer = 60*35
 self_data.young_per_egg = {3,4}   --will get this/energy_egg starting energy
-self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg) * 0.4 -- conserve min (minimum point at when to conserve energy)
+self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.4 -- conserve min (minimum point at when to conserve energy)
 -- lifespan
 self_data.lifespan = self_data.energy_max * 6
 self_data.mature_age = self_data.energy_max/2
