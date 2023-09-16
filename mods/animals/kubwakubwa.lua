@@ -149,7 +149,7 @@ local self_data = {
 	max_hp = 20,
 	lung_capacity = 20,
   -- comfort temps
-	min_temp = 10,
+	min_temp = 7,
 	max_temp = 56,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
