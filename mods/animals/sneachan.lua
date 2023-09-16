@@ -188,6 +188,9 @@ local self_data = {
 	--interaction
 	predators = animals.get_interactors("sneachan","predators"),
 	rivals = animals.get_interactors("sneachan","rivals"),
+  
+  -- settings
+  max_pop = 20,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,

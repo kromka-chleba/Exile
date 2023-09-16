@@ -154,6 +154,9 @@ local self_data = {
 	max_temp = 56,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
+  
+  -- settings
+  max_pop = 10,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
