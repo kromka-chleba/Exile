@@ -264,4 +264,4 @@ minetest.register_node("animals:kubwakubwa_eggs", {
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:kubwakubwa", S("Live Kubwakubwa"), "animals_kubwakubwa_item.png", minimal.stack_max_medium, self_data.energy_egg)
+animals.register_egg("animals:kubwakubwa", S("Live Kubwakubwa"), "animals_kubwakubwa_item.png", minimal.stack_max_medium, self_data)
