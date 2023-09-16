@@ -65,7 +65,7 @@ local wrotycz_soil_prefs =
 
 local plant_list = {
     -- Herbs
-    {name = "barszcz", description = S("Paratiki"),
+    {name = "barszcz", description = S("Barszcz"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
@@ -74,7 +74,7 @@ local plant_list = {
      roots = 5,
      winter_fruit = true, dry_fruit = true},
 
-    {name = "wrotycz", description = S("Rotoki"),
+    {name = "wrotycz", description = S("Wrotycz"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 2,
@@ -107,7 +107,7 @@ local plant_list = {
      seasonal_type = "whole_season",
      edible_seedling = true},
 
-    {name = "vansano", description = S("Wanatano"),
+    {name = "vansano", description = S("Vansano"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = plant_base_growing_time * 1.2,
@@ -115,7 +115,7 @@ local plant_list = {
      fruit = true, seasonal_type = "long", winter_fruit = false,
      dry_fruit = true},
 
-    {name = "anperla", description = S("Apera"),
+    {name = "anperla", description = S("Anperla"),
      plant_type = "herbaceous_plant", waving = true,
      drawtype = "plantlike", mesh_type = 3,
      growing_time = plant_base_growing_time * 3,
@@ -123,7 +123,7 @@ local plant_list = {
      winter_fruit = false, seasonal_type = "tuber",
      fruit = true, roots = 8},
 
-    {name = "rzepicha", description = S("Repeka"),
+    {name = "rzepicha", description = S("Rzepicha"),
      plant_type = "herbaceous_plant", waving = true,
      drawtype = "plantlike", mesh_type = 0,
      growing_time = plant_base_growing_time * 2,
@@ -140,14 +140,14 @@ local plant_list = {
      seasonal_type = "mainly_flower",
      dry_fruit = true},
 
-    {name = "ziarnoplon", description = S("Kiaranopohono"),
+    {name = "ziarnoplon", description = S("Ziarnopłon"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = plant_base_growing_time * 0.4,
      dye_candidate = true, dominant_color = "yellow",
      fruit = true, seasonal_type = "early_flower"},
 
-    {name = "srebroplon", description = S("Reperopohono"),
+    {name = "srebroplon", description = S("Srebropłon"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = plant_base_growing_time * 0.4,
@@ -198,7 +198,7 @@ local plant_list = {
      fruit = true, seasonal_type = "long", winter_fruit = false,
      move_resistance = 3, thorns = true},
 
-    {name = "gevaari", description = S("Kewari"),
+    {name = "gevaari", description = S("Gevaari"),
      drawtype = "plantlike", plant_type = "herbaceous_plant",
      mesh_type = 1, growing_time = plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "green",
@@ -215,7 +215,7 @@ local plant_list = {
 
     --lambakap. is also a mushroom.
     --slow growing food and water source, main crop for longterm underground living.
-    {name = "lambakap", description = S("Hamapakapa"),
+    {name = "lambakap", description = S("Lambakap"),
      drawtype = "nodebox", nodebox = lambakap_nodebox,
      lifeform_type = "mushroom", plant_type = "mushroom",
      growing_time = plant_base_growing_time * 3,
@@ -225,7 +225,7 @@ local plant_list = {
     --reshedaar.  is also a mushroom.
     --slow growing fibre mushroom, main fibre crop for longterm underground living.
     --(can't be bioluminescent or conflicts with recipe)
-    {name = "reshedaar", description = S("Retekara"),
+    {name = "reshedaar", description = S("Reshedaar"),
      drawtype = "nodebox", nodebox = reshedaar_nodebox,
      lifeform_type = "mushroom", plant_type = "fibrous_plant",
      growing_time = plant_base_growing_time * 3,
@@ -275,7 +275,7 @@ local plant_list = {
      seasonal_type = "whole_season_woody",
      texture_scale = 1.2, thorns = true, move_resistance = 4},
 
-    {name = "jogalan", description = S("Kokohana"),
+    {name = "jogalan", description = S("Jogalan"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
      mesh_type = 0, growing_time = plant_base_growing_time * 2,
@@ -288,21 +288,21 @@ local plant_list = {
      dye_candidate = true, dominant_color = "green",
      texture_scale = 1.2, seasonal_type = "whole_season_woody"},
 
-    {name = "badyl", description = S("Papehi"),
+    {name = "badyl", description = S("Badyl"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
      mesh_type = 0, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
      texture_scale = 1, seasonal_type = "whole_season_woody"},
 
-    {name = "drapacz", description = S("Karapaka"),
+    {name = "drapacz", description = S("Drapacz"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = false, thorns = true, move_resistance = 4,
      mesh_type = 0, growing_time = plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "red",
      texture_scale = 1.2, seasonal_type = "whole_season_woody"},
 
-    {name = "bronach", description = S("Poronaka"),
+    {name = "bronach", description = S("Bronach"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
      mesh_type = 3, growing_time = plant_base_growing_time * 2,
@@ -344,7 +344,7 @@ local plant_list = {
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "whole_season", edible_seedling = true},
 
-    {name = "tashvish", description = S("Tahawihi"),
+    {name = "tashvish", description = S("Tashvish"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
      dye_candidate = true,
@@ -377,13 +377,13 @@ local plant_list = {
      seed_number = 1, climbable = true, seasonal_type = "whole_season_woody",
      move_resistance = 1},
 
-    {name = "tiken", description = S("Tikeni"),
+    {name = "tiken", description = S("Tiken"),
      mesh_type = 2,
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
 
-    {name = "saguati", description = S("Hanguati"),
+    {name = "saguati", description = S("Saguati"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
      growing_time = plant_base_growing_time * 4, dye_candidate = true, dominant_color = "green",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
@@ -417,7 +417,7 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:anperla_root",{
         tiles = {"nodes_nature_silt.png"},
-        description = S("Apera tuber"),
+        description = S("Anperla tuber"),
         wield_image = "nodes_nature_tuber.png",
         inventory_image = "nodes_nature_tuber.png",
         node_box = {
@@ -453,7 +453,7 @@ minetest.override_item(
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root",
     {
-        description = S("Repeka root"),
+        description = S("Rzepicha root"),
         inventory_image = "nodes_nature_rzepicha_root.png",
         wield_image = "nodes_nature_rzepicha_root.png",
         stack_max = minimal.stack_max_medium,
@@ -474,7 +474,7 @@ minetest.register_craftitem(
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root_winter",
     {
-        description = S("Repeka root"),
+        description = S("Rzepicha root"),
         inventory_image = "nodes_nature_rzepicha_root_winter.png",
         wield_image = "nodes_nature_rzepicha_root_winter.png",
         stack_max = minimal.stack_max_medium,
