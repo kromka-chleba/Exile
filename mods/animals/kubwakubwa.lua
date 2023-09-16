@@ -13,17 +13,6 @@ local S = animals.S
 local random = math.random
 local floor = math.floor
 
---energy
---local energy_max = 8000--secs it can survive without food
---local energy_egg = energy_max/2 --energy that goes to egg
---local egg_timer  = 60*35
---local young_per_egg = 4		--will get this/energy_egg starting energy
---local hb_min = (energy_egg / young_per_egg) * 0.4 -- hibernate minimum requirement (40% of young_per_egg energy value)
-
---local lifespan = energy_max * 6
---local mature_age = energy_max / 2
-
-
 
 -----------------------------------
 local function brain(self)
@@ -160,7 +149,7 @@ local self_data = {
 	max_hp = 20,
 	lung_capacity = 20,
   -- comfort temps
-	min_temp = -4,
+	min_temp = 10,
 	max_temp = 56,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
