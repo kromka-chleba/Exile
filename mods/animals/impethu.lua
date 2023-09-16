@@ -250,7 +250,7 @@ minetest.register_node("animals:impethu_eggs", {
     
 		local light = (minetest.get_node_light(pos) or 0)
 		if light <= 5 then
-			return animals.hatch_egg(pos, 'air', 'air', "animals:impethu", energy_egg, young_per_egg)
+			return animals.hatch_egg(pos, 'air', 'air', "animals:impethu", self_data)
 		else
 			return true
 		end

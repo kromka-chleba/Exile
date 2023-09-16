@@ -246,7 +246,11 @@ minetest.register_node("animals:darkasthaan_eggs", {
     local energy_egg = self_data.energy_egg
     local young_per_egg = self_data.young_per_egg
     
+<<<<<<< HEAD
 		return animals.hatch_egg(self_data, pos)
+=======
+		return animals.hatch_egg(pos, 'air', 'air', "animals:darkasthaan", self_data)
+>>>>>>> eda8be53 (Modification of hatch_egg to utilize the animal's table data instead. Creation of "animals.calculate_egg_young()" to calculate possible egg spawn variety. Converts animal data for Pegasuns (female + male) into a single table for each)
 	end,
 })
 

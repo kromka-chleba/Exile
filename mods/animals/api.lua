@@ -316,11 +316,43 @@ function animals.place_egg(pos, egg_name, energy, energy_egg, medium)
   return e
 end
 
+----------------------------------------------------
+-- get an amount of offspring to release
+function animals.calculate_egg_young(self)
+  if (type(self) ~= "table" or type(self) ~= "userdata") then
+    return
+  end
+  
+  local young_per_egg = self.young_per_egg
+  
+  if (type(young_per_egg) == "table") then
+    -- allow for randomized amount of young per egg
+    if (type(young_per_egg[1]) ~= "number" and type(young_per_egg[2]) ~= "number") then
+      return false
+    end
+    young_per_egg = random(young_per_egg[1],young_per_egg[2])
+  end
+  
+  if (type(young_per_egg) == "number") then
+    return young_per_egg
+  end
+end
 
 ----------------------------------------------------
 --release offspring from an egg (called from timers)
-function animals.hatch_egg(pos, medium_name, replace_name, name, energy_egg, young_per_egg)
-
+function animals.hatch_egg(pos, medium_name, replace_name, name, self) --name, energy_egg, young_per_egg)
+  if (type(self) ~= "table" or type(self) ~= "userdata") then
+    return false
+  end
+   
+  local energy_egg = self.energy_egg
+  local young_per_egg = animals.calculate_egg_young(self)
+  local max_pop = self.max_pop or max_objects
+  
+  if not name or not energy_egg or not young_per_egg then
+    return false
+  end
+  
    local air = minetest.find_nodes_in_area(
       {x=pos.x-1, y=pos.y-1, z=pos.z-1},
       {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium_name})
@@ -333,7 +365,10 @@ function animals.hatch_egg(pos, medium_name, replace_name, name, energy_egg, you
   local cnt = 0
   local start_e = math.floor(energy_egg/young_per_egg)
   local objcount = #animals.get_entities_inside_radius(name, pos, mo_check_radius)
-  while cnt < young_per_egg and objcount < max_objects do
+  for i = 1, young_per_egg, 1 do
+    if (objcount >= max_pop) then
+      break
+    end
     local ran_pos = air[random(#air)]
     local ent = minetest.add_entity(ran_pos, name)
     minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.2, max_hear_distance = 6})
@@ -341,7 +376,6 @@ function animals.hatch_egg(pos, medium_name, replace_name, name, energy_egg, you
     mobkit.remember(ent,'energy', start_e)
     mobkit.remember(ent,'age',0)
     objcount = objcount + 1
-    cnt = cnt + 1
   end
 
   minetest.set_node(pos, {name = replace_name})

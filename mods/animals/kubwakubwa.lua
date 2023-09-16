@@ -263,7 +263,7 @@ minetest.register_node("animals:kubwakubwa_eggs", {
       minetest.remove_node(pos)
       return
     else
-      return animals.hatch_egg(pos, 'air', 'air', "animals:kubwakubwa", energy_egg, young_per_egg)
+      return animals.hatch_egg(pos, 'air', 'air', "animals:kubwakubwa", self_data)
     end
 	end,
 })

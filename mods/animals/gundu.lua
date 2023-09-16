@@ -314,7 +314,7 @@ minetest.register_node("animals:gundu_eggs", {
     local energy_egg = self_data.energy_egg
     local young_per_egg = self_data.young_per_egg
     
-		return animals.hatch_egg(pos, 'nodes_nature:salt_water_source', 'nodes_nature:salt_water_flowing', "animals:gundu", energy_egg, young_per_egg)
+		return animals.hatch_egg(pos, 'nodes_nature:salt_water_source', 'nodes_nature:salt_water_flowing', "animals:gundu", self_data)
 	end,
 })
 
