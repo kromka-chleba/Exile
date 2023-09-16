@@ -448,10 +448,23 @@ function animals.hq_roam_comfort_temp(self,prty)
         return true
       end
       
+      local numstring = "12345678" -- save as a string cause idk, maybe better memory and storage wise?
+      local function get_reachable_node()
+        -- get a random number from 1 to length of numstring and then remove it from numstring
+        -- gets a number for a position index in mobkit's reachable_node
+        local length = string.len(numstring)
+        
+        local num = random(1,length)
+        num = tonumber(string.sub(numstring,num,num)) -- got number
+        numstring = string.gsub(numstring,tostring(num),"") -- erase number from numberstring
+        
+        return mobkit.is_neighbor_node_reachable(self,num)
+      end
+      
       local height, tpos, liquidflag
       local best_temp
       for i = 1, 8, 1 do -- try 8 times to find a good node
-        local h, tp, lf = mobkit.is_neighbor_node_reachable(self,i) -- shortened versions of "height, tpos, liquidflag"
+        local h, tp, lf = get_reachable_node() -- shortened versions of "height, tpos, liquidflag"
         if (h and not lf) then -- if height somethin' and if provided pos is not a liquid
           local tempn = climate.get_point_temp(tp)
           local temp_c,temp_s = temp_comfy(self,tempn) -- temp_comfy (is the provided pos a comfortable temp?), temp_status (utilized to check whether too hot or too cold)
