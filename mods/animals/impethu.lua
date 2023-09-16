@@ -80,14 +80,14 @@ local function brain(self)
 
 			if light <= 5 then
 				if not rival and energy < self.energy_max then
-					energy = energy + 2
+					energy = energy + random(4,8)
 				end
 				mobkit.animate(self,'walk')
 				mobkit.hq_roam(self,10)
 			else
 				--random search for darkness
 				--fatigued by light
-				energy = energy - 1
+				energy = energy - random(1,4)
 				animals.hq_roam_dark(self,15)
 			end
 
