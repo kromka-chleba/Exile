@@ -255,7 +255,6 @@ minetest.register_node("animals:kubwakubwa_eggs", {
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
 	end,
 	on_timer = function(pos, elapsed)
-    local egg_timer = self_data.egg_timer
     local energy_egg = self_data.energy_egg
     local young_per_egg = self_data.young_per_egg
     
