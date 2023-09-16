@@ -319,29 +319,35 @@ end
 ----------------------------------------------------
 -- get an amount of offspring to release
 function animals.calculate_egg_young(self)
-  if (type(self) ~= "table" or type(self) ~= "userdata") then
-    return
+  local young_per_egg = self -- in case you just want to pass the young_per_egg instead
+  if (type(self) == "table" or type(self) == "userdata") then
+    if (self.young_per_egg) then
+      young_per_egg = self.young_per_egg
+    end
   end
-  
-  local young_per_egg = self.young_per_egg
   
   if (type(young_per_egg) == "table") then
     -- allow for randomized amount of young per egg
-    if (type(young_per_egg[1]) ~= "number" and type(young_per_egg[2]) ~= "number") then
-      return false
+    if (type(young_per_egg[1]) == "number" and type(young_per_egg[2]) ~= "number") then
+      -- if only one number provided, use that
+      young_per_egg = {young_per_egg[1],young_per_egg[1]}
+    elseif (type(young_per_egg[1]) ~= "number" and type(young_per_egg[2]) ~= "number") then
+      return
     end
     young_per_egg = random(young_per_egg[1],young_per_egg[2])
   end
   
   if (type(young_per_egg) == "number") then
     return young_per_egg
+  else
+    return
   end
 end
 
 ----------------------------------------------------
 --release offspring from an egg (called from timers)
 function animals.hatch_egg(pos, medium_name, replace_name, name, self) --name, energy_egg, young_per_egg)
-  if (type(self) ~= "table" or type(self) ~= "userdata") then
+  if (type(self) ~= "table" and type(self) ~= "userdata") then
     return false
   end
    
