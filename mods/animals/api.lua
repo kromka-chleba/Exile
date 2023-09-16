@@ -481,7 +481,8 @@ function animals.hq_roam_comfort_temp(self,prty)
               best_temp = tempn
             end
             
-            if ((random(4) == 4 and tempn == best_temp) or best_temp ~= old_bt) then -- 1 in 4 chance to choose a different position (only if best_temp is equal to tempn - no running into fire or coldness) 
+            if ((random(4) == 4 and tempn == best_temp or random(16) == 16) or best_temp ~= old_bt) then -- 1 in 4 chance to choose a different position (only if best_temp is equal to tempn - no running into fire or coldness) 
+              -- 1 in 16 chance just to say screw it and go to a bad temp
               -- update height, tpos, and liquidflag if a better position has been found
               height, tpos, liquidflag = h, tp, lf -- set height, tpos, and liquidflag
             end
