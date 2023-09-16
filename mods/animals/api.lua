@@ -183,7 +183,7 @@ function animals.core_life(self, lifespan, pos)
 
   local energy = mobkit.recall(self,'energy')
   local age = mobkit.recall(self,'age')
-  local hbnate = mobkit.recall(self,'hibernate')
+  local conserve = mobkit.recall(self,'conserve')
   
   local energy_loss = self.energy_loss or 0.25
 
@@ -194,14 +194,14 @@ function animals.core_life(self, lifespan, pos)
   if not age then
     age = 0
   end
-  if not hbnate then
-    hbnate = false
+  if not conserve then
+    conserve = false
   end
 
   age = age + 1
-  if (hbnate == false) then
+  if (conserve == false) then
     energy = energy - energy_loss
-  elseif (random() <= 0.005) then -- 0.5% chance to lose energy during hibernation
+  elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
     energy = energy - energy_loss
   end
 
@@ -239,7 +239,7 @@ function animals.core_life(self, lifespan, pos)
         animals.hq_roam_comfort_temp(self,42)
       end
       
-      hbnate = false -- moving around, thus not hibernating
+      conserve = false -- moving around, thus not conserving energy
     end
     -- lose energy from discomfort
     energy = energy - math.random(4,8)
@@ -281,12 +281,12 @@ function animals.core_life(self, lifespan, pos)
     end
   end
   
-  if (hbnate == true) then
+  if (conserve == true) then
     mobkit.clear_queue_low(self)
     mobkit.animate(self,"dead")
   end
 
-  return age, energy, hbnate
+  return age, energy, conserve
 end
 
 
@@ -791,13 +791,13 @@ function animals.on_punch(self, tool_capabilities, puncher, prty, chance)
   if mobkit.is_alive(self) then
     --do damage
     mobkit.clear_queue_high(self)
-    local hbnate = mobkit.recall(self,'hibernate')
+    local conserve = mobkit.recall(self,'conserve')
     local dmg = tool_capabilities.damage_groups.fleshy or 1
     mobkit.hurt(self,dmg)
     mobkit.make_sound(self,'punch')
     --fight or flight
     --flee if hurt (or hibernating!)
-    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or hbnate == true then 
+    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or conserve == true then 
       mobkit.animate(self,'fast')
       mobkit.make_sound(self,'warn')
       mobkit.hq_runfrom(self, prty, puncher)
