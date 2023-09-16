@@ -12,14 +12,6 @@ local S = animals.S
 local random = math.random
 local floor = math.floor
 
---energy
-local energy_max = 5000--secs it can survive without food
-local energy_egg = energy_max/10 --energy that goes to egg
-local egg_timer  = 120*5
-local young_per_egg = 5		--will get this/energy_egg starting energy
-
-local lifespan = energy_max * 4
-
 
 
 -----------------------------------
@@ -34,7 +26,7 @@ local function brain(self)
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, lifespan, pos)
+		local age, energy = animals.core_life(self, self.lifespan, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -87,7 +79,7 @@ local function brain(self)
 			local light = (minetest.get_node_light(pos) or 0)
 
 			if light <= 5 then
-				if not rival and energy < energy_max then
+				if not rival and energy < self.energy_max then
 					energy = energy + 2
 				end
 				mobkit.animate(self,'walk')
@@ -104,8 +96,8 @@ local function brain(self)
 			--asexual parthogenesis, eggs
 			if random() < 0.005 then
 				if not rival
-				and energy >= energy_max then
-					energy = animals.place_egg(pos, "animals:impethu_eggs", energy, energy_egg, 'air')
+				and energy >= self.energy_max then
+					energy = animals.place_egg(pos, "animals:impethu_eggs", energy, self.energy_egg, 'air')
 				end
 			end
 
@@ -136,47 +128,13 @@ end
 -- the CREATURE
 ---------------
 
---eggs
-minetest.register_node("animals:impethu_eggs", {
-	description = S('Impethu Eggs'),
-	tiles = {"animals_sneachan_eggs.png^[multiply:#c49a82"},
-	stack_max = minimal.stack_max_medium,
-	drawtype = "nodebox",
-	paramtype = "light",
-	node_box = {
-		type = "fixed",
-		fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08},
-	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-		local light = (minetest.get_node_light(pos) or 0)
-		if light <= 5 then
-			return animals.hatch_egg(pos, 'air', 'air', "animals:impethu", energy_egg, young_per_egg)
-		else
-			return true
-		end
-	end,
-})
-
-
-
-
-
-
-----------------------------------------------
 -- SETTING OF IMPETHU INTERACTOR SETTINGS
 animals.add_interactors("predators","impethu","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
 animals.add_interactors("rivals","impethu","animals:sneachan", "animals:impethu")
 
-
 ----------------------------------------------
-
---The Animal
-minetest.register_entity("animals:impethu",{
+-- The Animal
+local self_data = {
 	--core
 	physical = true,
 	collide_with_objects = true,
@@ -188,16 +146,12 @@ minetest.register_entity("animals:impethu",{
 	makes_footstep_sound = false,
 	timeout = 0,
 
-	--damage
+	-- animal stats
 	max_hp = 3,
 	lung_capacity = 10,
+  -- comfort temps
 	min_temp = 2,
 	max_temp = 56,
-
-	--interaction
-	predators = animals.get_interactors("impethu","predators"), 
-	rivals = animals.get_interactors("impethu","rivals"),
-  
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
 
@@ -242,6 +196,10 @@ minetest.register_entity("animals:impethu",{
 	--attack
 	attack={range=0.3, damage_groups={fleshy=1}},
 	armor_groups = {fleshy=100},
+  
+  --interaction
+	predators = animals.get_interactors("impethu","predators"), 
+	rivals = animals.get_interactors("impethu","rivals"),
 
 	--on actions
 	drops = {
@@ -256,11 +214,50 @@ minetest.register_entity("animals:impethu",{
 		end
 		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
+}
+---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
+-- energy and eggs
+self_data.energy_max = 5000   --secs it can survive without food
+self_data.energy_egg = self_data.energy_max/10  --energy that goes to egg
+self_data.egg_timer = 60*10
+self_data.young_per_egg = 5		--will get this/energy_egg starting energy
+-- lifespan
+self_data.lifespan = self_data.energy_max * 4
+---------------------;
+minetest.register_entity("animals:impethu",self_data)
+
+----------------------------------------------
+--eggs
+minetest.register_node("animals:impethu_eggs", {
+	description = S('Impethu Eggs'),
+	tiles = {"animals_sneachan_eggs.png^[multiply:#c49a82"},
+	stack_max = minimal.stack_max_medium,
+	drawtype = "nodebox",
+	paramtype = "light",
+	node_box = {
+		type = "fixed",
+		fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08},
+	},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
+	sounds = nodes_nature.node_sound_defaults(),
+	on_construct = function(pos)
+    local egg_timer = self_data.egg_timer
+		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+	end,
+	on_timer =function(pos, elapsed)
+    local egg_timer = self_data.egg_timer
+    local energy_egg = self_data.energy_egg
+    local young_per_egg = self_data.young_per_egg
+    
+		local light = (minetest.get_node_light(pos) or 0)
+		if light <= 5 then
+			return animals.hatch_egg(pos, 'air', 'air', "animals:impethu", energy_egg, young_per_egg)
+		else
+			return true
+		end
+	end,
 })
 
 
-
-
-
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:impethu", S("Live Impethu"), "animals_impethu_item.png", minimal.stack_max_medium, energy_egg)
+animals.register_egg("animals:impethu", S("Live Impethu"), "animals_impethu_item.png", minimal.stack_max_medium, self_data.energy_egg)
