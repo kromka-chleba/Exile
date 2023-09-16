@@ -248,8 +248,17 @@ minetest.register_node("animals:impethu_eggs", {
 		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
 	end,
 	on_timer =function(pos, elapsed)
+    local egg_timer = self_data.egg_timer
     local energy_egg = self_data.energy_egg
     local young_per_egg = self_data.young_per_egg
+    
+    local temp = climate.get_point_temp(pos)
+    
+    if (temp < (self_data.min_temp + 3)) then
+      -- don't hatch and keep timer going if temp is too uncomfortably cold
+      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+      return false
+    end
     
     return animals.hatch_egg(pos, 'air', 'air', "animals:impethu", self_data)
 	end,
