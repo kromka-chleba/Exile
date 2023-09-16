@@ -223,7 +223,7 @@ function animals.core_life(self, lifespan, pos)
   if temp < self.min_temp or temp > self.max_temp then
     -- if this temperature is uncomfortable, try to find somewhere else!
     
-    local killer_min_temp = self.min_temp - 10
+    local killer_min_temp = self.min_temp - 7
     local killer_max_temp = self.max_temp + 25
     local burn_max_temp = killer_max_temp + 55
     
