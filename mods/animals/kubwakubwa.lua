@@ -219,7 +219,7 @@ local self_data = {
 -- energy and eggs
 self_data.energy_max = 8000   --secs it can survive without food
 self_data.energy_egg = self_data.energy_max/2  --energy that goes to egg
-self_data.egg_timer = 60*35
+self_data.egg_timer = 60*20
 self_data.young_per_egg = {3,4}   --will get this/energy_egg starting energy
 self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.4 -- conserve min (minimum point at when to conserve energy)
 -- lifespan
@@ -254,7 +254,7 @@ minetest.register_node("animals:kubwakubwa_eggs", {
     
     if (temp < self_data.min_temp + 3) then
       -- too cold to hatch, wait again
-      return false
+      return true
     end
     
     return animals.hatch_egg(pos, 'air', 'air', "animals:kubwakubwa", self_data)
