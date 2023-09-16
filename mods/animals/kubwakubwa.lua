@@ -14,14 +14,14 @@ local random = math.random
 local floor = math.floor
 
 --energy
-local energy_max = 8000--secs it can survive without food
-local energy_egg = energy_max/2 --energy that goes to egg
-local egg_timer  = 60*35
-local young_per_egg = 4		--will get this/energy_egg starting energy
-local hb_min = (energy_egg / young_per_egg) * 0.4 -- hibernate minimum requirement (40% of young_per_egg energy value)
+--local energy_max = 8000--secs it can survive without food
+--local energy_egg = energy_max/2 --energy that goes to egg
+--local egg_timer  = 60*35
+--local young_per_egg = 4		--will get this/energy_egg starting energy
+--local hb_min = (energy_egg / young_per_egg) * 0.4 -- hibernate minimum requirement (40% of young_per_egg energy value)
 
-local lifespan = energy_max * 6
-local mature_age = energy_max / 2
+--local lifespan = energy_max * 6
+--local mature_age = energy_max / 2
 
 
 
@@ -37,7 +37,7 @@ local function brain(self)
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy, hbnate = animals.core_life(self, lifespan, pos)
+		local age, energy, conserve = animals.core_life(self, self.lifespan, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -66,7 +66,7 @@ local function brain(self)
 
 			if (animals.predator_avoid(self, 55, 0.15) or plyr) then
         prty = 55
-        hbnate = false -- on the move, no more hibernating
+        conserve = false -- on the move, no more conserving
       end
 
 		end
@@ -75,7 +75,7 @@ local function brain(self)
 		----------------------
 		--Low priority actions
 
-		if prty < 20 and hbnate ~= true then
+		if prty < 20 and conserve ~= true then
 
 			--territorial behaviour
 			local rival = animals.territorial(self, energy, true)
@@ -83,13 +83,13 @@ local function brain(self)
 
 			--feeding
 			--hunt prey
-			if energy < energy_max then
+			if energy < self.energy_max then
 				if not animals.prey_hunt(self, 25) then
 					--random search for darkness
 					animals.hq_roam_dark(self,15)
           
-          if (energy <= hb_min) then
-            hbnate = true
+          if (energy <= self.cn_min) then
+            conserve = true
           end
 				end
 			end
@@ -100,19 +100,19 @@ local function brain(self)
 			if random() < 0.1
 			and not rival
 			and self.hp >= self.max_hp
-			and energy >= energy_egg + 100
-      and age >= mature_age then
-				energy = animals.place_egg(pos, "animals:kubwakubwa_eggs", energy, energy_egg, 'air')
+			and energy >= self.energy_egg + 100
+      and age >= self.mature_age then
+				energy = animals.place_egg(pos, "animals:kubwakubwa_eggs", energy, self.energy_egg, 'air')
 			end
-    elseif (hbnate == true) then
+    elseif (conserve == true) then
       if (animals.prey_hunt(self,40)) then
-        hbnate = false -- found prey, get out of hibernation
+        conserve = false -- found prey, get out of hibernation
       end
 		end
 
 		-------------------
 		--generic behaviour
-		if mobkit.is_queue_empty_high(self) and hbnate ~= true then
+		if mobkit.is_queue_empty_high(self) and conserve ~= true then
 			mobkit.animate(self,'walk')
 			animals.hq_roam_dark(self,10,1)
 		end
@@ -122,7 +122,7 @@ local function brain(self)
 		--save energy, age
 		mobkit.remember(self,'energy',energy)
 		mobkit.remember(self,'age',age)
-    mobkit.remember(self,'hibernate',hbnate)
+    mobkit.remember(self,'conserve',conserve)
 
 	end
 end
@@ -135,7 +135,7 @@ local function hatch_egg(pos)
         minetest.remove_node(pos)
         return
     else
-        return animals.hatch_egg(pos, 'air', 'air', "animals:kubwakubwa", energy_egg, young_per_egg)
+        return animals.hatch_egg(pos, 'air', 'air', "animals:kubwakubwa", self.energy_egg, self.young_per_egg)
     end
 end
 
@@ -143,32 +143,6 @@ end
 ---------------
 -- the CREATURE
 ---------------
-
---eggs
-minetest.register_node("animals:kubwakubwa_eggs", {
-	description = S('Kubwakubwa Eggs'),
-	tiles = {"animals_kubwakubwa_eggs.png"},
-	stack_max = minimal.stack_max_medium,
-	drawtype = "nodebox",
-	paramtype = "light",
-	node_box = {
-		type = "fixed",
-		fixed = {-0.0625, -0.5, -0.0625,  0.0625, -0.375, 0.0625},
-	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer = function(pos, elapsed)
-            return hatch_egg(pos)
-	end,
-})
-
-
-
-
-
 
 ----------------------------------------------
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
@@ -178,9 +152,8 @@ animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa","animals:pega
 
 
 ----------------------------------------------
-
 --The Animal
-minetest.register_entity("animals:kubwakubwa",{
+local self_data = {
 	--core
 	physical = true,
 	collide_with_objects = true,
@@ -193,17 +166,12 @@ minetest.register_entity("animals:kubwakubwa",{
 	timeout = 0,
 
 
-	--damage
+	-- animal stats
 	max_hp = 20,
 	lung_capacity = 20,
+  -- comfort temps
 	min_temp = -4,
 	max_temp = 56,
-
-	--interaction
-	predators = animals.get_interactors("kubwakubwa","predators"),
-	rivals = animals.get_interactors("kubwakubwa","rivals"),
-	prey = animals.get_interactors("kubwakubwa","prey"),
-  
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
 
@@ -245,6 +213,11 @@ minetest.register_entity("animals:kubwakubwa",{
 	--attack
 	attack={range=0.4, damage_groups={fleshy=4}},
 	armor_groups = {fleshy=100},
+  
+  --interaction
+	predators = animals.get_interactors("kubwakubwa","predators"),
+	rivals = animals.get_interactors("kubwakubwa","rivals"),
+	prey = animals.get_interactors("kubwakubwa","prey"),
 
 	--on actions
 	drops = {
@@ -259,10 +232,45 @@ minetest.register_entity("animals:kubwakubwa",{
 		end
 		animals.stun_catch_mob(self, clicker, 0.1)
 	end,
+}
+---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
+-- energy and eggs
+self_data.energy_max = 8000   --secs it can survive without food
+self_data.energy_egg = self_data.energy_max/2  --energy that goes to egg
+self_data.egg_timer = 60*35
+self_data.young_per_egg = 4   --will get this/energy_egg starting energy
+self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg) * 0.4 -- conserve min (minimum point at when to conserve energy)
+-- lifespan
+self_data.lifespan = self_data.energy_max * 6
+self_data.mature_age = self_data.energy_max/2
+---------------------;
+minetest.register_entity("animals:kubwakubwa",self_data)
+
+----------------------------------------------
+--eggs
+minetest.register_node("animals:kubwakubwa_eggs", {
+	description = S('Kubwakubwa Eggs'),
+	tiles = {"animals_kubwakubwa_eggs.png"},
+	stack_max = minimal.stack_max_medium,
+	drawtype = "nodebox",
+	paramtype = "light",
+	node_box = {
+		type = "fixed",
+		fixed = {-0.0625, -0.5, -0.0625,  0.0625, -0.375, 0.0625},
+	},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
+	sounds = nodes_nature.node_sound_defaults(),
+	on_construct = function(pos)
+    local egg_timer = self_data.egg_timer
+		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+	end,
+	on_timer = function(pos, elapsed)
+    return hatch_egg(pos)
+	end,
 })
 
 
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:kubwakubwa", S("Live Kubwakubwa"), "animals_kubwakubwa_item.png", minimal.stack_max_medium, energy_egg)
+animals.register_egg("animals:kubwakubwa", S("Live Kubwakubwa"), "animals_kubwakubwa_item.png", minimal.stack_max_medium, self_data.energy_egg)
