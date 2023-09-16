@@ -222,7 +222,7 @@ local self_data = {
 -- energy and eggs
 self_data.energy_max = 5000   --secs it can survive without food
 self_data.energy_egg = self_data.energy_max/10  --energy that goes to egg
-self_data.egg_timer = 60*10
+self_data.egg_timer = 6--60*10
 self_data.young_per_egg = {2,4}		--will get this/energy_egg starting energy
 -- lifespan
 self_data.lifespan = self_data.energy_max * 4
@@ -251,12 +251,7 @@ minetest.register_node("animals:impethu_eggs", {
     local energy_egg = self_data.energy_egg
     local young_per_egg = self_data.young_per_egg
     
-		local light = (minetest.get_node_light(pos) or 0)
-		if light <= 5 then
-			return animals.hatch_egg(pos, 'air', 'air', "animals:impethu", self_data)
-		else
-			return true
-		end
+    return animals.hatch_egg(pos, 'air', 'air', "animals:impethu", self_data)
 	end,
 })
 
