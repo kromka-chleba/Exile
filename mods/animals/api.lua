@@ -44,7 +44,7 @@ local function flee_sound(self)
 end
 
 -- ask if the temperature is comfy for the lil creature
-local function temp_comfy(self,temp)
+function animals.temp_comfy(self,temp)
   if (type(temp) ~= "number") then
     return false
   end
@@ -409,6 +409,14 @@ function animals.hq_roam_dark(self,prty)
        local neighbor = random(8)
 
        local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
+       
+      if (tpos) then
+        local temp = climate.get_point_temp(tpos)
+        if not (animals.temp_comfy(self,temp)) then
+          -- do not go to this position
+          height = nil
+        end
+      end
 
        if height and not liquidflag then
        local light = minetest.get_node_light(pos, 0.5) or 0
@@ -443,7 +451,7 @@ function animals.hq_roam_comfort_temp(self,prty)
       local pos = mobkit.get_stand_pos(self)
       local temp = climate.get_point_temp(pos)
       
-      if (temp_comfy(self,temp)) then
+      if (animals.temp_comfy(self,temp)) then
         -- if temperature is comfortable then end the search
         return true
       end
@@ -467,7 +475,7 @@ function animals.hq_roam_comfort_temp(self,prty)
         local h, tp, lf = get_reachable_node() -- shortened versions of "height, tpos, liquidflag"
         if (h and not lf) then -- if height somethin' and if provided pos is not a liquid
           local tempn = climate.get_point_temp(tp)
-          local temp_c,temp_s = temp_comfy(self,tempn) -- temp_comfy (is the provided pos a comfortable temp?), temp_status (utilized to check whether too hot or too cold)
+          local temp_c,temp_s = animals.temp_comfy(self,tempn) -- temp_comfy (is the provided pos a comfortable temp?), temp_status (utilized to check whether too hot or too cold)
           
           if (temp_s or temp_c == true) then
             -- let's make sure the animal goes to the best suitable temperature
@@ -529,6 +537,14 @@ function animals.hq_roam_surface_group(self, group, prty)
       local neighbor = random(8)
 
       local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self, neighbor)
+      
+      if (tpos) then
+        local temp = climate.get_point_temp(tpos)
+        if not (animals.temp_comfy(self,temp)) then
+          -- do not go to this position
+          height = nil
+        end
+      end
 
       if height and not liquidflag then
         --is it the correct group?
@@ -576,6 +592,14 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty) -- self, g
 
        local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(
 	  self, neighbor)
+  
+      if (tpos) then
+        local temp = climate.get_point_temp(tpos)
+        if not (animals.temp_comfy(self,temp)) then
+          -- do not go to this position
+          height = nil
+        end
+      end
 
        if height and not liquidflag then
         --is it the correct?
