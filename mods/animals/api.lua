@@ -300,7 +300,7 @@ function animals.place_egg(self, pos, e, medium) -- self, position, energy, medi
   end
   local p = mobkit.get_node_pos(pos)
   local e_egg = self.energy_egg
-  local egg_name = self.egg_name or self.name.."_eggs"
+  local egg_name = self.egg_name or self.name.."_eggs" -- seek a "self.egg_name" or create an egg_name using the placer's name
   local max_pop = self.max_pop or max_objects
   
   -- remove male or baby identifier when checking names
@@ -354,7 +354,7 @@ end
 
 ----------------------------------------------------
 --release offspring from an egg (called from timers)
-function animals.hatch_egg(self, pos, medium, replace, name)--pos, medium, replace, name, self) --name, energy_egg, young_per_egg)
+function animals.hatch_egg(self, pos, medium, replace, name) -- self, position, medium (to spawn entities in - can be nil), replace (replace with - can be nil), name (optional, but required if not included in self)
   if (type(self) ~= "table" and type(self) ~= "userdata") then
     return false
   end
