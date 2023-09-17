@@ -97,7 +97,7 @@ local function brain(self)
 			if random() < 0.005 then
 				if not rival
 				and energy >= self.energy_max then
-					energy = animals.place_egg(pos, "animals:impethu_eggs", energy, self.energy_egg, 'air')
+					energy = animals.place_egg(self, pos, 'air')
 				end
 			end
 
@@ -135,6 +135,7 @@ animals.add_interactors("rivals","impethu","animals:sneachan", "animals:impethu"
 ----------------------------------------------
 -- The Animal
 local self_data = {
+  name = "animals:impethu",
 	--core
 	physical = true,
 	collide_with_objects = true,
@@ -260,7 +261,7 @@ minetest.register_node("animals:impethu_eggs", {
       return false
     end
     
-    return animals.hatch_egg(pos, 'air', 'air', "animals:impethu", self_data)
+    return animals.hatch_egg(self_data, pos)
 	end,
 })
 

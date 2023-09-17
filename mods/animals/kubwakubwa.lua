@@ -91,7 +91,7 @@ local function brain(self)
 			and self.hp >= self.max_hp
 			and energy >= self.energy_egg + 100
       and age >= self.mature_age then
-				energy = animals.place_egg(pos, "animals:kubwakubwa_eggs", energy, self.energy_egg, 'air')
+				energy = animals.place_egg(self, pos)
 			end
     elseif (conserve == true) then
       if (animals.prey_hunt(self,40)) then
@@ -133,6 +133,7 @@ animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa","animals:pega
 ----------------------------------------------
 --The Animal
 local self_data = {
+  name = "animals:kubwakubwa",
 	--core
 	physical = true,
 	collide_with_objects = true,
@@ -257,7 +258,7 @@ minetest.register_node("animals:kubwakubwa_eggs", {
       return true
     end
     
-    return animals.hatch_egg(pos, 'air', 'air', "animals:kubwakubwa", self_data)
+    return animals.hatch_egg(self_data, pos)
 	end,
 })
 

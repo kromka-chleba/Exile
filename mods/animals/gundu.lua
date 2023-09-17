@@ -163,7 +163,7 @@ local function brain(self)
 			and ( tod <0.5 ) -- only lay at night
 			and self.hp >= self.max_hp
 			and energy >= self.energy_max - 100 then
-				energy = animals.place_egg(pos, "animals:gundu_eggs", energy, self.energy_egg, 'nodes_nature:salt_water_source')
+				energy = animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
 			end
 
 		end
@@ -203,6 +203,7 @@ animals.add_interactors("friends","gundu","animals:gundu")
 ----------------------------------------------
 --The Animal
 local self_data = {
+  name = "animals:gundu",
 	--core
 	physical = true,
 	collide_with_objects = true,
@@ -314,7 +315,7 @@ minetest.register_node("animals:gundu_eggs", {
     local energy_egg = self_data.energy_egg
     local young_per_egg = self_data.young_per_egg
     
-		return animals.hatch_egg(pos, 'nodes_nature:salt_water_source', 'nodes_nature:salt_water_flowing', "animals:gundu", self_data)
+		return animals.hatch_egg(self_data, pos, 'nodes_nature:salt_water_source', 'nodes_nature:salt_water_flowing')
 	end,
 })
 

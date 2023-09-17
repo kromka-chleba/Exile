@@ -293,22 +293,31 @@ end
 
 ----------------------------------------------------
 --put an egg in the world, return energy
-function animals.place_egg(pos, egg_name, energy, energy_egg, medium)
-  
+function animals.place_egg(self, pos, medium)
+  -- uses self's energy and energy_egg (with optional max_pop)
+  if (medium == nil or medium == "") then
+    medium = "air"
+  end
   local p = mobkit.get_node_pos(pos)
-  local e = energy
-  local animal_name = string.gsub(egg_name,"_eggs","")
-  animal_name = string.gsub(animal_name,"_egg","") -- incase it is singular
-  local objcount = #animals.get_entities_inside_radius(animal_name,pos,mo_check_radius)
+  local e = self.energy
+  local e_egg = self.energy_egg
+  local egg_name = self.egg_name or self.name.."_eggs"
+  local max_pop = self.max_pop or max_objects
+  
+  -- remove male or baby identifier when checking names
+  local check_name = string.gsub(self.name,"_male","")
+  check_name = string.gsub(self.name,"_baby","")
+  
+  local objcount = #animals.get_entities_inside_radius(check_name,pos,mo_check_radius)
 
-  if minetest.get_node(p).name == medium and objcount < max_objects then
+  if minetest.get_node(p).name == medium and objcount <= max_pop then
 
     local posu = {x = p.x, y = p.y - 1, z = p.z}
     local n = mobkit.nodeatpos(posu)
 
     if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
       minetest.set_node(p, {name = egg_name})
-      e = energy - energy_egg
+      e = e - e_egg
     end
 
   end
@@ -346,14 +355,24 @@ end
 
 ----------------------------------------------------
 --release offspring from an egg (called from timers)
-function animals.hatch_egg(pos, medium_name, replace_name, name, self) --name, energy_egg, young_per_egg)
+function animals.hatch_egg(self, pos, medium, replace, name)--pos, medium, replace, name, self) --name, energy_egg, young_per_egg)
   if (type(self) ~= "table" and type(self) ~= "userdata") then
     return false
+  end
+  
+  if (medium == nil or medium == "") then
+    medium = "air"
+  end
+  if (replace == nil or replace == "") then
+    replace = "air"
   end
    
   local energy_egg = self.energy_egg
   local young_per_egg = animals.calculate_egg_young(self)
   local max_pop = self.max_pop or max_objects
+  if (type(name) ~= "string") then
+    name = self.name
+  end
   
   if not name or not energy_egg or not young_per_egg then
     return false
@@ -361,16 +380,20 @@ function animals.hatch_egg(pos, medium_name, replace_name, name, self) --name, e
   
    local air = minetest.find_nodes_in_area(
       {x=pos.x-1, y=pos.y-1, z=pos.z-1},
-      {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium_name})
+      {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium})
   --if can't find the stuff this mob moves through then it dies
 	if #air < 1 then
-		minetest.set_node(pos, {name = replace_name})
+		minetest.set_node(pos, {name = replace})
 		return false
 	end
+  
+  -- remove male or baby identifier when checking names
+  local check_name = string.gsub(name,"_male","")
+  check_name = string.gsub(name,"_baby","")
 
   local cnt = 0
   local start_e = math.floor(energy_egg/young_per_egg)
-  local objcount = #animals.get_entities_inside_radius(name, pos, mo_check_radius)
+  local objcount = #animals.get_entities_inside_radius(check_name, pos, mo_check_radius)
   for i = 1, young_per_egg, 1 do
     if (objcount >= max_pop) then
       break
@@ -384,7 +407,7 @@ function animals.hatch_egg(pos, medium_name, replace_name, name, self) --name, e
     objcount = objcount + 1
   end
 
-  minetest.set_node(pos, {name = replace_name})
+  minetest.set_node(pos, {name = replace})
   return false
 
 end
