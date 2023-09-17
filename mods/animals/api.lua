@@ -377,7 +377,7 @@ function animals.hatch_egg(pos, medium_name, replace_name, name, self) --name, e
     end
     local ran_pos = air[random(#air)]
     local ent = minetest.add_entity(ran_pos, name)
-    minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.7, max_hear_distance = 8})
+    minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.8, max_hear_distance = 8})
     ent = ent:get_luaentity()
     mobkit.remember(ent,'energy', start_e)
     mobkit.remember(ent,'age',0)
