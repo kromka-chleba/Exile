@@ -111,7 +111,7 @@ local function brain(self)
 
 			--reproduction
 			--asexual parthogenesis, eggs
-			if random() < 0.01
+			if random() < 0.02
 			and not rival
 			and not pred
 			and self.hp >= self.max_hp
