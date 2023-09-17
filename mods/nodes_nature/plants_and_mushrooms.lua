@@ -465,6 +465,9 @@ minetest.register_craftitem(
             if sediment > 0 and above.name == "air" then
                 minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_fruitless"})
                 plant.set_to_domesticated(pointed_thing.above)
+                if not minimal.player_in_creative(placer) then
+                    itemstack:take_item()
+                end
             end
             return itemstack
         end,
@@ -486,6 +489,9 @@ minetest.register_craftitem(
             if sediment > 0 and above.name == "air" then
                 minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_seedling5"})
                 plant.set_to_domesticated(pointed_thing.above)
+                if not minimal.player_in_creative(placer) then
+                    itemstack:take_item()
+                end
             end
             return itemstack
         end,
