@@ -116,7 +116,7 @@ local function brain(self)
 			and not pred
 			and self.hp >= self.max_hp
 			and energy >= self.energy_max then
-				energy = animals.place_egg(self, pos)
+				energy = animals.place_egg(self, pos, energy)
 			end
 
 		end

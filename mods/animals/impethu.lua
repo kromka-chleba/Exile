@@ -97,7 +97,7 @@ local function brain(self)
 			if random() < 0.005 then
 				if not rival
 				and energy >= self.energy_max then
-					energy = animals.place_egg(self, pos, 'air')
+					energy = animals.place_egg(self, pos, energy)
 				end
 			end
 

@@ -293,13 +293,12 @@ end
 
 ----------------------------------------------------
 --put an egg in the world, return energy
-function animals.place_egg(self, pos, medium)
+function animals.place_egg(self, pos, e, medium) -- self, position, energy, medium
   -- uses self's energy and energy_egg (with optional max_pop)
   if (medium == nil or medium == "") then
     medium = "air"
   end
   local p = mobkit.get_node_pos(pos)
-  local e = self.energy
   local e_egg = self.energy_egg
   local egg_name = self.egg_name or self.name.."_eggs"
   local max_pop = self.max_pop or max_objects

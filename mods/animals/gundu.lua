@@ -163,7 +163,7 @@ local function brain(self)
 			and ( tod <0.5 ) -- only lay at night
 			and self.hp >= self.max_hp
 			and energy >= self.energy_max - 100 then
-				energy = animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
+				energy = animals.place_egg(self, pos, energy, 'nodes_nature:salt_water_source')
 			end
 
 		end

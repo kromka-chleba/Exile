@@ -91,7 +91,7 @@ local function brain(self)
 			and self.hp >= self.max_hp
 			and energy >= self.energy_egg + 100
       and age >= self.mature_age then
-				energy = animals.place_egg(self, pos)
+				energy = animals.place_egg(self, pos, energy)
 			end
     elseif (conserve == true) then
       if (animals.prey_hunt(self,40)) then
