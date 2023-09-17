@@ -204,7 +204,30 @@ for i = 1, #registered_sediments do
     props.groups.roots = 1
     props.groups.spreading = 0
     props.use_texture_alpha = c_alpha.blend
-    props.overlay_tiles = {{name = "nodes_nature_roots.png"}, "", ""}
+    local root_texture = ""
+    if props.groups.winter_soil and props.groups.winter_soil > 0 then
+        root_texture = "nodes_nature_roots_winter.png"
+    else
+        root_texture = "nodes_nature_roots.png"
+    end
+    if props.groups.agricultural_soil and
+        props.groups.agricultural_soil > 0 or
+        props.groups.depleted_agricultural_soil and
+        props.groups.depleted_agricultural_soil > 0 then
+        props.tiles = {
+            {name = props.tiles[1].."^[combine:32x32:0,0="
+                 .."("..root_texture..")"..":0,16="
+            },
+            props.tiles[2],
+            props.tiles[3]
+        }
+    else
+        props.tiles = {
+            {name = props.tiles[1].."^"..root_texture},
+            props.tiles[2],
+            props.tiles[3]
+        }
+    end
     if props._non_winter_name then
         props._non_winter_name = props._non_winter_name.."_roots"
     end
