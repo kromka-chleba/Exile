@@ -63,6 +63,28 @@ function animals.temp_comfy(self,temp)
   return false
 end
 
+-- get a randomized position from mobkit's is_neighbor_node_reachable by sending a string that's 1 to 8 or like so:
+-- "12345678"
+-- the mobkit function only accepts numbers from 1 to 8, as it uses them to index a table
+-- returns the numstring
+local function get_reachable_node(self,numstring)
+  if (type(numstring) == "number") then
+    numstring = tostring(numstring)
+  end
+  if (type(numstring) ~= "string" or type(self) ~= "table" and type(self) ~= "userdata") then
+    return nil
+  end
+  -- get a random number from 1 to length of numstring and then remove it from numstring
+  -- gets a number for a position index in mobkit's reachable_node
+  local length = string.len(numstring)
+  
+  local num = random(1,length)
+  num = tonumber(string.sub(numstring,num,num)) -- got number
+  numstring = string.gsub(numstring,tostring(num),"") -- erase number from numberstring
+  
+  return numstring,mobkit.is_neighbor_node_reachable(self,num)
+end
+
 --------------------------------------------------------------------------
 --Life and death
 --------------------------------------------------------------------------
@@ -478,23 +500,14 @@ function animals.hq_roam_comfort_temp(self,prty)
         return true
       end
       
-      local numstring = "12345678" -- save as a string cause idk, maybe better memory and storage wise?
-      local function get_reachable_node()
-        -- get a random number from 1 to length of numstring and then remove it from numstring
-        -- gets a number for a position index in mobkit's reachable_node
-        local length = string.len(numstring)
-        
-        local num = random(1,length)
-        num = tonumber(string.sub(numstring,num,num)) -- got number
-        numstring = string.gsub(numstring,tostring(num),"") -- erase number from numberstring
-        
-        return mobkit.is_neighbor_node_reachable(self,num)
-      end
+      local numstring = 12345678 -- save as a string (or num :D) cause idk, maybe better memory and storage wise?
       
       local height, tpos, liquidflag
       local best_temp
       for i = 1, 8, 1 do -- try 8 times to find a good node
-        local h, tp, lf = get_reachable_node() -- shortened versions of "height, tpos, liquidflag"
+        local h, tp, lf
+        numstring, h, tp, lf = get_reachable_node(self,numstring) -- shortened versions of "height, tpos, liquidflag"
+        
         if (h and not lf) then -- if height somethin' and if provided pos is not a liquid
           local tempn = climate.get_point_temp(tp)
           local temp_c,temp_s = animals.temp_comfy(self,tempn) -- temp_comfy (is the provided pos a comfortable temp?), temp_status (utilized to check whether too hot or too cold)
@@ -635,12 +648,12 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty) -- self, g
           end
         end
         if (nodeapp == false) then
+          -- found a node to be ignored oop, don't walk to it
           return true
         end
-        nodeapp = false -- set false to be set true by next for loop
         for _,group in pairs(groups) do
           if (minetest.get_item_group(n_node,group) > 0) then -- if node is in a specified group then...
-            nodeapp = true
+            -- let's go it :D
             break
           end
         end
