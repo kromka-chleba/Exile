@@ -270,9 +270,9 @@ minetest.register_node("animals:sneachan_eggs", {
     local young_per_egg = self_data.young_per_egg
     
     local temp = climate.get_point_temp(pos)
-    if (temp <= 9 ) then
+    if (temp < 14 ) then
       -- don't hatch and keep timer going if temp is too uncomfortably cold
-      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*4))
       return false
     end
 		local light = (minetest.get_node_light(pos) or 0)

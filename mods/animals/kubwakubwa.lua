@@ -253,7 +253,7 @@ minetest.register_node("animals:kubwakubwa_eggs", {
     
     local temp = climate.get_point_temp(pos)
     
-    if (temp < self_data.min_temp + 3) then
+    if (temp < 14) then
       -- too cold to hatch, wait again
       return true
     end
