@@ -179,7 +179,7 @@ local function grow_cane(pos, node)
     end
 
     -- natural or artificial light
-    if plant.get_light(pos) < 10 then
+    if plant.get_light(pos) < 13 then
         return
     end
 
