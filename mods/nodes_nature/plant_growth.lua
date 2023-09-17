@@ -97,7 +97,7 @@ local function is_mushroom(pos)
     return minimal.get_group(pos, "mushroom") > 0
 end
 
-local function get_light(pos)
+function plant.get_light(pos)
     local pos_above = minimal.get_pos_above(pos)
     local natural = minimal.get_daylight(pos_above) or 0
     local artificial = minetest.get_node_light(pos_above) or 0
@@ -108,7 +108,7 @@ local function get_light(pos)
 end
 
 local function is_dark(pos)
-    local light = get_light(pos)
+    local light = plant.get_light(pos)
     return light < 4
 end
 
@@ -126,7 +126,7 @@ end
 
 local function get_light_cofactor(pos)
     local average_daily_light = calculate_average_light(pos) / 9.25
-    local current_light = get_light(pos) / 15
+    local current_light = plant.get_light(pos) / 15
     if average_daily_light < 1 then
         return current_light
     else
