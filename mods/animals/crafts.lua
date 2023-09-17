@@ -135,7 +135,7 @@ for i in ipairs(list) do
     carcass = carcass + 1
   elseif (string.match(name,"large")) then
     carcass = carcass + 2
-  elseif (string.match(name,"gargantuan") then
+  elseif (string.match(name,"gargantuan")) then
     carcass = carcass + 3
   end
 
