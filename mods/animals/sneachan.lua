@@ -95,7 +95,7 @@ local function brain(self)
 				if animals.eat_sediment_under(pos, 0.001) then
 					energy = energy + 1
 				elseif  animals.eat_flora(pos, 0.001) then
-					energy = energy + 2
+					energy = energy + 4
 				else
 					--wander random
 					mobkit.animate(self,'walk')
