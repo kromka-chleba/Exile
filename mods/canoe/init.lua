@@ -282,9 +282,7 @@ minetest.register_craftitem("canoe:canoe", {
 			if placer then
 				canoe:set_yaw(placer:get_look_horizontal())
 			end
-			local player_name = placer and placer:get_player_name() or ""
-			if not (creative and creative.is_enabled_for and
-					creative.is_enabled_for(player_name)) then
+			if not (minimal.player_in_creative(placer)) then
 				itemstack:take_item()
 			end
 		end
