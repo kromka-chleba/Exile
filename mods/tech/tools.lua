@@ -32,11 +32,8 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
     -- check if the pointed item has on_rightclick ...
     if minetest.registered_nodes[under.name].on_rightclick then
        -- if yes use the on_rightclick of the pointed thing instead
-       local on_rightclick = minetest.registered_nodes[under.name].on_rightclick(
+       return minetest.registered_nodes[under.name].on_rightclick(
 	  pointed_thing.under, under, placer, itemstack, pointed_thing)
-       if on_rightclick then
-	  return on_rightclick
-       end
     end
     local under_front_pos = {x = pointed_thing.above.x,
                              y = pointed_thing.above.y - 1,
