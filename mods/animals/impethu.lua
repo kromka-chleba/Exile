@@ -22,7 +22,7 @@ local function brain(self)
 		return
 	end
 
-	if mobkit.timer(self,1.5) then
+	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
 
