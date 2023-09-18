@@ -264,7 +264,7 @@ function animals.core_life(self, lifespan, pos)
       conserve = false -- moving around, thus not conserving energy
     end
     -- lose energy from discomfort
-    energy = energy - 4
+    energy = energy - 2
     -- lose more energy dependent on temperature difference (discomfort also)
     if (temp > self.max_temp) then
       energy = energy - abs(temp - self.max_temp)
