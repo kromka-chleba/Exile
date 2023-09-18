@@ -214,7 +214,7 @@ local self_data = {
 -- energy and eggs
 self_data.energy_max = 12000   --secs it can survive without food
 self_data.energy_egg = self_data.energy_max/3  --energy that goes to egg
-self_data.egg_timer = 60*40
+self_data.egg_timer = 60*30
 self_data.young_per_egg = {1,3}   --will get this/energy_egg starting energy
 self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.7 -- conserve min (minimum point at when to conserve energy)
 -- 70% of the energy given to a newborn

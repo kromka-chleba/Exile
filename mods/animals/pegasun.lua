@@ -459,7 +459,7 @@ local self_data = {
 -- energy and eggs
 self_data.energy_max = 8000   --secs it can survive without food
 self_data.energy_egg = self_data.energy_max/2  --energy that goes to egg
-self_data.egg_timer = 60*30
+self_data.egg_timer = 60*25
 self_data.young_per_egg = 1   --will get this/energy_egg starting energy
 -- lifespan
 self_data.lifespan = self_data.energy_max * 10
