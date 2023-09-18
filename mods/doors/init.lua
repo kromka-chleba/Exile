@@ -181,7 +181,9 @@ function doors.door_toggle(pos, node, clicker, itemstack)
 	   if cdir == node.param2 and state == 0 then
 	      meta:set_int("barred", 1)
 	      minetest.chat_send_player(cname, "You bar the door.")
-	      itemstack:take_item()
+        if not (minimal.player_in_creative(clicker)) then
+          itemstack:take_item()
+        end
 	      if not def.protected then -- ensure the door can't be dug
 		 meta:set_string("owner", cname)
 	      end
@@ -328,7 +330,7 @@ function doors.register(name, def)
 				minimal.infotext_set(pos,meta)
 			end
 
-			if not (creative and creative.is_enabled_for and creative.is_enabled_for(pn)) then
+			if not (minimal.player_in_creative(placer)) then
 				itemstack:take_item()
 			end
 
