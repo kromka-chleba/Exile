@@ -5,11 +5,12 @@ function spears_throw (itemstack, player, pointed_thing)
 	   local node = minetest.get_node(pointed_b)
 	   local def = minetest.registered_nodes[node.name]
 	   if def and def.on_rightclick then
-	      def.on_rightclick(pointed_b, node, player, itemstack, pointed_thing)
-	      return
+	      def.on_rightclick(pointed_b, node, player,
+				itemstack, pointed_thing)
+	      return false
 	   end
 	elseif pointed_thing.type == "object" then
-	   return
+	   return false
 	end
 	local spear = itemstack:get_name() .. '_entity'
 	local player_pos = player:get_pos()
@@ -34,7 +35,7 @@ function spears_throw (itemstack, player, pointed_thing)
 			spear_object:get_luaentity()._wear = wear
 			spear_object:get_luaentity()._stickpos = pointed_b
 			minetest.sound_play("default_place_node", {pos = pointed_a}, true)
-			return false
+			return true
 		end
 	else -- Avoid hitting yourself and throw
 		local throw_speed = SPEARS_THROW_SPEED

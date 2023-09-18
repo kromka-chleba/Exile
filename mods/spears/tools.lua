@@ -2,22 +2,26 @@ function spears_register_spear(spear_type, desc, base_damage, toughness, materia
 
 	minetest.register_tool("spears:spear_" .. spear_type, {
 		description = desc .. " spear",
-                wield_image = "spears_spear_" .. spear_type .. ".png^[transform4",
+                wield_image = "spears_spear_" .. spear_type ..
+		   ".png^[transform4",
 		inventory_image = "spears_spear_" .. spear_type .. ".png",
 		wield_scale= {x = 1.5, y = 1.5, z = 1.5},
 		on_secondary_use = function(itemstack, user, pointed_thing)
-			spears_throw(itemstack, user, pointed_thing)
-			if not minetest.settings:get_bool("creative_mode") then
+		   local thrown = spears_throw(itemstack, user,
+					       pointed_thing)
+		   if thrown == true and not minetest.settings:
+		      get_bool("creative_mode") then
 				itemstack:take_item()
-			end
-			return itemstack
+		   end
+		   return itemstack
 		end,
 		on_place = function(itemstack, user, pointed_thing)
-			spears_throw(itemstack, user, pointed_thing)
-			if not minetest.settings:get_bool("creative_mode") then
+		   local thrown = spears_throw(itemstack, user, pointed_thing)
+		   if thrown == true and not minetest.settings:
+		      get_bool("creative_mode") then
 				itemstack:take_item()
-			end
-			return itemstack
+		   end
+		   return itemstack
 		end,
 		tool_capabilities = {
 			full_punch_interval = 1.5,
@@ -27,9 +31,9 @@ function spears_register_spear(spear_type, desc, base_damage, toughness, materia
 		sound = {breaks = "default_tool_breaks"},
 		groups = {flammable = 1}
 	})
-	
+
 	local SPEAR_ENTITY = spears_set_entity(spear_type, base_damage, toughness)
-	
+
 	minetest.register_entity("spears:spear_" .. spear_type .. "_entity", SPEAR_ENTITY)
 
 	if minetest.get_modpath("minimal") then
