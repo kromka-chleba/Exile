@@ -282,7 +282,8 @@ minetest.register_node("animals:sneachan_eggs", {
 			if random()<0.3 then
 				return animals.hatch_egg(self_data, pos)
 			end
-			return true
+      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2)) -- return a regular egg_timer
+			return false
 		end
 	end,
 })
