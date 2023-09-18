@@ -1,7 +1,6 @@
 local random = math.random
 
 player_api = player_api
-creative = creative
 
 local store = minetest.get_mod_storage()
 local saved_airboats = minetest.deserialize(store:get_string("savedab"), true)
@@ -110,14 +109,12 @@ function airboat.on_punch(self, puncher)
 		return
 	end
 
-	local name = puncher:get_player_name()
         local pos = puncher:get_pos()
 	if not self.driver then
 		-- Move to inventory
 		self.removed = true
 		local inv = puncher:get_inventory()
-		if not (creative and creative.is_enabled_for
-				and creative.is_enabled_for(name))
+		if not (minimal.player_in_creative(puncher))
 				or not inv:contains_item("main", "artifacts:airboat") then
 			local leftover = inv:add_item("main", "artifacts:airboat")
 			if not leftover:is_empty() then
@@ -299,9 +296,7 @@ minetest.register_craftitem("artifacts:airboat", {
 		   if placer then
 		      air_boat:set_yaw(placer:get_look_horizontal())
 		   end
-		   local player_name = placer and placer:get_player_name() or ""
-		   if not (creative and creative.is_enabled_for and
-			   creative.is_enabled_for(player_name)) then
+		   if not (minimal.player_in_creative(placer)) then
 		      itemstack:take_item()
 		   end
 		end
