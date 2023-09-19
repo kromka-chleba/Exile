@@ -5,9 +5,6 @@
 -- Internationalization
 local S = tech.S
 
--- Declare global
-creative = creative
-
 -- Set up namespace
 lever = {}
 
