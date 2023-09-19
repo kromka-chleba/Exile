@@ -81,7 +81,9 @@ local after_place_node = function(pos, placer, itemstack, pointed_thing)
 	   node.param2 = color + ndir
 	   minetest.swap_node(pos, node)
 	end
-	itemstack:take_item()
+  if not minimal.player_in_creative(placer) then
+    itemstack:take_item()
+  end
 end
 
 local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
