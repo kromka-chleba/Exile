@@ -263,16 +263,19 @@ function nn.create_gravity_soak_in(args)
                     local node_pos = vector.new(x, y, z)
                     local dry_below = dry_to_wet_ids[data[i - chunk_side]]
                     local seawater_below = seawater_ids[data[i - chunk_side]]
-                    if y >= 1 and (dry_below or seawater_below) then
-                        if dry_below then
-                            -- Soak in
-                            data[i] = replacement
-                            data[i - chunk_side] = dry_below
-                        elseif seawater_below then
-                            -- Remove if seawater below
-                            data[i] = replacement
+                    if x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79 then
+                        -- borders here
+                        if last then
+                            table.insert(orphans, i)
                         end
-                    elseif not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79) then
+                    elseif dry_below then
+                        -- Soak in
+                        data[i] = replacement
+                        data[i - chunk_side] = dry_below
+                    elseif seawater_below then
+                        -- Remove if seawater below
+                        data[i] = replacement
+                    else
                         local air_table = {}
                         local dry_table = {}
                         local function add(index)
@@ -308,11 +311,6 @@ function nn.create_gravity_soak_in(args)
                             if last then
                                 table.insert(orphans, air_index)
                             end
-                        end
-                    else
-                        -- borders here
-                        if last then
-                            table.insert(orphans, i)
                         end
                     end
                     found = true
