@@ -195,8 +195,9 @@ minetest.register_node("artifacts:antiquorium_ladder", {
 					param1 = node.param1,
 					param2 = node.param2
 				})
-
-				itemstack:take_item()
+        if not (minimal.player_in_creative(clicker)) then
+          itemstack:take_item()
+        end
 			else
 				local pos_over =  {x = pos.x, y = pos.y + 1, z = pos.z}
 				local over = minetest.get_node(pos_over)
@@ -205,7 +206,9 @@ minetest.register_node("artifacts:antiquorium_ladder", {
 						param1 = node.param1,
 						param2 = node.param2
 					})
-					itemstack:take_item()
+					if not (minimal.player_in_creative(clicker)) then
+            itemstack:take_item()
+          end
 				end
 			end
 		else

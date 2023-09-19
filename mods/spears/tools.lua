@@ -9,16 +9,14 @@ function spears_register_spear(spear_type, desc, base_damage, toughness, materia
 		on_secondary_use = function(itemstack, user, pointed_thing)
 		   local thrown = spears_throw(itemstack, user,
 					       pointed_thing)
-		   if thrown == true and not minetest.settings:
-		      get_bool("creative_mode") then
+		   if thrown == true and not minimal.player_in_creative(user) then
 				itemstack:take_item()
 		   end
 		   return itemstack
 		end,
 		on_place = function(itemstack, user, pointed_thing)
 		   local thrown = spears_throw(itemstack, user, pointed_thing)
-		   if thrown == true and not minetest.settings:
-		      get_bool("creative_mode") then
+		   if thrown == true and not minimal.player_in_creative(user) then
 				itemstack:take_item()
 		   end
 		   return itemstack

@@ -6,8 +6,6 @@
 -- Load support for MT game translation.
 local S = minetest.get_translator("bones")
 
-creative = creative
-
 bones = {}
 
 local function is_owner(pos, name)
@@ -231,8 +229,7 @@ minetest.register_on_dieplayer(function(player)
 	local pos_string = minetest.pos_to_string(pos)
 
 	-- return if keep inventory set or in creative mode
-	if bones_mode == "keep" or (creative and creative.is_enabled_for
-			and creative.is_enabled_for(player:get_player_name())) then
+	if bones_mode == "keep" or minimal.player_in_creative(player) then
 		minetest.log("action", player_name .. " dies at " .. pos_string ..
 			". No bones placed")
 		if bones_position_message then

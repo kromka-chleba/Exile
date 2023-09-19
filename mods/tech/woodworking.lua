@@ -209,7 +209,9 @@ minetest.register_node("tech:wooden_ladder", {
        local over = minetest.get_node(pos_over)
        if over.name == "air" then
 	  minetest.place_node(pos_over, {name = itemname})
-	  itemstack:take_item()
+    if not minimal.player_in_creative(clicker) then
+      itemstack:take_item()
+    end
        end
     else
        if itemstack:get_definition().type == "node" then

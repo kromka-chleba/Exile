@@ -5,21 +5,11 @@
 
 
 
-
--- Cache creative mode setting
-
-local creative_mode_cache = minetest.settings:get_bool("creative_mode")
-
-
 -- Update HUD flags
 
 
 local function update_hud_flags(player)
-	local creative_enabled =
-		(creative and creative.is_enabled_for(player:get_player_name())) or
-		creative_mode_cache
-
-	local minimap_enabled = creative_enabled or
+	local minimap_enabled = minimal.player_in_creative(player) or
 		player:get_inventory():contains_item("main", "artifacts:mapping_kit")
 	--local radar_enabled = creative_enabled
 

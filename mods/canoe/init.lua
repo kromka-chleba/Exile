@@ -120,9 +120,9 @@ function canoe.on_punch(self, puncher)
 	if not self.driver then
 		self.removed = true
 		local inv = puncher:get_inventory()
-		if not (creative and creative.is_enabled_for
-				and creative.is_enabled_for(name))
+		if not minimal.player_in_creative(puncher)
 				or not inv:contains_item("main", "canoe:canoe") then
+          minetest.log("boap")
 			local leftover = inv:add_item("main", "canoe:canoe")
 			-- if no room in inventory add a replacement canoe to the world
 			if not leftover:is_empty() then
@@ -282,9 +282,7 @@ minetest.register_craftitem("canoe:canoe", {
 			if placer then
 				canoe:set_yaw(placer:get_look_horizontal())
 			end
-			local player_name = placer and placer:get_player_name() or ""
-			if not (creative and creative.is_enabled_for and
-					creative.is_enabled_for(player_name)) then
+			if not (minimal.player_in_creative(placer)) then
 				itemstack:take_item()
 			end
 		end
