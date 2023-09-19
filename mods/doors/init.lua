@@ -542,7 +542,7 @@ function doors.register_trapdoor(name, def)
 			meta:set_string("owner", pn)
 			minimal.infotext_set(pos,meta)
 
-			return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
+			return minimal.player_in_creative(placer)
 		end
 
 		def.on_blast = function() end

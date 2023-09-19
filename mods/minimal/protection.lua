@@ -45,7 +45,7 @@ function minimal.protection_after_place_node( pos, placer, itemstack, pointed_th
 	local meta = minetest.get_meta(pos)
 	meta:set_string("owner", pn)
 	minimal.infotext_merge(pos,nil,meta)
-	return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
+	return minimal.player_in_creative(placer)
 end
 
 function minimal.protection_on_dig(pos,oldnode,digger)
