@@ -77,6 +77,7 @@ local neighbors = {
 local undefined_dyes = table.copy(dyelist)
 
 function ncrafting.set_treatment(meta, action)
+   if not meta:get("ncrafting:bundled_plant") then return end
    local valid_method = false
    for i = 1,#methods do
       if action == methods[i] then
