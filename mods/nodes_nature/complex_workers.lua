@@ -116,11 +116,15 @@ function nn.create_soak_out_move_down(args)
                 local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
                 local x = (i - 1) % 80
                 local node_pos = vector.new(x, y, z)
-                if dry_below and y >= 1 then
+
+                if x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79 then
+                    -- border here
+                    table.insert(nn.moisture_orphans[hash], vector.add(pos_min, node_pos))
+                elseif dry_below then
                     -- Move water downwards
                     data[i] = replacement
                     data[below_index] = dry_below
-                elseif not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79) then
+                else
                     local air_table = {}
                     local dry_table = {}
                     local wet_table = {}
@@ -175,14 +179,21 @@ function nn.create_soak_out_move_down(args)
                         move_moisture(dry_table[math.random(1, below_dry_nr)])
                     elseif #dry_table > 0 then
                         move_moisture(dry_table[math.random(below_dry_nr + 1, #dry_table)])
+                    elseif #air_table == 0 and math.random() < 0.25 then
+                        -- 25% chance of going up
+                        local old_dry_nr = #dry_table
+                        check(above_index, add_dry)
+                        if dry_to_wet_ids[data[above_index]] then
+                            table.insert(dry_table, above_index)
+                        end
+                        if #dry_table > old_dry_nr then
+                            move_moisture(dry_table[math.random(old_dry_nr + 1, #dry_table)])
+                        end
                     elseif #air_table > 0 and #wet_table >= 6 then
                         local air_index = air_table[math.random(1, #air_table)]
                         data[i] = replacement
                         data[air_index] = buildable_to_liquid_ids[data[air_index]]
                     end
-                else
-                    -- border here
-                    table.insert(nn.moisture_orphans[hash], vector.add(pos_min, node_pos))
                 end
                 found = true
                 -- "if replacement" ends here
@@ -252,16 +263,19 @@ function nn.create_gravity_soak_in(args)
                     local node_pos = vector.new(x, y, z)
                     local dry_below = dry_to_wet_ids[data[i - chunk_side]]
                     local seawater_below = seawater_ids[data[i - chunk_side]]
-                    if y >= 1 and (dry_below or seawater_below) then
-                        if dry_below then
-                            -- Soak in
-                            data[i] = replacement
-                            data[i - chunk_side] = dry_below
-                        elseif seawater_below then
-                            -- Remove if seawater below
-                            data[i] = replacement
+                    if x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79 then
+                        -- borders here
+                        if last then
+                            table.insert(orphans, i)
                         end
-                    elseif not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79) then
+                    elseif dry_below then
+                        -- Soak in
+                        data[i] = replacement
+                        data[i - chunk_side] = dry_below
+                    elseif seawater_below then
+                        -- Remove if seawater below
+                        data[i] = replacement
+                    else
                         local air_table = {}
                         local dry_table = {}
                         local function add(index)
@@ -297,11 +311,6 @@ function nn.create_gravity_soak_in(args)
                             if last then
                                 table.insert(orphans, air_index)
                             end
-                        end
-                    else
-                        -- borders here
-                        if last then
-                            table.insert(orphans, i)
                         end
                     end
                     found = true
