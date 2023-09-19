@@ -248,6 +248,7 @@ function animals.core_life(self, lifespan, pos)
     local killer_min_temp = self.min_temp - 7
     local killer_max_temp = self.max_temp + 25
     local burn_max_temp = killer_max_temp + 55
+    local absolute_death_temp = burn_max_temp + 800
     
     if (self.class ~= 2) then
       -- only for land creatures
@@ -276,11 +277,11 @@ function animals.core_life(self, lifespan, pos)
     
   -- get really hurt or die from high temp
     if temp > killer_max_temp then -- use addition instead of multiplication to account for negative numbers
-      local dmg = math.ceil(3.5 * (temp / self.max_temp)) -- damage calculation
-      if (dmg < 0) then -- incase max_temp is in negatives and thus the calculation returns a negative number
-        dmg = -dmg
+      local dmg = math.ceil(1.3 * (temp / self.max_temp)) -- damage calculation
+      if (temp >= absolute_death_temp) then
+        dmg = dmg * 6
       end
-      dmg = math_clamp(dmg,0,self.hp) -- clamp dmg due to weird mobkit.hurt() functionality
+      dmg = math_clamp(abs(dmg),0,self.hp) -- clamp dmg (and abs to avoid negatives) due to weird mobkit.hurt() functionality
       mobkit.hurt(self,dmg)
       -- only retrieve burned flesh if max_temp is exceedingly hot
       if (self.hp <= 0 and temp >= burn_max_temp) then
@@ -291,10 +292,7 @@ function animals.core_life(self, lifespan, pos)
     -- get really hurt or die from being too cold!!
     elseif temp < killer_min_temp then
       local dmg = math.ceil(1.3 * (temp / self.min_temp))
-      if (dmg < 0) then -- incase min_temp is in negatives and thus the calculation returns a negative number
-        dmg = -dmg
-      end
-      dmg = math_clamp(dmg,0,self.hp)
+      dmg = math_clamp(abs(dmg),0,self.hp)
       mobkit.hurt(self,dmg)
     end
   end
