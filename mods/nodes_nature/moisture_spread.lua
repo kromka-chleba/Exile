@@ -191,9 +191,9 @@ end
 
 local current_evaporator = false
 local evap_replacer = false
-local evap_interval = 500 -- this is a placeholder
+local evap_interval = 500
 local evap_changed = true
-local evap_chance = 1/30
+local evap_chance = 1/20
 
 local function evaporator()
     return nn.create_evaporator(
@@ -209,10 +209,10 @@ local function pick_evaporator(season)
     if season == "summer_early" or season == "summer_late" then
         -- The Evaporator - destroyer of worlds, the sovereign of drought and thirst
         new_evaporator = "the_evaporator"
-        evap_chance = 1/5
+        evap_chance = 1/2
     else
         new_evaporator = "light"
-        evap_chance = 1/30
+        evap_chance = 1/20
     end
     if current_evaporator ~= new_evaporator then
         current_evaporator = new_evaporator
