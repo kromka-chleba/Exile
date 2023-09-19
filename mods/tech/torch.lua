@@ -203,7 +203,7 @@ minetest.register_node("tech:torch", {
 	on_drop = function(itemstack, dropper, pos)
 	   on_throw(itemstack, dropper, pos)
 	   local pname = dropper:get_player_name()
-	   if not minetest.check_player_privs(pname, {creative = true}) then
+	   if not minimal.player_in_creative(dropper) then
 	      itemstack:take_item()
 	      return itemstack
 	   end
