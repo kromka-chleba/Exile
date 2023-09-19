@@ -775,7 +775,7 @@ end
 --Function for getting the temperature of a specific location
 climate.get_point_temp = function(in_pos)
 
-	local pos = vector.normalize(in_pos) -- offset vectors can freeze!
+	local pos = vector.round(in_pos) -- offset vectors can freeze!
 	--if it's a temp_effect node then thats how hot it is by definition
 	local nodename = minetest.get_node(pos).name
 	local t_effect = minetest.get_item_group(nodename,"temp_effect")
