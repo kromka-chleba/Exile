@@ -214,7 +214,7 @@ function stairs.register_slab(subname, recipeitem, craft_station, recycle, recyc
 
 				-- else attempt to place node with proper param2
 				minetest.item_place_node(ItemStack(wield_item), placer, pointed_thing, p2)
-				if not creative_enabled then
+				if not minimal.player_in_creative(placer) then
 					itemstack:take_item()
 				end
 				return itemstack
