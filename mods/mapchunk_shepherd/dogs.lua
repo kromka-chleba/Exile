@@ -218,7 +218,7 @@ function ms.create_simple_replacer(args)
             end
         end
         if found then
-            return labels_to_add, labels_to_remove
+            return labels_to_add, labels_to_remove, true
         else
             return not_found, not_found_remove
         end
@@ -263,7 +263,7 @@ function ms.create_param2_aware_replacer(args)
         end
         if found then
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
-            return labels_to_add, labels_to_remove
+            return labels_to_add, labels_to_remove, true
         else
             return not_found, not_found_remove
         end
@@ -317,7 +317,7 @@ function ms.create_light_aware_replacer(args)
         end
         if found then
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
-            return labels_to_add, labels_to_remove
+            return labels_to_add, labels_to_remove, true
         else
             return not_found, not_found_remove
         end
@@ -471,7 +471,7 @@ function ms.create_neighbor_aware_replacer(args)
         end
         if found then
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
-            return labels_to_add, labels_to_remove
+            return labels_to_add, labels_to_remove, true
         else
             return not_found, not_found_remove
         end
