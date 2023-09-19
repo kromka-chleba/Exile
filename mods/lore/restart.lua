@@ -33,8 +33,7 @@ local function killplayer(name)
         -- exit if the player left or we somehow got garbage
         return
     end
-   if ( minetest.is_creative_enabled(name)
-	or minetest.get_player_privs(name).creative ~= nil ) then
+   if not minimal.player_in_creative(player) then
       -- Don't remove inventory from creative mode players, just kill 'em
       player:set_hp(0)
       return
