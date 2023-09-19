@@ -656,16 +656,16 @@ local line_of_temp = function(node_pos, target_pos)
 	--how close it needs to get
 	local step = 0.5
 
-	--get neighboring node
+	--get neighboring node, round new_pos to prevent infinite loop at +0.5
 	local stepv = vector.direction(node_pos, target_pos)
-	local new_pos = vector.add(node_pos, stepv)
+	local new_pos = vector.round(vector.add(node_pos, stepv))
 
 	--checks
 	local new_name = minetest.get_node(new_pos).name
 	local pass = minetest.get_item_group(new_name,"temp_pass")
 
 	--have reached target
-	if vector.distance(new_pos, target_pos) < step then
+	if vector.distance(new_pos, target_pos) <= step then
 		return true, new_pos
 	end
 
@@ -678,7 +678,7 @@ local line_of_temp = function(node_pos, target_pos)
 		pass = minetest.get_item_group(new_name,"temp_pass")
 
 		--have reached target
-		if vector.distance(new_pos, target_pos) < step then
+		if vector.distance(new_pos, target_pos) <= step then
 			return true, new_pos
 		end
 	end
@@ -773,9 +773,8 @@ end
 
 
 --Function for getting the temperature of a specific location
-climate.get_point_temp = function(in_pos)
+climate.get_point_temp = function(pos)
 
-	local pos = vector.round(in_pos) -- offset vectors can freeze!
 	--if it's a temp_effect node then thats how hot it is by definition
 	local nodename = minetest.get_node(pos).name
 	local t_effect = minetest.get_item_group(nodename,"temp_effect")
