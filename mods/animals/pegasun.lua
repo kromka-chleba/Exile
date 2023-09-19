@@ -366,7 +366,7 @@ local self_data = {
   energy_loss = 1,
   -- comfort temps
 	min_temp = -24,
-	max_temp = 44,
+	max_temp = 46,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
 

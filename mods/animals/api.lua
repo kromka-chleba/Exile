@@ -279,7 +279,7 @@ function animals.core_life(self, lifespan, pos)
     if temp > killer_max_temp then -- use addition instead of multiplication to account for negative numbers
       local dmg = math.ceil(1.3 * (temp / self.max_temp)) -- damage calculation
       if (temp >= absolute_death_temp) then
-        dmg = dmg * 6
+        dmg = dmg * 10
       end
       dmg = math_clamp(abs(dmg),0,self.hp) -- clamp dmg (and abs to avoid negatives) due to weird mobkit.hurt() functionality
       mobkit.hurt(self,dmg)
