@@ -278,6 +278,7 @@ local function pick_snower(weather)
         snower_chance = 1/8
         new_snower = "storm"
     else
+        ms.remove_worker("snow_place_worker")
         snow_placer = false
         snower_changed = false
         is_snowing = false
