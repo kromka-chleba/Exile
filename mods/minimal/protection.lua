@@ -55,7 +55,6 @@ function minimal.protection_on_dig(pos,oldnode,digger)
    local owner = meta:get_string('owner')
    if owner == digger:get_player_name() then
       local def = minetest.registered_nodes[oldnode.name]
-      print(oldnode.name," - ",dump(def))
       if not def or (def.can_dig and not def.can_dig(pos, digger) ) then
 	 return -- undefined node, or not allowed to dig (like a full backpack)
       end
