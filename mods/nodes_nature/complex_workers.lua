@@ -29,6 +29,11 @@ function nn.create_evaporator(args)
         local id = minetest.get_content_id(neighbor)
         neighbor_ids[id] = true
     end
+    local water_ids = {}
+    for _, water in pairs(args.water_names) do
+        local id = minetest.get_content_id(water)
+        water_ids[id] = true
+    end
     return function(pos_min, pos_max, vm_data, chance)
         local chance = chance or 1
         --local t1 = minetest.get_us_time()
@@ -38,25 +43,48 @@ function nn.create_evaporator(args)
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
-                local has_air = false
-                if neighbor_ids[data[i - 1]] or
-                    neighbor_ids[data[i + 1]] or
-                    -- not checking for air below
-                    --neighbor_ids[data[i - chunk_side]] or
-                    neighbor_ids[data[i + chunk_side]] or
-                    neighbor_ids[data[i - chunk_side^2]] or
-                    neighbor_ids[data[i + chunk_side^2]] then
-                    has_air = true
-                end
-                local light = data_light[i + chunk_side] or 0
-                local light_cofactor = light / 15
-                local evap_chance = light_cofactor * chance
-                if not has_air then
-                    -- 5 times slower if plant grows on top
-                    evap_chance = 1/5 * evap_chance
-                end
-                if evap_chance >= math.random() then
-                    data[i] = replacement
+                local z = math.floor((i - 1) / chunk_side^2)
+                local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
+                local x = (i - 1) % 80
+
+                -- need to handle them edges in moisture_spread.lua
+                -- too lazy for that today
+                if not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79) then
+
+                    local has_air = false
+
+                    if neighbor_ids[data[i - 1]] or
+                        neighbor_ids[data[i + 1]] or
+                        -- not checking for air below
+                        --neighbor_ids[data[i - chunk_side]] or
+                        neighbor_ids[data[i + chunk_side]] or
+                        neighbor_ids[data[i - chunk_side^2]] or
+                        neighbor_ids[data[i + chunk_side^2]] then
+                        has_air = true
+                    end
+
+                    local evap_chance = false
+
+                    if water_ids[data[i]] and has_air then
+                        local light = data_light[i]
+                        local light_cofactor = light / 15
+                        evap_chance = light_cofactor * chance * 1/2
+                        if evap_chance >= math.random() then
+                            data[i] = replacement
+                        end
+                    else
+                        -- is sediment
+                        local light = data_light[i + chunk_side] or 0
+                        local light_cofactor = light / 15
+                        evap_chance = light_cofactor * chance
+                        if not has_air then
+                            -- 5 times slower if plant grows on top
+                            evap_chance = 1/5 * evap_chance
+                        end
+                        if evap_chance >= math.random() then
+                            data[i] = replacement
+                        end
+                    end
                 end
                 found = true
             elseif data[i] == ignore_id then
@@ -162,7 +190,7 @@ function nn.create_soak_out_move_down(args)
 
                     check(i, add_dry)
                     check(i, add_wet)
-                    
+
                     local above_index = i + chunk_side
                     check(above_index, add_wet)
                     add_wet(above_index)
@@ -336,7 +364,7 @@ function nn.create_gravity_soak_in(args)
                 table.insert(nn.water_orphans[hash], vector.add(pos_min, air_pos))
             end
         end
-        
+
         if found then
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
             return labels_to_add, labels_to_remove

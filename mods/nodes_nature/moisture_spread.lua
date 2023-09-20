@@ -189,6 +189,12 @@ end
 -----------------------
 -- Evaporation
 
+local function get_evap_pairs()
+    local evap_pairs = get_wet_dry_pairs()
+    evap_pairs["nodes_nature:freshwater_source"] = "air"
+    return evap_pairs
+end
+
 local current_evaporator = false
 local evap_replacer = false
 local evap_interval = 500
@@ -197,7 +203,8 @@ local evap_chance = 1/20
 
 local function evaporator()
     return nn.create_evaporator(
-        {find_replace_pairs = get_wet_dry_pairs(),
+        {find_replace_pairs = get_evap_pairs(),
+         water_names = {"nodes_nature:freshwater_source"},
          neighbors = {"air"},
          add_labels = {"last_evaporated"},
         }
@@ -340,7 +347,9 @@ local function initialize_evaporator()
     ms.register_worker({name = "evaporation_worker",
                         fun = evap_replacer,
                         has_one_of = {"last_rain",
-                                      "last_evaporated"},
+                                      "last_evaporated",
+                                      "moisture_spread",
+                                      "water_gravity"},
                         work_every = evap_interval,
                         rework_labels = {"last_evaporated"},
                         chance = evap_chance,
@@ -541,35 +550,6 @@ end
 local seawater = {
     "nodes_nature:salt_water_source",
 }
-
---puddle detect
---check for sides that can hold water
---intended to be call for an air node with solid below
---i.e. somewhere to put a puddle
-local function puddle_detect(pos)
-    local sides = {
-        {x = pos.x + 1, y = pos.y, z = pos.z},
-        {x = pos.x - 1, y = pos.y, z = pos.z},
-        {x = pos.x, y = pos.y, z = pos.z + 1},
-        {x = pos.x, y = pos.y, z = pos.z - 1}
-    }
-    local puddle = true
-    for i, v in ipairs(sides) do
-        local s_name = minetest.get_node(v).name
-        if minetest.get_item_group(s_name, "wet_sediment") == 0
-            and minetest.get_item_group(s_name, "soft_stone") == 0
-            and minetest.get_item_group(s_name, "masonry") == 0
-            and minetest.get_item_group(s_name, "stone") == 0  then
-            puddle = false
-            break
-        end
-    end
-    if puddle then
-        return true
-    else
-        return false
-    end
-end
 
 local function moisture_spread(pos)
     local node = minetest.get_node(pos)
