@@ -137,6 +137,13 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
+crafting.register_recipe({
+	type = "spinning_wheel",
+	output = "tech:unretted_cana_bundle",
+	items = {'nodes_nature:cana_dead 24'},
+	level = 1,
+	always_known = true,
+})
 
 
 --coarse. cheap.
