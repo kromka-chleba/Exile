@@ -302,6 +302,7 @@ local function initialize_soaker()
     soaker_running = true
     evaporator_running = false
     ms.remove_worker("evaporation_worker")
+    evap_chance = 0
     ms.remove_worker("snow_place_worker")
     local function register()
         ms.register_worker(
@@ -323,6 +324,7 @@ local function initialize_snower()
     evaporator_running = false
     snower_running = true
     ms.remove_worker("evaporation_worker")
+    evap_chance = 0
     ms.remove_worker("rain_soak_worker")
     local function register()
         ms.register_worker({name = "snow_place_worker",
@@ -551,6 +553,8 @@ local seawater = {
     "nodes_nature:salt_water_source",
 }
 
+local moisture_spread_interval = 65
+
 local function moisture_spread(pos)
     local node = minetest.get_node(pos)
     local nodename = node.name
@@ -562,6 +566,20 @@ local function moisture_spread(pos)
 
     if not nodedef or not water_type then
         return
+    end
+
+
+    if evap_chance > 0 then
+        -- evaporation
+        local pos_above = vector.new(pos)
+        pos_above.y = pos_above.y + 1
+        local light = minimal.get_daylight(pos, 0.5) or 0
+        if math.random() < evap_chance *
+            (moisture_spread_interval / evap_interval) *
+            (light / 15) then
+            tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
+            return
+        end
     end
 
     --move through the soil, with a bias downwards
@@ -624,6 +642,20 @@ local function water_source_down(pos)
         return
     end
 
+    if evap_chance > 0 then
+        -- evaporation
+        local pos_above = vector.new(pos)
+        pos_above.y = pos_above.y + 1
+        local light = minimal.get_daylight(pos, 0.5) or 0
+        if math.random() < evap_chance *
+            (moisture_spread_interval / evap_interval) *
+            (light / 15) * 1/5
+        then
+            minetest.remove_node(pos)
+            return
+        end
+    end
+
     local dry_table = minetest.find_nodes_in_area(
         {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
         {x = pos.x + 1, y = pos.y, z = pos.z + 1},
@@ -638,30 +670,31 @@ local function water_source_down(pos)
             tgcr.make_replacement(dry_pos, rt.REPLACEMENT_WET)
             return
         end
+    end
 
-        local air_table = minetest.find_nodes_in_area(
-            {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-            {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
-            buildable_to)
+    local air_table = minetest.find_nodes_in_area(
+        {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+        {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
+        buildable_to)
 
-        if #air_table > 0 then
-            --select a random one
-            local air_pos = air_table[math.random(#air_table)]
-            minetest.remove_node(pos)
-            minetest.set_node(air_pos, {name = node.name})
-            minetest.check_for_falling(air_pos)
-            return
-        end
+    if #air_table > 0 then
+        --select a random one
+        local air_pos = air_table[math.random(#air_table)]
+        minetest.remove_node(pos)
+        minetest.set_node(air_pos, {name = node.name})
+        minetest.check_for_falling(air_pos)
+        return
+    end
 
-        local pos_under = vector.new(pos)
-        pos_under.y = pos_under.y - 1
-        local node_under = minetest.get_node(pos_under)
+    local pos_under = vector.new(pos)
+    pos_under.y = pos_under.y - 1
+    local node_under = minetest.get_node(pos_under)
 
-        --Fresh water should not float on top of the ocean
-        if pos_under.name == "nodes_nature:salt_water_source" and
-            node.name == "nodes_nature:freshwater_source" then
-            minetest.remove_node(pos)
-        end
+    --Fresh water should not float on top of the ocean
+    if pos_under.name == "nodes_nature:salt_water_source" and
+        node.name == "nodes_nature:freshwater_source" then
+        minetest.remove_node(pos)
+        return
     end
 end
 
@@ -698,12 +731,12 @@ local function start_moisture_spread()
         })
     ms.register_worker({name = "moisture_spread_worker",
                         fun = moisture_spread_worker,
-                        work_every = 65,
+                        work_every = moisture_spread_interval,
                         has_one_of = soil_labels,
                         rework_labels = {"moisture_spread"},
                         afterworker = handle_sediment_orphans,
     })
-    
+
     local soak_in_grav =
         nn.create_gravity_soak_in({
                 wet_to_dry = get_wet_dry_pairs(),
