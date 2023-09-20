@@ -553,7 +553,7 @@ local seawater = {
     "nodes_nature:salt_water_source",
 }
 
-local moisture_spread_interval = 65
+local moisture_spread_interval = 120
 
 local function moisture_spread(pos)
     local node = minetest.get_node(pos)
