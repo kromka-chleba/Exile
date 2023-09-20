@@ -255,7 +255,7 @@ minetest.register_on_dieplayer(function(player)
 	if bones_mode == "bones" and not may_replace(pos, player,
 						     player_name) then
 	   local above = vector.new(pos.x,pos.y+1,pos.z)
-	   if may_replace(above) then
+	   if may_replace(above, player, player_name) then
 	      pos = above
 	   else
 	      local air = minetest.find_node_near(pos, 1, {"air",
