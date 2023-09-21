@@ -447,6 +447,10 @@ minetest.register_node(":ncrafting:dye_table", {
 	      local dcolor = pdef._ncrafting_dye_dcolor or "none"
 	      local bundle = ItemStack("ncrafting:bundle_"..dcolor)
 	      local imeta = bundle:get_meta()
+        if (plantname == "" or plantname == nil) then
+          -- prevent crafting of an empty bundle
+          return
+        end
 	      imeta:set_string("ncrafting:bundled_plant", plantname)
 	      imeta:set_string("description", bundlename(imeta, plantname, nil))
 	      inv:set_stack("craftresult", 1, bundle)
