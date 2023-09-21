@@ -62,18 +62,12 @@ minetest.register_globalstep(function(dtime)
 			data.index = index
 			data.dtime = 0
 
-			local desc = stack.get_meta
-				and stack:get_meta():get_string("description")
+			local desc = stack:get_short_description() or itemname
 			local def = minetest.registered_items[itemname]
 			if not def then
 			   minetest.log("action", pname.." wielded an invalid"..
 					" object, "..itemname)
 			else
-			   if not desc or desc == "" then
-				-- Try to use default description when none is set in the meta
-				desc = def and def.description or ""
-			   end
-
 			   player:hud_change(data.hud, 'text', desc)
 			end
 		end
