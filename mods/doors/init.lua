@@ -160,12 +160,14 @@ function doors.door_toggle(pos, node, clicker, itemstack)
 	   if cdir == node.param2 and state == 0 then
 	      -- ^^ are we behind a closed, barred door? Unbar it
 	      meta:set_int("barred", 0)
-	      if itemstack and ( itemstack:is_empty() or
-				 itemstack:get_name() == "tech:stick" ) then
-		 itemstack:add_item("tech:stick")
-	      else
-		 minetest.item_drop(ItemStack("tech:stick"), clicker, pos)
-	      end
+        if not minimal.player_in_creative(clicker) then
+          if itemstack and ( itemstack:is_empty() or
+           itemstack:get_name() == "tech:stick" ) then
+       itemstack:add_item("tech:stick")
+          else
+       minetest.item_drop(ItemStack("tech:stick"), clicker, pos)
+          end
+        end
 
 	      minetest.chat_send_player(cname, "You unbar the door.")
 	      if not def.protected then -- unprotected only gets temporary owner
