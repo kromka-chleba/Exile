@@ -93,14 +93,14 @@ local on_construct = function(pos, width, height)
 end
 
 local on_receive_fields = function(pos, formname, fields, sender, width, height)
-		local label = fields.label
-		if label and label ~= '' then
-		   local meta = minetest.get_meta(pos)
-		   local cleanlabel = minimal.sanitize_string(label)
-		   meta:set_string('label', cleanlabel)
-		   minimal.infotext_merge(pos,'Label: '..cleanlabel, meta)
-		   on_construct(pos, width, height)
-		end
+	local label = fields.label
+	if label and label ~= '' then
+		local meta = minetest.get_meta(pos)
+		local clean_label = minimal.sanitize_string(label)
+		meta:set_string('label', clean_label)
+		minimal.infotext_merge(pos, 'Label: ' .. clean_label, meta)
+		on_construct(pos, width, height)
+	end
 end
 
 
@@ -375,8 +375,8 @@ minetest.register_node("tech:iron_chest", {
 
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 		if placer then
-		   local name = placer:get_player_name() or ""
-		   minetest.get_meta(pos):set_string("owner", name)
+			local name = placer:get_player_name() or ""
+			minetest.get_meta(pos):set_string("owner", name)
 		end
 		--Update formspec and infotext
 		on_construct(pos, 8, 8)
