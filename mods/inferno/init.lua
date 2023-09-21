@@ -272,7 +272,21 @@ minetest.register_abm({
       end,
 })
 
-
+-- QoL hack: no need to ignite each node separately.
+minetest.register_abm({
+	label = "Ignite nearby fires in a charcoal kiln",
+	nodenames = {"tech:large_wood_fire_unlit",      "tech:small_wood_fire_unlit"},
+	neighbors = {"tech:large_wood_fire_smoldering", "tech:small_wood_fire_smoldering"},
+	interval = 10,
+	chance = 3,
+	catch_up = false,
+	action = function(pos, flammable_node)
+		local def = minetest.registered_nodes[flammable_node.name]
+		if def.on_burn then
+			def.on_burn(pos)
+		end
+	end,
+})
 --------------------------------------------------
 -- Fire Starters
 --
