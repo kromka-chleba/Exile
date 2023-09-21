@@ -94,6 +94,20 @@ animals.register_egg = function(name, desc, inv_img, stack, energy)
 				--set energy value
 				if not mobkit.recall(ent,'energy') then
 					--# of seconds it will survive without food
+          if (type(energy) == "table" or type(energy) == "userdata") then
+            -- if an animal table is specified
+            local ype = energy.young_per_egg -- young_per_egg
+            local ee = energy.energy_egg -- energy_egg
+            
+            if ee and ype then
+              -- realistically calculate the energy depending on young_per_egg
+              energy = ee / animals.calculate_egg_young(ype)
+            end
+          end
+          if (type(energy) ~= "number") then
+            -- do not error if a number wasn't provided, go for 100 energy
+            energy = 100
+          end
 					mobkit.remember(ent,'energy',energy)
 				end
 			end

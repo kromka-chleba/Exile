@@ -115,12 +115,17 @@ for i in ipairs(list) do
 	local heat = list[i][5]
   
   local carcass = 0
+  -- when defining carcass type, add a space of 4 (1 = invert, +4 = bird = 5)
   if (string.match(name,"invert")) then -- arthropods and insects
     carcass = 1
   elseif (string.match(name,"bird")) then
-    carcass = 4
+    carcass = 5
   elseif (string.match(name,"fish")) then
-    carcass = 7
+    carcass = 9
+  elseif (string.match(name,"reptile")) then
+    carcass = 13
+  elseif (string.match(name,"mammal")) then
+    carcass = 17
   end
   if (carcass == 0) then -- unknown carcass type
     carcass = 1000
@@ -130,6 +135,8 @@ for i in ipairs(list) do
     carcass = carcass + 1
   elseif (string.match(name,"large")) then
     carcass = carcass + 2
+  elseif (string.match(name,"gargantuan")) then
+    carcass = carcass + 3
   end
 
   --raw

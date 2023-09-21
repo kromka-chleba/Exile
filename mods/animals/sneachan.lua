@@ -13,14 +13,6 @@ local S = animals.S
 local random = math.random
 local floor = math.floor
 
---energy
-local energy_max = 5000--secs it can survive without food
-local energy_egg = energy_max-100 --energy that goes to egg
-local egg_timer  = 60*10
-local young_per_egg = 5		--will get this/energy_egg starting energy
-
-local lifespan = energy_max * 5
-
 
 
 -----------------------------------
@@ -35,7 +27,7 @@ local function brain(self)
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, lifespan, pos)
+		local age, energy = animals.core_life(self, self.lifespan, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -83,11 +75,11 @@ local function brain(self)
 
 			if light <= 12 then
 				--hungry eat stuff in the dark
-				if energy < energy_max then
+				if energy < self.energy_max then
 					if animals.eat_sediment_under(pos, 0.001) == true then
 						energy = energy + 3
 					elseif  animals.eat_flora(pos, 0.001) == true then
-						energy = energy + 4
+						energy = energy + 8
 					else
 						--wander random
 						mobkit.animate(self,'walk')
@@ -98,12 +90,12 @@ local function brain(self)
 					--full
 					mobkit.hq_roam(self,1)
 				end
-			elseif random()<0.5 and energy < energy_max then
+			elseif random()<0.5 and energy < self.energy_max then
 				--slower, less effective feeding during day
 				if animals.eat_sediment_under(pos, 0.001) then
 					energy = energy + 1
 				elseif  animals.eat_flora(pos, 0.001) then
-					energy = energy + 2
+					energy = energy + 4
 				else
 					--wander random
 					mobkit.animate(self,'walk')
@@ -119,12 +111,12 @@ local function brain(self)
 
 			--reproduction
 			--asexual parthogenesis, eggs
-			if random() < 0.005
+			if random() < 0.02
 			and not rival
 			and not pred
 			and self.hp >= self.max_hp
-			and energy >= energy_max then
-				energy = animals.place_egg(pos, "animals:sneachan_eggs", energy, energy_egg, 'air')
+			and energy >= self.energy_max then
+				energy = animals.place_egg(self, pos, energy)
 			end
 
 		end
@@ -154,51 +146,16 @@ end
 -- the CREATURE
 ---------------
 
---eggs
-minetest.register_node("animals:sneachan_eggs", {
-	description = S('Sneachan Eggs'),
-	tiles = {"animals_gundu_eggs.png"},
-	stack_max = minimal.stack_max_medium,
-	drawtype = "nodebox",
-	paramtype = "light",
-	node_box = {
-		type = "fixed",
-		fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08},
-	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-		local light = (minetest.get_node_light(pos) or 0)
-		if light <= 10 then
-			return animals.hatch_egg(pos, 'air', 'air', "animals:sneachan", energy_egg, young_per_egg)
-		else
-			if random()<0.3 then
-				return animals.hatch_egg(pos, 'air', 'air', "animals:sneachan", energy_egg, young_per_egg)
-			end
-			return true
-		end
-	end,
-})
-
-
-
-
-
-
 ----------------------------------------------
 -- SETTING OF SNEACHAN INTERACTOR SETTINGS
 animals.add_interactors("predators","sneachan","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
 animals.add_interactors("rivals","sneachan","animals:sneachan", "animals:impethu")
 
-
 ----------------------------------------------
-
 --The Animal
-minetest.register_entity("animals:sneachan",{
-	--core
+local self_data = {
+  name = "animals:sneachan",
+  --core
 	physical = true,
 	collide_with_objects = true,
 	collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
@@ -209,18 +166,32 @@ minetest.register_entity("animals:sneachan",{
 	makes_footstep_sound = true,
 	timeout = 0,
 
-	--damage
+	-- animal stats
 	max_hp = 3,
 	lung_capacity = 10,
-	min_temp = -28,
-	max_temp = 48,
+  -- comfort temps
+	min_temp = 3,
+	max_temp = 50,
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
+  
+  --movement
+	springiness=0,
+	buoyancy = 1.01,
+	max_speed = 1,					-- m/s
+	jump_height = 1,				-- nodes/meters
+	view_range = 2,					-- nodes/meters
+
+	--attack
+	attack={range=0.3, damage_groups={fleshy=1}},
+	armor_groups = {fleshy=100},
 
 	--interaction
 	predators = animals.get_interactors("sneachan","predators"),
 	rivals = animals.get_interactors("sneachan","rivals"),
   
-  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
-  class = 1,
+  -- settings
+  max_pop = 20,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
@@ -250,17 +221,6 @@ minetest.register_entity("animals:sneachan",{
 		},
 	},
 
-	--movement
-	springiness=0,
-	buoyancy = 1.01,
-	max_speed = 1,					-- m/s
-	jump_height = 1,				-- nodes/meters
-	view_range = 2,					-- nodes/meters
-
-	--attack
-	attack={range=0.3, damage_groups={fleshy=1}},
-	armor_groups = {fleshy=100},
-
 	--on actions
 	drops = {
 		{name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
@@ -274,6 +234,58 @@ minetest.register_entity("animals:sneachan",{
 		end
 		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
+}
+---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
+-- energy and eggs
+self_data.energy_max = 5000--secs it can survive without food
+self_data.energy_egg = (self_data.energy_max*0.9) --energy that goes to egg
+self_data.egg_timer = 60*10
+self_data.young_per_egg = {3,7}		--will get this/energy_egg starting energy
+-- lifespan
+self_data.lifespan = self_data.energy_max * 5
+---------------------;
+minetest.register_entity("animals:sneachan",self_data)
+
+----------------------------------------------
+--eggs
+minetest.register_node("animals:sneachan_eggs", {
+	description = S('Sneachan Eggs'),
+	tiles = {"animals_sneachan_eggs.png"},
+	stack_max = minimal.stack_max_medium,
+	drawtype = "nodebox",
+	paramtype = "light",
+	node_box = {
+		type = "fixed",
+		fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08},
+	},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
+	sounds = nodes_nature.node_sound_defaults(),
+	on_construct = function(pos)
+    local egg_timer = self_data.egg_timer
+		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+	end,
+	on_timer =function(pos, elapsed)
+    local egg_timer = self_data.egg_timer
+    local energy_egg = self_data.energy_egg
+    local young_per_egg = self_data.young_per_egg
+    
+    local temp = climate.get_point_temp(pos)
+    if (temp < 14 ) then
+      -- don't hatch and keep timer going if temp is too uncomfortably cold
+      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*4))
+      return false
+    end
+		local light = (minetest.get_node_light(pos) or 0)
+		if light <= 10 then
+			return animals.hatch_egg(self_data, pos)
+		else
+			if random()<0.3 then
+				return animals.hatch_egg(self_data, pos)
+			end
+      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2)) -- return a regular egg_timer
+			return false
+		end
+	end,
 })
 
 
@@ -281,4 +293,4 @@ minetest.register_entity("animals:sneachan",{
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:sneachan", S("Live Sneachan"), "animals_sneachan_item.png", minimal.stack_max_medium, energy_egg)
+animals.register_egg("animals:sneachan", S("Live Sneachan"), "animals_sneachan_item.png", minimal.stack_max_medium, self_data)

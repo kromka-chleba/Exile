@@ -13,16 +13,6 @@ local S = animals.S
 local random = math.random
 local floor = math.floor
 
---energy
-local energy_max = 12000--secs it can survive without food
-local energy_egg = energy_max/3 --energy that goes to egg
-local hb_min = 1000 -- hibernate minimum requirement
-local egg_timer  = 60*40
-local young_per_egg = 3		--will get this/energy_egg starting energy
-
-local lifespan = energy_max * 7
-local mature_age = lifespan / 10
-
 
 
 -----------------------------------
@@ -37,7 +27,7 @@ local function brain(self)
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy, hbnate = animals.core_life(self, lifespan, pos)
+		local age, energy, conserve = animals.core_life(self, self.lifespan, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -62,7 +52,7 @@ local function brain(self)
 			if plyr then
         prty = 55
 				animals.fight_or_flight_plyr(self, plyr, prty, 0.75)
-        hbnate = false -- not hibernating anymore
+        conserve = false -- not hibernating anymore
 			end
 
 			--currently has none
@@ -73,7 +63,7 @@ local function brain(self)
 		----------------------
 		--Low priority actions
 
-		if prty < 20 and hbnate ~= true then
+		if prty < 20 and conserve ~= true then
   
 			--territorial behaviour
 			local rival = animals.territorial(self, energy, true)
@@ -81,13 +71,13 @@ local function brain(self)
 
 			--feeding
 			--hunt prey
-			if energy < energy_max then
+			if energy < self.energy_max then
 				if not animals.prey_hunt(self, 25) then
 					--random search for darkness
 					animals.hq_roam_dark(self,15)
           
-          if (energy <= hb_min) then
-            hbnate = true
+          if (energy <= self.cn_min) then
+            conserve = true
           end
 				end
 			end
@@ -98,19 +88,19 @@ local function brain(self)
 			if random() < 0.1
 			and not rival
 			and self.hp >= self.max_hp
-			and energy >= energy_egg*2
-      and age >= mature_age then
-				energy = animals.place_egg(pos, "animals:darkasthaan_eggs", energy, energy_egg, 'air')
+			and energy >= self.energy_egg*2
+      and age >= self.mature_age then
+				energy = animals.place_egg(self, pos, energy)
 			end
-    elseif (hbnate == true) then
+    elseif (conserve == true) then
       if animals.prey_hunt(self,40) then -- if found food then get outta hibernation
-        hbnate = false
+        conserve = false
       end
 		end
 
 		-------------------
 		--generic behaviour
-		if mobkit.is_queue_empty_high(self) and hbnate ~= true then
+		if mobkit.is_queue_empty_high(self) and conserve ~= true then
 			mobkit.animate(self,'walk')
 			animals.hq_roam_dark(self,10,1)
 		end
@@ -120,7 +110,7 @@ local function brain(self)
 		--save energy, age
 		mobkit.remember(self,'energy',energy)
 		mobkit.remember(self,'age',age)
-    mobkit.remember(self,'hibernate',hbnate) -- to prevent energy loss with no prey around
+    mobkit.remember(self,'conserve',conserve) -- to prevent energy loss with no prey around
 
 	end
 end
@@ -134,41 +124,15 @@ end
 -- the CREATURE
 ---------------
 
---eggs
-minetest.register_node("animals:darkasthaan_eggs", {
-	description = S('Darkasthaan Eggs'),
-	tiles = {"animals_gundu_eggs.png"},
-	stack_max = minimal.stack_max_medium,
-	drawtype = "nodebox",
-	paramtype = "light",
-	node_box = {
-		type = "fixed",
-		fixed = {-0.125, -0.5, -0.125,  0.125, -0.375, 0.125},
-	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-		return animals.hatch_egg(pos, 'air', 'air', "animals:darkasthaan", energy_egg, young_per_egg)
-	end,
-})
-
-
-
-
-
 ----------------------------------------------
 -- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
 animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan")
 animals.add_interactors("rivals","darkasthaan","animals:darkasthaan")
 
-
 ----------------------------------------------
-
 --The Animal
-minetest.register_entity("animals:darkasthaan",{
+local self_data = {
+  name = "animals:darkasthaan",
 	--core
 	physical = true,
 	collide_with_objects = true,
@@ -180,18 +144,12 @@ minetest.register_entity("animals:darkasthaan",{
 	makes_footstep_sound = true,
 	timeout = 0,
 
-
-	--damage
+	-- animal stats
 	max_hp = 200,
 	lung_capacity = 40,
-	min_temp = 10,
-	max_temp = 50,
-
-	--interaction
-	--predators = {"animals:darkasthaan"},
-	rivals = animals.get_interactors("darkasthaan","rivals"),
-	prey = animals.get_interactors("darkasthaan","prey"), 
-  
+  -- comfort temps
+	min_temp = 14,
+	max_temp = 66,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
 
@@ -233,6 +191,10 @@ minetest.register_entity("animals:darkasthaan",{
 	--attack
 	attack={range=0.8, damage_groups={fleshy=12}},
 	armor_groups = {fleshy=100},
+  
+  --interaction
+	rivals = animals.get_interactors("darkasthaan","rivals"),
+	prey = animals.get_interactors("darkasthaan","prey"), 
 
 	--on actions
 	drops = {
@@ -247,10 +209,49 @@ minetest.register_entity("animals:darkasthaan",{
 		end
 		animals.stun_catch_mob(self, clicker, 0.02)
 	end,
+}
+---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
+-- energy and eggs
+self_data.energy_max = 12000   --secs it can survive without food
+self_data.energy_egg = self_data.energy_max/3  --energy that goes to egg
+self_data.egg_timer = 60*30
+self_data.young_per_egg = {1,3}   --will get this/energy_egg starting energy
+self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.7 -- conserve min (minimum point at when to conserve energy)
+-- 70% of the energy given to a newborn
+-- lifespan
+self_data.lifespan = self_data.energy_max * 7
+self_data.mature_age = self_data.lifespan / 10
+---------------------;
+minetest.register_entity("animals:darkasthaan",self_data)
+
+----------------------------------------------
+--eggs
+minetest.register_node("animals:darkasthaan_eggs", {
+	description = S('Darkasthaan Eggs'),
+	tiles = {"animals_darkasthaan_eggs.png^[resize:4x16"},
+	stack_max = minimal.stack_max_medium,
+	drawtype = "nodebox",
+	paramtype = "light",
+	node_box = {
+		type = "fixed",
+		fixed = {-0.125, -0.5, -0.125,  0.125, -0.375, 0.125},
+	},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
+	sounds = nodes_nature.node_sound_defaults(),
+	on_construct = function(pos)
+    local egg_timer = self_data.egg_timer
+		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+	end,
+	on_timer =function(pos, elapsed)
+    local energy_egg = self_data.energy_egg
+    local young_per_egg = self_data.young_per_egg
+    
+		return animals.hatch_egg(self_data, pos)
+	end,
 })
 
 
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:darkasthaan", S("Live Darkasthaan"), "animals_darkasthaan_item.png", minimal.stack_max_medium, energy_egg)
+animals.register_egg("animals:darkasthaan", S("Live Darkasthaan"), "animals_darkasthaan_item.png", minimal.stack_max_medium, self_data)
