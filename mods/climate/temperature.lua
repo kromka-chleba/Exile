@@ -652,11 +652,12 @@ end
 
 --Get line of temperature, can source transmit effect through to the target.
 --returns boolean, and position (though position not currently useds)
-local line_of_temp = function(node_pos, target_pos)
+local line_of_temp = function(node_pos, tgt_pos)
 	--how close it needs to get
 	local step = 0.5
 
 	--get neighboring node, round new_pos to prevent infinite loop at +0.5
+	local target_pos = vector.round(tgt_pos)
 	local stepv = vector.direction(node_pos, target_pos)
 	local new_pos = vector.round(vector.add(node_pos, stepv))
 
