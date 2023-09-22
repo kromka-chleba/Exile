@@ -85,6 +85,7 @@ Plant groups
 `flora`: wild plants, will spread
 `bioluminescent`: a living thing that glows.
 `woodslab`: a log that's been cut in half, e.g. stairs/slabs
+`cana`: refers solely to cana (utilized for crafting)
 
 
 Animals groups
