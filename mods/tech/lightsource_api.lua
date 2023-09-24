@@ -152,7 +152,8 @@ function lightsource.refill(desc, pos, clicker, itemstack)
                 itemstack:take_item()
             end
             lightsource.update_fuel_infotext(desc, pos)
-            return itemstack
+            return true
         end
     end
+    return false
 end

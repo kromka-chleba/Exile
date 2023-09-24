@@ -394,7 +394,10 @@ minetest.register_node("tech:clay_oil_lamp", {
             lightsource.save_to_inventory(oil_lamp_desc, pos, digger, true)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-	   lightsource.extinguish(oil_lamp_desc, pos)
+	   local rt = lightsource.refill(oil_lamp_desc, pos, clicker, itemstack)
+	   if rt == false then
+	      lightsource.extinguish(oil_lamp_desc, pos)
+	   end
 	   lightsource.update_fuel_infotext(oil_lamp_desc, pos)
         end,
 })
