@@ -110,7 +110,7 @@ minetest.register_node("tutorial_exile:invisible_wall", {
         buildable_to = false,
         floodable = false,
 	wield_image = "tech_trapdoor_wattle_side.png",
-	inventory_image = "tech_trapdoor_wattle_side.png",
+	inventory_overlay = "tech_trapdoor_wattle_side.png",
         groups = {temp_pass = 1},
 	post_effect_color = {a = 5, r = 254, g = 254, b = 254},
 	color = {a=0, r=254, g = 254, b = 254},
