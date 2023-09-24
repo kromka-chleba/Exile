@@ -179,6 +179,20 @@ for i = 1, 8 do
    minetest.register_node("tutorial_exile:"..name, def)
 end
 
+minetest.register_node("tutorial_exile:wet_silt_grass", {
+        description = "Wet Woodland Soil",
+        tiles = {"nodes_nature_woodland_soil.png^nodes_nature_mud.png",
+		 "nodes_nature_silt.png^nodes_nature_mud.png",
+		 "nodes_nature_silt.png^"..
+		    "nodes_nature_woodland_soil_side.png^"..
+		    "nodes_nature_mud.png"
+},
+	sounds = { footstep = {name = "nodes_nature_mud", gain = 0.4},
+		   dug = {name = "nodes_nature_mud", gain = 0.4} },
+	groups = { crumbly = 3, falling_node = 1, puts_out_fire = 1 }
+})
+
+
 -- Debug commands
 
 minetest.register_chatcommand("test_tut",{
