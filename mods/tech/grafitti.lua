@@ -155,22 +155,22 @@ grafitti.register_grafitti("tech:scr_up", {image = "tech_paint_scr_up.png"})
 
 grafitti.palette_build("tech:scratching")
 
-grafitti.register_brush("tech:paint_scratching", {
+grafitti.register_brush("tech:stone_etcher", {
     description = S("Stone Etcher"),
     inventory_image = "tech_paint_scratcher.png",
     wield_image = "tech_paint_scratcher.png^[transformR270",
     palette = "tech:scratching"
 })
 
-
-crafting.register_recipe({
-	type = "crafting_spot",
-	output = "tech:paint_scratching",
-	items = {'tech:stone_chopper'},
-	level = 1,
-	always_known = true,
+minetest.override_item("tech:stone_etcher", {
+	_use_tip = "Flip to stone knife",
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   local wear = wielded_item:get_wear()
+	   local knife = ItemStack("tech:stone_chopper")
+	   knife:set_wear(wear)
+	   player:set_wielded_item(knife)
+	end
 })
-
 
 
 ----------------------------------------------------------

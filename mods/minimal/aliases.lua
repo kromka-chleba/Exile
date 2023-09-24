@@ -46,3 +46,7 @@ minetest.register_alias("tech:broken_pottery",
 
 minetest.register_alias("tech:broken_pottery_block",
 			"tech:ruined_pottery")
+
+--Changed in v4
+minetest.register_alias("tech:paint_scratching",
+			"tech:stone_etcher")

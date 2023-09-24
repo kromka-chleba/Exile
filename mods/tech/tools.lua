@@ -189,8 +189,15 @@ minetest.register_tool("tech:stone_chopper", {
 	},
 	groups = {knife = 1, craftedby = 1},
 	_dig_tip = "Cut plants faster than bare hands",
+	_use_tip = "Flip to stone etcher",
 	-- _place_tip = "Place tool for cutting crafts", -- No such crafts yet
 	sound = {breaks = "tech_tool_breaks"},
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   local wear = wielded_item:get_wear()
+	   local etcher = ItemStack("tech:stone_etcher")
+	   etcher:set_wear(wear)
+	   player:set_wielded_item(etcher)
+	end,
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:stone_knife_placed")
         end,
