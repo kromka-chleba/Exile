@@ -173,16 +173,14 @@ minetest.register_node("tech:wooden_ladder", {
  description = S("Wooden Ladder"),
  drawtype = "nodebox",
  node_box = {
-		type = "fixed",
-		fixed = {
-			{0.3125, -0.5, 0.3125, 0.5, 0.5, 0.5}, -- NodeBox12
-			{-0.5, -0.5, 0.3125, -0.3125, 0.5, 0.5}, -- NodeBox13
-			{-0.3125, 0.3125, 0.375, 0.3125, 0.4375, 0.4375}, -- NodeBox14
-			{-0.3125, -0.4375, 0.375, 0.3125, -0.3125, 0.4375}, -- NodeBox15
-			{-0.3125, -0.1875, 0.375, 0.3125, -0.0625, 0.4375}, -- NodeBox16
-			{-0.3125, 0.0625, 0.375, 0.3125, 0.1875, 0.4375}, -- NodeBox17
-		}
-	},
+    type = "fixed",
+    fixed = {
+       {0.3125, -0.5, 0.3125, 0.5, 0.5, 0.5}, -- NodeBox12
+       {-0.5, -0.5, 0.3125, -0.3125, 0.5, 0.5}, -- NodeBox13
+       {-0.3125, -0.3125, 0.375, 0.3125, -0.1875, 0.4375}, -- NodeBox16
+       {-0.3125, 0.1875, 0.375, 0.3125, 0.3125, 0.4375}, -- NodeBox17
+    }
+ },
  tiles = { "tech_stick.png"},
  stack_max = minimal.stack_max_medium,
  paramtype = "light",
