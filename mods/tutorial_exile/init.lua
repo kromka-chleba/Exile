@@ -52,6 +52,8 @@ local function store_player(player)
    local ps = pstore[name]
    ps.pos = player:get_pos()
    ps.hp = player:get_hp()
+   local meta = player:get_meta()
+   meta:set_string("playtime_suspended", "y")
    -- #TODO: get hunger/etc; for people doing the tutorial later optionally
    --  Unnecessary on first login, we'll reset it all when they spawn in anyway
    --  Inventory, too!
@@ -63,6 +65,8 @@ local function restore_player(player)
    if not ps then return end
    player:set_pos(ps.pos)
    player:set_hp(ps.hp)
+   local meta = player:get_meta()
+   meta:set_string("playtime_suspended", "")
    -- #TODO: Restore stats, inventory
    if ps.exit then
       ps.exit(player) -- call spawn function
@@ -174,7 +178,6 @@ for i = 1, 8 do
    end
    minetest.register_node("tutorial_exile:"..name, def)
 end
-
 
 -- Debug commands
 

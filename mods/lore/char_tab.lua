@@ -16,10 +16,12 @@ local function update_playtime(player, meta)
    if not meta then
       meta = player:get_meta()
    end
-   local last = tonumber(meta:get_int("char_time_stamp"))
-   local difference = minetest.get_gametime() - last
-   local time = tonumber(meta:get_int("char_time_survived"))
-   meta:set_int("char_time_survived", time + difference)
+   if not meta:get("playtime_suspended") then
+      local last = tonumber(meta:get_int("char_time_stamp"))
+      local difference = minetest.get_gametime() - last
+      local time = tonumber(meta:get_int("char_time_survived"))
+      meta:set_int("char_time_survived", time + difference)
+   end
    meta:set_int("char_time_stamp", minetest.get_gametime())
 end
 
