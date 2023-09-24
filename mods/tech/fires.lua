@@ -238,10 +238,11 @@ minetest.register_node("tech:charcoal", {
 		minimal.switch_node(pos, {name = "tech:small_charcoal_fire"})
 		minetest.check_for_falling(pos)
 	end,
-	on_rightclick = function (pos,node,clicker,itemstack,pointed_thing) 
-		return minimal.slabs_combine(pos,node,itemstack,'tech:charcoal_block')
+	_use_tip = "Combine with another slab",
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   return minimal.slabs_combine(player, wielded_item,
+					pointed_thing, "tech:charcoal_block")
 	end,
-
 })
 
 
@@ -291,8 +292,11 @@ minetest.register_node('tech:small_wood_fire_unlit', {
 	paramtype = "light",
 	groups = {oddly_breakable_by_hand = 3, choppy = 3, falling_node = 1, flammable = 1},
 	sounds = nodes_nature.node_sound_wood_defaults(),
-	on_rightclick = function (pos,node,clicker,itemstack,pointed_thing) 
-		return minimal.slabs_combine(pos,node,itemstack,'tech:large_wood_fire_unlit')
+	_use_tip = "Combine with another slab",
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   return minimal.slabs_combine(player, wielded_item,
+					pointed_thing,
+					'tech:large_wood_fire_unlit')
 	end,
 	on_burn = function(pos)
 		minimal.switch_node(pos, {name = "tech:small_wood_fire"})
@@ -748,8 +752,10 @@ minetest.register_node('tech:small_wood_fire_ext', {
 	sounds = nodes_nature.node_sound_dirt_defaults(),
 
 	on_dig = on_dig_fire,
-	on_rightclick = function (pos,node,clicker,itemstack,pointed_thing)
-		return minimal.slabs_combine(pos,node,itemstack,'tech:large_wood_fire_ext')
+	_use_tip = "Combine with another slab",
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   return minimal.slabs_combine(player, wielded_item,
+					pointed_thing,'tech:large_wood_fire_ext')
 	end,
 	after_place_node = after_place_fire,
 
@@ -789,8 +795,11 @@ minetest.register_node('tech:small_charcoal_fire_ext', {
 	groups = {crumbly = 3, oddly_breakable_by_hand = 1, falling_node = 1,
 		  temp_pass = 1, flammable = 3},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
-	on_rightclick = function (pos,node,clicker,itemstack,pointed_thing) 
-		return minimal.slabs_combine(pos,node,itemstack,'tech:large_charcoal_fire_ext')
+	_use_tip = "Combine with another slab",
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   return minimal.slabs_combine(player, wielded_item,
+					pointed_thing,
+					'tech:large_charcoal_fire_ext')
 	end,
 	on_dig = on_dig_fire,
 	after_place_node = after_place_fire,

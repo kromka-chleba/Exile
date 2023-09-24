@@ -91,20 +91,23 @@ end
 -- on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
 --     return minimal.slabs_combine(pos,node,itemstack,'tech:large_wood_fire_ext')
 -- end
-function minimal.slabs_combine(pos, node, itemstack, swap_node)
-	if itemstack:get_name() == node.name then
-	-- combine slabs
-		local stack_meta = itemstack:get_meta()
-		if stack_meta:contains("fuel") then
-			local fuel = stack_meta:get_int("fuel")
-			local pt_meta = minetest.get_meta(pos)
-			fuel = fuel + pt_meta:get_int("fuel")
-			pt_meta:set_int("fuel",fuel)
-		end
-		minimal.switch_node(pos,{name=swap_node})
-		itemstack:take_item()
-		return itemstack
-	end
+function minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
+   if not pointed_thing.under then return end -- Can't combine with nothing
+   local pos = pointed_thing.under
+   local node = minetest.get_node(pos)
+   if itemstack:get_name() == node.name then
+      -- combine slabs
+      local stack_meta = itemstack:get_meta()
+      if stack_meta:contains("fuel") then
+	 local fuel = stack_meta:get_int("fuel")
+	 local pt_meta = minetest.get_meta(pos)
+	 fuel = fuel + pt_meta:get_int("fuel")
+	 pt_meta:set_int("fuel",fuel)
+      end
+      minimal.switch_node(pos,{name=swap_node})
+      itemstack:take_item()
+      return itemstack
+   end
 end
 
 local __click_count_ready = {}

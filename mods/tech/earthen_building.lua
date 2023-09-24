@@ -296,11 +296,12 @@ stairs.register_stair_and_slab(
 	nodes_nature.node_sound_leaves_defaults()
 )
 
-minetest.override_item("stairs:slab_thatch",
-		{ on_rightclick = function(pos, node, clicker,
-					   itemstack, pointed_thing)
-		     return minimal.slabs_combine(pos, node, itemstack, "tech:thatch")
-		end,
+minetest.override_item("stairs:slab_thatch", {
+	_use_tip = "Combine with another slab",
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   return minimal.slabs_combine(player, wielded_item,
+					pointed_thing, "tech:thatch")
+	end,
 })
 
 ---------------------------------------
