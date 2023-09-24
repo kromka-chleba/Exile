@@ -188,6 +188,8 @@ minetest.register_tool("tech:stone_chopper", {
 		damage_groups = {fleshy= crude_dmg},
 	},
 	groups = {knife = 1, craftedby = 1},
+	_dig_tip = "Cut plants faster than bare hands",
+	-- _place_tip = "Place tool for cutting crafts", -- No such crafts yet
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:stone_knife_placed")
@@ -247,6 +249,9 @@ minetest.register_tool("tech:digging_stick", {
 	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
         _punch_number = 7, -- how many times you need to hit soil to till it
+	_dig_tip = "Dig hard earth",
+	_use_tip = "Till soil",
+	_place_tip = "Place tool for plant crafts",
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:digging_stick_placed")
         end,
@@ -313,6 +318,8 @@ local stone_chop2 = crude_chop2 * stone
 -- multitool
 --
 
+local adze_dig = "Cut softwood logs"
+
 --stone adze. best for chopping
 minetest.register_tool("tech:adze_granite", {
 	description = S("Granite Adze"),
@@ -328,6 +335,7 @@ minetest.register_tool("tech:adze_granite", {
 	},
 	groups = {axe = 1,craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
+	_dig_tip = adze_dig,
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:adze_granite_placed")
         end,
@@ -375,6 +383,7 @@ minetest.register_tool("tech:adze_basalt", {
 	},
 	groups = {axe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
+	_dig_tip = adze_dig,
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:adze_basalt_placed")
         end,
@@ -423,6 +432,7 @@ minetest.register_tool("tech:adze_jade", {
 	},
 	groups = {axe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
+	_dig_tip = adze_dig,
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:adze_jade_placed")
         end,
@@ -469,6 +479,8 @@ minetest.register_tool("tech:stone_club", {
 		},
 		damage_groups = {fleshy=stone_dmg*2},
 	},
+	_dig_tip = "Strike",
+	_place_tip = "Stun animals",
 	groups = {club = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
 })
@@ -521,6 +533,7 @@ minetest.register_tool("tech:axe_iron", {
 		},
 		damage_groups = {fleshy = iron_dmg},
 	},
+	_dig_tip = "Cut any wood",
 	groups = {axe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -571,6 +584,8 @@ minetest.register_tool("tech:shovel_iron", {
 	},
 	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
+	_dig_tip = "Dig earth quickly",
+	_place_tip = "Place for plant crafts",
         _punch_number = 5,
 	on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:shovel_iron_placed")
@@ -621,6 +636,8 @@ minetest.register_tool("tech:mace_iron", {
 	},
 	groups = {club = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
+	_dig_tip = "Strike",
+	_place_tip = "Stun animals",
 })
 
 --Pick Axe. mining, digging
@@ -637,6 +654,7 @@ minetest.register_tool("tech:pickaxe_iron", {
 		},
 		damage_groups = {fleshy = iron_dmg},
 	},
+	_dig_tip = "Dig stone",
 	groups = {pickaxe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -689,6 +707,9 @@ minetest.register_tool("tech:hoe_iron", {
 	groups = {hoe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         _punch_number = 3, -- how many times you need to hit soil to till it
+	_dig_tip = "Dig hard earth",
+	_use_tip = "Till soil quickly",
+	_place_tip = "Place tool for plant crafts",
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:hoe_iron_placed")
         end,
