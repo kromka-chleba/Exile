@@ -53,51 +53,51 @@ sediment.register_agri_soil_variants(broken_pottery)
 -------------------------------------------------------------------
 --THIS SHOULD BE MOVED somewhere GENERALIZED to handle non-pottery pots
 function water_pot(pos, pot_name, elapsed)
-	local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
-	--collect rain
-	if light == 15 then
-	   if climate.get_rain(pos, light) or
-	      climate.time_since_rain(elapsed) > 0 then
-	          minetest.swap_node(pos, {name = pot_name.."_freshwater"})
-		  return
-	   end
-	else
-		--drain wet sediment into the pot
-		--or melt snow and ice
-		local posa = 	{x = pos.x, y = pos.y+1, z = pos.z}
-		local name_a = minetest.get_node(posa).name
-		if name_a == "air" then
-			return true
-		--[[-- Water puddles make more sense than this now,
-		--especially given disease risks
-		elseif minetest.get_item_group(name_a, "wet_sediment") == 1 then
-			local nodedef = minetest.registered_nodes[name_a]
-			if not nodedef then
-				return true
-			end
-			minetest.set_node(posa, {name = nodedef._dry_name})
-			minetest.set_node(pos, {name = "tech:clay_water_pot_freshwater"})
-			return
-		elseif minetest.get_item_group(name_a, "wet_sediment") == 2 then
-			local nodedef = minetest.registered_nodes[name_a]
-			if not nodedef then
-				return true
-			end
-			minetest.set_node(posa, {name = nodedef._dry_name})
-			minetest.set_node(pos, {name = "tech:clay_water_pot_salt_water"})
-			return
-			]]
-		elseif (name_a == "nodes_nature:ice" or
-			name_a == "nodes_nature:snow_block" or
-			name_a == "nodes_nature:freshwater_source" ) then
-			if climate.can_thaw(posa) then
-				minetest.swap_node(pos, {name = pot_name.."_freshwater"})
-				minetest.remove_node(posa)
-				return
-			end
-		end
-	end
-	return true
+   local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+   --collect rain
+   if light == 15 then
+      if climate.get_rain(pos, light) or
+	 climate.time_since_rain(elapsed) > 0 then
+	 minetest.swap_node(pos, {name = pot_name.."_freshwater"})
+	 return
+      end
+   else
+      --drain wet sediment into the pot
+      --or melt snow and ice
+      local posa = 	{x = pos.x, y = pos.y+1, z = pos.z}
+      local name_a = minetest.get_node(posa).name
+      if name_a == "air" then
+	 return true
+	 --[[-- Water puddles make more sense than this now,
+	    --especially given disease risks
+	    elseif minetest.get_item_group(name_a, "wet_sediment") == 1 then
+	    local nodedef = minetest.registered_nodes[name_a]
+	    if not nodedef then
+	    return true
+	    end
+	    minetest.set_node(posa, {name = nodedef._dry_name})
+	    minetest.set_node(pos, {name = "tech:clay_water_pot_freshwater"})
+	    return
+	    elseif minetest.get_item_group(name_a, "wet_sediment") == 2 then
+	    local nodedef = minetest.registered_nodes[name_a]
+	    if not nodedef then
+	    return true
+	    end
+	    minetest.set_node(posa, {name = nodedef._dry_name})
+	    minetest.set_node(pos, {name = "tech:clay_water_pot_salt_water"})
+	    return
+	 ]]
+      elseif (name_a == "nodes_nature:ice" or
+	      name_a == "nodes_nature:snow_block" or
+	      name_a == "nodes_nature:freshwater_source" ) then
+	 if climate.can_thaw(posa) then
+	    minetest.swap_node(pos, {name = pot_name.."_freshwater"})
+	    minetest.remove_node(posa)
+	    return
+	 end
+      end
+   end
+   return true
 end
 
 
@@ -131,12 +131,14 @@ minetest.register_node("tech:clay_water_pot", {
 	},
 	liquids_pointable = true,
 	on_use = function(itemstack, user, pointed_thing)
-		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
+	   return liquid_store.on_use_empty_bucket(itemstack, user,
+						   pointed_thing)
 	end,
-  on_place = function(itemstack, placer, pointed_thing)
-    return liquid_store.on_place("tech:clay_water_pot", itemstack, placer, pointed_thing)
-  end,
-		--collect rain water
+	on_place = function(itemstack, placer, pointed_thing)
+	   return liquid_store.on_place("tech:clay_water_pot", itemstack, placer,
+					pointed_thing)
+	end,
+	--collect rain water
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(30,60))
 	end,
@@ -184,8 +186,10 @@ minetest.register_node("tech:clay_water_pot_unfired", {
 	   return ncrafting.on_dig_pottery(pos, node, digger, base_firing)
 	end,
 	on_timer = function(pos, elapsed)
-		--finished product, length
-		return ncrafting.fire_pottery(pos, "tech:clay_water_pot_unfired", "tech:clay_water_pot", base_firing)
+	   --finished product, length
+	   return ncrafting.fire_pottery(pos,
+					 "tech:clay_water_pot_unfired",
+					 "tech:clay_water_pot", base_firing)
 	end,
 })
 
@@ -225,8 +229,10 @@ minetest.register_node("tech:clay_storage_pot_unfired", {
 	   return ncrafting.on_dig_pottery(pos, node, digger, base_firing*5)
 	end,
 	on_timer = function(pos, elapsed)
-		--finished product, length
-		return ncrafting.fire_pottery(pos, "tech:clay_storage_pot_unfired", "tech:clay_storage_pot", base_firing+5)
+	   --finished product, length
+	   return ncrafting.fire_pottery(pos,
+					 "tech:clay_storage_pot_unfired",
+					 "tech:clay_storage_pot", base_firing+5)
 	end,
 })
 
@@ -447,7 +453,8 @@ minetest.register_node("tech:clay_watering_can", {
 	groups = {dig_immediate = 3, pottery = 1, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_use = function(itemstack, user, pointed_thing)
-		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
+	   return liquid_store.on_use_empty_bucket(itemstack, user,
+						   pointed_thing)
 	end,
 		--collect rain water
 	on_construct = function(pos)
@@ -487,8 +494,10 @@ minetest.register_node("tech:clay_watering_can_unfired", {
 	   return ncrafting.on_dig_pottery(pos, node, digger, base_firing)
 	end,
 	on_timer = function(pos, elapsed)
-		--finished product, length
-		return ncrafting.fire_pottery(pos, "tech:clay_watering_can_unfired", "tech:clay_watering_can", base_firing)
+	   --finished product, length
+	   return ncrafting.fire_pottery(pos,
+					 "tech:clay_watering_can_unfired",
+					 "tech:clay_watering_can", base_firing)
 	end,
 })
 
@@ -668,12 +677,15 @@ minetest.override_item("tech:clay_water_pot_freshwater",{
 				thirst = 100
 			end
 
-			--could add disease risk, but different sources have different risks
+			--could add disease risk, but different sources have
+			-- different risks
 			--e.g. rain vs mud puddle
 
 			meta:set_int("thirst", thirst)
 			minimal.switch_node(pos, {name = "tech:clay_water_pot"})
-			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
+			minetest.sound_play("nodes_nature_slurp",
+					    {pos = pos, max_hear_distance = 3,
+					     gain = 0.25})
 		end
 	end
 })
@@ -718,62 +730,80 @@ liquid_store.register_stored_liquid(
 	{dig_immediate = 2, pottery = 1})
 
 -- add water to a node with the watering can
-local function water_soil(itemstack, user, pointed_thing, water_source, node_suffix, empty_container)
-	-- if pointed thing is a soil block, water it
-	if pointed_thing.type == "node" then
-		local pos = pointed_thing.under
-		local node = minetest.get_node(pos)
-    
-    -- if pointed thing is ACTUALLY a plant (flora or seed group), find the node underneath it :D
-    if ( (minetest.get_item_group(node.name, "flora") > 0 or minetest.get_item_group(node.name, "seed") > 0) ) then
-      pos = {["x"] = pos.x, ["y"] = pos.y - 1, ["z"] = pos.z} -- cruddy construction of a pos and subtracting the y by 1
-      node = minetest.get_node(pos)
-    end
-    
-		if minetest.get_item_group(node.name, "sediment") > 0 then
-			-- check if watered block exists
-			local wet_node_name = node.name .. node_suffix
-      
-      -- some possible name conditions for improperly named nodes (in accordance to node_suffix "_wet")
-      if not minetest.registered_nodes[wet_node_name] and string.match(node.name,"depleted") then -- depleted nodes with roots have "depleted" behind the "roots", so I declare this if statement first
-        -- IF the provided node is "depleted", look for its proper depleted wet variant
-        wet_node_name = string.gsub(wet_node_name,"_depleted","")
-        wet_node_name = wet_node_name.."_depleted" -- we didn't erase "_wet" from the name
+local function water_soil(itemstack, user, pointed_thing, water_source,
+			  node_suffix, empty_container)
+   -- if pointed thing is a soil block, water it
+   if pointed_thing.type == "node" then
+      local pos = pointed_thing.under
+      local node = minetest.get_node(pos)
+
+      -- if pointed thing is ACTUALLY a plant (flora or seed group),
+      --   find the node underneath it :D
+      if ( (minetest.get_item_group(node.name, "flora") > 0
+	    or minetest.get_item_group(node.name, "seed") > 0) ) then
+	 pos = vector.new(pos.x, pos.y - 1,pos.z)
+	 node = minetest.get_node(pos)
       end
-      if not minetest.registered_nodes[wet_node_name] and string.match(node.name,"roots") then
-        -- IF the provided node is "roots", look for its proper roots wet variant
-        wet_node_name = string.gsub(wet_node_name,"_roots","")
-        wet_node_name = wet_node_name.."_roots" -- we didn't erase "_wet" from the name
+
+      if minetest.get_item_group(node.name, "sediment") > 0 then
+	 -- check if watered block exists
+	 local wet_node_name = node.name .. node_suffix
+
+	 -- some possible name conditions for improperly named nodes
+	 --  (in accordance to node_suffix "_wet")
+	 if not minetest.registered_nodes[wet_node_name] and
+	    string.match(node.name,"depleted") then
+	    -- depleted nodes with roots have "depleted" behind the "roots", so
+	    --  I declare this if statement first
+	    -- IF the provided node is "depleted", look for its proper depleted
+	    --  wet variant
+	    wet_node_name = string.gsub(wet_node_name,"_depleted","")
+	    wet_node_name = wet_node_name.."_depleted"
+	    -- we didn't erase "_wet" from the name
+	 end
+	 if not minetest.registered_nodes[wet_node_name]
+	    and string.match(node.name,"roots") then
+	    -- IF the provided node is "roots", look for its proper roots
+	    --  wet variant
+	    wet_node_name = string.gsub(wet_node_name,"_roots","")
+	    wet_node_name = wet_node_name.."_roots"
+	    -- we didn't erase "_wet" from the name
+	 end
+	 if minetest.registered_nodes[wet_node_name] then
+	    -- replace with watered version
+	    -- keeping the node orientation
+	    minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
+	    -- and empty the bucket
+	    if (minimal.player_in_creative(user)) then
+	       -- unless player is in creative!
+	       return
+	    end
+	    -- remove clay watering can and return empty one
+	    itemstack:take_item()
+	    return ItemStack("tech:clay_watering_can")
+	 end
       end
-			if minetest.registered_nodes[wet_node_name] then
-				-- replace with watered version
-				-- keeping the node orientation
-				minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
-				-- and empty the bucket
-        if (minimal.player_in_creative(user)) then
-          -- unless player is in creative!
-          return
-        end
-				-- remove clay watering can and return empty one
-				itemstack:take_item()
-				return ItemStack("tech:clay_watering_can")
-			end
-		end
-	end
-	-- continue as normal (with a twist)
-	return liquid_store.on_use_filled_bucket(water_source, empty_container, itemstack, user, pointed_thing, false)
+   end
+   -- continue as normal (with a twist)
+   return liquid_store.on_use_filled_bucket(
+      water_source, empty_container,
+      itemstack, user, pointed_thing, false)
 end
 
 --make Watering can able to water a block on click
 minetest.override_item("tech:clay_watering_can_freshwater", {
 	on_use = function(itemstack, user, pointed_thing)
-		return water_soil(itemstack, user, pointed_thing, "nodes_nature:freshwater_source", "_wet","tech:clay_watering_can")
+	   return water_soil(itemstack, user, pointed_thing,
+			     "nodes_nature:freshwater_source", "_wet",
+			     "tech:clay_watering_can")
 	end,
 })
 
 --make Watering can able to water a block on click
 minetest.override_item("tech:clay_watering_can_salt_water", {
 	on_use = function(itemstack, user, pointed_thing)
-		return water_soil(itemstack, user, pointed_thing, "nodes_nature:salt_water_source", "_wet_salty","tech:clay_watering_can")
+	   return water_soil(itemstack, user, pointed_thing,
+			     "nodes_nature:salt_water_source", "_wet_salty",
+			     "tech:clay_watering_can")
 	end,
 })
