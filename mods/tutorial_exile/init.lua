@@ -158,7 +158,7 @@ local lpdef = {
 			 aspect_h = 1,
 			 length = 3 }
 	}},
-	diggable = true,
+	diggable = false,
 	groups = { not_in_creative_inventory = 1,
 		   oddly_breakable_by_hand = 1, },
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
@@ -169,6 +169,7 @@ local lpdef = {
 	   itemstack:replace(pfx..tostring(num))
 	end,
 }
+if minetest.is_creative_enabled() then lpdef.diggable = true end
 for i = 1, 8 do
    local def = table.copy(lpdef)
    local name = lpname..tostring(i)
@@ -178,6 +179,8 @@ for i = 1, 8 do
    end
    minetest.register_node("tutorial_exile:"..name, def)
 end
+
+
 
 minetest.register_node("tutorial_exile:wet_silt_grass", {
         description = "Wet Woodland Soil",
