@@ -239,7 +239,7 @@ minetest.register_node("tech:clay_storage_pot_unfired", {
 
 --unfired oil clay lamp
 minetest.register_node("tech:clay_oil_lamp_unfired", {
-	description = S("Clay Oil Lamp (unfired)"),
+	description = S("Clay Oil Lamps (x4) (unfired)"),
 	tiles = {
 		"nodes_nature_clay.png",
 		"nodes_nature_clay.png",
@@ -312,8 +312,83 @@ minetest.register_node("tech:clay_oil_lamp_unfired", {
 	end,
 	on_timer = function(pos, elapsed)
 		--finished product, length
-		return ncrafting.fire_pottery(pos, "tech:clay_oil_lamp_unfired", "tech:clay_oil_lamp_empty", base_firing)
+		return ncrafting.fire_pottery(pos, "tech:clay_oil_lamp_unfired", "tech:clay_oil_lamps", base_firing)
 	end,
+})
+
+minetest.register_node("tech:clay_oil_lamps",{ -- ^[multiply:#493625
+  description = S("Clay Oil Lamps (x4)"),
+	tiles = {
+    -- literally the clay texture, but built different
+		"nodes_nature_clay.png^[colorize:#38291c:160",
+		"nodes_nature_clay.png^[colorize:#38291c:160",
+		"nodes_nature_clay.png^[colorize:#38291c:160",
+		"nodes_nature_clay.png^[colorize:#38291c:160",
+		"nodes_nature_clay.png^[colorize:#38291c:160",
+		"nodes_nature_clay.png^[colorize:#38291c:160"
+	},
+	drawtype = "nodebox",
+	stack_max = 1,
+	paramtype = "light",
+	paramtype2 = "facedir",
+	use_texture_alpha = c_alpha.clip,
+  node_box = {
+		type = "fixed",
+		fixed = {
+      -- 1
+      {-0.5, -0.5, -0.375, -0.25, -0.4375, -0.125}, -- bottom
+			{-0.4375, -0.4375, -0.3125, -0.3125, -0.3125, -0.1875}, -- stand
+			{-0.5, -0.3125, -0.375, -0.25, -0.125, -0.125}, -- body
+			{-0.4375, -0.25, -0.5, -0.3125, -0.125, -0.375}, -- spout
+			{-0.4375, -0.1875, -0.125, -0.3125, -0.125, -0.0625}, -- handle
+			{-0.4375, -0.3125, -0.125, -0.3125, -0.25, -0.0625}, -- handle
+			{-0.4375, -0.3125, -0.0625, -0.3125, -0.125, 0}, -- back handle
+      -- 2
+      {-0.25, -0.5, 0.125, 0, -0.4375, 0.375}, -- bottom
+			{-0.1875, -0.4375, 0.3125, -0.0625, -0.3125, 0.1875}, -- stand
+			{-0.25, -0.3125, 0.125, 0, -0.125, 0.375}, -- body
+			{-0.1875, -0.25, 0.375, -0.0625, -0.125, 0.5}, -- spout
+			{-0.1875, -0.1875, 0.0625, -0.0625, -0.125, 0.125}, -- handle
+			{-0.1875, -0.3125, 0.0625, -0.0625, -0.25, 0.125}, -- handle
+			{-0.1875, -0.3125, 0, -0.0625, -0.125, 0.0625}, -- back handle
+      -- 3
+      {0, -0.5, -0.375, 0.25, -0.4375, -0.125}, -- bottom
+			{0.0625, -0.4375, -0.3125, 0.1875, -0.3125, -0.1875}, -- stand
+			{0, -0.3125, -0.375, 0.25, -0.125, -0.125}, -- body
+			{0.0625, -0.25, -0.5, 0.1875, -0.125, -0.375}, -- spout
+			{0.0625, -0.1875, -0.125, 0.1875, -0.125, -0.0625}, -- handle
+			{0.0625, -0.3125, -0.125, 0.1875, -0.25, -0.0625}, -- handle
+			{0.0625, -0.3125, -0.0625, 0.1875, -0.125, 0}, -- back handle
+      -- 4
+      {0.25, -0.5, 0.125, 0.5, -0.4375, 0.375}, -- bottom
+			{0.3125, -0.4375, 0.3125, 0.4375, -0.3125, 0.1875}, -- stand
+			{0.25, -0.3125, 0.125, 0.5, -0.125, 0.375}, -- body
+			{0.3125, -0.25, 0.375, 0.4375, -0.125, 0.5}, -- spout
+			{0.3125, -0.1875, 0.0625, 0.4375, -0.125, 0.125}, -- handle
+			{0.3125, -0.3125, 0.0625, 0.4375, -0.25, 0.125}, -- handle
+			{0.3125, -0.3125, 0, 0.4375, -0.125, 0.0625}, -- back handle
+		}
+	},
+  groups = {dig_immediate=3, pottery = 1, temp_pass = 1, falling_node = 1},
+	sounds = nodes_nature.node_sound_stone_defaults(),
+  on_flood = function(pos, oldnode, newnode)
+    minetest.add_item(pos, ItemStack("tech:clay_oil_lamps 1"))
+    return false
+	end,
+  on_dig = function(pos, node, digger)
+    if not (minetest.is_player(digger)) then
+      return
+    end
+    local inv = digger:get_inventory() 
+    local itemstack = ItemStack("tech:clay_oil_lamp_unlit 4") -- 4 FOUR is how many lamps are created
+    if (inv:room_for_item("main", itemstack)) then
+      inv:add_item("main", itemstack)
+      minetest.remove_node(pos)
+    else
+      minetest.chat_send_player(digger:get_player_name(), "No room in inventory!")
+      return
+    end
+  end,
 })
 
 local oil_lamp_desc = lightsource_description.new(
@@ -334,7 +409,7 @@ minetest.register_node("tech:clay_oil_lamp_unlit", {
 		"tech_oil_lamp_front.png"
 	},
 	drawtype = "nodebox",
-	stack_max = minimal.stack_max_medium,
+	stack_max = 4,
 	paramtype = "light",
 	paramtype2 = "facedir",
 	use_texture_alpha = c_alpha.clip,
@@ -546,14 +621,14 @@ minetest.register_node("tech:clay_watering_can_unfired", {
 crafting.register_recipe({
 	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_water_pot_unfired 1",
-	items = {"nodes_nature:clay_wet 4"},
+	items = {"nodes_nature:clay_wet 2"},
 	level = 1,
 	always_known = true,
 })
 
 crafting.register_recipe({
 	type = {"mixing_spot","hand_pottery"},
-	output = "nodes_nature:clay 4",
+	output = "nodes_nature:clay 2",
 	items = {"tech:clay_water_pot_unfired 1"},
 	level = 1,
 	always_known = true,
@@ -564,14 +639,14 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_storage_pot_unfired 1",
-	items = {"nodes_nature:clay_wet 6"},
+	items = {"nodes_nature:clay_wet 4"},
 	level = 1,
 	always_known = true,
 })
 
 crafting.register_recipe({
 	type = {"mixing_spot","hand_pottery"},
-	output = "nodes_nature:clay 6",
+	output = "nodes_nature:clay 4",
 	items = {"tech:clay_storage_pot_unfired 1"},
 	level = 1,
 	always_known = true,
@@ -624,14 +699,14 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_watering_can_unfired 1",
-	items = {"nodes_nature:clay_wet 5"},
+	items = {"nodes_nature:clay_wet 3"},
 	level = 1,
 	always_known = true,
 })
 
 crafting.register_recipe({
 	type = {"crafting_spot","hand_pottery"},
-	output = "nodes_nature:clay 5",
+	output = "nodes_nature:clay 3",
 	items = {"tech:clay_watering_can_unfired 1"},
 	level = 1,
 	always_known = true,
