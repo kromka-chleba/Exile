@@ -194,9 +194,12 @@ function exile_add_food_hooks(name)
    if food_table[name] then
       if minetest.get_item_group(name,'edible') == 0 then
 	 minetest.log("warning", "No edible group set for "..name..", patching")
-	 local groups = minetest.registered_items[name].groups
+	 local groups = minetest.registered_items[name].groups or {}
 	 groups.edible = 1
-	 minetest.override_item(name, {groups = groups})
+	 minetest.override_item(name, {
+				   _use_tip = "Eat",
+				   groups = groups
+	 })
       end
    end
    if bake_table[name] then

@@ -5,3 +5,8 @@ _on_use_node = function(player, pointed_node, pointed_thing, wielded_item)
 _on_use_item = function(player, wielded_item, pointed_thing)
 	Called when the player is holding the item and presses "use"
 	_on_use_node takes precedence over this
+
+ Item descriptions for tooltips, keep them to a single line:
+      _dig_tip = What this item/node does when used to dig
+      _use_tip = Same for AUX1/"Use" key 
+      _place_tip = And on a right click

@@ -41,15 +41,14 @@ local function get_use_string(def)
    -- Figure out what the item is good for, add UI hints accordingly
    local desc = ""
    if def.name == "" then return "" end
-   if def.on_use or def.tool_capabilities then
+   if def._dig_tip then
       desc = desc.."^"
    end
-   if def._on_use_item
-      or def.groups.edible or def.name == "tech:soup" then
+   if def._use_tip then
       if desc ~= ""  then desc = desc.." / " end
       desc = desc.. "◊"
    end
-   if def.on_secondary_use then -- on_use is set for all sorts of things?
+   if def._place_tip then
       if desc ~= ""  then desc = desc.." / " end
       desc = desc.. "v"
    end
