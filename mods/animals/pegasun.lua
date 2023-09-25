@@ -449,7 +449,7 @@ self_data.mature_age = self_data.energy_max * 0.36 -- 36% of energy_max (8000) o
 minetest.register_entity("animals:pegasun",self_data)
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:pegasun", S("Live Pegasun (female)"), "animals_pegasun_item.png", minimal.stack_max_medium, self_data)
+animals.register_egg(self_data, S("Live Pegasun (female)"), "animals_pegasun_item.png", minimal.stack_max_medium)
 
 ----------------------------------------------
 --THE MALE
@@ -565,6 +565,9 @@ local self_male = {
 }
 -- energy and eggs
 self_male.energy_max = self_data.energy_max
+self_male.energy_egg = self_data.energy_egg
+self_male.egg_timer = self_data.egg_timer
+self_male.young_per_egg = self_data.young_per_egg   --will get this/energy_egg starting energy
 -- lifespan
 self_male.lifespan = self_data.lifespan * 1.2 -- if the flock male dies they go extinct
 self_male.mature_age = self_data.mature_age
@@ -572,7 +575,7 @@ self_male.mature_age = self_data.mature_age
 minetest.register_entity("animals:pegasun_male",self_male)
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:pegasun_male", S("Live Pegasun (male)"), "animals_pegasun_item.png", minimal.stack_max_medium, self_data )
+animals.register_egg(self_male, S("Live Pegasun (male)"), "animals_pegasun_item.png", minimal.stack_max_medium)
 
 ----------------------------------------------
 --eggs
