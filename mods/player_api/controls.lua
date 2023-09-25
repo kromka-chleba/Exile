@@ -166,7 +166,7 @@ local function handle_use_key(player, ppos)
 	 nodecall(player, pointed_node, pointed_thing, witem)
 	 using_tool = true
       end
-   else pointed_thing = {} end
+   end
    local wnm = witem:get_name()
    local wdef = minetest.registered_items[wnm]
    if not using_tool and wdef then

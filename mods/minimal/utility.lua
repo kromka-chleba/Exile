@@ -92,7 +92,7 @@ end
 --     return minimal.slabs_combine(pos,node,itemstack,'tech:large_wood_fire_ext')
 -- end
 function minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
-   if not pointed_thing.under then return end -- Can't combine with nothing
+   if not pointed_thing then return end -- Can't combine with nothing
    local pos = pointed_thing.under
    local node = minetest.get_node(pos)
    if itemstack:get_name() == node.name then

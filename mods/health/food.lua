@@ -41,59 +41,6 @@ local function do_food_harm(user, nodename)
    end
 end
 
-local __eat_click_settings_cache = {}
-minetest.register_chatcommand("eat2x", {
-        params = "true | false",
-        description = "Toggles double-click to eat",
-        func = function(name, param)
-        local player = minetest.get_player_by_name(name)
-        local meta = player:get_meta()
-        local eat2x=meta:get_string("conf_eat2x") or minetest.settings:get("exile_eat_doubleclick") or "false"
-        if param and param ~="" then
-                local wlist = "/eat2x:\n"..
-                "Toggle double-click to eat"
-                return false, wlist
-        end
-        if eat2x == "true" then
-                eat2x = "false"
-        else
-                eat2x = "true"
-        end
-
-        meta:set_string("conf_eat2x", eat2x)
-	minetest.chat_send_player(name,"Double-Click to eat: "..eat2x)
-	if eat2x == 'true' then
-		eat2x = true
-	else
-		eat2x = false
-	end
-	__eat_click_settings_cache[name] = not eat2x
-        end,
-})
-
-function eat_ok (itemstack, user, pointed_thing)
-	local pt_pos = minetest.get_pointed_thing_position(pointed_thing)
-	local pname = user:get_player_name()
-	local single_click = __eat_click_settings_cache
-	if single_click[pname] == nil then
-		local pmeta = user:get_meta()
-		local eat2x = pmeta:get_string("conf_eat2x") or minetest.settings:get('exile_eat_doubleclick') or 'false'
-		if eat2x == 'true' then
-			eat2x = true
-		else
-			eat2x = false
-		end
-		single_click[pname] = not eat2x
-	end
-	if ( single_click[pname] ) or minimal.click_count_ready(pname,
-								"eat2x",
-								pt_pos,
-								2, 2) then
-		return true
-	else
-	minetest.chat_send_player(pname, S("double click to eat"))
-	end
-end
 
 function exile_eatdrink_playermade(itemstack, user, pointed_thing)
    local imeta = itemstack:get_meta()
@@ -104,9 +51,7 @@ function exile_eatdrink_playermade(itemstack, user, pointed_thing)
 				    itemstack:get_name())
       return
    end
-   if eat_ok(itemstack, user, pointed_thing) then
-	  return HEALTH.use_item(itemstack, user, t[1], t[2], t[3], t[4], t[5], t[6])
-   end
+   return HEALTH.use_item(itemstack, user, t[1], t[2], t[3], t[4], t[5], t[6])
 end
 
 function exile_eatdrink(itemstack, user, pointed_thing)
@@ -120,13 +65,9 @@ function exile_eatdrink(itemstack, user, pointed_thing)
 				S("This is inedible."))
       return
    end
-   if eat_ok(itemstack, user, pointed_thing) then
-	   do_food_harm(user, name)
-	   local t = food_table[name]
-	   return HEALTH.use_item(itemstack, user, t[1], t[2], t[3], t[4], t[5], t[6])
-   else
-      return
-   end
+   do_food_harm(user, name)
+   local t = food_table[name]
+   return HEALTH.use_item(itemstack, user, t[1], t[2], t[3], t[4], t[5], t[6])
 end
 
 
