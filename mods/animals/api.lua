@@ -239,18 +239,21 @@ function animals.core_life(self, lifespan, pos)
   end
 
   age = age + 1
-  if (conserve == false) then
-    energy = energy - energy_loss
-  elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
-    energy = energy - energy_loss
-  end
-
-  --die from exhaustion, old age
-  if energy <=0 or age > lifespan then
+  
+  animals.vitals(self)
+  --die from exhaustion, old age, no hp
+  local hp = self.hp
+  if energy <= 0 or age > lifespan or self.hp <= 0 then
     mobkit.clear_queue_high(self)
     animals.handle_drops(self)
     mobkit.hq_die(self)
     return nil
+  end
+  
+  if (conserve == false) then
+    energy = energy - energy_loss
+  elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
+    energy = energy - energy_loss
   end
 
   -- get temp
@@ -1841,4 +1844,5 @@ function animals.vitals(self)
       mobkit.hurt(self,self.max_hp*0.1)
     end
 	end
+  return
 end

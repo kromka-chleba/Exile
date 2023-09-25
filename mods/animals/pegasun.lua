@@ -15,11 +15,6 @@ local floor = math.floor
 
 -----------------------------------
 local function brain(self)
-	--die from damage
-	if not animals.core_hp(self) then
-		return
-	end
-
 	if mobkit.timer(self,1) then
     
 		local pos = mobkit.get_stand_pos(self)
@@ -179,12 +174,6 @@ end
 -----------------------------------
 --MALE BEHAVIOUR
 local function brain_male(self)
-
-	--die from damage
-	if not animals.core_hp(self) then
-		return
-	end
-
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
