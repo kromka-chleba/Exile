@@ -156,9 +156,14 @@ function animals.core_hp(self)
   
   if (velocity_delta > mobkit.safe_velocity) then
     -- let's see if there's a node with fall_damage_add_percent first
-    local node = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y = -1}))
+    local pos = mobkit.pos_shift(self.object:get_pos(),{y = -1})
+    local drawtype, node = node_drawtype(pos)
+    if (drawtype == "airlike") then
+      pos = mobkit.pos_shift(pos,{y = -1})
+      drawtype, node = node_drawtype(pos)
+    end
     
-    if (type(node) == "table") then
+    if (node.name ~= nil) then
       local multiplier = node.groups.fall_damage_add_percent -- used for fall damage calculation
       if (type(multiplier) == "number") then
         -- convert multiplier into a usable decimal
@@ -174,11 +179,18 @@ function animals.core_hp(self)
         velocity_delta = floor(velocity_delta * multiplier)
       end
       
-      if (node.drawtype == "airlike") then
-        -- this ouchy code got initiated in air
-        -- sometimes this happens when trampolining and it will hurt the mob by a lot...
-        -- so let's pretend they landed on something soft and multiply the velocity_delta by 0.5 :D (because this'll also activate when mobs land on other mobs or players)
-        velocity_delta = velocity_delta * 0.5
+      if (drawtype == "airlike") then
+        multiplier = 0 -- lazily reuse multiplier to check whether or not it's hitting entity or air
+        local obj = minetest.get_objects_inside_radius(pos,1) -- look for an object nearby
+        obj = obj[random(1,#obj)] -- lazily get one of em
+        if obj then
+          obj = obj:get_luaentity()
+          if obj and obj.physical == true and obj.collide_with_objects == true then
+            -- landed on someone, cushion it
+            multiplier = 0.5
+          end
+        end
+        velocity_delta = velocity_delta * multiplier
       end
     end
   end
