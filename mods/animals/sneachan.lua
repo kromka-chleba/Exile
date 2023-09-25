@@ -170,7 +170,7 @@ local self_data = {
 	max_hp = 3,
 	lung_capacity = 10,
   -- comfort temps
-	min_temp = 3,
+	min_temp = 1,
 	max_temp = 50,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
@@ -270,7 +270,7 @@ minetest.register_node("animals:sneachan_eggs", {
     local young_per_egg = self_data.young_per_egg
     
     local temp = climate.get_point_temp(pos)
-    if (temp < 14 ) then
+    if (temp < 10 ) then
       -- don't hatch and keep timer going if temp is too uncomfortably cold
       minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*4))
       return false
