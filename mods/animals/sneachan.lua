@@ -24,7 +24,7 @@ local function brain(self)
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, self.lifespan, pos)
+		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
 		if not age then
 			return

@@ -50,7 +50,7 @@ local function brain(self)
 
 	if mobkit.timer(self,1) then
 		-- Also recharges health from energy
-		local age, energy = animals.core_life(self, self.lifespan, pos)
+		local age, energy = animals.core_life(self, pos)
 
 		--die from exhaustion or age
 		if not age then

@@ -234,12 +234,13 @@ end
 
 ----------------------------------------------------
 --core health, energy and age
-function animals.core_life(self, lifespan, pos)
+function animals.core_life(self, pos)
 
   local energy = mobkit.recall(self,'energy')
   local age = mobkit.recall(self,'age')
   local conserve = mobkit.recall(self,'conserve')
   
+  local lifespan = self.lifespan or 2
   local energy_loss = self.energy_loss or 0.25
 
   --stops some crashes in creative?
