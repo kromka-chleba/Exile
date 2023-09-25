@@ -16,6 +16,9 @@ local floor = math.floor
 
 -----------------------------------
 local function brain(self)
+  -- calculate instantanious effects
+  animals.core_hp(self)
+  
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
@@ -28,12 +31,6 @@ local function brain(self)
 
 		------------------
 		--Emergency actions
-
-		--swim to shore
-		if self.isinliquid then
-			mobkit.hq_liquid_recovery(self,60)
-		end
-
 
 		local prty = mobkit.get_queue_priority(self)
 		-------------------

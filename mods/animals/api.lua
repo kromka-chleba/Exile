@@ -148,20 +148,47 @@ function animals.handle_drops(self)
  end
 
 ----------------------------------------------------
---core health
+--core health (meant for instantanious effect checks)
 function animals.core_hp(self)
-  --default drowing and fall damage
-  animals.vitals(self)
-  --die from damage
-  local hp = self.hp
-  if hp <= 0 then
-    mobkit.clear_queue_high(self)
-    animals.handle_drops(self)
-    mobkit.hq_die(self)
-    return false
-  else
-    return true
+  -- vitals: fall damage
+	local vel = self.object:get_velocity()
+	local velocity_delta = abs(self.lastvelocity.y - vel.y)
+  
+  if (velocity_delta > mobkit.safe_velocity) then
+    -- let's see if there's a node with fall_damage_add_percent first
+    local node = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y = -1}))
+    
+    if (type(node) == "table") then
+      local multiplier = node.groups.fall_damage_add_percent -- used for fall damage calculation
+      if (type(multiplier) == "number") then
+        -- convert multiplier into a usable decimal
+        multiplier = multiplier/100
+        if (multiplier <= 0) then
+          -- if it's negative, make positive, and subtract it by 1 to get the result of which velocity should be of itself (-70 = 0.3)
+          multiplier = -multiplier
+          multiplier = 1 - multiplier
+        else
+          multiplier = 1 + multiplier
+        end
+        
+        velocity_delta = floor(velocity_delta * multiplier)
+      end
+      
+      if (node.drawtype == "airlike") then
+        -- this ouchy code got initiated in air
+        -- sometimes this happens when trampolining and it will hurt the mob by a lot...
+        -- so let's pretend they landed on something soft and multiply the velocity_delta by 0.5 :D (because this'll also activate when mobs land on other mobs or players)
+        velocity_delta = velocity_delta * 0.5
+      end
+    end
   end
+  
+	if velocity_delta > mobkit.safe_velocity then
+    -- alright, time to do some damage if it's still over safe_velocity
+    local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
+    
+    self.hp = self.hp - damage
+	end
 end
 
 
@@ -1777,56 +1804,18 @@ end
 
 -- Taken directly from mobkit to properly calculate fall damage
 function animals.vitals(self)
-	-- vitals: fall damage
-	local vel = self.object:get_velocity()
-	local velocity_delta = abs(self.lastvelocity.y - vel.y)
-  
-  if (velocity_delta > mobkit.safe_velocity) then
-    minetest.log("fall damage calc")
-    -- let's see if there's a node with fall_damage_add_percent first
-    local node = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y = -1}))
-    
-    if (type(node) == "table") then
-      local multiplier = node.groups.fall_damage_add_percent -- used for fall damage calculation
-      if (type(multiplier) == "number") then
-        -- convert multiplier into a usable decimal
-        multiplier = multiplier/100
-        if (multiplier <= 0) then
-          -- if it's negative, make positive, and subtract it by 1 to get the result of which velocity should be of itself (-70 = 0.3)
-          multiplier = -multiplier
-          multiplier = 1 - multiplier
-        else
-          multiplier = 1 + multiplier
-        end
-        
-        velocity_delta = floor(velocity_delta * multiplier)
-      end
-      
-      if (node.drawtype == "airlike") then
-        -- this ouchy code got initiated in air
-        -- sometimes this happens when trampolining and it will hurt the mob by a lot...
-        -- so let's pretend they landed on something soft and multiply the velocity_delta by 0.5 :D (because this'll also activate when mobs land on other mobs or players)
-        velocity_delta = velocity_delta * 0.5
-      end
-    end
-  end
-  
-	if velocity_delta > mobkit.safe_velocity then
-    minetest.log("OW FALL DAMAGE")
-    -- alright, time to do some damage if it's still over safe_velocity
-    local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
-    
-    self.hp = self.hp - damage
-	end
+	
 	
 	-- vitals: oxygen
 	if self.lung_capacity then
 		local colbox = self.object:get_properties().collisionbox
 		local drawtype = node_drawtype(mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})) -- node at hitbox top
     
-    if (self.class ~= 2) then
-      if drawtype == 'liquid' then 
-        self.oxygen = self.oxygen - self.dtime
+    if (self.class ~= 2 and self.oxygen > 0) then
+      if drawtype == 'liquid' then
+        self.oxygen = self.oxygen - 1
+        -- swim to shore
+        animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
       else
         self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
       end
@@ -1834,15 +1823,41 @@ function animals.vitals(self)
       if drawtype == 'liquid' then
         self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
       else
-        self.oxygen = self.oxygen - self.dtime
+        self.oxygen = self.oxygen - 1
       end
     end
 			
 		if self.oxygen <= 0 then
-      minetest.log("GLUBLUB")
       -- drown by 10% of max_hp
       mobkit.hurt(self,self.max_hp*0.1)
     end
 	end
   return
+end
+
+-- rewrite of mobkit's hq_liquid_recovery because it'd literally instakill
+function animals.hq_liquid_recovery(self,prty)
+  local radius = 1
+	local yaw = 0
+	local func = function(self)
+		if not self.isinliquid then return true end
+		local pos=self.object:get_pos()
+		local vec = minetest.yaw_to_dir(yaw)
+		local pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
+		local height, liquidflag = mobkit.get_terrain_height(pos2)
+		if height and not liquidflag then
+			mobkit.hq_swimto(self,prty,pos2)
+			return true
+		end
+    yaw=yaw+pi*0.25
+    if yaw>2*pi then
+			yaw = 0
+			radius=radius+1
+			if radius > self.view_range then
+        -- swim anywhere! (or try to...)
+				mobkit.hq_swimto(self,prty,pos2)
+			end	
+		end
+  end
+  mobkit.queue_high(self,func,prty)
 end
