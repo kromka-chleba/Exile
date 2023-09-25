@@ -449,7 +449,7 @@ function soil.till(itemstack, puncher, pointed_thing)
     end
     --living surface level sediment
     if minetest.get_item_group(node_name, "spreading") == 1 or
-        minetest.get_item_group(node_name, "fertile_soil") then
+        minetest.get_item_group(node_name, "fertile_soil") >= 1 then
         --figure out what soil it is from dropped
         local ag_soil = nodedef._ag_soil
         minimal.switch_node(pointed_thing.under, {name = ag_soil})

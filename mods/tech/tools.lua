@@ -274,7 +274,7 @@ local function till_soil(player, wielded_item, pointed_thing)
       return
    end
    if minetest.get_item_group(node.name, "spreading") == 1 or
-      minetest.get_item_group(node.name, "fertile_soil") then
+      minetest.get_item_group(node.name, "fertile_soil") >= 1 then
       local uses = wielded_item:get_tool_capabilities().groupcaps.tilling.uses
       if false or not (minimal.player_in_creative(player)) then
 	 wielded_item:add_wear(65535 / uses)
