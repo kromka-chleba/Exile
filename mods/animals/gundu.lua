@@ -192,7 +192,7 @@ end
 
 ----------------------------------------------
 -- SETTING OF GUNDU INTERACTOR SETTINGS
-animals.add_interactors("predators","gundu","animals:sarkamos", "animals:kubwakubwa")
+animals.add_interactors("predators","gundu","animals:sarkamos")
 animals.add_interactors("rivals","gundu","animals:gundu")
 animals.add_interactors("friends","gundu","animals:gundu")
 
