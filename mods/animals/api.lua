@@ -1077,8 +1077,8 @@ function animals.prey_hunt(self, prty)
     if tgtobj then
       local tgtpos = tgtobj:get_pos()
       local drawtype = node_drawtype(tgtpos)
-      if (drawtype == "liquid") then
-        -- look for a solid node underneath (safe to hunt)
+      if (drawtype == "liquid" and self.oxygen_min) then
+        -- look for a solid node underneath (safe to hunt) and if meant to hunt prey that's in water
         tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
         drawtype = node_drawtype(tgtpos)
       end
@@ -1820,7 +1820,7 @@ function animals.vitals(self)
     -- utilized by non-water animals
     -- determines whether or not the animal should try to get out (if there's too much water)
     local dangerous = false
-    if (node_drawtype(mobkit.pos_shift(lowpos,{y=-1})) == "liquid" or node_drawtype(mobkit.pos_shift(lowpos,{y=1})) == "liquid") then
+    if (node_drawtype(mobkit.pos_shift(lowpos,{y=-1})) == "liquid" or node_drawtype(mobkit.pos_shift(lowpos,{y=1})) == "liquid" or oxygen_min == self.lung_capacity) then
       dangerous = true
     end
     
@@ -1867,12 +1867,28 @@ function animals.hq_liquid_recovery(self,prty)
 		end
     yaw=yaw+pi*0.25
     if yaw>2*pi then
-			yaw = 0
 			radius=radius+1
 			if radius > self.view_range then
+        yaw = random(0,(yaw+pi*2) * 100) -- random direction attempt (save decimals)
+        yaw = yaw/100
+        radius = random(math_clamp(3,self.view_range,self.view_range),self.view_range)
         -- swim anywhere! (or try to...)
-				mobkit.hq_swimto(self,prty,pos2)
-			end	
+        mobkit.turn2yaw(self,yaw)
+        vec = minetest.yaw_to_dir(yaw)
+        pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
+        
+        if (node_drawtype(pos2) ~= "liquid" or node_drawtype(mobkit.pos_shift(pos2,{y=1})) ~= "liquid") then
+          -- made my OWN swimto because mobkit SUCKS 3:<
+          pos2 = vector.normalize(vector.direction({x = pos.x, y = pos2.y, z = pos.z}, pos2))
+          mobkit.turn2yaw(self,minetest.dir_to_yaw(pos2))
+          pos2 = vector.multiply(pos2,3)
+          pos2.y = pos2.y + (self.view_range * 1.5)
+          self.object:set_velocity(pos2)
+        end
+        
+        radius = 1
+			end
+      yaw = 0
 		end
   end
   mobkit.queue_high(self,func,prty)
