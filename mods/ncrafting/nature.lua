@@ -6,7 +6,8 @@ local function get_soil_pos(pos)
     pos.y = pos.y - 1
     node = minetest.get_node(pos)
   end
-  if minimal.in_group(node,"sediment") then
+  if minimal.in_group(node,"sediment") or
+     minimal.in_group(node,"dry_sediment")  then
     return pos
   -- permit interactions with compost
   elseif minetest.get_item_group(node.name,"compost") == 1 or minetest.get_item_group(node.name,"undecomposed_compost") == 1 then

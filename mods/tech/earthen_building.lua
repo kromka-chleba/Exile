@@ -3,6 +3,7 @@
 -- construction from loose stones, mud etc
 
 -- Internationalization
+tech = tech
 local S = tech.S
 
 local c_alpha = minimal.compat_alpha
@@ -108,9 +109,83 @@ stairs.register_stair_and_slab(
 	nodes_nature.node_sound_dirt_defaults()
 )
 
+------------------------------------------
+--Wicker well lining
 
-	-----------------------------------------------------------
-	--WATTLE
+-- Has wet/dry_sediment groups, but not sediment;
+--  allows water to permeate, but prevents collapse due to erosion
+-- Like wattle, doesn't fall. Should it? Needs play testing
+
+local wickdef =  {
+   description = S('Wicker well lining'),
+   drawtype = "normal",
+   paramtype = "light",
+   paramtype2 = "4dir",
+   use_texture_alpha = c_alpha.clip,
+   --inventory_image = "tech_wattle.png",
+   --wield_image = "tech_wattle.png",
+   stack_max = minimal.stack_max_bulky * 3,
+   groups = {choppy = 3, oddly_breakable_by_hand = 1,
+   },
+   sounds = nodes_nature.node_sound_wood_defaults(),
+}
+
+local soiltable = { "loam", "silt", "clay", "gravel", "sand" }
+local wtable = { "", "_wet","_wet_salty" }
+local bn = 'tech:wicker_lined_'
+local c = nodes_nature.replacement_types
+
+for i = 1, #soiltable do
+   local wdef = table.copy(wickdef)
+   wdef.drop = { max_items = 2,
+		 items = {
+		    { items = { "nodes_nature:"..soiltable[i] } },
+		    { items = {"tech:wattle"} },
+		 }
+   }
+   wdef._dry_name = bn..soiltable[i]
+   wdef._wet_name = bn..soiltable[i]..wtable[2]
+   wdef._wet_salty_name = bn..soiltable[i]..wtable[3]
+   for j = 1, #wtable do
+      local wdef2 = table.copy(wdef)
+      wdef2.groups.wet_sediment = j - 1
+      if j == 1 then wdef2.groups.dry_sediment = 1 end
+      local tile = "nodes_nature_"..soiltable[i]..".png"
+      if j == 2 then tile = tile.."^nodes_nature_mud.png" end
+      if j == 3 then tile = tile.."^nodes_nature_mud_salt.png" end
+      local wicker = "tech_wattle.png"
+      if j > 1 then wicker = wicker.."^nodes_nature_mud.png" end
+      wdef2.tiles = {tile, tile, tile, tile, tile, wicker }
+      minetest.register_node(bn..soiltable[i]..wtable[j],
+			     wdef2)
+   end
+   tgcr.register_replacement(bn..soiltable[i]..wtable[1],
+			     bn..soiltable[i]..wtable[2], c.REPLACEMENT_WET)
+   tgcr.register_replacement(bn..soiltable[i]..wtable[1],
+			     bn..soiltable[i]..wtable[3], c.REPLACEMENT_SALTY)
+   tgcr.register_replacement(bn..soiltable[i]..wtable[2],
+			     bn..soiltable[i]..wtable[1], c.REPLACEMENT_DRY)
+   tgcr.register_replacement(bn..soiltable[i]..wtable[3],
+			     bn..soiltable[i]..wtable[1], c.REPLACEMENT_DRY)
+end
+
+local function wellmaker(user,itemstack, pointed_thing)
+   if not user or not minetest.is_player(user) then return end
+   if not pointed_thing or pointed_thing.type ~= "node" then return end
+   local node = minetest.get_node(pointed_thing.under)
+   if minetest.get_item_group(node.name, "sediment") == 0 then return end
+   local def = minetest.registered_nodes[node.name]
+   if not def then return end
+   local soil = string.gsub(def.drop or def.name, def.mod_origin..":", "")
+   local p2 = minetest.dir_to_fourdir(user:get_look_dir())
+   minetest.set_node(pointed_thing.under, {name = bn..soil, param2 = p2})
+   if minimal.player_in_creative(user) then return end
+   itemstack:take_item()
+   return itemstack
+end
+
+-----------------------------------------------------------
+--WATTLE
 
 minetest.register_node('tech:wattle', {
 	description = S('Wattle'),
@@ -152,6 +227,8 @@ minetest.register_node('tech:wattle', {
 	stack_max = minimal.stack_max_bulky * 3,
 	groups = {choppy = 3, oddly_breakable_by_hand = 1, flammable = 2},
 	sounds = nodes_nature.node_sound_wood_defaults(),
+	_use_tip = S("Reinforce a well wall"),
+	_on_use_item = wellmaker,
 })
 
 --a crude window... or for resource saving
@@ -263,7 +340,6 @@ minetest.register_node('tech:wattle_door_frame', {
 	sounds = nodes_nature.node_sound_wood_defaults(),
 	on_construct = wdf_connect_to_door,
 })
-
 
 
 ------------------------------------------
