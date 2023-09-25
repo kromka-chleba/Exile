@@ -267,8 +267,8 @@ function animals.core_life(self, pos)
   --die from exhaustion, old age, no hp
   local hp = self.hp
   if energy <= 0 or age > lifespan or self.hp <= 0 then
-    if type(self.emergency_egg) == "function" then
-      self.emergency_egg(self, pos)
+    if type(self.on_death) == "function" then
+      self.on_death(self, pos)
     end
     mobkit.clear_queue_high(self)
     animals.handle_drops(self)

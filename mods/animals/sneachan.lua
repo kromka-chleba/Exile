@@ -226,7 +226,7 @@ local self_data = {
 		end
 		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
-  emergency_egg = function(self, pos)
+  on_death = function(self, pos)
     if animals.temp_comfy(self) then
       return
     end
