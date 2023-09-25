@@ -79,7 +79,7 @@ local function brain(self)
 			end
 			-- Temp out of range
 			local temp = climate.get_point_temp(pos)
-			if temp < self.min_temp or temp > self.max_temp then
+			if not animals.temp_comfy(self,temp) then
 				local vel = self.object:get_velocity()
 				vel.y = vel.y-0.2
 				self.object:set_velocity(vel)
