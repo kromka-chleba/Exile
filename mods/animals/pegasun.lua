@@ -277,7 +277,7 @@ local function brain_male(self)
       
       if (random() <= hng_percent ) then
         --feed via a method
-        if (animals.eat_flora(pos,0.005) == true) then -- mmm plants
+        if (animals.eat_flora(pos,0.0005) == true) then -- mmm plants
           energy = energy + 50
         elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
           --wander randomly for plants if can't find prey
