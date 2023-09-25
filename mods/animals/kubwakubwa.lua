@@ -117,7 +117,7 @@ end
 ----------------------------------------------
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
 animals.add_interactors("predators","kubwakubwa","animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("prey","kubwakubwa","animals:pegasun","animals:sneachan", "animals:impethu")
+animals.add_interactors("prey","kubwakubwa","animals:pegasun","animals:sneachan", "animals:impethu", "animals:gundu")
 animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa","animals:pegasun_male")
 
 
@@ -140,6 +140,7 @@ local self_data = {
 	-- animal stats
 	max_hp = 20,
 	lung_capacity = 20,
+  breathing_rate = 4,
   -- comfort temps
 	min_temp = 7,
 	max_temp = 56,
@@ -217,6 +218,7 @@ self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.4 -- 
 -- lifespan
 self_data.lifespan = self_data.energy_max * 6
 self_data.mature_age = self_data.energy_max/2
+self_data.oxygen_min = self_data.lung_capacity * 0.4
 ---------------------;
 minetest.register_entity("animals:kubwakubwa",self_data)
 

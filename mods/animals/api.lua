@@ -1070,9 +1070,23 @@ function animals.prey_hunt(self, prty)
 
   for  _, prey in ipairs(self.prey) do
     local tgtobj = mobkit.get_closest_entity(self,prey)
+    --if tgtobj then
+      --animals.hq_attack_eat(self,prty,tgtobj)
+      --return true
+    --end
     if tgtobj then
-      animals.hq_attack_eat(self,prty,tgtobj)
-      return true
+      local tgtpos = tgtobj:get_pos()
+      local drawtype = node_drawtype(tgtpos)
+      if (drawtype == "liquid") then
+        -- look for a solid node underneath (safe to hunt)
+        tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
+        drawtype = node_drawtype(tgtpos)
+      end
+      
+      if (drawtype ~= "liquid") then
+        animals.hq_attack_eat(self,prty,tgtobj)
+        return true
+      end
     end
   end
 end
@@ -1798,19 +1812,31 @@ function animals.vitals(self)
 	-- vitals: oxygen
 	if self.lung_capacity then
 		local colbox = self.object:get_properties().collisionbox
-		local drawtype = node_drawtype(mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})) -- node at hitbox top
+    local lowpos = mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})
+		local drawtype = node_drawtype(lowpos) -- node at hitbox top
+    
+    local oxygen_min = self.oxygen_min or self.lung_capacity
+    local breathing_rate = self.breating_rate or 2
+    -- utilized by non-water animals
+    -- determines whether or not the animal should try to get out (if there's too much water)
+    local dangerous = false
+    if (node_drawtype(mobkit.pos_shift(lowpos,{y=-1})) == "liquid" or node_drawtype(mobkit.pos_shift(lowpos,{y=1})) == "liquid") then
+      dangerous = true
+    end
     
     if (self.class ~= 2 and self.oxygen > 0) then
       if drawtype == 'liquid' then
         self.oxygen = self.oxygen - 1
-        -- swim to shore
-        animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
+        if (self.oxygen <= oxygen_min or dangerous == true) then -- if uncomfortable
+          -- swim to shore
+          animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
+        end
       else
-        self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
+        self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
       end
     elseif (self.oxygen > 0) then
-      if drawtype == 'liquid' then
-        self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
+      if self.isinliquid then
+        self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
       else
         self.oxygen = self.oxygen - 1
       end
