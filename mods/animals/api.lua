@@ -45,8 +45,15 @@ end
 
 
 local function node_drawtype(pos)
-  local node = minetest.get_node_or_nil(pos)
-  if (type(node) == "nil") then
+  if not (type(pos) == "table") then
+    return {}
+  end
+  local node = pos
+  if (pos.x and pos.y and pos.z) then
+    -- if pos is a pos, otherwise continue as is
+    node = minetest.get_node_or_nil(pos)
+  end
+  if (type(node) == "nil" or type(node.name) ~= "string") then
     node = {}
   else
     node = minetest.registered_nodes[node.name]
@@ -1772,6 +1779,7 @@ function animals.vitals(self)
 	local velocity_delta = abs(self.lastvelocity.y - vel.y)
   
   if (velocity_delta > mobkit.safe_velocity) then
+    minetest.log("fall damage calc")
     -- let's see if there's a node with fall_damage_add_percent first
     local node = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y = -1}))
     
@@ -1801,6 +1809,7 @@ function animals.vitals(self)
   end
   
 	if velocity_delta > mobkit.safe_velocity then
+    minetest.log("OW FALL DAMAGE")
     -- alright, time to do some damage if it's still over safe_velocity
     local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
     
@@ -1810,13 +1819,26 @@ function animals.vitals(self)
 	-- vitals: oxygen
 	if self.lung_capacity then
 		local colbox = self.object:get_properties().collisionbox
-		local headnode = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})) -- node at hitbox top
-		if headnode and headnode.drawtype == 'liquid' then 
-			self.oxygen = self.oxygen - self.dtime
-		else
-			self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
-		end
+		local drawtype = node_drawtype(mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})) -- node at hitbox top
+    
+    if (self.class ~= 2) then
+      if drawtype == 'liquid' then 
+        self.oxygen = self.oxygen - self.dtime
+      else
+        self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
+      end
+    else
+      if drawtype == 'liquid' then
+        self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
+      else
+        self.oxygen = self.oxygen - self.dtime
+      end
+    end
 			
-		if self.oxygen <= 0 then mobkit.hurt(self,self.max_hp*0.1) end	-- drown by 10% of max_hp
+		if self.oxygen <= 0 then
+      minetest.log("GLUBLUB")
+      -- drown by 10% of max_hp
+      mobkit.hurt(self,self.max_hp*0.1)
+    end
 	end
 end
