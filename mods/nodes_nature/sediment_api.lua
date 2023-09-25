@@ -10,6 +10,7 @@ local ms = mapchunk_shepherd
 
 local c_alpha = minimal.compat_alpha
 local c = nodes_nature.replacement_types
+tgcr = tgcr
 
 registered_sediments = {}
 
@@ -101,7 +102,7 @@ defer_tgcr = {
 	end,
 }
 
-	
+
 
 -- Soil erosion and fertilizers
 -----------------------------------
@@ -153,27 +154,6 @@ local function erode_deplete_ag_soil(pos)
         end
     end
     return true
-end
-
--- dirt particles
-function dirt_particle(pos, node_name)
-    return {
-        amount = 10,
-        time = 0.5,
-        minpos = {x = pos.x - 0.5, y = pos.y - 0.50, z = pos.z - 0.5},
-        maxpos = {x = pos.x + 0.5, y = pos.y, z = pos.z + 0.5},
-        minvel = {x= -0.1, y= 2, z= -0.1},
-        maxvel = {x= 0.1, y= 4, z= 0.1},
-        minacc = {x= 0, y= -10, z= 0},
-        maxacc = {x= 0, y= -10, z= 0},
-        minexptime = 1.5,
-        maxexptime = 1.5,
-        minsize = 0.4,
-        maxsize = 1,
-        collisiondetection = true,
-        vertical = false,
-        node = {name = node_name, param2 = 0},
-    }
 end
 
 --For using fertilizer on punch
@@ -462,18 +442,9 @@ function soil.till(itemstack, puncher, pointed_thing)
         return
     end
     local under = minetest.get_node(pointed_thing.under)
-    local p = {x=pointed_thing.under.x, y=pointed_thing.under.y+1, z=pointed_thing.under.z}
-    local above = minetest.get_node(p)
     local node_name = under.name
     local nodedef = minetest.registered_nodes[node_name]
     if not nodedef then
-        return
-    end
-    if not minetest.registered_nodes[above.name] then
-        return
-    end
-    -- check if the node above the pointed thing is air
-    if above.name ~= "air" then
         return
     end
     --living surface level sediment
@@ -482,45 +453,6 @@ function soil.till(itemstack, puncher, pointed_thing)
         --figure out what soil it is from dropped
         local ag_soil = nodedef._ag_soil
         minimal.switch_node(pointed_thing.under, {name = ag_soil})
-        local uses = itemstack:get_tool_capabilities().groupcaps.tilling.uses
-        local player_inv = puncher:get_inventory()
-        if not (minimal.player_in_creative(puncher)) then
-          itemstack:add_wear(65535 / uses)
-        end
-        puncher:set_wielded_item(itemstack)
-    end
-end
-
---Soil on_punch tilling
-local function soil_on_punch(pos, node, puncher, pointed_thing)
-    local itemstack = puncher.get_wielded_item(puncher)
-    local tool_name = itemstack:get_name()
-    if tool_name == "" then
-        return
-    end
-    if not minetest.registered_tools[tool_name] then
-        return
-    end
-    if minetest.registered_tools[tool_name].groups.hoe == 1 then
-        local above = {x = pos.x, y = pos.y + 1, z = pos.z}
-        local particle = dirt_particle(above, node.name)
-        minetest.add_particlespawner(particle)
-        -- minetest.sound_play("nodes_nature_dig_crumbly", {pos = pos, gain = 0.5})
-        local punch_number = minetest.registered_tools[tool_name]._punch_number
-        local timer = minetest.get_node_timer(pos)
-        local meta = minetest.get_meta(pos)
-        if not timer:is_started() then
-            timer:start(10)
-            meta:set_int("till_number", 1)
-        else
-            local till_number = meta:get_int("till_number")
-            if till_number < punch_number - 1 then
-                meta:set_int("till_number", till_number + 1)
-            else
-                meta:set_int("till_number", 0)
-                soil.till(itemstack, puncher, pointed_thing)
-            end
-        end
     end
 end
 
@@ -530,7 +462,6 @@ function soil.get_base_props(soil_desc)
         _ag_soil = sed.ag_soil,
         _dry_name = soil.get_dry_name(soil_desc.name),
         _wet_name = soil.get_wet_name(soil_desc.name),
-        on_punch = soil_on_punch,
     }
     return props
 end
@@ -676,7 +607,6 @@ function fertile_soil.get_base_props(soil_desc)
         _dry_name = fertile_soil.get_dry_name(sed.name),
         _wet_name = fertile_soil.get_wet_name(sed.name),
         _wet_salty_name = sediment.get_wet_salty_name(sed.name),
-        on_punch = soil_on_punch,
     }
     return props
 end

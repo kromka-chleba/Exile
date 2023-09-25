@@ -16,6 +16,7 @@ which should be useful given the limits on resources and space they face.
 local S = tech.S
 
 local c_alpha = minimal.compat_alpha
+soil = soil
 
 local base_use = 500
 local base_punch_int = minimal.hand_punch_int
@@ -233,6 +234,64 @@ minetest.register_node("tech:stone_knife_placed", {
 -- Crumbly
 --
 
+-- Soil tilling function
+
+-- dirt particles
+function dirt_particle(pos, node_name)
+    return {
+        amount = 10,
+        time = 0.5,
+        minpos = {x = pos.x - 0.5, y = pos.y - 0.50, z = pos.z - 0.5},
+        maxpos = {x = pos.x + 0.5, y = pos.y, z = pos.z + 0.5},
+        minvel = {x= -0.1, y= 2, z= -0.1},
+        maxvel = {x= 0.1, y= 4, z= 0.1},
+        minacc = {x= 0, y= -10, z= 0},
+        maxacc = {x= 0, y= -10, z= 0},
+        minexptime = 1.5,
+        maxexptime = 1.5,
+        minsize = 0.4,
+        maxsize = 1,
+        collisiondetection = true,
+        vertical = false,
+        node = {name = node_name, param2 = 0},
+    }
+end
+
+local tilling = {} -- { pos = count } keeps track of soil currently being tilled
+local function till_soil(player, wielded_item, pointed_thing)
+   local toolname = wielded_item:get_name()
+   local tillspeed = minetest.registered_tools[toolname]._till_speed
+   if not tillspeed then
+      error("till soil called from a tool with no till speed!")
+   end
+   if pointed_thing.under == nil then return end
+   local pos = pointed_thing.under
+   local node = minetest.get_node(pos)
+   local abovepos = vector.new(pos.x, pos.y + 1, pos.z)
+   local above = minetest.get_node(abovepos)
+   local posstr = minetest.pos_to_string(pos)
+   if above.name ~= "air" then -- can't turn soil if there's something on top
+      return
+   end
+   if minetest.get_item_group(node.name, "spreading") == 1 or
+      minetest.get_item_group(node.name, "fertile_soil") then
+      local uses = wielded_item:get_tool_capabilities().groupcaps.tilling.uses
+      if false or not (minimal.player_in_creative(player)) then
+	 wielded_item:add_wear(65535 / uses)
+      end
+      if not tilling[posstr] then
+	 tilling[posstr] = 0
+	 minetest.after(10, function(tpos) tilling[tpos] = nil end, posstr)
+      end
+      local particle = dirt_particle(abovepos, node.name)
+      minetest.add_particlespawner(particle)
+      minetest.sound_play("nodes_nature_dig_crumbly", {pos = pos, gain = 0.5})
+      tilling[posstr] = tilling[posstr] + tillspeed
+      if tilling[posstr] >= 10  then
+	 soil.till(wielded_item, player, pointed_thing)
+      end
+   end
+end
 -- digging stick... specialist for digging. Can also till
 
 local open_digging_stick = {
@@ -255,9 +314,10 @@ minetest.register_tool("tech:digging_stick", {
 	},
 	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
-        _punch_number = 7, -- how many times you need to hit soil to till it
+        _till_speed = 3,
 	_dig_tip = "Dig hard earth",
-	_use_tip = "Till soil",
+	_use_tip = "Till soil slowly",
+	_on_use_item = till_soil,
 	_place_tip = "Place tool for plant crafts",
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:digging_stick_placed")
@@ -592,8 +652,10 @@ minetest.register_tool("tech:shovel_iron", {
 	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
 	_dig_tip = "Dig earth quickly",
+        _till_speed = 4,
+	_on_use_item = till_soil,
+	_use_tip = "Till soil",
 	_place_tip = "Place for plant crafts",
-        _punch_number = 5,
 	on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:shovel_iron_placed")
 	end,
@@ -713,9 +775,10 @@ minetest.register_tool("tech:hoe_iron", {
 	},
 	groups = {hoe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
-        _punch_number = 3, -- how many times you need to hit soil to till it
+        _till_speed = 5,
 	_dig_tip = "Dig hard earth",
 	_use_tip = "Till soil quickly",
+	_on_use_item = till_soil,
 	_place_tip = "Place tool for plant crafts",
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:hoe_iron_placed")
