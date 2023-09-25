@@ -47,11 +47,11 @@ end
 local function node_drawtype(pos)
   local node = minetest.get_node_or_nil(pos)
   if (type(node) == "nil") then
-    node = {drawtype = nil}
+    node = {}
   else
     node = minetest.registered_nodes[node.name]
   end
-  return node.drawtype
+  return node.drawtype, node
 end
 
 -- ask if the temperature is comfy for the lil creature
