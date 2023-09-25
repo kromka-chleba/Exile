@@ -117,7 +117,7 @@ end
 
 ----------------------------------------------
 -- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
-animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan", "animals:gundu")
+animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan", "animals:gundu", "animals:sarkamos")
 animals.add_interactors("rivals","darkasthaan","animals:darkasthaan")
 
 ----------------------------------------------

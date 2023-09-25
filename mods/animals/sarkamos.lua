@@ -114,7 +114,7 @@ end
 
 ----------------------------------------------
 -- SETTING OF SARKAMOS INTERACTOR SETTINGS
-animals.add_interactors("prey","sarkamos","animals:gundu","animals:pegasun","animals:pegasun_male","animals:kubwakubwa")
+animals.add_interactors("prey","sarkamos","animals:gundu","animals:pegasun","animals:pegasun_male","animals:kubwakubwa", "animals:darkasthaan")
 animals.add_interactors("rivals","sarkamos","animals:sarkamos")
 
 ----------------------------------------------
