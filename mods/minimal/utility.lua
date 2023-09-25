@@ -87,10 +87,6 @@ function minimal.string2invlists(string)
    return newlist
 end
 
--- Call in on_rightclick wrapper like this:
--- on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
---     return minimal.slabs_combine(pos,node,itemstack,'tech:large_wood_fire_ext')
--- end
 function minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
    if not pointed_thing then return end -- Can't combine with nothing
    local pos = pointed_thing.under
