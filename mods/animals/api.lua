@@ -1825,7 +1825,9 @@ function animals.get_interactors(creature,itype) -- creature to get stats from, 
   -- get who the creature interacts in what specified way
   local itable = interactable[itype]
   if (type(itable) ~= "table") then
-    return {}
+    -- create interactable table for creature if it does not exist
+    interactable[itype] = {}
+    return interactable[itype]
   end
   -- return an empty table or the specified table of interaction type
   return itable
