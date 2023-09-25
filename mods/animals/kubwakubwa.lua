@@ -125,7 +125,7 @@ end
 
 ----------------------------------------------
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
-animals.add_interactors("predators","kubwakubwa","animals:darkasthaan")
+animals.add_interactors("predators","kubwakubwa","animals:darkasthaan", "animals:sarkamos")
 animals.add_interactors("prey","kubwakubwa","animals:pegasun","animals:sneachan", "animals:impethu")
 animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa","animals:pegasun_male")
 

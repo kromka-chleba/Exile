@@ -336,7 +336,7 @@ end
 
 ----------------------------------------------
 -- SETTING OF PEGASUN INTERACTOR SETTINGS
-animals.add_interactors("predators","pegasun","animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("predators","pegasun","animals:kubwakubwa", "animals:darkasthaan", "animals:sarkamos")
 animals.add_interactors("prey","pegasun","animals:sneachan", "animals:impethu")
 animals.add_interactors("friends","pegasun","animals:pegasun", "animals:pegasun_male")
 animals.add_interactors("rivals","pegasun","animals:pegasun")
