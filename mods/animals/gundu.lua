@@ -45,14 +45,10 @@ local function brain(self)
 		mobkit.clear_queue_high(self)
 		mobkit.hq_aqua_turn(self,68,yaw+2,2)
 	end
-
+  -- calculate instantanious effects
+  animals.core_hp(self)
 
 	if mobkit.timer(self,1) then
-		-- die from damage - run before animals.core_life() 
-		--
-		if not animals.core_hp_water(self) then
-			return
-		end
 		-- Also recharges health from energy
 		local age, energy = animals.core_life(self, self.lifespan, pos)
 

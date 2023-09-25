@@ -205,30 +205,6 @@ end
 
 
 
-function animals.core_hp_water(self)
-
-  if not self.isinliquid then
-    mobkit.hurt(self,1)
-  end
-  --die from damage
-  local hp = self.hp
-
-
-local energy = mobkit.recall(self,'energy')
-local age = mobkit.recall(self,'age')
-if not age then age=0 end
-if not energy then energy = 0 end
-  if hp <= 0 then
-    mobkit.clear_queue_high(self)
-    animals.handle_drops(self)
-    mobkit.hq_die(self)
-    return false
-  else
-    return true
-  end
-end
-
-
 local function get_mean_temp(pos) -- this could be put somewhere else like in climate or minimal
   local temps = {}
   
@@ -1831,7 +1807,7 @@ function animals.vitals(self)
       else
         self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
       end
-    else
+    elseif (self.oxygen > 0) then
       if drawtype == 'liquid' then
         self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
       else
@@ -1841,7 +1817,8 @@ function animals.vitals(self)
 			
 		if self.oxygen <= 0 then
       -- drown by 10% of max_hp
-      mobkit.hurt(self,self.max_hp*0.1)
+      local dmg = math_clamp(self.max_hp * 0.1, 1, self.hp)
+      mobkit.hurt(self,dmg)
     end
 	end
   return

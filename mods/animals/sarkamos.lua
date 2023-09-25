@@ -15,11 +15,8 @@ local floor = math.floor
 
 -----------------------------------
 local function brain(self)
-
-	--die from damage
-	if not animals.core_hp_water(self) then
-		return
-	end
+	-- calculate instantanious effects
+  animals.core_hp(self)
 
 	if mobkit.timer(self,1) then
 
