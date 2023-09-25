@@ -115,6 +115,13 @@ local function set_active_interval()
   return intv
 end
 
+--yearly average
+local dc_mean = 13
+
+function climate.mean_year_temp()
+    return dc_mean
+end
+
 local function get_seasonal_waves()
    --get seasonal wave
    local dc = minetest.get_day_count() - 10
@@ -122,8 +129,6 @@ local function get_seasonal_waves()
    local dc_amp = 17
    --~80 day year, 20 day seasons
    local dc_period = (2*math.pi)/80
-   --yearly average,
-   local dc_mean = 13
    local dc_wav = dc_amp * math.sin(dc * dc_period) + dc_mean
    --seawater temp change has lower amplitude, behind 2 days from mass of water
    --Fudged loosely from McCombie's 1959 "Some Relations Between Air

@@ -3,6 +3,7 @@
 
 local ms = mapchunk_shepherd
 local nn = nodes_nature
+local climate = climate
 
 local placeholder_id_pairs = ms.placeholder_id_pairs()
 local placeholder_id_finder_pairs = ms.placeholder_id_finder_pairs()
@@ -35,11 +36,28 @@ function nn.create_evaporator(args)
         water_ids[id] = true
     end
     return function(pos_min, pos_max, vm_data, chance)
-        local chance = chance or 1
+        local chance = chance or 1/35
         --local t1 = minetest.get_us_time()
         local found = false
         local data = vm_data.nodes
         local data_light = vm_data.light
+
+        -- I made up this equation
+        -- below 0 there should be no evaporation but that's fake (irl there's still evap)
+        -- for mean = 13 it gets values:
+        -- 5 °C:  0.73
+        -- 10°C:  1.93
+        -- 20°C:  5.09
+        -- 30°C:  8.99
+        -- 40°C: 13.46
+        -- 50°C: 18.39
+        -- So input chance = 1/35 sounds reasonable (can simulate air humidity)
+        -- this gives 0.52 chance for 50°C, 0.257 for 30°C, 0.05 for 10°C
+        local temperature_cofactor = climate.active_temp^1.4 / climate.mean_year_temp()
+        if temperature_cofactor <= 0 then
+            temperature_cofactor = 0.5
+        end
+
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
@@ -68,7 +86,7 @@ function nn.create_evaporator(args)
                     if water_ids[data[i]] and has_air then
                         local light = data_light[i]
                         local light_cofactor = light / 15
-                        evap_chance = light_cofactor * chance * 1/15
+                        evap_chance = temperature_cofactor * light_cofactor * chance * 1/15
                         if evap_chance >= math.random() then
                             data[i] = replacement
                         end
@@ -76,7 +94,7 @@ function nn.create_evaporator(args)
                         -- is sediment
                         local light = data_light[i + chunk_side] or 0
                         local light_cofactor = light / 15
-                        evap_chance = light_cofactor * chance
+                        evap_chance = temperature_cofactor * light_cofactor * chance
                         if not has_air then
                             -- 5 times slower if plant grows on top
                             evap_chance = 1/5 * evap_chance
