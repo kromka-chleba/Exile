@@ -94,6 +94,11 @@ animals.register_egg = function(self, desc, inv_img, stack)
 			if def and def.on_rightclick and not def.drawtype == "liquid" then -- as long as it's not a liquid lol
 				return def.on_rightclick(pointed_thing.under, under, placer, itemstack)
 			end
+      if (self.class == 2 and def.drawtype == "liquid") then
+        -- place fish properly into water
+        spawn_pos = pointed_thing.under
+        spawn_pos.y = spawn_pos.y - 1
+      end
 			if spawn_pos and not minetest.is_protected(spawn_pos, placer:get_player_name()) then
 				if not minetest.registered_entities[name] then
 					return
