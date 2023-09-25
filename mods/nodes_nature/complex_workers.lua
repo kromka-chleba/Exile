@@ -68,7 +68,7 @@ function nn.create_evaporator(args)
                     if water_ids[data[i]] and has_air then
                         local light = data_light[i]
                         local light_cofactor = light / 15
-                        evap_chance = light_cofactor * chance * 1/2
+                        evap_chance = light_cofactor * chance * 1/15
                         if evap_chance >= math.random() then
                             data[i] = replacement
                         end
