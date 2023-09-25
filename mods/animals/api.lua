@@ -1816,7 +1816,7 @@ function animals.vitals(self)
 		local drawtype = node_drawtype(lowpos) -- node at hitbox top
     
     local oxygen_min = self.oxygen_min or self.lung_capacity
-    local breathing_rate = self.breating_rate or 2
+    local breathing_rate = self.breating_rate or 1
     -- utilized by non-water animals
     -- determines whether or not the animal should try to get out (if there's too much water)
     local dangerous = false
@@ -1838,7 +1838,7 @@ function animals.vitals(self)
       if self.isinliquid then
         self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
       else
-        self.oxygen = self.oxygen - 1
+        self.oxygen = self.oxygen - 0.5
       end
     end
 			

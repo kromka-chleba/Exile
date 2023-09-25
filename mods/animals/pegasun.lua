@@ -345,6 +345,7 @@ local self_data = {
 	max_hp = 40,
 	lung_capacity = 20,
   energy_loss = 1,
+  breathing_rate = 5,
   -- comfort temps
 	min_temp = -24,
 	max_temp = 46,
@@ -470,6 +471,7 @@ local self_male = {
 	max_hp = 45,
 	lung_capacity = 25,
   energy_loss = self_data.energy_loss,
+  breathing_rate = self_data.breathing_rate,
   -- comfort temps
 	min_temp = self_data.min_temp,
 	max_temp = self_data.max_temp,
