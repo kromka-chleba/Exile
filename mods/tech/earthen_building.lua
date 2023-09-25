@@ -272,6 +272,8 @@ minetest.register_node('tech:thatch', {
 	stack_max = minimal.stack_max_bulky * 4,
 	groups = {snappy=3, flammable=1, fall_damage_add_percent = -30},
 	sounds = nodes_nature.node_sound_leaves_defaults(),
+	_splits_by_hand = "stairs:slab_thatch",
+	_on_use_node = minimal.slabs_split_hand,
 	on_burn = function(pos)
 		if math.random()<0.5 then
 			minimal.switch_node(pos, {name = "tech:small_wood_fire"})

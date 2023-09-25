@@ -1,9 +1,10 @@
 minimal = minimal
+S = minimal.S
 
 function minimal.switch_node(pos, node, after_place)
    --Swap a node, but run its on_construct, so that
    -- timers etc. are started, but metadata is left intact
-   
+
    -- after_place is to be a table of 3 parameters:
    -- placer, itemstack, pointed_thing - though does not need to be specified for switch_node to work
    local node_def = minetest.registered_nodes[node.name]
@@ -20,7 +21,7 @@ function minimal.switch_node(pos, node, after_place)
       local placer = after_place[1]
       local itemstack = after_place[2]
       local pointed_thing = after_place[3]
-      
+
       node_def.after_place_node(pos, placer, itemstack, pointed_thing)
     end
   end
@@ -104,6 +105,29 @@ function minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
       itemstack:take_item()
       return itemstack
    end
+end
+
+function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
+				  wielded_item)
+   if not pointed_thing then return end -- Can't split from nothing
+   if wielded_item:get_name() ~= "" then return end -- must be empty handed
+   local nname = pointed_node.name
+   local split_node = minetest.registered_nodes[nname]._splits_by_hand
+   if not split_node then
+      error("Tried to split a slab with no splits_by_hand defined! "..
+	    pointed_node.name.." -- "..dump(split_node))
+   end
+   local pos = pointed_thing.under
+   local meta = minetest.get_meta(pos)
+   local itemstack = ItemStack(split_node)
+   if meta:contains("fuel") then
+      local fuel = meta:get_int("fuel") / 2
+      meta:set_int("fuel", fuel)
+      local imeta = itemstack:get_meta()
+      imeta:set_int("fuel", fuel)
+   end
+   minimal.switch_node(pos, {name=split_node})
+   wielded_item:replace(itemstack)
 end
 
 local __click_count_ready = {}
@@ -231,29 +255,34 @@ function minimal.force_place_keep_param2(pos, name)
 end
 
 
-function minimal.math_clamp(num,min,max) -- math.clamp implementation from my function library (TPH/TubberPupperHusker)
-  -- PARAMETERS: num;"number" - number to be clamped | min;"number" - minimum number that 'num' can be | max;"number" - maximum number that 'num' can be
-  -- RETURNS: number - 'num' that is clamped (or not if 'num' is between 'min' and 'max')
+function minimal.math_clamp(num,min,max)
+  -- math.clamp implementation from my function library (TPH/TubberPupperHusker)
+  -- PARAMETERS: num;"number" - number to be clamped
+  -- min;"number" - minimum number that 'num' can be
+  -- max;"number" - maximum number that 'num' can be
+  -- RETURNS: number - 'num' that is clamped (between 'min' and 'max')
   -- FUNCTION: clamps a specified number between a min & max
   ------------------------------------------------------------------------------------------------------------------
   assert(type(num) == "number","math.clamp: no number provided to be clamped!")
   assert(type(min) == "number","math.clamp: no minimum number provided for clamping")
   assert(type(max) == "number","math.clamp: no maximum number provided for clamping")
-  
+
   -- if num, min, and max are numbers then
   if (min > max) then -- if programmer puts max number in place of minimum number... don't punish them for it
     local temp = min -- create a temporary value so that 'min' can be stored
     min = max
     max = temp -- set 'max' to the temporary value
   end
-  
+
   if (num < min) then
     num = min
   elseif (num > max) then
     num = max
   end
-  -- "if elseif" statement because if it's lower than minimum then it's obviously not going to be greater than maximum and vice versa (and DO NOT clamp if the number is between min and max)
-  
+  -- "if elseif" statement because if it's lower than minimum then it's
+  -- obviously not going to be greater than maximum and vice versa
+  -- (and DO NOT clamp if the number is between min and max)
+
   return num
 end
 
@@ -271,7 +300,7 @@ function minimal.player_in_creative(plyr)
       return true
     end
   end
-  
+
   return false
 end
 

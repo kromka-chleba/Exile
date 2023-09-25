@@ -350,6 +350,8 @@ minetest.register_node("tech:slag", {
 	tiles = {"tech_iron_and_slag.png"},
 	stack_max = minimal.stack_max_bulky,
 	paramtype = "light",
+	_splits_by_hand = "stairs:slab_slag",
+	_on_use_node = minimal.slabs_split_hand,
 	groups = {cracky = 3, falling_node = 1, crumbly = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 })

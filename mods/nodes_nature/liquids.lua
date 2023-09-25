@@ -298,6 +298,8 @@ minetest.register_node(
         stack_max = minimal.stack_max_bulky,
         temp_effect = -4,
         temp_effect_max = 0,
+	_splits_by_hand = "nodes_nature:snow",
+	_on_use_node = minimal.slabs_split_hand,
         groups = {crumbly = 3, falling_node = 1, temp_effect = 1,
                   puts_out_fire = 1, cools_lava = 1, fall_damage_add_percent = -50,
                   edible = 1,

@@ -215,6 +215,8 @@ minetest.register_node("tech:charcoal_block", {
 	stack_max = minimal.stack_max_bulky,
 	groups = {crumbly = 3, falling_node = 1, fertilizer = 1, flammable = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
+	_splits_by_hand = "tech:charcoal",
+	_on_use_node = minimal.slabs_split_hand,
 	on_burn = function(pos)
 		minimal.switch_node(pos, {name = "tech:large_charcoal_fire"})
 		minetest.check_for_falling(pos)
@@ -311,6 +313,8 @@ minetest.register_node('tech:large_wood_fire_unlit', {
 	paramtype = "light",
 	groups = {oddly_breakable_by_hand = 3, choppy = 3, falling_node = 1, flammable = 1},
 	sounds = nodes_nature.node_sound_wood_defaults(),
+	_splits_by_hand = "tech:small_wood_fire_unlit",
+	_on_use_node = minimal.slabs_split_hand,
 	on_burn = function(pos)
 		minimal.switch_node(pos, {name = "tech:large_wood_fire"})
 		minetest.check_for_falling(pos)
@@ -774,6 +778,8 @@ minetest.register_node('tech:large_wood_fire_ext', {
 
 	on_dig = on_dig_fire,
 	after_place_node = after_place_fire,
+	_splits_by_hand = "tech:small_wood_fire_ext",
+	_on_use_node = minimal.slabs_split_hand,
 	on_burn = function(pos)
 	   inferno.ignite(pos)
 	end,
@@ -819,6 +825,8 @@ minetest.register_node('tech:large_charcoal_fire_ext', {
 
 	on_dig = on_dig_fire,
 	after_place_node = after_place_fire,
+	_splits_by_hand = "tech:small_charcoal_fire_ext",
+	_on_use_node = minimal.slabs_split_hand,
 	on_burn = function(pos)
 	   inferno.ignite(pos)
 	end,
