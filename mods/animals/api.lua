@@ -1882,7 +1882,7 @@ function animals.hq_liquid_recovery(self,prty)
           pos2 = vector.normalize(vector.direction({x = pos.x, y = pos2.y, z = pos.z}, pos2))
           mobkit.turn2yaw(self,minetest.dir_to_yaw(pos2))
           pos2 = vector.multiply(pos2,3)
-          pos2.y = pos2.y + (self.view_range * 1.5)
+          pos2.y = pos2.y + 2
           self.object:set_velocity(pos2)
         end
         
