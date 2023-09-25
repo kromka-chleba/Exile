@@ -43,6 +43,17 @@ local function flee_sound(self)
 	mobkit.make_sound(self,'flee')
 end
 
+
+local function node_drawtype(pos)
+  local node = minetest.get_node_or_nil(pos)
+  if (type(node) == "nil") then
+    node = {drawtype = nil}
+  else
+    node = minetest.registered_nodes[node.name]
+  end
+  return node.drawtype
+end
+
 -- ask if the temperature is comfy for the lil creature
 function animals.temp_comfy(self,temp)
   if (type(temp) ~= "number") then
@@ -1046,10 +1057,25 @@ function animals.prey_hunt_water(self, prty)
   for  _, prey in ipairs(self.prey) do
     local tgtobj = mobkit.get_closest_entity(self,prey)
     if tgtobj then
-      mobkit.animate(self,'fast')
-      flee_sound(self)
-      animals.hq_aqua_attack_eat(self, prty, tgtobj, self.max_speed)
-      return true
+      local tgtpos = tgtobj:get_pos()
+      local drawtype = node_drawtype(tgtpos)
+      if (drawtype ~= "liquid") then
+        -- look for a liquid node underneath >:D
+        tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
+        drawtype = node_drawtype(tgtpos)
+        if (drawtype == "airlike") then
+          -- in case they're a bit too high lol
+          tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
+          drawtype = node_drawtype(tgtpos)
+        end
+      end
+      
+      if (drawtype == "liquid") then
+        mobkit.animate(self,'fast')
+        flee_sound(self)
+        animals.hq_aqua_attack_eat(self, prty, tgtobj, self.max_speed)
+        return true
+      end
     end
   end
 end
