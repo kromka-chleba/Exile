@@ -63,6 +63,13 @@ end
 
 -- ask if the temperature is comfy for the lil creature
 function animals.temp_comfy(self,temp)
+  if (type(temp) ~= "number" and type(self) ~= "nil") then
+    local pos = mobkit.get_stand_pos(self)
+    temp = climate.get_point_temp(pos)
+  else
+    return false
+  end
+  -- still not a number somehow
   if (type(temp) ~= "number") then
     return false
   end
@@ -260,6 +267,9 @@ function animals.core_life(self, pos)
   --die from exhaustion, old age, no hp
   local hp = self.hp
   if energy <= 0 or age > lifespan or self.hp <= 0 then
+    if type(self.emergency_egg) == "function" then
+      self.emergency_egg(self, pos)
+    end
     mobkit.clear_queue_high(self)
     animals.handle_drops(self)
     mobkit.hq_die(self)
@@ -387,6 +397,30 @@ function animals.place_egg(self, pos, e, medium) -- self, position, energy, medi
   return e
 end
 
+-- place an egg during near or precise death (and die)
+-- generic function to be utilized by any "emergency_egg" custom function in animals' self
+function animals.emergency_egg(self, pos, medium)
+  local egg_chance = self.emergency_egg_chance or 1
+  
+  local energy = mobkit.recall(self,"energy")
+  if (type(energy) ~= "number" or energy <= 0) then
+    return false
+  end
+  
+  if (random() < egg_chance) then
+    -- lay egg
+    animals.place_egg(self, pos, energy, medium)
+    -- set custom energy_egg
+    local meta = minetest.get_meta(pos)
+    meta:set_float("energy_egg",energy)
+    
+    mobkit.remember(self,"energy",0) -- kill
+    return true
+  end
+  
+  return false
+end
+
 ----------------------------------------------------
 -- get an amount of offspring to release
 function animals.calculate_egg_young(self)
@@ -429,7 +463,11 @@ function animals.hatch_egg(self, pos, medium, replace, name) -- self, position, 
     replace = "air"
   end
    
-  local energy_egg = self.energy_egg
+  local energy_egg = self.energy_egg 
+  local meta = minetest.get_meta(pos):get_float("energy_egg")
+  if (meta > 0) then
+    energy_egg = meta
+  end
   local young_per_egg = animals.calculate_egg_young(self)
   local max_pop = self.max_pop or max_objects
   if (type(name) ~= "string") then
@@ -437,6 +475,9 @@ function animals.hatch_egg(self, pos, medium, replace, name) -- self, position, 
   end
   
   if not name or not energy_egg or not young_per_egg then
+    return false
+  end
+  if (energy_egg < 0) then
     return false
   end
   
