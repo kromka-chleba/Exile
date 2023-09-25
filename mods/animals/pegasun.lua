@@ -131,7 +131,7 @@ local function brain(self)
         if (random() <= hng_percent) then
           -- females much hungrier and predatory than males (gotta fill up for those babies y'know)
           if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
-            if (animals.eat_flora(pos,0.01) == true) then
+            if (animals.eat_flora(pos,0.001) == true) then
               energy = energy + 50
             else
               mobkit.animate(self,'walk')
