@@ -158,7 +158,7 @@ local function brain(self)
 			and lightm <= 11
 			and ( tod <0.5 ) -- only lay at night
 			and self.hp >= self.max_hp
-			and energy >= self.energy_max - 100 then
+			and energy >= (self.energy_max * 0.9) then
 				energy = animals.place_egg(self, pos, energy, 'nodes_nature:salt_water_source')
 			end
 
@@ -287,9 +287,9 @@ local self_data = {
 ---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
 -- energy and eggs
 self_data.energy_max = 8000   --secs it can survive without food
-self_data.energy_egg = self_data.energy_max/6  --energy that goes to egg
+self_data.energy_egg = self_data.energy_max*0.5  --energy that goes to egg
 self_data.egg_timer = 60*32
-self_data.young_per_egg = 5   --will get this/energy_egg starting energy
+self_data.young_per_egg = {3,7}   --will get this/energy_egg starting energy
 -- lifespan
 self_data.lifespan = self_data.energy_max * 6
 ---------------------;
