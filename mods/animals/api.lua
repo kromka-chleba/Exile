@@ -1287,6 +1287,7 @@ local function eat_sediment(pos,nodedef,grassy)
   if (minetest.get_item_group(nodedef.name,"spreading") > 0 and grassy == true) then
     -- it's a grass, let's eat it and modify it (and if eating grass was desired)
     local sediment_name = nodedef._wet_salty_name -- use this to get the raw sediment
+    -- (grassy _wet_salty variations of sediments do not exist)
     local other_nodedef
     if (sediment_name) then
       sediment_name = string.gsub(sediment_name,"_wet_salty","") -- get raw sediment
@@ -1322,7 +1323,7 @@ function animals.eat_sediment_under(pos, chance)
   if minetest.get_item_group(under, "sediment") > 0 then
     -- CONSUME
     if random()< chance then
-      -- MODIFY
+      -- GET DROPS (idk how that works lol)
       eat_sediment(posu,under)
     end
 
@@ -1332,6 +1333,7 @@ function animals.eat_sediment_under(pos, chance)
   end
 end
 
+-- eat grassy nodes with a chance of modifying the grass node to its non-grassy self (does not respect naturalslopes)
 function animals.eat_grassy_sediment_under(pos, chance)
   -- only eat grassy lol
   local p = mobkit.get_node_pos(pos)

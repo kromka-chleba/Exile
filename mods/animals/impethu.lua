@@ -80,7 +80,10 @@ local function brain(self)
 			--eat stuff in the dark
 			if light <= self.min_light then
 				if not rival and energy < self.energy_max then
-					energy = energy + random(2,5)
+					energy = energy + 1
+          if (animals.eat_sediment_under(pos,0.01)) then
+            energy = energy + math.random(4,6)
+          end
 				end
 				mobkit.animate(self,'walk')
 				mobkit.hq_roam(self,10)
