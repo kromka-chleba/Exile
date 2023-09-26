@@ -125,10 +125,7 @@ animals.register_egg = function(self, desc, inv_img, stack)
     pointed_thing.above = {x = pos.x, y = pos.y + 1, z = pos.z}
     pointed_thing.under = pos
     
-    item_table.on_place(itemstack, dropper, pointed_thing) -- run on_place function
-    if not minimal.player_in_creative(dropper) then
-      return itemstack
-    end
+    return item_table.on_place(itemstack, dropper, pointed_thing) -- run on_place function
   end
 	minetest.register_craftitem(name, item_table) -- register egg
 end
