@@ -256,7 +256,7 @@ minetest.register_node("animals:impethu_eggs", {
     
     local temp = climate.get_point_temp(pos)
     
-    if (temp < 14) then
+    if (temp < 12) then
       -- don't hatch and keep timer going if temp is too uncomfortably cold
       minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*4))
       return false

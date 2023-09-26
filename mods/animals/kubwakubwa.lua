@@ -255,7 +255,7 @@ minetest.register_node("animals:kubwakubwa_eggs", {
     
     local temp = climate.get_point_temp(pos)
     
-    if (temp < 14) then
+    if (temp < 12) then
       -- too cold to hatch, wait again
       minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*3))
       return false
