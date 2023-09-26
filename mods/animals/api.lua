@@ -2004,7 +2004,7 @@ function animals.vitals(self)
       dangerous = true
     end
     
-    if (self.class ~= 2) then
+    if (self.class ~= 2 and self.class ~= 3) then
       if drawtype == 'liquid' then
         self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
         if (self.oxygen <= oxygen_min or dangerous == true) then -- if uncomfortable
@@ -2014,12 +2014,16 @@ function animals.vitals(self)
       else
         self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
       end
-    else
+    elseif (self.class ~= 3) then
       if self.isinliquid then
         self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
       else
         self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
       end
+    end
+    if (self.class == 3 and self.oxygen < self.lung_capacity) then
+      -- amphibians get to breathe wherever they wanna
+      self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
     end
 			
 		if self.oxygen <= 0 then
