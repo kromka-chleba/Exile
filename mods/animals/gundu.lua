@@ -152,13 +152,13 @@ local function brain(self)
 			--reproduction
 			--asexual parthogenesis, eggs
 			--no threats, darkness, peak condition
-			if (random() < 0.03 or energy >= (self.energy_max*1.125)) -- 9000 (8000 * 1.125)
+			if (random() < 0.03)
 			and not rival
 			and not pred
 			and lightm <= 11
 			and ( tod <0.5 ) -- only lay at night
 			and self.hp >= self.max_hp
-			and energy >= (self.energy_max * 0.9) then
+			and energy >= (self.energy_max * 0.99) then
 				energy = animals.place_egg(self, pos, energy, 'nodes_nature:salt_water_source')
 			end
 
