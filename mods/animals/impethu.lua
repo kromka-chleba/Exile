@@ -260,7 +260,7 @@ minetest.register_node("animals:impethu_eggs", {
     end
     
     local light = (minetest.get_node_light(pos) or 0)
-		if light <= 5 then
+		if light <= self_data.min_light then
 			return animals.hatch_egg(self_data, pos)
 		else
 			if random()<0.2 then
