@@ -207,6 +207,11 @@ local self_data = {
 		end
 		animals.stun_catch_mob(self, clicker, 0.1)
 	end,
+  on_death = function(self, pos)
+    if not animals.temp_comfy(self) then
+      animals.emergency_egg(self, pos)
+    end
+  end
 }
 ---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
 -- energy and eggs
@@ -214,6 +219,7 @@ self_data.energy_max = 8000   --secs it can survive without food
 self_data.energy_egg = self_data.energy_max/2  --energy that goes to egg
 self_data.egg_timer = 60*20
 self_data.young_per_egg = {3,4}   --will get this/energy_egg starting energy
+self_data.emergency_egg_chance = 0.95
 self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.4 -- conserve min (minimum point at when to conserve energy)
 -- lifespan
 self_data.lifespan = self_data.energy_max * 6
