@@ -107,7 +107,7 @@ local function brain(self)
 			and not rival
 			and not pred
 			and self.hp >= self.max_hp
-			and energy >= self.energy_max then
+			and energy >= (self.energy_max * 0.8) then
 				energy = animals.place_egg(self, pos, energy)
 			end
 
@@ -236,7 +236,7 @@ local self_data = {
 ---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
 -- energy and eggs
 self_data.energy_max = 5000--secs it can survive without food
-self_data.energy_egg = (self_data.energy_max*0.9) --energy that goes to egg
+self_data.energy_egg = (self_data.energy_max*0.5) --energy that goes to egg
 self_data.egg_timer = 60*10
 self_data.young_per_egg = {3,7}		--will get this/energy_egg starting energy
 self_data.emergency_egg_chance = 0.5
