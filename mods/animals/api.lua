@@ -331,7 +331,7 @@ function animals.core_life(self, pos)
       local mtp = (temp - max_temp)*0.05
       energy = energy - mtp
     elseif (temp < min_temp) then
-      local mtp = (min_temp - max_temp)*0.02
+      local mtp = (min_temp - temp)*0.02
       energy = energy - mtp
     end
     
@@ -352,7 +352,7 @@ function animals.core_life(self, pos)
       end
     -- get really hurt or die from being too cold!!
     elseif temp < killer_min_temp then
-      local mtp = (temp - killer_min_temp)*0.1 -- multiplier
+      local mtp = (killer_min_temp - temp)*0.4 -- multiplier
       local dmg = math.ceil(1 * mtp)
       dmg = math_clamp(dmg,1,self.hp)
       mobkit.hurt(self,dmg)
@@ -362,8 +362,8 @@ function animals.core_life(self, pos)
 
   --heal using energy
   if self.hp < self.max_hp and energy > 20 and random() <= 0.75 then
-    if not (not self.isinliquid and self.class == 2) then
-      -- if not a fish out of water then (fish in water will heal up nicely :D)
+    if animals.temp_comfy(self,temp) and not (not self.isinliquid and self.class == 2) then
+      -- if not a fish out of water then (fish in water will heal up nicely :D) (oh and if temp is comfortable too)
       mobkit.heal(self,1)
       energy = energy - math.random(5,15)
     end
