@@ -2004,9 +2004,9 @@ function animals.vitals(self)
       dangerous = true
     end
     
-    if (self.class ~= 2 and self.oxygen > 0) then
+    if (self.class ~= 2) then
       if drawtype == 'liquid' then
-        self.oxygen = self.oxygen - 1
+        self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
         if (self.oxygen <= oxygen_min or dangerous == true) then -- if uncomfortable
           -- swim to shore
           animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
@@ -2014,11 +2014,11 @@ function animals.vitals(self)
       else
         self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
       end
-    elseif (self.oxygen > 0) then
+    else
       if self.isinliquid then
         self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
       else
-        self.oxygen = self.oxygen - 0.5
+        self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
       end
     end
 			
