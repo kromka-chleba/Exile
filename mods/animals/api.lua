@@ -1257,6 +1257,62 @@ function animals.eat_spreading_under(pos, chance)
 end
 
 ----------------------------------------------------
+-- sediment eating functions
+
+-- modifies the provided sediment at pos
+local function eat_sediment(pos,nodedef,grassy)
+  --set node to it's drop
+  --this is to scratch up surface layers
+  if (type(nodedef) == "string") then
+    -- got a name, find it
+    nodedef = minetest.registered_nodes[nodedef]
+  end
+  if (type(nodedef) ~= "table") then
+    -- don't cause error
+    return
+  end
+  if nodedef.param1 or nodedef.param2 then
+    -- got passed the get_node() instead of table
+    if not (nodedef.name) then
+      return
+    else
+      nodedef = minetest.registered_nodes[nodedef.name]
+      if not nodedef then
+        -- couldn't find nodedef, don't error
+        return
+      end
+    end
+  end
+  
+  if (minetest.get_item_group(nodedef.name,"spreading") > 0 and grassy == true) then
+    -- it's a grass, let's eat it and modify it (and if eating grass was desired)
+    local sediment_name = nodedef._wet_salty_name -- use this to get the raw sediment
+    local other_nodedef
+    if (sediment_name) then
+      sediment_name = string.gsub(sediment_name,"_wet_salty","") -- get raw sediment
+      other_nodedef = minetest.registered_nodes[sediment_name]
+    end
+    if (other_nodedef) then
+      if (string.match(nodedef.name,"_wet")) then
+        -- get wet if the grassy node is wet
+        local wet_name = other_nodedef._wet_name
+        
+        other_nodedef = minetest.registered_nodes[wet_name]
+      end
+    end
+    if (other_nodedef and other_nodedef.name) then
+      -- get the non-spreading version of the node (does not account for naturalslopes)
+      minetest.add_node(pos, {name = other_nodedef.name})
+    end
+  end
+  
+  -- no idea what this "drop" is supposed to do
+  local drop = nodedef.drop
+  minetest.set_node(pos, {name = drop})
+  minetest.check_for_falling(pos)
+  minetest.sound_play("nodes_nature_dig_crumbly", {gain = 0.2, pos = pos, max_hear_distance = 10})
+end
+
 --for things that eat sediment (i.e. dig in the mud)
 function animals.eat_sediment_under(pos, chance)
   local p = mobkit.get_node_pos(pos)
@@ -1264,22 +1320,35 @@ function animals.eat_sediment_under(pos, chance)
   local under = minetest.get_node(posu).name
 
   if minetest.get_item_group(under, "sediment") > 0 then
+    -- CONSUME
     if random()< chance then
-      --set node to it's drop
-      --this is to scratch up surface layers
-      local nodedef = minetest.registered_nodes[under]
-      local drop = nodedef.drop
-      minetest.check_for_falling(posu)
-      minetest.set_node(posu, {name = drop})
-      minetest.sound_play("nodes_nature_dig_crumbly", {gain = 0.2, pos = pos, max_hear_distance = 10})
+      -- MODIFY
+      eat_sediment(posu,under)
     end
 
     return true
-
   else
     return false
   end
+end
 
+function animals.eat_grassy_sediment_under(pos, chance)
+  -- only eat grassy lol
+  local p = mobkit.get_node_pos(pos)
+  local posu = {x = p.x, y = p.y - 1, z = p.z}
+  local under = minetest.get_node(posu).name
+
+  if (minetest.get_item_group(under, "sediment") > 0 and minetest.get_item_group(under,"spreading") > 0 ) then
+    -- CONSUME
+    if random()< chance then
+      -- MODIFY
+      eat_sediment(posu,under,true)
+    end
+
+    return true
+  else
+    return false
+  end
 end
 
 

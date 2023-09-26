@@ -68,8 +68,8 @@ local function brain(self)
 			if light <= 12 then
 				--hungry eat stuff in the dark
 				if energy < self.energy_max then
-					if animals.eat_sediment_under(pos, 0.001) == true then
-						energy = energy + 2
+					if animals.eat_grassy_sediment_under(pos, 0.001) == true then
+						energy = energy + 4
 					elseif  animals.eat_flora(pos, 0.001) == true then
 						energy = energy + 7
 					else
@@ -84,7 +84,7 @@ local function brain(self)
 				end
 			elseif random()<0.5 and energy < self.energy_max then
 				--slower, less effective feeding during day
-				if animals.eat_sediment_under(pos, 0.001) then
+				if animals.eat_grassy_sediment_under(pos, 0.001) then
 					energy = energy + 1
 				elseif  animals.eat_flora(pos, 0.001) then
 					energy = energy + 3
