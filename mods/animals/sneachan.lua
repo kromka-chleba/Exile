@@ -69,9 +69,9 @@ local function brain(self)
 				--hungry eat stuff in the dark
 				if energy < self.energy_max then
 					if animals.eat_sediment_under(pos, 0.001) == true then
-						energy = energy + 3
+						energy = energy + 2
 					elseif  animals.eat_flora(pos, 0.001) == true then
-						energy = energy + 8
+						energy = energy + 7
 					else
 						--wander random
 						mobkit.animate(self,'walk')
@@ -87,7 +87,7 @@ local function brain(self)
 				if animals.eat_sediment_under(pos, 0.001) then
 					energy = energy + 1
 				elseif  animals.eat_flora(pos, 0.001) then
-					energy = energy + 4
+					energy = energy + 3
 				else
 					--wander random
 					mobkit.animate(self,'walk')
