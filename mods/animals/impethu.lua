@@ -48,12 +48,22 @@ local function brain(self)
 
 			pred = animals.predator_avoid(self, 55, 0.02)
 
-		end
-
+    end
+    
+    local light = (minetest.get_node_light(pos) or 0)
+    if (prty <= 45) then
+      if (light > self.min_light) then
+        --random search for darkness (now better :D)
+        --fatigued by light
+        
+        energy = energy - random(2,6)
+        animals.hq_roam_dark(self,46)
+      end
+    end
 
 		----------------------
 		--Low priority actions
-
+    
 		if prty < 20 then
 
 			--territorial behaviour
@@ -67,19 +77,12 @@ local function brain(self)
 
 			--feeding
 			--eat stuff in the dark
-			local light = (minetest.get_node_light(pos) or 0)
-
-			if light <= 5 then
+			if light <= self.min_light then
 				if not rival and energy < self.energy_max then
 					energy = energy + random(2,8)
 				end
 				mobkit.animate(self,'walk')
 				mobkit.hq_roam(self,10)
-			else
-				--random search for darkness
-				--fatigued by light
-				energy = energy - random(2,4)
-				animals.hq_roam_dark(self,15)
 			end
 
 
@@ -92,7 +95,7 @@ local function brain(self)
 				end
 			end
 
-		end
+    end
 
 		-------------------
 		--generic behaviour
@@ -145,6 +148,8 @@ local self_data = {
   -- comfort temps
 	min_temp = 10,
 	max_temp = 68,
+  -- comfort light
+  min_light = 7,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
   

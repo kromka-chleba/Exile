@@ -63,12 +63,19 @@ end
 
 -- ask if the temperature is comfy for the lil creature
 function animals.temp_comfy(self,temp)
-  if (type(temp) ~= "number" and type(self) ~= "nil") then
-    local pos = mobkit.get_stand_pos(self)
-    temp = climate.get_point_temp(pos)
-  else
+  if (type(self) ~= "table" and type(self) ~= "userdata") then
     return false
   end
+  if (type(temp) ~= "number") then
+    local pos = mobkit.get_stand_pos(self)
+    if (type(temp) == "table") then
+      if (temp.x and temp.y and temp.z) then
+        pos = temp
+      end
+    end
+    temp = climate.get_point_temp(pos)
+  end
+  
   -- still not a number somehow
   if (type(temp) ~= "number") then
     return false
@@ -96,7 +103,11 @@ local function get_reachable_node(self,numstring)
   if (type(numstring) == "number") then
     numstring = tostring(numstring)
   end
-  if (type(numstring) ~= "string" or type(self) ~= "table" and type(self) ~= "userdata") then
+  if (type(numstring) ~= "string") then
+    -- create one :D
+    numstring = "12345678"
+  end
+  if (type(self) ~= "table" and type(self) ~= "userdata") then
     return nil
   end
   -- get a random number from 1 to length of numstring and then remove it from numstring
@@ -529,8 +540,26 @@ function animals.hq_roam_dark(self,prty)
     if time() > timer then
       return true
     end
+    
+    local function light_check(pos,tpos)
+      if not pos then
+        pos = mobkit.get_stand_pos(self)
+      end
+      if not tpos then
+        return false
+      end
+      local light = minetest.get_node_light(pos, 0.5) or 0
+      local lightn = minetest.get_node_light(tpos, 0.5) or 0
+      
+      if (lightn <= light) then
+        return true
+      elseif (lightn < light) then
+        return "desirable"
+      end
+    end
 
-    if mobkit.is_queue_empty_low(self) and self.isonground then
+    if (mobkit.is_queue_empty_low(self) and self.isonground) or (prty >= 45 and self.isonground) then
+      local light_valid = false
        local pos = mobkit.get_stand_pos(self)
        local neighbor = random(8)
 
@@ -543,16 +572,49 @@ function animals.hq_roam_dark(self,prty)
           height = nil
         end
       end
+      if (prty >= 45) then
+        local numstring
+        local bl_pos -- bestlight_pos
+        for i = 1, 8, 1 do
+          local h, tp, lf
+          numstring, h, tp, lf = get_reachable_node(self,numstring) -- shortened versions of "height, tpos, liquidflag"
+          
+          if (tp and animals.temp_comfy(self,tp)) then
+            local l_check = light_check(bl_pos,tp)
+            if (l_check == "desirable") then
+              height, tpos, liquidflag = h, tp, lf
+              bl_pos = tp
+              break
+            elseif (l_check == true) then
+              height, tpos, liquidflag = h, tp, lf
+              bl_pos = tp
+            end
+          end
+        end
+        if bl_pos then
+          light_valid = true
+        elseif (random(1,8) == 8) then
+          -- go to a bad area to find better dark
+          light_valid = true
+        end
+      else
+        if light_check(pos,tpos) then
+          light_valid = true
+        end
+      end
 
-       if height and not liquidflag then
-       local light = minetest.get_node_light(pos, 0.5) or 0
-       local lightn = minetest.get_node_light(tpos, 0.5) or 0
-       if lightn <= light then
-         mobkit.dumbstep(self,height,tpos,0.3)
-       else
-         return true
-       end
-     end
+      if height and not liquidflag then
+        if light_valid then
+          if (prty >= 45) then
+            mobkit.dumbstep(self,height,tpos,1)
+          else
+            mobkit.dumbstep(self,height,tpos,0.3)
+          end
+          return false
+        else
+          return true
+        end
+      end
 		end
 	end
 	mobkit.queue_high(self,func,prty)
