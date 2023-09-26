@@ -92,9 +92,9 @@ local function brain(self)
 
 			--reproduction
 			--asexual parthogenesis, eggs
-			if random() < 0.005 then
+			if random() < 0.008 then
 				if not rival
-				and energy >= (self.energy_max * 0.99) then
+				and energy >= (self.energy_max * 0.95) then
 					energy = animals.place_egg(self, pos, energy)
 				end
 			end
