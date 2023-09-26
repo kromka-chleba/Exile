@@ -51,12 +51,13 @@ local function brain(self)
     end
     
     local light = (minetest.get_node_light(pos) or 0)
-    if (prty <= 45) then
-      if (light > self.min_light) then
-        --random search for darkness (now better :D)
+    if (light > self.min_light) then
         --fatigued by light
         
-        energy = energy - random(2,6)
+      energy = energy - random(2,6)
+      if (prty <= 46) then
+        --random search for darkness (now better :D)
+        prty = 46
         animals.hq_roam_dark(self,46)
       end
     end
