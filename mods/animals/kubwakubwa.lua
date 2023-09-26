@@ -208,9 +208,11 @@ local self_data = {
 		animals.stun_catch_mob(self, clicker, 0.1)
 	end,
   on_death = function(self, pos)
-    if not animals.temp_comfy(self) then
-      animals.emergency_egg(self, pos)
+    local good_temp,temp_status = animals.temp_comfy(self)
+    if good_temp or temp_status ~= "cold" then
+      return
     end
+    animals.emergency_egg(self, pos)
   end
 }
 ---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
