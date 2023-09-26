@@ -80,8 +80,8 @@ animals.register_egg = function(self, desc, inv_img, stack)
   if (self.class == 2) then
     liquids_pointable = true
   end
-	minetest.register_craftitem(name, { -- register new spawn egg containing mob information
-		description = desc,
+  local item_table = { -- register new spawn egg containing mob information
+    description = desc,
 		inventory_image = inv_img,
 		--groups = {},
 		stack_max = stack,
@@ -91,8 +91,11 @@ animals.register_egg = function(self, desc, inv_img, stack)
 			-- am I clicking on something with existing on_rightclick function?
 			local under = minetest.get_node(pointed_thing.under)
 			local def = minetest.registered_nodes[under.name]
-			if def and def.on_rightclick and not def.drawtype == "liquid" then -- as long as it's not a liquid lol
-				return def.on_rightclick(pointed_thing.under, under, placer, itemstack)
+			if def and def.on_rightclick and def.drawtype ~= "liquid" then -- as long as it's not a liquid lol
+        -- and also prevent it from running on_rightclick function upon item drop
+        if (pointed_thing.type ~= nil) then
+          return def.on_rightclick(pointed_thing.under, under, placer, itemstack)
+        end
 			end
       if (self.class == 2 and def.drawtype == "liquid") then
         -- place fish properly into water
@@ -114,7 +117,20 @@ animals.register_egg = function(self, desc, inv_img, stack)
 			end
 			return itemstack
 		end,
-	})
+  }
+  -- dropped animal egg spawns the animal
+  function item_table.on_drop(itemstack, dropper, pos)
+    -- craft a quick pointed_thing lol
+    local pointed_thing = {}
+    pointed_thing.above = {x = pos.x, y = pos.y + 1, z = pos.z}
+    pointed_thing.under = pos
+    
+    item_table.on_place(itemstack, dropper, pointed_thing) -- run on_place function
+    if not minimal.player_in_creative(dropper) then
+      return itemstack
+    end
+  end
+	minetest.register_craftitem(name, item_table) -- register egg
 end
 
 
