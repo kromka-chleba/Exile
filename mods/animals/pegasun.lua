@@ -423,6 +423,7 @@ local self_data = {
 	prey = animals.get_interactors("pegasun","prey"),
 	friends = animals.get_interactors("pegasun","friends"),
 	rivals = animals.get_interactors("pegasun","rivals"),
+  sex = "female",
 
 	--on actions
 	drops = {
