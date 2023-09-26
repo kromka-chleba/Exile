@@ -147,7 +147,7 @@ local self_data = {
 	lung_capacity = 10,
   breathing_rate = 4,
   -- comfort temps
-	min_temp = 10,
+	min_temp = 7,
 	max_temp = 68,
   -- comfort light
   min_light = 7,
