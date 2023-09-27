@@ -15,17 +15,14 @@ local floor = math.floor
 
 -----------------------------------
 local function brain(self)
-
-	--die from damage
-	if not animals.core_hp_water(self) then
-		return
-	end
+	-- calculate instantanious effects
+  animals.core_hp(self)
 
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, self.lifespan, pos)
+		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -117,7 +114,7 @@ end
 
 ----------------------------------------------
 -- SETTING OF SARKAMOS INTERACTOR SETTINGS
-animals.add_interactors("prey","sarkamos","animals:gundu")
+animals.add_interactors("prey","sarkamos","animals:gundu","animals:pegasun","animals:pegasun_male","animals:kubwakubwa", "animals:darkasthaan")
 animals.add_interactors("rivals","sarkamos","animals:sarkamos")
 
 ----------------------------------------------
@@ -139,8 +136,8 @@ local self_data = {
 	max_hp = 200,
 	lung_capacity = 40,
   -- comfort temps
-	min_temp = 1,
-	max_temp = 35,
+	min_temp = 0,
+	max_temp = 40,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 2,
 
@@ -240,4 +237,4 @@ minetest.register_node("animals:sarkamos_eggs", {
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:sarkamos", S("Live Sarkamos"), "animals_sarkamos_item.png", minimal.stack_max_medium/2, self_data)
+animals.register_egg(self_data, S("Live Sarkamos"), "animals_sarkamos_item.png", minimal.stack_max_medium/2)

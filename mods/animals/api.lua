@@ -43,8 +43,40 @@ local function flee_sound(self)
 	mobkit.make_sound(self,'flee')
 end
 
+
+local function node_drawtype(pos)
+  if not (type(pos) == "table") then
+    return {}
+  end
+  local node = pos
+  if (pos.x and pos.y and pos.z) then
+    -- if pos is a pos, otherwise continue as is
+    node = minetest.get_node_or_nil(pos)
+  end
+  if (type(node) == "nil" or type(node.name) ~= "string") then
+    node = {}
+  else
+    node = minetest.registered_nodes[node.name]
+  end
+  return node.drawtype, node
+end
+
 -- ask if the temperature is comfy for the lil creature
 function animals.temp_comfy(self,temp)
+  if (type(self) ~= "table" and type(self) ~= "userdata") then
+    return false
+  end
+  if (type(temp) ~= "number") then
+    local pos = mobkit.get_stand_pos(self)
+    if (type(temp) == "table") then
+      if (temp.x and temp.y and temp.z) then
+        pos = temp
+      end
+    end
+    temp = climate.get_point_temp(pos)
+  end
+  
+  -- still not a number somehow
   if (type(temp) ~= "number") then
     return false
   end
@@ -71,7 +103,11 @@ local function get_reachable_node(self,numstring)
   if (type(numstring) == "number") then
     numstring = tostring(numstring)
   end
-  if (type(numstring) ~= "string" or type(self) ~= "table" and type(self) ~= "userdata") then
+  if (type(numstring) ~= "string") then
+    -- create one :D
+    numstring = "12345678"
+  end
+  if (type(self) ~= "table" and type(self) ~= "userdata") then
     return nil
   end
   -- get a random number from 1 to length of numstring and then remove it from numstring
@@ -130,46 +166,61 @@ function animals.handle_drops(self)
  end
 
 ----------------------------------------------------
---core health
+--core health (meant for instantanious effect checks)
 function animals.core_hp(self)
-  --default drowing and fall damage
-  animals.vitals(self)
-  --die from damage
-  local hp = self.hp
-  if hp <= 0 then
-    mobkit.clear_queue_high(self)
-    animals.handle_drops(self)
-    mobkit.hq_die(self)
-    return false
-  else
-    return true
+  -- vitals: fall damage
+	local vel = self.object:get_velocity()
+	local velocity_delta = abs(self.lastvelocity.y - vel.y)
+  
+  if (velocity_delta > mobkit.safe_velocity) then
+    -- let's see if there's a node with fall_damage_add_percent first
+    local pos = mobkit.pos_shift(self.object:get_pos(),{y = -1})
+    local drawtype, node = node_drawtype(pos)
+    if (drawtype == "airlike") then
+      pos = mobkit.pos_shift(pos,{y = -1})
+      drawtype, node = node_drawtype(pos)
+    end
+    
+    if (node.name ~= nil) then
+      local multiplier = node.groups.fall_damage_add_percent -- used for fall damage calculation
+      if (type(multiplier) == "number") then
+        -- convert multiplier into a usable decimal
+        multiplier = multiplier/100
+        if (multiplier <= 0) then
+          -- if it's negative, make positive, and subtract it by 1 to get the result of which velocity should be of itself (-70 = 0.3)
+          multiplier = -multiplier
+          multiplier = 1 - multiplier
+        else
+          multiplier = 1 + multiplier
+        end
+        
+        velocity_delta = floor(velocity_delta * multiplier)
+      end
+      
+      if (drawtype == "airlike") then
+        multiplier = 0 -- lazily reuse multiplier to check whether or not it's hitting entity or air
+        local obj = minetest.get_objects_inside_radius(pos,1) -- look for an object nearby
+        obj = obj[random(1,#obj)] -- lazily get one of em
+        if obj then
+          obj = obj:get_luaentity()
+          if obj and obj.physical == true and obj.collide_with_objects == true then
+            -- landed on someone, cushion it
+            multiplier = 0.5
+          end
+        end
+        velocity_delta = velocity_delta * multiplier
+      end
+    end
   end
+  
+	if velocity_delta > mobkit.safe_velocity then
+    -- alright, time to do some damage if it's still over safe_velocity
+    local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
+    
+    self.hp = self.hp - damage
+	end
 end
 
-
-
-function animals.core_hp_water(self)
-
-  if not self.isinliquid then
-    mobkit.hurt(self,1)
-  end
-  --die from damage
-  local hp = self.hp
-
-
-local energy = mobkit.recall(self,'energy')
-local age = mobkit.recall(self,'age')
-if not age then age=0 end
-if not energy then energy = 0 end
-  if hp <= 0 then
-    mobkit.clear_queue_high(self)
-    animals.handle_drops(self)
-    mobkit.hq_die(self)
-    return false
-  else
-    return true
-  end
-end
 
 
 local function get_mean_temp(pos) -- this could be put somewhere else like in climate or minimal
@@ -201,12 +252,13 @@ end
 
 ----------------------------------------------------
 --core health, energy and age
-function animals.core_life(self, lifespan, pos)
+function animals.core_life(self, pos)
 
   local energy = mobkit.recall(self,'energy')
   local age = mobkit.recall(self,'age')
   local conserve = mobkit.recall(self,'conserve')
   
+  local lifespan = self.lifespan or 2
   local energy_loss = self.energy_loss or 0.25
 
   --stops some crashes in creative?
@@ -221,18 +273,24 @@ function animals.core_life(self, lifespan, pos)
   end
 
   age = age + 1
-  if (conserve == false) then
-    energy = energy - energy_loss
-  elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
-    energy = energy - energy_loss
-  end
-
-  --die from exhaustion, old age
-  if energy <=0 or age > lifespan then
+  
+  animals.vitals(self)
+  --die from exhaustion, old age, no hp
+  local hp = self.hp
+  if energy <= 0 or age > lifespan or self.hp <= 0 then
+    if type(self.on_death) == "function" then
+      self.on_death(self, pos)
+    end
     mobkit.clear_queue_high(self)
     animals.handle_drops(self)
     mobkit.hq_die(self)
     return nil
+  end
+  
+  if (conserve == false) then
+    energy = energy - energy_loss
+  elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
+    energy = energy - energy_loss
   end
 
   -- get temp
@@ -242,11 +300,13 @@ function animals.core_life(self, lifespan, pos)
   end
 
   --temperature stress
-  if temp < self.min_temp or temp > self.max_temp then
+  local max_temp = self.max_temp
+  local min_temp = self.min_temp
+  
+  if temp < min_temp or temp > max_temp then
     -- if this temperature is uncomfortable, try to find somewhere else!
-    
-    local killer_min_temp = self.min_temp - 7
-    local killer_max_temp = self.max_temp + 25
+    local killer_min_temp = min_temp - 7
+    local killer_max_temp = max_temp + 25
     local burn_max_temp = killer_max_temp + 55
     local absolute_death_temp = burn_max_temp + 800
     
@@ -267,21 +327,22 @@ function animals.core_life(self, lifespan, pos)
     -- lose energy from discomfort
     energy = energy - 2
     -- lose more energy dependent on temperature difference (discomfort also)
-    if (temp > self.max_temp) then
-      energy = energy - abs(temp - self.max_temp)
-    elseif (temp < self.min_temp) then
-      energy = energy - abs(temp - self.min_temp)
+    if (temp > max_temp) then
+      local mtp = (temp - max_temp)*0.05
+      energy = energy - mtp
+    elseif (temp < min_temp) then
+      local mtp = (min_temp - temp)*0.02
+      energy = energy - mtp
     end
-    
-    
     
   -- get really hurt or die from high temp
     if temp > killer_max_temp then -- use addition instead of multiplication to account for negative numbers
-      local dmg = math.ceil(1.3 * (temp / self.max_temp)) -- damage calculation
+      local mtp = (temp - killer_max_temp)*0.007 -- multiplier
+      local dmg = math.ceil(1 * mtp) -- damage calculation
       if (temp >= absolute_death_temp) then
-        dmg = dmg * 10
+        dmg = dmg * 8
       end
-      dmg = math_clamp(abs(dmg),0,self.hp) -- clamp dmg (and abs to avoid negatives) due to weird mobkit.hurt() functionality
+      dmg = math_clamp(dmg,1,self.hp) -- clamp dmg due to weird mobkit.hurt() functionality
       mobkit.hurt(self,dmg)
       -- only retrieve burned flesh if max_temp is exceedingly hot
       if (self.hp <= 0 and temp >= burn_max_temp) then
@@ -291,8 +352,9 @@ function animals.core_life(self, lifespan, pos)
       end
     -- get really hurt or die from being too cold!!
     elseif temp < killer_min_temp then
-      local dmg = math.ceil(1.3 * (temp / self.min_temp))
-      dmg = math_clamp(abs(dmg),0,self.hp)
+      local mtp = (killer_min_temp - temp)*0.4 -- multiplier
+      local dmg = math.ceil(1 * mtp)
+      dmg = math_clamp(dmg,1,self.hp)
       mobkit.hurt(self,dmg)
     end
   end
@@ -300,8 +362,8 @@ function animals.core_life(self, lifespan, pos)
 
   --heal using energy
   if self.hp < self.max_hp and energy > 20 and random() <= 0.75 then
-    if not (not self.isinliquid and self.class == 2) then
-      -- if not a fish out of water then (fish in water will heal up nicely :D)
+    if animals.temp_comfy(self,temp) and not (not self.isinliquid and self.class == 2) then
+      -- if not a fish out of water then (fish in water will heal up nicely :D) (oh and if temp is comfortable too)
       mobkit.heal(self,1)
       energy = energy - math.random(5,15)
     end
@@ -350,6 +412,30 @@ function animals.place_egg(self, pos, e, medium) -- self, position, energy, medi
   return e
 end
 
+-- place an egg during near or precise death (and die)
+-- generic function to be utilized by any "emergency_egg" custom function in animals' self
+function animals.emergency_egg(self, pos, medium)
+  local egg_chance = self.emergency_egg_chance or 1
+  
+  local energy = mobkit.recall(self,"energy")
+  if (type(energy) ~= "number" or energy <= 0) then
+    return false
+  end
+  
+  if (random() < egg_chance) then
+    -- lay egg
+    animals.place_egg(self, pos, energy, medium)
+    -- set custom energy_egg
+    local meta = minetest.get_meta(pos)
+    meta:set_float("energy_egg",energy)
+    
+    mobkit.remember(self,"energy",0) -- kill
+    return true
+  end
+  
+  return false
+end
+
 ----------------------------------------------------
 -- get an amount of offspring to release
 function animals.calculate_egg_young(self)
@@ -392,7 +478,11 @@ function animals.hatch_egg(self, pos, medium, replace, name) -- self, position, 
     replace = "air"
   end
    
-  local energy_egg = self.energy_egg
+  local energy_egg = self.energy_egg 
+  local meta = minetest.get_meta(pos):get_float("energy_egg")
+  if (meta > 0) then
+    energy_egg = meta
+  end
   local young_per_egg = animals.calculate_egg_young(self)
   local max_pop = self.max_pop or max_objects
   if (type(name) ~= "string") then
@@ -400,6 +490,9 @@ function animals.hatch_egg(self, pos, medium, replace, name) -- self, position, 
   end
   
   if not name or not energy_egg or not young_per_egg then
+    return false
+  end
+  if (energy_egg < 0) then
     return false
   end
   
@@ -451,8 +544,26 @@ function animals.hq_roam_dark(self,prty)
     if time() > timer then
       return true
     end
+    
+    local function light_check(pos,tpos)
+      if not pos then
+        pos = mobkit.get_stand_pos(self)
+      end
+      if not tpos then
+        return false
+      end
+      local light = minetest.get_node_light(pos, 0.5) or 0
+      local lightn = minetest.get_node_light(tpos, 0.5) or 0
+      
+      if (lightn <= light) then
+        return true
+      elseif (lightn < light) then
+        return "desirable"
+      end
+    end
 
-    if mobkit.is_queue_empty_low(self) and self.isonground then
+    if (mobkit.is_queue_empty_low(self) and self.isonground) or (prty >= 45 and self.isonground) then
+      local light_valid = false
        local pos = mobkit.get_stand_pos(self)
        local neighbor = random(8)
 
@@ -465,16 +576,49 @@ function animals.hq_roam_dark(self,prty)
           height = nil
         end
       end
+      if (prty >= 45) then
+        local numstring
+        local bl_pos -- bestlight_pos
+        for i = 1, 8, 1 do
+          local h, tp, lf
+          numstring, h, tp, lf = get_reachable_node(self,numstring) -- shortened versions of "height, tpos, liquidflag"
+          
+          if (tp and animals.temp_comfy(self,tp)) then
+            local l_check = light_check(bl_pos,tp)
+            if (l_check == "desirable") then
+              height, tpos, liquidflag = h, tp, lf
+              bl_pos = tp
+              break
+            elseif (l_check == true) then
+              height, tpos, liquidflag = h, tp, lf
+              bl_pos = tp
+            end
+          end
+        end
+        if bl_pos then
+          light_valid = true
+        elseif (random(1,8) == 8) then
+          -- go to a bad area to find better dark
+          light_valid = true
+        end
+      else
+        if light_check(pos,tpos) then
+          light_valid = true
+        end
+      end
 
-       if height and not liquidflag then
-       local light = minetest.get_node_light(pos, 0.5) or 0
-       local lightn = minetest.get_node_light(tpos, 0.5) or 0
-       if lightn <= light then
-         mobkit.dumbstep(self,height,tpos,0.3)
-       else
-         return true
-       end
-     end
+      if height and not liquidflag then
+        if light_valid then
+          if (prty >= 45) then
+            mobkit.dumbstep(self,height,tpos,1)
+          else
+            mobkit.dumbstep(self,height,tpos,0.3)
+          end
+          return false
+        else
+          return true
+        end
+      end
 		end
 	end
 	mobkit.queue_high(self,func,prty)
@@ -1033,9 +1177,23 @@ function animals.prey_hunt(self, prty)
 
   for  _, prey in ipairs(self.prey) do
     local tgtobj = mobkit.get_closest_entity(self,prey)
+    --if tgtobj then
+      --animals.hq_attack_eat(self,prty,tgtobj)
+      --return true
+    --end
     if tgtobj then
-      animals.hq_attack_eat(self,prty,tgtobj)
-      return true
+      local tgtpos = tgtobj:get_pos()
+      local drawtype = node_drawtype(tgtpos)
+      if (drawtype == "liquid" and self.oxygen_min) then
+        -- look for a solid node underneath (safe to hunt) and if meant to hunt prey that's in water
+        tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
+        drawtype = node_drawtype(tgtpos)
+      end
+      
+      if (drawtype ~= "liquid") then
+        animals.hq_attack_eat(self,prty,tgtobj)
+        return true
+      end
     end
   end
 end
@@ -1046,10 +1204,25 @@ function animals.prey_hunt_water(self, prty)
   for  _, prey in ipairs(self.prey) do
     local tgtobj = mobkit.get_closest_entity(self,prey)
     if tgtobj then
-      mobkit.animate(self,'fast')
-      flee_sound(self)
-      animals.hq_aqua_attack_eat(self, prty, tgtobj, self.max_speed)
-      return true
+      local tgtpos = tgtobj:get_pos()
+      local drawtype = node_drawtype(tgtpos)
+      if (drawtype ~= "liquid") then
+        -- look for a liquid node underneath >:D
+        tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
+        drawtype = node_drawtype(tgtpos)
+        if (drawtype == "airlike") then
+          -- in case they're a bit too high lol
+          tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
+          drawtype = node_drawtype(tgtpos)
+        end
+      end
+      
+      if (drawtype == "liquid") then
+        mobkit.animate(self,'fast')
+        flee_sound(self)
+        animals.hq_aqua_attack_eat(self, prty, tgtobj, self.max_speed)
+        return true
+      end
     end
   end
 end
@@ -1084,6 +1257,63 @@ function animals.eat_spreading_under(pos, chance)
 end
 
 ----------------------------------------------------
+-- sediment eating functions
+
+-- modifies the provided sediment at pos
+local function eat_sediment(pos,nodedef,grassy)
+  --set node to it's drop
+  --this is to scratch up surface layers
+  if (type(nodedef) == "string") then
+    -- got a name, find it
+    nodedef = minetest.registered_nodes[nodedef]
+  end
+  if (type(nodedef) ~= "table") then
+    -- don't cause error
+    return
+  end
+  if nodedef.param1 or nodedef.param2 then
+    -- got passed the get_node() instead of table
+    if not (nodedef.name) then
+      return
+    else
+      nodedef = minetest.registered_nodes[nodedef.name]
+      if not nodedef then
+        -- couldn't find nodedef, don't error
+        return
+      end
+    end
+  end
+  
+  if (minetest.get_item_group(nodedef.name,"spreading") > 0 and grassy == true) then
+    -- it's a grass, let's eat it and modify it (and if eating grass was desired)
+    local sediment_name = nodedef._wet_salty_name -- use this to get the raw sediment
+    -- (grassy _wet_salty variations of sediments do not exist)
+    local other_nodedef
+    if (sediment_name) then
+      sediment_name = string.gsub(sediment_name,"_wet_salty","") -- get raw sediment
+      other_nodedef = minetest.registered_nodes[sediment_name]
+    end
+    if (other_nodedef) then
+      if (string.match(nodedef.name,"_wet")) then
+        -- get wet if the grassy node is wet
+        local wet_name = other_nodedef._wet_name
+        
+        other_nodedef = minetest.registered_nodes[wet_name]
+      end
+    end
+    if (other_nodedef and other_nodedef.name) then
+      -- get the non-spreading version of the node (does not account for naturalslopes)
+      minetest.add_node(pos, {name = other_nodedef.name})
+    end
+  end
+  
+  -- no idea what this "drop" is supposed to do
+  local drop = nodedef.drop
+  minetest.set_node(pos, {name = drop})
+  minetest.check_for_falling(pos)
+  minetest.sound_play("nodes_nature_dig_crumbly", {gain = 0.2, pos = pos, max_hear_distance = 10})
+end
+
 --for things that eat sediment (i.e. dig in the mud)
 function animals.eat_sediment_under(pos, chance)
   local p = mobkit.get_node_pos(pos)
@@ -1091,22 +1321,36 @@ function animals.eat_sediment_under(pos, chance)
   local under = minetest.get_node(posu).name
 
   if minetest.get_item_group(under, "sediment") > 0 then
+    -- CONSUME
     if random()< chance then
-      --set node to it's drop
-      --this is to scratch up surface layers
-      local nodedef = minetest.registered_nodes[under]
-      local drop = nodedef.drop
-      minetest.check_for_falling(posu)
-      minetest.set_node(posu, {name = drop})
-      minetest.sound_play("nodes_nature_dig_crumbly", {gain = 0.2, pos = pos, max_hear_distance = 10})
+      -- GET DROPS (idk how that works lol)
+      eat_sediment(posu,under)
     end
 
     return true
-
   else
     return false
   end
+end
 
+-- eat grassy nodes with a chance of modifying the grass node to its non-grassy self (does not respect naturalslopes)
+function animals.eat_grassy_sediment_under(pos, chance)
+  -- only eat grassy lol
+  local p = mobkit.get_node_pos(pos)
+  local posu = {x = p.x, y = p.y - 1, z = p.z}
+  local under = minetest.get_node(posu).name
+
+  if (minetest.get_item_group(under, "sediment") > 0 and minetest.get_item_group(under,"spreading") > 0 ) then
+    -- CONSUME
+    if random()< chance then
+      -- MODIFY
+      eat_sediment(posu,under,true)
+    end
+
+    return true
+  else
+    return false
+  end
 end
 
 
@@ -1718,7 +1962,9 @@ function animals.get_interactors(creature,itype) -- creature to get stats from, 
   -- get who the creature interacts in what specified way
   local itable = interactable[itype]
   if (type(itable) ~= "table") then
-    return {}
+    -- create interactable table for creature if it does not exist
+    interactable[itype] = {}
+    return interactable[itype]
   end
   -- return an empty table or the specified table of interaction type
   return itable
@@ -1741,56 +1987,93 @@ end
 
 -- Taken directly from mobkit to properly calculate fall damage
 function animals.vitals(self)
-	-- vitals: fall damage
-	local vel = self.object:get_velocity()
-	local velocity_delta = abs(self.lastvelocity.y - vel.y)
-  
-  if (velocity_delta > mobkit.safe_velocity) then
-    -- let's see if there's a node with fall_damage_add_percent first
-    local node = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y = -1}))
-    
-    if (type(node) == "table") then
-      local multiplier = node.groups.fall_damage_add_percent -- used for fall damage calculation
-      if (type(multiplier) == "number") then
-        -- convert multiplier into a usable decimal
-        multiplier = multiplier/100
-        if (multiplier <= 0) then
-          -- if it's negative, make positive, and subtract it by 1 to get the result of which velocity should be of itself (-70 = 0.3)
-          multiplier = -multiplier
-          multiplier = 1 - multiplier
-        else
-          multiplier = 1 + multiplier
-        end
-        
-        velocity_delta = floor(velocity_delta * multiplier)
-      end
-      
-      if (node.drawtype == "airlike") then
-        -- this ouchy code got initiated in air
-        -- sometimes this happens when trampolining and it will hurt the mob by a lot...
-        -- so let's pretend they landed on something soft and multiply the velocity_delta by 0.5 :D (because this'll also activate when mobs land on other mobs or players)
-        velocity_delta = velocity_delta * 0.5
-      end
-    end
-  end
-  
-	if velocity_delta > mobkit.safe_velocity then
-    -- alright, time to do some damage if it's still over safe_velocity
-    local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
-    
-    self.hp = self.hp - damage
-	end
+	
 	
 	-- vitals: oxygen
 	if self.lung_capacity then
 		local colbox = self.object:get_properties().collisionbox
-		local headnode = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})) -- node at hitbox top
-		if headnode and headnode.drawtype == 'liquid' then 
-			self.oxygen = self.oxygen - self.dtime
-		else
-			self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
-		end
+    local lowpos = mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})
+		local drawtype = node_drawtype(lowpos) -- node at hitbox top
+    
+    local oxygen_min = self.oxygen_min or self.lung_capacity
+    local breathing_rate = self.breating_rate or 1
+    -- utilized by non-water animals
+    -- determines whether or not the animal should try to get out (if there's too much water)
+    local dangerous = false
+    if (node_drawtype(mobkit.pos_shift(lowpos,{y=-1})) == "liquid" or node_drawtype(mobkit.pos_shift(lowpos,{y=1})) == "liquid" or oxygen_min == self.lung_capacity) then
+      dangerous = true
+    end
+    
+    if (self.class ~= 2 and self.class ~= 3) then
+      if drawtype == 'liquid' then
+        self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
+        if (self.oxygen <= oxygen_min or dangerous == true) then -- if uncomfortable
+          -- swim to shore
+          animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
+        end
+      else
+        self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
+      end
+    elseif (self.class ~= 3) then
+      if self.isinliquid then
+        self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
+      else
+        self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
+      end
+    end
+    if (self.class == 3 and self.oxygen < self.lung_capacity) then
+      -- amphibians get to breathe wherever they wanna
+      self.oxygen = math_clamp(self.oxygen + breathing_rate,0,self.lung_capacity)
+    end
 			
-		if self.oxygen <= 0 then mobkit.hurt(self,self.max_hp*0.1) end	-- drown by 10% of max_hp
+		if self.oxygen <= 0 then
+      -- drown by 10% of max_hp
+      local dmg = math_clamp(self.max_hp * 0.1, 1, self.hp)
+      mobkit.hurt(self,dmg)
+    end
 	end
+  return
+end
+
+-- rewrite of mobkit's hq_liquid_recovery because it'd literally instakill
+function animals.hq_liquid_recovery(self,prty)
+  local radius = 1
+	local yaw = 0
+	local func = function(self)
+		if not self.isinliquid then return true end
+		local pos=self.object:get_pos()
+		local vec = minetest.yaw_to_dir(yaw)
+		local pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
+		local height, liquidflag = mobkit.get_terrain_height(pos2)
+		if height and not liquidflag then
+			mobkit.hq_swimto(self,prty,pos2)
+			return true
+		end
+    yaw=yaw+pi*0.25
+    if yaw>2*pi then
+			radius=radius+1
+			if radius > self.view_range then
+        yaw = random(0,(yaw+pi*2) * 100) -- random direction attempt (save decimals)
+        yaw = yaw/100
+        radius = random(math_clamp(3,self.view_range,self.view_range),self.view_range)
+        -- swim anywhere! (or try to...)
+        mobkit.turn2yaw(self,yaw)
+        vec = minetest.yaw_to_dir(yaw)
+        pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
+        
+        if (node_drawtype(pos2) ~= "liquid" or node_drawtype(mobkit.pos_shift(pos2,{y=1})) ~= "liquid") then
+          -- made my OWN swimto because mobkit SUCKS 3:<
+          pos2 = vector.normalize(vector.direction({x = pos.x, y = pos2.y, z = pos.z}, pos2))
+          mobkit.turn2yaw(self,minetest.dir_to_yaw(pos2))
+          pos2 = vector.multiply(pos2,3)
+          pos2.y = pos2.y + 2
+          self.object:set_velocity(pos2)
+        end
+        
+        radius = 1
+			end
+      yaw = 0
+		end
+  end
+  mobkit.queue_high(self,func,prty)
 end

@@ -17,17 +17,14 @@ local floor = math.floor
 
 -----------------------------------
 local function brain(self)
-
-	--die from damage
-	if not animals.core_hp(self) then
-		return
-	end
-
+  -- calculate instantanious effects
+  animals.core_hp(self)
+  
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, self.lifespan, pos)
+		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -35,11 +32,6 @@ local function brain(self)
 
 		------------------
 		--Emergency actions
-
-		--swim to shore
-		if self.isinliquid then
-			mobkit.hq_liquid_recovery(self,60)
-		end
 
 
 		local prty = mobkit.get_queue_priority(self)
@@ -76,15 +68,15 @@ local function brain(self)
 			if light <= 12 then
 				--hungry eat stuff in the dark
 				if energy < self.energy_max then
-					if animals.eat_sediment_under(pos, 0.001) == true then
-						energy = energy + 3
+					if animals.eat_grassy_sediment_under(pos, 0.001) == true then
+						energy = energy + 4
 					elseif  animals.eat_flora(pos, 0.001) == true then
-						energy = energy + 8
+						energy = energy + 7
 					else
 						--wander random
 						mobkit.animate(self,'walk')
 						--mobkit.hq_roam(self,10)
-						animals.hq_roam_surface_group(self, 'sediment', 20)
+						animals.hq_roam_surface_group(self, 'spreading', 20)
 					end
 				else
 					--full
@@ -92,10 +84,10 @@ local function brain(self)
 				end
 			elseif random()<0.5 and energy < self.energy_max then
 				--slower, less effective feeding during day
-				if animals.eat_sediment_under(pos, 0.001) then
+				if animals.eat_grassy_sediment_under(pos, 0.001) then
 					energy = energy + 1
 				elseif  animals.eat_flora(pos, 0.001) then
-					energy = energy + 4
+					energy = energy + 3
 				else
 					--wander random
 					mobkit.animate(self,'walk')
@@ -111,11 +103,11 @@ local function brain(self)
 
 			--reproduction
 			--asexual parthogenesis, eggs
-			if random() < 0.02
+			if random() < 0.008
 			and not rival
 			and not pred
 			and self.hp >= self.max_hp
-			and energy >= self.energy_max then
+			and energy >= (self.energy_max * 0.7) then
 				energy = animals.place_egg(self, pos, energy)
 			end
 
@@ -170,7 +162,7 @@ local self_data = {
 	max_hp = 3,
 	lung_capacity = 10,
   -- comfort temps
-	min_temp = 3,
+	min_temp = 1,
 	max_temp = 50,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
@@ -234,13 +226,21 @@ local self_data = {
 		end
 		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
+  on_death = function(self, pos)
+    local good_temp,temp_status = animals.temp_comfy(self)
+    if good_temp or temp_status ~= "cold" then
+      return
+    end
+    animals.emergency_egg(self, pos)
+  end
 }
 ---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
 -- energy and eggs
 self_data.energy_max = 5000--secs it can survive without food
-self_data.energy_egg = (self_data.energy_max*0.9) --energy that goes to egg
+self_data.energy_egg = (self_data.energy_max*0.5) --energy that goes to egg
 self_data.egg_timer = 60*10
 self_data.young_per_egg = {3,7}		--will get this/energy_egg starting energy
+self_data.emergency_egg_chance = 0.75
 -- lifespan
 self_data.lifespan = self_data.energy_max * 5
 ---------------------;
@@ -270,7 +270,7 @@ minetest.register_node("animals:sneachan_eggs", {
     local young_per_egg = self_data.young_per_egg
     
     local temp = climate.get_point_temp(pos)
-    if (temp < 14 ) then
+    if (temp < 10 ) then
       -- don't hatch and keep timer going if temp is too uncomfortably cold
       minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*4))
       return false
@@ -293,4 +293,4 @@ minetest.register_node("animals:sneachan_eggs", {
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:sneachan", S("Live Sneachan"), "animals_sneachan_item.png", minimal.stack_max_medium, self_data)
+animals.register_egg(self_data, S("Live Sneachan"), "animals_sneachan_item.png", minimal.stack_max_medium)

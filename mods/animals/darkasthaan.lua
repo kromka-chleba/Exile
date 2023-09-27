@@ -17,17 +17,13 @@ local floor = math.floor
 
 -----------------------------------
 local function brain(self)
-
-	--die from damage
-	if not animals.core_hp(self) then
-		return
-	end
-
+  -- calculate instantanious effects
+  animals.core_hp(self)
+  
 	if mobkit.timer(self,1) then
-
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy, conserve = animals.core_life(self, self.lifespan, pos)
+		local age, energy, conserve = animals.core_life(self, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -35,11 +31,6 @@ local function brain(self)
 
 		------------------
 		--Emergency actions
-
-		--swim to shore
-		if self.isinliquid then
-			mobkit.hq_liquid_recovery(self,60)
-		end
 
 		local prty = mobkit.get_queue_priority(self)
 		-------------------
@@ -126,7 +117,7 @@ end
 
 ----------------------------------------------
 -- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
-animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan")
+animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan", "animals:gundu", "animals:sarkamos")
 animals.add_interactors("rivals","darkasthaan","animals:darkasthaan")
 
 ----------------------------------------------
@@ -147,9 +138,10 @@ local self_data = {
 	-- animal stats
 	max_hp = 200,
 	lung_capacity = 40,
+  breathing_rate = 8,
   -- comfort temps
 	min_temp = 14,
-	max_temp = 66,
+	max_temp = 70,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
 
@@ -254,4 +246,4 @@ minetest.register_node("animals:darkasthaan_eggs", {
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:darkasthaan", S("Live Darkasthaan"), "animals_darkasthaan_item.png", minimal.stack_max_medium, self_data)
+animals.register_egg(self_data, S("Live Darkasthaan"), "animals_darkasthaan_item.png", minimal.stack_max_medium)

@@ -70,21 +70,38 @@ end
 
 
 
-animals.register_egg = function(name, desc, inv_img, stack, energy)
+animals.register_egg = function(self, desc, inv_img, stack)
 	local grp = {spawn_egg = 1}
-	minetest.register_craftitem(name, { -- register new spawn egg containing mob information
-		description = desc,
+  local name = self.name
+  assert(type(name) == "string","animals.register_egg: provided self data does not contain a name!")
+  local ee = self.energy_egg or 100
+  local ype = self.young_per_egg or 1
+  local liquids_pointable = false
+  if (self.class == 2) then
+    liquids_pointable = true
+  end
+  local item_table = { -- register new spawn egg containing mob information
+    description = desc,
 		inventory_image = inv_img,
 		--groups = {},
 		stack_max = stack,
+    liquids_pointable = liquids_pointable,
 		on_place = function(itemstack, placer, pointed_thing)
 			local spawn_pos = pointed_thing.above
 			-- am I clicking on something with existing on_rightclick function?
 			local under = minetest.get_node(pointed_thing.under)
 			local def = minetest.registered_nodes[under.name]
-			if def and def.on_rightclick then
-				return def.on_rightclick(pointed_thing.under, under, placer, itemstack)
+			if def and def.on_rightclick and def.drawtype ~= "liquid" then -- as long as it's not a liquid lol
+        -- and also prevent it from running on_rightclick function upon item drop
+        if (pointed_thing.type ~= nil) then
+          return def.on_rightclick(pointed_thing.under, under, placer, itemstack)
+        end
 			end
+      if (self.class == 2 and def.drawtype == "liquid") then
+        -- place fish properly into water
+        spawn_pos = pointed_thing.under
+        spawn_pos.y = spawn_pos.y - 1
+      end
 			if spawn_pos and not minetest.is_protected(spawn_pos, placer:get_player_name()) then
 				if not minetest.registered_entities[name] then
 					return
@@ -94,26 +111,23 @@ animals.register_egg = function(name, desc, inv_img, stack, energy)
 				--set energy value
 				if not mobkit.recall(ent,'energy') then
 					--# of seconds it will survive without food
-          if (type(energy) == "table" or type(energy) == "userdata") then
-            -- if an animal table is specified
-            local ype = energy.young_per_egg -- young_per_egg
-            local ee = energy.energy_egg -- energy_egg
-            
-            if ee and ype then
-              -- realistically calculate the energy depending on young_per_egg
-              energy = ee / animals.calculate_egg_young(ype)
-            end
-          end
-          if (type(energy) ~= "number") then
-            -- do not error if a number wasn't provided, go for 100 energy
-            energy = 100
-          end
+          local energy = ee / animals.calculate_egg_young(ype)
 					mobkit.remember(ent,'energy',energy)
 				end
 			end
 			return itemstack
 		end,
-	})
+  }
+  -- dropped animal egg spawns the animal
+  function item_table.on_drop(itemstack, dropper, pos)
+    -- craft a quick pointed_thing lol
+    local pointed_thing = {}
+    pointed_thing.above = {x = pos.x, y = pos.y + 1, z = pos.z}
+    pointed_thing.under = pos
+    
+    return item_table.on_place(itemstack, dropper, pointed_thing) -- run on_place function
+  end
+	minetest.register_craftitem(name, item_table) -- register egg
 end
 
 

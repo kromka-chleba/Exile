@@ -45,16 +45,12 @@ local function brain(self)
 		mobkit.clear_queue_high(self)
 		mobkit.hq_aqua_turn(self,68,yaw+2,2)
 	end
-
+  -- calculate instantanious effects
+  animals.core_hp(self)
 
 	if mobkit.timer(self,1) then
-		-- die from damage - run before animals.core_life() 
-		--
-		if not animals.core_hp_water(self) then
-			return
-		end
 		-- Also recharges health from energy
-		local age, energy = animals.core_life(self, self.lifespan, pos)
+		local age, energy = animals.core_life(self, pos)
 
 		--die from exhaustion or age
 		if not age then
@@ -83,7 +79,7 @@ local function brain(self)
 			end
 			-- Temp out of range
 			local temp = climate.get_point_temp(pos)
-			if temp < self.min_temp or temp > self.max_temp then
+			if not animals.temp_comfy(self,temp) then
 				local vel = self.object:get_velocity()
 				vel.y = vel.y-0.2
 				self.object:set_velocity(vel)
@@ -156,13 +152,13 @@ local function brain(self)
 			--reproduction
 			--asexual parthogenesis, eggs
 			--no threats, darkness, peak condition
-			if (random() < 0.03 or energy >= (self.energy_max*1.125)) -- 9000 (8000 * 1.125)
+			if (random() < 0.03)
 			and not rival
 			and not pred
 			and lightm <= 11
 			and ( tod <0.5 ) -- only lay at night
 			and self.hp >= self.max_hp
-			and energy >= self.energy_max - 100 then
+			and energy >= (self.energy_max * 0.99) then
 				energy = animals.place_egg(self, pos, energy, 'nodes_nature:salt_water_source')
 			end
 
@@ -196,7 +192,7 @@ end
 
 ----------------------------------------------
 -- SETTING OF GUNDU INTERACTOR SETTINGS
-animals.add_interactors("predators","gundu","animals:sarkamos")
+animals.add_interactors("predators","gundu","animals:sarkamos", "animals:darkasthaan")
 animals.add_interactors("rivals","gundu","animals:gundu")
 animals.add_interactors("friends","gundu","animals:gundu")
 
@@ -217,10 +213,10 @@ local self_data = {
 
 	-- animal stats
 	max_hp = 40,
-	lung_capacity = 20,
+	lung_capacity = 5,
   -- comfort temps
 	min_temp = -2,
-	max_temp = 35,
+	max_temp = 42,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 2,
   
@@ -291,9 +287,9 @@ local self_data = {
 ---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
 -- energy and eggs
 self_data.energy_max = 8000   --secs it can survive without food
-self_data.energy_egg = self_data.energy_max/6  --energy that goes to egg
+self_data.energy_egg = self_data.energy_max*0.5  --energy that goes to egg
 self_data.egg_timer = 60*32
-self_data.young_per_egg = 5   --will get this/energy_egg starting energy
+self_data.young_per_egg = {3,7}   --will get this/energy_egg starting energy
 -- lifespan
 self_data.lifespan = self_data.energy_max * 6
 ---------------------;
@@ -321,4 +317,4 @@ minetest.register_node("animals:gundu_eggs", {
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:gundu", S("Live Gundu"), "animals_gundu_item.png", minimal.stack_max_medium/2, self_data)
+animals.register_egg(self_data, S("Live Gundu"), "animals_gundu_item.png", minimal.stack_max_medium/2)

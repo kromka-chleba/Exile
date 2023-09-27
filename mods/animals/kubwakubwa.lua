@@ -16,17 +16,14 @@ local floor = math.floor
 
 -----------------------------------
 local function brain(self)
-
-	--die from damage
-	if not animals.core_hp(self) then
-		return
-	end
-
+  -- calculate instantanious effects
+  animals.core_hp(self)
+  
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy, conserve = animals.core_life(self, self.lifespan, pos)
+		local age, energy, conserve = animals.core_life(self, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -34,12 +31,6 @@ local function brain(self)
 
 		------------------
 		--Emergency actions
-
-		--swim to shore
-		if self.isinliquid then
-			mobkit.hq_liquid_recovery(self,60)
-		end
-
 
 		local prty = mobkit.get_queue_priority(self)
 		-------------------
@@ -125,8 +116,8 @@ end
 
 ----------------------------------------------
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
-animals.add_interactors("predators","kubwakubwa","animals:darkasthaan")
-animals.add_interactors("prey","kubwakubwa","animals:pegasun","animals:sneachan", "animals:impethu")
+animals.add_interactors("predators","kubwakubwa","animals:darkasthaan", "animals:sarkamos")
+animals.add_interactors("prey","kubwakubwa","animals:pegasun","animals:sneachan", "animals:impethu", "animals:gundu")
 animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa","animals:pegasun_male")
 
 
@@ -148,10 +139,11 @@ local self_data = {
 
 	-- animal stats
 	max_hp = 20,
-	lung_capacity = 20,
+	lung_capacity = 25,
+  breathing_rate = 5,
   -- comfort temps
 	min_temp = 7,
-	max_temp = 56,
+	max_temp = 60,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
   
@@ -191,7 +183,7 @@ local self_data = {
 	buoyancy = 1.01,
 	max_speed = 0.75,					-- m/s
 	jump_height = 1.5,				-- nodes/meters
-	view_range = 4,					-- nodes/meters
+	view_range = 10,					-- nodes/meters
 
 	--attack
 	attack={range=0.4, damage_groups={fleshy=4}},
@@ -215,6 +207,13 @@ local self_data = {
 		end
 		animals.stun_catch_mob(self, clicker, 0.1)
 	end,
+  on_death = function(self, pos)
+    local good_temp,temp_status = animals.temp_comfy(self)
+    if good_temp or temp_status ~= "cold" then
+      return
+    end
+    animals.emergency_egg(self, pos)
+  end
 }
 ---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
 -- energy and eggs
@@ -222,10 +221,12 @@ self_data.energy_max = 8000   --secs it can survive without food
 self_data.energy_egg = self_data.energy_max/2  --energy that goes to egg
 self_data.egg_timer = 60*20
 self_data.young_per_egg = {3,4}   --will get this/energy_egg starting energy
+self_data.emergency_egg_chance = 0.75
 self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.4 -- conserve min (minimum point at when to conserve energy)
 -- lifespan
 self_data.lifespan = self_data.energy_max * 6
 self_data.mature_age = self_data.energy_max/2
+self_data.oxygen_min = self_data.lung_capacity * 0.4
 ---------------------;
 minetest.register_entity("animals:kubwakubwa",self_data)
 
@@ -254,7 +255,7 @@ minetest.register_node("animals:kubwakubwa_eggs", {
     
     local temp = climate.get_point_temp(pos)
     
-    if (temp < 14) then
+    if (temp < 12) then
       -- too cold to hatch, wait again
       minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*3))
       return false
@@ -268,4 +269,4 @@ minetest.register_node("animals:kubwakubwa_eggs", {
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:kubwakubwa", S("Live Kubwakubwa"), "animals_kubwakubwa_item.png", minimal.stack_max_medium, self_data)
+animals.register_egg(self_data, S("Live Kubwakubwa"), "animals_kubwakubwa_item.png", minimal.stack_max_medium)

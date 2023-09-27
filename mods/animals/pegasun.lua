@@ -15,16 +15,13 @@ local floor = math.floor
 
 -----------------------------------
 local function brain(self)
-	--die from damage
-	if not animals.core_hp(self) then
-		return
-	end
-
+  -- calculate instantanious effects
+  animals.core_hp(self)
+  
 	if mobkit.timer(self,1) then
-    
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, self.lifespan, pos)
+		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -32,12 +29,6 @@ local function brain(self)
     
 		------------------
 		--Emergency actions
-
-		--swim to shore
-		if self.isinliquid then
-			mobkit.hq_liquid_recovery(self,60)
-		end
-
 
 		local prty = mobkit.get_queue_priority(self)
 		-------------------
@@ -140,7 +131,7 @@ local function brain(self)
         if (random() <= hng_percent) then
           -- females much hungrier and predatory than males (gotta fill up for those babies y'know)
           if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
-            if (animals.eat_flora(pos,0.01) == true) then
+            if (animals.eat_flora(pos,0.001) == true) then
               energy = energy + 50
             else
               mobkit.animate(self,'walk')
@@ -179,17 +170,13 @@ end
 -----------------------------------
 --MALE BEHAVIOUR
 local function brain_male(self)
-
-	--die from damage
-	if not animals.core_hp(self) then
-		return
-	end
-
+  -- calculate instantanious effects
+  animals.core_hp(self)
+  
 	if mobkit.timer(self,1) then
-
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, self.lifespan, pos)
+		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -198,12 +185,6 @@ local function brain_male(self)
 
 		------------------
 		--Emergency actions
-
-		--swim to shore
-		if self.isinliquid then
-			mobkit.hq_liquid_recovery(self,60)
-		end
-
 
 		local prty = mobkit.get_queue_priority(self)
 		-------------------
@@ -296,7 +277,7 @@ local function brain_male(self)
       
       if (random() <= hng_percent ) then
         --feed via a method
-        if (animals.eat_flora(pos,0.005) == true) then -- mmm plants
+        if (animals.eat_flora(pos,0.0005) == true) then -- mmm plants
           energy = energy + 50
         elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
           --wander randomly for plants if can't find prey
@@ -336,7 +317,7 @@ end
 
 ----------------------------------------------
 -- SETTING OF PEGASUN INTERACTOR SETTINGS
-animals.add_interactors("predators","pegasun","animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("predators","pegasun","animals:kubwakubwa", "animals:darkasthaan", "animals:sarkamos")
 animals.add_interactors("prey","pegasun","animals:sneachan", "animals:impethu")
 animals.add_interactors("friends","pegasun","animals:pegasun", "animals:pegasun_male")
 animals.add_interactors("rivals","pegasun","animals:pegasun")
@@ -364,6 +345,7 @@ local self_data = {
 	max_hp = 40,
 	lung_capacity = 20,
   energy_loss = 1,
+  breathing_rate = 5,
   -- comfort temps
 	min_temp = -24,
 	max_temp = 46,
@@ -441,6 +423,7 @@ local self_data = {
 	prey = animals.get_interactors("pegasun","prey"),
 	friends = animals.get_interactors("pegasun","friends"),
 	rivals = animals.get_interactors("pegasun","rivals"),
+  sex = "female",
 
 	--on actions
 	drops = {
@@ -468,7 +451,7 @@ self_data.mature_age = self_data.energy_max * 0.36 -- 36% of energy_max (8000) o
 minetest.register_entity("animals:pegasun",self_data)
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:pegasun", S("Live Pegasun (female)"), "animals_pegasun_item.png", minimal.stack_max_medium, self_data)
+animals.register_egg(self_data, S("Live Pegasun (female)"), "animals_pegasun_item.png", minimal.stack_max_medium)
 
 ----------------------------------------------
 --THE MALE
@@ -489,6 +472,7 @@ local self_male = {
 	max_hp = 45,
 	lung_capacity = 25,
   energy_loss = self_data.energy_loss,
+  breathing_rate = self_data.breathing_rate,
   -- comfort temps
 	min_temp = self_data.min_temp,
 	max_temp = self_data.max_temp,
@@ -584,6 +568,9 @@ local self_male = {
 }
 -- energy and eggs
 self_male.energy_max = self_data.energy_max
+self_male.energy_egg = self_data.energy_egg
+self_male.egg_timer = self_data.egg_timer
+self_male.young_per_egg = self_data.young_per_egg   --will get this/energy_egg starting energy
 -- lifespan
 self_male.lifespan = self_data.lifespan * 1.2 -- if the flock male dies they go extinct
 self_male.mature_age = self_data.mature_age
@@ -591,7 +578,7 @@ self_male.mature_age = self_data.mature_age
 minetest.register_entity("animals:pegasun_male",self_male)
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:pegasun_male", S("Live Pegasun (male)"), "animals_pegasun_item.png", minimal.stack_max_medium, self_data )
+animals.register_egg(self_male, S("Live Pegasun (male)"), "animals_pegasun_item.png", minimal.stack_max_medium)
 
 ----------------------------------------------
 --eggs

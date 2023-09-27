@@ -16,17 +16,14 @@ local floor = math.floor
 
 -----------------------------------
 local function brain(self)
-
-	--die from damage
-	if not animals.core_hp(self) then
-		return
-	end
-
+  -- calculate instantanious effects
+  animals.core_hp(self)
+  
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, self.lifespan, pos)
+		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
 		if not age then
 			return
@@ -34,12 +31,6 @@ local function brain(self)
 
 		------------------
 		--Emergency actions
-
-		--swim to shore
-		if self.isinliquid then
-			mobkit.hq_liquid_recovery(self,60)
-		end
-
 
 		local prty = mobkit.get_queue_priority(self)
 		-------------------
@@ -57,12 +48,23 @@ local function brain(self)
 
 			pred = animals.predator_avoid(self, 55, 0.02)
 
-		end
-
+    end
+    
+    local light = (minetest.get_node_light(pos) or 0)
+    if (light > self.min_light) then
+        --fatigued by light
+        
+      energy = energy - random(2,6)
+      if (prty <= 46) then
+        --random search for darkness (now better :D)
+        prty = 46
+        animals.hq_roam_dark(self,46)
+      end
+    end
 
 		----------------------
 		--Low priority actions
-
+    
 		if prty < 20 then
 
 			--territorial behaviour
@@ -76,32 +78,28 @@ local function brain(self)
 
 			--feeding
 			--eat stuff in the dark
-			local light = (minetest.get_node_light(pos) or 0)
-
-			if light <= 5 then
+			if light <= self.min_light then
 				if not rival and energy < self.energy_max then
-					energy = energy + random(2,6)
+					energy = energy + 1
+          if (animals.eat_sediment_under(pos,0.01)) then
+            energy = energy + math.random(4,6)
+          end
 				end
 				mobkit.animate(self,'walk')
 				mobkit.hq_roam(self,10)
-			else
-				--random search for darkness
-				--fatigued by light
-				energy = energy - random(2,6)
-				animals.hq_roam_dark(self,15)
 			end
 
 
 			--reproduction
 			--asexual parthogenesis, eggs
-			if random() < 0.005 then
+			if random() < 0.008 then
 				if not rival
-				and energy >= self.energy_max then
+				and energy >= (self.energy_max * 0.95) then
 					energy = animals.place_egg(self, pos, energy)
 				end
 			end
 
-		end
+    end
 
 		-------------------
 		--generic behaviour
@@ -150,14 +148,17 @@ local self_data = {
 	-- animal stats
 	max_hp = 3,
 	lung_capacity = 10,
+  breathing_rate = 4,
   -- comfort temps
-	min_temp = 10,
+	min_temp = 5,
 	max_temp = 68,
+  -- comfort light
+  min_light = 7,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
   
   -- settings
-  max_pop = 8,
+  max_pop = 10,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
@@ -221,8 +222,8 @@ local self_data = {
 }
 ---- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
 -- energy and eggs
-self_data.energy_max = 5000   --secs it can survive without food
-self_data.energy_egg = self_data.energy_max/10  --energy that goes to egg
+self_data.energy_max = 6000   --secs it can survive without food
+self_data.energy_egg = self_data.energy_max*0.6  --energy that goes to egg
 self_data.egg_timer = 60*10
 self_data.young_per_egg = {2,4}		--will get this/energy_egg starting energy
 -- lifespan
@@ -255,14 +256,14 @@ minetest.register_node("animals:impethu_eggs", {
     
     local temp = climate.get_point_temp(pos)
     
-    if (temp < 14) then
+    if (temp < 12) then
       -- don't hatch and keep timer going if temp is too uncomfortably cold
       minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*4))
       return false
     end
     
     local light = (minetest.get_node_light(pos) or 0)
-		if light <= 5 then
+		if light <= self_data.min_light then
 			return animals.hatch_egg(self_data, pos)
 		else
 			if random()<0.2 then
@@ -276,4 +277,4 @@ minetest.register_node("animals:impethu_eggs", {
 
 
 --spawn egg (i.e. live animal in inventory)
-animals.register_egg("animals:impethu", S("Live Impethu"), "animals_impethu_item.png", minimal.stack_max_medium, self_data)
+animals.register_egg(self_data, S("Live Impethu"), "animals_impethu_item.png", minimal.stack_max_medium)
