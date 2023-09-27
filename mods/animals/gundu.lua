@@ -90,7 +90,7 @@ local function brain(self)
 				animals.hq_swimfrompos(self,66,pos,1)
 			end
 			-- Temp out of range
-			local temp = climate.get_point_temp(pos)
+			local temp = climate.get_point_temp(pos, true)
 			if temp < self.min_temp or temp > self.max_temp then
 				local vel = self.object:get_velocity()
 				vel.y = vel.y-0.2

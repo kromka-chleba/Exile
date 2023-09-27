@@ -340,7 +340,7 @@ local function enviro_temp(player, hud_data, meta)
 	local pname = player:get_player_name()
 	local player_pos = player:get_pos()
 	player_pos.y = player_pos.y + 0.6 --adjust to body height
-	local v = math.floor(climate.get_point_temp(player_pos))
+	local v = math.floor(climate.get_point_temp(player_pos, true))
 	local stat_col, ttype, overlay = color_envirotemp(v, meta)
 	if overlay then
 	   if not hud_data.overlay then

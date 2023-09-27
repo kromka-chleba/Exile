@@ -128,7 +128,7 @@ local function get_mean_temp(pos) -- this could be put somewhere else like in cl
       for z = -1, 1, 1 do
         local npos = {x = (pos.x - x), y = (pos.y - y), z = (pos.z - z)} -- matrix the pos :D
         
-        temps[#temps + 1] = climate.get_point_temp(npos)
+        temps[#temps + 1] = climate.get_point_temp(npos, true)
       end
     end
   end
@@ -178,7 +178,7 @@ function animals.core_life(self, lifespan, pos)
   end
 
   --die from high temp
-  local temp = climate.get_point_temp(pos)
+  local temp = climate.get_point_temp(pos, true)
   if (temp == 450) then -- get the mathematical "mean" of the pos and the surroundings nodes (workaround to torches)
     temp = get_mean_temp(pos)
   end
@@ -333,8 +333,8 @@ function animals.hq_roam_comfort_temp(self,prty, opt_temp)
        local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
 
        if height and not liquidflag then
-	  local temp = climate.get_point_temp(pos)
-	  local tempn = climate.get_point_temp(tpos)
+	  local temp = climate.get_point_temp(pos, true)
+	  local tempn = climate.get_point_temp(tpos, true)
 	  local dif = abs(opt_temp - temp)
 	  local difn = abs(opt_temp - tempn)
 

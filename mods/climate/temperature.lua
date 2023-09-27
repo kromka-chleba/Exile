@@ -710,18 +710,25 @@ end
 
 
 --Function for getting the temperature of a specific location
-climate.get_point_temp = function(pos)
+climate.get_point_temp = function(pos, full)
 
-	--if it's a temp_effect node then thats how hot it is by definition
-	local nodename = minetest.get_node(pos).name
-	local t_effect = minetest.get_item_group(nodename,"temp_effect")
-	if t_effect ~= 0 then
-		local t_effect_max = minetest.registered_nodes[nodename].temp_effect_max
-		return t_effect_max
-	end
+   --if it's a temp_effect node then thats how hot it is by definition
+   -- but for players/animals we need to know more, so we set "full" to true
+   local nodename = minetest.get_node(pos).name
+   local t_effect = minetest.get_item_group(nodename,"temp_effect")
+   local t_effect_max
+   if t_effect ~= 0 then
+      t_effect_max = minetest.registered_nodes[nodename].temp_effect_max
+      if full ~= true then
+	 return t_effect_max
+      end
+   end
 
   --correct the general temperature for location
-	local temp = climate.active_temp
+  local temp = climate.active_temp
+  if t_effect_max then
+     temp = temp + (t_effect_max / 3) -- it's partly counted twice, so reduce it
+  end
   temp = adjust_active_temp(pos, temp)
 
   --take into account heat and cooling sources nearby

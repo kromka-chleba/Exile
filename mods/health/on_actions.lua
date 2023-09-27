@@ -276,7 +276,7 @@ if minetest.settings:get_bool("enable_damage") then
         local node_name = minetest.get_node(player_pos).name
         local water = minetest.get_item_group(node_name,"water")
 				player_pos.y = player_pos.y + 0.6 --adjust to body height (for radiant heat)
-				local enviro_temp = climate.get_point_temp(player_pos)
+				local enviro_temp = climate.get_point_temp(player_pos, true)
 				--being outside tolerance range will drain energy. When energy is drained will succumb.
         --[safe] comfort zone ->[low cost]->stress zone ->[high cost]-> danger zone->[damage]
 
