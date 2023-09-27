@@ -384,13 +384,13 @@ minetest.register_node("tech:cooking_pot_unfired", {
 crafting.register_recipe({
 	type = {"crafting_spot","hand_pottery"},
 	output = "tech:cooking_pot_unfired 1",
-	items = {"nodes_nature:clay_wet 4"},
+	items = {"nodes_nature:clay_wet 3"},
 	level = 1,
 	always_known = true,
 })
 crafting.register_recipe({
 	type = {"mixing_spot","hand_pottery"},
-	output = "nodes_nature:clay 4",
+	output = "nodes_nature:clay 3",
 	items = {"tech:clay_water_pot_unfired 1"},
 	level = 1,
 	always_known = true,
