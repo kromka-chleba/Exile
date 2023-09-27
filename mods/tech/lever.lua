@@ -22,8 +22,8 @@ end
 local function should_rotate(ndef, node, pos, itemstack, user, new_param2, mode)
 	-- Node provides a handler, so let the handler decide instead if the node can be rotated
    if ndef.groups then
-      local plants = { "flora", "seed", "cane_plant", "herbaceous_plant",
-		       "woody_plant", "fibrous_plant", "mushroom" }
+      local plants = { "flora", "seed", "cane_plant", "herbaceous_plant", "seed",
+		       "woody_plant", "fibrous_plant", "mushroom", "tree", }
       for i = 1, #plants do
 	 if ndef.groups[plants[i]] and ndef.groups[plants[i]] > 0 then
 	    return false
