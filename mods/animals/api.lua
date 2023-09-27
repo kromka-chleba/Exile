@@ -73,7 +73,7 @@ function animals.temp_comfy(self,temp)
         pos = temp
       end
     end
-    temp = climate.get_point_temp(pos)
+    temp = climate.get_point_temp(pos, true)
   end
   
   -- still not a number somehow
@@ -237,7 +237,7 @@ local function get_mean_temp(pos) -- this could be put somewhere else like in cl
       for z = -1, 1, 1 do
         local npos = {x = (pos.x - x), y = (pos.y - y), z = (pos.z - z)} -- matrix the pos :D
         
-        temps[#temps + 1] = climate.get_point_temp(npos)
+        temps[#temps + 1] = climate.get_point_temp(npos, true)
       end
     end
   end
@@ -294,7 +294,7 @@ function animals.core_life(self, pos)
   end
 
   -- get temp
-  local temp = climate.get_point_temp(pos)
+  local temp = climate.get_point_temp(pos, true)
   if (temp == 450) then -- get the mathematical "mean" of the pos and the surroundings nodes (workaround to torches)
     temp = get_mean_temp(pos)
   end
@@ -570,7 +570,7 @@ function animals.hq_roam_dark(self,prty)
        local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
        
       if (tpos) then
-        local temp = climate.get_point_temp(tpos)
+        local temp = climate.get_point_temp(tpos, true)
         if not (animals.temp_comfy(self,temp)) then
           -- do not go to this position
           height = nil
@@ -641,7 +641,7 @@ function animals.hq_roam_comfort_temp(self,prty)
       local max_temp = self.max_temp or 20
       
       local pos = mobkit.get_stand_pos(self)
-      local temp = climate.get_point_temp(pos)
+      local temp = climate.get_point_temp(pos, true)
       
       if (animals.temp_comfy(self,temp)) then
         -- if temperature is comfortable then end the search
@@ -657,7 +657,7 @@ function animals.hq_roam_comfort_temp(self,prty)
         numstring, h, tp, lf = get_reachable_node(self,numstring) -- shortened versions of "height, tpos, liquidflag"
         
         if (h and not lf) then -- if height somethin' and if provided pos is not a liquid
-          local tempn = climate.get_point_temp(tp)
+          local tempn = climate.get_point_temp(tp, true)
           local temp_c,temp_s = animals.temp_comfy(self,tempn) -- temp_comfy (is the provided pos a comfortable temp?), temp_status (utilized to check whether too hot or too cold)
           
           if (temp_s or temp_c == true) then
@@ -722,7 +722,7 @@ function animals.hq_roam_surface_group(self, group, prty)
       local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self, neighbor)
       
       if (tpos) then
-        local temp = climate.get_point_temp(tpos)
+        local temp = climate.get_point_temp(tpos, true)
         if not (animals.temp_comfy(self,temp)) then
           -- do not go to this position
           height = nil
@@ -777,7 +777,7 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty) -- self, g
 	  self, neighbor)
   
       if (tpos) then
-        local temp = climate.get_point_temp(tpos)
+        local temp = climate.get_point_temp(tpos, true)
         if not (animals.temp_comfy(self,temp)) then
           -- do not go to this position
           height = nil
