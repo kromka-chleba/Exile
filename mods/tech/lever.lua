@@ -24,18 +24,27 @@ end
 
 local function should_rotate(ndef, node, pos, itemstack, user, new_param2, mode)
 	-- Node provides a handler, so let the handler decide instead if the node can be rotated
-	if ndef.on_rotate then
-		-- Copy pos and node because callback can modify it
-		local result = ndef.on_rotate(vector.new(pos),
-				{name = node.name, param1 = node.param1, param2 = node.param2},
-				user, mode, new_param2)
-		return result
-	elseif ndef.on_rotate == false then
-		return false
-	elseif ndef.can_dig and not ndef.can_dig(pos, user) then
-		return false
-	end
-	return true
+   if ndef.groups then
+      local plants = { "flora", "seed", "cane_plant", "herbaceous_plant",
+		       "woody_plant", "fibrous_plant", "mushroom" }
+      for i = 1, #plants do
+	 if ndef.groups[plants[i]] and ndef.groups[plants[i]] > 0 then
+	    return false
+	 end
+      end
+   end
+   if ndef.on_rotate then
+      -- Copy pos and node because callback can modify it
+      local result = ndef.on_rotate(vector.new(pos),
+				    {name = node.name, param1 = node.param1, param2 = node.param2},
+				    user, mode, new_param2)
+      return result
+   elseif ndef.on_rotate == false then
+      return false
+   elseif ndef.can_dig and not ndef.can_dig(pos, user) then
+      return false
+   end
+   return true
 end
 
 -- For attached wallmounted nodes: returns true if rotation is valid
@@ -201,6 +210,11 @@ local function aligner(itemstack, user, pointed_thing, grab)
    local p2 = node.param2
    local color = minetest.strip_param2_color(p2, p2type) or 0
    local nocolor = node.param2 - color
+   -- can we rotate this paramtype2?
+   local fn = lever.rotate[p2type]
+   if not fn then
+      return itemstack
+   end
    local meta = itemstack:get_meta()
    if grab then
       meta:set_string("aligner_type", p2type)
