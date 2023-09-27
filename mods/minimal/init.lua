@@ -37,6 +37,7 @@ dofile(modpath..'/themes.lua')
 dofile(modpath..'/playersettings.lua')
 dofile(modpath..'/minimal_hud.lua')
 dofile(modpath..'/tooltips.lua')
+dofile(modpath..'/currentrevision.lua')
 
 -- GUI related stuff
 
