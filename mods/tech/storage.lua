@@ -79,7 +79,7 @@ storage.register_storage("tech:clay_storage_pot",{
 	"tech_pottery.png",
 	"tech_pottery.png"},
   sounds = nodes_nature.node_sound_stone_defaults(),
-  groups = {craftedby = 1},
+  groups = {craftedby = 1, pottery = 1},
   
   --formspec_width = 8, -- default inv width is 8 (on register)
   --formspec_height = 4, -- default inv height is 4 (on register)
@@ -114,6 +114,37 @@ storage.register_storage("tech:woven_storage_basket",{
 
 ----------------------------------------------------
 --Wooden chest
+storage.register_storage("tech:wooden_chest",{
+  description = S("Wooden Chest"),
+	tiles = {"tech_wooden_chest_top.png",
+			"tech_wooden_chest_bottom.png",
+			"tech_wooden_chest_side.png",
+			"tech_wooden_chest_side.png",
+			"tech_wooden_chest_back.png",
+			"tech_wooden_chest_front.png"},
+	paramtype2 = "facedir",
+	use_texture_alpha = c_alpha.clip,
+  node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.4375, -0.375, -0.375, 0.4375, 0.375, 0.375}, -- NodeBox1
+			{-0.5, 0.375, -0.4375, 0.5, 0.5, 0.4375}, -- NodeBox2
+			{0.3125, -0.5, -0.4375, 0.5, -0.375, -0.25}, -- NodeBox3
+			{0.3125, -0.5, 0.25, 0.5, -0.375, 0.4375}, -- NodeBox4
+			{-0.5, -0.5, 0.25, -0.3125, -0.375, 0.4375}, -- NodeBox5
+			{-0.5, -0.5, -0.4375, -0.3125, -0.375, -0.25}, -- NodeBox6
+			{0.1875, 0.25, 0.375, 0.3125, 0.375, 0.4375}, -- NodeBox8
+			{-0.3125, 0.25, 0.375, -0.1875, 0.375, 0.4375}, -- NodeBox9
+			{-0.0625, 0.25, -0.4375, 0.0625, 0.375, -0.375}, -- NodeBox10
+		}
+	},
+  sounds = nodes_nature.node_sound_wood_defaults(),
+  groups = {craftedby = 1},
+  
+  -- width already defined in base register_storage
+  formspec_height = 8,
+})
+--[[
 minetest.register_node("tech:wooden_chest", {
 	description = S("Wooden Chest"),
 	tiles = {"tech_wooden_chest_top.png",
@@ -191,6 +222,7 @@ minetest.register_node("tech:wooden_chest", {
 	on_blast = function(pos)
 	end,
 })
+--]]
 
 ----------------------------------------------------
 --Iron chest
