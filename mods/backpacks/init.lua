@@ -41,14 +41,6 @@ local function get_description(node,meta)
 	return desc
 end
 
-local on_construct = function(pos, width, height)
-	local meta = minetest.get_meta(pos)
-	local form = get_formspec(pos, width, height)
-	meta:set_string("formspec", form)
-	local inv = meta:get_inventory()
-	inv:set_size("main", width*height)
-end
-
 local after_place_node = function(pos, placer, itemstack, pointed_thing)
 	local node = minetest.get_node(pos)
 	local meta = minetest.get_meta(pos)
@@ -124,15 +116,6 @@ local on_dig = function(pos, node, digger, width, height)
 		return minetest.node_dig(pos, node, digger)
 	end
 	return false
-end
-local on_receive_fields = function (pos, formname, fields, sender, width, height)
-	local label = fields.label
-	if label then
-	   local meta = minetest.get_meta(pos)
-	   local cleanlabel = minimal.sanitize_string(label)
-	   meta:set_string('label', cleanlabel)
-	   on_construct(pos, width, height)
-	end
 end
 
 local allow_metadata_inventory_put = function(pos, listname, index, stack, player)
