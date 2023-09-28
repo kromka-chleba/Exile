@@ -47,13 +47,33 @@ local function is_owner(pos, name)
   return true
 end
 
+function storage.can_dig(pos,player,can_grab)
+  local inv_empty = true
+  
+  if not can_grab then
+    local inv = minetest.get_meta(pos):get_inventory()
+    inv_empty = inv:is_empty("main")
+  end
+  
+  return is_owner(pos, player) and inv_empty
+end
+
+function storage.get_inventory(pos)
+  if (type(pos.x) == "number" and type(pos.y) == "number" and type(pos.z) == "number") then
+    return minetest.get_meta(pos):get_inventory()
+  elseif (type(pos["get_inventory"]) == "function") then
+    -- allow meta as an argument
+    return pos:get_inventory()
+  end
+end
+
 function storage.on_construct(pos, width, height)
 	local meta = minetest.get_meta(pos)
 
 	local form = storage.get_storage_formspec(pos, width, height, meta)
 	meta:set_string("formspec", form)
 
-	local inv = meta:get_inventory()
+	local inv = storage.get_inventory(meta)
 	inv:set_size("main", width*height)
 end
 
@@ -65,6 +85,32 @@ function storage.on_receive_fields(pos, formname, fields, sender, width, height)
     meta:set_string('label', cleanlabel)
     minimal.infotext_merge(pos,'Label: '..cleanlabel, meta)
     storage.on_construct(pos, width, height)
+  end
+end
+
+function storage.dump_inventory(pos)
+  assert(type(pos) == "table","mods/"..modname.."dump_inventory: Invalid pos provided!")
+  assert( (type(pos.x) == "number" and type(pos.y) == "number" and type(pos.z) == "number"),
+    "mods/"..modname.."dump_inventory: Invalid pos provided!")
+  
+  -- verify if the dumped inventory belongs to a storage container
+  local stor_node = minetest.get_node(pos)
+  if minetest.get_item_group(stor_node.name,"storage") == 0 then
+    return
+  end
+  
+  -- don't attempt to empty out an empty inventory
+  local inv = minetest.get_meta(pos):get_inventory()
+  if inv:is_empty("main") then
+    return
+  end
+  
+  -- empty it out!
+  for _,itemstack in pairs(inv:get_list("main")) do
+    itemstack = inv:remove_item("main",itemstack)
+    
+    -- drop items
+    minetest.item_drop(itemstack, nil, pos)
   end
 end
 
@@ -90,12 +136,10 @@ function storage.register_storage(name,def)
     -- formspec
     formspec_width = 8,
     formspec_height = 4,
+    -- other values
+    protected = false, -- whether or not the storage placed is protected
+    can_dig_when_inventory = false, -- can be dug when the storage has inventory
     -- functions
-    can_dig = function(pos, player)
-      local inv = minetest.get_meta(pos):get_inventory()
-      return is_owner(pos, player) and inv:is_empty("main")
-    end,
-    
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
       if is_owner(pos, player) then
         return count
@@ -120,6 +164,9 @@ function storage.register_storage(name,def)
 
     on_blast = function(pos)
     end,
+    _on_destroy = function(pos)
+      return storage.dump_inventory(pos)
+    end
   }
   
   -- add stuff from definition table
@@ -135,6 +182,11 @@ function storage.register_storage(name,def)
   local width = basedef.formspec_width
   local height = basedef.formspec_height
   -- adding further functions
+  if not basedef.can_dig then
+    basedef.can_dig = function(pos, player)
+      return storage.can_dig(pos, player, basedef.can_dig_when_inventory)
+    end
+  end
   if not basedef.on_construct then
     basedef.on_construct = function(pos)
       storage.on_construct(pos, width, height)

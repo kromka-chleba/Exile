@@ -162,6 +162,7 @@ function backpacks.register_backpack(name, desc, texture, width, height, groups,
 		stack_max = 1,
 		sounds = sounds,
 		node_placement_prediction = "",
+    can_dig_when_inventory = true,
     -- formspec
     formspec_width = width,
     formspec_height = height,
