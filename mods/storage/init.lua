@@ -106,11 +106,12 @@ function storage.dump_inventory(pos)
   end
   
   -- empty it out!
+  local dump_pos = {x = pos.x, y = pos.y + 1, z = pos.z}
   for _,itemstack in pairs(inv:get_list("main")) do
     itemstack = inv:remove_item("main",itemstack)
     
     -- drop items
-    minetest.item_drop(itemstack, nil, pos)
+    minetest.item_drop(itemstack, nil, dump_pos)
   end
 end
 
@@ -165,7 +166,7 @@ function storage.register_storage(name,def)
     on_blast = function(pos)
     end,
     _on_destroy = function(pos)
-      return storage.dump_inventory(pos)
+      storage.dump_inventory(pos)
     end
   }
   
