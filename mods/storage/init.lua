@@ -38,7 +38,7 @@ end
 
 
 local function is_owner(pos, name)
-	if minetest.is_protected(name) then
+	if minetest.is_protected(pos, name) then
     -- you are NOT the owner!
     return false
   end
