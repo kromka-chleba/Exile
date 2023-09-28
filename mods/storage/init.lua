@@ -105,7 +105,7 @@ function storage.register_storage(name,def)
     
     allow_metadata_inventory_put = function(pos, listname, index, stack, player)
       if is_owner(pos, player)
-      and not string.match(stack:get_name(), "backpacks:") then
+      and minetest.get_item_group(stack:get_name(),"backpack") == 0 then
         return stack:get_count()
       end
       return 0
