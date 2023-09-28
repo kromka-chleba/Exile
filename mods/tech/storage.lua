@@ -144,21 +144,21 @@ storage.register_storage("tech:wooden_chest",{
   -- width already defined in base register_storage
   formspec_height = 8,
 })
---[[
-minetest.register_node("tech:wooden_chest", {
-	description = S("Wooden Chest"),
-	tiles = {"tech_wooden_chest_top.png",
-			"tech_wooden_chest_bottom.png",
-			"tech_wooden_chest_side.png",
-			"tech_wooden_chest_side.png",
-			"tech_wooden_chest_back.png",
-			"tech_wooden_chest_front.png"},
-	paramtype = "light",
+
+----------------------------------------------------
+--Iron chest
+storage.register_storage("tech:iron_chest",{
+  description = S("Iron Chest"),
+	tiles = {"tech_iron_chest_top.png",
+			"tech_iron_chest_bottom.png",
+			"tech_iron_chest_side.png",
+			"tech_iron_chest_side.png",
+			"tech_iron_chest_back.png",
+			"tech_iron_chest_front.png"},
 	paramtype2 = "facedir",
 	use_texture_alpha = c_alpha.clip,
-	stack_max = minimal.stack_max_bulky,
-	drawtype = "nodebox",
-	node_box = {
+	protected = true,
+  node_box = {
 		type = "fixed",
 		fixed = {
 			{-0.4375, -0.375, -0.375, 0.4375, 0.375, 0.375}, -- NodeBox1
@@ -172,60 +172,11 @@ minetest.register_node("tech:wooden_chest", {
 			{-0.0625, 0.25, -0.4375, 0.0625, 0.375, -0.375}, -- NodeBox10
 		}
 	},
-	groups = {dig_immediate = 3, craftedby = 1},
 	sounds = nodes_nature.node_sound_wood_defaults(),
-
-	on_construct = function(pos)
-		on_construct(pos, 8, 8)
-	end,
-
-	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		--Update formspec and infotext
-		on_construct(pos, 8, 8)
-	end,
-
-	on_receive_fields = function(pos, formname, fields, sender)
-		on_receive_fields(pos, formname, fields, sender, 8, 8)
-	end,
-
-	can_dig = function(pos, player)
-		local inv = minetest.get_meta(pos):get_inventory()
-		local name = ""
-		if player then
-			name = player:get_player_name()
-		end
-		return is_owner(pos, name) and inv:is_empty("main")
-	end,
-
-	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-		if is_owner(pos, player:get_player_name()) then
-			return count
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name())
-		and not string.match(stack:get_name(), "backpacks:") then
-			return stack:get_count()
-		end
-		return 0
-	end,
-
-	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if is_owner(pos, player:get_player_name()) then
-			return stack:get_count()
-		end
-		return 0
-	end,
-
-	on_blast = function(pos)
-	end,
+  
+  formspec_height = 8,
 })
---]]
-
-----------------------------------------------------
---Iron chest
+--[[
 minetest.register_node("tech:iron_chest", {
 	description = S("Iron Chest"),
 	tiles = {"tech_iron_chest_top.png",
@@ -308,3 +259,4 @@ minetest.register_node("tech:iron_chest", {
 	on_blast = function(pos)
 	end,
 })
+--]]
