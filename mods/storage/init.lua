@@ -143,11 +143,11 @@ function storage.register_storage(name,def)
   if not basedef.after_place_node then
     basedef.after_place_node = function(pos, placer, itemstack, pointed_thing)
       --Update formspec and infotext
-      storage.on_construct(pos, width, height)
       if (minetest.is_player(placer) and basedef.protected == true) then
         local p_name = placer:get_player_name() or ""
         minetest.get_meta(pos):set_string("owner", p_name)
       end
+      storage.on_construct(pos, width, height)
     end
   end
   if not basedef.on_receive_fields then
