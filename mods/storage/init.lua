@@ -92,7 +92,7 @@ function storage.register_storage(name,def)
     -- functions
     can_dig = function(pos, player)
       local inv = minetest.get_meta(pos):get_inventory()
-      return is_owner(pos, name) and inv:is_empty("main")
+      return is_owner(pos, player) and inv:is_empty("main")
     end,
     
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
@@ -103,7 +103,7 @@ function storage.register_storage(name,def)
     end,
     
     allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-      if is_owner(pos, player:get_player_name())
+      if is_owner(pos, player)
       and not string.match(stack:get_name(), "backpacks:") then
         return stack:get_count()
       end
@@ -143,6 +143,10 @@ function storage.register_storage(name,def)
     basedef.after_place_node = function(pos, placer, itemstack, pointed_thing)
       --Update formspec and infotext
       on_construct(pos, width, height)
+      if (minetest.is_player(placer) and basedef.protected == true) then
+        local p_name = placer:get_player_name() or ""
+        minetest.get_meta(pos):set_string("owner", p_name)
+      end
     end
   end
   if not basedef.on_receive_fields then
