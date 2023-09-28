@@ -37,9 +37,9 @@ function minetest.is_protected(pos, name)
   end
    local owner = minetest.get_meta(pos):get_string("owner")
    local bypass = minetest.check_player_privs(name, "protection_bypass")
-   if not ( owner == "" or owner == name or
+   if ( owner == "" or owner == name or
 	    bypass ) then
-      return true
+      return false
    end
    return old_is_protected(pos, name)
 end
