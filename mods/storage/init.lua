@@ -4,7 +4,7 @@ local modname = "storage"
 
 local S = minetest.get_translator("storage")
 
-local function get_storage_formspec(pos, w, h, meta)
+function storage.get_storage_formspec(pos, w, h, meta)
 	local creator = meta:get_string('creator')
   local label = minimal.sanitize_string(meta:get_string('label'))
 	minimal.infotext_merge(pos, 'Label: '..label, meta)
@@ -47,24 +47,24 @@ local function is_owner(pos, name)
   return true
 end
 
-local on_construct = function(pos, width, height)
+function storage.on_construct(pos, width, height)
 	local meta = minetest.get_meta(pos)
 
-	local form = get_storage_formspec(pos, width, height, meta)
+	local form = storage.get_storage_formspec(pos, width, height, meta)
 	meta:set_string("formspec", form)
 
 	local inv = meta:get_inventory()
 	inv:set_size("main", width*height)
 end
 
-local on_receive_fields = function(pos, formname, fields, sender, width, height)
+function storage.on_receive_fields(pos, formname, fields, sender, width, height)
   local label = fields.label
   if (label and (minetest.is_player(sender) and is_owner(pos,sender))) then
     local meta = minetest.get_meta(pos)
     local cleanlabel = minimal.sanitize_string(label)
     meta:set_string('label', cleanlabel)
     minimal.infotext_merge(pos,'Label: '..cleanlabel, meta)
-    on_construct(pos, width, height)
+    storage.on_construct(pos, width, height)
   end
 end
 
@@ -137,13 +137,13 @@ function storage.register_storage(name,def)
   -- adding further functions
   if not basedef.on_construct then
     basedef.on_construct = function(pos)
-      on_construct(pos, width, height)
+      storage.on_construct(pos, width, height)
     end
   end
   if not basedef.after_place_node then
     basedef.after_place_node = function(pos, placer, itemstack, pointed_thing)
       --Update formspec and infotext
-      on_construct(pos, width, height)
+      storage.on_construct(pos, width, height)
       if (minetest.is_player(placer) and basedef.protected == true) then
         local p_name = placer:get_player_name() or ""
         minetest.get_meta(pos):set_string("owner", p_name)
@@ -152,7 +152,7 @@ function storage.register_storage(name,def)
   end
   if not basedef.on_receive_fields then
     basedef.on_receive_fields = function(pos, formname, fields, sender)
-      on_receive_fields(pos, formname, fields, sender, width, height)
+      storage.on_receive_fields(pos, formname, fields, sender, width, height)
     end
   end
   
