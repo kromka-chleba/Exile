@@ -47,6 +47,8 @@ storage.register_storage("artifacts:antiquorium_chest",{
   groups = {cracky = 1},
   sounds = nodes_nature.node_sound_glass_defaults(),
   
+  protected = true,
+  
   -- formspec_width already defined in base register_storage as 8
   formspec_height = 8,
 })
