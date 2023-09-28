@@ -26,6 +26,7 @@ local function get_storage_formspec(pos, w, h, meta)
 		   ";0.8,0.8;creative_trash_icon.png]",
 		"field[1.5,"..label_offset..";4,1;label;Label:;"..label.."]",
 		"field_close_on_enter[label;false]",
+    "button[5,"..label_offset..";1,0.25;labelset;Set]",
 		--"label["..craftedby_offset_x..","..trash_offset..";Crafted by:]",
 		--"label["..creator_offset_x..","..(trash_offset+.35)..";"..creator.."]",
 	}
