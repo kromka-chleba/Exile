@@ -215,6 +215,16 @@ minetest.register_node("tech:primitive_wooden_chest", {
 
 ----------------------------------------------------
 --wicker basket
+storage.register_storage("tech:wicker_storage_basket",{
+  description = S("Wicker Storage Basket"),
+  tiles = {"tech_wicker.png"},
+  groups = {craftedby = 1},
+  sounds = nodes_nature.node_sound_leaves_defaults(),
+  
+  formspec_width = 8,
+  formspec_height = 6,
+})
+--[[
 minetest.register_node("tech:wicker_storage_basket", {
 	description = S("Wicker Storage Basket"),
 	tiles = {"tech_wicker.png"},
@@ -281,6 +291,7 @@ minetest.register_node("tech:wicker_storage_basket", {
 	on_blast = function(pos)
 	end,
 })
+--]]
 
 ----------------------------------------------------
 --woven basket
