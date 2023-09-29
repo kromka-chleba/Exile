@@ -147,13 +147,15 @@ local function to_burnt(pos)
     return
   end
   
-  local width = nodedef.formspec_width or 8
-  local height = nodedef.formspec_height or 4
+  -- get formspec width and height
+  local width = stor_node.formspec_width or 8
+  local height = stor_node.formspec_height or 4
   
   local meta = minetest.get_meta(pos) -- set formspec_width and formspec_height as meta_int
   meta:set_int("formspec_width",width)
   meta:set_int("formspec_height",height)
-  --local inv = storage.get_inventory(meta)
+  
+  -- does the inventory saving for me :D \/ (as well as saves owner, label, and the width and height metadata)
   minimal.switch_node(pos,{name = burn_to.name})
 end
 
@@ -261,11 +263,26 @@ function storage.register_storage(name,def)
     end
   end
   
+  -- if a flammable group is specified, set as burnable
+  if (basedef.groups.flammable and basedef.groups.flammable > 0) then
+    basedef.burnable = true
+  end
+  -- custom burnable
   if basedef.burnable == true then
     if not basedef.on_burn then
       basedef.on_burn = function(pos)
         to_burnt(pos)
       end
+    end
+    -- add "flammable" group if not specified
+    local found_flammable = false
+    for group_name,value in pairs(basedef.groups) do
+      if (group_name == "flammable" and value > 0) then
+        found_flammable = true
+      end
+    end
+    if (found_flammable == false) then
+      basedef.groups.flammable = 1
     end
   end
   
@@ -310,4 +327,4 @@ local burnt_storage = {
   end,
 }
 
-storage.register_storage(":burnt_storage_pile",burnt_storage)
+storage.register_storage("minimal:burnt_storage_pile",burnt_storage)
