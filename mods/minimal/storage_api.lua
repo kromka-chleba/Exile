@@ -1,8 +1,10 @@
 storage = {}
 
-local modname = "minimal/storage.lua"
+local modname = "minimal/storage_api.lua"
 
-local S = minetest.get_translator("storage")
+local function S(...)
+  return minimal.S(...)
+end
 
 function storage.get_storage_formspec(pos, w, h, meta)
 	local creator = meta:get_string('creator')
@@ -120,9 +122,9 @@ local function to_burnt(pos)
   if minetest.get_item_group(stor_node.name,"storage") == 0 then
     return
   end
-  local nodedef = minetest.registered_nodes[stor_node.name]
-  local burnable = nodedef.burnable
-  local burn_to = nodedef.burn_to
+  stor_node = minetest.registered_nodes[stor_node.name]
+  local burnable = stor_node.burnable
+  local burn_to = stor_node.burn_to
   if (type(burn_to) ~= "string" or not burnable) then
     -- can't be burned lol
     return
@@ -135,9 +137,24 @@ local function to_burnt(pos)
     -- could not find burn_to node
     return
   end
+  -- check if burn_to node is a storage
+  if minetest.get_item_group(burn_to.name,"storage") == 0 then
+    if type(stor_node["_on_dump"]) == "function" then
+      -- run on_dump code
+      stor_node._on_dump(pos)
+    end
+    -- do not continue code
+    return
+  end
+  
+  local width = nodedef.formspec_width or 8
+  local height = nodedef.formspec_height or 4
   
   local meta = minetest.get_meta(pos) -- set formspec_width and formspec_height as meta_int
-  local inv = storage.get_inventory(meta)
+  meta:set_int("formspec_width",width)
+  meta:set_int("formspec_height",height)
+  --local inv = storage.get_inventory(meta)
+  minimal.switch_node(pos,{name = burn_to.name})
 end
 
 function storage.register_storage(name,def)
@@ -165,7 +182,7 @@ function storage.register_storage(name,def)
     -- other values
     protected = false, -- whether or not the storage placed is protected
     can_dig_when_inventory = false, -- can be dug when the storage has inventory
-    burn_to = "",
+    burn_to = "minimal:burnt_storage_pile",
     -- functions
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
       if can_interact(pos, player) then
@@ -193,7 +210,7 @@ function storage.register_storage(name,def)
     end,
     _on_dump = function(pos)
       storage.dump_inventory(pos)
-    end
+    end,
   }
   
   -- add stuff from definition table
@@ -258,5 +275,39 @@ end
 
 -- burnt storage pile code
 local burnt_storage = {
+  description = S("Burnt Storage Pile"),
+  tiles = {"minimal_burnt_pile.png"},
   
+  node_box = {
+    type = "fixed",
+    fixed = {
+      {-0.45 , -0.5, -0.45,   0.45, -0.3, 0.45}, -- first layer
+      {-0.35 , -0.3, -0.35,   0.35, -0.2, 0.35},
+      {-0.2 , -0.2, -0.2,   0.2, -0.15, 0.2},
+    },
+  },
+  
+  groups = {burnt = 1},
+  
+  on_construct = function(pos)
+    local meta = minetest.get_meta(pos)
+    local width = meta:get_int("formspec_width")
+    local height = meta:get_int("formspec_height")
+    if (width ~= 0 and height ~= 0) then
+      storage.on_construct(pos,width,height)
+    else
+      storage.on_construct(pos,8,4)
+    end
+  end,
+  allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+    -- do not allow players to use the burnt storage
+    return 0
+  end,
+  -- make after_place_node and on_receive_fields nil
+  after_place_node = function()
+  end,
+  on_receive_fields = function()
+  end,
 }
+
+storage.register_storage(":burnt_storage_pile",burnt_storage)
