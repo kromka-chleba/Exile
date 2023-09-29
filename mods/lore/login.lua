@@ -176,10 +176,8 @@ local function queue_start(player)
    local name = player:get_player_name()
    for i = 1, #player_queue[name] do
       local qitem = queue_pop(name)
-      if not qitem.fspec then
-	 qitem.func(player)
-      else
-	 qitem.func(player)
+      qitem.func(player)
+      if qitem.fspec then
 	 return -- can't continue until the formspec is closed
       end
    end
