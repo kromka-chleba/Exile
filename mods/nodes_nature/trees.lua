@@ -192,7 +192,7 @@ for i in ipairs(tree_list) do
 	local hardwood = tree_list[i][8]
 	local dyecandidate = tree_list[i][9]
 	local dominantcolor = tree_list[i][10] or "none"
-	local flamesusceptibility = hardness * 2
+	local flamesusceptibility = hardness * -2
 
 	if not selbox_fruit then
 	   selbox_fruit = {-3 / 16, -7 / 16, -3 / 16,
