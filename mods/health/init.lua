@@ -12,6 +12,9 @@ Slow applies internal metabolism effects (here)
 ------------------------------------
 
 HEALTH = {}
+sfinv = sfinv
+player_monoids = player_monoids
+clothing = clothing
 
 -- Internationalization
 HEALTH.S = minetest.get_translator("health")
@@ -139,12 +142,15 @@ register_tab()
 --runs through player's current effects, runs the function for that effect
 --takes all the same variables, and outputs as any effect may use them.
 --adjusted outputs feed back into malus_bonus
-local function do_effects_list(meta, player, health, energy, thirst, hunger, temperature, h_rate, r_rate, t_rate, hun_rate,  mov, jum)
+local function do_effects_list(meta, player, health, energy, thirst, hunger,
+			       temperature, h_rate, r_rate, t_rate, hun_rate,
+			       mov, jum)
 	local effects_list = meta:get_string("effects_list")
 	effects_list = minetest.deserialize(effects_list) or {}
 
 	if not effects_list then
-		return h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature
+	   return h_rate, r_rate, t_rate, hun_rate, mov, jum, health,
+	      energy, thirst, hunger, temperature
 	end
 
 	for _, effect in ipairs(effects_list) do
@@ -155,63 +161,86 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger, tem
 
 		----------
 		if name == "Food Poisoning" then
-			r_rate, mov, jum, temperature = HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, jum, temperature)
+		   r_rate, mov, jum, temperature
+		      = HEALTH.food_poisoning(order, player, meta, effects_list,
+					      r_rate, mov, jum, temperature)
 		end
 
 		----------
 		if name == "Fungal Infection" then
-			r_rate, mov, jum, temperature = HEALTH.fungal_infection(order, player, meta, effects_list, r_rate, mov, jum, temperature)
+		   r_rate, mov, jum, temperature
+		      = HEALTH.fungal_infection(order, player, meta,
+						effects_list, r_rate, mov, jum,
+						temperature)
 		end
 
 		----------
 		if name == "Dust Fever" then
-			r_rate, mov, jum, temperature = HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov, jum, temperature)
+		   r_rate, mov, jum, temperature
+		      = HEALTH.dust_fever(order, player, meta, effects_list,
+					  r_rate, mov, jum, temperature)
 		end
 
 		----------
 		if name == "Drunk" then
-			r_rate, mov, jum, h_rate, temperature = HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum, h_rate, temperature)
+		   r_rate, mov, jum, h_rate, temperature
+		      = HEALTH.drunk(order, player, meta, effects_list,
+				     r_rate, mov, jum, h_rate, temperature)
 		end
 
 		----------
 		if name == "Hangover" then
-			mov, jum = HEALTH.hangover(order, player, meta, effects_list, mov, jum)
+		   mov, jum = HEALTH.hangover(order, player, meta,
+					      effects_list, mov, jum)
 		end
 
 		----------
 		if name == "Intestinal Parasites" then
-			r_rate, hun_rate = HEALTH.intestinal_parasites(order, player, meta, effects_list, r_rate, hun_rate)
+		   r_rate, hun_rate
+		      = HEALTH.intestinal_parasites(order, player, meta,
+						    effects_list, r_rate,
+						    hun_rate)
 		end
 
 		----------
 		if name == "Tiku High" then
-			r_rate, hun_rate, mov, jum, temperature = HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, mov, jum, temperature)
+		   r_rate, hun_rate, mov, jum, temperature
+		      = HEALTH.tiku_high(order, player, meta, effects_list,
+					 r_rate, hun_rate, mov, jum, temperature)
 		end
 
 		----------
 		if name == "Neurotoxicity" then
-			mov, jum = HEALTH.neurotoxicity(order, player, meta, effects_list, mov, jum)
+		   mov, jum = HEALTH.neurotoxicity(order, player, meta,
+						   effects_list, mov, jum)
 		end
 
 		----------
 		if name == "Hepatotoxicity" then
-			mov, jum, r_rate, h_rate = HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_rate, h_rate)
+		   mov, jum, r_rate, h_rate
+		      = HEALTH.hepatotoxicity(order, player, meta, effects_list,
+					      mov, jum, r_rate, h_rate)
 		end
 
 		----------
 		if name == "Photosensitivity" then
-			h_rate, r_rate = HEALTH.photosensitivity(order, player, meta, effects_list, h_rate, r_rate)
+		   h_rate, r_rate
+		      = HEALTH.photosensitivity(order, player, meta,
+						effects_list, h_rate, r_rate)
 		end
 
 		---------
 		if name == "Meta-Stim" then
-			h_rate, r_rate, hun_rate, t_rate = HEALTH.meta_stim(order, player, meta, effects_list, h_rate, r_rate, hun_rate, t_rate)
+		   h_rate, r_rate, hun_rate, t_rate
+		      = HEALTH.meta_stim(order, player, meta, effects_list,
+					 h_rate, r_rate, hun_rate, t_rate)
 		end
 
 
 	end
 
-	return h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature
+	return h_rate, r_rate, t_rate, hun_rate, mov, jum, health,
+	   energy, thirst, hunger, temperature
 
 end
 
@@ -399,7 +428,11 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 	--health effects
 	local HE_mov
 	local HE_jum
-	h_rate, r_rate, t_rate, hun_rate, HE_mov, HE_jum, health, energy, thirst, hunger, temperature = do_effects_list(meta, player, health, energy, thirst, hunger, temperature, h_rate, r_rate, t_rate, hun_rate,  mov, jum)
+	h_rate, r_rate, t_rate, hun_rate, HE_mov, HE_jum,
+	   health, energy, thirst, hunger, temperature
+	   = do_effects_list(meta, player, health, energy, thirst, hunger,
+			     temperature, h_rate, r_rate, t_rate, hun_rate,
+			     mov, jum)
 
 
 	--save adjusted rates for access (e.g. by a medical tab/equipment etc)
@@ -438,7 +471,7 @@ minetest.register_on_newplayer(function(player)
 	set_default_attibutes(player)
 end)
 
-function reset_attributes(player)
+function HEALTH.reset_attributes(player)
    set_default_attibutes(player)
 end
 
@@ -520,7 +553,11 @@ if minetest.settings:get_bool("enable_damage") then
 
 
 				--apply rate adjustments so they are correct for current player status
-				local h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature  = HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
+				local h_rate, r_rate, t_rate, hun_rate,
+				   _, _, _, _, _, _, _
+				   = HEALTH.malus_bonus(player, name, meta,
+							health, energy, thirst,
+							hunger, temperature)
 
 				--
 				--update attributes based on adjusted rates

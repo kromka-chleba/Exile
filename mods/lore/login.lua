@@ -2,6 +2,7 @@
 --A login screen to show to new players
 
 tutorial = tutorial
+HEALTH = HEALTH
 local S = minetest.get_translator("lore")
 
 local newplayer = {}
@@ -133,7 +134,7 @@ end
 
 local function first_spawn(player)
    -- Guarantee they won't be penalized for reading:
-   reset_attributes(player) -- All stats back to starting values
+   HEALTH.reset_attributes(player) -- All stats back to starting values
    safepoint_and_rspawn(player)
    doGatewayFX(player)
    local pname = player:get_player_name()
