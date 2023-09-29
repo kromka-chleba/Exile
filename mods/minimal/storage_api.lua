@@ -1,6 +1,6 @@
 storage = {}
 
-local modname = "storage"
+local modname = "minimal/storage.lua"
 
 local S = minetest.get_translator("storage")
 
