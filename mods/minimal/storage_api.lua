@@ -38,7 +38,7 @@ function storage.get_storage_formspec(pos, w, h, meta)
 end
 
 
-local function is_owner(pos, name)
+local function can_interact(pos, name)
 	if minetest.is_protected(pos, name) then
     -- you are NOT the owner!
     return false
@@ -55,7 +55,7 @@ function storage.can_dig(pos,player,can_grab)
     inv_empty = inv:is_empty("main")
   end
   
-  return is_owner(pos, player) and inv_empty
+  return can_interact(pos, player) and inv_empty
 end
 
 function storage.get_inventory(pos)
@@ -79,7 +79,7 @@ end
 
 function storage.on_receive_fields(pos, formname, fields, sender, width, height)
   local label = fields.label
-  if (label and (minetest.is_player(sender) and is_owner(pos,sender))) then
+  if (label and (minetest.is_player(sender) and can_interact(pos,sender))) then
     local meta = minetest.get_meta(pos)
     local cleanlabel = minimal.sanitize_string(label)
     meta:set_string('label', cleanlabel)
@@ -142,14 +142,14 @@ function storage.register_storage(name,def)
     can_dig_when_inventory = false, -- can be dug when the storage has inventory
     -- functions
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-      if is_owner(pos, player) then
+      if can_interact(pos, player) then
         return count
       end
       return 0
     end,
     
     allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-      if is_owner(pos, player)
+      if can_interact(pos, player)
       and minetest.get_item_group(stack:get_name(),"backpack") == 0 then
         return stack:get_count()
       end
@@ -157,7 +157,7 @@ function storage.register_storage(name,def)
     end,
 
     allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-      if is_owner(pos, player) then
+      if can_interact(pos, player) then
         return stack:get_count()
       end
       return 0
