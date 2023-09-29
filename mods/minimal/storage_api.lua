@@ -115,6 +115,31 @@ function storage.dump_inventory(pos)
   end
 end
 
+local function to_burnt(pos)
+  local stor_node = minetest.get_node(pos)
+  if minetest.get_item_group(stor_node.name,"storage") == 0 then
+    return
+  end
+  local nodedef = minetest.registered_nodes[stor_node.name]
+  local burnable = nodedef.burnable
+  local burn_to = nodedef.burn_to
+  if (type(burn_to) ~= "string" or not burnable) then
+    -- can't be burned lol
+    return
+  end
+  if burn_to == "" then
+    burn_to = "air"
+  end
+  burn_to = minetest.registered_nodes[burn_to]
+  if not burn_to then
+    -- could not find burn_to node
+    return
+  end
+  
+  local meta = minetest.get_meta(pos) -- set formspec_width and formspec_height as meta_int
+  local inv = storage.get_inventory(meta)
+end
+
 function storage.register_storage(name,def)
   assert(type(name) == "string","mods/"..modname..".register_storage: No string provided for name!")
   assert(type(def) == "table","mods/"..modname..".register_storage: No table provided for definition!")
@@ -140,6 +165,7 @@ function storage.register_storage(name,def)
     -- other values
     protected = false, -- whether or not the storage placed is protected
     can_dig_when_inventory = false, -- can be dug when the storage has inventory
+    burn_to = "",
     -- functions
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
       if can_interact(pos, player) then
@@ -165,7 +191,7 @@ function storage.register_storage(name,def)
 
     on_blast = function(pos)
     end,
-    _on_destroy = function(pos)
+    _on_dump = function(pos)
       storage.dump_inventory(pos)
     end
   }
@@ -178,6 +204,15 @@ function storage.register_storage(name,def)
       basedef[var_name] = var
     end
   end
+  
+  -- remove base node_box if drawtype isn't a nodebox
+  if basedef.drawtype ~= "nodebox" then
+    basedef.node_box = nil
+  end
+  
+  -- don't be silly, we don't like floats
+  basedef.formspec_width = math.ceil(basedef.formspec_width)
+  basedef.formspec_height = math.ceil(basedef.formspec_height)
   
   -- formspec details (necessary for some functions)
   local width = basedef.formspec_width
@@ -209,6 +244,19 @@ function storage.register_storage(name,def)
     end
   end
   
+  if basedef.burnable == true then
+    if not basedef.on_burn then
+      basedef.on_burn = function(pos)
+        to_burnt(pos)
+      end
+    end
+  end
+  
   -- register the node
   minetest.register_node(name,basedef)
 end
+
+-- burnt storage pile code
+local burnt_storage = {
+  
+}
