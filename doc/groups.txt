@@ -113,3 +113,8 @@ construction material groups
 Tool groups:
 --------------
 `club`: 1= blunt weapon. can stun catch mobs on right click
+
+Storage groups:
+--------------
+`storage`: a node that provides storage space
+`backpack`: a node that serves as a mobile "backpack" and provides storage space

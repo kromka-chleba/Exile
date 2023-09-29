@@ -32,21 +32,13 @@ local function get_formspec(pos, w, h)
 	return table.concat(formspec, "")
 end
 
-function get_description(node,meta)
+local function get_description(node,meta)
 	local desc = minetest.registered_nodes[node.name].description
 	local label = meta:get_string('label')
 	if label ~= '' then
 		desc = desc.." - "..label
 	end
 	return desc
-end
-
-local on_construct = function(pos, width, height)
-	local meta = minetest.get_meta(pos)
-	local form = get_formspec(pos, width, height)
-	meta:set_string("formspec", form)
-	local inv = meta:get_inventory()
-	inv:set_size("main", width*height)
 end
 
 local after_place_node = function(pos, placer, itemstack, pointed_thing)
@@ -125,15 +117,6 @@ local on_dig = function(pos, node, digger, width, height)
 	end
 	return false
 end
-local on_receive_fields = function (pos, formname, fields, sender, width, height)
-	local label = fields.label
-	if label then
-	   local meta = minetest.get_meta(pos)
-	   local cleanlabel = minimal.sanitize_string(label)
-	   meta:set_string('label', cleanlabel)
-	   on_construct(pos, width, height)
-	end
-end
 
 local allow_metadata_inventory_put = function(pos, listname, index, stack, player)
 	if not string.match(stack:get_name(), "backpacks:") then
@@ -143,7 +126,7 @@ local allow_metadata_inventory_put = function(pos, listname, index, stack, playe
 	end
 end
 
-wallmount_box = {
+local wallmount_box = {
    type = "fixed",
    fixed = {
       {-0.4375, -0.375, -0.5, 0.4375, 0.375, 0.5}, -- NodeBox1
@@ -161,7 +144,42 @@ wallmount_box = {
 
 -- backpacks
 function backpacks.register_backpack(name, desc, texture, width, height, groups, sounds)
-
+  -- register backpack through storage.register_storage()
+  storage.register_storage(":backpacks:backpack_"..name,{
+    description = desc,
+		tiles = { -- rotated onto its back for correct wallmounted dirs
+		   texture.."^backpacks_backpack_front.png",     -- Front
+		   texture.."^backpacks_backpack_back.png",      -- Back
+		   texture.."^backpacks_backpack_sides-rotated.png",-- Right Side
+		   texture.."^backpacks_backpack_sides-rotated.png",-- Left Side
+		   texture.."^backpacks_backpack_topbottom.png", -- Top
+		   texture.."^backpacks_backpack_topbottom.png", -- Bottom
+		},
+		paramtype2 = "colorwallmounted",
+		palette = "natural_dyes.png",
+		node_box = wallmount_box,
+    groups = minimal.merge_tables({backpack = 1},groups),--groups,
+		stack_max = 1,
+		sounds = sounds,
+		node_placement_prediction = "",
+    can_dig_when_inventory = true,
+    -- formspec
+    formspec_width = width,
+    formspec_height = height,
+    -- functions
+    after_place_node = function(pos, placer, itemstack, pointed_thing)
+      after_place_node(pos, placer, itemstack, pointed_thing)
+      storage.on_construct(pos, width, height)
+    end,
+    on_dig = function(pos, node, digger)
+			on_dig(pos, node, digger, width, height)
+		end,
+		preserve_metadata = function(pos, oldnode, oldmeta, drops)
+			preserve_metadata(pos, oldnode, oldmeta, drops, width, height)
+		end,
+  })
+  
+  --[[
 	minetest.register_node(":backpacks:backpack_"..name, {
 		description = desc,
 		tiles = { -- rotated onto its back for correct wallmounted dirs
@@ -202,4 +220,5 @@ function backpacks.register_backpack(name, desc, texture, width, height, groups,
 			return allow_metadata_inventory_put(pos, listname, index, stack, player)
 		end,
 	})
+  --]]
 end
