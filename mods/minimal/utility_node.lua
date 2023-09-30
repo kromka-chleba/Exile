@@ -109,6 +109,31 @@ function minimal.force_place(pos, node)
     minetest.set_node(pos, node)
 end
 
+-- inspired by mobkit's "pos_shift"
+-- can have x, y, z of pos2 be omitted
+function minimal.shift_pos(pos,pos2)
+  -- simple error messages to make debugging easier
+  assert( type(pos) == "table" or (type(pos.x) == "number" and type(pos.y) == "number" and type(pos.z) == "number"),"exile_game.shift_pos: Invalid pos provided (not a table or missing coodinates)")
+  assert( type(pos2) == "table","exile_game.shift_pos: Invalid pos2 provided (not a table or missing coodinates)")
+  
+  -- make certain they're 0 and not nil if nil
+  pos2.x = pos2.x or 0
+  pos2.y = pos2.y or 0
+  pos2.z = pos2.z or 0
+  
+  local n_pos = { -- new pos
+    x = pos.x + pos2.x,
+    y = pos.y + pos2.y,
+    z = pos.z + pos2.z,
+  }
+  
+  return n_pos
+end
+-- alias of "minimal.shift_pos"
+function minimal.pos_shift(...)
+  return minimal.shift_pos(...)
+end
+
 function minimal.get_pos_under(pos)
     return {x = pos.x, y = pos.y - 1, z = pos.z}
 end
