@@ -80,7 +80,7 @@ local function start_egg_timers(pos, minp, maxp, blockseed, extra_args)
 end
 
 local function remove_floating_canes(pos, minp, maxp, blockseed, extra_args)
-    if minimal.get_group(pos, "cane_plant") > 0 then
+    if minimal.in_group(pos, "cane_plant") then
         return
     end
     local pos_top = {x = pos.x, y = pos.y + 8, z = pos.z}
