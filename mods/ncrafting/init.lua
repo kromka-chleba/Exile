@@ -148,7 +148,7 @@ function ncrafting.fire_pottery(pos, selfname, name, length, firing_temp)
 
 	if firing <= 0 then
 		--finished firing
-		minetest.set_node(pos, {name = name})
+		minimal.switch_node(pos, {name = name})
 		return false
 	elseif temp < fire_temp then
 		if firing < length and temp < fire_temp/2 then
