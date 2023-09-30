@@ -213,8 +213,8 @@ end
 
 function minimal.in_group(pos, group_name)
   local node_name = get_node_name(pos)
-  assert(type(node_name) == "string","exile_game.get_group: Invalid pos or name provided for node")
-  assert(type(group_name) == "string","exile_game.get_group: Invalid group_name provided")
+  assert(type(node_name) == "string","exile_game.in_group: Invalid pos or name provided for node")
+  assert(type(group_name) == "string","exile_game.in_group: Invalid group_name provided")
   local group_val = minetest.get_item_group(node_name,group_name)
   if (group_val > 0) then
     return group_val
@@ -229,7 +229,7 @@ function minimal.get_param2(pos)
 end
 
 function minimal.force_place_keep_param2(pos, name)
-  assert(is_pos(pos),"exile_Game.force_place_keep_param2: Invalid pos given")
+  assert(is_pos(pos),"exile_game.force_place_keep_param2: Invalid pos given")
   local param2 = minimal.get_param2(pos)
   minimal.force_place(pos, {name = name, param2 = param2})
 end
