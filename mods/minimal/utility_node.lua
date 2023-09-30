@@ -211,9 +211,9 @@ function minimal.get_nodedef(pos)
   return nodedef
 end
 
-function minimal.get_group(pos, group_name)
+function minimal.in_group(pos, group_name)
   local node_name = get_node_name(pos)
-  assert(type(node_name) == "string","exile_game.get_group: Invalid pos provided for node")
+  assert(type(node_name) == "string","exile_game.get_group: Invalid pos or name provided for node")
   assert(type(group_name) == "string","exile_game.get_group: Invalid group_name provided")
   local group_val = minetest.get_item_group(node_name,group_name)
   if (group_val > 0) then

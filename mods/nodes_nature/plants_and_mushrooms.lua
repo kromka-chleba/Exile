@@ -462,7 +462,7 @@ minetest.register_craftitem(
         on_place = function(itemstack, placer, pointed_thing)
             local above = minetest.get_node(pointed_thing.above)
             local pos_below = minimal.get_pos_under(pointed_thing.above)
-            local sediment = minimal.get_group(pos_below, "sediment")
+            local sediment = minimal.in_group(pos_below, "sediment")
             if sediment and above.name == "air" then
                 minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_fruitless"})
                 plant.set_to_domesticated(pointed_thing.above)
@@ -486,7 +486,7 @@ minetest.register_craftitem(
         on_place = function(itemstack, placer, pointed_thing)
             local above = minetest.get_node(pointed_thing.above)
             local pos_below = minimal.get_pos_under(pointed_thing.above)
-            local sediment = minimal.get_group(pos_below, "sediment")
+            local sediment = minimal.in_group(pos_below, "sediment")
             if sediment and above.name == "air" then
                 minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_seedling5"})
                 plant.set_to_domesticated(pointed_thing.above)
