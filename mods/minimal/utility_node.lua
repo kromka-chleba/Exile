@@ -118,10 +118,7 @@ function minimal.node_get_int(pos, name)
     error("exile_game.node_get_int: Invalid pos given")
   end
   if meta:get(name) then
-    local int = meta:get_int(name)
-    if (int > 0) then
-      return meta:get_int(name)
-    end
+    return meta:get_int(name)
   end
   
   return false
