@@ -648,7 +648,7 @@ minetest.register_tool("tech:shovel_iron", {
 			snappy = {times= {[3]=stone_snap3}, uses=iron_use * 0.8, maxlevel=iron_max_lvl},
                         tilling = {uses = iron_use * 0.8}, -- not too good for tilling
 		},
-		damage_groups = {fleshy= iron_dmg},
+		damage_groups = {fleshy= iron_dmg * 0.75},
 	},
 	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
@@ -772,7 +772,7 @@ minetest.register_tool("tech:hoe_iron", {
 			      uses=base_use, maxlevel=crude_max_lvl},
                         tilling = {uses = iron_use},
 		},
-		damage_groups = {fleshy = iron_dmg},
+		damage_groups = {fleshy = iron_dmg * 0.75},
 	},
 	groups = {hoe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
@@ -945,8 +945,10 @@ minetest.register_tool(
                 snappy = {times={[3]=crude_snap3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
                 crumbly = {times= {[3]=crude_crum3}, uses=base_use*0.5, maxlevel=crude_max_lvl}
             },
-            damage_groups = {fleshy=iron_dmg},
+            damage_groups = {fleshy=stone_dmg + 1},
         },
+	_place_tip = "Stun animals\n"..
+	   " or Place on solid surface for hammering crafts",
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:hammer_granite_placed")
         end,
@@ -1001,8 +1003,10 @@ minetest.register_tool(
                 snappy = {times={[3]=crude_snap3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
                 crumbly = {times= {[3]=crude_crum3}, uses=base_use*0.5, maxlevel=crude_max_lvl}
             },
-            damage_groups = {fleshy=iron_dmg},
+            damage_groups = {fleshy=stone_dmg},
         },
+	_place_tip = "Stun animals\n"..
+	   " or Place on solid surface for hammering crafts",
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:hammer_basalt_placed")
         end,
