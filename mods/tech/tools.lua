@@ -290,6 +290,7 @@ local function till_soil(player, wielded_item, pointed_thing)
       if tilling[posstr] >= 10  then
 	 soil.till(wielded_item, player, pointed_thing)
       end
+      return true
    end
 end
 -- digging stick... specialist for digging. Can also till

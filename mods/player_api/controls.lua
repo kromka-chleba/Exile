@@ -144,10 +144,9 @@ local function check_player_surroundings(player, pos, name)
    -- #TODO: Try using part of the swim animation for flying?
 end
 
-local registered_use_nodes = {}
 
 local function handle_use_key(player, ppos)
-   local using_tool = false
+   local using_tool = false -- whether we've done a thing yet
    local witem = player:get_wielded_item()
    local eye_height = player:get_properties().eye_height
    ppos.y = ppos.y + eye_height
@@ -158,35 +157,29 @@ local function handle_use_key(player, ppos)
    if pointed_thing then
       pointed_node = minetest.get_node(pointed_thing.under)
       local pdef = minetest.registered_nodes[pointed_node.name]
-      local nodecall = registered_use_nodes[pointed_node.name]
       if pdef._on_use_node then -- use pointed node's definition first
-	 pdef._on_use_node(player, pointed_node, pointed_thing, witem)
-	 using_tool = true
-      elseif nodecall then -- use registered standard use second
-	 nodecall(player, pointed_node, pointed_thing, witem)
-	 using_tool = true
+	 using_tool = pdef._on_use_node(player, pointed_node,
+					pointed_thing, witem)
       end
    end
    local wnm = witem:get_name()
    local wdef = minetest.registered_items[wnm]
    if not using_tool and wdef then
       if wdef._on_use_item then
-	 wdef._on_use_item(player, witem, pointed_thing)
-	 using_tool = true
-      elseif wdef.groups.edible or wnm == "tech:soup" then
-	 -- old soup won't have edible=2, so we need a case for the name
+	 using_tool = wdef._on_use_item(player, witem, pointed_thing)
+      end
+      if not using_tool and wdef.groups.edible then
 	 if wdef.groups.edible == 1 then
 	    exile_eatdrink(witem, player, pointed_thing)
-	 else --all future playermade foods should have edible=2 though
+	 elseif wdef.groups.edible == 2 then
 	    exile_eatdrink_playermade(witem, player, pointed_thing)
 	 end
-	 using_tool = true
       end
    end
    if not minimal.player_in_creative(player)  then
       player:set_wielded_item(witem)
    end
-   return using_tool
+   return
 end
 
 local prop_table = { -- select gender + t/f for crawling eye_height/collision

@@ -8,6 +8,8 @@ _on_use_item = function(player, wielded_item, pointed_thing)
 	Called when the player is holding the item and presses "use"
 	_on_use_node takes precedence over this
 
+	^ functions for these should return false if the item/node isn't used.
+
 ------------ data ------------
 _till_speed = the rate at which this tool tills soil, higher is better
 _splits_by_hand = node can be split into this with minimal.slabs_split_hand

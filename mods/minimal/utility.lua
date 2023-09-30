@@ -103,7 +103,7 @@ function minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
       end
       minimal.switch_node(pos,{name=swap_node})
       itemstack:take_item()
-      return itemstack
+      return true
    end
 end
 
@@ -128,6 +128,7 @@ function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
    end
    minimal.switch_node(pos, {name=split_node})
    wielded_item:replace(itemstack)
+   return true
 end
 
 local __click_count_ready = {}
