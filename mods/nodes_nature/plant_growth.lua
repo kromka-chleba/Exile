@@ -90,11 +90,11 @@ end
 
 local function is_on_sediment(pos)
     local pos_under = minimal.get_pos_under(pos)
-    return minimal.get_group(pos_under, "sediment") > 0
+    return minimal.get_group(pos_under, "sediment")
 end
 
 local function is_mushroom(pos)
-    return minimal.get_group(pos, "mushroom") > 0
+    return minimal.get_group(pos, "mushroom")
 end
 
 function plant.get_light(pos)
