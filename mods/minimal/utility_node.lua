@@ -1,12 +1,36 @@
 minimal = minimal
 S = minimal.S
 
+-- check if a valid meta was given
+local function is_meta(meta)
+  if (type(meta) == "userdata") then
+    -- ensure it has these 2 functions lol
+    if (type(meta["set_int"]) == "function" and type(meta["set_string"]) == "function") then
+      return true
+    end
+  end
+  
+  return false
+end
+
+-- check if a valid pos was given
+local function is_pos(pos)
+  if (type(pos) == "table") then
+    if (type(pos.x) == "number" and type(pos.y) == "number" and type(pos.z) == "number") then
+      return true
+    end
+  end
+  
+  return false
+end
+
 function minimal.switch_node(pos, node, after_place)
    --Swap a node, but run its on_construct, so that
    -- timers etc. are started, but metadata is left intact
 
    -- after_place is to be a table of 3 parameters:
    -- placer, itemstack, pointed_thing - though does not need to be specified for switch_node to work
+   assert(is_pos(pos), "exile_game.switch_node: Invalid pos given")
    local node_def = minetest.registered_nodes[node.name]
    if not node_def then
       minetest.log("error","Attempted to switch_node to an invalid node: "..node.name)
@@ -70,50 +94,79 @@ function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
    return true
 end
 
-function minimal.get_nodedef(pos)
-    local node_name = minetest.get_node(pos).name
-    local nodedef = minetest.registered_nodes[node_name]
-    return nodedef
-end
-
 function minimal.node_set_int(pos, name, value)
-    local meta = minetest.get_meta(pos)
-    meta:set_int(name, value)
+  assert(type(value) == "number","exile_game.node_set_int: Invalid value given (expected number)")
+  local meta
+  if (is_meta(pos)) then
+    meta = pos
+  elseif (is_pos(pos)) then
+    meta = minetest.get_meta(pos)
+  else
+    error("exile_game.node_set_int: Invalid pos given")
+  end
+  
+  meta:set_int(name, value)
 end
 
 function minimal.node_get_int(pos, name)
-    local meta = minetest.get_meta(pos)
-    if meta:get(name) then
-        return meta:get_int(name)
-    else
-        return false
+  local meta
+  if (is_meta(pos)) then
+    meta = pos
+  elseif (is_pos(pos)) then
+    meta = minetest.get_meta(pos)
+  else
+    error("exile_game.node_get_int: Invalid pos given")
+  end
+  if meta:get(name) then
+    local int = meta:get_int(name)
+    if (int > 0) then
+      return meta:get_int(name)
     end
+  end
+  
+  return false
 end
 
 function minimal.node_set_string(pos, name, value)
-    local meta = minetest.get_meta(pos)
-    meta:set_string(name, value)
+  assert(type(value) == "string","exile_game.node_set_string: Invalid value given (expected string)")
+  local meta
+  if (is_meta(pos)) then
+    meta = pos
+  elseif (is_pos(pos)) then
+    meta = minetest.get_meta(pos)
+  else
+    error("exile_game.node_set_string: Invalid pos given")
+  end
+  
+  meta:set_string(name, value)
 end
 
 function minimal.node_get_string(pos, name)
-    local meta = minetest.get_meta(pos)
-    if meta:get(name) then
-        return meta:get_string(name)
-    else
-        return false
-    end
+  local meta
+  if (is_meta(pos)) then
+    meta = pos
+  elseif (is_pos(pos)) then
+    meta = minetest.get_meta(pos)
+  else
+    error("exile_game.node_get_string: Invalid pos given")
+  end
+  if meta:get(name) then
+    return meta:get_string(name)
+  else
+    return false
+  end
 end
 
 function minimal.force_place(pos, node)
-    minetest.remove_node(pos)
-    minetest.set_node(pos, node)
+  minetest.remove_node(pos)
+  minetest.set_node(pos, node)
 end
 
 -- inspired by mobkit's "pos_shift"
 -- can have x, y, z of pos2 be omitted
 function minimal.shift_pos(pos,pos2)
   -- simple error messages to make debugging easier
-  assert( type(pos) == "table" or (type(pos.x) == "number" and type(pos.y) == "number" and type(pos.z) == "number"),"exile_game.shift_pos: Invalid pos provided (not a table or missing coodinates)")
+  assert( is_pos(pos),"exile_game.shift_pos: Invalid pos provided (not a table or missing coodinates)")
   assert( type(pos2) == "table","exile_game.shift_pos: Invalid pos2 provided (not a table or missing coodinates)")
   
   -- make certain they're 0 and not nil if nil
@@ -142,17 +195,44 @@ function minimal.get_pos_above(pos)
     return {x = pos.x, y = pos.y + 1, z = pos.z}
 end
 
+local function get_node_name(pos)
+  local node_name
+  if is_pos(pos) then
+    node_name = minetest.get_node(pos).name
+  elseif (type(pos) == "table" and type(pos.name) == "string") then
+    node_name = pos.name
+  elseif type(pos) == "string" then
+    node_name = pos
+  end
+  return node_name
+end
+
+function minimal.get_nodedef(pos)
+  local node_name = get_node_name(pos)
+  assert(type(node_name) == "string","exile_game.get_nodedef: Wrong parameter given to check for nodedef")
+  local nodedef = minetest.registered_nodes[node_name]
+  return nodedef
+end
+
 function minimal.get_group(pos, group_name)
-    local node_name = minetest.get_node(pos).name
-    return minetest.get_item_group(node_name, group_name)
+  local node_name = get_node_name(pos)
+  assert(type(node_name) == "string","exile_game.get_group: Invalid pos provided for node")
+  assert(type(group_name) == "string","exile_game.get_group: Invalid group_name provided")
+  local group_val = minetest.get_item_group(node_name,group_name)
+  if (group_val > 0) then
+    return group_val
+  end
+  return false
 end
 
 function minimal.get_param2(pos)
-    local node = minetest.get_node(pos)
-    return node.param2
+  assert(is_pos(pos),"exile_game.get_param2: Invalid pos given")
+  local node = minetest.get_node(pos)
+  return node.param2
 end
 
 function minimal.force_place_keep_param2(pos, name)
-    local param2 = minimal.get_param2(pos)
-    minimal.force_place(pos, {name = name, param2 = param2})
+  assert(is_pos(pos),"exile_Game.force_place_keep_param2: Invalid pos given")
+  local param2 = minimal.get_param2(pos)
+  minimal.force_place(pos, {name = name, param2 = param2})
 end
