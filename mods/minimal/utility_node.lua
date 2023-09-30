@@ -155,6 +155,7 @@ function minimal.node_get_string(pos, name)
 end
 
 function minimal.force_place(pos, node)
+  assert(is_pos(pos),"exile_game.force_place: Invalid pos given")
   minetest.remove_node(pos)
   minetest.set_node(pos, node)
 end
