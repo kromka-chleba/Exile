@@ -219,11 +219,11 @@ minetest.register_node("tech:clay_storage_pot_unfired", {
 				{-0.5, -0.25, -0.5, 0.5, 0.25, 0.5},
 			}
 		},
-	groups = {dig_immediate=3, temp_pass = 1, heatable = 20},
+	groups = {dig_immediate=3, temp_pass = 1, heatable = 20, craftedby = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
-		ncrafting.set_firing(pos, base_firing+5, firing_int)
+		ncrafting.set_firing(pos, 1, 5)--base_firing+5, firing_int)
 	end,
 	on_dig = function(pos, node, digger)
 	   return ncrafting.on_dig_pottery(pos, node, digger, base_firing*5)
@@ -232,7 +232,7 @@ minetest.register_node("tech:clay_storage_pot_unfired", {
 	   --finished product, length
 	   return ncrafting.fire_pottery(pos,
 					 "tech:clay_storage_pot_unfired",
-					 "tech:clay_storage_pot", base_firing+5)
+					 "tech:clay_storage_pot", 1, 300)--base_firing+5)
 	end,
 })
 
@@ -640,7 +640,7 @@ crafting.register_recipe({
 --storage Pot from clay
 crafting.register_recipe({
 	type = {"crafting_spot","hand_pottery"},
-	output = "tech:clay_storage_pot_unfired 1",
+	output = "tech:clay_storage_pot_unfired",
 	items = {"nodes_nature:clay_wet 4"},
 	level = 1,
 	always_known = true,
