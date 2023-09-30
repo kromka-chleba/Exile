@@ -1,5 +1,17 @@
 # Changelog:
 
+## [2023-09-30][2023-09-30__0.3.11]
+  - Improved animal behavior
+  - Increase portion size for meat
+  - Quickslot numbers on the HUD
+  - Enforced range limits for transporters
+  - Add a stone etching tool
+  - New environmental sounds
+  - Nicer glass sounds
+  - Spear improvements
+  - Clearer glass windows
+  - Added startexile.sh server script with optional /version command
+
 ## [2023-05-25][2023-05-25__0.3.10] — 0.3.10
   - Added a watering can, to turn dry soil wet
   - Ability to crouch/crawl by double-tapping shift
