@@ -15,7 +15,7 @@ local plant = plant
 
 local function flora_spread(pos, node)
     local pos_under = minimal.get_pos_under(pos)
-    if not minimal.get_group(pos_under, "sediment") then
+    if not minimal.in_group(pos_under, "sediment") then
       return
     end
     local under = minetest.get_node(pos_under)
