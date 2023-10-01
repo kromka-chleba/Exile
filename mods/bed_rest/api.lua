@@ -155,9 +155,9 @@ function bed_rest.register_bed(name, def)
 			end
 			node.param2 = new_param2
 			-- do not remove_node here - it will trigger destroy_bed()
-			minetest.set_node(p, {name = "air"})
-			minetest.set_node(pos, node)
-			minetest.set_node(newp, {name = name .. "_top", param2 = new_param2})
+			minetest.swap_node(p, {name = "air"})
+			minetest.swap_node(pos, node)
+			minetest.swap_node(newp, {name = name .. "_top", param2 = new_param2})
 			return true
 		end,
 		can_dig = function(pos, player)
