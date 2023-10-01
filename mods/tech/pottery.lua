@@ -219,7 +219,7 @@ minetest.register_node("tech:clay_storage_pot_unfired", {
 				{-0.5, -0.25, -0.5, 0.5, 0.25, 0.5},
 			}
 		},
-	groups = {dig_immediate=3, temp_pass = 1, heatable = 20},
+	groups = {dig_immediate=3, temp_pass = 1, heatable = 20, craftedby = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
@@ -320,15 +320,7 @@ minetest.register_node("tech:clay_oil_lamp_unfired", {
 
 minetest.register_node("tech:clay_oil_lamps",{ -- ^[multiply:#493625
   description = S("Clay Oil Lamps (x4)"),
-	tiles = {
-    -- literally the clay texture, but built different
-		"nodes_nature_clay.png^[colorize:#38291c:160",
-		"nodes_nature_clay.png^[colorize:#38291c:160",
-		"nodes_nature_clay.png^[colorize:#38291c:160",
-		"nodes_nature_clay.png^[colorize:#38291c:160",
-		"nodes_nature_clay.png^[colorize:#38291c:160",
-		"nodes_nature_clay.png^[colorize:#38291c:160"
-	},
+	tiles = {"tech_pottery.png"},
 	drawtype = "nodebox",
 	stack_max = 1,
 	paramtype = "light",
@@ -377,20 +369,7 @@ minetest.register_node("tech:clay_oil_lamps",{ -- ^[multiply:#493625
     minetest.add_item(pos, ItemStack("tech:clay_oil_lamps 1"))
     return false
 	end,
-  on_dig = function(pos, node, digger)
-    if not (minetest.is_player(digger)) then
-      return
-    end
-    local inv = digger:get_inventory() 
-    local itemstack = ItemStack("tech:clay_oil_lamp_unlit 4") -- 4 FOUR is how many lamps are created
-    if (inv:room_for_item("main", itemstack)) then
-      inv:add_item("main", itemstack)
-      minetest.remove_node(pos)
-    else
-      minetest.chat_send_player(digger:get_player_name(), "No room in inventory!")
-      return
-    end
-  end,
+  drop = "tech:clay_oil_lamp_unlit 4",
 })
 
 local oil_lamp_desc = lightsource_description.new(
@@ -640,7 +619,7 @@ crafting.register_recipe({
 --storage Pot from clay
 crafting.register_recipe({
 	type = {"crafting_spot","hand_pottery"},
-	output = "tech:clay_storage_pot_unfired 1",
+	output = "tech:clay_storage_pot_unfired",
 	items = {"nodes_nature:clay_wet 4"},
 	level = 1,
 	always_known = true,
