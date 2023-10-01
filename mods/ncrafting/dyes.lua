@@ -459,6 +459,10 @@ minetest.register_node(":ncrafting:dye_table", {
 	   if fields.dyetest then -- Try to turn treated bundle into a dye
 	      local bundle = inv:get_stack("craft", 1)
 	      local bmeta = bundle:get_meta()
+        -- prevent dye destruction because of malformed metadata
+        if not (bmeta:contains("ncrafting:bundled_plant") and bmeta:contains("ncrafting:bundle_treatment")) then
+          return
+        end
 	      local plants = bmeta:get_string("ncrafting:bundled_plant")
 	      local treatment = bmeta:get_string("ncrafting:bundle_treatment")
 	      local result = ""
@@ -475,7 +479,7 @@ minetest.register_node(":ncrafting:dye_table", {
 							       treatment))
 		    result = bundle
 		    inv:set_stack("craft", 1, ItemStack(""))
-	      end
+      end
 	      inv:set_stack("craftresult", 1, ItemStack(result))
 	   end
 	   adjust_button(pos)
