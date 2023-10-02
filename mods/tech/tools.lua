@@ -198,6 +198,7 @@ minetest.register_tool("tech:stone_chopper", {
 	   local etcher = ItemStack("tech:stone_etcher")
 	   etcher:set_wear(wear)
 	   player:set_wielded_item(etcher)
+	   return false
 	end,
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:stone_knife_placed")

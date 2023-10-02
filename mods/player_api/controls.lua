@@ -169,6 +169,7 @@ local function handle_use_key(player, ppos)
 	 using_tool = wdef._on_use_item(player, witem, pointed_thing)
       end
       if not using_tool and wdef.groups.edible then
+	 using_tool = true
 	 if wdef.groups.edible == 1 then
 	    exile_eatdrink(witem, player, pointed_thing)
 	 elseif wdef.groups.edible == 2 then
@@ -176,7 +177,7 @@ local function handle_use_key(player, ppos)
 	 end
       end
    end
-   if not minimal.player_in_creative(player)  then
+   if using_tool and not minimal.player_in_creative(player) then
       player:set_wielded_item(witem)
    end
    return

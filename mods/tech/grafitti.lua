@@ -169,6 +169,7 @@ minetest.override_item("tech:stone_etcher", {
 	   local knife = ItemStack("tech:stone_chopper")
 	   knife:set_wear(wear)
 	   player:set_wielded_item(knife)
+	   return false
 	end
 })
 
