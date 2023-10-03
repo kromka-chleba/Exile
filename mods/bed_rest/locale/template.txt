@@ -1,0 +1,62 @@
+# textdomain: bed_rest
+
+# breaktaker message
+You've been here long enough to justify a real break.\nThink of this as a reminder from your better self.\nGo get some rest. Leave Exile behind. You can come back any time.=
+
+# quotes
+
+# authors
+Seneca=
+Cicero=
+Ovid=
+Marcus Aurelius=
+Hippocrates=
+Sun Tzu=
+Lao Tzu=
+Confucius=
+Chongyang=
+The Dalai Lama=
+Masanobu Fukuoka=
+Kobayashi Issa=
+Mahatma Gandhi=
+Saadi=
+Nick Joaquín=
+John Plant=
+Joss Whedon=
+Carl Sagan=
+Edwin Louis Cole=
+Ernest Hemmingway=
+Kurt Vonnegut=
+Jane Addams=
+Barry Gehm=
+Bob Ross=
+John Muir=
+Ralph Waldo Emerson=
+Daniel Boone=
+Thomas Edison=
+Woody Allen=
+Bill Watterson=
+Oscar Levant=
+Dr. Seuss=
+Arthur C. Clarke=
+Bear Grylls=
+Winston Churchill=
+George Orwell=
+The Black Knight=
+William Shakespeare=
+Isaac Newton=
+Tolkien=
+Terry Pratchett=
+Douglas Adams=
+Virginia Woolf=
+Dylan Thomas=
+Robert Swan=
+Victor Hugo=
+Albert Camus=
+Marthe Troly-Curtin=
+Franz Kafka=
+Friedrich Nietzsche=
+Markus Herz=
+Balthasar Gracian=
+Edward de Bono=
+Soren Kierkegaard=
