@@ -57,7 +57,7 @@ local quote_list = {
     "Reed-thatched huts and grass-thatched shelters are essential for protecting the body.\nTo sleep in the open air or in the open fields offends the sun and moon.",
 	"On the other hand,\nliving beneath carved beams and high eaves is also not the action of a superior adept.\nGreat palaces and elevated halls,\n— how can these be part of the living plan for followers of the Dao?",
 	"Medicinal herbs are the flourishing emanations of mountains and waterways,\nthe essential florescence of plants and trees.",
-	"'Followers of the Dao join together as companions\nbecause they can assist each other in sickness and disease.\nIf you die, I’ll bury you; if I die, you’ll bury me."
+	"Followers of the Dao join together as companions\nbecause they can assist each other in sickness and disease.\nIf you die, I’ll bury you; if I die, you’ll bury me."
   },
   ["The Dalai Lama"] = {
     "If you think you are too small to make a difference,\ntry sleeping with a mosquito."
