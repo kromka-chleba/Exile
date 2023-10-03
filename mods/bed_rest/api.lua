@@ -13,8 +13,7 @@ local function destruct_bed(pos, n)
 		other = vector.add(pos, dir)
 	end
 
-	--local oname = minetest.get_node(other).name
-	if minimal.in_group(other,"bed") then --minetest.get_item_group(oname, "bed") ~= 0  then
+	if minimal.in_group(other,"bed") then
 		-- Swap node leaves meta, but doesn't call destruct_bed again
 		minetest.swap_node(other, {name = "air"})
 		minetest.remove_node(other) -- Now clear meta
@@ -56,8 +55,7 @@ function bed_rest.register_bed(name, def)
 
 		on_place = function(itemstack, placer, pointed_thing)
 			local under = pointed_thing.under
-			--local node = minetest.get_node(under)
-			local udef = minimal.get_nodedef(under) --minetest.registered_nodes[node.name]
+			local udef = minimal.get_nodedef(under)
 			if udef and udef.on_rightclick and
 					not (placer and placer:is_player() and
 					placer:get_player_control().sneak) then
@@ -80,7 +78,7 @@ function bed_rest.register_bed(name, def)
 				return itemstack
 			end
 
-			local node_def = minimal.get_nodedef(pos) --minetest.registered_nodes[minetest.get_node(pos).name]
+			local node_def = minimal.get_nodedef(pos)
 			if not node_def or not node_def.buildable_to then
 				return itemstack
 			end
@@ -95,7 +93,7 @@ function bed_rest.register_bed(name, def)
 				return itemstack
 			end
 
-			local botdef = minimal.get_nodedef(botpos)--minetest.registered_nodes[minetest.get_node(botpos).name]
+			local botdef = minimal.get_nodedef(botpos)
 			if not botdef or not botdef.buildable_to then
 				return itemstack
 			end
