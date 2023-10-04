@@ -6,12 +6,12 @@ You've been here long enough to justify a real break.\nThink of this as a remind
 # other messages
 
 You have no room to hold your blanket, so you drop it.=
-Bed: Contains Blanket=
+Bed: Contains Blanket=Bett: Beinhaltens Wolldecke
 This bed is already occupied!=
 # expects owner name to be after 
-Status: Occupied by =
+Status: Occupied by =Status: Bewohnt von 
 # related to above
-(old)=
+(old)=(oll)
 
 # authors (do not translate most if uses latin alphabet)
 Seneca=
