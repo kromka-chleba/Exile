@@ -363,13 +363,13 @@ local function wear_blanket(player, bed_pos, donning)
 			--drop it at our feet if there's no room when taking it off
 			local ppos = player:get_pos()
 			minetest.item_drop(newstack, player, ppos)
-			minetest.chat_send_player(name, "You have no room to hold your blanket, so you drop it.")
+			minetest.chat_send_player(name, S("You have no room to hold your blanket, so you drop it."))
 			minetest.sound_play("nodes_nature_dig_snappy",
 				  {pos = ppos, gain = .8, max_hear_distance = 2})
 		end
    end
    if not bedInv:is_empty('main') then
-	   bed_meta:set_string('infotext','Bed: Contains Blanket')
+	   bed_meta:set_string('infotext',S('Bed: Contains Blanket'))
    end
    clothing:update_temp(player)
    player_api.set_texture(player)
@@ -469,9 +469,9 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		for nm, other_pos in pairs(bed_rest.bed_position) do
 		   if vector.distance(bed_pos, other_pos) < 0.1
 		      and nm ~= name then
-			   minetest.chat_send_player(name, ("This bed is already occupied!"))
+			   minetest.chat_send_player(name, S("This bed is already occupied!"))
 			   local meta = minetest.get_meta(bed_pos)
-			   minimal.infotext_merge(bed_pos,'Status: Occupied by '..nm,meta)
+			   minimal.infotext_merge(bed_pos,S('Status: Occupied by ')..nm,meta)
 			   return false
 			end
 		end
@@ -480,7 +480,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		bed_rest.player[name] = 1
 		bed_rest.level[name] = level
 		if not minetest.is_singleplayer() then
-		   minimal.infotext_merge(bed_pos,'Status: Occupied by '..name)
+		   minimal.infotext_merge(bed_pos,S('Status: Occupied by ')..name)
 		   minetest.get_node_timer(bed_pos):start(60 * 60 * 24 *
 							  days_until_timeout)
 		end
@@ -570,7 +570,7 @@ function bed_rest.on_timer(pos, elapsed)
       if vector.distance(pos, other_pos) < 0.1 then
 	 bed_rest.bed_position[nm] = nil
 	 if not minetest.is_singleplayer() then
-		 minimal.infotext_merge(pos,'Status: Occupied by '..nm..'(old)',meta)
+		 minimal.infotext_merge(pos,S('Status: Occupied by ')..nm..S('(old)'),meta)
 	 end
 	 return false
       end
