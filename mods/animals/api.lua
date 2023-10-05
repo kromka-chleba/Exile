@@ -140,7 +140,7 @@ function animals.handle_drops(self)
 
      if chance < (100/item.chance) then
        --leave time for death animation to end
-       minetest.after(4.9, function()
+       minetest.after(3, function()
          if (type(self.object) == "userdata") then -- if entity then
            pos = self.object:get_pos() or pos -- get entity's pos or if pos is nil, use old pos
          end

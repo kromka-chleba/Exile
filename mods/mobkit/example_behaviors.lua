@@ -561,7 +561,7 @@ function mobkit.hq_warn(self,prty,tgtobj)
 end
 
 function mobkit.hq_die(self)
-	local timer = 5
+	local timer = 3
 	local start = true
 	local func = function(self)
 		if start then 
