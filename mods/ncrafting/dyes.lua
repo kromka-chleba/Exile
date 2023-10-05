@@ -216,8 +216,9 @@ local function bundlename(meta, plant, treatment)
    if treatment == nil and meta then
       treatment = meta:get_string("ncrafting:bundle_treatment")
    end
-   if minetest.registered_items[plant] then
-      fmt_plant = "of "..minetest.registered_items[plant].description
+   local def = minetest.registered_items[plant]
+   if def and (def._orig_desc or def.description) then
+      fmt_plant = "of "..(def._orig_desc or def.description)
    else
       minetest.log("error","NCRAFTING: Bundle could not get name of plant: "..plant)
    end

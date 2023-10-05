@@ -15,8 +15,10 @@ _till_speed = the rate at which this tool tills soil, higher is better
 _splits_by_hand = node can be split into this with minimal.slabs_split_hand
 
  Item descriptions for tooltips:
+      _orig_desc = the description as it was before tooltips were added
       _dig_tip = What this item/node does when used to dig
       _use_tip = Same for AUX1/"Use" key 
       _place_tip = And on a right click
- Note: Keep them to a single line, imperative tense, like "Cut softwood trees",
-       as if you were telling the tool what to do.
+      Note: Keep them to a single line, imperative tense, like
+       "Cut softwood trees", as if you were telling the tool what to do.
+
