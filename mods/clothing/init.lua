@@ -1,6 +1,23 @@
 ------------------------------------------------------------
 --CLOTHING init
 ------------------------------------------------------------
+clothing = {
+	registered_callbacks = {
+		on_update = {},
+		on_equip = {},
+		on_unequip = {},
+	},
+	player_textures = {},
+	elements = {
+		"hat",
+		"shirt",
+		"pants",
+		"cape",
+		"shoes",
+		"gloves",
+		"blanket"
+	},
+}
 
 -- Internationalization
 local S = minetest.get_translator("clothing")
@@ -54,6 +71,8 @@ minetest.register_on_player_inventory_action(function(player, action, inventory,
 	 player_api.set_texture(player)
       end
 end)
+
+
 
 minetest.register_allow_player_inventory_action(function(player, action, inventory, inventory_info)
 	local stack, from_inv, to_index
