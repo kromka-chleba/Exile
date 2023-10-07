@@ -160,12 +160,14 @@ function doors.door_toggle(pos, node, clicker, itemstack)
 	   if cdir == node.param2 and state == 0 then
 	      -- ^^ are we behind a closed, barred door? Unbar it
 	      meta:set_int("barred", 0)
-	      if itemstack and ( itemstack:is_empty() or
-				 itemstack:get_name() == "tech:stick" ) then
-		 itemstack:add_item("tech:stick")
-	      else
-		 minetest.item_drop(ItemStack("tech:stick"), clicker, pos)
-	      end
+        if not minimal.player_in_creative(clicker) then
+          if itemstack and ( itemstack:is_empty() or
+           itemstack:get_name() == "tech:stick" ) then
+       itemstack:add_item("tech:stick")
+          else
+       minetest.item_drop(ItemStack("tech:stick"), clicker, pos)
+          end
+        end
 
 	      minetest.chat_send_player(cname, "You unbar the door.")
 	      if not def.protected then -- unprotected only gets temporary owner
@@ -306,14 +308,23 @@ function doors.register(name, def)
 				{x = 0, y = 0, z = -1},
 			}
 
-			local aside = {
+			local aside = { -- check left
 				x = pos.x + ref[dir + 1].x,
 				y = pos.y + ref[dir + 1].y,
 				z = pos.z + ref[dir + 1].z,
 			}
-
-			local state = 0
-			if minetest.get_item_group(minetest.get_node(aside).name, "door") == 1 then
+      aside = minetest.get_node(aside)
+      local other_aside = { -- check right
+        x = pos.x - ref[dir + 1].x,
+				y = pos.y - ref[dir + 1].y,
+				z = pos.z - ref[dir + 1].z,
+      } 
+      other_aside = minetest.get_node(other_aside)
+      
+      local state = 0
+			if ( (minetest.get_item_group(aside.name, "door") == 1 and string.match(aside.name,"_b$") ~= "_b") -- if door on left isn't a left-knob door (_b)
+        or (minetest.get_item_group(other_aside.name,"door") == 1 and string.match(other_aside.name,"_a$"))) then -- if door on right is a right-knob door (_a)
+      -- the "$" at the end of the string.match pattern indicates that it should be at the very end, so that a door named like "wooden_adoor" won't mess it up
 				state = state + 2
 				minetest.set_node(pos, {name = name .. "_b", param2 = dir})
 				minetest.set_node(above, {name = "doors:hidden", param2 = (dir + 3) % 4})
