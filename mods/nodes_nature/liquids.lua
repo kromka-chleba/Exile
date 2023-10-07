@@ -201,44 +201,45 @@ end
 minetest.override_item(
     "nodes_nature:freshwater_source", {
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            if (type(clicker) ~= "nil") then
-                local meta = clicker:get_meta()
-                local thirst = meta:get_int("thirst")
-                --only drink if thirsty
-                if thirst < 100 then
+          if not minetest.is_player(clicker) then
+            return
+          end
+          local meta = clicker:get_meta()
+          local thirst = meta:get_int("thirst")
+          --only drink if thirsty
+          if thirst < 100 then
 
-                    local water = 100
-                    thirst = thirst + water
-                    if thirst > 100 then
-                        thirst = 100
-                    end
+                local water = 100
+                thirst = thirst + water
+                if thirst > 100 then
+                    thirst = 100
+                end
 
-                    meta:set_int("thirst", thirst)
-                    --remove so don't get infinity water supply
-                    minetest.set_node(pos, {name = "air"})
-                    minetest.sound_play("nodes_nature_slurp",   {pos = pos, max_hear_distance = 3, gain = 0.25})
+                meta:set_int("thirst", thirst)
+                --remove so don't get infinity water supply
+                minetest.set_node(pos, {name = "air"})
+                minetest.sound_play("nodes_nature_slurp",   {pos = pos, max_hear_distance = 3, gain = 0.25})
 
-                    --food poisoning
-                    local c = 0.005
-                    --parasites
-                    local c2 = 0.005
+                --food poisoning
+                local c = 0.005
+                --parasites
+                local c2 = 0.005
 
-                    --disease chance worse if water in a bad place (e.g. a muddy hole)
-                    local bad = minetest.find_node_near(pos, 1, {"group:sediment"})
-                    if bad then
-                        c = 0.15
-                        c2 = 0.15
-                    end
+                --disease chance worse if water in a bad place (e.g. a muddy hole)
+                local bad = minetest.find_node_near(pos, 1, {"group:sediment"})
+                if bad then
+                    c = 0.15
+                    c2 = 0.15
+                end
 
-                    --food poisoning
-                    if ran() < c then
-                        HEALTH.add_new_effect(clicker, {"Food Poisoning", 1})
-                    end
+                --food poisoning
+                if ran() < c then
+                    HEALTH.add_new_effect(clicker, {"Food Poisoning", 1})
+                end
 
-                    --parasites
-                    if ran() < c2 then
-                        HEALTH.add_new_effect(clicker, {"Intestinal Parasites"})
-                    end
+                --parasites
+                if ran() < c2 then
+                    HEALTH.add_new_effect(clicker, {"Intestinal Parasites"})
                 end
             end
         end
@@ -248,10 +249,11 @@ minetest.override_item(
     "nodes_nature:salt_water_source", {
         color = "#90ff95",
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            if (type(clicker) ~= "nil") then
-                minetest.chat_send_player(clicker:get_player_name(),
-                                          "Salt water is not safe to drink.")
+            if not minetest.is_player(clicker) then
+              return
             end
+            minetest.chat_send_player(clicker:get_player_name(),
+                                          "Salt water is not safe to drink.")
         end
 })
 
