@@ -2,6 +2,7 @@
 --BED REST FUNCTIONS
 --
 -----------------------------------------------------------------
+local S = minetest.get_translator("bed_rest")
 
 local pi = math.pi
 local store = minetest.get_mod_storage()
@@ -25,71 +26,216 @@ end
 --
 
 local quote_list = {
-	"'Sometimes even to live is an act of courage.'\n\n- Seneca",
-	"'Humor keeps us alive. Humor and food.\nDon't forget food. You can go a week without laughing.'\n\n- Joss Whedon",
-	"'Extinction is the rule.\nSurvival is the exception.'\n\n- Carl Sagan",
-	"'You don't drown by falling in the water;\nyou drown by staying there.'\n\n- Edwin Louis Cole",
-	"'It has yet to be proven that intelligence has any survival value.'\n\n- Arthur C. Clarke",
-	"'If quick, I survive. If not quick, I am lost.'\n\n- Sun Tzu",
-	"'That fine line between bravery and stupidity is endlessly debated\n– the difference really doesn’t matter.'\n\n- Bear Grylls",
-	"'My approach is to look for what I’m interested in using\nand if it’s there I use it.'\n\n- John Plant",
-	"'The only way of discovering the limits of the possible\nis to venture a little way past them into the impossible.'\n\n- Arthur C. Clarke",
-	"'The point is not how we use a tool, but how it uses us.'\n\n- Nick Joaquín",
-	"'The ultimate goal of farming is not the growing of crops,\nbut the cultivation and perfection of human beings.'\n\n- Masanobu Fukuoka",
-	"'Never confuse movement with action.'\n\n- Ernest Hemmingway",
-	"'A step backward, after making a wrong turn, is a step in the right direction.'\n\n-Kurt Vonnegut",
-	"'If you're going through hell, keep going'\n\n-Winston Churchill",
-	"'It is not by muscle, speed, or physical dexterity that great things are achieved,\nbut by reflection, force of character, and judgment.'\n\n- Cicero",
-	"'Progress is not an illusion; it happens,\nbut it is slow and invariably disappointing.'\n\n- George Orwell",
-	"'Whatever is produced in haste goes hastily to waste.'\n\n- Saadi",
-	"'Perhaps nothing is so fraught with significance as the human hand,\nthis oldest tool with which man has dug his way from savagery,\nand with which he is constantly groping forward.'\n\n- Jane Addams",
-	"'Any technology distinguishable from magic is insufficiently advanced.'\n\n- Barry Gehm",
-	"'Tis but a scratch!'\n\n- The Black Knight.",
-	"'Emergencies have always been necessary to progress.'\n\n- Victor Hugo",
-	"'I only fear danger where I want to fear it.'\n\n- Franz Kafka",
-	"'Fill your bowl to the brim and it will spill.\nKeep sharpening your knife and it will blunt.'\n\n- Lao Tzu",
-	"'Artist's need the world.'\n\n- Kazuaki Tanahashi",
-	"'Lets build a happy little cloud.\nLets build some happy little trees.'\n\n- Bob Ross",
-	"'The mountains are calling and I must go.'\n\n- John Muir",
-	"'I like this place and could willingly waste my time in it.'\n\n- William Shakespeare",
-	"'Adopt the pace of nature: her secret is patience.'\n\n- Ralph Waldo Emerson",
-	"'Nature is pleased with simplicity. And nature is no dummy.'\n\n- Isaac Newton",
-	"'There are rules to luck, not everything is chance for the wise;\nluck can be helped by skill.'\n\n- Balthasar Gracian",
-	"'Life can only be understood backwards; but it must be lived forwards.'\n\n- Soren Kierkegaard",
-	"'All truly great thoughts are conceived while walking.'\n\n- Friedrich Nietzsche",
-	"'Learning without thought is labour lost;\nthought without learning is perilous'\n\n- Confucius",
-	"'There is scarcely any passion without struggle.'\n\n- Albert Camus",
-	"'O snail\nClimb Mount Fuji\nBut slowly, slowly!'\n\n- Kobayashi Issa",
-	"'Not all those who wander are lost.'\n\n- Tolkien",
-	"'I've never been lost, but I was mighty turned around for three days once.'\n\n- Daniel Boone",
-	"'Dripping water hollows out stone,\nnot through force but through persistence.'\n\n- Ovid",
-	"'I have not failed. I've just found 10,000 ways that won't work.'\n\n- Thomas Edison",
-	"'I'm not afraid of death;\nI just don't want to be there when it happens.'\n\n- Woody Allen",
-	"'Reality continues to ruin my life.'\n\n- Bill Watterson",
-	"'Give a man a fire and he's warm for a day,\nbut set fire to him and he's warm for the rest of his life.'\n\n- Terry Pratchett",
-	"'There's a fine line between genius and insanity.\nI have erased this line.'\n\n- Oscar Levant",
-	"'Let's think the unthinkable, let's do the undoable.\nLet us prepare to grapple with the ineffable itself, and see if we may not eff it after all.'\n\n- Douglas Adams",
-	"'When we are tired, we are attacked by ideas we conquered long ago.'\n\n- Friedrich Nietzsche",
-	"'One cannot think well, love well, sleep well, if one has not dined well.'\n\n- Virginia Woolf",
-	"'Do not go gentle into that good night.\nRage, rage against the dying of the light.'\n\n- Dylan Thomas",
-	"'If you think you are too small to make a difference,\ntry sleeping with a mosquito.'\n\n- The Dalai Lama",
-	"'Each night, when I go to sleep, I die.\nAnd the next morning, when I wake up, I am reborn.'\n\n- Mahatma Gandhi",
-	"'Be careful about reading health books.\nSome fine day you'll die of a misprint.'\n\n- Markus Herz",
-	"'Let food be thy medicine and medicine be thy food.'\n\n- Hippocrates",
-	"'Somewhere, something incredible is waiting to be known.'\n\n- Carl Sagan",
-	"'If you wish to make an apple pie from scratch, you must first invent the universe.'\n\n- Carl Sagan",
-	"'Time you enjoy wasting is not wasted time.'\n\n- Marthe Troly-Curtin",
-	"'They say I'm old-fashioned, and live in the past,\nbut sometimes I think progress progresses too fast!'\n\n- Dr. Seuss",
-	"'He who has a strong enough why can bear any how.'\n\n- Friedrich Nietzsche",
-	"'The greatest threat to our planet\nis the belief that someone else will save it.'\n\n- Robert Swan",
-	"'Life is a struggle and wandering in a foreign country.'\n\n- Marcus Aurelius",
-	"'It will be a sinister day when computers start to laugh,\nbecause that will mean they are capable of a lot of other things as well'\n\n- Edward de Bono",
-	"'Po converts what might otherwise be taken as madness\ninto a perfectly reasonable illogical procedure.'\n\n- Edward de Bono",
-	"'Reed-thatched huts and grass-thatched shelters are essential for protecting the body.\nTo sleep in the open air or in the open fields offends the sun and moon.'\n\n- Chongyang",
-	"'On the other hand,\nliving beneath carved beams and high eaves is also not the action of a superior adept.\nGreat palaces and elevated halls,\n— how can these be part of the living plan for followers of the Dao?'\n\n- Chongyang",
-	"'Medicinal herbs are the flourishing emanations of mountains and waterways,\nthe essential florescence of plants and trees.'\n\n- Chongyang",
-	"'Followers of the Dao join together as companions\nbecause they can assist each other in sickness and disease.\nIf you die, I’ll bury you; if I die, you’ll bury me.'\n\n- Chongyang"
+  -- Roman/Latin
+  ["Seneca"] = {
+    "Sometimes even to live is an act of courage."
+  },
+  ["Cicero"] = {
+    "It is not by muscle, speed, or physical dexterity that great things are achieved,\nbut by reflection, force of character, and judgment."
+  },
+  ["Ovid"] = {
+    "Dripping water hollows out stone,\nnot through force but through persistence."
+  },
+  ["Marcus Aurelius"] = {
+    "Life is a struggle and wandering in a foreign country."
+  },
+  -- Greek
+  ["Hippocrates"] = {
+    "Let food be thy medicine and medicine be thy food."
+  },
+  -- Chinese Mainland + Taiwan + Tibet
+  ["Sun Tzu"] = {
+    "If quick, I survive. If not quick, I am lost."
+  },
+  ["Lao Tzu"] = {
+    "Fill your bowl to the brim and it will spill.\nKeep sharpening your knife and it will blunt."
+  },
+  ["Confucius"] = { -- Kong Fuzi
+    "Learning without thought is labour lost;\nthought without learning is perilous."
+  },
+  ["Chongyang"] = {
+    "Reed-thatched huts and grass-thatched shelters are essential for protecting the body.\nTo sleep in the open air or in the open fields offends the sun and moon.",
+	"On the other hand,\nliving beneath carved beams and high eaves is also not the action of a superior adept.\nGreat palaces and elevated halls,\n— how can these be part of the living plan for followers of the Dao?",
+	"Medicinal herbs are the flourishing emanations of mountains and waterways,\nthe essential florescence of plants and trees.",
+	"Followers of the Dao join together as companions\nbecause they can assist each other in sickness and disease.\nIf you die, I’ll bury you; if I die, you’ll bury me."
+  },
+  ["The Dalai Lama"] = {
+    "If you think you are too small to make a difference,\ntry sleeping with a mosquito."
+  },
+  -- Japanese
+  ["Masanobu Fukuoka"] = {
+    "The ultimate goal of farming is not the growing of crops,\nbut the cultivation and perfection of human beings."
+  },
+  ["Kazuaki Tanahashi"] = {
+    "Artist's need the world."
+  },
+  ["Kobayashi Issa"] = {
+    "O snail\nClimb Mount Fuji\nBut slowly, slowly!"
+  },
+  -- Indian Subcontinent (India)
+  ["Mahatma Gandhi"] = {
+    "Each night, when I go to sleep, I die.\nAnd the next morning, when I wake up, I am reborn."
+  },
+  -- Iranian
+  ["Saadi"] = {
+    "Whatever is produced in haste goes hastily to waste."
+  },
+  -- Filipino
+  ["Nick Joaquín"] = {
+    "The point is not how we use a tool, but how it uses us."
+  },
+  -- Australian
+  ["John Plant"] = {
+    "My approach is to look for what I’m interested in using\nand if it’s there I use it."
+  },
+  -- American
+  ["Joss Whedon"] = {
+    "Humor keeps us alive. Humor and food.\nDon't forget food. You can go a week without laughing.",
+  },
+  ["Carl Sagan"] = {
+    "Extinction is the rule.\nSurvival is the exception.",
+    "Somewhere, something incredible is waiting to be known.",
+    "If you wish to make an apple pie from scratch, you must first invent the universe.",
+  },
+  ["Edwin Louis Cole"] = {
+    "You don't drown by falling in the water;\nyou drown by staying there."
+  },
+  ["Ernest Hemmingway"] = {
+    "Never confuse movement with action."
+  },
+  ["Kurt Vonnegut"] = {
+    "A step backward, after making a wrong turn, is a step in the right direction."
+  },
+  ["Jane Addams"] = {
+    "Perhaps nothing is so fraught with significance as the human hand,\nthis oldest tool with which man has dug his way from savagery,\nand with which he is constantly groping forward."
+  },
+  ["Barry Gehm"] = {
+    "Any technology distinguishable from magic is insufficiently advanced." -- Isn't this a quote stolen from Arthur C Clarke? lol
+  },
+  ["Bob Ross"] = {
+    "Lets build a happy little cloud.\nLets build some happy little trees."
+  },
+  ["John Muir"] = { -- Scottish born American
+    "The mountains are calling and I must go."
+  },
+  ["Ralph Waldo Emerson"] = {
+    "Adopt the pace of nature: her secret is patience."
+  },
+  ["Daniel Boone"] = {
+    "I've never been lost, but I was mighty turned around for three days once."
+  },
+  ["Thomas Edison"] = {
+    "I have not failed. I've just found 10,000 ways that won't work."
+  },
+  ["Woody Allen"] = {
+    "I'm not afraid of death;\nI just don't want to be there when it happens."
+  },
+  ["Bill Watterson"] = {
+    "Reality continues to ruin my life."
+  },
+  ["Oscar Levant"] = {
+    "There's a fine line between genius and insanity.\nI have erased this line."
+  },
+  ["Dr. Seuss"] = { -- Theodor Seuss Geisel
+    "They say I'm old-fashioned, and live in the past,\nbut sometimes I think progress progresses too fast!"
+  },
+    -- British
+  ["Arthur C. Clarke"] = {
+    "It has yet to be proven that intelligence has any survival value.",
+    "The only way of discovering the limits of the possible\nis to venture a little way past them into the impossible.",
+  },
+  ["Bear Grylls"] = {
+    "That fine line between bravery and stupidity is endlessly debated\n– the difference really doesn’t matter."
+  },
+  ["Winston Churchill"] = {
+    "If you're going through hell, keep going"
+  },
+  ["George Orwell"] = {
+    "Progress is not an illusion; it happens,\nbut it is slow and invariably disappointing."
+  },
+  ["The Black Knight"] = { -- Monty Python lol
+    "Tis but a scratch!"
+  },
+  ["William Shakespeare"] = {
+    "I like this place and could willingly waste my time in it."
+  },
+  ["Isaac Newton"] = {
+    "Nature is pleased with simplicity. And nature is no dummy."
+  },
+  ["Tolkien"] = {
+    "Not all those who wander are lost."
+  },
+  ["Terry Pratchett"] = {
+    "Give a man a fire and he's warm for a day,\nbut set fire to him and he's warm for the rest of his life."
+  },
+  ["Douglas Adams"] = {
+    "Let's think the unthinkable, let's do the undoable.\nLet us prepare to grapple with the ineffable itself, and see if we may not eff it after all."
+  },
+  ["Virginia Woolf"] = {
+    "One cannot think well, love well, sleep well, if one has not dined well."
+  },
+  ["Dylan Thomas"] = { -- Welsh
+    "Do not go gentle into that good night.\nRage, rage against the dying of the light."
+  },
+  ["Robert Swan"] = {
+    "The greatest threat to our planet\nis the belief that someone else will save it."
+  },
+  -- French
+  ["Victor Hugo"] = {
+    "Emergencies have always been necessary to progress."
+  },
+  ["Albert Camus"] = {
+    "There is scarcely any passion without struggle."
+  },
+  ["Marthe Troly-Curtin"] = { -- I think she's French
+    "Time you enjoy wasting is not wasted time."
+  },
+  -- German (Germany + Austria + Bohemia)
+  ["Franz Kafka"] = {
+    "I only fear danger where I want to fear it."
+  },
+  ["Friedrich Nietzsche"] = {
+    "All truly great thoughts are conceived while walking.",
+    "When we are tired, we are attacked by ideas we conquered long ago.",
+    "He who has a strong enough why can bear any how."
+  },
+  ["Markus Herz"] = {
+    "Be careful about reading health books.\nSome fine day you'll die of a misprint."
+  },
+  -- Spanish
+  ["Balthasar Gracian"] = {
+    "There are rules to luck, not everything is chance for the wise;\nluck can be helped by skill."
+  },
+  -- Maltese
+  ["Edward de Bono"] = {
+    "It will be a sinister day when computers start to laugh,\nbecause that will mean they are capable of a lot of other things as well.",
+    "Po converts what might otherwise be taken as madness\ninto a perfectly reasonable illogical procedure."
+  },
+  -- Nordic
+  ["Soren Kierkegaard"] = { -- Danish
+    "Life can only be understood backwards; but it must be lived forwards.",
+  },
 }
+
+local function get_quote()
+  local author = {}
+  for i,_ in pairs(quote_list) do
+    -- manually make a list of the quote_list indexes (authors)
+    author[#author + 1] = i
+  end
+  author = author[math.random(1,#author)] -- get an author
+  -- and get a quote
+  local quote = quote_list[author]
+  quote = quote[math.random(1,#quote)]
+  
+  author = S(author)
+  quote = S(quote)
+  
+  quote = '"'..quote..'"' -- add speech quotes to the quote
+  quote = quote.."\n\n- "..author -- create quote-author string
+  
+  return quote
+end
 
 
 local function get_formspec()
@@ -97,7 +243,7 @@ local function get_formspec()
    local message1 = "You've been here long enough to justify a real break.\n"..
       "Think of this as a reminder from your better self.\nGo get some rest."..
       " Leave Exile behind. You can come back any time."
-	local quote = quote_list[math.random(1,#quote_list)]
+	local quote = get_quote()
 
 	local formspec = {
 		"size[19.5,13]"..
@@ -217,13 +363,13 @@ local function wear_blanket(player, bed_pos, donning)
 			--drop it at our feet if there's no room when taking it off
 			local ppos = player:get_pos()
 			minetest.item_drop(newstack, player, ppos)
-			minetest.chat_send_player(name, "You have no room to hold your blanket, so you drop it.")
+			minetest.chat_send_player(name, S("You have no room to hold your blanket, so you drop it."))
 			minetest.sound_play("nodes_nature_dig_snappy",
 				  {pos = ppos, gain = .8, max_hear_distance = 2})
 		end
    end
    if not bedInv:is_empty('main') then
-	   bed_meta:set_string('infotext','Bed: Contains Blanket')
+	   bed_meta:set_string('infotext',S('Bed: Contains Blanket'))
    end
    clothing:update_temp(player)
    player_api.set_texture(player)
@@ -323,9 +469,9 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		for nm, other_pos in pairs(bed_rest.bed_position) do
 		   if vector.distance(bed_pos, other_pos) < 0.1
 		      and nm ~= name then
-			   minetest.chat_send_player(name, ("This bed is already occupied!"))
+			   minetest.chat_send_player(name, S("This bed is already occupied!"))
 			   local meta = minetest.get_meta(bed_pos)
-			   minimal.infotext_merge(bed_pos,'Status: Occupied by '..nm,meta)
+			   minimal.infotext_merge(bed_pos,S('Status: Occupied by ')..nm,meta)
 			   return false
 			end
 		end
@@ -334,7 +480,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		bed_rest.player[name] = 1
 		bed_rest.level[name] = level
 		if not minetest.is_singleplayer() then
-		   minimal.infotext_merge(bed_pos,'Status: Occupied by '..name)
+		   minimal.infotext_merge(bed_pos,S('Status: Occupied by ')..name)
 		   minetest.get_node_timer(bed_pos):start(60 * 60 * 24 *
 							  days_until_timeout)
 		end
@@ -424,7 +570,7 @@ function bed_rest.on_timer(pos, elapsed)
       if vector.distance(pos, other_pos) < 0.1 then
 	 bed_rest.bed_position[nm] = nil
 	 if not minetest.is_singleplayer() then
-		 minimal.infotext_merge(pos,'Status: Occupied by '..nm..'(old)',meta)
+		 minimal.infotext_merge(pos,S('Status: Occupied by ')..nm..S('(old)'),meta)
 	 end
 	 return false
       end
