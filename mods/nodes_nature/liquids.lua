@@ -273,7 +273,6 @@ minetest.register_node(
         tiles = {"nodes_nature_snow.png"},
         stack_max = minimal.stack_max_bulky *2,
         paramtype = "light",
-        buildable_to = true,
         floodable = true,
         drawtype = "nodebox",
         node_box = {
