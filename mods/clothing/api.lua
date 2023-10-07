@@ -77,18 +77,18 @@ function clothing.on_rightclick(itemstack, user, pointed_thing)
   local player_inv = user:get_inventory() 
   local cloth_list = player_inv:get_list("cloths")
   
-  local new_cloth = itemstack:take_item() -- take the cloth from itemstack (prevent weird itemstack interactions)
+  local new_cloth = itemstack:take_item()
   -- check for another similar cloth
   for _,cloth in pairs(cloth_list) do
     local cloth_name = cloth:get_name()
     if (minimal.in_group(cloth_name,"cloth") == item_group) then
       -- if same type of clothing article found then
-      local removed = player_inv:remove_item("cloths", cloth) -- take the old cloth
-      -- if there's enough room for the removed cloth to be added to player inv
+      local removed = player_inv:remove_item("cloths", cloth) -- take old cloth
+      -- if enough room in player inventory
       if player_inv:room_for_item("main",removed) then
         -- add to player inventory (and prevent weird hat reproduction or deletion by checking itemstack count)
         if (itemstack:get_count() == 0) then
-          -- if this stack is about to be cleared... return itemstack instead
+          -- if this stack is about to be cleared... return removed instead
           itemstack = removed
         else
           player_inv:add_item("main",removed)
@@ -105,7 +105,7 @@ function clothing.on_rightclick(itemstack, user, pointed_thing)
   if player_inv:room_for_item("cloths",new_cloth) then
     player_inv:add_item("cloths",new_cloth)
   else
-    -- something went terribly wrong... drop the cloth
+    -- something went terribly wrong (cloths is full somehow)... drop the cloth
     minetest.item_drop(new_cloth,user, user:get_pos())
   end
   
