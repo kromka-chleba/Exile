@@ -99,17 +99,61 @@ function clothing.update_clothing_inventory(player, stack, oldinv_name)
   return true
 end
 
-function clothing.uci_itemstack(itemstack, user, pointed_thing)
+function clothing.on_rightclick(itemstack, user, pointed_thing)
   -- deletes items (or reproduces if programmed differently - gotta fix)
-  --[[
-  if clothing.update_clothing_inventory(user, itemstack, "main") then
-    local player_inv = user:get_inventory()
-    local taken = itemstack:take_item()
-    minetest.log(""..taken:get_count()..":"..itemstack:get_count())
-    player_inv:add_item("cloths",taken)
-    return itemstack
-  else
+  if not (minetest.is_player(user) and itemstack) then
     return
   end
-  --]]
+  
+  local item_group = minimal.in_group(itemstack:get_name(),"cloth")
+  if (not item_group or item_group == 6) then
+    return
+  end
+  local player_inv = user:get_inventory() 
+  local cloth_list = player_inv:get_list("cloths")
+  
+  local removed
+  -- check for another similar cloth
+  for _,cloth in pairs(cloth_list) do
+    local cloth_name = cloth:get_name()
+    if (minimal.in_group(cloth_name,"cloth") == item_group) then
+      -- if same type of clothing article found then
+      removed = player_inv:remove_item("cloths", cloth) -- take the old cloth
+      -- if there's enough room for the cloth to be added to player inv
+      if player_inv:room_for_item("main",removed) then
+        -- add to player inventory
+        minetest.log("enemy "..removed:get_count())
+        player_inv:add_item("main",removed)
+        break
+      else
+        -- otherwise throw it to the ground
+        minetest.item_drop(removed, user, user:get_pos())
+      end
+    end
+  end
+  -- add cloth to cloths inventory
+  local new_cloth = itemstack:peek_item() -- get 1 from the given itemstack
+  -- prevent weird deletion or reproduction - Minetest is weird
+  
+  if removed then
+    minetest.log(tostring(itemstack:item_fits(removed)))
+    minetest.log(itemstack:get_name()..":"..removed:get_name())
+  end
+  itemstack:take_item()
+  if (removed and itemstack:item_fits(removed)) then
+    -- if there was no removed cloth - or removed cloth isn't identical
+    itemstack = removed
+  else
+    itemstack:take_item()
+  end
+  minetest.log("friend "..new_cloth:get_count())
+  if player_inv:room_for_item("cloths",new_cloth) then
+    player_inv:add_item("cloths",new_cloth)
+  else
+    -- something went terribly wrong... drop the cloth
+    minetest.item_drop(new_cloth,user, user:get_pos())
+  end
+  minetest.log("returning "..itemstack:get_count())
+  -- return itemstack
+  return itemstack
 end

@@ -119,7 +119,7 @@ minetest.register_allow_player_inventory_action(function(player, action, invento
         end
       end
     end
-    return true
+    return 1
     --[[
     minetest.log("clothing interaction")
     minetest.log(type(stack))
