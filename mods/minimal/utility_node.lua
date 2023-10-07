@@ -95,7 +95,7 @@ function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
 end
 
 function minimal.node_set_int(pos, name, value)
-  assert(type(value) == "number","exile_game.node_set_int: Invalid value given (expected number)")
+  assert(type(value) == "number","exile_game.node_set_int: Invalid value given, expected number got "..type(value))
   local meta
   if (is_meta(pos)) then
     meta = pos
@@ -125,7 +125,7 @@ function minimal.node_get_int(pos, name)
 end
 
 function minimal.node_set_string(pos, name, value)
-  assert(type(value) == "string","exile_game.node_set_string: Invalid value given (expected string)")
+  assert(type(value) == "string","exile_game.node_set_string: Invalid value given, expected string got "..type(value))
   local meta
   if (is_meta(pos)) then
     meta = pos
@@ -212,15 +212,15 @@ end
 
 function minimal.get_nodedef(pos)
   local node_name = get_node_name(pos)
-  assert(type(node_name) == "string","exile_game.get_nodedef: Wrong parameter given to check for nodedef")
+  assert(type(node_name) == "string","exile_game.get_nodedef: Invalid pos or name given to check for nodedef, got "..type(pos))
   local nodedef = minetest.registered_nodes[node_name]
   return nodedef
 end
 
 function minimal.in_group(pos, group_name)
   local node_name = get_node_name(pos)
-  assert(type(node_name) == "string","exile_game.in_group: Invalid pos or name provided for node")
-  assert(type(group_name) == "string","exile_game.in_group: Invalid group_name provided")
+  assert(type(node_name) == "string","exile_game.in_group: Invalid pos or name provided for node, got "..type(node_name))
+  assert(type(group_name) == "string","exile_game.in_group: Invalid group_name provided, got "..type(group_name))
   local group_val = minetest.get_item_group(node_name,group_name)
   if (group_val > 0) then
     return group_val
