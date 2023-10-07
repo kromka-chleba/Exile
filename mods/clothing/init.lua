@@ -67,7 +67,6 @@ sfinv.register_page("clothing:clothing", {
 
 minetest.register_on_player_inventory_action(function(player, action, inventory, inventory_info)
   if inventory_info.to_list == "cloths" or inventory_info.from_list == "cloths" then
-    minetest.log("clothing activation")
     clothing.update_player(player)
   end
 end)
@@ -120,35 +119,6 @@ minetest.register_allow_player_inventory_action(function(player, action, invento
       end
     end
     return 1
-    --[[
-    minetest.log("clothing interaction")
-    minetest.log(type(stack))
-		local stack_name = stack:get_name()
-		local item_group = minetest.get_item_group(stack_name , "cloth")
-		if item_group == 0 --not a cloth
-		 or item_group == 6 then -- or it's a blanket
-			return 0
-		end
-		--search for another cloth of the same type
-		local player_inv = player:get_inventory()
-		local cloth_list = player_inv:get_list("cloths")
-		for i = 1, #cloth_list do
-			local cloth_name = cloth_list[i]:get_name()
-			local cloth_type = minetest.get_item_group(cloth_name, "cloth")
-			if cloth_type == item_group then
-			   if from_inv == "main" then
-			      local removed = player_inv:remove_item("cloths", cloth_name)
-			      if player_inv:room_for_item("main", removed) then
-				 player_inv:add_item("main", removed)
-				 return 1
-			      else
-				 minetest.item_drop(removed, player, player:get_pos())
-			      end
-			   end
-			end
-		end
-		return 1
-    --]]
 	end
 	return 0
 end)

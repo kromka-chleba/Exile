@@ -64,41 +64,6 @@ function clothing.update_player(player)
   player_api.set_texture(player)
 end
 
-function clothing.update_clothing_inventory(player, stack, oldinv_name)
-  if not (minetest.is_player(player) and type(oldinv_name) == "string" and stack) then
-    -- was not a player or did not get a proper string for "oldinv_name" or stack does not exist
-    return false
-  end
-  
-  local item_group = minimal.in_group(stack:get_name(),"cloth")
-  if not item_group -- not a cloth
-  or item_group == 6 then -- is a blanket
-    return false
-  end
-  
-  local player_inv = player:get_inventory()
-  local cloth_list = player_inv:get_list("cloths")
-  
-  for _,itemstack in pairs(cloth_list) do
-    local cloth_name = itemstack:get_name()
-    if (minimal.in_group(cloth_name,"cloth") == item_group) then
-      -- if same type of clothing article found then
-      if (oldinv_name == "main") then -- if new itemstack is coming from player inventory
-        local removed = player_inv:remove_item("cloths", itemstack) -- take the old itemstack
-        if player_inv:room_for_item(oldinv_name,removed) then
-          -- add to player inventory
-          player_inv:add_item(oldinv_name,removed)
-          return true
-        else
-          -- throw it to the ground
-          minetest.item_drop(removed, player, player:get_pos())
-        end
-      end
-    end
-  end
-  return true
-end
-
 function clothing.on_rightclick(itemstack, user, pointed_thing)
   -- deletes items (or reproduces if programmed differently - gotta fix)
   if not (minetest.is_player(user) and itemstack) then
@@ -112,48 +77,39 @@ function clothing.on_rightclick(itemstack, user, pointed_thing)
   local player_inv = user:get_inventory() 
   local cloth_list = player_inv:get_list("cloths")
   
-  local removed
+  local new_cloth = itemstack:take_item() -- take the cloth from itemstack (prevent weird itemstack interactions)
   -- check for another similar cloth
   for _,cloth in pairs(cloth_list) do
     local cloth_name = cloth:get_name()
     if (minimal.in_group(cloth_name,"cloth") == item_group) then
       -- if same type of clothing article found then
-      removed = player_inv:remove_item("cloths", cloth) -- take the old cloth
-      -- if there's enough room for the cloth to be added to player inv
+      local removed = player_inv:remove_item("cloths", cloth) -- take the old cloth
+      -- if there's enough room for the removed cloth to be added to player inv
       if player_inv:room_for_item("main",removed) then
-        -- add to player inventory
-        minetest.log("enemy "..removed:get_count())
-        player_inv:add_item("main",removed)
-        break
+        -- add to player inventory (and prevent weird hat reproduction or deletion by checking itemstack count)
+        if (itemstack:get_count() == 0) then
+          -- if this stack is about to be cleared... return itemstack instead
+          itemstack = removed
+        else
+          player_inv:add_item("main",removed)
+        end
       else
         -- otherwise throw it to the ground
         minetest.item_drop(removed, user, user:get_pos())
       end
+      break
     end
   end
-  -- add cloth to cloths inventory
-  local new_cloth = itemstack:peek_item() -- get 1 from the given itemstack
-  -- prevent weird deletion or reproduction - Minetest is weird
   
-  if removed then
-    minetest.log(tostring(itemstack:item_fits(removed)))
-    minetest.log(itemstack:get_name()..":"..removed:get_name())
-  end
-  itemstack:take_item()
-  if (removed and itemstack:item_fits(removed)) then
-    -- if there was no removed cloth - or removed cloth isn't identical
-    itemstack = removed
-  else
-    itemstack:take_item()
-  end
-  minetest.log("friend "..new_cloth:get_count())
+  -- add new_cloth to cloth inventory
   if player_inv:room_for_item("cloths",new_cloth) then
     player_inv:add_item("cloths",new_cloth)
   else
     -- something went terribly wrong... drop the cloth
     minetest.item_drop(new_cloth,user, user:get_pos())
   end
-  minetest.log("returning "..itemstack:get_count())
-  -- return itemstack
+  
+  clothing.update_player(user)
+  
   return itemstack
 end
