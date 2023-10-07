@@ -201,6 +201,11 @@ local function get_node_name(pos)
     node_name = pos.name
   elseif type(pos) == "string" then
     node_name = pos
+  elseif (type(pos) == "userdata") then
+    -- also handle getting groups of itemstacks :D
+    if (type(pos["get_name"]) == "function") then
+      node_name = pos:get_name() 
+    end
   end
   return node_name
 end
