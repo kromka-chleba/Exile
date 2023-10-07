@@ -88,6 +88,7 @@ function minimal.click_count_ready(name, id, pos, count, timeout)
 end
 
 function minimal.sanitize_string(badstring)
+  assert(type(badstring) == "string","exile_game.sanitize_string: Invalid badstring given, got "..type(badstring))
    local disallowed = { "\\", "{", "}", "^", ";",
 			--lua magic characters
 			"%(", "%)", "%[", "%]", "%.", "%$",
@@ -103,6 +104,8 @@ end
 -- if t1 and t2 contain identical keys, values from
 -- t1 are overwritten with values from t2
 function minimal.merge_tables(t1, t2)
+  assert(type(t1) == "table", "exile_game.merge_tables: Invalid first table given, got "..type(t1))
+  assert(type(t2) == "table", "exile_game.merge_tables: Invalid second table given, got "..type(t2))
     local new_table = table.copy(t1)
     --merge tables
     for key, value in pairs(t2) do
@@ -112,16 +115,17 @@ function minimal.merge_tables(t1, t2)
 end
 
 function minimal.concat_tables(table_list)
-    local new_table = {}
-    local index = 1
-    for tabl_nr = 1, #table_list do
-        local current_table = table_list[tabl_nr]
-        for z = 1, #current_table do
-            new_table[index] = current_table[z]
-            index = index + 1
-        end
-    end
-    return table.copy(new_table)
+  assert(type(table_list) == "table","exile_game.concat_tables: Invalid table_list given, got "..type(table_list))
+  local new_table = {}
+  local index = 1
+  for tabl_nr = 1, #table_list do
+      local current_table = table_list[tabl_nr]
+      for z = 1, #current_table do
+          new_table[index] = current_table[z]
+          index = index + 1
+      end
+  end
+  return table.copy(new_table)
 end
 
 function minimal.math_clamp(num,min,max)
@@ -132,9 +136,9 @@ function minimal.math_clamp(num,min,max)
   -- RETURNS: number - 'num' that is clamped (between 'min' and 'max')
   -- FUNCTION: clamps a specified number between a min & max
   ------------------------------------------------------------------------------------------------------------------
-  assert(type(num) == "number","math.clamp: no number provided to be clamped!")
-  assert(type(min) == "number","math.clamp: no minimum number provided for clamping")
-  assert(type(max) == "number","math.clamp: no maximum number provided for clamping")
+  assert(type(num) == "number","math.clamp: no number provided to be clamped! got "..type(num))
+  assert(type(min) == "number","math.clamp: no minimum number provided for clamping, got "..type(num))
+  assert(type(max) == "number","math.clamp: no maximum number provided for clamping, got "..type(num))
 
   -- if num, min, and max are numbers then
   if (min > max) then -- if programmer puts max number in place of minimum number... don't punish them for it
