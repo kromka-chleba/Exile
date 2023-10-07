@@ -60,6 +60,19 @@ function player_api.register_cloth(name, def)
 		palette = "natural_dyes.png",
 		groups = def.groups or nil,
 	}
+  -- below functions will be added to blankets - but will not have any clothing functionality
+  newdef.on_secondary_use = function(itemstack, user, pointed_thing)
+    local under = pointed_thing.under
+    if under then
+      -- "under" will not exist if pointed_thing is not a node
+      local nodedef = minimal.get_nodedef(under)
+      if nodedef and nodedef.on_rightclick then
+        return nodedef.on_rightclick(under, minetest.get_node(under), user, itemstack, pointed_thing)
+      end
+    end
+    return clothing.on_rightclick(itemstack, user, pointed_thing)
+  end
+  newdef.on_place = newdef.on_secondary_use -- no point for on_place, make it run on_secondary_use
 	if def.customfields then
 	   for k, d in pairs(def.customfields) do
 	      newdef[k] = d

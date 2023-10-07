@@ -1,6 +1,23 @@
 ------------------------------------------------------------
 --CLOTHING init
 ------------------------------------------------------------
+clothing = {
+	registered_callbacks = {
+		on_update = {},
+		on_equip = {},
+		on_unequip = {},
+	},
+	player_textures = {},
+	elements = {
+		"hat",
+		"shirt",
+		"pants",
+		"cape",
+		"shoes",
+		"gloves",
+		"blanket"
+	},
+}
 
 -- Internationalization
 local S = minetest.get_translator("clothing")
@@ -49,11 +66,12 @@ sfinv.register_page("clothing:clothing", {
 })
 
 minetest.register_on_player_inventory_action(function(player, action, inventory, inventory_info)
-      if inventory_info.to_list == "cloths" or inventory_info.from_list == "cloths" then
-	 clothing:update_temp(player)
-	 player_api.set_texture(player)
-      end
+  if inventory_info.to_list == "cloths" or inventory_info.from_list == "cloths" then
+    clothing.update_player(player)
+  end
 end)
+
+
 
 minetest.register_allow_player_inventory_action(function(player, action, inventory, inventory_info)
 	local stack, from_inv, to_index
@@ -74,31 +92,33 @@ minetest.register_allow_player_inventory_action(function(player, action, invento
 	   return
 	end
 	if stack then
-		local stack_name = stack:get_name()
-		local item_group = minetest.get_item_group(stack_name , "cloth")
-		if item_group == 0 --not a cloth
-		 or item_group == 6 then -- or it's a blanket
-			return 0
-		end
-		--search for another cloth of the same type
-		local player_inv = player:get_inventory()
-		local cloth_list = player_inv:get_list("cloths")
-		for i = 1, #cloth_list do
-			local cloth_name = cloth_list[i]:get_name()
-			local cloth_type = minetest.get_item_group(cloth_name, "cloth")
-			if cloth_type == item_group then
-			   if from_inv == "main" then
-			      local removed = player_inv:remove_item("cloths", cloth_name)
-			      if player_inv:room_for_item("main", removed) then
-				 player_inv:add_item("main", removed)
-				 return 1
-			      else
-				 minetest.item_drop(removed, player, player:get_pos())
-			      end
-			   end
-			end
-		end
-		return 1
+    local item_group = minimal.in_group(stack:get_name(),"cloth")
+    if not item_group -- not a cloth
+    or item_group == 6 then -- is a blanket
+      return 0
+    end
+    
+    local player_inv = player:get_inventory()
+    local cloth_list = player_inv:get_list("cloths")
+    
+    for _,itemstack in pairs(cloth_list) do
+      local cloth_name = itemstack:get_name()
+      if (minimal.in_group(cloth_name,"cloth") == item_group) then
+        -- if same type of clothing article found then
+        if (from_inv == "main") then -- if new itemstack is coming from player inventory
+          local removed = player_inv:remove_item("cloths", itemstack) -- take the old itemstack
+          if player_inv:room_for_item("main",removed) then
+            -- add to player inventory
+            player_inv:add_item("main",removed)
+            return 1
+          else
+            -- throw it to the ground
+            minetest.item_drop(removed, player, player:get_pos())
+          end
+        end
+      end
+    end
+    return 1
 	end
 	return 0
 end)
