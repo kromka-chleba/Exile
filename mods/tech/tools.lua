@@ -45,13 +45,11 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
     if not minetest.registered_nodes[above.name].walkable and
         -- check if walkable below to avoid throwing tools into abyss
         minetest.registered_nodes[under_front.name].walkable then
-	   -- if they're both numbers somehow, best to assume it's
-	   --  a bamboo plant lol
-	   if (minetest.get_item_group(above.name,"woody_plant") ~= 0
-	       and minetest.get_item_group(above.name,"cane_plant") ~= 0) then
+	   if (minimal.in_group(above,"woody_plant")
+	       and minimal.in_group(above,"cane_plant")) then
               -- replace bamboo with air so that the tool places appropriately
-              minetest.swap_node(pointed_thing.above,
-				 minetest.registered_nodes["air"])
+        minetest.swap_node(pointed_thing.above,
+				 {name = "air"})
 	   end
 	   local wear = itemstack:get_wear()
 	   -- place if not
