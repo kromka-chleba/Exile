@@ -234,3 +234,43 @@ function minimal.force_place_keep_param2(pos, name)
   local param2 = minimal.get_param2(pos)
   minimal.force_place(pos, {name = name, param2 = param2})
 end
+
+-- will check if on_rightclick is possible with the given pos (check this before running minimal.on_rightclick)
+function minimal.on_rightclick_possible(pos)
+  if not is_pos(pos) then
+    return false
+  end
+  local nodedef = minimal.get_nodedef(pos)
+  if nodedef then
+    if nodedef.on_rightclick then
+      return true, nodedef
+    end
+  end
+  return false
+end
+
+-- will handle converting on_place functionality into on_rightclick (returns given itemstack or nil)
+-- USE minimal.on_rightclick_possible to VERIFY if this function should be ran
+function minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
+  -- seek under or above (anything not true is under, true is above)
+  if aboveorunder ~= true then
+    aboveorunder = false
+  end
+  if not (minetest.is_player(user) and itemstack and type(pointed_thing) == "table") then
+    return
+  end
+  local pos = pointed_thing.under
+  if aboveorunder then
+    pos = pointed_thing.above
+  end
+  if not is_pos(pos) then
+    return
+  end
+  
+  local canrc,nodedef = minimal.on_rightclick_possible(pos)
+  -- can rightclick
+  if canrc then
+    local node = minetest.get_node(pos)
+    return nodedef.on_rightclick(pos, node, user, itemstack, pointed_thing)
+  end
+end
