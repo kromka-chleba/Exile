@@ -18,16 +18,15 @@ wielded_light = wielded_light
 --SEA LIFE
 
 local function rooted_place(itemstack, placer, pointed_thing, node_name, substrate_name, height_min, height_max)
+  minetest.log("rootes")
 	-- Call on_rightclick if the pointed node defines it
-	if pointed_thing.type == "node" and placer and
-			not placer:get_player_control().sneak then
-		local node_ptu = minetest.get_node(pointed_thing.under)
-		local def_ptu = minetest.registered_nodes[node_ptu.name]
-		if def_ptu and def_ptu.on_rightclick then
-			return def_ptu.on_rightclick(pointed_thing.under, node_ptu, placer,
-				itemstack, pointed_thing)
-		end
-	end
+  if (pointed_thing.type == "node" and
+    minetest.is_player(placer) and not placer:get_player_control().sneak) then
+    local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+    if on_click ~= false then
+      return on_click
+    end
+  end
 
 	local pos = pointed_thing.under
 	if minetest.get_node(pos).name ~= substrate_name then
@@ -36,15 +35,14 @@ local function rooted_place(itemstack, placer, pointed_thing, node_name, substra
 
 	local height = math.random(height_min, height_max)
 	local pos_top = {x = pos.x, y = pos.y + height, z = pos.z}
-	local node_top = minetest.get_node(pos_top)
-	local def_top = minetest.registered_nodes[node_top.name]
+	local def_top = minimal.get_nodedef(pos_top)
 	local player_name = ""
-	if placer then
+	if minetest.is_player(placer) then
 	   player_name = placer:get_player_name()
 	end
 
-	if def_top and def_top.liquidtype == "source" and
-			minetest.get_item_group(node_top.name, "water") > 0 then
+	if (def_top and def_top.liquidtype == "source" and
+			minimal.in_group(def_top.name, "water") ) then
 		if not minetest.is_protected(pos, player_name) and
 				not minetest.is_protected(pos_top, player_name) then
 			minetest.swap_node(pos, {name = node_name,
