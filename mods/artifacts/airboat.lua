@@ -270,32 +270,34 @@ minetest.register_craftitem("artifacts:airboat", {
 	liquids_pointable = true,
 
 	on_place = function(itemstack, placer, pointed_thing)
-		local under = pointed_thing.under
-		local node = minetest.get_node(under)
-		local udef = minetest.registered_nodes[node.name]
-
-		-- Run any on_rightclick function of pointed node instead
-		if udef and udef.on_rightclick and
-				not (placer and placer:is_player() and
-				placer:get_player_control().sneak) then
-			return udef.on_rightclick(under, node, placer, itemstack,
-				pointed_thing) or itemstack
-		end
-
-		if pointed_thing.type ~= "node" then
+    -- will cause issues with .under and .above if it isn't a node type
+    if pointed_thing.type ~= "node" then
 			return itemstack
 		end
-
-		pointed_thing.under.y = pointed_thing.under.y + 2
-		local air_boat = minetest.add_entity(pointed_thing.under,
+    if not minetest.is_player(placer) then
+      return itemstack
+    end
+		local under = pointed_thing.under
+    
+		-- if player isn't sneaking...
+    if not placer:get_player_control().sneak then
+      -- Run any on_rightclick function of pointed node instead
+      local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+      if on_click ~= false then
+        return on_click
+      end
+    end
+    
+    under = minimal.shift_pos(under,{y = 2})
+		local air_boat = minetest.add_entity(under,
 			"artifacts:airboat")
 		minetest.sound_play("artifacts_airboat_gear",
-				    {pos = pointed_thing.under,
+				    {pos = under,
 				     gain = 1, max_hear_distance = 6})
 		if air_boat then
-		   if placer then
-		      air_boat:set_yaw(placer:get_look_horizontal())
-		   end
+		   
+      air_boat:set_yaw(placer:get_look_horizontal())
+		   
 		   if not (minimal.player_in_creative(placer)) then
 		      itemstack:take_item()
 		   end
