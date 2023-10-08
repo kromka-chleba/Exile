@@ -882,17 +882,22 @@ end
 --make Watering can able to water a block on click
 minetest.override_item("tech:clay_watering_can_freshwater", {
 	on_use = function(itemstack, user, pointed_thing)
-	   return water_soil(itemstack, user, pointed_thing,
-			     "nodes_nature:freshwater_source", "_wet",
-			     "tech:clay_watering_can")
+    return ncrafting.water_soil(itemstack, user, pointed_thing,
+      "nodes_nature:freshwater_source", "tech:clay_watering_can")
+	   --return water_soil(itemstack, user, pointed_thing,
+			     --"nodes_nature:freshwater_source", "_wet",
+			     --"tech:clay_watering_can")
 	end,
 })
 
 --make Watering can able to water a block on click
 minetest.override_item("tech:clay_watering_can_salt_water", {
 	on_use = function(itemstack, user, pointed_thing)
-	   return water_soil(itemstack, user, pointed_thing,
-			     "nodes_nature:salt_water_source", "_wet_salty",
-			     "tech:clay_watering_can")
+    return ncrafting.water_soil(itemstack, user, pointed_thing,
+      "nodes_nature:salt_water_source", "tech:clay_watering_can",
+      "salty")
+	   --return water_soil(itemstack, user, pointed_thing,
+			     --"nodes_nature:salt_water_source", "_wet_salty",
+			     --"tech:clay_watering_can")
 	end,
 })
