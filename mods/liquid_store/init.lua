@@ -215,8 +215,8 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 
 	-- check if provided user exists or if sneaking
   if ndef and not (minetest.is_player(user) and user:get_player_control().sneak) then
-    -- Call on_rightclick if the pointed node defines it (do not on_rightclick for liquids)
-    if ndef.drawtype ~= "liquid" then
+    -- Call on_rightclick if the pointed node defines it (do not on_rightclick for liquids or liquid_storage)
+    if not (ndef.drawtype == "liquid" or minimal.in_group(ndef,"liquid_storage")) then
       local on_click = minimal.on_rightclick(itemstack, user, pointed_thing)
       if on_click ~= false then
         return on_click
@@ -332,6 +332,14 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
     end
     if not (minimal.player_in_creative(placer)) then
       itemstack:take_item()
+    end
+    
+    -- make placement sound
+    if pdef.sounds then
+      local place = pdef.sounds.place
+      if place then
+        minetest.sound_play(place.name,{pos = pos, gain = place.gain, max_hear_distance = place.max_hear_distance})
+      end
     end
     -- place the bucket
     minimal.switch_node(pos, {name = place_name}, {placer, itemstack, pointed_thing})
