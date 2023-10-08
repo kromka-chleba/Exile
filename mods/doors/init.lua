@@ -258,37 +258,37 @@ function doors.register(name, def)
 		stack_max = def.stack_max or minimal.stack_max_bulky,
 
 		on_place = function(itemstack, placer, pointed_thing)
+			local pos
+
 			if not pointed_thing.type == "node" then
 				return itemstack
 			end
-      if not minetest.is_player(placer) then
-        return itemstack
-      end
-      
-      if not placer:get_player_control().sneak then
-        local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
-        if on_click ~= false then
-          return on_click
-        end
-      end
 
-			local pos = pointed_thing.under
-      local node = minetest.get_node(pos)
-      local pdef = minimal.get_nodedef(node)
-      if not (pdef and pdef.buildable_to) then
-        pos = pointed_thing.above
-        node = minetest.get_node(pos)
-        pdef = minimal.get_nodedef(node)
-        if not (pdef and pdef.buildable_to) then
-          return itemstack
-        end
-      end
+			local node = minetest.get_node(pointed_thing.under)
+			local pdef = minetest.registered_nodes[node.name]
+			if pdef and pdef.on_rightclick and
+					not (placer and placer:is_player() and
+					placer:get_player_control().sneak) then
+				return pdef.on_rightclick(pointed_thing.under,
+						node, placer, itemstack, pointed_thing)
+			end
+
+			if pdef and pdef.buildable_to then
+				pos = pointed_thing.under
+			else
+				pos = pointed_thing.above
+				node = minetest.get_node(pos)
+				pdef = minetest.registered_nodes[node.name]
+				if not pdef or not pdef.buildable_to then
+					return itemstack
+				end
+			end
 
 			local above = {x = pos.x, y = pos.y + 1, z = pos.z}
 			local top_node = minetest.get_node_or_nil(above)
-			local topdef = top_node and minimal.get_nodedef(top_node)
+			local topdef = top_node and minetest.registered_nodes[top_node.name]
 
-			if not (topdef and topdef.buildable_to) then
+			if not topdef or not topdef.buildable_to then
 				return itemstack
 			end
 
