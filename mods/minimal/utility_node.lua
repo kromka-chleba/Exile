@@ -95,7 +95,7 @@ function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
 end
 
 function minimal.node_set_int(pos, name, value)
-  assert(type(value) == "number","exile_game.node_set_int: Invalid value given (expected number)")
+  assert(type(value) == "number","exile_game.node_set_int: Invalid value given, expected number got "..type(value))
   local meta
   if (is_meta(pos)) then
     meta = pos
@@ -125,7 +125,7 @@ function minimal.node_get_int(pos, name)
 end
 
 function minimal.node_set_string(pos, name, value)
-  assert(type(value) == "string","exile_game.node_set_string: Invalid value given (expected string)")
+  assert(type(value) == "string","exile_game.node_set_string: Invalid value given, expected string got "..type(value))
   local meta
   if (is_meta(pos)) then
     meta = pos
@@ -201,26 +201,64 @@ local function get_node_name(pos)
     node_name = pos.name
   elseif type(pos) == "string" then
     node_name = pos
+  elseif (type(pos) == "userdata") then
+    -- also handle getting groups of itemstacks :D
+    if (type(pos["get_name"]) == "function") then
+      node_name = pos:get_name() 
+    end
   end
   return node_name
 end
 
 function minimal.get_nodedef(pos)
   local node_name = get_node_name(pos)
-  assert(type(node_name) == "string","exile_game.get_nodedef: Wrong parameter given to check for nodedef")
+  if not node_name then
+    -- got nothing, return nothing
+    return
+  end
   local nodedef = minetest.registered_nodes[node_name]
   return nodedef
 end
 
 function minimal.in_group(pos, group_name)
   local node_name = get_node_name(pos)
-  assert(type(node_name) == "string","exile_game.in_group: Invalid pos or name provided for node")
-  assert(type(group_name) == "string","exile_game.in_group: Invalid group_name provided")
+  assert(type(node_name) == "string","exile_game.in_group: Invalid pos or name provided for node, got "..type(node_name))
+  assert(type(group_name) == "string","exile_game.in_group: Invalid group_name provided, got "..type(group_name))
   local group_val = minetest.get_item_group(node_name,group_name)
   if (group_val > 0) then
     return group_val
   end
   return false
+end
+
+function minimal.safe_landing_spot(pos)
+   if not is_pos(pos) then return false end
+   local floor = vector.new( pos.x, pos.y-1, pos.z )
+   local def_top = minimal.get_nodedef(minimal.shift_pos(pos,{y = 1}))
+   local def_bot = minimal.get_nodedef(pos)
+   local def_flr = minimal.get_nodedef(floor)
+   if def_top.name ~= "ignore" and ( def_top and
+				      def_top.walkable == true ) then
+      return false -- loaded a solid node
+   end
+   if def_bot.name ~= "ignore" and ( def_bot and
+				      def_bot.walkable == true ) then
+      return false
+   end
+   if def_flr.name == "ignore" or ( def_flr and
+				     def_flr.walkable == true ) then
+      return true
+   end
+   -- floor is not walkable, search below it for a walkable floor
+   for i = 0, 20 do
+     floor = minimal.shift_pos(floor,{y = -1})
+     def_flr = minimal.get_nodedef(floor)
+     if (def_flr and def_flr.walkable == true) then
+       return true
+     end
+   end
+   -- if got to end of loop, then a 20 node drop is certain death
+   return false
 end
 
 function minimal.get_param2(pos)
@@ -233,4 +271,37 @@ function minimal.force_place_keep_param2(pos, name)
   assert(is_pos(pos),"exile_game.force_place_keep_param2: Invalid pos given")
   local param2 = minimal.get_param2(pos)
   minimal.force_place(pos, {name = name, param2 = param2})
+end
+
+-- will handle converting on_place functionality into on_rightclick (returns given itemstack or nil)
+-- USE minimal.on_rightclick_possible to VERIFY if this function should be ran
+function minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
+  -- seek under or above (anything not true is under, true is above)
+  if aboveorunder ~= true then
+    aboveorunder = false
+  end
+  if not (minetest.is_player(user) and itemstack and type(pointed_thing) == "table") then
+    return false
+  end
+  local pos = pointed_thing.under
+  if aboveorunder then
+    pos = pointed_thing.above
+  end
+  if not is_pos(pos) then
+    return false
+  end
+  
+  local nodedef = minimal.get_nodedef(pos)
+  
+  if not nodedef then
+    return false
+  end
+  
+  -- can rightclick
+  if nodedef.on_rightclick then
+    local node = minetest.get_node(pos)
+    return nodedef.on_rightclick(pos, node, user, itemstack, pointed_thing)
+  end
+  -- can't rightclick
+  return false
 end

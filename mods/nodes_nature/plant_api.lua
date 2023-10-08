@@ -27,20 +27,18 @@ seed_growing_time = 40
 -- Prevent placing seed anywhere but sediment
 --
 local on_place_plant = function(itemstack, placer, pointed_thing)
-    local ground = minetest.get_node(pointed_thing.under)
+    local ground = minimal.get_nodedef(pointed_thing.under)
     local above = minetest.get_node(pointed_thing.above)
-    if minetest.get_item_group(ground.name, "sediment") == 0 or
-        above.name ~= "air" then
-        local udef = minetest.registered_nodes[ground.name]
-        if udef and udef.on_rightclick and
-            not (placer and placer:is_player() and
-                 placer:get_player_control().sneak) then
-	    return udef.on_rightclick(pointed_thing.under, ground,
-				      placer, itemstack,
-				      pointed_thing) or itemstack
-        else
-            return itemstack
+    if not (minimal.in_group(ground, "sediment") and
+      above.name == "air") then -- if no sediment below or air above
+      if not (minetest.is_player(placer) and placer:get_player_control().sneak) then -- if player not sneakin'
+        local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+        if on_click ~= false then
+          return on_click or itemstack
         end
+      end
+      
+      return itemstack
     end
     return minetest.item_place_node(itemstack, placer, pointed_thing)
 end

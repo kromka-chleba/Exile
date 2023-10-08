@@ -213,12 +213,14 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	local node = minetest.get_node_or_nil(pointed_thing.under)
 	local ndef = node and minetest.registered_nodes[node.name]
 
-	-- Call on_rightclick if the pointed node defines it (do not on_rightclick for liquids)
-  if (type(ndef) == "table" and minetest.is_player(user)) then
-     if (type(ndef["on_rightclick"]) == "function"
-	 and ndef.drawtype ~= "liquid" and
-	 not user:get_player_control().sneak) then
-      return ndef.on_rightclick(pointed_thing.under, node, user, itemstack)
+	-- check if provided user exists or if sneaking
+  if ndef and not (minetest.is_player(user) and user:get_player_control().sneak) then
+    -- Call on_rightclick if the pointed node defines it (do not on_rightclick for liquids or liquid_storage)
+    if not (ndef.drawtype == "liquid" or minimal.in_group(ndef,"liquid_storage")) then
+      local on_click = minimal.on_rightclick(itemstack, user, pointed_thing)
+      if on_click ~= false then
+        return on_click
+      end
     end
   end
 
@@ -280,15 +282,14 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
   local pos_top = pointed_thing.above
 
   local isliquid = false -- to prevent placement if a liquid that can't be grabbed
-
-  local node = minetest.get_node(pos) -- grab a possible liquid if correct
-  local nodedata = minetest.registered_nodes[node.name]
-  local stored = find_stored(itemstack:get_name(), node.name)
+  
+  local ndef = minimal.get_nodedef(pos) -- grab a possible liquid if correct
+  local stored = find_stored(itemstack:get_name(), ndef.name)
   if (stored) then
     isliquid = true
   end
-  if (type(nodedata) == "table") then
-    if (nodedata.drawtype == "liquid") then
+  if ndef then
+    if ndef.drawtype == "liquid" then
       isliquid = true
     end
   else -- do not place if can't find nodedata
@@ -300,37 +301,45 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
 	 or minetest.is_protected(pos_top, placer:get_player_name()) ) then
       return
     end
-
-     if (type(nodedata) == "table" and not placer:get_player_control().sneak
-	 and not isliquid
-	 and minetest.get_item_group(node.name,"liquid_storage") == 0) then
-      if (type(nodedata["on_rightclick"]) == "function") then
-	 return nodedata.on_rightclick(pos, node, placer, itemstack,
-				       pointed_thing)
+    
+    if (ndef and not placer:get_player_control().sneak
+      and not isliquid
+      and not minimal.in_group(ndef,"liquid_storage") ) then
+      local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+      if on_click ~= false then
+        return on_click
       end
     end
   end
 
-  local top_node = minetest.get_node(pos_top) -- check if can be placed
-  local top_nodedata = minetest.registered_nodes[top_node.name]
+  local tndef = minimal.get_nodedef(pos_top) -- check if can be placed
 
-  if (type(top_nodedata) ~= "table") then -- do not place if can't find nodedata
+  if not tndef then -- do not place if can't find nodedata
     return
   end
-
+  
+  local pdef = minetest.registered_nodes[place_name]
   if stored then
     -- if a possible liquid and an empty bucket
     return liquid_store.on_use_empty_bucket(itemstack, placer, pointed_thing)
-  elseif (type(minetest.registered_nodes[place_name]) == "table") then
+  elseif pdef then
     -- verify if can place bucket
-    if (nodedata.buildable_to ~= true and top_nodedata.buildable_to == true or isliquid == true) then
+    if (ndef.buildable_to ~= true and tndef.buildable_to == true or isliquid == true) then
       -- if any of the above is correct, place above the node
       pos = pos_top
-    elseif (nodedata.buildable_to ~= true and top_nodedata.buildable_to ~= true) then
+    elseif (ndef.buildable_to ~= true and tndef.buildable_to ~= true) then
       return -- can't place bucket
     end
     if not (minimal.player_in_creative(placer)) then
       itemstack:take_item()
+    end
+    
+    -- make placement sound
+    if pdef.sounds then
+      local place = pdef.sounds.place
+      if place then
+        minetest.sound_play(place.name,{pos = pos, gain = place.gain, max_hear_distance = place.max_hear_distance})
+      end
     end
     -- place the bucket
     minimal.switch_node(pos, {name = place_name}, {placer, itemstack, pointed_thing})

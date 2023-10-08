@@ -30,11 +30,11 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
     local place_item = ItemStack(placed_name)
     local above = minetest.get_node(pointed_thing.above)
     local under = minetest.get_node(pointed_thing.under)
-    -- check if the pointed item has on_rightclick ...
-    if minetest.registered_nodes[under.name].on_rightclick then
-       -- if yes use the on_rightclick of the pointed thing instead
-       return minetest.registered_nodes[under.name].on_rightclick(
-	  pointed_thing.under, under, placer, itemstack, pointed_thing)
+    -- check if the pointed item has on_rightclick ... (will run it automatically)
+    local to_return = minimal.on_rightclick(itemstack, placer, pointed_thing)
+    if to_return ~= false then
+      -- if not false then return the result (rightclick ran successfully)
+      return to_return
     end
     local under_front_pos = {x = pointed_thing.above.x,
                              y = pointed_thing.above.y - 1,

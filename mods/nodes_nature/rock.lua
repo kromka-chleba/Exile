@@ -9,11 +9,10 @@ stone_list = stone_list
 rock_list  = rock_list
 
 function cobble_on_place(itemstack, placer, pointed_thing, name)
-	local pt_pos = minetest.get_pointed_thing_position(pointed_thing)
-	local pt_node=minetest.get_node(pt_pos)
-	if pt_node and  minetest.registered_nodes[pt_node.name].on_rightclick then
-		return minetest.registered_nodes[pt_node.name].on_rightclick(pt_pos,pt_node,placer,itemstack,pointed_thing)
-	end
+  local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+  if on_click ~= false then
+    return on_click
+  end
 	local cobble_nr = math.random(1,3)
 	local param2 = math.random(0,3)
 	local place_item = ItemStack("nodes_nature:"..name.."_cobble"..cobble_nr)

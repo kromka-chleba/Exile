@@ -218,22 +218,28 @@ minetest.register_node("tech:torch", {
 	end,
 	on_place = function(itemstack, placer, pointed_thing)
 		local under = pointed_thing.under
-		local node = minetest.get_node(under)
-		local innode = minetest.get_node(pointed_thing.above).name
-		if minetest.get_item_group(innode, "water") > 0 then
+    local above = pointed_thing.above
+    
+		if minimal.in_group(above, "water") then
 		   on_throw(itemstack, placer, pointed_thing.under)
-		   itemstack:take_item(1)
+       if not minimal.player_in_creative(placer) then
+        itemstack:take_item(1)
+       end
 		   return itemstack
 		end
-		local def = minetest.registered_nodes[node.name]
-		if def and def.on_rightclick and
-			not (placer and placer:is_player() and
-			placer:get_player_control().sneak) then
-			return def.on_rightclick(under, node, placer, itemstack,
-				pointed_thing) or itemstack
-		end
-
-		local above = pointed_thing.above
+    if (minetest.is_player(placer) and not placer:get_player_control().sneak) then
+      local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+      if on_click ~= false then
+        return on_click or itemstack
+      end
+    end
+		--local def = minetest.registered_nodes[node.name]
+		--if def and def.on_rightclick and
+			--not (placer and placer:is_player() and
+			--placer:get_player_control().sneak) then
+			--return def.on_rightclick(under, node, placer, itemstack,
+				--pointed_thing) or itemstack
+		--end
 		local wdir = minetest.dir_to_wallmounted(vector.subtract(under, above))
 		local fakestack = itemstack
 		if wdir == 0 then

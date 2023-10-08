@@ -128,15 +128,13 @@ local function on_place_loclim_spot(itemstack, placer, pointed_thing, grouplist,
 
 		minetest.chat_send_player(placer:get_player_name(),
 		S("Cannot place here! Needs a whole block of: ")..msg..".")
-
-		local udef = minetest.registered_nodes[ground.name]
-		if udef and udef.on_rightclick and
-		not (placer and placer:is_player() and placer:get_player_control().sneak) then
-			return udef.on_rightclick(pointed_thing.under, ground,
-			placer, itemstack, pointed_thing) or itemstack
-		else
-			return itemstack
-		end
+      
+    if not (minetest.is_player(placer) and placer:get_player_control().sneak) then
+      local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+      if on_click ~= false then
+        return on_click or itemstack
+      end
+    end
 	end
 
 	return minetest.item_place_node(itemstack,placer,pointed_thing)
