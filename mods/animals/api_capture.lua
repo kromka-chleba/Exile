@@ -89,18 +89,16 @@ animals.register_egg = function(self, desc, inv_img, stack)
 		on_place = function(itemstack, placer, pointed_thing)
 			local spawn_pos = pointed_thing.above
 			-- am I clicking on something with existing on_rightclick function?
-			local under = minetest.get_node(pointed_thing.under)
-			local def = minetest.registered_nodes[under.name]
-			if def and def.on_rightclick and def.drawtype ~= "liquid" then -- as long as it's not a liquid lol
-        -- and also prevent it from running on_rightclick function upon item drop
-        if (pointed_thing.type ~= nil) then
-          return def.on_rightclick(pointed_thing.under, under, placer, itemstack)
-        end
+			local under = pointed_thing.under
+			local def = minimal.get_nodedef(under)
+			if (def and def.on_rightclick and def.drawtype ~= "liquid" -- as long as it's not a liquid lol
+        and pointed_thing.type ~= nil) then-- and also prevent it from running on_rightclick function upon item drop
+        
+        return minimal.on_rightclick(itemstack, placer, pointed_thing)
 			end
       if (self.class == 2 and def.drawtype == "liquid") then
         -- place fish properly into water
-        spawn_pos = pointed_thing.under
-        spawn_pos.y = spawn_pos.y - 1
+        spawn_pos = minimal.pos_shift(under,{y = -1})
       end
 			if spawn_pos and not minetest.is_protected(spawn_pos, placer:get_player_name()) then
 				if not minetest.registered_entities[name] then
@@ -122,7 +120,7 @@ animals.register_egg = function(self, desc, inv_img, stack)
   function item_table.on_drop(itemstack, dropper, pos)
     -- craft a quick pointed_thing lol
     local pointed_thing = {}
-    pointed_thing.above = {x = pos.x, y = pos.y + 1, z = pos.z}
+    pointed_thing.above = minimal.shift_pos(pos,{y = 1}) --{x = pos.x, y = pos.y + 1, z = pos.z}
     pointed_thing.under = pos
     
     return item_table.on_place(itemstack, dropper, pointed_thing) -- run on_place function
