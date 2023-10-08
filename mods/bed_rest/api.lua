@@ -55,22 +55,21 @@ function bed_rest.register_bed(name, def)
 
 
 		on_place = function(itemstack, placer, pointed_thing)
-      -- check for pointed_thing rightclick functionality
-      if not (minetest.is_player(placer) and placer:get_player_control().sneak) then
-        local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
-        if on_click ~= false then
-          return on_click
-        end
-      end
-      
-      local pos = pointed_thing.under
-      local node_def = minimal.get_nodedef(pos)
-      if not node_def or not node_def.buildable_to then
-        pos = pointed_thing.above
-        node_def = minimal.get_nodedef(pos)
-        if not node_def or not node_def.buildable_to then
-          return itemstack
-        end
+			local under = pointed_thing.under
+			local node = minetest.get_node(under)
+			local udef = minetest.registered_nodes[node.name]
+			if udef and udef.on_rightclick and
+					not (placer and placer:is_player() and
+					placer:get_player_control().sneak) then
+				return udef.on_rightclick(under, node, placer, itemstack,
+					pointed_thing) or itemstack
+			end
+
+			local pos
+			if udef and udef.buildable_to then
+				pos = under
+			else
+				pos = pointed_thing.above
 			end
 
 			local player_name = placer and placer:get_player_name() or ""
@@ -81,7 +80,10 @@ function bed_rest.register_bed(name, def)
 				return itemstack
 			end
 
-			
+			local node_def = minetest.registered_nodes[minetest.get_node(pos).name]
+			if not node_def or not node_def.buildable_to then
+				return itemstack
+			end
 
 			local dir = placer and placer:get_look_dir() and
 				minetest.dir_to_facedir(placer:get_look_dir()) or 0
@@ -93,7 +95,7 @@ function bed_rest.register_bed(name, def)
 				return itemstack
 			end
 
-			local botdef = minimal.get_nodedef(botpos)
+			local botdef = minetest.registered_nodes[minetest.get_node(botpos).name]
 			if not botdef or not botdef.buildable_to then
 				return itemstack
 			end
