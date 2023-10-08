@@ -198,7 +198,10 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 
 	-- Call on_rightclick if the pointed node defines it (do not on_rightclick for liquids)
   if (type(ndef) == "table" and minetest.is_player(user)) then
-    if (type(ndef["on_rightclick"]) == "function" and ndef.drawtype ~= "liquid" and not user:get_player_control().sneak) then
+     if (type(ndef["on_rightclick"]) == "function"
+	 and ndef.drawtype ~= "liquid"
+	 and not user:get_player_control().sneak
+	 and minetest.get_item_group(node.name, "liquid_storage") == 0 ) then
       return ndef.on_rightclick(pointed_thing.under, node, user, itemstack)
     end
   end
@@ -222,7 +225,7 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 			return itemstack
 		end
 	end
-  
+
 	if check_protection(lpos, user
 			and user:get_player_name()
 			or "", "place "..source) then
@@ -230,20 +233,20 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	end
 	if stored then -- Dump contents into liquid store
 	   minimal.switch_node(lpos, {name = stored}, {user, itemstack, pointed_thing})
-     
+
 	   return handle_stacks(user, itemstack, nodename_empty)
 	end
-  
+
   -- dump the water ONLY if "dump" is true (if false, do not dump)
   if dump then
     minimal.switch_node(lpos, {name = source}, {user, itemstack, pointed_thing})
-    
+
     minetest.check_for_falling(lpos)
-    
+
     if (minimal.player_in_creative(user)) then
       return
     end
-    
+
     return handle_stacks(user, itemstack, nodename_empty)
   end
 end
@@ -253,14 +256,14 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
     return
   end
   if (type(place_name) ~= "string") then
-    itemstack:get_name() 
+    itemstack:get_name()
   end
-  
+
   local pos = pointed_thing.under
   local pos_top = pointed_thing.above
-  
+
   local isliquid = false -- to prevent placement if a liquid that can't be grabbed
-  
+
   local node = minetest.get_node(pos) -- grab a possible liquid if correct
   local nodedata = minetest.registered_nodes[node.name]
   local stored = find_stored(itemstack:get_name(), node.name)
@@ -274,26 +277,29 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
   else -- do not place if can't find nodedata
     return
   end
-  
+
   if (minetest.is_player(placer)) then
-    if (minetest.is_protected(pos, placer:get_player_name()) or minetest.is_protected(pos_top, placer:get_player_name()) ) then
+     if (minetest.is_protected(pos, placer:get_player_name())
+	 or minetest.is_protected(pos_top, placer:get_player_name()) ) then
       return
     end
-    
-    if (type(nodedata) == "table" and not placer:get_player_control().sneak and not isliquid and minetest.get_item_group(node.name,"liquid_storage") == 0) then
+
+     if (type(nodedata) == "table" and not placer:get_player_control().sneak
+	 and not isliquid
+	 and minetest.get_item_group(node.name,"liquid_storage") == 0) then
       if (type(nodedata["on_rightclick"]) == "function") then
         return nodedata.on_rightclick(pos, node, placer, itemstack, pointed_thing)
       end
     end
   end
-  
+
   local top_node = minetest.get_node(pos_top) -- check if can be placed
   local top_nodedata = minetest.registered_nodes[top_node.name]
-  
+
   if (type(top_nodedata) ~= "table") then -- do not place if can't find nodedata
     return
   end
-  
+
   if stored then
     -- if a possible liquid and an empty bucket
     return liquid_store.on_use_empty_bucket(itemstack, placer, pointed_thing)
@@ -307,6 +313,15 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
     end
     if not (minimal.player_in_creative(placer)) then
       itemstack:take_item()
+    end
+
+    -- make placement sound
+    local pdef = minetest.registered_nodes[place_name]
+    if pdef.sounds then
+      local place = pdef.sounds.place
+      if place then
+        minetest.sound_play(place.name,{pos = pos, gain = place.gain, max_hear_distance = place.max_hear_distance})
+      end
     end
     -- place the bucket
     minimal.switch_node(pos, {name = place_name}, {placer, itemstack, pointed_thing})
