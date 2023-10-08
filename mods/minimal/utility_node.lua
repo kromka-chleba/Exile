@@ -212,7 +212,10 @@ end
 
 function minimal.get_nodedef(pos)
   local node_name = get_node_name(pos)
-  assert(type(node_name) == "string","exile_game.get_nodedef: Invalid pos or name given to check for nodedef, got "..type(pos))
+  if not node_name then
+    -- got nothing, return nothing
+    return
+  end
   local nodedef = minetest.registered_nodes[node_name]
   return nodedef
 end
