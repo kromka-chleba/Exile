@@ -14,18 +14,14 @@ minetest.override_item("air", { groups = { air = 1,
 function minetest.item_place(itemstack, placer, pointed_thing, param2)
         -- Call on_rightclick if the pointed node defines it
         if pointed_thing.type == "node" and minetest.is_player(placer) then
-                --local node = minetest.get_node( pointed_thing.under )
-                local ndef = minimal.get_nodedef( pointed_thing.under )--minetest.registered_nodes[ node.name ]
-                
-                if ndef and (ndef.override_sneak == true or not placer:get_player_control().sneak) then
-                  local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
-                  if on_click ~= false then
-                    return on_click or itemstack
-                  end
-                end
-                --if ndef and ndef.on_rightclick and ( ndef.override_sneak == true or not placer:get_player_control( ).sneak ) then
-                        --return ndef.on_rightclick( pointed_thing.under, node, placer, itemstack, pointed_thing ) or itemstack, nil
-               -- end
+          local ndef = minimal.get_nodedef( pointed_thing.under )
+          
+          if ndef and (ndef.override_sneak == true or not placer:get_player_control().sneak) then
+            local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+            if on_click ~= false then
+              return on_click or itemstack
+            end
+          end
         end
 
         if itemstack:get_definition( ).type == "node" then
