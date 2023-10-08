@@ -22,6 +22,23 @@ local function get_soil_pos(pos)
   return
 end
 
+-- allow players to salt the earth!!! muhahahahaha
+local function get_salty(name)
+  local salty_name
+  local ndef = minetest.registered_nodes[name]
+  if (ndef and type(ndef._wet_salty_name) == "string") then
+    -- remove and then readd mod_origin from the name
+    local mod_origin = ndef.mod_origin..":"
+    -- get shape to get proper returned node
+    local shape = string.match(name,"slope_inner_") or string.match(name,"slope_outer_") or string.match(name,"slope_pike_") or string.match(name,"slope_")
+    if not shape then
+      shape = ""
+    end
+    salty_name = mod_origin..shape..string.gsub(ndef._wet_salty_name,mod_origin,"")
+  end
+  return salty_name
+end
+
 local function wet_soil(pos, suffix)
   if not is_pos(pos) then
     return
@@ -50,21 +67,25 @@ local function wet_soil(pos, suffix)
     wet_node_name = string.gsub(wet_node_name,"_depleted","")
     wet_node_name = wet_node_name.."_depleted"
     -- we didn't erase "_wet" from the name
-	 end
-	 if not minetest.registered_nodes[wet_node_name]
+  end
+  if not minetest.registered_nodes[wet_node_name]
     and string.match(node.name,"roots") then
     -- IF the provided node is "roots", look for its proper roots
     --  wet variant
     wet_node_name = string.gsub(wet_node_name,"_roots","")
     wet_node_name = wet_node_name.."_roots"
     -- we didn't erase "_wet" from the name
-	 end
-   if minetest.registered_nodes[wet_node_name] then
-	    -- replace with watered version
-	    -- keeping the node orientation
-	    minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
-	    return true
-    end
+  end
+  -- if no wet version could be found, check if the players can... salt the Earth!!!
+  if not minetest.registered_nodes[wet_node_name] and string.match(suffix,"salty") then
+     wet_node_name = get_salty(node.name)
+  end
+  if wet_node_name and minetest.registered_nodes[wet_node_name] then
+    -- replace with watered version
+    -- keeping the node orientation
+    minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
+    return true
+  end
   
   return false
 end
