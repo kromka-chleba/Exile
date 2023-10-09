@@ -116,3 +116,56 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, water_source,
     water_source, empty_container,
     itemstack, user, pointed_thing, false)
 end
+
+function ncrafting.fertilize(pos, puncher, itemstack)
+  assert(is_pos(pos),"ncrafting.fertilize: provided position is not a position!")
+  local inv
+  local replace_with = ""
+  if minetest.is_player(puncher) and not itemstack then
+    itemstack = puncher:get_wielded_item()
+    inv = puncher:get_inventory()
+  end
+  
+  local ndef = minimal.get_nodedef(pos)
+  if type(ndef._fertilize_replace_with) == "string" then
+    replace_with = ndef._fertilize_replace_with
+  end
+  
+  -- avoid having to set up a "fertilized" boolean to prevent another check over
+  local function complete()
+    replace_with = ItemStack(replace_with)
+    
+    if inv then
+      inv:remove_item("main",itemstack)
+      inv:add_item("main",replace_with)
+    else
+      -- no inventory found
+      if (itemstack:get_count() > 1) then
+        itemstack:take_item()
+        -- no inventory to place into
+        minetest.item_drop(itemstack, puncher, pos)
+      end
+    end
+    return replace_with
+  end
+  
+  if (minimal.in_group(replace_with,"compost") and type(ndef._fertile_name) == "string") then
+    if not minetest.registered_nodes[ndef._fertilize_name] then
+      minetest.log("error","ncrafting: '"..ndef._fertilize_name.."' is not a valid item/node!")
+      return itemstack
+    end
+    minetest.swap_node(pos, {name = ndef._fertilize_name})
+    return complete()
+  end
+  
+  if (minimal.in_group(replace_with,"fertilizer") and type(ndef._rich_name) == "string") then
+    if not minetest.registered_nodes[ndef._rich_name] then
+      minetest.log("error","ncrafting: '"..ndef._rich_name.."' is not a valid item/node!")
+      return itemstack
+    end
+    minetest.swap_node(pos, {name = ndef._rich_name})
+    return complete()
+  end
+  
+  return itemstack
+end
