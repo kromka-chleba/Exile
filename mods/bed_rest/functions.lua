@@ -459,7 +459,6 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 
 	-- lay down, provided we have a valid bed position
 	elseif bed_pos then
-	   stopmove(player)
 	   local pmeta = player:get_meta()
 	   local velo = player:get_velocity() or player:get_player_velocity()
 	   if velo.x ~= 0 then return end
