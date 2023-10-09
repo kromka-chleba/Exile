@@ -147,9 +147,12 @@ local setup_hud = function(player)
 	hud_data.blink = {}
 
 	local meta = player:get_meta()
-	hud_data.show_stats = tobool(meta:get("exile_hud_show_stats"))
+	hud_data.show_stats = meta:get("exile_hud_show_stats")
+	if hud_data.show_stats then -- string to bool, or leave it nil
+	   hud_data.show_stats = tobool(hud_data.show_stats)
+	end
 
-	local lb = tobool(meta:get_string("hud16"))
+	local lb = tobool(meta:get_string("hud16")) -- nil -> default false
 
 	hud_data.p_health = make_image_hud(player,
 	   {x = hud_health_x - longbarpos[lb].x,
