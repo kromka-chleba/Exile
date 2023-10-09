@@ -44,9 +44,6 @@ local function wet_soil(pos, suffix)
     return
   end
   local node = minetest.get_node(pos)
-  if not minimal.in_group(node,"sediment") then
-    return
-  end
   if (type(suffix) ~= "string") then
     suffix = ""
   end
@@ -58,6 +55,15 @@ local function wet_soil(pos, suffix)
   
   -- check if watered block exists
   local wet_node_name = node.name .. suffix
+  -- Check if the players can... salt the Earth!!! (if they have a salty watering can)
+  if string.match(suffix,"salty") then
+    wet_node_name = get_salty(node.name)
+    if not wet_node_name then
+      -- normalize
+      wet_node_name = node.name .. suffix
+    end
+  end
+  -- otherwise do normal checking
   if not minetest.registered_nodes[wet_node_name] and
     string.match(node.name,"depleted") then
     -- depleted nodes with roots have "depleted" behind the "roots", so
@@ -76,11 +82,8 @@ local function wet_soil(pos, suffix)
     wet_node_name = wet_node_name.."_roots"
     -- we didn't erase "_wet" from the name
   end
-  -- if no wet version could be found, check if the players can... salt the Earth!!!
-  if not minetest.registered_nodes[wet_node_name] and string.match(suffix,"salty") then
-     wet_node_name = get_salty(node.name)
-  end
-  if wet_node_name and minetest.registered_nodes[wet_node_name] then
+  
+  if minetest.registered_nodes[wet_node_name] then
     -- replace with watered version
     -- keeping the node orientation
     minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
@@ -95,9 +98,9 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, water_source,
   -- can only water nodes
   assert(type(empty_container) == "string","ncrafting.water_soil: string expected for empty_container, got: "..type(empty_container))
   assert(type(water_source) == "string","ncrafting.water_soil: string expected for water_source, got: "..type(water_source))
+  assert(type(pointed_thing) == "table","ncrafting.water_soil: provided pointed_thing is not a table! got: "..type(pointed_thing))
   if (pointed_thing.type == "node"
-    and itemstack
-    and type(pointed_thing) == "table") then
+    and itemstack) then
     local pos = get_soil_pos(pointed_thing.under) -- will only return a pos if a soil is found
     if (is_pos(pos) and wet_soil(pos, node_suffix)) then
       -- if position is good and can wet the soil
