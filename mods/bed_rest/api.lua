@@ -22,6 +22,21 @@ local function destruct_bed(pos, n)
 end
 
 
+local function is_invalid_pos(pos, player_name)
+   if minetest.is_protected(pos, player_name) and
+      not minetest.check_player_privs(player_name, "protection_bypass") then
+      minetest.record_protection_violation(pos, player_name)
+      return true
+   end
+
+   local node_def = minimal.get_nodedef(pos)
+   if not node_def or not node_def.buildable_to
+      or string.match(node_def.drawtype, "liquid") then
+      return true
+   end
+   return false
+end
+
 
 ----------------------------------------
 function bed_rest.register_bed(name, def)
@@ -55,6 +70,7 @@ function bed_rest.register_bed(name, def)
 
 		on_place = function(itemstack, placer, pointed_thing)
 			local under = pointed_thing.under
+			local node = minetest.get_node(under)
 			local udef = minimal.get_nodedef(under)
 			if udef and udef.on_rightclick and
 					not (placer and placer:is_player() and
@@ -70,31 +86,19 @@ function bed_rest.register_bed(name, def)
 				pos = pointed_thing.above
 			end
 
-			local player_name = placer and placer:get_player_name() or ""
-
-			if minetest.is_protected(pos, player_name) and
-					not minetest.check_player_privs(player_name, "protection_bypass") then
-				minetest.record_protection_violation(pos, player_name)
-				return itemstack
+			local playername = ""
+			if placer and placer:is_player() then
+			   playername = placer:get_player_name()
 			end
 
-			local node_def = minimal.get_nodedef(pos)
-			if not node_def or not node_def.buildable_to then
+			if is_invalid_pos(pos, playername) then
 				return itemstack
 			end
 
 			local dir = placer and placer:get_look_dir() and
 				minetest.dir_to_facedir(placer:get_look_dir()) or 0
 			local botpos = vector.add(pos, minetest.facedir_to_dir(dir))
-
-			if minetest.is_protected(botpos, player_name) and
-					not minetest.check_player_privs(player_name, "protection_bypass") then
-				minetest.record_protection_violation(botpos, player_name)
-				return itemstack
-			end
-
-			local botdef = minimal.get_nodedef(botpos)
-			if not botdef or not botdef.buildable_to then
+			if is_invalid_pos(botpos, playername) then
 				return itemstack
 			end
 
