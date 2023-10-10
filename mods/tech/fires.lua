@@ -186,6 +186,7 @@ minetest.register_node("tech:wood_ash_block", {
 	   on_place_fert(itemstack, placer, pointed_thing)
 	   return itemstack
 	end,
+  _fertilize_replace_with = "tech:wood_ash",
 })
 
 
