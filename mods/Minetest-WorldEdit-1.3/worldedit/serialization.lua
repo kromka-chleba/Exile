@@ -118,30 +118,7 @@ end
 -- by ChillCode, available under the MIT license.
 local function deserialize_workaround(content)
 	local nodes
-	if not jit then
-		nodes = minetest.deserialize(content, true)
-	else
-		-- XXX: This is a filthy hack that works surprisingly well
-		-- in LuaJIT, `minetest.deserialize` will fail due to the register limit
-		nodes = {}
-		content = content:gsub("^%s*return%s*{", "", 1):gsub("}%s*$", "", 1) -- remove the starting and ending values to leave only the node data
-		-- remove string contents strings while preserving their length
-		local escaped = content:gsub("\\\\", "@@"):gsub("\\\"", "@@"):gsub("(\"[^\"]*\")", function(s) return string.rep("@", #s) end)
-		local startpos, startpos1 = 1, 1
-		local endpos
-		while true do -- go through each individual node entry (except the last)
-			startpos, endpos = escaped:find("},%s*{", startpos)
-			if not startpos then
-				break
-			end
-			local current = content:sub(startpos1, startpos)
-			local entry = minetest.deserialize("return " .. current, true)
-			table.insert(nodes, entry)
-			startpos, startpos1 = endpos, endpos
-		end
-		local entry = minetest.deserialize("return " .. content:sub(startpos1), true) -- process the last entry
-		table.insert(nodes, entry)
-	end
+	nodes = minetest.deserialize(content, true)
 	return nodes
 end
 
