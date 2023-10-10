@@ -128,16 +128,38 @@ function ncrafting.fertilize(pos, puncher, itemstack)
     itemstack = puncher:get_wielded_item()
     inv = puncher:get_inventory()
   end
+  if not itemstack or itemstack:get_name() == "" then
+    -- no itemstack, or have a hand? NO FERTILIZATION!
+    return
+  end
   
   local ndef = minimal.get_nodedef(pos)
-  if type(ndef._fertilize_replace_with) == "string" then
-    replace_with = ndef._fertilize_replace_with
+  local itemdef = minimal.get_nodedef(itemstack:get_name())
+  if not (ndef and itemdef) then
+    -- definition don't exist
+    return
   end
+  
+  if type(itemdef._fertilize_replace_with) == "string" then
+    replace_with = itemdef._fertilize_replace_with
+  elseif type(itemdef.fertilize_replace_with) == "string" then
+    replace_with = itemdef.fertilize_replace_with
+  else
+    local slab = string.gsub(itemstack:get_name(),ndef.mod_origin..":","")
+    slab = "stairs:slab_"..slab
+    if minetest.registered_nodes[slab] then
+      replace_with = slab
+    end
+  end
+  replace_with = ItemStack(replace_with)
   
   -- avoid having to set up a "fertilized" boolean to prevent another check over
   local function complete()
-    replace_with = ItemStack(replace_with)
-    
+    -- allow a custom "after_fertilize" function
+    if type(itemdef._after_fertilize) == "function" then
+      return itemdef._after_fertilize(pos, itemstack, puncher)
+    end
+    -- proceed as usual
     if inv then
       inv:remove_item("main",itemstack)
       inv:add_item("main",replace_with)
@@ -145,16 +167,15 @@ function ncrafting.fertilize(pos, puncher, itemstack)
       -- no inventory found
       if (itemstack:get_count() > 1) then
         itemstack:take_item()
-        -- no inventory to place into
-        minetest.item_drop(itemstack, puncher, pos)
       end
+      -- no inventory to place into
+      minetest.item_drop(itemstack, puncher, pos)
     end
     return replace_with
   end
   
   local node_name = ndef._fertile_name
-  if (minimal.in_group(itemstack:get_name(),"compost") and type(node_name) == "string") then
-    minetest.log("compost")
+  if (minimal.in_group(itemdef,"compost") and type(node_name) == "string") then
     if not minetest.registered_nodes[node_name] then
       minetest.log("error","ncrafting: '"..node_name.."' is not a valid item/node!")
       return itemstack
@@ -164,7 +185,7 @@ function ncrafting.fertilize(pos, puncher, itemstack)
   end
   
   node_name = ndef._rich_name
-  if (minimal.in_group(itemstack:get_name(),"fertilizer") and type(node_name) == "string") then
+  if (minimal.in_group(itemdef,"fertilizer") and type(node_name) == "string") then
     if not minetest.registered_nodes[node_name] then
       minetest.log("error","ncrafting: '"..node_name.."' is not a valid item/node!")
       return itemstack
