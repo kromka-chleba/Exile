@@ -375,7 +375,7 @@ function sediment.register_slab(sed)
 	{"mixing_spot","soil_mixing"},
         "true",
 	{"mixing_spot","soil_mixing"},
-        {falling_node = 1, crumbly = sed.hardness},
+        sed.groups,
         {sediment.get_dry_texture_name(sed.name)},
         sed.description.." Slab",
         minimal.stack_max_bulky * 2,
