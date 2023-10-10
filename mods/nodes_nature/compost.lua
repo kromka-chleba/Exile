@@ -79,6 +79,7 @@ local compost =
                   hardness = sediment.hardness.soft,
                   fertility = 1, sound = sediment.sounds.dirt,
                   sound_wet = sediment.sounds.dirt_wet})
+compost.groups.compost = 1 -- add "compost" group
 
 sediment.register_dry(compost)
 sediment.register_wet(compost)
