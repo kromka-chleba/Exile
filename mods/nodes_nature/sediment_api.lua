@@ -159,6 +159,8 @@ end
 --For using fertilizer on punch
 local function fertilize_ag_soil(pos, puncher)
     --hit it with fertilizer to restore
+    return ncrafting.fertilize(pos, puncher)
+    --[[
     local itemstack = puncher:get_wielded_item()
     local item_name = itemstack:get_name()
     local node_name = minetest.get_node(pos).name
@@ -192,6 +194,7 @@ local function fertilize_ag_soil(pos, puncher)
         inv:remove_item("main", item_name)
         inv:add_item("main", replace_with)
     end
+    --]]
 end
 
 -- Sediments

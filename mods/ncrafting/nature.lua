@@ -152,21 +152,24 @@ function ncrafting.fertilize(pos, puncher, itemstack)
     return replace_with
   end
   
-  if (minimal.in_group(replace_with,"compost") and type(ndef._fertile_name) == "string") then
-    if not minetest.registered_nodes[ndef._fertilize_name] then
-      minetest.log("error","ncrafting: '"..ndef._fertilize_name.."' is not a valid item/node!")
+  local node_name = ndef._fertile_name
+  if (minimal.in_group(itemstack:get_name(),"compost") and type(node_name) == "string") then
+    minetest.log("compost")
+    if not minetest.registered_nodes[node_name] then
+      minetest.log("error","ncrafting: '"..node_name.."' is not a valid item/node!")
       return itemstack
     end
-    minetest.swap_node(pos, {name = ndef._fertilize_name})
+    minetest.swap_node(pos, {name = node_name})
     return complete()
   end
   
-  if (minimal.in_group(replace_with,"fertilizer") and type(ndef._rich_name) == "string") then
-    if not minetest.registered_nodes[ndef._rich_name] then
-      minetest.log("error","ncrafting: '"..ndef._rich_name.."' is not a valid item/node!")
+  node_name = ndef._rich_name
+  if (minimal.in_group(itemstack:get_name(),"fertilizer") and type(node_name) == "string") then
+    if not minetest.registered_nodes[node_name] then
+      minetest.log("error","ncrafting: '"..node_name.."' is not a valid item/node!")
       return itemstack
     end
-    minetest.swap_node(pos, {name = ndef._rich_name})
+    minetest.swap_node(pos, {name = node_name})
     return complete()
   end
   
