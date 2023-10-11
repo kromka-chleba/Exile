@@ -9,7 +9,7 @@ local function is_meta(meta)
       return true
     end
   end
-  
+
   return false
 end
 
@@ -20,7 +20,7 @@ local function is_pos(pos)
       return true
     end
   end
-  
+
   return false
 end
 
@@ -104,7 +104,7 @@ function minimal.node_set_int(pos, name, value)
   else
     error("exile_game.node_set_int: Invalid pos given")
   end
-  
+
   meta:set_int(name, value)
 end
 
@@ -120,7 +120,7 @@ function minimal.node_get_int(pos, name)
   if meta:get(name) then
     return meta:get_int(name)
   end
-  
+
   return false
 end
 
@@ -134,7 +134,7 @@ function minimal.node_set_string(pos, name, value)
   else
     error("exile_game.node_set_string: Invalid pos given")
   end
-  
+
   meta:set_string(name, value)
 end
 
@@ -166,18 +166,18 @@ function minimal.shift_pos(pos,pos2)
   -- simple error messages to make debugging easier
   assert( is_pos(pos),"exile_game.shift_pos: Invalid pos provided (not a table or missing coodinates)")
   assert( type(pos2) == "table","exile_game.shift_pos: Invalid pos2 provided (not a table or missing coodinates)")
-  
+
   -- make certain they're 0 and not nil if nil
   pos2.x = pos2.x or 0
   pos2.y = pos2.y or 0
   pos2.z = pos2.z or 0
-  
+
   local n_pos = { -- new pos
     x = pos.x + pos2.x,
     y = pos.y + pos2.y,
     z = pos.z + pos2.z,
   }
-  
+
   return n_pos
 end
 -- alias of "minimal.shift_pos"
@@ -204,7 +204,7 @@ local function get_node_name(pos)
   elseif (type(pos) == "userdata") then
     -- also handle getting groups of itemstacks :D
     if (type(pos["get_name"]) == "function") then
-      node_name = pos:get_name() 
+      node_name = pos:get_name()
     end
   end
   return node_name
@@ -222,8 +222,12 @@ end
 
 function minimal.in_group(pos, group_name)
   local node_name = get_node_name(pos)
-  assert(type(node_name) == "string","exile_game.in_group: Invalid pos or name provided for node, got "..type(node_name))
-  assert(type(group_name) == "string","exile_game.in_group: Invalid group_name provided, got "..type(group_name))
+  assert(type(node_name) == "string",
+	 "exile_game.in_group: Invalid pos or name provided for node, got "..
+	 type(node_name))
+  assert(type(group_name) == "string",
+	 "exile_game.in_group: Invalid group_name provided, got "..
+	 type(group_name))
   local group_val = minetest.get_item_group(node_name,group_name)
   if (group_val > 0) then
     return group_val
@@ -290,13 +294,13 @@ function minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
   if not is_pos(pos) then
     return false
   end
-  
+
   local nodedef = minimal.get_nodedef(pos)
-  
+
   if not nodedef then
     return false
   end
-  
+
   -- can rightclick
   if nodedef.on_rightclick then
     local node = minetest.get_node(pos)

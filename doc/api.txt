@@ -10,15 +10,30 @@ minimal.invlists2string(lists)
 		- Convert inventory lists into a serialized string and back
 minimal.math_clamp(number, min, max)
 		- Clamps any input number to a value inbetween min and max
-
-		- Splices key/value tables t1 and t2 together
 minimal.player_in_creative(player/playername)
 		- Returns true if the player object or name is in creative
 minimal.sanitize_string(string)
 		- Removes dangerous/disallowed chars
 minimal.yes_or_no(pname, question, function_call, attached_data_table)
 		- Sends yes/no formspec to the player, see utility.lua for more
-
+--------- utilitynode ---------
+minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
+		- looks for a rightclick function, runs it. Returns false
+		  if there is none, or passes the itemstack/etc of on_rightclick
+minimal.safe_landing_spot(pos)
+		- returns true if it's safe for a player to be placed here
+minimal.node_set_int(meta/pos, name, value)
++minimal.node_get_int(meta/pos, name)
++minimal.node_set_string(meta/pos, name, value)
++minimal.node_get_string(meta/pos, name)
+		- Gets or sets a meta value on a node by meta or position
+minimal.shift_pos(pos, pos2)
+		- Shift pos1 by pos2 -- a vector or a table like: { Y = -1 }
+minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
++minimal.slabs_split_hand(player, pointed_node, pointed_thing, wielded_item)
+		- for slabs that can be split/joined by hand. example: see snow
+minimal.switch_node(pos, node, after_place_table)
+		- Swap a node, preserves meta but runs on_construct.
 
 [[[ Custom node definitions ]]]
 ---------- callbacks ----------
