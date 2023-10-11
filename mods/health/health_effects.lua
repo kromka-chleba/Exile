@@ -373,7 +373,7 @@ local function default_timer_regress(player, effect_name, t_min, t_max, meta, ef
 		end
 		return
 	end
-
+	print("cur ",current_order," / rem ",removed_order)
 	--current order vs the order of what we are trying to remove
 	if current_order > removed_order then
 		--trying to remove lower than current (i.e. not powerful enough)
@@ -417,6 +417,7 @@ vomiting, fever, etc
 
 function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, jum, temperature)
 
+	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
 		--slow recovery, movement
@@ -502,6 +503,7 @@ For Exile, you get it from wet soil, a reason not to live in a mud hole.
 
 function HEALTH.fungal_infection(order, player, meta, effects_list, r_rate, mov, jum, temperature)
 
+	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
 		--slow recovery, movement
@@ -564,6 +566,7 @@ Dust storm born soil fungus got into your lungs. Something vaguely like Valley F
 
 function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov, jum, temperature)
 
+	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
 		--slow recovery, movement
@@ -639,6 +642,7 @@ Alcohol intoxication. Stumble around. Extreme level is alcohol poisoning
 
 function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum, h_rate, temperature)
 	local max_drunk = meta:get_int("max_hangover") or 0
+	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
 		if max_drunk < 1 then
@@ -732,7 +736,7 @@ After effects of drugs and alcohol
 ]]--
 
 function HEALTH.hangover(order, player, meta, effects_list, mov, jum )
-
+	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
 		mov = mov - 2
@@ -810,6 +814,7 @@ Extreme is an overdose
 
 function HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, mov, jum, temperature)
 	local max_drunk = meta:get_int("max_hangover") or 0
+	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
 		if max_drunk < 1 then
@@ -900,7 +905,7 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, m
 			if added_order > 4 then
 				added_order = 4
 			end
-			default_timer_progress("Tiku High", 3, 6, 3, 0.2, meta, effects_list, current_order, added_order, true)
+			default_timer_progress("Tiku High", 3, 6, 3, 0.2, meta, effects_list, order, added_order, true)
 		else
 			order = order - 1
 			-- recover with a hangover that matches most extreme point achieved
@@ -929,6 +934,7 @@ effect_name = "Neurotoxicity"
 
 function HEALTH.neurotoxicity(order, player, meta, effects_list, mov, jum)
 
+	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
 		--restrict movement
@@ -994,6 +1000,7 @@ liver poison. vomiting, death
 ]]--
 function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_rate, h_rate)
 
+	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	--you're fine until you really aren't
 	if random()<0.3 then
@@ -1068,6 +1075,7 @@ i.e. you are coming up in blisters if exposed to sun
 
 function HEALTH.photosensitivity(order, player, meta, effects_list, h_rate, r_rate )
 
+	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	--you're fine unless in the sun
 	local pos = player:get_pos()
@@ -1133,6 +1141,7 @@ function HEALTH.meta_stim(order, player, meta, effects_list, h_rate, r_rate, hun
 	if light <= 14 then
 
 
+	   if not order then order = 0 end
 		--APPLY SYMPTOMS
 		if order == 1 then
 			if max_metastim < 1 then
@@ -1331,7 +1340,8 @@ function HEALTH.add_new_effect(player, name)
 	--effect already present. call function to decide how to progress it
 	for i, effect in ipairs(effects_list) do
 
-		if effect[1] == name[1] then
+	   if effect[1] == name[1] then
+	      if not name[2] then name[2] = 1 end -- Fix broken illness
 
 			--min timer, max timer (for extensions), max order, chance of adding an equal or lower boosting to a higher order
 			if name[1] == "Food Poisoning" then
@@ -1429,9 +1439,31 @@ end
 -------------------------------------------------------------------
 --TEST!!!!
 -------------------------------------------------------------------
---[[
+__DEBUG__ = __DEBUG__
+if __DEBUG__ then
+
+local effects = { "Food Poisoning", "Drunk", "Intestinal Parasites",
+		  "Tiku High", "Neurotoxicity", "Hepatotoxicity",
+		  "Photosensitivity", "Meta-Stim",}
+
+-- #TODO: Replace the yes/no chain with a dropdown
+local function add_effect(clicked_yes, data_table, player, playername)
+   if clicked_yes then
+      HEALTH.add_new_effect(player, {effects[data_table], 1})
+   end
+   local i = data_table + 1
+   if i < #effects then
+      minetest.after(0.1, function()
+      minimal.yes_or_no(playername,
+			(" Do you want to add "..effects[i].."?"),
+			add_effect,
+			i)
+      end)
+   end
+end
+
 minetest.register_craftitem("health:bug_test_food", {
-	description = "Bug TESTING FOOD",
+	description = "Bug TESTING Poison",
 	inventory_image = "tech_vegetable_oil.png",
 	stack_max = 500,
 	groups = {flammable = 1},
@@ -1439,20 +1471,15 @@ minetest.register_craftitem("health:bug_test_food", {
 
   on_use = function(itemstack, user, pointed_thing)
 
-		--HEALTH.add_new_effect(user, {"Food Poisoning", 1})
-		--HEALTH.add_new_effect(user, {"Drunk", 1})
-		--HEALTH.add_new_effect(user, {"Intestinal Parasites"})
-		--HEALTH.add_new_effect(user, {"Tiku High", 1})
-		--HEALTH.add_new_effect(user, {"Neurotoxicity", 1})
-		--HEALTH.add_new_effect(user, {"Hepatotoxicity", 1})
-		--HEALTH.add_new_effect(user, {"Photosensitivity", 1})
-		--HEALTH.add_new_effect(user, {"Meta-Stim", 1})
-
+     minimal.yes_or_no(user:get_player_name(),
+		       (" Do you want to add "..effects[1].."?"),
+		       add_effect,
+		       1)
   end,
 })
 
 minetest.register_craftitem("health:bug_test_food2", {
-	description = "Bug TESTING FOOD 2",
+	description = "Bug TESTING Panacea",
 	inventory_image = "tech_vegetable_oil.png",
 	stack_max = 500,
 	groups = {flammable = 1},
@@ -1460,16 +1487,16 @@ minetest.register_craftitem("health:bug_test_food2", {
 
   on_use = function(itemstack, user, pointed_thing)
 
-		--HEALTH.remove_new_effect(user, {"Food Poisoning", 3})
-		--HEALTH.remove_new_effect(user, {"Drunk", 4})
-		--HEALTH.remove_new_effect(user, {"Hangover", 4})
-		--HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
-		--HEALTH.remove_new_effect(user, {"Tiku High", 4})
-		--HEALTH.remove_new_effect(user, {"Neurotoxicity", 4})
-		--HEALTH.remove_new_effect(user, {"Hepatotoxicity", 4})
-		--HEALTH.remove_new_effect(user, {"Photosensitivity", 4})
-		--HEALTH.remove_new_effect(user, {"Meta-Stim", 4})
+		HEALTH.remove_new_effect(user, {"Food Poisoning", 3})
+		HEALTH.remove_new_effect(user, {"Drunk", 4})
+		HEALTH.remove_new_effect(user, {"Hangover", 4})
+		HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
+		HEALTH.remove_new_effect(user, {"Tiku High", 4})
+		HEALTH.remove_new_effect(user, {"Neurotoxicity", 4})
+		HEALTH.remove_new_effect(user, {"Hepatotoxicity", 4})
+		HEALTH.remove_new_effect(user, {"Photosensitivity", 4})
+		HEALTH.remove_new_effect(user, {"Meta-Stim", 4})
 
   end,
 })
-]]
+end
