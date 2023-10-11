@@ -72,7 +72,6 @@ Herbal Medicine=
 Tang=
 Tang (unfermented)=
 Tiku (stimulant)=
-Tiku High=
 
 # fibreworking.lua
 Unretted Cana Bundle=

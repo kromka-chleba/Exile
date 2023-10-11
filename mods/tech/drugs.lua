@@ -96,7 +96,7 @@ minetest.register_craftitem("tech:tiku", {
   on_use = function(itemstack, user, pointed_thing)
 
     --begin the bender
-		HEALTH.add_new_effect(user, {S("Tiku High"), 1})
+		HEALTH.add_new_effect(user, {"Tiku High", 1})
 
     --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
     return HEALTH.use_item(itemstack, user, 0, 0, -24, 96, 0)
