@@ -56,4 +56,18 @@ if __DEBUG__ then
        print(dump2(witem:get_meta():to_table()))
     end
    })
+   minetest.register_chatcommand("nodemeta", {
+    params = "<none>",
+    description = "Prints the meta table of the currently pointed node",
+    privs = {},
+    func = function(name, param)
+       local pointed_thing = minimal.get_pointed_thing(name)
+       if not pointed_thing or not pointed_thing.type == "node" then
+	  return
+       end
+       local nodename = minetest.get_node(pointed_thing.under).name
+       local meta = minetest.get_meta(pointed_thing.under)
+       print(nodename," - ",dump2(meta:to_table()))
+    end
+   })
 end
