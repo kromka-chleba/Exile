@@ -50,6 +50,20 @@ function minimal.click_count_ready(name, id, pos, count, timeout)
 	return false
 end
 
+function minimal.get_pointed_thing(player)
+  -- get the player by name if string
+  if (type(player) == "string") then
+    player = minetest.get_player_by_name(player)
+  end
+   local ppos = player:get_pos()
+   local eye_height = player:get_properties().eye_height
+   ppos.y = ppos.y + eye_height
+   local lookdir = vector.multiply(player:get_look_dir(), 4) -- out to 5 nodes
+   local pointpos = vector.add(ppos, lookdir)
+   local pointed_thing = minetest.raycast(ppos, pointpos, false, false):next()
+   return pointed_thing
+end
+
 function minimal.sanitize_string(badstring)
   assert(type(badstring) == "string","exile_game.sanitize_string: Invalid badstring given, got "..type(badstring))
    local disallowed = { "\\", "{", "}", "^", ";",

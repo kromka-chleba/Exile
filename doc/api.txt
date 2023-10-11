@@ -1,5 +1,26 @@
+[[[        functions        ]]]
+----------- utility -----------
+minimal.concat_tables(numeric_t1, numeric_t2)
++minimal.merge_tables(keyval_t1, keyval_t2)
+		- Splices table t1 and t2 together, numeric or key/value indexed
+minimal.get_pointed_thing(player/playername)
+		- Get pointed thing for player via player object, or player name
+minimal.invlists2string(lists)
++minimal.string2invlists(string)
+		- Convert inventory lists into a serialized string and back
+minimal.math_clamp(number, min, max)
+		- Clamps any input number to a value inbetween min and max
 
-Custom node definitions:
+		- Splices key/value tables t1 and t2 together
+minimal.player_in_creative(player/playername)
+		- Returns true if the player object or name is in creative
+minimal.sanitize_string(string)
+		- Removes dangerous/disallowed chars
+minimal.yes_or_no(pname, question, function_call, attached_data_table)
+		- Sends yes/no formspec to the player, see utility.lua for more
+
+
+[[[ Custom node definitions ]]]
 ---------- callbacks ----------
 _on_use_node = function(player, pointed_node, pointed_thing, wielded_item)
 	Called when the player presses the "use" key while pointing at the node
