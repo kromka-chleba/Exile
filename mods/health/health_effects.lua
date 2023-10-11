@@ -49,7 +49,6 @@ various minor effects (symptoms) shared by many diseases (e.g. vomiting). Called
 
 ]]
 
-
 local random = math.random
 
 ------------------------------------------------------------------
@@ -478,7 +477,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 				added_order = 4
 			end
 			--food_poisoning_progress(meta, effects_list, order, added_order, true)
-			default_timer_progress("Food Poisoning", 3, 6, 4, 0.2, meta, effects_list, current_order, added_order, true)
+			default_timer_progress("Food Poisoning", 3, 6, 4, 0.2, meta, effects_list, order, added_order, true)
 		else
 			--food_poisoning_regress(meta, effects_list, order-1, nil, true)
 			default_timer_regress(player, "Food Poisoning", 3, 6, meta, effects_list, order-1, nil, nil, true)
@@ -542,7 +541,7 @@ function HEALTH.fungal_infection(order, player, meta, effects_list, r_rate, mov,
 			if added_order > 4 then
 				added_order = 4
 			end
-			default_timer_progress("Fungal Infection", 6, 12, 4, 0.2, meta, effects_list, current_order, added_order, true)
+			default_timer_progress("Fungal Infection", 6, 12, 4, 0.2, meta, effects_list, order, added_order, true)
 		else
 			default_timer_regress(player, "Fungal Infection", 6, 12, meta, effects_list, order-1, nil, nil, true)
 		end
@@ -615,7 +614,7 @@ function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov, jum, 
 			if added_order > 4 then
 				added_order = 4
 			end
-			default_timer_progress("Dust Fever", 6, 12, 4, 0.2, meta, effects_list, current_order, added_order, true)
+			default_timer_progress("Dust Fever", 6, 12, 4, 0.2, meta, effects_list, order, added_order, true)
 		else
 			default_timer_regress(player, "Dust Fever", 6, 12, meta, effects_list, order-1, nil, nil, true)
 		end
@@ -900,7 +899,7 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, m
 			if added_order > 4 then
 				added_order = 4
 			end
-			default_timer_progress("Tiku High", 3, 6, 3, 0.2, meta, effects_list, current_order, added_order, true)
+			default_timer_progress("Tiku High", 3, 6, 3, 0.2, meta, effects_list, order, added_order, true)
 		else
 			order = order - 1
 			-- recover with a hangover that matches most extreme point achieved
@@ -1341,7 +1340,7 @@ function HEALTH.add_new_effect(player, name)
 			elseif name[1] == "Dust Fever" then
 				default_timer_progress("Dust Fever", 6, 12, 4, 0.2, meta, effects_list, effect[2], name[2])
 			elseif name[1] == "Drunk" then
-				default_timer_progress("Drunk", 3, 6, 4, 0.2, meta, effects_list, effect[2], name[2])
+				default_timer_progress("Drunk", 3, 6, 4, 0.4, meta, effects_list, effect[2], name[2])
 			elseif name[1] == "Hangover" then
 				default_timer_progress("Hangover", 4, 8, 4, 0.4, meta, effects_list, effect[2], name[2])
 			elseif name[1] == "Intestinal Parasites" then
@@ -1363,7 +1362,6 @@ function HEALTH.add_new_effect(player, name)
 			return
 		end
 	end
-
 
 	--doesn't currently exist, so add and update HUD, list
 	table.insert(effects_list, name)
@@ -1431,7 +1429,7 @@ end
 -------------------------------------------------------------------
 --[[
 minetest.register_craftitem("health:bug_test_food", {
-	description = "Bug TESTING FOOD",
+	description = "Bug TESTING Poison",
 	inventory_image = "tech_vegetable_oil.png",
 	stack_max = 500,
 	groups = {flammable = 1},
@@ -1452,7 +1450,7 @@ minetest.register_craftitem("health:bug_test_food", {
 })
 
 minetest.register_craftitem("health:bug_test_food2", {
-	description = "Bug TESTING FOOD 2",
+	description = "Bug TESTING Panacea",
 	inventory_image = "tech_vegetable_oil.png",
 	stack_max = 500,
 	groups = {flammable = 1},
@@ -1460,16 +1458,10 @@ minetest.register_craftitem("health:bug_test_food2", {
 
   on_use = function(itemstack, user, pointed_thing)
 
-		--HEALTH.remove_new_effect(user, {"Food Poisoning", 3})
-		--HEALTH.remove_new_effect(user, {"Drunk", 4})
-		--HEALTH.remove_new_effect(user, {"Hangover", 4})
-		--HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
-		--HEALTH.remove_new_effect(user, {"Tiku High", 4})
-		--HEALTH.remove_new_effect(user, {"Neurotoxicity", 4})
-		--HEALTH.remove_new_effect(user, {"Hepatotoxicity", 4})
-		--HEALTH.remove_new_effect(user, {"Photosensitivity", 4})
-		--HEALTH.remove_new_effect(user, {"Meta-Stim", 4})
-
+	local meta = user:get_meta()
+	meta:set_int("effects_num", 0 )
+	meta:set_string("effects_list", minetest.serialize({}))
   end,
 })
-]]
+
+]]--
