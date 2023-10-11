@@ -145,14 +145,10 @@ local function check_player_surroundings(player, pos, name)
 end
 
 
-local function handle_use_key(player, ppos)
+local function handle_use_key(player)
    local using_tool = false -- whether we've done a thing yet
    local witem = player:get_wielded_item()
-   local eye_height = player:get_properties().eye_height
-   ppos.y = ppos.y + eye_height
-   local lookdir = vector.multiply(player:get_look_dir(), 4) -- out to 5 nodes?
-   local pointpos = vector.add(ppos, lookdir)
-   local pointed_thing = minetest.raycast(ppos, pointpos, false, false):next()
+   local pointed_thing = minimal.get_pointed_thing(player)
    local pointed_node
    if pointed_thing then
       pointed_node = minetest.get_node(pointed_thing.under)
@@ -348,8 +344,7 @@ minetest.register_globalstep(function(dtime)
 	    if controls[USE_KEY] and player:get_hp() > 0 then
 	       if use_timer[name] <= 0 then
 		  use_timer[name] = 1
-		  local player_pos = player:get_pos()
-		  handle_use_key(player, player_pos)
+		  handle_use_key(player)
 	       end
 	    end
 
