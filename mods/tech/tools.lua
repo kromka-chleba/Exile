@@ -192,10 +192,7 @@ minetest.register_tool("tech:stone_chopper", {
 	-- _place_tip = "Place tool for cutting crafts", -- No such crafts yet
 	sound = {breaks = "tech_tool_breaks"},
 	_on_use_item = function(player, wielded_item, pointed_thing)
-	   local wear = wielded_item:get_wear()
-	   local etcher = ItemStack("tech:stone_etcher")
-	   etcher:set_wear(wear)
-	   player:set_wielded_item(etcher)
+	   minimal.swap_tool(player, wielded_item, "tech:stone_etcher")
 	   return false
 	end,
         on_place = function(itemstack, placer, pointed_thing)

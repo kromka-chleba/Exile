@@ -64,6 +64,16 @@ function minimal.get_pointed_thing(player)
    return pointed_thing
 end
 
+function minimal.swap_tool(player, wielded_item, newtool)
+   local wear = wielded_item:get_wear()
+   local meta = wielded_item:get_meta():to_table()
+   local newstack = ItemStack(newtool)
+   newstack:set_wear(wear)
+   newstack:get_meta():from_table(meta)
+   player:set_wielded_item(newstack)
+end
+
+
 function minimal.sanitize_string(badstring)
   assert(type(badstring) == "string","exile_game.sanitize_string: Invalid badstring given, got "..type(badstring))
    local disallowed = { "\\", "{", "}", "^", ";",

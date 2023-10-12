@@ -165,10 +165,7 @@ grafitti.register_brush("tech:stone_etcher", {
 minetest.override_item("tech:stone_etcher", {
 	_use_tip = "Flip to stone knife",
 	_on_use_item = function(player, wielded_item, pointed_thing)
-	   local wear = wielded_item:get_wear()
-	   local knife = ItemStack("tech:stone_chopper")
-	   knife:set_wear(wear)
-	   player:set_wielded_item(knife)
+	   minimal.swap_tool(player, wielded_item, "tech:stone_chopper")
 	   return false
 	end
 })

@@ -14,6 +14,8 @@ minimal.player_in_creative(player/playername)
 		- Returns true if the player object or name is in creative
 minimal.sanitize_string(string)
 		- Removes dangerous/disallowed chars
+minimal.swap_tool(player, wielded_item, toolname)
+		- Changes the wielded tool into toolname, preserves wear & meta
 minimal.yes_or_no(pname, question, function_call, attached_data_table)
 		- Sends yes/no formspec to the player, see utility.lua for more
 --------- utilitynode ---------
