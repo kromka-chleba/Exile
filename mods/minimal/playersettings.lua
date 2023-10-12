@@ -53,9 +53,9 @@ function minimal.show_player_settings(playername, meta)
      tempnum..";true]"..
    "label[1,3.75;GUI theme:]"..
    "dropdown[4,3.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
-   "label[1,4.55;HUD Transparency level:]"..
+   "label[1,4.55;HUD Opacity level:]"..
    "scrollbaroptions[min=0;max=255;largestep=50]"..
-      "scrollbar[1,5;6,0.5;horizontal;HudTransp;"..opacity.."]"
+      "scrollbar[1,5;6,0.5;horizontal;HudOpac;"..opacity.."]"
    minetest.show_formspec(playername, "player_settings", spec)
 end
 
@@ -85,8 +85,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 if temp_fromnum[num] and temp_fromnum[num] ~= oldtempscale then
 	    meta:set_string("tempscale", temp_fromnum[num])
 	 end
-	 if fields.HudTransp then
-	    local ev = minetest.explode_scrollbar_event(fields.HudTransp)
+	 if fields.HudOpac then
+	    local ev = minetest.explode_scrollbar_event(fields.HudOpac)
 	    if ev.type == "CHG" then
 	       meta:set_string("hud_opacity", ev.value)
 	       HEALTH.hud_update_settings(name, { opacity = ev.value })
