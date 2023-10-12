@@ -1,10 +1,18 @@
 minimal = minimal
 
-function minimal.vmanip_subregion(pos1,pos2, p1, p2)
+function minimal.vmanip_subregion(pos1, pos2, p1, p2)
    -- Creates parameters to a for loop that will cover an x/y/z subregion of a
-   --  voxelmanip's flat array. For example: (we stored the return value in retv)
-   --  " for z = retv.zstart, retv.zstop, retv.zstep do ; for y ... ; for x ... "
-   -- pos1/2 are the subregion, p1/2 are the full extent of the voxelmanip area
+   --  voxelmanip's flat array. Parameters pos1/2 are the subregion you wish to
+   --  work with, while p1/2 are the full extent of the voxelmanip area
+
+   -- For example:
+   --  local VM_area1, VM_area2 = VoxelManip:read_from_map(MyPos1, MyPos2)
+   --  retv = vmanip(subregion(MyPos1, MyPos2, VM_area1, VM_area2)
+   --  for z = retv.zstart, retv.zstop, retv.zstep do
+   --    for y ... -- (as above)
+   --      for x ...
+   --        local index = x+y+z ; data[index] = my_node_cid
+   --
 
    -- First we get dimensions for the VM array
    local xl = p2.x - p1.x + 1 -- X length of the whole VM area, count from 1
