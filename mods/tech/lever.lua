@@ -159,13 +159,20 @@ end
 
 -- lever
 minetest.register_tool("tech:lever", {
-	description = S("lever") .. "\n" .. S("(left-click rotates face, right-click rotates axis)"),
+	description = S("lever"),
 	inventory_image = "tech_tool_lever.png",
 	groups = {tool = 1},
 	_uses = 400,
+	_dig_tip = S("Rotate face"),
+	_use_tip = S("Flip to aligner"),
+	_place_tip = S("Rotate axis"),
 	on_use = function(itemstack, user, pointed_thing)
 		lever.handler(itemstack, user, pointed_thing, lever.ROTATE_FACE)
 		return itemstack
+	end,
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   minimal.swap_tool(player, wielded_item, "tech:aligner")
+	   return false
 	end,
 	on_place = function(itemstack, user, pointed_thing)
 		lever.handler(itemstack, user, pointed_thing, lever.ROTATE_AXIS)
@@ -235,17 +242,22 @@ local function aligner(itemstack, user, pointed_thing, grab)
 end
 
 minetest.register_tool("tech:aligner", {
-	  description = S("alignment tool") .. "\n" ..
-	     S("(right-click samples a node, left-click "..
-	       "applies its facing to others)"),
+	  description = S("alignment tool"),
 	inventory_image = "tech_tool_lever.png^[transformFX",
 	groups = {tool = 1},
 	_uses = 400,
-	on_use = function(itemstack, user, pointed_thing)
+	_dig_tip = S("Pick up a node's facing"),
+	_use_tip = S("Flip to lever"),
+	_place_tip = S("Apply facing to another node"),
+	on_place = function(itemstack, user, pointed_thing)
 		aligner(itemstack, user, pointed_thing, false)
 		return itemstack
 	end,
-	on_place = function(itemstack, user, pointed_thing)
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   minimal.swap_tool(player, wielded_item, "tech:lever")
+	   return false
+	end,
+	on_use = function(itemstack, user, pointed_thing)
 		aligner(itemstack, user, pointed_thing, true)
 		return itemstack
 	end,

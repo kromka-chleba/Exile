@@ -209,7 +209,13 @@ Torch=Antorcha
 
 # lever.lua
 lever=Palanca
-(left-click rotates face, right-click rotates axis)=(clic izq. rota la cara, click der. rota el eje)
+Rotate face=Rota la cara
+Flip to aligner=Voltear al alineador
+Rotate axis=Rota el eje
+alignment tool=Alineador
+Pick up a node's facing=Obtener la cara
+Flip to lever=Voltear a palanca
+Apply facing to another node=Aplicar la cara
 
 # craft-stations.lua
 Crafting Spot=Lugar para Fabricar

@@ -211,7 +211,13 @@ Torch=
 
 # lever.lua
 lever=
-(left-click rotates face, right-click rotates axis)=
+Rotate face=
+Flip to aligner=
+Rotate axis=
+alignment tool=
+Pick up a node's facing=
+Flip to lever=
+Apply facing to another node=
 
 # craft-stations.lua
 Crafting Spot=
