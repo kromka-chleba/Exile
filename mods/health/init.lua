@@ -153,17 +153,18 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger,
 	      energy, thirst, hunger, temperature
 	end
 
-	for _, effect in ipairs(effects_list) do
+	for key, effect in ipairs(effects_list) do
 
 		local name = effect[1]
 		local order = effect[2]
-
+		local valid = false
 
 		----------
 		if name == "Food Poisoning" then
 		   r_rate, mov, jum, temperature
 		      = HEALTH.food_poisoning(order, player, meta, effects_list,
 					      r_rate, mov, jum, temperature)
+		   valid = true
 		end
 
 		----------
@@ -172,6 +173,7 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger,
 		      = HEALTH.fungal_infection(order, player, meta,
 						effects_list, r_rate, mov, jum,
 						temperature)
+		   valid = true
 		end
 
 		----------
@@ -179,6 +181,7 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger,
 		   r_rate, mov, jum, temperature
 		      = HEALTH.dust_fever(order, player, meta, effects_list,
 					  r_rate, mov, jum, temperature)
+		   valid = true
 		end
 
 		----------
@@ -186,12 +189,14 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger,
 		   r_rate, mov, jum, h_rate, temperature
 		      = HEALTH.drunk(order, player, meta, effects_list,
 				     r_rate, mov, jum, h_rate, temperature)
+		   valid = true
 		end
 
 		----------
 		if name == "Hangover" then
 		   mov, jum = HEALTH.hangover(order, player, meta,
 					      effects_list, mov, jum)
+		   valid = true
 		end
 
 		----------
@@ -200,6 +205,7 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger,
 		      = HEALTH.intestinal_parasites(order, player, meta,
 						    effects_list, r_rate,
 						    hun_rate)
+		   valid = true
 		end
 
 		----------
@@ -207,12 +213,14 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger,
 		   r_rate, hun_rate, mov, jum, temperature
 		      = HEALTH.tiku_high(order, player, meta, effects_list,
 					 r_rate, hun_rate, mov, jum, temperature)
+		   valid = true
 		end
 
 		----------
 		if name == "Neurotoxicity" then
 		   mov, jum = HEALTH.neurotoxicity(order, player, meta,
 						   effects_list, mov, jum)
+		   valid = true
 		end
 
 		----------
@@ -220,6 +228,7 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger,
 		   mov, jum, r_rate, h_rate
 		      = HEALTH.hepatotoxicity(order, player, meta, effects_list,
 					      mov, jum, r_rate, h_rate)
+		   valid = true
 		end
 
 		----------
@@ -227,6 +236,7 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger,
 		   h_rate, r_rate
 		      = HEALTH.photosensitivity(order, player, meta,
 						effects_list, h_rate, r_rate)
+		   valid = true
 		end
 
 		---------
@@ -234,9 +244,15 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger,
 		   h_rate, r_rate, hun_rate, t_rate
 		      = HEALTH.meta_stim(order, player, meta, effects_list,
 					 h_rate, r_rate, hun_rate, t_rate)
+		   valid = true
 		end
 
-
+		if valid == false then
+		   table.remove(effects_list, key)
+		   meta:set_string("effects_list",
+				   minetest.serialize(effects_list))
+		   meta:set_int("effects_num", #effects_list)
+		end
 	end
 
 	return h_rate, r_rate, t_rate, hun_rate, mov, jum, health,
