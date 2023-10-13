@@ -46,11 +46,16 @@ function minetest.is_protected(pos, name)
    return old_is_protected(pos, name)
 end
 
--- Return protection nail if node was nailed
 local old_node_dig = minetest.node_dig
 function minetest.node_dig(pos, node, digger)
-	minimal.protection_on_dig(pos,node,digger)
-	return old_node_dig(pos, node, digger)
+   local inv = digger:get_inventory()
+   if not inv:room_for_item("main", node.name) then
+      minimal.warn_inv_full(digger)
+      return false
+   end
+   -- Return protection nail if node was nailed
+   minimal.protection_on_dig(pos,node,digger)
+   return old_node_dig(pos, node, digger)
 end
 
 -- Transfer metadata from node to item and back.

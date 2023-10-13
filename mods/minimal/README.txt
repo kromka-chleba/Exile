@@ -26,3 +26,6 @@ MSavioti (CC0)
 Mantar (CC0)
  9slice-*.png
 
+Lokif (CC0) from GUI Sound Effects pack
+ success.ogg (orig. misc_menu_2.wav)
+ failure.ogg (orig. negative_2.wav)

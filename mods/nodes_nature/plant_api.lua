@@ -43,30 +43,6 @@ local on_place_plant = function(itemstack, placer, pointed_thing)
     return minetest.item_place_node(itemstack, placer, pointed_thing)
 end
 
----------------------------
--- Dig upwards
---
-
-local function dig_up(pos, node, digger)
-	if digger == nil then return end
-	local lnode = wielded_light.get_unlit_node(node)
-	local np = {x = pos.x, y = pos.y + 1, z = pos.z}
-	local unode = wielded_light.get_unlit_node(minetest.get_node(np))
-	local count = 0
-	while lnode.name == unode.name do
-	   count = count + 1
-	   minetest.set_node(np, {name = "air"})
-	   np.y = np.y + 1
-	   unode = wielded_light.get_unlit_node(minetest.get_node(np))
-	end
-	if count > 0 then
-	   local inv = digger:get_inventory()
-	   local leftover = inv:add_item('main',
-					 lnode.name.." "..tostring(count))
-	   if leftover then minetest.add_item(pos, leftover) end
-	end
-end
-
 local sounds = {
     ["default_leaves"] = nodes_nature.node_sound_leaves_defaults(),
     ["woody_plant"] = nodes_nature.node_sound_wood_defaults(),
@@ -456,8 +432,8 @@ function plant.get_canelike_props(plant_def)
         fixed = {-0.1875, -0.5, -0.1875, 0.1875, 0.5, 0.1875},
     }
     base.groups.attached_node = 0
-    base.after_dig_node = function(pos, node, metadata, digger)
-        dig_up(pos, node, digger)
+    base.on_dig = function(pos, node, digger)
+        return minimal.dig_up(pos, node, digger)
     end
     base.floodable = false
     local plant_name = plant.get_name(plant_def.name)

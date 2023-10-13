@@ -57,6 +57,32 @@ function minimal.set_hotbar(player,pref)
 	end
 end
 
+local blinkingbar = {}
+
+function minimal.hotbar_blink(player, color)
+   if not minetest.is_player(player) then return end
+   local pname = player:get_player_name()
+   if blinkingbar[pname] then return end
+   local img = player:hud_get_hotbar_image()
+   if type(color) ~= "string" then color = "#000" end
+   player:hud_set_hotbar_image(img.."^[colorize:"..color)
+   blinkingbar[pname] = true
+   minetest.after(0.5, function()
+		     if minetest.is_player(player) then
+			player:hud_set_hotbar_image(img)
+		     end
+		     blinkingbar[pname] = nil
+   end)
+end
+
+function minimal.warn_inv_full(player)
+   if minetest.is_player(player) then
+      minimal.hotbar_blink(player, "#F33")
+      minetest.sound_play("failure",
+			  {to_player = player:get_player_name()})
+   end
+end
+
 minetest.register_on_joinplayer(function(player)
 	-- Set formspec prependl
 	local meta = player:get_meta()

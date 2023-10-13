@@ -1,4 +1,9 @@
 [[[        functions        ]]]
+------------- init ------------
+minimal.warn_inv_full(player)
+		- Blinks the hotbar and plays the failure sound
+minimal.hotbar_blink(player, color)
+		- Make the hotbar flash the `ColorString` for 0.5 seconds
 ----------- utility -----------
 minimal.concat_tables(numeric_t1, numeric_t2)
 +minimal.merge_tables(keyval_t1, keyval_t2)
@@ -19,6 +24,8 @@ minimal.swap_tool(player, wielded_item, toolname)
 minimal.yes_or_no(pname, question, function_call, attached_data_table)
 		- Sends yes/no formspec to the player, see utility.lua for more
 --------- utilitynode ---------
+minimal.dig_up(pos, node, digger)
+		- Digs identical nodes up, ignoring lit versions. Used in on_dig
 minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
 		- looks for a rightclick function, runs it. Returns false
 		  if there is none, or passes the itemstack/etc of on_rightclick
