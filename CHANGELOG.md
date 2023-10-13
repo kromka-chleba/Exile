@@ -1,5 +1,9 @@
 # Changelog:
 
+## [2023-10-13][2023-10-13__0.3.13.37]
+  - Commit #1337
+  - Bugfixes for v0.3.11
+
 ## [2023-09-30][2023-09-30__0.3.11]
   - Improved animal behavior
   - Increase portion size for meat
