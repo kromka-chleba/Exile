@@ -12,6 +12,8 @@ local S = nodes_nature.S
 local random = math.random
 local floor = math.floor
 local c_alpha = minimal.compat_alpha
+seasons = seasons
+seasonal_types = seasonal_types
 
 exile_add_food_hooks = exile_add_food_hooks
 wielded_light = wielded_light
@@ -37,7 +39,7 @@ local on_place_plant = function(itemstack, placer, pointed_thing)
           return on_click or itemstack
         end
       end
-      
+
       return itemstack
     end
     return minetest.item_place_node(itemstack, placer, pointed_thing)
@@ -577,18 +579,18 @@ end
 local function fruiting_on_punch(pos, node, puncher, pointed_thing)
     local node_name = minetest.get_node(pos).name
     local nodedef = minetest.registered_nodes[node_name]
-    if node.param2 < 64 then
-        plant.set_to_half_wild(pos)
-    end
-    if nodedef._fruitless_name then
-        minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
-    end
     local inv = puncher:get_inventory()
     local new_stack = ItemStack(nodedef._fruit_name)
     if inv:room_for_item("main", new_stack) then
-        inv:add_item("main", new_stack)
+       if node.param2 < 64 then
+	  plant.set_to_half_wild(pos)
+       end
+       if nodedef._fruitless_name then
+	  minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
+       end
+       inv:add_item("main", new_stack)
     else
-        minetest.add_item(pos, new_stack)
+       minimal.warn_inv_full(puncher)
     end
 end
 

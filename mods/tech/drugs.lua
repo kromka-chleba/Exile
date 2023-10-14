@@ -295,12 +295,12 @@ local on_dig_tang = function(pos, node, digger, pot_type)
 	stack_meta:set_int("ferment", ferment)
 
 
-	minetest.remove_node(pos)
 	local player_inv = digger:get_inventory()
 	if player_inv:room_for_item("main", new_stack) then
 		player_inv:add_item("main", new_stack)
+		minetest.remove_node(pos)
 	else
-		minetest.add_item(pos, new_stack)
+	   minimal.warn_inv_full(digger)
 	end
 end
 

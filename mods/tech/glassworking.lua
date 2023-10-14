@@ -513,10 +513,10 @@ minetest.register_node("tech:pane_tray_green",
 	   local inv = digger:get_inventory()
 	   if inv:room_for_item("main", "tech:pane_green") then
 	      inv:add_item("main", "tech:pane_green")
+	      minetest.swap_node(pos, {name = "tech:pane_tray"})
 	   else
-	      minetest.add_item(pos, "tech:pane_green")
+	      minimal.warn_inv_full(digger)
 	   end
-	   minetest.swap_node(pos, {name = "tech:pane_tray"})
 	end,
 
 })
@@ -548,10 +548,10 @@ minetest.register_node("tech:pane_tray_clear",
 	   local inv = digger:get_inventory()
 	   if inv:room_for_item("main", "tech:pane_clear") then
 	      inv:add_item("main", "tech:pane_clear")
+	      minetest.swap_node(pos, {name = "tech:pane_tray"})
 	   else
-	      minetest.add_item(pos, "tech:pane_clear")
+	      minimal.warn_inv_full(digger)
 	   end
-	   minetest.swap_node(pos, {name = "tech:pane_tray"})
 	end,
 
 })

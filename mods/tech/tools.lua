@@ -73,14 +73,14 @@ local function on_dig_tool(pos, node, digger, name)
     minimal.protection_on_dig(pos,node,digger)
     local meta = minetest.get_meta(pos)
     local wear = meta:get_int("wear")
+    local player_inv = digger:get_inventory()
     local stack = ItemStack(name)
     stack:set_wear(wear)
-    minetest.remove_node(pos)
-    local player_inv = digger:get_inventory()
     if player_inv:room_for_item("main", stack) then
-        player_inv:add_item("main", stack)
+       minetest.remove_node(pos)
+       player_inv:add_item("main", stack)
     else
-        minetest.add_item(pos, stack) -- drop item if inventory full
+       minimal.warn_inv_full(digger)
     end
 end
 

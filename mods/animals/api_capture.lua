@@ -177,14 +177,13 @@ animals.capture = function(self, clicker)
       end
    end
 
+	local inv = clicker:get_inventory()
+	if inv:room_for_item("main", new_stack) then
+		inv:add_item("main", new_stack)
+		self.object:remove()
+	else
+		minimal.warn_inv_full(clicker)
+	end
 
-   local inv = clicker:get_inventory()
-   if inv:room_for_item("main", new_stack) then
-      inv:add_item("main", new_stack)
-   else
-      minetest.add_item(clicker:get_pos(), new_stack)
-   end
-
-   self.object:remove()
-   return stack_meta
+	return stack_meta
 end

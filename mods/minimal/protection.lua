@@ -64,7 +64,7 @@ function minimal.protection_on_dig(pos,oldnode,digger)
         if inv:room_for_item("main", 'tech:nails') then
           inv:add_item("main",'tech:nails')
         else
-          minetest.chat_send_player(digger, "No room in inventory!")
+	  minetest.warn_inv_full(digger)
           minetest.add_item(pos, 'tech:nails')
         end
       end
