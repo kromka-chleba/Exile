@@ -16,6 +16,9 @@
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
+-- Warning: this is a circular dependency; minimal depends on crafting, too
+--minimal = minimal
+
 crafting = {
 	recipes = {},
 	tab_labels = {},
@@ -343,7 +346,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 	 else
 	    local player = minetest.get_player_by_name(name)
 	    local pos = player:get_pos()
-	    minetest.warn_inv_full(player)
+	    minimal.warn_inv_full(player)
 	    minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), itemstack)
 	 end
 	 return true
