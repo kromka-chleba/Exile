@@ -312,29 +312,30 @@ function minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
 end
 
 function minimal.dig_up(pos, node, digger)
-	if digger == nil then return end
-	local lnode = wielded_light.get_unlit_node(node)
-	local np = vector.new(pos.x,pos.y,pos.z)
-	local unode = wielded_light.get_unlit_node(minetest.get_node(np))
-	local count = 0
-	local removetable = {}
-	while lnode.name == unode.name do
-	   count = count + 1
-	   table.insert(removetable, vector.new(np.x, np.y, np.z))
-	   np.y = np.y + 1
-	   unode = wielded_light.get_unlit_node(minetest.get_node(np))
-	end
-	if count > 0 then
-	   local inv = digger:get_inventory()
-	   if inv:room_for_item("main", lnode.name.." "..tostring(count)) then
-	      inv:add_item('main', lnode.name.." "..tostring(count))
-	      for i = 1, #removetable do
-		 minetest.set_node(removetable[i], {name = "air"})
-	      end
-	      return true
-	   else
-	      minimal.warn_inv_full(digger)
-	   end
-	end
-	return false
+   if digger == nil or not minetest.is_player(digger) then return end
+   -- #TODO: allow animals to dig cane plants?
+   local lnode = wielded_light.get_unlit_node(node)
+   local np = vector.new(pos.x,pos.y,pos.z)
+   local unode = wielded_light.get_unlit_node(minetest.get_node(np))
+   local count = 0
+   local removetable = {}
+   while lnode.name == unode.name do
+      count = count + 1
+      table.insert(removetable, vector.new(np.x, np.y, np.z))
+      np.y = np.y + 1
+      unode = wielded_light.get_unlit_node(minetest.get_node(np))
+   end
+   if count > 0 then
+      local inv = digger:get_inventory()
+      if inv:room_for_item("main", lnode.name.." "..tostring(count)) then
+	 inv:add_item('main', lnode.name.." "..tostring(count))
+	 for i = 1, #removetable do
+	    minetest.set_node(removetable[i], {name = "air"})
+	 end
+	 return true
+      else
+	 minimal.warn_inv_full(digger)
+      end
+   end
+   return false
 end

@@ -273,16 +273,16 @@ end
 
 --save usage into inventory, to prevent infinite supply
 local on_dig_tang = function(pos, node, digger, pot_type)
-	if minetest.is_protected(pos, digger:get_player_name()) then
-		return false
-	end
-  
+   if digger and minetest.is_protected(pos, digger:get_player_name()) then
+          return false
+   end
+
   if (type(pot_type) == "string") then
     pot_type = string.lower(pot_type)
   else
     pot_type = ""
   end
-  
+
 
 	local meta = minetest.get_meta(pos)
 	local ferment = get_or_create_ferment(meta)
@@ -295,9 +295,9 @@ local on_dig_tang = function(pos, node, digger, pot_type)
 	stack_meta:set_int("ferment", ferment)
 
 
-	local player_inv = digger:get_inventory()
-	if player_inv:room_for_item("main", new_stack) then
-		player_inv:add_item("main", new_stack)
+	local digger_inv = digger:get_inventory()
+	if digger_inv:room_for_item("main", new_stack) then
+		digger_inv:add_item("main", new_stack)
 		minetest.remove_node(pos)
 	else
 	   minimal.warn_inv_full(digger)

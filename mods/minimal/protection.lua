@@ -53,7 +53,12 @@ function minimal.protection_on_dig(pos,oldnode,digger)
    local meta = minetest.get_meta(pos)
    if not meta:contains('nailed') then return end
    local owner = meta:get_string('owner')
-   if owner == digger:get_player_name() then
+   if owner == "" then
+      minetest.log("error", "Blank owner for nailed item "..oldnode.name..
+		   " at "..minetest.pos_to_string(pos))
+   end
+   local digname = digger and digger:get_player_name() -- nil or "" if non-player
+   if owner == digname then
       local def = minetest.registered_nodes[oldnode.name]
       if not def or (def.can_dig and not def.can_dig(pos, digger) ) then
 	 return -- undefined node, or not allowed to dig (like a full backpack)

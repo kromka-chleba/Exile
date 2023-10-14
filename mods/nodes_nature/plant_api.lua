@@ -579,9 +579,9 @@ end
 local function fruiting_on_punch(pos, node, puncher, pointed_thing)
     local node_name = minetest.get_node(pos).name
     local nodedef = minetest.registered_nodes[node_name]
-    local inv = puncher:get_inventory()
+    local inv = puncher and puncher:get_inventory()
     local new_stack = ItemStack(nodedef._fruit_name)
-    if inv:room_for_item("main", new_stack) then
+    if inv and inv:room_for_item("main", new_stack) then
        if node.param2 < 64 then
 	  plant.set_to_half_wild(pos)
        end

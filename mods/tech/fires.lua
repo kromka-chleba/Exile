@@ -710,25 +710,25 @@ minetest.register_node('tech:large_charcoal_fire_smoldering', {
 
 --save usage into inventory
 local on_dig_fire = function(pos, node, digger)
-	if not digger or minetest.is_protected(pos, digger:get_player_name()) then
-		return false
-	end
+   if not digger or minetest.is_protected(pos, digger:get_player_name()) then
+      return false
+   end
 
-	local meta = minetest.get_meta(pos)
-	local fuel = meta:get_int("fuel")
+   local meta = minetest.get_meta(pos)
+   local fuel = meta:get_int("fuel")
 
-	local new_stack = ItemStack(node.name)
-	local stack_meta = new_stack:get_meta()
-	stack_meta:set_int("fuel", fuel)
+   local new_stack = ItemStack(node.name)
+   local stack_meta = new_stack:get_meta()
+   stack_meta:set_int("fuel", fuel)
 
 
-	local player_inv = digger:get_inventory()
-	if player_inv:room_for_item("main", new_stack) then
-		player_inv:add_item("main", new_stack)
-		minetest.remove_node(pos)
-	else
-	   minimal.warn_inv_full(digger)
-	end
+   local digger_inv = digger:get_inventory()
+   if digger_inv:room_for_item("main", new_stack) then
+      digger_inv:add_item("main", new_stack)
+      minetest.remove_node(pos)
+   else
+      minimal.warn_inv_full(digger)
+   end
 end
 
 --set saved fuel

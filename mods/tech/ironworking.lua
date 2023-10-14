@@ -239,8 +239,8 @@ crafting.register_recipe({
 ---------------------
 --save usage into inventory, to prevent infinite supply
 local on_dig_iron_and_slag = function(pos, node, digger)
-	if not digger then return end
-	if minetest.is_protected(pos, digger:get_player_name()) then
+        if not digger or minetest.is_protected(pos,
+					       digger:get_player_name()) then
 		return false
 	end
 
