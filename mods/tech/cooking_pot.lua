@@ -188,8 +188,7 @@ local function pot_cook(pos, elapsed)
 		      if baking <= 0 then
 			 local firstingr
 			 for i = 1, #inv do
-			    local ingr = inv[i]:get_description() or
-			       inv[i]:get_short_description()
+			    local ingr = inv[i]:get_short_description()
 			    if ingr ~= "" then
 			       firstingr = ingr
 			       break
