@@ -48,10 +48,12 @@ end
 
 local old_node_dig = minetest.node_dig
 function minetest.node_dig(pos, node, digger)
-   local inv = digger:get_inventory()
-   if not inv:room_for_item("main", node.name) then
-      minimal.warn_inv_full(digger)
-      return false
+   if minetest.is_player(digger) then
+      local inv = digger:get_inventory()
+      if not inv:room_for_item("main", node.name) then
+	 minimal.warn_inv_full(digger)
+	 return false
+      end
    end
    -- Return protection nail if node was nailed
    minimal.protection_on_dig(pos,node,digger)
