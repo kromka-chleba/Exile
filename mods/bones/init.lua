@@ -204,7 +204,7 @@ local drop = function(pos, itemstack)
 	end
 end
 
-local player_inventory_lists = { "main", "craft" }
+local player_inventory_lists = { "main", "craft", "cloths" }
 bones.player_inventory_lists = player_inventory_lists
 
 local function is_all_empty(player_inv)
@@ -307,6 +307,7 @@ minetest.register_on_dieplayer(function(player)
 	inv:set_size("main", 8 * 4)
 
 	for _, list_name in ipairs(player_inventory_lists) do
+	   print("Bones: doing list: ",list_name)
 		for i = 1, player_inv:get_size(list_name) do
 		   local stack = player_inv:get_stack(list_name, i)
 		   if minetest.get_item_group(stack:get_name(),
