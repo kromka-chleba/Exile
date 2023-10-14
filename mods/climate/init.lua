@@ -604,6 +604,16 @@ minetest.register_chatcommand("set_woverride", {
     end
 })
 
+minetest.register_on_mods_loaded(function()
+      if beerchat then -- we have beerchat installed, add a date command
+	 beerchat.register_relaycommand("date", function()
+                  local date = exiledatestring()
+		  return date
+	 end)
+      end
+end)
+
+
 -- MOON PHASE CHECKING LOOP
 
 local mphl_interval = (5*60) -- moon_phase_loop_interval (25% an Exile day or 8 minutes)
