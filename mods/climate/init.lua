@@ -336,7 +336,9 @@ end)
 
 --get weather from storage, override random start values
 local function load_saved_weather()
-    local w_name = store:get_string("weather")
+   local datestr = exiledatestring()
+   minetest.log("action", datestr.." : Loading weather")
+   local w_name = store:get_string("weather")
     if w_name ~= "" then
         --check valid
         local weather = climate.registered_weathers[w_name]
@@ -458,7 +460,9 @@ local timer_r = 0
 local timer_s = 0
 
 -- Overwrite random start values if the world is not brand new
-load_saved_weather()
+minetest.register_on_mods_loaded(function()
+      minetest.after(0.1, load_saved_weather)
+end)
 
 minetest.register_globalstep(function(dtime)
   timer = timer + dtime
