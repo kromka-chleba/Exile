@@ -206,7 +206,7 @@ local drop = function(pos, itemstack)
 	end
 end
 
-local player_inventory_lists = { "main", "craft" }
+local player_inventory_lists = { "main", "craft", "cloths" }
 bones.player_inventory_lists = player_inventory_lists
 
 local function is_all_empty(player_inv)
