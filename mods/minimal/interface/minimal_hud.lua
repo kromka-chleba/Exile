@@ -6,6 +6,7 @@
 --  https://codeberg.org/Mantar/Exile/pulls/495#issuecomment-1105503
 
 local m_hud_data = {} -- minimal hud data store
+minimal = minimal
 
 -- table of player hotbar slotnum hud elem ID stores
 m_hud_data.hotbar_slotnums = {}

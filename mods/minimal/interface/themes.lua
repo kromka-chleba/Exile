@@ -1,4 +1,4 @@
-minimal = minimal
+minimal = minimal -- Only used to extend namespace
 
 local themes = {
    ["Antiglass"] =

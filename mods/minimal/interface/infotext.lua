@@ -9,10 +9,9 @@
 -- to make it easy to replace lines by key
 --
 
-minimal=minimal
+minimal=minimal -- only used to extend the namespace
 infotext={}
 local S=infotext.S
-local debug = 1
 
 -- Preferred order of keys. Not all keys will be on all nodes. This insures
 -- nodes with multiple keyed values always appear in the same order.
