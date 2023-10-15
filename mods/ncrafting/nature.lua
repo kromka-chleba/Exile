@@ -110,7 +110,7 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, water_source,
       end
       -- if not in creative, empty the can out
       itemstack:take_item()
-      return ItemStack(empty_container)
+      return ItemStack(empty_container), true
     end
   end
 
