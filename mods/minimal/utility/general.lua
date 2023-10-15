@@ -233,3 +233,33 @@ minetest.register_on_player_receive_fields(function(player,
       end
       open_yesno[playername] = nil
 end)
+
+function minimal.item_pickup(clicker, pointed_thing)
+  if (minetest.is_player(clicker) and type(pointed_thing) == "table") then
+    if pointed_thing.type == "object" then
+      local pt_ref = pointed_thing.ref
+      local ent
+      if pt_ref then
+        ent = pt_ref:get_luaentity()
+      end
+      if ent then
+        if ent.itemstring and ent.itemstring ~= "" then
+          -- itemstring seems to save item metadata and wear :o
+          local itemstack = ItemStack(ent.itemstring)
+          local inv = clicker:get_inventory()
+
+          if inv:room_for_item("main",itemstack) then
+            inv:add_item("main",itemstack)
+          else
+            minetest.item_drop(itemstack, clicker, clicker:get_pos())
+          end
+          pointed_thing.ref:remove()
+
+          return true
+        end
+      end
+    end
+  end
+
+  return false
+end
