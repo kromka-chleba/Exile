@@ -18,7 +18,6 @@ local function get_soil_pos(pos)
   elseif (minimal.in_group(node,"sediment")) then
     return pos
   end
-  
   return
 end
 
@@ -52,7 +51,7 @@ local function wet_soil(pos, suffix)
     suffix = "_"..suffix
   end
   suffix = "_wet"..suffix
-  
+
   -- check if watered block exists
   local wet_node_name = node.name .. suffix
   -- Check if the players can... salt the Earth!!! (if they have a salty watering can)
@@ -82,17 +81,18 @@ local function wet_soil(pos, suffix)
     wet_node_name = wet_node_name.."_roots"
     -- we didn't erase "_wet" from the name
   end
-  
+
   if minetest.registered_nodes[wet_node_name] then
     -- replace with watered version
     -- keeping the node orientation
     minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
     return true
   end
-  
+
   return false
 end
 
+-- water soil with a watering can
 function ncrafting.water_soil(itemstack, user, pointed_thing, water_source,
 			  empty_container, node_suffix)
   -- can only water nodes
@@ -113,33 +113,37 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, water_source,
       return ItemStack(empty_container)
     end
   end
-  
+
   -- continue as normal (with a twist)
   return liquid_store.on_use_filled_bucket(
     water_source, empty_container,
     itemstack, user, pointed_thing, false)
 end
 
+-- fertilize soil with a fertilizer
 function ncrafting.fertilize(pos, puncher, itemstack)
   assert(is_pos(pos),"ncrafting.fertilize: provided position is not a position!")
   local inv
   local replace_with = ""
-  if minetest.is_player(puncher) and not itemstack then
-    itemstack = puncher:get_wielded_item()
+  if minetest.is_player(puncher) then
     inv = puncher:get_inventory()
+    if not itemstack then
+      itemstack = puncher:get_wielded_item()
+    end
   end
   if not itemstack or itemstack:get_name() == "" then
     -- no itemstack, or have a hand? NO FERTILIZATION!
     return
   end
-  
+
   local ndef = minimal.get_nodedef(pos)
   local itemdef = minimal.get_nodedef(itemstack:get_name())
   if not (ndef and itemdef) then
     -- definition don't exist
     return
   end
-  
+
+  -- find all possible variations of a replaceable
   if type(itemdef._fertilize_replace_with) == "string" then
     replace_with = itemdef._fertilize_replace_with
   elseif type(itemdef.fertilize_replace_with) == "string" then
@@ -151,8 +155,9 @@ function ncrafting.fertilize(pos, puncher, itemstack)
       replace_with = slab
     end
   end
+  -- convert to itemstack
   replace_with = ItemStack(replace_with)
-  
+
   -- avoid having to set up a "fertilized" boolean to prevent another check over
   local function complete()
     -- allow a custom "after_fertilize" function
@@ -160,20 +165,32 @@ function ncrafting.fertilize(pos, puncher, itemstack)
       return itemdef._after_fertilize(pos, itemstack, puncher)
     end
     -- proceed as usual
+    if not replace_with then
+      -- if replace_with somehow broke, ensure no error
+      replace_with = ItemStack('')
+    end
+    itemstack:take_item()
     if inv then
-      inv:remove_item("main",itemstack)
-      inv:add_item("main",replace_with)
+      if itemstack:get_count() <= 0 then
+        inv:remove_item("main",itemstack)
+      end
+      if inv:room_for_item("main",replace_with) then
+        inv:add_item("main",replace_with)
+      else
+        minetest.item_drop(replace_with, puncher, pos)
+      end
     else
       -- no inventory found
-      if (itemstack:get_count() > 1) then
+      if (itemstack:get_count() > 0) then
         itemstack:take_item()
       end
       -- no inventory to place into
       minetest.item_drop(itemstack, puncher, pos)
     end
-    return replace_with
+    return itemstack, replace_with, true -- give a third parameter telling the function that it went well
   end
-  
+
+  -- find fertilizing/composting
   local node_name = ndef._fertile_name
   if (minimal.in_group(itemdef,"compost") and type(node_name) == "string") then
     if not minetest.registered_nodes[node_name] then
@@ -183,7 +200,8 @@ function ncrafting.fertilize(pos, puncher, itemstack)
     minetest.swap_node(pos, {name = node_name})
     return complete()
   end
-  
+
+  -- find enriching
   node_name = ndef._rich_name
   if (minimal.in_group(itemdef,"fertilizer") and type(node_name) == "string") then
     if not minetest.registered_nodes[node_name] then
@@ -193,6 +211,6 @@ function ncrafting.fertilize(pos, puncher, itemstack)
     minetest.swap_node(pos, {name = node_name})
     return complete()
   end
-  
+
   return itemstack
 end
