@@ -186,6 +186,11 @@ minetest.register_node("tech:wood_ash_block", {
 	   on_place_fert(itemstack, placer, pointed_thing)
 	   return itemstack
 	end,
+  on_use = function(itemstack, user, pointed_thing)
+    if pointed_thing.type == "node" then
+      return ncrafting.fertilize(pointed_thing.under, user, itemstack)
+    end
+  end,
   _fertilize_replace_with = "tech:wood_ash",
 })
 
@@ -206,6 +211,11 @@ minetest.register_node("tech:wood_ash", {
 	   on_place_fert(itemstack, placer, pointed_thing)
 	   return itemstack
 	end,
+  on_use = function(itemstack, user, pointed_thing)
+    if pointed_thing.type == "node" then
+      return ncrafting.fertilize(pointed_thing.under, user, itemstack)
+    end
+  end,
 })
 
 --Charcoal
