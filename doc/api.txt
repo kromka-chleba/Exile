@@ -13,6 +13,9 @@ minimal.get_pointed_thing(player/playername)
 minimal.invlists2string(lists)
 +minimal.string2invlists(string)
 		- Convert inventory lists into a serialized string and back
+minimal.item_pickup(clicker, pointed_thing)
+		- Used inside a custom on_use so held items don't block pickup
+		- See artifacts/tools.lua for examples
 minimal.math_clamp(number, min, max)
 		- Clamps any input number to a value inbetween min and max
 minimal.player_in_creative(player/playername)

@@ -250,10 +250,10 @@ function minimal.item_pickup(clicker, pointed_thing)
 
           if inv:room_for_item("main",itemstack) then
             inv:add_item("main",itemstack)
+	    pointed_thing.ref:remove()
           else
-            minetest.item_drop(itemstack, clicker, clicker:get_pos())
+	    minimal.warn_inv_full(clicker)
           end
-          pointed_thing.ref:remove()
 
           return true
         end
