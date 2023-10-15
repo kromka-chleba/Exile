@@ -45,10 +45,17 @@ local function wet_soil(pos, suffix)
   local node = minetest.get_node(pos)
   if (type(suffix) ~= "string") then
     suffix = ""
+  else
+    -- lowercase it :D
+    suffix = string.lower(suffix)
   end
   if (suffix ~= "" and string.sub(suffix,1,1) ~= "_") then
     -- add underscore if not found
     suffix = "_"..suffix
+  end
+  if (suffix == "_wet") then
+    -- we define it later on, clear it
+    suffix = ""
   end
   suffix = "_wet"..suffix
 
