@@ -79,7 +79,9 @@ local compost =
                   hardness = sediment.hardness.soft,
                   fertility = 1, sound = sediment.sounds.dirt,
                   sound_wet = sediment.sounds.dirt_wet})
-compost.groups.compost = 1 -- add "compost" group
+ -- add "compost" group
+compost.groups.compost = 1
+compost.groups_wet.compost = 1
 
 sediment.register_dry(compost)
 sediment.register_wet(compost)
@@ -153,6 +155,48 @@ minetest.override_item(
             restore_from_inventory(pos, itemstack)
         end
 })
+
+-- fertilize functions
+minetest.override_item(
+ compost_dry_name,
+ {
+  _fertilize_replace_with = "stairs:slab_compost",
+  on_use = function(itemstack, user, pointed_thing)
+    if pointed_thing.type == "node" then
+      return ncrafting.fertilize(pointed_thing.under, user, itemstack)
+    end
+  end
+})
+minetest.override_item(
+  "stairs:slab_compost",
+  {
+  on_use = function(itemstack, user, pointed_thing)
+    if pointed_thing.type == "node" then
+      return ncrafting.fertilize(pointed_thing.under, user, itemstack)
+    end
+  end
+})
+-- wet fertilize
+minetest.override_item(
+ compost_wet_name,
+ {
+  _fertilize_replace_with = "stairs:slab_compost",
+  on_use = function(itemstack, user, pointed_thing)
+    if pointed_thing.type == "node" then
+      ncrafting.water_soil(itemstack, user, pointed_thing,"","")
+      return ncrafting.fertilize(pointed_thing.under, user, itemstack)
+    end
+  end
+})
+--minetest.override_item(
+  --"stairs:slab_compost_wet",
+  --{
+  --on_use = function(itemstack, user, pointed_thing)
+    --if pointed_thing.type == "node" then
+      --return ncrafting.fertilize(pointed_thing.under, user, itemstack)
+    --end
+  --end
+--})
 
 crafting.register_recipe({
 	type = "shovel_agriculture",
