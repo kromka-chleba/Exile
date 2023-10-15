@@ -58,17 +58,15 @@ function minimal.get_pointed_thing(player,rn) -- player, custom "range" to overr
   local range = 5 -- out to 5 nodes
   if not minetest.is_player(player) then
     error("exile_game.get_pointed_thing: Invalid player specified (or improper name), got type "..type(player))
-  else
+  elseif type(rn) ~= "number" then
     -- get range of player's wielded item and use that
     local w_itemdef = player:get_wielded_item()
     w_itemdef = w_itemdef:get_definition()
     if type(w_itemdef.range) == "number" then
       range = w_itemdef.range
-      minetest.log(""..range)
     end
-  end
-  -- override with provided range number
-  if type(rn) == "number" then
+  else
+    -- override with provided range number if a number
     range = rn
   end
    local ppos = player:get_pos()
