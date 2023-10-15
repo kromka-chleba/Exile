@@ -34,6 +34,9 @@ minetest.register_craftitem("artifacts:light_meter", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
 		light_meter(user, pointed_thing)
 	end,
 })
@@ -88,6 +91,9 @@ minetest.register_craftitem("artifacts:temp_probe", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
 		temp_probe(user, pointed_thing)
 	end,
 })
@@ -126,6 +132,9 @@ minetest.register_craftitem("artifacts:fuel_probe", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
 		fuel_probe(user, pointed_thing)
 	end,
 })
@@ -159,6 +168,9 @@ minetest.register_craftitem("artifacts:smelter_probe", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
 		smelter_probe(user, pointed_thing)
 	end,
 })
@@ -200,6 +212,9 @@ minetest.register_craftitem("artifacts:potters_probe", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
 		potters_probe(user, pointed_thing)
 	end,
 })
@@ -235,6 +250,9 @@ minetest.register_craftitem("artifacts:chefs_probe", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
 		chefs_probe(user, pointed_thing)
 	end,
 })
@@ -345,6 +363,9 @@ minetest.register_craftitem("artifacts:farmers_probe", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
 		farmers_probe(user, pointed_thing)
 	end,
 })
@@ -481,6 +502,9 @@ minetest.register_craftitem("artifacts:animal_probe", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
 		animal_probe(user, pointed_thing)
 	end,
 })
@@ -494,6 +518,9 @@ minetest.register_craftitem("artifacts:admins_probe", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
 		admins_probe(user, pointed_thing)
 	end,
 })

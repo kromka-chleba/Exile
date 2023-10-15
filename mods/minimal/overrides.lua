@@ -37,6 +37,10 @@ function minetest.is_protected(pos, name)
   if minetest.is_player(name) then
     name = name:get_player_name()
   end
+  if type(name) ~= "string" then
+    -- nil things can't touch stuff
+    return true
+  end
    local owner = minetest.get_meta(pos):get_string("owner")
    local bypass = minetest.check_player_privs(name, "protection_bypass")
    if not ( owner == "" or owner == name or
