@@ -50,15 +50,31 @@ function minimal.click_count_ready(name, id, pos, count, timeout)
 	return false
 end
 
-function minimal.get_pointed_thing(player)
+function minimal.get_pointed_thing(player,rn) -- player, custom "range" to override
   -- get the player by name if string
   if (type(player) == "string") then
     player = minetest.get_player_by_name(player)
   end
+  local range = 5 -- out to 5 nodes
+  if not minetest.is_player(player) then
+    error("exile_game.get_pointed_thing: Invalid player specified (or improper name), got type "..type(player))
+  else
+    -- get range of player's wielded item and use that
+    local w_itemdef = player:get_wielded_item()
+    w_itemdef = w_itemdef:get_definition()
+    if type(w_itemdef.range) == "number" then
+      range = w_itemdef.range
+      minetest.log(""..range)
+    end
+  end
+  -- override with provided range number
+  if type(rn) == "number" then
+    range = rn
+  end
    local ppos = player:get_pos()
    local eye_height = player:get_properties().eye_height
    ppos.y = ppos.y + eye_height
-   local lookdir = vector.multiply(player:get_look_dir(), 4) -- out to 5 nodes
+   local lookdir = vector.multiply(player:get_look_dir(), range)
    local pointpos = vector.add(ppos, lookdir)
    local pointed_thing = minetest.raycast(ppos, pointpos, false, false):next()
    return pointed_thing
