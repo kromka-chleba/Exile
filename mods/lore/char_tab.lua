@@ -89,6 +89,19 @@ end)
 
 --Forms for sfinv
 
+local effectnm =
+   { ["Food Poisoning"] = S("Food Poisoning"),
+     ["Dust Fever"] = S("Dust Fever"),
+     ["Intestinal Parasites"] = S("Intestinal Parasites"),
+     ["Tiku High"] = S("Tiku High"),
+     ["Neurotoxicity"] = S("Neurotoxicity"),
+     ["Hepatotoxicity"] = S("Hepatotoxicity"),
+     ["Photosensitivity"] = S("Photosensitivity"),
+     ["Meta-Stim"] = S("Meta-Stim"),
+     ["Fungal Infection"] = S("Fungal Infection"),
+     ["Drunk"] = S("Drunk"),
+     ["Hangover"] = S("Hangover") }
+
 
 --get data and create form
 local function sfinv_get(self, player, context)
@@ -128,7 +141,8 @@ local function sfinv_get(self, player, context)
     end
 
     y = y + 0.4
-    eff_form = eff_form.."label[0.1,"..y.."; "..S(effect[1]).." "..severity.."]"
+    eff_form = eff_form.."label[0.1,"..y.."; "..
+       effectnm[effect[1]].." "..severity.."]"
   end
 
   local formspec = "label[0.1,0.1; "..S("Name").. ": ".. name .. "]"..
