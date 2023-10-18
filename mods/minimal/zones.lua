@@ -8,7 +8,7 @@
 local S = core.get_translator(minimal.modname)
 
 -- Zone setup ------------------------------------------------------------
-local checkrate = 7 -- Seconds between checking for expired zones
+local checkrate = 59 -- Seconds between checking for expired zones
 local zoneduration = 100 -- seconds before a zone is eligible to expire
 
 zone = {} -- namespace
@@ -471,6 +471,7 @@ local function remove_trigger(pos, id)
 end
 
 local function node_is_loaded(pos, id)
+   if not vector.check(pos) then return false end -- it's a bad entry
    local node = minetest.get_node(pos)
    if node.name == "ignore" then
       return false
@@ -504,10 +505,15 @@ local function check_triggers_loaded(id, def)
       zonelist[id] = nil
       return
    end
+   local count = 1
    for i = 1, #def.triggerpos do
-      local node = minetest.get_node(def.triggerpos[i])
-      if node.name ~= "minimal:zone_trigger" then
-	 remove_trigger(def.triggerpos[i], id)
+      if def.triggerpos[count] then
+	 local node = minetest.get_node(def.triggerpos[count])
+	 if node.name ~= "minimal:zone_trigger" then
+	    remove_trigger(def.triggerpos[count], id)
+	 else
+	    count = count + 1
+	 end
       end
    end
 end
