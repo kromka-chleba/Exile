@@ -1460,9 +1460,10 @@ end
 __DEBUG__ = __DEBUG__
 if __DEBUG__ then
 
-local effects = { "Food Poisoning", "Drunk", "Intestinal Parasites",
+local effects = { "Food Poisoning", "Dust Fever", "Intestinal Parasites",
 		  "Tiku High", "Neurotoxicity", "Hepatotoxicity",
-		  "Photosensitivity", "Meta-Stim",}
+		  "Photosensitivity", "Meta-Stim", "Fungal Infection",
+		  "Drunk", "Hangover" }
 
 -- #TODO: Replace the yes/no chain with a dropdown
 local function add_effect(clicked_yes, data_table, player, playername)
