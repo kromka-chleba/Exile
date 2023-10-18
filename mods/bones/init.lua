@@ -6,6 +6,8 @@
 -- Load support for MT game translation.
 local S = minetest.get_translator("bones")
 
+creative = creative
+
 bones = {}
 
 local function is_owner(pos, name)
@@ -86,6 +88,25 @@ minetest.register_node("bones:bones", {
 		return is_owner(pos, name) and inv:is_empty("main")
 	end,
 
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+	   local stack_meta = itemstack:get_meta():to_table()
+	   minetest.get_meta(pos):from_table(stack_meta)
+	end,
+
+	preserve_metadata = function(pos, oldnode, oldmeta, drops)
+	   local imeta = drops[1]:get_meta()
+	   if (not oldmeta) then return end
+	   if oldmeta.char_name and oldmeta.ex_origin then
+	      local info = S("@1 of @2's bones",
+			     oldmeta.char_name, oldmeta.ex_origin)
+	      imeta:from_table({
+		    fields = { char_name = oldmeta.char_name,
+			       ex_origin = oldmeta.ex_origin,
+			       description = info,
+			       infotext = info } })
+	   end
+	end,
+
 	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
 		if is_owner(pos, player:get_player_name()) then
 			return count
@@ -143,12 +164,7 @@ minetest.register_node("bones:bones", {
 
 		-- remove bones if player emptied them
 		if has_space then
-			if player_inv:room_for_item("main", {name = "bones:bones"}) then
-				player_inv:add_item("main", {name = "bones:bones"})
-			else
-				minetest.add_item(pos,"bones:bones")
-			end
-			minetest.remove_node(pos)
+		   minetest.node_dig(pos,node,player)
 		end
 	end,
 
@@ -324,6 +340,13 @@ minetest.register_on_dieplayer(function(player)
 	meta:set_string("formspec", bones_formspec)
 	meta:set_string("owner", player_name)
 
+	local playermeta = player:get_meta():to_table()
+	local charname = playermeta.fields.char_name
+	local origin = playermeta.fields.ex_origin
+	if charname and origin then
+	   meta:set_string("char_name", charname)
+	   meta:set_string("ex_origin", origin)
+	end
 	if share_bones_time ~= 0 then
 		minimal.infotext_merge(pos,'Status: '..S("@1's fresh bones", player_name),meta)
 		if share_bones_time_early == 0 or not minetest.is_protected(pos, player_name) then

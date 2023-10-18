@@ -479,12 +479,10 @@ end
 local after_place = function(pos, placer, itemstack, pointed_thing)
   local meta = minetest.get_meta(pos)
   local stack_meta = itemstack:get_meta()
-  --local creator = stack_meta:get_string("creator")
   local letter_text = setup_letter(placer, stack_meta)
   local form = get_formspec(meta, letter_text )
   meta:set_string("formspec", form)
   meta:set_string("lore:letter_text", letter_text)
-  --meta:set_string("creator", creator)
 end
 
 local on_secondary_use = function(itemstack, user, pointed_thing)
