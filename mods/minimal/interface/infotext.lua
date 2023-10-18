@@ -11,7 +11,7 @@
 
 minimal=minimal -- only used to extend the namespace
 infotext={}
-local S=infotext.S
+local S=minimal.S
 
 -- Preferred order of keys. Not all keys will be on all nodes. This insures
 -- nodes with multiple keyed values always appear in the same order.
