@@ -12,6 +12,9 @@ local disable_tutorial = minetest.settings:get("exile_notutorialprompt") or true
 local S = minetest.get_translator("tutorial_exile")
 tutorial = {}
 
+--------------------------------------------------------------------------------
+-- Entry/exit from tutorial
+
 local pstore = {} -- store status of players so we can restore it after tutorial
 
 local welcome = S("Welcome to Exile!")
@@ -98,7 +101,121 @@ function tutorial.exit(player)
    restore_player(player)
 end
 
---Tutorial nodes
+--------------------------------------------------------------------------------
+-- Loading/saving tutorial regions
+
+-- #TODO: move general load/save region functions to utility/vm.lua
+
+minimal = minimal
+zone = zone
+local vmanip_subregion = minimal.vmanip_subregion
+local zone_instance = zone.instance
+local worldpath=minetest.get_worldpath()
+
+local function save_region(pos1, pos2, name)
+   local cids = { } -- like: { -1 = "unknown", 0 = "ignore", 1 = "air", etc. }
+   local dat = {}
+   local VoxelManip = minetest.get_voxel_manip()
+   local p1, p2 = VoxelManip:read_from_map(pos1, pos2)
+   local VoxAr = VoxelArea(p1, p2)
+   local nodes = VoxelManip:get_data()
+   local param2 = VoxelManip:get_param2_data()
+   local tmplist = minetest.find_nodes_with_meta(pos1, pos2)
+   local mlist = {}
+   for i = 1, #tmplist do -- convert pos values to index values
+      mlist[VoxAr:indexp(tmplist[i])] = tmplist[i]
+   end
+
+   --local light = vm:get_light_data() -- do we need to store light values?
+
+   local r = vmanip_subregion(pos1, pos2, p1, p2)
+   for z = r.zstart, r.zstop, r.zstep do
+      for y = r.ystart, r.ystop, r.ystep do
+	 for x = r.xstart, r.xstop, r.xstep do
+	    local index = x+y+z+1
+	    local this = nodes[index]
+	    if not cids[this] then
+	       cids[this] = minetest.get_name_from_content_id(this)
+	    end
+	    local met
+	    if mlist[index] then
+	       local meta = minetest.get_meta(mlist[index])
+	       met = meta:to_table()
+	       if met.inventory then
+		  met.inventory = minimal.invlists2string(met.inventory)
+	       end
+	    end
+	    table.insert(dat, {id = this, p2 = param2[index], meta = met })
+	 end
+      end
+   end
+   local out = { "ex_schm_v1.0",
+		 { pos1 = pos1, pos2 = pos2 },
+		 cids,
+		 dat
+   }
+   local f = io.open(worldpath.."/"..name..".ex_schm","wb")
+   f:write(minetest.compress(minetest.serialize(out), "zstd"))
+   f:close()
+   return "Saved successfully"
+end
+
+
+local function load_region(base_raw, name)
+   local f = io.open(worldpath.."/"..name..".ex_schm","rb")
+   local read = f:read("*all")
+   if not read then return "could not find "..name..".ex_schm"end
+   --local input = minetest.deserialize(minetest.decompress(read, "zstd"))
+   local inp = minetest.decompress(read, "zstd")
+   f:close()
+   local input = minetest.deserialize(inp)
+   if not input then return "could not load "..name..".ex_schm" end
+   local version, range, cids, dat = unpack(input)
+   local base = vector.round(base_raw)
+   minetest.log("action", ("Found ex_schm version "..
+			   version:gsub("ex_schm_","").." and loaded"))
+   local xlate = vector.subtract(base, range.pos1) -- for translating pos values
+   local pos1 = base
+   local pos2 = vector.add(range.pos2, xlate)
+   local VoxelManip = minetest.get_voxel_manip()
+   local p1, p2 = VoxelManip:read_from_map(pos1, pos2)
+   local VoxAr = VoxelArea(p1, p2)
+   local r = vmanip_subregion(pos1, pos2, p1, p2)
+   local nodes = VoxelManip:get_data()
+   local param2 = VoxelManip:get_param2_data()
+   local count = 1
+   for z = r.zstart, r.zstop, r.zstep do
+      for y = r.ystart, r.ystop, r.ystep do
+	 for x = r.xstart, r.xstop, r.xstep do
+	    local index = x+y+z+1
+	    local this = dat[count]
+	    nodes[index] = minetest.get_content_id(cids[this.id])
+	    param2[index] = this.p2
+	    local tpos = VoxAr:position(index)
+	    if this.meta then
+	       if this.meta.inventory then
+		  this.meta.inventory =
+		     minimal.string2invlists(this.meta.inventory)
+	       end
+	       local tmeta = this.meta.fields
+	       if tmeta.ztr_id then -- it's a zone, create an instance
+		  this.meta.fields = zone_instance(tpos, tmeta)
+	       end
+	       minetest.get_meta(tpos):from_table(this.meta)
+	    end
+	    count = count + 1
+	 end
+      end
+   end
+   VoxelManip:set_data(nodes)
+   VoxelManip:set_param2_data(param2)
+   VoxelManip:write_to_map()
+   zone_instance() -- close the instancer and fire up all loaded zones
+end
+
+--------------------------------------------------------------------------------
+-- Tutorial nodes
+
 minetest.register_node("tutorial_exile:invisible_wall", {
         description = "Tutorial boundary wall",
         tiles = {"climate_air.png"},
@@ -196,6 +313,7 @@ minetest.register_node("tutorial_exile:wet_silt_grass", {
 })
 
 
+--------------------------------------------------------------------------------
 -- Debug commands
 
 minetest.register_chatcommand("test_tut",{
@@ -213,5 +331,22 @@ minetest.register_chatcommand("quit_tut",{
 	func = function(name,param)
 	   minetest.chat_send_player(name, "Stopping tutorial")
 	   tutorial.exit(minetest.get_player_by_name(name))
+	end
+})
+minetest.register_chatcommand("save_tutr",{
+	privs = "server",
+	func = function(name,param)
+	   minetest.chat_send_player(name, "Saving region named "..param)
+	   return save_region(vector.new(0,9001,0), vector.new(0,9011,0), param)
+	end
+})
+
+minetest.register_chatcommand("load_tutr",{
+	privs = "server",
+	func = function(name,param)
+	   minetest.chat_send_player(name, "Loading region named "..param)
+	   local player = minetest.get_player_by_name(name)
+	   local pos = player:get_pos()
+	   return load_region(pos, param)
 	end
 })

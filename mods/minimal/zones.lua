@@ -2,11 +2,14 @@
 --
 -- Defines a region of the map that can have special treatment by other mods
 --
+
+-- API functions appear after setup and utility sections
+
 local S = core.get_translator(minimal.modname)
 
 -- Zone setup ------------------------------------------------------------
-local checkrate = 60 -- Seconds between checking for expired zones
-local zoneduration = 240 -- seconds before a zone is eligible to expire
+local checkrate = 7 -- Seconds between checking for expired zones
+local zoneduration = 100 -- seconds before a zone is eligible to expire
 
 zone = {} -- namespace
 
@@ -32,9 +35,10 @@ local zonedef_default = {
    zt_tabsel = "1", -- currently active tab
    zt_label = "",
    shape = zs.absolute,
-   logarithmic = "false", -- Do non-absolute zones fade logarithmically w/distance
+   logarithmic = "false",-- Do non-absolute zones fade logarithmically w/distance
    triggerpos = {}, -- list of known triggers that connect to this
-   --   data = {} -- set up by calling mod, in: handle_formspecs, out: zone.check()
+   --ztrd_"nm" = {}
+   -- set up by calling mod, in: handle_formspecs, out: zone.check()
 }
 --[[ Ephemeral values, added when zone is created, but not stored in meta
    lastcheck = 0, -- How long since we last checked if zone is loaded
@@ -57,17 +61,13 @@ local zonebytype = -- stores all ids that pertain to a zone type
 local zoneinfo = {}
 -- stores data concerning all possible zone types, set up by zone.register()
 
+local zone_formspec -- function defined far below, but used in save code
+ -- Formspec needs to be able to call sink_zone() when the Set button is pressed
+ -- Meanwhile, metaset() has to be able to synchronize all node's formspecs
+ -- #TODO: better solution? Store current fs in table, only update with func?
+
 ------------------------------------------------------------
 -- Utility functions
-
-local function node_is_loaded(pos)
-   local node = minetest.get_node(pos)
-   if node.name == "ignore" then
-      return false
-   else
-      return true
-   end
-end
 
 local function generate_id(pos)
    return minetest.sha1(tostring(minetest.get_gametime())..
@@ -87,26 +87,11 @@ local function add_zbts(id)
    end
 end
 
-local function clear_zbt(id, rmtype, nosink)
+local function clear_zbt(id, rmtype)
    if not zonelist[id] then
       error("attempted to remove zbt data for nonexistant id!")
    end
-   zonelist[id]["ztrd_"..rmtype] = ""
    zonebytype[rmtype][id] = nil
-   if nosink == true then
-      sink_zone(zonelist[id])
-   end
-end
-
-local function clear_zbts_for_id(id)
-   -- Removes all zbts for an id, for use prior to expiring it
-   if not zonelist[id] then
-      error("attempted to remove zbt data for nonexistant id!")
-   end
-   for nm, _ in pairs(zonebytype) do
-      clear_zbt(id, nm, true)
-   end
-   sink_zone(zonelist[id])
 end
 
 local function calc_size(def)
@@ -157,23 +142,6 @@ function zone.get_corner(pos1, pos2, base, number)
       end
    end
    return list
-end
-
-local function check_corners_loaded(pos1, pos2, base)
-   -- Looks at all eight corners of a zone to see if any are loaded
-   -- Returns a loaded corner if it exists, so we can track it
-   local tbl = {vector.add(pos1, base), vector.add(pos2, base)}
-   for cz in pairs(tbl) do
-      for cy in pairs(tbl) do
-	 for cx in pairs(tbl) do
-	    local checkme = { x = tbl[cx].x, y = tbl[cy].y, z = tbl[cz].z }
-	    if node_is_loaded(checkme) then
-	       return checkme
-	    end
-	 end
-      end
-   end
-   return false
 end
 
 -- Check whether pos is inside the specified zone
@@ -236,18 +204,24 @@ end
 function zone.register(tr_name, tr_help, formspecfunc, procfieldfunc)
    --[[
       Registers a type of zone.
+
       tr_name should start with the calling mod's name or a short prefix
-      example: cli_tmp -- stored here as ztrd_cli_tmp
+       example: cli_tmp -- stored here as ztrd_cli_tmp
       tr_help is a table. The first string is the name of the zone type,
-      the second is a longer descriptive string.
+       the second is a longer descriptive string.
+
       formspec should return a formspec page with fields for your data;
-      zonedef will be sent as a parameter; your data is stored in  "ztrd_"..name
+       zonedef will be sent as a parameter; your data is stored in  "ztrd_"..name
       buttons "btn_set"/"btn_unset" will be added automatically if missing
       procfields will be sent the fields from the formspec and should transform
-      them into a table of values to be stored in zonelist[]
+       them into a table of values to be stored in zonelist[]
+
       if the procfields function returns nil, your zone's data will be cleared
-      #TODO: accept list of valid/invalid fields, highlight invalid ones?
-      Requires fancy formspec work
+       #TODO: accept list of valid/invalid fields, highlight invalid ones?
+       Requires fancy formspec work
+
+      for safety, the table of values should contain strings or tables,
+       no vectors or functions!  serialize them on your end.
    ]]--
 
    local name = tr_name
@@ -276,45 +250,9 @@ function zone.check(pos, zone_type)
 end
 
 ------------------------------------------------------------
--- Expiring of inactive zones
-
-local function check_for_expiry()
-   local expireme = {}
-   for i = 1,#zonelist do
-      local testing = zonelist[i]
-      local ctime = minetest.get_gametime()
-      if ( ctime > (testing.lastcheck + zoneduration) and
-	   not node_is_loaded(testing.lastcorner) )then
-	 local result = check_corners_loaded(testing.pos1,
-					     testing.pos2,
-					     zonelist[i].base)
-	 if result == false then -- no corners loaded anymore
-	    table.insert(expireme, testing.id)
-	 else -- update lastcorner with this still-loaded node
-	    zonelist[i].lastcorner = result
-	    zonelist[i].lastcheck = ctime
-	 end
-      end
-   end
-   for i = 1, #expireme do
-      minetest.log("action", "Expired id: ",expireme[i])
-      expireme[i] = nil  -- do nothing yet, just empty the table
-   end
-end
-
-local timer = 0
-minetest.register_globalstep(function(dtime)
-      timer = timer + dtime
-      if timer > checkrate then
-	 timer = 0
-	 check_for_expiry()
-      end
-end)
-
-------------------------------------------------------------
 -- Loading and saving active zones
 
-local function metaload(meta) -- Load zonedef values from meta
+local function metaload(meta) -- Deserialize zonedef values from meta
    local function getval(met, str)
       if type(met) == "table" then return met[str]
       else return met:get(str) end
@@ -324,11 +262,19 @@ local function metaload(meta) -- Load zonedef values from meta
    for key, _ in pairs(zonedef_default) do
       local val = getval(meta,"ztr_"..key)
       if val then
-	 if type(zonedef_default[key]) == "table" then
-	    val = minetest.deserialize(val)
+	 if vector.check(zonedef_default[key]) then -- It's a vector!
+	    val = minetest.deserialize(val) or val
+	    val = vector.new(val.x, val.y, val.z)
+	 elseif type(zonedef_default[key]) == "table" then
+	    val = minetest.deserialize(val) or val
 	 end
 	 if type(zonedef_default[key]) == "number" then
 	    val = tonumber(val)
+	 end
+	 if key == "triggerpos" then
+	    for i = 1, #val do -- Ensure the memory values are proper vectors
+	       val[i] = vector.new(val[i].x, val[i].y, val[i].z)
+	    end
 	 end
 	 def[key] = val
       end
@@ -336,8 +282,7 @@ local function metaload(meta) -- Load zonedef values from meta
    for nm, _ in pairs(zoneinfo) do
       local val = getval(meta,"ztrd_"..nm)
       if val then
-	 val = minetest.deserialize(val)
-	 def["ztrd_"..nm] = val
+	 def["ztrd_"..nm] = minetest.deserialize(val)
       end
    end
    calc_size(def)
@@ -362,7 +307,7 @@ local function hoist_zone(meta, pos) -- Set up new zonedef from meta
 end
 
 local function metaset(meta, def)
-   -- Copy definition values to a MetaDataRef
+   -- Copy serialized definition values to a MetaDataRef
    if not def then
       error("No def received!")
       return
@@ -371,6 +316,10 @@ local function metaset(meta, def)
       local val = def[key]
       if type(zonedef_default[key]) == "table" then
 	 val = minetest.serialize(val)
+      end
+      if vector.check(zonedef_default[key]) and -- It's supposed to be a vector!
+	 vector.check(val) then -- and it is
+	 val = minetest.pos_to_string(val)
       end
       meta:set_string("ztr_"..key, val)
    end
@@ -387,19 +336,31 @@ local function metaset(meta, def)
 	 end
       end
    end
+   if meta.set_tool_capabilities then -- this is an item, set description
+      meta:set_string("description", "Zone trigger: "..
+		      (def.zt_label or ""))
+   end
+   if meta.get_inventory then -- this is a node, set infotext
+      meta:set_string("formspec", zone_formspec(zonelist[def.id]))
+      meta:set_string("infotext", def.zt_label)
+   end
 end
 
 local function sink_zone(def) -- Write zonedef values out to all known triggers
+   if not zonelist[def.id] then return end
    local triggers = def.triggerpos
-   for c = 1, #triggers do
-      local meta = minetest.get_meta(triggers[c])
-      metaset(meta, def)
+   if triggers then
+      for c = 1, #triggers do
+	 local meta = minetest.get_meta(triggers[c])
+	 metaset(meta, def)
+      end
    end
    -- Also update copies of this trigger in player inventory
-   for _0, player in ipairs(minetest.get_connected_players()) do
-      local inv = player:get_inventory():get_list("main")
-      for i = 1, #inv do
-	 local stack = ItemStack(inv[i])
+   for _, player in ipairs(minetest.get_connected_players()) do
+      local plinv = player:get_inventory()
+      local main = plinv:get_list("main")
+      for i = 1, #main do
+	 local stack = main[i]
 	 if minetest.get_item_group(stack:get_name(), "trigger") == 2 then
 	    local imeta = stack:get_meta()
 	    if imeta:get_string("ztr_id") == def.id then
@@ -407,8 +368,182 @@ local function sink_zone(def) -- Write zonedef values out to all known triggers
 	    end
 	 end
       end
+      plinv:set_list("main", main)
    end
 end
+
+local ins = {} -- Instance list: temporarily hold zones while a schematic loads
+
+function zone.instance(newpos, ztable)
+   -- Internally used by Exile when loading a zone from schematic
+
+   -- newpos is the trigger position to save metadata to
+   -- ztable has the metadata.fields loaded from schematic, in a table format
+
+   -- must call zone.instance() after to clear the table for the next schematic
+   --  and load zones into memory
+
+
+   local function copy_from_ins(ztb, oid)
+      -- A trigger with this zone id was seen earlier, copy it from memory.
+      for k, v in pairs(ins[ztb.ztr_id]) do
+	 ztb[k] = v
+      end
+      ztb.ztr_thispos = newpos -- and shift thispos
+      return ztb
+   end
+   if newpos == nil then   -- Hoist all zones in instance table now
+      for _, dat in pairs(ins) do
+	 local def, id = metaload(dat)
+	 local label = dat.ztr_zt_label or "unnamed"
+	 dat.ztr_zt_label = label.." (instance)"
+	 zonelist[id] = def
+	 add_zbts(id)
+      end
+      ins = {} -- and wipe the table clean we're done with this schematic
+      return
+   end
+
+   local oid = ztable.ztr_id -- original id, before it's overwritten
+   if oid and ins[oid] then
+      ztable.ztr_thispos = minetest.serialize(newpos)
+      return copy_from_ins(ztable, oid) -- restore from previously seen table
+   end
+   ztable.ztr_id = generate_id(newpos)
+   local thispos = minetest.deserialize(ztable.ztr_thispos)
+   local base = minetest.deserialize(ztable.ztr_base)
+   local offset = vector.subtract(newpos, thispos)
+   base = vector.add(base, offset)
+   ztable.ztr_base = minetest.serialize(base)
+   ztable.ztr_thispos = minetest.serialize(newpos)
+   local trigtable = minetest.deserialize(ztable.ztr_triggerpos)
+   for i = 1, #trigtable do
+      local item = vector.add(trigtable[i], offset)
+      trigtable[i] = item
+   end
+   ztable.ztr_triggerpos = minetest.serialize(trigtable)
+   ins[oid] = table.copy(ztable) -- store this for the next trigger of this zone
+   ins[oid].ztr_thispos = nil -- but not "thispos" as it will change
+   return ztable
+end
+
+
+
+------------------------------------------------------------
+-- Expiring of inactive zones
+
+local function clear_zbts_for_id(id)
+   -- Removes all zbts for an id, for use prior to expiring it
+   if not zonelist[id] then
+      error("attempted to remove zbt data for nonexistant id!")
+   end
+   for nm, _ in pairs(zonebytype) do
+      clear_zbt(id, nm)
+   end
+   sink_zone(zonelist[id])
+end
+
+local function remove_trigger(pos, id)
+   local def = zonelist[id]
+   if not def then return end -- zone is cleared already
+   local trigpos = def.triggerpos
+   local count = 1
+   for i = 1, #trigpos do
+      if trigpos[count]:equals(pos) then
+	 table.remove(trigpos, i)
+      else
+	 count = count + 1 -- table.remove shortens the table, use instead of i
+      end
+   end
+   if vector.equals(def.base, pos) then -- we're removing the base node!
+      if #trigpos > 0 then -- we have another trigger, use it for new base
+	 local diff = vector.subtract(trigpos[1], def.base)
+	 def.base = trigpos[1]
+	 -- and move our pos1/pos2 to be relative to the new base
+	 def.pos1 = vector.add(def.pos1, diff)
+	 def.pos2 = vector.add(def.pos2, diff)
+      else
+	 clear_zbts_for_id(id)
+	 zonelist[id] = nil -- No more triggers, clear the zone
+      end
+   end
+   sink_zone(id)
+end
+
+local function node_is_loaded(pos, id)
+   local node = minetest.get_node(pos)
+   if node.name == "ignore" then
+      return false
+   else
+      return true
+   end
+end
+
+local function check_corners_loaded(def)
+   -- Looks at all eight corners of a zone to see if any are loaded
+   -- Returns a loaded corner if it exists, so we can track it
+
+   local tbl = {vector.add(def.pos1, def.base), vector.add(def.pos2, def.base)}
+   for cz in pairs(tbl) do
+      for cy in pairs(tbl) do
+	 for cx in pairs(tbl) do
+	    local checkme = vector.new{ x = tbl[cx].x, y = tbl[cy].y,
+					z = tbl[cz].z }
+	    if node_is_loaded(checkme) then
+	       return checkme
+	    end
+	 end
+      end
+   end
+   return false
+end
+
+local function check_triggers_loaded(id, def)
+   if not def then return end -- no zonelist entry to check!
+   if not def.triggerpos then -- Zone has no triggers? Remove it
+      zonelist[id] = nil
+      return
+   end
+   for i = 1, #def.triggerpos do
+      local node = minetest.get_node(def.triggerpos[i])
+      if node.name ~= "minimal:zone_trigger" then
+	 remove_trigger(def.triggerpos[i], id)
+      end
+   end
+end
+
+local function check_for_expiry()
+   local expireme = {}
+   for id, testing in pairs(zonelist) do
+      local ctime = minetest.get_gametime()
+      if not testing.lastcheck or
+	 ( ctime > (testing.lastcheck + zoneduration)
+	   and not node_is_loaded(testing.lastcorner) ) then
+	    local result = check_corners_loaded(testing)
+	    if result == false then -- no corners loaded anymore
+	       table.insert(expireme, testing.id)
+	    else -- update lastcorner with this still-loaded node
+	       testing.lastcorner = result
+	       testing.lastcheck = ctime
+	    end
+      end
+      check_triggers_loaded(id, testing)
+   end
+   for i = 1, #expireme do
+      minetest.log("action", "Expired id: ",expireme[i])
+      expireme[i] = nil  -- do nothing yet, just empty the table
+   end
+end
+
+local timer = 0
+minetest.register_globalstep(function(dtime)
+      timer = timer + dtime
+      if timer > checkrate then
+	 timer = 0
+	 check_for_expiry()
+      end
+end)
+
 
 -- Formspec --------------------------------------------------------------
 
@@ -473,7 +608,7 @@ local function zone_range(def)
    return formspec
 end
 
-local function zone_formspec(def)
+function zone_formspec(def) -- actually local, see top of file
    local tabsel = def["zt_tabsel"] or "1" -- tab #
    local sel = def["zt_sel"] or rindex[1] -- name of selected zone type
    local formspec = "formspec_version[6]size[10.5,11]"..
@@ -551,6 +686,10 @@ local function ztrecfields(pos, formname, fields, sender)
    local nmeta = minetest.get_meta(pos)
    local id = nmeta:get("ztr_id")
    def = zonelist[id]
+   if not def then
+      minetest.log("error", "No def found for id ",id)
+      return
+   end
    local saveout = false
    local p1, p2 = abs_to_relative(fields, def.base)
    def.pos1 = p1 or def.pos1
@@ -626,8 +765,8 @@ if minetest.is_creative_enabled() then
         },
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 	   local meta = minetest.get_meta(pos)
-	   local posstr = minetest.pos_to_string(pos)
-	   meta:set_string("ztr_thispos", posstr)
+	   local serpos = minetest.serialize(pos)
+	   meta:set_string("ztr_thispos", serpos)
 
 	   local imeta = itemstack:get_meta()
 	   local zoneid = hoist_zone(imeta, pos) -- hoist from inventory
@@ -645,25 +784,37 @@ if minetest.is_creative_enabled() then
 	   if iinv ~= "" and iinv ~= nil then
 	      minv:set_lists(iinv)
 	   end
-	   local infotext = imeta:get_string("description")
-	   if infotext ~= "" then
-	      meta:set_string("infotext", infotext)
-	   end
-	   meta:set_string("formspec", zone_formspec(zonelist[zoneid]))
 	   sink_zone(zonelist[zoneid]) -- save all new trigger info
 	end,
 	preserve_metadata = function(pos, oldnode, oldmeta, drops)
 	   local stack_meta = drops[1]:get_meta()
+	   oldmeta.ztr_thispos = nil
 	   local def, _ = metaload(oldmeta)
 	   metaset(stack_meta, def)
 	   local oinv = minetest.get_meta(pos):get_inventory()
-	   local list = oinv:get_lists()
+	   local list = oinv:get_lists() -- #TODO: test when we have inv ztrigs
 	   stack_meta:set_string("inventory", minimal.invlists2string(list))
-	   local desc = oldmeta["infotext"]
-	   if desc then
-	      stack_meta:set_string("description", "Configured trigger\n"..desc)
-	   end
 	   stack_meta:set_string("tr_selected", oldmeta["tr_selected"])
+	end,
+	on_dig = function(pos, node, digger)
+	   local meta = minetest.get_meta(pos)
+	   local id = meta:get_string("ztr_id")
+	   if not id then return false end
+	   remove_trigger(pos, id)
+	   local inv = digger:get_inventory()
+	   if not inv then return end
+	   local main = inv:get_list("main")
+	   for i = 1, #main do
+	      local stack = main[i]
+	      if minetest.get_item_group(stack:get_name(), "trigger") == 2 then
+		 local imeta = stack:get_meta()
+		 if imeta:get_string("ztr_id") == id then
+		    minetest.remove_node(pos)
+		    return
+		 end
+	      end
+	   end
+	   return minetest.node_dig(pos, node, digger)
 	end,
 	on_receive_fields = function(...)
 	   ztrecfields(...)
@@ -671,35 +822,7 @@ if minetest.is_creative_enabled() then
 	on_destruct = function(pos)
 	   local meta = minetest.get_meta(pos)
 	   local zoneid = meta:get("ztr_id")
-	   local def = zonelist[zoneid]
-	   if not def then
-	      minetest.log("error",
-		("Attempted to destroy a zone that hasn't loaded properly?"))
-	      return
-	   end
-	   local tpos = def.triggerpos
-	   -- Now, remove this from the list of trigger positions
-	   local cursor = 1 -- ( table.remove() shortens the table )
-	   for i = 1, #tpos do
-	      if tpos[cursor] and vector.equals(tpos[cursor], pos) then
-		 table.remove(tpos, cursor)
-	      else
-		 cursor = cursor + 1
-	      end
-	   end
-	   if vector.equals(def.base, pos) then -- we're removing the base node!
-	      if #tpos > 0 then -- we have another trigger, use it for new base
-		 local diff = vector.subtract(tpos[1], def.base)
-		 def.base = tpos[1]
-		 -- and move our pos1/pos2 to be relative to the new base
-		 def.pos1 = vector.add(def.pos1, diff)
-		 def.pos2 = vector.add(def.pos2, diff)
-	      else
-		 -- If there are no other triggers, then we move the zone when
-		 --  this trigger is put back down.
-		 def.base = nil
-	      end
-	   end
+	   remove_trigger(pos, zoneid) -- just in case on_dig didn't run
 	end,
    })
 end
@@ -713,3 +836,61 @@ minetest.register_lbm({
 	 hoist_zone(minetest.get_meta(pos), pos)
       end,
 })
+
+__DEBUG__ = __DEBUG__
+
+if __DEBUG__ then
+   minetest.register_chatcommand("inspectzone",{
+	privs = "server",
+	description = "Print list of zone ids, "..
+	   "or dump a zone specified by partial id",
+	func = function(name,param)
+	   if not param or param == "" then -- list zones
+	      local empty = true
+	      for id, _ in pairs(zonelist) do
+		 print(id)
+		 empty = false
+	      end
+	      if empty then print("No zones are running.") end
+	      return
+	   end
+	   for id, data in pairs(zonelist) do
+	      print(type(id)," vs ",type(param))
+	      if string.match(id, param) then
+		 print("ID found ",id," : ")
+		 for k,v in pairs(data) do
+		    if k ~= "formspec" then
+		       print(k," : ",dump(v))
+		    end
+		 end
+		 return
+	      end
+	   end
+	   print("No ID containing "..param.." was found")
+	end
+   })
+   minetest.register_chatcommand("inspectzbts",{
+	privs = "server",
+	description = "Print list of zone-by-type entries, "..
+	   "or list zoneids attached to a specific one",
+	func = function(name,param)
+	   if not param or param == "" then -- list zones
+	      local empty = true
+	      for entry, _ in pairs(zonebytype) do
+		 print(entry)
+		 empty = false
+	      end
+	      if empty then print("No zones are running.") end
+	      return
+	   end
+	   for entry, ids in pairs(zonebytype) do
+	      print(type(entry)," vs ",type(param))
+	      if string.match(entry, param) then
+		 print("Entry ",entry," : ",dump2(ids))
+		 return
+	      end
+	   end
+	   print("No entry names containing "..param.." was found")
+	end
+   })
+end
