@@ -71,8 +71,8 @@ end
 local function teleport(player, pname, pos, nmeta, metastring)
    local vec = vector.from_string(metastring)
    if not vec then
-      minetest.chat_send_player(pname, "Invalid teleport vector, "..
-				"must be '(x,y,z)'")
+      minetest.chat_send_player(pname, S("Invalid teleport vector, "..
+					 "must be '(x,y,z)'"))
       return
    end
    player:set_pos(vec)
@@ -80,8 +80,8 @@ end
 local function relaport(player, pname, pos, nmeta, metastring)
    local vec = vector.from_string(metastring)
    if not vec then
-      minetest.chat_send_player(pname, "Invalid teleport vector, "..
-				"must be '(x,y,z)'")
+      minetest.chat_send_player(pname, S("Invalid teleport vector, "..
+					 "must be '(x,y,z)'"))
       return
    end
    player:set_pos(vector.add(pos, vec))
@@ -157,27 +157,30 @@ triggers.defs = {
 }
 
 local info = {
-   ["tr_reset"] = { "Reset player",
-		    "Will reset player stats to full"},
-   ["tr_hurt"]  = { "Hurt player", "Hits player for <value> damage, 1-20"},
-   ["tr_energy"]= { "Set energy", "Set player energy to <value> percent"},
-   ["tr_hp"]    = { "Set HP", "Set player hp to <value>, 0-20"},
-   ["tr_hunger"]= { "Set hunger", "Set player hunger to <value> percent"},
-   ["tr_thirst"]= { "Set thirst", "Set player thirst to <value> percent"},
-   ["tr_teleport"]={"Teleport", "Send player an exact xyz position, "..
-		       " ( 125, 9003, -57 )" },
-   ["tr_relaport"]={"Relaport", "Send player a relative xyz distance, "..
-		       " ( 1, 10, -5 )" },
-   ["tr_clearinv"]={"Clear inventory", "Empties main inventory"},
-   ["tr_setinv"]  ={"Set inventory", "Overwrite player inv with contents"},
-   ["tr_giveitem"]={"Give item", "Gives an item, in itemstring format"},
-   ["tr_setweather"]={"Set weather", "Changes weather displayed to player"..
-			 "\nUse /set_weather help to list available weather."},
-   ["tr_resetweather"]={"Reset weather", "Restores normal weather for player"},
-   ["tr_hudhide"]={"Hide hud elements",
-		   "Hide health/energy/thirst/hunger/\n"..
-		      "temp/enviro_temp/effects by names, or all"},
-   ["tr_hudshow"]={"Show hud elements","Restore all hidden hud elements"},
+   ["tr_reset"] = { S("Reset player"),
+		    S("Will reset player stats to full")},
+   ["tr_hurt"]  = { S("Hurt player"), S("Hits player for <value> damage, 1-20")},
+   ["tr_energy"]= { S("Set energy"), S("Set player energy to <value> percent")},
+   ["tr_hp"]    = { S("Set HP"), S("Set player hp to <value>, 0-20")},
+   ["tr_hunger"]= { S("Set hunger"), S("Set player hunger to <value> percent")},
+   ["tr_thirst"]= { S("Set thirst"), S("Set player thirst to <value> percent")},
+   ["tr_teleport"]={S("Teleport"), S("Send player an exact xyz position")..
+		      ", ( 125, 9003, -57 )" },
+   ["tr_relaport"]={S("Relaport"), S("Send player a relative xyz distance")..
+		      ", ( 1, 10, -5 )" },
+   ["tr_clearinv"]={S("Clear inventory"), S("Empties main inventory")},
+   ["tr_setinv"]  ={S("Set inventory"),
+		    S("Overwrite player inv with contents)")},
+   ["tr_giveitem"]={S("Give item"), S("Gives an item, in itemstring format")},
+   ["tr_setweather"]={S("Set weather"), S("Changes weather displayed to player")
+			 .."\n"..
+			 S("Use /set_weather help to list available weather.")},
+   ["tr_resetweather"]={S("Reset weather"),
+			S("Restores normal weather for player")},
+   ["tr_hudhide"]={S("Hide hud elements"),
+		   S("Hide health/energy/thirst/hunger/temp/").."\n"..
+		   S("/enviro_temp/effects by names, or all")},
+   ["tr_hudshow"]={S("Show hud elements"),S("Restore all hidden hud elements")},
 }
 
 -- table of triggers with no input field
@@ -217,7 +220,6 @@ function triggers.activate(pos, player, nodemeta)
 	 triggers.player[pname][posstr] = nil
       end
    end
-   minetest.chat_send_player(pname, "You activated a trigger at "..posstr)
    if not nodemeta then
       nodemeta = minetest.get_meta(pos)
    end
@@ -260,9 +262,9 @@ local function triggerpage(sel, value)
    else
       local bool
       if value == "" then
-	 bool = "False"
+	 bool = S("False")
       else
-	 bool = "True"
+	 bool = S("True")
       end
       spec = spec.."label[3.3,3;"..bool.."]"
    end
@@ -378,7 +380,8 @@ if minetest.is_creative_enabled() then
 	   local list = oinv:get_lists()
 	   stack_meta:set_string("inventory", minimal.invlists2string(list))
 	   if desc ~= "" then
-	      stack_meta:set_string("description", "Configured trigger\n"..desc)
+	      stack_meta:set_string("description",
+				    S("Configured trigger").."\n"..desc)
 	   end
 	   stack_meta:set_string("tr_selected", oldmeta["tr_selected"])
 	end,

@@ -8,6 +8,7 @@ Player stats etc
 ]]
 
 lore = lore
+local S = lore.S
 
 ------------------------------------
 --set character name and record start time
@@ -117,26 +118,26 @@ local function sfinv_get(self, player, context)
     if severity == 0 then
       severity = ""
     elseif severity == 1 then
-      severity = "(mild)"
+       severity = "("..S("mild")..")"
     elseif severity == 2 then
-      severity = "(moderate)"
+       severity = "("..S("moderate")..")"
     elseif severity == 3 then
-      severity = "(severe)"
+       severity = "("..S("severe")..")"
     elseif severity >= 4 then
-      severity = "(extreme)"
+       severity = "("..S("extreme")..")"
     end
 
     y = y + 0.4
-    eff_form = eff_form.."label[0.1,"..y.."; "..effect[1].." "..severity.."]"
+    eff_form = eff_form.."label[0.1,"..y.."; "..S(effect[1]).." "..severity.."]"
   end
 
-	local formspec = "label[0.1,0.1; Name: " .. name .. "]"..
-	   "label[4,0.1; Days Survived: " .. days .. "]"..
-	   "label[4,0.6; Lives: " .. lives .. "]"..
-	   "label[0.1,1.1; Biography: " .. bio .. "]"..
-	   "style[player_settings;border=false]"..
-	   "image_button_exit[7,0.15;0.75,0.75;gear.png;player_settings;]"..
-	   "label[0.1,3.1; Health Effects:]"..
+  local formspec = "label[0.1,0.1; "..S("Name").. ": ".. name .. "]"..
+     "label[4,0.1; "..S("Days Survived")..": ".. days .. "]"..
+     "label[4,0.6; "..S("Lives")..": " .. lives .. "]"..
+     "label[0.1,1.1; "..S("Biography")..": " .. bio .. "]"..
+     "style[player_settings;border=false]"..
+     "image_button_exit[7,0.15;0.75,0.75;gear.png;player_settings;]"..
+     "label[0.1,3.1; "..S("Health Effects")..":]"..
 	   eff_form
 
 
@@ -147,7 +148,7 @@ end
 
 local function register_tab()
 	sfinv.register_page("lore:char_tab", {
-		title = "Character",
+		title = S("Character"),
 		--on_enter = function(self, player, context)
 			--sfinv.set_player_inventory_formspec(player)
 		--end,

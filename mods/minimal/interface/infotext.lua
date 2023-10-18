@@ -37,7 +37,7 @@ function table.removekey(table, key)
 	return nil
 end
 
--- Split infotext line into keyed or unkeyed list. 
+-- Split infotext line into keyed or unkeyed list.
 function infotext.parse_key(line,keyed_list,unkeyed_list)
 	local ikey = line:find(':',1,true)
 	local key
@@ -59,7 +59,7 @@ end
 -- sort it into keyed and unkeyed lists and return the lists
 -- The first unkeyed entry is assumed to be the description and is removed
 function infotext.parse_meta(meta)
-	local keyed = {} 
+	local keyed = {}
 	local unkeyed = {} -- lines without keys
 	local infotext_string = meta:get_string("infotext")
 	if infotext_string ~= '' then
@@ -143,18 +143,17 @@ function infotext.append_desc_owner(pos,meta, output_lines)
 	-- Line 2 is always Owner if set
 	local owner = meta:get_string('owner')
 	if owner and owner ~= "" then
-		output[2] = "Owner: " .. owner
+		output[2] = S("Owner")..": " .. owner
 	end
 	return output
 end
 
 -- Generate output text for description and owner
 function infotext.output_desc_owner(pos,meta)
-	local output
 	local output = minetest.registered_nodes[minetest.get_node(pos).name].description
 	local owner = meta:get_string('owner')
 	if owner and owner ~= "" then
-		output = output .. '\nOwner: ' .. owner
+	   output = output .. '\n'..S("Owner")..': ' .. owner
 	end
 	return output
 end
@@ -163,7 +162,7 @@ end
 -- old lines.  Removed from both lists
 function infotext.append_fixed_order(output_lines,old_lines,new_lines)
 	-- Use fixed_order list to find output_lines
-	for i, ordered_key in ipairs(infotext.fixed_order) do 
+	for i, ordered_key in ipairs(infotext.fixed_order) do
 		local old_line=table.removekey(old_lines, ordered_key)
 		local new_line=table.removekey(new_lines, ordered_key)
 		if i > 1 then -- skip writing out Owner; already added above
@@ -185,7 +184,7 @@ end
 
 -- New keys replace old keys.
 -- The description of the node and name of the owner will be generated from the node
--- definition and meta:owner param.  
+-- definition and meta:owner param.
 
 function minimal.infotext_merge(pos, add_lines, meta)
 	if type(pos) == "string" then

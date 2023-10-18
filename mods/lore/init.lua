@@ -4,6 +4,7 @@
 
 
 lore = {}
+lore.S = minetest.get_translator("lore")
 
 local modpath = minetest.get_modpath('lore')
 

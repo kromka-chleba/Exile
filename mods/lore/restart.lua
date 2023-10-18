@@ -3,7 +3,8 @@
 
 --Local table to store pending confirmations.
 local timestamp = {}
-
+lore = lore
+local S = lore.S
 
 local __stash_timeout = 60*60*24*14 -- keep for 2 weeks
 local function stash_inventory(player, stash, list)
@@ -64,39 +65,40 @@ end
 
 local function restart_confirm (confirmed, _, player, name)
    if confirmed == true then
-      minetest.log("action", name .. " gave up the ghost.")
+      minetest.log("action", S("@1 gave up the ghost.", name))
       timestamp[name] = minetest.get_gametime()
       local remaining = 30
       local function loop()
 	 if not minetest.is_player(player) then return end
 	 if remaining <= 0 then
-	    minetest.chat_send_player(name, "POP!")
+	    minetest.chat_send_player(name, S("POP!"))
 	    killplayer(name)
 	 else
-	    minetest.chat_send_player(name, "Restart in: "..remaining..
-				      " seconds.")
+	    minetest.chat_send_player(name, S("Restart in: @1 seconds.",
+					      remaining))
 	    remaining = remaining - 10
 	    minetest.after(10, loop)
 	 end
       end
       loop()
    else
-      minetest.chat_send_player(name, "You've come to your senses and "..
-				"decided to keep trying")
+      minetest.chat_send_player(name,S("You've come to your senses and "..
+				       "decided to keep trying"))
    end
 end
 
 local function restart (name, param)
 	local nowtime = minetest.get_gametime()
 	if timestamp[name] and ( timestamp[name] +300 ) > nowtime then
-	   minetest.chat_send_player(name, "You can't use this command more "..
-				     "than once per 5 minutes.")
+	   minetest.chat_send_player(name, S("You can't use this command more "..
+					     "than once per 5 minutes."))
 	   return
 	else
 	   timestamp[name] = nil
-	   minimal.yes_or_no(name, "Restarting does not leave bones!\n "..
-			     "Your inventory will be deleted.\n"..
-			     "Are you sure?", restart_confirm)
+	   minimal.yes_or_no(name, S("Restarting does not leave bones!")
+			     .."\n "..
+			     S("Your inventory will be deleted.").."\n"..
+			     S("Are you sure?"), restart_confirm)
 	end
 end
 
@@ -104,19 +106,20 @@ minetest.register_chatcommand("restart",{
 	privs = {
 		interact = true,
 	},
-        description = "Give up on your current character without leaving a "..
+        description =
+	   S("Give up on your current character without leaving a "..
 	   "trace. Everything you hold will be lost. Have a new Exile "..
-	   "appear in this world in their stead and try yourself at "..
-	   "survival again.",
+	   "appear in this world in their stead and try your hand at "..
+	   "survival again."),
 	func = restart
 })
 
-minetest.register_chatcommand("respawn",{
+minetest.register_chatcommand(minimal.detranslate(S("respawn"),"lore"),{
 	privs = {
 		interact = true,
 	},
-        description = "This command is an alias for /restart. See there for "..
-	   "further information.",
+        description = S("This command is an alias for /restart. See there for "..
+			"further information."),
 	func = restart
 })
 

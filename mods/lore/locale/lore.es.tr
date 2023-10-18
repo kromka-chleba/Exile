@@ -1,0 +1,42 @@
+# textdomain: lore
+
+#char_tab.lua
+mild=leve
+moderate=moderada
+severe=severa
+extreme=extrema
+
+Name=Nombre
+Days Survived=Dias Sobreviviste
+Lives=Vidas
+Biography=Biograf�a
+Health Effects=Efectos en Salud
+Food Poisoning=Comida envenenada
+Fungal Infection=Micosis
+Dust Fever=Fiebre de Polvo
+Intestinal Parasites=Parasitos Intestinales
+Drunk=Beodo
+Hangover=Resaca
+Tiku High=Dopado con Tiku
+Neurotoxicity=Neurotoxicidad
+Hepatotoxicity=Hepatoxicidad
+Photosensitivity=Fotosensibilidad
+Meta-Stim=Meta-Stim
+
+Character=Personaje
+
+#login.lua
+login_text=
+Message of the Day:=Mensaje del Dia:
+
+#restart.lua
+@1 gave up the ghost.=@1 tiro la toalla.
+POP!=
+Restart in: @1 seconds.=Reanudar en @1 segundos.
+You've come to your senses and decided to keep trying=Le pones buena cara al mal tiempo.
+You can't use this command more than once per 5 minutes.=No puedes usar este comando más de una vez cada 5 minutos.
+Restarting does not leave bones!=¡Reiniciar no deja huesos!
+Your inventory will be deleted.=Su inventario será eliminado.
+Are you sure?=Está seguro?
+Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try your hand at survival again.=
+This command is an alias for /restart. See there for further information.=

@@ -1,0 +1,66 @@
+# textdomain: minimal
+
+#utility/general.lua
+Yes=
+No=
+
+#interface/infotext.lua
+Owner=
+
+#playersettings.lua
+Enable wide HUDbar=
+Show numeric stats=
+Enable Break-taker popup=
+Temperature scale=
+GUI theme=
+HUD Opacity level=
+
+#currentrevision.lua
+Display the current git revision=
+This server is currently running git revision=
+
+#storage_api.lua
+Label=
+Burnt Storage Pile=
+Crafted by=
+
+#triggers.lua
+Value:=
+False=
+True=
+Set=
+Unset=
+Configured trigger=
+Invalid teleport vector, must be '(x,y,z)'=
+Reset player=
+Will reset player stats to full=
+Hurt player=
+Hits player for <value> damage, 1-20=
+Set energy=
+Set player energy to <value> percent=
+Set HP=
+Set player hp to <value>, 0-20=
+Set hunger=
+Set player hunger to <value> percent=
+Set thirst=
+Set player thirst to <value> percent=
+Teleport=
+Send player an exact xyz position=
+Relaport=
+Send player a relative xyz distance=
+Clear inventory=
+Empties main inventory=
+Set inventory=
+Overwrite player inv with contents=
+Give item=
+Gives an item, in itemstring format=
+Set weather=
+Changes weather displayed to player=
+Use /set_weather help to list available weather.=
+Reset weather=
+Restores normal weather for player=
+Hide hud elements=
+Hide health/energy/thirst/hunger/temp/=
+/enviro_temp/effects by names, or all=
+Show hud elements=
+Restore all hidden hud elements=

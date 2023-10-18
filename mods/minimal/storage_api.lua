@@ -8,8 +8,8 @@ end
 
 function storage.get_storage_formspec(pos, w, h, meta)
 	local creator = meta:get_string('creator')
-  local label = minimal.sanitize_string(meta:get_string('label'))
-	minimal.infotext_merge(pos, 'Label: '..label, meta)
+	local label = minimal.sanitize_string(meta:get_string('label'))
+	minimal.infotext_merge(pos, S('Label')..': '..label, meta)
 	local formspec_size_h = 3.85 + h
 	local main_offset = 0.25 + h
 	local trash_offset = 0.45 + h + 2
@@ -26,14 +26,16 @@ function storage.get_storage_formspec(pos, w, h, meta)
 		"list[detached:creative_trash;main;0,"..trash_offset..";1,1;]",
 		"image[0.05,"..(trash_offset+.10)..
 		   ";0.8,0.8;creative_trash_icon.png]",
-		"field[1.5,"..label_offset..";4,1;label;Label:;"..label.."]",
+		"field[1.5,"..label_offset..";4,1;label;"..
+		   S("Label")..":;"..label.."]",
 		"field_close_on_enter[label;false]",
-    "button[5,"..label_offset..";1,0.25;labelset;Set]",
+		"button[5,"..label_offset..";1,0.25;labelset;Set]",
 		--"label["..craftedby_offset_x..","..trash_offset..";Crafted by:]",
 		--"label["..creator_offset_x..","..(trash_offset+.35)..";"..creator.."]",
 	}
   if (creator and creator ~= '') then
-    formspec[#formspec + 1] = "label["..craftedby_offset_x..","..trash_offset..";Crafted by:]"
+     formspec[#formspec + 1] = "label["..craftedby_offset_x..","..trash_offset..
+	";"..S("Crafted by")..":]"
     formspec[#formspec + 1] = "label["..creator_offset_x..","..(trash_offset+.35)..";"..creator.."]"
   end
 	return table.concat(formspec, "")
@@ -85,7 +87,7 @@ function storage.on_receive_fields(pos, formname, fields, sender, width, height)
     local meta = minetest.get_meta(pos)
     local cleanlabel = minimal.sanitize_string(label)
     meta:set_string('label', cleanlabel)
-    minimal.infotext_merge(pos,'Label: '..cleanlabel, meta)
+    minimal.infotext_merge(pos,S('Label')..': '..cleanlabel, meta)
     storage.on_construct(pos, width, height)
   end
 end

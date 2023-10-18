@@ -3,7 +3,8 @@
 
 tutorial = tutorial
 HEALTH = HEALTH
-local S = minetest.get_translator("lore")
+lore = lore
+local S = lore.S
 
 local newplayer = {}
 
@@ -65,7 +66,8 @@ local function show_motd(player)
    local spec = "formspec_version[3]"..
 		"size[7,7.5]"..
 		"styletype[scrollbar;bgimg=artifacts_antiquorium.png]"..
-		"hypertext[0.5,0.75;6,5;introtext; Message of the Day:\n\n"
+		"hypertext[0.5,0.75;6,5;introtext; "..
+		S("Message of the Day:\n\n")
 		..motd.."]"
    if newplayer[playername] then
       spec = spec.."bgcolor[;both;#bbb]"..

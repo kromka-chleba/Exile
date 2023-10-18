@@ -1,0 +1,42 @@
+# textdomain: lore
+
+#char_tab.lua
+mild=
+moderate=
+severe=
+extreme=
+
+Name=
+Days Survived=
+Lives=
+Biography=
+Health Effects=
+Food Poisoning=
+Fungal Infection=
+Dust Fever=
+Intestinal Parasites=
+Drunk=
+Hangover=
+Tiku High=
+Neurotoxicity=
+Hepatotoxicity=
+Photosensitivity=
+Meta-Stim=
+
+Character=
+
+#login.lua
+login_text=
+Message of the Day:=
+
+#restart.lua
+@1 gave up the ghost.=
+POP!=
+Restart in: @1 seconds.=
+You've come to your senses and decided to keep trying=
+You can't use this command more than once per 5 minutes.=
+Restarting does not leave bones!=
+Your inventory will be deleted.=
+Are you sure?=
+Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try your hand at survival again.=
+This command is an alias for /restart. See there for further information.=

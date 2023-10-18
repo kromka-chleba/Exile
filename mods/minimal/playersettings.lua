@@ -2,6 +2,7 @@
 -- Stores and sets all player-facing settings through a formspec
 
 minimal = minimal
+local S = minimal.S
 local mtshowstats = minetest.settings:get_bool("exile_hud_show_stats") or true
 local mtwidehud = minetest.settings:get_bool("exile_hud_wide_hotbar") or false
 local mtnobreak = minetest.settings:get_bool('exile_nobreaktaker') or false
@@ -44,16 +45,17 @@ function minimal.show_player_settings(playername, meta)
    "formspec_version[6]"..
    "size[8,7]"..
    "button_exit[7,0.2;0.8,0.5;exit_form;X]"..
-   "checkbox[1,1;hud16;  Enable wide HUDbar;"..tostring(hud16).."]"..
-   "checkbox[1,1.5;showstats;  Show numeric stats;"..tostring(showstats).."]"..
-   "checkbox[1,2;breaktaker;  Enable Break-taker popup;"..
+   "checkbox[1,1;hud16;  "..S("Enable wide HUDbar")..";"..tostring(hud16).."]"..
+   "checkbox[1,1.5;showstats;"..
+      S("Show numeric stats")..";"..tostring(showstats).."]"..
+   "checkbox[1,2;breaktaker;  "..S("Enable Break-taker popup")..";"..
       tostring(breaktaker).."]"..
-   "label[1,3;Temperature scale:]"..
+   "label[1,3;"..S("Temperature scale")..":]"..
    "dropdown[4,2.75;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
      tempnum..";true]"..
-   "label[1,3.75;GUI theme:]"..
+   "label[1,3.75;"..S("GUI theme")..":]"..
    "dropdown[4,3.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
-   "label[1,4.55;HUD Opacity level:]"..
+   "label[1,4.55;"..S("HUD Opacity level")..":]"..
    "scrollbaroptions[min=0;max=255;largestep=50]"..
       "scrollbar[1,5;6,0.5;horizontal;HudOpac;"..opacity.."]"
    minetest.show_formspec(playername, "player_settings", spec)
@@ -110,47 +112,5 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			      minimal.show_player_settings(name, meta)
 	    end)
 	 end
-      end
-end)
-
-
-----------------------------------------------------------------------
--- Password change
-
-local pwspec =
-   "formspec_version[6]"..
-   "size[6,6]"..
-   "button_exit[5,0.25;0.8,0.75;exit_form;X]"..
-   "pwdfield[1,1.75;4,0.5;oldpwd;Old password]"..
-   "pwdfield[1,2.75;4,0.5;newpwd;New password]"..
-   "pwdfield[1,3.75;4,0.5;confirmpwd;Confirm password]"..
-   "button_exit[2.25,5;1.5,0.75;setpw;Set]"
-
-minetest.register_chatcommand("password", {
-    params = "<none>",
-    description = "Change your password",
-    privs = {},
-    func = function(name, param)
-       minetest.show_formspec(name, "pw_change", pwspec)
-    end
-})
-
-minetest.register_on_player_receive_fields(function(player, formname, fields)
-      if formname ~= "pw_change" then return end
-      if fields.exit_form then return end
-      if fields.newpwd == fields.oldpwd then return end -- no change
-      local name = player:get_player_name()
-      local auth_data = minetest.get_auth_handler()
-      local oldauth = auth_data.get_auth(name).password
-      if minetest.check_password_entry(name, oldauth, fields.oldpwd) then
-	 if fields.newpwd == fields.confirmpwd then
-	    local hash = minetest.get_password_hash(name, fields.newpwd)
-	    minetest.set_player_password(name, hash)
-	    minetest.chat_send_player(name,"Password updated!")
-	 else
-	    minetest.chat_send_player(name,"new passwords do not match")
-	 end
-      else
-	 minetest.chat_send_player(name,"old password is incorrect")
       end
 end)
