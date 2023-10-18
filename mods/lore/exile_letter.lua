@@ -511,9 +511,7 @@ minetest.register_node("lore:exile_letter", {
   after_place_node = after_place,
   on_secondary_use = on_secondary_use,
   preserve_metadata = function(pos, oldnode, oldmeta, drops)
-     local letter_text = oldmeta["lore:letter_text"]
-     local stack_meta = drops[1]:get_meta()
-     stack_meta:set_string("lore:letter_text", letter_text)
+     drops[1]:get_meta():from_table(oldmeta)
   end,
 })
 
