@@ -114,7 +114,7 @@ minetest.register_chatcommand("restart",{
 	func = restart
 })
 
-minetest.register_chatcommand(minimal.detranslate(S("respawn"),"lore"),{
+minetest.register_chatcommand("respawn",{
 	privs = {
 		interact = true,
 	},
