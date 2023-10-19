@@ -22,7 +22,7 @@ Kubwakubwa Eggs=
 Live Kubwakubwa=
 
 # pegasun.lua
-Pegasun Egg=Œuf de pegasun
+Pegasun Egg=
 Live Pegasun (male)=
 Live Pegasun (female)=
 
