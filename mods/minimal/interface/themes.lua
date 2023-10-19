@@ -20,15 +20,17 @@ local themes = {
 themes.default = themes[minetest.settings:get("exile_default_gui_theme")] or
    themes.Antiglass
 
-function minimal.apply_gui_theme(player, meta)
-   if not meta then
+function minimal.apply_gui_theme(player, meta, name)
+   if not name and not meta then
       meta = player:get_meta()
    end
-   local selection = meta:get("gui_theme")
-   if not themes[selection] then
-      selection = "default"
+   if not name then
+      name = meta:get("gui_theme")
    end
-   player:set_formspec_prepend(themes[selection])
+   if not themes[name] then
+      name = "default"
+   end
+   player:set_formspec_prepend(themes[name])
 end
 
 function minimal.get_gui_theme_list(separator)
@@ -60,6 +62,6 @@ function minimal.set_gui_theme(player, meta, themename)
       return false
    end
    meta:set_string("gui_theme", themename)
-   minimal.apply_gui_theme(player, meta)
+   minimal.apply_gui_theme(player, meta, themename)
    return true
 end

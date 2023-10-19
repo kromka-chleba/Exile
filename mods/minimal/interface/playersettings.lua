@@ -80,7 +80,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 local num = tonumber(fields.gui_theme) -- table[1] ~= table["1"] !
 	 if theme_fromnum[num] and theme_fromnum[num] ~= oldtheme then
 	       meta:set_string("gui_theme", theme_fromnum[num])
-	       minimal.apply_gui_theme(player, meta)
+	       minimal.apply_gui_theme(player, meta, theme_fromnum[num])
 	       reopen = true
 	 end
 	 num = tonumber(fields.tempscale)
@@ -108,7 +108,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 end
 	 if reopen == true then
 	    minetest.close_formspec(name, "player_settings")
-	    minetest.after(0.1, function()
+	    minetest.after(0.2, function()
 			      minimal.show_player_settings(name, meta)
 	    end)
 	 end
