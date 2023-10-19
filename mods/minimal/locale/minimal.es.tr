@@ -1,8 +1,9 @@
 # textdomain: minimal
-
 #utility/general.lua
-Yes=Si
-No=No
+
+#currentrevision.lua
+Display the current git revision=Mostrar la revision actual de git
+This server is currently running git revision=Este servidor esta ejecutando actualmente la revision de git
 
 #interface/infotext.lua
 Owner=Poseedor
@@ -15,22 +16,12 @@ Temperature scale=Escala de temperatura
 GUI theme=GUI tema
 HUD Opacity level=Nivel de opacidad del HUD
 
-#currentrevision.lua
-Display the current git revision=Mostrar la revision actual de git
-This server is currently running git revision=Este servidor esta ejecutando actualmente la revision de git
-
 #storage_api.lua
 Label=Etiqueta
-Burnt Storage Pile=Almacenamiento Quemada
 Crafted by=Creado por
+Burnt Storage Pile=Almacenamiento Quemada
 
 #triggers.lua
-Value:=
-False=
-True=
-Set=
-Unset=
-Configured trigger=
 Invalid teleport vector, must be '(x,y,z)'=
 Reset player=
 Will reset player stats to full=
@@ -54,6 +45,7 @@ Set inventory=
 Overwrite player inv with contents=
 Give item=
 Gives an item, in itemstring format=
+This requires a unique label.=
 Set weather=
 Changes weather displayed to player=
 Use /set_weather help to list available weather.=
@@ -64,3 +56,13 @@ Hide health/energy/thirst/hunger/temp/=
 /enviro_temp/effects by names, or all=
 Show hud elements=
 Restore all hidden hud elements=
+
+
+Value:=
+False=
+True=
+Configured trigger=
+Set=
+Unset=
+Yes=Si
+No=No

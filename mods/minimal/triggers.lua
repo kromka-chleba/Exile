@@ -171,7 +171,7 @@ local info = {
 		      ", ( 1, 10, -5 )" },
    ["tr_clearinv"]={S("Clear inventory"), S("Empties main inventory")},
    ["tr_setinv"]  ={S("Set inventory"),
-		    S("Overwrite player inv with contents)")},
+		    S("Overwrite player inv with contents")},
    ["tr_giveitem"]={S("Give item"), S("Gives an item, in itemstring format")..
 				    S("This requires a unique label.")},
    ["tr_setweather"]={S("Set weather"), S("Changes weather displayed to player")
