@@ -40,3 +40,23 @@ Your inventory will be deleted.=Su inventario será eliminado.
 Are you sure?=Está seguro?
 Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try your hand at survival again.=
 This command is an alias for /restart. See there for further information.=
+
+
+#exile_letter.lua
+He=El
+She=Ella
+he=el
+she=ella
+Him=
+Her=
+him=
+her=
+His=
+Hers=
+his=
+hers=
+Himself=
+Herself=
+himself=
+herself=
+By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=Por decreto del @1 de @2: @n@n @3 de @4 @n@n es condenado al exilio por los crimenes de @n@n @5 @n@n y @n@n @6 @n@n@n @7 está desterrado a la tierra de @8 @n@n La tierra de @9 @n@n

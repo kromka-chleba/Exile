@@ -15,6 +15,7 @@ Unique, randomly generated, for each "life".
 
 local random = math.random
 lore = lore
+S = lore.S
 
 ----------------------------------------------------------
 local judger = {
@@ -251,16 +252,19 @@ local crime2 = {
   "claiming that the world is not round",
   "promoting belief in gravity"
 }
+
 -- woe upon ye
 local woe = {}
-local genderSU = {male = "He"     , female = "She"    } -- subjective + uppercase
-local genderSL = {male = "he"     , female = "she"    } -- subjective + lowercase
-local genderOU = {male = "Him"    , female = "Her"    } -- objective  + uppercase
-local genderOL = {male = "him"    , female = "her"    } -- objective  + lowercase
-local genderPU = {male = "His"    , female = "Her"    } -- possessive + uppercase
-local genderPL = {male = "his"    , female = "her"    } -- possessive + lowercase
-local genderRU = {male = "Himself", female = "Herself"} -- reflexive  + uppercase
-local genderRL = {male = "himself", female = "herself"} -- reflexive  + lowercase
+local genderSU = {male = S("He"),  female = S("She") } -- subjective + uppercase
+local genderSL = {male = S("he"),  female = S("she") } -- subjective + lowercase
+local genderOU = {male = S("Him"), female = S("Her") } -- objective  + uppercase
+local genderOL = {male = S("him"), female = S("her") } -- objective  + lowercase
+local genderPU = {male = S("His"), female = S("Hers") } -- possessive + uppercase
+local genderPL = {male = S("his"), female = S("hers") } -- possessive + lowercase
+local genderRU = {male = S("Himself"),
+		  female = S("Herself")} -- reflexive  + uppercase
+local genderRL = {male = S("himself"),
+		  female = S("herself")} -- reflexive  + lowercase
 local populate_woe = function(player)
 	local gend = player_api.get_gender(player)
 	return {
@@ -423,25 +427,16 @@ local generate_text = function(player, freshspawn)
   end
 
   --
-  letter_text =
-    "<center><b>By decree of the "..judge..
-    " of "..polity_name..":"..
-    "\n "..
-    "\n  "..your_name.." of "..origin_name..
-    "\n "..
-    "\nis hereby sentenced to exile for the crimes of "..
-    "\n  "..
-    "\n"..cr1..
-    "\n"..
-    "\nand "..
-    "\n"..
-    "\n"..cr2.."."..
-    "\n \n"..
-    "\n"..genderSU[gend].." is banished to the land of "..exile_land.."."..
-    "\n  "..
-    "\nThe land of the "..terror.."."..
-    "\n \n"..
-    "\n<i>"..your_woe
+  letter_text = "<center><b>"..
+     S("By decree of the @1 of @2: @n@n"..
+       " @3 of @4 @n@n"..
+       " is hereby sentenced to exile for the crimes of @n@n"..
+       " @5 @n@n and @n@n @6 @n@n@n"..
+       " @7 is hereby banished to the land of @8 @n@n"..
+       " The land of the @9 @n@n",
+       judge, polity_name, your_name, origin_name, cr1, cr2, genderSU[gend],
+       exile_land, terror)..
+     "<i>"..your_woe
 
   return letter_text
 end
