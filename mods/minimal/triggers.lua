@@ -8,16 +8,17 @@ local S = core.get_translator(minimal.modname)
 
 local usedlist = {} -- temporarily remember who has activated each trigger
 
-local function used_before(pos, pname)
+local function used_before(nmeta, pname)
    -- Allows a trigger to be used by a player just once per server start
    -- #TODO: is it worth saving this to prevent stop/start to reuse triggers?
-   local posstr = vector.to_string(pos)
-   if usedlist[posstr] == nil then
-      usedlist[posstr] = {} -- this trigger hasn't been used by <player> yet
-      usedlist[posstr][pname] = true
+   local label = nmeta:get_string("tr_label")
+   if label == "" then return true end
+   if usedlist[label] == nil then
+      usedlist[label] = {} -- this trigger hasn't been used by <player> yet
+      usedlist[label][pname] = true
       return false
    end
-   if usedlist[posstr][pname] == true then
+   if usedlist[label][pname] == true then
       return true
    end
 end
@@ -111,7 +112,7 @@ local function setinventory(player, pname, pos, nmeta, metastring)
    plinv:set_list(metastring, triginv)
 end
 local function giveitem(player, pname, pos, nmeta, metastring)
-   if used_before(pos, pname) then
+   if used_before(nmeta, pname) then
       return -- You'll have to try harder for freebies, Jack
    end
    local stack = ItemStack(metastring)
@@ -171,7 +172,8 @@ local info = {
    ["tr_clearinv"]={S("Clear inventory"), S("Empties main inventory")},
    ["tr_setinv"]  ={S("Set inventory"),
 		    S("Overwrite player inv with contents)")},
-   ["tr_giveitem"]={S("Give item"), S("Gives an item, in itemstring format")},
+   ["tr_giveitem"]={S("Give item"), S("Gives an item, in itemstring format")..
+				    S("This requires a unique label.")},
    ["tr_setweather"]={S("Set weather"), S("Changes weather displayed to player")
 			 .."\n"..
 			 S("Use /set_weather help to list available weather.")},
@@ -280,9 +282,12 @@ end
 local function setformspec(pos)
    local nodemeta = minetest.get_meta(pos)
    local sel = nodemeta:get_string("tr_selected")
+   local label = nodemeta:get_string("tr_label")
    if sel == "" then sel = "tr_reset" end
    local value = nodemeta:get_string(sel)
    local spec =  "formspec_version[6]size[10.5,11]"..triggerpage(sel, value)
+   spec = spec.."field[3,8;6,0.5;tr_label;Label;"..label.."]"
+
    nodemeta:set_string("formspec", spec)
 end
 
@@ -301,6 +306,7 @@ function recfields(pos, formname, fields, sender)
       if fields.input_value then
 	 new_value = fields.input_value:trim()
       end
+      nmeta:set_string("tr_label", fields.tr_label)
       nmeta:set_string(sel, new_value)
    end
    if fields.btn_unset then
@@ -345,6 +351,7 @@ if minetest.is_creative_enabled() then
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 	   local meta = minetest.get_meta(pos)
 	   local imeta = itemstack:get_meta()
+	   meta:set_string("tr_label", imeta:get_string("tr_label"))
 	   for nm, _ in pairs(triggers.defs) do
 	      local val = imeta:get_string(nm)
 	      if val ~= "" then
@@ -379,9 +386,12 @@ if minetest.is_creative_enabled() then
 	   local oinv = minetest.get_meta(pos):get_inventory()
 	   local list = oinv:get_lists()
 	   stack_meta:set_string("inventory", minimal.invlists2string(list))
+	   local label = oldmeta["tr_label"]
+	   stack_meta:set_string("tr_label", label)
+	   local name = label or S("Configured trigger")
 	   if desc ~= "" then
 	      stack_meta:set_string("description",
-				    S("Configured trigger").."\n"..desc)
+				    name.."\n"..desc)
 	   end
 	   stack_meta:set_string("tr_selected", oldmeta["tr_selected"])
 	end,
