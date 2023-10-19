@@ -46,7 +46,7 @@ function minimal.show_player_settings(playername, meta)
    "size[8,7]"..
    "button_exit[7,0.2;0.8,0.5;exit_form;X]"..
    "checkbox[1,1;hud16;  "..S("Enable wide HUDbar")..";"..tostring(hud16).."]"..
-   "checkbox[1,1.5;showstats;"..
+   "checkbox[1,1.5;showstats;  "..
       S("Show numeric stats")..";"..tostring(showstats).."]"..
    "checkbox[1,2;breaktaker;  "..S("Enable Break-taker popup")..";"..
       tostring(breaktaker).."]"..
