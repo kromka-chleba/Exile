@@ -53,8 +53,25 @@ end
 local old_node_dig = minetest.node_dig
 function minetest.node_dig(pos, node, digger)
    if minetest.is_player(digger) then
+      local witem = digger:get_wielded_item()
+      local drops = minetest.get_node_drops(node, witem)
       local inv = digger:get_inventory()
-      if not inv:room_for_item("main", node.name) then
+      local full = inv:room_for_item("main", node.name)
+      if drops then -- drops something else, maybe multiple items. handle them
+	 full = false
+	 inv:set_size("temp", inv:get_size("main"))
+	 inv:set_list("temp", inv:get_list("main"))
+	 for k, v in pairs(drops) do
+	    if not full and inv:room_for_item("temp", drops[k]) then
+	       inv:add_item("temp", drops[k])
+	    else
+	       full = true
+	    end
+	 end
+	 inv:set_list("temp", {})
+	 inv:set_size("temp", 0)
+      end
+      if full then
 	 minimal.warn_inv_full(digger)
 	 return false
       end
