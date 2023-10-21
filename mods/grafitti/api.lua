@@ -269,7 +269,7 @@ function g.register_brush(brush_name, def)
         end,
 
         on_use = function(itemstack, user, pointed_thing)
-	   grafitti.paint(itemstack, user, pointed_thing, def.palette)
+	   return grafitti.paint(itemstack, user, pointed_thing, def.palette)
 	end
     })
 
