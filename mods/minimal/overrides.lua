@@ -52,6 +52,8 @@ end
 
 local old_node_dig = minetest.node_dig
 function minetest.node_dig(pos, node, digger)
+   -- Return protection nail if node was nailed
+   minimal.protection_on_dig(pos,node,digger)
    if minetest.is_player(digger) then
       local witem = digger:get_wielded_item()
       local drops = minetest.get_node_drops(node, witem)
@@ -76,8 +78,6 @@ function minetest.node_dig(pos, node, digger)
 	 return false
       end
    end
-   -- Return protection nail if node was nailed
-   minimal.protection_on_dig(pos,node,digger)
    return old_node_dig(pos, node, digger)
 end
 
