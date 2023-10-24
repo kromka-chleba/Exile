@@ -349,9 +349,9 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 	    minimal.warn_inv_full(player)
 	    minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), itemstack)
 	 end
-	 return true
       end
    end
+   return true
 end
 
 local function to_hex(str)
