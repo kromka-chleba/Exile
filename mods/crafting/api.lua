@@ -343,7 +343,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 
       -- add output
       if (count > 0) then -- just in case something goes wrong and an itemstack below or equal to 0 in count is made
-	 if inv:room_for_item("main", itemstack) then
+	 if inv:room_for_item(outlistname, itemstack) then
 	    inv:add_item(outlistname, itemstack)
 	 else
 	    local pos = player:get_pos()
