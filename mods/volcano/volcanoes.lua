@@ -12,6 +12,8 @@ if ms then
     ms.labels.register("volcano")
 end
 
+volcano = {}
+
 --
 local water_level = tonumber(minetest.get_mapgen_setting("water_level"))
 local mapgen_seed = tonumber(minetest.get_mapgen_setting("seed"))
@@ -83,7 +85,8 @@ local c_cone = c_basalt
 ------------------------------------------------------------------------
 -- offset for alignment
 local get_corner = function(pos)
-	return {x = math.floor((pos.x+32) / volcano_region_size) * volcano_region_size - 32, z = math.floor((pos.z+32) / volcano_region_size) * volcano_region_size - 32}
+   return {x = math.floor((pos.x+32) / volcano_region_size) * volcano_region_size - 32,
+	   z = math.floor((pos.z+32) / volcano_region_size) * volcano_region_size - 32}
 end
 
 ------------------------------------------------------------------------
@@ -94,6 +97,17 @@ local scatter_2d = function(min_xz, gridscale, border_width)
 	point.y = 0
 	point.z = math.random() * bordered_scale + min_xz.z + border_width
 	return point
+end
+
+function volcano.is_volcano(pos)
+	local corner_xz = get_corner(pos)
+	math.randomseed(corner_xz.x + corner_xz.z * 2 ^ 8 + mapgen_seed)
+
+	local state = math.random()
+	if state < state_none then
+		return false
+	end
+	return true
 end
 
 -------------------------------------------------------------------
@@ -124,7 +138,9 @@ local get_volcano = function(pos)
 	local caldera = math.random() * (caldera_max - caldera_min) + caldera_min
 
 	math.randomseed(next_seed)
-	return {location = location, depth_peak = depth_peak, depth_lava = depth_lava, slope = slope, state = state, caldera = caldera}
+	return {location = location, depth_peak = depth_peak,
+		depth_lava = depth_lava, slope = slope, state = state,
+		caldera = caldera}
 end
 
 
@@ -164,7 +180,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	local chamber_radius = (base_radius / volcano.slope) * chamber_radius_multiplier
 
 	-- early out if the volcano is too far away to matter
-	-- The plus 20 is because the noise being added will generally be in the 0-20 range, see the "distance" calculation below
+	-- The plus 20 is because the noise being added will generally be in
+	--  the 0-20 range, see the "distance" calculation below
 	if volcano.location.x - base_radius - 20 > maxp.x
 	or volcano.location.x + base_radius + 20 < minp.x
 	or volcano.location.z - base_radius - 20 > maxp.z
@@ -276,39 +293,54 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
 		-- Actually create the volcano
 		if y < depth_base then
-			if y < depth_root + chamber_radius then -- Magma chamber lower half
-				local lower_half = ((y - depth_root) / chamber_radius) * chamber_radius
-				if distance < lower_half + radius_vent then
-					data[vi] = c_lava -- Put lava in the magma chamber even for extinct volcanoes, if someone really wants to dig for it it's down there.
-				elseif distance < lower_half + radius_lining and data[vi] ~= c_air and data[vi] ~= c_lava then -- leave holes into caves and into existing lava
-					data[vi] = liningstuff
-				end
-			elseif y < depth_root + chamber_radius * 2 then -- Magma chamber upper half
-				local upper_half = (1 - (y - depth_root - chamber_radius) / chamber_radius) * chamber_radius
-				if distance < upper_half + radius_vent then
-					data[vi] = c_lava
-				elseif distance < upper_half + radius_lining and data[vi] ~= c_air and data[vi] ~= c_lava then -- leave holes into caves and into existing lava
-					data[vi] = liningstuff
-				end
-			else -- pipe
-				if distance < radius_vent then
-					data[vi] = pipestuff
-				elseif distance < radius_lining and data[vi] ~= c_air and data[vi] ~= c_lava then -- leave holes into caves and into existing lava
-					data[vi] = liningstuff
-				end
-			end
+		   if y < depth_root + chamber_radius then -- Magma chamber lower half
+		      local lower_half = ((y - depth_root) / chamber_radius) * chamber_radius
+		      if distance < lower_half + radius_vent then
+			 data[vi] = c_lava
+			 -- Put lava in the magma chamber even for extinct
+			 -- volcanoes, if someone really wants to dig for it
+			 -- it's down there.
+		      elseif distance < lower_half + radius_lining
+			 and data[vi] ~= c_air
+			 and data[vi] ~= c_lava then
+			 -- leave holes into caves and into existing lava
+			 data[vi] = liningstuff
+		      end
+		   elseif y < depth_root + chamber_radius * 2 then
+		      -- Magma chamber upper half
+		      local upper_half = (1 - (y - depth_root - chamber_radius)
+					  / chamber_radius) * chamber_radius
+		      if distance < upper_half + radius_vent then
+			 data[vi] = c_lava
+		      elseif distance < upper_half + radius_lining
+			 and data[vi] ~= c_air
+			 and data[vi] ~= c_lava then
+			 -- leave holes into caves and into existing lava
+			 data[vi] = liningstuff
+		      end
+		   else -- pipe
+		      if distance < radius_vent then
+			 data[vi] = pipestuff
+		      elseif distance < radius_lining
+			 and data[vi] ~= c_air
+			 and data[vi] ~= c_lava then
+			 -- leave holes into caves and into existing lava
+			 data[vi] = liningstuff
+		      end
+		   end
 		elseif y < depth_maxwidth then -- root
-			if distance < radius_vent then
-				data[vi] = pipestuff
-			elseif distance < radius_lining then
-				data[vi] = liningstuff
-			elseif distance < radius_lining + ((y - depth_base)/depth_maxwidth_dist) * base_radius then
-				data[vi] = c_cone
-			end
+		   if distance < radius_vent then
+		      data[vi] = pipestuff
+		   elseif distance < radius_lining then
+		      data[vi] = liningstuff
+		   elseif distance < radius_lining +
+		      ((y - depth_base)/depth_maxwidth_dist) * base_radius then
+		      data[vi] = c_cone
+		   end
 		elseif y < depth_peak + 5 then -- cone
-			local current_elevation = y - depth_maxwidth
-			local peak_elevation = depth_peak - depth_maxwidth
-			if current_elevation > peak_elevation - caldera and distance < current_elevation - peak_elevation + caldera then
+		   local current_elevation = y - depth_maxwidth
+		   local peak_elevation = depth_peak - depth_maxwidth
+		   if current_elevation > peak_elevation - caldera and distance < current_elevation - peak_elevation + caldera then
 				data[vi] = c_air -- caldera
 			elseif distance < radius_vent then
 				data[vi] = pipestuff
@@ -328,7 +360,9 @@ minetest.register_on_generated(function(minp, maxp, seed)
 				   end
 				   data[vi + area.ystride] = c_dust
 				end
-			elseif c_top ~= nil and c_filler ~= nil and distance < current_elevation * -volcano.slope + base_radius + nvals_perlin[vi3d] +1.5 then
+			elseif c_top ~= nil and c_filler ~= nil
+			   and distance < current_elevation * -volcano.slope
+			   + base_radius + nvals_perlin[vi3d] +1.5 then
 				data[vi] = c_top
 				if data[vi - area.ystride] == c_top then
 					data[vi - area.ystride] = c_filler
@@ -364,7 +398,10 @@ end)
 ----------------------------------------------------------------------------------------------
 -- Debugging and sightseeing commands
 
-minetest.register_privilege("findvolcano", { description = "Allows players to use a console command to find volcanoes", give_to_singleplayer = false})
+minetest.register_privilege("findvolcano",
+	{ description =
+	     "Allows players to use a console command to find volcanoes",
+	  give_to_singleplayer = false})
 
 function round(val, decimal)
   if (decimal) then
@@ -375,7 +412,6 @@ function round(val, decimal)
 end
 
 local send_volcano_state = function(pos, name)
-	local corner_xz = get_corner(pos)
 	local volcano = get_volcano(pos)
 	if volcano == nil then
 		return false
