@@ -329,6 +329,8 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
    --  (so a stack max and a half will not be 1.5 but rather 2)
 
    -- Loop time
+   local warn = false
+   local player = minetest.get_player_by_name(name)
    for _ = 1, subtract_loop, 1 do
       -- loop through the amount of times stack is over its max, if 1 then
       --  only run code once
@@ -344,13 +346,13 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 	 if inv:room_for_item("main", itemstack) then
 	    inv:add_item(outlistname, itemstack)
 	 else
-	    local player = minetest.get_player_by_name(name)
 	    local pos = player:get_pos()
-	    minimal.warn_inv_full(player)
+	    warn = true
 	    minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), itemstack)
 	 end
       end
    end
+   if warn then minimal.warn_inv_full(player) end
    return true
 end
 
