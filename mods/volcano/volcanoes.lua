@@ -99,17 +99,6 @@ local scatter_2d = function(min_xz, gridscale, border_width)
 	return point
 end
 
-function volcano.is_volcano(pos)
-	local corner_xz = get_corner(pos)
-	math.randomseed(corner_xz.x + corner_xz.z * 2 ^ 8 + mapgen_seed)
-
-	local state = math.random()
-	if state < state_none then
-		return false
-	end
-	return true
-end
-
 -------------------------------------------------------------------
 --location and type
 local get_volcano = function(pos)
@@ -143,7 +132,27 @@ local get_volcano = function(pos)
 		caldera = caldera}
 end
 
+function volcano.nearby(pos)
+   local corner_xz = get_corner(pos)
+   math.randomseed(corner_xz.x + corner_xz.z * 2 ^ 8 + mapgen_seed)
 
+   local state = math.random()
+   math.randomseed(minetest.get_gametime()) -- fix randomness
+   if state < state_none then
+		return false
+   end
+   return true
+end
+
+function volcano.estimate_ground_level(pos)
+   local volc = get_volcano(pos)
+   if volc.state < state_none then
+      return
+   end
+   math.randomseed(minetest.get_gametime()) -- fix randomness
+   local dist2peak = pos:distance(volc.location)
+   return volc.depth_peak - dist2peak / volc.slope + 10
+end
 
 -----------------------------------------------------------------------------
 local perlin_params = {
