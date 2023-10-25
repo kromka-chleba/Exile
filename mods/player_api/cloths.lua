@@ -78,7 +78,7 @@ function player_api.register_cloth(name, def)
 	      newdef[k] = d
 	   end
 	end
-	
+
 	minetest.register_craftitem(name, newdef)
 end
 
@@ -141,6 +141,9 @@ player_api.register_cloth("player_api:cloth_male_lower_default", {
 	gender = "male",
 	groups = {cloth = 3},
 })
+
+minetest.register_alias("admin_shoes",
+			"player_api:cloth_unisex_footwear_default")
 
 function player_api.set_cloths(player)
 	--Create the "cloths" inventory
