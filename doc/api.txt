@@ -8,8 +8,9 @@ minimal.hotbar_blink(player, color)
 minimal.concat_tables(numeric_t1, numeric_t2)
 +minimal.merge_tables(keyval_t1, keyval_t2)
 		- Splices table t1 and t2 together, numeric or key/value indexed
-minimal.get_pointed_thing(player/playername)
+minimal.get_pointed_thing(player/playername, range, objects, liquids)
 		- Get pointed thing for player via player object, or player name
+		- range is 5 if nil, objects/liquids are not returned by default
 minimal.invlists2string(lists)
 +minimal.string2invlists(string)
 		- Convert inventory lists into a serialized string and back
