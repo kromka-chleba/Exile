@@ -70,4 +70,30 @@ if __DEBUG__ then
        print(nodename," - ",dump2(meta:to_table()))
     end
    })
+   minetest.register_chatcommand("plyrmeta", {
+    params = "<none>",
+    description = "Prints the meta table of the pointed player, or yourself",
+    privs = {},
+    func = function(name, param)
+       local myself = minetest.get_player_by_name(name)
+       local target
+       local pointed_thing = minimal.get_pointed_thing(name,nil,true)
+       if ( pointed_thing and pointed_thing.type == "object" ) then
+	  if minetest.is_player(pointed_thing.ref) == true then
+	     target = pointed_thing.ref
+	  end
+       else
+	  target = myself
+       end
+       --local nodename = minetest.get_node(pointed_thing.under).name
+       --local meta = minetest.get_meta(pointed_thing.under)
+       if target then
+	  print(dump2(target:get_meta():to_table().fields))
+       else
+	  return false, "could not get target"
+       end
+    end
+   })
 end
+
+
