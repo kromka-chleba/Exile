@@ -259,8 +259,8 @@ local genderSU = {male = S("He"),  female = S("She") } -- subjective + uppercase
 local genderSL = {male = S("he"),  female = S("she") } -- subjective + lowercase
 local genderOU = {male = S("Him"), female = S("Her") } -- objective  + uppercase
 local genderOL = {male = S("him"), female = S("her") } -- objective  + lowercase
-local genderPU = {male = S("His"), female = S("Hers") } -- possessive + uppercase
-local genderPL = {male = S("his"), female = S("hers") } -- possessive + lowercase
+local genderPU = {male = S("His"), female = S("Her") } -- possessive + uppercase
+local genderPL = {male = S("his"), female = S("her") } -- possessive + lowercase
 local genderRU = {male = S("Himself"),
 		  female = S("Herself")} -- reflexive  + uppercase
 local genderRL = {male = S("himself"),
