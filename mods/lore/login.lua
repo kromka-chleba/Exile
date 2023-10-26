@@ -111,7 +111,8 @@ local function safepoint_and_rspawn(player)
       local safepoint = minetest.setting_get_pos("exile_safe_spawn_pos")
       local meta = player:get_meta()
       local lives = meta:get_int("lives")
-      local safespawn = minetest.setting_get_pos("exile_safe_spawn_lives") or 0
+      local safespawn = tonumber(minetest.settings:get(
+				    "exile_safe_spawn_lives")) or 0
       if lives <= safespawn and safepoint then
 	 player:set_pos(safepoint)
 	 return true -- disable regular respawn
@@ -230,6 +231,6 @@ end)
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
       if formname == "lore:login" or formname == "lore:motd" then
-	 minetest.after(0, function() queue_start(player) end)
+	 minetest.after(0.1, function() queue_start(player) end)
       end
 end)

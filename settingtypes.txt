@@ -57,7 +57,7 @@ exile_safe_spawn_pos (Location of safe spawn point) string
 
 # The number of lives before you are switched to regular respawn or rspawn.
 # 
-# 
+# This has no effect without also setting a safe spawn point
 exile_safe_spawn_lives (Number of lives spawned at safe point) int 0 0 100
 
 
