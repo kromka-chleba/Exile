@@ -146,6 +146,7 @@ end
 
 function volcano.estimate_ground_level(pos)
    local volc = get_volcano(pos)
+   if not volc then return end
    if volc.state < state_none then
       return
    end
