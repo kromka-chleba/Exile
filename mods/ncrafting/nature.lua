@@ -143,7 +143,11 @@ function ncrafting.fertilize(pos, puncher, itemstack)
     return
   end
 
-  local ndef = minimal.get_nodedef(get_soil_pos(pos))
+  pos = get_soil_pos(pos)
+  if not pos then
+    return
+  end
+  local ndef = minimal.get_nodedef(pos)
   local itemdef = minimal.get_nodedef(itemstack:get_name())
   if not (ndef and itemdef) then
     -- definition don't exist
