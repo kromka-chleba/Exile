@@ -165,7 +165,8 @@ minetest.override_item(
     if pointed_thing.type == "node" then
       return ncrafting.fertilize(pointed_thing.under, user, itemstack)
     end
-  end
+  end,
+  _dig_tip = S("Fertilize soil"),
 })
 minetest.override_item(
   "stairs:slab_compost",
@@ -174,7 +175,8 @@ minetest.override_item(
     if pointed_thing.type == "node" then
       return ncrafting.fertilize(pointed_thing.under, user, itemstack)
     end
-  end
+  end,
+  _dig_tip = S("Fertilize soil"),
 })
 -- wet fertilize
 minetest.override_item(
