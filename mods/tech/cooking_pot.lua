@@ -97,11 +97,13 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	 meta:set_string("formspec", pot_formspec)
 	 meta:set_int("baking", cook_time)
 	 timer:start(6)
-	 if itemname ~= liquid then -- it's stored in a container
-	    return liquid_store.drain_store(clicker, itemstack)
-	 else
-	    itemstack:take_item()
-	 end
+  if not minimal.player_in_creative(clicker) then
+    if itemname ~= liquid then -- it's stored in a container
+      return liquid_store.drain_store(clicker, itemstack)
+    else
+      itemstack:take_item()
+    end
+  end
       end
       return itemstack
 -- XXX Was going to add ability to take water out of a prepared pot but more complicated
@@ -205,7 +207,7 @@ local function pot_cook(pos, elapsed)
 			 end
        minetest.sound_play("tech_frying_final",{
           pos = pos,
-          gain = 4,
+          gain = 2,
           fade = 0.1,
           max_hear_distance = 13,
         })
@@ -237,16 +239,16 @@ local function pot_cook(pos, elapsed)
 				 minimal.infotext_merge(pos, "Status: "..kind.." pot (cooking)", meta)
          minetest.sound_play("tech_frying_start",{
           pos = pos,
-          gain = 0.8,
+          gain = 1,
           fade = 1,
-          max_hear_distance = 10,
+          max_hear_distance = 12,
         })
-      else--if math.random() > 0.2 then -- 80% chance of doing the sound
+      else
         minetest.sound_play("tech_frying",{
           pos = pos,
           gain = 4,
           fade = 0.4,
-          max_hear_distance = 4,
+          max_hear_distance = 5,
         })
 			 end
 			 meta:set_int("baking", baking - 1)
