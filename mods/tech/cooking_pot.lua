@@ -203,6 +203,12 @@ local function pot_cook(pos, elapsed)
 			 for i = 1, #inv do
 			    inv[i]:clear()
 			 end
+       minetest.sound_play("tech_frying_final",{
+          pos = pos,
+          gain = 4,
+          fade = 0.1,
+          max_hear_distance = 13,
+        })
 			 inv[1]:replace(ItemStack("tech:soup "..portions))
 			 local imeta = inv[1]:get_meta()
 			 local portion = divide_portions(total)
@@ -229,6 +235,19 @@ local function pot_cook(pos, elapsed)
 			 if status ~= 'cooking' then
 				 meta:set_string('status', 'cooking')
 				 minimal.infotext_merge(pos, "Status: "..kind.." pot (cooking)", meta)
+         minetest.sound_play("tech_frying_start",{
+          pos = pos,
+          gain = 0.8,
+          fade = 1,
+          max_hear_distance = 10,
+        })
+      else--if math.random() > 0.2 then -- 80% chance of doing the sound
+        minetest.sound_play("tech_frying",{
+          pos = pos,
+          gain = 4,
+          fade = 0.4,
+          max_hear_distance = 4,
+        })
 			 end
 			 meta:set_int("baking", baking - 1)
 		      end
