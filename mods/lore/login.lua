@@ -122,10 +122,11 @@ local function safepoint_and_rspawn(player)
       end
 end
 
-
 minetest.register_on_respawnplayer(function(player)
+      print("on_respawn")
+      region.spawn(player)
       minetest.after(0.1, function() doGatewayFX(player) end)
-      return safepoint_and_rspawn(player)
+      return true
 end)
 
 function play_themesong(name)
@@ -138,7 +139,8 @@ end
 local function first_spawn(player)
    -- Guarantee they won't be penalized for reading:
    HEALTH.reset_attributes(player) -- All stats back to starting values
-   safepoint_and_rspawn(player)
+   print("first spawn")
+   region.spawn(player)
    doGatewayFX(player)
    local pname = player:get_player_name()
    newplayer[pname] = nil
@@ -200,6 +202,7 @@ local function do_tutorial(player) -- enter, and tell it to call exit_ when done
 end
 
 minetest.register_on_newplayer(function(player)
+      print("on_newplayer login.lua")
       local name = player:get_player_name()
       newplayer[name] = true
       queue_push(player, loginspec, true, "loginspec")
@@ -208,6 +211,7 @@ minetest.register_on_newplayer(function(player)
 end)
 -- process continues in on_joinplayer
 minetest.register_on_joinplayer(function(player)
+      print("on_joinplayer login.lua")
       local name = player:get_player_name()
       if newplayer[name] == true then
 	 -- hide new players until they read the intro
