@@ -19,7 +19,6 @@ local defhex = {0,0}
 local function find_spawn_pos(pos)
    -- Used if we have to fallback to the hex center for some reason, eg volcano
    local vgl = volcano.estimate_ground_level(pos) or 0
-   if vgl > 400 then return end -- don't even bother, or we'll end in a caldera
    local tries = 0
    local sl local xo local zo
    repeat
