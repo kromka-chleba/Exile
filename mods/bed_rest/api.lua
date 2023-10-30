@@ -32,7 +32,12 @@ local function is_invalid_pos(pos, player_name)
 
    local node_def = minetest.registered_nodes[minetest.get_node(pos).name]
    if not node_def or not node_def.buildable_to
-      or string.match(node_def.drawtype, "liquid") then
+      or string.match(node_def.drawtype, "liquid")
+      or node_def.drawtype == "plantlike"
+      or node_def.drawtype == "signlike"
+      or node_def.drawtype == "torchlike"
+      or node_def.drawtype == "firelike"
+   then
       return true
    end
    return false
