@@ -21,23 +21,8 @@ local function get_soil_pos(pos)
   return
 end
 
--- allow players to salt the earth!!! muhahahahaha
-local function get_salty(name)
-  local salty_name
-  local ndef = minetest.registered_nodes[name]
-  if (ndef and type(ndef._wet_salty_name) == "string") then
-    -- remove and then readd mod_origin from the name
-    local mod_origin = ndef.mod_origin..":"
-    -- get shape to get proper returned node
-    local shape = string.match(name,"slope_inner_") or string.match(name,"slope_outer_") or string.match(name,"slope_pike_") or string.match(name,"slope_")
-    if not shape then
-      shape = ""
-    end
-    salty_name = mod_origin..shape..string.gsub(ndef._wet_salty_name,mod_origin,"")
-  end
-  return salty_name
-end
-
+-- provides "wet" as a suffix already, so that all that needs to be applied is either nothing or "salty" to get "wet_salty"
+-- may remove this in the future if different liquids exist
 local function wet_soil(pos, suffix)
   if not is_pos(pos) then
     return
@@ -61,14 +46,7 @@ local function wet_soil(pos, suffix)
 
   -- check if watered block exists
   local wet_node_name = node.name .. suffix
-  -- Check if the players can... salt the Earth!!! (if they have a salty watering can)
-  if string.match(suffix,"salty") then
-    wet_node_name = get_salty(node.name)
-    if not wet_node_name then
-      -- normalize
-      wet_node_name = node.name .. suffix
-    end
-  end
+
   -- otherwise do normal checking
   if not minetest.registered_nodes[wet_node_name] and
     string.match(node.name,"depleted") then
