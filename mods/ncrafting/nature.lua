@@ -181,6 +181,10 @@ function ncrafting.fertilize(pos, puncher, itemstack)
 
   -- find fertilizing/composting
   local node_name = ndef._fertile_name
+  if node_name == ndef.name then
+    -- prevent the ability to fertilize something already fertilized lol
+    return itemstack
+  end
   if (minimal.in_group(itemdef,"compost") and type(node_name) == "string") then
     if not minetest.registered_nodes[node_name] then
       minetest.log("error","ncrafting: '"..node_name.."' is not a valid item/node!")
@@ -192,6 +196,10 @@ function ncrafting.fertilize(pos, puncher, itemstack)
 
   -- find enriching
   node_name = ndef._rich_name
+  if node_name == ndef.name then
+    -- prevent the ability to enrich something already enriched lol
+    return itemstack
+  end
   if (minimal.in_group(itemdef,"fertilizer") and type(node_name) == "string") then
     if not minetest.registered_nodes[node_name] then
       minetest.log("error","ncrafting: '"..node_name.."' is not a valid item/node!")
