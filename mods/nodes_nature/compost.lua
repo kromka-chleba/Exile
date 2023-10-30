@@ -185,10 +185,15 @@ minetest.override_item(
   _fertilize_replace_with = "stairs:slab_compost",
   on_use = function(itemstack, user, pointed_thing)
     if pointed_thing.type == "node" then
-      ncrafting.water_soil(itemstack, user, pointed_thing,"","")
-      return ncrafting.fertilize(pointed_thing.under, user, itemstack)
+      local return_val = {ncrafting.fertilize(pointed_thing.under, user, itemstack)}
+      -- only wet the soil if successfully fertilized (will be true or nil for the 3rd parameter)
+      if return_val[3] then
+        ncrafting.water_soil(itemstack, user, pointed_thing,"","")
+      end
+      return return_val[1]
     end
-  end
+  end,
+  _dig_tip = S("Fertilize and wet soil"),
 })
 --minetest.override_item(
   --"stairs:slab_compost_wet",
