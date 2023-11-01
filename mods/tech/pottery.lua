@@ -818,81 +818,19 @@ liquid_store.register_stored_liquid(
 	S("Clay Watering Can with Salt Water"),
 	{dig_immediate = 2, pottery = 1})
 
--- add water to a node with the watering can
-local function water_soil(itemstack, user, pointed_thing, water_source,
-			  node_suffix, empty_container)
-   -- if pointed thing is a soil block, water it
-   if pointed_thing.type == "node" then
-      local pos = pointed_thing.under
-      local node = minetest.get_node(pos)
-
-      -- if pointed thing is ACTUALLY a plant (flora or seed group),
-      --   find the node underneath it :D
-      if ( (minetest.get_item_group(node.name, "flora") > 0
-	    or minetest.get_item_group(node.name, "seed") > 0) ) then
-	 pos = vector.new(pos.x, pos.y - 1,pos.z)
-	 node = minetest.get_node(pos)
-      end
-
-      if minetest.get_item_group(node.name, "sediment") > 0 then
-	 -- check if watered block exists
-	 local wet_node_name = node.name .. node_suffix
-
-	 -- some possible name conditions for improperly named nodes
-	 --  (in accordance to node_suffix "_wet")
-	 if not minetest.registered_nodes[wet_node_name] and
-	    string.match(node.name,"depleted") then
-	    -- depleted nodes with roots have "depleted" behind the "roots", so
-	    --  I declare this if statement first
-	    -- IF the provided node is "depleted", look for its proper depleted
-	    --  wet variant
-	    wet_node_name = string.gsub(wet_node_name,"_depleted","")
-	    wet_node_name = wet_node_name.."_depleted"
-	    -- we didn't erase "_wet" from the name
-	 end
-	 if not minetest.registered_nodes[wet_node_name]
-	    and string.match(node.name,"roots") then
-	    -- IF the provided node is "roots", look for its proper roots
-	    --  wet variant
-	    wet_node_name = string.gsub(wet_node_name,"_roots","")
-	    wet_node_name = wet_node_name.."_roots"
-	    -- we didn't erase "_wet" from the name
-	 end
-	 if minetest.registered_nodes[wet_node_name] then
-	    -- replace with watered version
-	    -- keeping the node orientation
-	    minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
-	    -- and empty the bucket
-	    if (minimal.player_in_creative(user)) then
-	       -- unless player is in creative!
-	       return
-	    end
-	    -- remove clay watering can and return empty one
-	    itemstack:take_item()
-	    return ItemStack("tech:clay_watering_can")
-	 end
-      end
-   end
-   -- continue as normal (with a twist)
-   return liquid_store.on_use_filled_bucket(
-      water_source, empty_container,
-      itemstack, user, pointed_thing, false)
-end
-
 --make Watering can able to water a block on click
 minetest.override_item("tech:clay_watering_can_freshwater", {
 	on_use = function(itemstack, user, pointed_thing)
-	   return water_soil(itemstack, user, pointed_thing,
-			     "nodes_nature:freshwater_source", "_wet",
-			     "tech:clay_watering_can")
+    return ncrafting.water_soil(itemstack, user, pointed_thing,
+      "nodes_nature:freshwater_source", "tech:clay_watering_can")
 	end,
 })
 
 --make Watering can able to water a block on click
 minetest.override_item("tech:clay_watering_can_salt_water", {
 	on_use = function(itemstack, user, pointed_thing)
-	   return water_soil(itemstack, user, pointed_thing,
-			     "nodes_nature:salt_water_source", "_wet_salty",
-			     "tech:clay_watering_can")
+    return ncrafting.water_soil(itemstack, user, pointed_thing,
+      "nodes_nature:salt_water_source", "tech:clay_watering_can",
+      "salty")
 	end,
 })
