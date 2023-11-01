@@ -1,0 +1,3 @@
+# textdomain: nodecrafting
+Dump=
+Dump the dye from the pot?=
