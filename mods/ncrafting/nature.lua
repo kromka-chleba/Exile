@@ -1,11 +1,4 @@
-local function is_pos(pos)
-  if (type(pos) == "table") then
-    if (type(pos.x) == "number" and type(pos.y) == "number" and type(pos.z) == "number") then
-      return true
-    end
-  end
-  return false
-end
+ncrafting = ncrafting
 
 local function get_soil_pos(pos)
   local node = minetest.get_node(pos)
@@ -21,10 +14,11 @@ local function get_soil_pos(pos)
   return
 end
 
--- provides "wet" as a suffix already, so that all that needs to be applied is either nothing or "salty" to get "wet_salty"
+-- provides "wet" as a suffix already, so that all that needs to be applied
+-- is either nothing or "salty" to get "wet_salty"
 -- may remove this in the future if different liquids exist
 local function wet_soil(pos, suffix)
-  if not is_pos(pos) then
+  if not vector.check(pos) then
     return
   end
   local node = minetest.get_node(pos)
@@ -81,13 +75,16 @@ end
 function ncrafting.water_soil(itemstack, user, pointed_thing, water_source,
 			  empty_container, node_suffix)
   -- can only water nodes
-  assert(type(empty_container) == "string","ncrafting.water_soil: string expected for empty_container, got: "..type(empty_container))
-  assert(type(water_source) == "string","ncrafting.water_soil: string expected for water_source, got: "..type(water_source))
-  assert(type(pointed_thing) == "table","ncrafting.water_soil: provided pointed_thing is not a table! got: "..type(pointed_thing))
+   assert(type(empty_container) == "string","ncrafting.water_soil: string expected for empty_container, got: "..
+	  type(empty_container))
+   assert(type(water_source) == "string","ncrafting.water_soil: string expected for water_source, got: "..
+	  type(water_source))
+   assert(type(pointed_thing) == "table","ncrafting.water_soil: provided pointed_thing is not a table! got: "..
+	  type(pointed_thing))
   if (pointed_thing.type == "node"
     and itemstack) then
     local pos = get_soil_pos(pointed_thing.under) -- will only return a pos if a soil is found
-    if (is_pos(pos) and wet_soil(pos, node_suffix)) then
+    if (vector.check(pos) and wet_soil(pos, node_suffix)) then
       -- if position is good and can wet the soil
       -- check if player is in creative
       if minimal.player_in_creative(user) then
@@ -107,7 +104,7 @@ end
 
 -- fertilize soil with a fertilizer
 function ncrafting.fertilize(pos, puncher, itemstack)
-  assert(is_pos(pos),"ncrafting.fertilize: provided position is not a position!")
+  assert(vector.check(pos),"ncrafting.fertilize: provided position is not a position!")
   local inv
   local replace_with = ""
   if minetest.is_player(puncher) then
