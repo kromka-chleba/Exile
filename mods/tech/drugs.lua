@@ -299,8 +299,9 @@ local on_dig_tang = function(pos, node, digger, pot_type)
 	if digger_inv:room_for_item("main", new_stack) then
 		digger_inv:add_item("main", new_stack)
 		minetest.remove_node(pos)
-	else
-	   minimal.warn_inv_full(digger)
+	elseif not minimal.stop_on_inv_full(digger) then
+	   minetest.add_item(pos, new_stack)
+	   minetest.remove_node(pos)
 	end
 end
 

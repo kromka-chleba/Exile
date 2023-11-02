@@ -255,8 +255,9 @@ local on_dig_iron_and_slag = function(pos, node, digger)
 	if player_inv:room_for_item("main", new_stack) then
 		player_inv:add_item("main", new_stack)
 		minetest.remove_node(pos)
-	else
-	   minimal.warn_inv_full(digger)
+	elseif not minimal.stop_on_inv_full(digger) then
+	   minetest.add_item(pos, new_stack)
+	   minetest.remove_node(pos)
 	end
 end
 

@@ -514,8 +514,9 @@ minetest.register_node("tech:pane_tray_green",
 	   if inv:room_for_item("main", "tech:pane_green") then
 	      inv:add_item("main", "tech:pane_green")
 	      minetest.swap_node(pos, {name = "tech:pane_tray"})
-	   else
-	      minimal.warn_inv_full(digger)
+	   elseif not minimal.stop_on_inv_full(digger) then
+	      minetest.add_item(pos, "tech:pane_green")
+	      minetest.swap_node(pos, {name = "tech:pane_tray"})
 	   end
 	end,
 
@@ -549,10 +550,11 @@ minetest.register_node("tech:pane_tray_clear",
 	   if inv:room_for_item("main", "tech:pane_clear") then
 	      inv:add_item("main", "tech:pane_clear")
 	      minetest.swap_node(pos, {name = "tech:pane_tray"})
-	   else
-	      minimal.warn_inv_full(digger)
+	   elseif not minimal.stop_on_inv_full(digger) then
+	      minetest.add_item(pos, "tech:pane_clear")
+	      minetest.swap_node(pos, {name = "tech:pane_tray"})
 	   end
-	end,
+end,
 
 })
 

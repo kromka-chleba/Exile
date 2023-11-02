@@ -79,8 +79,9 @@ local function on_dig_tool(pos, node, digger, name)
     if player_inv:room_for_item("main", stack) then
        minetest.remove_node(pos)
        player_inv:add_item("main", stack)
-    else
-       minimal.warn_inv_full(digger)
+    elseif not minimal.stop_on_inv_full(digger) then
+       minetest.add_item(pos, stack)
+       minetest.remove_node(pos)
     end
 end
 
