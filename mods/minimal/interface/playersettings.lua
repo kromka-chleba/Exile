@@ -11,6 +11,7 @@ local temp_tonum = { ["Celsius"] = "1", ["Fahrenheit"] = "2", ["Kelvin"] = "3" }
 local temp_fromnum = { "Celsius", "Fahrenheit", "Kelvin" }
 local mthudopacity = tonumber(minetest.settings:get(
 				 "exile_hud_icon_transparency")) or 127
+local mtinvburst = minetest.settings:get_bool("exile_drop_on_full_inv") or false
 
 local theme_fromnum = minimal.get_gui_theme_list() -- numeric table of theme names
 local theme_tonum = {} -- A reverse lookup, enter theme name, get index number
@@ -40,24 +41,27 @@ function minimal.show_player_settings(playername, meta)
    local themelist = minimal.get_gui_theme_list(",")
    local themenum = tostring(theme_tonum[theme])
    local opacity = tostring(meta:get("hud_opacity") or mthudopacity)
+   local invburst = tostring(meta:get("drop_on_full_inv") or mtinvburst)
 
    local spec =
    "formspec_version[6]"..
    "size[8,7]"..
-   "button_exit[7,0.2;0.8,0.5;exit_form;X]"..
+   "button_exit[7,0.2;0.8,0.75;exit_form;X]"..
    "checkbox[1,1;hud16;  "..S("Enable wide HUDbar")..";"..tostring(hud16).."]"..
    "checkbox[1,1.5;showstats;  "..
       S("Show numeric stats")..";"..tostring(showstats).."]"..
    "checkbox[1,2;breaktaker;  "..S("Enable Break-taker popup")..";"..
       tostring(breaktaker).."]"..
-   "label[1,3;"..S("Temperature scale")..":]"..
-   "dropdown[4,2.75;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
+   "checkbox[1,2.5;invburst;  "..S("Allow digging with a full inventory")..";"..
+      tostring(invburst).."]"..
+   "label[1,3.5;"..S("Temperature scale")..":]"..
+   "dropdown[4,3.25;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
      tempnum..";true]"..
-   "label[1,3.75;"..S("GUI theme")..":]"..
-   "dropdown[4,3.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
-   "label[1,4.55;"..S("HUD Opacity level")..":]"..
+   "label[1,4.25;"..S("GUI theme")..":]"..
+   "dropdown[4,4.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+   "label[1,5.05;"..S("HUD Opacity level")..":]"..
    "scrollbaroptions[min=0;max=255;largestep=50]"..
-      "scrollbar[1,5;6,0.5;horizontal;HudOpac;"..opacity.."]"
+      "scrollbar[1,5.5;6,0.5;horizontal;HudOpac;"..opacity.."]"
    minetest.show_formspec(playername, "player_settings", spec)
 end
 
@@ -105,6 +109,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 end
 	 if fields.breaktaker then
 	    meta:set_string("breaktaker", fields.breaktaker)
+	 end
+	 if fields.invburst then
+	    meta:set_string("drop_on_full_inv", fields.invburst)
 	 end
 	 if reopen == true then
 	    minetest.close_formspec(name, "player_settings")

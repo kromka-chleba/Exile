@@ -41,6 +41,18 @@ function minimal.warn_inv_full(player)
    end
 end
 
+local mtinvburst = minetest.settings:get_bool("exile_drop_on_full_inv")
+function minimal.stop_on_inv_full(player)
+   if minetest.is_player(player) then
+      local invburst = player:get_meta():get_string("drop_on_full_inv")
+      if ( not invburst and mtinvburst ) or invburst == "true" then
+	 return false
+      end
+      minimal.warn_inv_full(player)
+      return true
+   end
+end
+
 minetest.register_on_joinplayer(function(player)
 	-- Set formspec prependl
 	local meta = player:get_meta()

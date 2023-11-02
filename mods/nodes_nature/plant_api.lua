@@ -578,19 +578,23 @@ end
 
 local function fruiting_on_punch(pos, node, puncher, pointed_thing)
     local node_name = minetest.get_node(pos).name
-    local nodedef = minetest.registered_nodes[node_name]
+   local nodedef = minetest.registered_nodes[node_name]
+   local function replace()
+      if node.param2 < 64 then
+	 plant.set_to_half_wild(pos)
+      end
+      if nodedef._fruitless_name then
+	 minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
+      end
+   end
     local inv = puncher and puncher:get_inventory()
     local new_stack = ItemStack(nodedef._fruit_name)
     if inv and inv:room_for_item("main", new_stack) then
-       if node.param2 < 64 then
-	  plant.set_to_half_wild(pos)
-       end
-       if nodedef._fruitless_name then
-	  minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
-       end
+       replace()
        inv:add_item("main", new_stack)
-    else
-       minimal.warn_inv_full(puncher)
+    elseif not minimal.stop_on_inv_full(puncher) then
+       replace()
+       minetest.add_item(pos, new_stack)
     end
 end
 

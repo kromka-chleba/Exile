@@ -74,8 +74,9 @@ function minetest.node_dig(pos, node, digger)
 	 inv:set_size("temp", 0)
       end
       if full then
-	 minimal.warn_inv_full(digger)
-	 return false
+	 if minimal.stop_on_inv_full(digger) then
+	    return false
+	 end
       end
    end
    return old_node_dig(pos, node, digger)
