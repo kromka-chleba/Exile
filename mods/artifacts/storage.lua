@@ -50,6 +50,3 @@ storage.register_storage("artifacts:antiquorium_chest",{
   -- formspec_width already defined in base register_storage as 8
   formspec_height = 8,
 })
-
-minetest.override_item("artifacts:antiquorium_chest",
-		       {groups = {cracky = 1}})

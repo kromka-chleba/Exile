@@ -29,7 +29,7 @@ storage.register_storage("tech:primitive_wooden_chest",{
   description = S("Primitive Wooden Chest"),
   tiles = {"tech_primitive_wood.png"},
   sounds = nodes_nature.node_sound_wood_defaults(),
-  groups = {craftedby = 1, flammable = 2},
+  groups = {dig_immediate = 3, craftedby = 1, flammable = 2},
 })
 
 ----------------------------------------------------
@@ -38,7 +38,7 @@ storage.register_storage("tech:wicker_storage_basket",{
   description = S("Wicker Storage Basket"),
   tiles = {"tech_wicker.png"},
   sounds = nodes_nature.node_sound_leaves_defaults(),
-  groups = {craftedby = 1},
+  groups = {dig_immediate = 3, craftedby = 1, flammable = 1},
   burnable = true,
 })
 
@@ -48,7 +48,7 @@ storage.register_storage("tech:woven_storage_basket",{
   description = S("Woven Storage Basket"),
   tiles = {"tech_woven.png"},
   sounds = nodes_nature.node_sound_leaves_defaults(),
-  groups = {craftedby = 1},
+  groups = {dig_immediate = 3, craftedby = 1, flammable = 1},
   burnable = true,
 })
 
@@ -79,7 +79,7 @@ storage.register_storage("tech:wooden_chest",{
 		}
 	},
   sounds = nodes_nature.node_sound_wood_defaults(),
-  groups = {craftedby = 1, flammable = 3},
+  groups = {dig_immediate = 3, craftedby = 1, flammable = 3},
   
   -- width already defined in base register_storage
   formspec_height = 8,
@@ -113,6 +113,7 @@ storage.register_storage("tech:iron_chest",{
 		}
 	},
 	sounds = nodes_nature.node_sound_wood_defaults(),
+  groups = {dig_immediate = 3, craftedby = 1},
   
   formspec_height = 8,
 })
