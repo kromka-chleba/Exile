@@ -33,6 +33,10 @@ local light_meter = function(user, pointed_thing)
 
   local name =user:get_player_name()
   local pos = user:get_pos()
+  -- get pointed light level
+  if pointed_thing.type == "node" then
+    pos = pointed_thing.under
+  end
 
   local measure = ((minetest.get_node_light({x = pos.x, y = pos.y, z = pos.z})) or 0)
 
@@ -53,6 +57,14 @@ minetest.register_craftitem("artifacts:light_meter", {
     end
 		light_meter(user, pointed_thing)
 	end,
+  _dig_tip = S("List light level of node or self"),
+  -- probe light of self
+  _on_use_item = function(user, itemstack, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
+    light_meter(user, {ref = user, type = "object"})
+  end,
 })
 
 ------------------------------------
@@ -109,6 +121,7 @@ minetest.register_craftitem("artifacts:temp_probe", {
     end
 		temp_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List temperature of node")
 })
 
 
@@ -149,6 +162,7 @@ minetest.register_craftitem("artifacts:fuel_probe", {
     end
 		fuel_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List fuel units of node")
 })
 
 ------------------------------------
@@ -184,6 +198,7 @@ minetest.register_craftitem("artifacts:smelter_probe", {
     end
 		smelter_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List remaining units of node for smelting"),
 })
 
 
@@ -227,6 +242,7 @@ minetest.register_craftitem("artifacts:potters_probe", {
     end
 		potters_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List remaining firing units of unfired clay"),
 })
 
 
@@ -264,6 +280,7 @@ minetest.register_craftitem("artifacts:chefs_probe", {
     end
 		chefs_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List remaining cooking units of pointed food")
 })
 
 ------------------------------------
@@ -368,6 +385,7 @@ minetest.register_craftitem("artifacts:farmers_probe", {
     end
 		farmers_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List stats of plant or soil")
 })
 
 
@@ -418,6 +436,9 @@ minetest.register_craftitem("artifacts:spyglass", {
 	on_use = function(itemstack, user, pointed_thing)
 		use_spyglass(user)
 	end,
+  _on_use_item = function(user, itemstacked, pointed_thing)
+    use_spyglass(user)
+  end,
 })
 
 
@@ -446,7 +467,7 @@ local animal_probe = function(user, pointed_thing)
       effects = pt_meta:get_int('effects_num'),
     }
     chat_display(name, pt_ref:get_player_name().." "..S("CONDITION")..":",
-      S("Health")..": "..stats.health.."    "..
+      S("Health")..": "..stats.health.." "..S("units").."    "..
       S("Energy")..": "..stats.energy.."    "..
       S("Body Temp")..": "..stats.body_temp.."    "..
       S("Hunger")..": "..stats.hunger.."    "..
@@ -507,11 +528,13 @@ minetest.register_craftitem("artifacts:animal_probe", {
     end
 		animal_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List stats of pointed animal or player"),
   -- probe self
   _on_use_item = function(user, itemstack, pointed_thing)
     -- let's play doctor doctor
     animal_probe(user, {ref = user, type = "object"})
   end,
+  _use_tip = S("Probe self")
 })
 
 
@@ -528,4 +551,5 @@ minetest.register_craftitem("artifacts:admins_probe", {
     end
 		admins_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List groups of pointed node")
 })

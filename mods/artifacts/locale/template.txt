@@ -1,6 +1,9 @@
 # textdomain: artifacts
 
+# general
 Antiquorium=
+units=
+sec=
 
 # binary
 Yes=
@@ -19,26 +22,33 @@ Energy=
 NOT MEASURABLE!=
 
 Light Meter=
+List light level of node or self=
 LIGHT MEASUREMENT:=
 LIGHT LEVEL ==
 
 Temperature Probe=
+List temperature of node=
 OBJECT TEMEPRATURE MEASUREMENT=
 TEMPERATURE ==
 
 Fuel Probe=
+List fuel units of node=
 BURN UNITS REMAINING:=
 
 Smelter Probe=
+List remaining units of node for smelting=
 SMELTING UNITS REMAINING:=
 
 Potter's Probe=
+List remaining firign units of unfired clay=
 FIRING UNITS REMAINING:=
 
 Chef's Probe=
+List remaining cooking units of pointed node=
 COOKING UNITS REMAINING:=
 
 Farmer's Probe=
+List stats of plant or soil=
 PLANT TYPE:=
 Wild=
 Domesticated=
@@ -51,6 +61,8 @@ PLANT HEALTH NOT MEASURABLE!=
 NOT MEASURABLE: NEEDS A PLANT OR SOIL=
 
 Animal Probe=
+List stats of pointed animal or player=
+Probe self=
 Body Temp=
 Hunger=
 Thirst=
@@ -61,6 +73,7 @@ Pregnant=
 ANIMAL=
 
 Admin's Probe=
+List groups of pointed node=
 GROUPS:=
 
 
