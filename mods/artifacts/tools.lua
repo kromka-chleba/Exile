@@ -453,18 +453,9 @@ local animal_probe = function(user, pointed_thing)
       S("Thirst")..": "..stats.thirst.."    "..
       S("Effects")..": "..stats.effects.."    "
     )
-   -- minetest.chat_send_player(name, minetest.colorize("#00ff00", "PLAYER CONDITION:"))
-   -- minetest.chat_send_player(name, minetest.colorize("#cc6600",
-   --   "Health: "..stats.health..
-   --   "    Energy: "..stats.energy..
-   --   "    Body Temp: "..stats.body_temp..
-   --   "    Hunger: "..stats.hunger..
-   --   "    Thirst: "..stats.thirst..
-   --   "    Effects: "..stats.effects
-   -- ))
   else
     local ent = pt_ref:get_luaentity()
-    if (type(ent) == "nil") then
+    if not ent then
       return
     end
     if not ent.memory then -- not a mobkit entity with a memory
@@ -479,27 +470,28 @@ local animal_probe = function(user, pointed_thing)
     end
     r_ent_e = math.floor(r_ent_e)
     r_ent_a = math.floor(r_ent_a)
-    
-    local probe_str = "Health: "..r_ent_hp.." units    Age: "..r_ent_a.. " sec    Energy: "..r_ent_e.." units"
+
+    local probe_str = S("Health:").." "..r_ent_hp.." "..S("units").."    "..
+    S("Age:").." "..r_ent_a.. " "..S("sec").."    "..
+    S("Energy:").." "..r_ent_e.." "..S("units")
     -- optional variables
     local r_ent_oxy = ent.oxygen
     local r_ent_lung = ent.lung_capacity
-    if (type(r_ent_oxy) == "number" and type(r_ent_lung) == "number") then
-      probe_str = probe_str.."    Oxygen: "..((r_ent_oxy/r_ent_lung)*100).."%"
+    if (r_ent_oxy and r_ent_lung) then
+      probe_str = probe_str.."    "..S("Oxygen:").." "..((r_ent_oxy/r_ent_lung)*100).."%"
     end
     local r_ent_sex = ent.sex
     if (r_ent_sex == "female") then
       local preg = mobkit.recall(ent,"pregnant") or false
       if (preg == true) then
-        preg = "Yes"
+        preg = S("Yes")
       else
-        preg = "No"
+        preg = S("No")
       end
-      probe_str = probe_str.."    Pregnant: "..preg
+      probe_str = probe_str.."    "..S("Pregnant:").." "..preg
     end
 
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "ANIMAL CONDITION:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600",probe_str))
+    chat_display(name, S("ANIMAL CONDITION:"), probe_str)
   end
 end
 
