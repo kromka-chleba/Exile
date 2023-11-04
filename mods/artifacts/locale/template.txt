@@ -1,0 +1,66 @@
+# textdomain: artifacts
+
+Antiquorium=
+
+# binary
+Yes=
+No=
+
+# tools.lua
+Chisel=
+Spyglass=
+
+# player + animal
+CONDITION=
+Health=
+Energy=
+
+# probes;
+NOT MEASURABLE!=
+
+Light Meter=
+LIGHT MEASUREMENT:=
+LIGHT LEVEL ==
+
+Temperature Probe=
+OBJECT TEMEPRATURE MEASUREMENT=
+TEMPERATURE ==
+
+Fuel Probe=
+BURN UNITS REMAINING:=
+
+Smelter Probe=
+SMELTING UNITS REMAINING:=
+
+Potter's Probe=
+FIRING UNITS REMAINING:=
+
+Chef's Probe=
+COOKING UNITS REMAINING:=
+
+Farmer's Probe=
+PLANT TYPE:=
+Wild=
+Domesticated=
+Half-wild=
+STATE:=
+FERTILITY:=
+ROOTS:=
+PLANT GROWTH NOT MEASURABLE!=
+PLANT HEALTH NOT MEASURABLE!=
+NOT MEASURABLE: NEEDS A PLANT OR SOIL=
+
+Animal Probe=
+Body Temp=
+Hunger=
+Thirst=
+Effects=
+Age=
+Oxygen=
+Pregnant=
+ANIMAL=
+
+Admin's Probe=
+GROUPS:=
+
+
