@@ -6,8 +6,24 @@
 
 mobkit = mobkit
 
+local S = artifacts.S
 
+------------------------------------
+--Base Data + functions
+------------------------------------
+local cc = {
+ "#00ff00", -- title, lime green
+ "#cc6600", -- data, brownish orange
+}
 
+local function chat_display(name, label, value)
+  minetest.chat_send_player(name, minetest.colorize(cc[1], label))
+  minetest.chat_send_player(name, minetest.colorize(cc[2], value))
+end
+
+local function chat_warning(name, msg)
+  minetest.chat_send_player(name, minetest.colorize(cc[2], msg))
+end
 ------------------------------------
 --LIGHT METER
 --get positon light
@@ -18,13 +34,13 @@ local light_meter = function(user, pointed_thing)
   local name =user:get_player_name()
   local pos = user:get_pos()
 
-	minetest.chat_send_player(name, minetest.colorize("#00ff00", "LIGHT MEASUREMENT:"))
-
   local measure = ((minetest.get_node_light({x = pos.x, y = pos.y, z = pos.z})) or 0)
 
-  minetest.chat_send_player(name, minetest.colorize("#cc6600","LIGHT LEVEL = "..measure))
-  --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
+  --minetest.chat_send_player(name, minetest.colorize(cc[1], S("LIGHT MEASUREMENT:")))
+  --minetest.chat_send_player(name, minetest.colorize(cc[2], S("LIGHT LEVEL =").." "..measure))
+  chat_display(name, S("LIGHT MEASUREMENT:"), S("LIGHT LEVEL =").." "..measure)
 
+  --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
 end
 
 
@@ -70,16 +86,17 @@ end
 
 local temp_probe = function(user, pointed_thing)
 
-   local name = init_probe(user, pointed_thing)
-   if not name then
-      return
-   end
+  local name = init_probe(user, pointed_thing)
+  if not name then
+    return
+  end
   local temp = climate.get_point_temp(pointed_thing.under)
   local measure = climate.get_temp_string(temp, user:get_meta())
 
-  minetest.chat_send_player(name, minetest.colorize("#00ff00", "OBJECT TEMPERATURE MEASUREMENT:"))
-  minetest.chat_send_player(name, minetest.colorize("#cc6600","TEMPERATURE = "))
-  minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+  chat_display(name, S("OBJECT TEMPERATURE MEASUREMENT:"), S("TEMPERATURE =".." "))
+  --minetest.chat_send_player(name, minetest.colorize(cc[1], S("OBJECT TEMPERATURE MEASUREMENT:")))
+  --minetest.chat_send_player(name, minetest.colorize(cc[2], S("TEMPERATURE =".." ")))
+  minetest.chat_send_player(name, minetest.colorize(cc[2], measure))
   --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
 end
 
@@ -116,10 +133,10 @@ local fuel_probe = function(user, pointed_thing)
    local measure = meta:get_int("fuel")
 
   if measure <= 0 then
-    minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+    minetest.chat_send_player(name, minetest.colorize(cc[2],S("NOT MEASURABLE!")))
   else
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "BURN UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+    minetest.chat_send_player(name, minetest.colorize(cc[1], S("BURN UNITS REMAINING:")))
+    minetest.chat_send_player(name, minetest.colorize(cc[2], measure))
   end
 
 end
@@ -152,10 +169,10 @@ local smelter_probe = function(user, pointed_thing)
   local measure = meta:get_int("roast")
 
   if measure <= 0 or node_name ~= 'tech:iron_and_slag' then
-    minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+    minetest.chat_send_player(name, minetest.colorize(cc[2], S("NOT MEASURABLE!")))
   else
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "SMELTING UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+    minetest.chat_send_player(name, minetest.colorize(cc[1], S("SMELTING UNITS REMAINING:")))
+    minetest.chat_send_player(name, minetest.colorize(cc[2], measure))
   end
 
 end
@@ -196,10 +213,10 @@ local potters_probe = function(user, pointed_thing)
   end
 
   if measure <= 0 then
-    minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+    minetest.chat_send_player(name, minetest.colorize(cc[2],S("NOT MEASURABLE!")))
   else
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "FIRING UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+    minetest.chat_send_player(name, minetest.colorize(cc[1], S("FIRING UNITS REMAINING:")))
+    minetest.chat_send_player(name, minetest.colorize(cc[2], measure))
   end
 
 end
@@ -234,10 +251,10 @@ local chefs_probe = function(user, pointed_thing)
   local measure = meta:get_int("baking")
 
   if measure <= 0 then
-    minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+    minetest.chat_send_player(name, minetest.colorize(cc[2],S("NOT MEASURABLE!")))
   else
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "COOKING UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+    minetest.chat_send_player(name, minetest.colorize(cc[1], S("COOKING UNITS REMAINING:")))
+    minetest.chat_send_player(name, minetest.colorize(cc[2], measure))
   end
 
 end
@@ -257,15 +274,6 @@ minetest.register_craftitem("artifacts:chefs_probe", {
 	end,
 })
 
-local function chat_display(name, label, value)
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", label))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", value))
-end
-
-local function chat_warning(name, msg)
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", msg))
-end
-
 ------------------------------------
 --ADMINS PROBE
 --get node groups
@@ -281,7 +289,7 @@ local admins_probe = function(user, pointed_thing)
     groups = groups:gsub("{", "")
     groups = groups:gsub("}", "")
     groups = groups:gsub(",", ", ")
-    chat_display(name, "GROUPS: ", groups)
+    chat_display(name, S("GROUPS:").." ", groups)
 end
 
 ------------------------------------
@@ -304,13 +312,13 @@ local farmers_probe = function(user, pointed_thing)
 
   local check_plant_type = function()
       if param2 < 64 then
-          chat_display(name, "PLANT TYPE:", "Wild")
+          chat_display(name, S("PLANT TYPE:"), S("Wild"))
           return "wild"
       elseif param2 < 128 then
-          chat_display(name, "PLANT TYPE:", "Domesticated")
+          chat_display(name, S("PLANT TYPE:"), S("Domesticated"))
           return "dom"
       else
-          chat_display(name, "PLANT TYPE:", "Half-wild")
+          chat_display(name, S("PLANT TYPE:"), S("Half-wild"))
           return "half"
       end
   end
