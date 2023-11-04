@@ -693,7 +693,7 @@ minetest.register_node("tech:glass_bottle_green", {
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(30,60))
 	end,
-	groups = {dig_immediate = 2, pottery = 1, temp_pass = 1},
+	groups = {dig_immediate = 2, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	use_texture_alpha = c_alpha.blend,
 	selection_box = {
@@ -722,7 +722,7 @@ minetest.register_node("tech:glass_bottle_clear", {
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(30,60))
 	end,
-	groups = {dig_immediate = 2, pottery = 1, temp_pass = 1},
+	groups = {dig_immediate = 2, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	use_texture_alpha = c_alpha.blend,
 	selection_box = {
