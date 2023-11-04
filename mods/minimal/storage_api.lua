@@ -179,7 +179,7 @@ function storage.register_storage(name,def)
         {-0.5, -0.25, -0.5, 0.5, 0.25, 0.5},
       }
 		},
-    groups = {dig_immediate = 3, storage = 1},
+    groups = {storage = 1},
     -- formspec
     formspec_width = 8,
     formspec_height = 4,
