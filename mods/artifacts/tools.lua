@@ -43,7 +43,7 @@ end
 
 
 minetest.register_craftitem("artifacts:light_meter", {
-	description = "Light Meter",
+	description = S("Light Meter"),
 	inventory_image = "artifacts_light_meter.png",
 	stack_max = 1,
 
@@ -98,7 +98,7 @@ end
 
 
 minetest.register_craftitem("artifacts:temp_probe", {
-	description = "Temperature Probe",
+	description = S("Temperature Probe"),
 	inventory_image = "artifacts_temp_probe.png",
   wield_image = "artifacts_temp_probe.png^[transformR90",
 	stack_max = 1,
@@ -138,7 +138,7 @@ end
 
 
 minetest.register_craftitem("artifacts:fuel_probe", {
-	description = "Fuel Probe",
+	description = S("Fuel Probe"),
 	inventory_image = "artifacts_fuel_probe.png",
   wield_image = "artifacts_fuel_probe.png^[transformR90",
 	stack_max = 1,
@@ -173,7 +173,7 @@ end
 
 
 minetest.register_craftitem("artifacts:smelter_probe", {
-	description = "Smelter Probe",
+	description = S("Smelter Probe"),
 	inventory_image = "artifacts_smelter_probe.png",
   wield_image = "artifacts_smelter_probe.png^[transformR90",
 	stack_max = 1,
@@ -216,7 +216,7 @@ end
 
 
 minetest.register_craftitem("artifacts:potters_probe", {
-	description = "Potter's Probe",
+	description = S("Potter's Probe"),
 	inventory_image = "artifacts_potters_probe.png",
   wield_image = "artifacts_potters_probe.png^[transformR90",
 	stack_max = 1,
@@ -253,7 +253,7 @@ end
 
 
 minetest.register_craftitem("artifacts:chefs_probe", {
-	description = "Chef's Probe",
+	description = S("Chef's Probe"),
 	inventory_image = "artifacts_chefs_probe.png",
   wield_image = "artifacts_chefs_probe.png^[transformR90",
 	stack_max = 1,
@@ -327,7 +327,7 @@ local farmers_probe = function(user, pointed_thing)
     if health <= 0 then
       chat_data(name, S("PLANT HEALTH NOT MEASURABLE!"))
     else
-      chat_display(name, S("HEALTH:", health))
+      chat_display(name, string.upper(S("Health")..":"), health)
     end
   end
 
@@ -357,7 +357,7 @@ end
 
 
 minetest.register_craftitem("artifacts:farmers_probe", {
-	description = "Farmer's Probe",
+	description = S("Farmer's Probe"),
 	inventory_image = "artifacts_farmers_probe.png",
   wield_image = "artifacts_farmers_probe.png^[transformR90",
 	stack_max = 1,
@@ -378,7 +378,7 @@ minetest.register_craftitem("artifacts:farmers_probe", {
 --able to dig granite etc, no good for anything else.
 ------------------------------------
 minetest.register_tool("artifacts:antiquorium_chisel", {
-	description = "Antiquorium Chisel",
+	description = S("Antiquorium").." "..S("Chisel"),
 	inventory_image = "artifacts_antiquorium_chisel.png",
 	tool_capabilities = {
 		full_punch_interval = 1.0,
@@ -411,7 +411,7 @@ end
 
 --  item
 minetest.register_craftitem("artifacts:spyglass", {
-	description = "Spyglass",
+	description = S("Spyglass"),
 	inventory_image = "artifacts_spyglass.png",
 	stack_max = 1,
 
@@ -471,9 +471,9 @@ local animal_probe = function(user, pointed_thing)
     r_ent_e = math.floor(r_ent_e)
     r_ent_a = math.floor(r_ent_a)
 
-    local probe_str = S("Health:").." "..r_ent_hp.." "..S("units").."    "..
-    S("Age:").." "..r_ent_a.. " "..S("sec").."    "..
-    S("Energy:").." "..r_ent_e.." "..S("units")
+    local probe_str = S("Health")..": "..r_ent_hp.." "..S("units").."    "..
+    S("Age")..": "..r_ent_a.. " "..S("sec").."    "..
+    S("Energy")..": "..r_ent_e.." "..S("units")
     -- optional variables
     local r_ent_oxy = ent.oxygen
     local r_ent_lung = ent.lung_capacity
@@ -491,7 +491,7 @@ local animal_probe = function(user, pointed_thing)
       probe_str = probe_str.."    "..S("Pregnant:").." "..preg
     end
 
-    chat_display(name, S("ANIMAL CONDITION:"), probe_str)
+    chat_display(name, S("ANIMAL").." "..S("CONDITION")..":", probe_str)
   end
 end
 
@@ -517,7 +517,7 @@ minetest.register_craftitem("artifacts:animal_probe", {
 
 -- Group probe (only for developers)
 minetest.register_craftitem("artifacts:admins_probe", {
-	description = "Admin's Probe",
+	description = S("Admin's Probe"),
 	inventory_image = "artifacts_admins_probe.png",
   wield_image = "artifacts_admins_probe.png^[transformR90",
 	stack_max = 1,
