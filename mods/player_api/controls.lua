@@ -153,7 +153,7 @@ local function handle_use_key(player)
    if pointed_thing then
       pointed_node = minetest.get_node(pointed_thing.under)
       local pdef = minetest.registered_nodes[pointed_node.name]
-      if pdef._on_use_node then -- use pointed node's definition first
+      if pdef and pdef._on_use_node then -- use pointed node's definition first
 	 using_tool = pdef._on_use_node(player, pointed_node,
 					pointed_thing, witem)
       end
