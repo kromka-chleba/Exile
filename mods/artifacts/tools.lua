@@ -396,7 +396,7 @@ minetest.register_craftitem("artifacts:farmers_probe", {
 --able to dig granite etc, no good for anything else.
 ------------------------------------
 minetest.register_tool("artifacts:antiquorium_chisel", {
-	description = S("Antiquorium").." "..S("Chisel"),
+	description = S("@1 Chisel", S("Antiquorium")),
 	inventory_image = "artifacts_antiquorium_chisel.png",
 	tool_capabilities = {
 		full_punch_interval = 1.0,
@@ -516,7 +516,7 @@ local animal_probe = function(user, pointed_thing)
     r_ent_a = math.floor(r_ent_a)
 
     local probe_str = S("Health")..": "..r_ent_hp.." "..S("units").."    "..
-    S("Age")..": "..r_ent_a.. " "..S("sec").."    "..
+    S("Age")..": "..r_ent_a.. " "..S("seconds").."    "..
     S("Energy")..": "..r_ent_e.." "..S("units")
     -- optional variables
     local r_ent_oxy = ent.oxygen

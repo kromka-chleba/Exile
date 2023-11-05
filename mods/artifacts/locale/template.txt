@@ -3,7 +3,7 @@
 # general
 Antiquorium=
 units=
-sec=
+seconds=
 
 # binary
 Yes=
