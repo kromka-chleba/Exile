@@ -421,7 +421,9 @@ local function use_spyglass(player)
 	player:set_fov(10, false)
 
 	minetest.after(5, function()
-    player:set_fov(0, false)
+			  if player and minetest.is_player(player) then
+			     player:set_fov(0, false)
+			  end
 	end)
 
 end
