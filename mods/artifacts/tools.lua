@@ -485,7 +485,6 @@ local animal_probe = function(user, pointed_thing)
     else
       age_str = age_str..S("@1 days old",tostring(days))
     end
-    -- S("Age: @1 years and @2 days old", years, days) and S("Age: @1 days old.", days)
 
     chat_display(name, p_name.." "..S("CONDITION")..":",
       S("Health")..": "..stats.health.." "..S("units").."    "..
