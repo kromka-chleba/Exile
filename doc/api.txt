@@ -62,9 +62,13 @@ minimal.vmanip_subregion(pos1,pos2, p1, p2)
 _on_use_node = function(player, pointed_node, pointed_thing, wielded_item)
 	Called when the player presses the "use" key while pointing at the node
 	pointed_node holds the name/param2 of the node at pointed_thing.under
+_on_use_object = function(player, intersection_point, wielded_item)
+	Called when the player presses the "use" key while pointing at an object
+	intersection_point is the absolute pos where the player is pointing
 _on_use_item = function(player, wielded_item, pointed_thing)
 	Called when the player is holding the item and presses "use"
-	_on_use_node takes precedence over this
+	_on_use_node and _on_use_object takes precedence over this
+	
 
 	^ functions for these should return false if the item/node isn't used.
 

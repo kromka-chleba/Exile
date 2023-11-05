@@ -148,14 +148,20 @@ end
 local function handle_use_key(player)
    local using_tool = false -- whether we've done a thing yet
    local witem = player:get_wielded_item()
-   local pointed_thing = minimal.get_pointed_thing(player)
-   local pointed_node
-   if pointed_thing then
-      pointed_node = minetest.get_node(pointed_thing.under)
+   local pointed_thing = minimal.get_pointed_thing(player, nil, true)
+   if pointed_thing and pointed_thing.type == "node" then
+      local pointed_node = minetest.get_node(pointed_thing.under)
       local pdef = minetest.registered_nodes[pointed_node.name]
       if pdef and pdef._on_use_node then -- use pointed node's definition first
 	 using_tool = pdef._on_use_node(player, pointed_node,
 					pointed_thing, witem)
+      end
+   end
+   if pointed_thing and pointed_thing.type == "object" then
+      local obj = pointed_thing.ref:get_luaentity()
+      if obj and obj._on_use_object then
+	 local opos = pointed_thing.intersection_point
+	 using_tool = obj:_on_use_object(player, opos, witem)
       end
    end
    local wnm = witem:get_name()

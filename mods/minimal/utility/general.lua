@@ -77,12 +77,13 @@ function minimal.get_pointed_thing(player,rn, obj, liq)
    local lookdir = vector.multiply(player:get_look_dir(), range)
    local pointpos = vector.add(ppos, lookdir)
    local ray = minetest.raycast(ppos, pointpos, obj or false, liq or false)
-   local pointed_thing
+   local point
    repeat
-      pointed_thing = ray:next()
-   until ( not pointed_thing ) or pointed_thing.type ~= "object"
-      or (pointed_thing.type == "object" and pointed_thing.ref ~= player )
-   return pointed_thing
+      point = ray:next()
+   until ( not point ) -- nil
+      or point.type == "node"
+      or (point.type == "object" and point.ref ~= player) -- object + not player
+   return point
 end
 
 function minimal.swap_tool(player, wielded_item, newtool)
