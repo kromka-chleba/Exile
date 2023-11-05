@@ -1,0 +1,84 @@
+# textdomain: artifacts
+
+# general
+Antiquorium=
+units=
+sec=
+
+# binary
+Yes=
+No=
+
+# tools.lua
+Chisel=
+Spyglass=
+
+# player + animal
+CONDITION=
+Health=
+Energy=
+Age=
+
+# probes;
+NOT MEASURABLE!=
+
+Light Meter=
+List light level of node or self=
+LIGHT MEASUREMENT:=
+LIGHT LEVEL ==
+
+Temperature Probe=
+List temperature of node=
+OBJECT TEMEPRATURE MEASUREMENT=
+TEMPERATURE ==
+
+Fuel Probe=
+List fuel units of node=
+BURN UNITS REMAINING:=
+
+Smelter Probe=
+List remaining units of node for smelting=
+SMELTING UNITS REMAINING:=
+
+Potter's Probe=
+List remaining firign units of unfired clay=
+FIRING UNITS REMAINING:=
+
+Chef's Probe=
+List remaining cooking units of pointed node=
+COOKING UNITS REMAINING:=
+
+Farmer's Probe=
+List stats of plant or soil=
+PLANT TYPE:=
+Wild=
+Domesticated=
+Half-wild=
+STATE:=
+FERTILITY:=
+ROOTS:=
+PLANT GROWTH NOT MEASURABLE!=
+PLANT HEALTH NOT MEASURABLE!=
+NOT MEASURABLE: NEEDS A PLANT OR SOIL=
+
+Animal Probe=
+List stats of pointed animal or player=
+Inspect self=
+SELF=
+Body Temp=
+Hunger=
+Thirst=
+Effects=
+1 year old=
+@1 years old=
+1 day old=
+@1 days old=
+Oxygen=
+Pregnant=
+ANIMAL=
+
+Admin's Probe=
+List groups of pointed node=
+GROUPS:=
+
+

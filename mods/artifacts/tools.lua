@@ -6,8 +6,24 @@
 
 mobkit = mobkit
 
+local S = artifacts.S
 
+------------------------------------
+--Base Data + functions
+------------------------------------
+local cc = {
+ "#00ff00", -- title, lime green
+ "#cc6600", -- data, brownish orange
+}
 
+local function chat_display(name, label, value)
+  minetest.chat_send_player(name, minetest.colorize(cc[1], label))
+  minetest.chat_send_player(name, minetest.colorize(cc[2], value))
+end
+
+local function chat_data(name, msg)
+  minetest.chat_send_player(name, minetest.colorize(cc[2], msg))
+end
 ------------------------------------
 --LIGHT METER
 --get positon light
@@ -17,19 +33,21 @@ local light_meter = function(user, pointed_thing)
 
   local name =user:get_player_name()
   local pos = user:get_pos()
-
-	minetest.chat_send_player(name, minetest.colorize("#00ff00", "LIGHT MEASUREMENT:"))
+  -- get pointed light level
+  if pointed_thing.type == "node" then
+    pos = pointed_thing.under
+  end
 
   local measure = ((minetest.get_node_light({x = pos.x, y = pos.y, z = pos.z})) or 0)
 
-  minetest.chat_send_player(name, minetest.colorize("#cc6600","LIGHT LEVEL = "..measure))
-  --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
+  chat_display(name, S("LIGHT MEASUREMENT:"), S("LIGHT LEVEL =").." "..measure)
 
+  --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
 end
 
 
 minetest.register_craftitem("artifacts:light_meter", {
-	description = "Light Meter",
+	description = S("Light Meter"),
 	inventory_image = "artifacts_light_meter.png",
 	stack_max = 1,
 
@@ -39,6 +57,14 @@ minetest.register_craftitem("artifacts:light_meter", {
     end
 		light_meter(user, pointed_thing)
 	end,
+  _dig_tip = S("List light level of node or self"),
+  -- probe light of self
+  _on_use_item = function(user, itemstack, pointed_thing)
+    if minimal.item_pickup(user, pointed_thing) then
+      return
+    end
+    light_meter(user, {ref = user, type = "object"})
+  end,
 })
 
 ------------------------------------
@@ -70,22 +96,21 @@ end
 
 local temp_probe = function(user, pointed_thing)
 
-   local name = init_probe(user, pointed_thing)
-   if not name then
-      return
-   end
+  local name = init_probe(user, pointed_thing)
+  if not name then
+    return
+  end
   local temp = climate.get_point_temp(pointed_thing.under)
   local measure = climate.get_temp_string(temp, user:get_meta())
 
-  minetest.chat_send_player(name, minetest.colorize("#00ff00", "OBJECT TEMPERATURE MEASUREMENT:"))
-  minetest.chat_send_player(name, minetest.colorize("#cc6600","TEMPERATURE = "))
-  minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+  chat_display(name, S("OBJECT TEMPERATURE MEASUREMENT:"), S("TEMPERATURE =".." "))
+  chat_data(name, measure)
   --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
 end
 
 
 minetest.register_craftitem("artifacts:temp_probe", {
-	description = "Temperature Probe",
+	description = S("Temperature Probe"),
 	inventory_image = "artifacts_temp_probe.png",
   wield_image = "artifacts_temp_probe.png^[transformR90",
 	stack_max = 1,
@@ -96,6 +121,7 @@ minetest.register_craftitem("artifacts:temp_probe", {
     end
 		temp_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List temperature of node")
 })
 
 
@@ -116,17 +142,16 @@ local fuel_probe = function(user, pointed_thing)
    local measure = meta:get_int("fuel")
 
   if measure <= 0 then
-    minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+    chat_data(name, S("NOT MEASURABLE!"))
   else
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "BURN UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+    chat_display(name, S("BURN UNITS REMAINING:"), measure)
   end
 
 end
 
 
 minetest.register_craftitem("artifacts:fuel_probe", {
-	description = "Fuel Probe",
+	description = S("Fuel Probe"),
 	inventory_image = "artifacts_fuel_probe.png",
   wield_image = "artifacts_fuel_probe.png^[transformR90",
 	stack_max = 1,
@@ -137,6 +162,7 @@ minetest.register_craftitem("artifacts:fuel_probe", {
     end
 		fuel_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List fuel units of node")
 })
 
 ------------------------------------
@@ -152,17 +178,16 @@ local smelter_probe = function(user, pointed_thing)
   local measure = meta:get_int("roast")
 
   if measure <= 0 or node_name ~= 'tech:iron_and_slag' then
-    minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+    chat_data(name, S("NOT MEASURABLE!"))
   else
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "SMELTING UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+    chat_display(name, S("SMELTING UNITS REMAINING:"), measure)
   end
 
 end
 
 
 minetest.register_craftitem("artifacts:smelter_probe", {
-	description = "Smelter Probe",
+	description = S("Smelter Probe"),
 	inventory_image = "artifacts_smelter_probe.png",
   wield_image = "artifacts_smelter_probe.png^[transformR90",
 	stack_max = 1,
@@ -173,6 +198,7 @@ minetest.register_craftitem("artifacts:smelter_probe", {
     end
 		smelter_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List remaining units of node for smelting"),
 })
 
 
@@ -196,17 +222,16 @@ local potters_probe = function(user, pointed_thing)
   end
 
   if measure <= 0 then
-    minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+    chat_data(name, S("NOT MEASURABLE!"))
   else
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "FIRING UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+    chat_display(name, S("FIRING UNITS REMAINING:"), measure)
   end
 
 end
 
 
 minetest.register_craftitem("artifacts:potters_probe", {
-	description = "Potter's Probe",
+	description = S("Potter's Probe"),
 	inventory_image = "artifacts_potters_probe.png",
   wield_image = "artifacts_potters_probe.png^[transformR90",
 	stack_max = 1,
@@ -217,6 +242,7 @@ minetest.register_craftitem("artifacts:potters_probe", {
     end
 		potters_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List remaining firing units of unfired clay"),
 })
 
 
@@ -234,17 +260,16 @@ local chefs_probe = function(user, pointed_thing)
   local measure = meta:get_int("baking")
 
   if measure <= 0 then
-    minetest.chat_send_player(name, minetest.colorize("#cc6600","NOT MEASURABLE!"))
+    chat_data(name, S("NOT MEASURABLE!"))
   else
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", "COOKING UNITS REMAINING:"))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", measure))
+    chat_display(name, S("COOKING UNITS REMAINING:"), measure)
   end
 
 end
 
 
 minetest.register_craftitem("artifacts:chefs_probe", {
-	description = "Chef's Probe",
+	description = S("Chef's Probe"),
 	inventory_image = "artifacts_chefs_probe.png",
   wield_image = "artifacts_chefs_probe.png^[transformR90",
 	stack_max = 1,
@@ -255,16 +280,8 @@ minetest.register_craftitem("artifacts:chefs_probe", {
     end
 		chefs_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List remaining cooking units of pointed food")
 })
-
-local function chat_display(name, label, value)
-    minetest.chat_send_player(name, minetest.colorize("#00ff00", label))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", value))
-end
-
-local function chat_warning(name, msg)
-    minetest.chat_send_player(name, minetest.colorize("#cc6600", msg))
-end
 
 ------------------------------------
 --ADMINS PROBE
@@ -281,7 +298,7 @@ local admins_probe = function(user, pointed_thing)
     groups = groups:gsub("{", "")
     groups = groups:gsub("}", "")
     groups = groups:gsub(",", ", ")
-    chat_display(name, "GROUPS: ", groups)
+    chat_display(name, S("GROUPS:").." ", groups)
 end
 
 ------------------------------------
@@ -303,61 +320,61 @@ local farmers_probe = function(user, pointed_thing)
   local root_nr = meta:get_float("root_nr")
 
   local check_plant_type = function()
-      if param2 < 64 then
-          chat_display(name, "PLANT TYPE:", "Wild")
-          return "wild"
-      elseif param2 < 128 then
-          chat_display(name, "PLANT TYPE:", "Domesticated")
-          return "dom"
-      else
-          chat_display(name, "PLANT TYPE:", "Half-wild")
-          return "half"
-      end
+    if param2 < 64 then
+      chat_display(name, S("PLANT TYPE:"), S("Wild"))
+      return "wild"
+    elseif param2 < 128 then
+      chat_display(name, S("PLANT TYPE:"), S("Domesticated"))
+      return "dom"
+    else
+      chat_display(name, S("PLANT TYPE:"), S("Half-wild"))
+      return "half"
+    end
   end
 
   local check_growth = function()
-      if growth <= 0 then
-          chat_warning(name, "PLANT GROWTH NOT MEASURABLE!")
-      else
-          chat_display(name, "GROWTH UNITS REMAINING:", growth)
-      end
+    if growth <= 0 then
+      chat_data(name, S("PLANT GROWTH NOT MEASURABLE!"))
+    else
+      chat_display(name, S("GROWTH UNITS REMAINING:"), growth)
+    end
   end
 
   local check_health = function()
-      if health <= 0 then
-          chat_warning(name, "PLANT HEALTH NOT MEASURABLE!")
-      else
-          chat_display(name, "HEALTH:", health)
-      end
+    if health <= 0 then
+      chat_data(name, S("PLANT HEALTH NOT MEASURABLE!"))
+    else
+      chat_display(name, string.upper(S("Health")..":"), health)
+    end
   end
 
   if nodedef.groups.flora or nodedef.groups.mushroom then
-      local plant_type = check_plant_type()
-      if plant_type == "dom" or plant_type == "half" then
-          check_growth()
-          check_health()
-      end
+    local plant_type = check_plant_type()
+    if plant_type == "dom" or plant_type == "half" then
+      check_growth()
+      check_health()
+    end
   elseif nodedef.groups.sediment and fertility then
-      if nodedef.groups.wet_sediment == 1 then
-          chat_display(name, "STATE:", "wet")
-      elseif nodedef.groups.wet_sediment == 2 then
-          chat_display(name, "STATE:", "salty")
-      else
-          chat_display(name, "STATE:", "dry")
-      end
-      chat_display(name, "FERTILITY:", fertility)
-      if roots == 1 then
-          chat_display(name, "ROOTS:", root_nr)
-      end
+    if nodedef.groups.wet_sediment == 1 then
+      chat_display(name, S("STATE:"), S("wet"))
+    elseif nodedef.groups.wet_sediment == 2 then
+      chat_display(name, S("STATE:"), S("salty"))
+    else
+      chat_display(name, S("STATE:"), S("dry"))
+    end
+    chat_display(name, S("FERTILITY:"), fertility)
+    if roots == 1 then
+      chat_display(name, S("ROOTS:"), root_nr)
+    end
   else
-      chat_warning(name, "NOT MEASURABLE: NEEDS A PLANT OR SOIL")
+    chat_data(name, S("NOT MEASURABLE: NEEDS A PLANT OR SOIL"))
   end
 
 end
 
 
 minetest.register_craftitem("artifacts:farmers_probe", {
-	description = "Farmer's Probe",
+	description = S("Farmer's Probe"),
 	inventory_image = "artifacts_farmers_probe.png",
   wield_image = "artifacts_farmers_probe.png^[transformR90",
 	stack_max = 1,
@@ -368,6 +385,7 @@ minetest.register_craftitem("artifacts:farmers_probe", {
     end
 		farmers_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List stats of plant or soil")
 })
 
 
@@ -378,7 +396,7 @@ minetest.register_craftitem("artifacts:farmers_probe", {
 --able to dig granite etc, no good for anything else.
 ------------------------------------
 minetest.register_tool("artifacts:antiquorium_chisel", {
-	description = "Antiquorium Chisel",
+	description = S("Antiquorium").." "..S("Chisel"),
 	inventory_image = "artifacts_antiquorium_chisel.png",
 	tool_capabilities = {
 		full_punch_interval = 1.0,
@@ -403,7 +421,7 @@ local function use_spyglass(player)
 	player:set_fov(10, false)
 
 	minetest.after(5, function()
-			player:set_fov(0, false)
+    player:set_fov(0, false)
 	end)
 
 end
@@ -411,13 +429,16 @@ end
 
 --  item
 minetest.register_craftitem("artifacts:spyglass", {
-	description = "Spyglass",
+	description = S("Spyglass"),
 	inventory_image = "artifacts_spyglass.png",
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
 		use_spyglass(user)
 	end,
+  _on_use_item = function(user, itemstacked, pointed_thing)
+    use_spyglass(user)
+  end,
 })
 
 
@@ -436,62 +457,83 @@ local animal_probe = function(user, pointed_thing)
   local name = user:get_player_name()
   local pt_ref = pointed_thing.ref
   if minetest.is_player(pt_ref) then
-	local pt_meta = pt_ref:get_meta()
-	local stats = {
-		health = pt_ref:get_hp(),
-		hunger = (pt_meta:get_int('hunger')/1000*100)..'%',
-		thirst = (pt_meta:get_int('thirst')/100*100)..'%',
-		energy = (pt_meta:get_int('energy')/1000*100)..'%',
-		body_temp = pt_meta:get_int('temperature'),
-		effects = pt_meta:get_int('effects_num'),
-	}
-	minetest.chat_send_player(name, minetest.colorize("#00ff00", "PLAYER CONDITION:"))
-	minetest.chat_send_player(name, minetest.colorize("#cc6600",
-		"Health: "..stats.health..
-		"    Energy: "..stats.energy..
-		"    Body Temp: "..stats.body_temp..
-		"    Hunger: "..stats.hunger..
-		"    Thirst: "..stats.thirst..
-		"    Effects: "..stats.effects
-	))
-  else
-	local ent = pt_ref:get_luaentity()
-  if (type(ent) == "nil") then
-    return
-  end
-	if not ent.memory then -- not a mobkit entity with a memory
-		return
-	end
-  local r_ent_hp = ent.hp
-	local r_ent_e = mobkit.recall(ent,'energy')
-	local r_ent_a = mobkit.recall(ent,'age')
-
-	if not r_ent_e or not r_ent_a or not r_ent_hp then
-		return
-	end
-	r_ent_e = math.floor(r_ent_e)
-	r_ent_a = math.floor(r_ent_a)
-  
-  local probe_str = "Health: "..r_ent_hp.." units    Age: "..r_ent_a.. " sec    Energy: "..r_ent_e.." units"
-  -- optional variables
-  local r_ent_oxy = ent.oxygen
-  local r_ent_lung = ent.lung_capacity
-  if (type(r_ent_oxy) == "number" and type(r_ent_lung) == "number") then
-    probe_str = probe_str.."    Oxygen: "..((r_ent_oxy/r_ent_lung)*100).."%"
-  end
-  local r_ent_sex = ent.sex
-  if (r_ent_sex == "female") then
-    local preg = mobkit.recall(ent,"pregnant") or false
-    if (preg == true) then
-      preg = "Yes"
-    else
-      preg = "No"
+    local p_name = pt_ref:get_player_name()
+    if minetest.is_singleplayer() then
+      p_name = S("SELF")
     end
-    probe_str = probe_str.."    Pregnant: "..preg
-  end
+    local pt_meta = pt_ref:get_meta()
+    local stats = {
+      health = pt_ref:get_hp(),
+      hunger = (pt_meta:get_int('hunger')/1000*100)..'%',
+      thirst = (pt_meta:get_int('thirst')/100*100)..'%',
+      energy = (pt_meta:get_int('energy')/1000*100)..'%',
+      body_temp = climate.get_temp_string(pt_meta:get_int('temperature'),pt_meta),
+      effects = pt_meta:get_int('effects_num'),
+    }
+    local days = pt_meta:get_int("char_time_survived") or 0
+    days = math.floor(days / 1200)
+    local years = math.floor(days / 80)
+    local age_str = S("Age:").." "
+    if years == 1 then
+      age_str = age_str..S("1 year old")..", "
+    elseif years > 1 then
+      age_str = age_str..S("@1 years old",tostring(years))..", "
+    end
+    days = days - (80 * years) -- if years is 0, will not be changed
+    if days == 1 then
+      age_str = age_str..S("1 day old")
+    else
+      age_str = age_str..S("@1 days old",tostring(days))
+    end
 
-	minetest.chat_send_player(name, minetest.colorize("#00ff00", "ANIMAL CONDITION:"))
-	minetest.chat_send_player(name, minetest.colorize("#cc6600",probe_str))
+    chat_display(name, p_name.." "..S("CONDITION")..":",
+      S("Health")..": "..stats.health.." "..S("units").."    "..
+      age_str.."    "..
+      S("Energy")..": "..stats.energy.."    "..
+      S("Body Temp")..": "..stats.body_temp.."    "..
+      S("Hunger")..": "..stats.hunger.."    "..
+      S("Thirst")..": "..stats.thirst.."    "..
+      S("Effects")..": "..stats.effects.."    "
+    )
+  else
+    local ent = pt_ref:get_luaentity()
+    if not ent then
+      return
+    end
+    if not ent.memory then -- not a mobkit entity with a memory
+      return
+    end
+    local r_ent_hp = ent.hp
+    local r_ent_e = mobkit.recall(ent,'energy')
+    local r_ent_a = mobkit.recall(ent,'age')
+
+    if not r_ent_e or not r_ent_a or not r_ent_hp then
+      return
+    end
+    r_ent_e = math.floor(r_ent_e)
+    r_ent_a = math.floor(r_ent_a)
+
+    local probe_str = S("Health")..": "..r_ent_hp.." "..S("units").."    "..
+    S("Age")..": "..r_ent_a.. " "..S("sec").."    "..
+    S("Energy")..": "..r_ent_e.." "..S("units")
+    -- optional variables
+    local r_ent_oxy = ent.oxygen
+    local r_ent_lung = ent.lung_capacity
+    if (r_ent_oxy and r_ent_lung) then
+      probe_str = probe_str.."    "..S("Oxygen:").." "..((r_ent_oxy/r_ent_lung)*100).."%"
+    end
+    local r_ent_sex = ent.sex
+    if (r_ent_sex == "female") then
+      local preg = mobkit.recall(ent,"pregnant") or false
+      if (preg == true) then
+        preg = S("Yes")
+      else
+        preg = S("No")
+      end
+      probe_str = probe_str.."    "..S("Pregnant:").." "..preg
+    end
+
+    chat_display(name, S("ANIMAL").." "..S("CONDITION")..":", probe_str)
   end
 end
 
@@ -507,12 +549,19 @@ minetest.register_craftitem("artifacts:animal_probe", {
     end
 		animal_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List stats of pointed animal or player"),
+  -- probe self
+  _on_use_item = function(user, itemstack, pointed_thing)
+    -- let's play doctor doctor
+    animal_probe(user, {ref = user, type = "object"})
+  end,
+  _use_tip = S("Inspect self")
 })
 
 
 -- Group probe (only for developers)
 minetest.register_craftitem("artifacts:admins_probe", {
-	description = "Admin's Probe",
+	description = S("Admin's Probe"),
 	inventory_image = "artifacts_admins_probe.png",
   wield_image = "artifacts_admins_probe.png^[transformR90",
 	stack_max = 1,
@@ -523,4 +572,5 @@ minetest.register_craftitem("artifacts:admins_probe", {
     end
 		admins_probe(user, pointed_thing)
 	end,
+  _dig_tip = S("List groups of pointed node")
 })
