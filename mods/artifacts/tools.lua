@@ -457,6 +457,10 @@ local animal_probe = function(user, pointed_thing)
   local name = user:get_player_name()
   local pt_ref = pointed_thing.ref
   if minetest.is_player(pt_ref) then
+    local p_name = pt_ref:get_player_name()
+    if minetest.is_singleplayer() then
+      p_name = S("SELF")
+    end
     local pt_meta = pt_ref:get_meta()
     local stats = {
       health = pt_ref:get_hp(),
@@ -466,8 +470,26 @@ local animal_probe = function(user, pointed_thing)
       body_temp = climate.get_temp_string(pt_meta:get_int('temperature'),pt_meta),
       effects = pt_meta:get_int('effects_num'),
     }
-    chat_display(name, pt_ref:get_player_name().." "..S("CONDITION")..":",
+    local days = pt_meta:get_int("char_time_survived") or 0
+    days = math.floor(days / 1200)
+    local years = math.floor(days / 80)
+    local age_str = S("Age:").." "
+    if years == 1 then
+      age_str = age_str..S("1 year old")..", "
+    elseif years > 1 then
+      age_str = age_str..S("@1 years old",tostring(years))..", "
+    end
+    days = days - (80 * years) -- if years is 0, will not be changed
+    if days == 1 then
+      age_str = age_str..S("1 day old")
+    else
+      age_str = age_str..S("@1 days old",tostring(days))
+    end
+    -- S("Age: @1 years and @2 days old", years, days) and S("Age: @1 days old.", days)
+
+    chat_display(name, p_name.." "..S("CONDITION")..":",
       S("Health")..": "..stats.health.." "..S("units").."    "..
+      age_str.."    "..
       S("Energy")..": "..stats.energy.."    "..
       S("Body Temp")..": "..stats.body_temp.."    "..
       S("Hunger")..": "..stats.hunger.."    "..
@@ -534,7 +556,7 @@ minetest.register_craftitem("artifacts:animal_probe", {
     -- let's play doctor doctor
     animal_probe(user, {ref = user, type = "object"})
   end,
-  _use_tip = S("Probe self")
+  _use_tip = S("Inspect self")
 })
 
 
