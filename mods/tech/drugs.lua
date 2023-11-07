@@ -190,7 +190,8 @@ local function drink_tang(pot_type, pos, node, clicker, itemstack, pointed_thing
 
     meta:set_int("thirst", thirst)
     meta:set_int("energy", energy)
-    
+    meta:set_int("hunger", hunger)
+
     minetest.swap_node(pos, {name = "tech:"..pot_type.."_water_pot"})
     minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
   end
