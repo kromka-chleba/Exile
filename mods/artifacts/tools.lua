@@ -467,6 +467,17 @@ minetest.register_craftitem("artifacts:spyglass", {
   _on_use_item = function(user, itemstacked, pointed_thing)
     use_spyglass(user)
   end,
+  -- right clicking
+  on_place = function(itemstack, placer, pointed_thing)
+    local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+    if on_click ~= false then
+      return on_click
+    end
+    use_spyglass(placer)
+  end,
+  on_secondary_use = function(itemstack, user, pointed_thing)
+    use_spyglass(user)
+  end
 })
 
 
