@@ -476,7 +476,7 @@ local function set_from_key(itemstack, placer, pointed_thing)
 	if node ~= "artifacts:transporter_pad" then
 	   minetest.chat_send_player(player_name,
 				     minetest.colorize("#cc6600",
-			"KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD"))
+			S("KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD")))
 		return
 	end
 
@@ -485,12 +485,12 @@ local function set_from_key(itemstack, placer, pointed_thing)
 		local meta_tran = minetest.get_meta(pt_under)
 		local _, range, _, _  = assess_transporter(pt_under)
 		-- really just need range (for what?)
-		local ok_string = "Bond Transporter to Target"
+		local ok_string = S("Bond Transporter to Target")
 
 		--only one link
 		local tran_target = meta_tran:get_string("target_pos")
 		if tran_target ~= "" then
-			ok_string = "Replace Transporter Bond with NEW Target"
+			ok_string = S("Replace Transporter Bond with NEW Target")
 		end
 		--get meta and see if key has a saved location
 		local meta = itemstack:get_meta()
@@ -524,7 +524,7 @@ local function set_from_key(itemstack, placer, pointed_thing)
 		elseif posstring == "" then
 		   minetest.chat_send_player(player_name,
 					     minetest.colorize("#cc6600",
-			"KEY IS BLANK!: use leftclick to save this location"))
+			S("KEY IS BLANK!: use leftclick to save this location")))
 		   minetest.sound_play("artifacts_transport_error",
 				       {pos = pos, gain = 1,
 					max_hear_distance = 6})
@@ -559,8 +559,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				       max_hear_distance = 5,})
 		minetest.chat_send_player(player_name,
 			minetest.colorize("#00ff00",
-					  "TRANSPORTER DESTINATION SET TO: "..
-					  target_name.." at "..target_pos))
+          S("TRANSPORTERR DESTINATION SET TO: @1 at @2",target_name,target_pos)))
+					  --"TRANSPORTER DESTINATION SET TO: "..
+					  --target_name.." at "..target_pos))
 		minetest.sound_play("artifacts_transport_fail",
 				    {pos = player:get_pos(), gain = 1,
 				     max_hear_distance = 6})
@@ -695,7 +696,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		minetest.chat_send_player(player_name,
 					  minetest.colorize("#00ff00",
-				"TRANSPORTER KEY CREATED TO: "..target_name))
+        S("TRANSPORTER KEY CREATED TO: @1",target_name)))
+				--"TRANSPORTER KEY CREATED TO: "..target_name))
 		minetest.sound_play("artifacts_transport_fail",
 				    {pos = player:get_pos(), gain = 1, max_hear_distance = 6})
 
@@ -728,7 +730,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		minetest.chat_send_player(player_name,
 					  minetest.colorize("#00ff00",
-				"TRANSPORTER KEY CREATED TO: "..target_name))
+        S("TRANSPORTER KEY CREATED TO: @1",target_name)))
+				--"TRANSPORTER KEY CREATED TO: "..target_name))
 		minetest.sound_play("artifacts_transport_fail",
 				    {pos = player:get_pos(), gain = 1,
 				     max_hear_distance = 6})
