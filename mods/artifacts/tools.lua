@@ -412,19 +412,45 @@ minetest.register_tool("artifacts:antiquorium_chisel", {
 
 ------------------------------------
 --SPYGLASS
--- temporary zoom
 ------------------------------------
+local spyglass_players = {} -- uses this to determine which players are looking through a spyglass or not
 
---a quick look through
 local function use_spyglass(player)
+  local p_name = player:get_player_name()
+  -- if player is using spyglass while activating then get out of the zoom
+  if spyglass_players[p_name] then
+    player:set_fov(0, false, .1)
+    spyglass_players[p_name] = nil
+    return
+  end
+  -- continue as normal (zoom in)
+  spyglass_players[p_name] = true
+	player:set_fov(10, false, .4)
 
-	player:set_fov(10, false)
-
-	minetest.after(5, function()
-			  if player and minetest.is_player(player) then
-			     player:set_fov(0, false)
-			  end
-	end)
+  -- utilize this function every 0.5 seconds to check if the player should be zoomed in or not
+  local function verify()
+    if not player or not minetest.is_player(player) then
+      spyglass_players[p_name] = nil
+      player:set_fov(0, false, .1)
+      return
+    end
+    if player:get_wielded_item():get_name() ~= "artifacts:spyglass" then
+      spyglass_players[p_name] = nil
+      player:set_fov(0, false, .1)
+      return
+    end
+    -- prevent verify from running again by any means necessary
+    if player:get_fov() == 0 then
+      spyglass_players[p_name] = nil
+      return
+    end
+    if not spyglass_players[p_name] then
+      return
+    end
+    -- still using the spyglass
+    minetest.after(0.5, verify)
+  end
+  verify()
 
 end
 
