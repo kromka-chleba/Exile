@@ -10,8 +10,9 @@ Yes=
 No=
 
 # tools.lua
-Chisel=
+@1 Chisel=
 Spyglass=
+View far distances=
 
 # player + animal
 CONDITION=

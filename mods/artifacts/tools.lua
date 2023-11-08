@@ -417,26 +417,43 @@ local spyglass_players = {} -- uses this to determine which players are looking 
 
 local function use_spyglass(player)
   local p_name = player:get_player_name()
+  local function remove_scope()
+    if not player or not minetest.is_player(player) then
+      spyglass_players[p_name] = nil
+      return
+    end
+    if type(spyglass_players[p_name]) == "number" then
+      player:hud_remove(spyglass_players[p_name])
+    end
+    spyglass_players[p_name] = nil
+    player:set_fov(0, false, .1)
+  end
   -- if player is using spyglass while activating then get out of the zoom
   if spyglass_players[p_name] then
-    player:set_fov(0, false, .1)
-    spyglass_players[p_name] = nil
+    remove_scope()
     return
   end
   -- continue as normal (zoom in)
-  spyglass_players[p_name] = true
+  spyglass_players[p_name] = player:hud_add({
+    name = "spyglass_scope",
+    hud_elem_type = "image",
+    text = "artifacts_scope_hud.png",
+    z_index = -500,
+    position = {x = 0.5, y = 0.5},
+    alignment = {x = 0, y = 0},
+    scale = { x = -100, y = -100},
+    offset = {x = 0, y = 0}
+  })
 	player:set_fov(10, false, .4)
 
   -- utilize this function every 0.5 seconds to check if the player should be zoomed in or not
   local function verify()
     if not player or not minetest.is_player(player) then
-      spyglass_players[p_name] = nil
-      player:set_fov(0, false, .1)
+      remove_scope()
       return
     end
     if player:get_wielded_item():get_name() ~= "artifacts:spyglass" then
-      spyglass_players[p_name] = nil
-      player:set_fov(0, false, .1)
+      remove_scope()
       return
     end
     -- prevent verify from running again by any means necessary
@@ -464,9 +481,11 @@ minetest.register_craftitem("artifacts:spyglass", {
 	on_use = function(itemstack, user, pointed_thing)
 		use_spyglass(user)
 	end,
+  _dig_tip = S("View far distances"),
   _on_use_item = function(user, itemstacked, pointed_thing)
     use_spyglass(user)
   end,
+  _use_tip = S("View far distances"),
   -- right clicking
   on_place = function(itemstack, placer, pointed_thing)
     local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
@@ -477,7 +496,8 @@ minetest.register_craftitem("artifacts:spyglass", {
   end,
   on_secondary_use = function(itemstack, user, pointed_thing)
     use_spyglass(user)
-  end
+  end,
+  _place_tip = S("View far distances"),
 })
 
 
