@@ -68,6 +68,17 @@ local function transporter_particles(pos, percentage)
    })
 end
 
+local function send_objects(target_pos, pos)
+   local Ray = minetest.raycast(pos, vector.new(pos.x, pos.y + 4, pos.z), true)
+   local point
+  repeat
+     point = Ray:next()
+     if point and point.type == "object" then
+	point.ref:set_pos(target_pos)
+     end
+   until point == nil
+end
+
 --actually move
 local function teleport_effects(target_pos, pos, player, player_name,
 				regulator, power, random, stretch)
@@ -84,7 +95,7 @@ local function teleport_effects(target_pos, pos, player, player_name,
 	minimal.infotext_set(power) -- set node description and owner
 	set_charging(power, 5, 20)
 	--go to target
-	player:set_pos(target_pos)
+	send_objects(target_pos, pos)
 
 	--effects at target
 	minetest.sound_play( {name="artifacts_transport", gain=1},
