@@ -26,8 +26,8 @@ local function find_spawn_pos(pos)
       xo = math.random(0,600)-300 zo = math.random(0,600)-300
       sl = minetest.get_spawn_level(pos.x + xo, pos.z + zo)
    until tries == 30 or ( sl and sl > vgl )
-   if vgl > sl then sl = vgl end -- fallback if all tries failed
-   if sl then return vector.new(pos.x + xo, sl, pos.z + zo) end
+   if not sl or vgl > sl then sl = vgl end -- fallback if all tries failed
+   return vector.new(pos.x + xo, sl, pos.z + zo)
 end
 
 local badplaces = {"ocean", "mountains"}
