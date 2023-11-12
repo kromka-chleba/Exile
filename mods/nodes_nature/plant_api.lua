@@ -910,7 +910,6 @@ function plant.register_threshing_recipes(plant_def)
     end
     if plant_def.only_dead_fruit then
         reg_recipe(plant.get_fruit_name(plant_def.name))
-        reg_recipe(plant.get_name(plant_def.name))
     end
 end
 

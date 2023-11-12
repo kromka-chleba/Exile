@@ -436,7 +436,7 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:barszcz_root",{
         tiles = {"nodes_nature_red_ochre.png"},
-        description = S("Paratiki root"),
+        description = S("Barszcz root"),
         wield_image = "nodes_nature_barszcz_root.png",
         inventory_image = "nodes_nature_barszcz_root.png",
         node_box = {
