@@ -592,7 +592,7 @@ local function save_to_key(itemstack, player, pointed_thing)
    if node ~= "artifacts:transporter_pad" then
       minetest.chat_send_player(player_name,
 				minetest.colorize("#cc6600",
-				  "KEY CAN ONLY SAVE FROM TRANSPORTER PAD"))
+				  S("KEY CAN ONLY SAVE FROM TRANSPORTER PAD")))
       return
    end
 

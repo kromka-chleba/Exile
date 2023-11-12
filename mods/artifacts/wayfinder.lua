@@ -1,4 +1,7 @@
 
+artifacts = artifacts
+local S = artifacts.S
+
 -- compass configuration interface - adjustable from other mods or minetest.conf settings
 --ccompass = {}
 
@@ -17,18 +20,18 @@ local function set_target(stack, param)
 	local meta=stack:get_meta()
 	meta:set_string("target_pos", param.target_pos_string)
 	if param.target_name == "" then
-		meta:set_string("description", "Wayfinder to "..param.target_pos_string)
+		meta:set_string("description", S("Wayfinder to @1",param.target_pos_string))
 	else
-		meta:set_string("description", "Wayfinder to "..param.target_name)
+		meta:set_string("description", S("Wayfinder to @1",param.target_name))
 	end
 
 	if param.playername then
 		minetest.chat_send_player(
 		   param.playername,
 		   minetest.colorize("#00ff00",
-				     "WAYFINDER BONDED TO: "..
-				     param.target_name.." "..
-				     param.target_pos_string))
+				     S("WAYFINDER BONDED TO: @1 @2",
+				     param.target_name,
+				     param.target_pos_string)))
 	end
 end
 
@@ -47,7 +50,7 @@ local function get_destination(player, stack)
 		if node == "ignore" or node == "artifacts:waystone" then
 			return minetest.string_to_pos(posstring)
 		else
-			minetest.chat_send_player(player:get_player_name(), minetest.colorize("#cc6600", "WAYFINDER BOND LOST"))
+			minetest.chat_send_player(player:get_player_name(), minetest.colorize("#cc6600", S("WAYFINDER BOND LOST")))
 			meta:set_string("target_pos", "")
 			meta:set_string("description", "")
 			return default_target
@@ -99,7 +102,7 @@ local function on_use_function(itemstack, player, pointed_thing)
 
 	local destination = itemstack:get_meta():get_string("target_pos")
 	if destination ~= "" then
-		minetest.chat_send_player(player:get_player_name(), minetest.colorize("#cc6600", "WAYFINDER ALREADY BONDED"))
+		minetest.chat_send_player(player:get_player_name(), minetest.colorize("#cc6600", S("WAYFINDER ALREADY BONDED")))
 		return
 	end
 
@@ -107,7 +110,7 @@ local function on_use_function(itemstack, player, pointed_thing)
 	   minetest.chat_send_player(
 	      player:get_player_name(),
 	      minetest.colorize("#cc6600",
-				"WAYFINDER CAN ONLY BOND TO WAYSTONE"))
+				S("WAYFINDER CAN ONLY BOND TO WAYSTONE")))
 		return
 	end
 
