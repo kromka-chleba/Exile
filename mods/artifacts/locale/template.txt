@@ -85,7 +85,6 @@ List groups of pointed node=
 GROUPS:=
 
 # transporter.lua
-
 KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
 Bond Transporter to Target=
 Replace Transporter Bond with NEW Target=
@@ -107,4 +106,24 @@ WAYFINDER BOND LOST=
 WAYFINDER ALREADY BONDED=
 WAYFINDER CAN ONLY BOND TO WAYSTONE=
 Permanently Bond=
+
+
+# airboat.lua
+
+[airboat] Cruise on=
+[airboat] Cruise off=
+
+# storage.lua 
+@1 Chest=
+
+
+# art.lua
+Moon Glass=
+Jade=
+Gold=
+@1 Sculpture=
+Gamepiece (black)=
+Gamepiece (white)=
+Singing Stone=
+Drumming Stone=
 

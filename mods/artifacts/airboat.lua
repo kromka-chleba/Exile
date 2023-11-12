@@ -1,6 +1,8 @@
 local random = math.random
 
 player_api = player_api
+artifacts = artifacts
+local S = artifacts.S
 
 local store = minetest.get_mod_storage()
 local saved_airboats = minetest.deserialize(store:get_string("savedab"), true)
@@ -184,7 +186,7 @@ function airboat.on_step(self, dtime)
 		    self.auto = true
 		    minetest.sound_play("artifacts_airboat_gear", {pos = pos, gain = 1, max_hear_distance = 6})
 		    minetest.chat_send_player(self.driver,
-					      "[airboat] Cruise on")
+					      S("[airboat] Cruise on"))
 		 end
 	      elseif ctrl.down then
 		 self.v = self.v - 0.1
@@ -192,7 +194,7 @@ function airboat.on_step(self, dtime)
 		    self.auto = false
 		    minetest.sound_play("artifacts_airboat_gear", {pos = pos, gain = 1, max_hear_distance = 6})
 		    minetest.chat_send_player(self.driver,
-					      "[airboat] Cruise off")
+					      S("[airboat] Cruise off"))
 		 end
 	      elseif ctrl.up or self.auto then
 		 self.v = self.v + 0.1
