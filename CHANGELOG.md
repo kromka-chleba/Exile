@@ -1,5 +1,11 @@
 # Changelog:
 
+## [2023-11-11][2023-11-11__0.3.14]
+  - Transporters now send all objects that are on the pad
+  - Improved letter and bones with info on player/lives
+  - Sound for pots
+  - More small bugs fixed
+
 ## [2023-10-13][2023-10-13__0.3.13.37]
   - Commit #1337
   - Bugfixes for v0.3.11
