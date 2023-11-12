@@ -515,9 +515,9 @@ local function set_from_key(itemstack, placer, pointed_thing)
 
 			minetest.show_formspec(player_name, "set_from_trans_key",
 					"size[10,2.5]" ..
-					"label[1,1;Target name: "..
+					"label[1,1;"..S("Target name")..": "..
 					target_name.."]"..
-					"button_exit[0.7,2;3,1;cancel;Cancel]"..
+					"button_exit[0.7,2;3,1;cancel;"..S("Cancel").."]"..
 					"button_exit[3.7,2;5,1;ok;" ..
 					ok_string .. "]" )
 
@@ -608,10 +608,10 @@ local function save_to_key(itemstack, player, pointed_thing)
 	 local target_name = meta:get_string("target_name")
 	 minetest.show_formspec(player_name, "wipe_trans_key",
 				"size[10,2.5]" ..
-				"label[1,1;Key's target name: "..
+				"label[1,1;"..S("Key's target name")..": "..
 				target_name.."]"..
-				"button_exit[0.7,2;3,1;cancel;Cancel]"..
-				"button_exit[3.7,2;5,1;ok;Wipe Key]")
+				"button_exit[0.7,2;3,1;cancel;"..S("Cancel").."]"..
+				"button_exit[3.7,2;5,1;ok;"..S("Wipe Key").."]")
 	 return
 
       elseif posstring == "" then
@@ -627,16 +627,16 @@ local function save_to_key(itemstack, player, pointed_thing)
 	    minetest.show_formspec(player_name,
 				   "create_transporter_key_nameless",
 				   "size[10,2.5]" ..
-				   "field[1,1;8,1;name;Destination name:;".."]"..
-				   "button_exit[0.7,2;3,1;cancel;Cancel]"..
-				   "button_exit[3.7,2;5,1;ok;Create Bonded Key]" )
+				   "field[1,1;8,1;name;"..S("Destination name")..":;".."]"..
+				   "button_exit[0.7,2;3,1;cancel;"..S("Cancel").."]"..
+				   "button_exit[3.7,2;5,1;ok;"..S("Create Bonded Key").."]" )
 	    return itemstack
 	 else
 	    minetest.show_formspec(player_name, "create_transporter_key",
 				   "size[10,2.5]" ..
-				   "label[1,1;Destination name: "..tran_name.."]"..
-				   "button_exit[0.7,2;3,1;cancel;Cancel]"..
-				   "button_exit[3.7,2;5,1;ok;Create Bonded Key]" )
+				   "label[1,1;"..S("Destination name")..": "..tran_name.."]"..
+				   "button_exit[0.7,2;3,1;cancel;"..S("Cancel").."]"..
+				   "button_exit[3.7,2;5,1;ok;"..S("Create Bonded Key").."]" )
 	    return itemstack
 	 end
       end

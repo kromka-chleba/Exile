@@ -139,9 +139,9 @@ local function on_use_function(itemstack, player, pointed_thing)
 		itemmeta:set_string("tmp_target_pos", nodepos_string) --just save temporary
 		minetest.show_formspec(player:get_player_name(), "wayfinder",
 				"size[10,2.5]" ..
-				"field[1,1;8,1;name;Destination name:;"..waypoint_name.."]"..
-				"button_exit[0.7,2;3,1;cancel;Cancel]"..
-				"button_exit[3.7,2;5,1;ok;Permanently Bond]" )
+				"field[1,1;8,1;name;"..S("Destination name")..":;"..waypoint_name.."]"..
+				"button_exit[0.7,2;3,1;cancel;"..S("Cancel").."]"..
+				"button_exit[3.7,2;5,1;ok;"..S("Permanently Bond").."]" )
 	end
 	return itemstack
 end
