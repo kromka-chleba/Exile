@@ -444,6 +444,12 @@ local function use_spyglass(player)
     scale = { x = -100, y = -100},
     offset = {x = 0, y = 0}
   })
+  minetest.sound_play("artifacts_scope_zoom",{
+    pos = player:get_pos(),
+    pitch = 1 + (math.random(-10,10)/100),
+    gain = 0.9,
+    max_hear_distance = 4,
+  })
 	player:set_fov(10, false, .4)
 
   -- utilize this function every 0.5 seconds to check if the player should be zoomed in or not
