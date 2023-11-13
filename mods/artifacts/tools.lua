@@ -412,19 +412,68 @@ minetest.register_tool("artifacts:antiquorium_chisel", {
 
 ------------------------------------
 --SPYGLASS
--- temporary zoom
 ------------------------------------
+local spyglass_players = {} -- uses this to determine which players are looking through a spyglass or not
 
---a quick look through
 local function use_spyglass(player)
+  local p_name = player:get_player_name()
+  local function remove_scope()
+    if not player or not minetest.is_player(player) then
+      spyglass_players[p_name] = nil
+      return
+    end
+    if type(spyglass_players[p_name]) == "number" then
+      player:hud_remove(spyglass_players[p_name])
+    end
+    spyglass_players[p_name] = nil
+    player:set_fov(0, false, .1)
+  end
+  -- if player is using spyglass while activating then get out of the zoom
+  if spyglass_players[p_name] then
+    remove_scope()
+    return
+  end
+  -- continue as normal (zoom in)
+  spyglass_players[p_name] = player:hud_add({
+    name = "spyglass_scope",
+    hud_elem_type = "image",
+    text = "artifacts_scope_hud.png",
+    z_index = -500,
+    position = {x = 0.5, y = 0.5},
+    alignment = {x = 0, y = 0},
+    scale = { x = -100, y = -100},
+    offset = {x = 0, y = 0}
+  })
+  minetest.sound_play("artifacts_scope_zoom",{
+    pos = player:get_pos(),
+    pitch = 1 + (math.random(-10,10)/100),
+    gain = 0.9,
+    max_hear_distance = 4,
+  })
+	player:set_fov(10, false, .4)
 
-	player:set_fov(10, false)
-
-	minetest.after(5, function()
-			  if player and minetest.is_player(player) then
-			     player:set_fov(0, false)
-			  end
-	end)
+  -- utilize this function every 0.5 seconds to check if the player should be zoomed in or not
+  local function verify()
+    if not player or not minetest.is_player(player) then
+      remove_scope()
+      return
+    end
+    if player:get_wielded_item():get_name() ~= "artifacts:spyglass" then
+      remove_scope()
+      return
+    end
+    -- prevent verify from running again by any means necessary
+    if player:get_fov() == 0 then
+      spyglass_players[p_name] = nil
+      return
+    end
+    if not spyglass_players[p_name] then
+      return
+    end
+    -- still using the spyglass
+    minetest.after(0.5, verify)
+  end
+  verify()
 
 end
 
@@ -438,9 +487,23 @@ minetest.register_craftitem("artifacts:spyglass", {
 	on_use = function(itemstack, user, pointed_thing)
 		use_spyglass(user)
 	end,
+  _dig_tip = S("View far distances"),
   _on_use_item = function(user, itemstacked, pointed_thing)
     use_spyglass(user)
   end,
+  _use_tip = S("View far distances"),
+  -- right clicking
+  on_place = function(itemstack, placer, pointed_thing)
+    local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+    if on_click ~= false then
+      return on_click
+    end
+    use_spyglass(placer)
+  end,
+  on_secondary_use = function(itemstack, user, pointed_thing)
+    use_spyglass(user)
+  end,
+  _place_tip = S("View far distances"),
 })
 
 

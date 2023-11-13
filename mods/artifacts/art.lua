@@ -5,6 +5,8 @@
 --spreads out higher value finds, adds to the tomb-robbing treasure feel
 ------------------------------------
 
+artifacts = artifacts
+local S = artifacts.S
 
 local c_alpha = minimal.compat_alpha
 
@@ -345,7 +347,7 @@ for i in ipairs(list) do
 
 
 	minetest.register_node("artifacts:sculpture_"..name, {
-		description = material.." Sculpture",
+		description = S("@1 Sculpture",S(material)),
 		tiles = {texture},
 	  stack_max = minimal.stack_max_bulky *2,
 	  light_source = light,
@@ -376,7 +378,7 @@ end
 
 --pawn like
 minetest.register_node("artifacts:gamepiece_a_black", {
-	description = "Gamepiece (black)",
+	description = S("Gamepiece (black)"),
 	tiles = {"nodes_nature_basalt.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -397,7 +399,7 @@ minetest.register_node("artifacts:gamepiece_a_black", {
 
 
 minetest.register_node("artifacts:gamepiece_a_white", {
-	description = "Gamepiece (white)",
+	description = S("Gamepiece (white)"),
 	tiles = {"nodes_nature_limestone.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -419,7 +421,7 @@ minetest.register_node("artifacts:gamepiece_a_white", {
 
 --castle like
 minetest.register_node("artifacts:gamepiece_b_black", {
-	description = "Gamepiece (black)",
+	description = S("Gamepiece (black)"),
 	tiles = {"nodes_nature_basalt.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -446,7 +448,7 @@ minetest.register_node("artifacts:gamepiece_b_black", {
 
 
 minetest.register_node("artifacts:gamepiece_b_white", {
-	description = "Gamepiece (white)",
+	description = S("Gamepiece (white)"),
 	tiles = {"nodes_nature_limestone.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -474,7 +476,7 @@ minetest.register_node("artifacts:gamepiece_b_white", {
 
 --horse/wing like
 minetest.register_node("artifacts:gamepiece_c_black", {
-	description = "Gamepiece (black)",
+	description = S("Gamepiece (black)"),
 	tiles = {"nodes_nature_basalt.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -503,7 +505,7 @@ minetest.register_node("artifacts:gamepiece_c_black", {
 
 
 minetest.register_node("artifacts:gamepiece_c_white", {
-	description = "Gamepiece (white)",
+	description = S("Gamepiece (white)"),
 	tiles = {"nodes_nature_limestone.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -536,7 +538,7 @@ minetest.register_node("artifacts:gamepiece_c_white", {
 -- singing cellular automata
 ------------------------------------
 minetest.register_node("artifacts:singing_stone", {
-	description = "Singing Stone",
+	description = S("Singing Stone"),
 	tiles = {"artifacts_antiquorium.png^artifacts_moon_glass.png"},
   stack_max = minimal.stack_max_medium * 2,
 	drawtype = "nodebox",
@@ -580,7 +582,7 @@ minetest.register_node("artifacts:singing_stone", {
 
 
 minetest.register_node("artifacts:singing_stone_b", {
-	description = "singing Stone",
+	description = S("Singing Stone"),
 	tiles = {"artifacts_sun_stone.png"},
   stack_max = minimal.stack_max_medium * 2,
 	drawtype = "nodebox",
@@ -619,7 +621,7 @@ minetest.register_node("artifacts:singing_stone_b", {
 
 
 minetest.register_node("artifacts:singing_stone_c", {
-	description = "singing Stone",
+	description = S("Singing Stone"),
 	tiles = {"artifacts_moon_glass.png"},
   stack_max = minimal.stack_max_medium * 2,
 	drawtype = "nodebox",
@@ -657,7 +659,7 @@ minetest.register_node("artifacts:singing_stone_c", {
 
 
 minetest.register_node("artifacts:drumming_stone", {
-	description = "Drumming Stone",
+	description = S("Drumming Stone"),
 	tiles = {"artifacts_antiquorium.png"},
   stack_max = minimal.stack_max_medium * 2,
 	drawtype = "nodebox",
@@ -699,7 +701,7 @@ minetest.register_node("artifacts:drumming_stone", {
 
 
 minetest.register_node("artifacts:drumming_stone_b", {
-	description = "Drumming Stone",
+	description = S("Drumming Stone"),
 	tiles = {"artifacts_antiquorium.png^artifacts_moon_glass.png"},
   stack_max = minimal.stack_max_medium * 2,
 	drawtype = "nodebox",

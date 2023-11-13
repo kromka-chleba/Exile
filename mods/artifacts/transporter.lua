@@ -487,7 +487,7 @@ local function set_from_key(itemstack, placer, pointed_thing)
 	if node ~= "artifacts:transporter_pad" then
 	   minetest.chat_send_player(player_name,
 				     minetest.colorize("#cc6600",
-			"KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD"))
+			S("KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD")))
 		return
 	end
 
@@ -496,12 +496,12 @@ local function set_from_key(itemstack, placer, pointed_thing)
 		local meta_tran = minetest.get_meta(pt_under)
 		local _, range, _, _  = assess_transporter(pt_under)
 		-- really just need range (for what?)
-		local ok_string = "Bond Transporter to Target"
+		local ok_string = S("Bond Transporter to Target")
 
 		--only one link
 		local tran_target = meta_tran:get_string("target_pos")
 		if tran_target ~= "" then
-			ok_string = "Replace Transporter Bond with NEW Target"
+			ok_string = S("Replace Transporter Bond with NEW Target")
 		end
 		--get meta and see if key has a saved location
 		local meta = itemstack:get_meta()
@@ -526,16 +526,16 @@ local function set_from_key(itemstack, placer, pointed_thing)
 
 			minetest.show_formspec(player_name, "set_from_trans_key",
 					"size[10,2.5]" ..
-					"label[1,1;Target name: "..
+					"label[1,1;"..S("Target name")..": "..
 					target_name.."]"..
-					"button_exit[0.7,2;3,1;cancel;Cancel]"..
+					"button_exit[0.7,2;3,1;cancel;"..S("Cancel").."]"..
 					"button_exit[3.7,2;5,1;ok;" ..
 					ok_string .. "]" )
 
 		elseif posstring == "" then
 		   minetest.chat_send_player(player_name,
 					     minetest.colorize("#cc6600",
-			"KEY IS BLANK!: use leftclick to save this location"))
+			S("KEY IS BLANK!: use leftclick to save this location")))
 		   minetest.sound_play("artifacts_transport_error",
 				       {pos = pos, gain = 1,
 					max_hear_distance = 6})
@@ -570,8 +570,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				       max_hear_distance = 5,})
 		minetest.chat_send_player(player_name,
 			minetest.colorize("#00ff00",
-					  "TRANSPORTER DESTINATION SET TO: "..
-					  target_name.." at "..target_pos))
+          S("TRANSPORTERR DESTINATION SET TO: @1 at @2",target_name,target_pos)))
+					  --"TRANSPORTER DESTINATION SET TO: "..
+					  --target_name.." at "..target_pos))
 		minetest.sound_play("artifacts_transport_fail",
 				    {pos = player:get_pos(), gain = 1,
 				     max_hear_distance = 6})
@@ -602,7 +603,7 @@ local function save_to_key(itemstack, player, pointed_thing)
    if node ~= "artifacts:transporter_pad" then
       minetest.chat_send_player(player_name,
 				minetest.colorize("#cc6600",
-				  "KEY CAN ONLY SAVE FROM TRANSPORTER PAD"))
+				  S("KEY CAN ONLY SAVE FROM TRANSPORTER PAD")))
       return
    end
 
@@ -618,10 +619,10 @@ local function save_to_key(itemstack, player, pointed_thing)
 	 local target_name = meta:get_string("target_name")
 	 minetest.show_formspec(player_name, "wipe_trans_key",
 				"size[10,2.5]" ..
-				"label[1,1;Key's target name: "..
+				"label[1,1;"..S("Key's target name")..": "..
 				target_name.."]"..
-				"button_exit[0.7,2;3,1;cancel;Cancel]"..
-				"button_exit[3.7,2;5,1;ok;Wipe Key]")
+				"button_exit[0.7,2;3,1;cancel;"..S("Cancel").."]"..
+				"button_exit[3.7,2;5,1;ok;"..S("Wipe Key").."]")
 	 return
 
       elseif posstring == "" then
@@ -637,16 +638,16 @@ local function save_to_key(itemstack, player, pointed_thing)
 	    minetest.show_formspec(player_name,
 				   "create_transporter_key_nameless",
 				   "size[10,2.5]" ..
-				   "field[1,1;8,1;name;Destination name:;".."]"..
-				   "button_exit[0.7,2;3,1;cancel;Cancel]"..
-				   "button_exit[3.7,2;5,1;ok;Create Bonded Key]" )
+				   "field[1,1;8,1;name;"..S("Destination name")..":;".."]"..
+				   "button_exit[0.7,2;3,1;cancel;"..S("Cancel").."]"..
+				   "button_exit[3.7,2;5,1;ok;"..S("Create Bonded Key").."]" )
 	    return itemstack
 	 else
 	    minetest.show_formspec(player_name, "create_transporter_key",
 				   "size[10,2.5]" ..
-				   "label[1,1;Destination name: "..tran_name.."]"..
-				   "button_exit[0.7,2;3,1;cancel;Cancel]"..
-				   "button_exit[3.7,2;5,1;ok;Create Bonded Key]" )
+				   "label[1,1;"..S("Destination name")..": "..tran_name.."]"..
+				   "button_exit[0.7,2;3,1;cancel;"..S("Cancel").."]"..
+				   "button_exit[3.7,2;5,1;ok;"..S("Create Bonded Key").."]" )
 	    return itemstack
 	 end
       end
@@ -706,7 +707,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		minetest.chat_send_player(player_name,
 					  minetest.colorize("#00ff00",
-				"TRANSPORTER KEY CREATED TO: "..target_name))
+        S("TRANSPORTER KEY CREATED TO: @1",target_name)))
+				--"TRANSPORTER KEY CREATED TO: "..target_name))
 		minetest.sound_play("artifacts_transport_fail",
 				    {pos = player:get_pos(), gain = 1, max_hear_distance = 6})
 
@@ -739,7 +741,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		minetest.chat_send_player(player_name,
 					  minetest.colorize("#00ff00",
-				"TRANSPORTER KEY CREATED TO: "..target_name))
+        S("TRANSPORTER KEY CREATED TO: @1",target_name)))
+				--"TRANSPORTER KEY CREATED TO: "..target_name))
 		minetest.sound_play("artifacts_transport_fail",
 				    {pos = player:get_pos(), gain = 1,
 				     max_hear_distance = 6})

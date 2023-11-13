@@ -4,14 +4,17 @@
 Antiquorium=
 units=
 seconds=
+Cancel=
+Destination name=
 
 # binary
 Yes=
 No=
 
 # tools.lua
-Chisel=
+@1 Chisel=
 Spyglass=
+View far distances=
 
 # player + animal
 CONDITION=
@@ -81,4 +84,46 @@ Admin's Probe=
 List groups of pointed node=
 GROUPS:=
 
+# transporter.lua
+KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
+Bond Transporter to Target=
+Replace Transporter Bond with NEW Target=
+KEY IS BLANK!: use leftclick to save this location=
+TRANSPORTER DESTINATION SET TO: @1 at @2=
+KEY CAN ONLY SAVE FROM TRANSPORTER PAD=
+KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
+TRANSPORTER KEY CREATED TO: @1=
+Wipe Key=
+Create Bonded Key=
+Target name=
+Key's target name=
+
+
+# wayfinder.lua
+Wayfinder to @1=
+WAYFINDER BONDED TO: @1 @2=
+WAYFINDER BOND LOST=
+WAYFINDER ALREADY BONDED=
+WAYFINDER CAN ONLY BOND TO WAYSTONE=
+Permanently Bond=
+
+
+# airboat.lua
+
+[airboat] Cruise on=
+[airboat] Cruise off=
+
+# storage.lua 
+@1 chest=
+
+
+# art.lua
+Moon Glass=
+Jade=
+Gold=
+@1 Sculpture=
+Gamepiece (black)=
+Gamepiece (white)=
+Singing Stone=
+Drumming Stone=
 
