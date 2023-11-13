@@ -26,7 +26,7 @@ end
 --ANTIQUORIUM CHEST
 ----------------------------------------------------
 storage.register_storage("artifacts:antiquorium_chest",{
-  description = S("@1 Chest","Antiquorium"),
+  description = S("@1 chest","Antiquorium"),
 	tiles = {"artifacts_antiquorium_chest_top.png",
 			"artifacts_antiquorium_chest_bottom.png",
 			"artifacts_antiquorium_chest_side.png",

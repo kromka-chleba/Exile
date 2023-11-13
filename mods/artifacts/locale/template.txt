@@ -89,7 +89,7 @@ KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
 Bond Transporter to Target=
 Replace Transporter Bond with NEW Target=
 KEY IS BLANK!: use leftclick to save this location=
-TRANSPORTERR DESTINATION SET TO: @1 at @2=
+TRANSPORTER DESTINATION SET TO: @1 at @2=
 KEY CAN ONLY SAVE FROM TRANSPORTER PAD=
 KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
 TRANSPORTER KEY CREATED TO: @1=
@@ -114,7 +114,7 @@ Permanently Bond=
 [airboat] Cruise off=
 
 # storage.lua 
-@1 Chest=
+@1 chest=
 
 
 # art.lua
