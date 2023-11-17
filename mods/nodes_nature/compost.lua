@@ -105,6 +105,7 @@ local base_undecomposed_compost = {
   },
   texture = "nodes_nature_compost_undecomposed.png",
   sound = sediment.sounds.dirt,
+  stack_max = minimal.stack_max_bulky,
   on_timer = function(pos, elapsed)
     return decompose_compost(pos, elapsed)
   end,
@@ -129,6 +130,7 @@ local base_compost = {
   },
   texture = "nodes_nature_compost.png",
   sound = sediment.sounds.dirt,
+  stack_max = minimal.stack_max_bulky,
   _fertilize_replace_with = "stairs:slab_compost",
   on_use = function(itemstack, user, pointed_thing)
     if pointed_thing.type == "node" then
@@ -157,7 +159,7 @@ for i = 1, 6 do
   end
   
   -- replace_with and soak soil addition
-  if not (i == 1 or i == 4) then
+  if not (i == 1 and i == 4) then
     reg_compost._dig_tip = S("Fertilize and soak soil")
     reg_compost.on_use = function(itemstack, user, pointed_thing)
       if pointed_thing.type == "node" then
@@ -183,7 +185,12 @@ for i = 1, 6 do
     minetest.register_node(name,reg_compost)
   else
     --minetest.log("error",reg_compost.texture)
+    name = "stairs:slab_"..name
     sediment.register_slab(reg_compost)
+    minetest.override_item(name,{
+      _dig_tip = reg_compost._dig_tip,
+      on_use = reg_compost.on_use,
+    })
   end
 end
 --[[
