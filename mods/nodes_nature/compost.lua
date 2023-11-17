@@ -26,14 +26,14 @@ local function catch_up_timer(elapsed, last_updated, decomposition, speed)
     return decomposition
 end
 
-local function save_to_inventory(pos, digger, undecomposed_name)
+local function save_to_inventory(pos, node, digger)
     if not digger then return false end
     if minetest.is_protected(pos, digger:get_player_name()) then
         return false
     end
     local meta = minetest.get_meta(pos)
     local decomposition = meta:get_int("decomposition")
-    local new_stack = ItemStack(undecomposed_name)
+    local new_stack = ItemStack(node.name)
     local stack_meta = new_stack:get_meta()
     stack_meta:set_int("decomposition", decomposition)
     minetest.remove_node(pos)
@@ -56,23 +56,137 @@ local function restore_from_inventory(pos, itemstack)
     end
 end
 
-local function decompose_compost(pos, decomposed_name, speed, elapsed)
-    local meta = minetest.get_meta(pos)
-    local decomposition = meta:get_int("decomposition")
-    local last_updated = meta:get_int("last_updated")
-    if last_updated == 0 then
-        meta:set_int("last_updated", elapsed)
-    end
-    local decomposition = catch_up_timer(elapsed, last_updated, decomposition, speed)
-    if decomposition < 1 then
-        minetest.swap_node(pos, {name = decomposed_name})
-        return false
-    else
-        meta:set_int("decomposition", decomposition - speed)
-        return true
-    end
+local function decompose_compost(pos, elapsed, dc_name)
+  local compdef = minimal.get_nodedef(pos)
+  if not compdef or not compdef.groups.compost then
+    return false
+  end
+  local decomposed_name = "compost"
+  if dc_name then
+    decomposed_name = dc_name
+  end
+  local speed = dry_speed
+  if type(compdef.groups.wet_compost) == "number" then
+    speed = wet_speed
+    decomposed_name = decomposed_name.."_wet"
+  end
+  -- slab versus full
+  if string.match(compdef.name,"stairs:slab_") then
+    decomposed_name = "stairs:slab_"..decomposed_name
+  else
+    local mod_origin = compdef.mod_origin or "nodes_nature:"
+    decomposed_name = mod_origin..decomposed_name
+  end
+  if not minimal.get_nodedef(decomposed_name) then
+    return false
+  end
+  local meta = minetest.get_meta(pos)
+  local decomposition = meta:get_int("decomposition")
+  local last_updated = meta:get_int("last_updated")
+  if last_updated == 0 then
+      meta:set_int("last_updated", elapsed)
+  end
+  local decomposition = catch_up_timer(elapsed, last_updated, decomposition, speed)
+  if decomposition < 1 then
+      minetest.swap_node(pos, {name = decomposed_name})
+      return false
+  else
+      meta:set_int("decomposition", decomposition - speed)
+      return true
+  end
 end
 
+local base_undecomposed_compost = {
+  name = "compost_undecomposed",
+  description = S("Undecomposed Compost"),
+  groups = {
+    fertility = 1,
+    falling_node = 1,
+  },
+  texture = "nodes_nature_compost_undecomposed.png",
+  sound = sediment.sounds.dirt,
+  on_timer = function(pos, elapsed)
+    return decompose_compost(pos, elapsed)
+  end,
+  on_construct = function(pos)
+    start_decomposing(pos)
+  end,
+  on_dig = function(pos, node, digger)
+    save_to_inventory(pos, node, digger)
+  end,
+  after_place_node = function(pos, placer, itemstack, pointed_thing)
+    restore_from_inventory(pos, itemstack)
+  end
+}
+local base_compost = {
+  name = "compost",
+  description = S("Decomposed Compost"),
+  groups = {
+    crumbly = 3,
+    falling_node = 1,
+    fertility = 3, -- delicious
+    compost = 1,
+  },
+  texture = "nodes_nature_compost.png",
+  sound = sediment.sounds.dirt,
+  _fertilize_replace_with = "stairs:slab_compost",
+  on_use = function(itemstack, user, pointed_thing)
+    if pointed_thing.type == "node" then
+      return ncrafting.fertilize(pointed_thing.under, user, itemstack)
+    end
+  end,
+  _dig_tip = S("Fertilize soil"),
+}
+-- so lazy that I'd rather somewhat badly automate it
+-- decomposed compost
+for i = 1, 6 do
+  local reg_compost = table.copy(base_compost)
+  local name = reg_compost.name
+  if (i == 2 or i == 5) then
+    reg_compost.texture = sediment.get_wet_texture_name(name)
+    name = name.."_wet"
+    reg_compost.description = S("Wet Compost")
+    reg_compost.sounds = sediment.sounds.dirt_wet
+    reg_compost.groups.wet_compost = 1
+  elseif (i == 3 or i == 6) then
+    reg_compost.texture = sediment.get_wet_salty_texture_name(name)
+    name = name.."_wet_salty"
+    reg_compost.description = S("Wet Salty Compost")
+    reg_compost.sounds = sediment.sounds.dirt_wet
+    reg_compost.groups.wet_compost = 2
+  end
+  
+  -- replace_with and soak soil addition
+  if not (i == 1 or i == 4) then
+    reg_compost._dig_tip = S("Fertilize and soak soil")
+    reg_compost.on_use = function(itemstack, user, pointed_thing)
+      if pointed_thing.type == "node" then
+        local return_val = {ncrafting.fertilize(pointed_thing.under, user, itemstack)}
+        -- only wet the soil if successfully fertilized (will be true or nil for the 3rd parameter)
+        if return_val[3] then
+          ncrafting.water_soil(itemstack, user, pointed_thing,"","")
+        end
+        return return_val[1]
+      end
+    end
+    if i == 2 then
+      reg_compost._fertilize_replace_with = "stairs:slab_compost_wet"
+    elseif i == 3 then
+      reg_compost._fertilize_replace_with = "stairs:slab_compost_wet_salty"
+    end
+  end
+  reg_compost.name = name
+  if i <= 3 then
+    name = "nodes_nature:"..name
+    reg_compost.name = name
+    minetest.log("error",reg_compost.texture)
+    minetest.register_node(name,reg_compost)
+  else
+    --minetest.log("error",reg_compost.texture)
+    sediment.register_slab(reg_compost)
+  end
+end
+--[[
 local compost =
     sediment.new({name = "compost",
                   description = S("Decomposed Compost"),
@@ -87,6 +201,7 @@ sediment.register_dry(compost)
 sediment.register_wet(compost)
 sediment.register_wet_salty(compost)
 sediment.register_slab(compost)
+--]]
 
 local compost_undecomposed =
     sediment.new({name = "compost_undecomposed",
@@ -126,7 +241,7 @@ minetest.override_item(
     "stairs:slab_compost_undecomposed",
     {
         on_timer = function(pos, elapsed)
-            return decompose_compost(pos, "stairs:slab_compost", dry_speed, elapsed)
+            return false--decompose_compost(pos, "stairs:slab_compost", dry_speed, elapsed)
         end,
         on_construct = function(pos)
             start_decomposing(pos)
@@ -143,7 +258,7 @@ minetest.override_item(
     undecomposed_wet_name,
     {
         on_timer = function(pos, elapsed)
-            return decompose_compost(pos, compost_wet_name, wet_speed, elapsed)
+            return false--decompose_compost(pos, compost_wet_name, wet_speed, elapsed)
         end,
         on_construct = function(pos, wet_speed)
             start_decomposing(pos)
@@ -155,7 +270,7 @@ minetest.override_item(
             restore_from_inventory(pos, itemstack)
         end
 })
-
+--[[
 -- fertilize functions
 minetest.override_item(
  compost_dry_name,
@@ -204,6 +319,7 @@ minetest.override_item(
     --end
   --end
 --})
+--]]
 
 crafting.register_recipe({
 	type = "shovel_agriculture",
