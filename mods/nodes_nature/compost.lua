@@ -6,7 +6,7 @@ local S = nodes_nature.S
 -- Compost
 -----------------------------------
 local compost_decomposing_time = 12000 -- 10 in-game days
-local decomposition_interval = 600 -- every 600s
+local decomposition_interval = 10 -- every 600s
 local dry_speed = 600
 local wet_speed = 800
 
@@ -58,25 +58,32 @@ end
 
 local function decompose_compost(pos, elapsed, dc_name)
   local compdef = minimal.get_nodedef(pos)
-  if not compdef or not compdef.groups.compost then
+  if not compdef or not compdef.groups.undecomposed_compost then
     return false
   end
-  local decomposed_name = "compost"
+  local decomposed_name = string.gsub(compdef.name,"_undecomposed","")--"compost"
   if dc_name then
     decomposed_name = dc_name
   end
   local speed = dry_speed
-  if type(compdef.groups.wet_compost) == "number" then
+  if type(compdef.groups.wet_sediment) == "number" then
     speed = wet_speed
     decomposed_name = decomposed_name.."_wet"
   end
   -- slab versus full
+  --[[
   if string.match(compdef.name,"stairs:slab_") then
     decomposed_name = "stairs:slab_"..decomposed_name
   else
-    local mod_origin = compdef.mod_origin or "nodes_nature:"
+    local mod_origin = compdef.mod_origin
+    if mod_origin then
+      mod_origin = mod_origin..":"
+    else
+      mod_origin = "nodes_nature:"
+    end
     decomposed_name = mod_origin..decomposed_name
   end
+  --]]
   if not minimal.get_nodedef(decomposed_name) then
     return false
   end
@@ -86,7 +93,8 @@ local function decompose_compost(pos, elapsed, dc_name)
   if last_updated == 0 then
       meta:set_int("last_updated", elapsed)
   end
-  local decomposition = catch_up_timer(elapsed, last_updated, decomposition, speed)
+  decomposition = catch_up_timer(elapsed, last_updated, decomposition, speed)
+  minetest.log("decomp: "..decomposition)
   if decomposition < 1 then
       minetest.swap_node(pos, {name = decomposed_name})
       return false
@@ -216,6 +224,8 @@ local compost_undecomposed =
                   hardness = sediment.hardness.soft,
                   fertility = 1, sound = sediment.sounds.dirt,
                   sound_wet = sediment.sounds.dirt_wet})
+compost_undecomposed.groups.undecomposed_compost = 1
+compost_undecomposed.groups_wet.undecomposed_compost = 1
 
 sediment.register_dry(compost_undecomposed)
 sediment.register_wet(compost_undecomposed)
@@ -231,13 +241,13 @@ minetest.override_item(
     undecomposed_dry_name,
     {
         on_timer = function(pos, elapsed)
-            return decompose_compost(pos, compost_dry_name, dry_speed, elapsed)
+            return decompose_compost(pos, elapsed)--false--decompose_compost(pos, compost_dry_name, dry_speed, elapsed)
         end,
         on_construct = function(pos)
             start_decomposing(pos)
         end,
         on_dig = function(pos, node, digger)
-            save_to_inventory(pos, digger, undecomposed_dry_name)
+            save_to_inventory(pos, node, digger) --undecomposed_dry_name)
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             restore_from_inventory(pos, itemstack)
@@ -248,13 +258,13 @@ minetest.override_item(
     "stairs:slab_compost_undecomposed",
     {
         on_timer = function(pos, elapsed)
-            return false--decompose_compost(pos, "stairs:slab_compost", dry_speed, elapsed)
+            return decompose_compost(pos, elapsed)--false--decompose_compost(pos, "stairs:slab_compost", dry_speed, elapsed)
         end,
         on_construct = function(pos)
             start_decomposing(pos)
         end,
         on_dig = function(pos, node, digger)
-            save_to_inventory(pos, digger, "stairs:slab_compost_undecomposed")
+            save_to_inventory(pos, node, digger) --"stairs:slab_compost_undecomposed")
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             restore_from_inventory(pos, itemstack)
@@ -265,13 +275,13 @@ minetest.override_item(
     undecomposed_wet_name,
     {
         on_timer = function(pos, elapsed)
-            return false--decompose_compost(pos, compost_wet_name, wet_speed, elapsed)
+            return decompose_compost(pos, elapsed)--false--decompose_compost(pos, compost_wet_name, wet_speed, elapsed)
         end,
         on_construct = function(pos, wet_speed)
             start_decomposing(pos)
         end,
         on_dig = function(pos, node, digger)
-            save_to_inventory(pos, digger, undecomposed_wet_name)
+            save_to_inventory(pos, node, digger)
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             restore_from_inventory(pos, itemstack)
