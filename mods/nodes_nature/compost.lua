@@ -6,7 +6,7 @@ local S = nodes_nature.S
 -- Compost
 -----------------------------------
 local compost_decomposing_time = 12000 -- 10 in-game days
-local decomposition_interval = 10 -- every 600s
+local decomposition_interval = 600 -- every 600s
 local dry_speed = 600
 local wet_speed = 800
 
@@ -70,20 +70,6 @@ local function decompose_compost(pos, elapsed, dc_name)
     speed = wet_speed
     decomposed_name = decomposed_name.."_wet"
   end
-  -- slab versus full
-  --[[
-  if string.match(compdef.name,"stairs:slab_") then
-    decomposed_name = "stairs:slab_"..decomposed_name
-  else
-    local mod_origin = compdef.mod_origin
-    if mod_origin then
-      mod_origin = mod_origin..":"
-    else
-      mod_origin = "nodes_nature:"
-    end
-    decomposed_name = mod_origin..decomposed_name
-  end
-  --]]
   if not minimal.get_nodedef(decomposed_name) then
     return false
   end
@@ -94,7 +80,7 @@ local function decompose_compost(pos, elapsed, dc_name)
       meta:set_int("last_updated", elapsed)
   end
   decomposition = catch_up_timer(elapsed, last_updated, decomposition, speed)
-  minetest.log("decomp: "..decomposition)
+  --minetest.log("decomp: "..decomposition)
   if decomposition < 1 then
       minetest.swap_node(pos, {name = decomposed_name})
       return false
@@ -111,7 +97,7 @@ local base_undecomposed_compost = {
     fertility = 1,
     falling_node = 1,
   },
-  texture = "nodes_nature_compost_undecomposed.png",
+  tiles = {"nodes_nature_compost_undecomposed.png"},
   sound = sediment.sounds.dirt,
   stack_max = minimal.stack_max_bulky,
   on_timer = function(pos, elapsed)
@@ -136,7 +122,7 @@ local base_compost = {
     fertility = 3, -- delicious
     compost = 1,
   },
-  texture = "nodes_nature_compost.png",
+  tiles = {"nodes_nature_compost.png"},
   sound = sediment.sounds.dirt,
   stack_max = minimal.stack_max_bulky,
   _fertilize_replace_with = "stairs:slab_compost",
@@ -153,13 +139,13 @@ for i = 1, 6 do
   local reg_compost = table.copy(base_compost)
   local name = reg_compost.name
   if (i == 2 or i == 5) then
-    reg_compost.texture = sediment.get_wet_texture_name(name)
+    reg_compost.tiles = {sediment.get_wet_texture_name(name)}
     name = name.."_wet"
     reg_compost.description = S("Wet Compost")
     reg_compost.sounds = sediment.sounds.dirt_wet
     reg_compost.groups.wet_compost = 1
   elseif (i == 3 or i == 6) then
-    reg_compost.texture = sediment.get_wet_salty_texture_name(name)
+    reg_compost.tiles = {sediment.get_wet_salty_texture_name(name)}
     name = name.."_wet_salty"
     reg_compost.description = S("Wet Salty Compost")
     reg_compost.sounds = sediment.sounds.dirt_wet
@@ -167,7 +153,7 @@ for i = 1, 6 do
   end
   
   -- replace_with and soak soil addition
-  if not (i == 1 and i == 4) then
+  if not (i == 1 or i == 4) then
     reg_compost._dig_tip = S("Fertilize and soak soil")
     reg_compost.on_use = function(itemstack, user, pointed_thing)
       if pointed_thing.type == "node" then
@@ -189,7 +175,7 @@ for i = 1, 6 do
   if i <= 3 then
     name = "nodes_nature:"..name
     reg_compost.name = name
-    minetest.log("error",reg_compost.texture)
+    minetest.log("error",reg_compost.tiles[1])
     minetest.register_node(name,reg_compost)
   else
     --minetest.log("error",reg_compost.texture)
