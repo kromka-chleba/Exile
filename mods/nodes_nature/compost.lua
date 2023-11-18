@@ -131,6 +131,8 @@ local base_compost = {
   on_use = function(itemstack, user, pointed_thing)
     if pointed_thing.type == "node" then
       return ncrafting.fertilize(pointed_thing.under, user, itemstack)
+    else
+      minimal.item_pickup(user, pointed_thing)
     end
   end,
   _dig_tip = S("Fertilize soil"),
@@ -157,6 +159,8 @@ for i = 1, 4 do
           ncrafting.water_soil(itemstack, user, pointed_thing,"","")
         end
         return return_val[1]
+      else
+        minimal.item_pickup(user, pointed_thing)
       end
     end
     
