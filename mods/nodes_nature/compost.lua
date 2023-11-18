@@ -175,7 +175,6 @@ for i = 1, 6 do
   if i <= 3 then
     name = "nodes_nature:"..name
     reg_compost.name = name
-    minetest.log("error",reg_compost.tiles[1])
     minetest.register_node(name,reg_compost)
   else
     --minetest.log("error",reg_compost.texture)
@@ -323,6 +322,51 @@ minetest.override_item(
   --end
 --})
 --]]
+
+-- backwards compatibility (to slope removal - replaces them with regular compost)
+local old_compost_types = {
+  "nodes_nature:slope_compost",
+  "nodes_nature:slope_inner_compost",
+  "nodes_nature:slope_outer_compost",
+  "nodes_nature:slope_pike_compost",
+}
+local old_compost_replacement_table = {
+  description = "For old compatibility - ignore",
+  groups = {
+    not_in_creative_inventory = 1
+  },
+  _resolve = function(pos)
+    minetest.set_node(pos,{name = "nodes_nature:compost"})
+  end,
+}
+for _,old_compost_name in pairs(old_compost_types) do
+  for i = 1, 2 do
+    local oc_name = old_compost_name -- for easier modification
+    local node_table = table.copy(old_compost_replacement_table)
+    node_table.on_rightclick = function(pos)
+      node_table._resolve(pos)
+    end
+    node_table.on_punch = function(pos)
+      node_table._resolve(pos)
+    end
+    if i == 2 then
+      oc_name = oc_name.."_undecomposed"
+      node_table._resolve = function(pos)
+        minetest.set_node(pos,{name = "nodes_nature:compost_undecomposed"})
+      end
+    end
+    minetest.register_node(oc_name,node_table)
+    minetest.log("beginning: "..oc_name)
+    oc_name = oc_name.."_wet"
+    for i2 = 1, 2 do
+      if i2 == 2 then
+        oc_name = oc_name.."_salty"
+      end
+      minetest.log("ending: "..oc_name)
+      minetest.register_node(oc_name,node_table)
+    end
+  end
+end
 
 crafting.register_recipe({
 	type = "shovel_agriculture",
