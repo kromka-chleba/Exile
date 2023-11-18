@@ -217,120 +217,13 @@ local compost_undecomposed =
                   hardness = sediment.hardness.soft,
                   fertility = 1, sound = sediment.sounds.dirt,
                   sound_wet = sediment.sounds.dirt_wet})
-compost_undecomposed.groups.undecomposed_compost = 1
-compost_undecomposed.groups_wet.undecomposed_compost = 1
 
 sediment.register_dry(compost_undecomposed)
 sediment.register_wet(compost_undecomposed)
 sediment.register_wet_salty(compost_undecomposed)
 sediment.register_slab(compost_undecomposed)
-
-local compost_dry_name = sediment.get_dry_name("compost")
-local compost_wet_name = sediment.get_wet_name("compost")
-local undecomposed_dry_name = sediment.get_dry_name("compost_undecomposed")
-local undecomposed_wet_name = sediment.get_wet_name("compost_undecomposed")
-
-minetest.override_item(
-    undecomposed_dry_name,
-    {
-        on_timer = function(pos, elapsed)
-            return decompose_compost(pos, elapsed)--false--decompose_compost(pos, compost_dry_name, dry_speed, elapsed)
-        end,
-        on_construct = function(pos)
-            start_decomposing(pos)
-        end,
-        on_dig = function(pos, node, digger)
-            save_to_inventory(pos, node, digger) --undecomposed_dry_name)
-        end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            restore_from_inventory(pos, itemstack)
-        end
-})
-
-minetest.override_item(
-    "stairs:slab_compost_undecomposed",
-    {
-        on_timer = function(pos, elapsed)
-            return decompose_compost(pos, elapsed)--false--decompose_compost(pos, "stairs:slab_compost", dry_speed, elapsed)
-        end,
-        on_construct = function(pos)
-            start_decomposing(pos)
-        end,
-        on_dig = function(pos, node, digger)
-            save_to_inventory(pos, node, digger) --"stairs:slab_compost_undecomposed")
-        end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            restore_from_inventory(pos, itemstack)
-        end
-})
-
-minetest.override_item(
-    undecomposed_wet_name,
-    {
-        on_timer = function(pos, elapsed)
-            return decompose_compost(pos, elapsed)--false--decompose_compost(pos, compost_wet_name, wet_speed, elapsed)
-        end,
-        on_construct = function(pos, wet_speed)
-            start_decomposing(pos)
-        end,
-        on_dig = function(pos, node, digger)
-            save_to_inventory(pos, node, digger)
-        end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            restore_from_inventory(pos, itemstack)
-        end
-})
 --]]
---[[
--- fertilize functions
-minetest.override_item(
- compost_dry_name,
- {
-  _fertilize_replace_with = "stairs:slab_compost",
-  on_use = function(itemstack, user, pointed_thing)
-    if pointed_thing.type == "node" then
-      return ncrafting.fertilize(pointed_thing.under, user, itemstack)
-    end
-  end,
-  _dig_tip = S("Fertilize soil"),
-})
-minetest.override_item(
-  "stairs:slab_compost",
-  {
-  on_use = function(itemstack, user, pointed_thing)
-    if pointed_thing.type == "node" then
-      return ncrafting.fertilize(pointed_thing.under, user, itemstack)
-    end
-  end,
-  _dig_tip = S("Fertilize soil"),
-})
--- wet fertilize
-minetest.override_item(
- compost_wet_name,
- {
-  _fertilize_replace_with = "stairs:slab_compost",
-  on_use = function(itemstack, user, pointed_thing)
-    if pointed_thing.type == "node" then
-      local return_val = {ncrafting.fertilize(pointed_thing.under, user, itemstack)}
-      -- only wet the soil if successfully fertilized (will be true or nil for the 3rd parameter)
-      if return_val[3] then
-        ncrafting.water_soil(itemstack, user, pointed_thing,"","")
-      end
-      return return_val[1]
-    end
-  end,
-  _dig_tip = S("Fertilize and wet soil"),
-})
---minetest.override_item(
-  --"stairs:slab_compost_wet",
-  --{
-  --on_use = function(itemstack, user, pointed_thing)
-    --if pointed_thing.type == "node" then
-      --return ncrafting.fertilize(pointed_thing.under, user, itemstack)
-    --end
-  --end
---})
---]]
+-- check roots
 
 -- replace legacy compost
 minetest.register_lbm({
@@ -340,7 +233,8 @@ minetest.register_lbm({
   "nodes_nature:slope_compost",
   "nodes_nature:slope_inner_compost",
   "nodes_nature:slope_outer_compost",
-  "nodes_nature:slope_pike_compost"},
+  "nodes_nature:slope_pike_compost",
+  "nodes_nature:compost_roots"},
   action = function(pos, node, dtime_s)
     minetest.set_node(pos,{name = "nodes_nature:compost"})
   end
@@ -353,6 +247,7 @@ minetest.register_lbm({
   "nodes_nature:slope_inner_compost_wet",
   "nodes_nature:slope_outer_compost_wet",
   "nodes_nature:slope_pike_compost_wet",
+  "nodes_nature:compost_wet_roots",
   "nodes_nature:compost_wet_salty",
   "nodes_nature:slope_compost_wet_salty",
   "nodes_nature:slope_inner_compost_wet_salty",
@@ -360,6 +255,38 @@ minetest.register_lbm({
   "nodes_nature:slope_pike_compost_wet_salty"},
   action = function(pos, node, dtime_s)
     minetest.set_node(pos,{name = "nodes_nature:compost_wet"})
+  end
+})
+-- replace legacy undecomposed compost
+minetest.register_lbm({
+  label = "Update undecomposed dry compost",
+  name = "nodes_nature:legacy_compost_replace_3",
+  nodenames = {
+  "nodes_nature:slope_compost_undecomposed",
+  "nodes_nature:slope_inner_compost_undecomposed",
+  "nodes_nature:slope_outer_compost_undecomposed",
+  "nodes_nature:slope_pike_compost_undecomposed",
+  "nodes_nature:compost_undecomposed_roots"},
+  action = function(pos, node, dtime_s)
+    minetest.set_node(pos,{name = "nodes_nature:compost_undecomposed"})
+  end
+})
+minetest.register_lbm({
+  label = "Update undecomposed wet compost",
+  name = "nodes_nature:legacy_compost_replace_4",
+  nodenames = {
+  "nodes_nature:slope_compost_undecomposed_wet",
+  "nodes_nature:slope_inner_compost_undecomposed_wet",
+  "nodes_nature:slope_outer_compost_undecomposed_wet",
+  "nodes_nature:slope_pike_compost_undecomposed_wet",
+  "nodes_nature:compost_undecomposed_roots_wet_roots",
+  "nodes_nature:compost_undecomposed_wet_salty",
+  "nodes_nature:slope_compost_undecomposed_wet_salty",
+  "nodes_nature:slope_inner_compost_undecomposed_wet_salty",
+  "nodes_nature:slope_outer_compost_undecomposed_wet_salty",
+  "nodes_nature:slope_pike_compost_undecomposed_wet_salty"},
+  action = function(pos, node, dtime_s)
+    minetest.set_node(pos,{name = "nodes_nature:compost_undecomposed_wet"})
   end
 })
 
