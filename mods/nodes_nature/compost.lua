@@ -58,7 +58,7 @@ end
 
 local function decompose_compost(pos, elapsed, dc_name)
   local compdef = minimal.get_nodedef(pos)
-  if not compdef or not compdef.groups.undecomposed_compost then
+  if not compdef or type(compdef.groups.undecomposed_compost) ~= "number" then
     return false
   end
   local decomposed_name = string.gsub(compdef.name,"_undecomposed","")--"compost"
@@ -66,7 +66,7 @@ local function decompose_compost(pos, elapsed, dc_name)
     decomposed_name = dc_name
   end
   local speed = dry_speed
-  if type(compdef.groups.wet_sediment) == "number" then
+  if compdef.groups.undecomposed_compost == 2 then
     speed = wet_speed
     decomposed_name = decomposed_name.."_wet"
   end
@@ -94,12 +94,14 @@ local base_undecomposed_compost = {
   name = "compost_undecomposed",
   description = S("Undecomposed Compost"),
   groups = {
+    crumbly = 3,
     fertility = 1,
     falling_node = 1,
   },
   tiles = {"nodes_nature_compost_undecomposed.png"},
   sound = sediment.sounds.dirt,
   stack_max = minimal.stack_max_bulky,
+  _place_tip = S("Set to decompose"),
   on_timer = function(pos, elapsed)
     return decompose_compost(pos, elapsed)
   end,
@@ -178,6 +180,37 @@ for i = 1, 4 do
   end
 end
 
+-- undecomposed compost
+for i = 1, 4 do
+  local reg_compost = table.copy(base_undecomposed_compost)
+  local name = reg_compost.name
+  -- wet definitions
+  if (i == 2 or i == 4) then
+    reg_compost.tiles = {sediment.get_wet_texture_name(name)}
+    name = name.."_wet"
+    reg_compost.description = S("Wet Undecomposed Compost")
+    reg_compost.sounds = sediment.sounds.dirt_wet
+    reg_compost.groups.undecomposed_compost = 2 -- no other use for undecomposed_compost, let's consider number 2 wet
+  end
+
+  reg_compost.name = name
+  if i <= 2 then
+    name = "nodes_nature:"..name
+    reg_compost.name = name
+    minetest.register_node(name,reg_compost)
+  else
+    name = "stairs:slab_"..name
+    sediment.register_slab(reg_compost)
+    minetest.override_item(name,{
+      _place_tip = reg_compost._place_tip,
+      on_timer = reg_compost.on_timer,
+      on_construct = reg_compost.on_construct,
+      on_dig = reg_compost.on_dig,
+      after_place_node = reg_compost.after_place_node,
+    })
+  end
+end
+--[[
 local compost_undecomposed =
     sediment.new({name = "compost_undecomposed",
                   description = S("Undecomposed Compost"),
@@ -247,6 +280,7 @@ minetest.override_item(
             restore_from_inventory(pos, itemstack)
         end
 })
+--]]
 --[[
 -- fertilize functions
 minetest.override_item(
