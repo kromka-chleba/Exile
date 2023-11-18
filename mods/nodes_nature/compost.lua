@@ -135,25 +135,17 @@ local base_compost = {
 }
 -- so lazy that I'd rather somewhat badly automate it
 -- decomposed compost
-for i = 1, 6 do
+for i = 1, 4 do
   local reg_compost = table.copy(base_compost)
   local name = reg_compost.name
-  if (i == 2 or i == 5) then
+  -- wet definitions
+  if (i == 2 or i == 4) then
     reg_compost.tiles = {sediment.get_wet_texture_name(name)}
     name = name.."_wet"
     reg_compost.description = S("Wet Compost")
     reg_compost.sounds = sediment.sounds.dirt_wet
     reg_compost.groups.wet_compost = 1
-  elseif (i == 3 or i == 6) then
-    reg_compost.tiles = {sediment.get_wet_salty_texture_name(name)}
-    name = name.."_wet_salty"
-    reg_compost.description = S("Wet Salty Compost")
-    reg_compost.sounds = sediment.sounds.dirt_wet
-    reg_compost.groups.wet_compost = 2
-  end
-  
-  -- replace_with and soak soil addition
-  if not (i == 1 or i == 4) then
+    
     reg_compost._dig_tip = S("Fertilize and soak soil")
     reg_compost.on_use = function(itemstack, user, pointed_thing)
       if pointed_thing.type == "node" then
@@ -165,19 +157,18 @@ for i = 1, 6 do
         return return_val[1]
       end
     end
+    
     if i == 2 then
       reg_compost._fertilize_replace_with = "stairs:slab_compost_wet"
-    elseif i == 3 then
-      reg_compost._fertilize_replace_with = "stairs:slab_compost_wet_salty"
     end
   end
+
   reg_compost.name = name
-  if i <= 3 then
+  if i <= 2 then
     name = "nodes_nature:"..name
     reg_compost.name = name
     minetest.register_node(name,reg_compost)
   else
-    --minetest.log("error",reg_compost.texture)
     name = "stairs:slab_"..name
     sediment.register_slab(reg_compost)
     minetest.override_item(name,{
@@ -186,22 +177,6 @@ for i = 1, 6 do
     })
   end
 end
---[[
-local compost =
-    sediment.new({name = "compost",
-                  description = S("Decomposed Compost"),
-                  hardness = sediment.hardness.soft,
-                  fertility = 1, sound = sediment.sounds.dirt,
-                  sound_wet = sediment.sounds.dirt_wet})
- -- add "compost" group
-compost.groups.compost = 1
-compost.groups_wet.compost = 1
-
-sediment.register_dry(compost)
-sediment.register_wet(compost)
-sediment.register_wet_salty(compost)
-sediment.register_slab(compost)
---]]
 
 local compost_undecomposed =
     sediment.new({name = "compost_undecomposed",
@@ -323,50 +298,36 @@ minetest.override_item(
 --})
 --]]
 
--- backwards compatibility (to slope removal - replaces them with regular compost)
-local old_compost_types = {
+-- replace legacy compost
+minetest.register_lbm({
+  label = "Update decomposed dry compost",
+  name = "nodes_nature:legacy_compost_replace",
+  nodenames = {
   "nodes_nature:slope_compost",
   "nodes_nature:slope_inner_compost",
   "nodes_nature:slope_outer_compost",
-  "nodes_nature:slope_pike_compost",
-}
-local old_compost_replacement_table = {
-  description = "For old compatibility - ignore",
-  groups = {
-    not_in_creative_inventory = 1
-  },
-  _resolve = function(pos)
+  "nodes_nature:slope_pike_compost"},
+  action = function(pos, node, dtime_s)
     minetest.set_node(pos,{name = "nodes_nature:compost"})
-  end,
-}
-for _,old_compost_name in pairs(old_compost_types) do
-  for i = 1, 2 do
-    local oc_name = old_compost_name -- for easier modification
-    local node_table = table.copy(old_compost_replacement_table)
-    node_table.on_rightclick = function(pos)
-      node_table._resolve(pos)
-    end
-    node_table.on_punch = function(pos)
-      node_table._resolve(pos)
-    end
-    if i == 2 then
-      oc_name = oc_name.."_undecomposed"
-      node_table._resolve = function(pos)
-        minetest.set_node(pos,{name = "nodes_nature:compost_undecomposed"})
-      end
-    end
-    minetest.register_node(oc_name,node_table)
-    minetest.log("beginning: "..oc_name)
-    oc_name = oc_name.."_wet"
-    for i2 = 1, 2 do
-      if i2 == 2 then
-        oc_name = oc_name.."_salty"
-      end
-      minetest.log("ending: "..oc_name)
-      minetest.register_node(oc_name,node_table)
-    end
   end
-end
+})
+minetest.register_lbm({
+  label = "Update decomposed wet compost",
+  name = "nodes_nature:legacy_compost_replace_2",
+  nodenames = {
+  "nodes_nature:slope_compost_wet",
+  "nodes_nature:slope_inner_compost_wet",
+  "nodes_nature:slope_outer_compost_wet",
+  "nodes_nature:slope_pike_compost_wet",
+  "nodes_nature:compost_wet_salty",
+  "nodes_nature:slope_compost_wet_salty",
+  "nodes_nature:slope_inner_compost_wet_salty",
+  "nodes_nature:slope_outer_compost_wet_salty",
+  "nodes_nature:slope_pike_compost_wet_salty"},
+  action = function(pos, node, dtime_s)
+    minetest.set_node(pos,{name = "nodes_nature:compost_wet"})
+  end
+})
 
 crafting.register_recipe({
 	type = "shovel_agriculture",
