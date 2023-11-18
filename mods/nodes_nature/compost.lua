@@ -80,7 +80,6 @@ local function decompose_compost(pos, elapsed, dc_name)
       meta:set_int("last_updated", elapsed)
   end
   decomposition = catch_up_timer(elapsed, last_updated, decomposition, speed)
-  --minetest.log("decomp: "..decomposition)
   if decomposition < 1 then
       minetest.swap_node(pos, {name = decomposed_name})
       return false
@@ -121,7 +120,7 @@ local base_compost = {
   groups = {
     crumbly = 3,
     falling_node = 1,
-    fertility = 3, -- delicious
+    fertility = 3,
     compost = 1,
   },
   tiles = {"nodes_nature_compost.png"},
@@ -169,15 +168,24 @@ for i = 1, 4 do
     end
   end
 
-  reg_compost.name = name
+  reg_compost.name = "nodes_nature:"..name
   if i <= 2 then
-    name = "nodes_nature:"..name
-    reg_compost.name = name
-    minetest.register_node(name,reg_compost)
+    minetest.register_node(reg_compost.name,reg_compost)
   else
-    name = "stairs:slab_"..name
-    sediment.register_slab(reg_compost)
-    minetest.override_item(name,{
+    reg_compost._fertilize_replace_with = ""
+    stairs.register_slab(
+      name,
+      reg_compost.name,
+      {"mixing_spot","soil_mixing"},
+      "true",
+      {"mixing_spot","soil_mixing"},
+      reg_compost.groups,
+      reg_compost.tiles,
+      S("@1 Slab",reg_compost.description),
+      minimal.stack_max_bulky * 2,
+      reg_compost.sound
+    )
+    minetest.override_item("stairs:slab_"..name,{
       _dig_tip = reg_compost._dig_tip,
       on_use = reg_compost.on_use,
     })
@@ -197,15 +205,23 @@ for i = 1, 4 do
     reg_compost.groups.undecomposed_compost = 2 -- no other use for undecomposed_compost, let's consider number 2 wet
   end
 
-  reg_compost.name = name
+  reg_compost.name = "nodes_nature:"..name
   if i <= 2 then
-    name = "nodes_nature:"..name
-    reg_compost.name = name
-    minetest.register_node(name,reg_compost)
+    minetest.register_node(reg_compost.name,reg_compost)
   else
-    name = "stairs:slab_"..name
-    sediment.register_slab(reg_compost)
-    minetest.override_item(name,{
+    stairs.register_slab(
+      name,
+      reg_compost.name,
+      {"mixing_spot","soil_mixing"},
+      "true",
+      {"mixing_spot","soil_mixing"},
+      reg_compost.groups,
+      reg_compost.tiles,
+      S("@1 Slab",reg_compost.description),
+      minimal.stack_max_bulky * 2,
+      reg_compost.sound
+    )
+    minetest.override_item("stairs:slab_"..name,{
       _place_tip = reg_compost._place_tip,
       on_timer = reg_compost.on_timer,
       on_construct = reg_compost.on_construct,
