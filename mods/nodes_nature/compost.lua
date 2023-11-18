@@ -58,7 +58,7 @@ end
 
 local function decompose_compost(pos, elapsed, dc_name)
   local compdef = minimal.get_nodedef(pos)
-  if not compdef and not type(compdef.groups.undecomposed_compost) == "number" then
+  if not compdef then
     return false
   end
   local decomposed_name = string.gsub(compdef.name,"_undecomposed","")
@@ -99,6 +99,7 @@ local base_undecomposed_compost = {
     crumbly = 3,
     fertility = 1,
     falling_node = 1,
+    undecomposed_compost = 1,
   },
   tiles = {"nodes_nature_compost_undecomposed.png"},
   sound = sediment.sounds.dirt,
