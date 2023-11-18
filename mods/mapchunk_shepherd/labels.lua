@@ -111,11 +111,11 @@ local function get_paired_labels(labels)
     local paired = {}
     for _, label in pairs(labels) do
         local name = label[1]
-        -- if not name then
-        --     minetest.log("error", dump(labels))
-        -- else
-            paired[name] = label
-            --end
+        if not name then
+	   minetest.log("error", dump(labels))
+	else
+	   paired[name] = label
+	end
     end
     return paired
 end
