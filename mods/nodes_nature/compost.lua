@@ -50,25 +50,24 @@ local function restore_from_inventory(pos, itemstack)
     local stack_meta = itemstack:get_meta()
     local decomposition = stack_meta:get_int("decomposition")
     if decomposition < 1 then
-        meta:set_int("decomposition", compost_decomposing_time)
+      meta:set_int("decomposition", compost_decomposing_time)
     else
-        meta:set_int("decomposition", decomposition)
+      meta:set_int("decomposition", decomposition)
     end
 end
 
 local function decompose_compost(pos, elapsed, dc_name)
   local compdef = minimal.get_nodedef(pos)
-  if not compdef or type(compdef.groups.undecomposed_compost) ~= "number" then
+  if not compdef and not type(compdef.groups.undecomposed_compost) == "number" then
     return false
   end
-  local decomposed_name = string.gsub(compdef.name,"_undecomposed","")--"compost"
+  local decomposed_name = string.gsub(compdef.name,"_undecomposed","")
   if dc_name then
     decomposed_name = dc_name
   end
   local speed = dry_speed
   if compdef.groups.undecomposed_compost == 2 then
     speed = wet_speed
-    decomposed_name = decomposed_name.."_wet"
   end
   if not minimal.get_nodedef(decomposed_name) then
     return false
@@ -80,12 +79,16 @@ local function decompose_compost(pos, elapsed, dc_name)
       meta:set_int("last_updated", elapsed)
   end
   decomposition = catch_up_timer(elapsed, last_updated, decomposition, speed)
+  if decomposition > 0 then
+    decomposition = decomposition - speed
+  end
+  -- avoid issue of grabbing a undecomposed with a decomposition of 0 and accidentally resetting count
   if decomposition < 1 then
-      minetest.swap_node(pos, {name = decomposed_name})
-      return false
+    minetest.swap_node(pos, {name = decomposed_name})
+    return false
   else
-      meta:set_int("decomposition", decomposition - speed)
-      return true
+    meta:set_int("decomposition", decomposition)
+    return true
   end
 end
 
@@ -148,7 +151,7 @@ for i = 1, 4 do
     reg_compost.description = S("Wet Compost")
     reg_compost.sounds = sediment.sounds.dirt_wet
     reg_compost.groups.wet_compost = 1
-    
+
     reg_compost._dig_tip = S("Fertilize and soak soil")
     reg_compost.on_use = function(itemstack, user, pointed_thing)
       if pointed_thing.type == "node" then
@@ -162,7 +165,7 @@ for i = 1, 4 do
         minimal.item_pickup(user, pointed_thing)
       end
     end
-    
+
     if i == 2 then
       reg_compost._fertilize_replace_with = "stairs:slab_compost_wet"
     end
@@ -230,21 +233,8 @@ for i = 1, 4 do
     })
   end
 end
---[[
-local compost_undecomposed =
-    sediment.new({name = "compost_undecomposed",
-                  description = S("Undecomposed Compost"),
-                  hardness = sediment.hardness.soft,
-                  fertility = 1, sound = sediment.sounds.dirt,
-                  sound_wet = sediment.sounds.dirt_wet})
 
-sediment.register_dry(compost_undecomposed)
-sediment.register_wet(compost_undecomposed)
-sediment.register_wet_salty(compost_undecomposed)
-sediment.register_slab(compost_undecomposed)
---]]
 -- check roots
-
 -- replace legacy compost
 minetest.register_lbm({
   label = "Update decomposed dry compost",
