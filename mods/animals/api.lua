@@ -21,6 +21,8 @@ local mo_check_radius = 40 -- maxobject check radius
 animals = animals
 mobkit = mobkit
 
+local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
+
 --------------------------------------------------------------------------
 --basic
 --------------------------------------------------------------------------
@@ -50,6 +52,10 @@ end
 ----------------------------------------------------
 -- drop on death what is defined in the entity table
 function animals.handle_drops(self)
+   if use_vh1 then
+      VH1.clear_bar(self.object)
+   end
+
    if not self.drops then
      return
    end
@@ -75,9 +81,13 @@ function animals.handle_drops(self)
 --core health
 function animals.core_hp(self)
   --default drowing and fall damage
+  local hp = self.hp
   mobkit.vitals(self)
   --die from damage
-  local hp = self.hp
+  if use_vh1 and hp ~= self.hp then -- hp has changed, update hp bar
+     VH1.update_bar(self.object, self.hp, self.max_hp)
+  end
+  hp = self.hp
   if hp <= 0 then
     mobkit.clear_queue_high(self)
     animals.handle_drops(self)
@@ -94,6 +104,9 @@ function animals.core_hp_water(self)
 
   if not self.isinliquid then
     mobkit.hurt(self,1)
+    if use_vh1 then
+       VH1.update_bar(self.object, self.hp, self.max_hp)
+    end
   end
   --die from damage
   local hp = self.hp
@@ -207,6 +220,9 @@ function animals.core_life(self, lifespan, pos)
     if not (not self.isinliquid and self.class == 2) then
       -- if not a fish out of water then (fish in water will heal up nicely :D)
       mobkit.heal(self,1)
+      if use_vh1 then
+	 VH1.update_bar(self.object, self.hp, self.max_hp)
+      end
       energy = energy - 5
     end
   end
@@ -656,6 +672,9 @@ function animals.on_punch(self, tool_capabilities, puncher, prty, chance)
     local dmg = tool_capabilities.damage_groups.fleshy or 1
     mobkit.hurt(self,dmg)
     mobkit.make_sound(self,'punch')
+    if use_vh1 then
+       VH1.update_bar(self.object, self.hp, self.max_hp)
+    end
     --fight or flight
     --flee if hurt (or hibernating!)
     if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or hbnate == true then 
@@ -677,6 +696,9 @@ function animals.on_punch_water(self, tool_capabilities, puncher, prty, chance)
     mobkit.clear_queue_high(self)
     mobkit.hurt(self,tool_capabilities.damage_groups.fleshy or 1)
     mobkit.make_sound(self,'punch')
+    if use_vh1 then
+       VH1.update_bar(self.object, self.hp, self.max_hp)
+    end
 
     --fight or flight
     if self.hp < self.max_hp/10 then
