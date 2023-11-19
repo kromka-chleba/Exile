@@ -14,7 +14,6 @@ local random = math.random
 local floor = math.floor
 
 
-
 -----------------------------------
 local function brain(self)
   -- calculate instantanious effects
@@ -123,7 +122,7 @@ animals.add_interactors("rivals","darkasthaan","animals:darkasthaan")
 ----------------------------------------------
 --The Animal
 local self_data = {
-  name = "animals:darkasthaan",
+   name = "animals:darkasthaan",
 	--core
 	physical = true,
 	collide_with_objects = true,
@@ -138,12 +137,12 @@ local self_data = {
 	-- animal stats
 	max_hp = 200,
 	lung_capacity = 40,
-  breathing_rate = 8,
-  -- comfort temps
+	breathing_rate = 8,
+	-- comfort temps
 	min_temp = 14,
 	max_temp = 70,
-  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
-  class = 1,
+	-- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+	class = 1,
 
 	on_step = mobkit.stepfunc,
 	on_activate = mobkit.actfunc,
@@ -151,12 +150,17 @@ local self_data = {
 	logic = brain,
 	-- optional mobkit props
 	-- or used by built in behaviors
-	--physics = [function user defined] 		-- optional, overrides built in physics
+	--physics = [function user defined] -- optional, overrides built in physics
+
+	initial_properties = {
+	   _VH1_barheight = -20, -- lowers VH1 hp bar by 1 node
+	},
+
 	animation = {
 		walk={range={x=1,y=21},speed=15,loop=true},
 		fast={range={x=1,y=21},speed=35,loop=true},
 		stand={range={x=25,y=45},speed=5,loop=true},
-    dead = {range ={x=0, y=0},speed = 0,loop=true},
+		dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {
 		warn = {
@@ -184,7 +188,7 @@ local self_data = {
 	attack={range=0.8, damage_groups={fleshy=12}},
 	armor_groups = {fleshy=100},
   
-  --interaction
+	--interaction
 	rivals = animals.get_interactors("darkasthaan","rivals"),
 	prey = animals.get_interactors("darkasthaan","prey"), 
 
@@ -213,6 +217,7 @@ self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.7 -- 
 -- lifespan
 self_data.lifespan = self_data.energy_max * 7
 self_data.mature_age = self_data.lifespan / 10
+
 ---------------------;
 minetest.register_entity("animals:darkasthaan",self_data)
 

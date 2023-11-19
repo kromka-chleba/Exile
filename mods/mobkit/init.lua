@@ -28,7 +28,7 @@ mobkit.terminal_velocity = sqrt(2*-mobkit.gravity*20) -- 20 meter fall = dead
 mobkit.safe_velocity = sqrt(2*-mobkit.gravity*5) -- 5 m safe fall
 
 local abr = tonumber(minetest.get_mapgen_setting('active_block_range')) or 3
-	
+
 -- UTILITY FUNCTIONS
 
 function mobkit.dot(v1,v2)
@@ -78,7 +78,7 @@ function mobkit.get_stand_pos(thing)	-- thing can be luaentity or objectref.
 	elseif type(thing) == 'userdata' then
 		pos = thing:get_pos()
 		colbox = thing:get_properties().collisionbox
-	else 
+	else
 		return false
 	end
 	return mobkit.pos_shift(pos,{y=colbox[2]+0.01}), pos
@@ -90,7 +90,7 @@ function mobkit.set_acceleration(thing,vec,limit)
 	vec.x=mobkit.minmax(vec.x,limit)
 	vec.y=mobkit.minmax(vec.y,limit)
 	vec.z=mobkit.minmax(vec.z,limit)
-	
+
 	thing:set_acceleration(vec)
 end
 
@@ -116,15 +116,15 @@ function mobkit.get_nodes_in_area(pos1,pos2,full)
 	local npos2=mobkit.get_node_pos(pos2)
 	local result = {}
 	local cnt = 0	-- safety
-	
+
 	local sx = (pos2.x<pos1.x) and -1 or 1
 	local sz = (pos2.z<pos1.z) and -1 or 1
 	local sy = (pos2.y<pos1.y) and -1 or 1
-	
+
 	local x=npos1.x-sx
-	local z=npos1.z-sz
-	local y=npos1.y-sy
-	
+	local z
+	local y
+
 	repeat
 		x=x+sx
 		z=npos1.z-sz
@@ -133,7 +133,7 @@ function mobkit.get_nodes_in_area(pos1,pos2,full)
 			y=npos1.y-sy
 			repeat
 				y=y+sy
-				
+
 				local pos = {x=x,y=y,z=z}
 				local node = mobkit.nodeatpos(pos)
 				if node	then
@@ -143,17 +143,17 @@ function mobkit.get_nodes_in_area(pos1,pos2,full)
 						result[node] = true
 					end
 				end
-			
+
 				cnt=cnt+1
-				if cnt > 125 then 
+				if cnt > 125 then
 					minetest.chat_send_all('get_nodes_in_area: area too big ')
 					return result
 				end
-			
+
 			until y==npos2.y
 		until z==npos2.z
 	until x==npos2.x
-	
+
 	return result
 end
 
@@ -167,12 +167,12 @@ function mobkit.get_hitbox_bottom(self)
 			{x=pos.x+self.collisionbox[4],y=pos.y+y,z=pos.z+self.collisionbox[6]},
 		}
 end
-		
+
 function mobkit.get_node_height(pos)
 	local npos = mobkit.get_node_pos(pos)
 	local node = mobkit.nodeatpos(npos)
 	if node == nil then return nil end
-	
+
 	if node.walkable then
 		if node.drawtype == 'nodebox' then
 			if node.node_box and node.node_box.type == 'fixed' then
@@ -182,7 +182,7 @@ function mobkit.get_node_height(pos)
 					return npos.y + node.node_box.fixed[1][5] ,0, false
 				else
 					return npos.y + 0.5,1, false			-- todo handle table of boxes
-				end		
+				end
 			elseif node.node_box and node.node_box.type == 'leveled' then
 				return minetest.get_node_level(pos)/64-0.5+mobkit.get_node_pos(pos).y, 0, false
 			else
@@ -194,7 +194,7 @@ function mobkit.get_node_height(pos)
 	else
 		local liquidflag = false
 		if node.drawtype == 'liquid' then liquidflag = true end
-		return npos.y-0.5,-1,liquidflag	
+		return npos.y-0.5,-1,liquidflag
 	end
 end
 
@@ -202,18 +202,18 @@ end
 -- steps(optional) number of recursion steps; default=3
 -- dir(optional) is 1=up, -1=down, 0=both; default=0
 -- liquidflag(forbidden) never provide this parameter.
-function mobkit.get_terrain_height(pos,steps,dir,liquidflag) --dir is 1=up, -1=down, 0=both 
+function mobkit.get_terrain_height(pos,steps,dir,liquidflag) --dir is 1=up, -1=down, 0=both
 	steps = steps or 3
 	dir = dir or 0
 
 	local h,f,l = mobkit.get_node_height(pos)
 	if h == nil then return nil end
 	if l then liquidflag = true end
-	
-	if f==0 then 
+
+	if f==0 then
 		return h, liquidflag
 	end
-	
+
 	if dir==0 or dir==f then
 		steps = steps - 1
 		if steps <=0 then return nil end
@@ -233,7 +233,7 @@ function mobkit.get_spawn_pos_abr(dtime,intrvl,radius,chance,reduction)
 		local vel = plyr:get_player_velocity()
 		local spd = vector.length(vel)
 		chance = (1-chance) * 1/(spd*0.75+1)
-		
+
 		local yaw
 		if spd > 1 then
 			-- spawn in the front arc
@@ -275,15 +275,15 @@ function mobkit.turn2yaw(self,tyaw,rate)
 		local yaw = self.object:get_yaw()
 		yaw = yaw+pi
 		tyaw=(tyaw+pi)%(pi*2)
-		
+
 		local step=min(self.dtime*rate,abs(tyaw-yaw)%(pi*2))
-		
+
 		local dir = abs(tyaw-yaw)>pi and -1 or 1
 		dir = tyaw>yaw and dir*1 or dir * -1
-		
+
 		local nyaw = (yaw+step*dir)%(pi*2)
 		self.object:set_yaw(nyaw-pi)
-		
+
 		if nyaw==tyaw then return true, nyaw-pi
 		else return false, nyaw-pi end
 end
@@ -312,9 +312,9 @@ end
 -- object has reached the destination if dest is in the rear half plane.
 function mobkit.is_there_yet2d(pos,dir,dest) -- obj positon; facing vector; destination position
 
-	local c = -dir.x*pos.x-dir.z*pos.z						-- the constant		
-	
-	if dir.z > 0 then		
+	local c = -dir.x*pos.x-dir.z*pos.z						-- the constant
+
+	if dir.z > 0 then
 		return dest.z <= (-dir.x*dest.x - c)/dir.z			-- line equation
 	elseif dir.z < 0 then
 		return dest.z >= (-dir.x*dest.x - c)/dir.z
@@ -325,7 +325,7 @@ function mobkit.is_there_yet2d(pos,dir,dest) -- obj positon; facing vector; dest
 	else
 		return false
 	end
-	
+
 end
 
 function mobkit.isnear3d(p1,p2,thresh)
@@ -339,8 +339,8 @@ end
 function mobkit.get_box_intersect_cols(pos,box)
 	local pmin = {x=floor(pos.x+box[1]+0.5),z=floor(pos.z+box[3]+0.5)}
 	local pmax = {x=floor(pos.x+box[4]+0.5),z=floor(pos.z+box[6]+0.5)}
-	
-	result= {}
+
+	local result= {}
 	for x=pmin.x,pmax.x do
 		for z=pmin.z,pmax.z do
 			table.insert(result,{x=x,z=z})
@@ -356,9 +356,9 @@ function mobkit.get_box_displace_cols(pos,box,vec,dist)
 	local fpos = {pos.y}
 	local xpos={pos.y}
 	local zpos={pos.y}
-	local xoff=nil
-	local zoff=nil
-	
+	local xoff
+	local zoff
+
 	if vec.x < 0 then
 		fpos.x = pos.x+box[1]	-- frontmost corner's x
 		xoff = box[4]-box[1]	-- edge offset along x
@@ -366,7 +366,7 @@ function mobkit.get_box_displace_cols(pos,box,vec,dist)
 		fpos.x = pos.x+box[4]
 		xoff = box[1]-box[4]
 	end
-	
+
 	if vec.z < 0 then
 		fpos.z = pos.z+box[3]	-- frontmost corner's z
 		zoff = box[6]-box[3]	-- edge offset along z
@@ -374,27 +374,28 @@ function mobkit.get_box_displace_cols(pos,box,vec,dist)
 		fpos.z = pos.z+box[6]
 		zoff = box[3]-box[6]
 	end
-	
+
 	-- displacement vector
 	if dist then vec = vector.multiply(vector.normalize(vec),dist) end
-	
+
 		-- traverse x
 	local xsgn = sign(vec.x)
 	local zsgn = sign(zoff)
 	local index=0
 	for x = floor(fpos.x+0.5)+xsgn*0.5, fpos.x+vec.x, xsgn do
-		index=index+1
-		if index > 50 then return result end
-		result[index] = result[index] or {}
-		local zcomp = vec.x == 0 and 0 or fpos.z + (x-fpos.x)*vec.z/vec.x	-- z component at the intersection of x and node edge
-		for z = floor(zcomp+0.5), floor(zcomp+zoff+0.5), zsgn do
-			table.insert(result[index],{x=x+xsgn*0.5,z=z})
-		end
+	   index=index+1
+	   if index > 50 then return result end
+	   result[index] = result[index] or {}
+	   local zcomp = vec.x == 0 and 0 or fpos.z + (x-fpos.x)*vec.z/vec.x
+	   -- z component at the intersection of x and node edge
+	   for z = floor(zcomp+0.5), floor(zcomp+zoff+0.5), zsgn do
+	      table.insert(result[index],{x=x+xsgn*0.5,z=z})
+	   end
 	end
-	
-			-- traverse z
-	local zsgn = sign(vec.z)
-	local xsgn = sign(xoff)
+
+	-- traverse z
+	zsgn = sign(vec.z)
+	xsgn = sign(xoff)
 	index=0
 	for z = floor(fpos.z + 0.5)+zsgn*0.5, fpos.z+vec.z, zsgn do
 		index=index+1
@@ -405,7 +406,7 @@ function mobkit.get_box_displace_cols(pos,box,vec,dist)
 			table.insert(result[index],{x=x,z=z+zsgn*0.5})
 		end
 	end
-	
+
 	return result
 end
 
@@ -413,9 +414,9 @@ function mobkit.get_box_height(thing)
 	if type(thing) == 'table' then thing = thing.object end
 	local colbox = thing:get_properties().collisionbox
 	local height
-	if colbox then height = colbox[5]-colbox[2] 
+	if colbox then height = colbox[5]-colbox[2]
 	else height = 0.1 end
-	
+
 	return height > 0 and height or 0.1
 end
 
@@ -424,7 +425,7 @@ function mobkit.is_alive(thing)		-- thing can be luaentity or objectref.
 	if not mobkit.exists(thing) then return false end
 	if type(thing) == 'table' then return thing.hp > 0 end
 	if thing:is_player() then return thing:get_hp() > 0
-	else 
+	else
 		local lua = thing:get_luaentity()
 		local hp = lua and lua.hp or nil
 		return hp and hp > 0
@@ -434,9 +435,9 @@ end
 function mobkit.exists(thing)
 	if not thing then return false end
 	if type(thing) == 'table' then thing=thing.object end
-	if type(thing) == 'userdata' then 
+	if type(thing) == 'userdata' then
 		if thing:is_player() then
-			if thing:get_look_horizontal() then return true end 
+			if thing:get_look_horizontal() then return true end
 		else
 			if thing:get_yaw() then return true end
 		end
@@ -461,16 +462,16 @@ function mobkit.animate(self,anim)
 	if self.animation and self.animation[anim] then
 		if self._anim == anim then return end
 		self._anim=anim
-		
-		local aparms = {}
+
+		local aparms
 		if #self.animation[anim] > 0 then
 			aparms = self.animation[anim][random(#self.animation[anim])]
 		else
 			aparms = self.animation[anim]
 		end
-		
+
 		aparms.frame_blend = aparms.frame_blend or 0
-		
+
 		self.object:set_animation(aparms.range,aparms.speed,aparms.frame_blend,aparms.loop)
 	else
 		self._anim = nil
@@ -480,16 +481,16 @@ end
 function mobkit.make_sound(self, sound)
 	local spec = self.sounds and self.sounds[sound]
 	local param_table = {object=self.object}
-	
+
 	if type(spec) == 'table' then
 		--pick random sound if it's a spec for random sounds
 		if #spec > 0 then spec = spec[random(#spec)] end
-		
+
 		--returns value or a random value within the range [value[1], value[2])
 		local function in_range(value)
 			return type(value) == 'table' and value[1]+random()*(value[2]-value[1]) or value
 		end
-		
+
 		--pick random values within a range if they're a table
 		param_table.gain = in_range(spec.gain)
 		param_table.fade = in_range(spec.fade)
@@ -507,7 +508,7 @@ function mobkit.go_forward_horizontal(self,speed)	-- sets velocity in yaw direct
 	self.object:set_velocity(vel)
 end
 
-function mobkit.drive_to_pos(self,tpos,speed,turn_rate,dist) 
+function mobkit.drive_to_pos(self,tpos,speed,turn_rate,dist)
 	local pos=self.object:get_pos()
 	dist = dist or 0.2
 	if mobkit.isnear2d(pos,tpos,dist) then return true end
@@ -523,7 +524,7 @@ function mobkit.timer(self,s) -- returns true approx every s seconds
 	if t2>t1 and t2%s==0 then return true end
 end
 
--- Memory functions. 
+-- Memory functions.
 -- Stuff in memory is serialized, never try to remember objectrefs.
 function mobkit.remember(self,key,val)
 	self.memory[key]=val
@@ -638,20 +639,20 @@ local function sensors()
 	return function(self)
 		timer=timer-self.dtime
 		if timer < 0 then
-		
-			pulse = pulse + 1				-- do full range every third scan
+
+			pulse = pulse + 1  -- do full range every third scan
 			local range = self.view_range
-			if pulse > 2 then 
+			if pulse > 2 then
 				pulse = 1
 			else
 				range = self.view_range*0.5
 			end
-			
+
 			local pos = self.object:get_pos()
 --local tim = minetest.get_us_time()
 			self.nearby_objects = minetest.get_objects_inside_radius(pos, range)
 --minetest.chat_send_all(minetest.get_us_time()-tim)
-			for i,obj in ipairs(self.nearby_objects) do	
+			for i,obj in ipairs(self.nearby_objects) do
 				if obj == self.object then
 					table.remove(self.nearby_objects,i)
 					break
@@ -738,17 +739,17 @@ function mobkit.vitals(self)
 	if velocity_delta > mobkit.safe_velocity then
 		self.hp = self.hp - floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
 	end
-	
+
 	-- vitals: oxygen
 	if self.lung_capacity then
 		local colbox = self.object:get_properties().collisionbox
 		local headnode = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})) -- node at hitbox top
-		if headnode and headnode.drawtype == 'liquid' then 
+		if headnode and headnode.drawtype == 'liquid' then
 			self.oxygen = self.oxygen - self.dtime
 		else
 			self.oxygen = self.lung_capacity
 		end
-			
+
 		if self.oxygen <= 0 then self.hp=0 end	-- drown
 	end
 end
@@ -765,7 +766,7 @@ function mobkit.actfunc(self, staticdata, dtime_s)
 
 	self.logic = self.logic or self.brainfunc
 	self.physics = self.physics or mobkit.physics
-	
+
 	self.lqueue = {}
 	self.hqueue = {}
 	self.nearby_objects = {}
@@ -776,29 +777,29 @@ function mobkit.actfunc(self, staticdata, dtime_s)
 	self.water_drag = self.water_drag or 1
 
 	local sdata = minetest.deserialize(staticdata)
-	if sdata then 
+	if sdata then
 		for k,v in pairs(sdata) do
 			self[k] = v
 		end
 	end
-	
+
 	if self.textures==nil then
 		local prop_tex = self.object:get_properties().textures
 		if prop_tex then self.textures=prop_tex end
 	end
-	
+
 	if not self.memory then 		-- this is the initial activation
-		self.memory = {} 
-		
+		self.memory = {}
+
 		-- texture variation
 		if #self.textures > 1 then self.texture_no = random(#self.textures) end
 	end
-	
+
 	if self.timeout and ((self.timeout>0 and dtime_s > self.timeout and next(self.memory)==nil) or
 	                     (self.timeout<0 and dtime_s > abs(self.timeout))) then
 		self.object:remove()
 	end
-	
+
 	-- apply texture
 	if self.textures and self.texture_no then
 		local props = {}
@@ -815,7 +816,7 @@ function mobkit.actfunc(self, staticdata, dtime_s)
 	end
 	self.armor_groups.immortal = 1
 	self.object:set_armor_groups(self.armor_groups)
-	
+
 	self.buoyancy = self.buoyancy or 0
 	self.oxygen = self.oxygen or self.lung_capacity
 	self.lastvelocity = {x=0,y=0,z=0}
@@ -826,12 +827,12 @@ function mobkit.stepfunc(self,dtime,colinfo)	-- not intended to be modified
 	self.dtime = min(dtime,0.2)
 	self.colinfo = colinfo
 	self.height = mobkit.get_box_height(self)
-	
---  physics comes first
+
+	--  physics comes first
 	local vel = self.object:get_velocity()
-	
-	if colinfo then 
-		self.isonground = colinfo.touching_ground
+
+	if colinfo then
+	   self.isonground = colinfo.touching_ground
 	else
 		if self.lastvelocity.y==0 and vel.y==0 then
 			self.isonground = true
@@ -839,7 +840,7 @@ function mobkit.stepfunc(self,dtime,colinfo)	-- not intended to be modified
 			self.isonground = false
 		end
 	end
-	
+
 	self:physics()
 
 	if self.logic then
@@ -847,7 +848,7 @@ function mobkit.stepfunc(self,dtime,colinfo)	-- not intended to be modified
 		self:logic()
 		execute_queues(self)
 	end
-	
+
 	self.lastvelocity = self.object:get_velocity()
 	self.time_total=self.time_total+self.dtime
 end
@@ -859,7 +860,8 @@ minetest.register_on_mods_loaded(function()
 	local mbkfuns = ''
 	for n,f in pairs(mobkit) do
 		if type(f) == 'function' then
-			mbkfuns = mbkfuns .. n .. string.split(minetest.serialize(f),'.lua')[2] or ''
+		   mbkfuns = mbkfuns .. n ..
+		      string.split(minetest.serialize(f),'.lua')[2] or ''
 		end
 	end
 	local crc = minetest.sha1(mbkfuns)
