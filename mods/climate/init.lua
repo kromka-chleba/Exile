@@ -605,7 +605,8 @@ minetest.register_chatcommand("set_woverride", {
 })
 
 minetest.register_on_mods_loaded(function()
-      if beerchat then -- we have beerchat installed, add a date command
+      local use_beerchat = minetest.get_modpath('beerchat')
+      if use_beerchat then -- we have beerchat installed, add a date command
 	 beerchat.register_relaycommand("date", function()
                   local date = exiledatestring()
 		  return date
