@@ -21,6 +21,8 @@ local mo_check_radius = 40 -- maxobject check radius
 animals = animals
 mobkit = mobkit
 
+local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
+
 --------------------------------------------------------------------------
 --basic
 --------------------------------------------------------------------------
@@ -128,6 +130,10 @@ end
 ----------------------------------------------------
 -- drop on death what is defined in the entity table
 function animals.handle_drops(self)
+   if use_vh1 then
+      VH1.clear_bar(self.object)
+   end
+
    if not self.drops then
      return
    end
@@ -171,7 +177,7 @@ function animals.core_hp(self)
   -- vitals: fall damage
 	local vel = self.object:get_velocity()
 	local velocity_delta = abs(self.lastvelocity.y - vel.y)
-  
+
   if (velocity_delta > mobkit.safe_velocity) then
     -- let's see if there's a node with fall_damage_add_percent first
     local pos = mobkit.pos_shift(self.object:get_pos(),{y = -1})
@@ -212,41 +218,45 @@ function animals.core_hp(self)
       end
     end
   end
-  
-	if velocity_delta > mobkit.safe_velocity then
-    -- alright, time to do some damage if it's still over safe_velocity
-    local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
-    
-    self.hp = self.hp - damage
-	end
+
+  if velocity_delta > mobkit.safe_velocity then
+     -- alright, time to do some damage if it's still over safe_velocity
+     local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
+
+     self.hp = self.hp - damage
+     if use_vh1 then
+	VH1.update_bar(self.object, self.hp, self.max_hp)
+     end
+  end
 end
 
 
 
 local function get_mean_temp(pos) -- this could be put somewhere else like in climate or minimal
   local temps = {}
-  
+
   if (type(pos) ~= "table") then -- no pos table is given then
     return 15
-  elseif (type(pos.x) ~= "number" or type(pos.y) ~= "number" or type(pos.z) ~= "number") then -- incase an invalid pos is given
-    return 15
+  elseif (type(pos.x) ~= "number" or type(pos.y) ~= "number"
+	  or type(pos.z) ~= "number") then -- incase an invalid pos is given
+     return 15
   end
-  
+
   for x = -1, 1, 1 do -- create matrix of possible positions
     for y = -1, 1, 1 do
       for z = -1, 1, 1 do
         local npos = {x = (pos.x - x), y = (pos.y - y), z = (pos.z - z)} -- matrix the pos :D
-        
+
         temps[#temps + 1] = climate.get_point_temp(npos, true)
       end
     end
   end
-  
+
   local mtemp = 0 -- start with a number so it can be calculated
   for _,num in pairs(temps) do
     mtemp = mtemp + num
   end
-  
+
   return mtemp / #temps -- return the "mean" of the matrix'd temps
 end
 
@@ -257,7 +267,7 @@ function animals.core_life(self, pos)
   local energy = mobkit.recall(self,'energy')
   local age = mobkit.recall(self,'age')
   local conserve = mobkit.recall(self,'conserve')
-  
+
   local lifespan = self.lifespan or 2
   local energy_loss = self.energy_loss or 0.25
 
@@ -273,7 +283,7 @@ function animals.core_life(self, pos)
   end
 
   age = age + 1
-  
+
   animals.vitals(self)
   --die from exhaustion, old age, no hp
   local hp = self.hp
@@ -286,7 +296,7 @@ function animals.core_life(self, pos)
     mobkit.hq_die(self)
     return nil
   end
-  
+
   if (conserve == false) then
     energy = energy - energy_loss
   elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
@@ -302,7 +312,7 @@ function animals.core_life(self, pos)
   --temperature stress
   local max_temp = self.max_temp
   local min_temp = self.min_temp
-  
+
   if temp < min_temp or temp > max_temp then
     -- if this temperature is uncomfortable, try to find somewhere else!
     local killer_min_temp = min_temp - 7
@@ -365,10 +375,13 @@ function animals.core_life(self, pos)
     if animals.temp_comfy(self,temp) and not (not self.isinliquid and self.class == 2) then
       -- if not a fish out of water then (fish in water will heal up nicely :D) (oh and if temp is comfortable too)
       mobkit.heal(self,1)
+      if use_vh1 then
+	 VH1.update_bar(self.object, self.hp, self.max_hp)
+      end
       energy = energy - math.random(5,15)
     end
   end
-  
+
   if (conserve == true) then
     mobkit.clear_queue_low(self)
     mobkit.animate(self,"dead")
@@ -388,7 +401,8 @@ function animals.place_egg(self, pos, e, medium) -- self, position, energy, medi
   end
   local p = mobkit.get_node_pos(pos)
   local e_egg = self.energy_egg
-  local egg_name = self.egg_name or self.name.."_eggs" -- seek a "self.egg_name" or create an egg_name using the placer's name
+  local egg_name = self.egg_name or self.name.."_eggs"
+  -- seek a "self.egg_name" or create an egg_name using the placer's name
   local max_pop = self.max_pop or max_objects
   
   -- remove male or baby identifier when checking names
@@ -495,7 +509,7 @@ function animals.hatch_egg(self, pos, medium, replace, name) -- self, position, 
   if (energy_egg < 0) then
     return false
   end
-  
+
    local air = minetest.find_nodes_in_area(
       {x=pos.x-1, y=pos.y-1, z=pos.z-1},
       {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium})
@@ -504,7 +518,7 @@ function animals.hatch_egg(self, pos, medium, replace, name) -- self, position, 
 		minetest.set_node(pos, {name = replace})
 		return false
 	end
-  
+
   -- remove male or baby identifier when checking names
   local check_name = string.gsub(name,"_male","")
   check_name = string.gsub(name,"_baby","")
@@ -544,7 +558,7 @@ function animals.hq_roam_dark(self,prty)
     if time() > timer then
       return true
     end
-    
+
     local function light_check(pos,tpos)
       if not pos then
         pos = mobkit.get_stand_pos(self)
@@ -554,7 +568,7 @@ function animals.hq_roam_dark(self,prty)
       end
       local light = minetest.get_node_light(pos, 0.5) or 0
       local lightn = minetest.get_node_light(tpos, 0.5) or 0
-      
+
       if (lightn <= light) then
         return true
       elseif (lightn < light) then
@@ -568,7 +582,7 @@ function animals.hq_roam_dark(self,prty)
        local neighbor = random(8)
 
        local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
-       
+
       if (tpos) then
         local temp = climate.get_point_temp(tpos, true)
         if not (animals.temp_comfy(self,temp)) then
@@ -582,7 +596,7 @@ function animals.hq_roam_dark(self,prty)
         for i = 1, 8, 1 do
           local h, tp, lf
           numstring, h, tp, lf = get_reachable_node(self,numstring) -- shortened versions of "height, tpos, liquidflag"
-          
+
           if (tp and animals.temp_comfy(self,tp)) then
             local l_check = light_check(bl_pos,tp)
             if (l_check == "desirable") then
@@ -636,48 +650,63 @@ function animals.hq_roam_comfort_temp(self,prty)
       return true
     end
 
-    if (mobkit.is_queue_empty_low(self) or prty >= 35) and self.isonground then -- mobkit.is_queue_empty_low(self)
+    if (mobkit.is_queue_empty_low(self) or prty >= 35) and self.isonground then
+       -- mobkit.is_queue_empty_low(self)
       local min_temp = self.min_temp or 0
       local max_temp = self.max_temp or 20
-      
+
       local pos = mobkit.get_stand_pos(self)
       local temp = climate.get_point_temp(pos, true)
-      
+
       if (animals.temp_comfy(self,temp)) then
         -- if temperature is comfortable then end the search
         return true
       end
-      
-      local numstring = 12345678 -- save as a string (or num :D) cause idk, maybe better memory and storage wise?
-      
+
+      local numstring = 12345678
+      -- save as a string (or num :D) cause idk,
+      -- maybe better memory and storage wise?
+
       local height, tpos, liquidflag
       local best_temp
       for i = 1, 8, 1 do -- try 8 times to find a good node
         local h, tp, lf
-        numstring, h, tp, lf = get_reachable_node(self,numstring) -- shortened versions of "height, tpos, liquidflag"
-        
+        numstring, h, tp, lf = get_reachable_node(self,numstring)
+	-- shortened versions of "height, tpos, liquidflag"
+
         if (h and not lf) then -- if height somethin' and if provided pos is not a liquid
           local tempn = climate.get_point_temp(tp, true)
-          local temp_c,temp_s = animals.temp_comfy(self,tempn) -- temp_comfy (is the provided pos a comfortable temp?), temp_status (utilized to check whether too hot or too cold)
-          
+          local temp_c,temp_s = animals.temp_comfy(self,tempn)
+	  -- temp_comfy (is the provided pos a comfortable temp?),
+	  --  temp_status (utilized to check whether too hot or too cold)
+
           if (temp_s or temp_c == true) then
             -- let's make sure the animal goes to the best suitable temperature
             local old_bt = best_temp -- old_best_temp - used for comparison
             if (type(best_temp) ~= "number" or
-            (temp_s == "hot" and tempn < best_temp and tempn > min_temp) or 
-            (temp_s == "cold" and tempn > best_temp and tempn < max_temp) -- additional check to prevent creatures running into fires to warm themselves
+            (temp_s == "hot" and tempn < best_temp and tempn > min_temp) or
+            (temp_s == "cold" and tempn > best_temp and tempn < max_temp)
+	    -- additional check to prevent creatures running into fires to
+	    --  warm themselves
             ) then
-              -- if a best_temp hasn't been specified or a better temperature has been found for seeking comfy temperatures
-              -- then change best_temp! :D
-              best_temp = tempn
+	       -- if a best_temp hasn't been specified or a better temperature
+	       --  has been found for seeking comfy temperatures
+	       --  then change best_temp! :D
+	       best_temp = tempn
             end
-            
-            if ((random(4) == 4 and tempn == best_temp or random(16) == 16) or best_temp ~= old_bt) then -- 1 in 4 chance to choose a different position (only if best_temp is equal to tempn - no running into fire or coldness) 
-              -- 1 in 16 chance just to say screw it and go to a bad temp
-              -- update height, tpos, and liquidflag if a better position has been found
-              height, tpos, liquidflag = h, tp, lf -- set height, tpos, and liquidflag
+
+            if ((random(4) == 4 and tempn == best_temp
+		 or random(16) == 16) or best_temp ~= old_bt) then
+	       -- 1 in 4 chance to choose a different position
+	       --  (only if best_temp is equal to tempn - no running into
+	       --  fire or coldness)
+	       -- 1 in 16 chance just to say screw it and go to a bad temp
+	       -- update height, tpos, and liquidflag if a better position
+	       --  has been found
+	       height, tpos, liquidflag = h, tp, lf
+	       -- set height, tpos, and liquidflag
             end
-            
+
             if (temp_c == true) then
               -- found a good pos to go to, break loop
               break
@@ -687,7 +716,7 @@ function animals.hq_roam_comfort_temp(self,prty)
           end
         end
       end
-      
+
       if height and not liquidflag then
         -- run to that safe (or somewhat safe) pos!
         local spd_f = 0.3 -- speed factor
@@ -720,7 +749,7 @@ function animals.hq_roam_surface_group(self, group, prty)
       local neighbor = random(8)
 
       local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self, neighbor)
-      
+
       if (tpos) then
         local temp = climate.get_point_temp(tpos, true)
         if not (animals.temp_comfy(self,temp)) then
@@ -750,9 +779,10 @@ end
 
 ----------------------------------------------
 --roam to a walkable (by group) i.e. walk into the node itself c.f. under
-function animals.hq_roam_walkable_group(self, groups, iggroups, prty) -- self, groups (table or string), ignoregroups (table or string), priority
+function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
+   -- self, groups (table or string), ignoregroups (table or string), priority
   local timer = time() + 15
-  
+
   if (type(groups) == "string") then
     groups = {groups}
   elseif (type(groups) ~= "table") then
@@ -775,7 +805,7 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty) -- self, g
 
        local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(
 	  self, neighbor)
-  
+
       if (tpos) then
         local temp = climate.get_point_temp(tpos, true)
         if not (animals.temp_comfy(self,temp)) then
@@ -787,7 +817,7 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty) -- self, g
        if height and not liquidflag then
         --is it the correct?
         local n_node = minetest.get_node(tpos).name
-        
+
         local nodeapp = true -- node appropriate -- if node should be walked to
         for _,group in pairs(iggroups) do
           if (minetest.get_item_group(n_node,group) > 0) then -- if node is in a group that is to be ignored...
@@ -805,7 +835,7 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty) -- self, g
             break
           end
         end
-        
+
         if (nodeapp == true) then
           mobkit.dumbstep(self, height, tpos, 0.3)
         else
@@ -909,7 +939,7 @@ function animals.hq_swimfrompos(self,prty,opos,speed)
     local yaw = self.object:get_yaw() - pi/6
     if distance > 0.5 then
 	-- or 180 from pos we're running from if no longer close to it
-    	yaw = get_yaw_to_object(pos, opos) - pi
+	yaw = get_yaw_to_object(pos, opos) - pi
     end
 
 
@@ -1056,9 +1086,12 @@ function animals.on_punch(self, tool_capabilities, puncher, prty, chance)
     local dmg = tool_capabilities.damage_groups.fleshy or 1
     mobkit.hurt(self,dmg)
     mobkit.make_sound(self,'punch')
+    if use_vh1 then
+       VH1.update_bar(self.object, self.hp, self.max_hp)
+    end
     --fight or flight
     --flee if hurt (or hibernating!)
-    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or conserve == true then 
+    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or conserve == true then
       mobkit.animate(self,'fast')
       mobkit.make_sound(self,'warn')
       mobkit.hq_runfrom(self, prty, puncher)
@@ -1077,6 +1110,9 @@ function animals.on_punch_water(self, tool_capabilities, puncher, prty, chance)
     mobkit.clear_queue_high(self)
     mobkit.hurt(self,tool_capabilities.damage_groups.fleshy or 1)
     mobkit.make_sound(self,'punch')
+    if use_vh1 then
+       VH1.update_bar(self.object, self.hp, self.max_hp)
+    end
 
     --fight or flight
     if self.hp < self.max_hp/10 then
