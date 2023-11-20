@@ -183,8 +183,9 @@ minetest.register_entity("animals:impethu",{
 	makes_footstep_sound = false,
 	timeout = 0,
 
-	--damage
-	max_hp = 10,
+	_VH1_barheight = 1,
+	-- animal stats
+	max_hp = 3,
 	lung_capacity = 10,
 	min_temp = -15,
 	max_temp = 50,

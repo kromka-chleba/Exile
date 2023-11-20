@@ -1,5 +1,8 @@
 # Changelog:
 
+## [2023-11-19][2023-11-19__0.3.14b]
+  - Added support for Visual Harm 1ndicators mod
+
 ## [2023-11-11][2023-11-11__0.3.14]
   - Transporters now send all objects that are on the pad
   - Improved letter and bones with info on player/lives
