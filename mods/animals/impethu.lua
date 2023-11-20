@@ -145,6 +145,7 @@ local self_data = {
 	makes_footstep_sound = false,
 	timeout = 0,
 
+	_VH1_barheight = 1,
 	-- animal stats
 	max_hp = 3,
 	lung_capacity = 10,
