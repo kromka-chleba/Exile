@@ -82,3 +82,13 @@ Wet Depleted @1=
 Tree Marker=
 @1 Log=
 @1 Leaves=
+
+# compost.lua
+@1 Slab=
+Compost=
+Wet Compost=
+Undecomposed Compost=
+Wet Undecomposed Compost=
+Set to decompose=
+Fertilize soil=
+Fertilize and soak soil=

@@ -82,3 +82,13 @@ Wet Depleted @1=Истощенный влажный @1
 Tree Marker=Маркер дерева
 @1 Log=Бревно @1
 @1 Leaves=Листья @1
+
+# compost.lua
+@1 Slab=
+Compost=
+Wet Compost=
+Undecomposed Compost=
+Wet Undecomposed Compost=
+Set to decompose=
+Fertilize soil=
+Fertilize and soak soil=

@@ -120,7 +120,7 @@ local base_undecomposed_compost = {
 }
 local base_compost = {
   name = "compost",
-  description = S("Decomposed Compost"),
+  description = S("Compost"),
   groups = {
     crumbly = 3,
     falling_node = 1,

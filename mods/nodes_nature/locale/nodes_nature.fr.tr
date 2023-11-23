@@ -77,3 +77,13 @@ Wet Depleted @1=@1 humide épuisé-e
 # trees.lua
 Tree Marker=Marqueur d'arbre
 @1 Log=Tronc de @1
+
+# compost.lua
+@1 Slab=
+Compost=
+Wet Compost=
+Undecomposed Compost=
+Wet Undecomposed Compost=
+Set to decompose=
+Fertilize soil=
+Fertilize and soak soil=
