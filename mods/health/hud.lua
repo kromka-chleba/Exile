@@ -3,7 +3,6 @@
 ----------------------------------------------------------------------
 
 -- Internationalization
-HEALTH = HEALTH
 local S = HEALTH.S
 
 local hud = {}
@@ -65,63 +64,9 @@ local function tobool(str)
    return false
 end
 
-local typelist = { "health", "energy", "thirst", "hunger",
-		   "temp", "enviro_temp", "effects" }
-function HEALTH.hide_hud_elements(player, meta, list, hide)
-   -- Takes a string of elements to hide, or "all", sets them hidden
-   -- Needs either player or meta to apply changes to
-   -- hide, if true, inverts this function to show elements
-   if not meta and not player then
-      error("Tried to hide hud elements for non-existent player and meta!")
-   end
-   if not meta then meta = player:get_meta() end
-   local hidetable = {}
-   for i = 1, #typelist do
-      if string.match(list, typelist[i]) or string == "all" then
-	 hidetable[typelist[i]] = ( true ~= hide)
-      end
-   end
-   meta:set_string("hidehud", minetest.serialize(hidetable))
-end
-
-function HEALTH.show_hud_elements(player, meta, list)
-   HEALTH.hide_hud_elements(player, meta, list, true)
-end
-
-function HEALTH.hud_update_settings(player_name, table)
-   local hud_data = hud[player_name]
-   for nm, val in pairs(table) do
-      hud_data[nm] = val
-   end
-end
-
-
 local function are_stats_visible(hud_data)
    return (( hud_data.showstats and hud_data.showstats == true ) or
       ( hud_data.showstats == nil and mtshowstats == true ) )
-end
-
-function HEALTH.blink_hud_elements(playername, list, setblink, player)
-   -- Takes a string of elements or "all", sets them blinking
-   -- Needs either playername or player to apply changes to
-   -- setblink is the state, true/false/nil
-   if not playername and not player then
-      error("Tried to blink hud elements for non-existent player!")
-   end
-   if not playername then playername = player:get_player_name() end
-   for i = 1, #typelist do
-      if string.match(list, typelist[i]) or string == "all" then
-	 hud[playername]["blink"][typelist[i]] = setblink
-      end
-   end
-end
-
-local blinkingnow = false
-local function blink(bool)
-   if not bool or blinkingnow == true then
-      return ""
-   end
-   return "^[multiply:#000000"
 end
 
 local stdpos = { x = .5, y = 1}
@@ -144,12 +89,14 @@ local setup_hud = function(player)
 	local hud_data = {}
 
 	hud[playername] = hud_data
-	hud_data.blink = {}
 
 	local meta = player:get_meta()
-	hud_data.show_stats = tobool(meta:get("exile_hud_show_stats"))
+	hud_data.show_stats = meta:get("exile_hud_show_stats")
+	if hud_data.show_stats then -- string to bool, or leave it nil
+	   hud_data.show_stats = tobool(hud_data.show_stats)
+	end
 
-	local lb = tobool(meta:get_string("hud16"))
+	local lb = tobool(meta:get_string("hud16")) -- nil -> default false
 
 	hud_data.p_health = make_image_hud(player,
 	   {x = hud_health_x - longbarpos[lb].x,
@@ -286,99 +233,92 @@ local function color_envirotemp(v, meta)
 	return stat_col, ttype, overlay
 end
 
-local function health(player, hud_data, hidden)
+local function health(player, hud_data)
 	local v = player:get_hp()
 	v = (v/20)*100
 	local stat_col = color(v)
 	local t = v .." %"
 	local hud1 = hud_data.p_health
 	local opac = hud_data.opacity or mthudopacity
-	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_health.png^[colorize:#"..
-			  stat_col.."^[opacity:"..opac..
-			  blink(hud_data.blink["health"]))
+	player:hud_change(hud1, "text", "hud_health.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 
 	local hud2 = hud_data.p_health_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and are_stats_visible(hud_data) then
+	if ( hud_data.showstats and hud_data.showstats == true ) or
+	   ( hud_data.showstats == nil and mtshowstats == true ) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
 	end
 end
 
-local function energy(player, hud_data, meta, hidden)
+local function energy(player, hud_data, meta)
 	local v = meta:get_int("energy")
 	v = (v/1000)*100
 	local stat_col = color(v)
 	local t = v .." %"
 	local hud1 = hud_data.p_energy
 	local opac = hud_data.opacity or mthudopacity
-	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_energy.png^[colorize:#"..stat_col.."^[opacity:"..opac..
-			  blink(hud_data.blink["energy"]))
+	player:hud_change(hud1, "text", "hud_energy.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	local hud2 = hud_data.p_energy_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-
-	if not hidden and are_stats_visible(hud_data) then
+	if ( hud_data.showstats and hud_data.showstats == true ) or
+	   ( hud_data.showstats == nil and mtshowstats == true ) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
 	end
 end
 
-local function thirst(player, hud_data, meta, hidden)
+local function thirst(player, hud_data, meta)
 	local v = meta:get_int("thirst")
 	v = (v/100)*100
 	local t = v .." %"
 	local stat_col = color(v)
 	local hud1 =  hud_data.p_thirst
 	local opac = hud_data.opacity or mthudopacity
-	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_thirst.png^[colorize:#"..stat_col.."^[opacity:"..opac..
-			  blink(hud_data.blink["thirst"]))
+	player:hud_change(hud1, "text", "hud_thirst.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	local hud2 = hud_data.p_thirst_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and are_stats_visible(hud_data) then
+	if ( hud_data.showstats and hud_data.showstats == true ) or
+	   ( hud_data.showstats == nil and mtshowstats == true ) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
 	end
 end
 
-local function hunger(player, hud_data, meta, hidden)
+local function hunger(player, hud_data, meta)
 	local v = meta:get_int("hunger")
 	v = (v/1000)*100
 	local t = v .." %"
 	local stat_col = color(v)
 	local hud1 =  hud_data.p_hunger
 	local opac = hud_data.opacity or mthudopacity
-	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_hunger.png^[colorize:#"..stat_col.."^[opacity:"..opac..
-			  blink(hud_data.blink["hunger"]))
+	player:hud_change(hud1, "text", "hud_hunger.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	local hud2 = hud_data.p_hunger_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and are_stats_visible(hud_data) then
+	if ( hud_data.showstats and hud_data.showstats == true ) or
+	   ( hud_data.showstats == nil and mtshowstats == true ) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
 	end
 end
 
-local function temp(player, hud_data, meta, hidden)
+
+local function temp(player, hud_data, meta)
 	local v = meta:get_int("temperature")
 	local stat_col, ttype = color_bodytemp(v)
 	local t = climate.get_temp_string(v, meta)
 	local hud1 = hud_data.p_body_temp
 	local opac = hud_data.opacity or mthudopacity
-	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac..
-			  blink(hud_data.blink["temp"]))
+	player:hud_change(hud1, "text", "hud_body_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	local hudtype = hud_data.p_body_temp_type
 	local hudtext = hud_data.p_body_temp_text
 	player:hud_change(hudtype, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
 	player:hud_change(hudtext, "number", tonumber("0x"..stat_col))
-	if not hidden and are_stats_visible(hud_data) then
+	if are_stats_visible(hud_data) then
 		player:hud_change(hudtext, "text", t)
 	else
 		player:hud_change(hudtext, "text", "")
@@ -389,8 +329,8 @@ local function do_overlay(player, pname, pos, overlay)
    local handle = player:hud_add({
 	 name = overlay,
 	 hud_elem_type = "image",
-	 position = {x = 0.5, y = 0.5},
-	 alignment = {x = 0, y = 0},
+	 position = {x = 0, y = 0},
+	 alignment = {x = 1, y = 1},
 	 scale = { x = -100, y = -100},
 	 z_index = hud.z_index,
 	 text = overlay,
@@ -399,11 +339,11 @@ local function do_overlay(player, pname, pos, overlay)
    hud[pname].overlay = handle
 end
 
-local function enviro_temp(player, hud_data, meta, hidden)
+local function enviro_temp(player, hud_data, meta)
 	local pname = player:get_player_name()
 	local player_pos = player:get_pos()
 	player_pos.y = player_pos.y + 0.6 --adjust to body height
-	local v = math.floor(climate.get_point_temp(player_pos))
+	local v = math.floor(climate.get_point_temp(player_pos, true))
 	local stat_col, ttype, overlay = color_envirotemp(v, meta)
 	if overlay then
 	   if not hud_data.overlay then
@@ -422,20 +362,19 @@ local function enviro_temp(player, hud_data, meta, hidden)
 	local newhud = hud_data.p_air_temp
 	local newhud2 = hud_data.p_air_temp_type
 	local opac = hud_data.opacity or mthudopacity
-	if hidden then opac = 0 end
-	player:hud_change(newhud, "text", "hud_air_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac..
-			  blink(hud_data.blink["enviro_temp"]))
+	player:hud_change(newhud, "text", "hud_air_temp.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	player:hud_change(newhud2, "text", ttype..".png^[opacity:"..opac) -- don't colorize)
 	local hud2 = hud_data.p_air_temp_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and are_stats_visible(hud_data) then
+	if ( hud_data.showstats and hud_data.showstats == true ) or
+	   ( hud_data.showstats == nil and mtshowstats == true ) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
 	end
 end
 
-local function effects(player, hud_data, meta, hidden)
+local function effects(player, hud_data, meta)
 	local stat_col = stat_fine
 	local v = meta:get_int("effects_num")
 	local t = "x"..v
@@ -450,12 +389,11 @@ local function effects(player, hud_data, meta, hidden)
 	end
 	local hud1 = hud_data.p_sick
 	local opac = hud_data.opacity or mthudopacity
-	if hidden then opac = 0 end
-	player:hud_change(hud1, "text", "hud_sick.png^[colorize:#"..stat_col.."^[opacity:"..opac..
-			  blink(hud_data.blink["effects"]))
+	player:hud_change(hud1, "text", "hud_sick.png^[colorize:#"..stat_col.."^[opacity:"..opac)
 	local hud2 = hud_data.p_sick_text
 	player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-	if not hidden and are_stats_visible(hud_data) then
+	if ( hud_data.showstats and hud_data.showstats == true ) or
+	   ( hud_data.showstatsd == nil and mtshowstats == true ) then
 		player:hud_change(hud2, "text", t)
 	else
 		player:hud_change(hud2, "text", "")
@@ -463,12 +401,10 @@ local function effects(player, hud_data, meta, hidden)
 end
 
 local timer = 0
-local blinktimer = 0
 
 minetest.register_globalstep(function(dtime)
   timer = timer + dtime
-  blinktimer = blinktimer + dtime
-  if blinktimer > 0.5 then blinktimer = 0 ; blinkingnow = not blinkingnow end
+
   if timer > hudupdateseconds then
    for _0, player in ipairs(minetest.get_connected_players()) do
 
@@ -478,16 +414,13 @@ minetest.register_globalstep(function(dtime)
 		if not hud_data then
 			return
 		end
-
-		local hidehud =  minetest.deserialize(meta:get_string("hidehud"))
-		   or {}
-		health(player, hud_data, hidehud.health)
-		energy(player, hud_data, meta, hidehud.energy)
-		thirst(player, hud_data, meta, hidehud.thirst)
-		hunger(player, hud_data, meta, hidehud.hunger)
-		temp(player, hud_data, meta, hidehud.temp)
-		enviro_temp(player, hud_data, meta, hidehud.enviro_temp)
-		effects(player, hud_data, meta, hidehud.effects)
+		health(player, hud_data)
+		energy(player, hud_data, meta)
+		thirst(player, hud_data, meta)
+		hunger(player, hud_data, meta)
+		temp(player, hud_data, meta)
+		enviro_temp(player, hud_data, meta)
+		effects(player, hud_data, meta)
 		local wi = player:get_wielded_item():get_name()
 		if hud_data.wh ~= wi then -- changed, remove it
 		   if wielded_hud.list[hud_data.wh] then
@@ -519,3 +452,78 @@ minetest.register_globalstep(function(dtime)
    return nil
   end
 end)
+
+minetest.register_chatcommand("show_stats", {
+	params = S("[ help | clear ]"),
+	description = S("Enable or disable stats showing below icons. "..
+			"Pass 'clear' as a parameter to revert to defaults."),
+    func = function(name, param)
+		local player = minetest.get_player_by_name(name)
+		local meta = player:get_meta()
+		local hud_data = hud[name]
+		if param == "help" then
+		   local wlist = S("/show_stats:\n"..
+		      "Toggle stats showing below icons. Use '/show_stats "..
+		      "clear' to revert to defaults")
+		   return false, wlist
+		elseif param == "clear" then
+		   meta:set_string("exile_hud_show_stats", "")
+		   hud_data.showstats = nil
+		   return true, S("Cleared setting")
+		else
+		   local show_stats = meta:get("exile_hud_show_stats")
+		   if not show_stats then
+		      show_stats = tostring(mtshowstats)
+		   end
+		   local newval = not tobool(show_stats)
+		   meta:set_string("exile_hud_show_stats", tostring(newval))
+		   hud_data.showstats = newval
+		   if newval == true then
+		      return true, S("Enabled stats.")
+		   else
+		      return true, S("Disabled stats.")
+		   end
+		end
+	end
+})
+
+minetest.register_chatcommand("icon_transparency", {
+    params = "<int>",
+    description = S("Set stat icon transparency between 0 and 255 or "..
+		    "default ").."("..mthudopacity..")",
+    func = function(name, param)
+       local player = minetest.get_player_by_name(name)
+       local meta = player:get_meta()
+       local hud_data = hud[name]
+       if param == "" or param == "help" then
+	  local wlist = S("/show_stats:\n"..
+			  "Set stat icon transparency between 0 and 255.\n"..
+			  "Valid value is an integer between 0 and 255 or default.\n")
+	  return false, wlist
+       end
+       if param == "default" then
+	  meta:set_string("exile_hud_icon_transparency", "")
+	  hud_data.opacity = nil
+	  return true, S("Returned setting to default")
+       else
+	  local num = tonumber(param)
+	  if type(num) == "number" then
+	     if num < 0 then
+		meta:set_string("exile_hud_icon_transparency", "0")
+		hud_data.opacity = 0
+		return false, S("Icon transparency set to 0")
+	     elseif num > 255 then
+		meta:set_string("exile_hud_icon_transparency", "255")
+		hud_data.opacity = 255
+		return false, S("Icon transparency set to 255")
+	     else
+		meta:set_string("exile_hud_icon_transparency", tostring(math.floor(num)))
+		hud_data.opacity = num
+		return false, S("Icon transparency set to ")..math.floor(num)
+	     end
+	  else
+	     return false, S("Invalid value. Please use a whole number between 0 and 255")
+	  end
+       end
+    end
+})
