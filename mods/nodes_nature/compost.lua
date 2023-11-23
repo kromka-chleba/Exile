@@ -102,7 +102,7 @@ local base_undecomposed_compost = {
     undecomposed_compost = 1,
   },
   tiles = {"nodes_nature_compost_undecomposed.png"},
-  sound = sediment.sounds.dirt,
+  sounds = sediment.sounds.dirt,
   stack_max = minimal.stack_max_bulky,
   _place_tip = S("Set to decompose"),
   on_timer = function(pos, elapsed)
@@ -128,7 +128,7 @@ local base_compost = {
     compost = 1,
   },
   tiles = {"nodes_nature_compost.png"},
-  sound = sediment.sounds.dirt,
+  sounds = sediment.sounds.dirt,
   stack_max = minimal.stack_max_bulky,
   _fertilize_replace_with = "stairs:slab_compost",
   on_use = function(itemstack, user, pointed_thing)
