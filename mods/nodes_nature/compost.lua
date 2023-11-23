@@ -151,7 +151,7 @@ for i = 1, 4 do
     name = name.."_wet"
     reg_compost.description = S("Wet Compost")
     reg_compost.sounds = sediment.sounds.dirt_wet
-    reg_compost.groups.wet_compost = 1
+    reg_compost.groups.compost = 2
 
     reg_compost._dig_tip = S("Fertilize and soak soil")
     reg_compost.on_use = function(itemstack, user, pointed_thing)

@@ -56,6 +56,8 @@ Sediment
 `fertilizer`: restores depleted agricultural soil on punch
 `agricultural_soil`: Gives a boost to plant growth.
 `depleted_agricultural_soil`: gives a small boost to plant growth.
+`compost`: enriches (+ restores depleted) agricultural soil (and soaks if wet). 1=dry, 2=wet
+`undecomposed_compost`: undecomposed compost - cannot be used as fertilizer. 1=dry, 2=wet
 
 
 Temperature:
