@@ -31,12 +31,48 @@ dofile(minetest.get_modpath('health')..'/food.lua')
 --frequency of updating and applying effects
 local interval = 60
 
+local function is_meta(meta)
+  if type(meta) == "userdata" then
+    if meta["get_int"] and meta["get_string"] then
+      return true
+    end
+  end
+end
+
+-- minimal/utility/general.lua
+local function math_clamp(num,min,max)
+  return minimal.math_clamp(num,min,max)
+end
+
 -----------------------------
 --Player Attibutes
 --
 --use standard values base, so it doesn't compound each time called
 --Only adjusted values saved in player meta so they can be accessed without recalculating
 --cf hunger etc which do get change and have no base value
+HEALTH.max_hp = 20
+function HEALTH.get_default_attributes() -- for other scripts to utilize to get base attributes of a fresh player
+  return {
+    health = HEALTH.max_hp,
+    thirst = 100,
+    hunger = 1000,
+    energy = 1000,
+    temperature = 37,
+    oxygen = 10, -- for suffocation or drowning
+
+    heal_rate = 1, -- 4
+    thirst_rate = -1,
+    hunger_rate = -3, -- -2
+    recovery_rate = 4, -- 5
+
+    move = 0,
+    jump = 0,
+
+    --no clothing temperature comfort zone
+    clothing_temp_min = 18, -- 20
+    clothing_temp_max = 32, -- 30
+  }
+end
 local heal_rate = 1 -- 4
 local thirst_rate = -1
 local hunger_rate = -3 -- -2
@@ -49,22 +85,131 @@ local temp_min = 18--20
 local temp_max = 32--30
 
 --e.g. for new players
-local function set_default_attibutes(player)
+function HEALTH.set_default_attributes(player)
 	local meta = player:get_meta()
-	meta:set_int("thirst", 100)
-	meta:set_int("hunger", 1000)
-	meta:set_int("energy", 1000)
-	meta:set_int("temperature", 37)
-	meta:set_int("heal_rate", heal_rate)
-	meta:set_int("thirst_rate", thirst_rate)
-	meta:set_int("hunger_rate", hunger_rate)
-	meta:set_int("recovery_rate", recovery_rate)
-	meta:set_int("move", move)
-	meta:set_int("jump", jump)
-	meta:set_int("clothing_temp_min", temp_min)
-	meta:set_int("clothing_temp_max", temp_max )
-
+  local attrb = HEALTH.get_default_attributes()
+  player:set_hp(attrb.health)
+  for name,value in pairs(attrb) do
+    if (type(name) ~= "string") then
+      name = tostring(name)
+    end
+    if (type(value) == "number" and name ~= "health") then -- don't try to set an int for health
+      value = math.ceil(value)
+      meta:set_int(name,value)
+    elseif (type(value) == "string") then
+      meta:set_string(name,value)
+    end
+  end
 end
+function HEALTH.reset_attributes(...) -- ditto definition (was defined in old code for some reason, isn't used)
+  HEALTH.set_default_attributes(...)
+end
+
+function HEALTH.get_meta_stats(meta)
+  assert(type(meta) == "userdata","health.get_meta_stats: meta/player is not a valid 'userdata'")
+  if (minetest.is_player(meta)) then
+    meta = meta:get_meta()
+  elseif not is_meta(meta) then
+    error("health.get_meta_stats: invalid parameter given for meta/player")
+  end
+  local fields = meta:to_table().fields -- metadata is fun...
+  for key,value in pairs(fields) do -- apparently all data is turned into strings???
+    value = tonumber(value) -- turn into a number to check if the thing is actually a number
+    if (type(value) == "number") then
+      fields[key] = value
+    end
+    -- effects_list is a serialized table
+    if (key == "effects_list") then
+      fields[key] = minetest.deserialize(value)
+    end
+  end
+
+  return fields
+end
+
+function HEALTH.get_player_stats(player)
+  assert(minetest.is_player(player) == true,"get_player_stats: player is not a 'player'")
+  local meta = player:get_meta()
+  local fields = HEALTH.get_meta_stats(meta)
+  fields.health = player:get_hp()
+  return fields,meta
+end
+
+-- SETTING AND MODIFYING FUNCTIONS
+
+-- allows any code that depends on HEALTH to use modify_hp to reliably modify player health
+function HEALTH.modify_hp(player,value)
+  assert(minetest.is_player(player) == true,"health.modify_hp: player is not a 'player'")
+  if (type(value) ~= "number") then
+    value = 0
+  end
+  local phealth = player:get_hp()
+  phealth = math_clamp(phealth + value,0,HEALTH.max_hp)
+  player:set_hp(phealth)
+
+  return phealth -- return modified health
+end
+
+-- sets meta values between certain limits and updates meta
+function HEALTH.set_int(meta,name,value)
+  assert(type(meta) == "userdata","health.set_int: meta/player is not a valid 'userdata'")
+  if (minetest.is_player(meta)) then
+    meta = meta:get_meta()
+  end
+  assert(is_meta(meta),"health.set_int: invalid first parameter given for meta/player")
+  if (type(value) ~= "number") then
+    value = 0
+  end
+
+  if (type(name) ~= "string") then
+    name = tostring(name)
+    name = string.lower(name)
+  else
+    name = string.lower(name)
+  end
+  if (meta:get(name) == nil) then
+    return 0
+  end
+
+  value = math.ceil(value)
+  -- check for names to set custom limits
+  if (name == "hunger" or name == "energy") then
+    value = math_clamp(value,0,1000)
+  elseif (name == "thirst" or name == "temperature") then
+    value = math_clamp(value,0,100)
+  end
+  meta:set_int(name,value)
+
+  return value -- return provided value
+end
+
+-- allows any code that depends on HEALTH to use modify_int to reliably modify stats like hunger or thirst
+function HEALTH.modify_int(meta,name,value)
+  assert(type(meta) == "userdata","health.modify_int: player/meta is not a valid 'userdata'")
+  if (HEALTH.typeof(meta) == "player") then
+    meta = meta:get_meta()
+  end
+  assert(is_meta(meta),"health.modify_int: invalid first parameter given for player/meta")
+  if (type(value) ~= "number") then
+    value = 0
+  end
+
+  if (type(name) ~= "string") then
+    name = tostring(name)
+    name = string.lower(name)
+  else
+    name = string.lower(name)
+  end
+  if (meta:get(name) == nil) then -- if key doesn't exist
+    return 0
+  end
+
+  local stat = meta:get_int(name)
+  value = math.ceil(value) -- no floats
+
+  return HEALTH.set_int(meta,name,(stat + value)) -- return modified value (use set_int to keep metadata within limits)
+end
+
 
 
 
