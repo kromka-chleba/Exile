@@ -290,7 +290,7 @@ minetest.register_lbm({
   "nodes_nature:slope_inner_compost_undecomposed_wet",
   "nodes_nature:slope_outer_compost_undecomposed_wet",
   "nodes_nature:slope_pike_compost_undecomposed_wet",
-  "nodes_nature:compost_undecomposed_roots_wet_roots",
+  "nodes_nature:compost_undecomposed_wet_roots",
   "nodes_nature:compost_undecomposed_wet_salty",
   "nodes_nature:slope_compost_undecomposed_wet_salty",
   "nodes_nature:slope_inner_compost_undecomposed_wet_salty",
