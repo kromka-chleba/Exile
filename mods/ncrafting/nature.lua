@@ -5,10 +5,11 @@ local function get_soil_pos(pos)
   if (minimal.in_group(node,"flora") or minimal.in_group(node,"seed")) then
     pos.y = pos.y - 1
     node = minetest.get_node(pos)
-    if minimal.in_group(node,"sediment") then
-      return pos
-    end
-  elseif (minimal.in_group(node,"sediment")) then
+  end
+  if minimal.in_group(node,"sediment") then
+    return pos
+  -- permit interactions with compost
+  elseif minetest.get_item_group(node.name,"compost") == 1 or minetest.get_item_group(node.name,"undecomposed_compost") == 1 then
     return pos
   end
   return
@@ -40,7 +41,6 @@ local function wet_soil(pos, suffix)
 
   -- check if watered block exists
   local wet_node_name = node.name .. suffix
-
   -- otherwise do normal checking
   if not minetest.registered_nodes[wet_node_name] and
     string.match(node.name,"depleted") then

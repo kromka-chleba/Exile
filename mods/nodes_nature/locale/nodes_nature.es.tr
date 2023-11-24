@@ -82,3 +82,13 @@ Wet Depleted @1=@1 Humedecido Agotado
 Tree Marker=Marcador de Arbol
 @1 Log=Tronco de @1
 @1 Leaves=Ramas de @1
+
+# compost.lua
+@1 Slab=
+Compost=
+Wet Compost=
+Undecomposed Compost=
+Wet Undecomposed Compost=
+Set to decompose=
+Fertilize soil=
+Fertilize and soak soil=
