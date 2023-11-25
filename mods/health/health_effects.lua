@@ -397,9 +397,12 @@ vomiting, fever, etc
 ]]--
 
 
-function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate,
-			       mov, jum, temperature)
-
+function HEALTH.food_poisoning(order, player, meta, effects_list, stats)
+  local r_rate = stats.recovery_rate
+  local mov = stats.move
+  local jum = stats.jump
+  local temp = stats.temperature
+  
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
@@ -428,8 +431,8 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate,
 		mov = mov - 20
 		jum = jum - 20
 		--fever
-		if temperature <= 42 then
-			temperature = temperature + random(2,3)
+		if temp <= 42 then
+			temp = temp + random(2,3)
 		end
 		--vomiting
 		vomit(player, meta, 1, 5, 1, 10, 5, 10, 5, 10 )
@@ -442,8 +445,8 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate,
 		mov = mov - 30
 		jum = jum - 30
 		--fever
-		if temperature <= 42 then
-			temperature = temperature + random(2,3)
+		if temp <= 42 then
+			temp = temp + random(2,3)
 		end
 		--vomiting
 		vomit(player, meta, 5, 10, 1, 10, 5, 10, 5, 10 )
@@ -471,7 +474,12 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate,
 	end
 
 	--send back modified values
-	return r_rate, mov, jum, temperature
+  stats.recovery_rate = r_rate
+  stats.move = mov
+  stats.jump = jum
+  stats.temperature = temp
+
+	return stats
 
 end
 
@@ -484,8 +492,11 @@ Soil fungus got into your skin. Something vaguely like Mycetoma.
 For Exile, you get it from wet soil, a reason not to live in a mud hole.
 ]]--
 
-function HEALTH.fungal_infection(order, player, meta, effects_list, r_rate,
-				 mov, jum, temperature)
+function HEALTH.fungal_infection(order, player, meta, effects_list, stats)
+  local r_rate = stats.recovery_rate
+  local mov = stats.move
+  local jum = stats.jump
+  local temp = stats.temperature
 
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
@@ -513,8 +524,8 @@ function HEALTH.fungal_infection(order, player, meta, effects_list, r_rate,
 		mov = mov - 16
 		jum = jum - 16
 		--fever
-		if temperature <= 39 then
-			temperature = temperature + 1
+		if temp <= 39 then
+			temp = temp + 1
 		end
 
 	end
@@ -536,7 +547,12 @@ function HEALTH.fungal_infection(order, player, meta, effects_list, r_rate,
 	end
 
 	--send back modified values
-	return r_rate, mov, jum, temperature
+  stats.recovery_rate = r_rate
+  stats.move = mov
+  stats.jump = jum
+  stats.temperature = temp
+
+	return stats
 
 end
 
@@ -548,8 +564,11 @@ Dust storm born soil fungus got into your lungs. Something vaguely like Valley F
 
 ]]--
 
-function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov,
-			   jum, temperature)
+function HEALTH.dust_fever(order, player, meta, effects_list, stats)
+  local r_rate = stats.recovery_rate
+  local mov = stats.mov 
+  local jum = stats.jump 
+  local temp = stats.temperature
 
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
@@ -558,8 +577,8 @@ function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov,
 		r_rate = r_rate - 4
 		jum = jum - 1
 		--fever
-		if temperature <= 39 then
-			temperature = temperature + 1
+		if temp <= 39 then
+			temp = temp + 1
 		end
 
 	elseif order == 2 then
@@ -568,8 +587,8 @@ function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov,
 		mov = mov - 1
 		jum = jum - 2
 		--fever
-		if temperature <= 39 then
-			temperature = temperature + 1
+		if temp <= 39 then
+			temp = temp + 1
 		end
 
 	elseif order == 3 then
@@ -578,8 +597,8 @@ function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov,
 		mov = mov - 2
 		jum = jum - 4
 		--fever
-		if temperature <= 40 then
-			temperature = temperature + 1
+		if temp <= 40 then
+			temp= temp + 1
 		end
 
 	elseif order == 4 then
@@ -588,8 +607,8 @@ function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov,
 		mov = mov - 4
 		jum = jum - 8
 		--fever
-		if temperature <= 41 then
-			temperature = temperature + 1
+		if temp <= 41 then
+			temp = temp + 1
 		end
 
 	end
@@ -611,7 +630,12 @@ function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov,
 	end
 
 	--send back modified values
-	return r_rate, mov, jum, temperature
+  stats.recovery_rate = r_rate
+  stats.mov = mov
+  stats.jump = jum
+  stats.temp = temp
+
+	return stats
 
 end
 
@@ -625,8 +649,13 @@ Alcohol intoxication. Stumble around. Extreme level is alcohol poisoning
 ]]--
 
 
-function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum,
-		      h_rate, temperature)
+function HEALTH.drunk(order, player, meta, effects_list, stats)
+  local r_rate = stats.recovery_rate
+  local mov = stats.move
+  local jum = stats.jump
+  local h_rate = stats.heal_rate
+  local temp = stats.temperature
+
 	local max_drunk = meta:get_int("max_hangover") or 0
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
@@ -683,8 +712,8 @@ function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum,
 
 		--vomiting and hypothermia
 		vomit(player, meta, 1, 5, 1, 10, 5, 10, 5, 10 )
-		if temperature >= 34 then
-			temperature = temperature - random(1,3)
+		if temp >= 34 then
+			temp = temp - random(1,3)
 		end
 		--damage
 		if random()<0.25 then
@@ -709,7 +738,13 @@ function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum,
 	end
 
 	--send back modified values
-	return r_rate, mov, jum, h_rate, temperature
+  stats.recovery_rate = r_rate
+  stats.move = mov
+  stats.jump = jum
+  stats.heal_rate = h_rate
+  stats.temperature = temp
+
+	return stats
 
 end
 
@@ -721,7 +756,10 @@ After effects of drugs and alcohol
 
 ]]--
 
-function HEALTH.hangover(order, player, meta, effects_list, mov, jum )
+function HEALTH.hangover(order, player, meta, effects_list, stats)
+  local mov = stats.mov
+  local jum = stats.jump
+
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
@@ -755,7 +793,10 @@ function HEALTH.hangover(order, player, meta, effects_list, mov, jum )
 	end
 
 	--send back modified values
-	return mov, jum
+  stats.move = mov
+  stats.jump = jum
+
+	return stats
 
 end
 
@@ -769,8 +810,9 @@ Gut worms etc. Increased hunger.
 ]]--
 
 
-function HEALTH.intestinal_parasites(order, player, meta, effects_list,
-				     r_rate, hun_rate)
+function HEALTH.intestinal_parasites(order, player, meta, effects_list, stats)
+  local r_rate = stats.recovery_rate
+  local hun_rate = stats.hunger_Rate
 	--no orders, or progression.
 	--you get them, then hope they go away (or cure them)
 	--hunger quicker, recover slower
@@ -783,7 +825,10 @@ function HEALTH.intestinal_parasites(order, player, meta, effects_list,
 	end
 
 	--send back modified values
-	return r_rate, hun_rate
+  stats.recovery_rate = r_rate
+  stats.hunger_rate = hun_rate
+
+	return stats
 
 end
 
@@ -799,8 +844,13 @@ Extreme is an overdose
 ]]--
 
 
-function HEALTH.tiku_high(order, player, meta, effects_list, r_rate,
-			  hun_rate, mov, jum, temperature)
+function HEALTH.tiku_high(order, player, meta, effects_list, stats)
+  local r_rate = stats.recovery_rate
+  local hun_rate = stats.hunger_rate
+  local mov = stats.move
+  local jum = stats.jump
+  local temp = stats.temperature
+
 	local max_drunk = meta:get_int("max_hangover") or 0
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
@@ -828,8 +878,8 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate,
 		mov = mov + 36
 		jum = jum + 24
 		-- mild fever
-		if temperature < 38 and random()<0.3 then
-			temperature = temperature + random(2,3)
+		if temp < 38 and random()<0.3 then
+			temp = temp + random(2,3)
 		end
 		if random()<0.1 then
 			auditory_hallucination(player, 1, 4, 2, 10, 0.02, 0.08)
@@ -846,8 +896,8 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate,
 		mov = mov + 48
 		jum = jum + 45
 		-- mild fever
-		if temperature <= 38 and random()<0.6 then
-			temperature = temperature + random(2,3)
+		if temp <= 38 and random()<0.6 then
+			temp = temp + random(2,3)
 		end
 		--time to go crazy
 		auditory_hallucination(player, 30, 60, 0.4, 1, 0.5, 4)
@@ -866,8 +916,8 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate,
 		jum = jum - 5
 
 		--  fever
-		if temperature <= 43 then
-			temperature = temperature + random(2,4)
+		if temp <= 43 then
+			temp = temp + random(2,4)
 		end
 		--time to go crazy
 		auditory_hallucination(player, 30, 60, 0.5, 1, 1, 4)
@@ -907,7 +957,13 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate,
 	end
 
 	--send back modified values
-	return r_rate, hun_rate, mov, jum, temperature
+  stats.recovery_rate = r_rate
+  stats.hunger_rate = hun_rate
+  stats.move = mov
+  stats.jump = jum
+  stats.temperature = temp
+
+	return stats
 
 end
 
@@ -920,7 +976,9 @@ effect_name = "Neurotoxicity"
 
 ]]--
 
-function HEALTH.neurotoxicity(order, player, meta, effects_list, mov, jum)
+function HEALTH.neurotoxicity(order, player, meta, effects_list, stats)
+  local mov = stats.move
+  local jum = stats.jump
 
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
@@ -973,7 +1031,10 @@ function HEALTH.neurotoxicity(order, player, meta, effects_list, mov, jum)
 	end
 
 	--send back modified values
-	return mov, jum
+  stats.move = mov
+  stats.jump = jum
+
+	return stats
 
 end
 
@@ -986,8 +1047,11 @@ effect_name = "Hepatotoxicity"
 liver poison. vomiting, death
 
 ]]--
-function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum,
-			       r_rate, h_rate)
+function HEALTH.hepatotoxicity(order, player, meta, effects_list, stats)
+  local mov = stats.move
+  local jum = stats.jump
+  local r_rate = stats.recovery_rate
+  local h_rate = stats.heal_rate
 
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
@@ -1049,7 +1113,12 @@ function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum,
 	end
 
 	--send back modified values
-	return mov, jum, r_rate, h_rate
+  stats.move = mov
+  stats.jump = jum
+  stats.recovery_rate = r_rate
+  stats.heal_rate = h_rate
+
+	return stats
 
 end
 
@@ -1062,8 +1131,9 @@ Light sensitivity
 i.e. you are coming up in blisters if exposed to sun
 ]]--
 
-function HEALTH.photosensitivity(order, player, meta, effects_list,
-				 h_rate, r_rate )
+function HEALTH.photosensitivity(order, player, meta, effects_list, stats)
+  local h_rate = stats.heal_rate
+  local r_rate = stats.recovery_rate
 
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
@@ -1096,7 +1166,6 @@ function HEALTH.photosensitivity(order, player, meta, effects_list,
 
 	end
 
-
 	--PROGRESSION (timers, conditionals, chance)
 	if do_timer(meta, "Photosensitivity", 12, 24) == true then
 		-- recover
@@ -1105,7 +1174,10 @@ function HEALTH.photosensitivity(order, player, meta, effects_list,
 	end
 
 	--send back modified values
-	return h_rate, r_rate
+  stats.heal_rate = h_rate
+  stats.recovery_rate = r_rate
+
+	return stats
 
 end
 
@@ -1120,8 +1192,12 @@ A slight bit of a techno-vampire vibe
 ]]--
 
 
-function HEALTH.meta_stim(order, player, meta, effects_list, h_rate,
-			  r_rate, hun_rate, t_rate)
+function HEALTH.meta_stim(order, player, meta, effects_list, stats)
+  local h_rate = stats.heal_rate
+  local r_rate = stats.recovery_rate
+  local hun_rate = stats.hunger_rate
+  local t_rate = stats.thirst_rate
+
 	local max_metastim = meta:get_int("max_metastim") or 0
 
 
@@ -1291,7 +1367,12 @@ function HEALTH.meta_stim(order, player, meta, effects_list, h_rate,
 	end
 
 	--send back modified values
-	return h_rate, r_rate, hun_rate, t_rate
+  stats.heal_rate = h_rate
+  stats.recovery_rate = r_rate
+  stats.hunger_rate = hun_rate
+  stats.thirst_rate = t_rate
+
+	return stats
 
 end
 
