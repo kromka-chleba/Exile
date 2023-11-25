@@ -105,6 +105,8 @@ function HEALTH.reset_attributes(...) -- ditto definition (was defined in old co
   HEALTH.set_default_attributes(...)
 end
 
+-- MISCELLANEOUS GET FUNCTIONS
+
 function HEALTH.get_meta_stats(meta)
   assert(type(meta) == "userdata","health.get_meta_stats: meta/player is not a valid 'userdata'")
   if (minetest.is_player(meta)) then
@@ -133,6 +135,16 @@ function HEALTH.get_player_stats(player)
   local fields = HEALTH.get_meta_stats(meta)
   fields.health = player:get_hp()
   return fields,meta
+end
+
+function HEALTH.get_life_num(meta) -- gets player's "lives" and returns it
+  assert(type(meta) == "userdata","HEALTH.get_life_num: invalid argument for 'meta/player'")
+  if (minetest.is_player(meta)) then
+    meta = meta:get_meta()
+  end
+  assert(is_meta(meta),"HEALTH.get_life_num: could not get metadata")
+
+  return meta:get_int("lives") or 0
 end
 
 -- SETTING AND MODIFYING FUNCTIONS

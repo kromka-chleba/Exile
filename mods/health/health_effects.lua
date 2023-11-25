@@ -54,42 +54,40 @@ player_monoids = player_monoids
 HEALTH = HEALTH
 
 ------------------------------------------------------------------
+-- FUNCTION DUMP
+------------------------------------------------------------------
+
+local function math_clamp(...) -- num, min, max
+  return minimal.math_clamp(...)
+end
+
+local function get_life_num(...) -- player/meta
+  return HEALTH.get_life_num(...)
+end
+
+local function modify_hp(...) -- player, hp_amt
+  return HEALTH.modify_hp(...)
+end
+local function modify_int(...) -- player, int_name, int_value
+  return HEALTH.modify_int(...)
+end
+
+------------------------------------------------------------------
 -- VERIFYING FUNCTIONS
 ------------------------------------------------------------------
 
-local function get_life_num(player) -- gets player's "lives" and returns it
-  --assert(type(player) == "userdata","get_life_num: invalid argument for 'player'")
-  --assert(player:is_player(),"get_life_num: player is not a player")
-  if (type(player) ~= "userdata") then
-    return 0,"get_life_num: invalid argument for 'player'"
-  end
-  if (player:is_player() ~= true) then
-    return 0,"get_life_num: 'player' is not a player"
-  end
 
-  local pmeta = player:get_meta()
 
-  return pmeta:get_int("lives") or 0
-end
-
-local function is_illness_valid(player,life_num)
+local function is_illness_valid(meta,life_num)
    -- general function that will decide whether a sickness
    -- should continue or not
-  --if (type(sickdata) ~= "table") then
-    --return false
-  --end
-
-  --local life_num = sickdata.life_num
-
-  if (type(life_num) ~= "number") then
-    return false
-  elseif (life_num == get_life_num(player)) then
+   -- will accept player or meta as an argument
+  if (life_num == HEALTH.get_life_num(meta)) then
      -- if assigned life_num to effect was the current player then say illness
      --  is valid and good to go :D (poor player lol)
     return true
-  else
-    return false
   end
+  return false
 end
 
 ------------------------------------------------------------------
@@ -100,16 +98,15 @@ end
 --throw up losing some food and water
 local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
 	--vomit repeatedly after time
-  local life_num = get_life_num(player)
+  local life_num = get_life_num(meta)
 
 	local ranrep = random(repeat_min, repeat_max)
-
 	local randel = 0
 
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
-      if (is_illness_valid(player,life_num) ~= true) then
+      if (is_illness_valid(meta,life_num) ~= true) then
         return
       end
 
@@ -141,7 +138,6 @@ end
 
 --stagger, make player hard to control
 local function stagger(player, repeat_min, repeat_max, delay_min, delay_max, stag)
-
   local life_num = get_life_num(player)
 
 	local name = player:get_player_name()
@@ -186,18 +182,7 @@ local function organ_failure(player, repeat_min, repeat_max, delay_min, delay_ma
       end
 
 			local ran_dam =  random(dam_min, dam_max)
-
-			local health = player:get_hp()
-			health = health - ran_dam
-
-			if health < 0 then
-				health = 0
-			elseif health > 20 then
-				health = 20
-			end
-
-			player:set_hp(health)
-
+      modify_hp(player,ran_dam)
 		end)
 	end
 
