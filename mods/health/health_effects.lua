@@ -98,47 +98,36 @@ end
 --throw up losing some food and water
 local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
 	--vomit repeatedly after time
-  local life_num = get_life_num(meta)
-
+  local life_num = get_life_num(player)
+  
 	local ranrep = random(repeat_min, repeat_max)
+
 	local randel = 0
 
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
-      if (is_illness_valid(meta,life_num) ~= true) then
+      if (is_illness_valid(player,life_num) ~= true) then
         return
       end
-
+      
 			local pos = player:get_pos()
 			minetest.sound_play("health_vomit", {pos = pos, gain = 0.5, max_hear_distance = 2})
 
-			local rant =  random(t_min, t_max)
+			local rant = random(t_min, t_max)
 			local ranh = random(h_min, h_max)
 
 			--must directly set them, as time delay means it isn't feeding into main health loop
-			local thirst = meta:get_int("thirst")
-			local hunger = meta:get_int("hunger")
-
-			thirst = thirst - rant
-			hunger = hunger - ranh
-			if thirst < 0 then
-				thirst = 0
-			end
-			if hunger < 0 then
-				hunger = 0
-			end
-
-			meta:set_int("thirst", thirst)
-			meta:set_int("hunger", hunger)
+      HEALTH.modify_int(meta,"thirst",-rant)
+      HEALTH.modify_int(meta,"hunger",-ranh)
 		end)
 	end
 end
 
 
 --stagger, make player hard to control
-local function stagger(player, repeat_min, repeat_max, delay_min, delay_max, stag)
-  local life_num = get_life_num(player)
+local function stagger(player, meta, repeat_min, repeat_max, delay_min, delay_max, stag)
+  local life_num = get_life_num(meta)
 
 	local name = player:get_player_name()
 
@@ -149,7 +138,7 @@ local function stagger(player, repeat_min, repeat_max, delay_min, delay_max, sta
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
-      if (is_illness_valid(player,life_num) ~= true) then
+      if (is_illness_valid(meta,life_num) ~= true) then
         return
       end
 
@@ -445,7 +434,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate,
 		--vomiting
 		vomit(player, meta, 1, 5, 1, 10, 5, 10, 5, 10 )
 		--mild staggering
-		stagger(player, 1, 5, 1, 5, 3)
+		stagger(player, meta, 1, 5, 1, 5, 3)
 
 	elseif order == 4 then
 		--slow recovery, movement
@@ -459,7 +448,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate,
 		--vomiting
 		vomit(player, meta, 5, 10, 1, 10, 5, 10, 5, 10 )
 		--mild staggering
-		stagger(player, 1, 5, 1, 5, 3)
+		stagger(player, meta, 1, 5, 1, 5, 3)
 	end
 
 
@@ -651,7 +640,7 @@ function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum,
 		mov = mov - 2
 		jum = jum - 5
 		--mild staggering
-		stagger(player, 1, 5, 1, 5, 3)
+		stagger(player, meta, 1, 5, 1, 5, 3)
 
 	elseif order == 2 then
 		if max_drunk < 2 then
@@ -663,7 +652,7 @@ function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum,
 		mov = mov - 5
 		jum = jum - 10
 		--staggering
-		stagger(player, 5, 10, 0.5, 5, 4)
+		stagger(player, meta, 5, 10, 0.5, 5, 4)
 
 	elseif order == 3 then
 		if max_drunk < 3 then
@@ -679,7 +668,7 @@ function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum,
 			vomit(player, meta, 1, 3, 1, 10, 1, 5, 1, 5 )
 		end
 		--major staggering
-		stagger(player, 30, 60, 0.5, 1, 4)
+		stagger(player, meta, 30, 60, 0.5, 1, 4)
 
 	elseif order == 4 then
 		if max_drunk < 4 then
@@ -702,7 +691,7 @@ function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum,
 			organ_failure(player, 1, 3, 1, 8, 2, 3)
 		end
 		--major staggering
-		stagger(player, 30, 60, 0.5, 1, 4)
+		stagger(player, meta, 30, 60, 0.5, 1, 4)
 
 	end
 
@@ -747,13 +736,13 @@ function HEALTH.hangover(order, player, meta, effects_list, mov, jum )
 		mov = mov - 6
 		jum = jum - 6
 		--mild staggering
-		stagger(player, 1, 5, 1, 5, 3)
+		stagger(player, meta, 1, 5, 1, 5, 3)
 
 	elseif order == 4 then
 		mov = mov - 8
 		jum = jum - 8
 		--mild staggering
-		stagger(player, 1, 5, 1, 5, 3)
+		stagger(player, meta, 1, 5, 1, 5, 3)
 
 	end
 
@@ -863,7 +852,7 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate,
 		--time to go crazy
 		auditory_hallucination(player, 30, 60, 0.4, 1, 0.5, 4)
 		--mild staggering
-		stagger(player, 1, 5, 1, 5, 3)
+		stagger(player, meta, 1, 5, 1, 5, 3)
 
 
 	elseif order == 4 then
@@ -883,7 +872,7 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate,
 		--time to go crazy
 		auditory_hallucination(player, 30, 60, 0.5, 1, 1, 4)
 		--major staggering
-		stagger(player, 30, 60, 0.5, 1, 4)
+		stagger(player, meta, 30, 60, 0.5, 1, 4)
 		--vomit chance
 		if random()<0.75 then
 			vomit(player, meta, 1, 3, 1, 10, 1, 5, 1, 5 )
@@ -940,14 +929,14 @@ function HEALTH.neurotoxicity(order, player, meta, effects_list, mov, jum)
 		mov = mov - 7
 		jum = jum - 7
 		--major staggering
-		stagger(player, 10, 15, 0.3, 1, 4)
+		stagger(player, meta, 10, 15, 0.3, 1, 4)
 
 	elseif order == 2 then
 		--restrict movement
 		mov = mov - 15
 		jum = jum - 15
 		--major staggering
-		stagger(player, 20, 30, 0.3, 1, 4)
+		stagger(player, meta, 20, 30, 0.3, 1, 4)
 		--damage
 		if random()<0.05 then
 			organ_failure(player, 1, 3, 1, 5, 1, 5)
@@ -958,7 +947,7 @@ function HEALTH.neurotoxicity(order, player, meta, effects_list, mov, jum)
 		mov = mov - 30
 		jum = jum - 30
 		--major staggering
-		stagger(player, 50, 60, 0.3, 1, 4)
+		stagger(player, meta, 50, 60, 0.3, 1, 4)
 		--damage
 		if random()<0.25 then
 			organ_failure(player, 1, 3, 1, 5, 1, 5)
@@ -969,7 +958,7 @@ function HEALTH.neurotoxicity(order, player, meta, effects_list, mov, jum)
 		mov = mov - 30
 		jum = jum - 30
 		--major staggering
-		stagger(player, 50, 60, 0.3, 1, 4)
+		stagger(player, meta, 50, 60, 0.3, 1, 4)
 		--damage
 		organ_failure(player, 1, 3, 1, 5, 1, 5)
 
@@ -1087,22 +1076,22 @@ function HEALTH.photosensitivity(order, player, meta, effects_list,
 		if order == 1 then
 			h_rate = h_rate - 3
 			r_rate = r_rate - 8
-			stagger(player, 1, 2, 1, 5, 1)
+			stagger(player, meta, 1, 2, 1, 5, 1)
 
 		elseif order == 2 then
 			h_rate = h_rate - 6
 			r_rate = r_rate - 12
-			stagger(player, 1, 3, 1, 5, 1)
+			stagger(player, meta, 1, 3, 1, 5, 1)
 
 		elseif order == 3 then
 			h_rate = h_rate - 12
 			r_rate = r_rate - 24
-			stagger(player, 1, 2, 1, 5, 1)
+			stagger(player, meta, 1, 2, 1, 5, 1)
 
 		elseif order == 4 then
 			h_rate = h_rate - 9
 			r_rate = r_rate - 48
-			stagger(player, 1, 4, 1, 5, 1)
+			stagger(player, meta, 1, 4, 1, 5, 1)
 		end
 
 	end
