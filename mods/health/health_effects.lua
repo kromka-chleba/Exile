@@ -78,11 +78,16 @@ end
 
 
 
-local function is_illness_valid(meta,life_num)
+local function is_illness_valid(player,meta,life_num)
    -- general function that will decide whether a sickness
    -- should continue or not
-   -- will accept player or meta as an argument
-  if (life_num == HEALTH.get_life_num(meta)) then
+  if player:get_hp() <= 0 then
+    return false
+  end
+  if not meta then
+    meta = player:get_meta()
+  end
+  if (life_num == get_life_num(meta)) then
      -- if assigned life_num to effect was the current player then say illness
      --  is valid and good to go :D (poor player lol)
     return true
@@ -98,7 +103,7 @@ end
 --throw up losing some food and water
 local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
 	--vomit repeatedly after time
-  local life_num = get_life_num(player)
+  local life_num = get_life_num(meta)
   
 	local ranrep = random(repeat_min, repeat_max)
 
@@ -107,7 +112,7 @@ local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max,
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
-      if (is_illness_valid(player,life_num) ~= true) then
+      if not is_illness_valid(player,meta,life_num) then
         return
       end
       
@@ -138,7 +143,7 @@ local function stagger(player, meta, repeat_min, repeat_max, delay_min, delay_ma
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
-      if (is_illness_valid(meta,life_num) ~= true) then
+      if not is_illness_valid(player,meta,life_num) then
         return
       end
 
@@ -166,7 +171,7 @@ local function organ_failure(player, repeat_min, repeat_max, delay_min, delay_ma
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
-      if (is_illness_valid(player,life_num) ~= true) then
+      if not is_illness_valid(player,nil,life_num) then
         return
       end
 
@@ -191,8 +196,7 @@ local function auditory_hallucination(player, repeat_min, repeat_max, delay_min,
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
-
-      if (is_illness_valid(player,life_num) ~= true) then
+      if not is_illness_valid(player,nil,life_num) then
         return
       end
 
