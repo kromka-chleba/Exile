@@ -33,8 +33,8 @@ function HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_chang
   local energy = modify_int(meta,"energy",energy_change)
   local temperature = modify_int(meta,"temperature",temp_change)
 
-	-- and update malus (need for setting correct physics) --conflicts with Health Effects!
-  HEALTH.health_physics(user,meta)
+	-- and update malus (need for setting correct physics)
+  HEALTH.quick_physics(user,meta)
   --update form so can see change while looking
   sfinv.set_player_inventory_formspec(user)
 

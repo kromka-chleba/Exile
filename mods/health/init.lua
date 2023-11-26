@@ -223,12 +223,12 @@ function HEALTH.modify_int(meta,name,value)
 end
 
 ----------------------------
--- Health Physics (does not calculate illness) -- called to update player's status
+-- Health Calc (calculation) (does not calculate illness) -- called to update player's status
 -- calculates player status in reference to the player's stats and health, saves adjusted rates
 -- returns the adjusted rates so they can be used if desired
 -- dontset will prevent setting the variables
-function HEALTH.health_physics(player,meta,dontset)
-  assert(minetest.is_player(player) == true,"health.health_physics: provided 'player' is not a player!")
+function HEALTH.health_calc(player,meta,dontset)
+  assert(minetest.is_player(player) == true,"health.health_calc: provided 'player' is not a player!")
 
   if not type(dontset) == "boolean" then
     dontset = false
@@ -444,6 +444,18 @@ function HEALTH.health_physics(player,meta,dontset)
 end
 -----------------------------
 
+-- HEALTH.quick_physics
+-- does what HEALTH.health_calc does, but only for move and jump
+function HEALTH.quick_physics(player,meta)
+  local stats = HEALTH.health_calc(player,meta,true)
+
+  if not bed_rest.player[name] then
+    player_monoids.speed:add_change(player, 1 + (stats.move/100), "health:physics")
+    player_monoids.jump:add_change(player, 1 + (stats.jump/100), "health:physics")
+  end
+  return stats
+end
+
 
 
 
@@ -617,7 +629,7 @@ end
 -- returns the adjusted rates so they can be used if desired
 --
 function HEALTH.malus_bonus(player,meta)
-  local stats = HEALTH.health_physics(player,meta) -- get mov + jum before do_effects
+  local stats = HEALTH.health_calc(player,meta) -- get mov + jum before do_effects
   local mov = stats.move
   local jum = stats.jump
 
@@ -633,7 +645,7 @@ function HEALTH.malus_bonus(player,meta)
 
   if not bed_rest.player[name] then
 		--split physics from hunger etc from that from health effects
-		--this means health_physics can fiddle with one half, without overriding the half from effects
+		--this means health_calc can fiddle with one half, without overriding the half from effects
 		mov = stats.move - mov
 		jum = stats.jump - jum
 		player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics_HE")
