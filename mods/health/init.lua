@@ -226,9 +226,13 @@ end
 -- Health Physics (does not calculate illness) -- called to update player's status
 -- calculates player status in reference to the player's stats and health, saves adjusted rates
 -- returns the adjusted rates so they can be used if desired
-function HEALTH.health_physics(player,meta)
+-- dontset will prevent setting the variables
+function HEALTH.health_physics(player,meta,dontset)
   assert(minetest.is_player(player) == true,"health.health_physics: provided 'player' is not a player!")
-  
+
+  if not type(dontset) == "boolean" then
+    dontset = false
+  end
   local name = player:get_player_name()
   local bstats = HEALTH.get_default_attributes() -- get base starting stats
   local stats = {}
@@ -423,15 +427,18 @@ function HEALTH.health_physics(player,meta)
     player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics")
     player_monoids.jump:add_change(player, 1 + (jum/100), "health:physics")
   end
-  
-  -- set new rates
-  stats.heal_rate = HEALTH.set_int(meta,"heal_rate",h_rate)
-	stats.thirst_rate = HEALTH.set_int(meta,"thirst_rate",t_rate)
-	stats.hunger_rate = HEALTH.set_int(meta,"hunger_rate",hun_rate)
-	stats.recovery_rate = HEALTH.set_int(meta,"recovery_rate",r_rate)
-	stats.move = HEALTH.set_int(meta,"move",mov)
-	stats.jump = HEALTH.set_int(meta,"jump",jum)
-  
+
+  -- set player's meta
+  if not dontset then
+    for name,value in pairs(stats) do
+      if (type(value) == "number") then
+        HEALTH.set_int(meta,name,value)
+      elseif (type(value) == "string") then
+        meta:set_string(value)
+      end
+    end
+  end
+
   --return adjusted rates so can be applied if necessary
 	return stats
 end
@@ -514,18 +521,8 @@ register_tab()
 --runs through player's current effects, runs the function for that effect
 --takes all the same variables, and outputs as any effect may use them.
 --adjusted outputs feed back into malus_bonus
-local function do_effects_list(player, meta)
+local function do_effects_list(player, meta, stats)
   local health = player:get_hp()
-  
-  local stats = {
-    heal_rate = meta:get_int("heal_rate"),
-    recovery_rate = meta:get_int("recovery_rate"),
-    thirst_rate = meta:get_int("thirst_rate"),
-    hunger_rate = meta:get_int("hunger_rate"),
-    move = meta:get_int("move"),
-    jump = meta:get_int("jump"),
-    temperature = meta:get_int("temperature")
-  }
 
 	local effects_list = meta:get_string("effects_list")
 	effects_list = minetest.deserialize(effects_list) or {}
@@ -624,20 +621,19 @@ function HEALTH.malus_bonus(player,meta)
   local mov = stats.move
   local jum = stats.jump
 
-  -- update player's meta
+  stats = do_effects_list(player,meta,stats) -- update for health effects
+  -- set player's meta to diseased
   for name,value in pairs(stats) do
-    if (type(value) == "number") then
+    if (type(value) == "number" and name ~= "move" or name ~= "jump") then
       HEALTH.set_int(meta,name,value)
     elseif (type(value) == "string") then
       meta:set_string(value)
     end
   end
 
-  stats = do_effects_list(player,meta) -- update for health effects
-
   if not bed_rest.player[name] then
 		--split physics from hunger etc from that from health effects
-		--this means q_malus_bonus can fiddle with one half, without overriding the half from effects
+		--this means health_physics can fiddle with one half, without overriding the half from effects
 		mov = stats.move - mov
 		jum = stats.jump - jum
 		player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics_HE")
@@ -729,7 +725,6 @@ if minetest.settings:get_bool("enable_damage") then
 
 				--update
         local temperature1 = 0
-
 				if temperature > 37 then
 					temperature1 = temperature1 - 1
 				elseif temperature < 37 then
