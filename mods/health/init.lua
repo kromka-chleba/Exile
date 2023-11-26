@@ -114,19 +114,23 @@ function HEALTH.get_meta_stats(meta)
   elseif not is_meta(meta) then
     error("health.get_meta_stats: invalid parameter given for meta/player")
   end
-  local fields = meta:to_table().fields -- metadata is fun...
-  for key,value in pairs(fields) do -- apparently all data is turned into strings???
-    value = tonumber(value) -- turn into a number to check if the thing is actually a number
-    if (type(value) == "number") then
-      fields[key] = value
-    end
-    -- effects_list is a serialized table
-    if (key == "effects_list") then
-      fields[key] = minetest.deserialize(value)
-    end
-  end
+  -- manually get each stat to prevent world corruption (automatic metadata getting caused issues)
+  local stats = {
+    thirst = meta:get_int("thirst"),
+    hunger = meta:get_int("hunger"),
+    energy = meta:get_int("energy"),
+    temperature = meta:get_int("temperature"),
+    heal_rate = meta:get_int("heal_rate"),
+    thirst_rate = meta:get_int("thirst_rate"),
+    hunger_rate = meta:get_int("hunger_rate"),
+    recovery_rate = meta:get_int("recovery_rate"),
+    move = meta:get_int("move"),
+    jump = meta:get_int("jump"),
+    clothing_temp_min = meta:get_int("clothing_temp_min"),
+    clothing_temp_max = meta:get_int("clothing_temp_max"),
+  }
 
-  return fields
+  return stats
 end
 
 function HEALTH.get_player_stats(player)
@@ -423,11 +427,18 @@ function HEALTH.health_calc(player,meta,dontset)
 
   --apply player physics
   --don't do in bed or it buggers the physics
-  if not bed_rest.player[name] then
+  if not bed_rest.player[name] and (not dontset) then
     player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics")
     player_monoids.jump:add_change(player, 1 + (jum/100), "health:physics")
   end
 
+  -- update stats
+  stats.heal_rate = h_rate
+	stats.thirst_rate = t_rate
+	stats.hunger_rate = hun_rate
+	stats.recovery_rate = r_rate
+	stats.move = mov
+	stats.jump = jum
   -- set player's meta
   if not dontset then
     for name,value in pairs(stats) do
