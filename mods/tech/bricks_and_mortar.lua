@@ -693,8 +693,67 @@ crafting.register_recipe({
 })
 
 
+--------------------------------------
+--FIRED CLAY TILE BLOCKS
+
+-- solid block of tiles, fired, matches the roof tiles, can make tiled stairs
+
+minetest.register_node("tech:tile__block_unfired", {
+	description = S("Tile Block (unfired)"),
+	tiles = {"nodes_nature_clay.png"},
+	stack_max = minimal.stack_max_medium/2,
+	drawtype = "normal",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
+	sounds = nodes_nature.node_sound_stone_defaults(),
+	on_construct = function(pos)
+		--length(i.e. difficulty of firing), interval for checks (speed)
+		ncrafting.set_firing(pos, 40, 10)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, 40)
+	end,
+	on_timer = function(pos, elapsed)
+	   return ncrafting.fire_pottery(pos, 'tech:tile_block_unfired',
+					 'tech:tile_block', 40, 850)
+	end,
+})
+
+minetest.register_node("tech:tile_block", {
+	description = S("Tile Block"),
+	tiles = {"tech_roof_tiles.png"},
+	stack_max = minimal.stack_max_medium/2,
+	drawtype = "normal",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {cracky = 3},
+	sounds = nodes_nature.node_sound_stone_defaults(),
+})
+
+crafting.register_recipe({
+	type = "brick_makers_bench",
+	output = "tech:tile_block_unfired",
+	items = {'nodes_nature:clay_wet 1'},
+	level = 1,
+	always_known = true,
+})
+
+stairs.register_stair_and_slab(
+	"tile",
+	"tech:tile_block",
+	"brick_makers_bench",
+	"true",
+	{cracky = 3},
+	{"tech_roof_tiles.png"},
+	"Tile Stair",
+	"Tile Slab",
+	minimal.stack_max_medium,
+	nodes_nature.node_sound_stone_defaults()
+)
+
 --------------------------------------------------------------------
---MASONARY WITH MORTAR
+--MASONRY WITH MORTAR
 --made at masonry bench,
 --(except mortared blocks can also be done by brick maker)
 --added mortar binds them so not diggable by hand or falling.
