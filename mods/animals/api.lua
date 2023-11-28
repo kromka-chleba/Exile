@@ -2113,3 +2113,85 @@ function animals.hq_liquid_recovery(self,prty)
   end
   mobkit.queue_high(self,func,prty)
 end
+
+
+
+function animals.register_animal(name,def)
+  assert(type(name) == "string","animals.register_animal: name is not a string, got '"..tostring(name).."'")
+  assert(type(def) == "table","animals.register_animal: definition is not a table, got '"..tostring(spec).."'")
+  assert(type(def.logic) == "function","animals.register_animal: no 'logic' function provided for definition")
+
+  local basedef = {
+    name = name,
+    -- core
+    physical = true,
+    collide_with_objects = true,
+    collision_box = {-0.1,-0.1,-0.1,0.1,0.1,0.1},
+    makes_footstep_sound = true,
+    timeout = 0,
+    -- animal stats
+    max_hp = 1,
+    lung_capacity = 5,
+    min_temp = -10,
+    max_temp = 10,
+    -- animal energy + reproduction stats
+    energy_max = 100, -- seconds your animal can survive without food
+    lifespan = 500, -- seconds your animals will survive in total
+    energy_egg = 20, -- energy that goes to egg
+    egg_timer = 60*5, -- seconds until your animal's egg hatches (default 5 minutes - 60*5)
+    young_per_egg = 1, -- how many young will hatch from the egg (energy_egg will be divided up to how many offspring spawn
+    -- so 4 offspring will have energy_egg be split into 4 (or 20/4 = 5 units) for each of the young)
+    -- can be a table, such as {1,3} to spawn a chance of 1 to 3 per egg hatch
+    -- emergency_egg_chance = 0.5 -- custom and should be handled in on_death
+    -- is it land-borne (1), sea-borne (2), or amphibious (3) - default land-borne
+    class = 1,
+    -- movement
+    springiness=0,
+    buoyancy = 1,
+    max_speed = 1,					-- m/s
+    jump_height = 1,				-- nodes/meters
+    view_range = 1,					-- nodes/meters
+    -- attack
+    attack={range=0.3, damage_groups={fleshy=1}},
+    armor_groups = {fleshy=100},
+    -- interactions
+    predators = {},
+    prey = {},
+    rivals = {},
+    friends = {},
+    -- mobkit functions
+    on_step = mobkit.stepfunc,
+    on_activate = mobkit.actfunc,
+    get_staticdata = mobkit.statfunc,
+    logic = nil, -- must be defined in registration (function)
+    -- animations + sound + drops
+    animation = {
+      -- create animations for your animal
+    },
+    sounds = {
+      -- create sounds for your animal
+      -- use mobkit.make_sound(self,name) to play them
+    },
+    drops = {
+      -- add drops for your animal upon death
+    },
+    -- functions
+    on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
+      animals.on_punch(self, tool_capabilities, puncher, 55, 0.1)
+    end,
+    on_rightclick = function(self, clicker)
+      if not clicker or not clicker:is_player() then
+        return
+      end
+      animals.stun_catch_mob(self, clicker, 0.75, true)
+    end,
+    -- custom
+    --on_death = function(self, pos)
+      -- create a custom action to occur upon death
+    --end
+  }
+
+  for defname,defvalue in pairs(def) do
+    basedef[defname] = defvalue
+  end
+end
