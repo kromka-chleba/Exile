@@ -744,6 +744,7 @@ stairs.register_stair_and_slab(
 	"tech:tile_block",
 	"brick_makers_bench",
 	"true",
+	"brick_makers_bench_mixing",
 	{cracky = 3},
 	{"tech_roof_tiles.png"},
 	"Tile Stair",
