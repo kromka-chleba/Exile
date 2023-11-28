@@ -306,7 +306,7 @@ local burnt_storage = {
     },
   },
   
-  groups = {burnt = 1},
+  groups = {burnt = 1, dig_immediate = 3},
   
   on_construct = function(pos)
     local meta = minetest.get_meta(pos)
