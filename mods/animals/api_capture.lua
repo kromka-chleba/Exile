@@ -53,6 +53,7 @@ end
 
 --use stunning weapon plus chance to catch (or if canhand == true)
 animals.stun_catch_mob = function(self, clicker,chance,canhand)
+  if not clicker or not minetest.is_player(clicker) then return end
 	if self.hp <= 0 then return end
 	local item = clicker:get_wielded_item()
 	local item_name = item:get_name()
@@ -65,7 +66,9 @@ animals.stun_catch_mob = function(self, clicker,chance,canhand)
 		if math.random() < chance then
 			mobkit.make_sound(self,'punch')
 			animals.capture(self, clicker)
+      return true,true -- creature can be captured + is captured
 		end
+    return true,false -- creature can be captured + is not captured
 	end
 end
 
