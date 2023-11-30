@@ -70,6 +70,7 @@ animals.stun_catch_mob = function(self, clicker,chance,canhand)
 		end
     return true,false -- creature can be captured + is not captured
 	end
+  return false,false -- creature can't be captured + is not captured
 end
 
 

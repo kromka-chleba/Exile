@@ -125,15 +125,42 @@ local function get_reachable_node(self,numstring)
 end
 
 --------------------------------------------------------------------------
+-- external mod support
+--------------------------------------------------------------------------
+
+-- optional "clear" boolean to force a clear anyways
+function animals.vh_bar(self,clear)
+  if not use_vh1 then
+    return
+  end
+  if (self and mobkit.is_alive(self)) and not clear  then
+    VH1.update_bar(self.object, self.hp, self.max_hp)
+  elseif self and self.object then
+    VH1.clear_bar(self.object)
+  end
+end
+
+--------------------------------------------------------------------------
+--Health
+--------------------------------------------------------------------------
+
+function animals.modify_hp(self,hp)
+  if not (type(hp) == "number") then
+    return
+  end
+  hp = math.ceil(hp) -- no decimals
+  self.hp = self.hp + hp
+  animals.vh_bar(self)
+end
+
+--------------------------------------------------------------------------
 --Life and death
 --------------------------------------------------------------------------
 
 ----------------------------------------------------
 -- drop on death what is defined in the entity table
 function animals.handle_drops(self)
-   if use_vh1 then
-      VH1.clear_bar(self.object)
-   end
+   animals.vh_bar(self,true)
 
    if not self.drops then
      return
@@ -224,10 +251,7 @@ function animals.core_hp(self)
      -- alright, time to do some damage if it's still over safe_velocity
      local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
 
-     self.hp = self.hp - damage
-     if use_vh1 then
-	VH1.update_bar(self.object, self.hp, self.max_hp)
-     end
+     animals.modify_hp(self,-damage)
   end
 end
 
@@ -353,8 +377,8 @@ function animals.core_life(self, pos)
       if (temp >= absolute_death_temp) then
         dmg = dmg * 8
       end
-      dmg = math_clamp(dmg,1,self.hp) -- clamp dmg due to weird mobkit.hurt() functionality
-      mobkit.hurt(self,dmg)
+      dmg = math_clamp(dmg,1,self.hp) -- clamp dmg
+      animals.modify_hp(self,-dmg)
       -- only retrieve burned flesh if max_temp is exceedingly hot
       if (self.hp <= 0 and temp >= burn_max_temp) then
         -- if animal successfully burned to death then
@@ -366,7 +390,7 @@ function animals.core_life(self, pos)
       local mtp = (killer_min_temp - temp)*0.4 -- multiplier
       local dmg = math.ceil(1 * mtp)
       dmg = math_clamp(dmg,1,self.hp)
-      mobkit.hurt(self,dmg)
+      animals.modify_hp(self,-dmg)
     end
   end
 
@@ -375,10 +399,7 @@ function animals.core_life(self, pos)
   if self.hp < self.max_hp and energy > 20 and random() <= 0.75 then
     if animals.temp_comfy(self,temp) and not (not self.isinliquid and self.class == 2) then
       -- if not a fish out of water then (fish in water will heal up nicely :D) (oh and if temp is comfortable too)
-      mobkit.heal(self,1)
-      if use_vh1 then
-	 VH1.update_bar(self.object, self.hp, self.max_hp)
-      end
+      animals.modify_hp(self,1)
       energy = energy - math.random(5,15)
     end
   end
@@ -1080,16 +1101,37 @@ end
 ----------------------------------------------------------------
 --on_punch
 function animals.on_punch(self, tool_capabilities, puncher, prty, chance)
+  --[[
+  if mobkit.is_alive(self) then
+    mobkit.make_sound(self,'punch')
+    local multiplier = tool_capabilities.full_punch_interval or 0.1
+    multiplier = math_clamp(multiplier / time_from_last_punch, 0, 1)
+    local dmg = tool_capabilities.damage_groups.fleshy or 1
+    dmg = math.floor(dmg * multiplier)
+    animals.modify_hp(self,-dmg)
+
+    local conserve = mobkit.recall(self,'conserve')
+    if (self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or conserve == true) then
+      mobkit.animate(self,'fast')
+      if self.class == 2 then
+        animals.hq_swimfrom(self, prty, puncher, self.max_speed)
+        flee_sound(self)
+      else
+        mobkit.make_sound(self,'warn')
+        mobkit.hq_runfrom(self, prty, puncher)
+      end
+    elseif prty < 20 then
+      animals.fight_or_flight(self, puncher, prty, chance)
+    end
+  end
+  --]]
   if mobkit.is_alive(self) then
     --do damage
     mobkit.clear_queue_high(self)
     local conserve = mobkit.recall(self,'conserve')
     local dmg = tool_capabilities.damage_groups.fleshy or 1
-    mobkit.hurt(self,dmg)
+    animals.modify_hp(self,-dmg)
     mobkit.make_sound(self,'punch')
-    if use_vh1 then
-       VH1.update_bar(self.object, self.hp, self.max_hp)
-    end
     --fight or flight
     --flee if hurt (or hibernating!)
     if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or conserve == true then
@@ -1109,11 +1151,9 @@ function animals.on_punch_water(self, tool_capabilities, puncher, prty, chance)
   if mobkit.is_alive(self) then
     --do damage
     mobkit.clear_queue_high(self)
-    mobkit.hurt(self,tool_capabilities.damage_groups.fleshy or 1)
+    local dmg = tool_capabilities.damage_groups.fleshy or 1
+    animals.modify_hp(self,-dmg)
     mobkit.make_sound(self,'punch')
-    if use_vh1 then
-       VH1.update_bar(self.object, self.hp, self.max_hp)
-    end
 
     --fight or flight
     if self.hp < self.max_hp/10 then
@@ -1552,7 +1592,7 @@ local function lq_jumpattack_eat(self,height,target)
           end
         end
         
-        mobkit.hurt(ent,dmg) -- hurt opponent
+        animals.modify_hp(ent,-dmg)--mobkit.hurt(ent,dmg) -- hurt opponent
         
         -- eat bits of opponent
         local ent_e = (mobkit.recall(ent,'energy') or 1)
@@ -2066,7 +2106,7 @@ function animals.vitals(self)
 		if self.oxygen <= 0 then
       -- drown by 10% of max_hp
       local dmg = math_clamp(self.max_hp * 0.1, 1, self.hp)
-      mobkit.hurt(self,dmg)
+      animals.modify_hp(self,-dmg)
     end
 	end
   return
@@ -2155,11 +2195,30 @@ function animals.register_animal(name,def)
     -- attack
     attack={range=0.3, damage_groups={fleshy=1}},
     armor_groups = {fleshy=100},
-    -- interactions
-    predators = {},
-    prey = {},
-    rivals = {},
-    friends = {},
+    -- interactions (should be set in registered animal code)
+    --predators = {},
+    --prey = {},
+    --rivals = {},
+    --friends = {},
+    --rivalry = function(self, target, targ_name)
+      -- allows for custom rivalry calculations
+    --end
+    predator_interactions = {
+      default = 0.05 -- fight chance
+      -- can specify specific predators such as "animals:darkasthaan = 0.5"
+    },
+    capture_interactions = {
+      -- capture chance
+      -- uses item group to determine capture possibility
+      -- hand = 0.75, -- interactions with empty hand
+      capture_animal = { -- tool with capture_animal group
+        -- allow for specification of a table for higher capture groups (if greater than the highest, will use highest)
+        [1] = 0.1,
+        [2] = 0.25,
+        [3] = 0.4,
+      },
+      
+    },
     -- mobkit functions
     on_step = mobkit.stepfunc,
     on_activate = mobkit.actfunc,
@@ -2172,27 +2231,50 @@ function animals.register_animal(name,def)
     sounds = {
       -- create sounds for your animal
       -- use mobkit.make_sound(self,name) to play them
+      punch = {
+        name = "animals_punch",
+        gain={0.5, 1.2},
+        fade={0.5, 1.5},
+        pitch={0.5, 1.5},
+      },
     },
     drops = {
       -- add drops for your animal upon death
     },
     -- functions
     on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-      animals.on_punch(self, tool_capabilities, puncher, 55, 0.1)
+      animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities)
     end,
     on_rightclick = function(self, clicker)
-      if not clicker or not clicker:is_player() then
-        return
-      end
       animals.stun_catch_mob(self, clicker, 0.75, true)
     end,
     -- custom
     --on_death = function(self, pos)
       -- create a custom action to occur upon death
-    --end
+    --end,
+    -- egg + spawnegg
+    egg = {
+      
+    },
+    spawnegg = {
+      
+    },
   }
 
   for defname,defvalue in pairs(def) do
-    basedef[defname] = defvalue
+    if not (type(defvalue) == "table") then
+      basedef[defname] = defvalue
+    else
+      -- iterate over the tables
+      for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
+        if (defname == "capture_interactions" and type(dv2) == "number") then
+          dv2 = {dv2}
+        end
+        basedef[defname][dn2] = dv2
+      end
+    end
   end
+
+  minetest.register_entity(name,basedef)
+  return basedef
 end
