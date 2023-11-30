@@ -816,7 +816,7 @@ Gut worms etc. Increased hunger.
 
 function HEALTH.intestinal_parasites(order, player, meta, effects_list, stats)
   local r_rate = stats.recovery_rate
-  local hun_rate = stats.hunger_Rate
+  local hun_rate = stats.hunger_rate
 	--no orders, or progression.
 	--you get them, then hope they go away (or cure them)
 	--hunger quicker, recover slower
