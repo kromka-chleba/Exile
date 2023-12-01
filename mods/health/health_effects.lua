@@ -72,33 +72,8 @@ end
 local function modify_int(...) -- player, int_name, int_value
   return HEALTH.modify_int(...)
 end
-
-------------------------------------------------------------------
---SOUND HANDLING
-------------------------------------------------------------------
-local player_sounds = {}
-
--- does not remove sounds after they played
-local function append_sound(player,handle)
-  local index = player_sounds[player]
-  if not index then
-    -- create an index for the player
-    index = {}
-    player_sounds[player] = index
-  end
-  table.insert(index,handle)
-end
-
-local function remove_sounds(player)
-  if not player_sounds[player] then
-    -- no index, return
-    return
-  end
-  for _,handle in pairs(player_sounds[player]) do
-    -- stop all sounds
-    minetest.sound_stop(handle)
-  end
-  player_sounds[player] = nil
+local function append_sound(...)
+  return HEALTH.append_sound(...)
 end
 
 ------------------------------------------------------------------
@@ -109,7 +84,6 @@ local function is_illness_valid(player,meta,life_num)
    -- general function that will decide whether a sickness
    -- should continue or not
   if player:get_hp() <= 0 then
-    remove_sounds(player)
     return false
   end
   if not meta then
@@ -120,7 +94,6 @@ local function is_illness_valid(player,meta,life_num)
      --  is valid and good to go :D (poor player lol)
     return true
   end
-  remove_sounds(player)
   return false
 end
 

@@ -44,6 +44,38 @@ local function math_clamp(num,min,max)
   return minimal.math_clamp(num,min,max)
 end
 
+------------------------------------------------------------------
+--SOUND HANDLING
+------------------------------------------------------------------
+local player_sounds = {}
+
+-- does not remove sounds after they played
+function HEALTH.append_sound(player,handle)
+  if not minetest.is_player(player) or not type(handle) == "number" then
+    -- be certain that proper values are sent
+    return
+  end
+  local index = player_sounds[player]
+  if not index then
+    -- create an index for the player
+    index = {}
+    player_sounds[player] = index
+  end
+  table.insert(index,handle)
+end
+
+function HEALTH.stop_sounds(player)
+  if not minetest.is_player(player) or not player_sounds[player] then
+    -- no index (or not player), return
+    return
+  end
+  for _,handle in pairs(player_sounds[player]) do
+    -- stop all sounds
+    minetest.sound_stop(handle)
+  end
+  player_sounds[player] = nil
+end
+
 -----------------------------
 --Player Attibutes
 --
@@ -706,6 +738,8 @@ minetest.register_on_dieplayer(function(player)
 	local meta = player:get_meta()
 	meta:set_string("effects_list", "")
 	meta:set_int("effects_num", 0)
+  -- stop all sounds
+  HEALTH.stop_sounds(player)
 end)
 
 minetest.register_on_respawnplayer(function(player)
