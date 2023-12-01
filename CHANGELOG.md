@@ -1,6 +1,7 @@
 # Changelog:
 
-## [2023-11-19][2023-11-19__0.3.14b]
+## [2023-12-01][2023-12-01__0.3.14b]
+  - Added tile floor block to match roof, with stairs and slabs
   - Added support for Visual Harm 1ndicators mod
 
 ## [2023-11-11][2023-11-11__0.3.14]
