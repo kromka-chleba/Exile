@@ -57,14 +57,15 @@ HEALTH = HEALTH
 -- FUNCTION DUMP
 ------------------------------------------------------------------
 
+-- minimal/utility/general
 local function math_clamp(...) -- num, min, max
   return minimal.math_clamp(...)
 end
 
+-- health/init.lua
 local function get_life_num(...) -- player/meta
   return HEALTH.get_life_num(...)
 end
-
 local function modify_hp(...) -- player, hp_amt
   return HEALTH.modify_hp(...)
 end
@@ -570,7 +571,7 @@ Dust storm born soil fungus got into your lungs. Something vaguely like Valley F
 
 function HEALTH.dust_fever(order, player, meta, effects_list, stats)
   local r_rate = stats.recovery_rate
-  local mov = stats.mov 
+  local mov = stats.move 
   local jum = stats.jump 
   local temp = stats.temperature
 
@@ -635,7 +636,7 @@ function HEALTH.dust_fever(order, player, meta, effects_list, stats)
 
 	--send back modified values
   stats.recovery_rate = r_rate
-  stats.mov = mov
+  stats.move = mov
   stats.jump = jum
   stats.temp = temp
 
@@ -761,7 +762,7 @@ After effects of drugs and alcohol
 ]]--
 
 function HEALTH.hangover(order, player, meta, effects_list, stats)
-  local mov = stats.mov
+  local mov = stats.move
   local jum = stats.jump
 
 	if not order then order = 0 end
