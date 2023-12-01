@@ -64,6 +64,22 @@ local function node_drawtype(pos)
   return node.drawtype, node
 end
 
+-- return the luaentity and object of a provided userdata if possible into a table
+function animals.get_structure(obj)
+  local obj_t = {} -- obj_table
+  if (type(obj) == "userdata" and obj["get_luaentity"]) then
+    -- get luaentity table and its object
+    obj_t.ent = obj:get_luaentity()
+    obj_t.object = obj_t.ent.object
+  end
+  if (type(obj) == "table" and type(obj.object) == "userdata") then
+    -- get "luaentity" (hopefully) and its object
+    obj_t.ent = obj
+    obj_t.object = obj_t.ent.object
+  end
+  return obj_t
+end
+
 -- ask if the temperature is comfy for the lil creature
 function animals.temp_comfy(self,temp)
   if (type(self) ~= "table" and type(self) ~= "userdata") then
