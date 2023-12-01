@@ -97,10 +97,9 @@ end
 local function calc_size(def)
    -- Cache various useful data about our zone's edges
    def.pos1, def.pos2 = vector.sort(def.pos1, def.pos2)
-   local dirs = { "x", "y", "z" }
    def.size = {}
-   for i = 1, #dirs do -- x, y, z
-      def.size[dirs[i]] = def.pos2[dirs[i]] - def.pos1[dirs[i]]
+   for _, dir in pairs({"x", "y", "z"}) do
+      def.size[dir] = def.pos2[dir] - def.pos1[dir]
    end
    def.narrowest = def.size.x
    if def.size.y < def.narrowest then
@@ -113,8 +112,8 @@ local function calc_size(def)
 		  y = def.size.y / 2,
 		  z = def.size.z / 2, }
    def.midpoint = vector.new()
-   for i = 1, #dirs do
-      def.midpoint[dirs[i]] = def.pos1[dirs[i]] + def.radius[dirs[i]]
+   for _, dir in pairs({"x", "y", "z"}) do
+      def.midpoint[dir] = def.pos1[dir] + def.radius[dir]
    end
 end
 
@@ -640,20 +639,19 @@ end
 
 
 local function ADJbuttons(def, fields) -- Handle the dozen different +/- buttons
-   local axis = {"x","y","z"}
    local corners = {"lower", "upper"}
    local dirs = { "-", "+" }
    local move = { upper = vector.new(), lower = vector.new() }
    for c = 1, #corners do
-      for a = 1, #axis do
+      for _, axis in pairs({"x","y","z"}) do
 	 for d = 1, #dirs do
-	    if fields[corners[c]..axis[a]..dirs[d]] then
+	    if fields[corners[c]..axis..dirs[d]] then
 	       if ( c == 1 and d == 2 or -- Don't add to pos1 if it matches pos2
 		    c == 2 and d == 1 ) and -- and don't subtract vice versa
-		  def.pos1[axis[a]] >= def.pos2[axis[a]] then
+		  def.pos1[axis] >= def.pos2[axis] then
 		  return
 	       end
-	       move[corners[c]][axis[a]] = tonumber(dirs[d].."1")
+	       move[corners[c]][axis] = tonumber(dirs[d].."1")
 	    end
 	 end
       end
