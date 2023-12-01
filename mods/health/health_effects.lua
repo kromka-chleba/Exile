@@ -74,15 +74,42 @@ local function modify_int(...) -- player, int_name, int_value
 end
 
 ------------------------------------------------------------------
+--SOUND HANDLING
+------------------------------------------------------------------
+local player_sounds = {}
+
+-- does not remove sounds after they played
+local function append_sound(player,handle)
+  local index = player_sounds[player]
+  if not index then
+    -- create an index for the player
+    index = {}
+    player_sounds[player] = index
+  end
+  table.insert(index,handle)
+end
+
+local function remove_sounds(player)
+  if not player_sounds[player] then
+    -- no index, return
+    return
+  end
+  for _,handle in pairs(player_sounds[player]) do
+    -- stop all sounds
+    minetest.sound_stop(handle)
+  end
+  player_sounds[player] = nil
+end
+
+------------------------------------------------------------------
 -- VERIFYING FUNCTIONS
 ------------------------------------------------------------------
-
-
 
 local function is_illness_valid(player,meta,life_num)
    -- general function that will decide whether a sickness
    -- should continue or not
   if player:get_hp() <= 0 then
+    remove_sounds(player)
     return false
   end
   if not meta then
@@ -93,6 +120,7 @@ local function is_illness_valid(player,meta,life_num)
      --  is valid and good to go :D (poor player lol)
     return true
   end
+  remove_sounds(player)
   return false
 end
 
@@ -165,7 +193,7 @@ local function organ_failure(player, repeat_min, repeat_max, delay_min, delay_ma
 
 	local ranrep = random(repeat_min, repeat_max)
 	local name = player:get_player_name()
-	minetest.sound_play("health_heart", {to_player = name, gain = 0.5})
+	append_sound(player,minetest.sound_play("health_heart", {to_player = name, gain = 0.5}))
 
 	local randel = 0
 
@@ -207,7 +235,7 @@ local function auditory_hallucination(player, repeat_min, repeat_max, delay_min,
 
 			pos = {x=pos.x+random(-15,15), y=pos.y+random(-15,15), z=pos.z+random(-15,15)}
 
-			minetest.sound_play("health_hallucinate", {to_player = name, pos = pos, gain = random(min_gain,max_gain)})
+			append_sound(player,minetest.sound_play("health_hallucinate", {to_player = name, pos = pos, gain = random(min_gain,max_gain)}))
 
 		end)
 	end
