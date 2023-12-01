@@ -71,13 +71,15 @@ function animals.get_structure(obj)
     -- get luaentity table and its object
     obj_t.ent = obj:get_luaentity()
     obj_t.object = obj_t.ent.object
+    return obj_t
   end
   if (type(obj) == "table" and type(obj.object) == "userdata") then
     -- get "luaentity" (hopefully) and its object
     obj_t.ent = obj
     obj_t.object = obj_t.ent.object
+    return obj_t
   end
-  return obj_t
+  return nil
 end
 
 -- ask if the temperature is comfy for the lil creature
