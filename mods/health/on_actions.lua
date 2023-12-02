@@ -5,6 +5,9 @@
 -----------------------------
 local random = math.random
 
+sfinv = sfinv
+HEALTH = HEALTH
+
 local function modify_hp(...) -- player, hp_amt
   return HEALTH.modify_hp(...)
 end
@@ -18,44 +21,44 @@ end
 --
 
 --Consummable items
-function HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item)
-	if itemstack == nil or user == nil or not minetest.settings:get_bool("enable_damage") then
-		return
-	end
+function HEALTH.use_item(itemstack, user, hp_change, thirst_change,
+			 hunger_change, energy_change, temp_change,
+			 replace_with_item)
+   if itemstack == nil or user == nil or not minetest.settings:get_bool("enable_damage") then
+      return
+   end
 
-	local item = itemstack:get_name()
-	local name = user:get_player_name()
-	local meta = user:get_meta()
-  -- set new values
-	local health = modify_hp(user,hp_change)
-  local thirst = modify_int(meta,"thirst",thirst_change)
-  local hunger = modify_int(meta,"hunger",hunger_change)
-  local energy = modify_int(meta,"energy",energy_change)
-  local temperature = modify_int(meta,"temperature",temp_change)
+   local meta = user:get_meta()
+   -- set new values
+   modify_hp(user,hp_change)
+   modify_int(meta,"thirst",thirst_change)
+   modify_int(meta,"hunger",hunger_change)
+   modify_int(meta,"energy",energy_change)
+   modify_int(meta,"temperature",temp_change)
 
-	-- and update malus (need for setting correct physics)
-  HEALTH.quick_physics(user,meta)
-  --update form so can see change while looking
-  sfinv.set_player_inventory_formspec(user)
+   -- and update malus (need for setting correct physics)
+   HEALTH.quick_physics(user,meta)
+   --update form so can see change while looking
+   sfinv.set_player_inventory_formspec(user)
 
-	--minetest.chat_send_player(name, minetest.registered_items[item].description .." effect = Health: "..hp_change..", Thirst: "..thirst_change.. ", Hunger: "..hunger_change.. ", Energy: "..energy_change.. ", Body Temperature: "..temp_change )
-  local pos = user:get_pos()
-  minetest.sound_play("health_eat", {pos = pos, gain = 0.5, max_hear_distance = 2})
+   --minetest.chat_send_player(name, minetest.registered_items[item].description .." effect = Health: "..hp_change..", Thirst: "..thirst_change.. ", Hunger: "..hunger_change.. ", Energy: "..energy_change.. ", Body Temperature: "..temp_change )
+   local pos = user:get_pos()
+   minetest.sound_play("health_eat", {pos = pos, gain = 0.5, max_hear_distance = 2})
 
-	--replace/take
-	itemstack:take_item()
-	if itemstack:get_count() == 0 then
-		itemstack:add_item(replace_with_item)
-	else
-		local inv = user:get_inventory()
-		if inv:room_for_item("main", replace_with_item) then
-			inv:add_item("main", replace_with_item)
-		else
-			minetest.add_item(user:get_pos(), replace_with_item)
-		end
-	end
+   --replace/take
+   itemstack:take_item()
+   if itemstack:get_count() == 0 then
+      itemstack:add_item(replace_with_item)
+   else
+      local inv = user:get_inventory()
+      if inv:room_for_item("main", replace_with_item) then
+	 inv:add_item("main", replace_with_item)
+      else
+	 minetest.add_item(user:get_pos(), replace_with_item)
+      end
+   end
 
-	return itemstack
+   return itemstack
 end
 
 
