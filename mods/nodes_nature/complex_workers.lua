@@ -396,91 +396,153 @@ function nn.create_gravity_soak_in(args)
         local orphans = {}
         nn.water_orphans[hash] = {}
 
-        local function one_iteration(last)
-            local previous_i = false
-            for i = 1, #data do
-                local replacement = liquid_to_air_ids[data[i]]
-                if replacement and i ~= previous_i then
-                    -- z, y, x have values 0 - 79
-                    local z = math.floor((i - 1) / chunk_side^2)
-                    local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
-                    local x = (i - 1) % 80
-                    local node_pos = vector.new(x, y, z)
-                    local dry_below = dry_to_wet_ids[data[i - chunk_side]]
-                    local seawater_below = seawater_ids[data[i - chunk_side]]
-                    if x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79 then
-                        -- borders here
-                        if last then
-                            table.insert(orphans, i)
-                        end
-                    elseif dry_below then
-                        -- Soak in
-                        data[i] = replacement
-                        data[i - chunk_side] = dry_below
-                    elseif seawater_below then
-                        -- Remove if seawater below
-                        data[i] = replacement
-                    else
-                        local air_table = {}
-                        local dry_table = {}
-                        local function add(index)
-                            if buildable_to_liquid_ids[data[index]] then
-                                table.insert(air_table, index)
-                            end
-                            if dry_to_wet_ids[data[index]] then
-                                table.insert(dry_table, index)
-                            end
-                        end
-                        local function check(index)
-                            -- x border
-                            add(index - 1)
-                            add(index + 1)
-                            add(index - chunk_side^2)
-                            add(index + chunk_side^2)
-                        end
-                        check(i - chunk_side) -- below
-                        check(i - chunk_side) -- add twice for downwards bias
-                        check(i)
+        local function x_index(index)
+            return index + 1
+        end
 
-                        if #dry_table >= 1 then
-                            -- soak in sideways
-                            local dry_index = dry_table[math.random(1, #dry_table)]
-                            data[i] = replacement
-                            data[dry_index] = dry_to_wet_ids[data[dry_index]]
-                        elseif #air_table >= 1 then
-                            -- move water source
-                            local air_index = air_table[math.random(1, #air_table)]
-                            data[i] = replacement
-                            data[air_index] = buildable_to_liquid_ids[data[air_index]]
-                            previous_i = air_index
-                            if last then
-                                table.insert(orphans, air_index)
-                            end
-                        end
+        local function z_index(index)
+            return index + chunk_side^2
+        end
+
+        local function y_index(index)
+            return index - chunk_side
+        end
+
+        local function z_x_cursor(i1, i2)
+            local node_1 = data[i1]
+            local node_2 = data[i2]
+            if liquid_to_air_ids[node_1] then
+                if buildable_to_liquid_ids[node_2] then
+                    if math.random() < 0.15 then
+                        return
                     end
-                    found = true
-                elseif data[i] == ignore_id then
-                    return {"worker_failed"}
+                    data[i1] = liquid_to_air_ids[node_1]
+                    data[i2] = buildable_to_liquid_ids[node_2]
+                elseif dry_to_wet_ids[node_2] then
+                    if math.random() < 0.15 then
+                        return
+                    end
+                    data[i1] = liquid_to_air_ids[node_1]
+                    data[i2] = dry_to_wet_ids[node_2]
+                end
+            elseif liquid_to_air_ids[node_2] then
+                if buildable_to_liquid_ids[node_1] then
+                    if math.random() < 0.15 then
+                        return
+                    end
+                    data[i1] = buildable_to_liquid_ids[node_1]
+                    data[i2] = liquid_to_air_ids[node_2]
+                elseif dry_to_wet_ids[node_1] then
+                    if math.random() < 0.15 then
+                        return
+                    end
+                    data[i1] = dry_to_wet_ids[node_1]
+                    data[i2] = liquid_to_air_ids[node_2]
                 end
             end
         end
 
-        -- this speeds up things a little
-        one_iteration()
-        one_iteration()
-        one_iteration()
-        one_iteration()
-        one_iteration(true)
+        local function y_cursor(i1, i2)
+            local node_1 = data[i1]
+            local node_2 = data[i2]
+            if liquid_to_air_ids[node_1] then
+                if buildable_to_liquid_ids[node_2] then
+                    if math.random() < 0.15 then
+                        return
+                    end
+                    data[i1] = liquid_to_air_ids[node_1]
+                    data[i2] = buildable_to_liquid_ids[node_2]
+                    table.insert(orphans, i2)
+                elseif dry_to_wet_ids[node_2] then
+                    if math.random() < 0.15 then
+                        return
+                    end
+                    data[i1] = liquid_to_air_ids[node_1]
+                    data[i2] = dry_to_wet_ids[node_2]
+                end
+            end
+        end
+
+        local start = 0
+        local finish = chunk_side - 1
+
+        local z_start = math.random(0, 1)
+        local z_finish = finish - 2 - z_start
+        local x_start = math.random(0, 1)
+        local x_finish = finish - 2 - x_start
+        local y_start = math.random(1, 2)
+        local y_finish = finish
+
+        local function z_step()
+            local index_function = z_index
+            for z = z_start, z_finish, 2 do
+                local z_base = z * chunk_side^2
+                for y = start, y_finish do
+                    local y_base = y * chunk_side
+                    for x = start, finish do
+                        local i1 = z_base + y_base + x + 1
+                        local i2 = index_function(i1)
+                        z_x_cursor(i1, i2)
+                    end
+                end
+            end
+        end
+
+        local function x_step()
+            local index_function = x_index
+            for z = start, finish do
+                local z_base = z * chunk_side^2
+                for y = start, y_finish do
+                    local y_base = y * chunk_side
+                    for x = x_start, x_finish, 2 do
+                        local i1 = z_base + y_base + x + 1
+                        local i2 = index_function(i1)
+                        z_x_cursor(i1, i2)
+                    end
+                end
+            end
+        end
+
+        local function y_step()
+            local index_function = y_index
+            for z = start, finish do
+                local z_base = z * chunk_side^2
+                for y = y_start, y_finish, 2 do
+                    local y_base = y * chunk_side
+                    for x = start, finish do
+                        local i1 = z_base + y_base + x + 1
+                        local i2 = index_function(i1)
+                        y_cursor(i1, i2)
+                    end
+                end
+            end
+        end
+
+        local order = math.random(1, 2)
+
+        if order == 1 then
+            y_step()
+            z_step()
+            x_step()
+            y_step()
+        elseif order == 2 then
+            y_step()
+            x_step()
+            z_step()
+            y_step()
+        end
 
         for _, orphan in pairs(orphans) do
             if liquid_to_air_ids[data[orphan]] then
-                local air_z = math.floor((orphan - 1) / chunk_side^2)
-                local air_y = math.floor((orphan - 1 - air_z * chunk_side^2) / chunk_side)
-                local air_x = (orphan - 1) % 80
-                local air_pos = vector.new(air_x, air_y, air_z)
-                table.insert(nn.water_orphans[hash], vector.add(pos_min, air_pos))
+                local z = math.floor((orphan - 1) / chunk_side^2)
+                local y = math.floor((orphan - 1 - z * chunk_side^2) / chunk_side)
+                local x = (orphan - 1) % 80
+                local pos = vector.new(x, y, z)
+                table.insert(nn.water_orphans[hash], vector.add(pos_min, pos))
             end
         end
+
+        found = true
 
         if found then
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
