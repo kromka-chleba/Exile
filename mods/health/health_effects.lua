@@ -106,7 +106,7 @@ end
 local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
 	--vomit repeatedly after time
   local life_num = get_life_num(meta)
-  
+
 	local ranrep = random(repeat_min, repeat_max)
 
 	local randel = 0
@@ -117,7 +117,7 @@ local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max,
       if not is_illness_valid(player,meta,life_num) then
         return
       end
-      
+
 			local pos = player:get_pos()
 			minetest.sound_play("health_vomit", {pos = pos, gain = 0.5, max_hear_distance = 2})
 
@@ -186,32 +186,37 @@ end
 
 
 --hallucinate
-local function auditory_hallucination(player, repeat_min, repeat_max, delay_min, delay_max, min_gain, max_gain)
+local function auditory_hallucination(player, repeat_min, repeat_max,
+				      delay_min, delay_max, min_gain, max_gain)
 	--hear things repeatedly after time
-  local life_num = get_life_num(player)
+   local life_num = get_life_num(player)
 
-	local ranrep = random(repeat_min, repeat_max)
-	local name = player:get_player_name()
+   local ranrep = random(repeat_min, repeat_max)
+   local name = player:get_player_name()
 
-	local randel = 0
+   local randel = 0
 
-	for i=1, ranrep do
-		randel = randel + random(delay_min, delay_max)
-		minetest.after(randel, function()
-      if not is_illness_valid(player,nil,life_num) then
-        return
-      end
+   for i=1, ranrep do
+      randel = randel + random(delay_min, delay_max)
+      minetest.after(randel, function()
+		if not is_illness_valid(player,nil,life_num) then
+		   return
+		end
 
-			local pos = player:get_pos()
-			-- happens after randel delay, so player may be gone
-			if pos == nil then return end
+		local pos = player:get_pos()
+		-- happens after randel delay, so player may be gone
+		if pos == nil then return end
 
-			pos = {x=pos.x+random(-15,15), y=pos.y+random(-15,15), z=pos.z+random(-15,15)}
+		pos = {x=pos.x+random(-15,15),
+		       y=pos.y+random(-15,15),
+		       z=pos.z+random(-15,15)}
 
-			append_sound(player,minetest.sound_play("health_hallucinate", {to_player = name, pos = pos, gain = random(min_gain,max_gain)}))
-
-		end)
-	end
+		append_sound(player,
+		   minetest.sound_play("health_hallucinate",
+				       {to_player = name, pos = pos,
+					gain = random(min_gain,max_gain)}))
+      end)
+   end
 end
 
 
@@ -408,7 +413,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, stats)
   local mov = stats.move
   local jum = stats.jump
   local temp = stats.temperature
-  
+
 	if not order then order = 0 end
 	--APPLY SYMPTOMS
 	if order == 1 then
@@ -572,8 +577,8 @@ Dust storm born soil fungus got into your lungs. Something vaguely like Valley F
 
 function HEALTH.dust_fever(order, player, meta, effects_list, stats)
   local r_rate = stats.recovery_rate
-  local mov = stats.move 
-  local jum = stats.jump 
+  local mov = stats.move
+  local jum = stats.jump
   local temp = stats.temperature
 
 	if not order then order = 0 end
@@ -1470,47 +1475,58 @@ end
 --this is specific to each health effect so must call that function
 function HEALTH.remove_new_effect(player, name)
 
-	local meta = player:get_meta()
-	local effects_list = meta:get_string("effects_list")
-	effects_list = minetest.deserialize(effects_list) or {}
+   local meta = player:get_meta()
+   local effects_list = meta:get_string("effects_list")
+   effects_list = minetest.deserialize(effects_list) or {}
 
-	--effect is present. call function to decide how to regress it
-	for i, effect in ipairs(effects_list) do
+   --effect is present. call function to decide how to regress it
+   for i, effect in ipairs(effects_list) do
 
-		if effect[1] == name[1] then
-			--min timer, max timer,
-			if name[1] == "Food Poisoning" then
-				default_timer_regress(player, "Food Poisoning", 3, 6, meta, effects_list, effect[2], name[2])
-			elseif name[1] == "Fungal Infection" then
-				default_timer_regress(player, "Fungal Infection", 6, 12, meta, effects_list, effect[2], name[2])
-			elseif name[1] == "Dust Fever" then
-				default_timer_regress(player, "Dust Fever", 6, 12, meta, effects_list, effect[2], name[2])
-			elseif name[1] == "Drunk" then
-				default_timer_regress(player, "Drunk", 3, 6, meta, effects_list, effect[2], name[2], {"Hangover", meta:get_int("max_hangover") or 1})
-			elseif name[1] == "Hangover" then
-				default_timer_regress(player, "Hangover", 4, 8, meta, effects_list, effect[2], name[2])
-			elseif name[1] == "Intestinal Parasites" then
-				update_list_swap(meta, effects_list, "Intestinal Parasites")
-			elseif name[1] == "Tiku High" then
-				default_timer_regress(player, "Tiku High", 3, 6, meta, effects_list, effect[2], name[2], {"Hangover", meta:get_int("max_hangover") or 1})
-			elseif name[1] == "Neurotoxicity" then
-				default_timer_regress(player, "Neurotoxicity", 3, 6, meta, effects_list, effect[2], name[2])
-			elseif name[1] == "Hepatotoxicity" then
-				default_timer_regress(player, "Hepatotoxicity", 6, 12, meta, effects_list, effect[2], name[2])
-			elseif name[1] == "Photosensitivity" then
-				default_timer_regress(player, "Photosensitivity", 12, 24, meta, effects_list, effect[2], name[2])
-			--elseif name[1] == "Meta-Stim" then
-			--note, this wont remove flying effects. Not needed at this point,
-			-- but will need something better if want to have an item that removes meta-stim
-			--	default_timer_regress(player, "Meta-Stim", 12, 24, meta, effects_list, effect[2], name[2], {"Neurotoxicity", meta:get_int("max_metastim") or 1})
+      if effect[1] == name[1] then
+	 --min timer, max timer,
+	 if name[1] == "Food Poisoning" then
+	    default_timer_regress(player, "Food Poisoning", 3, 6, meta,
+				  effects_list, effect[2], name[2])
+	 elseif name[1] == "Fungal Infection" then
+	    default_timer_regress(player, "Fungal Infection", 6, 12, meta,
+				  effects_list, effect[2], name[2])
+	 elseif name[1] == "Dust Fever" then
+	    default_timer_regress(player, "Dust Fever", 6, 12, meta,
+				  effects_list, effect[2], name[2])
+	 elseif name[1] == "Drunk" then
+	    default_timer_regress(player, "Drunk", 3, 6, meta,
+				  effects_list, effect[2], name[2],
+				  {"Hangover", meta:get_int("max_hangover") or 1})
+	 elseif name[1] == "Hangover" then
+	    default_timer_regress(player, "Hangover", 4, 8, meta,
+				  effects_list, effect[2], name[2])
+	 elseif name[1] == "Intestinal Parasites" then
+	    update_list_swap(meta, effects_list, "Intestinal Parasites")
+	 elseif name[1] == "Tiku High" then
+	    default_timer_regress(player, "Tiku High", 3, 6, meta,
+				  effects_list, effect[2], name[2],
+				  {"Hangover", meta:get_int("max_hangover") or 1})
+	 elseif name[1] == "Neurotoxicity" then
+	    default_timer_regress(player, "Neurotoxicity", 3, 6, meta,
+				  effects_list, effect[2], name[2])
+	 elseif name[1] == "Hepatotoxicity" then
+	    default_timer_regress(player, "Hepatotoxicity", 6, 12, meta,
+				  effects_list, effect[2], name[2])
+	 elseif name[1] == "Photosensitivity" then
+	    default_timer_regress(player, "Photosensitivity", 12, 24, meta,
+				  effects_list, effect[2], name[2])
+	    --elseif name[1] == "Meta-Stim" then
+	    --note, this wont remove flying effects. Not needed at this point,
+	    -- but will need something better if want to have an item that removes meta-stim
+	    --	default_timer_regress(player, "Meta-Stim", 12, 24, meta, effects_list, effect[2], name[2], {"Neurotoxicity", meta:get_int("max_metastim") or 1})
 
-			end
+	 end
 
-		end
-	end
+      end
+   end
 
 
-	--Otherwise doesn't currently exist, so nothing to do...
+   --Otherwise doesn't currently exist, so nothing to do...
 
 end
 
