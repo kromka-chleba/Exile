@@ -105,16 +105,6 @@ function HEALTH.get_default_attributes() -- for other scripts to utilize to get 
     clothing_temp_max = 32, -- 30
   }
 end
-local heal_rate = 1 -- 4
-local thirst_rate = -1
-local hunger_rate = -3 -- -2
-local recovery_rate = 4 -- 5
-local move = 0
-local jump = 0
-
---no clothing temperature comfort zone
-local temp_min = 18--20
-local temp_max = 32--30
 
 --e.g. for new players
 function HEALTH.set_default_attributes(player)
@@ -266,26 +256,26 @@ end
 function HEALTH.health_calc(player,meta,dontset)
   assert(minetest.is_player(player) == true,"health.health_calc: provided 'player' is not a player!")
 
-  if not type(dontset) == "boolean" then
+  if not ( type(dontset) == "boolean" ) then
     dontset = false
   end
-  local name = player:get_player_name()
+  local pname = player:get_player_name()
   local bstats = HEALTH.get_default_attributes() -- get base starting stats
-  local stats = {}
-  
+  local stats
+
   -- incase meta is not provided then (get it! :D)
   if not is_meta(meta) then
     meta = player:get_meta()
   end
   stats = HEALTH.get_meta_stats(meta)
-  
+
   -- player's current stats as variables
   local health = player:get_hp()
   local energy = stats.energy
   local hunger = stats.hunger
   local thirst = stats.thirst
   local temperature = stats.temperature
-  
+
   -- base stats to prevent compounding
   local h_rate = bstats.heal_rate
 	local t_rate = bstats.thirst_rate
@@ -293,8 +283,8 @@ function HEALTH.health_calc(player,meta,dontset)
 	local r_rate = bstats.recovery_rate
 	local mov = bstats.move
 	local jum = bstats.jump
-  
-  
+
+
   --(hunger/Energy has 10x stock)
 	--0-20 starving/severe dehydrated: malus, no heal
 	--20-40 malnourished/dehydrated: malus
@@ -459,7 +449,7 @@ function HEALTH.health_calc(player,meta,dontset)
 
   --apply player physics
   --don't do in bed or it buggers the physics
-  if not bed_rest.player[name] and (not dontset) then
+  if not bed_rest.player[pname] and (not dontset) then
     player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics")
     player_monoids.jump:add_change(player, 1 + (jum/100), "health:physics")
   end
@@ -492,7 +482,8 @@ end
 function HEALTH.quick_physics(player,meta)
   local stats = HEALTH.health_calc(player,meta,true)
 
-  if not bed_rest.player[name] then
+  local pname = player:get_player_name()
+  if not bed_rest.player[pname] then
     player_monoids.speed:add_change(player, 1 + (stats.move/100), "health:physics")
     player_monoids.jump:add_change(player, 1 + (stats.jump/100), "health:physics")
   end
@@ -577,7 +568,6 @@ register_tab()
 --takes all the same variables, and outputs as any effect may use them.
 --adjusted outputs feed back into malus_bonus
 local function do_effects_list(player, meta, stats)
-  local health = player:get_hp()
 
 	local effects_list = meta:get_string("effects_list")
 	effects_list = minetest.deserialize(effects_list) or {}
@@ -650,7 +640,7 @@ local function do_effects_list(player, meta, stats)
       end
     end
   end
-  
+
   -- update effects_list
   meta:set_string("effects_list",
     minetest.serialize(effects_list))
@@ -686,7 +676,8 @@ function HEALTH.malus_bonus(player,meta)
     end
   end
 
-  if not bed_rest.player[name] then
+  local pname = player:get_player_name()
+  if not bed_rest.player[pname] then
 		--split physics from hunger etc from that from health effects
 		--this means health_calc can fiddle with one half, without overriding the half from effects
 		mov = stats.move - mov
@@ -764,7 +755,6 @@ if minetest.settings:get_bool("enable_damage") then
 		--run
 		if timer > interval then
 			for _,player in ipairs(minetest.get_connected_players()) do
-				local name = player:get_player_name()
 				local meta = player:get_meta()
 				local health = player:get_hp()
 				-- don't damage us if we're already dead
@@ -791,7 +781,7 @@ if minetest.settings:get_bool("enable_damage") then
 				--update
 				HEALTH.modify_hp(player,h_rate)
 				HEALTH.modify_int(meta,"temperature",temperature1)
-        HEALTH.modify_int(meta,"thirst",t_rate)        
+        HEALTH.modify_int(meta,"thirst",t_rate)
         HEALTH.modify_int(meta,"hunger",hun_rate)
         HEALTH.modify_int(meta,"energy",r_rate)
 				--update form so can see change while looking
