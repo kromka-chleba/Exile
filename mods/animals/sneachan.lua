@@ -226,7 +226,7 @@ local self_data = {
 		end
 		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
-  on_death = function(self, pos)
+  _on_death = function(self, pos)
     local good_temp,temp_status = animals.temp_comfy(self)
     if good_temp or temp_status ~= "cold" then
       return
