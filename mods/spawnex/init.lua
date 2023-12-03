@@ -239,13 +239,16 @@ local function select_hex_from(hex) -- for wide spawn
       table.insert(potentials, selhex)
    end
    if #open > 0 then
+      print("Selected an open hex")
       return open[math.random(1, #open)]
    end
    for i = 1, #potentials do -- 2x chance to get potential gate
       table.insert(full_list, potentials[i])
    end
    local newgate = full_list[math.random(1, #full_list)]
+   print("Selected gate at ",hex2string(newgate))
    if not region.get(newgate).currentgate then -- we hit a missing gate anyway
+      print("And opening it:")
       setup_gate(newgate)
    end
    return newgate
@@ -287,8 +290,8 @@ function region.spawn(player)
    sadef.open = true
    print("spawn: ",dump(sadef.currentgate))
    player:set_pos(gate)
-   -- get a new spawn location
-   minetest.after(30, function() region.prespawn(player) end )
+   -- get a new spawn location, but wait until this gate is closed!
+   minetest.after(70, function() region.prespawn(player) end )
    add_job("queue", 50, spawnat)
    add_job("close", 60, spawnat)
    save_jobs()
