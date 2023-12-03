@@ -140,25 +140,16 @@ end
 
 ----------------------------------------------
 -- SETTING OF SNEACHAN INTERACTOR SETTINGS
-animals.add_interactors("predators","sneachan","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
-animals.add_interactors("rivals","sneachan","animals:sneachan", "animals:impethu")
+animals.add_interactors("predators","animals:sneachan","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("rivals","animals:sneachan","animals:sneachan", "animals:impethu")
 
-----------------------------------------------
---The Animal
-local self_data = {
-  name = "animals:sneachan",
-  --core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
+local self_data = animals.register_animal("animals:sneachan",{
+  collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
 	visual = "mesh",
 	mesh = "animals_sneachan.b3d",
 	textures = {"animals_sneachan.png"},
-	visual_size = {x = 1, y = 1},
-	makes_footstep_sound = true,
-	timeout = 0,
-
-	-- animal stats
+  
+  -- animal stats
 	max_hp = 3,
 	lung_capacity = 10,
   -- comfort temps
@@ -166,6 +157,19 @@ local self_data = {
 	max_temp = 50,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
+  -- energy
+  energy_max = 5000,--secs it can survive without food
+  energy_egg = "energy_max*0.5",--(self_data.energy_max*0.5) --energy that goes to egg
+  egg_timer = 60*10,
+  young_per_egg = {3,7},		--will get this/energy_egg starting energy
+  emergency_egg_chance = 0.75,
+  -- lifespan
+  lifespan = "energy_max*5",--self_data.energy_max * 5
+  -- interactions
+  predators = animals.get_interactors(name,"predators"),
+  prey = animals.get_interactors(name,"prey"),
+
+  logic = brain,
   
   --movement
 	springiness=0,
@@ -177,22 +181,11 @@ local self_data = {
 	--attack
 	attack={range=0.3, damage_groups={fleshy=1}},
 	armor_groups = {fleshy=100},
-
-	--interaction
-	predators = animals.get_interactors("sneachan","predators"),
-	rivals = animals.get_interactors("sneachan","rivals"),
   
   -- settings
   max_pop = 20,
-
-	on_step = mobkit.stepfunc,
-	on_activate = mobkit.actfunc,
-	get_staticdata = mobkit.statfunc,
-	logic = brain,
-	-- optional mobkit props
-	-- or used by built in behaviors
-	--physics = [function user defined] 		-- optional, overrides built in physics
-	animation = {
+  
+  animation = {
 		walk={range={x=0, y=20}, speed=20, loop=true},
 		fast={range={x=0, y=20}, speed=40, loop=true},
 		stand={range={x=0, y=20}, speed=10, loop=true},
@@ -233,18 +226,8 @@ local self_data = {
     end
     animals.emergency_egg(self, pos)
   end
-}
----- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
--- energy and eggs
-self_data.energy_max = 5000--secs it can survive without food
-self_data.energy_egg = (self_data.energy_max*0.5) --energy that goes to egg
-self_data.egg_timer = 60*10
-self_data.young_per_egg = {3,7}		--will get this/energy_egg starting energy
-self_data.emergency_egg_chance = 0.75
--- lifespan
-self_data.lifespan = self_data.energy_max * 5
----------------------;
-minetest.register_entity("animals:sneachan",self_data)
+})
+--minetest.register_entity("animals:sneachan",self_data)
 
 ----------------------------------------------
 --eggs

@@ -2181,6 +2181,7 @@ function animals.register_animal(name,def)
     physical = true,
     collide_with_objects = true,
     collision_box = {-0.1,-0.1,-0.1,0.1,0.1,0.1},
+    visual_size = {x = 1, y = 1},
     makes_footstep_sound = true,
     timeout = 0,
     -- animal stats
@@ -2280,9 +2281,9 @@ function animals.register_animal(name,def)
   -- add values to def that weren't defined
   for defname,defvalue in pairs(basedef) do
     if def[defname] == nil then -- ignore "false"
-      -- if not defined or not a table
+      -- if not defined
       def[defname] = defvalue -- add to definition
-    else
+    elseif type(defvalue) == "table" then
       -- iterate over the tables
       for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
         if defvalue[dn2] == nil then
@@ -2298,7 +2299,8 @@ function animals.register_animal(name,def)
   for defname,defvalue in pairs(def) do
     if (type(defvalue) == "string" and
       ( defname == "energy_egg" or
-      defname == "mature_age") ) then
+      defname == "mature_age" or
+      defname == "lifespan" ) ) then
       -- allow for custom usage of adding, multiplying, dividing, or subtracting from a value via string
       defvalue = string.gsub(defvalue," ","") -- erase all spaces
       -- convert to table for a command system
@@ -2310,11 +2312,12 @@ function animals.register_animal(name,def)
       }
       for i = 1, string.len(defvalue) do
         local char = string.sub(defvalue,i,i)
-        data.to_index = data.to_index..char
         if (char == "*" or char == "+" or char == "-" or char == "/" or char == "^") then
           data.modifier = char
           data.number = string.sub(defvalue,(i + 1),string.len(defvalue))
           break
+        else
+          data.to_index = data.to_index..char
         end
       end
       data.number = tonumber(data.number)
