@@ -308,6 +308,41 @@ local savejobs = false
 local func = -- can't serialize actual functions, so correlate with string name
    { ["queue"] = queue_next_gate, ["close"] = close_gate }
 
+local maxdist = 2750 -- how far you need to get from center of home to new home
+local shift = {} -- stores midway region, for wide spawn
+
+local function player_moved_to_new_region(player, pname, ppos, home)
+   -- If a player moves far enough from his home region, we need to set
+   --  the new region as his home, for regular spawn. Wide spawn will
+   --  drag a "shift" hex out from home, and then set it when the player
+   --  is far enough from the shift hex.
+   local saveout = false
+   local newhex = map2hex(ppos)
+   local disthome = distance_to_hex(ppos, home)
+   if  disthome < maxdist then
+      --if not meta then meta = player:get_meta() end
+      if not wide_spawn then
+	 homecache[pname] = newhex
+	 saveout = true
+      elseif not shift[player] then
+	 shift[player] = newhex
+      else -- wide spawn, and we have a shift region already; what do?
+	 if disthome > maxdist * 2 then -- far out, move player's home
+	    homecache[pname] = shift[player]
+	    shift[player] = nil
+	    saveout = true
+	 elseif disthome < maxdist then -- came back home, so remove shift
+	    shift[player] = nil
+	 elseif ( disthome < maxdist / 2 and -- circled around, so change shift
+		  distance_to_hex(shift[player]) > maxdist ) then
+	    shift[player] = newhex
+	 end
+      end
+   end
+   return saveout
+end
+
+
 minetest.register_globalstep(function(dtime)
       for nm, dat in pairs(jobs) do -- run jobs
 	 dat.timer = dat.timer + dtime
@@ -338,21 +373,17 @@ minetest.register_globalstep(function(dtime)
 	    end
 	    local ppos = player:get_pos()
 	    local dfrom = distance_to_hex(ppos, home)
-	    if dfrom > 2750 then -- we're well out of our home region
-	       local newhex = map2hex(ppos)
-	       if distance_to_hex(ppos, newhex) < 1250 then
-		  if not meta then meta = player:get_meta() end
-		  home = newhex
-		  homecache[newhex] = newhex
-		  saveout = true
-	       end
-	       if saveout then
-		  if not meta then meta = player:get_meta() end
-		  meta:set_string("exile_spawnhome", hex2string(home))
-		  meta:set_string("exile_spawnat", "")
-		  print("Player home hex changed, selecting spawn pos")
-		  region.prespawn(player, home)
-	       end
+	    if dfrom > maxdist then -- we're well out of our home region
+	       saveout = saveout or player_moved_to_new_region(player, pname,
+							       ppos, home)
+	       home = homecache[pname] -- in case we updated
+	    end
+	    if saveout then
+	       if not meta then meta = player:get_meta() end
+	       meta:set_string("exile_spawnhome", hex2string(home))
+	       meta:set_string("exile_spawnat", "")
+	       print("Player home hex changed, selecting spawn pos")
+	       region.prespawn(player, home)
 	    end
 	 end
       end
