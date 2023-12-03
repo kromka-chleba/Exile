@@ -361,7 +361,7 @@ function animals.core_life(self, pos)
     local killer_min_temp = min_temp - 7
     local killer_max_temp = max_temp + 25
     local burn_max_temp = killer_max_temp + 55
-    local absolute_death_temp = burn_max_temp + 800
+    local absolute_death_temp = burn_max_temp + 500
     
     if (self.class ~= 2) then
       -- only for land creatures
@@ -390,10 +390,10 @@ function animals.core_life(self, pos)
     
   -- get really hurt or die from high temp
     if temp > killer_max_temp then -- use addition instead of multiplication to account for negative numbers
-      local mtp = (temp - killer_max_temp)*0.007 -- multiplier
+      local mtp = (temp - killer_max_temp)*0.01 -- multiplier
       local dmg = math.ceil(1 * mtp) -- damage calculation
       if (temp >= absolute_death_temp) then
-        dmg = dmg * 8
+        dmg = dmg * 16
       end
       dmg = math_clamp(dmg,1,self.hp) -- clamp dmg
       animals.modify_hp(self,-dmg)
@@ -2201,7 +2201,8 @@ function animals.register_animal(name,def)
     young_per_egg = 1, -- how many young will hatch from the egg (energy_egg will be divided up to how many offspring spawn
     -- so 4 offspring will have energy_egg be split into 4 (or 20/4 = 5 units) for each of the young)
     -- can be a table, such as {1,3} to spawn a chance of 1 to 3 per egg hatch
-    -- emergency_egg_chance = 0.5 -- custom and should be handled in on_death
+    -- emergency_egg_chance = 0.5, -- custom and should be handled in on_death
+    -- mature_age = 150, -- custom, minimum age for which the entity should be at or above before reproducing
     -- is it land-borne (1), sea-borne (2), or amphibious (3) - default land-borne
     class = 1,
     -- movement
@@ -2235,7 +2236,6 @@ function animals.register_animal(name,def)
         [2] = 0.25,
         [3] = 0.4,
       },
-      
     },
     -- mobkit functions
     on_step = mobkit.stepfunc,
@@ -2267,18 +2267,69 @@ function animals.register_animal(name,def)
       animals.stun_catch_mob(self, clicker, 0.75, true)
     end,
     -- custom
-    --on_death = function(self, pos)
+    --[[
+    _on_death = function(self, pos)
       -- create a custom action to occur upon death
-    --end,
+    end,
+    --]]
     -- egg + spawnegg
     egg = {
-      
+      -- nodedef expectation
     },
     spawnegg = {
-      
+      -- itemdef expectation
     },
   }
+  --[[
+  local killer_min_temp = min_temp - 7
+  local killer_max_temp = max_temp + 25
+  local burn_max_temp = killer_max_temp + 55
+  local absolute_death_temp = burn_max_temp + 500
+  --]]
 
+  for defname,defvalue in pairs(basedef) do
+    if def[defname] == nil then -- ignore "false"
+      -- if not defined or not a table
+      def[defname] = defvalue -- add to definition
+    else
+      -- iterate over the tables
+      for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
+        if defvalue[dn2] == nil then
+          defvalue[dn2] = dv2
+        end
+      end
+    end
+  end
+  -- now to correct some values
+  assert(type(def.egg) == "table","defined 'egg' is not a table for nodedef, got '"..type(def.egg).."'")
+  assert(type(def.spawnegg) == "table","defined 'spawnegg' is not a table for itemdef, got '"..type(def.spawnegg).."'")
+  assert(type(def.capture_interactions) == "table","defined 'capture_interactions' is not a table, got '"..type(def.capture_interactions).."'")
+  for defname,defvalue in pairs(def.capture_interactions) do
+    if type(defvalue) == "number" then
+      def.capture_interactions[defname] = {defvalue}
+    elseif (type(defvalue) == "table") then
+      for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
+        if type(dv2) ~= "number" then
+          -- convert to number or nil (get rid of index)
+          defvalue[dn2] = tonumber(dv2)
+        end
+      end
+    end
+  end
+  -- set values for excessively harmful temps
+  if type(def["killer_min_temp"]) ~= "number" then
+    def["killer_min_temp"] = (def.min_temp - 7)
+  end
+  if type(def["killer_max_temp"]) ~= "number" then
+    def["killer_max_temp"] = (def.max_temp + 25)
+  end
+  if type(def["burn_max_temp"]) ~= "number" then
+    def["burn_max_temp"] = (def["killer_max_temp"] + 55)
+  end
+  if type(def["absolute_death_temp"]) ~= "number" then
+    def["absolute_death_temp"] = (def["burn_max_temp"] + 300)
+  end
+  --[[
   for defname,defvalue in pairs(def) do
     if not (type(defvalue) == "table") then
       basedef[defname] = defvalue
@@ -2292,6 +2343,7 @@ function animals.register_animal(name,def)
       end
     end
   end
+  --]]
 
   minetest.register_entity(name,basedef)
   return basedef
