@@ -680,10 +680,17 @@ local function water_source_down(pos)
         end
     end
 
-    local air_table = minetest.find_nodes_in_area(
-        {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-        {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
+    local air_table1 = minetest.find_nodes_in_area(
+        {x = pos.x - 1, y = pos.y - 1, z = pos.z},
+        {x = pos.x + 1, y = pos.y - 1, z = pos.z},
         buildable_to)
+
+    local air_table2 = minetest.find_nodes_in_area(
+        {x = pos.x, y = pos.y - 1, z = pos.z - 1},
+        {x = pos.x, y = pos.y - 1, z = pos.z + 1},
+        buildable_to)
+
+    local air_table = minimal.concat_tables(air_table1, air_table2)
 
     if #air_table > 0 then
         --select a random one
