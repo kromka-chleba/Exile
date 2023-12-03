@@ -349,6 +349,7 @@ minetest.register_globalstep(function(dtime)
 	       if saveout then
 		  if not meta then meta = player:get_meta() end
 		  meta:set_string("exile_spawnhome", hex2string(home))
+		  meta:set_string("exile_spawnat", "")
 		  print("Player home hex changed, selecting spawn pos")
 		  region.prespawn(player, home)
 	       end
