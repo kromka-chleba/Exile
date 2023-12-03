@@ -112,9 +112,10 @@ end
 
 -- List of decoration names
 local plants_with_tubers = {
-    "nodes_nature:anperla",
+    "dl_nn:anperla",
+    "bl_nn:anperla",
     "dl_nn:barszcz",
-    "gs_nn:barszcz",
+    "gl_nn:barszcz",
 }
 
 --------------------------------------------------------------------

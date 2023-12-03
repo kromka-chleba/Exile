@@ -110,9 +110,9 @@ local edible_plants = {
         deco_type = "simple",
         place_on = sna.woodland_on,
         sidelen = 80,
-        fill_ratio = 0.001000,
+        fill_ratio = 0.001500,
         y_max = sna.lowland_max,
-        y_min = sna.coastal_max,
+        y_min = sna.beach_max,
         decoration = "nodes_nature:vansano",
         param2 = 2,
     },
@@ -177,8 +177,20 @@ local edible_plants = {
         param2 = 2,
     },
 
+    {--[Grass&Shrub:Rzepicha]]
+        name = "gs_nn:rzepicha_fruiting",
+        deco_type = "simple",
+        place_on = sna.grass_shrub_on,
+        sidelen = 80,
+        fill_ratio = 0.000020,
+        y_max = sna.highland_max,
+        y_min = sna.coastal_max,
+        decoration = "nodes_nature:rzepicha_fruiting",
+        param2 = 0,
+    },
+
     {--[[Grass&Shrub:Ttikusati]]
-        name = "nodes_nature:tikusati",
+        name = "gs_nn:tikusati",
         deco_type = "simple",
         place_on = sna.grass_shrub_on,
         sidelen = 16,
@@ -213,8 +225,20 @@ local edible_plants = {
         param2 = 2,
     },
 
+    {--[[grass_shrub_on:Tsaplop]]
+        name = "gl_nn:tsaplop",
+        deco_type = "simple",
+        place_on = sna.grass_shrub_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0001, spread={x=32, y=32, z=32}, seed=5510, octaves=2, persist=0.7},
+        y_max = sna.highland_max,
+        y_min = sna.lowland_max,
+        decoration = "nodes_nature:tsaplop",
+        param2 = 0,
+    },
+
     {--[[Duneland:anperla]]
-        name = "nodes_nature:anperla",
+        name = "dl_nn:anperla",
         deco_type = "simple",
         place_on = sna.duneland_on,
         sidelen = 16,
@@ -237,28 +261,124 @@ local edible_plants = {
         param2 = 2,
     },
 
-    {--[[Allbarren:Obesa]]
-        name = "nodes_nature:obesa_fruitless",
+    {--[[Duneland:Obesa]]
+        name = "dl_nn:obesa_fruitless",
         deco_type = "simple",
-        place_on = sna.barrenland_on,
-        sidelen = 80,
-        fill_ratio = 0.000300,
-        y_max = sna.highland_max,
+        place_on = sna.duneland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0010, spread={x=32, y=32, z=32}, seed=950, octaves=2, persist=0.8},
+        y_max = sna.lowland_max,
         y_min = sna.beach_max,
         decoration = "nodes_nature:obesa_fruitless",
-        param2 = 0,
+        param2 = 2,
     },
 
-    {--[[Allbarren:Tsaplop]]
-        name = "nodes_nature:tsaplop",
+    {--[[Duneland:Tsaplop]]
+        name = "dl_nn:tsaplop",
         deco_type = "simple",
-        place_on = sna.barrenland_on,
-        sidelen = 80,
-        fill_ratio = 0.000500,
+        place_on = sna.duneland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0020, spread={x=32, y=32, z=32}, seed=5510, octaves=2, persist=0.7},
         y_max = sna.highland_max,
         y_min = sna.beach_max,
         decoration = "nodes_nature:tsaplop",
         param2 = 0,
+    },
+
+    {--[Allbarren:Rzepicha]]
+        name = "bl_nn:rzepicha_fruiting",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 80,
+        fill_ratio = 0.000002,
+        y_max = sna.highland_max,
+        y_min = sna.coastal_max,
+        decoration = "nodes_nature:rzepicha_fruiting",
+        param2 = 0,
+    },
+
+    {--[[Allbarren:Tsaplop]]
+        name = "bl_nn:tsaplop",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0002, spread={x=32, y=32, z=32}, seed=5510, octaves=2, persist=0.7},
+        y_max = sna.highland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:tsaplop",
+        param2 = 0,
+    },
+
+    {--[[Allbarren:Obesa]]
+        name = "bl_nn:obesa_fruitless",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0002, spread={x=32, y=32, z=32}, seed=950, octaves=2, persist=0.8},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:obesa_fruitless",
+        param2 = 2,
+    },
+
+    {--[[Allbarren:Ttikusati]]
+        name = "bl_nn:tikusati",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0002, spread={x=100, y=100, z=100}, seed=1002, octaves=2, persist=0.7},
+        y_max = sna.highland_max,
+        y_min = sna.lowland_max,
+        decoration = "nodes_nature:tikusati",
+        param2 = 2,
+    },
+
+    {--[[Allbarren:anperla]]
+        name = "bl_nn:anperla",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0001, spread={x=32, y=32, z=32}, seed=1112, octaves=2, persist=0.8},
+        y_max = sna.coastal_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:anperla",
+        param2 = 3,
+    },
+
+    {--[[barrenland:zufani]]
+        name = "bl_nn:zufani",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 80,
+        fill_ratio = 0.000010,
+        y_max = sna.highland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:zufani",
+        param2 = 2,
+    },
+
+    {--[[Allbarren:Wiha]]
+        name = "bl_nn:wiha_fruiting",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0001, spread={x=32, y=32, z=32}, seed=1003, octaves=2, persist=0.9},
+        y_max = sna.lowland_max,
+        y_min = sna.coastal_max,
+        decoration = "nodes_nature:wiha_fruiting",
+        param2 = 4,
+    },
+
+    {--[[Allbarren:barszcz]]
+        name = "bl_nn:barszcz",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0004, spread={x=32, y=32, z=32}, seed=93, octaves=2, persist=0.9},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:barszcz",
+        param2 = 2,
     },
 
     -- End of edible
@@ -337,6 +457,18 @@ local kind_of_edible_plants = {
         param2 = 3,
     },
 
+    {--[[Allbarren:hakimi]]
+        name = "bl_nn:hakimi",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0001, spread={x=100, y=100, z=100}, seed=1004, octaves=2, persist=0.85},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:hakimi",
+        param2 = 3,
+    },
+
     -- End of kind_of_edible
 }
 
@@ -366,7 +498,7 @@ local toxic_plants = {
     },
 
     {--[[Grassland:wrotycz]]
-        name = "nodes_nature:wrotycz_flowering",
+        name = "gl_nn:wrotycz_flowering",
         deco_type = "simple",
         place_on = sna.grassland_on,
         sidelen = 16,
@@ -378,7 +510,7 @@ local toxic_plants = {
     },
 
     {--[[Grassland:barszcz]]
-        name = "gs_nn:barszcz",
+        name = "gl_nn:barszcz",
         deco_type = "simple",
         place_on = sna.grassland_on,
         sidelen = 16,
@@ -401,12 +533,24 @@ local toxic_plants = {
         param2 = 1,
     },
 
-    {--[[Allbarren:Gevaari]]
-        name = "nodes_nature:gevaari",
+    {--[[Allbarren:nebiyi]]
+        name = "bl_nn:nebiyi",
         deco_type = "simple",
         place_on = sna.barrenland_on,
         sidelen = 80,
-        fill_ratio = 0.004000,
+        fill_ratio = 0.001000,
+        y_max = sna.highland_max,
+        y_min = sna.coastal_max,
+        decoration = "nodes_nature:nebiyi",
+        param2 = 1,
+    },
+
+    {--[[Duneland:Gevaari]]
+        name = "dl_nn:gevaari",
+        deco_type = "simple",
+        place_on = sna.duneland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0010, spread={x=32, y=32, z=32}, seed=983, octaves=2, persist=0.8},
         y_max = sna.highland_max,
         y_min = sna.beach_max,
         decoration = "nodes_nature:gevaari",
