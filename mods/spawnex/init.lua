@@ -1,14 +1,32 @@
 --------------------------------------------------------------------------
 -- Spawn infrastructure
 
--- dependencies
+-- A region's spawn gate is either missing, queued, potential, or open.
+-- When a player spawns in, he is sent through a vald open gate first. If
+-- there is no open gate already, a potential gate is opened. If there is no
+-- potential gate (the missing state) then a gate must be created rapidly
+-- via the fast_gate() function.
+
+-- After a gate is opened and player has spawned through it, a new gate
+-- location is queued. 60 seconds later, the open gate is closed and the
+-- queued gate becomes the region's current potential gate.
+
+-- A potential or queued gate has been set up via finding a spawn position,
+-- and emerging the area if possible.
+
+
+-- Dependencies
 __DEBUG__ = __DEBUG__
 volcano = volcano
 mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
 
+-- Config options
+local wide_spawn = minetest.settings:get_bool("exile_wide_spawn") or true
+
+-- Load hex tools
 local modpath = minetest.get_modpath("spawnex")
-local dirstring, hexnum, -- Load hex tools
+local dirstring, hexnum,
    hex2string, string2hex,
    hex2map, map2hex,
    get_neighbor, get_neighbors,
@@ -16,9 +34,11 @@ local dirstring, hexnum, -- Load hex tools
 
 local defhex = {0,0}
 
-local function find_spawn_pos(pos)
+local function fallback_spawn_pos(pos)
    -- Used if we have to fallback to the hex center for some reason, eg volcano
-   local vgl = volcano.estimate_ground_level(pos) or 0
+   print("fallback_spawn_pos")
+   local vground = volcano.estimate_ground_level(pos)
+   local vgl = vground or 20
    local tries = 0
    local sl local xo local zo
    repeat
@@ -26,14 +46,30 @@ local function find_spawn_pos(pos)
       xo = math.random(0,600)-300 zo = math.random(0,600)-300
       sl = minetest.get_spawn_level(pos.x + xo, pos.z + zo)
    until tries == 30 or ( sl and sl > vgl )
-   if not sl or vgl > sl then sl = vgl end -- fallback if all tries failed
+   if sl and vgl > sl then
+      sl = vgl
+   end
+   if not sl then -- fallback if all tries failed:
+      sl = 20 -- try not to put the player underground
+   end
    return vector.new(pos.x + xo, sl, pos.z + zo)
 end
 
 local badplaces = {"ocean", "mountains"}
+local badbiomes = {"barrenland", "water"}
+
+local function isagoodbiome(name)
+   for i = 1, #badbiomes do
+      if name:match(badbiomes[i]) then
+	 return false
+      end
+   end
+   return true
+end
 
 local function spawn_offset(hex1, max_count)
-   -- Gets a random spot in a circular field around the region
+   -- Gets a random spot in a circular field around the center of the region
+   print("spawn_offset ",hex2string(hex1))
    local hexctr = hex2map(hex1) -- get the center
    local tgt, d, sl, vgl
    local count = 0 local maxcount = max_count or 20
@@ -48,7 +84,14 @@ local function spawn_offset(hex1, max_count)
       sl = minetest.get_spawn_level(check.x, check.z)
       vgl = volcano.estimate_ground_level(check) or 0
       local chunk = ms.mapchunk_hash(check)
-      if (sl and sl > vgl) and not ms.contains_labels(chunk, badplaces) then
+      local bname =
+	 minetest.get_biome_name(minetest.get_biome_data(
+				    vector.new(check.x,
+					       sl or 19,
+					       check.z)).biome)
+      if (sl and sl > vgl) and -- not at a volcano
+	 not ms.contains_labels(chunk, badplaces) and -- not a blacklisted label
+	 isagoodbiome(bname) then -- not a blacklisted biome name
 	 tgt = check
       end
       count = count + 1
@@ -71,7 +114,8 @@ local jobs = minetest.deserialize(storage:get_string("jobs")) or {}
 -- jobs: could have used minetest.after, but we want to save it on restart
 
 --[[
-   { ["0:0"] = { [currentgate] = pos, [nextgate] = pos, [..] = ... } }
+   { ["0:0"] = { [currentgate] = pos, ["nextgate"] = pos,
+     ["open"] = true, [..] = ... } }
 ]]--
 
 local function save_rgns()
@@ -94,43 +138,44 @@ function region.get(hex) -- #TODO: add other features for regions
    return rgns[id]
 end
 
-local function has_gate(hex)
-   local def = region.get(hex)
-   if def.currentgate then
-      return true
-   end
-end
-
-local function find_gate(hex, tries)
-   local gate = spawn_offset(hex, tries or 40)
+local function find_gate_pos(hex, tries) -- pick a spawn position in a hex
+   local gate = spawn_offset(hex, tries or 150)
    if not gate then
-      gate = find_spawn_pos(hex2map(hex))
+      gate = fallback_spawn_pos(hex2map(hex))
    end
    return gate
 end
 
-local function setup_gate(hex)
+local function load_gate(hex) -- forceload a gate's location to prep for a spawn
+   print("Load gate for ",hex2string(hex))
    local def = region.get(hex)
-   if not def.currentgate then
-      def.currentgate = find_gate(hex)
-   end
+   print(dump(def))
    local mb_min = vector.new(math.floor(def.currentgate.x / 16) * 16,
 			     math.floor(def.currentgate.y / 16) * 16,
 			     math.floor(def.currentgate.z / 16) * 16)
    local mb_max = vector.new(mb_min.x + 15, mb_min.y + 15, mb_min.z + 15)
    minetest.emerge_area(mb_min, mb_max)
    minetest.forceload_block(def.currentgate)
+   def.forceloaded = true
+end
+
+local function setup_gate(hex) -- create potential gate
+   print("setup gate for ",hex2string(hex))
+   local def = region.get(hex)
+   if not def.currentgate then
+      def.currentgate = find_gate_pos(hex)
+   end
    save_rgns()
 end
 
-function queue_gate(hex)
-   -- Set up the next gate in preparation for closing the current one
+function queue_next_gate(hex) -- Set up next gate before closing current one
+   print("queue next gate")
    local def = region.get(hex)
    if def.nextgate then return end -- already have one queued
    local candidate
    local count = 0
    repeat
-      candidate = find_gate(hex)
+      candidate = find_gate_pos(hex)
       count = count + 1
    until count > 3 or candidate:distance(def.currentgate) < 400
    -- not too close to previous spawn, please
@@ -138,10 +183,9 @@ function queue_gate(hex)
    save_rgns()
 end
 
-function region.fast_gate(hex)
-   -- Couldn't find a gate for this hex, make one quick!
+function region.fast_gate(hex) -- No gate for this hex, make one quick!
    local def = region.get(hex)
-   local gate = find_gate(hex, 5) -- just 5 tries before giving up
+   local gate = find_gate_pos(hex, 5) -- just 5 tries before giving up
    def.currentgate = gate
    save_rgns()
    return gate
@@ -150,28 +194,108 @@ end
 local function close_gate(hex)
    local def = region.get(hex)
    local oldgate = def.currentgate
-   minetest.forceload_free_block(oldgate)
+   if def.forceloaded then minetest.forceload_free_block(oldgate) end
    def.currentgate = def.nextgate
+   def.open = false
+   def.forceloaded = false
    def.nextgate = nil
    setup_gate(hex)
    save_rgns()
 end
 
-function region.spawn(player)
-   local meta = player:get_meta()
-   local home = string2hex(meta:get("exile_spawnat")) or defhex
-   local rdef = region.get(home)
-   --if hard_spawn then
-   --   rdef = region.get(get_neighbors(home)[math.random(1,6)] or home) end
-   local gate = rdef.currentgate
-   if not gate then
-      gate = region.fast_gate(home)
+local function select_hex_from(hex) -- for wide spawn
+   print("select hex from ",hex2string(hex))
+   -- Pick a valid hex within a 1-hex range, ensure there's a gate somewhere
+   local neigh = get_neighbors(hex)
+   table.insert(neigh, hex) -- add the middle in, too
+   local open = {} -- A gate is open here, send player here first if possible
+   local potentials = {} -- A gate pos has been selected
+   local missing = {} -- Nothing is ready here, last resort
+   local full_list = {} -- combined potentials and missing for random select
+   for i = 1, #neigh do
+      if #neigh[i] == 2 then -- this is a valid hex
+	 local def = region.get(neigh[i])
+	 if def.open then
+	    table.insert(open, neigh[i])
+	 elseif def.currentgate then
+	    table.insert(potentials, neigh[i])
+	    table.insert(full_list, neigh[i])
+	 else
+	    table.insert(missing, neigh[i])
+	    table.insert(full_list, neigh[i])
+	 end
+      end
    end
+   -- Corners can have as few as two neighbors, and if they're open, #missing = 0
+   if #missing > 0 then -- pick out a new gate for this area
+      local selhex = missing[math.random(1, #missing)]
+      setup_gate(selhex)
+      table.insert(potentials, selhex)
+   end
+   if #open > 0 then
+      return open[math.random(1, #open)]
+   end
+   for i = 1, #potentials do -- 2x chance to get potential gate
+      table.insert(full_list, potentials[i])
+   end
+   local newgate = full_list[math.random(1, #full_list)]
+   if not region.get(newgate).currentgate then -- we hit a missing gate anyway
+      setup_gate(newgate)
+   end
+   return newgate
+end
+
+function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
+   print("region prespawn")
+   if not player then return end
+   local meta = player:get_meta()
+   local home = centrhx or string2hex(meta:get("exile_spawnhome")) or defhex
+   local oldgate = string2hex(meta:get_string("exile_spawnat"))
+   if oldgate then -- Unload old spawnpos
+      print("Unloading old gate:",hex2string(oldgate))
+      local def = region.get(oldgate)
+      minetest.forceload_free_block(def.currentgate)
+      def.forceloaded = false
+   end
+   local tgt = home
+   if wide_spawn then
+      tgt = select_hex_from(home)
+   end
+   local rdef = region.get(tgt)
+   local gate = rdef.currentgate
+   if not gate then setup_gate(tgt) end
+   load_gate(tgt)
+   meta:set_string("exile_spawnat", hex2string(tgt))
+end
+
+function region.spawn(player)
+   print("region spawn")
+   local meta = player:get_meta()
+   local home = string2hex(meta:get("exile_spawnhome")) or defhex
+   local spawnat = home
+   if wide_spawn then
+      spawnat = string2hex(meta:get("exile_spawnat")) or select_hex_from(home)
+   end
+
+   local sadef = region.get(spawnat)
+   local gate = sadef.currentgate
+   if not gate then
+      gate = region.fast_gate(spawnat)
+      sadef.currentgate = gate
+      load_gate(spawnat)
+   end
+   sadef.open = true
+   print("spawn: ",dump(sadef.currentgate))
    player:set_pos(gate)
-   add_job("queue", 50, home)
-   add_job("close", 60, home)
+   -- get a new spawn location
+   minetest.after(30, function() region.prespawn(player) end )
+   add_job("queue", 50, spawnat)
+   add_job("close", 60, spawnat)
    save_jobs()
 end
+
+--------------------------------------------------------------------------
+-- Player tracking and update jobs
 
 local timer = 0
 
@@ -179,10 +303,10 @@ local homecache = {}
 local savejobs = false
 
 local func = -- can't serialize actual functions, so correlate with string name
-   { ["queue"] = queue_gate, ["close"] = close_gate }
+   { ["queue"] = queue_next_gate, ["close"] = close_gate }
 
 minetest.register_globalstep(function(dtime)
-      for nm, dat in pairs(jobs) do
+      for nm, dat in pairs(jobs) do -- run jobs
 	 dat.timer = dat.timer + dtime
 	 if dat.timer > dat.finish then
 	    func[dat.name](dat.target)
@@ -194,7 +318,7 @@ minetest.register_globalstep(function(dtime)
 
       timer = timer + dtime
       if timer > 27 then
-	 timer = 0
+	 timer = 0 -- Check for players who have moved
 	 for _, player in pairs(minetest.get_connected_players()) do
 	    local pname = player:get_player_name()
 	    local home = homecache[pname]
@@ -202,7 +326,7 @@ minetest.register_globalstep(function(dtime)
 	    local saveout = false
 	    if not home then
 	       meta = player:get_meta()
-	       home = string2hex(meta:get_string("exile_spawnat"))
+	       home = string2hex(meta:get_string("exile_spawnhome"))
 	       if not home then home = defhex end -- default for new players
 	       homecache[pname] = home
 	       saveout = true
@@ -217,12 +341,10 @@ minetest.register_globalstep(function(dtime)
 		  homecache[newhex] = newhex
 		  saveout = true
 	       end
-	       if not has_gate(newhex) then
-		  setup_gate(newhex)
-	       end
 	       if saveout then
 		  if not meta then meta = player:get_meta() end
-		  meta:set_string("exile_spawnat", hex2string(home))
+		  meta:set_string("exile_spawnhome", hex2string(home))
+		  region.prespawn(player, home)
 	       end
 	    end
 	 end
@@ -230,11 +352,17 @@ minetest.register_globalstep(function(dtime)
 end)
 
 --------------------------------------------------------------------------
+-- Startup and new player setup
 
 minetest.register_on_mods_loaded(function()
       minetest.after(0.1, function()
+	if wide_spawn then -- Check area, ensure there's a gate set up
+	   select_hex_from(defhex)
+	   return
+	end
+	-- not wide_spawn? check defhex only, set up a gate if needed
 	if not rgns[hex2string(defhex)] then
-	   setup_gate(defhex) -- set up a spawn for starting region
+	   setup_gate(defhex)
 	end
       end)
 end)
@@ -242,15 +370,12 @@ end)
 minetest.register_on_joinplayer(function(player)
       local pname = player:get_player_name()
       local meta = player:get_meta()
-      local home = string2hex(meta:get_string("exile_spawnat"))
+      local home = string2hex(meta:get_string("exile_spawnhome"))
       if not home then
 	 home = defhex
-	 meta:set_string("exile_spawnat", hex2string(home))
+	 meta:set_string("exile_spawnhome", hex2string(home))
       end -- default for new players
       homecache[pname] = home
-      if not has_gate(home) then
-	 setup_gate(home)
-      end
 end)
 
 
@@ -338,9 +463,12 @@ minetest.register_chatcommand("hexport",{
 minetest.register_chatcommand("spawnlevel",{
 	--privs = "server",
 	func = function(name,param)
+	   print("Checking SL")
 	   local player = minetest.get_player_by_name(name)
 	   local ppos = player:get_pos()
 	   local sl = minetest.get_spawn_level(ppos.x, ppos.z)
+	   print("SPAWN LEVEL: ",sl)
+	   print("VOLCANO LEVEL: ",volcano.estimate_ground_level(ppos))
 	   return true, sl
 	end
 })

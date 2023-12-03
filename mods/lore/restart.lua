@@ -65,9 +65,10 @@ end
 
 local function restart_confirm (confirmed, _, player, name)
    if confirmed == true then
+      region.prespawn(player)
       minetest.log("action", S("@1 gave up the ghost.", name))
       timestamp[name] = minetest.get_gametime()
-      local remaining = 30
+      local remaining = 20
       local function loop()
 	 if not minetest.is_player(player) then return end
 	 if remaining <= 0 then
