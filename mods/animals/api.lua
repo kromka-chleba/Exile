@@ -2272,6 +2272,60 @@ function animals.register_animal(name,def)
     -- egg + spawnegg
     egg = {
       -- nodedef expectation
+      --description = S('@1 Eggs'),
+      tiles = {"animals_gundu_eggs.png"},
+      stack_max = minimal.stack_max_medium,
+      drawtype = "nodebox",
+      paramtype = "light",
+      node_box = {
+        type = "fixed",
+        fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
+      },
+      groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
+      sounds = nodes_nature.node_sound_defaults(),
+      -- egg functions
+      on_construct = function(pos)
+        local egg_timer = def.egg_timer
+        minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+      end,
+      -- _conditions_correct(pos)
+      -- create a custom function that checks whether or not an egg should hatch
+      -- return decimal for percentage chance
+      -- should return true for if it can hatch
+      -- return false if it cannot hatch and provide a new time to use or it'll default
+      -- "new time" parameter can be made boolean true to prevent egg from hatching permanently
+      --end,
+      on_timer = function(pos, elapsed)
+        local egg_timer = def.egg_timer
+        if not type(egg_timer) == "number" then
+          -- no hatching if egg_timer doesn't exist
+          return true
+        end
+        local hatch = true
+        local new_time
+        -- if a custom _conditions_correct function was specified
+        if type(def.egg._conditions_correct) == "function" then
+          hatch, new_time = def.egg_conditions_correct(pos)
+        end
+        -- get a "time" to hatch by
+        if new_time == true then
+          -- you told the egg to never hatch
+          return true
+        elseif not type(new_time) == "number" then
+          new_time = egg_timer
+        end
+        -- now for actual hatching (or other options)
+        if hatch == true then
+          return animals.hatch_egg(def,pos)
+        elseif type(hatch) == "number" and hatch > 0 then
+          -- random chance
+          if random() <= hatch then
+            return animals.hatch_egg(def,pos)
+          end
+        end
+        -- continue to try to hatch, at another time
+        return false
+      end
     },
     spawnegg = {
       -- itemdef expectation
@@ -2293,8 +2347,12 @@ function animals.register_animal(name,def)
     end
   end
   -- now to correct some values (or cause errors >:3)
-  assert(type(def.egg) == "table","defined 'egg' is not a table for nodedef, got '"..type(def.egg).."'")
+  --assert(type(def.egg) == "table","defined 'egg' is not a table for nodedef, got '"..type(def.egg).."'")
+  if not def.egg.name then
+    def.egg = nil
+  end
   assert(type(def.spawnegg) == "table","defined 'spawnegg' is not a table for itemdef, got '"..type(def.spawnegg).."'")
+  --assert(type(def.egg_timer) == "number","defined 'egg_timer' is not a number, got '"..type(def.egg_timer).."'")
   -- iterate over and adjust some values (if applicable)
   for defname,defvalue in pairs(def) do
     if (type(defvalue) == "string" and
