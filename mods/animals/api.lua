@@ -2039,29 +2039,24 @@ end
 function animals.get_interactors(creature,itype) -- creature to get stats from, interationtype
   -- get a table of the creatures that interact with the specified creature in the specified interactiontype way
   if (type(itype) ~= "string") then
-    return {}
+    return
   else
     itype = string.lower(itype)
   end
   
   if (type(creature) ~= "string") then
-    return {}
+    return
   else
     creature = string.lower(creature)
   end
   -- get the creature's interactors table
   local interactable = animals.interactors[creature]
   if (type(interactable) ~= "table") then
-    return {}
+    return
   end
   -- get who the creature interacts in what specified way
   local itable = interactable[itype]
-  if (type(itable) ~= "table") then
-    -- create interactable table for creature if it does not exist
-    interactable[itype] = {}
-    return interactable[itype]
-  end
-  -- return an empty table or the specified table of interaction type
+  -- return nil (no table found) or the specified table of interaction type
   return itable
 end
 
@@ -2177,8 +2172,8 @@ end
 
 function animals.register_animal(name,def)
   assert(type(name) == "string","animals.register_animal: name is not a string, got '"..tostring(name).."'")
-  assert(type(def) == "table","animals.register_animal: definition is not a table, got '"..tostring(spec).."'")
-  assert(type(def.logic) == "function","animals.register_animal: no 'logic' function provided for definition")
+  assert(type(def) == "table","animals.register_animal: definition is not a table, got '"..tostring(def).."'")
+  assert(type(def.logic) == "function","animals.register_animal: no 'logic' function provided for definition, got '"..tostring(def.logic).."'")
 
   local basedef = {
     name = name,
@@ -2207,23 +2202,24 @@ function animals.register_animal(name,def)
     class = 1,
     -- movement
     springiness=0,
-    buoyancy = 1,
+    buoyancy = 1.01,
     max_speed = 1,					-- m/s
     jump_height = 1,				-- nodes/meters
     view_range = 1,					-- nodes/meters
     -- attack
     attack={range=0.3, damage_groups={fleshy=1}},
     armor_groups = {fleshy=100},
-    -- interactions (should be set in registered animal code)
-    --predators = {},
-    --prey = {},
-    --rivals = {},
-    --friends = {},
+    -- interactions (should be defined prior to registered animal code)
+    predators = animals.get_interactors(name,"predators"),
+    prey = animals.get_interactors(name,"prey"),
+    rivals = animals.get_interactors(name,"rivals"),
+    friends = animals.get_interactors(name,"friends"),
+    -- other forms of interactions (should be defined in animal registration)
     --rivalry = function(self, target, targ_name)
       -- allows for custom rivalry calculations
     --end
     predator_interactions = {
-      default = 0.05 -- fight chance
+      default = 0.05 -- fight chance (95% flee chance)
       -- can specify specific predators such as "animals:darkasthaan = 0.5"
     },
     capture_interactions = {
@@ -2241,7 +2237,7 @@ function animals.register_animal(name,def)
     on_step = mobkit.stepfunc,
     on_activate = mobkit.actfunc,
     get_staticdata = mobkit.statfunc,
-    logic = nil, -- must be defined in registration (function)
+    --logic = (function), -- must be defined in registration
     -- animations + sound + drops
     animation = {
       -- create animations for your animal
@@ -2256,9 +2252,9 @@ function animals.register_animal(name,def)
         pitch={0.5, 1.5},
       },
     },
-    drops = {
+    --drops = {
       -- add drops for your animal upon death
-    },
+    --},
     -- functions
     on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
       animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities)
@@ -2280,13 +2276,8 @@ function animals.register_animal(name,def)
       -- itemdef expectation
     },
   }
-  --[[
-  local killer_min_temp = min_temp - 7
-  local killer_max_temp = max_temp + 25
-  local burn_max_temp = killer_max_temp + 55
-  local absolute_death_temp = burn_max_temp + 500
-  --]]
 
+  -- add values to def that weren't defined
   for defname,defvalue in pairs(basedef) do
     if def[defname] == nil then -- ignore "false"
       -- if not defined or not a table
@@ -2300,20 +2291,80 @@ function animals.register_animal(name,def)
       end
     end
   end
-  -- now to correct some values
+  -- now to correct some values (or cause errors >:3)
   assert(type(def.egg) == "table","defined 'egg' is not a table for nodedef, got '"..type(def.egg).."'")
   assert(type(def.spawnegg) == "table","defined 'spawnegg' is not a table for itemdef, got '"..type(def.spawnegg).."'")
+  -- iterate over and adjust some values (if applicable)
+  for defname,defvalue in pairs(def) do
+    if (type(defvalue) == "string" and
+      ( defname == "energy_egg" or
+      defname == "mature_age") ) then
+      -- allow for custom usage of adding, multiplying, dividing, or subtracting from a value via string
+      defvalue = string.gsub(defvalue," ","") -- erase all spaces
+      -- convert to table for a command system
+      -- should be defined as so: "energy_max*5"
+      -- reference a number and use proper index (will be CASE SENSITIVE)
+      -- will NOT work with MULTIPLE arguments
+      local data = {
+        to_index = ""
+      }
+      for i = 1, string.len(defvalue) do
+        local char = string.sub(defvalue,i,i)
+        data.to_index = data.to_index..char
+        if (char == "*" or char == "+" or char == "-" or char == "/" or char == "^") then
+          data.modifier = char
+          data.number = string.sub(defvalue,(i + 1),string.len(defvalue))
+          break
+        end
+      end
+      data.number = tonumber(data.number)
+      if not data.number then
+        minetest.log("error","animals.register() could not parse '"..defname.."' as number for '"..name.."'. Using default.")
+        def[defname] = basedef[defname]
+      elseif (def[data.to_index] and type(def[data.to_index]) == "number") then
+        local val = def[data.to_index]
+        if data.modifier == "+" then
+          val = val + data.number
+        elseif data.modifier == "-" then
+          val = val - data.number
+        elseif data.modifier == "*" then
+          val = val * data.number
+        elseif data.modifier == "/" then
+          val = val / data.number
+        elseif data.modifier == "^" then
+          val = val ^ data.number
+        end
+        def[defname] = val
+      else
+        minetest.log("error","animals.register() could not get '"..data.to_index.."' as number for modification for '"..defname.."' for animal '"..name.."'. Using default.")
+        def[defname] = basedef[defname]
+      end
+    end
+  end
   assert(type(def.capture_interactions) == "table","defined 'capture_interactions' is not a table, got '"..type(def.capture_interactions).."'")
   for defname,defvalue in pairs(def.capture_interactions) do
     if type(defvalue) == "number" then
       def.capture_interactions[defname] = {defvalue}
     elseif (type(defvalue) == "table") then
       for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
+        if type(dn2) ~= "number" then
+          local dn2temp = tonumber(dn2) -- temporary value
+          if not dn2temp then
+            error("defined animal capture group index 'capture_interactions."..tostring(defname).."."..tostring(dn2).." is not a number, got '"..type(dn2).."'")
+          else
+            -- replace index with a numbered one
+            defvalue[dn2] = nil
+            dn2 = dn2temp
+            defvalue[dn2temp] = dv2
+          end
+        end
         if type(dv2) ~= "number" then
           -- convert to number or nil (get rid of index)
           defvalue[dn2] = tonumber(dv2)
         end
       end
+    else
+      error("defined animal capture group 'capture_interactions."..tostring(defname).." is not a number or table of numbers, got "..type(defvalue).."'")
     end
   end
   -- set values for excessively harmful temps
@@ -2329,22 +2380,7 @@ function animals.register_animal(name,def)
   if type(def["absolute_death_temp"]) ~= "number" then
     def["absolute_death_temp"] = (def["burn_max_temp"] + 300)
   end
-  --[[
-  for defname,defvalue in pairs(def) do
-    if not (type(defvalue) == "table") then
-      basedef[defname] = defvalue
-    else
-      -- iterate over the tables
-      for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
-        if (defname == "capture_interactions" and type(dv2) == "number") then
-          dv2 = {dv2}
-        end
-        basedef[defname][dn2] = dv2
-      end
-    end
-  end
-  --]]
 
-  minetest.register_entity(name,basedef)
-  return basedef
+  minetest.register_entity(name,def)
+  return def
 end
