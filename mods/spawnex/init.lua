@@ -56,7 +56,7 @@ local function fallback_spawn_pos(pos)
 end
 
 local badplaces = {"ocean", "mountains"}
-local badbiomes = {"barrenland", "water"}
+local badbiomes = { "water"}
 
 local function isagoodbiome(name)
    for i = 1, #badbiomes do
@@ -69,9 +69,9 @@ end
 
 local function spawn_offset(hex1, max_count)
    -- Gets a random spot in a circular field around the center of the region
-   print("spawn_offset ",hex2string(hex1))
    local hexctr = hex2map(hex1) -- get the center
    local tgt, d, sl, vgl
+   local slcount, biomecount = 0
    local count = 0 local maxcount = max_count or 20
    local axis = vector.new(0,1,0)
    repeat
@@ -89,6 +89,8 @@ local function spawn_offset(hex1, max_count)
 				    vector.new(check.x,
 					       sl or 19,
 					       check.z)).biome)
+      if not sl then slcount = slcount + 1 end
+      if not isagoodbiome(bname) then biomecount = biomecount + 1 end
       if (sl and sl > vgl) and -- not at a volcano
 	 not ms.contains_labels(chunk, badplaces) and -- not a blacklisted label
 	 isagoodbiome(bname) then -- not a blacklisted biome name
@@ -99,6 +101,8 @@ local function spawn_offset(hex1, max_count)
    if tgt then
       tgt.y = sl
    end -- apply spawn level, or return nil
+   print("spawn_offset ",hex2string(hex1),(tgt ~= nil)," count: ",count,
+	 slcount, biomecount)
    return tgt
 end
 
@@ -139,7 +143,7 @@ function region.get(hex) -- #TODO: add other features for regions
 end
 
 local function find_gate_pos(hex, tries) -- pick a spawn position in a hex
-   local gate = spawn_offset(hex, tries or 150)
+   local gate = spawn_offset(hex, tries or 350)
    if not gate then
       gate = fallback_spawn_pos(hex2map(hex))
    end
@@ -177,7 +181,7 @@ function queue_next_gate(hex) -- Set up next gate before closing current one
    repeat
       candidate = find_gate_pos(hex)
       count = count + 1
-   until count > 3 or candidate:distance(def.currentgate) < 400
+   until count > 3 or candidate:distance(def.currentgate) > 400
    -- not too close to previous spawn, please
    def.nextgate = candidate
    save_rgns()
@@ -204,7 +208,6 @@ local function close_gate(hex)
 end
 
 local function select_hex_from(hex) -- for wide spawn
-   print("select hex from ",hex2string(hex))
    -- Pick a valid hex within a 1-hex range, ensure there's a gate somewhere
    local neigh = get_neighbors(hex)
    table.insert(neigh, hex) -- add the middle in, too
@@ -226,9 +229,12 @@ local function select_hex_from(hex) -- for wide spawn
 	 end
       end
    end
+   print("select hex from ",hex2string(hex)," open: ",#open,
+	 " ready: ",#potentials," missing: ",#missing, " full_list: ",#full_list)
    -- Corners can have as few as two neighbors, and if they're open, #missing = 0
    if #missing > 0 then -- pick out a new gate for this area
       local selhex = missing[math.random(1, #missing)]
+      print("adding a new gate")
       setup_gate(selhex)
       table.insert(potentials, selhex)
    end
@@ -250,16 +256,9 @@ function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
    if not player then return end
    local meta = player:get_meta()
    local home = centrhx or string2hex(meta:get("exile_spawnhome")) or defhex
-   local oldgate = string2hex(meta:get_string("exile_spawnat"))
-   if oldgate then -- Unload old spawnpos
-      print("Unloading old gate:",hex2string(oldgate))
-      local def = region.get(oldgate)
-      minetest.forceload_free_block(def.currentgate)
-      def.forceloaded = false
-   end
    local tgt = home
    if wide_spawn then
-      tgt = select_hex_from(home)
+      tgt = string2hex(meta:get_string("exile_spawnat")) or select_hex_from(home)
    end
    local rdef = region.get(tgt)
    local gate = rdef.currentgate
@@ -275,6 +274,7 @@ function region.spawn(player)
    local spawnat = home
    if wide_spawn then
       spawnat = string2hex(meta:get("exile_spawnat")) or select_hex_from(home)
+      meta:set_string("exile_spawnat", "") -- clear the used spawn pos
    end
 
    local sadef = region.get(spawnat)
@@ -327,9 +327,11 @@ minetest.register_globalstep(function(dtime)
 	    if not home then
 	       meta = player:get_meta()
 	       home = string2hex(meta:get_string("exile_spawnhome"))
-	       if not home then home = defhex end -- default for new players
+	       if not home then
+		  home = defhex -- default for new players
+		  saveout = true
+	       end
 	       homecache[pname] = home
-	       saveout = true
 	    end
 	    local ppos = player:get_pos()
 	    local dfrom = distance_to_hex(ppos, home)
@@ -344,6 +346,7 @@ minetest.register_globalstep(function(dtime)
 	       if saveout then
 		  if not meta then meta = player:get_meta() end
 		  meta:set_string("exile_spawnhome", hex2string(home))
+		  print("Player home hex changed, selecting spawn pos")
 		  region.prespawn(player, home)
 	       end
 	    end
@@ -378,6 +381,10 @@ minetest.register_on_joinplayer(function(player)
       homecache[pname] = home
 end)
 
+minetest.register_on_dieplayer(function(player)
+      print("Player died, calling region.prespawn")
+      region.prespawn(player)
+end)
 
 --------------------------------------------------------------------------
 -- Debug commands
@@ -474,3 +481,43 @@ minetest.register_chatcommand("spawnlevel",{
 })
 
 end
+
+minetest.register_chatcommand("biome",{
+	--privs = "server",
+	func = function(name,param)
+	   local player = minetest.get_player_by_name(name)
+	   local ppos = player:get_pos()
+	   local dat = minetest.get_biome_data(ppos)
+	   return true, minetest.get_biome_name(dat.biome)
+	end
+})
+minetest.register_chatcommand("hexstat",{
+	--privs = "server",
+	func = function(name,param)
+	   local player = minetest.get_player_by_name(name)
+	   local ppos = player:get_pos()
+	   local hex = string2hex(param) or map2hex(ppos)
+	   local r = region.get(hex)
+	   if not r.currentgate then return true, "unloaded" end
+	   return true, "Hex at "..hex2string(hex).." : \n"..
+	      (r.currentgate and "Current gate: "..
+	       minetest.pos_to_string(r.currentgate) or "No current gate")..
+	      (r.forceloaded and "[Loaded]" or "")..
+	      (r.open and "[Open]" or "")..
+	      (r.nextgate and "\nNext gate: "..
+	       minetest.pos_to_string(r.currentgate) or "")
+	end
+})
+minetest.register_chatcommand("myhex",{
+	--privs = "server",
+	func = function(name,param)
+	   local player = minetest.get_player_by_name(name)
+	   local meta = player:get_meta()
+	   return true, "Your hex home is :"..
+	      meta:get_string("exile_spawnhome")..
+	      " Wide spawn is "..(wide_spawn and "enabled"..
+				  " and you will spawn in "..
+				  (meta:get("exile_spawnat") or "??")
+				  or "disabled")
+	end
+})
