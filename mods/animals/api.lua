@@ -172,6 +172,20 @@ function animals.modify_hp(self,hp)
 end
 
 --------------------------------------------------------------------------
+-- Sounds
+--------------------------------------------------------------------------
+
+function animals.get_egg_sounds()
+  return nodes_nature.node_sound_defaults({
+    hatch = {
+      name = "animals_hatch_egg",
+      gain = 0.8,
+      max_hear_distance = 8
+    }
+  })
+end
+
+--------------------------------------------------------------------------
 --Life and death
 --------------------------------------------------------------------------
 
@@ -2272,7 +2286,7 @@ function animals.register_animal(name,def)
     -- egg + spawnegg
     egg = {
       -- nodedef expectation
-      --description = S('@1 Eggs'),
+      description = "", --S('@1 Eggs'),
       tiles = {"animals_gundu_eggs.png"},
       stack_max = minimal.stack_max_medium,
       drawtype = "nodebox",
@@ -2282,7 +2296,13 @@ function animals.register_animal(name,def)
         fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
       },
       groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-      sounds = nodes_nature.node_sound_defaults(),
+      sounds = animals.get_egg_sounds(),
+      _hatching = { -- will become "hatching" instead of "_hatching" upon node definition
+        -- should be either;
+        -- string (only for 1 animal) e.g. = "animals:creature1"
+        -- table (for more than 1 animal, provide names as indexes with a number specifying percentage)
+        -- e.g. = {animals:creature1 = 0.5, animals:creature1_male = 0.5}
+      },
       -- egg functions
       on_construct = function(pos)
         local egg_timer = def.egg_timer
@@ -2309,13 +2329,14 @@ function animals.register_animal(name,def)
         end
         -- get a "time" to hatch by
         if new_time == true then
-          -- you told the egg to never hatch
+          -- you tell the egg to never hatch
           return true
         elseif not type(new_time) == "number" then
           new_time = egg_timer
         end
         -- now for actual hatching (or other options)
         if hatch == true then
+          -- try to hatch as according to hatch_egg
           return animals.hatch_egg(def,pos)
         elseif type(hatch) == "number" and hatch > 0 then
           -- random chance
@@ -2328,7 +2349,10 @@ function animals.register_animal(name,def)
       end
     },
     spawnegg = {
-      -- itemdef expectation
+      -- WILL ONLY ACCEPT THESE 3 PARAMTERS
+      desc = "",
+      inv_img = "",
+      stack = 1,
     },
   }
 
@@ -2338,19 +2362,23 @@ function animals.register_animal(name,def)
       -- if not defined
       def[defname] = defvalue -- add to definition
     elseif type(defvalue) == "table" then
-      -- iterate over the tables
-      for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
-        if defvalue[dn2] == nil then
-          defvalue[dn2] = dv2
+      minetest.log(defname)
+      local mod_deft = def[defname] -- modify_def_table
+      if type(mod_deft) == "table" then
+        -- iterate over the tables
+        for dn2, dv2 in pairs(mod_deft) do --defname2, defvalue2
+          if mod_deft[dn2] == nil then
+            mod_deft[dn2] = dv2
+          end
         end
+      else
+        -- force as table
+        def[defname] = defvalue
       end
     end
   end
   -- now to correct some values (or cause errors >:3)
   --assert(type(def.egg) == "table","defined 'egg' is not a table for nodedef, got '"..type(def.egg).."'")
-  if not def.egg.name then
-    def.egg = nil
-  end
   assert(type(def.spawnegg) == "table","defined 'spawnegg' is not a table for itemdef, got '"..type(def.spawnegg).."'")
   --assert(type(def.egg_timer) == "number","defined 'egg_timer' is not a number, got '"..type(def.egg_timer).."'")
   -- iterate over and adjust some values (if applicable)
@@ -2407,21 +2435,22 @@ function animals.register_animal(name,def)
     if type(defvalue) == "number" then
       def.capture_interactions[defname] = {defvalue}
     elseif (type(defvalue) == "table") then
-      for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
+      local mod_deft = def.capture_interactions[defname] -- modify_def_table 
+      for dn2, dv2 in pairs(mod_deft) do --defname2, defvalue2
         if type(dn2) ~= "number" then
           local dn2temp = tonumber(dn2) -- temporary value
           if not dn2temp then
             error("defined animal capture group index 'capture_interactions."..tostring(defname).."."..tostring(dn2).." is not a number, got '"..type(dn2).."'")
           else
             -- replace index with a numbered one
-            defvalue[dn2] = nil
+            mod_deft[dn2] = nil
             dn2 = dn2temp
-            defvalue[dn2temp] = dv2
+            mod_deft[dn2temp] = dv2
           end
         end
         if type(dv2) ~= "number" then
           -- convert to number or nil (get rid of index)
-          defvalue[dn2] = tonumber(dv2)
+          mod_deft[dn2] = tonumber(dv2)
         end
       end
     else
@@ -2429,19 +2458,78 @@ function animals.register_animal(name,def)
     end
   end
   -- set values for excessively harmful temps
-  if type(def["killer_min_temp"]) ~= "number" then
-    def["killer_min_temp"] = (def.min_temp - 7)
+  if type(def.killer_min_temp) ~= "number" then
+    def.killer_min_temp = (def.min_temp - 7)
   end
-  if type(def["killer_max_temp"]) ~= "number" then
-    def["killer_max_temp"] = (def.max_temp + 25)
+  if type(def.killer_max_temp) ~= "number" then
+    def.killer_max_temp = (def.max_temp + 25)
   end
-  if type(def["burn_max_temp"]) ~= "number" then
-    def["burn_max_temp"] = (def["killer_max_temp"] + 55)
+  if type(def.burn_max_temp) ~= "number" then
+    def.burn_max_temp = (def.killer_max_temp + 55)
   end
-  if type(def["absolute_death_temp"]) ~= "number" then
-    def["absolute_death_temp"] = (def["burn_max_temp"] + 300)
+  if type(def.absolute_death_temp) ~= "number" then
+    def.absolute_death_temp = (def.burn_max_temp + 300)
+  end
+  -- egg definition and correction
+  if type(def.egg) ~= "table" or not def.egg.name then
+    minetest.log("no egg")
+    minetest.log(type(def.egg.name))
+    def.egg = nil
+  elseif (type(def.egg._hatching) ~= "string" and type(def.egg._hatching) ~= "table") then
+    --minetest.log("error","animals.register() has '"..def.name.."' egg definition, but no _hatching, removing egg definition.")
+    --def.egg = nil
+    def.egg._hatching = {[def.name] = 1}
+  else
+    if type(def.egg._hatching) == "string" then
+      def.egg._hatching = {[def.egg._hatching] = 1}
+    end
+  end
+  
+  -- spawnegg definition and correction
+  if type(def.spawnegg.stack) ~= "number" then
+    def.spawnegg.stack = def.spawnegg.stack_max
+    -- force number
+    if type(def.spawnegg.stack) ~= "number" then
+      def.spawnegg.stack = 1
+    end
+  end
+  if type(def.spawnegg.desc) ~= "string" then
+    def.spawnegg.desc = def.spawnegg.description
+    if type(def.spawnegg.desc) ~= "string" then
+      def.spawnegg.desc = tostring(def.spawnegg.desc)
+    end
+  end
+  if (def.spawnegg.inv_img == "" or type(def.spawnegg.inv_img) ~= "string") then
+    def.spawnegg.inv_img = def.spawnegg.inventory_image
+    if (def.spawnegg.inv_img == "" or type(def.spawnegg.inv_img) ~= "string") then
+      def.spawnegg.inv_img = "animals_carcass.png"
+    end
   end
 
+  -- simplify egg table
+  local egg_ref
+  if def.egg then
+    minetest.log("got egg")
+    for i,v in pairs(def.egg) do
+      minetest.log(tostring(i)..":"..tostring(v))
+    end
+    minetest.register_node(def.egg.name,def.egg)
+    egg_ref = minetest.registered_nodes[def.egg.name]
+  else
+    def.egg = {}
+  end
+  def.egg = {
+    name = def.egg.name,
+    ref = egg_ref,
+    hatching = def.egg._hatching,
+    energy_egg = def.energy_egg,
+    egg_timer = def.egg_timer,
+    young_per_egg = def.young_per_egg,
+  }
+  -- spawnegg
+  animals.register_egg(minimal.merge_tables(def.egg,{name = def.name, drops = def.drops}) -- use a modified "def.egg" table
+    ,def.spawnegg.desc,def.spawnegg.inv_img,def.spawnegg.stack)--def.spawnegg)
+  -- creature
   minetest.register_entity(name,def)
   return def
 end

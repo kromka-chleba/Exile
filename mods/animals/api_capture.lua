@@ -78,12 +78,11 @@ end
 
 
 animals.register_egg = function(self, desc, inv_img, stack)
-   local grp = {spawn_egg = 1}
    local name = self.name
    assert(type(name) == "string","animals.register_egg: provided self data does not contain a name!")
+   stack = stack or 1
    local ee = self.energy_egg or 100
    local ype = self.young_per_egg or 1
-   local dr = self.drops
    local liquids_pointable = false
    if (self.class == 2) then
       liquids_pointable = true
@@ -93,8 +92,8 @@ animals.register_egg = function(self, desc, inv_img, stack)
       inventory_image = inv_img,
       --groups = {},
       stack_max = stack,
-      groups = grp,
-      drops = dr,
+      groups = {spawn_egg = 1},
+      drops = self.drops or {},
       liquids_pointable = liquids_pointable,
       _use_tip = "Slaughter the animal",
       _on_use_item = function(player, wielded_item, pointed_thing)

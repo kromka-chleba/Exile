@@ -143,6 +143,7 @@ end
 animals.add_interactors("predators","animals:sneachan","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
 animals.add_interactors("rivals","animals:sneachan","animals:sneachan", "animals:impethu")
 
+-- Animal Data
 local self_data = animals.register_animal("animals:sneachan",{
   collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
 	visual = "mesh",
@@ -225,10 +226,37 @@ local self_data = animals.register_animal("animals:sneachan",{
       return
     end
     animals.emergency_egg(self, pos)
-  end
+  end,
+
+  egg = {
+    name = "animals:sneachan_eggs",
+    description = S('Sneachan Eggs'),
+    tiles = {"animals_sneachan_eggs.png"},
+    _conditions_correct = function(pos)
+      local egg_timer = self_data.egg_timer
+      local temp = climate.get_point_temp(pos)
+      if temp < 10 then
+        return false,math.random(egg_timer,egg_timer*4) -- can't hatch, send new time
+      end
+      local light = (minetest.get_node_light(pos) or 0)
+      if light <= 10 then
+        return true -- can hatch
+      elseif random()<0.3 then
+        return true -- can hatch
+      end
+      -- try again next season
+      return false,math.random(egg_timer,egg_timer*2)
+    end,
+  },
+  spawnegg = {
+    desc = S("Live Sneachan"),
+    inv_img = "animals_sneachan_item.png",
+    stack = minimal.stack_max_medium
+  },
 })
 --minetest.register_entity("animals:sneachan",self_data)
 
+--[[
 ----------------------------------------------
 --eggs
 minetest.register_node("animals:sneachan_eggs", {
@@ -277,3 +305,4 @@ minetest.register_node("animals:sneachan_eggs", {
 
 --spawn egg (i.e. live animal in inventory)
 animals.register_egg(self_data, S("Live Sneachan"), "animals_sneachan_item.png", minimal.stack_max_medium)
+--]]
