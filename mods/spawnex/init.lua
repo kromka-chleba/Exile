@@ -113,6 +113,7 @@ local storage = minetest.get_mod_storage()
 
 region = {}
 rgns = minetest.deserialize(storage:get_string("regions")) or {}
+-- #TODO: Split region saving up so we don't save them all every time
 
 local jobs = minetest.deserialize(storage:get_string("jobs")) or {}
 -- jobs: could have used minetest.after, but we want to save it on restart
@@ -161,6 +162,7 @@ local function load_gate(hex) -- forceload a gate's location to prep for a spawn
    minetest.emerge_area(mb_min, mb_max)
    minetest.forceload_block(def.currentgate)
    def.forceloaded = true
+   save_rgns()
 end
 
 local function setup_gate(hex) -- create potential gate
@@ -239,7 +241,7 @@ local function select_hex_from(hex) -- for wide spawn
       table.insert(potentials, selhex)
    end
    if #open > 0 then
-      print("Selected an open hex")
+      print("Selected an opened gate")
       return open[math.random(1, #open)]
    end
    for i = 1, #potentials do -- 2x chance to get potential gate
@@ -248,7 +250,7 @@ local function select_hex_from(hex) -- for wide spawn
    local newgate = full_list[math.random(1, #full_list)]
    print("Selected gate at ",hex2string(newgate))
    if not region.get(newgate).currentgate then -- we hit a missing gate anyway
-      print("And opening it:")
+      print("And scanning it:")
       setup_gate(newgate)
    end
    return newgate
@@ -319,8 +321,9 @@ local function player_moved_to_new_region(player, pname, ppos, home)
    local saveout = false
    local newhex = map2hex(ppos)
    local disthome = distance_to_hex(ppos, home)
-   if  disthome < maxdist then
-      --if not meta then meta = player:get_meta() end
+   print("Player is ",disthome,"far from home region: ",hex2string(home),
+	 " -- checking if home should be moved")
+   if  disthome > maxdist then
       if not wide_spawn then
 	 homecache[pname] = newhex
 	 saveout = true
@@ -328,6 +331,7 @@ local function player_moved_to_new_region(player, pname, ppos, home)
 	 shift[player] = newhex
       else -- wide spawn, and we have a shift region already; what do?
 	 if disthome > maxdist * 2 then -- far out, move player's home
+	    print("Updated home to: ",hex2string(shift[player]))
 	    homecache[pname] = shift[player]
 	    shift[player] = nil
 	    saveout = true
@@ -335,6 +339,9 @@ local function player_moved_to_new_region(player, pname, ppos, home)
 	    shift[player] = nil
 	 elseif ( disthome < maxdist / 2 and -- circled around, so change shift
 		  distance_to_hex(shift[player]) > maxdist ) then
+	    print("Possible new home region swapped from "..
+		  hex2string(shift[player])..
+		  " to "..hex2string(newhex))
 	    shift[player] = newhex
 	 end
       end
@@ -395,6 +402,7 @@ end)
 minetest.register_on_mods_loaded(function()
       minetest.after(0.1, function()
 	if wide_spawn then -- Check area, ensure there's a gate set up
+	   print("Wide spawn enabled, checking default spawn area for gates")
 	   select_hex_from(defhex)
 	   return
 	end
@@ -410,6 +418,7 @@ minetest.register_on_joinplayer(function(player)
       local meta = player:get_meta()
       local home = string2hex(meta:get_string("exile_spawnhome"))
       if not home then
+	 print("Player "..pname.." joined without a home region")
 	 home = defhex
 	 meta:set_string("exile_spawnhome", hex2string(home))
       end -- default for new players
