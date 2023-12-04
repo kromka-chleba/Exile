@@ -2362,11 +2362,10 @@ function animals.register_animal(name,def)
       -- if not defined
       def[defname] = defvalue -- add to definition
     elseif type(defvalue) == "table" then
-      minetest.log(defname)
       local mod_deft = def[defname] -- modify_def_table
       if type(mod_deft) == "table" then
         -- iterate over the tables
-        for dn2, dv2 in pairs(mod_deft) do --defname2, defvalue2
+        for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
           if mod_deft[dn2] == nil then
             mod_deft[dn2] = dv2
           end
@@ -2435,22 +2434,21 @@ function animals.register_animal(name,def)
     if type(defvalue) == "number" then
       def.capture_interactions[defname] = {defvalue}
     elseif (type(defvalue) == "table") then
-      local mod_deft = def.capture_interactions[defname] -- modify_def_table 
-      for dn2, dv2 in pairs(mod_deft) do --defname2, defvalue2
+      for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
         if type(dn2) ~= "number" then
           local dn2temp = tonumber(dn2) -- temporary value
           if not dn2temp then
             error("defined animal capture group index 'capture_interactions."..tostring(defname).."."..tostring(dn2).." is not a number, got '"..type(dn2).."'")
           else
             -- replace index with a numbered one
-            mod_deft[dn2] = nil
+            defvalue[dn2] = nil
             dn2 = dn2temp
-            mod_deft[dn2temp] = dv2
+            defvalue[dn2temp] = dv2
           end
         end
         if type(dv2) ~= "number" then
           -- convert to number or nil (get rid of index)
-          mod_deft[dn2] = tonumber(dv2)
+          defvalue[dn2] = tonumber(dv2)
         end
       end
     else
