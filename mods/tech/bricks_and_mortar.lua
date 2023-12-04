@@ -698,7 +698,7 @@ crafting.register_recipe({
 
 -- solid block of tiles, fired, matches the roof tiles, can make tiled stairs
 
-minetest.register_node("tech:tile__block_unfired", {
+minetest.register_node("tech:tile_block_unfired", {
 	description = S("Tile Block (unfired)"),
 	tiles = {"nodes_nature_clay.png"},
 	stack_max = minimal.stack_max_medium/2,
