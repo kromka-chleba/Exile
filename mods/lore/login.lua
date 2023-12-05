@@ -235,6 +235,6 @@ end)
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
       if formname == "lore:login" or formname == "lore:motd" then
-	 minetest.after(0.1, function() queue_start(player) end)
+	 minetest.after(0.2, function() queue_start(player) end)
       end
 end)
