@@ -38,6 +38,8 @@ if string.match(logintext, "login_text") then -- Untranslated? Use default
 end
 
 local function loginspec(player)
+   local playername = player:get_player_name()
+   minetest.close_formspec(playername, "") -- forcibly close any open fs
    local spec = ("formspec_version[3]"..
 		 "size[7,7.5]"..
 		 "bgcolor[;both;#bbb]"..
@@ -53,6 +55,7 @@ local function show_motd(player)
    -- Message of the day for servers
    local playername = player:get_player_name()
    if minetest.is_singleplayer() then return end
+   minetest.close_formspec(playername, "") -- forcibly close the previous fs
    local motd = minetest.settings:get("exile_motd")
    if ( not motd ) or motd == "" or motd == "\"\"" then return end
    motd = motd:gsub("\\n","\n")
