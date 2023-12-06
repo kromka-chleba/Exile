@@ -21,6 +21,15 @@ volcano = volcano
 mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
 
+local function pirnt(...) -- lol print
+   local tab = {...}
+   local out = ""
+   for i = 1, #tab do
+      out = out..tostring(tab[i])
+   end
+   minetest.log("action", out)
+end
+
 -- Config options
 local wide_spawn = minetest.settings:get_bool("exile_wide_spawn") or true
 
@@ -36,7 +45,7 @@ local defhex = {0,0}
 
 local function fallback_spawn_pos(pos)
    -- Used if we have to fallback to the hex center for some reason, eg volcano
-   print("fallback_spawn_pos")
+   pirnt("fallback_spawn_pos")
    local vground = volcano.estimate_ground_level(pos)
    local vgl = vground or 20
    local tries = 0
@@ -101,7 +110,7 @@ local function spawn_offset(hex1, max_count)
    if tgt then
       tgt.y = sl
    end -- apply spawn level, or return nil
-   print("spawn_offset ",hex2string(hex1),(tgt ~= nil)," count: ",count,
+   pirnt("spawn_offset ",hex2string(hex1),(tgt ~= nil)," count: ",count,
 	 slcount, biomecount)
    return tgt
 end
@@ -152,9 +161,9 @@ local function find_gate_pos(hex, tries) -- pick a spawn position in a hex
 end
 
 local function load_gate(hex) -- forceload a gate's location to prep for a spawn
-   print("Load gate for ",hex2string(hex))
+   pirnt("Load gate for ",hex2string(hex))
    local def = region.get(hex)
-   print(dump(def))
+   pirnt(dump(def))
    local mb_min = vector.new(math.floor(def.currentgate.x / 16) * 16,
 			     math.floor(def.currentgate.y / 16) * 16,
 			     math.floor(def.currentgate.z / 16) * 16)
@@ -166,7 +175,7 @@ local function load_gate(hex) -- forceload a gate's location to prep for a spawn
 end
 
 local function setup_gate(hex) -- create potential gate
-   print("setup gate for ",hex2string(hex))
+   pirnt("setup gate for ",hex2string(hex))
    local def = region.get(hex)
    if not def.currentgate then
       def.currentgate = find_gate_pos(hex)
@@ -175,7 +184,7 @@ local function setup_gate(hex) -- create potential gate
 end
 
 function queue_next_gate(hex) -- Set up next gate before closing current one
-   print("queue next gate")
+   pirnt("queue next gate")
    local def = region.get(hex)
    if def.nextgate then return end -- already have one queued
    local candidate
@@ -231,33 +240,33 @@ local function select_hex_from(hex) -- for wide spawn
 	 end
       end
    end
-   print("select hex from ",hex2string(hex)," open: ",#open,
+   pirnt("select hex from ",hex2string(hex)," open: ",#open,
 	 " ready: ",#potentials," missing: ",#missing, " full_list: ",#full_list)
    -- Corners can have as few as two neighbors, and if they're open, #missing = 0
    if #missing > 0 then -- pick out a new gate for this area
       local selhex = missing[math.random(1, #missing)]
-      print("adding a new gate")
+      pirnt("adding a new gate")
       setup_gate(selhex)
       table.insert(potentials, selhex)
    end
    if #open > 0 then
-      print("Selected an opened gate")
+      pirnt("Selected an opened gate")
       return open[math.random(1, #open)]
    end
    for i = 1, #potentials do -- 2x chance to get potential gate
       table.insert(full_list, potentials[i])
    end
    local newgate = full_list[math.random(1, #full_list)]
-   print("Selected gate at ",hex2string(newgate))
+   pirnt("Selected gate at ",hex2string(newgate))
    if not region.get(newgate).currentgate then -- we hit a missing gate anyway
-      print("And scanning it:")
+      pirnt("And scanning it:")
       setup_gate(newgate)
    end
    return newgate
 end
 
 function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
-   print("region prespawn")
+   pirnt("region prespawn")
    if not player then return end
    local meta = player:get_meta()
    local home = centrhx or string2hex(meta:get("exile_spawnhome")) or defhex
@@ -273,7 +282,7 @@ function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
 end
 
 function region.spawn(player)
-   print("region spawn")
+   pirnt("region spawn")
    local meta = player:get_meta()
    local home = string2hex(meta:get("exile_spawnhome")) or defhex
    local spawnat = home
@@ -290,7 +299,7 @@ function region.spawn(player)
       load_gate(spawnat)
    end
    sadef.open = true
-   print("spawn: ",dump(sadef.currentgate))
+   pirnt("spawn: ",dump(sadef.currentgate))
    player:set_pos(gate)
    -- get a new spawn location, but wait until this gate is closed!
    minetest.after(70, function() region.prespawn(player) end )
@@ -310,8 +319,10 @@ local savejobs = false
 local func = -- can't serialize actual functions, so correlate with string name
    { ["queue"] = queue_next_gate, ["close"] = close_gate }
 
-local maxdist = 2750 -- how far you need to get from center of home to new home
-local shift = {} -- stores midway region, for wide spawn
+-- how far you need to get from center of home to new home
+local maxdist = 2750 -- 2000 to the edge of the next hex, 1250 from its center
+local maxdist_wide = maxdist + 4000 -- one extra hex out, drags center behind
+local shift = {} -- stores midway region, in wide spawn. for this ^^
 
 local function player_moved_to_new_region(player, pname, ppos, home)
    -- If a player moves far enough from his home region, we need to set
@@ -321,17 +332,17 @@ local function player_moved_to_new_region(player, pname, ppos, home)
    local saveout = false
    local newhex = map2hex(ppos)
    local disthome = distance_to_hex(ppos, home)
-   print("Player is ",disthome,"far from home region: ",hex2string(home),
+   pirnt("Player is ",disthome,"far from home region: ",hex2string(home),
 	 " -- checking if home should be moved")
    if  disthome > maxdist then
       if not wide_spawn then
 	 homecache[pname] = newhex
 	 saveout = true
       elseif not shift[player] then
-	 shift[player] = newhex
+	 shift[player] = newhex -- this is important if player teleported
       else -- wide spawn, and we have a shift region already; what do?
-	 if disthome > maxdist * 2 then -- far out, move player's home
-	    print("Updated home to: ",hex2string(shift[player]))
+	 if disthome > maxdist_wide then -- far out, move the player's home
+	    pirnt("Updated home to: ",hex2string(shift[player]))
 	    homecache[pname] = shift[player]
 	    shift[player] = nil
 	    saveout = true
@@ -339,7 +350,7 @@ local function player_moved_to_new_region(player, pname, ppos, home)
 	    shift[player] = nil
 	 elseif ( disthome < maxdist / 2 and -- circled around, so change shift
 		  distance_to_hex(shift[player]) > maxdist ) then
-	    print("Possible new home region swapped from "..
+	    pirnt("Possible new home region swapped from "..
 		  hex2string(shift[player])..
 		  " to "..hex2string(newhex))
 	    shift[player] = newhex
@@ -389,7 +400,7 @@ minetest.register_globalstep(function(dtime)
 	       if not meta then meta = player:get_meta() end
 	       meta:set_string("exile_spawnhome", hex2string(home))
 	       meta:set_string("exile_spawnat", "")
-	       print("Player home hex changed, selecting spawn pos")
+	       pirnt("Player home hex changed, selecting spawn pos")
 	       region.prespawn(player, home)
 	    end
 	 end
@@ -402,7 +413,7 @@ end)
 minetest.register_on_mods_loaded(function()
       minetest.after(0.1, function()
 	if wide_spawn then -- Check area, ensure there's a gate set up
-	   print("Wide spawn enabled, checking default spawn area for gates")
+	   pirnt("Wide spawn enabled, checking default spawn area for gates")
 	   select_hex_from(defhex)
 	   return
 	end
@@ -418,7 +429,7 @@ minetest.register_on_joinplayer(function(player)
       local meta = player:get_meta()
       local home = string2hex(meta:get_string("exile_spawnhome"))
       if not home then
-	 print("Player "..pname.." joined without a home region")
+	 pirnt("Player "..pname.." joined without a home region")
 	 home = defhex
 	 meta:set_string("exile_spawnhome", hex2string(home))
       end -- default for new players
@@ -426,7 +437,7 @@ minetest.register_on_joinplayer(function(player)
 end)
 
 minetest.register_on_dieplayer(function(player)
-      print("Player died, calling region.prespawn")
+      pirnt("Player died, calling region.prespawn")
       region.prespawn(player)
 end)
 
@@ -514,12 +525,12 @@ minetest.register_chatcommand("hexport",{
 minetest.register_chatcommand("spawnlevel",{
 	--privs = "server",
 	func = function(name,param)
-	   print("Checking SL")
+	   pirnt("Checking SL")
 	   local player = minetest.get_player_by_name(name)
 	   local ppos = player:get_pos()
 	   local sl = minetest.get_spawn_level(ppos.x, ppos.z)
-	   print("SPAWN LEVEL: ",sl)
-	   print("VOLCANO LEVEL: ",volcano.estimate_ground_level(ppos))
+	   pirnt("SPAWN LEVEL: ",sl)
+	   pirnt("VOLCANO LEVEL: ",volcano.estimate_ground_level(ppos))
 	   return true, sl
 	end
 })
@@ -552,6 +563,7 @@ minetest.register_chatcommand("hexstat",{
 	       minetest.pos_to_string(r.currentgate) or "")
 	end
 })
+
 minetest.register_chatcommand("myhex",{
 	--privs = "server",
 	func = function(name,param)
