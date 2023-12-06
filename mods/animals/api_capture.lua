@@ -58,6 +58,41 @@ animals.stun_catch_mob = function(self, clicker,chance,canhand)
 	local item = clicker:get_wielded_item()
 	local item_name = item:get_name()
 	item = minetest.get_item_group(item_name,"club")
+  --[[
+  if not self.capture_interactions then
+    return false,false
+  end
+  local success_rate
+  for group,values in pairs(self.capture_interactions) do
+    if (group == hand and item_name == "") then
+      success_rate = values[1]
+      break
+    end
+    local itemg = minetest.get_item_group(item_name,group) -- item group
+    if itemg ~= 0 then
+      -- iterate over table for the best percentage
+      for value,perc in pairs(values) do
+        if itemg < value then
+          -- no possible way this tool will work (item group is less than the provided necessary group)
+          break
+        else
+          -- update success_rate
+          success_rate = perc
+        end
+      end
+    end
+  end
+  if not success_rate then
+    return false,false
+  end
+  -- catch chance
+  if success_rate >= math.random() then
+    -- successful catch
+    return true,true
+  else
+    return true,false
+  end
+  --]]
 
 	if (item ~=0 or (canhand == true and item_name == "")) then
 		--hit

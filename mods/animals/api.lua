@@ -2241,12 +2241,12 @@ function animals.register_animal(name,def)
       -- capture chance
       -- uses item group to determine capture possibility
       -- hand = 0.75, -- interactions with empty hand
-      capture_animal = { -- tool with capture_animal group
+      --club = { -- tool with club group
         -- allow for specification of a table for higher capture groups (if greater than the highest, will use highest)
-        [1] = 0.1,
-        [2] = 0.25,
-        [3] = 0.4,
-      },
+        --[1] = 0.1,
+        --[2] = 0.25,
+        --[3] = 0.4,
+      --},
     },
     -- mobkit functions
     on_step = mobkit.stepfunc,
@@ -2429,20 +2429,30 @@ function animals.register_animal(name,def)
       end
     end
   end
+  -- fix or issue errors about improperly set def.capture_interactions
   assert(type(def.capture_interactions) == "table","defined 'capture_interactions' is not a table, got '"..type(def.capture_interactions).."'")
   for defname,defvalue in pairs(def.capture_interactions) do
     if type(defvalue) == "number" then
       def.capture_interactions[defname] = {defvalue}
+    elseif type(defvalue) == "string" then
+      defvalue = tonumber(defvalue)
+      if not defvalue then
+        minetest.log("error","defined animal capture group index 'capture_interactions."..tostring(defname).."' got invalid percentage value (got string that could not be tonumber()'d)")
+        def.capture_interactions[defname] = nil
+      else
+        defvalue = math.ceil(defvalue)
+        def.capture_interactions[defname] = {defvalue}
+      end
     elseif (type(defvalue) == "table") then
       for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
         if type(dn2) ~= "number" then
           local dn2temp = tonumber(dn2) -- temporary value
           if not dn2temp then
-            error("defined animal capture group index 'capture_interactions."..tostring(defname).."."..tostring(dn2).." is not a number, got '"..type(dn2).."'")
+            error("defined animal capture group index 'capture_interactions."..tostring(defname).."."..tostring(dn2).."' is not a number, got '"..type(dn2).."'")
           else
             -- replace index with a numbered one
             defvalue[dn2] = nil
-            dn2 = dn2temp
+            dn2 = dn2temp -- set for next if statement
             defvalue[dn2temp] = dv2
           end
         end
@@ -2451,8 +2461,12 @@ function animals.register_animal(name,def)
           defvalue[dn2] = tonumber(dv2)
         end
       end
+      if #defvalue == 0 then
+        -- remove empty tables
+        def.capture_interactions[defname] = nil
+      end
     else
-      error("defined animal capture group 'capture_interactions."..tostring(defname).." is not a number or table of numbers, got "..type(defvalue).."'")
+      error("defined animal capture group 'capture_interactions."..tostring(defname).."' is not a number or table of numbers, got "..type(defvalue).."'")
     end
   end
   -- set values for excessively harmful temps
@@ -2507,10 +2521,6 @@ function animals.register_animal(name,def)
   -- simplify egg table
   local egg_ref
   if def.egg then
-    minetest.log("got egg")
-    for i,v in pairs(def.egg) do
-      minetest.log(tostring(i)..":"..tostring(v))
-    end
     minetest.register_node(def.egg.name,def.egg)
     egg_ref = minetest.registered_nodes[def.egg.name]
   else

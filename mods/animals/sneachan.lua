@@ -167,8 +167,11 @@ local self_data = animals.register_animal("animals:sneachan",{
   -- lifespan
   lifespan = "energy_max*5",--self_data.energy_max * 5
   -- interactions
-  predators = animals.get_interactors(name,"predators"),
-  prey = animals.get_interactors(name,"prey"),
+  -- predators + rivals automatically defined in registration
+  capture_interactions = {
+    hand = 0.95,
+    club = 1,
+  },
 
   logic = brain,
   
