@@ -268,8 +268,8 @@ end
 
 function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
    pirnt("region prespawn")
-   if not player then return end
-   local meta = player:get_meta()
+   local meta = player and player:get_meta()
+   if not meta then return end
    local home = centrhx or string2hex(meta:get("exile_spawnhome")) or defhex
    local tgt = home
    if wide_spawn then
