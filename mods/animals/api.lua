@@ -1605,13 +1605,7 @@ local function lq_jumpattack_eat(self,height,target)
 			if mobkit.is_pos_in_box(apos,tgtpos,tgtbox)
       or (mobkit.isnear2d(pos,tgtpos,1) and random()<0.1) --makes up for issue with some boxes not working together
       then	--bite
-				target:punch(self.object,1,self.attack)
-					-- bounce off
-				local vy = self.object:get_velocity().y
-				self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
-					-- play attack sound if defined
-				mobkit.make_sound(self,'attack')
-				phase=4
+				--target:punch(self.object,1,self.attack)
         local ent = target:get_luaentity()
         local ent_hp = ent.hp or 1
         local ent_mhp = ent.max_hp or 1
@@ -1624,7 +1618,14 @@ local function lq_jumpattack_eat(self,height,target)
           end
         end
         
-        animals.modify_hp(ent,-dmg)--mobkit.hurt(ent,dmg) -- hurt opponent
+        target:punch(self.object,1,{attack = {range=self.attack.range or 0.1, fleshy=dmg}})
+        	-- bounce off
+				local vy = self.object:get_velocity().y
+				self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
+					-- play attack sound if defined
+				mobkit.make_sound(self,'attack')
+				phase=4
+        --animals.modify_hp(ent,-dmg)--mobkit.hurt(ent,dmg) -- hurt opponent
         
         -- eat bits of opponent
         local ent_e = (mobkit.recall(ent,'energy') or 1)
@@ -2230,9 +2231,6 @@ function animals.register_animal(name,def)
     rivals = animals.get_interactors(name,"rivals"),
     friends = animals.get_interactors(name,"friends"),
     -- other forms of interactions (should be defined in animal registration)
-    --rivalry = function(self, target, targ_name)
-      -- allows for custom rivalry calculations
-    --end
     predator_interactions = {
       default = 0.05 -- fight chance (95% flee chance)
       -- can specify specific predators such as "animals:darkasthaan = 0.5"
