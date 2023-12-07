@@ -332,8 +332,6 @@ local function player_moved_to_new_region(player, pname, ppos, home)
    local saveout = false
    local newhex = map2hex(ppos)
    local disthome = distance_to_hex(ppos, home)
-   pirnt("Player is ",disthome,"far from home region: ",hex2string(home),
-	 " -- checking if home should be moved")
    if  disthome > maxdist then
       if not wide_spawn then
 	 homecache[pname] = newhex
@@ -342,7 +340,7 @@ local function player_moved_to_new_region(player, pname, ppos, home)
 	 shift[player] = newhex -- this is important if player teleported
       else -- wide spawn, and we have a shift region already; what do?
 	 if disthome > maxdist_wide then -- far out, move the player's home
-	    pirnt("Updated home to: ",hex2string(shift[player]))
+	    pirnt(pname..": updated home to: ",hex2string(shift[player]))
 	    homecache[pname] = shift[player]
 	    shift[player] = nil
 	    saveout = true
@@ -350,9 +348,6 @@ local function player_moved_to_new_region(player, pname, ppos, home)
 	    shift[player] = nil
 	 elseif ( disthome < maxdist / 2 and -- circled around, so change shift
 		  distance_to_hex(shift[player]) > maxdist ) then
-	    pirnt("Possible new home region swapped from "..
-		  hex2string(shift[player])..
-		  " to "..hex2string(newhex))
 	    shift[player] = newhex
 	 end
       end
@@ -400,7 +395,7 @@ minetest.register_globalstep(function(dtime)
 	       if not meta then meta = player:get_meta() end
 	       meta:set_string("exile_spawnhome", hex2string(home))
 	       meta:set_string("exile_spawnat", "")
-	       pirnt("Player home hex changed, selecting spawn pos")
+	       pirnt(pname..": home hex changed, selecting spawn pos")
 	       region.prespawn(player, home)
 	    end
 	 end
@@ -437,7 +432,8 @@ minetest.register_on_joinplayer(function(player)
 end)
 
 minetest.register_on_dieplayer(function(player)
-      pirnt("Player died, calling region.prespawn")
+      pirnt("Player "..player:get_player_name()..
+	    " died, calling region.prespawn")
       region.prespawn(player)
 end)
 
