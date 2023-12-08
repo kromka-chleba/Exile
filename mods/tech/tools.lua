@@ -261,7 +261,7 @@ local function till_soil(player, wielded_item, pointed_thing)
    if not tillspeed then
       error("till soil called from a tool with no till speed!")
    end
-   if not pointed_thing then return end
+   if not pointed_thing or pointed_thing.type == "object" then return end
    local pos = pointed_thing.under
    local node = minetest.get_node(pos)
    local abovepos = vector.new(pos.x, pos.y + 1, pos.z)
