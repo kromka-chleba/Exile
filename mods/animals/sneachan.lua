@@ -145,13 +145,16 @@ animals.add_interactors("rivals","animals:sneachan","animals:sneachan", "animals
 
 -- Animal Data
 local self_data = animals.register_animal("animals:sneachan",{
-  collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
-	visual = "mesh",
-	mesh = "animals_sneachan.b3d",
-	textures = {"animals_sneachan.png"},
+  initial_properties = {
+    max_hp = 3,
+
+    collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
+    visual = "mesh",
+    mesh = "animals_sneachan.b3d",
+    textures = {"animals_sneachan.png"}
+  },
   
   -- animal stats
-	max_hp = 3,
 	lung_capacity = 10,
   -- comfort temps
 	min_temp = 1,
@@ -218,9 +221,6 @@ local self_data = animals.register_animal("animals:sneachan",{
 		animals.on_punch(self, tool_capabilities, puncher, 55, 0.1)
 	end,
 	on_rightclick = function(self, clicker)
-		if not clicker or not clicker:is_player() then
-			return
-		end
 		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
   _on_death = function(self, pos)

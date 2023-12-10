@@ -23,6 +23,9 @@ mobkit = mobkit
 
 local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 
+-- table to emulate time_from_last_punch for rightclick
+animals.rclick_times = {}
+
 --------------------------------------------------------------------------
 --basic
 --------------------------------------------------------------------------
@@ -53,25 +56,6 @@ local function flee_sound(self)
 		return
 	end
 	mobkit.make_sound(self,'flee')
-end
-
-
-local function node_drawtype(pos)
-  if not (type(pos) == "table") then
-    return {}
-  end
-  local node = pos
-  if (pos.x and pos.y and pos.z) then
-    -- if pos is a pos, otherwise continue as is
-    node = minetest.get_node_or_nil(pos)
-  end
-  if (type(node) == "nil" or type(node.name) ~= "string") then
-    node = {}
-  else
-    node = minetest.registered_nodes[node.name]
-  end
-  if not node then return "normal", {} end -- assume it's a solid ignore node?
-  return node.drawtype, node
 end
 
 -- return the luaentity and object of a provided userdata if possible into a table
@@ -124,6 +108,28 @@ function animals.temp_comfy(self,temp)
     return false,"hot"
   end
   return false
+end
+
+--------------------------------------------------------------------------
+-- node interactions
+--------------------------------------------------------------------------
+
+local function node_drawtype(pos)
+  if not (type(pos) == "table") then
+    return {}
+  end
+  local node = pos
+  if (pos.x and pos.y and pos.z) then
+    -- if pos is a pos, otherwise continue as is
+    node = minetest.get_node_or_nil(pos)
+  end
+  if (type(node) == "nil" or type(node.name) ~= "string") then
+    node = {}
+  else
+    node = minetest.registered_nodes[node.name]
+  end
+  if not node then return "normal", {} end -- assume it's a solid ignore node?
+  return node.drawtype, node
 end
 
 -- get a randomized position from mobkit's is_neighbor_node_reachable by sending a string that's 1 to 8 or like so:
@@ -2223,14 +2229,17 @@ function animals.register_animal(name,def)
   local basedef = {
     name = name,
     -- core
-    physical = true,
-    collide_with_objects = true,
-    collision_box = {-0.1,-0.1,-0.1,0.1,0.1,0.1},
-    visual_size = {x = 1, y = 1},
-    makes_footstep_sound = true,
-    timeout = 0,
+    initial_properties = {
+      max_hp = 1,
+
+      physical = true,
+      collide_with_objects = true,
+      collision_box = {-0.1,-0.1,-0.1,0.1,0.1,0.1},
+      visual_size = {x = 1, y = 1},
+      makes_footstep_sound = true,
+      timeout = 0
+    },
     -- animal stats
-    max_hp = 1,
     lung_capacity = 5,
     min_temp = -10,
     max_temp = 10,
@@ -2510,6 +2519,10 @@ function animals.register_animal(name,def)
   if type(def.absolute_death_temp) ~= "number" then
     def.absolute_death_temp = (def.burn_max_temp + 300)
   end
+  -- add reference points to initial_properties inside of the entity
+  def.max_hp = def.initial_properties.max_hp
+  def.visual_size = def.initial_properties.visual_size
+  def.collisionbox = def.initial_properties.collisionbox
   -- modify functions for event changes or necessary actions
   local on_punch = def.on_punch
   def.on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
@@ -2524,7 +2537,20 @@ function animals.register_animal(name,def)
       return
     end
     self.last_punched = get_time(self.last_punched)
-    on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
+    if type(on_punch) == "function" then
+      on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
+    end
+  end
+  local on_rightclick = def.on_rightclick
+  def.on_rightclick = function(self, clicker)
+    local tool = clicker:get_wielded_item()
+    local tooldef = tool:get_definition() 
+    local tool_capabilities = tooldef.tool_capabilities
+    local time_from_last_click = get_time(animals.rclick_times[clicker])
+    animals.rclick_times[clicker] = get_time()
+    if type(on_rightclick) == "function" then
+      on_rightclick(self, clicker, time_from_last_click, tool_capabilities)
+    end
   end
   -- egg definition and correction
   if type(def.egg) ~= "table" or not def.egg.name then
