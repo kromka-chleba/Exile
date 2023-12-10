@@ -439,7 +439,7 @@ function animals.core_life(self, pos)
 
   --heal using energy
   -- if needs healing
-  if self.hp < self.max_hp and random() <= 0.75 then
+  if (self.hp < self.max_hp and random() <= 0.75 and get_time(self.last_punched) >= 6) then
     -- if not a fish out of water then (fish in water will heal up nicely :D) (oh and if temp is comfortable too)
     if animals.temp_comfy(self,temp) and not (not self.isinliquid and self.class == 2) then
       -- calculate cost
@@ -2299,7 +2299,7 @@ function animals.register_animal(name,def)
       -- add drops for your animal upon death
     --},
     -- functions
-    on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
+    on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg) -- optional "fleshdmg" argument
       animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities)
     end,
     on_rightclick = function(self, clicker)
@@ -2510,10 +2510,24 @@ function animals.register_animal(name,def)
   if type(def.absolute_death_temp) ~= "number" then
     def.absolute_death_temp = (def.burn_max_temp + 300)
   end
+  -- modify functions for event changes or necessary actions
+  local on_punch = def.on_punch
+  def.on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
+    local multiplier = tool_capabilities.full_punch_interval or 0.1
+    multiplier = math_clamp(time_from_last_punch / multiplier, 0, 1)
+    local fleshdmg = tool_capabilities.damage_groups.fleshy or 1
+    if not minimal.player_in_creative(puncher) then
+      -- allow players in creative to infinitely hit
+      fleshdmg = math.floor(fleshdmg * multiplier)
+    end
+    if fleshdmg <= 0 then
+      return
+    end
+    self.last_punched = get_time(self.last_punched)
+    on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
+  end
   -- egg definition and correction
   if type(def.egg) ~= "table" or not def.egg.name then
-    minetest.log("no egg")
-    minetest.log(type(def.egg.name))
     def.egg = nil
   elseif (type(def.egg._hatching) ~= "string" and type(def.egg._hatching) ~= "table") then
     --minetest.log("error","animals.register() has '"..def.name.."' egg definition, but no _hatching, removing egg definition.")
@@ -2524,7 +2538,7 @@ function animals.register_animal(name,def)
       def.egg._hatching = {[def.egg._hatching] = 1}
     end
   end
-  
+
   -- spawnegg definition and correction
   if type(def.spawnegg.stack) ~= "number" then
     def.spawnegg.stack = def.spawnegg.stack_max
