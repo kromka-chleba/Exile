@@ -2356,20 +2356,22 @@ function animals.register_animal(name,def)
         local egg_timer = def.egg_timer
         if not type(egg_timer) == "number" then
           -- no hatching if egg_timer doesn't exist
-          return true
+          return false
         end
         local hatch = true
         local new_time
         -- if a custom _conditions_correct function was specified
         if type(def.egg._conditions_correct) == "function" then
-          hatch, new_time = def.egg_conditions_correct(pos)
+          hatch, new_time = def.egg._conditions_correct(pos)
         end
         -- get a "time" to hatch by
         if new_time == true then
           -- you tell the egg to never hatch
-          return true
-        elseif not type(new_time) == "number" then
-          new_time = egg_timer
+          return false
+        elseif type(new_time) == "number" then
+          -- start new timer with given new_time
+          minetest.get_node_timer(pos):start(new_time)
+          return false
         end
         -- now for actual hatching (or other options)
         if hatch == true then
@@ -2382,7 +2384,7 @@ function animals.register_animal(name,def)
           end
         end
         -- continue to try to hatch, at another time
-        return false
+        return true
       end
     },
     spawnegg = {
@@ -2590,10 +2592,14 @@ function animals.register_animal(name,def)
   local egg_ref
   if def.egg then
     minetest.register_node(def.egg.name,def.egg)
-    egg_ref = minetest.registered_nodes[def.egg.name]
+    --egg_ref = minetest.registered_nodes[def.egg.name]
   else
     def.egg = {}
   end
+  def.egg.energy_egg = def.energy_egg
+  def.egg.egg_timer = def.egg_timer
+  def.egg.young_per_egg = def.young_per_egg
+  --[[
   def.egg = {
     name = def.egg.name,
     ref = egg_ref,
@@ -2602,6 +2608,7 @@ function animals.register_animal(name,def)
     egg_timer = def.egg_timer,
     young_per_egg = def.young_per_egg,
   }
+  --]]
   -- spawnegg
   animals.register_egg(minimal.merge_tables(def.egg,{name = def.name, drops = def.drops}) -- use a modified "def.egg" table
     ,def.spawnegg.desc,def.spawnegg.inv_img,def.spawnegg.stack)--def.spawnegg)

@@ -144,7 +144,8 @@ animals.add_interactors("predators","animals:sneachan","animals:pegasun", "anima
 animals.add_interactors("rivals","animals:sneachan","animals:sneachan", "animals:impethu")
 
 -- Animal Data
-local self_data = animals.register_animal("animals:sneachan",{
+local self_data -- define earlier for utilization in functions
+self_data = animals.register_animal("animals:sneachan",{
   initial_properties = {
     max_hp = 3,
 
@@ -244,8 +245,8 @@ local self_data = animals.register_animal("animals:sneachan",{
       local light = (minetest.get_node_light(pos) or 0)
       if light <= 10 then
         return true -- can hatch
-      elseif random()<0.3 then
-        return true -- can hatch
+      else
+        return 0.3 -- chance of hatch
       end
       -- try again next season
       return false,math.random(egg_timer,egg_timer*2)
@@ -257,55 +258,3 @@ local self_data = animals.register_animal("animals:sneachan",{
     stack = minimal.stack_max_medium
   },
 })
---minetest.register_entity("animals:sneachan",self_data)
-
---[[
-----------------------------------------------
---eggs
-minetest.register_node("animals:sneachan_eggs", {
-	description = S('Sneachan Eggs'),
-	tiles = {"animals_sneachan_eggs.png"},
-	stack_max = minimal.stack_max_medium,
-	drawtype = "nodebox",
-	paramtype = "light",
-	node_box = {
-		type = "fixed",
-		fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08},
-	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-    local egg_timer = self_data.egg_timer
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-    local egg_timer = self_data.egg_timer
-    local energy_egg = self_data.energy_egg
-    local young_per_egg = self_data.young_per_egg
-    
-    local temp = climate.get_point_temp(pos)
-    if (temp < 10 ) then
-      -- don't hatch and keep timer going if temp is too uncomfortably cold
-      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*4))
-      return false
-    end
-		local light = (minetest.get_node_light(pos) or 0)
-		if light <= 10 then
-			return animals.hatch_egg(self_data, pos)
-		else
-			if random()<0.3 then
-				return animals.hatch_egg(self_data, pos)
-			end
-      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2)) -- return a regular egg_timer
-			return false
-		end
-	end,
-})
-
-
-
-
-
---spawn egg (i.e. live animal in inventory)
-animals.register_egg(self_data, S("Live Sneachan"), "animals_sneachan_item.png", minimal.stack_max_medium)
---]]
