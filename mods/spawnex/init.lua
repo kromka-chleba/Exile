@@ -294,20 +294,29 @@ function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
    meta:set_string("exile_spawnat", hex2string(tgt))
 end
 
-local function fixplayer(player)
+local function fixplayer(player, quiet)
    if not minetest.is_player(player) then return end
-   pirnt("Fixplayer needed for "..player:get_player_name() )
+   if not quiet then
+      pirnt("Fixplayer needed for "..player:get_player_name() )
+   end
    local pos = player:get_pos()
+   local function go_up()
+      player:set_pos(vector.new(pos.x, pos.y + 5, pos.z))
+      minetest.after(0, fixplayer, player, true)
+   end
    local node = minetest.get_node(pos)
    if node.name == "ignore" then
-      minetest.after(0.1, fixplayer, player)
+      minetest.after(0.1, fixplayer, player, true)
       return
    end
    local light = minimal.get_daylight(pos, 0.5)
    if light < 6 then
-      player:set_pos(vector.new(pos.x, pos.y + 5, pos.z))
-      minetest.after(0.1, fixplayer, player)
+      go_up()
       return
+   end
+   local def = minetest.registered_nodes[node.name]
+   if not def or def.walkable == true then
+      go_up()
    end
    return -- light > 5 indicates we're probably not underground
 end
