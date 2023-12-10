@@ -438,12 +438,30 @@ function animals.core_life(self, pos)
 
 
   --heal using energy
-  if self.hp < self.max_hp and energy > 20 and random() <= 0.75 then
+  -- if needs healing
+  if self.hp < self.max_hp and random() <= 0.75 then
+    -- if not a fish out of water then (fish in water will heal up nicely :D) (oh and if temp is comfortable too)
     if animals.temp_comfy(self,temp) and not (not self.isinliquid and self.class == 2) then
-      -- if not a fish out of water then (fish in water will heal up nicely :D) (oh and if temp is comfortable too)
-      animals.modify_hp(self,1)
-      energy = energy - math.random(5,15)
+      -- calculate cost
+      local cost = math.random(5,10)
+      cost = cost * (1 + (self.max_hp/self.hp) ) -- increase cost depending on how harmed the creature is
+      -- calculate w/ health efficiency
+      local h_eff = self.heal_efficiency or 1
+      cost = cost - (cost/20 * h_eff) -- cost subtracted by itself divided by 20 times heal_efficiency
+      -- stabilize cost
+      cost = math.round(cost*10)/10 -- round second decimal point (7.52 --> 7.5)
+      if cost < 0 then cost = 0 end -- do not go below 0
+      if energy > cost*1.1 then
+        -- could heal (likelihood determined by how much energy the creature has over the cost)
+        if (random() >= cost/energy) then
+          animals.modify_hp(self,1)
+          energy = energy - cost
+        end
+      end
     end
+  elseif (self.hp > self.max_hp) then
+    -- this aint supposed to happen!
+    self:set_hp(self.max_hp)
   end
 
   if (conserve == true) then
