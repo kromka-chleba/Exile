@@ -36,6 +36,16 @@ local function get_yaw_to_object(pos, opos)
   return yaw
 end
 
+-- 1 function to get time from (allows for ease of modification)
+-- allows optional "since" value, expected number, returns it subtracted by got time
+local function get_time(since)
+  local c_time = minetest.get_server_uptime() -- current_time
+  if (type(since) == "number") then
+    return (c_time - since)
+  end
+  return c_time
+end
+
 
 --flee sound (has to be in water!)
 local function flee_sound(self)
@@ -1486,6 +1496,44 @@ function animals.eat_flora(pos, chance)
   end
 end
 
+----------------------------------------------------------------
+-- consume targeted creature
+local function consume_target(self,target)
+  local targ_specs = animals.get_structure(target)
+  if not self or not targ_specs then
+    return
+  end
+  local ent = targ_specs.ent
+  local ent_hp = ent.hp
+  local ent_mhp = ent.max_hp
+  if not ent_hp or not ent_mhp then
+    return
+  end
+
+  local tflp = get_time(self.did_last_punch) -- time from last punch
+  target:punch(self.object,tflp,self.attack)
+  self.did_last_punch = get_time()
+  local dmg = (ent_hp - ent.hp) -- health subtracted after punch
+
+  if dmg > 0 then
+    dmg = math_clamp(dmg,0,ent_mhp) -- prevent accidental excessive energygain by clamping below max_hp
+    -- eat bits of opponent
+    local ent_e = (mobkit.recall(ent,'energy') or 1)
+    local self_e = (mobkit.recall(self,'energy') or 1)
+    local energygain = (ent_e * (dmg / ent_mhp) ) -- omnomnom
+
+    mobkit.remember(self,'energy', (energygain*0.3)  + self_e) -- take 30%
+    mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
+
+    if (ent.hp <= dmg) then
+      mobkit.remember(self,'energy', (ent_e*0.9) + self_e) -- add 90% of opponent's energy for nomming fully
+      ent.object:remove()
+      return true
+    end
+  end
+  return false
+end
+
 
 ----------------------------------------------------------------
 --like mobkit version, but including removal of prey and gaining energy
@@ -1542,17 +1590,9 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed)
 			elseif tpos.y<pos.y-0.5 then self.object:set_velocity({x=vel.x,y=vel.y-0.5,z=vel.z}) end
 		end
 		if mobkit.is_pos_in_box(mobkit.pos_translate2d(pos,yaw,self.attack.range),tpos,tgtbox) then	--bite
-    mobkit.make_sound(self,'bite')
-			tgtobj:punch(self.object,1,self.attack)
+      mobkit.make_sound(self,'bite')
 			mobkit.hq_aqua_turn(self,prty,yaw-pi,speed)
-    if random()>0.15 then
-      local ent = tgtobj:get_luaentity()
-      local ent_e = (mobkit.recall(ent,'energy') or 1)
-      local self_e = (mobkit.recall(self,'energy') or 1)
-      mobkit.remember(self,'energy', (ent_e*0.7) + self_e)
-      ent.object:remove()
-      return true
-    end
+      return consume_target(self,tgtobj)
 		end
 		mobkit.go_forward_horizontal(self,speed)
 	end
@@ -1605,43 +1645,15 @@ local function lq_jumpattack_eat(self,height,target)
 			if mobkit.is_pos_in_box(apos,tgtpos,tgtbox)
       or (mobkit.isnear2d(pos,tgtpos,1) and random()<0.1) --makes up for issue with some boxes not working together
       then	--bite
-				--target:punch(self.object,1,self.attack)
-        local ent = target:get_luaentity()
-        local ent_hp = ent.hp or 1
-        local ent_mhp = ent.max_hp or 1
-        local dmg = 1
-        if (type(self.attack) == "table") then
-          if (type(self.attack.damage_groups) == "table") then
-            dmg = self.attack.damage_groups.fleshy or 1
-            
-            dmg = math_clamp(dmg,0,ent_mhp) -- clamp damage between 0 and entity max health to prevent excessive energygain
-          end
-        end
-        
-        target:punch(self.object,1,{attack = {range=self.attack.range or 0.1, fleshy=dmg}})
         	-- bounce off
 				local vy = self.object:get_velocity().y
 				self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
 					-- play attack sound if defined
 				mobkit.make_sound(self,'attack')
 				phase=4
-        --animals.modify_hp(ent,-dmg)--mobkit.hurt(ent,dmg) -- hurt opponent
         
         -- eat bits of opponent
-        local ent_e = (mobkit.recall(ent,'energy') or 1)
-        local self_e = (mobkit.recall(self,'energy') or 1)
-        local energygain = (ent_e * (dmg / ent_mhp) ) -- omnomnom
-        
-        mobkit.remember(self,'energy', (energygain*0.4)  + self_e) -- take 40%
-        mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
-        
-        if (ent.hp <= dmg) then
-          local ent_e = (mobkit.recall(ent,'energy') or 1)
-          local self_e = (mobkit.recall(self,'energy') or 1)
-          mobkit.remember(self,'energy', (energygain*0.25) + self_e) -- add another 25% for nomming fully
-          ent.object:remove()
-          return true
-        end
+        return consume_target(self,target)
         
 			end
 		end
