@@ -3,6 +3,8 @@
 
 --Local table to store pending confirmations.
 local timestamp = {}
+region = region
+clothing = clothing
 lore = lore
 local S = lore.S
 
@@ -34,7 +36,8 @@ local function killplayer(name)
         -- exit if the player left or we somehow got garbage
         return
     end
-   if not minimal.player_in_creative(player) then
+    player:set_hp(1)
+    if not minimal.player_in_creative(player) then
       -- Don't remove inventory from creative mode players, just kill 'em
       player:set_hp(0)
       return
@@ -89,6 +92,11 @@ local function restart_confirm (confirmed, _, player, name)
 end
 
 local function restart (name, param)
+	local plyr = minetest.get_player_by_name(name)
+	if plyr and plyr:get_hp() == 0 then -- they're stuck in an invalid state
+	   killplayer(name) -- so we shouldn't make them wait
+	   return -- signed, comment doggerel gang
+	end
 	local nowtime = minetest.get_gametime()
 	if timestamp[name] and ( timestamp[name] +300 ) > nowtime then
 	   minetest.chat_send_player(name, S("You can't use this command more "..
