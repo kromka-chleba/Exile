@@ -37,8 +37,8 @@ note: ranges are
 ]]
 
 -- default range, no clothes yet
-   local temp_min = 20
-   local temp_max = 30
+   local temp_min = 18
+   local temp_max = 32
 
    if not player then
 		return
