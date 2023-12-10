@@ -159,7 +159,7 @@ function region.get(hex) -- #TODO: add other features for regions
 end
 
 local function find_gate_pos(hex, tries) -- pick a spawn position in a hex
-   local gate = spawn_offset(hex, tries or 350)
+   local gate = spawn_offset(hex, tries or 200)
    if not gate then
       pirnt("bad gate for ",hex2string(hex))
       add_job("setup", 1, hex)
@@ -649,6 +649,23 @@ minetest.register_chatcommand("fixplayer",{
 	      player = minetest.get_player_by_name(name)
 	   end
 	   fixplayer(player)
+	end
+})
+
+minetest.register_chatcommand("toggleloadgate",{
+	--privs = "server",
+	func = function(name,param)
+	   local player = minetest.get_player_by_name(name)
+	   local ppos = player:get_pos()
+	   local hex = string2hex(param) or map2hex(ppos)
+	   local r = region.get(hex)
+	   if r.forceloaded then
+	      close_gate(hex)
+	      return true, "Unloaded gate"
+	   else
+	      load_gate(hex)
+	      return true, "Loaded gate"
+	   end
 	end
 })
 
