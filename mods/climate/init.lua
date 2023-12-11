@@ -18,8 +18,9 @@ A specific locations Temperature and more can be called elsewhere (e.g. for heal
 climate = {
 	active_weather = {},
 	active_temp = {},
-	active_sea_temp = {}
-
+	active_sea_temp = {},
+	lock_temp = false,
+	lock_weather = false
 }
 
 local modpath = minetest.get_modpath("climate")
@@ -363,6 +364,8 @@ local function load_saved_weather()
     if stemp then
         climate.active_sea_temp = stemp
     end
+    climate.lock_temp = minetest.is_yes(store:get_string("lock_temp"))
+    climate.lock_weather = minetest.is_yes(store:get_string("lock_weather"))
     --same again, but for ran_walk
     local ranw = store:get_float("ran_walk")
     if ranw then
@@ -380,6 +383,8 @@ end
 local function select_new_active_weather()
     --select a new active_weather from probabilities
     --it will loop through and try to change the weather
+    if climate.lock_weather then return end
+
     local new_weather_name
     for n, next in pairs(climate.active_weather.chain) do
       --roll dice
@@ -426,6 +431,7 @@ local function set_world_temperature()
     --this is a universal temperature for the whole map
     --we treat the whole map as one coherent region, with a single climate
     --specific player temp adjusted from this (e.g. by altitude)
+    if climate.lock_temp then return end
 
     --get day night wave
     local tod = minetest.get_timeofday()
@@ -529,6 +535,25 @@ minetest.register_chatcommand("set_temp", {
 })
 
 
+minetest.register_chatcommand("lock_temp", {
+  description = "Disable automatic temperature changes",
+  privs = {set_temp=true},
+  func = function(name, param)
+     climate.lock_temp = true
+     store:set_string("lock_temp", "true")
+  end,
+})
+
+
+minetest.register_chatcommand("unlock_temp", {
+  description = "Re-enable automatic temperature changes",
+  privs = {set_temp=true},
+  func = function(name, param)
+     climate.lock_temp = false
+     store:set_string("lock_temp", "false")
+  end,
+})
+
 
 -------------
 
@@ -576,6 +601,26 @@ minetest.register_chatcommand("set_weather", {
        return false, "You need the set_temp privilege to use this command."
     end
  end,
+})
+
+
+minetest.register_chatcommand("lock_weather", {
+  description = "Disable automatic weather changes",
+  privs = {set_weather=true},
+  func = function(name, param)
+     climate.lock_weather = true
+     store:set_string("lock_weather", "true")
+  end,
+})
+
+
+minetest.register_chatcommand("unlock_weather", {
+  description = "Re-enable automatic weather changes",
+  privs = {set_weather=true},
+  func = function(name, param)
+     climate.lock_weather = false
+     store:set_string("lock_weather", "false")
+  end,
 })
 
 -------------
