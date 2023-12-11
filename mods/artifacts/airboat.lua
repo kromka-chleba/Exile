@@ -280,7 +280,7 @@ minetest.register_craftitem("artifacts:airboat", {
       return itemstack
     end
 		local under = pointed_thing.under
-    
+
 		-- if player isn't sneaking...
     if not placer:get_player_control().sneak then
       -- Run any on_rightclick function of pointed node instead
@@ -289,7 +289,7 @@ minetest.register_craftitem("artifacts:airboat", {
         return on_click
       end
     end
-    
+
     under = minimal.shift_pos(under,{y = 2})
 		local air_boat = minetest.add_entity(under,
 			"artifacts:airboat")
@@ -297,9 +297,9 @@ minetest.register_craftitem("artifacts:airboat", {
 				    {pos = under,
 				     gain = 1, max_hear_distance = 6})
 		if air_boat then
-		   
+
       air_boat:set_yaw(placer:get_look_horizontal())
-		   
+
 		   if not (minimal.player_in_creative(placer)) then
 		      itemstack:take_item()
 		   end
