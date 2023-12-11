@@ -170,7 +170,6 @@ end
 local function load_gate(hex) -- forceload a gate's location to prep for a spawn
    pirnt("Load gate for ",hex2string(hex))
    local def = region.get(hex)
-   pirnt(dump(def))
    if def.forceloaded == true then return end
    local mb_min = vector.new(math.floor(def.currentgate.x / 16) * 16,
 			     math.floor(def.currentgate.y / 16) * 16,
@@ -228,7 +227,6 @@ local function close_gate(hex)
    def.forceloaded = false
    def.nextgate = nil
    setup_gate(hex)
-   save_rgns()
 end
 
 local function select_hex_from(hex) -- for wide spawn
@@ -668,6 +666,9 @@ minetest.register_chatcommand("toggleloadgate",{
 	   local ppos = player:get_pos()
 	   local hex = string2hex(param) or map2hex(ppos)
 	   local r = region.get(hex)
+	   if r.currentgate == nil then
+	      return false, "No gate for this hex"
+	   end
 	   if r.forceloaded then
 	      close_gate(hex)
 	      return true, "Unloaded gate"
