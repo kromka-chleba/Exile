@@ -159,12 +159,7 @@ function region.get(hex) -- #TODO: add other features for regions
 end
 
 local function find_gate_pos(hex, tries) -- pick a spawn position in a hex
-   local gate = spawn_offset(hex, tries or 200)
-   if not gate then
-      pirnt("bad gate for ",hex2string(hex))
-      add_job("setup", 1, hex)
-   end
-   return gate
+   return spawn_offset(hex, tries or 200)
 end
 
 local function load_gate(hex) -- forceload a gate's location to prep for a spawn
@@ -186,23 +181,26 @@ local function setup_gate(hex) -- create potential gate
    if not def.currentgate then
       pirnt("setup new gate for ",hex2string(hex))
       def.currentgate = find_gate_pos(hex)
-      save_rgns()
+      if def.currentgate == nil then
+	 add_job("setup", 1, hex)
+      else
+	 save_rgns()
+      end
       return true
    end
    return false
 end
 
 function queue_next_gate(hex) -- Set up next gate before closing current one
-   pirnt("queue next gate")
    local def = region.get(hex)
    if def.nextgate then return end -- already have one queued
    local candidate
-   local count = 0
-   repeat
-      candidate = find_gate_pos(hex)
-      count = count + 1
-   until count > 3 or candidate:distance(def.currentgate) > 400
+   candidate = find_gate_pos(hex, 50)
    -- not too close to previous spawn, please
+   if candidate == nil or candidate:distance(def.currentgate) > 400 then
+      add_job("queue", 9, hex)
+      return
+   end
    def.nextgate = candidate
    save_rgns()
 end
