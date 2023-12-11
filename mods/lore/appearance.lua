@@ -33,6 +33,8 @@ minetest.register_on_newplayer(function(player)
 end)
 
 minetest.register_on_respawnplayer(function(player)
-      NewBody(player)
-      player_api.set_texture(player)
+      if player:get_meta():get_string("lore:character_manually_edited") == "" then
+            NewBody(player)
+            player_api.set_texture(player)
+      end
 end)

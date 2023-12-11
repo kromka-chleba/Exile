@@ -199,7 +199,7 @@ function player_api.compose_cloth(player)
 			attached_cloth[#attached_cloth+1] = cloth_itemstack._cloth_attach
 		end
 	end
-	if not(bra) and gender == "female" then
+	if not(bra) and gender ~= "male" then
 		upper_ItemStack = "cloth_upper_underwear_default.png"
 	end
 	if not(underwear) then

@@ -9,6 +9,8 @@ Player stats etc
 
 lore = lore
 local S = lore.S
+local FS = lore.FS
+local F = minetest.formspec_escape
 
 ------------------------------------
 --set character name and record start time
@@ -56,10 +58,12 @@ end)
 
 minetest.register_on_respawnplayer(function(player)
   local meta = player:get_meta()
-  meta:set_string("char_name", lore.generate_name(3))
   meta:set_int("char_time_stamp", minetest.get_gametime())
   meta:set_int("char_time_survived", 0)
-  meta:set_string("bio", lore.generate_bio(player))
+  if player:get_meta():get_string("lore:character_manually_edited") == "" then
+    meta:set_string("char_name", lore.generate_name(3))
+    meta:set_string("bio", lore.generate_bio(player))
+  end
   local lives = meta:get_int("lives") or 1
   meta:set_int("lives", lives + 1)
 end)
@@ -120,7 +124,7 @@ local function sfinv_get(self, player, context)
     bio = lore.generate_bio(player)
   end
 
-  local y = 3.1
+  local y = 3.6
   local eff_form = ""
 
 
@@ -145,14 +149,15 @@ local function sfinv_get(self, player, context)
        effectnm[effect[1]].." "..severity.."]"
   end
 
-  local formspec = "label[0.1,0.1; "..S("Name").. ": ".. name .. "]"..
-     "label[4,0.1; "..S("Days Survived")..": ".. days .. "]"..
-     "label[4,0.6; "..S("Lives")..": " .. lives .. "]"..
-     "label[0.1,1.1; "..S("Biography")..": " .. bio .. "]"..
+  local formspec = "button[0.1,0.1;2,0.5;edit;" .. FS("Edit") .. "]"..
+     "label[0.1,0.6; "..FS("Name").. ": ".. F(name) .. "]"..
+     "label[4,0.6; "..FS("Days Survived")..": ".. F(days) .. "]"..
+     "label[4,1.1; "..FS("Lives")..": " .. F(lives) .. "]"..
+     "label[0.1,1.6; "..FS("Biography")..": " .. F(bio) .. "]"..
      "style[player_settings;border=false]"..
      "image_button_exit[7,0.15;0.75,0.75;gear.png;player_settings;]"..
-     "label[0.1,3.1; "..S("Health Effects")..":]"..
-	   eff_form
+     "label[0.1,3.6; "..FS("Health Effects")..":]"..
+	   F(eff_form)
 
 
 	return formspec
@@ -169,8 +174,44 @@ local function register_tab()
 		get = function(self, player, context)
 			local formspec = sfinv_get(self, player, context)
 			return sfinv.make_formspec(player, context, formspec, false)
+		end,
+		on_player_receive_fields = function(self, player, formname, fields)
+			if not fields.edit then return end
+			local meta = player:get_meta()
+			local name = meta:get_string("char_name")
+			local gend_map = {
+				female = 1,
+				male = 2,
+				other = 3
+			}
+			local gend = gend_map[meta:get_string("gender")]
+			local bio = meta:get_string("bio")
+			minetest.show_formspec(player:get_player_name(), "lore:edit_char",
+				"formspec_version[6]" ..
+				"size[6,8.5]" ..
+				"field[1,1;4,1;name;" .. FS"Name" .. ";" .. F(name) .. "]" ..
+				"dropdown[1,2;2;gender;" .. FS"Female" .. "," .. FS"Male" .. "," .. FS"Other" .. ";" .. F(gend) .. ";true]" ..
+				"textarea[1,3.5;4,3;bio;" .. FS"Biography" .. ";" .. F(bio) .. "]" ..
+				"button_exit[1,6.5;2,1;save;" .. FS"Save" .. "]" ..
+				"button_exit[3,6.5;2,1;cancel;" .. FS"Cancel" .. "]")
 		end
 	})
+	minetest.register_on_player_receive_fields(function(player, formname, fields)
+		local save = fields.save or fields.key_enter
+		if formname ~= "lore:edit_char" or not save then
+			return false
+		end
+		local meta = player:get_meta()
+		local gend_map = {["1"] = "female", ["2"] = "male", ["3"] = "other"}
+		local gend = gend_map[fields.gender]
+		meta:set_string("char_name", fields.name)
+		meta:set_string("bio", fields.bio)
+		meta:set_string("gender", gend)
+		meta:set_string("lore:character_manually_edited", "true")
+		sfinv.set_page(player, "lore:char_tab") -- refresh text in char tab
+		player_api.set_texture(player)
+		return true
+	end)
 end
 
 register_tab()

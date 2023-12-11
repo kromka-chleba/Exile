@@ -5,6 +5,9 @@
 
 lore = {}
 lore.S = minetest.get_translator("lore")
+lore.FS = function(...)
+    return minetest.formspec_escape(lore.S(...))
+end
 
 local modpath = minetest.get_modpath('lore')
 

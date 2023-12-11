@@ -255,16 +255,14 @@ local crime2 = {
 
 -- woe upon ye
 local woe = {}
-local genderSU = {male = S("He"),  female = S("She") } -- subjective + uppercase
-local genderSL = {male = S("he"),  female = S("she") } -- subjective + lowercase
-local genderOU = {male = S("Him"), female = S("Her") } -- objective  + uppercase
-local genderOL = {male = S("him"), female = S("her") } -- objective  + lowercase
-local genderPU = {male = S("His"), female = S("Her") } -- possessive + uppercase
-local genderPL = {male = S("his"), female = S("her") } -- possessive + lowercase
-local genderRU = {male = S("Himself"),
-		  female = S("Herself")} -- reflexive  + uppercase
-local genderRL = {male = S("himself"),
-		  female = S("herself")} -- reflexive  + lowercase
+local genderSU = {male = S("He"), female = S("She"), other = S("They")} -- subjective + uppercase
+local genderSL = {male = S("he"), female = S("she"), other = S("they")} -- subjective + lowercase
+local genderOU = {male = S("Him"), female = S("Her"), other = S("Them")} -- objective  + uppercase
+local genderOL = {male = S("him"), female = S("her"), other = S("them")} -- objective  + lowercase
+local genderPU = {male = S("His"), female = S("Her"), other = S("Their")} -- possessive + uppercase
+local genderPL = {male = S("his"), female = S("her"), other = S("their")} -- possessive + lowercase
+local genderRU = {male = S("Himself"), female = S("Herself"), other = S("Themself")} -- reflexive  + uppercase
+local genderRL = {male = S("himself"), female = S("herself"), other = S("themself")} -- reflexive  + lowercase
 local populate_woe = function(player)
 	local gend = player_api.get_gender(player)
 	return {
