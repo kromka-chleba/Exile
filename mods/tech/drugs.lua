@@ -23,16 +23,14 @@ minetest.register_craftitem("tech:herbal_medicine", {
 	inventory_image = "tech_herbal_medicine.png",
 	stack_max = minimal.stack_max_medium *2,
 	groups = {flammable = 1},
+	_use_tip = "Eat",
 
-  on_use = function(itemstack, user, pointed_thing)
-    local meta = user:get_meta()
-    local effects_list = meta:get_string("effects_list")
-    effects_list = minetest.deserialize(effects_list) or {}
+  _on_use_item = function(user, itemstack, pointed_thing)
 
     --remove parasites
     if random()<0.33 then
-  		HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
-  	end
+		HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
+	end
 
     --cure/reduce food poisoning and infections
     --see how effective the dose is
@@ -92,15 +90,16 @@ minetest.register_craftitem("tech:tiku", {
 	inventory_image = "tech_tiku.png",
 	stack_max = minimal.stack_max_medium *2,
 	groups = {flammable = 1, drug = 1},
+	_use_tip = "Eat",
 
-  on_use = function(itemstack, user, pointed_thing)
+	_on_use_item = function(user, itemstack, pointed_thing)
 
-    --begin the bender
-		HEALTH.add_new_effect(user, {"Tiku High", 1})
+	   --begin the bender
+	   HEALTH.add_new_effect(user, {"Tiku High", 1})
 
-    --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-    return HEALTH.use_item(itemstack, user, 0, 0, -24, 96, 0)
-  end,
+	   --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
+	   return HEALTH.use_item(itemstack, user, 0, 0, -24, 96, 0)
+	end,
 })
 
 
@@ -264,11 +263,11 @@ liquid_store.register_stored_liquid(
 -- find ferment or create a ferment meta
 local function get_or_create_ferment(meta)
   local ferment = meta:get_int("ferment")
-  
+
   if (ferment == 0) then
     ferment = math.random(300,360)
   end
-  
+
   return ferment
 end
 
@@ -327,7 +326,7 @@ end
 -- custom function that preserves metadata from a replaced node to an itemstack
 local preserve_metadata_tang = function(pos, oldnode, oldmeta, transferred_stack)
   local imeta = transferred_stack:get_meta()
-  
+
   imeta:set_int("ferment",get_or_create_ferment(oldmeta))
 end
 
@@ -361,7 +360,7 @@ minetest.override_item("tech:tang_unfermented",{
 			return true
 		end
 	end,
-  
+
   _preserve_metadata = function(...)
     preserve_metadata_tang(...)
   end,
@@ -395,7 +394,7 @@ minetest.override_item("tech:wooden_tang_unfermented",{
 			return true
 		end
 	end,
-  
+
   _preserve_metadata = function(...)
     preserve_metadata_tang(...)
   end,
