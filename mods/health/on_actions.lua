@@ -197,7 +197,7 @@ if minetest.settings:get_bool("enable_damage") then
               --okay sleep if in uncomfortable temp, exposed
               energy = energy + (4 * lvl)
 
-            elseif enviro_temp < comfort_high and enviro_temp > comfort_low and light < 14 then
+            else
               --best rest is under shelter, in a non-extreme temperature
 							energy = energy + (16 * lvl)
 						end
