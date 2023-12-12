@@ -46,6 +46,7 @@ local function loginspec(player)
 		 "image[1.5,6;6,2;logo.png]" )
    local name = player:get_player_name()
    minetest.show_formspec(name, "lore:login", spec)
+   return "wait"
 end
 
 local function show_motd(player)
@@ -74,6 +75,7 @@ local function show_motd(player)
 	 "background9[0,0;7,7.5;9slice-deep.png;false;10]"
    end
    minetest.show_formspec(playername, "lore:motd", spec)
+   return "wait"
 end
 
 ------------------------------------------------------------------------------
@@ -148,12 +150,12 @@ end
 
 local player_queue = {} -- tracks what needs to be done for a player
 
-local function queue_push(player, func_to_run, fs, qname)
+local function queue_push(player, func_to_run, qname)
    -- Add a thing to run on a player, fifo, formspecs require a delay
    local name = player:get_player_name()
    if not player_queue[name] then player_queue[name] = {} end
    local count = #player_queue[name]
-   player_queue[name][count+1] = { name = qname, func = func_to_run, fspec = fs }
+   player_queue[name][count+1] = { name = qname, func = func_to_run }
 end
 local function queue_pop(name) -- Run the first queued action, remove from list
    local qitem = player_queue[name][1]
@@ -164,9 +166,10 @@ local function queue_start(player)
    local name = player:get_player_name()
    for i = 1, #player_queue[name] do
       local qitem = queue_pop(name)
-      qitem.func(player)
-      if qitem.fspec then
-	 return -- can't continue until the formspec is closed
+      local wait = qitem.func(player)
+      if wait == "wait" then
+	 -- The current task is still running. It will call queue_start() when it's done
+	 return
       end
    end
 end
@@ -187,7 +190,7 @@ minetest.register_on_newplayer(function(player)
       local name = player:get_player_name()
       newplayer[name] = true
       region.prespawn(player)
-      queue_push(player, loginspec, true, "loginspec")
+      queue_push(player, loginspec, "loginspec")
       -- set_invisible doesn't work in on_newplayer, only in on_join
       -- so it's not here
 end)
@@ -198,17 +201,12 @@ minetest.register_on_joinplayer(function(player)
 	 -- hide new players until they read the intro
 	 player_api.set_invisible(player, true, "set_invis")
       end
-     queue_push(player, show_motd, true, "motd")
+     queue_push(player, show_motd, "motd")
      if tutorial_available then
-	queue_push(player, do_tutorial, false, "tut")
+	queue_push(player, do_tutorial, "tut")
      end
      if newplayer[name] == true then
-	 queue_push(player, first_spawn, false, "1st")
-     end
-     local list = ""
-     for i = 1, #player_queue[name] do
-	local obj = player_queue[name][i]
-	list = list..obj["name"]..", "..tostring(obj["fspec"]).."\n"
+	 queue_push(player, first_spawn, "1st")
      end
      queue_start(player)
 end)
