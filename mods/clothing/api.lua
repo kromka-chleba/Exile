@@ -22,8 +22,10 @@ note: ranges are
 ]]
 
 -- default range, no clothes yet
-   local temp_min = 20
-   local temp_max = 30
+
+   local defaults = HEALTH.get_default_attributes()
+   local temp_min = assert(defaults.clothing_temp_min)
+   local temp_max = assert(defaults.clothing_temp_max)
 
    if not player then
 		return
