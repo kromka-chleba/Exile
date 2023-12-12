@@ -62,6 +62,13 @@ local function store_player(player)
    --  Inventory, too!
 end
 
+local function call_exit(player)
+   local name = player:get_player_name()
+   local ps = pstore[name]
+   if not ps or not ps.exit then return end
+   ps.exit(player)
+end
+
 local function restore_player(player)
    local name = player:get_player_name()
    local ps = pstore[name]
@@ -71,9 +78,7 @@ local function restore_player(player)
    local meta = player:get_meta()
    meta:set_string("playtime_suspended", "")
    -- #TODO: Restore stats, inventory
-   if ps.exit then
-      ps.exit(player) -- call spawn function
-   end
+   call_exit(player)
 end
 
 local function get_valid_tutorial_region(player)
@@ -86,6 +91,7 @@ end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
       if formname == "tutorial_exile:confirm" then
 	 if not fields.take_tut then -- pressed refuse, or closed the form
+	    call_exit(player)
 	    pstore[player:get_player_name()] = nil
 	    return
 	 end

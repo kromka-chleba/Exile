@@ -13,7 +13,7 @@ local tutorial_available = false
 minetest.register_on_mods_loaded(function()
       for _, name in ipairs(minetest.get_modnames()) do
 	 if name == "tutorial_exile" then
-	    tutorial_available = false
+	    tutorial_available = true
 	 end
       end
 end)
@@ -184,6 +184,7 @@ end
 
 local function do_tutorial(player) -- enter, and tell it to call exit_ when done
    tutorial.init(player, exit_tutorial)
+   return "wait"
 end
 
 minetest.register_on_newplayer(function(player)
