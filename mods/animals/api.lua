@@ -2341,8 +2341,8 @@ function animals.register_animal(name,def)
         -- e.g. = {animals:creature1 = 0.5, animals:creature1_male = 0.5}
       },
       -- egg functions
-      on_construct = function(pos)
-        local egg_timer = def.egg_timer
+      on_construct = function(pos,egg_data)
+        local egg_timer = egg_data.egg_timer
         minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
       end,
       -- _conditions_correct(pos)
@@ -2424,7 +2424,8 @@ function animals.register_animal(name,def)
     if (type(defvalue) == "string" and
       ( defname == "energy_egg" or
       defname == "mature_age" or
-      defname == "lifespan" ) ) then
+      defname == "lifespan" or
+      defname == "oxygen_min") ) then
       -- allow for custom usage of adding, multiplying, dividing, or subtracting from a value via string
       defvalue = string.gsub(defvalue," ","") -- erase all spaces
       -- convert to table for a command system
@@ -2554,6 +2555,23 @@ function animals.register_animal(name,def)
       on_rightclick(self, clicker, time_from_last_click, tool_capabilities)
     end
   end
+  local egg_data = {} -- use this to permit proper override of on_construct (returns intended variable properly)
+  -- modify _conditions_correct to return egg data
+  if def.egg then
+    if type(def.egg._conditions_correct) == "function" then
+      local _cc = def.egg._conditions_correct
+      def.egg._conditions_correct = function(pos)
+        if not pos then
+          return false
+        end
+        return _cc(pos,egg_data)
+      end
+    end
+    local on_construct = def.egg.on_construct
+    def.egg.on_construct = function(pos)
+      return on_construct(pos,egg_data)
+    end
+  end
   -- egg definition and correction
   if type(def.egg) ~= "table" or not def.egg.name then
     def.egg = nil
@@ -2593,12 +2611,13 @@ function animals.register_animal(name,def)
   if def.egg then
     minetest.register_node(def.egg.name,def.egg)
     --egg_ref = minetest.registered_nodes[def.egg.name]
-  else
-    def.egg = {}
   end
-  def.egg.energy_egg = def.energy_egg
-  def.egg.egg_timer = def.egg_timer
-  def.egg.young_per_egg = def.young_per_egg
+  egg_data = {
+    energy_egg = def.energy_egg,
+    egg_timer = def.egg_timer,
+    young_per_egg = def.young_per_egg,
+    ref = def.egg,
+  }
   --[[
   def.egg = {
     name = def.egg.name,
@@ -2610,7 +2629,7 @@ function animals.register_animal(name,def)
   }
   --]]
   -- spawnegg
-  animals.register_egg(minimal.merge_tables(def.egg,{name = def.name, drops = def.drops}) -- use a modified "def.egg" table
+  animals.register_egg(minimal.merge_tables(egg_data,{name = def.name, drops = def.drops}) -- use a modified "def.egg" table
     ,def.spawnegg.desc,def.spawnegg.inv_img,def.spawnegg.stack)--def.spawnegg)
   -- creature
   minetest.register_entity(name,def)

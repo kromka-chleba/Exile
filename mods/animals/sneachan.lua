@@ -176,23 +176,19 @@ self_data = animals.register_animal("animals:sneachan",{
     hand = 0.95,
     club = 1,
   },
-
+-- logic for mobkit
   logic = brain,
-  
   --movement
 	springiness=0,
 	buoyancy = 1.01,
 	max_speed = 1,					-- m/s
 	jump_height = 1,				-- nodes/meters
 	view_range = 2,					-- nodes/meters
-
 	--attack
 	attack={range=0.3, damage_groups={fleshy=1}},
 	armor_groups = {fleshy=100},
-  
   -- settings
   max_pop = 20,
-  
   animation = {
 		walk={range={x=0, y=20}, speed=20, loop=true},
 		fast={range={x=0, y=20}, speed=40, loop=true},
@@ -213,7 +209,6 @@ self_data = animals.register_animal("animals:sneachan",{
 			pitch={0.5, 1.5},
 		},
 	},
-
 	--on actions
 	drops = {
 		{name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
@@ -231,13 +226,14 @@ self_data = animals.register_animal("animals:sneachan",{
     end
     animals.emergency_egg(self, pos)
   end,
-
+  -- eggs
   egg = {
     name = "animals:sneachan_eggs",
     description = S('Sneachan Eggs'),
     tiles = {"animals_sneachan_eggs.png"},
-    _conditions_correct = function(pos)
-      local egg_timer = self_data.egg_timer
+    _conditions_correct = function(pos,egg_data)
+      if not egg_data then return false,true end -- break egg
+      local egg_timer = egg_data.egg_timer
       local temp = climate.get_point_temp(pos)
       if temp < 10 then
         return false,math.random(egg_timer,egg_timer*4) -- can't hatch, send new time
@@ -252,6 +248,7 @@ self_data = animals.register_animal("animals:sneachan",{
       return false,math.random(egg_timer,egg_timer*2)
     end,
   },
+  -- spawnegg or live animal
   spawnegg = {
     desc = S("Live Sneachan"),
     inv_img = "animals_sneachan_item.png",

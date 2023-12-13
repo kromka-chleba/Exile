@@ -175,7 +175,7 @@ self_data = animals.register_animal("animals:impethu",{
     hand = 0.95,
     club = 1,
   },
-  -- logic
+  -- logic for mobkit
   logic = brain,
   --movement
 	springiness=0,
@@ -211,8 +211,9 @@ self_data = animals.register_animal("animals:impethu",{
     name = "animals:impethu_eggs",
     description = S('Impethu Eggs'),
     tiles = {"animals_sneachan_eggs.png^[multiply:#c49a82"},
-    _conditions_correct = function(pos)
-      local egg_timer = self_data.egg_timer
+    _conditions_correct = function(pos,egg_data)
+      if not egg_data then return false,true end -- break egg
+      local egg_timer = egg_data.egg_timer
       local temp = climate.get_point_temp(pos)
       if (temp < 12) then
         return false,math.random(egg_timer,egg_timer*4) -- can't hatch, too cold, send new time
