@@ -53,7 +53,8 @@ function minimal.switch_node(pos, node, after_place)
 end
 
 function minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
-   if not pointed_thing then return end -- Can't combine with nothing
+   if not pointed_thing or pointed_thing.type == "object" then return end
+   -- Can't combine with nothing, or with objects
    local pos = pointed_thing.under
    local node = minetest.get_node(pos)
    if itemstack:get_name() == node.name then
