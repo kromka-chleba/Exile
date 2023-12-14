@@ -143,7 +143,7 @@ local self_data = {
   class = 1,
   -- energy
   energy_max = 8000,--secs it can survive without food
-  egg_timer = 10,--60*20,
+  egg_timer = 60*20,
   young_per_egg = {3,4},		--will get this/energy_egg starting energy
   emergency_egg_chance = 0.75,
   -- cannot define conservation minimum + energy_egg (energy_egg being necessary for cn_min) in API due to multiple values needed
