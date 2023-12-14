@@ -139,7 +139,7 @@ local self_data = {
   -- comfort temps
 	min_temp = 7,
 	max_temp = 60,
-  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  -- is it land-borne (1), sea-borne (2), or amphibious (3)?
   class = 1,
   -- energy
   energy_max = 8000,--secs it can survive without food

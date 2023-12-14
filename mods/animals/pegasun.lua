@@ -317,17 +317,203 @@ end
 
 ----------------------------------------------
 -- SETTING OF PEGASUN INTERACTOR SETTINGS
-animals.add_interactors("predators","pegasun","animals:kubwakubwa", "animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("prey","pegasun","animals:sneachan", "animals:impethu")
-animals.add_interactors("friends","pegasun","animals:pegasun", "animals:pegasun_male")
-animals.add_interactors("rivals","pegasun","animals:pegasun")
+animals.add_interactors("predators","animals:pegasun","animals:kubwakubwa", "animals:darkasthaan", "animals:sarkamos")
+animals.add_interactors("prey","animals:pegasun","animals:sneachan", "animals:impethu")
+animals.add_interactors("friends","animals:pegasun","self", "animals:pegasun_male")
+animals.add_interactors("rivals","animals:pegasun","self")
 
 -- MALE INTERACTORS
-animals.add_interactors("friends","pegasun_male","animals:pegasun")
-animals.add_interactors("rivals","pegasun_male","animals:pegasun_male")
+animals.add_interactors("friends","animals:pegasun_male","animals:pegasun")
+animals.add_interactors("rivals","animals:pegasun_male","self")
 
 ------------------------------------------------------------------------
 --FEMALE
+local self_data = {
+  initial_properties = {
+    max_hp = 40,
+    
+    collisionbox = {-0.16, -0.75, -0.16, 0.16, -0.25, 0.16},
+    visual = "mesh",
+    mesh = "animals_pegasun.b3d",
+    textures = {"animals_pegasun.png"},
+    visual_size = {x = 1, y = 1},
+  },
+  -- animal stats
+	lung_capacity = 20,
+  energy_loss = 1,
+  breathing_rate = 5,
+  -- comfort temps
+	min_temp = -24,
+	max_temp = 46,
+  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  class = 1,
+  -- settings
+  max_pop = 40,
+  -- energy
+  energy_max = 8000,   --secs it can survive without food
+  energy_egg = "energy_max*0.4",  --energy that goes to egg
+  egg_timer = 60*25,
+  young_per_egg = 1,		--will get this/energy_egg starting energy
+  -- lifespan
+  lifespan = "energy_max*10",
+  mature_age = "energy_max*0.36", -- 36% of energy_max (8000) or 2880
+  -- interactions
+  -- predators + rivals automatically defined in registration
+  capture_interactions = {
+    club = 0.45,
+  },
+  sex = "female",
+  -- logic for mobkit
+  logic = brain,
+  -- animations + sounds
+  animation = {
+		walk={range={x=71, y=90}, speed=24, loop=true},
+		fast={range={x=91, y=110}, speed=24, loop=true},
+		stand={
+			{range={x=1, y=31}, speed=28, loop=true},
+			{range={x=31, y=70}, speed=32, loop=true},
+		},
+    dead = { range = {x=0, y=0}, speed = 0, loop=true},
+	},
+	sounds = {
+		warn = {
+			name = "animals_pegasun_warn",
+			gain={0.2, 0.5},
+			fade={0.5, 1.5},
+			pitch={0.9, 1.1},
+		},
+		scared = {
+			name = "animals_pegasun_scared",
+			gain={0.2, 0.3},
+			fade={0.5, 1.5},
+			pitch={1.3, 1.4},
+		},
+		call = {
+			name = "animals_pegasun_call",
+			gain={0.2, 0.4},
+			fade={0.5, 1.5},
+			pitch={0.9, 1.1},
+		},
+		mating = {
+			name = "animals_pegasun_warn",
+			gain={0.4, 0.7},
+			fade={0.5, 1.5},
+			pitch={1.2,1.7}--{0.9, 1.4},
+		},
+		attack = {
+			name = "animals_pegasun_attack",
+			gain={0.4, 0.7},
+			fade={0.5, 1.5},
+			pitch={0.9, 1.4},
+		},
+	},
+	--movement
+	springiness=0,
+	buoyancy = 1.01,
+	max_speed = 2,					-- m/s
+	jump_height = 1.2,				-- nodes/meters
+	view_range = 7,					-- nodes/meters
+	--attack
+	attack={range=0.3, damage_groups={fleshy=2}},
+	armor_groups = {fleshy=100},
+  --on actions
+	drops = {
+		{name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},
+	},
+	on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
+		animals.on_punch(self, tool_capabilities, puncher, 55, 0.05)
+	end,
+	on_rightclick = function(self, clicker)
+		animals.stun_catch_mob(self, clicker, 0.25)
+	end,
+  -- egg
+  egg = {
+    description = S('Pegasun Egg'),
+    tiles = {"animals_gundu_eggs.png"},
+    stack_max = minimal.stack_max_medium,
+    node_box = {
+      type = "fixed",
+      fixed = {-0.125, -0.5, -0.125,  0.125, -0.125, 0.125},
+    },
+    groups = {egg = 2},
+    _hatching = {
+      ["animals:pegasun"] = 0.5,
+      ["animals:pegasun_male"] = 0.5,
+    },
+  },
+  -- spawnegg or live animal
+  spawnegg = {
+    desc = S("Live Pegasun"),
+    inv_img = "animals_pegasun_item.png",
+    stack = minimal.stack_max_medium
+  }
+}
+self_data = animals.register_animal("animals:pegasun",self_data)
+local self_male = table.copy(self_data)
+self_male.name = "animals:pegasun_male"
+-- don't register egg again for male
+self_male.egg = nil
+-- modifications for males
+-- initial properties
+self_male.logic = brain_male
+self_male.initial_properties.max_hp = 45
+self_male.initial_properties.textures = {"animals_pegasun_male.png"}
+-- physical properties
+self_male.max_speed = 2.5
+self_male.jump_height = 1.5
+-- male energy, lifespan, and misc interactive
+self_male.lifespan = self_data.lifespan*1.2
+self_male.lung_capacity = 25
+self_male.sex = "male"
+-- remove interactive from female to get api to re-register
+self_male.rivals = nil
+self_male.friends = nil
+-- sounds
+self_male.sounds = {
+  warn = {
+    name = "animals_pegasun_warn",
+    gain={0.3, 0.6},
+    fade={0.5, 1.5},
+    pitch={0.9, 1.1},
+  },
+  scared = {
+    name = "animals_pegasun_scared",
+    gain={0.3, 0.4},
+    fade={0.5, 1.5},
+    pitch={1.2, 1.3},
+  },
+  call = {
+    name = "animals_pegasun_call",
+    gain={0.2, 0.5},
+    fade={0.5, 1.5},
+    pitch={0.9, 1.1},
+  },
+  mating = {
+    name = "animals_pegasun_warn",--"animals_pegasun_mate"
+    gain={0.5, 0.9},
+    fade={0.5, 1.5},
+    pitch={1.2,1.5}--{0.8, 1.2},
+  },
+  attack = {
+    name = "animals_pegasun_attack",
+    gain={0.6, 0.8},
+    fade={0.5, 1.5},
+    pitch={0.7, 1.1},
+  },
+  punch = {
+    name = "animals_punch",
+    gain={0.5, 1.5},
+    fade={0.5, 1.5},
+    pitch={0.5, 1.5},
+  },
+}
+-- attack
+self_male.attack={range=0.5, damage_groups={fleshy=4}}
+-- male spawnegg or live animal modifications
+self_male.spawnegg.desc = S("Live Male Pegasun")
+-- registering male
+animals.register_animal(self_male.name,self_male)
+--[[
 local self_data = {
   name = "animals:pegasun",
 	--core
@@ -607,3 +793,4 @@ minetest.register_node("animals:pegasun_eggs", {
 
 	end,
 })
+--]]

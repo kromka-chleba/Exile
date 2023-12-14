@@ -160,7 +160,7 @@ self_data = animals.register_animal("animals:sneachan",{
   -- comfort temps
 	min_temp = 1,
 	max_temp = 50,
-  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  -- is it land-borne (1), sea-borne (2), or amphibious (3)?
   class = 1,
   -- energy
   energy_max = 5000,--secs it can survive without food
