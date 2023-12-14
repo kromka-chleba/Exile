@@ -202,12 +202,6 @@ self_data = animals.register_animal("animals:sneachan",{
 			fade={0.5, 1.5},
 			pitch={0.6, 1.3},
 		},
-		punch = {
-			name = "animals_punch",
-			gain={0.3, 0.9},
-			fade={0.5, 1.5},
-			pitch={0.5, 1.5},
-		},
 	},
 	--on actions
 	drops = {

@@ -157,7 +157,7 @@ self_data = animals.register_animal("animals:impethu",{
 	min_temp = 5,
 	max_temp = 68,
   -- comfort light
-  max_light = 7,
+  max_light = 6,
   -- is it land-borne (1), sea-borne (2), or amphibious (3)?
   class = 1,
   -- settings
@@ -193,6 +193,14 @@ self_data = animals.register_animal("animals:impethu",{
 		},
     dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
+  sounds = {
+		warn = {
+			name = "animals_impethu_warn",
+			gain={0.1, 0.4},
+			fade={0.5, 1.5},
+			pitch={0.5, 1.5},
+		},
+  },
   -- attack
   attack={range=0.3, damage_groups={fleshy=1}},
 	armor_groups = {fleshy=100},

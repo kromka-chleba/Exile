@@ -186,12 +186,6 @@ local self_data = {
 			fade={0.5, 1.5},
 			pitch={0.4, 1.4},
 		},
-		punch = {
-			name = "animals_punch",
-			gain={0.7, 1.3},
-			fade={0.5, 1.5},
-			pitch={0.7, 1.3},
-		},
 	},
   --on actions
 	drops = {
