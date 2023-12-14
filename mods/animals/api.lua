@@ -1182,30 +1182,11 @@ function animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities
         mobkit.make_sound(self,'warn')
         mobkit.hq_runfrom(self, 55, puncher)
       end
+    elseif self.class == 2 then
+      animals.fight_or_flight_water(self, puncher, 55, 0.05)
     else
       animals.fight_or_flight(self, puncher, 55, 0.05)
     end
-  end
-end
-
-
-function animals.on_punch_water(self, tool_capabilities, puncher, prty, chance)
-  if mobkit.is_alive(self) then
-    --do damage
-    mobkit.clear_queue_high(self)
-    local dmg = tool_capabilities.damage_groups.fleshy or 1
-    animals.modify_hp(self,-dmg)
-    mobkit.make_sound(self,'punch')
-
-    --fight or flight
-    if self.hp < self.max_hp/10 then
-      mobkit.animate(self,'fast')
-      animals.hq_swimfrom(self, prty, puncher, self.max_speed)
-      flee_sound(self)
-    else
-      animals.fight_or_flight_water(self, puncher, prty, chance)
-    end
-
   end
 end
 
