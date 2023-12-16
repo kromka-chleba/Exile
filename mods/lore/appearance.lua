@@ -20,7 +20,7 @@ local function NewBody(player)
    else
       SColor = USC[math.random(1,#USC)]
    end
-   local HColor = SC[math.random(1,#HC)]
+   local HColor = HC[math.random(1,#HC)]
    local EColor = EC[math.random(1,#EC)]
    base_texture["skin"].color = SColor 
    base_texture["hair"].color = HColor
