@@ -57,7 +57,7 @@ local function brain(self)
 			      animals.fight_or_flight(self, plyr, 25, 0.4)
 			   end
 
-			   if not animals.prey_hunt_water(self, 25) then
+			   if not animals.prey_hunt(self, 25) then
 			      --random search for darkness
 			      mobkit.hq_aqua_roam(self,15,self.max_speed/3)
 			   end
@@ -114,8 +114,8 @@ end
 
 ----------------------------------------------
 -- SETTING OF SARKAMOS INTERACTOR SETTINGS
-animals.add_interactors("prey","animals:sarkamos","animals:gundu","animals:pegasun","animals:pegasun_male","animals:kubwakubwa", "animals:darkasthaan")
-animals.add_interactors("rivals","animals:sarkamos","self")
+animals.add_interactors("animals:sarkamos","prey", "animals:gundu","animals:pegasun","animals:pegasun_male","animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("animals:sarkamos","rivals", "self")
 
 ----------------------------------------------
 -- Animal Data

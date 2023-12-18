@@ -64,6 +64,9 @@ function animals.get_structure(obj)
   if (type(obj) == "userdata" and obj["get_luaentity"]) then
     -- get luaentity table and its object
     obj_t.ent = obj:get_luaentity()
+    if not obj_t.ent then
+      return
+    end
     obj_t.object = obj_t.ent.object
     return obj_t
   end
@@ -73,7 +76,7 @@ function animals.get_structure(obj)
     obj_t.object = obj_t.ent.object
     return obj_t
   end
-  return nil
+  return
 end
 
 -- ask if the temperature is comfy for the lil creature
@@ -199,6 +202,62 @@ function animals.get_egg_sounds()
       max_hear_distance = 8
     }
   })
+end
+
+--------------------------------------------------------------------------
+-- Tracking
+--------------------------------------------------------------------------
+
+local function get_dist(targ1,targ2)
+  local targ1_t = animals.get_structure(targ1)
+  local targ2_t = animals.get_structure(targ2)
+  local dist = math.huge
+  if targ1_t and targ2_t then
+    dist = vector.distance(targ1_t.object:get_pos(),targ2_t.object:get_pos())
+  end
+  return dist
+end
+-- WIP
+function animals.get_entities_in_distance(self,override)
+  local entities = {
+    predators = {},
+    prey = {},
+    rivals = {},
+    friends = {},
+  }
+  local range = self.view_range or 1
+  if type(override) == "number" then
+    range = override
+  end
+  local players = {}
+  local objs = minetest.get_objects_inside_radius(mobkit.get_stand_pos(self),range)
+  for _,obj in pairs(objs) do
+      -- must be alive
+    if mobkit.is_alive(obj) then
+      local obj_structure = animals.get_structure(obj)
+      if minetest.is_player(obj) then
+        table.insert(players,obj)
+      elseif obj_structure then
+        -- not a player, find out what we can do with it
+        for possinteract,interactable in pairs(entities) do -- possibleinteractiontype, interact-table
+          -- iterate over possible interaction types
+          local interactors = animals.get_interactors(self.name,possinteract)
+          if interactors then
+            -- self has this interaction type specified, look through
+            for _,inter_name in pairs(interactors) do
+              if inter_name == obj_structure.ent.name then
+                -- object has same name as a interactor specified in specific interactiontype with self, add to table
+                table.insert(interactable,obj_structure.ent)
+              end
+            end
+          end
+
+        end
+      end
+    end
+  end
+  entities.players = players -- add to entities
+  return entities
 end
 
 --------------------------------------------------------------------------
@@ -1239,7 +1298,7 @@ function animals.predator_avoid_water(self, prty, chance)
   for  _, pred in ipairs(self.predators) do
     local thr = mobkit.get_closest_entity(self,pred)
     if thr then
-      animals.fight_or_flight_water(self, thr, prty, chance)
+      animals.fight_or_flight(self, thr, prty, chance)
       return thr
     end
   end
@@ -1248,53 +1307,82 @@ end
 ----------------------------------------------------------------
 --Find and hunt prey
 function animals.prey_hunt(self, prty)
-
-  for  _, prey in ipairs(self.prey) do
-    local tgtobj = mobkit.get_closest_entity(self,prey)
-    --if tgtobj then
-      --animals.hq_attack_eat(self,prty,tgtobj)
-      --return true
-    --end
-    if tgtobj then
-      local tgtpos = tgtobj:get_pos()
-      local drawtype = node_drawtype(tgtpos)
-      if (drawtype == "liquid" and self.oxygen_min) then
-        -- look for a solid node underneath (safe to hunt) and if meant to hunt prey that's in water
-        tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
-        drawtype = node_drawtype(tgtpos)
-      end
-      
-      if (drawtype ~= "liquid") then
-        animals.hq_attack_eat(self,prty,tgtobj)
-        return true
+  local function get_closest(targs)
+    local closest = {}
+    local cdist = math.huge
+    for index,targ in pairs(targs) do
+      local dist = get_dist(self,targ)
+      if dist < cdist then
+        closest = {targ.object,index}
+        cdist = dist
       end
     end
+    return unpack(closest)
   end
-end
-
-
-function animals.prey_hunt_water(self, prty)
-
-  for  _, prey in ipairs(self.prey) do
-    local tgtobj = mobkit.get_closest_entity(self,prey)
-    if tgtobj then
-      local tgtpos = tgtobj:get_pos()
-      local drawtype = node_drawtype(tgtpos)
-      if (drawtype ~= "liquid") then
-        -- look for a liquid node underneath >:D
+  local function condition(targs)
+    local targ, targ_index = get_closest(targs)
+    if not targ then
+      table.remove(targs,targ_index)
+      return
+    end
+    local tgtpos = targ:get_pos()
+    local drawtype = node_drawtype(tgtpos)
+    if (drawtype == "liquid" and (self.oxygen_min and self.oxygen > self.oxygen_min)) then
+      -- look for a solid node underneath (safe to hunt) and if meant to hunt prey that's in water
+      tgtpos = minimal.pos_shift(tgtpos,{y = -1})
+      drawtype = node_drawtype(tgtpos)
+    end
+    if (drawtype ~= "liquid") then
+      animals.hq_attack_eat(self,prty,targ)
+      return true
+    end
+    -- failed to get a proper target, remove from table
+    table.remove(targs,targ_index)
+  end
+  local function aqua_condition(targs)
+    local targ, targ_index = get_closest(targs)
+    if not targ then
+      table.remove(targs,targ_index)
+      return
+    end
+    local tgtpos = targ:get_pos()
+    local drawtype = node_drawtype(tgtpos)
+    if (drawtype ~= "liquid") then
+      -- look for a liquid node underneath >:D
+      tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
+      drawtype = node_drawtype(tgtpos)
+      if (drawtype == "airlike") then
+        -- in case they're a bit too high lol
         tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
         drawtype = node_drawtype(tgtpos)
-        if (drawtype == "airlike") then
-          -- in case they're a bit too high lol
-          tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
-          drawtype = node_drawtype(tgtpos)
-        end
       end
-      
-      if (drawtype == "liquid") then
-        mobkit.animate(self,'fast')
-        flee_sound(self)
-        animals.hq_aqua_attack_eat(self, prty, tgtobj, self.max_speed)
+    end
+    if (drawtype == "liquid") then
+      mobkit.animate(self,'fast')
+      flee_sound(self)
+      animals.hq_aqua_attack_eat(self, prty, targ, self.max_speed)
+      return true
+    end
+    table.remove(targs,targ_index)
+  end
+
+  if not animals.get_interactors(self.name,"prey") then
+    -- end search due to no possible prey to find
+    return true
+  end
+  local prey_table = animals.get_entities_in_distance(self).prey
+  if #prey_table <= 0 then
+    -- no prey, end search
+    return true
+  end
+  -- return true if we get a prey
+  for _,_ in pairs(prey_table) do
+    if (self.class == 2) then
+      if aqua_condition(prey_table) then
+        return true
+      end
+    else
+      if condition(prey_table) then
         return true
       end
     end
@@ -1976,9 +2064,11 @@ end
 
 -- Animals Interactors Interactions
 animals.interactors = {}
-function animals.add_interactors(itype,creature,...) -- interactiontype, creature to be set with properties, all possible creatures to add
+function animals.add_interactors(creature,itype,...) -- creature to be set with properties, interactiontype, all possible creatures to add
   -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
-  -- for example, animals.add_interactor("rivals","pegasun","animals:pegasun") would add the entity "animals:pegasun" to the rivals of "pegasun"
+  -- for example, animals.add_interactors("spooper","rivals", "animals:pegasun") would add the entity "animals:pegasun" to the rivals of "spooper"
+  -- "self" can be utilized to add self to table, for example:
+  -- animals.add_interactors("animals:pegasun","rivals", "self") will add itself as a rival
   -- lowercase strings for easier finding and indexing
   if (type(itype) ~= "string") then
     return
