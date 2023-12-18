@@ -195,7 +195,7 @@ local function brain_male(self)
 			--Threats
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
-				animals.fight_or_flight_plyr(self, plyr, 55, 0.6)
+				animals.fight_or_flight(self, plyr, 55, 0.6)
 			end
 
 			animals.predator_avoid(self, 55, 0.8)
@@ -317,14 +317,14 @@ end
 
 ----------------------------------------------
 -- SETTING OF PEGASUN INTERACTOR SETTINGS
-animals.add_interactors("predators","animals:pegasun","animals:kubwakubwa", "animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("prey","animals:pegasun","animals:sneachan", "animals:impethu")
-animals.add_interactors("friends","animals:pegasun","self", "animals:pegasun_male")
-animals.add_interactors("rivals","animals:pegasun","self")
+animals.add_interactors("animals:pegasun","predators", "animals:kubwakubwa", "animals:darkasthaan", "animals:sarkamos")
+animals.add_interactors("animals:pegasun","prey", "animals:sneachan", "animals:impethu")
+animals.add_interactors("animals:pegasun","friends", "self","animals:pegasun_male")
+animals.add_interactors("animals:pegasun","rivals", "self")
 
 -- MALE INTERACTORS
-animals.add_interactors("friends","animals:pegasun_male","animals:pegasun")
-animals.add_interactors("rivals","animals:pegasun_male","self")
+animals.add_interactors("animals:pegasun_male","friends", "animals:pegasun")
+animals.add_interactors("animals:pegasun_male","rivals", "self")
 
 ------------------------------------------------------------------------
 --FEMALE
