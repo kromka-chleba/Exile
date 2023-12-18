@@ -852,7 +852,26 @@ function plant.get_seed_base_props(plant_def)
             plant.start_growing_seed(pos)
         end,
         on_place = function(itemstack, placer, pointed_thing)
-            return on_place_plant(itemstack, placer, pointed_thing)
+          local stack_name = itemstack:get_name() -- will get cleared by on_place_plant, get before
+          local return_itmstk = on_place_plant(itemstack, placer, pointed_thing) -- return_itemstack
+          if (minetest.is_player(placer) and
+          type(return_itmstk) == "userdata" and return_itmstk:get_count() <= 0) then
+            -- should not run if in creative (you're not losing any seeds!)
+            local p_inv = placer:get_inventory() 
+            local inv_table = p_inv:get_list("main")
+            if inv_table then
+              for itm_index,itm_stk in pairs(inv_table) do -- itemstack index, itemstack
+                -- using "get_count() > 0" caused a weird duplication bug as the old itemstack hadn't yet been fully cleared
+                if (itm_stk:get_count() > 1 and itm_stk:get_name() == stack_name) then
+                  -- use itemstack's index to get and remove it
+                  return_itmstk = p_inv:get_stack("main",itm_index)
+                  p_inv:set_stack("main",itm_index,ItemStack(''))
+                  break
+                end
+              end
+            end
+          end
+          return return_itmstk
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             plant.set_to_domesticated(pos)
