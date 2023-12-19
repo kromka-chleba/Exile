@@ -19,6 +19,7 @@ lightsource_description = lightsource_description
 ---
 --Broken Pottery
 --if you smash it up, or from failed firings
+local ruined_pottery_timer = 12000 -- 10 Exile days
 --slab
 minetest.register_node("tech:ruined_pottery_slab", {
 	description = S("Broken Pottery Slab"),
@@ -37,9 +38,54 @@ minetest.register_node("tech:ruined_pottery_slab", {
 	   return minimal.slabs_combine(player, wielded_item,
 					pointed_thing, "tech:ruined_pottery")
 	end,
+  on_construct = function(pos)
+    minetest.get_node_timer(pos):start(ruined_pottery_timer/2)
+  end,
+  on_timer = function(pos,elapsed)
+    minetest.set_node(pos,{name = "stairs:slab_clay"})
+  end,
 })
 
--- Broken pottery full blocks and soil
+-- Broken pottery full block
+minetest.register_node("tech:ruined_pottery",{
+  description = S("Broken Pottery"),
+  groups = {falling_node = 1, crumbly = sediment.hardness.soft},
+  sounds =  nodes_nature.node_sound_gravel_defaults(),
+  tiles = {"tech_ruined_pottery.png"},
+  stack_max = minimal.stack_max_bulky,
+  on_construct = function(pos)
+    minetest.get_node_timer(pos):start(ruined_pottery_timer)
+  end,
+  on_timer = function(pos,elapsed)
+    minetest.set_node(pos,{name = "nodes_nature:clay"})
+  end,
+})
+-- replace legacy ruined pottery sediment registration
+minetest.register_lbm({
+  label = "Update ruined pottery",
+  name = "tech:legacy_ruined_pottery_replace",
+  nodenames = {
+  "tech:slope_ruined_pottery",
+  "tech:slope_inner_ruined_pottery",
+  "tech:slope_outer_ruined_pottery",
+  "tech:slope_pike_ruined_pottery",
+  "tech:slope_ruined_pottery_wet",
+  "tech:slope_inner_ruined_pottery_wet",
+  "tech:slope_outer_ruined_pottery_wet",
+  "tech:slope_pike_ruined_pottery_wet",
+  "tech:ruined_pottery_wet",
+  "tech:ruined_pottery_wet_salty",
+  "tech:slope_ruined_pottery_wet_salty",
+  "tech:slope_inner_ruined_pottery_wet_salty",
+  "tech:slope_outer_ruined_pottery_wet_salty",
+  "tech:slope_pike_ruined_pottery_wet_salty"
+  },
+  action = function(pos, node, dtime_s)
+    minetest.set_node(pos,{name = "tech:ruined_pottery"})
+  end
+})
+--]]
+--[[
 local broken_pottery =
    sediment.new({name = "ruined_pottery",
 		 description = S("Broken Pottery"),
@@ -49,6 +95,7 @@ local broken_pottery =
 sediment.register_dry(broken_pottery)
 sediment.register_wet(broken_pottery)
 sediment.register_wet_salty(broken_pottery)
+--]]
 
 -------------------------------------------------------------------
 --#TODO: THIS SHOULD BE MOVED somewhere GENERALIZED to handle non-pottery pots
