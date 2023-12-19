@@ -36,7 +36,6 @@ end
 
 local function loginspec(player)
    local playername = player:get_player_name()
-   minetest.close_formspec(playername, "") -- forcibly close any open fs
    local spec = ("formspec_version[3]"..
 		 "size[7,7.5]"..
 		 "bgcolor[;both;#bbb]"..
@@ -46,14 +45,12 @@ local function loginspec(player)
 		 "image[1.5,6;6,2;logo.png]" )
    local name = player:get_player_name()
    minetest.show_formspec(name, "lore:login", spec)
-   return "wait"
 end
 
 local function show_motd(player)
    -- Message of the day for servers
    local playername = player:get_player_name()
    if minetest.is_singleplayer() then return end
-   minetest.close_formspec(playername, "") -- forcibly close the previous fs
    local motd = minetest.settings:get("exile_motd")
    if ( not motd ) or motd == "" or motd == "\"\"" then return end
    motd = motd:gsub("\\n","\n")
@@ -75,6 +72,22 @@ local function show_motd(player)
 	 "background9[0,0;7,7.5;9slice-deep.png;false;10]"
    end
    minetest.show_formspec(playername, "lore:motd", spec)
+   return true
+end
+
+local function show_formspec(player, qname)
+   local function do_it()
+      if qname == "loginspec" then
+	 loginspec(player)
+      elseif qname == "motd" then
+	 if not show_motd(player) then return end
+      end
+   end
+   local playername = player:get_player_name()
+   minetest.close_formspec(playername, "") -- forcibly close the previous fs
+   minetest.after(0.1, do_it)
+   -- UDP packets can arrive out of order, so doing it again won't hurt
+   minetest.after(0.3, do_it)
    return "wait"
 end
 
@@ -108,7 +121,6 @@ end
 ------------------------------------------------------------------------------
 
 minetest.register_on_respawnplayer(function(player)
-      print("on_respawn")
       region.spawn(player)
       minetest.after(0.1, function() doGatewayFX(player) end)
       return true
@@ -124,7 +136,6 @@ end
 local function first_spawn(player)
    -- Guarantee they won't be penalized for reading:
    HEALTH.reset_attributes(player) -- All stats back to starting values
-   doGatewayFX(player)
    local pname = player:get_player_name()
    newplayer[pname] = nil
    if minimal.mt_required_version(5,4,0) then
@@ -138,8 +149,9 @@ local function first_spawn(player)
       play_themesong(pname)
    end
    -- Bang! new player appears in the world
-   minetest.after(0.25, function()
+   minetest.after(0.15, function()
 		     region.spawn(player)
+		     doGatewayFX(player)
 		     player_api.set_invisible(player, false)
    end)
 end
@@ -149,6 +161,10 @@ end
 ------------------------------------------------------------------------------
 
 local player_queue = {} -- tracks what needs to be done for a player
+local waiting = {} -- players with open formspecs
+
+local jumpstart_queue_delay = tonumber(minetest.settings:get(
+					  "exile_jumpstart_queue_delay")) or 20
 
 local function queue_push(player, func_to_run, qname)
    -- Add a thing to run on a player, fifo, formspecs require a delay
@@ -164,11 +180,28 @@ local function queue_pop(name) -- Run the first queued action, remove from list
 end
 local function queue_start(player)
    local name = player:get_player_name()
-   for i = 1, #player_queue[name] do
+   for _ = 1, #player_queue[name] do
+      waiting[name] = nil -- we're not waiting now, start next item
       local qitem = queue_pop(name)
-      local wait = qitem.func(player)
+      local wait = qitem.func(player, qitem.name)
       if wait == "wait" then
-	 -- The current task is still running. It will call queue_start() when it's done
+	 -- The current task is still running.
+	 -- It should call queue_start() when it's done
+	 -- If not called in j_q_d seconds, assume it's busted
+	 local nm = tostring(qitem.name) -- dereference
+	 waiting[name] = nm
+	 if nm == "tut" then return end -- no forcible restart on tutorial
+	 if jumpstart_queue_delay == 0 then return end -- disabled
+	 minetest.after(jumpstart_queue_delay, function()
+			   -- don't run this if the queue has changed
+			   -- (in case another wait has been started)
+			   if waiting[name] == nm then
+			      minetest.log("action",
+					   "forcibly restarted queue for "..
+					   name)
+			      queue_start(player)
+			   end
+	 end)
 	 return
       end
    end
@@ -191,7 +224,7 @@ minetest.register_on_newplayer(function(player)
       local name = player:get_player_name()
       newplayer[name] = true
       region.prespawn(player)
-      queue_push(player, loginspec, "loginspec")
+      queue_push(player, show_formspec, "loginspec")
       -- set_invisible doesn't work in on_newplayer, only in on_join
       -- so it's not here
 end)
@@ -199,10 +232,11 @@ end)
 minetest.register_on_joinplayer(function(player)
       local name = player:get_player_name()
       if newplayer[name] == true then
+	 player:set_pos(vector.new(-500, 9002, -500))
 	 -- hide new players until they read the intro
 	 player_api.set_invisible(player, true, "set_invis")
       end
-     queue_push(player, show_motd, "motd")
+     queue_push(player, show_formspec, "motd")
      if tutorial_available then
 	queue_push(player, do_tutorial, "tut")
      end
@@ -215,6 +249,6 @@ end)
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
       if formname == "lore:login" or formname == "lore:motd" then
-	 minetest.after(0.2, function() queue_start(player) end)
+	 minetest.after(0.1, function() queue_start(player) end)
       end
 end)

@@ -92,6 +92,9 @@ exile_hud_raw_stats (Show stat numbers by their icons) bool true
 #
 exile_hud_icon_transparency (HUD icon transparency [0-255]) int 127 0 255
 
+# How long to wait for players to close a login formspec before force closing
+# it and running the next login event anyway. Set to 0 to disable
+exile_jumpstart_queue_delay (Delay before jumpstarting login queue) int 0 20 90
 
 [Natural Slopes settings]
 # 
