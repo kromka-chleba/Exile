@@ -33,6 +33,9 @@ minetest.register_on_newplayer(function(player)
 end)
 
 minetest.register_on_respawnplayer(function(player)
+      if minetest.get_modpath("skinsdb") then
+            return
+      end
       NewBody(player)
       player_api.set_texture(player)
 end)

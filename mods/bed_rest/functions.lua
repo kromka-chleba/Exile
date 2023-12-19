@@ -227,7 +227,9 @@ local function wear_blanket(player, bed_pos, donning)
 	   bed_meta:set_string('infotext','Bed: Contains Blanket')
    end
    clothing:update_temp(player)
-   player_api.set_texture(player)
+   if not minetest.get_modpath("skinsdb") then
+	   player_api.set_texture(player)
+   end
 end
 
 -----------------------------------------------------------------
