@@ -32,6 +32,7 @@ dofile(modpath..'/metadata.lua')
 dofile(modpath..'/triggers.lua')
 dofile(modpath..'/zones.lua')
 dofile(modpath..'/interface/init.lua')
+dofile(modpath..'/player.lua')
 
 dofile(modpath..'/currentrevision.lua')
 dofile(modpath..'/storage_api.lua')
