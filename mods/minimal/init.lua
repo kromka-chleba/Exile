@@ -32,6 +32,7 @@ dofile(modpath..'/infotext.lua')
 dofile(modpath..'/metadata.lua')
 dofile(modpath..'/debug.lua')
 dofile(modpath..'/minimal_hud.lua')
+dofile(modpath..'/player.lua')
 dofile(modpath..'/currentrevision.lua')
 
 -- GUI related stuff
