@@ -49,12 +49,10 @@ sfinv.register_page("clothing:clothing", {
 })
 
 minetest.register_on_player_inventory_action(function(player, action, inventory, inventory_info)
-	if inventory_info.to_list == "cloths" or inventory_info.from_list == "cloths" then
-		clothing:update_temp(player)
-		if not minetest.get_modpath("skinsdb") then
-			player_api.set_texture(player)
-		end
-	end
+      if inventory_info.to_list == "cloths" or inventory_info.from_list == "cloths" then
+	 clothing:update_temp(player)
+	 player_api.set_texture(player)
+      end
 end)
 
 minetest.register_allow_player_inventory_action(function(player, action, inventory, inventory_info)
@@ -130,8 +128,5 @@ minetest.register_on_joinplayer(function(player)
       --import old clothing
       load_clothing_metadata(player)
       clothing:update_temp(player)
-      if minetest.get_modpath("skinsdb") then
-            return
-      end
       player_api.set_texture(player)
 end)
