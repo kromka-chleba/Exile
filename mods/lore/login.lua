@@ -169,6 +169,7 @@ local jumpstart_queue_delay = tonumber(minetest.settings:get(
 local function queue_push(player, func_to_run, qname)
    -- Add a thing to run on a player, fifo, formspecs require a delay
    local name = player:get_player_name()
+   if not player_queue[name] then player_queue[name] = {} end
    local count = #player_queue[name]
    player_queue[name][count+1] = { name = qname, func = func_to_run }
 end
@@ -179,6 +180,7 @@ local function queue_pop(name) -- Run the first queued action, remove from list
 end
 local function queue_start(player)
    local name = player:get_player_name()
+   if not player_queue[name] then player_queue[name] = {} end
    for _ = 1, #player_queue[name] do
       waiting[name] = nil -- we're not waiting now, start next item
       local qitem = queue_pop(name)
@@ -222,7 +224,6 @@ end
 minetest.register_on_newplayer(function(player)
       local name = player:get_player_name()
       newplayer[name] = true
-      if not player_queue[name] then player_queue[name] = {} end
       region.prespawn(player)
       queue_push(player, show_formspec, "loginspec")
       -- set_invisible doesn't work in on_newplayer, only in on_join
@@ -231,7 +232,6 @@ end)
 -- process continues in on_joinplayer
 minetest.register_on_joinplayer(function(player)
       local name = player:get_player_name()
-      if not player_queue[name] then player_queue[name] = {} end
       if newplayer[name] == true then
 	 player:set_pos(vector.new(-500, 9002, -500))
 	 -- hide new players until they read the intro
