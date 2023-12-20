@@ -222,6 +222,7 @@ end
 minetest.register_on_newplayer(function(player)
       local name = player:get_player_name()
       newplayer[name] = true
+      if not player_queue[name] then player_queue[name] = {} end
       region.prespawn(player)
       queue_push(player, show_formspec, "loginspec")
       -- set_invisible doesn't work in on_newplayer, only in on_join
