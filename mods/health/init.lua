@@ -164,11 +164,17 @@ function HEALTH.get_player_stats(player)
 end
 
 function HEALTH.get_life_num(meta) -- gets player's "lives" and returns it
-  assert(type(meta) == "userdata","HEALTH.get_life_num: invalid argument for 'meta/player'")
+  if type(meta) ~= "userdata" then
+    -- "HEALTH.get_life_num: invalid argument for 'meta/player'"
+    return 0
+  end
   if (minetest.is_player(meta)) then
     meta = meta:get_meta()
   end
-  assert(is_meta(meta),"HEALTH.get_life_num: could not get metadata")
+  if not is_meta(meta) then
+    -- "HEALTH.get_life_num: could not get metadata"
+    return 0
+  end
 
   return meta:get_int("lives") or 0
 end
