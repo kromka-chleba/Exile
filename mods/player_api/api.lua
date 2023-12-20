@@ -162,6 +162,9 @@ function player_api.select_gender(player_name)
 end
 
 function player_api.set_texture(player)
+	if minetest.get_modpath("skinsdb") then
+		return
+	end
 	local cloth = player_api.compose_cloth(player)
 	local gender = player_api.get_gender(player)
 	local gender_model = player_api.get_gender_model(gender)
