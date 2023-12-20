@@ -1,0 +1,58 @@
+local clear_ping_delay = tonumber(minetest.settings:get(
+				     "exile_clear_ping_delay")) or 10
+local waypoints = {}
+
+local function add_waypoint(name, viewername, viewer, pos)
+   local id = viewer:hud_add({
+	 hud_elem_type = "waypoint",
+	 number = 0xFFFFFF,
+	 name = name,
+	 text = "m",
+	 world_pos = pos
+   })
+   if not waypoints[name] then -- initialize
+      waypoints[name] = { }
+   end
+   waypoints[name][viewername] = { handle = id , obj = viewer }
+end
+
+local function clear_waypoint(name)
+   print(dump(waypoints))
+   for _, data in pairs(waypoints[name]) do
+      if minetest.is_player(data.obj) and data.handle then
+	 data.obj:hud_remove(data.handle)
+      end
+   end
+   waypoints[name] = {}
+   print(dump(waypoints))
+end
+
+local timestamp = {}
+
+minetest.register_chatcommand("ping",{
+	privs = "shout",
+	func = function(myname,param)
+	   local nowtime = minetest.get_gametime()
+	   if timestamp[myname] and ( timestamp[myname] +20 ) > nowtime then
+	      return false, "You can't use this command "..
+		 " more than once per 20 seconds."
+	   end
+	   local pos = minetest.get_player_by_name(myname):get_pos()
+	   local targets
+	   local isplayer = minetest.get_player_by_name(param)
+	   if param and not isplayer then
+	      return false, "Player "..param.." not found!"
+	   end
+	   if isplayer then -- single target
+	      targets = { [param] = minetest.get_player_by_name(param) }
+	   end
+	   for theirname, player in pairs(targets or
+					  minetest.get_connected_players()) do
+	      if myname ~= theirname then
+		 add_waypoint(myname, theirname, player, pos)
+	      end
+	   end
+	   timestamp[myname] = nowtime
+	   minetest.after(clear_ping_delay, clear_waypoint, myname)
+	end
+})
