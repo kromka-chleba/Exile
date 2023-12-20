@@ -2,6 +2,10 @@ local clear_ping_delay = tonumber(minetest.settings:get(
 				     "exile_clear_ping_delay")) or 10
 local waypoints = {}
 
+if minetest.settings:get_bool("unlimited_player_transfer_distance", true) then
+   return -- don't need a ping command if everyone can be seen anyway
+end
+
 local function add_waypoint(name, viewername, viewer, pos)
    local id = viewer:hud_add({
 	 hud_elem_type = "waypoint",
