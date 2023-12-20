@@ -21,14 +21,12 @@ local function add_waypoint(name, viewername, viewer, pos)
 end
 
 local function clear_waypoint(name)
-   print(dump(waypoints))
    for _, data in pairs(waypoints[name]) do
       if minetest.is_player(data.obj) and data.handle then
 	 data.obj:hud_remove(data.handle)
       end
    end
    waypoints[name] = {}
-   print(dump(waypoints))
 end
 
 local timestamp = {}
@@ -44,19 +42,20 @@ minetest.register_chatcommand("ping",{
 	   local pos = minetest.get_player_by_name(myname):get_pos()
 	   local targets
 	   local isplayer = minetest.get_player_by_name(param)
-	   if param and not isplayer then
+	   if param and param ~= "" and not isplayer then
 	      return false, "Player "..param.." not found!"
 	   end
 	   if isplayer then -- single target
 	      targets = { [param] = minetest.get_player_by_name(param) }
 	   end
-	   for theirname, player in pairs(targets or
-					  minetest.get_connected_players()) do
+	   for _, player in pairs(targets or
+				  minetest.get_connected_players()) do
+	      local theirname = player:get_player_name()
 	      if myname ~= theirname then
 		 add_waypoint(myname, theirname, player, pos)
+		 timestamp[myname] = nowtime
 	      end
 	   end
-	   timestamp[myname] = nowtime
 	   minetest.after(clear_ping_delay, clear_waypoint, myname)
 	end
 })
