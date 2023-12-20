@@ -17,6 +17,9 @@ clothing = {
 	},
 }
 
+-- Integration: without this skinsdb crashes
+clothing.register_on_update = function() end
+
 clothing.update_temp = function(self, player)
 -- set clothing and update comfortable temperature range
 --[[
