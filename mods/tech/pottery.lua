@@ -60,6 +60,7 @@ minetest.register_node("tech:ruined_pottery",{
     minetest.set_node(pos,{name = "nodes_nature:clay"})
   end,
 })
+-- #TODO remove lbm after v4 release 
 -- replace legacy ruined pottery sediment registration
 minetest.register_lbm({
   label = "Update ruined pottery",
@@ -84,18 +85,6 @@ minetest.register_lbm({
     minetest.set_node(pos,{name = "tech:ruined_pottery"})
   end
 })
---]]
---[[
-local broken_pottery =
-   sediment.new({name = "ruined_pottery",
-		 description = S("Broken Pottery"),
-		 hardness = sediment.hardness.soft,
-		 fertility = 5, sound = sediment.sounds.gravel,
-		 sound_wet = sediment.sounds.gravel_wet,})
-sediment.register_dry(broken_pottery)
-sediment.register_wet(broken_pottery)
-sediment.register_wet_salty(broken_pottery)
---]]
 
 -------------------------------------------------------------------
 --#TODO: THIS SHOULD BE MOVED somewhere GENERALIZED to handle non-pottery pots
