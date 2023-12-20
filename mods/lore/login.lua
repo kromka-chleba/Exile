@@ -169,7 +169,6 @@ local jumpstart_queue_delay = tonumber(minetest.settings:get(
 local function queue_push(player, func_to_run, qname)
    -- Add a thing to run on a player, fifo, formspecs require a delay
    local name = player:get_player_name()
-   if not player_queue[name] then player_queue[name] = {} end
    local count = #player_queue[name]
    player_queue[name][count+1] = { name = qname, func = func_to_run }
 end
@@ -231,6 +230,7 @@ end)
 -- process continues in on_joinplayer
 minetest.register_on_joinplayer(function(player)
       local name = player:get_player_name()
+      if not player_queue[name] then player_queue[name] = {} end
       if newplayer[name] == true then
 	 player:set_pos(vector.new(-500, 9002, -500))
 	 -- hide new players until they read the intro
