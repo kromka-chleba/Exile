@@ -239,7 +239,10 @@ minetest.register_abm({
 	 local function dieout(x)
 	    if math.random(1,20) + x > 18 then
 	       local f = minetest.find_node_near(pos, 1, "group:flames")
-	       minetest.remove_node(f)
+	       if f then
+		  minetest.remove_node(f)
+	       end
+	       return
 	    end
 	 end
 
