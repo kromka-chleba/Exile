@@ -238,7 +238,7 @@ bundledef = {
    paramtype = "light",
    paramtype2 = "none",
    groups = { dig_immediate = 3, heatable = 50, _ncrafting_bundle = 1,
-	      falling_node = 1},
+	      falling_node = 1, timer = 15 },
    after_place_node = function(pos, placer, itemstack, pointed_thing)
       local meta = minetest.get_meta(pos)
       local imeta = itemstack:get_meta()

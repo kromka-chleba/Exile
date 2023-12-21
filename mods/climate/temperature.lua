@@ -476,7 +476,7 @@ local air_def = {
 	diggable = false,
 	buildable_to = true,
 	floodable = true,
-	groups = {temp_pass = 1, heatable = 100, air = 1},
+	groups = {temp_pass = 1, heatable = 100, air = 1, timer = 11 },
 	on_timer =function(pos, elapsed)
 		return climate.heat_transfer(pos, "climate:air_temp", 'air')
 	end,
