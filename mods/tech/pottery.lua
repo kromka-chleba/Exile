@@ -181,7 +181,7 @@ minetest.register_node("tech:clay_water_pot", {
 	on_timer =function(pos, elapsed)
 		return water_pot(pos, "tech:clay_water_pot", elapsed)
 	end,
-	groups = {dig_immediate = 3, pottery = 1, temp_pass = 1},
+	groups = {dig_immediate = 3, pottery = 1, temp_pass = 1, timer = 45 },
 	sounds = nodes_nature.node_sound_stone_defaults(),
 
 })
@@ -212,7 +212,8 @@ minetest.register_node("tech:clay_water_pot_unfired", {
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	groups = {dig_immediate=3, temp_pass = 1, heatable = 20},
+	groups = {dig_immediate=3, temp_pass = 1, heatable = 20,
+		  timer = firing_int },
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
@@ -255,7 +256,8 @@ minetest.register_node("tech:clay_storage_pot_unfired", {
 				{-0.5, -0.25, -0.5, 0.5, 0.25, 0.5},
 			}
 		},
-	groups = {dig_immediate=3, temp_pass = 1, heatable = 20, craftedby = 1},
+	groups = {dig_immediate=3, temp_pass = 1, heatable = 20, craftedby = 1,
+		  timer = firing_int},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
@@ -339,7 +341,8 @@ minetest.register_node("tech:clay_oil_lamp_unfired", {
 			{0.3125, -0.3125, 0, 0.4375, -0.125, 0.0625}, -- back handle
 		}
 	},
-	groups = {dig_immediate=3, temp_pass = 1, falling_node = 1, heatable = 20},
+	groups = {dig_immediate=3, temp_pass = 1, falling_node = 1,
+		  heatable = 20, timer = firing_int },
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
@@ -575,7 +578,7 @@ minetest.register_node("tech:clay_watering_can", {
 		fixed = watering_can_nodebox
 	},
 	liquids_pointable = true,
-	groups = {dig_immediate = 3, pottery = 1, temp_pass = 1},
+	groups = {dig_immediate = 3, pottery = 1, temp_pass = 1, timer = 45},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_use = function(itemstack, user, pointed_thing)
 	   return liquid_store.on_use_empty_bucket(itemstack, user,
@@ -609,7 +612,8 @@ minetest.register_node("tech:clay_watering_can_unfired", {
 		type = "fixed",
 		fixed = watering_can_nodebox
 	},
-	groups = {dig_immediate=3, temp_pass = 1, heatable = 20},
+	groups = {dig_immediate=3, temp_pass = 1, heatable = 20,
+		  timer = firing_int},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
