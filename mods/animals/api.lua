@@ -447,10 +447,10 @@ function animals.core_life(self, pos)
 
   if temp < min_temp or temp > max_temp then
     -- if this temperature is uncomfortable, try to find somewhere else!
-    local killer_min_temp = min_temp - 7
-    local killer_max_temp = max_temp + 25
-    local burn_max_temp = killer_max_temp + 55
-    local absolute_death_temp = burn_max_temp + 500
+    local killer_min_temp = self.killer_min_temp
+    local killer_max_temp = self.killer_max_temp
+    local burn_max_temp = self.burn_max_temp
+    local absolute_death_temp = self.absolute_death_temp
     
     if (self.class ~= 2) then
       -- only for land creatures
