@@ -102,9 +102,9 @@ end
 
 
 
-animals.register_egg = function(self, desc, inv_img, stack)
+animals.register_spawnegg = function(self, desc, inv_img, stack)
    local name = self.name
-   assert(type(name) == "string","animals.register_egg: provided self data does not contain a name!")
+   assert(type(name) == "string","animals.register_spawnegg: provided self data does not contain a name!")
    stack = stack or 1
    local ee = self.energy_egg or 100
    local ype = self.young_per_egg or 1
@@ -115,67 +115,67 @@ animals.register_egg = function(self, desc, inv_img, stack)
    local item_table = { -- register new spawn egg containing mob information
       description = desc,
       inventory_image = inv_img,
-      --groups = {},
       stack_max = stack,
       groups = {spawn_egg = 1},
       drops = self.drops or {},
       liquids_pointable = liquids_pointable,
       _use_tip = "Slaughter the animal",
       _on_use_item = function(player, wielded_item, pointed_thing)
-	 local def = minetest.registered_items[wielded_item:get_name()]
-	 wielded_item:take_item()
-	 player:set_wielded_item(wielded_item)
-	 local inv = player:get_inventory()
-	 for _,item in ipairs(def.drops) do
-	    if inv:room_for_item("main", item) then
-	       inv:add_item("main", item)
-	    else
-	       minetest.add_item(minimal.shift_pos(player:get_pos(), { y=1 }),
-				 item)
-	       -- #TODO: Sound for drops
-	    end
-	 end
-      end,
-      on_place = function(itemstack, placer, pointed_thing)
-	 local spawn_pos = pointed_thing.above
-	 -- am I clicking on something with existing on_rightclick function?
-	 local under = pointed_thing.under
-	 local def = minimal.get_nodedef(under)
-	 if (def and def.on_rightclick and def.drawtype ~= "liquid" -- as long as it's not a liquid lol
-	     and pointed_thing.type ~= nil) then-- and also prevent it from running on_rightclick function upon item drop
-
-	    return minimal.on_rightclick(itemstack, placer, pointed_thing)
-	 end
-	 if (self.class == 2 and def.drawtype == "liquid") then
-	    -- place fish properly into water
-	    spawn_pos = minimal.pos_shift(under,{y = -1})
-	 end
-	 if spawn_pos and not minetest.is_protected(spawn_pos, placer:get_player_name()) then
-	    if not minetest.registered_entities[name] then
-	       return
-	    end
-	    spawn_pos = pos_to_spawn(name, spawn_pos)
-	    local ent = create_mob(placer, itemstack, name, spawn_pos)
-	    --set energy value
-	    if not mobkit.recall(ent,'energy') then
-	       --# of seconds it will survive without food
-	       local energy = ee / animals.calculate_egg_young(ype)
-	       mobkit.remember(ent,'energy',energy)
-	    end
-	 end
-	 return itemstack
-      end,
-   }
+        local def = minetest.registered_items[wielded_item:get_name()]
+        wielded_item:take_item()
+        player:set_wielded_item(wielded_item)
+        local inv = player:get_inventory()
+        for _,item in ipairs(def.drops) do
+          if inv:room_for_item("main", item) then
+              inv:add_item("main", item)
+            else
+              minetest.add_item(minimal.shift_pos(player:get_pos(), { y=1 }),
+              item)
+              -- #TODO: Sound for drops
+            end
+          end
+        end,
+    on_place = function(itemstack, placer, pointed_thing)
+      local spawn_pos = pointed_thing.above
+      -- am I clicking on something with existing on_rightclick function?
+      local def = minimal.get_nodedef(pointed_thing.under)
+      if (def and def.drawtype ~= "liquid" and -- ignore liquids
+      pointed_thing.type ~= nil) then -- prevent running on_rightclick function upon custom item drop
+        local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+        if on_click ~= false then
+          return on_click
+        end
+      end
+      if not minetest.registered_entities[name] then -- entity not registered, prevent rest of code execution
+        return
+      end
+      if (self.class == 2 and def.drawtype == "liquid") then
+        -- place fish properly into water
+        spawn_pos = minimal.pos_shift(pointed_thing.under,{y = -1})
+      end
+      if spawn_pos and not minetest.is_protected(spawn_pos, placer:get_player_name()) then
+        spawn_pos = pos_to_spawn(name, spawn_pos)
+        local ent = create_mob(placer, itemstack, name, spawn_pos)
+        --set energy value
+        if not mobkit.recall(ent,'energy') then
+           --# of seconds it will survive without food
+           local energy = ee / animals.calculate_egg_young(ype)
+           mobkit.remember(ent,'energy',energy)
+        end
+      end
+      return itemstack
+    end,
+  }
    -- dropped animal egg spawns the animal
-   function item_table.on_drop(itemstack, dropper, pos)
-      -- craft a quick pointed_thing lol
-      local pointed_thing = {}
-      pointed_thing.above = minimal.shift_pos(pos,{y = 1}) --{x = pos.x, y = pos.y + 1, z = pos.z}
-      pointed_thing.under = pos
-      
-      return item_table.on_place(itemstack, dropper, pointed_thing) -- run on_place function
-   end
-   minetest.register_craftitem(name, item_table) -- register egg
+  function item_table.on_drop(itemstack, dropper, pos)
+    -- craft a quick pointed_thing lol
+    local pointed_thing = {}
+    pointed_thing.above = minimal.shift_pos(pos,{y = 1}) --{x = pos.x, y = pos.y + 1, z = pos.z}
+    pointed_thing.under = pos
+
+    return item_table.on_place(itemstack, dropper, pointed_thing) -- run on_place function
+  end
+  minetest.register_craftitem(name, item_table) -- register egg
 end
 
 
