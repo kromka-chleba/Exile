@@ -32,12 +32,15 @@ local function get_formspec(pos, w, h)
 	return table.concat(formspec, "")
 end
 
-local function get_description(node,meta)
+local function get_description(node,meta,add_string)
 	local desc = minetest.registered_nodes[node.name].description
 	local label = meta:get_string('label')
 	if label ~= '' then
 		desc = desc.." - "..label
 	end
+  if type(add_string) == "string" and add_string ~= "" then
+    desc = desc.."\n"..add_string
+  end
 	return desc
 end
 
@@ -85,20 +88,64 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
 	local meta = minetest.get_meta(pos)
 	local inv = meta:get_inventory()
 	local list = {}
+  local for_calculation = {}
+  local list_size = 0
+  -- WIP TODO
 	for i, stack in ipairs(inv:get_list("main")) do
 		if stack:get_name() == "" then
 			list[i] = ""
 		else
 			list[i] = stack:to_string()
+      local stack_table = for_calculation[stack:get_name()]
+      if not stack_table then
+        stack_table = {1, stack:get_count(), stack:get_stack_max()} -- indexes filled, total count, total counted max capacity
+      else
+        stack_table[1] = stack_table[1] + 1
+        stack_table[2] = stack_table[2] + stack:get_count()
+        stack_table[3] = stack_table[3] + stack:get_stack_max()
+      end
+      for_calculation[stack:get_name()] = stack_table
+      list_size = list_size + 1
 		end
 	end
-	imeta:set_string('inv_main', minetest.serialize(list))
+  local add_string
+  if list_size > 0 then
+    imeta:set_string('inv_main', minetest.serialize(list))
+    local space_taken = 0
+    local highest_data
+    for item_name,data in pairs(for_calculation) do
+      space_taken = space_taken + (data[2] / data[3])
+      if not highest_data then
+        highest_data = data
+        table.insert(highest_data,1,item_name)
+      elseif data[1] > highest_data[2] then
+        highest_data = data
+        table.insert(highest_data,1,item_name)
+      end
+    end
+    local popular_item = ItemStack(highest_data[1])
+    if popular_item then
+      if popular_item:get_short_description() then
+        popular_item = popular_item:get_short_description()
+      else
+        popular_item = popular_item:get_description()
+      end
+      popular_item = popular_item.." "..highest_data[3].."/"..highest_data[4].." | "
+    else
+      popular_item = ""
+    end
+    local inv_max = inv:get_size("main")
+    space_taken = math.ceil(space_taken/inv_max*100)
+    add_string = popular_item..math.ceil(list_size/inv_max*100).."%::"..space_taken.."%"
+  else
+    imeta:set_stirng("inv_main","")
+  end
 	-- Set color
 	local color = minetest.strip_param2_color(oldnode.param2,
 						  "colorwallmounted")
 	imeta:set_int('palette_index', color)
 	-- Set Description
-	imeta:set_string('description', get_description(oldnode,meta))
+	imeta:set_string('description', get_description(oldnode,meta,add_string))
 	-- Set Formspec
 	imeta:set_string('formspec', get_formspec(pos,width,height))
 end
