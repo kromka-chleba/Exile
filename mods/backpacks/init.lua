@@ -148,7 +148,7 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
     space_taken = "Full:"..space_taken[1].."Partial:"..space_taken[2].."Empty:"..space_taken[3]
     add_string = popular_item.."Slots Used: "..math.ceil(list_size/inv_max*100).."% | "..space_taken
   else
-    imeta:set_stirng("inv_main","")
+    imeta:set_string("inv_main","")
   end
 	-- Set color
 	local color = minetest.strip_param2_color(oldnode.param2,
