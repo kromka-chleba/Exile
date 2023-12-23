@@ -89,32 +89,42 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
 	local inv = meta:get_inventory()
 	local list = {}
   local for_calculation = {}
-  local list_size = 0
   -- WIP TODO
+  local space_taken = {0,0,0} -- full, partial, empty
 	for i, stack in ipairs(inv:get_list("main")) do
 		if stack:get_name() == "" then
 			list[i] = ""
+      space_taken[3] = space_taken[3] + 1 -- nothing in itemstack, considered "empty"
 		else
 			list[i] = stack:to_string()
+      local stack_count = stack:get_count()
+      local stack_max = stack:get_stack_max()
+      if (stack_count >= stack_max) then
+        -- allow for a stack count greater than its stack max in case of weirdness
+        -- to calculate for "full"
+        space_taken[1] = space_taken[1] + 1
+      else
+        -- less than stack_max, considered "partial"
+        space_taken[2] = space_taken[2] + 1
+      end
       local stack_table = for_calculation[stack:get_name()]
       if not stack_table then
-        stack_table = {1, stack:get_count(), stack:get_stack_max()} -- indexes filled, total count, total counted max capacity
+        stack_table = {1, stack_count, stack_max} -- item_name, indexes filled, total count, total counted max capacity
       else
-        stack_table[1] = stack_table[1] + 1
-        stack_table[2] = stack_table[2] + stack:get_count()
-        stack_table[3] = stack_table[3] + stack:get_stack_max()
+        stack_table[1] = stack_table[1] + 1 -- indexes occupied
+        stack_table[2] = stack_table[2] + stack_count
+        stack_table[3] = stack_table[3] + stack_max
       end
       for_calculation[stack:get_name()] = stack_table
-      list_size = list_size + 1
 		end
 	end
+  local list_size = space_taken[1] + space_taken[2]
   local add_string
   if list_size > 0 then
     imeta:set_string('inv_main', minetest.serialize(list))
-    local space_taken = 0
     local highest_data
     for item_name,data in pairs(for_calculation) do
-      space_taken = space_taken + (data[2] / data[3])
+      -- highest_data calculation
       if not highest_data then
         highest_data = data
         table.insert(highest_data,1,item_name)
@@ -135,8 +145,8 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
       popular_item = ""
     end
     local inv_max = inv:get_size("main")
-    space_taken = math.ceil(space_taken/inv_max*100)
-    add_string = popular_item..math.ceil(list_size/inv_max*100).."%::"..space_taken.."%"
+    space_taken = "Full:"..space_taken[1].."Partial:"..space_taken[2].."Empty:"..space_taken[3]
+    add_string = popular_item.."Slots Used: "..math.ceil(list_size/inv_max*100).."% | "..space_taken
   else
     imeta:set_stirng("inv_main","")
   end
