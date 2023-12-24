@@ -212,7 +212,10 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 
 	local node = minetest.get_node_or_nil(pointed_thing.under)
 	local ndef = node and minetest.registered_nodes[node.name]
-
+	-- If pointing at a full liquid store don't dump
+	if liquid_store.stored_liquids[node.name] then
+		dump = false;
+	end
 	-- check if provided user exists or if sneaking
   if ndef and not (minetest.is_player(user) and user:get_player_control().sneak) then
     -- Call on_rightclick if the pointed node defines it (do not on_rightclick for liquids or liquid_storage)
