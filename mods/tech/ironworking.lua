@@ -539,20 +539,22 @@ crafting.register_recipe({
 
 -- Protection Nails
 minetest.register_craftitem("tech:nails", {
-        description = S("Protection Nails - Click 3 times"),
+        description = S("Protection Nails"),
         inventory_image = "tech_iron_nails.png",
         stack_max = minimal.stack_max_light,
-	on_use = function(itemstack, user, pointed_thing)
-	   local istack, playsound = minimal.protection_nail_use(itemstack,
-								 user,
-								 pointed_thing)
-	   if playsound then
-	      minetest.sound_play("tech_hammer", { pos = user:get_pos(),
-						   gain = 0.15,
-						   max_hear_distance=20} )
-	   end
-	   return istack
-	end
+		_use_tip = "Protect Item",
+		_on_use_item = function(user, itemstack, pointed_thing)
+			local istack, playsound = minimal.protection_nail_use(
+				itemstack, user, pointed_thing)
+			if playsound then
+				minetest.sound_play("tech_hammer", {
+					pos = user:get_pos(),
+					gain = 0.15,
+					max_hear_distance=20
+				})
+			end
+			return istack
+		end
 })
 
 crafting.register_recipe({
