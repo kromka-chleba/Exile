@@ -1,7 +1,4 @@
 backpacks = {}
---#TODO: inventory in backpacks kills metadata; creator wont be reserved
---XXX this is a bug that needs to be fixed.
-
 -- Internationalization
 local S = minetest.get_translator("backpacks")
 
@@ -142,7 +139,7 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
       else
         popular_item = popular_item:get_description()
       end
-      popular_item = popular_item.." "..highest_data[3].."/"..highest_data[4].." | "
+      popular_item = popular_item.." "..highest_data[3].."/"..highest_data[4]
     else
       popular_item = ""
     end
@@ -151,8 +148,8 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
       -- full or near full, set full_name
       bag_name = idef._full_name
     end
-    space_taken = "Full:"..space_taken[1].."Partial:"..space_taken[2].."Empty:"..space_taken[3]
-    add_string = popular_item.."Slots Used: "..math.ceil(list_size/inv_max*100).."% | "..space_taken
+    space_taken = space_taken[1].." full, "..space_taken[2].." partial, "..space_taken[3].." empty"
+    add_string = popular_item.."\nSlots: "..space_taken
   else
     -- empty, no items, set empty_name
     bag_name = idef._empty_name
@@ -279,47 +276,4 @@ function backpacks.register_backpack(name, backpack_params)
 			preserve_metadata(pos, oldnode, oldmeta, drops, backpack_params.width, backpack_params.height)
 		end,
   })
-  
-  --[[
-	minetest.register_node(":backpacks:backpack_"..name, {
-		description = desc,
-		tiles = { -- rotated onto its back for correct wallmounted dirs
-		   texture.."^backpacks_backpack_front.png",     -- Front
-		   texture.."^backpacks_backpack_back.png",      -- Back
-		   texture.."^backpacks_backpack_sides-rotated.png",-- Right Side
-		   texture.."^backpacks_backpack_sides-rotated.png",-- Left Side
-		   texture.."^backpacks_backpack_topbottom.png", -- Top
-		   texture.."^backpacks_backpack_topbottom.png", -- Bottom
-		},
-		drawtype = "nodebox",
-		paramtype = "light",
-		paramtype2 = "colorwallmounted",
-		palette = "natural_dyes.png",
-		node_box = wallmount_box,
-		groups = groups,
-		stack_max = 1,
-		sounds = sounds,
-		node_placement_prediction = "",
-		on_construct = function(pos)
-			on_construct(pos, width, height)
-		end,
-		after_place_node = function(pos, placer, itemstack, pointed_thing)
-			after_place_node(pos, placer, itemstack, pointed_thing)
-			on_construct(pos, width, height)
-		end,
-		on_dig = function(pos, node, digger)
-			on_dig(pos, node, digger, width, height)
-		end,
-		preserve_metadata = function(pos, oldnode, oldmeta, drops)
-			preserve_metadata(pos, oldnode, oldmeta, drops, width, height)
-		end,
-		on_receive_fields = function(pos, formname, fields, sender)
-			on_receive_fields(pos, formname, fields, sender, width, height)
-		end,
-
-		allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-			return allow_metadata_inventory_put(pos, listname, index, stack, player)
-		end,
-	})
-  --]]
 end
