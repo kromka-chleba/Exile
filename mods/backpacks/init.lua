@@ -32,8 +32,8 @@ local function get_formspec(pos, w, h)
 	return table.concat(formspec, "")
 end
 
-local function get_description(node,meta,add_string)
-	local desc = minetest.registered_nodes[node.name].description
+local function get_description(node,meta,bag_name,add_string)
+	local desc = bag_name--minetest.registered_nodes[node.name].description
 	local label = meta:get_string('label')
 	if label ~= '' then
 		desc = desc.." - "..label
@@ -84,6 +84,8 @@ end
 local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
 	local item = drops[1]
 	local imeta = item:get_meta()
+  local idef = item:get_definition()
+  local bag_name = idef.description
 	-- Transfer inventory to item
 	local meta = minetest.get_meta(pos)
 	local inv = meta:get_inventory()
@@ -145,9 +147,15 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
       popular_item = ""
     end
     local inv_max = inv:get_size("main")
+    if list_size == inv_max then
+      -- full or near full, set full_name
+      bag_name = idef._full_name
+    end
     space_taken = "Full:"..space_taken[1].."Partial:"..space_taken[2].."Empty:"..space_taken[3]
     add_string = popular_item.."Slots Used: "..math.ceil(list_size/inv_max*100).."% | "..space_taken
   else
+    -- empty, no items, set empty_name
+    bag_name = idef._empty_name
     imeta:set_string("inv_main","")
   end
 	-- Set color
@@ -155,7 +163,7 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
 						  "colorwallmounted")
 	imeta:set_int('palette_index', color)
 	-- Set Description
-	imeta:set_string('description', get_description(oldnode,meta,add_string))
+	imeta:set_string('description', get_description(oldnode, meta, bag_name, add_string))
 	-- Set Formspec
 	imeta:set_string('formspec', get_formspec(pos,width,height))
 end
@@ -200,39 +208,75 @@ local wallmount_box = {
 
 
 -- backpacks
-function backpacks.register_backpack(name, desc, texture, width, height, groups, sounds)
+function backpacks.register_backpack(name, backpack_params)
+  -- cause errors if incorrect values given
+  assert(type(name) == "string","backpacks.register_backpack: given 'name' is not a string! Got '"..type(name).."'")
+  assert(type(backpack_params) == "table","backpacks.register_backpack: Incorrect value given for expected definition table, got '"..type(backpack_params).."'")
+  assert(type(backpack_params.width) == "number" or type(backpack_params.height) == "number","backpacks.register_backpack: got incorrect values for width and height, or either or. Width is a '"..type(backpack_params.width).."'. Height is a '"..type(backpack_params.height).."'")
+  assert(type(backpack_params.sounds) == "table","backpacks.register_backpack: did not get a proper sounds table, got '"..type(backpack_params.sounds).."'")
+  -- correct values
+  if type(backpack_params.description) ~= "string" then
+    backpack_params.description = ""
+  end
+  if type(backpack_params.groups) ~= "table" then
+    -- don't cause minimal.merge_tables to crash
+    backpack_params.groups = {}
+  end
+  local tiles = backpack_params.tiles -- permit a tiles override
+  if type(tiles) ~= "table" then -- create one
+    tiles = {
+      -- rotated onto its back for correct wallmounted dirs
+      "backpacks_backpack_front.png", -- Front
+      "backpacks_backpack_back.png",      -- Back
+      "backpacks_backpack_sides-rotated.png",-- Right Side
+      "backpacks_backpack_sides-rotated.png",-- Left Side
+		  "backpacks_backpack_topbottom.png", -- Top
+		  "backpacks_backpack_topbottom.png", -- Bottom
+    }
+    -- permit different "textures" name for "texture"
+    local texture = backpack_params.texture or backpack_params.textures
+    if type(texture) == "string" then
+      -- add texture to backpack
+      for tile_index,tile in pairs(tiles) do
+        tiles[tile_index] = texture.."^"..tile
+      end
+    end
+  end
+  -- custom "empty_name" and "full_name"
+  if type(backpack_params.empty_name) ~= "string" then
+    backpack_params.empty_name = backpack_params.description
+  end
+  if type(backpack_params.full_name) ~= "string" then
+    backpack_params.full_name = backpack_params.description
+  end
   -- register backpack through storage.register_storage()
   storage.register_storage(":backpacks:backpack_"..name,{
-    description = desc,
-		tiles = { -- rotated onto its back for correct wallmounted dirs
-		   texture.."^backpacks_backpack_front.png",     -- Front
-		   texture.."^backpacks_backpack_back.png",      -- Back
-		   texture.."^backpacks_backpack_sides-rotated.png",-- Right Side
-		   texture.."^backpacks_backpack_sides-rotated.png",-- Left Side
-		   texture.."^backpacks_backpack_topbottom.png", -- Top
-		   texture.."^backpacks_backpack_topbottom.png", -- Bottom
-		},
+    description = backpack_params.description,
+		tiles = tiles,
 		paramtype2 = "colorwallmounted",
 		palette = "natural_dyes.png",
 		node_box = wallmount_box,
-    groups = minimal.merge_tables({backpack = 1, dig_immediate = 3}, groups),--groups,
+    groups = minimal.merge_tables({backpack = 1, dig_immediate = 3}, backpack_params.groups),--groups,
 		stack_max = 1,
-		sounds = sounds,
+		sounds = backpack_params.sounds,
 		node_placement_prediction = "",
     can_dig_when_inventory = true,
     -- formspec
-    formspec_width = width,
-    formspec_height = height,
+    formspec_width = backpack_params.width,
+    formspec_height = backpack_params.height,
+    -- custom values
+    _empty_name = backpack_params.empty_name,
+    _full_name = backpack_params.full_name,
     -- functions
     after_place_node = function(pos, placer, itemstack, pointed_thing)
       after_place_node(pos, placer, itemstack, pointed_thing)
-      storage.on_construct(pos, width, height)
+      storage.on_construct(pos, backpack_params.width, backpack_params.height)
     end,
     on_dig = function(pos, node, digger)
-			on_dig(pos, node, digger, width, height)
+			on_dig(pos, node, digger, backpack_params.width, backpack_params.height)
 		end,
 		preserve_metadata = function(pos, oldnode, oldmeta, drops)
-			preserve_metadata(pos, oldnode, oldmeta, drops, width, height)
+			preserve_metadata(pos, oldnode, oldmeta, drops, backpack_params.width, backpack_params.height)
 		end,
   })
   
