@@ -192,6 +192,8 @@ minetest.register_node("tech:wood_ash_block", {
     end
   end,
   _dig_tip = S("Enrich depleted soil"),
+  _splits_by_hand = "tech:wood_ash",
+  _on_use_node = minimal.slabs_split_hand,
   _fertilize_replace_with = "tech:wood_ash",
 })
 
@@ -217,7 +219,12 @@ minetest.register_node("tech:wood_ash", {
       return ncrafting.fertilize(pointed_thing.under, user, itemstack)
     end
   end,
-  _dig_tip = S("Enrich depleted soil"),
+	_dig_tip = S("Enrich depleted soil"),
+	_use_tip = "Combine with another slab",
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   return minimal.slabs_combine(player, wielded_item,
+					pointed_thing, "tech:wood_ash_block")
+	end
 })
 
 --Charcoal
