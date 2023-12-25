@@ -2,6 +2,13 @@ backpacks = {}
 -- Internationalization
 local S = minetest.get_translator("backpacks")
 
+local colours = {
+  full = "#90c8fc", -- pastel blue
+  partial = "#90fca0", -- pastel green
+  neutral = "#ffffff", -- white
+  item_name = "#ffff7a" -- pastel yellow
+}
+
 local function get_formspec(pos, w, h)
 	local meta = minetest.get_meta(pos)
 	local creator = meta:get_string('creator')
@@ -132,6 +139,7 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
         table.insert(highest_data,1,item_name)
       end
     end
+    -- add the "[[" to the beginning to see what has to be removed to remove popular_item (other parts of code will become unnecessary)
     local popular_item = ItemStack(highest_data[1])
     if popular_item then
       if popular_item:get_short_description() then
@@ -143,13 +151,24 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
     else
       popular_item = ""
     end
+    --]]
     local inv_max = inv:get_size("main")
     if list_size == inv_max then
       -- full or near full, set full_name
       bag_name = idef._full_name
     end
-    space_taken = space_taken[1].." full, "..space_taken[2].." partial, "..space_taken[3].." empty"
-    add_string = popular_item.."\nSlots: "..space_taken
+    local text_colours = {
+      minetest.get_color_escape_sequence(colours["full"]), -- full
+      minetest.get_color_escape_sequence(colours["partial"]), -- partial
+      minetest.get_color_escape_sequence(colours["neutral"]), -- empty
+      minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
+    }
+    popular_item = text_colours[4]..popular_item -- remove if removing popular_item
+    space_taken[1] = text_colours[1]..S("@1 full", space_taken[1])
+    space_taken[2] = text_colours[2]..S("@1 partial", space_taken[2])
+    space_taken[3] = text_colours[3]..S("@1 empty", space_taken[3])
+    space_taken = text_colours[3]..S("Slots: @1, @2, @3", space_taken[1], space_taken[2], space_taken[3])
+    add_string = popular_item.."\n"..space_taken -- remove "popular_item.."\n".." if removing popular_item
   else
     -- empty, no items, set empty_name
     bag_name = idef._empty_name
