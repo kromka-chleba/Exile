@@ -351,8 +351,6 @@ minetest.register_node("tech:slag", {
 	tiles = {"tech_iron_and_slag.png"},
 	stack_max = minimal.stack_max_bulky,
 	paramtype = "light",
-	_splits_by_hand = "stairs:slab_slag",
-	_on_use_node = minimal.slabs_split_hand,
 	groups = {cracky = 3, falling_node = 1, crumbly = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 })
@@ -370,15 +368,6 @@ stairs.register_stair_and_slab(
         minimal.stack_max_bulky * 8,
         nodes_nature.node_sound_stone_defaults()
 )
-
-minetest.override_item("stairs:slab_slag", {
-	  _use_tip = "Combine with another slab",
-	  _on_use_item = function(player, wielded_item, pointed_thing)
-	     return minimal.slabs_combine(player, wielded_item,
-					  pointed_thing, "tech:slag")
-	  end,
-})
-
 
 --molten slag
 local lava_light = 6
