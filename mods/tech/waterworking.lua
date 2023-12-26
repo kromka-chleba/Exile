@@ -489,6 +489,7 @@ minetest.override_item("tech:wooden_watering_can_salt_water", {
 
 -----------------------------------------------------------
 -- GLASS VESSELS
+local c_alpha = minimal.compat_alpha
 -- More portable liquid storage than clay pots
 -- Need inventory images, otherwise clear glass ones will be invisible
 minetest.register_node("tech:glass_bottle_green", {
@@ -507,13 +508,9 @@ minetest.register_node("tech:glass_bottle_green", {
   on_place = function(itemstack, placer, pointed_thing)
     return liquid_store.on_place("tech:glass_bottle_green", itemstack, placer, pointed_thing)
   end,
-		--collect rain water
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(30,60))
-	end,
 	groups = {dig_immediate = 2, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
-	use_texture_alpha = minimal.compat_alpha.blend,
+	use_texture_alpha = c_alpha.blend,
 	selection_box = {
 		type='fixed',
 		fixed={-0.275, -0.5, -0.225, 0.25, 0.35, 0.275},
@@ -536,13 +533,9 @@ minetest.register_node("tech:glass_bottle_clear", {
   on_place = function(itemstack, placer, pointed_thing)
     return liquid_store.on_place("tech:glass_bottle_clear", itemstack, placer, pointed_thing)
   end,
-		--collect rain water
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(30,60))
-	end,
 	groups = {dig_immediate = 2, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
-	use_texture_alpha = minimal.compat_alpha.blend,
+	use_texture_alpha = c_alpha.blend,
 	selection_box = {
 		type='fixed',
 		fixed={-0.275, -0.5, -0.225, 0.25, 0.35, 0.275},
@@ -603,7 +596,7 @@ liquid_store.register_stored_liquid(
 	{dig_immediate = 2})
 minetest.override_item("tech:glass_bottle_green_saltwater",
 {
-	use_texture_alpha = minimal.compat_alpha.blend,
+	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	stack_max = minimal.stack_max_bulky * 2,
 	drawtype = "mesh",
@@ -612,7 +605,7 @@ minetest.override_item("tech:glass_bottle_green_saltwater",
 		type='fixed',
 		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
 	},
-	inventory_image = "tech_bottle_green_icon.png",
+	inventory_image = "tech_bottle_icon_water.png^tech_bottle_green_icon.png",
 })
 liquid_store.register_stored_liquid(
 	"nodes_nature:salt_water_source",
@@ -645,7 +638,7 @@ liquid_store.register_stored_liquid(
 	{dig_immediate = 2})
 minetest.override_item("tech:glass_bottle_clear_saltwater",
 {
-	use_texture_alpha = minimal.compat_alpha.blend,
+	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	stack_max = minimal.stack_max_bulky * 2,
 	drawtype = "mesh",
@@ -655,7 +648,7 @@ minetest.override_item("tech:glass_bottle_clear_saltwater",
 		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
 	},
 
-	inventory_image = "tech_bottle_clear_icon.png",
+	inventory_image = "tech_bottle_icon_water.png^tech_bottle_clear_icon.png",
 })
 
 -- Freshwater Glass Bottles (Green + Clear)
@@ -692,14 +685,14 @@ minetest.override_item("tech:glass_bottle_green_freshwater",
 {
 	drawtype = "mesh",
 	mesh = "tech_bottle_liquid.obj",
-	use_texture_alpha = minimal.compat_alpha.blend,
+	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	stack_max = minimal.stack_max_bulky * 2,
 	selection_box = {
 		type='fixed',
 		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
 	},
-	inventory_image = "tech_bottle_green_icon.png",
+	inventory_image = "tech_bottle_icon_water.png^tech_bottle_green_icon.png",
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
     if drink_water(clicker) then
       minimal.switch_node(pos, {name = "tech:glass_bottle_green"})
@@ -741,14 +734,14 @@ minetest.override_item("tech:glass_bottle_clear_freshwater",
 {
 	drawtype = "mesh",
 	mesh = "tech_bottle_liquid.obj",
-	use_texture_alpha = minimal.compat_alpha.blend,
+	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	stack_max = minimal.stack_max_bulky * 2,
 	selection_box = {
 		type='fixed',
 		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
 	},
-	inventory_image = "tech_bottle_clear_icon.png",
+	inventory_image = "tech_bottle_icon_water.png^tech_bottle_clear_icon.png",
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
     if drink_water(clicker) then
       minimal.switch_node(pos, {name = "tech:glass_bottle_clear"})
