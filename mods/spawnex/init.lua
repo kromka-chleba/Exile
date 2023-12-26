@@ -128,19 +128,50 @@ local storage = minetest.get_mod_storage()
 
 region = {}
 rgns = minetest.deserialize(storage:get_string("regions")) or {}
--- #TODO: Split region saving up so we don't save them all every time
-
-local jobs = minetest.deserialize(storage:get_string("jobs")) or {}
--- jobs: could have used minetest.after, but we want to save it on restart
-
 --[[
    { ["0:0"] = { [currentgate] = pos, ["nextgate"] = pos,
      ["open"] = true, [..] = ... } }
 ]]--
 
-local function save_rgns()
-   storage:set_string("regions", minetest.serialize(rgns))
+local jobs = minetest.deserialize(storage:get_string("jobs")) or {}
+-- jobs: could have used minetest.after, but we want to save it on restart
+
+local function load_rgns()
+   local idx = minetest.parse_json(storage:get_string("rgn_index"))
+   for i = 1, #idx do
+      local nm = idx[i]
+      local str = storage:get_string(nm)
+      rgns[nm] = minetest.parse_json(str, nil) or minetest.deserialize(str)
+   end
 end
+
+local function save_rgns(hex)
+   local function writeout(hx, tb)
+      local str = minetest.write_json(tb, nil) or minetest.serialize(tb)
+      storage:set_string(hx, str)
+   end
+   if hex then -- save just one
+      writeout(hex2string(hex), rgns[hex])
+      return
+   end
+   local idx = {}
+   for nm, dat in pairs(rgns) do
+      writeout(nm, dat)
+      table.insert(idx, nm)
+   end
+
+   storage:set_string("rgn_index", minetest.write_json(idx))
+end
+
+if rgns["0:0"] then -- Convert old regions storage format
+   pirnt("Converting old region storage")
+   save_rgns()
+   storage:set_string("regions", nil)
+else
+   pirnt("Loading region storage (new format)")
+   load_rgns()
+end
+
 local function save_jobs()
    storage:set_string("jobs", minetest.serialize(jobs))
 end
@@ -275,9 +306,9 @@ local function select_hex_from(hex) -- for wide spawn
 end
 
 function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
+   if not player or not player:is_player() then return end
    pirnt("region prespawn")
    local meta = player and player:get_meta()
-   if not meta then return end
    local home = centrhx or string2hex(meta:get("exile_spawnhome")) or defhex
    local tgt = home
    if wide_spawn then
@@ -318,6 +349,7 @@ local function fixplayer(player, quiet)
 end
 
 function region.spawn(player)
+   if not player or not player:is_player() then return end
    pirnt("region spawn")
    local meta = player:get_meta()
    local home = string2hex(meta:get("exile_spawnhome")) or defhex
@@ -619,10 +651,13 @@ minetest.register_chatcommand("newgate",{
 	   end
 	   close_gate(hex)
 	   setup_gate(hex)
-	   local out =  "Set up new gate for "..hex2string(hex).." at "
 	   local pos = region.get(hex).currentgate
-	   out = out .. minetest.pos_to_string(pos)
-	   return true, out
+	   if not pos then
+	      return false, "failed to set up gate for "..param
+	   end
+	   return true,
+	      "Set up new gate for "..hex2string(hex)..
+	      " at ".. minetest.pos_to_string(pos)
 	end
 })
 
