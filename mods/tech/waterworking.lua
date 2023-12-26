@@ -434,6 +434,15 @@ minetest.register_node("tech:wooden_watering_can", {
 		return water_pot(pos, "tech:wooden_watering_can", elapsed)
 	end
 })
+
+crafting.register_recipe({
+	type = {"carpentry_bench","axe"},
+	output = "tech:wooden_watering_can",
+	items = {'group:log 2', 'tech:vegetable_oil'},
+	level = 1,
+	always_known = true,
+})
+
 --wooden watering can with fresh water
 liquid_store.register_stored_liquid(
 	"nodes_nature:freshwater_source",
