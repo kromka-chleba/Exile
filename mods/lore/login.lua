@@ -35,7 +35,6 @@ if string.match(logintext, "login_text") then -- Untranslated? Use default
 end
 
 local function loginspec(player)
-   local playername = player:get_player_name()
    local spec = ("formspec_version[3]"..
 		 "size[7,7.5]"..
 		 "bgcolor[;both;#bbb]"..
@@ -86,8 +85,8 @@ local function show_formspec(player, qname)
    local playername = player:get_player_name()
    minetest.close_formspec(playername, "") -- forcibly close the previous fs
    minetest.after(0.1, do_it)
-   -- UDP packets can arrive out of order, so doing it again won't hurt
-   minetest.after(0.3, do_it)
+   -- ^ UDP: open may arrive before the close, and doing it again won't hurt
+   minetest.after(0.3, do_it) -- (fails silently if a formspec's open already)
    return "wait"
 end
 
@@ -182,7 +181,10 @@ local function queue_start(player)
    local name = player:get_player_name()
    if not player_queue[name] then player_queue[name] = {} end
    for _ = 1, #player_queue[name] do
-      waiting[name] = nil -- we're not waiting now, start next item
+      if waiting[name] then
+	 waiting[name]:cancel() -- we're not waiting now, start next item
+	 waiting[name] = nil -- cancel doesn't remove it
+      end
       local qitem = queue_pop(name)
       local wait = qitem.func(player, qitem.name)
       if wait == "wait" then
@@ -190,18 +192,16 @@ local function queue_start(player)
 	 -- It should call queue_start() when it's done
 	 -- If not called in j_q_d seconds, assume it's busted
 	 local nm = tostring(qitem.name) -- dereference
-	 waiting[name] = nm
 	 if nm == "tut" then return end -- no forcible restart on tutorial
 	 if jumpstart_queue_delay == 0 then return end -- disabled
-	 minetest.after(jumpstart_queue_delay, function()
-			   -- don't run this if the queue has changed
-			   -- (in case another wait has been started)
-			   if waiting[name] == nm then
+	 waiting[name] =
+	    minetest.after(jumpstart_queue_delay, function()
+			      -- don't run this if the queue has changed
+			      -- (in case another wait has been started)
 			      minetest.log("action",
 					   "forcibly restarted queue for "..
 					   name)
 			      queue_start(player)
-			   end
 	 end)
 	 return
       end
