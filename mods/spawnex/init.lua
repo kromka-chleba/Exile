@@ -204,7 +204,7 @@ local function load_gate(hex) -- forceload a gate's location to prep for a spawn
    minetest.emerge_area(mb_min, mb_max)
    minetest.forceload_block(def.currentgate)
    def.forceloaded = true
-   save_rgns()
+   save_rgns(hex)
 end
 
 local function setup_gate(hex) -- create potential gate
@@ -214,8 +214,9 @@ local function setup_gate(hex) -- create potential gate
       def.currentgate = find_gate_pos(hex)
       if def.currentgate == nil then
 	 add_job("setup", 1, hex)
+	 return false
       else
-	 save_rgns()
+	 save_rgns(hex)
       end
       return true
    end
@@ -233,7 +234,7 @@ function queue_next_gate(hex) -- Set up next gate before closing current one
       return
    end
    def.nextgate = candidate
-   save_rgns()
+   save_rgns(hex)
 end
 
 function region.fast_gate(hex) -- No gate for this hex, make one quick!
@@ -243,7 +244,7 @@ function region.fast_gate(hex) -- No gate for this hex, make one quick!
    end
    local def = region.get(hex)
    def.currentgate = gate
-   save_rgns()
+   save_rgns(hex)
    return gate
 end
 
@@ -255,7 +256,7 @@ local function close_gate(hex)
    def.open = false
    def.forceloaded = false
    def.nextgate = nil
-   setup_gate(hex)
+   if not setup_gate(hex) then save_rgns(hex) end -- save changes if no new gate
 end
 
 local function select_hex_from(hex) -- for wide spawn
