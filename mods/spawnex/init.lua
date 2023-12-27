@@ -228,8 +228,12 @@ function queue_next_gate(hex) -- Set up next gate before closing current one
    if def.nextgate then return end -- already have one queued
    local candidate
    candidate = find_gate_pos(hex, 50)
+   local distance = 0
+   if def.currentgate and candidate then
+      distance = candidate:distance(def.currentgate)
+   end
    -- not too close to previous spawn, please
-   if candidate == nil or candidate:distance(def.currentgate) > 400 then
+   if candidate == nil or distance > 400 then
       add_job("queue", 9, hex)
       return
    end
