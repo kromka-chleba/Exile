@@ -137,7 +137,7 @@ local jobs = minetest.deserialize(storage:get_string("jobs")) or {}
 -- jobs: could have used minetest.after, but we want to save it on restart
 
 local function load_rgns()
-   local idx = minetest.parse_json(storage:get_string("rgn_index"))
+   local idx = minetest.parse_json(storage:get_string("rgn_index")) or {}
    for i = 1, #idx do
       local nm = idx[i]
       local str = storage:get_string(nm)
@@ -519,6 +519,9 @@ end)
 if __DEBUG__ then
 
 minetest.register_chatcommand("d2hex",{
+	description = "Find the distance from your position to the center"..
+	   "of a region",
+	params = "<Hx:Hz>",
 	--privs = "server",
 	func = function(name,param)
 	   local hex = string2hex(param)
@@ -533,6 +536,7 @@ minetest.register_chatcommand("d2hex",{
 })
 
 minetest.register_chatcommand("checkhex",{
+	description = "Find the distance to the center of your current region",
 	--privs = "server",
 	func = function(name,param)
 	   local ppos = minetest.get_player_by_name(name):get_pos():round()
@@ -545,6 +549,7 @@ minetest.register_chatcommand("checkhex",{
 })
 
 minetest.register_chatcommand("hexneighbors",{
+	description = "List neighboring regions",
 	--privs = "server",
 	func = function(name,param)
 	   local ppos = minetest.get_player_by_name(name):get_pos():round()
@@ -565,6 +570,7 @@ minetest.register_chatcommand("hexneighbors",{
 
 minetest.register_chatcommand("hexlook",{
 	--privs = "server",
+	description = "Name the neighboring region that you're looking towards",
 	func = function(name,param)
 	   local player = minetest.get_player_by_name(name)
 	   local look = player:get_look_horizontal()
@@ -578,7 +584,9 @@ minetest.register_chatcommand("hexlook",{
 })
 
 minetest.register_chatcommand("hexport",{
-	--privs = "server",
+	privs = "server",
+	description = "Teleport to the specified region's hex",
+	params = "<Hx:Hz>",
 	func = function(name,param)
 	   local tgt = string2hex(param)
 	   if not tgt then
@@ -594,6 +602,7 @@ minetest.register_chatcommand("hexport",{
 })
 
 minetest.register_chatcommand("spawnlevel",{
+	description = "Get results of get_spawn_level() at your position",
 	--privs = "server",
 	func = function(name,param)
 	   pirnt("Checking SL")
@@ -608,6 +617,8 @@ minetest.register_chatcommand("spawnlevel",{
 
 minetest.register_chatcommand("biome",{
 	--privs = "server",
+	description = "Name the biome you're standing in",
+	params = "",
 	func = function(name,param)
 	   local player = minetest.get_player_by_name(name)
 	   local ppos = player:get_pos()
@@ -616,6 +627,8 @@ minetest.register_chatcommand("biome",{
 	end
 })
 minetest.register_chatcommand("hexstat",{
+	description = "Get stats for your current region, or specify one",
+	params = "none or <Hx:Hz>",
 	--privs = "server",
 	func = function(name,param)
 	   local player = minetest.get_player_by_name(name)
@@ -634,6 +647,7 @@ minetest.register_chatcommand("hexstat",{
 })
 
 minetest.register_chatcommand("myhex",{
+	description = "List the region you will spawn in next",
 	--privs = "server",
 	func = function(name,param)
 	   local player = minetest.get_player_by_name(name)
@@ -648,7 +662,9 @@ minetest.register_chatcommand("myhex",{
 })
 
 minetest.register_chatcommand("newgate",{
-	--privs = "server",
+	privs = "server",
+	description = "Create a new gate in the specified region",
+	params = "<Hx:Hz>",
 	func = function(name,param)
 	   local hex = string2hex(param)
 	   if not hex then
@@ -667,7 +683,8 @@ minetest.register_chatcommand("newgate",{
 })
 
 minetest.register_chatcommand("fbspawn",{
-	--privs = "server",
+	description = "Test the last-resort fallback spawn system",
+	privs = "server",
 	func = function(name,param)
 	   local tgt = string2hex(param)
 	   if not tgt then
@@ -684,7 +701,10 @@ minetest.register_chatcommand("fbspawn",{
 })
 
 minetest.register_chatcommand("fixplayer",{
-	--privs = "server",
+	description = "Fix a player who is stuck underground,"..
+	   " probably from the use of /fbspawn",
+	params = "<playername>",
+	privs = "server",
 	func = function(name,param)
 	   local player
 	   if param then
@@ -698,7 +718,9 @@ minetest.register_chatcommand("fixplayer",{
 })
 
 minetest.register_chatcommand("toggleloadgate",{
-	--privs = "server",
+	description = "Load or unload the gate for a specified region",
+	params = "<Hx:Hz>",
+	privs = "server",
 	func = function(name,param)
 	   local player = minetest.get_player_by_name(name)
 	   local ppos = player:get_pos()
