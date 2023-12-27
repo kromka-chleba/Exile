@@ -54,8 +54,8 @@ minetest.register_chatcommand("ping",{
 	      if myname ~= theirname then
 		 add_waypoint(myname, theirname, player, pos)
 		 timestamp[myname] = nowtime
+		 minetest.after(clear_ping_delay, clear_waypoint, myname)
 	      end
 	   end
-	   minetest.after(clear_ping_delay, clear_waypoint, myname)
 	end
 })
