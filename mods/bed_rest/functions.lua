@@ -370,7 +370,7 @@ local function wear_blanket(player, bed_pos, donning)
     end
   end
   if not bedInv:is_empty('main') then
-    bed_meta:set_string('infotext',S('Bed: Contains Blanket'))
+	minimal.infotext_merge(bed_pos, S('Bed: Contains Blanket'), bed_meta)
   end
    clothing:update_temp(player)
    player_api.set_texture(player)
