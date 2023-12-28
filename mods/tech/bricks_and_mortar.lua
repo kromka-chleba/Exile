@@ -187,6 +187,27 @@ minetest.register_node("tech:slaked_lime_ruined", {
 --Lime mortar
 --Hooray... the product we actually want. Slaked lime with sand
 --really should set to something, but creates logical mass balance problems
+minetest.register_node("tech:lime_mortar_slab", {
+	description = S("Lime Mortar Slab"),
+	tiles = {"tech_lime_mortar.png"},
+	drawtype = "nodebox",
+	node_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
+	},
+	stack_max = minimal.stack_max_bulky *4,
+	groups = {crumbly = 3, falling_node = 1},
+	sounds = nodes_nature.node_sound_sand_defaults({
+		footstep = {name = "nodes_nature_mud", gain = 0.4},
+		dug = {name = "nodes_nature_mud", gain = 0.4}}),
+	_use_tip = "Combine with another slab",
+	_on_use_item = function(player, wielded_item, pointed_thing)
+			return minimal.slabs_combine(player, wielded_item,
+					pointed_thing, "tech:lime_mortar")
+	end,
+})
+
+
 minetest.register_node("tech:lime_mortar", {
 	description = S("Lime Mortar"),
 	tiles = {"tech_lime_mortar.png"},
@@ -194,32 +215,29 @@ minetest.register_node("tech:lime_mortar", {
 	groups = {crumbly = 3, falling_node = 1},
 	sounds = nodes_nature.node_sound_sand_defaults({
 		footstep = {name = "nodes_nature_mud", gain = 0.4},
-		dug = {name = "nodes_nature_mud", gain = 0.4}}),
-		--[[
-  on_construct = function(pos)
-		minetest.get_node_timer(pos):start(60)
-	end,
-
-	on_timer = function(pos, elapsed)
-    --wash it away
-    if minetest.find_node_near(pos, 1, {"group:water"}) or climate.get_rain(pos) then
-      minetest.set_node(pos, {name = "air"})
-      return false
-    end
-
-    --slowly revert to limestone by reacting with the air, or slake by rain
-    if minetest.find_node_near(pos, 1, {"air"}) then
-      if random() > 0.9 then
-        minetest.set_node(pos, {name = "nodes_nature:limestone"})
-        return false
-      end
-    end
-
-    --it's still here...
-    return true
-	end,
-	]]
+		dug = {name = "nodes_nature_mud", gain = 0.4}
+	}),
+    _splits_by_hand = "tech:lime_mortar_slab",
+    _on_use_node = minimal.slabs_split_hand,
 })
+
+crafting.register_recipe({
+	type = "brick_makers_bench_mixing",
+	output = "tech:lime_mortar",
+	items = {"tech:lime_mortar_slab 2"},
+	level = 1,
+	always_known = true,
+})
+
+crafting.register_recipe({
+	type = "brick_makers_bench_mixing",
+	output = "tech:lime_mortar_slab 2",
+	items = {"tech:lime_mortar"},
+	level = 1,
+	always_known = true,
+})
+
+
 
 -----------------------------------------------------
 --MORTAR RECIPES
@@ -236,12 +254,11 @@ crafting.register_recipe({
 --mix mortar
 crafting.register_recipe({
 	type = "brick_makers_bench",
-	output = "tech:lime_mortar 4",
+	output = "tech:lime_mortar_slab 8",
 	items = {"tech:slaked_lime", "nodes_nature:sand 3"},
 	level = 1,
 	always_known = true,
 })
-
 
 
 -------------------------------------------------------
