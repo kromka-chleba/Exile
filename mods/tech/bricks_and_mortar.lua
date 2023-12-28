@@ -270,7 +270,7 @@ crafting.register_recipe({
 minetest.register_node('tech:loose_brick_unfired', {
 	description = S('Loose Bricks (unfired)'),
 	tiles = {"nodes_nature_clay.png"},
-	stack_max = minimal.stack_max_bulky *3,
+	stack_max = minimal.stack_max_bulky *4,
   drawtype = "nodebox",
 	paramtype = "light",
   paramtype2 = "facedir",
@@ -321,7 +321,7 @@ minetest.register_node('tech:loose_brick_unfired', {
 minetest.register_node('tech:loose_brick', {
 	description = S('Loose Bricks'),
 	tiles = {"tech_roof_tiles.png"},
-	stack_max = minimal.stack_max_bulky *3,
+	stack_max = minimal.stack_max_bulky *4,
   drawtype = "nodebox",
 	paramtype = "light",
   paramtype2 = "facedir",
@@ -365,7 +365,7 @@ minetest.register_node('tech:loose_brick', {
 minetest.register_node("tech:bricks_and_mortar", {
 	description = S("Brick and Mortar"),
 	tiles = {"tech_bricks_and_mortar.png"},
-	stack_max = minimal.stack_max_medium/2,
+	stack_max = minimal.stack_max_bulky * 4,
 	paramtype2 = "facedir",
 	drop = "tech:loose_brick",
 	groups = {cracky = 2, masonry = 1},
@@ -396,8 +396,8 @@ stairs.register_stair_and_slab(
 --unfired
 crafting.register_recipe({
 	type = "brick_makers_bench",
-	output = "tech:loose_brick_unfired 6",
-	items = {'nodes_nature:clay_wet 3', 'nodes_nature:sand_wet'},
+	output = "tech:loose_brick_unfired 8",
+	items = {'nodes_nature:clay_wet 4', 'nodes_nature:sand_wet 2'},
 	level = 1,
 	always_known = true,
 })
@@ -405,8 +405,8 @@ crafting.register_recipe({
 --mix with mortar
 crafting.register_recipe({
 	type = "brick_makers_bench",
-	output = "tech:bricks_and_mortar 12",
-	items = {"tech:lime_mortar", "tech:loose_brick 12"},
+	output = "tech:bricks_and_mortar 8",
+	items = {"tech:lime_mortar_slab", "tech:loose_brick 8"},
 	level = 1,
 	always_known = true,
 })
@@ -815,7 +815,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
 		crafting.register_recipe({
 			type = brick_mortar_type,
 			output = "tech:"..name.."_brick_mortar 4",
-			items = {"nodes_nature:"..name.."_brick 3", "tech:lime_mortar"},
+			items = {"nodes_nature:"..name.."_brick 4", "tech:lime_mortar_slab"},
 			level = 1,
 			always_known = true,
 		})
@@ -823,7 +823,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
 		crafting.register_recipe({
 			type = block_mortar_type,
 			output = "tech:"..name.."_block_mortar 4",
-			items = {"nodes_nature:"..name.."_block 3", "tech:lime_mortar"},
+			items = {"nodes_nature:"..name.."_block 4", "tech:lime_mortar_slab"},
 			level = 1,
 			always_known = true,
 		})
