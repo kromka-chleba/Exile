@@ -95,7 +95,6 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
 	local inv = meta:get_inventory()
 	local list = {}
   local for_calculation = {}
-  -- WIP TODO
   local space_taken = {0,0,0} -- full, partial, empty
 	for i, stack in ipairs(inv:get_list("main")) do
 		if stack:get_name() == "" then
@@ -124,16 +123,16 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
       for_calculation[stack:get_name()] = stack_table
 		end
 	end
-  local list_size = space_taken[1] + space_taken[2]
+  local list_size = space_taken[1] + space_taken[2] -- full + partial
   local add_string
   if list_size > 0 then
-    imeta:set_string('inv_main', minetest.serialize(list))
+    imeta:set_string('inv_main', minetest.serialize(list)) -- set list as "inv_main" metadata for item
     local highest_data
     for item_name,data in pairs(for_calculation) do
       -- highest_data calculation
       if not highest_data then
         highest_data = data
-        table.insert(highest_data,1,item_name)
+        table.insert(highest_data,1,item_name) -- add item's name to beginning of table
       elseif data[1] > highest_data[2] then
         highest_data = data
         table.insert(highest_data,1,item_name)
@@ -147,7 +146,7 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
       else
         popular_item = popular_item:get_description()
       end
-      popular_item = popular_item.." "..highest_data[3].."/"..highest_data[4]
+      popular_item = popular_item.." "..highest_data[3].."/"..highest_data[4] -- amount of items/amount of max possible items
     else
       popular_item = ""
     end
