@@ -82,6 +82,7 @@ minetest.register_entity("nodes_nature:drop_water", {
 
 --Create drop
 minetest.register_abm({
+	label = "Dripping Water",
 	nodenames = {"group:stone", "group:soft_stone"},
 	--neighbors = {"group:water"},
 	interval = 27,
