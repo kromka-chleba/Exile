@@ -60,6 +60,7 @@ local function node_drawtype(pos)
   else
     node = minetest.registered_nodes[node.name]
   end
+  if not node then return "normal", {} end -- assume it's a solid ignore node?
   return node.drawtype, node
 end
 
@@ -2029,8 +2030,8 @@ function animals.vitals(self)
 	if self.lung_capacity then
 		local colbox = self.object:get_properties().collisionbox
     local lowpos = mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})
-		local drawtype = node_drawtype(lowpos) -- node at hitbox top
-    
+    local drawtype = node_drawtype(lowpos) -- node at hitbox top
+
     local oxygen_min = self.oxygen_min or self.lung_capacity
     local breathing_rate = self.breating_rate or 1
     -- utilized by non-water animals
