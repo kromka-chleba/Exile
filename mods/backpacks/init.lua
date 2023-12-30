@@ -2,6 +2,8 @@ backpacks = {}
 -- Internationalization
 local S = minetest.get_translator("backpacks")
 
+local more_info = minetest.settings:get_bool('exile_backpacks_spreadsheet')
+
 local colours = {
   full = "#90c8fc", -- pastel blue
   partial = "#90fca0", -- pastel green
@@ -43,7 +45,7 @@ local function get_description(node,meta,bag_name,add_string)
 		desc = desc.." - "..label
 	end
   if type(add_string) == "string" and add_string ~= "" then
-    desc = desc.."\n"..add_string
+    desc = desc..add_string
   end
 	return desc
 end
@@ -163,11 +165,17 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
       minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
     }
     popular_item = text_colours[4]..popular_item -- remove if removing popular_item
-    space_taken[1] = text_colours[1]..S("@1 full", space_taken[1])
-    space_taken[2] = text_colours[2]..S("@1 partial", space_taken[2])
-    space_taken[3] = text_colours[3]..S("@1 empty", space_taken[3])
-    space_taken = text_colours[3]..S("Slots: @1, @2, @3", space_taken[1], space_taken[2], space_taken[3])
-    add_string = popular_item.."\n"..space_taken -- remove "popular_item.."\n".." if removing popular_item
+    space_taken[1] = text_colours[1]..(more_info and S("@1 full", space_taken[1]) or space_taken[1])
+    space_taken[2] = text_colours[2]..(more_info and S("@1 partial", space_taken[2]) or space_taken[2])
+    space_taken[3] = text_colours[3]..(more_info and S("@1 empty", space_taken[3]) or space_taken[3])
+    if more_info then
+      space_taken = text_colours[3]..S("Slots: @1, @2, @3", space_taken[1], space_taken[2], space_taken[3])
+      add_string = "\n"..popular_item.."\n"..space_taken -- remove "popular_item.."\n".." if removing popular_item
+    else
+      add_string = " - "..S("@1/@2/@3", space_taken[1]..text_colours[3], space_taken[2]..text_colours[3], space_taken[3])
+      -- add_string = " - "..S("@1/@2/@3", space_taken[1], space_taken[2], space_taken[3])
+    end
+    
   else
     -- empty, no items, set empty_name
     bag_name = idef._empty_name
