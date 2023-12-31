@@ -335,8 +335,6 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
     --                        _orig_desc = orig_desc })
 
    end
-
-minetest.chat_send_player(name, "updating description -- " .. imeta:get_string('description'))
    local max_amt = itemstack:get_stack_max()
    local count = itemstack:get_count() -- use stack's size for iterating
    local subtract_loop = math.ceil(count / max_amt)
