@@ -555,7 +555,10 @@ minetest.register_craftitem("tech:iron_key", {
 		_on_use_item = function(user, itemstack, pointed_thing)
 			minimal.protection_key_use(itemstack, user, pointed_thing)
 			--XXX Need a sound to play
-		end
+		end,
+		on_use = function(itemstack, clicker, pointed_thing)
+			return minimal.protection_key_click(itemstack, clicker, pointed_thing)
+		end,
 })
 
 

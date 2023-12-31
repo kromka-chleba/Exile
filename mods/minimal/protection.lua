@@ -7,6 +7,7 @@ creative = creative
 
 local __nail_use_count = 3
 
+local __open_access_list={}
 
 function minimal.protection_is_ownable( pointed_thing, pt_pos )
 	if pointed_thing.type == 'node' then
@@ -27,6 +28,82 @@ function minimal.protection_is_ownable( pointed_thing, pt_pos )
 	end
 end
 
+function minimal.protection_key_click( itemstack, clicker, pointed_thing)
+	if pointed_thing.type ~= 'node' then
+		return
+	end
+	local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
+	local pt_meta = minetest.get_meta(pt_pos)
+	local player_name = clicker:get_player_name()
+	local pt_owner = pt_meta:get_string('owner')
+	if pt_owner and pt_owner ~= player_name then
+		return
+	end
+
+	local fs_list ="";
+
+	local list_json = pt_meta:get_string("access_list")
+	if list_json and list_json ~= '' then
+		local access_list = minetest.parse_json(list_json)
+		if access_list and #access_list > 0 then
+			for i,name in ipairs(access_list) do
+				fs_list = fs_list .. name
+				if i < #access_list then
+					fs_list =fs_list .. ","
+				end
+			end
+		end
+	end
+
+	if fs_list ~= '' then
+			__open_access_list[player_name] = { pos = pt_pos }
+			local formspec = "formspec_version[6]"
+				.. "size[10.5,4]"
+				.. "box[0.4,0.9;9.8,1.6;red]"
+				.. "label[4.3,0.5;Access List]"
+				.. "dropdown[1.1,1.35;4.8,0.7;access_list;" 
+					.. fs_list .. ";1;false]"
+				.. "button_exit[6.6,1.3;3,0.8;Delete;Delete]"
+				.. "button_exit[3.7,2.8;3,0.8;Close;Close]"
+			minetest.show_formspec(player_name, "protection:access_list", formspec)
+	else
+		minetest.chat_send_player(player_name, "Access list empty.") 
+	end
+
+end
+
+minetest.register_on_player_receive_fields(
+	function(player,formname,fields)
+		if formname ~= "protection:access_list" then
+			return
+		end
+		local player_name=player:get_player_name()
+		if fields.Delete then
+			local pt_pos = __open_access_list and __open_access_list[player_name].pos
+			local pt_meta = minetest.get_meta(pt_pos)
+			local list_json = pt_meta:get_string("access_list")
+			local access_list = {}
+			if list_json and list_json ~= '' then
+				access_list = minetest.parse_json(list_json)
+				for i,granted in ipairs(access_list) do
+					if fields.access_list == granted then
+						access_list[i] = nil
+					end
+				end
+				minetest.chat_send_player(player_name, "Deleted " 
+					.. fields.access_list .. " from access list.")
+			end
+			-- write out json
+			if #access_list > 0 then
+				pt_meta:set_string("access_list", minetest.write_json(access_list))
+			else
+				pt_meta:set_string("access_list", "")
+			end
+		end
+		__open_access_list[player_name] = nil
+		return true
+	end
+)
 
 function minimal.protection_key_use( itemstack, user, pointed_thing )
 	local owner = user:get_player_name()
