@@ -546,6 +546,23 @@ minetest.register_craftitem("tech:nails", {
 		end
 })
 
+minetest.register_craftitem("tech:iron_key", {
+        description = S("Iron Key"),
+        inventory_image = "tech_iron_key.png",
+        stack_max = minimal.stack_max_light,
+		groups = { craftedby = 1 },
+		_use_tip = "Grant key owner access.",
+		_on_use_item = function(user, itemstack, pointed_thing)
+			minimal.protection_key_use(itemstack, user, pointed_thing)
+			--XXX Need a sound to play
+		end
+})
+
+
+
+
+
+
 crafting.register_recipe({
 	type = "anvil",
 	output = "tech:nails 8",
@@ -554,4 +571,11 @@ crafting.register_recipe({
 	always_known = true,
 })
 
+crafting.register_recipe({
+	type = "anvil",
+	output = "tech:iron_key 1",
+	items = {'tech:iron_ingot 1',},
+	level = 1,
+	always_known = true,
+})
 
