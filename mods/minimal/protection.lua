@@ -7,11 +7,12 @@ creative = creative
 
 local __nail_use_count = 3
 
-function minimal.protection_nail_use( itemstack, user, pointed_thing )
-	local owner = user:get_player_name()
-	local playsound = false
+
+function minimal.protection_is_ownable( pointed_thing, pt_pos )
 	if pointed_thing.type == 'node' then
-		local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
+		if pt_pos == nil then
+			pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
+		end
 		local pt_node=minetest.get_node(pt_pos)
 		if not (pt_node.name == 'tech:stick'
 			or minetest.get_item_group(pt_node.name,
@@ -19,18 +20,64 @@ function minimal.protection_nail_use( itemstack, user, pointed_thing )
 			or minetest.get_item_group(pt_node.name,
 						   'unclaimable') > 0
 		) then
-			local pt_meta=minetest.get_meta(pt_pos)
-			if not pt_meta:contains('owner') then
-				pt_meta:set_string("owner", owner)
-				pt_meta:set_string('nailed', owner)
-				-- take nails if player isn't in creative
-				if not (minimal.player_in_creative(user)) then
-					itemstack:take_item()
+			return true
+		else
+			return false
+		end
+	end
+end
+
+
+function minimal.protection_key_use( itemstack, user, pointed_thing )
+	local owner = user:get_player_name()
+	local key_owner_test = itemstack:get_meta():get_string("creator")
+	local playsound = false
+	local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
+	if minimal.protection_is_ownable(pointed_thing, pt_pos) then
+		local pt_meta=minetest.get_meta(pt_pos)
+		local pt_owner = pt_meta:get_string('owner')
+		if pt_meta:contains('owner') and pt_owner == owner then
+			local key_owner = itemstack:get_meta():get_string("creator")
+			local access_list = {}
+   			local list = pt_meta:get_string("access_list")
+			local add_name = true -- Assume we're adding the name
+   			if list and list ~= "" then
+				access_list = minetest.parse_json(list)
+				for _,name in ipairs(access_list) do
+					if name == key_owner then
+						minetest.chat_send_player(owner, key_owner .. " already has access")
+						add_name = false
+						break
+					end
 				end
-				minimal.infotext_merge(pt_pos, nil, pt_meta)
-				-- play hammering sound
-				playsound = true
 			end
+			if add_name then
+				table.insert(access_list, key_owner)
+				pt_meta:set_string("access_list", minetest.write_json(access_list))
+				minetest.chat_send_player(owner, key_owner .. " granted access")
+			end
+		else
+			minetest.chat_send_player(owner,"Can't grant access to items you don't own")
+		end
+	end
+end
+
+function minimal.protection_nail_use( itemstack, user, pointed_thing )
+	local owner = user:get_player_name()
+	local playsound = false
+	local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
+	if minimal.protection_is_ownable(pointed_thing, pt_pos) then
+		local pt_meta=minetest.get_meta(pt_pos)
+		if not pt_meta:contains('owner') then
+			pt_meta:set_string("owner", owner)
+			pt_meta:set_string('nailed', owner)
+			-- take nails if player isn't in creative
+			if not (minimal.player_in_creative(user)) then
+				itemstack:take_item()
+			end
+			minimal.infotext_merge(pt_pos, nil, pt_meta)
+			-- play hammering sound
+			playsound = true
 		end
 	end
 	return itemstack, playsound
