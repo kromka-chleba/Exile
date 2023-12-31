@@ -76,6 +76,8 @@ minetest.register_node("tech:clay_water_pot", {
 		}
 	},
 	liquids_pointable = true,
+  groups = {dig_immediate = 3, pottery = 1, temp_pass = 1, timer = 45 },
+	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_use = function(itemstack, user, pointed_thing)
 	   return liquid_store.on_use_empty_bucket(itemstack, user,
 						   pointed_thing)
@@ -91,9 +93,6 @@ minetest.register_node("tech:clay_water_pot", {
 	on_timer =function(pos, elapsed)
 		return water_pot(pos, "tech:clay_water_pot", elapsed)
 	end,
-	groups = {dig_immediate = 3, pottery = 1, temp_pass = 1, timer = 45 },
-	sounds = nodes_nature.node_sound_stone_defaults(),
-
 })
 
 -----------------------------------------------
@@ -101,20 +100,22 @@ minetest.register_node("tech:clay_water_pot", {
 --source, nodename, nodename_empty, tiles, node_box, desc, groups
 
 --clay pot with salt water
-liquid_store.register_stored_liquid(
-	"nodes_nature:salt_water_source",
-	"tech:clay_water_pot_salt_water",
-	"tech:clay_water_pot",
-	{
-		"tech_pottery.png^tech_pot_empty.png^tech_pot_water.png",
+liquid_store.register_stored_liquid("tech:clay_water_salt_water",{
+  source = "nodes_nature:salt_water_source",
+  empty = "tech:clay_water_pot",
+  description = S("Clay Water Pot with Salt Water"),
+  groups = {dig_immediate=2, pottery = 1},
+  sounds = nodes_nature.node_sound_stone_defaults(),
+  tiles = {
+    "tech_pottery.png^tech_pot_empty.png^tech_pot_water.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png"
-	},
-	{
-		type = "fixed",
+  },
+  node_box = {
+    type = "fixed",
 		fixed = {
 			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
 			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
@@ -122,26 +123,25 @@ liquid_store.register_stored_liquid(
 			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
-	},
-	S("Clay Water Pot with Salt Water"),
-	{dig_immediate=2, pottery = 1})
-
+  },
+})
 
 --clay pot with freshwater
-liquid_store.register_stored_liquid(
-	"nodes_nature:freshwater_source",
-	"tech:clay_water_pot_freshwater",
-	"tech:clay_water_pot",
-	{
-		"tech_pottery.png^tech_pot_empty.png^tech_pot_water.png",
+liquid_store.register_stored_liquid("tech:clay_water_pot_freshwater",{
+  source = "nodes_nature:freshwater_source",
+  empty = "tech:clay_water_pot",
+  description = S("Clay Water Pot with Freshwater"),
+  groups = {dig_immediate = 2, pottery = 1},
+  tiles = {
+    "tech_pottery.png^tech_pot_empty.png^tech_pot_water.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png"
-	},
-	{
-		type = "fixed",
+  },
+  node_box = {
+    type = "fixed",
 		fixed = {
 			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
 			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
@@ -149,20 +149,15 @@ liquid_store.register_stored_liquid(
 			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
-	},
-	S("Clay Water Pot with Freshwater"),
-	{dig_immediate = 2, pottery = 1})
-
-
---make freshwater Pot drinkable on click
-minetest.override_item("tech:clay_water_pot_freshwater",{
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+  },
+  --make freshwater Pot drinkable on click
+  on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
     if drink_water(clicker) then
       minimal.switch_node(pos, {name = "tech:clay_water_pot"})
 			minetest.sound_play("nodes_nature_slurp",
       {pos = pos, max_hear_distance = 3, gain = 0.25})
     end
-  end
+  end,
 })
 
 -----------------------------------------------------------
@@ -170,6 +165,8 @@ minetest.override_item("tech:clay_water_pot_freshwater",{
 --for collecting water, catching rain water
 minetest.register_node("tech:wooden_water_pot", {
 	description = S("Wooden Water Pot"),
+  groups = {dig_immediate = 3, flammable = 1, temp_pass = 1},
+	sounds = nodes_nature.node_sound_wood_defaults(),
 	tiles = {
 		"tech_primitive_wood.png^tech_pot_empty.png",
 		"tech_primitive_wood.png",
@@ -205,9 +202,6 @@ minetest.register_node("tech:wooden_water_pot", {
 	on_timer =function(pos, elapsed)
 		return water_pot(pos, "tech:wooden_water_pot", elapsed)
 	end,
-	groups = {dig_immediate = 3, flammable = 1, temp_pass = 1},
-	sounds = nodes_nature.node_sound_wood_defaults(),
-
 })
 
 
@@ -225,11 +219,12 @@ crafting.register_recipe({
 --source, nodename, nodename_empty, tiles, node_box, desc, groups
 
 -- pot with salt water
-liquid_store.register_stored_liquid(
-	"nodes_nature:salt_water_source",
-	"tech:wooden_water_pot_salt_water",
-	"tech:wooden_water_pot",
-	{
+liquid_store.register_stored_liquid("tech:wooden_water_pot_salt_water",{
+  source = "nodes_nature:salt_water_source",
+  empty = "tech:wooden_water_pot",
+  description = S("Wooden Water Pot with Salt Water"),
+	groups = {dig_immediate = 2},
+  tiles = {
 		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_water.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -237,7 +232,7 @@ liquid_store.register_stored_liquid(
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png"
 	},
-	{
+  node_box = {
 		type = "fixed",
 		fixed = {
 			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
@@ -247,16 +242,16 @@ liquid_store.register_stored_liquid(
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	S("Wooden Water Pot with Salt Water"),
-	{dig_immediate = 2})
+})
 
 
 --pot with freshwater
-liquid_store.register_stored_liquid(
-	"nodes_nature:freshwater_source",
-	"tech:wooden_water_pot_freshwater",
-	"tech:wooden_water_pot",
-	{
+liquid_store.register_stored_liquid("tech:wooden_water_pot_freshwater",{
+  source = "nodes_nature:freshwater_source",
+  empty = "tech:wooden_water_pot",
+  description = S("Wooden Water Pot with Freshwater"),
+	groups = {dig_immediate = 2},
+  tiles = {
 		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_water.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -264,7 +259,7 @@ liquid_store.register_stored_liquid(
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png"
 	},
-	{
+  node_box = {
 		type = "fixed",
 		fixed = {
 			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
@@ -274,13 +269,8 @@ liquid_store.register_stored_liquid(
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	S("Wooden Water Pot with Freshwater"),
-	{dig_immediate = 2})
-
-
---make freshwater Pot drinkable on click
-minetest.override_item("tech:wooden_water_pot_freshwater",{
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+  --make freshwater Pot drinkable on click
+  on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
     if drink_water(clicker) then
       minimal.switch_node(pos, {name = "tech:wooden_water_pot"})
 			minetest.sound_play("nodes_nature_slurp",
@@ -346,11 +336,13 @@ minetest.register_node("tech:clay_watering_can", {
 })
 
 --clay watering can with fresh water
-liquid_store.register_stored_liquid(
-	"nodes_nature:freshwater_source",
-	"tech:clay_watering_can_freshwater",
-	"tech:clay_watering_can",
-	{
+liquid_store.register_stored_liquid("tech:clay_watering_can_freshwater",{
+  source = "nodes_nature:freshwater_source",
+  empty = "tech:clay_watering_can",
+  description = S("Clay Watering Can with Freshwater"),
+	groups = {dig_immediate = 2, pottery = 1},
+  sounds = nodes_nature.node_sound_stone_defaults(),
+  tiles = {
 		"tech_pottery.png^tech_watering_can_empty.png^tech_pot_water.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -358,48 +350,43 @@ liquid_store.register_stored_liquid(
 		"tech_pottery.png",
 		"tech_pottery.png"
 	},
-	{
+  node_box = {
 		type = "fixed",
 		fixed = watering_can_nodebox
 	},
-	S("Clay Watering Can with Freshwater"),
-	{dig_immediate = 2, pottery = 1})
---clay watering can with salt water
-liquid_store.register_stored_liquid(
-	"nodes_nature:salt_water_source",
-	"tech:clay_watering_can_salt_water",
-	"tech:clay_watering_can",
-	{
-		"tech_pottery.png^tech_watering_can_empty.png^tech_pot_water.png",
-		"tech_pottery.png",
-		"tech_pottery.png",
-		"tech_pottery.png",
-		"tech_pottery.png",
-		"tech_pottery.png"
-	},
-	{
-		type = "fixed",
-		fixed = watering_can_nodebox
-	},
-	S("Clay Watering Can with Salt Water"),
-	{dig_immediate = 2, pottery = 1})
-
---make clay watering can able to water a block on click
-minetest.override_item("tech:clay_watering_can_freshwater", {
-	on_use = function(itemstack, user, pointed_thing)
+  --make clay watering can able to water a block on click
+  on_use = function(itemstack, user, pointed_thing)
     return ncrafting.water_soil(itemstack, user, pointed_thing,
       "nodes_nature:freshwater_source", "tech:clay_watering_can")
 	end,
 })
-minetest.override_item("tech:clay_watering_can_salt_water", {
-	on_use = function(itemstack, user, pointed_thing)
+	
+--clay watering can with salt water
+liquid_store.register_stored_liquid("tech:clay_watering_can_salt_water",{
+  source = "nodes_nature:salt_water_source",
+  empty = "tech:clay_watering_can",
+  prevent_liquid_dumping = true,
+  description = S("Clay Watering Can with Salt Water"),
+	groups = {dig_immediate = 2, pottery = 1},
+  sounds = nodes_nature.node_sound_stone_defaults(),
+  tiles = {
+		"tech_pottery.png^tech_watering_can_empty.png^tech_pot_water.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png"
+	},
+  node_box = {
+		type = "fixed",
+		fixed = watering_can_nodebox
+	},
+  on_use = function(itemstack, user, pointed_thing)
     return ncrafting.water_soil(itemstack, user, pointed_thing,
       "nodes_nature:salt_water_source", "tech:clay_watering_can",
       "salty")
 	end,
 })
-
-
 
 -- wooden watering can
 minetest.register_node("tech:wooden_watering_can", {
@@ -444,11 +431,12 @@ crafting.register_recipe({
 })
 
 --wooden watering can with fresh water
-liquid_store.register_stored_liquid(
-	"nodes_nature:freshwater_source",
-	"tech:wooden_watering_can_freshwater",
-	"tech:wooden_watering_can",
-	{
+liquid_store.register_stored_liquid("tech:wooden_watering_can_freshwater",{
+  source = "nodes_nature:freshwater_source",
+  empty = "tech:wooden_watering_can",
+  description = S("Wooden Watering Can with Freshwater"),
+	groups = {dig_immediate = 2},
+  tiles = {
 		"tech_primitive_wood.png^tech_watering_can_empty.png^tech_pot_water.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -456,40 +444,37 @@ liquid_store.register_stored_liquid(
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png"
 	},
-	{
+  node_box = {
 		type = "fixed",
 		fixed = watering_can_nodebox
 	},
-	S("Wooden Watering Can with Freshwater"),
-	{dig_immediate = 2})
---wooden watering can with salt water
-liquid_store.register_stored_liquid(
-	"nodes_nature:salt_water_source",
-	"tech:wooden_watering_can_salt_water",
-	"tech:wooden_watering_can",
-	{
-		"tech_primitive_wood.png^tech_watering_can_empty.png^tech_pot_water.png",
-		"tech_primitive_wood.png",
-		"tech_primitive_wood.png",
-		"tech_primitive_wood.png",
-		"tech_primitive_wood.png",
-		"tech_primitive_wood.png"
-	},
-	{
-		type = "fixed",
-		fixed = watering_can_nodebox
-	},
-	S("Wooden Watering Can with Salt Water"),
-	{dig_immediate = 2})
---make wooden watering can able to water a block on click
-minetest.override_item("tech:wooden_watering_can_freshwater", {
-	on_use = function(itemstack, user, pointed_thing)
+  --make wooden watering can able to water a block on click
+  on_use = function(itemstack, user, pointed_thing)
     return ncrafting.water_soil(itemstack, user, pointed_thing,
       "nodes_nature:freshwater_source", "tech:wooden_watering_can")
 	end,
 })
-minetest.override_item("tech:wooden_watering_can_salt_water", {
-	on_use = function(itemstack, user, pointed_thing)
+
+	
+--wooden watering can with salt water
+liquid_store.register_stored_liquid("tech:wooden_watering_can_salt_water",{
+	source = "nodes_nature:salt_water_source",
+	empty = "tech:wooden_watering_can",
+  description = S("Wooden Watering Can with Salt Water"),
+	groups = {dig_immediate = 2},
+	tiles = {
+		"tech_primitive_wood.png^tech_watering_can_empty.png^tech_pot_water.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+	node_box = {
+		type = "fixed",
+		fixed = watering_can_nodebox
+	},
+  on_use = function(itemstack, user, pointed_thing)
     return ncrafting.water_soil(itemstack, user, pointed_thing,
       "nodes_nature:salt_water_source", "tech:wooden_watering_can",
       "salty")
@@ -549,7 +534,6 @@ minetest.register_node("tech:glass_bottle_clear", {
 		type='fixed',
 		fixed={-0.275, -0.5, -0.225, 0.25, 0.35, 0.275},
 	},
-
 })
 
 -- Crafting
@@ -574,38 +558,14 @@ crafting.register_recipe({
 
 -- Water stores for the jars
 -- Salt Water (Green + Clear)
-liquid_store.register_stored_liquid(
-	"nodes_nature:salt_water_source",
-	"tech:glass_bottle_green_saltwater",
-	"tech:glass_bottle_green",
-	{
-		"tech_bottle_green_water.png"
-	},
-	{
-		type = "fixed",
-		fixed =
-		{
-			{-0.2, -0.5, -0.2, 0.2, -0.4, 0.2}, -- base
-			{-0.3, -0.5, -0.2, -0.2, 0.2, 0.2}, -- z-wall
-			{0.3, -0.5, 0.2, 0.2, 0.2, -0.2}, -- z-wall
-			{-0.3, -0.5, -0.3, 0.3, 0.2, -0.2}, --x-wall
-			{0.3, -0.5, 0.3, -0.3, 0.2, 0.2}, --x-wall
-			{-0.3, 0.2, -0.3, -0.1, 0.3, 0.3}, -- top
-			{0.3, 0.2, 0.3, 0.1, 0.3, -0.3}, -- top
-			{0.1, 0.2, 0.3, -0.1, 0.3, 0.1}, -- top
-			{-0.1, 0.2, -0.3, 0.1, 0.3, -0.1}, -- top
-
-			{-0.2, 0.3, -0.2, -0.1, 0.5, 0.2}, -- lip
-			{0.2, 0.3, 0.2, 0.1, 0.5, -0.2}, -- lip
-			{0.1, 0.3, 0.2, -0.1, 0.5, 0.1}, -- lip
-			{0.1, 0.3, -0.2, -0.1, 0.5, -0.1}, -- lip
-		}
-	},
-	S("Green Glass Bottle With Salt Water"),
-	{dig_immediate = 2})
-minetest.override_item("tech:glass_bottle_green_saltwater",
-{
-	use_texture_alpha = c_alpha.blend,
+liquid_store.register_stored_liquid("tech:glass_bottle_green_saltwater",{
+	source = "nodes_nature:salt_water_source",
+	empty = "tech:glass_bottle_green",
+  description = S("Green Glass Bottle With Salt Water"),
+	groups = {dig_immediate = 2},
+	tiles  = {"tech_bottle_green_water.png"},
+  sounds = nodes_nature.node_sound_stone_defaults(),
+  use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	stack_max = minimal.stack_max_bulky * 2,
 	drawtype = "mesh",
@@ -616,38 +576,15 @@ minetest.override_item("tech:glass_bottle_green_saltwater",
 	},
 	inventory_image = "tech_bottle_icon_water.png^tech_bottle_green_icon.png",
 })
-liquid_store.register_stored_liquid(
-	"nodes_nature:salt_water_source",
-	"tech:glass_bottle_clear_saltwater",
-	"tech:glass_bottle_clear",
-	{
-		"tech_bottle_clear_water.png"
-	},
-	{
-		type = "fixed",
-		fixed =
-		{
-			{-0.2, -0.5, -0.2, 0.2, -0.4, 0.2}, -- base
-			{-0.3, -0.5, -0.2, -0.2, 0.2, 0.2}, -- z-wall
-			{0.3, -0.5, 0.2, 0.2, 0.2, -0.2}, -- z-wall
-			{-0.3, -0.5, -0.3, 0.3, 0.2, -0.2}, --x-wall
-			{0.3, -0.5, 0.3, -0.3, 0.2, 0.2}, --x-wall
-			{-0.3, 0.2, -0.3, -0.1, 0.3, 0.3}, -- top
-			{0.3, 0.2, 0.3, 0.1, 0.3, -0.3}, -- top
-			{0.1, 0.2, 0.3, -0.1, 0.3, 0.1}, -- top
-			{-0.1, 0.2, -0.3, 0.1, 0.3, -0.1}, -- top
 
-			{-0.2, 0.3, -0.2, -0.1, 0.5, 0.2}, -- lip
-			{0.2, 0.3, 0.2, 0.1, 0.5, -0.2}, -- lip
-			{0.1, 0.3, 0.2, -0.1, 0.5, 0.1}, -- lip
-			{0.1, 0.3, -0.2, -0.1, 0.5, -0.1}, -- lip
-		}
-	},
-	S("Clear Glass Bottle With Salt Water"),
-	{dig_immediate = 2})
-minetest.override_item("tech:glass_bottle_clear_saltwater",
-{
-	use_texture_alpha = c_alpha.blend,
+
+liquid_store.register_stored_liquid("tech:glass_bottle_clear_saltwater",{
+	source = "nodes_nature:salt_water_source",
+	empty = "tech:glass_bottle_clear",
+  description = S("Clear Glass Bottle With Salt Water"),
+	groups = {dig_immediate = 2},
+	tiles = {"tech_bottle_clear_water.png"},
+  use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	stack_max = minimal.stack_max_bulky * 2,
 	drawtype = "mesh",
@@ -656,43 +593,17 @@ minetest.override_item("tech:glass_bottle_clear_saltwater",
 		type='fixed',
 		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
 	},
-
 	inventory_image = "tech_bottle_icon_water.png^tech_bottle_clear_icon.png",
 })
 
 -- Freshwater Glass Bottles (Green + Clear)
-liquid_store.register_stored_liquid(
-	"nodes_nature:freshwater_source",
-	"tech:glass_bottle_green_freshwater",
-	"tech:glass_bottle_green",
-	{
-		"tech_bottle_green_water.png"
-	},
-	{
-		type = "fixed",
-		fixed =
-		{
-			{-0.2, -0.5, -0.2, 0.2, -0.4, 0.2}, -- base
-			{-0.3, -0.5, -0.2, -0.2, 0.2, 0.2}, -- z-wall
-			{0.3, -0.5, 0.2, 0.2, 0.2, -0.2}, -- z-wall
-			{-0.3, -0.5, -0.3, 0.3, 0.2, -0.2}, --x-wall
-			{0.3, -0.5, 0.3, -0.3, 0.2, 0.2}, --x-wall
-			{-0.3, 0.2, -0.3, -0.1, 0.3, 0.3}, -- top
-			{0.3, 0.2, 0.3, 0.1, 0.3, -0.3}, -- top
-			{0.1, 0.2, 0.3, -0.1, 0.3, 0.1}, -- top
-			{-0.1, 0.2, -0.3, 0.1, 0.3, -0.1}, -- top
-
-			{-0.2, 0.3, -0.2, -0.1, 0.5, 0.2}, -- lip
-			{0.2, 0.3, 0.2, 0.1, 0.5, -0.2}, -- lip
-			{0.1, 0.3, 0.2, -0.1, 0.5, 0.1}, -- lip
-			{0.1, 0.3, -0.2, -0.1, 0.5, -0.1}, -- lip
-		}
-	},
-	S("Green Glass Bottle With Fresh Water"),
-	{dig_immediate = 2})
-minetest.override_item("tech:glass_bottle_green_freshwater",
-{
-	drawtype = "mesh",
+liquid_store.register_stored_liquid("tech:glass_bottle_green_freshwater",{
+	source = "nodes_nature:freshwater_source",
+	empty = "tech:glass_bottle_green",
+	tiles = {"tech_bottle_green_water.png"},
+  description = S("Green Glass Bottle With Fresh Water"),
+	groups = {dig_immediate = 2},
+  drawtype = "mesh",
 	mesh = "tech_bottle_liquid.obj",
 	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
@@ -709,39 +620,13 @@ minetest.override_item("tech:glass_bottle_green_freshwater",
     end
 	end,
 })
-liquid_store.register_stored_liquid(
-	"nodes_nature:freshwater_source",
-	"tech:glass_bottle_clear_freshwater",
-	"tech:glass_bottle_clear",
-	{
-		"tech_bottle_clear_water.png"
-	},
-	{
-		type = "fixed",
-		fixed =
-		{
-			{-0.2, -0.5, -0.2, 0.2, -0.4, 0.2}, -- base
-			{-0.3, -0.5, -0.2, -0.2, 0.2, 0.2}, -- z-wall
-			{0.3, -0.5, 0.2, 0.2, 0.2, -0.2}, -- z-wall
-			{-0.3, -0.5, -0.3, 0.3, 0.2, -0.2}, --x-wall
-			{0.3, -0.5, 0.3, -0.3, 0.2, 0.2}, --x-wall
-			{-0.3, 0.2, -0.3, -0.1, 0.3, 0.3}, -- top
-			{0.3, 0.2, 0.3, 0.1, 0.3, -0.3}, -- top
-			{0.1, 0.2, 0.3, -0.1, 0.3, 0.1}, -- top
-			{-0.1, 0.2, -0.3, 0.1, 0.3, -0.1}, -- top
-
-			{-0.2, 0.3, -0.2, -0.1, 0.5, 0.2}, -- lip
-			{0.2, 0.3, 0.2, 0.1, 0.5, -0.2}, -- lip
-			{0.1, 0.3, 0.2, -0.1, 0.5, 0.1}, -- lip
-			{0.1, 0.3, -0.2, -0.1, 0.5, -0.1}, -- lip
-		}
-	},
-	S("Clear Glass Bottle With Fresh Water"),
-	{dig_immediate = 2})
-
-minetest.override_item("tech:glass_bottle_clear_freshwater",
-{
-	drawtype = "mesh",
+liquid_store.register_stored_liquid("tech:glass_bottle_clear_freshwater",{
+	source = "nodes_nature:freshwater_source",
+	empty = "tech:glass_bottle_clear",
+	tiles = {"tech_bottle_clear_water.png"},
+  description = S("Clear Glass Bottle With Fresh Water"),
+	groups = {dig_immediate = 2},
+  drawtype = "mesh",
 	mesh = "tech_bottle_liquid.obj",
 	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
