@@ -323,7 +323,10 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
    -- Set Creator
    if minetest.get_item_group(itemstack:get_name(), 'craftedby') > 0 then
       imeta:set_string('creator', name)
-	  sdesc = name .. "'s " .. sdesc
+      -- don't add creator name to sort description for single player
+      if not minetest.is_singleplayer() then
+		sdesc = name .. "'s " .. sdesc
+	  end
 	  imeta:set_string('short_description', sdesc)
    end
 

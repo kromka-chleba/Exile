@@ -561,21 +561,21 @@ minetest.register_craftitem("tech:iron_key", {
 
 
 
+if not minetest.is_singleplayer() then
+	crafting.register_recipe({
+		type = "anvil",
+		output = "tech:nails 8",
+		items = {'tech:iron_ingot 1',},
+		level = 1,
+		always_known = true,
+	})
 
-
-crafting.register_recipe({
-	type = "anvil",
-	output = "tech:nails 8",
-	items = {'tech:iron_ingot 1',},
-	level = 1,
-	always_known = true,
-})
-
-crafting.register_recipe({
-	type = "anvil",
-	output = "tech:iron_key 1",
-	items = {'tech:iron_ingot 1',},
-	level = 1,
-	always_known = true,
-})
+	crafting.register_recipe({
+		type = "anvil",
+		output = "tech:iron_key 1",
+		items = {'tech:iron_ingot 1',},
+		level = 1,
+		always_known = true,
+	})
+end
 
