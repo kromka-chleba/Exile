@@ -198,10 +198,9 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	if pointed_thing.type ~= "node" then
 		return
 	end
-  -- if dump isn't a specified boolean, set to true (so watering cans do not dump their contents)
-  if (type(dump) ~= "boolean") then
-    dump = true
-  end
+  -- if dump isn't a specified boolean, set to true (can be set to false so liquid stores such as watering cans do not dump their contents)
+  dump = (type(dump) == "boolean" and dump
+    or type(liquid_store.stored_liquids[itemstack:get_name()]) == "table" and liquid_store.stored_liquids.no_dumping or true)
   -- do not dump an unregistered source!
   if (type(source) ~= "string") then
     source = ""
@@ -214,7 +213,7 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 	local ndef = node and minetest.registered_nodes[node.name]
 	-- If pointing at a full liquid store don't dump
 	if liquid_store.stored_liquids[node.name] then
-		dump = false;
+		dump = false
 	end
 	-- check if provided user exists or if sneaking
   if ndef and not (minetest.is_player(user) and user:get_player_control().sneak) then
@@ -366,39 +365,43 @@ end
 -- This function can be called from any mod (that depends on liquid_store).
 -- Also need to register the liquid itself seperately
 
-function liquid_store.register_stored_liquid(source, nodename, nodename_empty, tiles, node_box, desc, groups)
+function liquid_store.register_stored_liquid(name,def)
+  assert(type(name) == "string","liquid_store.register_stored_liquid: expected string for 'name', got "..type(name))
+  assert(type(def) == "table","liquid_store.register_stored_liquid: expected definition table, got "..type(def))
 
-	liquid_store.stored_liquids[nodename] = {
-		nodename = nodename,
-		source = source,
-		nodename_empty = nodename_empty
+	liquid_store.stored_liquids[name] = {
+		nodename = name,
+		source = def.source,
+		nodename_empty = def.empty
 	}
+  local stored = liquid_store.stored_liquids[name]
+  -- remove from node definition
+  def.source = nil
+  def.empty = nil
 
+  local basedef = {
+    stack_max = 1,
+    liquids_pointable = true,
+    paramtype = "light",
+    groups = minimal.merge_tables({liquid_storage = 1}, def.groups or {}),
+    sounds = minimal.merge_tables(nodes_nature.node_sound_defaults(), def.sounds or {}),
+    on_use = function(...)
+      return liquid_store.on_use_filled_bucket(stored.source,stored.nodename_empty,...)
+    end,
+    on_place = function(...)
+      return liquid_store.on_place(name,...)
+    end,
+  }
+  basedef.drawtype = def.node_box and "nodebox" or "normal" -- set drawtype to nodebox if node_box is provided
+  -- add basedef values
+  for index,value in pairs(basedef) do
+    if not def[index] then
+      def[index] = value
+    end
+  end
 
-	if nodename ~= nil then
-    groups.liquid_storage = 1 -- contains liquid
-
-		minetest.register_node(nodename, {
-			description = desc,
-			tiles = tiles,
-			drawtype = "nodebox",
-			node_box = node_box,
-			paramtype = "light",
-			stack_max = 1,
-			liquids_pointable = true,
-			groups = groups,
-			sounds = nodes_nature.node_sound_defaults(),
-
-			on_use = function(...)
-				return liquid_store.on_use_filled_bucket(source,nodename_empty,...)
-			end,
-
-      on_place = function(...)
-        return liquid_store.on_place(nodename,...)
-      end,
-		})
-
-	end
+  minetest.register_node(name,def)
+  return minetest.registered_nodes[name]
 end
 
 
