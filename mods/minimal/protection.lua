@@ -29,7 +29,7 @@ function minimal.protection_is_ownable( pointed_thing, pt_pos )
 end
 
 function minimal.protection_key_click( itemstack, clicker, pointed_thing)
-	if pointed_thing.type ~= 'node' then
+	if not pointed_thing or pointed_thing.type ~= 'node' then
 		return
 	end
 	local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
@@ -106,6 +106,7 @@ minetest.register_on_player_receive_fields(
 )
 
 function minimal.protection_key_use( itemstack, user, pointed_thing )
+	if not pointed_thing or pointed_thing.type ~= "node" then return end
 	local owner = user:get_player_name()
 	local key_owner_test = itemstack:get_meta():get_string("creator")
 	local playsound = false
@@ -140,6 +141,7 @@ function minimal.protection_key_use( itemstack, user, pointed_thing )
 end
 
 function minimal.protection_nail_use( itemstack, user, pointed_thing )
+	if not pointed_thing or pointed_thing.type ~= "node" then return end
 	local owner = user:get_player_name()
 	local playsound = false
 	local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
