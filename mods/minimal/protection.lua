@@ -106,6 +106,9 @@ minetest.register_on_player_receive_fields(
 )
 
 function minimal.protection_key_use( itemstack, user, pointed_thing )
+	if pointed_thing.type ~= 'node' then
+		return
+	end
 	local owner = user:get_player_name()
 	local key_owner_test = itemstack:get_meta():get_string("creator")
 	local playsound = false
