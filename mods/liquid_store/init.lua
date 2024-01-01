@@ -49,6 +49,7 @@ local function check_protection(pos, name, text)
 	return false
 end
 
+-- handle stacks
 local function handle_stacks(player, stack_items, new_item)
    local inv = player:get_inventory()
    if stack_items:get_count() > 1 then
@@ -62,6 +63,18 @@ local function handle_stacks(player, stack_items, new_item)
    else
       return ItemStack(new_item)
    end
+end
+-- handle punching + finding if it is a node
+local function handle_interaction(player, pointed_thing)
+  if not pointed_thing then
+    return
+  end
+  if pointed_thing.type == "node" then
+    return "node"
+  elseif pointed_thing.type == "object" and pointed_thing.ref then
+    pointed_thing.ref:punch(player, 1.0, { full_punch_interval=1.0 }, nil)
+  end
+  return pointed_thing.type
 end
 
 local function find_stored(empty, sourcename)
@@ -80,7 +93,6 @@ end
 -- store metadata into a provided stack (grab liquid)
 local function liquid_metadata(pos, oldnode, t_stack)
   local nodedata = minetest.registered_nodes[oldnode.name]
-
   if (type(nodedata) ~= "table" and type(t_stack) ~= "userdata") then
     return
   end
@@ -106,6 +118,10 @@ end
 --Function for empty buckets to call on_use... as return (so gives item)
 function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 
+  if handle_interaction(user, pointed_thing) ~= "node" then
+    return
+  end
+  --[[
    if pointed_thing.type == "object" then
       pointed_thing.ref:punch(user, 1.0, { full_punch_interval=1.0 }, nil)
       return user:get_wielded_item()
@@ -113,9 +129,8 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
       -- do nothing if it's neither object nor node
       return
    end
-
-   minetest.check_for_falling(pointed_thing.under) -- install gravity
-
+   --]]
+  minetest.check_for_falling(pointed_thing.under) -- install gravity
 
    -- Check if pointing to a liquid source
    local node = minetest.get_node(pointed_thing.under)
@@ -127,23 +142,22 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
    local item_count = user:get_wielded_item():get_count() -- Unused?
    local storeddef = liquid_store.stored_liquids[name]
 
-   if liquiddef ~= nil
-      and name == liquiddef.source then
-      if check_protection(pointed_thing.under, user:get_player_name(),
-			  "take ".. node.name) then
-	 return nil
-      end
+   if liquiddef and
+   name == liquiddef.source then
+    if check_protection(pointed_thing.under, user:get_player_name(),
+      "take ".. node.name) then
+      return
+    end
+    --find a registered stored liquid who has an empty that matches
+    -- what we are using and a source that matches our liquid
+    local giving_back = find_stored(itemstack:get_name(), name)
 
-      --find a registered stored liquid who has an empty that matches
-      -- what we are using and a source that matches our liquid
-      local giving_back = find_stored(itemstack:get_name(), name)
-
-      if not giving_back then
+    if not giving_back then
 	 --nothing matches
-	 return nil
-      end
+      return
+    end
 
-      local new_wield = handle_stacks(user, user:get_wielded_item(),
+    local new_wield = handle_stacks(user, user:get_wielded_item(),
 				      giving_back)
 
       -- force_renew requires a source neighbour
@@ -195,9 +209,9 @@ end
 --Function for filled buckets to call on_use... as return (so gives item)
 function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user, pointed_thing, dump)
 	-- Must be pointing to node
-	if pointed_thing.type ~= "node" then
-		return
-	end
+	if handle_interaction(user, pointed_thing) ~= "node" then
+    return
+  end
   -- if dump isn't a specified boolean, set to true (can be set to false so liquid stores such as watering cans do not dump their contents)
   dump = (type(dump) == "boolean" and dump
     or type(liquid_store.stored_liquids[itemstack:get_name()]) == "table" and liquid_store.stored_liquids.no_dumping or true)
@@ -273,7 +287,7 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
 end
 
 function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
-  if (pointed_thing.type ~= "node" or type(itemstack) ~= "userdata") then
+  if handle_interaction(placer, pointed_thing) ~= "node" then
     return
   end
   if (type(place_name) ~= "string") then
