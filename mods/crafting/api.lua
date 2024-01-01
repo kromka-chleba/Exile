@@ -315,13 +315,29 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
    for i=1, #crafting.registered_on_crafts do
       crafting.registered_on_crafts[i](name, recipe)
    end
-   -- create item - set creator
-   local itemstack=ItemStack(recipe.output)
-   if minetest.get_item_group(recipe.output, 'craftedby') > 0 then
-      local imeta=itemstack:get_meta()
+   -- create item
+   local itemstack = ItemStack(recipe.output)
+   local imeta = itemstack:get_meta()
+   local idef = itemstack:get_definition()
+   local sdesc = itemstack:get_short_description()
+   -- Set Creator
+   if minetest.get_item_group(itemstack:get_name(), 'craftedby') > 0 then
       imeta:set_string('creator', name)
+      -- don't add creator name to sort description for single player
+      if not minetest.is_singleplayer() then
+		sdesc = name .. "'s " .. sdesc
+	  end
+	  imeta:set_string('short_description', sdesc)
    end
 
+   -- Add Tool Tips to Description
+
+   if idef._tool_tips and idef._tool_tips ~= '' then
+      imeta:set_string('description',sdesc .. idef._tool_tips)
+	--  minetest.override_item(name, { description = newdesc,
+    --                        _orig_desc = orig_desc })
+
+   end
    local max_amt = itemstack:get_stack_max()
    local count = itemstack:get_count() -- use stack's size for iterating
    local subtract_loop = math.ceil(count / max_amt)
