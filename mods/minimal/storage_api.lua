@@ -199,6 +199,25 @@ function storage.register_storage(name,def)
       if can_interact(pos, player)
       and minetest.get_item_group(stack:get_name(),"backpack") == 0 then
         return stack:get_count()
+      elseif minetest.get_item_group(stack:get_name(),"backpack") > 0 then
+        local imeta = stack:get_meta()
+        local inv_list = imeta:get_string("inv_main") -- custom inventory metastring for bags
+        if inv_list == "" then
+          inv_list = {}
+        else
+          -- got an actual serialized table, deserialize
+          inv_list = minetest.deserialize(inv_list)
+          for invdex,content in pairs(inv_list) do
+            if content == "" then
+              -- remove index manually, table.remove did not work lol
+              inv_list[invdex] = nil
+            end
+          end
+        end
+        -- allow putting empty bags in storage
+        if #inv_list <= 0 then
+          return stack:get_count()
+        end
       end
       return 0
     end,

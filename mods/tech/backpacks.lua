@@ -12,14 +12,37 @@ local S = tech.S
 
 
 -- Woven
-backpacks.register_backpack("woven_bag", S("Woven Bag"), "tech_woven.png", 8,2, {snappy = 3, temp_pass = 1, craftedby = 1, flammable = 1}, nodes_nature.node_sound_leaves_defaults())
+backpacks.register_backpack("woven_bag",{
+  description = S("Woven Bag"),
+  texture = "tech_woven.png",
+  width = 8,
+  height = 2,
+  groups = {snappy = 3, temp_pass = 1, craftedby = 1, flammable = 1},
+  sounds = nodes_nature.node_sound_leaves_defaults()
+})
 
 -- Wicker
-backpacks.register_backpack("wicker_bag", S("Wicker Bag"), "tech_wicker.png", 8,2, {snappy = 3, temp_pass = 1, craftedby = 1, flammable = 1}, nodes_nature.node_sound_leaves_defaults())
+backpacks.register_backpack("wicker_bag",{
+  description = S("Wicker Bag"),
+  texture = "tech_wicker.png",
+  width = 8,
+  height = 2,
+  groups = {snappy = 3, temp_pass = 1, craftedby = 1, flammable = 1},
+  sounds = nodes_nature.node_sound_leaves_defaults()
+})
 
 
 -- fabric
-backpacks.register_backpack("fabric_bag", S("Fabric Bag"), "tech_coarse_fabric.png", 8,4, {snappy = 3, temp_pass = 1, craftedby = 1, flammable = 1}, nodes_nature.node_sound_leaves_defaults())
+backpacks.register_backpack("fabric_bag",{
+  description = S("Fabric Bag"),
+  empty_name = S("Empty Fabric Bag"),
+  full_name = S("Full Fabric Bag"),
+  texture = "tech_coarse_fabric.png",
+  width = 8,
+  height = 4,
+  groups = {snappy = 3, temp_pass = 1, craftedby = 1, flammable = 1},
+  sounds = nodes_nature.node_sound_leaves_defaults()
+})
 
 
 ---------------------------------------
