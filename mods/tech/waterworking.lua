@@ -83,7 +83,7 @@ minetest.register_node("tech:clay_water_pot", {
 						   pointed_thing)
 	end,
 	on_place = function(itemstack, placer, pointed_thing)
-	   return liquid_store.on_place("tech:clay_water_pot", itemstack, placer,
+	   return liquid_store.on_place(itemstack, placer,
 					pointed_thing)
 	end,
 	--collect rain water
@@ -193,7 +193,7 @@ minetest.register_node("tech:wooden_water_pot", {
 		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	end,
   on_place = function(itemstack, placer, pointed_thing)
-    return liquid_store.on_place("tech:wooden_water_pot", itemstack, placer, pointed_thing)
+    return liquid_store.on_place(itemstack, placer, pointed_thing)
   end,
 		--collect rain water
 	on_construct = function(pos)
@@ -500,7 +500,7 @@ minetest.register_node("tech:glass_bottle_green", {
 		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	end,
   on_place = function(itemstack, placer, pointed_thing)
-    return liquid_store.on_place("tech:glass_bottle_green", itemstack, placer, pointed_thing)
+    return liquid_store.on_place(itemstack, placer, pointed_thing)
   end,
 	groups = {dig_immediate = 2, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
@@ -525,7 +525,7 @@ minetest.register_node("tech:glass_bottle_clear", {
 		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	end,
   on_place = function(itemstack, placer, pointed_thing)
-    return liquid_store.on_place("tech:glass_bottle_clear", itemstack, placer, pointed_thing)
+    return liquid_store.on_place(itemstack, placer, pointed_thing)
   end,
 	groups = {dig_immediate = 2, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),

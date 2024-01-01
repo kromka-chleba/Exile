@@ -286,76 +286,60 @@ function liquid_store.on_use_filled_bucket(source,nodename_empty,itemstack, user
   end
 end
 
-function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
+function liquid_store.on_place(itemstack, placer, pointed_thing, place_name)
   if handle_interaction(placer, pointed_thing) ~= "node" then
     return
-  end
-  if (type(place_name) ~= "string") then
-    itemstack:get_name()
   end
 
   local pos = pointed_thing.under
   local pos_top = pointed_thing.above
-
-  local isliquid = false -- to prevent placement if a liquid that can't be grabbed
-  
-  local ndef = minimal.get_nodedef(pos) -- grab a possible liquid if correct
-  local stored = find_stored(itemstack:get_name(), ndef.name)
-  if (stored) then
-    isliquid = true
-  end
-  if ndef then
-    if ndef.drawtype == "liquid" then
-      isliquid = true
-    end
-  else -- do not place if can't find nodedata
+  if not minetest.is_player(placer) or (minetest.is_protected(pos, placer) or minetest.is_protected(pos_top, placer)) then
+    -- not a player or area is protected
     return
   end
 
-  if (minetest.is_player(placer)) then
-     if (minetest.is_protected(pos, placer:get_player_name())
-	 or minetest.is_protected(pos_top, placer:get_player_name()) ) then
-      return
-    end
-    
-    if (ndef and not placer:get_player_control().sneak
-      and not isliquid
-      and not minimal.in_group(ndef,"liquid_storage") ) then
-      local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
-      if on_click ~= false then
-        return on_click
-      end
+  place_name = type(place_name) == "string" and place_name or itemstack:get_name()
+  local lsdef = minetest.registered_nodes[place_name] -- liquid store definition
+
+  local ndef = minimal.get_nodedef(pos) -- grab a possible liquid or liquid store if correct
+  local stored = find_stored(place_name, ndef.name)
+
+  local isliquid = stored and true or false -- to prevent placement if a liquid that can't be grabbed
+  local isliqstore = minimal.in_group(ndef,"liquid_storage")
+
+  if ndef and ndef.drawtype == "liquid" then
+    isliquid = true
+  elseif not ndef then -- do not place if can't find nodedata
+    return
+  end
+
+  if not (placer:get_player_control().sneak
+    or isliquid
+    or isliqstore ) then
+    local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+    if on_click ~= false then
+      return on_click
     end
   end
 
-  local tndef = minimal.get_nodedef(pos_top) -- check if can be placed
-
+  local tndef = minimal.get_nodedef(pos_top) -- top_node definition - check if can be placed
   if not tndef then -- do not place if can't find nodedata
     return
   end
-  
-  local pdef = minetest.registered_nodes[place_name]
+
   if stored then
     -- if a possible liquid and an empty bucket
     return liquid_store.on_use_empty_bucket(itemstack, placer, pointed_thing)
-  elseif pdef then
+  elseif lsdef then
     -- verify if can place bucket
     if (ndef.buildable_to ~= true and tndef.buildable_to == true or isliquid == true) then
       -- if any of the above is correct, place above the node
       pos = pos_top
-    elseif (ndef.buildable_to ~= true and tndef.buildable_to ~= true) then
+    elseif not (ndef.buildable_to and tndef.buildable_to) then
       return -- can't place bucket
     end
     if not (minimal.player_in_creative(placer)) then
       itemstack:take_item()
-    end
-    
-    -- make placement sound
-    if pdef.sounds then
-      local place = pdef.sounds.place
-      if place then
-        minetest.sound_play(place.name,{pos = pos, gain = place.gain, max_hear_distance = place.max_hear_distance})
-      end
     end
     -- place the bucket
     minimal.switch_node(pos, {name = place_name}, {placer, itemstack, pointed_thing})
@@ -397,13 +381,13 @@ function liquid_store.register_stored_liquid(name,def)
     stack_max = 1,
     liquids_pointable = true,
     paramtype = "light",
-    groups = minimal.merge_tables({liquid_storage = 1}, def.groups or {}),
+    groups = {liquid_storage = 1},
     sounds = minimal.merge_tables(nodes_nature.node_sound_defaults(), def.sounds or {}),
     on_use = function(...)
       return liquid_store.on_use_filled_bucket(stored.source,stored.nodename_empty,...)
     end,
-    on_place = function(...)
-      return liquid_store.on_place(name,...)
+    on_place = function(itemstack, placer, pointed_thing)
+      return liquid_store.on_place(itemstack, placer, pointed_thing, name)
     end,
   }
   basedef.drawtype = def.node_box and "nodebox" or "normal" -- set drawtype to nodebox if node_box is provided
@@ -413,6 +397,7 @@ function liquid_store.register_stored_liquid(name,def)
       def[index] = value
     end
   end
+  def.groups = minimal.merge_tables(basedef.groups, def.groups or {})
 
   minetest.register_node(name,def)
   return minetest.registered_nodes[name]
