@@ -305,8 +305,6 @@ function liquid_store.on_place(itemstack, placer, pointed_thing, place_name)
   local stored = find_stored(place_name, ndef.name)
 
   local isliquid = stored and true or false -- to prevent placement if a liquid that can't be grabbed
-  local isliqstore = minimal.in_group(ndef,"liquid_storage")
-
   if ndef and ndef.drawtype == "liquid" then
     isliquid = true
   elseif not ndef then -- do not place if can't find nodedata
@@ -315,7 +313,7 @@ function liquid_store.on_place(itemstack, placer, pointed_thing, place_name)
 
   if not (placer:get_player_control().sneak
     or isliquid
-    or isliqstore ) then
+    or minimal.in_group(ndef,"liquid_storage") ) then
     local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
     if on_click ~= false then
       return on_click
