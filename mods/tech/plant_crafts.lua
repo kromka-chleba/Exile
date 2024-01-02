@@ -302,14 +302,14 @@ crafting.register_recipe({
 --
 
 crafting.register_recipe({
-	type = "mortar_and_pestle",
+	type = {"mortar_and_pestle", "knife"},
 	output = "tech:peeled_anperla 6",
 	items = {"nodes_nature:anperla_root 6"},
 	level = 1,
 	always_known = true,
 })
 crafting.register_recipe({
-	type = "mortar_and_pestle",
+	type = {"mortar_and_pestle", "knife"},
 	output = "tech:peeled_anperla 36",
 	items = {"nodes_nature:anperla_root 36"},
 	level = 1,
@@ -395,7 +395,7 @@ crafting.register_recipe({
 --Sticks from woody plants
 --Bulk sticks from woody plants
 crafting.register_recipe({
-	type = {"chopping_block","hand"},
+	type = {"chopping_block","knife"},
 	output = "tech:stick 24",
 	items = {"group:woody_plant 12"},
 	level = 1,

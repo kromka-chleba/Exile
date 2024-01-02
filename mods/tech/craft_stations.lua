@@ -14,7 +14,7 @@ local legacy_station_recipes = false
 -- Crafting tabs for the inventory
 crafting.make_global_inventory_tab("survival:crafting", S("Crafting"), "hand", {creative = false})
 crafting.make_global_inventory_tab("survival:pottery", S("Pottery"), "hand_pottery", {creative = false})
-crafting.make_global_inventory_tab("survival:wattle", S("Wattle"), "hand_wattle", {creative = false})
+--crafting.make_global_inventory_tab("survival:wattle", S("Wattle"), "hand_wattle", {creative = false})
 crafting.make_global_inventory_tab("survival:mixing", S("Mixing"), "hand_mixing", {creative = false})
 
 --Register
@@ -51,6 +51,8 @@ crafting.register_type("hand_tools", "Tools")	-- Tools Tab
 crafting.register_type("hand_mixing", "Mixing")	-- Mixing Tab
 
 crafting.register_type("knife", "Crafting")  	-- Replace some of the crafting spot
+crafting.register_type("knife_stations", "Stations")  	-- Replace some of the crafting spot
+crafting.register_type("knife_wattle", "wattle")  	-- Replace some of the crafting spot
 crafting.register_type("knife_mixing", "Mixing")
 crafting.register_type("hammer", "Crafting") 	-- Hammering spot replacement
 crafting.register_type("hammer_mixing", "Mixing")
@@ -673,7 +675,7 @@ minetest.register_node("tech:glass_furnace", {
 
 -- lowered crafting requirements as a trade off to it no longer being free again
    crafting.register_recipe({ --weaving_frame
-	 type   = {"crafting_spot","hand","knife"},
+	 type   = {"crafting_spot","knife_stations"},
 	 output = "tech:weaving_frame",
 --	 items  = {'tech:stick 12', 'group:fibrous_plant 8'},
 	 items  = {'tech:stick 6', 'group:fibrous_plant 4'},
@@ -707,7 +709,7 @@ crafting.register_recipe({
 ----Wood--
 --chopping_block
 crafting.register_recipe({
-	type   = {"crafting_spot", "chopping_block", "hand"},
+	type   = {"crafting_spot", "chopping_block", "knife_stations"},
 	output = "tech:chopping_block",
 	items  = {'group:log'},
 	level  = 1,
@@ -715,7 +717,7 @@ crafting.register_recipe({
 	})
 --brick_makers_bench
 crafting.register_recipe({
-	type   = {"crafting_spot", "hand"},
+	type   = {"crafting_spot", "knife_stations"},
 	output = "tech:brick_makers_bench",
 	items  = {'tech:stick 24'},
 	level  = 1,
@@ -926,7 +928,7 @@ end
 if legacy_station_recipes == true then
    --grinding_stone from craft spot
    crafting.register_recipe({ --chopping_block
-	 type   = {"crafting_spot", "chopping_block", "hand"},
+	 type   = {"crafting_spot", "chopping_block", "hand",'knife'},
 	 output = "tech:chopping_block",
 	 items  = {'group:log'},
 	 level  = 1,
