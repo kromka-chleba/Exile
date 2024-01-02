@@ -46,6 +46,7 @@ local sediment_list = {
         {name = "gravel",
          description = S("Gravel"), hardness = sediment.hardness.soft,
          id = 5, sound = sediment.sounds.gravel,
+		 groups = {gravel = 1},
          sound_wet = sediment.sounds.gravel_wet,
          rocky_substrate = 4,
          organic_substrate = 0,

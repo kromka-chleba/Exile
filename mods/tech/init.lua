@@ -41,7 +41,7 @@ dofile(modpath .. "/lantern.lua")
 -- Dying recipes
 
 crafting.register_recipe({
-	type = {"crafting_spot","hand"},
+	type = {"crafting_spot","knife_stations"},
 	output = "ncrafting:dye_pot 1",
 	items = {"tech:clay_water_pot 1", "tech:stick 1"},
 	level = 1,
@@ -49,7 +49,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = {"crafting_spot","hand"},
+	type = {"crafting_spot","knife_stations"},
 	output = "ncrafting:dye_table 1",
 	items = {"tech:stick 12"},
 	level = 1,
