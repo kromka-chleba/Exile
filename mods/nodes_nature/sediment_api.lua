@@ -195,6 +195,10 @@ function sediment.new(args)
          fertility = args.fertility, -- values 0-4 (+ 2 for fertile soils)
          density = args.density, -- soil density (clay - dense, loam - not), values 0-4
         }
+	-- added support for the sediment data table containing groups.
+	if args.groups ~= nil then
+		groups = merge_tables(groups, args.groups)
+	end
     local mod_name = minetest.get_current_modname() -- allows making artificial soils
     local sed = {
         name = args.name,
