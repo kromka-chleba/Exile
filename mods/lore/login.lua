@@ -178,6 +178,9 @@ local function queue_pop(name) -- Run the first queued action, remove from list
    return qitem
 end
 local function queue_start(player)
+   if not minetest.is_player(player) then
+      return
+   end
    local name = player:get_player_name()
    if not player_queue[name] then player_queue[name] = {} end
    for _ = 1, #player_queue[name] do
