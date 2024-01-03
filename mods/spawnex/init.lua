@@ -196,7 +196,7 @@ end
 local function load_gate(hex) -- forceload a gate's location to prep for a spawn
    pirnt("Load gate for ",hex2string(hex))
    local def = region.get(hex)
-   if def.forceloaded == true then return end
+   if def.forceloaded == true or not def.currentgate then return end
    local mb_min = vector.new(math.floor(def.currentgate.x / 16) * 16,
 			     math.floor(def.currentgate.y / 16) * 16,
 			     math.floor(def.currentgate.z / 16) * 16)
