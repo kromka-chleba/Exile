@@ -213,19 +213,15 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
 	if handle_interaction(user, pointed_thing) ~= "node" then
     return
   end
-  local storeddef = liquid_store.stored_liquids[itemstack:get_name()]
-  if not storeddef then
-    -- no, bad behaviour!
-    return
-  end
+  -- get storeddef or create a fake one
+  local storeddef = liquid_store.stored_liquids[itemstack:get_name()] or {source = "", nodename_empty = "", no_dumping = true}
   -- permit overrides
   source = type(source) == "string" and source or storeddef.source
   nodename_empty = type(nodename_empty) == "string" and nodename_empty or storeddef.nodename_empty
   -- if dump isn't a specified boolean, set to true (can be set to false so liquid stores such as watering cans do not dump their contents)
   dump = (type(dump) == "boolean" and dump or storeddef.no_dumping or true)
   -- do not dump an unregistered source!
-  if (type(source) ~= "string" or source == "" or not minetest.registered_nodes[source]) then
-    source = "" -- force string definition to prevent find_stored error
+  if (source == "" or not minetest.registered_nodes[source]) then
     dump = false
   end
 

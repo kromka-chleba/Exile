@@ -97,9 +97,7 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, water_source,
   end
 
   -- continue as normal (with a twist)
-  return liquid_store.on_use_filled_bucket(
-    water_source, empty_container,
-    itemstack, user, pointed_thing, false)
+  return liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, false)
 end
 
 -- fertilize soil with a fertilizer
