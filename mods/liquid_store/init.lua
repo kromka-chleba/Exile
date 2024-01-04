@@ -36,6 +36,29 @@ function liquid_store.contents(nodename)
    end
 end
 
+-- get a stored liquid's definition table
+function liquid_store.get_sl_def(nodename,producefake) -- get stored liquid definition
+  local sl_def = liquid_store.stored_liquids[nodename]
+  if sl_def then
+    return sl_def
+  end
+  -- allow for getting stored liquids that have the same nodename_empty as nodename
+  sl_def = {}
+  for _,storeddef in pairs(liquid_store.stored_liquids) do
+    if storeddef.nodename_empty == nodename then
+      table.insert(sl_def,1,storeddef)
+    end
+  end
+  -- got a table of associated storeddefs
+  if #sl_def > 0 then
+    return sl_def
+  end
+  -- return an empty stored_liquid definition
+  if producefake == true then
+    return {source = "", nodename_empty = "", dump = false} 
+  end
+end
+
 local function check_protection(pos, user, text)
   local name = (minetest.is_player(user) and user:get_player_name()) or ""
 	if minetest.is_protected(pos, name) then
@@ -108,7 +131,7 @@ end
 
 function liquid_store.drain_store(player, itemstack)
    local itemname = itemstack:get_name()
-   local sdef = liquid_store.stored_liquids[itemname]
+   local sdef = liquid_store.get_sl_def(itemname)
    if sdef then
       return handle_stacks(player, itemstack, sdef.nodename_empty)
    else
@@ -141,7 +164,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
    end
    local liquiddef = liquid_store.liquids[name]
    local item_count = user:get_wielded_item():get_count() -- Unused?
-   local storeddef = liquid_store.stored_liquids[name]
+   local storeddef = liquid_store.get_sl_def(name)
 
    if liquiddef and
    name == liquiddef.source then
@@ -214,12 +237,13 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     return
   end
   -- get storeddef or create a fake one
-  local storeddef = liquid_store.stored_liquids[itemstack:get_name()] or {source = "", nodename_empty = "", dump = false}
+  local storeddef = liquid_store.get_sl_def(itemstack:get_name(),true)
+  --local storeddef = liquid_store.stored_liquids[itemstack:get_name()] or {source = "", nodename_empty = "", dump = false}
   -- permit overrides
   source = type(source) == "string" and source or storeddef.source
   nodename_empty = type(nodename_empty) == "string" and nodename_empty or storeddef.nodename_empty
   -- if dump isn't a specified boolean, set to true (can be set to false so liquid stores such as watering cans do not dump their contents)
-  dump = type(dump) == "boolean" and dump
+  dump = type(dump) == "boolean" and dump or nil
   if type(dump) ~= "boolean" then
     dump = storeddef.dump
     if type(dump) ~= "boolean" then
@@ -274,7 +298,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     return click_result
   elseif ndef then
     -- If pointing at a full liquid store don't dump
-    if liquid_store.stored_liquids[node.name] then
+    if liquid_store.get_sl_def(node.name) then
       dump = false
     end
   end
