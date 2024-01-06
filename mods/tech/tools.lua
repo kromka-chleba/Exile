@@ -93,8 +93,8 @@ local open_hammering_spot = crafting.make_on_rightclick({"hammer", "hammer_mixin
 
 -- opens the chopping spot GUI
 local open_chopping_spot = {
-    crafting.make_on_rightclick({"axe","axe_mixing"}, 1, { x = 8, y = 3 }),
-    crafting.make_on_rightclick({"axe","axe_mixing"}, 2, { x = 8, y = 3 }),
+    crafting.make_on_rightclick({"axe","knife_wattle","axe_mixing"}, 1, { x = 8, y = 3 }),
+    crafting.make_on_rightclick({"axe","knife_wattle","axe_mixing"}, 2, { x = 8, y = 3 }),
 }
 
 local open_knife = crafting.make_on_rightclick({"knife",'knife_wattle','knife_mixing'}, 2, { x = 8, y = 3 })
