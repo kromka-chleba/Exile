@@ -137,7 +137,9 @@ local jobs = minetest.deserialize(storage:get_string("jobs")) or {}
 -- jobs: could have used minetest.after, but we want to save it on restart
 
 local function load_rgns()
-   local idx = minetest.parse_json(storage:get_string("rgn_index")) or {}
+   local idxstring = storage:get_string("rgn_index")
+   if idxstring == "" then return end
+   local idx = minetest.parse_json(idxstring) or {}
    for i = 1, #idx do
       local nm = idx[i]
       local str = storage:get_string(nm)
