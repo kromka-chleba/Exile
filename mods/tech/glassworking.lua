@@ -262,11 +262,12 @@ minetest.register_node("tech:potash_source", {
   })
 
 -- Solution in pot
-liquid_store.register_stored_liquid(
-	"tech:potash_source",
-	"tech:clay_water_pot_potash",
-	"tech:clay_water_pot",
-	{
+liquid_store.register_stored_liquid("tech:clay_water_pot_potash",{
+	source = "tech:potash_source",
+	empty = "tech:clay_water_pot",
+  description = S("Clay Water Pot with Potash Solution"),
+	groups = {dig_immediate = 2, pottery = 1},
+	tiles = {
 		"tech_pottery.png^tech_pot_empty.png^tech_pot_potash.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -274,7 +275,7 @@ liquid_store.register_stored_liquid(
 		"tech_pottery.png",
 		"tech_pottery.png"
 	},
-	{
+	node_box = {
 		type = "fixed",
 		fixed = {
 			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
@@ -284,14 +285,15 @@ liquid_store.register_stored_liquid(
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	S("Clay Water Pot with Potash Solution"),
-	{dig_immediate = 2, pottery = 1})
+})
 -- solution in wooden pot
-liquid_store.register_stored_liquid(
-	"tech:potash_source",
-	"tech:wooden_water_pot_potash",
-	"tech:wooden_water_pot",
-	{
+liquid_store.register_stored_liquid("tech:wooden_water_pot_potash",{
+	source = "tech:potash_source",
+	empty = "tech:wooden_water_pot",
+  description = S("Wooden Water Pot with Potash Solution"),
+	groups = {dig_immediate = 2},
+  sounds = nodes_nature.node_sound_wood_defaults(),
+	tiles = {
 		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_potash.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -299,7 +301,7 @@ liquid_store.register_stored_liquid(
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png"
 	},
-	{
+	node_box = {
 		type = "fixed",
 		fixed = {
 			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
@@ -309,8 +311,7 @@ liquid_store.register_stored_liquid(
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	S("Wooden Water Pot with Potash Solution"),
-	{dig_immediate = 2})
+})
 
 liquid_store.register_liquid("tech:potash_source", "tech:potash_flowing", false)
 

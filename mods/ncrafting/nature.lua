@@ -72,15 +72,19 @@ local function wet_soil(pos, suffix)
 end
 
 -- water soil with a watering can
-function ncrafting.water_soil(itemstack, user, pointed_thing, water_source,
-			  empty_container, node_suffix)
-  -- can only water nodes
-   assert(type(empty_container) == "string","ncrafting.water_soil: string expected for empty_container, got: "..
-	  type(empty_container))
-   assert(type(water_source) == "string","ncrafting.water_soil: string expected for water_source, got: "..
-	  type(water_source))
-   assert(type(pointed_thing) == "table","ncrafting.water_soil: provided pointed_thing is not a table! got: "..
+function ncrafting.water_soil(itemstack, user, pointed_thing, node_suffix, empty_container)
+  -- will apply "_wet" before node_suffix unless it is "_wet"
+  -- empty_container can be an override, otherwise specified in storeddef
+  assert(type(pointed_thing) == "table","ncrafting.water_soil: provided pointed_thing is not a table! got: "..
 	  type(pointed_thing))
+  if not empty_container then
+    local storeddef = liquid_store.get_sl_def(itemstack:get_name())
+    empty_container = storeddef and storeddef.nodename_empty
+  end
+  assert(type(empty_container) == "string","ncrafting.water_soil: string expected for empty_container, got: "..
+	  type(empty_container))
+
+  -- can only water nodes
   if (pointed_thing.type == "node"
     and itemstack) then
     local pos = get_soil_pos(pointed_thing.under) -- will only return a pos if a soil is found
@@ -97,9 +101,7 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, water_source,
   end
 
   -- continue as normal (with a twist)
-  return liquid_store.on_use_filled_bucket(
-    water_source, empty_container,
-    itemstack, user, pointed_thing, false)
+  return liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, false)
 end
 
 -- fertilize soil with a fertilizer
