@@ -357,8 +357,7 @@ liquid_store.register_stored_liquid("tech:clay_watering_can_freshwater",{
 	},
   --make clay watering can able to water a block on click
   on_use = function(itemstack, user, pointed_thing)
-    return ncrafting.water_soil(itemstack, user, pointed_thing,
-      "nodes_nature:freshwater_source", "tech:clay_watering_can")
+    return ncrafting.water_soil(itemstack, user, pointed_thing)
 	end,
 })
 	
@@ -383,9 +382,7 @@ liquid_store.register_stored_liquid("tech:clay_watering_can_salt_water",{
 		fixed = watering_can_nodebox
 	},
   on_use = function(itemstack, user, pointed_thing)
-    return ncrafting.water_soil(itemstack, user, pointed_thing,
-      "nodes_nature:salt_water_source", "tech:clay_watering_can",
-      "salty")
+    return ncrafting.water_soil(itemstack, user, pointed_thing, "salty")
 	end,
 })
 
@@ -452,8 +449,7 @@ liquid_store.register_stored_liquid("tech:wooden_watering_can_freshwater",{
 	},
   --make wooden watering can able to water a block on click
   on_use = function(itemstack, user, pointed_thing)
-    return ncrafting.water_soil(itemstack, user, pointed_thing,
-      "nodes_nature:freshwater_source", "tech:wooden_watering_can")
+    return ncrafting.water_soil(itemstack, user, pointed_thing)
 	end,
 })
 
@@ -478,9 +474,7 @@ liquid_store.register_stored_liquid("tech:wooden_watering_can_salt_water",{
 		fixed = watering_can_nodebox
 	},
   on_use = function(itemstack, user, pointed_thing)
-    return ncrafting.water_soil(itemstack, user, pointed_thing,
-      "nodes_nature:salt_water_source", "tech:wooden_watering_can",
-      "salty")
+    return ncrafting.water_soil(itemstack, user, pointed_thing, "salty")
 	end,
 })
 
