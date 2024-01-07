@@ -98,7 +98,7 @@ local function run_scanners(dtime)
             scanner.scanner_function(pos_min, pos_max)
         ms.handle_labels(hash, labels_added, labels_removed)
     end
-    if loaded_or_active(pos1) and not ms.was_scanned(hash) then
+    if loaded_or_active(pos_min) and not ms.was_scanned(hash) then
         ms.add_labels(hash, {"scanned"})
     end
     table.remove(scan_queue, 1)
