@@ -145,87 +145,75 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
   if handle_interaction(user, pointed_thing) ~= "node" then
     return
   end
-  --[[
-   if pointed_thing.type == "object" then
-      pointed_thing.ref:punch(user, 1.0, { full_punch_interval=1.0 }, nil)
-      return user:get_wielded_item()
-   elseif pointed_thing.type ~= "node" then
-      -- do nothing if it's neither object nor node
-      return
-   end
-   --]]
+
   minetest.check_for_falling(pointed_thing.under) -- install gravity
 
-   -- Check if pointing to a liquid source
-   local node = minetest.get_node(pointed_thing.under)
-   local name = node.name
-   if on_scoop_change[name] then
-      name = on_scoop_change[name]
-   end
-   local liquiddef = liquid_store.liquids[name]
-   local item_count = user:get_wielded_item():get_count() -- Unused?
-   local storeddef = liquid_store.get_sl_def(name)
+  -- Check if pointing to a liquid source
+  local node = minetest.get_node(pointed_thing.under)
+  local name = node.name
+  if on_scoop_change[name] then
+    name = on_scoop_change[name]
+  end
+  local liquiddef = liquid_store.liquids[name]
+  local storeddef = liquid_store.get_sl_def(name)
+  
+  -- check protection
+  if check_protection(pointed_thing.under, user,
+    "take ".. node.name) then
+    return
+  end
 
-   if liquiddef and
-   name == liquiddef.source then
-    if check_protection(pointed_thing.under, user,
-      "take ".. node.name) then
-      return
-    end
-    --find a registered stored liquid who has an empty that matches
+  if liquiddef and
+  name == liquiddef.source then -- pointing at a liquid
+    -- find a registered stored liquid who has an empty that matches
     -- what we are using and a source that matches our liquid
     local giving_back = find_stored(itemstack:get_name(), name)
 
     if not giving_back then
-	 --nothing matches
+   --nothing matches
       return
     end
 
-    local new_wield = handle_stacks(user, user:get_wielded_item(),
-				      giving_back)
+    local new_wield = handle_stacks(user, itemstack,
+      giving_back)
 
-      -- force_renew requires a source neighbour
-      local source_neighbor = false
-      if liquiddef.force_renew then
-	 source_neighbor = minetest.find_node_near(pointed_thing.under, 1,
-						   liquiddef.source)
-      end
+    -- force_renew requires a source neighbour
+    local source_neighbor = false
+    if liquiddef.force_renew then
+     source_neighbor = minetest.find_node_near(pointed_thing.under, 1,
+      liquiddef.source)
+    end
 
-      if not (source_neighbor and liquiddef.force_renew) then
-	 minetest.add_node(pointed_thing.under, {name = "air"})
-      end
+    if not (source_neighbor and liquiddef.force_renew) then
+      minetest.add_node(pointed_thing.under, {name = "air"})
+    end
 
       -- return filled bucket if player is not in creative
-      if not (minimal.player_in_creative(user)) then
-	 liquid_metadata(pointed_thing.under,node,new_wield)
-	 return new_wield
-      end
+    if not (minimal.player_in_creative(user)) then
+     liquid_metadata(pointed_thing.under,node,new_wield)
+     return new_wield
+    end
+  elseif storeddef then -- pointing at a stored liquid
+    local giving_back = find_stored(itemstack:get_name(),
+      storeddef.source)
+    if not giving_back then
+      --nothing matches
+      return
+    end
+    local new_wield = handle_stacks(user, itemstack,
+      giving_back)
+    minimal.switch_node(pointed_thing.under,
+      {name = storeddef.nodename_empty})
 
-   elseif storeddef ~= nil then
-      if check_protection(pointed_thing.under, user,
-			  "take ".. node.name) then
-	 return nil
-      end
-      local giving_back = find_stored(itemstack:get_name(),
-				      storeddef.source)
-      if not giving_back then
-	 --nothing matches
-	 return nil
-      end
-      local new_wield = handle_stacks(user, user:get_wielded_item(),
-				      giving_back)
-      minimal.switch_node(pointed_thing.under,
-			  {name = storeddef.nodename_empty})
-
-      liquid_metadata(pointed_thing.under,node,new_wield)
-      return new_wield
-   else
-      -- non-liquid nodes will have their on_punch triggered
-      local node_def = minetest.registered_nodes[node.name]
-      if node_def then
-	 node_def.on_punch(pointed_thing.under, node, user, pointed_thing)
-      end
-      return user:get_wielded_item()
+    liquid_metadata(pointed_thing.under,node,new_wield)
+    return new_wield
+  else -- neither liquid nor a stored liquid
+    -- non-liquid nodes will have their on_punch triggered
+    local node_def = minetest.registered_nodes[node.name]
+    if node_def then
+      node_def.on_punch(pointed_thing.under, node, user, pointed_thing)
+    end
+    return itemstack
    end
 
 end
@@ -433,7 +421,7 @@ function liquid_store.register_stored_liquid(name,def)
       return liquid_store.on_place(itemstack, placer, pointed_thing, name)
     end,
   }
-  basedef.drawtype = def.node_box and "nodebox" or "normal" -- set drawtype to nodebox if node_box is provided
+  basedef.drawtype = def.drawtype or def.node_box and "nodebox" or "normal" -- set drawtype to nodebox if node_box is provided
   -- add basedef values
   for index,value in pairs(basedef) do
     if not def[index] then
