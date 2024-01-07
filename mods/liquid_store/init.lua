@@ -231,9 +231,8 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
   source = type(source) == "string" and source or storeddef.source
   nodename_empty = type(nodename_empty) == "string" and nodename_empty or storeddef.nodename_empty
   -- if dump isn't a specified boolean, set to true (can be set to false so liquid stores such as watering cans do not dump their contents)
-  dump = type(dump) == "boolean" and dump or nil
   if type(dump) ~= "boolean" then
-    dump = storeddef.dump
+    dump = storeddef.dumpable
     if type(dump) ~= "boolean" then
       dump = true
     end
@@ -402,11 +401,13 @@ function liquid_store.register_stored_liquid(name,def)
 	liquid_store.stored_liquids[name] = {
 		nodename = name,
 		source = def.source,
-		nodename_empty = def.empty
+		nodename_empty = def.empty,
+    dumpable = def.dumpable,
 	}
   -- remove from node definition
   def.source = nil
   def.empty = nil
+  def.dumpable = nil
 
   local basedef = {
     stack_max = 1,

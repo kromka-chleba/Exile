@@ -339,6 +339,7 @@ minetest.register_node("tech:clay_watering_can", {
 liquid_store.register_stored_liquid("tech:clay_watering_can_freshwater",{
   source = "nodes_nature:freshwater_source",
   empty = "tech:clay_watering_can",
+  dumpable = false,
   description = S("Clay Watering Can with Freshwater"),
 	groups = {dig_immediate = 2, pottery = 1},
   sounds = nodes_nature.node_sound_stone_defaults(),
@@ -365,7 +366,7 @@ liquid_store.register_stored_liquid("tech:clay_watering_can_freshwater",{
 liquid_store.register_stored_liquid("tech:clay_watering_can_salt_water",{
   source = "nodes_nature:salt_water_source",
   empty = "tech:clay_watering_can",
-  prevent_liquid_dumping = true,
+  dumpable = false,
   description = S("Clay Watering Can with Salt Water"),
 	groups = {dig_immediate = 2, pottery = 1},
   sounds = nodes_nature.node_sound_stone_defaults(),
@@ -434,6 +435,7 @@ crafting.register_recipe({
 liquid_store.register_stored_liquid("tech:wooden_watering_can_freshwater",{
   source = "nodes_nature:freshwater_source",
   empty = "tech:wooden_watering_can",
+  dumpable = false,
   description = S("Wooden Watering Can with Freshwater"),
 	groups = {dig_immediate = 2},
   tiles = {
@@ -460,6 +462,7 @@ liquid_store.register_stored_liquid("tech:wooden_watering_can_freshwater",{
 liquid_store.register_stored_liquid("tech:wooden_watering_can_salt_water",{
 	source = "nodes_nature:salt_water_source",
 	empty = "tech:wooden_watering_can",
+  dumpable = false,
   description = S("Wooden Watering Can with Salt Water"),
 	groups = {dig_immediate = 2},
 	tiles = {
