@@ -113,6 +113,26 @@ local function worker_break()
     worker_running = false
 end
 
+local worker_timesheet = {}
+local function do_timesheet(name, timecount)
+   local sheet = worker_timesheet[name] or { count = 0, time = 0, max = 0 }
+   sheet.count = sheet.count + 1
+   sheet.time = sheet.time + timecount
+   if timecount > sheet.max then sheet.max = timecount end
+   worker_timesheet[name] = sheet
+end
+
+minetest.register_on_shutdown(function()
+      local out = "Mapchunk shepherd time sheet: \n"
+      for name, data in pairs(worker_timesheet) do
+	 out = out.. string.format("%-27s : c %4d / t %8d / avg %7d / max %8d",
+				   name, data.count, data.time,
+				   math.floor(data.time / data.count),
+				   data.max) .. "\n"
+      end
+      minetest.log("action",out)
+end)
+
 local function process_chunk(chunk)
     local hash = chunk.hash
     local pos_min, pos_max = ms.mapchunk_borders(hash)
@@ -126,6 +146,7 @@ local function process_chunk(chunk)
     local light_changed = false
     local param2_changed = false
     for worker_name, _ in pairs(chunk.workers) do
+       local timestamp = minetest.get_us_time()
         local worker = workers_by_name[worker_name]
         local labels_added, labels_removed, light_chd, param2_chd =
             worker.worker_function(pos_min, pos_max, vm_data)
@@ -136,6 +157,7 @@ local function process_chunk(chunk)
         if param2_chd then
             param2_changed = true
         end
+	do_timesheet(worker_name, minetest.get_us_time() - timestamp)
     end
     vm:set_data(vm_data.nodes)
     if light_changed then
@@ -149,7 +171,10 @@ local function process_chunk(chunk)
     for worker_name, _ in pairs(chunk.workers) do
         local afterworker = workers_by_name[worker_name].afterworker
         if afterworker then
+	   local timestamp = minetest.get_us_time()
             afterworker(hash)
+	    do_timesheet(worker_name.."_+",
+			 minetest.get_us_time() - timestamp)
         end
     end
 end
