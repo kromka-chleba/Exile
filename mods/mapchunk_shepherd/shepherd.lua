@@ -122,16 +122,17 @@ local function do_timesheet(name, timecount)
    worker_timesheet[name] = sheet
 end
 
-minetest.register_on_shutdown(function()
+local function dump_timesheet()
       local out = "Mapchunk shepherd time sheet: \n"
       for name, data in pairs(worker_timesheet) do
-	 out = out.. string.format("%-27s : c %4d / t %8d / avg %7d / max %8d",
+	 out = out.. string.format("%-27s : c %4d / t %12d / avg %7d / max %8d",
 				   name, data.count, data.time,
 				   math.floor(data.time / data.count),
 				   data.max) .. "\n"
       end
       minetest.log("action",out)
-end)
+end
+minetest.register_on_shutdown(dump_timesheet)
 
 local function process_chunk(chunk)
     local hash = chunk.hash
@@ -481,4 +482,13 @@ minetest.register_chatcommand(
                 ..S("last changed: ")..last_changed..S(" seconds ago").."\n"
                 ..S("labels: ")..labels.."\n "
         end,
+})
+
+minetest.register_chatcommand(
+    "worker_times", {
+        description = S("Prints timesheet for shepherd workers."),
+        privs = { server = true },
+        func = function(name, param)
+	   dump_timesheet()
+	end
 })
