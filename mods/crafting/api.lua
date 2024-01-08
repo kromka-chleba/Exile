@@ -150,7 +150,7 @@ function crafting.get_recipe(id)
 	return crafting.recipes_by_id[id]
 end
 
-function crafting.pick_all(inv, item, items, item_hash)
+function crafting.pick_all(inv, item, items, item_hash,line)
 	item = ItemStack(item)
 	local needed_count = item:get_count()
 	local craftable = true
@@ -163,6 +163,7 @@ function crafting.pick_all(inv, item, items, item_hash)
 		name = item:get_name(),
 		have = available_count,
 		need = needed_count,
+		line = line,
 	}
 	return craftable
 end
@@ -177,21 +178,20 @@ function crafting.get_all(ctype, level, item_hash, unlocked)
 		if recipe.level <= level and (recipe.always_known or unlocked[recipe.output]) then
 			-- Check all ingredients are available
 			local items = {}
-			for _, item in pairs(recipe.items) do
+			for i, item in pairs(recipe.items) do
 				-- Conditional input list to process
 				if (type(item) == 'table') then
 					local picked = false
 					for _, conItem in ipairs(item) do
-						if crafting.pick_all(inv, conItem, items, item_hash) then
+						if crafting.pick_all(inv, conItem, items, item_hash,i) then
 							picked = true
-							break
 						end
 					end
 					if not picked then
 						craftable = false -- didn't find
 					end
 				else
-					if not crafting.pick_all(inv, item, items, item_hash) then
+					if not crafting.pick_all(inv, item, items, item_hash,i) then
 						craftable = false
 					end
 				end
