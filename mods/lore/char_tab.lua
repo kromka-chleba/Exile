@@ -104,7 +104,7 @@ local function sfinv_get(self, player, context)
     bio = lore.generate_bio(player)
   end
 
-  local y = 3.1
+  local y = 3.3
   local eff_form = ""
 
 
@@ -131,10 +131,10 @@ local function sfinv_get(self, player, context)
 	local formspec = "label[0.1,0.1; Name: " .. name .. "]"..
 	"label[4,0.1; Days Survived: " .. days .. "]"..
 	"label[4,0.6; Lives: " .. lives .. "]"..
-  "label[0.1,1.1; Biography: " .. bio .. "]"..
-  "label[0.1,3.1; Health Effects:]"..
-  eff_form
-
+	"label[0.1,1.1; Biography: " .. bio .. "]"..
+	"label[0.65,3.1; Health Effects:]"..
+	eff_form..
+	"image[0,3.05;0.65,0.65;hud_sick.png]"
 
 	return formspec
 end
