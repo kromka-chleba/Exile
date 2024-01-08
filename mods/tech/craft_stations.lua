@@ -730,7 +730,7 @@ crafting.register_recipe({
 ---- Iron ----
 -- Anvil
 crafting.register_recipe({ --hammer ingots into anvil
-	type   = {"hammering_block","hammer","anvil","hand_create"},
+	type   = {"hand_create"},
 	output = "tech:anvil",
 	items  = {'tech:iron_ingot 4'},
 	level  = 1,
