@@ -128,28 +128,28 @@ local function sfinv_get(self, player, context)
     eff_form = eff_form.."label[0.1,"..y.."; "..effect[1].." "..severity.."]"
   end
 
-	local formspec = "label[0.1,0.1; Name: " .. name .. "]"..
-	"label[4,0.1; Days Survived: " .. days .. "]"..
-	"label[4,0.6; Lives: " .. lives .. "]"..
-	"label[0.1,1.1; Biography: " .. bio .. "]"..
-	"label[0.65,3.1; Health Effects:]"..
-	eff_form..
-	"image[0,3.05;0.65,0.65;hud_sick.png]"
+  local formspec = "label[0.1,0.1; Name: " .. name .. "]"..
+     "label[4,0.1; Days Survived: " .. days .. "]"..
+     "label[4,0.6; Lives: " .. lives .. "]"..
+     "label[0.1,1.1; Biography: " .. bio .. "]"..
+     "label[0.65,3.1; Health Effects:]"..
+     eff_form..
+     "image[0,3.05;0.65,0.65;hud_sick.png]"
 
-	return formspec
+  return formspec
 end
 
 
 
 local function register_tab()
-	sfinv.register_page("lore:char_tab", {
+   sfinv.register_page("lore:char_tab", {
 		title = "Character",
 		--on_enter = function(self, player, context)
 			--sfinv.set_player_inventory_formspec(player)
 		--end,
 		get = function(self, player, context)
-			local formspec = sfinv_get(self, player, context)
-			return sfinv.make_formspec(player, context, formspec, false)
+		   local formspec = sfinv_get(self, player, context)
+		   return sfinv.make_formspec(player, context, formspec, false)
 		end
 	})
 end
