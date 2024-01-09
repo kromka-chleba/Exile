@@ -224,3 +224,7 @@ function player_api.is_invisible(player)
    end
    return false
 end
+
+function player_api.get_current_texture(player)
+   return player_textures[player:get_player_name()][1]
+end
