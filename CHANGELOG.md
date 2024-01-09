@@ -1,5 +1,9 @@
 # Changelog:
 
+## [2024-01-09][2023-01-09__0.3.15b]
+  - Added a player model to the character tab
+  - Fix for the "disappearing hammer" bug
+
 ## [2024-01-08][2023-01-08__0.3.15]
   - Bones of previous exiles, with various items
   - Sun hat and sandals
