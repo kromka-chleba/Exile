@@ -487,8 +487,39 @@ crafting.register_recipe({
 --Places hammer
 local function place_hammer(itemstack, placer, pointed_thing, placed_name)
     local place_item = ItemStack(placed_name)
-    itemstack:take_item(1)
-    minetest.item_place_node(place_item, placer, pointed_thing)
+    local above = minetest.get_node(pointed_thing.above)
+    -- check if the pointed item has on_rightclick ... (will run it automatically)
+
+    local under_front_pos = {x = pointed_thing.above.x,
+                             y = pointed_thing.above.y - 1,
+                             z = pointed_thing.above.z}
+    local under_front = minetest.get_node(under_front_pos)
+    local def_above = minetest.registered_nodes[above.name]
+    local def_under = minetest.registered_nodes[under_front.name]
+    if ( def_above and not def_above.walkable )
+        -- check if walkable below to avoid throwing tools into abyss
+       and (def_under and def_under.walkable ) then
+	   if (minetest.get_item_group(above.name,"woody_plant") > 0
+	       and minetest.get_item_group(above.name,"cane_plant") > 0) then
+              -- replace bamboo with air so that the tool places appropriately
+	      minetest.swap_node(pointed_thing.above,
+				 {name = "air"})
+	   end
+	   local wear = itemstack:get_wear()
+	   -- place if not
+	   itemstack:take_item(1)
+	   local ppos = pointed_thing.above
+	   minetest.item_place_node(place_item, placer, pointed_thing)
+	   local meta = minetest.get_meta(pointed_thing.above)
+	   meta:set_int("wear", wear)
+	   local pname = "non-player"
+	   if minetest.is_player(placer) then
+	      pname = placer:get_player_name()
+	   end
+	   minetest.log("action", pname.." placed "..placed_name.." at "..
+			ppos.x.."/"..ppos.y.."/"..ppos.z)
+	   return itemstack
+        end
     return itemstack
 end
 
