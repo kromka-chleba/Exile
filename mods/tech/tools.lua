@@ -29,7 +29,6 @@ local base_punch_int = minimal.hand_punch_int
 local function place_tool(itemstack, placer, pointed_thing, placed_name)
     local place_item = ItemStack(placed_name)
     local above = minetest.get_node(pointed_thing.above)
-    local under = minetest.get_node(pointed_thing.under)
     -- check if the pointed item has on_rightclick ... (will run it automatically)
     local to_return = minimal.on_rightclick(itemstack, placer, pointed_thing)
     if to_return ~= false then
@@ -40,15 +39,17 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
                              y = pointed_thing.above.y - 1,
                              z = pointed_thing.above.z}
     local under_front = minetest.get_node(under_front_pos)
+    local def_above = minetest.registered_nodes[above.name]
+    local def_under = minetest.registered_nodes[under_front.name]
     -- check if not walkable - there's empty space over the node
     --  (air, water, etc.)
-    if not minetest.registered_nodes[above.name].walkable and
+    if ( def_above and not def_above.walkable )
         -- check if walkable below to avoid throwing tools into abyss
-        minetest.registered_nodes[under_front.name].walkable then
+       and (def_under and def_under.walkable ) then
 	   if (minimal.in_group(above,"woody_plant")
 	       and minimal.in_group(above,"cane_plant")) then
               -- replace bamboo with air so that the tool places appropriately
-        minetest.swap_node(pointed_thing.above,
+	      minetest.swap_node(pointed_thing.above,
 				 {name = "air"})
 	   end
 	   local wear = itemstack:get_wear()

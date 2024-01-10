@@ -145,6 +145,9 @@ local function sfinv_get(self, player, context)
        effectnm[effect[1]].." "..severity.."]"
   end
 
+  local basetex = minetest.formspec_escape(
+     player_api.get_current_texture(player) )
+
   local formspec = "label[0.1,0.1; "..S("Name").. ": ".. name .. "]"..
      "label[4,0.1; "..S("Days Survived")..": ".. days .. "]"..
      "label[4,0.6; "..S("Lives")..": " .. lives .. "]"..
@@ -153,7 +156,9 @@ local function sfinv_get(self, player, context)
      "image_button_exit[7,0.15;0.75,0.75;gear.png;player_settings;]"..
      "label[0.65,3.1; Health Effects:]"..
      eff_form..
-     "image[0,3.05;0.65,0.65;hud_sick.png]"
+     "image[0,3.05;0.65,0.65;hud_sick.png]"..
+     "model[6.5,6;2,3;character;character.b3d;"..basetex..
+     ";-20,160;;true;;]"
 
 
 	return formspec

@@ -1,6 +1,26 @@
 # Changelog:
 
-## [2023-11-19][2023-11-19__0.3.14b]
+## [2024-01-09][2023-01-09__0.3.15c]
+  - Fixed a crafting screen bug
+  - Fixed some positional audio quirks
+
+## [2024-01-09][2023-01-09__0.3.15b]
+  - Added a player model to the character tab
+  - Fix for the "disappearing hammer" bug
+
+## [2024-01-08][2023-01-08__0.3.15]
+  - Bones of previous exiles, with various items
+  - Sun hat and sandals
+  - Fires more likely to die out than burn forever
+  - SkinsDB support for folks who want that
+  - /ping command to reveal your location to players out of range for nametags
+  - Comfort and rest improvements
+  - UI improvements
+  - Fixed hair colors
+  - /restart will fix bugged players who closed the death formspec
+
+## [2023-12-01][2023-12-01__0.3.14b]
+  - Added tile floor block to match roof, with stairs and slabs
   - Added support for Visual Harm 1ndicators mod
 
 ## [2023-11-11][2023-11-11__0.3.14]
