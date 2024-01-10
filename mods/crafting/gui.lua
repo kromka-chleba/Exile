@@ -371,6 +371,7 @@ function crafting.make_on_rightclick(type, level, inv_size)
 		local meta = minetest.get_meta(pos)
 		local name = player:get_player_name()
 		local context = node_fs_context[name] or {}
+		if context.type ~= type then context = {} end
 		node_fs_context[name] = context
 		context.pos   = vector.new(pos)
 		context.type  = type
