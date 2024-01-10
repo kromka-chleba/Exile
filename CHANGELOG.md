@@ -1,5 +1,9 @@
 # Changelog:
 
+## [2024-01-09][2023-01-09__0.3.15c]
+  - Fixed a crafting screen bug
+  - Fixed some positional audio quirks
+
 ## [2024-01-09][2023-01-09__0.3.15b]
   - Added a player model to the character tab
   - Fix for the "disappearing hammer" bug
