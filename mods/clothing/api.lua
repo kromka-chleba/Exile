@@ -65,8 +65,8 @@ function clothing.update_player(player)
   if not minetest.is_player(player) then
     return
   end
-  clothing:update_temp(player)
   player_api.set_texture(player)
+  clothing:update_temp(player)
 end
 
 function clothing.on_rightclick(itemstack, user, pointed_thing)
