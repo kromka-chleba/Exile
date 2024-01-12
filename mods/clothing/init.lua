@@ -34,6 +34,8 @@ sfinv.register_page("clothing:clothing", {
 		local meta = player:get_meta()
 		local cur_tmin = climate.get_temp_string(meta:get_int("clothing_temp_min"), meta)
 		local cur_tmax = climate.get_temp_string(meta:get_int("clothing_temp_max"), meta)
+		local basetex = minetest.formspec_escape(
+		   player_api.get_current_texture(player) )
 
 		local formspec = clothing_formspec..
 		"label[3,0.4;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]"..
@@ -42,7 +44,9 @@ sfinv.register_page("clothing:clothing", {
 		"list[current_player;cloths;0,0.5;2,3;]" ..
 		"listring[current_player;main]"..
 		--"listring[detached:"..name.."_clothing;clothing]"
-		"listring[current_player;cloths]"
+		"listring[current_player;cloths]"..
+		"model[6.5,2;2,3;character;character.b3d;"..basetex..
+		   ";-20,160;;true;;]"
 		return sfinv.make_formspec(player, context,
 		formspec, false)
 	end
@@ -50,8 +54,8 @@ sfinv.register_page("clothing:clothing", {
 
 minetest.register_on_player_inventory_action(function(player, action, inventory, inventory_info)
       if inventory_info.to_list == "cloths" or inventory_info.from_list == "cloths" then
-	 clothing:update_temp(player)
 	 player_api.set_texture(player)
+	 clothing:update_temp(player)
       end
 end)
 
@@ -127,6 +131,6 @@ end
 minetest.register_on_joinplayer(function(player)
       --import old clothing
       load_clothing_metadata(player)
-      clothing:update_temp(player)
       player_api.set_texture(player)
+      clothing:update_temp(player)
 end)
