@@ -138,6 +138,38 @@ local function showall_hud(player, pname, pos, nmeta, metastring)
    HEALTH.show_hud_elements(player, nil, "all")
 end
 
+local function hud_splash(player, pname, pos, nmeta, metastring)
+   if used_before(nmeta, pname) then
+      return
+   end
+   local new = { icon = string.split(metastring, ",")[1],
+		 text = string.split(metastring, ",")[2] }
+   local item = {}
+   if new.icon then
+      item.icon = player:hud_add({
+	    hud_elem_type = "image",
+	    name = "splash_icon",
+	    text = new.icon,
+	    scale = { x = 2, y = 2 },
+	    position = { x = 0.5, y = 0.45 },
+      })
+   end
+   if new.text then
+      item.text = player:hud_add({
+	    hud_elem_type = "text",
+	    name = "splash_text",
+	    text = new.text,
+	    number = "0xFFFFFF",
+	    size = { x = 2 },
+	    position = { x = 0.5, y = 0.54 },
+      })
+   end
+   minetest.after(5, function()
+		     player:hud_remove(item.icon)
+		     player:hud_remove(item.text)
+   end)
+end
+
 
 triggers.defs = {
    ["tr_reset"] = reset_player,
@@ -155,6 +187,7 @@ triggers.defs = {
    ["tr_resetweather"] = resetweather,
    ["tr_hudhide"] = hide_hud,
    ["tr_hudshow"] = showall_hud,
+   ["tr_hudsplash"] = hud_splash,
 }
 
 local info = {
@@ -183,6 +216,8 @@ local info = {
 		   S("Hide health/energy/thirst/hunger/temp/").."\n"..
 		   S("/enviro_temp/effects by names, or all")},
    ["tr_hudshow"]={S("Show hud elements"),S("Restore all hidden hud elements")},
+   ["tr_hudsplash"]={S("Show hud splash"),S("Display an image and text\n"..
+					    "<icon name.png>,<text>")},
 }
 
 -- table of triggers with no input field

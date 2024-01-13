@@ -18,6 +18,8 @@ minetest.register_on_mods_loaded(function()
       end
 end)
 
+local queue_clear -- forward definition
+
 ------------------------------------------------------------------------------
 -- Login formspecs
 ------------------------------------------------------------------------------
@@ -54,6 +56,10 @@ local function show_motd(player)
    if ( not motd ) or motd == "" or motd == "\"\"" then return end
    motd = motd:gsub("\\n","\n")
    local meta = player:get_meta()
+   if not meta then
+      queue_clear(playername)
+      return
+   end
    local hash = minetest.sha1(motd)
    local oldhash = meta:get("seen_motd")
    if oldhash then
@@ -165,6 +171,11 @@ local waiting = {} -- players with open formspecs
 local jumpstart_queue_delay = tonumber(minetest.settings:get(
 					  "exile_jumpstart_queue_delay")) or 20
 
+function queue_clear(playername)
+      player_queue[playername] = {}
+      if waiting[playername] then waiting[playername]:cancel() end
+end
+
 local function queue_push(player, func_to_run, qname)
    -- Add a thing to run on a player, fifo, formspecs require a delay
    local name = player:get_player_name()
@@ -183,11 +194,11 @@ local function queue_start(player)
    end
    local name = player:get_player_name()
    if not player_queue[name] then player_queue[name] = {} end
+   if waiting[name] then
+      waiting[name]:cancel() -- we're not waiting now, start next item
+      waiting[name] = nil -- cancel doesn't remove it
+   end
    for _ = 1, #player_queue[name] do
-      if waiting[name] then
-	 waiting[name]:cancel() -- we're not waiting now, start next item
-	 waiting[name] = nil -- cancel doesn't remove it
-      end
       local qitem = queue_pop(name)
       local wait = qitem.func(player, qitem.name)
       if wait == "wait" then
@@ -199,8 +210,6 @@ local function queue_start(player)
 	 if jumpstart_queue_delay == 0 then return end -- disabled
 	 waiting[name] =
 	    minetest.after(jumpstart_queue_delay, function()
-			      -- don't run this if the queue has changed
-			      -- (in case another wait has been started)
 			      minetest.log("action",
 					   "forcibly restarted queue for "..
 					   name)

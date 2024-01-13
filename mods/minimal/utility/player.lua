@@ -1,5 +1,5 @@
 local clear_ping_delay = tonumber(minetest.settings:get(
-				     "exile_clear_ping_delay")) or 10
+				     "exile_clear_ping_delay")) or 20
 local waypoints = {}
 
 if minetest.settings:get_bool("unlimited_player_transfer_distance", true) then
