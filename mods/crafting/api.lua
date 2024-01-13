@@ -152,6 +152,7 @@ end
 
 function crafting.get_all(type, level, item_hash, unlocked)
 	assert(crafting.recipes[type], "No such craft type!")
+	assert(level, "No level specified!")
 
 	local results = {}
 	for _, recipe in pairs(crafting.recipes[type]) do
