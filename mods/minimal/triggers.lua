@@ -12,7 +12,7 @@ local function used_before(nmeta, pname)
    -- Allows a trigger to be used by a player just once per server start
    -- #TODO: is it worth saving this to prevent stop/start to reuse triggers?
    local label = nmeta:get_string("tr_label")
-   if label == "" then return true end
+   if label == "" then return false end
    if usedlist[label] == nil then
       usedlist[label] = {} -- this trigger hasn't been used by <player> yet
       usedlist[label][pname] = true
@@ -142,23 +142,23 @@ local function hud_splash(player, pname, pos, nmeta, metastring)
    if used_before(nmeta, pname) then
       return
    end
-   local new = { icon = string.split(metastring, ",")[1],
-		 text = string.split(metastring, ",")[2] }
+   local icon = string.split(metastring, ",")[1]
+   local text = string.split(metastring, ",")[2]
    local item = {}
-   if new.icon then
+   if icon then
       item.icon = player:hud_add({
 	    hud_elem_type = "image",
 	    name = "splash_icon",
-	    text = new.icon,
+	    text = icon,
 	    scale = { x = 2, y = 2 },
 	    position = { x = 0.5, y = 0.45 },
       })
    end
-   if new.text then
+   if text then
       item.text = player:hud_add({
 	    hud_elem_type = "text",
 	    name = "splash_text",
-	    text = new.text,
+	    text = text,
 	    number = "0xFFFFFF",
 	    size = { x = 2 },
 	    position = { x = 0.5, y = 0.54 },
