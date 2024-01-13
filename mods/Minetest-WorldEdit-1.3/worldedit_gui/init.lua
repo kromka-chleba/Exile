@@ -188,12 +188,12 @@ elseif minetest.global_exists("smart_inventory") then -- smart_inventory install
 	})
 elseif minetest.global_exists("sfinv") then -- sfinv installed
 	assert(sfinv.enabled)
-	local orig_get = sfinv.pages["sfinv:crafting"].get
-	sfinv.override_page("sfinv:crafting", {
+	local orig_get = sfinv.pages["survival:crafting"].get
+	sfinv.override_page("survival:crafting", {
 		get = function(self, player, context)
 			local can_worldedit = minetest.check_player_privs(player, {worldedit=true})
 			local fs = orig_get(self, player, context)
-			return fs .. (can_worldedit and "image_button[0,0;1,1;inventory_plus_worldedit_gui.png;worldedit_gui;]" or "")
+			return fs .. (can_worldedit and "image_button[0,7;1,1;inventory_plus_worldedit_gui.png;worldedit_gui;]" or "")
 		end
 	})
 
@@ -203,7 +203,7 @@ elseif minetest.global_exists("sfinv") then -- sfinv installed
 			worldedit.show_page(player:get_player_name(), "worldedit_gui")
 			return true
 		elseif fields.worldedit_gui_exit then --return to original page
-			sfinv.set_page(player, "sfinv:crafting")
+			sfinv.set_page(player, "survival:crafting")
 			return true
 		end
 		return false
