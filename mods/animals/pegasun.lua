@@ -422,8 +422,8 @@ local self_data = {
 	drops = {
 		{name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},
 	},
-	on_rightclick = function(self, clicker)
-		animals.stun_catch_mob(self, clicker)
+	on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
+		animals.stun_catch_mob(self, clicker, time_from_last_click, tool_capabilities)
     animals.fight_or_flight(self, clicker) -- ewww a human touched me!!!
 	end,
   -- egg
@@ -485,8 +485,8 @@ self_male.predator_interactions = {
   ["animals:kubwakubwa"] = 1,
 }
 -- male functions
-self_male.on_rightclick = function(self, clicker)
-  if animals.stun_catch_mob(self, clicker) then -- attack kidnapper
+self_male.on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
+  if animals.stun_catch_mob(self, clicker, time_from_last_click, tool_capabilities) then -- attack kidnapper
     animals.fight_or_flight(self, clicker, nil, 1)
   end
 end

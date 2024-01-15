@@ -56,7 +56,7 @@ end
 
 
 --use stunning weapon plus chance to catch (or if canhand == true)
-animals.stun_catch_mob = function(self, clicker)--,chance,canhand)
+animals.stun_catch_mob = function(self, clicker, time_from_last_click, tool_capabilities)--,chance,canhand)
   if not clicker or not minetest.is_player(clicker) then return end
 	if self.hp <= 0 then return end
 	local item = clicker:get_wielded_item()
@@ -90,9 +90,17 @@ animals.stun_catch_mob = function(self, clicker)--,chance,canhand)
   if not success_rate then
     return false,false
   end
-  local damaged_multiplier = math_clamp(1/(self.hp/self.max_hp) * (self.damaged_capture_multiplier or 1),1,math.huge )
-  if damaged_multiplier > 0 then -- if 0, do no changes
-    success_rate = success_rate * damaged_multiplier
+  time_from_last_click = type(time_from_last_click) == "number" and time_from_last_click or 1
+  tool_capabilities = type(tool_capabilities) == "table" and tool_capabilities or {full_punch_interval = 1}
+  -- modify success_rate according to tool_capabilities (if not in creative)
+  if not minimal.player_in_creative(clicker) then
+    success_rate = success_rate * math_clamp(time_from_last_click / tool_capabilities.full_punch_interval, 0, 1)
+  end
+  if self.hp <= self.max_hp*0.75 then -- if less than 3 quarters of full HP then calculate damage-based capture success
+    local damaged_multiplier = math_clamp(1/(self.hp/self.max_hp) * (self.damaged_capture_multiplier or 1),1,math.huge )
+    if damaged_multiplier > 0 then -- if 0, do no changes
+      success_rate = success_rate * damaged_multiplier
+    end
   end
   -- catch chance
   mobkit.make_sound(self,'punch')
