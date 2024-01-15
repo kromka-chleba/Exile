@@ -1,23 +1,3 @@
--- The inventory formspec is cached for each player like this:
--- inventory_cache[player_name] = {
---	formspec = {
---		epoch = os.time(),
---		ctype = selected_craft_type -- set by craft_type buttons
---		clevel = craft_type_level	-- set by craft type buttons
---		sInv = selected_inventory	-- set by bag buttons
---		-- The Following are tables of formspec strings; set to nil to force redraw of section
---		-- set output = "" to force redraw of cached formspec.
---		header = {},
---		craft_type = {},
---		craft_items = {},
---  	recipes = {},
---		inventory = {},
---		output = "",
---	}
--- output is cleared if any of the elements is updated to force a redraw
--- each section of the formspec is cached as a table of lines.  If updated,
--- a section should be set to nil and output set to "" to force a redraw.
--- only sections cleared are recreated via make_inventory_formspec
 
 -- Create global default detached "craft_types" inventory
 -- Used to populate players craft_types
@@ -31,9 +11,101 @@ ctypes:set_list('main',{
 	'tech:mixing_spot',
 })
 
+-- The inventory formspec is cached for each player like this:
+-- inventoryFS_cache[player_name] = {
+--	formspec = {
+--		epoch = os.time(),
+--		ctype = selected_craft_type -- set by craft_type buttons
+--		clevel = craft_type_level	-- set by craft type buttons
+--		sInv = selected_inventory	-- set by bag buttons
+--		-- The Following are tables of formspec strings
+--		-- Set output = "" to force redraw using cashed details 
+--		-- to trigger redraw of a section, set the section to nil
+--		-- eg) to regenerate the recipes list, set
+--		-- cache.recipes = nil, and cache.output = ""
+--		header = {},
+--		craft_type = {},
+--		craft_items = {},
+--  	recipes = {},
+--		inventory = {},
+--		output = "",
+--	}
+-- output is cleared if any of the elements is updated to force a redraw
+-- each section of the formspec is cached as a table of lines.  If updated,
+-- a section should be set to nil and output set to "" to force a redraw.
+-- only sections cleared are recreated via make_inventory_formspec
 
-local __inventory_cache_timeout = 300 -- five minute cache too much?
-local inventory_cache = {}
+local __inventoryFS_cache_timeout = 300 -- five minute cache too much?
+local inventoryFS_cache = {}
+
+local function process_button(key,btypes)
+	for _,prefix in ipairs(btypes) do
+		if key:sub(1, 7) == prefix then
+			local num = string.match(key, prefix.."_([0-9]+)")
+			if num then
+				return prefix, num
+			end
+		end
+	end
+	return nil,nil -- button types not found
+end
+
+
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname ~= '' then return false; end -- Not our form.
+
+	local player_name = player:get_player_name()
+print (player_name .. " --> '" .. formname .. "'")
+print (dump(fields)) 
+	-- process all fields for button pushes.
+	local btn_type
+	local btn_id
+	for key, value in pairs(fields) do
+		btn_type,btn_id = process_button(key,{'iresult','ibelt'})
+		if btn_type ~= nil then
+			break	-- We found a button
+		end
+    end
+	if btn_type then
+		local inv    = player:get_inventory()
+		local name   = player:get_player_name()
+		local cache = inventoryFS_cache[name]
+		if btn_type == 'ibelt' then
+			local craft_type = inv:get_list('craft_types')[btn_id]
+			local cItem = craft_type:get_name()
+			local def = minetest.registered_nodes[cItem] 
+				or minetest.registered_tools[cItem] 
+				or minetest.registered_items[cItem]
+			if def then
+				cache.ctype = def._craft_type
+				cache.clevel = def._craft_level
+				cache.recipes = nil
+				cache.output = ""
+			end
+		elseif btn_type == 'iresult' then
+			local recipe = crafting.get_recipe(tonumber(btn_id))
+			local ctype = cache.ctype
+			local clevel = cache.clevel
+			local sInv = cache.sInv
+			if not crafting.can_craft(name, ctype, clevel, recipe) then
+				minetest.log("error", "[crafting] Player clicked a button they shouldn't have been able to")
+				return true
+			elseif crafting.perform_craft(name, inv, {"input_items","main"}, "main", recipe) then
+				cache.recipes = nil
+				cache.output = nil
+				inventoryFS_cache[name] = cache
+				return true -- crafted
+			else
+				minetest.chat_send_player(name, "Missing required items!")
+				return false
+			end
+		end
+	else
+	end
+end)
+
+	
 
 local function recipes_for_player(cache, pInv, player_name, ctype, level)
 	local unlocked = crafting.get_unlocked(player_name)
@@ -59,43 +131,61 @@ end
 -- but only if there is an open formspec.
 -- It is triggered by setting cache.recipes = nil
 local function cache_player_recipes(cache, player_name, pInv)
-	local recipes = {}
-	local ctype = cache.ctype
-	local level = cache.clevel
+	local recipesFS = {}
+	local ctype = cache.ctype 	-- craft type selected
+	local level = cache.clevel	-- level associated with selected craft type
 	local recipe_list = recipes_for_player(cache, pInv, player_name,ctype, level)
-	local max = #recipe_list / 5
 
-	recipes[#recipes + 1] = 'tabheader[3.2,1;sfinv_nav_tabs;Craft,Mixing;1;true;false]'
-	recipes[#recipes + 1] = 'scrollbaroptoins[max=' .. tonumber(max) .. ';'
-		.. 'smallstep = 1;largestep=1;'
-		.. ']'
-	recipes[#recipes + 1] = 'scrollbar[9.2,1.2;.5,4.6;vertical;recipes_scroll;0]'
-	recipes[#recipes + 1] = 'scroll_container[3.2,1;6,5;recipes_scroll;vertical;1]'
+
 
 	-- Add tab header
-
-	-- Add recipe buttons in rows of 6
+	local tabs=''
+	recipesFS[#recipesFS + 1] = "style_type[item_image_button;border=false]"
+	recipesFS[#recipesFS + 1] = 'tabheader[3.2,1;sfinv_nav_tabs;' .. tabs .. ';1;true;false]'
+	-- add Scrollable container
+	local scroll_max = #recipe_list / 5 
+	recipesFS[#recipesFS + 1] = 'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
+		.. 'smallstep=1;largestep=1'
+		.. ']'
+	recipesFS[#recipesFS + 1] = 'scrollbar[9.2,1.2;.5,4.6;vertical;recipes_scroll;0]'
+	recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1;6,5;recipes_scroll;vertical;1]'
+	-- Add recipe buttons in rows of 5 
 	local x = 0
 	local y = 0
-	for i, recipe in ipairs(recipe_list) do
+	for i, result in ipairs(recipe_list) do
 		-- recipe 
-		local recipe_output = recipe.recipe.output
-		local rItem=ItemStack(recipe_output)
-		local def = minetest.registered_items[rItem] or minetest.registered_nodes[rItem]
+		local recipe_output = result.recipe.output
+		local itemname=ItemStack(recipe_output):get_name()
+		local item_description = crafting.get_item_description(itemname)
 
-		local tool_tip = "TOOL TIP"
-		if def and def.tool_tip then
-			tool_tip=def.tool_tip
+--		local def = minetest.registered_items[rItem] or minetest.registered_nodes[rItem]
+		local id = result.recipe.id
+		local bg_coords =  tostring(x * 1.2) ..','.. tostring(y * 1.2 + 0.2)
+		-- set background image
+		local bg_image
+		local craftable = result.craftable
+		if craftable then
+			bg_image = 'crafting_slot_craftable.png'
+		else
+			bg_image = 'crafting_slot_uncraftable.png'
 		end
-		local coords =  tostring(x * 1.2) ..','.. tostring(y * 1.2 + 0.2)
-		recipes[#recipes + 1] = 'item_image_button['
-			.. coords
-			.. ';1,1;' 
-			.. recipe_output .. ';result_' .. i ..';]'
-		if tool_tip then 
-			recipes[#recipes + 1] = 'tooltip[result_' .. i..';'
-				.. tool_tip .. ';]'
-		end
+		recipesFS[#recipesFS +1] = "image[" .. bg_coords .. ";1,1;" .. bg_image .. "]"
+		-- Add button image
+		local btn_coords = tostring( x* 1.2 + 0.1 ) .. ','..tostring( y * 1.2 + 0.3 )
+		recipesFS[#recipesFS + 1] = 'item_image_button['
+			.. btn_coords .. ';.8,.8;' 
+			.. recipe_output .. ';iresult_' .. id ..';]'
+		recipesFS[#recipesFS + 1] = 'tooltip[iresult_' .. id..';'
+			.. minetest.formspec_escape(item_description .. "\n")
+		for j, item in pairs(result.items) do
+             local color = item.have >= item.need and "#6f6" or "#f66"
+             local tool_tip ="\n"
+                ..  minetest.get_color_escape_sequence(color) 
+                ..  crafting.get_item_description(item.name) .. ": "
+                ..  item.have .."/".. item.need
+             recipesFS[#recipesFS + 1] = minetest.formspec_escape(tool_tip)
+         end
+         recipesFS[#recipesFS + 1] = minetest.get_color_escape_sequence("#ffffff") .. ']'
 		x = x + 1
 		if x > 4 then
 			x = 0
@@ -103,13 +193,11 @@ local function cache_player_recipes(cache, player_name, pInv)
 		end
 	end
 	
-	recipes[#recipes + 1] =	'scroll_container_end[]'
-	recipes[#recipes + 1] =	'field[4.2,6;3,.5;query;;]'
-	recipes[#recipes + 1] =	'button[7.3,6;.6,.5;?;?]'
---	recipes[#recipes + 1] =	'button[8.5,6;.6,.5;up;+]'
---	recipes[#recipes + 1] =	'button[9.1,6;.6,.5;down;-]'
-	cache.recipes = recipes
-	return recipes
+	recipesFS[#recipesFS + 1] =	'scroll_container_end[]'
+	recipesFS[#recipesFS + 1] =	'field[4.2,6;3,.5;query;;]'
+	recipesFS[#recipesFS + 1] =	'button[7.3,6;.6,.5;?;?]'
+	cache.recipes = recipesFS
+	return recipesFS
 end
 
 -- This needs to be rebuilt every time you change the inventory being viewed - so clicking bags
@@ -174,7 +262,7 @@ local function cache_player_craft_types(cache, pInv)
 					.. itemname ..';belt_' .. i .. ';]'
 			cache.craft_type[#cache.craft_type + 1] = 
 				'tooltip[belt_' .. i .. ';'
-					.. stack:get_short_description() .. ';]'
+					.. stack:get_short_description() .. ']'
 		else
 			-- display empty space
 			cache.craft_type[#cache.craft_type + 1] = 
@@ -197,9 +285,9 @@ function minimal.close_inventory_formspec(player)
 		return nil -- no player name
 	end
 	-- Assume recipes will need to be redrawn on reopen
-	inventory_cache[player_name].recipes = nil
+	inventoryFS_cache[player_name].recipes = nil
 	-- clear cached output to force redraw for new formspec
-	inventory_cache[player_name].output=""
+	inventoryFS_cache[player_name].output=""
 end
 
 -- This is the function to call to create or update the formspec.
@@ -212,7 +300,7 @@ function minimal.get_inventory_formspec(player)
 		return nil -- no player name
 	end
 	local now = os.time()
-	local cache = inventory_cache[player_name] or {
+	local cache = inventoryFS_cache[player_name] or {
 		epoch = now,
 		output = "",
 		player_name = player_name,	
@@ -222,7 +310,7 @@ function minimal.get_inventory_formspec(player)
 	}
 	-- return prepared formspec if we have one and it hasn't timed out
 	-- Any updates to the form contents should set cache.output = "" 
-	if cache.output ~= "" and  (cache.epoch + __inventory_cache_timeout < now) then
+	if cache.output ~= "" and  (cache.epoch + __inventoryFS_cache_timeout < now) then
 		return cache.output
 	end
 	-- add formspec Header
@@ -254,7 +342,7 @@ function minimal.get_inventory_formspec(player)
 	output = output .. table.concat(cache.inventory, "")
 	-- Save output to cache and update
 	cache.output = output
-	inventory_cache[player_name] = cache
+	inventoryFS_cache[player_name] = cache
 	return output
 end
 

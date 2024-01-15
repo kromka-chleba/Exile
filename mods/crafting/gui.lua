@@ -38,7 +38,7 @@ local function get_global_tab_updater(tab_name)
 end
 
 
-local function get_item_description(name)
+function crafting.get_item_description(name)
 	if name:sub(1, 6) == "group:" then
 		local group = name:sub(7, #name):gsub("%_", " ")
 		return "Any " .. group
@@ -131,7 +131,7 @@ function crafting.make_result_selector(player, type, level, size, context)
 		local recipe = result.recipe
 
 		local itemname = ItemStack(recipe.output):get_name()
-		local item_description = get_item_description(itemname)
+		local item_description = crafting.get_item_description(itemname)
 
 		formspec[#formspec + 1] = "item_image_button["
 		formspec[#formspec + 1] = x
@@ -152,7 +152,7 @@ function crafting.make_result_selector(player, type, level, size, context)
 			local itemtab = {
 				"\n",
 				minetest.get_color_escape_sequence(color),
-				get_item_description(item.name), ": ",
+				crafting.get_item_description(item.name), ": ",
 				item.have, "/", item.need
 			}
 			formspec[#formspec + 1] = minetest.formspec_escape(table.concat(itemtab, ""))
