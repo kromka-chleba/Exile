@@ -143,7 +143,7 @@ animals.register_spawnegg = function(self)
         local def = minetest.registered_items[wielded_item:get_name()]
         wielded_item:take_item()
         player:set_wielded_item(wielded_item)
-        minetest.sound_play("animals_slaughter",{pos = player:get_pos(), gain = 0.5, pitch = 0.75})
+        minetest.sound_play("animals_slaughter",{pos = player:get_pos(), gain = 0.5, pitch = (math.random(69,80)/100)})
         local inv = player:get_inventory()
         for _,item in ipairs(def.drops) do
           if inv:room_for_item("main", item) then
