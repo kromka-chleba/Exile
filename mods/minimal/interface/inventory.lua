@@ -40,7 +40,7 @@ local inventoryFS_cache = {}
 
 local function process_button(key,btypes)
 	for _,prefix in ipairs(btypes) do
-		if key:sub(1, 7) == prefix then
+		if key:sub(1, #prefix) == prefix then
 			local num = string.match(key, prefix.."_([0-9]+)")
 			if num then
 				return prefix, num
@@ -67,13 +67,15 @@ print (dump(fields))
 			break	-- We found a button
 		end
     end
+
+		local cache = inventoryFS_cache[player_name]
+--print (dump(cache))
 	if btn_type then
 		local inv    = player:get_inventory()
-		local name   = player:get_player_name()
-		local cache = inventoryFS_cache[name]
 		if btn_type == 'ibelt' then
-			local craft_type = inv:get_list('craft_types')[btn_id]
-			local cItem = craft_type:get_name()
+			local craft_types = inv:get_list('craft_types')
+			local selected = craft_types[tonumber(btn_id)]
+			local cItem = selected:get_name()
 			local def = minetest.registered_nodes[cItem] 
 				or minetest.registered_tools[cItem] 
 				or minetest.registered_items[cItem]
@@ -82,22 +84,23 @@ print (dump(fields))
 				cache.clevel = def._craft_level
 				cache.recipes = nil
 				cache.output = ""
+				inventoryFS_cache[player_name]=cache
 			end
 		elseif btn_type == 'iresult' then
 			local recipe = crafting.get_recipe(tonumber(btn_id))
 			local ctype = cache.ctype
 			local clevel = cache.clevel
 			local sInv = cache.sInv
-			if not crafting.can_craft(name, ctype, clevel, recipe) then
+			if not crafting.can_craft(player_name, ctype, clevel, recipe) then
 				minetest.log("error", "[crafting] Player clicked a button they shouldn't have been able to")
 				return true
-			elseif crafting.perform_craft(name, inv, {"input_items","main"}, "main", recipe) then
+			elseif crafting.perform_craft(player_name, inv, {"input_items","main"}, "main", recipe) then
 				cache.recipes = nil
 				cache.output = nil
-				inventoryFS_cache[name] = cache
+				inventoryFS_cache[player_name] = cache
 				return true -- crafted
 			else
-				minetest.chat_send_player(name, "Missing required items!")
+				minetest.chat_send_player(player_name, "Missing required items!")
 				return false
 			end
 		end
@@ -133,10 +136,9 @@ end
 local function cache_player_recipes(cache, player_name, pInv)
 	local recipesFS = {}
 	local ctype = cache.ctype 	-- craft type selected
+print(ctype)
 	local level = cache.clevel	-- level associated with selected craft type
 	local recipe_list = recipes_for_player(cache, pInv, player_name,ctype, level)
-
-
 
 	-- Add tab header
 	local tabs=''
@@ -259,9 +261,9 @@ local function cache_player_craft_types(cache, pInv)
 			local itemname = stack:get_name()
 			cache.craft_type[#cache.craft_type + 1] = 
 				'item_image_button[' .. coords .. ';.5,.5;' 
-					.. itemname ..';belt_' .. i .. ';]'
+					.. itemname ..';ibelt_' .. i .. ';]'
 			cache.craft_type[#cache.craft_type + 1] = 
-				'tooltip[belt_' .. i .. ';'
+				'tooltip[ibelt_' .. i .. ';'
 					.. stack:get_short_description() .. ']'
 		else
 			-- display empty space
@@ -345,7 +347,5 @@ function minimal.get_inventory_formspec(player)
 	inventoryFS_cache[player_name] = cache
 	return output
 end
-
-
 
 

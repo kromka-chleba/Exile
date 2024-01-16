@@ -241,6 +241,13 @@ end
 
 function crafting.find_required_items(inv, listname, recipe)
 	local items = {}
+	-- updated to allow passing of a table of listnames
+	-- items are taken from inventories in order passed
+	-- this converts old use of this function to new use
+	if type(listname) ~= 'table' then
+		listname = { listname }
+	end
+
 	for _, item in pairs(recipe.items) do
 		item = ItemStack(item)
 
@@ -250,38 +257,57 @@ function crafting.find_required_items(inv, listname, recipe)
 			local required = item:get_count()
 
 			-- Find stacks in group
-			for i = 1, inv:get_size(listname) do
-				local stack = inv:get_stack(listname, i)
-
-				-- Is it in group?
-				local def = minetest.registered_items[stack:get_name()]
-				if def and def.groups and def.groups[groupname] then
-					stack = ItemStack(stack)
-					if stack:get_count() > required then
-						stack:set_count(required)
+			for _,list in ipairs(listname) do
+				for i = 1, inv:get_size(list) do
+					local stack = inv:get_stack(list, i)
+					-- Is it in group?
+					local def = minetest.registered_items[stack:get_name()]
+					if def and def.groups and def.groups[groupname] then
+						stack = ItemStack(stack)
+						if stack:get_count() > required then
+							stack:set_count(required)
+						end
+						items[#items + 1] = stack
+						required = required - stack:get_count()
+						if required == 0 then
+							break
+						end
 					end
-					items[#items + 1] = stack
+				end
+				if required == 0 then
+					break
+				end
+			end
+			if required > 0 then
+				return nil
+			end
+		else
+			local item_name = item:get_name()
+			local required = item:get_count()
+			for _,list in ipairs(listname) do
 
-					required = required - stack:get_count()
-
+				if inv:contains_item(list, ItemStack(item_name)) then
+					for i = 1, inv:get_size(list) do
+						local stack = inv:get_stack(list, i)
+						if stack:get_name() == item_name then
+							local found = stack:peek_item(required)
+							items[#items + 1] = found
+							required = required - found:get_count()
+						end
+						if required == 0 then
+							break
+						end
+					end	
 					if required == 0 then
 						break
 					end
 				end
 			end
-
-			if required > 0 then
-				return nil
-			end
-		else
-			if inv:contains_item(listname, item) then
-				items[#items + 1] = item
-			else
+			if required ~= 0 then
 				return nil
 			end
 		end
 	end
-
 	return items
 end
 
@@ -299,19 +325,32 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
       return false
    end
 
-   -- Take items
-   local taken = {}
-   for _, item in pairs(items) do
-      item = ItemStack(item)
+	-- updated to allow passing of a table of listnames
+	-- items are taken from inventories in order passed
+	-- this converts old use of this function to new use
+	if type(listname) ~= 'table' then
+		listname = { listname }
+	end
 
-      local took = inv:remove_item(listname, item)
-      taken[#taken + 1] = took
-      if took:get_count() ~= item:get_count() then
-	 minetest.log("error", "Unexpected lack of items in inventory")
-	 give_all_to_player(inv, taken)
-	 return false
-      end
-   end
+	-- Take items
+	local taken = {}
+	for _, item in pairs(items) do
+		item = ItemStack(item)
+		for _, list in ipairs(listname) do
+			local took = inv:remove_item(list, item)
+			taken[#taken + 1] = took
+			item:set_count(item:get_count() - took:get_count())
+			if not item:get_count() then
+				break
+			end
+		end
+
+		if item:get_count() ~= 0 then
+			 minetest.log("error", "Unexpected lack of items in inventory")
+			 give_all_to_player(inv, taken)
+			 return false
+		end
+	end
 
    for i=1, #crafting.registered_on_crafts do
       crafting.registered_on_crafts[i](name, recipe)

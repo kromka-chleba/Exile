@@ -151,6 +151,8 @@ end
 minetest.register_node("tech:crafting_spot", {
 	description   = S("Crafting Spot"),
 	tiles         = {"tech_station_crafting_spot.png"},
+	_craft_type   = 'crafting_spot',
+	_craft_level  = 2,
 	drawtype      = "nodebox",
 	node_box      = {
 		type  = "fixed",
@@ -179,6 +181,8 @@ minetest.register_node("tech:crafting_spot", {
 --rearranging previously existing stuff (e.g. stairs, slabs)
 minetest.register_node("tech:mixing_spot", {
 	description   = S("Mixing Spot"),
+	_craft_type   = 'mixing_spot',
+	_craft_level  = 2,
 	tiles         = {"tech_station_mixing_spot.png"},
 	drawtype      = "nodebox",
 	node_box      = {
@@ -209,6 +213,8 @@ minetest.register_node("tech:mixing_spot", {
 minetest.register_node("tech:threshing_spot", {
 	description       = S("Threshing Spot"),
 	tiles             = {"tech_station_threshing_spot.png"},
+	_craft_type       = 'threshing_spot',
+	_craft_level	  = 2,
 	drawtype          = "nodebox",
 	node_box          = {
 		type  = "fixed",
@@ -242,6 +248,8 @@ minetest.register_node("tech:threshing_spot", {
 --weaving spot
 minetest.register_node("tech:weaving_spot",{
 	description   = S("Weaving Spot"),
+	_craft_type	  = 'weaving_spot',
+	_craft_level  = 2,
 	tiles         = {"tech_station_weaving_spot.png"},
 	drawtype      = "nodebox",
 	node_box      = {
@@ -275,6 +283,8 @@ minetest.register_node("tech:weaving_spot",{
 --for grinding stone tools
 minetest.register_node("tech:grinding_spot",{
 	description   = S("Grinding Spot"),
+	_craft_type	  = 'grinding_spot',
+	_craft_level  = 2,
 	tiles         = {"tech_station_grinding_spot.png"},
 	drawtype      = "nodebox",
 	node_box      = {
@@ -308,6 +318,8 @@ minetest.register_node("tech:grinding_spot",{
 --crude hammering crushing jobs,
 minetest.register_node("tech:hammering_spot",{
 	description   = S("Hammering Spot"),
+	_craft_type	  = 'hammering_spot',
+	_craft_level  = 2,
 	tiles         = {"tech_station_hammering_spot.png"},
 	drawtype      = "nodebox",
 	node_box      = {
