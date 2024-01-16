@@ -138,9 +138,23 @@ local function showall_hud(player, pname, pos, nmeta, metastring)
    HEALTH.show_hud_elements(player, nil, "all")
 end
 
+local splash = {}
+
+
 local function hud_splash(player, pname, pos, nmeta, metastring)
+   local function clear_splash()
+      local spl = splash[pname] or {}
+      if spl.icon then player:hud_remove(spl.icon) end
+      if spl.text then player:hud_remove(spl.text) end
+      splash[pname] = nil
+   end
+
    if used_before(nmeta, pname) then
       return
+   end
+   if splash[pname] then
+      splash[pname].job:cancel()
+      clear_splash()
    end
    local icon = string.split(metastring, ",")[1]
    local text = string.split(metastring, ",")[2]
@@ -164,9 +178,9 @@ local function hud_splash(player, pname, pos, nmeta, metastring)
 	    position = { x = 0.5, y = 0.54 },
       })
    end
-   minetest.after(5, function()
-		     if item.icon then player:hud_remove(item.icon) end
-		     if item.text then player:hud_remove(item.text) end
+   splash[pname] = item
+   splash[pname].job = minetest.after(2.5, function()
+		     clear_splash()
    end)
 end
 
