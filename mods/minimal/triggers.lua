@@ -165,8 +165,8 @@ local function hud_splash(player, pname, pos, nmeta, metastring)
       })
    end
    minetest.after(5, function()
-		     player:hud_remove(item.icon)
-		     player:hud_remove(item.text)
+		     if item.icon then player:hud_remove(item.icon) end
+		     if item.text then player:hud_remove(item.text) end
    end)
 end
 
