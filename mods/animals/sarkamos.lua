@@ -148,6 +148,7 @@ local self_data = {
   capture_interactions = {
     club = 0.01,
   },
+  player_interaction = 1,
   -- logic for mobkit
   logic = brain,
   --movement

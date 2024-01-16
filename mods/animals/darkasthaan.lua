@@ -161,6 +161,7 @@ local self_data = {
   capture_interactions = {
     club = 0.04,
   },
+  player_interaction = 0.99,
   -- logic for mobkit
   logic = brain,
   --movement
@@ -168,7 +169,7 @@ local self_data = {
 	buoyancy = 1.01,
 	max_speed = 1,					-- m/s
 	jump_height = 2,				-- nodes/meters
-	view_range = 6,					-- nodes/meters
+	view_range = 10,					-- nodes/meters
 	--attack
 	attack={range=0.8, damage_groups={fleshy=12}},
 	armor_groups = {fleshy=100},
