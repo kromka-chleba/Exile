@@ -1,5 +1,10 @@
 # Changelog:
 
+## [2024-01-16][2023-01-16__0.3.15d]
+  - Add	a player model to clothing page, tool
+  - Increase /ping timeout on servers
+  - Fix for a mobile issue with bed rest
+
 ## [2024-01-09][2023-01-09__0.3.15c]
   - Fixed a crafting screen bug
   - Fixed some positional audio quirks
