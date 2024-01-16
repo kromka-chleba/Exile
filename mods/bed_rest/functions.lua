@@ -403,7 +403,7 @@ local function stopmove(player, pos, lives, meta)
 	 return -- Player has died before this fired
       end
    end
-   local velo = player:get_velocity() or player:get_player_velocity()
+   local velo = player:get_velocity() or player:get_player_velocity() or 0
    player:add_velocity(-velo)
    if pos then player:set_pos(pos) end
 end
