@@ -102,6 +102,7 @@ end
 --effects at source
 local function doGatewayFX(player)
     local pos = player:get_pos()
+    if not pos then return end
     minetest.sound_play( {name="lore_gateway", gain=1}, {pos=pos, max_hear_distance=100})
     minetest.add_particlespawner({
       amount = 10,
