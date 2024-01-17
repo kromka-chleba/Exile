@@ -49,16 +49,18 @@ end
 
 
 -------------------------------------------
---set saved fuel
+-- set saved fuel
+
+-- not used by thrown torches
+
 local after_place_node = function(pos, placer, itemstack, pointed_thing)
 	local meta = minetest.get_meta(pos)
 	local stack_meta = itemstack:get_meta()
-	local fuel = stack_meta:get_int("fuel")
+	local fuel = tonumber(stack_meta:get("fuel")) or base_fuel
 	if fuel >0 then
 		meta:set_int("fuel", fuel)
 	end
 end
-
 
 -------------------------------------------
 --converts flaming torch into ash
@@ -96,7 +98,7 @@ local function on_throw(itemstack, dropper, pos)
 -- newpos = {x = pos.x, y = pos.y+1.5, z=pos.z} -- Add vector to put it forward
    local obj = minetest.add_entity({x = pos.x, y = pos.y+1.5, z = pos.z},
       "tech:torch_entity")
-   local fuel = itemstack:get_meta():get_int("fuel")
+   local fuel = tonumber(itemstack:get_meta():get("fuel")) or base_fuel
    if fuel then
       obj:get_luaentity(obj):set_fuel(fuel)
    end
