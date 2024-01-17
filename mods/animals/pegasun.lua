@@ -39,7 +39,7 @@ local function brain(self)
 			--Threats
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
-				animals.fight_or_flight(self, plyr, 55, 0.01)
+				animals.fight_or_flight(self, plyr)
 			end
 
 			animals.predator_avoid(self)
@@ -360,6 +360,7 @@ local self_data = {
   -- interactions
   -- predators + rivals automatically defined in registration
   consume_non_prey = false,
+  player_interaction = 0.01,
   predator_interactions = 0.01,
   capture_interactions = {
     club = 0.35,
@@ -479,11 +480,12 @@ self_male.sex = "male"
 -- remove interactive from female to get api to re-register
 self_male.rivals = nil
 self_male.friends = nil
--- unique predator interactions
+-- unique predator + player interactions
 self_male.predator_interactions = {
   default = 0.8,
   ["animals:kubwakubwa"] = 1,
 }
+self_male.player_interaction = 1
 -- male functions
 self_male.on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
   if animals.stun_catch_mob(self, clicker, time_from_last_click, tool_capabilities) then -- attack kidnapper

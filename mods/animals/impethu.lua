@@ -43,7 +43,7 @@ local function brain(self)
 			--Threats
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
-				animals.fight_or_flight(self, plyr, 55, 0.02)
+				animals.fight_or_flight(self, plyr)
 			end
 
 			pred = animals.predator_avoid(self)
@@ -171,6 +171,7 @@ self_data = animals.register_animal("animals:impethu",{
   lifespan = "energy_max*4",
   -- interactions
   -- predators + rivals automatically defined in registration
+  player_interaction = 0.02,
   predator_interactions = 0.02,
   capture_interactions = {
     hand = 0.7,
