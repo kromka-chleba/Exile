@@ -294,17 +294,27 @@ local index = {}
 local rindex = {}
 local idx = 1
 local comma = ""
-for nm, val in pairs(info) do
-   dropdownstring = dropdownstring..comma..val[1]
-   index[nm] = idx
-   rindex[idx] = nm
-   idx = idx + 1
-   comma = ","
-end
+minetest.register_on_mods_loaded(function()
+      local list = {} local count = 0
+      for nm, _ in pairs(info) do
+	 count = count + 1
+	 list[count] = nm
+      end
+      table.sort(list)
+      for i = 1, #list do
+	 local nm = list[i]
+	 local val = info[nm]
+	 dropdownstring = dropdownstring..comma..val[1]
+	 index[nm] = idx
+	 rindex[idx] = nm
+	 idx = idx + 1
+	 comma = ","
+      end
+end)
 
 local function triggerpage(sel, value)
    local spec =
-      "dropdown[0.6,0.6;3,0.8;Trigger;"..
+      "dropdown[0.6,0.6;5,0.8;Trigger;"..
       dropdownstring..";"..index[sel]..";true]"..
       "label[3.3,2;"..info[sel][2].."]"
    if not noinputfield[sel] then
