@@ -171,6 +171,7 @@ self_data = animals.register_animal("animals:impethu",{
   lifespan = "energy_max*4",
   -- interactions
   -- predators + rivals automatically defined in registration
+  consume_predators = false,
   player_interaction = 0.02,
   predator_interactions = 0.02,
   capture_interactions = {

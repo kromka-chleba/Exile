@@ -172,6 +172,7 @@ self_data = animals.register_animal("animals:sneachan",{
   lifespan = "energy_max*5",
   -- interactions
   -- predators + rivals automatically defined in registration
+  consume_predators = false,
   player_interaction = 0.01,
   predator_interactions = 0.01, -- fight chance against preds
   capture_interactions = {
