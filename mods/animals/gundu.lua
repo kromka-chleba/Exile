@@ -6,9 +6,6 @@ filter feeds in sunlit waters
 ]]
 ---------------------------------------------------------------------
 
-animals = animals
-mobkit = mobkit
-
 -- Internationalization
 local S = animals.S
 
@@ -19,7 +16,7 @@ local function pos_is_liquid(pos)
 	local node=mobkit.nodeatpos(pos)
 	if node and node.drawtype ~= 'liquid' then
 		return false
-	else
+	else 
 		return true
 	end
 end
@@ -70,10 +67,10 @@ local function brain(self)
 			--Threats
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
-				animals.fight_or_flight_plyr_water(self, plyr, 55, 0)
+				animals.fight_or_flight(self, plyr)
 			end
 
-			pred = animals.predator_avoid_water(self, 55, 0)
+			pred = animals.predator_avoid(self)
 
 			--Return to water
 			if not self.isinliquid then
@@ -83,7 +80,7 @@ local function brain(self)
 			-- Temp out of range
 			local temp = climate.get_point_temp(pos, true)
 			if not animals.temp_comfy(self,temp) then
-				vel = self.object:get_velocity()
+				local vel = self.object:get_velocity()
 				vel.y = vel.y-0.2
 				self.object:set_velocity(vel)
 				mobkit.hq_aqua_roam(self,10,0.2)
@@ -133,14 +130,14 @@ local function brain(self)
 
 			if tod <0.06 or tod >0.94 then
 				--sink at night to lay eggs
-				vel = self.object:get_velocity()
+				local vel = self.object:get_velocity()
 				vel.y = vel.y-0.2
 				self.object:set_velocity(vel)
 				mobkit.hq_aqua_roam(self,10,0.2)
 
 			elseif light <= 9 then
 				--rise during day if not in best light
-				vel = self.object:get_velocity()
+				local vel = self.object:get_velocity()
 				vel.y = vel.y+0.2
 				self.object:set_velocity(vel)
 				mobkit.hq_aqua_roam(self,10, random(1, self.max_speed))
@@ -195,129 +192,79 @@ end
 
 ----------------------------------------------
 -- SETTING OF GUNDU INTERACTOR SETTINGS
-animals.add_interactors("predators","gundu","animals:sarkamos", "animals:darkasthaan")
-animals.add_interactors("rivals","gundu","animals:gundu")
-animals.add_interactors("friends","gundu","animals:gundu")
+animals.add_interactors("animals:gundu","predators", "animals:sarkamos", "animals:darkasthaan")
+animals.add_interactors("animals:gundu","rivals", "self")
+animals.add_interactors("animals:gundu","friends", "self")
 
 ----------------------------------------------
---The Animal
+--Animal Data
+
 local self_data = {
-   name = "animals:gundu",
-   --core
-   physical = true,
-   collide_with_objects = true,
-   collisionbox = {-0.1, -0.1, -0.1, 0.1, 0.1, 0.1},
-   visual = "mesh",
-   mesh = "animals_gundu.b3d",
-   textures = {"animals_gundu.png"},
-   visual_size = {x = 5, y = 5},
-   makes_footstep_sound = false,
-   timeout = 0,
-
-   -- animal stats
-   max_hp = 40,
-   lung_capacity = 5,
-   -- comfort temps
-   min_temp = -2,
-   max_temp = 42,
-   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
-   class = 2,
-
-   on_step = mobkit.stepfunc,
-   on_activate = mobkit.actfunc,
-   get_staticdata = mobkit.statfunc,
-   logic = brain,
-   -- optional mobkit props
-   -- or used by built in behaviors
-   --physics = [function user defined] 		-- optional, overrides built in physics
-   animation = {
-      def={range={x=1,y=35},speed=30,loop=true},
-      fast={range={x=1,y=35},speed=60,loop=true},
-      stand={range={x=36,y=75},speed=20,loop=true},
-      dead = {range ={x=0, y=0},speed = 0,loop=true},
-   },
-   sounds = {
-      flee = {
-	 name = "animals_water_swish",
-	 gain={0.5, 1.5},
-	 fade={0.5, 1.5},
-	 pitch={0.5, 1.5},
-      },
-      call = {
-	 name = "animals_gundu_call",
-	 gain={0.05, 0.15},
-	 fade={0.5, 1.5},
-	 pitch={0.6, 1.2},
-      },
-      punch = {
-	 name = "animals_punch",
-	 gain={0.5, 1},
-	 fade={0.5, 1.5},
-	 pitch={0.5, 1.5},
-      },
-   },
-
-   --movement
-   springiness=0.5,
-   buoyancy = 1,
-   max_speed = 5,					-- m/s
-   jump_height = 1.5,				-- nodes/meters
-   view_range = 5,					-- nodes/meters
-
-   --attack
-   attack={range=0.3, damage_groups={fleshy=1}},
-   armor_groups = {fleshy=100},
-
-   --interaction
-   predators = animals.get_interactors("gundu","predators"),
-   rivals = animals.get_interactors("gundu","rivals"),
-   friends = animals.get_interactors("gundu","friends"),
-
-   --on actions
-   drops = {
-      {name = "animals:carcass_fish_small", chance = 1, min = 1, max = 1,},
-   },
-   on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-      animals.on_punch_water(self, tool_capabilities, puncher, 56, 0)
-   end,
-   on_rightclick = function(self, clicker)
-      if not clicker or not clicker:is_player() then
-	 return
-      end
-      animals.stun_catch_mob(self, clicker, 0.1)
-   end,
+  initial_properties = {
+    max_hp = 40,
+    
+    collisionbox = {-0.1, -0.1, -0.1, 0.1, 0.1, 0.1},
+    visual = "mesh",
+    mesh = "animals_gundu.b3d",
+    textures = {"animals_gundu.png"},
+    visual_size = {x = 5, y = 5},
+  },
+  -- animal stats
+	lung_capacity = 5,
+  -- comfort temps
+	min_temp = -2,
+	max_temp = 42,
+  -- is it land-borne (1), sea-borne (2), or amphibious (3)?
+  class = 2,
+  -- energy
+  energy_max = 8000,--secs it can survive without food
+  energy_egg = "energy_max*.5", -- energy that goes to egg
+  egg_timer = 60*32,
+  young_per_egg = {3,7},		--will get this/energy_egg starting energy
+  -- lifespan
+  lifespan = "energy_max*6",
+  -- interactions
+  -- rivals + friends automatically defined in registration
+  consume_non_prey = false,
+  player_interaction = 0,
+  predator_interactions = 0,
+  capture_interactions = {
+    club = 0.15,
+  },
+  -- logic for mobkit
+  logic = brain,
+  --movement
+	springiness=0.5,
+	buoyancy = 1,
+	max_speed = 5,					-- m/s
+	jump_height = 1.5,				-- nodes/meters
+	view_range = 5,					-- nodes/meters
+	--attack
+	attack={range=0.3, damage_groups={fleshy=1}},
+	armor_groups = {fleshy=100},
+  --on actions
+	drops = {
+		{name = "animals:carcass_fish_small", chance = 1, min = 1, max = 1,},
+	},
+	on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
+		animals.stun_catch_mob(self, clicker, time_from_last_click, tool_capabilities)
+    animals.fight_or_flight(self, clicker)
+	end,
+  -- egg
+  egg = {
+    name = "animals:gundu_eggs",
+    description = S('Gundu Eggs'),
+    tiles = {"animals_gundu_eggs.png"},
+    stack_max = minimal.stack_max_bulky,
+    groups = {snappy = 3, edible = 1, egg = 3},
+    drawtype = "normal",
+    nodebox = nil,
+  },
+  -- spawnegg or live animal
+  spawnegg = {
+    desc = S("Live Gundu"),
+    inv_img = "animals_gundu_item.png",
+    stack = minimal.stack_max_medium/2
+  },
 }
----- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
--- energy and eggs
-self_data.energy_max = 8000   --secs it can survive without food
-self_data.energy_egg = self_data.energy_max*0.5  --energy that goes to egg
-self_data.egg_timer = 60*32
-self_data.young_per_egg = {3,7}   --will get this/energy_egg starting energy
--- lifespan
-self_data.lifespan = self_data.energy_max * 6
----------------------;
-minetest.register_entity("animals:gundu",self_data)
-
-----------------------------------------------
---eggs
-minetest.register_node("animals:gundu_eggs", {
-	description = S('Gundu Eggs'),
-	tiles = {"animals_gundu_eggs.png"},
-	stack_max = minimal.stack_max_bulky,
-	groups = {snappy = 3, edible = 1, egg = 3},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-	   local egg_timer = self_data.egg_timer
-	   minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-
-	   return animals.hatch_egg(self_data, pos,
-				    'nodes_nature:salt_water_source',
-				    'nodes_nature:salt_water_flowing')
-	end,
-})
-
-
---spawn egg (i.e. live animal in inventory)
-animals.register_egg(self_data, S("Live Gundu"), "animals_gundu_item.png", minimal.stack_max_medium/2)
+animals.register_animal("animals:gundu",self_data)

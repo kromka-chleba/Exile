@@ -141,7 +141,7 @@ end
 ----------------------------------------------
 -- SETTING OF SNEACHAN INTERACTOR SETTINGS
 animals.add_interactors("predators","animals:sneachan","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
-animals.add_interactors("rivals","animals:sneachan","animals:sneachan", "animals:impethu")
+animals.add_interactors("rivals","animals:sneachan", "self", "animals:impethu")
 
 -- Animal Data
 local self_data -- define earlier for utilization in functions
@@ -169,7 +169,7 @@ self_data = animals.register_animal("animals:sneachan",{
   young_per_egg = {3,7},		--will get this/energy_egg starting energy
   emergency_egg_chance = 0.75,
   -- lifespan
-  lifespan = "energy_max*5",--self_data.energy_max * 5
+  lifespan = "energy_max*5",
   -- interactions
   -- predators + rivals automatically defined in registration
   capture_interactions = {

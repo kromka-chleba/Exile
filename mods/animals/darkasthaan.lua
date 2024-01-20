@@ -117,7 +117,7 @@ end
 ----------------------------------------------
 -- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
 animals.add_interactors("prey","animals:darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan", "animals:gundu", "animals:sarkamos")
-animals.add_interactors("rivals","animals:darkasthaan","animals:darkasthaan")
+animals.add_interactors("rivals","animals:darkasthaan","self")
 
 ----------------------------------------------
 -- Animal Data
@@ -154,10 +154,10 @@ local self_data = {
   young_per_egg = {1,3},		--will get this/energy_egg starting energy
   -- cannot define conservation minimum + energy_egg (energy_egg being necessary for cn_min) in API due to multiple values needed
   -- lifespan
-  lifespan = "energy_max*7",--self_data.energy_max * 5
+  lifespan = "energy_max*7",
   mature_age = "energy_max*0.1",
   -- interactions
-  -- predators + rivals automatically defined in registration
+  -- prey + rivals automatically defined in registration
   capture_interactions = {
     club = 0.05,
   },

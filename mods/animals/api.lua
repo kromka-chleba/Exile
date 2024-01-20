@@ -2060,9 +2060,7 @@ function animals.add_interactors(itype,creature,...) -- interactiontype, creatur
   else
     creature = string.lower(creature)
   end
-  
-  local posscreatures = {...} -- convert specified creatures into an easily accessible table (the ... for multiple args)
-  
+
   local interactable = animals.interactors[creature] -- finds the creature's table provided within animals.interactors
   if (type(interactable) ~= "table") then -- creates new one if not found
     animals.interactors[creature] = {}
@@ -2076,9 +2074,14 @@ function animals.add_interactors(itype,creature,...) -- interactiontype, creatur
     
     itable = animals.interactors[creature][itype]
   end
-  
+
+  local posscreatures = {...} -- convert specified creatures into an easily accessible table (the ... for multiple args)
   for _,interactor in pairs(posscreatures) do
     if (type(interactor) == "string") then
+      -- allow simplification with "self" parameter
+      if interactor == "self" then
+        interactor = creature
+      end
       -- add said creature as an "interactor" within the provided interactiontype (if specified creature is an entity name)
       itable[#itable + 1] = interactor
     end

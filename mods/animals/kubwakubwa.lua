@@ -118,7 +118,7 @@ end
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
 animals.add_interactors("predators","animals:kubwakubwa","animals:darkasthaan", "animals:sarkamos")
 animals.add_interactors("prey","animals:kubwakubwa","animals:pegasun","animals:sneachan", "animals:impethu", "animals:gundu")
-animals.add_interactors("rivals","animals:kubwakubwa","animals:kubwakubwa","animals:pegasun_male")
+animals.add_interactors("rivals","animals:kubwakubwa","self","animals:pegasun_male")
 
 ----------------------------------------------
 -- Animal Data
@@ -148,12 +148,12 @@ local self_data = {
   emergency_egg_chance = 0.75,
   -- cannot define conservation minimum + energy_egg (energy_egg being necessary for cn_min) in API due to multiple values needed
   -- lifespan
-  lifespan = "energy_max*5",--self_data.energy_max * 5
+  lifespan = "energy_max*5",
   mature_age = "energy_max*0.5",
   -- settings
   max_pop = 23,
   -- interactions
-  -- predators + rivals automatically defined in registration
+  -- predators + prey + rivals automatically defined in registration
   capture_interactions = {
     club = 0.55,
   },
