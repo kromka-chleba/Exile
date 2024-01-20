@@ -41,7 +41,7 @@ local function brain(self)
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
         prty = 55
-				animals.fight_or_flight_plyr(self, plyr, prty, 0.15)
+				animals.fight_or_flight(self, plyr, prty, 0.15)
 			end
 
 			if (animals.predator_avoid(self, 55, 0.15) or plyr) then

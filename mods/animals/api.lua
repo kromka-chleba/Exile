@@ -1166,83 +1166,57 @@ end
 
 ----------------------------------------------------------------
 --on_punch
-function animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
-  if mobkit.is_alive(self) then
-    -- do damage
-    mobkit.make_sound(self,'punch')
-    animals.modify_hp(self,-fleshdmg)
-
-    local conserve = mobkit.recall(self,'conserve')
-    if (self.hp < self.max_hp/10 or self.hp <= (fleshdmg * 2) or conserve == true) then
-      mobkit.animate(self,'fast')
-      if self.class == 2 then
-        animals.hq_swimfrom(self, 55, puncher, self.max_speed)
-        flee_sound(self)
-      else
-        mobkit.make_sound(self,'warn')
-        mobkit.hq_runfrom(self, 55, puncher)
-      end
-    elseif self.class == 2 then
-      animals.fight_or_flight_water(self, puncher, 55, 0.05)
-    else
-      animals.fight_or_flight(self, puncher, 55, 0.05)
-    end
+function animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, dmg)
+  if not mobkit.is_alive(self) then
+    -- oops I'm dead
+    return
   end
-end
+  if type(dmg) ~= "number" then
+    dmg = 0
+  end
+  -- do damage
+  mobkit.make_sound(self,'punch')
+  animals.modify_hp(self,-dmg)
 
-----------------------------------------------------------------
---attack or run vs player
-function animals.fight_or_flight_plyr(self, plyr, prty, chance)
-  mobkit.clear_queue_high(self)
-  --fight chance, or run away (don't do it attach bc buggers physics)
-  if random()< chance and plyr:get_attach() == nil then
-    mobkit.hq_warn(self,prty,plyr)
+  local conserve = mobkit.recall(self,'conserve')
+  if (self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or conserve == true) then
+    mobkit.make_sound(self,'warn')
+    animals.fight_or_flight(self, puncher, nil, 0)
   else
-    --mobkit.animate(self,'fast')
-    --mobkit.make_sound(self,'scared')
-    mobkit.hq_runfrom(self,prty, plyr)
+    animals.fight_or_flight(self, puncher)
   end
 end
 
---attack or run vs entity
+--attack or run vs entity or player
 function animals.fight_or_flight(self, threat, prty, chance)
   mobkit.clear_queue_high(self)
-  --fight chance, or run away
-  if random()< chance then
-    mobkit.hq_warn(self,prty, threat)
+  if not prty then
+    prty = 55
+  end
+  if not chance then
+    chance = 0.5
+  end
+  --fight chance, or run away (+against players as well, there was a notice about attacking players that are attached, maybe fixed?)
+  -- run away from players in creative or attached to something
+  if random()<chance and
+  not (minetest.is_player(threat) and threat:get_attach() or minimal.player_in_creative(threat)) then
+    -- fight!
+    if self.class == 2 then
+      mobkit.hq_aqua_attack(self, prty, threat, self.max_speed)
+    else
+      mobkit.hq_warn(self, prty, threat)
+    end
   else
+    -- flight!
+    mobkit.animate(self,'fast')
+    if self.class == 2 then
+      animals.hq_swimfrom(self, 55, threat, self.max_speed)
+      flee_sound(self)
+    else
+      mobkit.hq_runfrom(self,prty, threat)
+    end
     --mobkit.animate(self,'fast')
     --mobkit.make_sound(self,'scared')
-    mobkit.hq_runfrom(self,prty, threat)
-  end
-end
-
-
-
-
-----attack or run vs player in water
-function animals.fight_or_flight_plyr_water(self, plyr, prty, chance)
-  mobkit.clear_queue_high(self)
-  --ignore chance, or run away
-  if random()< chance and plyr:get_attach() == nil then
-    mobkit.hq_aqua_attack(self, prty, plyr, self.max_speed)
-  else
-    mobkit.animate(self,'fast')
-    animals.hq_swimfrom(self, prty, plyr, self.max_speed)
-    flee_sound(self)
-  end
-end
-
-----attack or run vs player in water
-function animals.fight_or_flight_water(self, threat, prty, chance)
-  mobkit.clear_queue_high(self)
-  --ignore chance, or run away
-  if random()< chance then
-    mobkit.hq_aqua_attack(self, prty, threat, self.max_speed)
-  else
-    mobkit.animate(self,'fast')
-    animals.hq_swimfrom(self, prty, threat, self.max_speed)
-    flee_sound(self)
   end
 end
 
@@ -2305,12 +2279,13 @@ function animals.register_animal(name,def)
         local egg_timer = egg_data.egg_timer
         minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
       end,
-      -- _conditions_correct(pos)
+      -- _conditions_correct(pos, egg_data)
       -- create a custom function that checks whether or not an egg should hatch
-      -- return decimal for percentage chance
-      -- should return true for if it can hatch
-      -- return false if it cannot hatch and provide a new time to use or it'll default
-      -- "new time" parameter can be made boolean true to prevent egg from hatching permanently
+      -- provided with a table of some data to be used
+      -- should return true for if it can hatch (return true)
+      -- return decimal for percentage chance (return 0-1)
+      -- return false if it cannot hatch and provide a new time to use or it'll default (return false,num)
+      -- "new time" parameter can be made boolean true to prevent egg from hatching permanently (return false,true)
       --end,
       on_timer = function(pos, elapsed)
         local egg_timer = def.egg_timer

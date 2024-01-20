@@ -54,7 +54,7 @@ local function brain(self)
 			   --You are prey
 			   local plyr = animals.get_nearby_player(self)
 			   if plyr then
-			      animals.fight_or_flight_plyr_water(self, plyr, 25, 0.4)
+			      animals.fight_or_flight(self, plyr, 25, 0.4)
 			   end
 
 			   if not animals.prey_hunt_water(self, 25) then

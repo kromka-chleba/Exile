@@ -39,7 +39,7 @@ local function brain(self)
 			--Threats
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
-				animals.fight_or_flight_plyr(self, plyr, 55, 0.01)
+				animals.fight_or_flight(self, plyr, 55, 0.01)
 			end
 
 			animals.predator_avoid(self, 55, 0.01)

@@ -41,7 +41,7 @@ local function brain(self)
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
         prty = 55
-				animals.fight_or_flight_plyr(self, plyr, prty, 0.75)
+				animals.fight_or_flight(self, plyr, prty, 0.75)
         conserve = false -- not hibernating anymore
 			end
 
