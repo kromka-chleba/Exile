@@ -6,6 +6,10 @@
 animals = animals
 mobkit = mobkit
 
+local function math_clamp(...) -- num, min, max
+  return minimal.math_clamp(...)
+end
+
 local create_mob = function(placer, itemstack, name, pos)
 	local meta = itemstack:get_meta()
 	local meta_table = meta:to_table()
@@ -85,6 +89,10 @@ animals.stun_catch_mob = function(self, clicker)--,chance,canhand)
   end
   if not success_rate then
     return false,false
+  end
+  local damaged_multiplier = math_clamp(1/(self.hp/self.max_hp) * (self.damaged_capture_multiplier or 1),1,math.huge )
+  if damaged_multiplier > 0 then -- if 0, do no changes
+    success_rate = success_rate * damaged_multiplier
   end
   -- catch chance
   mobkit.make_sound(self,'punch')
