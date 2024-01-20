@@ -191,9 +191,6 @@ local self_data = {
 	drops = {
 		{name = "animals:carcass_invert_large", chance = 1, min = 1, max = 1,},
 	},
-	on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-		animals.on_punch(self, tool_capabilities, puncher, 55, 0.85)
-	end,
 	on_rightclick = function(self, clicker)
 		animals.stun_catch_mob(self, clicker, 0.02)
 	end,

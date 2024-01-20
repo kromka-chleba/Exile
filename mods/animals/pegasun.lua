@@ -420,14 +420,12 @@ local self_data = {
 	drops = {
 		{name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},
 	},
-	on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-		animals.on_punch(self, tool_capabilities, puncher, 55, 0.05)
-	end,
 	on_rightclick = function(self, clicker)
 		animals.stun_catch_mob(self, clicker, 0.25)
 	end,
   -- egg
   egg = {
+    name = "animals:pegasun_eggs",
     description = S('Pegasun Egg'),
     tiles = {"animals_gundu_eggs.png"},
     stack_max = minimal.stack_max_medium,

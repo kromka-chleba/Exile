@@ -1166,49 +1166,25 @@ end
 
 ----------------------------------------------------------------
 --on_punch
-function animals.on_punch(self, tool_capabilities, puncher, prty, chance)
-  --[[
+function animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
   if mobkit.is_alive(self) then
+    -- do damage
     mobkit.make_sound(self,'punch')
-    local multiplier = tool_capabilities.full_punch_interval or 0.1
-    multiplier = math_clamp(multiplier / time_from_last_punch, 0, 1)
-    local dmg = tool_capabilities.damage_groups.fleshy or 1
-    dmg = math.floor(dmg * multiplier)
-    animals.modify_hp(self,-dmg)
+    animals.modify_hp(self,-fleshdmg)
 
     local conserve = mobkit.recall(self,'conserve')
-    if (self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or conserve == true) then
+    if (self.hp < self.max_hp/10 or self.hp <= (fleshdmg * 2) or conserve == true) then
       mobkit.animate(self,'fast')
       if self.class == 2 then
-        animals.hq_swimfrom(self, prty, puncher, self.max_speed)
+        animals.hq_swimfrom(self, 55, puncher, self.max_speed)
         flee_sound(self)
       else
         mobkit.make_sound(self,'warn')
-        mobkit.hq_runfrom(self, prty, puncher)
+        mobkit.hq_runfrom(self, 55, puncher)
       end
-    elseif prty < 20 then
-      animals.fight_or_flight(self, puncher, prty, chance)
+    else
+      animals.fight_or_flight(self, puncher, 55, 0.05)
     end
-  end
-  --]]
-  if mobkit.is_alive(self) then
-    --do damage
-    mobkit.clear_queue_high(self)
-    local conserve = mobkit.recall(self,'conserve')
-    local dmg = tool_capabilities.damage_groups.fleshy or 1
-    animals.modify_hp(self,-dmg)
-    mobkit.make_sound(self,'punch')
-    --fight or flight
-    --flee if hurt (or hibernating!)
-    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or conserve == true then
-      mobkit.animate(self,'fast')
-      mobkit.make_sound(self,'warn')
-      mobkit.hq_runfrom(self, prty, puncher)
-    elseif prty < 20 then
-      animals.fight_or_flight(self, puncher, prty, chance)
-    end
-
-
   end
 end
 
@@ -2312,7 +2288,7 @@ function animals.register_animal(name,def)
     --},
     -- functions
     on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg) -- optional "fleshdmg" argument
-      animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities)
+      animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
     end,
     on_rightclick = function(self, clicker)
       animals.stun_catch_mob(self, clicker, 0.75, true)
@@ -2534,15 +2510,15 @@ function animals.register_animal(name,def)
   def.on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
     local multiplier = tool_capabilities.full_punch_interval or 0.1
     multiplier = math_clamp(time_from_last_punch / multiplier, 0, 1)
-    local fleshdmg = tool_capabilities.damage_groups.fleshy or 1
+    local fleshdmg = tool_capabilities.damage_groups.fleshy or 0
+    -- allow players in creative to infinitely hit
     if not minimal.player_in_creative(puncher) then
-      -- allow players in creative to infinitely hit
       fleshdmg = math.floor(fleshdmg * multiplier)
     end
     if fleshdmg <= 0 then
       return
     end
-    self.last_punched = get_time(self.last_punched)
+    self.last_punched = get_time()
     if type(on_punch) == "function" then
       on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
     end

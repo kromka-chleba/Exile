@@ -207,9 +207,6 @@ self_data = animals.register_animal("animals:sneachan",{
 	drops = {
 		{name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
 	},
-	on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-		animals.on_punch(self, tool_capabilities, puncher, 55, 0.1)
-	end,
 	on_rightclick = function(self, clicker)
 		animals.stun_catch_mob(self, clicker, 0.75, true)
 	end,
