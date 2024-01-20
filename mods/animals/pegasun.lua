@@ -42,7 +42,7 @@ local function brain(self)
 				animals.fight_or_flight(self, plyr, 55, 0.01)
 			end
 
-			animals.predator_avoid(self, 55, 0.01)
+			animals.predator_avoid(self)
 
 
 		end
@@ -198,7 +198,7 @@ local function brain_male(self)
 				animals.fight_or_flight(self, plyr, 55, 0.6)
 			end
 
-			animals.predator_avoid(self, 55, 0.8)
+			animals.predator_avoid(self)
 
 		end
 
@@ -359,6 +359,8 @@ local self_data = {
   mature_age = "energy_max*0.36", -- 36% of energy_max (8000) or 2880
   -- interactions
   -- predators + rivals automatically defined in registration
+  consume_non_prey = false,
+  predator_interactions = 0.01,
   capture_interactions = {
     club = 0.35,
   },
@@ -477,6 +479,11 @@ self_male.sex = "male"
 -- remove interactive from female to get api to re-register
 self_male.rivals = nil
 self_male.friends = nil
+-- unique predator interactions
+self_male.predator_interactions = {
+  default = 0.8,
+  ["animals:kubwakubwa"] = 1,
+}
 -- male functions
 self_male.on_rightclick = function(self, clicker)
   if animals.stun_catch_mob(self, clicker) then -- attack kidnapper

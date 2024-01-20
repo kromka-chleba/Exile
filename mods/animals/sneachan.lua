@@ -48,7 +48,7 @@ local function brain(self)
 				animals.fight_or_flight(self, plyr, 55, 0.01)
 			end
 
-			pred = animals.predator_avoid(self, 55, 0.01)
+			pred = animals.predator_avoid(self)
 
 		end
 
@@ -172,6 +172,7 @@ self_data = animals.register_animal("animals:sneachan",{
   lifespan = "energy_max*5",
   -- interactions
   -- predators + rivals automatically defined in registration
+  predator_interactions = 0.01, -- fight chance against preds
   capture_interactions = {
     hand = 0.85,
     club = 1,

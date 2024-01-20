@@ -44,7 +44,7 @@ local function brain(self)
 				animals.fight_or_flight(self, plyr, prty, 0.15)
 			end
 
-			if (animals.predator_avoid(self, 55, 0.15) or plyr) then
+			if (animals.predator_avoid(self) or plyr) then
         prty = 55
         conserve = false -- on the move, no more conserving
       end
@@ -154,6 +154,7 @@ local self_data = {
   max_pop = 23,
   -- interactions
   -- predators + prey + rivals automatically defined in registration
+  predator_interactions = 0.15,
   capture_interactions = {
     club = 0.5,
   },

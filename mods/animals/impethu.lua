@@ -46,7 +46,7 @@ local function brain(self)
 				animals.fight_or_flight(self, plyr, 55, 0.02)
 			end
 
-			pred = animals.predator_avoid(self, 55, 0.02)
+			pred = animals.predator_avoid(self)
 
     end
     
@@ -171,6 +171,7 @@ self_data = animals.register_animal("animals:impethu",{
   lifespan = "energy_max*4",
   -- interactions
   -- predators + rivals automatically defined in registration
+  predator_interactions = 0.02,
   capture_interactions = {
     hand = 0.7,
     club = 1,
