@@ -109,11 +109,22 @@ end
 
 
 
+-- spawnegg registration, requires the following values:
+--[[
+stack (itemstack stack_max)
+desc (itemstack description)
+inv_img (itemstack inventory image)
 
-animals.register_spawnegg = function(self, desc, inv_img, stack)
+energy_egg (energy given to egg as a total)
+young_per_egg (how many children per egg - used for energy_egg calculation)
+class (optional - used to determine if aquatic)
+--]]
+animals.register_spawnegg = function(self)
    local name = self.name
    assert(type(name) == "string","animals.register_spawnegg: provided self data does not contain a name!")
-   stack = stack or 1
+   local stack = type(self.stack) == "number" and self.stack or 1
+   local desc = type(self.desc) == "string" and self.desc or ""
+   local inv_img = type(self.inv_img) == "string" and self.inv_img or ""
    local ee = self.energy_egg or 100
    local ype = self.young_per_egg or 1
    local liquids_pointable = false
@@ -132,6 +143,7 @@ animals.register_spawnegg = function(self, desc, inv_img, stack)
         local def = minetest.registered_items[wielded_item:get_name()]
         wielded_item:take_item()
         player:set_wielded_item(wielded_item)
+        minetest.sound_play("animals_slaughter",{pos = player:get_pos(), gain = 0.5, pitch = 0.75})
         local inv = player:get_inventory()
         for _,item in ipairs(def.drops) do
           if inv:room_for_item("main", item) then
