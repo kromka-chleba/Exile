@@ -52,20 +52,18 @@ end
 
 
 --use stunning weapon plus chance to catch (or if canhand == true)
-animals.stun_catch_mob = function(self, clicker,chance,canhand)
+animals.stun_catch_mob = function(self, clicker)--,chance,canhand)
   if not clicker or not minetest.is_player(clicker) then return end
 	if self.hp <= 0 then return end
 	local item = clicker:get_wielded_item()
 	local item_name = item:get_name()
-	item = minetest.get_item_group(item_name,"club")
-  --[[
   if not self.capture_interactions then
-    return false,false
+    return false,false -- creature can't be captured + is not captured
   end
   local success_rate
   for group,values in pairs(self.capture_interactions) do
-    if (group == hand and item_name == "") then
-      success_rate = values[1]
+    if (group == "hand" and item_name == "") then
+      success_rate = values[1] -- it's just a hand, why would there be more options than 1?
       break
     end
     local itemg = minetest.get_item_group(item_name,group) -- item group
@@ -77,7 +75,10 @@ animals.stun_catch_mob = function(self, clicker,chance,canhand)
           break
         else
           -- update success_rate
-          success_rate = perc
+          if not success_rate or -- define success_rate OR
+          (success_rate and perc > success_rate) then -- choose what gives the best chances
+            success_rate = perc
+          end
         end
       end
     end
@@ -86,26 +87,15 @@ animals.stun_catch_mob = function(self, clicker,chance,canhand)
     return false,false
   end
   -- catch chance
+  mobkit.make_sound(self,'punch')
   if success_rate >= math.random() then
     -- successful catch
-    return true,true
+    mobkit.make_sound(self,'punch')
+    animals.capture(self, clicker)
+    return true,true -- creature can be captured + is captured
   else
-    return true,false
-  end
-  --]]
-
-	if (item ~=0 or (canhand == true and item_name == "")) then
-		--hit
-		mobkit.make_sound(self,'punch')
-		--catch chance
-		if math.random() < chance then
-			mobkit.make_sound(self,'punch')
-			animals.capture(self, clicker)
-      return true,true -- creature can be captured + is captured
-		end
     return true,false -- creature can be captured + is not captured
-	end
-  return false,false -- creature can't be captured + is not captured
+  end
 end
 
 

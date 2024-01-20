@@ -159,7 +159,7 @@ local self_data = {
   -- interactions
   -- prey + rivals automatically defined in registration
   capture_interactions = {
-    club = 0.05,
+    club = 0.04,
   },
   -- logic for mobkit
   logic = brain,
@@ -192,7 +192,9 @@ local self_data = {
 		{name = "animals:carcass_invert_large", chance = 1, min = 1, max = 1,},
 	},
 	on_rightclick = function(self, clicker)
-		animals.stun_catch_mob(self, clicker, 0.02)
+		if animals.stun_catch_mob(self, clicker, 0.02) then -- attack kidnapper
+      animals.fight_or_flight(self, clicker, nil, 1)
+    end
 	end,
   -- eggs
   egg = {

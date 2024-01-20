@@ -173,7 +173,7 @@ self_data = animals.register_animal("animals:sneachan",{
   -- interactions
   -- predators + rivals automatically defined in registration
   capture_interactions = {
-    hand = 0.95,
+    hand = 0.85,
     club = 1,
   },
 -- logic for mobkit
@@ -208,7 +208,8 @@ self_data = animals.register_animal("animals:sneachan",{
 		{name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
 	},
 	on_rightclick = function(self, clicker)
-		animals.stun_catch_mob(self, clicker, 0.75, true)
+		animals.stun_catch_mob(self, clicker)
+    animals.fight_or_flight(self, clicker)
 	end,
   _on_death = function(self, pos)
     local good_temp,temp_status = animals.temp_comfy(self)

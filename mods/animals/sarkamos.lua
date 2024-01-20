@@ -185,7 +185,9 @@ local self_data = {
 		{name = "animals:carcass_fish_large", chance = 1, min = 1, max = 1,},
 	},
 	on_rightclick = function(self, clicker)
-		animals.stun_catch_mob(self, clicker, 0.01)
+		if animals.stun_catch_mob(self, clicker) then -- attack kidnapper
+      animals.fight_or_flight(self, clicker, nil, 1)
+    end
 	end,
   -- egg
   egg = {

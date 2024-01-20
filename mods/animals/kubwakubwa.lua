@@ -155,7 +155,7 @@ local self_data = {
   -- interactions
   -- predators + prey + rivals automatically defined in registration
   capture_interactions = {
-    club = 0.55,
+    club = 0.5,
   },
   -- logic for mobkit
   logic = brain,
@@ -188,7 +188,8 @@ local self_data = {
 		{name = "animals:carcass_invert_large", chance = 1, min = 1, max = 1,},
 	},
 	on_rightclick = function(self, clicker)
-		animals.stun_catch_mob(self, clicker, 0.1)
+		animals.stun_catch_mob(self, clicker)
+    animals.fight_or_flight(self, clicker)
 	end,
   _on_death = function(self, pos)
     local good_temp,temp_status = animals.temp_comfy(self)

@@ -172,7 +172,7 @@ self_data = animals.register_animal("animals:impethu",{
   -- interactions
   -- predators + rivals automatically defined in registration
   capture_interactions = {
-    hand = 0.95,
+    hand = 0.7,
     club = 1,
   },
   -- logic for mobkit
@@ -209,7 +209,8 @@ self_data = animals.register_animal("animals:impethu",{
 		{name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
 	},
 	on_rightclick = function(self, clicker)
-		animals.stun_catch_mob(self, clicker, 0.75, true)
+		animals.stun_catch_mob(self, clicker)
+    animals.fight_or_flight(self, clicker)
 	end,
   -- eggs
   egg = {
