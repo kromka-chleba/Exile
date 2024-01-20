@@ -151,7 +151,7 @@ function crafting.get_recipe(id)
 end
 
 function crafting.get_all(type, level, item_hash, unlocked)
-	assert(crafting.recipes[type], "No such craft type!")
+	assert(crafting.recipes[type], "No such craft type! '"..type.."'")
 	assert(level, "No level specified!")
 
 	local results = {}

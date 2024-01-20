@@ -151,8 +151,10 @@ end
 minetest.register_node("tech:crafting_spot", {
 	description   = S("Crafting Spot"),
 	tiles         = {"tech_station_crafting_spot.png"},
-	_craft_type   = 'crafting_spot',
-	_craft_level  = 2,
+	exile_crafting = {
+		craft_types  = {'hand','hand_wattle','hand_mixing'},
+		craft_level  = 2,
+	},
 	drawtype      = "nodebox",
 	node_box      = {
 		type  = "fixed",
@@ -181,8 +183,10 @@ minetest.register_node("tech:crafting_spot", {
 --rearranging previously existing stuff (e.g. stairs, slabs)
 minetest.register_node("tech:mixing_spot", {
 	description   = S("Mixing Spot"),
-	_craft_type   = 'mixing_spot',
-	_craft_level  = 2,
+	exile_crafting = {
+		craft_types  = 'mixing_spot',
+		craft_level  = 1,
+	},
 	tiles         = {"tech_station_mixing_spot.png"},
 	drawtype      = "nodebox",
 	node_box      = {
@@ -213,8 +217,10 @@ minetest.register_node("tech:mixing_spot", {
 minetest.register_node("tech:threshing_spot", {
 	description       = S("Threshing Spot"),
 	tiles             = {"tech_station_threshing_spot.png"},
-	_craft_type       = 'threshing_spot',
-	_craft_level	  = 2,
+	exile_crafting	  = {
+		craft_types  = {'threshing_spot','soil_mixing'},
+		craft_level	 = 2,
+	},
 	drawtype          = "nodebox",
 	node_box          = {
 		type  = "fixed",
@@ -248,8 +254,10 @@ minetest.register_node("tech:threshing_spot", {
 --weaving spot
 minetest.register_node("tech:weaving_spot",{
 	description   = S("Weaving Spot"),
-	_craft_type	  = 'weaving_spot',
-	_craft_level  = 2,
+	exile_crafting = {
+		craft_types	  = 'weaving_frame',
+		craft_level  = 1,
+	},
 	tiles         = {"tech_station_weaving_spot.png"},
 	drawtype      = "nodebox",
 	node_box      = {
@@ -283,8 +291,10 @@ minetest.register_node("tech:weaving_spot",{
 --for grinding stone tools
 minetest.register_node("tech:grinding_spot",{
 	description   = S("Grinding Spot"),
-	_craft_type	  = 'grinding_spot',
-	_craft_level  = 2,
+	exile_crafting = {
+		craft_types	  = 'grinding_spot',
+		craft_level  = 2,
+	},
 	tiles         = {"tech_station_grinding_spot.png"},
 	drawtype      = "nodebox",
 	node_box      = {
@@ -318,8 +328,10 @@ minetest.register_node("tech:grinding_spot",{
 --crude hammering crushing jobs,
 minetest.register_node("tech:hammering_spot",{
 	description   = S("Hammering Spot"),
-	_craft_type	  = 'hammering_spot',
-	_craft_level  = 2,
+	exile_crafting = {
+		craft_types	  = 'hammering_spot',
+		craft_level  = 2,
+	},
 	tiles         = {"tech_station_hammering_spot.png"},
 	drawtype      = "nodebox",
 	node_box      = {
@@ -478,6 +490,10 @@ minetest.register_node("tech:anvil", { --anvil--metal  working
 	paramtype2    = "facedir",
 	groups        = {dig_immediate=3, falling_node = 1, temp_pass = 1, craftedby = 1},
 	sounds        = nodes_nature.node_sound_stone_defaults(),
+	exile_crafting = {
+		craft_types = {'anvil','anvil_mixing'},
+		craft_level = 2,
+	},
 	on_rightclick = crafting.make_on_rightclick({"anvil","anvil_mixing"}, 2, { x = 8, y = 3 }),
 	})
 
@@ -658,6 +674,10 @@ minetest.register_node("tech:glass_furnace", {
 -- Weaving_frame needs to return for tool based crafting
    minetest.register_node("tech:weaving_frame",{
         description   = S("Weaving Frame"),
+		exile_crafting = {
+			craft_types	  = 'weaving_frame',
+			craft_level  = 1,
+		},
         drawtype      = "nodebox",
         tiles         = {"tech_stick.png"},
         stack_max     = minimal.stack_max_bulky,
@@ -797,6 +817,11 @@ crafting.register_recipe({ -- Glass furnace from bricks for the main structure a
 minetest.register_node(
     "tech:grinding_stone_granite",{
         description = S("Granite Grinding Stone"),
+		exile_crafting = {
+			craft_types	  = 'grinding_stone',
+			craft_level  = 1,
+		},
+
         drawtype = "mesh",
         mesh = "grinding_stone.obj",
         tiles = {"tech_grinding_stone_granite.png"},
