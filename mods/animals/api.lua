@@ -2519,9 +2519,15 @@ end
 
 
 function animals.register_animal(name,def)
-  assert(type(name) == "string","animals.register_animal: name is not a string, got '"..tostring(name).."'")
-  assert(type(def) == "table","animals.register_animal: definition is not a table, got '"..tostring(def).."'")
-  assert(type(def.logic) == "function","animals.register_animal: no 'logic' function provided for definition, got '"..tostring(def.logic).."'")
+  if type(name) ~= "string" then
+    error(debug.traceback("animals.register_animal: name is not a string, got '"..tostring(name).."'",2))
+  end
+  if type(def) ~= "table" then
+    error(debug.traceback("animals.register_animal: definition is not a table, got '"..tostring(def).."'",2))
+  end
+  if type(def.logic) ~= "function" then
+    error(debug.traceback("animals.register_animal: no 'logic' function provided for definition, got '"..tostring(def.logic).."'",2))
+  end
 
   local basedef = {
     name = name,
@@ -2723,9 +2729,10 @@ function animals.register_animal(name,def)
     end
   end
   -- now to correct some values (or cause errors >:3)
-  --assert(type(def.egg) == "table","defined 'egg' is not a table for nodedef, got '"..type(def.egg).."'")
-  assert(type(def.spawnegg) == "table","defined 'spawnegg' is not a table for itemdef, got '"..type(def.spawnegg).."'")
-  --assert(type(def.egg_timer) == "number","defined 'egg_timer' is not a number, got '"..type(def.egg_timer).."'")
+  if type(def.spawnegg) ~= "table" then
+    -- error would only happen if you have spawnegg set, but not as a table - nil is fine as basedef will fill in
+    error(debug.traceback("defined 'spawnegg' is not a table for itemdef, got '"..type(def.spawnegg).."'",2))
+  end
   -- iterate over and adjust some values (if applicable)
   for defname,defvalue in pairs(def) do
     if (type(defvalue) == "string" and
@@ -2777,7 +2784,10 @@ function animals.register_animal(name,def)
     end
   end
   -- fix or issue errors about improperly set def.capture_interactions
-  assert(type(def.capture_interactions) == "table","defined 'capture_interactions' is not a table, got '"..type(def.capture_interactions).."'")
+  if type(def.capture_interactions) ~= "table" then
+    -- must be specified as a table in least during definition
+    error(debug.traceback("defined 'capture_interactions' is not a table, got '"..type(def.capture_interactions).."'",2))
+  end
   for defname,defvalue in pairs(def.capture_interactions) do
     if type(defvalue) == "number" then
       def.capture_interactions[defname] = {defvalue}
