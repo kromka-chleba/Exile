@@ -1282,18 +1282,12 @@ end
 ----------------------------------------------------------------
 --Find and Flee predators
 function animals.predator_avoid(self, prty, chance)
-
-  for  _, pred in ipairs(self.predators) do
-    local thr = mobkit.get_closest_entity(self,pred)
-    if thr then
-      animals.fight_or_flight(self, thr, prty, chance)
-      return thr
-    end
+  local preds = animals.get_interactors(self.name,"predators")
+  if not preds then
+    -- end lookout due to no possible predators to find
+    minetest.log("error",self.name..": has no predators defined but tried to escape from one")
+    return
   end
-end
-
-
-function animals.predator_avoid_water(self, prty, chance)
 
   for  _, pred in ipairs(self.predators) do
     local thr = mobkit.get_closest_entity(self,pred)
@@ -1366,11 +1360,13 @@ function animals.prey_hunt(self, prty)
     table.remove(targs,targ_index)
   end
 
-  if not animals.get_interactors(self.name,"prey") then
+  local prey_table = animals.get_interactors(self.name,"prey")
+  if not prey_table then
     -- end search due to no possible prey to find
+    minetest.log("error",self.name..": has no prey defined but tried to hunt prey")
     return true
   end
-  local prey_table = animals.get_entities_in_distance(self).prey
+  prey_table = animals.get_entities_in_distance(self).prey
   if #prey_table <= 0 then
     -- no prey, end search
     return true
@@ -2075,12 +2071,17 @@ function animals.add_interactors(creature,itype,...) -- creature to be set with 
   else
     itype = string.lower(itype)
   end
-  
-  if (type(creature) ~= "string") then
-    return
-  else
-    creature = string.lower(creature)
+
+  if type(creature) == "table" then
+    -- get "name" of said table
+    creature = creature.name
   end
+  if type(creature) == "string" then
+    creature = string.lower(creature)
+  else
+    return
+  end
+  local entity = minetest.registered_entities[creature] -- utilized for searching and override
 
   local interactable = animals.interactors[creature] -- finds the creature's table provided within animals.interactors
   if (type(interactable) ~= "table") then -- creates new one if not found
@@ -2088,16 +2089,31 @@ function animals.add_interactors(creature,itype,...) -- creature to be set with 
     
     interactable = animals.interactors[creature]
   end
-  
+
   local itable = animals.interactors[creature][itype] -- finds the specified interactiontype table within creature's table
-  if (type(itable) ~= "table") then -- create new table with the interactiontype if it isn't specified
-    animals.interactors[creature][itype] = {}
-    
-    itable = animals.interactors[creature][itype]
+  if (type(itable) ~= "table") then -- check for in possible entity or create a new interactiontype table if not found
+    -- check if entity exists, and check if it has the interactiontype
+    if entity then
+      itable = entity[itype]
+      if itable then
+        itable = table.copy(itable) -- copy to prevent weird possible conflicts
+        animals.interactors[creature][itype] = itable
+      end
+    end
+    -- create new table with the interactiontype if it could not get one from the registered entity (or if there wasn't a entity with said name)
+    if not itable then
+      itable = {}
+      animals.interactors[creature][itype] = itable
+    end
   end
 
   local posscreatures = {...} -- convert specified creatures into an easily accessible table (the ... for multiple args)
   for _,interactor in pairs(posscreatures) do
+    if type(interactor) == "table" then
+      for _,readd in pairs(interactor) do
+        table.insert(posscreatures,readd)
+      end
+    end
     if (type(interactor) == "string") then
       -- allow simplification with "self" parameter
       if interactor == "self" then
@@ -2107,7 +2123,11 @@ function animals.add_interactors(creature,itype,...) -- creature to be set with 
       itable[#itable + 1] = interactor
     end
   end
-  
+  -- will override entity's interaction type with the provided animals
+  if entity then
+    entity[itype] = itable
+  end
+
   return true
 end
 
@@ -2118,19 +2138,41 @@ function animals.get_interactors(creature,itype) -- creature to get stats from, 
   else
     itype = string.lower(itype)
   end
-  
-  if (type(creature) ~= "string") then
-    return
-  else
+
+  if type(creature) == "table" then
+    -- get "name" of said table
+    creature = creature.name
+  end
+  if type(creature) == "string" then
     creature = string.lower(creature)
+  else
+    return
   end
   -- get the creature's interactors table
   local interactable = animals.interactors[creature]
-  if (type(interactable) ~= "table") then
-    return
+  if type(interactable) ~= "table" then
+    -- add an option to get a creature table and if it gets a creature, set it for interactions
+    interactable = minetest.registered_entities[creature]
+    if not interactable then
+      return
+    else
+      interactable = {}
+      animals.interactors[creature] = interactable
+    end
   end
   -- get who the creature interacts in what specified way
   local itable = interactable[itype]
+  if not itable then
+    -- get the interaction table directly from the entity if defined properly
+    local entity = minetest.registered_entities[creature]
+    if entity then
+      itable = entity[itype]
+      -- if it got an interaction table, add it to the creature's interaction system
+      if itable then
+        interactable[itype] = itable
+      end
+    end
+  end
   -- return nil (no table found) or the specified table of interaction type
   return itable
 end
