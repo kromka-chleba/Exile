@@ -1,9 +1,15 @@
 backpacks = {}
---#TODO: inventory in backpacks kills metadata; creator wont be reserved
---XXX this is a bug that needs to be fixed.
-
 -- Internationalization
 local S = minetest.get_translator("backpacks")
+
+local more_info = minetest.settings:get_bool('exile_backpacks_spreadsheet')
+
+local colours = {
+  full = "#90c8fc", -- pastel blue
+  partial = "#90fca0", -- pastel green
+  neutral = "#ffffff", -- white
+  item_name = "#ffff7a" -- pastel yellow
+}
 
 local function get_formspec(pos, w, h)
 	local meta = minetest.get_meta(pos)
@@ -32,12 +38,15 @@ local function get_formspec(pos, w, h)
 	return table.concat(formspec, "")
 end
 
-local function get_description(node,meta)
-	local desc = minetest.registered_nodes[node.name].description
+local function get_description(node,meta,bag_name,add_string)
+	local desc = bag_name--minetest.registered_nodes[node.name].description
 	local label = meta:get_string('label')
 	if label ~= '' then
 		desc = desc.." - "..label
 	end
+  if type(add_string) == "string" and add_string ~= "" then
+    desc = desc..add_string
+  end
 	return desc
 end
 
@@ -81,24 +90,103 @@ end
 local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
 	local item = drops[1]
 	local imeta = item:get_meta()
+  local idef = item:get_definition()
+  local bag_name = idef.description
 	-- Transfer inventory to item
 	local meta = minetest.get_meta(pos)
 	local inv = meta:get_inventory()
 	local list = {}
+  local for_calculation = {}
+  local space_taken = {0,0,0} -- full, partial, empty
 	for i, stack in ipairs(inv:get_list("main")) do
 		if stack:get_name() == "" then
 			list[i] = ""
+      space_taken[3] = space_taken[3] + 1 -- nothing in itemstack, considered "empty"
 		else
 			list[i] = stack:to_string()
+      local stack_count = stack:get_count()
+      local stack_max = stack:get_stack_max()
+      if (stack_count >= stack_max) then
+        -- allow for a stack count greater than its stack max in case of weirdness
+        -- to calculate for "full"
+        space_taken[1] = space_taken[1] + 1
+      else
+        -- less than stack_max, considered "partial"
+        space_taken[2] = space_taken[2] + 1
+      end
+      local stack_table = for_calculation[stack:get_name()]
+      if not stack_table then
+        stack_table = {1, stack_count, stack_max} -- item_name, indexes filled, total count, total counted max capacity
+      else
+        stack_table[1] = stack_table[1] + 1 -- indexes occupied
+        stack_table[2] = stack_table[2] + stack_count
+        stack_table[3] = stack_table[3] + stack_max
+      end
+      for_calculation[stack:get_name()] = stack_table
 		end
 	end
-	imeta:set_string('inv_main', minetest.serialize(list))
+  local list_size = space_taken[1] + space_taken[2] -- full + partial
+  local add_string
+  if list_size > 0 then
+    imeta:set_string('inv_main', minetest.serialize(list)) -- set list as "inv_main" metadata for item
+    local highest_data
+    for item_name,data in pairs(for_calculation) do
+      -- highest_data calculation
+      if not highest_data then
+        highest_data = data
+        table.insert(highest_data,1,item_name) -- add item's name to beginning of table
+      elseif data[1] > highest_data[2] then
+        highest_data = data
+        table.insert(highest_data,1,item_name)
+      end
+    end
+    -- add the "[[" to the beginning to see what has to be removed to remove popular_item (other parts of code will become unnecessary)
+    local popular_item = ItemStack(highest_data[1])
+    if popular_item then
+      if popular_item:get_short_description() then
+        popular_item = popular_item:get_short_description()
+      else
+        popular_item = popular_item:get_description()
+      end
+      popular_item = popular_item.." "..highest_data[3].."/"..highest_data[4] -- amount of items/amount of max possible items
+    else
+      popular_item = ""
+    end
+    --]]
+    local inv_max = inv:get_size("main")
+    if list_size == inv_max then
+      -- full or near full, set full_name
+      bag_name = idef._full_name
+    end
+    local text_colours = {
+      minetest.get_color_escape_sequence(colours["full"]), -- full
+      minetest.get_color_escape_sequence(colours["partial"]), -- partial
+      minetest.get_color_escape_sequence(colours["neutral"]), -- empty
+      minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
+    }
+    popular_item = text_colours[4]..popular_item -- remove if removing popular_item
+    space_taken[1] = text_colours[1]..(more_info and S("@1 full", space_taken[1]) or space_taken[1])
+    space_taken[2] = text_colours[2]..(more_info and S("@1 partial", space_taken[2]) or space_taken[2])
+    space_taken[3] = text_colours[3]..(more_info and S("@1 empty", space_taken[3]) or space_taken[3])
+    if more_info then
+      space_taken = text_colours[3]..S("Slots: @1, @2, @3", space_taken[1], space_taken[2], space_taken[3])
+      add_string = "\n"..popular_item.."\n"..space_taken -- remove "popular_item.."\n".." if removing popular_item
+    else
+      add_string = " - "..S("@1/@2/@3", space_taken[1]..text_colours[3], space_taken[2]..text_colours[3], space_taken[3])
+      -- add_string = " - "..S("@1/@2/@3", space_taken[1], space_taken[2], space_taken[3])
+    end
+    
+  else
+    -- empty, no items, set empty_name
+    bag_name = idef._empty_name
+    imeta:set_string("inv_main","")
+  end
 	-- Set color
 	local color = minetest.strip_param2_color(oldnode.param2,
 						  "colorwallmounted")
 	imeta:set_int('palette_index', color)
 	-- Set Description
-	imeta:set_string('description', get_description(oldnode,meta))
+	imeta:set_string('description', get_description(oldnode, meta, bag_name, add_string))
 	-- Set Formspec
 	imeta:set_string('formspec', get_formspec(pos,width,height))
 end
@@ -143,82 +231,75 @@ local wallmount_box = {
 
 
 -- backpacks
-function backpacks.register_backpack(name, desc, texture, width, height, groups, sounds)
+function backpacks.register_backpack(name, backpack_params)
+  -- cause errors if incorrect values given
+  assert(type(name) == "string","backpacks.register_backpack: given 'name' is not a string! Got '"..type(name).."'")
+  assert(type(backpack_params) == "table","backpacks.register_backpack: Incorrect value given for expected definition table, got '"..type(backpack_params).."'")
+  assert(type(backpack_params.width) == "number" or type(backpack_params.height) == "number","backpacks.register_backpack: got incorrect values for width and height, or either or. Width is a '"..type(backpack_params.width).."'. Height is a '"..type(backpack_params.height).."'")
+  assert(type(backpack_params.sounds) == "table","backpacks.register_backpack: did not get a proper sounds table, got '"..type(backpack_params.sounds).."'")
+  -- correct values
+  if type(backpack_params.description) ~= "string" then
+    backpack_params.description = ""
+  end
+  if type(backpack_params.groups) ~= "table" then
+    -- don't cause minimal.merge_tables to crash
+    backpack_params.groups = {}
+  end
+  local tiles = backpack_params.tiles -- permit a tiles override
+  if type(tiles) ~= "table" then -- create one
+    tiles = {
+      -- rotated onto its back for correct wallmounted dirs
+      "backpacks_backpack_front.png", -- Front
+      "backpacks_backpack_back.png",      -- Back
+      "backpacks_backpack_sides-rotated.png",-- Right Side
+      "backpacks_backpack_sides-rotated.png",-- Left Side
+		  "backpacks_backpack_topbottom.png", -- Top
+		  "backpacks_backpack_topbottom.png", -- Bottom
+    }
+    -- permit different "textures" name for "texture"
+    local texture = backpack_params.texture or backpack_params.textures
+    if type(texture) == "string" then
+      -- add texture to backpack
+      for tile_index,tile in pairs(tiles) do
+        tiles[tile_index] = texture.."^"..tile
+      end
+    end
+  end
+  -- custom "empty_name" and "full_name"
+  if type(backpack_params.empty_name) ~= "string" then
+    backpack_params.empty_name = backpack_params.description
+  end
+  if type(backpack_params.full_name) ~= "string" then
+    backpack_params.full_name = backpack_params.description
+  end
   -- register backpack through storage.register_storage()
   storage.register_storage(":backpacks:backpack_"..name,{
-    description = desc,
-		tiles = { -- rotated onto its back for correct wallmounted dirs
-		   texture.."^backpacks_backpack_front.png",     -- Front
-		   texture.."^backpacks_backpack_back.png",      -- Back
-		   texture.."^backpacks_backpack_sides-rotated.png",-- Right Side
-		   texture.."^backpacks_backpack_sides-rotated.png",-- Left Side
-		   texture.."^backpacks_backpack_topbottom.png", -- Top
-		   texture.."^backpacks_backpack_topbottom.png", -- Bottom
-		},
+    description = backpack_params.description,
+		tiles = tiles,
 		paramtype2 = "colorwallmounted",
 		palette = "natural_dyes.png",
 		node_box = wallmount_box,
-    groups = minimal.merge_tables({backpack = 1, dig_immediate = 3}, groups),--groups,
+    groups = minimal.merge_tables({backpack = 1, dig_immediate = 3}, backpack_params.groups),--groups,
 		stack_max = 1,
-		sounds = sounds,
+		sounds = backpack_params.sounds,
 		node_placement_prediction = "",
     can_dig_when_inventory = true,
     -- formspec
-    formspec_width = width,
-    formspec_height = height,
+    formspec_width = backpack_params.width,
+    formspec_height = backpack_params.height,
+    -- custom values
+    _empty_name = backpack_params.empty_name,
+    _full_name = backpack_params.full_name,
     -- functions
     after_place_node = function(pos, placer, itemstack, pointed_thing)
       after_place_node(pos, placer, itemstack, pointed_thing)
-      storage.on_construct(pos, width, height)
+      storage.on_construct(pos, backpack_params.width, backpack_params.height)
     end,
     on_dig = function(pos, node, digger)
-			on_dig(pos, node, digger, width, height)
+			on_dig(pos, node, digger, backpack_params.width, backpack_params.height)
 		end,
 		preserve_metadata = function(pos, oldnode, oldmeta, drops)
-			preserve_metadata(pos, oldnode, oldmeta, drops, width, height)
+			preserve_metadata(pos, oldnode, oldmeta, drops, backpack_params.width, backpack_params.height)
 		end,
   })
-  
-  --[[
-	minetest.register_node(":backpacks:backpack_"..name, {
-		description = desc,
-		tiles = { -- rotated onto its back for correct wallmounted dirs
-		   texture.."^backpacks_backpack_front.png",     -- Front
-		   texture.."^backpacks_backpack_back.png",      -- Back
-		   texture.."^backpacks_backpack_sides-rotated.png",-- Right Side
-		   texture.."^backpacks_backpack_sides-rotated.png",-- Left Side
-		   texture.."^backpacks_backpack_topbottom.png", -- Top
-		   texture.."^backpacks_backpack_topbottom.png", -- Bottom
-		},
-		drawtype = "nodebox",
-		paramtype = "light",
-		paramtype2 = "colorwallmounted",
-		palette = "natural_dyes.png",
-		node_box = wallmount_box,
-		groups = groups,
-		stack_max = 1,
-		sounds = sounds,
-		node_placement_prediction = "",
-		on_construct = function(pos)
-			on_construct(pos, width, height)
-		end,
-		after_place_node = function(pos, placer, itemstack, pointed_thing)
-			after_place_node(pos, placer, itemstack, pointed_thing)
-			on_construct(pos, width, height)
-		end,
-		on_dig = function(pos, node, digger)
-			on_dig(pos, node, digger, width, height)
-		end,
-		preserve_metadata = function(pos, oldnode, oldmeta, drops)
-			preserve_metadata(pos, oldnode, oldmeta, drops, width, height)
-		end,
-		on_receive_fields = function(pos, formname, fields, sender)
-			on_receive_fields(pos, formname, fields, sender, width, height)
-		end,
-
-		allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-			return allow_metadata_inventory_put(pos, listname, index, stack, player)
-		end,
-	})
-  --]]
 end

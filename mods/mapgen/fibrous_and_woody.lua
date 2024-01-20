@@ -146,7 +146,7 @@ local fibrous_plants = {
         deco_type = "simple",
         place_on = sna.barrenland_on,
         sidelen = 80,
-        fill_ratio = 0.100000,
+        fill_ratio = 0.110000,
         y_max = sna.highland_max,
         y_min = sna.beach_max,
         decoration = "nodes_nature:tashvish",
@@ -216,27 +216,27 @@ local woody_plants = {
         param2 = 2,
     },
 
-    {--[[Duneland:Jogalan]]
-        name = "nodes_nature:jogalan",
+    {--[[Duneland:Drapacz]]
+        name = "dl_nn:drapacz",
         deco_type = "simple",
         place_on = sna.duneland_on,
-        sidelen = 80,
-        fill_ratio = 0.000500,
-        y_max = sna.highland_max,
-        y_min = sna.beach_max,
-        decoration = "nodes_nature:jogalan",
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0200, spread={x=16, y=16, z=16}, seed=1377, octaves=2, persist=0.7},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max + 3,
+        decoration = "nodes_nature:drapacz",
         param2 = 0,
     },
 
-    {--[[Allbarren:Drapacz]]
-        name = "nodes_nature:drapacz",
+    {--[[Allbarren:Jogalan]]
+        name = "bl_nn:jogalan",
         deco_type = "simple",
+        sidelen = 16,
         place_on = sna.barrenland_on,
-        sidelen = 80,
-        fill_ratio = 0.004000,
+        noise_params = {offset=0.00, scale=0.0250, spread={x=16, y=16, z=16}, seed=7777, octaves=2, persist=0.75},
         y_max = sna.highland_max,
         y_min = sna.beach_max,
-        decoration = "nodes_nature:drapacz",
+        decoration = "nodes_nature:jogalan",
         param2 = 0,
     },
     -- End of woody_plants
@@ -287,26 +287,26 @@ local moss_and_stuff = {
         decoration = "nodes_nature:moss",
     },
 
-    {--[[Duneland:Orom]]
+    {--[[Allbarren:Orom]]
         name = "nodes_nature:orom",
         deco_type = "simple",
-        place_on = sna.duneland_on,
+        place_on = sna.barrenland_on,
         sidelen = 80,
         fill_ratio = 0.000100,
         y_max = sna.lowland_max,
-        y_min = sna.coastal_max,
+        y_min = sna.beach_max,
         decoration = "nodes_nature:orom",
         param2 = 1,
     },
 
-    {--[[Duneland:Veke]]
+    {--[[Allbarren:Veke]]
         name = "nodes_nature:veke",
         deco_type = "simple",
-        place_on = sna.duneland_on,
+        place_on = sna.barrenland_on,
         sidelen = 80,
         fill_ratio = 0.000100,
         y_max = 31000,
-        y_min = sna.upland_max,
+        y_min = sna.lowland_max,
         decoration = "nodes_nature:veke",
         param2 = 0,
     },

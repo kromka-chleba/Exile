@@ -18,7 +18,6 @@ wielded_light = wielded_light
 --SEA LIFE
 
 local function rooted_place(itemstack, placer, pointed_thing, node_name, substrate_name, height_min, height_max)
-  minetest.log("rootes")
 	-- Call on_rightclick if the pointed node defines it
   if (pointed_thing.type == "node" and
     minetest.is_player(placer) and not placer:get_player_control().sneak) then

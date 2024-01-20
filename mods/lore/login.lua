@@ -4,22 +4,21 @@
 tutorial = tutorial
 HEALTH = HEALTH
 lore = lore
+region = region
 local S = lore.S
 
 local newplayer = {}
 
-local rspawn_available = false
 local tutorial_available = false
 minetest.register_on_mods_loaded(function()
       for _, name in ipairs(minetest.get_modnames()) do
-	 if name == "rspawn" then
-	    rspawn_available = true
-	 end
 	 if name == "tutorial_exile" then
-	    tutorial_available = false
+	    tutorial_available = true
 	 end
       end
 end)
+
+local queue_clear -- forward definition
 
 ------------------------------------------------------------------------------
 -- Login formspecs
@@ -57,6 +56,10 @@ local function show_motd(player)
    if ( not motd ) or motd == "" or motd == "\"\"" then return end
    motd = motd:gsub("\\n","\n")
    local meta = player:get_meta()
+   if not meta then
+      queue_clear(playername)
+      return
+   end
    local hash = minetest.sha1(motd)
    local oldhash = meta:get("seen_motd")
    if oldhash then
@@ -74,6 +77,23 @@ local function show_motd(player)
 	 "background9[0,0;7,7.5;9slice-deep.png;false;10]"
    end
    minetest.show_formspec(playername, "lore:motd", spec)
+   return true
+end
+
+local function show_formspec(player, qname)
+   local function do_it()
+      if qname == "loginspec" then
+	 loginspec(player)
+      elseif qname == "motd" then
+	 if not show_motd(player) then return end
+      end
+   end
+   local playername = player:get_player_name()
+   minetest.close_formspec(playername, "") -- forcibly close the previous fs
+   minetest.after(0.1, do_it)
+   -- ^ UDP: open may arrive before the close, and doing it again won't hurt
+   minetest.after(0.3, do_it) -- (fails silently if a formspec's open already)
+   return "wait"
 end
 
 ------------------------------------------------------------------------------
@@ -82,6 +102,7 @@ end
 --effects at source
 local function doGatewayFX(player)
     local pos = player:get_pos()
+    if not pos then return end
     minetest.sound_play( {name="lore_gateway", gain=1}, {pos=pos, max_hear_distance=100})
     minetest.add_particlespawner({
       amount = 10,
@@ -105,25 +126,7 @@ end
 -- Spawning and Respawning
 ------------------------------------------------------------------------------
 
-local function safepoint_and_rspawn(player)
-      --If rspawn is enabled, send new players to the safe point if enabled
-      -- and later respawning players elsewhere randomly
-      local safepoint = minetest.setting_get_pos("exile_safe_spawn_pos")
-      local meta = player:get_meta()
-      local lives = meta:get_int("lives")
-      local safespawn = tonumber(minetest.settings:get(
-				    "exile_safe_spawn_lives")) or 0
-      if lives <= safespawn and safepoint then
-	 player:set_pos(safepoint)
-	 return true -- disable regular respawn
-      elseif rspawn_available then
-	 rspawn:renew_player_spawn(player:get_player_name())
-	 return true
-      end
-end
-
 minetest.register_on_respawnplayer(function(player)
-      print("on_respawn")
       region.spawn(player)
       minetest.after(0.1, function() doGatewayFX(player) end)
       return true
@@ -139,9 +142,6 @@ end
 local function first_spawn(player)
    -- Guarantee they won't be penalized for reading:
    HEALTH.reset_attributes(player) -- All stats back to starting values
-   print("first spawn")
-   region.spawn(player)
-   doGatewayFX(player)
    local pname = player:get_player_name()
    newplayer[pname] = nil
    if minimal.mt_required_version(5,4,0) then
@@ -155,7 +155,9 @@ local function first_spawn(player)
       play_themesong(pname)
    end
    -- Bang! new player appears in the world
-   minetest.after(0.25, function()
+   minetest.after(0.15, function()
+		     region.spawn(player)
+		     doGatewayFX(player)
 		     player_api.set_invisible(player, false)
    end)
 end
@@ -165,13 +167,22 @@ end
 ------------------------------------------------------------------------------
 
 local player_queue = {} -- tracks what needs to be done for a player
+local waiting = {} -- players with open formspecs
 
-local function queue_push(player, func_to_run, fs, qname)
+local jumpstart_queue_delay = tonumber(minetest.settings:get(
+					  "exile_jumpstart_queue_delay")) or 20
+
+function queue_clear(playername)
+      player_queue[playername] = {}
+      if waiting[playername] then waiting[playername]:cancel() end
+end
+
+local function queue_push(player, func_to_run, qname)
    -- Add a thing to run on a player, fifo, formspecs require a delay
    local name = player:get_player_name()
    if not player_queue[name] then player_queue[name] = {} end
    local count = #player_queue[name]
-   player_queue[name][count+1] = { name = qname, func = func_to_run, fspec = fs }
+   player_queue[name][count+1] = { name = qname, func = func_to_run }
 end
 local function queue_pop(name) -- Run the first queued action, remove from list
    local qitem = player_queue[name][1]
@@ -179,12 +190,33 @@ local function queue_pop(name) -- Run the first queued action, remove from list
    return qitem
 end
 local function queue_start(player)
+   if not minetest.is_player(player) then
+      return
+   end
    local name = player:get_player_name()
-   for i = 1, #player_queue[name] do
+   if not player_queue[name] then player_queue[name] = {} end
+   if waiting[name] then
+      waiting[name]:cancel() -- we're not waiting now, start next item
+      waiting[name] = nil -- cancel doesn't remove it
+   end
+   for _ = 1, #player_queue[name] do
       local qitem = queue_pop(name)
-      qitem.func(player)
-      if qitem.fspec then
-	 return -- can't continue until the formspec is closed
+      local wait = qitem.func(player, qitem.name)
+      if wait == "wait" then
+	 -- The current task is still running.
+	 -- It should call queue_start() when it's done
+	 -- If not called in j_q_d seconds, assume it's busted
+	 local nm = tostring(qitem.name) -- dereference
+	 if nm == "tut" then return end -- no forcible restart on tutorial
+	 if jumpstart_queue_delay == 0 then return end -- disabled
+	 waiting[name] =
+	    minetest.after(jumpstart_queue_delay, function()
+			      minetest.log("action",
+					   "forcibly restarted queue for "..
+					   name)
+			      queue_start(player)
+	 end)
+	 return
       end
    end
 end
@@ -199,35 +231,31 @@ end
 
 local function do_tutorial(player) -- enter, and tell it to call exit_ when done
    tutorial.init(player, exit_tutorial)
+   return "wait"
 end
 
 minetest.register_on_newplayer(function(player)
-      print("on_newplayer login.lua")
       local name = player:get_player_name()
       newplayer[name] = true
-      queue_push(player, loginspec, true, "loginspec")
+      region.prespawn(player)
+      queue_push(player, show_formspec, "loginspec")
       -- set_invisible doesn't work in on_newplayer, only in on_join
       -- so it's not here
 end)
 -- process continues in on_joinplayer
 minetest.register_on_joinplayer(function(player)
-      print("on_joinplayer login.lua")
       local name = player:get_player_name()
       if newplayer[name] == true then
+	 player:set_pos(vector.new(-500, 9002, -500))
 	 -- hide new players until they read the intro
 	 player_api.set_invisible(player, true, "set_invis")
       end
-     queue_push(player, show_motd, true, "motd")
+     queue_push(player, show_formspec, "motd")
      if tutorial_available then
-	queue_push(player, do_tutorial, false, "tut")
+	queue_push(player, do_tutorial, "tut")
      end
      if newplayer[name] == true then
-	 queue_push(player, first_spawn, false, "1st")
-     end
-     local list = ""
-     for i = 1, #player_queue[name] do
-	local obj = player_queue[name][i]
-	list = list..obj["name"]..", "..tostring(obj["fspec"]).."\n"
+	 queue_push(player, first_spawn, "1st")
      end
      queue_start(player)
 end)

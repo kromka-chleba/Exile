@@ -14,23 +14,24 @@ local S = core.get_translator("climate")
 --WARNING: this is also used for shelter checking
 --so be careful while modifying.
 --i.e. will expose to significant water, put out fires etc
-climate.get_rain = function(pos, l)
+climate.get_rain = function(pos, light)
     --check if raining and outside
-    local l = l or minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5) or 0
-    if l < 15 or pos.y < -30 then
-        return false
-    end
+   local l = light or minimal.get_daylight(
+      vector.new(pos.x, pos.y + 1, pos.z), 0.5) or 0
+   if l < 15 or pos.y < -30 then
+      return false
+   end
 
-    local w = climate.active_weather.name
+   local w = climate.active_weather.name
 
-    if (w == 'overcast_heavy_rain'
+   if (w == 'overcast_heavy_rain'
         or w == 'overcast_rain'
         or w == 'thunderstorm'
         or w == 'superstorm') then
         return true
-    else
+   else
         return false
-    end
+   end
 end
 
 function climate.get_active_temp()
@@ -544,7 +545,7 @@ local air_def = {
 	diggable = false,
 	buildable_to = true,
 	floodable = true,
-	groups = {temp_pass = 1, heatable = 100, air = 1},
+	groups = {temp_pass = 1, heatable = 100, air = 1, timer = 11 },
 	on_timer =function(pos, elapsed)
 		return climate.heat_transfer(pos, "climate:air_temp", 'air')
 	end,

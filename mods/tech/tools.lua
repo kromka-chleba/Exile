@@ -29,7 +29,6 @@ local base_punch_int = minimal.hand_punch_int
 local function place_tool(itemstack, placer, pointed_thing, placed_name)
     local place_item = ItemStack(placed_name)
     local above = minetest.get_node(pointed_thing.above)
-    local under = minetest.get_node(pointed_thing.under)
     -- check if the pointed item has on_rightclick ... (will run it automatically)
     local to_return = minimal.on_rightclick(itemstack, placer, pointed_thing)
     if to_return ~= false then
@@ -40,15 +39,17 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
                              y = pointed_thing.above.y - 1,
                              z = pointed_thing.above.z}
     local under_front = minetest.get_node(under_front_pos)
+    local def_above = minetest.registered_nodes[above.name]
+    local def_under = minetest.registered_nodes[under_front.name]
     -- check if not walkable - there's empty space over the node
     --  (air, water, etc.)
-    if not minetest.registered_nodes[above.name].walkable and
+    if ( def_above and not def_above.walkable )
         -- check if walkable below to avoid throwing tools into abyss
-        minetest.registered_nodes[under_front.name].walkable then
+       and (def_under and def_under.walkable ) then
 	   if (minimal.in_group(above,"woody_plant")
 	       and minimal.in_group(above,"cane_plant")) then
               -- replace bamboo with air so that the tool places appropriately
-        minetest.swap_node(pointed_thing.above,
+	      minetest.swap_node(pointed_thing.above,
 				 {name = "air"})
 	   end
 	   local wear = itemstack:get_wear()
@@ -70,6 +71,9 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
 end
 
 local function on_dig_tool(pos, node, digger, name)
+	if minetest.is_protected(pos, digger) then
+		return -- can't dig tools you don't own
+	end
     minimal.protection_on_dig(pos,node,digger)
     local meta = minetest.get_meta(pos)
     local wear = meta:get_int("wear")
@@ -90,11 +94,11 @@ local open_hammering_spot = crafting.make_on_rightclick({"hammer", "hammer_mixin
 
 -- opens the chopping spot GUI
 local open_chopping_spot = {
-    crafting.make_on_rightclick({"axe","axe_mixing"}, 1, { x = 8, y = 3 }),
-    crafting.make_on_rightclick({"axe","axe_mixing"}, 2, { x = 8, y = 3 }),
+    crafting.make_on_rightclick({"axe","knife_wattle","axe_mixing"}, 1, { x = 8, y = 3 }),
+    crafting.make_on_rightclick({"axe","knife_wattle","axe_mixing"}, 2, { x = 8, y = 3 }),
 }
 
-local open_knife = crafting.make_on_rightclick({"knife",'knife_mixing'}, 2, { x = 8, y = 3 })
+local open_knife = crafting.make_on_rightclick({"knife",'knife_wattle','knife_mixing'}, 2, { x = 8, y = 3 })
 
 -- checks if the node has one of the groups from good_on
 local function is_spot_valid(node, good_on)
@@ -261,7 +265,7 @@ local function till_soil(player, wielded_item, pointed_thing)
    if not tillspeed then
       error("till soil called from a tool with no till speed!")
    end
-   if not pointed_thing then return end
+   if not pointed_thing or pointed_thing.type == "object" then return end
    local pos = pointed_thing.under
    local node = minetest.get_node(pos)
    local abovepos = vector.new(pos.x, pos.y + 1, pos.z)
@@ -830,7 +834,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"crafting_spot","hand"},
 	output = "tech:stone_chopper 1",
-	items = {"nodes_nature:gravel"},
+	items = {"group:gravel"},
 	level = 1,
 	always_known = true,
 })

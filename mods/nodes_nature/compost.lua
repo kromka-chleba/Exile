@@ -84,7 +84,7 @@ local function decompose_compost(pos, elapsed, dc_name)
   end
   -- avoid issue of grabbing a undecomposed with a decomposition of 0 and accidentally resetting count
   if decomposition < 1 then
-    minetest.swap_node(pos, {name = decomposed_name})
+    minetest.set_node(pos, {name = decomposed_name})
     return false
   else
     meta:set_int("decomposition", decomposition)

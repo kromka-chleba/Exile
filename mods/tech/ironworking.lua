@@ -351,8 +351,6 @@ minetest.register_node("tech:slag", {
 	tiles = {"tech_iron_and_slag.png"},
 	stack_max = minimal.stack_max_bulky,
 	paramtype = "light",
-	_splits_by_hand = "stairs:slab_slag",
-	_on_use_node = minimal.slabs_split_hand,
 	groups = {cracky = 3, falling_node = 1, crumbly = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 })
@@ -370,15 +368,6 @@ stairs.register_stair_and_slab(
         minimal.stack_max_bulky * 8,
         nodes_nature.node_sound_stone_defaults()
 )
-
-minetest.override_item("stairs:slab_slag", {
-	  _use_tip = "Combine with another slab",
-	  _on_use_item = function(player, wielded_item, pointed_thing)
-	     return minimal.slabs_combine(player, wielded_item,
-					  pointed_thing, "tech:slag")
-	  end,
-})
-
 
 --molten slag
 local lava_light = 6
@@ -539,28 +528,57 @@ crafting.register_recipe({
 
 -- Protection Nails
 minetest.register_craftitem("tech:nails", {
-        description = S("Protection Nails - Click 3 times"),
+        description = S("Protection Nails"),
         inventory_image = "tech_iron_nails.png",
         stack_max = minimal.stack_max_light,
-	on_use = function(itemstack, user, pointed_thing)
-	   local istack, playsound = minimal.protection_nail_use(itemstack,
-								 user,
-								 pointed_thing)
-	   if playsound then
-	      minetest.sound_play("tech_hammer", { pos = user:get_pos(),
-						   gain = 0.15,
-						   max_hear_distance=20} )
-	   end
-	   return istack
-	end
+		_use_tip = "Protect Item",
+		_on_use_item = function(user, itemstack, pointed_thing)
+			local istack, playsound = minimal.protection_nail_use(
+				itemstack, user, pointed_thing)
+			if playsound then
+				minetest.sound_play("tech_hammer", {
+					pos = user:get_pos(),
+					gain = 0.15,
+					max_hear_distance=20
+				})
+			end
+			return istack
+		end
 })
 
-crafting.register_recipe({
-	type = "anvil",
-	output = "tech:nails 8",
-	items = {'tech:iron_ingot 1',},
-	level = 1,
-	always_known = true,
+minetest.register_craftitem("tech:iron_key", {
+        description = S("Iron Key"),
+        inventory_image = "tech_iron_key.png",
+        stack_max = minimal.stack_max_light,
+		groups = { craftedby = 1 },
+		_use_tip = "Grant key owner access.",
+		_on_use_item = function(user, itemstack, pointed_thing)
+			minimal.protection_key_use(itemstack, user, pointed_thing)
+			--XXX Need a sound to play
+		end,
+		on_use = function(itemstack, clicker, pointed_thing)
+			return minimal.protection_key_click(itemstack, clicker, pointed_thing)
+		end,
 })
 
+
+
+
+if not minetest.is_singleplayer() then
+	crafting.register_recipe({
+		type = "anvil",
+		output = "tech:nails 8",
+		items = {'tech:iron_ingot 1',},
+		level = 1,
+		always_known = true,
+	})
+
+	crafting.register_recipe({
+		type = "anvil",
+		output = "tech:iron_key 1",
+		items = {'tech:iron_ingot 1',},
+		level = 1,
+		always_known = true,
+	})
+end
 

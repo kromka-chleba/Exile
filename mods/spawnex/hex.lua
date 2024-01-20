@@ -66,8 +66,10 @@ local function map2hex(pos)
    local col = math.round(pos.x / horz_dist)
    local isodd = math.abs(col) %2
    local row = pos.z - (apothem * isodd) -- remove offset
-   row = row / stack_height
-   return {math.round(col), math.round(row)}  -- hex table
+   row = math.round(row / stack_height)
+   if tostring(col) == "-0" then col = 0 end -- Oh lua, you so crazy!
+   if tostring(row) == "-0" then row = 0 end
+   return {col, row}  -- hex table
 end
 
 local dirtable = {

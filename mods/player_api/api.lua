@@ -162,6 +162,9 @@ function player_api.select_gender(player_name)
 end
 
 function player_api.set_texture(player)
+	if minetest.get_modpath("skinsdb") then
+		return
+	end
 	local cloth = player_api.compose_cloth(player)
 	local gender = player_api.get_gender(player)
 	local gender_model = player_api.get_gender_model(gender)
@@ -198,7 +201,7 @@ end)
 local invisible = {}
 
 function player_api.set_invisible(player, vanish)
-   local props = player:get_properties()
+   local props = {}
    if not props then return end -- player has disconnected
    if vanish then
       invisible[player:get_player_name()] = true
@@ -220,4 +223,8 @@ function player_api.is_invisible(player)
       return true
    end
    return false
+end
+
+function player_api.get_current_texture(player)
+   return player_textures[player:get_player_name()][1]
 end

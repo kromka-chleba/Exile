@@ -525,7 +525,9 @@ minetest.override_item(
 --marbhan has a Neurotoxin
 minetest.override_item(
     "nodes_nature:marbhan",{
-        on_use = function(itemstack, user, pointed_thing)
+		_use_tip = 'Eat',
+		_on_use_item = function(user, itemstack, pointed_thing)
+        --on_use = function(itemstack, user, pointed_thing)
             --Similar to hemlock, which tastes musty or like mouse urine
             minetest.chat_send_player(user:get_player_name(),
                                       "This plant has a foul musty flavor.")
@@ -548,7 +550,9 @@ minetest.override_item(
 --nebiyi has a Hepatotoxin
 minetest.override_item(
     "nodes_nature:nebiyi",{
-        on_use = function(itemstack, user, pointed_thing)
+		_use_tip = 'Eat',
+		_on_use_item = function(user, itemstack, pointed_thing)
+        --on_use = function(itemstack, user, pointed_thing)
             --Flowers look a bit like oleander; it causes intense stomach pain
             minetest.chat_send_player(user:get_player_name(),
                                       "Your stomach hurts terribly.")
@@ -571,8 +575,9 @@ minetest.override_item(
 --hakimi is antibacterial, antifungal
 minetest.override_item(
     "nodes_nature:hakimi_flowering",{
-        on_use = function(itemstack, user, pointed_thing)
-
+		_use_tip = 'Eat',
+		_on_use_item = function(user, itemstack, pointed_thing)
+--        on_use = function(itemstack, user, pointed_thing)
             --only cure mild
             if math.random()<0.75 then
                 HEALTH.remove_new_effect(user, {"Food Poisoning", 1})
@@ -588,13 +593,12 @@ minetest.override_item(
 --merki is anti-parasitic
 minetest.override_item(
     "nodes_nature:merki",{
-        on_use = function(itemstack, user, pointed_thing)
-
+		_use_tip = 'Eat',
+		_on_use_item = function(user, itemstack, pointed_thing)
+--        on_use = function(itemstack, user, pointed_thing)
             if math.random()<0.15 then
                 HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
             end
-
-
             --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
             return HEALTH.use_item(itemstack, user, 1, 0, 0, -10, 0)
         end,

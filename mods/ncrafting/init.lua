@@ -262,3 +262,16 @@ function ncrafting.do_soak(pos, name, length)
       return true
    end
 end
+
+minetest.register_abm({
+      label = "node timer restart",
+      nodenames = "group:timer",
+      interval = 23,
+      chance = 10,
+      action = function(pos, node, active_object_count, active_object_count_wider)
+	 local timer = minetest.get_node_timer(pos)
+	 if not timer:is_started() then
+	    timer:start(minetest.registered_nodes[node.name].groups.timer)
+	 end
+      end,
+})

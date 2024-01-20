@@ -12,6 +12,7 @@ local ent = dofile(path.."/edible_and_toxic.lua")
 local caves = dofile(path.."/caves.lua")
 local eggs = dofile(path.."/eggs.lua")
 local ocean = dofile(path.."/ocean.lua")
+local bones = dofile(path.."/bones.lua")
 
 ----Register----
 
@@ -40,6 +41,7 @@ register_from_list("Cave Sediments", caves.cave_sediments)
 register_from_list("Cave Life", caves.cave_life)
 register_from_list("Sea Weeds", ocean.sea_weeds)
 register_from_list("Eggs", eggs.eggs)
+register_from_list("Bones", bones.bones)
 
 -- Calls function 'fun' for every decoration named 'deco_name'
 -- just after generation.
@@ -112,9 +114,10 @@ end
 
 -- List of decoration names
 local plants_with_tubers = {
-    "nodes_nature:anperla",
+    "dl_nn:anperla",
+    "bl_nn:anperla",
     "dl_nn:barszcz",
-    "gs_nn:barszcz",
+    "gl_nn:barszcz",
 }
 
 --------------------------------------------------------------------

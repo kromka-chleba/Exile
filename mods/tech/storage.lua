@@ -6,6 +6,7 @@
 local S = tech.S
 
 local c_alpha = minimal.compat_alpha
+storage = storage
 
 ----------------------------------------------------
 --Clay pot (see pottery for unfired version)
@@ -17,8 +18,8 @@ storage.register_storage("tech:clay_storage_pot",{
 	"tech_pottery.png",
 	"tech_pottery.png"},
   sounds = nodes_nature.node_sound_stone_defaults(),
-  groups = {craftedby = 1, pottery = 1},
-  
+  groups = {dig_immediate = 3, craftedby = 1, pottery = 1},
+
   --formspec_width = 8, -- default inv width is 8 (on register)
   --formspec_height = 4, -- default inv height is 4 (on register)
 })
@@ -80,7 +81,7 @@ storage.register_storage("tech:wooden_chest",{
 	},
   sounds = nodes_nature.node_sound_wood_defaults(),
   groups = {dig_immediate = 3, craftedby = 1, flammable = 3},
-  
+
   -- width already defined in base register_storage
   formspec_height = 8,
 })
@@ -114,6 +115,6 @@ storage.register_storage("tech:iron_chest",{
 	},
 	sounds = nodes_nature.node_sound_wood_defaults(),
   groups = {dig_immediate = 3, craftedby = 1},
-  
+
   formspec_height = 8,
 })

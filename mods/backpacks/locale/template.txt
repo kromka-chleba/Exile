@@ -1,4 +1,4 @@
 # textdomain: backpacks
 
 # init.lua
-Backpack=
+Slots: @1, @2, @3=

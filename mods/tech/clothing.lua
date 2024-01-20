@@ -27,6 +27,46 @@ crafting.register_recipe({
 	always_known = true,
 })
 
+--Sun Hat
+player_api.register_cloth("tech:sun_hat", {
+	description = S("Sun Hat"),
+	inventory_image = "tech_inv_sun_hat.png",
+	texture = "tech_uv_sun_hat.png",
+	stack_max = minimal.stack_max_bulky,
+	groups = {cloth = 1, clothing_hat = 1,},
+	customfields= {temp_min = 0, temp_max = 2}
+})
+
+
+crafting.register_recipe({
+	type = "weaving_frame",
+	output = "tech:sun_hat",
+	items = {'group:fibrous_plant 24'},
+	level = 1,
+	always_known = true,
+})
+
+
+--Sandals
+player_api.register_cloth("tech:woven_sandals", {
+	description = S("Woven Sandals"),
+	inventory_image = "tech_inv_woven_sandals.png",
+	texture = "tech_uv_woven_sandals.png",
+	stack_max = minimal.stack_max_bulky,
+	groups = {cloth = 4, clothing=1, clothing_shoes = 1,},
+	customfields= {temp_min = 1, temp_max = 1}
+})
+
+
+crafting.register_recipe({
+	type = "weaving_frame",
+	output = "tech:woven_sandals",
+	items = {'group:fibrous_plant 24'},
+	level = 1,
+	always_known = true,
+})
+
+
 --Cape
 player_api.register_cloth("tech:woven_cape", {
 	description = S("Woven Cape"),

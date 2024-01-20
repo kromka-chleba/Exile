@@ -192,6 +192,8 @@ minetest.register_node("tech:wood_ash_block", {
     end
   end,
   _dig_tip = S("Enrich depleted soil"),
+  _splits_by_hand = "tech:wood_ash",
+  _on_use_node = minimal.slabs_split_hand,
   _fertilize_replace_with = "tech:wood_ash",
 })
 
@@ -217,7 +219,12 @@ minetest.register_node("tech:wood_ash", {
       return ncrafting.fertilize(pointed_thing.under, user, itemstack)
     end
   end,
-  _dig_tip = S("Enrich depleted soil"),
+	_dig_tip = S("Enrich depleted soil"),
+	_use_tip = "Combine with another slab",
+	_on_use_item = function(player, wielded_item, pointed_thing)
+	   return minimal.slabs_combine(player, wielded_item,
+					pointed_thing, "tech:wood_ash_block")
+	end
 })
 
 --Charcoal
@@ -863,14 +870,14 @@ minetest.register_node('tech:large_charcoal_fire_ext', {
 ----craft unlit fire from Sticks, tinder
 --small fire
 crafting.register_recipe({ -- skip stick craft step
-	type = {"crafting_spot","chopping_block","hand","knife"},
+	type = {"crafting_spot","chopping_block","hand"},
 	output = "tech:small_wood_fire_unlit",
 	items = {"group:woody_plant 3", "group:fibrous_plant 1"},
 	level = 1,
 	always_known = true,
 })
 crafting.register_recipe({
-	type = {"crafting_spot","chopping_block","hand","knife"},
+	type = {"crafting_spot","chopping_block","knife"},
 	output = "tech:small_wood_fire_unlit",
 	items = {"tech:stick 6", "group:fibrous_plant 1"},
 	level = 1,
@@ -879,14 +886,14 @@ crafting.register_recipe({
 
 --large fire
 crafting.register_recipe({ -- skip stick craft step
-	type = {"crafting_spot","chopping_block","hand","knife"},
+	type = {"crafting_spot","chopping_block","hand"},
 	output = "tech:large_wood_fire_unlit",
 	items = {"group:woody_plant 6", "group:fibrous_plant 2"},
 	level = 1,
 	always_known = true,
 })
 crafting.register_recipe({
-	type = {"crafting_spot","chopping_block","hand","knife"},
+	type = {"crafting_spot","chopping_block","knife"},
 	output = "tech:large_wood_fire_unlit",
 	items = {"tech:stick 12", "group:fibrous_plant 2"},
 	level = 1,

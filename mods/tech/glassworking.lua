@@ -262,11 +262,12 @@ minetest.register_node("tech:potash_source", {
   })
 
 -- Solution in pot
-liquid_store.register_stored_liquid(
-	"tech:potash_source",
-	"tech:clay_water_pot_potash",
-	"tech:clay_water_pot",
-	{
+liquid_store.register_stored_liquid("tech:clay_water_pot_potash",{
+	source = "tech:potash_source",
+	empty = "tech:clay_water_pot",
+  description = S("Clay Water Pot with Potash Solution"),
+	groups = {dig_immediate = 2, pottery = 1},
+	tiles = {
 		"tech_pottery.png^tech_pot_empty.png^tech_pot_potash.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -274,7 +275,7 @@ liquid_store.register_stored_liquid(
 		"tech_pottery.png",
 		"tech_pottery.png"
 	},
-	{
+	node_box = {
 		type = "fixed",
 		fixed = {
 			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
@@ -284,14 +285,15 @@ liquid_store.register_stored_liquid(
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	S("Clay Water Pot with Potash Solution"),
-	{dig_immediate = 2, pottery = 1})
+})
 -- solution in wooden pot
-liquid_store.register_stored_liquid(
-	"tech:potash_source",
-	"tech:wooden_water_pot_potash",
-	"tech:wooden_water_pot",
-	{
+liquid_store.register_stored_liquid("tech:wooden_water_pot_potash",{
+	source = "tech:potash_source",
+	empty = "tech:wooden_water_pot",
+  description = S("Wooden Water Pot with Potash Solution"),
+	groups = {dig_immediate = 2},
+  sounds = nodes_nature.node_sound_wood_defaults(),
+	tiles = {
 		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_potash.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -299,7 +301,7 @@ liquid_store.register_stored_liquid(
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png"
 	},
-	{
+	node_box = {
 		type = "fixed",
 		fixed = {
 			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
@@ -309,8 +311,7 @@ liquid_store.register_stored_liquid(
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
-	S("Wooden Water Pot with Potash Solution"),
-	{dig_immediate = 2})
+})
 
 liquid_store.register_liquid("tech:potash_source", "tech:potash_flowing", false)
 
@@ -676,311 +677,3 @@ crafting.register_recipe({
 	always_known = true,
 })
 
--- Glass Vessels
--- More portable liquid storage than clay pots
--- Need inventory images, otherwise clear glass ones will be invisible
-
-minetest.register_node("tech:glass_bottle_green", {
-	description = S("Green Glass Bottle"),
-	tiles = {"tech_green_glass.png"},
-	inventory_image = "tech_bottle_green_icon.png",
-	drawtype = "mesh",
-	mesh = "tech_bottle.obj",
-	stack_max = minimal.stack_max_bulky * 2,
-	paramtype = "light",
-	liquids_pointable = true,
-	sunlight_prpagates = true,
-	on_use = function(itemstack, user, pointed_thing)
-		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
-	end,
-  on_place = function(itemstack, placer, pointed_thing)
-    return liquid_store.on_place("tech:glass_bottle_green", itemstack, placer, pointed_thing)
-  end,
-		--collect rain water
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(30,60))
-	end,
-	groups = {dig_immediate = 2, temp_pass = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
-	use_texture_alpha = c_alpha.blend,
-	selection_box = {
-		type='fixed',
-		fixed={-0.275, -0.5, -0.225, 0.25, 0.35, 0.275},
-	},
-})
-
-minetest.register_node("tech:glass_bottle_clear", {
-	description = S("Clear Glass Bottle"),
-	tiles = {"tech_clear_glass.png"},
-	inventory_image = "tech_bottle_clear_icon.png",
-	drawtype = "mesh",
-	mesh = "tech_bottle.obj",
-	stack_max = minimal.stack_max_bulky * 2,
-	paramtype = "light",
-	liquids_pointable = true,
-	sunlight_prpagates = true,
-	on_use = function(itemstack, user, pointed_thing)
-		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
-	end,
-  on_place = function(itemstack, placer, pointed_thing)
-    return liquid_store.on_place("tech:glass_bottle_clear", itemstack, placer, pointed_thing)
-  end,
-		--collect rain water
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(math.random(30,60))
-	end,
-	groups = {dig_immediate = 2, temp_pass = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
-	use_texture_alpha = c_alpha.blend,
-	selection_box = {
-		type='fixed',
-		fixed={-0.275, -0.5, -0.225, 0.25, 0.35, 0.275},
-	},
-
-})
-
--- Crafting
--- Blown from glass
--- For simplicity, crafts use charcoal as an ingredient, assuming its used for fuel somehow
-
-crafting.register_recipe({
-	type = "glass_furnace",
-	output = "tech:glass_bottle_green",
-	items = {"tech:green_glass_ingot", "tech:charcoal"},
-	level = 1,
-	always_known = true,
-})
-
-crafting.register_recipe({
-	type = "glass_furnace",
-	output = "tech:glass_bottle_clear",
-	items = {"tech:clear_glass_ingot", "tech:charcoal"},
-	level = 1,
-	always_known = true,
-})
-
-
--- Water stores for the jars
--- Salt Water
-liquid_store.register_stored_liquid(
-	"nodes_nature:salt_water_source",
-	"tech:glass_bottle_green_saltwater",
-	"tech:glass_bottle_green",
-	{
-		"tech_bottle_green_water.png"
-	},
-	{
-		type = "fixed",
-		fixed =
-		{
-			{-0.2, -0.5, -0.2, 0.2, -0.4, 0.2}, -- base
-			{-0.3, -0.5, -0.2, -0.2, 0.2, 0.2}, -- z-wall
-			{0.3, -0.5, 0.2, 0.2, 0.2, -0.2}, -- z-wall
-			{-0.3, -0.5, -0.3, 0.3, 0.2, -0.2}, --x-wall
-			{0.3, -0.5, 0.3, -0.3, 0.2, 0.2}, --x-wall
-			{-0.3, 0.2, -0.3, -0.1, 0.3, 0.3}, -- top
-			{0.3, 0.2, 0.3, 0.1, 0.3, -0.3}, -- top
-			{0.1, 0.2, 0.3, -0.1, 0.3, 0.1}, -- top
-			{-0.1, 0.2, -0.3, 0.1, 0.3, -0.1}, -- top
-
-			{-0.2, 0.3, -0.2, -0.1, 0.5, 0.2}, -- lip
-			{0.2, 0.3, 0.2, 0.1, 0.5, -0.2}, -- lip
-			{0.1, 0.3, 0.2, -0.1, 0.5, 0.1}, -- lip
-			{0.1, 0.3, -0.2, -0.1, 0.5, -0.1}, -- lip
-		}
-	},
-	S("Green Glass Bottle With Salt Water"),
-	{dig_immediate = 2})
-
-minetest.override_item("tech:glass_bottle_green_saltwater",
-{
-	use_texture_alpha = c_alpha.blend,
-	sunlight_propagates = true,
-	stack_max = minimal.stack_max_bulky * 2,
-	drawtype = "mesh",
-	mesh = "tech_bottle_liquid.obj",
-	selection_box = {
-		type='fixed',
-		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
-	},
-	inventory_image = "tech_bottle_green_icon.png",
-})
-
-liquid_store.register_stored_liquid(
-	"nodes_nature:salt_water_source",
-	"tech:glass_bottle_clear_saltwater",
-	"tech:glass_bottle_clear",
-	{
-		"tech_bottle_clear_water.png"
-	},
-	{
-		type = "fixed",
-		fixed =
-		{
-			{-0.2, -0.5, -0.2, 0.2, -0.4, 0.2}, -- base
-			{-0.3, -0.5, -0.2, -0.2, 0.2, 0.2}, -- z-wall
-			{0.3, -0.5, 0.2, 0.2, 0.2, -0.2}, -- z-wall
-			{-0.3, -0.5, -0.3, 0.3, 0.2, -0.2}, --x-wall
-			{0.3, -0.5, 0.3, -0.3, 0.2, 0.2}, --x-wall
-			{-0.3, 0.2, -0.3, -0.1, 0.3, 0.3}, -- top
-			{0.3, 0.2, 0.3, 0.1, 0.3, -0.3}, -- top
-			{0.1, 0.2, 0.3, -0.1, 0.3, 0.1}, -- top
-			{-0.1, 0.2, -0.3, 0.1, 0.3, -0.1}, -- top
-
-			{-0.2, 0.3, -0.2, -0.1, 0.5, 0.2}, -- lip
-			{0.2, 0.3, 0.2, 0.1, 0.5, -0.2}, -- lip
-			{0.1, 0.3, 0.2, -0.1, 0.5, 0.1}, -- lip
-			{0.1, 0.3, -0.2, -0.1, 0.5, -0.1}, -- lip
-		}
-	},
-	S("Clear Glass Bottle With Salt Water"),
-	{dig_immediate = 2})
-
-minetest.override_item("tech:glass_bottle_clear_saltwater",
-{
-	use_texture_alpha = c_alpha.blend,
-	sunlight_propagates = true,
-	stack_max = minimal.stack_max_bulky * 2,
-	drawtype = "mesh",
-	mesh = "tech_bottle_liquid.obj",
-	selection_box = {
-		type='fixed',
-		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
-	},
-
-	inventory_image = "tech_bottle_clear_icon.png",
-})
-
-
-liquid_store.register_stored_liquid(
-	"nodes_nature:freshwater_source",
-	"tech:glass_bottle_green_freshwater",
-	"tech:glass_bottle_green",
-	{
-		"tech_bottle_green_water.png"
-	},
-	{
-		type = "fixed",
-		fixed =
-		{
-			{-0.2, -0.5, -0.2, 0.2, -0.4, 0.2}, -- base
-			{-0.3, -0.5, -0.2, -0.2, 0.2, 0.2}, -- z-wall
-			{0.3, -0.5, 0.2, 0.2, 0.2, -0.2}, -- z-wall
-			{-0.3, -0.5, -0.3, 0.3, 0.2, -0.2}, --x-wall
-			{0.3, -0.5, 0.3, -0.3, 0.2, 0.2}, --x-wall
-			{-0.3, 0.2, -0.3, -0.1, 0.3, 0.3}, -- top
-			{0.3, 0.2, 0.3, 0.1, 0.3, -0.3}, -- top
-			{0.1, 0.2, 0.3, -0.1, 0.3, 0.1}, -- top
-			{-0.1, 0.2, -0.3, 0.1, 0.3, -0.1}, -- top
-
-			{-0.2, 0.3, -0.2, -0.1, 0.5, 0.2}, -- lip
-			{0.2, 0.3, 0.2, 0.1, 0.5, -0.2}, -- lip
-			{0.1, 0.3, 0.2, -0.1, 0.5, 0.1}, -- lip
-			{0.1, 0.3, -0.2, -0.1, 0.5, -0.1}, -- lip
-		}
-	},
-	S("Green Glass Bottle With Fresh Water"),
-	{dig_immediate = 2})
-
-minetest.override_item("tech:glass_bottle_green_freshwater",
-{
-	drawtype = "mesh",
-	mesh = "tech_bottle_liquid.obj",
-	use_texture_alpha = c_alpha.blend,
-	sunlight_propagates = true,
-	stack_max = minimal.stack_max_bulky * 2,
-	selection_box = {
-		type='fixed',
-		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
-	},
-	inventory_image = "tech_bottle_green_icon.png",
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		local meta = clicker:get_meta()
-		local thirst = meta:get_int("thirst")
-		--only drink if thirsty
-		if thirst < 100 then
-
-			local water = 100 --you're skulling a whole bucket
-			thirst = thirst + water
-			if thirst > 100 then
-				thirst = 100
-			end
-
-			--could add disease risk, but different sources have different risks
-			--e.g. rain vs mud puddle
-
-			meta:set_int("thirst", thirst)
-			minimal.switch_node(pos, {name = "tech:glass_bottle_green"})
-			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
-		end
-	end,
-
-})
-
-
-liquid_store.register_stored_liquid(
-	"nodes_nature:freshwater_source",
-	"tech:glass_bottle_clear_freshwater",
-	"tech:glass_bottle_clear",
-	{
-		"tech_bottle_clear_water.png"
-	},
-	{
-		type = "fixed",
-		fixed =
-		{
-			{-0.2, -0.5, -0.2, 0.2, -0.4, 0.2}, -- base
-			{-0.3, -0.5, -0.2, -0.2, 0.2, 0.2}, -- z-wall
-			{0.3, -0.5, 0.2, 0.2, 0.2, -0.2}, -- z-wall
-			{-0.3, -0.5, -0.3, 0.3, 0.2, -0.2}, --x-wall
-			{0.3, -0.5, 0.3, -0.3, 0.2, 0.2}, --x-wall
-			{-0.3, 0.2, -0.3, -0.1, 0.3, 0.3}, -- top
-			{0.3, 0.2, 0.3, 0.1, 0.3, -0.3}, -- top
-			{0.1, 0.2, 0.3, -0.1, 0.3, 0.1}, -- top
-			{-0.1, 0.2, -0.3, 0.1, 0.3, -0.1}, -- top
-
-			{-0.2, 0.3, -0.2, -0.1, 0.5, 0.2}, -- lip
-			{0.2, 0.3, 0.2, 0.1, 0.5, -0.2}, -- lip
-			{0.1, 0.3, 0.2, -0.1, 0.5, 0.1}, -- lip
-			{0.1, 0.3, -0.2, -0.1, 0.5, -0.1}, -- lip
-		}
-	},
-	S("Clear Glass Bottle With Fresh Water"),
-	{dig_immediate = 2})
-
-minetest.override_item("tech:glass_bottle_clear_freshwater",
-{
-	drawtype = "mesh",
-	mesh = "tech_bottle_liquid.obj",
-	use_texture_alpha = c_alpha.blend,
-	sunlight_propagates = true,
-	stack_max = minimal.stack_max_bulky * 2,
-	selection_box = {
-		type='fixed',
-		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
-	},
-	inventory_image = "tech_bottle_clear_icon.png",
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		local meta = clicker:get_meta()
-		local thirst = meta:get_int("thirst")
-		--only drink if thirsty
-		if thirst < 100 then
-
-			local water = 100 --you're skulling a whole bucket
-			thirst = thirst + water
-			if thirst > 100 then
-				thirst = 100
-			end
-
-			--could add disease risk, but different sources have different risks
-			--e.g. rain vs mud puddle
-
-			meta:set_int("thirst", thirst)
-			minimal.switch_node(pos, {name = "tech:glass_bottle_clear"})
-			minetest.sound_play("nodes_nature_slurp",
-					    {pos = pos,
-					     max_hear_distance = 3, gain = 0.25})
-		end
-	end,
-
-})

@@ -76,7 +76,7 @@ local forest_trees = {
         flags = "place_center_x, place_center_z",
         rotation = "random",
     },
-    
+
     {--[[Trees:common panasee in forest]]
         name = "panasee_forest",
         deco_type = "schematic",
@@ -249,6 +249,7 @@ local grassland_trees = {
         flags = "place_center_x, place_center_z",
         rotation = "random",
     },
+
 }
 
 local shrubland_trees = {
@@ -339,10 +340,29 @@ local water_trees = {
     },
 }
 
+local barrenland_trees = {
+
+  {--[[Trees:very rare maraka in barrenland]]
+      name = "bl_maraka_tree",
+      deco_type = "schematic",
+      place_on = sna.barrenland_on,
+      place_offset_y = -3,
+      sidelen = 16,
+      noise_params = {offset=0.00, scale=0.00025, spread={x=250, y=250, z=250}, seed=222, octaves=2, persist=0.6},
+      y_max = sna.lowland_max,
+      y_min = sna.beach_max,
+      schematic = deco.find_schematic("maraka_tree"),
+      flags = "place_center_x, place_center_z",
+      rotation = "random",
+  },
+
+
+}
+
 -----------------------------------------------------------
 
 -- All together
--- this gets imported in 
+-- this gets imported in
 tree_list =
     minimal.concat_tables({
             daoja_swamp_trees,
@@ -351,6 +371,7 @@ tree_list =
             grassland_trees,
             shrubland_trees,
             water_trees,
+            barrenland_trees,
     })
 
 return {

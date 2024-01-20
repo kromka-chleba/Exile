@@ -183,7 +183,7 @@ minetest.register_tool("tech:lever", {
 
 ----stick from sticks
 crafting.register_recipe({
-	type = {"crafting_spot","hand","knife"},
+	type = {"crafting_spot","knife"},
 	output = "tech:lever 1",
 	items = {"tech:stick 2"},
 	level = 1,
@@ -266,7 +266,7 @@ minetest.register_tool("tech:aligner", {
 
 ----stick from sticks
 crafting.register_recipe({
-	type = {"crafting_spot","hand","knife"},
+	type = {"crafting_spot","knife"},
 	output = "tech:aligner 1",
 	items = {"tech:stick 2"},
 	level = 1,

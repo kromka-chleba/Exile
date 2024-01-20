@@ -236,14 +236,27 @@ minetest.register_abm({
       chance = 9,
       catch_up = false,
       action = function(pos, node)
+	 local function dieout(x)
+	    if math.random(1,20) + x > 18 then
+	       local f = minetest.find_node_near(pos, 1, "group:flames")
+	       if f then
+		  minetest.remove_node(f)
+	       end
+	       return
+	    end
+	 end
+
 	 local flammable_node = node
 	 local def = minetest.registered_nodes[flammable_node.name]
-	 if math.random(1, def.groups.flammable) > 1 then
-	    return -- resisted burning
+	 local roll = math.random(1, def.groups.flammable)
+	 if roll > 1 then
+	    dieout(roll / 2)  -- resisted burning, fire may die out
+	    return
 	 end
 	 if not minetest.is_singleplayer and
 	    math.random(1,5) > 1 and
 	    minetest.find_node_near(pos, 1, "group:igniter") == nil then
+	    dieout(0)
 	    return -- multiplayer reduction, including no flame ignition
 	 end
 	 if def.on_burn then
@@ -255,11 +268,10 @@ minetest.register_abm({
 	       minetest.check_for_falling(pos)
 	    end
 	 else
-	    local p = minetest.find_node_near(pos, 1, {"air",
-						    "climate:air_temp",
-						    "climate:air_temp_visible"})
-	    if p and math.random(1,10) < 10 then
-	       minetest.set_node(p, {name = "inferno:basic_flame"})
+	    local air = minetest.find_node_near(pos, 1, {"group:air"})
+	    if air and math.random(1,10) < 9 then
+	       -- 80% chance to add a fire if there's room, else burn up
+	       minetest.set_node(air, {name = "inferno:basic_flame"})
 	    elseif minetest.find_node_near(pos, 1, "group:flames") == nil then
 	       minetest.set_node(pos, {name = "inferno:basic_flame"})
 	    else
@@ -277,7 +289,7 @@ minetest.register_abm({
 	label = "Ignite nearby fires in a charcoal kiln",
 	nodenames = {"tech:large_wood_fire_unlit",      "tech:small_wood_fire_unlit"},
 	neighbors = {"tech:large_wood_fire_smoldering", "tech:small_wood_fire_smoldering"},
-	interval = 10,
+	interval = 11,
 	chance = 3,
 	catch_up = false,
 	action = function(pos, flammable_node)

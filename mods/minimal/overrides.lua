@@ -41,10 +41,24 @@ function minetest.is_protected(pos, name)
     -- nil things can't touch stuff
     return true
   end
-   local owner = minetest.get_meta(pos):get_string("owner")
+   local pos_meta = minetest.get_meta(pos)
+   local owner = pos_meta:get_string("owner")
    local bypass = minetest.check_player_privs(name, "protection_bypass")
-   if not ( owner == "" or owner == name or
-	    bypass ) then
+   -- Check if we have an access_list and if this player is on it
+   local access = false -- assume no access
+   local access_list = ""
+   local list = pos_meta:get_string("access_list")
+   if list and list ~= "" then
+     access_list = minetest.parse_json(list)
+	 for _,granted in ipairs(access_list) do
+	   if name == granted then
+		 access = true
+		 break
+	   end
+	 end
+   end
+
+   if not ( owner == "" or owner == name or bypass or access ) then
       return true
    end
    return old_is_protected(pos, name)

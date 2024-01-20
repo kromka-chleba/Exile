@@ -31,260 +31,267 @@ dofile(minetest.get_modpath('health')..'/food.lua')
 --frequency of updating and applying effects
 local interval = 60
 
+local function is_meta(meta)
+  if type(meta) == "userdata" then
+    if meta["get_int"] and meta["get_string"] then
+      return true
+    end
+  end
+end
+
+-- minimal/utility/general.lua
+local function math_clamp(num,min,max)
+  return minimal.math_clamp(num,min,max)
+end
+
+------------------------------------------------------------------
+--SOUND HANDLING
+------------------------------------------------------------------
+local player_sounds = {}
+
+-- does not remove sounds after they played
+function HEALTH.append_sound(player,handle)
+  if not minetest.is_player(player) or not type(handle) == "number" then
+    -- be certain that proper values are sent
+    return
+  end
+  local index = player_sounds[player]
+  if not index then
+    -- create an index for the player
+    index = {}
+    player_sounds[player] = index
+  end
+  table.insert(index,handle)
+end
+
+function HEALTH.stop_sounds(player)
+  if not minetest.is_player(player) or not player_sounds[player] then
+    -- no index (or not player), return
+    return
+  end
+  for _,handle in pairs(player_sounds[player]) do
+    -- stop all sounds
+    minetest.sound_stop(handle)
+  end
+  player_sounds[player] = nil
+end
+
 -----------------------------
 --Player Attibutes
 --
 --use standard values base, so it doesn't compound each time called
 --Only adjusted values saved in player meta so they can be accessed without recalculating
 --cf hunger etc which do get change and have no base value
-local heal_rate = 1 -- 4
-local thirst_rate = -1
-local hunger_rate = -3 -- -2
-local recovery_rate = 4 -- 5
-local move = 0
-local jump = 0
+HEALTH.max_hp = 20
+function HEALTH.get_default_attributes() -- for other scripts to utilize to get base attributes of a fresh player
+  return {
+    health = HEALTH.max_hp,
+    thirst = 100,
+    hunger = 1000,
+    energy = 1000,
+    temperature = 37,
+    oxygen = 10, -- for suffocation or drowning
 
---no clothing temperature comfort zone
-local temp_min = 18--20
-local temp_max = 32--30
+    heal_rate = 1, -- 4
+    thirst_rate = -1,
+    hunger_rate = -3, -- -2
+    recovery_rate = 4, -- 5
+
+    move = 0,
+    jump = 0,
+
+    --no clothing temperature comfort zone
+    clothing_temp_min = 18, -- 20
+    clothing_temp_max = 32, -- 30
+  }
+end
 
 --e.g. for new players
-local function set_default_attibutes(player)
+function HEALTH.set_default_attributes(player)
 	local meta = player:get_meta()
-	meta:set_int("thirst", 100)
-	meta:set_int("hunger", 1000)
-	meta:set_int("energy", 1000)
-	meta:set_int("temperature", 37)
-	meta:set_int("heal_rate", heal_rate)
-	meta:set_int("thirst_rate", thirst_rate)
-	meta:set_int("hunger_rate", hunger_rate)
-	meta:set_int("recovery_rate", recovery_rate)
-	meta:set_int("move", move)
-	meta:set_int("jump", jump)
-	meta:set_int("clothing_temp_min", temp_min)
-	meta:set_int("clothing_temp_max", temp_max )
-
+  local attrb = HEALTH.get_default_attributes()
+  player:set_hp(attrb.health)
+  for name,value in pairs(attrb) do
+    if (type(name) ~= "string") then
+      name = tostring(name)
+    end
+    if (type(value) == "number" and name ~= "health") then -- don't try to set an int for health
+      value = math.ceil(value)
+      meta:set_int(name,value)
+    elseif (type(value) == "string") then
+      meta:set_string(name,value)
+    end
+  end
+end
+function HEALTH.reset_attributes(...) -- ditto definition (was defined in old code for some reason, isn't used)
+  HEALTH.set_default_attributes(...)
 end
 
+-- MISCELLANEOUS GET FUNCTIONS
 
+function HEALTH.get_meta_stats(meta)
+  assert(type(meta) == "userdata","health.get_meta_stats: meta/player is not a valid 'userdata'")
+  if (minetest.is_player(meta)) then
+    meta = meta:get_meta()
+  elseif not is_meta(meta) then
+    error("health.get_meta_stats: invalid parameter given for meta/player")
+  end
+  -- manually get each stat to prevent world corruption (automatic metadata getting caused issues)
+  local stats = {
+    thirst = meta:get_int("thirst"),
+    hunger = meta:get_int("hunger"),
+    energy = meta:get_int("energy"),
+    temperature = meta:get_int("temperature"),
+    heal_rate = meta:get_int("heal_rate"),
+    thirst_rate = meta:get_int("thirst_rate"),
+    hunger_rate = meta:get_int("hunger_rate"),
+    recovery_rate = meta:get_int("recovery_rate"),
+    move = meta:get_int("move"),
+    jump = meta:get_int("jump"),
+    clothing_temp_min = meta:get_int("clothing_temp_min"),
+    clothing_temp_max = meta:get_int("clothing_temp_max"),
+  }
 
---[[
------------------------------
---Forms for sfinv
---only for bug testing
-
-
---get data and create form
-local function sfinv_get(self, player, context)
-	local meta = player:get_meta()
-
-	local player_pos = player:get_pos()
-	player_pos.y = player_pos.y + 0.6 --adjust to body height
-	local enviro_temp = tostring(math.floor(climate.get_point_temp(player_pos)))
-
-	local health = tostring(player:get_hp())
-	local thirst = tostring(meta:get_int("thirst"))
-	local hunger = tostring(meta:get_int("hunger"))
-	local energy = tostring(meta:get_int("energy"))
-	local temperature = tostring(meta:get_int("temperature"))
-	local heal_rate = tostring(meta:get_int("heal_rate"))
-	local thirst_rate = tostring(meta:get_int("thirst_rate"))
-	local hunger_rate = tostring(meta:get_int("hunger_rate"))
-	local recovery_rate = tostring(meta:get_int("recovery_rate"))
-	local move = tostring(meta:get_int("move"))
-	local jump = tostring(meta:get_int("jump"))
-
-
-
-	local formspec = "label[0.1,0.1; Health: " .. health .. " / 20]"..
-	"label[0.1,0.6; Thirst: " .. thirst .. " / 100]"..
-	"label[0.1,1.1; Hunger: " .. hunger .. " / 1000]"..
-	"label[0.1,1.6; Energy: " .. energy .. " / 1000]"..
-	"label[0.1,2.1; Body Temperature: " .. temperature .. " C]"..
-	"label[0.1,3.1; Move Speed: " .. move .. " % change]"..
-	"label[0.1,3.6; Jumping: " .. jump .. " % change]"..
-
-	"label[4,0.1; Heal Rate: " .. heal_rate .. " ]"..
-	"label[4,0.6; Thirst Rate: " .. thirst_rate .. " ]"..
-	"label[4,1.1; Hunger Rate: " .. hunger_rate .. " ]"..
-	"label[4,1.6; Recovery Rate: " .. recovery_rate .. " ]"..
-	"label[4,2.1; External Temperature: " .. enviro_temp .. " C]"..
-	"button[4,3.1;1,1;toggle_health_hud;HUD]"
-	--..
-	--"textarea[0.5,5.1;6,6;;Active Effects:;"..active_list.." ]"
-
-	return formspec
+  return stats
 end
 
-
-
-local function register_tab()
-	sfinv.register_page("health:health_tab", {
-		title = "Health",
-		on_enter = function(self, player, context)
-			sfinv.set_player_inventory_formspec(player)
-		end,
-		get = function(self, player, context)
-			local formspec = sfinv_get(self, player, context)
-			return sfinv.make_formspec(player, context, formspec, true)
-		end
-	})
+function HEALTH.get_player_stats(player)
+  assert(minetest.is_player(player) == true,"get_player_stats: player is not a 'player'")
+  local meta = player:get_meta()
+  local fields = HEALTH.get_meta_stats(meta)
+  fields.health = player:get_hp()
+  return fields,meta
 end
 
-register_tab()
+function HEALTH.get_life_num(meta) -- gets player's "lives" and returns it
+  if type(meta) ~= "userdata" then
+    -- "HEALTH.get_life_num: invalid argument for 'meta/player'"
+    return 0
+  end
+  if (minetest.is_player(meta)) then
+    meta = meta:get_meta()
+  end
+  if not is_meta(meta) then
+    -- "HEALTH.get_life_num: could not get metadata"
+    return 0
+  end
 
-
-]]
-
------------------------------
---Applies Health Effects
---called by malus_bonus
---runs through player's current effects, runs the function for that effect
---takes all the same variables, and outputs as any effect may use them.
---adjusted outputs feed back into malus_bonus
-local function do_effects_list(meta, player, health, energy, thirst, hunger,
-			       temperature, h_rate, r_rate, t_rate, hun_rate,
-			       mov, jum)
-	local effects_list = meta:get_string("effects_list")
-	effects_list = minetest.deserialize(effects_list) or {}
-
-	if not effects_list then
-	   return h_rate, r_rate, t_rate, hun_rate, mov, jum, health,
-	      energy, thirst, hunger, temperature
-	end
-
-	for key, effect in ipairs(effects_list) do
-
-		local name = effect[1]
-		local order = effect[2]
-		local valid = false
-
-		----------
-		if name == "Food Poisoning" then
-		   r_rate, mov, jum, temperature
-		      = HEALTH.food_poisoning(order, player, meta, effects_list,
-					      r_rate, mov, jum, temperature)
-		   valid = true
-		end
-
-		----------
-		if name == "Fungal Infection" then
-		   r_rate, mov, jum, temperature
-		      = HEALTH.fungal_infection(order, player, meta,
-						effects_list, r_rate, mov, jum,
-						temperature)
-		   valid = true
-		end
-
-		----------
-		if name == "Dust Fever" then
-		   r_rate, mov, jum, temperature
-		      = HEALTH.dust_fever(order, player, meta, effects_list,
-					  r_rate, mov, jum, temperature)
-		   valid = true
-		end
-
-		----------
-		if name == "Drunk" then
-		   r_rate, mov, jum, h_rate, temperature
-		      = HEALTH.drunk(order, player, meta, effects_list,
-				     r_rate, mov, jum, h_rate, temperature)
-		   valid = true
-		end
-
-		----------
-		if name == "Hangover" then
-		   mov, jum = HEALTH.hangover(order, player, meta,
-					      effects_list, mov, jum)
-		   valid = true
-		end
-
-		----------
-		if name == "Intestinal Parasites" then
-		   r_rate, hun_rate
-		      = HEALTH.intestinal_parasites(order, player, meta,
-						    effects_list, r_rate,
-						    hun_rate)
-		   valid = true
-		end
-
-		----------
-		if name == "Tiku High" then
-		   r_rate, hun_rate, mov, jum, temperature
-		      = HEALTH.tiku_high(order, player, meta, effects_list,
-					 r_rate, hun_rate, mov, jum, temperature)
-		   valid = true
-		end
-
-		----------
-		if name == "Neurotoxicity" then
-		   mov, jum = HEALTH.neurotoxicity(order, player, meta,
-						   effects_list, mov, jum)
-		   valid = true
-		end
-
-		----------
-		if name == "Hepatotoxicity" then
-		   mov, jum, r_rate, h_rate
-		      = HEALTH.hepatotoxicity(order, player, meta, effects_list,
-					      mov, jum, r_rate, h_rate)
-		   valid = true
-		end
-
-		----------
-		if name == "Photosensitivity" then
-		   h_rate, r_rate
-		      = HEALTH.photosensitivity(order, player, meta,
-						effects_list, h_rate, r_rate)
-		   valid = true
-		end
-
-		---------
-		if name == "Meta-Stim" then
-		   h_rate, r_rate, hun_rate, t_rate
-		      = HEALTH.meta_stim(order, player, meta, effects_list,
-					 h_rate, r_rate, hun_rate, t_rate)
-		   valid = true
-		end
-
-		if valid == false then
-		   table.remove(effects_list, key)
-		   meta:set_string("effects_list",
-				   minetest.serialize(effects_list))
-		   meta:set_int("effects_num", #effects_list)
-		end
-	end
-
-	return h_rate, r_rate, t_rate, hun_rate, mov, jum, health,
-	   energy, thirst, hunger, temperature
-
+  return meta:get_int("lives") or 0
 end
 
+-- SETTING AND MODIFYING FUNCTIONS
 
+-- allows any code that depends on HEALTH to use modify_hp to reliably modify player health
+function HEALTH.modify_hp(player,value)
+  assert(minetest.is_player(player) == true,"health.modify_hp: player is not a 'player'")
+  if (type(value) ~= "number") then
+    value = 0
+  end
+  local phealth = player:get_hp()
+  phealth = math_clamp(phealth + value,0,HEALTH.max_hp)
+  player:set_hp(phealth)
 
+  return phealth -- return modified health
+end
 
+-- sets meta values between certain limits and updates meta
+function HEALTH.set_int(meta,name,value)
+  assert(type(meta) == "userdata","health.set_int: meta/player is not a valid 'userdata'")
+  if (minetest.is_player(meta)) then
+    meta = meta:get_meta()
+  end
+  assert(is_meta(meta),"health.set_int: invalid first parameter given for meta/player")
+  if (type(value) ~= "number") then
+    value = 0
+  end
 
------------------------------
---Bonus Malus... so can be called whenever player status is changed
---takes standard rates and adjusts them based on player status.
---saves adjusted rates and applies physics.
---send it attributes to adjust by,
---also give name and meta, bc anything calling it should already have that
+  if (type(name) ~= "string") then
+    name = tostring(name)
+    name = string.lower(name)
+  else
+    name = string.lower(name)
+  end
+  if (meta:get(name) == nil) then
+    return 0
+  end
+
+  value = math.ceil(value)
+  -- check for names to set custom limits
+  if (name == "hunger" or name == "energy") then
+    value = math_clamp(value,0,1000)
+  elseif (name == "thirst" or name == "temperature") then
+    value = math_clamp(value,0,100)
+  end
+  meta:set_int(name,value)
+
+  return value -- return provided value
+end
+
+-- allows any code that depends on HEALTH to use modify_int to reliably modify stats like hunger or thirst
+function HEALTH.modify_int(meta,name,value)
+  assert(type(meta) == "userdata","health.modify_int: player/meta is not a valid 'userdata'")
+  if minetest.is_player(meta) then
+    meta = meta:get_meta()
+  end
+  assert(is_meta(meta),"health.modify_int: invalid first parameter given for player/meta")
+  if (type(value) ~= "number") then
+    value = 0
+  end
+
+  if (type(name) ~= "string") then
+    name = tostring(name)
+    name = string.lower(name)
+  else
+    name = string.lower(name)
+  end
+  if (meta:get(name) == nil) then -- if key doesn't exist
+    return 0
+  end
+
+  local stat = meta:get_int(name)
+  value = math.ceil(value) -- no floats
+
+  return HEALTH.set_int(meta,name,(stat + value)) -- return modified value (use set_int to keep metadata within limits)
+end
+
+----------------------------
+-- Health Calc (calculation) (does not calculate illness) -- called to update player's status
+-- calculates player status in reference to the player's stats and health, saves adjusted rates
 -- returns the adjusted rates so they can be used if desired
---
-function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
+-- dontset will prevent setting the variables
+function HEALTH.health_calc(player,meta,dontset)
+  assert(minetest.is_player(player) == true,"health.health_calc: provided 'player' is not a player!")
 
-	--use standard values, so it doesn't compound each time adjusted.
-	--Only saved to player meta so they can be accessed without recalculating
-	local h_rate = heal_rate
-	local t_rate = thirst_rate
-	local hun_rate = hunger_rate
-	local r_rate = recovery_rate
-	local mov = move
-	local jum = jump
+  if not ( type(dontset) == "boolean" ) then
+    dontset = false
+  end
+  local pname = player:get_player_name()
+  local bstats = HEALTH.get_default_attributes() -- get base starting stats
+  local stats
+
+  -- incase meta is not provided then (get it! :D)
+  if not is_meta(meta) then
+    meta = player:get_meta()
+  end
+  stats = HEALTH.get_meta_stats(meta)
+
+  -- player's current stats as variables
+  local health = player:get_hp()
+  local energy = stats.energy
+  local hunger = stats.hunger
+  local thirst = stats.thirst
+  local temperature = stats.temperature
+
+  -- base stats to prevent compounding
+  local h_rate = bstats.heal_rate
+	local t_rate = bstats.thirst_rate
+	local hun_rate = bstats.hunger_rate
+	local r_rate = bstats.recovery_rate
+	local mov = bstats.move
+	local jum = bstats.jump
 
 
-	--(hunger/Energy has 10x stock)
+  --(hunger/Energy has 10x stock)
 	--0-20 starving/severe dehydrated: malus, no heal
 	--20-40 malnourished/dehydrated: malus
 	--40-60 hungry/thirsty: small malus
@@ -309,7 +316,7 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 	--update rates
 	--
 
-	--bonus/malus from health
+	--bonus/malus from health (old calculations by dokimi, I have not touched these - TPH)
 	if health <= 1 then
 		mov = mov - 50
 		jum = jum - 50
@@ -434,73 +441,272 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 		r_rate = r_rate - 32
 		mov = mov - 40
 		jum = jum - 40
-	elseif temperature > 38 or temperature < 37 then
+	elseif temperature > 39 or temperature < 35 then
 		h_rate = h_rate - 4
 		r_rate = r_rate - 8
 		mov = mov - 20
 		jum = jum - 20
+  elseif temperature ~= 37 then
+    -- do not hurt player hp for having a different body temp
+    r_rate = r_rate - 4
+    mov = mov - 4
+    jum = jum - 4
 	end
 
-	--health effects
-	local HE_mov
-	local HE_jum
-	h_rate, r_rate, t_rate, hun_rate, HE_mov, HE_jum,
-	   health, energy, thirst, hunger, temperature
-	   = do_effects_list(meta, player, health, energy, thirst, hunger,
-			     temperature, h_rate, r_rate, t_rate, hun_rate,
-			     mov, jum)
+  --apply player physics
+  --don't do in bed or it buggers the physics
+  if not bed_rest.player[pname] and (not dontset) then
+    player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics")
+    player_monoids.jump:add_change(player, 1 + (jum/100), "health:physics")
+  end
 
+  -- update stats
+  stats.heal_rate = h_rate
+	stats.thirst_rate = t_rate
+	stats.hunger_rate = hun_rate
+	stats.recovery_rate = r_rate
+	stats.move = mov
+	stats.jump = jum
+  -- set player's meta
+  if not dontset then
+    for name,value in pairs(stats) do
+      if (type(value) == "number") then
+        HEALTH.set_int(meta,name,value)
+      elseif (type(value) == "string") then
+        meta:set_string(value)
+      end
+    end
+  end
 
-	--save adjusted rates for access (e.g. by a medical tab/equipment etc)
-	meta:set_int("heal_rate", h_rate)
-	meta:set_int("thirst_rate", t_rate)
-	meta:set_int("hunger_rate", hun_rate)
-	meta:set_int("recovery_rate", r_rate)
-	meta:set_int("move", HE_mov)
-	meta:set_int("jump", HE_jum)
-
-	--apply player physics
-	--don't do in bed or it buggers the physics
-	if not bed_rest.player[name] then
-		player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics")
-		player_monoids.jump:add_change(player, 1 + (jum/100), "health:physics")
-		--split physics from hunger etc from that from health effects
-		--this means quick_physics can fiddle with one half, without overriding the half from effects
-		HE_mov = HE_mov - mov
-		HE_jum = HE_jum - jum
-		player_monoids.speed:add_change(player, 1 + (HE_mov/100), "health:physics_HE")
-		player_monoids.jump:add_change(player, 1 + (HE_jum/100), "health:physics_HE")
-
-
-	end
-
-	--return adjusted rates so can be applied if necessary
-	return h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature
-
+  --return adjusted rates so can be applied if necessary
+	return stats
 end
+-----------------------------
+
+-- HEALTH.quick_physics
+-- does what HEALTH.health_calc does, but only for move and jump
+function HEALTH.quick_physics(player,meta)
+  local stats = HEALTH.health_calc(player,meta,true)
+
+  local pname = player:get_player_name()
+  if not bed_rest.player[pname] then
+    player_monoids.speed:add_change(player, 1 + (stats.move/100), "health:physics")
+    player_monoids.jump:add_change(player, 1 + (stats.jump/100), "health:physics")
+  end
+  return stats
+end
+
+
+
+
+--[[
+-----------------------------
+--Forms for sfinv
+--only for bug testing
+
+
+--get data and create form
+local function sfinv_get(self, player, context)
+	local meta = player:get_meta()
+
+	local player_pos = player:get_pos()
+	player_pos.y = player_pos.y + 0.6 --adjust to body height
+	local enviro_temp = tostring(math.floor(climate.get_point_temp(player_pos)))
+
+	local health = tostring(player:get_hp())
+	local thirst = tostring(meta:get_int("thirst"))
+	local hunger = tostring(meta:get_int("hunger"))
+	local energy = tostring(meta:get_int("energy"))
+	local temperature = tostring(meta:get_int("temperature"))
+	local heal_rate = tostring(meta:get_int("heal_rate"))
+	local thirst_rate = tostring(meta:get_int("thirst_rate"))
+	local hunger_rate = tostring(meta:get_int("hunger_rate"))
+	local recovery_rate = tostring(meta:get_int("recovery_rate"))
+	local move = tostring(meta:get_int("move"))
+	local jump = tostring(meta:get_int("jump"))
+
+
+
+	local formspec = "label[0.1,0.1; Health: " .. health .. " / 20]"..
+	"label[0.1,0.6; Thirst: " .. thirst .. " / 100]"..
+	"label[0.1,1.1; Hunger: " .. hunger .. " / 1000]"..
+	"label[0.1,1.6; Energy: " .. energy .. " / 1000]"..
+	"label[0.1,2.1; Body Temperature: " .. temperature .. " C]"..
+	"label[0.1,3.1; Move Speed: " .. move .. " % change]"..
+	"label[0.1,3.6; Jumping: " .. jump .. " % change]"..
+
+	"label[4,0.1; Heal Rate: " .. heal_rate .. " ]"..
+	"label[4,0.6; Thirst Rate: " .. thirst_rate .. " ]"..
+	"label[4,1.1; Hunger Rate: " .. hunger_rate .. " ]"..
+	"label[4,1.6; Recovery Rate: " .. recovery_rate .. " ]"..
+	"label[4,2.1; External Temperature: " .. enviro_temp .. " C]"..
+	"button[4,3.1;1,1;toggle_health_hud;HUD]"
+	--..
+	--"textarea[0.5,5.1;6,6;;Active Effects:;"..active_list.." ]"
+
+	return formspec
+end
+
+
+
+local function register_tab()
+	sfinv.register_page("health:health_tab", {
+		title = "Health",
+		on_enter = function(self, player, context)
+			sfinv.set_player_inventory_formspec(player)
+		end,
+		get = function(self, player, context)
+			local formspec = sfinv_get(self, player, context)
+			return sfinv.make_formspec(player, context, formspec, true)
+		end
+	})
+end
+
+register_tab()
+
+
+]]
+
+-----------------------------
+--Applies Health Effects
+--called by malus_bonus
+--runs through player's current effects, runs the function for that effect
+--takes all the same variables, and outputs as any effect may use them.
+--adjusted outputs feed back into malus_bonus
+local function do_effects_list(player, meta, stats)
+
+	local effects_list = meta:get_string("effects_list")
+	effects_list = minetest.deserialize(effects_list) or {}
+
+  if #effects_list > 0 then
+    for key, effect in ipairs(effects_list) do
+
+      local name = effect[1]
+      local order = effect[2]
+      local valid = false
+
+      ----------
+      if name == "Food Poisoning" then
+         stats = HEALTH.food_poisoning(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ----------
+      if name == "Fungal Infection" then
+         stats = HEALTH.fungal_infection(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ----------
+      if name == "Dust Fever" then
+         stats = HEALTH.dust_fever(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ----------
+      if name == "Drunk" then
+         stats = HEALTH.drunk(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ----------
+      if name == "Hangover" then
+         stats = HEALTH.hangover(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ----------
+      if name == "Intestinal Parasites" then
+         stats = HEALTH.intestinal_parasites(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ----------
+      if name == "Tiku High" then
+         stats = HEALTH.tiku_high(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ----------
+      if name == "Neurotoxicity" then
+         stats = HEALTH.neurotoxicity(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ----------
+      if name == "Hepatotoxicity" then
+         stats = HEALTH.hepatotoxicity(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ----------
+      if name == "Photosensitivity" then
+         stats = HEALTH.photosensitivity(order, player, meta, effects_list, stats)
+         valid = true
+      end
+      ---------
+      if name == "Meta-Stim" then
+         stats = HEALTH.meta_stim(order, player, meta, effects_list, stats)
+         valid = true
+      end
+
+      if valid == false then
+         table.remove(effects_list, key)
+      end
+    end
+  end
+
+  -- update effects_list
+  meta:set_string("effects_list",
+    minetest.serialize(effects_list))
+  meta:set_int("effects_num", #effects_list)
+
+  return stats
+end
+
+
+
+
+
+-----------------------------
+--Bonus Malus... so can be called whenever player status is changed
+--takes standard rates and adjusts them based on player status.
+--saves adjusted rates and applies physics.
+--send it attributes to adjust by,
+--also give name and meta, bc anything calling it should already have that
+-- returns the adjusted rates so they can be used if desired
+--
+function HEALTH.malus_bonus(player,meta)
+  local stats = HEALTH.health_calc(player,meta) -- get mov + jum before do_effects
+  local mov = stats.move
+  local jum = stats.jump
+
+  stats = do_effects_list(player,meta,stats) -- update for health effects
+  -- set player's meta to diseased
+  for name,value in pairs(stats) do
+    if (type(value) == "number" and name ~= "move" or name ~= "jump") then
+      HEALTH.set_int(meta,name,value)
+    elseif (type(value) == "string") then
+      meta:set_string(value)
+    end
+  end
+
+  local pname = player:get_player_name()
+  if not bed_rest.player[pname] then
+		--split physics from hunger etc from that from health effects
+		--this means health_calc can fiddle with one half, without overriding the half from effects
+		mov = stats.move - mov
+		jum = stats.jump - jum
+		player_monoids.speed:add_change(player, 1 + (mov/100), "health:physics_HE")
+		player_monoids.jump:add_change(player, 1 + (jum/100), "health:physics_HE")
+	end
+
+  return stats
+end
+-----------------------------
 
 
 -----------------------------
 --Main
 --
 minetest.register_on_newplayer(function(player)
-	set_default_attibutes(player)
+	HEALTH.set_default_attributes(player)
 end)
 
-function HEALTH.reset_attributes(player)
-   set_default_attibutes(player)
-end
-
 function HEALTH.update_player_physics(player)
-   local name = player:get_player_name()
    local meta = player:get_meta()
-   local health = player:get_hp()
-   local thirst = meta:get_int("thirst")
-   local hunger = meta:get_int("hunger")
-   local energy = meta:get_int("energy")
-   local temperature = meta:get_int("temperature")
-   HEALTH.malus_bonus(player, name, meta, health, energy,
-		      thirst, hunger, temperature)
+   HEALTH.malus_bonus(player,meta)
 end
 
 minetest.register_on_joinplayer(function(player)
@@ -519,7 +725,6 @@ minetest.register_on_joinplayer(function(player)
 	end
 end)
 
-
 minetest.register_on_dieplayer(function(player)
 	--redo physics (to clear what killed them)
 	player_monoids.speed:del_change(player, "health:physics")
@@ -530,10 +735,12 @@ minetest.register_on_dieplayer(function(player)
 	local meta = player:get_meta()
 	meta:set_string("effects_list", "")
 	meta:set_int("effects_num", 0)
+  -- stop all sounds
+  HEALTH.stop_sounds(player)
 end)
 
 minetest.register_on_respawnplayer(function(player)
-	set_default_attibutes(player)
+	HEALTH.set_default_attributes(player)
 	sfinv.set_player_inventory_formspec(player)
 	clothing:update_temp(player)
 end)
@@ -553,93 +760,38 @@ if minetest.settings:get_bool("enable_damage") then
 
 		--run
 		if timer > interval then
-
 			for _,player in ipairs(minetest.get_connected_players()) do
-
-				local name = player:get_player_name()
 				local meta = player:get_meta()
 				local health = player:get_hp()
 				-- don't damage us if we're already dead
 				if health > 0 and
 				   player:get_armor_groups().immortal ~= 1 then
-				local thirst = meta:get_int("thirst")
-				local hunger = meta:get_int("hunger")
-				local energy = meta:get_int("energy")
-				local temperature = meta:get_int("temperature")
 
+        local stats = HEALTH.malus_bonus(player,meta)
+        local temperature = stats.temperature
 
-				--apply rate adjustments so they are correct for current player status
-				local h_rate, r_rate, t_rate, hun_rate,
-				   _, _, _, _, _, _, _
-				   = HEALTH.malus_bonus(player, name, meta,
-							health, energy, thirst,
-							hunger, temperature)
-
-				--
-				--update attributes based on adjusted rates
-				--XXX1 is the new (healt/thirst etc) value
-				--so can be compared with old value, (which was useful...at one point)
-				--
-
-				--update and min max
-				local health1, thirst1, hunger1, energy1, temperature1
-
-				thirst1 = thirst + t_rate
-				if thirst1 < 0 then
-					thirst1 = 0
-				elseif thirst1 > 100 then
-					thirst1 = 100
-				end
-
-				hunger1 = hunger + hun_rate
-				if hunger1 < 0 then
-					hunger1 = 0
-				elseif hunger1 > 1000 then
-					hunger1 = 1000
-				end
-
-				energy1 = energy + r_rate
-				if energy1 < 0 then
-					energy1 = 0
-				elseif energy1 > 1000 then
-					energy1 = 1000
-				end
-
-				health1 = health + h_rate
-
-				if temperature > 37 then
-					temperature1 = temperature - 1
-					if temperature > 47 then
-						health1 = health1 - 1
-					end
-
-				elseif temperature < 37 then
-					temperature1 = temperature + 1
-					if temperature < 27 then
-						health1 = health1 - 1
-					end
-				else
-					temperature1 = temperature
-				end
-
-				if health1 < 0 then
-					health1 = 0
-				elseif health1 > 20 then
-					health1 = 20
-				end
-
+        --apply rate adjustments so they are correct for current player status
+        local h_rate = stats.heal_rate
+        local hun_rate = stats.hunger_rate
+        local t_rate = stats.thirst_rate
+        local r_rate = stats.recovery_rate
 
 				--update
-				--
-				player:set_hp(health1)
-				meta:set_int("thirst", thirst1)
-				meta:set_int("hunger", hunger1)
-				meta:set_int("energy", energy1)
-				meta:set_int("temperature", temperature1)
+        local temperature1 = 0
+				if temperature > 37 then
+					temperature1 = temperature1 - 1
+				elseif temperature < 37 then
+					temperature1 = temperature1 + 1
+				end
+
+				--update
+				HEALTH.modify_hp(player,h_rate)
+				HEALTH.modify_int(meta,"temperature",temperature1)
+        HEALTH.modify_int(meta,"thirst",t_rate)
+        HEALTH.modify_int(meta,"hunger",hun_rate)
+        HEALTH.modify_int(meta,"energy",r_rate)
 				--update form so can see change while looking
 				sfinv.set_player_inventory_formspec(player)
-
-
 				end
 			end
 		end
@@ -647,7 +799,6 @@ if minetest.settings:get_bool("enable_damage") then
 		if timer > interval then
 			timer = 0
 		end
-
 	end)
 
 end

@@ -14,7 +14,7 @@ local legacy_station_recipes = false
 -- Crafting tabs for the inventory
 crafting.make_global_inventory_tab("survival:crafting", S("Crafting"), "hand", {creative = false})
 crafting.make_global_inventory_tab("survival:pottery", S("Pottery"), "hand_pottery", {creative = false})
-crafting.make_global_inventory_tab("survival:wattle", S("Wattle"), "hand_wattle", {creative = false})
+crafting.make_global_inventory_tab("survival:create", S("Create"), "hand_create", {creative = false})
 crafting.make_global_inventory_tab("survival:mixing", S("Mixing"), "hand_mixing", {creative = false})
 
 --Register
@@ -44,13 +44,16 @@ crafting.register_type("loom")
 crafting.register_type("glass_furnace")
 
 -- Tool based crafting stations
-crafting.register_type("hand", "Crafting")   	-- Empty hand tool; Replace crafting spot
+crafting.register_type("hand", "Crafting")   		-- Empty hand tool; Replace crafting spot
+crafting.register_type("hand_create", "Create")   	-- Assemble crafting stations by hand.
 crafting.register_type("hand_pottery", "Pottery")	-- Pottery tab
-crafting.register_type("hand_wattle", "Wattle")	-- Wattle Tab
+crafting.register_type("hand_wattle", "Wattle")		-- Wattle Tab
 crafting.register_type("hand_tools", "Tools")	-- Tools Tab
 crafting.register_type("hand_mixing", "Mixing")	-- Mixing Tab
 
 crafting.register_type("knife", "Crafting")  	-- Replace some of the crafting spot
+crafting.register_type("knife_stations", "Stations")  	-- Replace some of the crafting spot
+crafting.register_type("knife_wattle", "Wattle")  	-- Replace some of the crafting spot
 crafting.register_type("knife_mixing", "Mixing")
 crafting.register_type("hammer", "Crafting") 	-- Hammering spot replacement
 crafting.register_type("hammer_mixing", "Mixing")
@@ -673,7 +676,7 @@ minetest.register_node("tech:glass_furnace", {
 
 -- lowered crafting requirements as a trade off to it no longer being free again
    crafting.register_recipe({ --weaving_frame
-	 type   = {"crafting_spot","hand","knife"},
+	 type   = {"crafting_spot","hand_create"},
 	 output = "tech:weaving_frame",
 --	 items  = {'tech:stick 12', 'group:fibrous_plant 8'},
 	 items  = {'tech:stick 6', 'group:fibrous_plant 4'},
@@ -684,13 +687,14 @@ minetest.register_node("tech:glass_furnace", {
 ---- Boulders ----
 --grind a mortar_and_pestle
 crafting.register_recipe({
-	type   = "grinding_stone",
+	type   = {"grinding_stone", "hand_create"},
 	output = "tech:mortar_pestle_basalt",
 	items  = {'nodes_nature:basalt_boulder', "group:basalt_cobble", 'nodes_nature:sand'},
 	level  = 1,
 	always_known = true,
 	})
 crafting.register_recipe({
+	type   = {"grinding_stone", "hand_create"},
 	type   = "grinding_stone",
 	output = "tech:mortar_pestle_granite",
 	items  = {'nodes_nature:granite_boulder', "group:granite_cobble", 'nodes_nature:sand'},
@@ -699,6 +703,7 @@ crafting.register_recipe({
 	})
 crafting.register_recipe({
 	type   = "grinding_stone",
+	type   = {"grinding_stone", "hand_create"},
 	output = "tech:mortar_pestle_limestone",
 	items  = {'nodes_nature:limestone_boulder', "group:limestone_cobble", 'nodes_nature:sand'},
 	level  = 1,
@@ -707,7 +712,7 @@ crafting.register_recipe({
 ----Wood--
 --chopping_block
 crafting.register_recipe({
-	type   = {"crafting_spot", "chopping_block", "hand"},
+	type   = {"crafting_spot", "chopping_block", "hand_create"},
 	output = "tech:chopping_block",
 	items  = {'group:log'},
 	level  = 1,
@@ -715,7 +720,7 @@ crafting.register_recipe({
 	})
 --brick_makers_bench
 crafting.register_recipe({
-	type   = {"crafting_spot", "hand"},
+	type   = {"crafting_spot", "hand_create"},
 	output = "tech:brick_makers_bench",
 	items  = {'tech:stick 24'},
 	level  = 1,
@@ -725,7 +730,7 @@ crafting.register_recipe({
 ---- Iron ----
 -- Anvil
 crafting.register_recipe({ --hammer ingots into anvil
-	type   = {"hammering_block","hammer","anvil"},
+	type   = {"hammering_block","hammer","anvil","hand_create"},
 	output = "tech:anvil",
 	items  = {'tech:iron_ingot 4'},
 	level  = 1,
@@ -734,38 +739,38 @@ crafting.register_recipe({ --hammer ingots into anvil
 
 --carpentary from logs for bench and iron for tools
 crafting.register_recipe({
-	type   = {"chopping_block", "axe"},
+	type   = {"chopping_block", "axe", "hand_create"},
 	output = "tech:carpentry_bench",
 	items  = {'tech:iron_ingot 4', 'group:hard_wood 2'},
-	level  = 2,
+	level  = 1,
 	always_known = true,
 	})
 
 --masonry_bench from logs for bench and iron for tools
 crafting.register_recipe({
-	type   = {"carpentry_bench", "axe"},
+	type   = {"carpentry_bench", "axe", "hand_create"},
 	output = "tech:masonry_bench",
 	items  = {'tech:iron_ingot 4', 'group:hard_wood 2'},
-	level  = 2,
+	level  = 1,
 	always_known = true,
 	})
 
 crafting.register_recipe({ --spinning wheel. wood,
-	type   = {"carpentry_bench", "axe"},
+	type   = {"carpentry_bench", "axe", "hand_create"},
 	output = "tech:spinning_wheel",
 	items  = {'group:hard_wood 2'},
-	level  = 2,
+	level  = 1,
 	always_known = true,
 	})
 crafting.register_recipe({ --loom. wood, fibre for mechanisms
-	type   = {"carpentry_bench", "axe"},
+	type   = {"carpentry_bench", "axe", "hand_create"},
 	output = "tech:loom",
 	items  = {'group:hard_wood 2', 'tech:coarse_fibre 12'},
-	level  = 2,
+	level  = 1,
 	always_known = true,
 	})
 crafting.register_recipe({ -- Glass furnace from bricks for the main structure and iron for the tools
-	type   = "brick_makers_bench",
+	type   = {"brick_makers_bench", "hand_create"},
 	output = "tech:glass_furnace",
 	items  = {'tech:iron_ingot', 'tech:loose_brick 3', 'tech:lime_mortar'},
 	level  = 1,
@@ -800,7 +805,7 @@ minetest.register_node(
 })
 
 crafting.register_recipe({
-        type   = {"crafting_spot", "hand"},
+        type   = {"crafting_spot", "hand_create"},
         output = "tech:grinding_stone_granite",
         items  = {"nodes_nature:granite_boulder", "group:granite_cobble", "nodes_nature:sand 3"},
         level  = 1,
@@ -833,7 +838,7 @@ minetest.register_node(
 })
 
 crafting.register_recipe({
-        type   = {"crafting_spot", "hand"},
+        type   = {"crafting_spot", "hand_create"},
         output = "tech:grinding_stone_limestone",
         items  = {"nodes_nature:limestone_boulder", "group:limestone_cobble", "nodes_nature:sand 3"},
         level  = 1,
@@ -865,7 +870,7 @@ minetest.register_node(
 })
 
 crafting.register_recipe({
-        type   = {"crafting_spot", "hand"},
+        type   = {"crafting_spot", "hand_create"},
         output = "tech:grinding_stone_basalt",
         items  = {"nodes_nature:basalt_boulder", "group:basalt_cobble", "nodes_nature:sand 3"},
         level  = 1,
@@ -926,7 +931,7 @@ end
 if legacy_station_recipes == true then
    --grinding_stone from craft spot
    crafting.register_recipe({ --chopping_block
-	 type   = {"crafting_spot", "chopping_block", "hand"},
+	 type   = {"crafting_spot", "chopping_block", "hand",'knife'},
 	 output = "tech:chopping_block",
 	 items  = {'group:log'},
 	 level  = 1,

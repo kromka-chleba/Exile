@@ -29,6 +29,7 @@ dofile(modpath .. "/ironworking.lua")
 dofile(modpath .. "/woodworking.lua")
 dofile(modpath .. "/fibreworking.lua")
 dofile(modpath .. "/glassworking.lua")
+dofile(modpath..'/waterworking.lua')
 dofile(modpath .. "/clothing.lua")
 dofile(modpath .. "/grafitti.lua")
 dofile(modpath .. "/bricks_and_mortar.lua")
@@ -40,7 +41,7 @@ dofile(modpath .. "/lantern.lua")
 -- Dying recipes
 
 crafting.register_recipe({
-	type = {"crafting_spot","hand"},
+	type = {"crafting_spot","hand_create"},
 	output = "ncrafting:dye_pot 1",
 	items = {"tech:clay_water_pot 1", "tech:stick 1"},
 	level = 1,
@@ -48,7 +49,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-	type = {"crafting_spot","hand"},
+	type = {"crafting_spot","hand_create"},
 	output = "ncrafting:dye_table 1",
 	items = {"tech:stick 12"},
 	level = 1,

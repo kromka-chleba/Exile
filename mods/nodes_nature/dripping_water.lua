@@ -6,15 +6,22 @@ local random = math.random
 
 --Drop entities
 minetest.register_entity("nodes_nature:drop_water", {
-	hp_max = 2,
-	physical = true,
-	collide_with_objects = false,
-	collisionbox = {-0.05,-0.05,-0.05,0.05,0.05,0.05},
-	visual = "cube",
-	visual_size = {x=0.05, y=0.1},
-	textures = {"nodes_nature_freshwater.png","nodes_nature_freshwater.png","nodes_nature_freshwater.png","nodes_nature_freshwater.png", "nodes_nature_freshwater.png","nodes_nature_freshwater.png"},
-	spritediv = {x=1, y=1},
-	initial_sprite_basepos = {x=0, y=0},
+	initial_properties = {
+	   hp_max = 2,
+	   physical = true,
+	   collide_with_objects = false,
+	   collisionbox = {-0.05,-0.05,-0.05,0.05,0.05,0.05},
+	   visual = "cube",
+	   visual_size = {x=0.05, y=0.1},
+	   textures = {"nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png"},
+	   spritediv = {x=1, y=1},
+	   initial_sprite_basepos = {x=0, y=0},
+	},
 
 	on_activate = function(self, staticdata)
 		self.object:set_sprite({x=0,y=0}, 1, 1, true)
@@ -75,6 +82,7 @@ minetest.register_entity("nodes_nature:drop_water", {
 
 --Create drop
 minetest.register_abm({
+	label = "Dripping Water",
 	nodenames = {"group:stone", "group:soft_stone"},
 	--neighbors = {"group:water"},
 	interval = 27,

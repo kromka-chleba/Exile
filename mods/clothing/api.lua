@@ -2,6 +2,9 @@
 
 clothing = clothing
 
+-- Integration: without this skinsdb crashes
+clothing.register_on_update = function() end
+
 clothing.update_temp = function(self, player)
 -- set clothing and update comfortable temperature range
 --[[
@@ -22,8 +25,10 @@ note: ranges are
 ]]
 
 -- default range, no clothes yet
-   local temp_min = 20
-   local temp_max = 30
+
+   local defaults = HEALTH.get_default_attributes()
+   local temp_min = assert(defaults.clothing_temp_min)
+   local temp_max = assert(defaults.clothing_temp_max)
 
    if not player then
 		return
@@ -60,8 +65,8 @@ function clothing.update_player(player)
   if not minetest.is_player(player) then
     return
   end
-  clothing:update_temp(player)
   player_api.set_texture(player)
+  clothing:update_temp(player)
 end
 
 function clothing.on_rightclick(itemstack, user, pointed_thing)
