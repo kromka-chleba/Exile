@@ -12,10 +12,10 @@ local legacy_stations = true
 local legacy_station_recipes = false
 
 -- Crafting tabs for the inventory
-crafting.make_global_inventory_tab("survival:crafting", S("Crafting"), "hand", {creative = false})
-crafting.make_global_inventory_tab("survival:pottery", S("Pottery"), "hand_pottery", {creative = false})
-crafting.make_global_inventory_tab("survival:create", S("Create"), "hand_create", {creative = false})
-crafting.make_global_inventory_tab("survival:mixing", S("Mixing"), "hand_mixing", {creative = false})
+--crafting.make_global_inventory_tab("survival:crafting", S("Crafting"), "hand", {creative = false})
+--crafting.make_global_inventory_tab("survival:pottery", S("Pottery"), "hand_pottery", {creative = false})
+--crafting.make_global_inventory_tab("survival:create", S("Create"), "hand_create", {creative = false})
+--crafting.make_global_inventory_tab("survival:mixing", S("Mixing"), "hand_mixing", {creative = false})
 
 --Register
 --some crafts are more convienently registered at the same time as the resource,
@@ -152,7 +152,7 @@ minetest.register_node("tech:crafting_spot", {
 	description   = S("Crafting Spot"),
 	tiles         = {"tech_station_crafting_spot.png"},
 	exile_crafting = {
-		craft_types  = {'hand','hand_wattle','hand_mixing'},
+		craft_types  = {'hand','hand_pottery','hand_create','hand_mixing'},
 		craft_level  = 2,
 	},
 	drawtype      = "nodebox",
