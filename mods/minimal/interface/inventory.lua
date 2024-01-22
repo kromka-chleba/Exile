@@ -1,7 +1,3 @@
-
-
-
-
 -- This mod adds a "exile_crafting" key to node definitions.  
 --		exile_crafting = {
 --			-- name of craft type, or table of craft types.  A table produces tabs of recipes.
@@ -66,14 +62,14 @@ end
 local function debug_cache(table)
 	local output=""
 	for k,v in pairs(table) do
-			if (string.match(k, '.*FS$') or k == 'output') then
-				output = output .. k
-			else
-				if type(v) == 'table' then
-					v = debug_keys(v)
-				end
-				output = output .. k .. ' = ' .. v
+		if (string.match(k, '.*FS$') or k == 'output') then
+			output = output .. k
+		else
+			if type(v) == 'table' then
+				v = debug_keys(v)
 			end
+			output = output .. k .. ' = ' .. v
+		end
 		output = output ..', '
 	end
 	return output
@@ -149,7 +145,7 @@ print (dump(cItems))
 	return cache
 end
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+local function process_receive_fields(player, formname, fields)
 	if formname ~= '' then return false; end -- Not our form.
 	local player_name = player:get_player_name()
 	local inv = player:get_inventory()
@@ -233,11 +229,9 @@ print (dump(fields))
 		else
 		end
 	end
-		inventoryFS_cache[player_name] = cache
-		return true
-end)
-
-	
+	inventoryFS_cache[player_name] = cache
+	return true
+end
 
 local function recipes_for_player(cache, pInv, player_name, ctype, level)
 	local unlocked = crafting.get_unlocked(player_name)
@@ -386,7 +380,7 @@ local function cache_player_craft_types(cache, pInv)
 	end
 	local craft_typeFS = {
 		'container[.4,.8]',
-		'label[0.1,0;Craft Type]',
+		'label[0.0,0;Craft Type]',
 		'box[0,.2;2.5,1.9;black]',
 	}
 	local x = 0
@@ -445,7 +439,7 @@ function minimal.close_inventory_formspec(player)
 		end
 	end
 	-- Return craft type items player added
-	gTypes = minetest.get_inventory({type='detached',name='craft_types'})
+	local gTypes = minetest.get_inventory({type='detached',name='craft_types'})
 	for i=1, gTypes:get_size('main') do
 		local stack = gTypes:get_stack('main', i)
 		if not stack:is_empty() then
@@ -463,11 +457,41 @@ function minimal.close_inventory_formspec(player)
 	inventoryFS_cache[player_name].output=""
 end
 
+function minimal.register_inventory_sfinv()
+	if minetest.global_exists("sfinv") then
+		local homepage = sfinv.get_homepage_name() -- get name of homepage
+		sfinv.register_page(homepage, {
+			title = 'Crafting',
+			get = function(self, player, context)
+				local formspec = minimal.make_inventory_formspec(player,context)
+				local options = {
+					'formspec_version[5]',	-- hacking in formspec_version before size[] 
+					'size[10.5,10]',
+				}
+				local output = sfinv.make_formspec(
+					player, context, formspec, false, table.concat(options, ""))
+				return output
+			end,
+			on_player_receive_fields = function(self, player, context, fields)
+				if crafting.result_select_on_receive_results(player, crafting_name, 1, context, fields) then
+					sfinv.set_player_inventory_formspec(player)
+				end
+				return true
+			end,
+			on_player_receive_fields = function(self, player, context, fields)
+				process_receive_fields(player, "", fields)
+				sfinv.set_player_inventory_formspec(player, context)
+			end,
+		})
+	end
+end
+
 -- This is the function to call to create or update the formspec.
 -- It returns the cache value unless something has updated or it times out
 -- updates are triggered by setting cache.output = "" and the section to 
 -- redraw is set to nil - eg cache.recipesFS = nil to redraw recipes list.
-function minimal.get_inventory_formspec(player)
+function minimal.make_inventory_formspec(player,context)
+print ('========================================')
 	local player_name = player:get_player_name()
 	local pInv = player:get_inventory()
 	if not (player_name and player_name ~= "") then
@@ -490,10 +514,7 @@ function minimal.get_inventory_formspec(player)
 	end
 	--reset epoch and draw formspec from cached values unless cleared
 	cache.epoch = os.time()
-	-- add formspec Header
 	local output = 
-		'formspec_version[5]' ..
-		'size[10.5,10]' ..
 		'label[.4,6.2;Quantity]' ..
 		'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]'
 	-- add Craft Types
@@ -522,4 +543,5 @@ function minimal.get_inventory_formspec(player)
 	return output
 end
 
+minimal.register_inventory_sfinv()
 
