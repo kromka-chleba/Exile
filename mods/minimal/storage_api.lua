@@ -53,12 +53,12 @@ end
 
 function storage.can_dig(pos,player,can_grab)
   local inv_empty = true
-  
+
   if not can_grab then
     local inv = minetest.get_meta(pos):get_inventory()
     inv_empty = inv:is_empty("main")
   end
-  
+
   return can_interact(pos, player) and inv_empty
 end
 
@@ -96,24 +96,24 @@ function storage.dump_inventory(pos)
   assert(type(pos) == "table","mods/"..modname.."dump_inventory: Invalid pos provided!")
   assert( (type(pos.x) == "number" and type(pos.y) == "number" and type(pos.z) == "number"),
     "mods/"..modname.."dump_inventory: Invalid pos provided!")
-  
+
   -- verify if the dumped inventory belongs to a storage container
   local stor_node = minetest.get_node(pos)
   if minetest.get_item_group(stor_node.name,"storage") == 0 then
     return
   end
-  
+
   -- don't attempt to empty out an empty inventory
   local inv = minetest.get_meta(pos):get_inventory()
   if inv:is_empty("main") then
     return
   end
-  
+
   -- empty it out!
   local dump_pos = {x = pos.x, y = pos.y + 1, z = pos.z}
   for _,itemstack in pairs(inv:get_list("main")) do
     itemstack = inv:remove_item("main",itemstack)
-    
+
     -- drop items
     minetest.item_drop(itemstack, nil, dump_pos)
   end
@@ -148,15 +148,15 @@ local function to_burnt(pos)
     -- do not continue code
     return
   end
-  
+
   -- get formspec width and height
   local width = stor_node.formspec_width or 8
   local height = stor_node.formspec_height or 4
-  
+
   local meta = minetest.get_meta(pos) -- set formspec_width and formspec_height as meta_int
   meta:set_int("formspec_width",width)
   meta:set_int("formspec_height",height)
-  
+
   -- does the inventory saving for me :D \/ (as well as saves owner, label, and the width and height metadata)
   minimal.switch_node(pos,{name = burn_to.name})
 end
@@ -164,7 +164,7 @@ end
 function storage.register_storage(name,def)
   assert(type(name) == "string","mods/"..modname..".register_storage: No string provided for name!")
   assert(type(def) == "table","mods/"..modname..".register_storage: No table provided for definition!")
-  
+
   local basedef = {
     drawtype = "nodebox",
     paramtype = "light",
@@ -194,7 +194,7 @@ function storage.register_storage(name,def)
       end
       return 0
     end,
-    
+
     allow_metadata_inventory_put = function(pos, listname, index, stack, player)
       if can_interact(pos, player)
       and minetest.get_item_group(stack:get_name(),"backpack") == 0 then
@@ -235,7 +235,7 @@ function storage.register_storage(name,def)
       storage.dump_inventory(pos)
     end,
   }
-  
+
   -- add stuff from definition table
   for var_name,var in pairs(def) do
     if (var_name == "groups") then
@@ -244,16 +244,16 @@ function storage.register_storage(name,def)
       basedef[var_name] = var
     end
   end
-  
+
   -- remove base node_box if drawtype isn't a nodebox
   if basedef.drawtype ~= "nodebox" then
     basedef.node_box = nil
   end
-  
+
   -- don't be silly, we don't like floats
   basedef.formspec_width = math.ceil(basedef.formspec_width)
   basedef.formspec_height = math.ceil(basedef.formspec_height)
-  
+
   -- formspec details (necessary for some functions)
   local width = basedef.formspec_width
   local height = basedef.formspec_height
@@ -283,7 +283,7 @@ function storage.register_storage(name,def)
       storage.on_receive_fields(pos, formname, fields, sender, width, height)
     end
   end
-  
+
   -- if a flammable group is specified, set as burnable
   if (basedef.groups.flammable and basedef.groups.flammable > 0) then
     basedef.burnable = true
@@ -306,7 +306,7 @@ function storage.register_storage(name,def)
       basedef.groups.flammable = 1
     end
   end
-  
+
   -- register the node
   minetest.register_node(name,basedef)
 end
@@ -315,7 +315,7 @@ end
 local burnt_storage = {
   description = S("Burnt Storage Pile"),
   tiles = {"minimal_burnt_pile.png"},
-  
+
   node_box = {
     type = "fixed",
     fixed = {
@@ -324,9 +324,9 @@ local burnt_storage = {
       {-0.2 , -0.2, -0.2,   0.2, -0.15, 0.2},
     },
   },
-  
+
   groups = {burnt = 1, dig_immediate = 3},
-  
+
   on_construct = function(pos)
     local meta = minetest.get_meta(pos)
     local width = meta:get_int("formspec_width")

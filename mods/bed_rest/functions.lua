@@ -404,6 +404,7 @@ local function stopmove(player, pos, lives, meta)
       end
    end
    local velo = player:get_velocity() or player:get_player_velocity()
+      or vector.new()
    player:add_velocity(-velo)
    if pos then player:set_pos(pos) end
 end
