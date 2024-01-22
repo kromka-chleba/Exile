@@ -1437,7 +1437,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
   not (minetest.is_player(threat) and threat:get_attach() or minimal.player_in_creative(threat)) then
     -- fight!
     if self.class == 2 then
-      mobkit.hq_aqua_attack(self, prty, threat.object, self.max_speed)
+      mobkit.hq_aqua_attack(self, prty, threat.object or threat, self.max_speed)
     else
       animals.hq_warn(self, threat, prty)
     end
