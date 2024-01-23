@@ -319,3 +319,113 @@ function minimal.item_pickup(clicker, pointed_thing)
 
   return false
 end
+
+-- itemstack storage
+local function create_inventory_object(items, lengthoverride)
+  if type(items) == "string" then
+    items = minetest.deserialize(items)
+    if items == "" then
+      items = {}
+    end
+  end
+  if type(items) ~= "table" then
+    return
+  end
+  for index,item in pairs(items) do
+    -- purify
+    if type(item) ~= "userdata" or not item["is_empty"] then
+      items[index] = ItemStack('')
+    end
+  end
+  if #items < lengthoverride then
+    for i = 1, lengthoverride do
+      items[i] = ItemStack('')
+    end
+  end
+  local inv = {}
+  -- basic functions
+  function inv:get_list()
+    return items
+  end
+  function inv:to_string()
+    return minetest.serialize(items)
+  end
+  -- alias
+  function inv:convert()
+    return inv:to_string()
+  end
+  -- itemstack interactions
+  function inv:room_for_item(itemstack)
+    -- return false if cannot fit, return true if can fit, return number if full itemstack cannot fit but some of it can
+    for _,item in pairs(items) do
+      if item:get_name() == "" then
+        return true
+      end
+    end
+    for _,item in pairs(items) do
+      if item:equals(itemstack) then
+        if item:item_fits(itemstack) then
+          return true
+        else
+          -- return leftover
+          return itemstack:get_count() - item:get_free_space()
+        end
+      end
+    end
+    -- can't fit it
+    return false
+  end
+  function inv:add_item(itemstack, index)
+    if type(index) ~= "number" then
+      -- add normally
+      for item_index,item in pairs(items) do
+        if item:equals(itemstack) and item:get_free_space() > 0 then
+          local amt = math.min(itemstack:get_count(),item:get_free_space())
+          itemstack:take_item(amt)
+          item:set_count(item:get_count() + amt)
+        end
+        if itemstack:is_empty() then
+          -- no point to iterating through if we're empty!
+          break
+        end
+      end
+    elseif index <= #items then
+      -- index provided and is able to be indexed, add itemstack to index
+      local item = items[index]
+      if item:get_name() == "" then
+        -- it's empty, fill it up
+        items[index] = itemstack
+        return ItemStack('')
+      elseif item:equals(itemstack) then
+        if item:item_fits(itemstack) then
+          itemstack = item:add_item(itemstack)
+        else
+          local amt = math.min(itemstack:get_count(),item:get_free_space())
+          itemstack:take_item(amt)
+          item:set_count(item:get_count() + amt)
+        end
+      end
+    end
+    return itemstack
+  end
+  function inv:remove_item(index)
+    if type(index) ~= "number" then
+      return
+    end
+    if index <= #items then
+      local item = items[index]
+      items[index] = ItemStack('')
+      return item
+    end
+  end
+  return inv
+end
+function minimal.get_item_inventory(itemstack, metadata, inv_name)
+  if type(itemstack) ~= "userdata" then
+    return
+  end
+  if type(metadata) ~= "userdata" then
+    metadata = itemstack:get_meta()
+  end
+  
+end
