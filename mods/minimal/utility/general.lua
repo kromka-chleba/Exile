@@ -230,6 +230,9 @@ function minimal.make_sound(params_table,sound_name)
 
   return minetest.sound_play(sound_spec.name,sound_spec)
 end
+function minimal.sound_play(...)
+  return minimal.make_sound(...)
+end
 
 
 
