@@ -169,6 +169,69 @@ function minimal.math_clamp(num,min,max)
 end
 
 
+-- inspired by mobkit's "make_sound"
+-- intended to play both mob sounds and custom sound files
+function minimal.make_sound(params_table,sound_name)
+  if type(params_table) == "string" and type(sound_name) == "table" then
+    -- do a switcheroo for this function
+    -- allows one to use this function like minetest.sound_play()
+    local temp = sound_name
+    sound_name = params_table
+    params_table = temp
+  end
+  local sound_spec
+  if type(params_table) == "string" then
+    sound_spec = {name = params_table, gain = 0.5}
+    return minetest.sound_play(sound_spec.name,sound_spec)
+  elseif type(params_table) ~= "table" then
+    -- not viable
+    return
+  end
+  local function get_range(value)
+    -- if value is a table and its index 1 and 2 are numbers then return a randomized value between them
+    return type(value) == 'table' and type(value[1]) == "number" and type(value[2]) == "number" and
+    (value[1]+math.random()*(value[2]-value[1]) ) or value
+  end
+  if type(sound_name) == "string" then
+    -- assume it's a mob's sounds
+    local look_through = params_table.sound or params_table.sounds
+    if type(look_through) == "table" then
+      sound_spec = params_table[sound_name]
+    elseif not params_table.name then
+      -- do not assume it's a mob's sounds
+      sound_spec = minimal.merge_tables({name = sound_name}, params_table)
+    end
+  else
+    sound_spec = params_table
+  end
+  if type(sound_spec) ~= "table" then
+    return
+  end
+  if #sound_spec > 0 then
+    sound_spec = sound_spec[math.random(#sound_spec)]
+    if type(sound_spec) ~= "table" then
+      -- if indexes are malformed - e.g. t[1] = value, t[2] = value, t[5] = value - math.random will index from 1-5, but 3 and 4 will be nil - then return nil
+      return
+    end
+  end
+  if not sound_spec.name then
+    return
+  end
+  if not sound_spec.pos and not sound_spec.object then
+    sound_spec.object = params_table.object
+  end
+  -- ensure no accidental overwrite
+  sound_spec = table.copy(sound_spec)
+  sound_spec.gain = get_range(sound_spec.gain)
+  sound_spec.fade = get_range(sound_spec.fade)
+  sound_spec.pitch = get_range(sound_spec.pitch)
+  sound_spec.max_hear_distance = get_range(sound_spec.max_hear_distance)
+  sound_spec.start_time = get_range(sound_spec.start_time)
+
+  return minetest.sound_play(sound_spec.name,sound_spec)
+end
+
+
 
 -- Yes or no dialog
 --
