@@ -331,23 +331,34 @@ local function create_inventory_object(items, lengthoverride)
   if type(items) ~= "table" then
     return
   end
+  -- create separate copy to use internally
+  items = table.copy(items)
   for index,item in pairs(items) do
     -- purify
     if type(item) ~= "userdata" or not item["is_empty"] then
       items[index] = ItemStack('')
     end
   end
+  -- add more slots
   if #items < lengthoverride then
     for i = 1, lengthoverride do
       items[i] = ItemStack('')
     end
   end
+  -- create custom functions for inventory object
   local inv = {}
   -- basic functions
   function inv:get_list()
     return items
   end
   function inv:to_string()
+    for index,item in pairs(items) do
+      if item:get_name() ~= "" then
+        items[index] = item:to_string()
+      else
+        items[index] = ""
+      end
+    end
     return minetest.serialize(items)
   end
   -- alias
@@ -424,8 +435,39 @@ function minimal.get_item_inventory(itemstack, metadata, inv_name)
   if type(itemstack) ~= "userdata" then
     return
   end
-  if type(metadata) ~= "userdata" then
-    metadata = itemstack:get_meta()
+  metadata = type(metadata) == "userdata" and metadata or itemstack:get_meta()
+  inv_name = type(inv_name) == "string" and inv_name or "inv_main"
+  local inv = metadata:get(inv_name)
+  if not inv then 
+    return
   end
-  
+  local tool_def = itemstack:get_definition()
+  local size = (tool_def.formspec_width or 8) * (tool_def.formspec_height or 4)
+  return create_inventory_object(inv,size)
+end
+function minimal.set_item_inventory(itemstack, metadata, inv_name, inv)
+  if type(itemstack) ~= "userdata" then
+    return
+  end
+  if type(inv) ~= "string" then
+    if type(inv) ~= "table" then
+      return
+    end
+    if type(inv["convert"]) == "function" then
+      -- utilize to_string function
+      inv = inv:convert()
+    else
+      -- convert into an inventory object if no string indexes, otherwise return
+      for index,value in pairs(inv) do
+        if type(index) ~= "number" then
+          return
+        end
+      end
+      inv = create_inventory_object(inv)
+      inv = inv:convert()
+    end
+  end
+  metadata = type(metadata) == "userdata" and metadata or itemstack:get_meta()
+  inv_name = type(inv_name) == "string" and inv_name or "inv_main"
+  metadata:set_string(inv_name,inv)
 end
