@@ -320,12 +320,22 @@ function minimal.item_pickup(clicker, pointed_thing)
   return false
 end
 
--- itemstack storage
+-- itemstack storage functions
+local function itemstack_equals(itemstack1,itemstack2)
+  -- check if an itemstack equals the other by checking name and then meta if applicable
+  if itemstack1:get_name() == itemstack2:get_name() then
+    if itemstack1:get_meta() == itemstack2:get_meta() then
+      return true
+    end
+  end
+  return false
+end
 local function create_inventory_object(items, lengthoverride)
   if type(items) == "string" then
-    items = minetest.deserialize(items)
     if items == "" then
       items = {}
+    else
+      items = minetest.deserialize(items)
     end
   end
   if type(items) ~= "table" then
@@ -333,13 +343,18 @@ local function create_inventory_object(items, lengthoverride)
   end
   -- create separate copy to use internally
   items = table.copy(items)
+  -- check for and create proper inventory system
   for index,item in pairs(items) do
-    -- purify
+    -- convert or purify
     if type(item) ~= "userdata" or not item["is_empty"] then
-      items[index] = ItemStack('')
+      if type(item) == "string" then
+        items[index] = ItemStack(item)
+      else
+        items[index] = ItemStack('')
+      end
     end
   end
-  -- add more slots
+  -- add more slots if list is too small
   if #items < lengthoverride then
     for i = 1, lengthoverride do
       items[i] = ItemStack('')
@@ -354,8 +369,10 @@ local function create_inventory_object(items, lengthoverride)
   function inv:to_string()
     for index,item in pairs(items) do
       if item:get_name() ~= "" then
+        -- convert itemstack to string for serialization
         items[index] = item:to_string()
       else
+        -- remove em
         items[index] = ""
       end
     end
@@ -367,19 +384,19 @@ local function create_inventory_object(items, lengthoverride)
   end
   -- itemstack interactions
   function inv:room_for_item(itemstack)
-    -- return false if cannot fit, return true if can fit, return number if full itemstack cannot fit but some of it can
+    -- return false if cannot fit, return true if can fit, return false + number if full itemstack cannot fit but some of it can
     for _,item in pairs(items) do
       if item:get_name() == "" then
         return true
       end
     end
     for _,item in pairs(items) do
-      if item:equals(itemstack) then
+      if itemstack_equals(item,itemstack) then
         if item:item_fits(itemstack) then
           return true
         else
           -- return leftover
-          return itemstack:get_count() - item:get_free_space()
+          return false,itemstack:get_count() - item:get_free_space()
         end
       end
     end
@@ -387,10 +404,13 @@ local function create_inventory_object(items, lengthoverride)
     return false
   end
   function inv:add_item(itemstack, index)
+    -- add itemstack and return leftover
     if type(index) ~= "number" then
       -- add normally
       for item_index,item in pairs(items) do
-        if item:equals(itemstack) and item:get_free_space() > 0 then
+        -- if item equals provided itemstacked and there's space inside
+        if item:get_free_space() > 0 and itemstack_equals(item,itemstack) then
+          -- get the smallest number between the itemstack's count or the amount of space left
           local amt = math.min(itemstack:get_count(),item:get_free_space())
           itemstack:take_item(amt)
           item:set_count(item:get_count() + amt)
@@ -400,14 +420,22 @@ local function create_inventory_object(items, lengthoverride)
           break
         end
       end
-    elseif index <= #items then
+      if not itemstack:is_empty() then
+        for item_index,item in pairs(items) do
+          if item:get_name() == "" then
+            items[item_index] = itemstack
+            return ItemStack('')
+          end
+        end
+      end
+    elseif minimal.math_clamp(index,1,#items) == index then
       -- index provided and is able to be indexed, add itemstack to index
       local item = items[index]
       if item:get_name() == "" then
         -- it's empty, fill it up
         items[index] = itemstack
         return ItemStack('')
-      elseif item:equals(itemstack) then
+      elseif itemstack_equals(item,itemstack) then
         if item:item_fits(itemstack) then
           itemstack = item:add_item(itemstack)
         else
@@ -419,15 +447,53 @@ local function create_inventory_object(items, lengthoverride)
     end
     return itemstack
   end
-  function inv:remove_item(index)
+  function inv:remove_item(index,amount)
+    -- take amount of item from an index
     if type(index) ~= "number" then
-      return
+      return ItemStack('')
     end
-    if index <= #items then
+    -- only if index is in range
+    if minimal.math_clamp(index,1,#items) == index then
+      amount = type(amount) == "number" and amount or 1 -- amount to take
       local item = items[index]
-      items[index] = ItemStack('')
-      return item
+      -- what to return
+      local itemstack = item:take_item(math.min(item:get_count(),amount))
+      if item:is_empty() then
+        items[index] = ItemStack('')
+      end
+      return itemstack
     end
+  end
+  function inv:get_full()
+    -- get indexes of slots that are full
+    local slots = {}
+    for index,item in pairs(items) do
+      if item:get_count() >= item:get_stack_max() then
+        slots[#slots + 1] = index
+      end
+    end
+    -- return table of slots + number
+    return slots,#slots
+  end
+  function inv:get_partial()
+    -- get indexes of slots that are partially full
+    local slots = {}
+    for index,item in pairs(items) do
+      if item:get_count() > 0 then
+        slots[#slots + 1] = index
+      end
+    end
+    return slots,#slots
+  end
+  function inv:get_empty()
+    -- get slots that are empty
+    local slots = {}
+    for index,item in pairs(items) do
+      if item:is_empty() or item:get_name() == "" then
+        slots[#slots + 1] = index
+      end
+    end
+    return slots,#slots
   end
   return inv
 end
