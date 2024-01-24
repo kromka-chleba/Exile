@@ -228,6 +228,70 @@ function minimal.make_sound(params_table,sound_name)
   sound_spec.max_hear_distance = get_range(sound_spec.max_hear_distance)
   sound_spec.start_time = get_range(sound_spec.start_time)
 
+  if sound_spec.to_players and not sound_spec.to_player then
+    -- convert plural to singular
+    sound_spec.to_player = sound_spec.to_players
+  end
+  if sound_spec.exclude_players and not sound_spec.exclude_player then
+    -- ditto plural
+    sound_spec.exclude_player = sound_spec.exclude_players
+  end
+  if minetest.is_player(sound_spec.to_player) then
+    -- provided a player, convert to string
+    sound_spec.to_player = sound_spec.to_player:get_player_name()
+  end
+  if minetest.is_player(sound_spec.exclude_player) then
+    -- ditto conversion
+    sound_spec.exclude_player = sound_spec.exclude_player:get_player_name()
+  end
+  if type(sound_spec.to_player) == "table" and not sound_spec.exclude_player then
+    -- play to each provided player
+    local sounds = {}
+    for _,player_name in pairs(sound_spec.to_player) do
+      local player = player_name
+      if minetest.is_player(player) then
+        -- get player name from player obj
+        player = player:get_player_name()
+      end
+      if type(player) == "string" then
+        local spec = table.copy(sound_spec) -- copy to play for each
+        spec.to_player = player
+        sounds[#sounds + 1] = minetest.sound_play(spec.name,spec)
+      end
+    end
+    return sounds[1],sounds -- return first played sound, rest of sounds
+  elseif type(sound_spec.exclude_player) == "table" then
+    -- exclude these provided folk
+    local to_players = {}
+    -- use to_player to emulate excluding more than 1 player
+    for _,player in pairs(minetest.get_connected_players()) do
+      local including = true -- whether or not to add to to_players
+      local player_name = player:get_player_name()
+      for _,exclude in pairs(sound_spec.exclude_player) do
+        local exclude_name = exclude
+        if minetest.is_player(exclude) then
+          exclude_name = exclude:get_player_by_name()
+        end
+        if player_name == exclude_name then
+          including = false
+          break
+        end
+      end
+      if including then
+        -- finished loop, add if including
+        to_players[#to_players + 1] = player_name
+      end
+    end
+    sound_spec.exclude_player = nil -- no longer necessary to specify
+    local sounds = {}
+    for _,player in pairs(to_players) do
+      local spec = table.copy(sound_spec)
+      spec.to_player = player
+      sounds[#sounds + 1] = minetest.sound_play(spec.name,spec)
+    end
+    return sounds[1],sounds -- return first played sound, rest of sounds
+  end
+
   return minetest.sound_play(sound_spec.name,sound_spec)
 end
 function minimal.sound_play(...)
