@@ -30,7 +30,7 @@ ctypes:set_list('main',{
 --		sTab   = selected_craft_tab 	-- index of selected tab in ctypes - default = 1
 --		sLevel = selected craft_type_level	-- set by craft type item selected
 --		sScroll = selected scroll level -- needed to draw scroll container
---		cTypes = table_of_craftItem_tabs	-- set by def.exile_crafting.craft_type.
+--		cTabs = table_of_craftItem_tabs	-- set by def.exile_crafting.craft_type.
 --		sInv = selected_inventory	-- set by bag buttons
 --		-- The Following are tables of formspec strings
 --		-- Set output = "" to force redraw using cashed details 
@@ -87,10 +87,26 @@ local function process_button(key,btypes)
 	return nil,nil -- button types not found
 end
 
+
+-- 
+local function load_craft_types(inv, craft_item)
+	local cItems = inv:get_list('craft_types')
+	if not cItems or inv:is_empty('craft_types') then
+		-- set player craft_type to global default
+		cItems=minetest.get_inventory({type='detached',name='craft_types'}):get_list('main')
+		inv:set_size('craft_types', 12)
+		inv:set_list('craft_types', cItems)
+	end
+	if craft_item then
+		inv:add_item('craft_types', craft_item)
+	end
+	return inv:get_list('craft_types')
+end
+	
 -- Set default values for cache. Used if craft type Item is changed and when formspec first opened
 local function set_cache(player_name,inv,sItemID)
 	local cache = inventoryFS_cache[player_name]
-	if not cache then 
+	if not cache or cache == 'closed' then 
 		cache = {}
 	end
 	-- clear old cache values
@@ -101,20 +117,7 @@ local function set_cache(player_name,inv,sItemID)
 	cache.output = ""
 	cache.sInv = cache.sInv or 'main'	-- XXX need to make sure selected inv exists.
 
-	local cItems = inv:get_list('craft_types')
-print (dump(cItems))
-	if inv:is_empty('craft_types') then
-		-- set player craft_type to global default
-		cItems=minetest.get_inventory({type='detached',name='craft_types'}):get_list('main')
-		inv:set_size('craft_types', 12)
-		inv:set_list('craft_types', cItems)
---	else
---		--XXX temp fix to clean up inventory while running tests
---		--XXX debug code to remove.
---		for i=1,inv:get_size('craft_types') do
---			inv:set_stack('craft_types',i,ItemStack(""))
---		end
-	end
+	local cItems = load_craft_types(inv)
 	-- Default to the first craft_types inventory item if not provided
 	sItemID = sItemID or 1
 	local stack = cItems[sItemID]
@@ -146,19 +149,18 @@ print (dump(cItems))
 end
 
 local function process_receive_fields(player, formname, fields)
-	if formname ~= '' then return false; end -- Not our form.
+--	if formname ~= '' or formname ~= 'exile:crafting' then return false; end -- Not our form.
 	local player_name = player:get_player_name()
 	local inv = player:get_inventory()
-	local cache = inventoryFS_cache[player_name] 
+	local cache = inventoryFS_cache[player_name]
 	if not cache then
 		cache = set_cache(player_name,inv)
 	end
-print (player_name .. " --> '" .. formname .. "'")
-print (dump(fields))
 	local done = false	-- flag to skip processing buttons and skip to saving changes.
 	-- Process quit
 	if fields.quit then
 		minimal.close_inventory_formspec(player)
+		return true -- cache updated in close
 	end
 	-- process scrollbar
 	if fields.recipes_scroll then
@@ -168,7 +170,7 @@ print (dump(fields))
 			cache.sScroll = scroll
 			cache.recipesFS = nil
 			cache.output = ""
-			done = true;
+			done = true
 		else 
 			scroll = tonumber(string.match(value, "VAL:([0-9]+)"))
 			if scroll and scroll ~= cache.sScroll then
@@ -185,7 +187,7 @@ print (dump(fields))
 		cache.sScroll = 0
 		cache.recipesFS = nil
 		cache.output = ""
-		done = true;
+		done = true
 	end
 
 	if not done then
@@ -326,7 +328,6 @@ local function cache_player_recipes(cache, player_name, pInv)
 	recipesFS[#recipesFS + 1] =	'button[7.3,6;.6,.5;?;?]'
 	cache.recipesFS = table.concat(recipesFS, "")
 	cache.output = ""
---print(cache.recipesFS)
 	return cache
 end
 
@@ -371,13 +372,7 @@ end
 -- See adding tools/benches to input_items list
 local function cache_player_craft_types(cache, pInv) 
 	local selected = cache.sItem or 'crafting_spot' -- default to hand crafting
-	local cItems=pInv:get_list('craft_types')
-	if not cItems then
-		-- set player craft_type to global default
-		ctypes=minetest.get_inventory({type='detached',name='craft_types'}):get_list('main')
-		pInv:set_size('craft_types', 12)
-		pInv:set_list('craft_types', cItems)
-	end
+	local cItems = load_craft_types(pInv)
 	local craft_typeFS = {
 		'container[.4,.8]',
 		'label[0.0,0;Craft Type]',
@@ -419,6 +414,13 @@ function minimal.close_inventory_formspec(player)
 	if not (player_name and player_name ~= "") then
 		return nil -- no player name
 	end
+	-- Assume recipes will need to be redrawn on reopen
+--	inventoryFS_cache[player_name].recipesFS = nil
+--	inventoryFS_cache[player_name].craft_typesFS = nil
+	-- clear cached output to force redraw for new formspec
+--	inventoryFS_cache[player_name].output=""
+	-- Delete Cache
+	
 	local pInv = player:get_inventory()
 	-- Return Items in input_items list to player
 	if not pInv:is_empty('input_items') then
@@ -438,23 +440,19 @@ function minimal.close_inventory_formspec(player)
 			end
 		end
 	end
-	-- Return craft type items player added
-	local gTypes = minetest.get_inventory({type='detached',name='craft_types'})
-	for i=1, gTypes:get_size('main') do
-		local stack = gTypes:get_stack('main', i)
-		if not stack:is_empty() then
-			pInv:remove_item('craft_types',stack)
-		end
-	end
+	-- Empty craft_type items
 	if not pInv:is_empty('craft_types') then
+		for i=1, pInv:get_size('craft_types') do
+			local empty = ItemStack("")
+			pInv:set_stack('craft_types', i, empty)
+		end
 		-- Return items to player.
+		-- copies of items added will be added to
+		-- the inventory list 'craft_items_return'
+		-- they need to be returned here.
 	end
 	-- delete craft_types list
 	pInv:set_size('craft_types',0)
-	-- Assume recipes will need to be redrawn on reopen
-	inventoryFS_cache[player_name].recipesFS = nil
-	-- clear cached output to force redraw for new formspec
-	inventoryFS_cache[player_name].output=""
 end
 
 function minimal.register_inventory_sfinv()
@@ -472,12 +470,12 @@ function minimal.register_inventory_sfinv()
 					player, context, formspec, false, table.concat(options, ""))
 				return output
 			end,
-			on_player_receive_fields = function(self, player, context, fields)
-				if crafting.result_select_on_receive_results(player, crafting_name, 1, context, fields) then
-					sfinv.set_player_inventory_formspec(player)
-				end
-				return true
-			end,
+--			on_player_receive_fields = function(self, player, context, fields)
+--				if crafting.result_select_on_receive_results(player, crafting_name, 1, context, fields) then
+--					sfinv.set_player_inventory_formspec(player)
+--				end
+--				return true
+--			end,
 			on_player_receive_fields = function(self, player, context, fields)
 				process_receive_fields(player, "", fields)
 				sfinv.set_player_inventory_formspec(player, context)
@@ -491,21 +489,23 @@ end
 -- updates are triggered by setting cache.output = "" and the section to 
 -- redraw is set to nil - eg cache.recipesFS = nil to redraw recipes list.
 function minimal.make_inventory_formspec(player,context)
-print ('========================================')
 	local player_name = player:get_player_name()
+
 	local pInv = player:get_inventory()
 	if not (player_name and player_name ~= "") then
 		return nil -- no player name
 	end
+	local cache = inventoryFS_cache[player_name] 
+	-- context exists for inventory formspec only
+	if not context and cache == 'closed' then
+		return nil
+	end
 	-- return prepared formspec if we have one and it hasn't timed out
 	-- Any updates to the form contents must set cache.output = "" to bypass
-	local cache = inventoryFS_cache[player_name] 
-
-	if not cache then
+	if not cache or cache == 'closed' then
 		cache = set_cache(player_name,pInv)
 	end
-
-	if cache and cache.output ~= "" then
+	if cache and cache.output and cache.output ~= "" then
 		if os.time() > cache.epoch + __inventoryFS_cache_timeout then
 			inventoryFS_cache[player_name].epoch=os.time()
 		else 
@@ -544,4 +544,47 @@ print ('========================================')
 end
 
 minimal.register_inventory_sfinv()
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname ~= 'exile:crafting' then return false; end -- Not our form.
 
+	local player_name = player:get_player_name()
+	if fields.quit then
+		minimal.close_inventory_formspec(player)
+		inventoryFS_cache[player_name] = 'closed'
+		return true -- cache updated in close
+	end
+
+	if process_receive_fields(player, formname, fields) then
+		local formspec = minimal.make_inventory_formspec(player)
+		if formspec and formspec ~= "" then
+			formspec = 'formspec_version[5]size[10.5,10]' .. formspec
+			minetest.show_formspec(player_name,'exile:crafting',formspec)
+		end
+	end
+end)
+
+function minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+	local craft_item = ItemStack(node.name)
+	local player_name = clicker:get_player_name()
+	local pInv = clicker:get_inventory()
+	local cItems = load_craft_types(pInv, craft_item)
+	-- Set Selected item index
+	local sItemID = 0
+	for i,stack in ipairs(cItems) do
+		if stack:get_name() == node.name then
+			sItemID = i
+		end
+	end
+	local cache = {
+		sItem = node.name,
+		sItemID = sItemID,
+		sTab = 1,
+		sInv = 'main',
+		output = '',
+	}
+	inventoryFS_cache[player_name] = cache
+	set_cache(player_name, pInv, sItemID)
+	local formspec = 'formspec_version[5]size[10.5,10]'..minimal.make_inventory_formspec(clicker)
+	minetest.show_formspec(player_name,'exile:crafting',formspec)
+	return itemstack
+end
