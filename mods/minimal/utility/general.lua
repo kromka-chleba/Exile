@@ -354,10 +354,12 @@ local function create_inventory_object(items, lengthoverride)
       end
     end
   end
-  -- add more slots if list is too small
-  if #items < lengthoverride then
-    for i = 1, lengthoverride do
-      items[i] = ItemStack('')
+  -- add more slots if list is too small and lengthoverride specified
+  if type(lengthoverride) == "number" then
+    if #items < lengthoverride then
+      for i = 1, lengthoverride do
+        items[i] = ItemStack('')
+      end
     end
   end
   -- create custom functions for inventory object
@@ -365,6 +367,9 @@ local function create_inventory_object(items, lengthoverride)
   -- basic functions
   function inv:get_list()
     return items
+  end
+  function inv:get_size()
+    return #items
   end
   function inv:to_string()
     for index,item in pairs(items) do
@@ -381,6 +386,38 @@ local function create_inventory_object(items, lengthoverride)
   -- alias
   function inv:convert()
     return inv:to_string()
+  end
+  -- full, partial, empty gets
+  function inv:get_full()
+    -- get indexes of slots that are full
+    local slots = {}
+    for index,item in pairs(items) do
+      if item:get_count() >= item:get_stack_max() then
+        slots[#slots + 1] = index
+      end
+    end
+    -- return table of slots + number
+    return slots,#slots
+  end
+  function inv:get_partial()
+    -- get indexes of slots that are partially full
+    local slots = {}
+    for index,item in pairs(items) do
+      if item:get_count() > 0 then
+        slots[#slots + 1] = index
+      end
+    end
+    return slots,#slots
+  end
+  function inv:get_empty()
+    -- get slots that are empty
+    local slots = {}
+    for index,item in pairs(items) do
+      if item:is_empty() or item:get_name() == "" then
+        slots[#slots + 1] = index
+      end
+    end
+    return slots,#slots
   end
   -- itemstack interactions
   function inv:room_for_item(itemstack)
@@ -464,37 +501,6 @@ local function create_inventory_object(items, lengthoverride)
       return itemstack
     end
   end
-  function inv:get_full()
-    -- get indexes of slots that are full
-    local slots = {}
-    for index,item in pairs(items) do
-      if item:get_count() >= item:get_stack_max() then
-        slots[#slots + 1] = index
-      end
-    end
-    -- return table of slots + number
-    return slots,#slots
-  end
-  function inv:get_partial()
-    -- get indexes of slots that are partially full
-    local slots = {}
-    for index,item in pairs(items) do
-      if item:get_count() > 0 then
-        slots[#slots + 1] = index
-      end
-    end
-    return slots,#slots
-  end
-  function inv:get_empty()
-    -- get slots that are empty
-    local slots = {}
-    for index,item in pairs(items) do
-      if item:is_empty() or item:get_name() == "" then
-        slots[#slots + 1] = index
-      end
-    end
-    return slots,#slots
-  end
   return inv
 end
 function minimal.get_item_inventory(itemstack, metadata, inv_name)
@@ -536,4 +542,26 @@ function minimal.set_item_inventory(itemstack, metadata, inv_name, inv)
   metadata = type(metadata) == "userdata" and metadata or itemstack:get_meta()
   inv_name = type(inv_name) == "string" and inv_name or "inv_main"
   metadata:set_string(inv_name,inv)
+end
+function minimal.convert_node_inventory(inventory,inv_name)
+  -- convert node metadata into a usable inventory
+  inv_name = type(inv_name) == "string" and inv_name or "main"
+  if type(inventory) == "table" then
+    -- get pos if provided
+    if type(inventory.x) == "number" and type(inventory.y) == "number" and type(inventory.z) == "number" then
+      inventory = minetest.get_meta(inventory)
+    end
+  end
+  -- get inventory from node metadata
+  if type(inventory) == "userdata" and inventory["get_inventory"] then
+    inventory = inventory:get_inventory()
+  end
+  -- get inventory list from inventory metadata
+  if type(inventory) == "userdata" and inventory["get_list"] then
+    inventory = inventory:get_list(inv_name)
+  end
+  if type(inventory) ~= "table" then
+    return
+  end
+  return create_inventory_object(inventory)
 end
