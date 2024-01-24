@@ -573,7 +573,7 @@ function animals.core_life(self, pos)
     end
   elseif (self.hp > self.max_hp) then
     -- this aint supposed to happen!
-    self:set_hp(self.max_hp)
+    self.object:set_hp(self.max_hp)
   end
 
   if (conserve == true) then
