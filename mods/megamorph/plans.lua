@@ -15,6 +15,7 @@ local register_geomorph = mod.register_geomorph
 
 -----------------------------------------------------------------------
 local n_ex = 'air'
+local vent = 'megamorph:vent_open'
 
 --primary construction materials
 local stone_main = 'nodes_nature:granite'
@@ -169,15 +170,15 @@ local central_stairwell = {
 
 --for air shafts, to help prevent flooding, so only 1x1 areas of water gets down
 local shaft_filter = {
-	{act = 'cube', node = 'air', loc = vn(38, 79, 38), size = vn(1, 1, 1)},
-	{act = 'cube', node = 'air', loc = vn(38, 79, 41), size = vn(1, 1, 1)},
-	{act = 'cube', node = 'air', loc = vn(41, 79, 41), size = vn(1, 1, 1)},
-	{act = 'cube', node = 'air', loc = vn(41, 79, 38), size = vn(1, 1, 1)},
+	{act = 'cube', node = vent, loc = vn(38, 79, 38), size = vn(1, 1, 1)},
+	{act = 'cube', node = vent, loc = vn(38, 79, 41), size = vn(1, 1, 1)},
+	{act = 'cube', node = vent, loc = vn(41, 79, 41), size = vn(1, 1, 1)},
+	{act = 'cube', node = vent, loc = vn(41, 79, 38), size = vn(1, 1, 1)},
 
-	{act = 'cube', node = 'air', loc = vn(38, 0, 38), size = vn(1, 1, 1)},
-	{act = 'cube', node = 'air', loc = vn(38, 0, 41), size = vn(1, 1, 1)},
-	{act = 'cube', node = 'air', loc = vn(41, 0, 41), size = vn(1, 1, 1)},
-	{act = 'cube', node = 'air', loc = vn(41, 0, 38), size = vn(1, 1, 1)},
+	{act = 'cube', node = vent, loc = vn(38, 0, 38), size = vn(1, 1, 1)},
+	{act = 'cube', node = vent, loc = vn(38, 0, 41), size = vn(1, 1, 1)},
+	{act = 'cube', node = vent, loc = vn(41, 0, 41), size = vn(1, 1, 1)},
+	{act = 'cube', node = vent, loc = vn(41, 0, 38), size = vn(1, 1, 1)},
 }
 
 -----------------------------------------------------
