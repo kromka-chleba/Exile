@@ -471,7 +471,6 @@ function animals.core_life(self, pos)
       self._on_death(self, pos)
     end
     mobkit.clear_queue_high(self)
-    animals.handle_drops(self)
     animals.hq_die(self)
     return nil
   end
