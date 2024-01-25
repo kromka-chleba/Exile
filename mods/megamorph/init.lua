@@ -543,6 +543,7 @@ end)
 
 
 --------------------------------------
+dofile(mod.path .. '/nodes.lua')
 dofile(mod.path .. '/geomorph.lua')
 dofile(mod.path .. '/plans.lua')
 dofile(mod.path .. '/mapgen.lua')
