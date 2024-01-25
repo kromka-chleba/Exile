@@ -277,18 +277,21 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
   else -- do not place if can't find nodedata
     return
   end
-
+  local protected = false local top_protected = false
   if (minetest.is_player(placer)) then
-     if (minetest.is_protected(pos, placer:get_player_name())
-	 or minetest.is_protected(pos_top, placer:get_player_name()) ) then
-      return
-    end
+     if minetest.is_protected(pos, placer:get_player_name()) then
+	protected = true
+     end
+     if minetest.is_protected(pos_top, placer:get_player_name()) then
+	top_protected = true
+     end
 
      if (type(nodedata) == "table" and not placer:get_player_control().sneak
 	 and not isliquid
 	 and minetest.get_item_group(node.name,"liquid_storage") == 0) then
-      if (type(nodedata["on_rightclick"]) == "function") then
-        return nodedata.on_rightclick(pos, node, placer, itemstack, pointed_thing)
+	if (type(nodedata["on_rightclick"]) == "function") then
+	   return nodedata.on_rightclick(pos, node, placer, itemstack,
+					 pointed_thing)
       end
     end
   end
@@ -300,18 +303,23 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
     return
   end
 
-  if stored then
+  if stored and ( not protected ) then
     -- if a possible liquid and an empty bucket
     return liquid_store.on_use_empty_bucket(itemstack, placer, pointed_thing)
   elseif (type(minetest.registered_nodes[place_name]) == "table") then
-    -- verify if can place bucket
-    if (nodedata.buildable_to ~= true and top_nodedata.buildable_to == true or isliquid == true) then
-      -- if any of the above is correct, place above the node
-      pos = pos_top
-    elseif (nodedata.buildable_to ~= true and top_nodedata.buildable_to ~= true) then
-      return -- can't place bucket
-    end
-    if not (minimal.player_in_creative(placer)) then
+
+     -- verify if we can place the bucket
+     if ( nodedata.buildable_to ~= true or protected == true
+	  or isliquid == true ) then -- Can't build here,
+	-- attempt to use top to place above/in front of the node
+	if top_nodedata.buildable_to == true and not top_protected then
+	   pos = pos_top
+	else -- Can't place bucket on either top or bottom node, give up
+	   return
+	end
+     end
+
+     if not (minimal.player_in_creative(placer)) then
       itemstack:take_item()
     end
 
@@ -327,7 +335,7 @@ function liquid_store.on_place(place_name, itemstack, placer, pointed_thing)
     minimal.switch_node(pos, {name = place_name}, {placer, itemstack, pointed_thing})
     minetest.check_for_falling(pos)
   end
-  
+
   return itemstack
 end
 
