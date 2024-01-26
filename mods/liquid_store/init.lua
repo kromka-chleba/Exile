@@ -326,30 +326,34 @@ function liquid_store.on_place(itemstack, placer, pointed_thing, place_name)
 
   local pos = pointed_thing.under
   local pos_top = pointed_thing.above
-  if not minetest.is_player(placer) or (minetest.is_protected(pos, placer) or minetest.is_protected(pos_top, placer)) then
-    -- not a player or area is protected
-    return
-  end
+  local isliquid = false -- to prevent placement if a liquid that can't be grabbed
 
-  place_name = type(place_name) == "string" and place_name or itemstack:get_name()
-  local lsdef = minetest.registered_nodes[place_name] -- liquid store definition
+  place_name = type(place_name) == "string" and place_name
+   or itemstack:get_name()
 
-  local ndef = minimal.get_nodedef(pos) -- grab a possible liquid or liquid store if correct
-  local stored = find_stored(place_name, ndef.name)
-
-  local isliquid = stored and true or false -- to prevent placement if a liquid that can't be grabbed
-  if ndef and ndef.drawtype == "liquid" then
+  local node = minetest.get_node(pos) -- grab a possible liquid if correct
+  local nodedata = minetest.registered_nodes[node.name]
+  local stored = find_stored(place_name, node.name)
+  if (stored) then
     isliquid = true
-  elseif not ndef then -- do not place if can't find nodedata
-    return
   end
 
-  if not (placer:get_player_control().sneak
-    or isliquid
-    or minimal.in_group(ndef,"liquid_storage") ) then
-    local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
-    if on_click ~= false then
-      return on_click
+  local protected = false local top_protected = false
+  if (minetest.is_player(placer)) then
+     if minetest.is_protected(pos, placer:get_player_name()) then
+	protected = true
+     end
+     if minetest.is_protected(pos_top, placer:get_player_name()) then
+	top_protected = true
+     end
+
+     if (type(nodedata) == "table" and not placer:get_player_control().sneak
+	 and not isliquid
+	 and minetest.get_item_group(node.name,"liquid_storage") == 0) then
+	if (type(nodedata["on_rightclick"]) == "function") then
+	   return nodedata.on_rightclick(pos, node, placer, itemstack,
+					 pointed_thing)
+      end
     end
   end
 
@@ -358,18 +362,23 @@ function liquid_store.on_place(itemstack, placer, pointed_thing, place_name)
     return
   end
 
-  if stored then
+  if stored and ( not protected ) then
     -- if a possible liquid and an empty bucket
     return liquid_store.on_use_empty_bucket(itemstack, placer, pointed_thing)
-  elseif lsdef then
-    -- verify if can place bucket
-    if (ndef.buildable_to ~= true and tndef.buildable_to == true or isliquid == true) then
-      -- if any of the above is correct, place above the node
-      pos = pos_top
-    elseif not (ndef.buildable_to and tndef.buildable_to) then
-      return -- can't place bucket
-    end
-    if not (minimal.player_in_creative(placer)) then
+  elseif (type(minetest.registered_nodes[place_name]) == "table") then
+
+     -- verify if we can place the bucket
+     if ( nodedata.buildable_to ~= true or protected == true
+	  or isliquid == true ) then -- Can't build here,
+	-- attempt to use top to place above/in front of the node
+	if tndef.buildable_to == true and not top_protected then
+	   pos = pos_top
+	else -- Can't place bucket on either top or bottom node, give up
+	   return
+	end
+     end
+
+     if not (minimal.player_in_creative(placer)) then
       itemstack:take_item()
     end
     -- place the bucket
