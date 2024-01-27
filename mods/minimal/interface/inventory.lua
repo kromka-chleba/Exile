@@ -212,6 +212,44 @@ local function process_receive_fields(player, formname, fields)
 				local ctype = cache.cTabs[cache.sTab]
 				local sLevel = cache.sLevel
 				local sInv = cache.sInv
+				local qty = tonumber(fields.qty)
+print(dump(recipe))
+				if qty > 1 then -- more then single requested
+					local oItem = ItemStack(recipe.output)
+					local oName = oItem:get_name()
+					local oCount = oItem:get_count()
+					local max_count = 0 
+					local item_hash = cache.item_hash
+print(dump(item_hash))
+					for i,input in ipairs(recipe.items) do
+						local iItem = ItemStack(input)
+						local iName = iItem:get_name()
+						local iNeed = iItem:get_count()
+						local iHave = item_hash[iName]
+						local max = math.floor(iHave/iNeed)
+						if max_count < max then
+							max_count = max
+						end
+					end
+					if qty == 2 then -- stack requested
+						local def = minetest.registered_nodes[oName] or minetest.registered_craftitems[oName]
+										or minetest.registered_tools[oName]
+						local stack_count = def.stack_max or 1
+						if max_count > stack_count then
+							max_count = stack_count
+						end
+					end
+					-- set output to max_count
+					recipe.output = oName .." "..max_count
+					-- set input to values for max_count
+					for i,input in ipairs(recipe.items) do
+						local iItem = ItemStack(input)
+						local iName = iItem:get_name()
+						local iNeed = iItem:get_count()
+						recipe.items[i] = iName .." ".. iNeed * max_count
+					end
+				end
+
 				if not crafting.can_craft(player_name, ctype, sLevel, recipe) then
 					minetest.log("error", "[inventoryFS] Player clicked a button they shouldn't have been able to")
 					return true
@@ -248,6 +286,8 @@ local function recipes_for_player(cache, pInv, player_name, ctype, level)
 	if pInv:get_size(selected) > 0 then
 		crafting.set_item_hashes_from_list(pInv, selected, item_hash)
 	end
+	-- save item_hash to cache
+	cache.item_hash = item_hash
 	-- Get all available recipies and mark craftible ones.
 	local results =  crafting.get_all(ctype, level, item_hash, unlocked)
 	return results
@@ -268,7 +308,13 @@ local function cache_player_recipes(cache, player_name, pInv)
 	local recipe_list = recipes_for_player(cache, pInv, player_name,cTabs[sTab], sLevel)
 
 	-- Add tab header
-	local tabs = table.concat(cTabs, ',')
+	local tabs = ""
+	for i=1,#cTabs do
+		if i > 1 then
+			tabs = tabs .. ',' -- add comma after first
+		end
+		tabs = tabs .. crafting.tab_labels[cTabs[i]] or cTabs[i]
+	end
 	recipesFS[#recipesFS + 1] = "style_type[item_image_button;border=false]"
 	recipesFS[#recipesFS + 1] = 'tabheader[3.2,1;sCraftTab;' .. tabs .. ';'
 		.. sTab .. ';true;false]'
@@ -470,16 +516,16 @@ function minimal.register_inventory_sfinv()
 					player, context, formspec, false, table.concat(options, ""))
 				return output
 			end,
---			on_player_receive_fields = function(self, player, context, fields)
---				if crafting.result_select_on_receive_results(player, crafting_name, 1, context, fields) then
---					sfinv.set_player_inventory_formspec(player)
---				end
---				return true
---			end,
 			on_player_receive_fields = function(self, player, context, fields)
 				process_receive_fields(player, "", fields)
 				sfinv.set_player_inventory_formspec(player, context)
 			end,
+--			on_enter = function(self, player, context)
+--				local player_name = player:get_player_name()
+--				inventoryFS_cache[player_name].recipesFS=nil
+--				inventoryFS_cache[player_name].output=""
+--				sfinv.set_player_inventory_formspec(player,context)
+--			end
 		})
 	end
 end
@@ -505,37 +551,37 @@ function minimal.make_inventory_formspec(player,context)
 	if not cache or cache == 'closed' then
 		cache = set_cache(player_name,pInv)
 	end
-	if cache and cache.output and cache.output ~= "" then
-		if os.time() > cache.epoch + __inventoryFS_cache_timeout then
-			inventoryFS_cache[player_name].epoch=os.time()
-		else 
-			return cache.output
-		end
-	end
+--IB-test	if cache and cache.output and cache.output ~= "" then
+--IB-test		if os.time() > cache.epoch + __inventoryFS_cache_timeout then
+--IB-test			inventoryFS_cache[player_name].epoch=os.time()
+--IB-test		else 
+--IB-test			return cache.output
+--IB-test		end
+--IB-test	end
 	--reset epoch and draw formspec from cached values unless cleared
 	cache.epoch = os.time()
 	local output = 
 		'label[.4,6.2;Quantity]' ..
 		'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]'
 	-- add Craft Types
-	if not cache.craft_typeFS then
+--	if not cache.craft_typeFS then
 		cache = cache_player_craft_types(cache, pInv)
-	end
+--	end
 	output = output .. cache.craft_typeFS
 	-- add Input List
-	if not cache.input_listFS then
+--	if not cache.input_listFS then
 		cache = cache_player_input_list(cache,pInv)
-	end
+--	end
 	output = output .. cache.input_listFS
 	-- add Recipes List
-	if not cache.recipesFS then
+--	if not cache.recipesFS then
 		cache = cache_player_recipes(cache,player_name,pInv)
-	end
+--	end
 	output = output .. cache.recipesFS
 	-- add Inventory List
-	if not cache.inventoryFS then
+--	if not cache.inventoryFS then
 		cache = cache_player_inventory(cache,player)
-	end
+--	end
 	output = output .. cache.inventoryFS
 	-- Save output to cache and update
 	cache.output = output
