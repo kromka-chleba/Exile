@@ -301,20 +301,20 @@ crafting.register_recipe({
 --mortar and pestle
 --
 
-crafting.register_recipe({
-	type = {"mortar_and_pestle", "knife"},
-	output = "tech:peeled_anperla 6",
-	items = {"nodes_nature:anperla_root 6"},
-	level = 1,
-	always_known = true,
-})
-crafting.register_recipe({
-	type = {"mortar_and_pestle", "knife"},
-	output = "tech:peeled_anperla 36",
-	items = {"nodes_nature:anperla_root 36"},
-	level = 1,
-	always_known = true,
-})
+--ib crafting.register_recipe({
+--ib 	type = {"mortar_and_pestle", "knife"},
+--ib 	output = "tech:peeled_anperla 6",
+--ib 	items = {"nodes_nature:anperla_root 6"},
+--ib 	level = 1,
+--ib 	always_known = true,
+--ib })
+--ib crafting.register_recipe({
+--ib 	type = {"mortar_and_pestle", "knife"},
+--ib 	output = "tech:peeled_anperla 36",
+--ib 	items = {"nodes_nature:anperla_root 36"},
+--ib 	level = 1,
+--ib 	always_known = true,
+--ib })
 
 --mash
 crafting.register_recipe({
@@ -324,14 +324,14 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
---bulk mash
-crafting.register_recipe({
-	type = "mortar_and_pestle",
-	output = "tech:mashed_anperla 6",
-	items = {"tech:peeled_anperla 36"},
-	level = 1,
-	always_known = true,
-})
+--IB --bulk mash
+--IB crafting.register_recipe({
+--IB 	type = "mortar_and_pestle",
+--IB 	output = "tech:mashed_anperla 6",
+--IB 	items = {"tech:peeled_anperla 36"},
+--IB 	level = 1,
+--IB 	always_known = true,
+--IB })
 
 
 --grind maraka flour
@@ -342,14 +342,14 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
---bulk maraka flour
-crafting.register_recipe({
-	type = "mortar_and_pestle",
-	output = "tech:maraka_flour_bitter 4",
-	items = {'nodes_nature:maraka_nut 48'},
-	level = 1,
-	always_known = true,
-})
+--IB --bulk maraka flour
+--IB crafting.register_recipe({
+--IB 	type = "mortar_and_pestle",
+--IB 	output = "tech:maraka_flour_bitter 4",
+--IB 	items = {'nodes_nature:maraka_nut 48'},
+--IB 	level = 1,
+--IB 	always_known = true,
+--IB })
 
 --make maraka cakes
 crafting.register_recipe({
@@ -359,14 +359,14 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
---bulk maraka cakes
-crafting.register_recipe({
-	type = "mortar_and_pestle",
-	output = "tech:maraka_bread 24",
-	items = {'tech:maraka_flour 4'},
-	level = 1,
-	always_known = true,
-})
+--IB --bulk maraka cakes
+--IB crafting.register_recipe({
+--IB 	type = "mortar_and_pestle",
+--IB 	output = "tech:maraka_bread 24",
+--IB 	items = {'tech:maraka_flour 4'},
+--IB 	level = 1,
+--IB 	always_known = true,
+--IB })
 
 
 
@@ -378,14 +378,14 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
---bulk oil
-crafting.register_recipe({
-	type = "mortar_and_pestle",
-	output = "tech:vegetable_oil 6",
-	items = {'nodes_nature:vansano_seed 72'},
-	level = 1,
-	always_known = true,
-})
+--IB --bulk oil
+--IB crafting.register_recipe({
+--IB 	type = "mortar_and_pestle",
+--IB 	output = "tech:vegetable_oil 6",
+--IB 	items = {'nodes_nature:vansano_seed 72'},
+--IB 	level = 1,
+--IB 	always_known = true,
+--IB })
 
 
 --

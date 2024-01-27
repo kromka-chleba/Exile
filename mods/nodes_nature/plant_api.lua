@@ -913,13 +913,13 @@ function plant.register_threshing_recipes(plant_def)
                 level = 1,
                 always_known = true,
         })
-        crafting.register_recipe({
-                type = "threshing_spot",
-                output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number * 6,
-                items = {source.." 6"},
-                level = 1,
-                always_known = true,
-        })
+--IB        crafting.register_recipe({
+--IB                type = "threshing_spot",
+--IB                output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number * 6,
+--IB                items = {source.." 6"},
+--IB                level = 1,
+--IB                always_known = true,
+--IB        })
     end
     if plant_def.fruit and not plant_def.only_dead_fruit then
         reg_recipe(plant.get_fruit_name(plant_def.name))
