@@ -208,24 +208,23 @@ local function process_receive_fields(player, formname, fields)
 			elseif btn_type == 'sInv' then
 				cache.sInv = btn_id -- Inventory name
 			elseif btn_type == 'sResult' then
-				local recipe = crafting.get_recipe(tonumber(btn_id))
+				local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
+print(dump(recipe))
 				local ctype = cache.cTabs[cache.sTab]
 				local sLevel = cache.sLevel
 				local sInv = cache.sInv
 				local qty = tonumber(fields.qty)
-print(dump(recipe))
 				if qty > 1 then -- more then single requested
 					local oItem = ItemStack(recipe.output)
 					local oName = oItem:get_name()
 					local oCount = oItem:get_count()
 					local max_count = 0 
 					local item_hash = cache.item_hash
-print(dump(item_hash))
 					for i,input in ipairs(recipe.items) do
 						local iItem = ItemStack(input)
 						local iName = iItem:get_name()
 						local iNeed = iItem:get_count()
-						local iHave = item_hash[iName]
+						local iHave = item_hash[iName] or 0 
 						local max = math.floor(iHave/iNeed)
 						if max_count < max then
 							max_count = max
