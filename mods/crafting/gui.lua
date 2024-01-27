@@ -20,6 +20,7 @@ local player_inv_hashes = {}
 
 -- this bad boy checks for inventory changes to update the global inventory tabs
 local function get_global_tab_updater(tab_name)
+	error('Depricated Function! Should not be running')
     local updater
     updater = function()
         for _, player in pairs(minetest.get_connected_players() or {}) do
@@ -37,7 +38,7 @@ local function get_global_tab_updater(tab_name)
 end
 
 
-local function get_item_description(name)
+function crafting.get_item_description(name)
 	if name:sub(1, 6) == "group:" then
 		local group = name:sub(7, #name):gsub("%_", " ")
 		return "Any " .. group
@@ -48,6 +49,7 @@ local function get_item_description(name)
 end
 
 function crafting.make_result_selector(player, type, level, size, context)
+	error('Depricated Function! Should not be running')
 	local page = context.crafting_page or 1
   
 	local full_recipes = crafting.get_all_for_player(player, type, level)
@@ -130,7 +132,7 @@ function crafting.make_result_selector(player, type, level, size, context)
 		local recipe = result.recipe
 
 		local itemname = ItemStack(recipe.output):get_name()
-		local item_description = get_item_description(itemname)
+		local item_description = crafting.get_item_description(itemname)
 
 		formspec[#formspec + 1] = "item_image_button["
 		formspec[#formspec + 1] = x
@@ -151,7 +153,7 @@ function crafting.make_result_selector(player, type, level, size, context)
 			local itemtab = {
 				"\n",
 				minetest.get_color_escape_sequence(color),
-				get_item_description(item.name), ": ",
+				crafting.get_item_description(item.name), ": ",
 				item.have, "/", item.need
 			}
 			formspec[#formspec + 1] = minetest.formspec_escape(table.concat(itemtab, ""))
@@ -261,6 +263,7 @@ function crafting.result_select_on_receive_results(player, type, level, context,
 end
 
 function crafting.make_global_inventory_tab(tab_name, desc, crafting_name, gamemode)
+	error('Depricated Function! Should not be running')
     if minetest.global_exists("sfinv") then
         sfinv.register_page(
             tab_name, {
@@ -270,7 +273,7 @@ function crafting.make_global_inventory_tab(tab_name, desc, crafting_name, gamem
                     local creative_enabled = creative.is_enabled_for(player:get_player_name())
                     return gamemode.creative and creative_enabled or
                         not gamemode.creative and not creative_enabled
-		end,
+				end,
                 get = function(self, player, context)
                     local formspec = crafting.make_result_selector(player, crafting_name, 1, { x = 8, y = 3 }, context)
                     formspec = formspec .. "list[detached:creative_trash;main;0,3.4;1,1;]" ..
@@ -339,6 +342,7 @@ local function make_on_show_function(ctype, level, inv_size, context)
 			formspec_tabs = "tabheader[0,0;crafting_nav_tabs;" .. tab_labels ..
 				";" .. selected_tab .. ";true;false]"
 		end
+
 		local formspec = "size[" .. inv_size.x  .. "," .. (inv_size.y + 3.6) .."]"
 				.. formspec_tabs
 				.. "list[current_player;main;0," .. (inv_size.y + 1.7) ..";8,1;]"

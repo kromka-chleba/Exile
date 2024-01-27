@@ -5,4 +5,5 @@ dofile(modpath..'/themes.lua')
 dofile(modpath..'/hotbar.lua') -- uses themes, keep it below that
 dofile(modpath..'/hotbar_slots.lua') -- uses math_clamp from utility/
 dofile(modpath..'/tooltips.lua')
+dofile(modpath..'/inventory.lua') -- Inventory / Crafting formspec
 dofile(modpath..'/playersettings.lua')
