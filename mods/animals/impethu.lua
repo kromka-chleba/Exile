@@ -43,15 +43,15 @@ local function brain(self)
 			--Threats
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
-				animals.fight_or_flight_plyr(self, plyr, 55, 0.02)
+				animals.fight_or_flight(self, plyr)
 			end
 
-			pred = animals.predator_avoid(self, 55, 0.02)
+			pred = animals.predator_avoid(self)
 
     end
     
     local light = (minetest.get_node_light(pos) or 0)
-    if (light > self.min_light) then
+    if (light > self.max_light) then
         --fatigued by light
         
       energy = energy - random(2,6)
@@ -78,7 +78,7 @@ local function brain(self)
 
 			--feeding
 			--eat stuff in the dark
-			if light <= self.min_light then
+			if light <= self.max_light then
 				if not rival and energy < self.energy_max then
 					energy = energy + 1
           if (animals.eat_sediment_under(pos,0.01)) then
@@ -127,48 +127,67 @@ end
 ---------------
 
 -- SETTING OF IMPETHU INTERACTOR SETTINGS
-animals.add_interactors("predators","impethu","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
-animals.add_interactors("rivals","impethu","animals:sneachan", "animals:impethu")
+animals.add_interactors("animals:impethu","predators", "animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("animals:impethu","rivals", "animals:sneachan", "self")
 
 ----------------------------------------------
 -- The Animal
-local self_data = {
-  name = "animals:impethu",
-	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.09, -0.25, -0.09, 0.09, -0.1, 0.09},
-	visual = "mesh",
-	mesh = "animals_impethu.b3d",
-	textures = {"animals_impethu.png"},
-	visual_size = {x = 5, y = 5},
-	makes_footstep_sound = false,
-	timeout = 0,
-
-	_VH1_barheight = 1,
-	-- animal stats
-	max_hp = 3,
+local self_data -- define earlier for utilization in functions
+self_data = animals.register_animal("animals:impethu",{
+  initial_properties = {
+    max_hp = 3,
+    
+    physical = true,
+    collide_with_objects = true,
+    collisionbox = {-0.09, -0.25, -0.09, 0.09, -0.1, 0.09},
+    visual = "mesh",
+    mesh = "animals_impethu.b3d",
+    textures = {"animals_impethu.png"},
+    visual_size = {x = 5, y = 5},
+    makes_footstep_sound = false,
+    timeout = 0,
+  },
+  _VH1_barheight = 1,
+  
+  -- animal stats
+  max_hp = 3,
 	lung_capacity = 10,
   breathing_rate = 4,
   -- comfort temps
 	min_temp = 5,
 	max_temp = 68,
   -- comfort light
-  min_light = 7,
-  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  max_light = 6,
+  -- is it land-borne (1), sea-borne (2), or amphibious (3)?
   class = 1,
-  
   -- settings
   max_pop = 10,
-
-	on_step = mobkit.stepfunc,
-	on_activate = mobkit.actfunc,
-	get_staticdata = mobkit.statfunc,
-	logic = brain,
-	-- optional mobkit props
-	-- or used by built in behaviors
-	--physics = [function user defined] 		-- optional, overrides built in physics
-	animation = {
+  -- energy and eggs
+  energy_max = 6000,   --secs it can survive without food
+  energy_egg = "energy_max*0.6",  --energy that goes to egg
+  egg_timer = 60*10,
+  young_per_egg = {2,4},		--will get this/energy_egg starting energy
+  -- lifespan
+  lifespan = "energy_max*4",
+  -- interactions
+  -- predators + rivals automatically defined in registration
+  consume_predators = false,
+  player_interaction = 0.02,
+  predator_interactions = 0.02,
+  capture_interactions = {
+    hand = 0.7,
+    club = 1,
+  },
+  -- logic for mobkit
+  logic = brain,
+  --movement
+	springiness=0,
+	buoyancy = 1.01,
+	max_speed = 0.5,					-- m/s
+	jump_height = 1,				-- nodes/meters
+	view_range = 2,					-- nodes/meters
+  -- animation
+  animation = {
 		walk={range={x=0, y=12}, speed=10, loop=true},
 		fast={range={x=0, y=12}, speed=10, loop=true},
 		stand={
@@ -177,105 +196,52 @@ local self_data = {
 		},
     dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
-	sounds = {
+  sounds = {
 		warn = {
 			name = "animals_impethu_warn",
 			gain={0.1, 0.4},
 			fade={0.5, 1.5},
 			pitch={0.5, 1.5},
 		},
-		punch = {
-			name = "animals_punch",
-			gain={0.5, 1.5},
-			fade={0.5, 1.5},
-			pitch={0.5, 1.5},
-		},
-	},
-
-	--movement
-	springiness=0,
-	buoyancy = 1.01,
-	max_speed = 0.5,					-- m/s
-	jump_height = 1,				-- nodes/meters
-	view_range = 2,					-- nodes/meters
-
-	--attack
-	attack={range=0.3, damage_groups={fleshy=1}},
+  },
+  -- attack
+  attack={range=0.3, damage_groups={fleshy=1}},
 	armor_groups = {fleshy=100},
-  
-  --interaction
-	predators = animals.get_interactors("impethu","predators"), 
-	rivals = animals.get_interactors("impethu","rivals"),
-
-	--on actions
+  --on actions
 	drops = {
 		{name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
 	},
-	on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-		animals.on_punch(self, tool_capabilities, puncher, 55, 0.05)
+	on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
+		animals.stun_catch_mob(self, clicker, time_from_last_click, tool_capabilities)
+    animals.fight_or_flight(self, clicker)
 	end,
-	on_rightclick = function(self, clicker)
-		if not clicker or not clicker:is_player() then
-			return
-		end
-		animals.stun_catch_mob(self, clicker, 0.75, true)
-	end,
-}
----- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
--- energy and eggs
-self_data.energy_max = 6000   --secs it can survive without food
-self_data.energy_egg = self_data.energy_max*0.6  --energy that goes to egg
-self_data.egg_timer = 60*10
-self_data.young_per_egg = {2,4}		--will get this/energy_egg starting energy
--- lifespan
-self_data.lifespan = self_data.energy_max * 4
----------------------;
-minetest.register_entity("animals:impethu",self_data)
-
-----------------------------------------------
---eggs
-minetest.register_node("animals:impethu_eggs", {
-	description = S('Impethu Eggs'),
-	tiles = {"animals_sneachan_eggs.png^[multiply:#c49a82"},
-	stack_max = minimal.stack_max_medium,
-	drawtype = "nodebox",
-	paramtype = "light",
-	node_box = {
-		type = "fixed",
-		fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08},
-	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-    local egg_timer = self_data.egg_timer
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-    local egg_timer = self_data.egg_timer
-    local energy_egg = self_data.energy_egg
-    local young_per_egg = self_data.young_per_egg
+  -- eggs
+  egg = {
+    name = "animals:impethu_eggs",
+    description = S('Impethu Eggs'),
+    tiles = {"animals_sneachan_eggs.png^[multiply:#c49a82"},
+    _conditions_correct = function(pos,egg_data)
+      if not egg_data then return false,true end -- break egg
+      local egg_timer = egg_data.egg_timer
+      local temp = climate.get_point_temp(pos)
+      if (temp < 12) then
+        return false,math.random(egg_timer,egg_timer*4) -- can't hatch, too cold, send new time
+      end
+      local light = (minetest.get_node_light(pos) or 0)
+      if light <= self_data.max_light then
+        return true
+      else
+        return 0.2 -- chance of hatching during the sun anyways AAAAAA MY EYES!!!
+      end
+      return false,math.random(egg_timer,egg_timer*2) -- return regular egg_timer
+    end,
     
-    local temp = climate.get_point_temp(pos)
-    
-    if (temp < 12) then
-      -- don't hatch and keep timer going if temp is too uncomfortably cold
-      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*4))
-      return false
-    end
-    
-    local light = (minetest.get_node_light(pos) or 0)
-		if light <= self_data.min_light then
-			return animals.hatch_egg(self_data, pos)
-		else
-			if random()<0.2 then
-				return animals.hatch_egg(self_data, pos)
-			end
-			minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2)) -- return a regular egg_timer
-      return false
-		end
-	end,
+  },
+  -- spawnegg or live animal
+  spawnegg = {
+    desc = S("Live Impethu"),
+    inv_img = "animals_impethu_item.png",
+    stack = minimal.stack_max_medium
+  },
 })
 
-
---spawn egg (i.e. live animal in inventory)
-animals.register_egg(self_data, S("Live Impethu"), "animals_impethu_item.png", minimal.stack_max_medium)

@@ -41,7 +41,7 @@ local function brain(self)
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
         prty = 55
-				animals.fight_or_flight_plyr(self, plyr, prty, 0.75)
+				animals.fight_or_flight(self, plyr, prty, 0.75)
         conserve = false -- not hibernating anymore
 			end
 
@@ -116,26 +116,23 @@ end
 
 ----------------------------------------------
 -- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
-animals.add_interactors("prey","darkasthaan","animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan", "animals:gundu", "animals:sarkamos")
-animals.add_interactors("rivals","darkasthaan","animals:darkasthaan")
+animals.add_interactors("animals:darkasthaan","prey", "animals:impethu", "animals:kubwakubwa", "animals:pegasun", "animals:pegasun_male", "animals:sneachan", "animals:gundu", "animals:sarkamos")
+animals.add_interactors("animals:darkasthaan","rivals", "self")
 
 ----------------------------------------------
---The Animal
+-- Animal Data
 local self_data = {
-   name = "animals:darkasthaan",
-	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.3, -0.3, -0.3, 0.3, 0, 0.3},
-	visual = "mesh",
-	mesh = "animals_darkasthaan.b3d",
-	textures = {"animals_darkasthaan.png"},
-	visual_size = {x = 0.6, y = 0.6},
-	makes_footstep_sound = true,
-	timeout = 0,
-
-	-- animal stats
-	max_hp = 200,
+  initial_properties = {
+    max_hp = 200,
+    
+    collisionbox = {-0.3, -0.3, -0.3, 0.3, 0, 0.3},
+    visual = "mesh",
+    mesh = "animals_darkasthaan.b3d",
+    textures = {"animals_darkasthaan.png"},
+    visual_size = {x = 0.6, y = 0.6},
+  },
+  _VH1_barheight = 7,
+  -- animal stats
 	lung_capacity = 40,
 	breathing_rate = 8,
 	-- comfort temps
@@ -143,20 +140,41 @@ local self_data = {
 	max_temp = 70,
 	-- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
 	class = 1,
-
-	on_step = mobkit.stepfunc,
-	on_activate = mobkit.actfunc,
-	get_staticdata = mobkit.statfunc,
-	logic = brain,
-	-- optional mobkit props
-	-- or used by built in behaviors
-	--physics = [function user defined] -- optional, overrides built in physics
-
-	initial_properties = {
-	   _VH1_barheight = -20, -- lowers VH1 hp bar by 1 node
-	},
-
-	animation = {
+   -- animal stats
+	lung_capacity = 40,
+	breathing_rate = 8,
+	-- comfort temps
+	min_temp = 14,
+	max_temp = 70,
+	-- is it land-borne (1), sea-borne (2), or amphibious (3)?
+	class = 1,
+  -- energy
+  energy_max = 12000,--secs it can survive without food
+  egg_timer = 60*30,
+  young_per_egg = {1,3},		--will get this/energy_egg starting energy
+  -- cannot define conservation minimum + energy_egg (energy_egg being necessary for cn_min) in API due to multiple values needed
+  -- lifespan
+  lifespan = "energy_max*7",
+  mature_age = "energy_max*0.1",
+  -- interactions
+  -- prey + rivals automatically defined in registration
+  capture_interactions = {
+    club = 0.04,
+  },
+  player_interaction = 0.99,
+  -- logic for mobkit
+  logic = brain,
+  --movement
+	springiness=0,
+	buoyancy = 1.01,
+	max_speed = 1,					-- m/s
+	jump_height = 2,				-- nodes/meters
+	view_range = 10,					-- nodes/meters
+	--attack
+	attack={range=0.8, damage_groups={fleshy=12}},
+	armor_groups = {fleshy=100},
+  -- animations + sounds
+  animation = {
 		walk={range={x=1,y=21},speed=15,loop=true},
 		fast={range={x=1,y=21},speed=35,loop=true},
 		stand={range={x=25,y=45},speed=5,loop=true},
@@ -169,86 +187,33 @@ local self_data = {
 			fade={0.5, 1.5},
 			pitch={0.4, 1.4},
 		},
-		punch = {
-			name = "animals_punch",
-			gain={0.7, 1.3},
-			fade={0.5, 1.5},
-			pitch={0.7, 1.3},
-		},
 	},
-
-	--movement
-	springiness=0,
-	buoyancy = 1.01,
-	max_speed = 1,					-- m/s
-	jump_height = 2,				-- nodes/meters
-	view_range = 6,					-- nodes/meters
-
-	--attack
-	attack={range=0.8, damage_groups={fleshy=12}},
-	armor_groups = {fleshy=100},
-  
-	--interaction
-	rivals = animals.get_interactors("darkasthaan","rivals"),
-	prey = animals.get_interactors("darkasthaan","prey"), 
-
-	--on actions
+  --on actions
 	drops = {
 		{name = "animals:carcass_invert_large", chance = 1, min = 1, max = 1,},
 	},
-	on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-		animals.on_punch(self, tool_capabilities, puncher, 55, 0.85)
+	on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
+		if animals.stun_catch_mob(self, clicker, time_from_last_click, tool_capabilities) then -- attack kidnapper
+      animals.fight_or_flight(self, clicker, nil, 1)
+    end
 	end,
-	on_rightclick = function(self, clicker)
-		if not clicker or not clicker:is_player() then
-			return
-		end
-		animals.stun_catch_mob(self, clicker, 0.02)
-	end,
+  -- eggs
+  egg = {
+    name = "animals:darkasthaan_eggs",
+    description = S('Darkasthaan Eggs'),
+    tiles = {"animals_darkasthaan_eggs.png"},
+    node_box = {
+      type = "fixed",
+      fixed = {-0.125, -0.5, -0.125,  0.125, -0.375, 0.125},
+    },
+  },
+  -- spawnegg or live animal
+  spawnegg = {
+    desc = S("Live Darkasthaan"),
+    inv_img = "animals_darkasthaan_item.png",
+    stack = minimal.stack_max_medium
+  },
 }
----- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
--- energy and eggs
-self_data.energy_max = 12000   --secs it can survive without food
 self_data.energy_egg = self_data.energy_max/3  --energy that goes to egg
-self_data.egg_timer = 60*30
-self_data.young_per_egg = {1,3}   --will get this/energy_egg starting energy
 self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.7 -- conserve min (minimum point at when to conserve energy)
--- 70% of the energy given to a newborn
--- lifespan
-self_data.lifespan = self_data.energy_max * 7
-self_data.mature_age = self_data.lifespan / 10
-
----------------------;
-minetest.register_entity("animals:darkasthaan",self_data)
-
-----------------------------------------------
---eggs
-minetest.register_node("animals:darkasthaan_eggs", {
-	description = S('Darkasthaan Eggs'),
-	tiles = {"animals_darkasthaan_eggs.png^[resize:4x16"},
-	stack_max = minimal.stack_max_medium,
-	drawtype = "nodebox",
-	paramtype = "light",
-	node_box = {
-		type = "fixed",
-		fixed = {-0.125, -0.5, -0.125,  0.125, -0.375, 0.125},
-	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-    local egg_timer = self_data.egg_timer
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-    local energy_egg = self_data.energy_egg
-    local young_per_egg = self_data.young_per_egg
-    
-		return animals.hatch_egg(self_data, pos)
-	end,
-})
-
-
-
-
---spawn egg (i.e. live animal in inventory)
-animals.register_egg(self_data, S("Live Darkasthaan"), "animals_darkasthaan_item.png", minimal.stack_max_medium)
+animals.register_animal("animals:darkasthaan",self_data)
