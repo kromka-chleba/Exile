@@ -569,7 +569,7 @@ local function create_inventory_object(items, lengthoverride)
 end
 function minimal.get_item_inventory(itemstack, metadata, inv_name)
   if type(itemstack) ~= "userdata" then
-    return
+    error(debug.traceback("exile_core.get_item_inventory: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
   end
   metadata = type(metadata) == "userdata" and metadata or itemstack:get_meta()
   inv_name = type(inv_name) == "string" and inv_name or "inv_main"
@@ -582,12 +582,12 @@ function minimal.get_item_inventory(itemstack, metadata, inv_name)
   return create_inventory_object(inv,size)
 end
 function minimal.set_item_inventory(itemstack, metadata, inv_name, inv)
-  if type(itemstack) ~= "userdata" then
-    return
+  if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
+    error(debug.traceback("exile_core.set_item_inventory: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
   end
   if type(inv) ~= "string" then
     if type(inv) ~= "table" then
-      return
+      error(debug.traceback("exile_core.set_item_inventory: could not get an inventory to set with, got '"..tostring(inv).."'",2))
     end
     if type(inv["convert"]) == "function" then
       -- utilize to_string function
