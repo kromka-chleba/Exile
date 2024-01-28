@@ -63,8 +63,24 @@ minimal.get_item_inventory(itemstack,metadata,inv_name)
 minimal.set_item_inventory(itemstack,metadata,inv_name,inv)
 		- Sets an itemstack's inventory metadata with the provided custom inventory object or table that has only numbered indexes
 ----------- custom inventory object (minimal/utility/general) -----------
+inv:get_list()
+		- Returns inventory's list of items in table form
+inv:get_size()
+		- Returns the total size of inventory in slots (how many slots the inventory has)
 inv:to_string() ( or inv:convert() )
 		- Returns serialized inventory of custom inventory object (string)
+inv:get_full()
+		- Returns a table of the indexes of the inventory's full slots + the number of them (slots of index, number of slots)
+inv:get_partial()
+		- Returns a table of the indexes of the inventory's partially fulfilled slots + the number of them
+inv:get_empty()
+		- Returns a table of the indexes of the inventory's empty slots + the number of them
+inv:room_for_item(itemstack)
+		- Returns true or false depending on whether or not the provided itemstack can be added. If bits of itemstack could be added, returns false + what could be taken from itemstack
+inv:add_item(itemstack, index)
+		- Returns leftover of added itemstack (empty itemstack if successful). If index is specified, attempts to add itemstack to index, returns leftover
+inv:remove_item(index,amount)
+		- Takes one (or amount) of itemstack at provided index and returns it. Returns an empty itemstack otherwise.
 
 [[[ Custom node definitions ]]]
 ---------- callbacks ----------

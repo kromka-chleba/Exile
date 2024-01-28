@@ -498,14 +498,20 @@ local function create_inventory_object(items, lengthoverride)
   -- itemstack interactions
   function inv:room_for_item(itemstack)
     -- return false if cannot fit, return true if can fit, return false + number if full itemstack cannot fit but some of it can
+    if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
+      error(debug.traceback("inv:room_for_item: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
+    end
     for _,item in pairs(items) do
+      -- iterate over empty spots first
       if item:get_name() == "" then
         return true
       end
     end
     for _,item in pairs(items) do
+      -- iterate over possible spots to fill
       if itemstack_equals(item,itemstack) then
         if item:item_fits(itemstack) then
+          -- if there's enough room for me to be added to
           return true
         else
           -- return leftover
@@ -518,6 +524,9 @@ local function create_inventory_object(items, lengthoverride)
   end
   function inv:add_item(itemstack, index)
     -- add itemstack and return leftover
+    if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
+      error(debug.traceback("inv:add_item: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
+    end
     if type(index) ~= "number" then
       -- add normally
       for item_index,item in pairs(items) do
@@ -562,20 +571,19 @@ local function create_inventory_object(items, lengthoverride)
   end
   function inv:remove_item(index,amount)
     -- take amount of item from an index
-    if type(index) ~= "number" then
+    if type(index) ~= "number" or minimal.math_clamp(index,1,#items) ~= index then
+      -- if not a number or number is not in range of items list then
       return ItemStack('')
     end
     -- only if index is in range
-    if minimal.math_clamp(index,1,#items) == index then
-      amount = type(amount) == "number" and amount or 1 -- amount to take
-      local item = items[index]
-      -- what to return
-      local itemstack = item:take_item(math.min(item:get_count(),amount))
-      if item:is_empty() then
-        items[index] = ItemStack('')
-      end
-      return itemstack
+    amount = type(amount) == "number" and math.max(amount,1) or 1 -- amount to take (cannot be less than 1)
+    local item = items[index]
+    -- what to return
+    local itemstack = item:take_item(math.min(item:get_count(),amount))
+    if item:is_empty() then
+      items[index] = ItemStack('')
     end
+    return itemstack
   end
   return inv
 end
@@ -584,7 +592,7 @@ end
 -- (OPTIONAL) metadata parameter to allow one to not have to call get_meta() again - otherwise calls metadata of itemstack
 -- (OPTIONAL) inv_name parameter to allow for a custom inventory value access, must be string or otherwise defaults to "inv_main"
 function minimal.get_item_inventory(itemstack, metadata, inv_name)
-  if type(itemstack) ~= "userdata" then
+  if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
     error(debug.traceback("exile_core.get_item_inventory: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
   end
   metadata = type(metadata) == "userdata" and metadata or itemstack:get_meta()
