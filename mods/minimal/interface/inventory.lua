@@ -217,7 +217,7 @@ print(dump(recipe))
 				if qty > 1 then -- more then single requested
 					local oItem = ItemStack(recipe.output)
 					local oName = oItem:get_name()
-					local oCount = oItem:get_count()
+					local oCount = oItem:get_count() or 1
 					local max_count = 0 
 					local item_hash = cache.item_hash
 					for i,input in ipairs(recipe.items) do
@@ -239,7 +239,7 @@ print(dump(recipe))
 						end
 					end
 					-- set output to max_count
-					recipe.output = oName .." "..max_count
+					recipe.output = oName .." "..max_count * oCount
 					-- set input to values for max_count
 					for i,input in ipairs(recipe.items) do
 						local iItem = ItemStack(input)
@@ -303,6 +303,8 @@ local function cache_player_recipes(cache, player_name, pInv)
 	local sTab = cache.sTab		-- selected craft type tab
 	local sLevel = cache.sLevel	-- level associated with selected craft type
 	local cTabs = cache.cTabs	-- Crafting tabs to display
+print ('cTabs: ' .. dump(cTabs))
+print ('sTab: ' .. dump(sTab))
 	local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
 	local recipe_list = recipes_for_player(cache, pInv, player_name,cTabs[sTab], sLevel)
 
@@ -413,7 +415,7 @@ local function cache_player_input_list(cache, pInv)
 end
 
 -- Shouldn't need to rebuild this more then once per player per restart
--- or when player adds to their craft_types 
+-- or when player adds to their craft_types
 -- See adding tools/benches to input_items list
 local function cache_player_craft_types(cache, pInv) 
 	local selected = cache.sItem or 'crafting_spot' -- default to hand crafting
