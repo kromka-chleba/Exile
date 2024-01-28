@@ -23,8 +23,6 @@ minimal.item_pickup(clicker, pointed_thing)
 		- See artifacts/tools.lua for examples
 minimal.math_clamp(number, min, max)
 		- Clamps any input number to a value inbetween min and max
-minimal.player_in_creative(player/playername)
-		- Returns true if the player object or name is in creative
 minimal.sanitize_string(string)
 		- Removes dangerous/disallowed chars
 minimal.swap_tool(player, wielded_item, toolname)
@@ -56,6 +54,17 @@ minimal.vmanip_subregion(pos1,pos2, p1, p2)
 		- Create params to a for loop that covers a subregion of a VM
 		   pos1/2 define the subregion, p1/2 the full VoxelManip area
 		   See minimal/utility_vm.lua for full documentation
+----------- player -----------
+minimal.player_in_creative(player/playername)
+		- Returns true if the player object or name is in creative
+----------- inventory system (minimal/utility/general) -----------
+minimal.get_item_inventory(itemstack,metadata,inv_name)
+		- Returns custom table that behaves as a custom inventory object
+minimal.set_item_inventory(itemstack,metadata,inv_name,inv)
+		- Sets an itemstack's inventory metadata with the provided custom inventory object or table that has only numbered indexes
+----------- custom inventory object (minimal/utility/general) -----------
+inv:to_string() ( or inv:convert() )
+		- Returns serialized inventory of custom inventory object (string)
 
 [[[ Custom node definitions ]]]
 ---------- callbacks ----------

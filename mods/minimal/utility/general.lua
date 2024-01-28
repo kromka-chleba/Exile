@@ -385,7 +385,12 @@ function minimal.item_pickup(clicker, pointed_thing)
 end
 
 -- itemstack storage functions
+-- itemstack_equals - itemstack equals (NOT INTENDED FOR EXTERIOR USAGE)
+-- itemstack1 and itemstack2 are to be itemstacks and the code will check their name, and then metadata to see if they're equal
 local function itemstack_equals(itemstack1,itemstack2)
+  if type(itemstack1) ~= "userdata" or type(itemstack2) ~= "itemstack" then
+    return false
+  end
   -- check if an itemstack equals the other by checking name and then meta if applicable
   if itemstack1:get_name() == itemstack2:get_name() then
     if itemstack1:get_meta() == itemstack2:get_meta() then
@@ -394,7 +399,11 @@ local function itemstack_equals(itemstack1,itemstack2)
   end
   return false
 end
+-- create_inventory_object - create inventory object (NOT INTENDED FOR EXTERIOR USAGE)
+-- items is a serialized table found in an itemstack's metadata (for inventory) - will also accept a regular table
+-- (OPTIONAL) lengthoverride is a number to increase the custom returned inventory's table (will not decrease size)
 local function create_inventory_object(items, lengthoverride)
+  -- returns a table with custom functions for inventory management - including the ability to convert back into a serialized table
   if type(items) == "string" then
     if items == "" then
       items = {}
@@ -430,12 +439,15 @@ local function create_inventory_object(items, lengthoverride)
   local inv = {}
   -- basic functions
   function inv:get_list()
+    -- gets the table for the items
     return items
   end
   function inv:get_size()
+    -- get the total slot capacity of the inventory
     return #items
   end
   function inv:to_string()
+    -- convert inventory into a serialized table
     for index,item in pairs(items) do
       if item:get_name() ~= "" then
         -- convert itemstack to string for serialization
@@ -567,6 +579,10 @@ local function create_inventory_object(items, lengthoverride)
   end
   return inv
 end
+-- get_item_inventory - get item inventory
+-- itemstack is the item to get the inventory from
+-- (OPTIONAL) metadata parameter to allow one to not have to call get_meta() again - otherwise calls metadata of itemstack
+-- (OPTIONAL) inv_name parameter to allow for a custom inventory value access, must be string or otherwise defaults to "inv_main"
 function minimal.get_item_inventory(itemstack, metadata, inv_name)
   if type(itemstack) ~= "userdata" then
     error(debug.traceback("exile_core.get_item_inventory: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
@@ -578,9 +594,17 @@ function minimal.get_item_inventory(itemstack, metadata, inv_name)
     return
   end
   local tool_def = itemstack:get_definition()
+  -- get full size of storage indexes
   local size = (tool_def.formspec_width or 8) * (tool_def.formspec_height or 4)
+  -- returns a table with custom functions for inventory management
   return create_inventory_object(inv,size)
 end
+-- set_item_inventory - set item inventory
+-- "itemstack" is the item to save the inventory to
+-- (OPTIONAL) metadata parameter to allow one to not have to call get_meta() again - otherwise calls metadata of itemstack
+-- (OPTIONAL) inv_name parameter to allow for a custom inventory value access, must be string or otherwise defaults to "inv_main"
+-- inv parameter - special table type returned by get_item_inventory's create_inventory_object or a list of numbered items
+-- CANNOT have stringed indexes if it is not a special table type
 function minimal.set_item_inventory(itemstack, metadata, inv_name, inv)
   if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
     error(debug.traceback("exile_core.set_item_inventory: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
@@ -592,11 +616,13 @@ function minimal.set_item_inventory(itemstack, metadata, inv_name, inv)
     if type(inv["convert"]) == "function" then
       -- utilize to_string function
       inv = inv:convert()
+    elseif type(inv["to_string"]) == "function" then
+      inv = inv:to_string()
     else
       -- convert into an inventory object if no string indexes, otherwise return
       for index,value in pairs(inv) do
         if type(index) ~= "number" then
-          return
+          error(debug.traceback("exile_core.set_item_inventory: got an improver inv table to set inventory with",2))
         end
       end
       inv = create_inventory_object(inv)
