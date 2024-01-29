@@ -479,7 +479,7 @@ local function create_inventory_object(items, lengthoverride)
     -- get indexes of slots that are partially full
     local slots = {}
     for index,item in pairs(items) do
-      if item:get_count() > 0 then
+      if item:get_count() < item:get_stack_max() and not item:is_empty() then
         slots[#slots + 1] = index
       end
     end
@@ -489,45 +489,63 @@ local function create_inventory_object(items, lengthoverride)
     -- get slots that are empty
     local slots = {}
     for index,item in pairs(items) do
-      if item:is_empty() or item:get_name() == "" then
+      if item:is_empty() then
         slots[#slots + 1] = index
       end
     end
     return slots,#slots
   end
   -- itemstack interactions
-  function inv:room_for_item(itemstack)
+  function inv:room_for_item(itemstack,index)
     -- return false if cannot fit, return true if can fit, return false + number if full itemstack cannot fit but some of it can
     if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
       error(debug.traceback("inv:room_for_item: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
     end
-    local potential = {}
-    for _,item in pairs(items) do
+    if itemstack:is_empty() then
+      -- of course there's room for an empty itemstack!
+      return true
+    end
+    index = type(index) == "number" and math.ceil(index) or nil
+    if not index then
+      local free_space = 0
+      for _,item in pairs(items) do
+        if item:get_name() == "" then
+          -- check empty slots
+          return true
+        elseif itemstack_equals(item, itemstack) then
+          -- look at familiar itemstacks
+          if item:item_fits(itemstack) then
+            -- if there's enough room for me to be added to
+            return true
+          else
+            -- add to free_space (for return false + number or return true if enough space among)
+            free_space = free_space + item:get_free_space()
+          end
+        end
+      end
+      if free_space > 0 then
+        -- haven't found precise room, check if we can fit amongst inventory or if not, return false + what'd be leftover from adding to
+        free_space = free_space - itemstack:get_count()
+        if free_space >= 0 then
+          -- enough room among the spreadout inventory
+          return true
+        end
+        -- return false, but say that you'd have this leftover (negative free_space) from adding to the total inventory
+        -- abs() returns positive integer, telling you that would be leftover
+        return false,math.abs(free_space)
+      end
+    elseif minimal.math_clamp(index,1,#items) == index then
+      -- index provided and is able to be indexed, check available room
+      local item = items[index]
       if item:get_name() == "" then
-        -- check empty slots
         return true
-      elseif itemstack_equals(item, itemstack) then
-        -- look at familiar itemstacks
+      elseif itemstack_equals(itemstack, item) then
         if item:item_fits(itemstack) then
-          -- if there's enough room for me to be added to
           return true
         else
-          -- add to potential (for return false + number)
-          potential[#potential + 1] = {stack = itemstack, leftover = itemstack:get_count() - item:get_free_space()}
+          return false,itemstack:get_count() - item:get_free_space()
         end
       end
-    end
-    if #potential > 0 then
-      -- haven't found room, find a stack with the lowest leftover
-      local lowest = {stack = nil, leftover = math.huge}
-      for _,item_info in pairs(potential) do
-        -- modify table according to lowest leftover
-        if item_info.leftover < lowest.leftover then
-          lowest = item_info
-        end
-      end
-      -- return false, but say that you could add this much to a itemstack
-      return false,lowest.leftover
     end
     -- can't fit it
     return false
@@ -536,6 +554,10 @@ local function create_inventory_object(items, lengthoverride)
     -- add itemstack and return leftover
     if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
       error(debug.traceback("inv:add_item: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
+    end
+    if itemstack:is_empty() then
+      -- you gave it... an empty itemstack? how odd lol
+      return itemstack
     end
     index = type(index) == "number" and math.ceil(index) or nil
     if not index then
