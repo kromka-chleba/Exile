@@ -10,8 +10,11 @@ local S = minetest.get_translator("inferno")
 
 -- 'Enable fire' setting
 
-local fire_enabled = minetest.settings:get_bool("enable_fire")
-if fire_enabled == nil then
+
+local fire_enabled
+local function check_enabled()
+   fire_enabled = minetest.settings:get_bool("enable_fire")
+   if fire_enabled == nil then
 	-- enable_fire setting not specified, check for disable_fire
 	local fire_disabled = minetest.settings:get_bool("disable_fire")
 	if fire_disabled == nil then
@@ -20,8 +23,10 @@ if fire_enabled == nil then
 	else
 		fire_enabled = not fire_disabled
 	end
+   end
+   return fire_enabled
 end
-
+fire_enabled = check_enabled()
 
 --
 -- Items
@@ -30,15 +35,128 @@ end
 -- Flood flame function
 
 local function flood_flame(pos, oldnode, newnode)
-	-- Play flame extinguish sound if liquid is not an 'igniter'
-	local nodedef = minetest.registered_items[newnode.name]
-	if not (nodedef and nodedef.groups and
-			nodedef.groups.igniter and nodedef.groups.igniter > 0) then
-		minetest.sound_play("inferno_extinguish_flame",
-			{pos = pos, max_hear_distance = 16, gain = 0.15})
-	end
-	-- Remove the flame
-	return false
+   -- Play flame extinguish sound if liquid is not an 'igniter'
+   if minetest.get_item_group(newnode.name, "flames") > 0 then
+	minetest.sound_play("inferno_extinguish_flame",
+			    {pos = pos, max_hear_distance = 16, gain = 0.15})
+   end
+   -- Remove the flame
+   return false
+end
+
+local function burn_cane(pos)
+   local above = vector.add(pos, vector.new(0,1,0))
+   local anode = minetest.get_node(above)
+   if minetest.get_item_group(anode.name, "cane_plant") == 0 then
+      -- at the top, burn this cane
+      minetest.set_node(pos, { name = "inferno:basic_flame"} )
+      return true -- fuel used
+   else -- not at the top, extend the flames up
+      local tgt = minetest.find_node_near(above, 1, "air")
+      minetest.set_node(tgt, { name = "inferno:basic_flame"} )
+      return false -- didn't burn up yet
+   end
+end
+
+local function do_burn(flames, fuel_pos, fuel_def, fuel_node)
+   local numflames = 1
+   local fuelused = false
+   if #flames > 0 then -- it's a pos table from the ABM
+      numflames = #flames -- count how many are near
+      flames = flames[math.random(1, #flames)] -- and pick one
+   end
+
+   -- multiplayer spread reduction, including no flame ignition
+   if ( not minetest.is_singleplayer and
+	math.random(1,5) > 3 and
+	minetest.find_node_near(fuel_pos, 1, "group:igniter") == nil ) then
+      minetest.remove_node(flames)
+      return false
+   end
+   if not fuel_def then -- The flame timer doesn't know details of nearby fuel
+      fuel_node = minetest.get_node(fuel_pos) -- so find one
+      fuel_def = minetest.registered_nodes[fuel_node.name]
+   end
+
+   -- Check the flames versus flammability of this fuel node
+   local roll = math.random(1, fuel_def.groups.flammable) - numflames
+   if roll > 1 then -- 1 in x chance, increased by more flames
+      minetest.remove_node(flames)
+      return false
+   end
+   -- And now, the actual burn sequence
+   if fuel_def.on_burn then -- first try on_burn
+      fuel_def.on_burn(fuel_pos)
+      fuelused = true
+   elseif minetest.get_item_group(fuel_node.name,  -- then do tree ignition
+				  "tree") >= 1
+      or minetest.get_item_group(fuel_node.name, "log") >= 1 then
+      minetest.set_node(fuel_pos, {name = "tech:large_wood_fire"})
+      fuelused = true
+      if math.random(1,4) == 1 then -- chance of branch collapse
+	 minetest.check_for_falling(fuel_pos)
+      end
+   elseif minetest.get_item_group(fuel_node.name,  -- then handle cane ignition
+				  "cane_plant") >= 1 then
+      fuelused = burn_cane(fuel_pos)
+   else -- finally, increase flames or burn up
+      local air = minetest.find_node_near(fuel_pos, 1, {"group:air"})
+      if air and math.random(1,10) < 8 then
+	 -- 70% chance to add a fire if there's room, else burn up
+	 minetest.set_node(air, {name = "inferno:basic_flame"})
+      else -- no room/missed chance, burn up
+	 minetest.remove_node(fuel_pos)
+	 fuelused = true
+      end
+      if math.random(1,4) == 1 then
+	 minetest.check_for_falling(fuel_pos)
+      end
+   end
+
+   return true, fuelused
+end
+
+local function fire_timer(pos)
+   local min = vector.new(vector.subtract(pos, 1))
+   local max = vector.new(vector.add(pos, 1))
+   local f = minetest.find_nodes_in_area(min, max,
+					 "group:flammable")
+   if not f or #f == 0 then
+      minetest.remove_node(pos)
+      return
+   end
+
+   --rain, water etc puts it out
+   if (climate.get_rain(pos)
+       or minetest.find_node_near(pos, 1,
+				  {"group:puts_out_fire"})) then
+      minetest.remove_node(pos)
+      return
+   end
+
+   if not fire_enabled then
+      local node = minetest.get_node(pos)
+      if node.name == "inferno:basic_flame" then
+	 local roll = math.random(1,8)
+	 if roll <= 2 then
+	    minetest.remove_node(pos)
+	    return false
+	 end
+	 if roll <= 4 then
+	    return true
+	 end
+      end
+   end
+
+
+   local fuel = f[math.random(1, #f)]
+
+   local still_lit, fuel_used = do_burn(pos, fuel)
+   if fuel_used then -- check again soon
+      minetest.get_node_timer(pos):start(5)
+   elseif still_lit then
+      minetest.get_node_timer(pos):start(math.random(30, 60))
+   end
 end
 
 -- Flame nodes
@@ -58,7 +176,7 @@ local flame_def = {
 	},
 	inventory_image = "inferno_basic_flame.png",
 	paramtype = "light",
-	light_source = 13,
+	light_source = 7,
 	temp_effect = 50,
 	temp_effect_max = 500,
 	walkable = false,
@@ -67,28 +185,14 @@ local flame_def = {
 	floodable = true,
 	damage_per_second = 4,
 	groups = {igniter = 2, flames = 1, dig_immediate = 3,
-		  not_in_creative_inventory = 1,
+		  not_in_creative_inventory = 1, timer = 47,
 		  temp_effect = 1, temp_pass = 1},
 	drop = "",
 
-	on_timer = function(pos)
-		local f = minetest.find_node_near(pos, 1, {"group:flammable"})
-		if not f then
-			minetest.remove_node(pos)
-			return
-		end
-		--rain, water etc puts it out
-		if climate.get_rain(pos) or minetest.find_node_near(pos, 1, {"group:puts_out_fire"}) then
-			minetest.remove_node(pos)
-			return
-		end
-
-		-- Restart timer
-		return true
-	end,
+	on_timer = fire_timer,
 
 	on_construct = function(pos)
-	   minetest.get_node_timer(pos):start(math.random(30, 60))
+	   minetest.get_node_timer(pos):start(math.random(3, 12))
 	end,
 
 	on_flood = flood_flame,
@@ -232,55 +336,28 @@ minetest.register_abm({
       label = "Ignite flammable nodes",
       nodenames = {"group:flammable"},
       neighbors = {"group:flames", "group:igniter"},
-      interval = 27,
+      interval = 23,
       chance = 9,
       catch_up = false,
       action = function(pos, node)
-	 local function dieout(x)
-	    if math.random(1,20) + x > 18 then
-	       local f = minetest.find_node_near(pos, 1, "group:flames")
-	       if f then
-		  minetest.remove_node(f)
-	       end
-	       return
+	 local function find_and_dieout()
+	    -- fire spread is by igniter flames, if fire spread is disabled
+	    -- then we only get igniter flames from lightning strike,
+	    -- so remove regular flames over time
+	    local f = minetest.find_node_near(pos, 1, "group:flames")
+	    if f then
+	       minetest.remove_node(f)
 	    end
+	    return
 	 end
 
 	 local flammable_node = node
 	 local def = minetest.registered_nodes[flammable_node.name]
-	 local roll = math.random(1, def.groups.flammable)
-	 if roll > 1 then
-	    dieout(roll / 2)  -- resisted burning, fire may die out
-	    return
-	 end
-	 if not minetest.is_singleplayer and
-	    math.random(1,5) > 1 and
-	    minetest.find_node_near(pos, 1, "group:igniter") == nil then
-	    dieout(0)
-	    return -- multiplayer reduction, including no flame ignition
-	 end
-	 if def.on_burn then
-	    def.on_burn(pos)
-	 elseif minetest.get_item_group(flammable_node.name, "tree") >= 1
-	    or minetest.get_item_group(flammable_node.name, "log") >= 1 then
-	    minetest.set_node(pos, {name = "tech:large_wood_fire"})
-	    if math.random(1,4) == 1 then
-	       minetest.check_for_falling(pos)
-	    end
-	 else
-	    local air = minetest.find_node_near(pos, 1, {"group:air"})
-	    if air and math.random(1,10) < 9 then
-	       -- 80% chance to add a fire if there's room, else burn up
-	       minetest.set_node(air, {name = "inferno:basic_flame"})
-	    elseif minetest.find_node_near(pos, 1, "group:flames") == nil then
-	       minetest.set_node(pos, {name = "inferno:basic_flame"})
-	    else
-	       minetest.remove_node(pos)
-	    end
-	    if math.random(1,4) == 1 then
-	       minetest.check_for_falling(pos)
-	    end
-	 end
+
+	 local ignition = minetest.find_node_near(pos, 1, "group:igniter")
+	 if not ignition then find_and_dieout() return end
+
+	 do_burn(ignition, pos, def, node)
       end,
 })
 
