@@ -388,7 +388,7 @@ end
 -- itemstack_equals - itemstack equals (NOT INTENDED FOR EXTERIOR USAGE)
 -- itemstack1 and itemstack2 are to be itemstacks and the code will check their name, and then metadata to see if they're equal
 local function itemstack_equals(itemstack1,itemstack2)
-  if type(itemstack1) ~= "userdata" or type(itemstack2) ~= "itemstack" then
+  if type(itemstack1) ~= "userdata" or type(itemstack2) ~= "userdata" then
     return false
   end
   -- check if an itemstack equals the other by checking name and then meta if applicable
@@ -501,23 +501,33 @@ local function create_inventory_object(items, lengthoverride)
     if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
       error(debug.traceback("inv:room_for_item: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
     end
+    local potential = {}
     for _,item in pairs(items) do
-      -- iterate over empty spots first
       if item:get_name() == "" then
+        -- check empty slots
         return true
-      end
-    end
-    for _,item in pairs(items) do
-      -- iterate over possible spots to fill
-      if itemstack_equals(item,itemstack) then
+      elseif itemstack_equals(item, itemstack) then
+        -- look at familiar itemstacks
         if item:item_fits(itemstack) then
           -- if there's enough room for me to be added to
           return true
         else
-          -- return leftover
-          return false,itemstack:get_count() - item:get_free_space()
+          -- add to potential (for return false + number)
+          potential[#potential + 1] = {stack = itemstack, leftover = itemstack:get_count() - item:get_free_space()}
         end
       end
+    end
+    if #potential > 0 then
+      -- haven't found room, find a stack with the lowest leftover
+      local lowest = {stack = nil, leftover = math.huge}
+      for _,item_info in pairs(potential) do
+        -- modify table according to lowest leftover
+        if item_info.leftover < lowest.leftover then
+          lowest = item_info
+        end
+      end
+      -- return false, but say that you could add this much to a itemstack
+      return false,lowest.leftover
     end
     -- can't fit it
     return false
@@ -527,7 +537,8 @@ local function create_inventory_object(items, lengthoverride)
     if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
       error(debug.traceback("inv:add_item: itemstack is not an ItemStack, got '"..tostring(itemstack).."'",2))
     end
-    if type(index) ~= "number" then
+    index = type(index) == "number" and math.ceil(index) or nil
+    if not index then
       -- add normally
       for item_index,item in pairs(items) do
         -- if item equals provided itemstacked and there's space inside
@@ -538,16 +549,15 @@ local function create_inventory_object(items, lengthoverride)
           item:set_count(item:get_count() + amt)
         end
         if itemstack:is_empty() then
-          -- no point to iterating through if we're empty!
-          break
+          -- no point to iterating through if we're empty! return empty stack
+          return ItemStack('')
         end
       end
-      if not itemstack:is_empty() then
-        for item_index,item in pairs(items) do
-          if item:get_name() == "" then
-            items[item_index] = itemstack
-            return ItemStack('')
-          end
+      -- could not be added to an equal stack, add to empty
+      for item_index,item in pairs(items) do
+        if item:get_name() == "" then
+          items[item_index] = itemstack
+          return ItemStack('')
         end
       end
     elseif minimal.math_clamp(index,1,#items) == index then
@@ -570,8 +580,9 @@ local function create_inventory_object(items, lengthoverride)
     return itemstack
   end
   function inv:remove_item(index,amount)
+    index = type(index) == "number" and math.ceil(index) or nil
     -- take amount of item from an index
-    if type(index) ~= "number" or minimal.math_clamp(index,1,#items) ~= index then
+    if not index or minimal.math_clamp(index,1,#items) ~= index then
       -- if not a number or number is not in range of items list then
       return ItemStack('')
     end
