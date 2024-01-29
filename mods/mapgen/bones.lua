@@ -45,7 +45,7 @@ loot_table = {
    {"spears:spear_stone", 2 },
    {"tech:paint_lime_white", 2 },
    {"tech:paint_glow_paint", 2 },
-   {"tech:fire_sticks", 1 },
+   {"inferno:fire_sticks", 1 },
    -- Materials
    {"nodes_nature:clay", 1, 2 },
    {"nodes_nature:silt", 1, 2 },
@@ -128,7 +128,7 @@ minetest.register_lbm({
 	       total = total - pick[2]
 	       table.remove(loot, roll)
 	    end
-	 until total <= 0
+	 until total <= 0 or #loot == 0
 	 meta:set_string("infotext", "Bones of a long-dead exile")
 	 meta:set_string("formspec", bones_formspec)
       end,
