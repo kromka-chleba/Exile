@@ -12,7 +12,7 @@ local function used_before(nmeta, pname)
    -- Allows a trigger to be used by a player just once per server start
    -- #TODO: is it worth saving this to prevent stop/start to reuse triggers?
    local label = nmeta:get_string("tr_label")
-   if label == "" then return true end
+   if label == "" then return false end
    if usedlist[label] == nil then
       usedlist[label] = {} -- this trigger hasn't been used by <player> yet
       usedlist[label][pname] = true
@@ -138,35 +138,49 @@ local function showall_hud(player, pname, pos, nmeta, metastring)
    HEALTH.show_hud_elements(player, nil, "all")
 end
 
+local splash = {}
+
+
 local function hud_splash(player, pname, pos, nmeta, metastring)
+   local function clear_splash()
+      local spl = splash[pname] or {}
+      if spl.icon then player:hud_remove(spl.icon) end
+      if spl.text then player:hud_remove(spl.text) end
+      splash[pname] = nil
+   end
+
    if used_before(nmeta, pname) then
       return
    end
-   local new = { icon = string.split(metastring, ",")[1],
-		 text = string.split(metastring, ",")[2] }
+   if splash[pname] then
+      splash[pname].job:cancel()
+      clear_splash()
+   end
+   local icon = string.split(metastring, ",")[1]
+   local text = string.split(metastring, ",")[2]
    local item = {}
-   if new.icon then
+   if icon then
       item.icon = player:hud_add({
 	    hud_elem_type = "image",
 	    name = "splash_icon",
-	    text = new.icon,
+	    text = icon,
 	    scale = { x = 2, y = 2 },
 	    position = { x = 0.5, y = 0.45 },
       })
    end
-   if new.text then
+   if text then
       item.text = player:hud_add({
 	    hud_elem_type = "text",
 	    name = "splash_text",
-	    text = new.text,
+	    text = text,
 	    number = "0xFFFFFF",
 	    size = { x = 2 },
 	    position = { x = 0.5, y = 0.54 },
       })
    end
-   minetest.after(5, function()
-		     player:hud_remove(item.icon)
-		     player:hud_remove(item.text)
+   splash[pname] = item
+   splash[pname].job = minetest.after(2.5, function()
+		     clear_splash()
    end)
 end
 
@@ -280,17 +294,27 @@ local index = {}
 local rindex = {}
 local idx = 1
 local comma = ""
-for nm, val in pairs(info) do
-   dropdownstring = dropdownstring..comma..val[1]
-   index[nm] = idx
-   rindex[idx] = nm
-   idx = idx + 1
-   comma = ","
-end
+minetest.register_on_mods_loaded(function()
+      local list = {} local count = 0
+      for nm, _ in pairs(info) do
+	 count = count + 1
+	 list[count] = nm
+      end
+      table.sort(list)
+      for i = 1, #list do
+	 local nm = list[i]
+	 local val = info[nm]
+	 dropdownstring = dropdownstring..comma..val[1]
+	 index[nm] = idx
+	 rindex[idx] = nm
+	 idx = idx + 1
+	 comma = ","
+      end
+end)
 
 local function triggerpage(sel, value)
    local spec =
-      "dropdown[0.6,0.6;3,0.8;Trigger;"..
+      "dropdown[0.6,0.6;5,0.8;Trigger;"..
       dropdownstring..";"..index[sel]..";true]"..
       "label[3.3,2;"..info[sel][2].."]"
    if not noinputfield[sel] then
