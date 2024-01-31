@@ -674,8 +674,11 @@ function minimal.set_item_inventory(itemstack, metadata, inv_name, inv)
   inv_name = type(inv_name) == "string" and inv_name or "inv_main"
   metadata:set_string(inv_name,inv)
 end
+-- convert_node_inventory - convert node inventory
+-- inventory is expected to be metadata or the :get_inventory() result from a metadata - also accepts position
+-- (OPTIONAL) inv_name is the name of the node's inventory to be accessed (default "main")
 function minimal.convert_node_inventory(inventory,inv_name)
-  -- convert node metadata into a usable inventory
+  -- gets and converts a node's metadata into a custom inventory
   inv_name = type(inv_name) == "string" and inv_name or "main"
   if type(inventory) == "table" then
     -- get pos if provided
@@ -691,6 +694,7 @@ function minimal.convert_node_inventory(inventory,inv_name)
   if type(inventory) == "userdata" and inventory["get_list"] then
     inventory = inventory:get_list(inv_name)
   end
+  -- if we still couldn't get a table, return nil
   if type(inventory) ~= "table" then
     return
   end
