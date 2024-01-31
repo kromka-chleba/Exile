@@ -23,14 +23,21 @@ minimal.item_pickup(clicker, pointed_thing)
 		- See artifacts/tools.lua for examples
 minimal.math_clamp(number, min, max)
 		- Clamps any input number to a value inbetween min and max
-minimal.player_in_creative(player/playername)
-		- Returns true if the player object or name is in creative
 minimal.sanitize_string(string)
 		- Removes dangerous/disallowed chars
 minimal.swap_tool(player, wielded_item, toolname)
 		- Changes the wielded tool into toolname, preserves wear & meta
 minimal.yes_or_no(pname, question, function_call, attached_data_table)
 		- Sends yes/no formspec to the player, see utility.lua for more
+minimal.make_sound(params_table,sound_name)
+		- adds more functionality to minetest's "sound_play", inspired by mobkit's "make_sound" function
+		if params_table is specified as a string without any corresponding table, will play sound globally
+		gain, max_hear_distance, pitch, fade, and start_time can be set to be random between two values. e.g. "gain={0.5,1.5}"
+		option for multiple players to be specified for to_player and exclude_player within a table exclude_player={"player1","player2"}
+		can be plural - "to_players={}", "exclude_players={}"
+		params_table and sound_name can be placed reversed (sound_name, params_table) to behave like minetest.sound_play()
+		returns sound ID, if multiple players are specified, returns the first played sound's ID and a table of sound IDs as so:
+		sound1,soundIDs
 --------- utilitynode ---------
 minimal.dig_up(pos, node, digger)
 		- Digs identical nodes up, ignoring lit versions. Used in on_dig
@@ -56,6 +63,38 @@ minimal.vmanip_subregion(pos1,pos2, p1, p2)
 		- Create params to a for loop that covers a subregion of a VM
 		   pos1/2 define the subregion, p1/2 the full VoxelManip area
 		   See minimal/utility_vm.lua for full documentation
+----------- player -----------
+minimal.player_in_creative(player/playername)
+		- Returns true if the player object or name is in creative
+----------- inventory system (minimal/utility/general) -----------
+minimal.get_item_inventory(itemstack,metadata,inv_name)
+		- Returns custom table that behaves as a custom inventory object
+minimal.set_item_inventory(itemstack,metadata,inv_name,inv)
+		- Sets an itemstack's inventory metadata with the provided custom inventory object or table that has only numbered indexes
+minimal.convert_node_inventory(metadata,inv_name)
+		- Gets a node's meta inventory, checks for a list with the corresponding inv_name or "main" if not specified, then
+		creates a custom inventory object. "metadata" can be a pos, metadata, or metadata:get_inventory()
+----------- custom inventory object (minimal/utility/general) -----------
+inv:get_list()
+		- Returns inventory's list of items in table form
+inv:get_size()
+		- Returns the total size of inventory in slots (how many slots the inventory has)
+inv:to_string() ( or inv:convert() )
+		- Returns serialized inventory of custom inventory object (string)
+inv:get_full()
+		- Returns a table of the indexes of the inventory's full slots + the number of them (slots of index, number of slots)
+inv:get_partial()
+		- Returns a table of the indexes of the inventory's partially fulfilled slots + the number of them
+inv:get_empty()
+		- Returns a table of the indexes of the inventory's empty slots + the number of them
+inv:room_for_item(itemstack)
+		- Returns true or false depending on whether or not the provided itemstack can be added. If bits of itemstack could be added,
+		returns false + what could be taken from itemstack
+inv:add_item(itemstack, index)
+		- Returns leftover of added itemstack (empty itemstack if successful). If index is specified, attempts to add itemstack to index,
+		returns leftover
+inv:remove_item(index,amount)
+		- Takes one (or amount) of itemstack at provided index and returns it. Returns an empty itemstack otherwise.
 
 [[[ Custom node definitions ]]]
 ---------- callbacks ----------
