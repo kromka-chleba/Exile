@@ -1,4 +1,4 @@
--- This mod adds a "exile_crafting" key to node definitions.  
+-- This mod adds a "exile_crafting" key to node definitions.
 --		exile_crafting = {
 --			-- name of craft type, or table of craft types.  A table produces tabs of recipes.
 --			-- Must be registered with crafting.register_type().
@@ -7,15 +7,15 @@
 --			craft_level = 1						-- crafting level of node/item
 --		}
 
---   * Items that have this key will auto transfer to the craft_type inventory if moved into the 
+--   * Items that have this key will auto transfer to the craft_type inventory if moved into the
 --	   input_items inventory.
---	
+--
 
 
 -- Create global default detached "craft_types" inventory
 -- Used to populate players craft_types
 local ctypes = minetest.create_detached_inventory("craft_types")
-ctypes:set_size('main',12) 
+ctypes:set_size('main',12)
 ctypes:set_list('main',{
 	'tech:crafting_spot',
 	'tech:weaving_frame',
@@ -33,7 +33,7 @@ ctypes:set_list('main',{
 --		cTabs = table_of_craftItem_tabs	-- set by def.exile_crafting.craft_type.
 --		sInv = selected_inventory	-- set by bag buttons
 --		-- The Following are tables of formspec strings
---		-- Set output = "" to force redraw using cashed details 
+--		-- Set output = "" to force redraw using cashed details
 --		-- to trigger redraw of a section, set the section to nil
 --		-- eg) to regenerate the recipes list, set
 --		-- cache.recipesFS = nil, and cache.output = ""
@@ -81,14 +81,14 @@ local function process_button(key,btypes)
 			local num = string.match(key, prefix.."_([0-9]+)")
 			if num then
 				return prefix, num
-			end 
+			end
 		end
 	end
 	return nil,nil -- button types not found
 end
 
 
--- 
+--
 local function load_craft_types(inv, craft_item)
 	local cItems = inv:get_list('craft_types')
 	if not cItems or inv:is_empty('craft_types') then
@@ -102,11 +102,11 @@ local function load_craft_types(inv, craft_item)
 	end
 	return inv:get_list('craft_types')
 end
-	
+
 -- Set default values for cache. Used if craft type Item is changed and when formspec first opened
 local function set_cache(player_name,inv,sItemID)
 	local cache = inventoryFS_cache[player_name]
-	if not cache or cache == 'closed' then 
+	if not cache or cache == 'closed' then
 		cache = {}
 	end
 	-- clear old cache values
@@ -127,8 +127,8 @@ local function set_cache(player_name,inv,sItemID)
 		cache.sTab = 1 -- default to first tab
 		cache.sScroll = 0 -- reset scrollbar to top
 	end
-	local def = minetest.registered_nodes[cache.sItem] 
-		or minetest.registered_tools[cache.sItem] 
+	local def = minetest.registered_nodes[cache.sItem]
+		or minetest.registered_tools[cache.sItem]
 		or minetest.registered_items[cache.sItem]
 	if def and def.exile_crafting then
 		local tabs = def.exile_crafting.craft_types
@@ -140,10 +140,10 @@ local function set_cache(player_name,inv,sItemID)
 		end
 		cache.cTabs = tabs
 		cache.sLevel = def.exile_crafting.craft_level
-	else 
+	else
 		print('ERROR: Missing exile_crafting definition for '..sItem)
 	end
-	
+
 	inventoryFS_cache[player_name]=cache
 	return cache
 end
@@ -153,7 +153,7 @@ local function process_receive_fields(player, formname, fields)
 	local player_name = player:get_player_name()
 	local inv = player:get_inventory()
 	local cache = inventoryFS_cache[player_name]
-	if not cache then
+	if not cache or cache == 'closed' then
 		cache = set_cache(player_name,inv)
 	end
 	local done = false	-- flag to skip processing buttons and skip to saving changes.
@@ -171,7 +171,7 @@ local function process_receive_fields(player, formname, fields)
 			cache.recipesFS = nil
 			cache.output = ""
 			done = true
-		else 
+		else
 			scroll = tonumber(string.match(value, "VAL:([0-9]+)"))
 			if scroll and scroll ~= cache.sScroll then
 				cache.sScroll = scroll
@@ -217,14 +217,14 @@ print(dump(recipe))
 				if qty > 1 then -- more then single requested
 					local oItem = ItemStack(recipe.output)
 					local oName = oItem:get_name()
-					local oCount = oItem:get_count()
-					local max_count = 0 
+					local oCount = oItem:get_count() or 1
+					local max_count = 0
 					local item_hash = cache.item_hash
 					for i,input in ipairs(recipe.items) do
 						local iItem = ItemStack(input)
 						local iName = iItem:get_name()
 						local iNeed = iItem:get_count()
-						local iHave = item_hash[iName] or 0 
+						local iHave = item_hash[iName] or 0
 						local max = math.floor(iHave/iNeed)
 						if max_count < max then
 							max_count = max
@@ -239,7 +239,7 @@ print(dump(recipe))
 						end
 					end
 					-- set output to max_count
-					recipe.output = oName .." "..max_count
+					recipe.output = oName .." "..max_count * oCount
 					-- set input to values for max_count
 					for i,input in ipairs(recipe.items) do
 						local iItem = ItemStack(input)
@@ -294,7 +294,7 @@ end
 
 
 
--- This needs to be rebuilt every time the craft_type, craft_tab, input_items, 
+-- This needs to be rebuilt every time the craft_type, craft_tab, input_items,
 -- or selected inventory changes
 -- It is triggered by setting cache.recipesFS = nil
 local function cache_player_recipes(cache, player_name, pInv)
@@ -324,11 +324,11 @@ local function cache_player_recipes(cache, player_name, pInv)
 	recipesFS[#recipesFS + 1] = 'scrollbar[9.2,1.2;.5,4.6;vertical;recipes_scroll;'
 		.. sScroll .. ']'
 	recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1;6,5;recipes_scroll;vertical;1]'
-	-- Add recipe buttons in rows of 5 
+	-- Add recipe buttons in rows of 5
 	local x = 0
 	local y = 0
 	for i, result in ipairs(recipe_list) do
-		-- recipe 
+		-- recipe
 		local recipe_output = result.recipe.output
 		local itemname=ItemStack(recipe_output):get_name()
 		local item_description = crafting.get_item_description(itemname)
@@ -348,14 +348,14 @@ local function cache_player_recipes(cache, player_name, pInv)
 		-- Add button image
 		local btn_coords = tostring( x* 1.2 + 0.1 ) .. ','..tostring( y * 1.2 + 0.3 )
 		recipesFS[#recipesFS + 1] = 'item_image_button['
-			.. btn_coords .. ';.8,.8;' 
+			.. btn_coords .. ';.8,.8;'
 			.. recipe_output .. ';sResult_' .. id ..';]'
 		recipesFS[#recipesFS + 1] = 'tooltip[sResult_' .. id..';'
 			.. minetest.formspec_escape(item_description .. "\n")
 		for j, item in pairs(result.items) do
              local color = item.have >= item.need and "#6f6" or "#f66"
              local tool_tip ="\n"
-                ..  minetest.get_color_escape_sequence(color) 
+                ..  minetest.get_color_escape_sequence(color)
                 ..  crafting.get_item_description(item.name) .. ": "
                 ..  item.have .."/".. item.need
              recipesFS[#recipesFS + 1] = minetest.formspec_escape(tool_tip)
@@ -367,7 +367,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 			y = y + 1
 		end
 	end
-	
+
 	recipesFS[#recipesFS + 1] =	'scroll_container_end[]'
 	recipesFS[#recipesFS + 1] =	'field[4.2,6;3,.5;query;;]'
 	recipesFS[#recipesFS + 1] =	'button[7.3,6;.6,.5;?;?]'
@@ -413,9 +413,9 @@ local function cache_player_input_list(cache, pInv)
 end
 
 -- Shouldn't need to rebuild this more then once per player per restart
--- or when player adds to their craft_types 
+-- or when player adds to their craft_types
 -- See adding tools/benches to input_items list
-local function cache_player_craft_types(cache, pInv) 
+local function cache_player_craft_types(cache, pInv)
 	local selected = cache.sItem or 'crafting_spot' -- default to hand crafting
 	local cItems = load_craft_types(pInv)
 	local craft_typeFS = {
@@ -426,19 +426,19 @@ local function cache_player_craft_types(cache, pInv)
 	local x = 0
 	local y = 0
 	for i,stack in ipairs(cItems) do
-		local coords = tostring(x * 0.6 + 0.1) ..','.. tostring(y * 0.6 + 0.3) 
+		local coords = tostring(x * 0.6 + 0.1) ..','.. tostring(y * 0.6 + 0.3)
 		if not stack:is_empty() then
 			-- Dipslay item image
 			local itemname = stack:get_name()
-			craft_typeFS[#craft_typeFS + 1] = 
-				'item_image_button[' .. coords .. ';.5,.5;' 
+			craft_typeFS[#craft_typeFS + 1] =
+				'item_image_button[' .. coords .. ';.5,.5;'
 					.. itemname ..';sCraftType_' .. i .. ';]'
-			craft_typeFS[#craft_typeFS + 1] = 
+			craft_typeFS[#craft_typeFS + 1] =
 				'tooltip[sCraftType_' .. i .. ';'
 					.. stack:get_short_description() .. ']'
 		else
 			-- display empty space
-			craft_typeFS[#craft_typeFS + 1] = 
+			craft_typeFS[#craft_typeFS + 1] =
 				'image[' ..coords..';.5,.5;crafting_slot_empty.png]'
 		end
 		x = x + 1
@@ -465,7 +465,7 @@ function minimal.close_inventory_formspec(player)
 	-- clear cached output to force redraw for new formspec
 --	inventoryFS_cache[player_name].output=""
 	-- Delete Cache
-	
+
 	local pInv = player:get_inventory()
 	-- Return Items in input_items list to player
 	if not pInv:is_empty('input_items') then
@@ -508,7 +508,7 @@ function minimal.register_inventory_sfinv()
 			get = function(self, player, context)
 				local formspec = minimal.make_inventory_formspec(player,context)
 				local options = {
-					'formspec_version[5]',	-- hacking in formspec_version before size[] 
+					'formspec_version[5]',	-- hacking in formspec_version before size[]
 					'size[10.5,10]',
 				}
 				local output = sfinv.make_formspec(
@@ -531,7 +531,7 @@ end
 
 -- This is the function to call to create or update the formspec.
 -- It returns the cache value unless something has updated or it times out
--- updates are triggered by setting cache.output = "" and the section to 
+-- updates are triggered by setting cache.output = "" and the section to
 -- redraw is set to nil - eg cache.recipesFS = nil to redraw recipes list.
 function minimal.make_inventory_formspec(player,context)
 	local player_name = player:get_player_name()
@@ -540,7 +540,7 @@ function minimal.make_inventory_formspec(player,context)
 	if not (player_name and player_name ~= "") then
 		return nil -- no player name
 	end
-	local cache = inventoryFS_cache[player_name] 
+	local cache = inventoryFS_cache[player_name]
 	-- context exists for inventory formspec only
 	if not context and cache == 'closed' then
 		return nil
@@ -553,13 +553,13 @@ function minimal.make_inventory_formspec(player,context)
 --IB-test	if cache and cache.output and cache.output ~= "" then
 --IB-test		if os.time() > cache.epoch + __inventoryFS_cache_timeout then
 --IB-test			inventoryFS_cache[player_name].epoch=os.time()
---IB-test		else 
+--IB-test		else
 --IB-test			return cache.output
 --IB-test		end
 --IB-test	end
 	--reset epoch and draw formspec from cached values unless cleared
 	cache.epoch = os.time()
-	local output = 
+	local output =
 		'label[.4,6.2;Quantity]' ..
 		'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]'
 	-- add Craft Types
