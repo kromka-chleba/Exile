@@ -34,11 +34,12 @@ dofile(modpath..'/debug.lua')
 dofile(modpath..'/minimal_hud.lua')
 dofile(modpath..'/player.lua')
 dofile(modpath..'/nodeboxes.lua')
+dofile(modpath..'/witt_exile/init.lua')
 dofile(modpath..'/currentrevision.lua')
 
 -- GUI related stuff
 
-function minimal.set_hotbar(player,pref) 
+function minimal.set_hotbar(player,pref)
 	if pref == "true" then
 		-- use wide hotbar
 		player:hud_set_hotbar_image("gui_hotbar16.png")
