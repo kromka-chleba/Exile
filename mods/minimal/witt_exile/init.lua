@@ -28,7 +28,7 @@ local function show(player)
       end
    end
 
-   if ( ptd.type ~= "node" ) then print("notanode") return end
+   if ( ptd.type ~= "node" ) then return end
 
    local nname = minetest.get_node(ptd.under)
    nname = ( nname and nname.name )
