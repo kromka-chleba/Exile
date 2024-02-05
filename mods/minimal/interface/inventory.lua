@@ -208,59 +208,60 @@ local function process_receive_fields(player, formname, fields)
 			elseif btn_type == 'sInv' then
 				cache.sInv = btn_id -- Inventory name
 			elseif btn_type == 'sResult' then
-				local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
-print(dump(recipe))
-				local ctype = cache.cTabs[cache.sTab]
-				local sLevel = cache.sLevel
-				local sInv = cache.sInv
-				local qty = tonumber(fields.qty)
-				if qty > 1 then -- more then single requested
-					local oItem = ItemStack(recipe.output)
-					local oName = oItem:get_name()
-					local oCount = oItem:get_count() or 1
-					local max_count = 0
-					local item_hash = cache.item_hash
-					for i,input in ipairs(recipe.items) do
-						local iItem = ItemStack(input)
-						local iName = iItem:get_name()
-						local iNeed = iItem:get_count()
-						local iHave = item_hash[iName] or 0
-						local max = math.floor(iHave/iNeed)
-						if max_count < max then
-							max_count = max
-						end
-					end
-					if qty == 2 then -- stack requested
-						local def = minetest.registered_nodes[oName] or minetest.registered_craftitems[oName]
-										or minetest.registered_tools[oName]
-						local stack_count = def.stack_max or 1
-						if max_count > stack_count then
-							max_count = stack_count
-						end
-					end
-					-- set output to max_count
-					recipe.output = oName .." "..max_count * oCount
-					-- set input to values for max_count
-					for i,input in ipairs(recipe.items) do
-						local iItem = ItemStack(input)
-						local iName = iItem:get_name()
-						local iNeed = iItem:get_count()
-						recipe.items[i] = iName .." ".. iNeed * max_count
-					end
-				end
+			   local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
+			   print(dump(recipe))
+			   local ctype = cache.cTabs[cache.sTab]
+			   local sLevel = cache.sLevel
+			   local sInv = cache.sInv
+			   local qty = tonumber(fields.qty)
+			   if not qty then qty = 1 end
+			   if qty > 1 then -- more then single requested
+			      local oItem = ItemStack(recipe.output)
+			      local oName = oItem:get_name()
+			      local oCount = oItem:get_count() or 1
+			      local max_count = 0
+			      local item_hash = cache.item_hash
+			      for i,input in ipairs(recipe.items) do
+				 local iItem = ItemStack(input)
+				 local iName = iItem:get_name()
+				 local iNeed = iItem:get_count()
+				 local iHave = item_hash[iName] or 0
+				 local max = math.floor(iHave/iNeed)
+				 if max_count < max then
+				    max_count = max
+				 end
+			      end
+			      if qty == 2 then -- stack requested
+				 local def = minetest.registered_nodes[oName] or minetest.registered_craftitems[oName]
+				    or minetest.registered_tools[oName]
+				 local stack_count = def.stack_max or 1
+				 if max_count > stack_count then
+				    max_count = stack_count
+				 end
+			      end
+			      -- set output to max_count
+			      recipe.output = oName .." "..max_count * oCount
+			      -- set input to values for max_count
+			      for i,input in ipairs(recipe.items) do
+				 local iItem = ItemStack(input)
+				 local iName = iItem:get_name()
+				 local iNeed = iItem:get_count()
+				 recipe.items[i] = iName .." ".. iNeed * max_count
+			      end
+			   end
 
-				if not crafting.can_craft(player_name, ctype, sLevel, recipe) then
-					minetest.log("error", "[inventoryFS] Player clicked a button they shouldn't have been able to")
-					return true
-				elseif crafting.perform_craft(player_name, inv, {"input_items",sInv}, sInv, recipe) then
-					cache.recipesFS = nil
-					cache.output = ""
-					inventoryFS_cache[player_name] = cache
-					return true -- crafted
-				else
-					minetest.chat_send_player(player_name, "Missing required items!")
-					return true -- failed but we handled it
-				end
+			   if not crafting.can_craft(player_name, ctype, sLevel, recipe) then
+			      minetest.log("error", "[inventoryFS] Player clicked a button they shouldn't have been able to")
+			      return true
+			   elseif crafting.perform_craft(player_name, inv, {"input_items",sInv}, sInv, recipe) then
+			      cache.recipesFS = nil
+			      cache.output = ""
+			      inventoryFS_cache[player_name] = cache
+			      return true -- crafted
+			   else
+			      minetest.chat_send_player(player_name, "Missing required items!")
+			      return true -- failed but we handled it
+			   end
 			end
 			-- any button pushes require recipes to be redrawn
 			cache.output = ""
