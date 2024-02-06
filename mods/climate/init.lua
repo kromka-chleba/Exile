@@ -278,9 +278,9 @@ function climate.update_skies(...)
   end
 end
 
-local function get_weather_table(name, registered_weathers)
-	for i, reg_weather in ipairs(registered_weathers) do
-	   if name == reg_weather.name then
+local function get_weather_table(name)
+	for rname, reg_weather in pairs(climate.registered_weathers) do
+	   if name == rname then
 	      local active_weather = reg_weather
 	      return active_weather
 	   end
@@ -346,28 +346,29 @@ minetest.register_on_joinplayer(
         end
         set_sky_clouds(player)
         --set weather effects for this player
-        minetest.chat_send_player(p_name, exiledatestring())
+        minetest.chat_send_player(p_name, climate.datestring())
 end)
 
 --get weather from storage, override random start values
 local function load_saved_weather()
-   local datestr = exiledatestring()
+   local datestr = climate.datestring()
    minetest.log("action", datestr.." : Loading weather")
    local w_name = store:get_string("weather")
-    if w_name ~= "" then
-        --check valid
-        local weather = climate.registered_weathers[w_name]
-        if weather then
-	    climate.active_weather = weather
-	    minetest.log("action", "Loaded a valid weather: "..w_name)
-            minetest.log("action", "Loaded a valid weather: "..w_name)
-        else
-	    minetest.log("action", "Invalid weather loaded: "..w_name)
-        end
-    else
-        minetest.log("action", "No previous weather could be loaded")
-        save_weather() -- save initial random data
-    end
+
+   if w_name ~= "" then
+      --check valid
+      local weather = get_weather_table(w_name)
+      if weather then
+	 climate.active_weather = weather
+	 minetest.log("action", "Loaded a valid weather: "..w_name)
+	 minetest.log("action", "Loaded a valid weather: "..w_name)
+      else
+	 minetest.log("action", "Invalid weather loaded: "..w_name)
+      end
+   else
+      minetest.log("action", "No previous weather could be loaded")
+      save_weather() -- save initial random data
+   end
 
     --same again, but for temperature
     local temp = store:get_float("temp")
@@ -388,7 +389,7 @@ local function load_saved_weather()
     --load climate_history
     local ch = store:get_string("climate_history")
     if ch ~= nil then
-        load_climate_history(ch)
+        climate.load_history(ch)
     end
 end
 
@@ -500,8 +501,8 @@ minetest.register_globalstep(function(dtime)
      select_new_active_weather()
   end
   if timer_r >= 60 then -- it's time to record changes
-     record_climate_history(climate)
-     store:set_string("climate_history", get_climate_history())
+     climate.record_history(climate)
+     store:set_string("climate_history", climate.get_history())
      timer_r = 0
   end
   if timer_s >= 0.1 then -- update sound levels for underground transition
@@ -593,7 +594,11 @@ minetest.register_chatcommand("set_weather", {
 	  return false, wlist
        end
 
-       local weather = climate.registered_weathers[param]
+       if param == "" then
+	  return false, ("Current weather is "..climate.active_weather.name)
+       end
+
+       local weather = get_weather_table(param)
        if weather then
 	  climate.active_weather = weather
 	  --do for each player
@@ -608,10 +613,7 @@ minetest.register_chatcommand("set_weather", {
 	  store:set_string("weather", climate.active_weather.name)
 
 	  return true, "Climate active weather set to: "..param
-       else
-	  return false, ("Current weather is "..climate.active_weather.name)
        end
-
     else
        return false, "You need the set_temp privilege to use this command."
     end
@@ -668,7 +670,7 @@ minetest.register_on_mods_loaded(function()
       local use_beerchat = minetest.get_modpath('beerchat')
       if use_beerchat then -- we have beerchat installed, add a date command
 	 beerchat.register_relaycommand("date", function()
-                  local date = exiledatestring()
+                  local date = climate.datestring()
 		  return date
 	 end)
       end
