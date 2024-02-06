@@ -133,7 +133,7 @@ local function set_sky_clouds(player)
 end
 
 -----------------
-local function get_weather_table(name, registered_weathers)
+local function get_weather_table(name)
 	for i, reg_weather in ipairs(registered_weathers) do
 	   if name == reg_weather.name then
 	      local active_weather = reg_weather
@@ -173,7 +173,7 @@ minetest.register_on_joinplayer(function(player)
 
       if w_name ~= "" then
 	 --check valid
-	 local weather = get_weather_table(w_name, registered_weathers)
+	 local weather = get_weather_table(w_name)
 	 if weather then
 	    climate.active_weather = weather
 	    minetest.log("action", "Loaded a valid weather: "..w_name)
@@ -203,7 +203,7 @@ minetest.register_on_joinplayer(function(player)
       --load climate_history
       local ch = store:get_string("climate_history")
       if ch ~= nil then
-	 load_climate_history(ch)
+	 climate.load_history(ch)
       end
 
    end
@@ -215,7 +215,7 @@ minetest.register_on_joinplayer(function(player)
       sound_handlers[p_name] = minetest.sound_play(
 	 climate.active_weather.sound_loop, {to_player = p_name, loop = true})
    end
-   minetest.chat_send_player(p_name, exiledatestring())
+   minetest.chat_send_player(p_name, climate.datestring())
 end)
 
 local function temp_category()
@@ -249,8 +249,7 @@ local function select_new_active_weather()
     if new_weather_name and new_weather_name ~= climate.active_weather.name then
 
       --we need to update the sky and set the new
-       climate.active_weather = get_weather_table(new_weather_name,
-						  registered_weathers)
+       climate.active_weather = get_weather_table(new_weather_name)
        store:set_string("weather", climate.active_weather.name)
     end
     --do for each player
@@ -328,8 +327,8 @@ minetest.register_globalstep(function(dtime)
      updatesound = true
   end
   if timer_r >= 60 then -- it's time to record changes
-     record_climate_history(climate)
-     store:set_string("climate_history", get_climate_history())
+     climate.record_history(climate)
+     store:set_string("climate_history", climate.get_history())
      timer_r = 0
   end
   timer_p = timer_p + dtime
@@ -430,10 +429,7 @@ minetest.register_chatcommand("set_weather", {
 	  return false, wlist
        end
 
-       if param == "" then
-	  return false, ("Current weather is "..climate.active_weather.name)
-       end
-       local weather = get_weather_table(param, registered_weathers)
+       local weather = get_weather_table(param)
        if weather then
 	  climate.active_weather = weather
 	  --do for each player
@@ -459,6 +455,8 @@ minetest.register_chatcommand("set_weather", {
 	  store:set_string("weather", climate.active_weather.name)
 
 	  return true, "Climate active weather set to: "..param
+       else
+	  return false, ("Current weather is "..climate.active_weather.name)
        end
 
     else
@@ -498,7 +496,7 @@ minetest.register_chatcommand("set_tempscale", {
 minetest.register_on_mods_loaded(function()
       if beerchat then -- we have beerchat installed, add a date command
 	 beerchat.register_relaycommand("date", function()
-                  local date = exiledatestring()
+                  local date = climate.datestring()
 		  return date
 	 end)
       end

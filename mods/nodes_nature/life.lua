@@ -21,7 +21,7 @@ local c_alpha = minimal.compat_alpha
 
 plant_base_growth = plant_base_growth
 plant_base_timer = plant_base_timer
-crop_rewind = crop_rewind
+crop_rewind = climate.crop_rewind
 exile_add_food_hooks = exile_add_food_hooks
 creative = creative
 wielded_light = wielded_light
