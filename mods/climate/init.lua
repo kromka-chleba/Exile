@@ -218,43 +218,40 @@ minetest.register_on_joinplayer(function(player)
    minetest.chat_send_player(p_name, exiledatestring())
 end)
 
+local function temp_category()
+   local temp = climate.active_temp
+   if temp < plvl_froz then return 2 end
+   if temp < plvl_cold then return 3 end
+   if temp < plvl_mid then return 4 end
+   return 5
+end
+
+local function fair_select_weather()
+   local chain = climate.active_weather.chain
+   local category = temp_category()
+   local n = math.random() * #chain -- each chain entry runs 0-100%, add them
+   local total = 0
+   for i, nextw in pairs(chain) do
+      local val = nextw[category]
+      total = total + val
+      if n < total then
+	 return nextw[1]
+      end
+   end
+   return
+end
+
 local function select_new_active_weather()
     --select a new active_weather from probabilities
     --it will loop through and try to change the weather
-    local new_weather_name
-    for n, next in pairs(climate.active_weather.chain) do
-      --roll dice
-      local c = math.random()
-      --use temperature adjusted probability
-      if climate.active_temp < plvl_froz then
-	 --frozen temperature
-	 if next[2] > c then
-	    new_weather_name = next[1]
-	 end
-      elseif climate.active_temp < plvl_cold then
-	 --cold temperature
-	 if next[3] > c then
-	    new_weather_name = next[1]
-	 end
-      elseif climate.active_temp < plvl_mid then
-	 --mid temperature
-	 if next[4] > c then
-	    new_weather_name = next[1]
-	 end
-      else
-	 --hot temperature
-	 if next[5] > c then
-	    new_weather_name = next[1]
-	 end
-      end
-    end
-
+    local new_weather_name = fair_select_weather()
     --did it succeed in getting a new state?
     if new_weather_name and new_weather_name ~= climate.active_weather.name then
 
       --we need to update the sky and set the new
        climate.active_weather = get_weather_table(new_weather_name,
 						  registered_weathers)
+       store:set_string("weather", climate.active_weather.name)
     end
     --do for each player
     for _,player in ipairs(minetest.get_connected_players()) do
@@ -286,7 +283,6 @@ local function set_world_temperature()
     climate.active_sea_temp = sea_wav + ((dn_wav + ran_walk) * 0.3)
     --save state so can be reloaded.
     --only actually needed on log out,... but that doesn't work
-    store:set_string("weather", climate.active_weather.name)
     store:set_float("temp", climate.active_temp)
     store:set_float("sea_temp", climate.active_sea_temp)
     store:set_float("ran_walk", ran_walk)
@@ -310,9 +306,9 @@ end
 -- Main step
 --------------------------
 
-local timer = 0
-local timer_p = 0
-local timer_r = 0
+local timer = 0 -- weather updates
+local timer_p = 0 -- particle updates
+local timer_r = 0 -- record climate history
 
 minetest.register_globalstep(function(dtime)
   local updatesound = false
@@ -434,6 +430,9 @@ minetest.register_chatcommand("set_weather", {
 	  return false, wlist
        end
 
+       if param == "" then
+	  return false, ("Current weather is "..climate.active_weather.name)
+       end
        local weather = get_weather_table(param, registered_weathers)
        if weather then
 	  climate.active_weather = weather
@@ -460,8 +459,6 @@ minetest.register_chatcommand("set_weather", {
 	  store:set_string("weather", climate.active_weather.name)
 
 	  return true, "Climate active weather set to: "..param
-       else
-	  return false, ("Current weather is "..climate.active_weather.name)
        end
 
     else
