@@ -186,12 +186,12 @@ end
 local function get_moon_phase()
   local bounds = {x = 37, y = 37}
   local phscount = 12 -- there are 12 base phases
-  
+
   local days = minetest.get_day_count() % 80 -- get current year's date
-  
+
   days = days % 40 + 1 -- refresh phases every 40th day (2 times per year) (add 1 to get an accurate date)
   -- starts bright, turns dark, goes bright, ditto
-  
+
   for i = 1, phscount, 1 do
     if (days/40 <= i/(phscount)) then
       return i, bounds, (phscount)
@@ -210,10 +210,10 @@ local function get_moon_texture(texture,spctype)
   if (texture ~= "moon.png") then -- do not conflict with other provided textures
     return texture
   end
-  
+
   local frame,bounds,phscount = get_moon_phase() -- specified frame, x & y image bounds, and total count of phases
   frame = -(bounds.y * (frame - 1))
-  
+
   if (spctype ~= nil) then -- if a spctype is specified, then seek other specified moon textures
     frame = -(bounds.y * phscount) -- set frame to maximum
   elseif (spctype == "number") then -- manually setting the frame, hmm?
@@ -225,10 +225,10 @@ local function get_moon_texture(texture,spctype)
   if (spctype == "nil") then
     frame = frame - bounds.y
   end
-  
+
   texture = "[combine:"..bounds.x.."x"..bounds.y.."..:0,"..frame.."="..texture -- using combine as a discount verticalframe to prevent conflict if more moon modifiers are added
   -- e.g. "[combine:37x37:0,1=moon.png" = phase 1 or waxing crescent of moon vertical png
-  
+
   return texture
 end
 
@@ -236,7 +236,7 @@ end
 --set the sky, for on join and when new weather set
 local function set_sky_clouds(player,...)
   local args = {...} -- custom args, for example if an alternative moon phase is asked for
-  
+
 	local p_name = player:get_player_name()
 	local active_weather = climate.get_player_weather(p_name)
 
@@ -267,7 +267,7 @@ function climate.update_sky(player,...)
   if not (minetest.is_player(player)) then
     return
   end
-  
+
   set_sky_clouds(player,...)
 end
 
@@ -276,6 +276,20 @@ function climate.update_skies(...)
   for _,player in ipairs(minetest.get_connected_players()) do
     climate.update_sky(player,...)
   end
+end
+
+local function get_weather_table(name, registered_weathers)
+	for i, reg_weather in ipairs(registered_weathers) do
+	   if name == reg_weather.name then
+	      local active_weather = reg_weather
+	      return active_weather
+	   end
+	end
+	--error, got a name it can't find
+	--currently will likely make it crash
+	minetest.log("error", "Climate: "..name.." not found")
+	return
+
 end
 
 function climate.set_weather_override(p_name, p_obj, w_name)
@@ -380,44 +394,41 @@ end
 
 --------------------
 --world functions
+local function temp_category()
+   local temp = climate.active_temp
+   if temp < plvl_froz then return 2 end
+   if temp < plvl_cold then return 3 end
+   if temp < plvl_mid then return 4 end
+   return 5
+end
+
+local function fair_select_weather()
+   local chain = climate.active_weather.chain
+   local category = temp_category()
+   local n = math.random() * #chain -- each chain entry runs 0-100%, add them
+   local total = 0
+   for i, nextw in pairs(chain) do
+      local val = nextw[category]
+      total = total + val
+      if n < total then
+	 return nextw[1]
+      end
+   end
+   return
+end
+
 local function select_new_active_weather()
     --select a new active_weather from probabilities
     --it will loop through and try to change the weather
     if climate.lock_weather then return end
 
-    local new_weather_name
-    for n, next in pairs(climate.active_weather.chain) do
-      --roll dice
-      local c = math.random()
-      --use temperature adjusted probability
-      if climate.active_temp < plvl_froz then
-	 --frozen temperature
-	 if next[2] > c then
-	    new_weather_name = next[1]
-	 end
-      elseif climate.active_temp < plvl_cold then
-	 --cold temperature
-	 if next[3] > c then
-	    new_weather_name = next[1]
-	 end
-      elseif climate.active_temp < plvl_mid then
-	 --mid temperature
-	 if next[4] > c then
-	    new_weather_name = next[1]
-	 end
-      else
-	 --hot temperature
-	 if next[5] > c then
-	    new_weather_name = next[1]
-	 end
-      end
-    end
-
+    local new_weather_name = fair_select_weather()
     --did it succeed in getting a new state?
     if new_weather_name and new_weather_name ~= climate.active_weather.name then
 
       --we need to update the sky and set the new
-       climate.active_weather = climate.registered_weathers[new_weather_name]
+       climate.active_weather = get_weather_table(new_weather_name)
+       store:set_string("weather", climate.active_weather.name)
     end
     --do for each player
     for _,player in ipairs(minetest.get_connected_players()) do
@@ -449,7 +460,11 @@ local function set_world_temperature()
     --sum waves plus some random noise
     climate.active_temp =  dc_wav + dn_wav + ran_walk
     climate.active_sea_temp = sea_wav + ((dn_wav + ran_walk) * 0.3)
-    save_weather()
+    --save state so can be reloaded.
+    --only actually needed on log out,... but that doesn't work
+    store:set_float("temp", climate.active_temp)
+    store:set_float("sea_temp", climate.active_sea_temp)
+    store:set_float("ran_walk", ran_walk)
 end
 
 function climate.refresh()
@@ -461,9 +476,9 @@ end
 -- Main step
 --------------------------
 
-local timer = 0
-local timer_r = 0
-local timer_s = 0
+local timer = 0 -- weather updates
+local timer_s = 0 -- sound updates
+local timer_r = 0 -- record climate history
 
 -- Overwrite random start values if the world is not brand new
 minetest.register_on_mods_loaded(function()
@@ -665,12 +680,12 @@ end)
 local mphl_interval = (5*60) -- moon_phase_loop_interval (25% an Exile day or 8 minutes)
 local function moon_phase_loop()
   --local tod = minetest.get_timeofday() or 0
-  
+
   -- only set skies while the moon is not up (nvm lol, keeping the old code lines just in case though)
   --if not (tod < 0.23 or tod > 0.75) then
     climate.update_skies()
   --end
-  
+
   minetest.after(mphl_interval,moon_phase_loop)
 end
 
