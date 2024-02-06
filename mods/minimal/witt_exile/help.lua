@@ -217,7 +217,7 @@ function what_is_this_uwu.get_node_tiles(node_name)
 
 	if node.groups["not_in_creative_inventory"] then
 		local drop = node.drop
-		if drop and type(drop) == "string" then
+		if drop and type(drop) == "string" and drop ~= "" then
 			node = minetest.registered_nodes[drop] or minetest.registered_craftitems[drop]
 		end
 	end
