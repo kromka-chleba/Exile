@@ -17,18 +17,19 @@
 
 local floor = math.floor
 climate_history = ""
+climate = climate
 
-function load_climate_history(chist)
+function climate.load_history(chist)
    --get history from storage
    climate_history = chist or ""
 end
 
-function get_climate_history()
+function climate.get_history()
    return climate_history
 end
 
 --record a chunk of climate history
-function record_climate_history(climate)
+function climate.record_history(climate)
    local ch = 0
    local dtime = minetest.get_timeofday()
    if dtime >= 0.25 and dtime <= 0.75 then
@@ -179,7 +180,7 @@ function climate.time_since_rain(max_seek)
    return 0
 end
 
-function exiledatestring()
+function climate.datestring()
    local days = minetest.get_day_count()
    local time = minetest.get_timeofday()
    local year = floor((days)/80)+1
@@ -210,6 +211,6 @@ minetest.register_chatcommand("date", {
 	description = "Shows the current date and year of exile.",
 	privs = {},
 	func = function(name, param)
-	   minetest.chat_send_player(name, exiledatestring())
+	   minetest.chat_send_player(name, climate.datestring())
 	end,
 })

@@ -31,16 +31,30 @@ end
 
 local light_meter = function(user, pointed_thing)
 
-  local name =user:get_player_name()
-  local pos = user:get_pos()
-  -- get pointed light level
-  if pointed_thing.type == "node" then
-    pos = pointed_thing.under
-  end
+   local name =user:get_player_name()
 
-  local measure = ((minetest.get_node_light({x = pos.x, y = pos.y, z = pos.z})) or 0)
-
-  chat_display(name, S("LIGHT MEASUREMENT:"), S("LIGHT LEVEL =").." "..measure)
+   local measure
+   if pointed_thing and pointed_thing.type == "node" then
+      local tgt = pointed_thing.under
+      measure = vector.check(tgt) and minetest.get_node_light(tgt) or nil
+      if measure == 0 then
+	 -- It's a solid node, the user probably wants the spot above instead
+	 tgt = pointed_thing.over
+	 measure = vector.check(tgt) and minetest.get_node_light(tgt) or nil
+      end
+   end
+   if not measure then
+      local pos = user:get_pos()
+      measure = ((minetest.get_node_light({x = pos.x,
+					   y = pos.y,
+					   z = pos.z})) or 0)
+   end
+   minetest.chat_send_player(name, minetest.colorize("#00ff00",
+						     S("LIGHT MEASUREMENT:")))
+   minetest.chat_send_player(name, minetest.colorize("#cc6600",
+						     S("LIGHT LEVEL = ")..
+						     measure))
+   --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
 
   --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
 end
