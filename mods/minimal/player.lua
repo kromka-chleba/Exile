@@ -21,6 +21,7 @@ local function add_waypoint(name, viewername, viewer, pos)
 end
 
 local function clear_waypoint(name)
+   if not waypoints[name] then return end
    for _, data in pairs(waypoints[name]) do
       if minetest.is_player(data.obj) and data.handle then
 	 data.obj:hud_remove(data.handle)
