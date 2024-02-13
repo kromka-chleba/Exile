@@ -214,20 +214,27 @@ local function get_moon_texture(texture,spctype)
   local frame,bounds,phscount = get_moon_phase() -- specified frame, x & y image bounds, and total count of phases
   frame = -(bounds.y * (frame - 1))
 
-  if (spctype ~= nil) then -- if a spctype is specified, then seek other specified moon textures
+  if (spctype ~= nil) then
+     -- if a spctype is specified, then seek other specified moon textures
     frame = -(bounds.y * phscount) -- set frame to maximum
   elseif (spctype == "number") then -- manually setting the frame, hmm?
     spctype = minimal.math_clamp(spctype,0,phscount)
     frame = -(bounds.y * math.ceil(spctype))
   end
-  -- yields an invisible texture (as the position beyond the 12th frame is not yet a specified texture, until someone does make it so :o)
-  -- adds possibilities for "blood moon", "solar eclipse", and other possible moon modifiers IF specified and IF made in the vertical frame (add at bottom of the vertical png)
+  -- yields an invisible texture (as the position beyond the 12th frame
+  -- is not yet a specified texture, until someone does make it so :o)
+  -- adds possibilities for "blood moon", "solar eclipse", and other
+  -- possible moon modifiers IF specified and IF made in the vertical
+  -- frame (add at bottom of the vertical png)
   if (spctype == "nil") then
     frame = frame - bounds.y
   end
 
-  texture = "[combine:"..bounds.x.."x"..bounds.y.."..:0,"..frame.."="..texture -- using combine as a discount verticalframe to prevent conflict if more moon modifiers are added
-  -- e.g. "[combine:37x37:0,1=moon.png" = phase 1 or waxing crescent of moon vertical png
+  texture = "[combine:"..bounds.x.."x"..bounds.y.."..:0,"..frame.."="..texture
+  -- using combine as a discount verticalframe to prevent conflict
+  --   if more moon modifiers are added,
+  -- e.g.  "[combine:37x37:0,1=moon.png" = phase 1
+  --   or waxing crescent of moon vertical png
 
   return texture
 end
