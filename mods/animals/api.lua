@@ -104,14 +104,14 @@ function animals.temp_comfy(self,temp)
     end
     temp = climate.get_point_temp(pos, true)
   end
-  
+
   -- still not a number somehow
   if (type(temp) ~= "number") then
     return false
   end
   local min_temp = self.min_temp or 0
   local max_temp = self.max_temp or 20
-  
+
   if (temp >= min_temp and temp <= max_temp) then
     -- goldilocks certified
     return true
@@ -163,11 +163,11 @@ local function get_reachable_node(self,numstring)
   -- get a random number from 1 to length of numstring and then remove it from numstring
   -- gets a number for a position index in mobkit's reachable_node
   local length = string.len(numstring)
-  
+
   local num = random(1,length)
   num = tonumber(string.sub(numstring,num,num)) -- got number
   numstring = string.gsub(numstring,tostring(num),"") -- erase number from numberstring
-  
+
   return numstring,mobkit.is_neighbor_node_reachable(self,num)
 end
 
@@ -309,7 +309,7 @@ function animals.handle_drops(self,despawn_time)
       local amount = random (item.min, item.max)
       local chance = random(1,100)
 
-      if chance <= (100/item.chance) then -- <= guarantees certainty if chance is 1 or 100 ( <= vs < ) 
+      if chance <= (100/item.chance) then -- <= guarantees certainty if chance is 1 or 100 ( <= vs < )
         dsp_pos.y = dsp_pos.y+0.5
         item = item.name  -- convert into string to avoid conflicts (and override)
 
@@ -379,7 +379,7 @@ function animals.core_hp(self)
       pos = mobkit.pos_shift(pos,{y = -1})
       drawtype, node = node_drawtype(pos)
     end
-    
+
     if (node.name ~= nil) then
       local multiplier = node.groups.fall_damage_add_percent -- used for fall damage calculation
       if (type(multiplier) == "number") then
@@ -392,15 +392,15 @@ function animals.core_hp(self)
         else
           multiplier = 1 + multiplier
         end
-        
+
         velocity_delta = floor(velocity_delta * multiplier)
       end
-      
+
       if (drawtype == "airlike") then
         multiplier = 0 -- lazily reuse multiplier to check whether or not it's hitting entity or air
         local obj = minetest.get_objects_inside_radius(pos,1) -- look for an object nearby
-        obj = obj[random(1,#obj)] -- lazily get one of em
         if obj then
+	  obj = obj[random(1,#obj)] -- lazily get one of em
           obj = obj:get_luaentity()
           if obj and obj.physical == true and obj.collide_with_objects == true then
             -- landed on someone, cushion it
@@ -497,7 +497,7 @@ function animals.core_life(self, pos)
     local killer_max_temp = self.killer_max_temp
     local burn_max_temp = self.burn_max_temp
     local absolute_death_temp = self.absolute_death_temp
-    
+
     if (self.class ~= 2) then
       -- only for land creatures
       if (temp > killer_max_temp or temp < killer_min_temp) then
@@ -509,7 +509,7 @@ function animals.core_life(self, pos)
         -- not as critical (uncomfortable, but not dying)
         animals.hq_roam_comfort_temp(self,42)
       end
-      
+
       conserve = false -- moving around, thus not conserving energy
     end
     -- lose energy from discomfort
@@ -522,7 +522,7 @@ function animals.core_life(self, pos)
       local mtp = (min_temp - temp)*0.02
       energy = energy - mtp
     end
-    
+
   -- get really hurt or die from high temp
     if temp > killer_max_temp then -- use addition instead of multiplication to account for negative numbers
       local mtp = (temp - killer_max_temp)*0.01 -- multiplier
@@ -597,11 +597,11 @@ function animals.place_egg(self, pos, e, medium) -- self, position, energy, medi
   local egg_name = self.egg_name or self.name.."_eggs"
   -- seek a "self.egg_name" or create an egg_name using the placer's name
   local max_pop = self.max_pop or max_objects
-  
+
   -- remove male or baby identifier when checking names
   local check_name = string.gsub(self.name,"_male","")
   check_name = string.gsub(self.name,"_baby","")
-  
+
   local objcount = #animals.get_entities_inside_radius(check_name,pos,mo_check_radius)
 
   if minetest.get_node(p).name == medium and objcount <= max_pop then
@@ -623,23 +623,23 @@ end
 -- generic function to be utilized by any "emergency_egg" custom function in animals' self
 function animals.emergency_egg(self, pos, medium)
   local egg_chance = self.emergency_egg_chance or 1
-  
+
   local energy = mobkit.recall(self,"energy")
   if (type(energy) ~= "number" or energy <= 0) then
     return false
   end
-  
+
   if (random() < egg_chance) then
     -- lay egg
     animals.place_egg(self, pos, energy, medium)
     -- set custom energy_egg
     local meta = minetest.get_meta(pos)
     meta:set_float("energy_egg",energy)
-    
+
     mobkit.remember(self,"energy",0) -- kill
     return true
   end
-  
+
   return false
 end
 
@@ -652,7 +652,7 @@ function animals.calculate_egg_young(self)
       young_per_egg = self.young_per_egg
     end
   end
-  
+
   if (type(young_per_egg) == "table") then
     -- allow for randomized amount of young per egg
     if (type(young_per_egg[1]) == "number" and type(young_per_egg[2]) ~= "number") then
@@ -663,7 +663,7 @@ function animals.calculate_egg_young(self)
     end
     young_per_egg = random(young_per_egg[1],young_per_egg[2])
   end
-  
+
   if (type(young_per_egg) == "number") then
     return young_per_egg
   else
@@ -753,7 +753,7 @@ function animals.hatch_egg(egg_data, pos, medium, replace, name) -- egg_data, po
     error("animals.hatch_egg: got '"..tostring(name).."' to hatch, but it does not exist!")
   end
 
-  local energy_egg = egg_data.energy_egg 
+  local energy_egg = egg_data.energy_egg
   local meta = minetest.get_meta(pos):get_float("energy_egg")
   if (meta > 0) then
     energy_egg = meta
@@ -1375,9 +1375,9 @@ function animals.hq_warn(self, threat, prty)
 			mobkit.animate(self,'stand')
 			init = false
 		end
-    
+
 		local dist = get_dist(self,tgtspec.object)
-    
+
 		if dist > warn_dist then
       -- out of worry
 			return true
@@ -1386,7 +1386,7 @@ function animals.hq_warn(self, threat, prty)
 			animals.hq_attack_eat(self, prty+10, tgtspec.object) -- priority
 		else
 			timer = timer+self.dtime
-			if mobkit.is_queue_empty_low(self) then				
+			if mobkit.is_queue_empty_low(self) then
 				mobkit.lq_turn2pos(self,tgtspec.object:get_pos())
 			end
 			-- make noise in random intervals
@@ -1616,7 +1616,7 @@ local function eat_sediment(pos,nodedef,grassy)
       end
     end
   end
-  
+
   if (minetest.get_item_group(nodedef.name,"spreading") > 0 and grassy == true) then
     -- it's a grass, let's eat it and modify it (and if eating grass was desired)
     local sediment_name = nodedef._wet_salty_name -- use this to get the raw sediment
@@ -1630,7 +1630,7 @@ local function eat_sediment(pos,nodedef,grassy)
       if (string.match(nodedef.name,"_wet")) then
         -- get wet if the grassy node is wet
         local wet_name = other_nodedef._wet_name
-        
+
         other_nodedef = minetest.registered_nodes[wet_name]
       end
     end
@@ -1639,7 +1639,7 @@ local function eat_sediment(pos,nodedef,grassy)
       minetest.add_node(pos, {name = other_nodedef.name})
     end
   end
-  
+
   -- no idea what this "drop" is supposed to do
   local drop = nodedef.drop
   minetest.set_node(pos, {name = drop})
@@ -1846,7 +1846,7 @@ local function lq_jumpattack_eat(self,height,target,consume)
 
 	local func=function(self)
 		if not mobkit.is_alive(target) then return true end
-    
+
 		if self.isonground then
 			if phase==1 then	-- collision bug workaround
 				local vel = self.object:get_velocity()
@@ -1868,9 +1868,9 @@ local function lq_jumpattack_eat(self,height,target,consume)
 		elseif phase==3 then	-- in air
 			local tgtpos = target:get_pos()
 			local pos = self.object:get_pos()
-      
+
       local dist = vector.distance(tgtpos,pos)
-      
+
 			-- calculate attack spot
 			local yaw = self.object:get_yaw()
 			local dir = minetest.yaw_to_dir(yaw)
@@ -1883,10 +1883,10 @@ local function lq_jumpattack_eat(self,height,target,consume)
 					-- play attack sound if defined
 				mobkit.make_sound(self,'attack')
 				phase=4
-        
+
         -- eat bits of opponent
         return animals.hurt_target(self,target,consume)
-        
+
 			end
 		end
 	end
@@ -2236,10 +2236,10 @@ function animals.get_entities_inside_radius(creature,pos,radius,match_string)
     minetest.log("warning","animals.get_entities_inside_radius: provided position is invalid")
     return
   end
-  
+
   local objs = minetest.get_objects_inside_radius(pos,radius)
   local aobjs = {}
-  
+
   for _,v in pairs(objs) do
     local name = ""
     local obj
@@ -2250,13 +2250,13 @@ function animals.get_entities_inside_radius(creature,pos,radius,match_string)
       name = obj.name
     end
     if (type(name) == "string") then
-      -- if match_string is true, then will use string.match() 
+      -- if match_string is true, then will use string.match()
       if (name == creature or creature == "*" or (match_string == true and string.match(creature,name))) then
         aobjs[#aobjs + 1] = v
       end
     end
   end
-  
+
   return aobjs
 end
 
@@ -2290,7 +2290,7 @@ function animals.add_interactors(creature,itype,...) -- creature to be set with 
   local interactable = animals.interactors[creature] -- finds the creature's table provided within animals.interactors
   if (type(interactable) ~= "table") then -- creates new one if not found
     animals.interactors[creature] = {}
-    
+
     interactable = animals.interactors[creature]
   end
 
@@ -2418,8 +2418,8 @@ end
 
 -- Taken directly from mobkit to properly calculate fall damage
 function animals.vitals(self)
-	
-	
+
+
 	-- vitals: oxygen
 	if self.lung_capacity then
 		local colbox = self.object:get_properties().collisionbox
@@ -2497,7 +2497,7 @@ function animals.hq_liquid_recovery(self,prty)
         mobkit.turn2yaw(self,yaw)
         vec = minetest.yaw_to_dir(yaw)
         pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
-        
+
         if (node_drawtype(pos2) ~= "liquid" or node_drawtype(mobkit.pos_shift(pos2,{y=1})) ~= "liquid") then
           -- made my OWN swimto because mobkit SUCKS 3:<
           pos2 = vector.normalize(vector.direction({x = pos.x, y = pos2.y, z = pos.z}, pos2))
@@ -2506,7 +2506,7 @@ function animals.hq_liquid_recovery(self,prty)
           pos2.y = pos2.y + 2
           self.object:set_velocity(pos2)
         end
-        
+
         radius = 1
 			end
       yaw = 0
@@ -2863,7 +2863,7 @@ function animals.register_animal(name,def)
     def.on_rightclick = function(self, clicker)
       -- create artificial on_punch functionality for rightclick
       local tool = clicker:get_wielded_item()
-      local tooldef = tool:get_definition() 
+      local tooldef = tool:get_definition()
       local tool_capabilities = tooldef.tool_capabilities
       local time_from_last_click = get_time(animals.rclick_times[clicker])
       animals.rclick_times[clicker] = get_time()
