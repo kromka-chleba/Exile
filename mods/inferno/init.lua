@@ -47,15 +47,16 @@ end
 local function burn_cane(pos)
    local above = vector.add(pos, vector.new(0,1,0))
    local anode = minetest.get_node(above)
-   if minetest.get_item_group(anode.name, "cane_plant") == 0 then
-      -- at the top, burn this cane
-      minetest.set_node(pos, { name = "inferno:basic_flame"} )
-      return true -- fuel used
-   else -- not at the top, extend the flames up
-      local tgt = minetest.find_node_near(above, 1, "air")
-      minetest.set_node(tgt, { name = "inferno:basic_flame"} )
-      return false -- didn't burn up yet
+   if minetest.get_item_group(anode.name, "cane_plant") > 0 then
+      local tgt = minetest.find_node_near(above, 1, "group:air")
+      if tgt then -- not at the top, extend the flames up
+	 minetest.set_node(tgt, { name = "inferno:basic_flame"} )
+	 return false -- didn't burn up yet
+      end
    end
+   -- at the top, burn this cane
+   minetest.set_node(pos, { name = "inferno:basic_flame"} )
+   return true -- fuel used
 end
 
 local function do_burn(flames, fuel_pos, fuel_def, fuel_node)
