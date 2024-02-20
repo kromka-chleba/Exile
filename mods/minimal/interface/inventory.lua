@@ -370,6 +370,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 	end
 
 	recipesFS[#recipesFS + 1] =	'scroll_container_end[]'
+	recipesFS[#recipesFS + 1] =	'field_close_on_enter[query;false]'
 	recipesFS[#recipesFS + 1] =	'field[4.2,6;3,.5;query;;]'
 	recipesFS[#recipesFS + 1] =	'button[7.3,6;.6,.5;?;?]'
 	cache.recipesFS = table.concat(recipesFS, "")
