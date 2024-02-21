@@ -130,8 +130,9 @@ function minimal.get_pointed_thing(player,rn, obj, liq)
     end
   end
    local ppos = player:get_pos()
-   local eye_height = player:get_properties().eye_height
-   ppos.y = ppos.y + eye_height
+   local offset = player:get_eye_offset()
+   local eye_height = player:get_properties().eye_height + ( offset.y / 10 )
+   ppos.y = ppos.y + ( eye_height )
    local lookdir = vector.multiply(player:get_look_dir(), range)
    local pointpos = vector.add(ppos, lookdir)
    local ray = minetest.raycast(ppos, pointpos, obj or false, liq or false)
