@@ -400,9 +400,7 @@ function animals.core_hp(self)
         multiplier = 0 -- lazily reuse multiplier to check whether or not it's hitting entity or air
         local obj = minetest.get_objects_inside_radius(pos,1) -- look for an object nearby
 	if obj and #obj > 0 then
-	   obj = obj[random(1,#obj or 1)] -- lazily get one of em
-	end
-        if obj then
+	  obj = obj[random(1,#obj or 1)] -- lazily get one of em
           obj = obj:get_luaentity()
           if obj and obj.physical == true and obj.collide_with_objects == true then
             -- landed on someone, cushion it
