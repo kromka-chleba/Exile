@@ -122,6 +122,70 @@ local function spawn_offset(hex1, max_count)
 end
 
 --------------------------------------------------------------------------
+-- Gate entity
+local rate = 3 -- speed of open/close
+local max_size = 6 -- how big it should get
+local open_time = 59 -- how long to stay open
+local size_change_rate = 0.05 -- frame rate of opening/closing, 20fps
+
+minetest.register_entity("spawnex:gate",{
+	initial_properties = {
+	   visual = "upright_sprite",
+	   use_texture_alpha = true,
+	   pointable = false,
+	   collides_with_objects = false,
+	   textures = { "spawnex_portal.png^[opacity:50",},
+	   visual_size = { x = 0, y = 0, z = 0},
+	   spritediv = { x = 1, y = 15 },
+	   --nametag = "GATE",
+	   glow = 64,
+	   shaded = false,
+	   show_on_minimap = true,
+	},
+	_name = "A gate to somewhere else",
+	on_step = function(self, dtime, moveresult)
+	   if not self.init then
+	      self.init = true
+	      self.size = 0
+	      self.timer = 0
+	      self.timelimit = size_change_rate
+	      self.object:set_sprite(nil, 15, 0.05) -- 20 fps
+	      self.state = "opening"
+	   end
+	   if self.state == "closed" then
+	      self.object:remove() return
+	   end
+	   self.timer = ( self.timer or 0 ) + dtime
+	   if self.timer < self.timelimit then return end
+	   self.timer = 0
+	   local obj = self.object
+	   local function change_size()
+		 obj:set_properties({ visual_size = { x = self.size,
+						      y = self.size } })
+	   end
+	   if self.state == "opening" then
+	      self.size = self.size + dtime * rate
+	      if self.size >= max_size then
+		 self.size = max_size
+		 self.state = "open"
+		 self.timelimit = open_time
+	      end
+	      change_size()
+	   elseif self.state == "open" then
+	      self.state = "closing"
+	      self.timelimit = size_change_rate
+	   elseif self.state == "closing" then
+	      self.size = self.size - dtime * rate
+	      if self.size <= 0 then
+		 self.size = 0
+		 self.state = "closed"
+	      end
+	      change_size()
+	   end
+	end,
+})
+
+--------------------------------------------------------------------------
 -- Region layer
 
 local storage = minetest.get_mod_storage()
@@ -130,7 +194,7 @@ region = {}
 rgns = minetest.deserialize(storage:get_string("regions")) or {}
 --[[
    { ["0:0"] = { [currentgate] = pos, ["nextgate"] = pos,
-     ["open"] = true, [..] = ... } }
+   ["open"] = true, ["gate"] = ObjRef, [..] = ... } }
 ]]--
 
 local jobs = minetest.deserialize(storage:get_string("jobs")) or {}
@@ -377,6 +441,7 @@ function region.spawn(player)
    end
    sadef.open = true
    pirnt("spawn: ",dump(sadef.currentgate))
+   sadef.gate = minetest.add_entity(gate, "spawnex:gate")
    player:set_pos(gate)
    if guessed_gate then fixplayer(player) end
    -- get a new spawn location, but wait until this gate is closed!
