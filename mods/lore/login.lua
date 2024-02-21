@@ -48,7 +48,7 @@ local function loginspec(player)
    minetest.show_formspec(name, "lore:login", spec)
 end
 
-local function show_motd(player)
+local function show_motd(player, force)
    -- Message of the day for servers
    local playername = player:get_player_name()
    if minetest.is_singleplayer() then return end
@@ -60,12 +60,14 @@ local function show_motd(player)
       queue_clear(playername)
       return
    end
-   local hash = minetest.sha1(motd)
-   local oldhash = meta:get("seen_motd")
-   if oldhash then
-      if hash == oldhash then return end
+   if not force then
+      local hash = minetest.sha1(motd)
+      local oldhash = meta:get("seen_motd")
+      if oldhash then
+	 if hash == oldhash then return end
+      end
+      meta:set_string("seen_motd",hash)
    end
-   meta:set_string("seen_motd",hash)
    local spec = "formspec_version[3]"..
 		"size[7,7.5]"..
 		"styletype[scrollbar;bgimg=artifacts_antiquorium.png]"..
@@ -266,3 +268,11 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 minetest.after(0.1, function() queue_start(player) end)
       end
 end)
+
+
+minetest.register_chatcommand("motd",{
+        description = S("This command shows the current message of the day."),
+	func = function(name, param)
+	   show_motd(minetest.get_player_by_name(name), true)
+	end
+})
