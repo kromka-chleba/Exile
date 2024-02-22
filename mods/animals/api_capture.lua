@@ -33,11 +33,14 @@ local pos_to_spawn = function(name, pos)
 	local x = pos.x
 	local y = pos.y
 	local z = pos.z
-	if minetest.registered_entities[name] and minetest.registered_entities[name].visual_size.x then
-		if minetest.registered_entities[name].visual_size.x >= 32 and
-			minetest.registered_entities[name].visual_size.x <= 48 then
+	local def = minetest.registered_entities[name]
+	local props = def.initial_properties
+	if not def or not props then return end
+	if props.visual_size.x then
+		if props.visual_size.x >= 32 and
+			props.visual_size.x <= 48 then
 				y = y + 2
-		elseif minetest.registered_entities[name].visual_size.x > 48 then
+		elseif props.visual_size.x > 48 then
 			y = y + 5
 		else
 			y = y + 1

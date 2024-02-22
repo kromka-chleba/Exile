@@ -172,6 +172,7 @@ minetest.register_entity("animals:darkasthaan",{
 	   textures = {"animals_darkasthaan.png"},
 	   visual_size = {x = 0.6, y = 0.6},
 	   makes_footstep_sound = true,
+	   _VH1_barheight = -20, -- lowers VH1 hp bar by 1 node
 	},
 	_desc = "Darkasthaan",
 	timeout = 0,
@@ -194,7 +195,8 @@ minetest.register_entity("animals:darkasthaan",{
 	logic = brain,
 	-- optional mobkit props
 	-- or used by built in behaviors
-	--physics = [function user defined] 		-- optional, overrides built in physics
+	--physics = [function user defined] -- optional, overrides built in physics
+
 	animation = {
 		walk={range={x=1,y=21},speed=15,loop=true},
 		fast={range={x=1,y=21},speed=35,loop=true},
