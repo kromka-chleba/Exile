@@ -134,7 +134,7 @@ minetest.register_entity("spawnex:gate",{
 	   use_texture_alpha = true,
 	   pointable = false,
 	   collides_with_objects = false,
-	   textures = { "spawnex_portal.png^[opacity:50",},
+	   textures = { "spawnex_portal.png^[colorize:#4444E932",},
 	   visual_size = { x = 0, y = 0, z = 0},
 	   spritediv = { x = 1, y = 15 },
 	   --nametag = "GATE",
@@ -441,6 +441,7 @@ function region.spawn(player)
    end
    sadef.open = true
    pirnt("spawn: ",dump(sadef.currentgate))
+   -- #TODO: do something with def.gate or remove it??
    sadef.gate = minetest.add_entity(gate, "spawnex:gate")
    player:set_pos(gate)
    if guessed_gate then fixplayer(player) end
