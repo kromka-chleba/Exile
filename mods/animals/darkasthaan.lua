@@ -124,14 +124,17 @@ animals.add_interactors("rivals","darkasthaan","animals:darkasthaan")
 local self_data = {
    name = "animals:darkasthaan",
 	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.3, -0.3, -0.3, 0.3, 0, 0.3},
-	visual = "mesh",
-	mesh = "animals_darkasthaan.b3d",
-	textures = {"animals_darkasthaan.png"},
-	visual_size = {x = 0.6, y = 0.6},
-	makes_footstep_sound = true,
+	initial_properties = {
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.3, -0.3, -0.3, 0.3, 0, 0.3},
+	   visual = "mesh",
+	   mesh = "animals_darkasthaan.b3d",
+	   textures = {"animals_darkasthaan.png"},
+	   visual_size = {x = 0.6, y = 0.6},
+	   makes_footstep_sound = true,
+	},
+	_desc = "Darkasthaan",
 	timeout = 0,
 
 	-- animal stats

@@ -126,14 +126,17 @@ animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa","animals:pega
 local self_data = {
   name = "animals:kubwakubwa",
 	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.14, -0.01, -0.14, 0.14, 0.27, 0.14},
-	visual = "mesh",
-	mesh = "animals_kubwakubwa.b3d",
-	textures = {"animals_kubwakubwa.png"},
-	visual_size = {x = 1, y = 1},
-	makes_footstep_sound = true,
+	initial_properties = {
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.14, -0.01, -0.14, 0.14, 0.27, 0.14},
+	   visual = "mesh",
+	   mesh = "animals_kubwakubwa.b3d",
+	   textures = {"animals_kubwakubwa.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = true,
+	},
+	_desc = "Kubwakubwa",
 	timeout = 0,
 
 

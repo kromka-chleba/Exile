@@ -6,6 +6,8 @@ Land living
 Dislikes bright light, eats sediment, plants,
 ]]
 ---------------------------------------------------------------------
+animals = animals
+mobkit = mobkit
 
 -- Internationalization
 local S = animals.S
@@ -19,7 +21,7 @@ local floor = math.floor
 local function brain(self)
   -- calculate instantanious effects
   animals.core_hp(self)
-  
+
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
@@ -140,22 +142,27 @@ end
 
 ----------------------------------------------
 -- SETTING OF SNEACHAN INTERACTOR SETTINGS
-animals.add_interactors("predators","sneachan","animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("predators","sneachan","animals:pegasun",
+			"animals:pegasun_male", "animals:kubwakubwa",
+			"animals:darkasthaan")
 animals.add_interactors("rivals","sneachan","animals:sneachan", "animals:impethu")
 
 ----------------------------------------------
 --The Animal
 local self_data = {
-  name = "animals:sneachan",
-  --core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
-	visual = "mesh",
-	mesh = "animals_sneachan.b3d",
-	textures = {"animals_sneachan.png"},
-	visual_size = {x = 1, y = 1},
-	makes_footstep_sound = true,
+	name = "animals:sneachan",
+	--core
+	initial_properties = {
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
+	   visual = "mesh",
+	   mesh = "animals_sneachan.b3d",
+	   textures = {"animals_sneachan.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = true,
+	},
+	_desc = "Sneachan",
 	timeout = 0,
 
 	-- animal stats
@@ -166,7 +173,7 @@ local self_data = {
 	max_temp = 50,
   -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
   class = 1,
-  
+
   --movement
 	springiness=0,
 	buoyancy = 1.01,
@@ -181,7 +188,7 @@ local self_data = {
 	--interaction
 	predators = animals.get_interactors("sneachan","predators"),
 	rivals = animals.get_interactors("sneachan","rivals"),
-  
+
   -- settings
   max_pop = 20,
 
@@ -268,7 +275,7 @@ minetest.register_node("animals:sneachan_eggs", {
     local egg_timer = self_data.egg_timer
     local energy_egg = self_data.energy_egg
     local young_per_egg = self_data.young_per_egg
-    
+
     local temp = climate.get_point_temp(pos)
     if (temp < 10 ) then
       -- don't hatch and keep timer going if temp is too uncomfortably cold

@@ -122,14 +122,17 @@ animals.add_interactors("rivals","sarkamos","animals:sarkamos")
 local self_data = {
   name = "animals:sarkamos",
 	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.2, -0.2, -0.2, 0.2, 0.15, 0.2},
-	visual = "mesh",
-	mesh = "animals_sarkamos.b3d",
-	textures = {"animals_sarkamos.png"},
-	visual_size = {x = 1, y = 1},
-	makes_footstep_sound = false,
+	initial_properties = {
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.2, -0.2, -0.2, 0.2, 0.15, 0.2},
+	   visual = "mesh",
+	   mesh = "animals_sarkamos.b3d",
+	   textures = {"animals_sarkamos.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = false,
+	},
+	_desc = "Sarkamos",
 	timeout = 0,
 
 	-- animal stats

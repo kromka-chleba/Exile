@@ -135,14 +135,17 @@ animals.add_interactors("rivals","impethu","animals:sneachan", "animals:impethu"
 local self_data = {
   name = "animals:impethu",
 	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.09, -0.25, -0.09, 0.09, -0.1, 0.09},
-	visual = "mesh",
-	mesh = "animals_impethu.b3d",
-	textures = {"animals_impethu.png"},
-	visual_size = {x = 5, y = 5},
-	makes_footstep_sound = false,
+	initial_properties = {
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.09, -0.25, -0.09, 0.09, -0.1, 0.09},
+	   visual = "mesh",
+	   mesh = "animals_impethu.b3d",
+	   textures = {"animals_impethu.png"},
+	   visual_size = {x = 5, y = 5},
+	   makes_footstep_sound = false,
+	},
+	_desc = "Impethu",
 	timeout = 0,
 
 	_VH1_barheight = 1,
