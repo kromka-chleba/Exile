@@ -2875,22 +2875,26 @@ function animals.register_animal(name,def)
   local egg_data = {} -- use this to permit proper override of on_construct (returns intended variable properly)
   -- modify _conditions_correct to return egg data
   if def.egg then
+    def.egg._get_egg_data = function()
+      -- returns clone of "egg_data" for getting an egg's information
+      return table.copy(egg_data)
+    end
     if type(def.egg._conditions_correct) == "function" then
       local _cc = def.egg._conditions_correct
       def.egg._conditions_correct = function(pos)
         if not pos then
           return false
         end
-        return _cc(pos,egg_data)
+        return _cc(pos,table.copy(egg_data))
       end
     end
     local on_construct = def.egg.on_construct
     def.egg.on_construct = function(pos)
-      return on_construct(pos,egg_data)
+      return on_construct(pos, table.copy(egg_data))
     end
     local on_timer = def.egg.on_timer
     def.egg.on_timer = function(pos, elapsed)
-      return on_timer(pos, elapsed, egg_data)
+      return on_timer(pos, elapsed, table.copy(egg_data))
     end
   end
   -- egg definition and correction
@@ -2935,6 +2939,8 @@ function animals.register_animal(name,def)
   if def.egg then
     minetest.register_node(def.egg.name,def.egg)
     egg_data.ref = minetest.registered_nodes[def.egg.name]
+    egg_data.medium = def.egg._medium
+    egg_data.replace = def.egg._replace
   else
     egg_data.ref = def.egg
   end

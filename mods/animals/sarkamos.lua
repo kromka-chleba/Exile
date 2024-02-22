@@ -199,6 +199,8 @@ local self_data = {
     groups = {snappy = 3, edible = 1, egg = 3},
     drawtype = "normal",
     nodebox = nil,
+    _medium = 'nodes_nature:salt_water_source',
+    _replace = 'nodes_nature:salt_water_flowing',
   },
   -- spawnegg or live animal
   spawnegg = {
