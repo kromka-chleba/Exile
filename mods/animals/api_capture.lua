@@ -176,6 +176,11 @@ animals.capture = function(self, clicker)
 	 stack_meta:set_string(key, value)
       end
    end
+   local idef = minetest.registered_items[self.name] or {}
+   if idef._tool_tips and idef._tool_tips ~= '' then
+      stack_meta:set_string('description',
+			    idef.description .. idef._tool_tips)
+   end
 
 	local inv = clicker:get_inventory()
 	if inv:room_for_item("main", new_stack) then
