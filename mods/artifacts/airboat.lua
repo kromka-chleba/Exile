@@ -20,7 +20,8 @@ end
 -- Airboat entity
 
 local airboat = {
-		initial_properties = {
+	_desc = "Airboat",
+	initial_properties = {
 		physical = true,
 		collide_with_objects = true,
 		selectionbox = {-0.9, 0.5, -0.9, 0.9, 1.7, 0.9},

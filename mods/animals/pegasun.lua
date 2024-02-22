@@ -413,14 +413,17 @@ minetest.register_node("animals:pegasun_eggs", {
 
 minetest.register_entity("animals:pegasun_male",{
 	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.16, -0.75, -0.16, 0.16, -0.25, 0.16},
-	visual = "mesh",
-	mesh = "animals_pegasun.b3d",
-	textures = {"animals_pegasun_male.png"},
-	visual_size = {x = 1, y = 1},
-	makes_footstep_sound = true,
+	initial_properties = {
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.16, -0.75, -0.16, 0.16, -0.25, 0.16},
+	   visual = "mesh",
+	   mesh = "animals_pegasun.b3d",
+	   textures = {"animals_pegasun_male.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = true,
+	},
+	_desc = "Male Pegasun",
 	timeout = 0,
 
 	--damage
@@ -531,14 +534,17 @@ animals.register_egg("animals:pegasun_male", S("Live Pegasun (male)"), "animals_
 
 minetest.register_entity("animals:pegasun",{
 	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.16, -0.75, -0.16, 0.16, -0.25, 0.16},
-	visual = "mesh",
-	mesh = "animals_pegasun.b3d",
-	textures = {"animals_pegasun.png"},
-	visual_size = {x = 1, y = 1},
-	makes_footstep_sound = true,
+	initial_properties = {
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.16, -0.75, -0.16, 0.16, -0.25, 0.16},
+	   visual = "mesh",
+	   mesh = "animals_pegasun.b3d",
+	   textures = {"animals_pegasun.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = true,
+	},
+	_desc = "Female Pegasun",
 	timeout = 0,
 
 	--damage

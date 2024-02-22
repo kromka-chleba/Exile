@@ -194,14 +194,17 @@ minetest.register_node("animals:sneachan_eggs", {
 --The Animal
 minetest.register_entity("animals:sneachan",{
 	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
-	visual = "mesh",
-	mesh = "animals_sneachan.b3d",
-	textures = {"animals_sneachan.png"},
-	visual_size = {x = 1, y = 1},
-	makes_footstep_sound = true,
+	initial_properties = {
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
+	   visual = "mesh",
+	   mesh = "animals_sneachan.b3d",
+	   textures = {"animals_sneachan.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = true,
+	},
+	_desc = "Sneachan",
 	timeout = 0,
 
 	--damage

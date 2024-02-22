@@ -225,14 +225,17 @@ minetest.register_node("animals:gundu_eggs", {
 --The Animal
 minetest.register_entity("animals:gundu",{
 	--core
-	physical = true,
-	collide_with_objects = true,
-	collisionbox = {-0.1, -0.1, -0.1, 0.1, 0.1, 0.1},
-	visual = "mesh",
-	mesh = "animals_gundu.b3d",
-	textures = {"animals_gundu.png"},
-	visual_size = {x = 5, y = 5},
-	makes_footstep_sound = false,
+	initial_properties = {
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.1, -0.1, -0.1, 0.1, 0.1, 0.1},
+	   visual = "mesh",
+	   mesh = "animals_gundu.b3d",
+	   textures = {"animals_gundu.png"},
+	   visual_size = {x = 5, y = 5},
+	   makes_footstep_sound = false,
+	},
+	_desc = "Gundu",
 	timeout = 0,
 
 	--damage
