@@ -200,16 +200,22 @@ animals.add_interactors("animals:gundu","friends", "self")
 --Animal Data
 
 local self_data = {
-  initial_properties = {
-    max_hp = 40,
-    
-    collisionbox = {-0.1, -0.1, -0.1, 0.1, 0.1, 0.1},
-    visual = "mesh",
-    mesh = "animals_gundu.b3d",
-    textures = {"animals_gundu.png"},
-    visual_size = {x = 5, y = 5},
-  },
-  -- animal stats
+   name = "animals:gundu",
+   initial_properties = {
+   --core
+      max_hp = 40,
+      physical = true,
+      collide_with_objects = true,
+      collisionbox = {-0.1, -0.1, -0.1, 0.1, 0.1, 0.1},
+      visual = "mesh",
+      mesh = "animals_gundu.b3d",
+      textures = {"animals_gundu.png"},
+      visual_size = {x = 5, y = 5},
+      makes_footstep_sound = false,
+   },
+   _name = "Gundu",
+
+   -- animal stats
 	lung_capacity = 5,
   -- comfort temps
 	min_temp = -2,

@@ -122,17 +122,25 @@ animals.add_interactors("animals:darkasthaan","rivals", "self")
 ----------------------------------------------
 -- Animal Data
 local self_data = {
-  initial_properties = {
-    max_hp = 200,
-    
-    collisionbox = {-0.3, -0.3, -0.3, 0.3, 0, 0.3},
-    visual = "mesh",
-    mesh = "animals_darkasthaan.b3d",
-    textures = {"animals_darkasthaan.png"},
-    visual_size = {x = 0.6, y = 0.6},
-  },
-  _VH1_barheight = 7,
-  -- animal stats
+   name = "animals:darkasthaan",
+	--core
+	initial_properties = {
+	   max_hp = 200,
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.3, -0.3, -0.3, 0.3, 0, 0.3},
+	   visual = "mesh",
+	   mesh = "animals_darkasthaan.b3d",
+	   textures = {"animals_darkasthaan.png"},
+	   visual_size = {x = 0.6, y = 0.6},
+	   makes_footstep_sound = true,
+	   _VH1_barheight = -20, -- lowers VH1 hp bar by 1 node
+	},
+	_desc = "Darkasthaan",
+	timeout = 0,
+
+	-- animal stats
+	max_hp = 200,
 	lung_capacity = 40,
 	breathing_rate = 8,
 	-- comfort temps

@@ -18,7 +18,7 @@ local floor = math.floor
 local function brain(self)
   -- calculate instantanious effects
   animals.core_hp(self)
-  
+
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
@@ -49,11 +49,11 @@ local function brain(self)
 			pred = animals.predator_avoid(self)
 
     end
-    
+
     local light = (minetest.get_node_light(pos) or 0)
     if (light > self.max_light) then
         --fatigued by light
-        
+
       energy = energy - random(2,6)
       if (prty <= 46) then
         --random search for darkness (now better :D)
@@ -64,7 +64,7 @@ local function brain(self)
 
 		----------------------
 		--Low priority actions
-    
+
 		if prty < 20 then
 
 			--territorial behaviour
@@ -136,7 +136,7 @@ local self_data -- define earlier for utilization in functions
 self_data = animals.register_animal("animals:impethu",{
   initial_properties = {
     max_hp = 3,
-    
+
     physical = true,
     collide_with_objects = true,
     collisionbox = {-0.09, -0.25, -0.09, 0.09, -0.1, 0.09},
@@ -147,8 +147,9 @@ self_data = animals.register_animal("animals:impethu",{
     makes_footstep_sound = false,
     timeout = 0,
   },
+  _desc = "Impethu",
   _VH1_barheight = 1,
-  
+
   -- animal stats
   max_hp = 3,
 	lung_capacity = 10,
@@ -235,7 +236,7 @@ self_data = animals.register_animal("animals:impethu",{
       end
       return false,math.random(egg_timer,egg_timer*2) -- return regular egg_timer
     end,
-    
+
   },
   -- spawnegg or live animal
   spawnegg = {
@@ -244,4 +245,3 @@ self_data = animals.register_animal("animals:impethu",{
     stack = minimal.stack_max_medium
   },
 })
-

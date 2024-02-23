@@ -6,6 +6,8 @@ males and females, must mate to reproduce.
 lives off flora, spreading surface and insects
 ]]
 ---------------------------------------------------------------------
+animals = animals
+mobkit = mobkit
 
 -- Internationalization
 local S = animals.S
@@ -17,7 +19,7 @@ local floor = math.floor
 local function brain(self)
   -- calculate instantanious effects
   animals.core_hp(self)
-  
+
 	if mobkit.timer(self,1) then
 		local pos = mobkit.get_stand_pos(self)
 
@@ -26,7 +28,7 @@ local function brain(self)
 		if not age then
 			return
 		end
-    
+
 		------------------
 		--Emergency actions
 
@@ -125,18 +127,24 @@ local function brain(self)
 				end
 
 			elseif energy < self.energy_max then
-        local hng_percent = (self.energy_max * 0.55)/energy -- hunger_percent - creates a percentage by dividing a percentage of energy_max by the current energy. The lower the energy, the higher the percentage
-        -- if energy is equal or less than 55% of energy_max, it will be 1 or higher
-        
+        local hng_percent = (self.energy_max * 0.55)/energy
+	-- hunger_percent - creates a percentage by dividing a percentage of
+	--  energy_max by the current energy. The lower the energy, the
+	-- higher the percentage
+        -- if energy is equal or less than 55% of energy_max, it will be 1
+	-- or higher
+
         if (random() <= hng_percent) then
-          -- females much hungrier and predatory than males (gotta fill up for those babies y'know)
+	   -- females much hungrier and predatory than males
+	   -- (gotta fill up for those babies y'know)
           if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
             if (animals.eat_flora(pos,0.001) == true) then
               energy = energy + 50
             else
               mobkit.animate(self,'walk')
               -- look for flora that's not a cane_plant
-              animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- self, go for group, ignore group, priority
+              animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15)
+	      -- self, go for group, ignore group, priority
             end
           end
         else
@@ -172,7 +180,7 @@ end
 local function brain_male(self)
   -- calculate instantanious effects
   animals.core_hp(self)
-  
+
 	if mobkit.timer(self,1) then
 		local pos = mobkit.get_stand_pos(self)
 
@@ -274,7 +282,7 @@ local function brain_male(self)
     elseif energy < self.energy_max then
       local hng_percent  = (self.energy_max * 0.2)/energy -- hunger_percent
       -- if energy is equal or less than 20% of energy_max, it will be 1 or higher
-      
+
       if (random() <= hng_percent ) then
         --feed via a method
         if (animals.eat_flora(pos,0.0005) == true) then -- mmm plants
@@ -329,16 +337,25 @@ animals.add_interactors("animals:pegasun_male","rivals", "self")
 ------------------------------------------------------------------------
 --FEMALE
 local self_data = {
-  initial_properties = {
-    max_hp = 40,
-    
-    collisionbox = {-0.16, -0.75, -0.16, 0.16, -0.25, 0.16},
-    visual = "mesh",
-    mesh = "animals_pegasun.b3d",
-    textures = {"animals_pegasun.png"},
-    visual_size = {x = 1, y = 1},
-  },
-  -- animal stats
+  name = "animals:pegasun",
+	--core
+	_desc = "Female Pegasun",
+	initial_properties = {
+	   max_hp = 40,
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.16, -0.75, -0.16, 0.16, -0.25, 0.16},
+	   visual = "mesh",
+	   mesh = "animals_pegasun.b3d",
+	   textures = {"animals_pegasun.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = true,
+	},
+	_desc = "Female Pegasun",
+	timeout = 0,
+
+	-- animal stats
+	max_hp = 40,
 	lung_capacity = 20,
   energy_loss = 1,
   breathing_rate = 5,

@@ -40,11 +40,14 @@ local pos_to_spawn = function(name, pos)
 	local x = pos.x
 	local y = pos.y
 	local z = pos.z
-	if minetest.registered_entities[name] and minetest.registered_entities[name].visual_size.x then
-		if minetest.registered_entities[name].visual_size.x >= 32 and
-			minetest.registered_entities[name].visual_size.x <= 48 then
+	local def = minetest.registered_entities[name]
+	local props = def.initial_properties
+	if not def or not props then return end
+	if props.visual_size.x then
+		if props.visual_size.x >= 32 and
+			props.visual_size.x <= 48 then
 				y = y + 2
-		elseif minetest.registered_entities[name].visual_size.x > 48 then
+		elseif props.visual_size.x > 48 then
 			y = y + 5
 		else
 			y = y + 1
@@ -195,15 +198,15 @@ animals.register_spawnegg = function(self)
     end,
   }
    -- dropped animal egg spawns the animal
-  function item_table.on_drop(itemstack, dropper, pos)
-    -- craft a quick pointed_thing lol
-    local pointed_thing = {}
-    pointed_thing.above = minimal.shift_pos(pos,{y = 1}) --{x = pos.x, y = pos.y + 1, z = pos.z}
-    pointed_thing.under = pos
+   function item_table.on_drop(itemstack, dropper, pos)
+      -- craft a quick pointed_thing lol
+      local pointed_thing = {}
+      pointed_thing.above = minimal.shift_pos(pos,{y = 1}) --{x = pos.x, y = pos.y + 1, z = pos.z}
+      pointed_thing.under = pos
 
-    return item_table.on_place(itemstack, dropper, pointed_thing) -- run on_place function
-  end
-  minetest.register_craftitem(name, item_table) -- register egg
+      return item_table.on_place(itemstack, dropper, pointed_thing) -- run on_place function
+   end
+   minetest.register_craftitem(name, item_table) -- register egg
 end
 
 
@@ -231,6 +234,11 @@ animals.capture = function(self, clicker)
 	 end
 	 stack_meta:set_string(key, value)
       end
+   end
+   local idef = minetest.registered_items[self.name] or {}
+   if idef._tool_tips and idef._tool_tips ~= '' then
+      stack_meta:set_string('description',
+			    idef.description .. idef._tool_tips)
    end
 
 	local inv = clicker:get_inventory()
