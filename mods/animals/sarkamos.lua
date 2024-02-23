@@ -120,16 +120,24 @@ animals.add_interactors("animals:sarkamos","rivals", "self")
 ----------------------------------------------
 -- Animal Data
 local self_data = {
- initial_properties = {
-    max_hp = 200,
-    
-    collisionbox = {-0.2, -0.2, -0.2, 0.2, 0.15, 0.2},
-    visual = "mesh",
-    mesh = "animals_sarkamos.b3d",
-    textures = {"animals_sarkamos.png"},
-    visual_size = {x = 1, y = 1},
-  },
-  -- animal stats
+   name = "animals:sarkamos",
+	--core
+	initial_properties = {
+	   max_hp = 200,
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.2, -0.2, -0.2, 0.2, 0.15, 0.2},
+	   visual = "mesh",
+	   mesh = "animals_sarkamos.b3d",
+	   textures = {"animals_sarkamos.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = false,
+	},
+	_desc = "Sarkamos",
+	timeout = 0,
+
+	-- animal stats
+	max_hp = 200,
 	lung_capacity = 40,
   -- comfort temps
 	min_temp = 0,
@@ -199,6 +207,8 @@ local self_data = {
     groups = {snappy = 3, edible = 1, egg = 3},
     drawtype = "normal",
     nodebox = nil,
+    _medium = 'nodes_nature:salt_water_source',
+    _replace = 'nodes_nature:salt_water_flowing',
   },
   -- spawnegg or live animal
   spawnegg = {

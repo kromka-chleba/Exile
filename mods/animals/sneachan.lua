@@ -6,6 +6,8 @@ Land living
 Dislikes bright light, eats sediment, plants,
 ]]
 ---------------------------------------------------------------------
+animals = animals
+mobkit = mobkit
 
 -- Internationalization
 local S = animals.S
@@ -19,7 +21,7 @@ local floor = math.floor
 local function brain(self)
   -- calculate instantanious effects
   animals.core_hp(self)
-  
+
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
@@ -140,21 +142,28 @@ end
 
 ----------------------------------------------
 -- SETTING OF SNEACHAN INTERACTOR SETTINGS
-animals.add_interactors("animals:sneachan","predators", "animals:pegasun", "animals:pegasun_male", "animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("animals:sneachan","predators", "animals:pegasun",
+			"animals:pegasun_male", "animals:kubwakubwa",
+			"animals:darkasthaan")
 animals.add_interactors("animals:sneachan","rivals", "self", "animals:impethu")
 
 -- Animal Data
 local self_data -- define earlier for utilization in functions
 self_data = animals.register_animal("animals:sneachan",{
-  initial_properties = {
-    max_hp = 3,
+	initial_properties = {
+	   max_hp = 3,
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
+	   visual = "mesh",
+	   mesh = "animals_sneachan.b3d",
+	   textures = {"animals_sneachan.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = true,
+	},
+	_desc = "Sneachan",
+	timeout = 0,
 
-    collisionbox = {-0.1, -0.01, -0.1, 0.1, 0.15, 0.1},
-    visual = "mesh",
-    mesh = "animals_sneachan.b3d",
-    textures = {"animals_sneachan.png"}
-  },
-  
   -- animal stats
 	lung_capacity = 10,
   -- comfort temps

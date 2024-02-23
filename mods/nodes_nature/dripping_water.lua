@@ -6,6 +6,7 @@ local random = math.random
 
 --Drop entities
 minetest.register_entity("nodes_nature:drop_water", {
+	_desc = "Water drop",
 	initial_properties = {
 	   hp_max = 2,
 	   physical = true,

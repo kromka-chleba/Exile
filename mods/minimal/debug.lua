@@ -94,6 +94,16 @@ if __DEBUG__ then
        end
     end
    })
+   minetest.register_chatcommand("itemdef", {
+    params = "<none>",
+    description = "Prints the definition of the currently wielded item",
+    privs = {},
+    func = function(name, param)
+       local plyr = minetest.get_player_by_name(name)
+       local witem = plyr:get_wielded_item()
+       print(dump2(minetest.registered_items[witem:get_name()]))
+    end
+   })
 end
 
 

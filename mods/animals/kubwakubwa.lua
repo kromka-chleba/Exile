@@ -123,16 +123,25 @@ animals.add_interactors("animals:kubwakubwa","rivals", "self","animals:pegasun_m
 ----------------------------------------------
 -- Animal Data
 local self_data = {
-  initial_properties = {
-    max_hp = 20,
-    
-    collisionbox = {-0.14, -0.01, -0.14, 0.14, 0.27, 0.14},
-    visual = "mesh",
-    mesh = "animals_kubwakubwa.b3d",
-    textures = {"animals_kubwakubwa.png"},
-    visual_size = {x = 1, y = 1},
-  },
-  -- animal stats
+  name = "animals:kubwakubwa",
+	--core
+	initial_properties = {
+	   max_hp = 20,
+	   physical = true,
+	   collide_with_objects = true,
+	   collisionbox = {-0.14, -0.01, -0.14, 0.14, 0.27, 0.14},
+	   visual = "mesh",
+	   mesh = "animals_kubwakubwa.b3d",
+	   textures = {"animals_kubwakubwa.png"},
+	   visual_size = {x = 1, y = 1},
+	   makes_footstep_sound = true,
+	},
+	_desc = "Kubwakubwa",
+	timeout = 0,
+
+
+	-- animal stats
+	max_hp = 20,
 	lung_capacity = 25,
   oxygen_min = "lung_capacity*0.4",
   breathing_rate = 5,
