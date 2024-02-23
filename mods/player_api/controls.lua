@@ -293,3 +293,15 @@ minetest.register_on_leaveplayer(function(player)
 	player_sneak[name] = nil
 	player_crawl[name] = nil
 end)
+
+minetest.register_chatcommand("crouch", {
+        params = "true | false",
+        description = "Switches crouch mode, for use multiplayer during lag",
+        func = function(name, param)
+	   local player = minetest.get_player_by_name(name)
+	   local toggle = not player_crawl[name]
+	   if param == "true" then toggle = true end
+	   if param == "false" then toggle = false end
+	   toggle_crawl(player, name, toggle)
+	end
+})
