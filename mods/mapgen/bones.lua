@@ -1,8 +1,5 @@
 -- Bones for deco.lua
 -- Globals
-deco = deco or {}
-
-
 local _EXILE_DEBUG = minetest.settings:get("exile_debug") or false
 
 -- Placeholder node, replaced at runtime with bones:bones, filled with loot
