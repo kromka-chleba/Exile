@@ -15,7 +15,10 @@ local function unshow(player, meta)
 end
 
 local function show(player)
-   local ptd = minimal.get_pointed_thing(player, nil, true, true)
+   local returnliquid = false
+   local def = player:get_wielded_item():get_definition()
+   if def and def.liquids_pointable == true then returnliquid = true end
+   local ptd = minimal.get_pointed_thing(player, nil, true, returnliquid)
    if not ptd then return end
    if ptd.type == "object" then
       local obj = ptd.ref:get_luaentity().name
