@@ -279,7 +279,8 @@ function what_is_this_uwu.show(player, meta, form_view, desc, node_name, item_ty
 	meta:set_string("wit:pointed_thing", node_name)
 
 	if item_type ~= "entity" then
-	   if minetest.registered_items[node_name]._orig_desc then
+	   if minetest.registered_items[node_name]
+	      and minetest.registered_items[node_name]._orig_desc then
 	      desc = minetest.registered_items[node_name]._orig_desc
 	   end
 	end
