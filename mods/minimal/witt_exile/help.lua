@@ -228,6 +228,8 @@ function what_is_this_uwu.get_node_tiles(node_name)
 		return node.inventory_image .. "^[resize:146x146", "node", node
 	elseif node.inventory_image ~= "" then
 		return node.inventory_image .. "^[resize:16x16", "craft_item", node
+	elseif node.drawtype == "nodebox" or node.drawtype == "mesh" then
+	   return "", "node", node
 	else
 		tiles[3] = tiles[3] or tiles[1]
 		tiles[6] = tiles[6] or tiles[3]
