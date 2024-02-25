@@ -249,6 +249,7 @@ end
 -- Check each player and apply animations
 local bub_timer = 0
 local use_timer = {}
+local use_db = {}
 local spawnbubbles = false
 minetest.register_globalstep(function(dtime)
       bub_timer = bub_timer + dtime
@@ -342,6 +343,13 @@ minetest.register_globalstep(function(dtime)
 		     end
 	       end
 	    end
+      if controls[USE_KEY] and not use_db[name] then
+        use_db[name] = true
+        handle_use_key(player)
+      elseif dtime > 0.35 or not controls[USE_KEY] then
+        use_db[name] = false
+      end
+      --[[
 	    if not use_timer[name] then
 	       use_timer[name] = 0
 	    elseif use_timer[name] > 0 then
@@ -353,7 +361,7 @@ minetest.register_globalstep(function(dtime)
 		  handle_use_key(player)
 	       end
 	    end
-
+      --]]
 	 end
       end
       spawnbubbles = false
