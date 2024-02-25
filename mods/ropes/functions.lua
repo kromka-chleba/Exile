@@ -12,7 +12,7 @@ ropes.make_rope_on_timer = function(rope_node_name)
 		local oldnode = minetest.get_node(pos)
 		if currentlength > 1 and (not minetest.is_protected(newpos, placer_name)
 		or minetest.check_player_privs(placer_name, "protection_bypass")) then
-			if  newnode.name == "air" then
+			if  newnode.name == "group:air" then
 				minetest.add_node(newpos, {name=currentend.name, param2=oldnode.param2})
 				local newmeta = minetest.get_meta(newpos)
 				newmeta:set_int("length_remaining", currentlength-1)
