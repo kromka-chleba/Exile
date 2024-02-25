@@ -165,6 +165,7 @@ function player_api.set_texture(player)
 	if minetest.get_modpath("skinsdb") then
 		return
 	end
+	local name = player:get_player_name()
 	local cloth = player_api.compose_cloth(player)
 	local gender = player_api.get_gender(player)
 	local gender_model = player_api.get_gender_model(gender)
@@ -172,9 +173,10 @@ function player_api.set_texture(player)
 	player_api.set_model(player, gender_model)
 	if minetest.get_modpath("3d_armor")~=nil then
 		--armor.default_skin = cloth
-		local player_name = player:get_player_name()
-		armor.textures[player_name].skin = cloth
+		armor.textures[name].skin = cloth
 	end
+
+	player_textures[name] = models[gender_model].textures
 	player_api.set_textures(player, models[gender_model].textures)
 end
 
