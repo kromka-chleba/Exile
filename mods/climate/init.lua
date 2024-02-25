@@ -45,27 +45,13 @@ dofile(modpath .. "/particles.lua")
 dofile(modpath .. "/temperature.lua")
 dofile(modpath .. "/history.lua")
 --weathers
-dofile(modpath .. "/weathers/clear.lua")
-dofile(modpath .. "/weathers/light_cloud.lua")
-dofile(modpath .. "/weathers/medium_cloud.lua")
-dofile(modpath .. "/weathers/sun_shower.lua")
-dofile(modpath .. "/weathers/light_rain.lua")
-dofile(modpath .. "/weathers/overcast_light_rain.lua")
-dofile(modpath .. "/weathers/overcast.lua")
-dofile(modpath .. "/weathers/overcast_rain.lua")
-dofile(modpath .. "/weathers/overcast_heavy_rain.lua")
-dofile(modpath .. "/weathers/thunderstorm.lua")
-dofile(modpath .. "/weathers/superstorm.lua")
-dofile(modpath .. "/weathers/light_haze.lua")
-dofile(modpath .. "/weathers/haze.lua")
-dofile(modpath .. "/weathers/duststorm.lua")
-dofile(modpath .. "/weathers/snow_flurry.lua")
-dofile(modpath .. "/weathers/light_snow.lua")
-dofile(modpath .. "/weathers/overcast_light_snow.lua")
-dofile(modpath .. "/weathers/overcast_snow.lua")
-dofile(modpath .. "/weathers/overcast_heavy_snow.lua")
-dofile(modpath .. "/weathers/snowstorm.lua")
-dofile(modpath .. "/weathers/fog.lua")
+local weathers_folder = minetest.get_dir_list(modpath.."/weathers")
+-- runs each lua file in the weathers folder
+for _,file in pairs(weathers_folder) do
+  if string.match(file,".lua") then
+    dofile(modpath.."/weathers/"..file)
+  end
+end
 
 
 

@@ -366,7 +366,7 @@ local function default_timer_regress(player, effect_name, t_min, t_max, meta,
 		end
 		return
 	end
-	print("cur ",current_order," / rem ",removed_order)
+
 	--current order vs the order of what we are trying to remove
 	if current_order > removed_order then
 		--trying to remove lower than current (i.e. not powerful enough)
