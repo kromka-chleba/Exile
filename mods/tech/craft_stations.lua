@@ -812,26 +812,26 @@ minetest.register_node("tech:glass_furnace", {
 
 ---- Boulders ----
 --grind a mortar_and_pestle
+-- crafting.register_recipe({
+-- 	type   = "grinding_stone",
+-- 	output = "tech:mortar_pestle_basalt",
+-- 	items  = {'nodes_nature:limestone_boulder', "group:limestone_cobble", 'nodes_nature:sand'},
+-- 	level  = 1,
+-- 	always_known = true,
+-- 	})
+-- crafting.register_recipe({
+-- 	type   = "grinding_stone",
+-- 	output = "tech:mortar_pestle_granite",
+-- 	items  = {'nodes_nature:granite_boulder', "group:granite_cobble", 'nodes_nature:sand'},
+-- 	level  = 1,
+-- 	always_known = true,
+-- 	})
 crafting.register_recipe({
-	type   = {"grinding_stone", "hand_create"},
-	output = "tech:mortar_pestle_basalt",
-	items  = {'nodes_nature:basalt_boulder', "group:basalt_cobble", 'nodes_nature:sand'},
-	level  = 1,
-	always_known = true,
-	})
-crafting.register_recipe({
-	type   = {"grinding_stone", "hand_create"},
 	type   = "grinding_stone",
-	output = "tech:mortar_pestle_granite",
-	items  = {'nodes_nature:granite_boulder', "group:granite_cobble", 'nodes_nature:sand'},
-	level  = 1,
-	always_known = true,
-	})
-crafting.register_recipe({
-	type   = "grinding_stone",
-	type   = {"grinding_stone", "hand_create"},
 	output = "tech:mortar_pestle_limestone",
-	items  = {'nodes_nature:limestone_boulder', "group:limestone_cobble", 'nodes_nature:sand'},
+	items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
+		{"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"}, 'nodes_nature:sand'},
+	where = '@1.material == @2.material',
 	level  = 1,
 	always_known = true,
 	})
@@ -856,7 +856,7 @@ crafting.register_recipe({
 ---- Iron ----
 -- Anvil
 crafting.register_recipe({ --hammer ingots into anvil
-	type   = {"hammering_block","hammer","anvil","hand_create"},
+	type   = {"hand_create"},
 	output = "tech:anvil",
 	items  = {'tech:iron_ingot 4'},
 	level  = 1,

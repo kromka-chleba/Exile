@@ -150,32 +150,52 @@ function crafting.get_recipe(id)
 	return crafting.recipes_by_id[id]
 end
 
-function crafting.get_all(type, level, item_hash, unlocked)
-	assert(crafting.recipes[type], "No such craft type! '"..type.."'")
-	assert(level, "No level specified!")
+function crafting.pick_all(inv, item, items, item_hash,line)
+	item = ItemStack(item)
+	local needed_count = item:get_count()
+	local craftable = true
+	local available_count = item_hash[item:get_name()] or 0
+	if available_count < needed_count then
+		craftable = false
+	end
+
+	items[#items + 1] = {
+		name = item:get_name(),
+		have = available_count,
+		need = needed_count,
+		line = line,
+	}
+	return craftable
+end
+
+
+function crafting.get_all(ctype, level, item_hash, unlocked)
+	assert(crafting.recipes[ctype], "No such craft type!")
 
 	local results = {}
-	for _, recipe in pairs(crafting.recipes[type]) do
+	for _, recipe in pairs(crafting.recipes[ctype]) do
 		local craftable = true
 		if recipe.level <= level and (recipe.always_known or unlocked[recipe.output]) then
 			-- Check all ingredients are available
 			local items = {}
-			for _, item in pairs(recipe.items) do
-				item = ItemStack(item)
-				local needed_count = item:get_count()
-
-				local available_count = item_hash[item:get_name()] or 0
-				if available_count < needed_count then
-					craftable = false
+			for i, item in pairs(recipe.items) do
+				-- Conditional input list to process
+				if (type(item) == 'table') then
+					local picked = false
+					for _, conItem in ipairs(item) do
+						if crafting.pick_all(inv, conItem, items, item_hash,i) then
+							picked = true
+						end
+					end
+					if not picked then
+						craftable = false -- didn't find
+					end
+				else
+					if not crafting.pick_all(inv, item, items, item_hash,i) then
+						craftable = false
+					end
 				end
-
-				items[#items + 1] = {
-					name = item:get_name(),
-					have = available_count,
-					need = needed_count,
-				}
 			end
-
 			results[#results + 1] = {
 				recipe    = recipe,
 				items     = items,
@@ -203,14 +223,14 @@ function crafting.set_item_hashes_from_list(inv, listname, item_hash)
 	end
 end
 
-function crafting.get_all_for_player(player, type, level)
+function crafting.get_all_for_player(player, ctype, level)
 	local unlocked = crafting.get_unlocked(player:get_player_name())
-
-	-- Get items hashed
+	-- build player items hash
 	local item_hash = {}
 	crafting.set_item_hashes_from_list(player:get_inventory(), "main", item_hash)
-
-	return crafting.get_all(type, level, item_hash, unlocked)
+	-- Get all available recipies and mark craftible ones.
+	local results =  crafting.get_all(ctype, level, item_hash, unlocked)
+	return results
 end
 
 function crafting.can_craft(name, ctype, level, recipe)
@@ -239,6 +259,48 @@ local function give_all_to_player(inv, list)
 	end
 end
 
+
+function crafting.pick_required_item(inv, listname, item, located)
+	item = ItemStack(item)
+	local itemName = item:get_name()
+	if itemName:sub(1, 6) == "group:" then
+		local groupname = itemName:sub(7, #itemName)
+		local required = item:get_count()
+
+		-- Find stacks in group
+		for i = 1, inv:get_size(listname) do
+			local stack = inv:get_stack(listname, i)
+
+			-- Is it in group?
+			local def = minetest.registered_items[stack:get_name()]
+			if def and def.groups and def.groups[groupname] then
+				stack = ItemStack(stack)
+				if stack:get_count() > required then
+					stack:set_count(required)
+				end
+				located[#located + 1] = stack
+
+				required = required - stack:get_count()
+
+				if required == 0 then
+					break
+				end
+			end
+		end
+
+		if required > 0 then
+			return nil
+		end
+	else
+		if inv:contains_item(listname, item) then
+			located[#located + 1] = item
+		else
+			return nil
+		end
+	end
+	return located
+end
+
 function crafting.find_required_items(inv, listname, recipe)
 	local items = {}
 	-- updated to allow passing of a table of listnames
@@ -247,65 +309,27 @@ function crafting.find_required_items(inv, listname, recipe)
 	if type(listname) ~= 'table' then
 		listname = { listname }
 	end
-
 	for _, item in pairs(recipe.items) do
-		item = ItemStack(item)
-
-		local itemname = item:get_name()
-		if item:get_name():sub(1, 6) == "group:" then
-			local groupname = itemname:sub(7, #itemname)
-			local required = item:get_count()
-
-			-- Find stacks in group
-			for _,list in ipairs(listname) do
-				for i = 1, inv:get_size(list) do
-					local stack = inv:get_stack(list, i)
-					-- Is it in group?
-					local def = minetest.registered_items[stack:get_name()]
-					if def and def.groups and def.groups[groupname] then
-						stack = ItemStack(stack)
-						if stack:get_count() > required then
-							stack:set_count(required)
-						end
-						items[#items + 1] = stack
-						required = required - stack:get_count()
-						if required == 0 then
-							break
-						end
-					end
-				end
-				if required == 0 then
-					break
-				end
-			end
-			if required > 0 then
-				return nil
-			end
-		else
-			local item_name = item:get_name()
-			local required = item:get_count()
-			for _,list in ipairs(listname) do
-
-				if inv:contains_item(list, ItemStack(item_name)) then
-					for i = 1, inv:get_size(list) do
-						local stack = inv:get_stack(list, i)
-						if stack:get_name() == item_name then
-							local found = stack:peek_item(required)
-							items[#items + 1] = found
-							required = required - found:get_count()
-						end
-						if required == 0 then
-							break
-						end
-					end	
-					if required == 0 then
+		local picked = false	-- assume we don't find it
+		-- search each of passed lists
+		for _,list in ipairs(listname) do
+			-- Conditional input list to process
+			if (type(item) == 'table') then
+				for _, conItem in ipairs(item) do
+					if crafting.pick_required_item(inv, list, conItem, items) ~= nil then
+						picked = true
 						break
 					end
 				end
+			else
+print(dump(item))
+				if crafting.pick_required_item(inv, list, item, items) ~= nil then
+					picked = true
+				end
 			end
-			if required ~= 0 then
-				return nil
-			end
+		end
+		if not picked then
+			return nil -- didn't find
 		end
 	end
 	return items
