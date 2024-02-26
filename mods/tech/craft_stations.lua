@@ -799,51 +799,51 @@ minetest.register_node("tech:glass_furnace", {
 	end
     --on_rightclick = crafting.make_on_rightclick({"weaving_frame","weaving_frame_mixing"}, 2, { x = 8, y = 3 }),
    })
-
--- lowered crafting requirements as a trade off to it no longer being free again
-   crafting.register_recipe({ --weaving_frame
-	 type   = {"crafting_spot","hand_create"},
-	 output = "tech:weaving_frame",
---	 items  = {'tech:stick 12', 'group:fibrous_plant 8'},
-	 items  = {'tech:stick 6', 'group:fibrous_plant 4'},
-	 level  = 1,
-	 always_known = true,
-   })
-
----- Boulders ----
---grind a mortar_and_pestle
--- crafting.register_recipe({
--- 	type   = "grinding_stone",
--- 	output = "tech:mortar_pestle_basalt",
--- 	items  = {'nodes_nature:limestone_boulder', "group:limestone_cobble", 'nodes_nature:sand'},
--- 	level  = 1,
--- 	always_known = true,
--- 	})
--- crafting.register_recipe({
--- 	type   = "grinding_stone",
--- 	output = "tech:mortar_pestle_granite",
--- 	items  = {'nodes_nature:granite_boulder', "group:granite_cobble", 'nodes_nature:sand'},
--- 	level  = 1,
--- 	always_known = true,
--- 	})
+--IB-20240226 
+--IB-20240226 -- lowered crafting requirements as a trade off to it no longer being free again
+--IB-20240226    crafting.register_recipe({ --weaving_frame
+--IB-20240226 	 type   = {"crafting_spot","hand_create"},
+--IB-20240226 	 output = "tech:weaving_frame",
+--IB-20240226 --	 items  = {'tech:stick 12', 'group:fibrous_plant 8'},
+--IB-20240226 	 items  = {'tech:stick 6', 'group:fibrous_plant 4'},
+--IB-20240226 	 level  = 1,
+--IB-20240226 	 always_known = true,
+--IB-20240226    })
+--IB-20240226 
+--IB-20240226 ---- Boulders ----
+--IB-20240226 --grind a mortar_and_pestle
+--IB-20240226 -- crafting.register_recipe({
+--IB-20240226 -- 	type   = "grinding_stone",
+--IB-20240226 -- 	output = "tech:mortar_pestle_basalt",
+--IB-20240226 -- 	items  = {'nodes_nature:limestone_boulder', "group:limestone_cobble", 'nodes_nature:sand'},
+--IB-20240226 -- 	level  = 1,
+--IB-20240226 -- 	always_known = true,
+--IB-20240226 -- 	})
+--IB-20240226 -- crafting.register_recipe({
+--IB-20240226 -- 	type   = "grinding_stone",
+--IB-20240226 -- 	output = "tech:mortar_pestle_granite",
+--IB-20240226 -- 	items  = {'nodes_nature:granite_boulder', "group:granite_cobble", 'nodes_nature:sand'},
+--IB-20240226 -- 	level  = 1,
+--IB-20240226 -- 	always_known = true,
+--IB-20240226 -- 	})
 crafting.register_recipe({
-	type   = "grinding_stone",
-	output = "tech:mortar_pestle_limestone",
-	items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
-		{"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"}, 'nodes_nature:sand'},
-	where = '@1.material == @2.material',
-	level  = 1,
-	always_known = true,
-	})
-----Wood--
---chopping_block
-crafting.register_recipe({
-	type   = {"crafting_spot", "chopping_block", "hand_create"},
-	output = "tech:chopping_block",
-	items  = {'group:log'},
-	level  = 1,
-	always_known = true,
-	})
+type   = "grinding_stone",
+output = "tech:mortar_pestle_limestone",
+items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
+	{"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"}, 'nodes_nature:sand'},
+where = '@1.material == @2.material',
+level  = 1,
+always_known = true,
+})
+--IB-20240226 ----Wood--
+--IB-20240226 --chopping_block
+--IB-20240226 crafting.register_recipe({
+--IB-20240226 	type   = {"crafting_spot", "chopping_block", "hand_create"},
+--IB-20240226 	output = "tech:chopping_block",
+--IB-20240226 	items  = {'group:log'},
+--IB-20240226 	level  = 1,
+--IB-20240226 	always_known = true,
+--IB-20240226 	})
 --brick_makers_bench
 crafting.register_recipe({
 	type   = {"crafting_spot", "hand_create"},
@@ -934,13 +934,13 @@ minetest.register_node(
         --on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
 })
 
-crafting.register_recipe({
-        type   = {"crafting_spot", "hand_create"},
-        output = "tech:grinding_stone_granite",
-        items  = {"nodes_nature:granite_boulder", "group:granite_cobble", "nodes_nature:sand 3"},
-        level  = 1,
-        always_known = true,
-})
+--IB-20240226 crafting.register_recipe({
+--IB-20240226         type   = {"crafting_spot", "hand_create"},
+--IB-20240226         output = "tech:grinding_stone_granite",
+--IB-20240226         items  = {"nodes_nature:granite_boulder", "group:granite_cobble", "nodes_nature:sand 3"},
+--IB-20240226         level  = 1,
+--IB-20240226         always_known = true,
+--IB-20240226 })
 
 --Limestone grinding stone
 --for grinding stone tools
@@ -974,13 +974,13 @@ minetest.register_node(
         --on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
 })
 
-crafting.register_recipe({
-        type   = {"crafting_spot", "hand_create"},
-        output = "tech:grinding_stone_limestone",
-        items  = {"nodes_nature:limestone_boulder", "group:limestone_cobble", "nodes_nature:sand 3"},
-        level  = 1,
-        always_known = true,
-})
+--IB-20240226 crafting.register_recipe({
+--IB-20240226         type   = {"crafting_spot", "hand_create"},
+--IB-20240226         output = "tech:grinding_stone_limestone",
+--IB-20240226         items  = {"nodes_nature:limestone_boulder", "group:limestone_cobble", "nodes_nature:sand 3"},
+--IB-20240226         level  = 1,
+--IB-20240226         always_known = true,
+--IB-20240226 })
 
 --Basalt grinding stone
 --for grinding stone tools
@@ -1013,13 +1013,13 @@ minetest.register_node(
         --on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
 })
 
-crafting.register_recipe({
-        type   = {"crafting_spot", "hand_create"},
-        output = "tech:grinding_stone_basalt",
-        items  = {"nodes_nature:basalt_boulder", "group:basalt_cobble", "nodes_nature:sand 3"},
-        level  = 1,
-        always_known = true,
-})
+--IB-20240226 crafting.register_recipe({
+--IB-20240226         type   = {"crafting_spot", "hand_create"},
+--IB-20240226         output = "tech:grinding_stone_basalt",
+--IB-20240226         items  = {"nodes_nature:basalt_boulder", "group:basalt_cobble", "nodes_nature:sand 3"},
+--IB-20240226         level  = 1,
+--IB-20240226         always_known = true,
+--IB-20240226 })
 
 
    -- legacy stations

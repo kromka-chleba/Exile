@@ -904,30 +904,31 @@ crafting.register_recipe({
 --Polished Stone
 --
 
---grind adze
-crafting.register_recipe({
-	type = "grinding_stone",
-	output = "tech:adze_granite",
-	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	level = 1,
-	always_known = true,
-})
+--IB-20240226 --grind adze
+--IB-20240226 crafting.register_recipe({
+--IB-20240226 	type = "grinding_stone",
+--IB-20240226 	output = "tech:adze_granite",
+--IB-20240226 	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+--IB-20240226 	level = 1,
+--IB-20240226 	always_known = true,
+--IB-20240226 })
 
 crafting.register_recipe({
 	type = "grinding_stone",
 	output = "tech:adze_jade",
-	items = {"group:jade_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	items = {{"group:jade_cobble","group:basalt_cobble","group:granite_cobble"},
+		'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
 	level = 1,
 	always_known = true,
 })
 
-crafting.register_recipe({
-	type = "grinding_stone",
-	output = "tech:adze_basalt",
-	items = {"group:basalt_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	level = 1,
-	always_known = true,
-})
+--IB-20240226 crafting.register_recipe({
+--IB-20240226 	type = "grinding_stone",
+--IB-20240226 	output = "tech:adze_basalt",
+--IB-20240226 	items = {"group:basalt_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+--IB-20240226 	level = 1,
+--IB-20240226 	always_known = true,
+--IB-20240226 })
 
 
 --grind club
@@ -1008,13 +1009,13 @@ minetest.register_tool(
         sound = {breaks = "tech_tool_breaks"},
 })
 
-crafting.register_recipe({
-	type = "grinding_stone",
-	output = "tech:hammer_granite",
-	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	level = 1,
-	always_known = true,
-})
+--IB-20240226 crafting.register_recipe({
+--IB-20240226 	type = "grinding_stone",
+--IB-20240226 	output = "tech:hammer_granite",
+--IB-20240226 	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+--IB-20240226 	level = 1,
+--IB-20240226 	always_known = true,
+--IB-20240226 })
 
 minetest.register_node(
     "tech:hammer_granite_placed", {
@@ -1077,7 +1078,7 @@ minetest.register_tool(
 crafting.register_recipe({
 	type = "grinding_stone",
 	output = "tech:hammer_basalt",
-	items = {"group:basalt_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	items = {{"group:basalt_cobble","group:granite_cobble"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
 	level = 1,
 	always_known = true,
 })
