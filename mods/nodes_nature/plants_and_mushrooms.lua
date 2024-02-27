@@ -257,7 +257,7 @@ local plant_list = {
      lifeform_type = "mushroom", plant_type = "mushroom",
      mesh_type = 2, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
-     seasonal_type = "late_mushroom"},
+     seasonal_type = "whole_season"},
 
     {name = "zufani", description = S("Zufani"),
      drawtype = "plantlike",
