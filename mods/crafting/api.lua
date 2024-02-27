@@ -150,7 +150,7 @@ function crafting.get_recipe(id)
 	return crafting.recipes_by_id[id]
 end
 
-function crafting.pick_all(inv, item, items, item_hash,line)
+function crafting.pick_all(item, items, item_hash,line)
 	item = ItemStack(item)
 	local needed_count = item:get_count()
 	local craftable = true
@@ -183,7 +183,7 @@ function crafting.get_all(ctype, level, item_hash, unlocked)
 				if (type(item) == 'table') then
 					local picked = false
 					for _, conItem in ipairs(item) do
-						if crafting.pick_all(inv, conItem, items, item_hash,i) then
+						if crafting.pick_all(conItem, items, item_hash,i) then
 							picked = true
 						end
 					end
@@ -191,7 +191,7 @@ function crafting.get_all(ctype, level, item_hash, unlocked)
 						craftable = false -- didn't find
 					end
 				else
-					if not crafting.pick_all(inv, item, items, item_hash,i) then
+					if not crafting.pick_all(item, items, item_hash,i) then
 						craftable = false
 					end
 				end
@@ -322,7 +322,6 @@ function crafting.find_required_items(inv, listname, recipe)
 					end
 				end
 			else
-print(dump(item))
 				if crafting.pick_required_item(inv, list, item, items) ~= nil then
 					picked = true
 				end
@@ -360,16 +359,19 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 	local taken = {}
 	for _, item in pairs(items) do
 		item = ItemStack(item)
+		local count = item:get_count()
+		local tcount = 0;
 		for _, list in ipairs(listname) do
 			local took = inv:remove_item(list, item)
-			taken[#taken + 1] = took
-			item:set_count(item:get_count() - took:get_count())
-			if not item:get_count() then
-				break
+			if took:get_count() > 0 then
+				taken[#taken + 1] = took
+				tcount = tcount + took:get_count()
+				if tcount == count then 
+					break -- found so done
+				end
 			end
 		end
-
-		if item:get_count() ~= 0 then
+		if  tcount ~= count then
 			 minetest.log("error", "Unexpected lack of items in inventory")
 			 give_all_to_player(inv, taken)
 			 return false
@@ -393,6 +395,12 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 	  end
 	  imeta:set_string('short_description', sdesc)
    end
+
+	-- set material
+	if recipe.material then
+		local material_def = ItemStack(taken[recipe.material]):get_definition()
+		imeta:set_string('material', material_def.exile_crafting.material)
+	end
 
    -- Add Tool Tips to Description
 

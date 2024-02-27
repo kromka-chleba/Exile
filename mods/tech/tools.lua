@@ -70,7 +70,7 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
     return itemstack
 end
 
-local function on_dig_tool(pos, node, digger, name)
+local function on_dig_tool(pos, node, digger, name, material)
 	if minetest.is_protected(pos, digger) then
 		return -- can't dig tools you don't own
 	end
@@ -80,6 +80,11 @@ local function on_dig_tool(pos, node, digger, name)
     local player_inv = digger:get_inventory()
     local stack = ItemStack(name)
     stack:set_wear(wear)
+	if material then
+		local imeta = stack:get_meta()
+		imeta:set_string('inventory_image', "tech_tool_hammer_" ..material.. ".png")
+		imeta:set_string('material', material)
+	end
     if player_inv:room_for_item("main", stack) then
        minetest.remove_node(pos)
        player_inv:add_item("main", stack)
@@ -985,12 +990,10 @@ crafting.register_recipe({
 
 
 --Hammers
-
--- Granite hammer
 minetest.register_tool(
-    "tech:hammer_granite", {
-        description = S("Granite Hammer"),
-        inventory_image = "tech_tool_hammer_granite.png",
+    "tech:hammer", {
+        description = S("Hammer"),
+        inventory_image = "tech_tool_hammer_basalt.png",  --using basalt image for inventory as default
         tool_capabilities = {
             full_punch_interval = base_punch_int * 1.2,
             groupcaps={
@@ -1003,19 +1006,22 @@ minetest.register_tool(
 	_place_tip = "Stun animals\n"..
 	   " or Place on solid surface for hammering crafts",
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing, "tech:hammer_granite_placed")
+			local imeta = itemstack:get_meta()
+			local material = imeta:get_string('material') or 'basalt' -- default to basalt if no material stored
+            return place_tool(itemstack, placer, pointed_thing, "tech:hammer_"..material.."_placed")
         end,
         groups = {club = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
 })
 
---IB-20240226 crafting.register_recipe({
---IB-20240226 	type = "grinding_stone",
---IB-20240226 	output = "tech:hammer_granite",
---IB-20240226 	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
---IB-20240226 	level = 1,
---IB-20240226 	always_known = true,
---IB-20240226 })
+crafting.register_recipe({
+	type = "grinding_stone",
+	output = "tech:hammer",
+	items = {{"group:basalt_cobble","group:granite_cobble"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	material = 1; -- first item sets material.
+	level = 1,
+	always_known = true,
+})
 
 minetest.register_node(
     "tech:hammer_granite_placed", {
@@ -1023,6 +1029,7 @@ minetest.register_node(
 		exile_crafting = {
 			craft_types = {"hammer", "hammer_mixing"},
 			craft_level = 1,
+			material = 'granite',
 			good_on = {
 				{"stone", 1}, {"masonry", 1}, {"boulder", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}
 			},
@@ -1048,39 +1055,8 @@ minetest.register_node(
 --            open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:hammer_granite")
+            on_dig_tool(pos, node, digger, "tech:hammer", 'granite')
         end,
-})
-
--- Basalt hammer
-minetest.register_tool(
-    "tech:hammer_basalt", {
-        description = S("Basalt Hammer"),
-        inventory_image = "tech_tool_hammer_basalt.png",
-        tool_capabilities = {
-            full_punch_interval = base_punch_int * 1.2,
-            groupcaps={
-                choppy = {times={[3]=crude_chop3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
-                snappy = {times={[3]=crude_snap3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
-                crumbly = {times= {[3]=crude_crum3}, uses=base_use*0.5, maxlevel=crude_max_lvl}
-            },
-            damage_groups = {fleshy=stone_dmg},
-        },
-	_place_tip = "Stun animals\n"..
-	   " or Place on solid surface for hammering crafts",
-        on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing, "tech:hammer_basalt_placed")
-        end,
-        groups = {club = 1, craftedby = 1},
-        sound = {breaks = "tech_tool_breaks"},
-})
-
-crafting.register_recipe({
-	type = "grinding_stone",
-	output = "tech:hammer_basalt",
-	items = {{"group:basalt_cobble","group:granite_cobble"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	level = 1,
-	always_known = true,
 })
 
 minetest.register_node(
@@ -1089,6 +1065,7 @@ minetest.register_node(
 		exile_crafting = {
 			craft_types = {"hammer", "hammer_mixing"},
 			craft_level = 1,
+			material = 'basalt',
 			good_on = {
 				{"stone", 1}, {"masonry", 1}, {"boulder", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}
 			},
@@ -1114,9 +1091,57 @@ minetest.register_node(
 --            open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:hammer_basalt")
+            on_dig_tool(pos, node, digger, "tech:hammer", 'basalt')
         end,
 })
+
+-- Legacy hammers needed only for old maps.
+-- Basalt hammer
+minetest.register_tool(
+    "tech:hammer_basalt", {
+        description = S("Basalt Hammer"),
+        inventory_image = "tech_tool_hammer_basalt.png",
+        tool_capabilities = {
+            full_punch_interval = base_punch_int * 1.2,
+            groupcaps={
+                choppy = {times={[3]=crude_chop3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
+                snappy = {times={[3]=crude_snap3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
+                crumbly = {times= {[3]=crude_crum3}, uses=base_use*0.5, maxlevel=crude_max_lvl}
+            },
+            damage_groups = {fleshy=stone_dmg},
+        },
+	_place_tip = "Stun animals\n"..
+	   " or Place on solid surface for hammering crafts",
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing, "tech:hammer_basalt_placed")
+        end,
+        groups = {club = 1, craftedby = 1},
+        sound = {breaks = "tech_tool_breaks"},
+})
+-- granite hammer
+minetest.register_tool(
+    "tech:hammer_granite", {
+        description = S("Granite Hammer"),
+        inventory_image = "tech_tool_hammer_granite.png",
+        tool_capabilities = {
+            full_punch_interval = base_punch_int * 1.2,
+            groupcaps={
+                choppy = {times={[3]=crude_chop3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
+                snappy = {times={[3]=crude_snap3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
+                crumbly = {times= {[3]=crude_crum3}, uses=base_use*0.5, maxlevel=crude_max_lvl}
+            },
+            damage_groups = {fleshy=stone_dmg},
+        },
+	_place_tip = "Stun animals\n"..
+	   " or Place on solid surface for hammering crafts",
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing, "tech:hammer_granite_placed")
+        end,
+        groups = {club = 1, craftedby = 1},
+        sound = {breaks = "tech_tool_breaks"},
+})
+
+
 
 --[[
 --would be nice to have,

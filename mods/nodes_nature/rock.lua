@@ -124,6 +124,9 @@ for i in ipairs(rock_list) do
 	--boulder
 	minetest.register_node("nodes_nature:"..name.."_boulder",{
 		description = S("@1 Boulder", desc),
+		exile_crafting = {
+			material = name,
+		},
 		drawtype = "mesh",
 		mesh = "nodes_nature_boulder.obj",
 		tiles = {"nodes_nature_"..name..".png"},
@@ -267,6 +270,9 @@ for i in ipairs(rock_list) do
 	   minetest.register_node(
 	      "nodes_nature:"..name.."_cobble"..cobble_nr,{
 		 description = S("@1 Cobble", desc),
+		 exile_crafting = {
+			material = name,
+		 },
 		 drawtype = "mesh",
 		 mesh = "nodes_nature_cobble"..cobble_nr..".obj",
 		 tiles = {"nodes_nature_"..name..".png"},
