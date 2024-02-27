@@ -307,6 +307,20 @@ local function cache_player_recipes(cache, player_name, pInv)
 	local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
 	local recipe_list = recipes_for_player(cache, pInv, player_name,cTabs[sTab], sLevel)
 
+	-- sort craftable recipes to top of list
+	local sorted = {}
+	local not_craftable = {}
+	for _,result in ipairs(recipe_list) do
+		if result.craftable then
+			sorted[#sorted+1] = result
+		else
+			not_craftable[#not_craftable+1] = result
+		end
+	end
+	for _,result in ipairs(not_craftable) do
+		sorted[#sorted+1] = result
+	end
+
 	-- Add tab header
 	local tabs = ""
 	for i=1,#cTabs do
@@ -319,16 +333,20 @@ local function cache_player_recipes(cache, player_name, pInv)
 	recipesFS[#recipesFS + 1] = 'tabheader[3.2,1;sCraftTab;' .. tabs .. ';'
 		.. sTab .. ';true;false]'
 	-- add Scrollable container
-	local scroll_max = math.ceil(#recipe_list / 5 )
-	recipesFS[#recipesFS + 1] = 'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
-		.. 'smallstep=1;largestep=1;thumbsize=1]'
-	recipesFS[#recipesFS + 1] = 'scrollbar[9.2,1.2;.5,4.6;vertical;recipes_scroll;'
-		.. sScroll .. ']'
-	recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1;6,5;recipes_scroll;vertical;1]'
-	-- Add recipe buttons in rows of 5
+	local columns = 6 -- can show 6 items accross without scrollbar
+	if #recipe_list > 24 then
+		columns = 5
+		local scroll_max = math.ceil(#recipe_list / 5 )
+		recipesFS[#recipesFS + 1] = 'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
+			.. 'smallstep=1;largestep=1;thumbsize=1]'
+		recipesFS[#recipesFS + 1] = 'scrollbar[9.2,1.2;.5,4.6;vertical;recipes_scroll;'
+			.. sScroll .. ']'
+	end
+	recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1;'..tostring(columns + 1)..',5;recipes_scroll;vertical;1]'
+	-- Add recipe buttons in columns of 5 or 6
 	local x = 0
 	local y = 0
-	for i, result in ipairs(recipe_list) do
+	for i, result in ipairs(sorted) do
 		-- recipe
 		local recipe_output = result.recipe.output
 		local itemname=ItemStack(recipe_output):get_name()
@@ -363,7 +381,7 @@ local function cache_player_recipes(cache, player_name, pInv)
          end
          recipesFS[#recipesFS + 1] = minetest.get_color_escape_sequence("#ffffff") .. ']'
 		x = x + 1
-		if x > 4 then
+		if x > columns  then
 			x = 0
 			y = y + 1
 		end

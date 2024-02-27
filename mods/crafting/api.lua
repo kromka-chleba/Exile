@@ -163,7 +163,7 @@ function crafting.pick_all(item, items, item_hash,line)
 		name = item:get_name(),
 		have = available_count,
 		need = needed_count,
-		line = line,
+		line = line,  -- line # of input items list
 	}
 	return craftable
 end
@@ -261,6 +261,7 @@ end
 
 
 function crafting.pick_required_item(inv, listname, item, located)
+	local count=0
 	item = ItemStack(item)
 	local itemName = item:get_name()
 	if itemName:sub(1, 6) == "group:" then
@@ -279,6 +280,7 @@ function crafting.pick_required_item(inv, listname, item, located)
 					stack:set_count(required)
 				end
 				located[#located + 1] = stack
+				count = count + 1
 
 				required = required - stack:get_count()
 
@@ -288,17 +290,34 @@ function crafting.pick_required_item(inv, listname, item, located)
 			end
 		end
 
-		if required > 0 then
-			return nil
+		if required > 0 and count > 0 then
+			-- not enough so delete located items
+			for j=1,count do
+				located[#located] = nil
+			end
+			count=0		
 		end
 	else
 		if inv:contains_item(listname, item) then
 			located[#located + 1] = item
-		else
-			return nil
+			count = count + 1
 		end
 	end
-	return located
+	return count
+end
+
+
+function crafting.parse_where(recipe, items, item_idx, num_added)
+	if recipe.where or type(recipe.where) ~= 'string' then
+		return nil
+	end
+	local result = recipe.where_results or recipe.where
+
+	-- @1.material == @2.material
+--	local input1,key1,test,input2,key2 = 
+print("where: "..recipe.where)
+print(dump( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") ))
+
 end
 
 function crafting.find_required_items(inv, listname, recipe)
@@ -309,20 +328,37 @@ function crafting.find_required_items(inv, listname, recipe)
 	if type(listname) ~= 'table' then
 		listname = { listname }
 	end
-	for _, item in pairs(recipe.items) do
+	for i, item in pairs(recipe.items) do
 		local picked = false	-- assume we don't find it
 		-- search each of passed lists
 		for _,list in ipairs(listname) do
 			-- Conditional input list to process
 			if (type(item) == 'table') then
 				for _, conItem in ipairs(item) do
-					if crafting.pick_required_item(inv, list, conItem, items) ~= nil then
-						picked = true
-						break
+					local count = crafting.pick_required_item(inv, list, conItem, items)
+					if count >0 then 
+						-- check for where clause involving this recipe input item
+
+						if recipe.where then
+--and string.find(recipe.where, '@'..i) then
+print("where: "..recipe.where)
+print( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") )
+
+
+							if crafting.parse_where(recipe,items, i, count) then
+								picked = true
+								break
+							else
+								items[#items] = nil --delete picked item because where failed
+							end
+						else
+							picked = true
+							break
+						end
 					end
 				end
 			else
-				if crafting.pick_required_item(inv, list, item, items) ~= nil then
+				if crafting.pick_required_item(inv, list, item, items) >0 then
 					picked = true
 				end
 			end

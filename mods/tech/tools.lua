@@ -405,9 +405,9 @@ local stone_chop2 = crude_chop2 * stone
 local adze_dig = "Cut softwood logs"
 
 --stone adze. best for chopping
-minetest.register_tool("tech:adze_granite", {
-	description = S("Granite Adze"),
-	inventory_image = "tech_tool_adze_granite.png",
+minetest.register_tool("tech:adze", {
+	description = S("Adze"),
+	inventory_image = "tech_tool_adze_jade.png", -- use jade as default image
 	tool_capabilities = {
 		full_punch_interval = base_punch_int * 1.1,
 		groupcaps={
@@ -421,7 +421,7 @@ minetest.register_tool("tech:adze_granite", {
 	sound = {breaks = "tech_tool_breaks"},
 	_dig_tip = adze_dig,
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing, "tech:adze_granite_placed")
+            return place_tool(itemstack, placer, pointed_thing, "tech:adze_jade_placed")
         end,
 })
 
@@ -460,27 +460,6 @@ minetest.register_node("tech:adze_granite_placed", {
         end,
 })
 
---less uses than granite bc softer stone
-minetest.register_tool("tech:adze_basalt", {
-	description = S("Basalt Adze"),
-	inventory_image = "tech_tool_adze_basalt.png",
-	tool_capabilities = {
-		full_punch_interval = base_punch_int * 1.1,
-		groupcaps={
-			choppy = {times={[2]=stone_chop2, [3]=stone_chop3}, uses=stone_use *0.9, maxlevel=stone_max_lvl},
-			snappy= {times={[1]=stone_snap1, [2]=stone_snap2, [3]=stone_snap3}, uses=stone_use *0.7, maxlevel=stone_max_lvl},
-			crumbly = {times={[3]=crude_crum3}, uses=base_use*0.9, maxlevel=crude_max_lvl},
-		},
-		damage_groups = {fleshy = stone_dmg},
-	},
-	groups = {axe = 1, craftedby = 1},
-	sound = {breaks = "tech_tool_breaks"},
-	_dig_tip = adze_dig,
-        on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing, "tech:adze_basalt_placed")
-        end,
-})
-
 -- Placed basalt adze
 minetest.register_node("tech:adze_basalt_placed", {
         description = S("Placed Basalt Adze"),
@@ -513,28 +492,6 @@ minetest.register_node("tech:adze_basalt_placed", {
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger, "tech:adze_basalt")
-        end,
-})
-
-
---many more uses than granite.
-minetest.register_tool("tech:adze_jade", {
-	description = S("Jade Adze"),
-	inventory_image = "tech_tool_adze_jade.png",
-	tool_capabilities = {
-		full_punch_interval = base_punch_int * 1.1,
-		groupcaps={
-			choppy = {times={[2]=stone_chop2, [3]=stone_chop3}, uses=stone_use * 1.5, maxlevel=stone_max_lvl},
-			snappy={times={[1]=stone_snap1, [2]=stone_snap2, [3]=stone_snap3}, uses=stone_use, maxlevel=stone_max_lvl},
-			crumbly = {times={[3]=crude_crum3}, uses=base_use, maxlevel=crude_max_lvl},
-		},
-		damage_groups = {fleshy = stone_dmg},
-	},
-	groups = {axe = 1, craftedby = 1},
-	sound = {breaks = "tech_tool_breaks"},
-	_dig_tip = adze_dig,
-        on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing, "tech:adze_jade_placed")
         end,
 })
 
@@ -572,6 +529,84 @@ minetest.register_node("tech:adze_jade_placed", {
             on_dig_tool(pos, node, digger, "tech:adze_jade")
         end,
 })
+
+-- Legecy tools with material in name.
+-- XXX need to set groupcaps for different materials some how.
+
+--less uses than granite bc softer stone
+minetest.register_tool("tech:adze_basalt", {
+	description = S("Basalt Adze"),
+	inventory_image = "tech_tool_adze_basalt.png",
+	tool_capabilities = {
+		full_punch_interval = base_punch_int * 1.1,
+		groupcaps={
+			choppy = {times={[2]=stone_chop2, [3]=stone_chop3}, uses=stone_use *0.9, maxlevel=stone_max_lvl},
+			snappy= {times={[1]=stone_snap1, [2]=stone_snap2, [3]=stone_snap3}, uses=stone_use *0.7, maxlevel=stone_max_lvl},
+			crumbly = {times={[3]=crude_crum3}, uses=base_use*0.9, maxlevel=crude_max_lvl},
+		},
+		damage_groups = {fleshy = stone_dmg},
+	},
+	groups = {axe = 1, craftedby = 1},
+	sound = {breaks = "tech_tool_breaks"},
+	_dig_tip = adze_dig,
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing, "tech:adze_basalt_placed")
+        end,
+})
+
+--many more uses than granite.
+minetest.register_tool("tech:adze_jade", {
+	description = S("Jade Adze"),
+	inventory_image = "tech_tool_adze_jade.png",
+	tool_capabilities = {
+		full_punch_interval = base_punch_int * 1.1,
+		groupcaps={
+			choppy = {times={[2]=stone_chop2, [3]=stone_chop3}, uses=stone_use * 1.5, maxlevel=stone_max_lvl},
+			snappy={times={[1]=stone_snap1, [2]=stone_snap2, [3]=stone_snap3}, uses=stone_use, maxlevel=stone_max_lvl},
+			crumbly = {times={[3]=crude_crum3}, uses=base_use, maxlevel=crude_max_lvl},
+		},
+		damage_groups = {fleshy = stone_dmg},
+	},
+	groups = {axe = 1, craftedby = 1},
+	sound = {breaks = "tech_tool_breaks"},
+	_dig_tip = adze_dig,
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing, "tech:adze_jade_placed")
+        end,
+})
+
+
+--stone adze. best for chopping
+minetest.register_tool("tech:adze_granite", {
+	description = S("Granite Adze"),
+	inventory_image = "tech_tool_adze_granite.png",
+	tool_capabilities = {
+		full_punch_interval = base_punch_int * 1.1,
+		groupcaps={
+			choppy = {times={[2]=stone_chop2, [3]=stone_chop3}, uses=stone_use, maxlevel=stone_max_lvl},
+			snappy={times={[1]=stone_snap1, [2]=stone_snap2, [3]=stone_snap3}, uses=stone_use *0.8, maxlevel=stone_max_lvl},
+			crumbly = {times={[3]=crude_crum3}, uses=base_use, maxlevel=crude_max_lvl},
+		},
+		damage_groups = {fleshy = stone_dmg},
+	},
+	groups = {axe = 1,craftedby = 1},
+	sound = {breaks = "tech_tool_breaks"},
+	_dig_tip = adze_dig,
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing, "tech:adze_granite_placed")
+        end,
+})
+
+
+
+
+
+
+
+
+
+
+
 
 --stone club. A weapon. Not very good for anything else
 --can stun catch animals
