@@ -306,7 +306,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 	local cTabs = cache.cTabs	-- Crafting tabs to display
 	local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
 	local recipe_list = recipes_for_player(cache, pInv, player_name,cTabs[sTab], sLevel)
-
+--print (dump(recipe_list))
 	-- sort craftable recipes to top of list
 	local sorted = {}
 	local not_craftable = {}
@@ -371,15 +371,18 @@ local function cache_player_recipes(cache, player_name, pInv)
 			.. recipe_output .. ';sResult_' .. id ..';]'
 		recipesFS[#recipesFS + 1] = 'tooltip[sResult_' .. id..';'
 			.. minetest.formspec_escape(item_description .. "\n")
-		for j, item in pairs(result.items) do
-             local color = item.have >= item.need and "#6f6" or "#f66"
-             local tool_tip ="\n"
-                ..  minetest.get_color_escape_sequence(color)
-                ..  crafting.get_item_description(item.name) .. ": "
-                ..  item.have .."/".. item.need
-             recipesFS[#recipesFS + 1] = minetest.formspec_escape(tool_tip)
-         end
-         recipesFS[#recipesFS + 1] = minetest.get_color_escape_sequence("#ffffff") .. ']'
+		for _, row in ipairs(result.items) do
+			local tool_tip ="\n"
+			for _, item in ipairs(row) do
+				local color = item.have >= item.need and "#6f6" or "#f66"
+				tool_tip = tool_tip
+					..  minetest.get_color_escape_sequence(color)
+					..  crafting.get_item_description(item.name) .. ": "
+					..  item.have .."/".. item.need .." "
+			end
+			recipesFS[#recipesFS + 1] = minetest.formspec_escape(tool_tip)
+		end
+		recipesFS[#recipesFS + 1] = minetest.get_color_escape_sequence("#ffffff") .. ']'
 		x = x + 1
 		if x > columns  then
 			x = 0

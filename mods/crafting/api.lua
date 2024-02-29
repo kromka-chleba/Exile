@@ -25,6 +25,7 @@ crafting = {
 	recipes_by_id = {},
 	recipes_by_output = {},
 	registered_on_crafts = {},
+	item_by_group = {}, -- hash group:groupname to an item name. only last inventory item from group is stored.
 }
 
 function crafting.register_type(name, label)
@@ -150,52 +151,86 @@ function crafting.get_recipe(id)
 	return crafting.recipes_by_id[id]
 end
 
-function crafting.pick_all(item, items, item_hash,line)
-	item = ItemStack(item)
-	local needed_count = item:get_count()
-	local craftable = true
-	local available_count = item_hash[item:get_name()] or 0
-	if available_count < needed_count then
-		craftable = false
+function crafting.peek_item(item, item_hash)
+	local items = {}
+	-- single item peeks need to be in table for processing
+	if (type(item) ~= 'table') then
+		item = { item }
 	end
+	for _, item in ipairs(item) do
+		local stack = ItemStack(item)
+		local need =  stack:get_count()
+		local have = item_hash[stack:get_name()] or 0
+		items[#items + 1] = {
+			name = stack:get_name(),
+			have = have,
+			need = need,
+			available = (have >= need) and true or false,
+		}
+	end
+	return items
+end
 
-	items[#items + 1] = {
-		name = item:get_name(),
-		have = available_count,
-		need = needed_count,
-		line = line,  -- line # of input items list
-	}
-	return craftable
+local function get_real_name(name)
+	if name:sub(1, 6) == "group:" then
+		return crafting.item_by_group[name]
+	end
+	return name
 end
 
 
 function crafting.get_all(ctype, level, item_hash, unlocked)
 	assert(crafting.recipes[ctype], "No such craft type!")
-
 	local results = {}
 	for _, recipe in pairs(crafting.recipes[ctype]) do
 		local craftable = true
 		if recipe.level <= level and (recipe.always_known or unlocked[recipe.output]) then
-			-- Check all ingredients are available
 			local items = {}
-			for i, item in pairs(recipe.items) do
-				-- Conditional input list to process
-				if (type(item) == 'table') then
-					local picked = false
-					for _, conItem in ipairs(item) do
-						if crafting.pick_all(conItem, items, item_hash,i) then
-							picked = true
+			-- Check what ingredients are available
+			for recipe_row, rowItem in ipairs(recipe.items) do
+				rItems = {} -- row items
+				local pickable = false
+				for i,item in ipairs(crafting.peek_item(rowItem, item_hash)) do
+					rItems[#rItems+1] = item
+					if item.available then
+						pickable = true -- at least one item is available
+					end
+				end
+				items[recipe_row]=rItems -- save items by recipe input row
+				if not pickable then
+					craftable = false -- don't have any of the needed ingredients from this row.
+				end
+			end
+			-- check if we have a where clause only if its craftable
+			if craftable and recipe.where then
+				craftable = false -- assume this failes unless we find a match.
+				-- recipe.where should look something like this:  @1.material == @2.material
+				-- @x where x is the input item row number
+				local lParam, lKey, test, rParam, rKey = 
+					string.match(recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")
+				for _,left in ipairs( items[tonumber(lParam)] ) do
+					local lName = get_real_name(left.name)
+					if left.available then
+						for _,right in ipairs(items[tonumber(rParam)]) do
+							local rName = get_real_name(right.name)
+							if right.available then
+								local left_def = ItemStack(lName):get_definition()
+								local lValue = left_def.exile_crafting[lKey] 
+								local right_def = ItemStack(rName):get_definition()
+								local rValue = right_def.exile_crafting[rKey]
+								-- find the operator
+								if test == '==' and lValue == rValue then
+									craftable = true
+								end
+								if test == '~=' and lValue ~= rValue then
+									craftable = true
+								end
+							end
 						end
-					end
-					if not picked then
-						craftable = false -- didn't find
-					end
-				else
-					if not crafting.pick_all(item, items, item_hash,i) then
-						craftable = false
 					end
 				end
 			end
+
 			results[#results + 1] = {
 				recipe    = recipe,
 				items     = items,
@@ -207,6 +242,7 @@ function crafting.get_all(ctype, level, item_hash, unlocked)
 	return results
 end
 
+
 function crafting.set_item_hashes_from_list(inv, listname, item_hash)
 	for _, stack in pairs(inv:get_list(listname)) do
 		if not stack:is_empty() then
@@ -216,6 +252,7 @@ function crafting.set_item_hashes_from_list(inv, listname, item_hash)
 			if def and def.groups then
 				for groupname, _ in pairs(def.groups) do
 					local group = "group:" .. groupname
+					crafting.item_by_group[group] = itemname
 					item_hash[group] = (item_hash[group] or 0) + stack:get_count()
 				end
 			end
@@ -227,6 +264,8 @@ function crafting.get_all_for_player(player, ctype, level)
 	local unlocked = crafting.get_unlocked(player:get_player_name())
 	-- build player items hash
 	local item_hash = {}
+	-- reset group hash
+	crafting.item_by_group = {}
 	crafting.set_item_hashes_from_list(player:get_inventory(), "main", item_hash)
 	-- Get all available recipies and mark craftible ones.
 	local results =  crafting.get_all(ctype, level, item_hash, unlocked)
@@ -244,7 +283,7 @@ function crafting.can_craft(name, ctype, level, recipe)
 	end
 	for _,station in ipairs(ctype) do
 		for _,rec_type in ipairs(rtypes) do
-			if  rec_type == station and recipe.level <= level and
+			if rec_type == station and recipe.level <= level and
 					(recipe.always_known or unlocked[recipe.output]) then
 				return true
 			end
@@ -258,7 +297,6 @@ local function give_all_to_player(inv, list)
 		inv:add_item("main", item)
 	end
 end
-
 
 function crafting.pick_required_item(inv, listname, item, located)
 	local count=0
@@ -332,36 +370,20 @@ function crafting.find_required_items(inv, listname, recipe)
 		local picked = false	-- assume we don't find it
 		-- search each of passed lists
 		for _,list in ipairs(listname) do
-			-- Conditional input list to process
-			if (type(item) == 'table') then
-				for _, conItem in ipairs(item) do
-					local count = crafting.pick_required_item(inv, list, conItem, items)
-					if count >0 then 
-						-- check for where clause involving this recipe input item
-
-						if recipe.where then
---and string.find(recipe.where, '@'..i) then
-print("where: "..recipe.where)
-print( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") )
-
-
-							if crafting.parse_where(recipe,items, i, count) then
-								picked = true
-								break
-							else
-								items[#items] = nil --delete picked item because where failed
-							end
-						else
-							picked = true
-							break
-						end
-					end
-				end
-			else
+ 			-- Conditional input list to process
+ 			if (type(item) == 'table') then
+ 				for _, conItem in ipairs(item) do
+ 					local count = crafting.pick_required_item(inv, list, conItem, items)
+ 					if count >0 then 
+ 						picked = true
+ 						break
+ 					end
+ 				end
+ 			else
 				if crafting.pick_required_item(inv, list, item, items) >0 then
 					picked = true
 				end
-			end
+ 			end
 		end
 		if not picked then
 			return nil -- didn't find
@@ -369,6 +391,25 @@ print( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") )
 	end
 	return items
 end
+
+-- IB---
+-- IB---
+-- IB---						-- check for where clause involving this recipe input item
+-- IB---						if recipe.where 
+-- IB---print("where: "..recipe.where)
+-- IB---print( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") )
+-- IB---
+-- IB---
+-- IB---							if crafting.parse_where(recipe,items, i, count) then
+-- IB---								picked = true
+-- IB---								break
+-- IB---							else
+-- IB---								items[#items] = nil --delete picked item because where failed
+-- IB---							end
+-- IB---						else
+-- IB---
+-- IB---
+
 
 function crafting.has_required_items(inv, listname, recipe)
 	return crafting.find_required_items(inv, listname, recipe) ~= nil
@@ -380,6 +421,7 @@ end
 
 function crafting.perform_craft(name, inv, listname, outlistname, recipe)
    local items = crafting.find_required_items(inv, listname, recipe)
+print (dump(items))
    if not items then
       return false
    end
@@ -418,7 +460,18 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
       crafting.registered_on_crafts[i](name, recipe)
    end
    -- create item
-   local itemstack = ItemStack(recipe.output)
+	local material
+	if recipe.material then
+		local material_def = ItemStack(taken[recipe.material]):get_definition()
+		material = material_def.exile_crafting.material
+	end
+
+
+	local make_output = recipe.output
+	if recipe.material_output then
+		make_output = string.gsub(recipe.material_output, "%%material%%", material)
+	end
+   local itemstack = ItemStack(make_output)
    local imeta = itemstack:get_meta()
    local idef = itemstack:get_definition()
    local sdesc = itemstack:get_short_description()
@@ -433,9 +486,17 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
    end
 
 	-- set material
-	if recipe.material then
-		local material_def = ItemStack(taken[recipe.material]):get_definition()
-		imeta:set_string('material', material_def.exile_crafting.material)
+	if material then
+		imeta:set_string('material', material)
+		if recipe.tiles_name then
+			local image = string.gsub(recipe.tiles_name, '%%material%%', material)
+			imeta:set_string('inventory_tiles', image)
+		end
+		if recipe.real_name then
+			local image = string.gsub(recipe.tiles_name, '%%material%%', material)
+			imeta:set_string('inventory_tiles', image)
+		end
+
 	end
 
    -- Add Tool Tips to Description

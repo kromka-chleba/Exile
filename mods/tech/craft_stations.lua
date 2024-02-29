@@ -512,6 +512,35 @@ minetest.register_node("tech:mortar_pestle_limestone",{
 	--on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
 	})
 
+--IB-20240226 ---- Boulders ----
+--IB-20240226 --grind a mortar_and_pestle
+--IB-20240226 -- crafting.register_recipe({
+--IB-20240226 -- 	type   = "grinding_stone",
+--IB-20240226 -- 	output = "tech:mortar_pestle_basalt",
+--IB-20240226 -- 	items  = {'nodes_nature:limestone_boulder', "group:limestone_cobble", 'nodes_nature:sand'},
+--IB-20240226 -- 	level  = 1,
+--IB-20240226 -- 	always_known = true,
+--IB-20240226 -- 	})
+--IB-20240226 -- crafting.register_recipe({
+--IB-20240226 -- 	type   = "grinding_stone",
+--IB-20240226 -- 	output = "tech:mortar_pestle_granite",
+--IB-20240226 -- 	items  = {'nodes_nature:granite_boulder', "group:granite_cobble", 'nodes_nature:sand'},
+--IB-20240226 -- 	level  = 1,
+--IB-20240226 -- 	always_known = true,
+--IB-20240226 -- 	})
+crafting.register_recipe({
+type   = "grinding_stone",
+output = "tech:mortar_pestle_limestone",
+items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
+	{"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"}, 'nodes_nature:sand'},
+where = '@1.material == @2.material',
+material = 1,  -- set material from selected inptut item 1.
+material_output = "tech:mortar_pestle_%material%",
+material_tiles_name = "nodes_nature_%material%.png",
+level  = 1,
+always_known = true,
+})
+
 
 -------------------
 --metal working, and things dependant on it
@@ -810,31 +839,12 @@ minetest.register_node("tech:glass_furnace", {
 --IB-20240226 	 always_known = true,
 --IB-20240226    })
 --IB-20240226 
---IB-20240226 ---- Boulders ----
---IB-20240226 --grind a mortar_and_pestle
---IB-20240226 -- crafting.register_recipe({
---IB-20240226 -- 	type   = "grinding_stone",
---IB-20240226 -- 	output = "tech:mortar_pestle_basalt",
---IB-20240226 -- 	items  = {'nodes_nature:limestone_boulder', "group:limestone_cobble", 'nodes_nature:sand'},
---IB-20240226 -- 	level  = 1,
---IB-20240226 -- 	always_known = true,
---IB-20240226 -- 	})
---IB-20240226 -- crafting.register_recipe({
---IB-20240226 -- 	type   = "grinding_stone",
---IB-20240226 -- 	output = "tech:mortar_pestle_granite",
---IB-20240226 -- 	items  = {'nodes_nature:granite_boulder', "group:granite_cobble", 'nodes_nature:sand'},
---IB-20240226 -- 	level  = 1,
---IB-20240226 -- 	always_known = true,
---IB-20240226 -- 	})
-crafting.register_recipe({
-type   = "grinding_stone",
-output = "tech:mortar_pestle_limestone",
-items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
-	{"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"}, 'nodes_nature:sand'},
-where = '@1.material == @2.material',
-level  = 1,
-always_known = true,
-})
+
+
+
+
+
+
 --IB-20240226 ----Wood--
 --IB-20240226 --chopping_block
 --IB-20240226 crafting.register_recipe({
