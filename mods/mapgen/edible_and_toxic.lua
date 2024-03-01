@@ -326,7 +326,7 @@ local edible_plants = {
         deco_type = "simple",
         place_on = sna.barrenland_on,
         sidelen = 16,
-        noise_params = {offset=0.00, scale=0.0002, spread={x=100, y=100, z=100}, seed=1002, octaves=2, persist=0.7},
+        noise_params = {offset=0.00, scale=0.0005, spread={x=100, y=100, z=100}, seed=1002, octaves=2, persist=0.7},
         y_max = sna.highland_max,
         y_min = sna.lowland_max,
         decoration = "nodes_nature:tikusati",
