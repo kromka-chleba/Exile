@@ -19,14 +19,25 @@ end
 -----------------------------
 --On Actions
 --
-
+--hp_change, thirst_change,
+			 --hunger_change, energy_change, temp_change,
+			 --replace_with_item
 --Consummable items
-function HEALTH.use_item(itemstack, user, hp_change, thirst_change,
-			 hunger_change, energy_change, temp_change,
-			 replace_with_item)
-   if itemstack == nil or user == nil or not minetest.settings:get_bool("enable_damage") then
+function HEALTH.use_item(itemstack, user, food_table)
+   if (type(itemstack) ~= "userdata" or not itemstack["get_name"]) or not minetest.is_player(user) or not minetest.settings:get_bool("enable_damage") then
       return
    end
+  if type(food_table) ~= "table" then
+    food_table = food_table[itemstack:get_name()]
+    if not food_table then return end
+  end
+  -- numbered indexes for legacy support
+  local hp_change = food_table.hp or food_table.health or food_table[1]
+  local thirst_change = food_table.th or food_table.thirst or food_table[2]
+  local hunger_change = food_table.hu or food_table.hun or food_table.hunger or food_table[3]
+  local energy_change = food_table.en or food_table.energy or food_table[4]
+  local temp_change = food_table.temp or food_table.temperature or food_table[5]
+  local replace_item = food_table.replace or food_table[6]
 
    local meta = user:get_meta()
    -- set new values

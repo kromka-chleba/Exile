@@ -51,7 +51,7 @@ function exile_eatdrink_playermade(itemstack, user, pointed_thing)
 				    itemstack:get_name())
       return
    end
-   return HEALTH.use_item(itemstack, user, t[1], t[2], t[3], t[4], t[5], t[6])
+   return HEALTH.use_item(itemstack, user, t)
 end
 
 function exile_eatdrink(itemstack, user, pointed_thing)
@@ -67,7 +67,7 @@ function exile_eatdrink(itemstack, user, pointed_thing)
    end
    do_food_harm(user, name)
    local t = food_table[name]
-   return HEALTH.use_item(itemstack, user, t[1], t[2], t[3], t[4], t[5], t[6])
+   return HEALTH.use_item(itemstack, user, t)
 end
 
 

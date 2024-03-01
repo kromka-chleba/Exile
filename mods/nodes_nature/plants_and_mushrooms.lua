@@ -542,7 +542,7 @@ minetest.override_item(
             end
 
             --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, 0, 0, 1, -10, 0)
+            return HEALTH.use_item(itemstack, user, {hu=1,en=-10})
         end,
 })
 
@@ -567,7 +567,7 @@ minetest.override_item(
             end
 
             --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, 0, 0, 1, -10, 0)
+            return HEALTH.use_item(itemstack, user, {hun=1,en=-10})
         end,
 })
 
@@ -586,7 +586,7 @@ minetest.override_item(
             end
 
             --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, 1, 0, 0, -10, 0)
+            return HEALTH.use_item(itemstack, user, {hun=1,en=-10})
         end,
 })
 
@@ -600,6 +600,6 @@ minetest.override_item(
                 HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
             end
             --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, 1, 0, 0, -10, 0)
+            return HEALTH.use_item(itemstack, user, {hun=1,en=-10})
         end,
 })
