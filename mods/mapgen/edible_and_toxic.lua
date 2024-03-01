@@ -481,7 +481,7 @@ local toxic_plants = {
         fill_ratio = 0.001500,
         y_max = sna.lowland_max,
         y_min = sna.beach_max,
-        decoration = "nodes_ nature:marbhan",
+        decoration = "nodes_nature:marbhan",
         param2 = 2,
     },
 
