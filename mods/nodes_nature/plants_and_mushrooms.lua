@@ -585,8 +585,7 @@ minetest.override_item(
                 HEALTH.remove_new_effect(user, {"Dust Fever", 1})
             end
 
-            --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, {hun=1,en=-10})
+            return exile_eatdrink(itemstack, user, pointed_thing)
         end,
 })
 
@@ -600,6 +599,6 @@ minetest.override_item(
                 HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
             end
             --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, {hun=1,en=-10})
+            return exile_eatdrink(itemstack, user, pointed_thing)
         end,
 })

@@ -115,8 +115,8 @@ food_table = {
 	["nodes_nature:maraka_nut"]         = {hu=5,en=5},
 	["nodes_nature:sasaran_cone"]       = {hu=1},
 	--medicine                              hp  th   hu  en  te
-	["nodes_nature:hakimi"]             = {hp=1,en=-5},
-	["nodes_nature:merki"]              = {hp=1,en=-5},
+	["nodes_nature:hakimi_flowering"]             = {hp=1,hu=1,en=-15},
+	["nodes_nature:merki"]              = {hp=1,hu=1,en=-15},
 	}
 
 bake_table = {
