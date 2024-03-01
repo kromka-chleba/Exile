@@ -175,8 +175,10 @@ food_harm_table = {
   ["nodes_nature:vansano_seed"]    = {bm_fp},
 	["nodes_nature:tikusati_seed"]   = {bm_fp},
   -- mushrooms
-  ["nodes_nature:nebiyi"]          = {bm_fp},
-	["nodes_nature:marbhan"]         = {bm_fp},
+  ["nodes_nature:nebiyi"]          = {bm_fp,
+                                      {tg="Hepatotoxicity",ch=0.75,sv={1,4} }},
+	["nodes_nature:marbhan"]         = {bm_fp,
+                                      {tg="Neurotoxicity",ch=0.75,sv={1,4} } },
   ["nodes_nature:merki"]           = {bm_fp},
 	["nodes_nature:zufani"]          = { {tg="Food Poisoning",ch=0.01,sv=1} },
   -- plants
