@@ -83,6 +83,25 @@ function exile_eatdrink_playermade(itemstack, user, pointed_thing)
    return HEALTH.use_item(itemstack, user, t)
 end
 
+-- helps to get direct proper value naming or 0 for each
+function HEALTH.get_food_stats(name,prefercooked)
+  if type(name) == "userdata" and type(name["get_name"]) == "function" then
+    name = name:get_name()
+  end
+  if type(name) ~= "string" then
+    return
+  end
+  local ft = prefercooked and food_table[name.."_cooked"] or food_table[name] -- food table
+  if not ft then return end
+  local stats = {}
+  stats.hp = ft.hp or ft.health or 0
+  stats.th = ft.th or ft.thirst or 0
+  stats.hu = ft.hu or ft.hun or ft.hunger or 0
+  stats.en = ft.en or ft.energy or 0
+  stats.temp = ft.temp or ft.temperature or 0
+  return stats
+end
+
 function exile_eatdrink(itemstack, user, pointed_thing)
    local name = itemstack:get_name()
 

@@ -123,7 +123,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
       meta:get_inventory():set_size("main", 8) -- So, fix it
       inv = meta:get_inventory():get_list("main")
    end
-   local total = { 0, 0, 0, 0, 0 }
+   local total = {hp=0,th=0,hu=0,en=0}
    if meta:get_string("status") == "finished" then -- reset the pot for next cook
       if meta:get_inventory():is_empty("main") then
 	 clear_pot(pos)
@@ -135,18 +135,14 @@ local function pot_receive_fields(pos, formname, fields, sender)
 	   contents="Water, "
    end
    for i = 1, #inv do
-      local fname = inv[i]:get_name()
-      if food_table[fname] or food_table[fname.."_cooked"] then
-	 local result = food_table[fname.."_cooked"]
-	 if result == nil then -- prefer the cooked version, use raw if none
-	    result = food_table[fname]
-	 end
-	 if result then
-	    local count = inv[i]:get_count()
-	    for j = 1, 5 do
-	       total[j] = total[j] + result[j] * count
-	    end
-	 end
+      local result = HEALTH.get_food_stats(inv[i],true) -- second parameter: prefer cooked, raw if none
+      if result then
+        local count = inv[i]:get_count()
+        for stat,value in pairs(result) do
+          if total[stat] then -- prevent temp from being changed lol
+            total[stat] = (value * count)
+          end
+        end
       end
    end
    contents=contents:sub(1, #contents - 2) -- take last ', ' from contents
@@ -165,18 +161,18 @@ local function pot_receive_fields(pos, formname, fields, sender)
 end
 
 local function divide_portions(total)
-   local result = total
-   for i = 1, #total do
-      result[i] = math.floor(total[i] / portions)
-   end
-   return result
+  local result = total
+  for stat,value in pairs(result) do
+    result[stat] = (value / portions)
+  end
+  return result
 end
 
 local function pot_cook(pos, elapsed)
 	local meta = minetest.get_meta(pos)
 	local inv = meta:get_inventory():get_list("main")
 	local total = ( minetest.deserialize(meta:get_string("pot_contents")) or
-		      { 0, 0, 0, 0 } )
+		      {hp=0,th=0,hu=0,en=0 } )
 	local kind = meta:get_string("type")
 	climate.heat_transfer(pos, "tech:cooking_pot")
 	local temp = climate.get_point_temp(pos)
@@ -214,7 +210,7 @@ local function pot_cook(pos, elapsed)
 			 inv[1]:replace(ItemStack("tech:soup "..portions))
 			 local imeta = inv[1]:get_meta()
 			 local portion = divide_portions(total)
-			 portion[2] = portion[2] + (100 / portions)
+			 portion.th = portion.th + (100 / portions)
 			 imeta:set_string("eat_value", minetest.serialize(portion))
 			 imeta:set_string("description", S("@1 soup",firstingr or "Odd"))
 			 meta:get_inventory(pos):set_list("main", inv)
@@ -259,14 +255,15 @@ end
 
 local function calc_baking_time(stack)
    local fname = stack:get_name()
-   if not food_table[fname] then return 0 end -- removing finished, etc
+  local ft = HEALTH.get_food_stats(fname)
+   if not ft then return 0 end -- removing finished, etc
    local time -- #TODO: Check if we're adding to a stack, don't alter
    if bake_table[fname] then
       time = bake_table[fname][2] -- using baking time
    elseif fname:gsub("_cooked","") ~= fname then
       time = 1 -- this is already cooked
    else -- use half of nutrition unit value
-      time = 1 + math.floor(food_table[fname][3] / 2)
+      time = 1 + math.floor(ft.hu/2)
    end
    return time
 end

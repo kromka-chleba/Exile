@@ -19,25 +19,22 @@ end
 -----------------------------
 --On Actions
 --
---hp_change, thirst_change,
-			 --hunger_change, energy_change, temp_change,
-			 --replace_with_item
 --Consummable items
-function HEALTH.use_item(itemstack, user, food_table)
+function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_table
    if (type(itemstack) ~= "userdata" or not itemstack["get_name"]) or not minetest.is_player(user) or not minetest.settings:get_bool("enable_damage") then
       return
    end
-  if type(food_table) ~= "table" then
-    food_table = food_table[itemstack:get_name()]
-    if not food_table then return end
+  f_table = type(f_table) == "table" and f_table or HEALTH.get_food_stats(itemstack)
+  if not f_table then
+    return itemstack
   end
   -- numbered indexes for legacy support
-  local hp_change = food_table.hp or food_table.health or food_table[1]
-  local thirst_change = food_table.th or food_table.thirst or food_table[2]
-  local hunger_change = food_table.hu or food_table.hun or food_table.hunger or food_table[3]
-  local energy_change = food_table.en or food_table.energy or food_table[4]
-  local temp_change = food_table.temp or food_table.temperature or food_table[5]
-  local replace_item = food_table.replace or food_table[6]
+  local hp_change = f_table.hp or f_table.health or f_table[1]
+  local thirst_change = f_table.th or f_table.thirst or f_table[2]
+  local hunger_change = f_table.hu or f_table.hun or f_table.hunger or f_table[3]
+  local energy_change = f_table.en or f_table.energy or f_table[4]
+  local temp_change = f_table.temp or f_table.temperature or f_table[5]
+  local replace_item = f_table.replace or f_table[6]
 
    local meta = user:get_meta()
    -- set new values
