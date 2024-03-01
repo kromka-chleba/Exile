@@ -26,6 +26,7 @@ crafting = {
 	recipes_by_output = {},
 	registered_on_crafts = {},
 	item_by_group = {}, -- hash group:groupname to an item name. only last inventory item from group is stored.
+	sort_order_by_player = {}, -- hash of recipe id to display order in sorted array
 }
 
 function crafting.register_type(name, label)

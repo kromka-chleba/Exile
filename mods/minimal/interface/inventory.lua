@@ -51,6 +51,8 @@ ctypes:set_list('main',{
 local __inventoryFS_cache_timeout = 90 -- seconds between redraws
 local inventoryFS_cache = {}
 
+
+
 local function debug_keys(table)
 	local output=""
 	for k,v in pairs(table) do
@@ -187,6 +189,8 @@ local function process_receive_fields(player, formname, fields)
 		cache.sScroll = 0
 		cache.recipesFS = nil
 		cache.output = ""
+
+		crafting.sort_order_by_player[player_name] = nil
 		done = true
 	end
 
@@ -205,11 +209,12 @@ local function process_receive_fields(player, formname, fields)
 			if btn_type == 'sCraftType' then
 				btn_id = tonumber(btn_id)
 				cache = set_cache(player_name,inv,btn_id)
+				crafting.sort_order_by_player[player_name] = nil
 			elseif btn_type == 'sInv' then
 				cache.sInv = btn_id -- Inventory name
 			elseif btn_type == 'sResult' then
 			   local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
-			   print(dump(recipe))
+print(dump(recipe))
 			   local ctype = cache.cTabs[cache.sTab]
 			   local sLevel = cache.sLevel
 			   local sInv = cache.sInv
@@ -293,8 +298,6 @@ local function recipes_for_player(cache, pInv, player_name, ctype, level)
 	return results
 end
 
-
-
 -- This needs to be rebuilt every time the craft_type, craft_tab, input_items,
 -- or selected inventory changes
 -- It is triggered by setting cache.recipesFS = nil
@@ -306,21 +309,52 @@ local function cache_player_recipes(cache, player_name, pInv)
 	local cTabs = cache.cTabs	-- Crafting tabs to display
 	local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
 	local recipe_list = recipes_for_player(cache, pInv, player_name,cTabs[sTab], sLevel)
---print (dump(recipe_list))
-	-- sort craftable recipes to top of list
-	local sorted = {}
-	local not_craftable = {}
-	for _,result in ipairs(recipe_list) do
-		if result.craftable then
-			sorted[#sorted+1] = result
-		else
-			not_craftable[#not_craftable+1] = result
+	-- keep a sort hash so order doesn't change while crafting things
+	local sortHash = crafting.sort_order_by_player[player_name]
+	if not sortHash or not sortHash.ctype then 
+		sortHash = {
+			ctype = sItem,
+			ctab = sTab,
+			hash = {},
+		}
+	else
+		if sortHash.ctype ~= sItem or sortHash.ctab ~= sTab then
+			sortHash.ctype = sItem
+			sortHash.ctab = sTab
+			sortHash.hash = {}
 		end
 	end
-	for _,result in ipairs(not_craftable) do
-		sorted[#sorted+1] = result
+	local sorted = {}
+	local not_craftable = {}
+	if #sortHash.hash > 0 then
+		for _,result in ipairs(recipe_list) do
+			local id = tonumber(result.recipe.id)
+			local order = sortHash.hash[id]
+			if not order then 
+				print('no order: '..dump(result))
+			else
+				sorted[order] = result
+			end
+		end
+	else
+		-- sort craftable recipes to top of list
+		for _,result in ipairs(recipe_list) do
+			local id = result.recipe.id
+			if result.craftable then
+				sorted[#sorted+1] = result
+				sortHash.hash[id] = #sorted
+			else
+				not_craftable[#not_craftable+1] = result
+			end
+		end
+		for _,result in ipairs(not_craftable) do
+			sorted[#sorted+1] = result
+			local id = result.recipe.id
+			sortHash.hash[id] = #sorted
+		end
+		--save sort hash
+		crafting.sort_order_by_player[player_name] = sortHash
 	end
-
 	-- Add tab header
 	local tabs = ""
 	for i=1,#cTabs do
@@ -384,7 +418,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 		end
 		recipesFS[#recipesFS + 1] = minetest.get_color_escape_sequence("#ffffff") .. ']'
 		x = x + 1
-		if x > columns  then
+		if x >= columns  then
 			x = 0
 			y = y + 1
 		end
@@ -487,9 +521,13 @@ function minimal.close_inventory_formspec(player)
 --	inventoryFS_cache[player_name].craft_typesFS = nil
 	-- clear cached output to force redraw for new formspec
 --	inventoryFS_cache[player_name].output=""
-	-- Delete Cache
 
+	-- Delete sorted items cache
+	crafting.sort_order_by_player[player_name] = nil
+
+	-- Delete Cache
 	local pInv = player:get_inventory()
+
 	-- Return Items in input_items list to player
 	if not pInv:is_empty('input_items') then
 		for i=1, pInv:get_size('input_items') do
@@ -541,6 +579,14 @@ function minimal.register_inventory_sfinv()
 			on_player_receive_fields = function(self, player, context, fields)
 				process_receive_fields(player, "", fields)
 				sfinv.set_player_inventory_formspec(player, context)
+			end,
+			on_enter = function(self, player, context)
+				local player_name = player:get_player_name()
+				crafting.sort_order_by_player[player_name] = nil
+			end,
+			on_leave = function(self, player, context)
+				local player_name = player:get_player_name()
+				crafting.sort_order_by_player[player_name] = nil
 			end,
 --			on_enter = function(self, player, context)
 --				local player_name = player:get_player_name()
