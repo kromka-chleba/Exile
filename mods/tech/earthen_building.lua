@@ -360,11 +360,11 @@ crafting.register_recipe({
 })
 
 
-----Wattle from sticks
+----Wattle from sticks or converting from loose wattle or door_wattle
 crafting.register_recipe({
 	type = {"crafting_spot","hand_wattle",'knife_wattle'},
 	output = "tech:wattle",
-	items = {"tech:stick 6"},
+	items = {{"tech:stick 6","tech:wattle_loose 2","tech:wattle_door_frame","doors:door_wattle"}},
 	level = 1,
 	always_known = true,
 })
@@ -378,11 +378,11 @@ crafting.register_recipe({
 	always_known = true,
 })
 
-----Loose Wattle from sticks
+----Loose Wattle from sticks or converting from wattle
 crafting.register_recipe({
 	type = {"crafting_spot","hand_wattle",'knife_wattle'},
-	output = "tech:wattle_loose",
-	items = {"tech:stick 3"},
+	output = "tech:wattle_loose 2",
+	items = {{"tech:stick 6","tech:wattle"}},
 	level = 1,
 	always_known = true,
 })
@@ -396,51 +396,14 @@ crafting.register_recipe({
 	always_known = true,
 })
 
---convert loose wattle to wattle
-crafting.register_recipe({
-	type = {"mixing_spot","hand_wattle",'knife_wattle'},
-	output = "tech:wattle",
-	items = {"tech:wattle_loose 2"},
-	level = 1,
-	always_known = true,
-})
-
---convert wattle to loose wattle
-crafting.register_recipe({
-	type = {"mixing_spot","hand_wattle",'knife_wattle'},
-	output = "tech:wattle_loose 2",
-	items = {"tech:wattle"},
-	level = 1,
-	always_known = true,
-})
-
-----Wattle door frame from sticks
+----Wattle door frame from sticks or convert from wattle
 crafting.register_recipe({
 	type = {"crafting_spot","hand_wattle",'knife_wattle'},
 	output = "tech:wattle_door_frame",
-	items = {"tech:stick 6"},
+	items = {{"tech:stick 6","tech:wattle"}},
 	level = 1,
 	always_known = true,
 })
-
---convert wattle to wattle door frame
-crafting.register_recipe({
-	type = {"mixing_spot","hand_wattle",'knife_wattle'},
-	output = "tech:wattle_door_frame",
-	items = {"tech:wattle"},
-	level = 1,
-	always_known = true,
-})
-
---convert wattle door frame to wattle
-crafting.register_recipe({
-	type = {"mixing_spot","hand_wattle",'knife_wattle'},
-	output = "tech:wattle",
-	items = {"tech:wattle_door_frame"},
-	level = 1,
-	always_known = true,
-})
-
 
 ----Thatch from  fibre
 crafting.register_recipe({
