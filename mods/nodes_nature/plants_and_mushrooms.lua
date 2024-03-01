@@ -541,8 +541,7 @@ minetest.override_item(
                 HEALTH.add_new_effect(user, {"Neurotoxicity", math.floor(math.random(1,4))})
             end
 
-            --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, {hu=1,en=-10})
+            return exile_eatdrink(itemstack, user, pointed_thing)
         end,
 })
 
@@ -566,8 +565,7 @@ minetest.override_item(
                 HEALTH.add_new_effect(user, {"Hepatotoxicity", math.floor(math.random(1,4))})
             end
 
-            --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, {hun=1,en=-10})
+            return exile_eatdrink(itemstack, user, pointed_thing)
         end,
 })
 
