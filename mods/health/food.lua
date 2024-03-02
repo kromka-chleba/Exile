@@ -29,7 +29,7 @@ dofile(minetest.get_modpath('health')..'/data_food.lua')
 -- Declare globals
 local food_harm_table = HEALTH.harm_table
 local food_table = HEALTH.food_table
-bake_table = bake_table
+local bake_table = HEALTH.bake_table
 
 local function do_food_harm(user, name)
   if type(name) == "userdata" and name["get_name"] then

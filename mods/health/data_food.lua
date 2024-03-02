@@ -124,7 +124,7 @@ HEALTH.food_table = {
   ["tech:herbal_medicine"]            = {hp=5},
 	}
 
-bake_table = {
+HEALTH.bake_table = {
 	--name                          temp, duration, optional food value?
    ["tech:maraka_bread"]              = { 160,  10 },
    ["tech:peeled_anperla"]            = { 100,   7 },

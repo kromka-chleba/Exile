@@ -22,9 +22,6 @@ Save to inv meta
 
 ]]
 
--- Import Globals
-bake_table = bake_table
-
 -- Internationalization
 local S = tech.S
 
@@ -257,8 +254,8 @@ local function calc_baking_time(stack)
   local ft = HEALTH.get_food_stats(fname)
    if not ft then return 0 end -- removing finished, etc
    local time -- #TODO: Check if we're adding to a stack, don't alter
-   if bake_table[fname] then
-      time = bake_table[fname][2] -- using baking time
+   if HEALTH.bake_table[fname] then
+      time = HEALTH.bake_table[fname][2] -- using baking time
    elseif fname:gsub("_cooked","") ~= fname then
       time = 1 -- this is already cooked
    else -- use half of nutrition unit value
@@ -328,7 +325,7 @@ minetest.register_node("tech:cooking_pot", {
 	allow_metadata_inventory_put = function(
 	      pos, listname, index, stack, player)
 	   local fname = stack:get_name()
-	   if not HEALTH.food_table[fname] and not bake_table[fname] then
+	   if not HEALTH.food_table[fname] and not HEALTH.bake_table[fname] then
 	      return 0
 	   end
 	   local meta = minetest.get_meta(pos)
