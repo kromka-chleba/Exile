@@ -16,46 +16,13 @@ local random = math.random
 ------------
 --Herbal medicine
 -- removes energy cost of plants healing effects
---can heal certain health effects
+--can heal certain health effects (check HEALTH/data_food.lua and HEALTH.cure_table)
 --a restorative anti-bacterial/anti-parasitic
 minetest.register_craftitem("tech:herbal_medicine", {
 	description = S("Herbal Medicine"),
 	inventory_image = "tech_herbal_medicine.png",
 	stack_max = minimal.stack_max_medium *2,
-	groups = {flammable = 1},
-	_use_tip = "Eat",
-
-  _on_use_item = function(user, itemstack, pointed_thing)
-
-    --remove parasites
-    if random()<0.33 then
-		HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
-	end
-
-    --cure/reduce food poisoning and infections
-    --see how effective the dose is
-    local cfp = random()
-    if cfp <0.25 then
-      --cure up to severe
-      HEALTH.remove_new_effect(user, {"Food Poisoning", 3})
-			HEALTH.remove_new_effect(user, {"Fungal Infection", 3})
-			HEALTH.remove_new_effect(user, {"Dust Fever", 3})
-    elseif cfp < 0.5 then
-      --cure up to moderate
-      HEALTH.remove_new_effect(user, {"Food Poisoning", 2})
-			HEALTH.remove_new_effect(user, {"Fungal Infection", 2})
-			HEALTH.remove_new_effect(user, {"Dust Fever", 2})
-    elseif cfp < 0.75 then
-      --only cure mild
-      HEALTH.remove_new_effect(user, {"Food Poisoning", 1})
-			HEALTH.remove_new_effect(user, {"Fungal Infection", 1})
-			HEALTH.remove_new_effect(user, {"Dust Fever", 1})
-    end
-
-
-    --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-    return HEALTH.use_item(itemstack, user, {hp=5})
-  end,
+	groups = {flammable = 1, edible = 1},
 })
 
 

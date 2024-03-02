@@ -117,6 +117,7 @@ food_table = {
 	--medicine                              hp  th   hu  en  te
 	["nodes_nature:hakimi_flowering"]             = {hp=1,hu=1,en=-15},
 	["nodes_nature:merki"]              = {hp=1,hu=1,en=-15},
+  ["tech:herbal_medicine"]            = {hp=5},
 	}
 
 bake_table = {
@@ -143,6 +144,8 @@ food_harm_table = {
 
   ["tech:mashed_anperla_cooked"]   = { {tg="Food Poisoning",ch=0.002,sv=1} },
 	["tech:mashed_anperla_burned"]   = { {tg="Food Poisoning",ch=0.002,sv=1} },
+  -- medicine/drugs
+  
   -- cooked
   ["nodes_nature:sea_lettuce_cooked"] = { {tg="Food Poisoning",ch=0.002,sv=1} },
   -- fruits (not fruting)
@@ -274,4 +277,11 @@ HEALTH.cure_table = {
   ["nodes_nature:hakimi_flowering"] = {ch=0.75,sv=1,{tgs="Food Poisoning","Fungal Infection", "Dust Fever"} },
   -- merki is anti-parasitic
   ["nodes_nature:merki"] = { {tg="Intestinal Parasites",ch=0.15,sv=1} },
+  -- medicine/drugs
+  --cure/reduce food poisoning and infections
+  ["tech:herbal_medicine"] = { {tgs={"Food Poisoning","Fungal Infection","Dust Fever"},ch=0.75,sv=1}, -- only cure mild
+                                {tgs={"Food Poisoning","Fungal Infection","Dust Fever"},ch=0.5,sv=2}, -- cure up to moderate
+                                {tgs={"Food Poisoning","Fungal Infection","Dust Fever"},ch=0.25,sv=3}, -- cure up to severe
+                                {tg="Intestinal Parasites",ch=0.33,sv=1}
+                              }
 }
