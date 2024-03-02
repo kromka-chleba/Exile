@@ -9,10 +9,10 @@ exile_add_food_hook(name,table). Its _on_use_item will be set automatically.
  exile_add_food_hook() will override a node's _on_use_item.
 
  For cookable things, define the node, and a name_cooked/name_burned version,
-then pass the cooking data to exile_add_bake(table). Don't forget to add the
+then pass the cooking data to HEALTH.add_bake(table). Don't forget to add the
 cooked version to the food table.
  If the burned version is not also added to foods, it will be inedible.
- exile_add_bake() will override a node's on_construct and on_timer.
+ HEALTH.add_bake() will override a node's on_construct and on_timer.
 
  If a food can only be cooked in a pot, don't define a name_cooked node,
 but add it to the food table anyway. The cooking pot will make a soup using
@@ -190,7 +190,7 @@ local bake_redef = {
 			       bake_table[selfname][2])
 end}
 
-function exile_add_bake(table)
+function HEALTH.add_bake(table)
    --Add new bakables, mod must send a table in the food_data.lua format
    for k, v in pairs(table) do
       bake_table[k] = v
@@ -199,7 +199,7 @@ function exile_add_bake(table)
       end
    end
 end
-function exile_add_harm(table)
+function HEALTH.add_harm(table)
    --Add new food harm, mod must send a table in the food_data.lua format
    for k, v in pairs(table) do
       food_harm_table[k] = v
