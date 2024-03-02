@@ -870,14 +870,14 @@ minetest.register_node('tech:large_charcoal_fire_ext', {
 ----craft unlit fire from Sticks, tinder
 --small fire
 crafting.register_recipe({
-	type = {"crafting_spot","chopping_block","hand","knife","axe"},
+	type = {"crafting_spot","chopping_block","hand","knife"},
 	output = "tech:small_wood_fire_unlit",
 	items = {{"group:woody_plant 3","tech:stick 6"}, "group:fibrous_plant 1"},
 	level = 1,
 	always_known = true,
 })
 
---large fire
+--large fire -
 crafting.register_recipe({ -- skip stick craft step
 	type = {"crafting_spot","chopping_block","hand","knife"},
 	output = "tech:large_wood_fire_unlit",
@@ -885,6 +885,24 @@ crafting.register_recipe({ -- skip stick craft step
 	level = 1,
 	always_known = true,
 })
+
+--small fire from logs - level 1 using adze
+crafting.register_recipe({
+	type = {"axe"},
+	output = "tech:small_wood_fire_unlit 2",
+	items = {{"group:woody_plant 6","tech:stick 12","group:woodslab"}, "group:fibrous_plant 2"},
+	level = 1,
+	always_known = true,
+})
+--Large fire - level 1 using adze -- can't split logs but can make large fares from sticks and plants
+crafting.register_recipe({
+	type = {"axe"},
+	output = "tech:large_wood_fire_unlit 2",
+	items = {{"group:woody_plant 12","tech:stick 24","group:woodslab 2"}, "group:fibrous_plant 4"},
+	level = 1,
+	always_known = true,
+})
+
 --Large fire from logs - level 2 using iron axe
 crafting.register_recipe({
 	type = {"axe"},

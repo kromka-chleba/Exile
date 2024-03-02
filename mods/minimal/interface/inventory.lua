@@ -189,8 +189,7 @@ local function process_receive_fields(player, formname, fields)
 		cache.sScroll = 0
 		cache.recipesFS = nil
 		cache.output = ""
-
-		crafting.sort_order_by_player[player_name] = nil
+--		crafting.sort_order_by_player[player_name] = nil
 		done = true
 	end
 
@@ -209,7 +208,7 @@ local function process_receive_fields(player, formname, fields)
 			if btn_type == 'sCraftType' then
 				btn_id = tonumber(btn_id)
 				cache = set_cache(player_name,inv,btn_id)
-				crafting.sort_order_by_player[player_name] = nil
+--				crafting.sort_order_by_player[player_name] = nil
 			elseif btn_type == 'sInv' then
 				cache.sInv = btn_id -- Inventory name
 			elseif btn_type == 'sResult' then
@@ -310,28 +309,37 @@ local function cache_player_recipes(cache, player_name, pInv)
 	local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
 	local recipe_list = recipes_for_player(cache, pInv, player_name,cTabs[sTab], sLevel)
 	-- keep a sort hash so order doesn't change while crafting things
+
+print ("--------------------------]cache_player_recipes()[------------------")
 	local sortHash = crafting.sort_order_by_player[player_name]
-	if not sortHash or not sortHash.ctype then 
+	if not sortHash or not sortHash.ctype then
+print('New sort')
 		sortHash = {
 			ctype = sItem,
 			ctab = sTab,
+			count = 0,
 			hash = {},
 		}
 	else
 		if sortHash.ctype ~= sItem or sortHash.ctab ~= sTab then
+print('Tab changed')
 			sortHash.ctype = sItem
 			sortHash.ctab = sTab
+			sortHash.count = 0
 			sortHash.hash = {}
 		end
 	end
 	local sorted = {}
 	local not_craftable = {}
-	if #sortHash.hash > 0 then
+print('sortHash.ctype: '..sortHash.ctype..' sortHash.ctab: '..sortHash.ctab..' count: '..sortHash.count)
+print('sItem: '..sItem..' sTab: '..sTab)
+	if sortHash.count > 0 then
+print('Using sort hash')
 		for _,result in ipairs(recipe_list) do
 			local id = tonumber(result.recipe.id)
 			local order = sortHash.hash[id]
 			if not order then 
-				print('no order: '..dump(result))
+print('no order: '..dump(result))
 			else
 				sorted[order] = result
 			end
@@ -343,6 +351,8 @@ local function cache_player_recipes(cache, player_name, pInv)
 			if result.craftable then
 				sorted[#sorted+1] = result
 				sortHash.hash[id] = #sorted
+				sortHash.count = sortHash.count+1
+--print('Craftable - ['..#sorted..'] '..result.recipe.output..' - ID#'..result.recipe.id)
 			else
 				not_craftable[#not_craftable+1] = result
 			end
@@ -351,8 +361,12 @@ local function cache_player_recipes(cache, player_name, pInv)
 			sorted[#sorted+1] = result
 			local id = result.recipe.id
 			sortHash.hash[id] = #sorted
+			sortHash.count = sortHash.count+1
+--print('NOT Craftable - ['..#sorted..'] '..result.recipe.output..' - ID#'..result.recipe.id)
 		end
 		--save sort hash
+print('Saving sortHash count: '..sortHash.count)
+--print(dump(sortHash))
 		crafting.sort_order_by_player[player_name] = sortHash
 	end
 	-- Add tab header
@@ -582,11 +596,13 @@ function minimal.register_inventory_sfinv()
 			end,
 			on_enter = function(self, player, context)
 				local player_name = player:get_player_name()
+print ("--------------------------]ENTER[-------------------")
 				crafting.sort_order_by_player[player_name] = nil
 			end,
 			on_leave = function(self, player, context)
 				local player_name = player:get_player_name()
 				crafting.sort_order_by_player[player_name] = nil
+print ("--------------------------]LEAVE[-------------------")
 			end,
 --			on_enter = function(self, player, context)
 --				local player_name = player:get_player_name()
