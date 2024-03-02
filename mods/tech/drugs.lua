@@ -86,7 +86,7 @@ local function drink_tang(pos, node, clicker, itemstack, pointed_thing)
   if thirst < 100 then
     minetest.swap_node(pos, {name = empty})
     minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
-    return exile_eatdrink(node.name, clicker, pointed_thing)
+    return HEALTH.eatdrink(node.name, clicker, pointed_thing)
   end
 end
 

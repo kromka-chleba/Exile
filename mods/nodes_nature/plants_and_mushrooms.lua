@@ -531,7 +531,7 @@ minetest.override_item(
             minetest.chat_send_player(user:get_player_name(),
                                       "This plant has a foul musty flavor.")
 
-            return exile_eatdrink(itemstack, user, pointed_thing)
+            return HEALTH.eatdrink(itemstack, user, pointed_thing)
         end,
 })
 
@@ -545,6 +545,6 @@ minetest.override_item(
             minetest.chat_send_player(user:get_player_name(),
                                       "Your stomach hurts terribly.")
 
-            return exile_eatdrink(itemstack, user, pointed_thing)
+            return HEALTH.eatdrink(itemstack, user, pointed_thing)
         end,
 })

@@ -114,7 +114,7 @@ local function do_food_cure(user, name)
 end
 
 
-function exile_eatdrink_playermade(itemstack, user, pointed_thing)
+function HEALTH.eatdrink_playermade(itemstack, user, pointed_thing)
    local imeta = itemstack:get_meta()
    local pname = user:get_player_name()
    local t = minetest.deserialize(imeta:get_string("eat_value"))
@@ -145,7 +145,7 @@ function HEALTH.get_food_stats(name,prefercooked)
   return stats
 end
 
-function exile_eatdrink(itemstack, user, pointed_thing)
+function HEALTH.eatdrink(itemstack, user, pointed_thing)
    local name = type(itemstack) == "string" and itemstack or itemstack:get_name()
 
    if minetest.registered_aliases[name] then
