@@ -70,7 +70,7 @@ minetest.register_craftitem("tech:tiku", {
 -----------------
 --Tang, alcoholic drink
 
-local function drink_tang(pos, node, clicker, itemstack, pointed_thing)
+local function drink_tang(pos, node, clicker, itemstack, pointed_thing, ininv)
   if not minetest.is_player(clicker) then -- avoid potential errors, player only
     return
   end
@@ -81,10 +81,14 @@ local function drink_tang(pos, node, clicker, itemstack, pointed_thing)
   end
   --lets skull an entire vat of booze, what could possibly go wrong...
   local meta = clicker:get_meta()
-  local thirst = meta:get_int("thirst")
   --only drink if thirsty
-  if thirst < 100 then
-    minetest.swap_node(pos, {name = empty})
+  if meta:get_int("thirst") < 100 then
+    if not ininv then
+      minetest.swap_node(pos, {name = empty})
+    else
+      pos = clicker:get_pos()
+      node.name = itemstack
+    end
     minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
     return HEALTH.eatdrink(node.name, clicker, pointed_thing)
   end
@@ -116,7 +120,11 @@ liquid_store.register_stored_liquid("tech:tang",{
 	},
   on_rightclick = function(...)
     drink_tang(...)
-  end
+  end,
+  _use_tip = S("Drink"),
+  _on_use_item = function(player, itemstack, pointed_thing)
+    return drink_tang(nil, {name="tech:tang"}, player, itemstack, pointed_thing, true)
+  end,
 })
 liquid_store.register_stored_liquid("tech:wooden_tang",{
   source = "tech:tang_liquid",
@@ -143,7 +151,11 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 	},
   on_rightclick = function(...)
     drink_tang(...)
-  end
+  end,
+  _use_tip = S("Drink"),
+  _on_use_item = function(player, itemstack, pointed_thing)
+    return drink_tang(nil, {name="tech:wooden_tang"}, player, itemstack, pointed_thing, true)
+  end,
 })
 
 -----------------

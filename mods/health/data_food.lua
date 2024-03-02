@@ -116,8 +116,8 @@ HEALTH.food_table = {
 	["nodes_nature:tikusati"]           = {hu=-2,en=2},
   ["tech:tiku"]                       = {hu=-24,en=96},
   -- skulling an entire bucket, all energy and half food equivalent of the fruit
-  ["tech:tang"]                       = {th=100,hu=60,en=180},
-  ["tech:wooden_tang"]                = {th=100,hu=60,en=180},
+  ["tech:tang"]                       = {th=100,hu=60,en=180,rwi="tech:clay_water_pot",eat_sound=""},
+  ["tech:wooden_tang"]                = {th=100,hu=60,en=180,rwi="tech:wooden_water_pot",eat_sound=""},
 	--medicine                              hp  th   hu  en  te
 	["nodes_nature:hakimi_flowering"]             = {hp=1,hu=1,en=-15},
 	["nodes_nature:merki"]              = {hp=1,hu=1,en=-15},

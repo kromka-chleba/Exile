@@ -131,17 +131,23 @@ function HEALTH.get_food_stats(name,prefercooked)
   if type(name) == "userdata" and type(name["get_name"]) == "function" then
     name = name:get_name()
   end
-  if type(name) ~= "string" then
+  local ft = type(name) == "table" and name or -- food_table
+  prefercooked and food_table[name.."_cooked"] or food_table[name]
+  if type(name) ~= "table" then
     return
   end
-  local ft = prefercooked and food_table[name.."_cooked"] or food_table[name] -- food table
-  if not ft then return end
   local stats = {}
-  stats.hp = ft.hp or ft.health or 0
-  stats.th = ft.th or ft.thirst or 0
-  stats.hu = ft.hu or ft.hun or ft.hunger or 0
-  stats.en = ft.en or ft.energy or 0
-  stats.temp = ft.temp or ft.temperature or 0
+  -- numbered indexes for legacy support
+  stats.hp = ft.hp or ft.health or ft[1] or 0
+  stats.th = ft.th or ft.thirst or ft[2] or 0
+  stats.hu = ft.hu or ft.hun or ft.hunger or ft[3] or 0
+  stats.en = ft.en or ft.energy or ft[4] or 0
+  stats.temp = ft.temp or ft.temperature or ft[5] or 0
+  stats.rwi = ft.replace_item or ft.replace_with_item or ft.rwi or ft[6] or ""
+  stats.sound = ft.eat_sound or ft.sound or ft.es or "health_eat"
+  if type(stats.sound) == "string" then
+    stats.sound = {name=stats.sound, max_hear_distance = 3, gain = 0.25}
+  end
   return stats
 end
 
