@@ -252,15 +252,16 @@ end
 local function calc_baking_time(stack)
    local fname = stack:get_name()
   local ft = HEALTH.get_food_stats(fname)
-   if not ft then return 0 end -- removing finished, etc
-   local time -- #TODO: Check if we're adding to a stack, don't alter
-   if HEALTH.bake_table[fname] then
-      time = HEALTH.bake_table[fname][2] -- using baking time
-   elseif fname:gsub("_cooked","") ~= fname then
-      time = 1 -- this is already cooked
-   else -- use half of nutrition unit value
-      time = 1 + math.floor(ft.hu/2)
-   end
+  if not ft then return 0 end -- removing finished, etc
+  -- #TODO: Check if we're adding to a stack, don't alter
+  local bake_data = HEALTH.bake_table[fname]
+  -- in order of priority;
+  -- baking time
+  -- already cooked
+  -- use half of nutrition unit value
+  local time = bake_data and type(bake_data[2]) == "number" and bake_data[2] or
+    fname:gsub("_cooked","") ~= fname and 1 or
+    1 + math.floor(math.abs(ft.hu)/2)
    return time
 end
 
