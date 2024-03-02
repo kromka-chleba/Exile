@@ -4,15 +4,18 @@ Adds player health effects e.g. hunger, thirst, fatigue, hypothermia, poisoning,
 
 
 
-
 Consummable items:
 -----------------
-HEALTH.use_item(itemstack, user, hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item)
+HEALTH.use_item(itemstack, user, food_table)
 
-call from on_use.
+food_table can either be nil (will read from HEALTH.food_table) or table
+food_table = {hp=0,th=0,hu=0,en=0,temp=0,replace_item=""}
+not all variables have to be specified
+
+call from _on_use_item
 e.g. adds 5 food, minus 10 energy.
-on_use = function(itemstack, user, pointed_thing)
-  return HEALTH.use_item(itemstack, user, 0, 0, 5, -10, 0)
+_on_use_item = function(user, itemstack, pointed_thing)
+  return HEALTH.use_item(itemstack, user, {hu=5,en=-10})
 end,
 
 
@@ -21,6 +24,8 @@ end,
 Authors of source code
 ----------------------
 Dokimi (GPLv3)
+Mantar
+TubberPupperHusker (Exile Licensing)
 
 
 
