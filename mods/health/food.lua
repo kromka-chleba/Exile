@@ -4,9 +4,9 @@
 --Modding info:
 --[[
  To add new foods, define your node(s), then pass a table with food info to
-exile_add_food(table). Its on_use will be set automatically.
+exile_add_food_hook(name,table). Its _on_use_item will be set automatically.
  Make sure all your nodes have been defined BEFORE you send any tables!
- exile_add_food() will override a node's on_use.
+ exile_add_food_hook() will override a node's _on_use_item.
 
  For cookable things, define the node, and a name_cooked/name_burned version,
 then pass the cooking data to exile_add_bake(table). Don't forget to add the
@@ -162,14 +162,6 @@ function exile_eatdrink(itemstack, user, pointed_thing)
    return HEALTH.use_item(itemstack, user, t)
 end
 
-
--- Overrides for edible and bakable nodes
-local eat_redef = {
-   --on_use = function(itemstack, user, pointed_thing)
-		--return exile_eatdrink(itemstack, user, pointed_thing)
-   --end
-}
-
 local function bake_error(pos, selfname)
    local posstr = minetest.pos_to_string(pos)
    minetest.log("error", "Warning, attempting to use a bake timer at "..
@@ -198,15 +190,6 @@ local bake_redef = {
 			       bake_table[selfname][2])
 end}
 
-function exile_add_food(table)
-   --Add new foods, mod must send a table in the food_data.lua format
-   for k, v in pairs(table) do
-      food_table[k] = v
-      if minetest.registered_nodes[k] then
-	 minetest.override_item(k, eat_redef)
-      end
-   end
-end
 function exile_add_bake(table)
    --Add new bakables, mod must send a table in the food_data.lua format
    for k, v in pairs(table) do
@@ -223,18 +206,21 @@ function exile_add_harm(table)
    end
 end
 
-function exile_add_food_hooks(name)
-   if food_table[name] then
-      if minetest.get_item_group(name,'edible') == 0 then
-	 minetest.log("warning", "No edible group set for "..name..", patching")
-	 local groups = minetest.registered_items[name].groups or {}
-	 groups.edible = 1
-	 minetest.override_item(name, {
-				   _use_tip = "Eat",
-				   groups = groups
-	 })
-      end
-   end
+function exile_add_food_hooks(name,info)
+  if type(info) == "table" and not food_table[name] then
+    food_table[name] = info
+  elseif not food_table[name] then
+    return
+  end
+  if minetest.get_item_group(name,'edible') == 0 then
+    minetest.log("warning", "No edible group set for "..name..", patching")
+    local groups = minetest.registered_items[name].groups or {}
+    groups.edible = 1
+    minetest.override_item(name, {
+      _use_tip = "Eat",
+      groups = groups
+    })
+  end
    if bake_table[name] then
       minetest.override_item(name, bake_redef)
    end

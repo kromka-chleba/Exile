@@ -82,20 +82,9 @@ local function drink_tang(pos, node, clicker, itemstack, pointed_thing)
   local thirst = meta:get_int("thirst")
   --only drink if thirsty
   if thirst < 100 then
-    --you're skulling a whole bucket
-    HEALTH.modify_int(meta, "thirst", 100)
-    --all energy and half food equivalent of the fruit
-    --gets given as energy
-    HEALTH.modify_int(meta, "energy", 180)
-    HEALTH.modify_int(meta, "hunger", 60)
-
-    --drunkness
-    if random() < 0.75 then
-      HEALTH.add_new_effect(clicker, {"Drunk", 1})
-    end
-
     minetest.swap_node(pos, {name = empty})
     minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
+    return exile_eatdrink(node.name, clicker, pointed_thing)
   end
 end
 
