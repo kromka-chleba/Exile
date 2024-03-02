@@ -393,7 +393,7 @@ local self_data = {
 			{range={x=1, y=31}, speed=28, loop=true},
 			{range={x=31, y=70}, speed=32, loop=true},
 		},
-    dead = { range = {x=0, y=0}, speed = 0, loop=true},
+    dead = { range = {x=0, y=0}, speed = 0, loop=false},
 	},
 	sounds = {
 		warn = {
