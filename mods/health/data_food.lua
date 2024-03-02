@@ -101,8 +101,6 @@ food_table = {
 	["animals:pegasun_eggs"]            = {hu=5},
 	["animals:sarkamos_eggs"]           = {th=10,hu=40},
 	["animals:sneachan_eggs"]           = {hu=3},
-	--drugs
-	["nodes_nature:tikusati"]           = {hu=-2,en=2},
 	--toxic
         ["nodes_nature:momo_flowering"]     = {th=1,hu=3},
         ["nodes_nature:wrotycz_fruit"]      = {hu=2},
@@ -114,6 +112,9 @@ food_table = {
         ["nodes_nature:obesa_flowering"]    = {hp=-2,th=10,hu=6,en=-4},
 	["nodes_nature:maraka_nut"]         = {hu=5,en=5},
 	["nodes_nature:sasaran_cone"]       = {hu=1},
+  --drugs
+	["nodes_nature:tikusati"]           = {hu=-2,en=2},
+  ["tech:tiku"]                       = {hu=-24,en=96},
 	--medicine                              hp  th   hu  en  te
 	["nodes_nature:hakimi_flowering"]             = {hp=1,hu=1,en=-15},
 	["nodes_nature:merki"]              = {hp=1,hu=1,en=-15},
@@ -145,7 +146,7 @@ food_harm_table = {
   ["tech:mashed_anperla_cooked"]   = { {tg="Food Poisoning",ch=0.002,sv=1} },
 	["tech:mashed_anperla_burned"]   = { {tg="Food Poisoning",ch=0.002,sv=1} },
   -- medicine/drugs
-  
+  ["tech:tiku"]                    = { {tg="Tiku High",ch=1,sv=1} },
   -- cooked
   ["nodes_nature:sea_lettuce_cooked"] = { {tg="Food Poisoning",ch=0.002,sv=1} },
   -- fruits (not fruting)

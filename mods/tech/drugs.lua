@@ -51,22 +51,12 @@ Specific toxins can have anti-toxins (a fairly modern treatment)
 ------------
 --Tiku
 -- stimulant drug
--- gets you high
+-- gets you high (HEALTH/data_food.lua)
 minetest.register_craftitem("tech:tiku", {
 	description = S("Tiku (stimulant)"),
 	inventory_image = "tech_tiku.png",
 	stack_max = minimal.stack_max_medium *2,
-	groups = {flammable = 1, drug = 1},
-	_use_tip = "Eat",
-
-	_on_use_item = function(user, itemstack, pointed_thing)
-
-	   --begin the bender
-	   HEALTH.add_new_effect(user, {"Tiku High", 1})
-
-	   --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-	   return HEALTH.use_item(itemstack, user, {hun=-24,en=96})
-	end,
+	groups = {flammable = 1, drug = 1, edible = 1},
 })
 
 
