@@ -146,7 +146,7 @@ function HEALTH.get_food_stats(name,prefercooked)
 end
 
 function exile_eatdrink(itemstack, user, pointed_thing)
-   local name = itemstack:get_name()
+   local name = type(itemstack) == "string" and itemstack or itemstack:get_name()
 
    if minetest.registered_aliases[name] then
       name = minetest.registered_aliases[name]

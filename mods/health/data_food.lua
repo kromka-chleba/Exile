@@ -115,6 +115,9 @@ food_table = {
   --drugs
 	["nodes_nature:tikusati"]           = {hu=-2,en=2},
   ["tech:tiku"]                       = {hu=-24,en=96},
+  -- skulling an entire bucket, all energy and half food equivalent of the fruit
+  ["tech:tang"]                       = {th=100,hu=60,en=180},
+  ["tech:wooden_tang"]                = {th=100,hu=60,en=180},
 	--medicine                              hp  th   hu  en  te
 	["nodes_nature:hakimi_flowering"]             = {hp=1,hu=1,en=-15},
 	["nodes_nature:merki"]              = {hp=1,hu=1,en=-15},
@@ -147,6 +150,8 @@ food_harm_table = {
 	["tech:mashed_anperla_burned"]   = { {tg="Food Poisoning",ch=0.002,sv=1} },
   -- medicine/drugs
   ["tech:tiku"]                    = { {tg="Tiku High",ch=1,sv=1} },
+  ["tech:tang"]                    = { {tg="Drunk",ch=0.75,sv=1} },
+  ["tech:wooden_tang"]             = { {tg="Drunk",ch=0.75,sv=1} },
   -- cooked
   ["nodes_nature:sea_lettuce_cooked"] = { {tg="Food Poisoning",ch=0.002,sv=1} },
   -- fruits (not fruting)

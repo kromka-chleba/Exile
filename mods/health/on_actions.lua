@@ -21,7 +21,7 @@ end
 --
 --Consummable items
 function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_table
-   if (type(itemstack) ~= "userdata" or not itemstack["get_name"]) or not minetest.is_player(user) or not minetest.settings:get_bool("enable_damage") then
+   if (not minetest.is_player(user) or not minetest.settings:get_bool("enable_damage")) then
       return
    end
   f_table = type(f_table) == "table" and f_table or HEALTH.get_food_stats(itemstack)
@@ -50,21 +50,23 @@ function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_tabl
    sfinv.set_player_inventory_formspec(user)
 
    --minetest.chat_send_player(name, minetest.registered_items[item].description .." effect = Health: "..hp_change..", Thirst: "..thirst_change.. ", Hunger: "..hunger_change.. ", Energy: "..energy_change.. ", Body Temperature: "..temp_change )
-   local pos = user:get_pos()
-   minetest.sound_play("health_eat", {pos = pos, gain = 0.5, max_hear_distance = 2})
-
-   --replace/take
-   itemstack:take_item()
-   if itemstack:get_count() == 0 then
-      itemstack:add_item(replace_with_item)
-   else
+  if type(itemstack) == "userdata" and type(itemstack["get_name"]) == "function" then
+    -- only play eating sound if an itemstack
+    local pos = user:get_pos()
+    minetest.sound_play("health_eat", {pos = pos, gain = 0.5, max_hear_distance = 2})
+    --replace/take
+    itemstack:take_item()
+    if itemstack:get_count() == 0 then
+      itemstack:add_item(replace_item)
+    else
       local inv = user:get_inventory()
-      if inv:room_for_item("main", replace_with_item) then
-	 inv:add_item("main", replace_with_item)
+      if inv:room_for_item("main", replace_item) then
+        inv:add_item("main", replace_item)
       else
-	 minetest.add_item(user:get_pos(), replace_with_item)
+        minetest.add_item(pos, replace_item)
       end
-   end
+    end
+  end
 
    return itemstack
 end
