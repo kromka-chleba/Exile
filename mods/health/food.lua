@@ -206,7 +206,7 @@ function HEALTH.add_harm(table)
    end
 end
 
-function exile_add_food_hooks(name,info)
+function HEALTH.add_food_hooks(name,info)
   if type(info) == "table" and not food_table[name] then
     food_table[name] = info
   elseif not food_table[name] then
@@ -233,7 +233,7 @@ end
 minetest.register_on_mods_loaded(function()
 	for name,_ in pairs(minetest.registered_nodes) do
 		if minetest.get_item_group(name,'edible') > 0 then
-		   exile_add_food_hooks(name)
+      HEALTH.add_food_hooks(name)
 		end
 	end
 end)

@@ -15,7 +15,7 @@ local c_alpha = minimal.compat_alpha
 seasons = seasons
 seasonal_types = seasonal_types
 
-exile_add_food_hooks = exile_add_food_hooks
+local add_food_hooks = HEALTH.add_food_hooks
 wielded_light = wielded_light
 
 -- Globals
@@ -533,7 +533,7 @@ function plant.register_plantlike_seedlings(plant_def)
         local seedling_name = plant.get_seedling_name(plant_def.name, i)
         minetest.register_node(seedling_name, props)
         if plant_def.edible_seedling then
-            exile_add_food_hooks(seedling_name)
+            add_food_hooks(seedling_name)
         end
     end
     -- the last seedling
@@ -544,7 +544,7 @@ function plant.register_plantlike_seedlings(plant_def)
     props.groups.seedling = 5
     minetest.register_node(plant.get_seedling_name(plant_def.name, nr), props)
     if plant_def.edible_seedling then
-        exile_add_food_hooks(plant.get_seedling_name(plant_def.name, nr))
+        add_food_hooks(plant.get_seedling_name(plant_def.name, nr))
     end
     -- compatibility with old worlds
     minetest.register_alias(plant.get_name(plant_def.name).."_seedling",
@@ -698,7 +698,7 @@ function plant.register_fruit(plant_def)
         props.description = S("@1 Dry Fruit", plant_def.description)
     end
     minetest.register_craftitem(plant.get_fruit_name(plant_def.name), props)
-    exile_add_food_hooks(plant.get_fruit_name(plant_def.name))
+    add_food_hooks(plant.get_fruit_name(plant_def.name))
 end
 
 function plant.get_plantlike_fruitless_props(plant_def)
@@ -719,19 +719,19 @@ function plant.register_plantlike_flowering(plant_def)
         props._ncrafting_dye_dcolor = plant_def.dominant_color
     end
     minetest.register_node(plant.get_flowering_name(plant_def.name), props)
-    exile_add_food_hooks(plant.get_flowering_name(plant_def.name))
+    add_food_hooks(plant.get_flowering_name(plant_def.name))
 end
 
 function plant.register_plantlike_fruiting(plant_def)
     local props = plant.get_plantlike_fruiting_props(plant_def)
     minetest.register_node(plant.get_fruiting_name(plant_def.name), props)
-    exile_add_food_hooks(plant.get_fruiting_name(plant_def.name))
+    add_food_hooks(plant.get_fruiting_name(plant_def.name))
 end
 
 function plant.register_plantlike_fruitless(plant_def)
     local props = plant.get_plantlike_fruitless_props(plant_def)
     minetest.register_node(plant.get_fruitless_name(plant_def.name), props)
-    exile_add_food_hooks(plant.get_fruitless_name(plant_def.name))
+    add_food_hooks(plant.get_fruitless_name(plant_def.name))
 end
 
 function plant.get_3D_props(plant_def)
@@ -933,8 +933,8 @@ function plant.register_threshing_recipes(plant_def)
 end
 
 function plant.add_food_hooks(plant_def)
-    exile_add_food_hooks(plant.get_seed_name(plant_def.name))
-    exile_add_food_hooks(plant.get_name(plant_def.name))
+    add_food_hooks(plant.get_seed_name(plant_def.name))
+    add_food_hooks(plant.get_name(plant_def.name))
 end
 
 function plant.register_all(plant_def_list)

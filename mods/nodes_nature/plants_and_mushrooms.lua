@@ -499,8 +499,8 @@ minetest.register_craftitem(
     }
 )
 
-exile_add_food_hooks("nodes_nature:rzepicha_root")
-exile_add_food_hooks("nodes_nature:rzepicha_root_winter")
+HEALTH.add_food_hooks("nodes_nature:rzepicha_root")
+HEALTH.add_food_hooks("nodes_nature:rzepicha_root_winter")
 
 minetest.override_item(
     "nodes_nature:rzepicha_fruitless",
