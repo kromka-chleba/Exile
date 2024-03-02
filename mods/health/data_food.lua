@@ -267,3 +267,11 @@ food_harm_table = {
 	["animals:sneachan_eggs"]       = { {tg="Food Poisoning",ch=0.5,sv={1,4} },
 	                                     {tg="Intestinal Parasites",ch=0.5,sv=1} },
 }
+
+HEALTH.cure_table = {
+  -- plants + mushrooms
+  -- hakimi is antibacterial, antifungal - only cure mild
+  ["nodes_nature:hakimi_flowering"] = {ch=0.75,sv=1,{tgs="Food Poisoning","Fungal Infection", "Dust Fever"} },
+  -- merki is anti-parasitic
+  ["nodes_nature:merki"] = { {tg="Intestinal Parasites",ch=0.15,sv=1} },
+}

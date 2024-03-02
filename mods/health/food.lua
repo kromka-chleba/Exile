@@ -41,28 +41,71 @@ local function do_food_harm(user, name)
   local g_ch = fht.ch or fht.chance -- "global" chance (for all noted effects in table)
   local g_sv = fht.sv or fht.severity -- "global" severity (ditto /\)
   -- look through fht
-  for _,eff in pairs(fht) do -- for effect tables
-    -- chance (assume default of 0.001)
-    local ch = eff.ch or eff.chance or g_ch or 0.001
-    if math.random() <= ch then
-      -- disease time
-      -- severity (assume default of 1)
-      local sv = eff.sv or eff.severity or g_sv or 1
-      if type(sv) == "table" then
-        -- is a chance, decide what severity it should be
-        sv = math.random(sv[1],sv[2])
+  for ind,eff in pairs(fht) do -- for effect tables
+    if type(eff) == "table" and type(ind) == "number" then -- do not conflict with "globals"
+      -- chance (assume default of 0.001)
+      local ch = eff.ch or eff.chance or g_ch or 0.001
+      if math.random() <= ch then
+        -- disease time
+        -- severity (assume default of 1)
+        local sv = eff.sv or eff.severity or g_sv or 1
+        if type(sv) == "table" then
+          -- is a chance, decide what severity it should be
+          sv = math.random(sv[1],sv[2])
+        end
+        -- integers only
+        sv = math.floor(sv)
+        -- health effect tag (string or table, is made into table for the following)
+        local tg = eff.tg or eff.tag or eff.tgs or eff.tags
+        tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
+        -- table allows for you to specify numerous health effects with the same severity or chance
+        if tg then
+          for _,tg_name in pairs(tg) do
+            if type(tg_name) == "string" then
+              -- only strings allowed
+              HEALTH.add_new_effect(user, {tg_name, sv})
+            end
+          end
+        end
       end
-      -- integers only
-      sv = math.floor(sv)
-      -- health effect tag (string or table, is made into table for the following)
-      local tg = eff.tg or eff.tag or eff.tgs or eff.tags
-      tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
-      -- table allows for you to specify numerous health effects with the same severity or chance
-      if tg then
-        for _,tg_name in pairs(tg) do
-          if type(tg_name) == "string" then
-            -- only strings allowed
-            HEALTH.add_new_effect(user, {tg_name, sv})
+    end
+  end
+end
+
+-- does the reverse of do_food_harm but uses the same functions basically
+local function do_food_cure(user, name)
+  if type(name) == "userdata" and name["get_name"] then
+    name = name:get_name()
+  end
+  local fct = HEALTH.cure_table[name]
+  if not fct then return end
+  local g_ch = fct.ch or fct.chance -- "global" chance (for all noted effects in table)
+  local g_sv = fct.sv or fct.severity -- "global" severity (ditto /\)
+  -- look through fct
+  for ind,eff in pairs(fct) do -- for effect tables
+    if type(eff) == "table" and type(ind) == "number" then -- do not conflict with "globals"
+      -- chance (assume default of 0.001)
+      local ch = eff.ch or eff.chance or g_ch or 0.001
+      if math.random() <= ch then
+        -- cure time
+        -- severity (assume default of 1)
+        local sv = eff.sv or eff.severity or g_sv or 1
+        if type(sv) == "table" then
+          -- is a chance, decide what severity it should cure
+          sv = math.random(sv[1],sv[2])
+        end
+        -- integers only
+        sv = math.floor(sv)
+        -- health effect tag (string or table, is made into table for the following)
+        local tg = eff.tg or eff.tag or eff.tgs or eff.tags
+        tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
+        -- table allows for you to specify numerous health effects with the same severity or chance
+        if tg then
+          for _,tg_name in pairs(tg) do
+            if type(tg_name) == "string" then
+              -- only strings allowed
+              HEALTH.remove_new_effect(user, {tg_name, sv})
+            end
           end
         end
       end
@@ -114,6 +157,7 @@ function exile_eatdrink(itemstack, user, pointed_thing)
       return
    end
    do_food_harm(user, name)
+   do_food_cure(user, name)
    local t = food_table[name]
    return HEALTH.use_item(itemstack, user, t)
 end

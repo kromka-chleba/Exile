@@ -525,7 +525,6 @@ minetest.override_item(
 --marbhan has a Neurotoxin
 minetest.override_item(
     "nodes_nature:marbhan",{
-		_use_tip = 'Eat',
 		_on_use_item = function(user, itemstack, pointed_thing)
         --on_use = function(itemstack, user, pointed_thing)
             --Similar to hemlock, which tastes musty or like mouse urine
@@ -540,45 +539,12 @@ minetest.override_item(
 --nebiyi has a Hepatotoxin
 minetest.override_item(
     "nodes_nature:nebiyi",{
-		_use_tip = 'Eat',
 		_on_use_item = function(user, itemstack, pointed_thing)
         --on_use = function(itemstack, user, pointed_thing)
             --Flowers look a bit like oleander; it causes intense stomach pain
             minetest.chat_send_player(user:get_player_name(),
                                       "Your stomach hurts terribly.")
 
-            return exile_eatdrink(itemstack, user, pointed_thing)
-        end,
-})
-
-
---hakimi is antibacterial, antifungal
-minetest.override_item(
-    "nodes_nature:hakimi_flowering",{
-		_use_tip = 'Eat',
-		_on_use_item = function(user, itemstack, pointed_thing)
---        on_use = function(itemstack, user, pointed_thing)
-            --only cure mild
-            if math.random()<0.75 then
-                HEALTH.remove_new_effect(user, {"Food Poisoning", 1})
-                HEALTH.remove_new_effect(user, {"Fungal Infection", 1})
-                HEALTH.remove_new_effect(user, {"Dust Fever", 1})
-            end
-
-            return exile_eatdrink(itemstack, user, pointed_thing)
-        end,
-})
-
---merki is anti-parasitic
-minetest.override_item(
-    "nodes_nature:merki",{
-		_use_tip = 'Eat',
-		_on_use_item = function(user, itemstack, pointed_thing)
---        on_use = function(itemstack, user, pointed_thing)
-            if math.random()<0.15 then
-                HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
-            end
-            --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
             return exile_eatdrink(itemstack, user, pointed_thing)
         end,
 })
