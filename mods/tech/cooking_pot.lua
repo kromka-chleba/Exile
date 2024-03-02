@@ -23,7 +23,6 @@ Save to inv meta
 ]]
 
 -- Import Globals
-food_table = food_table
 bake_table = bake_table
 
 -- Internationalization
@@ -329,7 +328,7 @@ minetest.register_node("tech:cooking_pot", {
 	allow_metadata_inventory_put = function(
 	      pos, listname, index, stack, player)
 	   local fname = stack:get_name()
-	   if not food_table[fname] and not bake_table[fname] then
+	   if not HEALTH.food_table[fname] and not bake_table[fname] then
 	      return 0
 	   end
 	   local meta = minetest.get_meta(pos)

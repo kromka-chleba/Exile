@@ -16,7 +16,7 @@
 	cabbage   240 kcal/kg =  4.8 units/kg   10.5 per lb.
 	]]--
 
-food_table = {
+HEALTH.food_table = {
 	--name	     	      	               hp  th  hu   en  temp, replacewithitem (not implemented yet)
 	["tech:maraka_bread_cooked"]        = {hu=24,en=14},
 	["tech:maraka_bread_burned"]        = {hu=12,en=7},
@@ -140,7 +140,7 @@ bake_table = {
 -- tg=tag, ch=chance, sv=severity
 -- base minimal food poisoning
 local bm_fp = {tg="Food Poisoning",ch=0.001,sv=1}
-food_harm_table = {
+HEALTH.harm_table = {
   -- player-craft
   ["tech:maraka_bread_cooked"]     = {bm_fp},
 	["tech:maraka_bread_burned"]     = {bm_fp},

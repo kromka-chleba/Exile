@@ -27,8 +27,8 @@ local S = HEALTH.S
 dofile(minetest.get_modpath('health')..'/data_food.lua')
 
 -- Declare globals
-food_harm_table = food_harm_table
-food_table = food_table
+local food_harm_table = HEALTH.harm_table
+local food_table = HEALTH.food_table
 bake_table = bake_table
 
 local function do_food_harm(user, name)
