@@ -239,6 +239,33 @@ local self_data = {
   },
   -- logic for mobkit
   logic = brain,
+  -- animations + sounds
+  animation = {
+    def={range={x=1,y=35},speed=30,loop=true},
+    fast={range={x=1,y=35},speed=60,loop=true},
+    stand={range={x=36,y=75},speed=20,loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=true},
+  },
+  sounds = {
+    flee = {
+      name = "animals_water_swish",
+      gain={0.5, 1.5},
+      fade={0.5, 1.5},
+      pitch={0.5, 1.5},
+    },
+    call = {
+      name = "animals_gundu_call",
+      gain={0.05, 0.15},
+      fade={0.5, 1.5},
+      pitch={0.6, 1.2},
+    },
+    punch = {
+      name = "animals_punch",
+      gain={0.5, 1},
+      fade={0.5, 1.5},
+      pitch={0.5, 1.5},
+    },
+  },
   --movement
 	springiness=0.5,
 	buoyancy = 1,
