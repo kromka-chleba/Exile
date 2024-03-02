@@ -133,7 +133,7 @@ function HEALTH.get_food_stats(name,prefercooked)
   end
   local ft = type(name) == "table" and name or -- food_table
   prefercooked and food_table[name.."_cooked"] or food_table[name]
-  if type(name) ~= "table" then
+  if type(ft) ~= "table" then
     return
   end
   local stats = {}
