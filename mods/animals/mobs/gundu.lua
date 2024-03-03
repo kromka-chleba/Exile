@@ -209,7 +209,7 @@ local self_data = {
       collisionbox = {-0.1, -0.1, -0.1, 0.1, 0.1, 0.1},
       visual = "mesh",
       mesh = "animals_gundu.b3d",
-      textures = {"animals_gundu.png"},
+      textures = {"animals_color_palette.png"},
       visual_size = {x = 5, y = 5},
       makes_footstep_sound = false,
    },
@@ -241,9 +241,9 @@ local self_data = {
   logic = brain,
   -- animations + sounds
   animation = {
-    def={range={x=1,y=35},speed=30,loop=true},
-    fast={range={x=1,y=35},speed=60,loop=true},
-    stand={range={x=36,y=75},speed=20,loop=true},
+    def={range={x=1,y=20},speed=20,loop=true},
+    fast={range={x=1,y=20},speed=40,loop=true},
+    stand={range={x=20,y=40},speed=20,loop=true},
     dead = {range ={x=0, y=0},speed = 0,loop=false},
   },
   sounds = {
