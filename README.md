@@ -1,6 +1,6 @@
 # Exile
 Created by Dokimi
-for `Minetest 5.3+`
+for `Minetest 5.5.1+`
 
 CAUTION: _Some people may find parts of this game difficult or disturbing._
 

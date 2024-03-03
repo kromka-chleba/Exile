@@ -1,7 +1,14 @@
 # Changelog:
 
+## [2024-03-03][2023-03-03__0.3.16]
+  - Replaced NC-licensed Gundu, Exile should be fully free now
+  - WITT for Exile: show the names of things when you press the zoom key
+  - Improved light meter
+  - Added /crouch as alternative to double-tapping shift, in case of lag
+  - Less trouble with lowering ropes/ladders
+
 ## [2024-01-16][2023-01-16__0.3.15d]
-  - Add	a player model to clothing page, tool
+  - Add a player model to clothing page, too!
   - Increase /ping timeout on servers
   - Fix for a mobile issue with bed rest
 
