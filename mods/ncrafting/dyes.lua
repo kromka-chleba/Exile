@@ -118,7 +118,7 @@ local function CandidateList()
 	 def.groups.ncrafting_dye_candidate = nil
 	 dye_candidates[nm] = nil
 	 if dye_source[nm] then
-	    minetest.log("Action","Dye: Clearing "..dye_source[nm].color..
+	    minetest.log("action","Dye: Clearing "..dye_source[nm].color..
 			 " dye because "..nm.." is not a valid candidate")
 	    dye_source[nm] = nil
 	 end
