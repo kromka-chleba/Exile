@@ -106,15 +106,6 @@ crafting.register_recipe({
 })
 
 
---recycle with some loss
-crafting.register_recipe({
-	type = {"mixing_spot","hand_wattle","knife_wattle"},
-	output = "tech:wattle 2",
-	items = {"doors:door_wattle"},
-	level = 1,
-	always_known = true,
-})
-
 crafting.register_recipe({
 	type = {"mixing_spot","hand_wattle","knife_wattle"},
 	output = "tech:wattle",

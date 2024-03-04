@@ -54,7 +54,7 @@ minetest.register_craftitem("tech:herbal_medicine", {
 
 
     --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-    return HEALTH.use_item(itemstack, user, 5, 0, 0, 0, 0)
+    return HEALTH.use_item(itemstack, user, {hp=5})
   end,
 })
 
@@ -98,7 +98,7 @@ minetest.register_craftitem("tech:tiku", {
 	   HEALTH.add_new_effect(user, {"Tiku High", 1})
 
 	   --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-	   return HEALTH.use_item(itemstack, user, 0, 0, -24, 96, 0)
+	   return HEALTH.use_item(itemstack, user, {hun=-24,en=96})
 	end,
 })
 

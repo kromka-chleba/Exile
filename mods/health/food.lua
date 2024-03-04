@@ -31,14 +31,43 @@ food_harm_table = food_harm_table
 food_table = food_table
 bake_table = bake_table
 
-local function do_food_harm(user, nodename)
-   if not food_harm_table[nodename] then return end
-   local fht = food_harm_table[nodename]
-   for i = 1, #fht do
-      if math.random() < fht[i][2] then
-	 HEALTH.add_new_effect(user, {fht[i][1], fht[i][3]})
+local function do_food_harm(user, name)
+  if type(name) == "userdata" and name["get_name"] then
+    name = name:get_name()
+  end
+  local fht = food_harm_table[name] -- food_harm_table
+  if not fht then return end
+  if #fht == 0 then return end -- no effects
+  local g_ch = fht.ch or fht.chance -- "global" chance (for all noted effects in table)
+  local g_sv = fht.sv or fht.severity -- "global" severity (ditto /\)
+  -- look through fht
+  for _,eff in pairs(fht) do -- for effect tables
+    -- chance (assume default of 0.001)
+    local ch = eff.ch or eff.chance or g_ch or 0.001
+    if math.random() <= ch then
+      -- disease time
+      -- severity (assume default of 1)
+      local sv = eff.sv or eff.severity or g_sv or 1
+      if type(sv) == "table" then
+        -- is a chance, decide what severity it should be
+        sv = math.random(sv[1],sv[2])
       end
-   end
+      -- integers only
+      sv = math.floor(sv)
+      -- health effect tag (string or table, is made into table for the following)
+      local tg = eff.tg or eff.tag or eff.tgs or eff.tags
+      tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
+      -- table allows for you to specify numerous health effects with the same severity or chance
+      if tg then
+        for _,tg_name in pairs(tg) do
+          if type(tg_name) == "string" then
+            -- only strings allowed
+            HEALTH.add_new_effect(user, {tg_name, sv})
+          end
+        end
+      end
+    end
+  end
 end
 
 
@@ -51,7 +80,26 @@ function exile_eatdrink_playermade(itemstack, user, pointed_thing)
 				    itemstack:get_name())
       return
    end
-   return HEALTH.use_item(itemstack, user, t[1], t[2], t[3], t[4], t[5], t[6])
+   return HEALTH.use_item(itemstack, user, t)
+end
+
+-- helps to get direct proper value naming or 0 for each
+function HEALTH.get_food_stats(name,prefercooked)
+  if type(name) == "userdata" and type(name["get_name"]) == "function" then
+    name = name:get_name()
+  end
+  if type(name) ~= "string" then
+    return
+  end
+  local ft = prefercooked and food_table[name.."_cooked"] or food_table[name] -- food table
+  if not ft then return end
+  local stats = {}
+  stats.hp = ft.hp or ft.health or 0
+  stats.th = ft.th or ft.thirst or 0
+  stats.hu = ft.hu or ft.hun or ft.hunger or 0
+  stats.en = ft.en or ft.energy or 0
+  stats.temp = ft.temp or ft.temperature or 0
+  return stats
 end
 
 function exile_eatdrink(itemstack, user, pointed_thing)
@@ -67,7 +115,7 @@ function exile_eatdrink(itemstack, user, pointed_thing)
    end
    do_food_harm(user, name)
    local t = food_table[name]
-   return HEALTH.use_item(itemstack, user, t[1], t[2], t[3], t[4], t[5], t[6])
+   return HEALTH.use_item(itemstack, user, t)
 end
 
 

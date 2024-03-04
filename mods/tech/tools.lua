@@ -70,7 +70,7 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
     return itemstack
 end
 
-local function on_dig_tool(pos, node, digger, name)
+local function on_dig_tool(pos, node, digger, name, material)
 	if minetest.is_protected(pos, digger) then
 		return -- can't dig tools you don't own
 	end
@@ -80,6 +80,11 @@ local function on_dig_tool(pos, node, digger, name)
     local player_inv = digger:get_inventory()
     local stack = ItemStack(name)
     stack:set_wear(wear)
+	if material then
+		local imeta = stack:get_meta()
+		imeta:set_string('inventory_image', "tech_tool_hammer_" ..material.. ".png")
+		imeta:set_string('material', material)
+	end
     if player_inv:room_for_item("main", stack) then
        minetest.remove_node(pos)
        player_inv:add_item("main", stack)
@@ -98,7 +103,7 @@ local open_chopping_spot = {
     crafting.make_on_rightclick({"axe","knife_wattle","axe_mixing"}, 2, { x = 8, y = 3 }),
 }
 
-local open_knife = crafting.make_on_rightclick({"knife",'knife_wattle','knife_mixing'}, 2, { x = 8, y = 3 })
+--local open_knife = crafting.make_on_rightclick({"knife",'knife_wattle','knife_mixing'}, 2, { x = 8, y = 3 })
 
 -- checks if the node has one of the groups from good_on
 local function is_spot_valid(node, good_on)
@@ -208,6 +213,10 @@ minetest.register_tool("tech:stone_chopper", {
 -- Placed stone knife
 minetest.register_node("tech:stone_knife_placed", {
         description = S("Placed Stone Knife"),
+		exile_crafting = {
+			craft_types = {"knife",'knife_wattle','knife_mixing'},
+			craft_level = 1,
+		},
         drawtype = "mesh",
         mesh = "stone_knife_placed.obj",
         tiles = {name = "tech_stone_knife_placed.png"},
@@ -223,8 +232,9 @@ minetest.register_node("tech:stone_knife_placed", {
             type = "fixed",
             fixed = {-4/16, -8/16, -4/16, 4/16, -7/16, 4/16},
         },
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_knife(pos, node, clicker, itemstack, pointed_thing)
+		on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+--            open_knife(pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger, "tech:stone_chopper")
@@ -329,6 +339,10 @@ minetest.register_tool("tech:digging_stick", {
 -- Placed digging stick
 minetest.register_node("tech:digging_stick_placed", {
         description = S("Placed Digging Stick"),
+		exile_crafting = {
+			craft_types = {"threshing_spot","soil_mixing", "shovel_agriculture"},
+			craft_level = 1,
+		},
         drawtype = "mesh",
         mesh = "digging_stick_placed.obj",
         tiles = {name = "tech_axe_iron_placed.png"}, -- reuses the texture to save space
@@ -346,7 +360,8 @@ minetest.register_node("tech:digging_stick_placed", {
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+--            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger, "tech:digging_stick")
@@ -390,9 +405,9 @@ local stone_chop2 = crude_chop2 * stone
 local adze_dig = "Cut softwood logs"
 
 --stone adze. best for chopping
-minetest.register_tool("tech:adze_granite", {
-	description = S("Granite Adze"),
-	inventory_image = "tech_tool_adze_granite.png",
+minetest.register_tool("tech:adze", {
+	description = S("Adze"),
+	inventory_image = "tech_tool_adze_jade.png", -- use jade as default image
 	tool_capabilities = {
 		full_punch_interval = base_punch_int * 1.1,
 		groupcaps={
@@ -406,13 +421,20 @@ minetest.register_tool("tech:adze_granite", {
 	sound = {breaks = "tech_tool_breaks"},
 	_dig_tip = adze_dig,
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing, "tech:adze_granite_placed")
+            return place_tool(itemstack, placer, pointed_thing, "tech:adze_jade_placed")
         end,
 })
 
 -- Placed granite adze
 minetest.register_node("tech:adze_granite_placed", {
         description = S("Placed Granite Adze"),
+		exile_crafting = {
+			craft_types = {"axe","knife_wattle","axe_mixing"},
+			craft_level = 1,
+			good_on = {
+				{"stone", 1}, {"masonry", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}
+			},
+		},
         drawtype = "mesh",
         mesh = "adze_placed.obj",
         tiles = {name = "tech_adze_granite_placed.png"},
@@ -430,12 +452,86 @@ minetest.register_node("tech:adze_granite_placed", {
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 1)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+--            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 1)
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger, "tech:adze_granite")
         end,
 })
+
+-- Placed basalt adze
+minetest.register_node("tech:adze_basalt_placed", {
+        description = S("Placed Basalt Adze"),
+		exile_crafting = {
+			craft_types = {"axe","knife_wattle","axe_mixing"},
+			craft_level = 1,
+			good_on = {
+				{"stone", 1}, {"masonry", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}
+			},
+		},
+        drawtype = "mesh",
+        mesh = "adze_placed.obj",
+        tiles = {name = "tech_adze_basalt_placed.png"},
+        paramtype = "light",
+        paramtype2 = "facedir",
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+	selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+--            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 1)
+        end,
+        on_dig = function(pos, node, digger)
+            on_dig_tool(pos, node, digger, "tech:adze_basalt")
+        end,
+})
+
+-- Placed jade adze
+minetest.register_node("tech:adze_jade_placed", {
+        description = S("Placed Jade Adze"),
+		exile_crafting = {
+			craft_types = {"axe","knife_wattle","axe_mixing"},
+			craft_level = 1,
+			good_on = {
+				{"stone", 1}, {"masonry", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}
+			},
+		},
+        drawtype = "mesh",
+        mesh = "adze_placed.obj",
+        tiles = {name = "tech_adze_jade_placed.png"},
+        paramtype = "light",
+        paramtype2 = "facedir",
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+	selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+--            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 1)
+        end,
+        on_dig = function(pos, node, digger)
+            on_dig_tool(pos, node, digger, "tech:adze_jade")
+        end,
+})
+
+-- Legecy tools with material in name.
+-- XXX need to set groupcaps for different materials some how.
 
 --less uses than granite bc softer stone
 minetest.register_tool("tech:adze_basalt", {
@@ -458,34 +554,6 @@ minetest.register_tool("tech:adze_basalt", {
         end,
 })
 
--- Placed basalt adze
-minetest.register_node("tech:adze_basalt_placed", {
-        description = S("Placed Basalt Adze"),
-        drawtype = "mesh",
-        mesh = "adze_placed.obj",
-        tiles = {name = "tech_adze_basalt_placed.png"},
-        paramtype = "light",
-        paramtype2 = "facedir",
-        sounds = nodes_nature.node_sound_stone_defaults(),
-        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
-	use_texture_alpha = c_alpha.clip,
-        node_box = {
-            type = "fixed",
-            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
-        },
-	selection_box = {
-            type = "fixed",
-            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
-        },
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 1)
-        end,
-        on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:adze_basalt")
-        end,
-})
-
-
 --many more uses than granite.
 minetest.register_tool("tech:adze_jade", {
 	description = S("Jade Adze"),
@@ -507,32 +575,38 @@ minetest.register_tool("tech:adze_jade", {
         end,
 })
 
--- Placed jade adze
-minetest.register_node("tech:adze_jade_placed", {
-        description = S("Placed Jade Adze"),
-        drawtype = "mesh",
-        mesh = "adze_placed.obj",
-        tiles = {name = "tech_adze_jade_placed.png"},
-        paramtype = "light",
-        paramtype2 = "facedir",
-        sounds = nodes_nature.node_sound_stone_defaults(),
-        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
-	use_texture_alpha = c_alpha.clip,
-        node_box = {
-            type = "fixed",
-            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
-        },
-	selection_box = {
-            type = "fixed",
-            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
-        },
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 1)
-        end,
-        on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:adze_jade")
+
+--stone adze. best for chopping
+minetest.register_tool("tech:adze_granite", {
+	description = S("Granite Adze"),
+	inventory_image = "tech_tool_adze_granite.png",
+	tool_capabilities = {
+		full_punch_interval = base_punch_int * 1.1,
+		groupcaps={
+			choppy = {times={[2]=stone_chop2, [3]=stone_chop3}, uses=stone_use, maxlevel=stone_max_lvl},
+			snappy={times={[1]=stone_snap1, [2]=stone_snap2, [3]=stone_snap3}, uses=stone_use *0.8, maxlevel=stone_max_lvl},
+			crumbly = {times={[3]=crude_crum3}, uses=base_use, maxlevel=crude_max_lvl},
+		},
+		damage_groups = {fleshy = stone_dmg},
+	},
+	groups = {axe = 1,craftedby = 1},
+	sound = {breaks = "tech_tool_breaks"},
+	_dig_tip = adze_dig,
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing, "tech:adze_granite_placed")
         end,
 })
+
+
+
+
+
+
+
+
+
+
+
 
 --stone club. A weapon. Not very good for anything else
 --can stun catch animals
@@ -613,6 +687,13 @@ minetest.register_tool("tech:axe_iron", {
 -- Placed iron axe
 minetest.register_node("tech:axe_iron_placed", {
         description = S("Placed Iron Axe"),
+		exile_crafting = {
+			craft_types = {"axe","knife_wattle","axe_mixing"},
+			craft_level = 2,
+			good_on = {
+				{"stone", 1}, {"masonry", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}
+			},
+		},
         drawtype = "mesh",
         mesh = "axe_placed.obj",
         tiles = {name = "tech_axe_iron_placed.png"},
@@ -630,7 +711,7 @@ minetest.register_node("tech:axe_iron_placed", {
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 2)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger, "tech:axe_iron")
@@ -667,6 +748,10 @@ minetest.register_tool("tech:shovel_iron", {
 minetest.register_node(
     "tech:shovel_iron_placed", {
         description = S("Placed Iron Shovel"),
+		exile_crafting = {
+			craft_types = {"axe","knife_wattle","axe_mixing"},
+			craft_level = 1,
+		},
         drawtype = "mesh",
         mesh = "shovel_placed.obj",
         tiles = {name = "tech_axe_iron_placed.png"},
@@ -684,7 +769,8 @@ minetest.register_node(
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+--            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger, "tech:shovel_iron")
@@ -790,6 +876,10 @@ minetest.register_tool("tech:hoe_iron", {
 -- Placed iron hoe
 minetest.register_node("tech:hoe_iron_placed", {
         description = S("Placed Iron Hoe"),
+		exile_crafting = {
+			craft_types = {"threshing_spot","soil_mixing", "shovel_agriculture"},
+			craft_level = 1,
+		},
         drawtype = "mesh",
         mesh = "hoe_placed.obj",
         tiles = {name = "tech_axe_iron_placed.png"},
@@ -807,7 +897,8 @@ minetest.register_node("tech:hoe_iron_placed", {
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+--            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger, "tech:hoe_iron")
@@ -853,30 +944,31 @@ crafting.register_recipe({
 --Polished Stone
 --
 
---grind adze
-crafting.register_recipe({
-	type = "grinding_stone",
-	output = "tech:adze_granite",
-	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	level = 1,
-	always_known = true,
-})
+--IB-20240226 --grind adze
+--IB-20240226 crafting.register_recipe({
+--IB-20240226 	type = "grinding_stone",
+--IB-20240226 	output = "tech:adze_granite",
+--IB-20240226 	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+--IB-20240226 	level = 1,
+--IB-20240226 	always_known = true,
+--IB-20240226 })
 
 crafting.register_recipe({
 	type = "grinding_stone",
 	output = "tech:adze_jade",
-	items = {"group:jade_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	items = {{"group:jade_cobble","group:basalt_cobble","group:granite_cobble"},
+		'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
 	level = 1,
 	always_known = true,
 })
 
-crafting.register_recipe({
-	type = "grinding_stone",
-	output = "tech:adze_basalt",
-	items = {"group:basalt_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	level = 1,
-	always_known = true,
-})
+--IB-20240226 crafting.register_recipe({
+--IB-20240226 	type = "grinding_stone",
+--IB-20240226 	output = "tech:adze_basalt",
+--IB-20240226 	items = {"group:basalt_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+--IB-20240226 	level = 1,
+--IB-20240226 	always_known = true,
+--IB-20240226 })
 
 
 --grind club
@@ -933,12 +1025,10 @@ crafting.register_recipe({
 
 
 --Hammers
-
--- Granite hammer
 minetest.register_tool(
-    "tech:hammer_granite", {
-        description = S("Granite Hammer"),
-        inventory_image = "tech_tool_hammer_granite.png",
+    "tech:hammer", {
+        description = S("Hammer"),
+        inventory_image = "tech_tool_hammer_basalt.png",  --using basalt image for inventory as default
         tool_capabilities = {
             full_punch_interval = base_punch_int * 1.2,
             groupcaps={
@@ -951,7 +1041,9 @@ minetest.register_tool(
 	_place_tip = "Stun animals\n"..
 	   " or Place on solid surface for hammering crafts",
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing, "tech:hammer_granite_placed")
+			local imeta = itemstack:get_meta()
+			local material = imeta:get_string('material') or 'basalt' -- default to basalt if no material stored
+            return place_tool(itemstack, placer, pointed_thing, "tech:hammer_"..material.."_placed")
         end,
         groups = {club = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
@@ -959,8 +1051,9 @@ minetest.register_tool(
 
 crafting.register_recipe({
 	type = "grinding_stone",
-	output = "tech:hammer_granite",
-	items = {"group:granite_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	output = "tech:hammer",
+	items = {{"group:basalt_cobble","group:granite_cobble"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	material = 1; -- first item sets material.
 	level = 1,
 	always_known = true,
 })
@@ -968,6 +1061,14 @@ crafting.register_recipe({
 minetest.register_node(
     "tech:hammer_granite_placed", {
         description = S("Placed Granite Hammer"),
+		exile_crafting = {
+			craft_types = {"hammer", "hammer_mixing"},
+			craft_level = 1,
+			material = 'granite',
+			good_on = {
+				{"stone", 1}, {"masonry", 1}, {"boulder", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}
+			},
+		},
         drawtype = "mesh",
         mesh = "hammer_placed.obj",
         tiles = {name = "tech_hammer_granite_placed.png"},
@@ -985,13 +1086,51 @@ minetest.register_node(
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+--            open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:hammer_granite")
+            on_dig_tool(pos, node, digger, "tech:hammer", 'granite')
         end,
 })
 
+minetest.register_node(
+    "tech:hammer_basalt_placed", {
+        description = S("Placed Basalt Hammer"),
+		exile_crafting = {
+			craft_types = {"hammer", "hammer_mixing"},
+			craft_level = 1,
+			material = 'basalt',
+			good_on = {
+				{"stone", 1}, {"masonry", 1}, {"boulder", 1}, {"soft_stone", 1}, {"tree", 1}, {"log", 1}
+			},
+		},
+        drawtype = "mesh",
+        mesh = "hammer_placed.obj",
+        tiles = {name = "tech_hammer_basalt_placed.png"},
+        paramtype = "light",
+        paramtype2 = "facedir",
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
+	use_texture_alpha = c_alpha.clip,
+	node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+	selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+			return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+--            open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
+        end,
+        on_dig = function(pos, node, digger)
+            on_dig_tool(pos, node, digger, "tech:hammer", 'basalt')
+        end,
+})
+
+-- Legacy hammers needed only for old maps.
 -- Basalt hammer
 minetest.register_tool(
     "tech:hammer_basalt", {
@@ -1014,41 +1153,30 @@ minetest.register_tool(
         groups = {club = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
 })
-
-crafting.register_recipe({
-	type = "grinding_stone",
-	output = "tech:hammer_basalt",
-	items = {"group:basalt_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	level = 1,
-	always_known = true,
+-- granite hammer
+minetest.register_tool(
+    "tech:hammer_granite", {
+        description = S("Granite Hammer"),
+        inventory_image = "tech_tool_hammer_granite.png",
+        tool_capabilities = {
+            full_punch_interval = base_punch_int * 1.2,
+            groupcaps={
+                choppy = {times={[3]=crude_chop3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
+                snappy = {times={[3]=crude_snap3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
+                crumbly = {times= {[3]=crude_crum3}, uses=base_use*0.5, maxlevel=crude_max_lvl}
+            },
+            damage_groups = {fleshy=stone_dmg},
+        },
+	_place_tip = "Stun animals\n"..
+	   " or Place on solid surface for hammering crafts",
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing, "tech:hammer_granite_placed")
+        end,
+        groups = {club = 1, craftedby = 1},
+        sound = {breaks = "tech_tool_breaks"},
 })
 
-minetest.register_node(
-    "tech:hammer_basalt_placed", {
-        description = S("Placed Basalt Hammer"),
-        drawtype = "mesh",
-        mesh = "hammer_placed.obj",
-        tiles = {name = "tech_hammer_basalt_placed.png"},
-        paramtype = "light",
-        paramtype2 = "facedir",
-        sounds = nodes_nature.node_sound_stone_defaults(),
-        groups = {dig_immediate = 3, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
-	use_texture_alpha = c_alpha.clip,
-	node_box = {
-            type = "fixed",
-            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
-        },
-	selection_box = {
-            type = "fixed",
-            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
-        },
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
-        end,
-        on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:hammer_basalt")
-        end,
-})
+
 
 --[[
 --would be nice to have,

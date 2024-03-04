@@ -531,18 +531,8 @@ minetest.override_item(
             --Similar to hemlock, which tastes musty or like mouse urine
             minetest.chat_send_player(user:get_player_name(),
                                       "This plant has a foul musty flavor.")
-            --food poisoning
-            if math.random() < 0.001 then
-                HEALTH.add_new_effect(user, {"Food Poisoning", 1})
-            end
 
-            --toxin
-            if math.random() < 0.75 then
-                HEALTH.add_new_effect(user, {"Neurotoxicity", math.floor(math.random(1,4))})
-            end
-
-            --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, 0, 0, 1, -10, 0)
+            return exile_eatdrink(itemstack, user, pointed_thing)
         end,
 })
 
@@ -556,18 +546,8 @@ minetest.override_item(
             --Flowers look a bit like oleander; it causes intense stomach pain
             minetest.chat_send_player(user:get_player_name(),
                                       "Your stomach hurts terribly.")
-            --food poisoning
-            if math.random() < 0.001 then
-                HEALTH.add_new_effect(user, {"Food Poisoning", 1})
-            end
 
-            --toxin
-            if math.random() < 0.75 then
-                HEALTH.add_new_effect(user, {"Hepatotoxicity", math.floor(math.random(1,4))})
-            end
-
-            --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, 0, 0, 1, -10, 0)
+            return exile_eatdrink(itemstack, user, pointed_thing)
         end,
 })
 
@@ -585,8 +565,7 @@ minetest.override_item(
                 HEALTH.remove_new_effect(user, {"Dust Fever", 1})
             end
 
-            --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, 1, 0, 0, -10, 0)
+            return exile_eatdrink(itemstack, user, pointed_thing)
         end,
 })
 
@@ -600,6 +579,6 @@ minetest.override_item(
                 HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
             end
             --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-            return HEALTH.use_item(itemstack, user, 1, 0, 0, -10, 0)
+            return exile_eatdrink(itemstack, user, pointed_thing)
         end,
 })

@@ -54,10 +54,10 @@ local function brain(self)
 			   --You are prey
 			   local plyr = animals.get_nearby_player(self)
 			   if plyr then
-			      animals.fight_or_flight_plyr_water(self, plyr, 25, 0.4)
+			      animals.fight_or_flight(self, plyr, 25, 0.4)
 			   end
 
-			   if not animals.prey_hunt_water(self, 25) then
+			   if not animals.prey_hunt(self, 25) then
 			      --random search for darkness
 			      mobkit.hq_aqua_roam(self,15,self.max_speed/3)
 			   end
@@ -114,15 +114,16 @@ end
 
 ----------------------------------------------
 -- SETTING OF SARKAMOS INTERACTOR SETTINGS
-animals.add_interactors("prey","sarkamos","animals:gundu","animals:pegasun","animals:pegasun_male","animals:kubwakubwa", "animals:darkasthaan")
-animals.add_interactors("rivals","sarkamos","animals:sarkamos")
+animals.add_interactors("animals:sarkamos","prey", "animals:gundu","animals:pegasun","animals:pegasun_male","animals:kubwakubwa", "animals:darkasthaan")
+animals.add_interactors("animals:sarkamos","rivals", "self")
 
 ----------------------------------------------
---The Animal
+-- Animal Data
 local self_data = {
-  name = "animals:sarkamos",
+   name = "animals:sarkamos",
 	--core
 	initial_properties = {
+	   max_hp = 200,
 	   physical = true,
 	   collide_with_objects = true,
 	   collisionbox = {-0.2, -0.2, -0.2, 0.2, 0.15, 0.2},
@@ -141,17 +142,34 @@ local self_data = {
   -- comfort temps
 	min_temp = 0,
 	max_temp = 40,
-  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  -- is it land-borne (1), sea-borne (2), or amphibious (3)?
   class = 2,
-
-	on_step = mobkit.stepfunc,
-	on_activate = mobkit.actfunc,
-	get_staticdata = mobkit.statfunc,
-	logic = brain,
-	-- optional mobkit props
-	-- or used by built in behaviors
-	--physics = [function user defined] 		-- optional, overrides built in physics
-	animation = {
+  -- energy
+  energy_max = 14000,--secs it can survive without food
+  energy_egg = "energy_max/8", -- energy that goes to egg
+  egg_timer = 60*40,
+  young_per_egg = 2,		--will get this/energy_egg starting energy
+  -- lifespan
+  lifespan = "energy_max*8",
+  -- interactions
+  -- prey + rivals automatically defined in registration
+  capture_interactions = {
+    club = 0.01,
+  },
+  player_interaction = 1,
+  -- logic for mobkit
+  logic = brain,
+  --movement
+	springiness=0.5,
+	buoyancy = 1,
+	max_speed = 3,					-- m/s
+	jump_height = 2,				-- nodes/meters
+	view_range = 7,					-- nodes/meters
+	--attack
+	attack={range=0.6, damage_groups={fleshy=10}},
+	armor_groups = {fleshy=100},
+  -- animations + sounds
+  animation = {
 		def={range={x=1,y=59},speed=40,loop=true},
 		fast={range={x=1,y=59},speed=80,loop=true},
 		stand={range={x=1,y=15},speed=15,loop=true},
@@ -164,12 +182,6 @@ local self_data = {
 			fade={0.5, 1.5},
 			pitch={0.5, 1.5},
 		},
-		punch = {
-			name = "animals_punch",
-			gain={0.5, 1},
-			fade={0.5, 1.5},
-			pitch={0.5, 1.5},
-		},
 		bite = {
 			name = "animals_bite",
 			gain={0.4, 0.8},
@@ -177,67 +189,32 @@ local self_data = {
 			pitch={0.6, 1.1},
 		},
 	},
-
-	--movement
-	springiness=0.5,
-	buoyancy = 1,
-	max_speed = 3,					-- m/s
-	jump_height = 2,				-- nodes/meters
-	view_range = 7,					-- nodes/meters
-
-	--attack
-	attack={range=0.6, damage_groups={fleshy=10}},
-	armor_groups = {fleshy=100},
-  
-  --interaction
-	rivals = animals.get_interactors("sarkamos","rivals"), 
-	prey = animals.get_interactors("sarkamos","prey"),
-
-	--on actions
+  --on actions
 	drops = {
 		{name = "animals:carcass_fish_large", chance = 1, min = 1, max = 1,},
 	},
-	on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-		animals.on_punch_water(self, tool_capabilities, puncher, 55, 0.75)
+	on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
+		if animals.stun_catch_mob(self, clicker, time_from_last_click, tool_capabilities) then -- attack kidnapper
+      animals.fight_or_flight(self, clicker, nil, 1)
+    end
 	end,
-	on_rightclick = function(self, clicker)
-		if not clicker or not clicker:is_player() then
-			return
-		end
-		animals.stun_catch_mob(self, clicker, 0.01)
-	end,
+  -- egg
+  egg = {
+    name = "animals:sarkamos_eggs",
+    description = S('Sarkamos Eggs'),
+    tiles = {"animals_gundu_eggs.png"},
+    stack_max = minimal.stack_max_bulky,
+    groups = {snappy = 3, edible = 1, egg = 3},
+    drawtype = "normal",
+    nodebox = nil,
+    _medium = 'nodes_nature:salt_water_source',
+    _replace = 'nodes_nature:salt_water_flowing',
+  },
+  -- spawnegg or live animal
+  spawnegg = {
+    desc = S("Live Sarkamos"),
+    inv_img = "animals_sarkamos_item.png",
+    stack = minimal.stack_max_medium/2
+  },
 }
----- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
--- energy and eggs
-self_data.energy_max = 14000   --secs it can survive without food
-self_data.energy_egg = self_data.energy_max/8  --energy that goes to egg
-self_data.egg_timer = 60*40
-self_data.young_per_egg = 2   --will get this/energy_egg starting energy
--- lifespan
-self_data.lifespan = self_data.energy_max * 8
----------------------;
-minetest.register_entity("animals:sarkamos",self_data)
-
-----------------------------------------------
---eggs
-minetest.register_node("animals:sarkamos_eggs", {
-	description = S('Sarkamos Eggs'),
-	tiles = {"animals_gundu_eggs.png"},
-	stack_max = minimal.stack_max_bulky,
-	groups = {snappy = 3, edible = 1, egg = 3},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-    local egg_timer = self_data.egg_timer
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer =function(pos, elapsed)
-    local energy_egg = self_data.energy_egg
-    local young_per_egg = self_data.young_per_egg
-    
-		return animals.hatch_egg(self_data, pos, 'nodes_nature:salt_water_source', 'nodes_nature:salt_water_flowing')
-	end,
-})
-
-
---spawn egg (i.e. live animal in inventory)
-animals.register_egg(self_data, S("Live Sarkamos"), "animals_sarkamos_item.png", minimal.stack_max_medium/2)
+self_data = animals.register_animal("animals:sarkamos",self_data)

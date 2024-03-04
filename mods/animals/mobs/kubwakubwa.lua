@@ -41,10 +41,10 @@ local function brain(self)
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
         prty = 55
-				animals.fight_or_flight_plyr(self, plyr, prty, 0.15)
+				animals.fight_or_flight(self, plyr, prty, 0.15)
 			end
 
-			if (animals.predator_avoid(self, 55, 0.15) or plyr) then
+			if (animals.predator_avoid(self) or plyr) then
         prty = 55
         conserve = false -- on the move, no more conserving
       end
@@ -116,17 +116,17 @@ end
 
 ----------------------------------------------
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
-animals.add_interactors("predators","kubwakubwa","animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("prey","kubwakubwa","animals:pegasun","animals:sneachan", "animals:impethu", "animals:gundu")
-animals.add_interactors("rivals","kubwakubwa","animals:kubwakubwa","animals:pegasun_male")
-
+animals.add_interactors("animals:kubwakubwa","predators", "animals:darkasthaan", "animals:sarkamos")
+animals.add_interactors("animals:kubwakubwa","prey", "animals:pegasun","animals:sneachan", "animals:impethu", "animals:gundu")
+animals.add_interactors("animals:kubwakubwa","rivals", "self","animals:pegasun_male")
 
 ----------------------------------------------
---The Animal
+-- Animal Data
 local self_data = {
   name = "animals:kubwakubwa",
 	--core
 	initial_properties = {
+	   max_hp = 20,
 	   physical = true,
 	   collide_with_objects = true,
 	   collisionbox = {-0.14, -0.01, -0.14, 0.14, 0.27, 0.14},
@@ -143,28 +143,47 @@ local self_data = {
 	-- animal stats
 	max_hp = 20,
 	lung_capacity = 25,
+  oxygen_min = "lung_capacity*0.4",
   breathing_rate = 5,
   -- comfort temps
 	min_temp = 7,
 	max_temp = 60,
-  -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
+  -- is it land-borne (1), sea-borne (2), or amphibious (3)?
   class = 1,
-  
+  -- energy
+  energy_max = 8000,--secs it can survive without food
+  egg_timer = 60*20,
+  young_per_egg = {3,4},		--will get this/energy_egg starting energy
+  emergency_egg_chance = 0.75,
+  -- cannot define conservation minimum + energy_egg (energy_egg being necessary for cn_min) in API due to multiple values needed
+  -- lifespan
+  lifespan = "energy_max*5",
+  mature_age = "energy_max*0.5",
   -- settings
   max_pop = 23,
-
-	on_step = mobkit.stepfunc,
-	on_activate = mobkit.actfunc,
-	get_staticdata = mobkit.statfunc,
-	logic = brain,
-	-- optional mobkit props
-	-- or used by built in behaviors
-	--physics = [function user defined] 		-- optional, overrides built in physics
-	animation = {
+  -- interactions
+  -- predators + prey + rivals automatically defined in registration
+  predator_interactions = 0.15,
+  capture_interactions = {
+    club = 0.5,
+  },
+  -- logic for mobkit
+  logic = brain,
+  --movement
+	springiness=0,
+	buoyancy = 1.01,
+	max_speed = 0.75,					-- m/s
+	jump_height = 1.5,				-- nodes/meters
+	view_range = 10,					-- nodes/meters
+	--attack
+	attack={range=0.4, damage_groups={fleshy=4}},
+	armor_groups = {fleshy=100},
+  -- animation + sounds
+  animation = {
 		walk={range={x=0,y=20},speed=20,loop=true},
 		fast={range={x=0,y=20},speed=50,loop=true},
 		stand={range={x=20,y=40},speed=10,loop=true},
-    dead = {range ={x=0, y=0},speed = 0,loop=true},
+    dead = {range ={x=0, y=0},speed = 0,loop=false},
 	},
 	sounds = {
 		warn = {
@@ -173,103 +192,49 @@ local self_data = {
 			fade={0.5, 1.5},
 			pitch={0.9, 1.1},
 		},
-		punch = {
-			name = "animals_punch",
-			gain={0.5, 1},
-			fade={0.5, 1.5},
-			pitch={0.5, 1.5},
-		},
 	},
-
-	--movement
-	springiness=0,
-	buoyancy = 1.01,
-	max_speed = 0.75,					-- m/s
-	jump_height = 1.5,				-- nodes/meters
-	view_range = 10,					-- nodes/meters
-
-	--attack
-	attack={range=0.4, damage_groups={fleshy=4}},
-	armor_groups = {fleshy=100},
-  
-  --interaction
-	predators = animals.get_interactors("kubwakubwa","predators"),
-	rivals = animals.get_interactors("kubwakubwa","rivals"),
-	prey = animals.get_interactors("kubwakubwa","prey"),
-
-	--on actions
-	drops = {
+  -- on actions
+  drops = {
 		{name = "animals:carcass_invert_large", chance = 1, min = 1, max = 1,},
 	},
-	on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-		animals.on_punch(self, tool_capabilities, puncher, 55, 0.75)
+	on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
+		animals.stun_catch_mob(self, clicker, time_from_last_click, tool_capabilities)
+    animals.fight_or_flight(self, clicker)
 	end,
-	on_rightclick = function(self, clicker)
-		if not clicker or not clicker:is_player() then
-			return
-		end
-		animals.stun_catch_mob(self, clicker, 0.1)
-	end,
-  on_death = function(self, pos)
+  _on_death = function(self, pos)
     local good_temp,temp_status = animals.temp_comfy(self)
     if good_temp or temp_status ~= "cold" then
       return
     end
     animals.emergency_egg(self, pos)
-  end
+  end,
+  -- eggs
+  egg = {
+    name = "animals:kubwakubwa_eggs",
+    description = S('Kubwakubwa Eggs'),
+    tiles = {"animals_kubwakubwa_eggs.png"},
+    node_box = {
+      type = "fixed",
+      fixed = {-0.0625, -0.5, -0.0625,  0.0625, -0.375, 0.0625},
+    },
+    _conditions_correct = function(pos,egg_data)
+      if not egg_data then return false,true end -- break egg
+      local egg_timer = egg_data.egg_timer
+      local temp = climate.get_point_temp(pos)
+      if (temp < 12) then
+        -- too cold to hatch, wait again (with increased time)
+        return false,math.random(egg_timer,egg_timer*3)
+      end
+      return true
+    end,
+  },
+  -- spawnegg or live animal
+  spawnegg = {
+    desc = S("Live Kubwakubwa"),
+    inv_img = "animals_kubwakubwa_item.png",
+    stack = minimal.stack_max_medium
+  },
 }
----- ADDITIONAL VARIABLES (requires variables to be pre-defined for calculations of other variables)
--- energy and eggs
-self_data.energy_max = 8000   --secs it can survive without food
-self_data.energy_egg = self_data.energy_max/2  --energy that goes to egg
-self_data.egg_timer = 60*20
-self_data.young_per_egg = {3,4}   --will get this/energy_egg starting energy
-self_data.emergency_egg_chance = 0.75
+self_data.energy_egg = self_data.energy_max*0.5 --energy that goes to egg
 self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.4 -- conserve min (minimum point at when to conserve energy)
--- lifespan
-self_data.lifespan = self_data.energy_max * 6
-self_data.mature_age = self_data.energy_max/2
-self_data.oxygen_min = self_data.lung_capacity * 0.4
----------------------;
-minetest.register_entity("animals:kubwakubwa",self_data)
-
-----------------------------------------------
---eggs
-minetest.register_node("animals:kubwakubwa_eggs", {
-	description = S('Kubwakubwa Eggs'),
-	tiles = {"animals_kubwakubwa_eggs.png"},
-	stack_max = minimal.stack_max_medium,
-	drawtype = "nodebox",
-	paramtype = "light",
-	node_box = {
-		type = "fixed",
-		fixed = {-0.0625, -0.5, -0.0625,  0.0625, -0.375, 0.0625},
-	},
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-	sounds = nodes_nature.node_sound_defaults(),
-	on_construct = function(pos)
-    local egg_timer = self_data.egg_timer
-		minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-	end,
-	on_timer = function(pos, elapsed)
-    local egg_timer = self_data.egg_timer
-    local energy_egg = self_data.energy_egg
-    local young_per_egg = self_data.young_per_egg
-    
-    local temp = climate.get_point_temp(pos)
-    
-    if (temp < 12) then
-      -- too cold to hatch, wait again
-      minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*3))
-      return false
-    end
-    
-    return animals.hatch_egg(self_data, pos)
-	end,
-})
-
-
-
-
---spawn egg (i.e. live animal in inventory)
-animals.register_egg(self_data, S("Live Kubwakubwa"), "animals_kubwakubwa_item.png", minimal.stack_max_medium)
+self_data = animals.register_animal("animals:kubwakubwa",self_data)
