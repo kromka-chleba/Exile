@@ -98,8 +98,10 @@ local function is_neighbor(col1, col2)
    return false
 end
 
-local function is_excluded(candidate_name)
+local function is_excluded(candidate_name, def)
    if not (candidate_name == candidate_name:gsub("wielded_light","")) then
+      return true
+   elseif def and def.drop then -- digging this gives something else, exclude it
       return true
    else
       return false
@@ -112,10 +114,12 @@ local function CandidateList()
    dye_candidates = ncrafting.loadstore("dye_candidates") or {}
 
    for nm, def in pairs(minetest.registered_items) do
-      if is_excluded(nm) then
+      if is_excluded(nm, def) then
 	 def.groups.ncrafting_dye_candidate = nil
 	 dye_candidates[nm] = nil
 	 if dye_source[nm] then
+	    minetest.log("Action","Dye: Clearing "..dye_source[nm].color..
+			 " dye because "..nm.." is not a valid candidate")
 	    dye_source[nm] = nil
 	 end
       elseif def.groups.ncrafting_dye_candidate ~= nil then
