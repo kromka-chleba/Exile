@@ -184,7 +184,7 @@ for i in ipairs(list) do
     sounds = nodes_nature.node_sound_defaults(),
   })
 
-  exile_add_food_hooks("animals:carcass_"..name)
-  exile_add_food_hooks("animals:carcass_"..name.. "_cooked")
-  exile_add_food_hooks("animals:carcass_"..name.. "_burned")
+  HEALTH.add_food_hooks("animals:carcass_"..name)
+  HEALTH.add_food_hooks("animals:carcass_"..name.. "_cooked")
+  HEALTH.add_food_hooks("animals:carcass_"..name.. "_burned")
 end

@@ -173,9 +173,9 @@ local function handle_use_key(player)
       if not using_tool and wdef.groups.edible then
 	 using_tool = true
 	 if wdef.groups.edible == 1 then
-	    exile_eatdrink(witem, player, pointed_thing)
+	    HEALTH.eatdrink(witem, player, pointed_thing)
 	 elseif wdef.groups.edible == 2 then
-	    exile_eatdrink_playermade(witem, player, pointed_thing)
+	    HEALTH.eatdrink_playermade(witem, player, pointed_thing)
 	 end
       end
    end
