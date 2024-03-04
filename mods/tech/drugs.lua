@@ -16,46 +16,14 @@ local random = math.random
 ------------
 --Herbal medicine
 -- removes energy cost of plants healing effects
---can heal certain health effects
+--can heal certain health effects (check HEALTH/data_food.lua and HEALTH.cure_table)
 --a restorative anti-bacterial/anti-parasitic
 minetest.register_craftitem("tech:herbal_medicine", {
 	description = S("Herbal Medicine"),
 	inventory_image = "tech_herbal_medicine.png",
 	stack_max = minimal.stack_max_medium *2,
-	groups = {flammable = 1},
-	_use_tip = "Eat",
-
-  _on_use_item = function(user, itemstack, pointed_thing)
-
-    --remove parasites
-    if random()<0.33 then
-		HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
-	end
-
-    --cure/reduce food poisoning and infections
-    --see how effective the dose is
-    local cfp = random()
-    if cfp <0.25 then
-      --cure up to severe
-      HEALTH.remove_new_effect(user, {"Food Poisoning", 3})
-			HEALTH.remove_new_effect(user, {"Fungal Infection", 3})
-			HEALTH.remove_new_effect(user, {"Dust Fever", 3})
-    elseif cfp < 0.5 then
-      --cure up to moderate
-      HEALTH.remove_new_effect(user, {"Food Poisoning", 2})
-			HEALTH.remove_new_effect(user, {"Fungal Infection", 2})
-			HEALTH.remove_new_effect(user, {"Dust Fever", 2})
-    elseif cfp < 0.75 then
-      --only cure mild
-      HEALTH.remove_new_effect(user, {"Food Poisoning", 1})
-			HEALTH.remove_new_effect(user, {"Fungal Infection", 1})
-			HEALTH.remove_new_effect(user, {"Dust Fever", 1})
-    end
-
-
-    --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-    return HEALTH.use_item(itemstack, user, {hp=5})
-  end,
+	groups = {flammable = 1, edible = 1},
+  _use_tip = "Eat",
 })
 
 
@@ -84,22 +52,13 @@ Specific toxins can have anti-toxins (a fairly modern treatment)
 ------------
 --Tiku
 -- stimulant drug
--- gets you high
+-- gets you high (HEALTH/data_food.lua)
 minetest.register_craftitem("tech:tiku", {
 	description = S("Tiku (stimulant)"),
 	inventory_image = "tech_tiku.png",
 	stack_max = minimal.stack_max_medium *2,
-	groups = {flammable = 1, drug = 1},
-	_use_tip = "Eat",
-
-	_on_use_item = function(user, itemstack, pointed_thing)
-
-	   --begin the bender
-	   HEALTH.add_new_effect(user, {"Tiku High", 1})
-
-	   --hp_change, thirst_change, hunger_change, energy_change, temp_change, replace_with_item
-	   return HEALTH.use_item(itemstack, user, {hun=-24,en=96})
-	end,
+	groups = {flammable = 1, drug = 1, edible = 1},
+  _use_tip = "Eat",
 })
 
 
@@ -111,7 +70,7 @@ minetest.register_craftitem("tech:tiku", {
 -----------------
 --Tang, alcoholic drink
 
-local function drink_tang(pos, node, clicker, itemstack, pointed_thing)
+local function drink_tang(pos, node, clicker, itemstack, pointed_thing, ininv)
   if not minetest.is_player(clicker) then -- avoid potential errors, player only
     return
   end
@@ -122,23 +81,16 @@ local function drink_tang(pos, node, clicker, itemstack, pointed_thing)
   end
   --lets skull an entire vat of booze, what could possibly go wrong...
   local meta = clicker:get_meta()
-  local thirst = meta:get_int("thirst")
   --only drink if thirsty
-  if thirst < 100 then
-    --you're skulling a whole bucket
-    HEALTH.modify_int(meta, "thirst", 100)
-    --all energy and half food equivalent of the fruit
-    --gets given as energy
-    HEALTH.modify_int(meta, "energy", 180)
-    HEALTH.modify_int(meta, "hunger", 60)
-
-    --drunkness
-    if random() < 0.75 then
-      HEALTH.add_new_effect(clicker, {"Drunk", 1})
+  if meta:get_int("thirst") < 100 then
+    if not ininv then
+      minetest.swap_node(pos, {name = empty})
+    else
+      pos = clicker:get_pos()
+      node.name = itemstack
     end
-
-    minetest.swap_node(pos, {name = empty})
     minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
+    return HEALTH.eatdrink(node.name, clicker, pointed_thing)
   end
 end
 
@@ -168,7 +120,11 @@ liquid_store.register_stored_liquid("tech:tang",{
 	},
   on_rightclick = function(...)
     drink_tang(...)
-  end
+  end,
+  _use_tip = S("Drink"),
+  _on_use_item = function(player, itemstack, pointed_thing)
+    return drink_tang(nil, {name="tech:tang"}, player, itemstack, pointed_thing, true)
+  end,
 })
 liquid_store.register_stored_liquid("tech:wooden_tang",{
   source = "tech:tang_liquid",
@@ -195,7 +151,11 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 	},
   on_rightclick = function(...)
     drink_tang(...)
-  end
+  end,
+  _use_tip = S("Drink"),
+  _on_use_item = function(player, itemstack, pointed_thing)
+    return drink_tang(nil, {name="tech:wooden_tang"}, player, itemstack, pointed_thing, true)
+  end,
 })
 
 -----------------

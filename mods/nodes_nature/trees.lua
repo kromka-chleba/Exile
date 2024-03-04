@@ -418,7 +418,7 @@ for i in ipairs(tree_list) do
                             end
                         end,
 		})
-		exile_add_food_hooks("nodes_nature:"..fruitname)
+		HEALTH.add_food_hooks("nodes_nature:"..fruitname)
 		register_leafdecay({
 			trunks = {"nodes_nature:"..treename.."_tree"},
 			leaves = {"nodes_nature:"..treename.."_leaves", "nodes_nature:"..fruitname},

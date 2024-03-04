@@ -16,7 +16,7 @@
 	cabbage   240 kcal/kg =  4.8 units/kg   10.5 per lb.
 	]]--
 
-food_table = {
+HEALTH.food_table = {
 	--name	     	      	               hp  th  hu   en  temp, replacewithitem (not implemented yet)
 	["tech:maraka_bread_cooked"]        = {hu=24,en=14},
 	["tech:maraka_bread_burned"]        = {hu=12,en=7},
@@ -101,8 +101,6 @@ food_table = {
 	["animals:pegasun_eggs"]            = {hu=5},
 	["animals:sarkamos_eggs"]           = {th=10,hu=40},
 	["animals:sneachan_eggs"]           = {hu=3},
-	--drugs
-	["nodes_nature:tikusati"]           = {hu=-2,en=2},
 	--toxic
         ["nodes_nature:momo_flowering"]     = {th=1,hu=3},
         ["nodes_nature:wrotycz_fruit"]      = {hu=2},
@@ -114,12 +112,19 @@ food_table = {
         ["nodes_nature:obesa_flowering"]    = {hp=-2,th=10,hu=6,en=-4},
 	["nodes_nature:maraka_nut"]         = {hu=5,en=5},
 	["nodes_nature:sasaran_cone"]       = {hu=1},
+  --drugs
+	["nodes_nature:tikusati"]           = {hu=-2,en=2},
+  ["tech:tiku"]                       = {hu=-24,en=96},
+  -- skulling an entire bucket, all energy and half food equivalent of the fruit
+  ["tech:tang"]                       = {th=100,hu=60,en=180,rwi="tech:clay_water_pot",eat_sound=""},
+  ["tech:wooden_tang"]                = {th=100,hu=60,en=180,rwi="tech:wooden_water_pot",eat_sound=""},
 	--medicine                              hp  th   hu  en  te
 	["nodes_nature:hakimi_flowering"]             = {hp=1,hu=1,en=-15},
 	["nodes_nature:merki"]              = {hp=1,hu=1,en=-15},
+  ["tech:herbal_medicine"]            = {hp=5},
 	}
 
-bake_table = {
+HEALTH.bake_table = {
 	--name                          temp, duration, optional food value?
    ["tech:maraka_bread"]              = { 160,  10 },
    ["tech:peeled_anperla"]            = { 100,   7 },
@@ -135,7 +140,7 @@ bake_table = {
 -- tg=tag, ch=chance, sv=severity
 -- base minimal food poisoning
 local bm_fp = {tg="Food Poisoning",ch=0.001,sv=1}
-food_harm_table = {
+HEALTH.harm_table = {
   -- player-craft
   ["tech:maraka_bread_cooked"]     = {bm_fp},
 	["tech:maraka_bread_burned"]     = {bm_fp},
@@ -143,6 +148,10 @@ food_harm_table = {
 
   ["tech:mashed_anperla_cooked"]   = { {tg="Food Poisoning",ch=0.002,sv=1} },
 	["tech:mashed_anperla_burned"]   = { {tg="Food Poisoning",ch=0.002,sv=1} },
+  -- medicine/drugs
+  ["tech:tiku"]                    = { {tg="Tiku High",ch=1,sv=1} },
+  ["tech:tang"]                    = { {tg="Drunk",ch=0.75,sv=1} },
+  ["tech:wooden_tang"]             = { {tg="Drunk",ch=0.75,sv=1} },
   -- cooked
   ["nodes_nature:sea_lettuce_cooked"] = { {tg="Food Poisoning",ch=0.002,sv=1} },
   -- fruits (not fruting)
@@ -266,4 +275,19 @@ food_harm_table = {
 	                                     {tg="Intestinal Parasites",ch=0.05,sv=1} },
 	["animals:sneachan_eggs"]       = { {tg="Food Poisoning",ch=0.5,sv={1,4} },
 	                                     {tg="Intestinal Parasites",ch=0.5,sv=1} },
+}
+
+HEALTH.cure_table = {
+  -- plants + mushrooms
+  -- hakimi is antibacterial, antifungal - only cure mild
+  ["nodes_nature:hakimi_flowering"] = {ch=0.75,sv=1,{tgs="Food Poisoning","Fungal Infection", "Dust Fever"} },
+  -- merki is anti-parasitic
+  ["nodes_nature:merki"] = { {tg="Intestinal Parasites",ch=0.15,sv=1} },
+  -- medicine/drugs
+  --cure/reduce food poisoning and infections
+  ["tech:herbal_medicine"] = { {tgs={"Food Poisoning","Fungal Infection","Dust Fever"},ch=0.75,sv=1}, -- only cure mild
+                                {tgs={"Food Poisoning","Fungal Infection","Dust Fever"},ch=0.5,sv=2}, -- cure up to moderate
+                                {tgs={"Food Poisoning","Fungal Infection","Dust Fever"},ch=0.25,sv=3}, -- cure up to severe
+                                {tg="Intestinal Parasites",ch=0.33,sv=1}
+                              }
 }

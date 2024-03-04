@@ -11,7 +11,7 @@ local c_alpha = minimal.compat_alpha
 
 plant_base_growing_time = plant_base_growing_time
 plant_base_timer = plant_base_timer
-exile_add_food_hooks = exile_add_food_hooks
+local add_food_hooks = HEALTH.add_food_hooks
 wielded_light = wielded_light
 
 ----------------------------------------------------------------------
@@ -154,7 +154,7 @@ for i in ipairs(searooted_list) do
 			end,
 		})
 	end
-	exile_add_food_hooks("nodes_nature:"..name)
+	add_food_hooks("nodes_nature:"..name)
 
 end
 
