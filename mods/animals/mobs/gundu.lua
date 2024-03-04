@@ -242,8 +242,8 @@ local self_data = {
   -- animations + sounds
   animation = {
     def={range={x=1,y=20},speed=20,loop=true},
-    fast={range={x=1,y=20},speed=40,loop=true},
-    stand={range={x=20,y=40},speed=20,loop=true},
+    fast={range={x=20,y=40},speed=40,loop=true},
+    stand={range={x=40,y=60},speed=20,loop=true},
     dead = {range ={x=0, y=0},speed = 0,loop=false},
   },
   sounds = {
