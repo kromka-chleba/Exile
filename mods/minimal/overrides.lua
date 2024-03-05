@@ -4,6 +4,9 @@
 --is_protected
 --fall damage
 
+minetest = minetest
+core = core
+
 local fall_damage_multiplier = 1.5
 
 minetest.override_item("air", { groups = { air = 1,
@@ -15,7 +18,7 @@ function minetest.item_place(itemstack, placer, pointed_thing, param2)
         -- Call on_rightclick if the pointed node defines it
         if pointed_thing.type == "node" and minetest.is_player(placer) then
           local ndef = minimal.get_nodedef( pointed_thing.under )
-          
+
           if ndef and (ndef.override_sneak == true or not placer:get_player_control().sneak) then
             local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
             if on_click ~= false then
@@ -46,7 +49,7 @@ function minetest.is_protected(pos, name)
    local bypass = minetest.check_player_privs(name, "protection_bypass")
    -- Check if we have an access_list and if this player is on it
    local access = false -- assume no access
-   local access_list = ""
+   local access_list
    local list = pos_meta:get_string("access_list")
    if list and list ~= "" then
      access_list = minetest.parse_json(list)
@@ -307,11 +310,16 @@ minetest.register_entity(
                     if euler then
                         self.object:set_rotation(euler)
                     end
-                elseif (def.drawtype ~= "plantlike" and def.drawtype ~= "plantlike_rooted" and
-                        (def.paramtype2 == "wallmounted" or def.paramtype2 == "colorwallmounted" or def.drawtype == "signlike")) then
-                    local rot = node.param2 % 8
-                    if (def.drawtype == "signlike" and def.paramtype2 ~= "wallmounted" and def.paramtype2 ~= "colorwallmounted") then
-                        -- Change rotation to "floor" by default for non-wallmounted paramtype2
+                elseif (def.drawtype ~= "plantlike" and
+			def.drawtype ~= "plantlike_rooted" and
+                        (def.paramtype2 == "wallmounted" or
+			 def.paramtype2 == "colorwallmounted" or
+			 def.drawtype == "signlike")) then
+		   local rot = node.param2 % 8
+		   if (def.drawtype == "signlike" and
+		       def.paramtype2 ~= "wallmounted" and
+		       def.paramtype2 ~= "colorwallmounted") then
+		      -- Change rotation to "floor" by default for non-wallmounted paramtype2
                         rot = 1
                     end
                     local pitch, yaw, roll = 0, 0, 0
