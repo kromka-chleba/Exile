@@ -2,32 +2,41 @@
 --
 --
 exile = exile
-exile.debug = {}
-__DEBUG__ = minetest.settings:get("exile_debug") or false
+exile.debug = exile.debug or {
+}
+dump2 = dump2
+
+local __DEBUG__ = minetest.settings:get("exile_debug") == "true"
 
 function exile.debug.print(message)
 	if __DEBUG__ then
-		print (message)
+		minetest.log('warning', message)
 	end
 end
 
 function exile.debug.crafting_stations(station)
-	for stations,recipes in pairs(crafting.recipes) do
-		print ("station: "..stations.."(recipes: "..#recipes..")")
+	for _,recipes in pairs(crafting.recipes) do
+	   minetest.log('warning', "station: "..station..
+			"(recipes: "..#recipes..")")
 	end
 	if station then
 		print (dump(crafting.recipes[station]))
 	end
 end
 
---[[
-if __DEBUG__ then
-	minetest.register_on_mods_loaded(function()
-		print("--------------------[ Modules Loaded [-----------------------------")
-		exile.debug.crafting_stations('axe_mixing')
-	end)
+function exile.debug.dump_nodedef_params(params, filter)
+	if type(params) == 'string' then
+		params = { params }
+	end
+	for node,def in pairs(minetest.registered_nodes) do
+	   if string.find(node,filter,1) then
+	      for _,param in ipairs(params) do
+		 minetest.log('warning', "Node: "..node.."  "..param..": "
+			      ..dump(def[param]))
+	      end
+	   end
+	end
 end
---]]
 
 function exile.debug.log_to_world(message, filename)
 	if __DEBUG__ then
@@ -107,3 +116,13 @@ if __DEBUG__ then
 end
 
 
+minetest.register_on_mods_loaded(function()
+      if __DEBUG__ ==  false then
+	 -- Funky debug command from naturalslopeslib, get rid of it
+	 minetest.unregister_chatcommand("updshape")
+	 -- Unneeded from player_monoids
+	 minetest.unregister_chatcommand("test_monoids")
+	 -- Debugging for volcano modding
+	 minetest.unregister_chatcommand("findvolcano")
+      end
+end)
