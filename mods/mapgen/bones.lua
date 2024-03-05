@@ -1,6 +1,6 @@
 -- Bones for deco.lua
 -- Globals
-local _EXILE_DEBUG = minetest.settings:get("exile_debug") or false
+local _EXILE_DEBUG = minetest.settings:get("exile_debug") == "true"
 
 -- Placeholder node, replaced at runtime with bones:bones, filled with loot
 minetest.register_node("mapgen:exile_bones", {
