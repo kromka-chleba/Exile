@@ -136,7 +136,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
         local count = inv[i]:get_count()
         for stat,value in pairs(result) do
           if total[stat] then -- prevent temp from being changed lol
-            total[stat] = (value * count)
+            total[stat] = total[stat] + (value * count)
           end
         end
       end
