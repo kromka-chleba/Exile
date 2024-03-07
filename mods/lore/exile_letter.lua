@@ -47,11 +47,12 @@ local judger = {
   "Council",
   "Courts",
   "Presidium",
-  "Law Giver's",
+  "Law Givers",
   "King's Justice",
   "Sheriff",
   "Exarch",
   "Prefect",
+  "Seneschal",
   --cults
   "Brotherhood",
   "Sisterhood",
