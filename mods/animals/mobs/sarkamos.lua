@@ -129,7 +129,7 @@ local self_data = {
 	   collisionbox = {-0.2, -0.2, -0.2, 0.2, 0.15, 0.2},
 	   visual = "mesh",
 	   mesh = "animals_sarkamos.b3d",
-	   textures = {"animals_sarkamos.png"},
+	   textures = {"animals_color_palette.png"},
 	   visual_size = {x = 1, y = 1},
 	   makes_footstep_sound = false,
 	},
@@ -170,9 +170,9 @@ local self_data = {
 	armor_groups = {fleshy=100},
   -- animations + sounds
   animation = {
-		def={range={x=1,y=59},speed=40,loop=true},
-		fast={range={x=1,y=59},speed=80,loop=true},
-		stand={range={x=1,y=15},speed=15,loop=true},
+		def={range={x=1,y=40},speed=15,loop=true},
+		fast={range={x=40,y=78},speed=20,loop=true},
+		stand={range={x=1,y=40},speed=15,loop=true},
     dead = {range ={x=0, y=0},speed = 0,loop=true},
 	},
 	sounds = {

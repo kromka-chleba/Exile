@@ -12,15 +12,18 @@ Some water based code adapted from  waterlife by Gundul (GNU Lesser General Publ
 
 Authors of media (textures, models, sounds)
 ---------------------------
-Gundu model, animals_color_palette:
-      Copyright (C) Jan Wielkiewicz
-      CC-BY-SA 4.0 https://creativecommons.org/licenses/by-sa/4.0/
+
+## Copyright (C) Jan Wielkiewicz
+CC-BY-SA 4.0 https://creativecommons.org/licenses/by-sa/4.0/
+
+* Gundu model, item texture
+* Sarkamos model, item texture
+* animals_color_palette
+
 
 Kubwakubwa: spider from Mineclone2 GPLv3, CC BY-SA 4.0
 
 Kubwakubwa_warn.ogg: TenPlus1, from `mobs_monster` or `mobs_animal` mod (MIT License)
-
-Sarkamos model: MIT License, Copyright (c) 2019 TheTermos
 
 animals_hatch_egg(+.1-2).ogg: TPH/TubberPupperHusker/TubberPupper
 
