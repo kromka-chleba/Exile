@@ -159,7 +159,9 @@ end
 local function divide_portions(total)
   local result = total
   for stat,value in pairs(result) do
-    result[stat] = (value / portions)
+    if type(value) == "number" then
+      result[stat] = (value / portions)
+    end
   end
   return result
 end
@@ -169,6 +171,7 @@ local function pot_cook(pos, elapsed)
 	local inv = meta:get_inventory():get_list("main")
 	local total = ( minetest.deserialize(meta:get_string("pot_contents")) or
 		      {hp=0,th=0,hu=0,en=0 } )
+  total.th = total.th or 0
 	local kind = meta:get_string("type")
 	climate.heat_transfer(pos, "tech:cooking_pot")
 	local temp = climate.get_point_temp(pos)
