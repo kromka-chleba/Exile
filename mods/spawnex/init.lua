@@ -551,6 +551,12 @@ end)
 
 minetest.register_on_mods_loaded(function()
       minetest.after(0.1, function()
+	local static = minetest.setting_get_pos("static_spawnpoint")
+	if static then
+	   defhex = map2hex(static)
+	   rgns[hex2string(defhex)] = { ["currentgate"] = static }
+	   return
+	end
 	if wide_spawn then -- Check area, ensure there's a gate set up
 	   pirnt("Wide spawn enabled, checking default spawn area for gates")
 	   select_hex_from(defhex)
