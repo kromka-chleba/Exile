@@ -126,7 +126,7 @@ local self_data = {
 	   max_hp = 200,
 	   physical = true,
 	   collide_with_objects = true,
-	   collisionbox = {-0.2, -0.2, -0.2, 0.2, 0.15, 0.2},
+	   collisionbox = {-1, -0.65, -1, 1, 0.55, 1},
 	   visual = "mesh",
 	   mesh = "animals_sarkamos.b3d",
 	   textures = {"animals_color_palette.png"},
@@ -166,7 +166,7 @@ local self_data = {
 	jump_height = 2,				-- nodes/meters
 	view_range = 7,					-- nodes/meters
 	--attack
-	attack={range=0.6, damage_groups={fleshy=10}},
+	attack={range=1.2, damage_groups={fleshy=10}},
 	armor_groups = {fleshy=100},
   -- animations + sounds
   animation = {
