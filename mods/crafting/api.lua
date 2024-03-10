@@ -300,30 +300,27 @@ local function give_all_to_player(inv, list)
 end
 
 function crafting.pick_required_item(inv, listname, item, located)
-	local count=0
+	local count=0  -- returning count of items found and added to located table.
 	item = ItemStack(item)
 	local itemName = item:get_name()
 	if itemName:sub(1, 6) == "group:" then
 		local groupname = itemName:sub(7, #itemName)
 		local required = item:get_count()
-
-		-- Find stacks in group
+		-- search stacks in provided inv and list
 		for i = 1, inv:get_size(listname) do
 			local stack = inv:get_stack(listname, i)
-
 			-- Is it in group?
 			local def = minetest.registered_items[stack:get_name()]
-			if def and def.groups and def.groups[groupname] then
-				stack = ItemStack(stack)
-				if stack:get_count() > required then
-					stack:set_count(required)
+			if required > 0 and def and def.groups and def.groups[groupname] then
+				local found = ItemStack(stack)
+				if found:get_count() > required then
+					found:set_count(required)
 				end
-				located[#located + 1] = stack
+				located[#located + 1] = found
 				count = count + 1
 
 				required = required - stack:get_count()
-
-				if required == 0 then
+				if required <= 0 then
 					break
 				end
 			end
@@ -367,7 +364,9 @@ function crafting.find_required_items(inv, listname, recipe)
 	if type(listname) ~= 'table' then
 		listname = { listname }
 	end
-	for i, item in pairs(recipe.items) do
+
+print("Recipe Items: "..dump(recipe.items))
+	for i, item in ipairs(recipe.items) do
 		local picked = false	-- assume we don't find it
 		-- search each of passed lists
 		for _,list in ipairs(listname) do
@@ -422,7 +421,7 @@ end
 
 function crafting.perform_craft(name, inv, listname, outlistname, recipe)
    local items = crafting.find_required_items(inv, listname, recipe)
-print (dump(items))
+print ("Perform_crafting() "..dump(items))
    if not items then
       return false
    end
