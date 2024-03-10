@@ -1756,6 +1756,35 @@ function animals.hurt_target(self,target,consume)
   return ent.hp <= dmg -- either continues (false) or ends attack (true)
 end
 
+-- checks if target is within Y of collisionbox + range, distance within range + positive collisionbox X
+-- then does a raycast to see if it can hit
+function animals.target_in_range(self,tgt)
+  tgt = animals.get_structure(tgt)
+  if not tgt then
+    return false
+  end
+  local range = self.attack and self.attack.range or 0.1
+  local pos = self.object:get_pos()
+  local tpos = tgt.object:get_pos()
+  local selfbox = self.object:get_properties().collisionbox
+  local tgtbox = tgt.object:get_properties().collisionbox
+  if tpos.y >= (pos.y + (selfbox[2] - range)) and tpos.y <= (pos.y + selfbox[5] + range) then
+    tpos.y = pos.y
+  else
+    return false
+  end
+  if vector.distance(pos,tpos) > (range+selfbox[4]) then
+    return false
+  end
+  local tpos2 = vector.add(tpos,vector.multiply(vector.direction(pos,tpos),1.1))
+  pos = minimal.shift_pos(pos,{y=selfbox[2]})
+  for pointed_thing in minetest.raycast(pos,tpos2) do
+    if pointed_thing.ref == tgt.object then
+      return true
+    end
+  end
+  return false
+end
 
 ----------------------------------------------------------------
 --like mobkit version, but including removal of prey and gaining energy
@@ -1823,7 +1852,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 			if tpos.y>pos.y+0.5 then self.object:set_velocity({x=vel.x,y=vel.y+0.5,z=vel.z})
 			elseif tpos.y<pos.y-0.5 then self.object:set_velocity({x=vel.x,y=vel.y-0.5,z=vel.z}) end
 		end
-		if mobkit.is_pos_in_box(mobkit.pos_translate2d(pos,yaw,self.attack.range),tpos,tgtbox) then	--bite
+		if animals.target_in_range(self,tgt) then -- bite
       mobkit.make_sound(self,'bite')
 			mobkit.hq_aqua_turn(self,prty,yaw-pi,speed)
       return animals.hurt_target(self,tgtobj,eat)
@@ -1876,7 +1905,7 @@ local function lq_jumpattack_eat(self,height,target,consume)
 			local dir = minetest.yaw_to_dir(yaw)
 			local apos = mobkit.pos_translate2d(pos,yaw,self.attack.range)
 
-			if self.attack.range*2 >= abs(pos.y - tgtpos.y) and (mobkit.is_pos_in_box(apos,tgtpos,tgtbox) or mobkit.isnear2d(pos,tgtpos,self.attack.range)) then --bite
+			if animals.target_in_range(self,target) then -- bite
         -- bounce off
 				local vy = self.object:get_velocity().y
 				self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
