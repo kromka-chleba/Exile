@@ -236,6 +236,7 @@ local self_data = {
   predator_interactions = 0,
   capture_interactions = {
     club = 0.15,
+    hand = 0.05,
   },
   -- logic for mobkit
   logic = brain,

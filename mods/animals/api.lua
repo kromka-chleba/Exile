@@ -144,6 +144,10 @@ local function node_drawtype(pos)
   end
   return node.drawtype, node
 end
+-- global usage
+function animals.node_drawtype(...)
+  return node_drawtype(...)
+end
 
 -- get a randomized position from mobkit's is_neighbor_node_reachable by sending a string that's 1 to 8 or like so:
 -- "12345678"
