@@ -306,15 +306,12 @@ function crafting.pick_required_item(inv, listname, item, located)
 	if itemName:sub(1, 6) == "group:" then
 		local groupname = itemName:sub(7, #itemName)
 		local required = item:get_count()
-print("Picking for "..groupname.." ["..required.."] from list: "..listname)
 		-- search stacks in provided inv and list
 		for i = 1, inv:get_size(listname) do
 			local stack = inv:get_stack(listname, i)
 			-- Is it in group?
-print("stack: "..stack:get_name())
 			local def = minetest.registered_items[stack:get_name()]
 			if required > 0 and def and def.groups and def.groups[groupname] then
-print("found^^^^^^")
 				local found = ItemStack(stack)
 				if found:get_count() > required then
 					found:set_count(required)
@@ -323,7 +320,6 @@ print("found^^^^^^")
 				count = count + 1
 
 				required = required - stack:get_count()
-print('required: '..required)
 				if required <= 0 then
 					break
 				end
@@ -343,8 +339,6 @@ print('required: '..required)
 			count = count + 1
 		end
 	end
-print ("located: "..count)
-print (dump(located))
 	return count
 end
 
@@ -377,10 +371,8 @@ print("Recipe Items: "..dump(recipe.items))
 		-- search each of passed lists
 		for _,list in ipairs(listname) do
  			-- Conditional input list to process
-print("Input Item: "..dump(item))
  			if (type(item) == 'table') then
  				for _, conItem in ipairs(item) do
-print("conditional Item: "..conItem)
  					local count = crafting.pick_required_item(inv, list, conItem, items)
  					if count >0 then 
  						picked = true

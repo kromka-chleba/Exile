@@ -152,7 +152,6 @@ end
 
 
 local function process_qty(recipe,qty,item_hash)
-print ("qty: "..qty..dump(item_hash))
 	if qty > 1 then -- more then single requested find max
 		local oItem = ItemStack(recipe.output)
 		local oName = oItem:get_name()
@@ -171,15 +170,12 @@ print ("qty: "..qty..dump(item_hash))
 				local iNeed = iItem:get_count()
 				local iHave = item_hash[iName] or 0
 				local max = math.floor(iHave/iNeed)
-print("iRow["..j.."] - "..iName.." Need: "..iNeed.." Have: "..iHave.." max: "..max)
 				row_max = row_max + max
 			end
---print("row_max: "..row_max)
 			if max_count == 0 or max_count > row_max then
 				max_count = row_max -- can't have a count bigger then any input row.
 			end
 		end
---print("max_count: "..max_count)
 		if qty == 2 then -- stack requested so adjust max to max for stack.
 			local def = minetest.registered_nodes[oName] or minetest.registered_craftitems[oName]
 				or minetest.registered_tools[oName]
@@ -193,13 +189,11 @@ print("iRow["..j.."] - "..iName.." Need: "..iNeed.." Have: "..iHave.." max: "..m
 		local pItems = {} -- picked items list
 		-- set input items to values for max_count
 		for i,input in ipairs(recipe.items) do
---print ("QTY - max_count: "..max_count.." Recipe.items: "..dump(recipe.items))
 			if type(input) == 'string' then
 				local iItem = ItemStack(input)
 				local iCount = iItem:get_count()
 				if iCount > 0 then
 					local count = iCount * max_count
---print("single: "..iItem:get_name().." "..iItem:get_count().." -- " ..count)
 					pItems[#pItems+1] = iItem:get_name() .. " " .. count
 				end
 			else
@@ -216,7 +210,6 @@ print("iRow["..j.."] - "..iName.." Need: "..iNeed.." Have: "..iHave.." max: "..m
 						end
 						pItems[#pItems+1] = iName .." "..oCount * iEach
 						row_maxCount = row_maxCount - oCount
-	--print("row_maxCount: "..row_maxCount)
 						if row_maxCount == 0 then
 							break
 						end
@@ -224,7 +217,6 @@ print("iRow["..j.."] - "..iName.." Need: "..iNeed.." Have: "..iHave.." max: "..m
 				end
 			end
 		end
-print("pItems: "..dump(pItems))
 		recipe.items = pItems
 	end
 end
@@ -293,15 +285,12 @@ local function process_receive_fields(player, formname, fields)
 				cache.sInv = btn_id -- Inventory name
 			elseif btn_type == 'sResult' then
 				local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
-print("Selected: "..dump(recipe))
 				local ctype = cache.cTabs[cache.sTab]
 				local sLevel = cache.sLevel
 				local sInv = cache.sInv
 				local qty = tonumber(fields.qty) or 1
---print("cache: "..dump(cache))
 
 				process_qty(recipe,qty,cache.item_hash)
-print("After process_qty recipe--------"..dump(recipe))
 				if not crafting.can_craft(player_name, ctype, sLevel, recipe) then
 					minetest.log("error", "[inventoryFS] Player clicked a button they shouldn't have been able to")
 					return true
@@ -361,7 +350,6 @@ local function cache_player_recipes(cache, player_name, pInv)
 print ("--------------------------]cache_player_recipes()[------------------")
 	local sortHash = crafting.sort_order_by_player[player_name]
 	if not sortHash or not sortHash.ctype then
-print('New sort')
 		sortHash = {
 			ctype = sItem,
 			ctab = sTab,
