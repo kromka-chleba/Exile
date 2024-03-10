@@ -215,7 +215,7 @@ function player_api.compose_cloth(player)
 		hair_preview = false,
 		hair_pos = "0,0",
 	})
-	local cloth = base_texture.."^".."[combine:128x64:0,0="
+	local cloth = base_texture.."^".."[combine:128x64"
 	if head_ItemStack then
 		cloth = cloth .. ":"..cloth_pos[1].."="..head_ItemStack
 	end
