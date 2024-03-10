@@ -203,7 +203,7 @@ local self_data = {
    name = "animals:gundu",
    initial_properties = {
    --core
-      max_hp = 40,
+      max_hp = 10,
       physical = true,
       collide_with_objects = true,
       collisionbox = {-0.3, -0.2, -0.3, 0.3, 0.1, 0.3},
