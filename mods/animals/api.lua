@@ -256,7 +256,7 @@ function animals.get_entities_in_distance(self,override)
   local range = self.view_range or 1
   range = (type(override) == "number" and override or range)
   local players = {}
-  local objs = minetest.get_objects_inside_radius(mobkit.get_stand_pos(self),range)
+  local objs = self.nearby_objects--minetest.get_objects_inside_radius(mobkit.get_stand_pos(self),range)
   for _,obj in pairs(objs) do
       -- must be alive
     if mobkit.is_alive(obj) then
