@@ -2882,26 +2882,35 @@ function animals.register_animal(name,def)
     -- allow players in creative to infinitely hit
     if not minimal.player_in_creative(puncher) then
       fleshdmg = math.floor(fleshdmg * multiplier)
+      -- capture override for sea creatures
+      if def.class == 2 and minetest.is_player(puncher) and node_drawtype(puncher:get_pos()) == "liquid" then
+        local w_itemdef = puncher:get_wielded_item():get_definition()
+        tool_capabilities = w_itemdef.tool_capabilities or tool_capabilities -- player punching does not give custom tool_capabilities
+        if type(def.on_rightclick) == "function" and not tool_capabilities.harm_fish then
+          tool_capabilities.is_hand = true
+          return def.on_rightclick(self, puncher, time_from_last_punch, tool_capabilities)
+        end
+      end
     end
     if fleshdmg <= 0 then
       return
     end
     self.last_punched = get_time()
     if type(on_punch) == "function" then
-      on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
+      return on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
     end
   end
   if type(def.on_rightclick) == "function" then
     local on_rightclick = def.on_rightclick
-    def.on_rightclick = function(self, clicker)
+    def.on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
       -- create artificial on_punch functionality for rightclick
       local tool = clicker:get_wielded_item()
       local tooldef = tool:get_definition()
-      local tool_capabilities = tooldef.tool_capabilities
-      local time_from_last_click = get_time(animals.rclick_times[clicker])
+      tool_capabilities = tool_capabilities or tooldef.tool_capabilities
+      time_from_last_click = time_from_last_click or get_time(animals.rclick_times[clicker])
       animals.rclick_times[clicker] = get_time()
       if type(on_rightclick) == "function" then
-        on_rightclick(self, clicker, time_from_last_click, tool_capabilities)
+        return on_rightclick(self, clicker, time_from_last_click, tool_capabilities)
       end
     end
   end
