@@ -144,6 +144,10 @@ local function node_drawtype(pos)
   end
   return node.drawtype, node
 end
+-- global usage
+function animals.node_drawtype(...)
+  return node_drawtype(...)
+end
 
 -- get a randomized position from mobkit's is_neighbor_node_reachable by sending a string that's 1 to 8 or like so:
 -- "12345678"
@@ -256,7 +260,7 @@ function animals.get_entities_in_distance(self,override)
   local range = self.view_range or 1
   range = (type(override) == "number" and override or range)
   local players = {}
-  local objs = minetest.get_objects_inside_radius(mobkit.get_stand_pos(self),range)
+  local objs = self.nearby_objects--minetest.get_objects_inside_radius(mobkit.get_stand_pos(self),range)
   for _,obj in pairs(objs) do
       -- must be alive
     if mobkit.is_alive(obj) then
@@ -1756,6 +1760,35 @@ function animals.hurt_target(self,target,consume)
   return ent.hp <= dmg -- either continues (false) or ends attack (true)
 end
 
+-- checks if target is within Y of collisionbox + range, distance within range + positive collisionbox X
+-- then does a raycast to see if it can hit
+function animals.target_in_range(self,tgt)
+  tgt = animals.get_structure(tgt)
+  if not tgt then
+    return false
+  end
+  local range = self.attack and self.attack.range or 0.1
+  local pos = self.object:get_pos()
+  local tpos = tgt.object:get_pos()
+  local selfbox = self.object:get_properties().collisionbox
+  local tgtbox = tgt.object:get_properties().collisionbox
+  if tpos.y >= (pos.y + (selfbox[2] - range)) and tpos.y <= (pos.y + selfbox[5] + range) then
+    tpos.y = pos.y
+  else
+    return false
+  end
+  if vector.distance(pos,tpos) > (range+selfbox[4]) then
+    return false
+  end
+  local tpos2 = vector.add(tpos,vector.multiply(vector.direction(pos,tpos),1.1))
+  pos = minimal.shift_pos(pos,{y=selfbox[2]})
+  for pointed_thing in minetest.raycast(pos,tpos2) do
+    if pointed_thing.ref == tgt.object then
+      return true
+    end
+  end
+  return false
+end
 
 ----------------------------------------------------------------
 --like mobkit version, but including removal of prey and gaining energy
@@ -1823,7 +1856,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 			if tpos.y>pos.y+0.5 then self.object:set_velocity({x=vel.x,y=vel.y+0.5,z=vel.z})
 			elseif tpos.y<pos.y-0.5 then self.object:set_velocity({x=vel.x,y=vel.y-0.5,z=vel.z}) end
 		end
-		if mobkit.is_pos_in_box(mobkit.pos_translate2d(pos,yaw,self.attack.range),tpos,tgtbox) then	--bite
+		if animals.target_in_range(self,tgt) then -- bite
       mobkit.make_sound(self,'bite')
 			mobkit.hq_aqua_turn(self,prty,yaw-pi,speed)
       return animals.hurt_target(self,tgtobj,eat)
@@ -1876,7 +1909,7 @@ local function lq_jumpattack_eat(self,height,target,consume)
 			local dir = minetest.yaw_to_dir(yaw)
 			local apos = mobkit.pos_translate2d(pos,yaw,self.attack.range)
 
-			if self.attack.range*2 >= abs(pos.y - tgtpos.y) and (mobkit.is_pos_in_box(apos,tgtpos,tgtbox) or mobkit.isnear2d(pos,tgtpos,self.attack.range)) then --bite
+			if animals.target_in_range(self,target) then -- bite
         -- bounce off
 				local vy = self.object:get_velocity().y
 				self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
@@ -2849,26 +2882,35 @@ function animals.register_animal(name,def)
     -- allow players in creative to infinitely hit
     if not minimal.player_in_creative(puncher) then
       fleshdmg = math.floor(fleshdmg * multiplier)
+      -- capture override for sea creatures
+      if def.class == 2 and minetest.is_player(puncher) and node_drawtype(puncher:get_pos()) == "liquid" then
+        local w_itemdef = puncher:get_wielded_item():get_definition()
+        tool_capabilities = w_itemdef.tool_capabilities or tool_capabilities -- player punching does not give custom tool_capabilities
+        if type(def.on_rightclick) == "function" and not tool_capabilities.harm_fish then
+          tool_capabilities.is_hand = true
+          return def.on_rightclick(self, puncher, time_from_last_punch, tool_capabilities)
+        end
+      end
     end
     if fleshdmg <= 0 then
       return
     end
     self.last_punched = get_time()
     if type(on_punch) == "function" then
-      on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
+      return on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
     end
   end
   if type(def.on_rightclick) == "function" then
     local on_rightclick = def.on_rightclick
-    def.on_rightclick = function(self, clicker)
+    def.on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
       -- create artificial on_punch functionality for rightclick
       local tool = clicker:get_wielded_item()
       local tooldef = tool:get_definition()
-      local tool_capabilities = tooldef.tool_capabilities
-      local time_from_last_click = get_time(animals.rclick_times[clicker])
+      tool_capabilities = tool_capabilities or tooldef.tool_capabilities
+      time_from_last_click = time_from_last_click or get_time(animals.rclick_times[clicker])
       animals.rclick_times[clicker] = get_time()
       if type(on_rightclick) == "function" then
-        on_rightclick(self, clicker, time_from_last_click, tool_capabilities)
+        return on_rightclick(self, clicker, time_from_last_click, tool_capabilities)
       end
     end
   end

@@ -203,10 +203,10 @@ local self_data = {
    name = "animals:gundu",
    initial_properties = {
    --core
-      max_hp = 40,
+      max_hp = 10,
       physical = true,
       collide_with_objects = true,
-      collisionbox = {-0.1, -0.1, -0.1, 0.1, 0.1, 0.1},
+      collisionbox = {-0.3, -0.2, -0.3, 0.3, 0.1, 0.3},
       visual = "mesh",
       mesh = "animals_gundu.b3d",
       textures = {"animals_color_palette.png"},
@@ -236,6 +236,7 @@ local self_data = {
   predator_interactions = 0,
   capture_interactions = {
     club = 0.15,
+    hand = 0.05,
   },
   -- logic for mobkit
   logic = brain,

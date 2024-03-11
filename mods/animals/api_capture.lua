@@ -64,14 +64,18 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click, tool_capa
 	if self.hp <= 0 then return end
 	local item = clicker:get_wielded_item()
 	local item_name = item:get_name()
+  tool_capabilities = type(tool_capabilities) == "table" and tool_capabilities or {full_punch_interval = 1}
   if not self.capture_interactions then
     return false,false -- creature can't be captured + is not captured
   end
   local success_rate
   for group,values in pairs(self.capture_interactions) do
-    if (group == "hand" and item_name == "") then
+    if (group == "hand" and (item_name == "" or tool_capabilities.is_hand) ) then
       success_rate = values[1] -- it's just a hand, why would there be more options than 1?
-      break
+      -- empty hand should not have custom capture qualities
+      if item_name == "" then
+        break
+      end
     end
     local itemg = minetest.get_item_group(item_name,group) -- item group
     if itemg ~= 0 then
@@ -94,7 +98,6 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click, tool_capa
     return false,false
   end
   time_from_last_click = type(time_from_last_click) == "number" and time_from_last_click or 1
-  tool_capabilities = type(tool_capabilities) == "table" and tool_capabilities or {full_punch_interval = 1}
   -- modify success_rate according to tool_capabilities (if not in creative)
   if not minimal.player_in_creative(clicker) then
     success_rate = success_rate * math_clamp(time_from_last_click / tool_capabilities.full_punch_interval, 0, 1)
