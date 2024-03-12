@@ -50,12 +50,11 @@ local function brain(self)
 
 	if mobkit.timer(self,1) then
 		-- Also recharges health from energy
-		local age, energy = animals.core_life(self, pos)
-
 		--die from exhaustion or age
-		if not age then
+		if not animals.core_life(self, pos) then
 			return
 		end
+    local energy,age = self.energy,self.age
 
 
 		local prty = mobkit.get_queue_priority(self)
@@ -171,13 +170,8 @@ local function brain(self)
 			mobkit.hq_aqua_roam(self,10,1)
 		end
 
-
-		-----------------
-		--housekeeping
-		--save energy, age
-		mobkit.remember(self,'energy',energy)
-		mobkit.remember(self,'age',age)
-
+    -- housekeeping
+    self.energy,self.age = energy,age
 	end
 end
 

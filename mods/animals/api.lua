@@ -458,9 +458,9 @@ end
 --core health, energy and age
 function animals.core_life(self, pos)
 
-  local energy = mobkit.recall(self,'energy') or 1
-  local age = mobkit.recall(self,'age') or 0
-  local conserve = mobkit.recall(self,'conserve') or false
+  local energy = self.energy or mobkit.recall(self,'energy') or 1
+  local age = self.age or mobkit.recall(self,'age') or 0
+  local conserve = self.conserve or mobkit.recall(self,'conserve')
 
   local lifespan = self.lifespan or 2
   local energy_loss = self.energy_loss or 0.25
@@ -476,10 +476,10 @@ function animals.core_life(self, pos)
     end
     mobkit.clear_queue_high(self)
     animals.hq_die(self)
-    return nil
+    return false
   end
 
-  if (conserve == false) then
+  if not conserve then
     energy = energy - energy_loss
   elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
     energy = energy - energy_loss
@@ -584,7 +584,19 @@ function animals.core_life(self, pos)
     mobkit.animate(self,"dead")
   end
 
-  return age, energy, conserve
+  -----------------
+  --housekeeping
+  --save energy, age
+  self.age = age
+  mobkit.remember(self,'age',age)
+  self.energy = energy
+  mobkit.remember(self,'energy',energy)
+  if type(conserve) == "boolean" then
+    -- only animals that try to conserve
+    self.conserve = conserve
+    mobkit.remember(self,'conserve',conserve)
+  end
+  return true
 end
 
 

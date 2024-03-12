@@ -22,11 +22,11 @@ local function brain(self)
 	if mobkit.timer(self,1) then
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy, conserve = animals.core_life(self, pos)
 		--die from exhaustion or age
-		if not age then
+		if not animals.core_life(self, pos) then
 			return
 		end
+    local energy,age,conserve = self.energy,self.age,self.conserve
 
 		------------------
 		--Emergency actions
@@ -94,14 +94,9 @@ local function brain(self)
 			mobkit.animate(self,'walk')
 			animals.hq_roam_dark(self,10,1)
 		end
-    
-		-----------------
-		--housekeeping
-		--save energy, age
-		mobkit.remember(self,'energy',energy)
-		mobkit.remember(self,'age',age)
-    mobkit.remember(self,'conserve',conserve) -- to prevent energy loss with no prey around
 
+    -- housekeeping
+    self.energy,self.age,self.conserve = energy,age,conserve
 	end
 end
 

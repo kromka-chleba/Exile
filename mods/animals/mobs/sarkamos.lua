@@ -21,12 +21,11 @@ local function brain(self)
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
-
-		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
-		if not age then
+		if not animals.core_life(self, pos) then
 			return
 		end
+    local energy,age = self.energy,self.age
 
 
 		local prty = mobkit.get_queue_priority(self)
@@ -93,13 +92,8 @@ local function brain(self)
 			mobkit.hq_aqua_roam(self,10,1)
 		end
 
-
-		-----------------
-		--housekeeping
-		--save energy, age
-		mobkit.remember(self,'energy',energy)
-		mobkit.remember(self,'age',age)
-
+    -- housekeeping
+    self.energy,self.age = energy,age
 	end
 end
 
@@ -146,7 +140,7 @@ local self_data = {
   class = 2,
   -- energy
   energy_max = 14000,--secs it can survive without food
-  energy_egg = "energy_max/8", -- energy that goes to egg
+  energy_egg = "energy_max/3", -- energy that goes to egg
   egg_timer = 60*40,
   young_per_egg = {2,4},		--will get this/energy_egg starting energy
   -- lifespan
