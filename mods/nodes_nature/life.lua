@@ -249,7 +249,7 @@ local on_place_seedling = function(itemstack, placer, pointed_thing)
    local ground = minetest.get_node(pointed_thing.under)
    local above = minetest.get_node(pointed_thing.above)
    if minetest.get_item_group(ground.name,"sediment") == 0
-   or above.name ~= "air" then
+   or minetest.get_item_group(above.name, "air") == 0 then
       local udef = minetest.registered_nodes[ground.name]
       if udef and udef.on_rightclick and
 	 not (placer and placer:is_player() and
