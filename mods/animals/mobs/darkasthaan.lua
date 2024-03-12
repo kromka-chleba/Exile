@@ -153,7 +153,7 @@ local self_data = {
 	breathing_rate = 8,
 	-- comfort temps
 	min_temp = 14,
-	max_temp = 70,
+	max_temp = 80,
 	-- is it land-borne (1), sea-borne (2), or amphibious (3)?
 	class = 1,
   -- energy
@@ -162,7 +162,7 @@ local self_data = {
   young_per_egg = {1,3},		--will get this/energy_egg starting energy
   -- cannot define conservation minimum + energy_egg (energy_egg being necessary for cn_min) in API due to multiple values needed
   -- lifespan
-  lifespan = "energy_max*7",
+  lifespan = "energy_max*12",
   mature_age = "energy_max*0.1",
   -- interactions
   -- prey + rivals automatically defined in registration

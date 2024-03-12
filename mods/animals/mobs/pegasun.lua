@@ -92,7 +92,7 @@ local function brain(self)
 					animals.flock(self, 25, 3)
 				elseif random()< 0.01 then
 					animals.territorial(self, energy, false)
-				elseif random() < 0.1 and age >= self.mature_age then
+				elseif random() < 0.6 and age >= self.mature_age then
 
 					--reproduction
 					if self.hp >= self.max_hp
@@ -254,7 +254,7 @@ local function brain_male(self)
 					animals.flock(self, 25, 1)
 				elseif random()< 0.85 then
 					animals.territorial(self, energy, false)
-				elseif random() < 0.3 and age >= self.mature_age then -- males more promiscuous (from 0.1 to 0.3)
+				elseif random() < 0.4 and age >= self.mature_age then -- males more promiscuous (from 0.3 to 0.4)
 
 					--reproduction
 					if self.hp >= self.max_hp
@@ -372,7 +372,7 @@ local self_data = {
   egg_timer = 60*25,
   young_per_egg = 1,		--will get this/energy_egg starting energy
   -- lifespan
-  lifespan = "energy_max*10",
+  lifespan = "energy_max*15",
   mature_age = "energy_max*0.36", -- 36% of energy_max (8000) or 2880
   -- interactions
   -- predators + rivals automatically defined in registration
