@@ -54,7 +54,6 @@ local function brain(self)
 		if not animals.core_life(self, pos) then
 			return
 		end
-    local energy,age = self.energy,self.age
 
 
 		local prty = mobkit.get_queue_priority(self)
@@ -97,9 +96,9 @@ local function brain(self)
 			if pred then
 				animals.flock(self, 21, 1, self.max_speed)
 			elseif random() <0.15 then
-				rival = animals.territorial_water(self, energy, false)
+				rival = animals.territorial_water(self, self.energy, false)
 			elseif random() <0.01 then
-				rival = animals.territorial_water(self, energy, true)
+				rival = animals.territorial_water(self, self.energy, true)
 			elseif random() <0.25 then
 				animals.flock(self, 15, 2, self.max_speed/2)
 			end
@@ -112,14 +111,14 @@ local function brain(self)
 
 				if light >= 9 then
 					--much light much food
-					if energy < self.energy_max then
-						energy = energy + 5
+					if self.energy < self.energy_max then
+						self:modify('energy',5)
 					end
 
 				elseif light >= 5 then
 					--some light
-					if energy < self.energy_max then
-						energy = energy + 2
+					if self.energy < self.energy_max then
+						self:modify('energy',2)
 					end
 				end
 			end
@@ -157,8 +156,8 @@ local function brain(self)
 			and lightm <= 11
 			and ( tod <0.5 ) -- only lay at night
 			and self.hp >= self.max_hp
-			and energy >= (self.energy_max * 0.99) then
-				energy = animals.place_egg(self, pos, energy, 'nodes_nature:salt_water_source')
+			and self.energy >= (self.energy_max * 0.99) then
+				animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
 			end
 
 		end
@@ -169,9 +168,6 @@ local function brain(self)
 			mobkit.animate(self,'def')
 			mobkit.hq_aqua_roam(self,10,1)
 		end
-
-    -- housekeeping
-    self.energy,self.age = energy,age
 	end
 end
 

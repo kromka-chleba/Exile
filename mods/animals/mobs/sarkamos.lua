@@ -25,7 +25,6 @@ local function brain(self)
 		if not animals.core_life(self, pos) then
 			return
 		end
-    local energy,age = self.energy,self.age
 
 
 		local prty = mobkit.get_queue_priority(self)
@@ -46,10 +45,10 @@ local function brain(self)
 		if prty < 20 then
 
 			--territorial behaviour
-			local rival = animals.territorial_water(self, energy, false)
+			local rival = animals.territorial_water(self, self.energy, false)
 
 			--feeding
-			if energy < self.energy_max then
+			if self.energy < self.energy_max then
 			   --You are prey
 			   local plyr = animals.get_nearby_player(self)
 			   if plyr then
@@ -62,7 +61,7 @@ local function brain(self)
 			   end
 			end
 
-			if energy >= self.energy_max then
+			if self.energy >= self.energy_max then
 			   -- heavy with eggs, sink to look for a laying spot
 			   self.object:add_velocity({ x = 0, y = -0.2,
 						      z = 0})
@@ -79,8 +78,8 @@ local function brain(self)
 			and not rival
 			and light < 10
 			and self.hp >= self.max_hp
-			and energy >= self.energy_max then
-			   energy = animals.place_egg(self, pos, energy, 'nodes_nature:salt_water_source')
+			and self.energy >= self.energy_max then
+			   animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
 			end
 
 		end
@@ -91,9 +90,6 @@ local function brain(self)
 			mobkit.animate(self,'def')
 			mobkit.hq_aqua_roam(self,10,1)
 		end
-
-    -- housekeeping
-    self.energy,self.age = energy,age
 	end
 end
 

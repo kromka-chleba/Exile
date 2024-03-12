@@ -26,7 +26,7 @@ local function brain(self)
 		if not animals.core_life(self, pos) then
 			return
 		end
-    local energy,age,conserve = self.energy,self.age,self.conserve
+    local age = self.age
 
 		------------------
 		--Emergency actions
@@ -42,7 +42,7 @@ local function brain(self)
 			if plyr then
         prty = 55
 				animals.fight_or_flight(self, plyr, prty, 0.75)
-        conserve = false -- not hibernating anymore
+        self.conserve = false -- not hibernating anymore
 			end
 
 			--currently has none
@@ -53,21 +53,21 @@ local function brain(self)
 		----------------------
 		--Low priority actions
 
-		if prty < 20 and conserve ~= true then
+		if prty < 20 and self.conserve ~= true then
   
 			--territorial behaviour
-			local rival = animals.territorial(self, energy, true)
+			local rival = animals.territorial(self, self.energy, true)
 
 
 			--feeding
 			--hunt prey
-			if energy < self.energy_max then
+			if self.energy < self.energy_max then
 				if not animals.prey_hunt(self, 25) then
 					--random search for darkness
 					animals.hq_roam_dark(self,15)
           
-          if (energy <= self.cn_min) then
-            conserve = true
+          if (self.energy <= self.cn_min) then
+            self.conserve = true
           end
 				end
 			end
@@ -78,25 +78,22 @@ local function brain(self)
 			if random() < 0.1
 			and not rival
 			and self.hp >= self.max_hp
-			and energy >= self.energy_egg*2
+			and self.energy >= self.energy_egg*2
       and age >= self.mature_age then
-				energy = animals.place_egg(self, pos, energy)
+				animals.place_egg(self, pos)
 			end
-    elseif (conserve == true) then
+    elseif (self.conserve == true) then
       if animals.prey_hunt(self,40) then -- if found food then get outta hibernation
-        conserve = false
+        self.conserve = false
       end
 		end
 
 		-------------------
 		--generic behaviour
-		if mobkit.is_queue_empty_high(self) and conserve ~= true then
+		if mobkit.is_queue_empty_high(self) and self.conserve ~= true then
 			mobkit.animate(self,'walk')
 			animals.hq_roam_dark(self,10,1)
 		end
-
-    -- housekeeping
-    self.energy,self.age,self.conserve = energy,age,conserve
 	end
 end
 

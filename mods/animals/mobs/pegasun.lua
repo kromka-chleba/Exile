@@ -27,7 +27,7 @@ local function brain(self)
 		if not animals.core_life(self, pos) then
 			return
 		end
-    local energy,age = self.energy,self.age
+    local age = self.age
 
 		------------------
 		--Emergency actions
@@ -91,19 +91,19 @@ local function brain(self)
 				if random()< 0.3 then
 					animals.flock(self, 25, 3)
 				elseif random()< 0.01 then
-					animals.territorial(self, energy, false)
+					animals.territorial(self, self.energy, false)
 				elseif random() < 0.6 and age >= self.mature_age then
 
 					--reproduction
 					if self.hp >= self.max_hp
-					and energy >= (self.energy_egg * 1.5) then
+					and self.energy >= (self.energy_egg * 1.5) then
 
 						--are we already pregnant?
 						local preg = mobkit.recall(self,'pregnant') or false
 						if preg == true then
 							mobkit.lq_idle(self,3)
 							if random() < 0.05 then
-								energy = animals.place_egg(self, pos, energy)
+								animals.place_egg(self, pos)
 								mobkit.remember(self,'pregnant',false)
 							end
 
@@ -126,8 +126,8 @@ local function brain(self)
 					end
 				end
 
-			elseif energy < self.energy_max then
-        local hng_percent = (self.energy_max * 0.55)/energy
+			elseif self.energy < self.energy_max then
+        local hng_percent = (self.energy_max * 0.55)/self.energy
 	-- hunger_percent - creates a percentage by dividing a percentage of
 	--  energy_max by the current energy. The lower the energy, the
 	-- higher the percentage
@@ -139,7 +139,7 @@ local function brain(self)
 	   -- (gotta fill up for those babies y'know)
           if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
             if (animals.eat_flora(pos,0.001) == true) then
-              energy = energy + 50
+              self:modify('energy',50)
             else
               mobkit.animate(self,'walk')
               -- look for flora that's not a cane_plant
@@ -161,9 +161,6 @@ local function brain(self)
 			mobkit.animate(self,'walk')
 			mobkit.hq_roam(self,10)
 		end
-
-    -- housekeeping
-    self.energy,self.age = energy,age
 	end
 end
 
@@ -184,7 +181,7 @@ local function brain_male(self)
 		if not animals.core_life(self, pos) then
 			return
 		end
-    local energy,age = self.energy,self.age
+    local age = self.age
 
 
 		------------------
@@ -249,12 +246,12 @@ local function brain_male(self)
 				if random()< 0.5 then
 					animals.flock(self, 25, 1)
 				elseif random()< 0.85 then
-					animals.territorial(self, energy, false)
+					animals.territorial(self, self.energy, false)
 				elseif random() < 0.4 and age >= self.mature_age then -- males more promiscuous (from 0.3 to 0.4)
 
 					--reproduction
 					if self.hp >= self.max_hp
-					and energy >= self.energy_max * 0.25 then -- mate at 25% of energy_max (8000 * 0.25 = 2000)
+					and self.energy >= self.energy_max * 0.25 then -- mate at 25% of energy_max (8000 * 0.25 = 2000)
 						--set status as randy
 						--find nearby prospect and try to mate
 						mobkit.remember(self, 'sexual', true)
@@ -264,7 +261,7 @@ local function brain_male(self)
 							--go get her!
 							mobkit.make_sound(self,'mating')
 							if random() < 0.5 then
-                energy = energy - 1000 -- energy use for mating lol
+                self:modify('energy',-1000) -- energy use for mating lol
 								animals.hq_mate(self, 25, mate)
 							end
 						end
@@ -275,14 +272,14 @@ local function brain_male(self)
 					end
 				end
 
-    elseif energy < self.energy_max then
-      local hng_percent  = (self.energy_max * 0.2)/energy -- hunger_percent
+    elseif self.energy < self.energy_max then
+      local hng_percent  = (self.energy_max * 0.2)/self.energy -- hunger_percent
       -- if energy is equal or less than 20% of energy_max, it will be 1 or higher
 
       if (random() <= hng_percent ) then
         --feed via a method
         if (animals.eat_flora(pos,0.0005) == true) then -- mmm plants
-          energy = energy + 50
+          self:modify('energy',50)
         elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
           --wander randomly for plants if can't find prey
             mobkit.animate(self,'walk')
@@ -302,9 +299,6 @@ local function brain_male(self)
 			mobkit.animate(self,'walk')
 			mobkit.hq_roam(self,10)
 		end
-
-		--housekeeping
-		self.energy,self.age = energy,age
 	end
 end
 

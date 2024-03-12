@@ -27,7 +27,6 @@ local function brain(self)
 		if not animals.core_life(self, pos) then
 			return
 		end
-    local energy,age = self.energy,self.age
 
 		------------------
 		--Emergency actions
@@ -54,7 +53,7 @@ local function brain(self)
     if (light > self.max_light) then
         --fatigued by light
 
-      energy = energy - random(2,6)
+      self:modify('energy',-random(2,6))
       if (prty <= 46) then
         --random search for darkness (now better :D)
         prty = 46
@@ -70,19 +69,19 @@ local function brain(self)
 			--territorial behaviour
 			local rival
 			if random() < 0.7 then
-				rival = animals.territorial(self, energy, false)
+				rival = animals.territorial(self, self.energy, false)
 			else
-				rival = animals.territorial(self, energy, true)
+				rival = animals.territorial(self, self.energy, true)
 			end
 
 
 			--feeding
 			--eat stuff in the dark
 			if light <= self.max_light then
-				if not rival and energy < self.energy_max then
-					energy = energy + 1
+				if not rival and self.energy < self.energy_max then
+					self:modify('energy',1)
           if (animals.eat_sediment_under(pos,0.01)) then
-            energy = energy + math.random(4,6)
+            self:modify('energy',math.random(4,6))
           end
 				end
 				mobkit.animate(self,'walk')
@@ -94,8 +93,8 @@ local function brain(self)
 			--asexual parthogenesis, eggs
 			if random() < 0.008 then
 				if not rival
-				and energy >= (self.energy_max * 0.95) then
-					energy = animals.place_egg(self, pos, energy)
+				and self.energy >= (self.energy_max * 0.95) then
+					animals.place_egg(self, pos)
 				end
 			end
 
@@ -107,8 +106,6 @@ local function brain(self)
 			mobkit.animate(self,'walk')
 			animals.hq_roam_dark(self,10,1)
 		end
-
-    self.energy,self.age = energy,age
 	end
 end
 

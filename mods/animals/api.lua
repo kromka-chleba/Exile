@@ -457,20 +457,40 @@ end
 ----------------------------------------------------
 --core health, energy and age
 function animals.core_life(self, pos)
+  if type(self["set"]) ~= "function" then
+    function self:set(vname,value,memorize)
+    -- set a value
+      self[vname] = value
+      if memorize then
+        mobkit.remember(self,vname,value)
+      end
+      return value
+    end
+  end
+  if type(self["modify"]) ~= "function" then
+    function self:modify(vname,value,memorize)
+      -- modify a value
+      if type(vname) ~= "string" or type(value) ~= "number" or type(self[vname]) ~= "number" then
+        return value
+      end
+      value = self:set(vname, self[vname] + value, memorize)
+      return value
+    end
+  end
 
-  local energy = self.energy or mobkit.recall(self,'energy') or 1
-  local age = self.age or mobkit.recall(self,'age') or 0
-  local conserve = self.conserve or mobkit.recall(self,'conserve')
+  self.energy = self.energy or mobkit.recall(self,'energy') or 1
+  self.age = self.age or mobkit.recall(self,'age') or 0
+  self.conserve = self.conserve or mobkit.recall(self,'conserve')
 
   local lifespan = self.lifespan or 2
   local energy_loss = self.energy_loss or 0.25
 
-  age = age + 1
+  self:modify('age',1)
 
   animals.vitals(self)
   --die from exhaustion, old age, no hp
   local hp = self.hp
-  if energy <= 0 or age > lifespan or self.hp <= 0 then
+  if self.energy <= 0 or self.age > lifespan or self.hp <= 0 then
     if type(self._on_death) == "function" then
       self._on_death(self, pos)
     end
@@ -479,10 +499,10 @@ function animals.core_life(self, pos)
     return false
   end
 
-  if not conserve then
-    energy = energy - energy_loss
+  if not self.conserve then
+    self:modify('energy',-energy_loss)
   elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
-    energy = energy - energy_loss
+    self:modify('energy',-energy_loss)
   end
 
   -- get temp
@@ -514,17 +534,17 @@ function animals.core_life(self, pos)
         animals.hq_roam_comfort_temp(self,42)
       end
 
-      conserve = false -- moving around, thus not conserving energy
+      self.conserve = false -- moving around, thus not conserving energy
     end
     -- lose energy from discomfort
-    energy = energy - 2
+    self:modify('energy',-2)
     -- lose more energy dependent on temperature difference (discomfort also)
     if (temp > max_temp) then
       local mtp = (temp - max_temp)*0.05
-      energy = energy - mtp
+      self:modify('energy',-mtp)
     elseif (temp < min_temp) then
       local mtp = (min_temp - temp)*0.02
-      energy = energy - mtp
+      self:modify('energy',-mtp)
     end
 
   -- get really hurt or die from high temp
@@ -539,7 +559,7 @@ function animals.core_life(self, pos)
       -- only retrieve burned flesh if max_temp is exceedingly hot
       if (self.hp <= 0 and temp >= burn_max_temp) then
         -- if animal successfully burned to death then
-        energy = 0
+        self.energy = 0
         self.burnt = true
       end
     -- get really hurt or die from being too cold!!
@@ -566,11 +586,11 @@ function animals.core_life(self, pos)
       -- stabilize cost
       cost = math.round(cost*10)/10 -- round second decimal point (7.52 --> 7.5)
       if cost < 0 then cost = 0 end -- do not go below 0
-      if energy > cost*1.1 then
+      if self.energy > cost*1.1 then
         -- could heal (likelihood determined by how much energy the creature has over the cost)
-        if (random() >= cost/energy) then
+        if (random() >= cost/self.energy) then
           animals.modify_hp(self,1)
-          energy = energy - cost
+          self:modify('energy',-cost)
         end
       end
     end
@@ -579,22 +599,19 @@ function animals.core_life(self, pos)
     self.object:set_hp(self.max_hp)
   end
 
-  if (conserve == true) then
+  if (self.conserve == true) then
     mobkit.clear_queue_low(self)
     mobkit.animate(self,"dead")
   end
 
   -----------------
   --housekeeping
-  --save energy, age
-  self.age = age
-  mobkit.remember(self,'age',age)
-  self.energy = energy
-  mobkit.remember(self,'energy',energy)
-  if type(conserve) == "boolean" then
+  --save energy, age, and other values if provided
+  self:set('age',self.age,true)
+  self:set('energy',self.energy,true)
+  if type(self.conserve) == "boolean" then
     -- only animals that try to conserve
-    self.conserve = conserve
-    mobkit.remember(self,'conserve',conserve)
+    self:set('conserve',self.conserve,true)
   end
   return true
 end
@@ -603,7 +620,7 @@ end
 
 ----------------------------------------------------
 --put an egg in the world, return energy
-function animals.place_egg(self, pos, e, medium) -- self, position, energy, medium
+function animals.place_egg(self, pos, medium) -- self, position, energy, medium
   -- uses self's energy and energy_egg (with optional max_pop)
   if (medium == nil or medium == "") then
     medium = "air"
@@ -627,12 +644,10 @@ function animals.place_egg(self, pos, e, medium) -- self, position, energy, medi
 
     if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
       minetest.set_node(p, {name = egg_name})
-      e = e - e_egg
+      self:modify('energy',-e_egg)
     end
 
   end
-
-  return e
 end
 
 -- place an egg during near or precise death (and die)
@@ -2926,6 +2941,7 @@ function animals.register_animal(name,def)
       end
     end
   end
+  -- egg modifications
   local egg_data = {} -- use this to permit proper override of on_construct (returns intended variable properly)
   -- modify _conditions_correct to return egg data
   if def.egg then
