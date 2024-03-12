@@ -224,9 +224,9 @@ local self_data = {
   class = 2,
   -- energy
   energy_max = 8000,--secs it can survive without food
-  energy_egg = "energy_max*.5", -- energy that goes to egg
+  energy_egg = "energy_max*.75", -- energy that goes to egg
   egg_timer = 60*32,
-  young_per_egg = {3,7},		--will get this/energy_egg starting energy
+  young_per_egg = {4,10},		--will get this/energy_egg starting energy
   -- lifespan
   lifespan = "energy_max*6",
   -- interactions
