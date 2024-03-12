@@ -67,7 +67,9 @@ function animals.get_structure(obj)
     return {
       ent = {max_hp = minetest.PLAYER_MAX_HP_DEFAULT,
         hp = obj:get_hp(),
-        memory = {}},
+        memory = {},
+        object = obj
+      },
       object = obj,
       player = true
       }
@@ -459,7 +461,8 @@ end
 function animals.core_life(self, pos)
   if type(self["set"]) ~= "function" then
     function self:set(vname,value,memorize)
-    -- set a value
+      if minetest.is_player(self) then return value end
+      -- set a value
       self[vname] = value
       if memorize then
         mobkit.remember(self,vname,value)
@@ -607,11 +610,14 @@ function animals.core_life(self, pos)
   -----------------
   --housekeeping
   --save energy, age, and other values if provided
-  self:set('age',self.age,true)
-  self:set('energy',self.energy,true)
+  mobkit.remember(self,'age',self.age)
+  mobkit.remember(self,'energy',self.energy)
+  --self:set('age',self.age,true)
+  --self:set('energy',self.energy,true)
   if type(self.conserve) == "boolean" then
     -- only animals that try to conserve
-    self:set('conserve',self.conserve,true)
+    mobkit.remember(self,'conserve',self.conserve)
+    --self:set('conserve',self.conserve,true)
   end
   return true
 end
@@ -655,7 +661,7 @@ end
 function animals.emergency_egg(self, pos, medium)
   local egg_chance = self.emergency_egg_chance or 1
 
-  local energy = mobkit.recall(self,"energy")
+  local energy = self.energy
   if (type(energy) ~= "number" or energy <= 0) then
     return false
   end
@@ -1767,18 +1773,17 @@ function animals.hurt_target(self,target,consume)
   if consume and dmg > 0 then
     dmg = math_clamp(dmg,0,ent_mhp) -- prevent accidental excessive energygain by clamping below max_hp
     -- eat bits of opponent
-    local ent_e = (mobkit.recall(ent,'energy') or 1)
-    local self_e = (mobkit.recall(self,'energy') or 1)
-    local energygain = (ent_e * (dmg / ent_mhp) ) -- omnomnom
+    local ent_e = (ent.energy or 1)
+    local energytake = (ent_e * (dmg / ent_mhp) ) -- omnomnom
     if targ_specs.player then
-      energygain = (200*dmg)
+      energytake = (200*dmg)
     end
 
-    mobkit.remember(self,'energy', (energygain*0.3)  + self_e) -- take 30%
-    mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
+    self:modify('energy',energytake*.3) -- take 30%
+    ent.energy = ent_e - energytake -- make opponent lose energy (use old way due to players)
 
     if (ent.hp <= dmg) then
-      mobkit.remember(self,'energy', (ent_e*0.9) + self_e) -- add 90% of opponent's energy for nomming fully
+      self:modify('energy',energytake*.9) -- add 90% of opponent's energy for nomming fully
       if not targ_specs.player then
         ent.object:remove()
       end
@@ -2035,7 +2040,7 @@ function animals.territorial(self, energy, eat)
 
       --contest! The more energetic one wins
       local r_ent = rival:get_luaentity()
-      local r_ent_e = mobkit.recall(r_ent,'energy') or 0
+      local r_ent_e = r_ent.energy or 0
 
       if energy > r_ent_e then
         if eat then
@@ -2078,7 +2083,7 @@ function animals.territorial_water(self, energy, eat)
 
       --contest! The more energetic one wins
       local r_ent = rival:get_luaentity()
-      local r_ent_e = mobkit.recall(r_ent,'energy')
+      local r_ent_e = r_ent.energy
 
       --not clear why some have nil, but it happens
       if r_ent_e == nil then
