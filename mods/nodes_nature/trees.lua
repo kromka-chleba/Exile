@@ -16,6 +16,7 @@ local S = nodes_nature.S
 
 local random = math.random
 seasons = seasons
+minimal = minimal
 ---------------------------------------------------------
 --
 -- Leafdecay
@@ -389,7 +390,7 @@ for i in ipairs(tree_list) do
 			sounds = nodes_nature.node_sound_defaults(),
 			_ncrafting_dye_dcolor = dominantcolor,
 			after_place_node = function(pos, placer, itemstack)
-			   minetest.set_node(pos,
+			   minimal.switch_node(pos,
 					     {name = "nodes_nature:"..
 						 fruitname, param2 = 0 + 128})
 			end,
