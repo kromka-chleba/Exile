@@ -19,6 +19,7 @@ HEALTH.FS = function(...)
     return minetest.formspec_escape(HEALTH.S(...))
 end
 
+dofile(minetest.get_modpath('health')..'/health_states.lua')
 dofile(minetest.get_modpath('health')..'/health_effects.lua')
 dofile(minetest.get_modpath('health')..'/on_actions.lua')
 dofile(minetest.get_modpath('health')..'/hud.lua')
@@ -48,10 +49,15 @@ local temp_max = 32--30
 --e.g. for new players
 local function set_default_attibutes(player)
 	local meta = player:get_meta()
+	local st = player_api.get_state(player)
 	meta:set_int("thirst", 100)
+	st:add("thirst", 100)
 	meta:set_int("hunger", 1000)
+	st:add("hunger", 1000)
 	meta:set_int("energy", 1000)
+	st:add("energy", 1000)
 	meta:set_int("temperature", 37)
+	st:add("int_temp", 37)
 	meta:set_int("heal_rate", heal_rate)
 	meta:set_int("thirst_rate", thirst_rate)
 	meta:set_int("hunger_rate", hunger_rate)
@@ -65,7 +71,7 @@ end
 
 
 
---[[
+-- --[[
 -----------------------------
 --Forms for sfinv
 --only for bug testing
@@ -131,7 +137,7 @@ end
 register_tab()
 
 
-]]
+-- ]]
 
 -----------------------------
 --Applies Health Effects
@@ -276,7 +282,6 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 	local mov = move
 	local jum = jump
 
-
 	--(hunger/Energy has 10x stock)
 	--0-20 starving/severe dehydrated: malus, no heal
 	--20-40 malnourished/dehydrated: malus
@@ -410,30 +415,26 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 		jum = jum - 1
 	end
 
-	--temp malus..severe..having this happen would make you very ill
-	if temperature >= 100 or temperature <= 0 then -- now will cause immediate death
-		--you dead
-		h_rate = h_rate - 10000
-		r_rate = r_rate - 10000
-		mov = mov - 10000
-		jum = jum - 10000
-	elseif temperature > 47 or temperature < 27 then
-		h_rate = h_rate - 16
-		r_rate = r_rate - 64
-		mov = mov - 80
-		jum = jum - 80
-	elseif temperature > 43 or temperature < 32 then
-		h_rate = h_rate - 8
-		r_rate = r_rate - 32
-		mov = mov - 40
-		jum = jum - 40
-	elseif temperature > 38 or temperature < 37 then
-		h_rate = h_rate - 4
-		r_rate = r_rate - 8
-		mov = mov - 20
-		jum = jum - 20
-	end
+	local st = player_api.get_state_by_name(name)
+	st:set_progress("int_temp", temperature)
+	local l = st:get_severity("int_temp") - 4
 
+	local effect = HEALTH.internal_temp_table[math.abs(l)]
+
+	h_rate = h_rate + effect.h_adj
+	r_rate = r_rate + effect.r_adj
+	mov = mov + effect.mov_adj
+	jum = jum + effect.mov_adj
+
+	local sev = math.abs(l)
+
+	if l > 0 then
+	   st:add_basic("bodytemp", "Hyperthermia", 3, sev)
+	elseif l < 0 then
+	   st:add_basic("bodytemp", "Hypothermia", 3, sev)
+	elseif st:is("bodytemp") then
+	   st:clear("bodytemp")
+	end
 	--health effects
 	local HE_mov
 	local HE_jum
@@ -491,6 +492,12 @@ minetest.register_on_joinplayer(function(player)
 	local hunger = meta:get_int("hunger")
 	local energy = meta:get_int("energy")
 	local temperature = meta:get_int("temperature")
+	local st = player_api.get_state_by_name(name)
+	st:add("int_temp", temperature)
+	st:add("energy", energy)
+	st:add("hunger", hunger)
+	st:add("thirst", thirst)
+
 	HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
 
 	local velo = meta:get_string("player_velocity")
@@ -551,7 +558,6 @@ if minetest.settings:get_bool("enable_damage") then
 				local energy = meta:get_int("energy")
 				local temperature = meta:get_int("temperature")
 
-
 				--apply rate adjustments so they are correct for current player status
 				local h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature  = HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
 
@@ -601,7 +607,6 @@ if minetest.settings:get_bool("enable_damage") then
 				else
 					temperature1 = temperature
 				end
-
 				if health1 < 0 then
 					health1 = 0
 				elseif health1 > 20 then
@@ -616,6 +621,11 @@ if minetest.settings:get_bool("enable_damage") then
 				meta:set_int("hunger", hunger1)
 				meta:set_int("energy", energy1)
 				meta:set_int("temperature", temperature1)
+				local st = player_api.get_state_by_name(name)
+				st:set_progress("int_temp", temperature)
+				st:set_progress("energy", energy)
+				st:set_progress("hunger", hunger)
+				st:set_progress("thirst", thirst)
 				--update form so can see change while looking
 				sfinv.set_player_inventory_formspec(player)
 
@@ -631,3 +641,4 @@ if minetest.settings:get_bool("enable_damage") then
 	end)
 
 end
+

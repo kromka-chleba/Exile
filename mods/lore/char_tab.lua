@@ -95,8 +95,6 @@ local function sfinv_get(self, player, context)
   local tsurv = tonumber(meta:get_string("char_time_survived"))
   local days = math.floor( tsurv / 1200 )
   local lives = meta:get_int("lives")
-  local effects_list_str = meta:get_string("effects_list")
-  local effects_list = minetest.deserialize(effects_list_str) or {}
   local bio = meta:get_string("bio")
   --backwards compatibility
   if bio == "" then
@@ -106,26 +104,12 @@ local function sfinv_get(self, player, context)
 
   local y = 3.3
   local eff_form = ""
-
-
-  for _, effect in ipairs(effects_list) do
-    --convert into readable
-    -- (this would be better handled more flexibly, these might not suit all)
-    local severity = effect[2] or 0
-    if severity == 0 then
-      severity = ""
-    elseif severity == 1 then
-      severity = "(mild)"
-    elseif severity == 2 then
-      severity = "(moderate)"
-    elseif severity == 3 then
-      severity = "(severe)"
-    elseif severity >= 4 then
-      severity = "(extreme)"
-    end
-
-    y = y + 0.4
-    eff_form = eff_form.."label[0.1,"..y.."; "..effect[1].." "..severity.."]"
+  local st = player_api.get_state(player)
+  local labels = st:read_labels()
+  for _, effect in ipairs(labels) do
+     y = y + 0.4
+    eff_form = eff_form.."label[0.1,"..y.."; "..effect[1]..
+       " "..effect[2].."]"
   end
 
   local basetex = minetest.formspec_escape(
