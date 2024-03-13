@@ -6,7 +6,7 @@ local S = minetest.get_translator("player_api")
 
 player_monoids = player_monoids
 
-player_api = {}
+player_api = player_api
 
 -- Player animation blending
 -- Note: This is currently broken due to a bug in Irrlicht, leave at 0

@@ -419,6 +419,8 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		return
 	end
 
+	local st = player_api.get_state_by_name(name)
+
 	-- stand up
 	if state ~= nil and not state then
 	   local p = bed_rest.pos[name] or nil
@@ -428,6 +430,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 	   end
 	   bed_rest.player[name] = nil
 	   bed_rest.level[name] = nil
+	   st:clear("resting")
 
 	   -- skip here to prevent sending player specific changes
 	   -- (used for players who may have left, and have no player object)
@@ -480,6 +483,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		bed_rest.bed_position[name] = bed_pos
 		bed_rest.player[name] = 1
 		bed_rest.level[name] = level
+		st:add("resting")
 		if not minetest.is_singleplayer() then
 		   minimal.infotext_merge(bed_pos,S('Status: Occupied by ')..name)
 		   minetest.get_node_timer(bed_pos):start(60 * 60 * 24 *

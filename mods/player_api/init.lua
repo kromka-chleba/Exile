@@ -1,5 +1,8 @@
 -- player/init.lua
 
+player_api = {}
+
+dofile(minetest.get_modpath("player_api") .. "/states.lua")
 dofile(minetest.get_modpath("player_api") .. "/api.lua")
 dofile(minetest.get_modpath("player_api") .. "/hand.lua")
 dofile(minetest.get_modpath("player_api") .. "/base_texture.lua")

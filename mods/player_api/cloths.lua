@@ -161,13 +161,15 @@ local cloth_pos = {
 }
 
 function player_api.compose_cloth(player)
+   if not minetest.is_player(player) then print("NOT A PLAYER") return end
 	local gender = player_api.get_gender(player)
 	local inv = player:get_inventory()
-	local inv_list = inv:get_list("cloths") 
+	local inv_list = inv:get_list("cloths")
 	local upper_ItemStack, lower_ItemStack, footwear_ItemStack, head_ItemStack, cape_ItemStack, blanket_ItemStack
 	local underwear = false
 	local bra = false
 	local attached_cloth = {}
+	local blanket = false
 	for i = 1, #inv_list do
 		local item_name = inv_list[i]:get_name()
 		local cloth_itemstack = minetest.registered_items[item_name]
@@ -193,17 +195,26 @@ function player_api.compose_cloth(player)
 		elseif cloth_type == 5 then
 			cape_ItemStack = cloth_itemstack._cloth_texture..color
 		elseif cloth_type == 6 then
-			blanket_ItemStack = cloth_itemstack._cloth_texture..color
+		   blanket_ItemStack = cloth_itemstack._cloth_texture..color
+		   blanket = true
 		end
 		if cloth_itemstack and cloth_itemstack._cloth_attach then
 			attached_cloth[#attached_cloth+1] = cloth_itemstack._cloth_attach
 		end
 	end
+	local naked = false
 	if not(bra) and gender == "female" then
-		upper_ItemStack = "cloth_upper_underwear_default.png"
+	   upper_ItemStack = "cloth_upper_underwear_default.png"
 	end
 	if not(underwear) then
-		lower_ItemStack = "cloth_lower_underwear_default.png"
+	   lower_ItemStack = "cloth_lower_underwear_default.png"
+	   naked = true
+	end
+	local st = player_api.get_state(player)
+	if naked == true and blanket == false then
+	   st:add_basic("naked", "Naked")
+	elseif st:is("naked") then
+	   st:clear("naked")
 	end
 	local base_texture = player_api.compose_base_texture(player, {
 		canvas_size ="128x64",
