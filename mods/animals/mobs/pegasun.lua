@@ -62,12 +62,12 @@ local function brain(self)
 			local cs = 0.1
 			-- c feeding is simply what happens if no
 			--others are selected
-			local tod = minetest.get_timeofday()
-			if tod <0.2 or tod >0.8 then
+			local tod = {animals.timeofday()}
+			if tod[1] == "night" then
 				--more social at night
 				ce = 0.01
 				cs = 0.75
-			elseif tod >0.55 and tod <0.55 then
+			elseif tod[1] == "day" and tod[2] == "mid" then
 				--explore during midday
 				ce = 0.5
 				cs = 0.1
@@ -217,12 +217,12 @@ local function brain_male(self)
 			local cs = 0.4
 			-- c feeding is simply what happens if no
 			--others are selected
-			local tod = minetest.get_timeofday()
-			if tod <0.2 or tod >0.8 then
+			local tod = {animals.timeofday()}
+			if tod[1] == "night" then
 				--more social at night
 				ce = 0.01
 				cs = 0.95
-			elseif tod >0.55 and tod <0.55 then
+			elseif tod[1] == "day" and tod[2] == "mid" then
 				--explore during midday
 				ce = 0.6
 				cs = 0.2

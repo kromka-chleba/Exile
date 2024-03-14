@@ -73,10 +73,12 @@ local function brain(self)
 			--when in prime condition
 			--in dark
 			local light = minetest.get_node_light(pos, 0.5) or 0
+      local tod = animals.timeofday()
 
 			if random() < 0.02
 			and not rival
 			and light < 10
+      and tod == "night"
 			and self.hp >= self.max_hp
 			and self.energy >= self.energy_max then
 			   animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
