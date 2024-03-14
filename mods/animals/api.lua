@@ -324,6 +324,7 @@ function animals.timeofday(tod)
   else
     result[2] = "mid"
   end
+  result[3] = tod
   return unpack(result)
 end
 
