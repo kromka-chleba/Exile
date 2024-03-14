@@ -235,13 +235,13 @@ local function get_dist(targ1,targ2)
   end
   return dist
 end
--- get the closest target in a table to self
-local function get_closest(self,targets)
+-- get the closest target in a table to self, third "maxdist" parameter for maximum distance entity can be
+local function get_closest(self,targets,maxdist)
   if not targets then
     return
   end
   local closest = {}
-  local cdist = math.huge
+  local cdist = type(maxdist) == "number" and maxdist or math.huge
   for index,targ in pairs(targets) do
     local dist = get_dist(self,targ)
     if dist < cdist then
@@ -1545,7 +1545,7 @@ function animals.predator_avoid(self, prty, chance)
   end
   local pred_itr = self.predator_interactions -- predator_interact
   for  _,_ in ipairs(pred_table) do
-    local pred, pred_index = get_closest(self,pred_table)
+    local pred, pred_index = get_closest(self,pred_table,self.warn_dist or self.view_range)
     if not pred then
       table.remove(pred_table, pred_index)
     else
@@ -1835,7 +1835,7 @@ function animals.target_in_range(self,tgt)
   if not tgt then
     return false
   end
-  local range = self.attack and self.attack.range or 0.1
+  local range = (self.attack and self.attack.range or 0.1) + ((self.stepheight or 0) * 2)
   local pos = self.object:get_pos()
   local tpos = tgt.object:get_pos()
   local selfbox = self.object:get_properties().collisionbox
@@ -2016,6 +2016,8 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
       if not animals.is_interactor(self,"prey",tgt.name) then
         -- we've done enough, get away from them now
         mobkit.hq_runfrom(self, prty-9, tgtobj)
+      else
+        mobkit.hq_roam(self,15)
       end
       return true
     end
@@ -2028,11 +2030,11 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
       mobkit.lq_turn2pos(self,tpos)
       local height = tgt.height or 0
       height = tgtobj:is_player() and 0.35 or height*0.6
-      if dist <= attack_range or 0.5 * 6 then
+      if dist <= attack_range * 6 then
         -- close in
         lq_jumpattack_eat(self,height,tgtobj, eat)
-        if dist <= attack_range * 3 and not animals.is_interactor(self,"prey",tgt.name) then
-          -- add 0.5 to 1.75 seconds to timer if enemy is still in close distance
+        if dist <= math.min(attack_range * 3,self.view_range) then
+          -- add 0.5 to 1.75 seconds to timer if enemy or prey is still in close distance
           timer = timer + math.random(2,7)*0.25
         end
       else
@@ -2058,7 +2060,7 @@ end
 ----------------------------------------------------------------
 --territorial behaviour
 --avoid those in better condition
-function animals.territorial(self, energy, eat)
+function animals.territorial(self, eat)
 
   for  _, riv in ipairs(self.rivals) do
 
@@ -2072,13 +2074,36 @@ function animals.territorial(self, energy, eat)
         mobkit.make_sound(self,'warn')
         mobkit.hq_runfrom(self, 25, rival)
         return true
+      elseif not mobkit.is_alive(rival) then
+        return true
       end
 
       --contest! The more energetic one wins
       local r_ent = rival:get_luaentity()
       local r_ent_e = r_ent.energy or 0
+      local r_hp = rival:get_hp()
+      local dom_chance = 0
+      if self.energy >= r_ent_e then
+        dom_chance = 0.8
+        if (self.energy - (self.energy_max*0.025)) > r_ent_e then -- 2.5% of own energy_max
+          -- overwhelming amount of energy
+          dom_chance = 1
+        end
+      elseif self.energy >= (r_ent_e - (self.energy_max*0.013)) then
+        dom_chance = 0.5
+      elseif self.energy >= (r_ent_e - (self.energy_max*0.025)) then
+        dom_chance = 0.4
+      end
+      if r_hp >= (self.max_hp*2) then
+        -- negative
+        dom_chance = dom_chance * 0.05
+      elseif self.hp > r_hp then
+        -- positive
+        dom_chance = dom_chance * (self.hp/r_hp)
+      end
+      dom_chance = dom_chance * math.min(1.1*(self.hp/self.max_hp),1) -- chance determined by amount of health left of max_hp
 
-      if energy > r_ent_e then
+      if random() <= dom_chance then
         if eat then
           animals.hq_attack_eat(self, 25, rival)
         else

@@ -89,9 +89,9 @@ local function brain(self)
 
 				--social
 				if random()< 0.3 then
-					animals.flock(self, 25, 3)
+					animals.flock(self, self.view_range, 3)
 				elseif random()< 0.01 then
-					animals.territorial(self, self.energy, false)
+					animals.territorial(self, false)
 				elseif random() < 0.6 and age >= self.mature_age then
 
 					--reproduction
@@ -244,9 +244,9 @@ local function brain_male(self)
 
 				--social
 				if random()< 0.5 then
-					animals.flock(self, 25, 1)
+					animals.flock(self, self.view_range, 1)
 				elseif random()< 0.85 then
-					animals.territorial(self, self.energy, false)
+					animals.territorial(self, false)
 				elseif random() < 0.4 and age >= self.mature_age then -- males more promiscuous (from 0.3 to 0.4)
 
 					--reproduction
@@ -418,10 +418,12 @@ local self_data = {
 	buoyancy = 1.01,
 	max_speed = 2,					-- m/s
 	jump_height = 1.2,				-- nodes/meters
-	view_range = 7,					-- nodes/meters
+	view_range = 26,					-- nodes/meters
+  stepheight = 1.1,
 	--attack
-	attack={range=0.3, damage_groups={fleshy=2}},
+	attack={range=0.6, damage_groups={fleshy=2}},
 	armor_groups = {fleshy=100},
+  warn_dist = 14,
   --on actions
 	drops = {
 		{name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},

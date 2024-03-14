@@ -58,7 +58,7 @@ local function brain(self)
 		if prty < 20 and self.conserve ~= true then
 
 			--territorial behaviour
-			local rival = animals.territorial(self, self.energy, true)
+			local rival = animals.territorial(self, true)
 
 
 			--feeding

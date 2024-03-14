@@ -69,9 +69,9 @@ local function brain(self)
 			--territorial behaviour
 			local rival
 			if random() < 0.7 then
-				rival = animals.territorial(self, self.energy, false)
+				rival = animals.territorial(self, false)
 			else
-				rival = animals.territorial(self, self.energy, true)
+				rival = animals.territorial(self, true)
 			end
 
 
