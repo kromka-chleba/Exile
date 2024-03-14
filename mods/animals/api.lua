@@ -292,6 +292,41 @@ function animals.get_entities_in_distance(self,override)
   return entities
 end
 
+-- day and night tracking, timeofday
+function animals.timeofday(tod)
+  local result = {}
+  tod = type(tod) == "number" and tod or minetest.get_timeofday()
+  -- calculations were eyeballed and thusly prone to change
+  if tod <= 0.23 or tod >= 0.77 then
+    result[1] = "night"
+  else
+    result[1] = "day"
+  end
+  -- during night
+  if tod <= 0.06 then
+    result[2] = "mid"
+  elseif tod <= 0.2 then
+    result[2] = "late"
+  elseif tod <= 0.23 then -- should be ending for night (<=)
+    result[2] = "dawn"
+  -- during day
+  elseif tod <= 0.43 then
+    result[2] = "early"
+  elseif tod <= 0.6 then
+    result[2] = "mid"
+  elseif tod <= 0.77 then
+    result[2] = "late"
+  -- during night
+  elseif tod <= 0.81 then -- should be beginning for night (>=)
+    result[2] = "dusk"
+  elseif tod <= 0.94 then
+    result[2] = "early"
+  else
+    result[2] = "mid"
+  end
+  return unpack(result)
+end
+
 --------------------------------------------------------------------------
 --Life and death
 --------------------------------------------------------------------------
@@ -3028,3 +3063,4 @@ function animals.register_animal(name,def)
   minetest.register_entity(name,def)
   return minetest.registered_entities[name]
 end
+
