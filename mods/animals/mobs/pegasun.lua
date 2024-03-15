@@ -139,7 +139,7 @@ local function brain(self)
 	   -- (gotta fill up for those babies y'know)
           if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
             if (animals.eat_flora(pos,0.001) == true) then
-              self:modify('energy',50)
+              self:modify('energy',18)
             else
               mobkit.animate(self,'walk')
               -- look for flora that's not a cane_plant
@@ -279,7 +279,7 @@ local function brain_male(self)
       if (random() <= hng_percent ) then
         --feed via a method
         if (animals.eat_flora(pos,0.0005) == true) then -- mmm plants
-          self:modify('energy',50)
+          self:modify('energy',22)
         elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
           --wander randomly for plants if can't find prey
             mobkit.animate(self,'walk')
@@ -537,7 +537,7 @@ self_male.sounds = {
   },
 }
 -- attack
-self_male.attack={range=0.5, damage_groups={fleshy=4}}
+self_male.attack={range=0.9, damage_groups={fleshy=4}}
 -- male spawnegg or live animal modifications
 self_male.spawnegg.desc = S("Live Male Pegasun")
 -- registering male

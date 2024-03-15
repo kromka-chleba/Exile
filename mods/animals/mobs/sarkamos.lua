@@ -25,6 +25,16 @@ local function brain(self)
 		if not animals.core_life(self, pos) then
 			return
 		end
+    local yaw = self.object:get_yaw()
+    local nodes = {f=mobkit.pos_translate2d(pos,yaw,1)}
+    nodes.fu = animals.node_drawtype(minimal.shift_pos(nodes.f,{y=-1}))
+    nodes.f = animals.node_drawtype(nodes.f)
+    if (self.energy < self.energy_max and animals.node_drawtype(pos) ~= "airlike")
+    and (nodes.f ~= "liquid" or nodes.fu ~= "liquid") then
+      self.object:add_velocity({x=0,y=random(10,30)/10,z=0})
+      mobkit.clear_queue_high(self)
+      mobkit.hq_aqua_turn(self,68,yaw+10,2)
+    end
 
 
 		local prty = mobkit.get_queue_priority(self)
@@ -75,7 +85,7 @@ local function brain(self)
 			local light = minetest.get_node_light(pos, 0.5) or 0
       local tod = animals.timeofday()
 
-			if random() < 0.02
+			if random() < 0.01
 			and not rival
 			and light < 10
       and tod == "night"
@@ -140,7 +150,7 @@ local self_data = {
   energy_max = 14000,--secs it can survive without food
   energy_egg = "energy_max/3", -- energy that goes to egg
   egg_timer = 60*40,
-  young_per_egg = {2,4},		--will get this/energy_egg starting energy
+  young_per_egg = {1,3},		--will get this/energy_egg starting energy
   -- lifespan
   lifespan = "energy_max*8",
   -- interactions
