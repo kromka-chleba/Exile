@@ -2071,10 +2071,15 @@ function animals.territorial(self, eat)
       --flee if hurt
       if self.hp < self.max_hp/4 then
         mobkit.animate(self,'fast')
-        mobkit.make_sound(self,'warn')
-        mobkit.hq_runfrom(self, 25, rival)
+        if self.class ~= 2 then
+          mobkit.make_sound(self,'warn')
+          mobkit.hq_runfrom(self, 25, rival)
+        else
+          flee_sound(self)
+          animals.hq_swimfrom(self, 25, rival ,self.max_speed)
+        end
         return true
-      elseif not mobkit.is_alive(rival) then
+      elseif not mobkit.is_alive(rival) or get_dist(self,rival) < (self.warn_dist or self.view_range) then
         return true
       end
 
@@ -2103,69 +2108,32 @@ function animals.territorial(self, eat)
       end
       dom_chance = dom_chance * math.min(1.1*(self.hp/self.max_hp),1) -- chance determined by amount of health left of max_hp
 
+      if self.class == 2 then flee_sound(self) end
       if random() <= dom_chance then
-        if eat then
-          animals.hq_attack_eat(self, 25, rival)
-        else
+        if eat then -- consume
+          if self.class ~= 2 then
+            animals.hq_attack_eat(self, 25, rival)
+          else
+            animals.hq_aqua_attack_eat(self, 25, rival, self.max_speed)
+          end
+        else -- harass
           mobkit.animate(self,'fast')
+          if self.class ~= 2 then
+            mobkit.make_sound(self,'warn')
+            mobkit.hq_chaseafter(self,25,rival)
+          else
+            animals.hq_swimafter(self, 15, rival, self.max_speed)
+          end
+        end
+        return true
+      else -- run from
+        mobkit.animate(self,'fast')
+        if self.class ~= 2 then
           mobkit.make_sound(self,'warn')
-          mobkit.hq_chaseafter(self,25,rival)
-        end
-        return true
-      else
-        mobkit.animate(self,'fast')
-        mobkit.make_sound(self,'warn')
-        mobkit.hq_runfrom(self,25,rival)
-        return true
-      end
-    end
-
-  end
-
-end
-
-
---water version
-function animals.territorial_water(self, energy, eat)
-
-  for  _, riv in ipairs(self.rivals) do
-
-    local rival = mobkit.get_closest_entity(self, riv)
-
-    if rival then
-
-      --flee if hurt
-      if self.hp < self.max_hp/4 then
-        mobkit.animate(self,'fast')
-        flee_sound(self)
-        animals.hq_swimfrom(self, 25, rival ,self.max_speed)
-        return true
-      end
-
-      --contest! The more energetic one wins
-      local r_ent = rival:get_luaentity()
-      local r_ent_e = r_ent.energy
-
-      --not clear why some have nil, but it happens
-      if r_ent_e == nil then
-        return
-      end
-
-      if energy > r_ent_e then
-        if eat then
-          animals.hq_aqua_attack_eat(self, 25, rival, self.max_speed)
-          flee_sound(self)
+          mobkit.hq_runfrom(self,25,rival)
         else
-          --harass
-          mobkit.animate(self,'fast')
-          animals.hq_swimafter(self, 15, rival, self.max_speed)
-          flee_sound(self)
+          animals.hq_swimfrom(self, 25, rival ,self.max_speed)
         end
-        return true
-      else
-        mobkit.animate(self,'fast')
-        flee_sound(self)
-        animals.hq_swimfrom(self, 25, rival ,self.max_speed)
         return true
       end
     end

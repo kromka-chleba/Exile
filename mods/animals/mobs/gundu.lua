@@ -97,9 +97,9 @@ local function brain(self)
 			if pred then
 				animals.flock(self, 21, 1, self.max_speed)
 			elseif random() <0.15 then
-				rival = animals.territorial_water(self, self.energy, false)
+				rival = animals.territorial(self, false)
 			elseif random() <0.01 then
-				rival = animals.territorial_water(self, self.energy, true)
+				rival = animals.territorial(self, true)
 			elseif random() <0.25 then
 				animals.flock(self, 15, 2, self.max_speed/2)
 			end

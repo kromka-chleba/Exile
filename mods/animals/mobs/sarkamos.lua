@@ -45,7 +45,7 @@ local function brain(self)
 		if prty < 20 then
 
 			--territorial behaviour
-			local rival = animals.territorial_water(self, self.energy, false)
+			local rival = animals.territorial(self, false)
 
 			--feeding
 			if self.energy < self.energy_max then
