@@ -2042,7 +2042,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
           -- out of sight, out of mind
           return true
         end
-        mobkit.lq_dumbwalk(self,mobkit.pos_shift(tpos,{x=random()-0.5,z=random()-0.5}))
+        mobkit.lq_dumbwalk(self,mobkit.pos_shift(tpos,{x=random(-2,2),z=random(-2,2)}))
       end
 		end
 	end
