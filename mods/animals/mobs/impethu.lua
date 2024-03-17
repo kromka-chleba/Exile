@@ -78,14 +78,26 @@ local function brain(self)
 			--feeding
 			--eat stuff in the dark
 			if light <= self.max_light then
+        mobkit.animate(self,'walk')
 				if not rival and self.energy < self.energy_max then
-					self:modify('energy',1)
-          if (animals.eat_sediment_under(pos,0.01)) then
-            self:modify('energy',math.random(4,6))
+          -- actively find nodes to eat at
+          if random() <= 0.7  then
+            animals.hq_roam_walkable_group(self, 'stone', nil, 15)
+          else
+            animals.hq_roam_walkable_group(self, 'sediment', nil, 15)
           end
+          local u_node = minetest.get_node(minimal.shift_pos(pos,{y=-1})) -- why use several get_item_group calls?
+          u_node = minimal.merge_tables(u_node,minetest.registered_nodes[u_node.name] or {})
+          if u_node.groups then
+            if u_node.groups.stone or u_node.groups.boulder then -- only eat stuff on natural stone
+              self:modify('energy',1)
+            elseif u_node.groups.sediment and (animals.eat_sediment_under(pos,0.01)) then
+              self:modify('energy',random(3,5))
+            end
+          end
+        else
+          mobkit.hq_roam(self,10)
 				end
-				mobkit.animate(self,'walk')
-				mobkit.hq_roam(self,10)
 			end
 
 
@@ -148,7 +160,7 @@ self_data = animals.register_animal("animals:impethu",{
   breathing_rate = 4,
   -- comfort temps
 	min_temp = 5,
-	max_temp = 68,
+	max_temp = 70,
   -- comfort light
   max_light = 6,
   -- is it land-borne (1), sea-borne (2), or amphibious (3)?
@@ -157,7 +169,7 @@ self_data = animals.register_animal("animals:impethu",{
   max_pop = 10,
   -- energy and eggs
   energy_max = 6000,   --secs it can survive without food
-  energy_egg = "energy_max*0.6",  --energy that goes to egg
+  energy_egg = "energy_max*0.7",  --energy that goes to egg
   egg_timer = 60*10,
   young_per_egg = {2,4},		--will get this/energy_egg starting energy
   -- lifespan

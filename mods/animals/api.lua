@@ -2162,8 +2162,12 @@ function animals.hq_flock(self,prty,tgtobj, min_dist)
       local pos = mobkit.get_stand_pos(self)
       local tpos = mobkit.get_stand_pos(tgtobj)
       local dist = vector.distance(pos,tpos)
-      if dist <= min_dist then
-        mobkit.lq_idle(self,1)
+      if dist <= min_dist or abs(tpos.y - pos.y) >= 5 then
+        if random()<0.3 then
+          mobkit.lq_idle(self,1)
+        else
+          mobkit.hq_roam(self,prty)
+        end
         return true
       else
         mobkit.goto_next_waypoint(self,tpos)
