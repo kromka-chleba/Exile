@@ -1835,7 +1835,7 @@ function animals.target_in_range(self,tgt)
   if not tgt then
     return false
   end
-  local range = (self.attack and self.attack.range or 0.1) + ((self.stepheight or 0) * 3)
+  local range = (self.attack and self.attack.range or 0.1) + ((self.stepheight or 0) * 1.1)
   local pos = self.object:get_pos()
   local tpos = tgt.object:get_pos()
   local selfbox = self.object:get_properties().collisionbox
@@ -1848,7 +1848,7 @@ function animals.target_in_range(self,tgt)
   if vector.distance(pos,tpos) > (range+selfbox[4]) then
     return false
   end
-  local tpos2 = vector.add(tpos,vector.multiply(vector.direction(pos,tpos),1.6))
+  local tpos2 = vector.add(tpos,vector.multiply(vector.direction(pos,tpos),3))
   pos = minimal.shift_pos(pos,{y=selfbox[2]})
   for pointed_thing in minetest.raycast(pos,tpos2) do
     if pointed_thing.ref == tgt.object then

@@ -70,9 +70,9 @@ local function brain(self)
 			if light <= 12 then
 				--hungry eat stuff in the dark
 				if self.energy < self.energy_max then
-					if  animals.eat_flora(pos, 0.001) == true then
+					if  animals.eat_flora(pos, 0.006) == true then
 						self:modify('energy',10)
-					elseif animals.eat_grassy_sediment_under(pos, 0.001) == true then
+					elseif animals.eat_grassy_sediment_under(pos, 0.01) == true then
 						self:modify('energy',5)
 					else
 						--wander random

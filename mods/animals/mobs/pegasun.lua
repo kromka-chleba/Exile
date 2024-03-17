@@ -138,7 +138,7 @@ local function brain(self)
 	   -- females much hungrier and predatory than males
 	   -- (gotta fill up for those babies y'know)
           if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
-            if (animals.eat_flora(pos,0.001) == true) then
+            if (animals.eat_flora(pos,0.005) == true) then
               self:modify('energy',9)
             else
               mobkit.animate(self,'walk')
@@ -278,7 +278,7 @@ local function brain_male(self)
 
       if (random() <= hng_percent ) then
         --feed via a method
-        if (animals.eat_flora(pos,0.0005) == true) then -- mmm plants
+        if (animals.eat_flora(pos,0.001) == true) then -- mmm plants
           self:modify('energy',12)
         elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
           --wander randomly for plants if can't find prey
