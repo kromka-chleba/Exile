@@ -239,7 +239,7 @@ for i = 1, #registered_sediments do
     props._wet_name = props._wet_name.."_roots"
     if not props.on_dig then
         props.on_dig = function(pos, node, digger)
-            if not digger then return false end
+            if not minetest.is_player(digger) then return false end
             if minetest.is_protected(pos, digger:get_player_name()) then
                 return false
             end
@@ -247,19 +247,32 @@ for i = 1, #registered_sediments do
             local number_of_roots = math.floor(meta:get_float("root_nr"))
             local root_name = meta:get_string("root_name")
             local player_inv = digger:get_inventory()
-            local sed_stack = ItemStack(nodedef.drop)
-            if player_inv:room_for_item("main", sed_stack) then
-                player_inv:add_item("main", sed_stack)
-            else
-                minetest.add_item(pos, sed_stack)
-            end
             local root_stack = ItemStack(root_name.." "..number_of_roots)
             if player_inv:room_for_item("main", root_stack) then
                 player_inv:add_item("main", root_stack)
             else
                 minetest.add_item(pos, root_stack)
             end
-            minetest.remove_node(pos)
+            local w_item = digger:get_wielded_item()
+            if not minimal.in_group(w_item,"hoe") then
+              local sed_stack = ItemStack(nodedef.drop)
+              if player_inv:room_for_item("main", sed_stack) then
+                  player_inv:add_item("main", sed_stack)
+              else
+                  minetest.add_item(pos, sed_stack)
+              end
+              minetest.remove_node(pos)
+            else -- replace roots with regular sediment (roots were tilled) and set toolwear
+              if not minimal.player_in_creative(digger) then
+                local tool_cap = w_item:get_tool_capabilities()
+                if tool_cap.groupcaps and tool_cap.groupcaps.tilling and tool_cap.groupcaps.tilling.uses then
+                  w_item:add_wear_by_uses(tool_cap.groupcaps.tilling.uses)
+                end
+                digger:set_wielded_item(w_item)
+              end
+              minetest.set_node(pos,{name = nodedef.drop[1] and nodedef.drop[1].name or nodedef.drop})
+            end
+
             minetest.check_for_falling(pos)
         end
     end
