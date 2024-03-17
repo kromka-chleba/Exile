@@ -1617,7 +1617,7 @@ function animals.prey_hunt(self, prty)
   prey_table = animals.get_entities_in_distance(self).prey
   if #prey_table <= 0 then
     -- no prey, end search
-    return true
+    return false
   end
   -- return true if we get a prey
   for _,_ in pairs(prey_table) do
@@ -2060,7 +2060,7 @@ end
 ----------------------------------------------------------------
 --territorial behaviour
 --avoid those in better condition
-function animals.territorial(self, eat)
+function animals.territorial(self, eat, chance_multiplier)
 
   for  _, riv in ipairs(self.rivals) do
 
@@ -2079,7 +2079,7 @@ function animals.territorial(self, eat)
           animals.hq_swimfrom(self, 25, rival ,self.max_speed)
         end
         return true
-      elseif not mobkit.is_alive(rival) or get_dist(self,rival) < (self.warn_dist or self.view_range) then
+      elseif not mobkit.is_alive(rival) or (self.warn_dist and get_dist(self,rival) < self.warn_dist) then
         return true
       end
 
@@ -2106,6 +2106,7 @@ function animals.territorial(self, eat)
         -- positive
         dom_chance = dom_chance * (self.hp/r_hp)
       end
+      dom_chance = type(chance_multiplier) == "number" and dom_chance * chance_multiplier or dom_chance
       dom_chance = dom_chance * math.min(1.1*(self.hp/self.max_hp),1) -- chance determined by amount of health left of max_hp
 
       if self.class == 2 then flee_sound(self) end

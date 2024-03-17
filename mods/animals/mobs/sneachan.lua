@@ -171,7 +171,7 @@ self_data = animals.register_animal("animals:sneachan",{
   young_per_egg = {3,7},		--will get this/energy_egg starting energy
   emergency_egg_chance = 0.75,
   -- lifespan
-  lifespan = "energy_max*5",
+  lifespan = "energy_max*2",
   -- interactions
   -- predators + rivals automatically defined in registration
   consume_predators = false,

@@ -65,10 +65,14 @@ local function brain(self)
 			      animals.fight_or_flight(self, plyr, 25, 0.4)
 			   end
 
-			   if not animals.prey_hunt(self, 25) then
-			      --random search for darkness
-			      mobkit.hq_aqua_roam(self,15,self.max_speed/3)
-			   end
+        if not animals.prey_hunt(self, 25) then
+          --random search for darkness
+          mobkit.hq_aqua_roam(self,15,self.max_speed/3)
+          if self.energy <= self.energy_max*0.06 then
+            -- super hungry, time to be a cannibal
+            rival = animals.territorial(self, true, 5)
+          end
+        end
 			end
 
 			if self.energy >= self.energy_max then
@@ -168,7 +172,7 @@ local self_data = {
 	jump_height = 2,				-- nodes/meters
 	view_range = 7,					-- nodes/meters
 	--attack
-	attack={range=1.5, damage_groups={fleshy=10}},
+	attack={range=3, damage_groups={fleshy=10}},
 	armor_groups = {fleshy=100},
   -- animations + sounds
   animation = {
