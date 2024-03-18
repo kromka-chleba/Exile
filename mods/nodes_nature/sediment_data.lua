@@ -262,15 +262,24 @@ for i = 1, #registered_sediments do
                   minetest.add_item(pos, sed_stack)
               end
               minetest.remove_node(pos)
-            else -- replace roots with regular sediment (roots were tilled) and set toolwear
-              if not minimal.player_in_creative(digger) then
-                local tool_cap = w_item:get_tool_capabilities()
-                if tool_cap.groupcaps and tool_cap.groupcaps.tilling and tool_cap.groupcaps.tilling.uses then
-                  w_item:add_wear_by_uses(tool_cap.groupcaps.tilling.uses)
+            else -- replace roots with regular sediment (roots were tilled)
+              minetest.set_node(pos,{name = name})
+            end
+            
+            if not minimal.player_in_creative(digger) then
+              -- set toolwear
+              --[[
+              local tool_cap = w_item:get_tool_capabilities()
+              local gc = tool_cap.groucaps
+              if gc then
+                local uses = gc.tilling and gc.tilling.uses or gc.crumbly and gc.crumbly.uses
+                if uses then
+                  local digparams = {wear = 65535/uses)
+                  w_item:add_wear_by_uses(uses)
+                  digger:set_wielded_item(w_item)
                 end
-                digger:set_wielded_item(w_item)
               end
-              minetest.set_node(pos,{name = nodedef.drop[1] and nodedef.drop[1].name or nodedef.drop})
+              --]]
             end
 
             minetest.check_for_falling(pos)
