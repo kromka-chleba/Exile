@@ -662,13 +662,13 @@ end
 
 ----------------------------------------------------
 --put an egg in the world, return energy
-function animals.place_egg(self, pos, medium, e_egg) -- self, position, energy, medium
+function animals.place_egg(self, pos, medium, e_ov) -- self, position, medium, energy_override
   -- uses self's energy and energy_egg (with optional max_pop)
   if (medium == nil or medium == "") then
     medium = "air"
   end
   local p = mobkit.get_node_pos(pos)
-  e_egg = type(e_egg) == "number" and e_egg or self.energy_egg -- permit override by emergency_egg
+  local e_egg = self.energy_egg
   local egg_name = self.egg_name or self.name.."_eggs"
   -- seek a "self.egg_name" or create an egg_name using the placer's name
   local max_pop = self.max_pop or max_objects
@@ -686,6 +686,12 @@ function animals.place_egg(self, pos, medium, e_egg) -- self, position, energy, 
 
     if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
       minetest.set_node(p, {name = egg_name})
+      if type(e_ov) == "number" and e_ov >= 15 then -- energy override noted, jot it down
+        local meta = minetest.get_meta(pos)
+        meta:set_float("energy_egg",e_ov)
+        e_egg = e_ov
+        -- set custom energy_egg
+      end
       self:modify('energy',-e_egg)
     end
 
@@ -698,17 +704,13 @@ function animals.emergency_egg(self, pos, medium)
   local egg_chance = self.emergency_egg_chance or 1
 
   local energy = self.energy
-  if (type(energy) ~= "number" or energy <= 0) then
+  if (type(energy) ~= "number" or energy < 15) then
     return false
   end
 
   if (random() < egg_chance) then
     -- lay egg
     animals.place_egg(self, pos, medium, energy)
-    -- set custom energy_egg
-    local meta = minetest.get_meta(pos)
-    meta:set_float("energy_egg",energy)
-
     self.energy = -1 -- kill --mobkit.remember(self,"energy",0) -- kill
     return true
   end
@@ -2030,12 +2032,16 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
       mobkit.lq_turn2pos(self,tpos)
       local height = tgt.height or 0
       height = tgtobj:is_player() and 0.35 or height*0.6
-      if dist <= attack_range * 6 then
+      if dist <= attack_range * 6 and abs(pos.y - tpos.y) <= 3 then
         -- close in
         lq_jumpattack_eat(self,height,tgtobj, eat)
         if dist <= math.min(attack_range * 3,self.view_range) then
           -- add 0.5 to 1.75 seconds to timer if enemy or prey is still in close distance
-          timer = timer + math.random(2,7)*0.25
+          timer = timer + random(2,7)*0.25
+          if animals.is_interactor(self,"prey",tgt.name) then
+            -- add more time if prey (0.5 to 1.5 seconds)
+            timer = timer + random(2,6)
+          end
         end
       else
         if dist > self.view_range then
