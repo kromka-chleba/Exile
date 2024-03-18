@@ -22,11 +22,11 @@ local function brain(self)
 	if mobkit.timer(self,1) then
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy, conserve = animals.core_life(self, pos)
 		--die from exhaustion or age
-		if not age then
+		if not animals.core_life(self, pos) then
 			return
 		end
+    local age = self.age
 
 		------------------
 		--Emergency actions
@@ -42,7 +42,7 @@ local function brain(self)
 			if plyr then
         prty = 55
 				animals.fight_or_flight(self, plyr, prty, 0.75)
-        conserve = false -- not hibernating anymore
+        self.conserve = false -- not hibernating anymore
 			end
 
 			--currently has none
@@ -53,21 +53,21 @@ local function brain(self)
 		----------------------
 		--Low priority actions
 
-		if prty < 20 and conserve ~= true then
+		if prty < 20 and self.conserve ~= true then
   
 			--territorial behaviour
-			local rival = animals.territorial(self, energy, true)
+			local rival = animals.territorial(self, true)
 
 
 			--feeding
 			--hunt prey
-			if energy < self.energy_max then
+			if self.energy < self.energy_max then
 				if not animals.prey_hunt(self, 25) then
 					--random search for darkness
 					animals.hq_roam_dark(self,15)
           
-          if (energy <= self.cn_min) then
-            conserve = true
+          if (self.energy <= self.cn_min) then
+            self.conserve = true
           end
 				end
 			end
@@ -78,30 +78,22 @@ local function brain(self)
 			if random() < 0.1
 			and not rival
 			and self.hp >= self.max_hp
-			and energy >= self.energy_egg*2
+			and self.energy >= self.energy_egg*2
       and age >= self.mature_age then
-				energy = animals.place_egg(self, pos, energy)
+				animals.place_egg(self, pos)
 			end
-    elseif (conserve == true) then
+    elseif (self.conserve == true) then
       if animals.prey_hunt(self,40) then -- if found food then get outta hibernation
-        conserve = false
+        self.conserve = false
       end
 		end
 
 		-------------------
 		--generic behaviour
-		if mobkit.is_queue_empty_high(self) and conserve ~= true then
+		if mobkit.is_queue_empty_high(self) and self.conserve ~= true then
 			mobkit.animate(self,'walk')
 			animals.hq_roam_dark(self,10,1)
 		end
-    
-		-----------------
-		--housekeeping
-		--save energy, age
-		mobkit.remember(self,'energy',energy)
-		mobkit.remember(self,'age',age)
-    mobkit.remember(self,'conserve',conserve) -- to prevent energy loss with no prey around
-
 	end
 end
 
@@ -153,7 +145,7 @@ local self_data = {
 	breathing_rate = 8,
 	-- comfort temps
 	min_temp = 14,
-	max_temp = 70,
+	max_temp = 80,
 	-- is it land-borne (1), sea-borne (2), or amphibious (3)?
 	class = 1,
   -- energy
@@ -162,7 +154,7 @@ local self_data = {
   young_per_egg = {1,3},		--will get this/energy_egg starting energy
   -- cannot define conservation minimum + energy_egg (energy_egg being necessary for cn_min) in API due to multiple values needed
   -- lifespan
-  lifespan = "energy_max*7",
+  lifespan = "energy_max*12",
   mature_age = "energy_max*0.1",
   -- interactions
   -- prey + rivals automatically defined in registration

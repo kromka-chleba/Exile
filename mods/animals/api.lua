@@ -67,7 +67,9 @@ function animals.get_structure(obj)
     return {
       ent = {max_hp = minetest.PLAYER_MAX_HP_DEFAULT,
         hp = obj:get_hp(),
-        memory = {}},
+        memory = {},
+        object = obj
+      },
       object = obj,
       player = true
       }
@@ -233,13 +235,13 @@ local function get_dist(targ1,targ2)
   end
   return dist
 end
--- get the closest target in a table to self
-local function get_closest(self,targets)
+-- get the closest target in a table to self, third "maxdist" parameter for maximum distance entity can be
+local function get_closest(self,targets,maxdist)
   if not targets then
     return
   end
   local closest = {}
-  local cdist = math.huge
+  local cdist = type(maxdist) == "number" and maxdist or math.huge
   for index,targ in pairs(targets) do
     local dist = get_dist(self,targ)
     if dist < cdist then
@@ -288,6 +290,42 @@ function animals.get_entities_in_distance(self,override)
   end
   entities.players = players -- add to entities
   return entities
+end
+
+-- day and night tracking, timeofday
+function animals.timeofday(tod)
+  local result = {}
+  tod = type(tod) == "number" and tod or minetest.get_timeofday()
+  -- calculations were eyeballed and thusly prone to change
+  if tod <= 0.23 or tod >= 0.77 then
+    result[1] = "night"
+  else
+    result[1] = "day"
+  end
+  -- during night
+  if tod <= 0.06 then
+    result[2] = "mid"
+  elseif tod <= 0.2 then
+    result[2] = "late"
+  elseif tod <= 0.23 then -- should be ending for night (<=)
+    result[2] = "dawn"
+  -- during day
+  elseif tod <= 0.43 then
+    result[2] = "early"
+  elseif tod <= 0.6 then
+    result[2] = "mid"
+  elseif tod <= 0.77 then
+    result[2] = "late"
+  -- during night
+  elseif tod <= 0.81 then -- should be beginning for night (>=)
+    result[2] = "dusk"
+  elseif tod <= 0.94 then
+    result[2] = "early"
+  else
+    result[2] = "mid"
+  end
+  result[3] = tod
+  return unpack(result)
 end
 
 --------------------------------------------------------------------------
@@ -457,32 +495,53 @@ end
 ----------------------------------------------------
 --core health, energy and age
 function animals.core_life(self, pos)
+  if type(self["set"]) ~= "function" then
+    function self:set(vname,value,memorize)
+      if minetest.is_player(self) then return value end
+      -- set a value
+      self[vname] = value
+      if memorize then
+        mobkit.remember(self,vname,value)
+      end
+      return value
+    end
+  end
+  if type(self["modify"]) ~= "function" then
+    function self:modify(vname,value,memorize)
+      -- modify a value
+      if type(vname) ~= "string" or type(value) ~= "number" or type(self[vname]) ~= "number" then
+        return value
+      end
+      value = self:set(vname, self[vname] + value, memorize)
+      return value
+    end
+  end
 
-  local energy = mobkit.recall(self,'energy') or 1
-  local age = mobkit.recall(self,'age') or 0
-  local conserve = mobkit.recall(self,'conserve') or false
+  self.energy = self.energy or mobkit.recall(self,'energy') or 1
+  self.age = self.age or mobkit.recall(self,'age') or 0
+  self.conserve = self.conserve or mobkit.recall(self,'conserve')
 
   local lifespan = self.lifespan or 2
   local energy_loss = self.energy_loss or 0.25
 
-  age = age + 1
+  self:modify('age',1)
 
   animals.vitals(self)
   --die from exhaustion, old age, no hp
   local hp = self.hp
-  if energy <= 0 or age > lifespan or self.hp <= 0 then
+  if self.energy <= 0 or self.age > lifespan or self.hp <= 0 then
     if type(self._on_death) == "function" then
       self._on_death(self, pos)
     end
     mobkit.clear_queue_high(self)
     animals.hq_die(self)
-    return nil
+    return false
   end
 
-  if (conserve == false) then
-    energy = energy - energy_loss
+  if not self.conserve then
+    self:modify('energy',-energy_loss)
   elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
-    energy = energy - energy_loss
+    self:modify('energy',-energy_loss)
   end
 
   -- get temp
@@ -514,17 +573,17 @@ function animals.core_life(self, pos)
         animals.hq_roam_comfort_temp(self,42)
       end
 
-      conserve = false -- moving around, thus not conserving energy
+      self.conserve = false -- moving around, thus not conserving energy
     end
     -- lose energy from discomfort
-    energy = energy - 2
+    self:modify('energy',-2)
     -- lose more energy dependent on temperature difference (discomfort also)
     if (temp > max_temp) then
       local mtp = (temp - max_temp)*0.05
-      energy = energy - mtp
+      self:modify('energy',-mtp)
     elseif (temp < min_temp) then
       local mtp = (min_temp - temp)*0.02
-      energy = energy - mtp
+      self:modify('energy',-mtp)
     end
 
   -- get really hurt or die from high temp
@@ -539,7 +598,7 @@ function animals.core_life(self, pos)
       -- only retrieve burned flesh if max_temp is exceedingly hot
       if (self.hp <= 0 and temp >= burn_max_temp) then
         -- if animal successfully burned to death then
-        energy = 0
+        self.energy = 0
         self.burnt = true
       end
     -- get really hurt or die from being too cold!!
@@ -566,11 +625,11 @@ function animals.core_life(self, pos)
       -- stabilize cost
       cost = math.round(cost*10)/10 -- round second decimal point (7.52 --> 7.5)
       if cost < 0 then cost = 0 end -- do not go below 0
-      if energy > cost*1.1 then
+      if self.energy > cost*1.1 then
         -- could heal (likelihood determined by how much energy the creature has over the cost)
-        if (random() >= cost/energy) then
+        if (random() >= cost/self.energy) then
           animals.modify_hp(self,1)
-          energy = energy - cost
+          self:modify('energy',-cost)
         end
       end
     end
@@ -579,19 +638,31 @@ function animals.core_life(self, pos)
     self.object:set_hp(self.max_hp)
   end
 
-  if (conserve == true) then
+  if (self.conserve == true) then
     mobkit.clear_queue_low(self)
     mobkit.animate(self,"dead")
   end
 
-  return age, energy, conserve
+  -----------------
+  --housekeeping
+  --save energy, age, and other values if provided
+  mobkit.remember(self,'age',self.age)
+  mobkit.remember(self,'energy',self.energy)
+  --self:set('age',self.age,true)
+  --self:set('energy',self.energy,true)
+  if type(self.conserve) == "boolean" then
+    -- only animals that try to conserve
+    mobkit.remember(self,'conserve',self.conserve)
+    --self:set('conserve',self.conserve,true)
+  end
+  return true
 end
 
 
 
 ----------------------------------------------------
 --put an egg in the world, return energy
-function animals.place_egg(self, pos, e, medium) -- self, position, energy, medium
+function animals.place_egg(self, pos, medium, e_ov) -- self, position, medium, energy_override
   -- uses self's energy and energy_egg (with optional max_pop)
   if (medium == nil or medium == "") then
     medium = "air"
@@ -615,12 +686,16 @@ function animals.place_egg(self, pos, e, medium) -- self, position, energy, medi
 
     if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
       minetest.set_node(p, {name = egg_name})
-      e = e - e_egg
+      if type(e_ov) == "number" and e_ov >= 15 then -- energy override noted, jot it down
+        local meta = minetest.get_meta(pos)
+        meta:set_float("energy_egg",e_ov)
+        e_egg = e_ov
+        -- set custom energy_egg
+      end
+      self:modify('energy',-e_egg)
     end
 
   end
-
-  return e
 end
 
 -- place an egg during near or precise death (and die)
@@ -628,19 +703,15 @@ end
 function animals.emergency_egg(self, pos, medium)
   local egg_chance = self.emergency_egg_chance or 1
 
-  local energy = mobkit.recall(self,"energy")
-  if (type(energy) ~= "number" or energy <= 0) then
+  local energy = self.energy
+  if (type(energy) ~= "number" or energy < 15) then
     return false
   end
 
   if (random() < egg_chance) then
     -- lay egg
-    animals.place_egg(self, pos, energy, medium)
-    -- set custom energy_egg
-    local meta = minetest.get_meta(pos)
-    meta:set_float("energy_egg",energy)
-
-    mobkit.remember(self,"energy",0) -- kill
+    animals.place_egg(self, pos, medium, energy)
+    self.energy = -1 -- kill --mobkit.remember(self,"energy",0) -- kill
     return true
   end
 
@@ -1476,7 +1547,7 @@ function animals.predator_avoid(self, prty, chance)
   end
   local pred_itr = self.predator_interactions -- predator_interact
   for  _,_ in ipairs(pred_table) do
-    local pred, pred_index = get_closest(self,pred_table)
+    local pred, pred_index = get_closest(self,pred_table,self.warn_dist or self.view_range)
     if not pred then
       table.remove(pred_table, pred_index)
     else
@@ -1548,7 +1619,7 @@ function animals.prey_hunt(self, prty)
   prey_table = animals.get_entities_in_distance(self).prey
   if #prey_table <= 0 then
     -- no prey, end search
-    return true
+    return false
   end
   -- return true if we get a prey
   for _,_ in pairs(prey_table) do
@@ -1740,18 +1811,17 @@ function animals.hurt_target(self,target,consume)
   if consume and dmg > 0 then
     dmg = math_clamp(dmg,0,ent_mhp) -- prevent accidental excessive energygain by clamping below max_hp
     -- eat bits of opponent
-    local ent_e = (mobkit.recall(ent,'energy') or 1)
-    local self_e = (mobkit.recall(self,'energy') or 1)
-    local energygain = (ent_e * (dmg / ent_mhp) ) -- omnomnom
+    local ent_e = (ent.energy or 1)
+    local energytake = (ent_e * (dmg / ent_mhp) ) -- omnomnom
     if targ_specs.player then
-      energygain = (200*dmg)
+      energytake = (200*dmg)
     end
 
-    mobkit.remember(self,'energy', (energygain*0.3)  + self_e) -- take 30%
-    mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
+    self:modify('energy',energytake*.3) -- take 30%
+    ent.energy = ent_e - energytake -- make opponent lose energy (use old way due to players)
 
     if (ent.hp <= dmg) then
-      mobkit.remember(self,'energy', (ent_e*0.9) + self_e) -- add 90% of opponent's energy for nomming fully
+      self:modify('energy',energytake*.9) -- add 90% of opponent's energy for nomming fully
       if not targ_specs.player then
         ent.object:remove()
       end
@@ -1767,7 +1837,7 @@ function animals.target_in_range(self,tgt)
   if not tgt then
     return false
   end
-  local range = self.attack and self.attack.range or 0.1
+  local range = (self.attack and self.attack.range or 0.1) + ((self.stepheight or 0) * 1.1)
   local pos = self.object:get_pos()
   local tpos = tgt.object:get_pos()
   local selfbox = self.object:get_properties().collisionbox
@@ -1780,7 +1850,7 @@ function animals.target_in_range(self,tgt)
   if vector.distance(pos,tpos) > (range+selfbox[4]) then
     return false
   end
-  local tpos2 = vector.add(tpos,vector.multiply(vector.direction(pos,tpos),1.1))
+  local tpos2 = vector.add(tpos,vector.multiply(vector.direction(pos,tpos),3))
   pos = minimal.shift_pos(pos,{y=selfbox[2]})
   for pointed_thing in minetest.raycast(pos,tpos2) do
     if pointed_thing.ref == tgt.object then
@@ -1948,6 +2018,8 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
       if not animals.is_interactor(self,"prey",tgt.name) then
         -- we've done enough, get away from them now
         mobkit.hq_runfrom(self, prty-9, tgtobj)
+      else
+        mobkit.hq_roam(self,15)
       end
       return true
     end
@@ -1960,19 +2032,23 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
       mobkit.lq_turn2pos(self,tpos)
       local height = tgt.height or 0
       height = tgtobj:is_player() and 0.35 or height*0.6
-      if dist <= attack_range or 0.5 * 6 then
+      if dist <= attack_range * 6 and abs(pos.y - tpos.y) <= 3 then
         -- close in
         lq_jumpattack_eat(self,height,tgtobj, eat)
-        if dist <= attack_range * 3 and not animals.is_interactor(self,"prey",tgt.name) then
-          -- add 0.5 to 1.75 seconds to timer if enemy is still in close distance
-          timer = timer + math.random(2,7)*0.25
+        if dist <= math.min(attack_range * 3,self.view_range) then
+          -- add 0.5 to 1.75 seconds to timer if enemy or prey is still in close distance
+          timer = timer + random(2,7)*0.25
+          if animals.is_interactor(self,"prey",tgt.name) then
+            -- add more time if prey (0.5 to 1.5 seconds)
+            timer = timer + random(2,6)
+          end
         end
       else
         if dist > self.view_range then
           -- out of sight, out of mind
           return true
         end
-        mobkit.lq_dumbwalk(self,mobkit.pos_shift(tpos,{x=random()-0.5,z=random()-0.5}))
+        mobkit.lq_dumbwalk(self,mobkit.pos_shift(tpos,{x=random(-20,20)/10,z=random(-20,20)/10}))
       end
 		end
 	end
@@ -1990,7 +2066,7 @@ end
 ----------------------------------------------------------------
 --territorial behaviour
 --avoid those in better condition
-function animals.territorial(self, energy, eat)
+function animals.territorial(self, eat, chance_multiplier)
 
   for  _, riv in ipairs(self.rivals) do
 
@@ -2001,78 +2077,70 @@ function animals.territorial(self, energy, eat)
       --flee if hurt
       if self.hp < self.max_hp/4 then
         mobkit.animate(self,'fast')
-        mobkit.make_sound(self,'warn')
-        mobkit.hq_runfrom(self, 25, rival)
-        return true
-      end
-
-      --contest! The more energetic one wins
-      local r_ent = rival:get_luaentity()
-      local r_ent_e = mobkit.recall(r_ent,'energy') or 0
-
-      if energy > r_ent_e then
-        if eat then
-          animals.hq_attack_eat(self, 25, rival)
-        else
-          mobkit.animate(self,'fast')
+        if self.class ~= 2 then
           mobkit.make_sound(self,'warn')
-          mobkit.hq_chaseafter(self,25,rival)
+          mobkit.hq_runfrom(self, 25, rival)
+        else
+          flee_sound(self)
+          animals.hq_swimfrom(self, 25, rival ,self.max_speed)
         end
         return true
-      else
-        mobkit.animate(self,'fast')
-        mobkit.make_sound(self,'warn')
-        mobkit.hq_runfrom(self,25,rival)
-        return true
-      end
-    end
-
-  end
-
-end
-
-
---water version
-function animals.territorial_water(self, energy, eat)
-
-  for  _, riv in ipairs(self.rivals) do
-
-    local rival = mobkit.get_closest_entity(self, riv)
-
-    if rival then
-
-      --flee if hurt
-      if self.hp < self.max_hp/4 then
-        mobkit.animate(self,'fast')
-        flee_sound(self)
-        animals.hq_swimfrom(self, 25, rival ,self.max_speed)
+      elseif not mobkit.is_alive(rival) or (self.warn_dist and get_dist(self,rival) < self.warn_dist) then
         return true
       end
 
       --contest! The more energetic one wins
       local r_ent = rival:get_luaentity()
-      local r_ent_e = mobkit.recall(r_ent,'energy')
-
-      --not clear why some have nil, but it happens
-      if r_ent_e == nil then
-        return
+      local r_ent_e = r_ent.energy or 0
+      local r_hp = rival:get_hp()
+      local dom_chance = 0
+      if self.energy >= r_ent_e then
+        dom_chance = 0.8
+        if (self.energy - (self.energy_max*0.025)) > r_ent_e then -- 2.5% of own energy_max
+          -- overwhelming amount of energy
+          dom_chance = 1
+        end
+      elseif self.energy >= (r_ent_e - (self.energy_max*0.013)) then
+        dom_chance = 0.5
+      elseif self.energy >= (r_ent_e - (self.energy_max*0.025)) then
+        dom_chance = 0.4
       end
+      if r_hp >= (self.max_hp*2) then
+        -- negative
+        dom_chance = dom_chance * 0.05
+      elseif self.hp > r_hp then
+        -- positive
+        dom_chance = dom_chance * (self.hp/r_hp)
+      end
+      dom_chance = type(chance_multiplier) == "number" and dom_chance * chance_multiplier or dom_chance
+      dom_chance = dom_chance * math.min(1.1*(self.hp/self.max_hp),1) -- chance determined by amount of health left of max_hp
 
-      if energy > r_ent_e then
-        if eat then
-          animals.hq_aqua_attack_eat(self, 25, rival, self.max_speed)
-          flee_sound(self)
-        else
-          --harass
+      if self.class == 2 then flee_sound(self) end
+      if random() <= dom_chance then
+        if eat then -- consume
+          if self.class ~= 2 then
+            animals.hq_attack_eat(self, 25, rival)
+          else
+            animals.hq_aqua_attack_eat(self, 25, rival, self.max_speed)
+          end
+        else -- harass
           mobkit.animate(self,'fast')
-          animals.hq_swimafter(self, 15, rival, self.max_speed)
-          flee_sound(self)
+          if self.class ~= 2 then
+            mobkit.make_sound(self,'warn')
+            mobkit.hq_chaseafter(self,25,rival)
+          else
+            animals.hq_swimafter(self, 15, rival, self.max_speed)
+          end
         end
         return true
-      else
+      else -- run from
         mobkit.animate(self,'fast')
-        flee_sound(self)
-        animals.hq_swimfrom(self, 25, rival ,self.max_speed)
+        if self.class ~= 2 then
+          mobkit.make_sound(self,'warn')
+          mobkit.hq_runfrom(self,25,rival)
+        else
+          animals.hq_swimfrom(self, 25, rival ,self.max_speed)
+        end
         return true
       end
     end
@@ -2100,8 +2168,12 @@ function animals.hq_flock(self,prty,tgtobj, min_dist)
       local pos = mobkit.get_stand_pos(self)
       local tpos = mobkit.get_stand_pos(tgtobj)
       local dist = vector.distance(pos,tpos)
-      if dist <= min_dist then
-        mobkit.lq_idle(self,1)
+      if dist <= min_dist or abs(tpos.y - pos.y) >= 5 then
+        if random()<0.3 then
+          mobkit.lq_idle(self,1)
+        else
+          mobkit.hq_roam(self,prty)
+        end
         return true
       else
         mobkit.goto_next_waypoint(self,tpos)
@@ -2914,6 +2986,7 @@ function animals.register_animal(name,def)
       end
     end
   end
+  -- egg modifications
   local egg_data = {} -- use this to permit proper override of on_construct (returns intended variable properly)
   -- modify _conditions_correct to return egg data
   if def.egg then
@@ -2995,3 +3068,4 @@ function animals.register_animal(name,def)
   minetest.register_entity(name,def)
   return minetest.registered_entities[name]
 end
+

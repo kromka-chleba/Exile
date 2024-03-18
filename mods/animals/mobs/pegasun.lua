@@ -23,11 +23,11 @@ local function brain(self)
 	if mobkit.timer(self,1) then
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
-		if not age then
+		if not animals.core_life(self, pos) then
 			return
 		end
+    local age = self.age
 
 		------------------
 		--Emergency actions
@@ -62,12 +62,12 @@ local function brain(self)
 			local cs = 0.1
 			-- c feeding is simply what happens if no
 			--others are selected
-			local tod = minetest.get_timeofday()
-			if tod <0.2 or tod >0.8 then
+			local tod = {animals.timeofday()}
+			if tod[1] == "night" then
 				--more social at night
 				ce = 0.01
 				cs = 0.75
-			elseif tod >0.55 and tod <0.55 then
+			elseif tod[1] == "day" and tod[2] == "mid" then
 				--explore during midday
 				ce = 0.5
 				cs = 0.1
@@ -89,21 +89,21 @@ local function brain(self)
 
 				--social
 				if random()< 0.3 then
-					animals.flock(self, 25, 3)
+					animals.flock(self, self.view_range, 3)
 				elseif random()< 0.01 then
-					animals.territorial(self, energy, false)
-				elseif random() < 0.1 and age >= self.mature_age then
+					animals.territorial(self, false)
+				elseif random() < 0.6 and age >= self.mature_age then
 
 					--reproduction
 					if self.hp >= self.max_hp
-					and energy >= (self.energy_egg * 1.5) then
+					and self.energy >= (self.energy_egg * 1.5) then
 
 						--are we already pregnant?
 						local preg = mobkit.recall(self,'pregnant') or false
 						if preg == true then
 							mobkit.lq_idle(self,3)
 							if random() < 0.05 then
-								energy = animals.place_egg(self, pos, energy)
+								animals.place_egg(self, pos)
 								mobkit.remember(self,'pregnant',false)
 							end
 
@@ -126,8 +126,8 @@ local function brain(self)
 					end
 				end
 
-			elseif energy < self.energy_max then
-        local hng_percent = (self.energy_max * 0.55)/energy
+			elseif self.energy < self.energy_max then
+        local hng_percent = (self.energy_max * 0.55)/self.energy
 	-- hunger_percent - creates a percentage by dividing a percentage of
 	--  energy_max by the current energy. The lower the energy, the
 	-- higher the percentage
@@ -138,8 +138,8 @@ local function brain(self)
 	   -- females much hungrier and predatory than males
 	   -- (gotta fill up for those babies y'know)
           if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
-            if (animals.eat_flora(pos,0.001) == true) then
-              energy = energy + 50
+            if (animals.eat_flora(pos,0.005) == true) then
+              self:modify('energy',9)
             else
               mobkit.animate(self,'walk')
               -- look for flora that's not a cane_plant
@@ -161,13 +161,6 @@ local function brain(self)
 			mobkit.animate(self,'walk')
 			mobkit.hq_roam(self,10)
 		end
-
-		-----------------
-		--housekeeping
-		--save energy, age
-		mobkit.remember(self,'energy',energy)
-		mobkit.remember(self,'age',age)
-
 	end
 end
 
@@ -184,11 +177,11 @@ local function brain_male(self)
 	if mobkit.timer(self,1) then
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
-		if not age then
+		if not animals.core_life(self, pos) then
 			return
 		end
+    local age = self.age
 
 
 		------------------
@@ -224,12 +217,12 @@ local function brain_male(self)
 			local cs = 0.4
 			-- c feeding is simply what happens if no
 			--others are selected
-			local tod = minetest.get_timeofday()
-			if tod <0.2 or tod >0.8 then
+			local tod = {animals.timeofday()}
+			if tod[1] == "night" then
 				--more social at night
 				ce = 0.01
 				cs = 0.95
-			elseif tod >0.55 and tod <0.55 then
+			elseif tod[1] == "day" and tod[2] == "mid" then
 				--explore during midday
 				ce = 0.6
 				cs = 0.2
@@ -251,14 +244,14 @@ local function brain_male(self)
 
 				--social
 				if random()< 0.5 then
-					animals.flock(self, 25, 1)
+					animals.flock(self, self.view_range, 1)
 				elseif random()< 0.85 then
-					animals.territorial(self, energy, false)
-				elseif random() < 0.3 and age >= self.mature_age then -- males more promiscuous (from 0.1 to 0.3)
+					animals.territorial(self, false)
+				elseif random() < 0.4 and age >= self.mature_age then -- males more promiscuous (from 0.3 to 0.4)
 
 					--reproduction
 					if self.hp >= self.max_hp
-					and energy >= self.energy_max * 0.25 then -- mate at 25% of energy_max (8000 * 0.25 = 2000)
+					and self.energy >= self.energy_max * 0.25 then -- mate at 25% of energy_max (8000 * 0.25 = 2000)
 						--set status as randy
 						--find nearby prospect and try to mate
 						mobkit.remember(self, 'sexual', true)
@@ -268,7 +261,7 @@ local function brain_male(self)
 							--go get her!
 							mobkit.make_sound(self,'mating')
 							if random() < 0.5 then
-                energy = energy - 1000 -- energy use for mating lol
+                self:modify('energy',-1000) -- energy use for mating lol
 								animals.hq_mate(self, 25, mate)
 							end
 						end
@@ -279,14 +272,14 @@ local function brain_male(self)
 					end
 				end
 
-    elseif energy < self.energy_max then
-      local hng_percent  = (self.energy_max * 0.2)/energy -- hunger_percent
+    elseif self.energy < self.energy_max then
+      local hng_percent  = (self.energy_max * 0.2)/self.energy -- hunger_percent
       -- if energy is equal or less than 20% of energy_max, it will be 1 or higher
 
       if (random() <= hng_percent ) then
         --feed via a method
-        if (animals.eat_flora(pos,0.0005) == true) then -- mmm plants
-          energy = energy + 50
+        if (animals.eat_flora(pos,0.001) == true) then -- mmm plants
+          self:modify('energy',12)
         elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
           --wander randomly for plants if can't find prey
             mobkit.animate(self,'walk')
@@ -306,13 +299,6 @@ local function brain_male(self)
 			mobkit.animate(self,'walk')
 			mobkit.hq_roam(self,10)
 		end
-
-		-----------------
-		--housekeeping
-		--save energy, age
-		mobkit.remember(self,'energy',energy)
-		mobkit.remember(self,'age',age)
-
 	end
 end
 
@@ -372,7 +358,7 @@ local self_data = {
   egg_timer = 60*25,
   young_per_egg = 1,		--will get this/energy_egg starting energy
   -- lifespan
-  lifespan = "energy_max*10",
+  lifespan = "energy_max*15",
   mature_age = "energy_max*0.36", -- 36% of energy_max (8000) or 2880
   -- interactions
   -- predators + rivals automatically defined in registration
@@ -432,10 +418,12 @@ local self_data = {
 	buoyancy = 1.01,
 	max_speed = 2,					-- m/s
 	jump_height = 1.2,				-- nodes/meters
-	view_range = 7,					-- nodes/meters
+	view_range = 26,					-- nodes/meters
+  stepheight = 1.1,
 	--attack
-	attack={range=0.3, damage_groups={fleshy=2}},
+	attack={range=0.6, damage_groups={fleshy=2}},
 	armor_groups = {fleshy=100},
+  warn_dist = 14,
   --on actions
 	drops = {
 		{name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},
@@ -549,7 +537,7 @@ self_male.sounds = {
   },
 }
 -- attack
-self_male.attack={range=0.5, damage_groups={fleshy=4}}
+self_male.attack={range=0.9, damage_groups={fleshy=4}}
 -- male spawnegg or live animal modifications
 self_male.spawnegg.desc = S("Live Male Pegasun")
 -- registering male
