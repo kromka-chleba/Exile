@@ -662,13 +662,13 @@ end
 
 ----------------------------------------------------
 --put an egg in the world, return energy
-function animals.place_egg(self, pos, medium) -- self, position, energy, medium
+function animals.place_egg(self, pos, medium, e_egg) -- self, position, energy, medium
   -- uses self's energy and energy_egg (with optional max_pop)
   if (medium == nil or medium == "") then
     medium = "air"
   end
   local p = mobkit.get_node_pos(pos)
-  local e_egg = self.energy_egg
+  e_egg = type(e_egg) == "number" and e_egg or self.energy_egg -- permit override by emergency_egg
   local egg_name = self.egg_name or self.name.."_eggs"
   -- seek a "self.egg_name" or create an egg_name using the placer's name
   local max_pop = self.max_pop or max_objects
@@ -704,12 +704,12 @@ function animals.emergency_egg(self, pos, medium)
 
   if (random() < egg_chance) then
     -- lay egg
-    animals.place_egg(self, pos, energy, medium)
+    animals.place_egg(self, pos, medium, energy)
     -- set custom energy_egg
     local meta = minetest.get_meta(pos)
     meta:set_float("energy_egg",energy)
 
-    mobkit.remember(self,"energy",0) -- kill
+    self.energy = -1 -- kill --mobkit.remember(self,"energy",0) -- kill
     return true
   end
 
@@ -2042,7 +2042,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
           -- out of sight, out of mind
           return true
         end
-        mobkit.lq_dumbwalk(self,mobkit.pos_shift(tpos,{x=random(-2,2),z=random(-2,2)}))
+        mobkit.lq_dumbwalk(self,mobkit.pos_shift(tpos,{x=random(-20,20)/10,z=random(-20,20)/10}))
       end
 		end
 	end
