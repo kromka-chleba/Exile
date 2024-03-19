@@ -795,8 +795,8 @@ minetest.register_node("tech:glass_furnace", {
    minetest.register_node("tech:weaving_frame",{
         description   = S("Weaving Frame"),
 		exile_crafting = {
-			craft_types	  = 'weaving_frame',
-			craft_level  = 1,
+			craft_types = {'weaving_frame','weaving_frame_mixing'},
+			craft_level = 1,
 		},
         drawtype      = "nodebox",
         tiles         = {"tech_stick.png"},
