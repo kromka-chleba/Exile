@@ -12,6 +12,7 @@ ncrafting = {
 ncrafting.S = minetest.get_translator("tech")
 
 dofile(modpath..'/dyes.lua')
+dofile(modpath..'/arches.lua')
 
 local store = minetest.get_mod_storage()
 
