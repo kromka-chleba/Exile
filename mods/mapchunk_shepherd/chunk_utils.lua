@@ -5,7 +5,7 @@
 -- Globals
 local ms = mapchunk_shepherd
 
-local mod_storage = minetest.get_mod_storage()
+local mod_storage = ms.mod_storage
 local modpath = minetest.get_modpath('mapchunk_shepherd')
 local dimensions = dofile(modpath.."/chunk_dimensions.lua")
 

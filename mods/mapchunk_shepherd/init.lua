@@ -4,7 +4,7 @@
 
 -- Globals
 mapchunk_shepherd = {}
-
+mapchunk_shepherd.mod_storage = minetest.get_mod_storage()
 local modpath = minetest.get_modpath('mapchunk_shepherd')
 
 dofile(modpath.."/labels.lua")

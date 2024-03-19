@@ -2,7 +2,7 @@
 -- License: GNU GPLv3
 -- Copyright © Jan Wielkiewicz 2023
 
-local mod_storage = minetest.get_mod_storage()
+local mod_storage = mapchunk_shepherd.mod_storage
 
 -- By default chunksize is 5
 local blocks_per_chunk = tonumber(minetest.get_mapgen_setting("chunksize"))
