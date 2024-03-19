@@ -30,6 +30,18 @@ local function stash_inventory(player, stash, list)
 	pmeta:set_string(stash, minetest.serialize(stash_table))
 end
 
+local function dump_stash(player)
+   local pos = vector.add(player:get_pos(), vector.new(0,1,0))
+   local pmeta = player:get_meta()
+   if not pmeta:contains("restart_list") then return false end
+   local stash_table=minetest.deserialize(pmeta:get_string("restart_list"))
+   for i, entry in ipairs(stash_table) do
+      local object = ItemStack(entry.stack)
+      object:get_meta():from_table(minetest.deserialize(entry.meta))
+      minetest.add_item(pos, object)
+   end
+end
+
 local function killplayer(name)
     local player = minetest.get_player_by_name(name)
     if not player then
@@ -117,4 +129,24 @@ minetest.register_chatcommand("respawn",{
 	   "further information.",
 	func = restart
 })
+
+minetest.register_chatcommand("recover_inv",{
+	params = "<playername>",
+	privs = {
+		server = true,
+	},
+        description = "This command allows admins to recover a player's "..
+	   "inventory after they have restarted.\n"..
+	   "Items will be dropped at their feet.",
+	func = function(name, param)
+	   local ply = minetest.get_player_by_name(param)
+	   if not ply then return "Could not find player "..tostring(param) end
+	   if dump_stash(ply) then
+	      return "Dumped all stashed inventory for "..param
+	   else
+	      return "Failed to dump stashed inventory for "..param
+	   end
+	end
+})
+
 
