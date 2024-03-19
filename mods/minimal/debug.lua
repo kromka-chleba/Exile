@@ -6,7 +6,7 @@ exile.debug = exile.debug or {
 }
 dump2 = dump2
 
-local __DEBUG__ = minetest.settings:get("exile_debug") == "true"
+__DEBUG__ = minetest.settings:get("exile_debug") == "true"
 
 function exile.debug.print(message)
 	if __DEBUG__ then

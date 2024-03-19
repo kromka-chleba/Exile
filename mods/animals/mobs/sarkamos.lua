@@ -21,12 +21,20 @@ local function brain(self)
 	if mobkit.timer(self,1) then
 
 		local pos = mobkit.get_stand_pos(self)
-
-		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
-		if not age then
+		if not animals.core_life(self, pos) then
 			return
 		end
+    local yaw = self.object:get_yaw()
+    local nodes = {f=mobkit.pos_translate2d(pos,yaw,1)}
+    nodes.fu = animals.node_drawtype(minimal.shift_pos(nodes.f,{y=-1}))
+    nodes.f = animals.node_drawtype(nodes.f)
+    if (self.energy < self.energy_max and animals.node_drawtype(pos) ~= "airlike")
+    and (nodes.f ~= "liquid" or nodes.fu ~= "liquid") then
+      self.object:add_velocity({x=0,y=random(10,30)/10,z=0})
+      mobkit.clear_queue_high(self)
+      mobkit.hq_aqua_turn(self,68,yaw+10,2)
+    end
 
 
 		local prty = mobkit.get_queue_priority(self)
@@ -47,23 +55,27 @@ local function brain(self)
 		if prty < 20 then
 
 			--territorial behaviour
-			local rival = animals.territorial_water(self, energy, false)
+			local rival = animals.territorial(self, false)
 
 			--feeding
-			if energy < self.energy_max then
+			if self.energy < self.energy_max then
 			   --You are prey
 			   local plyr = animals.get_nearby_player(self)
 			   if plyr then
 			      animals.fight_or_flight(self, plyr, 25, 0.4)
 			   end
 
-			   if not animals.prey_hunt(self, 25) then
-			      --random search for darkness
-			      mobkit.hq_aqua_roam(self,15,self.max_speed/3)
-			   end
+        if not animals.prey_hunt(self, 25) then
+          --random search for darkness
+          mobkit.hq_aqua_roam(self,15,self.max_speed/3)
+          if self.energy <= self.energy_max*0.06 then
+            -- super hungry, time to be a cannibal
+            rival = animals.territorial(self, true, 5)
+          end
+        end
 			end
 
-			if energy >= self.energy_max then
+			if self.energy >= self.energy_max then
 			   -- heavy with eggs, sink to look for a laying spot
 			   self.object:add_velocity({ x = 0, y = -0.2,
 						      z = 0})
@@ -75,13 +87,15 @@ local function brain(self)
 			--when in prime condition
 			--in dark
 			local light = minetest.get_node_light(pos, 0.5) or 0
+      local tod = animals.timeofday()
 
-			if random() < 0.02
+			if random() < 0.01
 			and not rival
 			and light < 10
+      and tod == "night"
 			and self.hp >= self.max_hp
-			and energy >= self.energy_max then
-			   energy = animals.place_egg(self, pos, energy, 'nodes_nature:salt_water_source')
+			and self.energy >= self.energy_max then
+			   animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
 			end
 
 		end
@@ -92,14 +106,6 @@ local function brain(self)
 			mobkit.animate(self,'def')
 			mobkit.hq_aqua_roam(self,10,1)
 		end
-
-
-		-----------------
-		--housekeeping
-		--save energy, age
-		mobkit.remember(self,'energy',energy)
-		mobkit.remember(self,'age',age)
-
 	end
 end
 
@@ -126,7 +132,7 @@ local self_data = {
 	   max_hp = 200,
 	   physical = true,
 	   collide_with_objects = true,
-	   collisionbox = {-0.2, -0.2, -0.2, 0.2, 0.15, 0.2},
+	   collisionbox = {-1, -0.65, -1, 1, 0.55, 1},
 	   visual = "mesh",
 	   mesh = "animals_sarkamos.b3d",
 	   textures = {"animals_color_palette.png"},
@@ -146,9 +152,9 @@ local self_data = {
   class = 2,
   -- energy
   energy_max = 14000,--secs it can survive without food
-  energy_egg = "energy_max/8", -- energy that goes to egg
+  energy_egg = "energy_max/3", -- energy that goes to egg
   egg_timer = 60*40,
-  young_per_egg = 2,		--will get this/energy_egg starting energy
+  young_per_egg = {1,3},		--will get this/energy_egg starting energy
   -- lifespan
   lifespan = "energy_max*8",
   -- interactions
@@ -166,7 +172,7 @@ local self_data = {
 	jump_height = 2,				-- nodes/meters
 	view_range = 7,					-- nodes/meters
 	--attack
-	attack={range=0.6, damage_groups={fleshy=10}},
+	attack={range=3, damage_groups={fleshy=10}},
 	armor_groups = {fleshy=100},
   -- animations + sounds
   animation = {

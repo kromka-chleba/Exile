@@ -329,8 +329,12 @@ function minimal.dig_up(pos, node, digger)
    if count > 0 then
       local inv = digger:get_inventory()
       if inv:room_for_item("main", lnode.name.." "..tostring(count)) then
-	 minetest.item_pickup(ItemStack(lnode.name.." "..tostring(count)),
-			      digger)
+	 if minetest.item_pickup then
+	    minetest.item_pickup(ItemStack(lnode.name.." "..tostring(count)),
+				 digger)
+	 else
+	    inv:add_item('main', lnode.name.." "..tostring(count))
+	 end
 	 for i = 1, #removetable do
 	    minetest.set_node(removetable[i], {name = "air"})
 	 end

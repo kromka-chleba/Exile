@@ -26,11 +26,11 @@ local function brain(self)
 
 		local pos = mobkit.get_stand_pos(self)
 
-		local age, energy = animals.core_life(self, pos)
 		--die from exhaustion or age
-		if not age then
+		if not animals.core_life(self, pos) then
 			return
 		end
+    local age = self.age
 
 		------------------
 		--Emergency actions
@@ -61,7 +61,7 @@ local function brain(self)
 		if prty < 20 then
 
 			--territorial behaviour
-			local rival = animals.territorial(self, energy, true)
+			local rival = animals.territorial(self, true)
 
 
 			--feeding
@@ -69,11 +69,11 @@ local function brain(self)
 
 			if light <= 12 then
 				--hungry eat stuff in the dark
-				if energy < self.energy_max then
-					if  animals.eat_flora(pos, 0.001) == true then
-						energy = energy + 10
-					elseif animals.eat_grassy_sediment_under(pos, 0.001) == true then
-						energy = energy + 5
+				if self.energy < self.energy_max then
+					if  animals.eat_flora(pos, 0.006) == true then
+						self:modify('energy',10)
+					elseif animals.eat_grassy_sediment_under(pos, 0.01) == true then
+						self:modify('energy',5)
 					else
 						--wander random
 						mobkit.animate(self,'walk')
@@ -84,12 +84,12 @@ local function brain(self)
 					--full
 					mobkit.hq_roam(self,1)
 				end
-			elseif random()<0.5 and energy < self.energy_max then
+			elseif random()<0.5 and self.energy < self.energy_max then
 				--slower, less effective feeding during day
 				if  animals.eat_flora(pos, 0.001) then
-					energy = energy + 4
+					self:modify('energy',4)
 				elseif animals.eat_grassy_sediment_under(pos, 0.001) then
-					energy = energy + 1
+					self:modify('energy',1)
 				else
 					--wander random
 					mobkit.animate(self,'walk')
@@ -109,8 +109,8 @@ local function brain(self)
 			and not rival
 			and not pred
 			and self.hp >= self.max_hp
-			and energy >= (self.energy_max * 0.7) then
-				energy = animals.place_egg(self, pos, energy)
+			and self.energy >= (self.energy_max * 0.7) then
+				animals.place_egg(self, pos)
 			end
 
 		end
@@ -121,13 +121,6 @@ local function brain(self)
 			mobkit.animate(self,'walk')
 			animals.hq_roam_dark(self,10,1)
 		end
-
-		-----------------
-		--housekeeping
-		--save energy, age
-		mobkit.remember(self,'energy',energy)
-		mobkit.remember(self,'age',age)
-
 	end
 end
 
@@ -178,7 +171,7 @@ self_data = animals.register_animal("animals:sneachan",{
   young_per_egg = {3,7},		--will get this/energy_egg starting energy
   emergency_egg_chance = 0.75,
   -- lifespan
-  lifespan = "energy_max*5",
+  lifespan = "energy_max*2",
   -- interactions
   -- predators + rivals automatically defined in registration
   consume_predators = false,

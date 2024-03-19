@@ -31,7 +31,7 @@ local function pirnt(...) -- lol print
 end
 
 -- Config options
-local wide_spawn = minetest.settings:get_bool("exile_wide_spawn") or true
+local wide_spawn = minetest.settings:get_bool("exile_wide_spawn") or false
 
 -- Load hex tools
 local modpath = minetest.get_modpath("spawnex")
@@ -322,7 +322,13 @@ local function close_gate(hex)
    local def = region.get(hex)
    local oldgate = def.currentgate
    if def.forceloaded then minetest.forceload_free_block(oldgate) end
-   def.currentgate = def.nextgate
+   local static = minetest.setting_get_pos("static_spawnpoint")
+   if static and ( hexnum(map2hex(static)) == hexnum(hex) ) then
+      def.currentgate = static
+   else
+      def.currentgate = def.nextgate
+   end
+
    def.open = false
    def.forceloaded = false
    def.nextgate = nil
@@ -551,6 +557,12 @@ end)
 
 minetest.register_on_mods_loaded(function()
       minetest.after(0.1, function()
+	local static = minetest.setting_get_pos("static_spawnpoint")
+	if static then
+	   defhex = map2hex(static)
+	   rgns[hex2string(defhex)] = { ["currentgate"] = static }
+	   return
+	end
 	if wide_spawn then -- Check area, ensure there's a gate set up
 	   pirnt("Wide spawn enabled, checking default spawn area for gates")
 	   select_hex_from(defhex)

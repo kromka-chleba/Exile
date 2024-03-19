@@ -25,6 +25,7 @@ end
 local function brain(self)
 	-- Make sure the block in front is liquid.
 	local pos = mobkit.get_stand_pos(self)
+  local inair = animals.node_drawtype(pos) == "airlike"
 	local yaw = self.object:get_yaw()
 	local vel = self.object:get_velocity()
 
@@ -32,14 +33,14 @@ local function brain(self)
 	local fu_pos = mobkit.pos_shift(fpos,{y=-1}) -- under front position
 	local u_pos = mobkit.pos_shift(pos,{y=-1})  -- under possition
 
-	if not pos_is_liquid(u_pos) or not pos_is_liquid(fu_pos) then
-		-- no water below risie up
-		vel.y = 0.2
+	if not inair and not pos_is_liquid(u_pos) or not pos_is_liquid(fu_pos) then
+		-- not in air and no water below risie up
+		vel.y = vel.y+0.2
 		self.object:set_velocity(vel)
 	end
 
-	if not pos_is_liquid(fpos) then
-		-- rise a little faster and turn
+	if not inair and not pos_is_liquid(fpos) then
+		-- rise a little faster and turn if not in air
 		vel.y = vel.y+0.2
 		self.object:set_velocity(vel)
 		mobkit.clear_queue_high(self)
@@ -50,10 +51,8 @@ local function brain(self)
 
 	if mobkit.timer(self,1) then
 		-- Also recharges health from energy
-		local age, energy = animals.core_life(self, pos)
-
 		--die from exhaustion or age
-		if not age then
+		if not animals.core_life(self, pos) then
 			return
 		end
 
@@ -98,37 +97,47 @@ local function brain(self)
 			if pred then
 				animals.flock(self, 21, 1, self.max_speed)
 			elseif random() <0.15 then
-				rival = animals.territorial_water(self, energy, false)
+				rival = animals.territorial(self, false)
 			elseif random() <0.01 then
-				rival = animals.territorial_water(self, energy, true)
+				rival = animals.territorial(self, true)
 			elseif random() <0.25 then
 				animals.flock(self, 15, 2, self.max_speed/2)
 			end
 
-			--feeding
-			--in bright light, when no threats
+      local tod = animals.timeofday()
 			local light = minetest.get_node_light(pos) or 0
-			local lightm = minetest.get_node_light(pos, 0.5) or 0
+			local lightm = minetest.get_node_light(pos, 0.5) or 0 -- usual light level during day
+      -- pred-less, rival-less activities
 			if not pred and not rival then
-
-				if light >= 9 then
-					--much light much food
-					if energy < self.energy_max then
-						energy = energy + 5
-					end
-
-				elseif light >= 5 then
-					--some light
-					if energy < self.energy_max then
-						energy = energy + 2
-					end
-				end
+        -- no pred, no rivals
+      --feeding
+			--in bright light, when no threats
+        if self.energy < self.energy_max and light >= 5 then
+          -- feeding
+          local yield = 2 -- some light
+          if light >= 12 then
+            -- so so much light big yummy
+            yield = 8
+          elseif light >= 9 then
+            -- many light
+            yield = 5
+          end
+          self:modify('energy',yield)
+        end
+        --reproduction
+        --asexual parthogenesis, eggs
+        --no threats, darkness, peak condition
+        if random() < 0.1
+        and lightm <= 11
+        and tod == "night" -- lay at night
+        and self.hp >= self.max_hp
+        and self.energy >= (self.energy_max * 0.99) then
+          animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
+        end
 			end
 
 			--movement
-			local tod = minetest.get_timeofday()
-
-			if tod <0.06 or tod >0.94 then
+			if tod == "night" then
 				--sink at night to lay eggs
 				local vel = self.object:get_velocity()
 				vel.y = vel.y-0.2
@@ -147,21 +156,6 @@ local function brain(self)
 				mobkit.hq_aqua_roam(self,5, random(0.5, self.max_speed/2))
 
 			end
-
-
-			--reproduction
-			--asexual parthogenesis, eggs
-			--no threats, darkness, peak condition
-			if (random() < 0.03)
-			and not rival
-			and not pred
-			and lightm <= 11
-			and ( tod <0.5 ) -- only lay at night
-			and self.hp >= self.max_hp
-			and energy >= (self.energy_max * 0.99) then
-				energy = animals.place_egg(self, pos, energy, 'nodes_nature:salt_water_source')
-			end
-
 		end
 
 		-------------------
@@ -170,14 +164,6 @@ local function brain(self)
 			mobkit.animate(self,'def')
 			mobkit.hq_aqua_roam(self,10,1)
 		end
-
-
-		-----------------
-		--housekeeping
-		--save energy, age
-		mobkit.remember(self,'energy',energy)
-		mobkit.remember(self,'age',age)
-
 	end
 end
 
@@ -203,10 +189,10 @@ local self_data = {
    name = "animals:gundu",
    initial_properties = {
    --core
-      max_hp = 40,
+      max_hp = 10,
       physical = true,
       collide_with_objects = true,
-      collisionbox = {-0.1, -0.1, -0.1, 0.1, 0.1, 0.1},
+      collisionbox = {-0.3, -0.2, -0.3, 0.3, 0.1, 0.3},
       visual = "mesh",
       mesh = "animals_gundu.b3d",
       textures = {"animals_color_palette.png"},
@@ -224,11 +210,11 @@ local self_data = {
   class = 2,
   -- energy
   energy_max = 8000,--secs it can survive without food
-  energy_egg = "energy_max*.5", -- energy that goes to egg
+  energy_egg = "energy_max*.82", -- energy that goes to egg
   egg_timer = 60*32,
-  young_per_egg = {3,7},		--will get this/energy_egg starting energy
+  young_per_egg = {4,10},		--will get this/energy_egg starting energy
   -- lifespan
-  lifespan = "energy_max*6",
+  lifespan = "energy_max*3",
   -- interactions
   -- rivals + friends automatically defined in registration
   consume_non_prey = false,
@@ -236,6 +222,7 @@ local self_data = {
   predator_interactions = 0,
   capture_interactions = {
     club = 0.15,
+    hand = 0.05,
   },
   -- logic for mobkit
   logic = brain,
