@@ -74,6 +74,8 @@ function nodes_nature.node_sound_water_defaults(table)
 	table = table or {}
 	table.footstep = table.footstep or
 			{name = "nodes_nature_water_footstep", gain = 0.2}
+  table.place = table.place or 
+    {name = "nodes_nature_place_water", gain = 0.6, pitch = 0.94}
 	nodes_nature.node_sound_defaults(table)
 	return table
 end
