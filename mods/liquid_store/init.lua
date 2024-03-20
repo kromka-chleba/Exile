@@ -238,7 +238,8 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     end
   end
   -- do not dump an unregistered source!
-  if (source == "" or not minetest.registered_nodes[source]) then
+  local sourcedef = minetest.registered_nodes[source]
+  if (source == "" or not sourcedef) then
     dump = false
   end
 
@@ -307,6 +308,10 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
   elseif buildable_to and dump then
     if check_protection(ppos, user, "place "..source) then
       return
+    end
+    if sourcedef.sounds and sourcedef.sounds.place and sourcedef.sounds.place.name ~= "" then
+      local place_sound = sourcedef.sounds.place
+      minetest.sound_play(place_sound.name,minimal.merge_tables(place_sound,{pos = ppos}))
     end
     minimal.switch_node(ppos, {name = source}, {user, itemstack, pointed_thing})
     minetest.check_for_falling(ppos)
