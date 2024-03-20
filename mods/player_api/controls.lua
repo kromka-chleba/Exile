@@ -10,6 +10,8 @@ local player_attached = player_api.player_attached
 
 local USE_KEY = "aux1" --  or "zoom" #TODO: Make it configurable
 
+local csm_players = {}
+
 -- Prevent knockback for attached players
 local old_calculate_knockback = minetest.calculate_knockback
 function minetest.calculate_knockback(player, ...)
@@ -250,6 +252,7 @@ end
 local bub_timer = 0
 local use_db = {}
 local spawnbubbles = false
+
 minetest.register_globalstep(function(dtime)
       bub_timer = bub_timer + dtime
       if bub_timer > 1.0 then
@@ -277,80 +280,119 @@ minetest.register_globalstep(function(dtime)
 					{ x=0, y=6.3, z=0 },
 					{ x=0, y=  0, z=0 })
 	       else
-		     local player_pos = player:get_pos()
-		     local animation_speed_mod = model.animation_speed or 30
+		  local player_pos = player:get_pos()
+		  local animation_speed_mod = model.animation_speed or 30
 
-		     --Determine if the player is in a water node
-		     local on_water, cant_stand, cant_crouch =
-			check_player_surroundings(player, player_pos, name)
+		  --Determine if the player is in a water node
+		  local on_water, cant_stand, cant_crouch =
+		     check_player_surroundings(player, player_pos, name)
 
-		     local moving =  controls.up or controls.down or
-			controls.left or controls.right
-		     local using_tool = controls.LMB or controls.RMB
+		  local moving =  controls.up or controls.down or
+		     controls.left or controls.right
+		  local using_tool = controls.LMB or controls.RMB
 
-		     local sneaking = controls.sneak
+		  local sneaking = controls.sneak
 
-		     local cancrawl = not ( pinfo.animation == "lay" or
-				       on_water == true or
-				       cant_crouch == true )
+		  local cancrawl = not ( pinfo.animation == "lay" or
+					 on_water == true or
+					 cant_crouch == true )
 
-		     if cant_stand and not player_crawl[name] and cancrawl then
-			toggle_crawl(player, name, true)
-		     elseif not cancrawl and player_crawl[name] then
-			toggle_crawl(player, name, false)
-		     end
+		  if cant_stand and not player_crawl[name] and cancrawl then
+		     toggle_crawl(player, name, true)
+		  elseif not cancrawl and player_crawl[name] then
+		     toggle_crawl(player, name, false)
+		  end
 
-		     if player_sneak[name] ~= controls.sneak then
-			-- reset anim when switching sneak on/off. why??
-			-- player_anim[name] = nil
-			player_sneak[name] = controls.sneak
-			if controls.sneak  then -- Double tap to crawl
-			   if ( not player_crawl[name] and cancrawl and
-				minimal.click_count_ready(name, "crawl",
-							  2, 1) ) then
-			      toggle_crawl(player, name, true)
-			   elseif ( not cant_stand ) and player_crawl[name] then
-			      toggle_crawl(player, name, false)
-			   end
+		  if player_sneak[name] ~= controls.sneak then
+		     -- reset anim when switching sneak on/off. why??
+		     -- player_anim[name] = nil
+		     player_sneak[name] = controls.sneak
+		     if controls.sneak and not csm_players[name] then
+			-- Double tap to crawl
+			if ( not player_crawl[name] and cancrawl and
+			     minimal.click_count_ready(name, "crawl",
+						       2, 1) ) then
+			   toggle_crawl(player, name, true)
+			elseif ( not cant_stand ) and player_crawl[name] then
+			   toggle_crawl(player, name, false)
 			end
 		     end
-		     if ( controls.jump and player_crawl[name] and
-			  not cant_stand ) then -- Stand when jumping
-			toggle_crawl(player, name, false)
-		     end
-		     local crawling = player_crawl[name] or false
+		  end
+		  if ( controls.jump and player_crawl[name] and
+		       not cant_stand ) then -- Stand when jumping
+		     toggle_crawl(player, name, false)
+		  end
+		  local crawling = player_crawl[name] or false
 
-		     if sneaking or crawling then
-			animation_speed_mod = animation_speed_mod / 2
-		     end
+		  if sneaking or crawling then
+		     animation_speed_mod = animation_speed_mod / 2
+		  end
 
-		     if controls[USE_KEY] then
-			using_tool = true
-		     end
+		  if controls[USE_KEY] then
+		     using_tool = true
+		  end
 
-		     set_anim(player,
-			      animtable[on_water][moving][crawling][using_tool],
-			      animation_speed_mod)
-		     move_head(player, on_water or crawling)
+		  set_anim(player,
+			   animtable[on_water][moving][crawling][using_tool],
+			   animation_speed_mod)
+		  move_head(player, on_water or crawling)
 
-		     if on_water and player_pos.y < 0 then
-			-- #TODO: use player surroundings instead of y pos
-			if spawnbubbles then
-			   player_pos.y = player_pos.y + 1
-			   minetest.add_particlespawner(bubbles(player_pos))
-			end
+		  if on_water and player_pos.y < 0 then
+		     -- #TODO: use player surroundings instead of y pos
+		     if spawnbubbles then
+			player_pos.y = player_pos.y + 1
+			minetest.add_particlespawner(bubbles(player_pos))
 		     end
+		  end
 	       end
 	    end
-      if controls[USE_KEY] and not use_db[name] then
-        use_db[name] = true
-        handle_use_key(player)
-      elseif dtime > 0.35 or not controls[USE_KEY] then
-        use_db[name] = false
+      if not csm_players[name] then
+	 if controls[USE_KEY] and not use_db[name] then
+	    use_db[name] = true
+	    handle_use_key(player)
+	 elseif dtime > 0.35 or not controls[USE_KEY] then
+	    use_db[name] = false
+	 end
       end
 	 end
       end
       spawnbubbles = false
+end)
+
+local chan
+minetest.register_on_mods_loaded(function()
+      chan = minetest.mod_channel_join("exilecsm")
+end)
+
+local a_debounce  local c_debounce
+minetest.register_on_modchannel_message(function(channel, sender, message)
+      if channel ~= "exilecsm" then return end
+      if message == "ENABLE" then
+	 csm_players[sender] = true
+	 minetest.log("action", "CSM enabled for "..tostring(sender))
+      end
+      if message == "AUX1" then
+	 if a_debounce == nil or
+	    a_debounce - minetest.get_us_time() < 1 then
+
+	    local ply = minetest.get_player_by_name(sender)
+	    if ply then
+	       handle_use_key(ply)
+	       a_debounce = minetest.get_us_time()
+	    end
+	 end
+      end
+      if message == "CRAWL" then
+	 if c_debounce == nil or
+	    c_debounce - minetest.get_us_time() < 1 then
+
+	    local ply = minetest.get_player_by_name(sender)
+	    if ply then
+	       toggle_crawl(ply, sender, not player_crawl[sender])
+	       c_debounce = minetest.get_us_time()
+	    end
+	 end
+      end
 end)
 
 minetest.register_on_leaveplayer(function(player)
