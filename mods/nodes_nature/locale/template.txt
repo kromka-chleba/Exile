@@ -30,23 +30,6 @@ Granite=
 Basalt=
 Gneiss=
 Jade=
-Sand=
-Silt=
-Clay=
-Gravel=
-Loam=
-Grassland Soil=
-Marshland Soil=
-Duneland Soil=
-Highland Soil=
-Woodland Soil=
-Barren Grassland Soil=
-Dry Woodland Soil=
-Clay Agricultural Soil=
-Silty Agricultural Soil=
-Sandy Agricultural Soil=
-Stony Agricultural Soil=
-Loamy Agricultural Soil=
 
 # life.lua
 Young @1=
@@ -72,11 +55,53 @@ Lava Flowing=
 @1 Brick=
 @1 Block=
 
-# sediment.lua
+# sediment conditions (sediment_api.lua, sediment_data.lua)
 Wet @1=
 Salty Wet @1=
 Depleted @1=
 Wet Depleted @1=
+Frosty Winter @1=
+Frosty Winter Wet @1=
+@1 Agricultural Soil=
+@1 Fertile Soil=
+@1 Fertile Agricultural Soil=
+@1 With Roots=
+
+# sediments (sediment_data.lua)
+Sand=
+Silt=
+Clay=
+Gravel=
+Loam=
+Volcanic ash=
+Red Ochre=
+
+# biome sediments (sediment_data.lua)
+Rich Forest Soil=
+Rich Woodland Soil=
+Forest Soil=
+Upland Forest Soil=
+Woodland Soil=
+Upland Woodland Soil=
+
+Marshland Soil=
+Swamp Forest Soil=
+Coastal Shrubland Soil=
+Coastal Grassland Soil=
+Coastal Barren Grassland Soil=
+Coastal Duneland Soil=
+
+Grassland Soil=
+Shrubland Soil=
+Barren Grassland Soil=
+Duneland Soil=
+Upland Grassland Soil=
+Upland Shrubland Soil=
+Upland Barren Grassland Soil=
+Upland Duneland Soil=
+Highland Soil=
+
+Dry Woodland Soil=
 
 # trees.lua
 Tree Marker=
