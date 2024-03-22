@@ -1,5 +1,10 @@
 # Changelog:
 
+## [2024-03-22][2023-03-22__0.3.17]
+   - Informational states displayed on character tab
+   - Drystack and Rammed earth arches: build a wall, knock out the middle
+   - server command: /recover_inv <player> to restore inv lost on restart
+
 ## [2024-03-03][2023-03-03__0.3.16]
   - Replaced NC-licensed Gundu, Exile should be fully free now
   - WITT for Exile: show the names of things when you press the zoom key
