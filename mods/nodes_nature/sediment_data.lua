@@ -239,7 +239,7 @@ for i = 1, #registered_sediments do
     props._wet_name = props._wet_name.."_roots"
     if not props.on_dig then
         props.on_dig = function(pos, node, digger)
-            if not digger then return false end
+            if not minetest.is_player(digger) then return false end
             if minetest.is_protected(pos, digger:get_player_name()) then
                 return false
             end
@@ -247,19 +247,56 @@ for i = 1, #registered_sediments do
             local number_of_roots = math.floor(meta:get_float("root_nr"))
             local root_name = meta:get_string("root_name")
             local player_inv = digger:get_inventory()
-            local sed_stack = ItemStack(nodedef.drop)
-            if player_inv:room_for_item("main", sed_stack) then
-                player_inv:add_item("main", sed_stack)
-            else
-                minetest.add_item(pos, sed_stack)
-            end
             local root_stack = ItemStack(root_name.." "..number_of_roots)
+            local w_item = digger:get_wielded_item()
             if player_inv:room_for_item("main", root_stack) then
                 player_inv:add_item("main", root_stack)
             else
                 minetest.add_item(pos, root_stack)
             end
-            minetest.remove_node(pos)
+            if not minimal.in_group(w_item,"hoe") then
+              local sed_stack = ItemStack(props.drop)
+              if player_inv:room_for_item("main", sed_stack) then
+                  player_inv:add_item("main", sed_stack)
+              else
+                  minetest.add_item(pos, sed_stack)
+              end
+              minetest.remove_node(pos)
+            else -- replace roots with regular sediment (roots were tilled)
+              minetest.set_node(pos,{name = name})
+            end
+
+            if w_item:get_name() ~= "" and not minimal.player_in_creative(digger) then
+              -- checks for empty hand as to avoid accidental wielded item override (clearing)
+              -- get toolwear and look for after_use
+              local tool_props = w_item:get_definition()
+              local gc = tool_props.tool_capabilities and tool_props.tool_capabilities.groupcaps
+              if gc then
+                -- calculating uses + wear is complex
+                local uses = gc.tilling and gc.tilling.uses or gc.crumbly and gc.crumbly.uses or 500
+                local maxlevel = gc.tilling and gc.tilling.maxlevel or gc.crumbly and gc.crumbly.maxlevel or 1
+                local nlevel = props.groups.level or 0
+                local addwear = math.floor(65535 / (uses * (3^(maxlevel-nlevel) ) - 1 ) )
+                if tool_props.after_use then
+                  -- creating an artificial digparams for after_use functionality
+                  local digparams = {wear = addwear,
+                  time = gc.crumbly and gc.crumbly.times and gc.crumbly.times[props.groups.crumbly],
+                  diggable = true}
+                  if not digparams.time then
+                    digparams.diggable = false
+                    digparams.time = 0
+                    digparams.wear = 0
+                  end
+                  local result = tool_props.after_use(w_item, digger, minetest.get_node(pos), digparams)
+                  w_item = type(result) == "userdata" and result or w_item
+                else
+                  -- set toolwear
+                  w_item:add_wear(addwear)
+                end
+                digger:set_wielded_item(w_item) -- wielded item override to set wear
+              end
+            end
+
             minetest.check_for_falling(pos)
         end
     end
