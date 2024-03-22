@@ -499,6 +499,7 @@ end
 function soil.register_winter(soil_desc)
 	local winter_name = soil.get_winter_name(soil_desc.name)
 	local props = soil.get_winter_props(soil_desc)
+  props.sounds = nodes_nature.node_sound_grassysnow_defaults()
 	minetest.register_node(winter_name, props)
 	soil.do_slopes(winter_name)
 	local winter_wet_name = soil.get_winter_wet_name(soil_desc.name)
@@ -519,7 +520,7 @@ function soil.register_winter_wet(soil_desc)
 		sediment.get_wet_texture_name(sed.name),
 		{name = soil.get_winter_wet_side_texture_name(soil_desc.name, sed.name)}
 	}
-	props.sounds = sed.sound_wet
+	props.sounds = nodes_nature.node_sound_grassysnow_defaults()--sed.sound_wet
 	props.drop = sediment.get_wet_name(sed.name)
 	props._non_winter_name = soil.get_wet_name(soil_desc.name)
 	minetest.register_node(winter_wet_name, props)
