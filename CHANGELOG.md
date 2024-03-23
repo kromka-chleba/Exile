@@ -1,5 +1,8 @@
 # Changelog:
 
+## [2024-03-23][2023-03-23__0.3.17a]
+   - bugfixes
+
 ## [2024-03-22][2023-03-22__0.3.17]
    - Informational states displayed on character tab
    - Drystack and Rammed earth arches: build a wall, knock out the middle

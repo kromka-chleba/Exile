@@ -100,7 +100,6 @@ function pstate.clear(self, state)
 end
 
 function pstate.is(self, state)
-   print("Is: ",dump(self.list), state, self.list[state])
    if self.list and self.list[state] then return true else return false end
 end
 
@@ -206,7 +205,7 @@ function pstate.read_labels(self)
 	 local sev = statetbl.severity or progress_to_severity(statetbl) or 0
 	 local pri = math.abs(statetbl.priority or states[name].priority) or 1
 	 local sevname = self:read_severity(name, sev)
-	 if not ( label == "" and sevname == " " ) then
+	 if not ( label == "" and sevname == "" ) then
 	    -- ^^ in case of "-" sev-only label and there's no severity name
 	    table.insert(pri_order[pri],
 			 { label, sevname })
@@ -222,6 +221,10 @@ function pstate.read_labels(self)
    return list
 end
 
+minetest.register_on_newplayer(function(player)
+      local pname = player:get_player_name()
+      blank_states(player, pname)
+end)
 
 minetest.register_on_joinplayer(function(player, lastlogin)
       local pname = player:get_player_name()
