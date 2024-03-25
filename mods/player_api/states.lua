@@ -152,9 +152,10 @@ function pstate.add_progress(self, state, adjustment)
    -- +/- adjustment to progress. raises or lowers severity at thresholds
 
    local stbl = self.list[state]
-   if not stbl then
+   if not stbl then -- can't just add it, with no progress or severity
       minetest.log("error",
 		   "Tried to alter progress on non-existant state:"..state)
+      return
    end
    local sev = progress_to_severity(stbl)
    stbl.progress = stbl.progress + adjustment
@@ -170,6 +171,7 @@ function pstate.read_progress(self, state)
 end
 function pstate.set_progress(self, state, new_pr)
    local stbl = self.list[state]
+   if not stbl then   self:add(state, new_pr)  return  end
    local old_pr = stbl.progress
    if not old_pr then
       stbl.progress = new_pr
