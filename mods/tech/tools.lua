@@ -1042,7 +1042,10 @@ minetest.register_tool(
 	   " or Place on solid surface for hammering crafts",
         on_place = function(itemstack, placer, pointed_thing)
 			local imeta = itemstack:get_meta()
-			local material = imeta:get_string('material') or 'basalt' -- default to basalt if no material stored
+			local material = imeta:get_string('material')
+			if not material or material == "" then
+				 material = 'basalt' -- default to basalt if no material stored
+			end
             return place_tool(itemstack, placer, pointed_thing, "tech:hammer_"..material.."_placed")
         end,
         groups = {club = 1, craftedby = 1},
