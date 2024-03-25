@@ -161,6 +161,7 @@ function pstate.add_progress(self, state, adjustment)
    if not stbl then -- can't just add it, with no progress or severity
       minetest.log("error",
 		   "Tried to alter progress on non-existant state:"..state)
+      return
    end
    local sev = progress_to_severity(stbl)
    stbl.progress = stbl.progress + adjustment
