@@ -376,7 +376,7 @@ end
 function crafting.make_on_rightclick(type, level, inv_size)
 	local show = make_on_show_function(type, level, inv_size)
 	return function(pos, node, player)
-		local meta = minetest.get_meta(pos)
+		local meta = pos and minetest.get_meta(pos)
 		local name = player:get_player_name()
 		local context = node_fs_context[name] or {}
 		if context.type ~= type then context = {} end
@@ -384,8 +384,9 @@ function crafting.make_on_rightclick(type, level, inv_size)
 		context.pos   = vector.new(pos)
 		context.type  = type
 		context.level = level
-		context.creator = meta:get_string('creator')
+		context.creator = (meta and meta:get_string('creator')) or name
 		context.tab = 1
+
 		show(player, context)
 	end
 end
