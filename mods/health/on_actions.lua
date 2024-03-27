@@ -39,10 +39,10 @@ function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_tabl
   modify_int(meta,"temperature",f_table.temp)
   local st = player_api.get_state(user)
   if st then
-     st:set_progress("thirst", st.th)
-     st:set_progress("hunger", st.hu)
-     st:set_progress("energy", st.en)
-     st:set_progress("int_temp", st.temp)
+     st:set_progress("thirst", f_table.th)
+     st:set_progress("hunger", f_table.hu)
+     st:set_progress("energy", f_table.en)
+     st:set_progress("int_temp", f_table.temp)
   end
 
 
