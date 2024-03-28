@@ -484,9 +484,18 @@ end
 function soil.get_winter_props(soil_desc)
     local sed = soil_desc.sediment
     local props = table.copy(soil.get_dry_node_props(soil_desc))
-    props.description = S("Winter @1", soil_desc.description)
+    props.description = S("Frosty Winter @1", soil_desc.description)
     props.groups.spreading = nil
     props.groups.winter_soil = 1
+    if props.groups.sediment == 2 then -- clay
+      props.groups.crumbly = nil
+      props.groups.cracky = 2
+    else -- sand, gravel, silt
+      if props.groups.crumbly then
+        props.groups.crumbly = 1
+      end
+      props.groups.cracky = 3
+    end
     props.tiles = {soil.get_winter_texture_name(soil_desc.name, sed.name),
                    sediment.get_dry_texture_name(sed.name),
                    {name = soil.get_winter_side_texture_name(soil_desc.name, sed.name)}}
@@ -512,7 +521,7 @@ function soil.register_winter_wet(soil_desc)
 	local winter_wet_name = soil.get_winter_wet_name(soil_desc.name)
 	local props = table.copy(soil.get_winter_props(soil_desc))
 	local sed = soil_desc.sediment
-	props.description = S("Winter Wet @1", soil_desc.description)
+	props.description = S("Frosty Winter Wet @1", soil_desc.description)
 	props.groups.spreading = nil
 	props.groups.winter_soil = 1
 	props.tiles = {
