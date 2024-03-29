@@ -347,7 +347,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 	local recipe_list = recipes_for_player(cache, pInv, player_name,cTabs[sTab], sLevel)
 	-- keep a sort hash so order doesn't change while crafting things
 
-print ("--------------------------]cache_player_recipes()[------------------")
+--print ("--------------------------]cache_player_recipes()[------------------")
 	local sortHash = crafting.sort_order_by_player[player_name]
 	if not sortHash or not sortHash.ctype then
 		sortHash = {
@@ -358,7 +358,7 @@ print ("--------------------------]cache_player_recipes()[------------------")
 		}
 	else
 		if sortHash.ctype ~= sItem or sortHash.ctab ~= sTab then
-print('Tab changed')
+--print('Tab changed')
 			sortHash.ctype = sItem
 			sortHash.ctab = sTab
 			sortHash.count = 0
@@ -367,15 +367,15 @@ print('Tab changed')
 	end
 	local sorted = {}
 	local not_craftable = {}
-print('sortHash.ctype: '..sortHash.ctype..' sortHash.ctab: '..sortHash.ctab..' count: '..sortHash.count)
-print('sItem: '..sItem..' sTab: '..sTab)
+--print('sortHash.ctype: '..sortHash.ctype..' sortHash.ctab: '..sortHash.ctab..' count: '..sortHash.count)
+--print('sItem: '..sItem..' sTab: '..sTab)
 	if sortHash.count > 0 then
-print('Using sort hash')
+--print('Using sort hash')
 		for _,result in ipairs(recipe_list) do
 			local id = tonumber(result.recipe.id)
 			local order = sortHash.hash[id]
 			if not order then 
-print('no order: '..dump(result))
+--print('no order: '..dump(result))
 			else
 				sorted[order] = result
 			end
@@ -401,7 +401,7 @@ print('no order: '..dump(result))
 --print('NOT Craftable - ['..#sorted..'] '..result.recipe.output..' - ID#'..result.recipe.id)
 		end
 		--save sort hash
-print('Saving sortHash count: '..sortHash.count)
+--print('Saving sortHash count: '..sortHash.count)
 --print(dump(sortHash))
 		crafting.sort_order_by_player[player_name] = sortHash
 	end

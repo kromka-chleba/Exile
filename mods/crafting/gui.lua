@@ -199,7 +199,7 @@ function crafting.make_result_selector(player, type, level, size, context)
 		x = 0
 		y = y + 1
 	end
-print (dump(formspec))
+--print (dump(formspec))
 	return table.concat(formspec, "")
 end
 

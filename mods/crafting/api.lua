@@ -351,8 +351,8 @@ function crafting.parse_where(recipe, items, item_idx, num_added)
 
 	-- @1.material == @2.material
 --	local input1,key1,test,input2,key2 = 
-print("where: "..recipe.where)
-print(dump( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") ))
+--print("where: "..recipe.where)
+--print(dump( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") ))
 
 end
 
@@ -365,7 +365,7 @@ function crafting.find_required_items(inv, listname, recipe)
 		listname = { listname }
 	end
 
-print("Recipe Items: "..dump(recipe.items))
+--print("Recipe Items: "..dump(recipe.items))
 	for i, item in ipairs(recipe.items) do
 		local picked = false	-- assume we don't find it
 		-- search each of passed lists
@@ -421,7 +421,7 @@ end
 
 function crafting.perform_craft(name, inv, listname, outlistname, recipe)
    local items = crafting.find_required_items(inv, listname, recipe)
-print ("Perform_crafting() "..dump(items))
+--print ("Perform_crafting() "..dump(items))
    if not items then
       return false
    end
