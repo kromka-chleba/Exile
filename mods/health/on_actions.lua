@@ -334,8 +334,8 @@ local function fast_interval(dtime)
 
 	    --update
 	    HEALTH.set_int(meta,"energy",energy)
-	    modify_int(meta,"hunger",hunger)
-	    modify_int(meta,"thirst",thirst)
+	    HEALTH.set_int(meta,"hunger",hunger)
+	    HEALTH.set_int(meta,"thirst",thirst)
 	    player:set_hp(health)
 	    --update form so can see change while looking
 	    sfinv.set_player_inventory_formspec(player)
