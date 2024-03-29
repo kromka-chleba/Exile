@@ -1,5 +1,10 @@
 # Changelog:
 
+## [2024-03-28][2023-03-28__0.3.17c]
+   - Support for ExchangeClone mod
+   - more bugfixes
+
+## [2024-03-24][2023-03-23__0.3.17b]
 ## [2024-03-23][2023-03-23__0.3.17a]
    - bugfixes
 

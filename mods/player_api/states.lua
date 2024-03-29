@@ -188,10 +188,12 @@ end
 
 
 local function get_old_effects_list(player, list)
+   local label = { [0] = "", "(mild)", "(moderate)", "(severe)", "(extreme)" }
   local meta = player:get_meta()
   local effects_list_str = meta:get_string("effects_list")
   local effects_list = minetest.deserialize(effects_list_str) or {}
   for no, effect in ipairs(effects_list) do
+     effect[2] = label[effect[2]]
      table.insert(list, effect)
   end
 end
