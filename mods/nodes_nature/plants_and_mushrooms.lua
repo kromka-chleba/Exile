@@ -36,6 +36,7 @@ local mahal_nodebox = {
 
 local moss_nodebox = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}
 
+
 local wrotycz_soil_prefs =
     soil_preferences.new({
             rocky_substrate = {min = 2, max = 2},
@@ -211,6 +212,21 @@ local plant_list = {
      seasonal_type = "succulent_flowering", fruit = true,
      texture_scale = 1.2, thorns = true, move_resistance = 4},
 
+     {name = "salia", description = S("Salia"),
+      drawtype = "plantlike", mesh_type = 4,
+      plant_type = "herbaceous_plant", waving = true,
+      growing_time = plant_base_growing_time,
+      dye_candidate = true, dominant_color = "red",
+      fruit = true, seasonal_type = "early"},
+
+      {name = "fretin", description = S("Fretin"),
+       drawtype = "plantlike", plant_type = "herbaceous_plant",
+       waving = true,
+       mesh_type = 2, growing_time = plant_base_growing_time,
+       dye_candidate = true, dominant_color = "black",
+       seasonal_type = "whole_season",
+       edible_seedling = true},
+
     -- Mushrooms
 
     --lambakap. is also a mushroom.
@@ -308,7 +324,7 @@ local plant_list = {
      mesh_type = 3, growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "crimson",
      texture_scale = 1.2, seasonal_type = "whole_season_woody"},
-    
+
     -- Grasses
     {name = "sari", description = S("Sari"),
      drawtype = "plantlike", mesh_type = 2,
@@ -336,6 +352,14 @@ local plant_list = {
      growing_time = plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
      seasonal_type = "whole_season"},
+
+    {name = "muhle", description = S("Muhle"),
+      drawtype = "plantlike", plant_type = "fibrous_plant",
+      mesh_type = 4,  waving = true,
+      growing_time = plant_base_growing_time * 2,
+      dye_candidate = true, dominant_color = "black",
+      seasonal_type = "late", fruit = true, winter_fruit = true,
+      move_resistance = 4},
 
     {name = "damo", description = S("Damo"),
      drawtype = "plantlike", mesh_type = 4,
@@ -410,6 +434,12 @@ minetest.override_item(
     "nodes_nature:wiha_fruit", {
         description = S("Wiha Berries"),
 })
+
+minetest.override_item(
+    "nodes_nature:muhle_fruit", {
+        description = S("Muhle Berries"),
+})
+
 
 ----------------------------------------------
 --Extra effects
