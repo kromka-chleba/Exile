@@ -285,6 +285,42 @@ local edible_plants = {
         param2 = 0,
     },
 
+    {--[[Duneland:muhle]]
+        name = "dl_nn:muhle",
+        deco_type = "simple",
+        place_on = sna.duneland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.3000, spread={x=16, y=16, z=16}, seed=8500, octaves=3, persist=0.9},
+        y_max = sna.highland_max,
+        y_min = sna.lowland_max+5,
+        decoration = "nodes_nature:muhle",
+        param2 = 4,
+    },
+
+    {--[[Allbarren:muhle]]
+        name = "bl_nn:muhle",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0300, spread={x=16, y=16, z=16}, seed=8500, octaves=3, persist=0.9},
+        y_max = sna.highland_max,
+        y_min = sna.lowland_max+5,
+        decoration = "nodes_nature:muhle",
+        param2 = 4,
+    },
+
+    {--[[highland:muhle]]
+        name = "hl_nn:muhle",
+        deco_type = "simple",
+        place_on = sna.highland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0100, spread={x=16, y=16, z=16}, seed=8500, octaves=3, persist=0.9},
+        y_max = 31000,
+        y_min = sna.upland_max,
+        decoration = "nodes_nature:muhle",
+        param2 = 4,
+    },
+
     {--[Allbarren:Rzepicha]]
         name = "bl_nn:rzepicha_fruiting",
         deco_type = "simple",
@@ -521,6 +557,78 @@ local toxic_plants = {
         param2 = 3,
     },
 
+    {--[[Grassland:salia]]
+        name = "gl_nn:salia",
+        deco_type = "simple",
+        place_on = sna.grassland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0030, spread={x=16, y=16, z=16}, seed=9900, octaves=3, persist=0.9},
+        y_max = sna.lowland_max,
+        y_min = sna.coastal_max,
+        decoration = "nodes_nature:salia",
+        param2 = 4,
+    },
+
+    {--[[Shrubland:salia]]
+        name = "sh_nn:salia",
+        deco_type = "simple",
+        place_on = sna.shrubland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0020, spread={x=16, y=16, z=16}, seed=9900, octaves=3, persist=0.9},
+        y_max = sna.lowland_max,
+        y_min = sna.coastal_max,
+        decoration = "nodes_nature:salia",
+        param2 = 4,
+    },
+
+    {--[[Shrubland:fretin]]
+        name = "sh_nn:fretin",
+        deco_type = "simple",
+        place_on = sna.shrubland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.3000, spread={x=16, y=16, z=16}, seed=1188, octaves=3, persist=0.7},
+        y_max = sna.upland_max,
+        y_min = sna.lowland_max-5,
+        decoration = "nodes_nature:fretin",
+        param2 = 2,
+    },
+
+    {--[[Woodland:fretin]]
+        name = "wl_nn:fretin",
+        deco_type = "simple",
+        place_on = sna.woodland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.1000, spread={x=16, y=16, z=16}, seed=1188, octaves=3, persist=0.7},
+        y_max = sna.upland_max,
+        y_min = sna.lowland_max-5,
+        decoration = "nodes_nature:fretin",
+        param2 = 2,
+    },
+
+    {--[[forest:fretin]]
+        name = "fr_nn:fretin",
+        deco_type = "simple",
+        place_on = sna.forest_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0500, spread={x=16, y=16, z=16}, seed=1188, octaves=3, persist=0.7},
+        y_max = sna.upland_max,
+        y_min = sna.lowland_max-5,
+        decoration = "nodes_nature:fretin",
+        param2 = 2,
+    },
+
+    {--[[Grassland:fretin]]
+        name = "gl_nn:fretin",
+        deco_type = "simple",
+        place_on = sna.grassland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0500, spread={x=16, y=16, z=16}, seed=1188, octaves=3, persist=0.7},
+        y_max = sna.upland_max,
+        y_min = sna.lowland_max-5,
+        decoration = "nodes_nature:fretin",
+        param2 = 2,
+    },
+
     {--[[shrubland:nebiyi]]
         name = "sh_nn:nebiyi",
         deco_type = "simple",
@@ -544,6 +652,19 @@ local toxic_plants = {
         decoration = "nodes_nature:nebiyi",
         param2 = 1,
     },
+
+    {--[[Allbarren:salia]]
+        name = "bl_nn:salia",
+        deco_type = "simple",
+        place_on = sna.barrenland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.3000, spread={x=16, y=16, z=16}, seed=9900, octaves=3, persist=0.8},
+        y_max = sna.lowland_max,
+        y_min = sna.coastal_max,
+        decoration = "nodes_nature:salia",
+        param2 = 4,
+    },
+
 
     {--[[Duneland:Gevaari]]
         name = "dl_nn:gevaari",
