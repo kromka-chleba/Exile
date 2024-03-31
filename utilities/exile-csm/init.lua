@@ -1,4 +1,7 @@
 local chan
+local aux_fire_rate = 0.35 -- sec
+local aux_held = false
+local sneak_held = false
 
 local function join()
    chan = minetest.mod_channel_join("exilecsm")
@@ -14,44 +17,49 @@ minetest.register_on_modchannel_signal(function(channel_name, signal)
 	 minetest.after(1, join)
       end
       if signal == 0 then
-	 chan:send_all("ENABLE")
+	 chan:send_all("ENABLE") -- Inform the server we're handling these keys
       end
 end)
 
 local player
 local control
-
-local debounce = 0
+local a_limit = 0
 
 local function use_key(dtime)
-      if debounce > 0 then
-	 debounce = debounce - dtime
-	 return
-      end
-      if control.aux1 then
-	 debounce = 1
-	 chan:send_all("AUX1")
-      end
+   if a_limit > 0 then a_limit = a_limit - dtime return end
+   if control.aux1 then
+      a_limit = aux_fire_rate
+      chan:send_all(aux_held and "AUX1H"
+		    or "AUX1")
+   end
 end
 
 local sneak_last = 0
-local sneak_prev
+local sneak_count = 0
+local function sneak_clear()
+   sneak_last = 0
+      sneak_count = 0
+end
 
 local function check_crawl(dtime) -- double tap shift to enter/exit crawl mode
-   if sneak_last > 0 then
+
+   if sneak_last > 0 then -- do sneak count timeout
       sneak_last = sneak_last - dtime
-      if sneak_last <=0 then
-	 sneak_last = 0
-    end
+      if sneak_last <=0 then sneak_clear() end
    end
-   if sneak_prev == true and control.sneak == false then -- just released
-      if sneak_last == 0 then
-	 sneak_last = 1 -- 1 second timeout
-      else
-	 chan:send_all("CRAWL")
-      end
+
+   -- Only count initial presses, not holding it down
+   if sneak_held and control.sneak or not control.sneak then return end
+
+   sneak_count = sneak_count + 1
+   if sneak_count == 1 then
+      sneak_last = 0.35 -- timeout before sneak count clears
    end
-   sneak_prev = control.sneak
+
+   if sneak_count >= 2 then
+      chan:send_all("CRAWL")
+      sneak_clear()
+   end
 end
 
 minetest.register_globalstep(function(dtime)
@@ -60,4 +68,6 @@ minetest.register_globalstep(function(dtime)
       control = player:get_control()
       use_key(dtime)
       check_crawl(dtime)
+      aux_held = control.aux1
+      sneak_held = control.sneak
 end)
