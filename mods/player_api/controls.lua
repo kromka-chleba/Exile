@@ -11,6 +11,7 @@ local player_attached = player_api.player_attached
 local USE_KEY = "aux1" --  or "zoom" #TODO: Make it configurable
 
 local csm_players = {}
+local aux_fire_rate = 350000 -- 0.35 sec in us
 
 -- Prevent knockback for attached players
 local old_calculate_knockback = minetest.calculate_knockback
@@ -146,8 +147,13 @@ local function check_player_surroundings(player, pos, name)
    -- #TODO: Try using part of the swim animation for flying?
 end
 
+local a_timelimit = {}
+local function handle_use_key(player, name, held)
+   if a_timelimit[name] ~= nil
+      and minetest.get_us_time() - a_timelimit[name] < aux_fire_rate then
+      return end
+   a_timelimit[name] = minetest.get_us_time()
 
-local function handle_use_key(player)
    local using_tool = false -- whether we've done a thing yet
    local witem = player:get_wielded_item()
    local pointed_thing = minimal.get_pointed_thing(player, nil, true)
@@ -172,7 +178,7 @@ local function handle_use_key(player)
       if wdef._on_use_item then
 	 using_tool = wdef._on_use_item(player, witem, pointed_thing)
       end
-      if not using_tool and wdef.groups.edible then
+      if not held and not using_tool and wdef.groups.edible then
 	 using_tool = true
 	 if wdef.groups.edible == 1 then
 	    HEALTH.eatdrink(witem, player, pointed_thing)
@@ -347,9 +353,9 @@ minetest.register_globalstep(function(dtime)
 	       end
 	    end
       if not csm_players[name] then
-	 if controls[USE_KEY] and not use_db[name] then
+	 if controls[USE_KEY] then
+	    handle_use_key(player, name, use_db[name])
 	    use_db[name] = true
-	    handle_use_key(player)
 	 elseif dtime > 0.35 or not controls[USE_KEY] then
 	    use_db[name] = false
 	 end
@@ -364,34 +370,27 @@ minetest.register_on_mods_loaded(function()
       chan = minetest.mod_channel_join("exilecsm")
 end)
 
-local a_debounce  local c_debounce
+local c_timelimit = {}
 minetest.register_on_modchannel_message(function(channel, sender, message)
       if channel ~= "exilecsm" then return end
+      local ply = minetest.get_player_by_name(sender)
+      if not ply then return end
+      local name = ply:get_player_name()
       if message == "ENABLE" then
 	 csm_players[sender] = true
 	 minetest.log("action", "CSM enabled for "..tostring(sender))
+	 minetest.chat_send_player(name,
+				   "[Exile-CSM has been detected and enabled]")
       end
-      if message == "AUX1" then
-	 if a_debounce == nil or
-	    a_debounce - minetest.get_us_time() < 1 then
-
-	    local ply = minetest.get_player_by_name(sender)
-	    if ply then
-	       handle_use_key(ply)
-	       a_debounce = minetest.get_us_time()
-	    end
-	 end
+      if message == "AUX1" or message == "AUX1H" then
+	    handle_use_key(ply, name, message == "AUX1H")
       end
-      if message == "CRAWL" then
-	 if c_debounce == nil or
-	    c_debounce - minetest.get_us_time() < 1 then
+      if message == "CRAWL" and ( c_timelimit[name] == nil or
+	       minetest.get_us_time() - c_timelimit[name] > aux_fire_rate*2 )
+      then
 
-	    local ply = minetest.get_player_by_name(sender)
-	    if ply then
-	       toggle_crawl(ply, sender, not player_crawl[sender])
-	       c_debounce = minetest.get_us_time()
-	    end
-	 end
+	    toggle_crawl(ply, sender, not player_crawl[sender])
+	    c_timelimit[name] = minetest.get_us_time()
       end
 end)
 
