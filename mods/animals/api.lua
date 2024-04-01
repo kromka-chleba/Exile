@@ -1447,6 +1447,53 @@ function animals.hq_warn(self, threat, prty)
 	mobkit.queue_high(self,func,prty)
 end
 
+-- runfrom, flee from target
+function animals.hq_runfrom(self,prty,tgtobj,notscared)
+	local run_timer = self.runfrom_timer or notscared and (self.runfrom_break_timer or 10) or 20
+  local exclaim_timer = 4
+  local range = minetest.is_player(tgtobj) and self.player_alert_distance
+  or animals.is_interactor(self,'predators',tgtobj) and self.predator_alert_distance
+  or animals.is_interactor(self,'rivals',tgtobj) and self.territorial_alert_distance or self.alert_distance
+  if not notscared then mobkit.make_sound(self,'scared') end
+	local func = function(self)
+		if not mobkit.is_alive(tgtobj) then return true end
+    run_timer = run_timer - self.dtime
+    if not notscared then
+      exclaim_timer = exclaim_timer - self.dtime
+    end
+    if run_timer <= 0 then
+      return true
+    end
+    if exclaim_timer <= 0 then
+      mobkit.make_sound(self,'scared')
+      exclaim_timer = random(37,70)/10
+    end
+    local dist = get_dist(self,tgtobj)
+    if dist <= self.warn_distance and not notscared then
+      run_timer = run_timer + random(1,5)/10 -- random chance of 0.1 to 0.5 second addition
+      if dist <= self.aggression_distance then
+        -- HOLY CLOSE, RUN!!!
+        run_timer = run_timer + random(2,4) -- 2 to 4 second addition
+      end
+    end
+
+		if mobkit.is_queue_empty_low(self) and self.isonground then
+			local pos = mobkit.get_stand_pos(self)
+			local opos = tgtobj:get_pos()
+			if dist < range then
+				local tpos = {x=2*pos.x - opos.x,
+								y=opos.y,
+								z=2*pos.z - opos.z}
+				mobkit.goto_next_waypoint(self,tpos)
+			else
+				self.object:set_velocity({x=0,y=0,z=0})
+				return true
+			end
+		end
+	end
+	mobkit.queue_high(self,func,prty)
+end
+
 --attack or run vs entity or player
 function animals.fight_or_flight(self, threat, prty, chance)
   mobkit.clear_queue_high(self)
@@ -1495,7 +1542,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
       animals.hq_swimfrom(self, 55, minetest.is_player(threat) and threat or threat.object, self.max_speed)
       flee_sound(self)
     else
-      mobkit.hq_runfrom(self,prty, minetest.is_player(threat) and threat or threat.object)
+      animals.hq_runfrom(self,prty, minetest.is_player(threat) and threat or threat.object)
     end
     --mobkit.animate(self,'fast')
     --mobkit.make_sound(self,'scared')
@@ -1990,7 +2037,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
     if time() > timer then
       if not animals.is_interactor(self,"prey",tgt.name) then
         -- we've done enough, get away from them now
-        mobkit.hq_runfrom(self, prty-9, tgtobj)
+        animals.hq_runfrom(self, prty-4, tgtobj, true)
       else
         mobkit.hq_roam(self,15)
       end
@@ -2052,7 +2099,7 @@ function animals.territorial(self, eat, chance_multiplier)
         mobkit.animate(self,'fast')
         if self.class ~= 2 then
           mobkit.make_sound(self,'warn')
-          mobkit.hq_runfrom(self, 25, rival)
+          animals.hq_runfrom(self, 25, rival)
         else
           flee_sound(self)
           animals.hq_swimfrom(self, 25, rival ,self.max_speed)
@@ -2110,7 +2157,7 @@ function animals.territorial(self, eat, chance_multiplier)
         mobkit.animate(self,'fast')
         if self.class ~= 2 then
           mobkit.make_sound(self,'warn')
-          mobkit.hq_runfrom(self,25,rival)
+          animals.hq_runfrom(self,25,rival)
         else
           animals.hq_swimfrom(self, 25, rival ,self.max_speed)
         end
