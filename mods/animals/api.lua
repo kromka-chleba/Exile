@@ -1417,8 +1417,6 @@ function animals.hq_warn(self, threat, prty)
 	local tgttime=0
 	local init = true
   local warn_timer = self.warning_timer or 12
-  local warn_dist = self.warn_distance or math.ceil(self.view_range*0.8) -- 11
-  local aggro_dist = self.aggression_distance or warn_dist/2 -- 4
 	local func = function(self)
 		if not mobkit.is_alive(threat) then return true end
 		if init then
@@ -1428,10 +1426,10 @@ function animals.hq_warn(self, threat, prty)
 
 		local dist = get_dist(self,tgtspec.object)
 
-		if dist > warn_dist then
+		if dist > self.warn_distance then -- originally 11
       -- out of worry
 			return true
-		elseif dist < aggro_dist or timer >= warn_timer then -- too close man
+		elseif dist < self.aggression_distance or timer >= warn_timer then -- too close man (aggro dist was originally 4)
       mobkit.remember(self,'hate',tgtspec.object:get_player_name())
 			animals.hq_attack_eat(self, prty+10, tgtspec.object) -- priority
 		else
@@ -2048,7 +2046,7 @@ function animals.territorial(self, eat, chance_multiplier)
     local rival = mobkit.get_closest_entity(self, riv)
 
     if rival then
-
+      local range = self.territorial_alert_distance or self.alert_distance
       --flee if hurt
       if self.hp < self.max_hp/4 then
         mobkit.animate(self,'fast')
@@ -2060,7 +2058,7 @@ function animals.territorial(self, eat, chance_multiplier)
           animals.hq_swimfrom(self, 25, rival ,self.max_speed)
         end
         return true
-      elseif not mobkit.is_alive(rival) or (self.warn_dist and get_dist(self,rival) < self.warn_dist) then
+      elseif not mobkit.is_alive(rival) or (get_dist(self,rival) < range) then
         return true
       end
 
@@ -2488,9 +2486,13 @@ end
 function animals.get_nearby_player(self,forceplyr)
   -- "forceplyr" bool parameter to force a player despite creative mode
   local plyr = mobkit.get_nearby_player(self) -- get player from mobkit
-  if (plyr) then
+  if plyr then
+    if forceplyr then return plyr end
     -- if player, then check if player is NOT in creative...
-    if (not minimal.player_in_creative(plyr) or forceplyr == true) then
+    if (not minimal.player_in_creative(plyr)) then
+      if get_dist(self,plyr) >= (self.player_alert_distance or self.alert_distance) then
+        return
+      end
       return plyr
     end
   end
@@ -2916,6 +2918,10 @@ function animals.register_animal(name,def)
   def.killer_max_temp = (type(def.killer_max_temp) == "number" and def.killer_max_temp or def.max_temp + 25)
   def.burn_max_temp = (type(def.burn_max_temp) == "number" and def.burn_max_temp or def.max_temp + 55)
   def.absolute_death_temp = (type(def.absolute_death_temp) == "number" and def.absolute_death_temp or def.burn_max_temp + 300)
+  -- set values for aggression, warn, and alert distances
+  def.alert_distance = type(def.alert_distance) == "number" and def.alert_distance or def.view_range
+  def.warn_distance = type(def.warn_distance) == "number" and def.warn_distance or math.ceil(def.view_range*0.8)
+  def.aggression_distance = type(def.aggression_distance) == "number" and def.aggression_distance or def.warn_distance/2
   -- add reference points to initial_properties inside of the entity
   def.max_hp = def.initial_properties.max_hp
   def.visual_size = def.initial_properties.visual_size
