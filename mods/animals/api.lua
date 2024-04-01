@@ -499,15 +499,11 @@ function animals.core_life(self, pos)
   self.age = self.age or mobkit.recall(self,'age') or 0
   self.conserve = self.conserve or mobkit.recall(self,'conserve')
 
-  local lifespan = self.lifespan or 2
-  local energy_loss = self.energy_loss or 0.25
-
   self:modify('age',1)
-
   animals.vitals(self)
   --die from exhaustion, old age, no hp
   local hp = self.hp
-  if self.energy <= 0 or self.age > lifespan or self.hp <= 0 then
+  if self.energy <= 0 or self.age > self.lifespan or self.hp <= 0 then
     if type(self._on_death) == "function" then
       self._on_death(self, pos)
     end
@@ -517,9 +513,9 @@ function animals.core_life(self, pos)
   end
 
   if not self.conserve then
-    self:modify('energy',-energy_loss)
+    self:modify('energy',-self.energy_loss)
   elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
-    self:modify('energy',-energy_loss)
+    self:modify('energy',-self.energy_loss)
   end
 
   -- get temp
@@ -2675,7 +2671,8 @@ function animals.register_animal(name,def)
     min_temp = -10,
     max_temp = 10,
     -- animal energy + reproduction stats
-    energy_max = 100, -- seconds your animal can survive without food
+    energy_max = 100, -- total units your animal can survive without food
+    energy_loss = 0.25, -- how much energy your animal loses per second
     lifespan = 500, -- seconds your animals will survive in total
     energy_egg = 20, -- energy that goes to egg
     egg_timer = 60*5, -- seconds until your animal's egg hatches (default 5 minutes - 60*5)
