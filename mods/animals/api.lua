@@ -495,28 +495,6 @@ end
 ----------------------------------------------------
 --core health, energy and age
 function animals.core_life(self, pos)
-  if type(self["set"]) ~= "function" then
-    function self:set(vname,value,memorize)
-      if minetest.is_player(self) then return value end
-      -- set a value
-      self[vname] = value
-      if memorize then
-        mobkit.remember(self,vname,value)
-      end
-      return value
-    end
-  end
-  if type(self["modify"]) ~= "function" then
-    function self:modify(vname,value,memorize)
-      -- modify a value
-      if type(vname) ~= "string" or type(value) ~= "number" or type(self[vname]) ~= "number" then
-        return value
-      end
-      value = self:set(vname, self[vname] + value, memorize)
-      return value
-    end
-  end
-
   self.energy = self.energy or mobkit.recall(self,'energy') or 1
   self.age = self.age or mobkit.recall(self,'age') or 0
   self.conserve = self.conserve or mobkit.recall(self,'conserve')
@@ -648,12 +626,9 @@ function animals.core_life(self, pos)
   --save energy, age, and other values if provided
   mobkit.remember(self,'age',self.age)
   mobkit.remember(self,'energy',self.energy)
-  --self:set('age',self.age,true)
-  --self:set('energy',self.energy,true)
   if type(self.conserve) == "boolean" then
     -- only animals that try to conserve
     mobkit.remember(self,'conserve',self.conserve)
-    --self:set('conserve',self.conserve,true)
   end
   return true
 end
@@ -2985,6 +2960,28 @@ function animals.register_animal(name,def)
         return on_rightclick(self, clicker, time_from_last_click, tool_capabilities)
       end
     end
+  end
+  -- entity functions
+  -- set and modify
+  function def.set(self,vname,value,memorize)
+    if type(self) ~= "table" and type(self) ~= "userdata" then
+      return value
+    end
+    -- set a value
+    self[vname] = value
+    if memorize then
+      mobkit.remember(self,vname,value)
+    end
+    return value
+  end
+  function def.modify(self,vname,value,memorize)
+    -- modify a value
+    if type(vname) ~= "string" or type(value) ~= "number" or (type(self) ~= "table" and type(self) ~= "userdata")
+    or type(self[vname]) ~= "number" then
+      return value
+    end
+    value = self:set(vname, self[vname] + value, memorize)
+    return value
   end
   -- egg modifications
   local egg_data = {} -- use this to permit proper override of on_construct (returns intended variable properly)
