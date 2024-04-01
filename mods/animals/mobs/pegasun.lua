@@ -419,7 +419,7 @@ local self_data = {
 	max_speed = 2,					-- m/s
 	jump_height = 1.2,				-- nodes/meters
 	view_range = 26,					-- nodes/meters
-  alert_distance = 16
+  alert_distance = 16,
   player_alert_distance = 10,
   stepheight = 1.1,
 	--attack
