@@ -402,7 +402,7 @@ end)
 
 minetest.register_chatcommand("crouch", {
         params = "true | false",
-        description = "Switches crouch mode, for use multiplayer during lag",
+        description = "Switches crouch mode, for use in multiplayer during lag",
         func = function(name, param)
 	   local player = minetest.get_player_by_name(name)
 	   local toggle = not player_crawl[name]
