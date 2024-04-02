@@ -124,8 +124,9 @@ local function sfinv_get(self, player, context)
   local labels = st:read_labels()
   for _, effect in ipairs(labels) do
      y = y + 0.4
-    eff_form = eff_form.."label[0.1,"..y.."; "..effect[1]..
-       " "..effect[2].."]"
+     eff_form = eff_form.."label[0.1,"..y.."; "..effect[1]..
+	(effect[1] ~= "" and " " or "") -- only add a space if effect[1] exists
+	..(effect[2] or "").."]"
   end
 
   local basetex = minetest.formspec_escape(
