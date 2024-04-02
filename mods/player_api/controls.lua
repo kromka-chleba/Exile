@@ -398,6 +398,7 @@ minetest.register_on_leaveplayer(function(player)
 	local name = player:get_player_name()
 	player_sneak[name] = nil
 	player_crawl[name] = nil
+	csm_players[name] = nil
 end)
 
 minetest.register_chatcommand("crouch", {
