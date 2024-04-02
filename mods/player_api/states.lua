@@ -66,11 +66,17 @@ local function load_states(player, pname)
    blank_states(player, pname)
 end
 
-function player_api.get_state(player, modname)
-   return playerstates[player:get_player_name()]
-end
 function player_api.get_state_by_name(playername, modname)
-   return playerstates[playername]
+   local state = playerstates[playername]
+   if not state then
+      minetest.log('error', "No state found for "..playername)
+      return table.copy(pstate) -- give 'em a blank so it don't crash I guess
+   end
+   return state
+end
+function player_api.get_state(player, modname)
+   local playername = player:get_player_name()
+   return player_api.get_state_by_name(playername, modname)
 end
 
 function pstate.add(self, state, progress)
@@ -247,5 +253,4 @@ minetest.register_chatcommand("states", {
        print(dump(player_api.get_state_by_name(name).list))
     end
 })
-
 ]]--
