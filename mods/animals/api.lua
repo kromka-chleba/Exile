@@ -495,41 +495,15 @@ end
 ----------------------------------------------------
 --core health, energy and age
 function animals.core_life(self, pos)
-  if type(self["set"]) ~= "function" then
-    function self:set(vname,value,memorize)
-      if minetest.is_player(self) then return value end
-      -- set a value
-      self[vname] = value
-      if memorize then
-        mobkit.remember(self,vname,value)
-      end
-      return value
-    end
-  end
-  if type(self["modify"]) ~= "function" then
-    function self:modify(vname,value,memorize)
-      -- modify a value
-      if type(vname) ~= "string" or type(value) ~= "number" or type(self[vname]) ~= "number" then
-        return value
-      end
-      value = self:set(vname, self[vname] + value, memorize)
-      return value
-    end
-  end
-
   self.energy = self.energy or mobkit.recall(self,'energy') or 1
   self.age = self.age or mobkit.recall(self,'age') or 0
   self.conserve = self.conserve or mobkit.recall(self,'conserve')
 
-  local lifespan = self.lifespan or 2
-  local energy_loss = self.energy_loss or 0.25
-
   self:modify('age',1)
-
   animals.vitals(self)
   --die from exhaustion, old age, no hp
   local hp = self.hp
-  if self.energy <= 0 or self.age > lifespan or self.hp <= 0 then
+  if self.energy <= 0 or self.age > self.lifespan or self.hp <= 0 then
     if type(self._on_death) == "function" then
       self._on_death(self, pos)
     end
@@ -539,9 +513,9 @@ function animals.core_life(self, pos)
   end
 
   if not self.conserve then
-    self:modify('energy',-energy_loss)
+    self:modify('energy',-self.energy_loss)
   elseif (random() <= 0.005) then -- 0.5% chance to lose energy during energy conservation
-    self:modify('energy',-energy_loss)
+    self:modify('energy',-self.energy_loss)
   end
 
   -- get temp
@@ -648,12 +622,9 @@ function animals.core_life(self, pos)
   --save energy, age, and other values if provided
   mobkit.remember(self,'age',self.age)
   mobkit.remember(self,'energy',self.energy)
-  --self:set('age',self.age,true)
-  --self:set('energy',self.energy,true)
   if type(self.conserve) == "boolean" then
     -- only animals that try to conserve
     mobkit.remember(self,'conserve',self.conserve)
-    --self:set('conserve',self.conserve,true)
   end
   return true
 end
@@ -1442,8 +1413,6 @@ function animals.hq_warn(self, threat, prty)
 	local tgttime=0
 	local init = true
   local warn_timer = self.warning_timer or 12
-  local warn_dist = self.warn_distance or math.ceil(self.view_range*0.8) -- 11
-  local aggro_dist = self.aggression_distance or warn_dist/2 -- 4
 	local func = function(self)
 		if not mobkit.is_alive(threat) then return true end
 		if init then
@@ -1453,10 +1422,10 @@ function animals.hq_warn(self, threat, prty)
 
 		local dist = get_dist(self,tgtspec.object)
 
-		if dist > warn_dist then
+		if dist > self.warn_distance then -- originally 11
       -- out of worry
 			return true
-		elseif dist < aggro_dist or timer >= warn_timer then -- too close man
+		elseif dist < self.aggression_distance or timer >= warn_timer then -- too close man (aggro dist was originally 4)
       mobkit.remember(self,'hate',tgtspec.object:get_player_name())
 			animals.hq_attack_eat(self, prty+10, tgtspec.object) -- priority
 		else
@@ -1468,6 +1437,53 @@ function animals.hq_warn(self, threat, prty)
 			if timer > tgttime then
 				mobkit.make_sound(self,'warn')
 				tgttime = timer + 1.1 + random()*1.5
+			end
+		end
+	end
+	mobkit.queue_high(self,func,prty)
+end
+
+-- runfrom, flee from target
+function animals.hq_runfrom(self,prty,tgtobj,notscared)
+	local run_timer = self.runfrom_timer or notscared and (self.runfrom_break_timer or 10) or 20
+  local exclaim_timer = 4
+  local range = minetest.is_player(tgtobj) and self.player_alert_distance
+  or animals.is_interactor(self,'predators',tgtobj) and self.predator_alert_distance
+  or animals.is_interactor(self,'rivals',tgtobj) and self.territorial_alert_distance or self.alert_distance
+  if not notscared then mobkit.make_sound(self,'scared') end
+	local func = function(self)
+		if not mobkit.is_alive(tgtobj) then return true end
+    run_timer = run_timer - self.dtime
+    if not notscared then
+      exclaim_timer = exclaim_timer - self.dtime
+    end
+    if run_timer <= 0 then
+      return true
+    end
+    if exclaim_timer <= 0 then
+      mobkit.make_sound(self,'scared')
+      exclaim_timer = random(37,70)/10
+    end
+    local dist = get_dist(self,tgtobj)
+    if dist <= self.warn_distance and not notscared then
+      run_timer = run_timer + random(1,5)/10 -- random chance of 0.1 to 0.5 second addition
+      if dist <= self.aggression_distance then
+        -- HOLY CLOSE, RUN!!!
+        run_timer = run_timer + random(2,4) -- 2 to 4 second addition
+      end
+    end
+
+		if mobkit.is_queue_empty_low(self) and self.isonground then
+			local pos = mobkit.get_stand_pos(self)
+			local opos = tgtobj:get_pos()
+			if dist < range then
+				local tpos = {x=2*pos.x - opos.x,
+								y=opos.y,
+								z=2*pos.z - opos.z}
+				mobkit.goto_next_waypoint(self,tpos)
+			else
+				self.object:set_velocity({x=0,y=0,z=0})
+				return true
 			end
 		end
 	end
@@ -1522,7 +1538,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
       animals.hq_swimfrom(self, 55, minetest.is_player(threat) and threat or threat.object, self.max_speed)
       flee_sound(self)
     else
-      mobkit.hq_runfrom(self,prty, minetest.is_player(threat) and threat or threat.object)
+      animals.hq_runfrom(self,prty, minetest.is_player(threat) and threat or threat.object)
     end
     --mobkit.animate(self,'fast')
     --mobkit.make_sound(self,'scared')
@@ -2017,7 +2033,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
     if time() > timer then
       if not animals.is_interactor(self,"prey",tgt.name) then
         -- we've done enough, get away from them now
-        mobkit.hq_runfrom(self, prty-9, tgtobj)
+        animals.hq_runfrom(self, prty-4, tgtobj, true)
       else
         mobkit.hq_roam(self,15)
       end
@@ -2073,19 +2089,19 @@ function animals.territorial(self, eat, chance_multiplier)
     local rival = mobkit.get_closest_entity(self, riv)
 
     if rival then
-
+      local range = self.territorial_alert_distance or self.alert_distance
       --flee if hurt
       if self.hp < self.max_hp/4 then
         mobkit.animate(self,'fast')
         if self.class ~= 2 then
           mobkit.make_sound(self,'warn')
-          mobkit.hq_runfrom(self, 25, rival)
+          animals.hq_runfrom(self, 25, rival)
         else
           flee_sound(self)
           animals.hq_swimfrom(self, 25, rival ,self.max_speed)
         end
         return true
-      elseif not mobkit.is_alive(rival) or (self.warn_dist and get_dist(self,rival) < self.warn_dist) then
+      elseif not mobkit.is_alive(rival) or (get_dist(self,rival) < range) then
         return true
       end
 
@@ -2137,7 +2153,7 @@ function animals.territorial(self, eat, chance_multiplier)
         mobkit.animate(self,'fast')
         if self.class ~= 2 then
           mobkit.make_sound(self,'warn')
-          mobkit.hq_runfrom(self,25,rival)
+          animals.hq_runfrom(self,25,rival)
         else
           animals.hq_swimfrom(self, 25, rival ,self.max_speed)
         end
@@ -2513,9 +2529,13 @@ end
 function animals.get_nearby_player(self,forceplyr)
   -- "forceplyr" bool parameter to force a player despite creative mode
   local plyr = mobkit.get_nearby_player(self) -- get player from mobkit
-  if (plyr) then
+  if plyr then
+    if forceplyr then return plyr end
     -- if player, then check if player is NOT in creative...
-    if (not minimal.player_in_creative(plyr) or forceplyr == true) then
+    if (not minimal.player_in_creative(plyr)) then
+      if get_dist(self,plyr) >= (self.player_alert_distance or self.alert_distance) then
+        return
+      end
       return plyr
     end
   end
@@ -2651,7 +2671,8 @@ function animals.register_animal(name,def)
     min_temp = -10,
     max_temp = 10,
     -- animal energy + reproduction stats
-    energy_max = 100, -- seconds your animal can survive without food
+    energy_max = 100, -- total units your animal can survive without food
+    energy_loss = 0.25, -- how much energy your animal loses per second
     lifespan = 500, -- seconds your animals will survive in total
     energy_egg = 20, -- energy that goes to egg
     egg_timer = 60*5, -- seconds until your animal's egg hatches (default 5 minutes - 60*5)
@@ -2941,6 +2962,10 @@ function animals.register_animal(name,def)
   def.killer_max_temp = (type(def.killer_max_temp) == "number" and def.killer_max_temp or def.max_temp + 25)
   def.burn_max_temp = (type(def.burn_max_temp) == "number" and def.burn_max_temp or def.max_temp + 55)
   def.absolute_death_temp = (type(def.absolute_death_temp) == "number" and def.absolute_death_temp or def.burn_max_temp + 300)
+  -- set values for aggression, warn, and alert distances
+  def.alert_distance = type(def.alert_distance) == "number" and def.alert_distance or def.view_range
+  def.warn_distance = type(def.warn_distance) == "number" and def.warn_distance or math.ceil(def.view_range*0.8)
+  def.aggression_distance = type(def.aggression_distance) == "number" and def.aggression_distance or def.warn_distance/2
   -- add reference points to initial_properties inside of the entity
   def.max_hp = def.initial_properties.max_hp
   def.visual_size = def.initial_properties.visual_size
@@ -2985,6 +3010,28 @@ function animals.register_animal(name,def)
         return on_rightclick(self, clicker, time_from_last_click, tool_capabilities)
       end
     end
+  end
+  -- entity functions
+  -- set and modify
+  function def.set(self,vname,value,memorize)
+    if type(self) ~= "table" and type(self) ~= "userdata" then
+      return value
+    end
+    -- set a value
+    self[vname] = value
+    if memorize then
+      mobkit.remember(self,vname,value)
+    end
+    return value
+  end
+  function def.modify(self,vname,value,memorize)
+    -- modify a value
+    if type(vname) ~= "string" or type(value) ~= "number" or (type(self) ~= "table" and type(self) ~= "userdata")
+    or type(self[vname]) ~= "number" then
+      return value
+    end
+    value = self:set(vname, self[vname] + value, memorize)
+    return value
   end
   -- egg modifications
   local egg_data = {} -- use this to permit proper override of on_construct (returns intended variable properly)
