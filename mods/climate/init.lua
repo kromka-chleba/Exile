@@ -659,15 +659,15 @@ minetest.register_chatcommand("set_woverride", {
     end
 })
 
-minetest.register_on_mods_loaded(function()
-      local use_beerchat = minetest.get_modpath('beerchat')
-      if use_beerchat then -- we have beerchat installed, add a date command
-	 beerchat.register_relaycommand("date", function()
-                  local date = climate.datestring()
-		  return date
+if minetest.get_modpath('beerchat') then -- we have beerchat installed
+   beerchat = beerchat
+   minetest.register_on_mods_loaded(function()
+	 beerchat.register_relaycommand("date", function(uname, text, protocol)
+                local date = climate.datestring()
+		return date
 	 end)
-      end
-end)
+   end)
+end
 
 
 -- MOON PHASE CHECKING LOOP
