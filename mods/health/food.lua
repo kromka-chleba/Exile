@@ -21,6 +21,8 @@ over a fire.
 #TODO: Test this ^^ after the cooking pot supports both tables
 ]]--
 
+HEALTH = HEALTH
+
 -- Internationalization
 local S = HEALTH.S
 
@@ -213,12 +215,11 @@ function HEALTH.add_harm(table)
 end
 
 function HEALTH.add_food_hooks(name,info)
-  if type(info) == "table" and not food_table[name] then
-    food_table[name] = info
-  elseif not food_table[name] then
-    return
-  end
-  if minetest.get_item_group(name,'edible') == 0 then
+   -- Adds hooks for edible foods, as well as bakeable things
+   if type(info) == "table" then
+      food_table[name] = info
+   end
+   if minetest.get_item_group(name,'edible') == 0 and food_table[name] then
     minetest.log("warning", "No edible group set for "..name..", patching")
     local groups = minetest.registered_items[name].groups or {}
     groups.edible = 1
@@ -230,18 +231,19 @@ function HEALTH.add_food_hooks(name,info)
    if bake_table[name] then
       minetest.override_item(name, bake_redef)
    end
-   if string.match(name, "_cooked") then
+   if string.match(name, "_cooked") then -- If it's cooked, it can burn
 	 minetest.override_item(name, bake_redef)
    end
 end
 
 -- Add food hooks to all nodes in edible group
 minetest.register_on_mods_loaded(function()
-	for name,_ in pairs(minetest.registered_nodes) do
-		if minetest.get_item_group(name,'edible') > 0 then
-      HEALTH.add_food_hooks(name)
-		end
-	end
+      for name,_ in pairs(minetest.registered_nodes) do
+	 if minetest.get_item_group(name,'edible') > 0
+	 or food_table[name] or bake_table[name] then
+	    HEALTH.add_food_hooks(name)
+	 end
+      end
 end)
 
 -- Finalized table list
