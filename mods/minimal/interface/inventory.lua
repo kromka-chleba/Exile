@@ -461,7 +461,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 				local color = item.have >= item.need and "#6f6" or "#f66"
 				tool_tip = tool_tip
 					..  minetest.get_color_escape_sequence(color)
-					..  crafting.get_item_description(item.name) .. ": "
+					..  crafting.get_short_description(item.name) .. ": "
 					..  item.have .."/".. item.need .." "
 			end
 			recipesFS[#recipesFS + 1] = minetest.formspec_escape(tool_tip)

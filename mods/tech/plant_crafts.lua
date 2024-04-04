@@ -124,7 +124,7 @@ minetest.register_node("tech:maraka_bread", {
 		type = "fixed",
 		fixed = {-0.3, -0.5, -0.3, 0.3, -0.3, 0.3},
 	},
-	groups = {crumbly = 3, dig_immediate = 3, temp_pass = 1, heatable = 80, edible = 1},
+	groups = {crumbly = 3, dig_immediate = 3, temp_pass = 1, heatable = 80},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
 })
 
@@ -143,6 +143,7 @@ minetest.register_node("tech:maraka_bread_cooked", {
 	},
 	groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, temp_pass = 1, heatable = 80, edible = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
+	_use_tip = "Eat",
 })
 
 --maraka cake, burned
@@ -160,6 +161,7 @@ minetest.register_node("tech:maraka_bread_burned", {
   },
   groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, flammable = 1,  temp_pass = 1, edible = 1},
   sounds = nodes_nature.node_sound_dirt_defaults(),
+  _use_tip = "Eat",
 })
 
 -----------
@@ -175,7 +177,7 @@ minetest.register_node("tech:peeled_anperla", {
     type = "fixed",
     fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
   },
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, temp_pass = 1, heatable = 70, edible = 1},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, temp_pass = 1, heatable = 70},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
 })
 
@@ -192,6 +194,7 @@ minetest.register_node("tech:peeled_anperla_burned", {
   },
 	groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, flammable = 1,  temp_pass = 1, edible = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
+	_use_tip = "Eat",
 })
 
 minetest.register_node("tech:peeled_anperla_cooked", {
@@ -207,6 +210,7 @@ minetest.register_node("tech:peeled_anperla_cooked", {
   },
 	groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, heatable = 70,  temp_pass = 1, edible = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
+	_use_tip = "Eat",
 })
 
 --mash (a way to bulk cook tubers - 6 at once)
@@ -221,7 +225,7 @@ minetest.register_node("tech:mashed_anperla", {
     type = "fixed",
     fixed = {-6/16, -0.5, -6/16, 6/16, 1/16, 6/16},
   },
-	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, temp_pass = 1, heatable = 70, edible = 1},
+	groups = {snappy = 3, falling_node = 1, dig_immediate = 3, temp_pass = 1, heatable = 70},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
 })
 
@@ -238,6 +242,7 @@ minetest.register_node("tech:mashed_anperla_cooked", {
   },
 	groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, heatable = 70,  temp_pass = 1, edible = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
+	_use_tip = "Eat",
 })
 
 minetest.register_node("tech:mashed_anperla_burned", {
@@ -253,6 +258,7 @@ minetest.register_node("tech:mashed_anperla_burned", {
   },
   groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, flammable = 1,  temp_pass = 1, edible = 1},
   sounds = nodes_nature.node_sound_dirt_defaults(),
+  _use_tip = "Eat",
 })
 
 ------------------------------------------

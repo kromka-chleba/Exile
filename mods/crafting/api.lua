@@ -502,9 +502,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
    -- Add Tool Tips to Description
 
    if idef._tool_tips and idef._tool_tips ~= '' then
-      imeta:set_string('description',sdesc .. idef._tool_tips)
-	--  minetest.override_item(name, { description = newdesc,
-    --                        _orig_desc = orig_desc })
+      --imeta:set_string('description',sdesc .. idef._tool_tips)
 
    end
    local max_amt = itemstack:get_stack_max()

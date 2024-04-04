@@ -20,12 +20,17 @@ minetest.register_on_mods_loaded(function()
 				if placetip then
 					ttip = ttip.."\n  v : "..placetip
 				end
-				minetest.override_item(name, { 
-					_tool_tips=minetest.colorize("#ccccff", ttip)
+				local orig_desc = def.description
+				local new_desc = orig_desc..ttip
+				minetest.override_item(name, {
+					_tool_tips=minetest.colorize("#ccccff",
+								     ttip),
+					description = new_desc,
+					_orig_desc = orig_desc
 				})
-
 			end
 		end
 	end
+
 end)
 

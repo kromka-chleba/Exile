@@ -38,20 +38,24 @@ local function get_global_tab_updater(tab_name)
 end
 
 
-function crafting.get_item_description(name)
+function crafting.get_item_description(name, short)
 	if name:sub(1, 6) == "group:" then
 		local group = name:sub(7, #name):gsub("%_", " ")
 		return "Any " .. group
 	else
 		local def = minetest.registered_items[name] or {}
-		return def.description or name
+		return (short and def._orig_desc or nil )
+		   or def.description or name
 	end
+end
+function crafting.get_short_description(name)
+   return crafting.get_item_description(name, true)
 end
 
 function crafting.make_result_selector(player, type, level, size, context)
 	error('Depricated Function! Should not be running')
 	local page = context.crafting_page or 1
-  
+
 	local full_recipes = crafting.get_all_for_player(player, type, level)
 	local recipes
 	if context.crafting_query then
