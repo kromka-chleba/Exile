@@ -212,7 +212,7 @@ local info = {
    ["tr_hp"]    = { S("Set HP"), S("Set player hp to <value>, 0-20")},
    ["tr_hunger"]= { S("Set hunger"), S("Set player hunger to <value> percent")},
    ["tr_thirst"]= { S("Set thirst"), S("Set player thirst to <value> percent")},
-   ["tr_teleport"]={S("Teleport"), S("Send player an exact xyz position")..
+   ["tr_teleport"]={S("Teleport"), S("Send player to an exact xyz position")..
 		      ", ( 125, 9003, -57 )" },
    ["tr_relaport"]={S("Relaport"), S("Send player a relative xyz distance")..
 		      ", ( 1, 10, -5 )" },
@@ -243,8 +243,13 @@ local noinputfield = {
    ["tr_hudshow"] = true
 }
 --Register a function to add as a trigger
--- ex: triggers.register("tr_mytrigger", mytriggerfunc, false
---                       {"My Trigger", "This does custom stuff"}}
+
+-- for example:
+--     local function mytriggerfunc(player, pname, pos, nmeta, metastring) end
+--
+--     triggers.register("tr_mytrigger", mytriggerfunc, false,
+--                       {"My Trigger", "This does custom stuff"})
+
 function triggers.register(name, trfunction, inputfield, infotable)
    triggers.defs[name] = trfunction
    info[name] = infotable

@@ -391,7 +391,7 @@ function zone.instance(newpos, ztable)
       ztb.ztr_thispos = newpos -- and shift thispos
       return ztb
    end
-   if newpos == nil then   -- Hoist all zones in instance table now
+   if newpos == "close" then   -- Hoist all zones in instance table now
       for _, dat in pairs(ins) do
 	 local def, id = metaload(dat)
 	 local label = dat.ztr_zt_label or "unnamed"
