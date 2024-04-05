@@ -16,28 +16,6 @@
 -- License along with this library; if not, write to the Free Software
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-local player_inv_hashes = {}
-
--- this bad boy checks for inventory changes to update the global inventory tabs
-local function get_global_tab_updater(tab_name)
-	error('Depricated Function! Should not be running')
-    local updater
-    updater = function()
-        for _, player in pairs(minetest.get_connected_players() or {}) do
-            if sfinv.get_or_create_context(player).page == tab_name then
-                local hash = crafting.calc_inventory_list_hash(player:get_inventory(), "main")
-                local old_hash = player_inv_hashes[player:get_player_name()]
-                if hash ~= old_hash then
-                    sfinv.set_page(player, tab_name)
-                end
-            end
-        end
-        minetest.after(1, updater)
-    end
-    return updater
-end
-
-
 function crafting.get_item_description(name, short)
 	if name:sub(1, 6) == "group:" then
 		local group = name:sub(7, #name):gsub("%_", " ")
@@ -50,161 +28,6 @@ function crafting.get_item_description(name, short)
 end
 function crafting.get_short_description(name)
    return crafting.get_item_description(name, true)
-end
-
-function crafting.make_result_selector(player, type, level, size, context)
-	error('Depricated Function! Should not be running')
-	local page = context.crafting_page or 1
-
-	local full_recipes = crafting.get_all_for_player(player, type, level)
-	local recipes
-	if context.crafting_query then
-		recipes = {}
-
-		for i = 1, #full_recipes do
-			local output = full_recipes[i].recipe.output
-			local desc   = get_item_description(output):lower()
-			if string.find(output, context.crafting_query, 1, true) or
-					string.find(desc, context.crafting_query, 1, true) then
-				recipes[#recipes + 1] = full_recipes[i]
-			end
-		end
-	else
-		recipes = full_recipes
-	end
-
-	local num_per_page = size.x * size.y
-	local max_pages = math.floor(0.999 + #recipes / num_per_page)
-	local pagedown = "button[-1.4,0.5;0.8,0.8;prev;<]"
-	local pageup = "button[-0.8,0.5;0.8,0.8;next;>]"
-  if (max_pages == 0) then -- if max_pages is 0 then make it all 0!!! :D
-     page = 0
-     max_pages = 0
-  elseif max_pages == 1 then
-     pagedown = ""
-     pageup = ""
-  elseif page > max_pages or page < 1 then
-     page = ((page - 1) % max_pages) + 1
-  end
-  context.crafting_page = page -- update context.crafting_page to any modifications made by above code
-
-	local start_i  = (page - 1) * num_per_page + 1
-
-	local formspec = {}
-
-	formspec[#formspec + 1] = "container["
-	formspec[#formspec + 1] = tostring(size.x)
-	formspec[#formspec + 1] = ","
-	formspec[#formspec + 1] = tostring(size.y)
-	formspec[#formspec + 1] = "]"
-
-	-- Crafted by label
-	local creator = context.creator
-	if creator and creator ~= '' then
-		local creator_offset_x =  (3*(30-string.len(creator))/30/2) - 8
-		local craftedby_offset_x = -7.05 -- 3*(30-string.len('crafted by'))/30/2
-		formspec[#formspec + 1] = "label["..craftedby_offset_x..",0.45;Crafted by:]"
-		formspec[#formspec + 1] = "label["..creator_offset_x..",0.75;"..creator.."]"
-	end
-
-	formspec[#formspec + 1] = "style_type[item_image_button;border=false]"
-	formspec[#formspec + 1] = "field_close_on_enter[query;false]"
-	formspec[#formspec + 1] = "field[-4.75,0.81;3,0.8;query;;"
-	formspec[#formspec + 1] = context.crafting_query
-	formspec[#formspec + 1] = "]button[-2.2,0.5;0.8,0.8;search;?]"
-	formspec[#formspec + 1] = pagedown
-	formspec[#formspec + 1] = pageup
-	formspec[#formspec + 1] = "container_end[]"
-	formspec[#formspec + 1] = "label[0,-0.25;"
-	formspec[#formspec + 1] = minetest.formspec_escape("Page: " ..
-			page .. "/" .. max_pages ..
-			" | Unlocked: " .. #full_recipes .. " / " .. #crafting.recipes[type])
-	formspec[#formspec + 1] = "]"
-
-	local x = 0
-	local y = 0
-	local y_offset = 0.2
-	for i = start_i, math.min(#recipes, start_i * num_per_page)  do
-	   local result = recipes[i]
-	   if result then
-		local recipe = result.recipe
-
-		local itemname = ItemStack(recipe.output):get_name()
-		local item_description = crafting.get_item_description(itemname)
-
-		formspec[#formspec + 1] = "item_image_button["
-		formspec[#formspec + 1] = x
-		formspec[#formspec + 1] = ","
-		formspec[#formspec + 1] = y + y_offset
-		formspec[#formspec + 1] = ";1,1;"
-		formspec[#formspec + 1] = recipe.output
-		formspec[#formspec + 1] = ";result_"
-		formspec[#formspec + 1] = tostring(recipe.id)
-		formspec[#formspec + 1] = ";]"
-
-		formspec[#formspec + 1] = "tooltip[result_"
-		formspec[#formspec + 1] = tostring(recipe.id)
-		formspec[#formspec + 1] = ";"
-		formspec[#formspec + 1] = minetest.formspec_escape(item_description .. "\n")
-		local input_line = 0 -- Recipe input items line
-
-		local itemtab = {};
-		for j, item in pairs(result.items) do
-			if item.line then
-				if input_line ~= item.line then
-					itemtab[#itemtab+1] = "\n"
-					input_line = input_line + 1
-				else
-					itemtab[#itemtab+1] = "; "
-				end
-			else
-				itemtab[#itemtab+1] = "\n"
-			end
-			local color = item.have >= item.need and "#6f6" or "#f66"
-				itemtab[#itemtab + 1] = minetest.get_color_escape_sequence(color)
-				itemtab[#itemtab + 1] = get_item_description(item.name) .. ": "
-				itemtab[#itemtab + 1] = item.have .. "/".. item.need
-		end
-		formspec[#formspec + 1] = minetest.formspec_escape(table.concat(itemtab, ""))
-		formspec[#formspec + 1] = minetest.get_color_escape_sequence("#ffffff")
-		formspec[#formspec + 1] = "]"
-
-		formspec[#formspec + 1] = "image["
-		formspec[#formspec + 1] = x
-		formspec[#formspec + 1] = ","
-		formspec[#formspec + 1] = y + y_offset
-		if result.craftable then
-			formspec[#formspec + 1] = ";1,1;crafting_slot_craftable.png]"
-		else
-			formspec[#formspec + 1] = ";1,1;crafting_slot_uncraftable.png]"
-		end
-
-		x = x + 1
-		if x == size.x then
-			x = 0
-			y = y + 1
-		end
-		if y == size.y then
-			break
-		end
-	   end
-	end
-
-	while y < size.y do
-		while x < size.x do
-			formspec[#formspec + 1] = "image["
-			formspec[#formspec + 1] = tostring(x)
-			formspec[#formspec + 1] = ","
-			formspec[#formspec + 1] = tostring(y + y_offset)
-			formspec[#formspec + 1] = ";1,1;crafting_slot_empty.png]"
-
-			x = x + 1
-		end
-		x = 0
-		y = y + 1
-	end
---print (dump(formspec))
-	return table.concat(formspec, "")
 end
 
 local function sanitize(badstring)
@@ -270,42 +93,13 @@ function crafting.result_select_on_receive_results(player, type, level, context,
 	end
 end
 
-function crafting.make_global_inventory_tab(tab_name, desc, crafting_name, gamemode)
-	error('Depricated Function! Should not be running')
-    if minetest.global_exists("sfinv") then
-        sfinv.register_page(
-            tab_name, {
-                title = desc,
-                -- this one enables or disables tabs in global inventory
-                is_in_nav = function(self, player, context)
-                    local creative_enabled = creative.is_enabled_for(player:get_player_name())
-                    return gamemode.creative and creative_enabled or
-                        not gamemode.creative and not creative_enabled
-				end,
-                get = function(self, player, context)
-                    local formspec = crafting.make_result_selector(player, crafting_name, 1, { x = 8, y = 3 }, context)
-                    formspec = formspec .. "list[detached:creative_trash;main;0,3.4;1,1;]" ..
-                        "image[0.05,3.5;0.8,0.8;creative_trash_icon.png]"
-                    return sfinv.make_formspec(player, context, formspec, true)
-                end,
-                on_player_receive_fields = function(self, player, context, fields)
-                    if crafting.result_select_on_receive_results(player, crafting_name, 1, context, fields) then
-                        sfinv.set_player_inventory_formspec(player)
-                    end
-                    return true
-                end
-        })
-        minetest.after(1, get_global_tab_updater(tab_name)) -- updates the tabs
-    end
-end
-
 local node_fs_context = {}
 local node_serial = 0
 -- table of formname tabs and tab labels for tabheader by formname
 local formname_tabs = {
 	-- types = table of crafting types to make tabs
 	-- labels = label to use on the tabs
-} 
+}
 
 local function make_on_show_function(ctype, level, inv_size, context)
 	node_serial = node_serial + 1
@@ -332,13 +126,13 @@ local function make_on_show_function(ctype, level, inv_size, context)
 			end
 			context.selected_tab = selected_tab
 			-- Generate and save tab labels
-			if not tab_labels then 
+			if not tab_labels then
 				tab_labels = ""
 				for _, tab in ipairs(types) do
 					local label = crafting.tab_labels[tab] or tab -- default to using tab name as label
 						tab_labels = tab_labels..label..','
 				end
-				tab_labels = tab_labels:sub(1, -2) -- remove last , 
+				tab_labels = tab_labels:sub(1, -2) -- remove last ,
 				formname_tabs[formname].labels = tab_labels
 			end
 			formname_tabs[formname].labels = tab_labels
