@@ -608,14 +608,14 @@ minetest.register_node("artifacts:singing_stone_b", {
 	on_construct = function(pos)
 		--sing, and start timer to turn off
 		minetest.get_node_timer(pos):start(1)
-    local pitches = { -- old notes appeared to be G4, D#4, C4, A4 (in order)
-      0.761, -- G3 (195.117hz)
-      1, -- C4 (256.395hz)
-      --1.14, -- D4 (293.572hz)
-      1.2, -- D#4 (307.674hz)
-      1.37, -- F4 (349.979hz)
-      1.54, -- G4 (393.566hz)
-      1.82, -- A#4 (465.357hz)
+    local pitches = { -- old notes appeared to be G4, D#4, C4, A4/A#4 (in order)
+      195.117/260, -- G3 (195.117hz)
+      1, -- C4 (260hz)
+      294.870/260, -- D4 (294.870hz)
+      310.238/260, -- D#4 (310.238hz)
+      348.697/260, -- F4 (348.697hz)
+      391.259/260, -- G4 (391.259hz)
+      469.203/260, -- A#4 (469.203hz)
     }
 		minimal.sound_play({name="artifacts_singing_stone", pos = pos, gain = {0.1,0.3},
       pitch = pitches[math.random(#pitches)],max_hear_distance = 8})
