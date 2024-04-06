@@ -59,19 +59,28 @@ local function burn_cane(pos)
    return true -- fuel used
 end
 
-local function do_burn(flames, fuel_pos, fuel_def, fuel_node)
+local function do_burn(fsrc, fuel_pos, fuel_def, fuel_node, is_igniter)
+   local fnode = minetest.get_node(fsrc)
+   local function remove_flame() -- Remove flames, not other igniters
+      if not is_igniter -- called from flame timer, it's always a flame
+	 or minetest.get_item_group(fnode.name, "flames") > 0 then
+	 minetest.remove_node(fsrc)
+	 return
+      end
+   end
+
    local numflames = 1
    local fuelused = false
-   if #flames > 0 then -- it's a pos table from the ABM
-      numflames = #flames -- count how many are near
-      flames = flames[math.random(1, #flames)] -- and pick one
+   if #fsrc > 0 then -- it's a pos table from the ABM
+      numflames = #fsrc -- count how many are near
+      fsrc = fsrc[math.random(1, #fsrc)] -- and pick one
    end
 
    -- multiplayer spread reduction, including no flame ignition
    if ( not minetest.is_singleplayer and
 	math.random(1,5) > 3 and
 	minetest.find_node_near(fuel_pos, 1, "group:igniter") == nil ) then
-      minetest.remove_node(flames)
+      remove_flame()
       return false
    end
    if not fuel_def then -- The flame timer doesn't know details of nearby fuel
@@ -81,11 +90,11 @@ local function do_burn(flames, fuel_pos, fuel_def, fuel_node)
 
    -- Check the flames versus flammability of this fuel node
    local roll = math.random(1, fuel_def.groups.flammable) - numflames
-   if roll > 1 then -- 1 in x chance, increased by more flames
-      minetest.remove_node(flames)
+   if roll > 1 then -- 1 in x chance to not die, increased by more flames
+      remove_flame()
       return false
    end
-   -- And now, the actual burn sequence
+   -- Burn success! And now, the actual burn sequence
    if fuel_def.on_burn then -- first try on_burn
       fuel_def.on_burn(fuel_pos)
       fuelused = true
@@ -358,7 +367,7 @@ minetest.register_abm({
 	 local ignition = minetest.find_node_near(pos, 1, "group:igniter")
 	 if not ignition then find_and_dieout() return end
 
-	 do_burn(ignition, pos, def, node)
+	 do_burn(ignition, pos, def, node, true)
       end,
 })
 
