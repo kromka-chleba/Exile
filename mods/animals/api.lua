@@ -2268,7 +2268,7 @@ function animals.flock(self, prty, min_dist, aqua_speed)
         mobkit.make_sound(self,'call')
         animals.hq_flock(self, prty, friend, min_dist)
       end
-      return
+      return true
     end
   end
 
