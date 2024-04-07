@@ -70,7 +70,7 @@ local function brain(self)
 			if light <= 12 then
 				--hungry eat stuff in the dark
 				if self.energy < self.energy_max then
-					if  animals.eat_flora(pos, 0.006) == true then
+					if  animals.eat_flora(self, 0.006) == true then
 						self:modify('energy',10)
 					elseif animals.eat_grassy_sediment_under(pos, 0.01) == true then
 						self:modify('energy',5)
@@ -86,7 +86,7 @@ local function brain(self)
 				end
 			elseif random()<0.5 and self.energy < self.energy_max then
 				--slower, less effective feeding during day
-				if  animals.eat_flora(pos, 0.001) then
+				if  animals.eat_flora(self, 0.001) then
 					self:modify('energy',4)
 				elseif animals.eat_grassy_sediment_under(pos, 0.001) then
 					self:modify('energy',1)

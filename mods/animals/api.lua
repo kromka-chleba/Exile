@@ -1085,9 +1085,11 @@ end
 ----------------------------------------------
 --roam to a walkable (by group) i.e. walk into the node itself c.f. under
 function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
-   -- self, groups (table or string), ignoregroups (table or string), priority
-  local timer = time() + 15
-
+  -- self, groups (table or string), ignoregroups (table or string), priority
+  if not (mobkit.is_queue_empty_low(self) and self.isonground) then
+    return
+  end
+  --[
   if (type(groups) == "string") then
     groups = {groups}
   elseif (type(groups) ~= "table") then
@@ -1098,6 +1100,49 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
   elseif (type(iggroups) ~= "table") then
     iggroups = {}
   end
+  local range = math.min(self.view_range,2)
+  local pos = mobkit.get_stand_pos(self)
+  if self.scan_next and self.scan_next >= time() then
+    self.scannable = nil
+  end
+  if not self.scannable then
+    self.scan_next = time() + 20
+    local scannable_groups = table.copy(groups)
+    for gnum,group in pairs(scannable_groups) do
+      scannable_groups[gnum] = "group:"..group
+    end
+    local scanned = minetest.find_nodes_in_area_under_air(
+    minimal.shift_pos(pos,{z=-range,y=-2,x=-range}),minimal.shift_pos(pos,{z=range,y=1,x=range}),scannable_groups)
+    self.scannable = {}
+    for _,npos in pairs(scanned) do
+      local node = minetest.registered_nodes[minetest.get_node(npos).name]
+      if node and node.groups and node.drawtype ~= "liquid" then
+        local canadd = true
+        for _,group in pairs(iggroups) do
+          if node.groups[group] then
+            canadd = false
+            break
+          end
+        end
+        self.scannable[#self.scannable + 1] = canadd and npos or nil
+      end
+    end
+  end
+  local scan_index = self.scannable and random(1,#self.scannable) or 0
+  if scan_index > 0 and self.scannable[scan_index] then
+    local tpos = self.scannable[scan_index]
+    if not animals.temp_comfy(self,climate.get_point_temp(tpos, true)) then
+      self.scannable[scan_index] = nil
+      return
+    end
+    -- walk to it
+    mobkit.dumbstep(self, tpos.y - pos.y, tpos, 0.3)
+    return true
+  elseif random() <= 0.3 then
+    self.scannable = nil
+  end
+  --]]
+  --[[
   if mobkit.is_queue_empty_low(self) and self.isonground then
      local neighbor = random(8)
 
@@ -1138,6 +1183,7 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
     end
   end
   --mobkit.queue_high(self,func,prty)
+  --]]
 end
 
 
@@ -1768,8 +1814,8 @@ end
 ----------------------------------------------------
 --eating any flora
 
-function animals.eat_flora(pos, chance)
-  local p = mobkit.get_node_pos(pos)
+function animals.eat_flora(self, chance)
+  local p = mobkit.get_node_pos(mobkit.get_stand_pos(self))
   local node = minetest.get_node(p).name
 
   if minetest.get_item_group(node, "flora") > 0
@@ -1778,6 +1824,14 @@ function animals.eat_flora(pos, chance)
     --gain energy
     if random()< chance then
       --destroy the plant
+      if self.scannable then
+        for posi,pos in pairs(self.scannable) do
+          if pos == p then
+            self.scannable[posi] = nil
+            break
+          end
+        end
+      end
       minetest.set_node(p, {name = 'air'})
       minetest.sound_play("nodes_nature_dig_snappy", {gain = 0.2, pos = pos, max_hear_distance = 10})
     end

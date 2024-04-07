@@ -65,12 +65,12 @@ local function brain(self)
 				--explore during midday
 				ces = ismale and 0.8 or ces
 			end
-      local hng_percent = (self.energy_max * (ismale and 0.2 or 0.5))/self.energy -- hunger_percent
+      local hng_percent = (self.energy_max * (ismale and 0.35 or 0.5))/self.energy -- hunger_percent
       -- hunger_percent - creates a percentage by dividing a percentage of energy_max by the current energy.
       -- The lower the energy, the higher the percentage
       -- if energy is equal or less than 20% (male) or 55% (female) of energy_max, it will be 1 or higher
       -- more emergent need to find food if hng_percent is greater than 150%
-      ces = (hng_percent >= 0.6 and ces * 1+hng_percent) or ces -- more likely to go find food the hungrier we are
+      ces = (hng_percent >= 1.5 and ces * 1+hng_percent) or ces -- more likely to go find food the hungrier we are
       if random() < ces then
         -- explore or feed
         mobkit.animate(self,'walk') -- expect walking (going places)
@@ -79,7 +79,7 @@ local function brain(self)
           mobkit.animate(self,'stand') -- expect standing (eating)
           local found_food = true -- assume we found food
           if ismale then
-            found_food = animals.eat_flora(pos,0.002)
+            found_food = animals.eat_flora(self,0.001)
             if found_food then
               self:modify('energy',12)
             else
@@ -88,7 +88,7 @@ local function brain(self)
           else
             -- females much more predatory and hungrier than males (gotta get energy for babies)
             found_food = (random() <= 0.85 and animals.prey_hunt(self,30))
-            if (not found_food) and animals.eat_flora(pos,0.009) == true then
+            if (not found_food) and animals.eat_flora(self,0.005) == true then
               self:modify('energy',9)
               found_food = true
             end
