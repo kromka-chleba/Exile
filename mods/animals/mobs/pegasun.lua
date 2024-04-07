@@ -134,11 +134,11 @@ local function brain(self)
           -- territorial
           animals.territorial(self, false)
       -- socialize with the flock \/
-        elseif not animals.flock(self, 15, self.aggression_distance) then 
+        elseif not animals.flock(self, 20, self.aggression_distance) then 
           -- hmm... they're not here...
-          if not animals.flock(self, 20, self.warn_distance) then
+          if not animals.flock(self, 25, self.warn_distance) then
             -- umm...
-            if not animals.flock(self, 30, self.view_range) then
+            if not animals.flock(self, 35, self.view_range) then
               -- where is everybody?? getting really worried here...
               mobkit.hq_roam(self,40)
             end
