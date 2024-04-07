@@ -582,6 +582,7 @@ minetest.register_node("artifacts:singing_stone", {
 
 local singing_pitches = { -- old notes appeared to be G4, D#4, C4, A4/A#4 (in order)
   195.117/260, -- G3 (195.117hz)
+  --221.022/260, -- A3 (217.369hz)
   1, -- C4 (260hz)
   294.870/260, -- D4 (294.870hz)
   310.238/260, -- D#4 (310.238hz)
