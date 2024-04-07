@@ -1098,59 +1098,46 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
   elseif (type(iggroups) ~= "table") then
     iggroups = {}
   end
+  if mobkit.is_queue_empty_low(self) and self.isonground then
+     local neighbor = random(8)
 
-  local func=function(self)
+     local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(
+  self, neighbor)
 
-    if time() > timer then
-      return true
+    if (tpos) then
+      local temp = climate.get_point_temp(tpos, true)
+      if not (animals.temp_comfy(self,temp)) then
+        -- do not go to this position
+        return
+      end
     end
 
-    if mobkit.is_queue_empty_low(self) and self.isonground then
-       local neighbor = random(8)
-
-       local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(
-	  self, neighbor)
-
-      if (tpos) then
-        local temp = climate.get_point_temp(tpos, true)
-        if not (animals.temp_comfy(self,temp)) then
-          -- do not go to this position
-          height = nil
+     if height and not liquidflag then
+      --is it the correct?
+      local n_node = minetest.registered_nodes[minetest.get_node(tpos).name]
+      if not n_node or not n_node.groups then return true end
+      -- check if we should go to this node
+      local goto_node = false
+      for _,group in pairs(groups) do
+        if n_node.groups[group] then
+          goto_node = true
+          break
         end
       end
-
-       if height and not liquidflag then
-        --is it the correct?
-        local n_node = minetest.get_node(tpos).name
-
-        local nodeapp = true -- node appropriate -- if node should be walked to
+      if goto_node then
+        -- now check if we shouldn't go to this node
         for _,group in pairs(iggroups) do
-          if (minetest.get_item_group(n_node,group) > 0) then -- if node is in a group that is to be ignored...
-            nodeapp = false
-            break
+          if n_node.groups[group] then -- don't go to this node lol
+            return
           end
         end
-        if (nodeapp == false) then
-          -- found a node to be ignored oop, don't walk to it
-          return true
-        end
-        for _,group in pairs(groups) do
-          if (minetest.get_item_group(n_node,group) > 0) then -- if node is in a specified group then...
-            -- let's go it :D
-            break
-          end
-        end
-
-        if (nodeapp == true) then
-          mobkit.dumbstep(self, height, tpos, 0.3)
-        else
-          return true
-        end
+        -- walk to it
+        mobkit.dumbstep(self, height, tpos, 0.3)
+        return true
       end
-
     end
   end
-  mobkit.queue_high(self,func,prty)
+  --mobkit.queue_high(self,func,prty)
 end
 
 

@@ -70,7 +70,7 @@ local function brain(self)
       -- The lower the energy, the higher the percentage
       -- if energy is equal or less than 20% (male) or 55% (female) of energy_max, it will be 1 or higher
       -- more emergent need to find food if hng_percent is greater than 150%
-      ces = (hng_percent >= 1.5 and ces * hng_percent) or ces -- more likely to go find food the hungrier we are
+      ces = (hng_percent >= 0.6 and ces * 1+hng_percent) or ces -- more likely to go find food the hungrier we are
       if random() < ces then
         -- explore or feed
         mobkit.animate(self,'walk') -- expect walking (going places)
@@ -96,8 +96,10 @@ local function brain(self)
           if not found_food then
             mobkit.animate(self,'walk')
             -- look for flora that's not a cane_plant
-            animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15)
             -- self, go for group, ignore group, priority
+            if not animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) then
+              mobkit.hq_roam(self,10)
+            end
           end
         elseif random() < 0.95 then
           --wander random
