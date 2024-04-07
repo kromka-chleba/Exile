@@ -16,28 +16,31 @@ local random = math.random
 local floor = math.floor
 
 -----------------------------------
+-- female + male functionality
 local function brain(self)
   -- calculate instantanious effects
   animals.core_hp(self)
 
-	if mobkit.timer(self,1) then
-		local pos = mobkit.get_stand_pos(self)
+  if mobkit.timer(self,1) then
+    local pos = mobkit.get_stand_pos(self)
 
-		--die from exhaustion or age
-		if not animals.core_life(self, pos) then
-			return
-		end
+    -- die from exhaustion or age
+    if not animals.core_life(self,pos) then
+      return
+    end
     local age = self.age
+    local ismale = self.sex == "male" and true or false
+    if not ismale then
+      self.pregnant = self.pregnant or mobkit.recall(self,'pregnant')
+    end
 
-		------------------
+    ------------------
 		--Emergency actions
 
 		local prty = mobkit.get_queue_priority(self)
 		-------------------
 		--High priority actions
 		if prty < 50 then
-
-
 			--Threats
 			local plyr = animals.get_nearby_player(self)
 			if plyr then
@@ -45,263 +48,116 @@ local function brain(self)
 			end
 
 			animals.predator_avoid(self)
-
-
 		end
 
-
-		----------------------
-		--Low priority actions
-		if prty < 20 then
-
-
-			--random choice between
-			--feeding, exploring, social
+    if prty < 20 then
+      --random choice between
+			--exploring + feeding or social
 			--chance differs by time
-			local ce = 0.1
-			local cs = 0.1
+			local ces = ismale and 0.6 or 0.9 -- chance explore socialize (number is intended for explore chance, social will be else)
 			-- c feeding is simply what happens if no
 			--others are selected
 			local tod = {animals.timeofday()}
 			if tod[1] == "night" then
 				--more social at night
-				ce = 0.01
-				cs = 0.75
+				ces = ismale and 0.05 or 0.25
 			elseif tod[1] == "day" and tod[2] == "mid" then
 				--explore during midday
-				ce = 0.5
-				cs = 0.1
+				ces = ismale and 0.8 or ces
 			end
-
-
-			if random() < ce then
-				if random() < 0.95 then
-					--wander random
-					mobkit.animate(self,'walk')
-					mobkit.hq_roam(self,10)
-				else
-					--wander temp
-					mobkit.animate(self,'walk')
-					animals.hq_roam_comfort_temp(self,12, 21)
-				end
-
-			elseif random() < cs then
-
-				--social
-				if random()< 0.3 then
-					animals.flock(self, self.view_range, 3)
-				elseif random()< 0.01 then
-					animals.territorial(self, false)
-				elseif random() < 0.6 and age >= self.mature_age then
-
-					--reproduction
-					if self.hp >= self.max_hp
-					and self.energy >= (self.energy_egg * 1.5) then
-
-						--are we already pregnant?
-						local preg = mobkit.recall(self,'pregnant') or false
-						if preg == true then
-							mobkit.lq_idle(self,3)
-							if random() < 0.05 then
-								animals.place_egg(self, pos)
-								mobkit.remember(self,'pregnant',false)
-							end
-
-						else
-
-							--we are randy
-							mobkit.remember(self,'sexual',true)
-							local mate = animals.mate_assess(self, 'animals:pegasun_male')
-							if mate then
-								--go get him!
-								mobkit.make_sound(self,'mating')
-								if random() < 0.5 then
-									animals.hq_mate(self, 25, mate)
-								end
-							end
-						end
-					else
-						--I'm too tired darling
-						mobkit.remember(self,'sexual',false)
-					end
-				end
-
-			elseif self.energy < self.energy_max then
-        local hng_percent = (self.energy_max * 0.55)/self.energy
-	-- hunger_percent - creates a percentage by dividing a percentage of
-	--  energy_max by the current energy. The lower the energy, the
-	-- higher the percentage
-        -- if energy is equal or less than 55% of energy_max, it will be 1
-	-- or higher
-
-        if (random() <= hng_percent) then
-	   -- females much hungrier and predatory than males
-	   -- (gotta fill up for those babies y'know)
-          if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
-            if (animals.eat_flora(pos,0.005) == true) then
-              self:modify('energy',9)
+      local hng_percent = (self.energy_max * (ismale and 0.2 or 0.5))/self.energy -- hunger_percent
+      -- hunger_percent - creates a percentage by dividing a percentage of energy_max by the current energy.
+      -- The lower the energy, the higher the percentage
+      -- if energy is equal or less than 20% (male) or 55% (female) of energy_max, it will be 1 or higher
+      -- more emergent need to find food if hng_percent is greater than 150%
+      ces = (hng_percent >= 1.5 and ces * hng_percent) or ces -- more likely to go find food the hungrier we are
+      if random() < ces then
+        -- explore or feed
+        mobkit.animate(self,'walk') -- expect walking (going places)
+        if random() <= hng_percent then
+          -- feeding time
+          mobkit.animate(self,'stand') -- expect standing (eating)
+          local found_food = true -- assume we found food
+          if ismale then
+            found_food = animals.eat_flora(pos,0.002)
+            if found_food then
+              self:modify('energy',12)
             else
-              mobkit.animate(self,'walk')
-              -- look for flora that's not a cane_plant
-              animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15)
-	      -- self, go for group, ignore group, priority
+              found_food = (random() <= 0.5 and animals.prey_hunt(self,30))
+            end
+          else
+            -- females much more predatory and hungrier than males (gotta get energy for babies)
+            found_food = (random() <= 0.85 and animals.prey_hunt(self,30))
+            if (not found_food) and animals.eat_flora(pos,0.009) == true then
+              self:modify('energy',9)
+              found_food = true
             end
           end
-        else
-          mobkit.animate(self,'walk')
-          mobkit.hq_roam(self,10)
-        end
-			end
-
-		end
-
-		-------------------
-		--generic behaviour
-		if mobkit.is_queue_empty_high(self) then
-			mobkit.animate(self,'walk')
-			mobkit.hq_roam(self,10)
-		end
-	end
-end
-
-
-
-
-
------------------------------------
---MALE BEHAVIOUR
-local function brain_male(self)
-  -- calculate instantanious effects
-  animals.core_hp(self)
-
-	if mobkit.timer(self,1) then
-		local pos = mobkit.get_stand_pos(self)
-
-		--die from exhaustion or age
-		if not animals.core_life(self, pos) then
-			return
-		end
-    local age = self.age
-
-
-		------------------
-		--Emergency actions
-
-		local prty = mobkit.get_queue_priority(self)
-		-------------------
-		--High priority actions
-		if prty < 50 then
-
-
-			--Threats
-			local plyr = animals.get_nearby_player(self)
-			if plyr then
-				animals.fight_or_flight(self, plyr, 55, 0.6)
-			end
-
-			animals.predator_avoid(self)
-
-		end
-
-
-		----------------------
-		--Low priority actions
-
-		if prty < 20 then
-
-
-			--random choice between
-			--feeding, exploring, social
-			--chance differs by time
-			local ce = 0.2
-			local cs = 0.4
-			-- c feeding is simply what happens if no
-			--others are selected
-			local tod = {animals.timeofday()}
-			if tod[1] == "night" then
-				--more social at night
-				ce = 0.01
-				cs = 0.95
-			elseif tod[1] == "day" and tod[2] == "mid" then
-				--explore during midday
-				ce = 0.6
-				cs = 0.2
-			end
-
-
-			if random() < ce then
-				if random() < 0.95 then
-					--wander random
-					mobkit.animate(self,'walk')
-					mobkit.hq_roam(self,10)
-				else
-					--wander temp
-					mobkit.animate(self,'walk')
-					animals.hq_roam_comfort_temp(self,10, 21)
-				end
-
-			elseif random() < cs then
-
-				--social
-				if random()< 0.5 then
-					animals.flock(self, self.view_range, 1)
-				elseif random()< 0.85 then
-					animals.territorial(self, false)
-				elseif random() < 0.4 and age >= self.mature_age then -- males more promiscuous (from 0.3 to 0.4)
-
-					--reproduction
-					if self.hp >= self.max_hp
-					and self.energy >= self.energy_max * 0.25 then -- mate at 25% of energy_max (8000 * 0.25 = 2000)
-						--set status as randy
-						--find nearby prospect and try to mate
-						mobkit.remember(self, 'sexual', true)
-						local mate = animals.mate_assess(self, 'animals:pegasun')
-
-						if mate then
-							--go get her!
-							mobkit.make_sound(self,'mating')
-							if random() < 0.5 then
-                self:modify('energy',-1000) -- energy use for mating lol
-								animals.hq_mate(self, 25, mate)
-							end
-						end
-
-					else
-						--in no state for hankypanky
-						mobkit.remember(self, 'sexual', false)
-					end
-				end
-
-    elseif self.energy < self.energy_max then
-      local hng_percent  = (self.energy_max * 0.2)/self.energy -- hunger_percent
-      -- if energy is equal or less than 20% of energy_max, it will be 1 or higher
-
-      if (random() <= hng_percent ) then
-        --feed via a method
-        if (animals.eat_flora(pos,0.001) == true) then -- mmm plants
-          self:modify('energy',12)
-        elseif not (random() <= 0.5 and animals.prey_hunt(self,30)) then
-          --wander randomly for plants if can't find prey
+          if not found_food then
             mobkit.animate(self,'walk')
-            animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15) -- go for group, ignore group, priority
+            -- look for flora that's not a cane_plant
+            animals.hq_roam_walkable_group(self, 'flora', "cane_plant", 15)
+            -- self, go for group, ignore group, priority
+          end
+        elseif random() < 0.95 then
+          --wander random
+					mobkit.hq_roam(self,10)
+        else
+          --wander temp
+					animals.hq_roam_comfort_temp(self,12, 21)
         end
-      else
-        mobkit.animate(self,'walk')
-        mobkit.hq_roam(self,10)
+        -- explore or feed
+      else -- social time
+        if random()< (ismale and 0.4 or 0.6) and age >= self.mature_age and self.hp >= self.max_hp and
+        (self.energy >= (ismale and self.energy_max*0.25 or self.energy_egg * 1.5)) and not self.pregnant then
+          -- reproduction
+          -- males have a 40% chance of mating while females have 60%
+          -- males mate at 25% of their energy_max, females mate at 150% of their energy_egg
+          -- females will not run this code if pregnant
+          --we are randy
+          mobkit.remember(self,'sexual',true) --find nearby prospect and try to mate
+          local mate = ismale and animals.mate_assess(self,'animals:pegasun_male') or animals.mate_assess(self, 'animals:pegasun')
+          if mate then
+            mobkit.make_sound(self,'mating')
+            if ismale and random() < 0.5 then -- we're male, hankypanky time
+              -- go get her!
+              self:modify('energy',-1000) -- energy use for mating lol
+              mobkit.remember(self,'sexual',false)
+              animals.hq_mate(self, 25, mate)
+            elseif (not ismale) and random() < 0.5 then -- we're female
+              -- go get him!
+              mobkit.remember(self,'sexual',false)
+              animals.hq_mate(self, 25, mate)
+            end
+          end
+        elseif random()< (ismale and 0.7 or 0.01) then
+          -- territorial
+          animals.territorial(self, false)
+      -- socialize with the flock \/
+        elseif not animals.flock(self, 15, self.aggression_distance) then 
+          -- hmm... they're not here...
+          if not animals.flock(self, 20, self.warn_distance) then
+            -- umm...
+            if not animals.flock(self, 30, self.view_range) then
+              -- where is everybody?? getting really worried here...
+              mobkit.hq_roam(self,40)
+            end
+          end
+        end
+        -- social
       end
+      if (not ismale) and self.pregnant then
+        if random() <= 0.005 then -- 0.5% chance of laying an egg
+          animals.place_egg(self, pos)
+          self.pregnant = false
+        end
+        mobkit.remember(self,'pregnant',self.pregnant)
+      end
+      -- prty 20
     end
-
-		end
-
-		-------------------
-		--generic behaviour
-		if mobkit.is_queue_empty_high(self) then
-			mobkit.animate(self,'walk')
-			mobkit.hq_roam(self,10)
-		end
-	end
+    -- in timer
+  end
 end
-
 
 
 
@@ -464,7 +320,7 @@ self_male.name = "animals:pegasun_male"
 self_male.egg = nil
 -- modifications for males
 -- initial properties
-self_male.logic = brain_male
+self_male.logic = brain
 self_male.initial_properties.max_hp = 45
 self_male.initial_properties.textures = {"animals_pegasun_male.png"}
 -- sexual dimorphism, male bigger then female
