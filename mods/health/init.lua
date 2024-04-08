@@ -183,12 +183,12 @@ function HEALTH.set_meta_stats(player, stats, meta)
 end
 
 
-function HEALTH.get_player_stats(player)
+function HEALTH.get_player_stats(player, meta)
   assert(minetest.is_player(player) == true,"get_player_stats: player is not a 'player'")
-  local meta = player:get_meta()
+  if not meta then meta = player:get_meta() end
   local fields = HEALTH.get_meta_stats(meta)
   fields.health = player:get_hp()
-  return fields,meta
+  return fields
 end
 
 function HEALTH.set_player_stats(player, stats, meta)

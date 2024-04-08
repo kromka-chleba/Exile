@@ -19,6 +19,7 @@ dofile(modpath..'/nodes.lua')
 -- Entry/exit from tutorial
 
 local pstore = {} -- store status of players so we can restore it after tutorial
+local mstore = minetest.get_mod_storage()
 
 local welcome = S("Welcome to Exile!")
 local intro = S("tut_intro") -- Make translator's job easier
@@ -56,13 +57,14 @@ end
 local function store_player(player)
    local name = player:get_player_name()
    local ps = pstore[name]
+
    ps.pos = player:get_pos()
-   ps.hp = player:get_hp()
    local meta = player:get_meta()
+   ps.stats = HEALTH.get_player_stats(player, meta)
    meta:set_string("playtime_suspended", "y")
-   -- #TODO: get hunger/etc; for people doing the tutorial later optionally
+   mstore.set_string(name, minetest.write_json(ps))
+   -- #TODO: stash inventory; for people doing the tutorial later optionally
    --  Unnecessary on first login, we'll reset it all when they spawn in anyway
-   --  Inventory, too!
 end
 
 local function call_exit(player)
@@ -74,13 +76,16 @@ end
 
 local function restore_player(player)
    local name = player:get_player_name()
-   local ps = pstore[name]
+   local ps = pstore[name] or minetest.parse_json(mstore.get_string(name))
+
    if not ps then return end
    player:set_pos(ps.pos)
-   player:set_hp(ps.hp)
    local meta = player:get_meta()
+   HEALTH.set_player_stats(player, ps.stats, meta)
    meta:set_string("playtime_suspended", "")
-   -- #TODO: Restore stats, inventory
+   mstore.set_string(name, "")
+   pstore[name] = nil
+   -- #TODO: Restore inventory
    call_exit(player)
 end
 
