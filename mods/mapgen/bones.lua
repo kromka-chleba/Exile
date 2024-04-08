@@ -2,25 +2,6 @@
 -- Globals
 local _EXILE_DEBUG = minetest.settings:get("exile_debug") == "true"
 
--- Placeholder node, replaced at runtime with bones:bones, filled with loot
-minetest.register_node("mapgen:exile_bones", {
-	description = "Bones of a long-dead exile",
-	inventory_image = "bones_inv.png",
-	wield_image = "bones_inv.png",
-	drop = "bones:bones",
-	tiles = {"bones_bone.png"},
-	stack_max = minimal.stack_max_bulky,
-	drawtype = "nodebox",
-	node_box = minimal.nodebox["bones"],
-	paramtype = "light",
-	paramtype2 = "facedir",
-	sunlight_propagates = true,
-	walkable = true,
-	groups = {not_in_creative_inventory = 1},
-	sounds = nodes_nature.node_sound_gravel_defaults(),
-
-})
-
 loot_table = {
    -- #TODO: break this out into a general treasure system, in prep for
    -- ruined huts and other sites; move it somewhere
@@ -87,50 +68,72 @@ local bones_formspec = -- #TODO: get the bones mod to set this?
 	"listring[current_player;main]"
 
 local counts = { light = 0, dark = 0 }
+
+function replace(pos)
+   local light = minimal.get_daylight(pos)
+   if _EXILE_DEBUG then
+      minetest.log("action", "EXILED BONES LOOT "..
+		   minetest.pos_to_string(pos)..
+		   " light: " .. tostring(light))
+      if light > 0 then
+	 counts.light = counts.light + 1
+      else
+	 counts.dark = counts.dark + 1
+      end
+   end
+   minetest.set_node(pos, { name = "bones:bones" })
+   local meta = minetest.get_meta(pos)
+   local inv = meta:get_inventory()
+   inv:set_size("main", 8 * 4)
+   local total = math.random(0,10) -- how much this guy's stuff is worth
+   -- #TODO: make total increase at high and low y levels, for the
+   --        more daring of the dead exiles
+   if total == 0 then return end
+   local loot = table.copy(loot_table)
+   repeat
+      local roll = math.random(1, #loot)
+      local pick = loot[roll]
+      if pick[2] <= total then
+	 local tooldef = minetest.registered_tools[pick[1]]
+	 local pcount = math.random(1, pick[3] or 1)
+	 local IS = ItemStack(pick[1].." "..tostring(pcount))
+	 if not pick[3] and tooldef then
+	    IS:set_wear(math.random(0,49152)) -- 75% max
+	 end
+	 inv:add_item("main", IS)
+	 total = total - pick[2]
+	 table.remove(loot, roll)
+      end
+   until total <= 0 or #loot == 0
+   meta:set_string("infotext", "Bones of a long-dead exile")
+   meta:set_string("formspec", bones_formspec)
+end
+
 minetest.register_lbm({
       label = "exiled bones loot",
       name="mapgen:exile_bones",
       nodenames = {"mapgen:exile_bones"},
       run_at_every_load = true,
-      action = function(pos)
-	 local light = minimal.get_daylight(pos)
-	 if _EXILE_DEBUG then
-	    minetest.log("action", "EXILED BONES LOOT "..
-			 minetest.pos_to_string(pos)..
-			 " light: " .. tostring(light))
-	    if light > 0 then
-	       counts.light = counts.light + 1
-	    else
-	       counts.dark = counts.dark + 1
-	    end
-	 end
-	 minetest.set_node(pos, { name = "bones:bones" })
-	 local meta = minetest.get_meta(pos)
-	 local inv = meta:get_inventory()
-	 inv:set_size("main", 8 * 4)
-	 local total = math.random(0,10) -- how much this guy's stuff is worth
-	 -- #TODO: make total increase at high and low y levels, for the
-	 --        more daring of the dead exiles
-	 if total == 0 then return end
-	 local loot = table.copy(loot_table)
-	 repeat
-	    local roll = math.random(1, #loot)
-	    local pick = loot[roll]
-	    if pick[2] <= total then
-	       local tooldef = minetest.registered_tools[pick[1]]
-	       local pcount = math.random(1, pick[3] or 1)
-	       local IS = ItemStack(pick[1].." "..tostring(pcount))
-	       if not pick[3] and tooldef then
-		  IS:set_wear(math.random(0,49152)) -- 75% max
-	       end
-	       inv:add_item("main", IS)
-	       total = total - pick[2]
-	       table.remove(loot, roll)
-	    end
-	 until total <= 0 or #loot == 0
-	 meta:set_string("infotext", "Bones of a long-dead exile")
-	 meta:set_string("formspec", bones_formspec)
-      end,
+      action = replace
+})
+
+-- Placeholder node, replaced at runtime with bones:bones, filled with loot
+minetest.register_node("mapgen:exile_bones", {
+	description = "Bones of a long-dead exile",
+	inventory_image = "bones_inv.png",
+	wield_image = "bones_inv.png",
+	drop = "bones:bones",
+	tiles = {"bones_bone.png"},
+	stack_max = minimal.stack_max_bulky,
+	drawtype = "nodebox",
+	node_box = minimal.nodebox["bones"],
+	paramtype = "light",
+	paramtype2 = "facedir",
+	sunlight_propagates = true,
+	walkable = true,
+	groups = {not_in_creative_inventory = 1},
+	sounds = nodes_nature.node_sound_gravel_defaults(),
+	on_punch = replace
 })
 
 if _EXILE_DEBUG then
