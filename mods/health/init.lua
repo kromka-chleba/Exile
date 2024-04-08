@@ -78,7 +78,7 @@ function HEALTH.stop_sounds(player)
 end
 
 -----------------------------
---Player Attibutes
+--Player Attributes
 --
 --use standard values base, so it doesn't compound each time called
 --Only adjusted values saved in player meta so they can be accessed without recalculating
@@ -152,6 +152,7 @@ function HEALTH.get_meta_stats(meta)
     thirst_rate = meta:get_int("thirst_rate"),
     hunger_rate = meta:get_int("hunger_rate"),
     recovery_rate = meta:get_int("recovery_rate"),
+    lives = meta:get_int("lives"),
     move = meta:get_int("move"),
     jump = meta:get_int("jump"),
     clothing_temp_min = meta:get_int("clothing_temp_min"),
@@ -161,12 +162,42 @@ function HEALTH.get_meta_stats(meta)
   return stats
 end
 
+function HEALTH.set_meta_stats(player, stats, meta)
+   if not meta then meta = player:get_meta() end
+   if not stats or not stats.thirst then
+      error("No stats given to set_meta_stats")
+   end
+   meta:set_int("thirst", stats.thirst)
+   meta:set_int("hunger", stats.hunger)
+   meta:set_int("energy", stats.energy)
+   meta:set_int("temperature", stats.temperature)
+   meta:set_int("heal_rate", stats.heal_rate)
+   meta:set_int("thirst_rate", stats.thirst_rate)
+   meta:set_int("hunger_rate", stats.hunger_rate)
+   meta:set_int("recovery_rate", stats.recovery_rate)
+   meta:set_int("lives", stats.lives)
+   meta:set_int("move", stats.move)
+   meta:set_int("jump", stats.jump)
+   meta:set_int("clothing_temp_min", stats.clothing_temp_min)
+   meta:set_int("clothing_temp_max", stats.clothing_temp_max)
+end
+
+
 function HEALTH.get_player_stats(player)
   assert(minetest.is_player(player) == true,"get_player_stats: player is not a 'player'")
   local meta = player:get_meta()
   local fields = HEALTH.get_meta_stats(meta)
   fields.health = player:get_hp()
   return fields,meta
+end
+
+function HEALTH.set_player_stats(player, stats, meta)
+   if not meta then meta = player:get_meta() end
+   if not stats or not stats.thirst then
+      error("No stats given to set_player_stats")
+   end
+  player:set_hp(stats.health)
+  HEALTH.set_meta_stats(player, stats, meta)
 end
 
 function HEALTH.get_life_num(meta) -- gets player's "lives" and returns it
