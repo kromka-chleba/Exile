@@ -107,31 +107,37 @@ local function check_for_arch(pos, node)
    end
 end
 
-local function drop_arch(ngb, plain_node)
+local function drop_arch(ngb, plain_node, fromsupport)
    local dir = ngb.vector
    local pos = ngb.pos
    local count = 0
    local done = false
+   local node = minetest.get_node(pos)
+   if fromsupport and node.name == supportname then return end
    repeat
-      local node = minetest.get_node(pos)
-      if node.name == plain_node or not node.name:match(plain_node) or done then
+      node = minetest.get_node(pos)
+      if node.name == plain_node or not node.name:match(plain_node) then
 	 return
       end
       if node.name == supportname then done = true end -- don't go past supports
       count = count + 1
       minetest.swap_node(pos, { name = plain_node })
       pos = vector.add(pos, dir)
-   until count > 5
+   until count > 5 or done == true
 end
 
 local function remove_arches(pos)
    local oldnode = minetest.get_node(pos)
    local def = minetest.registered_nodes[oldnode.name]
    if not def or not def.drop then return end -- not a proper arch?
+   local fromsupport = false
+   if oldnode.name == supportname then -- is this node a support?
+      fromsupport = true -- if so, don't remove neighboring supports
+   end
    for _, axis in ipairs({ "x", "z" }) do
 	 local ngb = get_cardinal_neighbors(pos, axis)
-	 drop_arch(ngb[1], def.drop)
-	 drop_arch(ngb[2], def.drop)
+	 drop_arch(ngb[1], def.drop, fromsupport)
+	 drop_arch(ngb[2], def.drop, fromsupport)
    end
    -- minetest.swap_node(pos, { name = def.drop })
    -- ^ this does not work, see on_construct_arch_support() workaround
