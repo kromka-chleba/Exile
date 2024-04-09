@@ -449,6 +449,7 @@ minetest.register_tool("inferno:fire_sticks", {
 	   local pos_under = pointed_thing.under
 	   if inferno.ignite(pos_under, node_under) then
 	      sound_play(sound_pos)
+	      minetest.log("action", "Ignited "..node_under)
 	      return add_wear(player_name, itemstack, sound_pos)
 	   end
 
@@ -458,13 +459,18 @@ minetest.register_tool("inferno:fire_sticks", {
 	   end
 	   if minetest.is_protected(pointed_thing.under, player_name) then
 	      minetest.chat_send_player(player_name, "This area is protected")
-	      return
+	      minetest.log("action",
+			   "Prevented "..player_name.." from lighting "..
+			   "protected node: "..node_under)
+	      itemstack:add_wear(16384)
+	      return itemstack
 	   end
 	   local chance = nodedef.groups.flammable
 	   if (chance and chance < 6) or chance == nil then
 	      if nodedef.on_ignite then
 		 sound_play(sound_pos)
 		 nodedef.on_ignite(pointed_thing.under, user)
+		 minetest.log("action", "Ignited "..node_under)
 		 return add_wear(player_name, itemstack, sound_pos)
 	      elseif chance and minetest.get_node(pointed_thing.above).name
 		 == "air" then
@@ -473,6 +479,7 @@ minetest.register_tool("inferno:fire_sticks", {
 			 minetest.set_node(pointed_thing.above,
 					   {name = "inferno:basic_flame"})
 		 end
+		 minetest.log("action", "Ignited "..node_under)
 		 return add_wear(player_name, itemstack, sound_pos)
 	      end
 	   end
