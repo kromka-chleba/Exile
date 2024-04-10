@@ -348,7 +348,7 @@ local function fast_interval(dtime)
 	    --when in bed, under shelter boost energy
 	    if energy < 1000 then
 	       if bed_rest.player[name] then
-		  st:add("resting")
+		  st:add("resting") local sev = 2
 		  --best rest is under shelter, in a non-extreme temperature
 		  local lvl = bed_rest.level[name]
 		  if rain
@@ -357,10 +357,10 @@ local function fast_interval(dtime)
 		     or enviro_temp < stress_low
 		     or enviro_temp > stress_high then
 		     --terrible sleep in the rain etc
+		     sev = 1 -- resting poorly
 		     if random()>0.1 then
 			energy = energy + (2 * lvl)
 		     end
-		     st:set_severity("resting", 1)
 
 		  elseif enviro_temp < comfort_low
 		     or enviro_temp > comfort_high
@@ -370,13 +370,14 @@ local function fast_interval(dtime)
 		  else
 		     --best rest is under shelter, in a non-extreme temperature
 		     energy = energy + (16 * lvl)
-		     st:set_severity("resting", 3)
+		     sev = 3 -- resting comfortably
 		  end
 		  if enviro_temp < comfort_low then
-		     st:set_severity("resting", 0)
+		     sev = 0 -- shivering
 		  elseif enviro_temp > comfort_high then
-		     st:set_severity("resting", 4)
+		     sev = 4 -- sweating
 		  end
+		  st:set_severity("resting", sev)
 	       end
 	    end
 
