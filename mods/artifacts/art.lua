@@ -380,6 +380,7 @@ minetest.register_node("artifacts:gamepiece_a_black", {
 	tiles = {"nodes_nature_basalt.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
+	paramtype2 = "facedir",
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -401,6 +402,7 @@ minetest.register_node("artifacts:gamepiece_a_white", {
 	tiles = {"nodes_nature_limestone.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
+	paramtype2 = "facedir",
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -423,6 +425,7 @@ minetest.register_node("artifacts:gamepiece_b_black", {
 	tiles = {"nodes_nature_basalt.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
+	paramtype2 = "facedir",
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -450,6 +453,7 @@ minetest.register_node("artifacts:gamepiece_b_white", {
 	tiles = {"nodes_nature_limestone.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
+	paramtype2 = "facedir",
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -478,6 +482,7 @@ minetest.register_node("artifacts:gamepiece_c_black", {
 	tiles = {"nodes_nature_basalt.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
+	paramtype2 = "facedir",
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -507,6 +512,7 @@ minetest.register_node("artifacts:gamepiece_c_white", {
 	tiles = {"nodes_nature_limestone.png"},
 	drawtype = "nodebox",
 	paramtype = "light",
+	paramtype2 = "facedir",
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -538,7 +544,7 @@ minetest.register_node("artifacts:gamepiece_c_white", {
 minetest.register_node("artifacts:singing_stone", {
 	description = "Singing Stone",
 	tiles = {"artifacts_antiquorium.png^artifacts_moon_glass.png"},
-  stack_max = minimal.stack_max_medium * 2,
+	stack_max = minimal.stack_max_medium * 2,
 	drawtype = "nodebox",
 	node_box = {
 		type = "fixed",
