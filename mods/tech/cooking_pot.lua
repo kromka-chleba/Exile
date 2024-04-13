@@ -298,7 +298,7 @@ minetest.register_node("tech:cooking_pot", {
 		type = "fixed",
 		fixed = pot_box,
 	},
-	groups = {dig_immediate = 3, pottery = 1},
+	groups = {dig_immediate = 3, pottery = 1, heatable = 75 },
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
 	   clear_pot(pos)
