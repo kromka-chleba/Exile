@@ -958,6 +958,8 @@ crafting.register_recipe({
 	output = "tech:adze_jade",
 	items = {{"group:jade_cobble","group:basalt_cobble","group:granite_cobble"},
 		'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	material = 1; -- first item sets material.
+	material_output = "tech:adze_%material%",
 	level = 1,
 	always_known = true,
 })
