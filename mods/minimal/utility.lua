@@ -109,7 +109,11 @@ function minimal.click_count_ready(name, id, pos, count, timeout)
 end
 
 function minimal.get_pointed_thing(player,rn, obj, liq)
-   -- player, rn = custom "range" to override, return obj or liq if true
+   -- Gets the pointed node or object. Player objects will return
+   --  a non-standard type of "player"
+
+   -- params: rn = custom "range" to override, return obj or liq if true
+
    -- get the player by name if string
   if (type(player) == "string") then
     player = minetest.get_player_by_name(player)
@@ -142,6 +146,9 @@ function minimal.get_pointed_thing(player,rn, obj, liq)
    until ( not point ) -- nil
       or point.type == "node"
       or (point.type == "object" and point.ref ~= player) -- object + not player
+   if point.type == "object" and point.ref:is_player() then
+      point.type = "player" -- differentiate players from lua entities
+   end
    return point
 end
 
