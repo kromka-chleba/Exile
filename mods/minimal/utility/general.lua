@@ -88,7 +88,8 @@ function minimal.get_pointed_thing(player,rn, obj, liq)
    until ( not point ) -- nil
       or point.type == "node"
       or (point.type == "object" and point.ref ~= player) -- object + not player
-   if point.type == "object" and point.ref:is_player() then
+   if point and point.type
+      and point.type == "object" and point.ref:is_player() then
       point.type = "player" -- differentiate players from lua entities
    end
    return point
