@@ -15,6 +15,7 @@ minimal.concat_tables(numeric_t1, numeric_t2)
 minimal.get_pointed_thing(player/playername, range, objects, liquids)
 		- Get pointed thing for player via player object, or player name
 		- range is 5 if nil, objects/liquids are not returned by default
+		- players have non-standard type of "player" instead of "object"
 minimal.invlists2string(lists)
 +minimal.string2invlists(string)
 		- Convert inventory lists into a serialized string and back
