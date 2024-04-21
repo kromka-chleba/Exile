@@ -48,7 +48,7 @@ local function killplayer(name)
         -- exit if the player left or we somehow got garbage
         return
     end
-    player:set_hp(1)
+    player:set_hp(1) -- for players who hit the death formspec bug
     if not minimal.player_in_creative(player) then
       -- Don't remove inventory from creative mode players, just kill 'em
       player:set_hp(0)
@@ -103,24 +103,33 @@ local function restart_confirm (confirmed, _, player, name)
    end
 end
 
+local function killthemagain(player)
+   -- Players who manage to close the death formspec can get stuck half-dead
+   player:set_hp(1) -- so make them alive again
+   minetest.after(2, function() player:set_hp(0) end) -- then try once more
+end
+
+
 local function restart (name, param)
-	local plyr = minetest.get_player_by_name(name)
-	if plyr and plyr:get_hp() == 0 then -- they're stuck in an invalid state
-	   killplayer(name) -- so we shouldn't make them wait
-	   return -- signed, comment doggerel gang
-	end
-	local nowtime = minetest.get_gametime()
-	if timestamp[name] and ( timestamp[name] +300 ) > nowtime then
-	   minetest.chat_send_player(name, S("You can't use this command more "..
-					     "than once per 5 minutes."))
-	   return
-	else
-	   timestamp[name] = nil
-	   minimal.yes_or_no(name, S("Restarting does not leave bones!")
-			     .."\n "..
-			     S("Your inventory will be deleted.").."\n"..
-			     S("Are you sure?"), restart_confirm)
-	end
+   local nowtime = minetest.get_gametime()
+   if timestamp[name] and  ( timestamp[name] +3 ) > nowtime then return end
+
+   local plyr = minetest.get_player_by_name(name)
+   if plyr and plyr:get_hp() == 0 then -- they're stuck in an invalid state
+      killthemagain(plyr) -- so we shouldn't make them wait
+      return -- signed, comment doggerel gang
+   end
+   if timestamp[name] and ( timestamp[name] +300 ) > nowtime then
+      minetest.chat_send_player(name, S("You can't use this command more "..
+					"than once per 5 minutes."))
+      return
+   else
+      timestamp[name] = nil
+      minimal.yes_or_no(name, S("Restarting does not leave bones!")
+			.."\n "..
+			S("Your inventory will be deleted.").."\n"..
+			S("Are you sure?"), restart_confirm)
+   end
 end
 
 minetest.register_chatcommand("restart",{
