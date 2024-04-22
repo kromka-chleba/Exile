@@ -52,19 +52,24 @@ function minimal.protection_on_dig(pos,oldnode,digger)
    -- Handles removal of nails from nodes protected by them
    local meta = minetest.get_meta(pos)
    if not meta:contains('nailed') then return end
+   if not minetest.is_player(digger) then return end
+
    local owner = meta:get_string('owner')
-   if owner == digger:get_player_name() then
+   local dname = digger:get_player_name()
+
+   if owner == dname  then
       local def = minetest.registered_nodes[oldnode.name]
       if not def or (def.can_dig and not def.can_dig(pos, digger) ) then
 	 return -- undefined node, or not allowed to dig (like a full backpack)
       end
+
       --give digger back the nails (if they're not in creative)
       if not (minimal.player_in_creative(owner)) then
         local inv = digger:get_inventory()
         if inv:room_for_item("main", 'tech:nails') then
           inv:add_item("main",'tech:nails')
         else
-          minetest.chat_send_player(digger, "No room in inventory!")
+          minetest.chat_send_player(dname, "No room in inventory!")
           minetest.add_item(pos, 'tech:nails')
         end
       end
