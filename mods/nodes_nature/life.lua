@@ -31,6 +31,8 @@ wielded_light = wielded_light
 --
 
 local function dig_up(pos, node, digger)
+	if digger == nil or not minetest.is_player(digger) then return end
+	-- #TODO: allow animals to dig cane plants?
 	local lnode = wielded_light.get_unlit_node(node)
 	local np = {x = pos.x, y = pos.y + 1, z = pos.z}
 	local unode = wielded_light.get_unlit_node(minetest.get_node(np))

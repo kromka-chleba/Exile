@@ -55,7 +55,7 @@ function minimal.protection_on_dig(pos,oldnode,digger)
    if not minetest.is_player(digger) then return end
 
    local owner = meta:get_string('owner')
-   local dname = digger:get_player_name()
+   local dname = digger and digger:get_player_name()
 
    if owner == dname  then
       local def = minetest.registered_nodes[oldnode.name]
