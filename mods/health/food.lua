@@ -33,84 +33,76 @@ local food_harm_table = HEALTH.harm_table
 local food_table = HEALTH.food_table
 local bake_table = HEALTH.bake_table
 
-local function do_food_harm(user, name)
-  if type(name) == "userdata" and name["get_name"] then
-    name = name:get_name()
-  end
-  local fht = food_harm_table[name] -- food_harm_table
-  if not fht then return end
-  if #fht == 0 then return end -- no effects
-  local g_ch = fht.ch or fht.chance -- "global" chance (for all noted effects in table)
-  local g_sv = fht.sv or fht.severity -- "global" severity (ditto /\)
-  -- look through fht
-  for ind,eff in pairs(fht) do -- for effect tables
-    if type(eff) == "table" and type(ind) == "number" then -- do not conflict with "globals"
+-- used to get health effect data for food_harm and food_cure
+-- returns table with effect tables with their name ('tg'), severity ('sv'), and chance ('ch') listed
+-- thusly sterilizing any issues and conforming them for better use
+local function get_health_effect_data(datat,name) -- datatable (harm_table or cure_table), name/item
+  name = type(name) == "string" and name or type(name) == "userdata" and type(name["get_name"]) == "function" and name:get_name() or nil
+  local hed = datat[name]
+  if not hed then return end
+  if #hed == 0 then return end -- no data/effects
+  local g_ch = hed.ch or hed.chance -- "global" chance (for all noted effects in table)
+  local g_sv = hed.sv or hed.severity -- "global" severity (ditto /\)
+  -- to be returned \/
+  local effects = {}
+  -- look through hed
+  for ind,eff in pairs(hed) do -- for effect tables
+    -- accept function arguments for HEDs
+    if type(eff) == "function" then
+      eff = eff() -- must be table return
+    end
+    if type(eff) == "table" and type(ind) == "number" then -- do not conflict with above "globals"
       -- chance (assume default of 0.001)
       local ch = eff.ch or eff.chance or g_ch or 0.001
-      if math.random() <= ch then
-        -- disease time
-        -- severity (assume default of 1)
-        local sv = eff.sv or eff.severity or g_sv or 1
-        if type(sv) == "table" then
-          -- is a chance, decide what severity it should be
-          sv = math.random(sv[1],sv[2])
-        end
-        -- integers only
-        sv = math.floor(sv)
-        -- health effect tag (string or table, is made into table for the following)
-        local tg = eff.tg or eff.tag or eff.tgs or eff.tags
-        tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
-        -- table allows for you to specify numerous health effects with the same severity or chance
-        if tg then
-          for _,tg_name in pairs(tg) do
-            if type(tg_name) == "string" then
-              -- only strings allowed
-              HEALTH.add_new_effect(user, {tg_name, sv})
-            end
+      -- provide chance in case someone wishes to modify the chance after the fact
+      -- severity (assume default of 1)
+      local sv = eff.sv or eff.severity or g_sv or 1
+      if type(sv) == "table" then
+        -- is a chance, decide what severity it should be
+        sv = math.random(sv[1],sv[2])
+      end
+      -- integers only
+      sv = math.floor(sv)
+      -- health effect tag (string or table, is made into table for conformity)
+      local tg = eff.tg or eff.tag or eff.tgs or eff.tags
+      tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
+      -- table allows for you to specify numerous health effects with the same severity or chance
+      if tg then
+        for _,tg_name in pairs(tg) do
+          if type(tg_name) == "string" then
+            -- only strings allowed
+            effects[#effects + 1] = {tg=tg_name,sv=sv,ch=ch}
           end
         end
       end
     end
   end
+  if #effects <= 0 then
+    -- nothing to do! don't do anythin'!
+    return
+  end
+  return effects
 end
 
--- does the reverse of do_food_harm but uses the same functions basically
-local function do_food_cure(user, name)
-  if type(name) == "userdata" and name["get_name"] then
-    name = name:get_name()
+local function do_food_harm(user, name)
+  local effects = get_health_effect_data(food_harm_table,name)
+  if not effects then return end -- got nothin'
+  -- iterate through effects and add upon chance
+  for _,effect in pairs(effects) do
+    if math.random() <= effect.ch then
+      HEALTH.add_new_effect(user, {effect.tg, effect.sv})
+    end
   end
-  local fct = HEALTH.cure_table[name]
-  if not fct then return end
-  local g_ch = fct.ch or fct.chance -- "global" chance (for all noted effects in table)
-  local g_sv = fct.sv or fct.severity -- "global" severity (ditto /\)
-  -- look through fct
-  for ind,eff in pairs(fct) do -- for effect tables
-    if type(eff) == "table" and type(ind) == "number" then -- do not conflict with "globals"
-      -- chance (assume default of 0.001)
-      local ch = eff.ch or eff.chance or g_ch or 0.001
-      if math.random() <= ch then
-        -- cure time
-        -- severity (assume default of 1)
-        local sv = eff.sv or eff.severity or g_sv or 1
-        if type(sv) == "table" then
-          -- is a chance, decide what severity it should cure
-          sv = math.random(sv[1],sv[2])
-        end
-        -- integers only
-        sv = math.floor(sv)
-        -- health effect tag (string or table, is made into table for the following)
-        local tg = eff.tg or eff.tag or eff.tgs or eff.tags
-        tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
-        -- table allows for you to specify numerous health effects with the same severity or chance
-        if tg then
-          for _,tg_name in pairs(tg) do
-            if type(tg_name) == "string" then
-              -- only strings allowed
-              HEALTH.remove_new_effect(user, {tg_name, sv})
-            end
-          end
-        end
-      end
+end
+
+-- does the reverse of do_food_harm, curing stuff instead :D
+local function do_food_cure(user, name)
+  local effects = get_health_effect_data(HEALTH.cure_table,name)
+  if not effects then return end -- got nothin'
+  -- iterate through effects and remove from player
+  for _,effect in pairs(effects) do
+    if math.random() <= effect.ch then
+      HEALTH.remove_new_effect(user, {effect.tg, effect.sv})
     end
   end
 end
