@@ -30,6 +30,7 @@ dofile(minetest.get_modpath('health')..'/data_food.lua')
 
 -- Declare globals
 local food_harm_table = HEALTH.harm_table
+local food_cure_table = HEALTH.cure_table
 local food_table = HEALTH.food_table
 local bake_table = HEALTH.bake_table
 
@@ -97,7 +98,7 @@ end
 
 -- does the reverse of do_food_harm, curing stuff instead :D
 local function do_food_cure(user, name)
-  local effects = get_health_effect_data(HEALTH.cure_table,name)
+  local effects = get_health_effect_data(food_cure_table,name)
   if not effects then return end -- got nothin'
   -- iterate through effects and remove from player
   for _,effect in pairs(effects) do
@@ -190,20 +191,137 @@ local bake_redef = {
 			       bake_table[selfname][2])
 end}
 
-function HEALTH.add_bake(table)
-   --Add new bakables, mod must send a table in the food_data.lua format
-   for k, v in pairs(table) do
-      bake_table[k] = v
-      if minetest.registered_nodes[k] then
-	 minetest.override_item(k, bake_redef)
-      end
-   end
+-- only accepts 1 node at a time for baking definition
+-- Adds bakeables, mod must send a string and table in the following format:
+-- name (nodedef name),{temp,duration}
+function HEALTH.add_bake(name,data)
+  -- provide errors with helpful information
+  if type(name) ~= "string" then
+    error(debug.traceback("name provided for bake data is not a string, got '"..type(name).."'",2))
+  elseif type(data) ~= "table" then 
+    error(debug.traceback(name..": bake data is not a table, got '"..type(data).."'",2))
+  end
+  local temp = data[1]
+  local duration = data[2]
+  if type(temp) ~= "number" then
+    error(debug.traceback(name..": temp provided for bake data is not a string, got '"..type(temp).."'",2))
+  elseif type(duration) ~= "number" then
+    error(debug.traceback(name..": temp provided for bake data is not a string, got '"..type(duration).."'",2))
+  end
+  if not minetest.registered_nodes[name] then
+    error(debug.traceback("name provided for bake data does not exist as a node!",2))
+  end
+  -- Add new bakeable with bake_redef override
+  minetest.override(name, bake_redef)
+  bake_table[name] = {temp,duration}
 end
-function HEALTH.add_harm(table)
-   --Add new food harm, mod must send a table in the food_data.lua format
-   for k, v in pairs(table) do
-      food_harm_table[k] = v
-   end
+
+-- FOOD HARM AND FOOD CURE SHOULD BE DEFINED AS SO:
+--[[
+name (string),food_data (table)
+
+food_data is to contain "effect" tables with defined "tags" to run
+food_data can include a "global" chance and severity to fill in for missing values in the effect tables as so:
+{ch/chance=0.5,sv/severity=1,...}
+
+an "effect" table should consist of the following:
+{tg/tag/tgs/tags="Health Effect Name"}
+with option to specify local chance and severity
+{ch/chance = 0.1, sv/severity=2,... (tags table)}
+or as so:
+{ch=0.1,sv=2,tg="Health Effect Name"}
+tags value can be a table for multiple effects to occur or be cured according to the effect table
+{tg/tag/tgs/tags={"Health Effect1", "Health Effect2", "Health Effect3"}
+
+An example of a proper local effect table using the above options would look like this:
+{ch=0.6,sv=2,tg={"Hepatotoxicity","Food Poisoning"}}
+
+An example of a proper food_data table with 'global' severity and local effect tables may look like this:
+{sv=2,
+  {ch=0.9,tg="Food Poisoning"},
+  {ch=0.3,tgs={"Neurotoxicity","Hepatotoxicity"}},
+}
+== if a "global" chance/severity exists, it will NOT override any locally defined chance/severity in a local effect table
+
+SPECIALTY: an "effect table" can also be a function, for as long as the function returns a proper effect table
+]]--
+
+-- only accepts 1 item at a time for harm definition
+-- Adds harmful effects to occur upon the consumption of the named item
+function HEALTH.add_harm(name,data)
+  -- provide errors with helpful information
+  if type(name) ~= "string" then
+    error(debug.traceback("name provided for harm data is not a string, got '"..type(name).."'",2))
+  elseif type(data) ~= "table" then 
+    error(debug.traceback(name..": harm data is not a table, got '"..type(data).."'",2))
+  end
+  local g_ch = data.ch or data.chance
+  local g_sv = data.sv or data.severity
+  if g_ch and type(g_ch) ~= "number" then
+    error(debug.traceback(name..": main chance value for harm data is not a number or nil, got '"..type(g_ch).."'",2))
+  elseif g_sv and type(g_sv) ~= "number" then
+    error(debug.traceback(name..": main severity value for harm data is not a number or nil, got '"..type(g_sv).."'",2))
+  end
+  for ind,eff in pairs(data) do -- index, effect
+    if type(ind) == "number" and type(eff) == "table" then
+      local ch = eff.ch or eff.chance
+      local sv = eff.sv or eff.severity
+      ch = type(ch) == "number" and ch or nil
+      sv = type(sv) == "number" and sv or nil
+      local tg = eff.tg or eff.tag or eff.tgs or eff.tags
+      tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
+      local efferr = name..": effect table of index "..ind -- effect error message
+      if not tg then
+        error(debug.traceback(efferr.." does not have a health effect tag to apply with",2))
+      elseif not (g_ch or ch) then
+        minetest.log("warning",efferr.." does not have a chance value assigned, default to 0.001")
+        data.ch = 0.001
+      elseif not (g_sv or sv) then
+        minetest.log("warning",efferr.." does not have a severity value assigned, default to 1")
+        data.sv = 1
+      end
+    end
+  end
+  food_harm_table[name] = data
+end
+
+-- only accepts 1 item at a time for harm definition
+-- Add efects that should be cured upon the consumption of the named item
+function HEALTH.add_cure(name,data)
+  -- provide errors with helpful information
+  if type(name) ~= "string" then
+    error(debug.traceback("name provided for food cure data is not a string, got '"..type(name).."'",2))
+  elseif type(data) ~= "table" then 
+    error(debug.traceback(name..": food cure data is not a table, got '"..type(data).."'",2))
+  end
+  local g_ch = data.ch or data.chance
+  local g_sv = data.sv or data.severity
+  if g_ch and type(g_ch) ~= "number" then
+    error(debug.traceback(name..": main chance value for food cure data is not a number or nil, got '"..type(g_ch).."'",2))
+  elseif g_sv and type(g_sv) ~= "number" then
+    error(debug.traceback(name..": main severity value for food cure data is not a number or nil, got '"..type(g_sv).."'",2))
+  end
+  for ind,eff in pairs(data) do -- index, effect
+    if type(ind) == "number" and type(eff) == "table" then
+      local ch = eff.ch or eff.chance
+      local sv = eff.sv or eff.severity
+      ch = type(ch) == "number" and ch or nil
+      sv = type(sv) == "number" and sv or nil
+      local tg = eff.tg or eff.tag or eff.tgs or eff.tags
+      tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
+      local efferr = name..": cure effect table of index "..ind -- effect error message
+      if not tg then
+        error(debug.traceback(efferr.." does not have a health effect tag to apply with",2))
+      elseif not (g_ch or ch) then
+        minetest.log("warning",efferr.." does not have a chance value assigned, default to 0.001")
+        data.ch = 0.001
+      elseif not (g_sv or sv) then
+        minetest.log("warning",efferr.." does not have a severity value assigned, default to 1")
+        data.sv = 1
+      end
+    end
+  end
+  food_cure_table[name] = data
 end
 
 function HEALTH.add_food_hooks(name,info)
