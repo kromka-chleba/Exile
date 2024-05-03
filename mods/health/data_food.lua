@@ -300,9 +300,18 @@ HEALTH.cure_table = {
   ["nodes_nature:merki"] = { {tg="Intestinal Parasites",ch=0.15,sv=1} },
   -- medicine/drugs
   --cure/reduce food poisoning and infections
-  ["tech:herbal_medicine"] = { {tgs={"Food Poisoning","Fungal Infection","Dust Fever"},ch=0.75,sv=1}, -- only cure mild
-                                {tgs={"Food Poisoning","Fungal Infection","Dust Fever"},ch=0.5,sv=2}, -- cure up to moderate
-                                {tgs={"Food Poisoning","Fungal Infection","Dust Fever"},ch=0.25,sv=3}, -- cure up to severe
-                                {tg="Intestinal Parasites",ch=0.33,sv=1}
-                              }
+  ["tech:herbal_medicine"] = {function() -- custom supported function argument
+                              local cure = {ch=1,sv=1,tgs={"Food Poisoning","Fungal Infection","Dust Fever"}}
+                              local c = math.random()
+                              if c <= 0.25 then -- cure severe
+                                cure.sv = 3
+                              elseif c <= 0.5 then -- cure moderate
+                                cure.sv = 2
+                              end
+                              if c <= 0.75 then
+                                -- only cure if chance is less than 75%, sv is 1 base (mild cure)
+                                return cure
+                              end
+                            end,
+                            {tg="Intestinal Parasites",ch=0.33,sv=1}}
 }
