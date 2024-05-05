@@ -122,3 +122,4 @@ Fertilize and soak soil=
 This plant has a foul musty flavor.=
 Your stomach hurts terribly.=
 Combine with another slab\n or eat if you're desperate=
+Eat if you're desperate=
