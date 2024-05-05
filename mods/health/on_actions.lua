@@ -60,16 +60,18 @@ function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_tabl
       minetest.sound_play(sound.name, minimal.merge_tables(sound,{pos=pos}))
     end
     local replace_item = f_table.rwi
-    --replace/take
-    itemstack:take_item()
-    if itemstack:get_count() == 0 then
-      itemstack:add_item(replace_item)
-    else
-      local inv = user:get_inventory()
-      if inv:room_for_item("main", replace_item) then
-        inv:add_item("main", replace_item)
+    --replace/take (non-creative)
+    if not minimal.player_in_creative(user) then
+      itemstack:take_item()
+      if itemstack:get_count() == 0 then
+        itemstack:add_item(replace_item)
       else
-        minetest.add_item(pos, replace_item)
+        local inv = user:get_inventory()
+        if inv:room_for_item("main", replace_item) then
+          inv:add_item("main", replace_item)
+        else
+          minetest.add_item(pos, replace_item)
+        end
       end
     end
   end
