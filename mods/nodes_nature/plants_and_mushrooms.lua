@@ -555,26 +555,24 @@ minetest.override_item(
 --marbhan has a Neurotoxin
 minetest.override_item(
     "nodes_nature:marbhan",{
-		_on_use_item = function(user, itemstack, pointed_thing)
-        --on_use = function(itemstack, user, pointed_thing)
-            --Similar to hemlock, which tastes musty or like mouse urine
-            minetest.chat_send_player(user:get_player_name(),
-                                      "This plant has a foul musty flavor.")
+		_on_consume = function(user, itemstack, pointed_thing)
+      --Similar to hemlock, which tastes musty or like mouse urine
+      minetest.chat_send_player(user:get_player_name(),
+                            S("This plant has a foul musty flavor."))
 
-            return HEALTH.eatdrink(itemstack, user, pointed_thing)
-        end,
+      return HEALTH.eatdrink(itemstack, user, pointed_thing)
+  end,
 })
 
 
 --nebiyi has a Hepatotoxin
 minetest.override_item(
     "nodes_nature:nebiyi",{
-		_on_use_item = function(user, itemstack, pointed_thing)
-        --on_use = function(itemstack, user, pointed_thing)
-            --Flowers look a bit like oleander; it causes intense stomach pain
-            minetest.chat_send_player(user:get_player_name(),
-                                      "Your stomach hurts terribly.")
+		_on_consume = function(user, itemstack, pointed_thing)
+    --Flowers look a bit like oleander; it causes intense stomach pain
+      minetest.chat_send_player(user:get_player_name(),
+                                  S("Your stomach hurts terribly."))
 
-            return HEALTH.eatdrink(itemstack, user, pointed_thing)
-        end,
+        return HEALTH.eatdrink(itemstack, user, pointed_thing)
+    end,
 })
