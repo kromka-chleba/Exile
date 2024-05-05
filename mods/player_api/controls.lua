@@ -178,14 +178,6 @@ local function handle_use_key(player, name, held)
       if wdef._on_use_item then
 	 using_tool = wdef._on_use_item(player, witem, pointed_thing)
       end
-      if not held and not using_tool and wdef.groups.edible then
-	 using_tool = true
-	 if wdef.groups.edible == 1 then
-	    HEALTH.eatdrink(witem, player, pointed_thing)
-	 elseif wdef.groups.edible == 2 then
-	    HEALTH.eatdrink_playermade(witem, player, pointed_thing)
-	 end
-      end
    end
    if using_tool and not minimal.player_in_creative(player) then
       player:set_wielded_item(witem)
