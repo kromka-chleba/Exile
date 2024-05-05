@@ -127,7 +127,7 @@ function HEALTH.get_food_stats(name,prefercooked)
     name = name:get_name()
   end
   local ft = type(name) == "table" and name or -- food_table
-  prefercooked and food_table[name.."_cooked"] or food_table[name]
+  (prefercooked and type(name) == "string" and food_table[name.."_cooked"]) or food_table[name]
   if type(ft) ~= "table" then
     return
   end
@@ -191,6 +191,19 @@ local bake_redef = {
 			       bake_table[selfname][2])
 end}
 
+-- concatenates description and name together for easier debugging
+local function name_desc_tag(def)
+  if type(def) == "string" then
+    def = minetest.registered_items[def] or def
+  end
+  if type(def) ~= "table" and type(def) == "string" then
+    return "Unregistered ("..def..")"
+  else
+    return def.description.." ("..def.name..")"
+  end
+  return def
+end
+
 -- only accepts 1 node at a time for baking definition
 -- Adds bakeables, mod must send a string and table in the following format:
 -- name (nodedef name),{temp,duration}
@@ -201,19 +214,21 @@ function HEALTH.add_bake(name,data)
   elseif type(data) ~= "table" then 
     error(debug.traceback(name..": bake data is not a table, got '"..type(data).."'",2))
   end
-  local temp = data[1]
-  local duration = data[2]
-  if type(temp) ~= "number" then
-    error(debug.traceback(name..": temp provided for bake data is not a string, got '"..type(temp).."'",2))
-  elseif type(duration) ~= "number" then
-    error(debug.traceback(name..": temp provided for bake data is not a string, got '"..type(duration).."'",2))
-  end
   if not minetest.registered_nodes[name] then
-    error(debug.traceback("name provided for bake data does not exist as a node!",2))
+    error(debug.traceback(name..": does not exist as a node, cannot add bake data!",2))
+  end
+  local temp = data[1] or data.temp
+  local duration = data[2] or data.duration
+  if type(temp) ~= "number" then
+    error(debug.traceback(name..": temp provided for bake data is not a number, got '"..type(temp).."'",2))
+  elseif type(duration) ~= "number" then
+    error(debug.traceback(name..": duration provided for bake data is not a number, got '"..type(duration).."'",2))
   end
   -- Add new bakeable with bake_redef override
   minetest.override(name, bake_redef)
   bake_table[name] = {temp,duration}
+  minetest.log("info","Bake data successfully added for "..name_desc_tag(minetest.registered_nodes[name]))
+  return bake_table[name]
 end
 
 -- FOOD HARM AND FOOD CURE SHOULD BE DEFINED AS SO:
@@ -283,6 +298,8 @@ function HEALTH.add_harm(name,data)
     end
   end
   food_harm_table[name] = data
+  minetest.log("info","Food harm data successfully added for "..name_desc_tag(name))
+  return data
 end
 
 -- only accepts 1 item at a time for harm definition
@@ -322,6 +339,68 @@ function HEALTH.add_cure(name,data)
     end
   end
   food_cure_table[name] = data
+  minetest.log("info","Food cure data successfully added for "..name_desc_tag(name))
+  return data
+end
+
+function HEALTH.add_food_table(name,data)
+  if type(name) ~= "string" then
+    error(debug.traceback("name provided for food table data is not a string, got '"..type(name).."'",2))
+  elseif type(data) ~= "table" then 
+    error(debug.traceback(name..": food table data is not a table, got '"..type(data).."'",2))
+  end
+  for index,value in pairs(data) do
+    if type(index) == "number" then
+      -- numbers unsupported
+      data[index] = nil
+    elseif type(index) == "string" then
+      -- lowercase all indexes
+      local revised_index = string.lower(index)
+      if index ~= revised_index then
+        data[revised_index] = value
+        data[index] = nil
+      end
+    end
+  end
+  local data_length = 0
+  -- permit defining harm, cure, and bake definitions
+  if type(data.harm) == "table" then
+    HEALTH.add_harm(name,data.harm)
+    data_length = data_length + 1
+  end
+  if type(data.cure) == "table" then
+    HEALTH.add_cure(name,data.cure)
+    data_length = data_length + 1
+  end
+  if type(data.bake) == "table" then
+    HEALTH.add_bake(name,data.bake)
+    data_length = data_length + 1
+  end
+  -- get raw important stats
+  local stat_string = ""
+  local food_stats = HEALTH.get_food_stats(data) -- accepts table values as well as its usual string
+  for index,value in pairs(food_stats) do
+    -- remove unimportant/'nil' values from data
+    if index == "rwi" and value == "" then
+      food_stats[index] = nil
+    elseif index == "sound" and value == "health_eat" then
+      food_stats[index] = nil
+    elseif value == 0 then
+      food_stats[index] = nil
+    else
+      -- success! at adding values
+      data_length = data_length + 1
+      stat_string = index..":"..value.."  "
+    end
+  end
+  -- verify if data is important enough to add
+  if data_length > 0 then
+    -- sufficient data made
+    food_table[name] = food_stats
+    minetest.log("info","Successfully added food stats for "..name_desc_tag(name).."; "..stat_string)
+    return food_stats
+  end
+  minetest.log("warning","Insufficient data given for "..name_desc_tag(name).."'s edible table! Not registering food stats")
 end
 
 function HEALTH.add_food_hooks(name,info)
