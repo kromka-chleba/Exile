@@ -198,7 +198,7 @@ local function name_desc_tag(def)
   end
   if type(def) ~= "table" and type(def) == "string" then
     return "Unregistered ("..def..")"
-  else
+  elseif type(def) == "table" then
     return def.description.." ("..def.name..")"
   end
   return def
@@ -446,30 +446,25 @@ minetest.register_on_mods_loaded(function()
       HEALTH.add_food_hooks(name)
     end
   end
-end)
-
--- Finalized table list
---Outputs a compilned list of all added foods to the minetest log, info level
-minetest.after(1, function()
-   minetest.log("info", "Finalized list of food_table entries:")
-   for k, v in pairs(food_table) do
-      if minetest.registered_nodes[k] then
-	 minetest.log("info",k)
-      end
-   end
-   minetest.log("info","-------")
-   minetest.log("info", "Finalized list of bake_table entries:")
-   for k, v in pairs(bake_table) do
-      if not minetest.registered_nodes[k] then
-	 minetest.log("info", "Bake table contains an undefined node: "..k)
+  -- Finalized table list
+  -- Outputs a compiled list of all added foods to the minetest log, info level
+  -- Run 1 second after mods registered + food hooks added
+  minetest.after(1, function()
+    minetest.log("info", "Finalized list of food_table entries:")
+    for name,_ in pairs(food_table) do
+      minetest.log("info",name_desc_tag(name))
+    end
+    minetest.log("info","-------")
+    minetest.log("info", "Finalized list of bake_table entries:")
+    for name,_ in pairs(bake_table) do
+      if not minetest.registered_nodes[name] then
+        minetest.log("info", "Bake table contains an undefined node: "..name)
+      elseif minetest.registered_nodes[name.."_cooked"] then
+        minetest.log("info",name_desc_tag(name))
       else
-	 if minetest.registered_nodes[k.."_cooked"] then
-	    minetest.log("info",k)
-	 else
-	    minetest.log("info", "undefined node (cooking pot only entry): "..
-			    k.."_cooked")
-	 end
+        minetest.log("info", "undefined node (cooking pot only entry): "..name.."_cooked")
       end
-   end
-   minetest.log("info","-------")
+      minetest.log("info","-------")
+    end
+  end)
 end)
