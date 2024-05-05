@@ -306,6 +306,7 @@ minetest.register_node(
         temp_effect_max = 0,
 	_splits_by_hand = "nodes_nature:snow",
 	_on_use_node = minimal.slabs_split_hand,
+  _use_tip = S("Eat if you're desperate"),
         groups = {crumbly = 3, falling_node = 1, temp_effect = 1,
                   puts_out_fire = 1, cools_lava = 1, fall_damage_add_percent = -50,
                   edible = 1,
