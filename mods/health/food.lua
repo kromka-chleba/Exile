@@ -387,7 +387,7 @@ function HEALTH.add_food_table(name,data)
       food_stats[index] = nil
     elseif value == 0 then
       food_stats[index] = nil
-    else
+    elseif type(value) == "number" or type(value) == "string" then
       -- success! at adding values
       data_length = data_length + 1
       stat_string = index..":"..value.."  "
