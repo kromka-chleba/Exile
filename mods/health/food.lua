@@ -422,11 +422,28 @@ function HEALTH.add_food_hooks(name,info)
       groups = groups
     })
   end
-  -- add consumption _use_tip
-  if (groups.edible or type(def._on_use_item) == "function") and not def._use_tip then
-    minetest.override_item(name,{
-      _use_tip = S("Eat")
-    })
+  if groups.edible then
+    -- add consumption _use_tip
+    if groups.edible and not def._use_tip then
+      minetest.override_item(name,{
+        _use_tip = S("Eat")
+      })
+    end
+    if not def._on_use_item then
+      minetest.override_item(name,{
+        _on_use_item = function(player, itemstack, pointed_thing)
+          itemstack:get_definition()._on_consume(player, itemstack, pointed_thing)
+        end,
+      })
+    end
+    if type(def._on_consume) ~= "function" then
+      local preferred_eat = groups.edible == 1 and HEALTH.eatdrink or groups.edible == 2 and HEALTH.eatdrink_playermade
+      minetest.override_item(name,{
+        _on_consume = function(player, itemstack, pointed_thing)
+          return preferred_eat(itemstack, player, pointed_thing)
+        end
+      })
+    end
   end
   if minetest.registered_nodes[name] then
     if bake_table[name] then
