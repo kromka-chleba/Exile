@@ -404,35 +404,48 @@ function HEALTH.add_food_table(name,data)
 end
 
 function HEALTH.add_food_hooks(name,info)
-   -- Adds hooks for edible foods, as well as bakeable things
-   if type(info) == "table" then
-      food_table[name] = info
-   end
-   if minetest.get_item_group(name,'edible') == 0 and food_table[name] then
-    minetest.log("warning", "No edible group set for "..name..", patching")
-    local groups = minetest.registered_items[name].groups or {}
+  -- Adds hooks for edible foods, as well as bakeable things
+  if type(info) == "table" then
+    if not HEALTH.add_food_table(name,info) then
+      -- fatal error! lol
+      return
+    end
+  end
+  local def = minetest.registered_items[name]
+  if not def then return end -- only def related code ahead, return if no def found
+  local groups = def.groups or {}
+  if food_table[name] and not groups.edible then
+    minetest.log("warning", "No edible group set for "..name_desc_tag(name)..", patching")
     groups.edible = 1
-    minetest.override_item(name, {
-      _use_tip = "Eat",
+    minetest.override_item(name,{
+      _use_tip = S("Eat"),
       groups = groups
     })
   end
-   if bake_table[name] then
+  -- add consumption _use_tip
+  if (groups.edible or type(def._on_use_item) == "function") and not def._use_tip then
+    minetest.override_item(name,{
+      _use_tip = S("Eat")
+    })
+  end
+  if minetest.registered_nodes[name] then
+    if bake_table[name] then
       minetest.override_item(name, bake_redef)
-   end
-   if string.match(name, "_cooked") then -- If it's cooked, it can burn
-	 minetest.override_item(name, bake_redef)
-   end
+    end
+    if string.match(name, "_cooked") then -- If it's cooked, it can burn
+      minetest.override_item(name, bake_redef)
+    end
+  end
 end
 
--- Add food hooks to all nodes in edible group
+-- Add food hooks to all items in edible group or in food tables
 minetest.register_on_mods_loaded(function()
-      for name,_ in pairs(minetest.registered_nodes) do
-	 if minetest.get_item_group(name,'edible') > 0
-	 or food_table[name] or bake_table[name] then
-	    HEALTH.add_food_hooks(name)
-	 end
-      end
+  for name,def in pairs(minetest.registered_items) do
+    if (def.groups and def.groups.edible) or food_table[name] or bake_table[name]
+    or food_harm_table[name] or food_cure_table[name] then
+      HEALTH.add_food_hooks(name)
+    end
+  end
 end)
 
 -- Finalized table list
