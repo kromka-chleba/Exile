@@ -16,6 +16,13 @@ local function modify_int(...) -- player, int_name, int_value
 end
 
 
+-- for HEALTH.register_on_player_eat
+local health_eat_callbacks = {}
+function HEALTH.register_on_player_eat(func)
+  if type(func) == "function" then
+    health_eat_callbacks[#health_eat_callbacks + 1] = func
+  end
+end
 -----------------------------
 --On Actions
 --
@@ -73,6 +80,13 @@ function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_tabl
           minetest.add_item(pos, replace_item)
         end
       end
+    end
+  end
+
+  -- register_on_player_eat callbacks
+  if #health_eat_callbacks > 0 then
+    for _,func in pairs(health_eat_callbacks) do
+      func(itemstack, user, f_table)
     end
   end
 
