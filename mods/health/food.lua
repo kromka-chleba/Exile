@@ -448,8 +448,7 @@ function HEALTH.add_food_hooks(name,info)
   if minetest.registered_nodes[name] then
     if bake_table[name] then
       minetest.override_item(name, bake_redef)
-    end
-    if string.match(name, "_cooked") then -- If it's cooked, it can burn
+    elseif bake_table[string.gsub(name,"_cooked","")] then -- If it's cooked, it can burn
       minetest.override_item(name, bake_redef)
     end
   end
