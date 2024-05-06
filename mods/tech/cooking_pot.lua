@@ -253,19 +253,20 @@ local function pot_cook(pos, elapsed)
 end
 
 local function calc_baking_time(stack)
-   local fname = stack:get_name()
-  local ft = HEALTH.get_food_stats(fname)
-  if not ft then return 0 end -- removing finished, etc
   -- #TODO: Check if we're adding to a stack, don't alter
-  local bake_data = HEALTH.bake_table[fname]
+  local fname = stack:get_name()
   -- in order of priority;
   -- baking time
   -- already cooked
   -- use half of nutrition unit value
-  local time = bake_data and type(bake_data[2]) == "number" and bake_data[2] or
-    fname:gsub("_cooked","") ~= fname and 1 or
-    1 + math.floor(math.abs(ft.hu)/2)
-   return time
+  local bake_data = HEALTH.bake_table[fname]
+  local time = bake_data and bake_data.duration or fname:match("_cooked") and 1 or nil
+  if not time then
+    local ft = HEALTH.get_food_stats(fname)
+    if not ft then return 0 end -- has no time to give
+    return 1 + math.floor(math.abs(ft.hu)/2)
+  end
+  return time
 end
 
 -- On dig, ask if the player wants to dump the pot, losing the contents
