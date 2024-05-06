@@ -171,24 +171,24 @@ end
 
 local bake_redef = {
    on_construct = function(pos)
-      local selfname = minetest.get_node(pos).name
-      selfname = selfname:gsub("_cooked","") -- ensure we have the base name
-      if bake_table[selfname] == nil then
-	 bake_error(pos, selfname)
-	 return true
-      end
-      ncrafting.start_bake(pos, bake_table[selfname][2])
+    local name = minetest.get_node(pos).name
+    name = name:gsub("_cooked","") -- ensure base name
+    local bake_info = bake_table[name]
+    if not bake_info then
+      bake_error(pos, name)
+      return true
+    end
+    ncrafting.start_bake(pos, bake_info.duration)
    end,
    on_timer = function(pos, elapsed)
-      local selfname = minetest.get_node(pos).name
-      selfname = selfname:gsub("_cooked","") -- ensure we have the base name
-      if bake_table[selfname] == nil then
-	 bake_error(pos, selfname)
-	 return true
-      end
-      return ncrafting.do_bake(pos, elapsed,
-			       bake_table[selfname][1],
-			       bake_table[selfname][2])
+    local name = minetest.get_node(pos).name
+    name = name:gsub("_cooked","") -- ensure we have the base name
+    local bake_info = bake_table[name]
+    if not bake_info then
+      bake_error(pos, name)
+      return true
+    end
+    return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.duration, bake_info.cooked, bake_info.burned)
 end}
 
 -- concatenates description and name together for easier debugging
@@ -217,16 +217,23 @@ function HEALTH.add_bake(name,data)
   if not minetest.registered_nodes[name] then
     error(debug.traceback(name..": does not exist as a node, cannot add bake data!",2))
   end
-  local temp = data[1] or data.temp
-  local duration = data[2] or data.duration
+  local temp = data.temp or data.temperature
+  local duration = data.duration or data.time
   if type(temp) ~= "number" then
     error(debug.traceback(name..": temp provided for bake data is not a number, got '"..type(temp).."'",2))
   elseif type(duration) ~= "number" then
     error(debug.traceback(name..": duration provided for bake data is not a number, got '"..type(duration).."'",2))
   end
+  local bake_info = {temp=temp, duration=duration}
+  if type(data.cooked) == "string" then
+    bake_info.cooked = data.cooked
+  end
+  if type(data.burned) == "string" then
+    bake_info.burned = data.burned
+  end
   -- Add new bakeable with bake_redef override
   minetest.override(name, bake_redef)
-  bake_table[name] = {temp,duration}
+  bake_table[name] = bake_info
   minetest.log("info","Bake data successfully added for "..name_desc_tag(minetest.registered_nodes[name]))
   return bake_table[name]
 end
@@ -446,9 +453,17 @@ function HEALTH.add_food_hooks(name,info)
     end
   end
   if minetest.registered_nodes[name] then
-    if bake_table[name] then
+    local bake_info = bake_table[name]
+    if bake_info then
       minetest.override_item(name, bake_redef)
-    elseif bake_table[string.gsub(name,"_cooked","")] then -- If it's cooked, it can burn
+      -- ensure "cooked" and "burned" variants
+      if not bake_info.cooked then
+        bake_info.cooked = name.."_cooked"
+      end
+      if not bake_info.burned then
+        bake_info.burned = name.."_burned"
+      end
+    elseif bake_table[name:gsub("_cooked","")] then -- If it's cooked, it can burn
       minetest.override_item(name, bake_redef)
     end
   end

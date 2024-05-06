@@ -132,15 +132,15 @@ HEALTH.food_table = {
 
 HEALTH.bake_table = {
 	--name                          temp, duration, optional food value?
-   ["tech:maraka_bread"]              = { 160,  10 },
-   ["tech:peeled_anperla"]            = { 100,   7 },
-   ["tech:mashed_anperla"]            = { 100,  35 },
-   ["nodes_nature:sea_lettuce"]       = { 100,   3 },
-   ["animals:carcass_invert_small"]   = { 100,   1 },
-   ["animals:carcass_invert_large"]   = { 100,   3 },
-   ["animals:carcass_bird_small"]     = { 100,   6 },
-   ["animals:carcass_fish_small"]     = { 100,   6 },
-   ["animals:carcass_fish_large"]     = { 100,  18 },
+   ["tech:maraka_bread"]              = {temp=160,  duration=10 },
+   ["tech:peeled_anperla"]            = {temp=100,   duration=7 },
+   ["tech:mashed_anperla"]            = {temp=100,  duration=35 },
+   ["nodes_nature:sea_lettuce"]       = {temp=100,   duration=3 },
+   ["animals:carcass_invert_small"]   = {temp=100,   duration=1 },
+   ["animals:carcass_invert_large"]   = {temp=100,   duration=3 },
+   ["animals:carcass_bird_small"]     = {temp=100,   duration=6 },
+   ["animals:carcass_fish_small"]     = {temp=100,   duration=6 },
+   ["animals:carcass_fish_large"]     = {temp=100,  duration=18 },
 }
 
 -- tg=tag, ch=chance, sv=severity
