@@ -232,7 +232,7 @@ function HEALTH.add_bake(name,data)
     bake_info.burned = data.burned
   end
   -- Add new bakeable with bake_redef override
-  minetest.override(name, bake_redef)
+  minetest.override_item(name, bake_redef)
   bake_table[name] = bake_info
   minetest.log("info","Bake data successfully added for "..name_desc_tag(minetest.registered_nodes[name]))
   return bake_table[name]
