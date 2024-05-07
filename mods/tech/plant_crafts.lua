@@ -95,7 +95,7 @@ minetest.register_node('tech:maraka_flour_bitter', {
   end,
   on_timer = function(pos, elapsed)
     --finished product, length
-    return ncrafting.do_soak(pos, "tech:maraka_flour", 60)
+    return ncrafting.do_soak(pos, "tech:maraka_flour", 10, elapsed)
   end,
 })
 

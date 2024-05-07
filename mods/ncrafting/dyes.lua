@@ -286,7 +286,7 @@ for name, number in pairs(bundlelist) do
       local color = string.sub(selfname,18)
       local meta = minetest.get_meta(pos)
       local oldtreat = meta:get_string("ncrafting:bundle_treatment") or ""
-      continue = ncrafting.do_soak(pos, "ncrafting:bundle_treated_"..color)
+      continue = ncrafting.do_soak(pos, "ncrafting:bundle_treated_"..color, ncrafting.cook_rate, elapsed)
       if continue then
 	 continue = ncrafting.do_bake(pos, elapsed,
 				     160, 15,
