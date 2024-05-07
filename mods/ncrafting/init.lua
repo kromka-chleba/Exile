@@ -241,27 +241,34 @@ function ncrafting.start_soak(pos, length, interval)
    minetest.get_node_timer(pos):start(interval)
 end
 
-function ncrafting.do_soak(pos, name, length)
-   local meta = minetest.get_meta(pos)
-   local soaking = meta:get_int("soaking")
-
-   --check if wet,
-   local node_a = minetest.get_node({x=pos.x, y=pos.y + 1, z=pos.z})
-   if minetest.get_item_group(node_a.name, "water") == 1 then
-      if soaking <= 0 then
-	 --finished
-	 minimal.switch_node(pos, {name = name})
-	 ncrafting.set_treatment(meta, "soak")
-	 return false
-      else
-	 --do soaking
-	 meta:set_int("soaking", soaking - 1)
-	 return true
-      end
-   else
-      --no water
-      return true
-   end
+function ncrafting.do_soak(pos, name, interval, catchup, detectfunc)
+  local can_soak = minimal.shift_pos(pos,{y=1})
+  if type(detectfunc) == "function" then
+    -- specify a different set of variables, sends above pos as parameter
+    -- e.g. could check temp or specify a different liquid and return true or false depending on conditions met
+    can_soak = detectfunc(can_soak)
+  else
+    -- usual water on top
+    can_soak = minetest.registered_nodes[minetest.get_node(can_soak).name]
+    -- if registered, has groups, and has water group equaling 1 (freshwater)
+    can_soak = can_soak and can_soak.groups and can_soak.groups.water == 1
+  end
+  if can_soak then
+    local meta = minetest.get_meta(pos)
+    local soaking = meta:get_int("soaking")
+    -- option to calculate soaking via nodetimer elapsed and nodetimer interval
+    soaking = (type(interval) == "number" and type(catchup) == "number") and soaking-math.floor(catchup/interval)
+    or soaking - 1
+    meta:set_int("soaking",soaking)
+    if soaking <= 0 then
+      -- finished
+      minimal.switch_node(pos, {name = name})
+      ncrafting.set_treatment(meta, "soak")
+      return false
+    end
+  end
+  -- can_soak was not true (no water, unless condition was specified with other parameters with detectfunc)
+  return true
 end
 
 minetest.register_abm({
