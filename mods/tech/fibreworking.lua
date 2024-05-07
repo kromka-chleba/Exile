@@ -65,7 +65,7 @@ minetest.register_node('tech:unretted_cana_bundle', {
   end,
   on_timer = function(pos, elapsed)
     --finished product, length
-    return ncrafting.do_soak(pos, 'tech:retted_cana_bundle', 60)
+    return ncrafting.do_soak(pos, 'tech:retted_cana_bundle', 10, elapsed)
   end,
 })
 
