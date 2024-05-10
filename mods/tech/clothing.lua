@@ -127,7 +127,7 @@ crafting.register_recipe({
 --Blanket
 player_api.register_cloth("tech:woven_blanket", {
 	description = S("Woven Blanket"),
-	inventory_image = "tech_woven_blanket.png",
+	inventory_image = "tech_woven_blanket_thumb.png",
 	texture = "tech_woven_blanket.png",
 	stack_max = minimal.stack_max_bulky,
 	groups = {blanket=1, clothing_blanket=1, cloth=6},
