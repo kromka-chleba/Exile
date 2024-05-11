@@ -114,13 +114,13 @@ local function brain(self)
 			--in bright light, when no threats
         if self.energy < self.energy_max and light >= 5 then
           -- feeding
-          local yield = 2 -- some light
+          local yield = 1 -- some light
           if light >= 12 then
             -- so so much light big yummy
-            yield = 8
+            yield = 3
           elseif light >= 9 then
             -- many light
-            yield = 5
+            yield = 2
           end
           self:modify('energy',yield)
         end
