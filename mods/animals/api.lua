@@ -2257,7 +2257,7 @@ function animals.flock(self, prty, min_dist, aqua_speed)
     --local friend = mobkit.get_closest_entity(self, fr)
     local friend =mobkit.get_nearby_entity(self, fr)
 
-    if friend then
+    if friend and (min_dist and get_dist(self, friend) <= min_dist) then
       --get distance, if too far away go to them
       if aqua_speed then
         mobkit.animate(self,'walk')
@@ -2268,7 +2268,7 @@ function animals.flock(self, prty, min_dist, aqua_speed)
         mobkit.make_sound(self,'call')
         animals.hq_flock(self, prty, friend, min_dist)
       end
-      return
+      return true
     end
   end
 
