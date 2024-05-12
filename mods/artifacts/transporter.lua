@@ -663,7 +663,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local meta=stack:get_meta()
 			meta:set_string("target_pos", "")
 			meta:set_string("target_name", "target_name")
-			meta:set_string("description", "Transporter Key")
+			meta:set_string("description", S("Transporter Key"))
 
 			minetest.sound_play("artifacts_transport_error",
 					    {pos = player:get_pos(), gain = 1,
@@ -694,7 +694,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		meta:set_string("target_name", target_name)
 		meta:set_string("description",
-				"Transporter Key to "..target_name)
+				S("Transporter Key to ")..target_name)
 
 		meta:set_string("tmp_target_pos", "")
 
@@ -735,7 +735,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		meta:set_string("target_name", target_name)
 		meta:set_string("description",
-				"Transporter Key to "..target_name)
+				S("Transporter Key to ")..target_name)
 
 		meta:set_string("tmp_target_pos", "")
 
@@ -793,7 +793,7 @@ end
 --NODES, ITEMS
 
 minetest.register_node('artifacts:transporter_pad', {
-	description = 'Transporter Pad',
+	description = S('Transporter Pad'),
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
 	drawtype = "nodebox",
@@ -819,7 +819,7 @@ minetest.register_node('artifacts:transporter_pad', {
 
 
 minetest.register_node('artifacts:transporter_pad_charging', {
-	description = 'Transporter Pad (Charging)',
+	description = S('Transporter Pad (Charging)'),
 	tiles = {'artifacts_antiquorium.png^artifacts_moon_glass.png'},
 	stack_max = minimal.stack_max_bulky,
 	drawtype = "nodebox",
@@ -855,7 +855,7 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 
 
 minetest.register_node('artifacts:transporter_pad_active', {
-	description = 'Transporter Pad (active)',
+	description = S('Transporter Pad (active)'),
 	tiles = {'artifacts_antiquorium.png^artifacts_sun_stone.png'},
 	stack_max = minimal.stack_max_bulky,
 	light_source = 6,
@@ -890,7 +890,7 @@ minetest.register_node('artifacts:transporter_pad_active', {
 
 
 minetest.register_node('artifacts:transporter_power', {
-	description = 'Transporter Power Core (charged)',
+	description = S('Transporter Power Core (charged)'),
 	tiles = {
 		'artifacts_sun_stone.png',
 	},
@@ -925,7 +925,7 @@ minetest.register_node('artifacts:transporter_power', {
 
 
 minetest.register_node('artifacts:transporter_power_dep', {
-	description = 'Transporter Power Core (depleted)',
+	description = S('Transporter Power Core (depleted)'),
 	tiles = {
 		'artifacts_moon_glass.png',
 	},
@@ -966,7 +966,7 @@ minetest.register_node('artifacts:transporter_power_dep', {
 })
 
 minetest.register_node('artifacts:transporter_focalizer', {
-	description = 'Transporter Focalizer',
+	description = S('Transporter Focalizer'),
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
 	drawtype = "nodebox",
@@ -993,7 +993,7 @@ minetest.register_node('artifacts:transporter_focalizer', {
 })
 
 minetest.register_node('artifacts:transporter_stabilizer', {
-	description = 'Transporter Stabilizer',
+	description = S('Transporter Stabilizer'),
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
 	drawtype = "nodebox",
@@ -1016,7 +1016,7 @@ minetest.register_node('artifacts:transporter_stabilizer', {
 })
 
 minetest.register_node('artifacts:transporter_regulator', {
-	description = 'Transporter Regulator',
+	description = S('Transporter Regulator'),
 	tiles = {'artifacts_antiquorium.png'},
 	stack_max = minimal.stack_max_bulky,
 	drawtype = "nodebox",
@@ -1043,7 +1043,7 @@ minetest.register_node('artifacts:transporter_regulator', {
 })
 
 minetest.register_tool('artifacts:transporter_key', {
-    description = 'Transporter Key',
+    description = S('Transporter Key'),
     inventory_image = 'artifacts_transporter_key.png',
     --groups = {},
 		on_use = save_to_key,

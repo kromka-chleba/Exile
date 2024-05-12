@@ -1,0 +1,801 @@
+# textdomain: lore
+
+#char_tab.lua
+mild=мягкий
+moderate=умеренный
+severe=серьезный
+extreme=экстремальный
+
+(mild)=(мягкий)
+(moderate)=(умеренный)
+(severe)=(серьезный)
+(extreme)=(экстремальный)
+
+Caveman in ice=Пещерный человек во льду
+Frozen=Замороженный
+Frostbitten=Обмороженный
+Chilled=Охлажденный
+Too warm=Слишком тепло
+Heat stroke=Тепловой удар
+Cooked=Зажаренный
+Bones and ash=Кости и пепел
+Exhausted=Истощение
+Weary=Изможденный
+Tired=Усталый
+Well-rested=Хорошо отдохнувший
+Starving=Голодающий
+Thin=Худой
+Well-fed=Упитанный
+Dying of thirst=Умирающий от жажды
+Very thirsty=Очень хочется пить
+Thirsty=Жажда
+(Shivering)=(дрожь)
+poorly=плохо
+comfortably=комфортно
+(Sweating)=(Потливость)
+Naked =Голый 
+
+Name=Имя
+Days Survived=Дней выживания
+Lives=Жизни
+Biography=Биография
+Health Effects=Воздействие на здоровье
+Food Poisoning=Пищевое отравление
+Fungal Infection=Грибковая инфекция
+Dust Fever=Пыльная лихорадка
+Intestinal Parasites=Кишечные паразиты
+Drunk=Пьяный
+Hangover=Похмелье
+Tiku High=Тику Хай
+Neurotoxicity=Нейротоксичность
+Hepatotoxicity=Гепатотоксичность
+Photosensitivity=Светочувствительность
+Meta-Stim=Мета-Стим
+Resting=Отдых
+
+Character=Характер
+
+#login.lua
+login_text=  Вы едва слышите, как они@
+зачитывают список ваших преступлений под@
+громкие издевательств ваших сородичей, но уже @
+слишком поздно протестовать против своей невиновности.@
+@n  Вас лишают всего имущества и вручают@
+приказ, в котором описаны все ваши преступления и наказание,@
+которое должно быть назначено, а затем вас@
+проталкивают через врата, чтобы вы умерли в@
+проклятой земле древних, как..
+
+#   You can scarcely hear the sound of them @
+# reading the list of your crimes over the @
+# louder jeering of your kinsmen, but it's already @
+# too late to protest your innocence. @
+# @n  You are stripped of all possessions and given @
+# a writ describing your assorted crimes and the @
+# punishment that is to be given, and then you @
+# are pushed through a gateway to die in the @
+# cursed land of the Ancients, as an..=  Вы едва слышите, как они@
+# зачитывают список ваших преступлений под@
+# громкие издевательств ваших сородичей, но уже @
+# слишком поздно протестовать против своей невиновности.@
+# @n  Вас лишают всего имущества и вручают@
+# приказ, в котором описаны все ваши преступления и наказание,@
+# которое должно быть назначено, а затем вас@
+# вас проталкивают через врата, чтобы вы умерли в@
+# проклятой земле древних, как..
+
+Message of the Day:=Сообщение дня:
+
+#restart.lua
+@1 gave up the ghost.=@1 отказался от призрака.
+POP!=ХОП!
+Restart in: @1 seconds.=Перезапуск через: @1 секунд.
+You've come to your senses and decided to keep trying=Вы одумались и решили продолжить попытки.
+You can't use this command more than once per 5 minutes.=Эту команду можно использовать не чаще одного раза в 5 минут.
+Restarting does not leave bones!=Перезапуск не оставляет костей!
+Your inventory will be deleted.=Ваш инвентарь будет удален.
+Are you sure?=Вы уверены?
+Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try your hand at survival again.=Откажитесь от своего текущего персонажа, не оставив ни малейшего следа. Все, чем вы владеете, будет потеряно. Вместо них в этом мире появится новый Изгнанник, и вы сможете снова попробовать свои силы в выживании.
+This command is an alias for /restart. See there for further information.=Эта команда является псевдонимом команды /restart. Дополнительную информацию см. там.
+
+
+#exile_letter.lua
+He=Он
+She=Она
+he=он
+she=она
+Him=Ему
+Her=Ее
+him=ему
+her=ее
+His=Его
+Hers=Ее
+his=его
+hers=ее
+Himself=Сам
+Herself=Сама
+himself=сам
+herself=сама
+By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=По постановлению @1 из @2: @n@n @3 из @4 @n@n настоящим приговаривается к изгнанию за преступления @n@n @5 @n@n и @n@n @6 @n@n @7 настоящим изгоняется в землю @8 @n@n Земля - @9 @n@n
+
+Sentence of Exile=Приговор изгнания
+
+# bio_gen.lua
+
+@n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=@n @3 @5 человек @1 и @2,@n который прожил @4 жизнь,@n но однажды @6....
+
+ and = и 
+ had lived = прожил 
+ life,= жизнь,
+until one day =но однажды 
+
+# personality
+#  openness
+Conventional=обычный
+Unconventional=нетрадиционный
+Practical=практичный
+Imaginative=воображаемый
+Unadventurous=неприхотливый
+Adventurous=авантюрный
+Traditional=традиционный
+Rebellious=бунтарь
+#  conscientiousness
+Organized=организованный
+Disorganized=дезорганизованный
+Goal-driven=целеустремленный
+Impulsive=импульсивный
+Dutiful=послушный
+Careless=небрежный
+Precise=точный
+Slapdash=небрежный
+#  extroversion
+Shy=застенчивый
+Gregarious=разговорчивый
+Quiet=тихий
+Outgoing=общительный
+Withdrawn=замкнутый
+Sociable=коммуникабельный
+Reserved=сдержанный
+Expressive=экспрессивный
+#  agreeableness
+Pleasant=приятный
+Argumentative=спорный
+Good-natured=добродушный
+Critical=критичный
+Soft-hearted=мягкосердечный
+Suspicious=подозрительный
+Gullible=доверчивый
+Cynical=циничный
+#  neuroticism
+Calm=спокойный
+Neurotic=нервный
+Steady=стабильный
+Unstable=нестабильный
+Self-satisfied=самоудовлетворенный
+Moody=унылый
+Complacent=самодовольный
+Paranoid=параноидальный
+
+# virtue
+courageous=мужественный
+temperate=умеренный
+charitable=благотворительный
+extravagant=экстравагантный
+magnanimous=великодушный
+patient=терпеливый
+honest=честный
+witty=остроумный
+friendly=дружелюбный
+modest=скромный
+just=просто
+ambitious=амбициозный
+assertive=напористый
+benevolent=доброжелательный
+brave=храбрый
+caring=заботливый
+chaste=целомудренный
+cautious=осторожный
+fastidious=привередливый
+committed=преданный
+compassionate=сострадательный
+confident=уверенный
+considerate=внимательный
+contented=довольный
+cooperative=кооперативный
+courteous=вежливый
+creative=творческий
+curious=любопытный
+defiant=вызывающий
+dependable=надежный
+determined=решительный
+devoted=преданный
+diligent=прилежный
+discerning=проницательный
+discrete=разборчивый
+disciplined=дисциплинированный
+eloquent=красноречивый
+empathic=эмпатический
+enthusiastic=восторженный
+faithful=верный
+flexible=гибкий
+focused=сосредоточенный
+tolerant=терпимый
+forgiving=прощающий
+strong=сильный
+frugal=экономный
+gentle=нежный
+graceful=изящный
+grateful=благодарный
+helpful=полезный
+honorable=благородный
+hopeful=надеющийся
+humble=скромный
+comical=комичный
+idealistic=идеалистичный
+virtuous=добродетельный
+impartial=беспристрастный
+industrious=трудолюбивый
+innocent=невинный
+joyful=радостный
+kind=добрый
+knowledgeable=знающий
+loving=любящий
+loyal=верный
+noble=благородный
+dignified=достойный
+merciful=милосердный
+moderate=умеренный
+peaceful=мирный
+persistent=стойкий
+prudent=благоразумный
+purposeful=целеустремлённый
+reliable=надёжный
+resolute=решительный
+resourceful=находчивый
+respectful=уважительный
+responsible=ответственный
+reverent=благоговейный
+righteous=праведный
+selfless=бескорыстный
+sensitive=чуткий
+contemplative=созерцательный
+sincere=искренний
+sober=трезвый
+spontaneous=спонтанный
+steadfast=непоколебимый
+tactful=тактичный
+thrifty=бережливый
+tough=крепкий
+tranquil=спокойный
+trusting=доверчивый
+trustworthy=надёжный
+understanding=понимающий
+vigorous=энергичный
+wise=мудрый
+zealous=ревностный
+
+# life
+#  Favorable
+a good=хорошую
+a happy=счастливую
+a pleasant=приятную
+an enjoyable=привлекательную
+#  Drab
+a boring=скучную
+an uneventful=неинтересную
+a mediocre=посредственную
+a dull=тусклую
+a humdrum=заурядную
+#  Easy
+a comfortable=комфортную
+a satisfied=довольную
+a soft=мягкую
+an easy=лёгкую
+#  Nominal
+a normal=нормальную
+an average=среднюю
+an unremarkable=непримечательную
+#  Diminutive
+a restricted=закрытую
+a narrow-horizoned=узкогоризонтную
+a homely=домашнюю
+a constricted=ограниченную
+#  Grievous
+a frustrated=расстроенную
+an empty=пустую
+an unfulfilling=неудовлетворенную
+a sorrowful=печальную
+a mournful=скорбную
+a long-suffering=многострадальную
+#  Toiling
+an overburdened=перегруженную
+a hardworking=трудолюбивую
+a slave-like=рабскую
+#  Social
+a family centred=семейную
+a communal=общинную
+a self-centred=эгоцентричную
+a selfless=бескорыстную
+a solitary=одинокую
+a low-born=низкорожденную
+an aristocratic=аристократическую
+#  Moral
+a well respected=уважаемую
+an upstanding=достойную
+a patriotic=патриотическую
+an honorable=благородную
+#  Wasted
+a dissipated=рассеянную
+a dissolute=беспутную
+a slothful=ленивую
+an indulgent=снисходительную
+a misspent=расточительную
+#  Aberrant
+an eccentric=эксцентричную
+an oddball=чудаковатую
+a strange=странную
+
+# woe
+#  Bad Business
+made a bad bargain=заключил плохую сделку
+made a deal with the wrong people=заключил сделку не с теми людьми
+sold out and got swindled=продался и был обманут
+was made an offer too good to be true=получил предложение, слишком хорошее, чтобы быть правдой
+saw a fantastic opportunity=увидел фантастическую возможность
+took a gamble=рискнул
+found a new way to make a living=нашел новый способ зарабатывать на жизнь
+#  Emotion
+lost all hope=потерял всякую надежду
+fell into despair=впал в отчаяние
+discovered a great passion=открыл для себя великую страсть
+found a source of great joy=нашел источник великой радости
+was provoked to anger=был спровоцирован на гнев
+lashed out=разозлился
+snapped=сорвался
+couldn't take it anymore=не мог больше терпеть
+decided love was dead=решил, что любовь умерла
+felt like the world didn't care=чувствовал, что миру все равно
+was disgusted by life=испытывал отвращение к жизни
+became obsessed=стал одержимым
+#  Fight the Power
+stood up for the truth=отстаивал правду
+spoke truth to power=говорил правду властям
+took a stand=занял позицию
+picked a fight with the wrong people=затеял драку не с теми людьми
+raged against the machine=выступал против машины
+fought for justice=боролся за справедливость
+put everything toward the cause=вкладывал все силы в дело
+rose up against the oppressor=восстал против угнетателя
+#  Wrong Type of Person/Corruption
+was persecuted by the intolerant=подвергся преследованиям со стороны нетерпимых людей
+refused to conform=отказался соответствовать
+refused to hide anymore=отказался скрываться
+chose to live differently=решил жить по-другому
+saw things others did not see=видел то, чего не видели другие
+#  Life Change
+decided not live that way anymore=решил больше так не жить
+thought life needed shaking up=решил, что жизнь нуждается в переменах
+made a few minor changes=сделал несколько незначительных изменений
+had an epiphany=прозрел
+took up a new hobby=занялся новым хобби
+#  Crime
+got in too deep=забрался слишком глубоко
+chose the wrong path=выбрал неправильный путь
+thought no one would notice=думал, что никто не заметит.
+got caught=попался
+got snitched on=настучал
+bungled a sure thing=провалил дело
+#  Poverty
+fell on hard times=пережил трудные времена
+did what needed to be done=делал то, что нужно было делать
+did what it took to feed the family=делал все, чтобы прокормить семью
+#  Politics
+picked the losing side=выбрал сторону проигравших
+took a chance to grab power=воспользовался шансом захватить власть
+ended up on the wrong side of history=оказался не на той стороне истории
+offended a powerful man=обидел влиятельного человека
+offended a powerful woman=обидел влиятельную женщину
+provoked the jealousy a rival=вызвал ревность соперника
+#  Random Acts
+was just passing by, when=проходил мимо, когда
+had an accident=попал в аварию
+was mistaken for someone else=был принят за другого человека
+was imprisoned on false charges=был заключен в тюрьму по ложному обвинению
+got caught up in someone else's mess=оказался втянутым в чужие неприятности
+witnessed what was supposed to be a secret=стал свидетелем того, что должно было быть тайной
+#  One Stupid Mistake
+made one bad decision=принял одно неверное решение
+said one wrong thing=сказал одну неправильную вещь
+gave in to temptation=поддался искушению
+had a momentary lapse of judgement=допустил кратковременный промах в рассуждениях
+started something too big=начал что-то слишком большое
+lost control=потерял контроль
+followed bad advice=последовал плохому совету
+had too much to drink=слишком много выпил
+learned the truth too late=слишком поздно узнал правду
+committed a simple indiscretion=совершил простую неосторожность
+had a great idea=задумал отличную идею
+misjudged the situation entirely=совершенно неправильно оценил ситуацию
+#  Romance/Family
+fell in love=влюбился
+had an affair=завел роман
+gave up everything for love=отказался от всего ради любви
+had a son=родила сына
+had a daughter=родила дочь
+discovered a long-lost relative=обнаружил давно потерянного родственника
+got mixed up in a love triangle=запутался в любовном треугольнике
+#  Weird
+got involved with a travelling magician=связался со странствующим фокусником
+met a man with two heads=встретил человека с двумя головами
+found a bird that could predict the future=нашел птицу, которая могла предсказывать будущее
+ate some odd beans=съел несколько странных бобов
+tried to learn the flute=пытался научиться играть на флейте
+was given a secret map=получил секретную карту
+discovered a secret chamber=обнаружил секретную камеру
+saw a ghost=увидел призрака
+received a vision from the other side=получил видение с того света
+had a dream that explained everything=увидел сон, который все объяснил
+built a perpetual-motion machine=построил вечный двигатель
+learned the meaning of life=узнал смысл жизни
+
+# judger
+# monarchs, etc.
+King=Короля
+Queen=Королевы
+Emperor=Императора
+Empress=Императрицы
+Exalted Ruler=Возвышенного правителя
+Majestic Leader=Величественного лидера
+High King=Верховного короля
+High Queen=Верховной королевы
+Nobles=Дворян
+Lords=Лордов
+Duke=Герцога
+Duchess=Герцогини
+Lord=Лорда
+Most Highly Exalted Supreme Ruler=Высокочтимого Верховного Правителя
+Great Leader=Великого лидера
+Golden King=Золотого короля
+Jade Queen=Нефритовой королевы
+Prince=Принца
+Princess=Принцессы
+Regent=Регента
+Dictator=Диктатора
+# officials
+High Judge=Высокого судьи
+Tribunal=Трибунала
+Council=Совета
+Courts=Суда
+Presidium=Президиума
+Law Givers=Законодателей
+King's Justice=Королевского правосудия
+Sheriff=Шерифа
+Exarch=Экзарха
+Prefect=Префекта
+Seneschal=Сенешаля
+# cults
+Brotherhood=Братства
+Sisterhood=Сестринства
+High Priest=Верховного жреца
+High Priestess=Верховной жрицы
+Great Prophet=Великого пророка
+Anointed One=Помазанника
+God King=Царя-бога
+Philosopher King=Короля-философа
+Seers=Провидцев
+Sanctum=Санктума
+Order=Ордена
+Monks=Монахов
+Priests=Жрецов
+Priestesses=Жриц
+Enlightened Ones=Просветленных
+Great Sage=Великих мудрецов
+Shaman=Шамана
+# tribal
+Elders=Старейшин
+Wise Ones=Мудрых людей
+Clan Council=Совета клана
+Tribal Chiefs=Вождей племени
+Great Chieftain=Великого вождя
+United Clans=Объединенных кланов
+Wise Man=Мудрого мужчины
+Wise Woman=Мудрой женщины
+# republic
+Citizenry=Граждан
+People=Народа
+Senate=Сената
+Consul=Консула
+Senators=Сенаторов
+Assembly=Собрания
+Chief Minister=Главного министра
+# Geographic/polity
+City State=Города-штата
+Empire=Империи
+Kingdom=Королевства
+Principality=Княжества
+Duchy=Герцогства
+Republic=Республики
+League=Лиги
+Confederation=Конфедерации
+Federation=Федерации
+Alliance=Альянса
+Coalition=Коалиции
+Nation=Нации
+Clan=Клана
+Chiefdom=Вождества
+Tribe=Племени
+Monastic Order=Монашеского ордена
+Merchant Republic=Купеческой республики
+Theocracy=Теократии
+# Military
+Generals=Генералов
+Champion=Чемпионов
+Mighty Warriors=Могучих воинов
+Admirals=Адмиралов
+Legion=Легионов
+Commander=Командиров
+Commandant=Комендантов
+Warlord=Военачальников
+# rogues
+Pirates=Пиратов
+Bandits=Разбойников
+Company=Компании
+Horde=Орды
+Liberators=Освободителей
+Destroyers=Разрушителей
+# freaky
+All Seeing Eye=Всевидящего глаза
+Old Children=Старых детей
+Spectre=Спектров
+Dragon King=Короля драконов
+Seven Hands=Семирукого
+Imperial Phlogistonist=Имперского флогистониста
+Sacred Snake-god=Священного бога-змея
+Eternal Pyramid=Вечной пирамиды
+Towering Tree=Башенного дерева
+Viridian Magister=Виридианского Магистра
+Thousand-tongued All-speaker=Тысячеязыкого Вседержителя
+
+# exile-worthy crime
+# crime1
+treason=измену
+betrayal=предательство
+murder=убийство
+heresy=ересь
+blasphemy=богохульство
+betrayal=предательство
+regicide=цареубийство
+conspiracy=заговор
+kidnapping=похищение
+corruption=коррупцию
+abduction=похищение
+subversion=диверсию
+mutiny=мятеж
+rebellion=восстание
+usurpation=узурпацию
+espionage=шпионаж
+sabotage=саботаж
+treachery=предательство
+sedition=мятеж
+
+# flavour-text crime
+# crime2
+leading the youth astray=сбивание молодежи с пути
+smuggling contraband=доставку контрабанды
+vagabondage=бродяжничество
+banditry=бандитизм
+piracy absent a letter of marque=пиратство, без каперского свидетельства
+drunkenness=пьянство
+sinful living=греховная жизнь
+rabble rousing=буйный разгул
+inciting violence=подстрекательство к насилию
+unspeakable acts=невыразимые поступки
+that of which we shall not speak=то, о чем мы не будем говорить
+endangering the survival of our people=поступок ставящий под угрозу выживание нашего народа
+causing the great tragedy that befell us=поступок поставивший под угрозу выживание нашего народа, повлекший великую трагедию, постигшую нас
+refusing to partake in the sacred rituals=отказ от участия в священных ритуалах
+shameless acts=бесстыдные поступки
+willful sloth=умышленную лень
+preaching foreign gods=проповедь чужих богов
+gross vanity=грубое тщеславие
+wickedness=нечестие
+assassination of one who was high-born=убийство высокопоставленного лица
+sharing secrets with foreign powers=обмен секретами с иностранными державами
+black magic=чёрную магия
+witchcraft afflicting the fertility of our crops=колдовство, нарушающее плодородие наших посевов
+placing curses upon the innocent=наложение проклятий на невинных
+shameful conduct=постыдное поведение
+cowardice in the face of glory=трусость перед лицом славы
+tax evasion=уклонение от уплаты налогов
+abusing their station for personal gain=злоупотребление своим положением ради личной выгоды
+desecration of holy relics=осквернение святых реликвий
+subverting the course of justice=подрыв правосудия
+robbery=грабеж
+attempted murder=покушение на убийство
+grave robbing=ограбление могилы
+cruelty to animals=жестокое обращение с животными
+eating forbidden foods=употребление запрещенных продуктов
+embezzlement=растрату
+questioning the gloriousness of our ways=сомнение в прославленности наших путей
+bearing false witness=лжесвидетельство
+deception of those who must be obeyed=обман тех, кому следует повиноваться
+fraud=мошенничество
+fakery=подделку
+consorting with disreputables=общение с непорядочными людьми
+trespassing upon the tall tower=вторжение в высокую башню
+poaching on royal lands=браконьерство на королевских землях
+impersonation of an official=выдачу себя за официальное лицо
+insulting our great leaders=оскорбление наших великих лидеров
+disobedience toward rightful authority=неповиновение законной власти
+dealing in harmful potions=торговлю вредными зельями
+pickpocketing pious pilgrims=грабеж благочестивых паломников
+possession of stolen goods=владение крадеными вещами
+rioting=бунт
+racketeering=рэкет
+arson=поджог
+soliciting assassins to commit murder=подстрекательство убийц к совершению убийства
+stealing livestock=кражу скота
+usury=ростовщичество
+aspirations to tyranny=стремление к тирании
+improper ambition=неподобающее честолюбие
+failing to venerate the gods=непочитание богов
+vandalism=вандализм
+abidingly uncouth comportment=постоянное нелюдимое поведение
+adopting barbarian customs=принятие варварских обычаев
+speaking a forbidden tongue=разговоры на запрещенном языке
+harassment=притеснение
+forgery=подлог
+bribery=взяточничество
+forsaking our ancestors=оставление наших предков
+mocking all that is good=насмешку над всем хорошим
+stubborn foolishness=упрямую глупость
+persistent idiocy=стойкий идиотизм
+failure to exercise one's duty=неисполнение своего долга
+disregard of honor=пренебрежение честью
+breaking the faith=нарушение веры
+touching the forbidden=прикосновение к запретному
+seeking banned knowledge=поиск запретных знаний
+slander=клевета
+rejecting common sense=отказ от здравого смысла
+failing to appear for military service=неявку на военную службу
+hoarding food during famine=запасение едой во время голода
+befouling the good reputation of our people=порчу доброй репутации нашего народа
+sowing discord among the populace=сеяние раздора среди населения
+sleeping with unclean creatures=сон с нечистыми существами
+violating the chastity of the priesthood=нарушение целомудрия священства
+marrying outside their caste=женитьбу вне своей касты
+cheating at dice=обман при игре в кости
+gardening without a permit=садоводство без разрешения
+stealing priceless art=кражу бесценных произведений искусства
+aiding an adulterous princess=помощь прелюбодействующей принцессе
+leading an unauthorised military campaign=ведение несанкционированной военной кампании
+claiming that the world is round=утверждение, что мир круглый
+claiming that the world is not round=утверждение, что мир не круглый
+promoting belief in gravity=пропаганда веры в гравитацию
+
+# Various corruptions of "Ozymandias"
+# local exile
+Ochymadion=Очимадион
+Aseymedius=Асеймедиус
+Eshenadios=Эшенадиос
+Uzymandeos=Узимандеос
+Isemendion=Исемендион
+Zymenios=Зимениос
+Hocheemundis=Хохимундис
+Otemanediate=Отемандиат
+Oisemondas=Ойсемондас
+Wazymdis=Вазимдис
+Wazhmindas=Важминдас
+Okaemanadia=Окаэманадия
+Caemandior=Каемандиор
+Oshaemediash=Ошаэмедиаш
+Otzakantas=Отзакантас
+Archanatus=Арханатус
+
+# What happened here? Lost to memory.
+# mythic_terror
+Great Calamity=Великое бедствие
+Collapse=Крах
+Unending Curse=Нескончаемое проклятие
+Ancient Curse=Древнее проклятие
+Manifested Curses=Проявленные проклятия
+Curse=Проклятие
+Catastrophe=Катастрофа
+Great Dying=Великая смерть
+Mythic Terror=Мифический ужас
+Cold Night=Холодная ночь
+Night=Ночь
+Darkness=Тьма
+Shadows=Тень
+Woeful Shades=Ужасные тени
+Scourge=Бич
+Plague=Чума
+Eternal Plague=Вечная чума
+Sleeping Evil=Спящее зло
+Fiery Breath=Огненное дыхание
+Great Burning=Великое горение
+Great Bleeding=Великое кровотечение
+Baneful Blights=Проклятые ожоги
+Blight=Облик
+Ceaseless Withering=Бесконечное увядание
+Ancient Exodus=Древний исход
+Fearful Horror=Страшный ужас
+Evil Spirits=Злые духи
+Ghosts=Призраки
+Haunting=Призрачный
+Wrathful Spirits=Гневные духи
+Grim Fate=Мрачная судьба
+Rumbling Earth=Грохочущая земля
+Scorched Wastes=Выжженные пустоши
+Burning Rock=Горящая скала
+Smoldering Soil=Тлеющая почва
+Great Folly=Великая глупость
+Old Tales=Старые сказки
+Evil Wind=Злой ветер
+Bitter Waters=Горькие воды
+Everlasting Tempest=Вечный шторм
+Howling Dust=Воющая пыль
+Hateful Sky=Ненавистное небо
+Great Confusion=Великое смятение
+Twisted Existence=Искаженное существование
+Twisted=Искаженние
+Warped=Искривленный
+Lost=Потерянные
+
+May @1 name be forgotten.=Пусть имя @1 будет забыто.
+@1 is proscribed.=@1 под запретом.
+Never suffer @1 to return.=Никогда не позволяйте @1 вернуться.
+May the gods have mercy upon @1.=Пусть боги будут милостивы к @1.
+Let none come to @1 aid.=Пусть никто не придет на помощь @1.
+May @1 weeping never cease.=Пусть плач @1 никогда не прекратится.
+@1 life is forfeit.=Жизнь @1 потеряна.
+It shall be as if @1 were never born.=Будет так, как будто @1 никогда не рождался.
+May @1 end be swift.=Пусть конец @1 будет быстрым.
+May fortune forgive @1.=Пусть судьба простит @1.
+@1 shall live so long as @2 deserves.=Пусть @1 живет столько, сколько заслуживает @2.
+Let the beasts do with @1 as they wish.=Пусть звери поступают с @1 как хотят.
+This is justice.=Такова справедливость.
+Let none dispute it.=Пусть никто не оспаривает это.
+May @1 wander fruitlessly.=Пусть @1 бесплодно скитается.
+May @1 bones bleach in the sun.=Пусть кости @1 белеют на солнце.
+May the worms feast on @1 flesh.=Пусть черви пируют на плоти @1.
+May @1 suffering appease the gods.=Пусть страдания @1 умиротворят богов.
+Let @1 struggling be without end.=Пусть борьба @1 будет без конца.
+Let fate decide @1 destiny.=Пусть судьба решит @1 судьбу.
+May the land have pity and bury @1 disgraceful remains.=Пусть земля сжалится и похоронит @1 позорные останки.
+Thus we declare.=Так мы заявляем.
+For we are merciful.=Ибо мы милосердны.
+Let this be our kindness to @1.=Пусть это будет нашей добротой к @1.
+Begone, evildoer.=Прочь, злодей.
+Thus do we cleanse ourselves.=Так мы очищаем себя.
+# Perhaps a reference to Pontius Pila
+We wash our hands of @1.=Мы умываем руки от @1.
+Fortune shall be @1 final judge.=Фортуна будет окончательным судьей @1.
+@1 is disowned.=От @1 отрекаются.
+We never knew @1.=Мы никогда не знали @1.
+@1 is cut off.=@1 отрезанный ломоть.
+Let @1 live with the beasts.=Пусть @1 живет со зверями.
+Let the barbarians and wild folk have @1.=Пусть варвары и дикие люди получат @1.
+@1 is not fit for civilised lands.=@1 не годится для цивилизованных земель.
+# Perhaps a reference to Sheev Palpatine
+Thus we ensure our security.=Так мы обеспечиваем свою безопасность.
+Only the righteous belong among us.=Среди нас есть только праведники.
+May @1 toil in vain.=Пусть @1 трудится напрасно.
+# Now a reference to Cecil B. DeMil
+So it is written. So it is done.=Так написано. Так и есть.
+Even the dogs despise @1.=Даже собаки презирают @1.
+We break no bread with traitors.=Мы не преломляем хлеб с предателями.
+Let this be @1 journey to cleanse @2.=Пусть это будет путешествие @1, чтобы очистить @2.
+
+Bones of a long-dead exile=Кости давно умершего изгнанника
+
+# history.lua
+It is the @1 of day @2 of the season of @3, in the year of our exile @4=Это @1 @2 дня сезона @3, в @4 год нашего изгнания.
+Birth=рождения
+Thirst=жажды
+Retreat=ухода
+Hunger=голода
+small hours=ночь
+evening=вечер
+afternoon=день
+morning=утро

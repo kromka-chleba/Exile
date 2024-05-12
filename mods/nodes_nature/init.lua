@@ -3,23 +3,25 @@ nodes_nature = {}
 -- Internationalization
 nodes_nature.S = minetest.get_translator("nodes_nature")
 
+local S = nodes_nature.S
+
 -- Load files
 local path = minetest.get_modpath("nodes_nature")
 
 
 --crafting spots
 crafting.register_type("mixing_spot")
-crafting.register_type("threshing_spot", "Threshing")
+crafting.register_type("threshing_spot", S("Threshing"))
 crafting.register_type("hammering_block")
 crafting.register_type("weaving_spot")
 crafting.register_type("grinding_spot")
 crafting.register_type("chopping_block")
-crafting.register_type("masonry_bench", "Crafting")
-crafting.register_type("masonry_bench_bricks", "Bricks")
-crafting.register_type("masonry_bench_bricks_mortar", "Bricks & Mortar")
-crafting.register_type("masonry_bench_blocks", "Blocks")
-crafting.register_type("masonry_bench_blocks_mortar", "Blocks & Mortar")
-crafting.register_type("masonry_bench_mixing", "Mixing")
+crafting.register_type("masonry_bench", S("Crafting"))
+crafting.register_type("masonry_bench_bricks", S("Bricks"))
+crafting.register_type("masonry_bench_bricks_mortar", S("Bricks & Mortar"))
+crafting.register_type("masonry_bench_blocks", S("Blocks"))
+crafting.register_type("masonry_bench_blocks_mortar", S("Blocks & Mortar"))
+crafting.register_type("masonry_bench_mixing", S("Mixing"))
 --------------------------------
 
 dofile(path.."/replacement_types.lua")

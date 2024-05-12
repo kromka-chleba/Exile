@@ -5,7 +5,7 @@
 
 -- API functions appear after setup and utility sections
 
-local S = core.get_translator(minimal.modname)
+local S = core.get_translator("minimal")
 
 -- Zone setup ------------------------------------------------------------
 local checkrate = 59 -- Seconds between checking for expired zones
@@ -744,7 +744,7 @@ end
 -- Nodes -----------------------------------------------------------------
 
 minetest.register_node("minimal:zone_trigger", {
-        description = "Exile zone trigger node",
+        description = S("Exile zone trigger node"),
         tiles = {"climate_air.png"},
         drawtype = "airlike",
         paramtype = "light",

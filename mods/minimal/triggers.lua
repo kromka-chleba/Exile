@@ -2,7 +2,7 @@
 --namespace
 triggers = {}
 triggers.player = {} -- for timeouts on effects
-local S = core.get_translator(minimal.modname)
+local S = core.get_translator("minimal")
 
 -- Functions: ------------------------------------------------------------
 
@@ -392,7 +392,7 @@ end
 -- Nodes -----------------------------------------------------------------
 
 minetest.register_node("minimal:trigger", {
-        description = "Exile trigger node",
+        description = S("Exile trigger node"),
         tiles = {"climate_air.png"},
         drawtype = "airlike",
         paramtype = "light",

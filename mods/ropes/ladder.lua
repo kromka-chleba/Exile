@@ -1,3 +1,5 @@
+local S = minetest.get_translator("ropes")
+
 ----------------------------------------
 local function ladder_place(pos, placer,length)
 	local pos_below = {x=pos.x, y=pos.y-1, z=pos.z}
@@ -20,7 +22,7 @@ end
 --------------------------------------
 
 local rope_ladder_top_def = {
-	description = "Rope Ladder",
+	description = S("Rope Ladder"),
 	drawtype = "signlike",
 	tiles = {"ropes_ropeladder_top.png"},
 	is_ground_content = false,
@@ -59,7 +61,7 @@ end
 minetest.register_node("ropes:ropeladder_top", rope_ladder_top_def)
 
 minetest.register_node("ropes:ropeladder", {
-	description = "Rope Ladder",
+	description = S("Rope Ladder"),
 	drop = "",
 	drawtype = "signlike",
 	tiles = {"ropes_ropeladder.png"},
@@ -89,7 +91,7 @@ minetest.register_node("ropes:ropeladder", {
 local ladder_extender = ropes.make_rope_on_timer("ropes:ropeladder")
 
 minetest.register_node("ropes:ropeladder_bottom", {
-	description = "Rope Ladder",
+	description = S("Rope Ladder"),
 	drop = "",
 	drawtype = "signlike",
 	tiles = {"ropes_ropeladder_bottom.png"},
@@ -123,7 +125,7 @@ minetest.register_node("ropes:ropeladder_bottom", {
 })
 
 minetest.register_node("ropes:ropeladder_falling", {
-	description = "Rope Ladder",
+	description = S("Rope Ladder"),
 	drop = "",
 	drawtype = "signlike",
 	tiles = {"ropes_ropeladder.png"},

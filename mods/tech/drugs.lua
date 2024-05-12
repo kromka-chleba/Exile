@@ -23,7 +23,7 @@ minetest.register_craftitem("tech:herbal_medicine", {
 	inventory_image = "tech_herbal_medicine.png",
 	stack_max = minimal.stack_max_medium *2,
 	groups = {flammable = 1, edible = 1},
-  _use_tip = "Eat",
+  _use_tip = S("Eat"),
 })
 
 
@@ -58,7 +58,7 @@ minetest.register_craftitem("tech:tiku", {
 	inventory_image = "tech_tiku.png",
 	stack_max = minimal.stack_max_medium *2,
 	groups = {flammable = 1, drug = 1, edible = 1},
-  _use_tip = "Eat",
+  _use_tip = S("Eat"),
 })
 
 

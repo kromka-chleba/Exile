@@ -1,215 +1,216 @@
 # textdomain: bed_rest
 
 # breaktaker message (requires translation)
-You've been here long enough to justify a real break.\nThink of this as a reminder from your better self.\nGo get some rest. Leave Exile behind. You can come back any time.=
+You've been here long enough to justify a real break.@nThink of this as a reminder from your better self.@nGo get some rest. Leave Exile behind. You can come back any time.=Вы здесь уже достаточно долго, чтобы оправдать настоящий перерыв.@nСчитайте это напоминанием от вашего лучшего "я".@nИди и отдохни. Оставьте Изгнание позади. Вы можете вернуться в любое время.
+BREAK TIME!=ВРЕМЯ ПЕРЕРЫВА!
 
 # other messages
 
-You have no room to hold your blanket, so you drop it.=
-Bed: Contains Blanket=
-This bed is already occupied!=
+You have no room to hold your blanket, so you drop it.=У вас нет места, чтобы удержать одеяло, и вы бросаете его.
+Bed: Contains Blanket=Кровать: содержит одеяло
+This bed is already occupied!=Эта кровать уже занята!
 # expects owner name to be after 
-Status: Occupied by =
+Status: Occupied by =Статус: занят 
 # related to above
-(old)=
+(old)=(старый)
 
 # authors (do not translate most if uses latin alphabet)
-Seneca=
-Cicero=
-Ovid=
-Marcus Aurelius=
-Hippocrates=
-Sun Tzu=
-Lao Tzu=
-Confucius=
-Chongyang=
-The Dalai Lama=
-Masanobu Fukuoka=
-Kobayashi Issa=
-Mahatma Gandhi=
-Saadi=
-Nick Joaquín=
-John Plant=
-Joss Whedon=
-Carl Sagan=
-Edwin Louis Cole=
-Ernest Hemmingway=
-Kurt Vonnegut=
-Jane Addams=
-Barry Gehm=
-Bob Ross=
-John Muir=
-Ralph Waldo Emerson=
-Daniel Boone=
-Thomas Edison=
-Woody Allen=
-Bill Watterson=
-Oscar Levant=
-Dr. Seuss=
-Arthur C. Clarke=
-Bear Grylls=
-Winston Churchill=
-George Orwell=
-The Black Knight=
-William Shakespeare=
-Isaac Newton=
-Tolkien=
-Terry Pratchett=
-Douglas Adams=
-Virginia Woolf=
-Dylan Thomas=
-Robert Swan=
-Victor Hugo=
-Albert Camus=
-Marthe Troly-Curtin=
-Franz Kafka=
-Friedrich Nietzsche=
-Markus Herz=
-Balthasar Gracian=
-Edward de Bono=
-Soren Kierkegaard=
+Seneca=Сенека
+Cicero=Цицерон
+Ovid=Овидий
+Marcus Aurelius=Маркус Аврелий
+Hippocrates=Гиппократ
+Sun Tzu=Сунь-цзы
+Lao Tzu=Лао-цзы
+Confucius=Конфуций
+Chongyang=Ван Чунъян
+The Dalai Lama=Далай-лама
+Masanobu Fukuoka=Масанобу Фукуока
+Kobayashi Issa=Кобаяси Исса
+Mahatma Gandhi=Махатма Моханда́с Карамча́нд Га́нди (Махатма Ганди)
+Saadi=Саади
+Nick Joaquín=Ник Хоакин
+John Plant=Джон Плант
+Joss Whedon=Джосс Уэдон
+Carl Sagan=Карл Саган
+Edwin Louis Cole=Эдвин Луи Коул
+Ernest Hemmingway=Эрнест Хемингуэй
+Kurt Vonnegut=Курт Воннегут
+Jane Addams=Джейн Аддамс
+Barry Gehm=Барри Гем
+Bob Ross=Боб Росс
+John Muir=Джон Мьюр
+Ralph Waldo Emerson=Ральф Уолдо Эмерсон
+Daniel Boone=Даниэль Бун
+Thomas Edison=Томас Эдисон
+Woody Allen=Вуди Аллен
+Bill Watterson=Билл Уоттерсон
+Oscar Levant=Оскар Левант
+Dr. Seuss=Доктор Сьюз
+Arthur C. Clarke=Артур С. Кларк
+Bear Grylls=Беар Гриллс
+Winston Churchill=Уинстон Черчилль
+George Orwell=Джордж Оруэлл
+The Black Knight=Черный рыцарь
+William Shakespeare=Вильям Шекспир
+Isaac Newton=Исаак Ньютон
+Tolkien=Джон Ро́нальд Ру́эл То́лкин
+Terry Pratchett=Терри Пратчетт
+Douglas Adams=Дуглас Адамс
+Virginia Woolf=Вирджиния Вульф
+Dylan Thomas=Дилан Томас
+Robert Swan=Роберт Свон
+Victor Hugo=Виктор Гюго
+Albert Camus=Альберт Камю
+Marthe Troly-Curtin=Марта Троли-Куртин
+Franz Kafka=Франс Кафка
+Friedrich Nietzsche=Фридрих Ницше
+Markus Herz=Маркус Герц
+Balthasar Gracian=Балтасар Грасиан
+Edward de Bono=Эдвард де Боно
+Soren Kierkegaard=Сёрен Кьеркегор
 
 # quotes (requires translation)
 # latin;
-Sometimes even to live is an act of courage.=
+Sometimes even to live is an act of courage.=Иногда даже жить - это акт мужества.
 
-It is not by muscle, speed, or physical dexterity that great things are achieved,\nbut by reflection, force of character, and judgment.=
+It is not by muscle, speed, or physical dexterity that great things are achieved,@nbut by reflection, force of character, and judgment.=Великие вещи достигаются не мускулами, скоростью или физической ловкостью, @nа размышлениями, силой характера и суждениями.
 
-Dripping water hollows out stone,\nnot through force but through persistence.=
+Dripping water hollows out stone,@nnot through force but through persistence.=Капающая вода вытесывает камень, @nно не силой, а упорством.
 
-Life is a struggle and wandering in a foreign country.=
+Life is a struggle and wandering in a foreign country.=Жизнь - это борьба и блуждание по чужой стране.
 
 # greek;
-Let food be thy medicine and medicine be thy food.=
+Let food be thy medicine and medicine be thy food.=Пусть еда будет твоим лекарством и лекарством будет твоей пищей.
 
 # chinese;
-If quick, I survive. If not quick, I am lost.=
+If quick, I survive. If not quick, I am lost.=Если быстро, я выживаю. Если не быстро, я потерян.
 
-Fill your bowl to the brim and it will spill.\nKeep sharpening your knife and it will blunt.=
+Fill your bowl to the brim and it will spill.@nKeep sharpening your knife and it will blunt.=Наполните миску до краев, и она прольется.@nПродолжайте точить нож, и он затупится.
 
-Learning without thought is labour lost;\nthought without learning is perilous.=
+Learning without thought is labour lost;@nthought without learning is perilous.=Обучение без размышлений - потерянный труд;@nа размышления без обучения - опасность.
 
-Reed-thatched huts and grass-thatched shelters are essential for protecting the body.\nTo sleep in the open air or in the open fields offends the sun and moon.=
+Reed-thatched huts and grass-thatched shelters are essential for protecting the body.@nTo sleep in the open air or in the open fields offends the sun and moon.=Для защиты тела необходимы хижины из тростника и навесы из травы.@nСон под открытым небом или в открытом поле оскорбляет солнце и луну.
 
-On the other hand,\nliving beneath carved beams and high eaves is also not the action of a superior adept.\nGreat palaces and elevated halls,\n— how can these be part of the living plan for followers of the Dao?=
+On the other hand,@nliving beneath carved beams and high eaves is also not the action of a superior adept.@nGreat palaces and elevated halls,@n— how can these be part of the living plan for followers of the Dao?=С другой стороны,@nжить под резными балками и высокими карнизами также не является действием высшего адепта.@nБольшие дворцы и возвышенные залы,@n- как они могут быть частью плана жизни последователей Дао?
 
-Medicinal herbs are the flourishing emanations of mountains and waterways,\nthe essential florescence of plants and trees.=
+Medicinal herbs are the flourishing emanations of mountains and waterways,@nthe essential florescence of plants and trees.=Лекарственные травы - это цветущие эманации гор и водных потоков,@nа также эфирное цветение растений и деревьев.
 
-Followers of the Dao join together as companions\nbecause they can assist each other in sickness and disease.\nIf you die, I’ll bury you; if I die, you’ll bury me.=
+Followers of the Dao join together as companions@nbecause they can assist each other in sickness and disease.@nIf you die, I’ll bury you; if I die, you’ll bury me.=Последователи Дао объединяются в компаньонов @nпотому, что могут помочь друг другу в болезни и недуге. @nЕсли ты умрешь, я похороню тебя; если я умру, ты похоронишь меня.
 
-If you think you are too small to make a difference,\ntry sleeping with a mosquito.=
+If you think you are too small to make a difference,@ntry sleeping with a mosquito.=Если вы думаете, что вы слишком малы, чтобы изменить ситуацию, @nпопробуйте спать с комаром.
 
 # japanese;
-The ultimate goal of farming is not the growing of crops,\nbut the cultivation and perfection of human beings.=
+The ultimate goal of farming is not the growing of crops,@nbut the cultivation and perfection of human beings.=Конечная цель земледелия - не выращивание урожая, @nа воспитание и совершенствование человека.
 
-Artist's need the world.=
+Artist's need the world.=Художник нуждается в мире.
 
-O snail\nClimb Mount Fuji\nBut slowly, slowly!=
+O snail@nClimb Mount Fuji@nBut slowly, slowly!=Улитка@nВзобраться на гору Фудзи@nНо медленно, медленно!
 
 # indian;
-Each night, when I go to sleep, I die.\nAnd the next morning, when I wake up, I am reborn.=
+Each night, when I go to sleep, I die.@nAnd the next morning, when I wake up, I am reborn.=Каждую ночь, когда я ложусь спать, я умираю.@nА на следующее утро, когда я просыпаюсь, я возрождаюсь.
 
 # iranian;
-Whatever is produced in haste goes hastily to waste.=
+Whatever is produced in haste goes hastily to waste.=Все, что производится в спешке, быстро пропадает.
 
 # filipino;
-The point is not how we use a tool, but how it uses us.=
+The point is not how we use a tool, but how it uses us.=Дело не в том, как мы используем инструмент, а в том, как он использует нас.
 
 # australian;
-My approach is to look for what I’m interested in using\nand if it’s there I use it=
+My approach is to look for what I’m interested in using@nand if it’s there I use it=Мой подход заключается в поиске того, что мне интересно использовать,@nи если оно есть, я его использую.
 
 # american;
-Humor keeps us alive. Humor and food.\nDon't forget food. You can go a week without laughing.=
+Humor keeps us alive. Humor and food.@nDon't forget food. You can go a week without laughing.=Юмор помогает нам жить. Юмор и еда.@nНе забывайте о еде. Вы можете неделю не смеяться.
 
-Extinction is the rule.\nSurvival is the exception.=
+Extinction is the rule.@nSurvival is the exception.=Вымирание - это правило,@nа выживание - исключение.
 
-Somewhere, something incredible is waiting to be known.=
+Somewhere, something incredible is waiting to be known.=Где-то есть что-то невероятное, что ждет своего часа.
 
-If you wish to make an apple pie from scratch, you must first invent the universe.=
+If you wish to make an apple pie from scratch, you must first invent the universe.=Если вы хотите приготовить яблочный пирог с нуля, вам нужно сначала изобрести вселенную.
 
-You don't drown by falling in the water;\nyou drown by staying there.=
+You don't drown by falling in the water;@nyou drown by staying there.=Вы не утонете, упав в воду;@nвы утонете, оставшись там.
 
-Never confuse movement with action.=
+Never confuse movement with action.=Никогда не путайте движение с действием.
 
-A step backward, after making a wrong turn, is a step in the right direction.=
+A step backward, after making a wrong turn, is a step in the right direction.=Шаг назад после неверного поворота - это шаг в правильном направлении.
 
-Perhaps nothing is so fraught with significance as the human hand,\nthis oldest tool with which man has dug his way from savagery,\nand with which he is constantly groping forward.=
+Perhaps nothing is so fraught with significance as the human hand,@nthis oldest tool with which man has dug his way from savagery,@nand with which he is constantly groping forward.=Пожалуй, ничто не имеет такого значения, как человеческая рука,@nэтот древнейший инструмент, с помощью которого человек пробивал себе путь из дикости,@nи с помощью которого он постоянно пробирается вперед.
 
-Any technology distinguishable from magic is insufficiently advanced.=
+Any technology distinguishable from magic is insufficiently advanced.=Любая технология, отличимая от магии, недостаточно развита.
 
-Lets build a happy little cloud.\nLets build some happy little trees.=
+Lets build a happy little cloud.@nLets build some happy little trees.=Построим маленькое счастливое облако.@nДавайте построим несколько маленьких счастливых деревьев.
 
-The mountains are calling and I must go.=
+The mountains are calling and I must go.=Горы зовут, и я должен идти.
 
-Adopt the pace of nature: her secret is patience.=
+Adopt the pace of nature: her secret is patience.=Возьмите на вооружение темп природы: ее секрет - терпение.
 
-I've never been lost, but I was mighty turned around for three days once.=
+I've never been lost, but I was mighty turned around for three days once.=Я никогда не терялся, но однажды меня три дня крутили по кругу.
 
-I have not failed. I've just found 10,000 ways that won't work.=
+I have not failed. I've just found 10,000 ways that won't work.=Я не потерпел неудачу. Я просто нашел 10 000 способов, которые не работают.
 
-I'm not afraid of death;\nI just don't want to be there when it happens.=
+I'm not afraid of death;@nI just don't want to be there when it happens.=Я не боюсь смерти,@nя просто не хочу быть там, когда она случится.
 
-Reality continues to ruin my life.=
+Reality continues to ruin my life.=Реальность продолжает разрушать мою жизнь.
 
-There's a fine line between genius and insanity.\nI have erased this line.=
+There's a fine line between genius and insanity.@nI have erased this line.=Есть тонкая грань между гениальностью и безумием.@nЯ стер эту грань.
 
-They say I'm old-fashioned, and live in the past,\nbut sometimes I think progress progresses too fast!=
+They say I'm old-fashioned, and live in the past,@nbut sometimes I think progress progresses too fast!=Говорят, что я старомоден и живу прошлым,@nно иногда мне кажется, что прогресс идет слишком быстро!
 
 # british;
-It has yet to be proven that intelligence has any survival value.=
+It has yet to be proven that intelligence has any survival value.=Пока не доказано, что интеллект имеет какое-либо значение для выживания.
 
-The only way of discovering the limits of the possible\nis to venture a little way past them into the impossible.=
+The only way of discovering the limits of the possible@nis to venture a little way past them into the impossible.=Единственный способ обнаружить границы возможного@n- это рискнуть выйти за них в невозможное.
 
-That fine line between bravery and stupidity is endlessly debated\n– the difference really doesn’t matter.=
+That fine line between bravery and stupidity is endlessly debated@n– the difference really doesn’t matter.=О тонкой грани между храбростью и глупостью можно спорить бесконечно@n- на самом деле разница не имеет значения.
 
-If you're going through hell, keep going=
+If you're going through hell, keep going=Если вы проходите через ад, продолжайте идти.
 
-Progress is not an illusion; it happens,\nbut it is slow and invariably disappointing.=
+Progress is not an illusion; it happens,@nbut it is slow and invariably disappointing.=Прогресс - это не иллюзия, он происходит,@nно медленно и неизменно разочаровывает.
 
-Tis but a scratch!=
+Tis but a scratch!=Это всего лишь царапина!
 
-I like this place and could willingly waste my time in it.=
+I like this place and could willingly waste my time in it.=Мне нравится это место, и я охотно трачу на него свое время.
 
-Nature is pleased with simplicity. And nature is no dummy.=
+Nature is pleased with simplicity. And nature is no dummy.=Природе нравится простота. А природа - не дура.
 
-Not all those who wander are lost.=
+Not all those who wander are lost.=Не все блуждающие теряются.
 
-Give a man a fire and he's warm for a day,\nbut set fire to him and he's warm for the rest of his life.=
+Give a man a fire and he's warm for a day,@nbut set fire to him and he's warm for the rest of his life.=Дайте человеку огонь, и он согреется на день,@nно подожгите его, и он согреется на всю оставшуюся жизнь.
 
-Let's think the unthinkable, let's do the undoable.\nLet us prepare to grapple with the ineffable itself, and see if we may not eff it after all.=
+Let's think the unthinkable, let's do the undoable.@nLet us prepare to grapple with the ineffable itself, and see if we may not eff it after all.=Давайте думать о немыслимом, давайте делать немыслимое.@nДавайте подготовимся к встрече с самим невыразимым и посмотрим, может быть, мы все-таки его не вытравим.
 
-One cannot think well, love well, sleep well, if one has not dined well.=
+One cannot think well, love well, sleep well, if one has not dined well.=Нельзя хорошо думать, любить, спать, если не пообедал.
 
-Do not go gentle into that good night.\nRage, rage against the dying of the light.=
+Do not go gentle into that good night.@nRage, rage against the dying of the light.=Не уходите в эту спокойную ночь.@nЯрость, ярость против угасания света.
 
-The greatest threat to our planet\nis the belief that someone else will save it.=
+The greatest threat to our planet@nis the belief that someone else will save it.=Самая большая угроза для нашей планеты@n- это вера в то, что ее спасет кто-то другой.
 
 # french;
-Emergencies have always been necessary to progress.=
+Emergencies have always been necessary to progress.=Чрезвычайные ситуации всегда были необходимы для прогресса.
 
-There is scarcely any passion without struggle.=
+There is scarcely any passion without struggle.=Вряд ли существует страсть без борьбы.
 
-Time you enjoy wasting is not wasted time.=
+Time you enjoy wasting is not wasted time.=Время, которое вам нравится тратить, - это не зря потраченное время.
 
 # german;
-I only fear danger where I want to fear it.=
+I only fear danger where I want to fear it.=Я боюсь опасности только там, где хочу ее бояться.
 
-All truly great thoughts are conceived while walking.=
+All truly great thoughts are conceived while walking.=Все по-настоящему великие мысли зарождаются во время прогулки.
 
-When we are tired, we are attacked by ideas we conquered long ago.=
+When we are tired, we are attacked by ideas we conquered long ago.=Когда мы устали, нас атакуют идеи, которые мы давно завоевали.
 
-He who has a strong enough why can bear any how.=
+He who has a strong enough why can bear any how.=Тот, у кого есть достаточно сильное "почему", может вынести любое "как".
 
-Be careful about reading health books.\nSome fine day you'll die of a misprint.=
+Be careful about reading health books.@nSome fine day you'll die of a misprint.=Осторожно читайте книги о здоровье.@nВ один прекрасный день вы умрете от опечатки.
 
 # spanish;
-There are rules to luck, not everything is chance for the wise;\nluck can be helped by skill.=
+There are rules to luck, not everything is chance for the wise;@nluck can be helped by skill.=В удаче есть свои правила, не все является шансом для мудрых;@nУдаче может помочь мастерство.
 
 # maltese;
-It will be a sinister day when computers start to laugh,\nbecause that will mean they are capable of a lot of other things as well.=
+It will be a sinister day when computers start to laugh,@nbecause that will mean they are capable of a lot of other things as well.=Это будет зловещий день, когда компьютеры начнут смеяться,@nпотому что это будет означать, что они способны и на многое другое.
 
-Po converts what might otherwise be taken as madness\ninto a perfectly reasonable illogical procedure.=
+Po converts what might otherwise be taken as madness@ninto a perfectly reasonable illogical procedure.=По превращает то, что иначе можно было бы принять за безумие,@nв совершенно разумную нелогичную процедуру.
 
 # nordic;
-Life can only be understood backwards; but it must be lived forwards.=
+Life can only be understood backwards; but it must be lived forwards.=Жизнь можно осмыслить только вспять. Но жить ее нужно в направлении вперед
 

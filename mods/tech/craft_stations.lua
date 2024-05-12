@@ -20,50 +20,50 @@ local legacy_station_recipes = false
 --Register
 --some crafts are more convienently registered at the same time as the resource,
 --hence why not all are here.
-crafting.register_type("crafting_spot")
+crafting.register_type("crafting_spot", S("Crafting Spot"))
 --crafting.register_type("mixing_spot")...has to be done in nodes_nature
 --crafting.register_type("threshing_spot")...has to be done in nodes_nature
-crafting.register_type("weaving_frame", "Weaving")
-crafting.register_type("weaving_frame_mixing", "Mixing")
-crafting.register_type("grinding_stone")
-crafting.register_type("mortar_and_pestle")
+crafting.register_type("weaving_frame", S("Weaving"))
+crafting.register_type("weaving_frame_mixing", S("Mixing"))
+crafting.register_type("grinding_stone", S("Grinding stone"))
+crafting.register_type("mortar_and_pestle", S("Mortar and pestle"))
 --crafting.register_type("chopping_block")...has to be done in nodes_nature
 --crafting.register_type("hammering_block")...has to be done in nodes_nature
-crafting.register_type("anvil", "Crafting")
-crafting.register_type("anvil_mixing", "Mixing")
-crafting.register_type("carpentry_bench")
+crafting.register_type("anvil", S("Crafting"))
+crafting.register_type("anvil_mixing", S("Mixing"))
+crafting.register_type("carpentry_bench", S("Carpentry Bench"))
 --crafting.register_type("masonry_bench")...has to be done in nodes_nature
 --crafting.register_type("masonry_mixing")...has to be done in nodes_nature
-crafting.register_type("brick_makers_bench","Crafting")
-crafting.register_type("brick_makers_bench_bricks", "Bricks")
-crafting.register_type("brick_makers_bench_blocks", "Blocks")
-crafting.register_type("brick_makers_bench_mixing", "Mixing")
+crafting.register_type("brick_makers_bench", S("Crafting"))
+crafting.register_type("brick_makers_bench_bricks", S("Bricks"))
+crafting.register_type("brick_makers_bench_blocks", S("Blocks"))
+crafting.register_type("brick_makers_bench_mixing", S("Mixing"))
 
-crafting.register_type("spinning_wheel")
-crafting.register_type("loom")
-crafting.register_type("glass_furnace")
+crafting.register_type("spinning_wheel", S("Spinning Wheel"))
+crafting.register_type("loom", S("Loom"))
+crafting.register_type("glass_furnace", S("Glass furnace"))
 
 -- Tool based crafting stations
-crafting.register_type("hand", "Crafting")   		-- Empty hand tool; Replace crafting spot
-crafting.register_type("hand_create", "Create")   	-- Assemble crafting stations by hand.
-crafting.register_type("hand_pottery", "Pottery")	-- Pottery tab
-crafting.register_type("hand_wattle", "Wattle")		-- Wattle Tab
-crafting.register_type("hand_tools", "Tools")	-- Tools Tab
-crafting.register_type("hand_mixing", "Mixing")	-- Mixing Tab
+crafting.register_type("hand", S("Crafting"))   		-- Empty hand tool; Replace crafting spot
+crafting.register_type("hand_create", S("Create"))   	-- Assemble crafting stations by hand.
+crafting.register_type("hand_pottery", S("Pottery"))	-- Pottery tab
+crafting.register_type("hand_wattle", S("Wattle"))		-- Wattle Tab
+crafting.register_type("hand_tools", S("Tools"))	-- Tools Tab
+crafting.register_type("hand_mixing", S("Mixing"))	-- Mixing Tab
 
-crafting.register_type("knife", "Crafting")  	-- Replace some of the crafting spot
-crafting.register_type("knife_stations", "Stations")  	-- Replace some of the crafting spot
-crafting.register_type("knife_wattle", "Wattle")  	-- Replace some of the crafting spot
-crafting.register_type("knife_mixing", "Mixing")
-crafting.register_type("hammer", "Crafting") 	-- Hammering spot replacement
-crafting.register_type("hammer_mixing", "Mixing")
-crafting.register_type('shovel', "Crafting") 	-- farming tools - including digging stick; replace threshing spot
-crafting.register_type("shovel_agriculture", "Agriculture") -- compost, etc.
-crafting.register_type('soil_mixing', "Mixing") 	-- tab for shovel
-crafting.register_type('axe', "Crafting")    	-- includes adze - replace chopping bock
-crafting.register_type('axe_mixing', "Mixing")
+crafting.register_type("knife", S("Crafting"))  	-- Replace some of the crafting spot
+crafting.register_type("knife_stations", S("Stations"))  	-- Replace some of the crafting spot
+crafting.register_type("knife_wattle", S("Wattle"))  	-- Replace some of the crafting spot
+crafting.register_type("knife_mixing", S("Mixing"))
+crafting.register_type("hammer", S("Crafting")) 	-- Hammering spot replacement
+crafting.register_type("hammer_mixing", S("Mixing"))
+crafting.register_type('shovel', S("Crafting")) 	-- farming tools - including digging stick; replace threshing spot
+crafting.register_type("shovel_agriculture", S("Agriculture")) -- compost, etc.
+crafting.register_type('soil_mixing', S("Mixing")) 	-- tab for shovel
+crafting.register_type('axe', S("Crafting"))    	-- includes adze - replace chopping bock
+crafting.register_type('axe_mixing', S("Mixing"))
 crafting.register_type('cobble') 	-- Replacing grinding stone
-crafting.register_type('pickaxe') 	-- nothing yet
+crafting.register_type('pickaxe', S("Pickaxe")) 	-- nothing yet
 
 -- location limit craft spots --------------------
 -- grouplist/banlistg {{group1, group_number}, {'stone', 1}}

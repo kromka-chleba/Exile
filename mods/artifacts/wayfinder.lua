@@ -187,7 +187,7 @@ for i = 0, 15 do
 		groups.not_in_creative_inventory = 1
 	end
 	minetest.register_tool("artifacts:wayfinder_"..i, {
-		description = "Wayfinder",
+		description = S("Wayfinder"),
 		inventory_image = image,
 		wield_image = image,
 		groups = groups,
@@ -201,7 +201,7 @@ end
 --the super material of the ancients
 ------------------------------------
 minetest.register_node("artifacts:waystone", {
-	description = "Waystone",
+	description = S("Waystone"),
 	tiles = {"artifacts_antiquorium.png"},
   stack_max = 1,
 	drawtype = "nodebox",

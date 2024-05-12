@@ -18,6 +18,76 @@ Maraka Tree=
 Tangkal Tree=
 Sasaran Tree=
 Kagum Tree=
+Panasee Tree=
+Amma Tree=
+Daoja Tree=
+Jalowiec Cone=
+Panasee Fruit=
+Amma nut=
+Daoja Berry=
+Jalowiec Shrub=
+
+Riraemu=
+Opaeko=
+Aongao=
+Nagaeo=
+Koaeako=
+Imoaru=
+
+
+# plants_and_mushrooms
+Barszcz=
+Wrotycz=
+Wiha=
+Momo=
+Galanta=
+Vansano=
+Anperla=
+Rzepicha=
+Hakimi=
+Ziarnopłon=
+Srebropłon=
+Orom=
+Veke=
+Tikusati=
+Malinka=
+Malina=
+Yellow Malina=
+Gevaari=
+Obesa=
+Salia=
+Fretin=
+Lambakap=
+Reshedaar=
+Mahal=
+Merki=
+Nebiyi=
+Marbhan=
+Zufani=
+Tsaplop=
+Jogalan=
+Gitiri=
+Badyl=
+Drapacz=
+Bronach=
+Sari=
+Tanai=
+Thoka=
+Alaf=
+Muhle=
+Damo=
+Tashvish=
+Cana=
+Gemedi=
+Chalin=
+Tiken=
+Saguati=
+Zufani Amber=
+Momo Pepper=
+Wiha Berries=
+Muhle Berries=
+Barszcz root=
+Rzepicha root=
 
 # data_rock.lua
 Sandstone=
@@ -37,6 +107,15 @@ Young @1=
 @1 Seeds=
 Cana=
 Glow Worm=
+Flowering @1=
+Fruiting @1=
+Dead Fruitless @1=
+Dead @1=
+Dead Fruiting @1=
+@1 Fruit=
+@1 Dry Fruit=
+Fruitless @1=
+@1 Root=
 
 # liquids.lua
 Salt Water=
@@ -54,6 +133,7 @@ Lava Flowing=
 @1 Boulder=
 @1 Brick=
 @1 Block=
+@1 Cobble=
 
 # sediment conditions (sediment_api.lua, sediment_data.lua)
 Wet @1=
@@ -66,6 +146,8 @@ Frosty Winter Wet @1=
 @1 Fertile Soil=
 @1 Fertile Agricultural Soil=
 @1 With Roots=
+ Stair=
+ Slab=
 
 # sediments (sediment_data.lua)
 Sand=
@@ -123,3 +205,23 @@ This plant has a foul musty flavor.=
 Your stomach hurts terribly.=
 Combine with another slab\n or eat if you're desperate=
 Eat if you're desperate=
+# Leaf Marker
+Leaf Marker=
+
+Combine with another slab=
+
+ Brick Stair=
+ Brick Slab=
+ Log Stair=
+ Log Slab=
+ Block Stair=
+ Block Slab=
+
+# interface
+Threshing=
+Crafting=
+Bricks=
+Bricks & Mortar=
+Blocks=
+Blocks & Mortar=
+Mixing=

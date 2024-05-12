@@ -6,6 +6,7 @@
 
 stairs = {}
 
+local S = minetest.get_translator("minimal")
 
 -- Get setting for replace ABM
 
@@ -287,7 +288,7 @@ function stairs.register_stair_inner(subname, recipeitem, craft_station, recycle
 	local new_groups = table.copy(groups)
 	new_groups.stair = 1
 	minetest.register_node(":stairs:stair_inner_" .. subname, {
-		description = "Inner " .. description,
+		description = S("Inner ") .. description,
 		drawtype = "nodebox",
 		tiles = stair_images,
 		stack_max = stack_size,
@@ -346,7 +347,7 @@ function stairs.register_stair_outer(subname, recipeitem, craft_station, recycle
 	local new_groups = table.copy(groups)
 	new_groups.stair = 1
 	minetest.register_node(":stairs:stair_outer_" .. subname, {
-		description = "Outer " .. description,
+		description = S("Outer ") .. description,
 		drawtype = "nodebox",
 		tiles = stair_images,
 		stack_max = stack_size,

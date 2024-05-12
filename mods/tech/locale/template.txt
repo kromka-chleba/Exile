@@ -19,11 +19,16 @@ Granite=
 Basalt=
 Gneiss=
 Jade=
+Siltstone=
+Claystone=
+Sandstone=
+Conglomerate=
 Crushed Lime=
 Quicklime=
 Slaked Lime=
 Slaked Lime (ruined)=
 Lime Mortar=
+Lime Mortar Slab=
 Loose Bricks (unfired)=
 Loose Bricks=
 Brick and Mortar=
@@ -39,10 +44,12 @@ Tile Block=
 
 # clothing.lua
 Woven Hat=
+Sun Hat=
 Woven Cape=
 Woven Poncho=
 Woven Leggings=
 Woven Blanket=
+Woven Sandals=
 Light Fabric Hat=
 Thick Fabric Hat=
 Light Fabric Cape=
@@ -60,6 +67,7 @@ Cooking Pot (unfired)=
 This pot is full and heavy. Spill it?=
 Yes=
 No=
+Eat=
 
 # doors.lua
 Wattle Door=
@@ -109,6 +117,7 @@ Green Glass Ingot=
 Potash Block=
 Potash=
 Clay Water Pot with Potash Solution=
+Clay Water Pot With Potash=
 Potash Solution Source=
 Flowing Potash Solution=
 Clear Glass Sand Mix=
@@ -131,6 +140,8 @@ Clear Glass Bottle With Salt Water=
 # graffiti.lua
 Painting Kit (lime white)=
 Painting Kit (glow paint)=
+Painting Kit (ochre red)=
+Stone Etcher=
 
 # hearthen_building.lua
 Drystack=
@@ -153,6 +164,10 @@ Slag=
 Molten Slag=
 Flowing Molten Slag=
 Iron Fittings=
+Protection Nails=
+Iron Key=
+Protect Item=
+Grant key owner access.=
 
 # plant_crafts.lua
 Stick=
@@ -208,6 +223,23 @@ Iron Shovel=
 Iron Mace=
 Iron Pickaxe=
 
+Placed Stone Knife=
+Placed Digging Stick=
+Adze=
+Placed Granite Adze=
+Placed Basalt Adze=
+Placed Jade Adze=
+Placed Iron Axe=
+Placed Iron Shovel=
+Placed Iron Pickaxe=
+Iron Hoe=
+Placed Iron Hoe=
+Hammer=
+Placed Granite Hammer=
+Placed Basalt Hammer=
+Basalt Hammer=
+Granite Hammer=
+
 # torch.lua
 Torch=
 
@@ -243,6 +275,10 @@ Spinning Wheel=
 Loom=
 Glass furnace=
 
+Granite Grinding Stone=
+Limestone Grinding Stone=
+Basalt Grinding Stone=
+
 # woodworking.lua
 Wooden Ladder=
 Wooden Floor Boards=
@@ -250,3 +286,110 @@ Wooden Stairs=
 Wooden Water Pot=
 Wooden Water Pot with Freshwater=
 Wooden Water Pot with Salt Water=
+Wooden Water Pot with Potash Solution=
+
+# nodecrafting
+
+Dump=
+Dump the dye from the pot?=
+
+Bundle of plants=
+Treated bundle of plants=
+Dyer's Table@n(Used to create dyes)=
+Dyer's Table=
+Dye Pot=
+useless =
+bundle =
+of =
+, untreated=
+treated by cooking=
+treated by soaking=
+treated by burning=
+
+Combine with another slab=
+
+Flip to stone knife=
+Cut plants faster than bare hands=
+Flip to stone etcher=
+Place tool for cutting crafts=
+Dig hard earth=
+Till soil slowly=
+Place tool for plant crafts=
+Strike=
+Stun animals=
+Cut any wood=
+Dig earth quickly=
+Till soil=
+Place for plant crafts=
+Dig stone=
+Till soil quickly=
+Place tool for plant crafts=
+Stun animals@n or Place on solid surface for hammering crafts=
+Cut softwood logs=
+
+Slag Stair=
+Slag Slab=
+Brick and Mortar Stair=
+Brick and Mortar Slab=
+Tile Stair=
+Tile Slab=
+ Brick with Mortar Stair=
+ Brick with Mortar Slab=
+Drystack Stair=
+Drystack Slab=
+Mudbrick Stair=
+Mudbrick Slab=
+Rammed Earth Stair=
+Rammed Earth Slab=
+Thatch Stair=
+Thatch Slab=
+
+ Block with Mortar Stair=
+ Block with Mortar Slab=
+
+Odd=
+Drink=
+
+# Craft station
+Weaving=
+Mixing=
+Crafting=
+Create=
+Pottery=
+Wattle=
+Tools=
+Bricks=
+Blocks=
+Stations=
+Agriculture=
+
+# dye
+red dye=
+crimson dye=
+yellow dye=
+green dye=
+blue dye=
+indigo dye=
+black dye=ц
+
+# Pottery
+Broken Pottery Slab=
+Clay Watering Can (unfired)=
+Clay Watering Can=
+Clay Watering Can with Freshwater=
+Clay Watering Can with Salt Water=
+Wooden Watering Can=
+Wooden Watering Can with Freshwater=
+Wooden Watering Can with Salt Water=
+
+Clay Oil Lamps (x4) (unfired)=
+Clay Oil Lamps (x4)=
+
+# Lantern
+Lantern Case=
+Lantern Case with a wick=
+Lantern Case with Glass=
+Unlit Lantern=
+Lit Lantern=
+
+Enrich depleted soil=

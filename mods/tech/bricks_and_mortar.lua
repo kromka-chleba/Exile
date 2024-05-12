@@ -200,7 +200,7 @@ minetest.register_node("tech:lime_mortar_slab", {
 	sounds = nodes_nature.node_sound_sand_defaults({
 		footstep = {name = "nodes_nature_mud", gain = 0.4},
 		dug = {name = "nodes_nature_mud", gain = 0.4}}),
-	_use_tip = "Combine with another slab",
+	_use_tip = S("Combine with another slab"),
 	_on_use_item = function(player, wielded_item, pointed_thing)
 			return minimal.slabs_combine(player, wielded_item,
 					pointed_thing, "tech:lime_mortar")
@@ -381,8 +381,8 @@ stairs.register_stair_and_slab(
 	"brick_makers_bench_mixing",
 	{cracky = 2},
 	{"tech_bricks_and_mortar.png"},
-	"Brick and Mortar Stair",
-	"Brick and Mortar Slab",
+	S("Brick and Mortar Stair"),
+	S("Brick and Mortar Slab"),
 	minimal.stack_max_medium,
 	nodes_nature.node_sound_stone_defaults(),
 	nil,
@@ -764,8 +764,8 @@ stairs.register_stair_and_slab(
 	"brick_makers_bench_mixing",
 	{cracky = 3},
 	{"tech_roof_tiles.png"},
-	"Tile Stair",
-	"Tile Slab",
+	S("Tile Stair"),
+	S("Tile Slab"),
 	minimal.stack_max_medium,
 	nodes_nature.node_sound_stone_defaults()
 )
@@ -839,8 +839,8 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
 			brick_mortar_recycle_type,
 			{cracky = hardness},
 			{"nodes_nature_"..name.."_brick.png^tech_mortar_brick.png" },
-			desc.." Brick with Mortar Stair",
-			desc.." Brick with Mortar Slab",
+			desc..S(" Brick with Mortar Stair"),
+			desc..S(" Brick with Mortar Slab"),
 			minimal.stack_max_bulky * 6,
 			nodes_nature.node_sound_stone_defaults()
 		)
@@ -857,8 +857,8 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
 			block_mortar_recycle_type,
 			{cracky = hardness},
 			{"nodes_nature_"..name.."_block.png^tech_mortar_block.png" },
-			desc.." Block with Mortar Stair",
-			desc.." Block with Mortar Slab",
+			desc..S(" Block with Mortar Stair"),
+			desc..S(" Block with Mortar Slab"),
 			minimal.stack_max_bulky * 4,
 			nodes_nature.node_sound_stone_defaults()
 		   )

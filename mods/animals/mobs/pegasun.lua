@@ -325,7 +325,7 @@ animals.add_interactors("animals:pegasun_male","rivals", "self")
 local self_data = {
   name = "animals:pegasun",
 	--core
-	_desc = "Female Pegasun",
+	-- _desc = "Female Pegasun",
 	initial_properties = {
 	   max_hp = 40,
 	   physical = true,
@@ -337,7 +337,7 @@ local self_data = {
 	   visual_size = {x = 1, y = 1},
 	   makes_footstep_sound = true,
 	},
-	_desc = "Female Pegasun",
+	_desc = S("Female Pegasun"),
 	timeout = 0,
 
 	-- animal stats

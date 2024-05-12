@@ -197,9 +197,9 @@ minetest.register_tool("tech:stone_chopper", {
 		damage_groups = {fleshy= crude_dmg},
 	},
 	groups = {knife = 1, craftedby = 1},
-	_dig_tip = "Cut plants faster than bare hands",
-	_use_tip = "Flip to stone etcher",
-	-- _place_tip = "Place tool for cutting crafts", -- No such crafts yet
+	_dig_tip = S("Cut plants faster than bare hands"),
+	_use_tip = S("Flip to stone etcher"),
+	-- _place_tip = S("Place tool for cutting crafts"), -- No such crafts yet
 	sound = {breaks = "tech_tool_breaks"},
 	_on_use_item = function(player, wielded_item, pointed_thing)
 	   minimal.swap_tool(player, wielded_item, "tech:stone_etcher")
@@ -327,10 +327,10 @@ minetest.register_tool("tech:digging_stick", {
 	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
         _till_speed = 3,
-	_dig_tip = "Dig hard earth",
-	_use_tip = "Till soil slowly",
+	_dig_tip = S("Dig hard earth"),
+	_use_tip = S("Till soil slowly"),
 	_on_use_item = till_soil,
-	_place_tip = "Place tool for plant crafts",
+	_place_tip = S("Place tool for plant crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:digging_stick_placed")
         end,
@@ -402,7 +402,7 @@ local stone_chop2 = crude_chop2 * stone
 -- multitool
 --
 
-local adze_dig = "Cut softwood logs"
+local adze_dig = S("Cut softwood logs")
 
 --stone adze. best for chopping
 minetest.register_tool("tech:adze", {
@@ -622,8 +622,8 @@ minetest.register_tool("tech:stone_club", {
 		},
 		damage_groups = {fleshy=stone_dmg*2},
 	},
-	_dig_tip = "Strike",
-	_place_tip = "Stun animals",
+	_dig_tip = S("Strike"),
+	_place_tip = S("Stun animals"),
 	groups = {club = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
 })
@@ -676,7 +676,7 @@ minetest.register_tool("tech:axe_iron", {
 		},
 		damage_groups = {fleshy = iron_dmg},
 	},
-	_dig_tip = "Cut any wood",
+	_dig_tip = S("Cut any wood"),
 	groups = {axe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -734,11 +734,11 @@ minetest.register_tool("tech:shovel_iron", {
 	},
 	groups = {shovel = 1, craftedby = 1, hoe = 1},
 	sound = {breaks = "tech_tool_breaks"},
-	_dig_tip = "Dig earth quickly",
+	_dig_tip = S("Dig earth quickly"),
         _till_speed = 4,
 	_on_use_item = till_soil,
-	_use_tip = "Till soil",
-	_place_tip = "Place for plant crafts",
+	_use_tip = S("Till soil"),
+	_place_tip = S("Place for plant crafts"),
 	on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:shovel_iron_placed")
 	end,
@@ -793,8 +793,8 @@ minetest.register_tool("tech:mace_iron", {
 	},
 	groups = {club = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
-	_dig_tip = "Strike",
-	_place_tip = "Stun animals",
+	_dig_tip = S("Strike"),
+	_place_tip = S("Stun animals"),
 })
 
 --Pick Axe. mining, digging
@@ -811,7 +811,7 @@ minetest.register_tool("tech:pickaxe_iron", {
 		},
 		damage_groups = {fleshy = iron_dmg},
 	},
-	_dig_tip = "Dig stone",
+	_dig_tip = S("Dig stone"),
 	groups = {pickaxe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -864,10 +864,10 @@ minetest.register_tool("tech:hoe_iron", {
 	groups = {hoe = 1, craftedby = 1},
 	sound = {breaks = "tech_tool_breaks"},
         _till_speed = 5,
-	_dig_tip = "Dig hard earth",
-	_use_tip = "Till soil quickly",
+	_dig_tip = S("Dig hard earth"),
+	_use_tip = S("Till soil quickly"),
 	_on_use_item = till_soil,
-	_place_tip = "Place tool for plant crafts",
+	_place_tip = S("Place tool for plant crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:hoe_iron_placed")
         end,
@@ -1040,8 +1040,8 @@ minetest.register_tool(
             },
             damage_groups = {fleshy=stone_dmg + 1},
         },
-	_place_tip = "Stun animals\n"..
-	   " or Place on solid surface for hammering crafts",
+	_place_tip = S("Stun animals\n"..
+	   " or Place on solid surface for hammering crafts"),
         on_place = function(itemstack, placer, pointed_thing)
 			local imeta = itemstack:get_meta()
 			local material = imeta:get_string('material')
@@ -1150,8 +1150,8 @@ minetest.register_tool(
             },
             damage_groups = {fleshy=stone_dmg},
         },
-	_place_tip = "Stun animals\n"..
-	   " or Place on solid surface for hammering crafts",
+	_place_tip = S("Stun animals\n"..
+	   " or Place on solid surface for hammering crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:hammer_basalt_placed")
         end,
@@ -1172,8 +1172,8 @@ minetest.register_tool(
             },
             damage_groups = {fleshy=stone_dmg},
         },
-	_place_tip = "Stun animals\n"..
-	   " or Place on solid surface for hammering crafts",
+	_place_tip = S("Stun animals\n"..
+	   " or Place on solid surface for hammering crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing, "tech:hammer_granite_placed")
         end,

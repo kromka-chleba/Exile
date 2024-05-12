@@ -11,6 +11,7 @@ local bell_SAVE_FILE = minetest.get_worldpath()..'/bell_positions.data';
 
 local bell_positions = {};
 
+local S = artifacts.S
 
 local save_bell_positions = function( player )
 
@@ -106,7 +107,7 @@ restore_bell_data();
 
 
 minetest.register_node('artifacts:bell', {
-  description = 'Automated Bell',
+  description = S('Automated Bell'),
   tiles = {"artifacts_bell_top.png",
 			"artifacts_bell_top.png",
 			"artifacts_bell_side.png",

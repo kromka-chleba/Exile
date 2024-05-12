@@ -2,6 +2,7 @@
 
 # breaktaker message (requires translation)
 You've been here long enough to justify a real break.\nThink of this as a reminder from your better self.\nGo get some rest. Leave Exile behind. You can come back any time.=
+BREAK TIME!=
 
 # other messages
 

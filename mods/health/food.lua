@@ -429,7 +429,7 @@ function HEALTH.add_food_hooks(name,info)
   if food_table[name] and not groups.edible then
     minetest.log("warning", "No edible group set for "..name_desc_tag(name)..", patching")
     groups.edible = 1
-    minetest.override_item(name,{
+    minetest.override_item(name, {
       _use_tip = S("Eat"),
       groups = groups
     })

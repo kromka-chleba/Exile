@@ -6,6 +6,35 @@ moderate=
 severe=
 extreme=
 
+(mild)=
+(moderate)=
+(severe)=
+(extreme)=
+
+Caveman in ice=
+Frozen=
+Frostbitten=
+Chilled=
+Too warm=
+Heat stroke=
+Cooked=
+Bones and ash=
+Exhausted=
+Weary=
+Tired=
+Well-rested=
+Starving=
+Thin=
+Well-fed=
+Dying of thirst=
+Very thirsty=
+Thirsty=
+(Shivering)=
+poorly=
+comfortably=
+(Sweating)=
+Naked =
+
 Name=
 Days Survived=
 Lives=
@@ -22,11 +51,31 @@ Neurotoxicity=
 Hepatotoxicity=
 Photosensitivity=
 Meta-Stim=
+Resting=
 
 Character=
 
 #login.lua
 login_text=
+зачитывают список ваших преступлений под@
+громкие издевательств ваших сородичей, но уже @
+слишком поздно протестовать против своей невиновности.@
+@n  Вас лишают всего имущества и вручают@
+приказ, в котором описаны все ваши преступления и наказание,@
+которое должно быть назначено, а затем вас@
+проталкивают через врата, чтобы вы умерли в@
+проклятой земле древних, как..
+
+#   You can scarcely hear the sound of them @
+# reading the list of your crimes over the @
+# louder jeering of your kinsmen, but it's already @
+# too late to protest your innocence. @
+# @n  You are stripped of all possessions and given @
+# a writ describing your assorted crimes and the @
+# punishment that is to be given, and then you @
+# are pushed through a gateway to die in the @
+# cursed land of the Ancients, as an..=
+
 Message of the Day:=
 
 #restart.lua
@@ -60,3 +109,685 @@ Herself=
 himself=
 herself=
 By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=
+
+Sentence of Exile=
+
+# bio_gen.lua
+
+@n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=
+
+ and =
+ had lived =
+ life,=
+until one day =
+
+# personality
+#  openness
+Conventional=
+Unconventional=
+Practical=
+Imaginative=
+Unadventurous=
+Adventurous=
+Traditional=
+Rebellious=
+#  conscientiousness
+Organized=
+Disorganized=
+Goal-driven=
+Impulsive=
+Dutiful=
+Careless=
+Precise=
+Slapdash=
+#  extroversion
+Shy=
+Gregarious=
+Quiet=
+Outgoing=
+Withdrawn=
+Sociable=
+Reserved=
+Expressive=
+#  agreeableness
+Pleasant=
+Argumentative=
+Good-natured=
+Critical=
+Soft-hearted=
+Suspicious=
+Gullible=
+Cynical=
+#  neuroticism
+Calm=
+Neurotic=
+Steady=
+Unstable=
+Self-satisfied=
+Moody=
+Complacent=
+Paranoid=
+
+# virtue
+courageous=
+temperate=
+charitable=
+extravagant=
+magnanimous=
+patient=
+honest=
+witty=
+friendly=
+modest=
+just=
+ambitious=
+assertive=
+benevolent=
+brave=
+caring=
+chaste=
+cautious=
+fastidious=
+committed=
+compassionate=
+confident=
+considerate=
+contented=
+cooperative=
+courteous=
+creative=
+curious=
+defiant=
+dependable=
+determined=
+devoted=
+diligent=
+discerning=
+discrete=
+disciplined=
+eloquent=
+empathic=
+enthusiastic=
+faithful=
+flexible=
+focused=
+tolerant=
+forgiving=
+strong=
+frugal=
+gentle=
+graceful=
+grateful=
+helpful=
+honorable=
+hopeful=
+humble=
+comical=
+idealistic=
+virtuous=
+impartial=
+industrious=
+innocent=
+joyful=
+kind=
+knowledgeable=
+loving=
+loyal=
+noble=
+dignified=
+merciful=
+moderate=
+peaceful=
+persistent=
+prudent=
+purposeful=
+reliable=
+resolute=
+resourceful=
+respectful=
+responsible=
+reverent=
+righteous=
+selfless=
+sensitive=
+contemplative=
+sincere=
+sober=
+spontaneous=
+steadfast=
+tactful=
+thrifty=
+tough=
+tranquil=
+trusting=
+trustworthy=
+understanding=
+vigorous=
+wise=
+zealous=
+
+# life
+#  Favorable
+a good=
+a happy=
+a pleasant=
+an enjoyable=
+#  Drab
+a boring=
+an uneventful=
+a mediocre=
+a dull=
+a humdrum=
+#  Easy
+a comfortable=
+a satisfied=
+a soft=
+an easy=
+#  Nominal
+a normal=
+an average=
+an unremarkable=
+#  Diminutive
+a restricted=
+a narrow-horizoned=
+a homely=
+a constricted=
+#  Grievous
+a frustrated=
+an empty=
+an unfulfilling=
+a sorrowful=
+a mournful=
+a long-suffering=
+#  Toiling
+an overburdened=
+a hardworking=
+a slave-like=
+#  Social
+a family centred=
+a communal=
+a self-centred=
+a selfless=
+a solitary=
+a low-born=
+an aristocratic=
+#  Moral
+a well respected=
+an upstanding=
+a patriotic=
+an honorable=
+#  Wasted
+a dissipated=
+a dissolute=
+a slothful=
+an indulgent=
+a misspent=
+#  Aberrant
+an eccentric=
+an oddball=
+a strange=
+
+# woe
+#  Bad Business
+made a bad bargain=
+made a deal with the wrong people=
+sold out and got swindled=
+was made an offer too good to be true=
+saw a fantastic opportunity=
+took a gamble=
+found a new way to make a living=
+#  Emotion
+lost all hope=
+fell into despair=
+discovered a great passion=
+found a source of great joy=
+was provoked to anger=
+lashed out=
+snapped=
+couldn't take it anymore=
+decided love was dead=
+felt like the world didn't care=
+was disgusted by life=
+became obsessed=
+#  Fight the Power
+stood up for the truth=
+spoke truth to power=
+took a stand=
+picked a fight with the wrong people=
+raged against the machine=
+fought for justice=
+put everything toward the cause=
+rose up against the oppressor=
+#  Wrong Type of Person/Corruption
+was persecuted by the intolerant=
+refused to conform=
+refused to hide anymore=
+chose to live differently=
+saw things others did not see=
+#  Life Change
+decided not live that way anymore=
+thought life needed shaking up=
+made a few minor changes=
+had an epiphany=
+took up a new hobby=
+#  Crime
+got in too deep=
+chose the wrong path=
+thought no one would notice=
+got caught=
+got snitched on=
+bungled a sure thing=
+#  Poverty
+fell on hard times=
+did what needed to be done=
+did what it took to feed the family=
+#  Politics
+picked the losing side=
+took a chance to grab power=
+ended up on the wrong side of history=
+offended a powerful man=
+offended a powerful woman=
+provoked the jealousy a rival=
+#  Random Acts
+was just passing by, when=
+had an accident=
+was mistaken for someone else=
+was imprisoned on false charges=
+got caught up in someone else's mess=
+witnessed what was supposed to be a secret=
+#  One Stupid Mistake
+made one bad decision=
+said one wrong thing=
+gave in to temptation=
+had a momentary lapse of judgement=
+started something too big=
+lost control=
+followed bad advice=
+had too much to drink=
+learned the truth too late=
+committed a simple indiscretion=
+had a great idea=
+misjudged the situation entirely=
+#  Romance/Family
+fell in love=
+had an affair=
+gave up everything for love=
+had a son=
+had a daughter=
+discovered a long-lost relative=
+got mixed up in a love triangle=
+#  Weird
+got involved with a travelling magician=
+met a man with two heads=
+found a bird that could predict the future=
+ate some odd beans=
+tried to learn the flute=
+was given a secret map=
+discovered a secret chamber=
+saw a ghost=
+received a vision from the other side=
+had a dream that explained everything=
+built a perpetual-motion machine=
+learned the meaning of life=
+
+# judger
+# monarchs, etc.
+King=
+Queen=
+Emperor=
+Empress=
+Exalted Ruler=
+Majestic Leader=
+High King=
+High Queen=
+Nobles=
+Lords=
+Duke=
+Duchess=
+Lord=
+Most Highly Exalted Supreme Ruler=
+Great Leader=
+Golden King=
+Jade Queen=
+Prince=
+Princess=
+Regent=
+Dictator=
+# officials
+High Judge=
+Tribunal=
+Council=
+Courts=
+Presidium=
+Law Givers=
+King's Justice=
+Sheriff=
+Exarch=
+Prefect=
+Seneschal=
+# cults
+Brotherhood=
+Sisterhood=
+High Priest=
+High Priestess=
+Great Prophet=
+Anointed One=
+God King=
+Philosopher King=
+Seers=
+Sanctum=
+Order=
+Monks=
+Priests=
+Priestesses=
+Enlightened Ones=
+Great Sage=
+Shaman=
+# tribal
+Elders=
+Wise Ones=
+Clan Council=
+Tribal Chiefs=
+Great Chieftain=
+United Clans=
+Wise Man=
+Wise Woman=
+# republic
+Citizenry=
+People=
+Senate=
+Consul=
+Senators=
+Assembly=
+Chief Minister=
+# Geographic/polity
+City State=
+Empire=
+Kingdom=
+Principality=
+Duchy=
+Republic=
+League=
+Confederation=
+Federation=
+Alliance=
+Coalition=
+Nation=
+Clan=
+Chiefdom=
+Tribe=
+Monastic Order=
+Merchant Republic=
+Theocracy=
+# Military
+Generals=
+Champion=
+Mighty Warriors=
+Admirals=
+Legion=
+Commander=
+Commandant=
+Warlord=
+# rogues
+Pirates=
+Bandits=
+Company=
+Horde=
+Liberators=
+Destroyers=
+# freaky
+All Seeing Eye=
+Old Children=
+Spectre=
+Dragon King=
+Seven Hands=
+Imperial Phlogistonist=
+Sacred Snake-god=
+Eternal Pyramid=
+Towering Tree=
+Viridian Magister=
+Thousand-tongued All-speaker=
+
+# exile-worthy crime
+# crime1
+treason=
+betrayal=
+murder=
+heresy=
+blasphemy=
+betrayal=
+regicide=
+conspiracy=
+kidnapping=
+corruption=
+abduction=
+subversion=
+mutiny=
+rebellion=
+usurpation=
+espionage=
+sabotage=
+treachery=
+sedition=
+
+# flavour-text crime
+# crime2
+leading the youth astray=
+smuggling contraband=
+vagabondage=
+banditry=
+piracy absent a letter of marque=
+drunkenness=
+sinful living=
+rabble rousing=
+inciting violence=
+unspeakable acts=
+that of which we shall not speak=
+endangering the survival of our people=
+causing the great tragedy that befell us=
+refusing to partake in the sacred rituals=
+shameless acts=
+willful sloth=
+preaching foreign gods=
+gross vanity=
+wickedness=
+assassination of one who was high-born=
+sharing secrets with foreign powers=
+black magic=
+witchcraft afflicting the fertility of our crops=
+placing curses upon the innocent=
+shameful conduct=
+cowardice in the face of glory=
+tax evasion=
+abusing their station for personal gain=
+desecration of holy relics=
+subverting the course of justice=
+robbery=
+attempted murder=
+grave robbing=
+cruelty to animals=
+eating forbidden foods=
+embezzlement=
+questioning the gloriousness of our ways=
+bearing false witness=
+deception of those who must be obeyed=
+fraud=
+fakery=
+consorting with disreputables=
+trespassing upon the tall tower=
+poaching on royal lands=
+impersonation of an official=
+insulting our great leaders=
+disobedience toward rightful authority=
+dealing in harmful potions=
+pickpocketing pious pilgrims=
+possession of stolen goods=
+rioting=
+racketeering=
+arson=
+soliciting assassins to commit murder=
+stealing livestock=
+usury=
+aspirations to tyranny=
+improper ambition=
+failing to venerate the gods=
+vandalism=
+abidingly uncouth comportment=
+adopting barbarian customs=
+speaking a forbidden tongue=
+harassment=
+forgery=
+bribery=
+forsaking our ancestors=
+mocking all that is good=
+stubborn foolishness=
+persistent idiocy=
+failure to exercise one's duty=
+disregard of honor=
+breaking the faith=
+touching the forbidden=
+seeking banned knowledge=
+slander=
+rejecting common sense=
+failing to appear for military service=
+hoarding food during famine=
+befouling the good reputation of our people=
+sowing discord among the populace=
+sleeping with unclean creatures=
+violating the chastity of the priesthood=
+marrying outside their caste=
+cheating at dice=
+gardening without a permit=
+stealing priceless art=
+aiding an adulterous princess=
+leading an unauthorised military campaign=
+claiming that the world is round=
+claiming that the world is not round=
+promoting belief in gravity=
+
+# Various corruptions of "Ozymandias"
+# local exile
+Ochymadion=
+Aseymedius=
+Eshenadios=
+Uzymandeos=
+Isemendion=
+Zymenios=
+Hocheemundis=
+Otemanediate=
+Oisemondas=
+Wazymdis=
+Wazhmindas=
+Okaemanadia=
+Caemandior=
+Oshaemediash=
+Otzakantas=
+Archanatus=
+
+# What happened here? Lost to memory.
+# mythic_terror
+Great Calamity=
+Collapse=
+Unending Curse=
+Ancient Curse=
+Manifested Curses=
+Curse=
+Catastrophe=
+Great Dying=
+Mythic Terror=
+Cold Night=
+Night=
+Darkness=
+Shadows=
+Woeful Shades=
+Scourge=
+Plague=
+Eternal Plague=
+Sleeping Evil=
+Fiery Breath=
+Great Burning=
+Great Bleeding=
+Baneful Blights=
+Blight=
+Ceaseless Withering=
+Ancient Exodus=
+Fearful Horror=
+Evil Spirits=
+Ghosts=
+Haunting=
+Wrathful Spirits=
+Grim Fate=
+Rumbling Earth=
+Scorched Wastes=
+Burning Rock=
+Smoldering Soil=
+Great Folly=
+Old Tales=
+Evil Wind=
+Bitter Waters=
+Everlasting Tempest=
+Howling Dust=
+Hateful Sky=
+Great Confusion=
+Twisted Existence=
+Twisted=
+Warped=
+Lost=
+
+May @1 name be forgotten.=
+@1 is proscribed.=
+Never suffer @1 to return.=
+May the gods have mercy upon @1.=
+Let none come to @1 aid.=
+May @1 weeping never cease.=
+@1 life is forfeit.=
+It shall be as if @1 were never born.=
+May @1 end be swift.=
+May fortune forgive @1.=
+@1 shall live so long as @2 deserves.=
+Let the beasts do with @1 as they wish.=
+This is justice.=
+Let none dispute it.=
+May @1 wander fruitlessly.=
+May @1 bones bleach in the sun.=
+May the worms feast on @1 flesh.=
+May @1 suffering appease the gods.=
+Let @1 struggling be without end.=
+Let fate decide @1 destiny.=
+May the land have pity and bury @1 disgraceful remains.=
+Thus we declare.=
+For we are merciful.=
+Let this be our kindness to @1.=
+Begone, evildoer.=
+Thus do we cleanse ourselves.=
+# Perhaps a reference to Pontius Pila
+We wash our hands of @1.=
+Fortune shall be @1 final judge.=
+@1 is disowned.=
+We never knew @1.=
+@1 is cut off.=
+Let @1 live with the beasts.=
+Let the barbarians and wild folk have @1.=
+@1 is not fit for civilised lands.=
+# Perhaps a reference to Sheev Palpatine
+Thus we ensure our security.=
+Only the righteous belong among us.=
+May @1 toil in vain.=
+# Now a reference to Cecil B. DeMil
+So it is written. So it is done.=
+Even the dogs despise @1.=
+We break no bread with traitors.=
+Let this be @1 journey to cleanse @2.=
+
+Bones of a long-dead exile=
+
+# history.lua
+It is the @1 of day @2 of the season of @3, in the year of our exile @4=
+Birth=
+Thirst=
+Retreat=
+Hunger=
+small hours=
+evening=
+afternoon=
+morning=

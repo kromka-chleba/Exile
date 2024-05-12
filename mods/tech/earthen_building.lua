@@ -32,8 +32,8 @@ stairs.register_stair_and_slab(
 	{"hand_mixing","mixing_spot"},
 	{cracky = 3, crumbly = 1, oddly_breakable_by_hand = 1, falling_node = 1},
 	{"tech_drystack.png"},
-	"Drystack Stair",
-	"Drystack Slab",
+	S("Drystack Stair"),
+	S("Drystack Slab"),
 	minimal.stack_max_bulky *3,
 	nodes_nature.node_sound_stone_defaults()
 )
@@ -59,8 +59,8 @@ stairs.register_stair_and_slab(
 	{"brick_makers_bench_mixing","mixing_spot"},
 	{crumbly = 2, cracky = 3, oddly_breakable_by_hand = 1,},
 	{"tech_mudbrick.png"},
-	"Mudbrick Stair",
-	"Mudbrick Slab",
+	S("Mudbrick Stair"),
+	S("Mudbrick Slab"),
 	minimal.stack_max_bulky *4,
 	nodes_nature.node_sound_dirt_defaults(),
 	nil,
@@ -102,8 +102,8 @@ stairs.register_stair_and_slab(
 		"tech_rammed_earth_side.png",
 		"tech_rammed_earth_side.png"
 	},
-	"Rammed Earth Stair",
-	"Rammed Earth Slab",
+	S("Rammed Earth Stair"),
+	S("Rammed Earth Slab"),
 	minimal.stack_max_bulky *3,
 	nodes_nature.node_sound_dirt_defaults()
 )
@@ -295,14 +295,14 @@ stairs.register_stair_and_slab(
 	"weaving_frame_mixing",
 	{snappy=3, flammable=1, fall_damage_add_percent = -15},
 	{"tech_thatch.png"},
-	"Thatch Stair",
-	"Thatch Slab",
+	S("Thatch Stair"),
+	S("Thatch Slab"),
 	minimal.stack_max_bulky * 8,
 	nodes_nature.node_sound_leaves_defaults()
 )
 
 minetest.override_item("stairs:slab_thatch", {
-	_use_tip = "Combine with another slab",
+	_use_tip = S("Combine with another slab"),
 	_on_use_item = function(player, wielded_item, pointed_thing)
 	   return minimal.slabs_combine(player, wielded_item,
 					pointed_thing, "tech:thatch")

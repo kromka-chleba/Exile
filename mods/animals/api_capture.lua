@@ -6,6 +6,8 @@
 animals = animals
 mobkit = mobkit
 
+local S = animals.S
+
 local function math_clamp(...) -- num, min, max
   return minimal.math_clamp(...)
 end
@@ -152,7 +154,7 @@ animals.register_spawnegg = function(self)
       groups = {spawn_egg = 1},
       drops = self.drops or {},
       liquids_pointable = liquids_pointable,
-      _use_tip = "Slaughter the animal",
+      _use_tip = S("Slaughter the animal"),
       _on_use_item = function(player, wielded_item, pointed_thing)
         local def = minetest.registered_items[wielded_item:get_name()]
         wielded_item:take_item()

@@ -3,7 +3,7 @@
 
 --------------------------------------------------------------
 
-
+local S = artifacts.S
 
 -- Update HUD flags
 
@@ -42,7 +42,7 @@ minetest.after(5.3, cyclic_update)
 -- Mapping kit item
 
 minetest.register_craftitem("artifacts:mapping_kit", {
-	description = "Geosurveyor".. "\n" .. "Use with 'Minimap' key",
+	description = S("Geosurveyor".. "\n" .. "Use with 'Minimap' key"),
 	inventory_image = "artifacts_mapping_kit.png",
 	stack_max = 1,
 	--groups = {flammable = 1},

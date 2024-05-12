@@ -1,0 +1,7 @@
+# textdomain: backpacks
+
+# init.lua
+Slots: @1, @2, @3=Слоты: @1, @2, @3=
+@1 full=@1 полный
+@1 partial=@1 частично
+@1 empty=@1 пустой

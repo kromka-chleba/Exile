@@ -1,0 +1,5 @@
+# textdomain: mapchunk_shepherd
+
+Prints status of the Mapchunk Shepherd.=Выводит статус Mapchunk Shepherd.
+Prints labels of the chunk where the player stands.=Печатает метки чанков, где стоит игрок.
+Prints timesheet for shepherd workers.=Печатает таймшит воркеров пастуха.

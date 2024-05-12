@@ -324,8 +324,8 @@ function sediment.register_stair_and_slab(sed)
 	{"mixing_spot","soil_mixing"},
         {falling_node = 1, crumbly = sed.hardness},
         {sediment.get_dry_texture_name(sed.name)},
-        sed.description.." Stair",
-        sed.description.." Slab",
+        sed.description..S(" Stair"),
+        sed.description..S(" Slab"),
         minimal.stack_max_bulky * 2,
         sed.sound
     )
@@ -340,7 +340,7 @@ function sediment.register_slab(sed)
 	{"mixing_spot","soil_mixing"},
         sed.groups,
         {sediment.get_dry_texture_name(sed.name)},
-        sed.description.." Slab",
+        sed.description..S(" Slab"),
         minimal.stack_max_bulky * 2,
         sed.sound
     )

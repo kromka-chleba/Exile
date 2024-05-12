@@ -22,9 +22,12 @@ Kubwakubwa Eggs=Яйца Кубвакубва
 Live Kubwakubwa=Живой Кубвакубва
 
 # pegasun.lua
-Pegasun Egg=Яйцо Пегаса
-Live Pegasun (male)=Живой Пегас (самец)
-Live Pegasun (female)=Живой Пегас (самка)
+Pegasun Egg=Яйцо Пегасуна
+Live Pegasun (male)=Живой Пегасун (самец)
+Live Pegasun (female)=Живой Пегасун (самка)
+Female Pegasun=Самка Пегасуна
+Live Pegasun=Живой Пегасун
+Live Male Pegasun=Живой самец Пегасуна
 
 # sarkamos.lua
 Sarkamos Eggs=Яйца Саркамоса
@@ -40,3 +43,6 @@ Large Invertebrate=Большой беспозвоночный
 Small Bird=Маленькая птица
 Small Fish=Маленькая рыба
 Large Fish=Большая рыба
+
+# api_capture.lua
+Slaughter the animal=Убить животное
