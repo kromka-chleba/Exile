@@ -363,8 +363,8 @@ stairs.register_stair_and_slab(
 	"anvil_mixing",
         {cracky = 3, falling_node = 1, crumbly = 1},
         {"tech_iron_and_slag.png"},
-        "Slag Stair",
-        "Slag Slab",
+        S("Slag Stair"),
+        S("Slag Slab"),
         minimal.stack_max_bulky * 8,
         nodes_nature.node_sound_stone_defaults()
 )
@@ -531,7 +531,7 @@ minetest.register_craftitem("tech:nails", {
         description = S("Protection Nails"),
         inventory_image = "tech_iron_nails.png",
         stack_max = minimal.stack_max_light,
-		_use_tip = "Protect Item",
+		_use_tip = S("Protect Item"),
 		_on_use_item = function(user, itemstack, pointed_thing)
 			local istack, playsound = minimal.protection_nail_use(
 				itemstack, user, pointed_thing)
@@ -551,7 +551,7 @@ minetest.register_craftitem("tech:iron_key", {
         inventory_image = "tech_iron_key.png",
         stack_max = minimal.stack_max_light,
 		groups = { craftedby = 1 },
-		_use_tip = "Grant key owner access.",
+		_use_tip = S("Grant key owner access."),
 		_on_use_item = function(user, itemstack, pointed_thing)
 			minimal.protection_key_use(itemstack, user, pointed_thing)
 			--XXX Need a sound to play

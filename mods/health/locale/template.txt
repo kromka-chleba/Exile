@@ -11,3 +11,4 @@ Effects:=
 
 # food.lua
 This is inedible.=
+Eat=

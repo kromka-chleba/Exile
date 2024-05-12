@@ -269,47 +269,47 @@ local genderRL = {male = S("himself"),
 local populate_woe = function(player)
 	local gend = player_api.get_gender(player)
 	return {
-	  "May "..genderPL[gend].." name be forgotten.",
-	  genderSU[gend].." is proscribed.",
-	  "Never suffer "..genderOL[gend].." to return.",
-	  "May the gods have mercy upon "..genderOL[gend]..".",
-	  "Let none come to "..genderPL[gend].." aid.",
-	  "May "..genderPL[gend].." weeping never cease.",
-	  genderPU[gend].." life is forfeit.",
-	  "It shall be as if "..genderSL[gend].." were never born.",
-	  "May "..genderPL[gend].." end be swift.",
-	  "May fortune forgive "..genderOL[gend]..".",
-	  genderSU[gend].." shall live so long as "..genderSL[gend].." deserves.",
-	  "Let the beasts do with "..genderOL[gend].." as they wish.",
-	  "This is justice.",
-	  "Let none dispute it.",
-	  "May "..genderSL[gend].." wander fruitlessly.",
-	  "May "..genderPL[gend].." bones bleach in the sun.",
-	  "May the worms feast on "..genderPL[gend].." flesh.",
-	  "May "..genderPL[gend].." suffering appease the gods.",
-	  "Let "..genderPL[gend].." struggling be without end.",
-	  "Let fate decide "..genderPL[gend].." destiny.",
-	  "May the land have pity and bury "..genderPL[gend].." disgraceful remains.",
-	  "Thus we declare.",
-	  "For we are merciful.",
-	  "Let this be our kindness to "..genderOL[gend]..".",
-	  "Begone, evildoer.",
-	  "Thus do we cleanse ourselves.",
-	  "We wash our hands of "..genderOL[gend]..".", -- Perhaps a reference to Pontius Pilate
-	  "Fortune shall be "..genderPL[gend].." final judge.",
-	  genderSU[gend].." is disowned.",
-	  "We never knew "..genderOL[gend]..".",
-	  genderSU[gend].." is cut off.",
-	  "Let "..genderOL[gend].." live with the beasts.",
-	  "Let the barbarians and wild folk have "..genderOL[gend]..".",
-	  genderSU[gend].." is not fit for civilised lands.",
-	  "Thus we ensure our security.", -- Perhaps a reference to Sheev Palpatine
-	  "Only the righteous belong among us.",
-	  "May "..genderSL[gend].." toil in vain.",
-	  "So it is written. So it is done.", -- Now a reference to Cecil B. DeMille
-	  "Even the dogs despise "..genderOL[gend]..".",
-	  "We break no bread with traitors.",
-	  "Let this be "..genderPL[gend].." journey to cleanse "..genderRL[gend].."."
+	  S("May @1 name be forgotten.", genderPL[gend]),
+	  S("@1 is proscribed.", genderSU[gend]),
+	  S("Never suffer @1 to return.", genderOL[gend]),
+	  S("May the gods have mercy upon @1.", genderOL[gend]),
+	  S("Let none come to @1 aid.", genderPL[gend]),
+	  S("May @1 weeping never cease.", genderPL[gend]),
+	  S("@1 life is forfeit.", genderPU[gend]),
+	  S("It shall be as if @1 were never born.", genderSL[gend]),
+	  S("May @1 end be swift.", genderPL[gend]),
+	  S("May fortune forgive @1.", genderOL[gend]),
+	  S("@1 shall live so long as @2 deserves.", genderSU[gend], genderSL[gend]),
+	  S("Let the beasts do with @1 as they wish.", genderOL[gend]),
+	  S("This is justice."),
+	  S("Let none dispute it."),
+	  S("May @1 wander fruitlessly.", genderSL[gend]),
+	  S("May @1 bones bleach in the sun.", genderPL[gend]),
+	  S("May the worms feast on @1 flesh.", genderPL[gend]),
+	  S("May @1 suffering appease the gods.", genderPL[gend]),
+	  S("Let @1 struggling be without end.", genderPL[gend]),
+	  S("Let fate decide @1 destiny.", genderPL[gend]),
+	  S("May the land have pity and bury @1 disgraceful remains.", genderPL[gend]),
+	  S("Thus we declare."),
+	  S("For we are merciful."),
+	  S("Let this be our kindness to @1.", genderOL[gend]),
+	  S("Begone, evildoer."),
+	  S("Thus do we cleanse ourselves."),
+	  S("We wash our hands of @1.", genderOL[gend]), -- Perhaps a reference to Pontius Pilate
+	  S("Fortune shall be @1 final judge.", genderPL[gend]),
+	  S("@1 is disowned.", genderSU[gend]),
+	  S("We never knew @1.", genderOL[gend]),
+	  S("@1 is cut off.", genderSU[gend]),
+	  S("Let @1 live with the beasts.", genderOL[gend]),
+	  S("Let the barbarians and wild folk have @1.", genderOL[gend]),
+	  S("@1 is not fit for civilised lands.", genderSU[gend]),
+	  S("Thus we ensure our security."), -- Perhaps a reference to Sheev Palpatine
+	  S("Only the righteous belong among us."),
+	  S("May @1 toil in vain.", genderSL[gend]),
+	  S("So it is written. So it is done."), -- Now a reference to Cecil B. DeMille
+	  S("Even the dogs despise @1.", genderOL[gend]),
+	  S("We break no bread with traitors."),
+	  S("Let this be @1 journey to cleanse @2.", genderPL[gend], genderRL[gend])
 	}
 end
 -- Various corruptions of "Ozymandias"
@@ -435,8 +435,8 @@ local generate_text = function(player, freshspawn)
        " @5 @n@n and @n@n @6 @n@n@n"..
        " @7 is hereby banished to the land of @8 @n@n"..
        " The land of the @9 @n@n",
-       judge, polity_name, your_name, origin_name, cr1, cr2, genderSU[gend],
-       exile_land, terror)..
+       S(judge), polity_name, your_name, origin_name, S(cr1), S(cr2), genderSU[gend],
+       S(exile_land), S(terror))..
      "<i>"..your_woe
 
   return letter_text
@@ -493,7 +493,7 @@ end
 ---------------------------------------------
 --Placeable Node
 minetest.register_node("lore:exile_letter", {
-	description = "Sentence of Exile",
+	description = S("Sentence of Exile"),
 	tiles = {"lore_exile_letter.png"},
   --inventory_image = {"lore_exile_letter_inv.png"},
 	stack_max = 1,

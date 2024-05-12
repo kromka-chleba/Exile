@@ -266,7 +266,7 @@ minetest.register_entity("artifacts:airboat", airboat)
 -- Craftitem
 
 minetest.register_craftitem("artifacts:airboat", {
-	description = "Airboat",
+	description = S("Airboat"),
 	inventory_image = "artifacts_airboat_inv.png",
 	stack_max = 1,
 	wield_scale = {x = 4, y = 4, z = 4},
@@ -352,7 +352,7 @@ end
 -- Nodebox for entity wielditem visual
 
 minetest.register_node("artifacts:airboat_nodebox", {
-	description = "Airboat Nodebox",
+	description = S("Airboat Nodebox"),
 	tiles = { -- Top, base, right, left, front, back
 		"artifacts_airboat_top.png",
 		"artifacts_airboat_base.png",

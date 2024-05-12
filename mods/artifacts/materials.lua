@@ -5,14 +5,14 @@
 
 local c_alpha = minimal.compat_alpha
 
-
+local S = artifacts.S
 
 ------------------------------------
 --MOON GLASS
 --glowing glass
 ------------------------------------
 minetest.register_node("artifacts:moon_glass", {
-	description = "Moon Glass",
+	description = S("Moon Glass"),
 	drawtype = "glasslike",
 	tiles = {"artifacts_moon_glass.png"},
 	stack_max = minimal.stack_max_bulky *4,
@@ -30,7 +30,7 @@ minetest.register_node("artifacts:moon_glass", {
 -- bright glowing glass, with warming effect
 ------------------------------------
 minetest.register_node("artifacts:sun_stone", {
-	description = "Sun Stone",
+	description = S("Sun Stone"),
 	tiles = {"artifacts_sun_stone.png"},
 	stack_max = 1,
 	drawtype = "nodebox",
@@ -69,7 +69,7 @@ minetest.register_node("artifacts:sun_stone", {
 -- glowing glass, with cooling effect
 ------------------------------------
 minetest.register_node("artifacts:moon_stone", {
-	description = "Moon Stone",
+	description = S("Moon Stone"),
 	tiles = {"artifacts_moon_glass.png"},
   stack_max = 1,
 	drawtype = "nodebox",
@@ -118,7 +118,7 @@ minetest.register_node("artifacts:moon_stone", {
 ------------------------------------
 
 minetest.register_node("artifacts:star_stone", {
-	description = "Star Stone",
+	description = S("Star Stone"),
 	tiles = {"artifacts_moon_glass.png"},
 	stack_max = minimal.stack_max_medium * 2,
 	drawtype = "nodebox",
@@ -149,7 +149,7 @@ minetest.register_node("artifacts:star_stone", {
 --the super material of the ancients
 ------------------------------------
 minetest.register_node("artifacts:antiquorium", {
-	description = "Antiquorium",
+	description = S("Antiquorium"),
 	tiles = {"artifacts_antiquorium.png"},
 	stack_max = minimal.stack_max_bulky *4,
 	sounds = nodes_nature.node_sound_glass_defaults(),
@@ -162,7 +162,7 @@ minetest.register_node("artifacts:antiquorium", {
 ------------------------------------
 
 minetest.register_node("artifacts:antiquorium_ladder", {
-	description = "Antiquorium Ladder",
+	description = S("Antiquorium Ladder"),
 	drawtype = "nodebox",
 	stack_max = minimal.stack_max_medium,
 	tiles = {
@@ -226,7 +226,7 @@ minetest.register_node("artifacts:antiquorium_ladder", {
 ------------------------------------
 doors.register("door_antiquorium", {
 		tiles = {{ name = "artifacts_antiquorium_door.png", backface_culling = true }},
-		description = "Antiquorium Door",
+		description = S("Antiquorium Door"),
 		inventory_image = "artifacts_antiquorium_door_item.png",
 		groups = {cracky = 2},
 		sounds = nodes_nature.node_sound_glass_defaults(),
@@ -234,7 +234,7 @@ doors.register("door_antiquorium", {
 
 
 doors.register_trapdoor("artifacts:trapdoor_antiquorium", {
-	description = "Antiquorium Trapdoor",
+	description = S("Antiquorium Trapdoor"),
 	inventory_image = "artifacts_antiquorium_chest_top.png",
 	wield_image = "artifacts_antiquorium_chest_top.png",
 	tile_front = "artifacts_antiquorium_chest_top.png",
@@ -249,7 +249,7 @@ doors.register_trapdoor("artifacts:trapdoor_antiquorium", {
 --TRAMPOLINE
 ------------------------------------
 minetest.register_node('artifacts:trampoline', {
-	description = 'Trampoline',
+	description = S('Trampoline'),
 	tiles = {'artifacts_antiquorium_chest_top.png'},
 	stack_max = minimal.stack_max_bulky,
 	drawtype = "nodebox",
@@ -276,7 +276,7 @@ minetest.register_node('artifacts:trampoline', {
 --CONVEYOR
 ------------------------------------
 minetest.register_node('artifacts:conveyor', {
-	description = 'Conveyor',
+	description = S('Conveyor'),
 	tiles = {'artifacts_antiquorium_chest_top.png'},
 	stack_max = minimal.stack_max_medium *2,
 	drawtype = "nodebox",

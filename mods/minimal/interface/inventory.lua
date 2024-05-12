@@ -11,6 +11,7 @@
 --	   input_items inventory.
 --
 
+local S = minetest.get_translator("minimal")
 
 -- Create global default detached "craft_types" inventory
 -- Used to populate players craft_types
@@ -300,7 +301,7 @@ local function process_receive_fields(player, formname, fields)
 					inventoryFS_cache[player_name] = cache
 					return true -- crafted
 				else
-					minetest.chat_send_player(player_name, "Missing required items!")
+					minetest.chat_send_player(player_name, S("Missing required items!"))
 					return true -- failed but we handled it
 				end
 			end
@@ -508,7 +509,7 @@ local function cache_player_input_list(cache, pInv)
 
 	local input_listFS = {
 		'container[.4,3.2]',
-		'label[.1,0;Input Items]',
+		'label[.1,0;'..S("Input Items")..']',
 --		'box[0,.2;2.5,2.5;black]',
 		'style_type[list;size=.5,.5;spacing=.1]',
 		'list[current_player;input_items;.1,.3;4,4;0]',
@@ -527,7 +528,7 @@ local function cache_player_craft_types(cache, pInv)
 	local cItems = load_craft_types(pInv)
 	local craft_typeFS = {
 		'container[.4,.8]',
-		'label[0.0,0;Craft Type]',
+		'label[0.0,0;'..S("Craft Type")..']',
 		'box[0,.2;2.5,1.9;black]',
 	}
 	local x = 0
@@ -615,7 +616,7 @@ function minimal.register_inventory_sfinv()
 	if minetest.global_exists("sfinv") then
 		local homepage = sfinv.get_homepage_name() -- get name of homepage
 		sfinv.register_page(homepage, {
-			title = 'Crafting',
+			title = S("Crafting"),
 			get = function(self, player, context)
 				local formspec = minimal.make_inventory_formspec(player,context)
 				local options = {
@@ -681,7 +682,7 @@ function minimal.make_inventory_formspec(player,context)
 	--reset epoch and draw formspec from cached values unless cleared
 	cache.epoch = os.time()
 	local output =
-		'label[.4,6.2;Quantity]' ..
+		'label[.4,6.2;'..S("Quantity")..']' ..
 		'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]'
 	-- add Craft Types
 --	if not cache.craft_typeFS then

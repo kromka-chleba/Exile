@@ -224,7 +224,7 @@ function HEALTH.add_food_hooks(name,info)
     local groups = minetest.registered_items[name].groups or {}
     groups.edible = 1
     minetest.override_item(name, {
-      _use_tip = "Eat",
+      _use_tip = S("Eat"),
       groups = groups
     })
   end

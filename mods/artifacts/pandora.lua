@@ -4,6 +4,7 @@
 --This is for things that are strange, dangerous, creepy, insane, generally misguided etc
 ------------------------------------
 
+local S = artifacts.S
 
 ------------------------------------
 --BAD GOOD IDEAS and GOOD BAD IDEAS
@@ -47,7 +48,7 @@ end
 
 
 minetest.register_tool('artifacts:metastim', {
-    description = 'Meta-Stim Injector',
+    description = S('Meta-Stim Injector'),
     inventory_image = 'artifacts_metastim.png',
 		on_use = inject_metastim,
 })

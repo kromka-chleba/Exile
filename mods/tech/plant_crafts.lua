@@ -143,7 +143,7 @@ minetest.register_node("tech:maraka_bread_cooked", {
 	},
 	groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, temp_pass = 1, heatable = 80, edible = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
-	_use_tip = "Eat",
+	_use_tip = S("Eat"),
 })
 
 --maraka cake, burned
@@ -161,7 +161,7 @@ minetest.register_node("tech:maraka_bread_burned", {
   },
   groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, flammable = 1,  temp_pass = 1, edible = 1},
   sounds = nodes_nature.node_sound_dirt_defaults(),
-  _use_tip = "Eat",
+  _use_tip = S("Eat"),
 })
 
 -----------
@@ -194,7 +194,7 @@ minetest.register_node("tech:peeled_anperla_burned", {
   },
 	groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, flammable = 1,  temp_pass = 1, edible = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
-	_use_tip = "Eat",
+	_use_tip = S("Eat"),
 })
 
 minetest.register_node("tech:peeled_anperla_cooked", {
@@ -210,7 +210,7 @@ minetest.register_node("tech:peeled_anperla_cooked", {
   },
 	groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, heatable = 70,  temp_pass = 1, edible = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
-	_use_tip = "Eat",
+	_use_tip = S("Eat"),
 })
 
 --mash (a way to bulk cook tubers - 6 at once)
@@ -242,7 +242,7 @@ minetest.register_node("tech:mashed_anperla_cooked", {
   },
 	groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, heatable = 70,  temp_pass = 1, edible = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
-	_use_tip = "Eat",
+	_use_tip = S("Eat"),
 })
 
 minetest.register_node("tech:mashed_anperla_burned", {
@@ -258,7 +258,7 @@ minetest.register_node("tech:mashed_anperla_burned", {
   },
   groups = {crumbly = 3, falling_node = 1, dig_immediate = 3, flammable = 1,  temp_pass = 1, edible = 1},
   sounds = nodes_nature.node_sound_dirt_defaults(),
-  _use_tip = "Eat",
+  _use_tip = S("Eat"),
 })
 
 ------------------------------------------

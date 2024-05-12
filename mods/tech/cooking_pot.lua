@@ -63,7 +63,7 @@ minetest.register_craftitem("tech:soup", {
 	inventory_image = "tech_soup.png",
 	stack_max = minimal.stack_max_medium,
 	groups = { edible = 2 },
-	_use_tip = "Eat",
+	_use_tip = S("Eat"),
 })
 
 local function clear_pot(pos)

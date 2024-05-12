@@ -124,9 +124,9 @@ local function sfinv_get(self, player, context)
   local labels = st:read_labels()
   for _, effect in ipairs(labels) do
      y = y + 0.4
-     eff_form = eff_form.."label[0.1,"..y.."; "..effect[1]..
+     eff_form = eff_form.."label[0.1,"..y.."; "..S(effect[1])..
 	(effect[1] ~= "" and " " or "") -- only add a space if effect[1] exists
-	..(effect[2] or "").."]"
+	..S(effect[2] or "").."]"
   end
 
   local basetex = minetest.formspec_escape(
@@ -138,7 +138,7 @@ local function sfinv_get(self, player, context)
      "label[0.1,1.1; "..S("Biography")..": " .. bio .. "]"..
      "style[player_settings;border=false]"..
      "image_button_exit[7,0.15;0.75,0.75;gear.png;player_settings;]"..
-     "label[0.65,3.1; Health Effects:]"..
+     "label[0.65,3.1; "..S("Health Effects")..":]"..
      eff_form..
      "image[0,3.05;0.65,0.65;hud_sick.png]"..
      "model[6.5,6;2,3;character;character.b3d;"..basetex..

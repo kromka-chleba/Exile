@@ -1,0 +1,6 @@
+# textdomain: ropes
+
+Rope Ladder=
+ Ropebox =
+Rope=
+Wooden=

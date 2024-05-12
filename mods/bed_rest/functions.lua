@@ -239,10 +239,10 @@ end
 
 
 local function get_formspec()
-   local title = "BREAK TIME!"
-   local message1 = "You've been here long enough to justify a real break.\n"..
+   local title = S("BREAK TIME!")
+   local message1 = S("You've been here long enough to justify a real break.\n"..
       "Think of this as a reminder from your better self.\nGo get some rest."..
-      " Leave Exile behind. You can come back any time."
+      " Leave Exile behind. You can come back any time.")
 	local quote = get_quote()
 
 	local formspec = {

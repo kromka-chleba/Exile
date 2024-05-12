@@ -16,6 +16,7 @@
 	until one day [he][picked a fight with the wrong people].... "
 ]]
 local random = math.random
+local S = lore.S
 ----------------------------------------------------------
 local gender = {
 	male   = "he",
@@ -349,9 +350,13 @@ lore.generate_bio = function(player)
 	local your_woe  = woe[random(#woe)]
 
 	text =
-		"\n "..persona.." and "..virt..","..
-		"\n "..your_name.." had lived "..lif.." life,"..
-		"\n until one day "..gender[gend].." "..your_woe.."...."
+		-- "\n "..persona.." and "..virt..","..
+		-- "\n "..your_name.." had lived "..lif.." life,"..
+		-- "\n until one day "..gender[gend].." "..your_woe.."...."
+    S("\n @1 and @2,"..
+		  "\n @3 had lived @4 life,"..
+		  "\n until one day @5 @6....",
+      S(persona), S(virt), your_name, S(lif), S(gender[gend]), S(your_woe))
 		meta:set_string("bio", text)
 	return text
 end

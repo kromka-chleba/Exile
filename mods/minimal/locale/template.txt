@@ -8,6 +8,10 @@ This server is currently running git revision=
 
 #interface/infotext.lua
 Owner=
+Input Items=
+Craft Type=
+Quantity=
+Crafting=
 
 #playersettings.lua
 Enable wide HUDbar=
@@ -16,6 +20,7 @@ Enable Break-taker popup=
 Temperature scale=
 GUI theme=
 HUD Opacity level=
+Allow digging with a full inventory=
 
 #storage_api.lua
 Label=
@@ -65,3 +70,29 @@ Set=
 Unset=
 Yes=
 No=
+
+# triggers
+Exile trigger node=
+Exile zone trigger node=
+
+Missing required items!=
+
+Any =
+Any log=
+Any fibrous plant=
+Any compostable=
+Any limestone cobble=
+Any basalt cobble=
+Any granite cobble=
+Any hard wood=
+Any woody plant=
+Any woodslab=
+Any bioluminescent=
+Any ironstone cobble=
+Any pottery=
+Any gravel=
+Any jade cobble=
+
+# Stairs
+Inner =
+Outer =
