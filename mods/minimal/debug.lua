@@ -87,10 +87,8 @@ if __DEBUG__ then
        local myself = minetest.get_player_by_name(name)
        local target
        local pointed_thing = minimal.get_pointed_thing(name,nil,true)
-       if ( pointed_thing and pointed_thing.type == "object" ) then
-	  if minetest.is_player(pointed_thing.ref) == true then
-	     target = pointed_thing.ref
-	  end
+       if ( pointed_thing and pointed_thing.type == "player" ) then
+	  target = pointed_thing.ref
        else
 	  target = myself
        end
