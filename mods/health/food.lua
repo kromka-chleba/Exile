@@ -65,8 +65,7 @@ local function get_health_effect_data(datat,name) -- datatable (harm_table or cu
       -- integers only
       sv = math.floor(sv)
       -- health effect tag (string or table, is made into table for conformity)
-      local tg = eff.tg or eff.tag or eff.tgs or eff.tags
-      tg = type(tg) == "string" and {tg} or type(tg) == "table" and tg or nil
+      local tg = type(eff.tags) == "string" and {eff.tags} or type(eff.tags) == "table" and eff.tags or nil
       -- table allows for you to specify numerous health effects with the same severity or chance
       if tg then
         for _,tg_name in pairs(tg) do
@@ -302,6 +301,7 @@ function HEALTH.add_harm(name,data)
         minetest.log("warning",efferr.." does not have a severity value assigned, default to 1")
         data.sv = 1
       end
+      eff.tags = tg
     end
   end
   food_harm_table[name] = data
