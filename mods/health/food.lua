@@ -178,7 +178,7 @@ local bake_redef = {
       bake_error(pos, name)
       return true
     end
-    ncrafting.start_bake(pos, bake_info.duration)
+    ncrafting.start_bake(pos, bake_info.time)
    end,
    on_timer = function(pos, elapsed)
     local name = minetest.get_node(pos).name
@@ -188,7 +188,7 @@ local bake_redef = {
       bake_error(pos, name)
       return true
     end
-    return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.duration, bake_info.cooked, bake_info.burned)
+    return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.time, bake_info.cooked, bake_info.burned)
 end}
 
 -- concatenates description and name together for easier debugging
@@ -206,7 +206,7 @@ end
 
 -- only accepts 1 node at a time for baking definition
 -- Adds bakeables, mod must send a string and table in the following format:
--- name (nodedef name),{temp,duration}
+-- name (nodedef name),{temp,time}
 function HEALTH.add_bake(name,data)
   -- provide errors with helpful information
   if type(name) ~= "string" then
@@ -218,13 +218,13 @@ function HEALTH.add_bake(name,data)
     error(debug.traceback(name..": does not exist as a node, cannot add bake data!",2))
   end
   local temp = data.temp or data.temperature
-  local duration = data.duration or data.time
+  local time = data.time or data.duration
   if type(temp) ~= "number" then
     error(debug.traceback(name..": temp provided for bake data is not a number, got '"..type(temp).."'",2))
-  elseif type(duration) ~= "number" then
-    error(debug.traceback(name..": duration provided for bake data is not a number, got '"..type(duration).."'",2))
+  elseif type(time) ~= "number" then
+    error(debug.traceback(name..": time provided for bake data is not a number, got '"..type(time).."'",2))
   end
-  local bake_info = {temp=temp, duration=duration}
+  local bake_info = {temp=temp, time=time}
   if type(data.cooked) == "string" then
     bake_info.cooked = data.cooked
   end
