@@ -343,6 +343,7 @@ function HEALTH.add_cure(name,data)
         minetest.log("warning",efferr.." does not have a severity value assigned, default to 1")
         data.sv = 1
       end
+      eff.tags = tg
     end
   end
   food_cure_table[name] = data
