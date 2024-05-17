@@ -168,28 +168,6 @@ local function bake_error(pos, selfname)
 		"pos: "..posstr..", set on a non-bakeable node:"..selfname)
 end
 
-local bake_redef = {
-   on_construct = function(pos)
-    local name = minetest.get_node(pos).name
-    name = name:gsub("_cooked","") -- ensure base name
-    local bake_info = bake_table[name]
-    if not bake_info then
-      bake_error(pos, name)
-      return true
-    end
-    ncrafting.start_bake(pos, bake_info.time)
-   end,
-   on_timer = function(pos, elapsed)
-    local name = minetest.get_node(pos).name
-    name = name:gsub("_cooked","") -- ensure we have the base name
-    local bake_info = bake_table[name]
-    if not bake_info then
-      bake_error(pos, name)
-      return true
-    end
-    return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.time, bake_info.cooked, bake_info.burned)
-end}
-
 -- concatenates description and name together for easier debugging
 local function name_desc_tag(def)
   if type(def) == "string" then
@@ -201,6 +179,37 @@ local function name_desc_tag(def)
     return def.description.." ("..def.name..")"
   end
   return def
+end
+
+-- Add baking properties to the raw and cooked variants
+-- overrides on_construct and on_timer
+local function setup_bakeable(name,bake_info)
+  if not (minetest.registered_nodes[name] and minetest.registered_nodes[bake_info.cooked]) then
+    -- causes issues with sea_lettuce if not commented out
+    --error(name..": missing nodes for baking (raw or cooked variant not found)")
+    return
+  end
+  local function check_error(pos, name)
+    if not bake_table[name] then
+      bake_error(pos, name)
+      return true
+    end
+  end
+  -- adapted minimal bake_redef
+  local bake_redef = {
+    on_construct = function(pos)
+      if check_error(pos,name) then return true end
+      ncrafting.start_bake(pos, bake_info.time)
+    end,
+    on_timer = function(pos, elapsed)
+      if check_error(pos,name) then return true end
+      return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.time, bake_info.cooked, bake_info.burned)
+    end
+  }
+  -- raw can cook
+  minetest.override_item(name,bake_redef)
+  -- cooked can burn
+  minetest.override_item(bake_info.cooked,bake_redef)
 end
 
 -- only accepts 1 node at a time for baking definition
@@ -224,14 +233,9 @@ function HEALTH.add_bake(name,data)
     error(debug.traceback(name..": time provided for bake data is not a number, got '"..type(time).."'",2))
   end
   local bake_info = {temp=temp, time=time}
-  if type(data.cooked) == "string" then
-    bake_info.cooked = data.cooked
-  end
-  if type(data.burned) == "string" then
-    bake_info.burned = data.burned
-  end
-  -- Add new bakeable with bake_redef override
-  minetest.override_item(name, bake_redef)
+  bake_info.cooked = type(data.cooked) == "string" and data.cooked or name.."_cooked"
+  bake_info.burned = type(data.burned) == "string" and data.burned or name.."_burned"
+  setup_bakeable(name,bake_info)
   bake_table[name] = bake_info
   minetest.log("info","Bake data successfully added for "..name_desc_tag(minetest.registered_nodes[name]))
   return bake_table[name]
@@ -456,7 +460,6 @@ function HEALTH.add_food_hooks(name,info)
   if minetest.registered_nodes[name] then
     local bake_info = bake_table[name]
     if bake_info then
-      minetest.override_item(name, bake_redef)
       -- ensure "cooked" and "burned" variants
       if not bake_info.cooked then
         bake_info.cooked = name.."_cooked"
@@ -464,8 +467,7 @@ function HEALTH.add_food_hooks(name,info)
       if not bake_info.burned then
         bake_info.burned = name.."_burned"
       end
-    elseif bake_table[name:gsub("_cooked","")] then -- If it's cooked, it can burn
-      minetest.override_item(name, bake_redef)
+      setup_bakeable(name,bake_info)
     end
   end
 end
