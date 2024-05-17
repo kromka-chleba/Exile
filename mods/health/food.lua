@@ -195,28 +195,21 @@ local function setup_bakeable(name,bake_info)
       return true
     end
   end
+  -- adapted minimal bake_redef
+  local bake_redef = {
+    on_construct = function(pos)
+      if check_error(pos,name) then return true end
+      ncrafting.start_bake(pos, bake_info.time)
+    end,
+    on_timer = function(pos, elapsed)
+      if check_error(pos,name) then return true end
+      return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.time, bake_info.cooked, bake_info.burned)
+    end
+  }
   -- raw can cook
-  minetest.override_item(name,{
-    on_construct = function(pos)
-      if check_error(pos,name) then return true end
-      ncrafting.start_bake(pos, bake_info.time)
-    end,
-    on_timer = function(pos, elapsed)
-      if check_error(pos,name) then return true end
-      return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.time, bake_info.cooked, bake_info.burned)
-    end
-  })
+  minetest.override_item(name,bake_redef)
   -- cooked can burn
-  minetest.override_item(bake_info.cooked,{
-    on_construct = function(pos)
-      if check_error(pos,name) then return true end
-      ncrafting.start_bake(pos, bake_info.time)
-    end,
-    on_timer = function(pos, elapsed)
-      if check_error(pos,name) then return true end
-      return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.time, bake_info.cooked, bake_info.burned)
-    end
-  })
+  minetest.override_item(bake_info.cooked,bake_redef)
 end
 
 -- only accepts 1 node at a time for baking definition
