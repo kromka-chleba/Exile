@@ -235,7 +235,6 @@ function HEALTH.add_bake(name,data)
   local bake_info = {temp=temp, time=time}
   bake_info.cooked = type(data.cooked) == "string" and data.cooked or name.."_cooked"
   bake_info.burned = type(data.burned) == "string" and data.burned or name.."_burned"
-  if not minetest.registered_nodes[bake_info.burned] then bake_info.burned = nil end
   setup_bakeable(name,bake_info)
   bake_table[name] = bake_info
   minetest.log("info","Bake data successfully added for "..name_desc_tag(minetest.registered_nodes[name]))
@@ -467,9 +466,6 @@ function HEALTH.add_food_hooks(name,info)
       end
       if not bake_info.burned then
         bake_info.burned = name.."_burned"
-        if not minetest.registered_nodes[bake_info.burned] then
-          bake_info.burned = nil
-        end
       end
       setup_bakeable(name,bake_info)
     end
