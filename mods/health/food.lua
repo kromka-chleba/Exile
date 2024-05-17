@@ -224,11 +224,41 @@ function HEALTH.add_bake(name,data)
     error(debug.traceback(name..": time provided for bake data is not a number, got '"..type(time).."'",2))
   end
   local bake_info = {temp=temp, time=time}
-  if type(data.cooked) == "string" then
-    bake_info.cooked = data.cooked
-  end
+  bake_info.cooked = type(data.cooked) == "string" and data.cooked or name.."_cooked"
   if type(data.burned) == "string" then
     bake_info.burned = data.burned
+  end
+  if minetest.registered_nodes[name] and minetest.registered_nodes[bake_info.cooked] then
+    local function check_error(pos, name)
+      if not bake_table[name] then
+        bake_error(pos, name)
+        return true
+      end
+    end
+    -- raw can cook
+    minetest.override_item(name,{
+      on_construct = function(pos)
+        if check_error(pos,name) then return true end
+        ncrafting.start_bake(pos, time)
+      end,
+      on_timer = function(pos, elapsed)
+        if check_error(pos,name) then return true end
+        return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.time, bake_info.cooked, bake_info.burned)
+      end
+    })
+    -- cooked can burn
+    minetest.override_item(bake_info.cooked,{
+      on_construct = function(pos)
+        if check_error(pos,name) then return true end
+        ncrafting.start_bake(pos, time)
+      end,
+      on_timer = function(pos, elapsed)
+        if check_error(pos,name) then return true end
+        return ncrafting.do_bake(pos, elapsed, bake_info.temp, bake_info.time, bake_info.cooked, bake_info.burned)
+      end
+    })
+  else
+    error(name..": missing nodes for baking (raw or cooked variant not found)")
   end
   -- Add new bakeable with bake_redef override
   minetest.override_item(name, bake_redef)
