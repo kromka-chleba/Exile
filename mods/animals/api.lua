@@ -1998,7 +1998,6 @@ local function lq_jumpattack_eat(self,height,target,consume)
 			local dir = minetest.yaw_to_dir(yaw)
 			local apos = mobkit.pos_translate2d(pos,yaw,self.attack.range)
 
-      do_mes(self.name..": in phase 3! checking targetability")
 			if animals.target_in_range(self,target) then -- bite
         -- bounce off
 				local vy = self.object:get_velocity().y
