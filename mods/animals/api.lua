@@ -2007,10 +2007,10 @@ local function lq_jumpattack_eat(self,height,target,consume)
 
         -- eat bits of opponent
         return animals.hurt_target(self,target,consume)
-
+      else
+        return true
       end
     else
-      mobkit.lq_idle(self,0.3)
       return true
 		end
 	end
