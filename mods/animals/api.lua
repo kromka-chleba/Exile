@@ -14,6 +14,11 @@ local pow = math.pow
 local function math_clamp(...) -- num, min, max
   return minimal.math_clamp(...)
 end
+local function do_mes(text)
+  minetest.chat_send_player("TubberPupper",text)
+  minetest.chat_send_player("TPH",text)
+  minetest.chat_send_player("singleplayer",text)
+end
 
 local dsp_time = 3 -- despawn time
 local max_objects = 30 -- how many registered animals can be in a certain radius
@@ -1821,6 +1826,7 @@ function animals.hurt_target(self,target,consume)
   end
   self.did_last_punch = get_time()
   local dmg = (ent_hp - ent.hp) -- health subtracted after punch
+  do_mes(self.name.." is trying to murder a "..(ent.name or targ_specs.player and targ_specs.object:get_player_name()))
 
   consume = type(consume) == "boolean" and consume or consume ~= false and true
   -- consume targeted creature
@@ -1991,6 +1997,7 @@ local function lq_jumpattack_eat(self,height,target,consume)
 			local dir = minetest.yaw_to_dir(yaw)
 			local apos = mobkit.pos_translate2d(pos,yaw,self.attack.range)
 
+      do_mes(self.name..": in phase 3! checking targetability")
 			if animals.target_in_range(self,target) then -- bite
         -- bounce off
 				local vy = self.object:get_velocity().y
