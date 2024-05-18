@@ -1820,13 +1820,14 @@ function animals.hurt_target(self,target,consume)
     return
   end
   local tflp = get_time(self.did_last_punch) -- time from last punch
+  do_mes(self.name.." my did_last_punch was "..get_time(self.did_last_punch).." seconds ago")
   target:punch(self.object,tflp,self.attack)
   if targ_specs.player then
     ent.hp = targ_specs.object:get_hp()
   end
   self.did_last_punch = get_time()
   local dmg = (ent_hp - ent.hp) -- health subtracted after punch
-  do_mes(self.name.." is trying to murder a "..(ent.name or targ_specs.player and targ_specs.object:get_player_name()))
+  do_mes(self.name.." is trying to murder a "..(ent.name or targ_specs.player and targ_specs.object:get_player_name()).." with a damage of "..dmg)
 
   consume = type(consume) == "boolean" and consume or consume ~= false and true
   -- consume targeted creature
