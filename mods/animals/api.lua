@@ -1820,7 +1820,7 @@ function animals.hurt_target(self,target,consume)
     return
   end
   local tflp = get_time(self.did_last_punch) -- time from last punch
-  do_mes(self.name.." my did_last_punch was "..get_time(self.did_last_punch).." seconds ago")
+  do_mes(self.name.." my did_last_punch was "..tflp.." seconds ago")
   target:punch(self.object,tflp,self.attack)
   if targ_specs.player then
     ent.hp = targ_specs.object:get_hp()
