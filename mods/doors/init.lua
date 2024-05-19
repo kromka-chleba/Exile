@@ -148,7 +148,7 @@ function doors.door_toggle(pos, node, clicker, itemstack)
 	end
 
 	if def.protected and minetest.is_protected(pos, cname) then
-	   minetest.chat_send_player(cname,"You can't open this door, ",cname)
+	   minetest.chat_send_player(cname,S("You can't open this door, "),cname)
 	   return itemstack
 	end
 

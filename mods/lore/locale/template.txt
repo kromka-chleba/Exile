@@ -57,14 +57,6 @@ Character=
 
 #login.lua
 login_text=
-зачитывают список ваших преступлений под@
-громкие издевательств ваших сородичей, но уже @
-слишком поздно протестовать против своей невиновности.@
-@n  Вас лишают всего имущества и вручают@
-приказ, в котором описаны все ваши преступления и наказание,@
-которое должно быть назначено, а затем вас@
-проталкивают через врата, чтобы вы умерли в@
-проклятой земле древних, как..
 
 #   You can scarcely hear the sound of them @
 # reading the list of your crimes over the @
@@ -779,8 +771,6 @@ Even the dogs despise @1.=
 We break no bread with traitors.=
 Let this be @1 journey to cleanse @2.=
 
-Bones of a long-dead exile=
-
 # history.lua
 It is the @1 of day @2 of the season of @3, in the year of our exile @4=
 Birth=
@@ -791,3 +781,6 @@ small hours=
 evening=
 afternoon=
 morning=
+
+# temperature.lua
+Value:=

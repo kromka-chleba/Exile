@@ -12,6 +12,11 @@ Input Items=Исходные блоки
 Craft Type=Инструмент
 Quantity=Колич.
 Crafting=Создание
+Main=Осн
+Bag1=Сум1
+Bag2=Сум2
+Bag3=Сум3
+Bag4=Сум4
 
 #playersettings.lua
 Enable wide HUDbar=Включить широкую панель HUDbar
@@ -24,8 +29,11 @@ Allow digging with a full inventory=Разрешить копать с полн�
 
 #storage_api.lua
 Label=Метка
+Set=Уст.
 Crafted by=Создано
 Burnt Storage Pile=Сгоревшая куча мусора
+
+#triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=Неверный вектор телепортации, должен быть '(x,y,z)'
 Reset player=Сбросить игрока
 Will reset player stats to full=Сбросит статистику игрока до полной
@@ -40,6 +48,7 @@ Set player hunger to <value> percent=Установить голод игрок�
 Set thirst=Установить жажду
 Set player thirst to <value> percent=Установить жажду игрока на <значение> процентов
 Teleport=Телепорт
+Send player to an exact xyz position=Отправить игрока в точную xyz-позицию
 Send player an exact xyz position=Отправить игрока в точную xyz-позицию
 Relaport=Переотправить
 Send player a relative xyz distance=Отправить игрока на относительное xyz расстояние
@@ -60,13 +69,14 @@ Hide health/energy/thirst/hunger/temp/=Скрыть здоровье/энерг�
 /enviro_temp/effects by names, or all=/enviro_temp/эффекты по именам или все.
 Show hud elements=Показать элементы hud
 Restore all hidden hud elements=Восстановить все скрытые элементы hud
-
-#triggers.lua
+Show hud splash=Показать hud splash
+Display an image and text@n<icon name.png>,<text>=Отображение изображения и текста@n<имя иконки.png>,<текст>
+Label=Метка
 Value:=Значение:
 False=Ложь
 True=True
 Configured trigger=Настроенный триггер
-Set=Установить
+Set=Уст.
 Unset=Сброс
 Yes=Да
 No=Нет
@@ -74,6 +84,19 @@ No=Нет
 # triggers
 Exile trigger node=Узел запуска изгнания
 Exile zone trigger node=Узел зоны запуска изгнания
+Error in zone def ranges=Ошибка в диапазонах определения зон
+Upper corner=Верхний угол
+( North / Up / East )=( Север / Верх / Восток )
+Here=Тут
+Set=Уст.
+Lower corner=Нижний угол
+( South / Down / West )=( Юг / Вниз / Запад )
+Range type:=Тип диапазона:
+( Absolute is either inside or out. )=( Абсолютный - внутри или снаружи.)
+( Radial and cubic fade towards the edge. )=( Радиальный и кубический затухают к краю. )
+Range=Диапазон
+Copy=Копирование
+Values=Значения
 
 Missing required items!=Отсутствуют необходимые предметы!
 
@@ -94,5 +117,15 @@ Any gravel=Любой гравий
 Any jade cobble=Любой нефритовый булыжник
 
 # Stairs
-Inner =Внутренний 
-Outer =Внешний 
+Inner @1=Внутренний @1
+Outer @1=Внешний @1
+
+# protection.lua
+Access List=Список доступа
+Delete=Удалить
+Close=Закрыть
+Access list empty.=Список доступа пуст.
+Deleted @1 from access list.=@1 удален из списка доступа.
+@1 already has access=У @1 уже есть доступ
+@1 granted access=@1 предоставлен доступ
+Can't grant access to items you don't own=Невозможно предоставить доступ к предметам, которые вам не принадлежат

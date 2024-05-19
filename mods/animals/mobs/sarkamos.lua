@@ -135,7 +135,7 @@ local self_data = {
 	   visual_size = {x = 1, y = 1},
 	   makes_footstep_sound = false,
 	},
-	_desc = "Sarkamos",
+	_desc = S("Sarkamos"),
 	timeout = 0,
 
 	-- animal stats

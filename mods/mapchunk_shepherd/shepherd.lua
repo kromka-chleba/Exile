@@ -452,10 +452,10 @@ minetest.register_chatcommand(
             local scan_queue_status = S("Scan queue: ")..#scan_queue
             local work_queue_status = S("Work queue: ")..#work_queue
             local work_time_status = S("Working time: ")..
-                S("Min: ")..math.ceil(min_working_time).." ms | "..
-                S("Max: ")..math.ceil(max_working_time).." ms | "..
-                S("Moving median: ")..get_median_working_time().." ms | "..
-                S("Moving average: ")..get_average_working_time().." ms"
+                S("Min: @1 ms | ", math.ceil(min_working_time))..
+                S("Max: @1 ms | ", math.ceil(max_working_time))..
+                S("Moving median: @1 ms | ", get_median_working_time())..
+                S("Moving average: @1 ms", get_average_working_time())
             local scanner_status = S("Scanners: ")..scanner_names
             local worker_status = S("Workers: ")..worker_names
             return true, tracked_chunks_status.."\n"..scan_queue_status.."\n"..
@@ -480,7 +480,7 @@ minetest.register_chatcommand(
             labels = labels:gsub("}}", "}")
             labels = labels:gsub(",", ", ")
             return true, S("hash: ")..hash.."\n"
-                ..S("last changed: ")..last_changed..S(" seconds ago").."\n"
+                ..S("last changed: @1 seconds ago", last_changed).."\n"
                 ..S("labels: ")..labels.."\n "
         end,
 })

@@ -5,7 +5,7 @@
 -- for use by other mods (e.g. health)
 
 local c_alpha = minimal.compat_alpha
-local S = core.get_translator("climate")
+local S = core.get_translator("lore")
 
 -------------------------------
 --OUTDOORS AND EXPOSED TO ELEMENTS

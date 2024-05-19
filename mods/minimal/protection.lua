@@ -2,7 +2,7 @@
 --
 -- This may need to moved someplace else eventually.
 
-S=minimal.S
+local S=minimal.S
 creative = creative
 
 local __nail_use_count = 3
@@ -60,14 +60,14 @@ function minimal.protection_key_click( itemstack, clicker, pointed_thing)
 			local formspec = "formspec_version[6]"
 				.. "size[10.5,4]"
 				.. "box[0.4,0.9;9.8,1.6;red]"
-				.. "label[4.3,0.5;Access List]"
+				.. "label[4.3,0.5;"..S("Access List").."]"
 				.. "dropdown[1.1,1.35;4.8,0.7;access_list;" 
 					.. fs_list .. ";1;false]"
-				.. "button_exit[6.6,1.3;3,0.8;Delete;Delete]"
-				.. "button_exit[3.7,2.8;3,0.8;Close;Close]"
+				.. "button_exit[6.6,1.3;3,0.8;Delete;"..S("Delete").."]"
+				.. "button_exit[3.7,2.8;3,0.8;Close;"..S("Close").."]"
 			minetest.show_formspec(player_name, "protection:access_list", formspec)
 	else
-		minetest.chat_send_player(player_name, "Access list empty.") 
+		minetest.chat_send_player(player_name, S("Access list empty.")) 
 	end
 
 end
@@ -90,8 +90,7 @@ minetest.register_on_player_receive_fields(
 						access_list[i] = nil
 					end
 				end
-				minetest.chat_send_player(player_name, "Deleted " 
-					.. fields.access_list .. " from access list.")
+				minetest.chat_send_player(player_name, S("Deleted @1 from access list.", fields.access_list))
 			end
 			-- write out json
 			if #access_list > 0 then
@@ -123,7 +122,7 @@ function minimal.protection_key_use( itemstack, user, pointed_thing )
 				access_list = minetest.parse_json(list)
 				for _,name in ipairs(access_list) do
 					if name == key_owner then
-						minetest.chat_send_player(owner, key_owner .. " already has access")
+						minetest.chat_send_player(owner, S("@1 already has access", key_owner))
 						add_name = false
 						break
 					end
@@ -132,10 +131,10 @@ function minimal.protection_key_use( itemstack, user, pointed_thing )
 			if add_name then
 				table.insert(access_list, key_owner)
 				pt_meta:set_string("access_list", minetest.write_json(access_list))
-				minetest.chat_send_player(owner, key_owner .. " granted access")
+				minetest.chat_send_player(owner, S("@1 granted access", key_owner))
 			end
 		else
-			minetest.chat_send_player(owner,"Can't grant access to items you don't own")
+			minetest.chat_send_player(owner, S("Can't grant access to items you don't own"))
 		end
 	end
 end

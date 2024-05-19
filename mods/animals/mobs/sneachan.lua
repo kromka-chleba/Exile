@@ -154,7 +154,7 @@ self_data = animals.register_animal("animals:sneachan",{
 	   visual_size = {x = 1, y = 1},
 	   makes_footstep_sound = true,
 	},
-	_desc = "Sneachan",
+	_desc = S("Sneachan"),
 	timeout = 0,
 
   -- animal stats

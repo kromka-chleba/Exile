@@ -69,7 +69,7 @@ minetest.register_craftitem("tech:soup", {
 local function clear_pot(pos)
    local meta = minetest.get_meta(pos)
    minimal.infotext_set(pos,meta,
-     "Status: Unprepared pot\nContents: <EMPTY>\nNote: Add water to pot to make soup")
+   S("Status: Unprepared pot\nContents: <EMPTY>\nNote: Add water to pot to make soup"))
    meta:set_string("formspec", "")
    meta:set_string("type", "")
    meta:set_string("status", "") -- "" = unprepared, "Cooking", "Finished"
@@ -88,8 +88,8 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
       if liquid == "nodes_nature:freshwater_source" then
 	 meta:set_string("type", "Soup")
 	 minimal.infotext_set(pos,meta,
-		"Status: Soup Pot\nContents: Water\n"
-		.."Note: Add food to the pot to make soup")
+	 S("Status: Soup Pot\nContents: Water\n"
+		.."Note: Add food to the pot to make soup"))
 	 meta:set_string("formspec", pot_formspec)
 	 meta:set_int("baking", cook_time)
 	 timer:start(6)

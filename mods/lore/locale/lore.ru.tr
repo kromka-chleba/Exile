@@ -787,8 +787,6 @@ Even the dogs despise @1.=Даже собаки презирают @1.
 We break no bread with traitors.=Мы не преломляем хлеб с предателями.
 Let this be @1 journey to cleanse @2.=Пусть это будет путешествие @1, чтобы очистить @2.
 
-Bones of a long-dead exile=Кости давно умершего изгнанника
-
 # history.lua
 It is the @1 of day @2 of the season of @3, in the year of our exile @4=Это @1 @2 дня сезона @3, в @4 год нашего изгнания.
 Birth=рождения
@@ -799,3 +797,6 @@ small hours=ночь
 evening=вечер
 afternoon=день
 morning=утро
+
+# temperature.lua
+Value:=Значение:

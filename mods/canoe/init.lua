@@ -28,7 +28,7 @@ end
 --
 
 local canoe = {
-	_desc = "Canoe",
+	_desc = S("Canoe"),
 	initial_properties = {
 		physical = true,
 		-- Warning: Do not change the position of the collisionbox top surface,

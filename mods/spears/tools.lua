@@ -3,7 +3,7 @@ local S = minetest.get_translator("spears")
 function spears_register_spear(spear_type, desc, base_damage, toughness, material, exilectype)
 
 	minetest.register_tool("spears:spear_" .. spear_type, {
-		description = desc .. S(" spear"),
+		description = S("@1 spear", desc),
                 wield_image = "spears_spear_" .. spear_type ..
 		   ".png^[transform4",
 		inventory_image = "spears_spear_" .. spear_type .. ".png",

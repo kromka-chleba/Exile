@@ -118,8 +118,7 @@ local rope_box_data = {
 local function register_rope_block(multiple, max_multiple, name_prefix, node_prefix, tint, flammable)
 	local node_name = string.format("ropes:%s%irope_block", node_prefix, multiple)
 	local rope_block_def = {
-		--description = "@1 Ropebox @2m", name_prefix, ropes.ropeLength*multiple,
-		description = name_prefix..S(" Ropebox ")..ropes.ropeLength*multiple.."m",
+		description = S("@1 Ropebox @2m", name_prefix, ropes.ropeLength*multiple),
 		_doc_items_create_entry = false,
 		drawtype="nodebox",
 		sunlight_propagates = true,

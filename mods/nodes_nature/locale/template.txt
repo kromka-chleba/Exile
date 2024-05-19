@@ -1,5 +1,8 @@
 # textdomain: nodes_nature
 
+# dropping water
+Water drop=
+
 # data_plant.lua
 Moss=
 Moss Spores=
@@ -88,6 +91,8 @@ Wiha Berries=
 Muhle Berries=
 Barszcz root=
 Rzepicha root=
+This plant has a foul musty flavor.=
+Your stomach hurts terribly.=
 
 # data_rock.lua
 Sandstone=
@@ -116,6 +121,7 @@ Dead Fruiting @1=
 @1 Dry Fruit=
 Fruitless @1=
 @1 Root=
+Node is protected=
 
 # liquids.lua
 Salt Water=
@@ -146,8 +152,8 @@ Frosty Winter Wet @1=
 @1 Fertile Soil=
 @1 Fertile Agricultural Soil=
 @1 With Roots=
- Stair=
- Slab=
+@1 Stair=
+@1 Slab=
 
 # sediments (sediment_data.lua)
 Sand=
@@ -189,6 +195,8 @@ Dry Woodland Soil=
 Tree Marker=
 @1 Log=
 @1 Leaves=
+@1 Log Stair=
+@1 Log Slab=
 
 # compost.lua
 @1 Slab=
@@ -210,12 +218,10 @@ Leaf Marker=
 
 Combine with another slab=
 
- Brick Stair=
- Brick Slab=
- Log Stair=
- Log Slab=
- Block Stair=
- Block Slab=
+@1 Brick Stair=
+@1 Brick Slab=
+@1 Block Stair=
+@1 Block Slab=
 
 # interface
 Threshing=

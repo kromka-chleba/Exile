@@ -63,7 +63,6 @@ ROOTS:=КОРНЕПЛОДЫ:
 PLANT GROWTH NOT MEASURABLE!=РОСТ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
 PLANT HEALTH NOT MEASURABLE!=ЗДОРОВЬЕ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
 NOT MEASURABLE: NEEDS A PLANT OR SOIL=НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ: НУЖНО РАСТЕНИЕ ИЛИ ПОЧВА
-
 wet=влажный
 salty=соленый
 dry=сухой
@@ -126,7 +125,6 @@ Waystone=Путевой камень
 
 # airboat.lua
 Airboat=Аэрокатер
-Airboat Nodebox=Nodebox аэрокатера
 [airboat] Cruise on=[Аэрокатер] Автопилот включен
 [airboat] Cruise off=[Аэрокатер] Автопилот отключен
 
