@@ -16,6 +16,13 @@ local function modify_int(...) -- player, int_name, int_value
 end
 
 
+-- for HEALTH.register_on_player_eat
+local health_eat_callbacks = {}
+function HEALTH.register_on_player_eat(func)
+  if type(func) == "function" then
+    health_eat_callbacks[#health_eat_callbacks + 1] = func
+  end
+end
 -----------------------------
 --On Actions
 --
@@ -60,17 +67,26 @@ function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_tabl
       minetest.sound_play(sound.name, minimal.merge_tables(sound,{pos=pos}))
     end
     local replace_item = f_table.rwi
-    --replace/take
-    itemstack:take_item()
-    if itemstack:get_count() == 0 then
-      itemstack:add_item(replace_item)
-    else
-      local inv = user:get_inventory()
-      if inv:room_for_item("main", replace_item) then
-        inv:add_item("main", replace_item)
+    --replace/take (non-creative)
+    if not minimal.player_in_creative(user) then
+      itemstack:take_item()
+      if itemstack:get_count() == 0 then
+        itemstack:add_item(replace_item)
       else
-        minetest.add_item(pos, replace_item)
+        local inv = user:get_inventory()
+        if inv:room_for_item("main", replace_item) then
+          inv:add_item("main", replace_item)
+        else
+          minetest.add_item(pos, replace_item)
+        end
       end
+    end
+  end
+
+  -- register_on_player_eat callbacks
+  if #health_eat_callbacks > 0 then
+    for _,func in pairs(health_eat_callbacks) do
+      func(itemstack, user, f_table)
     end
   end
 

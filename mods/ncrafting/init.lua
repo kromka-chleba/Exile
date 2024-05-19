@@ -207,6 +207,11 @@ function ncrafting.do_bake(pos, elapsed, heat, length, cookname, burnname)
       minimal.switch_node(pos, {name = name_cooked})
       ncrafting.set_treatment(meta, "cook")
       minetest.check_for_falling(pos)
+      local cook_def = minetest.registered_nodes[name_cooked]
+      if HEALTH.bake_table[name_cooked] and cook_def and cook_def.on_construct then
+        cook_def.on_construct(pos)
+        return false
+      end
       meta:set_int("baking", -1) -- prepare to burn it
       minetest.get_node_timer(pos):start(ncrafting.cook_rate)
       return true

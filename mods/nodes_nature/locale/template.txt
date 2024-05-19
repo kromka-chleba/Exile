@@ -210,6 +210,9 @@ Set to decompose=
 Fertilize soil=
 Fertilize and soak soil=
 
+# foody stuff (plants_and_mushrooms.lua, liquids.lua)
+Eat if you're desperate=
+
 # Leaf Marker
 Leaf Marker=
 

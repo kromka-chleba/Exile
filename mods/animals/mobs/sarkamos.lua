@@ -26,11 +26,11 @@ local function brain(self)
 			return
 		end
     local yaw = self.object:get_yaw()
-    local nodes = {f=mobkit.pos_translate2d(pos,yaw,1)}
+    local nodes = {f=mobkit.pos_translate2d(pos,yaw,1.5)}
     nodes.fu = animals.node_drawtype(minimal.shift_pos(nodes.f,{y=-1}))
     nodes.f = animals.node_drawtype(nodes.f)
     if (self.energy < self.energy_max and animals.node_drawtype(pos) ~= "airlike")
-    and (nodes.f ~= "liquid" or nodes.fu ~= "liquid") then
+    and (nodes.f ~= "liquid") then
       self.object:add_velocity({x=0,y=random(10,30)/10,z=0})
       mobkit.clear_queue_high(self)
       mobkit.hq_aqua_turn(self,68,yaw+10,2)
@@ -74,30 +74,26 @@ local function brain(self)
           end
         end
 			end
-
-			if self.energy >= self.energy_max then
-			   -- heavy with eggs, sink to look for a laying spot
-			   self.object:add_velocity({ x = 0, y = -0.2,
-						      z = 0})
-			end
-
-
-			--reproduction
+      --reproduction
 			--asexual parthogenesis, eggs
 			--when in prime condition
 			--in dark
 			local light = minetest.get_node_light(pos, 0.5) or 0
       local tod = animals.timeofday()
 
-			if random() < 0.01
-			and not rival
-			and light < 10
-      and tod == "night"
-			and self.hp >= self.max_hp
-			and self.energy >= self.energy_max then
-			   animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
+      local pregnant = self.age >= self.mature_age and self.energy >= self.energy_max
+      local can_reproduce = pregnant and (random() < 0.01 and not rival
+      and light < 10 and tod == "night" and self.hp >= self.max_hp)
+
+			if pregnant then
+			   -- heavy with eggs, sink to look for a laying spot
+			   self.object:add_velocity({ x = 0, y = -0.2,
+						      z = 0})
 			end
 
+			if can_reproduce then
+			   animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
+			end
 		end
 
 		-------------------
@@ -157,6 +153,7 @@ local self_data = {
   young_per_egg = {1,3},		--will get this/energy_egg starting energy
   -- lifespan
   lifespan = "energy_max*8",
+  mature_age = "energy_max*0.3", -- 30% of energy_max (14000) or 4200
   -- interactions
   -- prey + rivals automatically defined in registration
   capture_interactions = {

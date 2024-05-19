@@ -1808,13 +1808,13 @@ function animals.hurt_target(self,target,consume)
   if not self or not targ_specs then
     return
   end
+  local tflp = get_time(self.did_last_punch) -- time from last punch
   local ent = targ_specs.ent
   local ent_hp = ent.hp
   local ent_mhp = ent.max_hp
   if not ent_hp or not ent_mhp then
     return
   end
-  local tflp = get_time(self.did_last_punch) -- time from last punch
   target:punch(self.object,tflp,self.attack)
   if targ_specs.player then
     ent.hp = targ_specs.object:get_hp()
@@ -1966,17 +1966,13 @@ local function lq_jumpattack_eat(self,height,target,consume)
 	local func=function(self)
 		if not mobkit.is_alive(target) then return true end
 
-		if self.isonground then
-			if phase==1 then	-- collision bug workaround
-				local vel = self.object:get_velocity()
-				vel.y = -mobkit.gravity*sqrt(height*2/-mobkit.gravity)
-				self.object:set_velocity(vel)
-				mobkit.make_sound(self,'charge')
-				phase=2
-			else
-				mobkit.lq_idle(self,0.3)
-				return true
-			end
+		if phase == 1 and self.isonground then
+			-- collision bug workaround
+      local vel = self.object:get_velocity()
+      vel.y = -mobkit.gravity*sqrt(height*2/-mobkit.gravity)
+      self.object:set_velocity(vel)
+      mobkit.make_sound(self,'charge')
+      phase=2
 		elseif phase==2 then
 			local dir = minetest.yaw_to_dir(self.object:get_yaw())
 			local vy = self.object:get_velocity().y
@@ -2005,8 +2001,11 @@ local function lq_jumpattack_eat(self,height,target,consume)
 
         -- eat bits of opponent
         return animals.hurt_target(self,target,consume)
-
-			end
+      else
+        return true
+      end
+    else
+      return true
 		end
 	end
 	mobkit.queue_low(self,func)
@@ -2257,7 +2256,7 @@ function animals.flock(self, prty, min_dist, aqua_speed)
     --local friend = mobkit.get_closest_entity(self, fr)
     local friend =mobkit.get_nearby_entity(self, fr)
 
-    if friend then
+    if friend and (min_dist and get_dist(self, friend) <= min_dist) then
       --get distance, if too far away go to them
       if aqua_speed then
         mobkit.animate(self,'walk')
@@ -2268,7 +2267,7 @@ function animals.flock(self, prty, min_dist, aqua_speed)
         mobkit.make_sound(self,'call')
         animals.hq_flock(self, prty, friend, min_dist)
       end
-      return
+      return true
     end
   end
 
