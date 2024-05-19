@@ -839,8 +839,8 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
 			brick_mortar_recycle_type,
 			{cracky = hardness},
 			{"nodes_nature_"..name.."_brick.png^tech_mortar_brick.png" },
-			desc..S(" Brick with Mortar Stair"),
-			desc..S(" Brick with Mortar Slab"),
+			S("@1 Brick with Mortar Stair", desc),
+			S("@1 Brick with Mortar Slab", desc),
 			minimal.stack_max_bulky * 6,
 			nodes_nature.node_sound_stone_defaults()
 		)
@@ -857,8 +857,8 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
 			block_mortar_recycle_type,
 			{cracky = hardness},
 			{"nodes_nature_"..name.."_block.png^tech_mortar_block.png" },
-			desc..S(" Block with Mortar Stair"),
-			desc..S(" Block with Mortar Slab"),
+			S("@1 Block with Mortar Stair", desc),
+			S("@1 Block with Mortar Slab", desc),
 			minimal.stack_max_bulky * 4,
 			nodes_nature.node_sound_stone_defaults()
 		   )

@@ -15,7 +15,7 @@ Unique, randomly generated, for each "life".
 
 local random = math.random
 lore = lore
-S = lore.S
+local S = lore.S
 
 ----------------------------------------------------------
 local judger = {

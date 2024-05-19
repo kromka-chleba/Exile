@@ -222,16 +222,16 @@ local function bundlename(meta, plant, treatment)
    end
    local def = minetest.registered_items[plant]
    if def and (def._orig_desc or def.description) then
-      fmt_plant = S("of ")..(def._orig_desc or def.description)
+      fmt_plant = (def._orig_desc or def.description)
    else
       minetest.log("error","NCRAFTING: Bundle could not get name of plant: "..plant)
    end
    if treatment and treatment ~= "" then
-      fmt_treatment = ", "..S(methodstring[treatment])
+      fmt_treatment = S(methodstring[treatment])
    else
-      fmt_treatment = S(", untreated")
+      fmt_treatment = S("untreated")
    end
-   return prefix..S("bundle ")..fmt_plant..fmt_treatment
+   return S("@1bundle of @2, @3", prefix, fmt_plant, fmt_treatment)
 end
 
 bundledef = {

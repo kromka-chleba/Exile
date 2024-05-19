@@ -4,45 +4,49 @@
 @1 Carcass=
 Cooked @1=
 Burned @1=
-
-# darkasthaan.lua
-Darkasthaan Eggs=
-Live Darkasthaan=
-
-# gundu.lua
-Gundu Eggs=
-Live Gundu=
-
-# impethu.lua
-Impethu Eggs=
-Live Impethu=
-
-# kubwakubwa.wlua
-Kubwakubwa Eggs=
-Live Kubwakubwa=
-
-# pegasun.lua
-Pegasun Egg=
-Live Pegasun (male)=
-Live Pegasun (female)=
-Female Pegasun=
-Live Pegasun=
-Live Male Pegasun=
-
-# sarkamos.lua
-Sarkamos Eggs=
-Live Sarkamos=
-
-# sneachan.lua
-Sneachan Eggs=
-Live Sneachan=
-
-# crafts.lua
 Small Invertebrate=
 Large Invertebrate=
 Small Bird=
 Small Fish=
 Large Fish=
+
+
+# darkasthaan.lua
+Darkasthaan=
+Darkasthaan Eggs=
+Live Darkasthaan=
+
+# gundu.lua
+Gundu=
+Gundu Eggs=
+Live Gundu=
+
+# impethu.lua
+Impethu=
+Impethu Eggs=
+Live Impethu=
+
+# kubwakubwa.wlua
+Kubwakubwa=
+Kubwakubwa Eggs=
+Live Kubwakubwa=
+
+# pegasun.lua
+Pegasun Egg=
+Female Pegasun=
+Male Pegasun=
+Live Female Pegasun=
+Live Male Pegasun=
+
+# sarkamos.lua
+Sarkamos=
+Sarkamos Eggs=
+Live Sarkamos=
+
+# sneachan.lua
+Sneachan=
+Sneachan Eggs=
+Live Sneachan=
 
 # api_capture.lua
 Slaughter the animal=

@@ -1,5 +1,8 @@
 # textdomain: nodes_nature
 
+# dropping water
+Water drop=Капля воды
+
 # data_plant.lua
 Moss=Мох
 Moss Spores=Споры мха
@@ -88,6 +91,8 @@ Wiha Berries=Ягоды Виха
 Muhle Berries=Ягоды Мухле
 Barszcz root=Корень барщицы
 Rzepicha root=Корень Ржепича
+This plant has a foul musty flavor.=Это растение обладает неприятным затхлым ароматом.
+Your stomach hurts terribly.=Ужасно болит живот.
 
 # data_rock.lua
 Sandstone=Песчаник
@@ -116,6 +121,7 @@ Dead Fruiting @1=Мертвый плодоносящий @1
 @1 Dry Fruit=@1 Сухой фрукт
 Fruitless @1=Бесплодный @1
 @1 Root=@1 Корень
+Node is protected=Node is protected
 
 # liquids.lua
 Salt Water=Соленая вода
@@ -129,6 +135,7 @@ Sea Ice=Морской лед
 Lava Source=Источник лавы
 Lava Flowing=Течение лавы
 Combine with another slab@n or eat if you're desperate=Соедините с другой плитой@n или съешьте, если вы в отчаянии.
+Salt water is not safe to drink.=Соленую воду пить небезопасно.
 
 # rocks.lua
 @1 Boulder=Валун @1
@@ -147,8 +154,8 @@ Frosty Winter Wet @1=Влажная мерзлая зимняя @1
 @1 Fertile Soil=@1 плодородная почва
 @1 Fertile Agricultural Soil=@1 плодородная сельскохозяйственная почва
 @1 With Roots=@1 с корнями
- Stair= ступенька
- Slab= плита
+@1 Stair=@1 ступенька
+@1 Slab=@1 плита
 
 # sediments (sediment_data.lua)
 Sand=Песок
@@ -190,6 +197,8 @@ Dry Woodland Soil=Сухая лесная почва
 Tree Marker=Древесный маркер
 @1 Log=Бревно @1
 @1 Leaves=Листья @1
+@1 Log Stair=@1 бревенчатая лестница
+@1 Log Slab=@1 бревенчатая плита
 
 # compost.lua
 @1 Slab=@1 плита
@@ -206,12 +215,10 @@ Leaf Marker=Листовой маркер
 
 Combine with another slab=Соедините с другой плитой
 
- Brick Stair= кирпичная лестница
- Brick Slab= кирпичная плита
- Log Stair= бревенчатая лестница
- Log Slab= бревенчатая плита
- Block Stair= блочная лестница
- Block Slab= блочная плита
+@1 Brick Stair=@1 кирпичная лестница
+@1 Brick Slab=@1 кирпичная плита
+@1 Block Stair=@1 блочная лестница
+@1 Block Slab=@1 блочная плита
 
 # interface
 Threshing=Молотилка

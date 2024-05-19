@@ -1,6 +1,6 @@
 # textdomain: ropes
 
 Rope Ladder=Веревочная лестница
- Ropebox = веревочный ящик 
+@1 Ropebox @2m=@1 веревочный ящик @2м 
 Rope=Веревка
 Wooden=Деревянный

@@ -10,9 +10,9 @@ You have no room to hold your blanket, so you drop it.=У вас нет мест
 Bed: Contains Blanket=Кровать: содержит одеяло
 This bed is already occupied!=Эта кровать уже занята!
 # expects owner name to be after 
-Status: Occupied by =Статус: занят 
+Status: Occupied by @1=Статус: занят @1
 # related to above
-(old)=(старый)
+Status: Occupied by @1 (old)=Статус: занят @1 (давно)
 
 # authors (do not translate most if uses latin alphabet)
 Seneca=Сенека

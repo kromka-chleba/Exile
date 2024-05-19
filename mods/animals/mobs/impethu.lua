@@ -151,7 +151,7 @@ self_data = animals.register_animal("animals:impethu",{
     makes_footstep_sound = false,
     timeout = 0,
   },
-  _desc = "Impethu",
+  _desc = S("Impethu"),
   _VH1_barheight = 1,
 
   -- animal stats

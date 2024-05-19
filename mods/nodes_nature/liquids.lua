@@ -253,7 +253,7 @@ minetest.override_item(
               return
             end
             minetest.chat_send_player(clicker:get_player_name(),
-                                          "Salt water is not safe to drink.")
+                                          S("Salt water is not safe to drink."))
         end
 })
 

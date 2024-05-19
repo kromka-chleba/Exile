@@ -350,7 +350,7 @@ local function setformspec(pos)
    if sel == "" then sel = "tr_reset" end
    local value = nodemeta:get_string(sel)
    local spec =  "formspec_version[6]size[10.5,11]"..triggerpage(sel, value)
-   spec = spec.."field[3,8;6,0.5;tr_label;Label;"..label.."]"
+   spec = spec.."field[3,8;6,0.5;tr_label;"..S("Label")..";"..label.."]"
 
    nodemeta:set_string("formspec", spec)
 end

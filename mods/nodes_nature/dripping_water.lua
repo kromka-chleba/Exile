@@ -4,9 +4,11 @@
 -------------------------------------------------------------------------
 local random = math.random
 
+local S = minetest.get_translator("nodes_nature")
+
 --Drop entities
 minetest.register_entity("nodes_nature:drop_water", {
-	_desc = "Water drop",
+	_desc = S("Water drop"),
 	initial_properties = {
 	   hp_max = 2,
 	   physical = true,

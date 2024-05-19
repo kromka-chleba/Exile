@@ -32,7 +32,7 @@ LIGHT LEVEL @= =
 
 Temperature Probe=
 List temperature of node=
-OBJECT TEMEPRATURE MEASUREMENT=
+OBJECT TEMPERATURE MEASUREMENT=
 TEMPERATURE @= =
 
 Fuel Probe=
@@ -44,7 +44,7 @@ List remaining units of node for smelting=
 SMELTING UNITS REMAINING:=
 
 Potter's Probe=
-List remaining firign units of unfired clay=
+List remaining firing units of unfired clay=
 FIRING UNITS REMAINING:=
 
 Chef's Probe=
@@ -126,7 +126,6 @@ Waystone=
 # airboat.lua
 
 Airboat=
-Airboat Nodebox=
 [airboat] Cruise on=
 [airboat] Cruise off=
 

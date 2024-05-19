@@ -50,7 +50,7 @@ local function rooted_place(itemstack, placer, pointed_thing, node_name, substra
 				itemstack:take_item()
 			end
 		else
-			minetest.chat_send_player(player_name, "Node is protected")
+			minetest.chat_send_player(player_name, S("Node is protected"))
 			minetest.record_protection_violation(pos, player_name)
 		end
 	end

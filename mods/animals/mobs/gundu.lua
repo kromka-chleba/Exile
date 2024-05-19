@@ -200,6 +200,7 @@ local self_data = {
       makes_footstep_sound = false,
    },
    _name = "Gundu",
+   _desc = S("Gundu"),
 
    -- animal stats
 	lung_capacity = 5,

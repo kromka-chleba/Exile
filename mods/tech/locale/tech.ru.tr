@@ -68,6 +68,8 @@ This pot is full and heavy. Spill it?=Этот горшок полный и тя
 Yes=Да
 No=Нет
 Eat=Есть
+Status: Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=Статус: Неподготовленный котел@nСодержимое: <ПУСТО>@nПримечание: Добавьте воды в кастрюлю, чтобы приготовить суп
+Status: Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=Статус: Котел для супа@nСодержимое: Вода@nПримечание: Добавьте продукты в котел, чтобы приготовить суп
 
 # doors.lua
 Wattle Door=Плетеная дверь
@@ -301,12 +303,11 @@ Dyer's Table@n(Used to create dyes)=Стол красильщика@n (испо�
 Dyer's Table=Стол красильщика
 Dye Pot=Горшок для красителей
 useless =бесполезный 
-bundle =пучок 
-of =из 
-, untreated=, необработанный
 treated by cooking=обработанный варкой
 treated by soaking=обработанный вымачиванием
 treated by burning=обработанный обжигом
+untreated=необработанный
+@1bundle of @2, @3=@3 @1пучок @2
 
 Combine with another slab=Соедините с другой плитой
 
@@ -335,8 +336,8 @@ Brick and Mortar Stair=Лестница из кирпича и раствора
 Brick and Mortar Slab=Плита из кирпича и раствора
 Tile Stair=Плиточная лестница
 Tile Slab=Плиточная плита
- Brick with Mortar Stair= лестница из кирпича и раствора
- Brick with Mortar Slab= кирпич с растворной плитой
+@1 Brick with Mortar Stair=@1 лестница из кирпича и раствора
+@1 Brick with Mortar Slab=@1 кирпич с растворной плитой
 Drystack Stair=Лестница из сухого кирпича
 Drystack Slab=Плита из сухого кирпича
 Mudbrick Stair=Лестница из глинобитного кирпича
@@ -346,8 +347,8 @@ Rammed Earth Slab=Плита из утрамбованной земли
 Thatch Stair=Лестница из соломы
 Thatch Slab=Плита из соломы
 
- Block with Mortar Stair= лестница из блоков с раствором
- Block with Mortar Slab= плита из блока с растворной
+@1 Block with Mortar Stair=@1 лестница из блоков с раствором
+@1 Block with Mortar Slab=@1 плита из блока с растворной
 
 Odd=Странный
 Drink=Выпить

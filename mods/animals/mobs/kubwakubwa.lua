@@ -128,7 +128,7 @@ local self_data = {
 	   visual_size = {x = 1, y = 1},
 	   makes_footstep_sound = true,
 	},
-	_desc = "Kubwakubwa",
+	_desc = S("Kubwakubwa"),
 	timeout = 0,
 
 

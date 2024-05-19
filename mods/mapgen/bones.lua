@@ -2,7 +2,7 @@
 -- Globals
 local _EXILE_DEBUG = minetest.settings:get("exile_debug") == "true"
 
-local S = minetest.get_translator("lore")
+local S = minetest.get_translator("bones")
 
 loot_table = {
    -- #TODO: break this out into a general treasure system, in prep for
@@ -107,7 +107,7 @@ function replace(pos)
 	 table.remove(loot, roll)
       end
    until total <= 0 or #loot == 0
-   meta:set_string("infotext", "Bones of a long-dead exile")
+   meta:set_string("infotext", S("Bones of a long-dead exile"))
    meta:set_string("formspec", bones_formspec)
 end
 

@@ -492,7 +492,7 @@ local function cache_player_inventory(cache, pInv)
 	inventory[#inventory + 1] = 'style_type[list;size=;spacing=]'
 	inventory[#inventory + 1] = 'list[current_player;' .. selected .. ';.4,6.7;8,2;0]'
 	inventory[#inventory + 1] = 'listring[]'
-	inventory[#inventory + 1] = 'tabheader[.4,9.8;inventory_tab;Main,Bag1,Bag2,Bag3,Bag4;1;true;false]'
+	inventory[#inventory + 1] = 'tabheader[.4,9.8;inventory_tab;'..S("Main")..","..S("Bag1")..","..S("Bag2")..","..S("Bag3")..","..S("Bag4")..';1;true;false]'
 
 	cache.inventoryFS = table.concat(inventory, "");
 	cache.output = ""

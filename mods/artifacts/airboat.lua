@@ -21,7 +21,7 @@ end
 -- Airboat entity
 
 local airboat = {
-	_desc = "Airboat",
+	_desc = S("Airboat"),
 	initial_properties = {
 		physical = true,
 		collide_with_objects = true,
@@ -352,7 +352,7 @@ end
 -- Nodebox for entity wielditem visual
 
 minetest.register_node("artifacts:airboat_nodebox", {
-	description = S("Airboat Nodebox"),
+	description = "Airboat Nodebox",
 	tiles = { -- Top, base, right, left, front, back
 		"artifacts_airboat_top.png",
 		"artifacts_airboat_base.png",

@@ -68,6 +68,8 @@ This pot is full and heavy. Spill it?=
 Yes=
 No=
 Eat=
+Status: Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=
+Status: Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=
 
 # doors.lua
 Wattle Door=
@@ -274,6 +276,8 @@ Brick Maker's Bench=
 Spinning Wheel=
 Loom=
 Glass furnace=
+Mortar and pestle=
+Pickaxe=
 
 Granite Grinding Stone=
 Limestone Grinding Stone=
@@ -299,12 +303,11 @@ Dyer's Table@n(Used to create dyes)=
 Dyer's Table=
 Dye Pot=
 useless =
-bundle =
-of =
-, untreated=
 treated by cooking=
 treated by soaking=
 treated by burning=
+untreated=
+@1bundle of @2, @3=
 
 Combine with another slab=
 
@@ -333,8 +336,8 @@ Brick and Mortar Stair=
 Brick and Mortar Slab=
 Tile Stair=
 Tile Slab=
- Brick with Mortar Stair=
- Brick with Mortar Slab=
+@1 Brick with Mortar Stair=
+@1 Brick with Mortar Slab=
 Drystack Stair=
 Drystack Slab=
 Mudbrick Stair=
@@ -344,8 +347,8 @@ Rammed Earth Slab=
 Thatch Stair=
 Thatch Slab=
 
- Block with Mortar Stair=
- Block with Mortar Slab=
+@1 Block with Mortar Stair=
+@1 Block with Mortar Slab=
 
 Odd=
 Drink=
@@ -370,7 +373,7 @@ yellow dye=
 green dye=
 blue dye=
 indigo dye=
-black dye=ц
+black dye=
 
 # Pottery
 Broken Pottery Slab=

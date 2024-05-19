@@ -12,6 +12,11 @@ Input Items=
 Craft Type=
 Quantity=
 Crafting=
+Main=
+Bag1=
+Bag2=
+Bag3=
+Bag4=
 
 #playersettings.lua
 Enable wide HUDbar=
@@ -24,8 +29,11 @@ Allow digging with a full inventory=
 
 #storage_api.lua
 Label=
+Set=
 Crafted by=
 Burnt Storage Pile=
+
+#triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=
 Reset player=
 Will reset player stats to full=
@@ -40,6 +48,7 @@ Set player hunger to <value> percent=
 Set thirst=
 Set player thirst to <value> percent=
 Teleport=
+Send player to an exact xyz position=
 Send player an exact xyz position=
 Relaport=
 Send player a relative xyz distance=
@@ -60,8 +69,9 @@ Hide health/energy/thirst/hunger/temp/=
 /enviro_temp/effects by names, or all=
 Show hud elements=
 Restore all hidden hud elements=
-
-#triggers.lua
+Show hud splash=
+Display an image and text@n<icon name.png>,<text>=
+Label=
 Value:=
 False=
 True=
@@ -74,6 +84,19 @@ No=
 # triggers
 Exile trigger node=
 Exile zone trigger node=
+Error in zone def ranges=
+Upper corner=
+( North / Up / East )=
+Here=
+Set=
+Lower corner=
+( South / Down / West )=
+Range type:=
+( Absolute is either inside or out. )=
+( Radial and cubic fade towards the edge. )=
+Range=
+Copy=
+Values=
 
 Missing required items!=
 
@@ -94,5 +117,15 @@ Any gravel=
 Any jade cobble=
 
 # Stairs
-Inner =
-Outer =
+Inner @1=
+Outer @1=
+
+# protection.lua
+Access List=
+Delete=
+Close=
+Access list empty.=
+Deleted @1 from access list.=
+@1 already has access=
+@1 granted access=
+Can't grant access to items you don't own=

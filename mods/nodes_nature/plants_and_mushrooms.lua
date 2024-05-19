@@ -559,7 +559,7 @@ minetest.override_item(
         --on_use = function(itemstack, user, pointed_thing)
             --Similar to hemlock, which tastes musty or like mouse urine
             minetest.chat_send_player(user:get_player_name(),
-                                      "This plant has a foul musty flavor.")
+                                      S("This plant has a foul musty flavor."))
 
             return HEALTH.eatdrink(itemstack, user, pointed_thing)
         end,
@@ -573,7 +573,7 @@ minetest.override_item(
         --on_use = function(itemstack, user, pointed_thing)
             --Flowers look a bit like oleander; it causes intense stomach pain
             minetest.chat_send_player(user:get_player_name(),
-                                      "Your stomach hurts terribly.")
+                                      S("Your stomach hurts terribly."))
 
             return HEALTH.eatdrink(itemstack, user, pointed_thing)
         end,

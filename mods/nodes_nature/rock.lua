@@ -85,8 +85,8 @@ for i in ipairs(stone_list) do
 		"masonry_bench_bricks",
 		{cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
 		{"nodes_nature_"..name.."_brick.png" },
-		desc..S(" Brick Stair"),
-		desc..S(" Brick Slab"),
+		S("@1 Brick Stair",desc),
+		S("@1 Brick Slab",desc),
 		minimal.stack_max_bulky * 6,
 		nodes_nature.node_sound_stone_defaults()
 	)
@@ -237,8 +237,8 @@ for i in ipairs(rock_list) do
 		"masonry_bench_mixing",
 		{cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
 		{"nodes_nature_"..name.."_brick.png" },
-		desc..S(" Brick Stair"),
-		desc..S(" Brick Slab"),
+		S("@1 Brick Stair", desc),
+		S("@1 Brick Slab", desc),
 		minimal.stack_max_bulky * 6,
 		nodes_nature.node_sound_stone_defaults()
 	)
@@ -252,8 +252,8 @@ for i in ipairs(rock_list) do
 		"masonry_bench_mixing",
 		{cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
 		{"nodes_nature_"..name.."_block.png" },
-		desc..S(" Block Stair"),
-		desc..S(" Block Slab"),
+		S("@1 Block Stair", desc),
+		S("@1 Block Slab", desc),
 		minimal.stack_max_bulky * 4,
 		nodes_nature.node_sound_stone_defaults()
 	)

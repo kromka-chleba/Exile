@@ -6,3 +6,6 @@ Bones=Кости
 @1 died at @2, and bones were placed.=@1 умер в @2, и оставил кости.
 @1's fresh bones=Свежие кости @1
 @1's bones=Кости @1
+
+# mapgen/bones.lua
+Bones of a long-dead exile=Кости давно умершего изгнанника
