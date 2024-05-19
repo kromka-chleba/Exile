@@ -1808,13 +1808,13 @@ function animals.hurt_target(self,target,consume)
   if not self or not targ_specs then
     return
   end
+  local tflp = get_time(self.did_last_punch) -- time from last punch
   local ent = targ_specs.ent
   local ent_hp = ent.hp
   local ent_mhp = ent.max_hp
   if not ent_hp or not ent_mhp then
     return
   end
-  local tflp = get_time(self.did_last_punch) -- time from last punch
   target:punch(self.object,tflp,self.attack)
   if targ_specs.player then
     ent.hp = targ_specs.object:get_hp()
