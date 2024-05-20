@@ -13,22 +13,18 @@ Burned @1=Verbrannter @1
 
 
 # darkasthaan.lua
-Darkasthaan=Darkasthaan
 Darkasthaan Eggs=Darkasthaan-Eier
 Live Darkasthaan=Darkasthaan Lebend
 
 # gundu.lua
-Gundu=Gundu
 Gundu Eggs=Gundu-Eier
 Live Gundu=Gundu Lebend
 
 # impethu.lua
-Impethu=Impethu
 Impethu Eggs=Impethu-Eier
 Live Impethu=Impethu Lebend
 
 # kubwakubwa.lua
-Kubwakubwa=Kubwakubwa
 Kubwakubwa Eggs=Kubwakubwa-Eier
 Live Kubwakubwa=Kubwakubwa Lebend
 
@@ -40,12 +36,10 @@ Live Female Pegasun=Weiblicher Pegasun Lebend
 Live Male Pegasun=Männlicher Pegasun Lebend
 
 # sarkamos.lua
-Sarkamos=Sarkamos
 Sarkamos Eggs=Sarkamos-Eier
 Live Sarkamos=Sarkamos Lebend
 
 # sneachan.lua
-Sneachan=Sneachan
 Sneachan Eggs=Sneachan-Eier
 Live Sneachan=Sneachan Lebend
 
