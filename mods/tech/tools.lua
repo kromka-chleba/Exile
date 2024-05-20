@@ -749,7 +749,7 @@ minetest.register_node(
     "tech:shovel_iron_placed", {
         description = S("Placed Iron Shovel"),
 		exile_crafting = {
-			craft_types = {"axe","knife_wattle","axe_mixing"},
+			craft_types = {"threshing_spot","soil_mixing", "shovel_agriculture"},
 			craft_level = 1,
 		},
         drawtype = "mesh",
