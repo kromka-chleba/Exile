@@ -1,5 +1,5 @@
 minimal = minimal
-S = minimal.S
+local S = minimal.S
 
 function minimal.invlists2string(lists)
    local cleantable = {}
