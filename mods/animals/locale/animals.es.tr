@@ -1,42 +1,52 @@
 # textdomain: animals
 
 # crafts.lua
+Small=Pequeño
+Medium=
+Large=Grande
 @1 Carcass=Cadáver de un @1
 Cooked @1=@1 Asado
 Burned @1=@1 Quemado
+@1 Invertebrate=Invertebrado @1
+@1 Bird=Pajaro @1
+@1 Fish=Pez @1
 
 # darkasthaan.lua
+Darkasthaan=Darkasthaan
 Darkasthaan Eggs=Huevo de Darkasthaan
 Live Darkasthaan=Darkasthaan Vivo
 
 # gundu.lua
+Gundu=Gundu
 Gundu Eggs=Huevo de Gundu
 Live Gundu=Gundu Vivo
 
 # impethu.lua
+Impethu=Impethu
 Impethu Eggs=Huevo de Impethu
 Live Impethu=Impethu Vivo
 
 # kubwakubwa.lua
+Kubwakubwa=Kubwakubwa
 Kubwakubwa Eggs=Huevo de Kubwakubwa
 Live Kubwakubwa=Kubwakubwa Vivo
 
 # pegasun.lua
 Pegasun Egg=Huevo de Pegasun
-Live Pegasun (male)=Pegasum Macho Vivo
-Live Pegasun (female)=Pegasum Hembra Viva
+Female Pegasun=Pegasun Hembra
+Male Pegasun=Pegasun Macho
+Live Female Pegasun=Pegasun Hembra Viva
+Live Male Pegasun=Pegasun Macho Vivo
 
 # sarkamos.lua
+Sarkamos=Sarkamos
 Sarkamos Eggs=Huevo de Sarkamos
 Live Sarkamos=Sarkamos Vivo
 
 # sneachan.lua
+Sneachan=Sneachan
 Sneachan Eggs=Huevo de Sneachan
 Live Sneachan=Sneachan Vivo
 
-# crafts.lua
-Small Invertebrate=Invertebrado Pequeño
-Large Invertebrate=Invertebrado Grande
-Small Bird=Pajaro Pequeño
-Small Fish=Pez Pequeño
-Large Fish=Pez Grande
+# api_capture.lua
+Slaughter the animal=Matar al animal
