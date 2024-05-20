@@ -27,7 +27,7 @@ Impethu=
 Impethu Eggs=
 Live Impethu=
 
-# kubwakubwa.wlua
+# kubwakubwa.lua
 Kubwakubwa=
 Kubwakubwa Eggs=
 Live Kubwakubwa=
