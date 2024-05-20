@@ -153,10 +153,9 @@ Moon Glass=
 Sun Stone=
 Moon Stone=
 Star Stone=
-Antiquorium=
-Antiquorium Ladder=
-Antiquorium Door=
-Antiquorium Trapdoor=
+@1 Ladder=
+@1 Door=
+@1 Trapdoor=
 Trampoline=
 Conveyor=
 

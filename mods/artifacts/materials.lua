@@ -162,7 +162,7 @@ minetest.register_node("artifacts:antiquorium", {
 ------------------------------------
 
 minetest.register_node("artifacts:antiquorium_ladder", {
-	description = S("Antiquorium Ladder"),
+	description = S("@1 Ladder",S("Antiquorium")),
 	drawtype = "nodebox",
 	stack_max = minimal.stack_max_medium,
 	tiles = {
@@ -226,7 +226,7 @@ minetest.register_node("artifacts:antiquorium_ladder", {
 ------------------------------------
 doors.register("door_antiquorium", {
 		tiles = {{ name = "artifacts_antiquorium_door.png", backface_culling = true }},
-		description = S("Antiquorium Door"),
+		description = S("@1 Door",S("Antiquorium")),
 		inventory_image = "artifacts_antiquorium_door_item.png",
 		groups = {cracky = 2},
 		sounds = nodes_nature.node_sound_glass_defaults(),
@@ -234,7 +234,7 @@ doors.register("door_antiquorium", {
 
 
 doors.register_trapdoor("artifacts:trapdoor_antiquorium", {
-	description = S("Antiquorium Trapdoor"),
+	description = S("@1 Trapdoor",S("Antiquorium")),
 	inventory_image = "artifacts_antiquorium_chest_top.png",
 	wield_image = "artifacts_antiquorium_chest_top.png",
 	tile_front = "artifacts_antiquorium_chest_top.png",

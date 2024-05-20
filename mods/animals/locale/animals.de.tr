@@ -1,42 +1,47 @@
 # textdomain: animals
 
 # crafts.lua
-@1 Carcass=
-Cooked @1=
-Burned @1=
+Small=Kleines
+Medium=
+Large=Großes
+@1 Carcass=@1kadaver
+Cooked @1=Gekochter @1
+Burned @1=Verbrannter @1
+@1 Invertebrate=@1 Wirbellos
+@1 Bird=@1 Vogel
+@1 Fish=@1 Fisch
+
 
 # darkasthaan.lua
-Darkasthaan Eggs=
-Live Darkasthaan=
+Darkasthaan Eggs=Darkasthaan-Eier
+Live Darkasthaan=Darkasthaan Lebend
 
 # gundu.lua
-Gundu Eggs=
-Live Gundu=
+Gundu Eggs=Gundu-Eier
+Live Gundu=Gundu Lebend
 
 # impethu.lua
-Impethu Eggs=
-Live Impethu=
+Impethu Eggs=Impethu-Eier
+Live Impethu=Impethu Lebend
 
 # kubwakubwa.lua
-Kubwakubwa Eggs=
-Live Kubwakubwa=
+Kubwakubwa Eggs=Kubwakubwa-Eier
+Live Kubwakubwa=Kubwakubwa Lebend
 
 # pegasun.lua
-Pegasun Egg=
-Live Pegasun (male)=
-Live Pegasun (female)=
+Pegasun Egg=Pegasun-Ei
+Female Pegasun=Weiblicher Pegasun
+Male Pegasun=Männlicher Pegasun
+Live Female Pegasun=Weiblicher Pegasun Lebend
+Live Male Pegasun=Männlicher Pegasun Lebend
 
 # sarkamos.lua
-Sarkamos Eggs=
-Live Sarkamos=
+Sarkamos Eggs=Sarkamos-Eier
+Live Sarkamos=Sarkamos Lebend
 
 # sneachan.lua
-Sneachan Eggs=
-Live Sneachan=
+Sneachan Eggs=Sneachan-Eier
+Live Sneachan=Sneachan Lebend
 
-# crafts.lua
-Small Invertebrate=
-Large Invertebrate=
-Small Bird=
-Small Fish=
-Large Fish=
+# api_capture.lua
+Slaughter the animal=Schlachten der tier

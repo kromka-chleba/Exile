@@ -1,14 +1,15 @@
 # textdomain: animals
 
 # crafts.lua
+Small=
+Medium=
+Large=
 @1 Carcass=
 Cooked @1=
 Burned @1=
-Small Invertebrate=
-Large Invertebrate=
-Small Bird=
-Small Fish=
-Large Fish=
+@1 Invertebrate=
+@1 Bird=
+@1 Fish=
 
 
 # darkasthaan.lua
@@ -26,7 +27,7 @@ Impethu=
 Impethu Eggs=
 Live Impethu=
 
-# kubwakubwa.wlua
+# kubwakubwa.lua
 Kubwakubwa=
 Kubwakubwa Eggs=
 Live Kubwakubwa=

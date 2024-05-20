@@ -152,10 +152,9 @@ Moon Glass=Лунное стекло
 Sun Stone=Солнечный камень
 Moon Stone=Лунный камень
 Star Stone=Звездный камень
-Antiquorium=Антиквориум
-Antiquorium Ladder=Антиквориумная лестница
-Antiquorium Door=Антиквориумная дверь
-Antiquorium Trapdoor=Антиквориумный люк
+@1 Ladder=@1ная лестница
+@1 Door=@1ная дверь
+@1 Trapdoor=@1ный люк
 Trampoline=Трамплин
 Conveyor=Конвейер
 
