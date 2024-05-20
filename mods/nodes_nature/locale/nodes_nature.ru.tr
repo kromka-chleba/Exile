@@ -136,6 +136,7 @@ Lava Source=Источник лавы
 Lava Flowing=Течение лавы
 Combine with another slab@n or eat if you're desperate=Соедините с другой плитой@n или съешьте, если вы в отчаянии.
 Salt water is not safe to drink.=Соленую воду пить небезопасно.
+Eat if you're desperate=Съешьте, если вы в отчаянии
 
 # rocks.lua
 @1 Boulder=Валун @1
