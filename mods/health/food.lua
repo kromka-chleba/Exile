@@ -444,7 +444,7 @@ function HEALTH.add_food_hooks(name,info)
     if not def._on_use_item then
       minetest.override_item(name,{
         _on_use_item = function(player, itemstack, pointed_thing)
-          itemstack:get_definition()._on_consume(player, itemstack, pointed_thing)
+          return itemstack:get_definition()._on_consume(player, itemstack, pointed_thing)
         end,
       })
     end
