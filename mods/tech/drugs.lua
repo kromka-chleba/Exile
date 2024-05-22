@@ -9,6 +9,14 @@ local S = tech.S
 
 local random = math.random
 
+-- BASIC FUNCTIONALITIES
+
+local fermentables = {
+  ["tech:tang_unfermented"] = {time={min=300,max=360},temp_range={min=10,max=34},ferment_to="tech:tang"},
+  ["tech:wooden_tang_unfermented"] = {time={min=300,max=360},temp_range={min=10,max=34},ferment_to="tech:wooden_tang"}
+}
+local ferment_interval = 5
+
 -----------------------------------
 --MEDICAL
 
@@ -162,67 +170,78 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 -- UNFERMENTED TANG
 
 -- find ferment or create a ferment meta
-local function get_or_create_ferment(meta)
-  local ferment = meta:get_int("ferment")
+local function get_or_create_ferment(name,meta)
+  if type(name) == "userdata" and type(name["get_name"]) == "function" then
+    name = name:get_name()
+  elseif type(name) == "table" then
+    if name.x and name.y and name.z then
+      name = minetest.get_node(name)
+    end
+    name = name.name
+  end
+  local ferment = type(meta) == "userdata" and meta:get_int("ferment") or 0
   if (ferment == 0) then
-    ferment = math.random(300,360)
+    ferment = math.random(300,360) -- base to return if error
+    if type(name) ~= "string" then return ferment end
+    local ferment_data = fermentables[name]
+    if not ferment_data then return ferment end
+    ferment = type(ferment_data.time) == "number" and ferment_data.time
+      or type(ferment_data.time) == "table" and math.random(ferment_data.time.min,ferment_data.time.max) or ferment
   end
   return ferment
 end
 
---save usage into inventory, to prevent infinite supply (removed the on_dig_tang function, keeping note)
---[[
-local on_dig_tang = function(pos, node, digger, pot_type)
-  if not minetest.is_player(digger) or minetest.is_protected(pos, digger) then
-    return false
-  end
-  if (type(pot_type) == "string") then
-    pot_type = string.lower(pot_type)
-  else
-    pot_type = ""
-  end
-	local meta = minetest.get_meta(pos)
-	local ferment = get_or_create_ferment(meta)
-	local new_stack = ItemStack("tech:tang_unfermented")
-  if (string.match(pot_type,"wooden")) then
-    new_stack = ItemStack("tech:wooden_tang_unfermented")
-  end
-	local stack_meta = new_stack:get_meta()
-	stack_meta:set_int("ferment", ferment)
-
-	local digger_inv = digger:get_inventory()
-	if digger_inv:room_for_item("main", new_stack) then
-		digger_inv:add_item("main", new_stack)
-		minetest.remove_node(pos)
-	elseif not minimal.stop_on_inv_full(digger) then
-	   minetest.add_item(pos, new_stack)
-	   minetest.remove_node(pos)
-	end
-end
---]]
-
 --set saved
-local after_place_tang = function(pos, placer, itemstack, pointed_thing)
+local after_place_ferment = function(pos, placer, itemstack, pointed_thing)
 	local meta = minetest.get_meta(pos)
 	local stack_meta = itemstack:get_meta()
-	local ferment = get_or_create_ferment(stack_meta)
+	local ferment = get_or_create_ferment(itemstack,stack_meta)
 	if ferment >0 then
 		meta:set_int("ferment", ferment)
 	end
 end
 
-local on_construct_tang = function(pos)
+local on_construct_ferment = function(pos)
   --duration of ferment
-		local meta = minetest.get_meta(pos)
-    meta:set_int("ferment", math.random(300,360))
-		--ferment
-		minetest.get_node_timer(pos):start(5)
+  local meta = minetest.get_meta(pos)
+  meta:set_int("ferment", get_or_create_ferment(pos))
+  --ferment
+  minetest.get_node_timer(pos):start(ferment_interval)
 end
 
 -- custom function that preserves metadata from a replaced node to an itemstack
-local preserve_metadata_tang = function(pos, oldnode, oldmeta, transferred_stack)
+local preserve_metadata_ferment = function(pos, oldnode, oldmeta, transferred_stack)
   local imeta = transferred_stack:get_meta()
-  imeta:set_int("ferment",get_or_create_ferment(oldmeta))
+  imeta:set_int("ferment",get_or_create_ferment(transferred_stack,oldmeta))
+end
+
+local on_timer_ferment = function(pos, elapsed)
+  local ferment_data = fermentables[minetest.get_node(pos).name]
+  if not ferment_data then return false end
+  local can_ferment = true
+  local temp_range = ferment_data.temp_range
+  if temp_range then
+    --ferment if at right temp
+    local temp = climate.get_point_temp(pos)
+    if temp >= temp_range.min and temp <= temp_range.max then
+      can_ferment = true
+    else
+      can_ferment = false
+    end
+  end
+  if not can_ferment then return true end
+  -- only access meta if can ferment
+  local meta = minetest.get_meta(pos)
+  local ferment = meta:get_int("ferment")
+  -- catchup included
+  ferment = ferment - (elapsed >= (ferment_interval*2) and math.floor(elapsed/ferment_interval) or 1)
+  if ferment <= 1 then -- prevent possibility of refreshed fermenting at 0
+    minetest.swap_node(pos, {name = ferment_data.ferment_to})
+    return false
+  else
+    meta:set_int("ferment",ferment)
+  end
+  return true
 end
 
 -- Pot of new Tang (unfermented), must be left to ferment
@@ -250,31 +269,19 @@ liquid_store.register_stored_liquid("tech:tang_unfermented",{
 		}
 	},
   on_construct = function(pos)
-		on_construct_tang(pos)
+		on_construct_ferment(pos)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		after_place_tang(pos, placer, itemstack, pointed_thing)
+		after_place_ferment(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
-		local meta = minetest.get_meta(pos)
-		local ferment = meta:get_int("ferment")
-		if ferment <= 1 then -- prevent possibility of refreshed fermenting at 0
-			minetest.swap_node(pos, {name = "tech:tang"})
-			return false
-		else
-      --ferment if at right temp
-      local temp = climate.get_point_temp(pos)
-      if temp >= 10 and temp <= 34 then
-        meta:set_int("ferment", ferment - 1)
-      end
-			return true
-		end
+		return on_timer_ferment(pos, elapsed)
 	end,
   preserve_metadata = function(pos, oldnode, oldmeta, drops)
-    preserve_metadata_tang(pos, oldnode, minetest.get_meta(pos), drops[1])
+    preserve_metadata_ferment(pos, oldnode, minetest.get_meta(pos), drops[1])
   end,
   _preserve_metadata = function(...) -- for liquid store interactions
-    preserve_metadata_tang(...)
+    preserve_metadata_ferment(...)
   end,
 })
 -- wooden pot of unfermented tang
@@ -302,43 +309,21 @@ liquid_store.register_stored_liquid("tech:wooden_tang_unfermented",{
 		}
 	},
   on_construct = function(pos)
-		on_construct_tang(pos)
+		on_construct_ferment(pos)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		after_place_tang(pos, placer, itemstack, pointed_thing)
+		after_place_ferment(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
-		local meta = minetest.get_meta(pos)
-		local ferment = meta:get_int("ferment")
-		if ferment <= 1 then -- prevent possibility of refreshed fermenting at 0
-			minetest.swap_node(pos, {name = "tech:wooden_tang"})
-			return false
-		else
-      --ferment if at right temp
-      local temp = climate.get_point_temp(pos)
-      if temp >= 10 and temp <= 34 then
-        meta:set_int("ferment", ferment - 1)
-      end
-			return true
-		end
+		return on_timer_ferment(pos,elapsed)
 	end,
   preserve_metadata = function(pos, oldnode, oldmeta, drops)
-    preserve_metadata_tang(pos, oldnode, minetest.get_meta(pos), drops[1])
+    preserve_metadata_ferment(pos, oldnode, minetest.get_meta(pos), drops[1])
   end,
   _preserve_metadata = function(...) -- for liquid store interactions
-    preserve_metadata_tang(...)
+    preserve_metadata_ferment(...)
   end,
 })
-
-
---[[
--- function overrides for unfermented tang
-minetest.override_item("tech:tang_unfermented",{
-  on_dig = function(pos, node, digger)
-		on_dig_tang(pos, node, digger)
-	end,
-})
---]]
 
 -----------------------------------
 --HALLUCINOGENS
