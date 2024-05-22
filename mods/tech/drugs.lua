@@ -11,10 +11,6 @@ local random = math.random
 
 -- BASIC FUNCTIONALITIES
 
-local fermentables = {
-  ["tech:tang_unfermented"] = {time={min=300,max=360},temp_range={min=10,max=34},ferment_to="tech:tang"},
-  ["tech:wooden_tang_unfermented"] = {time={min=300,max=360},temp_range={min=10,max=34},ferment_to="tech:wooden_tang"}
-}
 local ferment_interval = 5
 
 -----------------------------------
@@ -169,9 +165,8 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 -----------------
 -- UNFERMENTED TANG
 
--- find ferment or create a ferment meta
-local function get_or_create_ferment(name,meta)
-  if type(name) == "userdata" and type(name["get_name"]) == "function" then
+local function get_ferment_data(name)
+  if type(name) == "userdata" and  type(name["get_name"]) == "function" then
     name = name:get_name()
   elseif type(name) == "table" then
     if name.x and name.y and name.z then
@@ -179,11 +174,22 @@ local function get_or_create_ferment(name,meta)
     end
     name = name.name
   end
+  if type(name) ~= "string" then return end
+  local def = minetest.registered_nodes[name]
+  if not def then return end
+  return {
+    to = def._ferment_to,
+    time = def._ferment_time or {min=300,max=360},
+    temp_range = def._ferment_temp_range
+  }
+end
+
+-- find ferment or create a ferment meta
+local function get_or_create_ferment(name,meta)
   local ferment = type(meta) == "userdata" and meta:get_int("ferment") or 0
   if (ferment == 0) then
     ferment = math.random(300,360) -- base to return if error
-    if type(name) ~= "string" then return ferment end
-    local ferment_data = fermentables[name]
+    local ferment_data = get_ferment_data(name)
     if not ferment_data then return ferment end
     ferment = type(ferment_data.time) == "number" and ferment_data.time
       or type(ferment_data.time) == "table" and math.random(ferment_data.time.min,ferment_data.time.max) or ferment
@@ -216,7 +222,7 @@ local preserve_metadata_ferment = function(pos, oldnode, oldmeta, transferred_st
 end
 
 local on_timer_ferment = function(pos, elapsed)
-  local ferment_data = fermentables[minetest.get_node(pos).name]
+  local ferment_data = get_ferment_data(pos)
   if not ferment_data then return false end
   local can_ferment = true
   local temp_range = ferment_data.temp_range
@@ -236,7 +242,7 @@ local on_timer_ferment = function(pos, elapsed)
   -- catchup included
   ferment = ferment - (elapsed >= (ferment_interval*2) and math.floor(elapsed/ferment_interval) or 1)
   if ferment <= 1 then -- prevent possibility of refreshed fermenting at 0
-    minetest.swap_node(pos, {name = ferment_data.ferment_to})
+    minetest.swap_node(pos, {name = ferment_data.to})
     return false
   else
     meta:set_int("ferment",ferment)
@@ -268,6 +274,9 @@ liquid_store.register_stored_liquid("tech:tang_unfermented",{
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
+  _ferment_time = {min=300,max=360},
+  _ferment_temp_range = {min=10,max=34},
+  _ferment_to = "tech:tang",
   on_construct = function(pos)
 		on_construct_ferment(pos)
 	end,
@@ -308,6 +317,9 @@ liquid_store.register_stored_liquid("tech:wooden_tang_unfermented",{
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
+  _ferment_time = {min=300,max=360},
+  _ferment_temp_range = {min=10,max=34},
+  _ferment_to = "tech:wooden_tang",
   on_construct = function(pos)
 		on_construct_ferment(pos)
 	end,
