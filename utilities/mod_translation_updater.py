@@ -4,6 +4,9 @@
 # Script to generate Minetest translation template files and update
 # translation files.
 #
+# forked from https://github.com/minetest/minetest/blob/master/util/mod_translation_updater.py
+# see https://github.com/minetest/minetest/blob/master/util/README_mod_translation_updater.md for documentation
+#
 # Copyright (C) 2019 Joachim Stolberg, 2020 FaceDeer, 2020 Louis Royer,
 #                    2023 Wuzzy.
 # License: LGPLv2.1 or later (see LICENSE file for details)
@@ -424,7 +427,7 @@ def generate_template(folder, mod_name):
 				dOut[s] = sources
 
 	if len(dOut) == 0:
-		return None
+		return (None, None)
 
 	# Convert source file set to list, sort it and add comment symbols.
 	# Needed because a set is unsorted and might result in unpredictable.
