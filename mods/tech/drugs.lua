@@ -218,6 +218,35 @@ local function drink_tang(pos, node, clicker, itemstack, pointed_thing, ininv)
   end
 end
 
+local function mother_after_place(pos, placer, itemstack, pointed_thing)
+  local imeta = itemstack:get_meta()
+  if imeta:contains("mothering") then
+    minetest.get_meta(pos):set_int("mothering",1)
+    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
+  end
+end
+
+local function mother_on_timer(pos, elapsed)
+  local meta = minetest.get_meta(pos)
+  if meta:contains("mothering") then
+    return ncrafting.ferment_on_timer(pos, elapsed)
+  elseif random() <= 0.05 then
+    meta:set_int("mothering",1)
+    ncrafting.ferment_on_construct(pos)
+    return false
+  end
+  minetest.get_node_timer(pos):start(random(400,800))
+  return false
+end
+
+local function mother_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
+  if not oldmeta:contains("mothering") then
+    return
+  end
+  transferred_stack:get_meta():set_int("mothering",1)
+  ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
+end
+
 --Pot of Tang
 liquid_store.register_stored_liquid("tech:tang",{
   source = "tech:tang_liquid",
@@ -242,6 +271,24 @@ liquid_store.register_stored_liquid("tech:tang",{
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
+  _ferment_time = {min=200,max=300},
+  _ferment_temp_range = {min=10,max=34},
+  _ferment_to = "tech:tang_vinegar_mother",
+  on_construct = function(pos)
+		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+	end,
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+    mother_after_place(pos, placer, itemstack, pointed_thing)
+	end,
+	on_timer = function(pos, elapsed)
+    return mother_on_timer(pos, elapsed)
+	end,
+  preserve_metadata = function(pos, oldnode, oldmeta, drops)
+    mother_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
+  end,
+  _preserve_metadata = function(pos, oldnode, oldmeta, transferred_stack) -- for liquid store interactions
+    mother_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
+  end,
   on_rightclick = function(...)
     drink_tang(...)
   end,
@@ -273,6 +320,24 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
+  _ferment_time = {min=200,max=300},
+  _ferment_temp_range = {min=10,max=34},
+  _ferment_to = "tech:wooden_tang_vinegar_mother",
+  on_construct = function(pos)
+		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+	end,
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+    mother_after_place(pos, placer, itemstack, pointed_thing)
+	end,
+	on_timer = function(pos, elapsed)
+    return mother_on_timer(pos, elapsed)
+	end,
+  preserve_metadata = function(pos, oldnode, oldmeta, drops)
+    mother_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
+  end,
+  _preserve_metadata = function(pos, oldnode, oldmeta, transferred_stack) -- for liquid store interactions
+    mother_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
+  end,
   on_rightclick = function(...)
     drink_tang(...)
   end,
