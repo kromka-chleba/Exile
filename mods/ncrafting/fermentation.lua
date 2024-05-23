@@ -27,7 +27,9 @@ function ncrafting.get_ferment_data(name)
   return {
     to = def._ferment_to,
     time = def._ferment_time or {min=300,max=360},
-    temp_range = def._ferment_temp_range
+    temp_range = def._ferment_temp_range,
+    aerobic = type(def._ferment_aerobic) == "boolean" and def._ferment_aerobic or nil
+    -- aerobic: true if need air, false if needs no air, nil if it doesn't matter
   }
 end
 
@@ -35,11 +37,11 @@ end
 function ncrafting.get_or_create_ferment(name,meta)
   local ferment = type(meta) == "userdata" and meta:get_int("ferment") or 0
   if (ferment == 0) then
-    ferment = math.random(300,360) -- base to return if error
+    ferment = random(300,360) -- base to return if error
     local ferment_data = ncrafting.get_ferment_data(name)
     if not ferment_data then return ferment end
     ferment = type(ferment_data.time) == "number" and ferment_data.time
-      or type(ferment_data.time) == "table" and math.random(ferment_data.time.min,ferment_data.time.max) or ferment
+      or type(ferment_data.time) == "table" and random(ferment_data.time.min,ferment_data.time.max) or ferment
   end
   return ferment
 end
@@ -71,18 +73,28 @@ end
 function ncrafting.ferment_on_timer(pos, elapsed)
   local ferment_data = ncrafting.get_ferment_data(pos)
   if not ferment_data then return false end
-  local can_ferment = true
   local temp_range = ferment_data.temp_range
+  local aerobic = ferment_data.aerobic
   if temp_range then
     --ferment if at right temp
     local temp = climate.get_point_temp(pos)
-    if temp >= temp_range.min and temp <= temp_range.max then
-      can_ferment = true
-    else
-      can_ferment = false
+    if temp <= temp_range.min or temp >= temp_range.max then
+      -- loop again if conditions not right
+      return true
     end
   end
-  if not can_ferment then return true end
+  if type(aerobic) == "boolean" then
+    local air_node = minetest.registered_nodes[minetest.get_node(minimal.shift_pos(pos,{y=1})).name]
+    if air_node.drawtype == "airlike" then
+      -- anaerobic and air is above...
+      if not aerobic then
+        return true
+      end
+    elseif aerobic then
+      -- aerobic, but no air above...
+      return true
+    end
+  end
   -- only access meta if can ferment
   local meta = minetest.get_meta(pos)
   local ferment = meta:get_int("ferment")
