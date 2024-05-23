@@ -59,7 +59,7 @@ function ncrafting.ferment_on_construct(pos)
   local meta = minetest.get_meta(pos)
   meta:set_int("ferment", ncrafting.get_or_create_ferment(pos))
   --ferment
-  minetest.get_node_timer(pos):start(ferment_interval)
+  minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
 end
 
 -- custom function that preserves metadata from a replaced node to an itemstack
