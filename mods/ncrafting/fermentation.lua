@@ -104,7 +104,13 @@ function ncrafting.ferment_on_timer(pos, elapsed)
   -- catchup included
   ferment = ferment - (elapsed >= (ncrafting.ferment_interval*2) and math.floor(elapsed/ncrafting.ferment_interval) or 1)
   if ferment <= 1 then -- prevent possibility of refreshed fermenting at 0
+    local swap_def = minetest.registered_nodes[ferment_data.to]
     minetest.swap_node(pos, {name = ferment_data.to})
+    minetest.get_meta(pos):set_int("ferment",0) -- end fermentation
+    if type(swap_def.on_construct) == "function" then
+      -- run on_construct function if available
+      swap_def.on_construct(pos)
+    end
     return false
   else
     meta:set_int("ferment",ferment)
