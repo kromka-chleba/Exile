@@ -115,7 +115,7 @@ minetest.register_node("tech:tang_vinegar_mother",{
   sounds = nodes_nature.node_sound_stone_defaults(),
   drop = {
     items = {
-      {rarity=1,items={"tech:clay_water_pot","tech:mother_of_tang"}},
+      {rarity=1,items={"tech:tang_vinegar","tech:mother_of_tang"}},
       {rarity=4,items={"tech:mother_of_tang"}}
     },
   },
@@ -172,7 +172,7 @@ minetest.register_node("tech:wooden_tang_vinegar_mother",{
   sounds = nodes_nature.node_sound_stone_defaults(),
   drop = {
     items = {
-      {rarity=1,items={"tech:wooden_water_pot","tech:mother_of_tang"}},
+      {rarity=1,items={"tech:wooden_tang_vinegar","tech:mother_of_tang"}},
       {rarity=4,items={"tech:mother_of_tang"}}
     },
   },
