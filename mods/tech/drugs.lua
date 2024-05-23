@@ -64,11 +64,132 @@ minetest.register_craftitem("tech:tiku", {
   _use_tip = S("Eat"),
 })
 
+-- VINEGAR
+liquid_store.register_stored_liquid("tech:tang_vinegar",{
+  source = "tech:tang_vinegar",
+	empty = "tech:clay_water_pot",
+  description = S("Tang Vinegar"),
+	groups = {dig_immediate=2, pottery = 1, temp_pass = 1},
+	tiles = {
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang_vinegar.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png"
+	},
+  node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+})
+minetest.register_node("tech:tang_vinegar_mother",{
+  description = S("Tang Vinegar with Mother"),
+  stack_max = 1,
+	tiles = {
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang_vinegar_mother.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png"
+	},
+  drawtype = "nodebox",
+  node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+  groups = {dig_immediate=2, pottery = 1, temp_pass = 1},
+  sounds = nodes_nature.node_sound_stone_defaults(),
+  drop = {
+    items = {
+      {rarity=1,items={"tech:clay_water_pot","tech:mother_of_tang"}},
+      {rarity=4,items={"tech:mother_of_tang"}}
+    },
+  },
+  paramtype = "light"
+})
+
+liquid_store.register_stored_liquid("tech:wooden_tang_vinegar",{
+  source = "tech:tang_vinegar",
+	empty = "tech:wooden_water_pot",
+  description = S("Tang Vinegar"),
+	groups = {dig_immediate=2, temp_pass = 1},
+	tiles = {
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang_vinegar.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+  node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+})
+minetest.register_node("tech:wooden_tang_vinegar_mother",{
+  description = S("Tang Vinegar with Mother"),
+  stack_max = 1,
+	tiles = {
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang_vinegar_mother.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+  drawtype = "nodebox",
+  node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+  groups = {dig_immediate=2, temp_pass = 1},
+  sounds = nodes_nature.node_sound_stone_defaults(),
+  drop = {
+    items = {
+      {rarity=1,items={"tech:wooden_water_pot","tech:mother_of_tang"}},
+      {rarity=4,items={"tech:mother_of_tang"}}
+    },
+  },
+  paramtype = "light"
+})
+-- "Mother" of Tang
+minetest.register_craftitem("tech:mother_of_tang",{
+  description = S("Mother of Tang"),
+  inventory_image = "tech_mother_of_tang.png",
+  stack_max = minimal.stack_max_medium,
+})
+
+
 
 
 -----------------------------------
 --DEPRESSANTS
-
 
 -----------------
 --Tang, alcoholic drink
