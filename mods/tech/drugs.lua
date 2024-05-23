@@ -69,7 +69,7 @@ liquid_store.register_stored_liquid("tech:tang_vinegar",{
   source = "tech:tang_vinegar",
 	empty = "tech:clay_water_pot",
   description = S("Tang Vinegar"),
-	groups = {dig_immediate=2, pottery = 1, temp_pass = 1},
+	groups = {dig_immediate=2, pottery = 1, temp_pass = 1, vinegar=1},
 	tiles = {
 		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang_vinegar.png",
 		"tech_pottery.png",
@@ -126,7 +126,7 @@ liquid_store.register_stored_liquid("tech:wooden_tang_vinegar",{
   source = "tech:tang_vinegar",
 	empty = "tech:wooden_water_pot",
   description = S("Tang Vinegar"),
-	groups = {dig_immediate=2, temp_pass = 1},
+	groups = {dig_immediate=2, temp_pass = 1, vinegar=1},
 	tiles = {
 		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang_vinegar.png",
 		"tech_primitive_wood.png",
@@ -183,6 +183,7 @@ minetest.register_craftitem("tech:mother_of_tang",{
   description = S("Mother of Tang"),
   inventory_image = "tech_mother_of_tang.png",
   stack_max = minimal.stack_max_medium,
+  groups = {mother_growth=1, tang_mother=1},
   _use_tip = S("Infect Other Pots"),
   _on_use_item = function(player, itemstack, pointed_thing)
     if not pointed_thing or pointed_thing.type ~= "node" then
@@ -198,7 +199,6 @@ minetest.register_craftitem("tech:mother_of_tang",{
     -- INFECT!
     meta:set_int("mothering",1)
     ncrafting.ferment_on_construct(pos)
-    --minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
     if not minimal.player_in_creative(player) then
       return itemstack:take_item()
     end
