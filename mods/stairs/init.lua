@@ -6,7 +6,7 @@
 
 stairs = {}
 
-local S = minetest.get_translator("minimal")
+local S = minetest.get_translator("stairs")
 
 -- Get setting for replace ABM
 

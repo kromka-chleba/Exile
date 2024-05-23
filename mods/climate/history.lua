@@ -15,7 +15,7 @@
 -- whether they can have sun before calling crop_rewind
 --  ^ minetest.get_natural_light(pos, [timeofday=]0.5)
 
-local S = minetest.get_translator("lore")
+local S = minetest.get_translator("climate")
 
 local floor = math.floor
 climate_history = ""

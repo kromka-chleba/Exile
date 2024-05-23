@@ -2,7 +2,7 @@
 -- Globals
 local _EXILE_DEBUG = minetest.settings:get("exile_debug") == "true"
 
-local S = minetest.get_translator("bones")
+local S = minetest.get_translator("mapgen")
 
 loot_table = {
    -- #TODO: break this out into a general treasure system, in prep for

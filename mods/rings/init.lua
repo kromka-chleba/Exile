@@ -21,13 +21,15 @@ SOFTWARE.
 --]]
 local c_alpha = minimal.compat_alpha
 
-local S = minetest.get_translator("artifacts")
+-- This is very risky bc. nothing indicates to artifacts, that their locale is used here
+-- In case more translation strings are added, this mod should get it's own textdomain
+local artifacts_S = minetest.get_translator("artifacts")
 
 dofile(minetest.get_modpath("rings") .. "/noise.lua")
 noise_handler = noise_handler
 
 minetest.register_node("rings:antiquorium", {
-	description = S("Antiquorium"),
+	description = artifacts_S("Antiquorium"),
 	tiles = {"artifacts_antiquorium.png"},
 	stack_max = minimal.stack_max_bulky *4,
 	sounds = nodes_nature.node_sound_glass_defaults(),
@@ -36,7 +38,7 @@ minetest.register_node("rings:antiquorium", {
 	drop = "artifacts:antiquorium"
 })
 minetest.register_node("rings:moon_glass", {
-	description = S("Moon Glass"),
+	description = artifacts_S("Moon Glass"),
 	drawtype = "glasslike",
 	tiles = {"artifacts_moon_glass.png"},
 	stack_max = minimal.stack_max_bulky *4,
