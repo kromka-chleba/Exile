@@ -183,6 +183,26 @@ minetest.register_craftitem("tech:mother_of_tang",{
   description = S("Mother of Tang"),
   inventory_image = "tech_mother_of_tang.png",
   stack_max = minimal.stack_max_medium,
+  _use_tip = S("Infect Other Pots"),
+  _on_use_item = function(player, itemstack, pointed_thing)
+    if not pointed_thing or pointed_thing.type ~= "node" then
+      return
+    end
+    local pos = pointed_thing.under
+    local storedlq = liquid_store.stored_liquids[minetest.get_node(pos).name]
+    if not storedlq or storedlq.source ~= "tech:tang_liquid" then
+      return
+    end
+    local meta = minetest.get_meta(pos)
+    if meta:contains("mothering") then return end
+    -- INFECT!
+    meta:set_int("mothering",1)
+    ncrafting.ferment_on_construct(pos)
+    --minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+    if not minimal.player_in_creative(player) then
+      return itemstack:take_item()
+    end
+  end,
 })
 
 
