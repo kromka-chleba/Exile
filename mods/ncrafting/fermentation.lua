@@ -24,13 +24,16 @@ function ncrafting.get_ferment_data(name)
   if type(name) ~= "string" then return end
   local def = minetest.registered_nodes[name]
   if not def then return end
-  return {
+  local ferment_data = {
     to = def._ferment_to,
     time = def._ferment_time or {min=300,max=360},
     temp_range = def._ferment_temp_range,
-    aerobic = type(def._ferment_aerobic) == "boolean" and def._ferment_aerobic or nil
-    -- aerobic: true if need air, false if needs no air, nil if it doesn't matter
   }
+  if type(def._ferment_aerobic) == "boolean" then
+    -- aerobic: true if need air, false if needs no air, nil if it doesn't matter
+    ferment_data.aerobic = def._ferment_aerobic
+  end
+  return ferment_data
 end
 
 -- find ferment or create a ferment meta
