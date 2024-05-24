@@ -570,7 +570,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				       max_hear_distance = 5,})
 		minetest.chat_send_player(player_name,
 			minetest.colorize("#00ff00",
-          S("TRANSPORTERR DESTINATION SET TO: @1 at @2",target_name,target_pos)))
+          S("TRANSPORTER DESTINATION SET TO: @1 at @2",target_name,target_pos)))
 					  --"TRANSPORTER DESTINATION SET TO: "..
 					  --target_name.." at "..target_pos))
 		minetest.sound_play("artifacts_transport_fail",
