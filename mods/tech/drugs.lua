@@ -272,7 +272,7 @@ liquid_store.register_stored_liquid("tech:tang",{
   source = "tech:tang_liquid",
 	empty = "tech:clay_water_pot",
   description = S("Tang"),
-	groups = {dig_immediate=2, pottery = 1, temp_pass = 1, drug = 1},
+	groups = {dig_immediate=2, pottery = 1, temp_pass = 1, drug = 1, timer = 5},
 	tiles = {
 		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang.png",
 		"tech_pottery.png",
@@ -321,7 +321,7 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
   source = "tech:tang_liquid",
 	empty = "tech:wooden_water_pot",
   description = S("Tang"),
-	groups = {dig_immediate=2, temp_pass = 1, drug = 1},
+	groups = {dig_immediate=2, temp_pass = 1, drug = 1, timer = 5},
 	tiles = {
 		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang.png",
 		"tech_primitive_wood.png",
