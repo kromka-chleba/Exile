@@ -89,20 +89,6 @@ end)
 
 --Forms for sfinv
 
-local effectnm =
-   { ["Food Poisoning"] = S("Food Poisoning"),
-     ["Dust Fever"] = S("Dust Fever"),
-     ["Intestinal Parasites"] = S("Intestinal Parasites"),
-     ["Tiku High"] = S("Tiku High"),
-     ["Neurotoxicity"] = S("Neurotoxicity"),
-     ["Hepatotoxicity"] = S("Hepatotoxicity"),
-     ["Photosensitivity"] = S("Photosensitivity"),
-     ["Meta-Stim"] = S("Meta-Stim"),
-     ["Fungal Infection"] = S("Fungal Infection"),
-     ["Drunk"] = S("Drunk"),
-     ["Hangover"] = S("Hangover") }
-
-
 --get data and create form
 local function sfinv_get(self, player, context)
   local meta = player:get_meta()
@@ -124,9 +110,9 @@ local function sfinv_get(self, player, context)
   local labels = st:read_labels()
   for _, effect in ipairs(labels) do
      y = y + 0.4
-     eff_form = eff_form.."label[0.1,"..y.."; "..S(effect[1])..
-	(effect[1] ~= "" and " " or "") -- only add a space if effect[1] exists
-	..S(effect[2] or "").."]"
+     eff_form = eff_form.."label[0.1,"..y.."; "..effect[1]..
+	effect[1] ~= "" and " " or "" -- only add a space if effect[1] exists
+	..effect[2] or "".."]"
   end
 
   local basetex = minetest.formspec_escape(

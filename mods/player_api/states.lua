@@ -4,16 +4,18 @@ local states = {} -- table of all defined or registered states
 local playerstates = {} -- holds all player state objects
 -- { playername = pstate }
 
+local S = minetest.get_translator("player_api")
+local health_S = minetest.get_translator("health")
 
 
 --[[
    State definition table: {
-   mod = "health" -- #TODO: can be specified when called: add("health:fever")
+   mod = "health" -- #TODO: can be specified when called: add("health:fever"), required for translation
    name = "fever", -- but can just call "fever" for first match
    priority = 3, -- def display priority: 1 = info, 2 = minor, 3 = major
                  -- negative priority states will not be saved to meta
    -- optional entries below
-   label = "Fever", -- Text label for non-invisible states, "-" for sev only
+   label = "Fever", -- Text label (translation string) for non-invisible states, "-" for sev only
    id = 1 -- numeric id, unique count per mod
    raise = func(), -- if exists, called when progress counter exceeds threshold
    lower = func(), -- ^^, when progress counter goes below a threshold point
@@ -25,8 +27,8 @@ local playerstates = {} -- holds all player state objects
    threshold = {  -- progress counter's upper limit for each stage, from 0
    [0] = 20, 40, 60, 80 -- need not be 0-100, but must be increasing values
    }
-   severity_txt = { -- text labels, nil entries will just be blank
-   [0] = "(who cares)", "(mild)", "(moderate)", "(severe)", "(extreme)"
+   severity_txt = { -- text labels (translation strings), nil entries will just be blank
+   [0] = _S("(who cares)"), _S("(mild)"), _S("(moderate)"), _S("(severe)"), _S("(extreme)")
    } -- (Follows threshold levels)
 ]]--
 
@@ -145,7 +147,7 @@ function pstate.lower_severity(self, state)
 end
 function pstate.read_severity(self, state)
    -- Returns a text label version of severity
-   local label = { "(mild)", "(moderate)", "(severe)", "(extreme)" }
+   local label = { S("(mild)"), S("(moderate)"), S("(severe)"), S("(extreme)") }
    local stdef = states[state]
    local stbl = self.list[state]
    if stdef and stdef.severity_txt then label = stdef.severity_txt end
@@ -189,11 +191,14 @@ end
 
 
 local function get_old_effects_list(player, list)
-   local label = { [0] = "", "(mild)", "(moderate)", "(severe)", "(extreme)" }
+  local label = { [0] = "", S("(mild)"), S("(moderate)"), S("(severe)"), S("(extreme)") }
   local meta = player:get_meta()
   local effects_list_str = meta:get_string("effects_list")
   local effects_list = minetest.deserialize(effects_list_str) or {}
   for no, effect in ipairs(effects_list) do
+     -- effect_list is only modified in health/health_effects.lua and health/init.lua,
+     -- so this translator should be fine
+     effect[1] = health_S(effect[1])
      effect[2] = label[tonumber(effect[2])] or ""
      table.insert(list, effect)
   end
@@ -209,17 +214,19 @@ function pstate.read_labels(self)
    get_old_effects_list(self.player, list) -- old effects, all counted as major
    for name, statetbl in pairs(self.list) do
       local stdef = states[name]
+      local translation_S = minetest.get_translator(statetbl.mod)
+      -- translate the label when adding it to the list, since comparisons need to be done on it before
       local label = statetbl.label or ( stdef and stdef.label )
       if label and label ~= "" then
-	 if label == "-" then label = "" else label = label.." " end
-	 local sev = statetbl.severity or progress_to_severity(statetbl) or 0
-	 local pri = math.abs(statetbl.priority or states[name].priority) or 1
-	 local sevname = self:read_severity(name, sev)
-	 if not ( label == "" and sevname == "" ) then
-	    -- ^^ in case of "-" sev-only label and there's no severity name
-	    table.insert(pri_order[pri],
-			 { label, sevname })
-	 end
+	      if label == "-" then label = "" end
+	      local sev = statetbl.severity or progress_to_severity(statetbl) or 0
+	      local pri = math.abs(statetbl.priority or states[name].priority) or 1
+	      local sevname = self:read_severity(name, sev)
+	      if not ( label == "" and sevname == "" ) then
+	         -- ^^ in case of "-" sev-only label and there's no severity name
+	         table.insert(pri_order[pri],
+			     { translation_S(label).." ", sevname })
+	      end
       end
    end
    for i = 1, #list_minor do
