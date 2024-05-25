@@ -38,7 +38,7 @@ end
 
 -- find ferment or create a ferment meta
 function ncrafting.get_or_create_ferment(name,meta)
-  local ferment = type(meta) == "userdata" and meta:get_int("ferment") or 0
+  local ferment = type(meta) == "userdata" and meta:get_int("ferment") or type(meta) == "table" and meta.ferment or 0
   if (ferment == 0) then
     ferment = random(300,360) -- base to return if error
     local ferment_data = ncrafting.get_ferment_data(name)
@@ -53,10 +53,9 @@ end
 function ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 	local meta = minetest.get_meta(pos)
 	local stack_meta = itemstack:get_meta()
-	local ferment = ncrafting.get_or_create_ferment(itemstack,stack_meta)
-	if ferment >0 then
-		meta:set_int("ferment", ferment)
-	end
+  stack_meta = stack_meta:to_table() or {fields={},inventory={}}
+  stack_meta.fields.ferment = ncrafting.get_or_create_ferment(itemstack,stack_meta)
+  meta:from_table(stack_meta)
 end
 
 function ncrafting.ferment_on_construct(pos)
@@ -70,7 +69,10 @@ end
 -- custom function that preserves metadata from a replaced node to an itemstack
 function ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
   local imeta = transferred_stack:get_meta()
-  imeta:set_int("ferment",ncrafting.get_or_create_ferment(transferred_stack,oldmeta))
+  oldmeta = oldmeta:to_table() or {fields={},inventory={}}
+  oldmeta.fields.ferment = ncrafting.get_or_create_ferment(transferred_stack,oldmeta)
+  imeta:from_table(oldmeta)
+  --imeta:set_int("ferment",ncrafting.get_or_create_ferment(transferred_stack,imeta))
 end
 
 function ncrafting.ferment_on_timer(pos, elapsed)
