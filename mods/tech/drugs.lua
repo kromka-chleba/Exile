@@ -238,14 +238,6 @@ local function drink_tang(pos, node, clicker, itemstack, pointed_thing, ininv)
   end
 end
 
-local function mother_after_place(pos, placer, itemstack, pointed_thing)
-  local imeta = itemstack:get_meta()
-  if imeta:contains("mothering") then
-    minetest.get_meta(pos):set_int("mothering",1)
-    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
-  end
-end
-
 local function mother_on_timer(pos, elapsed)
   local meta = minetest.get_meta(pos)
   if meta:contains("mothering") then
@@ -257,14 +249,6 @@ local function mother_on_timer(pos, elapsed)
   end
   minetest.get_node_timer(pos):start(random(400,800))
   return false
-end
-
-local function mother_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
-  if not oldmeta:contains("mothering") then
-    return
-  end
-  transferred_stack:get_meta():set_int("mothering",1)
-  ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
 end
 
 --Pot of Tang
@@ -298,16 +282,16 @@ liquid_store.register_stored_liquid("tech:tang",{
 		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-    mother_after_place(pos, placer, itemstack, pointed_thing)
+    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
     return mother_on_timer(pos, elapsed)
 	end,
   preserve_metadata = function(pos, oldnode, oldmeta, drops)
-    mother_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
+    ncrafting.ferment_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
   end,
   _preserve_metadata = function(pos, oldnode, oldmeta, transferred_stack) -- for liquid store interactions
-    mother_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
+    ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
   end,
   on_rightclick = function(...)
     drink_tang(...)
@@ -347,16 +331,16 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-    mother_after_place(pos, placer, itemstack, pointed_thing)
+    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
     return mother_on_timer(pos, elapsed)
 	end,
   preserve_metadata = function(pos, oldnode, oldmeta, drops)
-    mother_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
+    ncrafting.ferment_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
   end,
   _preserve_metadata = function(pos, oldnode, oldmeta, transferred_stack) -- for liquid store interactions
-    mother_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
+    ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
   end,
   on_rightclick = function(...)
     drink_tang(...)
