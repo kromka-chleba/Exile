@@ -9,6 +9,9 @@ local S = tech.S
 
 local random = math.random
 
+-- Globals
+ncrafting = ncrafting
+
 -----------------------------------
 --MEDICAL
 
@@ -61,11 +64,152 @@ minetest.register_craftitem("tech:tiku", {
   _use_tip = S("Eat"),
 })
 
+-- VINEGAR
+liquid_store.register_stored_liquid("tech:tang_vinegar",{
+  source = "tech:tang_vinegar",
+	empty = "tech:clay_water_pot",
+  description = S("Tang Vinegar"),
+	groups = {dig_immediate=2, pottery = 1, temp_pass = 1, vinegar=1},
+	tiles = {
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang_vinegar.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png"
+	},
+  node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+})
+minetest.register_node("tech:tang_vinegar_mother",{
+  description = S("Tang Vinegar with Mother"),
+  stack_max = 1,
+	tiles = {
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang_vinegar_mother.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png",
+		"tech_pottery.png"
+	},
+  drawtype = "nodebox",
+  node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+  groups = {dig_immediate=2, pottery = 1, temp_pass = 1},
+  sounds = nodes_nature.node_sound_stone_defaults(),
+  drop = {
+    items = {
+      {rarity=1,items={"tech:tang_vinegar","tech:mother_of_tang"}},
+      {rarity=4,items={"tech:mother_of_tang"}}
+    },
+  },
+  paramtype = "light"
+})
+
+liquid_store.register_stored_liquid("tech:wooden_tang_vinegar",{
+  source = "tech:tang_vinegar",
+	empty = "tech:wooden_water_pot",
+  description = S("Tang Vinegar"),
+	groups = {dig_immediate=2, temp_pass = 1, vinegar=1},
+	tiles = {
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang_vinegar.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+  node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+})
+minetest.register_node("tech:wooden_tang_vinegar_mother",{
+  description = S("Tang Vinegar with Mother"),
+  stack_max = 1,
+	tiles = {
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang_vinegar_mother.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+  drawtype = "nodebox",
+  node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+  groups = {dig_immediate=2, temp_pass = 1},
+  sounds = nodes_nature.node_sound_stone_defaults(),
+  drop = {
+    items = {
+      {rarity=1,items={"tech:wooden_tang_vinegar","tech:mother_of_tang"}},
+      {rarity=4,items={"tech:mother_of_tang"}}
+    },
+  },
+  paramtype = "light"
+})
+-- "Mother" of Tang
+minetest.register_craftitem("tech:mother_of_tang",{
+  description = S("Mother of Tang"),
+  inventory_image = "tech_mother_of_tang.png",
+  stack_max = minimal.stack_max_medium,
+  groups = {mother_growth=1, tang_mother=1},
+  _place_tip = S("Infect Other Pots"),
+  on_place = function(itemstack, player, pointed_thing)
+    if not pointed_thing or pointed_thing.type ~= "node" then
+      return
+    end
+    local pos = pointed_thing.under
+    local storedlq = liquid_store.stored_liquids[minetest.get_node(pos).name]
+    if not storedlq or storedlq.source ~= "tech:tang_liquid" then
+      return
+    end
+    local meta = minetest.get_meta(pos)
+    if meta:contains("mothering") then return end
+    -- INFECT!
+    meta:set_int("mothering",1)
+    ncrafting.ferment_on_construct(pos)
+    if not minimal.player_in_creative(player) then
+      return itemstack:take_item()
+    end
+  end,
+})
+
+
 
 
 -----------------------------------
 --DEPRESSANTS
-
 
 -----------------
 --Tang, alcoholic drink
@@ -94,12 +238,25 @@ local function drink_tang(pos, node, clicker, itemstack, pointed_thing, ininv)
   end
 end
 
+local function mother_on_timer(pos, elapsed)
+  local meta = minetest.get_meta(pos)
+  if meta:contains("mothering") then
+    return ncrafting.ferment_on_timer(pos, elapsed)
+  elseif random() <= 0.05 then
+    meta:set_int("mothering",1)
+    ncrafting.ferment_on_construct(pos)
+    return false
+  end
+  minetest.get_node_timer(pos):start(random(400,800))
+  return false
+end
+
 --Pot of Tang
 liquid_store.register_stored_liquid("tech:tang",{
   source = "tech:tang_liquid",
 	empty = "tech:clay_water_pot",
   description = S("Tang"),
-	groups = {dig_immediate=2, pottery = 1, temp_pass = 1, drug = 1},
+	groups = {dig_immediate=2, pottery = 1, temp_pass = 1, drug = 1, timer = 5},
 	tiles = {
 		"tech_pottery.png^tech_pot_empty.png^tech_pot_tang.png",
 		"tech_pottery.png",
@@ -118,6 +275,25 @@ liquid_store.register_stored_liquid("tech:tang",{
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
+  _ferment_time = {min=200,max=300},
+  _ferment_temp_range = {min=10,max=34},
+  _ferment_to = "tech:tang_vinegar_mother",
+  on_construct = function(pos)
+		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+	end,
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+    if itemstack:get_meta():get_int("mothering") ~= 1 then return end
+    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
+	end,
+	on_timer = function(pos, elapsed)
+    return mother_on_timer(pos, elapsed)
+	end,
+  preserve_metadata = function(pos, oldnode, oldmeta, drops)
+    ncrafting.ferment_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
+  end,
+  _preserve_metadata = function(pos, oldnode, oldmeta, transferred_stack) -- for liquid store interactions
+    ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
+  end,
   on_rightclick = function(...)
     drink_tang(...)
   end,
@@ -130,7 +306,7 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
   source = "tech:tang_liquid",
 	empty = "tech:wooden_water_pot",
   description = S("Tang"),
-	groups = {dig_immediate=2, temp_pass = 1, drug = 1},
+	groups = {dig_immediate=2, temp_pass = 1, drug = 1, timer = 5},
 	tiles = {
 		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_tang.png",
 		"tech_primitive_wood.png",
@@ -149,6 +325,25 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
+  _ferment_time = {min=200,max=300},
+  _ferment_temp_range = {min=10,max=34},
+  _ferment_to = "tech:wooden_tang_vinegar_mother",
+  on_construct = function(pos)
+		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+	end,
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+    if itemstack:get_meta():get_int("mothering") ~= 1 then return end
+    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
+	end,
+	on_timer = function(pos, elapsed)
+    return mother_on_timer(pos, elapsed)
+	end,
+  preserve_metadata = function(pos, oldnode, oldmeta, drops)
+    ncrafting.ferment_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
+  end,
+  _preserve_metadata = function(pos, oldnode, oldmeta, transferred_stack) -- for liquid store interactions
+    ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, transferred_stack)
+  end,
   on_rightclick = function(...)
     drink_tang(...)
   end,
@@ -160,70 +355,6 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 
 -----------------
 -- UNFERMENTED TANG
-
--- find ferment or create a ferment meta
-local function get_or_create_ferment(meta)
-  local ferment = meta:get_int("ferment")
-  if (ferment == 0) then
-    ferment = math.random(300,360)
-  end
-  return ferment
-end
-
---save usage into inventory, to prevent infinite supply (removed the on_dig_tang function, keeping note)
---[[
-local on_dig_tang = function(pos, node, digger, pot_type)
-  if not minetest.is_player(digger) or minetest.is_protected(pos, digger) then
-    return false
-  end
-  if (type(pot_type) == "string") then
-    pot_type = string.lower(pot_type)
-  else
-    pot_type = ""
-  end
-	local meta = minetest.get_meta(pos)
-	local ferment = get_or_create_ferment(meta)
-	local new_stack = ItemStack("tech:tang_unfermented")
-  if (string.match(pot_type,"wooden")) then
-    new_stack = ItemStack("tech:wooden_tang_unfermented")
-  end
-	local stack_meta = new_stack:get_meta()
-	stack_meta:set_int("ferment", ferment)
-
-	local digger_inv = digger:get_inventory()
-	if digger_inv:room_for_item("main", new_stack) then
-		digger_inv:add_item("main", new_stack)
-		minetest.remove_node(pos)
-	elseif not minimal.stop_on_inv_full(digger) then
-	   minetest.add_item(pos, new_stack)
-	   minetest.remove_node(pos)
-	end
-end
---]]
-
---set saved
-local after_place_tang = function(pos, placer, itemstack, pointed_thing)
-	local meta = minetest.get_meta(pos)
-	local stack_meta = itemstack:get_meta()
-	local ferment = get_or_create_ferment(stack_meta)
-	if ferment >0 then
-		meta:set_int("ferment", ferment)
-	end
-end
-
-local on_construct_tang = function(pos)
-  --duration of ferment
-		local meta = minetest.get_meta(pos)
-    meta:set_int("ferment", math.random(300,360))
-		--ferment
-		minetest.get_node_timer(pos):start(5)
-end
-
--- custom function that preserves metadata from a replaced node to an itemstack
-local preserve_metadata_tang = function(pos, oldnode, oldmeta, transferred_stack)
-  local imeta = transferred_stack:get_meta()
-  imeta:set_int("ferment",get_or_create_ferment(oldmeta))
-end
 
 -- Pot of new Tang (unfermented), must be left to ferment
 liquid_store.register_stored_liquid("tech:tang_unfermented",{
@@ -249,32 +380,23 @@ liquid_store.register_stored_liquid("tech:tang_unfermented",{
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
+  _ferment_time = {min=300,max=360},
+  _ferment_temp_range = {min=10,max=34},
+  _ferment_to = "tech:tang",
   on_construct = function(pos)
-		on_construct_tang(pos)
+		ncrafting.ferment_on_construct(pos)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		after_place_tang(pos, placer, itemstack, pointed_thing)
+		ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
-		local meta = minetest.get_meta(pos)
-		local ferment = meta:get_int("ferment")
-		if ferment <= 1 then -- prevent possibility of refreshed fermenting at 0
-			minetest.swap_node(pos, {name = "tech:tang"})
-			return false
-		else
-      --ferment if at right temp
-      local temp = climate.get_point_temp(pos)
-      if temp >= 10 and temp <= 34 then
-        meta:set_int("ferment", ferment - 1)
-      end
-			return true
-		end
+		return ncrafting.ferment_on_timer(pos, elapsed)
 	end,
   preserve_metadata = function(pos, oldnode, oldmeta, drops)
-    preserve_metadata_tang(pos, oldnode, minetest.get_meta(pos), drops[1])
+    ncrafting.ferment_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
   end,
   _preserve_metadata = function(...) -- for liquid store interactions
-    preserve_metadata_tang(...)
+    ncrafting.ferment_preserve_metadata(...)
   end,
 })
 -- wooden pot of unfermented tang
@@ -301,44 +423,25 @@ liquid_store.register_stored_liquid("tech:wooden_tang_unfermented",{
 			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
 		}
 	},
+  _ferment_time = {min=300,max=360},
+  _ferment_temp_range = {min=10,max=34},
+  _ferment_to = "tech:wooden_tang",
   on_construct = function(pos)
-		on_construct_tang(pos)
+		ncrafting.ferment_on_construct(pos)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		after_place_tang(pos, placer, itemstack, pointed_thing)
+		ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
-		local meta = minetest.get_meta(pos)
-		local ferment = meta:get_int("ferment")
-		if ferment <= 1 then -- prevent possibility of refreshed fermenting at 0
-			minetest.swap_node(pos, {name = "tech:wooden_tang"})
-			return false
-		else
-      --ferment if at right temp
-      local temp = climate.get_point_temp(pos)
-      if temp >= 10 and temp <= 34 then
-        meta:set_int("ferment", ferment - 1)
-      end
-			return true
-		end
+		return ncrafting.ferment_on_timer(pos, elapsed)
 	end,
   preserve_metadata = function(pos, oldnode, oldmeta, drops)
-    preserve_metadata_tang(pos, oldnode, minetest.get_meta(pos), drops[1])
+    ncrafting.ferment_preserve_metadata(pos, oldnode, minetest.get_meta(pos), drops[1])
   end,
   _preserve_metadata = function(...) -- for liquid store interactions
-    preserve_metadata_tang(...)
+    ncrafting.ferment_preserve_metadata(...)
   end,
 })
-
-
---[[
--- function overrides for unfermented tang
-minetest.override_item("tech:tang_unfermented",{
-  on_dig = function(pos, node, digger)
-		on_dig_tang(pos, node, digger)
-	end,
-})
---]]
 
 -----------------------------------
 --HALLUCINOGENS
