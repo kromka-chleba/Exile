@@ -38,7 +38,8 @@ end
 
 -- find ferment or create a ferment meta
 function ncrafting.get_or_create_ferment(name,meta)
-  local ferment = type(meta) == "userdata" and meta:get_int("ferment") or type(meta) == "table" and meta.ferment or 0
+  local ferment = type(meta) == "userdata" and meta:get_int("ferment")
+  or type(meta) == "table" and type(meta.fields) == "table" and meta.fields.ferment or 0
   if (ferment == 0) then
     ferment = random(300,360) -- base to return if error
     local ferment_data = ncrafting.get_ferment_data(name)
