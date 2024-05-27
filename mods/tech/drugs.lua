@@ -184,8 +184,8 @@ minetest.register_craftitem("tech:mother_of_tang",{
   inventory_image = "tech_mother_of_tang.png",
   stack_max = minimal.stack_max_medium,
   groups = {mother_growth=1, tang_mother=1},
-  _use_tip = S("Infect Other Pots"),
-  _on_use_item = function(player, itemstack, pointed_thing)
+  _place_tip = S("Infect Other Pots"),
+  on_place = function(itemstack, player, pointed_thing)
     if not pointed_thing or pointed_thing.type ~= "node" then
       return
     end
@@ -282,6 +282,7 @@ liquid_store.register_stored_liquid("tech:tang",{
 		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
+    if not itemstack:get_meta():get_int("mothering") ~= 0 then return end
     ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
@@ -331,6 +332,7 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
+    if not itemstack:get_meta():get_int("mothering") ~= 0 then return end
     ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
