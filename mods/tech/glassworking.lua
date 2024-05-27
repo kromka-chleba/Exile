@@ -223,6 +223,7 @@ minetest.register_node("tech:potash_source", {
 	liquid_range = 2,
 	liquid_renewable = false,
 	post_effect_color = {a = post_alpha, r = 30, g = 60, b = 90},
+  damage_per_second = 2,
 	groups = {water = 2, cools_lava = 1, puts_out_fire = 1},
 	sounds = nodes_nature.node_sound_water_defaults(),
   })
@@ -257,6 +258,7 @@ minetest.register_node("tech:potash_source", {
 	liquid_viscosity = 1,
 	liquid_renewable = false,
 	post_effect_color = {a = post_alpha, r = 30, g = 60, b = 90},
+  damage_per_second = 1,
 	groups = {water = 2, not_in_creative_inventory = 1, puts_out_fire = 1, cools_lava = 1},
 	sounds = nodes_nature.node_sound_water_defaults(),
   })
