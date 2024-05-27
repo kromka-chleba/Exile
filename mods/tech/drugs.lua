@@ -282,7 +282,7 @@ liquid_store.register_stored_liquid("tech:tang",{
 		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-    if not itemstack:get_meta():get_int("mothering") ~= 0 then return end
+    if itemstack:get_meta():get_int("mothering") ~= 1 then return end
     ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
@@ -332,7 +332,7 @@ liquid_store.register_stored_liquid("tech:wooden_tang",{
 		minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-    if not itemstack:get_meta():get_int("mothering") ~= 0 then return end
+    if itemstack:get_meta():get_int("mothering") ~= 1 then return end
     ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 	end,
 	on_timer = function(pos, elapsed)
