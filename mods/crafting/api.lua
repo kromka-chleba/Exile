@@ -152,6 +152,98 @@ function crafting.get_recipe(id)
 	return crafting.recipes_by_id[id]
 end
 
+-- returns a table of details relating to information/parameters noted in a string
+-- permits format of:
+-- group:<groupname>,<groupnumcondition>,<desc>
+-- groupname being the group that is necessary, groupnumcondition being the required group's number or a condition (>2 or <6)
+-- desc being a custom description (recipe-local) for what the group should be called
+-- custom 'correct' function allows one to determine groupnumcondition values that have a condition
+-- following can be parameters of 'stats': 'name', 'num', 'desc', 'correct'
+function crafting.get_group_stats(grouptag)
+  -- string must contain "group:" or will return nil
+  grouptag = (type(grouptag) == "string" and grouptag:sub(1,6) == "group:") and grouptag or nil
+  if not grouptag then return end
+  grouptag = grouptag:sub(7,#grouptag) -- remove 'group:'
+  local str_len = #grouptag
+  local stats = {} -- table of "stats" to return
+  -- has parameters to check through
+  if string.match(grouptag,",") then
+    local reader = 1
+    while true do -- use while loop for custom iterator addition+remove
+      if reader >= str_len then break end -- end reading if we're over string length
+      local read_char = grouptag:sub(reader,reader)
+      if read_char == "," then -- found parameter
+        if not stats.name then stats.name = grouptag:sub(1,reader-1) end
+        reader=reader+1
+        if not stats.num then -- assume 1st parameter is custom group num
+          stats.num = ""
+          -- add to stats num value with found characters until end
+          for i=reader,str_len do
+            read_char = grouptag:sub(i,i)
+            if read_char == "," then break end -- found end via new parameter line, end
+            stats.num = stats.num..read_char
+          end
+          reader=reader+(#stats.num)-1 -- subtract 1 to get parameter lines properly
+        elseif not stats.desc then -- assume 2nd parameter is custom description
+          stats.desc = ""
+          for i=reader,str_len do
+            read_char = grouptag:sub(i,i)
+            if read_char == "," then break end
+            stats.desc = stats.desc..read_char
+          end
+          reader=reader+(#stats.desc)-1
+        else -- no more commands to do, end iteration
+          break
+        end
+      end
+      reader=reader+1 -- gradually increase to iterate through string
+    end
+  end
+  if not stats.name then stats.name = grouptag end -- if no stats.name set by parameter line then assume normal
+  -- remove nil indexes
+  for stat,val in pairs(stats) do
+    if val == "" or val:lower() == "nil" then
+      stats[stat] = nil
+    end
+  end
+  -- add "correct" function to determine whether or not the group-based item can be used for crafting
+  stats.correct = function(amount)
+    local num = stats.num
+    if not num then return true end -- no stats.num value, can be crafted
+    num = tonumber(num)
+    if num and num == amount then return true end -- no "cmd", can be crafted
+    local cmd
+    if not num then -- has a command at the beginning!
+      num = stats.num
+      cmd = num:sub(1,1) -- first character
+      num = tonumber(num:sub(2,#num)) -- 2nd characeter til end of string
+    end
+    if not num then return false end -- something went wrong, can't craft!
+    if cmd == "<" and amount < num then
+      return true
+    elseif cmd == ">" and amount > num then
+      return true
+    end
+    return false
+  end
+  return stats
+end
+minetest.after(5,function()
+  local statify = {"group:marigold","schsch","group:cake,2,Yummy Delicious","group:milk,,Mailk","group:dundun,<40,DinDin"}
+  for _,statest in pairs(statify) do
+    minetest.log(statest)
+    local stats = crafting.get_group_stats(statest)
+    if stats then
+      for stat,val in pairs(stats) do
+        if type(val) == "string" then
+          minetest.log(stat.." : "..val)
+        end
+      end
+      minetest.log("stats correct: "..tostring(stats.correct(2)))
+    end
+  end
+end)
+
 function crafting.peek_item(item, item_hash)
 	local items = {}
 	-- single item peeks need to be in table for processing
