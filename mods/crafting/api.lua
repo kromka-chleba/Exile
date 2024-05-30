@@ -157,12 +157,13 @@ end
 -- returns a table of details relating to information/parameters noted in a string
 -- permits format of:
 -- group:<groupname>,<groupnumcondition>,<desc>
--- groupname being the group that is necessary, groupnumcondition being the required group's number or a condition (>2 or <6)
+-- groupname being the group that is necessary
+-- groupnumcondition being the required group's number (3, 8) or a condition (>2 or <6)
 -- desc being a custom description (recipe-local) for what the group should be called
 -- custom 'correct' function allows one to determine groupnumcondition values that have a condition
--- following can be parameters of 'stats': 'name', 'num', 'desc', 'correct'
+-- following can become indexes of 'stats': 'name', 'tag', 'num' (number), 'num_cmd', 'desc', 'correct' (function)
+-- num and num_cmd will NOT always be valid indexes
 function crafting.get_group_stats(grouptag)
-  local t1 = minetest.get_us_time()
   -- string must contain "group:" or will return nil
   grouptag = (type(grouptag) == "string" and grouptag:sub(1,6) == "group:") and grouptag or nil
   if not grouptag then return end
@@ -254,26 +255,8 @@ function crafting.get_group_stats(grouptag)
     end
     return false
   end
-  minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
   return stats
 end
---[[
-minetest.after(5,function()
-  local statify = {"group:marigold","schsch","group:cake,2,Yummy Delicious","group:milk,,Mailk","group:dundun,<40,DinDin"}
-  for _,statest in pairs(statify) do
-    minetest.log(statest)
-    local stats = crafting.get_group_stats(statest)
-    if stats then
-      for stat,val in pairs(stats) do
-        if type(val) == "string" then
-          minetest.log(stat.." : "..val)
-        end
-      end
-      minetest.log("stats correct: "..tostring(stats.correct(2)))
-    end
-  end
-end)
---]]
 
 function crafting.peek_item(item, item_hash)
 	local items = {}
