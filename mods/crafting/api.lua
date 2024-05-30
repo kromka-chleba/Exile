@@ -268,24 +268,26 @@ function crafting.peek_item(item, item_hash)
     local gstats = crafting.get_group_stats(item)
 		local stack = ItemStack(item)
     local def = table.copy(stack:get_definition())
+    def.name = gstats and gstats.tag or def.name
     def.description = (gstats and S("Any @1",gstats.desc)) or def.description
     def._orig_desc = def._orig_desc or def.description
 		local need =  stack:get_count()
-		local have = item_hash[stack:get_name()] or 0
-    -- has a specified number
-    if gstats and gstats.num then
+		local have = item_hash[def.name] or 0
+    -- has a specified number (and have isn't 0, don't search unnecessarily)
+    if have ~= 0 and (gstats and gstats.num) then
       have = item_hash[gstats.tag..gstats.num] or 0
+      local cmd = gstats.num_cmd
       -- found command, check anew
-      if gstats.num_cmd then
+      if cmd then
         have = 0
-        -- start at gstats.num, if less than, work down to 0 (-1), otherwise check until 256
-        for i = gstats.num, (gstats.cmd == "<" and 0 or 256), (gstats.cmd == "<" and -1 or 1) do
+        -- start at gstats.num (-1 if less, otherwise +1), if less than, work down to 0 (-1), otherwise check until 256
+        for i = (cmd == "<" and gstats.num-1 or gstats.num+1), (cmd == "<" and 0 or 256), (cmd == "<" and -1 or 1) do
           have = have + (item_hash[gstats.tag..i] or 0)
         end
       end
     end
 		items[#items + 1] = {
-			name = stack:get_name(),
+			name = def.name,
 			have = have,
 			need = need,
 			available = (have >= need) and true or false,
