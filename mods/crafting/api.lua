@@ -201,6 +201,7 @@ function crafting.get_group_stats(grouptag)
     end
   end
   if not stats.name then stats.name = grouptag end -- if no stats.name set by parameter line then assume normal
+  stats.tag = "group:"..stats.name
   -- remove nil indexes
   for stat,val in pairs(stats) do
     if val == "" or val:lower() == "nil" then
@@ -346,7 +347,8 @@ function crafting.set_item_hashes_from_list(inv, listname, item_hash)
 			local def = minetest.registered_items[itemname]
 			if def and def.groups then
 				for groupname, _ in pairs(def.groups) do
-					local group = "group:" .. groupname
+          local groupstats = crafting.get_group_stats("group:"..groupname)
+          local group = groupstats.tag
 					crafting.item_by_group[group] = itemname
 					item_hash[group] = (item_hash[group] or 0) + stack:get_count()
 				end
