@@ -673,7 +673,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
         inv:add_item(outlistname, rep_item)
       else -- no room
         warn = true
-        minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), itemstack)
+        minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), rep_item)
       end
     end
   end
