@@ -228,19 +228,25 @@ function crafting.get_group_stats(grouptag)
       stats[stat] = nil
     end
   end
+  -- separate num and condition command
+  if stats.num then
+    local num = tonumber(stats.num) -- if nil then needs to separate
+    if not num then -- separating
+      stats.num_cmd = stats.num:sub(1,1) -- command at beginning
+      num = tonumber(stats.num:sub(2,#stats.num))
+    end
+    if not num then -- you did a command too long likely (should only be 1 char) or placed the command after the number
+      error("crafting.get_group_stats: could not properly assess 'num' parameter for grouptag: "..stats.grouptag)
+    end
+    stats.num = num
+  end
   -- add "correct" function to determine whether or not the group-based item can be used for crafting
   stats.correct = function(amount)
     local num = stats.num
     if not num then return true end -- no stats.num value, can be crafted
-    num = tonumber(num)
-    if num and num == amount then return true end -- no "cmd", can be crafted
-    local cmd
-    if not num then -- has a command at the beginning!
-      num = stats.num
-      cmd = num:sub(1,1) -- first character
-      num = tonumber(num:sub(2,#num)) -- 2nd characeter til end of string
-    end
-    if not num then return false end -- something went wrong, can't craft!
+    local cmd = stats.num_cmd
+    if num == amount and not cmd then return true end -- no "cmd", can be crafted
+    -- calculate cmd
     if cmd == "<" and amount < num then
       return true
     elseif cmd == ">" and amount > num then
@@ -251,6 +257,7 @@ function crafting.get_group_stats(grouptag)
   minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
   return stats
 end
+--[[
 minetest.after(5,function()
   local statify = {"group:marigold","schsch","group:cake,2,Yummy Delicious","group:milk,,Mailk","group:dundun,<40,DinDin"}
   for _,statest in pairs(statify) do
@@ -266,6 +273,7 @@ minetest.after(5,function()
     end
   end
 end)
+--]]
 
 function crafting.peek_item(item, item_hash)
 	local items = {}
