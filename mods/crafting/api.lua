@@ -289,6 +289,18 @@ function crafting.peek_item(item, item_hash)
     def._orig_desc = def._orig_desc or def.description
 		local need =  stack:get_count()
 		local have = item_hash[stack:get_name()] or 0
+    -- has a specified number
+    if gstats and gstats.num then
+      have = item_hash[gstats.tag..gstats.num] or 0
+      -- found command, check anew
+      if gstats.num_cmd then
+        have = 0
+        -- start at gstats.num, if less than, work down to 0 (-1), otherwise check until 256
+        for i = gstats.num, (gstats.cmd == "<" and 0 or 256), (gstats.cmd == "<" and -1 or 1) do
+          have = have + (item_hash[gstats.tag..i] or 0)
+        end
+      end
+    end
 		items[#items + 1] = {
 			name = stack:get_name(),
 			have = have,
@@ -380,10 +392,12 @@ function crafting.set_item_hashes_from_list(inv, listname, item_hash)
 			item_hash[itemname] = (item_hash[itemname] or 0) + stack:get_count()
 			local def = minetest.registered_items[itemname]
 			if def and def.groups then
-				for groupname, _ in pairs(def.groups) do
+				for groupname,groupvalue in pairs(def.groups) do
 					local group = "group:" .. groupname
 					crafting.item_by_group[group] = itemname
 					item_hash[group] = (item_hash[group] or 0) + stack:get_count()
+          -- alternative for pickier crafts (adds preferred number)
+          item_hash[group..groupvalue] = (item_hash[group..groupvalue] or 0) + stack:get_count()
 				end
 			end
 		end
