@@ -19,9 +19,10 @@
 local S = minetest.get_translator("minimal")
 
 function crafting.get_item_description(name, short)
-	if name:sub(1, 6) == "group:" then
-		local group = name:sub(7, #name):gsub("%_", " ")
-		return S("Any " .. group)
+  local groupstats = crafting.get_group_stats(name)
+	if groupstats then
+		--local group = name:sub(7, #name):gsub("%_", " ")
+		return S("Any @1",groupstats.desc)
 	else
 		local def = minetest.registered_items[name] or {}
 		return (short and def._orig_desc or nil )

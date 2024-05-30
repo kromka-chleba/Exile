@@ -208,6 +208,10 @@ function crafting.get_group_stats(grouptag)
     stats.tag = grouptag
     stats.name = stats.tag:sub(7,#stats.tag)
   end
+  -- revert to name
+  if not stats.desc then
+    stats.desc = stats.name:gsub("%_", " ")
+  end
   -- remove nil indexes
   for stat,val in pairs(stats) do
     if val == "" or val:lower() == "nil" then
