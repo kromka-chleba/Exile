@@ -1,0 +1,5 @@
+# textdomain: spears
+
+@1 spear=
+Stone=
+Iron=

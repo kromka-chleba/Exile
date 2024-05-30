@@ -16,10 +16,12 @@
 -- License along with this library; if not, write to the Free Software
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
+local S = minetest.get_translator("minimal")
+
 function crafting.get_item_description(name, short)
 	if name:sub(1, 6) == "group:" then
 		local group = name:sub(7, #name):gsub("%_", " ")
-		return "Any " .. group
+		return S("Any " .. group)
 	else
 		local def = minetest.registered_items[name] or {}
 		return (short and def._orig_desc or nil )
@@ -85,7 +87,7 @@ function crafting.result_select_on_receive_results(player, type, level, context,
 				elseif crafting.perform_craft(name, inv, "main", "main", recipe) then
 					return true -- crafted
 				else
-					minetest.chat_send_player(name, "Missing required items!")
+					minetest.chat_send_player(name, S("Missing required items!"))
 					return false
 				end
 			end

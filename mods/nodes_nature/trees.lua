@@ -286,8 +286,8 @@ for i in ipairs(tree_list) do
 				"nodes_nature_"..treename.."_log_top.png",
 				"nodes_nature_"..treename.."_log.png"
 			},
-			treedesc.." Log Stair",
-			treedesc.." Log Slab",
+			S("@1 Log Stair", treedesc),
+			S("@1 Log Slab", treedesc),
 			minimal.stack_max_bulky * 2,
 			nodes_nature.node_sound_wood_defaults()
 		)
@@ -306,8 +306,8 @@ for i in ipairs(tree_list) do
 				"nodes_nature_"..treename.."_log_top.png",
 				"nodes_nature_"..treename.."_log.png"
 			},
-			treedesc.." Log Stair",
-			treedesc.." Log Slab",
+			S("@1 Log Stair", treedesc),
+			S("@1 Log Slab", treedesc),
 			minimal.stack_max_bulky * 2,
 			nodes_nature.node_sound_wood_defaults()
 		)

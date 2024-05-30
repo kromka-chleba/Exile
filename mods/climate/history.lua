@@ -15,6 +15,8 @@
 -- whether they can have sun before calling crop_rewind
 --  ^ minetest.get_natural_light(pos, [timeofday=]0.5)
 
+local S = minetest.get_translator("lore")
+
 local floor = math.floor
 climate_history = ""
 climate = climate
@@ -187,23 +189,23 @@ function climate.datestring()
    local cdays = (days)%80 -- days into the current year
    local seasonnumber = floor((cdays)/20)+1
    local sdays = cdays%20+1 --days into the current season
-   local season = "Birth"
+   local season = S("Birth")
    if seasonnumber == 2 then
-      season = "Thirst"
+      season = S("Thirst")
    elseif seasonnumber == 3 then
-      season = "Retreat"
+      season = S("Retreat")
    elseif seasonnumber == 4 then
-      season = "Hunger"
+      season = S("Hunger")
    end
-   local timestr = "small hours"
+   local timestr = S("small hours")
    if time >= 0.75 then
-      timestr = "evening"
+      timestr = S("evening")
    elseif time >= 0.5 then
-      timestr = "afternoon"
+      timestr = S("afternoon")
    elseif time >= 0.25 then
-      timestr = "morning"
+      timestr = S("morning")
    end
-   return ("It is the "..timestr.." of day "..sdays.." of the season of "..season..", in the year of our exile "..year)
+   return S("It is the @1 of day @2 of the season of @3, in the year of our exile @4", timestr, sdays, season, year)
 end
 
 minetest.register_chatcommand("date", {

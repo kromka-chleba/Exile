@@ -5,7 +5,7 @@
 
 -- API functions appear after setup and utility sections
 
-local S = core.get_translator(minimal.modname)
+local S = core.get_translator("minimal")
 
 -- Zone setup ------------------------------------------------------------
 local checkrate = 59 -- Seconds between checking for expired zones
@@ -570,12 +570,12 @@ end)
 
 local function zone_range(def)
    if not def.base or not def.pos1 or not def.pos2 then
-      return "label[0.5,0.5;Error in zone def ranges]"
+      return "label[0.5,0.5;"..S("Error in zone def ranges").."]"
    end
    local p1 = vector.add(def.pos1, def.base) -- to absolute coords
    local p2 = vector.add(def.pos2, def.base)
    local formspec =
-      "label[0.375,0.5;Upper corner]label[4.35,0.5;( North / Up / East )]"..
+      "label[0.375,0.5;"..S("Upper corner").."]label[4.35,0.5;"..S("( North / Up / East )").."]"..
       "button[0.5,1.0;0.25,0.5;upperx-;-]"..
       "field[0.75,1.0;1.5,0.5;upperx;X;"..p2.x.."]"..
       "button[2.25,1.0;0.25,0.5;upperx+;+]"..
@@ -585,9 +585,9 @@ local function zone_range(def)
       "button[4.5,1.0;0.25,0.5;upperz-;-]"..
       "field[4.75,1.0;1.5,0.5;upperz;Z;"..p2.z.."]"..
       "button[6.25,1.0;0.25,0.5;upperz+;+]"..
-      "button[6.75,1.0;1,0.5;upperhere;Here]"..
-      "button[7.25,2;1,0.5;setrange;Set]"..
-      "label[0.375,2.5;Lower corner]label[4,2.5;( South / Down / West )]"..
+      "button[6.75,1.0;1,0.5;upperhere;"..S("Here").."]"..
+      "button[7.25,2;1,0.5;setrange;"..S("Set").."]"..
+      "label[0.375,2.5;"..S("Lower corner").."]label[4,2.5;"..S("( South / Down / West )").."]"..
       "button[0.5,3.0;0.25,0.5;lowerx-;-]"..
       "field[0.75,3.0;1.5,0.5;lowerx;X;"..p1.x.."]"..
       "button[2.25,3.0;0.25,0.5;lowerx+;+]"..
@@ -597,13 +597,13 @@ local function zone_range(def)
       "button[4.5,3.0;0.25,0.5;lowerz-;-]"..
       "field[4.75,3.0;1.5,0.5;lowerz;Z;"..p1.z.."]"..
       "button[6.25,3.0;0.25,0.5;lowerz+;+]"..
-      "button[6.75,3.0;1,0.5;lowerhere;Here]"..
-      "label[1,4;Range type:]"..
-      "label[1.5,4.5;( Absolute is either inside or out. )]"..
-      "label[1.5,5;( Radial and cubic fade towards the edge. )]"..
+      "button[6.75,3.0;1,0.5;lowerhere;"..S("Here").."]"..
+      "label[1,4;"..S("Range type:").."]"..
+      "label[1.5,4.5;"..S("( Absolute is either inside or out. )").."]"..
+      "label[1.5,5;"..S("( Radial and cubic fade towards the edge. )").."]"..
       "dropdown[1,5.5;3,1;rangetype;Absolute,Radial,Cylindrical,Cubic;"..
       tostring(def.shape)..";true]"..
-      "field[3,8;6,0.5;zt_label;Label;"..def.zt_label.."]"
+      "field[3,8;6,0.5;zt_label;"..S("Label")..";"..def.zt_label.."]"
 
    if def.shape > 1 then
       formspec = formspec .. "label[4.25,6;with]"..
@@ -617,7 +617,7 @@ function zone_formspec(def) -- actually local, see top of file
    local tabsel = def["zt_tabsel"] or "1" -- tab #
    local sel = def["zt_sel"] or rindex[1] -- name of selected zone type
    local formspec = "formspec_version[6]size[10.5,11]"..
-      "tabheader[0,0;zt_tabsel;Range,Copy,Values;"..tabsel.."]"
+      "tabheader[0,0;zt_tabsel;"..S("Range")..","..S("Copy")..","..S("Values")..";"..tabsel.."]"
    if tabsel == "1" then
       formspec = formspec..zone_range(def)
    elseif tabsel == "3" then
@@ -744,7 +744,7 @@ end
 -- Nodes -----------------------------------------------------------------
 
 minetest.register_node("minimal:zone_trigger", {
-        description = "Exile zone trigger node",
+        description = S("Exile zone trigger node"),
         tiles = {"climate_air.png"},
         drawtype = "airlike",
         paramtype = "light",

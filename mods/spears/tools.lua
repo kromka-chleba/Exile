@@ -1,7 +1,9 @@
+local S = minetest.get_translator("spears")
+
 function spears_register_spear(spear_type, desc, base_damage, toughness, material, exilectype)
 
 	minetest.register_tool("spears:spear_" .. spear_type, {
-		description = desc .. " spear",
+		description = S("@1 spear", desc),
                 wield_image = "spears_spear_" .. spear_type ..
 		   ".png^[transform4",
 		inventory_image = "spears_spear_" .. spear_type .. ".png",
@@ -47,8 +49,8 @@ end
 
 if minetest.get_modpath("minimal") then
     --TODO Make spears_register_spear() allow registering multiple crafting stations
-    spears_register_spear('stone', 'Stone', 8, 20, 'tech:stone_chopper',
+    spears_register_spear('stone', S('Stone'), 8, 20, 'tech:stone_chopper',
                           "hand")
-    spears_register_spear('iron', 'Iron', 14, 30, 'tech:iron_ingot', "anvil")
+    spears_register_spear('iron', S('Iron'), 14, 30, 'tech:iron_ingot', "anvil")
     minetest.register_alias("spears:spear_steel", "spears:spear_iron")
 end

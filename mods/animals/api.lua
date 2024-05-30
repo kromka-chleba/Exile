@@ -2975,6 +2975,8 @@ function animals.register_animal(name,def)
   def.max_hp = def.initial_properties.max_hp
   def.visual_size = def.initial_properties.visual_size
   def.collisionbox = def.initial_properties.collisionbox
+  -- stepheight
+  def.stepheight = def.stepheight or def.class ~= 2 and 1.05 or nil
   -- modify functions for event changes or necessary actions
   local on_punch = def.on_punch
   def.on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)

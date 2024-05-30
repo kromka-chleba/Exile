@@ -21,11 +21,13 @@ SOFTWARE.
 --]]
 local c_alpha = minimal.compat_alpha
 
+local S = minetest.get_translator("artifacts")
+
 dofile(minetest.get_modpath("rings") .. "/noise.lua")
 noise_handler = noise_handler
 
 minetest.register_node("rings:antiquorium", {
-	description = "Antiquorium",
+	description = S("Antiquorium"),
 	tiles = {"artifacts_antiquorium.png"},
 	stack_max = minimal.stack_max_bulky *4,
 	sounds = nodes_nature.node_sound_glass_defaults(),
@@ -34,7 +36,7 @@ minetest.register_node("rings:antiquorium", {
 	drop = "artifacts:antiquorium"
 })
 minetest.register_node("rings:moon_glass", {
-	description = "Moon Glass",
+	description = S("Moon Glass"),
 	drawtype = "glasslike",
 	tiles = {"artifacts_moon_glass.png"},
 	stack_max = minimal.stack_max_bulky *4,

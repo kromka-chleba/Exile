@@ -1,9 +1,9 @@
 # textdomain: tech
 
 # backpacks.lua
-Woven Bag=Мешок вязаный
-Fabric Bag=Мешок тканевый
-Wicker Bag=Мешок плетеный
+Woven Bag=Вязанная сумка
+Fabric Bag=Тканевая сумка
+Wicker Bag=Плетеная сумка
 
 # beds.lua
 Sleeping Spot=Спальное место
@@ -14,33 +14,42 @@ Bed=Кровать
 
 # bricks_and_mortar.lua
 Limestone=Известняк
-Ironstone=Железный камень
+Ironstone=Железняк
 Granite=Гранит
 Basalt=Базальт
 Gneiss=Гнейс
 Jade=Нефрит
+Siltstone=Алевролит
+Claystone=Аргиллит
+Sandstone=Песчаник
+Conglomerate=Конгломерат
 Crushed Lime=Дробленая известь
 Quicklime=Негашеная известь
 Slaked Lime=Гашеная известь
-Slaked Lime (ruined)=Гашеная известь (разрушенная)
+Slaked Lime (ruined)=Гашеная известь (испорченная)
 Lime Mortar=Известковый раствор
+Lime Mortar Slab=Плита с известковым раствором
 Loose Bricks (unfired)=Кирпичи (необожженные)
 Loose Bricks=Обожженные кирпичи
-Brick and Mortar=Кирпич и раствор
-Loose Roof Tile (unfired)=Кровельная черепица(необожженная)
+Brick and Mortar=Кирпич с раствором
+Loose Roof Tile (unfired)=Кровельная черепица (необожженная)
 Loose Roof Tile=Кровельная черепица
 Roof Tile=Кровельная плитка
 Roof Tile (outer corner)=Кровельная плитка (внешний угол)
 Roof Tile (inner corner)=Кровельная плитка (внутренний угол)
+Tile Block (unfired)=Плиточный блок (необожженный)
+Tile Block=Плиточный блок
 @1 Brick with Mortar=@1 кирпич с раствором
 @1 Block with Mortar=@1 блок с раствором
 
 # clothing.lua
 Woven Hat=Вязаная шляпа
+Sun Hat=Солнечная шляпа
 Woven Cape=Вязаный плащ
 Woven Poncho=Вязаное пончо
 Woven Leggings=Вязаные леггинсы
 Woven Blanket=Вязаное одеяло
+Woven Sandals=Вязаные сандалии
 Light Fabric Hat=Шляпа из легкой ткани
 Thick Fabric Hat=Шляпа из плотной ткани
 Light Fabric Cape=Плащ из легкой ткани
@@ -53,8 +62,14 @@ Thick Fabric Tunic=Туника из плотной ткани
 # cooking-pot.lua
 Soup=Суп
 Cooking Pot=Горшок для приготовления пищи
-Cooking Pot (unfired)=Горшок для приготовления пищи (без огня)
+Cooking Pot (unfired)=Горшок для приготовления пищи (необожженный)
 @1 soup=@1 суп
+This pot is full and heavy. Spill it?=Этот горшок полный и тяжелый. Вылить его?
+Yes=Да
+No=Нет
+Eat=Есть
+Status: Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=Статус: Неподготовленный котел@nСодержимое: <ПУСТО>@nПримечание: Добавьте воды в кастрюлю, чтобы приготовить суп
+Status: Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=Статус: Котел для супа@nСодержимое: Вода@nПримечание: Добавьте продукты в котел, чтобы приготовить суп
 
 # doors.lua
 Wattle Door=Плетеная дверь
@@ -104,8 +119,9 @@ Green Glass Ingot=Слиток зеленого стекла
 Potash Block=Блок калия
 Potash=Калий
 Clay Water Pot with Potash Solution=Глиняный горшок для воды с раствором калия
+Clay Water Pot With Potash=Глиняный горшок для воды с калием
 Potash Solution Source=Источник раствора калия
-Flowing Potash Solution=Текучий раствор калия 
+Flowing Potash Solution=Текучий раствор калия
 Clear Glass Sand Mix=Песчаная смесь прозрачного стекла
 Clear Glass Ingot=Слиток прозрачного стекла
 Pane Casting Tray=Лоток для литья стекла
@@ -113,8 +129,8 @@ Pane Casting Tray With Green Glass Pane=Лоток для литья стекл�
 Pane Casting Tray With Clear Glass Pane=Лоток для литья стекла с прозрачным стеклом
 Green Glass Pane=Зеленое стекло
 Clear Glass Pane=Прозрачное стекло
-Green Glass Window=Зеленое стеклянное окно 
-Clear Glass Window=Прозрачное стеклянное окно 
+Green Glass Window=Зеленое стеклянное окно
+Clear Glass Window=Прозрачное стеклянное окно
 Green Glass Bottle=Зеленая стеклянная бутылка
 Clear Glass Bottle=Прозрачная стеклянная бутылка
 Green Glass Bottle With Fresh Water=Зеленая стеклянная бутылка с пресной водой
@@ -126,6 +142,8 @@ Clear Glass Bottle With Salt Water=Прозрачная стеклянная б�
 # graffiti.lua
 Painting Kit (lime white)=Набор для рисования (белая известь)
 Painting Kit (glow paint)=Набор для рисования (светящаяся краска)
+Painting Kit (ochre red)=Набор для росписи (охристо-красный)
+Stone Etcher=Каменный резчик
 
 # hearthen_building.lua
 Drystack=Сухой штабель
@@ -148,6 +166,10 @@ Slag=Шлак
 Molten Slag=Расплавленный шлак
 Flowing Molten Slag=Текущий расплавленный шлак
 Iron Fittings=Железная арматура
+Protection Nails=Защитные гвозди
+Iron Key=Железный ключ
+Protect Item=Защищает элемент
+Grant key owner access.=Предоставление доступа владельцу ключа.
 
 # plant_crafts.lua
 Stick=Палка
@@ -169,7 +191,7 @@ Broken Pottery=Разбитая керамика
 Clay Water Pot=Глиняный горшок для воды
 Clay Water Pot (unfired)=Глиняный горшок для воды (необожженный)
 Clay Storage Pot (unfired)=Глиняный горшок для хранения (необожженный)
-Clay Oil Lamp (unfired)=Глиняная масляная лампа (не горит)
+Clay Oil Lamp (unfired)=Глиняная масляная лампа (необожженный)
 Clay Oil Lamp=Глиняная масляная лампа
 Clay Oil Lamp (lit)=Глиняная масляная лампа (горит)
 Oil lamp (empty)=Масляная лампа (пустая)
@@ -185,7 +207,7 @@ Clay Water Pot with Salt Water=Глиняный горшок с соленой �
 # storage.lua
 Clay Storage Pot=Глиняный горшок для хранения
 Primitive Wooden Chest=Примитивный деревянный сундук
-Wooden Chest=Древянный сундук
+Wooden Chest=Деревянный сундук
 Wicker Storage Basket=Плетеная корзина для хранения
 Woven Storage Basket=Вязаная корзина для хранения
 Iron Chest=Железный сундук
@@ -196,19 +218,42 @@ Stone Knife=Каменный нож
 Digging Stick=Палка для копания
 Granite Adze=Гранитная лопатка
 Basalt Adze=Базальтовая лопатка
-Jade Adze=Нефритовый нож
+Jade Adze=Нефритовая лопатка
 Stone Club=Каменная дубина
 Iron Axe=Железный топор
 Iron Shovel=Железная лопата
 Iron Mace=Железная булава
 Iron Pickaxe=Железная кирка
 
+Placed Stone Knife=Каменный нож
+Placed Digging Stick=Палка для копания
+Adze=Лопатка
+Placed Granite Adze=Гранитная лопатка
+Placed Basalt Adze=Базальтовая лопатка
+Placed Jade Adze=Нефритовая лопатка
+Placed Iron Axe=Железный топор
+Placed Iron Shovel=Железная лопата
+Placed Iron Pickaxe=Железная кирка
+Iron Hoe=Железная мотыга
+Placed Iron Hoe=Железная мотыга
+Hammer=Молоток
+Placed Granite Hammer=Гранитный молоток
+Placed Basalt Hammer=Базальтовый молоток
+Basalt Hammer=Базальтовый молоток
+Granite Hammer=Гранитный молоток
+
 # torch.lua
 Torch=Факел
 
 # lever.lua
 lever=Рычаг
-(left-click rotates face, right-click rotates axis)=(щелчок левой кнопкой мыши вращает грань, щелчок правой кнопкой мыши вращает ось)
+Rotate face=Поворот лицевой стороны
+Flip to aligner=Переворачивание на выравниватель
+Rotate axis=Повернуть ось
+alignment tool=Инструмент выравнивания
+Pick up a node's facing=Выбор грани узла
+Flip to lever=Перевернуть на рычаг
+Apply facing to another node=Применить облицовку к другому узлу
 
 # craft-stations.lua
 Crafting Spot=Место создания
@@ -231,11 +276,123 @@ Brick Maker's Bench=Верстак кирпичника
 Spinning Wheel=Прядильное колесо
 Loom=Ткацкий станок
 Glass furnace=Стеклянная печь
+Mortar and pestle=Ступка и пестик
+Pickaxe=Кирка
+
+Granite Grinding Stone=Гранитный шлифовальный камень
+Limestone Grinding Stone=Известковый шлифовальный камень
+Basalt Grinding Stone=Базальтовый шлифовальный камень
 
 # woodworking.lua
 Wooden Ladder=Деревянная лестница
 Wooden Floor Boards=Деревянные доски пола
-Wooden Stairs=Деревянная лестница
+Wooden Stairs=Деревянные ступеньки
 Wooden Water Pot=Деревянный горшок для воды
 Wooden Water Pot with Freshwater=Деревянный горшок с пресной водой
 Wooden Water Pot with Salt Water=Деревянный горшок с соленой водой
+Wooden Water Pot with Potash Solution=Деревянный горшок для воды с раствором калия
+
+# nodecrafting
+
+Dump=Вылить
+Dump the dye from the pot?=Вылить краситель из горшка?
+
+Bundle of plants=Пучок растений
+Treated bundle of plants=Обработанный пучок растений
+Dyer's Table@n(Used to create dyes)=Стол красильщика@n (используется для создания красителей)
+Dyer's Table=Стол красильщика
+Dye Pot=Горшок для красителей
+useless =бесполезный 
+treated by cooking=обработанный варкой
+treated by soaking=обработанный вымачиванием
+treated by burning=обработанный обжигом
+untreated=необработанный
+@1bundle of @2, @3=@3 @1пучок @2
+
+Combine with another slab=Соедините с другой плитой
+
+Flip to stone knife=Перевернуть на каменный нож
+Cut plants faster than bare hands=Срезайте растения быстрее, чем голыми руками
+Flip to stone etcher=Перевернуть на каменный резчик
+Place tool for cutting crafts=Положите для инструмента вырезания поделок
+Dig hard earth=Копайте твердую землю
+Till soil slowly=Медленно обрабатывайте почву
+Place tool for plant crafts=Поместите инструмент для поделок из растений
+Strike=Ударить
+Stun animals=Оглушать животных
+Cut any wood=Резать любое дерево
+Dig earth quickly=Быстро копать землю
+Till soil=Обрабатывать почву
+Place for plant crafts=Место для поделок из растений
+Dig stone=Копать камень
+Till soil quickly=Быстро обработайте почву
+Place tool for plant crafts=Поместите инструмент для поделок из растений
+Stun animals@n or Place on solid surface for hammering crafts=Оглушить животных@n или поместить на твердую поверхность для поделок из молота
+Cut softwood logs=Рубка бревен мягких пород древесины
+
+Slag Stair=Шлаковая лестница
+Slag Slab=Шлаковая плита
+Brick and Mortar Stair=Лестница из кирпича и раствора
+Brick and Mortar Slab=Плита из кирпича и раствора
+Tile Stair=Плиточная лестница
+Tile Slab=Плиточная плита
+@1 Brick with Mortar Stair=@1 лестница из кирпича и раствора
+@1 Brick with Mortar Slab=@1 кирпич с растворной плитой
+Drystack Stair=Лестница из сухого кирпича
+Drystack Slab=Плита из сухого кирпича
+Mudbrick Stair=Лестница из глинобитного кирпича
+Mudbrick Slab=Глинобитная плита
+Rammed Earth Stair=Лестница из утрамбованной земли
+Rammed Earth Slab=Плита из утрамбованной земли
+Thatch Stair=Лестница из соломы
+Thatch Slab=Плита из соломы
+
+@1 Block with Mortar Stair=@1 лестница из блоков с раствором
+@1 Block with Mortar Slab=@1 плита из блока с растворной
+
+Odd=Странный
+Drink=Выпить
+
+# Craft station
+Weaving=Ткачество
+Mixing=Смешивание
+Crafting=Создание
+Create=Создать
+Pottery=Керамика
+Wattle=Плетень
+Tools=Инструменты
+Bricks=Кирпичи
+Blocks=Блоки
+Stations=Станции
+Agriculture=Агрокультура
+
+# dye
+red dye=Красный краситель
+crimson dye=Малиновый краситель
+yellow dye=Жёлтый краситель
+green dye=Зелёный краситель
+blue dye=Синий краситель
+indigo dye=Краситель индиго
+black dye=Чёрный краситель
+
+# Pottery
+Broken Pottery Slab=Плита из разбитой керамики
+Clay Watering Can (unfired)=Глиняная лейка (необожженная)
+Clay Watering Can=Глиняная лейка
+Clay Watering Can with Freshwater=Глиняная лейка с пресной водой
+Clay Watering Can with Salt Water=Глиняная лейка с соленой водой
+Wooden Watering Can=Деревянная лейка
+Wooden Watering Can with Freshwater=Деревянная лейка с пресной водой
+Wooden Watering Can with Salt Water=Деревянная лейка с соленой водой
+
+Clay Oil Lamps (x4) (unfired)=Глиняные масляные лампы (x4) (необожженные)
+Clay Oil Lamps (x4)=Глиняные масляные лампы (x4)
+
+# Lantern
+Lantern Case=Корпус фонаря
+Lantern Case with a wick=Корпус фонаря с фитилем
+Lantern Case with Glass=Корпус фонаря со стеклом
+Unlit Lantern=Незажженный фонарь
+Lit Lantern=Зажженный фонарь
+
+Enrich depleted soil=Удобрить истощенную почву

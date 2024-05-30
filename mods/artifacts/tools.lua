@@ -617,7 +617,7 @@ local animal_probe = function(user, pointed_thing)
 end
 
 minetest.register_craftitem("artifacts:animal_probe", {
-	description = "Animal Probe",
+	description = S("Animal Probe"),
 	inventory_image = "artifacts_animal_probe.png",
   wield_image = "artifacts_animal_probe.png^[transformR90",
 	stack_max = 1,

@@ -6,6 +6,7 @@
 
 stairs = {}
 
+local S = minetest.get_translator("minimal")
 
 -- Get setting for replace ABM
 
@@ -287,7 +288,7 @@ function stairs.register_stair_inner(subname, recipeitem, craft_station, recycle
 	local new_groups = table.copy(groups)
 	new_groups.stair = 1
 	minetest.register_node(":stairs:stair_inner_" .. subname, {
-		description = "Inner " .. description,
+		description = S("Inner @1", description),
 		drawtype = "nodebox",
 		tiles = stair_images,
 		stack_max = stack_size,
@@ -346,7 +347,7 @@ function stairs.register_stair_outer(subname, recipeitem, craft_station, recycle
 	local new_groups = table.copy(groups)
 	new_groups.stair = 1
 	minetest.register_node(":stairs:stair_outer_" .. subname, {
-		description = "Outer " .. description,
+		description = S("Outer @1", description),
 		drawtype = "nodebox",
 		tiles = stair_images,
 		stack_max = stack_size,
@@ -381,9 +382,9 @@ end
 
 function stairs.register_stair_and_slab(subname, recipeitem, craft_station, recycle, recycle_station,
 		groups, images, desc_stair, desc_slab, stack_size, sounds, worldaligntex, droptypemain)
-        local droptype = nil
-        local droptypesub = ""
-        if droptypemain ~= nil then
+	local droptype = nil
+	local droptypesub = ""
+	if droptypemain ~= nil then
 	   -- 50% chance to drop the whole node if no stair/slabs exist
 	   droptype = { max_items = 1,items = {
 			   {rarity = 2, items = {droptypemain} }
@@ -391,17 +392,17 @@ function stairs.register_stair_and_slab(subname, recipeitem, craft_station, recy
 	   --Else remove the modname so we can build the stairs names if they do
 	   droptypesub = string.split(droptypemain,":")[2]
 	end
-        local stexist = minetest.registered_nodes["stairs:stair_"..droptypesub]
-        if stexist then droptype = "stairs:stair_"..droptypesub end
+	local stexist = minetest.registered_nodes["stairs:stair_"..droptypesub]
+	if stexist then droptype = "stairs:stair_"..droptypesub end
 	stairs.register_stair(subname, recipeitem, craft_station, recycle, recycle_station, groups, images,
 		desc_stair, stack_size, sounds, worldaligntex, droptype)
-        if stexist then droptype = "stairs:stair_inner_"..droptypesub end
+	if stexist then droptype = "stairs:stair_inner_"..droptypesub end
 	stairs.register_stair_inner(subname, recipeitem, craft_station, recycle, recycle_station, groups, images,
 		desc_stair, stack_size, sounds, worldaligntex, droptype)
-        if stexist then droptype = "stairs:stair_outer_"..droptypesub end
+	if stexist then droptype = "stairs:stair_outer_"..droptypesub end
 	stairs.register_stair_outer(subname, recipeitem, craft_station, recycle, recycle_station, groups, images,
 		desc_stair, stack_size, sounds, worldaligntex, droptype)
-        if stexist then droptype = "stairs:slab_"..droptypesub end
+	if stexist then droptype = "stairs:slab_"..droptypesub end
 	stairs.register_slab(subname, recipeitem, craft_station, recycle, recycle_station, groups, images,
 		desc_slab, stack_size, sounds, worldaligntex, droptype)
 end

@@ -1,0 +1,19 @@
+# textdomain: player_api
+Select your gender=
+Male=
+Female=
+
+Purple Stripe Summer T-shirt=
+Fresh Summer Denim Shorts=
+Common Black Shoes=
+Pink Bow=
+Classic Green Sweater=
+Fine Blue Pants=
+Keeps you warm in bed=
+
+Head=
+Upper=
+Lower=
+Footwear=
+Cape=
+Unisex=

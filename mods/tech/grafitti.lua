@@ -163,7 +163,7 @@ grafitti.register_brush("tech:stone_etcher", {
 })
 
 minetest.override_item("tech:stone_etcher", {
-	_use_tip = "Flip to stone knife",
+	_use_tip = S("Flip to stone knife"),
 	_on_use_item = function(player, wielded_item, pointed_thing)
 	   minimal.swap_tool(player, wielded_item, "tech:stone_chopper")
 	   return false

@@ -1,5 +1,6 @@
 local c_alpha = minimal.compat_alpha
 
+local S = minetest.get_translator("ropes")
 
 local function rope_box_tiles(count, tint)
 	return {
@@ -117,8 +118,7 @@ local rope_box_data = {
 local function register_rope_block(multiple, max_multiple, name_prefix, node_prefix, tint, flammable)
 	local node_name = string.format("ropes:%s%irope_block", node_prefix, multiple)
 	local rope_block_def = {
-		--description = "@1 Ropebox @2m", name_prefix, ropes.ropeLength*multiple,
-		description = name_prefix.." Ropebox "..ropes.ropeLength*multiple.."m",
+		description = S("@1 Ropebox @2m", name_prefix, ropes.ropeLength*multiple),
 		_doc_items_create_entry = false,
 		drawtype="nodebox",
 		sunlight_propagates = true,
@@ -203,7 +203,7 @@ local function register_rope_block(multiple, max_multiple, name_prefix, node_pre
 end
 
 local rope_def = {
-	description = "Rope",
+	description = S("Rope"),
 	walkable = false,
 	climbable = true,
 	sunlight_propagates = true,
@@ -238,7 +238,7 @@ local rope_def = {
 local rope_extension_timer = ropes.make_rope_on_timer("ropes:rope")
 
 local rope_bottom_def = {
-	description = "Rope",
+	description = S("Rope"),
 	_doc_items_create_entry = false,
 	walkable = false,
 	climbable = true,
@@ -291,4 +291,4 @@ minetest.register_node("ropes:rope_bottom", rope_bottom_def)
 
 --Ropes
 
-register_rope_block(1, 3, "Wooden", "wood", "#96854f")
+register_rope_block(1, 3, S("Wooden"), "wood", "#96854f")

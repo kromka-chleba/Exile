@@ -1,9 +1,12 @@
 # textdomain: nodes_nature
 
+# dropping water
+Water drop=Капля воды
+
 # data_plant.lua
 Moss=Мох
 Moss Spores=Споры мха
-Anperla Tuber=Клубень анперла
+Anperla Tuber=Клубень анперлы
 Reshedaar Spores=Споры решедара
 Mahal Spores=Споры махала
 Lambakap Spores=Споры ламбакапа
@@ -12,41 +15,96 @@ Seagrass=Морская трава
 Sea Lettuce=Морской салат
 Maraka Nut=Орех марака
 Tangkal Fruit=Фрукт тангкала
-Sasaran Cone=Шишка сасаранская
+Sasaran Cone=Сасаранская шишка
 Kagum Pod=Стручок кагума
 Maraka Tree=Дерево марака
 Tangkal Tree=Дерево тангкал
 Sasaran Tree=Дерево сасаран
 Kagum Tree=Дерево кагум
+Panasee Tree=Дерево Панаси
+Amma Tree=Дерево Амма
+Daoja Tree=Дерево Даоджа
+Jalowiec Cone=Шишка Яловец
+Panasee Fruit=Фрукты Панаси
+Amma nut=Орех Амма
+Daoja Berry=Ягода Даоджа
+Jalowiec Shrub=Кустарник яловец
+
+Riraemu=Рираэму
+Opaeko=Опаеко
+Aongao=Аонгао
+Nagaeo=Нагаэо
+Koaeako=Коаэако
+Imoaru=Имоару
+
+
+# plants_and_mushrooms
+Barszcz=Баршч
+Wrotycz=Вротыч
+Wiha=Виха
+Momo=Момо
+Galanta=Галанта
+Vansano=Ванзано
+Anperla=Анперла
+Rzepicha=Жепича
+Hakimi=Хакими
+Ziarnopłon=Зярноплон
+Srebropłon=Среброплон
+Orom=Ором
+Veke=Веке
+Tikusati=Тикусати
+Malinka=Малинка
+Malina=Малина
+Yellow Malina=Желтая Малина
+Gevaari=Геваари
+Obesa=Обеса
+Salia=Салия
+Fretin=Хорёк
+Lambakap=Ламбакап
+Reshedaar=Решедаар
+Mahal=Махал
+Merki=Мерки
+Nebiyi=Небии
+Marbhan=Марбхан
+Zufani=Зуфани
+Tsaplop=Цаплоп
+Jogalan=Йогалан
+Gitiri=Гитири
+Badyl=Бадыл
+Drapacz=Драпач
+Bronach=Бронах
+Sari=Сари
+Tanai=Танай
+Thoka=Тока
+Alaf=Алаф
+Muhle=Мухле
+Damo=Дамо
+Tashvish=Ташвиш
+Cana=Кана
+Gemedi=Гемеди
+Chalin=Чалин
+Tiken=Тикен
+Saguati=Сагуати
+Zufani Amber=Зуфани Амбер
+Momo Pepper=Перец Момо
+Wiha Berries=Ягоды Виха
+Muhle Berries=Ягоды Мухле
+Barszcz root=Корень барщицы
+Rzepicha root=Корень Ржепича
+This plant has a foul musty flavor.=Это растение обладает неприятным затхлым ароматом.
+Your stomach hurts terribly.=Ужасно болит живот.
 
 # data_rock.lua
 Sandstone=Песчаник
 Siltstone=Алевролит
-Claystone=Глинистый камень
+Claystone=Аргиллит
 Conglomerate=Конгломерат
 Limestone=Известняк
-Ironstone=Железистый камень
+Ironstone=Железняк
 Granite=Гранит
 Basalt=Базальт
 Gneiss=Гнейс
 Jade=Нефрит
-Sand=Песок
-Silt=Ил
-Clay=Глина
-Gravel=Гравий
-Loam=Суглинок
-Grassland Soil=Почва пастбищная
-Marshland Soil=Почва болотная
-Duneland Soil=Почва дюн
-Highland Soil=Почва горная
-Woodland Soil=Почва лесная
-Barren Grassland Soil=Почва бесплодных пастбищ
-Dry Woodland Soil=Почва сухая лесная
-Clay Agricultural Soil=Почва глинистая сельскохозяйственная
-Silty Agricultural Soil=Почва шелковистая сельскохозяйственная
-Sandy Agricultural Soil=Почва песчаная сельскохозяйственная
-Stony Agricultural Soil=Почва каменистая сельскохозяйственная
-Loamy Agricultural Soil=Почва суглинистая сельскохозяйственная
 
 # life.lua
 Young @1=Молодой(ая) @1
@@ -54,6 +112,16 @@ Young @1=Молодой(ая) @1
 @1 Seeds=Семена @1
 Cana=Кана
 Glow Worm=Светящийся червь
+Flowering @1=Соцветие @1
+Fruiting @1=Плодоносящий @1
+Dead Fruitless @1=Мертвый бесплодный @1
+Dead @1=Мертвый @1
+Dead Fruiting @1=Мертвый плодоносящий @1
+@1 Fruit=@1 Плод
+@1 Dry Fruit=@1 Сухой фрукт
+Fruitless @1=Бесплодный @1
+@1 Root=@1 Корень
+Node is protected=Node is protected
 
 # liquids.lua
 Salt Water=Соленая вода
@@ -66,29 +134,98 @@ Ice=Лёд
 Sea Ice=Морской лед
 Lava Source=Источник лавы
 Lava Flowing=Течение лавы
+Combine with another slab@n or eat if you're desperate=Соедините с другой плитой@n или съешьте, если вы в отчаянии.
+Salt water is not safe to drink.=Соленую воду пить небезопасно.
+Eat if you're desperate=Съешьте, если вы в отчаянии
 
 # rocks.lua
 @1 Boulder=Валун @1
 @1 Brick=Кирпич @1
 @1 Block=Блок @1
+@1 Cobble=Булыжник @1
 
-# sediment.lua
+# sediment conditions (sediment_api.lua, sediment_data.lua)
 Wet @1=Влажный @1
 Salty Wet @1=Солёный влажный @1
 Depleted @1=Истощенный @1
 Wet Depleted @1=Истощенный влажный @1
+Frosty Winter @1=Мерзлая зимняя @1
+Frosty Winter Wet @1=Влажная мерзлая зимняя @1
+@1 Agricultural Soil=@1 сельскохозяйственная почва
+@1 Fertile Soil=@1 плодородная почва
+@1 Fertile Agricultural Soil=@1 плодородная сельскохозяйственная почва
+@1 With Roots=@1 с корнями
+@1 Stair=@1 ступенька
+@1 Slab=@1 плита
+
+# sediments (sediment_data.lua)
+Sand=Песок
+Silt=Ил
+Clay=Глина
+Gravel=Гравий
+Loam=Суглинок
+Volcanic ash=Вулканический пепел
+Red Ochre=Красная охра
+
+# biome sediments (sediment_data.lua)
+Rich Forest Soil=Богатая лесная почва
+Rich Woodland Soil=Богатая древесная почва
+Forest Soil=Лесная почва
+Upland Forest Soil=Горная лесная почва
+Woodland Soil=Древесная почва
+Upland Woodland Soil=Горная древесная почва
+
+Marshland Soil=Болотная почва
+Swamp Forest Soil=Болотистая лесная почва
+Coastal Shrubland Soil=Прибрежная кустарниковая почва
+Coastal Grassland Soil=Прибрежная травянистая почва
+Coastal Barren Grassland Soil=Прибрежная бесплодная травянистая почва
+Coastal Duneland Soil=Прибрежная земляная почва
+
+Grassland Soil=Травянистая почва
+Shrubland Soil=Кустарниковая почва
+Barren Grassland Soil=Бесплодная травянистая почва
+Duneland Soil=Почва дюн
+Upland Grassland Soil=Горная травянистая почва
+Upland Shrubland Soil=Горная кустарниковая почва
+Upland Barren Grassland Soil=Горная бесплодная травянистая почва
+Upland Duneland Soil=Горная почва дюн
+Highland Soil=Горная почва
+
+Dry Woodland Soil=Сухая лесная почва
 
 # trees.lua
-Tree Marker=Маркер дерева
+Tree Marker=Древесный маркер
 @1 Log=Бревно @1
 @1 Leaves=Листья @1
+@1 Log Stair=@1 бревенчатая лестница
+@1 Log Slab=@1 бревенчатая плита
 
 # compost.lua
-@1 Slab=
-Compost=
-Wet Compost=
-Undecomposed Compost=
-Wet Undecomposed Compost=
-Set to decompose=
-Fertilize soil=
-Fertilize and soak soil=
+@1 Slab=@1 плита
+Compost=Компост
+Wet Compost=Влажный компост
+Undecomposed Compost=Неразложившийся компост
+Wet Undecomposed Compost=Влажный неразложившийся компост
+Set to decompose=Установите для перегнивания
+Fertilize soil=Удобрить почву
+Fertilize and soak soil=Вносите удобрения и поливайте почву
+
+# Leaf Marker
+Leaf Marker=Листовой маркер
+
+Combine with another slab=Соедините с другой плитой
+
+@1 Brick Stair=@1 кирпичная лестница
+@1 Brick Slab=@1 кирпичная плита
+@1 Block Stair=@1 блочная лестница
+@1 Block Slab=@1 блочная плита
+
+# interface
+Threshing=Молотилка
+Crafting=Создание
+Bricks=Кирпичи
+Bricks & Mortar=Кирпичи и раствор
+Blocks=Блоки
+Blocks & Mortar=Блоки и раствор
+Mixing=Смешивание

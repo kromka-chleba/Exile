@@ -16,3 +16,4 @@ Acacia Wood Fence Gate=
 Jungle Wood Fence Gate=
 Pine Wood Fence Gate=
 Aspen Wood Fence Gate=
+You can't open this door, =

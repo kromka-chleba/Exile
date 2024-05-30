@@ -21,7 +21,7 @@ end
 -- Airboat entity
 
 local airboat = {
-	_desc = "Airboat",
+	_desc = S("Airboat"),
 	initial_properties = {
 		physical = true,
 		collide_with_objects = true,
@@ -266,7 +266,7 @@ minetest.register_entity("artifacts:airboat", airboat)
 -- Craftitem
 
 minetest.register_craftitem("artifacts:airboat", {
-	description = "Airboat",
+	description = S("Airboat"),
 	inventory_image = "artifacts_airboat_inv.png",
 	stack_max = 1,
 	wield_scale = {x = 4, y = 4, z = 4},

@@ -239,10 +239,10 @@ end
 
 
 local function get_formspec()
-   local title = "BREAK TIME!"
-   local message1 = "You've been here long enough to justify a real break.\n"..
+   local title = S("BREAK TIME!")
+   local message1 = S("You've been here long enough to justify a real break.\n"..
       "Think of this as a reminder from your better self.\nGo get some rest."..
-      " Leave Exile behind. You can come back any time."
+      " Leave Exile behind. You can come back any time.")
 	local quote = get_quote()
 
 	local formspec = {
@@ -475,7 +475,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		      and nm ~= name then
 			   minetest.chat_send_player(name, S("This bed is already occupied!"))
 			   local meta = minetest.get_meta(bed_pos)
-			   minimal.infotext_merge(bed_pos,S('Status: Occupied by ')..nm,meta)
+			   minimal.infotext_merge(bed_pos,S('Status: Occupied by @1', nm),meta)
 			   return false
 			end
 		end
@@ -485,7 +485,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		bed_rest.level[name] = level
 		st:add("resting")
 		if not minetest.is_singleplayer() then
-		   minimal.infotext_merge(bed_pos,S('Status: Occupied by ')..name)
+		   minimal.infotext_merge(bed_pos,S('Status: Occupied by @1', name))
 		   minetest.get_node_timer(bed_pos):start(60 * 60 * 24 *
 							  days_until_timeout)
 		end
@@ -575,7 +575,7 @@ function bed_rest.on_timer(pos, elapsed)
       if vector.distance(pos, other_pos) < 0.1 then
 	 bed_rest.bed_position[nm] = nil
 	 if not minetest.is_singleplayer() then
-		 minimal.infotext_merge(pos,S('Status: Occupied by ')..nm..S('(old)'),meta)
+		 minimal.infotext_merge(pos,S('Status: Occupied by @1 (old)', nm),meta)
 	 end
 	 return false
       end

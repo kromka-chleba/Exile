@@ -36,7 +36,7 @@ end
 
 for name, number in pairs(dyelist) do
 minetest.register_craftitem(":ncrafting:dye_"..name, {
-   description = name.." dye",
+   description = S(name.." dye"),
    inventory_image = "blank_dye.png",
    color = dye_to_colorstring(number),
    _ncrafting_dye_color = number
@@ -215,27 +215,27 @@ local function bundlename(meta, plant, treatment)
       plant = meta:get_string("ncrafting:bundled_plant")
    end
    if meta and meta:get_string("ncrafting:bundle_failed") == "true" then
-      prefix = "useless "
+      prefix = S("useless ")
    end
    if treatment == nil and meta then
       treatment = meta:get_string("ncrafting:bundle_treatment")
    end
    local def = minetest.registered_items[plant]
    if def and (def._orig_desc or def.description) then
-      fmt_plant = "of "..(def._orig_desc or def.description)
+      fmt_plant = (def._orig_desc or def.description)
    else
       minetest.log("error","NCRAFTING: Bundle could not get name of plant: "..plant)
    end
    if treatment and treatment ~= "" then
-      fmt_treatment = ", "..methodstring[treatment]
+      fmt_treatment = S(methodstring[treatment])
    else
-      fmt_treatment = ", untreated"
+      fmt_treatment = S("untreated")
    end
-   return prefix.."bundle "..fmt_plant..fmt_treatment
+   return S("@1bundle of @2, @3", prefix, fmt_plant, fmt_treatment)
 end
 
 bundledef = {
-   description = "Bundle of plants",
+   description = S("Bundle of plants"),
    inventory_image = "tech_retted_cana_bundle.png", -- #TODO: proper texture
    tiles = { {name="tech_retted_cana_bundle.png"} },
    drawtype = "normal",
@@ -322,7 +322,7 @@ for name, number in pairs(bundlelist) do
       end
       return continue
    end
-   tbdef.description = "Treated bundle of plants"
+   tbdef.description = S("Treated bundle of plants")
    tbdef.color = dye_to_colorstring(number)
    tbdef.groups.not_in_creative_inventory = 1
    tbdef._ncrafting_dcolor = name
@@ -335,7 +335,7 @@ end
 
 local table_formspec_base = "formspec_version[5]" ..
    "size[11,5.5]" ..
-   "label[4.55,0.5;Dyers' Table]" ..
+   "label[4.55,0.5;"..S("Dyer's Table").."]" ..
    "list[current_name;craft;3,1.2;1,1]" ..
    "list[current_name;craftresult;7,1.2;1,1]" ..
    "list[current_player;main;0.66,2.9;8,2;0]"..
@@ -374,8 +374,8 @@ local function adjust_button(pos)
 end
 
 minetest.register_node(":ncrafting:dye_table", {
-	description = "Dyer's Table\n(Used to create dyes)",
-	short_description = "Dyer's Table",
+	description = S("Dyer's Table\n(Used to create dyes)"),
+	short_description = S("Dyer's Table"),
 	tiles = { {name="tech_stick.png"}
 	},
 	drawtype = "nodebox",
@@ -628,7 +628,7 @@ end
 
 
 minetest.register_node(":ncrafting:dye_pot", {
-	description = "Dye Pot",
+	description = S("Dye Pot"),
 	tiles = {
         -- Textures of node; +Y, -Y, +X, -X, +Z, -Z
 	   {name="tech_pottery.png^[transform0", color="white"}, --spin 4

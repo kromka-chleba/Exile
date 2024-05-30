@@ -28,12 +28,12 @@ NOT MEASURABLE!=
 Light Meter=
 List light level of node or self=
 LIGHT MEASUREMENT:=
-LIGHT LEVEL ==
+LIGHT LEVEL @= =
 
 Temperature Probe=
 List temperature of node=
-OBJECT TEMEPRATURE MEASUREMENT=
-TEMPERATURE ==
+OBJECT TEMPERATURE MEASUREMENT=
+TEMPERATURE @= =
 
 Fuel Probe=
 List fuel units of node=
@@ -44,7 +44,7 @@ List remaining units of node for smelting=
 SMELTING UNITS REMAINING:=
 
 Potter's Probe=
-List remaining firign units of unfired clay=
+List remaining firing units of unfired clay=
 FIRING UNITS REMAINING:=
 
 Chef's Probe=
@@ -63,6 +63,9 @@ ROOTS:=
 PLANT GROWTH NOT MEASURABLE!=
 PLANT HEALTH NOT MEASURABLE!=
 NOT MEASURABLE: NEEDS A PLANT OR SOIL=
+wet=
+salty=
+dry=
 
 Animal Probe=
 List stats of pointed animal or player=
@@ -85,6 +88,17 @@ List groups of pointed node=
 GROUPS:=
 
 # transporter.lua
+Transporter Key=
+Transporter Key to =
+Transporter Pad=
+Transporter Pad (Charging)=
+Transporter Pad (active)=
+Transporter Power Core (charged)=
+Transporter Power Core (depleted)=
+Transporter Focalizer=
+Transporter Stabilizer=
+Transporter Regulator=
+Transporter Key=
 KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
 Bond Transporter to Target=
 Replace Transporter Bond with NEW Target=
@@ -106,16 +120,23 @@ WAYFINDER BOND LOST=
 WAYFINDER ALREADY BONDED=
 WAYFINDER CAN ONLY BOND TO WAYSTONE=
 Permanently Bond=
-
+Wayfinder=
+Waystone=
 
 # airboat.lua
 
+Airboat=
 [airboat] Cruise on=
 [airboat] Cruise off=
 
 # storage.lua 
 @1 chest=
 
+# bell.lua
+Automated Bell=
+
+# map.lua
+Geosurveyor@nUse with 'Minimap' key=
 
 # art.lua
 Moon Glass=
@@ -127,3 +148,16 @@ Gamepiece (white)=
 Singing Stone=
 Drumming Stone=
 
+# materials.lua
+Moon Glass=
+Sun Stone=
+Moon Stone=
+Star Stone=
+@1 Ladder=
+@1 Door=
+@1 Trapdoor=
+Trampoline=
+Conveyor=
+
+# pandora.lua
+Meta-Stim Injector=

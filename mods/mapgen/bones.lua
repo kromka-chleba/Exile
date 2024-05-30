@@ -2,6 +2,8 @@
 -- Globals
 local _EXILE_DEBUG = minetest.settings:get("exile_debug") == "true"
 
+local S = minetest.get_translator("bones")
+
 loot_table = {
    -- #TODO: break this out into a general treasure system, in prep for
    -- ruined huts and other sites; move it somewhere
@@ -105,7 +107,7 @@ function replace(pos)
 	 table.remove(loot, roll)
       end
    until total <= 0 or #loot == 0
-   meta:set_string("infotext", "Bones of a long-dead exile")
+   meta:set_string("infotext", S("Bones of a long-dead exile"))
    meta:set_string("formspec", bones_formspec)
 end
 
@@ -119,7 +121,7 @@ minetest.register_lbm({
 
 -- Placeholder node, replaced at runtime with bones:bones, filled with loot
 minetest.register_node("mapgen:exile_bones", {
-	description = "Bones of a long-dead exile",
+	description = S("Bones of a long-dead exile"),
 	inventory_image = "bones_inv.png",
 	wield_image = "bones_inv.png",
 	drop = "bones:bones",

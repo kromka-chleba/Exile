@@ -128,7 +128,7 @@ local self_data = {
 	   makes_footstep_sound = true,
 	   _VH1_barheight = -20, -- lowers VH1 hp bar by 1 node
 	},
-	_desc = "Darkasthaan",
+	_desc = S("Darkasthaan"),
 	timeout = 0,
 
 	-- animal stats

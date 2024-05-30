@@ -220,7 +220,7 @@ minetest.register_node("tech:wood_ash", {
     end
   end,
 	_dig_tip = S("Enrich depleted soil"),
-	_use_tip = "Combine with another slab",
+	_use_tip = S("Combine with another slab"),
 	_on_use_item = function(player, wielded_item, pointed_thing)
 	   return minimal.slabs_combine(player, wielded_item,
 					pointed_thing, "tech:wood_ash_block")
@@ -260,7 +260,7 @@ minetest.register_node("tech:charcoal", {
 		minimal.switch_node(pos, {name = "tech:small_charcoal_fire"})
 		minetest.check_for_falling(pos)
 	end,
-	_use_tip = "Combine with another slab",
+	_use_tip = S("Combine with another slab"),
 	_on_use_item = function(player, wielded_item, pointed_thing)
 	   return minimal.slabs_combine(player, wielded_item,
 					pointed_thing, "tech:charcoal_block")
@@ -314,7 +314,7 @@ minetest.register_node('tech:small_wood_fire_unlit', {
 	paramtype = "light",
 	groups = {oddly_breakable_by_hand = 3, choppy = 3, falling_node = 1, flammable = 1},
 	sounds = nodes_nature.node_sound_wood_defaults(),
-	_use_tip = "Combine with another slab",
+	_use_tip = S("Combine with another slab"),
 	_on_use_item = function(player, wielded_item, pointed_thing)
 	   return minimal.slabs_combine(player, wielded_item,
 					pointed_thing,
@@ -777,7 +777,7 @@ minetest.register_node('tech:small_wood_fire_ext', {
 	sounds = nodes_nature.node_sound_dirt_defaults(),
 
 	on_dig = on_dig_fire,
-	_use_tip = "Combine with another slab",
+	_use_tip = S("Combine with another slab"),
 	_on_use_item = function(player, wielded_item, pointed_thing)
 	   return minimal.slabs_combine(player, wielded_item,
 					pointed_thing,'tech:large_wood_fire_ext')
@@ -822,7 +822,7 @@ minetest.register_node('tech:small_charcoal_fire_ext', {
 	groups = {crumbly = 3, oddly_breakable_by_hand = 1, falling_node = 1,
 		  temp_pass = 1, flammable = 3},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
-	_use_tip = "Combine with another slab",
+	_use_tip = S("Combine with another slab"),
 	_on_use_item = function(player, wielded_item, pointed_thing)
 	   return minimal.slabs_combine(player, wielded_item,
 					pointed_thing,

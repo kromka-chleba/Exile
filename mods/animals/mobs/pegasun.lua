@@ -325,7 +325,7 @@ animals.add_interactors("animals:pegasun_male","rivals", "self")
 local self_data = {
   name = "animals:pegasun",
 	--core
-	_desc = "Female Pegasun",
+	-- _desc = "Female Pegasun",
 	initial_properties = {
 	   max_hp = 40,
 	   physical = true,
@@ -337,7 +337,7 @@ local self_data = {
 	   visual_size = {x = 1, y = 1},
 	   makes_footstep_sound = true,
 	},
-	_desc = "Female Pegasun",
+	_desc = S("Female Pegasun"),
 	timeout = 0,
 
 	-- animal stats
@@ -452,7 +452,7 @@ local self_data = {
   },
   -- spawnegg or live animal
   spawnegg = {
-    desc = S("Live Pegasun"),
+    desc = S("Live Female Pegasun"),
     inv_img = "animals_pegasun_item.png",
     stack = minimal.stack_max_medium
   }
@@ -542,5 +542,6 @@ self_male.sounds = {
 self_male.attack={range=0.9, damage_groups={fleshy=4}}
 -- male spawnegg or live animal modifications
 self_male.spawnegg.desc = S("Live Male Pegasun")
+self_male._desc = S("Male Pegasun")
 -- registering male
 animals.register_animal(self_male.name,self_male)
