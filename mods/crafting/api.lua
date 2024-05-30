@@ -160,6 +160,7 @@ end
 -- custom 'correct' function allows one to determine groupnumcondition values that have a condition
 -- following can be parameters of 'stats': 'name', 'num', 'desc', 'correct'
 function crafting.get_group_stats(grouptag)
+  local t1 = minetest.get_us_time()
   -- string must contain "group:" or will return nil
   grouptag = (type(grouptag) == "string" and grouptag:sub(1,6) == "group:") and grouptag or nil
   if not grouptag then return end
@@ -226,6 +227,7 @@ function crafting.get_group_stats(grouptag)
     end
     return false
   end
+  minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
   return stats
 end
 minetest.after(5,function()
@@ -395,15 +397,16 @@ function crafting.pick_required_item(inv, listname, item, located)
 	local count=0  -- returning count of items found and added to located table.
 	item = ItemStack(item)
 	local itemName = item:get_name()
-	if itemName:sub(1, 6) == "group:" then
-		local groupname = itemName:sub(7, #itemName)
+  local group_stats = crafting.get_group_stats(itemName)
+	if group_stats then
 		local required = item:get_count()
 		-- search stacks in provided inv and list
 		for i = 1, inv:get_size(listname) do
 			local stack = inv:get_stack(listname, i)
 			-- Is it in group?
 			local def = minetest.registered_items[stack:get_name()]
-			if required > 0 and def and def.groups and def.groups[groupname] then
+      local group = def and def.groups and def.groups[group_stats.name]
+			if required > 0 and group and group_stats.correct(group) then
 				local found = ItemStack(stack)
 				if found:get_count() > required then
 					found:set_count(required)
