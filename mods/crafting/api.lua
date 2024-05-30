@@ -164,17 +164,20 @@ function crafting.get_group_stats(grouptag)
   -- string must contain "group:" or will return nil
   grouptag = (type(grouptag) == "string" and grouptag:sub(1,6) == "group:") and grouptag or nil
   if not grouptag then return end
-  grouptag = grouptag:sub(7,#grouptag) -- remove 'group:'
+  --grouptag = grouptag:sub(7,#grouptag) -- remove 'group:'
   local str_len = #grouptag
   local stats = {} -- table of "stats" to return
   -- has parameters to check through
   if string.match(grouptag,",") then
-    local reader = 1
+    local reader = 7 -- start at 7th character, after "group:"
     while true do -- use while loop for custom iterator addition+remove
       if reader >= str_len then break end -- end reading if we're over string length
       local read_char = grouptag:sub(reader,reader)
       if read_char == "," then -- found parameter
-        if not stats.name then stats.name = grouptag:sub(1,reader-1) end
+        if not stats.tag then -- create stats.tag and stats.name
+          stats.tag = grouptag:sub(1,reader-1)
+          stats.name = stats.tag:sub(7,#stats.tag)
+        end
         reader=reader+1
         if not stats.num then -- assume 1st parameter is custom group num
           stats.num = ""
@@ -200,8 +203,11 @@ function crafting.get_group_stats(grouptag)
       reader=reader+1 -- gradually increase to iterate through string
     end
   end
-  if not stats.name then stats.name = grouptag end -- if no stats.name set by parameter line then assume normal
-  stats.tag = "group:"..stats.name
+  -- if no stats.tag set by parameter line then assume normal
+  if not stats.tag then
+    stats.tag = grouptag
+    stats.name = stats.tag:sub(7,#stats.tag)
+  end
   -- remove nil indexes
   for stat,val in pairs(stats) do
     if val == "" or val:lower() == "nil" then
@@ -347,8 +353,7 @@ function crafting.set_item_hashes_from_list(inv, listname, item_hash)
 			local def = minetest.registered_items[itemname]
 			if def and def.groups then
 				for groupname, _ in pairs(def.groups) do
-          local groupstats = crafting.get_group_stats("group:"..groupname)
-          local group = groupstats.tag
+					local group = "group:" .. groupname
 					crafting.item_by_group[group] = itemname
 					item_hash[group] = (item_hash[group] or 0) + stack:get_count()
 				end
