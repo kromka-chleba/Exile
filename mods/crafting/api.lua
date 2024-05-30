@@ -29,6 +29,8 @@ crafting = {
 	sort_order_by_player = {}, -- hash of recipe id to display order in sorted array
 }
 
+local S = minetest.get_translator("minimal")
+
 function crafting.register_type(name, label)
 	crafting.recipes[name] = {}
 	-- add a label for tabs - default to the name
@@ -174,11 +176,10 @@ function crafting.get_group_stats(grouptag)
       if reader >= str_len then break end -- end reading if we're over string length
       local read_char = grouptag:sub(reader,reader)
       if read_char == "," then -- found parameter
-        if not stats.tag then -- create stats.tag and stats.name
+        if not stats.tag then -- create stats.tag
           stats.tag = grouptag:sub(1,reader-1)
-          stats.name = stats.tag:sub(7,#stats.tag)
         end
-        reader=reader+1
+        reader=reader+1 -- skip ahead to read char after parameter separator
         if not stats.num then -- assume 1st parameter is custom group num
           stats.num = ""
           -- add to stats num value with found characters until end
@@ -206,8 +207,17 @@ function crafting.get_group_stats(grouptag)
   -- if no stats.tag set by parameter line then assume normal
   if not stats.tag then
     stats.tag = grouptag
-    stats.name = stats.tag:sub(7,#stats.tag)
   end
+  -- sterilize of itemstack parameters
+  if stats.tag:match(" ") then
+    for i=7,#stats.tag do -- start at 7th char
+      if stats.tag:sub(i,i) == " " then -- found it, get only the tag from it
+        stats.tag = stats.tag:sub(1,i-1)
+      end
+    end
+  end
+  -- set up group name
+  stats.name = stats.tag:sub(7,#stats.tag)
   -- revert to name
   if not stats.desc then
     stats.desc = stats.name:gsub("%_", " ")
@@ -264,7 +274,11 @@ function crafting.peek_item(item, item_hash)
 		item = { item }
 	end
 	for _, item in ipairs(item) do
+    local gstats = crafting.get_group_stats(item)
 		local stack = ItemStack(item)
+    local def = table.copy(stack:get_definition())
+    def.description = (gstats and S("Any @1",gstats.desc)) or def.description
+    def._orig_desc = def._orig_desc or def.description
 		local need =  stack:get_count()
 		local have = item_hash[stack:get_name()] or 0
 		items[#items + 1] = {
@@ -272,6 +286,8 @@ function crafting.peek_item(item, item_hash)
 			have = have,
 			need = need,
 			available = (have >= need) and true or false,
+      description = def.description,
+      short = def._orig_desc,
 		}
 	end
 	return items
