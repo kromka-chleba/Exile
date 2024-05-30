@@ -294,7 +294,7 @@ function crafting.get_all(ctype, level, item_hash, unlocked)
 			local items = {}
 			-- Check what ingredients are available
 			for recipe_row, rowItem in ipairs(recipe.items) do
-				rItems = {} -- row items
+				local rItems = {} -- row items
 				local pickable = false
 				for i,item in ipairs(crafting.peek_item(rowItem, item_hash)) do
 					rItems[#rItems+1] = item
