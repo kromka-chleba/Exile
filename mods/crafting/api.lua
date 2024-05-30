@@ -38,7 +38,8 @@ function crafting.register_type(name, label)
 end
 
 function crafting.register_recipe(def)
-	assert(def.output, "Output needed in recipe definition")
+  -- multiple output items unsupported due to minimal/interface/inventory.lua limitations, do replace instead
+	assert(type(def.output) == "string", "Output needed in recipe definition (string only)")
 	assert(def.type,   "Type needed in recipe definition")
 	assert(def.items,  "Items needed in recipe definition")
 
@@ -48,13 +49,12 @@ function crafting.register_recipe(def)
 	if type(def.type) == 'string' then
 		def.type = { def.type }
 	end
-	-- Support multiple output items via a serialzed string
-	local output = def.output
-	if type(def.output) == 'table' then
-		output = minetest.serialize(def.output)
-	end
+  -- convert into table to iterate through
+  if type(def.replace) ~= "table" then
+    def.replace = {def.replace}
+  end
         def.id = #crafting.recipes_by_id + 1
-	crafting.recipes_by_output[output] = def
+	crafting.recipes_by_output[def.output] = def
 	crafting.recipes_by_id[def.id] = def
 	return def.id
 end
@@ -643,6 +643,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
    -- Loop time
    local warn = false
    local player = minetest.get_player_by_name(name)
+   local pos = player:get_pos()
    for _ = 1, subtract_loop, 1 do
       -- loop through the amount of times stack is over its max, if 1 then
       --  only run code once
@@ -658,12 +659,24 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 	 if inv:room_for_item(outlistname, itemstack) then
 	    inv:add_item(outlistname, itemstack)
 	 else
-	    local pos = player:get_pos()
 	    warn = true
 	    minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), itemstack)
 	 end
       end
    end
+  -- quickly put together "replace item" system
+  if recipe.replace then
+    -- iterate over recipe replace array
+    for _,replace in pairs(recipe.replace) do
+      local rep_item = ItemStack(replace) -- replace item
+      if inv:room_for_item(outlistname, rep_item) then
+        inv:add_item(outlistname, rep_item)
+      else -- no room
+        warn = true
+        minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), itemstack)
+      end
+    end
+  end
    if warn then minimal.warn_inv_full(player) end
    return true
 end
