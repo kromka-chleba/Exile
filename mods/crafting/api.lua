@@ -280,8 +280,8 @@ function crafting.peek_item(item, item_hash)
       -- found command, check anew
       if cmd then
         have = 0
-        -- start at gstats.num (-1 if less, otherwise +1), if less than, work down to 0 (-1), otherwise check until 256
-        for i = (cmd == "<" and gstats.num-1 or gstats.num+1), (cmd == "<" and 0 or 256), (cmd == "<" and -1 or 1) do
+        -- start at gstats.num (-1 if less, otherwise +1), if less than, work down to 1 (-1), otherwise check until 256
+        for i = (cmd == "<" and gstats.num-1 or gstats.num+1), (cmd == "<" and 1 or 256), (cmd == "<" and -1 or 1) do
           have = have + (item_hash[gstats.tag..i] or 0)
         end
       end
