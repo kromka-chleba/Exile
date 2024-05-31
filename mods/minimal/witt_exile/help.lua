@@ -27,10 +27,11 @@ minetest.register_on_joinplayer(function(player)
 	})
 
 	local image_id = player:hud_add({
-		hud_elem_type = "image",
+		hud_elem_type = "inventory",
 		position = {x = 0.5, y = yoff},
 		scale = {x = 0.3, y = yoff + 0.3},
 		offset = {x = -35, y = 35},
+		text="witt",
 	})
 	local name_id = player:hud_add({
 		hud_elem_type = "text",
@@ -48,6 +49,10 @@ minetest.register_on_joinplayer(function(player)
 	meta:set_string('wit:name', name_id)
 	meta:set_string('wit:pointed_thing', 'ignore')
 	meta:set_string('wit:item_type_in_pointer', 'node')
+	local pname = player:get_player_name()
+	minetest.create_detached_inventory("witt:"..pname,
+					   nil,
+					   pname)
 end)
 
 local what_is_this_uwu = {
@@ -120,18 +125,26 @@ local function string_to_pixels(str)
 	return size
 end
 
-local function inventorycube(img1, img2, img3)
-	if not img1 then
-		return ""
-	end
+minetest.register_on_joinplayer(function(player)
+	local pname = player:get_player_name()
+	minetest.create_detached_inventory("witt:"..pname,
+					   nil,
+					   pname)
+end)
+minetest.register_on_leaveplayer(function(player)
+	local pname = player:get_player_name()
+	minetest.remove_detached_inventory("witt:"..pname)
+end)
 
-	local images = { img1, img2, img3 }
-	for i = 1, 3 do
-		images[i] = images[i] .. "^[resize:16x16"
-		images[i] = images[i]:gsub("%^", "&")
-	end
-
-	return "[inventorycube{" .. table.concat(images, "{")
+local function inventoryslot(pname, name)
+   if not minetest.registered_nodes[name] then
+      minetest.log("error", "WITT: Tried to view inventory image of non-node "..
+		   "item: "..dump(name))
+   end
+   local Inv = minetest.get_inventory({type="detached",
+				       name="witt:"..pname})
+   Inv:set_stack("main", 1, ItemStack(name))
+   return Inv
 end
 
 function what_is_this_uwu.split_item_name(item_name)
