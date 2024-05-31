@@ -205,7 +205,8 @@ function climate.datestring()
    elseif time >= 0.25 then
       timestr = S("morning")
    end
-   return S("It is the @1 of day @2 of the season of @3, in the year of our exile @4", timestr, sdays, season, year)
+   return S("It is the @1 of day @2 of the season of @3, "..
+	    "in the year of our exile @4", timestr, sdays, season, year)
 end
 
 minetest.register_chatcommand("date", {
