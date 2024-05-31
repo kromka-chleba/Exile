@@ -5,12 +5,10 @@ local shown = {}
 
 minetest.register_on_joinplayer(function(player)
       player:set_properties({zoom_fov = 72})
-      witt.register_player(player, player:get_player_name())
 end)
 
-local function unshow(player, meta)
-   if not meta then meta = player:get_meta() end
-   witt.unshow(player, meta)
+local function unshow(player)
+   witt.unshow(player)
    shown[player] = nil
 end
 
@@ -24,7 +22,7 @@ local function show(player)
       local obj = ptd.ref:get_luaentity().name
       local ndesc = minetest.registered_entities[obj]._desc
       if ndesc then
-	 witt.show(player, player:get_meta(), "",
+	 witt.show(player, "",
 		   ndesc, obj, "entity")
 	 shown[player] = obj
 	 return
@@ -39,16 +37,15 @@ local function show(player)
    if not nname then return end
    if shown[player] == nname then return end
 
-   local meta = player:get_meta()
    local form_view, item_type, node_definition
-      = witt.get_node_tiles(nname, meta)
+      = witt.get_node_tiles(nname)
 
    if not node_definition then return end
 
    local node_description = node_definition.description
    local mod_name, _ = witt.split_item_name(nname)
 
-   witt.show(player, meta, form_view, node_description, nname,
+   witt.show(player, form_view, node_description, nname,
 	     item_type, mod_name)
    shown[player] = nname
 end
