@@ -634,47 +634,57 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
       --imeta:set_string('description',sdesc .. idef._tool_tips)
 
    end
-   local max_amt = itemstack:get_stack_max()
-   local count = itemstack:get_count() -- use stack's size for iterating
-   local subtract_loop = math.ceil(count / max_amt)
-   -- crafted stack size divided by its stack max then ceil'd
-   --  (so a stack max and a half will not be 1.5 but rather 2)
-
-   -- Loop time
-   local warn = false
-   local player = minetest.get_player_by_name(name)
-   local pos = player:get_pos()
-   for _ = 1, subtract_loop, 1 do
-      -- loop through the amount of times stack is over its max, if 1 then
-      --  only run code once
-      if (count > max_amt) then
-	 itemstack:set_count(max_amt) -- set stack to max
-	 count = count - max_amt -- lower count by stack max
-      elseif (count > 0) then -- if no modifications necessary then just set it to count
-	 itemstack:set_count(count)
+  local items_to_add = {}
+  local count = itemstack:get_count()
+  -- fix for tools not being added properly (have to manually get the count from the string...)
+  if minetest.registered_tools[itemstack:get_name()] and string.match(make_output," ") then
+    local temp = make_output:sub(#itemstack:get_name()+1,#make_output):gsub(" ","") -- temporary value (used to get number)
+    count = ""
+    for i=1,#temp do
+      local char = temp:sub(i,i) -- individual char
+      if #count > 0 and not tonumber(char) then
+        -- we already got a number, we're going too far!
+        break
+      elseif tonumber(char) then
+        count = count..char -- add more numbers
       end
-
-      -- add output
-      if (count > 0) then -- just in case something goes wrong and an itemstack below or equal to 0 in count is made
-	 if inv:room_for_item(outlistname, itemstack) then
-	    inv:add_item(outlistname, itemstack)
-	 else
-	    warn = true
-	    minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), itemstack)
-	 end
-      end
-   end
-  -- quickly put together "replace item" system
+    end
+    -- get itemstack count just incase, don't want nil!
+    count = tonumber(count) or itemstack:get_count()
+  end
+  local max_amt = itemstack:get_stack_max() -- use stack's size for iterating
+  local subtract_loop = math.ceil(count / max_amt)
+  -- crafted stack size divided by its stack max then ceil'd
+  -- (so a stack max and a half will not be 1.5 but rather 2)
+  for _ = 1, subtract_loop do
+    local item = ItemStack(itemstack) -- clone locally
+    if count > max_amt then
+      item:set_count(max_amt) -- set stack to max
+      count = count - max_amt -- lower count by stack max
+    else
+      item:set_count(count)
+    end
+    if count > 0 then -- just in case something goes wrong and an itemstack below or equal to 0 in count is made
+      items_to_add[#items_to_add + 1] = item
+    end
+  end
+  -- replace system
   if recipe.replace then
     -- iterate over recipe replace array
     for _,replace in pairs(recipe.replace) do
-      local rep_item = ItemStack(replace) -- replace item
-      if inv:room_for_item(outlistname, rep_item) then
-        inv:add_item(outlistname, rep_item)
-      else -- no room
-        warn = true
-        minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), rep_item)
-      end
+      items_to_add[#items_to_add + 1] = ItemStack(replace) -- replace item
+    end
+  end
+  -- time to iterate through items and add to inventory or ground
+  local warn = false
+  local player = minetest.get_player_by_name(name)
+  local pos = player:get_pos()
+  for _,item in pairs(items_to_add) do
+    if inv:room_for_item(outlistname, item) then
+      inv:add_item(outlistname, item)
+    else
+      warn = true
+      minetest.add_item(vector.new(pos.x,pos.y+1,pos.z), item)
     end
   end
    if warn then minimal.warn_inv_full(player) end
