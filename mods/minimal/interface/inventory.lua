@@ -435,9 +435,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 		-- recipe
 		local recipe_output = result.recipe.output
 		local item_description=ItemStack(recipe_output):get_description()
-		--local item_description = crafting.get_item_description(itemname)
 
---		local def = minetest.registered_items[rItem] or minetest.registered_nodes[rItem]
 		local id = result.recipe.id
 		local bg_coords =  tostring(x * 1.2) ..','.. tostring(y * 1.2 + 0.2)
 		-- set background image
@@ -462,7 +460,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 				local color = item.have >= item.need and "#6f6" or "#f66"
 				tool_tip = tool_tip
 					..  minetest.get_color_escape_sequence(color)
-					..  item.short .. ": " -- crafting.get_short_description(item.name)
+					..  item.short .. ": "
 					..  item.have .."/".. item.need .." "
 			end
 			recipesFS[#recipesFS + 1] = minetest.formspec_escape(tool_tip)
