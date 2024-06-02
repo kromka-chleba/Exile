@@ -594,11 +594,10 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 		local material_def = ItemStack(taken[recipe.material]):get_definition()
 		material = material_def.exile_crafting and material_def.exile_crafting.material
     if not material then -- issue #814
-      minetest.log("error","crafting.perform_craft: missing exile_crafting or exile_crafting.material but got material '"
+      error("crafting.perform_craft: missing exile_crafting or exile_crafting.material but got material '"
       ..tostring(recipe.material).."' known as in taken: '"..tostring(taken[recipe.material]).."' from '"
       ..material_def.name..";;"..material_def.description.."' to craft '"..recipe.output
       .."'. Crafting commenced by "..tostring(name))
-      recipe.material_output = nil -- will crash otherwise
     end
 	end
 
