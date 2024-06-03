@@ -287,7 +287,8 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_snow_defaults(),
 	_use_tip = S("Combine with another slab\n or eat if you're desperate"),
 	_on_use_item = function(player, wielded_item, pointed_thing)
-    if pointed_thing.type == "node" and minetest.get_node(pointed_thing.under).name == "nodes_nature:snow_block" then
+    if pointed_thing and pointed_thing.type == "node"
+    and minetest.get_node(pointed_thing.under).name == "nodes_nature:snow_block" then
       -- do not accidentally eat snow when combining slabs
       return
     end
