@@ -1,6 +1,8 @@
 HEALTH = HEALTH
 player_api = player_api
 
+local S = minetest.get_translator("health")
+
 HEALTH.internal_temp_table = {
    [0] = { h_adj = 0, r_adj = 0, mov_adj = 0 },
 	--37-38: normal
@@ -27,12 +29,12 @@ player_api.register_state({
 	 -- optional entries below
 	 id = 1, -- numeric id, unique count per mod, might be removed later
 	 threshold = { [0] =  0, 26, 31, 36, 38, 44, 47, 100}, -- read -4
-	 --label = "body temp",
+	 --label = S("body temp"),
 	 -- ^^ invisible state. Display uses basic states instead, as example
 	 severity_txt = {
-	    [0] = "Caveman in ice", "Frozen", "Frostbitten", "Chilled",
+	    [0] = S("Caveman in ice"), S("Frozen"), S("Frostbitten"), S("Chilled"),
 	    "",
-	    "Too warm", "Heat stroke", "Cooked", "Bones and ash" },
+	    S("Too warm"), S("Heat stroke"), S("Cooked"), S("Bones and ash") },
 })
 
 player_api.register_state({
@@ -42,7 +44,7 @@ player_api.register_state({
       id = 2,
       threshold = { [0] =  200, 400, 600, 800 }, -- default * 10
       label = "-", -- Display severity only
-      severity_txt = { [0] = "Exhausted", "Weary", "Tired", "", "Well-rested" },
+      severity_txt = { [0] = S("Exhausted"), S("Weary"), S("Tired"), "", S("Well-rested") },
 })
 
 player_api.register_state({
@@ -52,7 +54,7 @@ player_api.register_state({
       id = 2,
       threshold = { [0] =  200, 400, 600, 800 }, -- default * 10
       label = "-", -- Display severity only
-      severity_txt = { [0] = "Starving", "Thin", "", "", "Well-fed" },
+      severity_txt = { [0] = S("Starving"), S("Thin"), "", "", S("Well-fed") },
 })
 
 player_api.register_state({
@@ -61,8 +63,8 @@ player_api.register_state({
       priority = 1,
       id = 2,
       label = "-", -- Display severity only
-      severity_txt = { [0] = "Dying of thirst", "Very thirsty",
-	 "Thirsty", "", "" },
+      severity_txt = { [0] = S("Dying of thirst"), S("Very thirsty"),
+	 S("Thirsty"), "", "" },
 })
 
 player_api.register_state({
@@ -70,8 +72,8 @@ player_api.register_state({
       name = "resting",
       priority = 1,
       id = 2,
-      label = "Resting", -- Display severity only
+      label = S("Resting"), -- Display severity only
       severity = 2,
-      severity_txt = { [0] = "(Shivering)", "poorly", "",
-	 "comfortably", "(Sweating)" },
+      severity_txt = { [0] = S("(Shivering)"), S("poorly"), "",
+	 S("comfortably"), S("(Sweating)") },
 })

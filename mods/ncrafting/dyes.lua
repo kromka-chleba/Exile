@@ -2,13 +2,14 @@
 
 -- Internationalization
 local S = ncrafting.S
+local NS = function(s) return s end
 
 local spins = 24 -- how many 1/4 turns to stir before dye takes hold
 local stirspeed = 0.25 -- How many second per 1/4 turn
 local stirringplayers = {}
 
-local dyelist = { ["red"] = 1, ["crimson"] = 4, ["yellow"] = 7,
-   ["green"] = 10, ["blue"] = 13, ["indigo"] = 16 , ["black"] = 19 }
+local dyelist = { [NS("red")] = 1, [NS("crimson")] = 4, [NS("yellow")] = 7,
+   [NS("green")] = 10, [NS("blue")] = 13, [NS("indigo")] = 16 , [NS("black")] = 19 }
 -- can be overwritten by an old stored version, to ensure dyes don't reshuffle
 
 local dyecolor = { [0] = "#ffffff", -- white or none
@@ -36,7 +37,7 @@ end
 
 for name, number in pairs(dyelist) do
 minetest.register_craftitem(":ncrafting:dye_"..name, {
-   description = S(name.." dye"),
+   description = S("@1 dye", S(name)),
    inventory_image = "blank_dye.png",
    color = dye_to_colorstring(number),
    _ncrafting_dye_color = number
@@ -61,9 +62,9 @@ table: "plants:daisy" = {
 
 local methods = { "cook", "soak", "burn" }
 local methodstring = {
-   ["cook"] = "treated by cooking",
-   ["soak"] = "treated by soaking",
-   ["burn"] = "treated by burning",
+   ["cook"] = NS("treated by cooking"),
+   ["soak"] = NS("treated by soaking"),
+   ["burn"] = NS("treated by burning"),
 }
 
 local neighbors = {

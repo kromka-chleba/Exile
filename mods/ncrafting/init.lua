@@ -9,7 +9,7 @@ ncrafting = {
 }
 
 -- Internationalization
-ncrafting.S = minetest.get_translator("tech")
+ncrafting.S = minetest.get_translator("nodecrafting")
 
 dofile(modpath..'/dyes.lua')
 dofile(modpath..'/nature.lua')

@@ -79,8 +79,8 @@ Effects=Эффекты
 @1 years old=@1 года
 1 day old=1 день
 @1 days old=@1 дня
-Oxygen=Кислород
-Pregnant=Беременная
+Oxygen:=Кислород:
+Pregnant:=Беременная:
 ANIMAL=ЖИВОТНОЕ
 
 Admin's Probe=Зонд администратора

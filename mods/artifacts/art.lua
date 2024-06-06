@@ -7,6 +7,7 @@
 
 artifacts = artifacts
 local S = artifacts.S
+local NS = function(s) return s end
 
 local c_alpha = minimal.compat_alpha
 
@@ -312,15 +313,15 @@ local arch_mother = {
 --Register scultpure
 
 local list = {
-	{"mg_bloom", "Moon Glass", "artifacts_moon_glass.png", bloom, 2},
+	{"mg_bloom", NS("Moon Glass"), "artifacts_moon_glass.png", bloom, 2},
 	{"mg_dancers", "Moon Glass", "artifacts_moon_glass.png", dancers, 2},
 	{"mg_bonsai", "Moon Glass", "artifacts_moon_glass.png", bonsai, 2},
 
-	{"j_axeman", "Jade", "nodes_nature_jade.png", axeman, 2},
+	{"j_axeman", NS("Jade"), "nodes_nature_jade.png", axeman, 2},
 	{"j_dragon_head", "Jade", "nodes_nature_jade.png", dragon_head, 2},
 	{"j_skull_head", "Jade", "nodes_nature_jade.png", skull_head, 2},
 
-	{"g_arch_judge", "Gold", "artifacts_gold.png", arch_judge, 2},
+	{"g_arch_judge", NS("Gold"), "artifacts_gold.png", arch_judge, 2},
 	{"g_arch_beast", "Gold", "artifacts_gold.png", arch_beast, 2},
 	{"g_arch_trickster", "Gold", "artifacts_gold.png", arch_trickster, 2},
 	{"g_arch_mother", "Gold", "artifacts_gold.png", arch_mother, 2},

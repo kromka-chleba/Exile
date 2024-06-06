@@ -49,6 +49,8 @@ various minor effects (symptoms) shared by many diseases (e.g. vomiting). Called
 
 ]]
 
+local NS = function (s) return s end
+
 local random = math.random
 player_monoids = player_monoids
 HEALTH = HEALTH
@@ -1537,10 +1539,11 @@ end
 __DEBUG__ = __DEBUG__
 if __DEBUG__ then
 
-local effects = { "Food Poisoning", "Dust Fever", "Intestinal Parasites",
-		  "Tiku High", "Neurotoxicity", "Hepatotoxicity",
-		  "Photosensitivity", "Meta-Stim", "Fungal Infection",
-		  "Drunk", "Hangover" }
+-- this table also indicates all effects to the translation script. do not remove it
+local effects = { NS("Food Poisoning"), NS("Dust Fever"), NS("Intestinal Parasites"),
+		  NS("Tiku High"), NS("Neurotoxicity"), NS("Hepatotoxicity"),
+		  NS("Photosensitivity"), NS("Meta-Stim"), NS("Fungal Infection"),
+		  NS("Drunk"), NS("Hangover") }
 
 -- #TODO: Replace the yes/no chain with a dropdown
 local function add_effect(clicked_yes, data_table, player, playername)
