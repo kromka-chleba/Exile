@@ -10,12 +10,12 @@ local health_S = minetest.get_translator("health")
 
 --[[
    State definition table: {
-   mod = "health" -- #TODO: can be specified when called: add("health:fever"), required for translation
+   mod = "health" -- #TODO: can be specified when called: add("health:fever")
    name = "fever", -- but can just call "fever" for first match
    priority = 3, -- def display priority: 1 = info, 2 = minor, 3 = major
                  -- negative priority states will not be saved to meta
    -- optional entries below
-   label = "Fever", -- Text label (translation string) for non-invisible states, "-" for sev only
+   label = _S("Fever"), -- Text label (translation string) for non-invisible states, "-" for sev only
    id = 1 -- numeric id, unique count per mod
    raise = func(), -- if exists, called when progress counter exceeds threshold
    lower = func(), -- ^^, when progress counter goes below a threshold point
@@ -214,8 +214,6 @@ function pstate.read_labels(self)
    get_old_effects_list(self.player, list) -- old effects, all counted as major
    for name, statetbl in pairs(self.list) do
       local stdef = states[name]
-      local translation_S = minetest.get_translator(statetbl.mod)
-      -- translate the label when adding it to the list, since comparisons need to be done on it before
       local label = statetbl.label or ( stdef and stdef.label )
       if label and label ~= "" then
 	      if label == "-" then label = "" end
@@ -225,7 +223,7 @@ function pstate.read_labels(self)
 	      if not ( label == "" and sevname == "" ) then
 	         -- ^^ in case of "-" sev-only label and there's no severity name
 	         table.insert(pri_order[pri],
-			     { translation_S(label).." ", sevname })
+			     { label.." ", sevname })
 	      end
       end
    end
