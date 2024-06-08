@@ -18,20 +18,6 @@
 
 local S = minetest.get_translator("crafting")
 
-function crafting.get_item_description(name, short)
-	if name:sub(1, 6) == "group:" then
-		local group = name:sub(7, #name):gsub("%_", " ")
-		return S("Any " .. group)
-	else
-		local def = minetest.registered_items[name] or {}
-		return (short and def._orig_desc or nil )
-		   or def.description or name
-	end
-end
-function crafting.get_short_description(name)
-   return crafting.get_item_description(name, true)
-end
-
 local function sanitize(badstring)
    local disallowed = { "\\", "{", "}",
 			--lua magic characters
