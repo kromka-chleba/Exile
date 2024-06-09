@@ -1,0 +1,22 @@
+# textdomain: nodecrafting
+red=красная
+crimson=малиновая
+yellow=желтая
+green=зелёная
+blue=синяя
+indigo=сине-пурпурная
+black=черная
+@1 dye=@1 краска
+treated by cooking=обработанный варкой
+treated by soaking=обработанный вымачиванием
+treated by burning=обработанный сжиганием
+useless =бесполезный 
+untreated=необработанный
+@1bundle of @2, @3=@1 пучок @2, @3
+Bundle of plants=Пучок растений
+Treated bundle of plants=Обработанный пучок растений
+Dyer's Table=Стол красильщика
+Dyer's Table@n(Used to create dyes)=Стол красильщика@n(Используется для создания красителей)
+Dump=Свалка
+Dye Pot=Горшок с краской
+Dump the dye from the pot?=Вылить краску из горшка?

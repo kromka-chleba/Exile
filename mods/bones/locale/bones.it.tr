@@ -1,5 +1,6 @@
 # textdomain: bones
 Bones=Ossa
+@1 of @2's bones=
 @1's old bones=Ossa vecchie di @1
 @1 died at @2.=@1 è morto alla posizione @2.
 @1 died at @2, and dropped their inventory.=@1 è morto alla posizione @2, e ha lasciato a terra il contenuto del suo inventario.

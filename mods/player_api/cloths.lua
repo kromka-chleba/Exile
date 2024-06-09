@@ -212,7 +212,7 @@ function player_api.compose_cloth(player)
 	end
 	local st = player_api.get_state(player)
 	if naked == true and blanket == false then
-	   st:add_basic("naked", "Naked")
+	   st:add_basic("naked", S("Naked"))
 	elseif st:is("naked") then
 	   st:clear("naked")
 	end

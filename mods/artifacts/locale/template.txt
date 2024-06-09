@@ -1,95 +1,119 @@
 # textdomain: artifacts
-
 # general
+# airboat.lua
+Airboat=
+[airboat] Cruise on=
+[airboat] Cruise off=
+Jade=
+Gold=
+@1 Sculpture=
+Gamepiece (black)=
+Gamepiece (white)=
+Singing Stone=
+Drumming Stone=
+# materials.lua
+Moon Glass=
+# bell.lua
+Automated Bell=
+# map.lua
+Geosurveyor@nUse with 'Minimap' key=
+Sun Stone=
+Moon Stone=
+Star Stone=
+@1 Ladder=
+@1 Door=
+@1 Trapdoor=
+Trampoline=
+Conveyor=
 Antiquorium=
-units=
-seconds=
-Cancel=
-Destination name=
-
-# binary
-Yes=
-No=
-
-# tools.lua
-@1 Chisel=
-Spyglass=
-View far distances=
-
-# player + animal
-CONDITION=
-Health=
-Energy=
-Age=
-
-# probes;
-NOT MEASURABLE!=
-
-Light Meter=
-List light level of node or self=
+# pandora.lua
+Meta-Stim Injector=
+# storage.lua 
+@1 chest=
 LIGHT MEASUREMENT:=
 LIGHT LEVEL @= =
-
+Light Meter=
+List light level of node or self=
+OBJECT TEMPERATURE MEASUREMENT:=
+TEMPERATURE @= =
 Temperature Probe=
 List temperature of node=
-OBJECT TEMPERATURE MEASUREMENT=
-TEMPERATURE @= =
-
+# probes;
+NOT MEASURABLE!=
+BURN UNITS REMAINING:=
 Fuel Probe=
 List fuel units of node=
-BURN UNITS REMAINING:=
-
+SMELTING UNITS REMAINING:=
 Smelter Probe=
 List remaining units of node for smelting=
-SMELTING UNITS REMAINING:=
-
+FIRING UNITS REMAINING:=
 Potter's Probe=
 List remaining firing units of unfired clay=
-FIRING UNITS REMAINING:=
-
-Chef's Probe=
-List remaining cooking units of pointed node=
 COOKING UNITS REMAINING:=
-
-Farmer's Probe=
-List stats of plant or soil=
+Chef's Probe=
+List remaining cooking units of pointed food=
+GROUPS:=
 PLANT TYPE:=
 Wild=
 Domesticated=
 Half-wild=
-STATE:=
-FERTILITY:=
-ROOTS:=
 PLANT GROWTH NOT MEASURABLE!=
+GROWTH UNITS REMAINING:=
 PLANT HEALTH NOT MEASURABLE!=
-NOT MEASURABLE: NEEDS A PLANT OR SOIL=
+Health=
+STATE:=
 wet=
 salty=
 dry=
-
-Animal Probe=
-List stats of pointed animal or player=
-Inspect self=
+FERTILITY:=
+ROOTS:=
+NOT MEASURABLE: NEEDS A PLANT OR SOIL=
+Farmer's Probe=
+List stats of plant or soil=
+# tools.lua
+@1 Chisel=
+Spyglass=
+View far distances=
 SELF=
-Body Temp=
-Hunger=
-Thirst=
-Effects=
+Age:=
 1 year old=
 @1 years old=
 1 day old=
 @1 days old=
-Oxygen=
-Pregnant=
+# player + animal
+CONDITION=
+units=
+Energy=
+Body Temp=
+Hunger=
+Thirst=
+Effects=
+Age=
+seconds=
+Oxygen:=
+# binary
+Yes=
+No=
+Pregnant:=
 ANIMAL=
-
+Animal Probe=
+List stats of pointed animal or player=
+Inspect self=
 Admin's Probe=
 List groups of pointed node=
-GROUPS:=
-
-# transporter.lua
+KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
+Bond Transporter to Target=
+Replace Transporter Bond with NEW Target=
+Target name=
+KEY IS BLANK!: use leftclick to save this location=
+TRANSPORTER DESTINATION SET TO: @1 at @2=
+KEY CAN ONLY SAVE FROM TRANSPORTER PAD=
+Key's target name=
+Wipe Key=
+Create Bonded Key=
 Transporter Key=
 Transporter Key to =
+TRANSPORTER KEY CREATED TO: @1=
 Transporter Pad=
 Transporter Pad (Charging)=
 Transporter Pad (active)=
@@ -98,21 +122,8 @@ Transporter Power Core (depleted)=
 Transporter Focalizer=
 Transporter Stabilizer=
 Transporter Regulator=
-Transporter Key=
-KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
-Bond Transporter to Target=
-Replace Transporter Bond with NEW Target=
-KEY IS BLANK!: use leftclick to save this location=
-TRANSPORTER DESTINATION SET TO: @1 at @2=
-KEY CAN ONLY SAVE FROM TRANSPORTER PAD=
-KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
-TRANSPORTER KEY CREATED TO: @1=
-Wipe Key=
-Create Bonded Key=
-Target name=
-Key's target name=
-
-
+Cancel=
+Destination name=
 # wayfinder.lua
 Wayfinder to @1=
 WAYFINDER BONDED TO: @1 @2=
@@ -122,42 +133,3 @@ WAYFINDER CAN ONLY BOND TO WAYSTONE=
 Permanently Bond=
 Wayfinder=
 Waystone=
-
-# airboat.lua
-
-Airboat=
-[airboat] Cruise on=
-[airboat] Cruise off=
-
-# storage.lua 
-@1 chest=
-
-# bell.lua
-Automated Bell=
-
-# map.lua
-Geosurveyor@nUse with 'Minimap' key=
-
-# art.lua
-Moon Glass=
-Jade=
-Gold=
-@1 Sculpture=
-Gamepiece (black)=
-Gamepiece (white)=
-Singing Stone=
-Drumming Stone=
-
-# materials.lua
-Moon Glass=
-Sun Stone=
-Moon Stone=
-Star Stone=
-@1 Ladder=
-@1 Door=
-@1 Trapdoor=
-Trampoline=
-Conveyor=
-
-# pandora.lua
-Meta-Stim Injector=

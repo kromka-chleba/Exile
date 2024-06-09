@@ -2,18 +2,21 @@
 Select your gender=Выберите свой пол
 Male=Мужчина
 Female=Женщина
-
+Head=Голова
+Upper=Верхняя
+Lower=Нижняя
+Footwear=Обувь
+Cape=Накидка
+Keeps you warm in bed=Сохраняет тепло в постели
+Unisex=Унисекс
 Purple Stripe Summer T-shirt=Летняя футболка в фиолетовую полоску
 Fresh Summer Denim Shorts=Легкие летние джинсовые шорты
 Common Black Shoes=Обычные черные туфли
 Pink Bow=Розовый бант
 Classic Green Sweater=Классический зеленый свитер
 Fine Blue Pants=Изящные синие брюки
-Keeps you warm in bed=Сохраняет тепло в постели
-
-Head=Голова
-Upper=Верхняя
-Lower=Нижняя
-Footwear=Обувь
-Cape=Накидка
-Unisex=Унисекс
+Naked=Голый
+(mild)=(слабый)
+(moderate)=(умеренный)
+(severe)=(тяжелый)
+(extreme)=(экстремальный)

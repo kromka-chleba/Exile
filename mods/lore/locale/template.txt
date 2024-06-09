@@ -1,118 +1,5 @@
 # textdomain: lore
-
 #char_tab.lua
-mild=
-moderate=
-severe=
-extreme=
-
-(mild)=
-(moderate)=
-(severe)=
-(extreme)=
-
-Caveman in ice=
-Frozen=
-Frostbitten=
-Chilled=
-Too warm=
-Heat stroke=
-Cooked=
-Bones and ash=
-Exhausted=
-Weary=
-Tired=
-Well-rested=
-Starving=
-Thin=
-Well-fed=
-Dying of thirst=
-Very thirsty=
-Thirsty=
-(Shivering)=
-poorly=
-comfortably=
-(Sweating)=
-Naked =
-
-Name=
-Days Survived=
-Lives=
-Biography=
-Health Effects=
-Food Poisoning=
-Fungal Infection=
-Dust Fever=
-Intestinal Parasites=
-Drunk=
-Hangover=
-Tiku High=
-Neurotoxicity=
-Hepatotoxicity=
-Photosensitivity=
-Meta-Stim=
-Resting=
-
-Character=
-
-#login.lua
-login_text=
-
-#   You can scarcely hear the sound of them @
-# reading the list of your crimes over the @
-# louder jeering of your kinsmen, but it's already @
-# too late to protest your innocence. @
-# @n  You are stripped of all possessions and given @
-# a writ describing your assorted crimes and the @
-# punishment that is to be given, and then you @
-# are pushed through a gateway to die in the @
-# cursed land of the Ancients, as an..=
-
-Message of the Day:=
-
-#restart.lua
-@1 gave up the ghost.=
-POP!=
-Restart in: @1 seconds.=
-You've come to your senses and decided to keep trying=
-You can't use this command more than once per 5 minutes.=
-Restarting does not leave bones!=
-Your inventory will be deleted.=
-Are you sure?=
-Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try your hand at survival again.=
-This command is an alias for /restart. See there for further information.=
-
-
-#exile_letter.lua
-He=
-She=
-he=
-she=
-Him=
-Her=
-him=
-her=
-His=
-Hers=
-his=
-hers=
-Himself=
-Herself=
-himself=
-herself=
-By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=
-
-Sentence of Exile=
-
-# bio_gen.lua
-
-@n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=
-
- and =
- had lived =
- life,=
-until one day =
-
 # personality
 #  openness
 Conventional=
@@ -159,7 +46,6 @@ Self-satisfied=
 Moody=
 Complacent=
 Paranoid=
-
 # virtue
 courageous=
 temperate=
@@ -257,7 +143,6 @@ understanding=
 vigorous=
 wise=
 zealous=
-
 # life
 #  Favorable
 a good=
@@ -318,7 +203,6 @@ a misspent=
 an eccentric=
 an oddball=
 a strange=
-
 # woe
 #  Bad Business
 made a bad bargain=
@@ -421,7 +305,16 @@ received a vision from the other side=
 had a dream that explained everything=
 built a perpetual-motion machine=
 learned the meaning of life=
-
+# bio_gen.lua
+@n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=
+he=
+she=
+Name=
+Days Survived=
+Lives=
+Biography=
+Health Effects=
+Character=
 # judger
 # monarchs, etc.
 King=
@@ -539,7 +432,6 @@ Eternal Pyramid=
 Towering Tree=
 Viridian Magister=
 Thousand-tongued All-speaker=
-
 # exile-worthy crime
 # crime1
 treason=
@@ -547,7 +439,6 @@ betrayal=
 murder=
 heresy=
 blasphemy=
-betrayal=
 regicide=
 conspiracy=
 kidnapping=
@@ -561,7 +452,6 @@ espionage=
 sabotage=
 treachery=
 sedition=
-
 # flavour-text crime
 # crime2
 leading the youth astray=
@@ -656,7 +546,63 @@ leading an unauthorised military campaign=
 claiming that the world is round=
 claiming that the world is not round=
 promoting belief in gravity=
-
+#exile_letter.lua
+He=
+She=
+Him=
+Her=
+him=
+her=
+His=
+his=
+Himself=
+Herself=
+himself=
+herself=
+May @1 name be forgotten.=
+@1 is proscribed.=
+Never suffer @1 to return.=
+May the gods have mercy upon @1.=
+Let none come to @1 aid.=
+May @1 weeping never cease.=
+@1 life is forfeit.=
+It shall be as if @1 were never born.=
+May @1 end be swift.=
+May fortune forgive @1.=
+@1 shall live so long as @2 deserves.=
+Let the beasts do with @1 as they wish.=
+This is justice.=
+Let none dispute it.=
+May @1 wander fruitlessly.=
+May @1 bones bleach in the sun.=
+May the worms feast on @1 flesh.=
+May @1 suffering appease the gods.=
+Let @1 struggling be without end.=
+Let fate decide @1 destiny.=
+May the land have pity and bury @1 disgraceful remains.=
+Thus we declare.=
+For we are merciful.=
+Let this be our kindness to @1.=
+Begone, evildoer.=
+Thus do we cleanse ourselves.=
+# Perhaps a reference to Pontius Pila
+We wash our hands of @1.=
+Fortune shall be @1 final judge.=
+@1 is disowned.=
+We never knew @1.=
+@1 is cut off.=
+Let @1 live with the beasts.=
+Let the barbarians and wild folk have @1.=
+@1 is not fit for civilised lands.=
+# Perhaps a reference to Sheev Palpatine
+Thus we ensure our security.=
+Only the righteous belong among us.=
+May @1 toil in vain.=
+# Now a reference to Cecil B. DeMil
+So it is written. So it is done.=
+Even the dogs despise @1.=
+We break no bread with traitors.=
+Let this be @1 journey to cleanse @2.=
 # Various corruptions of "Ozymandias"
 # local exile
 Ochymadion=
@@ -675,7 +621,6 @@ Caemandior=
 Oshaemediash=
 Otzakantas=
 Archanatus=
-
 # What happened here? Lost to memory.
 # mythic_terror
 Great Calamity=
@@ -725,62 +670,20 @@ Twisted Existence=
 Twisted=
 Warped=
 Lost=
-
-May @1 name be forgotten.=
-@1 is proscribed.=
-Never suffer @1 to return.=
-May the gods have mercy upon @1.=
-Let none come to @1 aid.=
-May @1 weeping never cease.=
-@1 life is forfeit.=
-It shall be as if @1 were never born.=
-May @1 end be swift.=
-May fortune forgive @1.=
-@1 shall live so long as @2 deserves.=
-Let the beasts do with @1 as they wish.=
-This is justice.=
-Let none dispute it.=
-May @1 wander fruitlessly.=
-May @1 bones bleach in the sun.=
-May the worms feast on @1 flesh.=
-May @1 suffering appease the gods.=
-Let @1 struggling be without end.=
-Let fate decide @1 destiny.=
-May the land have pity and bury @1 disgraceful remains.=
-Thus we declare.=
-For we are merciful.=
-Let this be our kindness to @1.=
-Begone, evildoer.=
-Thus do we cleanse ourselves.=
-# Perhaps a reference to Pontius Pila
-We wash our hands of @1.=
-Fortune shall be @1 final judge.=
-@1 is disowned.=
-We never knew @1.=
-@1 is cut off.=
-Let @1 live with the beasts.=
-Let the barbarians and wild folk have @1.=
-@1 is not fit for civilised lands.=
-# Perhaps a reference to Sheev Palpatine
-Thus we ensure our security.=
-Only the righteous belong among us.=
-May @1 toil in vain.=
-# Now a reference to Cecil B. DeMil
-So it is written. So it is done.=
-Even the dogs despise @1.=
-We break no bread with traitors.=
-Let this be @1 journey to cleanse @2.=
-
-# history.lua
-It is the @1 of day @2 of the season of @3, in the year of our exile @4=
-Birth=
-Thirst=
-Retreat=
-Hunger=
-small hours=
-evening=
-afternoon=
-morning=
-
-# temperature.lua
-Value:=
+By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=
+Sentence of Exile=
+#login.lua
+login_text=
+Message of the Day:@n@n=
+This command shows the current message of the day.=
+#restart.lua
+@1 gave up the ghost.=
+POP!=
+Restart in: @1 seconds.=
+You've come to your senses and decided to keep trying=
+You can't use this command more than once per 5 minutes.=
+Restarting does not leave bones!=
+Your inventory will be deleted.=
+Are you sure?=
+Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try your hand at survival again.=
+This command is an alias for /restart. See there for further information.=

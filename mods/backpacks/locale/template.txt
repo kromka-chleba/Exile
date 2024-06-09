@@ -1,7 +1,7 @@
 # textdomain: backpacks
-
 # init.lua
-Slots: @1, @2, @3=
 @1 full=
 @1 partial=
 @1 empty=
+Slots: @1, @2, @3=
+@1/@2/@3=

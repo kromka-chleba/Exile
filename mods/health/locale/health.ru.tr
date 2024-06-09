@@ -1,14 +1,42 @@
 # textdomain: health
-
 # hud.lua
-Health:=Здоровье:
-Energy:=Энергия:
-Thirst:=Жажда:
-Hunger:=Голод:
-Body Temp:=Темп. тела:
-Temp:=Темп.:
-Effects:=Эффекты:
-
+# food.lua
+# hud.lua
 # food.lua
 This is inedible.=Это несъедобно.
 Eat=Есть
+Food Poisoning=Пищевое отравление
+Dust Fever=Пылевая лихорадка
+Intestinal Parasites=Кишечные паразиты
+Tiku High=Тику Хай
+Neurotoxicity=Нейротоксичность
+Hepatotoxicity=Гепатотоксичность
+Photosensitivity=Фоточувствительность
+Meta-Stim=Мета-стим
+Fungal Infection=Грибковая инфекция
+Drunk=Пьянство
+Hangover=Похмелье
+body temp=температура тела
+Caveman in ice=Пещерный человек во льду
+Frozen=Замороженный
+Frostbitten=Обмороженный
+Chilled=Охлажденный
+Too warm=Слишком тепло
+Heat stroke=Тепловой удар
+Cooked=Приготовлено
+Bones and ash=Кости и пепел
+Exhausted=Истощение
+Weary=Изможденный
+Tired=Усталый
+Well-rested=Хорошо отдохнувший
+Starving=Голодающий
+Thin=Худой
+Well-fed=Упитанный
+Dying of thirst=Умирающий от жажды
+Very thirsty=Очень хочется пить
+Thirsty=Жажда
+Resting=Отдыхающий
+(Shivering)=(дрожь)
+poorly=плохо
+comfortably=комфортно
+(Sweating)=(Потливость)
