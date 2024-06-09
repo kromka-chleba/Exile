@@ -1,19 +1,12 @@
 # textdomain: doors
 Hidden Door Segment=
-Owned by @1=
+You can't open this door, =
 You do not own this locked door.=
 a locked door=
-Wooden Door=
-Steel Door=
-Glass Door=
-Obsidian Glass Door=
 You do not own this trapdoor.=
 a locked trapdoor=
-Wooden Trapdoor=
-Steel Trapdoor=
 Apple Wood Fence Gate=
 Acacia Wood Fence Gate=
 Jungle Wood Fence Gate=
 Pine Wood Fence Gate=
 Aspen Wood Fence Gate=
-You can't open this door, =

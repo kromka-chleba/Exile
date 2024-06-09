@@ -1,5 +1,4 @@
 # textdomain: mapchunk_shepherd
-
 Prints status of the Mapchunk Shepherd.=Выводит статус Mapchunk Shepherd.
 Tracked chunks: =Отслеживаемые блоки: 
 Scan queue: =Очередь сканирования: 
@@ -11,10 +10,8 @@ Moving median: @1 ms | =Скользящая медиана: @1 мс |
 Moving average: @1 ms=Скользящее среднее: @1 мс
 Scanners: =Сканеры: 
 Workers: =Рабочие процессы: 
-
 Prints labels of the chunk where the player stands.=Печатает метки чанков, где стоит игрок.
 hash: =хэш: 
 last changed: @1 seconds ago=последнее изменение: @1 секунд назад
 labels: =метки: 
-
 Prints timesheet for shepherd workers.=Печатает таймшит воркеров пастуха.

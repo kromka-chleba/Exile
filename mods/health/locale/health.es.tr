@@ -1,6 +1,49 @@
 # textdomain: health
-
 # hud.lua
+# food.lua
+# hud.lua
+# food.lua
+This is inedible.=Esto no es comestible.
+Eat=
+Food Poisoning=
+Dust Fever=
+Intestinal Parasites=
+Tiku High=
+Neurotoxicity=
+Hepatotoxicity=
+Photosensitivity=
+Meta-Stim=
+Fungal Infection=
+Drunk=
+Hangover=
+body temp=
+Caveman in ice=
+Frozen=
+Frostbitten=
+Chilled=
+Too warm=
+Heat stroke=
+Cooked=
+Bones and ash=
+Exhausted=
+Weary=
+Tired=
+Well-rested=
+Starving=
+Thin=
+Well-fed=
+Dying of thirst=
+Very thirsty=
+Thirsty=
+Resting=
+(Shivering)=
+poorly=
+comfortably=
+(Sweating)=
+
+
+##### not used anymore #####
+
 Health:=Salud: 
 Energy:=Energía: 
 Thirst:=Hidratación: 
@@ -8,6 +51,3 @@ Hunger:=Saciedad:
 Body Temp:=Temp. Corporal: 
 Temp:=Temp.: 
 Effects:=Efectos: 
-
-# food.lua
-This is inedible.=Esto no es comestible.

@@ -1,53 +1,43 @@
 # textdomain: animals
-
 # crafts.lua
+@1 Eggs=
+# api_capture.lua
+Slaughter the animal=
+@1 Invertebrate=
 Small=
-Medium=
 Large=
+@1 Bird=
+@1 Fish=
 @1 Carcass=
 Cooked @1=
 Burned @1=
-@1 Invertebrate=
-@1 Bird=
-@1 Fish=
-
-
 # darkasthaan.lua
 Darkasthaan=
 Darkasthaan Eggs=
 Live Darkasthaan=
-
 # gundu.lua
 Gundu=
 Gundu Eggs=
 Live Gundu=
-
 # impethu.lua
 Impethu=
 Impethu Eggs=
 Live Impethu=
-
 # kubwakubwa.lua
 Kubwakubwa=
 Kubwakubwa Eggs=
 Live Kubwakubwa=
-
+Female Pegasun=
 # pegasun.lua
 Pegasun Egg=
-Female Pegasun=
-Male Pegasun=
 Live Female Pegasun=
 Live Male Pegasun=
-
+Male Pegasun=
 # sarkamos.lua
 Sarkamos=
 Sarkamos Eggs=
 Live Sarkamos=
-
 # sneachan.lua
 Sneachan=
 Sneachan Eggs=
 Live Sneachan=
-
-# api_capture.lua
-Slaughter the animal=

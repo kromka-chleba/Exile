@@ -29,7 +29,17 @@ crafting = {
 	sort_order_by_player = {}, -- hash of recipe id to display order in sorted array
 }
 
-local S = minetest.get_translator("minimal")
+local S = minetest.get_translator("crafting")
+
+-- Group names from recipes for the translation script
+-- The translation will be performed when descriptions are generated
+local groupNameForTranslations = {
+	S("log"), S("fibrous plant"), S("sand"), S("compostable"),
+	S("hard wood"), S("cana"), S("woody plant"), S("woodslab"),
+	S("limestone cobble"), S("basalt cobble"), S("granite cobble"),
+	S("bioluminescent"), S("ironstone cobble"), S("pottery"),
+	S("gravel"), S("jade cobble"),
+}
 
 function crafting.register_type(name, label)
 	crafting.recipes[name] = {}
@@ -221,7 +231,8 @@ function crafting.get_group_stats(grouptag)
   stats.name = stats.tag:sub(7,#stats.tag)
   -- revert to name
   if not stats.desc then
-    stats.desc = stats.name:gsub("%_", " ")
+	-- Add a translation of the group name
+    stats.desc = S(stats.name:gsub("%_", " ") or "")
   end
   -- remove nil indexes
   for stat,val in pairs(stats) do

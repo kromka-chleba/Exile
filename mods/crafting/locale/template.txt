@@ -1,0 +1,19 @@
+# textdomain: crafting
+log=
+fibrous plant=
+sand=
+compostable=
+hard wood=
+cana=
+woody plant=
+woodslab=
+limestone cobble=
+basalt cobble=
+granite cobble=
+bioluminescent=
+ironstone cobble=
+pottery=
+gravel=
+jade cobble=
+Any @1=
+Missing required items!=

@@ -1,5 +1,4 @@
 # textdomain: clothing
-
 # init.lua
 Clothing=
 Min Temperature Tolerance: @1=

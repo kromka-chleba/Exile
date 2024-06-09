@@ -1,35 +1,59 @@
 # textdomain: tech
-
 # backpacks.lua
 Woven Bag=Sac à dos tissé
+Wicker Bag=
 Fabric Bag=Sac à dos en tissu
-
+Empty Fabric Bag=
+Full Fabric Bag=
 # beds.lua
 Sleeping Spot=Station de repos
 Sleeping Mat=Tapis de sol
 Primitive Bed=Lit rudimentaire
 Mattress=Matelas
 Bed=Lit
-
 # bricks_and_mortar.lua
 Crushed Lime=Chaux
 Quicklime=Chaux vive
 Slaked Lime=Chaux éteinte
 Slaked Lime (ruined)=Chaux éteinte (gachée)
+Lime Mortar Slab=
 Lime Mortar=Mortier de chaux
 Loose Bricks (unfired)=Briques de terre crue
 Loose Bricks=Briques de terre cuite
 Brick and Mortar=Briques de terre cuite et mortier
+Brick and Mortar Stair=
+Brick and Mortar Slab=
 Loose Roof Tile (unfired)=Tuile de terre crue
 Loose Roof Tile=Tuile de terre cuite (brute)
 Roof Tile=Tuile de terre cuite
 Roof Tile (outer corner)=Tuile (coin exterieur)
 Roof Tile (inner corner)=Tuile (coin interieur)
+Tile Block (unfired)=
+Tile Block=
+Tile Stair=
+Tile Slab=
 @1 Brick with Mortar=Brique de @1 et mortier
 @1 Block with Mortar=Bloc de @1 et mortier
-
+@1 Brick with Mortar Stair=
+@1 Brick with Mortar Slab=
+@1 Block with Mortar Stair=
+@1 Block with Mortar Slab=
+Claystone=
+Siltstone=
+Sandstone=
+Conglomerate=
+# bricks_and_mortar.lua
+Limestone=
+Ironstone=
+Granite=
+Basalt=
+Gneiss=
+Jade=
+Combine with another slab=
 # clothing.lua
 Woven Hat=Chapeau tissé
+Sun Hat=
+Woven Sandals=
 Woven Cape=Cape tissée
 Woven Poncho=Poncho tissé
 Woven Leggings=Caleçon long tissé
@@ -42,7 +66,54 @@ Light Fabric Trousers=Pantalon en tissu léger
 Thick Fabric Trousers=Pantalon en tissu épais
 Light Fabric Tunic=Tunique en tissu léger
 Thick Fabric Tunic=Tunique en tissu épais
-
+# cooking-pot.lua
+Soup=
+Status: Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=
+Status: Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=
+@1 soup=
+Cooking Pot=
+This pot is full and heavy. Spill it?=
+Cooking Pot (unfired)=
+Eat=
+Crafting=
+Pottery=
+Create=
+Mixing=
+# craft-stations.lua
+Crafting Spot=Station d'artisanat
+# Craft station
+Weaving=
+Grinding stone=Meule en pierre
+Mortar and pestle=
+Carpentry Bench=Établi de menuisier
+Bricks=
+Blocks=
+Spinning Wheel=Rouet
+Loom=Métier à tisser
+Glass furnace=Four à verre
+Tools=
+Stations=
+Agriculture=
+Pickaxe=
+Cannot place here! Needs a whole block of: =
+Mixing Spot=Station de mélange
+Threshing Spot=Station de battage
+Weaving Spot=
+Grinding Spot=
+Hammering Spot=
+Chopping Block=Billot
+Basalt Mortar and Pestle=Mortier et pilon en basalte
+Granite Mortar and Pestle=Mortier et pilon en granit
+Limestone Mortar and Pestle=Mortier et pilon en calcaire
+Anvil=Enclume
+Masonry Bench=Atelier de maçon
+Brick Maker's Bench=Atelier de briqueterie
+Weaving Frame=Cadre à tisser
+Granite Grinding Stone=
+Limestone Grinding Stone=
+Basalt Grinding Stone=
+Hammering Block=Bloc à marteler
+Wattle=Claies
 # doors.lua
 Wattle Door=Porte en claies
 Wattle Trapdoor=Trappe en claies
@@ -50,13 +121,31 @@ Wooden Door=Porte en bois
 Wooden Trapdoor=Trappe en bois
 Iron Door=Porte en fer
 Iron Trapdoor=Trappe en fer
-
 # drugs.lua
 Herbal Medicine=(Soin des plantes)
-Tang=Tang
-Tang (unfermented)=Tang (non-fermenté)
 Tiku (stimulant)=Tiku (elixir)
-
+Tang Vinegar=
+Tang Vinegar with Mother=
+Mother of Tang=
+Infect Other Pots=
+Tang=Tang
+Drink=
+Tang (unfermented)=Tang (non-fermenté)
+# hearthen_building.lua
+Drystack=Pierre seche
+Drystack Stair=
+Drystack Slab=
+Mudbrick=Brique d'argile
+Mudbrick Stair=
+Mudbrick Slab=
+Rammed Earth=Pisé
+Rammed Earth Stair=
+Rammed Earth Slab=
+Loose Wattle=Claies laches
+Wattle Door Frame=Cadre de porte en claies
+Thatch=Chaume
+Thatch Stair=
+Thatch Slab=
 # fibreworking.lua
 Unretted Cana Bundle=Fagot de canne non rouie
 Retted Cana Bundle=Fagot de canne rouie
@@ -64,9 +153,9 @@ Coarse Fibre=Fibre végétale grossière
 Fine Fibre=Fibre végétale de qualité
 Coarse Fabric=Tissu grossier
 Fine Fabric=Tissu de qualité
-
 # fires.lua
 Wood Ash Block=Bloc de cendre
+Enrich depleted soil=
 Wood Ash=Cendre
 Charcoal Block=Bloc de charbon
 Charcoal=Charbon
@@ -84,7 +173,6 @@ Small Wood Fire (extinguished)=Petit feu de bois (éteint)
 Large Wood Fire (extinguished)=Grand feu de bois (éteint)
 Small Charcoal Fire (extinguished)=Petit feu de charbon (éteint)
 Large Charcoal Fire (extinguished)=Grand feu de charbon (éteint)
-
 # glassworking.lua
 Green Glass Sand Mix=Préparation pour verre vert
 Green Glass Ingot=Lingot de verre vert
@@ -92,7 +180,8 @@ Potash Block=Bloc de potasse
 Potash=Potasse
 Potash Solution Source=Source de solution de potasse
 Flowing Potash Solution=Flux de solution de potasse
-Clay Water Pot With Potash Solution=Pot à eau et solution de potasse
+Clay Water Pot with Potash Solution=
+Wooden Water Pot with Potash Solution=
 Clay Water Pot With Potash=Pot à eau et potasse
 Clear Glass Sand Mix=Préparation pour verre transparent
 Clear Glass Ingot=Lingot de verre transparent
@@ -103,22 +192,12 @@ Green Glass Pane=Vitre en verre vert
 Clear Glass Pane=Vitre en verre transparent
 Green Glass Window=Fenêtre en verre vert
 Clear Glass Window=Fenêtre en verre transparent
-Green Glass Bottle=Bouteille en verre vert
-Clear Glass Bottle=Bouteille en verre transparent
-
 # graffiti.lua
 Painting Kit (lime white)=Kit de peinture (chaux blanche)
 Painting Kit (glow paint)=Kit de peinture (phosphore)
-
-# hearthen_building.lua
-Drystack=Pierre seche
-Mudbrick=Brique d'argile
-Rammed Earth=Pisé
-Wattle=Claies
-Loose Wattle=Claies laches
-Wattle Door Frame=Cadre de porte en claies
-Thatch=Chaume
-
+Stone Etcher=
+Flip to stone knife=
+Painting Kit (ochre red)=
 # ironworking.lua
 Crushed Iron Ore=Fer écrasé
 Roasted Iron Ore=Fer grillé
@@ -128,10 +207,36 @@ Iron and Slag=Fer et scories
 Iron Bloom=Loupe de fer
 Iron Ingot=Lingot d'acier
 Slag=Scories
+Slag Stair=
+Slag Slab=
 Molten Slag=Scories en fusion
 Flowing Molten Slag=Coulée de scories en fusion
 Iron Fittings=Fixations en fer
-
+Protection Nails=
+Protect Item=
+Iron Key=
+Grant key owner access.=
+# Lantern
+Lantern Case=
+Status: needs a clear glass pane and a wick (coarse fibre)!=
+Lantern Case with a wick=
+Status: needs a clear glass pane!=
+Lantern Case with Glass=
+Status: needs a wick (coarse fibre)!=
+Unlit Lantern=
+Lit Lantern=
+# lever.lua
+lever=Levier
+Rotate face=
+Flip to aligner=
+Rotate axis=
+alignment tool=
+Pick up a node's facing=
+Flip to lever=
+Apply facing to another node=
+Empty=
+fuel left=
+Status: =
 # plant_crafts.lua
 Stick=Baton
 Bitter Maraka Flour=Farine de Maraka crue
@@ -146,15 +251,97 @@ Mashed Anperla (uncooked)=Écrasé d'Anperla cru
 Mashed Anperla=Écrasé d'Anperla
 Burned Anperla=Anperla brulé
 Vegetable Oil=Huile végétale
-
+# Pottery
+Broken Pottery Slab=
 # pottery.lua
 Broken Pottery=Potterie cassée
-Clay Water Pot=Pot à eau en terre cuite
 Clay Water Pot (unfired)=Pot à eau en terre crue
 Clay Storage Pot (unfired)=Pot de rangement en terre crue
-Clay Oil Lamp (unfired)=Lampe à huile en terre cuite
+Clay Oil Lamps (x4) (unfired)=
+Clay Oil Lamps (x4)=
 Clay Oil Lamp=Lampe à huile en terre crue
 Clay Oil Lamp (lit)=Lampe à huile (allumée)
+Clay Watering Can (unfired)=
+# storage.lua
+Clay Storage Pot=Pot de rangement en terre cuite
+Primitive Wooden Chest=
+Wicker Storage Basket=
+Woven Storage Basket=
+Wooden Chest=Coffre en bois
+Iron Chest=Coffre en fer
+# tools.lua
+Stone Knife=Couteau en pierre
+Cut plants faster than bare hands=
+Flip to stone etcher=
+Place tool for cutting crafts=
+Placed Stone Knife=
+Digging Stick=Baguette
+Dig hard earth=
+Till soil slowly=
+Place tool for plant crafts=
+Placed Digging Stick=
+Cut softwood logs=
+Adze=
+Placed Granite Adze=
+Placed Basalt Adze=
+Placed Jade Adze=
+Basalt Adze=Herminette en basalt
+Jade Adze=Herminette en jade
+Granite Adze=Herminette en granit
+Stone Club=Massue en pierre
+Strike=
+Stun animals=
+Iron Axe=Hache en acier
+Cut any wood=
+Placed Iron Axe=
+Iron Shovel=Pelle en acier
+Dig earth quickly=
+Till soil=
+Place for plant crafts=
+Placed Iron Shovel=
+Iron Mace=Massue en acier
+Iron Pickaxe=Pioche en acier
+Dig stone=
+Placed Iron Pickaxe=
+Iron Hoe=
+Till soil quickly=
+Placed Iron Hoe=
+Hammer=
+Stun animals@n or Place on solid surface for hammering crafts=
+Placed Granite Hammer=
+Placed Basalt Hammer=
+Basalt Hammer=
+Granite Hammer=
+# torch.lua
+Torch=Torche
+Clay Water Pot=Pot à eau en terre cuite
+Clay Water Pot with Salt Water=
+Clay Water Pot with Freshwater=Pot à eau rempli d'eau claire
+Wooden Water Pot=
+Wooden Water Pot with Salt Water=
+Wooden Water Pot with Freshwater=
+Clay Watering Can=
+Clay Watering Can with Freshwater=
+Clay Watering Can with Salt Water=
+Wooden Watering Can=
+Wooden Watering Can with Freshwater=
+Wooden Watering Can with Salt Water=
+Green Glass Bottle=Bouteille en verre vert
+Clear Glass Bottle=Bouteille en verre transparent
+Green Glass Bottle With Salt Water=
+Clear Glass Bottle With Salt Water=
+Green Glass Bottle With Fresh Water=
+Clear Glass Bottle With Fresh Water=
+# woodworking.lua
+Wooden Ladder=Échelle en bois
+Wooden Floor Boards=Parquet en bois
+Wooden Stairs=Escaliers en bois
+
+
+##### not used anymore #####
+
+Clay Water Pot With Potash Solution=Pot à eau et solution de potasse
+Clay Oil Lamp (unfired)=Lampe à huile en terre cuite
 Oil lamp (empty)=Lampe à huile (vide)
 Oil lamp (full)=Lampe à huile (pleine)
 Oil lamp (almost empty)=Lampe à huile (presque vide)
@@ -162,53 +349,5 @@ Oil lamp (1/4 full)=Lampe à huile (1/2 pleine)
 Oil lamp (1/2 full)=Lampe à huile (1/2 pleine)
 Oil lamp (3/4 full)=Lampe à huile (3/4 pleine)
 Oil lamp=Lampe à huile
-Clay Water Pot with Freshwater=Pot à eau rempli d'eau claire
-
-# storage.lua
-Clay Storage Pot=Pot de rangement en terre cuite
-Wooden Chest=Coffre en bois
-Iron Chest=Coffre en fer
 Owned by @1=Propriété de @1
-
-# tools.lua
-Stone Knife=Couteau en pierre
-Digging Stick=Baguette
-Granite Adze=Herminette en granit
-Basalt Adze=Herminette en basalt
-Jade Adze=Herminette en jade
-Stone Club=Massue en pierre
-Iron Axe=Hache en acier
-Iron Shovel=Pelle en acier
-Iron Mace=Massue en acier
-Iron Pickaxe=Pioche en acier
-
-# torch.lua
-Torch=Torche
-
-# lever.lua
-lever=Levier
 (left-click rotates face, right-click rotates axis)=(clic-gauche change de face, clic droit change l'axe)
-
-# craft-stations.lua
-Crafting Spot=Station d'artisanat
-Mixing Spot=Station de mélange
-Threshing Spot=Station de battage
-Weaving Frame=Cadre à tisser
-Grinding stone=Meule en pierre
-Basalt Mortar and Pestle=Mortier et pilon en basalte
-Granite Mortar and Pestle=Mortier et pilon en granit
-Limestone Mortar and Pestle=Mortier et pilon en calcaire
-Chopping Block=Billot
-Hammering Block=Bloc à marteler
-Anvil=Enclume
-Carpentry Bench=Établi de menuisier
-Masonry Bench=Atelier de maçon
-Brick Maker's Bench=Atelier de briqueterie
-Spinning Wheel=Rouet
-Loom=Métier à tisser
-Glass furnace=Four à verre
-
-# woodworking.lua
-Wooden Ladder=Échelle en bois
-Wooden Floor Boards=Parquet en bois
-Wooden Stairs=Escaliers en bois

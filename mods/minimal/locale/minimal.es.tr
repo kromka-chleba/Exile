@@ -1,26 +1,42 @@
 # textdomain: minimal
 #utility/general.lua
-
 #currentrevision.lua
 Display the current git revision=Mostrar la revision actual de git
 This server is currently running git revision=Este servidor esta ejecutando actualmente la revision de git
-
 #interface/infotext.lua
 Owner=Poseedor
-
+Missing required items!=
+Main=
+Bag1=
+Bag2=
+Bag3=
+Bag4=
+Input Items=
+Craft Type=
+Crafting=
+Quantity=
 #playersettings.lua
 Enable wide HUDbar=Enciende la barra ancha del HUD
 Show numeric stats=Utilice estadisticas numericas
 Enable Break-taker popup=Activar el aviso de descanso 
+Allow digging with a full inventory=
 Temperature scale=Escala de temperatura
 GUI theme=GUI tema
 HUD Opacity level=Nivel de opacidad del HUD
-
-#storage_api.lua
-Label=Etiqueta
+# protection.lua
+Access List=
+Delete=
+Close=
+Access list empty.=
+Deleted @1 from access list.=
+@1 already has access=
+@1 granted access=
+Can't grant access to items you don't own=
 Crafted by=Creado por
 Burnt Storage Pile=Almacenamiento Quemada
-
+#storage_api.lua
+Label=Etiqueta
+Set=
 #triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=
 Reset player=
@@ -36,7 +52,7 @@ Set player hunger to <value> percent=
 Set thirst=
 Set player thirst to <value> percent=
 Teleport=
-Send player an exact xyz position=
+Send player to an exact xyz position=
 Relaport=
 Send player a relative xyz distance=
 Clear inventory=
@@ -56,13 +72,27 @@ Hide health/energy/thirst/hunger/temp/=
 /enviro_temp/effects by names, or all=
 Show hud elements=
 Restore all hidden hud elements=
-
-
+Show hud splash=
+Display an image and text@n<icon name.png>,<text>=
 Value:=
 False=
 True=
+# triggers
+Exile trigger node=
 Configured trigger=
-Set=
 Unset=
 Yes=Si
 No=No
+Error in zone def ranges=
+Upper corner=
+( North / Up / East )=
+Here=
+Lower corner=
+( South / Down / West )=
+Range type:=
+( Absolute is either inside or out. )=
+( Radial and cubic fade towards the edge. )=
+Range=
+Copy=
+Values=
+Exile zone trigger node=

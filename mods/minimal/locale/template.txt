@@ -1,38 +1,41 @@
 # textdomain: minimal
-
 #utility/general.lua
-
 #currentrevision.lua
 Display the current git revision=
 This server is currently running git revision=
-
 #interface/infotext.lua
 Owner=
-Input Items=
-Craft Type=
-Quantity=
-Crafting=
+Missing required items!=
 Main=
 Bag1=
 Bag2=
 Bag3=
 Bag4=
-
+Input Items=
+Craft Type=
+Crafting=
+Quantity=
 #playersettings.lua
 Enable wide HUDbar=
 Show numeric stats=
 Enable Break-taker popup=
+Allow digging with a full inventory=
 Temperature scale=
 GUI theme=
 HUD Opacity level=
-Allow digging with a full inventory=
-
-#storage_api.lua
-Label=
-Set=
+# protection.lua
+Access List=
+Delete=
+Close=
+Access list empty.=
+Deleted @1 from access list.=
+@1 already has access=
+@1 granted access=
+Can't grant access to items you don't own=
 Crafted by=
 Burnt Storage Pile=
-
+Label=
+Set=
 #triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=
 Reset player=
@@ -49,7 +52,6 @@ Set thirst=
 Set player thirst to <value> percent=
 Teleport=
 Send player to an exact xyz position=
-Send player an exact xyz position=
 Relaport=
 Send player a relative xyz distance=
 Clear inventory=
@@ -71,24 +73,19 @@ Show hud elements=
 Restore all hidden hud elements=
 Show hud splash=
 Display an image and text@n<icon name.png>,<text>=
-Label=
 Value:=
 False=
 True=
+# triggers
+Exile trigger node=
 Configured trigger=
-Set=
 Unset=
 Yes=
 No=
-
-# triggers
-Exile trigger node=
-Exile zone trigger node=
 Error in zone def ranges=
 Upper corner=
 ( North / Up / East )=
 Here=
-Set=
 Lower corner=
 ( South / Down / West )=
 Range type:=
@@ -97,35 +94,10 @@ Range type:=
 Range=
 Copy=
 Values=
+Exile zone trigger node=
 
-Missing required items!=
 
-Any =
-Any log=
-Any fibrous plant=
-Any compostable=
-Any limestone cobble=
-Any basalt cobble=
-Any granite cobble=
-Any hard wood=
-Any woody plant=
-Any woodslab=
-Any bioluminescent=
-Any ironstone cobble=
-Any pottery=
-Any gravel=
-Any jade cobble=
+##### not used anymore #####
 
 # Stairs
 Inner @1=
-Outer @1=
-
-# protection.lua
-Access List=
-Delete=
-Close=
-Access list empty.=
-Deleted @1 from access list.=
-@1 already has access=
-@1 granted access=
-Can't grant access to items you don't own=

@@ -1,134 +1,8 @@
 # textdomain: lore
-
 #char_tab.lua
-mild=мягкий
-moderate=умеренный
-severe=серьезный
-extreme=экстремальный
-
-(mild)=(мягкий)
-(moderate)=(умеренный)
-(severe)=(серьезный)
-(extreme)=(экстремальный)
-
-Caveman in ice=Пещерный человек во льду
-Frozen=Замороженный
-Frostbitten=Обмороженный
-Chilled=Охлажденный
-Too warm=Слишком тепло
-Heat stroke=Тепловой удар
-Cooked=Зажаренный
-Bones and ash=Кости и пепел
-Exhausted=Истощение
-Weary=Изможденный
-Tired=Усталый
-Well-rested=Хорошо отдохнувший
-Starving=Голодающий
-Thin=Худой
-Well-fed=Упитанный
-Dying of thirst=Умирающий от жажды
-Very thirsty=Очень хочется пить
-Thirsty=Жажда
-(Shivering)=(дрожь)
-poorly=плохо
-comfortably=комфортно
-(Sweating)=(Потливость)
-Naked =Голый 
-
-Name=Имя
-Days Survived=Дней выживания
-Lives=Жизни
-Biography=Биография
-Health Effects=Воздействие на здоровье
-Food Poisoning=Пищевое отравление
-Fungal Infection=Грибковая инфекция
-Dust Fever=Пыльная лихорадка
-Intestinal Parasites=Кишечные паразиты
-Drunk=Пьяный
-Hangover=Похмелье
-Tiku High=Тику Хай
-Neurotoxicity=Нейротоксичность
-Hepatotoxicity=Гепатотоксичность
-Photosensitivity=Светочувствительность
-Meta-Stim=Мета-Стим
-Resting=Отдых
-
-Character=Характер
-
-#login.lua
-login_text=  Вы едва слышите, как они@
-зачитывают список ваших преступлений под@
-громкие издевательств ваших сородичей, но уже @
-слишком поздно протестовать против своей невиновности.@
-@n  Вас лишают всего имущества и вручают@
-приказ, в котором описаны все ваши преступления и наказание,@
-которое должно быть назначено, а затем вас@
-проталкивают через врата, чтобы вы умерли в@
-проклятой земле древних, как..
-
-#   You can scarcely hear the sound of them @
-# reading the list of your crimes over the @
-# louder jeering of your kinsmen, but it's already @
-# too late to protest your innocence. @
-# @n  You are stripped of all possessions and given @
-# a writ describing your assorted crimes and the @
-# punishment that is to be given, and then you @
-# are pushed through a gateway to die in the @
-# cursed land of the Ancients, as an..=  Вы едва слышите, как они@
-# зачитывают список ваших преступлений под@
-# громкие издевательств ваших сородичей, но уже @
-# слишком поздно протестовать против своей невиновности.@
-# @n  Вас лишают всего имущества и вручают@
-# приказ, в котором описаны все ваши преступления и наказание,@
-# которое должно быть назначено, а затем вас@
-# вас проталкивают через врата, чтобы вы умерли в@
-# проклятой земле древних, как..
-
-Message of the Day:=Сообщение дня:
-
-#restart.lua
-@1 gave up the ghost.=@1 отказался от призрака.
-POP!=ХОП!
-Restart in: @1 seconds.=Перезапуск через: @1 секунд.
-You've come to your senses and decided to keep trying=Вы одумались и решили продолжить попытки.
-You can't use this command more than once per 5 minutes.=Эту команду можно использовать не чаще одного раза в 5 минут.
-Restarting does not leave bones!=Перезапуск не оставляет костей!
-Your inventory will be deleted.=Ваш инвентарь будет удален.
-Are you sure?=Вы уверены?
-Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try your hand at survival again.=Откажитесь от своего текущего персонажа, не оставив ни малейшего следа. Все, чем вы владеете, будет потеряно. Вместо них в этом мире появится новый Изгнанник, и вы сможете снова попробовать свои силы в выживании.
-This command is an alias for /restart. See there for further information.=Эта команда является псевдонимом команды /restart. Дополнительную информацию см. там.
-
-
-#exile_letter.lua
-He=Он
-She=Она
-he=он
-she=она
-Him=Ему
-Her=Ее
-him=ему
-her=ее
-His=Его
-Hers=Ее
-his=его
-hers=ее
-Himself=Сам
-Herself=Сама
-himself=сам
-herself=сама
-By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=По постановлению @1 из @2: @n@n @3 из @4 @n@n настоящим приговаривается к изгнанию за преступления @n@n @5 @n@n и @n@n @6 @n@n @7 настоящим изгоняется в землю @8 @n@n Земля - @9 @n@n
-
-Sentence of Exile=Приговор изгнания
-
-# bio_gen.lua
-
-@n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=@n @3 @5 человек @1 и @2,@n который прожил @4 жизнь,@n но однажды @6....
-
- and = и 
- had lived = прожил 
- life,= жизнь,
-until one day =но однажды 
-
+# personality
+#  openness
+#char_tab.lua
 # personality
 #  openness
 Conventional=обычный
@@ -175,7 +49,6 @@ Self-satisfied=самоудовлетворенный
 Moody=унылый
 Complacent=самодовольный
 Paranoid=параноидальный
-
 # virtue
 courageous=мужественный
 temperate=умеренный
@@ -273,7 +146,6 @@ understanding=понимающий
 vigorous=энергичный
 wise=мудрый
 zealous=ревностный
-
 # life
 #  Favorable
 a good=хорошую
@@ -334,7 +206,6 @@ a misspent=расточительную
 an eccentric=эксцентричную
 an oddball=чудаковатую
 a strange=странную
-
 # woe
 #  Bad Business
 made a bad bargain=заключил плохую сделку
@@ -437,7 +308,16 @@ received a vision from the other side=получил видение с того 
 had a dream that explained everything=увидел сон, который все объяснил
 built a perpetual-motion machine=построил вечный двигатель
 learned the meaning of life=узнал смысл жизни
-
+# bio_gen.lua
+@n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=@n @3 @5 человек @1 и @2,@n который прожил @4 жизнь,@n но однажды @6....
+he=он
+she=она
+Name=Имя
+Days Survived=Дней выживания
+Lives=Жизни
+Biography=Биография
+Health Effects=Воздействие на здоровье
+Character=Характер
 # judger
 # monarchs, etc.
 King=Короля
@@ -555,7 +435,6 @@ Eternal Pyramid=Вечной пирамиды
 Towering Tree=Башенного дерева
 Viridian Magister=Виридианского Магистра
 Thousand-tongued All-speaker=Тысячеязыкого Вседержителя
-
 # exile-worthy crime
 # crime1
 treason=измену
@@ -563,7 +442,6 @@ betrayal=предательство
 murder=убийство
 heresy=ересь
 blasphemy=богохульство
-betrayal=предательство
 regicide=цареубийство
 conspiracy=заговор
 kidnapping=похищение
@@ -577,7 +455,6 @@ espionage=шпионаж
 sabotage=саботаж
 treachery=предательство
 sedition=мятеж
-
 # flavour-text crime
 # crime2
 leading the youth astray=сбивание молодежи с пути
@@ -672,7 +549,63 @@ leading an unauthorised military campaign=ведение несанкциони�
 claiming that the world is round=утверждение, что мир круглый
 claiming that the world is not round=утверждение, что мир не круглый
 promoting belief in gravity=пропаганда веры в гравитацию
-
+#exile_letter.lua
+He=Он
+She=Она
+Him=Ему
+Her=Ее
+him=ему
+her=ее
+His=Его
+his=его
+Himself=Сам
+Herself=Сама
+himself=сам
+herself=сама
+May @1 name be forgotten.=Пусть имя @1 будет забыто.
+@1 is proscribed.=@1 под запретом.
+Never suffer @1 to return.=Никогда не позволяйте @1 вернуться.
+May the gods have mercy upon @1.=Пусть боги будут милостивы к @1.
+Let none come to @1 aid.=Пусть никто не придет на помощь @1.
+May @1 weeping never cease.=Пусть плач @1 никогда не прекратится.
+@1 life is forfeit.=Жизнь @1 потеряна.
+It shall be as if @1 were never born.=Будет так, как будто @1 никогда не рождался.
+May @1 end be swift.=Пусть конец @1 будет быстрым.
+May fortune forgive @1.=Пусть судьба простит @1.
+@1 shall live so long as @2 deserves.=Пусть @1 живет столько, сколько заслуживает @2.
+Let the beasts do with @1 as they wish.=Пусть звери поступают с @1 как хотят.
+This is justice.=Такова справедливость.
+Let none dispute it.=Пусть никто не оспаривает это.
+May @1 wander fruitlessly.=Пусть @1 бесплодно скитается.
+May @1 bones bleach in the sun.=Пусть кости @1 белеют на солнце.
+May the worms feast on @1 flesh.=Пусть черви пируют на плоти @1.
+May @1 suffering appease the gods.=Пусть страдания @1 умиротворят богов.
+Let @1 struggling be without end.=Пусть борьба @1 будет без конца.
+Let fate decide @1 destiny.=Пусть судьба решит @1 судьбу.
+May the land have pity and bury @1 disgraceful remains.=Пусть земля сжалится и похоронит @1 позорные останки.
+Thus we declare.=Так мы заявляем.
+For we are merciful.=Ибо мы милосердны.
+Let this be our kindness to @1.=Пусть это будет нашей добротой к @1.
+Begone, evildoer.=Прочь, злодей.
+Thus do we cleanse ourselves.=Так мы очищаем себя.
+# Perhaps a reference to Pontius Pila
+We wash our hands of @1.=Мы умываем руки от @1.
+Fortune shall be @1 final judge.=Фортуна будет окончательным судьей @1.
+@1 is disowned.=От @1 отрекаются.
+We never knew @1.=Мы никогда не знали @1.
+@1 is cut off.=@1 отрезанный ломоть.
+Let @1 live with the beasts.=Пусть @1 живет со зверями.
+Let the barbarians and wild folk have @1.=Пусть варвары и дикие люди получат @1.
+@1 is not fit for civilised lands.=@1 не годится для цивилизованных земель.
+# Perhaps a reference to Sheev Palpatine
+Thus we ensure our security.=Так мы обеспечиваем свою безопасность.
+Only the righteous belong among us.=Среди нас есть только праведники.
+May @1 toil in vain.=Пусть @1 трудится напрасно.
+# Now a reference to Cecil B. DeMil
+So it is written. So it is done.=Так написано. Так и есть.
+Even the dogs despise @1.=Даже собаки презирают @1.
+We break no bread with traitors.=Мы не преломляем хлеб с предателями.
+Let this be @1 journey to cleanse @2.=Пусть это будет путешествие @1, чтобы очистить @2.
 # Various corruptions of "Ozymandias"
 # local exile
 Ochymadion=Очимадион
@@ -691,7 +624,6 @@ Caemandior=Каемандиор
 Oshaemediash=Ошаэмедиаш
 Otzakantas=Отзакантас
 Archanatus=Арханатус
-
 # What happened here? Lost to memory.
 # mythic_terror
 Great Calamity=Великое бедствие
@@ -741,62 +673,20 @@ Twisted Existence=Искаженное существование
 Twisted=Искаженние
 Warped=Искривленный
 Lost=Потерянные
-
-May @1 name be forgotten.=Пусть имя @1 будет забыто.
-@1 is proscribed.=@1 под запретом.
-Never suffer @1 to return.=Никогда не позволяйте @1 вернуться.
-May the gods have mercy upon @1.=Пусть боги будут милостивы к @1.
-Let none come to @1 aid.=Пусть никто не придет на помощь @1.
-May @1 weeping never cease.=Пусть плач @1 никогда не прекратится.
-@1 life is forfeit.=Жизнь @1 потеряна.
-It shall be as if @1 were never born.=Будет так, как будто @1 никогда не рождался.
-May @1 end be swift.=Пусть конец @1 будет быстрым.
-May fortune forgive @1.=Пусть судьба простит @1.
-@1 shall live so long as @2 deserves.=Пусть @1 живет столько, сколько заслуживает @2.
-Let the beasts do with @1 as they wish.=Пусть звери поступают с @1 как хотят.
-This is justice.=Такова справедливость.
-Let none dispute it.=Пусть никто не оспаривает это.
-May @1 wander fruitlessly.=Пусть @1 бесплодно скитается.
-May @1 bones bleach in the sun.=Пусть кости @1 белеют на солнце.
-May the worms feast on @1 flesh.=Пусть черви пируют на плоти @1.
-May @1 suffering appease the gods.=Пусть страдания @1 умиротворят богов.
-Let @1 struggling be without end.=Пусть борьба @1 будет без конца.
-Let fate decide @1 destiny.=Пусть судьба решит @1 судьбу.
-May the land have pity and bury @1 disgraceful remains.=Пусть земля сжалится и похоронит @1 позорные останки.
-Thus we declare.=Так мы заявляем.
-For we are merciful.=Ибо мы милосердны.
-Let this be our kindness to @1.=Пусть это будет нашей добротой к @1.
-Begone, evildoer.=Прочь, злодей.
-Thus do we cleanse ourselves.=Так мы очищаем себя.
-# Perhaps a reference to Pontius Pila
-We wash our hands of @1.=Мы умываем руки от @1.
-Fortune shall be @1 final judge.=Фортуна будет окончательным судьей @1.
-@1 is disowned.=От @1 отрекаются.
-We never knew @1.=Мы никогда не знали @1.
-@1 is cut off.=@1 отрезанный ломоть.
-Let @1 live with the beasts.=Пусть @1 живет со зверями.
-Let the barbarians and wild folk have @1.=Пусть варвары и дикие люди получат @1.
-@1 is not fit for civilised lands.=@1 не годится для цивилизованных земель.
-# Perhaps a reference to Sheev Palpatine
-Thus we ensure our security.=Так мы обеспечиваем свою безопасность.
-Only the righteous belong among us.=Среди нас есть только праведники.
-May @1 toil in vain.=Пусть @1 трудится напрасно.
-# Now a reference to Cecil B. DeMil
-So it is written. So it is done.=Так написано. Так и есть.
-Even the dogs despise @1.=Даже собаки презирают @1.
-We break no bread with traitors.=Мы не преломляем хлеб с предателями.
-Let this be @1 journey to cleanse @2.=Пусть это будет путешествие @1, чтобы очистить @2.
-
-# history.lua
-It is the @1 of day @2 of the season of @3, in the year of our exile @4=Это @1 @2 дня сезона @3, в @4 год нашего изгнания.
-Birth=рождения
-Thirst=жажды
-Retreat=ухода
-Hunger=голода
-small hours=ночь
-evening=вечер
-afternoon=день
-morning=утро
-
-# temperature.lua
-Value:=Значение:
+By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=По постановлению @1 из @2: @n@n @3 из @4 @n@n настоящим приговаривается к изгнанию за преступления @n@n @5 @n@n и @n@n @6 @n@n @7 настоящим изгоняется в землю @8 @n@n Земля - @9 @n@n
+Sentence of Exile=Приговор изгнания
+#login.lua
+login_text=  Вы едва слышите, как они@n зачитывают список ваших преступлений под@n громкие издевательств ваших сородичей, но уже @n слишком поздно протестовать против своей невиновности.@n @n  Вас лишают всего имущества и вручают@n приказ, в котором описаны все ваши преступления и наказание,@n которое должно быть назначено, а затем вас@n вас проталкивают через врата, чтобы вы умерли в@n проклятой земле древних, как..
+Message of the Day:@n@n=Сообщение дня:@n@n
+This command shows the current message of the day.=Эта команда показывает текущее сообщение дня.
+#restart.lua
+@1 gave up the ghost.=@1 отказался от призрака.
+POP!=ХОП!
+Restart in: @1 seconds.=Перезапуск через: @1 секунд.
+You've come to your senses and decided to keep trying=Вы одумались и решили продолжить попытки.
+You can't use this command more than once per 5 minutes.=Эту команду можно использовать не чаще одного раза в 5 минут.
+Restarting does not leave bones!=Перезапуск не оставляет костей!
+Your inventory will be deleted.=Ваш инвентарь будет удален.
+Are you sure?=Вы уверены?
+Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try your hand at survival again.=Откажитесь от своего текущего персонажа, не оставив ни малейшего следа. Все, чем вы владеете, будет потеряно. Вместо них в этом мире появится новый Изгнанник, и вы сможете снова попробовать свои силы в выживании.
+This command is an alias for /restart. See there for further information.=Эта команда является псевдонимом команды /restart. Дополнительную информацию см. там.

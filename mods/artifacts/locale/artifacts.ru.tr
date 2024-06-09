@@ -1,95 +1,121 @@
 # textdomain: artifacts
-
 # general
+# airboat.lua
+# general
+# airboat.lua
+Airboat=Аэрокатер
+[airboat] Cruise on=[Аэрокатер] Автопилот включен
+[airboat] Cruise off=[Аэрокатер] Автопилот отключен
+Jade=Нефрит
+Gold=Золото
+@1 Sculpture=Скульптура @1
+Gamepiece (black)=Игровые фишки (черный)
+Gamepiece (white)=Игровые фишки (белый)
+Singing Stone=Поющий камень
+Drumming Stone=Барабанный камень
+# materials.lua
+Moon Glass=Лунное стекло
+# bell.lua
+Automated Bell=Автоматический колокол
+# map.lua
+Geosurveyor@nUse with 'Minimap' key=Геосъемка@nАктивация клавишей 'Миникарта'.
+Sun Stone=Солнечный камень
+Moon Stone=Лунный камень
+Star Stone=Звездный камень
+@1 Ladder=@1ная лестница
+@1 Door=@1ная дверь
+@1 Trapdoor=@1ный люк
+Trampoline=Трамплин
+Conveyor=Конвейер
 Antiquorium=Антиквориум
-units=единицы
-seconds=секунды
-Cancel=Отмена
-Destination name=Название пункта назначения
-
-# binary
-Yes=Да
-No=Нет
-
-# tools.lua
-@1 Chisel=@1 Долото
-Spyglass=Подзорная труба
-View far distances=Осмотр дальних расстояний
-
-# player + animal
-CONDITION=СОСТОЯНИЕ
-Health=Здоровье
-Energy=Энергия
-Age=Возраст
-
-# probes;
-NOT MEASURABLE!=НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
-
-Light Meter=Измеритель освещенности
-List light level of node or self=Показывает уровень освещенности узла или самого себя
+# pandora.lua
+Meta-Stim Injector=Инъектор Мета-Стим
+# storage.lua 
+@1 chest=@1 сундук
 LIGHT MEASUREMENT:=ИЗМЕРЕНИЕ ОСВЕЩЕННОСТИ:
 LIGHT LEVEL @= =УРОВЕНЬ ОСВЕЩЕННОСТИ @= 
-
-Temperature Probe=Температурный зонд
-List temperature of node=Показывает температуру узла
+Light Meter=Измеритель освещенности
+List light level of node or self=Показывает уровень освещенности узла или самого себя
 OBJECT TEMPERATURE MEASUREMENT:=ИЗМЕРЕНИЕ ТЕМПЕРАТУРЫ ОБЪЕКТА:
 TEMPERATURE @= =ТЕМПЕРАТУРА @= 
-
+Temperature Probe=Температурный зонд
+List temperature of node=Показывает температуру узла
+# probes;
+NOT MEASURABLE!=НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
+BURN UNITS REMAINING:=ОСТАТОК ТОПЛИВНЫХ ЭЛЕМЕНТОВ:
 Fuel Probe=Топливный зонд
 List fuel units of node=Показывает топливные элементы узла
-BURN UNITS REMAINING:=ОСТАТОК ТОПЛИВНЫХ ЭЛЕМЕНТОВ:
-
+SMELTING UNITS REMAINING:=ОСТАТОК ПЛАВЯЩИЕСЯ ЭЛЕМЕНТОВ:
 Smelter Probe=Плавочный зонд
 List remaining units of node for smelting=Показывает оставшиеся элементы узла для плавки
-SMELTING UNITS REMAINING:=ОСТАТОК ПЛАВЯЩИЕСЯ ЭЛЕМЕНТОВ:
-
+FIRING UNITS REMAINING:=ОСТАТОК НЕОБОЖЖЕННЫХ ЭЛЕМЕНТОВ:
 Potter's Probe=Гончарный зонд
 List remaining firing units of unfired clay=Показывает оставшиеся необожженные элементы в глине
-FIRING UNITS REMAINING:=ОСТАТОК НЕОБОЖЖЕННЫХ ЭЛЕМЕНТОВ:
-
+COOKING UNITS REMAINING:=ОСТАТОК НЕПРИГОТОВЛЕННЫХ ЭЛЕМЕНТОВ:
 Chef's Probe=Зонд шеф-повара
 List remaining cooking units of pointed food=Показывает оставшиеся неприготовленные элементы указанного продукта
-COOKING UNITS REMAINING:=ОСТАТОК НЕПРИГОТОВЛЕННЫХ ЭЛЕМЕНТОВ:
-
-Farmer's Probe=Фермерский зонд
-List stats of plant or soil=Показывает состояние растения или почвы
+GROUPS:=ГРУППЫ:
 PLANT TYPE:=ТИП РАСТЕНИЯ:
 Wild=Дикий
 Domesticated=Одомашненное
 Half-wild=Полу-дикий
-STATE:=СОСТОЯНИЕ:
-FERTILITY:=ПЛОДОРОДИЕ:
-ROOTS:=КОРНЕПЛОДЫ:
 PLANT GROWTH NOT MEASURABLE!=РОСТ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
+GROWTH UNITS REMAINING:=ОСТАВШИЕСЯ ЕДИНИЦЫ РОСТА:
 PLANT HEALTH NOT MEASURABLE!=ЗДОРОВЬЕ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
-NOT MEASURABLE: NEEDS A PLANT OR SOIL=НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ: НУЖНО РАСТЕНИЕ ИЛИ ПОЧВА
+Health=Здоровье
+STATE:=СОСТОЯНИЕ:
 wet=влажный
 salty=соленый
 dry=сухой
-
-Animal Probe=Зонд животных
-List stats of pointed animal or player=Показывает состояние указанного животного или игрока
-Inspect self=Проверьте себя
+FERTILITY:=ПЛОДОРОДИЕ:
+ROOTS:=КОРНЕПЛОДЫ:
+NOT MEASURABLE: NEEDS A PLANT OR SOIL=НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ: НУЖНО РАСТЕНИЕ ИЛИ ПОЧВА
+Farmer's Probe=Фермерский зонд
+List stats of plant or soil=Показывает состояние растения или почвы
+# tools.lua
+@1 Chisel=@1 Долото
+Spyglass=Подзорная труба
+View far distances=Осмотр дальних расстояний
 SELF=СОБСТВЕННОЕ
-Body Temp=Температура тела
-Hunger=Голод
-Thirst=Жажда
-Effects=Эффекты
+Age:=Возраст:
 1 year old=1 год
 @1 years old=@1 года
 1 day old=1 день
 @1 days old=@1 дня
+# player + animal
+CONDITION=СОСТОЯНИЕ
+units=единицы
+Energy=Энергия
+Body Temp=Температура тела
+Hunger=Голод
+Thirst=Жажда
+Effects=Эффекты
+Age=Возраст
+seconds=секунды
 Oxygen:=Кислород:
+# binary
+Yes=Да
+No=Нет
 Pregnant:=Беременная:
 ANIMAL=ЖИВОТНОЕ
-
+Animal Probe=Зонд животных
+List stats of pointed animal or player=Показывает состояние указанного животного или игрока
+Inspect self=Проверьте себя
 Admin's Probe=Зонд администратора
 List groups of pointed node=Показывает группы выбранного узла
-GROUPS:=ГРУППЫ:
-
-# transporter.lua
+KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=КЛАВИША МОЖЕТ ЗАДАВАТЬ ПУНКТЫ НАЗНАЧЕНИЯ ТОЛЬКО ДЛЯ ТРАНСПОРТНОЙ ПЛОЩАДКИ
+Bond Transporter to Target=Связь транспортера с целью
+Replace Transporter Bond with NEW Target=Заменяет привязку транспортера на новую цель
+Target name=Название цели
+KEY IS BLANK!: use leftclick to save this location=КЛЮЧ ПУСТ!: Используйте левую кнопку мыши, чтобы сохранить это местоположение
+TRANSPORTER DESTINATION SET TO: @1 at @2=ПУНКТ НАЗНАЧЕНИЯ ТРАНСПОРТЕРА УСТАНОВЛЕН НА: @1 в @2
+KEY CAN ONLY SAVE FROM TRANSPORTER PAD=КЛЮЧ МОЖНО СОХРАНИТЬ ТОЛЬКО С ТРАНСПОРТНОЙ ПЛОЩАДКИ
+Key's target name=Имя цели ключа
+Wipe Key=Стереть ключ
+Create Bonded Key=Создать связанный ключ
 Transporter Key=Ключ транспортера
 Transporter Key to =Транспортный ключ к 
+TRANSPORTER KEY CREATED TO: @1=КЛЮЧ ТРАНСПОРТЕРА СОЗДАН ДЛЯ: @1
 Transporter Pad=Транспортная площадка
 Transporter Pad (Charging)=Транспортная площадка (зарядка)
 Transporter Pad (active)=Транспортная площадка (активная)
@@ -98,21 +124,8 @@ Transporter Power Core (depleted)=Силовое ядро транспортер
 Transporter Focalizer=Фокусировщик транспортера
 Transporter Stabilizer=Стабилизатор транспортера
 Transporter Regulator=Регулятор транспортера
-Transporter Key=Ключ транспортера
-KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=КЛЮЧ МОЖЕТ ЗАДАВАТЬ ПУНКТЫ НАЗНАЧЕНИЯ ТОЛЬКО ДЛЯ ТРАНСПОРТНОЙ ПЛОЩАДКИ
-Bond Transporter to Target=Связь транспортера с целью
-Replace Transporter Bond with NEW Target=Заменяет привязку транспортера на новую цель
-KEY IS BLANK!: use leftclick to save this location=КЛЮЧ ПУСТ!: Используйте левую кнопку мыши, чтобы сохранить это местоположение
-TRANSPORTER DESTINATION SET TO: @1 at @2=ПУНКТ НАЗНАЧЕНИЯ ТРАНСПОРТЕРА УСТАНОВЛЕН НА: @1 в @2
-KEY CAN ONLY SAVE FROM TRANSPORTER PAD=КЛЮЧ МОЖНО СОХРАНИТЬ ТОЛЬКО С ТРАНСПОРТНОЙ ПЛОЩАДКИ
-KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=КЛАВИША МОЖЕТ ЗАДАВАТЬ ПУНКТЫ НАЗНАЧЕНИЯ ТОЛЬКО ДЛЯ ТРАНСПОРТНОЙ ПЛОЩАДКИ
-TRANSPORTER KEY CREATED TO: @1=КЛЮЧ ТРАНСПОРТЕРА СОЗДАН ДЛЯ: @1
-Wipe Key=Стереть ключ
-Create Bonded Key=Создать связанный ключ
-Target name=Название цели
-Key's target name=Имя цели ключа
-
-
+Cancel=Отмена
+Destination name=Название пункта назначения
 # wayfinder.lua
 Wayfinder to @1=Путеводитель для
 WAYFINDER BONDED TO: @1 @2=ПУТЕВОДИТЕЛЬ, СВЯЗАННЫЙ С: @1 @2
@@ -122,41 +135,3 @@ WAYFINDER CAN ONLY BOND TO WAYSTONE=ПУТЕВОДИТЕЛЬ МОЖЕТ БЫТЬ
 Permanently Bond=Постоянная связь
 Wayfinder=Путеводитель
 Waystone=Путевой камень
-
-# airboat.lua
-Airboat=Аэрокатер
-[airboat] Cruise on=[Аэрокатер] Автопилот включен
-[airboat] Cruise off=[Аэрокатер] Автопилот отключен
-
-# storage.lua 
-@1 chest=@1 сундук
-
-# bell.lua
-Automated Bell=Автоматический колокол
-
-# map.lua
-Geosurveyor@nUse with 'Minimap' key=Геосъемка@nИспользуйте с клавишей 'Миникарта'.
-
-# art.lua
-Moon Glass=Лунное стекло
-Jade=Нефрит
-Gold=Золото
-@1 Sculpture=Скульптура @1
-Gamepiece (black)=Игровые фишки (черный)
-Gamepiece (white)=Игровые фишки (белый)
-Singing Stone=Поющий камень
-Drumming Stone=Барабанный камень
-
-# materials.lua
-Moon Glass=Лунное стекло
-Sun Stone=Солнечный камень
-Moon Stone=Лунный камень
-Star Stone=Звездный камень
-@1 Ladder=@1ная лестница
-@1 Door=@1ная дверь
-@1 Trapdoor=@1ный люк
-Trampoline=Трамплин
-Conveyor=Конвейер
-
-# pandora.lua
-Meta-Stim Injector=Инъектор Мета-Стим

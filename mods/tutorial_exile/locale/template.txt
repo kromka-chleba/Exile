@@ -1,0 +1,4 @@
+# textdomain: tutorial_exile
+Welcome to Exile!=
+tut_intro=
+tut_ask=
