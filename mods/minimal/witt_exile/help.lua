@@ -53,7 +53,8 @@ minetest.register_on_joinplayer(function(player)
 		scale = {x = 0.3, y = yoff + 0.3},
 		number = 0xffffff,
 		alignment = {x = 1},
-		offset = {x = 0, y = 22}
+		offset = {x = 0, y = 22},
+		style = 4
 	})
 
       local w = {}
@@ -76,67 +77,19 @@ end)
 local what_is_this_uwu = {
 }
 
+local font_size = minetest.settings:get('font_size') or 16
+local default_char_width = math.floor(font_size * 0.65) or 10
 local char_width = {
-	A = 12,
-	B = 10,
-	C = 13,
-	D = 12,
-	E = 11,
-	F = 9,
-	G = 13,
-	H = 12,
-	I = 3,
-	J = 9,
-	K = 11,
-	L = 9,
-	M = 13,
-	N = 11,
-	O = 13,
-	P = 10,
-	Q = 13,
-	R = 12,
-	S = 10,
-	T = 11,
-	U = 11,
-	V = 10,
-	W = 15,
-	X = 11,
-	Y = 11,
-	Z = 10,
-	a = 10,
-	b = 8,
-	c = 8,
-	d = 9,
-	e = 9,
-	f = 5,
-	g = 9,
-	h = 9,
-	i = 2,
-	j = 6,
-	k = 8,
-	l = 4,
-	m = 13,
-	n = 8,
-	o = 10,
-	p = 8,
-	q = 10,
-	r = 4,
-	s = 8,
-	t = 5,
-	u = 8,
-	v = 8,
-	w = 12,
-	x = 8,
-	y = 8,
-	z = 8,
-	[" "] = 5,
-	["_"] = 9,
+	ja = font_size,
+	ko = font_size,
+	zh_CN = font_size,
+	zh_TW = font_size
 }
 
-local function string_to_pixels(str)
+local function string_to_pixels(str, lang_code)
 	local size = 0
-	for char in str:gmatch(".") do
-		size = size + (char_width[char] or 14)
+	for uchar in string.gmatch(str, "([%z\1-\127\194-\244][\128-\191]*)") do
+		size = size + (char_width[lang_code] or default_char_width)
 	end
 	return size
 end
@@ -210,9 +163,8 @@ end
 
 
 local function update_size(...)
-	local player, whud, _, node_description, _, item_type = ...
-	local size
-	size = string_to_pixels(node_description) - 18
+	local player, whud, _, node_description, _, item_type, lang_code = ...
+	local size = string_to_pixels(node_description, lang_code) - 18
 	local desize = false
 	if item_type == "entity" then
 	   desize = true
@@ -246,7 +198,7 @@ function what_is_this_uwu.show(player, form_view, desc, node_name, item_type)
    local info = minetest.get_player_information(player:get_player_name())
    local desc_tr = minetest.get_translated_string(info.lang_code, desc)
 
-   update_size(player, w, form_view, desc_tr, node_name, item_type)
+   update_size(player, w, form_view, desc_tr, node_name, item_type, info.lang_code)
    player:hud_change(w.image, "text", form_view)
 
    player:hud_change(w.name, "text", desc_tr)
