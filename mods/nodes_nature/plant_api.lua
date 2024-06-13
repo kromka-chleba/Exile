@@ -687,7 +687,7 @@ function plant.register_fruit(plant_def)
     local props = {
         description = S("@1 Fruit", plant_def.description),
         inventory_image = plant.get_fruit_texture_name(plant_def.name),
-        groups = {},
+        groups = {fruit=1},
         wield_image = plant.get_fruit_texture_name(plant_def.name),
         stack_max = minimal.stack_max_medium,
     }

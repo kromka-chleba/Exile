@@ -7,6 +7,9 @@ Fertilize soil=Удобрить почву
 Wet Compost=Влажный компост
 Fertilize and soak soil=Вносите удобрения и поливайте почву
 Wet Undecomposed Compost=Влажный неразложившийся компост
+Fruit=Фрукт
+Seed=семена
+Compostable=компостирования
 # compost.lua
 @1 Slab=@1 плита
 Riraemu=Рираэму

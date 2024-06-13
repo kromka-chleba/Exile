@@ -386,7 +386,8 @@ for i in ipairs(tree_list) do
 			groups = {dig_immediate=3, flammable=2, leafdecay = 3,
 				  leafdecay_drop = 1,
 				  ncrafting_dye_candidate = dyecandidate,
-				  drops_leaves = drops_leaves},
+				  drops_leaves = drops_leaves,
+          fruit=1},
 			sounds = nodes_nature.node_sound_defaults(),
 			_ncrafting_dye_dcolor = dominantcolor,
 			after_place_node = function(pos, placer, itemstack)

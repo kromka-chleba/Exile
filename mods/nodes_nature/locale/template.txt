@@ -7,6 +7,9 @@ Fertilize soil=
 Wet Compost=
 Fertilize and soak soil=
 Wet Undecomposed Compost=
+Fruit=
+Seed=
+Compostable=
 # compost.lua
 @1 Slab=
 Riraemu=

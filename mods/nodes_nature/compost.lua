@@ -304,7 +304,7 @@ minetest.register_lbm({
 crafting.register_recipe({
 	type = "shovel_agriculture",
 	output = "nodes_nature:compost_undecomposed",
-	items = {"group:compostable 16"},
+	items = {{"group:compostable 16,1,"..S("Compostable"),"group:fruit 32,,"..S("Fruit"),"group:seed 288,,"..S("Seed")}},
 	level = 1,
 	always_known = true,
 })
@@ -312,7 +312,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "shovel_agriculture",
 	output = "stairs:slab_compost_undecomposed",
-	items = {"group:compostable 8"},
+	items = {{"group:compostable 8,1,"..S("Compostable"),"group:fruit 16,,"..S("Fruit"),"group:seed 144,,"..S("Seed")}},
 	level = 1,
 	always_known = true,
 })
