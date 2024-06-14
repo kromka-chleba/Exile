@@ -208,7 +208,7 @@ minetest.register_node("tech:wooden_water_pot", {
 crafting.register_recipe({
 	type = {"chopping_block","axe"},
 	output = "tech:wooden_water_pot",
-	items = {'group:log 2'},
+	items = {'group:log 2,,'..S("Log")},
 	level = 1,
 	always_known = true,
 })
@@ -423,7 +423,7 @@ minetest.register_node("tech:wooden_watering_can", {
 crafting.register_recipe({
 	type = {"carpentry_bench","axe"},
 	output = "tech:wooden_watering_can",
-	items = {'group:log 2', 'tech:vegetable_oil'},
+	items = {'group:log 2,,'..S("Log"), 'tech:vegetable_oil'},
 	level = 1,
 	always_known = true,
 })

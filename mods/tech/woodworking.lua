@@ -12,7 +12,7 @@ local S = tech.S
 crafting.register_recipe({
 	type = {"chopping_block","axe"},
 	output = "tech:primitive_wooden_chest",
-	items = {'group:log 4'},
+	items = {'group:log 4,,'..S('Log')},
 	level = 1,
 	always_known = true,
 })
@@ -26,7 +26,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "carpentry_bench",
 	output = "tech:wooden_chest",
-	items = {'tech:iron_fittings 2', 'group:log 4', 'tech:vegetable_oil'},
+	items = {'tech:iron_fittings 2', 'group:log 4,,'..S('Log'), 'tech:vegetable_oil'},
 	level = 1,
 	always_known = true,
 })
@@ -88,7 +88,7 @@ minetest.register_node("tech:wooden_ladder", {
 crafting.register_recipe({
 	type = "carpentry_bench",
 	output = "tech:wooden_ladder 4",
-	items = {'group:log'},
+	items = {'group:log,,'..S("Log")},
 	level = 1,
 	always_known = true,
 })
@@ -129,7 +129,7 @@ minetest.register_node("tech:wooden_floor_boards", {
 crafting.register_recipe({
 	type = "carpentry_bench",
 	output = "tech:wooden_floor_boards 4",
-	items = {'group:log', 'tech:vegetable_oil'},
+	items = {'group:log,,'..S("Log"), 'tech:vegetable_oil'},
 	level = 1,
 	always_known = true,
 })
@@ -168,7 +168,7 @@ minetest.register_node("tech:wooden_stairs", {
 crafting.register_recipe({
 	type = "carpentry_bench",
 	output = "tech:wooden_stairs 4",
-	items = {'group:log', 'tech:vegetable_oil'},
+	items = {'group:log,,'..S("Log"), 'tech:vegetable_oil'},
 	level = 1,
 	always_known = true,
 })

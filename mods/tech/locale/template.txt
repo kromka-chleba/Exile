@@ -335,6 +335,9 @@ Clear Glass Bottle With Fresh Water=
 Wooden Ladder=
 Wooden Floor Boards=
 Wooden Stairs=
+# groups
+Log=
+Fibrous Plant=
 
 
 ##### not used anymore #####
