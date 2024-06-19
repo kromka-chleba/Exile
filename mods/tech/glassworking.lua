@@ -667,14 +667,14 @@ minetest.register_node("tech:window_clear",
 crafting.register_recipe({
 	type = "carpentry_bench",
 	output = "tech:window_green 4",
-	items = {'group:log', 'tech:vegetable_oil', 'tech:pane_green 4'},
+	items = {'group:log 1,,'..S("Log"), 'tech:vegetable_oil', 'tech:pane_green 4'},
 	level = 1,
 	always_known = true,
 })
 crafting.register_recipe({
 	type = "carpentry_bench",
 	output = "tech:window_clear 4",
-	items = {'group:log', 'tech:vegetable_oil', 'tech:pane_clear 4'},
+	items = {'group:log 1,,'..S("Log"), 'tech:vegetable_oil', 'tech:pane_clear 4'},
 	level = 1,
 	always_known = true,
 })

@@ -877,7 +877,7 @@ crafting.register_recipe({ --hammer ingots into anvil
 crafting.register_recipe({
 	type   = {"axe"},
 	output = "tech:carpentry_bench",
-	items  = {'tech:iron_ingot 4', 'group:hard_wood 2'},
+	items  = {'tech:iron_ingot 4', 'group:hard_wood 2,,'..S("Hardwood Log")},
 	level  = 1,
 	always_known = true,
 	})
@@ -886,7 +886,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type   = {"carpentry_bench"},
 	output = "tech:masonry_bench",
-	items  = {'tech:iron_ingot 4', 'group:hard_wood 2'},
+	items  = {'tech:iron_ingot 4', 'group:hard_wood 2,,'..S("Hardwood Log")},
 	level  = 1,
 	always_known = true,
 	})
@@ -894,14 +894,14 @@ crafting.register_recipe({
 crafting.register_recipe({ --spinning wheel. wood,
 	type   = {"carpentry_bench"},
 	output = "tech:spinning_wheel",
-	items  = {'group:hard_wood 2'},
+	items  = {'group:hard_wood 2,,'..S("Hardwood Log")},
 	level  = 1,
 	always_known = true,
 	})
 crafting.register_recipe({ --loom. wood, fibre for mechanisms
 	type   = {"carpentry_bench"} ,
 	output = "tech:loom",
-	items  = {'group:hard_wood 2', 'tech:coarse_fibre 12'},
+	items  = {'group:hard_wood 2,,'..S("Hardwood Log"), 'tech:coarse_fibre 12'},
 	level  = 1,
 	always_known = true,
 	})

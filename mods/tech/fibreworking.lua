@@ -133,7 +133,7 @@ minetest.register_craftitem("tech:fine_fabric", {
 crafting.register_recipe({
 	type = "spinning_wheel",
 	output = "tech:unretted_cana_bundle",
-	items = {'group:cana 24'},
+	items = {'group:cana 24,,'..minetest.registered_nodes["nodes_nature:cana"].description},
 	level = 1,
 	always_known = true,
 })

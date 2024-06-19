@@ -337,6 +337,7 @@ Wooden Floor Boards=
 Wooden Stairs=
 # groups
 Log=
+Hard Wood Log=
 Fibrous Plant=
 Woody Plant=
 Log Slab=

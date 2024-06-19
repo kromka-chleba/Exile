@@ -258,7 +258,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "carpentry_bench",
 	output = "tech:bed",
-	items = {"tech:mattress", "group:log 4", "tech:vegetable_oil"},
+	items = {"tech:mattress", "group:log 4,,"..S("Log"), "tech:vegetable_oil"},
 	level = 1,
 	always_known = true,
 })
