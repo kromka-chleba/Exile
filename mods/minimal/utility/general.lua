@@ -130,7 +130,8 @@ function minimal.merge_tables(t1,...)
     assert(type(tbl) == "table","exile_game.merge_tables: invalid value given at paramter "..tind..", expected table got "..type(tbl))
     -- merge tables
     for key,value in pairs(tbl) do
-      new_table[key] = value
+      -- copy merged table values to prevent linking
+      new_table[key] = type(value) == "table" and table.copy(value) or value
     end
   end
   return new_table
