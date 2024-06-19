@@ -71,18 +71,7 @@ local sounds = sediment.sounds
 -- Utility functions
 -----------------------------------
 
-local function merge_tables (t1, t2)
-    local new_table = {}
-    --copy table
-    for key, value in pairs(t1) do
-        new_table[key] = value
-    end
-    --merge tables
-    for key, value in pairs(t2) do
-        new_table[key] = value
-    end
-    return new_table
-end
+local merge_tables = minimal.merge_tables
 
 -- the next two lines cannot be merged into "local defer_tgcr = {", because
 -- defer_tgcr.perform_deferred_registration would not see the defer_tgcr local
