@@ -22,7 +22,7 @@ player_api.register_cloth("tech:woven_hat", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_hat",
-	items = {'group:fibrous_plant 24'},
+	items = {'group:fibrous_plant 24,,'..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
@@ -41,7 +41,7 @@ player_api.register_cloth("tech:sun_hat", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:sun_hat",
-	items = {'group:fibrous_plant 24'},
+	items = {'group:fibrous_plant 24,,'..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
@@ -61,7 +61,7 @@ player_api.register_cloth("tech:woven_sandals", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_sandals",
-	items = {'group:fibrous_plant 24'},
+	items = {'group:fibrous_plant 24,,'..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
@@ -80,7 +80,7 @@ player_api.register_cloth("tech:woven_cape", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_cape",
-	items = {'group:fibrous_plant 48'},
+	items = {'group:fibrous_plant 48,,'..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
@@ -99,7 +99,7 @@ player_api.register_cloth("tech:woven_poncho", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_poncho",
-	items = {'group:fibrous_plant 48'},
+	items = {'group:fibrous_plant 48,,'..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
@@ -119,7 +119,7 @@ player_api.register_cloth("tech:woven_leggings", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_leggings",
-	items = {'group:fibrous_plant 36'},
+	items = {'group:fibrous_plant 36,,'..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
@@ -136,7 +136,7 @@ player_api.register_cloth("tech:woven_blanket", {
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_blanket",
-	items = {'group:fibrous_plant 60'},
+	items = {'group:fibrous_plant 60,,'..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
