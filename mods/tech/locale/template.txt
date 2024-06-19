@@ -338,6 +338,8 @@ Wooden Stairs=
 # groups
 Log=
 Fibrous Plant=
+Woody Plant=
+Log Slab=
 
 
 ##### not used anymore #####

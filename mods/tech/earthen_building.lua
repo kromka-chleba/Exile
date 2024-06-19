@@ -339,7 +339,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "brick_makers_bench",
 	output = "tech:mudbrick",
-	items = {"nodes_nature:clay_wet", "group:fibrous_plant"},
+	items = {"nodes_nature:clay_wet", "group:fibrous_plant,,"..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
@@ -430,7 +430,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "tech:woven_storage_basket",
-	items = {"group:fibrous_plant 96"},
+	items = {"group:fibrous_plant 96,,"..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })

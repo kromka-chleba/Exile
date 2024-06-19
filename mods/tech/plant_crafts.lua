@@ -407,7 +407,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"chopping_block","knife"},
 	output = "tech:stick 24",
-	items = {"group:woody_plant 12"},
+	items = {"group:woody_plant 12,,"..S("Woody Plant")},
 	level = 1,
 	always_known = true,
 })
@@ -416,7 +416,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"chopping_block","axe"},
 	output = "tech:stick 24",
-	items = {"group:log"},
+	items = {"group:log,,"..S("Log")},
 	level = 1,
 	always_known = true,
 })
@@ -425,7 +425,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"chopping_block","axe"},
 	output = "tech:stick 12",
-	items = {"group:woodslab"},
+	items = {"group:woodslab 1,,"..S("Log Slab")},
 	level = 1,
 	always_known = true,
 })

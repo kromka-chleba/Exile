@@ -890,7 +890,8 @@ crafting.register_recipe({ -- skip stick craft step
 crafting.register_recipe({
 	type = {"axe"},
 	output = "tech:small_wood_fire_unlit 2",
-	items = {{"group:woody_plant 6","tech:stick 12","group:woodslab"}, "group:fibrous_plant 2"},
+	items = {{"group:woody_plant 6,,"..S("Woody Plant"),"tech:stick 12","group:woodslab 1,,"..S("Log Slab")},
+    "group:fibrous_plant 2,,"..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
@@ -898,7 +899,8 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"axe"},
 	output = "tech:large_wood_fire_unlit 2",
-	items = {{"group:woody_plant 12","tech:stick 24","group:woodslab 2"}, "group:fibrous_plant 4"},
+	items = {{"group:woody_plant 12,,"..S("Woody Plant"),"tech:stick 24","group:woodslab 2,,"..S("Log Slab")},
+    "group:fibrous_plant 4,,"..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
@@ -907,7 +909,8 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"axe"},
 	output = "tech:large_wood_fire_unlit 2",
-	items = {{"group:woody_plant 12","tech:stick 24","group:log"}, "group:fibrous_plant 4"},
+	items = {{"group:woody_plant 12,,"..S("Woody Plant"),"tech:stick 24","group:log,,"..S("Log")},
+    "group:fibrous_plant 4,,"..S('Fibrous Plant')},
 	level = 2,
 	always_known = true,
 })

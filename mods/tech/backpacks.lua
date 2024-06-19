@@ -56,7 +56,7 @@ backpacks.register_backpack("fabric_bag",{
 crafting.register_recipe({
 	type = "weaving_frame",
 	output = "backpacks:backpack_woven_bag",
-	items = {"group:fibrous_plant 48"},
+	items = {"group:fibrous_plant 48,,"..S('Fibrous Plant')},
 	level = 1,
 	always_known = true,
 })
