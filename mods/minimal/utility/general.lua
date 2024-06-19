@@ -118,18 +118,22 @@ function minimal.sanitize_string(badstring)
    return badstring
 end
 
--- merges content of t1 and t2 into a new table
--- if t1 and t2 contain identical keys, values from
--- t1 are overwritten with values from t2
-function minimal.merge_tables(t1, t2)
-  assert(type(t1) == "table", "exile_game.merge_tables: Invalid first table given, got "..type(t1))
-  assert(type(t2) == "table", "exile_game.merge_tables: Invalid second table given, got "..type(t2))
-    local new_table = table.copy(t1)
-    --merge tables
-    for key, value in pairs(t2) do
-        new_table[key] = value
+-- merges content of t1 and other tables into a new table
+-- if t1 and the other table contain identical keys, values from
+-- t1 are overwritten with values from the other table
+function minimal.merge_tables(t1,...)
+  assert(type(t1) == "table", "exile_game.merge_tables: invalid first parameter given, expected table got "..type(t1))
+  local mergeable = {...}
+  assert(#mergeable >= 1,"exile_game.merge_tables: need a table to merge with")
+  local new_table = table.copy(t1)
+  for tind,tbl in pairs(mergeable) do -- table index, table
+    assert(type(tbl) == "table","exile_game.merge_tables: invalid value given at paramter "..tind..", expected table got "..type(tbl))
+    -- merge tables
+    for key,value in pairs(tbl) do
+      new_table[key] = value
     end
-    return new_table
+  end
+  return new_table
 end
 
 function minimal.concat_tables(table_list)
