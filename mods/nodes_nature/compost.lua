@@ -187,7 +187,7 @@ for i = 1, 4 do
       reg_compost.tiles,
       S("@1 Slab",reg_compost.description),
       minimal.stack_max_bulky * 2,
-      reg_compost.sound
+      reg_compost.sounds
     )
     minetest.override_item("stairs:slab_"..name,{
       _dig_tip = reg_compost._dig_tip,
@@ -223,7 +223,7 @@ for i = 1, 4 do
       reg_compost.tiles,
       S("@1 Slab",reg_compost.description),
       minimal.stack_max_bulky * 2,
-      reg_compost.sound
+      reg_compost.sounds
     )
     minetest.override_item("stairs:slab_"..name,{
       _place_tip = reg_compost._place_tip,
