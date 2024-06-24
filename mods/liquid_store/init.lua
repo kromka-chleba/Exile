@@ -83,7 +83,8 @@ local function handle_stacks(player, stack_items, new_item)
 	 local pos = player:get_pos()
 	 minetest.add_item(pos, new_item)
       end
-      return(stack_items:get_name().." "..(stack_items:get_count() - 1))
+      return ItemStack(stack_items:get_name().." "..
+		       (stack_items:get_count() -1))
    else
       return ItemStack(new_item)
    end
