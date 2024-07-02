@@ -120,7 +120,7 @@ local wickdef =  {
    description = S('Wicker well lining'),
    drawtype = "normal",
    paramtype = "light",
-   paramtype2 = "4dir",
+   paramtype2 = "wallmounted",
    use_texture_alpha = c_alpha.clip,
    --inventory_image = "tech_wattle.png",
    --wield_image = "tech_wattle.png",
@@ -155,7 +155,7 @@ for i = 1, #soiltable do
       if j == 3 then tile = tile.."^nodes_nature_mud_salt.png" end
       local wicker = "tech_wattle.png"
       if j > 1 then wicker = wicker.."^nodes_nature_mud.png" end
-      wdef2.tiles = {tile, tile, tile, tile, tile, wicker }
+      wdef2.tiles = {wicker, tile, tile, tile, tile, tile }
       minetest.register_node(bn..soiltable[i]..wtable[j],
 			     wdef2)
    end
@@ -177,7 +177,7 @@ local function wellmaker(user,itemstack, pointed_thing)
    local def = minetest.registered_nodes[node.name]
    if not def then return end
    local soil = string.gsub(def.drop or def.name, def.mod_origin..":", "")
-   local p2 = minetest.dir_to_fourdir(user:get_look_dir())
+   local p2 = minetest.dir_to_wallmounted(user:get_look_dir())
    minetest.set_node(pointed_thing.under, {name = bn..soil, param2 = p2})
    if minimal.player_in_creative(user) then return end
    itemstack:take_item()
