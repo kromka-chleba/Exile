@@ -962,6 +962,7 @@ crafting.register_recipe({
 	material_output = "tech:adze_%material%",
 	level = 1,
 	always_known = true,
+  replace = 'nodes_nature:sand'
 })
 
 --IB-20240226 crafting.register_recipe({
@@ -980,6 +981,7 @@ crafting.register_recipe({
 	items = {"group:granite_cobble", 'nodes_nature:sand'},
 	level = 1,
 	always_known = true,
+  replace = 'nodes_nature:sand'
 })
 
 
@@ -1061,6 +1063,7 @@ crafting.register_recipe({
 	material = 1; -- first item sets material.
 	level = 1,
 	always_known = true,
+  replace = 'nodes_nature:sand'
 })
 
 minetest.register_node(
