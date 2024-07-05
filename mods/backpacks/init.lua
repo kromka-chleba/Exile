@@ -38,6 +38,23 @@ local function get_formspec(pos, w, h)
 	return table.concat(formspec, "")
 end
 
+local function show_packdump_formspec(playername,tag,can_dump,can_pack)
+  if not (can_dump and can_pack) then return end
+  if not type(tag) == "string" then return end
+  playername = type(playername) == "string" and playername or type(playername) == "userdata" and playername:get_player_name() or nil
+  if not playername then return end
+  local packdump = ("formspec_version[3]"..
+    "size[5,7]"..
+    "hypertext[0.5,0.75;6,2;introtext;"..tag.."]"
+    ..(can_dump and "button_exit[2.5,3;2,1;Dump;"..S("Dump Into Storage").."]" or "")
+    ..(can_pack and "button_exit[2.5,5;2,1;Pack;"..S("Pack Up Storage").."]" or "")
+  )
+  minetest.show_formspec(
+    playername, "backpacks:packdump",
+    packdump
+  )
+end
+
 local function get_description(node,meta,bag_name,add_string)
 	local desc = bag_name--minetest.registered_nodes[node.name].description
 	local label = meta:get_string('label')
@@ -231,23 +248,17 @@ local wallmount_box = {
 
 
 -- backpacks
-function backpacks.register_backpack(name, backpack_params)
+function backpacks.register_backpack(name, def)
   -- cause errors if incorrect values given
   assert(type(name) == "string","backpacks.register_backpack: given 'name' is not a string! Got '"..type(name).."'")
-  assert(type(backpack_params) == "table","backpacks.register_backpack: Incorrect value given for expected definition table, got '"..type(backpack_params).."'")
-  assert(type(backpack_params.width) == "number" or type(backpack_params.height) == "number","backpacks.register_backpack: got incorrect values for width and height, or either or. Width is a '"..type(backpack_params.width).."'. Height is a '"..type(backpack_params.height).."'")
-  assert(type(backpack_params.sounds) == "table","backpacks.register_backpack: did not get a proper sounds table, got '"..type(backpack_params.sounds).."'")
+  assert(type(def) == "table","backpacks.register_backpack: Incorrect value given for expected definition table, got '"..type(def).."'")
+  assert(type(def.sounds) == "table","backpacks.register_backpack: did not get a proper sounds table, got '"..type(def.sounds).."'")
   -- correct values
-  if type(backpack_params.description) ~= "string" then
-    backpack_params.description = ""
-  end
-  if type(backpack_params.groups) ~= "table" then
-    -- don't cause minimal.merge_tables to crash
-    backpack_params.groups = {}
-  end
-  local tiles = backpack_params.tiles -- permit a tiles override
-  if type(tiles) ~= "table" then -- create one
-    tiles = {
+  def.description = def.description or ""
+  def.groups = def.groups or {}
+  -- permit a tiles override
+  if type(def.tiles) ~= "table" then -- create one
+    def.tiles = {
       -- rotated onto its back for correct wallmounted dirs
       "backpacks_backpack_front.png", -- Front
       "backpacks_backpack_back.png",      -- Back
@@ -257,49 +268,47 @@ function backpacks.register_backpack(name, backpack_params)
 		  "backpacks_backpack_topbottom.png", -- Bottom
     }
     -- permit different "textures" name for "texture"
-    local texture = backpack_params.texture or backpack_params.textures
+    local texture = def.texture or def.textures
     if type(texture) == "string" then
       -- add texture to backpack
-      for tile_index,tile in pairs(tiles) do
-        tiles[tile_index] = texture.."^"..tile
+      for tile_index,tile in pairs(def.tiles) do
+        def.tiles[tile_index] = texture.."^"..tile
       end
     end
   end
   -- custom "empty_name" and "full_name"
-  if type(backpack_params.empty_name) ~= "string" then
-    backpack_params.empty_name = backpack_params.description
+  def._empty_name = def._empty_name or def.empty_name or def.description
+  def._full_name = def._full_name or def.full_name or def.description
+  -- can_dump and can_pack
+  def.can_dump = type(def.can_dump) ~= "boolean" and true or def.can_dump
+  def.can_pack = type(def.can_pack) ~= "boolean" and true or def.can_pack
+  -- formspec params
+  def.formspec_width = def.formspec_width or def.width
+  def.formspec_height = def.formspec_height or def.height
+  -- cleanup of def
+  def.empty_name = nil
+  def.full_name = nil
+  def.width = nil
+  def.height = nil
+  -- basic def stuff
+  def.paramtype2 = def.paramtype2 or "colorwallmounted"
+  def.palette = "natural_dyes.png"
+  def.drawtype = def.drawtype or "nodebox"
+  def.node_box = def.node_box or def.drawtype == "nodebox" and wallmount_box
+  def.stack_max = def.stack_max or 1
+  def.node_placement_prediction = def.node_placement_prediction or ""
+  def.can_dig_when_inventory = type(def.can_dig_when_inventory) ~= "boolean" and true or def.can_dig_when_inventory
+  -- functions
+  def.after_place_node = def.after_place_node or function(pos, placer, itemstack, pointed_thing)
+    after_place_node(pos, placer, itemstack, pointed_thing)
+    storage.on_construct(pos, def.formspec_width, def.formspec_height)
   end
-  if type(backpack_params.full_name) ~= "string" then
-    backpack_params.full_name = backpack_params.description
+  def.on_dig = def.on_dig or function(pos, node, digger)
+    on_dig(pos, node, digger, def.formspec_width, def.formspec_height)
+  end
+  def.preserve_metadata = def.preserve_metadata or function(pos, oldnode, oldmeta, drops)
+    preserve_metadata(pos, oldnode, oldmeta, drops, def.formspec_width, def.formspec_height)
   end
   -- register backpack through storage.register_storage()
-  storage.register_storage(":backpacks:backpack_"..name,{
-    description = backpack_params.description,
-		tiles = tiles,
-		paramtype2 = "colorwallmounted",
-		palette = "natural_dyes.png",
-		node_box = wallmount_box,
-    groups = minimal.merge_tables({backpack = 1, dig_immediate = 3}, backpack_params.groups),--groups,
-		stack_max = 1,
-		sounds = backpack_params.sounds,
-		node_placement_prediction = "",
-    can_dig_when_inventory = true,
-    -- formspec
-    formspec_width = backpack_params.width,
-    formspec_height = backpack_params.height,
-    -- custom values
-    _empty_name = backpack_params.empty_name,
-    _full_name = backpack_params.full_name,
-    -- functions
-    after_place_node = function(pos, placer, itemstack, pointed_thing)
-      after_place_node(pos, placer, itemstack, pointed_thing)
-      storage.on_construct(pos, backpack_params.width, backpack_params.height)
-    end,
-    on_dig = function(pos, node, digger)
-			on_dig(pos, node, digger, backpack_params.width, backpack_params.height)
-		end,
-		preserve_metadata = function(pos, oldnode, oldmeta, drops)
-			preserve_metadata(pos, oldnode, oldmeta, drops, backpack_params.width, backpack_params.height)
-		end,
-  })
+  storage.register_storage(":backpacks:backpack_"..name,def)
 end
