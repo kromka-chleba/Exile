@@ -384,6 +384,7 @@ for i in ipairs(tree_list) do
 				fixed = selbox_fruit
 			},
 			groups = {dig_immediate=3, flammable=2, leafdecay = 3,
+          fruit = 1,
 				  leafdecay_drop = 1,
 				  ncrafting_dye_candidate = dyecandidate,
 				  drops_leaves = drops_leaves},
