@@ -27,7 +27,7 @@ Jalowiec Cone=
 Kagum Tree=
 Kagum Pod=Cosse de kagum
 Panasee Tree=
-Panasee Fruit=
+Panasee Fruit=Fruit de Panasee
 Amma Tree=
 Amma nut=
 Daoja Tree=
@@ -106,8 +106,8 @@ Fruiting @1=
 Dead Fruitless @1=
 Dead @1=
 Dead Fruiting @1=
-@1 Fruit=
-@1 Dry Fruit=
+@1 Fruit=@1 des Fruit
+@1 Dry Fruit=@ Aride Fruit
 Fruitless @1=
 @1 Spores=Spores de @1
 @1 Seeds=Graines de @1
@@ -212,6 +212,10 @@ Tree Marker=Marqueur d'arbre
 @1 Log Stair=
 @1 Log Slab=
 @1 Leaves=
+# groups
+Fruit=Fruit
+Seed=Graine
+Compostable=Compostable
 
 
 ##### not used anymore #####
