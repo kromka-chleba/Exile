@@ -38,22 +38,44 @@ local function get_formspec(pos, w, h)
 	return table.concat(formspec, "")
 end
 
-local function show_packdump_formspec(playername,tag,can_dump,can_pack)
-  if not (can_dump and can_pack) then return end
-  if not type(tag) == "string" then return end
+local packdump_forms = {}
+local function show_packdump_formspec(pos,playername,itemstack,can_dump,can_pack)
+  if not (can_dump or can_pack) then return end
   playername = type(playername) == "string" and playername or type(playername) == "userdata" and playername:get_player_name() or nil
   if not playername then return end
-  local packdump = ("formspec_version[3]"..
-    "size[5,7]"..
-    "hypertext[0.5,0.75;6,2;introtext;"..tag.."]"
-    ..(can_dump and "button_exit[2.5,3;2,1;Dump;"..S("Dump Into Storage").."]" or "")
-    ..(can_pack and "button_exit[2.5,5;2,1;Pack;"..S("Pack Up Storage").."]" or "")
-  )
+  if type(itemstack) ~= "userdata" then return end -- not an itemstack
+  local h = 2
+  local buttons = {
+    dump = can_dump and "button_exit[1.5,dumpheight;4,1;Dump;"..S("Dump Into Storage").."]",
+    pack = can_pack and "button_exit[1.5,packheight;4,1;Pack;"..S("Pack Up Storage").."]"
+  }
+  local spec = ("formspec_version[3]"..
+    "size[7,specheight]"..
+    "hypertext[0.5,0.75;7,3;introtext;"..itemstack:get_description().."]")
+  for bname,button in pairs(buttons) do
+    spec = spec..(button:gsub(bname.."height",h))
+    h = h + 1.5
+  end
+  spec = spec:gsub("specheight",h)
   minetest.show_formspec(
     playername, "backpacks:packdump",
-    packdump
+    spec
   )
+  packdump_forms[playername] = {
+    pos = pos,
+    itemstack = itemstack
+  }
 end
+minetest.register_on_player_receive_fields(function(player,
+  formname,fields)
+  if formname ~= "backpacks:packdump" then return end
+  local pname = player:get_player_name()
+  local info = packdump_forms[pname]
+  if not (info and info.pos and info.itemstack) then return end
+  local meta = minetest.get_meta(info.pos)
+  local inv = meta:get_inventory()
+  if not inv then packdump_forms[pname] = nil return end
+end)
 
 local function get_description(node,meta,bag_name,add_string)
 	local desc = bag_name--minetest.registered_nodes[node.name].description
@@ -308,6 +330,11 @@ function backpacks.register_backpack(name, def)
   end
   def.preserve_metadata = def.preserve_metadata or function(pos, oldnode, oldmeta, drops)
     preserve_metadata(pos, oldnode, oldmeta, drops, def.formspec_width, def.formspec_height)
+  end
+  def._on_use_item = function(player, itemstack, pointed_thing)
+    if not (pointed_thing and pointed_thing.under) then return end
+    if not minimal.in_group(pointed_thing.under,"storage") then return end
+    show_packdump_formspec(pointed_thing.under, player, itemstack, def.can_dump, def.can_pack)
   end
   -- register backpack through storage.register_storage()
   storage.register_storage(":backpacks:backpack_"..name,def)
