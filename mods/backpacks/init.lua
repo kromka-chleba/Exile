@@ -68,6 +68,7 @@ end
 minetest.register_on_player_receive_fields(function(player,
   formname,fields)
   if formname ~= "backpacks:packdump" then return end
+  if not (fields.Dump or fields.Pack) then return end -- don't go through the effort if they didn't press anything
   local pname = player:get_player_name()
   local pos = packdump_forms[pname]
   if not pos then return end
