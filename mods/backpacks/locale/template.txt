@@ -5,3 +5,5 @@
 @1 empty=
 Slots: @1, @2, @3=
 @1/@2/@3=
+Dump Into Storage=
+Pack Up Storage=
