@@ -10,4 +10,4 @@ Pack Up Storage=
 Dump or pack=
 Dump=
 Pack=
-@1 into storage=
+@1 contents into storage=
