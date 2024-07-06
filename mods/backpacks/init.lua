@@ -346,6 +346,9 @@ function backpacks.register_backpack(name, def)
   -- can_dump and can_pack
   def.can_dump = type(def.can_dump) ~= "boolean" and true or def.can_dump
   def.can_pack = type(def.can_pack) ~= "boolean" and true or def.can_pack
+  -- use tip related (use_tips do not properly display)
+  --def._use_tip = (def.can_dump and def.can_pack and "Dump or pack" or def.can_dump and "Dump" or def.can_pack and "Pack") or nil
+  --def._use_tip = def._use_tip and S("@1 into storage",S(def._use_tip))
   -- formspec params
   def.formspec_width = def.formspec_width or def.width
   def.formspec_height = def.formspec_height or def.height
