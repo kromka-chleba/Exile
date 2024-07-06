@@ -53,8 +53,10 @@ local function show_packdump_formspec(pos,playername,itemstack,can_dump,can_pack
     "size[7,specheight]"..
     "hypertext[0.5,0.75;7,3;introtext;"..itemstack:get_description().."]")
   for bname,button in pairs(buttons) do
-    spec = spec..(button:gsub(bname.."height",h))
-    h = h + 1.5
+    if button then
+      spec = spec..(button:gsub(bname.."height",h))
+      h = h + 1.5
+    end
   end
   spec = spec:gsub("specheight",h)
   minetest.show_formspec(
@@ -378,7 +380,9 @@ function backpacks.register_backpack(name, def)
     if minimal.in_group(node,"no_packdump") then return end
     local pname = player:get_player_name()
     if minetest.is_protected(pos,pname) then return end
-    show_packdump_formspec(pos, player, itemstack, def.can_dump, def.can_pack)
+    show_packdump_formspec(pos, player, itemstack, 
+      (def.can_dump and not minimal.in_group(pos,"no_dump")), 
+      (def.can_pack and not minimal.in_group(pos,"no_pack")))
   end
   -- register backpack through storage.register_storage()
   storage.register_storage(":backpacks:backpack_"..name,def)
