@@ -61,20 +61,59 @@ local function show_packdump_formspec(pos,playername,itemstack,can_dump,can_pack
     playername, "backpacks:packdump",
     spec
   )
-  packdump_forms[playername] = {
-    pos = pos,
-    itemstack = itemstack
-  }
+  packdump_forms[playername] = pos
 end
 minetest.register_on_player_receive_fields(function(player,
   formname,fields)
   if formname ~= "backpacks:packdump" then return end
   local pname = player:get_player_name()
-  local info = packdump_forms[pname]
-  if not (info and info.pos and info.itemstack) then return end
-  local meta = minetest.get_meta(info.pos)
+  local pos = packdump_forms[pname]
+  if not pos then return end
+  -- function to remove info
+  local function clear()
+    packdump_forms[pname] = nil
+    return
+  end
+  local itemstack = player:get_wielded_item() -- this will be important for later
+  if itemstack:is_empty() then return clear() end -- or not, we don't even exist!
+  -- get node meta + inventory
+  local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
-  if not inv then packdump_forms[pname] = nil return end
+  if not inv then return clear() end
+  -- get node inventory
+  local node_inv = minimal.convert_node_inventory(inv,"main")
+  if not node_inv then return clear()  end
+  -- item metadata (only access if we can get node inventory)
+  local item_meta = itemstack:get_meta()
+  -- get item inventory object, create an empty inventory if none found
+  if not item_meta:get("inv_main") then item_meta:set_string("inv_main","return {}") end -- create inventory to use
+  local item_inv = minimal.get_item_inventory(itemstack, item_meta, "inv_main")
+  if not item_inv then return clear() end
+  -- get inventory lists
+  local node_list = node_inv:get_list()
+  local item_list = item_inv:get_list()
+  -- simply updates inventory
+  local function update_inv()
+    inv:set_list("main",node_list)
+    minimal.set_item_inventory(itemstack, item_meta, "inv_main", item_inv)
+    player:set_wielded_item(itemstack)
+  end
+  -- dump it all into that storage!
+  if fields.Dump and (#node_inv:get_full() < node_inv:get_size() and #item_inv:get_empty() ~= #item_list) then
+    for index,item in pairs(item_list) do
+      item = node_inv:add_item(item)
+      item_list[index] = item
+    end
+    update_inv()
+  -- pack up that storage
+  elseif fields.Pack and (#item_inv:get_full() < item_inv:get_size()) then
+    for index,item in pairs(node_list) do
+      item = item_inv:add_item(item)
+      node_list[index] = item
+    end
+    update_inv()
+  end
+  clear() 
 end)
 
 local function get_description(node,meta,bag_name,add_string)
