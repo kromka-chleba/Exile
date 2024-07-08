@@ -38,6 +38,88 @@ local function get_formspec(pos, w, h)
 	return table.concat(formspec, "")
 end
 
+local packdump_forms = {}
+local function show_packdump_formspec(pos,playername,itemstack,can_dump,can_pack)
+  if not (can_dump or can_pack) then return end
+  playername = type(playername) == "string" and playername or type(playername) == "userdata" and type(playername.get_player_name) == "function" and playername:get_player_name() or nil
+  if not playername then return end
+  if type(itemstack) ~= "userdata" then return end -- not an itemstack
+  local h = 2
+  local buttons = {
+    dump = can_dump and "button_exit[1.5,dumpheight;4,1;Dump;"..S("Dump Into Storage").."]",
+    pack = can_pack and "button_exit[1.5,packheight;4,1;Pack;"..S("Pack Up Storage").."]"
+  }
+  local spec = ("formspec_version[3]"..
+    "size[7,specheight]"..
+    "hypertext[0.5,0.75;7,3;introtext;"..itemstack:get_description().."]"..
+    "button_exit[6,0;1,1;Exit;X]")
+  for bname,button in pairs(buttons) do
+    if button then
+      spec = spec..(button:gsub(bname.."height",h))
+      h = h + 1.5
+    end
+  end
+  spec = spec:gsub("specheight",h)
+  minetest.show_formspec(
+    playername, "backpacks:packdump",
+    spec
+  )
+  packdump_forms[playername] = pos
+end
+minetest.register_on_player_receive_fields(function(player,
+  formname,fields)
+  if formname ~= "backpacks:packdump" then return end
+  if not (fields.Dump or fields.Pack) then return end -- don't go through the effort if they didn't press anything
+  local pname = player:get_player_name()
+  local pos = packdump_forms[pname]
+  if not pos then return end
+  -- function to remove info
+  local function clear()
+    packdump_forms[pname] = nil
+    return
+  end
+  local itemstack = player:get_wielded_item() -- this will be important for later
+  if itemstack:is_empty() then return clear() end -- or not, we don't even exist!
+  -- get node meta + inventory
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+  if not inv then return clear() end
+  -- get node inventory
+  local node_inv = minimal.convert_node_inventory(inv,"main")
+  if not node_inv then return clear()  end
+  -- item metadata (only access if we can get node inventory)
+  local item_meta = itemstack:get_meta()
+  -- get item inventory object, create an empty inventory if none found
+  if not item_meta:get("inv_main") then item_meta:set_string("inv_main","return {}") end -- create inventory to use
+  local item_inv = minimal.get_item_inventory(itemstack, item_meta, "inv_main")
+  if not item_inv then return clear() end
+  -- get inventory lists
+  local node_list = node_inv:get_list()
+  local item_list = item_inv:get_list()
+  -- simply updates inventory
+  local function update_inv()
+    inv:set_list("main",node_list)
+    minimal.set_item_inventory(itemstack, item_meta, "inv_main", item_inv)
+    player:set_wielded_item(itemstack)
+  end
+  -- dump it all into that storage!
+  if fields.Dump and (#node_inv:get_full() < node_inv:get_size() and #item_inv:get_empty() ~= #item_list) then
+    for index,item in pairs(item_list) do
+      item = node_inv:add_item(item)
+      item_list[index] = item
+    end
+    update_inv()
+  -- pack up that storage
+  elseif fields.Pack and (#item_inv:get_full() < item_inv:get_size()) then
+    for index,item in pairs(node_list) do
+      item = item_inv:add_item(item)
+      node_list[index] = item
+    end
+    update_inv()
+  end
+  clear() 
+end)
+
 local function get_description(node,meta,bag_name,add_string)
 	local desc = bag_name--minetest.registered_nodes[node.name].description
 	local label = meta:get_string('label')
@@ -231,23 +313,19 @@ local wallmount_box = {
 
 
 -- backpacks
-function backpacks.register_backpack(name, backpack_params)
+function backpacks.register_backpack(name, def)
   -- cause errors if incorrect values given
   assert(type(name) == "string","backpacks.register_backpack: given 'name' is not a string! Got '"..type(name).."'")
-  assert(type(backpack_params) == "table","backpacks.register_backpack: Incorrect value given for expected definition table, got '"..type(backpack_params).."'")
-  assert(type(backpack_params.width) == "number" or type(backpack_params.height) == "number","backpacks.register_backpack: got incorrect values for width and height, or either or. Width is a '"..type(backpack_params.width).."'. Height is a '"..type(backpack_params.height).."'")
-  assert(type(backpack_params.sounds) == "table","backpacks.register_backpack: did not get a proper sounds table, got '"..type(backpack_params.sounds).."'")
+  assert(type(def) == "table","backpacks.register_backpack: Incorrect value given for expected definition table, got '"..type(def).."'")
+  assert(type(def.sounds) == "table","backpacks.register_backpack: did not get a proper sounds table, got '"..type(def.sounds).."'")
   -- correct values
-  if type(backpack_params.description) ~= "string" then
-    backpack_params.description = ""
-  end
-  if type(backpack_params.groups) ~= "table" then
-    -- don't cause minimal.merge_tables to crash
-    backpack_params.groups = {}
-  end
-  local tiles = backpack_params.tiles -- permit a tiles override
-  if type(tiles) ~= "table" then -- create one
-    tiles = {
+  def.description = def.description or ""
+  def.groups = def.groups or {}
+  -- permit texture/textures, def.tiles string
+  def.texture = def.texture or def.textures or type(def.tiles) == "string" and def.tiles
+  -- permit a tiles override
+  if type(def.tiles) ~= "table" then -- create one
+    def.tiles = {
       -- rotated onto its back for correct wallmounted dirs
       "backpacks_backpack_front.png", -- Front
       "backpacks_backpack_back.png",      -- Back
@@ -256,50 +334,62 @@ function backpacks.register_backpack(name, backpack_params)
 		  "backpacks_backpack_topbottom.png", -- Top
 		  "backpacks_backpack_topbottom.png", -- Bottom
     }
-    -- permit different "textures" name for "texture"
-    local texture = backpack_params.texture or backpack_params.textures
+    local texture = def.texture
     if type(texture) == "string" then
       -- add texture to backpack
-      for tile_index,tile in pairs(tiles) do
-        tiles[tile_index] = texture.."^"..tile
+      for tile_index,tile in pairs(def.tiles) do
+        def.tiles[tile_index] = texture.."^"..tile
       end
     end
   end
   -- custom "empty_name" and "full_name"
-  if type(backpack_params.empty_name) ~= "string" then
-    backpack_params.empty_name = backpack_params.description
+  def._empty_name = def._empty_name or def.empty_name or def.description
+  def._full_name = def._full_name or def.full_name or def.description
+  -- can_dump and can_pack
+  def.can_dump = type(def.can_dump) ~= "boolean" and true or def.can_dump
+  def.can_pack = type(def.can_pack) ~= "boolean" and true or def.can_pack
+  -- use tip related (use_tips do not properly display)
+  --def._use_tip = (def.can_dump and def.can_pack and "Dump or pack" or def.can_dump and "Dump" or def.can_pack and "Pack") or nil
+  --def._use_tip = def._use_tip and S("@1 contents into storage",S(def._use_tip))
+  -- formspec params
+  def.formspec_width = def.formspec_width or def.width
+  def.formspec_height = def.formspec_height or def.height
+  -- cleanup of def
+  def.empty_name = nil
+  def.full_name = nil
+  def.width = nil
+  def.height = nil
+  -- basic def stuff
+  def.paramtype2 = def.paramtype2 or "colorwallmounted"
+  def.palette = "natural_dyes.png"
+  def.drawtype = def.drawtype or "nodebox"
+  def.node_box = def.node_box or def.drawtype == "nodebox" and wallmount_box
+  def.stack_max = def.stack_max or 1
+  def.node_placement_prediction = def.node_placement_prediction or ""
+  def.can_dig_when_inventory = type(def.can_dig_when_inventory) ~= "boolean" and true or def.can_dig_when_inventory
+  -- functions
+  def.after_place_node = def.after_place_node or function(pos, placer, itemstack, pointed_thing)
+    after_place_node(pos, placer, itemstack, pointed_thing)
+    storage.on_construct(pos, def.formspec_width, def.formspec_height)
   end
-  if type(backpack_params.full_name) ~= "string" then
-    backpack_params.full_name = backpack_params.description
+  def.on_dig = def.on_dig or function(pos, node, digger)
+    on_dig(pos, node, digger, def.formspec_width, def.formspec_height)
+  end
+  def.preserve_metadata = def.preserve_metadata or function(pos, oldnode, oldmeta, drops)
+    preserve_metadata(pos, oldnode, oldmeta, drops, def.formspec_width, def.formspec_height)
+  end
+  def._on_use_item = function(player, itemstack, pointed_thing)
+    if not (pointed_thing and pointed_thing.under) then return end
+    local pos = pointed_thing.under
+    local node = minetest.get_node(pos)
+    if not (minimal.in_group(node,"storage") or node.name == "bones:bones") then return end
+    if minimal.in_group(node,"no_packdump") then return end
+    local pname = player:get_player_name()
+    if minetest.is_protected(pos,pname) then return end
+    show_packdump_formspec(pos, player, itemstack, 
+      (def.can_dump and not minimal.in_group(pos,"no_dump")), 
+      (def.can_pack and not minimal.in_group(pos,"no_pack")))
   end
   -- register backpack through storage.register_storage()
-  storage.register_storage(":backpacks:backpack_"..name,{
-    description = backpack_params.description,
-		tiles = tiles,
-		paramtype2 = "colorwallmounted",
-		palette = "natural_dyes.png",
-		node_box = wallmount_box,
-    groups = minimal.merge_tables({backpack = 1, dig_immediate = 3}, backpack_params.groups),--groups,
-		stack_max = 1,
-		sounds = backpack_params.sounds,
-		node_placement_prediction = "",
-    can_dig_when_inventory = true,
-    -- formspec
-    formspec_width = backpack_params.width,
-    formspec_height = backpack_params.height,
-    -- custom values
-    _empty_name = backpack_params.empty_name,
-    _full_name = backpack_params.full_name,
-    -- functions
-    after_place_node = function(pos, placer, itemstack, pointed_thing)
-      after_place_node(pos, placer, itemstack, pointed_thing)
-      storage.on_construct(pos, backpack_params.width, backpack_params.height)
-    end,
-    on_dig = function(pos, node, digger)
-			on_dig(pos, node, digger, backpack_params.width, backpack_params.height)
-		end,
-		preserve_metadata = function(pos, oldnode, oldmeta, drops)
-			preserve_metadata(pos, oldnode, oldmeta, drops, backpack_params.width, backpack_params.height)
-		end,
-  })
+  storage.register_storage(":backpacks:backpack_"..name,def)
 end

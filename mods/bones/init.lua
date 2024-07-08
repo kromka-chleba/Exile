@@ -42,7 +42,7 @@ minetest.register_node("bones:bones", {
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
 	walkable = true,
-	groups = {dig_immediate = 2, attached_node = 1, temp_pass = 1, falling_node = 1, compostable = 1},
+	groups = {dig_immediate = 2, attached_node = 1, temp_pass = 1, falling_node = 1, compostable = 1, no_dump=1},
 	sounds = nodes_nature.node_sound_gravel_defaults(),
 
 	can_dig = function(pos, player)
