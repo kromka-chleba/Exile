@@ -210,3 +210,7 @@ Tree Marker=Древесный маркер
 @1 Log Stair=@1 бревенчатая лестница
 @1 Log Slab=@1 бревенчатая плита
 @1 Leaves=Листья @1
+# groups
+Fruit=Фрукт
+Seed=семена
+Compostable=компостирования

@@ -210,3 +210,7 @@ Tree Marker=
 @1 Log Stair=
 @1 Log Slab=
 @1 Leaves=
+# groups
+Fruit=
+Seed=
+Compostable=
