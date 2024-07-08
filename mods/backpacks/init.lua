@@ -51,7 +51,8 @@ local function show_packdump_formspec(pos,playername,itemstack,can_dump,can_pack
   }
   local spec = ("formspec_version[3]"..
     "size[7,specheight]"..
-    "hypertext[0.5,0.75;7,3;introtext;"..itemstack:get_description().."]")
+    "hypertext[0.5,0.75;7,3;introtext;"..itemstack:get_description().."]"..
+    "button_exit[6,0;1,1;Exit;X]")
   for bname,button in pairs(buttons) do
     if button then
       spec = spec..(button:gsub(bname.."height",h))
