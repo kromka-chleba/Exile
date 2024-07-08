@@ -321,6 +321,8 @@ function backpacks.register_backpack(name, def)
   -- correct values
   def.description = def.description or ""
   def.groups = def.groups or {}
+  -- permit texture/textures, def.tiles string
+  def.texture = def.texture or def.textures or type(def.tiles) == "string" and def.tiles
   -- permit a tiles override
   if type(def.tiles) ~= "table" then -- create one
     def.tiles = {
@@ -332,8 +334,7 @@ function backpacks.register_backpack(name, def)
 		  "backpacks_backpack_topbottom.png", -- Top
 		  "backpacks_backpack_topbottom.png", -- Bottom
     }
-    -- permit different "textures" name for "texture"
-    local texture = def.texture or def.textures
+    local texture = def.texture
     if type(texture) == "string" then
       -- add texture to backpack
       for tile_index,tile in pairs(def.tiles) do
