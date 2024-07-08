@@ -41,7 +41,7 @@ end
 local packdump_forms = {}
 local function show_packdump_formspec(pos,playername,itemstack,can_dump,can_pack)
   if not (can_dump or can_pack) then return end
-  playername = type(playername) == "string" and playername or type(playername) == "userdata" and playername:get_player_name() or nil
+  playername = type(playername) == "string" and playername or type(playername) == "userdata" and type(playername.get_player_name) == "function" and playername:get_player_name() or nil
   if not playername then return end
   if type(itemstack) ~= "userdata" then return end -- not an itemstack
   local h = 2
@@ -381,7 +381,7 @@ function backpacks.register_backpack(name, def)
     if not (pointed_thing and pointed_thing.under) then return end
     local pos = pointed_thing.under
     local node = minetest.get_node(pos)
-    if not minimal.in_group(node,"storage") then return end
+    if not (minimal.in_group(node,"storage") or node.name == "bones:bones") then return end
     if minimal.in_group(node,"no_packdump") then return end
     local pname = player:get_player_name()
     if minetest.is_protected(pos,pname) then return end
