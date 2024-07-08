@@ -485,7 +485,7 @@ local c_alpha = minimal.compat_alpha
 -- Need inventory images, otherwise clear glass ones will be invisible
 minetest.register_node("tech:glass_bottle_green", {
 	description = S("Green Glass Bottle"),
-	tiles = {"tech_green_glass.png"},
+	tiles = {"tech_bottle_green.png"},
 	inventory_image = "tech_bottle_green_icon.png",
 	drawtype = "mesh",
 	mesh = "tech_bottle.obj",
@@ -504,13 +504,13 @@ minetest.register_node("tech:glass_bottle_green", {
 	use_texture_alpha = c_alpha.blend,
 	selection_box = {
 		type='fixed',
-		fixed={-0.275, -0.5, -0.225, 0.25, 0.35, 0.275},
+		fixed={-0.3, -0.5, -0.3, 0.3, 0.38, 0.3},
 	},
 })
 
 minetest.register_node("tech:glass_bottle_clear", {
 	description = S("Clear Glass Bottle"),
-	tiles = {"tech_clear_glass.png"},
+	tiles = {"tech_bottle_clear.png"},
 	inventory_image = "tech_bottle_clear_icon.png",
 	drawtype = "mesh",
 	mesh = "tech_bottle.obj",
@@ -529,7 +529,7 @@ minetest.register_node("tech:glass_bottle_clear", {
 	use_texture_alpha = c_alpha.blend,
 	selection_box = {
 		type='fixed',
-		fixed={-0.275, -0.5, -0.225, 0.25, 0.35, 0.275},
+		fixed={-0.3, -0.5, -0.3, 0.3, 0.38, 0.3},
 	},
 })
 
@@ -560,7 +560,7 @@ liquid_store.register_stored_liquid("tech:glass_bottle_green_saltwater",{
 	empty = "tech:glass_bottle_green",
   description = S("Green Glass Bottle With Salt Water"),
 	groups = {dig_immediate = 2},
-	tiles  = {"tech_bottle_green_water.png"},
+	tiles  = {"tech_bottle_green.png^(tech_bottle_liquid_blank.png^[colorize:#17453c^tech_bottle_liquid_pattern.png)"},
   sounds = nodes_nature.node_sound_stone_defaults(),
   use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
@@ -569,18 +569,17 @@ liquid_store.register_stored_liquid("tech:glass_bottle_green_saltwater",{
 	mesh = "tech_bottle_liquid.obj",
 	selection_box = {
 		type='fixed',
-		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
+		fixed={-0.3, -0.5, -0.3, 0.3, 0.38, 0.3},
 	},
 	inventory_image = "tech_bottle_icon_water.png^tech_bottle_green_icon.png",
 })
-
 
 liquid_store.register_stored_liquid("tech:glass_bottle_clear_saltwater",{
 	source = "nodes_nature:salt_water_source",
 	empty = "tech:glass_bottle_clear",
   description = S("Clear Glass Bottle With Salt Water"),
 	groups = {dig_immediate = 2},
-	tiles = {"tech_bottle_clear_water.png"},
+	tiles = {"tech_bottle_clear.png^(tech_bottle_liquid_blank.png^[colorize:#17453c^tech_bottle_liquid_pattern.png^[opacity:220)"},
   use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	stack_max = minimal.stack_max_bulky * 2,
@@ -588,7 +587,7 @@ liquid_store.register_stored_liquid("tech:glass_bottle_clear_saltwater",{
 	mesh = "tech_bottle_liquid.obj",
 	selection_box = {
 		type='fixed',
-		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
+		fixed={-0.3, -0.5, -0.3, 0.3, 0.38, 0.3},
 	},
 	inventory_image = "tech_bottle_icon_water.png^tech_bottle_clear_icon.png",
 })
@@ -597,7 +596,7 @@ liquid_store.register_stored_liquid("tech:glass_bottle_clear_saltwater",{
 liquid_store.register_stored_liquid("tech:glass_bottle_green_freshwater",{
 	source = "nodes_nature:freshwater_source",
 	empty = "tech:glass_bottle_green",
-	tiles = {"tech_bottle_green_water.png"},
+	tiles = {"tech_bottle_green.png^(tech_bottle_liquid_blank.png^[colorize:#244862^tech_bottle_liquid_pattern.png^[opacity:220)"},
   description = S("Green Glass Bottle With Fresh Water"),
 	groups = {dig_immediate = 2},
   drawtype = "mesh",
@@ -607,7 +606,7 @@ liquid_store.register_stored_liquid("tech:glass_bottle_green_freshwater",{
 	stack_max = minimal.stack_max_bulky * 2,
 	selection_box = {
 		type='fixed',
-		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
+		fixed={-0.3, -0.5, -0.3, 0.3, 0.38, 0.3},
 	},
 	inventory_image = "tech_bottle_icon_water.png^tech_bottle_green_icon.png",
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
@@ -620,7 +619,7 @@ liquid_store.register_stored_liquid("tech:glass_bottle_green_freshwater",{
 liquid_store.register_stored_liquid("tech:glass_bottle_clear_freshwater",{
 	source = "nodes_nature:freshwater_source",
 	empty = "tech:glass_bottle_clear",
-	tiles = {"tech_bottle_clear_water.png"},
+	tiles = {"tech_bottle_clear.png^(tech_bottle_liquid_blank.png^[colorize:#244862^tech_bottle_liquid_pattern.png^[opacity:220)"},
   description = S("Clear Glass Bottle With Fresh Water"),
 	groups = {dig_immediate = 2},
   drawtype = "mesh",
@@ -630,7 +629,7 @@ liquid_store.register_stored_liquid("tech:glass_bottle_clear_freshwater",{
 	stack_max = minimal.stack_max_bulky * 2,
 	selection_box = {
 		type='fixed',
-		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
+		fixed={-0.3, -0.5, -0.3, 0.3, 0.38, 0.3},
 	},
 	inventory_image = "tech_bottle_icon_water.png^tech_bottle_clear_icon.png",
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
