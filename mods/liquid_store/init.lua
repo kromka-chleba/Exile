@@ -39,24 +39,8 @@ end
 -- get a stored liquid's definition table
 function liquid_store.get_sl_def(nodename,producefake) -- get stored liquid definition
   local sl_def = liquid_store.stored_liquids[nodename]
-  if sl_def then
-    return sl_def
-  end
-  -- allow for getting stored liquids that have the same nodename_empty as nodename
-  sl_def = {}
-  for _,storeddef in pairs(liquid_store.stored_liquids) do
-    if storeddef.nodename_empty == nodename then
-      table.insert(sl_def,1,storeddef)
-    end
-  end
-  -- got a table of associated storeddefs
-  if #sl_def > 0 then
-    return sl_def
-  end
-  -- return an empty stored_liquid definition
-  if producefake == true then
-    return {source = "", nodename_empty = "", dump = false} 
-  end
+  -- return sl_def or if wanted, a fake stored_liquid definition
+  return sl_def or (producefake == true and {source="",nodename_empty="",dump=false}) or nil
 end
 
 local function check_protection(pos, user, text)
@@ -276,7 +260,8 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
   end
   -- check above pos (other node cannot be built to or is not an fillable pot)
   if not (buildable_to or stored) then
-    ppos = pointed_thing.above
+    pointed_thing.under = pointed_thing.above -- so that on_rightclick works properly
+    ppos = pointed_thing.under
     ndef = minimal.get_nodedef(ppos)
     -- don't remove liquids
     buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to or false
@@ -413,38 +398,40 @@ function liquid_store.register_stored_liquid(name,def)
   assert(type(name) == "string","liquid_store.register_stored_liquid: expected string for 'name', got "..type(name))
   assert(type(def) == "table","liquid_store.register_stored_liquid: expected definition table, got "..type(def))
 
+  def.empty = def.empty or def.nodename_empty
+  def.nodename_empty = nil
+
 	liquid_store.stored_liquids[name] = {
 		nodename = name,
 		source = def.source,
 		nodename_empty = def.empty,
     dumpable = def.dumpable,
 	}
+
+  -- basic def
+  def.stack_max = def.stack_max or 1
+  def.liquids_pointable = type(def.liquids_pointable) ~= "boolean" and true or def.liquids_pointable
+  def.paramtype = def.paramtype or "light"
+  def.groups = def.groups or {}
+  def.groups.liquid_storage = 1
+  -- sounds; get provided or use empty node's sound or node sound defaults
+  def.sounds = def.sounds
+    or (minetest.registered_nodes[def.empty] and type(minetest.registered_nodes[def.empty].sounds) == "table"
+      and table.copy(minetest.registered_nodes[def.empty].sounds))
+    or nodes_nature.node_sound_defaults()
+  -- functions
+  def.on_use = def.on_use or function(...)
+    return liquid_store.on_use_filled_bucket(...)
+  end
+  def.on_place = def.on_place or function(itemstack, placer, pointed_thing)
+    return liquid_store.on_place(itemstack, placer, pointed_thing, name)
+  end
+  def.drawtype = def.drawtype or def.mesh and "mesh" or def.node_box and "nodebox" or "normal" -- set drawtype to nodebox if node_box is provided or mesh if mesh
+
   -- remove from node definition
   def.source = nil
   def.empty = nil
   def.dumpable = nil
-
-  local basedef = {
-    stack_max = 1,
-    liquids_pointable = true,
-    paramtype = "light",
-    groups = {liquid_storage = 1},
-    sounds = minimal.merge_tables(nodes_nature.node_sound_defaults(), def.sounds or {}),
-    on_use = function(...)
-      return liquid_store.on_use_filled_bucket(...)
-    end,
-    on_place = function(itemstack, placer, pointed_thing)
-      return liquid_store.on_place(itemstack, placer, pointed_thing, name)
-    end,
-  }
-  basedef.drawtype = def.drawtype or def.node_box and "nodebox" or "normal" -- set drawtype to nodebox if node_box is provided
-  -- add basedef values
-  for index,value in pairs(basedef) do
-    if not def[index] then
-      def[index] = value
-    end
-  end
-  def.groups = minimal.merge_tables(basedef.groups, def.groups or {})
 
   minetest.register_node(name,def)
   return minetest.registered_nodes[name]
