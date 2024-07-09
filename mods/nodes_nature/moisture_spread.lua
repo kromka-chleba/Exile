@@ -331,7 +331,7 @@ local function initialize_soaker()
     evap_chance = 0
     ms.remove_worker("snow_place_worker")
     local function register()
-        ms.register_worker(
+        local worker = ms.worker.new(
             {name = "rain_soak_worker",
              fun = rain_replacer,
              has_one_of = soil_labels,
@@ -339,6 +339,7 @@ local function initialize_soaker()
              rework_labels = {"last_rain"},
              chance = soak_chance,
         })
+        worker:register()
     end
     -- delay before it gets starts soaking
     minetest.after(25, register)
@@ -353,13 +354,15 @@ local function initialize_snower()
     evap_chance = 0
     ms.remove_worker("rain_soak_worker")
     local function register()
-        ms.register_worker({name = "snow_place_worker",
-                            fun = snow_placer,
-                            has_one_of = soil_labels,
-                            rework_labels = {"last_snow"},
-                            work_every = 80,
-                            chance = snower_chance,
+        local worker = ms.worker.new(
+            {name = "snow_place_worker",
+             fun = snow_placer,
+             has_one_of = soil_labels,
+             rework_labels = {"last_snow"},
+             work_every = 80,
+             chance = snower_chance,
         })
+        worker:register()
     end
     -- delay before it gets starts snowing
     minetest.after(25, register)
@@ -372,16 +375,18 @@ local function initialize_evaporator()
     snower_running = false
     ms.remove_worker("rain_soak_worker")
     ms.remove_worker("snow_place_worker")
-    ms.register_worker({name = "evaporation_worker",
-                        fun = evap_replacer,
-                        has_one_of = {"last_rain",
-                                      "last_evaporated",
-                                      "moisture_spread",
-                                      "water_gravity"},
-                        work_every = evap_interval,
-                        rework_labels = {"last_evaporated"},
-                        chance = evap_chance,
+    local worker = ms.worker.new(
+        {name = "evaporation_worker",
+         fun = evap_replacer,
+         has_one_of = {"last_rain",
+                       "last_evaporated",
+                       "moisture_spread",
+                       "water_gravity"},
+         work_every = evap_interval,
+         rework_labels = {"last_evaporated"},
+         chance = evap_chance,
     })
+    worker:register()
     evap_changed = false
 end
 
@@ -425,14 +430,16 @@ end
 local function start_light_thawer()
     if current_thawer ~= "light" then
         disable_thawer()
-        ms.register_worker({name = "thawing_worker",
-                            fun = light_thawer,
-                            has_one_of = {"last_snow",
-                                          "last_freezed"},
-                            rework_labels = {"last_thawed"},
-                            work_every = 120,
-                            chance = 1/7,
+        local worker = ms.worker.new(
+            {name = "thawing_worker",
+             fun = light_thawer,
+             has_one_of = {"last_snow",
+                           "last_freezed"},
+             rework_labels = {"last_thawed"},
+             work_every = 120,
+             chance = 1/7,
         })
+        worker:register()
         thawer_running = true
         current_thawer = "light"
     end
@@ -441,12 +448,14 @@ end
 local function start_total_thawer()
     if current_thawer ~= "total" then
         disable_thawer()
-        ms.register_worker({name = "thawing_worker",
-                            fun = total_thawer,
-                            has_one_of = {"last_snow",
-                                          "last_freezed"},
-                            chance = 1,
+        local worker = ms.worker.new(
+            {name = "thawing_worker",
+             fun = total_thawer,
+             has_one_of = {"last_snow",
+                           "last_freezed"},
+             chance = 1,
         })
+        worker:register()
         thawer_running = true
         current_thawer = "total"
     end
@@ -527,13 +536,15 @@ local function start_light_icer()
     if not icer_running or icer_changed then
         if current_icer ~= "light" then
             disable_icer()
-            ms.register_worker({name = "freezing_worker",
-                                fun = icer,
-                                work_every = icer_interval,
-                                has_one_of = {"ocean", "coast"},
-                                rework_labels = {"last_freezed"},
-                                chance = 1/25,
+            local worker = ms.worker.new(
+                {name = "freezing_worker",
+                 fun = icer,
+                 work_every = icer_interval,
+                 has_one_of = {"ocean", "coast"},
+                 rework_labels = {"last_freezed"},
+                 chance = 1/25,
             })
+            worker:register()
             icer_running = true
             current_icer = "light"
         end
@@ -544,13 +555,15 @@ local function start_ice_queen()
     if not icer_running or icer_changed then
         if current_icer ~= "ice_queen" then
             disable_icer()
-            ms.register_worker({name = "freezing_worker",
-                                fun = icer,
-                                work_every = icer_interval,
-                                has_one_of = {"ocean", "coast"},
-                                rework_labels = {"last_freezed"},
-                                chance = 1/5,
+            local worker = ms.worker.new(
+                {name = "freezing_worker",
+                 fun = icer,
+                 work_every = icer_interval,
+                 has_one_of = {"ocean", "coast"},
+                 rework_labels = {"last_freezed"},
+                 chance = 1/5,
             })
+            worker:register()
             icer_running = true
             current_icer = "ice_queen"
         end
@@ -768,14 +781,15 @@ local function start_moisture_spread()
                 air = "air",
                 add_labels = {"moisture_spread"},
         })
-    ms.register_worker({name = "moisture_spread_worker",
-                        fun = moisture_spread_worker,
-                        work_every = moisture_spread_interval,
-                        has_one_of = soil_labels,
-                        rework_labels = {"moisture_spread"},
-                        afterworker = handle_sediment_orphans,
+    local worker = ms.worker.new(
+        {name = "moisture_spread_worker",
+         fun = moisture_spread_worker,
+         work_every = moisture_spread_interval,
+         has_one_of = soil_labels,
+         rework_labels = {"moisture_spread"},
+         afterworker = handle_sediment_orphans,
     })
-
+    worker:register()
     local soak_in_grav =
         nn.create_gravity_soak_in({
                 wet_to_dry = get_wet_dry_pairs(),
@@ -784,13 +798,15 @@ local function start_moisture_spread()
                 air = "air",
                 add_labels = {"water_gravity"},
         })
-    ms.register_worker({name = "soak_in_gravity_worker",
-                        fun = soak_in_grav,
-                        work_every = 50,
-                        has_one_of = soil_labels,
-                        rework_labels = {"water_gravity"},
-                        afterworker = handle_water_orphans,
+    local worker2 = ms.worker.new(
+        {name = "soak_in_gravity_worker",
+         fun = soak_in_grav,
+         work_every = 50,
+         has_one_of = soil_labels,
+         rework_labels = {"water_gravity"},
+         afterworker = handle_water_orphans,
     })
+    worker2:register()
 end
 
 local weather_loop_interval = 5

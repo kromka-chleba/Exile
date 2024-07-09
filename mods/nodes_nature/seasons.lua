@@ -238,17 +238,21 @@ local function swap_soils(season_name)
     local winter = seasons.is_winter(season_name)
     if winter and current_soil_replacer ~= "winter" then
         ms.remove_worker("winter_soil_replacer")
-        ms.register_worker({name = "spring_soil_replacer",
-                            fun = spring_soil_replacer,
-                            needed_labels = {"spring_soil"}})
+        local worker = ms.worker.new(
+            {name = "spring_soil_replacer",
+             fun = spring_soil_replacer,
+             needed_labels = {"spring_soil"}})
+        worker:register()
         current_soil_replacer = "winter"
     end
 
     if not winter and current_soil_replacer ~= "spring" then
         ms.remove_worker("spring_soil_replacer")
-        ms.register_worker({name = "winter_soil_replacer",
-                            fun = winter_soil_replacer,
-                            needed_labels = {"winter_soil"}})
+        local worker = ms.worker.new(
+            {name = "winter_soil_replacer",
+             fun = winter_soil_replacer,
+             needed_labels = {"winter_soil"}})
+        worker:register()
         current_soil_replacer = "spring"
     end
 end
@@ -320,9 +324,11 @@ local function initialize_plant_replacer(season_name)
             }
         )
     ms.remove_worker("seasonal_plant_worker")
-    ms.register_worker({name = "seasonal_plant_worker",
-                        fun = plant_replacer,
-                        has_one_of = labels})
+    local worker = ms.worker.new(
+        {name = "seasonal_plant_worker",
+         fun = plant_replacer,
+         has_one_of = labels})
+    worker:register()
     current_plant_replacer = season_name
 end
 
@@ -372,29 +378,35 @@ local current_leaf_worker = ""
 
 local function start_total_leaf_dropper(season_name)
     ms.remove_worker("seasonal_leaf_worker")
-    ms.register_worker({name = "seasonal_leaf_worker",
-                        fun = total_leaf_dropper(),
-                        has_one_of = {"seasonal_trees",
-                                      "leaves"}})
+    local worker = ms.worker.new(
+        {name = "seasonal_leaf_worker",
+         fun = total_leaf_dropper(),
+         has_one_of = {"seasonal_trees",
+                       "leaves"}})
+    worker:register()
     current_leaf_worker = season_name
 end
 
 local function start_total_leaf_grower(season_name)
     ms.remove_worker("seasonal_leaf_worker")
-    ms.register_worker({name = "seasonal_leaf_worker",
-                        fun = total_leaf_grower(),
-                        needed_labels = {"leaves_dropped"}})
+    local worker = ms.worker.new(
+        {name = "seasonal_leaf_worker",
+         fun = total_leaf_grower(),
+         needed_labels = {"leaves_dropped"}})
+    worker:register()
     current_leaf_worker = season_name
 end
 
 local function start_spring_leaf_grower(season_name)
     ms.remove_worker("seasonal_leaf_worker")
-    ms.register_worker({name = "seasonal_leaf_worker",
-                        fun = spring_leaf_grower(),
-                        work_every = 200,
-                        chance = 1/30,
-                        rework_labels = {"leaves"},
-                        needed_labels = {"leaves_dropped"}})
+    local worker = ms.worker.new(
+        {name = "seasonal_leaf_worker",
+         fun = spring_leaf_grower(),
+         work_every = 200,
+         chance = 1/30,
+         rework_labels = {"leaves"},
+         needed_labels = {"leaves_dropped"}})
+    worker:register()
     current_leaf_worker = season_name
 end
 
