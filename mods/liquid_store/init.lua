@@ -83,7 +83,8 @@ local function handle_stacks(player, stack_items, new_item)
 	 local pos = player:get_pos()
 	 minetest.add_item(pos, new_item)
       end
-      return(stack_items:get_name().." "..(stack_items:get_count() - 1))
+      return ItemStack(stack_items:get_name().." "..
+		       (stack_items:get_count() -1))
    else
       return ItemStack(new_item)
    end
@@ -412,38 +413,38 @@ function liquid_store.register_stored_liquid(name,def)
   assert(type(name) == "string","liquid_store.register_stored_liquid: expected string for 'name', got "..type(name))
   assert(type(def) == "table","liquid_store.register_stored_liquid: expected definition table, got "..type(def))
 
+  def.empty = def.empty or def.nodename_empty
+  def.nodename_empty = nil
+
 	liquid_store.stored_liquids[name] = {
 		nodename = name,
 		source = def.source,
 		nodename_empty = def.empty,
     dumpable = def.dumpable,
 	}
+
+  -- basic def
+  def.stack_max = def.stack_max or 1
+  def.liquids_pointable = type(def.liquids_pointable) ~= "boolean" and true or def.liquids_pointable
+  def.paramtype = def.paramtype or "light"
+  def.groups = def.groups or {}
+  def.groups.liquid_storage = 1
+  -- sounds; get provided or use empty node's sound or node sound defaults
+  def.sounds = def.sounds or (minetest.registered_nodes[def.empty] and minetest.registered_nodes[def.empty].sounds)
+    or nodes_nature.node_sound_defaults()
+  -- functions
+  def.on_use = def.on_use or function(...)
+    return liquid_store.on_use_filled_bucket(...)
+  end
+  def.on_place = def.on_place or function(itemstack, placer, pointed_thing)
+    return liquid_store.on_place(itemstack, placer, pointed_thing, name)
+  end
+  def.drawtype = def.drawtype or def.mesh and "mesh" or def.node_box and "nodebox" or "normal" -- set drawtype to nodebox if node_box is provided or mesh if mesh
+
   -- remove from node definition
   def.source = nil
   def.empty = nil
   def.dumpable = nil
-
-  local basedef = {
-    stack_max = 1,
-    liquids_pointable = true,
-    paramtype = "light",
-    groups = {liquid_storage = 1},
-    sounds = minimal.merge_tables(nodes_nature.node_sound_defaults(), def.sounds or {}),
-    on_use = function(...)
-      return liquid_store.on_use_filled_bucket(...)
-    end,
-    on_place = function(itemstack, placer, pointed_thing)
-      return liquid_store.on_place(itemstack, placer, pointed_thing, name)
-    end,
-  }
-  basedef.drawtype = def.drawtype or def.node_box and "nodebox" or "normal" -- set drawtype to nodebox if node_box is provided
-  -- add basedef values
-  for index,value in pairs(basedef) do
-    if not def[index] then
-      def[index] = value
-    end
-  end
-  def.groups = minimal.merge_tables(basedef.groups, def.groups or {})
 
   minetest.register_node(name,def)
   return minetest.registered_nodes[name]
