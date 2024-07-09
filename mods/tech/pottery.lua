@@ -325,6 +325,11 @@ minetest.register_node("tech:clay_oil_lamp_unlit", {
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	floodable = true,
 	on_flood = function(pos, oldnode, newnode)
+            local fuel = minetest.get_meta(pos):get_int("fuel")
+            fuel = (fuel/3100)*100 - math.random(2,4)
+            if fuel >= 50 then
+              minetest.add_item(pos,"tech:vegetable_oil")
+            end
             minetest.add_item(pos, ItemStack("tech:clay_oil_lamp_unlit 1"))
             return false
 	end,
