@@ -66,7 +66,7 @@ minetest.register_craftitem("tech:tiku", {
 
 -- VINEGAR
 liquid_store.register_stored_liquid("tech:tang_vinegar",{
-  source = "tech:tang_vinegar",
+  source = "tech:tang_vinegar_liquid",
 	empty = "tech:clay_water_pot",
   description = S("Tang Vinegar"),
 	groups = {dig_immediate=2, pottery = 1, temp_pass = 1, vinegar=1},
@@ -123,7 +123,7 @@ minetest.register_node("tech:tang_vinegar_mother",{
 })
 
 liquid_store.register_stored_liquid("tech:wooden_tang_vinegar",{
-  source = "tech:tang_vinegar",
+  source = "tech:tang_vinegar_liquid",
 	empty = "tech:wooden_water_pot",
   description = S("Tang Vinegar"),
 	groups = {dig_immediate=2, temp_pass = 1, vinegar=1},

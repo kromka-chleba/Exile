@@ -39,24 +39,8 @@ end
 -- get a stored liquid's definition table
 function liquid_store.get_sl_def(nodename,producefake) -- get stored liquid definition
   local sl_def = liquid_store.stored_liquids[nodename]
-  if sl_def then
-    return sl_def
-  end
-  -- allow for getting stored liquids that have the same nodename_empty as nodename
-  sl_def = {}
-  for _,storeddef in pairs(liquid_store.stored_liquids) do
-    if storeddef.nodename_empty == nodename then
-      table.insert(sl_def,1,storeddef)
-    end
-  end
-  -- got a table of associated storeddefs
-  if #sl_def > 0 then
-    return sl_def
-  end
-  -- return an empty stored_liquid definition
-  if producefake == true then
-    return {source = "", nodename_empty = "", dump = false} 
-  end
+  -- return sl_def or if wanted, a fake stored_liquid definition
+  return sl_def or (producefake == true and {source="",nodename_empty="",dump=false}) or nil
 end
 
 local function check_protection(pos, user, text)
@@ -430,7 +414,9 @@ function liquid_store.register_stored_liquid(name,def)
   def.groups = def.groups or {}
   def.groups.liquid_storage = 1
   -- sounds; get provided or use empty node's sound or node sound defaults
-  def.sounds = def.sounds or (minetest.registered_nodes[def.empty] and minetest.registered_nodes[def.empty].sounds)
+  def.sounds = def.sounds
+    or (minetest.registered_nodes[def.empty] and type(minetest.registered_nodes[def.empty].sounds) == "table"
+      and table.copy(minetest.registered_nodes[def.empty].sounds))
     or nodes_nature.node_sound_defaults()
   -- functions
   def.on_use = def.on_use or function(...)
