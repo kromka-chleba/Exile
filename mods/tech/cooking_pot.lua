@@ -25,6 +25,8 @@ Save to inv meta
 -- Internationalization
 local S = tech.S
 
+minimal = minimal
+
 local random = math.random
 
 local cook_time = 1
@@ -288,11 +290,11 @@ local function pot_cook(pos, elapsed)
         })
       else
         spawn_steam(pos)
-        minetest.sound_play("tech_frying",{
+        minimal.sound_play("tech_frying",{
           pos = pos,
-          gain = 4,
+          gain = {2,6},
           fade = 0.4,
-          max_hear_distance = 5,
+          max_hear_distance = 10,
         })
 			 end
 			 meta:set_int("baking", baking - 1)
