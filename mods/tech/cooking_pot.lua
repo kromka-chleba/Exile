@@ -25,6 +25,8 @@ Save to inv meta
 -- Internationalization
 local S = tech.S
 
+local random = math.random
+
 local cook_time = 1
 local cook_temp = { [""] = 101, ["Soup"] = 100 }
 local portions = 10 -- TODO: is this sane? Can we adjust it based on contents?
@@ -166,6 +168,50 @@ local function divide_portions(total)
   return result
 end
 
+-- spawn steam particles
+-- pos, amount, timedelay
+local function spawn_steam(pos,amt,td)
+  -- timedelay is used to create a delay between each particle spawn
+  td = type(td) == "table" and td or type(td) == "number" and {td,td} or {0,0.6}
+  -- amount is how many particles to spawn per iteration
+  amt = amt and math.max(amt,1) or math.random(4,7)
+  local ndef = minimal.get_nodedef(pos)
+  local collbox = ndef.collision_box or {-0.5,-0.5,-0.5, 0.5,0.5,0.5}
+  for i=1,amt do
+    local spawntime = td[1]+random()*(td[2]-td[1]) -- randomized spawn time according to timedelay
+    minetest.after(spawntime,function()
+      -- pos, particle position, and velocity determined for each individual particle
+      local spawn_pos = {y=(pos.y+collbox[5])+(random(-3,1)/10)}
+      spawn_pos.x1 = (pos.x + collbox[1])-(random(-10,10)/100)
+      spawn_pos.x2 = (pos.x + collbox[4])+(random(-10,10)/100)
+      spawn_pos.z1 = (pos.z + collbox[3])-(random(-10,10)/100)
+      spawn_pos.z2 = (pos.z + collbox[6])+(random(-10,10)/100)
+      -- "direction" - is just used to determine if spawning at negative or positive of pos
+      local dir = {x=random(1,2),z=random(1,2)}
+      local ppos = {x=spawn_pos["x"..dir.x],y=spawn_pos.y,z=spawn_pos["z"..dir.z]}
+      -- velocity, will go in direction of spawn
+      local vel = {x=(dir.x == 1 and -0.3 or 0.3),y=(random(5,12)/10),z=(dir.z == 1 and -0.3 or 0.3)}
+      minetest.add_particle({
+        texture = "tech_steam_particles.png^[opacity:"..random(160,255),
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1.1, -- 11 frames, 0.2s/ea
+        },
+        size = 10,
+        pos = ppos,
+        velocity = vel,
+        expirationtime = 1,
+        vertical = true,
+        glow = 4,
+        collisiondetection = true,
+        --collision_removal = true,
+      })
+    end)
+  end
+end
+
 local function pot_cook(pos, elapsed)
 	local meta = minetest.get_meta(pos)
 	local inv = meta:get_inventory():get_list("main")
@@ -200,6 +246,7 @@ local function pot_cook(pos, elapsed)
 			 for i = 1, #inv do
 			    inv[i]:clear()
 			 end
+       spawn_steam(pos,random(45,90),{0,4})
        minetest.sound_play("tech_frying_final",{
           pos = pos,
           gain = 2,
@@ -232,6 +279,7 @@ local function pot_cook(pos, elapsed)
 			 if status ~= 'cooking' then
 				 meta:set_string('status', 'cooking')
 				 minimal.infotext_merge(pos, "Status: "..kind.." pot (cooking)", meta)
+         spawn_steam(pos,random(10,19),{0,0.2})
          minetest.sound_play("tech_frying_start",{
           pos = pos,
           gain = 1,
@@ -239,6 +287,7 @@ local function pot_cook(pos, elapsed)
           max_hear_distance = 12,
         })
       else
+        spawn_steam(pos)
         minetest.sound_play("tech_frying",{
           pos = pos,
           gain = 4,
