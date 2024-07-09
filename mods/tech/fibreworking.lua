@@ -109,7 +109,7 @@ minetest.register_craftitem("tech:fine_fibre", {
 --coarse fabric
 minetest.register_craftitem("tech:coarse_fabric", {
 	description = S("Coarse Fabric"),
-	inventory_image = "tech_coarse_fabric.png",
+	inventory_image = "tech_coarse_fabric_thumb.png",
 	stack_max = minimal.stack_max_medium,
 	groups = {flammable = 1},
 })
@@ -117,7 +117,7 @@ minetest.register_craftitem("tech:coarse_fabric", {
 --fine fabric
 minetest.register_craftitem("tech:fine_fabric", {
 	description = S("Fine Fabric"),
-	inventory_image = "tech_fine_fabric.png",
+	inventory_image = "tech_fine_fabric_thumb.png",
 	stack_max = minimal.stack_max_medium,
 	groups = {flammable = 1},
 })
