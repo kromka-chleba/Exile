@@ -260,7 +260,8 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
   end
   -- check above pos (other node cannot be built to or is not an fillable pot)
   if not (buildable_to or stored) then
-    ppos = pointed_thing.above
+    pointed_thing.under = pointed_thing.above -- so that on_rightclick works properly
+    ppos = pointed_thing.under
     ndef = minimal.get_nodedef(ppos)
     -- don't remove liquids
     buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to or false
