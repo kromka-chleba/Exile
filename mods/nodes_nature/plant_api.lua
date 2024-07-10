@@ -101,6 +101,7 @@ local plant_groups = {
     ["fibrous_plant"] = {
         snappy = 3,
         fibrous_plant = 1,
+        bundleable_fiber = 1,
         flammable = 1,
         compostable = 1,
     },
@@ -111,6 +112,7 @@ local plant_groups = {
     ["cane"] = {
         snappy = 3,
         fibrous_plant = 1,
+        bundleable_fiber = 1,
         flammable = 1,
         cane_plant = 1,
         compostable = 1,
