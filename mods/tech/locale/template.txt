@@ -238,6 +238,7 @@ fuel left=
 Status: =
 # plant_crafts.lua
 Stick=
+Grass Fibre=
 Bitter Maraka Flour=
 Maraka Flour=
 Unbaked Maraka Cake=

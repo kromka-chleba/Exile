@@ -79,6 +79,13 @@ minetest.register_node("tech:stick", {
 
 })
 
+minetest.register_craftitem("tech:grass_fibre",{
+  description = S('Grass Fibre'),
+  inventory_image = "tech_fibrous_bundle.png",
+  stack_max = minimal.stack_max_medium,
+  groups = {flammable=1, fibrous_plant=1}
+})
+
 
 --bitter maraka flour
 -- unusable flour. Requires water treatment.
@@ -294,6 +301,14 @@ crafting.register_recipe({
 	type = {"crafting_spot","chopping_block","hand","knife"},
 	output = "tech:stick 2",
 	items = {"group:woody_plant"},
+	level = 1,
+	always_known = true,
+})
+--Sticks from woody plants
+crafting.register_recipe({
+	type = {"hand","knife"},
+	output = "tech:grass_fibre",
+	items = {"group:bundleable_fiber"},
 	level = 1,
 	always_known = true,
 })

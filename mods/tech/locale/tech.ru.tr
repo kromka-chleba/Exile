@@ -238,6 +238,7 @@ fuel left=топлива
 Status: =Состояние: 
 # plant_crafts.lua
 Stick=Палка
+Grass Fibre=
 Bitter Maraka Flour=Мука из горького марака
 Maraka Flour=Мука из марака
 Unbaked Maraka Cake=Невыпеченный торт из марака
