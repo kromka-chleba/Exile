@@ -73,35 +73,40 @@ function minimal.protection_key_click( itemstack, clicker, pointed_thing)
 end
 
 minetest.register_on_player_receive_fields(
-	function(player,formname,fields)
-		if formname ~= "protection:access_list" then
-			return
-		end
-		local player_name=player:get_player_name()
-		if fields.Delete then
-			local pt_pos = __open_access_list and __open_access_list[player_name].pos
-			local pt_meta = minetest.get_meta(pt_pos)
-			local list_json = pt_meta:get_string("access_list")
-			local access_list = {}
-			if list_json and list_json ~= '' then
-				access_list = minetest.parse_json(list_json)
-				for i,granted in ipairs(access_list) do
-					if fields.access_list == granted then
-						access_list[i] = nil
-					end
-				end
-				minetest.chat_send_player(player_name, S("Deleted @1 from access list.", fields.access_list))
-			end
-			-- write out json
-			if #access_list > 0 then
-				pt_meta:set_string("access_list", minetest.write_json(access_list))
-			else
-				pt_meta:set_string("access_list", "")
-			end
-		end
-		__open_access_list[player_name] = nil
-		return true
-	end
+   function(player,formname,fields)
+      if formname ~= "protection:access_list" then
+	 return
+      end
+      local player_name=player:get_player_name()
+      if fields.Delete and  __open_access_list
+	    and __open_access_list[player_name]
+	    and __open_access_list[player_name].pos then
+	 local pt_pos = __open_access_list[player_name].pos
+	 local pt_meta = minetest.get_meta(pt_pos)
+	 local list_json = pt_meta and pt_meta:get_string("access_list")
+	 local access_list = {}
+	 if list_json and list_json ~= '' then
+	    access_list = minetest.parse_json(list_json)
+	    for i,granted in ipairs(access_list) do
+	       if fields.access_list == granted then
+		  access_list[i] = nil
+	       end
+	    end
+	    minetest.chat_send_player(player_name,
+				      S("Deleted @1 from access list.",
+					fields.access_list))
+	 end
+	 -- write out json
+	 if #access_list > 0 then
+	    pt_meta:set_string("access_list",
+			       minetest.write_json(access_list))
+	 else
+	    pt_meta:set_string("access_list", "")
+	 end
+      end
+      __open_access_list[player_name] = nil
+      return true
+   end
 )
 
 function minimal.protection_key_use( itemstack, user, pointed_thing )
