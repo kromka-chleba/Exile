@@ -174,19 +174,20 @@ end
 -- pos, amount, timedelay
 local function spawn_steam(pos,def)
   local ndef = minimal.get_nodedef(pos)
+  -- utilize collision box for proper node interactions
   local collbox = ndef.collision_box or {-0.5,-0.5,-0.5, 0.5,0.5,0.5}
   def = def or {}
   def.amount = def.amount or def.amt or random(6,10)
-  if type(def.amount) == "table" then
+  if type(def.amount) == "table" then -- randomize
     def.amount = random(def.amount[1],def.amount[2])
   end
   def.animation = {
     type = "vertical_frames",
     aspect_w = 16,
     aspect_h = 16,
-    length = 1.1, -- 11 frames, 0.2s/ea
+    length = 1.1, -- 11 frames, 0.1s/ea
   }
-  def.time = def.time or 7
+  def.time = def.time or 7 -- a second more than the node timer
   def.glow = def.glow or 4
   def.minsize = def.minsize or 10
   def.maxsize = def.maxsize or 10
@@ -194,6 +195,7 @@ local function spawn_steam(pos,def)
   def.vertical = true
   def.minexptime = def.minexptime or 1
   def.maxexptime = def.maxexptime or 1
+  -- is iterated through for variations
   local spawnpos = {
     {
       x = (pos.x + collbox[1]),
@@ -212,24 +214,27 @@ local function spawn_steam(pos,def)
       vel = {z={-0.2,-0.7}}
     }
   }
-  local denied = 0
+  local denied = 0 -- utilized to determine how many spawnpos variants are ignored
   for i,spinfo in pairs(spawnpos) do
     def.texture = "tech_steam_particles.png^[opacity:"..random(160,255)
+    -- allow particle pos customization with spawnpos
     local ppos = {x=(spinfo.x or pos.x),y=(pos.y+collbox[5]),z=(spinfo.z or pos.z)}
     ppos.x = {ppos.x-0.1,ppos.x+0.1}
     ppos.y = {ppos.y-0.3,ppos.y+0.1}
     ppos.z = {ppos.z-0.1,ppos.z+0.1}
     local vel = spinfo.vel
-    if denied > 2 or random() >= 0.5 then
+    if denied > 2 or random() >= 0.5 then -- if more than 2 ignored variants or if 50%
+      -- get or create min-max velocity system
       vel.x = vel.x or {0,0}
       vel.y = vel.y or {0.2,1}
       vel.z = vel.z or {0,0}
+      -- set raw values
       def.minpos = {x=ppos.x[1],y=ppos.y[1],z=ppos.z[1]}
       def.maxpos = {x=ppos.x[2],y=ppos.y[2],z=ppos.z[2]}
       def.minvel = {x=vel.x[1],y=vel.y[1],z=vel.z[1]}
       def.maxvel = {x=vel.x[2],y=vel.y[2],z=vel.z[2]}
       minetest.add_particlespawner(def)
-    else
+    else -- add to denied
       denied = denied + 1
     end
   end
