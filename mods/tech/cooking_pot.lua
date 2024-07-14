@@ -172,45 +172,66 @@ end
 
 -- spawn steam particles
 -- pos, amount, timedelay
-local function spawn_steam(pos,amt,td)
-  -- timedelay is used to create a delay between each particle spawn
-  td = type(td) == "table" and td or type(td) == "number" and {td,td} or {0,0.6}
-  -- amount is how many particles to spawn per iteration
-  amt = amt and math.max(amt,1) or math.random(4,7)
+local function spawn_steam(pos,def)
   local ndef = minimal.get_nodedef(pos)
   local collbox = ndef.collision_box or {-0.5,-0.5,-0.5, 0.5,0.5,0.5}
-  for i=1,amt do
-    local spawntime = td[1]+random()*(td[2]-td[1]) -- randomized spawn time according to timedelay
-    minetest.after(spawntime,function()
-      -- pos, particle position, and velocity determined for each individual particle
-      local spawn_pos = {y=(pos.y+collbox[5])+(random(-3,1)/10)}
-      spawn_pos.x1 = (pos.x + collbox[1])-(random(-10,10)/100)
-      spawn_pos.x2 = (pos.x + collbox[4])+(random(-10,10)/100)
-      spawn_pos.z1 = (pos.z + collbox[3])-(random(-10,10)/100)
-      spawn_pos.z2 = (pos.z + collbox[6])+(random(-10,10)/100)
-      -- "direction" - is just used to determine if spawning at negative or positive of pos
-      local dir = {x=random(1,2),z=random(1,2)}
-      local ppos = {x=spawn_pos["x"..dir.x],y=spawn_pos.y,z=spawn_pos["z"..dir.z]}
-      -- velocity, will go in direction of spawn
-      local vel = {x=(dir.x == 1 and -0.3 or 0.3),y=(random(5,12)/10),z=(dir.z == 1 and -0.3 or 0.3)}
-      minetest.add_particle({
-        texture = "tech_steam_particles.png^[opacity:"..random(160,255),
-        animation = {
-          type = "vertical_frames",
-          aspect_w = 16,
-          aspect_h = 16,
-          length = 1.1, -- 11 frames, 0.2s/ea
-        },
-        size = 10,
-        pos = ppos,
-        velocity = vel,
-        expirationtime = 1,
-        vertical = true,
-        glow = 4,
-        collisiondetection = true,
-        --collision_removal = true,
-      })
-    end)
+  def = def or {}
+  def.amount = def.amount or def.amt or random(6,10)
+  if type(def.amount) == "table" then
+    def.amount = random(def.amount[1],def.amount[2])
+  end
+  def.animation = {
+    type = "vertical_frames",
+    aspect_w = 16,
+    aspect_h = 16,
+    length = 1.1, -- 11 frames, 0.2s/ea
+  }
+  def.time = def.time or 7
+  def.glow = def.glow or 4
+  def.minsize = def.minsize or 10
+  def.maxsize = def.maxsize or 10
+  def.collisiondetection = true
+  def.vertical = true
+  def.minexptime = def.minexptime or 1
+  def.maxexptime = def.maxexptime or 1
+  local spawnpos = {
+    {
+      x = (pos.x + collbox[1]),
+      vel = {x={0.2,0.7}}
+    },
+    {
+      x = (pos.x + collbox[4]),
+      vel = {x={-0.2,-0.7}}
+    },
+    {
+      z = (pos.z + collbox[3]),
+      vel = {z={0.2,0.7}}
+    },
+    {
+      z = (pos.z + collbox[6]),
+      vel = {z={-0.2,-0.7}}
+    }
+  }
+  local denied = 0
+  for i,spinfo in pairs(spawnpos) do
+    def.texture = "tech_steam_particles.png^[opacity:"..random(160,255)
+    local ppos = {x=(spinfo.x or pos.x),y=(pos.y+collbox[5]),z=(spinfo.z or pos.z)}
+    ppos.x = {ppos.x-0.1,ppos.x+0.1}
+    ppos.y = {ppos.y-0.3,ppos.y+0.1}
+    ppos.z = {ppos.z-0.1,ppos.z+0.1}
+    local vel = spinfo.vel
+    if denied > 2 or random() >= 0.5 then
+      vel.x = vel.x or {0,0}
+      vel.y = vel.y or {0.2,1}
+      vel.z = vel.z or {0,0}
+      def.minpos = {x=ppos.x[1],y=ppos.y[1],z=ppos.z[1]}
+      def.maxpos = {x=ppos.x[2],y=ppos.y[2],z=ppos.z[2]}
+      def.minvel = {x=vel.x[1],y=vel.y[1],z=vel.z[1]}
+      def.maxvel = {x=vel.x[2],y=vel.y[2],z=vel.z[2]}
+      minetest.add_particlespawner(def)
+    else
+      denied = denied + 1
+    end
   end
 end
 
@@ -248,7 +269,7 @@ local function pot_cook(pos, elapsed)
 			 for i = 1, #inv do
 			    inv[i]:clear()
 			 end
-       spawn_steam(pos,random(45,90),{0,4})
+       spawn_steam(pos,{amt={22,45}})
        minetest.sound_play("tech_frying_final",{
           pos = pos,
           gain = 2,
@@ -281,7 +302,7 @@ local function pot_cook(pos, elapsed)
 			 if status ~= 'cooking' then
 				 meta:set_string('status', 'cooking')
 				 minimal.infotext_merge(pos, "Status: "..kind.." pot (cooking)", meta)
-         spawn_steam(pos,random(10,19),{0,0.2})
+         spawn_steam(pos,{amt={14,24}})
          minetest.sound_play("tech_frying_start",{
           pos = pos,
           gain = 1,
