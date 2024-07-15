@@ -286,7 +286,7 @@ minetest.register_node('tech:loose_brick_unfired', {
 		}
 	},
 	groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = nodes_nature.node_sound_dirt_defaults(),
   on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
@@ -460,7 +460,7 @@ minetest.register_node("tech:roof_tile_loose_unfired", {
 		}
 	},
   groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = nodes_nature.node_sound_dirt_defaults(),
   on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
@@ -705,7 +705,7 @@ minetest.register_node("tech:tile_block_unfired", {
 	paramtype = "light",
 	paramtype2 = "facedir",
 	groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = nodes_nature.node_sound_dirt_defaults(),
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
