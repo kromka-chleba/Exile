@@ -252,7 +252,7 @@ crafting.register_recipe({
 
 minetest.register_node('tech:loose_brick_unfired', {
 	description = S('Loose Bricks (unfired)'),
-	tiles = {"nodes_nature_clay.png"},
+	tiles = {"tech_roof_tiles_unfired.png"},
 	stack_max = minimal.stack_max_bulky *3,
   drawtype = "nodebox",
 	paramtype = "light",
@@ -401,7 +401,7 @@ crafting.register_recipe({
 --loose tiles allow for bulk firing, later craft into usable tile
 minetest.register_node("tech:roof_tile_loose_unfired", {
 	description = S("Loose Roof Tile (unfired)"),
-	tiles = {"nodes_nature_clay.png"},
+	tiles = {"tech_roof_tiles_unfired.png"},
 	stack_max = minimal.stack_max_medium/2,
   drawtype = "nodebox",
 	paramtype = "light",
@@ -699,7 +699,7 @@ crafting.register_recipe({
 
 minetest.register_node("tech:tile_block_unfired", {
 	description = S("Tile Block (unfired)"),
-	tiles = {"nodes_nature_clay.png"},
+	tiles = {"tech_roof_tiles_unfired.png"},
 	stack_max = minimal.stack_max_medium/2,
 	drawtype = "normal",
 	paramtype = "light",
