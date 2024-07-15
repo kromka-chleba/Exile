@@ -759,7 +759,7 @@ crafting.register_recipe({
 stairs.register_stair_and_slab(
 	"tile",
 	"tech:tile_block",
-	"brick_makers_bench",
+	"brick_makers_bench_mixing",
 	"true",
 	"brick_makers_bench_mixing",
 	{cracky = 3},
