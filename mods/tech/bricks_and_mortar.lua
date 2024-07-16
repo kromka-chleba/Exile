@@ -269,7 +269,7 @@ crafting.register_recipe({
 
 minetest.register_node('tech:loose_brick_unfired', {
 	description = S('Loose Bricks (unfired)'),
-	tiles = {"nodes_nature_clay.png"},
+	tiles = {"tech_roof_tiles_unfired.png"},
 	stack_max = minimal.stack_max_bulky *4,
   drawtype = "nodebox",
 	paramtype = "light",
@@ -303,7 +303,7 @@ minetest.register_node('tech:loose_brick_unfired', {
 		}
 	},
 	groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = nodes_nature.node_sound_dirt_defaults(),
   on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
@@ -419,7 +419,7 @@ crafting.register_recipe({
 --loose tiles allow for bulk firing, later craft into usable tile
 minetest.register_node("tech:roof_tile_loose_unfired", {
 	description = S("Loose Roof Tile (unfired)"),
-	tiles = {"nodes_nature_clay.png"},
+	tiles = {"tech_roof_tiles_unfired.png"},
 	stack_max = minimal.stack_max_medium/2,
   drawtype = "nodebox",
 	paramtype = "light",
@@ -478,7 +478,7 @@ minetest.register_node("tech:roof_tile_loose_unfired", {
 		}
 	},
   groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = nodes_nature.node_sound_dirt_defaults(),
   on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
@@ -717,13 +717,13 @@ crafting.register_recipe({
 
 minetest.register_node("tech:tile_block_unfired", {
 	description = S("Tile Block (unfired)"),
-	tiles = {"nodes_nature_clay.png"},
+	tiles = {"tech_roof_tiles_unfired.png"},
 	stack_max = minimal.stack_max_medium/2,
 	drawtype = "normal",
 	paramtype = "light",
 	paramtype2 = "facedir",
 	groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = nodes_nature.node_sound_dirt_defaults(),
 	on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
