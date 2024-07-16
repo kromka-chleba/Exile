@@ -1,0 +1,13 @@
+# textdomain: backpacks
+# init.lua
+@1 full=
+@1 partial=
+@1 empty=
+Slots: @1, @2, @3=
+@1/@2/@3=
+Dump Into Storage=
+Pack Up Storage=
+Dump or pack=
+Dump=
+Pack=
+@1 contents into storage=
