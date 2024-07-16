@@ -1,10 +1,10 @@
-# textdomain: creative
-Allow player to use creative inventory=Permettre aux joueurs d'utiliser l'inventaire du mode créatif
-Search=Rechercher
+# textdomain : creative
+Allow player to use creative inventory=
+Search=Chercher
 Reset=Réinitialiser
 Previous page=Page précédente
 Next page=Page suivante
 All=Tout
-Nodes=Nœuds
+Nodes=Nœud
 Tools=Outils
-Items=Article
+Items=Objets
