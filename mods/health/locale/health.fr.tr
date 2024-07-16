@@ -1,53 +1,40 @@
-# textdomain: health
+# textdomain : health
 # hud.lua
 # food.lua
-# hud.lua
-# food.lua
-This is inedible.=Ceci n'est pas comestible.
-Eat=
-Food Poisoning=
-Dust Fever=
-Intestinal Parasites=
-Tiku High=
-Neurotoxicity=
-Hepatotoxicity=
-Photosensitivity=
-Meta-Stim=
-Fungal Infection=
-Drunk=
-Hangover=
-body temp=
-Caveman in ice=
-Frozen=
-Frostbitten=
-Chilled=
-Too warm=
-Heat stroke=
-Cooked=
-Bones and ash=
-Exhausted=
-Weary=
-Tired=
-Well-rested=
-Starving=
-Thin=
-Well-fed=
-Dying of thirst=
-Very thirsty=
-Thirsty=
-Resting=
-(Shivering)=
-poorly=
-comfortably=
-(Sweating)=
-
-
-##### not used anymore #####
-
-Health:=Santé : 
-Energy:=Énergie : 
-Thirst:=Soif : 
-Hunger:=Faim : 
-Body Temp:=Corps : 
-Temp:=Temp : 
-Effects:=Effets : 
+This is inedible.=C'est immangeable.
+Eat=Manger
+Food Poisoning=Intoxication alimentaire
+Dust Fever=Fièvre de poussière
+Intestinal Parasites=Parasites intestinaux
+Tiku High=Tiku High
+Neurotoxicity=Neurotoxicité
+Hepatotoxicity=Hépatotoxicité
+Photosensitivity=Photosensibilité
+Meta-Stim=Meta-Stim
+Fungal Infection=Infection fongique
+Drunk=Ivre
+Hangover=Gueule de bois
+body temp=température corporelle
+Caveman in ice=Homme des cavernes dans la glace
+Frozen=Gelé
+Frostbitten=Engelure
+Chilled=Frigorifié
+Too warm=Trop chaud
+Heat stroke=Coup de chaleur
+Cooked=Cuit
+Bones and ash=Os et cendres
+Exhausted=Épuisé
+Weary=Las
+Tired=Fatigué
+Well-rested=Bien reposé
+Starving=Affamé
+Thin=Maigre
+Well-fed=Bien nourri
+Dying of thirst=En train de mourir de soif
+Very thirsty=Très soif
+Thirsty=Assoiffé
+Resting=Au repos
+(Shivering)=(Frissonnant)
+poorly=mal
+comfortably=confortablement
+(Sweating)=(Transpirant)
