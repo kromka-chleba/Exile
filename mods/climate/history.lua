@@ -65,24 +65,13 @@ local function history(age)
    --age%len: if we run out of history, loop back and fake it from what we have
    age = age%(len)
    local x = tonumber("0x"..string.sub(climate_history, age+1, age+1))
-   -- age+1, strings don't start counting at 0 in lua because someone hates programmers
+   -- age+1, strings don't start counting at 0 in lua
+   --  because someone hates programmers
 
-   --Wish I had lua 5.3 bit operators, but some distros (mine) have old lua
-   if x >= 8 then
-      chunk.kill = true
-      return chunk
-   end
-   if x >= 4 then
-      chunk.rain = true
-      x = x - 4
-   end
-   if x >= 2 then
-      chunk.grow = true
-      x = x - 2
-   end
-   if x >= 1 then
-      chunk.sun = true
-   end
+   chunk.kill = bit.band(x,8) == 8
+   chunk.rain = bit.band(x,4) == 4
+   chunk.grow = bit.band(x,1) == 2
+   chunk.sun = bit.band(x,1) == 1
    return chunk
 end
 
