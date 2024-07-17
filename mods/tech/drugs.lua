@@ -200,7 +200,8 @@ minetest.register_craftitem("tech:mother_of_tang",{
     meta:set_int("mothering",1)
     ncrafting.ferment_on_construct(pos)
     if not minimal.player_in_creative(player) then
-      return itemstack:take_item()
+       itemstack:take_item()
+       return itemstack
     end
   end,
 })
