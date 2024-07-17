@@ -117,7 +117,7 @@ minetest.register_on_player_receive_fields(function(player,
     end
     update_inv()
   end
-  clear() 
+  clear()
 end)
 
 local function get_description(node,meta,bag_name,add_string)
@@ -257,7 +257,7 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
       add_string = " - "..S("@1/@2/@3", space_taken[1]..text_colours[3], space_taken[2]..text_colours[3], space_taken[3])
       -- add_string = " - "..S("@1/@2/@3", space_taken[1], space_taken[2], space_taken[3])
     end
-    
+
   else
     -- empty, no items, set empty_name
     bag_name = idef._empty_name
@@ -320,7 +320,8 @@ function backpacks.register_backpack(name, def)
   assert(type(def.sounds) == "table","backpacks.register_backpack: did not get a proper sounds table, got '"..type(def.sounds).."'")
   -- correct values
   def.description = def.description or ""
-  def.groups = def.groups or {}
+  def.groups = def.groups
+  if not def.groups.backpack then def.groups.backpack = 1 end
   -- permit texture/textures, def.tiles string
   def.texture = def.texture or def.textures or type(def.tiles) == "string" and def.tiles
   -- permit a tiles override
@@ -386,8 +387,8 @@ function backpacks.register_backpack(name, def)
     if minimal.in_group(node,"no_packdump") then return end
     local pname = player:get_player_name()
     if minetest.is_protected(pos,pname) then return end
-    show_packdump_formspec(pos, player, itemstack, 
-      (def.can_dump and not minimal.in_group(pos,"no_dump")), 
+    show_packdump_formspec(pos, player, itemstack,
+      (def.can_dump and not minimal.in_group(pos,"no_dump")),
       (def.can_pack and not minimal.in_group(pos,"no_pack")))
   end
   -- register backpack through storage.register_storage()
