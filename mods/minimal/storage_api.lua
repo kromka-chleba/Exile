@@ -138,9 +138,9 @@ local function to_burnt(pos)
   end
   -- check if burn_to node is a storage
   if minetest.get_item_group(burn_to.name,"storage") == 0 then
-    if type(stor_node["_on_dump"]) == "function" then
+    if type(stor_node.metadata_inventory_dump) == "function" then
       -- run on_dump code
-      stor_node._on_dump(pos)
+      stor_node.metadata_inventory_dump(pos)
     end
     -- do not continue code
     return
