@@ -123,9 +123,8 @@ local function to_burnt(pos)
     return
   end
   stor_node = minetest.registered_nodes[stor_node.name]
-  local burnable = stor_node.burnable
   local burn_to = stor_node.burn_to
-  if (type(burn_to) ~= "string" or not burnable) then
+  if type(burn_to) ~= "string" then
     -- can't be burned lol
     return
   end
@@ -139,9 +138,9 @@ local function to_burnt(pos)
   end
   -- check if burn_to node is a storage
   if minetest.get_item_group(burn_to.name,"storage") == 0 then
-    if type(stor_node["_on_dump"]) == "function" then
+    if type(stor_node.metadata_inventory_dump) == "function" then
       -- run on_dump code
-      stor_node._on_dump(pos)
+      stor_node.metadata_inventory_dump(pos)
     end
     -- do not continue code
     return
@@ -162,151 +161,119 @@ end
 function storage.register_storage(name,def)
   assert(type(name) == "string","mods/"..modname..".register_storage: No string provided for name!")
   assert(type(def) == "table","mods/"..modname..".register_storage: No table provided for definition!")
+  
+  def.groups = def.groups or {}
+  def.groups.storage = 1
+  def.stack_max = def.stack_max or minimal.stack_max_bulky
+  def.drawtype = def.drawtype or "nodebox"
+  def.node_box = def.node_box or def.drawtype == "nodebox" and {
+    -- basic storage container shape
+    type = "fixed",
+    fixed = {
+      {-0.375, -0.5, -0.375, 0.375, -0.375, 0.375},
+      {-0.375, 0.375, -0.375, 0.375, 0.5, 0.375},
+      {-0.4375, -0.375, -0.4375, 0.4375, -0.25, 0.4375},
+      {-0.4375, 0.25, -0.4375, 0.4375, 0.375, 0.4375},
+      {-0.5, -0.25, -0.5, 0.5, 0.25, 0.5},
+    }
+  }
+  def.paramtype = "light"
+  -- custom values
+  -- formspec for storage inventory
+  def.formspec_width = def.formspec_width or 8
+  def.formspec_height = def.formspec_height or 4
+  -- integers only
+  def.formspec_width = math.ceil(def.formspec_width)
+  def.formspec_height = math.ceil(def.formspec_height)
+  -- automatic protection
+  def.protected = def.protected == true and true or false
+  -- can be dug if there's itemstacks inside (default false)
+  def.can_dig_when_inventory = def.can_dig_when_inventory == true and true or false
+  -- legacy usage for flammable setting
+  def.groups.flammable = def.groups.flammable or def.burnable and 1
+  def.burnable = nil
+  -- what to burn to when set ablaze, sets a default if flammable
+  def.burn_to = def.burn_to or def.groups.flammable and "minimal:burnt_storage_pile" or nil
+  -- functions
+  def.allow_metadata_inventory_move = def.allow_metadata_inventory_move or
+  function(pos, from_list, from_index, to_list, to_index, count, player)
+    if can_interact(pos, player) then
+      return count
+    end
+    return 0
+  end
 
-  local basedef = {
-    drawtype = "nodebox",
-    paramtype = "light",
-    stack_max = minimal.stack_max_bulky,
-    node_box = {
-      type = "fixed",
-      fixed = {
-        {-0.375, -0.5, -0.375, 0.375, -0.375, 0.375},
-        {-0.375, 0.375, -0.375, 0.375, 0.5, 0.375},
-        {-0.4375, -0.375, -0.4375, 0.4375, -0.25, 0.4375},
-        {-0.4375, 0.25, -0.4375, 0.4375, 0.375, 0.4375},
-        {-0.5, -0.25, -0.5, 0.5, 0.25, 0.5},
-      }
-		},
-    groups = {storage = 1},
-    -- formspec
-    formspec_width = 8,
-    formspec_height = 4,
-    -- other values
-    protected = false, -- whether or not the storage placed is protected
-    can_dig_when_inventory = false, -- can be dug when the storage has inventory
-    burn_to = "minimal:burnt_storage_pile",
-    -- functions
-    allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-      if can_interact(pos, player) then
-        return count
-      end
-      return 0
-    end,
-
-    allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-      if can_interact(pos, player)
-      and minetest.get_item_group(stack:get_name(),"backpack") == 0 then
-        return stack:get_count()
-      elseif minetest.get_item_group(stack:get_name(),"backpack") > 0 then
-        local imeta = stack:get_meta()
-        local inv_list = imeta:get_string("inv_main") -- custom inventory metastring for bags
-        if inv_list == "" then
-          inv_list = {}
-        else
-          -- got an actual serialized table, deserialize
-          inv_list = minetest.deserialize(inv_list)
-          for invdex,content in pairs(inv_list) do
-            if content == "" then
-              -- remove index manually, table.remove did not work lol
-              inv_list[invdex] = nil
-            end
+  def.allow_metadata_inventory_put = def.allow_metadata_inventory_put or
+  function(pos, listname, index, stack, player)
+    if can_interact(pos, player)
+    and minetest.get_item_group(stack:get_name(),"backpack") == 0 then
+      return stack:get_count()
+    elseif minetest.get_item_group(stack:get_name(),"backpack") > 0 then
+      local imeta = stack:get_meta()
+      local inv_list = imeta:get_string("inv_main") -- custom inventory metastring for bags
+      if inv_list == "" then
+        inv_list = {}
+      else
+        -- got an actual serialized table, deserialize
+        inv_list = minetest.deserialize(inv_list)
+        for invdex,content in pairs(inv_list) do
+          if content == "" then
+            -- remove index manually, table.remove did not work lol
+            inv_list[invdex] = nil
           end
         end
-        -- allow putting empty bags in storage
-        if #inv_list <= 0 then
-          return stack:get_count()
-        end
       end
-      return 0
-    end,
-
-    allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-      if can_interact(pos, player) then
+      -- allow putting empty bags in storage
+      if #inv_list <= 0 then
         return stack:get_count()
       end
-      return 0
-    end,
-
-    on_blast = function(pos)
-    end,
-    _on_dump = function(pos)
-      storage.dump_inventory(pos)
-    end,
-  }
-
-  -- add stuff from definition table
-  for var_name,var in pairs(def) do
-    if (var_name == "groups") then
-      basedef.groups = minimal.merge_tables(basedef.groups,var)
-    else
-      basedef[var_name] = var
     end
+    return 0
   end
 
-  -- remove base node_box if drawtype isn't a nodebox
-  if basedef.drawtype ~= "nodebox" then
-    basedef.node_box = nil
+  def.allow_metadata_inventory_take = def.allow_metadata_inventory_take or
+  function(pos, listname, index, stack, player)
+    if can_interact(pos, player) then
+      return stack:get_count()
+    end
+    return 0
   end
 
-  -- don't be silly, we don't like floats
-  basedef.formspec_width = math.ceil(basedef.formspec_width)
-  basedef.formspec_height = math.ceil(basedef.formspec_height)
-
-  -- formspec details (necessary for some functions)
-  local width = basedef.formspec_width
-  local height = basedef.formspec_height
-  -- adding further functions
-  if not basedef.can_dig then
-    basedef.can_dig = function(pos, player)
-      return storage.can_dig(pos, player, basedef.can_dig_when_inventory)
-    end
+  def.on_blast = def.on_blast or function(pos) end
+  def.metadata_inventory_dump = def.metadata_inventory_dump or function(pos)
+    storage.dump_inventory(pos)
   end
-  if not basedef.on_construct then
-    basedef.on_construct = function(pos)
-      storage.on_construct(pos, width, height)
-    end
-  end
-  if not basedef.after_place_node then
-    basedef.after_place_node = function(pos, placer, itemstack, pointed_thing)
-      --Update formspec and infotext
-      if (minetest.is_player(placer) and basedef.protected == true) then
-        local p_name = placer:get_player_name() or ""
-        minetest.get_meta(pos):set_string("owner", p_name)
-      end
-      storage.on_construct(pos, width, height)
-    end
-  end
-  if not basedef.on_receive_fields then
-    basedef.on_receive_fields = function(pos, formname, fields, sender)
-      storage.on_receive_fields(pos, formname, fields, sender, width, height)
-    end
+  -- declaring locals for formspec details (makes it easier to set up functions)
+  local width = def.formspec_width
+  local height = def.formspec_height
+  -- basic functions
+  def.can_dig = def.can_dig or function(pos, player)
+    return storage.can_dig(pos, player, def.can_dig_when_inventory)
   end
 
-  -- if a flammable group is specified, set as burnable
-  if (basedef.groups.flammable and basedef.groups.flammable > 0) then
-    basedef.burnable = true
+  def.on_receive_fields = def.on_receive_fields or function(pos, formname, fields, sender)
+    storage.on_receive_fields(pos, formname, fields, sender, width, height)
   end
-  -- custom burnable
-  if basedef.burnable == true then
-    if not basedef.on_burn then
-      basedef.on_burn = function(pos)
-        to_burnt(pos)
-      end
+
+  def.on_construct = def.on_construct or function(pos)
+    storage.on_construct(pos, width, height)
+  end
+
+  def.after_place_node = def.after_place_node or function(pos, placer, itemstack, pointed_thing)
+    --Update formspec and infotext
+    if (minetest.is_player(placer) and def.protected == true) then
+      local p_name = placer:get_player_name() or ""
+      minetest.get_meta(pos):set_string("owner", p_name)
     end
-    -- add "flammable" group if not specified
-    local found_flammable = false
-    for group_name,value in pairs(basedef.groups) do
-      if (group_name == "flammable" and value > 0) then
-        found_flammable = true
-      end
-    end
-    if (found_flammable == false) then
-      basedef.groups.flammable = 1
-    end
+    storage.on_construct(pos, width, height)
+  end
+
+  def.on_burn = def.on_burn or def.burn_to and function(pos)
+    to_burnt(pos)
   end
 
   -- register the node
-  minetest.register_node(name,basedef)
+  minetest.register_node(name,def)
 end
 
 -- burnt storage pile code

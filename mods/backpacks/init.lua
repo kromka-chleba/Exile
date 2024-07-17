@@ -320,8 +320,10 @@ function backpacks.register_backpack(name, def)
   assert(type(def.sounds) == "table","backpacks.register_backpack: did not get a proper sounds table, got '"..type(def.sounds).."'")
   -- correct values
   def.description = def.description or ""
-  def.groups = def.groups
-  if not def.groups.backpack then def.groups.backpack = 1 end
+  def.groups = def.groups or {}
+  def.groups.backpack = 1
+  -- if dig_immediate is 0 or less then remove from groups
+  def.groups.dig_immediate = def.groups.dig_immediate and (def.groups.dig_immediate > 0 and def.groups.dig_immediate or nil) or 3
   -- permit texture/textures, def.tiles string
   def.texture = def.texture or def.textures or type(def.tiles) == "string" and def.tiles
   -- permit a tiles override
