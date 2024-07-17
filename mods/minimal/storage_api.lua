@@ -123,9 +123,8 @@ local function to_burnt(pos)
     return
   end
   stor_node = minetest.registered_nodes[stor_node.name]
-  local burnable = stor_node.burnable
   local burn_to = stor_node.burn_to
-  if (type(burn_to) ~= "string" or not burnable) then
+  if type(burn_to) ~= "string" then
     -- can't be burned lol
     return
   end
