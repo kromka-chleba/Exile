@@ -102,15 +102,19 @@ It is recommended to set `exile_hud_update` to `1.0` second for multiplayer serv
 
 If you're compiling your own Minetest, it may be useful to edit src/server/luaentity_sao.cpp to remove lines 347-351, removing the code from `actionstream << puncher->getDescription` through `") punched "` on down to ` << std::endl;` as that code will result in a great deal of unwanted log messages caused by animals attacking each other.
 
+The utilities folder contains a *nix startup script, named startexile.sh. Edit the file to customize the paths, and run it with "./startexile.sh" and "./startexile.sh close" to shut the server down.
+
 ## Mods for Multiplayer
 - [Wield3d](https://github.com/stujones11/wield3d) is recommended.
 - [`Alternode`](https://github.com/AntumMT/mod-alternode) was used to add the “infotext” popups in the spawn shelter on the [Land of Catastrophe](https://exile.planetofnix.com/wiki/pmwiki.php?n=Loc.LandOfCatastrophe) server.
+- [Visual Harm 1ndicators](https://codeberg.org/Mantar/vis_harm_1nd) will add hp bars over the heads of mobs and players
+- [Unicode Signs](https://content.minetest.net/packages/cora/ucsigns/) allows players to craft signs from logs (Minetest 5.6+ required)
+- [Dynamic Input Held Eating](https://content.minetest.net/packages/TPH/tph_eating/) alters eating to require holding the button down
 
 ## Development
 _Exile_ is open-source software — that means the game is as good as you choose to make it. It also means development can be erratic and haphazard at times, so be patient!
 
-_Exile_ is currently in “Alpha,” therefore you can expect that there may be bugs, missing features, performance issues, and perhaps compatibility-breaking updates.
-Despite this, _Exile_ does have enough features to be a playable game and should be stable and mostly bug-free.
+_Exile_ is technically in “Alpha,” as there are still a number of missing features planned. Despite this status, it is as stable and as bug-free as we can make it, and we take great care to ensure compatibilty with existing worlds is maintained between releases.
 
 See the [GitHub repository](https://codeberg.org/Mantar/Exile) for known bugs, and to report new ones.
 
