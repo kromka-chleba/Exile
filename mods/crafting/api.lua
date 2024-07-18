@@ -587,9 +587,8 @@ function crafting.register_on_craft(func)
 end
 
 function crafting.perform_craft(name, inv, listname, outlistname, recipe)
-   local items = crafting.find_required_items(inv, listname, recipe)
-   --print ("Perform_crafting() "..dump(items))
-   if not items then
+   local takenitems = crafting.find_required_items(inv, listname, recipe)
+   if not takenitems then
       return false
    end
 
@@ -602,21 +601,29 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 
    -- Take items
    local taken = {}
-   for _, item in pairs(items) do
-      item = ItemStack(item)
-      local count = item:get_count()
+   for _, need in pairs(recipe.items) do
+      need = ItemStack(need)
+      local reqcount = need:get_count()
+      --print("Need ",reqcount," of ",need:get_name())
       local tcount = 0;
-      for _, list in ipairs(listname) do
-	 local took = inv:remove_item(list, item)
-	 if took:get_count() > 0 then
-	    taken[#taken + 1] = took
-	    tcount = tcount + took:get_count()
-	    if tcount == count then
-	       break -- found so done
+      for _, have in pairs(takenitems) do
+	 have = ItemStack(have)
+	 for _, list in ipairs(listname) do
+	    local took = inv:remove_item(list, have)
+	    if took:get_count() > 0 then
+	       taken[#taken + 1] = took
+	       tcount = tcount + took:get_count()
+	       if tcount == reqcount then
+		  break -- found so done
+	       end
 	    end
 	 end
+	 --print("TCount: ",tcount," Reqcount: ",reqcount)
+	 if tcount == reqcount then
+	    break -- found so done
+	 end
       end
-      if  tcount ~= count then
+      if tcount ~= reqcount then
 	 minetest.log("error", "Unexpected lack of items in inventory")
 	 give_all_to_player(inv, taken)
 	 return false
