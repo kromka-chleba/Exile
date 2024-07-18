@@ -427,7 +427,7 @@ function doors.register(name, def)
 	def.drawtype = "mesh"
 	def.paramtype = "light"
 	def.paramtype2 = "facedir"
-	def.use_texture_alpha = c_alpha.clip
+	def.use_texture_alpha = def.use_texture_alpha or c_alpha.clip
 	def.sunlight_propagates = false
 	def.walkable = true
 	def.is_ground_content = false
@@ -603,10 +603,10 @@ function doors.register_trapdoor(name, def)
 	def_closed.tiles = {
 		def.tile_front,
 		def.tile_front .. '^[transformFY',
-		def.tile_side,
-		def.tile_side,
-		def.tile_side,
-		def.tile_side
+		{ name = def.tile_side, backface_culling = false },
+		{ name = def.tile_side, backface_culling = false },
+		{ name = def.tile_side, backface_culling = false },
+		{ name = def.tile_side, backface_culling = false },
 	}
 
 	def_opened.node_box = {
