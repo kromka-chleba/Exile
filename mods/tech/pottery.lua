@@ -361,6 +361,46 @@ minetest.register_node("tech:clay_oil_lamps",{ -- ^[multiply:#493625
   drop = "tech:clay_oil_lamp_unlit 4",
 })
 
+local spilltimer = {}
+
+minetest.register_entity("tech:oil_spiller", {
+   initial_properties = {collisionbox = {0, 0.0, 0, 0.001, 0.001, 0.001},
+			 is_visible = true,
+			 visual="sprite",
+			 visual_size = { x=1,y=1,z=1 },
+			 textures = { "tech_vegetable_oil.png^[opacity:0" },
+			 physical = true
+			},
+   on_step = function(self, dtime, moveresult)
+      if not spilltimer[self] then spilltimer[self] = 0 end
+      spilltimer[self] = spilltimer[self] + dtime
+      self.object:add_velocity(vector.new(0,-9 * dtime, 0))
+      if spilltimer[self] > 6 then
+	 self.object:remove()
+      end
+   end
+})
+
+local function spilled_oil(pos, fuel_lost) -- particles for oil loss
+   local amt = math.ceil(1000/3100 * fuel_lost)
+   -- ~1 particle per 4.1 units, max 2000 for 100% of fuel, which won't happen
+   --print("AMOUNT: ",amt," Fuel_lost: ",fuel_lost)
+   local spread = .10 + ( .001 * amt )
+   minetest.add_particlespawner({
+		 amount = math.ceil(amt)+5,
+		 time = 3,
+		 minexptime = 3, maxexptime = 4,
+		 minvel = {x=-spread, y=0, z=-spread},
+		 maxvel = {x=spread, y=-0.5, z=spread},
+		 minacc = {x=0, y=-9, z=0},
+		 maxacc = {x=0, y=-9.5, z=0},
+		 minsize = .3, maxsize = .3,
+		 collisiondetection = true,
+		 attached = minetest.add_entity(pos, "tech:oil_spiller"),
+		 texture = "tech_vegetable_oil.png",
+	   })
+end
+
 local function register_lamps(desc, oil_lamp_data, alterscript)
    local basedef = {
       description = desc.unlit,
@@ -518,6 +558,17 @@ register_lamps(
 	       return itemstack
 	    end
 	    return minetest.item_place_node(itemstack, placer, pointed_thing, 0)
+	 end
+	 def.preserve_metadata = function(pos, oldnode, oldmeta, drops)
+	    local imeta = drops[1]:get_meta()
+	    if (not oldmeta) then return end
+	    if oldmeta.fuel then
+	       local loss =   100 + oldmeta.fuel * .05 * math.random(1,6)
+	       -- 100 + 5-30% loss
+	       local fuel = oldmeta.fuel - loss
+	       spilled_oil(pos, loss)
+	       imeta:set_string("fuel", fuel)
+	    end
 	 end
       end
    end
