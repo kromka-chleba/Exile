@@ -1,4 +1,11 @@
 # Changelog:
+## [2024-07-18][2023-07-18__0.3.18]
+   - Added glass doors and trapdoors
+   - Hang an oil lamp from the ceiling
+   - Support for the Unicode Signs [ucsigns] mod
+   - Better texture for roof/floor tiles
+   - Inventory images for coarse & fine fabrics
+
 ## [2024-06-04][2023-06-04__0.3.17f]
    - Potash liquid is caustic
 
