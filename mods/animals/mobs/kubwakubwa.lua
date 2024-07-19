@@ -165,7 +165,6 @@ local self_data = {
 	springiness=0,
 	buoyancy = 1.01,
 	max_speed = 0.75,					-- m/s
-	jump_height = 1.5,				-- nodes/meters
 	view_range = 10,					-- nodes/meters
 	--attack
 	attack={range=0.4, damage_groups={fleshy=4}},

@@ -82,8 +82,7 @@ local function brain(self)
       local tod = animals.timeofday()
 
       local pregnant = self.age >= self.mature_age and self.energy >= self.energy_max
-      local can_reproduce = pregnant and (random() < 0.01 and not rival
-      and light < 10 and tod == "night" and self.hp >= self.max_hp)
+      local can_reproduce = pregnant and (random() < 0.004 and not rival and tod == "night" and self.hp >= self.max_hp)
 
 			if pregnant then
 			   -- heavy with eggs, sink to look for a laying spot
@@ -153,7 +152,7 @@ local self_data = {
   young_per_egg = {1,3},		--will get this/energy_egg starting energy
   -- lifespan
   lifespan = "energy_max*8",
-  mature_age = "energy_max*0.3", -- 30% of energy_max (14000) or 4200
+  mature_age = "energy_max*0.6", -- 50% of energy_max (14000) or 8400
   -- interactions
   -- prey + rivals automatically defined in registration
   capture_interactions = {
