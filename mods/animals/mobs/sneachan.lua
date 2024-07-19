@@ -187,7 +187,6 @@ self_data = animals.register_animal("animals:sneachan",{
 	springiness=0,
 	buoyancy = 1.01,
 	max_speed = 1,					-- m/s
-	jump_height = 1,				-- nodes/meters
 	view_range = 2,					-- nodes/meters
 	--attack
 	attack={range=0.3, damage_groups={fleshy=1}},
