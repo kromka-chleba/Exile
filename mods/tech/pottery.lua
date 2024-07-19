@@ -595,6 +595,14 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
+--hanging oil lamp
+crafting.register_recipe({
+	type = "crafting_spot",
+	output = "tech:clay_oil_lamp_hanging_unlit 1",
+	items = {"tech:clay_oil_lamp_unlit", "group:fibrous_plant"},
+	level = 1,
+	always_known = true,
+})
 
 crafting.register_recipe({
 	type = "mixing_spot",
