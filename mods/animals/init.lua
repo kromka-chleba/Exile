@@ -12,9 +12,9 @@ dofile(path.."/api.lua")
 local mobs_folder = minetest.get_dir_list(path.."/mobs") -- get each file in folder
 for _,file in pairs(mobs_folder) do
   -- run any lua file inside of "animals/mobs" (put animals in here)
-  if string.match(file,".lua") then
-    dofile(path.."/mobs/"..file)
-  end
+   if file:sub(#file-3,#file) == ".lua" then
+      dofile(path.."/mobs/"..file)
+   end
 end
 
 ---
