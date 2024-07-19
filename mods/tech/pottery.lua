@@ -517,7 +517,7 @@ register_lamps(
 	    if not valid then
 	       return itemstack
 	    end
-	    minetest.item_place_node(itemstack, placer, pointed_thing, 0)
+	    return minetest.item_place_node(itemstack, placer, pointed_thing, 0)
 	 end
       end
    end
