@@ -60,7 +60,7 @@ minetest.register_node("tech:ruined_pottery",{
     minetest.set_node(pos,{name = "nodes_nature:clay"})
   end,
 })
--- #TODO remove lbm after v4 release 
+-- #TODO remove lbm after v4 release
 -- replace legacy ruined pottery sediment registration
 minetest.register_lbm({
   label = "Update ruined pottery",
@@ -361,140 +361,168 @@ minetest.register_node("tech:clay_oil_lamps",{ -- ^[multiply:#493625
   drop = "tech:clay_oil_lamp_unlit 4",
 })
 
-local oil_lamp_desc = lightsource_description.new(
-    {lit_name = "tech:clay_oil_lamp", unlit_name = "tech:clay_oil_lamp_unlit",
-     fuel_name = "tech:vegetable_oil", max_fuel = 3100,
-     burn_rate = 5, refill_ratio = 1/2, put_out_by_moisture = true})
+local function register_lamps(desc, oil_lamp_data, alterscript)
+   local basedef = {
+      description = desc.unlit,
+      tiles = {
+	 "tech_oil_lamp_top.png",
+	 "tech_oil_lamp_bottom.png",
+	 "tech_oil_lamp_side.png",
+	 "tech_oil_lamp_side.png^[transformFX",
+	 "tech_oil_lamp_front.png",
+	 "tech_oil_lamp_front.png"
+      },
+      drawtype = "nodebox",
+      stack_max = minimal.stack_max_medium,
+      paramtype = "light",
+      sunlight_propagates = true,
+      paramtype2 = "facedir",
+      use_texture_alpha = c_alpha.clip,
+      node_box = {
+	 type = "fixed",
+	 fixed = {
+	    {-0.125, -0.5, -0.125, 0.125, -0.4375, 0.125}, -- bottom
+	    {-0.0625, -0.4375, -0.0625, 0.0625, -0.3125, 0.0625}, -- stand
+	    {-0.125, -0.3125, -0.125, 0.125, -0.125, 0.125}, -- body
+	    {-0.0625, -0.25, 0.125, 0.0625, -0.125, 0.25}, -- spout
+	    {-0.0625, -0.1875, -0.1875, 0.0625, -0.125, -0.125}, -- handle
+	    {-0.0625, -0.3125, -0.1875, 0.0625, -0.25, -0.125}, -- handle
+	    {-0.0625, -0.3125, -0.25, 0.0625, -0.125, -0.1875}, -- handle
+	 }
+      },
+      groups = {dig_immediate=3, pottery = 1, temp_pass = 1, falling_node = 1},
+      sounds = nodes_nature.node_sound_stone_defaults(),
+      floodable = true,
+      on_flood = function(pos, oldnode, newnode)
+	 local fuel = minetest.get_meta(pos):get_int("fuel")
+	 fuel = (fuel/3100)*100 - math.random(2,4)
+	 if fuel >= 50 then
+	    minetest.add_item(pos,oil_lamp_data.fuel_name)
+	 end
+	 minetest.add_item(pos, ItemStack(oil_lamp_data.unlit_name))
+	 return false
+      end,
+      on_construct = function(pos)
+	 lightsource.update_fuel_infotext(oil_lamp_data, pos)
+      end,
+      after_place_node = function(pos, placer, itemstack, pointed_thing)
+	 lightsource.restore_from_inventory(oil_lamp_data, pos, itemstack)
+	 lightsource.update_fuel_infotext(oil_lamp_data, pos)
+      end,
+      on_dig = function(pos, node, digger)
+	 lightsource.save_to_inventory(oil_lamp_data, pos, digger, false)
+      end,
+      on_ignite = function(pos, user)
+	 lightsource.ignite(oil_lamp_data, pos)
+      end,
+      on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+	 lightsource.refill(oil_lamp_data, pos, clicker, itemstack)
+      end,
+   }
 
+   local function animated(tname, reverse)
+      return {
+	 name = tname.."_animated.png"..( reverse and "^[transformFX" or ""),
+	 animation = {type = "vertical_frames",
+		      aspect_w = 16, aspect_h = 16, length = 3.3} }
+   end
+
+   local litdef = table.copy(basedef) -- Now the lit version
+   litdef.description = desc.lit
+   litdef.tiles[3] = animated("tech_oil_lamp_side")
+   litdef.tiles[4] = animated("tech_oil_lamp_side",true)
+   litdef.light_source = 7
+   table.insert(litdef.node_box.fixed,
+		{-0.0625, -0.125, 0.25, 0.0625, 0.0625, 0.4375} ) -- flame
+   litdef.groups.not_in_creative_inventory = 1
+   litdef.on_construct = function(pos)
+      lightsource.start_burning(oil_lamp_data, pos)
+   end
+   litdef.on_timer = function(pos, elapsed)
+      return lightsource.burn_fuel(oil_lamp_data, pos)
+   end
+   litdef.on_ignite = function(pos, user)
+      lightsource.ignite(oil_lamp_data, pos)
+   end
+   litdef.on_rightclick = function(pos, node, clicker,
+				   itemstack, pointed_thing)
+      local rt = lightsource.refill(oil_lamp_data, pos, clicker, itemstack)
+      if rt == false then
+	 lightsource.extinguish(oil_lamp_data, pos)
+      end
+      lightsource.update_fuel_infotext(oil_lamp_data, pos)
+   end
+
+   if alterscript then
+      alterscript(basedef, litdef, oil_lamp_data)
+   end
+
+   minetest.register_node(oil_lamp_data.unlit_name, basedef)
+   minetest.register_node(oil_lamp_data.lit_name, litdef)
+end
 
 --fired oil clay lamp
-minetest.register_node("tech:clay_oil_lamp_unlit", {
-	description = S("Clay Oil Lamp"),
-	tiles = {
-		"tech_oil_lamp_top.png",
-		"tech_oil_lamp_bottom.png",
-		"tech_oil_lamp_side.png",
-		"tech_oil_lamp_side.png^[transformFX",
-		"tech_oil_lamp_front.png",
-		"tech_oil_lamp_front.png"
-	},
-	drawtype = "nodebox",
-	stack_max = 4,
-	paramtype = "light",
-	paramtype2 = "facedir",
-	use_texture_alpha = c_alpha.clip,
-	node_box = {
-		type = "fixed",
-		fixed = {
-			--{-0.0625, -0.125, 0.25, 0.0625, 0.0625, 0.4375}, -- flame
-			{-0.125, -0.5, -0.125, 0.125, -0.4375, 0.125}, -- bottom
-			{-0.0625, -0.4375, -0.0625, 0.0625, -0.3125, 0.0625}, -- stand
-			{-0.125, -0.3125, -0.125, 0.125, -0.125, 0.125}, -- body
-			{-0.0625, -0.25, 0.125, 0.0625, -0.125, 0.25}, -- spout
-			{-0.0625, -0.1875, -0.1875, 0.0625, -0.125, -0.125}, -- handle
-			{-0.0625, -0.3125, -0.1875, 0.0625, -0.25, -0.125}, -- handle
-			{-0.0625, -0.3125, -0.25, 0.0625, -0.125, -0.1875}, -- handle
-		}
-	},
-	groups = {dig_immediate=3, pottery = 1, temp_pass = 1, falling_node = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
-	floodable = true,
-	on_flood = function(pos, oldnode, newnode)
-            local fuel = minetest.get_meta(pos):get_int("fuel")
-            fuel = (fuel/3100)*100 - math.random(2,4)
-            if fuel >= 50 then
-              minetest.add_item(pos,"tech:vegetable_oil")
-            end
-            minetest.add_item(pos, ItemStack("tech:clay_oil_lamp_unlit 1"))
-            return false
-	end,
-        on_construct = function(pos)
-            lightsource.update_fuel_infotext(oil_lamp_desc, pos)
-        end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            lightsource.restore_from_inventory(oil_lamp_desc, pos, itemstack)
-            lightsource.update_fuel_infotext(oil_lamp_desc, pos)
-        end,
-        on_dig = function(pos, node, digger)
-            lightsource.save_to_inventory(oil_lamp_desc, pos, digger, false)
-        end,
-        on_ignite = function(pos, user)
-            lightsource.ignite(oil_lamp_desc, pos)
-        end,
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            lightsource.refill(oil_lamp_desc, pos, clicker, itemstack)
-        end,
-})
 
---full oil clay lamp
-minetest.register_node("tech:clay_oil_lamp", {
-	description = S("Clay Oil Lamp (lit)"),
-	tiles = {
-		"tech_oil_lamp_top.png",
-		"tech_oil_lamp_bottom.png",
-		{
-                    name = "tech_oil_lamp_side_animated.png",
-                    animation = {type = "vertical_frames", aspect_w = 16, aspect_h = 16, length = 3.3}
-		},
-		{
-                    name = "tech_oil_lamp_side_animated.png^[transformFX",
-                    animation = {type = "vertical_frames", aspect_w = 16, aspect_h = 16, length = 3.3}
-		},
-		"tech_oil_lamp_front.png",
-		"tech_oil_lamp_front.png"
-	},
-	drawtype = "nodebox",
-	stack_max = minimal.stack_max_medium,
-	sunlight_propagates = true,
-	light_source = 7,
-	use_texture_alpha = c_alpha.clip,
-	paramtype = "light",
-	paramtype2 = "facedir",
-	node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.0625, -0.125, 0.25, 0.0625, 0.0625, 0.4375}, -- flame
-			{-0.125, -0.5, -0.125, 0.125, -0.4375, 0.125}, -- bottom
-			{-0.0625, -0.4375, -0.0625, 0.0625, -0.3125, 0.0625}, -- stand
-			{-0.125, -0.3125, -0.125, 0.125, -0.125, 0.125}, -- body
-			{-0.0625, -0.25, 0.125, 0.0625, -0.125, 0.25}, -- spout
-			{-0.0625, -0.1875, -0.1875, 0.0625, -0.125, -0.125}, -- handle
-			{-0.0625, -0.3125, -0.1875, 0.0625, -0.25, -0.125}, -- handle
-			{-0.0625, -0.3125, -0.25, 0.0625, -0.125, -0.1875}, -- handle
-		}
-	},
-	groups = {dig_immediate=3, pottery = 1, temp_pass = 1, falling_node = 1, not_in_creative_inventory = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
-	floodable = true,
-	on_flood = function(pos, oldnode, newnode)
-            local fuel = minetest.get_meta(pos):get_int("fuel")
-            fuel = (fuel/3100)*100 - math.random(2,4)
-            if fuel >= 50 then
-              minetest.add_item(pos,"tech:vegetable_oil")
-            end
-            minetest.add_item(pos, ItemStack("tech:clay_oil_lamp_unlit 1"))
-            return false
-	end,
-        on_construct = function(pos)
-            lightsource.start_burning(oil_lamp_desc, pos)
-	end,
-        on_timer = function(pos, elapsed)
-            return lightsource.burn_fuel(oil_lamp_desc, pos)
-	end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            lightsource.restore_from_inventory(oil_lamp_desc, pos, itemstack)
-        end,
-        on_dig = function(pos, node, digger)
-            lightsource.save_to_inventory(oil_lamp_desc, pos, digger, true)
-        end,
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-	   local rt = lightsource.refill(oil_lamp_desc, pos, clicker, itemstack)
-	   if rt == false then
-	      lightsource.extinguish(oil_lamp_desc, pos)
-	   end
-	   lightsource.update_fuel_infotext(oil_lamp_desc, pos)
-        end,
-})
+local oil_lamp_desc = lightsource_description.new(
+   {lit_name = "tech:clay_oil_lamp", unlit_name = "tech:clay_oil_lamp_unlit",
+    fuel_name = "tech:vegetable_oil", max_fuel = 3100,
+    burn_rate = 5, refill_ratio = 1/2, put_out_by_moisture = true})
+register_lamps(
+   {
+      unlit = S("Clay Oil Lamp"),
+      lit = S("Clay Oil Lamp (Lit)")
+   },
+   oil_lamp_desc)
+
+--hanging lamp
+local hanging_lamp_desc = lightsource_description.new(
+   {lit_name = "tech:clay_oil_lamp_hanging",
+    unlit_name = "tech:clay_oil_lamp_hanging_unlit",
+    fuel_name = "tech:vegetable_oil", max_fuel = 3100,
+    burn_rate = 5, refill_ratio = 1/2, put_out_by_moisture = true})
+register_lamps(
+   {
+      unlit = S("Hanging Oil Lamp"),
+      lit = S("Hanging Oil Lamp (Lit)")
+   },
+   hanging_lamp_desc,
+   function(udef, ldef, oil_lamp_data)
+      for _, def in pairs({udef, ldef}) do
+	 table.insert(def.node_box.fixed, -- add the string it hangs from
+		      {-0.001, -0.125, -0.1875, 0.001, 0.5, 0.125} )
+	 def.groups.attached_node = 1
+	 def.groups.falling_node = nil
+	 def.paramtype2 = "wallmounted" -- hangs upside down, so
+	 for i = 1,#def.node_box.fixed do -- Invert the nodebox
+	    def.node_box.fixed[i][2] = def.node_box.fixed[i][2] * -1
+	    def.node_box.fixed[i][5] = def.node_box.fixed[i][5] * -1
+	 end
+	 for i = 1,#def.tiles do -- and invert the textures
+	    if type(def.tiles[i]) == "string" then
+	       def.tiles[i] = def.tiles[i].."^[transformFY"
+	    else
+	       def.tiles[i].name = def.tiles[i].name.."^[transformFY"
+	    end
+	 end
+	 def.node_placement_prediction = ""
+	 def.on_place = function(itemstack, placer, pointed_thing)
+	    local dest = pointed_thing.above
+	    local over = vector.new(dest.x, dest.y + 1,dest.z)
+	    local hangfrom = minetest.get_node(over).name
+	    local valid = false
+	    if minetest.registered_nodes[hangfrom]
+	       and minetest.registered_nodes[hangfrom].walkable == true then
+	       valid = true
+	    end
+	    if not valid then
+	       return itemstack
+	    end
+	    minetest.item_place_node(itemstack, placer, pointed_thing, 0)
+	 end
+      end
+   end
+)
+
 
 --unfired watering can
 minetest.register_node("tech:clay_watering_can_unfired", {
