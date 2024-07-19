@@ -634,6 +634,14 @@ crafting.register_recipe({
 	always_known = true,
 })
 
+--Hanging oil lamp
+crafting.register_recipe({
+	type = {"crafting_spot","hand_pottery"},
+	output = "tech:clay_oil_lamp_hanging_unlit 1",
+	items = {"tech:clay_oil_lamp_unlit", "group:fibrous plant"},
+	level = 1,
+	always_known = true,
+})
 --Break up pots
 crafting.register_recipe({
 	type = {"mixing_spot","hand_pottery"},
