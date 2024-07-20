@@ -108,10 +108,10 @@ local function brain(self)
         end
       -- social
 			else
-				if random()< 0.3 then
-					animals.flock(self, self.view_range, 3)
-				elseif random()< (male and 0.7 or 0.01) then
+        -- territorial
+				if random()< (male and 0.7 or 0.01) then
 					animals.territorial(self, false)
+        -- sexual behaviours
 				elseif random() < (male and 0.4 or 0.6) then
           self.sexual = random() < 0.5 and self.hp >= self.max_hp and
             self.energy >= (male and self.energy_max*0.25 or self.energy * 1.5) and not self.pregnant
@@ -138,10 +138,17 @@ local function brain(self)
               animals.place_egg(self, pos)
               self:set('pregnant',false)
             end
-					--elseif self.sexual then
-						--I'm too tired darling
-						--self.sexual = false
 					end
+        -- flocking
+        elseif not animals.flock(self, 20, self.aggression_distance) then
+          -- hmm... they're not here...
+          if not animals.flock(self, 25, self.warn_distance) then
+            -- umm...
+            if not animals.flock(self, 35) then
+              -- where is everybody?? getting really worried here...
+              mobkit.hq_roam(self,40)
+            end
+          end
 				end
 			end
     end
@@ -359,6 +366,7 @@ local self_data = {
   capture_interactions = {
     club = 0.35,
   },
+  herding_distance = 2,
   sex = "female",
   -- logic for mobkit
   logic = brain,

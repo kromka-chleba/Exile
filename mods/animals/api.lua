@@ -2249,23 +2249,25 @@ function animals.hq_flock_water(self,prty,tgtobj, min_dist, speed)
 
 
 
-function animals.flock(self, prty, min_dist, aqua_speed)
+function animals.flock(self, prty, min_dist, herding_dist, aqua_speed)
+  min_dist = min_dist or self.view_range
+  herding_dist = herding_dist or self.herding_dist or self.herding_distance or min_dist * 0.25
 
   for  _, fr in ipairs(self.friends) do
 
     --local friend = mobkit.get_closest_entity(self, fr)
     local friend =mobkit.get_nearby_entity(self, fr)
 
-    if friend and (min_dist and get_dist(self, friend) <= min_dist) then
+    if friend and get_dist(self, friend) <= min_dist then
       --get distance, if too far away go to them
       if aqua_speed then
         mobkit.animate(self,'walk')
         mobkit.make_sound(self,'call')
-        animals.hq_flock_water(self, prty, friend, min_dist, aqua_speed)
+        animals.hq_flock_water(self, prty, friend, herding_dist, aqua_speed)
       else
         mobkit.animate(self,'walk')
         mobkit.make_sound(self,'call')
-        animals.hq_flock(self, prty, friend, min_dist)
+        animals.hq_flock(self, prty, friend, herding_dist)
       end
       return true
     end
