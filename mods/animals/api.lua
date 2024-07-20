@@ -2295,10 +2295,12 @@ function animals.hq_mate(self,prty,tgtobj)
         mobkit.make_sound(self,'mating')
         if self.sex == "male" then
           --get the other one pregnant
-          mobkit.remember(tgtobj,'pregnant',true)
+          tgtobj:set('pregnant',true)
+          --mobkit.remember(tgtobj,'pregnant',true)
         else
           --get pregnant
-          mobkit.remember(self,'pregnant',true)
+          self:set('pregnant',true)
+          --mobkit.remember(self,'pregnant',true)
         end
         return true
       else
@@ -2317,7 +2319,7 @@ function animals.mate_assess(self, name)
   if mate then
     --see if they are in the mood
     local ent = mate:get_luaentity()
-    local sexy = mobkit.recall(ent,'sexual') or false
+    local sexy = self.sexual
     local preg = mobkit.recall(ent,'pregnant') or false
     if sexy == true and preg == false then
       return ent
