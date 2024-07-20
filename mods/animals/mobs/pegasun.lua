@@ -49,7 +49,7 @@ local function brain(self)
 
     end
     local male = self.sex == "male" and true or false
-
+    self.pregnant = not male and (self.pregnant or (type(self.pregnant) ~= "boolean" and mobkit.recall(self,'pregnant'))) or false
 
 		----------------------
 		--Low priority actions
@@ -113,15 +113,16 @@ local function brain(self)
       -- social
       else
         self.sexual = self.age >= self.mature_age and self.hp >= self.max_hp and not self.pregnant
-          and self.energy >= (male and self.energy_max*0.25 or self.energy * 1.5)
+          and self.energy >= (male and self.energy_max*0.25 or self.energy_egg * 1.5)
         -- territorial
 				if random()< (male and 0.7 or 0.01) then
 					animals.territorial(self, false)
         -- sexual behaviours
-				elseif self.sexual and random() < (male and 0.4 or 0.6) then
+				elseif self.sexual and random() < (male and 0.7 or 0.5) then
           --we are randy
           mobkit.make_sound(self,'mating')
-          local mate = male and animals.mate_assess(self, 'animals:pegasun') or animals.mate_assess(self, 'animals:pegasun_male')
+          local mate = male and animals.mate_assess(self, 'animals:pegasun')
+            or not male and animals.mate_assess(self, 'animals:pegasun_male')
           if mate then
             if male then -- we're going in brothers
               -- go get her!
@@ -131,16 +132,15 @@ local function brain(self)
               --go get him!
               animals.hq_mate(self, 25, mate)
             end
-            self.sexual = false
+            --self.sexual = false
           elseif not animals.flock(self, 35) then -- find a mate
             mobkit.hq_roam(self,40)
           end
         --are we already pregnant?
-        elseif self.pregnant then
+        elseif random() < 0.05 and self.pregnant then
           mobkit.lq_idle(self,3)
-          if random() < 0.05 then
-            animals.place_egg(self, pos)
-            self:set('pregnant',false)
+          if animals.place_egg(self, pos) then
+            self:set('pregnant',false,true)
           end
         -- flocking
         elseif not animals.flock(self, 20, self.aggression_distance) then

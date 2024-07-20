@@ -664,6 +664,7 @@ function animals.place_egg(self, pos, medium, e_ov) -- self, position, medium, e
         -- set custom energy_egg
       end
       self:modify('energy',-e_egg)
+      return true
     end
 
   end
@@ -2297,13 +2298,12 @@ function animals.hq_mate(self,prty,tgtobj)
         mobkit.make_sound(self,'mating')
         if self.sex == "male" then
           --get the other one pregnant
-          tgtobj:set('pregnant',true)
-          --mobkit.remember(tgtobj,'pregnant',true)
+          tgtobj:set('pregnant',true,true)
         else
           --get pregnant
-          self:set('pregnant',true)
-          --mobkit.remember(self,'pregnant',true)
+          self:set('pregnant',true,true)
         end
+        self.sexual = false
         return true
       else
         mobkit.make_sound(self,'call')
@@ -2321,17 +2321,13 @@ function animals.mate_assess(self, name)
   if mate then
     --see if they are in the mood
     local ent = mate:get_luaentity()
-    local sexy = self.sexual
-    local preg = mobkit.recall(ent,'pregnant') or false
+    local sexy = (self.sexual and ent.sexual) and not self.sex == ent.sex
+    local preg = (self.sex == "female" and self or ent).pregnant or false
     if sexy == true and preg == false then
       return ent
-    else
-      return false
     end
-  else
-    return false
   end
-
+  return false
 end
 
 function animals.get_entities_inside_radius(creature,pos,radius,match_string)
