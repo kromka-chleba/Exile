@@ -59,20 +59,20 @@ local function brain(self)
 			--random choice between
 			--feeding, exploring, social
 			--chance differs by time
-      local ce = male and 0.5 or 0.4 -- chance explore (otherwise social)
+      local ce = male and 0.4 or 0.6 -- chance explore (otherwise social)
 			local tod = {animals.timeofday()}
 			if tod[1] == "night" then
 				--more social at night
-        ce = 0.01
+        ce = 0.08
 			elseif tod[1] == "day" and tod[2] == "mid" then
 				--explore during midday
-        ce = male and 0.6 or 0.5
+        ce = male and 0.6 or 0.9
 			end
-      local ceat = self.energy <= self.energy_max and (male and self.energy_max*.2 or self.energy_max*.3)/self.energy or 0
+      local ceat = self.energy <= self.energy_max and (male and self.energy_max*.25 or self.energy_max*.5)/self.energy or -1
       -- chance eat - creates a percentage by dividing a percentage of energy_max by the current energy
       -- The lower the energy, the higher the percentage
       -- If energy is equal or less than 25% of energy_max, it will be 1 or higher
-      ce = ce + (ceat*0.25) -- we're hungry, modify our chance to explore!
+      ce = ce + (ceat*0.5) -- we're hungry, modify our chance to explore!
 
       -- exploring
 			if random() < ce then
@@ -107,38 +107,37 @@ local function brain(self)
 					animals.hq_roam_comfort_temp(self,12, 21)
         end
       -- social
-			else
+      else
+        self.sexual = self.age >= self.mature_age and self.hp >= self.max_hp and not self.pregnant
+          and self.energy >= (male and self.energy_max*0.25 or self.energy * 1.5)
         -- territorial
 				if random()< (male and 0.7 or 0.01) then
 					animals.territorial(self, false)
         -- sexual behaviours
-				elseif random() < (male and 0.4 or 0.6) then
-          self.sexual = random() < 0.5 and self.hp >= self.max_hp and
-            self.energy >= (male and self.energy_max*0.25 or self.energy * 1.5) and not self.pregnant
-					--reproduction
-          if self.sexual then
-            --we are randy
-            mobkit.make_sound(self,'mating')
-            local mate = male and animals.mate_assess(self, 'animals:pegasun') or animals.mate_assess(self, 'animals:pegasun_male')
-            if mate then
-              if male then -- we're going in brothers
-                -- go get her!
-                self:modify('energy',-1000) -- energy use for mating lol
-                animals.hq_mate(self, 25, mate)
-              else
-                --go get him!
-                animals.hq_mate(self, 25, mate)
-              end
-              self.sexual = false
+				elseif self.sexual and random() < (male and 0.4 or 0.6) then
+          --we are randy
+          mobkit.make_sound(self,'mating')
+          local mate = male and animals.mate_assess(self, 'animals:pegasun') or animals.mate_assess(self, 'animals:pegasun_male')
+          if mate then
+            if male then -- we're going in brothers
+              -- go get her!
+              self:modify('energy',-1000) -- energy use for mating lol
+              animals.hq_mate(self, 25, mate)
+            else
+              --go get him!
+              animals.hq_mate(self, 25, mate)
             end
-          --are we already pregnant?
-          elseif self.pregnant then
-            mobkit.lq_idle(self,3)
-            if random() < 0.05 then
-              animals.place_egg(self, pos)
-              self:set('pregnant',false)
-            end
-					end
+            self.sexual = false
+          elseif not animals.flock(self, 35) then -- find a mate
+            mobkit.hq_roam(self,40)
+          end
+        --are we already pregnant?
+        elseif self.pregnant then
+          mobkit.lq_idle(self,3)
+          if random() < 0.05 then
+            animals.place_egg(self, pos)
+            self:set('pregnant',false)
+          end
         -- flocking
         elseif not animals.flock(self, 20, self.aggression_distance) then
           -- hmm... they're not here...
