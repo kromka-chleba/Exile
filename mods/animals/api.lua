@@ -1688,53 +1688,44 @@ end
 local function eat_sediment(pos,nodedef,grassy)
   --set node to it's drop
   --this is to scratch up surface layers
-  if (type(nodedef) == "string") then
-    -- got a name, find it
-    nodedef = minetest.registered_nodes[nodedef]
-  end
-  if (type(nodedef) ~= "table") then
-    -- don't cause error
-    return
-  end
-  if nodedef.param1 or nodedef.param2 then
-    -- got passed the get_node() instead of table
-    if not (nodedef.name) then
-      return
-    else
-      nodedef = minetest.registered_nodes[nodedef.name]
-      if not nodedef then
-        -- couldn't find nodedef, don't error
-        return
-      end
-    end
-  end
+  nodedef = type(nodedef) == "string" and nodedef or type(nodedef) == "table" and nodedef.name
+  nodedef = minetest.registered_nodes[nodedef]
+  if not nodedef then return end
 
   if (minetest.get_item_group(nodedef.name,"spreading") > 0 and grassy == true) then
     -- it's a grass, let's eat it and modify it (and if eating grass was desired)
     local sediment_name = nodedef._wet_salty_name -- use this to get the raw sediment
     -- (grassy _wet_salty variations of sediments do not exist)
-    local other_nodedef
-    if (sediment_name) then
-      sediment_name = string.gsub(sediment_name,"_wet_salty","") -- get raw sediment
-      other_nodedef = minetest.registered_nodes[sediment_name]
+    local dugdef -- dug definition - refers to the sediment being converted back into regular soil
+    if sediment_name then
+      sediment_name = sediment_name:gsub("_wet_salty","") -- get raw soil name
+      dugdef = minetest.registered_nodes[sediment_name]
     end
-    if (other_nodedef) then
-      if (string.match(nodedef.name,"_wet")) then
-        -- get wet if the grassy node is wet
-        local wet_name = other_nodedef._wet_name
-
-        other_nodedef = minetest.registered_nodes[wet_name]
+    if dugdef and nodedef.name:match("_wet") then -- check if original is wet
+      dugdef = minetest.registered_nodes[dugdef._wet_name]
+    end
+    if dugdef then
+      -- check slope
+      local slope = nodedef.name:match('slope') and (nodedef.name:match('inner') and 'inner_'
+        or nodedef.name:match('outer') and 'outer_' or nodedef.name:match('pike') and 'pike_' or '') or nil
+      slope = slope and "slope_"..slope or nil
+      if slope then
+        -- set mod_origin:slope_name
+        -- remove old mod_origin to allow for easier editing
+        sediment_name = dugdef.mod_origin..":"..slope..dugdef.name:gsub(dugdef.mod_origin..":","")
       end
+      slope = minetest.registered_nodes[sediment_name]
+      dugdef = slope or dugdef -- don't error on an improper slope, default to old dugdef if there's issues
     end
-    if (other_nodedef and other_nodedef.name) then
-      -- get the non-spreading version of the node (does not account for naturalslopes)
-      minetest.add_node(pos, {name = other_nodedef.name})
+    if dugdef then -- if we got a node, set it
+      -- set the non-spreading version of the node
+      minetest.set_node(pos, {name = dugdef.name})
     end
   end
 
   -- no idea what this "drop" is supposed to do
-  local drop = nodedef.drop
-  minetest.set_node(pos, {name = drop})
+  --local drop = nodedef.drop
+  --minetest.set_node(pos, {name = drop})
   minetest.check_for_falling(pos)
   minetest.sound_play("nodes_nature_dig_crumbly", {gain = 0.2, pos = pos, max_hear_distance = 10})
 end
