@@ -95,7 +95,7 @@ local function brain(self)
 			--social behaviour
 			local rival
 			if pred then
-				animals.flock(self, 21, 1, self.max_speed)
+				animals.flock(self, 21, self.view_range/2, 2, self.max_speed)
 			elseif random() <0.15 then
 				rival = animals.territorial(self, false)
 			elseif random() <0.01 then

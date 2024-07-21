@@ -664,6 +664,7 @@ function animals.place_egg(self, pos, medium, e_ov) -- self, position, medium, e
         -- set custom energy_egg
       end
       self:modify('energy',-e_egg)
+      return true
     end
 
   end
@@ -1685,57 +1686,52 @@ end
 
 -- modifies the provided sediment at pos
 local function eat_sediment(pos,nodedef,grassy)
-  --set node to it's drop
-  --this is to scratch up surface layers
-  if (type(nodedef) == "string") then
-    -- got a name, find it
-    nodedef = minetest.registered_nodes[nodedef]
-  end
-  if (type(nodedef) ~= "table") then
-    -- don't cause error
-    return
-  end
-  if nodedef.param1 or nodedef.param2 then
-    -- got passed the get_node() instead of table
-    if not (nodedef.name) then
-      return
-    else
-      nodedef = minetest.registered_nodes[nodedef.name]
-      if not nodedef then
-        -- couldn't find nodedef, don't error
-        return
-      end
-    end
-  end
+  -- scratching up surface layers
+  nodedef = type(nodedef) == "string" and nodedef or type(nodedef) == "table" and nodedef.name
+  nodedef = minetest.registered_nodes[nodedef]
+  if not nodedef then return end
 
+  -- we're only modifying the sediment if it's grassy 
   if (minetest.get_item_group(nodedef.name,"spreading") > 0 and grassy == true) then
     -- it's a grass, let's eat it and modify it (and if eating grass was desired)
     local sediment_name = nodedef._wet_salty_name -- use this to get the raw sediment
     -- (grassy _wet_salty variations of sediments do not exist)
-    local other_nodedef
-    if (sediment_name) then
-      sediment_name = string.gsub(sediment_name,"_wet_salty","") -- get raw sediment
-      other_nodedef = minetest.registered_nodes[sediment_name]
+    local dugdef -- dug definition - refers to the sediment being converted back into regular soil
+    if sediment_name then
+      sediment_name = sediment_name:gsub("_wet_salty","") -- get raw soil name
+      dugdef = minetest.registered_nodes[sediment_name]
     end
-    if (other_nodedef) then
-      if (string.match(nodedef.name,"_wet")) then
-        -- get wet if the grassy node is wet
-        local wet_name = other_nodedef._wet_name
-
-        other_nodedef = minetest.registered_nodes[wet_name]
+    if dugdef and nodedef.name:match("_wet") then -- check if original is wet
+      dugdef = minetest.registered_nodes[dugdef._wet_name]
+    end
+    if dugdef then
+      -- check slope
+      local slope = nodedef.name:match('slope') and (nodedef.name:match('inner') and 'inner_'
+        or nodedef.name:match('outer') and 'outer_' or nodedef.name:match('pike') and 'pike_' or '') or nil
+      slope = slope and "slope_"..slope or nil
+      if slope then
+        -- set mod_origin:slope_name
+        -- remove old mod_origin to allow for easier editing
+        sediment_name = dugdef.mod_origin..":"..slope..dugdef.name:gsub(dugdef.mod_origin..":","")
       end
+      slope = minetest.registered_nodes[sediment_name]
+      dugdef = slope or dugdef -- don't error on an improper slope, default to old dugdef if there's issues
     end
-    if (other_nodedef and other_nodedef.name) then
-      -- get the non-spreading version of the node (does not account for naturalslopes)
-      minetest.add_node(pos, {name = other_nodedef.name})
+    if dugdef then -- if we got a node, set it
+      -- set the non-spreading version of the node
+      minetest.set_node(pos, {name = dugdef.name})
     end
   end
 
-  -- no idea what this "drop" is supposed to do
-  local drop = nodedef.drop
-  minetest.set_node(pos, {name = drop})
   minetest.check_for_falling(pos)
-  minetest.sound_play("nodes_nature_dig_crumbly", {gain = 0.2, pos = pos, max_hear_distance = 10})
+  -- allow custom consumption sound for sediments
+  local eating_sound = nodedef.sounds and nodedef.sounds.consumed
+  -- no point to copying a table we already created if the sound doesn't exist
+  eating_sound = eating_sound and table.copy(eating_sound) or {
+    name="nodes_nature_dig_crumbly",gain=0.2,max_hear_distance=10
+  }
+  eating_sound.pos = pos
+  minetest.sound_play(eating_sound.name,eating_sound)
 end
 
 --for things that eat sediment (i.e. dig in the mud)
@@ -1747,7 +1743,7 @@ function animals.eat_sediment_under(pos, chance)
   if minetest.get_item_group(under, "sediment") > 0 then
     -- CONSUME
     if random()< chance then
-      -- GET DROPS (idk how that works lol)
+      -- scratch up that sediment!
       eat_sediment(posu,under)
     end
 
@@ -2249,23 +2245,25 @@ function animals.hq_flock_water(self,prty,tgtobj, min_dist, speed)
 
 
 
-function animals.flock(self, prty, min_dist, aqua_speed)
+function animals.flock(self, prty, min_dist, herding_dist, aqua_speed)
+  min_dist = min_dist or self.view_range
+  herding_dist = herding_dist or self.herding_dist or self.herding_distance or min_dist * 0.25
 
   for  _, fr in ipairs(self.friends) do
 
     --local friend = mobkit.get_closest_entity(self, fr)
     local friend =mobkit.get_nearby_entity(self, fr)
 
-    if friend and (min_dist and get_dist(self, friend) <= min_dist) then
+    if friend and get_dist(self, friend) <= min_dist then
       --get distance, if too far away go to them
       if aqua_speed then
         mobkit.animate(self,'walk')
         mobkit.make_sound(self,'call')
-        animals.hq_flock_water(self, prty, friend, min_dist, aqua_speed)
+        animals.hq_flock_water(self, prty, friend, herding_dist, aqua_speed)
       else
         mobkit.animate(self,'walk')
         mobkit.make_sound(self,'call')
-        animals.hq_flock(self, prty, friend, min_dist)
+        animals.hq_flock(self, prty, friend, herding_dist)
       end
       return true
     end
@@ -2295,11 +2293,12 @@ function animals.hq_mate(self,prty,tgtobj)
         mobkit.make_sound(self,'mating')
         if self.sex == "male" then
           --get the other one pregnant
-          mobkit.remember(tgtobj,'pregnant',true)
+          tgtobj:set('pregnant',true,true)
         else
           --get pregnant
-          mobkit.remember(self,'pregnant',true)
+          self:set('pregnant',true,true)
         end
+        self.sexual = false
         return true
       else
         mobkit.make_sound(self,'call')
@@ -2317,17 +2316,13 @@ function animals.mate_assess(self, name)
   if mate then
     --see if they are in the mood
     local ent = mate:get_luaentity()
-    local sexy = mobkit.recall(ent,'sexual') or false
-    local preg = mobkit.recall(ent,'pregnant') or false
+    local sexy = (self.sexual and ent.sexual) and not self.sex == ent.sex
+    local preg = (self.sex == "female" and self or ent).pregnant or false
     if sexy == true and preg == false then
       return ent
-    else
-      return false
     end
-  else
-    return false
   end
-
+  return false
 end
 
 function animals.get_entities_inside_radius(creature,pos,radius,match_string)
