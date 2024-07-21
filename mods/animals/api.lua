@@ -1686,12 +1686,12 @@ end
 
 -- modifies the provided sediment at pos
 local function eat_sediment(pos,nodedef,grassy)
-  --set node to it's drop
-  --this is to scratch up surface layers
+  -- scratching up surface layers
   nodedef = type(nodedef) == "string" and nodedef or type(nodedef) == "table" and nodedef.name
   nodedef = minetest.registered_nodes[nodedef]
   if not nodedef then return end
 
+  -- we're only modifying the sediment if it's grassy 
   if (minetest.get_item_group(nodedef.name,"spreading") > 0 and grassy == true) then
     -- it's a grass, let's eat it and modify it (and if eating grass was desired)
     local sediment_name = nodedef._wet_salty_name -- use this to get the raw sediment
@@ -1723,11 +1723,15 @@ local function eat_sediment(pos,nodedef,grassy)
     end
   end
 
-  -- no idea what this "drop" is supposed to do
-  --local drop = nodedef.drop
-  --minetest.set_node(pos, {name = drop})
   minetest.check_for_falling(pos)
-  minetest.sound_play("nodes_nature_dig_crumbly", {gain = 0.2, pos = pos, max_hear_distance = 10})
+  -- allow custom consumption sound for sediments
+  local eating_sound = nodedef.sounds and nodedef.sounds.consumed
+  -- no point to copying a table we already created if the sound doesn't exist
+  eating_sound = eating_sound and table.copy(eating_sound) or {
+    name="nodes_nature_dig_crumbly",gain=0.2,max_hear_distance=10
+  }
+  eating_sound.pos = pos
+  minetest.sound_play(eating_sound.name,eating_sound)
 end
 
 --for things that eat sediment (i.e. dig in the mud)
@@ -1739,7 +1743,7 @@ function animals.eat_sediment_under(pos, chance)
   if minetest.get_item_group(under, "sediment") > 0 then
     -- CONSUME
     if random()< chance then
-      -- GET DROPS (idk how that works lol)
+      -- scratch up that sediment!
       eat_sediment(posu,under)
     end
 
