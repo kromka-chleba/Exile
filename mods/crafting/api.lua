@@ -459,49 +459,56 @@ local function give_all_to_player(inv, list)
    end
 end
 
-function crafting.pick_required_item(inv, listname, item, located)
-   local count=0  -- returning count of items found and added to located table.
+function crafting.pick_required_item(inv, lists, item, located)
+   -- Search inventory lists, pull items required for craft
+   -- returns a table of items to be taken { { [list} = ,  [item] = }, {..} }
+   -- or nil, if requirements were not met
+   local count=0  -- count of items found and added to located table.
    item = ItemStack(item)
    local itemName = item:get_name()
    --print("Attempting to pick ",itemName)
    local group_stats = crafting.get_group_stats(itemName)
-   if group_stats then
-      local required = item:get_count()
-      -- search stacks in provided inv and list
-      for i = 1, inv:get_size(listname) do
-	 local stack = inv:get_stack(listname, i)
-	 -- Is it in group?
+   local required = item:get_count()
+   for _, list in ipairs(lists) do
+      -- search stacks in provided inv lists
+      for i = 1, inv:get_size(list) do
+	 local stack = inv:get_stack(list, i)
 	 --print("Checking ",stack:get_name()," ",stack:get_count())
 	 local def = minetest.registered_items[stack:get_name()]
-	 local group = def and def.groups and def.groups[group_stats.name]
-	 if required > 0 and group and group_stats.correct(group) then
-	    local found = ItemStack(stack)
+	 local found, group
+	 if group_stats then -- Is it in group?
+	    group = def and def.groups and def.groups[group_stats.name]
+	 end
+	 if required > 0 and ( group and group_stats.correct(group)
+			       or stack:get_name() == item:get_name() )then
+	    found = ItemStack(stack)
+	 end
+	 if found then
 	    if found:get_count() > required then
 	       found:set_count(required)
 	    end
-	    located[#located + 1] = found
+
+	    located[#located + 1] = { ["list"] = list, ["item"] = found }
 	    count = count + 1
 
-	    required = required - stack:get_count()
-	    if required <= 0 then
-	       break
-	    end
+	    required = required - found:get_count()
+	 end
+	 if required <= 0 then
+	    break
 	 end
       end
+      if required <= 0 then
+	 break
+      end
+   end
 
-      if required > 0 and count > 0 then
-	 -- not enough so delete located items
-	 --print("Not enough, deleting")
-	 for j=1,count do
-	    located[#located] = nil
-	 end
-	 count=0
+   if required > 0 and count > 0 then
+      -- not enough so delete located items
+      --print("Not enough, deleting")
+      for j=1,count do
+	 located[#located] = nil
       end
-   else
-      if inv:contains_item(listname, item) then
-	 located[#located + 1] = item
-	 count = count + 1
-      end
+      count=0
    end
    --print("Returning count: ",count)
    return count
@@ -518,10 +525,11 @@ function crafting.parse_where(recipe, items, item_idx, num_added)
    --	local input1,key1,test,input2,key2 =
    --print("where: "..recipe.where)
    --print(dump( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") ))
-
 end
 
 function crafting.find_required_items(inv, listname, recipe)
+   -- Trawls input items/player inv, pulls all valid ingredients for recipe
+   -- Returns a list of what was found
    local items = {}
    -- updated to allow passing of a table of listnames
    -- items are taken from inventories in order passed
@@ -533,21 +541,18 @@ function crafting.find_required_items(inv, listname, recipe)
    --print("Recipe Items: "..dump(recipe.items))
    for i, item in ipairs(recipe.items) do
       local picked = false	-- assume we don't find it
-      -- search each of passed lists
-      for _,list in ipairs(listname) do
-	 -- Conditional input list to process
-	 if (type(item) == 'table') then
-	    for _, conItem in ipairs(item) do
-	       local count = crafting.pick_required_item(inv, list, conItem, items)
-	       if count >0 then
-		  picked = true
-		  break
-	       end
-	    end
-	 else
-	    if crafting.pick_required_item(inv, list, item, items) >0 then
+      -- Conditional input list to process
+      if (type(item) == 'table') then
+	 for _, conItem in ipairs(item) do
+	    local count = crafting.pick_required_item(inv, listname, conItem, items)
+	    if count >0 then
 	       picked = true
+	       break
 	    end
+	 end
+      else
+	 if crafting.pick_required_item(inv, listname, item, items) >0 then
+	    picked = true
 	 end
       end
       if not picked then
@@ -587,10 +592,6 @@ function crafting.register_on_craft(func)
 end
 
 function crafting.perform_craft(name, inv, listname, outlistname, recipe)
-   local takenitems = crafting.find_required_items(inv, listname, recipe)
-   if not takenitems then
-      return false
-   end
 
    -- updated to allow passing of a table of listnames
    -- items are taken from inventories in order passed
@@ -599,34 +600,19 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
       listname = { listname }
    end
 
+   local founditems = crafting.find_required_items(inv, listname, recipe)
+   if not founditems then
+      return false
+   end
+
    -- Take items
    local taken = {}
-   for _, need in pairs(recipe.items) do
-      need = ItemStack(need)
-      local reqcount = need:get_count()
-      --print("Need ",reqcount," of ",need:get_name())
-      local tcount = 0;
-      for _, have in pairs(takenitems) do
-	 have = ItemStack(have)
-	 for _, list in ipairs(listname) do
-	    local took = inv:remove_item(list, have)
-	    if took:get_count() > 0 then
-	       taken[#taken + 1] = took
-	       tcount = tcount + took:get_count()
-	       if tcount == reqcount then
-		  break -- found so done
-	       end
-	    end
-	 end
-	 --print("TCount: ",tcount," Reqcount: ",reqcount)
-	 if tcount == reqcount then
-	    break -- found so done
-	 end
-      end
-      if tcount ~= reqcount then
-	 minetest.log("error", "Unexpected lack of items in inventory")
-	 give_all_to_player(inv, taken)
-	 return false
+   --print("Need ",reqcount," of ",need:get_name())
+
+   for _, have in pairs(founditems) do
+      local took = inv:remove_item(have.list, have.item)
+      if took:get_count() > 0 then
+	 taken[#taken + 1] = took
       end
    end
 
