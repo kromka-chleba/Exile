@@ -1,8 +1,6 @@
 # textdomain: bed_rest
 # breaktaker message (requires translation)
 # authors (do not translate most if uses latin alphabet)
-# breaktaker message (requires translation)
-# authors (do not translate most if uses latin alphabet)
 Seneca=
 # quotes (requires translation)
 # latin;
@@ -149,21 +147,6 @@ Status: Occupied by @1=
 Status: Occupied by @1 (old)=
 
 
-##### not used anymore #####
+##### non utilisé ####
 
-# expects owner name to be after 
-Status: Occupied by =
-# related to above
-(old)=
-# japanese;
-The ultimate goal of farming is not the growing of crops,\nbut the cultivation and perfection of human beings.=
-# indian;
-Each night, when I go to sleep, I die.\nAnd the next morning, when I wake up, I am reborn.=
-# australian;
-My approach is to look for what I’m interested in using\nand if it’s there I use it=
-# american;
-Humor keeps us alive. Humor and food.\nDon't forget food. You can go a week without laughing.=
-# spanish;
-There are rules to luck, not everything is chance for the wise;\nluck can be helped by skill.=
-# maltese;
-It will be a sinister day when computers start to laugh,\nbecause that will mean they are capable of a lot of other things as well.=
+##### not used anymore #####

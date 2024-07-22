@@ -1,4 +1,4 @@
-# textdomain: canoe
+# textdomain : canoe
 # init.lua
-Canoe=
+Canoe=Canoe
 Dugout Canoe=Canoe creusé dans un tronc
