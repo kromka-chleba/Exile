@@ -2316,7 +2316,7 @@ function animals.mate_assess(self, name)
   if mate then
     --see if they are in the mood
     local ent = mate:get_luaentity()
-    local sexy = (self.sexual and ent.sexual) and not self.sex == ent.sex
+    local sexy = (self.sexual and ent.sexual) and self.sex ~= ent.sex
     local preg = (self.sex == "female" and self or ent).pregnant or false
     if sexy == true and preg == false then
       return ent
