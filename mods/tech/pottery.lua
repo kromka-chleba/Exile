@@ -537,6 +537,9 @@ register_lamps(
 	    def.node_box.fixed[i][2] = def.node_box.fixed[i][2] * -1
 	    def.node_box.fixed[i][5] = def.node_box.fixed[i][5] * -1
 	 end
+	 local tmptile = def.tiles[1] -- swap the top and bottom textures
+	 def.tiles[1] = def.tiles[2]
+	 def.tiles[2] = tmptile
 	 for i = 1,#def.tiles do -- and invert the textures
 	    if type(def.tiles[i]) == "string" then
 	       def.tiles[i] = def.tiles[i].."^[transformFY"
