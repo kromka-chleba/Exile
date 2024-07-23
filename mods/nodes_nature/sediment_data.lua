@@ -217,7 +217,7 @@ for i = 1, #registered_sediments do
         props.groups.depleted_agricultural_soil > 0 then
         props.tiles = {
             {name = props.tiles[1].."^[combine:32x32:0,0="
-                 .."("..root_texture..")"..":0,16="
+                 .."("..root_texture..")"
             },
             props.tiles[2],
             props.tiles[3]
