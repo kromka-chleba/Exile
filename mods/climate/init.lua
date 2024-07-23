@@ -665,7 +665,8 @@ if minetest.get_modpath('beerchat') then -- we have beerchat installed
 	 beerchat.register_relaycommand("date", function(uname, text, protocol)
                 local date = climate.datestring()
 		local set = minetest.settings
-		local lang = set:has("language") and set:get("language") or "en"
+		local lang = set:get("language") ~= "" and set:get("language")
+		   or "en"
 		return minetest.get_translated_string(lang, date)
 	 end)
    end)
