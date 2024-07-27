@@ -179,7 +179,8 @@ local function update_sound(player)
 
       --disembodied voices breaking through from another dimension
       --memories of the past? Or are they trapped somewhere?
-      if ran()<0.25 then
+      local roll = ran()
+      if roll < 0.25 then
         minetest.sound_play(
           "env_sounds_haunt",
           {
@@ -189,7 +190,7 @@ local function update_sound(player)
             gain = 1.4-math.abs(r/15),
           }
         )
-      elseif ran()<0.5 then
+      elseif roll < 0.5 then
         minetest.sound_play(
           "env_sounds_haunt2",
           {
@@ -200,7 +201,7 @@ local function update_sound(player)
           }
         )
 
-      elseif ran()<0.75 then
+      elseif roll < 0.75 then
         minetest.sound_play(
           "env_sounds_haunt3",
           {
