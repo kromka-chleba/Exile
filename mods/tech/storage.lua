@@ -17,7 +17,20 @@ storage.register_storage("tech:clay_storage_pot",{
 	"tech_pottery.png",
 	"tech_pottery.png",
 	"tech_pottery.png"},
-  sounds = nodes_nature.node_sound_stone_defaults(),
+  sounds = nodes_nature.node_sound_stone_defaults({
+    storage_close = {
+      name = "tech_clay_storage_close",
+      gain = 0.2,
+      max_hear_distance = 14,
+      pitch = 0.95
+    },
+    storage_open = {
+      name = "tech_clay_storage_open",
+      gain = 0.2,
+      max_hear_distance = 14,
+      pitch = 0.95
+    }
+  }),
   groups = {dig_immediate = 3, craftedby = 1, pottery = 1},
 
   --formspec_width = 8, -- default inv width is 8 (on register)
@@ -29,7 +42,18 @@ storage.register_storage("tech:clay_storage_pot",{
 storage.register_storage("tech:primitive_wooden_chest",{
   description = S("Primitive Wooden Chest"),
   tiles = {"tech_primitive_wood.png"},
-  sounds = nodes_nature.node_sound_wood_defaults(),
+  sounds = nodes_nature.node_sound_wood_defaults({
+    storage_close = {
+      name = "tech_wooden_storage_close",
+      gain = 0.5,
+      max_hear_distance = 14
+    },
+    storage_open = {
+      name = "tech_wooden_storage_open",
+      gain = 0.5,
+      max_hear_distance = 14
+    }
+  }),
   groups = {dig_immediate = 3, craftedby = 1, flammable = 2},
 })
 
@@ -38,7 +62,20 @@ storage.register_storage("tech:primitive_wooden_chest",{
 storage.register_storage("tech:wicker_storage_basket",{
   description = S("Wicker Storage Basket"),
   tiles = {"tech_wicker.png"},
-  sounds = nodes_nature.node_sound_leaves_defaults(),
+  sounds = nodes_nature.node_sound_leaves_defaults({
+    storage_close = {
+      name = "tech_woven_basket_close",
+      gain = 0.6,
+      max_hear_distance = 14,
+      pitch = 0.9
+    },
+    storage_open = {
+      name = "tech_woven_basket_open",
+      gain = 0.6,
+      max_hear_distance = 14,
+      pitch = 0.9
+    }
+  }),
   groups = {dig_immediate = 3, craftedby = 1, flammable = 1},
   burnable = true,
 })
@@ -48,7 +85,18 @@ storage.register_storage("tech:wicker_storage_basket",{
 storage.register_storage("tech:woven_storage_basket",{
   description = S("Woven Storage Basket"),
   tiles = {"tech_woven.png"},
-  sounds = nodes_nature.node_sound_leaves_defaults(),
+  sounds = nodes_nature.node_sound_leaves_defaults({
+    storage_close = {
+      name = "tech_woven_basket_close",
+      gain = 0.5,
+      max_hear_distance = 14
+    },
+    storage_open = {
+      name = "tech_woven_basket_open",
+      gain = 0.5,
+      max_hear_distance = 14
+    }
+  }),
   groups = {dig_immediate = 3, craftedby = 1, flammable = 1},
   burnable = true,
 })
@@ -79,7 +127,20 @@ storage.register_storage("tech:wooden_chest",{
 			{-0.0625, 0.25, -0.4375, 0.0625, 0.375, -0.375}, -- NodeBox10
 		}
 	},
-  sounds = nodes_nature.node_sound_wood_defaults(),
+  sounds = nodes_nature.node_sound_wood_defaults({
+    storage_close = {
+      name = "tech_wooden_storage_close",
+      gain = 0.5,
+      max_hear_distance = 14,
+      pitch = 1.05
+    },
+    storage_open = {
+      name = "tech_wooden_storage_open",
+      gain = 0.5,
+      max_hear_distance = 14,
+      pitch = 1.05
+    }
+  }),
   groups = {dig_immediate = 3, craftedby = 1, flammable = 3},
 
   -- width already defined in base register_storage
@@ -113,7 +174,18 @@ storage.register_storage("tech:iron_chest",{
 			{-0.0625, 0.25, -0.4375, 0.0625, 0.375, -0.375}, -- NodeBox10
 		}
 	},
-	sounds = nodes_nature.node_sound_wood_defaults(),
+	sounds = nodes_nature.node_sound_wood_defaults({
+    storage_close = {
+      name = "tech_iron_chest_close",
+      gain = 0.8,
+      max_hear_distance = 14
+    },
+    storage_open = {
+      name = "tech_iron_chest_open",
+      gain = 0.8,
+      max_hear_distance = 14
+    }
+  }),
   groups = {dig_immediate = 3, craftedby = 1},
 
   formspec_height = 8,
