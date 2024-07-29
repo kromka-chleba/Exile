@@ -190,7 +190,7 @@ local function to_burnt(pos, meta)
   meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
   if type(stor_node.metadata_inventory_dump) == "function" then
     -- run on_dump code
-    stor_node.metadata_inventory(pos, meta)
+    stor_node.metadata_inventory_dump(pos, meta)
   end
 
   -- if burn_to node is not storage then don't try to add storage aspects to it!
@@ -291,9 +291,9 @@ function storage.register_storage(name,def)
   end
 
   def.on_blast = def.on_blast or function(pos) end
-  def.metadata_inventory_dump = def.metadata_inventory_dump or function(pos)
-    storage.dump_inventory(pos)
-  end
+  --def.metadata_inventory_dump = def.metadata_inventory_dump or function(pos, meta)
+    --storage.dump_inventory(pos, meta)
+  --end
   -- declaring locals for formspec details (makes it easier to set up functions)
   local width = def.formspec_width
   local height = def.formspec_height
