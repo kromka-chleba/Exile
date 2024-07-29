@@ -5,14 +5,14 @@ local modname = "minimal/storage_api.lua"
 local S = minimal.S
 
 -- functionality for determining if a player is looking in storage
-local pots_watched = {}
+local storage_watched = {}
 local function get_watchers(pos, create)
   pos = type(pos) == "string" and pos or type(pos) == "table" and minetest.pos_to_string(pos)
   -- create a new watcher table if it doesn't exist
   if create then
-    pots_watched[pos] = pots_watched[pos] or {}
+    storage_watched[pos] = storage_watched[pos] or {}
   end
-  return pots_watched[pos] or {} -- send watcher table or create an empty one
+  return storage_watched[pos] or {} -- send watcher table or create an empty one
 end
 local function add_watcher(pos, pname)
   local wt = get_watchers(pos, true) -- watch_table
@@ -35,7 +35,7 @@ local function remove_watcher(pos, pname)
     if wt[wi] == pname then
       wt[wi] = nil
       -- delete table if empty
-      if #wt < 1 then pots_watched[pos] = nil end
+      if #wt < 1 then storage_watched[pos] = nil end
       return true
     end
   end
