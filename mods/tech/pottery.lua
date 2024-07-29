@@ -289,11 +289,9 @@ minetest.register_node("tech:clay_oil_lamp_unfired", {
 local spilltimer = {}
 
 minetest.register_entity("tech:oil_spiller", {
-   initial_properties = {collisionbox = {0, 0.0, 0, 0.001, 0.001, 0.001},
-			 is_visible = true,
+   initial_properties = {collisionbox = {0, 0, 0, 0.01, 0.01, 0.01},
 			 visual="sprite",
-			 visual_size = { x=1,y=1,z=1 },
-			 textures = { "tech_vegetable_oil.png^[opacity:0" },
+			 textures = { "empty.png" },
 			 physical = true
 			},
    on_step = function(self, dtime, moveresult)
@@ -498,6 +496,7 @@ register_lamps(
 	       imeta:set_string("fuel", fuel)
 	    end
 	 end
+	 def.on_rotate = false
       end
    end
 )
