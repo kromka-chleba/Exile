@@ -8,6 +8,7 @@ bed_rest.player = {}
 bed_rest.bed_position = {}
 bed_rest.pos = {}
 bed_rest.level = {}
+bed_rest.store = minetest.get_mod_storage()
 
 bed_rest.session_start = {}
 bed_rest.session_limit = {}
@@ -22,7 +23,8 @@ dofile(modpath .. "/functions.lua")
 dofile(modpath .. "/api.lua")
 dofile(modpath .. "/bed_clear.lua")
 
-local temp = load_bedrest()
+local temp = minetest.deserialize(bed_rest.store:get_string("bedrest"), true)
+print("Bed rest temp = ",dump(temp))
 if temp then
    bed_rest.level = temp["level"]
    bed_rest.player = temp["player"]

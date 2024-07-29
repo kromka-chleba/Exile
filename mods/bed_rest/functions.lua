@@ -6,9 +6,9 @@ local S = minetest.get_translator("bed_rest")
 local NS = function(s) return s end
 
 local pi = math.pi
-local store = minetest.get_mod_storage()
 --silence luacheck warnings about accessing globals:
 bed_rest = bed_rest
+local store = bed_rest.store
 player_api = player_api
 player_monoids = player_monoids
 clothing = clothing
@@ -16,11 +16,6 @@ minimal = minimal
 
 -- after this many IRL days, beds in multiplayer will no longer be protected
 local days_until_timeout = 7
-
-function load_bedrest()
-   local loaded = minetest.deserialize(store:get_string("bedrest"), true)
-   return loaded
-end
 
 ----------------------------------------------------
 --Break taker
