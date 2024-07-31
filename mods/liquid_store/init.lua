@@ -191,7 +191,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
   name == liquiddef.source then -- pointing at a liquid
     -- find a registered stored liquid who has an empty that matches
     -- what we are using and a source that matches our liquid
-    local giving_back = find_stored(itemstack:get_name(), name)
+    local giving_back = find_stored(itemstack, name)
 
     if not giving_back then
    --nothing matches
@@ -218,7 +218,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
      return new_wield
     end
   elseif storeddef then -- pointing at a stored liquid
-    local giving_back = find_stored(itemstack:get_name(),
+    local giving_back = find_stored(itemstack,
       storeddef.source)
     if not giving_back then
       --nothing matches
@@ -249,8 +249,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     return
   end
   -- get storeddef or create a fake one
-  local storeddef = liquid_store.get_sl_def(itemstack:get_name(),true)
-  --local storeddef = liquid_store.stored_liquids[itemstack:get_name()] or {source = "", nodename_empty = "", dump = false}
+  local storeddef = liquid_store.get_sl_def(itemstack,true)
   -- permit overrides
   source = type(source) == "string" and source or storeddef.source
   nodename_empty = type(nodename_empty) == "string" and nodename_empty or storeddef.nodename_empty
@@ -293,7 +292,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     return click_result
   -- check out my cool definition instead
   elseif ndef then
-    stored = find_stored(ndef.name, source)
+    stored = find_stored(ndef, source)
     -- don't remove liquids
     buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to or false
   end
@@ -311,7 +310,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     return click_result
   elseif ndef then
     -- If pointing at a full liquid store don't dump
-    if liquid_store.get_sl_def(node.name) then
+    if liquid_store.get_sl_def(node) then
       dump = false
     end
   end
@@ -363,7 +362,7 @@ function liquid_store.on_place(itemstack, placer, pointed_thing, place_name)
 
   local node = minetest.get_node(pos) -- grab a possible liquid if correct
   local nodedata = minetest.registered_nodes[node.name]
-  local stored = find_stored(place_name, node.name)
+  local stored = find_stored(place_name, node)
   if (stored) then
     isliquid = true
   end
