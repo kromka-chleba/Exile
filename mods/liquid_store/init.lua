@@ -66,34 +66,27 @@ local function handle_stacks(player, itemstack, new_item)
   local inv = player:get_inventory()
   -- new item can be string or an itemstack
   new_item = type(new_item) == "string" and ItemStack(new_item) or new_item
+
+  -- if more than 1, we're going to move the old itemstack to another inventory slot
+  -- and replace with the new_item
+  -- this is to allow functions like liquid_preserve_metadata to save metadata properly
+  -- less convenient for players, but keeps the game functional
   if itemstack:get_count() > 1 then
-    if inv:room_for_item("main",new_item) then
-      inv:add_item("main",new_item)
-    else
-      minetest.add_item(player:get_pos(), new_item)
-      minimal.warn_inv_full(player)
-    end
     itemstack:take_item()
-    return itemstack
-  else
-    itemstack = new_item
-  end
-  return itemstack
-  --[[
-   local inv = player:get_inventory()
-   if stack_items:get_count() > 1 then
-      if inv:room_for_item("main", new_item) then
-	 inv:add_item("main", new_item)
+    -- run on delay so that it does not conflict with replacing itemstack
+    minetest.after(0,function()
+      if inv:room_for_item("main",itemstack) then
+        inv:add_item("main",itemstack)
       else
-	 local pos = player:get_pos()
-	 minetest.add_item(pos, new_item)
+        minetest.add_item(player:get_pos(), itemstack)
+        minimal.warn_inv_full(player)
       end
-      return ItemStack(stack_items:get_name().." "..
-		       (stack_items:get_count() -1))
-   else
-      return ItemStack(new_item)
-   end
-  --]]
+    end)
+    return new_item
+  -- we're just replacing, no worries :D
+  else
+    return new_item
+  end
 end
 -- handle punching + finding if it is a node
 local function handle_interaction(player, pointed_thing)
