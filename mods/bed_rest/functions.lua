@@ -9,6 +9,7 @@ local pi = math.pi
 --silence luacheck warnings about accessing globals:
 bed_rest = bed_rest
 local store = bed_rest.store
+
 player_api = player_api
 player_monoids = player_monoids
 clothing = clothing
@@ -389,6 +390,35 @@ local function get_look_yaw(pos)
 	end
 end
 
+minetest.register_entity("bed_rest:bedspot", {
+   initial_properties = {collisionbox = {0, -0.025, 0, 0.01, 0.01, 0.01},
+			 visual="upright_sprite",
+			 textures = { "empty.png" },
+			 physical = true
+			},
+   on_activate = function(self) -- fall down until we hit the bed, aka pomf
+      self.object:set_velocity(vector.new(0,-2,0))
+   end,
+   on_step = function(self, dtime, moveresult)
+      if not self.timer then self.timer = 0.1 return end
+      self.timer = self.timer - dtime
+      if self.timer > 0 then return end
+      self.timer = nil
+      local chrilden = self.object:get_children()
+      if #chrilden < 1 then -- cannot frigth back?!
+	 self.object:remove()
+	 return
+      end
+      local player = chrilden[1]
+      self.object:set_yaw(player:get_look_horizontal())
+   end,
+   on_attach_child = function(self, child)
+      self.object:set_yaw(child:get_look_horizontal())
+   end,
+   on_detach_child = function(self, child)
+      self.object:remove()
+   end
+})
 
 local function stopmove(player, pos, lives, meta)
    if (not player) or (not player:is_player()) then return end
@@ -399,10 +429,8 @@ local function stopmove(player, pos, lives, meta)
 	 return -- Player has died before this fired
       end
    end
-   local velo = player:get_velocity() or player:get_player_velocity()
-      or vector.new()
-   player:add_velocity(-velo)
-   if pos then player:set_pos(pos) end
+   local dropspot = vector.new(pos.x, pos.y + 0.6, pos.z)
+   player:set_attach(minetest.add_entity(dropspot, "bed_rest:bedspot"), "")
 end
 
 
@@ -452,6 +480,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		-- physics, eye_offset, etc
 		player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
 		player_api.player_attached[name] = false
+		player:set_detach()
 		player_monoids.speed:del_change(player, "bed_rest:resting")
 		player_monoids.jump:del_change(player, "bed_rest:resting")
 		player_monoids.gravity:del_change(player, "bed_rest:resting")
@@ -497,7 +526,8 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		local yaw, param2 = get_look_yaw(bed_pos)
 		player:set_look_horizontal(yaw)
 		local dir = minetest.facedir_to_dir(param2)
-		local p = {x = bed_pos.x + dir.x / 2, y = bed_pos.y, z = bed_pos.z + dir.z / 2}
+		local p = {x = bed_pos.x + dir.x / 2, y = bed_pos.y,
+			   z = bed_pos.z + dir.z / 2}
 		--clear physics
 		player_monoids.speed:del_change(player, "health:physics")
 		player_monoids.jump:del_change(player, "health:physics")
@@ -507,10 +537,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		player_monoids.jump:add_change(player, 0, "bed_rest:resting")
 		player_monoids.gravity:add_change(player, 0, "bed_rest:resting")
 		local lives = tonumber(pmeta:get_string("lives"))
-		minetest.after(0.2, function()
-				  stopmove(player,p, lives, pmeta)
-		end)
-		player:set_pos(p)
+		stopmove(player,p, lives, pmeta)
 		player_api.player_attached[name] = true
 		hud_flags.wielditem = false
 		player_api.set_animation(player, "lay")
