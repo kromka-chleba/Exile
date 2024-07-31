@@ -257,8 +257,9 @@ minetest.register_entity("bed_rest:bedspot", {
       self.timer = self.timer - dtime
       if self.timer > 0 then return end
       self.timer = nil
+      self.count = ( self.count or 0 ) + 1
       local chrilden = self.object:get_children()
-      if #chrilden < 1 then -- cannot frigth back?!
+      if #chrilden < 1 or self.count > 9 then -- cannot frigth back?!
 	 self.object:remove()
 	 return
       end
