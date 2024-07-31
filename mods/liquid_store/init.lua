@@ -197,9 +197,9 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
    --nothing matches
       return
     end
-
-    local new_wield = handle_stacks(user, itemstack,
-      giving_back)
+    -- return new_wield if not in creative, otherwise return itemstack
+    local new_wield = not minimal.player_in_creative(user) and handle_stacks(user, itemstack,
+      giving_back) or itemstack
 
     -- force_renew requires a source neighbour
     local source_neighbor = false
@@ -212,11 +212,8 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
       minetest.add_node(pointed_thing.under, {name = "air"})
     end
 
-      -- return filled bucket if player is not in creative
-    if not (minimal.player_in_creative(user)) then
-     liquid_metadata(pointed_thing.under,node,new_wield)
-     return new_wield
-    end
+    liquid_metadata(pointed_thing.under,node,new_wield)
+    return new_wield
   elseif storeddef then -- pointing at a stored liquid
     local giving_back = find_stored(itemstack,
       storeddef.source)
