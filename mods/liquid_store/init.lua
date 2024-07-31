@@ -61,7 +61,25 @@ local function check_protection(pos, user, text)
 end
 
 -- handle stacks
-local function handle_stacks(player, stack_items, new_item)
+-- player, itemstack, new item to replace itemstack with
+local function handle_stacks(player, itemstack, new_item)
+  local inv = player:get_inventory()
+  -- new item can be string or an itemstack
+  new_item = type(new_item) == "string" and ItemStack(new_item) or new_item
+  if itemstack:get_count() > 1 then
+    if inv:room_for_item("main",new_item) then
+      inv:add_item("main",new_item)
+    else
+      minetest.add_item(player:get_pos(), new_item)
+      minimal.warn_inv_full(player)
+    end
+    itemstack:take_item()
+    return itemstack
+  else
+    itemstack = new_item
+  end
+  return itemstack
+  --[[
    local inv = player:get_inventory()
    if stack_items:get_count() > 1 then
       if inv:room_for_item("main", new_item) then
@@ -75,6 +93,7 @@ local function handle_stacks(player, stack_items, new_item)
    else
       return ItemStack(new_item)
    end
+  --]]
 end
 -- handle punching + finding if it is a node
 local function handle_interaction(player, pointed_thing)
@@ -139,7 +158,6 @@ end
 
 -- fill store
 -- uses an 'empty' itemstack and fills it up with the corresponding source or stored_liquid
--- # WIP
 function liquid_store.fill_store(player, itemstack, source)
   local stored = liquid_store.get_sl_def(source)
   -- couldn't confirm source was a stored liquid, check if source is a correlating source liquid
