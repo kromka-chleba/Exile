@@ -38,6 +38,9 @@ end
 
 -- get a stored liquid's definition table
 function liquid_store.get_sl_def(nodename,producefake) -- get stored liquid definition
+  -- permit string, or any table or userdata with a name index or get_name function
+  nodename = type(nodename) == "string" and nodename or (type(nodename) == "table" or type(nodename) == "userdata")
+    and nodename.name or type(nodename.get_name) == "function" and nodename:get_name() or nil
   local sl_def = liquid_store.stored_liquids[nodename]
   -- return sl_def or if wanted, a fake stored_liquid definition
   return sl_def or (producefake == true and {source="",nodename_empty="",dump=false}) or nil
@@ -132,6 +135,21 @@ function liquid_store.drain_store(player, itemstack)
    else
       return itemstack
    end
+end
+
+-- fill store
+-- uses an 'empty' itemstack and fills it up with the corresponding source or stored_liquid
+-- # WIP
+function liquid_store.fill_store(player, itemstack, source)
+  local stored = liquid_store.get_sl_def(source)
+  -- couldn't confirm source was a stored liquid, check if source is a correlating source liquid
+  if not stored then
+    stored = find_stored(itemstack, source)
+  end
+  if stored then
+    return handle_stacks(player, itemstack, source)
+  end
+  return itemstack
 end
 
 --Function for empty buckets to call on_use... as return (so gives item)
