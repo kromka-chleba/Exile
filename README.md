@@ -1,4 +1,5 @@
-# Exile
+![Exile](menu/logo.png)
+
 Created by Dokimi
 for `Minetest 5.5.1+`
 
