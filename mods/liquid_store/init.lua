@@ -155,16 +155,18 @@ end
 
 -- fill store
 -- uses an 'empty' itemstack and fills it up with the corresponding source or stored_liquid
-function liquid_store.fill_store(player, itemstack, source)
+-- returns filled itemstack on success, return nil otherwise
+function liquid_store.fill_store(player, itemstack, source, returnnil)
   local stored = liquid_store.get_sl_def(source)
   -- couldn't confirm source was a stored liquid, check if source is a correlating source liquid
   if not stored then
     stored = find_stored(itemstack, source)
   end
+  -- modify inventory accordingly
   if stored then
-    return handle_stacks(player, itemstack, source)
+    return handle_stacks(player, itemstack, stored)
   end
-  return itemstack
+  return
 end
 
 --Function for empty buckets to call on_use... as return (so gives item)
@@ -195,38 +197,28 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
   name == liquiddef.source then -- pointing at a liquid
     -- find a registered stored liquid who has an empty that matches
     -- what we are using and a source that matches our liquid
-    local giving_back = find_stored(itemstack, name)
-
-    if not giving_back then
-   --nothing matches
-      return
-    end
-    -- return new_wield if not in creative, otherwise return itemstack
-    local new_wield = not minimal.player_in_creative(user) and handle_stacks(user, itemstack,
-      giving_back) or itemstack
+    local plr_creative = minimal.player_in_creative(user)
+    -- only remove liquid if in creative, fill stack otherwise - however both only if a valid source is found
+    local new_wield = plr_creative and find_stored(itemstack, name) or
+      not plr_creative and liquid_store.fill_store(user, itemstack, name) or nil
+    if not new_wield then return end -- nothing matches, return itemstack
 
     -- force_renew requires a source neighbour
-    local source_neighbor = false
-    if liquiddef.force_renew then
-     source_neighbor = minetest.find_node_near(pointed_thing.under, 1,
-      liquiddef.source)
-    end
-
-    if not (source_neighbor and liquiddef.force_renew) then
+    local source_neighbor = liquiddef.force_renew
+      and minetest.find_node_near(pointed_thing.under, 1, liquiddef.source)
+    -- no renewing
+    if not source_neighbor then
       minetest.add_node(pointed_thing.under, {name = "air"})
     end
 
-    liquid_metadata(pointed_thing.under,node,new_wield)
-    return new_wield
-  elseif storeddef then -- pointing at a stored liquid
-    local giving_back = find_stored(itemstack,
-      storeddef.source)
-    if not giving_back then
-      --nothing matches
-      return
+    if not plr_creative then
+      liquid_metadata(pointed_thing.under,node,new_wield)
+      return new_wield
     end
-    local new_wield = handle_stacks(user, itemstack,
-      giving_back)
+  elseif storeddef then -- pointing at a stored liquid
+    local new_wield = liquid_store.fill_store(user, itemstack, storeddef.source)
+    if not new_wield then return end -- nothing matches
+    -- clear out pot at pos
     minimal.switch_node(pointed_thing.under,
       {name = storeddef.nodename_empty})
 
