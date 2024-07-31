@@ -124,15 +124,19 @@ end
 -- namespace
 liquid_store.find_stored = find_stored
 
+-- liquid_metadata
+-- pos, oldnode, transferred_stack
 -- store metadata into a provided stack (grab liquid)
+-- provided stack can be a string - will be converted into an ItemStack
 local function liquid_metadata(pos, oldnode, t_stack)
   local nodedata = minetest.registered_nodes[oldnode.name]
+  t_stack = type(t_stack) == "string" and ItemStack(t_stack) or t_stack
   if (type(nodedata) ~= "table" and type(t_stack) ~= "userdata") then
     return
   end
 
   -- custom metadata function I created for certain nodes
-  if (type(nodedata["_preserve_metadata"]) == "function") then
+  if (type(nodedata._preserve_metadata) == "function") then
     local oldmeta = minetest.get_meta(pos)
 
     return nodedata._preserve_metadata(pos, oldnode, oldmeta, t_stack)
