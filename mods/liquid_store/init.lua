@@ -86,18 +86,28 @@ local function handle_interaction(player, pointed_thing)
   return pointed_thing.type
 end
 
-local function find_stored(empty, sourcename)
-   local stored_name
-   for k, v in pairs(liquid_store.stored_liquids) do
-      local m = v.nodename_empty
-      local s = v.source
-      if  m == empty and s == sourcename then
-	 stored_name = v.nodename
-	 break
-      end
-   end
-   return stored_name
+-- find_stored
+-- helps find a stored liquid variant with the provided empty and source
+local function find_stored(empty, source)
+  -- allow empty to be a string, or a table or userdata (usually itemstack) with a "name" index or "get_name" function
+  empty = type(empty) == "string" and empty or (type(empty) == "table" or type(empty) == "userdata")
+    and empty.name or type(empty.get_name) == "function" and empty:get_name() or nil
+  empty = empty ~= "" and empty or nil -- don't look for a literally empty index lol
+  -- allow source to be a string, or a table or userdata (usually itemstack) with a "name" index or "get_name" function
+  source = type(source) == "string" and source or (type(source) == "table" or type(source) == "userdata")
+    and source.name or type(source.get_name) == "function" and source:get_name() or nil
+  source = source ~= "" and source or nil
+  if not (empty and source) then return end -- return nothing
+  -- stored liquid name is in the indexes, no point to indexing the table for it
+  for slname,sl in pairs(liquid_store.stored_liquids) do
+    -- if empty and source found in relation to stored liquid name then return the name
+    if sl.nodename_empty == empty and sl.source == source then
+      return slname
+    end
+  end
 end
+-- namespace
+liquid_store.find_stored = find_stored
 
 -- store metadata into a provided stack (grab liquid)
 local function liquid_metadata(pos, oldnode, t_stack)
