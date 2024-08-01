@@ -48,7 +48,7 @@ dofile(modpath .. "/history.lua")
 local weathers_folder = minetest.get_dir_list(modpath.."/weathers")
 -- runs each lua file in the weathers folder
 for _,file in pairs(weathers_folder) do
-  if string.match(file,".lua") then
+  if file:sub(#file-3,#file) == ".lua" then
     dofile(modpath.."/weathers/"..file)
   end
 end
