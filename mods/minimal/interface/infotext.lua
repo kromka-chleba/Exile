@@ -343,8 +343,16 @@ function minimal.infotext_set_new(pos, meta, params, func, nodedef, stack)
   params = minimal.infotext_clear_params(params) -- remove empty strings
   -- custom function or nodedef on_infotext function
   func = type(func) == "function" and func or type(nodedef.on_infotext) == "function" and nodedef.on_infotext
-  -- infotext will be the provided func or get_infotext_base
-  local infotext = func and func(pos, nodedef, meta, params) or minimal.infotext_base(stack, meta, params)
+  -- infotext will be the provided func
+  local infotext = func and func(pos, nodedef, meta, params) or nil
+  -- if false then return false
+  if infotext == false then
+    return false
+  -- otherwise didn't get string, do infotext base
+  elseif type(infotext) ~= "string" then
+    infotext = minimal.infotext_base(stack, meta, params)
+  end
+
   if type(infotext) ~= "string" then return false end
   meta:set_string("infotext",infotext)
 end
