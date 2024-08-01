@@ -267,10 +267,29 @@ end
 
 ----------------------------------------------------------------------------
 
-function minimal.infotext_base(name, meta, params, returnparams)
-  -- get proper name
-  name = type(name) == "string" and name or
-    (type(name) == "table" or type(name) == "userdata") and (name.name or minimal.get_nodedef(name))
+local function get_desc(stack)
+  -- use an itemstack to get proper description
+  -- confirm if string, or check if pos (won't have .name) and get nodedef
+  -- if a table or userdata still, then default to just stack
+  stack = type(stack) == "string" and stack or
+    (type(stack) == "table" and type(stack.name) ~= "string") and minimal.get_nodedef(stack) or
+    (type(stack) == "userdata" or type(stack) == "table") and stack
+  -- if a string then create ItemStack with, if a table then create an ItemStack with the name
+  -- if already a userdata, assume it is an ItemStack
+  stack = type(stack) == "string" and ItemStack(stack) or type(stack) == "table" and stack.name and ItemStack(stack.name)
+    or type(stack) == "userdata" and stack
+  -- couldn't get itemstack, return nil
+  if not stack then return end
+  -- prefer short description
+  return stack:get_short_description()
+end
+
+-- itemstack, nodemeta, 'params' table, whether or not to return params (true) or the infotext (default ; false)
+-- itemstack is used to determine description - but can also be pos, table, or string
+function minimal.infotext_base(stack, meta, params, returnparams)
+  -- get proper name (description)
+  local desc = get_desc(stack)
+  if not desc then return end
   -- create params if does not exist
   if type(params) ~= "table" then
     params = meta:to_table()
@@ -280,15 +299,15 @@ function minimal.infotext_base(name, meta, params, returnparams)
   -- only modify params
   -- we don't modify before for full infotext in case programmers don't want their param table modified
   if returnparams then
-    params.Name = name
-    params.Owner = (params.Owner and params.Owner ~= "") and S("Owner:").." "..params.Owner
-    params.Label = (params.Label and params.Label ~= "") and S("Label:").." "..params.Label
+    params.name = desc
+    params.owner = (params.owner and params.owner ~= "") and S("Owner:").." "..params.owner
+    params.label = (params.Label and params.label ~= "") and S("Label:").." "..params.label
     return params
   end
   -- create and return full infotext
-  return (name and name.."\n" or "")..
-    ( params.Owner and S("Owner:").." "..params.Owner )..
-    ( params.Label and S("Label:").." "..params.Label )
+  return (desc or "")..
+    ( ( params.owner and "\n"..S("Owner:").." "..params.owner ) or "" ).. -- only apply owner if available
+    ( ( params.label and "\n"..S("Label:").." "..params.label) or "" ) -- only apply label if available
 end
 
 function minimal.infotext_clear_params(params)
@@ -304,6 +323,7 @@ end
 
 function minimal.infotext_set_new(pos, meta, params, func, nodedef)
   nodedef = type(nodedef) == "table" and nodedef or minimal.get_nodedef(pos) -- just to confirm
+  if type(nodedef) ~= "table" then return false end -- no success
   meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
   if type(params) ~= "table" then
     params = meta:to_table()
@@ -311,9 +331,9 @@ function minimal.infotext_set_new(pos, meta, params, func, nodedef)
   end
   params = minimal.infotext_clear_params(params) -- remove empty strings
   -- custom function or nodedef on_infotext function
-  func = type(func) == "function" and func or type(nodedef.on_infotext) == "function" and func
+  func = type(func) == "function" and func or type(nodedef.on_infotext) == "function" and nodedef.on_infotext
   -- infotext will be the provided func or get_infotext_base
-  local infotext = func and func(pos, nodedef, meta, params) or minimal.get_infotext_base(nodedef.name, meta, params)
-  if type(infotext) ~= "string" then return end
+  local infotext = func and func(pos, nodedef, meta, params) or minimal.infotext_base(ItemStack(nodedef.name), meta, params)
+  if type(infotext) ~= "string" then return false end
   meta:set_string("infotext",infotext)
 end
