@@ -284,28 +284,39 @@ local function get_desc(stack)
   return stack:get_short_description()
 end
 
--- itemstack, nodemeta, 'params' table, whether or not to return params (true) or the infotext (default ; false)
--- itemstack is used to determine description - but can also be pos, table, or string
-function minimal.infotext_base(stack, meta, params, returnparams)
-  -- get proper name (description)
-  local desc = get_desc(stack)
-  if not desc then return end
-  -- create params if does not exist
+function minimal.infotext_update_params(meta, params)
+  -- create new params if it isn't a table
   if type(params) ~= "table" then
     params = meta:to_table()
     params = type(params) == "table" and params.fields
+  -- merge params with old meta
+  else
+    local merge_params = meta:to_table()
+    -- merge with current meta or if unable to get table, return regular params
+    params = merge_params and minimal.merge_tables(merge_params.fields, params) or params
   end
+  return params
+end
+-- local quick access
+local infotext_upd_params = minimal.infotext_update_params
+
+-- itemstack, nodemeta, 'params' table, whether or not to return params (true) or the infotext (default ; false)
+-- itemstack is used to determine description - but can also be pos, table, or string
+function minimal.infotext_base(stack, meta, params, returnparams)
+  -- create params if does not exist
+  params = type(params) == "table" and params or infotext_upd_params(meta)
   if not params then return end -- no params to use
-  -- only modify params
-  -- we don't modify before for full infotext in case programmers don't want their param table modified
+  -- get proper description if description not provided
+  params.description = params.description or params.desc or get_desc(stack)
+  -- we don't modify before for full infotext in case programmers don't want their param table modified (except for desc)
+  -- we only modify if it is wanted
   if returnparams then
-    params.name = desc
     params.owner = (params.owner and params.owner ~= "") and S("Owner:").." "..params.owner
-    params.label = (params.Label and params.label ~= "") and S("Label:").." "..params.label
+    params.label = (params.label and params.label ~= "") and S("Label:").." "..params.label
     return params
   end
   -- create and return full infotext
-  return (desc or "")..
+  return (params.description or "")..
     ( ( params.owner and "\n"..S("Owner:").." "..params.owner ) or "" ).. -- only apply owner if available
     ( ( params.label and "\n"..S("Label:").." "..params.label) or "" ) -- only apply label if available
 end
@@ -321,19 +332,19 @@ function minimal.infotext_clear_params(params)
   return params
 end
 
-function minimal.infotext_set_new(pos, meta, params, func, nodedef)
+function minimal.infotext_set_new(pos, meta, params, func, nodedef, stack)
   nodedef = type(nodedef) == "table" and nodedef or minimal.get_nodedef(pos) -- just to confirm
   if type(nodedef) ~= "table" then return false end -- no success
+  stack = type(stack) == "userdata" and stack or nodedef -- allow for itemstackstack option or default to nodedef table
+  -- get meta
   meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
-  if type(params) ~= "table" then
-    params = meta:to_table()
-    params = type(params) == "table" and params.fields or {}
-  end
+  -- use or get params
+  params = type(params) == "table" and params or infotext_upd_params(meta)
   params = minimal.infotext_clear_params(params) -- remove empty strings
   -- custom function or nodedef on_infotext function
   func = type(func) == "function" and func or type(nodedef.on_infotext) == "function" and nodedef.on_infotext
   -- infotext will be the provided func or get_infotext_base
-  local infotext = func and func(pos, nodedef, meta, params) or minimal.infotext_base(ItemStack(nodedef.name), meta, params)
+  local infotext = func and func(pos, nodedef, meta, params) or minimal.infotext_base(stack, meta, params)
   if type(infotext) ~= "string" then return false end
   meta:set_string("infotext",infotext)
 end
