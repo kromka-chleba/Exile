@@ -138,7 +138,8 @@ minetest.register_node("bones:bones", {
 		local meta = minetest.get_meta(pos)
 		local time = meta:get_int("time") + elapsed
 		if time >= share_bones_time then
-			minimal.infotext_merge(pos,'Status: '.. S("@1's old bones", meta:get_string("owner")),meta)
+      minimal.infotext_set_new(pos, meta)
+			--minimal.infotext_merge(pos,'Status: '.. S("@1's old bones", meta:get_string("owner")),meta)
 			meta:set_string("owner", "")
 		else
 			meta:set_int("time", time)
@@ -146,7 +147,35 @@ minetest.register_node("bones:bones", {
 		end
 	end,
 	on_blast = function(pos)
-	end,
+  end,
+  on_infotext = function(pos, nodedef, meta, params)
+    local time = meta:get_int("time")
+    local nailed = meta:get_string("nailed")
+    local owner = meta:get_string("owner")
+    -- not claimed and has a owner
+    if nailed == "" and owner ~= "" then
+      -- if there's a share_bones_time
+      if share_bones_time ~= 0 then
+        -- fresh, deemed early
+        if time < share_bones_time_early then
+          return S('Status:').." "..S("@1's fresh bones",owner)
+        -- over the share_bones_time, these bones can be claimed by anyone
+        elseif time >= share_bones_time then
+          meta:set_string("owner","")
+          return S('Status:').." "..S("@1's old bones",owner)
+        -- otherwise just remove fresh
+        else
+          return S('Status:').." "..S("@1's bones",owner)
+        end
+      -- if not share_bones_time, then it's always regular 'ol bones
+      else
+        return S('Status:').." "..S("@1's bones",owner)
+      end
+    -- nailed with no true owner, these'be claimed by someone else
+    else
+      return minimal.infotext_base(nil, meta, minimal.infotext_update_params(meta, params))
+    end
+  end
 })
 
 local function may_replace(pos, player, pname)
@@ -314,7 +343,7 @@ minetest.register_on_dieplayer(function(player)
 	   meta:set_string("ex_origin", origin)
 	end
 	if share_bones_time ~= 0 then
-		minimal.infotext_merge(pos,'Status: '..S("@1's fresh bones", player_name),meta)
+		--minimal.infotext_merge(pos,'Status: '..S("@1's fresh bones", player_name),meta)
 		if share_bones_time_early == 0 or not minetest.is_protected(pos, player_name) then
 			meta:set_int("time", 0)
 		else
@@ -324,6 +353,7 @@ minetest.register_on_dieplayer(function(player)
 		minetest.get_node_timer(pos):start(10)
 	else
 
-		minimal.infotext_merge(pos,'Status: '..S("@1's bones", player_name),meta)
+		--minimal.infotext_merge(pos,'Status: '..S("@1's bones", player_name),meta)
 	end
+  minimal.infotext_set_new(pos, meta)
 end)
