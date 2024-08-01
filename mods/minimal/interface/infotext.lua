@@ -265,4 +265,55 @@ function minimal.infotext_update_desc(pos,key,text,meta)
 	meta:set_string("infotext",infotext_string)
 end
 
+----------------------------------------------------------------------------
 
+function minimal.infotext_base(name, meta, params, returnparams)
+  -- get proper name
+  name = type(name) == "string" and name or
+    (type(name) == "table" or type(name) == "userdata") and (name.name or minimal.get_nodedef(name))
+  -- create params if does not exist
+  if type(params) ~= "table" then
+    params = meta:to_table()
+    params = type(params) == "table" and params.fields
+  end
+  if not params then return end -- no params to use
+  -- only modify params
+  -- we don't modify before for full infotext in case programmers don't want their param table modified
+  if returnparams then
+    params.Name = name
+    params.Owner = (params.Owner and params.Owner ~= "") and S("Owner:").." "..params.Owner
+    params.Label = (params.Label and params.Label ~= "") and S("Label:").." "..params.Label
+    return params
+  end
+  -- create and return full infotext
+  return (name and name.."\n" or "")..
+    ( params.Owner and S("Owner:").." "..params.Owner )..
+    ( params.Label and S("Label:").." "..params.Label )
+end
+
+function minimal.infotext_clear_params(params)
+  if type(params) ~= "table" then return params end
+  if #params > 0 then
+    for name,value in pairs(params) do
+      -- clear out empty strings
+      params[name] = value ~= "" and value or nil
+    end
+  end
+  return params
+end
+
+function minimal.infotext_set_new(pos, meta, params, func, nodedef)
+  nodedef = type(nodedef) == "table" and nodedef or minimal.get_nodedef(pos) -- just to confirm
+  meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
+  if type(params) ~= "table" then
+    params = meta:to_table()
+    params = type(params) == "table" and params.fields or {}
+  end
+  params = minimal.infotext_clear_params(params) -- remove empty strings
+  -- custom function or nodedef on_infotext function
+  func = type(func) == "function" and func or type(nodedef.on_infotext) == "function" and func
+  -- infotext will be the provided func or get_infotext_base
+  local infotext = func and func(pos, nodedef, meta, params) or minimal.get_infotext_base(nodedef.name, meta, params)
+  if type(infotext) ~= "string" then return end
+  meta:set_string("infotext",infotext)
+end
