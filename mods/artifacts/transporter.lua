@@ -92,7 +92,7 @@ local function teleport_effects(target_pos, pos, player, player_name,
 
 	--swap out power core
 	minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
-	minimal.infotext_set(power) -- set node description and owner
+  minimal.infotext_set_new(power) -- set node description and owner
 	set_charging(power, 5, 20)
 	--go to target
 	send_objects(target_pos, pos)
@@ -366,7 +366,7 @@ local function transporter_power_rightclick(pos, node, player,
 
 	itemstack:take_item()
 	minimal.switch_node(pos, {name=swap_a})
-	minimal.infotext_set(pos) -- Set description and owner of swapped core
+	minimal.infotext_set_new(pos) -- Set description and owner of swapped core
 	if pInv:room_for_item("main", new) then
 	   pInv:add_item("main", new)
 	   return itemstack
@@ -543,6 +543,21 @@ local function set_from_key(itemstack, placer, pointed_thing)
 	end
 end
 
+local function transporter_infotext(pos, nodedef, meta, params)
+  params = minimal.infotext_update_params(meta, params) -- update to current meta
+  params.description = nodedef.description
+  local infotext = minimal.infotext_base(nil, meta, params)
+  -- transporter options
+  params.dest = params.dest and S("Destination:").." "..params.dest
+  params.loc = params.loc and S("Location:").." "..params.loc
+  -- set up infotext
+  infotext = infotext..
+    (params.dest and "\n"..params.dest or "")..
+    (params.loc and "\n"..params.loc or "")
+  -- send for update
+  return infotext
+end
+
 
 -- Set from key from formspec
 minetest.register_on_player_receive_fields(function(player, formname, fields)
@@ -561,8 +576,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local meta_tran = minetest.get_meta(pos_tran)
 		meta_tran:set_string("target_name", target_name)
 		meta_tran:set_string("target_pos", target_pos)
-		minimal.infotext_merge(pos_tran,"Destination: "
-				       ..target_name,meta_tran)
+    minimal.infotext_set_new(pos_tran, meta_tran, {dest=target_name}, transporter_infotext)
 
 		local player_name = player:get_player_name()
 		minetest.sound_play( 'artifacts_key',
@@ -701,8 +715,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		--set name and infotext of transporter
 		local meta_tran = minetest.get_meta(
 		   minetest.string_to_pos(target))
-		minimal.infotext_merge(target,"Location: "..
-				       target_name,meta_tran)
+    minimal.infotext_set_new(target, meta_tran, {loc=target_name}, transporter_infotext)
 		meta_tran:set_string("tran_name", target_name)
 
 		minetest.chat_send_player(player_name,
@@ -774,7 +787,7 @@ local function charge_power(pos, selfname, name, length)
 	if charging <= 0 then
 		--finished
 		minimal.switch_node(pos, {name=name})
-		minimal.infotext_set(pos,meta) -- Set Description and Owner
+		minimal.infotext_set_new(pos,meta) -- Set Description and Owner
 		meta:set_float("temp", 14)
 		return false
 	elseif temp < charge_temp then
