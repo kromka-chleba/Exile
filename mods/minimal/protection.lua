@@ -158,7 +158,7 @@ function minimal.protection_nail_use( itemstack, user, pointed_thing )
 			if not (minimal.player_in_creative(user)) then
 				itemstack:take_item()
 			end
-			minimal.infotext_merge(pt_pos, nil, pt_meta)
+      minimal.infotext_set_new(pt_pos, pt_meta)
 			-- play hammering sound
 			playsound = true
 		end
@@ -172,7 +172,7 @@ function minimal.protection_after_place_node( pos, placer, itemstack, pointed_th
 	local pn = placer:get_player_name()
 	local meta = minetest.get_meta(pos)
 	meta:set_string("owner", pn)
-	minimal.infotext_merge(pos,nil,meta)
+	minimal.infotext_set_new(pos, meta)
 	return minimal.player_in_creative(placer)
 end
 
