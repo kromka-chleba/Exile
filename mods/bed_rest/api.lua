@@ -174,6 +174,15 @@ function bed_rest.register_bed(name, def)
 		on_timer = function(pos, elapsed)
 		   return bed_rest.on_timer(pos, elapsed)
 		end,
+    on_infotext = function(pos, nodedef, meta, params)
+      params.description = def.description
+      params = minimal.infotext_update_params(meta, params)
+      local infotext = minimal.infotext_base(nil, meta, params)
+      infotext = infotext..
+        (params.blanket and "\n"..params.blanket or "")..
+        (params.status and "\n"..params.status or "")
+      return infotext
+    end
 	})
 
 	minetest.register_node(name .. "_top", {
