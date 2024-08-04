@@ -38,6 +38,9 @@ end
 
 -- get a stored liquid's definition table
 function liquid_store.get_sl_def(nodename,producefake) -- get stored liquid definition
+  -- permit string, or any table or userdata with a name index or get_name function
+  nodename = type(nodename) == "string" and nodename or (type(nodename) == "table" or type(nodename) == "userdata")
+    and nodename.name or type(nodename.get_name) == "function" and nodename:get_name() or nil
   local sl_def = liquid_store.stored_liquids[nodename]
   -- return sl_def or if wanted, a fake stored_liquid definition
   return sl_def or (producefake == true and {source="",nodename_empty="",dump=false}) or nil
@@ -58,20 +61,32 @@ local function check_protection(pos, user, text)
 end
 
 -- handle stacks
-local function handle_stacks(player, stack_items, new_item)
-   local inv = player:get_inventory()
-   if stack_items:get_count() > 1 then
-      if inv:room_for_item("main", new_item) then
-	 inv:add_item("main", new_item)
+-- player, itemstack, new item to replace itemstack with
+local function handle_stacks(player, itemstack, new_item)
+  local inv = player:get_inventory()
+  -- new item can be string or an itemstack
+  new_item = type(new_item) == "string" and ItemStack(new_item) or new_item
+
+  -- if more than 1, we're going to move the old itemstack to another inventory slot
+  -- and replace with the new_item
+  -- this is to allow functions like liquid_preserve_metadata to save metadata properly
+  -- less convenient for players, but keeps the game functional
+  if itemstack:get_count() > 1 then
+    itemstack:take_item()
+    -- run on delay so that it does not conflict with replacing itemstack
+    minetest.after(0,function()
+      if inv:room_for_item("main",itemstack) then
+        inv:add_item("main",itemstack)
       else
-	 local pos = player:get_pos()
-	 minetest.add_item(pos, new_item)
+        minetest.add_item(player:get_pos(), itemstack)
+        minimal.warn_inv_full(player)
       end
-      return ItemStack(stack_items:get_name().." "..
-		       (stack_items:get_count() -1))
-   else
-      return ItemStack(new_item)
-   end
+    end)
+    return new_item
+  -- we're just replacing, no worries :D
+  else
+    return new_item
+  end
 end
 -- handle punching + finding if it is a node
 local function handle_interaction(player, pointed_thing)
@@ -86,28 +101,42 @@ local function handle_interaction(player, pointed_thing)
   return pointed_thing.type
 end
 
-local function find_stored(empty, sourcename)
-   local stored_name
-   for k, v in pairs(liquid_store.stored_liquids) do
-      local m = v.nodename_empty
-      local s = v.source
-      if  m == empty and s == sourcename then
-	 stored_name = v.nodename
-	 break
-      end
-   end
-   return stored_name
+-- find_stored
+-- helps find a stored liquid variant with the provided empty and source
+local function find_stored(empty, source)
+  -- allow empty to be a string, or a table or userdata (usually itemstack) with a "name" index or "get_name" function
+  empty = type(empty) == "string" and empty or (type(empty) == "table" or type(empty) == "userdata")
+    and empty.name or type(empty.get_name) == "function" and empty:get_name() or nil
+  empty = empty ~= "" and empty or nil -- don't look for a literally empty index lol
+  -- allow source to be a string, or a table or userdata (usually itemstack) with a "name" index or "get_name" function
+  source = type(source) == "string" and source or (type(source) == "table" or type(source) == "userdata")
+    and source.name or type(source.get_name) == "function" and source:get_name() or nil
+  source = source ~= "" and source or nil
+  if not (empty and source) then return end -- return nothing
+  -- stored liquid name is in the indexes, no point to indexing the table for it
+  for slname,sl in pairs(liquid_store.stored_liquids) do
+    -- if empty and source found in relation to stored liquid name then return the name
+    if sl.nodename_empty == empty and sl.source == source then
+      return slname
+    end
+  end
 end
+-- namespace
+liquid_store.find_stored = find_stored
 
+-- liquid_metadata
+-- pos, oldnode, transferred_stack
 -- store metadata into a provided stack (grab liquid)
+-- provided stack can be a string - will be converted into an ItemStack
 local function liquid_metadata(pos, oldnode, t_stack)
   local nodedata = minetest.registered_nodes[oldnode.name]
+  t_stack = type(t_stack) == "string" and ItemStack(t_stack) or t_stack
   if (type(nodedata) ~= "table" and type(t_stack) ~= "userdata") then
     return
   end
 
   -- custom metadata function I created for certain nodes
-  if (type(nodedata["_preserve_metadata"]) == "function") then
+  if (type(nodedata._preserve_metadata) == "function") then
     local oldmeta = minetest.get_meta(pos)
 
     return nodedata._preserve_metadata(pos, oldnode, oldmeta, t_stack)
@@ -122,6 +151,22 @@ function liquid_store.drain_store(player, itemstack)
    else
       return itemstack
    end
+end
+
+-- fill store
+-- uses an 'empty' itemstack and fills it up with the corresponding source or stored_liquid
+-- returns filled itemstack on success, return nil otherwise
+function liquid_store.fill_store(player, itemstack, source, returnnil)
+  local stored = liquid_store.get_sl_def(source)
+  -- couldn't confirm source was a stored liquid, check if source is a correlating source liquid
+  if not stored then
+    stored = find_stored(itemstack, source)
+  end
+  -- modify inventory accordingly
+  if stored then
+    return handle_stacks(player, itemstack, stored)
+  end
+  return
 end
 
 --Function for empty buckets to call on_use... as return (so gives item)
@@ -152,41 +197,28 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
   name == liquiddef.source then -- pointing at a liquid
     -- find a registered stored liquid who has an empty that matches
     -- what we are using and a source that matches our liquid
-    local giving_back = find_stored(itemstack:get_name(), name)
-
-    if not giving_back then
-   --nothing matches
-      return
-    end
-
-    local new_wield = handle_stacks(user, itemstack,
-      giving_back)
+    local plr_creative = minimal.player_in_creative(user)
+    -- only remove liquid if in creative, fill stack otherwise - however both only if a valid source is found
+    local new_wield = plr_creative and find_stored(itemstack, name) or
+      not plr_creative and liquid_store.fill_store(user, itemstack, name) or nil
+    if not new_wield then return end -- nothing matches, return itemstack
 
     -- force_renew requires a source neighbour
-    local source_neighbor = false
-    if liquiddef.force_renew then
-     source_neighbor = minetest.find_node_near(pointed_thing.under, 1,
-      liquiddef.source)
-    end
-
-    if not (source_neighbor and liquiddef.force_renew) then
+    local source_neighbor = liquiddef.force_renew
+      and minetest.find_node_near(pointed_thing.under, 1, liquiddef.source)
+    -- no renewing
+    if not source_neighbor then
       minetest.add_node(pointed_thing.under, {name = "air"})
     end
 
-      -- return filled bucket if player is not in creative
-    if not (minimal.player_in_creative(user)) then
-     liquid_metadata(pointed_thing.under,node,new_wield)
-     return new_wield
+    if not plr_creative then
+      liquid_metadata(pointed_thing.under,node,new_wield)
+      return new_wield
     end
   elseif storeddef then -- pointing at a stored liquid
-    local giving_back = find_stored(itemstack:get_name(),
-      storeddef.source)
-    if not giving_back then
-      --nothing matches
-      return
-    end
-    local new_wield = handle_stacks(user, itemstack,
-      giving_back)
+    local new_wield = liquid_store.fill_store(user, itemstack, storeddef.source)
+    if not new_wield then return end -- nothing matches
+    -- clear out pot at pos
     minimal.switch_node(pointed_thing.under,
       {name = storeddef.nodename_empty})
 
@@ -210,8 +242,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     return
   end
   -- get storeddef or create a fake one
-  local storeddef = liquid_store.get_sl_def(itemstack:get_name(),true)
-  --local storeddef = liquid_store.stored_liquids[itemstack:get_name()] or {source = "", nodename_empty = "", dump = false}
+  local storeddef = liquid_store.get_sl_def(itemstack,true)
   -- permit overrides
   source = type(source) == "string" and source or storeddef.source
   nodename_empty = type(nodename_empty) == "string" and nodename_empty or storeddef.nodename_empty
@@ -254,7 +285,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     return click_result
   -- check out my cool definition instead
   elseif ndef then
-    stored = find_stored(ndef.name, source)
+    stored = find_stored(ndef, source)
     -- don't remove liquids
     buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to or false
   end
@@ -272,7 +303,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     return click_result
   elseif ndef then
     -- If pointing at a full liquid store don't dump
-    if liquid_store.get_sl_def(node.name) then
+    if liquid_store.get_sl_def(node) then
       dump = false
     end
   end
@@ -324,7 +355,7 @@ function liquid_store.on_place(itemstack, placer, pointed_thing, place_name)
 
   local node = minetest.get_node(pos) -- grab a possible liquid if correct
   local nodedata = minetest.registered_nodes[node.name]
-  local stored = find_stored(place_name, node.name)
+  local stored = find_stored(place_name, node)
   if (stored) then
     isliquid = true
   end
