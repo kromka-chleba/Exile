@@ -366,9 +366,9 @@ minetest.register_node('tech:thatch', {
 stairs.register_stair_and_slab(
 	"thatch",
 	"tech:thatch",
-	"weaving_frame_mixing",
+	"hand_mixing",
 	"true",
-	"weaving_frame_mixing",
+	"hand_mixing",
 	{snappy=3, flammable=1, fall_damage_add_percent = -15},
 	{"tech_thatch.png"},
 	S("Thatch Stair"),
@@ -441,16 +441,16 @@ crafting.register_recipe({
 
 ----Wattle from sticks or converting from loose wattle or door_wattle
 crafting.register_recipe({
-	type = {"crafting_spot","hand_wattle",'knife_wattle'},
+	type = {"crafting_spot","hand",'knife_wattle'},
 	output = "tech:wattle",
-	items = {{"tech:stick 6","tech:wattle_loose 2","tech:wattle_door_frame","doors:door_wattle"}},
+	items = {{"tech:stick 6","tech:wattle_loose 2","tech:wattle_door_frame","doors:door_wattle","tech:trapdoor_wattle"}},
 	level = 1,
 	always_known = true,
 })
 
 --recycle wattle with some loss
 crafting.register_recipe({
-	type = {"mixing_spot","hand_wattle",'knife_wattle'},
+	type = {"mixing_spot",'knife_wattle'},
 	output = "tech:stick 4",
 	items = {"tech:wattle"},
 	level = 1,
@@ -459,7 +459,7 @@ crafting.register_recipe({
 
 ----Loose Wattle from sticks or converting from wattle
 crafting.register_recipe({
-	type = {"crafting_spot","hand_wattle",'knife_wattle'},
+	type = {"crafting_spot","hand",'knife_wattle'},
 	output = "tech:wattle_loose 2",
 	items = {{"tech:stick 6","tech:wattle"}},
 	level = 1,
@@ -468,7 +468,7 @@ crafting.register_recipe({
 
 --recycle loose wattle with some loss
 crafting.register_recipe({
-	type = {"mixing_spot","hand_wattle",'knife_wattle'},
+	type = {"mixing_spot",'knife_wattle'},
 	output = "tech:stick 2",
 	items = {"tech:wattle_loose"},
 	level = 1,
@@ -477,7 +477,7 @@ crafting.register_recipe({
 
 ----Wattle door frame from sticks or convert from wattle
 crafting.register_recipe({
-	type = {"crafting_spot","hand_wattle",'knife_wattle'},
+	type = {"crafting_spot","hand",'knife_wattle'},
 	output = "tech:wattle_door_frame",
 	items = {{"tech:stick 6","tech:wattle"}},
 	level = 1,

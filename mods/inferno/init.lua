@@ -496,7 +496,7 @@ minetest.register_tool("inferno:fire_sticks", {
 --
 ----craft unlit fire from Sticks, tinder
 crafting.register_recipe({
-    type = {"crafting_spot","hand","knife"},
+    type = {"crafting_spot","hand_tools","knife"},
     output = "inferno:fire_sticks",
     items = {"tech:stick 2", "group:fibrous_plant 1"},
     level = 1,

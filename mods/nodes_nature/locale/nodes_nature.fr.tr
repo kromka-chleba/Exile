@@ -1,4 +1,4 @@
-# textdomain : nodes_nature
+# textdomain: nodes_nature
 # dropping water
 Undecomposed Compost=Compost non décomposé
 Set to decompose=Mis à décomposer
@@ -181,10 +181,10 @@ Your stomach hurts terribly.=Votre estomac vous fait terriblement mal.
 @1 Cobble=Pavé de @1
 <day>=<jour>
 Sets date.=Définit la date.
-I'm setting day, wait !=Je définis le jour, attendez !
-Wrong argument, needs a number !=Mauvais argument, il faut un nombre !
+I'm setting day, wait!=Je définis le jour, attendez!
+Wrong argument, needs a number!=Mauvais argument, il faut un nombre!
 Nothing to change, the date stays as is.=Rien à changer, la date reste telle quelle.
-Date change requested !=Changement de date demandé !
+Date change requested!=Changement de date demandé!
 # sediment conditions (sediment_api.lua, sediment_data.lua)
 Wet @1=@1 Humide
 Salty Wet @1=@1 Humide et salé
@@ -210,6 +210,13 @@ Tree Marker=Marqueur d'arbre
 @1 Log Stair=Escalier en bûche de @1
 @1 Log Slab=Dalle en bûche de @1
 @1 Leaves=Feuilles de @1
+
+
+##### not used anymore #####
+
+I'm setting day, wait !=Je définis le jour, attendez !
+Wrong argument, needs a number !=Mauvais argument, il faut un nombre !
+Date change requested !=Changement de date demandé !
 # groups
 Fruit=Fruit
 Seed=Graine

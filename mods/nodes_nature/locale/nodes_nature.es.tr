@@ -212,14 +212,14 @@ Tree Marker=Marcador de Arbol
 @1 Log Stair=
 @1 Log Slab=
 @1 Leaves=Ramas de @1
-# groups
-Fruit=Fruta
-Seed=Semilla
-Compostable=Compostable
 
 
 ##### not used anymore #####
 
+# groups
+Fruit=Fruta
+Seed=Semilla
+Compostable=Compostable
 Moss Spores=Esporas de Musgo
 Anperla Tuber=Tuberculo de Anperla
 Reshedaar Spores=Esporas de Reshedaar

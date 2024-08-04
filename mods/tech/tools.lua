@@ -923,7 +923,7 @@ crafting.register_recipe({
 
 ----craft stone chopper from gravel
 crafting.register_recipe({
-	type = {"crafting_spot","hand"},
+	type = {"crafting_spot","hand_tools"},
 	output = "tech:stone_chopper 1",
 	items = {"group:gravel"},
 	level = 1,
@@ -932,7 +932,7 @@ crafting.register_recipe({
 
 ----digging stick from sticks
 crafting.register_recipe({
-	type = {"crafting_spot","hand","knife"},
+	type = {"crafting_spot","hand_tools","knife"},
 	output = "tech:digging_stick 1",
 	items = {"tech:stick 2"},
 	level = 1,
@@ -954,11 +954,11 @@ crafting.register_recipe({
 --IB-20240226 })
 
 crafting.register_recipe({
-	type = "grinding_stone",
+	type = "hand_tools",
 	output = "tech:adze_jade",
 	items = {{"group:jade_cobble","group:basalt_cobble","group:granite_cobble"},
 		'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	material = 1; -- first item sets material.
+	material = 1, -- first item sets material.
 	material_output = "tech:adze_%material%",
 	level = 1,
 	always_known = true,
@@ -976,7 +976,7 @@ crafting.register_recipe({
 
 --grind club
 crafting.register_recipe({
-	type = "grinding_stone",
+	type = "hand_tools",
 	output = "tech:stone_club",
 	items = {"group:granite_cobble", 'nodes_nature:sand'},
 	level = 1,
@@ -1057,7 +1057,7 @@ minetest.register_tool(
 })
 
 crafting.register_recipe({
-	type = "grinding_stone",
+	type = "hand_tools",
 	output = "tech:hammer",
 	items = {{"group:basalt_cobble","group:granite_cobble"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
 	material = 1; -- first item sets material.

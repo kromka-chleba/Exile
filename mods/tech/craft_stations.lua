@@ -45,9 +45,9 @@ crafting.register_type("glass_furnace", S("Glass furnace"))
 
 -- Tool based crafting stations
 crafting.register_type("hand", S("Crafting"))   		-- Empty hand tool; Replace crafting spot
-crafting.register_type("hand_create", S("Create"))   	-- Assemble crafting stations by hand.
+-- crafting.register_type("hand_create", S("Create"))   	-- Assemble crafting stations by hand.
 crafting.register_type("hand_pottery", S("Pottery"))	-- Pottery tab
-crafting.register_type("hand_wattle", S("Wattle"))		-- Wattle Tab
+-- crafting.register_type("hand_wattle", S("Wattle"))		-- Wattle Tab
 crafting.register_type("hand_tools", S("Tools"))	-- Tools Tab
 crafting.register_type("hand_mixing", S("Mixing"))	-- Mixing Tab
 
@@ -152,7 +152,7 @@ minetest.register_node("tech:crafting_spot", {
 	description   = S("Crafting Spot"),
 	tiles         = {"tech_station_crafting_spot.png"},
 	exile_crafting = {
-		craft_types  = {'hand','hand_pottery','hand_create','hand_mixing'},
+		craft_types  = {'hand','hand_tools','hand_pottery','hand_mixing','weaving_frame','threshing_spot'},
 		craft_level  = 2,
 	},
 	drawtype      = "nodebox",
@@ -529,7 +529,7 @@ minetest.register_node("tech:mortar_pestle_limestone",{
 --IB-20240226 -- 	always_known = true,
 --IB-20240226 -- 	})
 crafting.register_recipe({
-type   = "grinding_stone",
+type   = "hand_tools",
 output = "tech:mortar_pestle_limestone",
 items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
 	{"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"}, 'nodes_nature:sand'},
@@ -856,7 +856,7 @@ minetest.register_node("tech:glass_furnace", {
 --IB-20240226 	})
 --brick_makers_bench
 crafting.register_recipe({
-	type   = {"crafting_spot", "hand_create"},
+	type   = {"crafting_spot", "hand_tools"},
 	output = "tech:brick_makers_bench",
 	items  = {'tech:stick 24'},
 	level  = 1,

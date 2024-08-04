@@ -13,15 +13,62 @@
 
 local S = minetest.get_translator("minimal")
 
+local craftImage ={}
+craftImage["crafting_spot"] 				= "tech:stick"
+craftImage["mixing_spot"] 					= "tech:mixing_spot"
+craftImage["threshing_spot"] 				= "nodes_nature:galanta_seed"
+craftImage["weaving_frame"] 				= "tech:woven_poncho"
+craftImage["weaving_frame_mixing"] 			= "tech:weaving_frame"
+craftImage["grinding_stone"] 				= "tech:grinding_stone_granite"
+craftImage["mortar_and_pestle"] 			= "tech:mortar_pestle_granite"
+craftImage["chopping_block"] 				= "tech:chopping_block"
+craftImage["hammering_block"] 				= "tech:hammering_block"
+craftImage["anvil"] 						= "tech:anvil"
+craftImage["anvil_mixing"] 					= "stairs:stair_slag"
+craftImage["carpentry_bench"] 				= "tech:carpentry_bench"
+craftImage["masonry_bench"] 				= "tech:masonry_bench"
+craftImage["masonry_bench_bricks"] 			= "stairs:stair_limestone_brick"
+craftImage["masonry_bench_bricks_mortar"] 	= "stairs:stair_limestone_brick_mortar"
+craftImage["masonry_bench_blocks"] 			= "stairs:stair_limestone_block"
+craftImage["masonry_bench_blocks_mortar"] 	= "stairs:stair_limestone_block_mortar"
+craftImage["masonry_bench_mixing"] 			= "tech:limestone_block_mortar"
+-- craftImage["masonry_mixing"] 				= "tech:crafting_spot"
+craftImage["brick_makers_bench"] 			= "tech:brick_makers_bench"
+craftImage["brick_makers_bench_bricks"] 	= "stairs:stair_limestone_brick_mortar"
+craftImage["brick_makers_bench_blocks"] 	= "tech:conglomerate_block_mortar"
+craftImage["brick_makers_bench_mixing"] 	= "stairs:stair_mudbrick"
+craftImage["spinning_wheel"] 				= "tech:spinning_wheel"
+craftImage["loom"] 							= "tech:loom"
+craftImage["glass_furnace"] 				= "tech:glass_furnace"
+craftImage["hand"] 							= "tech:stick"
+-- craftImage["hand_create"] 					= "tech:brick_makers_bench"
+craftImage["hand_pottery"] 					= "tech:clay_water_pot"
+-- craftImage["hand_wattle"] 					= "tech:wattle"
+craftImage["hand_tools"] 					= "tech:hammer_basalt"
+craftImage["hand_mixing"] 					= "stairs:stair_thatch"
+craftImage["knife"] 						= "tech:stone_chopper"
+craftImage["knife_stations"] 				= "tech:stone_chopper"
+craftImage["knife_wattle"] 					= "tech:wattle"
+craftImage["knife_mixing"] 					= "tech:wood_ash"
+craftImage["hammer"] 						= "tech:hammer_basalt"
+craftImage["hammer_mixing"] 				= "nodes_nature:limestone_boulder"
+craftImage['shovel'] 						= "tech:shovel_iron"
+craftImage["shovel_agriculture"] 			= "nodes_nature:loam_agricultural_soil"
+craftImage['soil_mixing'] 					= "stairs:stair_loam"
+craftImage['axe'] 							= "tech:axe_iron"
+craftImage['axe_mixing'] 					= "stairs:stair_tangkal_log"
+craftImage['cobble'] 						= "nodes_nature:limestone_boulder"
+craftImage['pickaxe'] 						= "tech:pickaxe_iron"
+
 -- Create global default detached "craft_types" inventory
 -- Used to populate players craft_types
 local ctypes = minetest.create_detached_inventory("craft_types")
-ctypes:set_size('main',12)
+ctypes:set_size('main',2)
 ctypes:set_list('main',{
 	'tech:crafting_spot',
-	'tech:weaving_frame',
-	'tech:threshing_spot',
-	'tech:grinding_stone_granite',
+	-- 'tech:weaving_frame',
+	-- 'tech:threshing_spot',
+	-- 'tech:grinding_stone_granite',
 })
 
 -- The inventory formspec is cached for each player like this:
@@ -97,7 +144,7 @@ local function load_craft_types(inv, craft_item)
 	if not cItems or inv:is_empty('craft_types') then
 		-- set player craft_type to global default
 		cItems=minetest.get_inventory({type='detached',name='craft_types'}):get_list('main')
-		inv:set_size('craft_types', 12)
+		inv:set_size('craft_types', 2)
 		inv:set_list('craft_types', cItems)
 	end
 	if craft_item then
@@ -107,7 +154,7 @@ local function load_craft_types(inv, craft_item)
 end
 
 -- Set default values for cache. Used if craft type Item is changed and when formspec first opened
-local function set_cache(player_name,inv,sItemID)
+local function set_cache(player_name,inv,sItemID,qtyID)
 	local cache = inventoryFS_cache[player_name]
 	if not cache or cache == 'closed' then
 		cache = {}
@@ -119,6 +166,7 @@ local function set_cache(player_name,inv,sItemID)
 	cache.recipesFS = nil
 	cache.output = ""
 	cache.sInv = cache.sInv or 'main'	-- XXX need to make sure selected inv exists.
+	cache.qty = qtyID or 1
 
 	local cItems = load_craft_types(inv)
 	-- Default to the first craft_types inventory item if not provided
@@ -271,19 +319,34 @@ local function process_receive_fields(player, formname, fields)
 --		crafting.sort_order_by_player[player_name] = nil
 		done = true
 	end
-
+	for i = 1, 10, 1 do
+		if fields['sCraftTab_'..i] then
+			cache.sTab = i
+			cache.sScroll = 0
+			cache.recipesFS = nil
+			cache.output = ""
+	--		crafting.sort_order_by_player[player_name] = nil
+			done = true
+		end
+	end
 	if not done then
 		-- process all fields for button pushes.
 		local btn_type
 		local btn_id
 		for btn, value in pairs(fields) do
-			btn_type,btn_id = process_button(btn,{'sResult','sCraftType','sInv'})
+			btn_type,btn_id = process_button(btn,{'sResult','sCraftType','sInv','qty1','qty2','qty3'})
 			if btn_type ~= nil then
 				break	-- We found a button
 			end
 		end
 
-		if btn_type then
+		if cache.qty ~= 1 and fields.qty1 then
+			cache.qty = 1
+		elseif cache.qty ~= 2 and fields.qty2 then
+			cache.qty = 2
+		elseif cache.qty ~= 3 and fields.qty3 then
+			cache.qty = 3
+		elseif btn_type then
 			if btn_type == 'sCraftType' then
 				btn_id = tonumber(btn_id)
 				cache = set_cache(player_name,inv,btn_id)
@@ -295,8 +358,8 @@ local function process_receive_fields(player, formname, fields)
 				local ctype = cache.cTabs[cache.sTab]
 				local sLevel = cache.sLevel
 				local sInv = cache.sInv
-				local qty = tonumber(fields.qty) or 1
-
+				local qty = cache.qty or 1
+				
 				process_qty(recipe,qty,cache.item_hash)
 				if not crafting.can_craft(player_name, ctype, sLevel, recipe) then
 					minetest.log("error", "[inventoryFS] Player clicked a button they shouldn't have been able to")
@@ -413,16 +476,15 @@ local function cache_player_recipes(cache, player_name, pInv)
 		crafting.sort_order_by_player[player_name] = sortHash
 	end
 	-- Add tab header
-	local tabs = ""
-	for i=1,#cTabs do
-		if i > 1 then
-			tabs = tabs .. ',' -- add comma after first
-		end
-		tabs = tabs .. crafting.tab_labels[cTabs[i]] or cTabs[i]
-	end
 	recipesFS[#recipesFS + 1] = "style_type[item_image_button;border=false]"
-	recipesFS[#recipesFS + 1] = 'tabheader[3.2,1;sCraftTab;' .. tabs .. ';'
-		.. sTab .. ';true;false]'
+	for i=1, #cTabs do
+		local leftPoint = 3.3 + (i - 1) * 1.2
+		local itemName = craftImage[cTabs[i]] or 'tech:crafting_spot'
+		recipesFS[#recipesFS + 1] = 'item_image_button['..(leftPoint)..',0.3;0.6,0.6;'.. itemName .. ';sCraftTab_'..i..';]'
+		recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
+		';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]] or cTabs[i])) ..
+		';#000000;#ffffff]'
+	end
 	-- add Scrollable container
 	local columns = 6 -- can show 6 items accross without scrollbar
 	if #recipe_list > 24 then
@@ -481,8 +543,8 @@ local function cache_player_recipes(cache, player_name, pInv)
 
 	recipesFS[#recipesFS + 1] =	'scroll_container_end[]'
 	recipesFS[#recipesFS + 1] =	'field_close_on_enter[query;false]'
-	recipesFS[#recipesFS + 1] =	'field[4.2,6;3,.5;query;;]'
-	recipesFS[#recipesFS + 1] =	'button[7.3,6;.6,.5;?;?]'
+	recipesFS[#recipesFS + 1] =	'field[0.4,9.2;3.0,0.5;query;query;]'
+	recipesFS[#recipesFS + 1] =	'button[3.7,9.2;0.6,0.5;?;?]'
 	cache.recipesFS = table.concat(recipesFS, "")
 	cache.output = ""
 	return cache
@@ -496,7 +558,7 @@ local function cache_player_inventory(cache, pInv)
 	inventory[#inventory + 1] = 'style_type[list;size=;spacing=]'
 	inventory[#inventory + 1] = 'list[current_player;' .. selected .. ';.4,6.7;8,2;0]'
 	inventory[#inventory + 1] = 'listring[]'
-	inventory[#inventory + 1] = 'tabheader[.4,9.8;inventory_tab;'..S("Main")..","..S("Bag1")..","..S("Bag2")..","..S("Bag3")..","..S("Bag4")..';1;true;false]'
+	-- inventory[#inventory + 1] = 'tabheader[.4,9.8;inventory_tab;'..S("Main")..","..S("Bag1")..","..S("Bag2")..","..S("Bag3")..","..S("Bag4")..';1;true;false]'
 
 	cache.inventoryFS = table.concat(inventory, "");
 	cache.output = ""
@@ -506,17 +568,17 @@ end
 -- Shouldn't need to be rebuilt more then once per player per restart
 local function cache_player_input_list(cache, pInv)
 	local inputs = pInv:get_list('input_items')
-	if not inputs or #inputs ~= 16 then
+	if not inputs or #inputs ~= 6 then
 		-- create inputs inventory list and draw formspec for input_itmes
-		pInv:set_size('input_items', 16)
+		pInv:set_size('input_items', 6)
 	end
 
 	local input_listFS = {
-		'container[.4,3.2]',
+		'container[.4,4.0]',
 		'label[.1,0;'..S("Input Items")..']',
 --		'box[0,.2;2.5,2.5;black]',
-		'style_type[list;size=.5,.5;spacing=.1]',
-		'list[current_player;input_items;.1,.3;4,4;0]',
+		'style_type[list;size=.7,.7;spacing=.1]',
+		'list[current_player;input_items;.1,.3;3,3;0]',
 		'container_end[]',
 	}
 	cache.input_listFS = table.concat(input_listFS, "")
@@ -530,20 +592,21 @@ end
 local function cache_player_craft_types(cache, pInv)
 	local selected = cache.sItem or 'crafting_spot' -- default to hand crafting
 	local cItems = load_craft_types(pInv)
+	local cTabs = cache.cTabs	-- Crafting tabs to display
 	local craft_typeFS = {
 		'container[.4,.8]',
-		'label[0.0,0;'..S("Craft Type")..']',
-		'box[0,.2;2.5,1.9;black]',
+		'label[0.1,0;'..S("Craft Type")..']',
+		-- 'box[0,.2;2.5,1.9;black]',
 	}
 	local x = 0
 	local y = 0
 	for i,stack in ipairs(cItems) do
-		local coords = tostring(x * 0.6 + 0.1) ..','.. tostring(y * 0.6 + 0.3)
+		local coords = tostring(x * 1.0 + 0.1) ..','.. tostring(y * 1.0 + 0.3)
 		if not stack:is_empty() then
 			-- Dipslay item image
 			local itemname = stack:get_name()
 			craft_typeFS[#craft_typeFS + 1] =
-				'item_image_button[' .. coords .. ';.5,.5;'
+				'item_image_button[' .. coords .. ';0.8,0.8;'
 					.. itemname ..';sCraftType_' .. i .. ';]'
 			craft_typeFS[#craft_typeFS + 1] =
 				'tooltip[sCraftType_' .. i .. ';'
@@ -551,14 +614,15 @@ local function cache_player_craft_types(cache, pInv)
 		else
 			-- display empty space
 			craft_typeFS[#craft_typeFS + 1] =
-				'image[' ..coords..';.5,.5;crafting_slot_empty.png]'
+				'image[' ..coords..';0.8,0.8;crafting_slot_empty.png]'
 		end
 		x = x + 1
-		if x > 3 then
+		if x > 1 then
 			x = 0
 			y = y + 1
 		end
 	end
+
 	craft_typeFS[#craft_typeFS + 1] = 'container_end[]'
 	cache.craft_typeFS=table.concat(craft_typeFS,"");
 	cache.output = ""
@@ -685,9 +749,26 @@ function minimal.make_inventory_formspec(player,context)
 --IB-test	end
 	--reset epoch and draw formspec from cached values unless cleared
 	cache.epoch = os.time()
+	local qtyID = cache.qty or 1
+	if qtyID == 2 then
+		qtyID1 = 'false'
+		qtyID2 = 'true'
+		qtyID3 = 'false'
+	elseif qtyID == 3 then
+		qtyID1 = 'false'
+		qtyID2 = 'false'
+		qtyID3 = 'true'
+	else
+		qtyID1 = 'true'
+		qtyID2 = 'false'
+		qtyID3 = 'false'
+	end
 	local output =
-		'label[.4,6.2;'..S("Quantity")..']' ..
-		'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]'
+		'label[.5,6.2;'..S("Quantity")..']' ..
+		-- 'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]' ..
+		'checkbox[3.0,6.2;qty1;'..S("Single")..';'..qtyID1..']' ..
+		'checkbox[4.5,6.2;qty2;'..S("Stack")..';'..qtyID2..']' ..
+		'checkbox[6.0,6.2;qty3;'..S("Maximum")..';'..qtyID3..']'
 	-- add Craft Types
 --	if not cache.craft_typeFS then
 		cache = cache_player_craft_types(cache, pInv)
@@ -752,6 +833,7 @@ function minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_
 		sTab = 1,
 		sInv = 'main',
 		output = '',
+		qty = 1,
 	}
 	inventoryFS_cache[player_name] = cache
 	set_cache(player_name, pInv, sItemID)

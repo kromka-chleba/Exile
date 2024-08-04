@@ -15,6 +15,9 @@ Input Items=
 Craft Type=
 Crafting=
 Quantity=
+Single=
+Stack=
+Maximum=
 #playersettings.lua
 Enable wide HUDbar=
 Show numeric stats=

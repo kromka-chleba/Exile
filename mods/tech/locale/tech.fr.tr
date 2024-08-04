@@ -1,4 +1,4 @@
-# textdomain : tech
+# textdomain: tech
 # backpacks.lua
 Woven Bag=Sac tissé
 Wicker Bag=Sac en osier
@@ -67,11 +67,11 @@ Light Fabric Tunic=Tunique en tissu léger
 Thick Fabric Tunic=Tunique en tissu épais
 # cooking-pot.lua
 Soup=Soupe
-Status : Unprepared pot@nContents : <EMPTY>@nNote : Add water to pot to make soup=Statut : Pot non préparé@nContenu : <VIDE>@nRemarque : Ajoutez de l'eau au pot pour faire de la soupe
-Status : Soup Pot@nContents : Water@nNote : Add food to the pot to make soup=Statut : Pot de soupe@nContenu : Eau@nRemarque : Ajoutez de la nourriture au pot pour faire de la soupe
+Status: Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=Statut: Pot non préparé@nContenu: <VIDE>@nRemarque: Ajoutez de l'eau au pot pour faire de la soupe
+Status: Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=Statut: Pot de soupe@nContenu: Eau@nRemarque: Ajoutez de la nourriture au pot pour faire de la soupe
 @1 soup=Soupe de @1
 Cooking Pot=Marmite
-This pot is full and heavy. Spill it ?=Cette marmite est pleine et lourde. La renverser ?
+This pot is full and heavy. Spill it?=Cette marmite est pleine et lourde. La renverser?
 Cooking Pot (unfired)=Marmite (non cuite)
 Eat=Manger
 Crafting=Artisanat
@@ -94,7 +94,7 @@ Tools=Outils
 Stations=Stations
 Agriculture=Agriculture
 Pickaxe=Pioche
-Cannot place here ! Needs a whole block of : =Impossible de placer ici ! Besoin d'un bloc entier de : 
+Cannot place here! Needs a whole block of: =Impossible de placer ici! Besoin d'un bloc entier de: 
 Mixing Spot=Lieu de mélange
 Threshing Spot=Lieu de battage
 Weaving Spot=Lieu de tissage
@@ -120,6 +120,10 @@ Wooden Door=Porte en bois
 Wooden Trapdoor=Trappe en bois
 Iron Door=Porte en fer
 Iron Trapdoor=Trappe en fer
+Glass Door=
+Glass Trapdoor=
+Clear Glass Door=
+Clear Glass Trapdoor=
 # drugs.lua
 Herbal Medicine=Médecine à base de plantes
 Tiku (stimulant)=Tiku (stimulant)
@@ -140,6 +144,8 @@ Mudbrick Slab=Dalle en brique en terre
 Rammed Earth=Terre battue
 Rammed Earth Stair=Escalier en terre battue
 Rammed Earth Slab=Dalle en terre battue
+Wicker well lining=
+Reinforce a well wall=
 Loose Wattle=Clayonnage en vrac
 Wattle Door Frame=Cadre de porte en clayonnage
 Thatch=Chaume
@@ -186,8 +192,6 @@ Clear Glass Sand Mix=Mélange de sable clair pour verre
 Clear Glass Ingot=Lingot de verre clair
 Pane Casting Tray=Plateau de moulage de carreau
 Pane Casting Tray With Green Glass Pane=Plateau de moulage avec carreau de
-
- verre vert
 Pane Casting Tray With Clear Glass Pane=Plateau de moulage avec carreau de verre clair
 Green Glass Pane=Carreau de verre vert
 Clear Glass Pane=Carreau de verre clair
@@ -219,11 +223,11 @@ Iron Key=Clé en fer
 Grant key owner access.=Accorder l'accès au propriétaire de la clé.
 # Lantern
 Lantern Case=Boîtier de lanterne
-Status : needs a clear glass pane and a wick (coarse fibre) !=Statut : nécessite un carreau de verre clair et une mèche (fibre grossière) !
+Status: needs a clear glass pane and a wick (coarse fibre)!=Statut: nécessite un carreau de verre clair et une mèche (fibre grossière)!
 Lantern Case with a wick=Boîtier de lanterne avec une mèche
-Status : needs a clear glass pane !=Statut : nécessite un carreau de verre clair !
+Status: needs a clear glass pane!=Statut: nécessite un carreau de verre clair!
 Lantern Case with Glass=Boîtier de lanterne avec verre
-Status : needs a wick (coarse fibre) !=Statut : nécessite une mèche (fibre grossière) !
+Status: needs a wick (coarse fibre)!=Statut: nécessite une mèche (fibre grossière)!
 Unlit Lantern=Lanterne éteinte
 Lit Lantern=Lanterne allumée
 # lever.lua
@@ -237,7 +241,7 @@ Flip to lever=Retourner pour levier
 Apply facing to another node=Appliquer l'orientation à un autre nœud
 Empty=Vide
 fuel left=carburant restant
-Status : =Statut : 
+Status: =Statut: 
 # plant_crafts.lua
 Stick=Bâton
 Grass Fibre=Fibre d'herbe
@@ -262,7 +266,9 @@ Clay Storage Pot (unfired)=Pot de stockage en argile (non cuit)
 Clay Oil Lamps (x4) (unfired)=Lampes à huile en argile (x4) (non cuites)
 Clay Oil Lamps (x4)=Lampes à huile en argile (x4)
 Clay Oil Lamp=Lampe à huile en argile
-Clay Oil Lamp (lit)=Lampe à huile en argile (allumée)
+Clay Oil Lamp (Lit)=Lampe à huile en argile (allumée)
+Hanging Oil Lamp=
+Hanging Oil Lamp (Lit)=
 Clay Watering Can (unfired)=Arrosoir en argile (non cuit)
 # storage.lua
 Clay Storage Pot=Pot de stockage en argile
@@ -340,8 +346,18 @@ Wooden Floor Boards=Planches de plancher en bois
 Wooden Stairs=Escalier en bois
 
 
-##### non utilisé ####
+##### not used anymore #####
 
+Status : Unprepared pot@nContents : <EMPTY>@nNote : Add water to pot to make soup=Statut : Pot non préparé@nContenu : <VIDE>@nRemarque : Ajoutez de l'eau au pot pour faire de la soupe
+Status : Soup Pot@nContents : Water@nNote : Add food to the pot to make soup=Statut : Pot de soupe@nContenu : Eau@nRemarque : Ajoutez de la nourriture au pot pour faire de la soupe
+This pot is full and heavy. Spill it ?=Cette marmite est pleine et lourde. La renverser ?
+Cannot place here ! Needs a whole block of : =Impossible de placer ici ! Besoin d'un bloc entier de : 
+Status : needs a clear glass pane and a wick (coarse fibre) !=Statut : nécessite un carreau de verre clair et une mèche (fibre grossière) !
+Status : needs a clear glass pane !=Statut : nécessite un carreau de verre clair !
+Status : needs a wick (coarse fibre) !=Statut : nécessite une mèche (fibre grossière) !
+Status : =Statut : 
+Clay Oil Lamp (lit)=Lampe à huile en argile (allumée)
+##### non utilisé ####
 # nodecrafting
 Dump=Décharge
 # dye
