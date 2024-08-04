@@ -223,3 +223,19 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
+
+crafting.register_recipe({
+	type = "glass_furnace",
+	output = "doors:door_glass_clear",
+	items = {'tech:iron_fittings 2', 'tech:pane_clear 2'},
+	level = 1,
+	always_known = true,
+})
+
+crafting.register_recipe({
+	type = "glass_furnace",
+	output = "tech:trapdoor_glass_clear",
+	items = {'tech:iron_fittings', 'tech:pane_clear 1'},
+	level = 1,
+	always_known = true,
+})
