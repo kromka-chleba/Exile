@@ -77,8 +77,8 @@ function storage.get_storage_formspec(pos, w, h, meta)
 end
 
 
-local function can_interact(pos, name)
-	if minetest.is_protected(pos, name) then
+local function can_interact(pos, name, meta)
+	if minetest.is_protected(pos, name, meta) then
     -- you are NOT the owner!
     return false
   end
@@ -88,13 +88,14 @@ end
 
 function storage.can_dig(pos,player,can_grab)
   local inv_empty = true
+  local meta = minetest.get_meta(pos)
 
   if not can_grab then
-    local inv = minetest.get_meta(pos):get_inventory()
+    local inv = meta:get_inventory()
     inv_empty = inv:is_empty("main")
   end
 
-  return can_interact(pos, player) and inv_empty
+  return can_interact(pos, player, meta) and inv_empty
 end
 
 function storage.get_inventory(pos)
@@ -118,7 +119,10 @@ end
 
 function storage.on_receive_fields(pos, formname, fields, sender, width, height)
   local label = fields.label
-  if (label and (minetest.is_player(sender) and can_interact(pos,sender))) then
+  -- only get meta if label was modified and sender is a player
+  local meta = label and minetest.is_player(sender) and minetest.get_meta(pos) or nil
+  -- thus we can use meta to check if we can set up the new label
+  if meta and can_interact(pos,sender, meta) then
     local meta = minetest.get_meta(pos)
     local cleanlabel = minimal.sanitize_string(label)
     meta:set_string('label', cleanlabel)
@@ -127,7 +131,7 @@ function storage.on_receive_fields(pos, formname, fields, sender, width, height)
   end
   -- sounds
   remove_watcher(pos, sender)
-  if #get_watchers(pos) < 1 and not minetest.is_protected(pos, sender) then
+  if #get_watchers(pos) < 1 and not minetest.is_protected(pos, sender, meta) then
     local sounds = minimal.get_nodedef(pos)
     sounds = sounds.sounds or {}
     local sound = sounds.storage_close and table.copy(sounds.storage_close)
@@ -138,19 +142,20 @@ function storage.on_receive_fields(pos, formname, fields, sender, width, height)
   end
 end
 
-function storage.dump_inventory(pos)
+-- basic dump_inventory function
+-- optional meta argument
+function storage.dump_inventory(pos, meta)
   assert(type(pos) == "table","mods/"..modname.."dump_inventory: Invalid pos provided!")
   assert( (type(pos.x) == "number" and type(pos.y) == "number" and type(pos.z) == "number"),
     "mods/"..modname.."dump_inventory: Invalid pos provided!")
 
   -- verify if the dumped inventory belongs to a storage container
   local stor_node = minetest.get_node(pos)
-  if minetest.get_item_group(stor_node.name,"storage") == 0 then
-    return
-  end
+  if not minimal.in_group(stor_node,"storage") then return end
 
+  meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
   -- don't attempt to empty out an empty inventory
-  local inv = minetest.get_meta(pos):get_inventory()
+  local inv = meta:get_inventory()
   if inv:is_empty("main") then
     return
   end
@@ -165,40 +170,38 @@ function storage.dump_inventory(pos)
   end
 end
 
-local function to_burnt(pos)
+-- to_burnt
+-- optional meta argument, otherwise gets meta
+local function to_burnt(pos, meta)
   local stor_node = minetest.get_node(pos)
-  if minetest.get_item_group(stor_node.name,"storage") == 0 then
-    return
-  end
+  if not minimal.in_group(stor_node,"storage") then return end -- not storage, why did this get ran?
   stor_node = minetest.registered_nodes[stor_node.name]
   local burn_to = stor_node.burn_to
+  -- can't be burned lol
   if type(burn_to) ~= "string" then
-    -- can't be burned lol
     return
   end
-  if burn_to == "" then
-    burn_to = "air"
-  end
+  -- if burn_to empty, assume air, otherwise use burn_to
+  burn_to = burn_to == "" and "air" or burn_to
   burn_to = minetest.registered_nodes[burn_to]
-  if not burn_to then
-    -- could not find burn_to node
-    return
-  end
-  -- check if burn_to node is a storage
-  if minetest.get_item_group(burn_to.name,"storage") == 0 then
-    if type(stor_node.metadata_inventory_dump) == "function" then
-      -- run on_dump code
-      stor_node.metadata_inventory_dump(pos)
-    end
-    -- do not continue code
-    return
+  -- could not find burn_to node
+  if not burn_to then return end
+
+  meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
+  if type(stor_node.metadata_inventory_dump) == "function" then
+    -- run on_dump code
+    stor_node.metadata_inventory_dump(pos, meta)
   end
 
+  -- if burn_to node is not storage then don't try to add storage aspects to it!
+  if not minimal.in_group(burn_to,"storage") then return end
+
+  -- creating burn_to storage variant
   -- get formspec width and height
   local width = stor_node.formspec_width or 8
   local height = stor_node.formspec_height or 4
 
-  local meta = minetest.get_meta(pos) -- set formspec_width and formspec_height as meta_int
+  -- set formspec_width and formspec_height as meta_int
   meta:set_int("formspec_width",width)
   meta:set_int("formspec_height",height)
 
@@ -288,9 +291,9 @@ function storage.register_storage(name,def)
   end
 
   def.on_blast = def.on_blast or function(pos) end
-  def.metadata_inventory_dump = def.metadata_inventory_dump or function(pos)
-    storage.dump_inventory(pos)
-  end
+  --def.metadata_inventory_dump = def.metadata_inventory_dump or function(pos, meta)
+    --storage.dump_inventory(pos, meta)
+  --end
   -- declaring locals for formspec details (makes it easier to set up functions)
   local width = def.formspec_width
   local height = def.formspec_height
