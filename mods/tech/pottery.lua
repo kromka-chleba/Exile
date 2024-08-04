@@ -691,7 +691,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"crafting_spot","hand_pottery"},
 	output = "tech:clay_oil_lamp_hanging_unlit 1",
-	items = {"tech:clay_oil_lamp_unlit", "group:fibrous plant"},
+	items = {"tech:clay_oil_lamp_unlit", "group:fibrous_plant"},
 	level = 1,
 	always_known = true,
 })
