@@ -47,7 +47,20 @@ storage.register_storage("artifacts:antiquorium_chest",{
 		}
 	},
   groups = {cracky = 1},
-  sounds = nodes_nature.node_sound_glass_defaults(),
+  sounds = nodes_nature.node_sound_glass_defaults({
+    storage_close = {
+      name = "artifacts_antiquorium_storage_close",
+      gain = 0.6,
+      max_hear_distance = 14,
+      pitch = 1
+    },
+    storage_open = {
+      name = "artifacts_antiquorium_storage_open",
+      gain = 0.6,
+      max_hear_distance = 14,
+      pitch = 1
+    }
+  }),
   
   -- formspec_width already defined in base register_storage as 8
   formspec_height = 8,
