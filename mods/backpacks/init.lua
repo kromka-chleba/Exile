@@ -397,7 +397,7 @@ function backpacks.register_backpack(name, def)
   def.on_infotext = def.on_infotext or function(pos, nodedef, meta, params)
     params.description = def.description
     params = minimal.infotext_update_params(meta, params)
-    return minimal.infotext_base(nil, meta, params)
+    return minimal.infotext_get_base_string(nil, meta, params)
   end
   -- register backpack through storage.register_storage()
   storage.register_storage(":backpacks:backpack_"..name,def)

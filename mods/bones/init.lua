@@ -173,7 +173,7 @@ minetest.register_node("bones:bones", {
       end
     -- nailed with no true owner, these'be claimed by someone else
     else
-      return minimal.infotext_base(nil, meta, minimal.infotext_update_params(meta, params))
+      return minimal.infotext_get_base_string(nil, meta, minimal.infotext_update_params(meta, params))
     end
   end
 })

@@ -546,7 +546,7 @@ end
 local function transporter_infotext(pos, nodedef, meta, params)
   params = minimal.infotext_update_params(meta, params) -- update to current meta
   params.description = nodedef.description
-  local infotext = minimal.infotext_base(nil, meta, params)
+  local infotext = minimal.infotext_get_base_string(nil, meta, params)
   -- transporter options
   params.dest = params.dest and S("Destination:").." "..params.dest
   params.loc = params.loc and S("Location:").." "..params.loc

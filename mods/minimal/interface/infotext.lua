@@ -267,8 +267,10 @@ end
 
 ----------------------------------------------------------------------------
 
+-- MISCELLANEOUS INFOTEXT FUNCTIONS
+
+-- uses or creates an itemstack to get proper description
 local function get_desc(stack)
-  -- use an itemstack to get proper description
   -- confirm if string, or check if pos (won't have .name) and get nodedef
   -- if a table or userdata still, then default to just stack
   stack = type(stack) == "string" and stack or
@@ -284,6 +286,20 @@ local function get_desc(stack)
   return stack:get_short_description()
 end
 
+-- clears out empty strings (e.g. "")
+function minimal.infotext_clear_params(params)
+  if type(params) ~= "table" then return params end
+  if #params > 0 then
+    for name,value in pairs(params) do
+      -- clear out empty strings
+      params[name] = value ~= "" and value or nil
+    end
+  end
+  return params
+end
+
+-- either gets a params from meta, or if provided params; 
+-- returns the params mixed with the values from meta (params indexes prioritized)
 function minimal.infotext_update_params(meta, params)
   -- create new params if it isn't a table
   if type(params) ~= "table" then
@@ -300,38 +316,43 @@ end
 -- local quick access
 local infotext_upd_params = minimal.infotext_update_params
 
--- itemstack, nodemeta, 'params' table, whether or not to return params (true) or the infotext (default ; false)
--- itemstack is used to determine description - but can also be pos, table, or string
-function minimal.infotext_base(stack, meta, params, returnparams)
+-- filters and sets up base param values (description, owner, label)
+-- translation handled, now for the programmer to organize them how they wish
+function minimal.infotext_get_base_params(stack, meta, params)
   -- create params if does not exist
   params = type(params) == "table" and params or infotext_upd_params(meta)
   if not params then return end -- no params to use
   -- get proper description if description not provided
   params.description = params.description or params.desc or get_desc(stack)
-  -- we don't modify before for full infotext in case programmers don't want their param table modified (except for desc)
-  -- we only modify if it is wanted
-  if returnparams then
-    params.owner = (params.owner and params.owner ~= "") and S("Owner:").." "..params.owner
-    params.label = (params.label and params.label ~= "") and S("Label:").." "..params.label
-    return params
-  end
-  -- create and return full infotext
-  return (params.description or "")..
-    ( ( params.owner and "\n"..S("Owner:").." "..params.owner ) or "" ).. -- only apply owner if available
-    ( ( params.label and "\n"..S("Label:").." "..params.label) or "" ) -- only apply label if available
-end
-
-function minimal.infotext_clear_params(params)
-  if type(params) ~= "table" then return params end
-  if #params > 0 then
-    for name,value in pairs(params) do
-      -- clear out empty strings
-      params[name] = value ~= "" and value or nil
-    end
-  end
+  -- set up params w/ translations
+  params.owner = (params.owner and params.owner ~= "") and S("Owner:").." "..params.owner
+  params.label = (params.label and params.label ~= "") and S("Label:").." "..params.label
   return params
 end
 
+-- PRIMARY INFOTEXT FUNCTIONS
+
+-- itemstack, nodemeta, 'params' table
+-- itemstack is used to determine description - but can also be pos, table, or string
+-- sends a formatted string for basic infotext
+function minimal.infotext_get_base_string(stack, meta, params)
+  -- get filtered params
+  params = type(params) == "table" and table.copy(params) or nil -- don't overwrite provided params table
+  params = minimal.infotext_get_base_params(stack, meta, params)
+  -- create and return full infotext
+  return (params.description or "")..
+    ( ( params.owner and "\n"..params.owner ) or "" ).. -- only apply owner if available
+    ( ( params.label and "\n"..params.label ) or "" ) -- only apply label if available
+end
+
+-- sets infotext string according to the node's or provided function's logic
+-- if no logic, defaults to base infotext
+-- func, nodedef, and stack are optional
+-- func can be provided for determining infotext logic, nodedef for checking a node's definition,
+-- stack for base infotext logic
+-- meta and params are somewhat optional
+-- function expects them to be provided, but will get meta from provided pos, and will create a params to be used
+-- returns false on failure, infotext string on success
 function minimal.infotext_set_new(pos, meta, params, func, nodedef, stack)
   nodedef = type(nodedef) == "table" and nodedef or minimal.get_nodedef(pos) -- just to confirm
   if type(nodedef) ~= "table" then return false end -- no success
@@ -350,9 +371,10 @@ function minimal.infotext_set_new(pos, meta, params, func, nodedef, stack)
     return false
   -- otherwise didn't get string, do infotext base
   elseif type(infotext) ~= "string" then
-    infotext = minimal.infotext_base(stack, meta, params)
+    infotext = minimal.infotext_get_base_string(stack, meta, params)
   end
 
   if type(infotext) ~= "string" then return false end
   meta:set_string("infotext",infotext)
+  return infotext
 end
