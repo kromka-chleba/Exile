@@ -344,6 +344,7 @@ local function wear_blanket(player, bed_pos, donning)
   end
 
   if newstack and not newstack:is_empty() then
+    bed_meta:set_string("blanket",S("Bed: Contains Blanket")) -- assume we already have a blanket
   --We have a blanket put it someplace
     if blanket_put(newstack, putInv, toinvl) then
       newstack = ItemStack('')
@@ -365,9 +366,11 @@ local function wear_blanket(player, bed_pos, donning)
       minetest.sound_play("nodes_nature_dig_snappy",
         {pos = ppos, gain = .8, max_hear_distance = 2})
     end
+  else -- assume we're removing blanket
+    bed_meta:set_string("blanket","")
   end
   if not bedInv:is_empty('main') then
-    minimal.infotext_set_new(bed_pos, bed_meta, {blanket=S("Bed: Contains Blanket")})
+    minimal.infotext_set_new(bed_pos, bed_meta)
   end
    clothing:update_temp(player)
    player_api.set_texture(player)
@@ -451,7 +454,9 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 	   local p = bed_rest.pos[name] or nil
 	   local bedp = bed_rest.bed_position[name] or nil
 	   if bedp ~= nil then
-		   minimal.infotext_clear(bedp)
+       local bed_meta = minetest.get_meta(bedp)
+       bed_meta:set_string('status','') -- remove status
+		   minimal.infotext_clear(bedp, bed_meta)
 	   end
 	   bed_rest.player[name] = nil
 	   bed_rest.level[name] = nil

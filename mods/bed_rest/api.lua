@@ -1,3 +1,4 @@
+local S = minetest.get_translator("bed_rest")
 
 local c_alpha = minimal.compat_alpha
 
