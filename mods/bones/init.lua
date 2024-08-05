@@ -27,7 +27,7 @@ local bones_formspec =
 	"listring[current_player;main]"
 	--default.get_hotbar_bg(0,4.85)
 
-local share_bones_time = 100--tonumber(minetest.settings:get("share_bones_time")) or 1200
+local share_bones_time = tonumber(minetest.settings:get("share_bones_time")) or 1200
 local share_bones_time_early = tonumber(minetest.settings:get("share_bones_time_early")) or share_bones_time / 4
 
 minetest.register_node("bones:bones", {
