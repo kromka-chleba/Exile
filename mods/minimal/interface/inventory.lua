@@ -13,53 +13,6 @@
 
 local S = minetest.get_translator("minimal")
 
-local craftImage ={}
-craftImage["crafting_spot"] 				= "tech:stick"
-craftImage["mixing_spot"] 					= "tech:mixing_spot"
-craftImage["threshing_spot"] 				= "nodes_nature:galanta_seed"
-craftImage["weaving_frame"] 				= "tech:woven_poncho"
-craftImage["weaving_frame_mixing"] 			= "tech:weaving_frame"
-craftImage["grinding_stone"] 				= "tech:grinding_stone_granite"
-craftImage["mortar_and_pestle"] 			= "tech:mortar_pestle_granite"
-craftImage["chopping_block"] 				= "tech:chopping_block"
-craftImage["hammering_block"] 				= "tech:hammering_block"
-craftImage["anvil"] 						= "tech:anvil"
-craftImage["anvil_mixing"] 					= "stairs:stair_slag"
-craftImage["carpentry_bench"] 				= "tech:carpentry_bench"
-craftImage["masonry_bench"] 				= "tech:masonry_bench"
-craftImage["masonry_bench_bricks"] 			= "stairs:stair_limestone_brick"
-craftImage["masonry_bench_bricks_mortar"] 	= "stairs:stair_limestone_brick_mortar"
-craftImage["masonry_bench_blocks"] 			= "stairs:stair_limestone_block"
-craftImage["masonry_bench_blocks_mortar"] 	= "stairs:stair_limestone_block_mortar"
-craftImage["masonry_bench_mixing"] 			= "tech:limestone_block_mortar"
--- craftImage["masonry_mixing"] 				= "tech:crafting_spot"
-craftImage["brick_makers_bench"] 			= "tech:brick_makers_bench"
-craftImage["brick_makers_bench_bricks"] 	= "stairs:stair_limestone_brick_mortar"
-craftImage["brick_makers_bench_blocks"] 	= "tech:conglomerate_block_mortar"
-craftImage["brick_makers_bench_mixing"] 	= "stairs:stair_mudbrick"
-craftImage["spinning_wheel"] 				= "tech:spinning_wheel"
-craftImage["loom"] 							= "tech:loom"
-craftImage["glass_furnace"] 				= "tech:glass_furnace"
-craftImage["hand"] 							= "tech:stick"
--- craftImage["hand_create"] 					= "tech:brick_makers_bench"
-craftImage["hand_pottery"] 					= "tech:clay_water_pot"
--- craftImage["hand_wattle"] 					= "tech:wattle"
-craftImage["hand_tools"] 					= "tech:hammer_basalt"
-craftImage["hand_mixing"] 					= "stairs:stair_thatch"
-craftImage["knife"] 						= "tech:stone_chopper"
-craftImage["knife_stations"] 				= "tech:stone_chopper"
-craftImage["knife_wattle"] 					= "tech:wattle"
-craftImage["knife_mixing"] 					= "tech:wood_ash"
-craftImage["hammer"] 						= "tech:hammer_basalt"
-craftImage["hammer_mixing"] 				= "nodes_nature:limestone_boulder"
-craftImage['shovel'] 						= "tech:shovel_iron"
-craftImage["shovel_agriculture"] 			= "nodes_nature:loam_agricultural_soil"
-craftImage['soil_mixing'] 					= "stairs:stair_loam"
-craftImage['axe'] 							= "tech:axe_iron"
-craftImage['axe_mixing'] 					= "stairs:stair_tangkal_log"
-craftImage['cobble'] 						= "nodes_nature:limestone_boulder"
-craftImage['pickaxe'] 						= "tech:pickaxe_iron"
-
 -- Create global default detached "craft_types" inventory
 -- Used to populate players craft_types
 local ctypes = minetest.create_detached_inventory("craft_types")
@@ -479,8 +432,8 @@ local function cache_player_recipes(cache, player_name, pInv)
 	recipesFS[#recipesFS + 1] = "style_type[item_image_button;border=false]"
 	for i=1, #cTabs do
 		local leftPoint = 3.3 + (i - 1) * 1.2
-		local itemName = craftImage[cTabs[i]] or 'tech:crafting_spot'
-		recipesFS[#recipesFS + 1] = 'item_image_button['..(leftPoint)..',0.3;0.6,0.6;'.. itemName .. ';sCraftTab_'..i..';]'
+		local item_name = crafting.icon_item_name[cTabs[i]] or 'tech:crafting_spot'
+		recipesFS[#recipesFS + 1] = 'item_image_button['..(leftPoint)..',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';]'
 		recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
 		';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]] or cTabs[i])) ..
 		';#000000;#ffffff]'
