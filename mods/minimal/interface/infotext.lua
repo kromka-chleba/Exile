@@ -25,11 +25,9 @@ end
 -- clears out empty strings (e.g. "")
 function minimal.infotext_purify_params(params)
   if type(params) ~= "table" then return params end
-  if #params > 0 then
-    for name,value in pairs(params) do
-      -- clear out empty strings
-      params[name] = value ~= "" and value or nil
-    end
+  for name,value in pairs(params) do
+    -- clear out empty strings
+    params[name] = value ~= "" and value or nil
   end
   return params
 end
