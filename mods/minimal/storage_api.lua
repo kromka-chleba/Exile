@@ -44,7 +44,8 @@ end
 function storage.get_storage_formspec(pos, w, h, meta)
 	local creator = meta:get_string('creator')
 	local label = minimal.sanitize_string(meta:get_string('label'))
-	minimal.infotext_merge(pos, S('Label')..': '..label, meta)
+  meta:set_string("label",label)
+  minimal.infotext_set_new(pos, meta)
 	local formspec_size_h = 3.85 + h
 	local main_offset = 0.25 + h
 	local trash_offset = 0.45 + h + 2
@@ -126,7 +127,7 @@ function storage.on_receive_fields(pos, formname, fields, sender, width, height)
     local meta = minetest.get_meta(pos)
     local cleanlabel = minimal.sanitize_string(label)
     meta:set_string('label', cleanlabel)
-    minimal.infotext_merge(pos,S('Label')..': '..cleanlabel, meta)
+    minimal.infotext_set_new(pos, meta)
     storage.on_construct(pos, width, height)
   end
   -- sounds
