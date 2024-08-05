@@ -23,7 +23,7 @@ local function get_desc(stack)
 end
 
 -- clears out empty strings (e.g. "")
-function minimal.infotext_clear_params(params)
+function minimal.infotext_purify_params(params)
   if type(params) ~= "table" then return params end
   if #params > 0 then
     for name,value in pairs(params) do
@@ -68,6 +68,13 @@ end
 
 -- PRIMARY INFOTEXT FUNCTIONS
 
+-- clears infotext to a nil string
+function minimal.infotext_clear(pos,meta)
+  -- use provided metadata or get one
+  meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
+	meta:set_string("infotext","")
+end
+
 -- itemstack, nodemeta, 'params' table
 -- itemstack is used to determine description - but can also be pos, table, or string
 -- sends a formatted string for basic infotext
@@ -97,7 +104,7 @@ function minimal.infotext_set_new(pos, meta, params, func, nodedef, stack)
   meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
   -- use or get params
   params = type(params) == "table" and params or infotext_upd_params(meta)
-  params = minimal.infotext_clear_params(params) -- remove empty strings
+  params = minimal.infotext_purify_params(params) -- remove empty strings
   -- custom function or nodedef on_infotext function
   func = type(func) == "function" and func or type(nodedef.on_infotext) == "function" and nodedef.on_infotext
   -- infotext will be the provided func
