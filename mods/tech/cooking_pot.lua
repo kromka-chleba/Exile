@@ -72,11 +72,15 @@ minetest.register_craftitem("tech:soup", {
 
 local function clear_pot(pos)
    local meta = minetest.get_meta(pos)
-   minimal.infotext_set(pos,meta,
-   S("Status: Unprepared pot\nContents: <EMPTY>\nNote: Add water to pot to make soup"))
+   --minimal.infotext_set(pos,meta,
+   --S("Status: Unprepared pot\nContents: <EMPTY>\nNote: Add water to pot to make soup"))
    meta:set_string("formspec", "")
    meta:set_string("type", "")
    meta:set_string("status", "") -- "" = unprepared, "Cooking", "Finished"
+   meta:set_string("status_string","")
+   meta:set_string("contents_string","")
+   meta:set_string("note","")
+   minimal.infotext_set_new(pos, meta)
    local inv = meta:get_inventory()
    inv:set_size("main", 8)
 end
@@ -91,9 +95,10 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
       local liquid = liquid_store.contents(itemname)
       if liquid == "nodes_nature:freshwater_source" then
 	 meta:set_string("type", "Soup")
-	 minimal.infotext_set(pos,meta,
-	 S("Status: Soup Pot\nContents: Water\n"
-		.."Note: Add food to the pot to make soup"))
+   meta:set_string("status_string",S("Status: Soup Pot"))
+   meta:set_string("contents_string",S("Contents: Water"))
+   meta:set_string("note",S("Note: Add food to the pot to make soup"))
+   minimal.infotext_set_new(pos, meta)
 	 meta:set_string("formspec", pot_formspec)
 	 meta:set_int("baking", cook_time)
 	 timer:start(6)
@@ -143,13 +148,14 @@ local function pot_receive_fields(pos, formname, fields, sender)
             total[stat] = total[stat] + (value * count)
           end
         end
+        contents = contents..inv[i]:get_short_description()..", "
       end
    end
    contents=contents:sub(1, #contents - 2) -- take last ', ' from contents
-   minimal.infotext_merge(pos, {
-	   "Contents: "..contents,
-	   "Note:",   -- Clear note about adding food
-   }, meta)
+   -- for infotext
+   meta:set_string("contents_string",S("Contents: @1",contents))
+   meta:set_string("note","nil") -- clear note about adding food
+   minimal.infotext_set_new(pos, meta)
 
    local length = meta:get_int("baking")
    if length <= (cook_time - 4) then
@@ -288,16 +294,16 @@ local function pot_cook(pos, elapsed)
 			 imeta:set_string("eat_value", minetest.serialize(portion))
 			 imeta:set_string("description", S("@1 soup",firstingr or "Odd"))
 			 meta:get_inventory(pos):set_list("main", inv)
-			 minimal.infotext_merge(pos, {
-				"Contents: "..S("@1 soup",firstingr),
-				"Status: "..kind.." pot (finished)"
-			}, meta)
+       meta:set_string("contents_string",S("Contents: @1 soup",firstingr))
+       meta:set_string("status_string",S("Status: @1 pot (finished)",kind))
 			 meta:set_string("status", "finished")
+       minimal.infotext_set_new(pos, meta) -- update infotext
 			 return
 		      elseif temp < cook_temp[kind] then
 			      if status ~= 'cooling' then
 				      meta:set_string("status", "cooling")
-				      minimal.infotext_merge(pos, 'Status: '..kind.." pot", meta)
+              meta:set_string("status_string",S('Status: @1 pot',kind))
+              minimal.infotext_set_new(pos, meta)
 			      end
 			      return
 		      elseif temp >= cook_temp[kind] then
@@ -306,7 +312,8 @@ local function pot_cook(pos, elapsed)
 			 end
 			 if status ~= 'cooking' then
 				 meta:set_string('status', 'cooking')
-				 minimal.infotext_merge(pos, "Status: "..kind.." pot (cooking)", meta)
+         meta:set_string('status_string',S("Status: @1 pot (cooking)",kind))
+         minimal.infotext_set_new(pos, meta)
          spawn_steam(pos,{amt={14,24}})
          minetest.sound_play("tech_frying_start",{
           pos = pos,
@@ -440,6 +447,21 @@ minetest.register_node("tech:cooking_pot", {
 			- calc_baking_time(stack))
 	   return stack:get_count()
 	end,
+  on_infotext = function(pos, nodedef, meta, params)
+    params = minimal.infotext_update_params(meta, params)
+    params.description = nodedef.description
+    -- get proper owner string
+    params = minimal.infotext_get_base_params(nil, meta, params)
+    -- get base status'
+    params.status_string = params.status_string or S("Status: Unprepared Pot")
+    params.contents_string = params.contents_string or S("Contents: <EMPTY>")
+    params.note = params.note or S("Note: Add water to pot to make soup")
+    if params.note == "nil" then params.note = nil end -- no note to add
+    -- prioritize in order:
+    -- status_string, owner, contents, note
+    return params.status_string..(params.owner and params.owner ~= "" and "\n"..params.owner or "")..
+      "\n"..params.contents_string..(params.note and "\n"..params.note or "")
+  end
 })
 
 minetest.register_node("tech:cooking_pot_unfired", {
