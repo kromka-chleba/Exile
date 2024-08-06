@@ -333,7 +333,12 @@ for i in ipairs(tree_list) do
 		groups = {choppy = 3, flammable = 2, woody_plant = 1, leafdecay = 1, leafdecay_drop = 1, drops_leaves = drops_leaves},
 		sounds = nodes_nature.node_sound_leaves_defaults(),
 		after_place_node = function(pos, placer, itemstack)
-			minetest.set_node(pos, {name = "nodes_nature:"..treename.."_leaves", param2 = 4 + 128})
+		   if not placer or minimal.player_in_creative(placer) then
+		      return
+		   end
+		   minimal.switch_node(pos, {name = "nodes_nature:"..
+					      treename.."_leaves",
+					   param2 = 4 + 128})
 		end,
 		after_destruct = function(pos, node)
                     if node.param2 < 128 then
@@ -391,6 +396,9 @@ for i in ipairs(tree_list) do
 			sounds = nodes_nature.node_sound_defaults(),
 			_ncrafting_dye_dcolor = dominantcolor,
 			after_place_node = function(pos, placer, itemstack)
+			   if not placer or minimal.player_in_creative(placer) then
+			      return
+			   end
 			   minimal.switch_node(pos,
 					     {name = "nodes_nature:"..
 						 fruitname, param2 = 0 + 128})
