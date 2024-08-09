@@ -2,9 +2,9 @@
 #char_tab.lua
 # personality
 #  openness
-Conventional=
-Unconventional=
-Practical=
+Conventional="Konventionell"
+Unconventional="Unkonventionell"
+Practical="Praktisch"
 Imaginative=
 Unadventurous=
 Adventurous=
