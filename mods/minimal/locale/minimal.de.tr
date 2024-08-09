@@ -35,7 +35,7 @@ Can't grant access to items you don't own="Zugriff zu Gegenständen, die Ihnen n
 Crafted by="Gefertigt von"
 Burnt Storage Pile="Verbrannter Lagerhaufen"
 Label="Beschriftung"
-Set="Set"
+Set="Setzen"
 #triggers.lua
 Invalid teleport vector, must be '(x,y,z)'="Ungültiger Teleportationsvektor, muss „(x,y,z)“ sein"
 Reset player="Spieler zurücksetzen"
