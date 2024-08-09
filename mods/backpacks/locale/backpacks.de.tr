@@ -1,13 +1,13 @@
 # textdomain: backpacks
 # init.lua
 @1 full="@1 voll"
-@1 partial="@1 teilweise"
+@1 partial="@1 zum Teil"
 @1 empty="@1 leer"
 Slots: @1, @2, @3="Plätze: @1, @2, @3"
 @1/@2/@3="@1/@2/@3"
-Dump Into Storage="In Lagerplatz einräumen"
+Dump Into Storage="In Lagerplatz abladen"
 Pack Up Storage="Lagerplatz einpacken"
-Dump or pack="Entsorgen oder packen"
-Dump="Ausschütten"
+Dump or pack="Abladen oder packen"
+Dump="Abladen"
 Pack="Packen"
 @1 contents into storage="Inhalte in Lager @1"
