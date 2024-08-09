@@ -341,6 +341,6 @@ Wooden Stairs="Holztreppen"
 ##### not used anymore #####
 
 # nodecrafting
-Dump="Ausschütten"
+Dump="Abladen"
 # dye
 red dye="roter Farbstoff"
