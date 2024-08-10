@@ -14,6 +14,7 @@ ncrafting.S = minetest.get_translator("nodecrafting")
 dofile(modpath..'/dyes.lua')
 dofile(modpath..'/nature.lua')
 dofile(modpath..'/arches.lua')
+dofile(modpath..'/switches.lua')
 dofile(modpath..'/fermentation.lua')
 
 local store = minetest.get_mod_storage()

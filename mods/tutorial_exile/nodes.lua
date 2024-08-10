@@ -111,3 +111,46 @@ minetest.register_node("tutorial_exile:wet_silt", {
 	groups = { crumbly = 3, falling_node = 1, puts_out_fire = 1,
 		   not_in_creative_inventory = 1 }
 })
+
+
+ncrafting.register_switch("tutorial_exile:basalt_hand_switch", {
+	description = "A hand carved in stone",
+	paramtype2 = "facedir",
+	tiles={
+	   "nodes_nature_basalt.png",
+	   "nodes_nature_basalt.png",
+	   "nodes_nature_basalt.png^tech_paint_lw_hand.png",
+	   "nodes_nature_basalt.png^tech_paint_lw_hand.png",
+	   "nodes_nature_basalt.png",
+	   "nodes_nature_basalt.png",
+	}
+})
+
+
+minetest.register_node('tutorial_exile:open_door', {
+        description = 'Tutorial Doorway',
+        drawtype = "airlike",
+        paramtype = "light",
+        sunlight_propagates = true,
+	pointable = false,
+        walkable = false,
+        buildable_to = false,
+        floodable = false,
+	groups = { frobbable = 1 },
+	_on_frob = function(pos)
+	   minetest.swap_node(pos, {name="tutorial_exile:closed_door"})
+	end
+})
+minetest.register_node('tutorial_exile:closed_door', {
+        description = 'Tutorial Doorway',
+        tiles = {
+	   { name = "metal_plasma.png", backface_culling = true }
+        },
+	drawtype = "glasslike",
+	groups = { frobbable = 1},
+	light_source = 6,
+	use_texture_alpha = "blend",
+	_on_frob = function(pos)
+	   minetest.swap_node(pos, {name = "tutorial_exile:open_door"})
+	end
+})
