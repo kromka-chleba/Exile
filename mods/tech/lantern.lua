@@ -228,9 +228,7 @@ minetest.register_node("tech:lantern_lit", {
             lightsource.restore_from_inventory(lantern_desc, pos, itemstack)
         end,
         on_dig = function(pos, node, digger)
-	    if digger:is_player() then
-	       minimal.protection_on_dig(pos,node,digger)
-	    end
+            minimal.protection_on_dig(pos,node,digger)
             lightsource.save_to_inventory(lantern_desc, pos, digger, true)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
