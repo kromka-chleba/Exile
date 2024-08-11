@@ -169,10 +169,17 @@ minetest.register_entity("spawnex:gate",{
 		 self.size = max_size
 		 self.state = "open"
 		 self.timelimit = open_time
+		 self._gatesound = minetest.sound_play(
+		    "spawnex_portal",
+		    { gain = 1.0, fade = 0.2, pitch = 2.0,
+		      loop = true, object = self.object }  )
 	      end
 	      change_size()
 	   elseif self.state == "open" then
 	      self.state = "closing"
+	      if self._gatesound then
+		 minetest.sound_fade(self._gatesound, 0.5, 0)
+	      end
 	      self.timelimit = size_change_rate
 	   elseif self.state == "closing" then
 	      self.size = self.size - dtime * rate
@@ -447,7 +454,6 @@ function region.spawn(player)
    end
    sadef.open = true
    pirnt("spawn: ",dump(sadef.currentgate))
-   -- #TODO: do something with def.gate or remove it??
    sadef.gate = minetest.add_entity(gate, "spawnex:gate")
    player:set_pos(gate)
    if guessed_gate then fixplayer(player) end
