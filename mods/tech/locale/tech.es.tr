@@ -120,6 +120,10 @@ Wooden Door=Puerta de Madera
 Wooden Trapdoor=Trampilla de Madera
 Iron Door=Puerta de Hierro
 Iron Trapdoor=Trampilla de Hierro
+Glass Door=
+Glass Trapdoor=
+Clear Glass Door=
+Clear Glass Trapdoor=
 # drugs.lua
 Herbal Medicine=Medicina Herbal
 Tiku (stimulant)=Estimulante Tiku
@@ -140,6 +144,8 @@ Mudbrick Slab=
 Rammed Earth=Tapial
 Rammed Earth Stair=
 Rammed Earth Slab=
+Wicker well lining=
+Reinforce a well wall=
 Loose Wattle=Zarzo Suelto
 Wattle Door Frame=Marco de Puerta de Zarzo
 Thatch=Fardo de Paja
@@ -260,7 +266,9 @@ Clay Storage Pot (unfired)=Vasija Ceramica de Almacenamiento sin Curar
 Clay Oil Lamps (x4) (unfired)=
 Clay Oil Lamps (x4)=
 Clay Oil Lamp=Lampara Ceramica
-Clay Oil Lamp (lit)=Lampara Ceramica Encendida
+Clay Oil Lamp (Lit)=
+Hanging Oil Lamp=
+Hanging Oil Lamp (Lit)=
 Clay Watering Can (unfired)=
 # storage.lua
 Clay Storage Pot=Vasija Ceramica de Almacenamiento
@@ -340,6 +348,7 @@ Wooden Stairs=Escalinata de Madera
 
 ##### not used anymore #####
 
+Clay Oil Lamp (lit)=Lampara Ceramica Encendida
 Clay Oil Lamp (unfired)=Lampara Ceramica sin Curar
 Oil lamp (empty)=Lampara de Aceite Vacia
 Oil lamp (full)=Lampara de Aceite Llena

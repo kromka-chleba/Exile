@@ -15,6 +15,9 @@ Input Items=Создавать из:
 Craft Type=Инструмент:
 Crafting=Создание
 Quantity=Количество:
+Single=Один
+Stack=Стек
+Maximum=Максимум    
 #playersettings.lua
 Enable wide HUDbar=Включить широкую панель HUDbar
 Show numeric stats=Показывать числовую статистику
@@ -99,9 +102,6 @@ Exile zone trigger node=Узел зоны запуска изгнания
 
 ##### not used anymore #####
 
-Single=Один
-Stack=Стек
-Maximum=Максимум    
 Send player an exact xyz position=Отправить игрока в точную xyz-позицию
 Any =Любой 
 Any log=Любое бревно

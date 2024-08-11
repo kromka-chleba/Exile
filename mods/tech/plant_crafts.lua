@@ -300,7 +300,7 @@ minetest.register_craftitem("tech:vegetable_oil", {
 crafting.register_recipe({
 	type = {"crafting_spot","chopping_block","hand","knife"},
 	output = "tech:stick 2",
-	items = {"group:woody_plant"},
+	items = {{"group:woody_plant","tech:wattle_loose"}},
 	level = 1,
 	always_known = true,
 })

@@ -27,6 +27,7 @@ crafting = {
    registered_on_crafts = {},
    item_by_group = {}, -- hash group:groupname to an item name. only last inventory item from group is stored.
    sort_order_by_player = {}, -- hash of recipe id to display order in sorted array
+   icon_item_name = {}, -- hash of node identifiers to display the crafting type in the interface
 }
 
 local S = minetest.get_translator("crafting")
@@ -41,10 +42,11 @@ local groupNameForTranslations = {
    S("gravel"), S("jade cobble"),
 }
 
-function crafting.register_type(name, label)
+function crafting.register_type(name, label, icon_item_name)
    crafting.recipes[name] = {}
    -- add a label for tabs - default to the name
    crafting.tab_labels[name] = (label or name)
+   crafting.icon_item_name[name] = icon_item_name or ""
 end
 
 function crafting.register_recipe(def)

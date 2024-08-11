@@ -120,6 +120,10 @@ Wooden Door=Деревянная дверь
 Wooden Trapdoor=Деревянный люк
 Iron Door=Железная дверь
 Iron Trapdoor=Железный люк
+Glass Door=Стеклянная дверь
+Glass Trapdoor=Стеклянный люк
+Clear Glass Door=Дверь из прозрачного стекла
+Clear Glass Trapdoor=Люк из прозрачного стекла
 # drugs.lua
 Herbal Medicine=Травы
 Tiku (stimulant)=Тику (стимулятор)
@@ -140,6 +144,8 @@ Mudbrick Slab=Глинобитная плита
 Rammed Earth=Утрамбованная земля
 Rammed Earth Stair=Лестница из утрамбованной земли
 Rammed Earth Slab=Плита из утрамбованной земли
+Wicker well lining=Плетеная обшивка колодца
+Reinforce a well wall=Укрепление стен колодца
 Loose Wattle=Плетень с прорезями
 Wattle Door Frame=Дверная рама из плетня
 Thatch=Солома
@@ -238,7 +244,7 @@ fuel left=топлива
 Status: =Состояние: 
 # plant_crafts.lua
 Stick=Палка
-Grass Fibre=
+Grass Fibre=Растительные волокна
 Bitter Maraka Flour=Мука из горького марака
 Maraka Flour=Мука из марака
 Unbaked Maraka Cake=Невыпеченный торт из марака
@@ -260,7 +266,9 @@ Clay Storage Pot (unfired)=Глиняный горшок для хранения
 Clay Oil Lamps (x4) (unfired)=Глиняные масляные лампы (x4) (необожженные)
 Clay Oil Lamps (x4)=Глиняные масляные лампы (x4)
 Clay Oil Lamp=Глиняная масляная лампа
-Clay Oil Lamp (lit)=Глиняная масляная лампа (горит)
+Clay Oil Lamp (Lit)=Глиняная масляная лампа (горит)
+Hanging Oil Lamp=Подвесная масляная лампа
+Hanging Oil Lamp (Lit)=Подвесная масляная лампа (горит)
 Clay Watering Can (unfired)=Глиняная лейка (необожженная)
 # storage.lua
 Clay Storage Pot=Глиняный горшок для хранения
@@ -340,6 +348,7 @@ Wooden Stairs=Деревянные ступеньки
 
 ##### not used anymore #####
 
+Clay Oil Lamp (lit)=Глиняная масляная лампа (горит)
 Yes=Да
 No=Нет
 Clay Oil Lamp (unfired)=Глиняная масляная лампа (необожженный)

@@ -20,50 +20,50 @@ local legacy_station_recipes = false
 --Register
 --some crafts are more convienently registered at the same time as the resource,
 --hence why not all are here.
-crafting.register_type("crafting_spot", S("Crafting Spot"))
+crafting.register_type("crafting_spot", S("Crafting Spot"), "tech:stick")
 --crafting.register_type("mixing_spot")...has to be done in nodes_nature
 --crafting.register_type("threshing_spot")...has to be done in nodes_nature
-crafting.register_type("weaving_frame", S("Weaving"))
-crafting.register_type("weaving_frame_mixing", S("Mixing"))
-crafting.register_type("grinding_stone", S("Grinding stone"))
-crafting.register_type("mortar_and_pestle", S("Mortar and pestle"))
+crafting.register_type("weaving_frame", S("Weaving"), "tech:woven_poncho")
+crafting.register_type("weaving_frame_mixing", S("Mixing"), "tech:weaving_frame")
+crafting.register_type("grinding_stone", S("Grinding stone"), "tech:grinding_stone_granite")
+crafting.register_type("mortar_and_pestle", S("Mortar and pestle"), "tech:mortar_pestle_granite")
 --crafting.register_type("chopping_block")...has to be done in nodes_nature
 --crafting.register_type("hammering_block")...has to be done in nodes_nature
-crafting.register_type("anvil", S("Crafting"))
-crafting.register_type("anvil_mixing", S("Mixing"))
-crafting.register_type("carpentry_bench", S("Carpentry Bench"))
+crafting.register_type("anvil", S("Crafting"), "tech:anvil")
+crafting.register_type("anvil_mixing", S("Mixing"), "stairs:stair_slag")
+crafting.register_type("carpentry_bench", S("Carpentry Bench"), "tech:carpentry_bench")
 --crafting.register_type("masonry_bench")...has to be done in nodes_nature
 --crafting.register_type("masonry_mixing")...has to be done in nodes_nature
-crafting.register_type("brick_makers_bench", S("Crafting"))
-crafting.register_type("brick_makers_bench_bricks", S("Bricks"))
-crafting.register_type("brick_makers_bench_blocks", S("Blocks"))
-crafting.register_type("brick_makers_bench_mixing", S("Mixing"))
+crafting.register_type("brick_makers_bench", S("Crafting"), "tech:brick_makers_bench")
+crafting.register_type("brick_makers_bench_bricks", S("Bricks"), "stairs:stair_limestone_brick_mortar")
+crafting.register_type("brick_makers_bench_blocks", S("Blocks"), "tech:conglomerate_block_mortar")
+crafting.register_type("brick_makers_bench_mixing", S("Mixing"), "stairs:stair_mudbrick")
 
-crafting.register_type("spinning_wheel", S("Spinning Wheel"))
-crafting.register_type("loom", S("Loom"))
-crafting.register_type("glass_furnace", S("Glass furnace"))
+crafting.register_type("spinning_wheel", S("Spinning Wheel"), "tech:spinning_wheel")
+crafting.register_type("loom", S("Loom"), "tech:loom")
+crafting.register_type("glass_furnace", S("Glass furnace"), "tech:glass_furnace")
 
 -- Tool based crafting stations
-crafting.register_type("hand", S("Crafting"))   		-- Empty hand tool; Replace crafting spot
-crafting.register_type("hand_create", S("Create"))   	-- Assemble crafting stations by hand.
-crafting.register_type("hand_pottery", S("Pottery"))	-- Pottery tab
-crafting.register_type("hand_wattle", S("Wattle"))		-- Wattle Tab
-crafting.register_type("hand_tools", S("Tools"))	-- Tools Tab
-crafting.register_type("hand_mixing", S("Mixing"))	-- Mixing Tab
+crafting.register_type("hand", S("Crafting"), "tech:stick")   		-- Empty hand tool; Replace crafting spot
+-- crafting.register_type("hand_create", S("Create"), "tech:brick_makers_bench")   	-- Assemble crafting stations by hand.
+crafting.register_type("hand_pottery", S("Pottery"), "tech:clay_water_pot")	-- Pottery tab
+-- crafting.register_type("hand_wattle", S("Wattle"), "tech:wattle")		-- Wattle Tab
+crafting.register_type("hand_tools", S("Tools"), "tech:hammer_basalt")	-- Tools Tab
+crafting.register_type("hand_mixing", S("Mixing"), "stairs:stair_thatch")	-- Mixing Tab
 
-crafting.register_type("knife", S("Crafting"))  	-- Replace some of the crafting spot
-crafting.register_type("knife_stations", S("Stations"))  	-- Replace some of the crafting spot
-crafting.register_type("knife_wattle", S("Wattle"))  	-- Replace some of the crafting spot
-crafting.register_type("knife_mixing", S("Mixing"))
-crafting.register_type("hammer", S("Crafting")) 	-- Hammering spot replacement
-crafting.register_type("hammer_mixing", S("Mixing"))
-crafting.register_type('shovel', S("Crafting")) 	-- farming tools - including digging stick; replace threshing spot
-crafting.register_type("shovel_agriculture", S("Agriculture")) -- compost, etc.
-crafting.register_type('soil_mixing', S("Mixing")) 	-- tab for shovel
-crafting.register_type('axe', S("Crafting"))    	-- includes adze - replace chopping bock
-crafting.register_type('axe_mixing', S("Mixing"))
+crafting.register_type("knife", S("Crafting"), "tech:stone_chopper")  	-- Replace some of the crafting spot
+crafting.register_type("knife_stations", S("Stations"), "tech:stone_chopper")  	-- Replace some of the crafting spot
+crafting.register_type("knife_wattle", S("Wattle"), "tech:wattle")  	-- Replace some of the crafting spot
+crafting.register_type("knife_mixing", S("Mixing"), "tech:wood_ash")
+crafting.register_type("hammer", S("Crafting"), "tech:hammer_basalt") 	-- Hammering spot replacement
+crafting.register_type("hammer_mixing", S("Mixing"), "nodes_nature:limestone_boulder")
+crafting.register_type('shovel', S("Crafting"), "tech:shovel_iron") 	-- farming tools - including digging stick; replace threshing spot
+crafting.register_type("shovel_agriculture", S("Agriculture"), "nodes_nature:loam_agricultural_soil") -- compost, etc.
+crafting.register_type('soil_mixing', S("Mixing"), "stairs:stair_loam") 	-- tab for shovel
+crafting.register_type('axe', S("Crafting"), "tech:axe_iron")    	-- includes adze - replace chopping bock
+crafting.register_type('axe_mixing', S("Mixing"), "stairs:stair_tangkal_log")
 crafting.register_type('cobble') 	-- Replacing grinding stone
-crafting.register_type('pickaxe', S("Pickaxe")) 	-- nothing yet
+crafting.register_type('pickaxe', S("Pickaxe"), "tech:pickaxe_iron") 	-- nothing yet
 
 -- location limit craft spots --------------------
 -- grouplist/banlistg {{group1, group_number}, {'stone', 1}}
@@ -152,7 +152,7 @@ minetest.register_node("tech:crafting_spot", {
 	description   = S("Crafting Spot"),
 	tiles         = {"tech_station_crafting_spot.png"},
 	exile_crafting = {
-		craft_types  = {'hand','hand_pottery','hand_create','hand_mixing'},
+		craft_types  = {'hand','hand_tools','hand_pottery','hand_mixing','weaving_frame','threshing_spot'},
 		craft_level  = 2,
 	},
 	drawtype      = "nodebox",
@@ -529,7 +529,7 @@ minetest.register_node("tech:mortar_pestle_limestone",{
 --IB-20240226 -- 	always_known = true,
 --IB-20240226 -- 	})
 crafting.register_recipe({
-type   = "grinding_stone",
+type   = "hand_tools",
 output = "tech:mortar_pestle_limestone",
 items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
 	{"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"}, 'nodes_nature:sand'},
@@ -856,7 +856,7 @@ minetest.register_node("tech:glass_furnace", {
 --IB-20240226 	})
 --brick_makers_bench
 crafting.register_recipe({
-	type   = {"crafting_spot", "hand_create"},
+	type   = {"crafting_spot", "hand_tools"},
 	output = "tech:brick_makers_bench",
 	items  = {'tech:stick 24'},
 	level  = 1,
