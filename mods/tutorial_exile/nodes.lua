@@ -123,7 +123,9 @@ ncrafting.register_switch("tutorial_exile:basalt_hand_switch", {
 	   "nodes_nature_basalt.png^tech_paint_lw_hand.png",
 	   "nodes_nature_basalt.png",
 	   "nodes_nature_basalt.png",
-	}
+	},
+	_switch_sound = "exile_switch_ancient",
+	_switch_sound_params = { gain = 0.5, max_hear_distance = 8 },
 })
 
 

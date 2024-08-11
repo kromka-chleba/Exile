@@ -15,7 +15,7 @@ local base_def = {
 	move_resistance = 1,
         buildable_to = false,
         floodable = false,
-	_use_sound = "success",
+	_switch_sound = "success",
         groups = {temp_pass = 1, switch = 1, crumbly = 1, cracky = 3 },
 	use_texture_alpha = "blend",
 	_on_use_node = function(player, pointed_node,
@@ -23,10 +23,14 @@ local base_def = {
 	   local pos = pointed_thing.under
 	   local this = minetest.registered_nodes[minetest.get_node(pos).name]
 	   if this then
-	      minetest.sound_play(this._use_sound,
-				  this._use_sound_params or
-				  { pos=pos, gain = 0.1,
-				    max_hear_distance = 6 }, true)
+	      local params = minimal.merge_tables(
+		 { -- User can't set pos, but we can let them override sounds
+		    pos=pos, gain = 0.1,
+		    max_hear_distance = 6
+		 },
+		 this._switch_sound_params or {} )
+	      minetest.sound_play(this._switch_sound,
+				  params, true)
 	   end
 	   local machines = minetest.find_nodes_in_area(
 	      vector.new(pos.x-1, pos.y-1, pos.z-1),
