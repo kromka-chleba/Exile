@@ -1,6 +1,6 @@
 # textdomain: bones
 Bones=Knochen
-@1 of @2's bones=
+@1 of @2's bones="@1 von den Knochen von @2"
 @1's old bones=Alte Knochen von @1
 @1 died at @2.=@1 starb bei @2.
 @1 died at @2, and dropped their inventory.=@1 starb bei @2 und ließ das Inventar fallen.

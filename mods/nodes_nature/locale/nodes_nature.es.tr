@@ -106,9 +106,9 @@ Fruiting @1=
 Dead Fruitless @1=
 Dead @1=
 Dead Fruiting @1=
-@1 Fruit=
-@1 Dry Fruit=
-Fruitless @1=
+@1 Fruit=Fruta de @1
+@1 Dry Fruit=Fruta seca de @1
+Fruitless @1=@1 sin fruta
 @1 Spores=Esporas de @1
 @1 Seeds=Semillas de @1
 @1 Root=
@@ -215,7 +215,6 @@ Tree Marker=Marcador de Arbol
 
 
 ##### not used anymore #####
-
 # groups
 Fruit=Fruta
 Seed=Semilla

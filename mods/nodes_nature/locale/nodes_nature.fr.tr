@@ -210,14 +210,3 @@ Tree Marker=Marqueur d'arbre
 @1 Log Stair=Escalier en bûche de @1
 @1 Log Slab=Dalle en bûche de @1
 @1 Leaves=Feuilles de @1
-
-
-##### not used anymore #####
-
-I'm setting day, wait !=Je définis le jour, attendez !
-Wrong argument, needs a number !=Mauvais argument, il faut un nombre !
-Date change requested !=Changement de date demandé !
-# groups
-Fruit=Fruit
-Seed=Graine
-Compostable=Compostable
