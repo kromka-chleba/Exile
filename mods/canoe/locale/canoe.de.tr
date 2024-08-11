@@ -1,4 +1,4 @@
 # textdomain: canoe
 # init.lua
-Canoe=
-Dugout Canoe=
+Canoe="Kanu"
+Dugout Canoe="Einbaum"
