@@ -116,7 +116,7 @@ HEALTH.food_table = {
         ["nodes_nature:obesa_fruitless"]    = {hp=-2,th=10,hu=6,en=-4},
         ["nodes_nature:obesa_fruiting"]     = {hp=-2,th=10,hu=6,en=-4},
         ["nodes_nature:obesa_flowering"]    = {hp=-2,th=10,hu=6,en=-4},
-	["nodes_nature:maraka_nut"]         = {hu=5,en=5},
+	["nodes_nature:maraka_fruit"]         = {hu=5,en=5},
 	["nodes_nature:sasaran_cone"]       = {hu=1},
   --drugs
 	["nodes_nature:tikusati"]           = {hu=-2,en=2},
@@ -177,7 +177,7 @@ HEALTH.harm_table = {
   ["nodes_nature:yellow_malina_fruit"]      = {bm_fp},
   ["nodes_nature:malinka_fruit"]      = {bm_fp},
   -- tree fruits
-  ["nodes_nature:maraka_nut"]      = { bm_fp,
+  ["nodes_nature:maraka_fruit"]      = { bm_fp,
 	                                     {tags="Hepatotoxicity",ch=0.005,sv={1,4} },
 	                                     {tags="Photosensitivity",ch=0.3,sv=1} },
   ["nodes_nature:sasaran_cone"]    = { {tags="Food Poisoning",ch=0.08,sv=1} },

@@ -68,7 +68,7 @@ tree_base_fruit_growth = 19000
 
 --name, Desc, fruit name, fruit desc, p2 fruit,selbox_fruit, wood hardness, hardwood, dyecandidate, dye
 tree_list = {
-	{"maraka", S("Maraka Tree"), "maraka_nut", S("Maraka Nut"), 1, {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},1, true, 1, "black"},
+	--{"maraka", S("Maraka Tree"), "maraka_nut", S("Maraka Nut"), 1, {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},1, true, 1, "black"},
 	--{"tangkal", S("Tangkal Tree"), "tangkal_fruit", S("Tangkal Fruit"), 1, {-0.1, 0.1, -0.1, 0.1, 0.5, 0.1},2, false, 1, "crimson"},
 	{"sasaran", S("Sasaran Tree"), "sasaran_cone", S("Sasaran Cone"), 1, {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},2, false, 1, "yellow"},
 	{"jalowiec", S("Jalowiec Shrub"), "jalowiec_cone", S("Jalowiec Cone"), 1, {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},1, true, 1, "yellow"},

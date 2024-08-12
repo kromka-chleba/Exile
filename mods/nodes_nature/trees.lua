@@ -340,7 +340,7 @@ function trees.register_tree(name,def)
     -- paramtypes
     fruit_def.paramtype = fruit_def.paramtype or "light"
     fruit_def.paramtype2 = fruit_def.paramtype2 or "meshoptions"
-    fruit_def.place_param2 = fruit_def.place_param2 or 0 -- 2
+    fruit_def.place_param2 = fruit_def.place_param2 or 1 -- 2
     -- default true
     fruit_def.sunlight_propagates = type(fruit_def.sunlight_propagates) ~= "boolean" and true or fruit_def.sunlight_propagates
     if type(fruit_def.walkable) ~= "boolean" then fruit_def.walkable = false end -- default false
@@ -785,16 +785,36 @@ trees.register_tree("panasee",{
     selection_box = {
       fixed = {-0.1, -0.2, -0.1, 0.1, 0.5, 0.1}
     },
+    place_param2 = 2,
     dyecandidate = true,
     dominantcolor = "yellow"
   },
   leaf_def = {}
 })
+
+trees.register_tree("maraka",{
+  desc = S("Maraka"),
+  groups = {
+    choppy = 1
+  },
+  fruit_def = {
+    description = S("Maraka Nut"),
+    selection_box = {
+      fixed = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2}
+    },
+    dyecandidate = true,
+    dominantcolor = "black"
+  },
+  leaf_def = {
+    damage_per_second = 1
+  }
+})
+minetest.register_alias_force("nodes_nature:maraka_nut","nodes_nature:maraka_fruit")
 -------------------------------------------------
 --Special properties
 
 --maraka thorns
-minetest.override_item("nodes_nature:maraka_leaves",{damage_per_second = 1})
+--minetest.override_item("nodes_nature:maraka_leaves",{damage_per_second = 1})
 
 --tangkal fruit is good food, but bulky
 --minetest.override_item("nodes_nature:tangkal_fruit",{stack_max = minimal.stack_max_medium/2})
