@@ -837,6 +837,21 @@ trees.register_tree("jalowiec",{
   leaf_def = {damage_per_second = 1}
 })
 minetest.register_alias_force("nodes_nature:jalowiec_cone","nodes_nature:jalowiec_fruit")
+
+trees.register_tree("kagum",{
+  desc = S("Kagum"),
+  fruit_def = {
+    description = S("Kagum Pod"),
+    selection_box = {
+      fixed = {-0.1, -0.1, -0.1, 0.1, 0.5, 0.1}
+    },
+    dyecandidate = true,
+    light_source = 2,
+    groups = {bioluminescent=1}
+  },
+  leaf_def = {}
+})
+minetest.register_alias_force("nodes_nature:kagum_pod","nodes_nature:kagum_fruit")
 -------------------------------------------------
 --Special properties
 
@@ -846,13 +861,13 @@ minetest.register_alias_force("nodes_nature:jalowiec_cone","nodes_nature:jalowie
 --tangkal fruit is good food, but bulky
 --minetest.override_item("nodes_nature:tangkal_fruit",{stack_max = minimal.stack_max_medium/2})
 
-local kagum_groups = table.copy(minetest.registered_nodes["nodes_nature:kagum_pod"].groups)
-kagum_groups.bioluminescent = 1
+--local kagum_groups = table.copy(minetest.registered_nodes["nodes_nature:kagum_pod"].groups)
+--kagum_groups.bioluminescent = 1
 
-minetest.override_item("nodes_nature:kagum_pod",{
- light_source = 2,
- groups = kagum_groups,
-})
+--minetest.override_item("nodes_nature:kagum_pod",{
+ --light_source = 2,
+ --groups = kagum_groups,
+--})
 
 --minetest.override_item("nodes_nature:jalowiec_leaves", {damage_per_second = 1})
 
