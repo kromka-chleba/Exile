@@ -810,6 +810,20 @@ trees.register_tree("maraka",{
   }
 })
 minetest.register_alias_force("nodes_nature:maraka_nut","nodes_nature:maraka_fruit")
+
+trees.register_tree("sasaran",{
+  desc = S("Sasaran"),
+  fruit_def = {
+    description = S("Sasaran Cone"),
+    selection_box = {
+      fixed = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1}
+    },
+    dyecandidate = true,
+    dominantcolor = "yellow"
+  },
+  leaf_def = {}
+})
+minetest.register_alias_force("nodes_nature:sasaran_cone","nodes_nature:sasaran_fruit")
 -------------------------------------------------
 --Special properties
 
