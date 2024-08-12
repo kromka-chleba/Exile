@@ -62,9 +62,7 @@ local tree_list = {
   tangkal = {
     desc = S("Tangkal"),
     fruit_def = {
-      selection_box = {
-        fixed = {-0.1, 0.1, -0.1, 0.1, 0.5, 0.1}
-      },
+      selection_box = {-0.1, 0.1, -0.1, 0.1, 0.5, 0.1},
       dyecandidate = true,
       dominantcolor = "crimson",
       --tangkal fruit is good food, but bulky
@@ -77,9 +75,7 @@ local tree_list = {
     hardwood = true,
     fruit_def = {
       description = S("Maraka Nut"),
-      selection_box = {
-        fixed = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2}
-      },
+      selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
       dyecandidate = true,
       dominantcolor = "black"
     },
@@ -90,9 +86,7 @@ local tree_list = {
     desc = S("Panasee"),
     hardwood = true,
     fruit_def = {
-      selection_box = {
-        fixed = {-0.1, -0.2, -0.1, 0.1, 0.5, 0.1}
-      },
+      selection_box = {-0.1, -0.2, -0.1, 0.1, 0.5, 0.1},
       place_param2 = 2,
       dyecandidate = true,
       dominantcolor = "yellow"
@@ -103,9 +97,7 @@ local tree_list = {
     desc = S("Sasaran"),
     fruit_def = {
       description = S("Sasaran Cone"),
-      selection_box = {
-        fixed = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1}
-      },
+      selection_box = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},
       dyecandidate = true,
       dominantcolor = "yellow"
     },
@@ -117,9 +109,7 @@ local tree_list = {
     hardwood = true,
     fruit_def = {
       description = S("Jalowiec Cone"),
-      selection_box = {
-        fixed = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1}
-      },
+      selection_box = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},
       dyecandidate = true,
       dominantcolor = "yellow",
       wield_image = "nodes_nature_jalowiec_cone_wield.png"
@@ -130,9 +120,7 @@ local tree_list = {
     desc = S("Kagum"),
     fruit_def = {
       description = S("Kagum Pod"),
-      selection_box = {
-        fixed = {-0.1, -0.1, -0.1, 0.1, 0.5, 0.1}
-      },
+      selection_box = {-0.1, -0.1, -0.1, 0.1, 0.5, 0.1},
       dyecandidate = true,
       light_source = 2,
       groups = {bioluminescent=1}
@@ -143,9 +131,7 @@ local tree_list = {
     desc = S("Amma"),
     fruit_def = {
       description = S("Amma Nut"),
-      selection_box = {
-        fixed = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2}
-      },
+      selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
       dyecandidate = true,
       dominantcolor = "black"
     },
@@ -156,9 +142,7 @@ local tree_list = {
     hardwood = true,
     fruit_def = {
       description = S("Daoja Berry"),
-      selection_box = {
-        fixed = {-0.1, -0.5, -0.1, 0.1, -0.3, 0.1}
-      },
+      selection_box = {-0.1, -0.5, -0.1, 0.1, -0.3, 0.1},
       dyecandidate = true,
       dominantcolor = "crimson"
     },

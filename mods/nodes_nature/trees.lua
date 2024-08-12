@@ -327,6 +327,10 @@ function trees.register_tree(name,def)
       fixed = {-3 / 16, -7 / 16, -3 / 16,
       3 / 16, 4 / 16, 3 / 16}
     }
+    -- very cheap way of making a selection box (just the table itself)
+    if not fruit_def.selection_box.fixed and type(fruit_def.selection_box) == "table" then
+      fruit_def.selection_box = {fixed = fruit_def.selection_box}
+    end
     fruit_def.selection_box.type = fruit_def.selection_box.type or "fixed"
     fruit_def.drawtype = fruit_def.drawtype or "plantlike"
     fruit_def.stack_max = fruit_def.stack_max or minimal.stack_max_medium
