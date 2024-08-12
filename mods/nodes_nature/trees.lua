@@ -500,270 +500,6 @@ function trees.register_tree(name,def)
   )
 end
 
-for i in ipairs(tree_list) do
-	local treename = tree_list[i][1]
-	local treedesc = tree_list[i][2]
-	local fruitname = tree_list[i][3]
-	local fruitdesc = tree_list[i][4]
-	local p2_fruit  = tree_list[i][5]
-	local selbox_fruit = tree_list[i][6]
-	local hardness = tree_list[i][7]
-	local hardwood = tree_list[i][8]
-	local dyecandidate = tree_list[i][9]
-	local dominantcolor = tree_list[i][10] or "none"
-	local flamesusceptibility = hardness * -2
-
-	if not selbox_fruit then
-	   selbox_fruit = {-3 / 16, -7 / 16, -3 / 16,
-			   3 / 16, 4 / 16, 3 / 16}
-	end
-
-	local gl = {log = 1, choppy = hardness,
-		    flammable = 10 - flamesusceptibility}
-	if hardwood then
-		gl = {log = 1, choppy = hardness, hard_wood = 1,
-		      flammable = 10 - flamesusceptibility}
-	end
-
-
-
-
-	--trunk
-	minetest.register_node("nodes_nature:"..treename.."_tree", {
-		description = treedesc,
-		tiles = {
-			"nodes_nature_"..treename.."_tree_top.png",
-			"nodes_nature_"..treename.."_tree_top.png",
-			"nodes_nature_"..treename.."_tree.png"
-		},
-		stack_max = minimal.stack_max_bulky,
-		drop = "nodes_nature:"..treename.."_log",
-		paramtype = "light",
-		paramtype2 = "facedir",
-		is_ground_content = false,
-		groups = {tree = 1, choppy = hardness,
-			  flammable = 10 - flamesusceptibility },
-		sounds = nodes_nature.node_sound_wood_defaults(),
-		on_place = minetest.rotate_node,
-		after_place_node = function(pos, placer, itemstack)
-		   minetest.set_node(pos, {name = "nodes_nature:"..
-					      treename.."_tree",
-					   param2 = 1 + 128})
-		end,
-		after_dig_node = function(pos, node)
-                    if node.param2 < 128 then
-                        save_to_tree_mark(pos, node, treename, true)
-                        minetest.get_node_timer(pos):start(
-			   random(tree_base_tree_growth/2,
-				  tree_base_tree_growth))
-                    end
-		end,
-	})
-
-	--dropped log
-	minetest.register_node("nodes_nature:"..treename.."_log", {
-		description = S("@1 Log", treedesc),
-		tiles = {
-			"nodes_nature_"..treename.."_log_top.png",
-			"nodes_nature_"..treename.."_log_top.png",
-			"nodes_nature_"..treename.."_log.png"
-		},
-		stack_max = minimal.stack_max_bulky,
-		drawtype = "nodebox",
-		paramtype = "light",
-		node_box = {
-			type = "fixed",
-			fixed = {
-				{-0.4375, -0.5, -0.4375, 0.4375, 0.5, 0.4375},
-				{-0.375, -0.5, 0.4375, 0.375, 0.5, 0.5},
-				{-0.375, -0.5, -0.5, 0.375, 0.5, -0.4375},
-				{0.4375, -0.5, -0.375, 0.5, 0.5, 0.375},
-				{-0.5, -0.5, -0.375, -0.4375, 0.5, 0.375},
-			}
-		},
-		paramtype2 = "facedir",
-		is_ground_content = false,
-		groups = gl,
-		sounds = nodes_nature.node_sound_wood_defaults(),
-		on_place = minetest.rotate_node,
-	})
-
-	--stairs and slabs
-	if hardwood then
-		-- hardwood
-		stairs.register_stair_and_slab(
-			treename.."_log",
-			"nodes_nature:"..treename.."_log",
-			{"chopping_block","axe_mixing 2"},
-			"false",
-			{"chopping_block","axe_mixing 2"},
-			{choppy = hardness, flammable = 8 - flamesusceptibility,
-			 woodslab = 1},
-			{
-				"nodes_nature_"..treename.."_log_top.png",
-				"nodes_nature_"..treename.."_log_top.png",
-				"nodes_nature_"..treename.."_log.png"
-			},
-			S("@1 Log Stair", treedesc),
-			S("@1 Log Slab", treedesc),
-			minimal.stack_max_bulky * 2,
-			nodes_nature.node_sound_wood_defaults()
-		)
-	else
-		-- softwood
-		stairs.register_stair_and_slab(
-			treename.."_log",
-			"nodes_nature:"..treename.."_log",
-			{"chopping_block","axe_mixing"},
-			"false",
-			{"chopping_block","axe_mixing"},
-			{choppy = hardness, flammable = 8 - flamesusceptibility,
-			 woodslab = 1},
-			{
-				"nodes_nature_"..treename.."_log_top.png",
-				"nodes_nature_"..treename.."_log_top.png",
-				"nodes_nature_"..treename.."_log.png"
-			},
-			S("@1 Log Stair", treedesc),
-			S("@1 Log Slab", treedesc),
-			minimal.stack_max_bulky * 2,
-			nodes_nature.node_sound_wood_defaults()
-		)
-	end
-
-        local drops_leaves = 1
-        if treename == "sasaran" or treename == "jalowiec" then
-            drops_leaves = 0
-        end
-
-	--leaves
-	minetest.register_node("nodes_nature:"..treename.."_leaves", {
-		description = S("@1 Leaves", treedesc),
-		drawtype =  "plantlike",
-		visual_scale = 1,
-		tiles ={"nodes_nature_"..treename.."_leaves.png" },
-		stack_max = minimal.stack_max_bulky * 3,
-		paramtype = "light",
-		paramtype2 = "meshoptions",
-		place_param2 = 4,
-		walkable = false,
-		climbable = true,
-		groups = {choppy = 3, flammable = 2, woody_plant = 1, leafdecay = 1, leafdecay_drop = 1, drops_leaves = drops_leaves},
-		sounds = nodes_nature.node_sound_leaves_defaults(),
-		after_place_node = function(pos, placer, itemstack)
-		   if not placer or minimal.player_in_creative(placer) then
-		      return
-		   end
-		   minimal.switch_node(pos, {name = "nodes_nature:"..
-					      treename.."_leaves",
-					   param2 = 4 + 128})
-		end,
-		after_destruct = function(pos, node)
-                    if node.param2 < 128 then
-                        save_to_tree_mark(pos, node, treename, false)
-			local season, day = seasons.get_season_and_day()
-			if season == 4 then
-			   local remaining = 20 - day
-			   minetest.get_node_timer(pos):start(
-			      random(remaining * 1200,
-				     (remaining+5)*1200))
-			else
-			   minetest.log("info", "Node at "..
-					pos.x.."/"..pos.y.."/"..pos.z..
-					" was destroyed outside winter")
-			   minetest.get_node_timer(pos):start(
-			      random(tree_base_leaf_growth/2,
-				     tree_base_leaf_growth))
-			end
-                    end
-		end,
-                after_dig_node = function(pos, oldnode, oldmetadata, digger)
-                    if oldnode.param2 < 128 then
-                        save_to_tree_mark(pos, oldnode, treename, true)
-                        minetest.get_node_timer(pos):start(
-			   random(tree_base_leaf_growth/2,
-				  tree_base_leaf_growth))
-                    end
-                end,
-	})
-
-	--fruit
-	if fruitname then
-		minetest.register_node("nodes_nature:"..fruitname, {
-			description = fruitdesc,
-			drawtype = "plantlike",
-			tiles = { "nodes_nature_"..fruitname..".png" },
-			inventory_image = "nodes_nature_"..fruitname..".png",
-			wield_image = "nodes_nature_"..fruitname..".png",
-			stack_max = minimal.stack_max_medium,
-			visual_scale = 1,
-			paramtype = "light",
-			paramtype2 = "meshoptions",
-			place_param2 = p2_fruit or 2,
-			sunlight_propagates = true,
-			walkable = false,
-			selection_box = {
-				type = "fixed",
-				fixed = selbox_fruit
-			},
-			groups = {dig_immediate=3, flammable=2, leafdecay = 3,
-          fruit = 1,
-				  leafdecay_drop = 1,
-				  ncrafting_dye_candidate = dyecandidate,
-				  drops_leaves = drops_leaves},
-			sounds = nodes_nature.node_sound_defaults(),
-			_ncrafting_dye_dcolor = dominantcolor,
-			after_place_node = function(pos, placer, itemstack)
-			   if not placer or minimal.player_in_creative(placer) then
-			      return
-			   end
-			   minimal.switch_node(pos,
-					     {name = "nodes_nature:"..
-						 fruitname, param2 = 0 + 128})
-			end,
-			after_destruct = function(pos, node, oldmetadata, digger)
-                            if node.param2 < 128 then
-                                save_to_tree_mark(pos, node, treename, false)
-				local season, day = seasons.get_season_and_day()
-				if season == 4 then
-				   local remaining = 20 - day
-				   minetest.get_node_timer(pos):start(
-				      random(remaining * 1200,
-					     (remaining+5)*1200))
-				else
-				   minetest.get_node_timer(pos):start(
-				      random(tree_base_leaf_growth/2,
-					     tree_base_leaf_growth))
-				end
-			    end
-			end,
-                        after_dig_node = function(pos, oldnode, oldmetadata, digger)
-                            if oldnode.param2 < 128 then
-                                save_to_tree_mark(pos, oldnode, treename, true)
-                                minetest.get_node_timer(pos):start(
-				   random(tree_base_fruit_growth/2,
-					  tree_base_fruit_growth))
-                            end
-                        end,
-		})
-		HEALTH.add_food_hooks("nodes_nature:"..fruitname)
-		register_leafdecay({
-			trunks = {"nodes_nature:"..treename.."_tree"},
-			leaves = {"nodes_nature:"..treename.."_leaves", "nodes_nature:"..fruitname},
-			radius = 3,
-		})
-	else
-		register_leafdecay({
-			trunks = {"nodes_nature:"..treename.."_tree"},
-			leaves = {"nodes_nature:"..treename.."_leaves"},
-			radius = 3,
-		})
-
-	end
-
-
-end
-
 trees.register_tree("tangkal",{
   desc = S("Tangkal"),
   fruit_def = {
@@ -772,6 +508,7 @@ trees.register_tree("tangkal",{
     },
     dyecandidate = true,
     dominantcolor = "crimson",
+    --tangkal fruit is good food, but bulky
     stack_max = minimal.stack_max_medium/2
   },
   leaf_def = {}
@@ -802,11 +539,11 @@ trees.register_tree("maraka",{
     dyecandidate = true,
     dominantcolor = "black"
   },
+  -- maraka thorns
   leaf_def = {
     damage_per_second = 1
   }
 })
-minetest.register_alias_force("nodes_nature:maraka_nut","nodes_nature:maraka_fruit")
 
 trees.register_tree("sasaran",{
   desc = S("Sasaran"),
@@ -820,7 +557,6 @@ trees.register_tree("sasaran",{
   },
   leaf_def = {}
 })
-minetest.register_alias_force("nodes_nature:sasaran_cone","nodes_nature:sasaran_fruit")
 
 trees.register_tree("jalowiec",{
   desc = S("Jalowiec"),
@@ -837,7 +573,6 @@ trees.register_tree("jalowiec",{
   },
   leaf_def = {damage_per_second = 1}
 })
-minetest.register_alias_force("nodes_nature:jalowiec_cone","nodes_nature:jalowiec_fruit")
 
 trees.register_tree("kagum",{
   desc = S("Kagum"),
@@ -852,7 +587,6 @@ trees.register_tree("kagum",{
   },
   leaf_def = {}
 })
-minetest.register_alias_force("nodes_nature:kagum_pod","nodes_nature:kagum_fruit")
 
 trees.register_tree("amma",{
   desc = S("Amma"),
@@ -866,7 +600,6 @@ trees.register_tree("amma",{
   },
   leaf_def = {}
 })
-minetest.register_alias_force("nodes_nature:amma_nut","nodes_nature:amma_fruit")
 
 trees.register_tree("daoja",{
   desc = S("Daoja"),
@@ -881,27 +614,10 @@ trees.register_tree("daoja",{
   },
   leaf_def = {}
 })
+-- force update of old node names
+minetest.register_alias_force("nodes_nature:maraka_nut","nodes_nature:maraka_fruit")
+minetest.register_alias_force("nodes_nature:sasaran_cone","nodes_nature:sasaran_fruit")
+minetest.register_alias_force("nodes_nature:jalowiec_cone","nodes_nature:jalowiec_fruit")
+minetest.register_alias_force("nodes_nature:kagum_pod","nodes_nature:kagum_fruit")
+minetest.register_alias_force("nodes_nature:amma_nut","nodes_nature:amma_fruit")
 minetest.register_alias_force("nodes_nature:daoja_berry","nodes_nature:daoja_fruit")
--------------------------------------------------
---Special properties
-
---maraka thorns
---minetest.override_item("nodes_nature:maraka_leaves",{damage_per_second = 1})
-
---tangkal fruit is good food, but bulky
---minetest.override_item("nodes_nature:tangkal_fruit",{stack_max = minimal.stack_max_medium/2})
-
---local kagum_groups = table.copy(minetest.registered_nodes["nodes_nature:kagum_pod"].groups)
---kagum_groups.bioluminescent = 1
-
---minetest.override_item("nodes_nature:kagum_pod",{
- --light_source = 2,
- --groups = kagum_groups,
---})
-
---minetest.override_item("nodes_nature:jalowiec_leaves", {damage_per_second = 1})
-
---minetest.override_item(
-    --"nodes_nature:jalowiec_cone", {
-        --wield_image = "nodes_nature_jalowiec_cone_wield.png",
---})
