@@ -70,8 +70,8 @@ HEALTH.food_table = {
 	    ["nodes_nature:lambakap"]           = {th=10,hu=10},
 	    ["nodes_nature:tangkal_fruit"]      = {th=5,hu=10,en=10},
 	    ["nodes_nature:panasee_fruit"]      = {th=5,hu=4,en=1},
-	    ["nodes_nature:amma_nut"]           = {hu=1,en=10},
-	    ["nodes_nature:daoja_berry"]        = {hu=4},
+	    ["nodes_nature:amma_fruit"]           = {hu=1,en=10},
+	    ["nodes_nature:daoja_fruit"]        = {hu=4},
         ["nodes_nature:momo_fruit"]         = {th=1,hu=12},
         ["nodes_nature:momo_fruiting"]      = {th=1,hu=15},
         ["nodes_nature:momo_fruitless"]     = {th=1,hu=3},
@@ -185,8 +185,8 @@ HEALTH.harm_table = {
 	                                     { "Drunk",ch=0.005,sv=1} },
   ["nodes_nature:panasee_fruit"]   = {bm_fp},
 	--To do: add mild stimulant for Amma (like coffee)?
-	["nodes_nature:amma_nut"]        = {bm_fp},
-	["nodes_nature:daoja_berry"]     = { bm_fp,
+	["nodes_nature:amma_fruit"]        = {bm_fp},
+	["nodes_nature:daoja_fruit"]     = { bm_fp,
                                         {tags="Hepatotoxicity",ch=0.2,sv=1}},
   -- seeds
   ["nodes_nature:vansano_seed"]    = {bm_fp},

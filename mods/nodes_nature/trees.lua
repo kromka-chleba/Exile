@@ -824,6 +824,7 @@ minetest.register_alias_force("nodes_nature:sasaran_cone","nodes_nature:sasaran_
 
 trees.register_tree("jalowiec",{
   desc = S("Jalowiec"),
+  log_description = S("Jalowiec Shrub"),
   hardwood = true,
   fruit_def = {
     description = S("Jalowiec Cone"),
@@ -852,6 +853,35 @@ trees.register_tree("kagum",{
   leaf_def = {}
 })
 minetest.register_alias_force("nodes_nature:kagum_pod","nodes_nature:kagum_fruit")
+
+trees.register_tree("amma",{
+  desc = S("Amma"),
+  fruit_def = {
+    description = S("Amma Nut"),
+    selection_box = {
+      fixed = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2}
+    },
+    dyecandidate = true,
+    dominantcolor = "black"
+  },
+  leaf_def = {}
+})
+minetest.register_alias_force("nodes_nature:amma_nut","nodes_nature:amma_fruit")
+
+trees.register_tree("daoja",{
+  desc = S("Daoja"),
+  hardwood = true,
+  fruit_def = {
+    description = S("Daoja Berry"),
+    selection_box = {
+      fixed = {-0.1, -0.5, -0.1, 0.1, -0.3, 0.1}
+    },
+    dyecandidate = true,
+    dominantcolor = "crimson"
+  },
+  leaf_def = {}
+})
+minetest.register_alias_force("nodes_nature:daoja_berry","nodes_nature:daoja_fruit")
 -------------------------------------------------
 --Special properties
 

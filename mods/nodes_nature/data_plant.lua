@@ -74,6 +74,6 @@ tree_list = {
 	--{"jalowiec", S("Jalowiec Shrub"), "jalowiec_cone", S("Jalowiec Cone"), 1, {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},1, true, 1, "yellow"},
 	--{"kagum", S("Kagum Tree"), "kagum_pod", S("Kagum Pod"), 1, {-0.1, -0.1, -0.1, 0.1, 0.5, 0.1},2, false, 1},
 	--{"panasee", S("Panasee Tree"), "panasee_fruit", S("Panasee Fruit"), 2, {-0.1, -0.2, -0.1, 0.1, 0.5, 0.1},1, true, 1, "yellow"},
-	{"amma", S("Amma Tree"), "amma_nut", S("Amma nut"), 1, {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},2, false, 1, "black"},
-	{"daoja", S("Daoja Tree"), "daoja_berry", S("Daoja Berry"), 1, {-0.1, -0.5, -0.1, 0.1, -0.3, 0.1},1, true, 1, "crimson"},
+	--{"amma", S("Amma Tree"), "amma_nut", S("Amma nut"), 1, {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},2, false, 1, "black"},
+	--{"daoja", S("Daoja Tree"), "daoja_berry", S("Daoja Berry"), 1, {-0.1, -0.5, -0.1, 0.1, -0.3, 0.1},1, true, 1, "crimson"},
 }
