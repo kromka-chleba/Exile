@@ -35,7 +35,7 @@ HEALTH.food_table = {
         ["nodes_nature:wiha_flowering"]     = {th=4,hu=2},
         ["nodes_nature:wiha_fruiting"]      = {th=8,hu=4},
         ["nodes_nature:wiha_fruit"]         = {th=4,hu=2},
-        ["nodes_nature:jalowiec_cone"]      = {th=1,hu=1},
+        ["nodes_nature:jalowiec_fruit"]      = {th=1,hu=1},
         ["nodes_nature:ziarnoplon_fruitless"]     = {th=3,hu=1},
         ["nodes_nature:ziarnoplon_flowering"]     = {th=2,hu=1,en=-6},
         ["nodes_nature:ziarnoplon_fruiting"]      = {th=3,hu=4,en=-4},
