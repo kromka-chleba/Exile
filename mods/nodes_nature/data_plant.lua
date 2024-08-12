@@ -56,6 +56,11 @@ searooted_list = {
 
 }
 
+trees = {}
+
+trees.tree_base_tree_growth = 31000
+trees.tree_base_leaf_growth = 21000
+trees.base_fruit_growth = 19000
 
 tree_base_tree_growth = 31000
 tree_base_leaf_growth = 21000
