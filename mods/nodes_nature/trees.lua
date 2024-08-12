@@ -228,13 +228,9 @@ function trees.register_tree(name,def)
     name = def.mod_origin..":"..name
   -- create mod_origin (because we use it lol)
   elseif not def.mod_origin then
-    -- iterate through length of string
-    for i=1,name:len() do
-      if name:sub(i,i) == ":" then
-        def.mod_origin = name:sub(1,i)
-        break
-      end
-    end
+    local firstp = name:find(":") -- get index of first found ":" - defined as "first point"
+    -- grab mod_origin from name and set it
+    def.mod_origin = name:sub(1,firstp-1)
   end
   -- used to locate textures
   local texture_base = name:gsub(":","_")
