@@ -346,8 +346,11 @@ function trees.register_tree(name,def)
     if type(fruit_def.walkable) ~= "boolean" then fruit_def.walkable = false end -- default false
     fruit_def.sounds = fruit_def.sounds or nodes_nature.node_sound_defaults()
     -- ncrafting dye
+    fruit_def.groups.ncrafting_dye_candidate = fruit_def.dyecandidate == true and 1 or
+      type(fruit_def.dyecandidate) == "number" and fruit_def.dyecandidate or nil
     if fruit_def.groups.ncrafting_dye_candidate then
       fruit_def._ncrafting_dye_dcolor = fruit_def._ncrafting_dye_dcolor or fruit_def.dominantcolor or "none"
+      fruit_def.dyecandidate = nil
       fruit_def.dominantcolor = nil
     -- remove unnecessary value
     else
@@ -434,6 +437,7 @@ function trees.register_tree(name,def)
   log_def.name = name.."_log"
   log_def.description = log_def.description or S("@1 Log",def.description)
   log_def.groups = log_def.groups or {}
+  log_def.groups.log = 1
   log_def.groups.choppy = log_def.groups.choppy or def.groups.choppy
   log_def.groups.flammable = log_def.groups.flamamble or def.groups.flammable
   log_def.groups.hard_wood = def.groups.hard_tree and 1 or nil
@@ -765,11 +769,24 @@ trees.register_tree("tangkal",{
     selection_box = {
       fixed = {-0.1, 0.1, -0.1, 0.1, 0.5, 0.1}
     },
-    groups = {
-      ncrafting_dye_candidate = 1
-    },
+    dyecandidate = true,
     dominantcolor = "crimson",
     stack_max = minimal.stack_max_medium/2
+  },
+  leaf_def = {}
+})
+
+trees.register_tree("panasee",{
+  desc = S("Panasee"),
+  groups = {
+    choppy = 1
+  },
+  fruit_def = {
+    selection_box = {
+      fixed = {-0.1, -0.2, -0.1, 0.1, 0.5, 0.1}
+    },
+    dyecandidate = true,
+    dominantcolor = "yellow"
   },
   leaf_def = {}
 })
