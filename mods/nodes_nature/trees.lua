@@ -14,6 +14,12 @@ Currently the following meshes are choosable:
 -- Internationalization
 local S = nodes_nature.S
 
+trees = {}
+
+trees.tree_base_tree_growth = 31000
+trees.tree_base_leaf_growth = 21000
+trees.tree_base_fruit_growth = 19000
+
 local random = math.random
 seasons = seasons
 minimal = minimal
@@ -110,8 +116,8 @@ minetest.register_node(
 	    end
 	    local ntimer = minetest.get_node_timer(pos)
 	    local timeout = ntimer:get_timeout()
-	    if timeout > tree_base_tree_growth then -- shorten long timers
-	       ntimer:set(tree_base_fruit_growth / 2 + random(1,1200), 0)
+	    if timeout > trees.tree_base_tree_growth then -- shorten long timers
+	       ntimer:set(trees.tree_base_fruit_growth / 2 + random(1,1200), 0)
 	    end
             local meta = minetest.get_meta(pos)
             local saved_name = meta:get_string("saved_name")
@@ -141,7 +147,7 @@ minetest.register_node(
             else
 		     --no rain, so wait, but a shorter time
 		     minetest.get_node_timer(pos):set(
-			tree_base_fruit_growth / 2 +
+			trees.tree_base_fruit_growth / 2 +
 			random(1,1200), 0)
                 return true
             end
@@ -163,11 +169,6 @@ end
 ]]--
 
 ---------------------------------------------------------
-
-tree_list = tree_list -- declare globals from data_plant.lua
-tree_base_tree_growth = tree_base_tree_growth
-tree_base_leaf_growth = tree_base_leaf_growth
-tree_base_fruit_growth = tree_base_fruit_growth
 
 local function save_to_tree_mark(pos, oldnode, treename, by_player)
     local param2 = 0
@@ -288,7 +289,7 @@ function trees.register_tree(name,def)
           -- CHANGE THESE VALUES !!!
           -- use usual leaf recovery value
           minetest.get_node_timer(pos):start(
-            random(tree_base_leaf_growth/2,tree_base_leaf_growth)
+            random(trees.tree_base_leaf_growth/2,trees.tree_base_leaf_growth)
           )
         end
       end
@@ -298,7 +299,7 @@ function trees.register_tree(name,def)
       if oldnode.param2 < 128 then
         save_to_tree_mark(pos, oldnode, name, true)
         minetest.get_node_timer(pos):start(
-          random(tree_base_leaf_growth/2,tree_base_leaf_growth)
+          random(trees.tree_base_leaf_growth/2,trees.tree_base_leaf_growth)
         )
       end
     end
@@ -374,7 +375,7 @@ function trees.register_tree(name,def)
           -- CHANGE THESE VALUES !!!
           -- use usual fruit recovery value
           minetest.get_node_timer(pos):start(
-            random(tree_base_fruit_growth/2,tree_base_fruit_growth)
+            random(trees.tree_base_fruit_growth/2,trees.tree_base_fruit_growth)
           )
         end
       end
@@ -383,7 +384,7 @@ function trees.register_tree(name,def)
       if oldnode.param2 < 128 then
         save_to_tree_mark(pos, oldnode, name, true)
         minetest.get_node_timer(pos):start(
-				   random(tree_base_fruit_growth/2,tree_base_fruit_growth)
+				   random(trees.tree_base_fruit_growth/2,trees.tree_base_fruit_growth)
         )
       end
     end
@@ -425,7 +426,7 @@ function trees.register_tree(name,def)
     if node.param2 < 128 then
       save_to_tree_mark(pos, node, name, true)
       minetest.get_node_timer(pos):start(
-        random(tree_base_tree_growth/2,tree_base_tree_growth)
+        random(trees.tree_base_tree_growth/2,trees.tree_base_tree_growth)
       )
     end
   end
