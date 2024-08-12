@@ -42,21 +42,24 @@ function lightsource.restore_from_inventory(desc, pos, itemstack)
     end
     if itemstack:get_name() == desc.lit_name then
         lightsource.start_burning(desc, pos)
-        lightsource.update_fuel_infotext(desc, pos)
+        lightsource.update_fuel_infotext(desc, pos, meta)
     end
 end
 
 --convert fuel number to a string
-function lightsource.update_fuel_infotext(desc, pos)
+function lightsource.update_fuel_infotext(desc, pos, meta)
     local fuel_string
-    local meta = minetest.get_meta(pos)
+    meta = meta or minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
     if not fuel or fuel < 1 then
         fuel_string = S("Empty")
     else
-        fuel_string = math.floor(fuel / desc.max_fuel * 100).."% "..S("fuel left")
+        fuel_string = S("@1% fuel left",math.floor(fuel / desc.max_fuel * 100))
+        --fuel_string = math.floor(fuel / desc.max_fuel * 100).."% "..S("fuel left")
     end
-    minimal.infotext_merge(pos, S("Status: ")..fuel_string, meta)
+    meta:set_string("status",S("Status: @1",fuel_string))
+    minimal.infotext_set_new(pos, meta)
+    --minimal.infotext_merge(pos, S("Status: ")..fuel_string, meta)
 end
 
 function lightsource.save_to_inventory(desc, pos, digger, lit)
@@ -110,8 +113,8 @@ function lightsource.spawn_particles(desc, pos)
 end
 
 -- timer
-function lightsource.burn_fuel(desc, pos)
-    local meta = minetest.get_meta(pos)
+function lightsource.burn_fuel(desc, pos, meta)
+    meta = meta or minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
     if ( fuel < 1 or not check_for_air(pos) or
 	 desc.put_out_by_moisture and check_for_moisture(pos) )then
@@ -120,13 +123,13 @@ function lightsource.burn_fuel(desc, pos)
     else
         -- lightsource.spawn_particles(desc, pos)
         meta:set_int("fuel", fuel - math.random(-1, 3))
-	lightsource.update_fuel_infotext(desc, pos)
+	lightsource.update_fuel_infotext(desc, pos, meta)
         return true -- next iteration
     end
 end
 
-function lightsource.ignite(desc, pos)
-    local meta = minetest.get_meta(pos)
+function lightsource.ignite(desc, pos, meta)
+    meta = meta or minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
     if fuel and fuel > 0 then
         local node = minetest.get_node(pos)
@@ -152,9 +155,17 @@ function lightsource.refill(desc, pos, clicker, itemstack)
             if not minimal.player_in_creative(name) then
                 itemstack:take_item()
             end
-            lightsource.update_fuel_infotext(desc, pos)
+            lightsource.update_fuel_infotext(desc, pos, meta)
             return true
         end
     end
     return false
+end
+
+-- for new infotext function handling
+function lightsource.infotext_get(pos, nodedef, meta, params)
+  params = minimal.infotext_update_params(meta, params)
+  params.description = nodedef.description
+  local infotext = minimal.infotext_get_base_string(nil, meta, params)
+  return infotext..(params.status and "\n"..params.status or "")
 end

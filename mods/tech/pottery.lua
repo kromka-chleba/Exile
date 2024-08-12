@@ -455,7 +455,8 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
       end,
       on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 	 lightsource.refill(oil_lamp_data, pos, clicker, itemstack)
-      end,
+    end,
+    on_infotext = lightsource.infotext_get
    }
 
    local function animated(tname, reverse)

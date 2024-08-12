@@ -338,7 +338,7 @@ function doors.register(name, def)
 
 			if def.protected then
 				meta:set_string("owner", pn)
-				minimal.infotext_set(pos,meta)
+				minimal.infotext_set_new(pos,meta)
 			end
 
 			if not (minimal.player_in_creative(placer)) then
@@ -551,7 +551,7 @@ function doors.register_trapdoor(name, def)
 			local pn = placer:get_player_name()
 			local meta = minetest.get_meta(pos)
 			meta:set_string("owner", pn)
-			minimal.infotext_set(pos,meta)
+			minimal.infotext_set_new(pos,meta)
 
 			return minimal.player_in_creative(placer)
 		end

@@ -344,6 +344,7 @@ local function wear_blanket(player, bed_pos, donning)
   end
 
   if newstack and not newstack:is_empty() then
+    bed_meta:set_string("blanket",S("Bed: Contains Blanket")) -- assume we already have a blanket
   --We have a blanket put it someplace
     if blanket_put(newstack, putInv, toinvl) then
       newstack = ItemStack('')
@@ -365,9 +366,11 @@ local function wear_blanket(player, bed_pos, donning)
       minetest.sound_play("nodes_nature_dig_snappy",
         {pos = ppos, gain = .8, max_hear_distance = 2})
     end
+  else -- assume we're removing blanket
+    bed_meta:set_string("blanket","")
   end
   if not bedInv:is_empty('main') then
-	minimal.infotext_merge(bed_pos, S('Bed: Contains Blanket'), bed_meta)
+    minimal.infotext_set_new(bed_pos, bed_meta)
   end
    clothing:update_temp(player)
    player_api.set_texture(player)
@@ -451,7 +454,9 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 	   local p = bed_rest.pos[name] or nil
 	   local bedp = bed_rest.bed_position[name] or nil
 	   if bedp ~= nil then
-		   minimal.infotext_clear(bedp)
+       local bed_meta = minetest.get_meta(bedp)
+       bed_meta:set_string('status','') -- remove status
+		   minimal.infotext_clear(bedp, bed_meta)
 	   end
 	   bed_rest.player[name] = nil
 	   bed_rest.level[name] = nil
@@ -501,7 +506,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		      and nm ~= name then
 			   minetest.chat_send_player(name, S("This bed is already occupied!"))
 			   local meta = minetest.get_meta(bed_pos)
-			   minimal.infotext_merge(bed_pos,S('Status: Occupied by @1', nm),meta)
+         minimal.infotext_set_new(bed_pos, meta, {status=S('Status: Occupied by @1',nm)})
 			   return false
 			end
 		end
@@ -511,7 +516,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		bed_rest.level[name] = level
 		st:add("resting")
 		if not minetest.is_singleplayer() then
-		   minimal.infotext_merge(bed_pos,S('Status: Occupied by @1', name))
+      minimal.infotext_set_new(bed_pos, nil, {status=S('Status: Occupied by @1', name)})
 		   minetest.get_node_timer(bed_pos):start(60 * 60 * 24 *
 							  days_until_timeout)
 		end
@@ -599,7 +604,7 @@ function bed_rest.on_timer(pos, elapsed)
       if vector.distance(pos, other_pos) < 0.1 then
 	 bed_rest.bed_position[nm] = nil
 	 if not minetest.is_singleplayer() then
-		 minimal.infotext_merge(pos,S('Status: Occupied by @1 (old)', nm),meta)
+    minimal.infotext_set_new(pos, meta, {status=S('Status: Occupied by @1 (old)', nm)})
 	 end
 	 return false
       end

@@ -34,7 +34,7 @@ local function get_formspec(pos, w, h)
 		"listring[current_name;main]",
 		"listring[current_player;main]",
 	}
-	minimal.infotext_merge(pos,'Label: '..label, meta)
+  minimal.infotext_set_new(pos, meta)
 	return table.concat(formspec, "")
 end
 
@@ -392,6 +392,12 @@ function backpacks.register_backpack(name, def)
     show_packdump_formspec(pos, player, itemstack,
       (def.can_dump and not minimal.in_group(pos,"no_dump")),
       (def.can_pack and not minimal.in_group(pos,"no_pack")))
+  end
+  -- infotext handling
+  def.on_infotext = def.on_infotext or function(pos, nodedef, meta, params)
+    params.description = def.description
+    params = minimal.infotext_update_params(meta, params)
+    return minimal.infotext_get_base_string(nil, meta, params)
   end
   -- register backpack through storage.register_storage()
   storage.register_storage(":backpacks:backpack_"..name,def)

@@ -27,6 +27,10 @@ local function take_item_replace_node(pos, node, clicker, itemstack, pointed_thi
             itemstack:take_item()
         end
         minetest.swap_node(pos, {name = node_name})
+        -- run node's on_construct function (updates infotext properly)
+        local on_construct = minetest.registered_nodes[node_name]
+        on_construct = on_construct and on_construct.on_construct
+        if on_construct then on_construct(pos) end
         return itemstack
     end
 end
@@ -57,7 +61,12 @@ minetest.register_node("tech:lantern_case", {
 	sounds = nodes_nature.node_sound_stone_defaults(),
         on_construct = function(pos)
             local meta = minetest.get_meta(pos)
-            minimal.infotext_merge(pos, S("Status: needs a clear glass pane and a wick (coarse fibre)!"), meta)
+            -- skip translation, we can just get the description of the pane and coarse fibre
+            meta:set_string("status",S("Status: needs a @1 and a wick (@2)!",
+              minetest.registered_nodes["tech:pane_clear"].description,
+              minetest.registered_items["tech:coarse_fibre"].description))
+            minimal.infotext_set_new(pos, meta)
+            --minimal.infotext_merge(pos, S("Status: needs a clear glass pane and a wick (coarse fibre)!"), meta)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 	   take_item_replace_node(pos, node, clicker, itemstack, pointed_thing,
@@ -65,6 +74,7 @@ minetest.register_node("tech:lantern_case", {
 	   take_item_replace_node(pos, node, clicker, itemstack, pointed_thing,
 				  "tech:pane_clear", "tech:lantern_case_glass")
         end,
+        on_infotext = lightsource.infotext_get
 })
 
 -- Lantern case + wick
@@ -96,13 +106,16 @@ minetest.register_node("tech:lantern_case_wick", {
 	sounds = nodes_nature.node_sound_stone_defaults(),
         on_construct = function(pos)
             local meta = minetest.get_meta(pos)
-            minimal.infotext_merge(pos, S("Status: needs a clear glass pane!"),
-				   meta)
+            meta:set_string("status",S("Status: needs a @1!",minetest.registered_nodes["tech:pane_clear"].description))
+            minimal.infotext_set_new(pos, meta)
+            --minimal.infotext_merge(pos, S("Status: needs a clear glass pane!"),
+				   --meta)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 	   take_item_replace_node(pos, node, clicker, itemstack, pointed_thing,
 				  "tech:pane_clear", "tech:lantern_unlit")
         end,
+        on_infotext = lightsource.infotext_get
 })
 
 -- Lantern case + glass
@@ -130,14 +143,17 @@ minetest.register_node("tech:lantern_case_glass", {
 	sounds = nodes_nature.node_sound_stone_defaults(),
         on_construct = function(pos)
             local meta = minetest.get_meta(pos)
-            minimal.infotext_merge(pos,
-				   S("Status: needs a wick (coarse fibre)!"),
-				   meta)
+            meta:set_string("status",S("Status: needs a wick (@1)!",minetest.registered_items["tech:coarse_fibre"].description))
+            minimal.infotext_set_new(pos, meta)
+            --minimal.infotext_merge(pos,
+				   --S("Status: needs a wick (coarse fibre)!"),
+				   --meta)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 	   take_item_replace_node(pos, node, clicker, itemstack, pointed_thing,
 				  "tech:coarse_fibre", "tech:lantern_unlit")
         end,
+        on_infotext = lightsource.infotext_get
 })
 
 -- Lantern case + glass + wick
@@ -186,6 +202,7 @@ minetest.register_node("tech:lantern_unlit", {
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             lightsource.refill(lantern_desc, pos, clicker, itemstack)
         end,
+        on_infotext = lightsource.infotext_get
 })
 
 -- Lantern lit
@@ -238,6 +255,7 @@ minetest.register_node("tech:lantern_lit", {
 	   end
 	   lightsource.update_fuel_infotext(lantern_desc, pos)
         end,
+    on_infotext = lightsource.infotext_get
 })
 
 crafting.register_recipe({

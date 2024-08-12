@@ -97,6 +97,40 @@ inv:add_item(itemstack, index)
 		returns leftover
 inv:remove_item(index,amount)
 		- Takes one (or amount) of itemstack at provided index and returns it. Returns an empty itemstack otherwise.
+----------- infotext -----------
+minimal.infotext_purify_params(params)
+		- Always returns modified (or if params is not a table, not modified) params
+		Iterates through params looking for empty values (equal to "") and removing them
+minimal.infotext_update_params(meta, params)
+		- Returns params (modified or new if not provided)
+		Utilizes meta's "to_table()" function to either create a new params or to
+		merge provided params with meta (meta.fields)
+		Provided params has priority over meta in merge
+minimal.infotext_get_base_params(stack, meta, params)
+		- Handles description, owner, and label for infotext with the provided params (or meta
+		if not provided). Returns (copied) params (up to you to overwrite)
+		'stack' can be nil, but you will not get a description param if you do not provide one.
+		'stack' is expected to be an itemstack (but can be pos, any table with a name index,
+		or string). This is used to get a description via ItemStack:get_short_description()
+minimal.infotext_get_base_string(stack, meta, params)
+		- Returns formatted string for infotext setting
+		See infotext_get_base_params for how stack, meta, and params are handled
+minimal.infotext_clear(pos, meta)
+		- Clears infotext
+		pos is optional if you have meta provided, otherwise meta is optional if you have
+		pos provided
+minimal.infotext_set(pos, meta, params, func, nodedef, stack)
+		- Handles all infotext functionality for you, getting and setting it on success
+		Returns false on failure, formatted infotext string on success
+		Do NOT run in on_infotext callback (will cause recursion)
+		`meta` is semi-optional, will get from pos
+		`params` is semi-optional, will create one from meta
+		`func` is a custom function to run instead of on_infotext node callback or
+		base functionality
+		see on_infotext callback to see what is expected of `func`
+		`nodedef` and `stack` are completely optional, `nodedef` is utilized to check for
+		on_infotext callback and `stack` is utilized for infotext_get_base_string
+
 
 [[[ Custom node definitions ]]]
 ---------- callbacks ----------
@@ -112,6 +146,11 @@ _on_use_item = function(player, wielded_item, pointed_thing)
 	
 
 	^ functions for these should return false if the item/node isn't used.
+
+on_infotext = function(pos, nodedef, meta, params)
+	Called if minimal.infotext_set is called on the provided position (usually by protection nails or internal functions)
+	Params is a table sent by the caller for interpretation by the node, if not issued by caller then there will be one created. Do not expect params to contain all the information you need, you should call `minimal.infotext_update_params(meta, params)` for thisd
+	Expects string or boolean `false` return. `False` prevents infotext writing, otherwise if not given string then will default to base infotext setting
 
 ------------ data ------------
 _till_speed = the rate at which this tool tills soil, higher is better
