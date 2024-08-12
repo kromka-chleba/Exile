@@ -15,9 +15,9 @@ Input Items="Eingabegegenstände"
 Craft Type="Fertigungstyp"
 Crafting="Fertigung"
 Quantity="Menge"
-Single=
-Stack=
-Maximum=
+Single="Einzel"
+Stack="Stapel"
+Maximum="Maximum"
 #playersettings.lua
 Enable wide HUDbar="Weite HUD-Leiste aktivieren"
 Show numeric stats="Zahlenwerte anzeigen"
