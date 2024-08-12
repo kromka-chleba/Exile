@@ -402,7 +402,8 @@ function trees.register_tree(name,def)
   def.description = def.log_description or S("@1 Tree",desc)
   def.groups = def.groups or {}
   def.groups.tree = 1
-  def.groups.choppy = def.groups.choppy or 2
+  def.groups.choppy = def.groups.choppy or (def.hardwood and 1) or 2
+  def.hardwood = nil
   -- whether or not tree is a hardwood (less than 2 choppy)
   def.groups.hard_tree = def.groups.choppy <= 1 and 1 or nil
   -- flame susceptibility calculation ('hardness' aka choppy multiplied by -2)
@@ -778,9 +779,7 @@ trees.register_tree("tangkal",{
 
 trees.register_tree("panasee",{
   desc = S("Panasee"),
-  groups = {
-    choppy = 1
-  },
+  hardwood = true,
   fruit_def = {
     selection_box = {
       fixed = {-0.1, -0.2, -0.1, 0.1, 0.5, 0.1}
@@ -794,9 +793,7 @@ trees.register_tree("panasee",{
 
 trees.register_tree("maraka",{
   desc = S("Maraka"),
-  groups = {
-    choppy = 1
-  },
+  hardwood = true,
   fruit_def = {
     description = S("Maraka Nut"),
     selection_box = {
@@ -827,9 +824,7 @@ minetest.register_alias_force("nodes_nature:sasaran_cone","nodes_nature:sasaran_
 
 trees.register_tree("jalowiec",{
   desc = S("Jalowiec"),
-  groups = {
-    choppy = 1
-  },
+  hardwood = true,
   fruit_def = {
     description = S("Jalowiec Cone"),
     selection_box = {
