@@ -124,6 +124,7 @@ ncrafting.register_switch("tutorial_exile:basalt_hand_switch", {
 	   "nodes_nature_basalt.png",
 	   "nodes_nature_basalt.png",
 	},
+        groups = { switch = 1 },
 	_switch_sound = "exile_switch_ancient",
 	_switch_sound_params = { gain = 0.5, max_hear_distance = 8 },
 })
@@ -138,21 +139,32 @@ minetest.register_node('tutorial_exile:open_door', {
         walkable = false,
         buildable_to = false,
         floodable = false,
-	groups = { frobbable = 1 },
+	groups = { frobbable = 1, not_in_creative_inventory = 1 },
 	_on_frob = function(pos)
 	   minetest.swap_node(pos, {name="tutorial_exile:closed_door"})
 	end
 })
 minetest.register_node('tutorial_exile:closed_door', {
-        description = 'Tutorial Doorway',
+        description = 'Tutorial force field',
         tiles = {
 	   { name = "metal_plasma.png", backface_culling = true }
         },
 	drawtype = "glasslike",
-	groups = { frobbable = 1},
+	groups = { frobbable = 1 },
 	light_source = 6,
 	use_texture_alpha = "blend",
 	_on_frob = function(pos)
 	   minetest.swap_node(pos, {name = "tutorial_exile:open_door"})
 	end
 })
+
+if minetest.is_creative_enabled() then
+   minetest.override_item("tutorial_exile:basalt_hand_switch",
+			  {
+			     groups = { switch = 1, crumbly = 1, cracky = 3 },
+   })
+   minetest.override_item("tutorial_exile:open_door",
+			  {
+			     groups = { frobbable = 1, crumbly = 1, cracky = 3 },
+   })
+end
