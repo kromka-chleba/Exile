@@ -1,6 +1,8 @@
 --------------------------------------------------------------------------------
 -- Tutorial nodes
 
+local S = minetest.get_translator("tutorial_exile")
+
 minetest.register_node("tutorial_exile:invisible_wall", {
         description = "Tutorial boundary wall",
         tiles = {"climate_air.png"},
@@ -166,5 +168,61 @@ if minetest.is_creative_enabled() then
    minetest.override_item("tutorial_exile:open_door",
 			  {
 			     groups = { frobbable = 1, crumbly = 1, cracky = 3 },
+   })
+end
+
+local info = {
+   ["zoom_key"] = S("Press the zoom key to see the name of what "..
+		  "you're looking at. \n This is Z by default on PC, "..
+		  "and the binoculars or magnifying lens on mobile"),
+}
+
+local function display_info(pos, player)
+   if not player or not minetest.is_player(player) then return end
+	   local meta = minetest.get_meta(pos)
+	   local itext = info[meta:get("tutinfo_text")] or "INFO"
+	   local width = meta:get("tutinfo_width") or "7"
+	   local height = meta:get("tutinfo_height") or"4.5"
+	   local half = ( (tonumber(width) or 7) / 2) - 1
+	   minetest.show_formspec(player:get_player_name(),
+				  "informational",
+				  "formspec_version[3]"..
+				  "size["..width..","..height.."]"..
+				  "hypertext[0.5,0.75;6,2;introtext;"..
+				  itext.."]"..
+				  "button_exit["..half..",3;2,1;X;- X -]")
+end
+
+ncrafting.register_switch("tutorial_exile:info_node", {
+	description = "An informational node",
+	paramtype2 = "normal",
+	tiles={
+	   "tech_woven.png",
+	   "tech_woven.png",
+	   "tech_woven.png^tech_paint_lw_hand.png",
+	   "tech_woven.png^tech_paint_lw_hand.png",
+	   "tech_woven.png^tech_paint_lw_hand.png",
+	   "tech_woven.png^tech_paint_lw_hand.png",
+	},
+        groups = { },
+	_switch_sound = "",
+	_on_use_node = function(player, _, pointed_thing)
+	   local pos = pointed_thing.under
+	   display_info(pos, player)
+	end,
+	on_rightclick = function(pos, _, puncher)
+	   if not minetest.is_player(puncher) then return end
+	   display_info(pos, puncher)
+	end,
+	on_punch = function(pos, _, puncher)
+	   if not minetest.is_player(puncher) then return end
+	   display_info(pos, puncher)
+	end,
+})
+
+if minetest.is_creative_enabled() then
+   minetest.override_item("tutorial_exile:info_node",
+			  {
+			     groups = { crumbly = 1, cracky = 3 },
    })
 end
