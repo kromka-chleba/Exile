@@ -13,6 +13,10 @@
 
 local S = minetest.get_translator("minimal")
 
+minimal = minimal
+crafting = crafting
+sfinv = sfinv
+
 -- Create global default detached "craft_types" inventory
 -- Used to populate players craft_types
 local ctypes = minetest.create_detached_inventory("craft_types")
@@ -49,7 +53,6 @@ ctypes:set_list('main',{
 -- a section should be set to nil and output set to "" to force a redraw.
 -- only sections cleared are recreated via make_inventory_formspec
 
-local __inventoryFS_cache_timeout = 90 -- seconds between redraws
 local inventoryFS_cache = {}
 
 
@@ -312,7 +315,7 @@ local function process_receive_fields(player, formname, fields)
 				local sLevel = cache.sLevel
 				local sInv = cache.sInv
 				local qty = cache.qty or 1
-				
+
 				process_qty(recipe,qty,cache.item_hash)
 				if not crafting.can_craft(player_name, ctype, sLevel, recipe) then
 					minetest.log("error", "[inventoryFS] Player clicked a button they shouldn't have been able to")
@@ -330,7 +333,6 @@ local function process_receive_fields(player, formname, fields)
 			-- any button pushes require recipes to be redrawn
 			cache.output = ""
 			cache.recipesFS = nil
-		else
 		end
 	end
 	inventoryFS_cache[player_name] = cache
@@ -397,7 +399,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 		for _,result in ipairs(recipe_list) do
 			local id = tonumber(result.recipe.id)
 			local order = sortHash.hash[id]
-			if not order then 
+			if not order then
 --print('no order: '..dump(result))
 			else
 				sorted[order] = result
@@ -703,25 +705,17 @@ function minimal.make_inventory_formspec(player,context)
 	--reset epoch and draw formspec from cached values unless cleared
 	cache.epoch = os.time()
 	local qtyID = cache.qty or 1
-	if qtyID == 2 then
-		qtyID1 = 'false'
-		qtyID2 = 'true'
-		qtyID3 = 'false'
-	elseif qtyID == 3 then
-		qtyID1 = 'false'
-		qtyID2 = 'false'
-		qtyID3 = 'true'
-	else
-		qtyID1 = 'true'
-		qtyID2 = 'false'
-		qtyID3 = 'false'
-	end
+	local qtytab = { 'false', 'false', 'false' }
+	local qtylab = { S("Single"), S("Stack"), S("Maximum") }
+	qtytab[qtyID] = 'true'
+	qtylab[qtyID] = minetest.colorize("cyan", qtylab[qtyID])
+
 	local output =
-		'label[.5,6.2;'..S("Quantity")..']' ..
-		-- 'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]' ..
-		'checkbox[3.0,6.2;qty1;'..S("Single")..';'..qtyID1..']' ..
-		'checkbox[4.5,6.2;qty2;'..S("Stack")..';'..qtyID2..']' ..
-		'checkbox[6.0,6.2;qty3;'..S("Maximum")..';'..qtyID3..']'
+	   'label[.5,6.2;'..S("Quantity")..']' ..
+	   -- 'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]' ..
+	   'checkbox[3.0,6.2;qty1;'..qtylab[1]..';'..qtytab[1]..']' ..
+	   'checkbox[4.5,6.2;qty2;'..qtylab[2]..';'..qtytab[2]..']' ..
+	   'checkbox[6.0,6.2;qty3;'..qtylab[3]..';'..qtytab[3]..']'
 	-- add Craft Types
 --	if not cache.craft_typeFS then
 		cache = cache_player_craft_types(cache, pInv)
