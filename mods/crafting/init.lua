@@ -15,6 +15,11 @@
 -- License along with this library; if not, write to the Free Software
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
+-- placeholder icon for crafting gui
+minetest.register_craftitem("crafting:placeholder",{
+  inventory_image = "crafting_placeholder.png"
+})
+
 
 dofile(minetest.get_modpath("crafting") .. "/api.lua")
 dofile(minetest.get_modpath("crafting") .. "/async_craft.lua")

@@ -46,7 +46,7 @@ function crafting.register_type(name, label, icon_item_name)
    crafting.recipes[name] = {}
    -- add a label for tabs - default to the name
    crafting.tab_labels[name] = (label or name)
-   crafting.icon_item_name[name] = icon_item_name or ""
+   crafting.icon_item_name[name] = icon_item_name
 end
 
 function crafting.register_recipe(def)

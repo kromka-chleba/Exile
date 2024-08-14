@@ -434,7 +434,7 @@ local function cache_player_recipes(cache, player_name, pInv)
 	recipesFS[#recipesFS + 1] = "style_type[item_image_button;border=false]"
 	for i=1, #cTabs do
 		local leftPoint = 3.3 + (i - 1) * 1.2
-		local item_name = crafting.icon_item_name[cTabs[i]] or 'tech:crafting_spot'
+		local item_name = crafting.icon_item_name[cTabs[i]] or 'crafting:placeholder'
 		recipesFS[#recipesFS + 1] = 'item_image_button['..(leftPoint)..',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';]'
 		recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
 		';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]] or cTabs[i])) ..
