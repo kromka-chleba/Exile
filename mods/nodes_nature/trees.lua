@@ -102,18 +102,30 @@ local function get_mark_timer_data(data, dtype)
     or trees.tree_base_tree_growth
   -- setting up "mark_timer" to be used as future logic
   -- prioritize provided nodedef, otherwise create one with provided base dtype logic
-  local mark_timer = {min=data.mark_timer_min, max=data.mark_timer_start}
+  local mark_timer = {min=data.mark_timer_min, max=data.mark_timer_max, randtime = data.mark_timer_randomtime}
   -- get and set values for max and min
-  mark_timer.start = mark_timer.start or type(mark_timer.min) == "number" and mark_timer.min*6 
-    or type(mark_timer.min) == "table" and mark_timer.min[2]*4 or dtype_time
-  mark_timer.min = mark_timer.min or type(mark_timer.start) == "number" and mark_timer.start/6
-    or type(mark_timer.start) == "table" and mark_timer.start[1]/4
-  -- set as table (assume 1 as the minimum for random, 2 as the maximum for random)
+  mark_timer.max = mark_timer.max or mark_timer.min and mark_timer.min * 6 or dtype_time
+  mark_timer.min = mark_timer.min or mark_timer.max / 6
   -- round up
-  mark_timer.start = type(mark_timer.start) == "table" and mark_timer.start or type(mark_timer.start) == "number"
-    and {math.ceil(mark_timer.start*0.6),mark_timer.start}
-  -- correct minimum
-  mark_timer.min = type(mark_timer.min) == "number" and mark_timer.min or math.ceil(mark_timer.start[1]/4)
+  mark_timer.max = math.ceil(mark_timer.max)
+  mark_timer.min = math.ceil(mark_timer.min)
+  -- set randtime values
+  mark_timer.randtime = type(mark_timer.randtime) == "table" and mark_timer.randtime or type(mark_timer.randtime) == "number"
+    and {mark_timer.randtime*0.95, mark_timer.randtime} or {} -- create empty for below
+  -- set random max (2nd parameter) to max if above max or set to max if empty
+  mark_timer.randtime[2] = mark_timer.randtime[2] and
+    (mark_timer.randtime[2] > mark_timer.max and mark_timer.max or mark_timer.randtime[2]) or mark_timer.max
+  -- set random min (1st parameter) to min if below min or set to min if empty
+  mark_timer.randtime[1] = mark_timer.randtime[1] and
+    (mark_timer.randtime[1] < mark_timer.min and mark_timer.min or mark_timer.randtime[1]) or mark_timer.min
+  -- syntactic sugar functions
+  function mark_timer:get_new_time()
+    return random(mark_timer.randtime[1], mark_timer.randtime[2])
+  end
+  function mark_timer:mutate_time(old_time)
+    if type(old_time) ~= "number" then return old_time end
+    return math.max(old_time - random(1, 1200), mark_timer.min)
+  end
   -- return
   return mark_timer
 end
@@ -125,7 +137,7 @@ end
 
 local function tree_mark_is_valid(pos, def)
   def = type(def) == "string" and minetest.registered_nodes[def] or type(def) == "table"
-    and minetest.registered_nodes[def.def] or minimal.get_nodedef(def)
+    and minetest.registered_nodes[def.name] or minimal.get_nodedef(def)
   if not def then return false end
   -- get tree variant for information
   local tree_def = minetest.registered_nodes[def.tree]
@@ -137,7 +149,7 @@ local function tree_mark_is_valid(pos, def)
       return false
     end
   end
-  local fruits, leaves = tree_def.tree_fruits, tree_def.tree_leaves
+  -- got tree_def, now get supporting nodes
   local nodes = {}
   -- get positions
   for x = -1, 1 do
@@ -148,18 +160,25 @@ local function tree_mark_is_valid(pos, def)
       for z = -1, 1 do
         npos.z = pos.z + z
         -- if not original position
-        if (x ~= 0 and y ~= 0 and z ~= 0) then
-          nodes[minetest.get_node(npos).name] = npos
+        if not (x == 0 and y == 0 and z == 0) then
+          local nodename = minetest.get_node(npos).name
+          nodes[nodename] = (nodes[nodename] and nodes[nodename] + 1) or 1
+          minetest.log(minetest.pos_to_string(npos))
         end
       end
     end
   end
+  -- get types of nodes to search for
+  local search = {tree_def.name}
+  for _,add in pairs(tree_def.tree_fruits or {}) do
+    search[#search + 1] = add
+  end
+  for _,add in pairs(tree_def.tree_leaves or {}) do
+    search[#search + 1] = add
+  end
   -- now to check through valid neighbouring tree trunks, fruits, and leaves
-  local search_through = minimal.merge_tables({tree_def.name},fruits or {}, leaves or {})
-  for neighbor,_ in pairs(nodes) do
-    for _,support in pairs(search_through) do
-      if neighbor == support then return true end
-    end
+  for _,support in pairs(search) do
+    if nodes[support] then return true end
   end
   return false
 end
@@ -167,18 +186,6 @@ end
 local function tree_mark_timer(pos, elapsed)
   -- let's run this around again folks!
   if seasons.is_winter() then return true end
-  local nodedef = minimal.get_nodedef(pos)
-  local timer_data = get_mark_timer_data(nodedef,
-    (nodedef.name:sub(-6) == "leaves" and "leaves" or nodedef.name:sub(-5) == "fruit" and "fruit" or nil)
-  )
-  if not timer_data then minetest.log("oops!") return false end
-  local ntimer = minetest.get_node_timer(pos)
-  local timeout = ntimer:get_timeout()
-  -- timer is unnecessarily long, shorten back down
-  if timeout > timer_data.start[2] then
-    timeout = random(timer_data.start[1],timer_data.start[2])
-  end
-  -- dealt with all the fun timer stuff, time for some real fun (every checks)
   local meta = minetest.get_meta(pos)
   local saved_name = meta:get_string("saved_name")
   -- Tree mark w/no name from schematic, remove
@@ -186,19 +193,36 @@ local function tree_mark_timer(pos, elapsed)
     minetest.remove_node(pos)
     return false
   end
+  -- now for nodes, timer stuff
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[saved_name]
+  local timer_data = get_mark_timer_data(nodedef,
+    (nodedef.name:sub(-6) == "leaves" and "leaves" or nodedef.name:sub(-5) == "fruit" and "fruit" or nil)
+  )
+  if not timer_data then minetest.log("oops!") return false end
+  local ntimer = minetest.get_node_timer(pos)
+  local timeout = ntimer:get_timeout()
+  -- timer is unnecessarily long, shorten back down
+  if timeout > timer_data.max then
+    timeout = timer_data:get_new_time()
+  end
+  -- can we grow from this tree mark?
   if tree_mark_is_valid(pos, nodedef) then
     -- needs rain for growth
     if climate.get_rain(pos, 15) or climate.time_since_rain(elapsed) > 0 then
-      minetest.set_node(pos, {name=saved_name, param2 = 0})
+      -- fix for tree mark's param2 being 16 if dug by player (there was no proper application of this param2 16 lol)
+      if node.param2 == 16 and nodedef.place_param2 then
+        node.param2 = nodedef.place_param2
+      end
+      minetest.set_node(pos, {name=saved_name, param2 = node.param2})
     -- no rain, so wait, but for a shorter time
     else
-      local new_time = timeout - random(1,1200)
-      minetest.get_node_timer(pos):set(new_time)
+      minetest.get_node_timer(pos):set(timer_data:mutate_time(timeout), 0)
       return true
     end
   else
     local season_n, season_day = seasons.get_season_and_day() -- season number, season day
-    if season_n == 1 and season_days < 11 then
+    if season_n == 1 and season_day < 11 then
       return true -- wait until late spring to give up on regrowth
     end
     minetest.remove_node(pos) -- it's dead, Jim!
@@ -234,24 +258,16 @@ minetest.register_node(
 	 drawtype = "allfaces",
 	 pointable = true
    })
-end
-]]--
+--]]
+
 
 ---------------------------------------------------------
 
-local function save_to_tree_mark(pos, oldnode, treename, by_player)
-    local param2 = 0
-    if by_player then
-        param2 = 16
-    end
-    minetest.set_node(pos, {name = "nodes_nature:tree_mark", param2 = param2})
-    local meta = minetest.get_meta(pos)
-    -- current backwards compatibility from new devised system
-    treename = not treename:match(":") and "nodes_nature:"..treename or treename
-    meta:set_string("saved_name", oldnode.name)
-    meta:set_string("saved_param2", oldnode.param2)
-    meta:set_string("leaf_name", treename.."_leaves")
-    meta:set_string("tree_name", treename.."_tree")
+-- save dug tree part as a tree mark
+local function save_to_tree_mark(pos, oldnode, by_player)
+  minetest.set_node(pos, {name = "nodes_nature:tree_mark", param2 = oldnode.param2})
+  local meta = minetest.get_meta(pos)
+  meta:set_string("saved_name", oldnode.name)
 end
 
 function trees.register_tree(name,def)
@@ -316,7 +332,7 @@ function trees.register_tree(name,def)
     leaf_def.after_destruct = leaf_def.after_destruct or function(pos, node)
       -- wild
       if node.param2 < 128 then
-        save_to_tree_mark(pos, node, name, false)
+        save_to_tree_mark(pos, node, false)
         local season, day = seasons.get_season_and_day()
         -- late winter (hunger)
         if season == 4 then
@@ -329,21 +345,18 @@ function trees.register_tree(name,def)
           minetest.log("info", "Node at "..
             pos.x.."/"..pos.y.."/"..pos.z..
             " was destroyed outside winter")
-          -- CHANGE THESE VALUES !!!
-          -- use usual leaf recovery value
-          minetest.get_node_timer(pos):start(
-            random(trees.tree_base_leaf_growth/2,trees.tree_base_leaf_growth)
-          )
+          -- nodetimer time
+          local timer_data = get_mark_timer_data(leaf_def,"leaf")
+          minetest.get_node_timer(pos):start(timer_data:get_new_time())
         end
       end
     end
     leaf_def.after_dig_node = leaf_def.after_dig_node or function(pos, oldnode, oldmetadata, digger)
       -- wild
       if oldnode.param2 < 128 then
-        save_to_tree_mark(pos, oldnode, name, true)
-        minetest.get_node_timer(pos):start(
-          random(trees.tree_base_leaf_growth/2,trees.tree_base_leaf_growth)
-        )
+        save_to_tree_mark(pos, oldnode, true)
+        local timer_data = get_mark_timer_data(leaf_def,"leaf")
+        minetest.get_node_timer(pos):start(timer_data:get_new_time())
       end
     end
     -- finalizing leaf_def
@@ -410,7 +423,7 @@ function trees.register_tree(name,def)
     end
     fruit_def.after_destruct = fruit_def.after_destruct or function(pos, node, oldmetadata, digger)
       if node.param2 < 128 then
-        save_to_tree_mark(pos, node, name, false)
+        save_to_tree_mark(pos, node, false)
         local season, day = seasons.get_season_and_day()
         -- late winter (hunger)
         if season == 4 then
@@ -420,20 +433,17 @@ function trees.register_tree(name,def)
           ))
         -- not winter
         else
-          -- CHANGE THESE VALUES !!!
-          -- use usual fruit recovery value
-          minetest.get_node_timer(pos):start(
-            random(trees.tree_base_fruit_growth/2,trees.tree_base_fruit_growth)
-          )
+          -- nodetimer time
+          local timer_data = get_mark_timer_data(fruit_def,"fruit")
+          minetest.get_node_timer(pos):start(timer_data:get_new_time())
         end
       end
     end
     fruit_def.after_dig_node = fruit_def.after_dig_node or function(pos, oldnode, oldmetadata, digger)
       if oldnode.param2 < 128 then
-        save_to_tree_mark(pos, oldnode, name, true)
-        minetest.get_node_timer(pos):start(
-				   random(trees.tree_base_fruit_growth/2,trees.tree_base_fruit_growth)
-        )
+        save_to_tree_mark(pos, oldnode, true)
+        local timer_data = get_mark_timer_data(fruit_def,"fruit")
+        minetest.get_node_timer(pos):start(timer_data:get_new_time())
       end
     end
     -- finalizing fruit_def
@@ -471,10 +481,9 @@ function trees.register_tree(name,def)
   def.after_dig_node = def.after_dig_node or function(pos, node)
     -- wild
     if node.param2 < 128 then
-      save_to_tree_mark(pos, node, name, true)
-      minetest.get_node_timer(pos):start(
-        random(trees.tree_base_tree_growth/2,trees.tree_base_tree_growth)
-      )
+      save_to_tree_mark(pos, node, true)
+      local timer_data = get_mark_timer_data(def)
+      minetest.get_node_timer(pos):start(timer_data:get_new_time())
     end
   end
   -- tree log (when a tree trunk is cut)
