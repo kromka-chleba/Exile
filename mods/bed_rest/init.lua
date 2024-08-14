@@ -24,7 +24,6 @@ dofile(modpath .. "/api.lua")
 dofile(modpath .. "/bed_clear.lua")
 
 local temp = minetest.deserialize(bed_rest.store:get_string("bedrest"), true)
-print("Bed rest temp = ",dump(temp))
 if temp then
    bed_rest.level = temp["level"]
    bed_rest.player = temp["player"]
