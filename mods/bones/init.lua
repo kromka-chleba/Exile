@@ -109,7 +109,7 @@ minetest.register_node("bones:bones", {
 			return
 		end
 
-		if minimal.infotext_is_empty(pos) then
+		if minetest.get_meta(pos):get_string("infotext") == "" then
 			return
 		end
 
