@@ -131,10 +131,9 @@ local function get_mark_timer_data(data, dtype)
 end
 
 ---------------------------------------------------------
---
---Mark
---used to regrow fruit, leaves, trunks on trees
 
+-- function to determine whether or not a tree_mark can properly regrow
+-- e.g. has relating leaves, fruits, or trunks
 local function tree_mark_can_regrow(pos, def)
   def = type(def) == "string" and minetest.registered_nodes[def] or type(def) == "table"
     and minetest.registered_nodes[def.name] or minimal.get_nodedef(def)
@@ -183,6 +182,8 @@ local function tree_mark_can_regrow(pos, def)
   return false
 end
 
+-- used for on_timer of tree_marks
+-- determines whether or not to check later, to grow the tree_mark saved name, or to remove the tree_mark
 local function tree_mark_timer(pos, elapsed)
   -- let's run this around again folks!
   if seasons.is_winter() then return true end
@@ -229,6 +230,10 @@ local function tree_mark_timer(pos, elapsed)
   end
 end
 
+--
+--Mark
+--used to regrow fruit, leaves, trunks on trees
+
 minetest.register_node(
     "nodes_nature:tree_mark", {
         description = S("Tree Marker"),
@@ -264,12 +269,16 @@ minetest.register_node(
 ---------------------------------------------------------
 
 -- save dug tree part as a tree mark
+-- by_player parameter is currently unused (why did we have this?)
 local function save_to_tree_mark(pos, oldnode, by_player)
   minetest.set_node(pos, {name = "nodes_nature:tree_mark", param2 = oldnode.param2})
   local meta = minetest.get_meta(pos)
   meta:set_string("saved_name", oldnode.name)
 end
 
+-- register_leaves
+-- register leaves for a tree (or without one?)
+-- tree parameter used for ensuring growback
 function trees.register_leaves(name, def, tree)
   assert(type(name) == "string", "trees.register_leaves: got non-string for name: "..tostring(name).." : "..type(name))
   assert(type(def) == "table","trees.register_leaves: got non-table for definition: "..tostring(def).." : "..type(def))
@@ -346,6 +355,9 @@ function trees.register_leaves(name, def, tree)
   return def -- return def for use
 end
 
+-- register_fruit
+-- register fruit for a tree (or without one?)
+-- tree parameter used for ensuring growback
 function trees.register_fruit(name, def, tree)
   assert(type(name) == "string", "trees.register_fruit: got non-string for name: "..tostring(name).." : "..type(name))
   assert(type(def) == "table","trees.register_fruit: got non-table for definition: "..tostring(def).." : "..type(def))
@@ -448,6 +460,8 @@ function trees.register_fruit(name, def, tree)
   return def -- return def for use
 end
 
+-- register_tree
+-- for registering a tree and all the content that follows!
 function trees.register_tree(name,def)
   assert(type(name) == "string","trees.register_tree: got non-string for name: "..tostring(name).." : "..type(name))
   assert(type(def) == "table","trees.register_tree: got non-table for definition: "..tostring(def).." : "..type(def))
@@ -467,8 +481,6 @@ function trees.register_tree(name,def)
     -- grab mod_origin from name and set it
     def.mod_origin = name:sub(1,firstp-1)
   end
-  -- used to locate textures
-  local texture_base = name:gsub(":","_")
   -- set name for original def
   def.name = name.."_tree"
   -- ease of access to defs
@@ -488,6 +500,8 @@ function trees.register_tree(name,def)
     def.tree_fruits = {fruit_def.name}
     def.fruit_def = nil
   end
+  -- used to locate textures
+  local texture_base = name:gsub(":","_")
   -- tree trunk
   def.description = def.log_description or S("@1 Tree",desc)
   def.groups = def.groups or {}
