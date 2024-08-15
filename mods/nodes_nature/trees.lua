@@ -134,6 +134,7 @@ end
 
 -- function to determine whether or not a tree_mark can properly regrow
 -- e.g. has relating leaves, fruits, or trunks
+-- permits tree-less leaves and fruits to regrow from each other
 local function tree_mark_can_regrow(pos, def)
   def = type(def) == "string" and minetest.registered_nodes[def] or type(def) == "table"
     and minetest.registered_nodes[def.name] or minimal.get_nodedef(def)
@@ -144,9 +145,18 @@ local function tree_mark_can_regrow(pos, def)
     -- oh wait, we're the tree! ah silly me
     if def and def.groups and def.groups.tree then
       tree_def = def
+    -- permit allowing to search for other nodes of itself (tree-less leaves or fruits)
     else
-      return false
+      -- create a weird tree_def
+      tree_def = {
+        tree_fruits = def.tree_fruits or def.name:sub(-5) == "fruit" and {def.name} or nil,
+        tree_leaves = def.tree_leaves or def.name:sub(-6) == "leaves" and {def.name} or nil
+      }
     end
+  end
+  -- literally couldn't save anything, what was going on with your code?
+  if not (tree_def.name or tree_def.tree_fruits or tree_def.tree_leaves) then
+    return false
   end
   -- got tree_def, now get supporting nodes
   local nodes = {}
@@ -162,7 +172,6 @@ local function tree_mark_can_regrow(pos, def)
         if not (x == 0 and y == 0 and z == 0) then
           local nodename = minetest.get_node(npos).name
           nodes[nodename] = (nodes[nodename] and nodes[nodename] + 1) or 1
-          minetest.log(minetest.pos_to_string(npos))
         end
       end
     end
@@ -189,8 +198,12 @@ local function tree_mark_timer(pos, elapsed)
   if seasons.is_winter() then return true end
   local meta = minetest.get_meta(pos)
   local saved_name = meta:get_string("saved_name")
-  -- Tree mark w/no name from schematic, remove
-  if saved_name == "" then
+  -- backwards compatibility for fruit (get alias of saved_name if exists)
+  if not minetest.registered_nodes[saved_name] then
+    saved_name = minetest.registered_aliases[saved_name]
+  end
+  -- Tree mark w/no name from schematic or a nil node, remove
+  if saved_name == "" or not minetest.registered_nodes[saved_name] then
     minetest.remove_node(pos)
     return false
   end
@@ -200,7 +213,11 @@ local function tree_mark_timer(pos, elapsed)
   local timer_data = get_mark_timer_data(nodedef,
     (nodedef.name:sub(-6) == "leaves" and "leaves" or nodedef.name:sub(-5) == "fruit" and "fruit" or nil)
   )
-  if not timer_data then minetest.log("oops!") return false end
+  -- could not get timer_data (how???), remove node
+  if not timer_data then
+    minetest.remove_node(pos)
+    return false
+  end
   local ntimer = minetest.get_node_timer(pos)
   local timeout = ntimer:get_timeout()
   -- timer is unnecessarily long, shorten back down
@@ -282,7 +299,7 @@ end
 function trees.register_leaves(name, def, tree)
   assert(type(name) == "string", "trees.register_leaves: got non-string for name: "..tostring(name).." : "..type(name))
   assert(type(def) == "table","trees.register_leaves: got non-table for definition: "..tostring(def).." : "..type(def))
-  assert(name:sub(-6) == "leaves","trees.register_leaves: improper naming convention, expected 'leaves' at end, got "..name:sub(-6))
+  assert(name:sub(-6) == "leaves","trees.register_leaves: improper naming convention, expected 'leaves' at end, got: "..name:sub(-6))
   tree = type(tree) == "string" and tree or type(tree) == "table" and type(tree.name) == "string" and tree.name or nil
   def.tree = tree -- used to associate to for regrowth from tree_mark
   -- leaf groups
@@ -361,7 +378,7 @@ end
 function trees.register_fruit(name, def, tree)
   assert(type(name) == "string", "trees.register_fruit: got non-string for name: "..tostring(name).." : "..type(name))
   assert(type(def) == "table","trees.register_fruit: got non-table for definition: "..tostring(def).." : "..type(def))
-  assert(name:sub(-5) == "fruit","trees.register_fruit: improper naming convention, expected 'fruit' at end, got "..name:sub(-5))
+  assert(name:sub(-5) == "fruit","trees.register_fruit: improper naming convention, expected 'fruit' at end, got: "..name:sub(-5))
   def.tree = tree -- used to associate to for regrowth from tree_mark
   -- fruit groups
   def.groups = def.groups or {}
