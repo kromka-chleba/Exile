@@ -11,6 +11,7 @@ end
 
 local modpath = minetest.get_modpath('tech')
 
+dofile(modpath .. "/sounds.lua")
 dofile(modpath .. "/lightsource_api.lua")
 dofile(modpath..'/craft_stations.lua')
 dofile(modpath..'/tools.lua')

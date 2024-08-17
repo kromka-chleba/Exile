@@ -149,7 +149,7 @@ minetest.register_node("tech:green_glass_ingot", {
 	stack_max = minimal.stack_max_bulky * 4,
 	paramtype = "light",
 	groups = {cracky = 3, oddly_breakable_by_hand = 3, falling_node = 1, temp_pass = 1, heatable = 20},
-	sounds = nodes_nature.node_sound_glass_defaults(),
+	sounds = tech.node_sound_glass_defaults(),
 	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	on_construct = function(pos)
@@ -439,7 +439,7 @@ minetest.register_node("tech:clear_glass_ingot", {
 	stack_max = minimal.stack_max_bulky * 4,
 	paramtype = "light",
 	groups = {cracky = 3, oddly_breakable_by_hand = 3, falling_node = 1, temp_pass = 1, heatable = 20},
-	sounds = nodes_nature.node_sound_glass_defaults(),
+	sounds = tech.node_sound_glass_defaults(),
 	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	on_construct = function(pos)
