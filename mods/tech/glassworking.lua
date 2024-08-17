@@ -517,7 +517,7 @@ minetest.register_node("tech:pane_tray_green",
 	on_dig = function(pos, node, digger)
     minetest.sound_play("tech_glass_dug",{
       pos = pos,
-      gain = 0.7,
+      gain = 1,
       max_hear_distance = 10
     })
 	   local inv = digger:get_inventory()
@@ -559,7 +559,7 @@ minetest.register_node("tech:pane_tray_clear",
 	on_dig = function(pos, node, digger)
     minetest.sound_play("tech_glass_dug",{
       pos = pos,
-      gain = 0.7,
+      gain = 1,
       max_hear_distance = 10
     })
 	   local inv = digger:get_inventory()
