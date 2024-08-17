@@ -97,16 +97,18 @@ function storage.on_receive_fields(pos, formname, fields, sender, width, height)
     meta:set_string('label', cleanlabel)
     minimal.infotext_set_new(pos, meta)
     storage.on_construct(pos, width, height)
-  end
+  -- we're just closing storage
   -- sounds
-  remove_watcher(pos, sender)
-  if #get_watchers(pos) < 1 and not minetest.is_protected(pos, sender, meta) then
-    local sounds = minimal.get_nodedef(pos)
-    sounds = sounds.sounds or {}
-    local sound = sounds.storage_close and table.copy(sounds.storage_close)
-    if sound then
-      sound.pos = pos
-      minetest.sound_play(sound.name,sound)
+  else
+    remove_watcher(pos, sender)
+    if #get_watchers(pos) < 1 and not minetest.is_protected(pos, sender, meta) then
+      local sounds = minimal.get_nodedef(pos)
+      sounds = sounds.sounds or {}
+      local sound = sounds.storage_close and table.copy(sounds.storage_close)
+      if sound then
+        sound.pos = pos
+        minetest.sound_play(sound.name,sound)
+      end
     end
   end
 end
