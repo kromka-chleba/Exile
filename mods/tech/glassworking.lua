@@ -483,6 +483,7 @@ minetest.register_node("tech:pane_tray",
 
 	},
 	stack_max = minimal.stack_max_bulky * 2,
+  sounds = nodes_nature.node_sound_stone_defaults(),
 	paramtype = "light",
 	paramtype2 = "facedir",
 	groups = {cracky = 3, oddly_breakable_by_hand = 3},
@@ -508,11 +509,17 @@ minetest.register_node("tech:pane_tray_green",
 
 	},
 	stack_max = minimal.stack_max_bulky * 2,
+  sounds = nodes_nature.node_sound_stone_defaults(),
 	paramtype = "light",
 	paramtype2 = "facedir",
 	groups = {dig_immediate = 3},
 	sunlight_propagates = true,
 	on_dig = function(pos, node, digger)
+    minetest.sound_play("tech_glass_dug",{
+      pos = pos,
+      gain = 0.7,
+      max_hear_distance = 10
+    })
 	   local inv = digger:get_inventory()
 	   if inv:room_for_item("main", "tech:pane_green") then
 	      inv:add_item("main", "tech:pane_green")
@@ -544,11 +551,17 @@ minetest.register_node("tech:pane_tray_clear",
 
 	},
 	stack_max = minimal.stack_max_bulky * 2,
+  sounds = nodes_nature.node_sound_stone_defaults(),
 	paramtype = "light",
 	paramtype2 = "facedir",
 	groups = {dig_immediate = 3},
 	sunlight_propagates = true,
 	on_dig = function(pos, node, digger)
+    minetest.sound_play("tech_glass_dug",{
+      pos = pos,
+      gain = 0.7,
+      max_hear_distance = 10
+    })
 	   local inv = digger:get_inventory()
 	   if inv:room_for_item("main", "tech:pane_clear") then
 	      inv:add_item("main", "tech:pane_clear")
