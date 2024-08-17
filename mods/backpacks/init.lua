@@ -368,7 +368,6 @@ function backpacks.register_backpack(name, def)
   def.drawtype = def.drawtype or "nodebox"
   def.node_box = def.node_box or def.drawtype == "nodebox" and wallmount_box
   def.stack_max = def.stack_max or 1
-  def.node_placement_prediction = def.node_placement_prediction or ""
   def.can_dig_when_inventory = type(def.can_dig_when_inventory) ~= "boolean" and true or def.can_dig_when_inventory
   -- functions
   def.after_place_node = def.after_place_node or function(pos, placer, itemstack, pointed_thing)
