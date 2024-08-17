@@ -23,6 +23,19 @@ fire_small.ogg, dobroide (CC BY 3.0) http://www.freesound.org/people/dobroide/so
 
 tech_boil.ogg adapted from Bubbling Cauldron, Mike Koenig, Attribution 3.0 , http://soundbible.com/51-Bubbling-Cauldron.html
 
+==
+(C) TPH/tph9677/TubberPupperHusker/TubberPupper/Damotrix <damotrixrob@gmail.com>
+All following audio between "==" is marked with https://creativecommons.org/publicdomain/zero/1.0/
+by TPH
+tech_frying.(0-4).ogg
+tech_frying_(start/final).ogg
+tech_woven_basket_(open/close).ogg
+tech_clay_storage_(open/close).ogg
+tech_wooden_storage_(open/close).ogg
+tech_iron_chest_(open/close).ogg
+tech_glass_(place/dig/dug).(0-3).ogg
+==
+
 
 Authors of media (textures)
 ------------------------
