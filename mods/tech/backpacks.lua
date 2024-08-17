@@ -18,7 +18,20 @@ backpacks.register_backpack("woven_bag",{
   width = 8,
   height = 2,
   groups = {snappy = 3, temp_pass = 1, craftedby = 1, flammable = 1},
-  sounds = nodes_nature.node_sound_leaves_defaults()
+  sounds = nodes_nature.node_sound_leaves_defaults({
+    storage_close = {
+      name = "tech_woven_basket_close",
+      gain = 0.3,
+      max_hear_distance = 14,
+      pitch = {1,1.12}
+    },
+    storage_open = {
+      name = "tech_woven_basket_open",
+      gain = 0.3,
+      max_hear_distance = 14,
+      pitch = {1,1.12}
+    }
+  }),
 })
 
 -- Wicker
@@ -28,7 +41,20 @@ backpacks.register_backpack("wicker_bag",{
   width = 8,
   height = 2,
   groups = {snappy = 3, temp_pass = 1, craftedby = 1, flammable = 1},
-  sounds = nodes_nature.node_sound_leaves_defaults()
+  sounds = nodes_nature.node_sound_leaves_defaults({
+    storage_close = {
+      name = "tech_woven_basket_close",
+      gain = 0.4,
+      max_hear_distance = 14,
+      pitch = {0.84,0.9}
+    },
+    storage_open = {
+      name = "tech_woven_basket_open",
+      gain = 0.4,
+      max_hear_distance = 14,
+      pitch = {0.84,0.9}
+    }
+  }),
 })
 
 
