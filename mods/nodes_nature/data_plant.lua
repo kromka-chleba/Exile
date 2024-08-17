@@ -1,6 +1,8 @@
 -- Internationalization
 local S = nodes_nature.S
 
+trees = trees
+
 
 --Underwater Rooted plants
 searooted_list = {
@@ -56,19 +58,105 @@ searooted_list = {
 
 }
 
-
-tree_base_tree_growth = 31000
-tree_base_leaf_growth = 21000
-tree_base_fruit_growth = 19000
-
---name, Desc, fruit name, fruit desc, p2 fruit,selbox_fruit, wood hardness, hardwood, dyecandidate, dye
-tree_list = {
-	{"maraka", S("Maraka Tree"), "maraka_nut", S("Maraka Nut"), 1, {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},1, true, 1, "black"},
-	{"tangkal", S("Tangkal Tree"), "tangkal_fruit", S("Tangkal Fruit"), 1, {-0.1, 0.1, -0.1, 0.1, 0.5, 0.1},2, false, 1, "crimson"},
-	{"sasaran", S("Sasaran Tree"), "sasaran_cone", S("Sasaran Cone"), 1, {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},2, false, 1, "yellow"},
-	{"jalowiec", S("Jalowiec Shrub"), "jalowiec_cone", S("Jalowiec Cone"), 1, {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},1, true, 1, "yellow"},
-	{"kagum", S("Kagum Tree"), "kagum_pod", S("Kagum Pod"), 1, {-0.1, -0.1, -0.1, 0.1, 0.5, 0.1},2, false, 1},
-	{"panasee", S("Panasee Tree"), "panasee_fruit", S("Panasee Fruit"), 2, {-0.1, -0.2, -0.1, 0.1, 0.5, 0.1},1, true, 1, "yellow"},
-	{"amma", S("Amma Tree"), "amma_nut", S("Amma nut"), 1, {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},2, false, 1, "black"},
-	{"daoja", S("Daoja Tree"), "daoja_berry", S("Daoja Berry"), 1, {-0.1, -0.5, -0.1, 0.1, -0.3, 0.1},1, true, 1, "crimson"},
+local tree_list = {
+  tangkal = {
+    desc = S("Tangkal"),
+    fruit_def = {
+      selection_box = {-0.1, 0.1, -0.1, 0.1, 0.5, 0.1},
+      dyecandidate = true,
+      dominantcolor = "crimson",
+      --tangkal fruit is good food, but bulky
+      stack_max = minimal.stack_max_medium/2
+    },
+    leaf_def = {}
+  },
+  maraka = {
+    desc = S("Maraka"),
+    hardwood = true,
+    fruit_def = {
+      description = S("Maraka Nut"),
+      selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
+      dyecandidate = true,
+      dominantcolor = "black"
+    },
+    -- maraka thorns
+    leaf_def = {damage_per_second = 1}
+  },
+  panasee = {
+    desc = S("Panasee"),
+    hardwood = true,
+    fruit_def = {
+      selection_box = {-0.1, -0.2, -0.1, 0.1, 0.5, 0.1},
+      place_param2 = 2,
+      dyecandidate = true,
+      dominantcolor = "yellow"
+    },
+    leaf_def = {}
+  },
+  sasaran = {
+    desc = S("Sasaran"),
+    fruit_def = {
+      description = S("Sasaran Cone"),
+      selection_box = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},
+      dyecandidate = true,
+      dominantcolor = "yellow"
+    },
+    leaf_def = {}
+  },
+  jalowiec = {
+    desc = S("Jalowiec"),
+    log_description = S("Jalowiec Shrub"),
+    hardwood = true,
+    fruit_def = {
+      description = S("Jalowiec Cone"),
+      selection_box = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},
+      dyecandidate = true,
+      dominantcolor = "yellow",
+      wield_image = "nodes_nature_jalowiec_cone_wield.png"
+    },
+    leaf_def = {damage_per_second = 1}
+  },
+  kagum = {
+    desc = S("Kagum"),
+    fruit_def = {
+      description = S("Kagum Pod"),
+      selection_box = {-0.1, -0.1, -0.1, 0.1, 0.5, 0.1},
+      dyecandidate = true,
+      light_source = 2,
+      groups = {bioluminescent=1}
+    },
+    leaf_def = {}
+  },
+  amma = {
+    desc = S("Amma"),
+    fruit_def = {
+      description = S("Amma Nut"),
+      selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
+      dyecandidate = true,
+      dominantcolor = "black"
+    },
+    leaf_def = {}
+  },
+  daoja = {
+    desc = S("Daoja"),
+    hardwood = true,
+    fruit_def = {
+      description = S("Daoja Berry"),
+      selection_box = {-0.1, -0.5, -0.1, 0.1, -0.3, 0.1},
+      dyecandidate = true,
+      dominantcolor = "crimson"
+    },
+    leaf_def = {}
+  },
 }
+
+for treename,treedef in pairs(tree_list) do
+  trees.register_tree(treename, treedef)
+end
+-- force update of old node names
+minetest.register_alias_force("nodes_nature:maraka_nut","nodes_nature:maraka_fruit")
+minetest.register_alias_force("nodes_nature:sasaran_cone","nodes_nature:sasaran_fruit")
+minetest.register_alias_force("nodes_nature:jalowiec_cone","nodes_nature:jalowiec_fruit")
+minetest.register_alias_force("nodes_nature:kagum_pod","nodes_nature:kagum_fruit")
+minetest.register_alias_force("nodes_nature:amma_nut","nodes_nature:amma_fruit")
+minetest.register_alias_force("nodes_nature:daoja_berry","nodes_nature:daoja_fruit")
