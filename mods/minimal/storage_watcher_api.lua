@@ -58,3 +58,21 @@ function minimal.remove_watcher(pos, pname)
     end
   end
 end
+
+-- sound play watcher
+-- automatically finds an open or close sound and plays it at pos
+-- true or empty 3rd parameter for open sound, false for close sound
+-- if no nodedef is provided, will get one
+function minimal.sound_play_watcher(pos, nodedef, open)
+  -- playing open sound is default
+  if type(open) ~= "boolean" then open = true end
+  nodedef = type(nodedef) == "table" and minetest.registered_nodes[nodedef.name] or minimal.get_nodedef(pos)
+  -- no nodedef or sounds, can't play
+  if not nodedef or not nodedef.sounds then return end
+  local sound = open and nodedef.sounds.storage_open or nodedef.sounds.storage_close
+  -- could not get wanted sound
+  if not sound then return end
+  sound = table.copy(sound) -- clone for local use
+  sound.pos = pos
+  minimal.sound_play(sound)
+end

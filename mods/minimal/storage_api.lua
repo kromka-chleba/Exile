@@ -101,14 +101,9 @@ function storage.on_receive_fields(pos, formname, fields, sender, width, height)
   -- sounds
   else
     remove_watcher(pos, sender)
+    -- only play sounds if no more folk are watching and if not protected from watcher
     if #get_watchers(pos) < 1 and not minetest.is_protected(pos, sender, meta) then
-      local sounds = minimal.get_nodedef(pos)
-      sounds = sounds.sounds or {}
-      local sound = sounds.storage_close and table.copy(sounds.storage_close)
-      if sound then
-        sound.pos = pos
-        minetest.sound_play(sound.name,sound)
-      end
+      minimal.sound_play_watcher(pos, nil, false)
     end
   end
 end
@@ -294,13 +289,7 @@ function storage.register_storage(name,def)
     if minetest.is_protected(pos, clicker) then return end -- no touchy touchy
     -- sounds
     if #get_watchers(pos) < 1 then
-      local sounds = minimal.get_nodedef(pos)
-      sounds = sounds.sounds or {}
-      local sound = sounds.storage_open and table.copy(sounds.storage_open)
-      if sound then
-        sound.pos = pos
-        minetest.sound_play(sound.name,sound)
-      end
+      minimal.sound_play_watcher(pos)
     end
     add_watcher(pos, clicker)
   end
