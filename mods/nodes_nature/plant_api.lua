@@ -451,7 +451,7 @@ function plant.get_canelike_props(plant_def)
         local node = minetest.get_node(under)
         local udef = minetest.registered_nodes[node.name]
 
-        if node.name == plant_name then
+        if node.name == plant_name and not minetest.is_creative_enabled() then
             return
         end
         -- Run any on_rightclick function of pointed node
