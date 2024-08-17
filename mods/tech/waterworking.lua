@@ -500,7 +500,7 @@ minetest.register_node("tech:glass_bottle_green", {
     return liquid_store.on_place(itemstack, placer, pointed_thing)
   end,
 	groups = {dig_immediate = 2, temp_pass = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = tech.node_sound_glass_defaults(),
 	use_texture_alpha = c_alpha.blend,
 	selection_box = {
 		type='fixed',
@@ -525,7 +525,7 @@ minetest.register_node("tech:glass_bottle_clear", {
     return liquid_store.on_place(itemstack, placer, pointed_thing)
   end,
 	groups = {dig_immediate = 2, temp_pass = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = tech.node_sound_glass_defaults(),
 	use_texture_alpha = c_alpha.blend,
 	selection_box = {
 		type='fixed',
@@ -561,7 +561,6 @@ liquid_store.register_stored_liquid("tech:glass_bottle_green_saltwater",{
   description = S("Green Glass Bottle With Salt Water"),
 	groups = {dig_immediate = 2},
 	tiles  = {"tech_bottle_green.png^(tech_bottle_liquid_blank.png^[colorize:#17453c^tech_bottle_liquid_pattern.png)"},
-  sounds = nodes_nature.node_sound_stone_defaults(),
   use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
 	stack_max = minimal.stack_max_bulky * 2,
