@@ -12,6 +12,8 @@ function tech.node_sound_glass_defaults(table)
     {name = "tech_glass_dig", gain = 0.45}
   table.dug = table.dug or
     {name = "tech_glass_dug", gain = 0.7}
+  table.footstep = table.footstep or
+    {name = "tech_glass_dig", gain = 0.3, pitch = 0.85}
   nodes_nature.node_sound_defaults(table)
   return table
 end

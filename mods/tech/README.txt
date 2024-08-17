@@ -33,7 +33,7 @@ tech_woven_basket_(open/close).ogg
 tech_clay_storage_(open/close).ogg
 tech_wooden_storage_(open/close).ogg
 tech_iron_chest_(open/close).ogg
-tech_glass_(place/dig/dug).(0-3).ogg
+tech_glass_(place/dig/dug).(0-4).ogg
 ==
 
 
