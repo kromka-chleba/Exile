@@ -590,7 +590,7 @@ minetest.register_node("tech:pane_green",
 	groups = {cracky = 3, oddly_breakable_by_hand = 3},
 	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
-	sounds = nodes_nature.node_sound_glass_defaults(),
+	sounds = tech.node_sound_glass_defaults(),
 	after_place_node = minimal.protection_after_place_node,
 })
 
@@ -611,7 +611,7 @@ minetest.register_node("tech:pane_clear",
 	groups = {cracky = 3, oddly_breakable_by_hand = 3},
 	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
-	sounds = nodes_nature.node_sound_glass_defaults(),
+	sounds = tech.node_sound_glass_defaults(),
 	after_place_node = minimal.protection_after_place_node,
 })
 
@@ -636,7 +636,7 @@ minetest.register_node("tech:window_green",
 	groups = {cracky = 3, oddly_breakable_by_hand = 3},
 	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
-	sounds = nodes_nature.node_sound_glass_defaults(),
+	sounds = tech.node_sound_glass_defaults(),
 	after_place_node = minimal.protection_after_place_node,
 })
 
@@ -659,7 +659,7 @@ minetest.register_node("tech:window_clear",
 	groups = {cracky = 3, oddly_breakable_by_hand = 3},
 	use_texture_alpha = c_alpha.blend,
 	sunlight_propagates = true,
-	sounds = nodes_nature.node_sound_glass_defaults(),
+	sounds = tech.node_sound_glass_defaults(),
 	after_place_node = minimal.protection_after_place_node,
 })
 
