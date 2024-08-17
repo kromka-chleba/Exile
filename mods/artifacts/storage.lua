@@ -50,15 +50,15 @@ storage.register_storage("artifacts:antiquorium_chest",{
   sounds = nodes_nature.node_sound_glass_defaults({
     storage_close = {
       name = "artifacts_antiquorium_storage_close",
-      gain = 0.6,
+      gain = 0.4,
       max_hear_distance = 14,
-      pitch = 1
+      pitch = {0.96,1.05}
     },
     storage_open = {
       name = "artifacts_antiquorium_storage_open",
-      gain = 0.6,
+      gain = 0.4,
       max_hear_distance = 14,
-      pitch = 1
+      pitch = {0.96,1.05}
     }
   }),
   
