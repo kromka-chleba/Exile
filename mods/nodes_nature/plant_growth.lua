@@ -8,6 +8,12 @@ local S = nodes_nature.S
 
 plant = {}
 soil_preferences = {}
+seasons = seasons
+
+plant_base_timer = plant_base_timer
+seed_growing_time = seed_growing_time
+
+local good_time_rain_time = climate.good_time_rain_time
 
 local base_health = 100
 
@@ -274,7 +280,6 @@ local function was_light_here(pos, elapsed)
 end
 
 local function kill_no_light(pos, elapsed)
-    local meta = minetest.get_meta(pos)
     if not was_light_here(pos, elapsed) then
         plant.kill(pos, false)
         return true
@@ -304,7 +309,7 @@ local function kill_in_winter(pos, elapsed)
     end
 end
 
-local function catch_up_life_stage(pos, growing_time, growing_left, elapsed)
+local function step_through_life_stage(pos, growing_time, growing_left, elapsed)
     while growing_left < 0 do
         local nodedef = minimal.get_nodedef(pos)
         if nodedef._next_life_stage then
@@ -334,9 +339,9 @@ local function growing_side_effects(pos, progress)
     grow_roots(pos, progress)
 end
 
-local function calculate_growth_progress(pos, good_cycles, rain_cycles)
-    local good_cycles = good_cycles or 1
-    local rain_cycles = rain_cycles or 0
+local function calculate_growth_progress(pos, good_cycles_in, rain_cycles_in)
+    local good_cycles = good_cycles_in or 1
+    local rain_cycles = rain_cycles_in or 0
     if rain_cycles == 0 and climate.get_rain(pos) then
         rain_cycles = 1
     end
@@ -351,18 +356,13 @@ end
 
 local function progress_surface(pos, elapsed)
     local mushroom = is_mushroom(pos)
+    -- climate history is stored in 60s chunks, called "cycles" here for reasons
     -- number of cycles
     local good_time, rain_time = good_time_rain_time(elapsed, mushroom)
     local good_cycles = time_to_cycles(good_time)
     local rain_cycles = time_to_cycles(rain_time)
-    -- climate history is stored in 60s chunks
-    -- prevent calculating progress for just one chunk when elapsed is lower than that
-    if good_time == 60 then
-        good_cycles = time_to_cycles(elapsed)
-        if rain_time == 60 then
-            rain_cycles = time_to_cycles(elapsed)
-        end
-    end
+
+
     local light_cofactor = get_light_cofactor(pos)
     if mushroom then
         light_cofactor = 1
@@ -382,7 +382,7 @@ local function progress_underground(pos, elapsed)
 end
 
 local function past_growth_progress(pos, elapsed)
-    if elapsed > plant_base_timer then
+   if elapsed > plant_base_timer then
         if pos.y < -15 then
             return progress_underground(pos, elapsed)
         else
@@ -403,10 +403,10 @@ local function current_growth_progress(pos, elapsed)
 end
 
 local function seed_elapsed(meta)
-    local seed_elapsed = meta:get_int("elapsed")
-    if seed_elapsed > plant_base_timer then
+    local elapsed = meta:get_int("elapsed")
+    if elapsed > plant_base_timer then
         meta:set_int("elapsed", 0)
-        return seed_elapsed
+        return elapsed
     end
     return 0
 end
@@ -478,13 +478,14 @@ function plant.start_growing_plant(pos, growing_time)
     timer:start(math.random(timer_min, timer_max))
 end
 
-function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
+function plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
+    local param2 = minimal.get_param2(pos)
+    if param2 < 63 then return end -- No reason to run on wild plants
     local meta = minetest.get_meta(pos)
-    local elapsed = elapsed + seed_elapsed(meta)
+    local elapsed = elapsed_full + seed_elapsed(meta)
     local current_progress = current_growth_progress(pos, elapsed)
     local past_progress = past_growth_progress(pos, elapsed)
     local health = meta:get_int("health")
-    local param2 = minimal.get_param2(pos)
     if not meta:get("health") then
         health = base_health + base_health * math.random(-1, 1) * 0.1
         meta:set_int("health", health)
@@ -514,7 +515,7 @@ function plant.grow_plant(pos, elapsed, growing_time, soil_prefs)
     local growing_left = meta:get_int("growth") - progress
     meta:set_int("growth", growing_left)
     if growing_left < 0 then
-        catch_up_life_stage(pos, growing_time, growing_left, elapsed)
+        step_through_life_stage(pos, growing_time, growing_left, elapsed)
     end
     if kill_extreme_temp(pos, elapsed) then
         return false

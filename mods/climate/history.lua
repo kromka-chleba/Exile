@@ -70,7 +70,7 @@ local function history(age)
 
    chunk.kill = bit.band(x,8) == 8
    chunk.rain = bit.band(x,4) == 4
-   chunk.grow = bit.band(x,1) == 2
+   chunk.grow = bit.band(x,2) == 2
    chunk.sun = bit.band(x,1) == 1
    return chunk
 end
@@ -79,7 +79,7 @@ end
 ------------------------------
 -- returns time in seconds when conditions were good for growing
 -- and time when it rained
-function good_time_rain_time(duration, mushroom)
+function climate.good_time_rain_time(duration, mushroom)
     local good_chunks = 0
     local rain_chunks = 0
     local chunks = floor(duration / 60)
@@ -100,7 +100,7 @@ function good_time_rain_time(duration, mushroom)
 end
 
 -- counts number of chunks having a given property
-local function number_of_chunks(property)
+local function number_of_chunks(property, duration)
     local chunks = floor(duration / 60)
     local total = 0
     for i = 0,chunks,1 do
@@ -115,22 +115,22 @@ end
 ------------------------------
 -- checks the climate record, and returns how long it rained
 function climate.rain_amount(duration)
-    return number_of_chunks("rain")
+    return number_of_chunks("rain", duration)
 end
 
 -- gets time in seconds it rained
 function climate.rain_time(duration)
-    return number_of_chunks("rain") * 60
+    return number_of_chunks("rain", duration) * 60
 end
 
 -- gets time in seconds it was sunny
 function climate.sun_time(duration)
-    return number_of_chunks("sun") * 60
+    return number_of_chunks("sun", duration) * 60
 end
 
 -- gets time weather was good for growing
 function climate.grow_time(duration)
-    return number_of_chunks("grow") * 60
+    return number_of_chunks("grow", duration) * 60
 end
 
 -- returns true if plant was killed
