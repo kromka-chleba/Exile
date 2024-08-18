@@ -20,15 +20,15 @@ storage.register_storage("tech:clay_storage_pot",{
   sounds = nodes_nature.node_sound_stone_defaults({
     storage_close = {
       name = "tech_clay_storage_close",
-      gain = 0.2,
+      gain = 0.3,
       max_hear_distance = 14,
-      pitch = 0.95
+      pitch = {0.9,0.95}
     },
     storage_open = {
       name = "tech_clay_storage_open",
-      gain = 0.2,
+      gain = 0.3,
       max_hear_distance = 14,
-      pitch = 0.95
+      pitch = {0.9,0.95}
     }
   }),
   groups = {dig_immediate = 3, craftedby = 1, pottery = 1},
@@ -67,13 +67,13 @@ storage.register_storage("tech:wicker_storage_basket",{
       name = "tech_woven_basket_close",
       gain = 0.6,
       max_hear_distance = 14,
-      pitch = 0.9
+      pitch = {0.84,0.9}
     },
     storage_open = {
       name = "tech_woven_basket_open",
       gain = 0.6,
       max_hear_distance = 14,
-      pitch = 0.9
+      pitch = {0.84,0.9}
     }
   }),
   groups = {dig_immediate = 3, craftedby = 1, flammable = 1},
@@ -89,12 +89,14 @@ storage.register_storage("tech:woven_storage_basket",{
     storage_close = {
       name = "tech_woven_basket_close",
       gain = 0.5,
-      max_hear_distance = 14
+      max_hear_distance = 14,
+      pitch = {1,1.12}
     },
     storage_open = {
       name = "tech_woven_basket_open",
       gain = 0.5,
-      max_hear_distance = 14
+      max_hear_distance = 14,
+      pitch = {1,1.12}
     }
   }),
   groups = {dig_immediate = 3, craftedby = 1, flammable = 1},
@@ -132,13 +134,13 @@ storage.register_storage("tech:wooden_chest",{
       name = "tech_wooden_storage_close",
       gain = 0.5,
       max_hear_distance = 14,
-      pitch = 1.05
+      pitch = {1.05,1.1}
     },
     storage_open = {
       name = "tech_wooden_storage_open",
       gain = 0.5,
       max_hear_distance = 14,
-      pitch = 1.05
+      pitch = {1.05,1.1}
     }
   }),
   groups = {dig_immediate = 3, craftedby = 1, flammable = 3},
@@ -177,13 +179,15 @@ storage.register_storage("tech:iron_chest",{
 	sounds = nodes_nature.node_sound_wood_defaults({
     storage_close = {
       name = "tech_iron_chest_close",
-      gain = 0.8,
-      max_hear_distance = 14
+      gain = 1.1,
+      max_hear_distance = 14,
+      pitch = {0.95,1.01}
     },
     storage_open = {
       name = "tech_iron_chest_open",
-      gain = 0.8,
-      max_hear_distance = 14
+      gain = 1.1,
+      max_hear_distance = 14,
+      pitch = {0.95,1.01}
     }
   }),
   groups = {dig_immediate = 3, craftedby = 1},

@@ -35,6 +35,7 @@ dofile(modpath..'/interface/init.lua')
 dofile(modpath..'/witt_exile/init.lua')
 
 dofile(modpath..'/currentrevision.lua')
+dofile(modpath..'/storage_watcher_api.lua')
 dofile(modpath..'/storage_api.lua')
 
 minetest.register_on_joinplayer(function(player)

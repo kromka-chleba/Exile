@@ -5,41 +5,9 @@ local modname = "minimal/storage_api.lua"
 local S = minimal.S
 
 -- functionality for determining if a player is looking in storage
-local storage_watched = {}
-local function get_watchers(pos, create)
-  pos = type(pos) == "string" and pos or type(pos) == "table" and minetest.pos_to_string(pos)
-  -- create a new watcher table if it doesn't exist
-  if create then
-    storage_watched[pos] = storage_watched[pos] or {}
-  end
-  return storage_watched[pos] or {} -- send watcher table or create an empty one
-end
-local function add_watcher(pos, pname)
-  local wt = get_watchers(pos, true) -- watch_table
-  pname = type(pname) == "string" and pname or (type(pname) == "userdata" or type(pname) == "table") and pname.get_player_name and pname:get_player_name()
-  -- iterate over table for nil indexes because Lua is dysfunctional when it comes to counting
-  for wi=1,(#wt + 1) do
-    if wt[wi] == pname then return false end
-    if wt[wi] == nil then
-      wt[wi] = pname
-      break
-    end
-  end
-end
-local function remove_watcher(pos, pname)
-  local wt = get_watchers(pos) -- watch_table
-  if #wt < 1 then return end -- no watch table
-  pname = type(pname) == "string" and pname or (type(pname) == "userdata" or type(pname) == "table") and pname.get_player_name and pname:get_player_name()
-  -- iterate over table to find name and remove
-  for wi=1,#wt do
-    if wt[wi] == pname then
-      wt[wi] = nil
-      -- delete table if empty
-      if #wt < 1 then storage_watched[pos] = nil end
-      return true
-    end
-  end
-end
+local get_watchers = minimal.get_watchers
+local add_watcher = minimal.add_watcher
+local remove_watcher = minimal.remove_watcher
 
 function storage.get_storage_formspec(pos, w, h, meta)
 	local creator = meta:get_string('creator')
@@ -129,16 +97,13 @@ function storage.on_receive_fields(pos, formname, fields, sender, width, height)
     meta:set_string('label', cleanlabel)
     minimal.infotext_set_new(pos, meta)
     storage.on_construct(pos, width, height)
-  end
+  -- we're just closing storage
   -- sounds
-  remove_watcher(pos, sender)
-  if #get_watchers(pos) < 1 and not minetest.is_protected(pos, sender, meta) then
-    local sounds = minimal.get_nodedef(pos)
-    sounds = sounds.sounds or {}
-    local sound = sounds.storage_close and table.copy(sounds.storage_close)
-    if sound then
-      sound.pos = pos
-      minetest.sound_play(sound.name,sound)
+  else
+    remove_watcher(pos, sender)
+    -- only play sounds if no more folk are watching and if not protected from watcher
+    if #get_watchers(pos) < 1 and not minetest.is_protected(pos, sender, meta) then
+      minimal.sound_play_watcher(pos, nil, false)
     end
   end
 end
@@ -324,13 +289,7 @@ function storage.register_storage(name,def)
     if minetest.is_protected(pos, clicker) then return end -- no touchy touchy
     -- sounds
     if #get_watchers(pos) < 1 then
-      local sounds = minimal.get_nodedef(pos)
-      sounds = sounds.sounds or {}
-      local sound = sounds.storage_open and table.copy(sounds.storage_open)
-      if sound then
-        sound.pos = pos
-        minetest.sound_play(sound.name,sound)
-      end
+      minimal.sound_play_watcher(pos)
     end
     add_watcher(pos, clicker)
   end
