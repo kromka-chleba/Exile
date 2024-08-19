@@ -7,6 +7,7 @@
 
 local m_hud_data = {} -- minimal hud data store
 minimal = minimal
+local hud_type = minimal.hud_type
 
 -- table of player hotbar slotnum hud elem ID stores
 m_hud_data.hotbar_slotnums = {}
@@ -173,7 +174,7 @@ minimal.update_hotbar_slotnums = function(player, hotbar_itemcount)
     -- create hotbar slot number hud element & save its ID
     -- key of text elem is the index number of the hotbar slot
     player_hotbar_slotnums[hotbar_slot_idx] = player:hud_add({
-      hud_elem_type = "text",
+      [hud_type] = "text",
       alignment = {x = 1, y = 1},  -- elem is to -1:left/up, 0:center, 1:right/down from anchor point
       -- elem is offset & anchored from point at 100% of screen y (bottom) & 50% of screen x (center)
       position = {x = .5, y = 1},

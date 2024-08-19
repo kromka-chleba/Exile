@@ -12,6 +12,8 @@ local hudupdateseconds = tonumber(minetest.settings:get("exile_hud_update"))
 local mtshowstats = minetest.settings:get_bool("exile_hud_show_stats") or true
 local mthudopacity = minetest.settings:get("exile_hud_icon_transparency") or 127
 
+local hud_type = minimal.hud_type
+
 -- These are color values for the various status levels. They have to be modified
 -- per-function below because textures expect one color format and text another.
 -- This is a minetest caveat.
@@ -127,12 +129,12 @@ end
 local stdpos = { x = .5, y = 1}
 
 local function make_image_hud(player, offset, text)
-   return player:hud_add({ hud_elem_type = "image", scale = icon_scale,
+   return player:hud_add({ [hud_type] = "image", scale = icon_scale,
 			   offset = offset, position = stdpos, text = text })
 end
 
 local function make_text_hud(player, offset)
-   return player:hud_add{ hud_elem_type = "text", offset = offset,
+   return player:hud_add{ [hud_type] = "text", offset = offset,
 			  position = stdpos, text = "" }
 end
 
@@ -391,7 +393,7 @@ end
 local function do_overlay(player, pname, pos, overlay)
    local handle = player:hud_add({
 	 name = overlay,
-	 hud_elem_type = "image",
+	 [hud_type] = "image",
 	 position = {x = 0.5, y = 0.5},
 	 alignment = {x = 0, y = 0},
 	 scale = { x = -100, y = -100},

@@ -5,6 +5,7 @@ local dlimit = 3  -- HUD element will be hidden after this many seconds
 local air_hud_mod = minetest.get_modpath("4air")
 local hud_mod = minetest.get_modpath("hud")
 local hudbars_mod = minetest.get_modpath("hudbars")
+local hud_type = minimal.hud_type
 
 local function set_hud(player)
 	local player_name = player:get_player_name()
@@ -16,7 +17,7 @@ local function set_hud(player)
 	end
 	item_names[player_name] = {
 		hud = player:hud_add({
-			hud_elem_type = "text",
+			[hud_type] = "text",
 			position = {x=0.5, y=1},
 			offset = off,
 			alignment = {x=0, y=0},

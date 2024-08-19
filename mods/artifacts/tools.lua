@@ -5,6 +5,8 @@
 ------------------------------------
 
 mobkit = mobkit
+minimal = minimal
+local hud_type = minimal.hud_type
 
 local S = artifacts.S
 
@@ -450,7 +452,7 @@ local function use_spyglass(player)
   -- continue as normal (zoom in)
   spyglass_players[p_name] = player:hud_add({
     name = "spyglass_scope",
-    hud_elem_type = "image",
+    [hud_type] = "image",
     text = "artifacts_scope_hud.png",
     z_index = -500,
     position = {x = 0.5, y = 0.5},

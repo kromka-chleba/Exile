@@ -1,4 +1,7 @@
- -- check if a provided player is in creative mode
+minimal = minimal
+local hud_type = minimal.hud_type
+
+-- check if a provided player is in creative mode
 local creative_mode_cache = minetest.settings:get_bool("creative_mode")
 function minimal.player_in_creative(plyr)
   -- get the player by name if string
@@ -26,7 +29,7 @@ end
 
   local function add_waypoint(name, viewername, viewer, pos)
      local id = viewer:hud_add({
-     hud_elem_type = "waypoint",
+     [hud_type] = "waypoint",
      number = 0xFFFFFF,
      name = name,
      text = "m",

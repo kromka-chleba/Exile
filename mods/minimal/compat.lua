@@ -52,3 +52,7 @@ else
       ["clip"] = true, -- may be false for some draw types?
    }
 end
+minimal.hud_type = "hud_elem_type"
+if minetest.has_feature("hud_def_type_field") == true then
+   minimal.hud_type = "type"
+end

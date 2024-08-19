@@ -2,6 +2,10 @@
 --namespace
 triggers = {}
 triggers.player = {} -- for timeouts on effects
+minimal = minimal
+local hud_type = minimal.hud_type
+
+
 local S = core.get_translator("minimal")
 
 -- Functions: ------------------------------------------------------------
@@ -172,7 +176,7 @@ local function hud_splash(player, pname, pos, nmeta, metastring)
    local item = {}
    if icon then
       item.icon = player:hud_add({
-	    hud_elem_type = "image",
+	    [hud_type] = "image",
 	    name = "splash_icon",
 	    text = icon,
 	    scale = { x = 2, y = 2 },
@@ -181,7 +185,7 @@ local function hud_splash(player, pname, pos, nmeta, metastring)
    end
    if text then
       item.text = player:hud_add({
-	    hud_elem_type = "text",
+	    [hud_type] = "text",
 	    name = "splash_text",
 	    text = text,
 	    number = "0xFFFFFF",
