@@ -21,9 +21,9 @@ wielded_light = wielded_light
 -- Globals
 plant = plant or {}
 
-plant_base_growing_time = 500
-plant_base_timer = 40
-seed_growing_time = 40
+local plant_base_growing_time = plant_base_growing_time
+local plant_base_timer = plant_base_timer
+local seed_growing_time = seed_growing_time
 
 ---------------------------
 -- Prevent placing seed anywhere but sediment

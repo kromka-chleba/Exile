@@ -10,8 +10,9 @@ plant = {}
 soil_preferences = {}
 seasons = seasons
 
-plant_base_timer = plant_base_timer
-seed_growing_time = seed_growing_time
+plant_base_growing_time = 500
+plant_base_timer = 40
+seed_growing_time = 40
 
 local good_time_rain_time = climate.good_time_rain_time
 
