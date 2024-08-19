@@ -23,6 +23,10 @@ climate = {
 	lock_weather = false
 }
 
+-- Server language setting, for sending date string to log or beerchat
+local lang = minetest.settings:get("language") ~= ""
+   and minetest.settings:get("language") or "en"
+
 local modpath = minetest.get_modpath("climate")
 local store = minetest.get_mod_storage()
 
@@ -344,7 +348,7 @@ end)
 
 --get weather from storage, override random start values
 local function load_saved_weather()
-   local datestr = climate.datestring()
+   local datestr = minetest.get_translated_string(lang, climate.datestring())
    minetest.log("action", datestr.." : Loading weather")
    local w_name = store:get_string("weather")
 
@@ -664,9 +668,6 @@ if minetest.get_modpath('beerchat') then -- we have beerchat installed
    minetest.register_on_mods_loaded(function()
 	 beerchat.register_relaycommand("date", function(uname, text, protocol)
                 local date = climate.datestring()
-		local set = minetest.settings
-		local lang = set:get("language") ~= "" and set:get("language")
-		   or "en"
 		return minetest.get_translated_string(lang, date)
 	 end)
    end)
