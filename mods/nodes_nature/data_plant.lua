@@ -97,11 +97,14 @@ local tree_list = {
     desc = S("Sasaran"),
     fruit_def = {
       description = S("Sasaran Cone"),
+      groups = {drops_leaves = 0},
       selection_box = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},
       dyecandidate = true,
       dominantcolor = "yellow"
     },
-    leaf_def = {}
+    leaf_def = {
+      groups = {drops_leaves = 0}
+    }
   },
   jalowiec = {
     desc = S("Jalowiec"),
@@ -109,12 +112,16 @@ local tree_list = {
     hardwood = true,
     fruit_def = {
       description = S("Jalowiec Cone"),
+      groups = {drops_leaves = 0},
       selection_box = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},
       dyecandidate = true,
       dominantcolor = "yellow",
       wield_image = "nodes_nature_jalowiec_cone_wield.png"
     },
-    leaf_def = {damage_per_second = 1}
+    leaf_def = {
+      damage_per_second = 1,
+      groups = {drops_leaves = 0}
+    }
   },
   kagum = {
     desc = S("Kagum"),
@@ -160,3 +167,8 @@ minetest.register_alias_force("nodes_nature:jalowiec_cone","nodes_nature:jalowie
 minetest.register_alias_force("nodes_nature:kagum_pod","nodes_nature:kagum_fruit")
 minetest.register_alias_force("nodes_nature:amma_nut","nodes_nature:amma_fruit")
 minetest.register_alias_force("nodes_nature:daoja_berry","nodes_nature:daoja_fruit")
+
+-- prior to another fix (I don't know how I didn't notice in testing!!! - TPH)
+-- forgot to define drops_leaves as 0 and the evergreens became seasonal!
+minetest.register_alias_force("nodes_nature:sasaran_fruit_marker","nodes_nature:sasaran_fruit")
+minetest.register_alias_force("nodes_nature:jalowiec_fruit_marker","nodes_nature:jalowiec_fruit")
