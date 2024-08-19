@@ -43,7 +43,7 @@ end
 
 local last_look = {}
 
-local function move_head(player, tilt_up)
+local function move_head(player, tilt_up, dtime)
 	local look_at_dir = player:get_look_dir()
 	local pname = player:get_player_name()
 	local lastlook = last_look[pname]
@@ -65,7 +65,8 @@ local function move_head(player, tilt_up)
 		pitch = pitch + 70
 	end
 
-	local head_rotation = {x= pitch, y= 0, z= 0} --the head movement {pitch, yaw, roll}
+	local head_rotation = --the head movement {pitch, yaw, roll}
+	   vector.new(pitch, 0, 0)
 	local head_offset
 	if minetest.get_modpath("3d_armor")~=nil then
 		head_offset = 6.75
@@ -74,7 +75,17 @@ local function move_head(player, tilt_up)
 	end
 	local head_position = {x=0, y=head_offset, z=0}
 	--set the head movement
-	player:set_bone_position("Head", head_position, head_rotation)
+	if player.set_bone_override then
+	   player:set_bone_override("Head",
+			{ position = { vec = head_position,
+				       absolute = true,
+			},
+			  rotation = { vec = head_rotation:apply(math.rad),
+				       absolute = true,
+				       interpolation = dtime * 4 }})
+	else
+	   player:set_bone_position("Head", head_position, head_rotation)
+	end
 end
 
 local checked = {} -- cache surroundings for players that are still
@@ -272,7 +283,7 @@ minetest.register_globalstep(function(dtime)
 		     set_anim(player,
 			      animtable[on_water][moving][crawling][using_tool],
 			      animation_speed_mod)
-		     move_head(player, on_water or crawling)
+		     move_head(player, on_water or crawling, dtime)
 
 		     if on_water and player_pos.y < 0 then
 			timer = timer + dtime
