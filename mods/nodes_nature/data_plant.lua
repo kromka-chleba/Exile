@@ -172,3 +172,5 @@ minetest.register_alias_force("nodes_nature:daoja_berry","nodes_nature:daoja_fru
 -- forgot to define drops_leaves as 0 and the evergreens became seasonal!
 minetest.register_alias_force("nodes_nature:sasaran_fruit_marker","nodes_nature:sasaran_fruit")
 minetest.register_alias_force("nodes_nature:jalowiec_fruit_marker","nodes_nature:jalowiec_fruit")
+minetest.register_alias_force("nodes_nature:sasaran_leaves_marker","nodes_nature:sasaran_leaves")
+minetest.register_alias_force("nodes_nature:jalowiec_leaves_marker","nodes_nature:jalowiec_leaves")
