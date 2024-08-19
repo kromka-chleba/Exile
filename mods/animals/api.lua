@@ -134,16 +134,12 @@ local function node_drawtype(pos)
   if not (type(pos) == "table") then
     return {}
   end
-  local node = pos
-  if (pos.x and pos.y and pos.z) then
-    -- if pos is a pos, otherwise continue as is
-    node = minetest.get_node_or_nil(pos)
-  end
-  if (type(node) == "nil" or type(node.name) ~= "string") then
-    node = {}
-  else
-    node = minetest.registered_nodes[node.name]
-  end
+  -- if pos is a pos, get node, otherwise assume pos is a node table
+  local node = (pos.x and pos.y and pos.z and minetest.get_node_or_nil(pos)) or pos
+  -- purify invalid node table by turning it into an empty table
+  node = type(node) ~= "table" or type(node.name) ~= "string" and {} or node
+  -- get node information from registered_nodes or use purified node table
+  node = node.name and minetest.registered_nodes[node.name] or node
   return node.drawtype, node
 end
 -- global usage
