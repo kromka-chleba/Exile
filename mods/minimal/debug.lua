@@ -44,7 +44,7 @@ minetest.register_on_mods_loaded(function()
 		      "--------------------[ Modules Loaded "..
 		      "[--------------------")
 --	 exile.debug.crafting_stations('axe_mixing')
-	 exile.debug.dump_nodedef_params('groups','depleted')
+--	 exile.debug.dump_nodedef_params('groups','depleted')
       else
 	 -- Funky debug command from naturalslopeslib, get rid of it
 	 minetest.unregister_chatcommand("updshape")
