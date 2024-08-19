@@ -168,19 +168,6 @@ local function bake_error(pos, selfname)
 		"pos: "..posstr..", set on a non-bakeable node:"..selfname)
 end
 
--- concatenates description and name together for easier debugging
-local function name_desc_tag(def)
-  if type(def) == "string" then
-    def = minetest.registered_items[def] or def
-  end
-  if type(def) ~= "table" and type(def) == "string" then
-    return "Unregistered ("..def..")"
-  elseif type(def) == "table" then
-    return def.description.." ("..def.name..")"
-  end
-  return def
-end
-
 -- Add baking properties to the raw and cooked variants
 -- overrides on_construct and on_timer
 local function setup_bakeable(name,bake_info)
@@ -237,7 +224,7 @@ function HEALTH.add_bake(name,data)
   bake_info.burned = type(data.burned) == "string" and data.burned or name.."_burned"
   setup_bakeable(name,bake_info)
   bake_table[name] = bake_info
-  minetest.log("info","Bake data successfully added for "..name_desc_tag(minetest.registered_nodes[name]))
+  minetest.log("info","Bake data successfully added for "..name)
   return bake_table[name]
 end
 
@@ -309,7 +296,7 @@ function HEALTH.add_harm(name,data)
     end
   end
   food_harm_table[name] = data
-  minetest.log("info","Food harm data successfully added for "..name_desc_tag(name))
+  minetest.log("info","Food harm data successfully added for "..name)
   return data
 end
 
@@ -351,7 +338,7 @@ function HEALTH.add_cure(name,data)
     end
   end
   food_cure_table[name] = data
-  minetest.log("info","Food cure data successfully added for "..name_desc_tag(name))
+  minetest.log("info","Food cure data successfully added for "..name)
   return data
 end
 
@@ -409,10 +396,10 @@ function HEALTH.add_food_table(name,data)
   if data_length > 0 then
     -- sufficient data made
     food_table[name] = food_stats
-    minetest.log("info","Successfully added food stats for "..name_desc_tag(name).."; "..stat_string)
+    minetest.log("info","Successfully added food stats for "..name.."; "..stat_string)
     return food_stats
   end
-  minetest.log("warning","Insufficient data given for "..name_desc_tag(name).."'s edible table! Not registering food stats")
+  minetest.log("warning","Insufficient data given for "..name.."'s edible table! Not registering food stats")
 end
 
 function HEALTH.add_food_hooks(name,info)
@@ -427,7 +414,7 @@ function HEALTH.add_food_hooks(name,info)
   if not def then return end -- only def related code ahead, return if no def found
   local groups = def.groups or {}
   if food_table[name] and not groups.edible then
-    minetest.log("warning", "No edible group set for "..name_desc_tag(name)..", patching")
+    minetest.log("warning", "No edible group set for "..name..", patching")
     groups.edible = 1
     minetest.override_item(name, {
       _use_tip = S("Eat"),
@@ -486,7 +473,7 @@ minetest.register_on_mods_loaded(function()
   minetest.after(1, function()
     minetest.log("info", "Finalized list of food_table entries:")
     for name,_ in pairs(food_table) do
-      minetest.log("info",name_desc_tag(name))
+      minetest.log("info",name)
     end
     minetest.log("info","-------")
     minetest.log("info", "Finalized list of bake_table entries:")
@@ -494,7 +481,7 @@ minetest.register_on_mods_loaded(function()
       if not minetest.registered_nodes[name] then
         minetest.log("info", "Bake table contains an undefined node: "..name)
       elseif minetest.registered_nodes[name.."_cooked"] then
-        minetest.log("info",name_desc_tag(name))
+        minetest.log("info",name.."_cooked")
       else
         minetest.log("info", "undefined node (cooking pot only entry): "..name.."_cooked")
       end
