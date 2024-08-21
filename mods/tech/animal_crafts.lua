@@ -11,6 +11,7 @@ local c_alpha = minimal.compat_alpha
 
 --Craft items
 
+-- cracked egg
 minetest.register_node("tech:yolk_and_albumen",{
   description = S("Cracked Egg"),
   tiles = {"tech_yolkandalbumen.png"},
@@ -33,6 +34,7 @@ minetest.register_node("tech:yolk_and_albumen",{
   paramtype = "light"
 })
 
+-- cooked da egg
 minetest.register_node("tech:yolk_and_albumen_cooked",{
   description = S("Fried Egg"),
   tiles = {"tech_fried_egg.png"},
@@ -53,4 +55,21 @@ minetest.register_node("tech:yolk_and_albumen_cooked",{
 	sunlight_propagates = true,
   sounds = nodes_nature.node_sound_dirt_defaults(),
   paramtype = "light"
+})
+
+-- recipes
+-- cracked egg recipes
+crafting.register_recipe({
+	type = "hand",
+	output = "tech:yolk_and_albumen",
+	items = {'animals:pegasun_eggs'},
+	level = 1,
+	always_known = true,
+})
+crafting.register_recipe({
+	type = "mortar_and_pestle",
+	output = "tech:yolk_and_albumen",
+	items = {{'animals:pegasun_eggs','animals:kubwakubwa_eggs 2','animals:darkasthaan_eggs 2'}},
+	level = 1,
+	always_known = true,
 })

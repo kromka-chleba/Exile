@@ -257,6 +257,9 @@ Mashed Anperla (uncooked)=Purée d'Anperla (non cuite)
 Mashed Anperla=Purée d'Anperla
 Burned Anperla=Anperla brûlé
 Vegetable Oil=Huile végétale
+# animal_crafts.lua
+Cracked Egg=
+Fried Egg=Œuf au Plat
 # Pottery
 Broken Pottery Slab=Dalle de poterie cassée
 # pottery.lua

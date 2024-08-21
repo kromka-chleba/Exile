@@ -257,6 +257,9 @@ Mashed Anperla (uncooked)=Puré de Anperla Crudo
 Mashed Anperla=Puré de Anperla
 Burned Anperla=Puré de Anperla Quemado
 Vegetable Oil=Aceite Vegetal
+# animal_crafts.lua
+Cracked Egg=
+Fried Egg=Huevo Frito
 # Pottery
 Broken Pottery Slab=
 # pottery.lua

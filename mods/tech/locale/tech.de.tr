@@ -257,6 +257,9 @@ Mashed Anperla (uncooked)="Gestampfte Anperla (roh)"
 Mashed Anperla="Gestampfte Anperla"
 Burned Anperla="Verbrannte Anperla"
 Vegetable Oil="Pflanzenöl"
+# animal_crafts.lua
+Cracked Egg=
+Fried Egg=Setzei
 # Pottery
 Broken Pottery Slab="Zerbrochene Keramikplatte"
 # pottery.lua

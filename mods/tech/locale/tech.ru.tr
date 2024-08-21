@@ -257,6 +257,9 @@ Mashed Anperla (uncooked)=Пюре из анперлы (не приготовл�
 Mashed Anperla=Пюре из анперлы
 Burned Anperla=Сгоревшая анперла
 Vegetable Oil=Растительное масло
+# animal_crafts.lua
+Cracked Egg=
+Fried Egg=яичница
 # Pottery
 Broken Pottery Slab=Плита из разбитой керамики
 # pottery.lua
