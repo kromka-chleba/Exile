@@ -17,7 +17,7 @@ minetest.register_node("tech:yolk_and_albumen",{
   tiles = {"tech_yolkandalbumen.png"},
   inventory_image = "tech_yolkandalbumen_icon.png",
   groups = {dig_immediate=3, falling_node=1, heatable=60},
-  stack_max = minimal.stack_max_medium*2,
+  stack_max = math.floor(minimal.stack_max_medium*1.5),
   drawtype = "mesh",
   mesh = "yolkalbumen.obj",
   selection_box = {
