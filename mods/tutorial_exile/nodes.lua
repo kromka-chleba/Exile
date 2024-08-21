@@ -171,9 +171,13 @@ if minetest.is_creative_enabled() then
    })
 end
 
-local info = {
+local info = { -- #TODO: set up locales, template.txt etc
+   ["dig_key"] = "^ "..S("Press the dig button to pick up or strike things."),
+   ["place_key"] = "v "..S("Press the place button to put things down."),
+   ["use_key"] = "◊ "..S("Press the use button to activate items and nodes."..
+		   "@n This is E by default on PC, AUX1 or sprint on mobile."),
    ["zoom_key"] = S("Press the zoom key to see the name of what "..
-		  "you're looking at. \n This is Z by default on PC, "..
+		  "you're looking at. @n This is Z by default on PC, "..
 		  "and the binoculars or magnifying lens on mobile"),
 }
 
