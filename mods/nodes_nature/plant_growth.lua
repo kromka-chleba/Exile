@@ -630,6 +630,7 @@ function nn.plant.grow_plant(pos, elapsed_full)
     if not pdef then return end -- how was this run???
     local param2 = pnode.param2
     if param2 < 63 then return end -- No reason to run on wild plants
+    if minetest.settings:get("time_speed") == "0" then return end
     local meta = minetest.get_meta(pos)
     elapsed_full = elapsed_full/nn.plant_base_timer -- convert to cycle
     local elapsed = elapsed_full + seed_elapsed(meta)
