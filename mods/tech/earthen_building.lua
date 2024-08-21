@@ -117,7 +117,6 @@ stairs.register_stair_and_slab(
 -- Like wattle, doesn't fall. Should it? Needs play testing
 
 local wickdef =  {
-   description = S('Wicker well lining'),
    drawtype = "normal",
    paramtype = "light",
    paramtype2 = "wallmounted",
@@ -130,6 +129,9 @@ local wickdef =  {
    sounds = nodes_nature.node_sound_wood_defaults(),
 }
 
+local wwdesc = { S('Wicker well lining'),
+		 S('Wet wicker well lining'),
+		 S('Salty wet wicker well lining') }
 local soiltable = { "loam", "silt", "clay", "gravel", "sand" }
 local wtable = { "", "_wet","_wet_salty" }
 local bn = 'tech:wicker_lined_'
@@ -148,10 +150,11 @@ for i = 1, #soiltable do
    wdef._wet_salty_name = bn..soiltable[i]..wtable[3]
    for j = 1, #wtable do
       local wdef2 = table.copy(wdef)
+      wdef2.description = wwdesc[j]
       wdef2.groups.wet_sediment = j - 1
       if j == 1 then wdef2.groups.dry_sediment = 1 end
       local tile = "nodes_nature_"..soiltable[i]..".png"
-      if j == 2 then tile = tile.."^nodes_nature_mud.png" end
+      if j > 1 then tile = tile.."^nodes_nature_mud.png" end
       if j == 3 then tile = tile.."^nodes_nature_mud_salt.png" end
       local wicker = "tech_wattle.png"
       if j > 1 then wicker = wicker.."^nodes_nature_mud.png" end
@@ -177,7 +180,8 @@ local function wellmaker(user,itemstack, pointed_thing)
    local def = minetest.registered_nodes[node.name]
    if not def then return end
    local soil = string.gsub(def.drop or def.name, def.mod_origin..":", "")
-   local p2 = minetest.dir_to_wallmounted(user:get_look_dir())
+   local look = minetest.yaw_to_dir(user:get_look_horizontal())
+   local p2 = minetest.dir_to_wallmounted(look)
    minetest.set_node(pointed_thing.under, {name = bn..soil, param2 = p2})
    if minimal.player_in_creative(user) then return end
    itemstack:take_item()
