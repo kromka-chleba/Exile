@@ -30,6 +30,9 @@ HEALTH.food_table = {
 	["nodes_nature:sea_lettuce_cooked"] = {hu=5},
 	["nodes_nature:vansano_seed"]       = {hu=1},
 	["nodes_nature:tikusati_seed"]      = {hu=-2,en=2},
+  -- animal crafts
+  ["tech:yolk_and_albumen"] = {hu=11, th=2},
+  ["tech:yolk_and_albumen_cooked"] = {hu=22, en=2},
 	--food and water                       hp  th   hu  en  te
         ["nodes_nature:wiha_fruitless"]     = {th=3,hu=1},
         ["nodes_nature:wiha_flowering"]     = {th=4,hu=2},
@@ -141,6 +144,7 @@ HEALTH.bake_table = {
    ["animals:carcass_bird_small"]     = {temp=100,   time=6 },
    ["animals:carcass_fish_small"]     = {temp=100,   time=6 },
    ["animals:carcass_fish_large"]     = {temp=100,  time=18 },
+  ['tech:yolk_and_albumen'] = {temp=100, time=2},
 }
 
 -- tags (what diseases to spawn, single string or table of diseases), ch=chance, sv=severity
@@ -154,6 +158,9 @@ HEALTH.harm_table = {
 
   ["tech:mashed_anperla_cooked"]   = { {tags="Food Poisoning",ch=0.002,sv=1} },
 	["tech:mashed_anperla_burned"]   = { {tags="Food Poisoning",ch=0.002,sv=1} },
+
+  ["tech:yolk_and_albumen"] = { {tags='Food Poisoning', ch=0.5,sv=1},
+                                {tags='Intestinal Parasites', ch=0.01,sv=1}},
   -- medicine/drugs
   ["tech:tiku"]                    = { {tags="Tiku High",ch=1,sv=1} },
   ["tech:tang"]                    = { {tags="Drunk",ch=0.75,sv=1} },

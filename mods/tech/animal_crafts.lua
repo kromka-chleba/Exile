@@ -39,7 +39,7 @@ minetest.register_node("tech:yolk_and_albumen_cooked",{
   description = S("Fried Egg"),
   tiles = {"tech_fried_egg.png"},
   inventory_image = "tech_fried_egg_icon.png",
-  groups = {dig_immediate=3, falling_node=1, edible=1},
+  groups = {dig_immediate=3, falling_node=1, heatable=110, edible=1},
   stack_max = minimal.stack_max_medium*2,
   drawtype = "mesh",
   mesh = "yolkalbumen.obj",
