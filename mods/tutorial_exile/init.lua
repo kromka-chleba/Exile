@@ -14,6 +14,7 @@ tutorial = {}
 
 local modpath = minetest.get_modpath("tutorial_exile")
 dofile(modpath..'/nodes.lua')
+dofile(modpath..'/overrides.lua')
 
 --------------------------------------------------------------------------------
 -- Entry/exit from tutorial
