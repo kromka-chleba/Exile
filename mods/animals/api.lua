@@ -22,6 +22,9 @@ animals = animals
 mobkit = mobkit
 
 local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
+if use_vh1 then
+   VH1 = VH1
+end
 
 --------------------------------------------------------------------------
 --basic
@@ -46,15 +49,28 @@ local function flee_sound(self)
 end
 
 --------------------------------------------------------------------------
+-- external mod support
+--------------------------------------------------------------------------
+
+
+local on_die_funcs = {}
+local function on_die(self)
+   for i = 1, #on_die_funcs do
+      on_die_funcs[i](self.object)
+   end
+end
+function animals.register_on_mob_die(func)
+   table.insert(on_die_funcs, func)
+end
+
+--------------------------------------------------------------------------
 --Life and death
 --------------------------------------------------------------------------
 
 ----------------------------------------------------
 -- drop on death what is defined in the entity table
 function animals.handle_drops(self)
-   if use_vh1 then
-      VH1.clear_bar(self.object)
-   end
+   on_die(self)
 
    if not self.drops then
      return
@@ -81,14 +97,9 @@ function animals.handle_drops(self)
 --core health
 function animals.core_hp(self)
   --default drowing and fall damage
-  local hp = self.hp
   mobkit.vitals(self)
   --die from damage
-  if use_vh1 and hp ~= self.hp then -- hp has changed, update hp bar
-     VH1.update_bar(self.object, self.hp, self.max_hp)
-  end
-  hp = self.hp
-  if hp <= 0 then
+  if self.hp <= 0 then
     mobkit.clear_queue_high(self)
     animals.handle_drops(self)
     mobkit.hq_die(self)
@@ -112,10 +123,6 @@ function animals.core_hp_water(self)
   local hp = self.hp
 
 
-local energy = mobkit.recall(self,'energy')
-local age = mobkit.recall(self,'age')
-if not age then age=0 end
-if not energy then energy = 0 end
   if hp <= 0 then
     mobkit.clear_queue_high(self)
     animals.handle_drops(self)
@@ -129,28 +136,29 @@ end
 
 local function get_mean_temp(pos) -- this could be put somewhere else like in climate or minimal
   local temps = {}
-  
+
   if (type(pos) ~= "table") then -- no pos table is given then
     return 15
-  elseif (type(pos.x) ~= "number" or type(pos.y) ~= "number" or type(pos.z) ~= "number") then -- incase an invalid pos is given
+  elseif (type(pos.x) ~= "number" or type(pos.y) ~= "number"
+	  or type(pos.z) ~= "number") then -- incase an invalid pos is given
     return 15
   end
-  
+
   for x = -1, 1, 1 do -- create matrix of possible positions
     for y = -1, 1, 1 do
       for z = -1, 1, 1 do
         local npos = {x = (pos.x - x), y = (pos.y - y), z = (pos.z - z)} -- matrix the pos :D
-        
+
         temps[#temps + 1] = climate.get_point_temp(npos, true)
       end
     end
   end
-  
+
   local mtemp = 0 -- start with a number so it can be calculated
   for _,num in pairs(temps) do
     mtemp = mtemp + num
   end
-  
+
   return mtemp / #temps -- return the "mean" of the matrix'd temps
 end
 
@@ -161,7 +169,7 @@ function animals.core_life(self, lifespan, pos)
   local energy = mobkit.recall(self,'energy')
   local age = mobkit.recall(self,'age')
   local hbnate = mobkit.recall(self,'hibernate')
-  
+
   local energy_loss = self.energy_loss or 0.25
 
   --stops some crashes in creative?
@@ -226,7 +234,7 @@ function animals.core_life(self, lifespan, pos)
       energy = energy - 5
     end
   end
-  
+
   if (hbnate == true) then
     mobkit.clear_queue_low(self)
     mobkit.animate(self,"dead")
@@ -240,7 +248,7 @@ end
 ----------------------------------------------------
 --put an egg in the world, return energy
 function animals.place_egg(pos, egg_name, energy, energy_egg, medium)
-  
+
   local p = mobkit.get_node_pos(pos)
   local e = energy
   local animal_name = string.gsub(egg_name,"_eggs","")
@@ -305,7 +313,7 @@ end
 --roam to places with equal or lesser darkness
 function animals.hq_roam_dark(self,prty)
   local timer = time() + 30
-  local func=function(self)
+  local func=function()
     if time() > timer then
       return true
     end
@@ -337,7 +345,7 @@ end
 function animals.hq_roam_comfort_temp(self,prty, opt_temp)
   local timer = time() + 30
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -371,7 +379,7 @@ end
 function animals.hq_roam_surface_group(self, group, prty)
   local timer = time() + 15
 
-  local func=function(self)
+  local func=function()
 
     if time() > timer then
       return true
@@ -406,7 +414,7 @@ end
 function animals.hq_roam_walkable_group(self, group, prty)
   local timer = time() + 15
 
-  local func=function(self)
+  local func=function()
 
     if time() > timer then
       return true
@@ -513,7 +521,7 @@ end
 -- turn around  from opos and swim away until out of sight
 function animals.hq_swimfrompos(self,prty,opos,speed)
   local timer = time() + 2
-  local func = function(self)
+  local func = function()
 
     if time() > timer then
       return true
@@ -525,7 +533,7 @@ function animals.hq_swimfrompos(self,prty,opos,speed)
     local yaw = self.object:get_yaw() - pi/6
     if distance > 0.5 then
 	-- or 180 from pos we're running from if no longer close to it
-    	yaw = get_yaw_to_object(pos, opos) - pi
+       yaw = get_yaw_to_object(pos, opos) - pi
     end
 
 
@@ -554,7 +562,7 @@ function animals.hq_swimfrompos(self,prty,opos,speed)
 function animals.hq_swimfrom(self,prty,tgtobj,speed)
   local timer = time() + 2
 
-  local func = function(self)
+  local func = function()
 
     if time() > timer then
       return true
@@ -595,7 +603,7 @@ function animals.hq_swimfrom(self,prty,tgtobj,speed)
 function mobkit.hq_chaseafter(self,prty,tgtobj)
   local timer = time() + 3
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -621,7 +629,7 @@ end
  function animals.hq_swimafter(self,prty,tgtobj,speed)
    local timer = time() + 3
 
-   local func = function(self)
+   local func = function()
      if time() > timer then
        return true
      end
@@ -677,7 +685,7 @@ function animals.on_punch(self, tool_capabilities, puncher, prty, chance)
     end
     --fight or flight
     --flee if hurt (or hibernating!)
-    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or hbnate == true then 
+    if self.hp < self.max_hp/10 or self.hp <= (dmg * 2) or hbnate == true then
       mobkit.animate(self,'fast')
       mobkit.make_sound(self,'warn')
       mobkit.hq_runfrom(self, prty, puncher)
@@ -911,7 +919,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed)
 	local init = true
 	local tgtbox = tgtobj:get_properties().collisionbox
 
-	local func = function(self)
+	local func = function()
   if time() > timer then
     return true
   end
@@ -983,7 +991,7 @@ local function lq_jumpattack_eat(self,height,target)
 	local phase=1
 	local tgtbox = target:get_properties().collisionbox
 
-	local func=function(self)
+	local func=function()
 		if not mobkit.is_alive(target) then return true end
 
 		if self.isonground then
@@ -1024,35 +1032,33 @@ local function lq_jumpattack_eat(self,height,target)
 				mobkit.make_sound(self,'attack')
 				phase=4
         local ent = target:get_luaentity()
-        local ent_hp = ent.hp or 1
         local ent_mhp = ent.max_hp or 1
         local dmg = 1
         if (type(self.attack) == "table") then
           if (type(self.attack.damage_groups) == "table") then
             dmg = self.attack.damage_groups.fleshy or 1
-            
-            dmg = math_clamp(dmg,0,ent_mhp) -- clamp damage between 0 and entity max health to prevent excessive energygain
+
+            dmg = math_clamp(dmg,0,ent_mhp)
+	    -- clamp damage between 0 and entity max health to prevent excessive energygain
           end
         end
-        
+
         mobkit.hurt(ent,dmg) -- hurt opponent
-        
+
         -- eat bits of opponent
         local ent_e = (mobkit.recall(ent,'energy') or 1)
         local self_e = (mobkit.recall(self,'energy') or 1)
         local energygain = (ent_e * (dmg / ent_mhp) ) -- omnomnom
-        
+
         mobkit.remember(self,'energy', (energygain*0.4)  + self_e) -- take 40%
         mobkit.remember(ent,'energy', ent_e - energygain) -- make opponent lose energy
-        
+
         if (ent.hp <= dmg) then
-          local ent_e = (mobkit.recall(ent,'energy') or 1)
-          local self_e = (mobkit.recall(self,'energy') or 1)
           mobkit.remember(self,'energy', (energygain*0.25) + self_e) -- add another 25% for nomming fully
           ent.object:remove()
           return true
         end
-        
+
 			end
 		end
 	end
@@ -1064,7 +1070,7 @@ end
 function animals.hq_attack_eat(self,prty,tgtobj)
   local timer = time() + 12
 
-	local func = function(self)
+	local func = function()
     if time() > timer then
       return true
     end
@@ -1207,7 +1213,7 @@ end
 function animals.hq_flock(self,prty,tgtobj, min_dist)
   local timer = time() + 5
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -1235,7 +1241,7 @@ end
 function animals.hq_flock_water(self,prty,tgtobj, min_dist, speed)
   local timer = time() + 7
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -1310,7 +1316,7 @@ end
 function animals.hq_mate(self,prty,tgtobj)
   local timer = time() + 10
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -1380,7 +1386,7 @@ function animals.get_entities_inside_radius(creature,pos,radius,match_string)
       creature = ""
     end
   end
-  
+
   if (type(creature) ~= "string") then
     creature = "*"
   end
@@ -1391,10 +1397,10 @@ function animals.get_entities_inside_radius(creature,pos,radius,match_string)
     minetest.log("warning","animals.get_entities_inside_radius: provided position is invalid")
     return
   end
-  
+
   local objs = minetest.get_objects_inside_radius(pos,radius)
   local aobjs = {}
-  
+
   for _,v in pairs(objs) do
     local name = ""
     local obj
@@ -1405,13 +1411,13 @@ function animals.get_entities_inside_radius(creature,pos,radius,match_string)
       name = obj.name
     end
     if (type(name) == "string") then
-      -- if match_string is true, then will use string.match() 
+      -- if match_string is true, then will use string.match()
       if (name == creature or creature == "*" or (match_string == true and string.match(creature,name))) then
         aobjs[#aobjs + 1] = v
       end
     end
   end
-  
+
   return aobjs
 end
 
@@ -1419,45 +1425,48 @@ end
 
 -- Animals Interactors Interactions
 animals.interactors = {}
-function animals.add_interactors(itype,creature,...) -- interactiontype, creature to be set with properties, all possible creatures to add
-  -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
-  -- for example, animals.add_interactor("rivals","pegasun","animals:pegasun") would add the entity "animals:pegasun" to the rivals of "pegasun"
-  -- lowercase strings for easier finding and indexing
+function animals.add_interactors(itype,creature,...)
+   -- interactiontype, creature to be set with properties, all possible creatures to add
+   -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
+   -- for example, animals.add_interactor("rivals","pegasun","animals:pegasun")
+   -- would add the entity "animals:pegasun" to the rivals of "pegasun"
+   -- lowercase strings for easier finding and indexing
   if (type(itype) ~= "string") then
     return
   else
     itype = string.lower(itype)
   end
-  
+
   if (type(creature) ~= "string") then
     return
   else
     creature = string.lower(creature)
   end
-  
+
   local posscreatures = {...} -- convert specified creatures into an easily accessible table (the ... for multiple args)
-  
+
   local interactable = animals.interactors[creature] -- finds the creature's table provided within animals.interactors
   if (type(interactable) ~= "table") then -- creates new one if not found
     animals.interactors[creature] = {}
-    
-    interactable = animals.interactors[creature]
+
   end
-  
-  local itable = animals.interactors[creature][itype] -- finds the specified interactiontype table within creature's table
+
+  local itable = animals.interactors[creature][itype]
+  -- finds the specified interactiontype table within creature's table
   if (type(itable) ~= "table") then -- create new table with the interactiontype if it isn't specified
     animals.interactors[creature][itype] = {}
-    
+
     itable = animals.interactors[creature][itype]
   end
-  
+
   for _,interactor in pairs(posscreatures) do
     if (type(interactor) == "string") then
-      -- add said creature as an "interactor" within the provided interactiontype (if specified creature is an entity name)
+       -- add said creature as an "interactor" within the provided
+       -- interactiontype (if specified creature is an entity name)
       itable[#itable + 1] = interactor
     end
   end
-  
+
   return true
 end
 
@@ -1468,7 +1477,7 @@ function animals.get_interactors(creature,itype) -- creature to get stats from, 
   else
     itype = string.lower(itype)
   end
-  
+
   if (type(creature) ~= "string") then
     return {}
   else
@@ -1490,7 +1499,8 @@ end
 
 -------- Mobkit function rewrites
 
--- makes it so animals do not see or interact with the player (if the animals use this instead of mobkit's) if player is in creative
+-- makes it so animals do not see or interact with the player
+-- (if the animals use this instead of mobkit's) if player is in creative
 
 function animals.get_nearby_player(self,forceplyr)
   -- "forceplyr" bool parameter to force a player despite creative mode
@@ -1508,53 +1518,56 @@ function animals.vitals(self)
 	-- vitals: fall damage
 	local vel = self.object:get_velocity()
 	local velocity_delta = abs(self.lastvelocity.y - vel.y)
-  
+
   if (velocity_delta > mobkit.safe_velocity) then
     -- let's see if there's a node with fall_damage_add_percent first
     local node = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y = -1}))
-    
+
     if (type(node) == "table") then
       local multiplier = node.groups.fall_damage_add_percent -- used for fall damage calculation
       if (type(multiplier) == "number") then
         -- convert multiplier into a usable decimal
         multiplier = multiplier/100
         if (multiplier <= 0) then
-          -- if it's negative, make positive, and subtract it by 1 to get the result of which velocity should be of itself (-70 = 0.3)
+	   -- if it's negative, make positive, and subtract it by 1 to get
+	   -- the result of which velocity should be of itself (-70 = 0.3)
           multiplier = -multiplier
           multiplier = 1 - multiplier
         else
           multiplier = 1 + multiplier
         end
-        
+
         velocity_delta = floor(velocity_delta * multiplier)
       end
-      
+
       if (node.drawtype == "airlike") then
         -- this ouchy code got initiated in air
         -- sometimes this happens when trampolining and it will hurt the mob by a lot...
-        -- so let's pretend they landed on something soft and multiply the velocity_delta by 0.5 :D (because this'll also activate when mobs land on other mobs or players)
+	 -- so let's pretend they landed on something soft and multiply the
+	 -- velocity_delta by 0.5 :D (because this'll also activate when mobs
+	 -- land on other mobs or players)
         velocity_delta = velocity_delta * 0.5
       end
     end
   end
-  
+
 	if velocity_delta > mobkit.safe_velocity then
     -- alright, time to do some damage if it's still over safe_velocity
     local damage = floor(self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
-    
-    self.hp = self.hp - damage
+
+    mobkit.hurt(self, damage)
 	end
-	
+
 	-- vitals: oxygen
 	if self.lung_capacity then
 		local colbox = self.object:get_properties().collisionbox
 		local headnode = mobkit.nodeatpos(mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})) -- node at hitbox top
-		if headnode and headnode.drawtype == 'liquid' then 
+		if headnode and headnode.drawtype == 'liquid' then
 			self.oxygen = self.oxygen - self.dtime
 		else
 			self.oxygen = math_clamp(self.oxygen + (self.dtime * 2),0,self.lung_capacity)
 		end
-			
+
 		if self.oxygen <= 0 then mobkit.hurt(self,self.max_hp*0.1) end	-- drown by 10% of max_hp
 	end
 end
