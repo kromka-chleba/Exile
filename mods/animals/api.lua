@@ -23,6 +23,9 @@ animals = animals
 mobkit = mobkit
 
 local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
+if use_vh1 then
+   VH1 = VH1
+end
 
 -- table to emulate time_from_last_punch for rightclick
 animals.rclick_times = {}
@@ -325,13 +328,28 @@ function animals.timeofday(tod)
 end
 
 --------------------------------------------------------------------------
+-- external mod support
+--------------------------------------------------------------------------
+
+
+local on_die_funcs = {}
+local function on_die(self)
+   for i = 1, #on_die_funcs do
+      on_die_funcs[i](self.object)
+   end
+end
+function animals.register_on_mob_die(func)
+   table.insert(on_die_funcs, func)
+end
+
+--------------------------------------------------------------------------
 --Life and death
 --------------------------------------------------------------------------
 
 ----------------------------------------------------
 -- drop on death what is defined in the entity table
 function animals.handle_drops(self,despawn_time)
-  animals.vh_bar(self,true)
+  on_die(self)
 
   if not self.drops then
     return
@@ -467,7 +485,7 @@ local function get_mean_temp(pos) -- this could be put somewhere else like in cl
     return 15
   elseif (type(pos.x) ~= "number" or type(pos.y) ~= "number"
 	  or type(pos.z) ~= "number") then -- incase an invalid pos is given
-     return 15
+    return 15
   end
 
   for x = -1, 1, 1 do -- create matrix of possible positions
@@ -856,7 +874,7 @@ end
 --roam to places with equal or lesser darkness
 function animals.hq_roam_dark(self,prty)
   local timer = time() + 30
-  local func=function(self)
+  local func=function()
     if time() > timer then
       return true
     end
@@ -947,7 +965,7 @@ end
 function animals.hq_roam_comfort_temp(self,prty)
   local timer = time() + 30
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -1041,7 +1059,7 @@ end
 function animals.hq_roam_surface_group(self, group, prty)
   local timer = time() + 15
 
-  local func=function(self)
+  local func=function()
 
     if time() > timer then
       return true
@@ -1229,7 +1247,7 @@ end
 -- turn around  from opos and swim away until out of sight
 function animals.hq_swimfrompos(self,prty,opos,speed)
   local timer = time() + 2
-  local func = function(self)
+  local func = function()
 
     if time() > timer then
       return true
@@ -1270,7 +1288,7 @@ function animals.hq_swimfrompos(self,prty,opos,speed)
 function animals.hq_swimfrom(self,prty,tgtobj,speed)
   local timer = time() + 2
 
-  local func = function(self)
+  local func = function()
 
     if time() > timer then
       return true
@@ -1311,7 +1329,7 @@ function animals.hq_swimfrom(self,prty,tgtobj,speed)
 function mobkit.hq_chaseafter(self,prty,tgtobj)
   local timer = time() + 3
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -1337,7 +1355,7 @@ end
  function animals.hq_swimafter(self,prty,tgtobj,speed)
    local timer = time() + 3
 
-   local func = function(self)
+   local func = function()
      if time() > timer then
        return true
      end
@@ -1955,7 +1973,7 @@ local function lq_jumpattack_eat(self,height,target,consume)
 	local phase=1
 	local tgtbox = target:get_properties().collisionbox
 
-	local func=function(self)
+	local func=function()
 		if not mobkit.is_alive(target) then return true end
 
 		if phase == 1 and self.isonground then
@@ -2164,7 +2182,7 @@ end
 function animals.hq_flock(self,prty,tgtobj, min_dist)
   local timer = time() + 5
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -2196,7 +2214,7 @@ end
 function animals.hq_flock_water(self,prty,tgtobj, min_dist, speed)
   local timer = time() + 7
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -2273,7 +2291,7 @@ end
 function animals.hq_mate(self,prty,tgtobj)
   local timer = time() + 10
 
-  local func = function(self)
+  local func = function()
     if time() > timer then
       return true
     end
@@ -2375,12 +2393,12 @@ end
 
 -- Animals Interactors Interactions
 animals.interactors = {}
-function animals.add_interactors(creature,itype,...) -- creature to be set with properties, interactiontype, all possible creatures to add
-  -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
-  -- for example, animals.add_interactors("spooper","rivals", "animals:pegasun") would add the entity "animals:pegasun" to the rivals of "spooper"
-  -- "self" can be utilized to add self to table, for example:
-  -- animals.add_interactors("animals:pegasun","rivals", "self") will add itself as a rival
-  -- lowercase strings for easier finding and indexing
+function animals.add_interactors(creature, itype, ...)
+   -- interactiontype, creature to be set with properties, all possible creatures to add
+   -- adds the minetest luaentity names of creatures to a certain interaction type provided by a specified creature
+   -- for example, animals.add_interactor("rivals","pegasun","animals:pegasun")
+   -- would add the entity "animals:pegasun" to the rivals of "pegasun"
+   -- lowercase strings for easier finding and indexing
   if (type(itype) ~= "string") then
     return
   else
@@ -2514,7 +2532,8 @@ end
 
 -------- Mobkit function rewrites
 
--- makes it so animals do not see or interact with the player (if the animals use this instead of mobkit's) if player is in creative
+-- makes it so animals do not see or interact with the player
+-- (if the animals use this instead of mobkit's) if player is in creative
 
 function animals.get_nearby_player(self,forceplyr)
   -- "forceplyr" bool parameter to force a player despite creative mode

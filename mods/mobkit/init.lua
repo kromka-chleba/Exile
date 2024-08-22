@@ -444,10 +444,22 @@ function mobkit.exists(thing)
 	end
 end
 
+local hp_change_funcs = {}
+local function on_hp_change(self, change)
+   for i = 1, #hp_change_funcs do
+      print("HP change func #",i)
+      hp_change_funcs[i](self.object, self.hp, self.max_hp, change)
+   end
+end
+function mobkit.register_on_mob_hp_change(func)
+   table.insert(hp_change_funcs, func)
+end
+
 function mobkit.hurt(luaent,dmg)
 	if not luaent then return false end
 	if type(luaent) == 'table' then
-		luaent.hp = max((luaent.hp or 0) - dmg,0)
+	   luaent.hp = max((luaent.hp or 0) - dmg,0)
+	   on_hp_change(luaent.object, luaent.hp, luaent.max_hp, -1 * dmg )
 	end
 end
 
@@ -455,6 +467,7 @@ function mobkit.heal(luaent,dmg)
 	if not luaent then return false end
 	if type(luaent) == 'table' then
 		luaent.hp = min(luaent.max_hp,(luaent.hp or 0) + dmg)
+		on_hp_change(luaent.object, luaent.hp, luaent.max_hp, dmg )
 	end
 end
 
