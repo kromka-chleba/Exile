@@ -132,7 +132,7 @@ minetest.register_entity("spawnex:gate",{
 	initial_properties = {
 	   visual = "upright_sprite",
 	   use_texture_alpha = true,
-	   pointable = false,
+	   pointable = true,
 	   collides_with_objects = false,
 	   textures = { "spawnex_portal.png^[colorize:#4444E932",},
 	   visual_size = { x = 0, y = 0, z = 0},
@@ -142,7 +142,7 @@ minetest.register_entity("spawnex:gate",{
 	   shaded = false,
 	   show_on_minimap = true,
 	},
-	_name = "A gate to somewhere else",
+	_desc = "A gate from somewhere else",
 	on_step = function(self, dtime, moveresult)
 	   if not self.init then
 	      self.init = true
