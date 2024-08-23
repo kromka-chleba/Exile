@@ -342,9 +342,9 @@ function trees.register_leaves(name, def, tree)
       -- late winter (hunger)
       if season == 4 then
         local remaining = 20 - day
-        minetest.get_node_timer(pos:start(
+        minetest.get_node_timer(pos):start(
             random(remaining * 1200, (remaining+5)*1200)
-        ))
+        )
       -- not winter
       else
         minetest.log("info", "Node at "..
@@ -446,9 +446,9 @@ function trees.register_fruit(name, def, tree)
       -- late winter (hunger)
       if season == 4 then
         local remaining = 20 - day
-        minetest.get_node_timer(pos:start(
+        minetest.get_node_timer(pos):start(
             random(remaining * 1200, (remaining+5)*1200)
-        ))
+        )
       -- not winter
       else
         -- nodetimer time
