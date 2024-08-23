@@ -151,7 +151,7 @@ TPH/Dokimi
  --
  
 izzyb
-(marked ?)
+(marked CC BY-SA 4.0)
  * tech_iron_key.png
  * tech_iron_nails.png (?)
 --
