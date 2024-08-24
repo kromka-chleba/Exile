@@ -446,7 +446,6 @@ end
 local hp_change_funcs = {}
 local function on_hp_change(self, change)
    for i = 1, #hp_change_funcs do
-      print("HP change func #",i)
       hp_change_funcs[i](self.object, self.hp, self.max_hp, change)
    end
 end
