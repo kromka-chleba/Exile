@@ -1,4 +1,9 @@
 # Changelog:
+
+## [2024-08-23][2023-08-23__0.3.18a]
+   - Improved Minetest 5.9.0 support
+   - bugfixes
+
 ## [2024-07-18][2023-07-18__0.3.18]
    - Added glass doors and trapdoors
    - Hang an oil lamp from the ceiling
