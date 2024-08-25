@@ -1,5 +1,8 @@
 # Changelog:
 
+## [2024-08-24][2023-08-24__0.3.18b]
+   - Fix crash on animal capture in MT 5.9.0
+
 ## [2024-08-23][2023-08-23__0.3.18a]
    - Improved Minetest 5.9.0 support
    - bugfixes
