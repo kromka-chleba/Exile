@@ -215,36 +215,25 @@ animals.register_spawnegg = function(self)
 end
 
 
-
-
-
 animals.capture = function(self, clicker)
-   -- add special mob egg with all mob information
-   local new_stack = ItemStack(self.name)
-   local stack_meta = new_stack:get_meta()
-   --local sett ="---TABLE---: "
-   --local sett = ""
-   --local i = 0
-   for key, value in pairs(self) do
-      local what_type = type(value)
-      if what_type ~= "function"
-	 and what_type ~= "nil"
-	 and what_type ~= "userdata"
-      then
-	 if what_type == "boolean" or what_type == "number" then
-	    value = tostring(value)
-	 end
-	 if key == 'memory' then
-	    value = minetest.serialize(value)
-	 end
-	 stack_meta:set_string(key, value)
-      end
-   end
-   local idef = minetest.registered_items[self.name] or {}
-   if idef._tool_tips and idef._tool_tips ~= '' then
-      stack_meta:set_string('description',
-			    idef.description .. idef._tool_tips)
-   end
+	-- add special mob egg with all mob informationl
+	local new_stack = ItemStack(self.name)
+	local stack_meta = new_stack:get_meta()
+	--local sett ="---TABLE---: "
+	--local sett = ""
+	--local i = 0
+	for key, value in pairs(self) do
+	   if key == "hp" then
+	      stack_meta:set_string(key, value)
+	   elseif key == "memory" then
+	      stack_meta:set_string(key, minetest.serialize(value))
+	   end
+	end
+	local idef = minetest.registered_items[self.name] or {}
+	if idef._tool_tips and idef._tool_tips ~= '' then
+	   stack_meta:set_string('description',
+				 idef.description .. idef._tool_tips)
+	end
 
 	local inv = clicker:get_inventory()
 	if inv:room_for_item("main", new_stack) then
