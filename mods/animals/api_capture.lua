@@ -106,9 +106,6 @@ animals.register_egg = function(name, desc, inv_img, stack, energy)
 end
 
 
-
-
-
 animals.capture = function(self, clicker)
 	local new_stack = ItemStack(self.name) 	-- add special mob egg with all mob information
 	local stack_meta = new_stack:get_meta()
@@ -116,24 +113,14 @@ animals.capture = function(self, clicker)
 	--local sett = ""
 	--local i = 0
 	for key, value in pairs(self) do
-		local what_type = type(value)
-		if what_type ~= "function"
-		and what_type ~= "nil"
-		and what_type ~= "userdata"
-		then
-			if what_type == "boolean" or what_type == "number" then
-				value = tostring(value)
-			end
-			if key == 'memory' then 
-				value = minetest.serialize(value)
-			end
-			stack_meta:set_string(key, value)
-		end
+	   if key == "hp" then
+	      stack_meta:set_string(key, value)
+	   elseif key == "memory" then
+	      stack_meta:set_string(key, minetest.serialize(value))
+	   end
 	end
 
-
 	local inv = clicker:get_inventory()
-	local pname = clicker:get_player_name()
 	if inv:room_for_item("main", new_stack) then
 		inv:add_item("main", new_stack)
 	else
