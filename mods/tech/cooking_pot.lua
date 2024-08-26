@@ -95,7 +95,7 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
       local liquid = liquid_store.contents(itemname)
       if liquid == "nodes_nature:freshwater_source" then
 	 meta:set_string("type", "Soup")
-   meta:set_string("status_string",S("Status: Soup Pot"))
+   meta:set_string("status_string",S("Soup Pot"))
    meta:set_string("contents_string",S("Contents: Water"))
    meta:set_string("note",S("Note: Add food to the pot to make soup"))
    minimal.infotext_set_new(pos, meta)
@@ -453,7 +453,7 @@ minetest.register_node("tech:cooking_pot", {
     -- get proper owner string
     params = minimal.infotext_get_base_params(nil, meta, params)
     -- get base status'
-    params.status_string = params.status_string or S("Status: Unprepared Pot")
+    params.status_string = params.status_string or S("Unprepared Pot")
     params.contents_string = params.contents_string or S("Contents: <EMPTY>")
     params.note = params.note or S("Note: Add water to pot to make soup")
     if params.note == "nil" then params.note = nil end -- no note to add
@@ -512,4 +512,3 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
-

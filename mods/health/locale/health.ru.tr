@@ -40,3 +40,6 @@ Resting=Отдыхающий
 poorly=плохо
 comfortably=комфортно
 (Sweating)=(Потливость)
+#init.lua
+Hyperthermia=
+Hypothermia=

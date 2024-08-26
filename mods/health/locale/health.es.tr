@@ -40,14 +40,17 @@ Resting=
 poorly=
 comfortably=
 (Sweating)=
+#init.lua
+Hyperthermia=
+Hypothermia=
 
 
 ##### not used anymore #####
 
-Health:=Salud: 
-Energy:=Energía: 
-Thirst:=Hidratación: 
-Hunger:=Saciedad: 
-Body Temp:=Temp. Corporal: 
-Temp:=Temp.: 
-Effects:=Efectos: 
+Health:=Salud:
+Energy:=Energía:
+Thirst:=Hidratación:
+Hunger:=Saciedad:
+Body Temp:=Temp. Corporal:
+Temp:=Temp.:
+Effects:=Efectos:

@@ -1,36 +1,36 @@
 # textdomain: lore
 #char_tab.lua
 # personality
-#  openness
-Conventional=
-Unconventional=
-Practical=
-Imaginative=
-Unadventurous=
-Adventurous=
-Traditional=
-Rebellious=
+# openness
+Conventional=Conventionnel(le)
+Unconventional=Non conventionnel(le)
+Practical=Pratique
+Imaginative=Imaginatif(ve)
+Unadventurous=Casanier(e)
+Adventurous=Aventureux(se)
+Traditional=Traditionnel(le)
+Rebellious=Rebelle
 #  conscientiousness
-Organized=
-Disorganized=
-Goal-driven=
-Impulsive=
-Dutiful=
-Careless=
-Precise=
-Slapdash=
+Organized=Organisé(e)
+Disorganized=Désorganisé(e)
+Goal-driven=Ambitieux(se)
+Impulsive=Impulsif(ve)
+Dutiful=Ayant le sens du devoir
+Careless=Négligent(e)
+Precise=Précis(e)
+Slapdash=Brouillon(ne)
 #  extroversion
-Shy=
-Gregarious=
-Quiet=
-Outgoing=
-Withdrawn=
-Sociable=
-Reserved=
+Shy=Timide
+Gregarious=Grégaire
+Quiet=Calme
+Outgoing=Extraverti(e)
+Withdrawn=Intraverti(e)
+Sociable=Sociable
+Reserved=Réservé(e)
 Expressive=
 #  agreeableness
 Pleasant=
-Argumentative=
+Argumentative=Querelleur(se)
 Good-natured=
 Critical=
 Soft-hearted=
@@ -671,7 +671,7 @@ Twisted=
 Warped=
 Lost=
 By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=
-Sentence of Exile=
+Sentence of Exile=Sentence d'exil
 #login.lua
 login_text=
 Message of the Day:@n@n=

@@ -498,8 +498,8 @@ local function cache_player_recipes(cache, player_name, pInv)
 
 	recipesFS[#recipesFS + 1] =	'scroll_container_end[]'
 	recipesFS[#recipesFS + 1] =	'field_close_on_enter[query;false]'
-	recipesFS[#recipesFS + 1] =	'field[0.4,9.2;3.0,0.5;query;query;]'
-	recipesFS[#recipesFS + 1] =	'button[3.7,9.2;0.6,0.5;?;?]'
+	recipesFS[#recipesFS + 1] =	'field[0.4,9.5;3.0,0.5;query;'.. S("Query")..';]'
+	recipesFS[#recipesFS + 1] =	'button[3.7,9.5;0.6,0.5;?;?]'
 	cache.recipesFS = table.concat(recipesFS, "")
 	cache.output = ""
 	return cache
@@ -529,8 +529,8 @@ local function cache_player_input_list(cache, pInv)
 	end
 
 	local input_listFS = {
-		'container[.4,4.0]',
-		'label[.1,0;'..S("Input Items")..']',
+		'container[.4,3.8]',
+		'label[0,0;'..S("Input Items")..']',
 --		'box[0,.2;2.5,2.5;black]',
 		'style_type[list;size=.7,.7;spacing=.1]',
 		'list[current_player;input_items;.1,.3;3,3;0]',
@@ -549,8 +549,8 @@ local function cache_player_craft_types(cache, pInv)
 	local cItems = load_craft_types(pInv)
 	local cTabs = cache.cTabs	-- Crafting tabs to display
 	local craft_typeFS = {
-		'container[.4,.8]',
-		'label[0.1,0;'..S("Craft Type")..']',
+		'container[.4,.6]',
+		'label[0,0;'..S("Craft Type")..']',
 		-- 'box[0,.2;2.5,1.9;black]',
 	}
 	local x = 0
@@ -644,7 +644,7 @@ function minimal.register_inventory_sfinv()
 				local formspec = minimal.make_inventory_formspec(player,context)
 				local options = {
 					'formspec_version[5]',	-- hacking in formspec_version before size[]
-					'size[10.5,10]',
+					'size[10.5,10.5]',
 				}
 				local output = sfinv.make_formspec(
 					player, context, formspec, false, table.concat(options, ""))
@@ -711,11 +711,11 @@ function minimal.make_inventory_formspec(player,context)
 	qtylab[qtyID] = minetest.colorize("cyan", qtylab[qtyID])
 
 	local output =
-	   'label[.5,6.2;'..S("Quantity")..']' ..
+	   'label[.35,6.1;'..S("Quantity")..':]' ..
 	   -- 'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]' ..
-	   'checkbox[3.0,6.2;qty1;'..qtylab[1]..';'..qtytab[1]..']' ..
-	   'checkbox[4.5,6.2;qty2;'..qtylab[2]..';'..qtytab[2]..']' ..
-	   'checkbox[6.0,6.2;qty3;'..qtylab[3]..';'..qtytab[3]..']'
+	   'checkbox[3.0,6.1;qty1;'..qtylab[1]..';'..qtytab[1]..']' ..
+	   'checkbox[5.0,6.1;qty2;'..qtylab[2]..';'..qtytab[2]..']' ..
+	   'checkbox[7.0,6.1;qty3;'..qtylab[3]..';'..qtytab[3]..']'
 	-- add Craft Types
 --	if not cache.craft_typeFS then
 		cache = cache_player_craft_types(cache, pInv)

@@ -38,3 +38,6 @@ Resting="Ruhend"
 poorly="schlecht"
 comfortably="schlecht"
 (Sweating)="(Schwitzend)"
+#init.lua
+Hyperthermia=
+Hypothermia=
