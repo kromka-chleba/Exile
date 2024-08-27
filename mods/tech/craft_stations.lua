@@ -460,31 +460,30 @@ end
 
 ----Below the code to have only one mortar in recipe list, from Izzy + modified to display "no material" mortar_pestle"
 ---(on discussion 2024 - 08 )
--- crafting.register_recipe({
--- type   = "hand_tools",
--- output = "tech:mortar_pestle",
--- items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
--- 	{group:limestone_cobble",group:basalt_cobble",group:granite_cobble"}, 'nodes_nature:sand'},
--- where = '@1.material == @2.material',
--- material = 1,  -- set material from selected inptut item 1.
--- material_output = "tech:mortar_pestle_%material%",
--- material_tiles_name = "nodes_nature_%material%.png",
--- level  = 1,
--- always_known = true,
--- })
+crafting.register_recipe({
+    type   = "hand_tools",
+    output = "tech:mortar_pestle",
+    items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
+    {"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"}, 'nodes_nature:sand'},
+    where = '@1.material == @2.material',
+    material = 1,  -- set material from selected inptut item 1.
+    material_output = "tech:mortar_pestle_%material%",
+    material_tiles_name = "nodes_nature_%material%.png",
+    level  = 1,
+    always_known = true,
+})
 
 ----Below the code to have 3 separate mortar and pestle in that same recipe list
 ---(on discussion 2024 - 08 )
-
-for _,mat in ipairs({"limestone","basalt","granite"}) do
-    crafting.register_recipe({
-    type   = "hand_tools",
-    output = "tech:mortar_pestle_" .. mat,
-    items  = {"nodes_nature:" .. mat .. "_boulder","group:" .. mat .. "_cobble", "nodes_nature:sand"},
-    level  = 1,
-    always_known = true,
-    })
-end
+-- for _,mat in ipairs({"limestone","basalt","granite"}) do
+--     crafting.register_recipe({
+--     type   = "hand_tools",
+--     output = "tech:mortar_pestle_" .. mat,
+--     items  = {"nodes_nature:" .. mat .. "_boulder","group:" .. mat .. "_cobble", "nodes_nature:sand"},
+--     level  = 1,
+--     always_known = true,
+--     })
+-- end
 
 --IB-20240226 ---- Boulders ----
 --IB-20240226 --grind a mortar_and_pestle
