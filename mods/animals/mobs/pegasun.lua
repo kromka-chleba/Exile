@@ -308,10 +308,7 @@ local self_data = {
       fixed = {-0.125, -0.5, -0.125,  0.125, -0.125, 0.125},
     },
     groups = {egg = 2},
-    egg_hatching = {
-      ["animals:pegasun"] = 0.5,
-      ["animals:pegasun_male"] = 0.5,
-    },
+    egg_hatching = {"animals:pegasun","animals:pegasun_male"},
   },
   -- spawnegg or live animal
   spawnegg = {

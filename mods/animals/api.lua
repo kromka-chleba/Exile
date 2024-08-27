@@ -795,7 +795,8 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name) -- egg_data, po
       end
       -- last "else", get largest percent
       if not name then
-        name = hatching_table[1][2]
+        -- code smell until I figure out why having mixed unsorted and set percentages for hatching causes index 1 to be index 0
+        name = (hatching_table[1] and hatching_table[1][2]) or (hatching_table[0] and hatching_table[0][2])
       end
     end
   end
@@ -2681,6 +2682,39 @@ function animals.register_egg(def, animal)
   def.sounds = animals.node_sound_egg_defaults(def.sounds)
   -- custom egg data
   def.egg_hatching = def.egg_hatching or (animal and animal.name)
+  -- new feature: autocreate percentages if not provided
+  if type(def.egg_hatching) == "table" then
+    -- purely string indexes do not count for table length
+    if #def.egg_hatching > 1 then
+      local percent = 0
+      -- iterates through properly assessed percentages and calculates unproperly assessed percentages in correlation
+      for spawn_animal,set_percent in pairs(def.egg_hatching) do
+        -- only if spawn_animal is string, and correlated percentage is a number
+        if type(spawn_animal) == "string" and type(set_percent) == "number" then
+          -- add found percentage to compounding percentage
+          percent = percent + set_percent
+        end
+      end
+      -- if total calculated collected percentage is below 1 then continue (because we aren't aiming for 110% or more!
+      if percent < 1 then
+        percent = 1-percent -- will be 1 if percent is 0
+        percent = percent/#def.egg_hatching -- percentage divided by total amount of numbered indexes
+        -- only iterate through number indexes
+        for i=1,#def.egg_hatching do
+          -- get (expected and assumed) animal name string from numbered index
+          local spawn_animal = def.egg_hatching[i]
+          -- provide animal name as index, apply percentage
+          def.egg_hatching[spawn_animal] = percent
+          -- remove old numbered index
+          def.egg_hatching[i] = nil
+        end
+      end
+    -- why did you just do only one...
+    elseif #def.egg_hatching == 1 then
+    -- assume it's a string
+      def.egg_hatching = {[def.egg_hatching[1]] = 1}
+    end
+  end
   assert(def.egg_hatching,"animals.register_egg: could not get hatching or name for egg hatching mechanics")
   def.egg_hatching = type(def.egg_hatching) == "table" and def.egg_hatching or {[def.egg_hatching] = 1}
 
