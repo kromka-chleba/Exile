@@ -104,7 +104,7 @@ local function sfinv_get(self, player, context)
     bio = lore.generate_bio(player)
   end
 
-  local y = 3.3
+  local y = 3.4
   local eff_form = ""
   local st = player_api.get_state(player)
   local labels = st:read_labels()

@@ -220,10 +220,12 @@ function pstate.read_labels(self)
 	      local sev = statetbl.severity or progress_to_severity(statetbl) or 0
 	      local pri = math.abs(statetbl.priority or states[name].priority) or 1
 	      local sevname = self:read_severity(name, sev)
-          if label=="" then -- if no label, only displays the severity name
-              table.insert(pri_order[pri], { sevname })
-          elseif sevname ~= "" then -- ^^ in case of "-" sev-only label and there's no severity name
-              table.insert(pri_order[pri], { label.." ", sevname })
+          if sevname ~= "" then --^^ in case of "-" sev-only label and there's no severity name
+              if label == "" then -- if no label, only displays the severity name
+                  table.insert(pri_order[pri], { sevname })
+              else
+                  table.insert(pri_order[pri], { label.." ", sevname })
+              end
           end
       end
    end
