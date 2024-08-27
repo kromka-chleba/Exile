@@ -1666,33 +1666,6 @@ end
 
 
 
-
-----------------------------------------------------
---for things that eat spreading surface
-function animals.eat_spreading_under(pos, chance)
-  local p = mobkit.get_node_pos(pos)
-  local posu = {x = p.x, y = p.y - 1, z = p.z}
-  local under = minetest.get_node(posu).name
-
-  if minetest.get_item_group(under, "spreading") > 0 then
-    if random()< chance then
-      --set node to it's drop
-      --this is to scratch up surface layers
-      local nodedef = minetest.registered_nodes[under]
-      local drop = nodedef.drop
-      minetest.check_for_falling(posu)
-      minetest.set_node(posu, {name = drop})
-      minetest.sound_play("nodes_nature_dig_crumbly", {gain = 0.2, pos = pos, max_hear_distance = 10})
-    end
-
-    return true
-
-  else
-    return false
-  end
-
-end
-
 ----------------------------------------------------
 -- sediment eating functions
 
