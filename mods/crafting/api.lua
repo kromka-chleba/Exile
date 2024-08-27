@@ -34,13 +34,14 @@ local S = minetest.get_translator("crafting")
 
 -- Group names from recipes for the translation script
 -- The translation will be performed when descriptions are generated
+-- Note : cobble's group could be passed as nodes_nature:xxx-cobble1  item instead of group since we only can drop cobble1 type
 local groupNameForTranslations = {
    S("log"), S("fibrous plant"), S("sand"), S("compostable"),
    S("hard wood"), S("cana"), S("woody plant"), S("woodslab"),  
    S("bioluminescent"),  S("pottery"),
-   S("gravel"),  S("bundleable fiber")
+   S("gravel"),  S("bundleable fiber"),
+   S("limestone cobble"), S("basalt cobble"), S("granite cobble"), S("ironstone cobble"), S("jade cobble") 
 }
---  S("limestone cobble"), S("basalt cobble"), S("granite cobble"), S("ironstone cobble"), S("jade cobble"),were removed to passe it as item not group
 
 function crafting.register_type(name, label, icon_item_name)
    crafting.recipes[name] = {}

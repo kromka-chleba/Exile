@@ -822,7 +822,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = "hand_tools",
 	output = "tech:adze",
-	items = {{"nodes_nature:jade_cobble1","nodes_nature:basalt_cobble1","nodes_nature:granite_cobble1"},
+	items = {{"group:jade_cobble","group:basalt_cobble","group:granite_cobble"},
 		'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
 	material = 1, -- first item sets material.
 	material_output = "tech:adze_%material%",
@@ -933,7 +933,7 @@ end
 crafting.register_recipe({
 	type = "hand_tools",
 	output = "tech:hammer",
-	items = {{"nodes_nature:basalt_cobble1","nodes_nature:granite_cobble1"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+	items = {{"group:basalt_cobble","group:granite_cobble"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
 	material = 1, -- first item sets material.
     material_output = "tech:hammer_%material%",
 	level = 1,

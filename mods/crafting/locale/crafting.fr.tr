@@ -17,9 +17,9 @@ bundleable fiber=fibre empaquetable
 Any @1=Tout type de @1
 Missing required items!=Il manque des objets requis!
 
-#unused anymore
-#limestone cobble=caillou calcaire 
-#basalt cobble=caillou de basalte
-#granite cobble=caillou de granite 
-#ironstone cobble=caillou ferreux 
-#jade cobble=caillou de jade 
+#groups
+limestone cobble=caillou calcaire 
+basalt cobble=caillou de basalte
+granite cobble=caillou de granite 
+ironstone cobble=caillou ferreux 
+jade cobble=caillou de jade 

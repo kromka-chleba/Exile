@@ -246,7 +246,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"hammering_block","hammer"},
 	output = "tech:crushed_lime",
-	items = {"nodes_nature:limestone_cobble1 8"},
+	items = {"group:limestone_cobble 8"},
 	level = 1,
 	always_known = true,
 })

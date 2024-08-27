@@ -536,7 +536,7 @@ minetest.register_node("tech:mortar_pestle_limestone",{
 -- type   = "hand_tools",
 -- output = "tech:mortar_pestle_limestone",
 -- items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
--- 	{"nodes_nature:limestone_cobble1","nodes_nature:basalt_cobble1","nodes_nature:granite_cobble1"}, 'nodes_nature:sand'},
+-- 	{group:limestone_cobble",group:basalt_cobble",group:granite_cobble"}, 'nodes_nature:sand'},
 -- where = '@1.material == @2.material',
 -- material = 1,  -- set material from selected inptut item 1.
 -- material_output = "tech:mortar_pestle_%material%",
@@ -548,7 +548,7 @@ minetest.register_node("tech:mortar_pestle_limestone",{
 crafting.register_recipe({
 type   = "hand_tools",
 output = "tech:mortar_pestle_limestone",
-items  = {'nodes_nature:limestone_boulder',"nodes_nature:limestone_cobble1", 'nodes_nature:sand'},
+items  = {'nodes_nature:limestone_boulder','group:limestone_cobble', 'nodes_nature:sand'},
 level  = 1,
 always_known = true,
 })
@@ -556,7 +556,7 @@ always_known = true,
 crafting.register_recipe({
 type   = "hand_tools",
 output = "tech:mortar_pestle_basalt",
-items  = {'nodes_nature:basalt_boulder',"nodes_nature:basalt_cobble1", 'nodes_nature:sand'},
+items  = {'nodes_nature:basalt_boulder',"group:basalt_cobble", 'nodes_nature:sand'},
 level  = 1,
 always_known = true,
 })
@@ -564,7 +564,7 @@ always_known = true,
 crafting.register_recipe({
 type   = "hand_tools",
 output = "tech:mortar_pestle_granite",
-items  = {'nodes_nature:granite_boulder',"nodes_nature:granite_cobble1", 'nodes_nature:sand'},
+items  = {'nodes_nature:granite_boulder',"group:granite_cobble", 'nodes_nature:sand'},
 level  = 1,
 always_known = true,
 })
