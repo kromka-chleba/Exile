@@ -210,14 +210,15 @@ end
 -- Sounds
 --------------------------------------------------------------------------
 
-function animals.get_egg_sounds()
-  return nodes_nature.node_sound_defaults({
-    hatch = {
-      name = "animals_hatch_egg",
-      gain = 0.8,
-      max_hear_distance = 8
-    }
-  })
+function animals.node_sound_egg_defaults(table)
+  table = table or {}
+  table.egg_hatch = {
+    name = "animals_hatch_egg",
+    gain = 0.8,
+    max_hear_distance = 8
+  }
+  table = nodes_nature.node_sound_defaults(table)
+  return table
 end
 
 --------------------------------------------------------------------------
@@ -842,7 +843,11 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name) -- egg_data, po
     local ran_pos = suitable[random(#suitable)]
     ran_pos.y = ran_pos.y - (entity_data.initial_properties.collisionbox[2] + entity_data.initial_properties.collisionbox[5])
     local ent = minetest.add_entity(ran_pos, name)
-    minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.8, max_hear_distance = 8})
+    local sounds = egg_data.sounds
+    if sounds and sounds.egg_hatch then
+      minetest.sound_play(sounds.egg_hatch.name, sounds.egg_hatch)
+    end
+    --minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.8, max_hear_distance = 8})
     ent = ent:get_luaentity()
     mobkit.remember(ent,'energy', start_e)
     mobkit.remember(ent,'age',0)
@@ -2666,7 +2671,7 @@ function animals.register_egg(animal,def)
   def.groups.temp_pass = def.groups.temp_pass or 1
   def.groups.edible = def.groups.edible or 1
   def.sounds = def.sounds or {}
-  def.sounds = minimal.merge_tables(animals.get_egg_sounds(),def.sounds)
+  def.sounds = animals.node_sound_egg_defaults(def.sounds)
   -- custom egg data
   def.egg_hatching = def.egg_hatching or animal.name
   assert(def.egg_hatching,"animals.register_egg: could not get hatching or name for egg hatching mechanics")
