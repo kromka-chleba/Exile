@@ -144,7 +144,7 @@ local self_data = {
   class = 1,
   -- energy
   energy_max = 8000,--secs it can survive without food
-  egg_timer = 60*20,
+  egg_time = 60*20,
   young_per_egg = {3,4},		--will get this/energy_egg starting energy
   emergency_egg_chance = 0.75,
   -- cannot define conservation minimum + energy_egg (energy_egg being necessary for cn_min) in API due to multiple values needed
@@ -208,13 +208,14 @@ local self_data = {
       type = "fixed",
       fixed = {-0.0625, -0.5, -0.0625,  0.0625, -0.375, 0.0625},
     },
-    _conditions_correct = function(pos,egg_data)
-      if not egg_data then return false,true end -- break egg
-      local egg_timer = egg_data.egg_timer
+    egg_conditions_correct = function(pos,data)
+      data = data or minimal.get_nodedef(pos)
+      if not data then return false,true end -- break egg
+      local egg_time = data.egg_time
       local temp = climate.get_point_temp(pos)
       if (temp < 12) then
         -- too cold to hatch, wait again (with increased time)
-        return false,math.random(egg_timer,egg_timer*3)
+        return false,math.random(egg_time,egg_time*3)
       end
       return true
     end,

@@ -167,7 +167,7 @@ self_data = animals.register_animal("animals:sneachan",{
   -- energy
   energy_max = 5000,--secs it can survive without food
   energy_egg = "energy_max*0.5",--(self_data.energy_max*0.5) --energy that goes to egg
-  egg_timer = 60*10,
+  egg_time = 60*10,
   young_per_egg = {3,7},		--will get this/energy_egg starting energy
   emergency_egg_chance = 0.75,
   -- lifespan
@@ -227,12 +227,13 @@ self_data = animals.register_animal("animals:sneachan",{
     name = "animals:sneachan_eggs",
     description = S('Sneachan Eggs'),
     tiles = {"animals_sneachan_eggs.png"},
-    _conditions_correct = function(pos,egg_data)
-      if not egg_data then return false,true end -- break egg
-      local egg_timer = egg_data.egg_timer
+    egg_conditions_correct = function(pos,data)
+      data = data or minimal.get_nodedef(data)
+      if not data then return false,true end -- break egg
+      local egg_time = data.egg_time
       local temp = climate.get_point_temp(pos)
       if temp < 10 then
-        return false,math.random(egg_timer,egg_timer*4) -- can't hatch, send new time
+        return false,math.random(egg_time,egg_time*4) -- can't hatch, send new time
       end
       local light = (minetest.get_node_light(pos) or 0)
       if light <= 10 then
@@ -241,7 +242,7 @@ self_data = animals.register_animal("animals:sneachan",{
         return 0.3 -- chance of hatch
       end
       -- try again next season
-      return false,math.random(egg_timer,egg_timer*2)
+      return false,math.random(egg_time,egg_time*2)
     end,
   },
   -- spawnegg or live animal

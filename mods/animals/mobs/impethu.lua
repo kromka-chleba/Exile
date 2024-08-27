@@ -170,7 +170,7 @@ self_data = animals.register_animal("animals:impethu",{
   -- energy and eggs
   energy_max = 6000,   --secs it can survive without food
   energy_egg = "energy_max*0.7",  --energy that goes to egg
-  egg_timer = 60*10,
+  egg_time = 60*10,
   young_per_egg = {2,4},		--will get this/energy_egg starting energy
   -- lifespan
   lifespan = "energy_max*4",
@@ -224,12 +224,13 @@ self_data = animals.register_animal("animals:impethu",{
     name = "animals:impethu_eggs",
     description = S('Impethu Eggs'),
     tiles = {"animals_sneachan_eggs.png^[multiply:#c49a82"},
-    _conditions_correct = function(pos,egg_data)
-      if not egg_data then return false,true end -- break egg
-      local egg_timer = egg_data.egg_timer
+    egg_conditions_correct = function(pos,data)
+      data = data or minimal.get_nodedef(pos)
+      if not data then return false,true end -- break egg
+      local egg_time = data.egg_time
       local temp = climate.get_point_temp(pos)
       if (temp < 12) then
-        return false,math.random(egg_timer,egg_timer*4) -- can't hatch, too cold, send new time
+        return false,math.random(egg_time,egg_time*4) -- can't hatch, too cold, send new time
       end
       local light = (minetest.get_node_light(pos) or 0)
       if light <= self_data.max_light then
@@ -237,7 +238,7 @@ self_data = animals.register_animal("animals:impethu",{
       else
         return 0.2 -- chance of hatching during the sun anyways AAAAAA MY EYES!!!
       end
-      return false,math.random(egg_timer,egg_timer*2) -- return regular egg_timer
+      return false,math.random(egg_time,egg_time*2) -- return regular egg_timer
     end,
 
   },

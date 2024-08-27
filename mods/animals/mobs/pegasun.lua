@@ -218,7 +218,7 @@ local self_data = {
   -- energy
   energy_max = 8000,   --secs it can survive without food
   energy_egg = "energy_max*0.4",  --energy that goes to egg
-  egg_timer = 60*25,
+  egg_time = 60*25,
   young_per_egg = 1,		--will get this/energy_egg starting energy
   -- lifespan
   lifespan = "energy_max*15",
@@ -309,7 +309,7 @@ local self_data = {
       fixed = {-0.125, -0.5, -0.125,  0.125, -0.125, 0.125},
     },
     groups = {egg = 2},
-    _hatching = {
+    egg_hatching = {
       ["animals:pegasun"] = 0.5,
       ["animals:pegasun_male"] = 0.5,
     },
