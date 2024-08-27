@@ -819,17 +819,32 @@ crafting.register_recipe({
 --IB-20240226 	always_known = true,
 --IB-20240226 })
 
-crafting.register_recipe({
-	type = "hand_tools",
-	output = "tech:adze",
-	items = {{"group:jade_cobble","group:basalt_cobble","group:granite_cobble"},
-		'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	material = 1, -- first item sets material.
-	material_output = "tech:adze_%material%",
-	level = 1,
-	always_known = true,
-  replace = 'nodes_nature:sand'
-})
+
+--Test from lili 2024-09 : I prefere separate recipes, else just put back the commented one under it
+for _,mat in ipairs ({"jade","basalt","granite"}) do
+    crafting.register_recipe({
+    	type = "hand_tools",
+    	output = "tech:adze_"..mat,
+    	items = {"group:" .. mat .."_cobble",'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+    	level = 1,
+    	always_known = true,
+      replace = 'nodes_nature:sand'
+    })
+end
+---- unique version all in one :
+-- crafting.register_recipe({
+-- 	type = "hand_tools",
+-- 	output = "tech:adze",
+-- 	items = {{"group:jade_cobble","group:basalt_cobble","group:granite_cobble"},
+-- 		'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+-- 	material = 1, -- first item sets material.
+-- 	material_output = "tech:adze_%material%",
+-- 	level = 1,
+-- 	always_known = true,
+--   replace = 'nodes_nature:sand'
+-- })
+
+
 
 --IB-20240226 crafting.register_recipe({
 --IB-20240226 	type = "grinding_stone",
@@ -929,17 +944,28 @@ for min,max in pairs(hammer_list) do
     })
 end
 
-
-crafting.register_recipe({
-	type = "hand_tools",
-	output = "tech:hammer",
-	items = {{"group:basalt_cobble","group:granite_cobble"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-	material = 1, -- first item sets material.
-    material_output = "tech:hammer_%material%",
-	level = 1,
-	always_known = true,
-  replace = 'nodes_nature:sand'
-})
+--Test from lili 2024-09 : I prefere separate recipes, else just put back the commented one under it
+for _,mat in ipairs ({"basalt","granite"}) do
+    crafting.register_recipe({
+    	type = "hand_tools",
+    	output = "tech:hammer_"..mat,
+    	items = {"group:" .. mat .."_cobble", 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+    	level = 1,
+    	always_known = true,
+      replace = 'nodes_nature:sand'
+    })
+end
+---- unique version all in one :
+-- crafting.register_recipe({
+-- 	type = "hand_tools",
+-- 	output = "tech:hammer",
+-- 	items = {{"group:basalt_cobble","group:granite_cobble"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+-- 	material = 1, -- first item sets material.
+--     material_output = "tech:hammer_%material%",
+-- 	level = 1,
+-- 	always_known = true,
+--   replace = 'nodes_nature:sand'
+-- })
 
 
 for mat , caps in pairs({["basalt"]="Basalt", ["granite"]="Granite"}) do
