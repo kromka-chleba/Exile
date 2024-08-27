@@ -150,7 +150,7 @@ local self_data = {
 	class = 1,
   -- energy
   energy_max = 12000,--secs it can survive without food
-  egg_timer = 60*30,
+  egg_time = 60*30,
   young_per_egg = {1,3},		--will get this/energy_egg starting energy
   -- cannot define conservation minimum + energy_egg (energy_egg being necessary for cn_min) in API due to multiple values needed
   -- lifespan
@@ -199,7 +199,6 @@ local self_data = {
 	end,
   -- eggs
   egg = {
-    name = "animals:darkasthaan_eggs",
     description = S('Darkasthaan Eggs'),
     tiles = {"animals_darkasthaan_eggs.png"},
     node_box = {

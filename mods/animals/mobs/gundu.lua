@@ -273,7 +273,6 @@ local self_data = {
 	end,
   -- egg
   egg = {
-    name = "animals:gundu_eggs",
     description = S('Gundu Eggs'),
     tiles = {"animals_gundu_eggs.png"},
     stack_max = minimal.stack_max_bulky,

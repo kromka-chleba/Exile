@@ -2776,7 +2776,7 @@ function animals.register_animal(name,def)
   -- lifespan and eggs
   -- def.lifespan: see base_vals
   -- def.mature_age: see base_vals
-  def.egg_time = def.egg_time or 60*5 -- seconds until your animal's egg hatches
+  def.egg_time = def.egg_time or 60*5 -- seconds until your animal's egg hatches (default 5 minutes)
   def.young_per_egg = def.young_per_egg or 1 -- how many young will hatch from the egg
   -- (energy_egg will be divided up to how many offspring spawn)
   -- so 4 offspring will have energy_egg be split into 4 (or 20/4 = 5 units) for each of the young)
@@ -2866,6 +2866,7 @@ function animals.register_animal(name,def)
   -- _on_death = function(self, pos) -- create custom action to occur upon death
 
   -- used by below for loop
+  -- calculates command-based values noted in base_vals
   local function calculate_val(val)
     local data = {
       modifier = val:find("*") or val:find("+") or val:find("/") or val:find("-") or val:find("^")
@@ -2894,10 +2895,12 @@ function animals.register_animal(name,def)
     end
   end
   -- iterate over and adjust some values (if applicable)
-  for defname,defvalue in pairs(def) do
+  -- iterate over base_vals (intended to be dependent)
+  for defname,basevalue in pairs(base_vals) do
     -- meant to be numbers, but are strings for calculation
     -- allow for custom usage of adding, multiplying, dividing, or subtracting from a value via string
-    if base_vals[defname] and type(defvalue) == "string" then
+    local defvalue = def[defname] -- grab value from def, if string then proceed with calculations
+    if type(defvalue) == "string" then
       defvalue = defvalue:gsub(" ","") -- erase all spaces
       -- convert to table for a command system
       -- should be defined as so: "energy_max*5"
@@ -2908,8 +2911,7 @@ function animals.register_animal(name,def)
         def[defname] = val
       -- got an error, not the end of the world
       else
-        val = base_vals[defname]
-        def[defname] = val ~= "nil" and val or nil
+        val = basevalue ~= "nil" and basevalue or nil
         errmsg:gsub("@defname",defname)
         errmsg:gsub("@name",name)
         minetest.log("error", errmsg)
@@ -3053,85 +3055,6 @@ function animals.register_animal(name,def)
     value = self:set(vname, self[vname] + value, memorize)
     return value
   end
-  --[[
-  -- egg modifications
-  local egg_data = {} -- use this to permit proper override of on_construct (returns intended variable properly)
-  -- modify _conditions_correct to return egg data
-  if def.egg then
-    def.egg._get_egg_data = function()
-      -- returns clone of "egg_data" for getting an egg's information
-      return table.copy(egg_data)
-    end
-    if type(def.egg._conditions_correct) == "function" then
-      local _cc = def.egg._conditions_correct
-      def.egg._conditions_correct = function(pos)
-        if not pos then
-          return false
-        end
-        return _cc(pos,table.copy(egg_data))
-      end
-    end
-    local on_construct = def.egg.on_construct
-    def.egg.on_construct = function(pos)
-      return on_construct(pos, table.copy(egg_data))
-    end
-    local on_timer = def.egg.on_timer
-    def.egg.on_timer = function(pos, elapsed)
-      return on_timer(pos, elapsed, table.copy(egg_data))
-    end
-  end
-  -- egg definition and correction
-  if type(def.egg) ~= "table" or not def.egg.name then
-    def.egg = nil
-  elseif (type(def.egg._hatching) ~= "string" and type(def.egg._hatching) ~= "table") then
-    def.egg._hatching = {[def.name] = 1}
-  else
-    if type(def.egg._hatching) == "string" then
-      def.egg._hatching = {[def.egg._hatching] = 1}
-    end
-  end
-
-  -- spawnegg definition and correction
-  if type(def.spawnegg.stack) ~= "number" then
-    def.spawnegg.stack = def.spawnegg.stack_max
-    -- force number
-    if type(def.spawnegg.stack) ~= "number" then
-      def.spawnegg.stack = 1
-    end
-  end
-  if type(def.spawnegg.desc) ~= "string" then
-    def.spawnegg.desc = def.spawnegg.description
-    if type(def.spawnegg.desc) ~= "string" then
-      def.spawnegg.desc = tostring(def.spawnegg.desc)
-    end
-  end
-  if (def.spawnegg.inv_img == "" or type(def.spawnegg.inv_img) ~= "string") then
-    def.spawnegg.inv_img = def.spawnegg.inventory_image
-    if (def.spawnegg.inv_img == "" or type(def.spawnegg.inv_img) ~= "string") then
-      def.spawnegg.inv_img = "animals_carcass.png"
-    end
-  end
-
-  -- simplify egg table
-  local egg_ref
-  egg_data = {
-    energy_egg = def.energy_egg,
-    egg_timer = def.egg_timer,
-    young_per_egg = def.young_per_egg,
-  }
-  if def.egg then
-    minetest.register_node(def.egg.name,def.egg)
-    egg_data.ref = minetest.registered_nodes[def.egg.name]
-    egg_data.medium = def.egg._medium
-    egg_data.replace = def.egg._replace
-  else
-    egg_data.ref = def.egg
-  end
-  def.spawnegg.class = def.class
-  -- spawnegg
-  -- use a modified "def.egg" table
-  animals.register_spawnegg(minimal.merge_tables(egg_data,minimal.merge_tables({name = def.name, drops = def.drops},def.spawnegg)))
-  --]]
 
   -- creature
   minetest.register_entity(name,def)

@@ -224,7 +224,6 @@ self_data = animals.register_animal("animals:sneachan",{
   end,
   -- eggs
   egg = {
-    name = "animals:sneachan_eggs",
     description = S('Sneachan Eggs'),
     tiles = {"animals_sneachan_eggs.png"},
     egg_conditions_correct = function(pos,data)

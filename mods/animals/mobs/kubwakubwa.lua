@@ -201,7 +201,6 @@ local self_data = {
   end,
   -- eggs
   egg = {
-    name = "animals:kubwakubwa_eggs",
     description = S('Kubwakubwa Eggs'),
     tiles = {"animals_kubwakubwa_eggs.png"},
     node_box = {
