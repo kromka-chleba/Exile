@@ -845,7 +845,9 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name) -- egg_data, po
     local ent = minetest.add_entity(ran_pos, name)
     local sounds = egg_data.sounds
     if sounds and sounds.egg_hatch then
-      minetest.sound_play(sounds.egg_hatch.name, sounds.egg_hatch)
+      local sound = table.copy(sounds.egg_hatch)
+      sound.pos = pos
+      minetest.sound_play(sound.name, sound)
     end
     --minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.8, max_hear_distance = 8})
     ent = ent:get_luaentity()
@@ -2649,11 +2651,16 @@ end
 -- REGISTRATION FUNCTIONS
 
 -- animals.register_egg
-function animals.register_egg(animal,def)
-  assert(type(animal) == "table","animals.register_egg: provided animal is not a table!")
+-- animal is only required if you do NOT specify the following things in your egg def:
+-- name, egg_hatching, energy_egg, egg_time, and young_per_egg
+-- if you have the above specified, then you may proceed without error
+function animals.register_egg(def, animal)
   assert(type(def) == "table","animals.register_egg: provided egg definition is not a table!")
-  assert(type(animal.name) == "string","animals.register_egg: animal def name required for spawning!")
-  local name = def.name or animal.name.."_eggs"
+  local name = def.name or (animal and animal.name.."_eggs") or nil
+  assert(type(name) == "string","animals.register_egg: was not provided a string for name, got '"..type(name).."'")
+  if animal and type(animal) ~= "table" then
+    error("animals.register_egg: was given an 'animal' argument that was invalid, nil or table only, got '"..type(animal).."'")
+  end
   def.description = def.desc or def.description or ""
   def.tiles = def.tiles or {"animals_gundu_eggs.png"}
   def.stack_max = def.stack_max or minimal.stack_max_medium
@@ -2673,15 +2680,15 @@ function animals.register_egg(animal,def)
   def.sounds = def.sounds or {}
   def.sounds = animals.node_sound_egg_defaults(def.sounds)
   -- custom egg data
-  def.egg_hatching = def.egg_hatching or animal.name
+  def.egg_hatching = def.egg_hatching or (animal and animal.name)
   assert(def.egg_hatching,"animals.register_egg: could not get hatching or name for egg hatching mechanics")
   def.egg_hatching = type(def.egg_hatching) == "table" and def.egg_hatching or {[def.egg_hatching] = 1}
 
-  def.energy_egg = def.energy_egg or animal.energy_egg
+  def.energy_egg = def.energy_egg or (animal and animal.energy_egg)
   assert(def.energy_egg,"animals.register_egg: could not get energy_egg for "..name)
-  def.egg_time = def.egg_time or animal.egg_time
+  def.egg_time = def.egg_time or (animal and animal.egg_time)
   assert(def.egg_time,"animals.register_egg: could not get egg_time for "..name)
-  def.young_per_egg = def.young_per_egg or animal.young_per_egg
+  def.young_per_egg = def.young_per_egg or (animal and animal.young_per_egg)
   assert(def.young_per_egg,"animals.register_egg: could not get egg_time for "..name)
 
   def.egg_medium = def.egg_medium or "air" -- what egg needs to be in to hatch
@@ -2737,7 +2744,9 @@ function animals.register_egg(animal,def)
   -- register egg
   def.name = name
   minetest.register_node(name,def)
-  animal.egg = def
+  if animal then
+    animal.egg = def.name
+  end
 end
 
 
@@ -2924,7 +2933,7 @@ function animals.register_animal(name,def)
     end
   end
 
-  def.egg = (def.egg and animals.register_egg(def, def.egg)) or nil
+  def.egg = (def.egg and animals.register_egg(def.egg, def)) or nil
 
   -- spawnegg
   local spawnegg = def.spawnegg or {}
@@ -3065,4 +3074,3 @@ function animals.register_animal(name,def)
   minetest.register_entity(name,def)
   return minetest.registered_entities[name]
 end
-
