@@ -1,0 +1,22 @@
+# textdomain: nodecrafting
+red=
+crimson=
+yellow=
+green=
+blue=
+indigo=
+black=
+@1 dye=
+treated by cooking=
+treated by soaking=
+treated by burning=
+useless=
+untreated=
+@1bundle of @2, @3=
+Bundle of plants=
+Treated bundle of plants=
+Dyer's Table=
+Dyer's Table@n(Used to create dyes)=
+Dump=
+Dye Pot=
+Dump the dye from the pot?=
