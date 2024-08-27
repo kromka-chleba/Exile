@@ -246,7 +246,7 @@ crafting.register_recipe({
 crafting.register_recipe({
 	type = {"hammering_block","hammer"},
 	output = "tech:crushed_lime",
-	items = {"group:limestone_cobble 8"},
+	items = {"nodes_nature:limestone_cobble 8"},
 	level = 1,
 	always_known = true,
 })
@@ -898,4 +898,3 @@ local mb_mixing = 'masonry_bench_mixing'
 
 register_mortar_nodes (sediments, { bmb }, { bmb_bricks }, { bmb_blocks }, { bmb_mixing }, { bmb_mixing }, true)
 register_mortar_nodes (stones, { mb }, { mb_bricks }, { mb_blocks }, { mb_mixing }, { mb_mixing })
-

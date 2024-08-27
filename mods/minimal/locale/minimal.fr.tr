@@ -16,9 +16,9 @@ Input Items=Ingrédients
 Craft Type=Type d'artisanat
 Crafting=Artisanat
 Quantity=Quantité 
-Single=Unique
-Stack=Pile
-Maximum=Maximum
+Single=Un seul
+Stack=Une pile
+Maximum=Le maximum
 Query=Requête
 #playersettings.lua
 Enable wide HUDbar=Activer une large barre d'outils

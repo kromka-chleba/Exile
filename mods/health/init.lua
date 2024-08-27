@@ -476,9 +476,9 @@ function HEALTH.health_calc(player,meta,dontset)
 	local sev = math.abs(l)
 
 	if l > 0 then
-	   st:add_basic("bodytemp", S("Hyperthermia"), 3, sev)
+	   st:add_basic("bodytemp", HEALTH.S("Hyperthermia"), 3, sev)
 	elseif l < 0 then
-	   st:add_basic("bodytemp", S("Hypothermia"), 3, sev)
+	   st:add_basic("bodytemp", HEALTH.S("Hypothermia"), 3, sev)
 	elseif st:is("bodytemp") then
 	   st:clear("bodytemp")
 	end

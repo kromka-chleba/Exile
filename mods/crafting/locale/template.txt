@@ -15,5 +15,6 @@ ironstone cobble=
 pottery=
 gravel=
 jade cobble=
+bundleable fiber=
 Any @1=
 Missing required items!=
