@@ -2651,6 +2651,99 @@ end
 
 
 
+-- REGISTRATION FUNCTIONS
+
+-- animals.register_egg
+function animals.register_egg(animal,def)
+  assert(type(animal) == "table","animals.register_egg: provided animal is not a table!")
+  assert(type(def) == "table","animals.register_egg: provided egg definition is not a table!")
+  assert(type(animal.name) == "string","animals.register_egg: animal def name required for spawning!")
+  local name = def.name or animal.name.."_eggs"
+  def.description = def.desc or def.description or ""
+  def.tiles = def.tiles or {"animals_gundu_eggs.png"}
+  def.stack_max = def.stack_max or minimal.stack_max_medium
+  def.drawtype = def.drawtype or "nodebox"
+  def.node_box = def.node_box or def.drawtype == "nodebox" and {
+    type = "fixed",
+    fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
+  }
+  def.groups = def.groups or {}
+  def.groups.egg = 1
+  def.groups.snappy = def.groups.snappy or 3
+  def.groups.falling_node = def.groups.falling_node or 1
+  def.groups.dig_immediate = def.groups.dig_immediate or 3
+  def.groups.flammable = def.groups.flammable or 1
+  def.groups.temp_pass = def.groups.temp_pass or 1
+  def.groups.edible = def.groups.edible or 1
+  def.sounds = def.sounds or {}
+  def.sounds = minimal.merge_tables(animals.get_egg_sounds(),def.sounds)
+  -- custom egg data
+  def.egg_hatching = def.egg_hatching or animal.name
+
+  def.egg_energy = def.egg_energy or animal.energy_egg
+  assert(def.egg_energy,"animals.register_egg: could not get energy_egg for "..name)
+  def.egg_time = def.egg_time or animal.egg_time
+  assert(def.egg_time,"animals.register_egg: could not get egg_time for "..name)
+  def.egg_young_per = def._egg_young_per or animal.young_per_egg or 1
+
+  def.egg_medium = def.egg_medium or "air" -- what egg needs to be in to hatch
+  def.egg_replace = def.egg_replace or "air" -- what to replace old node with upon egg hatch
+  -- egg functions
+  def.on_construct = def.on_construct or function(pos, data)
+    data = data or minimal.get_nodedef(pos)
+    local egg_timer = data and data.egg_timer
+    assert(egg_timer,"animal egg couldn't get egg_timer: "..(data and data.name or "unknown egg"))
+    minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
+  end
+
+  def.on_timer = def.on_timer or function(pos, elapsed, data)
+    data = data or minimal.get_nodedef(pos)
+    assert(data,"animal egg couldn't get data of self at "..minetest.pos_to_string(pos))
+    local egg_timer = data.egg_timer
+    assert(egg_timer,"animal egg couldn't get egg_timer: "..(data.name))
+    -- if custom egg_conditions_correct function then prioritize that, otherwise hatch is true, new_time is nil
+    local hatch,new_time = data.egg_conditions_correct and data.egg_conditions_correct(pos, data) or true,nil
+    -- get a "time" to hatch by
+    if new_time == true then
+      -- you tell the egg to never hatch
+      return false
+    elseif type(new_time) == "number" then
+      -- start new timer with given new_time
+      minetest.get_node_timer(pos):start(new_time)
+      return false
+    end
+    -- now for actual hatching (or other options)
+    if hatch == true then
+      -- try to hatch as according to hatch_egg
+      return animals.hatch_egg(data,pos)
+    elseif type(hatch) == "number" and hatch > 0 then
+      -- random chance
+      if random() <= hatch then
+        return animals.hatch_egg(data,pos)
+      end
+    else
+      -- continue to try to hatch, at another time
+      return true
+    end
+  end
+
+  -- egg_conditions_correct(pos, data)
+    -- create a custom function that checks whether or not an egg should hatch
+    -- should be provided with a table of some data to be used, but do not depend on it, run minimal.get_nodedef(pos) if nil
+    -- should return true for if it can hatch (return true)
+    -- return decimal for percentage chance (return 0-1)
+    -- return false if it cannot hatch and provide a new time to use or it'll default (return false,num)
+    -- "new time" parameter can be made boolean true to prevent egg from hatching permanently (return false,true)
+  -- end
+
+  -- register egg
+  def.name = name
+  minetest.register_node(name,def)
+  animal.egg = def
+end
+
+
+
 function animals.register_animal(name,def)
   if type(name) ~= "string" then
     error(debug.traceback("animals.register_animal: name is not a string, got '"..tostring(name).."'",2))
