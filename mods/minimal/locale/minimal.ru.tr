@@ -18,6 +18,8 @@ Quantity=Количество:
 Single=Один
 Stack=Стек
 Maximum=Максимум    
+Query=
+or=
 #playersettings.lua
 Enable wide HUDbar=Включить широкую панель HUDbar
 Show numeric stats=Показывать числовую статистику

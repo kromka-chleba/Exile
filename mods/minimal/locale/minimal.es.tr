@@ -18,6 +18,8 @@ Quantity=
 Single=
 Stack=
 Maximum=
+Query=
+or=
 #playersettings.lua
 Enable wide HUDbar=Enciende la barra ancha del HUD
 Show numeric stats=Utilice estadisticas numericas
