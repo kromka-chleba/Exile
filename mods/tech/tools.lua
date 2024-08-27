@@ -917,7 +917,7 @@ for min,max in pairs(hammer_list) do
                     snappy = {times={[3]=crude_snap3}, uses=base_use*0.5, maxlevel=crude_max_lvl},
                     crumbly = {times= {[3]=crude_crum3}, uses=base_use*0.5, maxlevel=crude_max_lvl}
                 },
-                damage_groups = {fleshy=stone_dmg},
+                damage_groups = {fleshy=stone_dmg + 1}, -- +1 was added in new default hammer, legacy one had only stone_dmg
             },
     	_place_tip = S("Stun animals\n"..
     	   " or Place on solid surface for hammering crafts"),
