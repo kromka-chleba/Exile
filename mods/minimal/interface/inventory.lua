@@ -764,6 +764,7 @@ end)
 
 function minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
 	local craft_item = ItemStack(node.name)
+	if not minetest.is_player(clicker) then return end
 	local player_name = clicker:get_player_name()
 	local pInv = clicker:get_inventory()
 	local cItems = load_craft_types(pInv, craft_item)
