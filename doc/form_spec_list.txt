@@ -7,3 +7,5 @@ Pressing inventory key form :
 ------------------
 - Crafting tab is in /mods/minimal/interface/inventory.lua
 - Character tab is in mods/lore/char_tab.lua
+- Recipes in craft panel tooltip formatting is in /mods/minimal/interface/inventory.lua 
+cache_player_recipes

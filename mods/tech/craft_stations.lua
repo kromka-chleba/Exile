@@ -416,101 +416,75 @@ minetest.register_node("tech:hammering_spot",{
 --IB 
 
 
-------------------------------
+----------------------------------------------
 --mortar and pestle.
 --for grinding food etc
-minetest.register_node("tech:mortar_pestle_basalt",{
-	description   = S("Basalt Mortar and Pestle"),
-	exile_crafting = {
-		craft_types = {"mortar_and_pestle"},
-		craft_level = 1,
-	},
-	drawtype      = "nodebox",
-	tiles         = {"nodes_nature_basalt.png"},
-	stack_max     = minimal.stack_max_bulky *2,
-	paramtype     = "light",
-	paramtype2    = "facedir",
-	groups        = {falling_node = 1, dig_immediate=3, craftedby = 1},
-	node_box      = {
-		type  = "fixed",
-		fixed = {
-			{-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
-			{-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
-			{-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
-			{-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
-			{-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
-			{ 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
-			{-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
-			}
-		},
-	sounds        = nodes_nature.node_sound_stone_defaults(),
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
-	end
-	--on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
-	})
+----------------------------------------------
 
-minetest.register_node("tech:mortar_pestle_granite",{
-	description   = S("Granite Mortar and Pestle"),
-	exile_crafting = {
-		craft_types = {"mortar_and_pestle"},
-		craft_level = 1,
-	},
-	drawtype      = "nodebox",
-	tiles         = {"nodes_nature_granite.png"},
-	stack_max     = minimal.stack_max_bulky *2,
-	paramtype     = "light",
-	paramtype2    = "facedir",
-	groups        = {falling_node = 1, dig_immediate = 3, craftedby = 1},
-	node_box      = {
-		type  = "fixed",
-		fixed = {
-			{-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
-			{-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
-			{-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
-			{-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
-			{-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
-			{ 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
-			{-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
-			}
-		},
-	sounds        = nodes_nature.node_sound_stone_defaults(),
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
-	end
-	--on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
-	})
+-- "" one is default to have a without material display name in crafting formspec (recipes)
+for mat,capsMat in pairs ({[""]="", ["_basalt"]="Basalt ",["_granite"]="Granite ",["_limestone"]="Limestone "}) do
+    local image = mat
+    if image == "" then image = "_limestone" end -- puttine limestone look as default
+    minetest.register_node("tech:mortar_pestle" .. mat,{
+    	description   = S(capsMat .. "Mortar and Pestle"),
+    	exile_crafting = {
+    		craft_types = {"mortar_and_pestle"},
+    		craft_level = 1,
+    	},
+    	drawtype      = "nodebox",
+    	tiles         = {"nodes_nature" .. image .. ".png"},
+    	stack_max     = minimal.stack_max_bulky *2,
+    	paramtype     = "light",
+    	paramtype2    = "facedir",
+    	groups        = {falling_node = 1, dig_immediate=3, craftedby = 1},
+    	node_box      = {
+    		type  = "fixed",
+    		fixed = {
+    			{-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
+    			{-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
+    			{-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
+    			{-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
+    			{-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
+    			{ 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
+    			{-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
+    			}
+    		},
+    	sounds        = nodes_nature.node_sound_stone_defaults(),
+    	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+    		return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+    	end
+    	--on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
+    	})
+    
+end
 
-minetest.register_node("tech:mortar_pestle_limestone",{
-	description   = S("Limestone Mortar and Pestle"),
-	exile_crafting = {
-		craft_types = {"mortar_and_pestle"},
-		craft_level = 1,
-	},
-	drawtype      = "nodebox",
-	tiles         = {"nodes_nature_limestone.png"},
-	stack_max     = minimal.stack_max_bulky *2,
-	paramtype     = "light",
-	paramtype2    = "facedir",
-	groups        = {falling_node = 1, dig_immediate = 3, craftedby = 1},
-	node_box      = {
-		type  = "fixed",
-		fixed = {
-			{-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
-			{-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
-			{-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
-			{-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
-			{-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
-			{ 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
-			{-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
-			}
-		},
-	sounds        = nodes_nature.node_sound_stone_defaults(),
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
-	end
-	--on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
-	})
+----Below the code to have only one mortar in recipe list, from Izzy + modified to display "no material" mortar_pestle"
+---(on discussion 2024 - 08 )
+-- crafting.register_recipe({
+-- type   = "hand_tools",
+-- output = "tech:mortar_pestle",
+-- items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
+-- 	{group:limestone_cobble",group:basalt_cobble",group:granite_cobble"}, 'nodes_nature:sand'},
+-- where = '@1.material == @2.material',
+-- material = 1,  -- set material from selected inptut item 1.
+-- material_output = "tech:mortar_pestle_%material%",
+-- material_tiles_name = "nodes_nature_%material%.png",
+-- level  = 1,
+-- always_known = true,
+-- })
+
+----Below the code to have 3 separate mortar and pestle in that same recipe list
+---(on discussion 2024 - 08 )
+
+for _,mat in ipairs({"limestone","basalt","granite"}) do
+    crafting.register_recipe({
+    type   = "hand_tools",
+    output = "tech:mortar_pestle_" .. mat,
+    items  = {"nodes_nature:" .. mat .. "_boulder","group:" .. mat .. "_cobble", "nodes_nature:sand"},
+    level  = 1,
+    always_known = true,
+    })
+end
 
 --IB-20240226 ---- Boulders ----
 --IB-20240226 --grind a mortar_and_pestle
@@ -528,47 +502,6 @@ minetest.register_node("tech:mortar_pestle_limestone",{
 --IB-20240226 -- 	level  = 1,
 --IB-20240226 -- 	always_known = true,
 --IB-20240226 -- 	})
-
---copy of Izzy code 20240827
---I suggest a change to have the correct display and more clarity in recipes for the player
-
--- crafting.register_recipe({
--- type   = "hand_tools",
--- output = "tech:mortar_pestle_limestone",
--- items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
--- 	{group:limestone_cobble",group:basalt_cobble",group:granite_cobble"}, 'nodes_nature:sand'},
--- where = '@1.material == @2.material',
--- material = 1,  -- set material from selected inptut item 1.
--- material_output = "tech:mortar_pestle_%material%",
--- material_tiles_name = "nodes_nature_%material%.png",
--- level  = 1,
--- always_known = true,
--- })
-
-crafting.register_recipe({
-type   = "hand_tools",
-output = "tech:mortar_pestle_limestone",
-items  = {'nodes_nature:limestone_boulder','group:limestone_cobble', 'nodes_nature:sand'},
-level  = 1,
-always_known = true,
-})
-
-crafting.register_recipe({
-type   = "hand_tools",
-output = "tech:mortar_pestle_basalt",
-items  = {'nodes_nature:basalt_boulder',"group:basalt_cobble", 'nodes_nature:sand'},
-level  = 1,
-always_known = true,
-})
-
-crafting.register_recipe({
-type   = "hand_tools",
-output = "tech:mortar_pestle_granite",
-items  = {'nodes_nature:granite_boulder',"group:granite_cobble", 'nodes_nature:sand'},
-level  = 1,
-always_known = true,
-})
-
 
 -------------------
 --metal working, and things dependant on it
@@ -867,10 +800,6 @@ minetest.register_node("tech:glass_furnace", {
 --IB-20240226 	 always_known = true,
 --IB-20240226    })
 --IB-20240226 
-
-
-
-
 
 
 --IB-20240226 ----Wood--
