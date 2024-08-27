@@ -2695,7 +2695,7 @@ function animals.register_egg(def, animal)
           percent = percent + set_percent
         end
       end
-      -- if total calculated collected percentage is below 1 then continue (because we aren't aiming for 110% or more!
+      -- if total calculated collected percentage is below 1 then continue (because we aren't aiming for 110% or more!)
       if percent < 1 then
         percent = 1-percent -- will be 1 if percent is 0
         percent = percent/#def.egg_hatching -- percentage divided by total amount of numbered indexes
@@ -2708,6 +2708,10 @@ function animals.register_egg(def, animal)
           -- remove old numbered index
           def.egg_hatching[i] = nil
         end
+      -- error right now instead of purifying or erroring later lol
+      else
+        error("animals.register_egg: egg_hatching collected percentage is too great to calculate unsorted percentages! "..
+          (percent*100).."%")
       end
     -- why did you just do only one...
     elseif #def.egg_hatching == 1 then
