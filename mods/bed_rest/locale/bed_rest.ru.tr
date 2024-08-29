@@ -148,3 +148,4 @@ This bed is already occupied!=Эта кровать уже занята!
 Status: Occupied by @1=Статус: занят @1
 # related to above
 Status: Occupied by @1 (old)=Статус: занят @1 (давно)
+My approach is to look for what I’m interested in using@nand if it’s there I use it="Мой подход заключается в поиске того, что мне интересно использовать,@nи если это есть, я это использую"
