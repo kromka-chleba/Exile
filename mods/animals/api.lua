@@ -743,6 +743,16 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name) -- egg_data, po
   replace = replace or egg_data.egg_replace
   replace = minetest.registered_nodes[replace] or {name="air"}
   replace = replace.name
+
+  local suitable = minetest.find_nodes_in_area(
+    {x=pos.x-1, y=pos.y-1, z=pos.z-1},
+    {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium})
+  --if can't find the stuff this mob moves through then it dies
+	if #suitable < 1 then
+		minetest.set_node(pos, {name = replace})
+		return false
+	end
+
   -- get what to hatch into
   if (type(name) ~= "string") then
     local hatching = egg_data.egg_hatching
@@ -821,15 +831,6 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name) -- egg_data, po
   if (energy_egg < 0) then
     return false
   end
-
-  local suitable = minetest.find_nodes_in_area(
-    {x=pos.x-1, y=pos.y-1, z=pos.z-1},
-    {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium})
-  --if can't find the stuff this mob moves through then it dies
-	if #suitable < 1 then
-		minetest.set_node(pos, {name = replace})
-		return false
-	end
 
   -- remove male or baby identifier when checking names
   local check_name = string.gsub(name,"_male","")
