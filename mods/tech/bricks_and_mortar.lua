@@ -777,7 +777,7 @@ stairs.register_stair_and_slab(
 --added mortar binds them so not diggable by hand or falling.
 --drop unmortared stone.
 
-function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mortar_type, 
+function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mortar_type,
 		brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
 	brick_mortar_recycle_type = brick_mortar_recycle_type or brick_mortar_type
 	block_mortar_recycle_type = block_mortar_recycle_type or block_mortar_type
@@ -879,6 +879,7 @@ local stones = {
 	{"ironstone", S("Ironstone"), 3},
 	{"granite", S("Granite"), 1},
 	{"basalt", S("Basalt"), 2},
+	{"scoria", S("Scoria"), 3},
 	{"gneiss", S("Gneiss"), 1},
 	{"jade", S("Jade"), 1},
 }
@@ -893,9 +894,8 @@ local mb_bricks_m = 'masonry_bench_bricks_mortar'
 local mb_blocks = 'masonry_bench_blocks'
 local mb_blocks_m = 'masonry_bench_blocks_mortar'
 local mb_mixing = 'masonry_bench_mixing'
---register_mortar_nodes (list, mortar_type,brick_mortar_type, block_mortar_type, 
+--register_mortar_nodes (list, mortar_type,brick_mortar_type, block_mortar_type,
 --		brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
 
 register_mortar_nodes (sediments, { bmb }, { bmb_bricks }, { bmb_blocks }, { bmb_mixing }, { bmb_mixing }, true)
 register_mortar_nodes (stones, { mb }, { mb_bricks }, { mb_blocks }, { mb_mixing }, { mb_mixing })
-

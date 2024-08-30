@@ -44,6 +44,18 @@ local boulders = {
         flags = "all_floors",
     },
 
+    {--[[Boulders:scoria boulder]]
+      name = "nodes_nature:scoria_boulder",
+      deco_type = "simple",
+      place_on = "nodes_nature:scoria",
+      sidelen = 80,
+      fill_ratio = 0.050000,
+      y_max = 31000,
+      y_min = -31000,
+      decoration = "nodes_nature:scoria_boulder",
+      flags = "all_floors",
+    },
+
     {--[[Boulders:ironstone, dense on deposits]]
         name = "nodes_nature:ironstone_boulder",
         deco_type = "simple",
