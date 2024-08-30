@@ -189,7 +189,6 @@ self_data = animals.register_animal("animals:impethu",{
 	springiness=0,
 	buoyancy = 1.01,
 	max_speed = 0.5,					-- m/s
-	view_range = 2,					-- nodes/meters
   -- animation
   animation = {
 		walk={range={x=0, y=12}, speed=10, loop=true},
