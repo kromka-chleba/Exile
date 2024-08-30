@@ -2658,7 +2658,21 @@ function animals.register_egg(def, animal)
   -- new feature: autocreate percentages if not provided
   if type(def.egg_hatching) == "table" then
     -- purely string indexes do not count for table length
-    if #def.egg_hatching > 1 then
+    -- account for if there is a 1 number index and 1 stringed index
+    local numbered_indexes = #def.egg_hatching
+    -- more than 1 egg_hatching index, set to true, obviously we can calculate this
+    local do_hatch_calculation = numbered_indexes > 1 and true or false -- false to start otherwise
+    -- we got only 1 numbered index, check if there is a string index and verify hatch calculation
+    if numbered_indexes == 1 then
+      for index,_ in pairs(def.egg_hatching) do
+        if type(index) == "string" then
+          do_hatch_calculation = true
+          break
+        end
+      end
+    end
+    -- verified that we should do this hatch calculation
+    if do_hatch_calculation then
       local percent = 0
       -- iterates through properly assessed percentages and calculates unproperly assessed percentages in correlation
       for spawn_animal,set_percent in pairs(def.egg_hatching) do
@@ -2687,7 +2701,7 @@ function animals.register_egg(def, animal)
           (percent*100).."%")
       end
     -- why did you just do only one...
-    elseif #def.egg_hatching == 1 then
+    elseif numbered_indexes == 1 then
     -- assume it's a string
       def.egg_hatching = {[def.egg_hatching[1]] = 1}
     end
