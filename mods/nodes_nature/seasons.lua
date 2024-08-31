@@ -197,21 +197,6 @@ local winter_soils = get_winter_soil_names()
 local spring_to_winter = spring_to_winter_pairs(true, true)
 local winter_to_spring = winter_to_spring_pairs(true, true)
 
---local spring_soil_finder =
-    ms.create_simple_finder(
-        {to_find = spring_soils,
-         add_labels = {"spring_soil"},
-         not_found_labels = {"no_spring_soil"},
-        }
-    )
-
---local winter_soil_finder =
-    ms.create_simple_finder(
-        {to_find = winter_soils,
-         add_labels = {"winter_soil"},
-        }
-    )
-
 local spring_soil_replacer =
     ms.create_simple_replacer(
         {find_replace_pairs = spring_to_winter,
@@ -288,23 +273,6 @@ local function get_plant_labels_but_this(season_name)
         end
     end
     return table.copy(labels)
-end
-
-local seasonal_plants = false
-local plant_finder = false
-
-local function initialize_plant_scanner()
-    if not seasonal_plants then
-        seasonal_plants = get_seasonal_plant_names()
-    end
-    if not plant_finder then
-        plant_finder = ms.create_simple_finder(
-            {to_find = seasonal_plants,
-             add_labels = {"seasonal_plants"},
-        })
-        ms.register_scanner({name = "seasonal_plant_finder",
-                             fun = plant_finder})
-    end
 end
 
 local pairs_by_season = {}
