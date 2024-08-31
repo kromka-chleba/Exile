@@ -1,26 +1,28 @@
+nodes_nature = nodes_nature
+
 -- Internationalization
 local S = nodes_nature.S
 
 --sedimentary rocks can be deconstructed into sediment, but not reformed
 --sedimentary rocks are of the weakly consolidated soft variety
 
-stone_list = {
+nodes_nature.stone_list = {
 	{"sandstone", S("Sandstone"),3, "sediment", "nodes_nature:sand",},
 	{"siltstone", S("Siltstone"), 3, "sediment", "nodes_nature:silt",},
 	{"claystone", S("Claystone"), 3, "sediment", "nodes_nature:clay",},
 	{"conglomerate", S("Conglomerate"), 3,  "sediment", "nodes_nature:gravel",},
 }
-rock_list = {
+nodes_nature.rock_list = {
 	{"limestone", S("Limestone"), 3},
 	{"ironstone", S("Ironstone"), 3},
-  {"granite", S("Granite"), 1},
+	{"granite", S("Granite"), 1},
 	{"basalt", S("Basalt"), 2},
 	{"gneiss", S("Gneiss"), 1},
 	{"jade", S("Jade"), 1},
 
 }
 
-sed_list = {
+nodes_nature.sed_list = {
 	{"sand", S("Sand"), 3, "sand"},
 	{"silt", S("Silt"), 3, "silt" },
 	{"clay", S("Clay"), 2, "clay"},
@@ -32,7 +34,7 @@ sed_list = {
 }
 
 
-soil_list = {
+nodes_nature.soil_list = {
 	--Forest & Woodland
 	{"rich_forest_soil", S("Rich Forest Soil"), 3, "loam", "loam"},
 	{"rich_woodland_soil", S("Rich Woodland Soil"), 3, "loam", "loam"},
@@ -65,7 +67,7 @@ soil_list = {
 }
 
 
-agri_soil_list = {
+nodes_nature.agri_soil_list = {
 	{"clay_agricultural_soil", S("Clay Agricultural Soil"), 2, "nodes_nature:clay", "clay"},
 	{"silt_agricultural_soil", S("Silty Agricultural Soil"), 3, "nodes_nature:silt", "silt"},
 	{"sand_agricultural_soil", S("Sandy Agricultural Soil"), 3, "nodes_nature:sand", "sand"},

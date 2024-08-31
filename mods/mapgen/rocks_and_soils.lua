@@ -2,6 +2,7 @@
 
 -- Globals
 deco = deco or {}
+nodes_nature = nodes_nature
 
 -- Import
 local path = minetest.get_modpath("mapgen")
@@ -140,8 +141,8 @@ local gravel_cobble_on = {
 -- places cobbles only on their mother rock
 function generate_cobbles(name, fill_ratio, place_on)
     local new_list = {}
-    for i in ipairs(rock_list) do
-        local rock_name = rock_list[i][1]
+    for i in ipairs(nodes_nature.rock_list) do
+        local rock_name = nodes_nature.rock_list[i][1]
         local cobble_on = { "nodes_nature:" .. rock_name }
         local cobble_fill_ratio = fill_ratio
         local y_max = 31000
