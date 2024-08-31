@@ -10,11 +10,9 @@ local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 local ms = mapchunk_shepherd
 
-if ms then
-    ms.labels.register("volcano")
-end
+ms.labels.register("volcano")
 
-volcano = {}
+local volcano = volcano or {}
 
 --
 local water_level = tonumber(minetest.get_mapgen_setting("water_level"))
@@ -205,11 +203,11 @@ local p2data = {}
 
 
 -----------------------------------------------------------
-minetest.register_on_generated(function(minp, maxp, _seed)
-        --outside range
-        if minp.y > max_height or maxp.y < depth_root then
-            return
-        end
+minetest.register_on_generated(function(vm, minp, maxp, seed)
+	--outside range
+	if minp.y > max_height or maxp.y < depth_root then
+		return
+	end
 
         local volcano = get_volcano(minp)
 
@@ -234,22 +232,16 @@ minetest.register_on_generated(function(minp, maxp, _seed)
             return
         end
 
-        local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
-        local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
-        vm:get_data(data)
-        vm:get_param2_data(p2data)
+	local emin, emax = vm:get_emerged_area()
+	local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
+	vm:get_data(data)
+	vm:get_param2_data(p2data)
 
-        -- Add the "volcano" label to volcano chunks
-        if ms then
-            local hash = ms.mapchunk_hash(emin)
-            local labels_to_add = {"volcano"}
-            local labels_to_remove = {}
-            if not ms.contains_labels(hash, labels_to_add) then
-                ms.save_mapchunk(hash)
-                ms.handle_labels(hash, labels_to_add, labels_to_remove)
-                ms.add_labels(hash, {"scanned"})
-            end
-        end
+    -- Add the "volcano" label to volcano chunks
+    local hash = ms.mapchunk_hash(emin)
+    local volcano_watchdog = ms.mapgen_watchdog.new(hash)
+    volcano_watchdog:push_added_labels("volcano")
+    volcano_watchdog:save_gen_notify()
 
         local sidelen = mapgen_chunksize * 16 --length of a mapblock
         local chunk_lengths = {x = sidelen,
@@ -494,125 +486,10 @@ minetest.register_on_generated(function(minp, maxp, _seed)
             end
         end
 
-        --send data back to voxelmanip
-        vm:set_data(data)
-        vm:set_param2_data(p2data)
-        --calc lighting
-        vm:calc_lighting()
-        vm:update_liquids()
-        --write it to world
-        vm:write_to_map()
+	--send data back to voxelmanip
+	vm:set_data(data)
+	vm:set_param2_data(p2data)
+	--calc lighting
+	vm:calc_lighting()
+	vm:update_liquids()
 end)
-
-----------------------------------------------------------------------------------------------
--- Debugging and sightseeing commands
-
-minetest.register_privilege(
-    "findvolcano",
-    { description = "Allows players to use a console command to find volcanoes",
-      give_to_singleplayer = false})
-
-function round(val, decimal)
-    if (decimal) then
-        return math.floor( (val * 10^decimal) + 0.5) / (10^decimal)
-    else
-        return math.floor(val+0.5)
-    end
-end
-
-local send_volcano_state = function(pos, name)
-    local volcano = get_volcano(pos)
-    if volcano == nil then
-        return false
-    end
-    local location = {
-        x=math.floor(volcano.location.x),
-        y=volcano.depth_peak,
-        z=math.floor(volcano.location.z)}
-    local text = "Peak at " .. minetest.pos_to_string(location)
-        .. ", Slope: " .. tostring(round(volcano.slope, 2))
-        .. ", State: "
-    if volcano.state < state_extinct then
-        text = text .. "Extinct"
-    elseif volcano.state < state_dormant then
-        text = text .. "Dormant"
-    else
-        text = text .. "Active"
-    end
-
-    minetest.chat_send_player(name, text)
-    return true
-end
-
-local send_nearby_states = function(pos, name)
-    local retval = false
-    retval = send_volcano_state({x=pos.x-volcano_region_size, y=0,
-                                 z=pos.z+volcano_region_size}, name)
-        or retval
-    retval = send_volcano_state({x=pos.x, y=0,
-                                 z=pos.z+volcano_region_size}, name)
-        or retval
-    retval = send_volcano_state({x=pos.x+volcano_region_size, y=0,
-                                 z=pos.z+volcano_region_size}, name)
-        or retval
-    retval = send_volcano_state({x=pos.x-volcano_region_size, y=0,
-                                 z=pos.z}, name)
-        or retval
-    retval = send_volcano_state(pos, name) or retval
-    retval = send_volcano_state({x=pos.x+volcano_region_size, y=0,
-                                 z=pos.z}, name)
-        or retval
-    retval = send_volcano_state({x=pos.x-volcano_region_size, y=0,
-                                 z=pos.z-volcano_region_size}, name)
-        or retval
-    retval = send_volcano_state({x=pos.x, y=0,
-                                 z=pos.z-volcano_region_size}, name)
-        or retval
-    retval = send_volcano_state({x=pos.x+volcano_region_size, y=0,
-                                 z=pos.z-volcano_region_size}, name)
-        or retval
-    return retval
-end
-
-minetest.register_chatcommand(
-    "findvolcano",
-    {
-        params = "pos", -- Short parameter description
-        description = "find the volcanoes near the player's map region, "..
-            "or in the map region containing pos if provided",
-        func = function(name, param)
-            if minetest.check_player_privs(name, {findvolcano = true}) then
-                local pos = {}
-                pos.x, pos.y, pos.z =
-                    string.match(param, "^([%d.-]+)[, ] *([%d.-]+)[, ] "..
-                                 "*([%d.-]+)$")
-                pos.x = tonumber(pos.x)
-                pos.y = tonumber(pos.y)
-                pos.z = tonumber(pos.z)
-                if pos.x and pos.y and pos.z then
-                    if not send_nearby_states(pos, name) then
-                        minetest.chat_send_player(
-                            name, "No volcanoes near " ..
-                            minetest.pos_to_string(pos))
-                    end
-                    return true
-                else
-                    local playerobj = minetest.get_player_by_name(name)
-                    pos = playerobj:get_pos()
-                    if not send_nearby_states(pos, name) then
-                        pos.x = math.floor(pos.x)
-                        pos.y = math.floor(pos.y)
-                        pos.z = math.floor(pos.z)
-                        minetest.chat_send_player(
-                            name, "No volcanoes near " ..
-                            minetest.pos_to_string(pos))
-                    end
-                    return true
-                end
-            else
-                return
-                    false,
-                    "You need the findvolcano privilege to use this command."
-            end
-        end,
-})
