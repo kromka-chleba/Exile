@@ -473,48 +473,6 @@ local current_icer = false
 local icer_changed = true
 local icer_interval = 60
 
--- Finds ocean
-ms.create_biome_finder({
-        biome_list = {
-            "Shallow Water",
-            "Deep Water",
-            "Sandy Beach",
-            "Silty Beach",
-            "Gravel Beach",
-            "Sandy Coast",
-            "Silty Coast",
-            "Gravel Coast",
-        },
-        add_labels = {
-            "ocean",
-        }
-})
-
-ms.create_biome_finder({
-        biome_list = {
-            "Sandy Beach",
-            "Silty Beach",
-            "Gravel Beach",
-            "Sandy Coast",
-            "Silty Coast",
-            "Gravel Coast",
-        },
-        add_labels = {
-            "coast",
-        }
-})
-
-ms.create_biome_finder({
-        biome_list = {
-            "Highland",
-            "Highland Scree",
-            "Highland Rock",
-        },
-        add_labels = {
-            "mountains",
-        }
-})
-
 local freeze_pairs = {
     ["nodes_nature:salt_water_source"] = "nodes_nature:sea_ice",
     ["nodes_nature:freshwater_source"] = "nodes_nature:ice",
