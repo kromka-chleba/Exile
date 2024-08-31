@@ -148,7 +148,7 @@ local self_data = {
   -- energy
   energy_max = 14000,--secs it can survive without food
   energy_egg = "energy_max/3", -- energy that goes to egg
-  egg_timer = 60*40,
+  egg_time = 60*40,
   young_per_egg = {1,3},		--will get this/energy_egg starting energy
   -- lifespan
   lifespan = "energy_max*8",
@@ -202,15 +202,13 @@ local self_data = {
 	end,
   -- egg
   egg = {
-    name = "animals:sarkamos_eggs",
     description = S('Sarkamos Eggs'),
     tiles = {"animals_gundu_eggs.png"},
     stack_max = minimal.stack_max_bulky,
-    groups = {snappy = 3, edible = 1, egg = 3},
+    groups = {egg = 3},
     drawtype = "normal",
-    nodebox = nil,
-    _medium = 'nodes_nature:salt_water_source',
-    _replace = 'nodes_nature:salt_water_flowing',
+    egg_medium = 'nodes_nature:salt_water_source',
+    egg_replace = 'nodes_nature:salt_water_flowing',
   },
   -- spawnegg or live animal
   spawnegg = {

@@ -210,14 +210,15 @@ end
 -- Sounds
 --------------------------------------------------------------------------
 
-function animals.get_egg_sounds()
-  return nodes_nature.node_sound_defaults({
-    hatch = {
-      name = "animals_hatch_egg",
-      gain = 0.8,
-      max_hear_distance = 8
-    }
-  })
+function animals.node_sound_egg_defaults(table)
+  table = table or {}
+  table.egg_hatch = {
+    name = "animals_hatch_egg",
+    gain = 0.8,
+    max_hear_distance = 8
+  }
+  table = nodes_nature.node_sound_defaults(table)
+  return table
 end
 
 --------------------------------------------------------------------------
@@ -707,11 +708,10 @@ end
 ----------------------------------------------------
 -- get an amount of offspring to release
 function animals.calculate_egg_young(self)
-  local young_per_egg = self -- in case you just want to pass the young_per_egg instead
+  local young_per_egg = self -- in case you just want to just pass the young_per_egg instead
   if (type(self) == "table" or type(self) == "userdata") then
-    if (self.young_per_egg) then
-      young_per_egg = self.young_per_egg
-    end
+    -- either use a found young_per_egg or self (assuming is young_per_egg table)
+    young_per_egg = self.young_per_egg or young_per_egg
   end
 
   if (type(young_per_egg) == "table") then
@@ -725,36 +725,37 @@ function animals.calculate_egg_young(self)
     young_per_egg = random(young_per_egg[1],young_per_egg[2])
   end
 
-  if (type(young_per_egg) == "number") then
-    return young_per_egg
-  else
-    return
-  end
+  return type(young_per_egg) == "number" and young_per_egg or nil
 end
 
 ----------------------------------------------------
 --release offspring from an egg (called from timers)
-function animals.hatch_egg(egg_data, pos, medium, replace, name) -- egg_data, position
+function animals.hatch_egg(pos, egg_data, medium, replace, name) -- egg_data, position
   -- CUSTOM OVERRIDES: medium (to spawn entities in - can be nil), replace (replace with - can be nil), name (optional, but required if not included in self)
+  egg_data = egg_data or minimal.get_nodedef(pos)
   if type(egg_data) ~= "table" then
     return false
   end
-  local ref = egg_data.ref
-  if not medium then
-    medium = ref._medium
-  end
-  if (medium == nil or medium == "") then
-    medium = "air"
-  end
-  if not replace then
-    replace = ref._replace
-  end
-  if (replace == nil or replace == "") then
-    replace = "air"
-  end
+  -- fix medium, replace (check if node otherwise use air)
+  medium = medium or egg_data.egg_medium
+  medium = minetest.registered_nodes[medium] or {name="air"}
+  medium = medium.name
+  replace = replace or egg_data.egg_replace
+  replace = minetest.registered_nodes[replace] or {name="air"}
+  replace = replace.name
+
+  local suitable = minetest.find_nodes_in_area(
+    {x=pos.x-1, y=pos.y-1, z=pos.z-1},
+    {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium})
+  --if can't find the stuff this mob moves through then it dies
+	if #suitable < 1 then
+		minetest.set_node(pos, {name = replace})
+		return false
+	end
+
   -- get what to hatch into
   if (type(name) ~= "string") then
-    local hatching = egg_data.ref._hatching
+    local hatching = egg_data.egg_hatching
     local sort_table = {}
     for h_name,h_perc in pairs(hatching) do -- hatch_name, hatch_percentage
       table.insert(sort_table,{h_perc,h_name})
@@ -804,7 +805,8 @@ function animals.hatch_egg(egg_data, pos, medium, replace, name) -- egg_data, po
       end
       -- last "else", get largest percent
       if not name then
-        name = hatching_table[1][2]
+        -- code smell until I figure out why having mixed unsorted and set percentages for hatching causes index 1 to be index 0
+        name = (hatching_table[1] and hatching_table[1][2]) or (hatching_table[0] and hatching_table[0][2])
       end
     end
   end
@@ -823,21 +825,12 @@ function animals.hatch_egg(egg_data, pos, medium, replace, name) -- egg_data, po
   -- prioritize max_pop defined in egg_data, otherwise entity_data, then base max_objects
   local max_pop = egg_data.max_pop or entity_data.max_pop or max_objects
 
-  if not name or not energy_egg or not young_per_egg then
+  if not (name and energy_egg and young_per_egg) then
     return false
   end
   if (energy_egg < 0) then
     return false
   end
-
-  local suitable = minetest.find_nodes_in_area(
-    {x=pos.x-1, y=pos.y-1, z=pos.z-1},
-    {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium})
-  --if can't find the stuff this mob moves through then it dies
-	if #suitable < 1 then
-		minetest.set_node(pos, {name = replace})
-		return false
-	end
 
   -- remove male or baby identifier when checking names
   local check_name = string.gsub(name,"_male","")
@@ -852,7 +845,13 @@ function animals.hatch_egg(egg_data, pos, medium, replace, name) -- egg_data, po
     local ran_pos = suitable[random(#suitable)]
     ran_pos.y = ran_pos.y - (entity_data.initial_properties.collisionbox[2] + entity_data.initial_properties.collisionbox[5])
     local ent = minetest.add_entity(ran_pos, name)
-    minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.8, max_hear_distance = 8})
+    local sounds = egg_data.sounds
+    if sounds and sounds.egg_hatch then
+      local sound = table.copy(sounds.egg_hatch)
+      sound.pos = pos
+      minetest.sound_play(sound.name, sound)
+    end
+    --minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.8, max_hear_distance = 8})
     ent = ent:get_luaentity()
     mobkit.remember(ent,'energy', start_e)
     mobkit.remember(ent,'age',0)
@@ -1667,33 +1666,6 @@ function animals.prey_hunt(self, prty)
 end
 
 
-
-
-----------------------------------------------------
---for things that eat spreading surface
-function animals.eat_spreading_under(pos, chance)
-  local p = mobkit.get_node_pos(pos)
-  local posu = {x = p.x, y = p.y - 1, z = p.z}
-  local under = minetest.get_node(posu).name
-
-  if minetest.get_item_group(under, "spreading") > 0 then
-    if random()< chance then
-      --set node to it's drop
-      --this is to scratch up surface layers
-      local nodedef = minetest.registered_nodes[under]
-      local drop = nodedef.drop
-      minetest.check_for_falling(posu)
-      minetest.set_node(posu, {name = drop})
-      minetest.sound_play("nodes_nature_dig_crumbly", {gain = 0.2, pos = pos, max_hear_distance = 10})
-    end
-
-    return true
-
-  else
-    return false
-  end
-
-end
 
 ----------------------------------------------------
 -- sediment eating functions
@@ -2651,6 +2623,160 @@ end
 
 
 
+-- REGISTRATION FUNCTIONS
+
+-- animals.register_egg
+-- animal is only required if you do NOT specify the following things in your egg def:
+-- name, egg_hatching, energy_egg, egg_time, and young_per_egg
+-- if you have the above specified, then you may proceed without error
+function animals.register_egg(def, animal)
+  assert(type(def) == "table","animals.register_egg: provided egg definition is not a table!")
+  local name = def.name or (animal and animal.name.."_eggs") or nil
+  assert(type(name) == "string","animals.register_egg: was not provided a string for name, got '"..type(name).."'")
+  if animal and type(animal) ~= "table" then
+    error("animals.register_egg: was given an 'animal' argument that was invalid, nil or table only, got '"..type(animal).."'")
+  end
+  def.description = def.desc or def.description or ""
+  def.tiles = def.tiles or {"animals_gundu_eggs.png"}
+  def.stack_max = def.stack_max or minimal.stack_max_medium
+  def.drawtype = def.drawtype or "nodebox"
+  def.node_box = def.node_box or def.drawtype == "nodebox" and {
+    type = "fixed",
+    fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
+  }
+  def.groups = def.groups or {}
+  def.groups.egg = def.groups.egg or 1
+  def.groups.snappy = def.groups.snappy or 3
+  def.groups.falling_node = def.groups.falling_node or 1
+  def.groups.dig_immediate = def.groups.dig_immediate or 3
+  def.groups.flammable = def.groups.flammable or 1
+  def.groups.temp_pass = def.groups.temp_pass or 1
+  def.groups.edible = def.groups.edible or 1
+  def.sounds = def.sounds or {}
+  def.sounds = animals.node_sound_egg_defaults(def.sounds)
+  -- custom egg data
+  def.egg_hatching = def.egg_hatching or (animal and animal.name)
+  -- new feature: autocreate percentages if not provided
+  if type(def.egg_hatching) == "table" then
+    -- purely string indexes do not count for table length
+    -- account for if there is a 1 number index and 1 stringed index
+    local numbered_indexes = #def.egg_hatching
+    -- more than 1 egg_hatching index, set to true, obviously we can calculate this
+    local do_hatch_calculation = numbered_indexes > 1 and true or false -- false to start otherwise
+    -- we got only 1 numbered index, check if there is a string index and verify hatch calculation
+    if numbered_indexes == 1 then
+      for index,_ in pairs(def.egg_hatching) do
+        if type(index) == "string" then
+          do_hatch_calculation = true
+          break
+        end
+      end
+    end
+    -- verified that we should do this hatch calculation
+    if do_hatch_calculation then
+      local percent = 0
+      -- iterates through properly assessed percentages and calculates unproperly assessed percentages in correlation
+      for spawn_animal,set_percent in pairs(def.egg_hatching) do
+        -- only if spawn_animal is string, and correlated percentage is a number
+        if type(spawn_animal) == "string" and type(set_percent) == "number" then
+          -- add found percentage to compounding percentage
+          percent = percent + set_percent
+        end
+      end
+      -- if total calculated collected percentage is below 1 then continue (because we aren't aiming for 110% or more!)
+      if percent < 1 then
+        percent = 1-percent -- will be 1 if percent is 0
+        percent = percent/#def.egg_hatching -- percentage divided by total amount of numbered indexes
+        -- only iterate through number indexes
+        for i=1,#def.egg_hatching do
+          -- get (expected and assumed) animal name string from numbered index
+          local spawn_animal = def.egg_hatching[i]
+          -- provide animal name as index, apply percentage
+          def.egg_hatching[spawn_animal] = percent
+          -- remove old numbered index
+          def.egg_hatching[i] = nil
+        end
+      -- error right now instead of purifying or erroring later lol
+      else
+        error("animals.register_egg: egg_hatching collected percentage is too great to calculate unsorted percentages! "..
+          (percent*100).."%")
+      end
+    -- why did you just do only one...
+    elseif numbered_indexes == 1 then
+    -- assume it's a string
+      def.egg_hatching = {[def.egg_hatching[1]] = 1}
+    end
+  end
+  assert(def.egg_hatching,"animals.register_egg: could not get hatching or name for egg hatching mechanics")
+  def.egg_hatching = type(def.egg_hatching) == "table" and def.egg_hatching or {[def.egg_hatching] = 1}
+
+  def.energy_egg = def.energy_egg or (animal and animal.energy_egg)
+  assert(def.energy_egg,"animals.register_egg: could not get energy_egg for "..name)
+  def.egg_time = def.egg_time or (animal and animal.egg_time)
+  assert(def.egg_time,"animals.register_egg: could not get egg_time for "..name)
+  def.young_per_egg = def.young_per_egg or (animal and animal.young_per_egg)
+  assert(def.young_per_egg,"animals.register_egg: could not get egg_time for "..name)
+
+  def.egg_medium = def.egg_medium or "air" -- what egg needs to be in to hatch
+  def.egg_replace = def.egg_replace or "air" -- what to replace old node with upon egg hatch
+  -- egg functions
+  def.on_construct = def.on_construct or function(pos, data)
+    data = data or minimal.get_nodedef(pos)
+    local egg_time = data and data.egg_time
+    assert(egg_time,"animal egg couldn't get egg_time: "..(data and data.name or "unknown egg"))
+    minetest.get_node_timer(pos):start(math.random(egg_time,egg_time*2))
+  end
+
+  def.on_timer = def.on_timer or function(pos, elapsed, data)
+    data = data or minimal.get_nodedef(pos)
+    assert(data,"animal egg couldn't get data of self at "..minetest.pos_to_string(pos))
+    local egg_time = data.egg_time
+    assert(egg_time,"animal egg couldn't get egg_time: "..(data.name))
+    -- if custom egg_conditions_correct function then prioritize that, otherwise hatch is true, new_time is nil
+    local hatch,new_time = (data.egg_conditions_correct and data.egg_conditions_correct(pos, data)) or true,nil
+    -- get a "time" to hatch by
+    if new_time == true then
+      -- you tell the egg to never hatch
+      return false
+    elseif type(new_time) == "number" then
+      -- start new timer with given new_time
+      minetest.get_node_timer(pos):start(new_time)
+      return false
+    end
+    -- now for actual hatching (or other options)
+    if hatch == true then
+      -- try to hatch as according to hatch_egg
+      return animals.hatch_egg(pos, data)
+    elseif type(hatch) == "number" and hatch > 0 then
+      -- random chance
+      if random() <= hatch then
+        return animals.hatch_egg(pos, data)
+      end
+    else
+      -- continue to try to hatch, at another time
+      return true
+    end
+  end
+
+  -- egg_conditions_correct(pos, data)
+    -- create a custom function that checks whether or not an egg should hatch
+    -- should be provided with a table of some data to be used, but do not depend on it, run minimal.get_nodedef(pos) if nil
+    -- should return true for if it can hatch (return true)
+    -- return decimal for percentage chance (return 0-1)
+    -- return false if it cannot hatch and provide a new time to use or it'll default (return false,num)
+    -- "new time" parameter can be made boolean true to prevent egg from hatching permanently (return false,true)
+  -- end
+
+  -- register egg
+  def.name = name
+  minetest.register_node(name,def)
+  if animal then
+    animal.egg = def.name
+  end
+end
+
+
+
 function animals.register_animal(name,def)
   if type(name) ~= "string" then
     error(debug.traceback("animals.register_animal: name is not a string, got '"..tostring(name).."'",2))
@@ -2662,302 +2788,227 @@ function animals.register_animal(name,def)
     error(debug.traceback("animals.register_animal: no 'logic' function provided for definition, got '"..tostring(def.logic).."'",2))
   end
 
-  local basedef = {
-    name = name,
-    -- core
-    initial_properties = {
-      max_hp = 1,
+  name = (not name:match(":") and "animals:"..name) or name
+  def.name = name
 
-      physical = true,
-      collide_with_objects = true,
-      collision_box = {-0.1,-0.1,-0.1,0.1,0.1,0.1},
-      visual_size = {x = 1, y = 1},
-      makes_footstep_sound = true,
-      timeout = 0
-    },
-    -- animal stats
-    lung_capacity = 5,
-    min_temp = -10,
-    max_temp = 10,
-    -- animal energy + reproduction stats
-    energy_max = 100, -- total units your animal can survive without food
-    energy_loss = 0.25, -- how much energy your animal loses per second
-    lifespan = 500, -- seconds your animals will survive in total
-    energy_egg = 20, -- energy that goes to egg
-    egg_timer = 60*5, -- seconds until your animal's egg hatches (default 5 minutes - 60*5)
-    young_per_egg = 1, -- how many young will hatch from the egg (energy_egg will be divided up to how many offspring spawn
-    -- so 4 offspring will have energy_egg be split into 4 (or 20/4 = 5 units) for each of the young)
-    -- can be a table, such as {1,3} to spawn a chance of 1 to 3 per egg hatch
-    -- emergency_egg_chance = 0.5, -- custom and should be handled in on_death
-    -- mature_age = 150, -- custom, minimum age for which the entity should be at or above before reproducing
-    -- is it land-borne (1), sea-borne (2), or amphibious (3) - default land-borne
-    class = 1,
-    -- movement
-    springiness=0,
-    buoyancy = 1.01,
-    max_speed = 1,					-- m/s
-    jump_height = 1.2,				-- nodes/meters
-    view_range = 1,					-- nodes/meters
-    -- attack
-    attack={range=0.3, damage_groups={fleshy=1}},
-    armor_groups = {fleshy=100},
-    -- interactions (should be defined prior to registered animal code)
-    predators = animals.get_interactors(name,"predators"),
-    prey = animals.get_interactors(name,"prey"),
-    rivals = animals.get_interactors(name,"rivals"),
-    friends = animals.get_interactors(name,"friends"),
-    -- other forms of interactions (should be defined in animal registration)
-    --predator_interactions = {
-      --default = 0.05 -- fight chance (95% flee chance)
-      -- can specify specific predators such as "animals:darkasthaan = 0.5"
+  -- initial properties
+  local init_prop = def.initial_properties or {}
+  init_prop.max_hp = init_prop.max_hp or 1
+  init_prop.physical = true
+  init_prop.collide_with_objects = true
+  init_prop.collision_box = init_prop.collision_box or {-0.1,-0.1,-0.1,0.1,0.1,0.1}
+  init_prop.visual_size = init_prop.visual_size or {x = 1, y = 1}
+  init_prop.makes_footstep_sound = type(init_prop.makes_footstep_sound) ~= "boolean" and true or init_prop.makes_footstep_sound
+  init_prop.timeout = 0
+  def.initial_properties = init_prop
+
+  -- animal stats
+  -- base_vals used for ease of calculation later
+  local base_vals = {
+    energy_egg = 20, -- energy dedicated to the egg
+    lifespan = 500, -- seconds your animal will survive in total
+    oxygen_min = def.lung_capacity, -- custom, minimum amount of oxygen maintained until it tries to resurface
+    mature_age = "nil", -- custom, seconds until your animal is mature enough to have babies
+  }
+  -- energy
+  def.energy_max = def.energy_max or 100 -- total units your animal can survive without food
+  def.energy_loss = def.energy_loss or 0.25 -- how much energy your animal loses per second
+  -- lifespan and eggs
+  -- def.lifespan: see base_vals
+  -- def.mature_age: see base_vals
+  def.egg_time = def.egg_time or 60*5 -- seconds until your animal's egg hatches (default 5 minutes)
+  def.young_per_egg = def.young_per_egg or 1 -- how many young will hatch from the egg
+  -- (energy_egg will be divided up to how many offspring spawn)
+  -- so 4 offspring will have energy_egg be split into 4 (or 20/4 = 5 units) for each of the young)
+  -- can be a table, such as {1,3} to spawn a chance of 1 to 3 per egg hatch
+  -- emergency_egg_chance = 0.5: should be handled in on_death
+
+  -- temp (minimum and maximum comfortable temperatures)
+  def.min_temp = def.min_temp or -10
+  def.max_temp = def.max_temp or 10
+  -- breathing
+  def.lung_capacity = def.lung_capacity or 5
+  -- def.oxygen_min: see base_vals
+  -- def.breathing_rate: how much oxygen is recovered per second when in an ideal environment
+
+  -- is it land-borne (1), sea-borne (2), or amphibious (3) - default land-borne
+  def.class = def.class or 1
+
+  -- movement
+  def.springiness = def.springiness or 0
+  def.buoyancy = def.buoyancy or 1.01
+  def.max_speed = def.max_speed or 1 -- m/s
+  def.jump_height = def.jump_height or 1.2 -- nodes/meters
+  def.view_range = def.view_range or 3 -- nodes/meters
+
+  -- attack
+  def.attack = def.attack or {}
+  def.attack.range = def.attack.range or 0.3
+  def.attack.damage_groups = def.attack.damage_groups or {fleshy=1}
+
+  -- social interactions (should be defined prior to registered animal code for get_interactors() )
+  def.predators = def.predators or animals.get_interactors(name,"predators")
+  def.prey = def.prey or animals.get_interactors(name,"prey")
+  def.rivals = def.rivals or animals.get_interactors(name,"rivals")
+  def.friends = def.friends or animals.get_interactors(name,"friends")
+  -- other forms of interactions (should be defined in animal registration)
+  --predator_interactions = {
+    --default = 0.05 -- fight chance (95% flee chance)
+    -- can specify specific predators such as "animals:darkasthaan = 0.5"
+  --}
+  --capture_interactions = {
+    -- capture chance
+    -- uses item group to determine capture possibility
+    -- hand = 0.75, -- interactions with empty hand
+    --club = { -- tool with club group
+      -- allow for specification of a table for higher capture groups (if greater than the highest, will use highest)
+      --[1] = 0.1,
+      --[2] = 0.25,
+      --[3] = 0.4,
     --},
-    --capture_interactions = {
-      -- capture chance
-      -- uses item group to determine capture possibility
-      -- hand = 0.75, -- interactions with empty hand
-      --club = { -- tool with club group
-        -- allow for specification of a table for higher capture groups (if greater than the highest, will use highest)
-        --[1] = 0.1,
-        --[2] = 0.25,
-        --[3] = 0.4,
-      --},
-    --},
-    -- mobkit functions
-    on_step = mobkit.stepfunc,
-    on_activate = mobkit.actfunc,
-    get_staticdata = mobkit.statfunc,
-    --logic = (function), -- must be defined in registration
-    -- animations + sound + drops
-    animation = {
-      -- create animations for your animal
-    },
-    sounds = {
-      -- create sounds for your animal
-      -- use mobkit.make_sound(self,name) to play them
-      punch = {
-        name = "animals_punch",
-        gain={0.5, 1.2},
-        fade={0.5, 1.5},
-        pitch={0.5, 1.5},
-      },
-      punch_death = { -- plays if animal is punched while dead
-        name = "animals_punch_death",
-        gain = {1,1.5},
-        fade = {0.5,1.5},
-        pitch = {0.5,0.8},
-      },
-    },
-    --drops = {
-      -- add drops for your animal upon death
-    --},
-    -- functions
-    on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg) -- optional "fleshdmg" argument
-      animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
-    end,
-    --on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
-      --animals.stun_catch_mob(self, clicker)
-    --end,
-    -- custom
-    --[[
-    _on_death = function(self, pos)
-      -- create a custom action to occur upon death
-    end,
-    --]]
-    -- egg + spawnegg
-    egg = {
-      -- nodedef expectation
-      description = "", --S('@1 Eggs'),
-      tiles = {"animals_gundu_eggs.png"},
-      stack_max = minimal.stack_max_medium,
-      drawtype = "nodebox",
-      paramtype = "light",
-      node_box = {
-        type = "fixed",
-        fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
-      },
-      groups = {snappy = 3, falling_node = 1, dig_immediate = 3, flammable = 1, temp_pass = 1, edible = 1, egg = 1},
-      sounds = animals.get_egg_sounds(),
-      --_hatching = { -- will become "hatching" instead of "_hatching" upon node definition
-        -- should be either;
-        -- string (only for 1 animal) e.g. = "animals:creature1"
-        -- table (for more than 1 animal, provide names as indexes with a number specifying percentage)
-        -- e.g. = {animals:creature1 = 0.5, animals:creature1_male = 0.5}
-      --},
-      -- egg functions
-      on_construct = function(pos,egg_data)
-        local egg_timer = egg_data.egg_timer
-        minetest.get_node_timer(pos):start(math.random(egg_timer,egg_timer*2))
-      end,
-      -- _conditions_correct(pos, egg_data)
-      -- create a custom function that checks whether or not an egg should hatch
-      -- provided with a table of some data to be used
-      -- should return true for if it can hatch (return true)
-      -- return decimal for percentage chance (return 0-1)
-      -- return false if it cannot hatch and provide a new time to use or it'll default (return false,num)
-      -- "new time" parameter can be made boolean true to prevent egg from hatching permanently (return false,true)
-      --end,
-      on_timer = function(pos, elapsed, egg_data)
-        local egg_timer = egg_data.egg_timer
-        if not type(egg_timer) == "number" then
-          -- no hatching if egg_timer doesn't exist
-          return false
-        end
-        local hatch = true
-        local new_time
-        -- if a custom _conditions_correct function was specified
-        if type(egg_data.ref._conditions_correct) == "function" then
-          hatch, new_time = egg_data.ref._conditions_correct(pos)
-        end
-        -- get a "time" to hatch by
-        if new_time == true then
-          -- you tell the egg to never hatch
-          return false
-        elseif type(new_time) == "number" then
-          -- start new timer with given new_time
-          minetest.get_node_timer(pos):start(new_time)
-          return false
-        end
-        -- now for actual hatching (or other options)
-        if hatch == true then
-          -- try to hatch as according to hatch_egg
-          return animals.hatch_egg(egg_data,pos)
-        elseif type(hatch) == "number" and hatch > 0 then
-          -- random chance
-          if random() <= hatch then
-            return animals.hatch_egg(egg_data,pos)
-          end
-        end
-        -- continue to try to hatch, at another time
-        return true
-      end
-    },
-    spawnegg = {
-      -- WILL ONLY ACCEPT THESE 3 PARAMTERS
-      desc = "",
-      inv_img = "",
-      stack = 1,
-    },
+  --}
+
+  -- mobkit dependency
+  def.on_step = def.on_step or mobkit.stepfunc
+  def.on_activate = def.on_activate or mobkit.actfunc
+  def.get_staticdata = def.get_staticdata or mobkit.statfunc
+
+  -- animations
+  def.animation = def.animation or {
+    -- create animations for your animal
   }
 
-  -- add values to def that weren't defined
-  for defname,defvalue in pairs(basedef) do
-    if def[defname] == nil then -- ignore "false"
-      -- if not defined
-      def[defname] = defvalue -- add to definition
-    elseif type(defvalue) == "table" then
-      local mod_deft = def[defname] -- modify_def_table
-      if type(mod_deft) == "table" then
-        -- iterate over the tables
-        for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
-          if mod_deft[dn2] == nil then
-            mod_deft[dn2] = dv2
-          elseif (defname == "egg" and dn2 == "groups") then
-            -- until I make a "register_egg", this prevents improper group setting for differently groups'd eggs
-            def.egg.groups = minimal.merge_tables(basedef.egg.groups,def.egg.groups)
-          end
-        end
+  -- sounds
+  -- create sounds for your animal
+  -- use mobkit.make_sound(self,name) to play them
+  local sounds = def.sounds or {}
+  sounds.punch = sounds.punch or { -- plays when animal is punched
+    name = "animals_punch",
+    gain={0.5, 1.2},
+    fade={0.5, 1.5},
+    pitch={0.5, 1.5},
+  }
+  sounds.punch_death = sounds.punch_death or { -- plays if animal is punched while dead
+    name = "animals_punch_death",
+    gain = {1,1.5},
+    fade = {0.5,1.5},
+    pitch = {0.5,0.8},
+  }
+
+  -- drops = {} -- add drops for your animal upon death
+
+  -- functions
+  def.on_punch = def.on_punch or function(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
+    -- optional "fleshdmg" argument
+    animals.on_punch(self, puncher, time_from_last_punch, tool_capabilities, dir, fleshdmg)
+  end
+  -- on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
+  -- _on_death = function(self, pos) -- create custom action to occur upon death
+
+  -- used by below for loop
+  -- calculates command-based values noted in base_vals
+  local function calculate_val(val)
+    local data = {
+      modifier = val:find("*") or val:find("+") or val:find("/") or val:find("-") or val:find("^")
+    }
+    if data.modifier then
+      data.to_index = val:sub(0,data.modifier-1)
+      data.number = tonumber(val:sub(data.modifier+1,string.len(val)))
+      data.modifier = val:sub(data.modifier,data.modifier)
+    else
+      return false,"animals.register_animal: could not get 'modifier' for '@defname' calculation for '@name'."
+    end
+    -- now if we have a number
+    if data.number then
+      local use_val = def[data.to_index]
+      use_val = type(use_val) == "number" and use_val or type(use_val) == "string" and calculate_val(data.to_index) or nil
+      if type(use_val) == "number" then
+        val = (data.modifier == "*" and use_val * data.number or data.modifier == "+" and use_val + data.number or
+          data.modifier == "/" and use_val / data.number or data.modifier == "-" and use_val - data.number or
+          data.modifier == "^" and use_val ^ data.number)
+        return val
       else
-        -- force as table
-        def[defname] = defvalue
+        return false,"animals.register() could not get '"..data.to_index.."' as number for modification for '@defname' for animal '@name'. Using default."
       end
+    else
+      return false,"animals.register_animal: could not parse '@defname' as number for '@name'. Using default."
     end
   end
-  -- now to correct some values (or cause errors >:3)
-  if type(def.spawnegg) ~= "table" then
-    -- error would only happen if you have spawnegg set, but not as a table - nil is fine as basedef will fill in
-    error(debug.traceback("defined 'spawnegg' is not a table for itemdef, got '"..type(def.spawnegg).."'",2))
-  end
   -- iterate over and adjust some values (if applicable)
-  for defname,defvalue in pairs(def) do
-    if (type(defvalue) == "string" and
-      ( defname == "energy_egg" or
-      defname == "mature_age" or
-      defname == "lifespan" or
-      defname == "oxygen_min") ) then
-      -- allow for custom usage of adding, multiplying, dividing, or subtracting from a value via string
-      defvalue = string.gsub(defvalue," ","") -- erase all spaces
+  -- iterate over base_vals (intended to be dependent)
+  for defname,basevalue in pairs(base_vals) do
+    -- meant to be numbers, but are strings for calculation
+    -- allow for custom usage of adding, multiplying, dividing, or subtracting from a value via string
+    local defvalue = def[defname] -- grab value from def, if string then proceed with calculations
+    if type(defvalue) == "string" then
+      defvalue = defvalue:gsub(" ","") -- erase all spaces
       -- convert to table for a command system
       -- should be defined as so: "energy_max*5"
       -- reference a number and use proper index (will be CASE SENSITIVE)
       -- will NOT work with MULTIPLE arguments
-      local data = {
-        to_index = ""
-      }
-      for i = 1, string.len(defvalue) do
-        local char = string.sub(defvalue,i,i)
-        if (char == "*" or char == "+" or char == "-" or char == "/" or char == "^") then
-          data.modifier = char
-          data.number = string.sub(defvalue,(i + 1),string.len(defvalue))
-          break
-        else
-          data.to_index = data.to_index..char
-        end
-      end
-      data.number = tonumber(data.number)
-      if not data.number then
-        minetest.log("error","animals.register() could not parse '"..defname.."' as number for '"..name.."'. Using default.")
-        def[defname] = basedef[defname]
-      elseif (def[data.to_index] and type(def[data.to_index]) == "number") then
-        local val = def[data.to_index]
-        if data.modifier == "+" then
-          val = val + data.number
-        elseif data.modifier == "-" then
-          val = val - data.number
-        elseif data.modifier == "*" then
-          val = val * data.number
-        elseif data.modifier == "/" then
-          val = val / data.number
-        elseif data.modifier == "^" then
-          val = val ^ data.number
-        end
+      local val, errmsg = calculate_val(defvalue)
+      if val ~= false then
         def[defname] = val
+      -- got an error, not the end of the world
       else
-        minetest.log("error","animals.register() could not get '"..data.to_index.."' as number for modification for '"..defname.."' for animal '"..name.."'. Using default.")
-        def[defname] = basedef[defname]
+        val = basevalue ~= "nil" and basevalue or nil
+        errmsg:gsub("@defname",defname)
+        errmsg:gsub("@name",name)
+        minetest.log("error", errmsg)
       end
     end
   end
-  -- fix or issue errors about improperly set def.capture_interactions
-  if type(def.capture_interactions) ~= "table" then
-    -- must be specified as a table in least during definition
-    error(debug.traceback("defined 'capture_interactions' is not a table, got '"..type(def.capture_interactions).."'",2))
-  end
-  for defname,defvalue in pairs(def.capture_interactions) do
-    if type(defvalue) == "number" then
-      def.capture_interactions[defname] = {defvalue}
-    elseif type(defvalue) == "string" then
-      defvalue = tonumber(defvalue)
-      if not defvalue then
-        minetest.log("error","defined animal capture group index 'capture_interactions."..tostring(defname).."' got invalid percentage value (got string that could not be tonumber()'d)")
-        def.capture_interactions[defname] = nil
-      else
-        defvalue = math.ceil(defvalue)
-        def.capture_interactions[defname] = {defvalue}
-      end
-    elseif (type(defvalue) == "table") then
-      for dn2, dv2 in pairs(defvalue) do --defname2, defvalue2
-        if type(dn2) ~= "number" then
-          local dn2temp = tonumber(dn2) -- temporary value
-          if not dn2temp then
-            error("defined animal capture group index 'capture_interactions."..tostring(defname).."."..tostring(dn2).."' is not a number, got '"..type(dn2).."'")
+
+  def.egg = (def.egg and animals.register_egg(def.egg, def)) or nil
+
+  -- spawnegg
+  local spawnegg = def.spawnegg or {}
+  -- error would only happen if you have spawnegg set, but not as a table - nil is fine as basedef will fill in
+  assert(type(spawnegg) == "table","animals.register_animal: defined 'spawnegg' is not a table for itemdef, got "..type(spawnegg))
+  spawnegg.name = name
+  spawnegg.desc = spawnegg.desc or spawnegg.description or ""
+  spawnegg.inv_img = spawnegg.inv_img or spawnegg.inventory_image or "animals_carcass.png"
+  spawnegg.stack = spawnegg.stack or spawnegg.stack_max or 1
+  spawnegg.class = def.class
+  spawnegg.energy_egg = def.energy_egg
+  spawnegg.young_per_egg = def.young_per_egg
+  def.spawnegg = spawnegg
+  animals.register_spawnegg(spawnegg)
+
+  -- fix or issue errors about improperly set capture_interactions
+  if def.capture_interactions then
+    -- must be specified as a table if not nil
+    if type(def.capture_interactions) ~= "table" then
+      error("animals.register_animal: defined 'capture_interactions' is not a table, got '"..type(def.capture_interactions.."'"))
+    end
+    -- let's fix anything wrong
+    for capname, capvalue in pairs(def.capture_interactions) do
+      -- overall group effectiveness
+      if type(capvalue) == "number" then
+        def.capture_interactions[capname] = {capvalue}
+      -- group value variations
+      elseif type(capvalue) == "table" then
+        for gn,strength in pairs(capvalue) do
+          if type(gn) == "number" then
+            -- convert to number or nil (get rid of index)
+            strength = type(strength) == "number" and strength or tonumber(strength)
+            capvalue[gn] = strength
+          -- remove this index if not a proper number index
           else
-            -- replace index with a numbered one
-            defvalue[dn2] = nil
-            dn2 = dn2temp -- set for next if statement
-            defvalue[dn2temp] = dv2
+            capvalue[gn] = nil
           end
         end
-        if type(dv2) ~= "number" then
-          -- convert to number or nil (get rid of index)
-          defvalue[dn2] = tonumber(dv2)
-        end
-      end
-      if #defvalue == 0 then
+        capvalue = def.capture_interactions[capname] -- update for calculation
         -- remove empty tables
-        def.capture_interactions[defname] = nil
+        if #capvalue == 0 then
+          def.capture_interactions[capname] = nil
+        end
+      -- error, did not get table or number
+      else
+        minetest.log("error","animals.register_animal: capture_interactions: animal capture group index '"..
+          tostring(capname).."' got invalid value for capture percentage, got '"..type(capvalue).."'. Clearing.")
+        def.capture_interactions[capname] = nil
       end
-    else
-      error("defined animal capture group 'capture_interactions."..tostring(defname).."' is not a number or table of numbers, got "..type(defvalue).."'")
     end
   end
   -- fix up a default for predator_interactions if provided
@@ -3044,86 +3095,8 @@ function animals.register_animal(name,def)
     value = self:set(vname, self[vname] + value, memorize)
     return value
   end
-  -- egg modifications
-  local egg_data = {} -- use this to permit proper override of on_construct (returns intended variable properly)
-  -- modify _conditions_correct to return egg data
-  if def.egg then
-    def.egg._get_egg_data = function()
-      -- returns clone of "egg_data" for getting an egg's information
-      return table.copy(egg_data)
-    end
-    if type(def.egg._conditions_correct) == "function" then
-      local _cc = def.egg._conditions_correct
-      def.egg._conditions_correct = function(pos)
-        if not pos then
-          return false
-        end
-        return _cc(pos,table.copy(egg_data))
-      end
-    end
-    local on_construct = def.egg.on_construct
-    def.egg.on_construct = function(pos)
-      return on_construct(pos, table.copy(egg_data))
-    end
-    local on_timer = def.egg.on_timer
-    def.egg.on_timer = function(pos, elapsed)
-      return on_timer(pos, elapsed, table.copy(egg_data))
-    end
-  end
-  -- egg definition and correction
-  if type(def.egg) ~= "table" or not def.egg.name then
-    def.egg = nil
-  elseif (type(def.egg._hatching) ~= "string" and type(def.egg._hatching) ~= "table") then
-    def.egg._hatching = {[def.name] = 1}
-  else
-    if type(def.egg._hatching) == "string" then
-      def.egg._hatching = {[def.egg._hatching] = 1}
-    end
-  end
-
-  -- spawnegg definition and correction
-  if type(def.spawnegg.stack) ~= "number" then
-    def.spawnegg.stack = def.spawnegg.stack_max
-    -- force number
-    if type(def.spawnegg.stack) ~= "number" then
-      def.spawnegg.stack = 1
-    end
-  end
-  if type(def.spawnegg.desc) ~= "string" then
-    def.spawnegg.desc = def.spawnegg.description
-    if type(def.spawnegg.desc) ~= "string" then
-      def.spawnegg.desc = tostring(def.spawnegg.desc)
-    end
-  end
-  if (def.spawnegg.inv_img == "" or type(def.spawnegg.inv_img) ~= "string") then
-    def.spawnegg.inv_img = def.spawnegg.inventory_image
-    if (def.spawnegg.inv_img == "" or type(def.spawnegg.inv_img) ~= "string") then
-      def.spawnegg.inv_img = "animals_carcass.png"
-    end
-  end
-
-  -- simplify egg table
-  local egg_ref
-  egg_data = {
-    energy_egg = def.energy_egg,
-    egg_timer = def.egg_timer,
-    young_per_egg = def.young_per_egg,
-  }
-  if def.egg then
-    minetest.register_node(def.egg.name,def.egg)
-    egg_data.ref = minetest.registered_nodes[def.egg.name]
-    egg_data.medium = def.egg._medium
-    egg_data.replace = def.egg._replace
-  else
-    egg_data.ref = def.egg
-  end
-  def.spawnegg.class = def.class
-  -- spawnegg
-  -- use a modified "def.egg" table
-  animals.register_spawnegg(minimal.merge_tables(egg_data,minimal.merge_tables({name = def.name, drops = def.drops},def.spawnegg)))
 
   -- creature
   minetest.register_entity(name,def)
   return minetest.registered_entities[name]
 end
-

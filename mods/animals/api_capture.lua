@@ -101,7 +101,8 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click, tool_capa
   end
   time_from_last_click = type(time_from_last_click) == "number" and time_from_last_click or 1
   -- modify success_rate according to tool_capabilities (if not in creative)
-  if not minimal.player_in_creative(clicker) then
+  -- 100% is 100%, you've whacked em good, no need to worry about last click!
+  if success_rate < 1 and not minimal.player_in_creative(clicker) then
     success_rate = success_rate * math_clamp(time_from_last_click / tool_capabilities.full_punch_interval, 0, 1)
   end
   if self.hp <= self.max_hp*0.75 then -- if less than 3 quarters of full HP then calculate damage-based capture success
