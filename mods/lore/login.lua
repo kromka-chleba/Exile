@@ -162,6 +162,7 @@ local function first_spawn(player)
 		     region.spawn(player)
 		     doGatewayFX(player)
 		     player_api.set_invisible(player, false)
+		     player:get_meta():set_string("spawning", "")
    end)
 end
 
@@ -248,19 +249,25 @@ end)
 -- process continues in on_joinplayer
 minetest.register_on_joinplayer(function(player)
       local name = player:get_player_name()
-      if newplayer[name] == true then
+      local meta = player:get_meta()
+      if newplayer[name] == true and not meta:contains("spawning") then
+	 meta:set_string("spawning",
+			 minetest.pos_to_string(player:get_pos()))
 	 player:set_pos(vector.new(-500, 9002, -500))
 	 -- hide new players until they read the intro
 	 player_api.set_invisible(player, true, "set_invis")
       end
-     queue_push(player, show_formspec, "motd")
-     if tutorial_available then
-	queue_push(player, do_tutorial, "tut")
-     end
-     if newplayer[name] == true then
+      if not newplayer[name] and meta:contains("spawning") then
+	 newplayer[name] = true -- Restart a player who quit before spawning
+      end
+      queue_push(player, show_formspec, "motd")
+      if newplayer[name] == true then
+	 if tutorial_available then
+	    queue_push(player, do_tutorial, "tut")
+	 end
 	 queue_push(player, first_spawn, "1st")
-     end
-     queue_start(player)
+      end
+      queue_start(player)
 end)
 
 
