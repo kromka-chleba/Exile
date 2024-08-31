@@ -156,6 +156,9 @@ minetest.register_entity("spawnex:gate",{
 	      self.object:remove() return
 	   end
 	   self.timer = ( self.timer or 0 ) + dtime
+           if math.floor(self.timer*10)/10 %5 == 0 then -- every 5.0 seconds
+	      self.object:set_sprite(nil, 15, 0.05) -- 'cause per-client
+           end
 	   if self.timer < self.timelimit then return end
 	   self.timer = 0
 	   local obj = self.object
