@@ -172,16 +172,16 @@ if minetest.is_creative_enabled() then
 end
 
 local info = { -- #TODO: set up locales, template.txt etc
-   ["dig_key"] = "^ "..S("Press the dig button to pick up or strike things."),
-   ["place_key"] = "v "..S("Press the place button to put things down."),
-   ["use_key"] = "◊ "..S("Press the use button to activate items and nodes."..
+   ["dig_key"] = "^  "..S("Press the dig button to pick up or strike things."),
+   ["place_key"] = "v  "..S("Press the place button to put things down."),
+   ["use_key"] = "◊  "..S("Press the use button to activate items and nodes."..
 		   "@n This is E by default on PC, AUX1 or sprint on mobile."),
    ["zoom_key"] = S("Press the zoom key to see the name of what "..
 		  "you're looking at. @n This is Z by default on PC, "..
 		  "and the binoculars or magnifying lens on mobile"),
    ["crawl"] = S("Double-tap sneak to crouch and get through small spaces.@n"..
-		 "@nIf server lag makes this hard, you can use the@n"..
-		 " /crouch command, or install exile_csm, the@n"..
+		 "@nIf server lag makes this hard, you can use the"..
+		 " /crouch command, or install exile_csm, the"..
 		 "client-side mod to handle controls locally")
 }
 
@@ -189,14 +189,19 @@ local function display_info(pos, player)
    if not player or not minetest.is_player(player) then return end
 	   local meta = minetest.get_meta(pos)
 	   local itext = info[meta:get("tutinfo_text")] or "INFO"
-	   local width = meta:get("tutinfo_width") or "7"
+	   if itext == "delete" then
+	      minetest.set_node(pos, { name = "air" })
+	      return
+	   end
+	   local width = meta:get("tutinfo_width") or "8"
 	   local height = meta:get("tutinfo_height") or"4.5"
 	   local half = ( (tonumber(width) or 7) / 2) - 1
 	   minetest.show_formspec(player:get_player_name(),
 				  "informational",
 				  "formspec_version[3]"..
 				  "size["..width..","..height.."]"..
-				  "hypertext[0.5,0.75;6,2;introtext;"..
+				  "hypertext[0.5,0.75;"..
+				  width - 1 ..",2;introtext;"..
 				  itext.."]"..
 				  "button_exit["..half..",3;2,1;X;- X -]")
 end
