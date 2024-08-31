@@ -2,8 +2,10 @@
 --EARTHEN BUILDING
 -- construction from loose stones, mud etc
 
--- Internationalization
 tech = tech
+nodes_nature = nodes_nature
+
+-- Internationalization
 local S = tech.S
 
 local c_alpha = minimal.compat_alpha
@@ -132,7 +134,12 @@ local wickdef =  {
 local wwdesc = { S('Wicker well lining'),
 		 S('Wet wicker well lining'),
 		 S('Salty wet wicker well lining') }
-local soiltable = { "loam", "silt", "clay", "gravel", "sand" }
+
+local soiltable = {}
+for i = 1, #nodes_nature.sed_list do
+   soiltable[i] = nodes_nature.sed_list[i][1]
+end
+
 local wtable = { "", "_wet","_wet_salty" }
 local bn = 'tech:wicker_lined_'
 local c = nodes_nature.replacement_types
