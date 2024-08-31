@@ -769,7 +769,7 @@ function minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_
 	local pInv = clicker:get_inventory()
 	local cItems = load_craft_types(pInv, craft_item)
 	-- Set Selected item index
-	local sItemID = 0
+	local sItemID = 1
 	for i,stack in ipairs(cItems) do
 		if stack:get_name() == node.name then
 			sItemID = i
