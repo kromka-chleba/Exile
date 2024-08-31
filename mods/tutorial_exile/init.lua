@@ -5,7 +5,7 @@
 -- zone above y = 9000, which will walk them through the basics of shelter,
 -- fire, food, water, and crafting.
 
-local disable_tutorial = minetest.settings:get("exile_notutorialprompt") or false
+local disable_tutorial = minetest.settings:get("exile_notutorialprompt") or true
 -- #TODO: switch this to "or false" when it's debugged and ready to use
 -- Set this to true in minetest.conf if the tutorial is completed in singleplayer
 
