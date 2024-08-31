@@ -2636,14 +2636,20 @@ function animals.register_egg(def, animal)
   if animal and type(animal) ~= "table" then
     error("animals.register_egg: was given an 'animal' argument that was invalid, nil or table only, got '"..type(animal).."'")
   end
+
+
   def.description = def.desc or def.description or ""
   def.tiles = def.tiles or {"animals_gundu_eggs.png"}
   def.stack_max = def.stack_max or minimal.stack_max_medium
   def.drawtype = def.drawtype or "nodebox"
-  def.node_box = def.node_box or def.drawtype == "nodebox" and {
-    type = "fixed",
-    fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
-  }
+  if def.drawtype == "nodebox" then
+     def.node_box = def.node_box or
+	{
+	   type = "fixed",
+	   fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
+	}
+  end
+
   def.groups = def.groups or {}
   def.groups.egg = def.groups.egg or 1
   def.groups.snappy = def.groups.snappy or 3
