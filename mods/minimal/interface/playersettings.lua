@@ -45,8 +45,8 @@ function minimal.show_player_settings(playername, meta)
 
    local spec =
    "formspec_version[6]"..
-   "size[8,7]"..
-   "button_exit[7,0.2;0.8,0.75;exit_form;X]"..
+   "size[10,7]"..
+   "button_exit[9,0.2;0.8,0.75;exit_form;X]"..
    "checkbox[1,1;hud16;  "..S("Enable wide HUDbar")..";"..tostring(hud16).."]"..
    "checkbox[1,1.5;showstats;  "..
       S("Show numeric stats")..";"..tostring(showstats).."]"..
@@ -55,10 +55,10 @@ function minimal.show_player_settings(playername, meta)
    "checkbox[1,2.5;invburst;  "..S("Allow digging with a full inventory")..";"..
       tostring(invburst).."]"..
    "label[1,3.5;"..S("Temperature scale")..":]"..
-   "dropdown[4,3.25;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
+   "dropdown[5,3.25;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
      tempnum..";true]"..
    "label[1,4.25;"..S("GUI theme")..":]"..
-   "dropdown[4,4.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+   "dropdown[5,4;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
    "label[1,5.05;"..S("HUD Opacity level")..":]"..
    "scrollbaroptions[min=0;max=255;largestep=50]"..
       "scrollbar[1,5.5;6,0.5;horizontal;HudOpac;"..opacity.."]"

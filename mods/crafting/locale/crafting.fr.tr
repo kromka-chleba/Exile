@@ -1,0 +1,25 @@
+# textdomain: crafting
+log=bûche 
+fibrous plant=plante fibreuse 
+sand=sable 
+compostable=compostable 
+hard wood=bois dur 
+cana=canne 
+woody plant=plante ligneuse 
+woodslab=dalle de bois 
+
+bioluminescent=bioluminescent 
+
+pottery=poterie 
+gravel=gravier 
+
+bundleable fiber=fibre empaquetable  
+Any @1=Tout type de @1
+Missing required items!=Il manque des objets requis!
+
+#groups
+limestone cobble=caillou calcaire 
+basalt cobble=caillou de basalte
+granite cobble=caillou de granite 
+ironstone cobble=caillou ferreux 
+jade cobble=caillou de jade 

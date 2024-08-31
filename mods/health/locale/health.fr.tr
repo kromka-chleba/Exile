@@ -1,12 +1,12 @@
 # textdomain: health
 # hud.lua
 # food.lua
-This is inedible.=C'est immangeable.
+This is inedible.=Ce n'est pas comestible.
 Eat=Manger
 Food Poisoning=Intoxication alimentaire
-Dust Fever=Fièvre de poussière
+Dust Fever=Fièvre de la poussière
 Intestinal Parasites=Parasites intestinaux
-Tiku High=Tiku High
+Tiku High=Défoncé au Tiku
 Neurotoxicity=Neurotoxicité
 Hepatotoxicity=Hépatotoxicité
 Photosensitivity=Photosensibilité
@@ -16,25 +16,28 @@ Drunk=Ivre
 Hangover=Gueule de bois
 body temp=température corporelle
 Caveman in ice=Homme des cavernes dans la glace
-Frozen=Gelé
+Frozen=Gelé(e)
 Frostbitten=Engelure
-Chilled=Frigorifié
+Chilled=Frigorifié(e)
 Too warm=Trop chaud
 Heat stroke=Coup de chaleur
 Cooked=Cuit
 Bones and ash=Os et cendres
-Exhausted=Épuisé
+Exhausted=Épuisé(e)
 Weary=Las
-Tired=Fatigué
-Well-rested=Bien reposé
-Starving=Affamé
+Tired=Fatigué(e)
+Well-rested=Bien reposé(e)
+Starving=Affamé(e)
 Thin=Maigre
-Well-fed=Bien nourri
-Dying of thirst=En train de mourir de soif
-Very thirsty=Très soif
-Thirsty=Assoiffé
-Resting=Au repos
+Well-fed=Bien nourri(e)
+Dying of thirst=Mourant de soif
+Very thirsty=Très Assoiffé(e)
+Thirsty=Assoiffé(e)
+Resting=Se reposant
 (Shivering)=(Frissonnant)
 poorly=mal
 comfortably=confortablement
 (Sweating)=(Transpirant)
+#init.lua
+Hyperthermia=Hyperthermie
+Hypothermia=Hypothemie

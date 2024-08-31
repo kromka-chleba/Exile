@@ -38,3 +38,6 @@ Resting=
 poorly=
 comfortably=
 (Sweating)=
+#init.lua
+Hyperthermia=
+Hypothermia=

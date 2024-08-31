@@ -67,8 +67,8 @@ Light Fabric Tunic=
 Thick Fabric Tunic=
 # cooking-pot.lua
 Soup=
-Status: Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=
-Status: Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=
+Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=
+Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=
 @1 soup=
 Cooking Pot=
 This pot is full and heavy. Spill it?=

@@ -1,0 +1,9 @@
+Form_spec used in Exile
+==================================
+
+To be completed : the idea is to list which form is where to edited them easily. 
+
+Pressing inventory key form :
+------------------
+- Crafting tab is in /mods/minimal/interface/inventory.lua
+- Character tab is in mods/lore/char_tab.lua

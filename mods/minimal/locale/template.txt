@@ -5,6 +5,7 @@ Display the current git revision=
 This server is currently running git revision=
 #interface/infotext.lua
 Owner=
+#interface/inventory.lua
 Missing required items!=
 Main=
 Bag1=
@@ -18,6 +19,7 @@ Quantity=
 Single=
 Stack=
 Maximum=
+Query=
 #playersettings.lua
 Enable wide HUDbar=
 Show numeric stats=

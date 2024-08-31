@@ -304,7 +304,7 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
---Sticks from woody plants
+--Grass fibers from fibrous plants
 crafting.register_recipe({
 	type = {"hand","knife"},
 	output = "tech:grass_fibre",

@@ -159,18 +159,18 @@ minetest.register_node("bones:bones", {
       if share_bones_time ~= 0 then
         -- fresh, deemed early
         if time < share_bones_time_early then
-          return S('Status:').." "..S("@1's fresh bones",owner)
+          return S("@1's fresh bones",owner)
         -- over the share_bones_time, these bones can be claimed by anyone
         elseif time >= share_bones_time then
           meta:set_string("owner","")
-          return S('Status:').." "..S("@1's old bones",owner)
+          return S("@1's old bones",owner)
         -- otherwise just remove fresh
         else
-          return S('Status:').." "..S("@1's bones",owner)
+          return S("@1's bones",owner)
         end
       -- if not share_bones_time, then it's always regular 'ol bones
       else
-        return S('Status:').." "..S("@1's bones",owner)
+        return S("@1's bones",owner)
       end
     -- nailed with no true owner, these'be claimed by someone else
     else
