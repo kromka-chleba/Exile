@@ -188,11 +188,12 @@ local info = { -- #TODO: set up locales, template.txt etc
 local function display_info(pos, player)
    if not player or not minetest.is_player(player) then return end
 	   local meta = minetest.get_meta(pos)
-	   local itext = info[meta:get("tutinfo_text")] or "INFO"
+	   local itext = meta:get("tutinfo_text")
 	   if itext == "delete" then
 	      minetest.set_node(pos, { name = "air" })
 	      return
 	   end
+	   itext = info[itext] or "INFO"
 	   local width = meta:get("tutinfo_width") or "8"
 	   local height = meta:get("tutinfo_height") or"4.5"
 	   local half = ( (tonumber(width) or 7) / 2) - 1
@@ -212,10 +213,10 @@ ncrafting.register_switch("tutorial_exile:info_node", {
 	tiles={
 	   "tech_woven.png",
 	   "tech_woven.png",
-	   "tech_woven.png^tech_paint_lw_hand.png",
-	   "tech_woven.png^tech_paint_lw_hand.png",
-	   "tech_woven.png^tech_paint_lw_hand.png",
-	   "tech_woven.png^tech_paint_lw_hand.png",
+	   "tut_info_box.png",
+	   "tut_info_box.png",
+	   "tut_info_box.png",
+	   "tut_info_box.png",
 	},
         groups = { },
 	_switch_sound = "",
