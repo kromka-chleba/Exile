@@ -78,6 +78,7 @@ local wgraffiti = {
    "lw_angryface",
    "lw_sadface",
    "lw_surpriseface",
+   "lw_happyface",
    "lw_fearface",
    "lw_chrysalis"
 }
