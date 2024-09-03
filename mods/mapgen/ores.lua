@@ -101,8 +101,8 @@ minetest.register_ore({
   y_min           = 50,
   noise_params    = {
     offset = 24,
-    scale = 8,
-    spread = {x = 64, y = 64, z = 64},
+    scale = 16,
+    spread = {x = 128, y = 128, z = 128},
     seed = 88532,
     octaves = 1,
   },
@@ -120,8 +120,8 @@ minetest.register_ore({
   y_min           = 70,
   noise_params    = {
     offset = 24,
-    scale = 8,
-    spread = {x = 64, y = 64, z = 64},
+    scale = 16,
+    spread = {x = 128, y = 128, z = 128},
     seed = 10812,
     octaves = 1,
   },
@@ -138,8 +138,8 @@ minetest.register_ore({
   y_min           = 90,
   noise_params    = {
     offset = 24,
-    scale = 8,
-    spread = {x = 64, y = 64, z = 64},
+    scale = 16,
+    spread = {x = 128, y = 128, z = 128},
     seed = 9222,
     octaves = 1,
   },
@@ -156,8 +156,8 @@ minetest.register_ore({
   y_min           = 110,
   noise_params    = {
     offset = 24,
-    scale = 8,
-    spread = {x = 64, y = 64, z = 64},
+    scale = 16,
+    spread = {x = 128, y = 128, z = 128},
     seed = 1111,
     octaves = 1,
   },
