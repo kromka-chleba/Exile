@@ -7,7 +7,7 @@
 mobkit={}
 
 mobkit.gravity = -9.8
-mobkit.friction = 0.4	-- less is more
+mobkit.friction = 0.4   -- less is more
 
 local abs = math.abs
 local pi = math.pi
@@ -45,8 +45,8 @@ function mobkit.pos_shift(pos,vec)
    vec.y=vec.y or 0
    vec.z=vec.z or 0
    return {x=pos.x+vec.x,
-	   y=pos.y+vec.y,
-	   z=pos.z+vec.z}
+           y=pos.y+vec.y,
+           z=pos.z+vec.z}
 end
 
 function mobkit.pos_translate2d(pos,yaw,dist)
@@ -62,16 +62,16 @@ end
 
 -- call this instead if you want feet position.
 --[[
-   function mobkit.get_stand_pos(thing)	-- thing can be luaentity or objectref.
+   function mobkit.get_stand_pos(thing) -- thing can be luaentity or objectref.
    if type(thing) == 'table' then
    return mobkit.pos_shift(thing.object:get_pos(),{y=thing.collisionbox[2]+0.01})
    elseif type(thing) == 'userdata' then
    local colbox = thing:get_properties().collisionbox
    return mobkit.pos_shift(thing:get_pos(),{y=colbox[2]+0.01})
    end
-   end	--]]
+   end  --]]
 
-function mobkit.get_stand_pos(thing)	-- thing can be luaentity or objectref.
+function mobkit.get_stand_pos(thing)    -- thing can be luaentity or objectref.
    local pos
    local colbox
    if type(thing) == 'table' then
@@ -117,7 +117,7 @@ function mobkit.get_nodes_in_area(pos1,pos2,full)
    local npos1=mobkit.get_node_pos(pos1)
    local npos2=mobkit.get_node_pos(pos2)
    local result = {}
-   local cnt = 0	-- safety
+   local cnt = 0        -- safety
 
    local sx = (pos2.x<pos1.x) and -1 or 1
    local sz = (pos2.z<pos1.z) and -1 or 1
@@ -131,28 +131,28 @@ function mobkit.get_nodes_in_area(pos1,pos2,full)
       x=x+sx
       z=npos1.z-sz
       repeat
-	 z=z+sz
-	 y=npos1.y-sy
-	 repeat
-	    y=y+sy
+         z=z+sz
+         y=npos1.y-sy
+         repeat
+            y=y+sy
 
-	    local pos = {x=x,y=y,z=z}
-	    local node = mobkit.nodeatpos(pos)
-	    if node	then
-	       if full==true then
-		  result[pos] = node
-	       else
-		  result[node] = true
-	       end
-	    end
+            local pos = {x=x,y=y,z=z}
+            local node = mobkit.nodeatpos(pos)
+            if node     then
+               if full==true then
+                  result[pos] = node
+               else
+                  result[node] = true
+               end
+            end
 
-	    cnt=cnt+1
-	    if cnt > 125 then
-	       minetest.chat_send_all('get_nodes_in_area: area too big ')
-	       return result
-	    end
+            cnt=cnt+1
+            if cnt > 125 then
+               minetest.chat_send_all('get_nodes_in_area: area too big ')
+               return result
+            end
 
-	 until y==npos2.y
+         until y==npos2.y
       until z==npos2.z
    until x==npos2.x
 
@@ -177,22 +177,22 @@ function mobkit.get_node_height(pos)
 
    if node.walkable then
       if node.drawtype == 'nodebox' then
-	 if node.node_box and node.node_box.type == 'fixed' then
-	    if type(node.node_box.fixed[1]) == 'number' then
-	       return npos.y + node.node_box.fixed[5] ,0, false
-	    elseif type(node.node_box.fixed[1]) == 'table' then
-	       return npos.y + node.node_box.fixed[1][5] ,0, false
-	    else
-	       return npos.y + 0.5,1, false -- todo handle table of boxes
-	    end
-	 elseif node.node_box and node.node_box.type == 'leveled' then
-	    return minetest.get_node_level(pos) / 64 - 0.5
-	       + mobkit.get_node_pos(pos).y, 0, false
-	 else
-	    return npos.y + 0.5,1, false	-- the unforeseen
-	 end
+         if node.node_box and node.node_box.type == 'fixed' then
+            if type(node.node_box.fixed[1]) == 'number' then
+               return npos.y + node.node_box.fixed[5] ,0, false
+            elseif type(node.node_box.fixed[1]) == 'table' then
+               return npos.y + node.node_box.fixed[1][5] ,0, false
+            else
+               return npos.y + 0.5,1, false -- todo handle table of boxes
+            end
+         elseif node.node_box and node.node_box.type == 'leveled' then
+            return minetest.get_node_level(pos) / 64 - 0.5
+               + mobkit.get_node_pos(pos).y, 0, false
+         else
+            return npos.y + 0.5,1, false        -- the unforeseen
+         end
       else
-	 return npos.y+0.5,1, false	-- full node
+         return npos.y+0.5,1, false     -- full node
       end
    else
       local liquidflag = false
@@ -222,7 +222,7 @@ function mobkit.get_terrain_height(pos,steps,dir,liquidflag)
       steps = steps - 1
       if steps <=0 then return nil end
       return mobkit.get_terrain_height(mobkit.pos_shift(pos,{y=f}),
-				       steps,f,liquidflag)
+                                       steps,f,liquidflag)
    else
       return h, liquidflag
    end
@@ -234,18 +234,18 @@ function mobkit.get_spawn_pos_abr(dtime,intrvl,radius,chance,reduction)
    intrvl=1/intrvl
 
    if random()<dtime*(intrvl*#plyrs) then
-      local plyr = plyrs[random(#plyrs)]		-- choose random player
+      local plyr = plyrs[random(#plyrs)]                -- choose random player
       local vel = plyr:get_player_velocity()
       local spd = vector.length(vel)
       chance = (1-chance) * 1/(spd*0.75+1)
 
       local yaw
       if spd > 1 then
-	 -- spawn in the front arc
-	 yaw = minetest.dir_to_yaw(vel) + random()*0.35 - 0.75
+         -- spawn in the front arc
+         yaw = minetest.dir_to_yaw(vel) + random()*0.35 - 0.75
       else
-	 -- random yaw
-	 yaw = random()*pi*2 - pi
+         -- random yaw
+         yaw = random()*pi*2 - pi
       end
       local pos = plyr:get_pos()
       local dir = vector.multiply(minetest.yaw_to_dir(yaw),radius)
@@ -253,24 +253,24 @@ function mobkit.get_spawn_pos_abr(dtime,intrvl,radius,chance,reduction)
       pos2.y=pos2.y-5
       local height, liquidflag = mobkit.get_terrain_height(pos2,32)
       if height then
-	 local objs = minetest.get_objects_inside_radius(pos,radius*1.1)
-	 for _,obj in ipairs(objs) do -- count mobs in abrange
-	    if not obj:is_player() then
-	       local lua = obj:get_luaentity()
-	       if lua and lua.name ~= '__builtin:item' then
-		  chance=chance + (1-chance)*reduction
-		  -- chance reduced for every mob in range
-	       end
-	    end
-	 end
-	 if chance < random() then
-	    pos2.y = height
-	    objs = minetest.get_objects_inside_radius(pos2,radius*0.95)
-	    for _,obj in ipairs(objs) do -- don't spawn if another player around
-	       if obj:is_player() then return end
-	    end
-	    return pos2, liquidflag
-	 end
+         local objs = minetest.get_objects_inside_radius(pos,radius*1.1)
+         for _,obj in ipairs(objs) do -- count mobs in abrange
+            if not obj:is_player() then
+               local lua = obj:get_luaentity()
+               if lua and lua.name ~= '__builtin:item' then
+                  chance=chance + (1-chance)*reduction
+                  -- chance reduced for every mob in range
+               end
+            end
+         end
+         if chance < random() then
+            pos2.y = height
+            objs = minetest.get_objects_inside_radius(pos2,radius*0.95)
+            for _,obj in ipairs(objs) do -- don't spawn if another player around
+               if obj:is_player() then return end
+            end
+            return pos2, liquidflag
+         end
       end
    end
 end
@@ -297,10 +297,10 @@ end
 function mobkit.dir_to_rot(v,rot)
    rot = rot or {x=0,y=0,z=0}
    return {x = (v.x==0 and v.y==0 and v.z==0) and rot.x
-	      or math.atan2(v.y,vector.length({x=v.x,y=0,z=v.z})),
-	   y = (v.x==0 and v.z==0) and rot.y
-	      or minetest.dir_to_yaw(v),
-	   z=rot.z}
+              or math.atan2(v.y,vector.length({x=v.x,y=0,z=v.z})),
+           y = (v.x==0 and v.z==0) and rot.y
+              or minetest.dir_to_yaw(v),
+           z=rot.z}
 end
 
 function mobkit.rot_to_dir(rot) -- keep rot within <-pi/2,pi/2>
@@ -321,7 +321,7 @@ end
 function mobkit.is_there_yet2d(pos,dir,dest)
    -- obj positon; facing vector; destination position
 
-   local c = -dir.x*pos.x-dir.z*pos.z						-- the constant
+   local c = -dir.x*pos.x-dir.z*pos.z                                           -- the constant
 
    if dir.z > 0 then
       return dest.z <= (-dir.x*dest.x - c)/dir.z -- line equation
@@ -355,7 +355,7 @@ function mobkit.get_box_intersect_cols(pos,box)
    local result= {}
    for x=pmin.x,pmax.x do
       for z=pmin.z,pmax.z do
-	 table.insert(result,{x=x,z=z})
+         table.insert(result,{x=x,z=z})
       end
    end
    return result
@@ -370,16 +370,16 @@ function mobkit.get_box_displace_cols(pos,box,vec,dist)
    local zoff
 
    if vec.x < 0 then
-      fpos.x = pos.x+box[1]	-- frontmost corner's x
-      xoff = box[4]-box[1]	-- edge offset along x
+      fpos.x = pos.x+box[1]     -- frontmost corner's x
+      xoff = box[4]-box[1]      -- edge offset along x
    else
       fpos.x = pos.x+box[4]
       xoff = box[1]-box[4]
    end
 
    if vec.z < 0 then
-      fpos.z = pos.z+box[3]	-- frontmost corner's z
-      zoff = box[6]-box[3]	-- edge offset along z
+      fpos.z = pos.z+box[3]     -- frontmost corner's z
+      zoff = box[6]-box[3]      -- edge offset along z
    else
       fpos.z = pos.z+box[6]
       zoff = box[3]-box[6]
@@ -399,7 +399,7 @@ function mobkit.get_box_displace_cols(pos,box,vec,dist)
       local zcomp = vec.x == 0 and 0 or fpos.z + (x-fpos.x)*vec.z/vec.x
       -- z component at the intersection of x and node edge
       for z = floor(zcomp+0.5), floor(zcomp+zoff+0.5), zsgn do
-	 table.insert(result[index],{x=x+xsgn*0.5,z=z})
+         table.insert(result[index],{x=x+xsgn*0.5,z=z})
       end
    end
 
@@ -413,7 +413,7 @@ function mobkit.get_box_displace_cols(pos,box,vec,dist)
       result[index] = result[index] or {}
       local xcomp = vec.z == 0 and 0 or fpos.x + (z-fpos.z)*vec.x/vec.z
       for x = floor(xcomp+0.5), floor(xcomp+xoff+0.5), xsgn do
-	 table.insert(result[index],{x=x,z=z+zsgn*0.5})
+         table.insert(result[index],{x=x,z=z+zsgn*0.5})
       end
    end
 
@@ -431,7 +431,7 @@ function mobkit.get_box_height(thing)
 end
 
 function mobkit.is_alive(thing) -- thing can be luaentity or objectref.
-   --	if not thing then return false end
+   --   if not thing then return false end
    if not mobkit.exists(thing) then return false end
    if type(thing) == 'table' then return thing.hp > 0 end
    if thing:is_player() then return thing:get_hp() > 0
@@ -447,9 +447,9 @@ function mobkit.exists(thing)
    if type(thing) == 'table' then thing=thing.object end
    if type(thing) == 'userdata' then
       if thing:is_player() then
-	 if thing:get_look_horizontal() then return true end
+         if thing:get_look_horizontal() then return true end
       else
-	 if thing:get_yaw() then return true end
+         if thing:get_yaw() then return true end
       end
    end
 end
@@ -487,15 +487,15 @@ function mobkit.animate(self,anim)
 
       local aparms
       if #self.animation[anim] > 0 then
-	 aparms = self.animation[anim][random(#self.animation[anim])]
+         aparms = self.animation[anim][random(#self.animation[anim])]
       else
-	 aparms = self.animation[anim]
+         aparms = self.animation[anim]
       end
 
       aparms.frame_blend = aparms.frame_blend or 0
 
       self.object:set_animation(aparms.range, aparms.speed,
-				aparms.frame_blend, aparms.loop)
+                                aparms.frame_blend, aparms.loop)
    else
       self._anim = nil
    end
@@ -511,8 +511,8 @@ function mobkit.make_sound(self, sound)
 
       --returns value or a random value within the range [value[1], value[2])
       local function in_range(value)
-	 return type(value) == 'table'
-	    and value[1]+random()*(value[2]-value[1]) or value
+         return type(value) == 'table'
+            and value[1]+random()*(value[2]-value[1]) or value
       end
 
       --pick random values within a range if they're a table
@@ -573,8 +573,8 @@ function mobkit.queue_high(self,func,priority)
 
    for i,f in ipairs(self.hqueue) do
       if priority > f.prty then
-	 table.insert(self.hqueue,i,{func=func,prty=priority})
-	 return
+         table.insert(self.hqueue,i,{func=func,prty=priority})
+         return
       end
    end
    table.insert(self.hqueue,{func=func,prty=priority})
@@ -620,7 +620,7 @@ function mobkit.get_nearby_entity(self,name)
    -- returns random nearby entity of name or nil
    for _,obj in ipairs(self.nearby_objects) do
       if mobkit.is_alive(obj) and not obj:is_player()
-	 and obj:get_luaentity().name == name then return obj end
+         and obj:get_luaentity().name == name then return obj end
    end
    return
 end
@@ -633,14 +633,14 @@ function mobkit.get_closest_entity(self,name)
    for _,obj in ipairs(self.nearby_objects) do
       local luaent = obj:get_luaentity()
       if mobkit.is_alive(obj) and not obj:is_player()
-	 and luaent and luaent.name == name then
+         and luaent and luaent.name == name then
 
-	 local opos = obj:get_pos()
-	 local odist = abs(opos.x-pos.x) + abs(opos.z-pos.z)
-	 if odist < dist then
-	    dist=odist
-	    cobj=obj
-	 end
+         local opos = obj:get_pos()
+         local odist = abs(opos.x-pos.x) + abs(opos.z-pos.z)
+         if odist < dist then
+            dist=odist
+            cobj=obj
+         end
       end
    end
    return cobj
@@ -651,15 +651,15 @@ local function execute_queues(self)
    if #self.hqueue > 0 then
       local func = self.hqueue[1].func
       if func(self) then
-	 table.remove(self.hqueue,1)
-	 self.lqueue = {}
+         table.remove(self.hqueue,1)
+         self.lqueue = {}
       end
    end
    -- Execute lqueue
    if #self.lqueue > 0 then
       local func = self.lqueue[1]
       if func(self) then
-	 table.remove(self.lqueue,1)
+         table.remove(self.lqueue,1)
       end
    end
 end
@@ -671,25 +671,25 @@ local function sensors()
       timer=timer-self.dtime
       if timer < 0 then
 
-	 pulse = pulse + 1  -- do full range every third scan
-	 local range = self.view_range
-	 if pulse > 2 then
-	    pulse = 1
-	 else
-	    range = self.view_range*0.5
-	 end
+         pulse = pulse + 1  -- do full range every third scan
+         local range = self.view_range
+         if pulse > 2 then
+            pulse = 1
+         else
+            range = self.view_range*0.5
+         end
 
-	 local pos = self.object:get_pos()
-	 --local tim = minetest.get_us_time()
-	 self.nearby_objects = minetest.get_objects_inside_radius(pos, range)
-	 --minetest.chat_send_all(minetest.get_us_time()-tim)
-	 for i,obj in ipairs(self.nearby_objects) do
-	    if obj == self.object then
-	       table.remove(self.nearby_objects,i)
-	       break
-	    end
-	 end
-	 timer=2
+         local pos = self.object:get_pos()
+         --local tim = minetest.get_us_time()
+         self.nearby_objects = minetest.get_objects_inside_radius(pos, range)
+         --minetest.chat_send_all(minetest.get_us_time()-tim)
+         for i,obj in ipairs(self.nearby_objects) do
+            if obj == self.object then
+               table.remove(self.nearby_objects,i)
+               break
+            end
+         end
+         timer=2
       end
    end
 end
@@ -710,25 +710,25 @@ function mobkit.physics(self)
 
    if self.isonground and not self.isinliquid then
       vnew = {x= vel.x> 0.2 and vel.x*mobkit.friction or 0,
-	      y=vel.y,
-	      z=vel.z > 0.2 and vel.z*mobkit.friction or 0}
+              y=vel.y,
+              z=vel.z > 0.2 and vel.z*mobkit.friction or 0}
    end
 
    -- bounciness
    if self.springiness and self.springiness > 0 then
 
       if colinfo and colinfo.collides then
-	 for _,c in ipairs(colinfo.collisions) do
-	    if c.old_velocity[c.axis] > 0.1 then
-	       vnew[c.axis] = vnew[c.axis] * self.springiness * -1
-	    end
-	 end
+         for _,c in ipairs(colinfo.collisions) do
+            if c.old_velocity[c.axis] > 0.1 then
+               vnew[c.axis] = vnew[c.axis] * self.springiness * -1
+            end
+         end
       elseif not colinfo then -- MT 5.2 and earlier
-	 for _,k in ipairs({'y','z','x'}) do
-	    if vel[k]==0 and abs(self.lastvelocity[k])> 0.1 then
-	       vnew[k]=-self.lastvelocity[k]*self.springiness
-	    end
-	 end
+         for _,k in ipairs({'y','z','x'}) do
+            if vel[k]==0 and abs(self.lastvelocity[k])> 0.1 then
+               vnew[k]=-self.lastvelocity[k]*self.springiness
+            end
+         end
       end
    end
 
@@ -750,17 +750,17 @@ function mobkit.physics(self)
       surfnode = mobkit.nodeatpos(snodepos)
    end
    self.isinliquid = surfnodename
-   if surface then				-- standing in liquid
-      --		self.isinliquid = true
+   if surface then                              -- standing in liquid
+      --                self.isinliquid = true
       local submergence = min(surface-spos.y,self.height)/self.height
-      --		local balance = self.buoyancy*self.height
+      --                local balance = self.buoyancy*self.height
       local buoyacc = mobkit.gravity*(self.buoyancy-submergence)
       mobkit.set_acceleration(self.object,
-			      {x=-vel.x*self.water_drag,
-			       y=buoyacc-vel.y*abs(vel.y)*0.4,
-			       z=-vel.z*self.water_drag})
+                              {x=-vel.x*self.water_drag,
+                               y=buoyacc-vel.y*abs(vel.y)*0.4,
+                               z=-vel.z*self.water_drag})
    else
-      --		self.isinliquid = false
+      --                self.isinliquid = false
       self.object:set_acceleration({x=0,y=mobkit.gravity,z=0})
    end
 end
@@ -771,22 +771,22 @@ function mobkit.vitals(self)
    local velocity_delta = abs(self.lastvelocity.y - vel.y)
    if velocity_delta > mobkit.safe_velocity then
       self.hp = self.hp - floor(
-	 self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
+         self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
    end
 
    -- vitals: oxygen
    if self.lung_capacity then
       local colbox = self.object:get_properties().collisionbox
       local headnode = mobkit.nodeatpos(mobkit.pos_shift(
-					   self.object:get_pos(),
-					   {y=colbox[5]})) -- node at hitbox top
+                                           self.object:get_pos(),
+                                           {y=colbox[5]})) -- node at hitbox top
       if headnode and headnode.drawtype == 'liquid' then
-	 self.oxygen = self.oxygen - self.dtime
+         self.oxygen = self.oxygen - self.dtime
       else
-	 self.oxygen = self.lung_capacity
+         self.oxygen = self.lung_capacity
       end
 
-      if self.oxygen <= 0 then self.hp=0 end	-- drown
+      if self.oxygen <= 0 then self.hp=0 end    -- drown
    end
 end
 
@@ -815,7 +815,7 @@ function mobkit.actfunc(self, staticdata, dtime_s)
    local sdata = minetest.deserialize(staticdata)
    if sdata then
       for k,v in pairs(sdata) do
-	 self[k] = v
+         self[k] = v
       end
    end
 
@@ -824,7 +824,7 @@ function mobkit.actfunc(self, staticdata, dtime_s)
       if prop_tex then self.textures=prop_tex end
    end
 
-   if not self.memory then 		-- this is the initial activation
+   if not self.memory then              -- this is the initial activation
       self.memory = {}
 
       -- texture variation
@@ -832,8 +832,8 @@ function mobkit.actfunc(self, staticdata, dtime_s)
    end
 
    if self.timeout and ((self.timeout>0
-			 and dtime_s > self.timeout
-			 and next(self.memory)==nil) or
+                         and dtime_s > self.timeout
+                         and next(self.memory)==nil) or
       (self.timeout<0 and dtime_s > abs(self.timeout))) then
       self.object:remove()
    end
@@ -861,7 +861,7 @@ function mobkit.actfunc(self, staticdata, dtime_s)
    self.sensefunc=sensors()
 end
 
-function mobkit.stepfunc(self,dtime,colinfo)	-- not intended to be modified
+function mobkit.stepfunc(self,dtime,colinfo)    -- not intended to be modified
    self.dtime = min(dtime,0.2)
    self.colinfo = colinfo
    self.height = mobkit.get_box_height(self)
@@ -873,9 +873,9 @@ function mobkit.stepfunc(self,dtime,colinfo)	-- not intended to be modified
       self.isonground = colinfo.touching_ground
    else
       if self.lastvelocity.y==0 and vel.y==0 then
-	 self.isonground = true
+         self.isonground = true
       else
-	 self.isonground = false
+         self.isonground = false
       end
    end
 
@@ -897,14 +897,14 @@ dofile(minetest.get_modpath("mobkit") .. "/example_behaviors.lua")
 minetest.register_on_mods_loaded(function()
       local mbkfuns = ''
       for n,f in pairs(mobkit) do
-	 if type(f) == 'function' then
-	    mbkfuns = mbkfuns .. n ..
-	       string.split(minetest.serialize(f),'.lua')[2] or ''
-	 end
+         if type(f) == 'function' then
+            mbkfuns = mbkfuns .. n ..
+               string.split(minetest.serialize(f),'.lua')[2] or ''
+         end
       end
       --local crc = minetest.sha1(mbkfuns)
       --  dbg(crc)
-      --	if crc ~= 'a061770008fe9ecf8e1042a227dc3beabd10e481' then
-      --		minetest.log("error","Mobkit namespace inconsistent, has been modified by other mods.")
-      --	end
+      --        if crc ~= 'a061770008fe9ecf8e1042a227dc3beabd10e481' then
+      --                minetest.log("error","Mobkit namespace inconsistent, has been modified by other mods.")
+      --        end
 end)
