@@ -267,6 +267,15 @@ crafting.register_recipe({
 	always_known = true,
 })
 
+crafting.register_recipe({
+	type = {"hammering_block","hammer"},
+	output = "tech:crushed_lime",
+	items = {"group:coquina_cobble 8"},
+	level = 1,
+	always_known = true,
+})
+
+
 --mix mortar
 crafting.register_recipe({
 	type = "brick_makers_bench",
@@ -891,6 +900,7 @@ local sediments = {
 }
 
 local stones = {
+	{"coquina", S("Coquina"), 3},
 	{"limestone", S("Limestone"), 3},
 	{"ironstone", S("Ironstone"), 3},
 	{"granite", S("Granite"), 1},
