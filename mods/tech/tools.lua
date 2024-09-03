@@ -43,7 +43,7 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
     local def_under = minetest.registered_nodes[under_front.name]
     -- check if not walkable - there's empty space over the node
     --  (air, water, etc.)
-    if ( def_above and not def_above.walkable )
+    if ( def_above and ( not def_above.walkable ) and def_above.buildable_to )
         -- check if walkable below to avoid throwing tools into abyss
        and (def_under and def_under.walkable ) then
 	   if (minimal.in_group(above,"woody_plant")
