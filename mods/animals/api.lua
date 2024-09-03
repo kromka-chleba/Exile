@@ -70,20 +70,20 @@ function animals.get_structure(obj)
    local obj_t = {} -- obj_table
    if minetest.is_player(obj) then
       return {
-	 ent = {max_hp = minetest.PLAYER_MAX_HP_DEFAULT,
-		hp = obj:get_hp(),
-		memory = {},
-		object = obj
-	 },
-	 object = obj,
-	 player = true
+         ent = {max_hp = minetest.PLAYER_MAX_HP_DEFAULT,
+                hp = obj:get_hp(),
+                memory = {},
+                object = obj
+         },
+         object = obj,
+         player = true
       }
    end
    if (type(obj) == "userdata" and obj["get_luaentity"]) then
       -- get luaentity table and its object
       obj_t.ent = obj:get_luaentity()
       if not obj_t.ent then
-	 return
+         return
       end
       obj_t.object = obj_t.ent.object
       return obj_t
@@ -105,9 +105,9 @@ function animals.temp_comfy(self,temp)
    if (type(temp) ~= "number") then
       local pos = mobkit.get_stand_pos(self)
       if (type(temp) == "table") then
-	 if (temp.x and temp.y and temp.z) then
-	    pos = temp
-	 end
+         if (temp.x and temp.y and temp.z) then
+            pos = temp
+         end
       end
       temp = climate.get_point_temp(pos, true)
    end
@@ -141,7 +141,7 @@ local function node_drawtype(pos)
    end
    -- if pos is a pos, get node, otherwise assume pos is a node table
    local node = (pos.x and pos.y and pos.z
-		 and minetest.get_node_or_nil(pos)) or pos
+                 and minetest.get_node_or_nil(pos)) or pos
    -- purify invalid node table by turning it into an empty table
    node = type(node) ~= "table" or type(node.name) ~= "string" and {} or node
    -- get node information from registered_nodes or use purified node table
@@ -250,8 +250,8 @@ local function get_closest(self,targets,maxdist)
    for index,targ in pairs(targets) do
       local dist = get_dist(self,targ)
       if dist < cdist then
-	 closest = {targ,index}
-	 cdist = dist
+         closest = {targ,index}
+         cdist = dist
       end
    end
    return unpack(closest)
@@ -275,30 +275,30 @@ function animals.get_entities_in_distance(self,override)
    for _,obj in pairs(objs) do
       -- must be alive
       if mobkit.is_alive(obj) then
-	 local obj_structure = animals.get_structure(obj)
-	 if minetest.is_player(obj) then
-	    table.insert(players,obj)
-	 elseif obj_structure then
-	    -- not a player, find out what we can do with it
-	    for possinteract,interactable in pairs(entities) do
-	       -- possibleinteractiontype, interact-table
+         local obj_structure = animals.get_structure(obj)
+         if minetest.is_player(obj) then
+            table.insert(players,obj)
+         elseif obj_structure then
+            -- not a player, find out what we can do with it
+            for possinteract,interactable in pairs(entities) do
+               -- possibleinteractiontype, interact-table
 
-	       -- iterate over possible interaction types
-	       local interactors = animals.get_interactors(
-		  self.name,possinteract)
-	       if interactors then
-		  -- self has this interaction type specified, look through
-		  for _,inter_name in pairs(interactors) do
-		     if inter_name == obj_structure.ent.name then
-			-- object has same name as an interactor specified
-			-- in specific interactiontype with self, add to table
-			table.insert(interactable,obj_structure.ent)
-		     end
-		  end
-	       end
+               -- iterate over possible interaction types
+               local interactors = animals.get_interactors(
+                  self.name,possinteract)
+               if interactors then
+                  -- self has this interaction type specified, look through
+                  for _,inter_name in pairs(interactors) do
+                     if inter_name == obj_structure.ent.name then
+                        -- object has same name as an interactor specified
+                        -- in specific interactiontype with self, add to table
+                        table.insert(interactable,obj_structure.ent)
+                     end
+                  end
+               end
 
-	    end
-	 end
+            end
+         end
       end
    end
    entities.players = players -- add to entities
@@ -377,29 +377,29 @@ function animals.handle_drops(self,despawn_time)
 
    local function drops()
       for _,item in ipairs(self.drops) do
-	 local amount = random (item.min, item.max)
-	 local chance = random(1,100)
+         local amount = random (item.min, item.max)
+         local chance = random(1,100)
 
-	 if chance <= (100/item.chance) then
-	    -- ^= guarantees certainty if chance is 1 or 100 ( <= vs < )
-	    dsp_pos.y = dsp_pos.y+0.5
-	    item = item.name
-	    -- convert into string to avoid conflicts (and override)
+         if chance <= (100/item.chance) then
+            -- ^= guarantees certainty if chance is 1 or 100 ( <= vs < )
+            dsp_pos.y = dsp_pos.y+0.5
+            item = item.name
+            -- convert into string to avoid conflicts (and override)
 
-	    -- if the animal was burned to death
-	    if (self.burnt == true) then
-	       -- look for possible "burn" versions of the item to be dropped
-	       local possitem = item.."_burned"
-	       if (minetest.registered_items[possitem]) then
-		  item = ItemStack(possitem):get_name()
-	       end
-	       possitem = item.."_burnt"
-	       if (minetest.registered_items[possitem]) then
-		  item = ItemStack(possitem):get_name()
-	       end
-	    end
-	    minetest.add_item(dsp_pos, item.." "..tostring(amount))
-	 end
+            -- if the animal was burned to death
+            if (self.burnt == true) then
+               -- look for possible "burn" versions of the item to be dropped
+               local possitem = item.."_burned"
+               if (minetest.registered_items[possitem]) then
+                  item = ItemStack(possitem):get_name()
+               end
+               possitem = item.."_burnt"
+               if (minetest.registered_items[possitem]) then
+                  item = ItemStack(possitem):get_name()
+               end
+            end
+            minetest.add_item(dsp_pos, item.." "..tostring(amount))
+         end
       end
    end
 
@@ -411,14 +411,14 @@ function animals.handle_drops(self,despawn_time)
       timer = timer - self.dtime
       local pos = mobkit.get_stand_pos(self)
       if pos and timer > 0 then
-	 dsp_pos = pos
+         dsp_pos = pos
       else
-	 return true
+         return true
       end
    end
    -- do drops after specified despawn time
    minetest.after(dsp_time,function()
-		     drops()
+                     drops()
    end)
    mobkit.queue_high(self,update_pos,200)
 end
@@ -430,11 +430,11 @@ function animals.hq_die(self)
    mobkit.clear_queue_high(self)
    mobkit.clear_queue_low(self)
    -- fallover
-   self.logic = function(self) end	-- brain dead as well
+   self.logic = function(self) end      -- brain dead as well
    animals.handle_drops(self,despawn_time)
    mobkit.lq_fallover(self)
    minetest.after(despawn_time,function()
-		     self.object:remove()
+                     self.object:remove()
    end)
 end
 
@@ -452,51 +452,51 @@ function animals.core_hp(self)
       local pos = mobkit.pos_shift(self.object:get_pos(),{y = -1})
       local drawtype, node = node_drawtype(pos)
       if (drawtype == "airlike") then
-	 pos = mobkit.pos_shift(pos,{y = -1})
-	 drawtype, node = node_drawtype(pos)
+         pos = mobkit.pos_shift(pos,{y = -1})
+         drawtype, node = node_drawtype(pos)
       end
 
       if (node.name ~= nil) then
-	 local multiplier = node.groups.fall_damage_add_percent
-	 -- used for fall damage calculation
-	 if (type(multiplier) == "number") then
-	    -- convert multiplier into a usable decimal
-	    multiplier = multiplier/100
-	    if (multiplier <= 0) then
-	       -- if it's negative, make positive, and subtract it by 1 to get
-	       -- the result of which velocity should be of itself (-70 = 0.3)
-	       multiplier = -multiplier
-	       multiplier = 1 - multiplier
-	    else
-	       multiplier = 1 + multiplier
-	    end
+         local multiplier = node.groups.fall_damage_add_percent
+         -- used for fall damage calculation
+         if (type(multiplier) == "number") then
+            -- convert multiplier into a usable decimal
+            multiplier = multiplier/100
+            if (multiplier <= 0) then
+               -- if it's negative, make positive, and subtract it by 1 to get
+               -- the result of which velocity should be of itself (-70 = 0.3)
+               multiplier = -multiplier
+               multiplier = 1 - multiplier
+            else
+               multiplier = 1 + multiplier
+            end
 
-	    velocity_delta = floor(velocity_delta * multiplier)
-	 end
+            velocity_delta = floor(velocity_delta * multiplier)
+         end
 
-	 if (drawtype == "airlike") then
-	    multiplier = 0
-	    -- lazily reuse multiplier to check if it's hitting entity or air
-	    local obj = minetest.get_objects_inside_radius(pos,1)
-	    -- look for an object nearby
-	    if obj and #obj > 0 then
-	       obj = obj[random(1,#obj or 1)] -- lazily get one of em
-	       obj = obj:get_luaentity()
-	       if obj and obj.physical == true
-		  and obj.collide_with_objects == true then
-		  -- landed on someone, cushion it
-		  multiplier = 0.5
-	       end
-	    end
-	    velocity_delta = velocity_delta * multiplier
-	 end
+         if (drawtype == "airlike") then
+            multiplier = 0
+            -- lazily reuse multiplier to check if it's hitting entity or air
+            local obj = minetest.get_objects_inside_radius(pos,1)
+            -- look for an object nearby
+            if obj and #obj > 0 then
+               obj = obj[random(1,#obj or 1)] -- lazily get one of em
+               obj = obj:get_luaentity()
+               if obj and obj.physical == true
+                  and obj.collide_with_objects == true then
+                  -- landed on someone, cushion it
+                  multiplier = 0.5
+               end
+            end
+            velocity_delta = velocity_delta * multiplier
+         end
       end
    end
 
    if velocity_delta > mobkit.safe_velocity then
       -- alright, time to do some damage if it's still over safe_velocity
       local damage = floor(
-	 self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
+         self.max_hp * min(1, velocity_delta/mobkit.terminal_velocity))
 
       animals.modify_hp(self,-damage)
    end
@@ -510,18 +510,18 @@ local function get_mean_temp(pos) -- this could be put somewhere else like in cl
    if (type(pos) ~= "table") then -- no pos table is given then
       return 15
    elseif (type(pos.x) ~= "number" or type(pos.y) ~= "number"
-	   or type(pos.z) ~= "number") then -- incase an invalid pos is given
+           or type(pos.z) ~= "number") then -- incase an invalid pos is given
       return 15
    end
 
    for x = -1, 1, 1 do -- create matrix of possible positions
       for y = -1, 1, 1 do
-	 for z = -1, 1, 1 do
-	    local npos = {x = (pos.x - x), y = (pos.y - y), z = (pos.z - z)}
-	    -- matrix the pos :D
+         for z = -1, 1, 1 do
+            local npos = {x = (pos.x - x), y = (pos.y - y), z = (pos.z - z)}
+            -- matrix the pos :D
 
-	    temps[#temps + 1] = climate.get_point_temp(npos, true)
-	 end
+            temps[#temps + 1] = climate.get_point_temp(npos, true)
+         end
       end
    end
 
@@ -545,7 +545,7 @@ function animals.core_life(self, pos)
    --die from exhaustion, old age, no hp
    if self.energy <= 0 or self.age > self.lifespan or self.hp <= 0 then
       if type(self._on_death) == "function" then
-	 self._on_death(self, pos)
+         self._on_death(self, pos)
       end
       mobkit.clear_queue_high(self)
       animals.hq_die(self)
@@ -579,52 +579,52 @@ function animals.core_life(self, pos)
       local absolute_death_temp = self.absolute_death_temp
 
       if (self.class ~= 2) then
-	 -- only for land creatures
-	 if (temp > killer_max_temp or temp < killer_min_temp) then
-	    -- clear all queues, you gotta get outta here! We dyin!
-	    mobkit.clear_queue_low(self)
-	    mobkit.clear_queue_high(self)
-	    animals.hq_roam_comfort_temp(self,90)
-	 else
-	    -- not as critical (uncomfortable, but not dying)
-	    animals.hq_roam_comfort_temp(self,42)
-	 end
+         -- only for land creatures
+         if (temp > killer_max_temp or temp < killer_min_temp) then
+            -- clear all queues, you gotta get outta here! We dyin!
+            mobkit.clear_queue_low(self)
+            mobkit.clear_queue_high(self)
+            animals.hq_roam_comfort_temp(self,90)
+         else
+            -- not as critical (uncomfortable, but not dying)
+            animals.hq_roam_comfort_temp(self,42)
+         end
 
-	 self.conserve = false -- moving around, thus not conserving energy
+         self.conserve = false -- moving around, thus not conserving energy
       end
       -- lose energy from discomfort
       self:modify('energy',-2)
       -- lose more energy dependent on temperature difference (discomfort also)
       if (temp > max_temp) then
-	 local mtp = (temp - max_temp)*0.05
-	 self:modify('energy',-mtp)
+         local mtp = (temp - max_temp)*0.05
+         self:modify('energy',-mtp)
       elseif (temp < min_temp) then
-	 local mtp = (min_temp - temp)*0.02
-	 self:modify('energy',-mtp)
+         local mtp = (min_temp - temp)*0.02
+         self:modify('energy',-mtp)
       end
 
       -- get really hurt or die from high temp
       if temp > killer_max_temp then
-	 -- use + instead of * to account for negative numbers
-	 local mtp = (temp - killer_max_temp)*0.01 -- multiplier
-	 local dmg = math.ceil(1 * mtp) -- damage calculation
-	 if (temp >= absolute_death_temp) then
-	    dmg = dmg * 16
-	 end
-	 dmg = math_clamp(dmg,1,self.hp) -- clamp dmg
-	 animals.modify_hp(self,-dmg)
-	 -- only retrieve burned flesh if max_temp is exceedingly hot
-	 if (self.hp <= 0 and temp >= burn_max_temp) then
-	    -- if animal successfully burned to death then
-	    self.energy = 0
-	    self.burnt = true
-	 end
-	 -- get really hurt or die from being too cold!!
+         -- use + instead of * to account for negative numbers
+         local mtp = (temp - killer_max_temp)*0.01 -- multiplier
+         local dmg = math.ceil(1 * mtp) -- damage calculation
+         if (temp >= absolute_death_temp) then
+            dmg = dmg * 16
+         end
+         dmg = math_clamp(dmg,1,self.hp) -- clamp dmg
+         animals.modify_hp(self,-dmg)
+         -- only retrieve burned flesh if max_temp is exceedingly hot
+         if (self.hp <= 0 and temp >= burn_max_temp) then
+            -- if animal successfully burned to death then
+            self.energy = 0
+            self.burnt = true
+         end
+         -- get really hurt or die from being too cold!!
       elseif temp < killer_min_temp then
-	 local mtp = (killer_min_temp - temp)*0.4 -- multiplier
-	 local dmg = math.ceil(1 * mtp)
-	 dmg = math_clamp(dmg,1,self.hp)
-	 animals.modify_hp(self,-dmg)
+         local mtp = (killer_min_temp - temp)*0.4 -- multiplier
+         local dmg = math.ceil(1 * mtp)
+         dmg = math_clamp(dmg,1,self.hp)
+         animals.modify_hp(self,-dmg)
       end
    end
 
@@ -635,27 +635,27 @@ function animals.core_life(self, pos)
       -- if not a fish out of water then (fish in water will heal up nicely :D)
       -- (oh and if temp is comfortable too)
       if animals.temp_comfy(self,temp) and not (not self.isinliquid and self.class == 2) then
-	 -- calculate cost
-	 local cost = math.random(5,10)
-	 cost = cost * (1 + (self.max_hp/self.hp) )
-	 -- increase cost depending on how harmed the creature is
-	 -- calculate w/ health efficiency
-	 local h_eff = self.heal_efficiency or 1
-	 cost = cost - (cost/20 * h_eff)
-	 -- cost subtracted by itself divided by 20 times heal_efficiency
+         -- calculate cost
+         local cost = math.random(5,10)
+         cost = cost * (1 + (self.max_hp/self.hp) )
+         -- increase cost depending on how harmed the creature is
+         -- calculate w/ health efficiency
+         local h_eff = self.heal_efficiency or 1
+         cost = cost - (cost/20 * h_eff)
+         -- cost subtracted by itself divided by 20 times heal_efficiency
 
-	 -- stabilize cost
-	 cost = math.round(cost*10)/10
-	 -- round second decimal point (7.52 --> 7.5)
+         -- stabilize cost
+         cost = math.round(cost*10)/10
+         -- round second decimal point (7.52 --> 7.5)
 
-	 if cost < 0 then cost = 0 end -- do not go below 0
-	 if self.energy > cost*1.1 then -- could heal
-	    -- (chance = how much energy the creature has over the cost)
-	    if (random() >= cost/self.energy) then
-	       animals.modify_hp(self,1)
-	       self:modify('energy',-cost)
-	    end
-	 end
+         if cost < 0 then cost = 0 end -- do not go below 0
+         if self.energy > cost*1.1 then -- could heal
+            -- (chance = how much energy the creature has over the cost)
+            if (random() >= cost/self.energy) then
+               animals.modify_hp(self,1)
+               self:modify('energy',-cost)
+            end
+         end
       end
    elseif (self.hp > self.max_hp) then
       -- this aint supposed to happen!
@@ -700,7 +700,7 @@ function animals.place_egg(self, pos, medium, e_ov)
    check_name = string.gsub(self.name,"_baby","")
 
    local objcount = #animals.get_entities_inside_radius(check_name,
-							pos, mo_check_radius)
+                                                        pos, mo_check_radius)
 
    if minetest.get_node(p).name == medium and objcount <= max_pop then
 
@@ -708,17 +708,17 @@ function animals.place_egg(self, pos, medium, e_ov)
       local n = mobkit.nodeatpos(posu)
 
       if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
-	 minetest.set_node(p, {name = egg_name})
-	 if type(e_ov) == "number" and e_ov >= 15 then
-	    -- energy override noted, jot it down
+         minetest.set_node(p, {name = egg_name})
+         if type(e_ov) == "number" and e_ov >= 15 then
+            -- energy override noted, jot it down
 
-	    local meta = minetest.get_meta(pos)
-	    meta:set_float("energy_egg",e_ov)
-	    e_egg = e_ov
-	    -- set custom energy_egg
-	 end
-	 self:modify('energy',-e_egg)
-	 return true
+            local meta = minetest.get_meta(pos)
+            meta:set_float("energy_egg",e_ov)
+            e_egg = e_ov
+            -- set custom energy_egg
+         end
+         self:modify('energy',-e_egg)
+         return true
       end
 
    end
@@ -760,12 +760,12 @@ function animals.calculate_egg_young(self)
    if (type(young_per_egg) == "table") then
       -- allow for randomized amount of young per egg
       if (type(young_per_egg[1]) == "number"
-	  and type(young_per_egg[2]) ~= "number") then
-	 -- if only one number provided, use that
-	 young_per_egg = {young_per_egg[1],young_per_egg[1]}
+          and type(young_per_egg[2]) ~= "number") then
+         -- if only one number provided, use that
+         young_per_egg = {young_per_egg[1],young_per_egg[1]}
       elseif (type(young_per_egg[1]) ~= "number"
-	      and type(young_per_egg[2]) ~= "number") then
-	 return
+              and type(young_per_egg[2]) ~= "number") then
+         return
       end
       young_per_egg = random(young_per_egg[1],young_per_egg[2])
    end
@@ -807,69 +807,69 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name)
       local hatching = egg_data.egg_hatching
       local sort_table = {}
       for h_name,h_perc in pairs(hatching) do -- hatch_name, hatch_percentage
-	 table.insert(sort_table,{h_perc,h_name})
+         table.insert(sort_table,{h_perc,h_name})
       end
       if #sort_table == 1 then
-	 name = sort_table[1][2]
-	 -- sort_table[1]={0.5,"name"}
+         name = sort_table[1][2]
+         -- sort_table[1]={0.5,"name"}
       elseif #sort_table == 2 then
-	 if sort_table[2][1] > sort_table[1][1] then
-	    -- if last index has a greater percent chance,
-	    -- readd last index to first, remove old last index to beginning
-	    table.insert(sort_table,1,sort_table[2])
-	    table.remove(sort_table,3)
-	 end
-	 -- math.random() on largest percent first
-	 if sort_table[1][1] <= math.random() then
-	    name = sort_table[1][2]
-	 else
-	    name = sort_table[2][2]
-	 end
+         if sort_table[2][1] > sort_table[1][1] then
+            -- if last index has a greater percent chance,
+            -- readd last index to first, remove old last index to beginning
+            table.insert(sort_table,1,sort_table[2])
+            table.remove(sort_table,3)
+         end
+         -- math.random() on largest percent first
+         if sort_table[1][1] <= math.random() then
+            name = sort_table[1][2]
+         else
+            name = sort_table[2][2]
+         end
       else -- manually sort it so greatest is at the top, lowest at the bottom
-	 local hatching_table = {}
-	 for index,info in pairs(sort_table) do
-	    if #hatching_table <= 0 then
-	       -- add first index
-	       table.insert(hatching_table,info)
-	    else
-	       -- check hatching_table find where to add the possible hatcher
-	       local insert = {}
-	       for h_index,h_info in pairs(hatching_table) do
-		  -- if info has a greater percentage than certain index of
-		  --  hatching_table, then add itself in an order behind
-		  if info[1] > h_info[1] then
-		     insert = {h_index - 1,info}
-		     --table.insert(hatching_table,h_index - 1,info)
-		  elseif h_index >= #hatching_table then
-		     -- add to end of table due to not being bigger
-		     --  than previous percentage
-		     insert = {#hatching_table + 1,info}
-		  end
-	       end
-	       table.insert(hatching_table,insert[1],insert[2])
-	    end
-	 end
-	 -- now iterate through hatching_table randomly to get a name
-	 for _,info in pairs(hatching_table) do
-	    if info[1] >= math.random() then
-	       name = info[2]
-	       break
-	    end
-	 end
-	 -- last "else", get largest percent
-	 if not name then
-	    -- code smell until I figure out why having mixed unsorted
-	    -- and set percentages for hatching causes index 1 to be index 0
-	    name = (hatching_table[1] and hatching_table[1][2])
-	       or (hatching_table[0] and hatching_table[0][2])
-	 end
+         local hatching_table = {}
+         for index,info in pairs(sort_table) do
+            if #hatching_table <= 0 then
+               -- add first index
+               table.insert(hatching_table,info)
+            else
+               -- check hatching_table find where to add the possible hatcher
+               local insert = {}
+               for h_index,h_info in pairs(hatching_table) do
+                  -- if info has a greater percentage than certain index of
+                  --  hatching_table, then add itself in an order behind
+                  if info[1] > h_info[1] then
+                     insert = {h_index - 1,info}
+                     --table.insert(hatching_table,h_index - 1,info)
+                  elseif h_index >= #hatching_table then
+                     -- add to end of table due to not being bigger
+                     --  than previous percentage
+                     insert = {#hatching_table + 1,info}
+                  end
+               end
+               table.insert(hatching_table,insert[1],insert[2])
+            end
+         end
+         -- now iterate through hatching_table randomly to get a name
+         for _,info in pairs(hatching_table) do
+            if info[1] >= math.random() then
+               name = info[2]
+               break
+            end
+         end
+         -- last "else", get largest percent
+         if not name then
+            -- code smell until I figure out why having mixed unsorted
+            -- and set percentages for hatching causes index 1 to be index 0
+            name = (hatching_table[1] and hatching_table[1][2])
+               or (hatching_table[0] and hatching_table[0][2])
+         end
       end
    end
 
    local entity_data = minetest.registered_entities[name]
    if not entity_data then
       error("animals.hatch_egg: got '"..tostring(name)..
-	    "' to hatch, but it does not exist!")
+            "' to hatch, but it does not exist!")
    end
 
    local energy_egg = egg_data.energy_egg
@@ -897,17 +897,17 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name)
    local objcount = #animals.get_entities_inside_radius(check_name, pos, mo_check_radius)
    for i = 1, young_per_egg, 1 do
       if (objcount >= max_pop) then
-	 break
+         break
       end
       local ran_pos = suitable[random(#suitable)]
       ran_pos.y = ran_pos.y - (entity_data.initial_properties.collisionbox[2]
-			       + entity_data.initial_properties.collisionbox[5])
+                               + entity_data.initial_properties.collisionbox[5])
       local ent = minetest.add_entity(ran_pos, name)
       local sounds = egg_data.sounds
       if sounds and sounds.egg_hatch then
-	 local sound = table.copy(sounds.egg_hatch)
-	 sound.pos = pos
-	 minetest.sound_play(sound.name, sound)
+         local sound = table.copy(sounds.egg_hatch)
+         sound.pos = pos
+         minetest.sound_play(sound.name, sound)
       end
       --minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.8, max_hear_distance = 8})
       ent = ent:get_luaentity()
@@ -933,86 +933,86 @@ function animals.hq_roam_dark(self,prty)
    local timer = time() + 30
    local func=function()
       if time() > timer then
-	 return true
+         return true
       end
 
       local function light_check(pos,tpos)
-	 if not pos then
-	    pos = mobkit.get_stand_pos(self)
-	 end
-	 if not tpos then
-	    return false
-	 end
-	 local light = minetest.get_node_light(pos, 0.5) or 0
-	 local lightn = minetest.get_node_light(tpos, 0.5) or 0
+         if not pos then
+            pos = mobkit.get_stand_pos(self)
+         end
+         if not tpos then
+            return false
+         end
+         local light = minetest.get_node_light(pos, 0.5) or 0
+         local lightn = minetest.get_node_light(tpos, 0.5) or 0
 
-	 if (lightn <= light) then
-	    return true
-	 elseif (lightn < light) then
-	    return "desirable"
-	 end
+         if (lightn <= light) then
+            return true
+         elseif (lightn < light) then
+            return "desirable"
+         end
       end
 
       if (mobkit.is_queue_empty_low(self) and self.isonground)
-	 or (prty >= 45 and self.isonground) then
+         or (prty >= 45 and self.isonground) then
 
-	 local light_valid = false
-	 local pos = mobkit.get_stand_pos(self)
-	 local neighbor = random(8)
+         local light_valid = false
+         local pos = mobkit.get_stand_pos(self)
+         local neighbor = random(8)
 
-	 local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
+         local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
 
-	 if (tpos) then
-	    local temp = climate.get_point_temp(tpos, true)
-	    if not (animals.temp_comfy(self,temp)) then
-	       -- do not go to this position
-	       height = nil
-	    end
-	 end
-	 if (prty >= 45) then
-	    local numstring
-	    local bl_pos -- bestlight_pos
-	    for i = 1, 8, 1 do
-	       local h, tp, lf
-	       numstring, h, tp, lf = get_reachable_node(self,numstring)
-	       -- shortened versions of "height, tpos, liquidflag"
+         if (tpos) then
+            local temp = climate.get_point_temp(tpos, true)
+            if not (animals.temp_comfy(self,temp)) then
+               -- do not go to this position
+               height = nil
+            end
+         end
+         if (prty >= 45) then
+            local numstring
+            local bl_pos -- bestlight_pos
+            for i = 1, 8, 1 do
+               local h, tp, lf
+               numstring, h, tp, lf = get_reachable_node(self,numstring)
+               -- shortened versions of "height, tpos, liquidflag"
 
-	       if (tp and animals.temp_comfy(self,tp)) then
-		  local l_check = light_check(bl_pos,tp)
-		  if (l_check == "desirable") then
-		     height, tpos, liquidflag = h, tp, lf
-		     bl_pos = tp
-		     break
-		  elseif (l_check == true) then
-		     height, tpos, liquidflag = h, tp, lf
-		     bl_pos = tp
-		  end
-	       end
-	    end
-	    if bl_pos then
-	       light_valid = true
-	    elseif (random(1,8) == 8) then
-	       -- go to a bad area to find better dark
-	       light_valid = true
-	    end
-	 else
-	    if light_check(pos,tpos) then
-	       light_valid = true
-	    end
-	 end
+               if (tp and animals.temp_comfy(self,tp)) then
+                  local l_check = light_check(bl_pos,tp)
+                  if (l_check == "desirable") then
+                     height, tpos, liquidflag = h, tp, lf
+                     bl_pos = tp
+                     break
+                  elseif (l_check == true) then
+                     height, tpos, liquidflag = h, tp, lf
+                     bl_pos = tp
+                  end
+               end
+            end
+            if bl_pos then
+               light_valid = true
+            elseif (random(1,8) == 8) then
+               -- go to a bad area to find better dark
+               light_valid = true
+            end
+         else
+            if light_check(pos,tpos) then
+               light_valid = true
+            end
+         end
 
-	 if height and not liquidflag then
-	    if light_valid then
-	       if (prty >= 45) then
-		  mobkit.dumbstep(self,height,tpos,1)
-	       else
-		  mobkit.dumbstep(self,height,tpos,0.3)
-	       end
-	       return false
-	    else
-	       return true
-	    end
-	 end
+         if height and not liquidflag then
+            if light_valid then
+               if (prty >= 45) then
+                  mobkit.dumbstep(self,height,tpos,1)
+               else
+                  mobkit.dumbstep(self,height,tpos,0.3)
+               end
+               return false
+            else
+               return true
+            end
+         end
       end
    end
    mobkit.queue_high(self,func,prty)
@@ -1027,92 +1027,92 @@ function animals.hq_roam_comfort_temp(self,prty)
 
    local func = function()
       if time() > timer then
-	 return true
+         return true
       end
 
       if (mobkit.is_queue_empty_low(self) or prty >= 35) and self.isonground then
-	 -- mobkit.is_queue_empty_low(self)
-	 local min_temp = self.min_temp or 0
-	 local max_temp = self.max_temp or 20
+         -- mobkit.is_queue_empty_low(self)
+         local min_temp = self.min_temp or 0
+         local max_temp = self.max_temp or 20
 
-	 local pos = mobkit.get_stand_pos(self)
-	 local temp = climate.get_point_temp(pos, true)
+         local pos = mobkit.get_stand_pos(self)
+         local temp = climate.get_point_temp(pos, true)
 
-	 if (animals.temp_comfy(self,temp)) then
-	    -- if temperature is comfortable then end the search
-	    return true
-	 end
+         if (animals.temp_comfy(self,temp)) then
+            -- if temperature is comfortable then end the search
+            return true
+         end
 
-	 local numstring = 12345678
-	 -- save as a string (or num :D) cause idk,
-	 -- maybe better memory and storage wise?
+         local numstring = 12345678
+         -- save as a string (or num :D) cause idk,
+         -- maybe better memory and storage wise?
 
-	 local height, tpos, liquidflag
-	 local best_temp
-	 for i = 1, 8, 1 do -- try 8 times to find a good node
-	    local h, tp, lf
-	    numstring, h, tp, lf = get_reachable_node(self,numstring)
-	    -- shortened versions of "height, tpos, liquidflag"
+         local height, tpos, liquidflag
+         local best_temp
+         for i = 1, 8, 1 do -- try 8 times to find a good node
+            local h, tp, lf
+            numstring, h, tp, lf = get_reachable_node(self,numstring)
+            -- shortened versions of "height, tpos, liquidflag"
 
-	    if (h and not lf) then
-	       -- if height somethin' and if provided pos is not a liquid
-	       local tempn = climate.get_point_temp(tp, true)
-	       local temp_c,temp_s = animals.temp_comfy(self,tempn)
-	       -- temp_comfy (is the provided pos a comfortable temp?),
-	       --  temp_status (utilized to check whether too hot or too cold)
+            if (h and not lf) then
+               -- if height somethin' and if provided pos is not a liquid
+               local tempn = climate.get_point_temp(tp, true)
+               local temp_c,temp_s = animals.temp_comfy(self,tempn)
+               -- temp_comfy (is the provided pos a comfortable temp?),
+               --  temp_status (utilized to check whether too hot or too cold)
 
-	       if (temp_s or temp_c == true) then
-		  -- make sure the animal goes to best suitable temperature
-		  local old_bt = best_temp -- old_best_temp - used for comparison
-		  if (type(best_temp) ~= "number" or
-		      (temp_s == "hot" and tempn < best_temp
-		       and tempn > min_temp) or
-		      (temp_s == "cold" and tempn > best_temp
-		       and tempn < max_temp)
-		      -- prevent creatures running into fires to
-		      --  warm themselves
-		  ) then
-		     -- if a best_temp wasn' specified or a better temperature
-		     --  was found for seeking comfy temperatures
-		     --  then change best_temp! :D
-		     best_temp = tempn
-		  end
+               if (temp_s or temp_c == true) then
+                  -- make sure the animal goes to best suitable temperature
+                  local old_bt = best_temp -- old_best_temp - used for comparison
+                  if (type(best_temp) ~= "number" or
+                      (temp_s == "hot" and tempn < best_temp
+                       and tempn > min_temp) or
+                      (temp_s == "cold" and tempn > best_temp
+                       and tempn < max_temp)
+                      -- prevent creatures running into fires to
+                      --  warm themselves
+                  ) then
+                     -- if a best_temp wasn' specified or a better temperature
+                     --  was found for seeking comfy temperatures
+                     --  then change best_temp! :D
+                     best_temp = tempn
+                  end
 
-		  if ((random(4) == 4 and tempn == best_temp
-		       or random(16) == 16) or best_temp ~= old_bt) then
-		     -- 1 in 4 chance to choose a different position
-		     --  (only if best_temp is equal to tempn - no running into
-		     --  fire or coldness)
-		     -- 1 in 16 chance just to say screw it and go to a bad temp
+                  if ((random(4) == 4 and tempn == best_temp
+                       or random(16) == 16) or best_temp ~= old_bt) then
+                     -- 1 in 4 chance to choose a different position
+                     --  (only if best_temp is equal to tempn - no running into
+                     --  fire or coldness)
+                     -- 1 in 16 chance just to say screw it and go to a bad temp
 
-		     -- update height, tpos, and liquidflag if a better position
-		     --  has been found
-		     height, tpos, liquidflag = h, tp, lf
-		     -- set height, tpos, and liquidflag
-		  end
+                     -- update height, tpos, and liquidflag if a better position
+                     --  has been found
+                     height, tpos, liquidflag = h, tp, lf
+                     -- set height, tpos, and liquidflag
+                  end
 
-		  if (temp_c == true) then
-		     -- found a good pos to go to, break loop
-		     break
-		     -- if a good pos can't be found, the above if statement
-		     -- mess will determine the most optimal area to go
-		     -- to look for better temperatures
-		  end
-	       end
-	    end
-	 end
+                  if (temp_c == true) then
+                     -- found a good pos to go to, break loop
+                     break
+                     -- if a good pos can't be found, the above if statement
+                     -- mess will determine the most optimal area to go
+                     -- to look for better temperatures
+                  end
+               end
+            end
+         end
 
-	 if height and not liquidflag then
-	    -- run to that safe (or somewhat safe) pos!
-	    local spd_f = 0.3 -- speed factor
-	    if (prty >= 35) then
-	       spd_f = spd_f * (2 * (prty/35) )
-	    end
-	    mobkit.dumbstep(self,height,tpos,spd_f)
-	 else
-	    -- could not find a proper node, end search
-	    return true
-	 end
+         if height and not liquidflag then
+            -- run to that safe (or somewhat safe) pos!
+            local spd_f = 0.3 -- speed factor
+            if (prty >= 35) then
+               spd_f = spd_f * (2 * (prty/35) )
+            end
+            mobkit.dumbstep(self,height,tpos,spd_f)
+         else
+            -- could not find a proper node, end search
+            return true
+         end
       end
    end
    mobkit.queue_high(self,func,prty)
@@ -1127,35 +1127,35 @@ function animals.hq_roam_surface_group(self, group, prty)
    local func=function()
 
       if time() > timer then
-	 return true
+         return true
       end
 
       if mobkit.is_queue_empty_low(self) and self.isonground then
-	 local neighbor = random(8)
+         local neighbor = random(8)
 
-	 local height, tpos, liquidflag =
-	    mobkit.is_neighbor_node_reachable(self, neighbor)
+         local height, tpos, liquidflag =
+            mobkit.is_neighbor_node_reachable(self, neighbor)
 
-	 if (tpos) then
-	    local temp = climate.get_point_temp(tpos, true)
-	    if not (animals.temp_comfy(self,temp)) then
-	       -- do not go to this position
-	       height = nil
-	    end
-	 end
+         if (tpos) then
+            local temp = climate.get_point_temp(tpos, true)
+            if not (animals.temp_comfy(self,temp)) then
+               -- do not go to this position
+               height = nil
+            end
+         end
 
-	 if height and not liquidflag then
-	    --is it the correct group?
-	    local s_pos = tpos
-	    s_pos.y = s_pos.y - 1
-	    local under = minetest.get_node(s_pos)
+         if height and not liquidflag then
+            --is it the correct group?
+            local s_pos = tpos
+            s_pos.y = s_pos.y - 1
+            local under = minetest.get_node(s_pos)
 
-	    if under and minetest.get_item_group(under.name, group) > 0 then
-	       mobkit.dumbstep(self, height, tpos, 0.3)
-	    else
-	       return true
-	    end
-	 end
+            if under and minetest.get_item_group(under.name, group) > 0 then
+               mobkit.dumbstep(self, height, tpos, 0.3)
+            else
+               return true
+            end
+         end
 
       end
    end
@@ -1183,54 +1183,54 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
    local func=function(self)
 
       if time() > timer then
-	 return true
+         return true
       end
 
       if mobkit.is_queue_empty_low(self) and self.isonground then
-	 local neighbor = random(8)
+         local neighbor = random(8)
 
-	 local height, tpos, liquidflag =
-	    mobkit.is_neighbor_node_reachable(self, neighbor)
+         local height, tpos, liquidflag =
+            mobkit.is_neighbor_node_reachable(self, neighbor)
 
-	 if (tpos) then
-	    local temp = climate.get_point_temp(tpos, true)
-	    if not (animals.temp_comfy(self,temp)) then
-	       -- do not go to this position
-	       height = nil
-	    end
-	 end
+         if (tpos) then
+            local temp = climate.get_point_temp(tpos, true)
+            if not (animals.temp_comfy(self,temp)) then
+               -- do not go to this position
+               height = nil
+            end
+         end
 
-	 if height and not liquidflag then
-	    --is it the correct?
-	    local n_node = minetest.get_node(tpos).name
+         if height and not liquidflag then
+            --is it the correct?
+            local n_node = minetest.get_node(tpos).name
 
-	    local nodeapp = true
-	    -- node appropriate -- if node should be walked to
-	    for _,group in pairs(iggroups) do
-	       if (minetest.get_item_group(n_node,group) > 0) then
-		  -- if node is in a group that is to be ignored...
-		  nodeapp = false
-		  break
-	       end
-	    end
-	    if (nodeapp == false) then
-	       -- found a node to be ignored oop, don't walk to it
-	       return true
-	    end
-	    for _,group in pairs(groups) do
-	       if (minetest.get_item_group(n_node,group) > 0) then
-		  -- if node is in a specified group then...
-		  -- let's go it :D
-		  break
-	       end
-	    end
+            local nodeapp = true
+            -- node appropriate -- if node should be walked to
+            for _,group in pairs(iggroups) do
+               if (minetest.get_item_group(n_node,group) > 0) then
+                  -- if node is in a group that is to be ignored...
+                  nodeapp = false
+                  break
+               end
+            end
+            if (nodeapp == false) then
+               -- found a node to be ignored oop, don't walk to it
+               return true
+            end
+            for _,group in pairs(groups) do
+               if (minetest.get_item_group(n_node,group) > 0) then
+                  -- if node is in a specified group then...
+                  -- let's go it :D
+                  break
+               end
+            end
 
-	    if (nodeapp == true) then
-	       mobkit.dumbstep(self, height, tpos, 0.3)
-	    else
-	       return true
-	    end
-	 end
+            if (nodeapp == true) then
+               mobkit.dumbstep(self, height, tpos, 0.3)
+            else
+               return true
+            end
+         end
 
       end
    end
@@ -1243,7 +1243,7 @@ local function aqua_path_safe(start_pos,p)
    for pointed_thing in path do
       local node=mobkit.nodeatpos(pointed_thing.intersection_point)
       if node and node.drawtype ~= 'liquid' then
-	 return false
+         return false
       end
    end
    return true
@@ -1257,29 +1257,29 @@ local function aqua_radar_dumb(pos,yaw,range,reverse)
    local function okpos(p,start_pos)
       local node = mobkit.nodeatpos(p)
       if node then
-	 if node.drawtype == 'liquid' then
-	    local nodeu = mobkit.nodeatpos(mobkit.pos_shift(p,{y=1}))
-	    local noded = mobkit.nodeatpos(mobkit.pos_shift(p,{y=-1}))
-	    if ((nodeu and nodeu.drawtype == 'liquid')
-	       or (noded and noded.drawtype == 'liquid')) then
+         if node.drawtype == 'liquid' then
+            local nodeu = mobkit.nodeatpos(mobkit.pos_shift(p,{y=1}))
+            local noded = mobkit.nodeatpos(mobkit.pos_shift(p,{y=-1}))
+            if ((nodeu and nodeu.drawtype == 'liquid')
+               or (noded and noded.drawtype == 'liquid')) then
 
-	       return true
-	    else
-	       return false
-	    end
-	 else
-	    local h,_ = mobkit.get_terrain_height(p)
-	    if h then
-	       local node2 = mobkit.nodeatpos({x=p.x,y=h+1.99,z=p.z})
-	       if node2 and node2.drawtype == 'liquid' then
-		  return true, h
-	       end
-	    else
-	       return false
-	    end
-	 end
+               return true
+            else
+               return false
+            end
+         else
+            local h,_ = mobkit.get_terrain_height(p)
+            if h then
+               local node2 = mobkit.nodeatpos({x=p.x,y=h+1.99,z=p.z})
+               if node2 and node2.drawtype == 'liquid' then
+                  return true, h
+               end
+            else
+               return false
+            end
+         end
       else
-	 return false
+         return false
       end
    end
    -- check node in front at range.
@@ -1292,19 +1292,19 @@ local function aqua_radar_dumb(pos,yaw,range,reverse)
       --Reverse checks from back to front first
       local ffrom, fto, fstep
       if reverse then
-	 ffrom, fto, fstep = 3,1,-1
+         ffrom, fto, fstep = 3,1,-1
       else
-	 ffrom, fto, fstep = 1,3,1
+         ffrom, fto, fstep = 1,3,1
       end
       for i=ffrom, fto, fstep  do
-	 ok,h = okpos(mobkit.pos_translate2d(pos,yaw+i,range),pos)
-	 if ok then
-	    return yaw+i,h
-	 end
-	 ok,h = okpos(mobkit.pos_translate2d(pos,yaw-i,range),pos)
-	 if ok then
-	    return yaw-i,h
-	 end
+         ok,h = okpos(mobkit.pos_translate2d(pos,yaw+i,range),pos)
+         if ok then
+            return yaw+i,h
+         end
+         ok,h = okpos(mobkit.pos_translate2d(pos,yaw-i,range),pos)
+         if ok then
+            return yaw-i,h
+         end
       end
       -- No safe path so reverse direction.
       return yaw+pi,h
@@ -1321,7 +1321,7 @@ function animals.hq_swimfrompos(self,prty,opos,speed)
    local func = function()
 
       if time() > timer then
-	 return true
+         return true
       end
 
       local pos = mobkit.get_stand_pos(self)
@@ -1329,23 +1329,23 @@ function animals.hq_swimfrompos(self,prty,opos,speed)
       -- rotate 30 degrees to right from current yaw
       local yaw = self.object:get_yaw() - pi/6
       if distance > 0.5 then
-	 -- or 180 from pos we're running from if no longer close to it
-	 yaw = get_yaw_to_object(pos, opos) - pi
+         -- or 180 from pos we're running from if no longer close to it
+         yaw = get_yaw_to_object(pos, opos) - pi
       end
 
 
       if (distance/1.5) < self.view_range then
-	 local swimto, height = aqua_radar_dumb(pos,yaw,1)
-	 if height and height > pos.y then
-	    local vel = self.object:get_velocity()
-	    vel.y = vel.y+0.2
-	    self.object:set_velocity(vel)
-	 end
+         local swimto, height = aqua_radar_dumb(pos,yaw,1)
+         if height and height > pos.y then
+            local vel = self.object:get_velocity()
+            vel.y = vel.y+0.2
+            self.object:set_velocity(vel)
+         end
 
-	 mobkit.hq_aqua_turn(self,prty,swimto,speed)
+         mobkit.hq_aqua_turn(self,prty,swimto,speed)
 
       else
-	 return true
+         return true
       end
 
    end
@@ -1362,11 +1362,11 @@ function animals.hq_swimfrom(self,prty,tgtobj,speed)
    local func = function()
 
       if time() > timer then
-	 return true
+         return true
       end
 
       if not mobkit.is_alive(tgtobj) then
-	 return true
+         return true
       end
       local pos = mobkit.get_stand_pos(self)
       local opos = tgtobj:get_pos()
@@ -1375,17 +1375,17 @@ function animals.hq_swimfrom(self,prty,tgtobj,speed)
       local distance = vector.distance(pos,opos)
 
       if (distance/1.5) < self.view_range then
-	 local swimto, height = aqua_radar_dumb(pos,yaw,speed)
-	 if height and height > pos.y then
-	    local vel = self.object:get_velocity()
-	    vel.y = vel.y+0.1
-	    self.object:set_velocity(vel)
-	 end
+         local swimto, height = aqua_radar_dumb(pos,yaw,speed)
+         if height and height > pos.y then
+            local vel = self.object:get_velocity()
+            vel.y = vel.y+0.1
+            self.object:set_velocity(vel)
+         end
 
-	 mobkit.hq_aqua_turn(self,prty,swimto,speed)
+         mobkit.hq_aqua_turn(self,prty,swimto,speed)
 
       else
-	 return true
+         return true
       end
 
    end
@@ -1402,20 +1402,20 @@ function mobkit.hq_chaseafter(self,prty,tgtobj)
 
    local func = function()
       if time() > timer then
-	 return true
+         return true
       end
 
       if not mobkit.is_alive(tgtobj) then return true end
 
       if mobkit.is_queue_empty_low(self) and self.isonground then
-	 local pos = mobkit.get_stand_pos(self)
-	 local opos = tgtobj:get_pos()
-	 if vector.distance(pos,opos) > 3 then
-	    mobkit.make_sound(self,'warn')
-	    mobkit.goto_next_waypoint(self,opos)
-	 else
-	    mobkit.lq_idle(self,1)
-	 end
+         local pos = mobkit.get_stand_pos(self)
+         local opos = tgtobj:get_pos()
+         if vector.distance(pos,opos) > 3 then
+            mobkit.make_sound(self,'warn')
+            mobkit.goto_next_waypoint(self,opos)
+         else
+            mobkit.lq_idle(self,1)
+         end
       end
    end
    mobkit.queue_high(self,func,prty)
@@ -1428,11 +1428,11 @@ function animals.hq_swimafter(self,prty,tgtobj,speed)
 
    local func = function()
       if time() > timer then
-	 return true
+         return true
       end
 
       if not mobkit.is_alive(tgtobj) then
-	 return true
+         return true
       end
 
       local pos = mobkit.get_stand_pos(self)
@@ -1442,17 +1442,17 @@ function animals.hq_swimafter(self,prty,tgtobj,speed)
       local distance = vector.distance(pos,opos)
 
       if distance < self.view_range/3 then
-	 local swimto, height = aqua_radar_dumb(pos,yaw,3)
-	 if height and height > pos.y then
-	    local vel = self.object:get_velocity()
-	    vel.y = vel.y+0.1
-	    self.object:set_velocity(vel)
-	 end
+         local swimto, height = aqua_radar_dumb(pos,yaw,3)
+         if height and height > pos.y then
+            local vel = self.object:get_velocity()
+            vel.y = vel.y+0.1
+            self.object:set_velocity(vel)
+         end
 
-	 mobkit.hq_aqua_turn(self,prty,swimto,speed)
+         mobkit.hq_aqua_turn(self,prty,swimto,speed)
 
       else
-	 return true
+         return true
       end
 
    end
@@ -1470,7 +1470,7 @@ end
 ----------------------------------------------------------------
 --on_punch
 function animals.on_punch(self, puncher, time_from_last_punch,
-			  tool_capabilities, dir, dmg)
+                          tool_capabilities, dir, dmg)
    if not mobkit.is_alive(self) then
       -- oops I'm dead
       mobkit.make_sound(self,"punch_death")
@@ -1505,31 +1505,31 @@ function animals.hq_warn(self, threat, prty)
    local func = function(self)
       if not mobkit.is_alive(threat) then return true end
       if init then
-	 mobkit.animate(self,'stand')
-	 init = false
+         mobkit.animate(self,'stand')
+         init = false
       end
 
       local dist = get_dist(self,tgtspec.object)
 
       if dist > self.warn_distance then -- originally 11
-	 -- out of worry
-	 return true
+         -- out of worry
+         return true
       elseif dist < self.aggression_distance
-	 or timer >= warn_timer then
-	 -- too close man (aggro dist was originally 4)
+         or timer >= warn_timer then
+         -- too close man (aggro dist was originally 4)
 
-	 mobkit.remember(self,'hate',tgtspec.object:get_player_name())
-	 animals.hq_attack_eat(self, prty+10, tgtspec.object) -- priority
+         mobkit.remember(self,'hate',tgtspec.object:get_player_name())
+         animals.hq_attack_eat(self, prty+10, tgtspec.object) -- priority
       else
-	 timer = timer+self.dtime
-	 if mobkit.is_queue_empty_low(self) then
-	    mobkit.lq_turn2pos(self,tgtspec.object:get_pos())
-	 end
-	 -- make noise in random intervals
-	 if timer > tgttime then
-	    mobkit.make_sound(self,'warn')
-	    tgttime = timer + 1.1 + random()*1.5
-	 end
+         timer = timer+self.dtime
+         if mobkit.is_queue_empty_low(self) then
+            mobkit.lq_turn2pos(self,tgtspec.object:get_pos())
+         end
+         -- make noise in random intervals
+         if timer > tgttime then
+            mobkit.make_sound(self,'warn')
+            tgttime = timer + 1.1 + random()*1.5
+         end
       end
    end
    mobkit.queue_high(self,func,prty)
@@ -1542,9 +1542,9 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
    local exclaim_timer = 4
    local range = minetest.is_player(tgtobj) and self.player_alert_distance
       or animals.is_interactor(
-	 self,'predators',tgtobj) and self.predator_alert_distance
+         self,'predators',tgtobj) and self.predator_alert_distance
       or animals.is_interactor(
-	 self,'rivals',tgtobj)
+         self,'rivals',tgtobj)
       and self.territorial_alert_distance or self.alert_distance
    if not notscared then mobkit.make_sound(self,'scared') end
 
@@ -1552,37 +1552,37 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
       if not mobkit.is_alive(tgtobj) then return true end
       run_timer = run_timer - self.dtime
       if not notscared then
-	 exclaim_timer = exclaim_timer - self.dtime
+         exclaim_timer = exclaim_timer - self.dtime
       end
       if run_timer <= 0 then
-	 return true
+         return true
       end
       if exclaim_timer <= 0 then
-	 mobkit.make_sound(self,'scared')
-	 exclaim_timer = random(37,70)/10
+         mobkit.make_sound(self,'scared')
+         exclaim_timer = random(37,70)/10
       end
       local dist = get_dist(self,tgtobj)
       if dist <= self.warn_distance and not notscared then
-	 run_timer = run_timer + random(1,5)/10
-	 -- random chance of 0.1 to 0.5 second addition
-	 if dist <= self.aggression_distance then
-	    -- HOLY CLOSE, RUN!!!
-	    run_timer = run_timer + random(2,4) -- 2 to 4 second addition
-	 end
+         run_timer = run_timer + random(1,5)/10
+         -- random chance of 0.1 to 0.5 second addition
+         if dist <= self.aggression_distance then
+            -- HOLY CLOSE, RUN!!!
+            run_timer = run_timer + random(2,4) -- 2 to 4 second addition
+         end
       end
 
       if mobkit.is_queue_empty_low(self) and self.isonground then
-	 local pos = mobkit.get_stand_pos(self)
-	 local opos = tgtobj:get_pos()
-	 if dist < range then
-	    local tpos = {x=2*pos.x - opos.x,
-			  y=opos.y,
-			  z=2*pos.z - opos.z}
-	    mobkit.goto_next_waypoint(self,tpos)
-	 else
-	    self.object:set_velocity({x=0,y=0,z=0})
-	    return true
-	 end
+         local pos = mobkit.get_stand_pos(self)
+         local opos = tgtobj:get_pos()
+         if dist < range then
+            local tpos = {x=2*pos.x - opos.x,
+                          y=opos.y,
+                          z=2*pos.z - opos.z}
+            mobkit.goto_next_waypoint(self,tpos)
+         else
+            self.object:set_velocity({x=0,y=0,z=0})
+            return true
+         end
       end
    end
    mobkit.queue_high(self,func,prty)
@@ -1594,33 +1594,33 @@ function animals.fight_or_flight(self, threat, prty, chance)
    prty = type(prty) == "number" and prty or 55
    if type(chance) ~= "number" then
       if minetest.is_player(threat) then
-	 chance = self.player_interaction
+         chance = self.player_interaction
       else
-	 -- get stable values
-	 threat = animals.get_structure(threat)
-	 if not threat then
-	    return
-	 end
-	 threat = threat.ent
+         -- get stable values
+         threat = animals.get_structure(threat)
+         if not threat then
+            return
+         end
+         threat = threat.ent
       end
       local pred_itr = self.predator_interactions
       if pred_itr and pred_itr[threat.name] and not chance then
-	 chance = pred_itr[threat.name] or pred_itr.default
+         chance = pred_itr[threat.name] or pred_itr.default
       end
       if not chance then
-	 chance = 0.5
+         chance = 0.5
       end
       -- custom rival interaction
       if animals.is_interactor(self,"rivals",threat) then
-	 if (threat.hp <= self.hp * 0.8) then
-	    -- if enemy's health is lower than 80% of own health
-	    --  then higher chance of attacking back
-	    chance = chance * 1.3 * (1+(self.hp*0.8/threat.hp)/50)
-	    -- 30% more base chance with a small addition of extra chance
-	    --  depending on health difference
-	 else
-	    chance = chance * 0.3 -- 70% less chance
-	 end
+         if (threat.hp <= self.hp * 0.8) then
+            -- if enemy's health is lower than 80% of own health
+            --  then higher chance of attacking back
+            chance = chance * 1.3 * (1+(self.hp*0.8/threat.hp)/50)
+            -- 30% more base chance with a small addition of extra chance
+            --  depending on health difference
+         else
+            chance = chance * 0.3 -- 70% less chance
+         end
       end
    end
    --fight chance, or run away
@@ -1629,24 +1629,24 @@ function animals.fight_or_flight(self, threat, prty, chance)
    -- run away from players in creative or attached to something
    if random()<chance and
       not (minetest.is_player(threat) and threat:get_attach()
-	   or minimal.player_in_creative(threat)) then
+           or minimal.player_in_creative(threat)) then
       -- fight!
       if self.class == 2 then
-	 mobkit.hq_aqua_attack(self, prty, threat.object
-			       or threat, self.max_speed)
+         mobkit.hq_aqua_attack(self, prty, threat.object
+                               or threat, self.max_speed)
       else
-	 animals.hq_warn(self, threat, prty)
+         animals.hq_warn(self, threat, prty)
       end
    else
       -- flight!
       mobkit.animate(self,'fast')
       if self.class == 2 then
-	 animals.hq_swimfrom(self, 55, minetest.is_player(threat) and threat
-			     or threat.object, self.max_speed)
-	 flee_sound(self)
+         animals.hq_swimfrom(self, 55, minetest.is_player(threat) and threat
+                             or threat.object, self.max_speed)
+         flee_sound(self)
       else
-	 animals.hq_runfrom(self,prty, minetest.is_player(threat) and threat
-			    or threat.object)
+         animals.hq_runfrom(self,prty, minetest.is_player(threat) and threat
+                            or threat.object)
       end
       --mobkit.animate(self,'fast')
       --mobkit.make_sound(self,'scared')
@@ -1661,7 +1661,7 @@ function animals.predator_avoid(self, prty, chance)
    if not pred_table then
       -- end lookout due to no possible predators to find
       minetest.log("error",self.name..
-		   ": has no predators defined but tried to escape from one")
+                   ": has no predators defined but tried to escape from one")
       return
    end
    prty = type(prty) == "number" and prty or 55
@@ -1674,15 +1674,15 @@ function animals.predator_avoid(self, prty, chance)
    local pred_itr = self.predator_interactions -- predator_interact
    for  _,_ in ipairs(pred_table) do
       local pred, pred_index = get_closest(self,pred_table,
-					   self.warn_dist or self.view_range)
+                                           self.warn_dist or self.view_range)
       if not pred then
-	 table.remove(pred_table, pred_index)
+         table.remove(pred_table, pred_index)
       else
-	 chance = type(chance) == "number" and chance
-	    or pred_itr and (pred_itr[pred.name]
-			     or pred_itr.default) or 0
-	 animals.fight_or_flight(self, pred, prty, chance)
-	 return pred
+         chance = type(chance) == "number" and chance
+            or pred_itr and (pred_itr[pred.name]
+                             or pred_itr.default) or 0
+         animals.fight_or_flight(self, pred, prty, chance)
+         return pred
       end
    end
 end
@@ -1693,21 +1693,21 @@ function animals.prey_hunt(self, prty)
    local function condition(targs)
       local targ, targ_index = get_closest(self,targs)
       if not targ or not targ.object then
-	 table.remove(targs,targ_index)
-	 return
+         table.remove(targs,targ_index)
+         return
       end
       local tgtpos = targ.object:get_pos()
       local drawtype = node_drawtype(tgtpos)
       if (drawtype == "liquid" and (self.oxygen_min
-				    and self.oxygen > self.oxygen_min)) then
-	 -- look for a solid node underneath (safe to hunt)
-	 --  and if meant to hunt prey that's in water
-	 tgtpos = minimal.pos_shift(tgtpos,{y = -1})
-	 drawtype = node_drawtype(tgtpos)
+                                    and self.oxygen > self.oxygen_min)) then
+         -- look for a solid node underneath (safe to hunt)
+         --  and if meant to hunt prey that's in water
+         tgtpos = minimal.pos_shift(tgtpos,{y = -1})
+         drawtype = node_drawtype(tgtpos)
       end
       if (drawtype ~= "liquid") then
-	 animals.hq_attack_eat(self,prty,targ,true)
-	 return true
+         animals.hq_attack_eat(self,prty,targ,true)
+         return true
       end
       -- failed to get a proper target, remove from table
       table.remove(targs,targ_index)
@@ -1715,26 +1715,26 @@ function animals.prey_hunt(self, prty)
    local function aqua_condition(targs)
       local targ, targ_index = get_closest(self,targs)
       if not targ or not targ.object then
-	 table.remove(targs,targ_index)
-	 return
+         table.remove(targs,targ_index)
+         return
       end
       local tgtpos = targ.object:get_pos()
       local drawtype = node_drawtype(tgtpos)
       if (drawtype ~= "liquid") then
-	 -- look for a liquid node underneath >:D
-	 tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
-	 drawtype = node_drawtype(tgtpos)
-	 if (drawtype == "airlike") then
-	    -- in case they're a bit too high lol
-	    tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
-	    drawtype = node_drawtype(tgtpos)
-	 end
+         -- look for a liquid node underneath >:D
+         tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
+         drawtype = node_drawtype(tgtpos)
+         if (drawtype == "airlike") then
+            -- in case they're a bit too high lol
+            tgtpos = mobkit.pos_shift(tgtpos,{y = -1})
+            drawtype = node_drawtype(tgtpos)
+         end
       end
       if (drawtype == "liquid") then
-	 mobkit.animate(self,'fast')
-	 flee_sound(self)
-	 animals.hq_aqua_attack_eat(self, prty, targ.object, self.max_speed)
-	 return true
+         mobkit.animate(self,'fast')
+         flee_sound(self)
+         animals.hq_aqua_attack_eat(self, prty, targ.object, self.max_speed)
+         return true
       end
       table.remove(targs,targ_index)
    end
@@ -1744,7 +1744,7 @@ function animals.prey_hunt(self, prty)
    if not prey_table then
       -- end search due to no possible prey to find
       minetest.log("error",self.name..
-		   ": has no prey defined but tried to hunt prey")
+                   ": has no prey defined but tried to hunt prey")
       return true
    end
    prey_table = animals.get_entities_in_distance(self).prey
@@ -1755,13 +1755,13 @@ function animals.prey_hunt(self, prty)
    -- return true if we get a prey
    for _,_ in pairs(prey_table) do
       if (self.class == 2) then
-	 if aqua_condition(prey_table) then
-	    return true
-	 end
+         if aqua_condition(prey_table) then
+            return true
+         end
       else
-	 if condition(prey_table) then
-	    return true
-	 end
+         if condition(prey_table) then
+            return true
+         end
       end
    end
 end
@@ -1779,7 +1779,7 @@ local function eat_sediment(pos,nodedef,grassy)
    nodedef = minetest.registered_nodes[nodedef]
    if not nodedef then return end
 
-   -- we're only modifying the sediment if it's grassy 
+   -- we're only modifying the sediment if it's grassy
    if (minetest.get_item_group(nodedef.name,"spreading") > 0
        and grassy == true) then
       -- it's a grass, let's eat it and modify it
@@ -1789,34 +1789,34 @@ local function eat_sediment(pos,nodedef,grassy)
       -- (grassy _wet_salty variations of sediments do not exist)
       local dugdef -- for sediment being converted back into regular soil
       if sediment_name then
-	 sediment_name = sediment_name:gsub("_wet_salty","") -- get raw soil name
-	 dugdef = minetest.registered_nodes[sediment_name]
+         sediment_name = sediment_name:gsub("_wet_salty","") -- get raw soil name
+         dugdef = minetest.registered_nodes[sediment_name]
       end
       if dugdef and nodedef.name:match("_wet") then -- check if original is wet
-	 dugdef = minetest.registered_nodes[dugdef._wet_name]
+         dugdef = minetest.registered_nodes[dugdef._wet_name]
       end
       if dugdef then
-	 -- check slope
-	 local slope = nodedef.name:match('slope')
-	    and (nodedef.name:match('inner') and 'inner_'
-		 or nodedef.name:match('outer') and 'outer_'
-		 or nodedef.name:match('pike') and 'pike_' or '')
-	    or nil
-	 slope = slope and "slope_"..slope or nil
-	 if slope then
-	    -- set mod_origin:slope_name
-	    -- remove old mod_origin to allow for easier editing
-	    sediment_name = dugdef.mod_origin..":"..slope
-	       ..dugdef.name:gsub(dugdef.mod_origin..":","")
-	 end
-	 slope = minetest.registered_nodes[sediment_name]
-	 dugdef = slope or dugdef
-	 -- don't error on an improper slope, default to old dugdef if
-	 --  there's issues
+         -- check slope
+         local slope = nodedef.name:match('slope')
+            and (nodedef.name:match('inner') and 'inner_'
+                 or nodedef.name:match('outer') and 'outer_'
+                 or nodedef.name:match('pike') and 'pike_' or '')
+            or nil
+         slope = slope and "slope_"..slope or nil
+         if slope then
+            -- set mod_origin:slope_name
+            -- remove old mod_origin to allow for easier editing
+            sediment_name = dugdef.mod_origin..":"..slope
+               ..dugdef.name:gsub(dugdef.mod_origin..":","")
+         end
+         slope = minetest.registered_nodes[sediment_name]
+         dugdef = slope or dugdef
+         -- don't error on an improper slope, default to old dugdef if
+         --  there's issues
       end
       if dugdef then -- if we got a node, set it
-	 -- set the non-spreading version of the node
-	 minetest.set_node(pos, {name = dugdef.name})
+         -- set the non-spreading version of the node
+         minetest.set_node(pos, {name = dugdef.name})
       end
    end
 
@@ -1826,7 +1826,7 @@ local function eat_sediment(pos,nodedef,grassy)
    -- no point to copying a table we already created if the sound doesn't exist
    eating_sound = eating_sound and table.copy(eating_sound) or {
       name="nodes_nature_dig_crumbly",gain=0.2,max_hear_distance=10
-							       }
+                                                               }
    eating_sound.pos = pos
    minetest.sound_play(eating_sound.name,eating_sound)
 end
@@ -1840,8 +1840,8 @@ function animals.eat_sediment_under(pos, chance)
    if minetest.get_item_group(under, "sediment") > 0 then
       -- CONSUME
       if random()< chance then
-	 -- scratch up that sediment!
-	 eat_sediment(posu,under)
+         -- scratch up that sediment!
+         eat_sediment(posu,under)
       end
 
       return true
@@ -1861,8 +1861,8 @@ function animals.eat_grassy_sediment_under(pos, chance)
    if (minetest.get_item_group(under, "sediment") > 0 and minetest.get_item_group(under,"spreading") > 0 ) then
       -- CONSUME
       if random()< chance then
-	 -- MODIFY
-	 eat_sediment(posu,under,true)
+         -- MODIFY
+         eat_sediment(posu,under,true)
       end
 
       return true
@@ -1884,9 +1884,9 @@ function animals.eat_flora(pos, chance)
    then
       --gain energy
       if random()< chance then
-	 --destroy the plant
-	 minetest.set_node(p, {name = 'air'})
-	 minetest.sound_play("nodes_nature_dig_snappy", {gain = 0.2, pos = pos, max_hear_distance = 10})
+         --destroy the plant
+         minetest.set_node(p, {name = 'air'})
+         minetest.sound_play("nodes_nature_dig_snappy", {gain = 0.2, pos = pos, max_hear_distance = 10})
       end
 
       return true
@@ -1926,7 +1926,7 @@ function animals.hurt_target(self,target,consume)
       local ent_e = (ent.energy or 1)
       local energytake = (ent_e * (dmg / ent_mhp) ) -- omnomnom
       if targ_specs.player then
-	 energytake = (200*dmg)
+         energytake = (200*dmg)
       end
 
       self:modify('energy',energytake*.3) -- take 30%
@@ -1934,11 +1934,11 @@ function animals.hurt_target(self,target,consume)
       -- make opponent lose energy (use old way due to players)
 
       if (ent.hp <= dmg) then
-	 self:modify('energy',energytake*.9)
-	 -- add 90% of opponent's energy for nomming fully
-	 if not targ_specs.player then
-	    ent.object:remove()
-	 end
+         self:modify('energy',energytake*.9)
+         -- add 90% of opponent's energy for nomming fully
+         if not targ_specs.player then
+            ent.object:remove()
+         end
       end
    end
    return ent.hp <= dmg -- either continues (false) or ends attack (true)
@@ -1953,7 +1953,7 @@ function animals.target_in_range(self,tgt)
       return false
    end
    local range = (self.attack and self.attack.range
-		  or 0.1) + ((self.stepheight or 0) * 1.1)
+                  or 0.1) + ((self.stepheight or 0) * 1.1)
    local pos = self.object:get_pos()
    local tpos = tgt.object:get_pos()
    local selfbox = self.object:get_properties().collisionbox
@@ -1972,7 +1972,7 @@ function animals.target_in_range(self,tgt)
    pos = minimal.shift_pos(pos,{y=selfbox[2]})
    for pointed_thing in minetest.raycast(pos,tpos2) do
       if pointed_thing.ref == tgt.object then
-	 return true
+         return true
       end
    end
    return false
@@ -1983,7 +1983,7 @@ end
 --to hit is to catch... for predators, where the chewing does the killing
 function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
    local timer = time() + (type(self.aggression_timer) == "number"
-			   and self.aggression_timer or 12)
+                           and self.aggression_timer or 12)
 
    local tgt = animals.get_structure(tgtobj)
    if not tgt then
@@ -1992,14 +1992,14 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 
    if type(eat) ~= "boolean" then
       eat = minetest.is_player(tgtobj) and self.consume_players == true
-      
-	 or self.consume_players ~= false and self.predators
-	 and self.predators[tgt.name] and self.consume_predators == true
 
-	 or self.consume_predators ~= false and self.rivals
-	 and self.rivals[tgt.name] and self.consume_rivals == true
+         or self.consume_players ~= false and self.predators
+         and self.predators[tgt.name] and self.consume_predators == true
 
-	 or self.consume_rivals ~= false and self.consume_non_prey ~= false
+         or self.consume_predators ~= false and self.rivals
+         and self.rivals[tgt.name] and self.consume_rivals == true
+
+         or self.consume_rivals ~= false and self.consume_non_prey ~= false
       -- will be true if consume_non_prey is not specified
    end
 
@@ -2010,35 +2010,35 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 
    local func = function(self)
       if time() > timer then
-	 return true
+         return true
       end
 
       if not mobkit.is_alive(tgtobj) then
-	 return true
+         return true
       end
 
       if init then
-	 mobkit.animate(self,'fast')
-	 mobkit.make_sound(self,'attack')
-	 init = false
+         mobkit.animate(self,'fast')
+         mobkit.make_sound(self,'attack')
+         init = false
       end
 
       local pos = mobkit.get_stand_pos(self)
       local yaw = self.object:get_yaw()
       local scanpos = mobkit.get_node_pos(mobkit.pos_translate2d(pos,yaw,speed))
       if not vector.equals(prvscanpos,scanpos) then
-	 prvscanpos=scanpos
-	 local nyaw,height = aqua_radar_dumb(pos,yaw,speed*0.5)
-	 if height and height > pos.y then
-	    local vel = self.object:get_velocity()
-	    vel.y = vel.y+1
-	    self.object:set_velocity(vel)
-	 end
-	 if yaw ~= nyaw then
-	    tyaw=nyaw
-	    mobkit.hq_aqua_turn(self,prty+1,tyaw,speed)
-	    return
-	 end
+         prvscanpos=scanpos
+         local nyaw,height = aqua_radar_dumb(pos,yaw,speed*0.5)
+         if height and height > pos.y then
+            local vel = self.object:get_velocity()
+            vel.y = vel.y+1
+            self.object:set_velocity(vel)
+         end
+         if yaw ~= nyaw then
+            tyaw=nyaw
+            mobkit.hq_aqua_turn(self,prty+1,tyaw,speed)
+            return
+         end
       end
 
       local tpos = tgtobj:get_pos()
@@ -2046,18 +2046,18 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
       mobkit.turn2yaw(self,tyaw,3)
       yaw = self.object:get_yaw()
       if mobkit.timer(self,1) then
-	 if not mobkit.is_in_deep(tgtobj) then return true end
-	 local vel = self.object:get_velocity()
-	 if tpos.y>pos.y+0.5 then
-	    self.object:set_velocity({x=vel.x,y=vel.y+0.5,z=vel.z})
-	 elseif tpos.y<pos.y-0.5 then
-	    self.object:set_velocity({x=vel.x,y=vel.y-0.5,z=vel.z})
-	 end
+         if not mobkit.is_in_deep(tgtobj) then return true end
+         local vel = self.object:get_velocity()
+         if tpos.y>pos.y+0.5 then
+            self.object:set_velocity({x=vel.x,y=vel.y+0.5,z=vel.z})
+         elseif tpos.y<pos.y-0.5 then
+            self.object:set_velocity({x=vel.x,y=vel.y-0.5,z=vel.z})
+         end
       end
       if animals.target_in_range(self,tgt) then -- bite
-	 mobkit.make_sound(self,'bite')
-	 mobkit.hq_aqua_turn(self,prty,yaw-pi,speed)
-	 return animals.hurt_target(self,tgtobj,eat)
+         mobkit.make_sound(self,'bite')
+         mobkit.hq_aqua_turn(self,prty,yaw-pi,speed)
+         return animals.hurt_target(self,tgtobj,eat)
       end
       mobkit.go_forward_horizontal(self,speed)
    end
@@ -2079,45 +2079,45 @@ local function lq_jumpattack_eat(self,height,target,consume)
       if not mobkit.is_alive(target) then return true end
 
       if phase == 1 and self.isonground then
-	 -- collision bug workaround
-	 local vel = self.object:get_velocity()
-	 vel.y = -mobkit.gravity*sqrt(height*2/-mobkit.gravity)
-	 self.object:set_velocity(vel)
-	 mobkit.make_sound(self,'charge')
-	 phase=2
+         -- collision bug workaround
+         local vel = self.object:get_velocity()
+         vel.y = -mobkit.gravity*sqrt(height*2/-mobkit.gravity)
+         self.object:set_velocity(vel)
+         mobkit.make_sound(self,'charge')
+         phase=2
       elseif phase==2 then
-	 local dir = minetest.yaw_to_dir(self.object:get_yaw())
-	 local vy = self.object:get_velocity().y
-	 dir=vector.multiply(dir,6)
-	 dir.y=vy
-	 self.object:set_velocity(dir)
-	 phase=3
-      elseif phase==3 then	-- in air
-	 local tgtpos = target:get_pos()
-	 local pos = self.object:get_pos()
+         local dir = minetest.yaw_to_dir(self.object:get_yaw())
+         local vy = self.object:get_velocity().y
+         dir=vector.multiply(dir,6)
+         dir.y=vy
+         self.object:set_velocity(dir)
+         phase=3
+      elseif phase==3 then      -- in air
+         local tgtpos = target:get_pos()
+         local pos = self.object:get_pos()
 
-	 local dist = vector.distance(tgtpos,pos)
+         local dist = vector.distance(tgtpos,pos)
 
-	 -- calculate attack spot
-	 local yaw = self.object:get_yaw()
-	 local dir = minetest.yaw_to_dir(yaw)
-	 local apos = mobkit.pos_translate2d(pos,yaw,self.attack.range)
+         -- calculate attack spot
+         local yaw = self.object:get_yaw()
+         local dir = minetest.yaw_to_dir(yaw)
+         local apos = mobkit.pos_translate2d(pos,yaw,self.attack.range)
 
-	 if animals.target_in_range(self,target) then -- bite
-	    -- bounce off
-	    local vy = self.object:get_velocity().y
-	    self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
-	    -- play attack sound if defined
-	    mobkit.make_sound(self,'attack')
-	    phase=4
+         if animals.target_in_range(self,target) then -- bite
+            -- bounce off
+            local vy = self.object:get_velocity().y
+            self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
+            -- play attack sound if defined
+            mobkit.make_sound(self,'attack')
+            phase=4
 
-	    -- eat bits of opponent
-	    return animals.hurt_target(self,target,consume)
-	 else
-	    return true
-	 end
+            -- eat bits of opponent
+            return animals.hurt_target(self,target,consume)
+         else
+            return true
+         end
       else
-	 return true
+         return true
       end
    end
    mobkit.queue_low(self,func)
@@ -2128,7 +2128,7 @@ end
 function animals.hq_attack_eat(self,prty,tgt,eat)
    local t = time()
    local timer = time() + (type(self.aggression_timer) == "number"
-			   and self.aggression_timer or 12)
+                           and self.aggression_timer or 12)
    local attack_range = self.attack.range or 0.5
 
    tgt = animals.get_structure(tgt)
@@ -2138,55 +2138,55 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
    if type(eat) ~= "boolean" then
       eat = minetest.is_player(tgtobj) and self.consume_players == true
 
-	 or self.consume_players ~= false and self.predators
-	 and self.predators[tgt.name] and self.consume_predators == true
+         or self.consume_players ~= false and self.predators
+         and self.predators[tgt.name] and self.consume_predators == true
 
-	 or self.consume_predators ~= false and self.rivals
-	 and self.rivals[tgt.name] and self.consume_rivals == true
+         or self.consume_predators ~= false and self.rivals
+         and self.rivals[tgt.name] and self.consume_rivals == true
 
-	 or self.consume_rivals ~= false and self.consume_non_prey ~= false
+         or self.consume_rivals ~= false and self.consume_non_prey ~= false
       -- will be true if consume_non_prey is not specified
    end
    local func = function(self)
       if time() > timer then
-	 if not animals.is_interactor(self,"prey",tgt.name) then
-	    -- we've done enough, get away from them now
-	    animals.hq_runfrom(self, prty-4, tgtobj, true)
-	 else
-	    mobkit.hq_roam(self,15)
-	 end
-	 return true
+         if not animals.is_interactor(self,"prey",tgt.name) then
+            -- we've done enough, get away from them now
+            animals.hq_runfrom(self, prty-4, tgtobj, true)
+         else
+            mobkit.hq_roam(self,15)
+         end
+         return true
       end
       if not mobkit.is_alive(tgtobj) then return true end
 
       if mobkit.is_queue_empty_low(self) then
-	 local pos = mobkit.get_stand_pos(self)
-	 local tpos = mobkit.get_stand_pos(tgtobj)
-	 local dist = vector.distance(pos,tpos)
-	 mobkit.lq_turn2pos(self,tpos)
-	 local height = tgt.height or 0
-	 height = tgtobj:is_player() and 0.35 or height*0.6
-	 if dist <= attack_range * 6 and abs(pos.y - tpos.y) <= 3 then
-	    -- close in
-	    lq_jumpattack_eat(self,height,tgtobj, eat)
-	    if dist <= math.min(attack_range * 3,self.view_range) then
-	       -- add 0.5 to 1.75 seconds to timer if enemy or prey
-	       --  is still in close distance
-	       timer = timer + random(2,7)*0.25
-	       if animals.is_interactor(self,"prey",tgt.name) then
-		  -- add more time if prey (0.5 to 1.5 seconds)
-		  timer = timer + random(2,6)
-	       end
-	    end
-	 else
-	    if dist > self.view_range then
-	       -- out of sight, out of mind
-	       return true
-	    end
-	    mobkit.lq_dumbwalk(
-	       self,mobkit.pos_shift(tpos,{x=random(-20,20)/10,
-					   z=random(-20,20)/10}))
-	 end
+         local pos = mobkit.get_stand_pos(self)
+         local tpos = mobkit.get_stand_pos(tgtobj)
+         local dist = vector.distance(pos,tpos)
+         mobkit.lq_turn2pos(self,tpos)
+         local height = tgt.height or 0
+         height = tgtobj:is_player() and 0.35 or height*0.6
+         if dist <= attack_range * 6 and abs(pos.y - tpos.y) <= 3 then
+            -- close in
+            lq_jumpattack_eat(self,height,tgtobj, eat)
+            if dist <= math.min(attack_range * 3,self.view_range) then
+               -- add 0.5 to 1.75 seconds to timer if enemy or prey
+               --  is still in close distance
+               timer = timer + random(2,7)*0.25
+               if animals.is_interactor(self,"prey",tgt.name) then
+                  -- add more time if prey (0.5 to 1.5 seconds)
+                  timer = timer + random(2,6)
+               end
+            end
+         else
+            if dist > self.view_range then
+               -- out of sight, out of mind
+               return true
+            end
+            mobkit.lq_dumbwalk(
+               self,mobkit.pos_shift(tpos,{x=random(-20,20)/10,
+                                           z=random(-20,20)/10}))
+         end
       end
    end
    mobkit.queue_high(self,func,prty)
@@ -2210,81 +2210,81 @@ function animals.territorial(self, eat, chance_multiplier)
       local rival = mobkit.get_closest_entity(self, riv)
 
       if rival then
-	 local range = self.territorial_alert_distance or self.alert_distance
-	 --flee if hurt
-	 if self.hp < self.max_hp/4 then
-	    mobkit.animate(self,'fast')
-	    if self.class ~= 2 then
-	       mobkit.make_sound(self,'warn')
-	       animals.hq_runfrom(self, 25, rival)
-	    else
-	       flee_sound(self)
-	       animals.hq_swimfrom(self, 25, rival ,self.max_speed)
-	    end
-	    return true
-	 elseif not mobkit.is_alive(rival)
-	    or (get_dist(self,rival) < range) then
+         local range = self.territorial_alert_distance or self.alert_distance
+         --flee if hurt
+         if self.hp < self.max_hp/4 then
+            mobkit.animate(self,'fast')
+            if self.class ~= 2 then
+               mobkit.make_sound(self,'warn')
+               animals.hq_runfrom(self, 25, rival)
+            else
+               flee_sound(self)
+               animals.hq_swimfrom(self, 25, rival ,self.max_speed)
+            end
+            return true
+         elseif not mobkit.is_alive(rival)
+            or (get_dist(self,rival) < range) then
 
-	    return true
-	 end
+            return true
+         end
 
-	 --contest! The more energetic one wins
-	 local r_ent = rival:get_luaentity()
-	 local r_ent_e = r_ent.energy or 0
-	 local r_hp = rival:get_hp()
-	 local dom_chance = 0
-	 if self.energy >= r_ent_e then
-	    dom_chance = 0.8
-	    if (self.energy - (self.energy_max*0.025)) > r_ent_e then
-	       -- 2.5% of own energy_max
-	       -- overwhelming amount of energy
-	       dom_chance = 1
-	    end
-	 elseif self.energy >= (r_ent_e - (self.energy_max*0.013)) then
-	    dom_chance = 0.5
-	 elseif self.energy >= (r_ent_e - (self.energy_max*0.025)) then
-	    dom_chance = 0.4
-	 end
-	 if r_hp >= (self.max_hp*2) then
-	    -- negative
-	    dom_chance = dom_chance * 0.05
-	 elseif self.hp > r_hp then
-	    -- positive
-	    dom_chance = dom_chance * (self.hp/r_hp)
-	 end
-	 dom_chance = type(chance_multiplier) == "number"
-	    and dom_chance * chance_multiplier or dom_chance
-	 dom_chance = dom_chance * math.min(1.1*(self.hp/self.max_hp),1)
-	 -- chance determined by amount of health left of max_hp
+         --contest! The more energetic one wins
+         local r_ent = rival:get_luaentity()
+         local r_ent_e = r_ent.energy or 0
+         local r_hp = rival:get_hp()
+         local dom_chance = 0
+         if self.energy >= r_ent_e then
+            dom_chance = 0.8
+            if (self.energy - (self.energy_max*0.025)) > r_ent_e then
+               -- 2.5% of own energy_max
+               -- overwhelming amount of energy
+               dom_chance = 1
+            end
+         elseif self.energy >= (r_ent_e - (self.energy_max*0.013)) then
+            dom_chance = 0.5
+         elseif self.energy >= (r_ent_e - (self.energy_max*0.025)) then
+            dom_chance = 0.4
+         end
+         if r_hp >= (self.max_hp*2) then
+            -- negative
+            dom_chance = dom_chance * 0.05
+         elseif self.hp > r_hp then
+            -- positive
+            dom_chance = dom_chance * (self.hp/r_hp)
+         end
+         dom_chance = type(chance_multiplier) == "number"
+            and dom_chance * chance_multiplier or dom_chance
+         dom_chance = dom_chance * math.min(1.1*(self.hp/self.max_hp),1)
+         -- chance determined by amount of health left of max_hp
 
-	 if self.class == 2 then flee_sound(self) end
-	 if random() <= dom_chance then
-	    if eat then -- consume
-	       if self.class ~= 2 then
-		  animals.hq_attack_eat(self, 25, rival)
-	       else
-		  animals.hq_aqua_attack_eat(self, 25, rival, self.max_speed)
-	       end
-	    else -- harass
-	       mobkit.animate(self,'fast')
-	       if self.class ~= 2 then
-		  mobkit.make_sound(self,'warn')
-		  mobkit.hq_chaseafter(self,25,rival)
-	       else
-		  animals.hq_swimafter(self, 15, rival, self.max_speed)
-	       end
-	    end
-	    return true
-	 else -- run from
-	    mobkit.animate(self,'fast')
-	    if self.class ~= 2 then
-	       mobkit.make_sound(self,'warn')
-	       animals.hq_runfrom(self,25,rival)
-	    else
-	       animals.hq_swimfrom(self, 25, rival ,self.max_speed)
-	    end
-	    return true
-	 end
+         if self.class == 2 then flee_sound(self) end
+         if random() <= dom_chance then
+            if eat then -- consume
+               if self.class ~= 2 then
+                  animals.hq_attack_eat(self, 25, rival)
+               else
+                  animals.hq_aqua_attack_eat(self, 25, rival, self.max_speed)
+               end
+            else -- harass
+               mobkit.animate(self,'fast')
+               if self.class ~= 2 then
+                  mobkit.make_sound(self,'warn')
+                  mobkit.hq_chaseafter(self,25,rival)
+               else
+                  animals.hq_swimafter(self, 15, rival, self.max_speed)
+               end
+            end
+            return true
+         else -- run from
+            mobkit.animate(self,'fast')
+            if self.class ~= 2 then
+               mobkit.make_sound(self,'warn')
+               animals.hq_runfrom(self,25,rival)
+            else
+               animals.hq_swimfrom(self, 25, rival ,self.max_speed)
+            end
+            return true
+         end
       end
 
    end
@@ -2301,25 +2301,25 @@ function animals.hq_flock(self,prty,tgtobj, min_dist)
 
    local func = function()
       if time() > timer then
-	 return true
+         return true
       end
 
       if not mobkit.is_alive(tgtobj) then return true end
 
       if mobkit.is_queue_empty_low(self) then
-	 local pos = mobkit.get_stand_pos(self)
-	 local tpos = mobkit.get_stand_pos(tgtobj)
-	 local dist = vector.distance(pos,tpos)
-	 if dist <= min_dist or abs(tpos.y - pos.y) >= 5 then
-	    if random()<0.3 then
-	       mobkit.lq_idle(self,1)
-	    else
-	       mobkit.hq_roam(self,prty)
-	    end
-	    return true
-	 else
-	    mobkit.goto_next_waypoint(self,tpos)
-	 end
+         local pos = mobkit.get_stand_pos(self)
+         local tpos = mobkit.get_stand_pos(tgtobj)
+         local dist = vector.distance(pos,tpos)
+         if dist <= min_dist or abs(tpos.y - pos.y) >= 5 then
+            if random()<0.3 then
+               mobkit.lq_idle(self,1)
+            else
+               mobkit.hq_roam(self,prty)
+            end
+            return true
+         else
+            mobkit.goto_next_waypoint(self,tpos)
+         end
       end
    end
 
@@ -2333,11 +2333,11 @@ function animals.hq_flock_water(self,prty,tgtobj, min_dist, speed)
 
    local func = function()
       if time() > timer then
-	 return true
+         return true
       end
 
       if not mobkit.is_alive(tgtobj) then
-	 return true
+         return true
       end
 
       local pos = mobkit.get_stand_pos(self)
@@ -2347,23 +2347,23 @@ function animals.hq_flock_water(self,prty,tgtobj, min_dist, speed)
       local distance = vector.distance(pos,opos)
 
       if distance > min_dist then
-	 local swimto, height = aqua_radar_dumb(pos,yaw,3)
-	 if height and height > pos.y then
-	    local vel = self.object:get_velocity()
-	    vel.y = vel.y+0.1
-	    self.object:set_velocity(vel)
-	 end
+         local swimto, height = aqua_radar_dumb(pos,yaw,3)
+         if height and height > pos.y then
+            local vel = self.object:get_velocity()
+            vel.y = vel.y+0.1
+            self.object:set_velocity(vel)
+         end
 
-	 mobkit.hq_aqua_turn(self,prty,swimto,speed)
+         mobkit.hq_aqua_turn(self,prty,swimto,speed)
 
       else
-	 --sync with target
-	 local tvel = tgtobj:get_velocity()
-	 local tyaw = tgtobj:get_yaw()
+         --sync with target
+         local tvel = tgtobj:get_velocity()
+         local tyaw = tgtobj:get_yaw()
 
-	 mobkit.hq_aqua_turn(self,prty+1,tyaw,tvel)
-	 mobkit.make_sound(self,'call')
-	 return true
+         mobkit.hq_aqua_turn(self,prty+1,tyaw,tvel)
+         mobkit.make_sound(self,'call')
+         return true
       end
 
    end
@@ -2387,17 +2387,17 @@ function animals.flock(self, prty, min_dist, herding_dist, aqua_speed)
       local friend =mobkit.get_nearby_entity(self, fr)
 
       if friend and get_dist(self, friend) <= min_dist then
-	 --get distance, if too far away go to them
-	 if aqua_speed then
-	    mobkit.animate(self,'walk')
-	    mobkit.make_sound(self,'call')
-	    animals.hq_flock_water(self, prty, friend, herding_dist, aqua_speed)
-	 else
-	    mobkit.animate(self,'walk')
-	    mobkit.make_sound(self,'call')
-	    animals.hq_flock(self, prty, friend, herding_dist)
-	 end
-	 return true
+         --get distance, if too far away go to them
+         if aqua_speed then
+            mobkit.animate(self,'walk')
+            mobkit.make_sound(self,'call')
+            animals.hq_flock_water(self, prty, friend, herding_dist, aqua_speed)
+         else
+            mobkit.animate(self,'walk')
+            mobkit.make_sound(self,'call')
+            animals.hq_flock(self, prty, friend, herding_dist)
+         end
+         return true
       end
    end
 
@@ -2411,31 +2411,31 @@ function animals.hq_mate(self,prty,tgtobj)
 
    local func = function()
       if time() > timer then
-	 return true
+         return true
       end
 
       if not mobkit.is_alive(tgtobj) then return true end
 
       if mobkit.is_queue_empty_low(self) then
-	 local pos = mobkit.get_stand_pos(self)
-	 local tpos = mobkit.get_stand_pos(tgtobj)
-	 local dist = vector.distance(pos,tpos)
-	 if dist <= self.attack.range then
-	    mobkit.lq_idle(self,1)
-	    mobkit.make_sound(self,'mating')
-	    if self.sex == "male" then
-	       --get the other one pregnant
-	       tgtobj:set('pregnant',true,true)
-	    else
-	       --get pregnant
-	       self:set('pregnant',true,true)
-	    end
-	    self.sexual = false
-	    return true
-	 else
-	    mobkit.make_sound(self,'call')
-	    mobkit.goto_next_waypoint(self,tpos)
-	 end
+         local pos = mobkit.get_stand_pos(self)
+         local tpos = mobkit.get_stand_pos(tgtobj)
+         local dist = vector.distance(pos,tpos)
+         if dist <= self.attack.range then
+            mobkit.lq_idle(self,1)
+            mobkit.make_sound(self,'mating')
+            if self.sex == "male" then
+               --get the other one pregnant
+               tgtobj:set('pregnant',true,true)
+            else
+               --get pregnant
+               self:set('pregnant',true,true)
+            end
+            self.sexual = false
+            return true
+         else
+            mobkit.make_sound(self,'call')
+            mobkit.goto_next_waypoint(self,tpos)
+         end
       end
    end
 
@@ -2451,7 +2451,7 @@ function animals.mate_assess(self, name)
       local sexy = (self.sexual and ent.sexual) and self.sex ~= ent.sex
       local preg = (self.sex == "female" and self or ent).pregnant or false
       if sexy == true and preg == false then
-	 return ent
+         return ent
       end
    end
    return false
@@ -2466,13 +2466,13 @@ function animals.get_entities_inside_radius(creature,pos,radius,match_string)
    -- if provided creature is an entity or objectref
    if (type(creature) == "userdata") then
       if (type(creature["get_luaentity"]) == "function") then
-	 creature = creature:get_luaentity()
+         creature = creature:get_luaentity()
       end
       if (type(creature) ~= "nil" and type(creature) ~= "boolean"
-	  and type(creature) ~= "string") then
-	 creature = creature["name"]
+          and type(creature) ~= "string") then
+         creature = creature["name"]
       else
-	 creature = ""
+         creature = ""
       end
    end
 
@@ -2493,17 +2493,17 @@ function animals.get_entities_inside_radius(creature,pos,radius,match_string)
       local name = ""
       local obj
       if (type(v) ~= "nil") then
-	 obj = v:get_luaentity()
+         obj = v:get_luaentity()
       end
       if (type(obj) ~= "nil") then
-	 name = obj.name
+         name = obj.name
       end
       if (type(name) == "string") then
-	 -- if match_string is true, then will use string.match()
-	 if (name == creature or creature == "*"
-	     or (match_string == true and string.match(creature,name))) then
-	    aobjs[#aobjs + 1] = v
-	 end
+         -- if match_string is true, then will use string.match()
+         if (name == creature or creature == "*"
+             or (match_string == true and string.match(creature,name))) then
+            aobjs[#aobjs + 1] = v
+         end
       end
    end
 
@@ -2558,17 +2558,17 @@ function animals.add_interactors(creature, itype, ...)
 
       -- check if entity exists, and check if it has the interactiontype
       if entity then
-	 itable = entity[itype]
-	 if itable then
-	    itable = table.copy(itable) -- pass a copy
-	    animals.interactors[creature][itype] = itable
-	 end
+         itable = entity[itype]
+         if itable then
+            itable = table.copy(itable) -- pass a copy
+            animals.interactors[creature][itype] = itable
+         end
       end
       -- create new table with the interactiontype if it could not get one
       --  from the registered entity (or if there wasn't a entity with said name)
       if not itable then
-	 itable = {}
-	 animals.interactors[creature][itype] = itable
+         itable = {}
+         animals.interactors[creature][itype] = itable
       end
    end
 
@@ -2577,18 +2577,18 @@ function animals.add_interactors(creature, itype, ...)
    --  (the ... for multiple args)
    for _,interactor in pairs(posscreatures) do
       if type(interactor) == "table" then
-	 for _,readd in pairs(interactor) do
-	    table.insert(posscreatures,readd)
-	 end
+         for _,readd in pairs(interactor) do
+            table.insert(posscreatures,readd)
+         end
       end
       if (type(interactor) == "string") then
-	 -- allow simplification with "self" parameter
-	 if interactor == "self" then
-	    interactor = creature
-	 end
-	 -- add said creature as an "interactor" within the provided
-	 --  interactiontype (if specified creature is an entity name)
-	 itable[#itable + 1] = interactor
+         -- allow simplification with "self" parameter
+         if interactor == "self" then
+            interactor = creature
+         end
+         -- add said creature as an "interactor" within the provided
+         --  interactiontype (if specified creature is an entity name)
+         itable[#itable + 1] = interactor
       end
    end
    -- will override entity's interaction type with the provided animals
@@ -2628,10 +2628,10 @@ function animals.get_interactors(creature,itype)
       --  set it for interactions
       interactable = minetest.registered_entities[creature]
       if not interactable then
-	 return
+         return
       else
-	 interactable = {}
-	 animals.interactors[creature] = interactable
+         interactable = {}
+         animals.interactors[creature] = interactable
       end
    end
    -- get who the creature interacts in what specified way
@@ -2640,11 +2640,11 @@ function animals.get_interactors(creature,itype)
       -- get the interaction table directly from the entity if defined properly
       local entity = minetest.registered_entities[creature]
       if entity then
-	 itable = entity[itype]
-	 -- if it got an interaction table, add it to the creature
-	 if itable then
-	    interactable[itype] = itable
-	 end
+         itable = entity[itype]
+         -- if it got an interaction table, add it to the creature
+         if itable then
+            interactable[itype] = itable
+         end
       end
    end
    -- return nil (no table found) or the specified table of interaction type
@@ -2660,17 +2660,17 @@ function animals.is_interactor(creature,itype,target)
    local interactors = animals.get_interactors(creature,itype)
    if interactors then
       if type(target) ~= "string" and type(target) == "table"
-	 or type(target) == "userdata" then
+         or type(target) == "userdata" then
 
-	 target = target.name
+         target = target.name
       end
       if type(target) == "string" then
-	 target = string.lower(target)
-	 for _,targname in pairs(interactors) do
-	    if targname == target then
-	       return true
-	    end
-	 end
+         target = string.lower(target)
+         for _,targname in pairs(interactors) do
+            if targname == target then
+               return true
+            end
+         end
       end
    end
    return false
@@ -2688,11 +2688,11 @@ function animals.get_nearby_player(self,forceplyr)
       if forceplyr then return plyr end
       -- if player, then check if player is NOT in creative...
       if (not minimal.player_in_creative(plyr)) then
-	 if get_dist(self,plyr) >= (self.player_alert_distance
-				    or self.alert_distance) then
-	    return
-	 end
-	 return plyr
+         if get_dist(self,plyr) >= (self.player_alert_distance
+                                    or self.alert_distance) then
+            return
+         end
+         return plyr
       end
    end
 end
@@ -2710,7 +2710,7 @@ function animals.vitals(self)
 
       -- override self.isinliquid
       if drawtype_above == "liquid" then
-	 self.isinliquid = true
+         self.isinliquid = true
       end
 
       local oxygen_min = self.oxygen_min or self.lung_capacity
@@ -2720,40 +2720,40 @@ function animals.vitals(self)
       --  (if there's too much water)
       local dangerous = false
       if (node_drawtype(mobkit.pos_shift(lowpos,{y=-1})) == "liquid"
-	  or drawtype_above == "liquid"
-	  or oxygen_min == self.lung_capacity) then
-	 dangerous = true
+          or drawtype_above == "liquid"
+          or oxygen_min == self.lung_capacity) then
+         dangerous = true
       end
 
       if (self.class ~= 2 and self.class ~= 3) then
-	 if drawtype == 'liquid' then
-	    self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
-	    if (self.oxygen <= oxygen_min
-		or dangerous == true) then -- if uncomfortable, swim to shore
-	       animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
-	    end
-	 else
-	    self.oxygen = math_clamp(self.oxygen + breathing_rate, 0,
-				     self.lung_capacity)
-	 end
+         if drawtype == 'liquid' then
+            self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
+            if (self.oxygen <= oxygen_min
+                or dangerous == true) then -- if uncomfortable, swim to shore
+               animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
+            end
+         else
+            self.oxygen = math_clamp(self.oxygen + breathing_rate, 0,
+                                     self.lung_capacity)
+         end
       elseif (self.class ~= 3) then
-	 if self.isinliquid then
-	    self.oxygen = math_clamp(self.oxygen + breathing_rate, 0,
-				     self.lung_capacity)
-	 else
-	    self.oxygen = math_clamp(self.oxygen - 0.5, 0, self.lung_capacity)
-	 end
+         if self.isinliquid then
+            self.oxygen = math_clamp(self.oxygen + breathing_rate, 0,
+                                     self.lung_capacity)
+         else
+            self.oxygen = math_clamp(self.oxygen - 0.5, 0, self.lung_capacity)
+         end
       end
       if (self.class == 3 and self.oxygen < self.lung_capacity) then
-	 -- amphibians get to breathe wherever they wanna
-	 self.oxygen = math_clamp(self.oxygen + breathing_rate, 0,
-				  self.lung_capacity)
+         -- amphibians get to breathe wherever they wanna
+         self.oxygen = math_clamp(self.oxygen + breathing_rate, 0,
+                                  self.lung_capacity)
       end
 
       if self.oxygen <= 0 then
-	 -- drown by 10% of max_hp
-	 local dmg = math_clamp(self.max_hp * 0.1, 1, self.hp)
-	 animals.modify_hp(self,-dmg)
+         -- drown by 10% of max_hp
+         local dmg = math_clamp(self.max_hp * 0.1, 1, self.hp)
+         animals.modify_hp(self,-dmg)
       end
    end
    return
@@ -2770,39 +2770,39 @@ function animals.hq_liquid_recovery(self,prty)
       local pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
       local height, liquidflag = mobkit.get_terrain_height(pos2)
       if height and not liquidflag then
-	 mobkit.hq_swimto(self,prty,pos2)
-	 return true
+         mobkit.hq_swimto(self,prty,pos2)
+         return true
       end
       yaw=yaw+pi*0.25
       if yaw>2*pi then
-	 radius=radius+1
-	 if radius > self.view_range then
-	    yaw = random(0,(yaw+pi*2) * 100)
-	    -- random direction attempt (save decimals)
-	    yaw = yaw/100
-	    radius = random(math_clamp(3,self.view_range,
-				       self.view_range),self.view_range)
-	    -- swim anywhere! (or try to...)
-	    mobkit.turn2yaw(self,yaw)
-	    vec = minetest.yaw_to_dir(yaw)
-	    pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
+         radius=radius+1
+         if radius > self.view_range then
+            yaw = random(0,(yaw+pi*2) * 100)
+            -- random direction attempt (save decimals)
+            yaw = yaw/100
+            radius = random(math_clamp(3,self.view_range,
+                                       self.view_range),self.view_range)
+            -- swim anywhere! (or try to...)
+            mobkit.turn2yaw(self,yaw)
+            vec = minetest.yaw_to_dir(yaw)
+            pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
 
-	    if (node_drawtype(pos2) ~= "liquid"
-		or node_drawtype(mobkit.pos_shift(pos2,{y=1})) ~= "liquid") then
-	       -- made my OWN swimto because mobkit SUCKS 3:<
-	       pos2 = vector.normalize(vector.direction({x = pos.x,
-							 y = pos2.y,
-							 z = pos.z},
-					  pos2))
-	       mobkit.turn2yaw(self,minetest.dir_to_yaw(pos2))
-	       pos2 = vector.multiply(pos2,3)
-	       pos2.y = pos2.y + 2
-	       self.object:set_velocity(pos2)
-	    end
+            if (node_drawtype(pos2) ~= "liquid"
+                or node_drawtype(mobkit.pos_shift(pos2,{y=1})) ~= "liquid") then
+               -- made my OWN swimto because mobkit SUCKS 3:<
+               pos2 = vector.normalize(vector.direction({x = pos.x,
+                                                         y = pos2.y,
+                                                         z = pos.z},
+                                          pos2))
+               mobkit.turn2yaw(self,minetest.dir_to_yaw(pos2))
+               pos2 = vector.multiply(pos2,3)
+               pos2.y = pos2.y + 2
+               self.object:set_velocity(pos2)
+            end
 
-	    radius = 1
-	 end
-	 yaw = 0
+            radius = 1
+         end
+         yaw = 0
       end
    end
    mobkit.queue_high(self,func,prty)
@@ -2821,14 +2821,14 @@ end
 
 function animals.register_egg(def, animal)
    assert(type(def) == "table",
-	  "animals.register_egg: provided egg definition is not a table!")
+          "animals.register_egg: provided egg definition is not a table!")
    local name = def.name or (animal and animal.name.."_eggs") or nil
    assert(type(name) == "string",
-	  "animals.register_egg: was not provided a string for name, got '"
-	  ..type(name).."'")
+          "animals.register_egg: was not provided a string for name, got '"
+          ..type(name).."'")
    if animal and type(animal) ~= "table" then
       error("animals.register_egg: was given an 'animal' argument that "..
-	    "was invalid, nil or table only, got '"..type(animal).."'")
+            "was invalid, nil or table only, got '"..type(animal).."'")
    end
 
 
@@ -2838,10 +2838,10 @@ function animals.register_egg(def, animal)
    def.drawtype = def.drawtype or "nodebox"
    if def.drawtype == "nodebox" then
       def.node_box = def.node_box or
-	 {
-	    type = "fixed",
-	    fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
-	 }
+         {
+            type = "fixed",
+            fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
+         }
    end
 
    def.groups = def.groups or {}
@@ -2869,67 +2869,67 @@ function animals.register_egg(def, animal)
       -- we got only 1 numbered index,
       --  check if there is a string index and verify hatch calculation
       if numbered_indexes == 1 then
-	 for index,_ in pairs(def.egg_hatching) do
-	    if type(index) == "string" then
-	       do_hatch_calculation = true
-	       break
-	    end
-	 end
+         for index,_ in pairs(def.egg_hatching) do
+            if type(index) == "string" then
+               do_hatch_calculation = true
+               break
+            end
+         end
       end
       -- verified that we should do this hatch calculation
       if do_hatch_calculation then
-	 local percent = 0
-	 -- iterates through properly assessed percentages
-	 -- and calculates unproperly assessed percentages in correlation
-	 for spawn_animal,set_percent in pairs(def.egg_hatching) do
-	    -- only if spawn_animal is string, and correlated
-	    --  percentage is a number
-	    if type(spawn_animal) == "string" and type(set_percent) == "number" then
-	       -- add found percentage to compounding percentage
-	       percent = percent + set_percent
-	    end
-	 end
-	 -- if total calculated collected percentage is below 1 then
-	 -- continue (because we aren't aiming for 110% or more!)
-	 if percent < 1 then
-	    percent = 1-percent -- will be 1 if percent is 0
-	    percent = percent/#def.egg_hatching
-	    -- percentage divided by total amount of numbered indexes
+         local percent = 0
+         -- iterates through properly assessed percentages
+         -- and calculates unproperly assessed percentages in correlation
+         for spawn_animal,set_percent in pairs(def.egg_hatching) do
+            -- only if spawn_animal is string, and correlated
+            --  percentage is a number
+            if type(spawn_animal) == "string" and type(set_percent) == "number" then
+               -- add found percentage to compounding percentage
+               percent = percent + set_percent
+            end
+         end
+         -- if total calculated collected percentage is below 1 then
+         -- continue (because we aren't aiming for 110% or more!)
+         if percent < 1 then
+            percent = 1-percent -- will be 1 if percent is 0
+            percent = percent/#def.egg_hatching
+            -- percentage divided by total amount of numbered indexes
 
-	    -- only iterate through number indexes
-	    for i=1,#def.egg_hatching do
-	       -- get (expected and assumed) animal name string from numbered index
-	       local spawn_animal = def.egg_hatching[i]
-	       -- provide animal name as index, apply percentage
-	       def.egg_hatching[spawn_animal] = percent
-	       -- remove old numbered index
-	       def.egg_hatching[i] = nil
-	    end
-	    -- error right now instead of purifying or erroring later lol
-	 else
-	    error("animals.register_egg: egg_hatching collected percentage "..
-		  "is too great to calculate unsorted percentages! "..
-		  (percent*100).."%")
-	 end
-	 -- why did you just do only one...
+            -- only iterate through number indexes
+            for i=1,#def.egg_hatching do
+               -- get (expected and assumed) animal name string from numbered index
+               local spawn_animal = def.egg_hatching[i]
+               -- provide animal name as index, apply percentage
+               def.egg_hatching[spawn_animal] = percent
+               -- remove old numbered index
+               def.egg_hatching[i] = nil
+            end
+            -- error right now instead of purifying or erroring later lol
+         else
+            error("animals.register_egg: egg_hatching collected percentage "..
+                  "is too great to calculate unsorted percentages! "..
+                  (percent*100).."%")
+         end
+         -- why did you just do only one...
       elseif numbered_indexes == 1 then
-	 -- assume it's a string
-	 def.egg_hatching = {[def.egg_hatching[1]] = 1}
+         -- assume it's a string
+         def.egg_hatching = {[def.egg_hatching[1]] = 1}
       end
    end
    assert(def.egg_hatching,"animals.register_egg: could not get hatching or "..
-	  "name for egg hatching mechanics")
+          "name for egg hatching mechanics")
    def.egg_hatching = type(def.egg_hatching) == "table" and def.egg_hatching
       or {[def.egg_hatching] = 1}
 
    def.energy_egg = def.energy_egg or (animal and animal.energy_egg)
    assert(def.energy_egg,"animals.register_egg: could not get energy_egg for "
-	  ..name)
+          ..name)
    def.egg_time = def.egg_time or (animal and animal.egg_time)
    assert(def.egg_time,"animals.register_egg: could not get egg_time for "..name)
    def.young_per_egg = def.young_per_egg or (animal and animal.young_per_egg)
    assert(def.young_per_egg,"animals.register_egg: could not get egg_time for "
-	  ..name)
+          ..name)
 
    def.egg_medium = def.egg_medium or "air" -- what egg needs to be in to hatch
    def.egg_replace = def.egg_replace or "air"
@@ -2940,42 +2940,42 @@ function animals.register_egg(def, animal)
       data = data or minimal.get_nodedef(pos)
       local egg_time = data and data.egg_time
       assert(egg_time,"animal egg couldn't get egg_time: "..(data and data.name
-							     or "unknown egg"))
+                                                             or "unknown egg"))
       minetest.get_node_timer(pos):start(math.random(egg_time,egg_time*2))
    end
 
    def.on_timer = def.on_timer or function(pos, elapsed, data)
       data = data or minimal.get_nodedef(pos)
       assert(data,"animal egg couldn't get data of self at "..
-	     minetest.pos_to_string(pos))
+             minetest.pos_to_string(pos))
       local egg_time = data.egg_time
       assert(egg_time,"animal egg couldn't get egg_time: "..(data.name))
       -- if custom egg_conditions_correct function then prioritize that
       --  otherwise hatch is true, new_time is nil
       local hatch,new_time = (data.egg_conditions_correct
-			      and data.egg_conditions_correct(pos, data))
-	 or true,nil
+                              and data.egg_conditions_correct(pos, data))
+         or true,nil
       -- get a "time" to hatch by
       if new_time == true then
-	 -- you tell the egg to never hatch
-	 return false
+         -- you tell the egg to never hatch
+         return false
       elseif type(new_time) == "number" then
-	 -- start new timer with given new_time
-	 minetest.get_node_timer(pos):start(new_time)
-	 return false
+         -- start new timer with given new_time
+         minetest.get_node_timer(pos):start(new_time)
+         return false
       end
       -- now for actual hatching (or other options)
       if hatch == true then
-	 -- try to hatch as according to hatch_egg
-	 return animals.hatch_egg(pos, data)
+         -- try to hatch as according to hatch_egg
+         return animals.hatch_egg(pos, data)
       elseif type(hatch) == "number" and hatch > 0 then
-	 -- random chance
-	 if random() <= hatch then
-	    return animals.hatch_egg(pos, data)
-	 end
+         -- random chance
+         if random() <= hatch then
+            return animals.hatch_egg(pos, data)
+         end
       else
-	 -- continue to try to hatch, at another time
-	 return true
+         -- continue to try to hatch, at another time
+         return true
       end
    end
 
@@ -3005,18 +3005,18 @@ end
 function animals.register_animal(name,def)
    if type(name) ~= "string" then
       error(debug.traceback(
-	       "animals.register_animal: name is not a string, got '"..
-	       tostring(name).."'",2))
+               "animals.register_animal: name is not a string, got '"..
+               tostring(name).."'",2))
    end
    if type(def) ~= "table" then
       error(debug.traceback(
-	       "animals.register_animal: definition is not a table, got '"
-	       ..tostring(def).."'",2))
+               "animals.register_animal: definition is not a table, got '"
+               ..tostring(def).."'",2))
    end
    if type(def.logic) ~= "function" then
       error(debug.traceback("animals.register_animal: no 'logic' function "..
-			    "provided for definition, got '"..
-			    tostring(def.logic).."'",2))
+                            "provided for definition, got '"..
+                            tostring(def.logic).."'",2))
    end
 
    name = (not name:match(":") and "animals:"..name) or name
@@ -3124,7 +3124,7 @@ function animals.register_animal(name,def)
    -- animations
    def.animation = def.animation or {
       -- create animations for your animal
-				    }
+                                    }
 
    -- sounds
    -- create sounds for your animal
@@ -3135,23 +3135,23 @@ function animals.register_animal(name,def)
       gain={0.5, 1.2},
       fade={0.5, 1.5},
       pitch={0.5, 1.5},
-				  }
+                                  }
    sounds.punch_death = sounds.punch_death or {
       -- plays if animal is punched while dead
       name = "animals_punch_death",
       gain = {1,1.5},
       fade = {0.5,1.5},
       pitch = {0.5,0.8},
-					      }
+                                              }
 
    -- drops = {} -- add drops for your animal upon death
 
    -- functions
    def.on_punch = def.on_punch or function(self, puncher, time_from_last_punch,
-					   tool_capabilities, dir, fleshdmg)
+                                           tool_capabilities, dir, fleshdmg)
       -- optional "fleshdmg" argument
       animals.on_punch(self, puncher, time_from_last_punch,
-		       tool_capabilities, dir, fleshdmg)
+                       tool_capabilities, dir, fleshdmg)
    end
    -- on_rightclick = function(self, clicker, time_from_last_click,
    --                          tool_capabilities)
@@ -3162,40 +3162,40 @@ function animals.register_animal(name,def)
    -- calculates command-based values noted in base_vals
    local function calculate_val(val)
       local data = {
-	 modifier = val:find("*") or val:find("+") or val:find("/")
-	    or val:find("-") or val:find("^")
+         modifier = val:find("*") or val:find("+") or val:find("/")
+            or val:find("-") or val:find("^")
       }
       if data.modifier then
-	 data.to_index = val:sub(0,data.modifier-1)
-	 data.number = tonumber(val:sub(data.modifier+1,string.len(val)))
-	 data.modifier = val:sub(data.modifier,data.modifier)
+         data.to_index = val:sub(0,data.modifier-1)
+         data.number = tonumber(val:sub(data.modifier+1,string.len(val)))
+         data.modifier = val:sub(data.modifier,data.modifier)
       else
-	 return false,
-	    "animals.register_animal: could not get 'modifier' for '@defname' "..
-	    "calculation for '@name'."
+         return false,
+            "animals.register_animal: could not get 'modifier' for '@defname' "..
+            "calculation for '@name'."
       end
       -- now if we have a number
       if data.number then
-	 local use_val = def[data.to_index]
-	 use_val = type(use_val) == "number" and use_val
-	    or type(use_val) == "string" and calculate_val(data.to_index)
-	    or nil
-	 if type(use_val) == "number" then
-	    val = (data.modifier == "*" and use_val * data.number
-		   or data.modifier == "+" and use_val + data.number
-		   or data.modifier == "/" and use_val / data.number
-		   or data.modifier == "-" and use_val - data.number or
-		   data.modifier == "^" and use_val ^ data.number)
-	    return val
-	 else
-	    return false,"animals.register() could not get '"..data.to_index..
-	       "' as number for modification for '@defname' for animal "..
-	       "'@name'. Using default."
-	 end
+         local use_val = def[data.to_index]
+         use_val = type(use_val) == "number" and use_val
+            or type(use_val) == "string" and calculate_val(data.to_index)
+            or nil
+         if type(use_val) == "number" then
+            val = (data.modifier == "*" and use_val * data.number
+                   or data.modifier == "+" and use_val + data.number
+                   or data.modifier == "/" and use_val / data.number
+                   or data.modifier == "-" and use_val - data.number or
+                   data.modifier == "^" and use_val ^ data.number)
+            return val
+         else
+            return false,"animals.register() could not get '"..data.to_index..
+               "' as number for modification for '@defname' for animal "..
+               "'@name'. Using default."
+         end
       else
-	 return false,
-	    "animals.register_animal: could not parse '@defname' as "..
-	    "number for '@name'. Using default."
+         return false,
+            "animals.register_animal: could not parse '@defname' as "..
+            "number for '@name'. Using default."
       end
    end
    -- iterate over and adjust some values (if applicable)
@@ -3207,21 +3207,21 @@ function animals.register_animal(name,def)
       local defvalue = def[defname]
       -- grab value from def, if string then proceed with calculations
       if type(defvalue) == "string" then
-	 defvalue = defvalue:gsub(" ","") -- erase all spaces
-	 -- convert to table for a command system
-	 -- should be defined as so: "energy_max*5"
-	 -- reference a number and use proper index (will be CASE SENSITIVE)
-	 -- will NOT work with MULTIPLE arguments
-	 local val, errmsg = calculate_val(defvalue)
-	 if val ~= false then
-	    def[defname] = val
-	    -- got an error, not the end of the world
-	 else
-	    val = basevalue ~= "nil" and basevalue or nil
-	    errmsg:gsub("@defname",defname)
-	    errmsg:gsub("@name",name)
-	    minetest.log("error", errmsg)
-	 end
+         defvalue = defvalue:gsub(" ","") -- erase all spaces
+         -- convert to table for a command system
+         -- should be defined as so: "energy_max*5"
+         -- reference a number and use proper index (will be CASE SENSITIVE)
+         -- will NOT work with MULTIPLE arguments
+         local val, errmsg = calculate_val(defvalue)
+         if val ~= false then
+            def[defname] = val
+            -- got an error, not the end of the world
+         else
+            val = basevalue ~= "nil" and basevalue or nil
+            errmsg:gsub("@defname",defname)
+            errmsg:gsub("@name",name)
+            minetest.log("error", errmsg)
+         end
       end
    end
 
@@ -3232,8 +3232,8 @@ function animals.register_animal(name,def)
    -- error would only happen if you have spawnegg set,
    --  but not as a table - nil is fine as basedef will fill in
    assert(type(spawnegg) ==
-	  "table","animals.register_animal: defined 'spawnegg' is not a "..
-	  "table for itemdef, got "..type(spawnegg))
+          "table","animals.register_animal: defined 'spawnegg' is not a "..
+          "table for itemdef, got "..type(spawnegg))
    spawnegg.name = name
    spawnegg.desc = spawnegg.desc or spawnegg.description or ""
    spawnegg.inv_img = spawnegg.inv_img
@@ -3250,67 +3250,67 @@ function animals.register_animal(name,def)
    if def.capture_interactions then
       -- must be specified as a table if not nil
       if type(def.capture_interactions) ~= "table" then
-	 error("animals.register_animal: defined 'capture_interactions' "..
-	       "is not a table, got '"..type(def.capture_interactions.."'"))
+         error("animals.register_animal: defined 'capture_interactions' "..
+               "is not a table, got '"..type(def.capture_interactions.."'"))
       end
       -- let's fix anything wrong
       for capname, capvalue in pairs(def.capture_interactions) do
-	 -- overall group effectiveness
-	 if type(capvalue) == "number" then
-	    def.capture_interactions[capname] = {capvalue}
-	    -- group value variations
-	 elseif type(capvalue) == "table" then
-	    for gn,strength in pairs(capvalue) do
-	       if type(gn) == "number" then
-		  -- convert to number or nil (get rid of index)
-		  strength = type(strength) == "number" and strength
-		     or tonumber(strength)
-		  capvalue[gn] = strength
-		  -- remove this index if not a proper number index
-	       else
-		  capvalue[gn] = nil
-	       end
-	    end
-	    capvalue = def.capture_interactions[capname]
-	    -- update for calculation
+         -- overall group effectiveness
+         if type(capvalue) == "number" then
+            def.capture_interactions[capname] = {capvalue}
+            -- group value variations
+         elseif type(capvalue) == "table" then
+            for gn,strength in pairs(capvalue) do
+               if type(gn) == "number" then
+                  -- convert to number or nil (get rid of index)
+                  strength = type(strength) == "number" and strength
+                     or tonumber(strength)
+                  capvalue[gn] = strength
+                  -- remove this index if not a proper number index
+               else
+                  capvalue[gn] = nil
+               end
+            end
+            capvalue = def.capture_interactions[capname]
+            -- update for calculation
 
-	    -- remove empty tables
-	    if #capvalue == 0 then
-	       def.capture_interactions[capname] = nil
-	    end
-	    -- error, did not get table or number
-	 else
-	    minetest.log("error",
-			 "animals.register_animal: capture_interactions: "..
-			 "animal capture group index '"..
-			 tostring(capname)..
-			 "' got invalid value for capture percentage, got '"
-			 ..type(capvalue).."'. Clearing.")
-	    def.capture_interactions[capname] = nil
-	 end
+            -- remove empty tables
+            if #capvalue == 0 then
+               def.capture_interactions[capname] = nil
+            end
+            -- error, did not get table or number
+         else
+            minetest.log("error",
+                         "animals.register_animal: capture_interactions: "..
+                         "animal capture group index '"..
+                         tostring(capname)..
+                         "' got invalid value for capture percentage, got '"
+                         ..type(capvalue).."'. Clearing.")
+            def.capture_interactions[capname] = nil
+         end
       end
    end
    -- fix up a default for predator_interactions if provided
    if type(def.predator_interactions) == "number" then
       def.predator_interactions = {default = def.predator_interactions}
    elseif (type(def.predator_interactions) == "table"
-	   and type(def.predator_interactions[1]) == "number"
-	   and type(def.predator_interactions.default) ~= "number") then
+           and type(def.predator_interactions[1]) == "number"
+           and type(def.predator_interactions.default) ~= "number") then
       def.predator_interactions.default = def.predator_interactions[1]
    end
    -- set values for excessively harmful temps
    def.killer_min_temp = (type(def.killer_min_temp) == "number"
-			  and def.killer_min_temp
-			  or def.min_temp - 7)
+                          and def.killer_min_temp
+                          or def.min_temp - 7)
    def.killer_max_temp = (type(def.killer_max_temp) == "number"
-			  and def.killer_max_temp
-			  or def.max_temp + 25)
+                          and def.killer_max_temp
+                          or def.max_temp + 25)
    def.burn_max_temp = (type(def.burn_max_temp) == "number"
-			and def.burn_max_temp
-			or def.max_temp + 55)
+                        and def.burn_max_temp
+                        or def.max_temp + 55)
    def.absolute_death_temp = (type(def.absolute_death_temp) == "number"
-			      and def.absolute_death_temp
-			      or def.burn_max_temp + 300)
+                              and def.absolute_death_temp
+                              or def.burn_max_temp + 300)
    -- set values for aggression, warn, and alert distances
    def.alert_distance =
       type(def.alert_distance) == "number" and def.alert_distance
@@ -3332,76 +3332,76 @@ function animals.register_animal(name,def)
    -- modify functions for event changes or necessary actions
    local on_punch = def.on_punch
    def.on_punch = function(self, puncher, time_from_last_punch,
-			   tool_capabilities, dir)
+                           tool_capabilities, dir)
       local multiplier = tool_capabilities.full_punch_interval or 0.1
       multiplier = math_clamp(time_from_last_punch / multiplier, 0, 1)
       local fleshdmg = tool_capabilities.damage_groups.fleshy or 0
       -- allow players in creative to infinitely hit
       if not minimal.player_in_creative(puncher) then
-	 fleshdmg = math.floor(fleshdmg * multiplier)
-	 -- capture override for sea creatures
-	 if def.class == 2 and minetest.is_player(puncher)
-	    and node_drawtype(puncher:get_pos()) == "liquid" then
+         fleshdmg = math.floor(fleshdmg * multiplier)
+         -- capture override for sea creatures
+         if def.class == 2 and minetest.is_player(puncher)
+            and node_drawtype(puncher:get_pos()) == "liquid" then
 
-	    local w_itemdef = puncher:get_wielded_item():get_definition()
-	    tool_capabilities = w_itemdef.tool_capabilities
-	       or tool_capabilities
-	    -- player punching does not give custom tool_capabilities
-	    if type(def.on_rightclick) == "function" and
-	       not tool_capabilities.harm_fish then
+            local w_itemdef = puncher:get_wielded_item():get_definition()
+            tool_capabilities = w_itemdef.tool_capabilities
+               or tool_capabilities
+            -- player punching does not give custom tool_capabilities
+            if type(def.on_rightclick) == "function" and
+               not tool_capabilities.harm_fish then
 
-	       tool_capabilities.is_hand = true
-	       return def.on_rightclick(self, puncher, time_from_last_punch,
-					tool_capabilities)
-	    end
-	 end
+               tool_capabilities.is_hand = true
+               return def.on_rightclick(self, puncher, time_from_last_punch,
+                                        tool_capabilities)
+            end
+         end
       end
       if fleshdmg <= 0 then
-	 return
+         return
       end
       self.last_punched = get_time()
       if type(on_punch) == "function" then
-	 return on_punch(self, puncher, time_from_last_punch,
-			 tool_capabilities, dir, fleshdmg)
+         return on_punch(self, puncher, time_from_last_punch,
+                         tool_capabilities, dir, fleshdmg)
       end
    end
    if type(def.on_rightclick) == "function" then
       local on_rightclick = def.on_rightclick
       def.on_rightclick = function(self, clicker, time_from_last_click,
-				   tool_capabilities)
-	 -- create artificial on_punch functionality for rightclick
-	 local tool = clicker:get_wielded_item()
-	 local tooldef = tool:get_definition()
-	 tool_capabilities = tool_capabilities or tooldef.tool_capabilities
-	 time_from_last_click = time_from_last_click
-	    or get_time(animals.rclick_times[clicker])
-	 animals.rclick_times[clicker] = get_time()
-	 if type(on_rightclick) == "function" then
-	    return on_rightclick(self, clicker, time_from_last_click,
-				 tool_capabilities)
-	 end
+                                   tool_capabilities)
+         -- create artificial on_punch functionality for rightclick
+         local tool = clicker:get_wielded_item()
+         local tooldef = tool:get_definition()
+         tool_capabilities = tool_capabilities or tooldef.tool_capabilities
+         time_from_last_click = time_from_last_click
+            or get_time(animals.rclick_times[clicker])
+         animals.rclick_times[clicker] = get_time()
+         if type(on_rightclick) == "function" then
+            return on_rightclick(self, clicker, time_from_last_click,
+                                 tool_capabilities)
+         end
       end
    end
    -- entity functions
    -- set and modify
    function def.set(self,vname,value,memorize)
       if type(self) ~= "table" and type(self) ~= "userdata" then
-	 return value
+         return value
       end
       -- set a value
       self[vname] = value
       if memorize then
-	 mobkit.remember(self,vname,value)
+         mobkit.remember(self,vname,value)
       end
       return value
    end
    function def.modify(self,vname,value,memorize)
       -- modify a value
       if type(vname) ~= "string" or type(value) ~= "number"
-	 or (type(self) ~= "table" and type(self) ~= "userdata")
-	 or type(self[vname]) ~= "number" then
+         or (type(self) ~= "table" and type(self) ~= "userdata")
+         or type(self[vname]) ~= "number" then
 
-	 return value
+         return value
       end
       value = self:set(vname, self[vname] + value, memorize)
       return value

@@ -27,7 +27,7 @@ local function brain(self)
 
       --die from exhaustion or age
       if not animals.core_life(self, pos) then
-	 return
+         return
       end
       local age = self.age
 
@@ -40,16 +40,16 @@ local function brain(self)
       if prty < 50 then
 
 
-	 --Threats
-	 local plyr = animals.get_nearby_player(self)
-	 if plyr then
-	    prty = 55
-	    animals.fight_or_flight(self, plyr, prty, 0.75)
-	    self.conserve = false -- not hibernating anymore
-	 end
+         --Threats
+         local plyr = animals.get_nearby_player(self)
+         if plyr then
+            prty = 55
+            animals.fight_or_flight(self, plyr, prty, 0.75)
+            self.conserve = false -- not hibernating anymore
+         end
 
-	 --currently has none
-	 --animals.predator_avoid(self, 55, 0.75)
+         --currently has none
+         --animals.predator_avoid(self, 55, 0.75)
       end
 
 
@@ -58,45 +58,45 @@ local function brain(self)
 
       if prty < 20 and self.conserve ~= true then
 
-	 --territorial behaviour
-	 local rival = animals.territorial(self, true)
+         --territorial behaviour
+         local rival = animals.territorial(self, true)
 
 
-	 --feeding
-	 --hunt prey
-	 if self.energy < self.energy_max then
-	    if not animals.prey_hunt(self, 25) then
-	       --random search for darkness
-	       animals.hq_roam_dark(self,15)
+         --feeding
+         --hunt prey
+         if self.energy < self.energy_max then
+            if not animals.prey_hunt(self, 25) then
+               --random search for darkness
+               animals.hq_roam_dark(self,15)
 
-	       if (self.energy <= self.cn_min) then
-		  self.conserve = true
-	       end
-	    end
-	 end
+               if (self.energy <= self.cn_min) then
+                  self.conserve = true
+               end
+            end
+         end
 
-	 --reproduction
-	 --asexual parthogenesis, eggs
-	 --when in prime condition
-	 if random() < 0.1
-	    and not rival
-	    and self.hp >= self.max_hp
-	    and self.energy >= self.energy_egg*2
-	    and age >= self.mature_age then
-	    animals.place_egg(self, pos)
-	 end
+         --reproduction
+         --asexual parthogenesis, eggs
+         --when in prime condition
+         if random() < 0.1
+            and not rival
+            and self.hp >= self.max_hp
+            and self.energy >= self.energy_egg*2
+            and age >= self.mature_age then
+            animals.place_egg(self, pos)
+         end
       elseif (self.conserve == true) then
-	 if animals.prey_hunt(self,40) then
-	    -- if found food then get outta hibernation
-	    self.conserve = false
-	 end
+         if animals.prey_hunt(self,40) then
+            -- if found food then get outta hibernation
+            self.conserve = false
+         end
       end
 
       -------------------
       --generic behaviour
       if mobkit.is_queue_empty_high(self) and self.conserve ~= true then
-	 mobkit.animate(self,'walk')
-	 animals.hq_roam_dark(self,10,1)
+         mobkit.animate(self,'walk')
+         animals.hq_roam_dark(self,10,1)
       end
    end
 end
@@ -176,9 +176,9 @@ local self_data = {
    --movement
    springiness=0,
    buoyancy = 1.01,
-   max_speed = 1,					-- m/s
-   jump_height = 2,				-- nodes/meters
-   view_range = 10,					-- nodes/meters
+   max_speed = 1,                                       -- m/s
+   jump_height = 2,                             -- nodes/meters
+   view_range = 10,                                     -- nodes/meters
    --attack
    attack={range=0.8, damage_groups={fleshy=12}},
    armor_groups = {fleshy=100},
@@ -191,10 +191,10 @@ local self_data = {
    },
    sounds = {
       warn = {
-	 name = "animals_darkasthaan_warn",
-	 gain={0.3, 0.7},
-	 fade={0.5, 1.5},
-	 pitch={0.4, 1.4},
+         name = "animals_darkasthaan_warn",
+         gain={0.3, 0.7},
+         fade={0.5, 1.5},
+         pitch={0.4, 1.4},
       },
    },
    --on actions
@@ -202,10 +202,10 @@ local self_data = {
       {name = "animals:carcass_invert_large", chance = 1, min = 1, max = 1,},
    },
    on_rightclick = function(self, clicker, time_from_last_click,
-			    tool_capabilities)
+                            tool_capabilities)
       if animals.stun_catch_mob(self, clicker, time_from_last_click,
-				tool_capabilities) then -- attack kidnapper
-	 animals.fight_or_flight(self, clicker, nil, 1)
+                                tool_capabilities) then -- attack kidnapper
+         animals.fight_or_flight(self, clicker, nil, 1)
       end
    end,
    -- eggs
@@ -213,8 +213,8 @@ local self_data = {
       description = S('Darkasthaan Eggs'),
       tiles = {"animals_darkasthaan_eggs.png"},
       node_box = {
-	 type = "fixed",
-	 fixed = {-0.125, -0.5, -0.125,  0.125, -0.375, 0.125},
+         type = "fixed",
+         fixed = {-0.125, -0.5, -0.125,  0.125, -0.375, 0.125},
       },
    },
    -- spawnegg or live animal

@@ -25,7 +25,7 @@ local function brain(self)
 
       --die from exhaustion or age
       if not animals.core_life(self, pos) then
-	 return
+         return
       end
       local age = self.age
 
@@ -38,143 +38,143 @@ local function brain(self)
       if prty < 50 then
 
 
-	 --Threats
-	 local plyr = animals.get_nearby_player(self)
-	 if plyr then
-	    animals.fight_or_flight(self, plyr)
-	 end
+         --Threats
+         local plyr = animals.get_nearby_player(self)
+         if plyr then
+            animals.fight_or_flight(self, plyr)
+         end
 
-	 animals.predator_avoid(self)
+         animals.predator_avoid(self)
 
 
       end
       local male = self.sex == "male" and true or false
       self.pregnant = not male and (self.pregnant
-				    or (type(self.pregnant) ~= "boolean"
-					and mobkit.recall(self,'pregnant')))
-	 or false
+                                    or (type(self.pregnant) ~= "boolean"
+                                        and mobkit.recall(self,'pregnant')))
+         or false
 
       ----------------------
       --Low priority actions
       if prty < 20 then
 
-	 --random choice between
-	 --feeding, exploring, social
-	 --chance differs by time
-	 local ce = male and 0.4 or 0.6 -- chance explore (otherwise social)
-	 local tod = {animals.timeofday()}
-	 if tod[1] == "night" then
-	    --more social at night
-	    ce = 0.08
-	 elseif tod[1] == "day" and tod[2] == "mid" then
-	    --explore during midday
-	    ce = male and 0.6 or 0.9
-	 end
-	 local ceat = self.energy <= self.energy_max
-	    and (male and self.energy_max*.25
-		 or self.energy_max*.5)/self.energy
-	    or -1
-	 -- chance eat - creates a percentage by dividing a percentage
-	 --  of energy_max by the current energy
-	 -- The lower the energy, the higher the percentage
-	 -- If energy is equal or less than 25% of energy_max,
-	 --  it will be 1 or higher
-	 ce = ce + (ceat*0.5) -- we're hungry, modify our chance to explore!
+         --random choice between
+         --feeding, exploring, social
+         --chance differs by time
+         local ce = male and 0.4 or 0.6 -- chance explore (otherwise social)
+         local tod = {animals.timeofday()}
+         if tod[1] == "night" then
+            --more social at night
+            ce = 0.08
+         elseif tod[1] == "day" and tod[2] == "mid" then
+            --explore during midday
+            ce = male and 0.6 or 0.9
+         end
+         local ceat = self.energy <= self.energy_max
+            and (male and self.energy_max*.25
+                 or self.energy_max*.5)/self.energy
+            or -1
+         -- chance eat - creates a percentage by dividing a percentage
+         --  of energy_max by the current energy
+         -- The lower the energy, the higher the percentage
+         -- If energy is equal or less than 25% of energy_max,
+         --  it will be 1 or higher
+         ce = ce + (ceat*0.5) -- we're hungry, modify our chance to explore!
 
-	 -- exploring
-	 if random() < ce then
-	    mobkit.animate(self,'walk')
-	    -- let's prioritize eating more
-	    if ceat >= 0.3 then
-	       ceat = ceat + (ce*(ceat/0.5))
-	    end
+         -- exploring
+         if random() < ce then
+            mobkit.animate(self,'walk')
+            -- let's prioritize eating more
+            if ceat >= 0.3 then
+               ceat = ceat + (ce*(ceat/0.5))
+            end
 
-	    if random() <= ceat then -- sorry guys I need a snack break
-	       if male then
-		  if (animals.eat_flora(pos,0.001) == true) then -- mmm plants
-		     self:modify('energy',18)
-		  elseif not (random() <= 0.5
-			      and animals.prey_hunt(self,30)) then
-		     --wander randomly for plants if can't find prey
-		     mobkit.animate(self,'walk')
-		     animals.hq_roam_walkable_group(self, 'flora',
-						    "cane_plant", 15)
-		     -- go for group, ignore group, priority
-		  end
-	       else
-		  if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
-		     if (animals.eat_flora(pos,0.005) == true) then
-			self:modify('energy',18)
-		     else
-			-- look for flora that's not a cane_plant
-			animals.hq_roam_walkable_group(self, 'flora',
-						       "cane_plant", 15)
-			-- self, go for group, ignore group, priority
-		     end
-		  end
-	       end
-	       -- walkin' around downtown
-	    elseif random() < 0.98 then
-	       --wander random
-	       mobkit.hq_roam(self,10)
-	    else
-	       --wander temp
-	       animals.hq_roam_comfort_temp(self,12, 21)
-	    end
-	    -- social
-	 else
-	    self.sexual = self.age >= self.mature_age
-	       and self.hp >= self.max_hp and not self.pregnant
-	       and self.energy >= (male and self.energy_max*0.25
-				   or self.energy_egg * 1.5)
-	    -- territorial
-	    if random()< (male and 0.7 or 0.01) then
-	       animals.territorial(self, false)
-	       -- sexual behaviours
-	    elseif self.sexual and random() < (male and 0.7 or 0.5) then
-	       --we are randy
-	       mobkit.make_sound(self,'mating')
-	       local mate = male and animals.mate_assess(self, 'animals:pegasun')
-		  or not male and animals.mate_assess(self,
-						      'animals:pegasun_male')
-	       if mate then
-		  if male then -- we're going in brothers
-		     -- go get her!
-		     self:modify('energy',-1000) -- energy use for mating lol
-		     animals.hq_mate(self, 25, mate)
-		  else
-		     --go get him!
-		     animals.hq_mate(self, 25, mate)
-		  end
-		  --self.sexual = false
-	       elseif not animals.flock(self, 35) then -- find a mate
-		  mobkit.hq_roam(self,40)
-	       end
-	       --are we already pregnant?
-	    elseif random() < 0.05 and self.pregnant then
-	       mobkit.lq_idle(self,3)
-	       if animals.place_egg(self, pos) then
-		  self:set('pregnant',false,true)
-	       end
-	       -- flocking
-	    elseif not animals.flock(self, 20, self.aggression_distance) then
-	       -- hmm... they're not here...
-	       if not animals.flock(self, 25, self.warn_distance) then
-		  -- umm...
-		  if not animals.flock(self, 35) then
-		     -- where is everybody?? getting really worried here...
-		     mobkit.hq_roam(self,40)
-		  end
-	       end
-	    end
-	 end
+            if random() <= ceat then -- sorry guys I need a snack break
+               if male then
+                  if (animals.eat_flora(pos,0.001) == true) then -- mmm plants
+                     self:modify('energy',18)
+                  elseif not (random() <= 0.5
+                              and animals.prey_hunt(self,30)) then
+                     --wander randomly for plants if can't find prey
+                     mobkit.animate(self,'walk')
+                     animals.hq_roam_walkable_group(self, 'flora',
+                                                    "cane_plant", 15)
+                     -- go for group, ignore group, priority
+                  end
+               else
+                  if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
+                     if (animals.eat_flora(pos,0.005) == true) then
+                        self:modify('energy',18)
+                     else
+                        -- look for flora that's not a cane_plant
+                        animals.hq_roam_walkable_group(self, 'flora',
+                                                       "cane_plant", 15)
+                        -- self, go for group, ignore group, priority
+                     end
+                  end
+               end
+               -- walkin' around downtown
+            elseif random() < 0.98 then
+               --wander random
+               mobkit.hq_roam(self,10)
+            else
+               --wander temp
+               animals.hq_roam_comfort_temp(self,12, 21)
+            end
+            -- social
+         else
+            self.sexual = self.age >= self.mature_age
+               and self.hp >= self.max_hp and not self.pregnant
+               and self.energy >= (male and self.energy_max*0.25
+                                   or self.energy_egg * 1.5)
+            -- territorial
+            if random()< (male and 0.7 or 0.01) then
+               animals.territorial(self, false)
+               -- sexual behaviours
+            elseif self.sexual and random() < (male and 0.7 or 0.5) then
+               --we are randy
+               mobkit.make_sound(self,'mating')
+               local mate = male and animals.mate_assess(self, 'animals:pegasun')
+                  or not male and animals.mate_assess(self,
+                                                      'animals:pegasun_male')
+               if mate then
+                  if male then -- we're going in brothers
+                     -- go get her!
+                     self:modify('energy',-1000) -- energy use for mating lol
+                     animals.hq_mate(self, 25, mate)
+                  else
+                     --go get him!
+                     animals.hq_mate(self, 25, mate)
+                  end
+                  --self.sexual = false
+               elseif not animals.flock(self, 35) then -- find a mate
+                  mobkit.hq_roam(self,40)
+               end
+               --are we already pregnant?
+            elseif random() < 0.05 and self.pregnant then
+               mobkit.lq_idle(self,3)
+               if animals.place_egg(self, pos) then
+                  self:set('pregnant',false,true)
+               end
+               -- flocking
+            elseif not animals.flock(self, 20, self.aggression_distance) then
+               -- hmm... they're not here...
+               if not animals.flock(self, 25, self.warn_distance) then
+                  -- umm...
+                  if not animals.flock(self, 35) then
+                     -- where is everybody?? getting really worried here...
+                     mobkit.hq_roam(self,40)
+                  end
+               end
+            end
+         end
       end
 
       -------------------
       --generic behaviour
       if mobkit.is_queue_empty_high(self) then
-	 mobkit.animate(self,'walk')
-	 mobkit.hq_roam(self,10)
+         mobkit.animate(self,'walk')
+         mobkit.hq_roam(self,10)
       end
    end
 end
@@ -189,11 +189,11 @@ end
 ----------------------------------------------
 -- SETTING OF PEGASUN INTERACTOR SETTINGS
 animals.add_interactors("animals:pegasun","predators", "animals:kubwakubwa",
-			"animals:darkasthaan", "animals:sarkamos")
+                        "animals:darkasthaan", "animals:sarkamos")
 animals.add_interactors("animals:pegasun","prey", "animals:sneachan",
-			"animals:impethu")
+                        "animals:impethu")
 animals.add_interactors("animals:pegasun","friends", "self",
-			"animals:pegasun_male")
+                        "animals:pegasun_male")
 animals.add_interactors("animals:pegasun","rivals", "self")
 
 -- MALE INTERACTORS
@@ -236,7 +236,7 @@ local self_data = {
    energy_max = 8000,   --secs it can survive without food
    energy_egg = "energy_max*0.4",  --energy that goes to egg
    egg_time = 60*25,
-   young_per_egg = 1,		--will get this/energy_egg starting energy
+   young_per_egg = 1,           --will get this/energy_egg starting energy
    -- lifespan
    lifespan = "energy_max*15",
    mature_age = "energy_max*0.36", -- 36% of energy_max (8000) or 2880
@@ -257,49 +257,49 @@ local self_data = {
       walk={range={x=71, y=90}, speed=24, loop=true},
       fast={range={x=91, y=110}, speed=24, loop=true},
       stand={
-	 {range={x=1, y=31}, speed=28, loop=true},
-	 {range={x=31, y=70}, speed=32, loop=true},
+         {range={x=1, y=31}, speed=28, loop=true},
+         {range={x=31, y=70}, speed=32, loop=true},
       },
       dead = { range = {x=0, y=0}, speed = 0, loop=false},
    },
    sounds = {
       warn = {
-	 name = "animals_pegasun_warn",
-	 gain={0.2, 0.5},
-	 fade={0.5, 1.5},
-	 pitch={0.9, 1.1},
+         name = "animals_pegasun_warn",
+         gain={0.2, 0.5},
+         fade={0.5, 1.5},
+         pitch={0.9, 1.1},
       },
       scared = {
-	 name = "animals_pegasun_scared",
-	 gain={0.2, 0.3},
-	 fade={0.5, 1.5},
-	 pitch={1.3, 1.4},
+         name = "animals_pegasun_scared",
+         gain={0.2, 0.3},
+         fade={0.5, 1.5},
+         pitch={1.3, 1.4},
       },
       call = {
-	 name = "animals_pegasun_call",
-	 gain={0.2, 0.4},
-	 fade={0.5, 1.5},
-	 pitch={0.9, 1.1},
+         name = "animals_pegasun_call",
+         gain={0.2, 0.4},
+         fade={0.5, 1.5},
+         pitch={0.9, 1.1},
       },
       mating = {
-	 name = "animals_pegasun_warn",
-	 gain={0.4, 0.7},
-	 fade={0.5, 1.5},
-	 pitch={1.2,1.7}--{0.9, 1.4},
+         name = "animals_pegasun_warn",
+         gain={0.4, 0.7},
+         fade={0.5, 1.5},
+         pitch={1.2,1.7}--{0.9, 1.4},
       },
       attack = {
-	 name = "animals_pegasun_attack",
-	 gain={0.4, 0.7},
-	 fade={0.5, 1.5},
-	 pitch={0.9, 1.4},
+         name = "animals_pegasun_attack",
+         gain={0.4, 0.7},
+         fade={0.5, 1.5},
+         pitch={0.9, 1.4},
       },
    },
    --movement
    springiness=0,
    buoyancy = 1.01,
-   max_speed = 2,					-- m/s
-   jump_height = 1.2,				-- nodes/meters
-   view_range = 26,					-- nodes/meters
+   max_speed = 2,                                       -- m/s
+   jump_height = 1.2,                           -- nodes/meters
+   view_range = 26,                                     -- nodes/meters
    alert_distance = 16,
    player_alert_distance = 10,
    stepheight = 1.1,
@@ -312,9 +312,9 @@ local self_data = {
       {name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},
    },
    on_rightclick = function(self, clicker, time_from_last_click,
-			    tool_capabilities)
+                            tool_capabilities)
       animals.stun_catch_mob(self, clicker, time_from_last_click,
-			     tool_capabilities)
+                             tool_capabilities)
       animals.fight_or_flight(self, clicker) -- ewww a human touched me!!!
    end,
    -- egg
@@ -323,8 +323,8 @@ local self_data = {
       tiles = {"animals_gundu_eggs.png"},
       stack_max = minimal.stack_max_medium,
       node_box = {
-	 type = "fixed",
-	 fixed = {-0.125, -0.5, -0.125,  0.125, -0.125, 0.125},
+         type = "fixed",
+         fixed = {-0.125, -0.5, -0.125,  0.125, -0.125, 0.125},
       },
       groups = {egg = 2},
       egg_hatching = {"animals:pegasun","animals:pegasun_male"},
@@ -350,9 +350,9 @@ self_male.initial_properties.textures = {"animals_pegasun_male.png"}
 for index,data in pairs(self_male.initial_properties) do
    if index == "collisionbox" or index == "visual_size" then
       for index2,value in pairs(data) do
-	 if type(value) == "number" then
-	    data[index2] = value*1.15 -- size increase by 15%
-	 end
+         if type(value) == "number" then
+            data[index2] = value*1.15 -- size increase by 15%
+         end
       end
    end
 end
@@ -374,9 +374,9 @@ self_male.predator_interactions = {
 self_male.player_interaction = 1
 -- male functions
 self_male.on_rightclick = function(self, clicker, time_from_last_click,
-				   tool_capabilities)
+                                   tool_capabilities)
    if animals.stun_catch_mob(self, clicker, time_from_last_click,
-			     tool_capabilities) then -- attack kidnapper
+                             tool_capabilities) then -- attack kidnapper
       animals.fight_or_flight(self, clicker, nil, 1)
    end
 end

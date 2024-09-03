@@ -28,7 +28,7 @@ local function brain(self)
 
       --die from exhaustion or age
       if not animals.core_life(self, pos) then
-	 return
+         return
       end
       local age = self.age
 
@@ -44,13 +44,13 @@ local function brain(self)
       if prty < 50 then
 
 
-	 --Threats
-	 local plyr = animals.get_nearby_player(self)
-	 if plyr then
-	    animals.fight_or_flight(self, plyr)
-	 end
+         --Threats
+         local plyr = animals.get_nearby_player(self)
+         if plyr then
+            animals.fight_or_flight(self, plyr)
+         end
 
-	 pred = animals.predator_avoid(self)
+         pred = animals.predator_avoid(self)
 
       end
 
@@ -60,66 +60,66 @@ local function brain(self)
 
       if prty < 20 then
 
-	 --territorial behaviour
-	 local rival = animals.territorial(self, true)
+         --territorial behaviour
+         local rival = animals.territorial(self, true)
 
 
-	 --feeding
-	 local light = (minetest.get_node_light(pos) or 0)
+         --feeding
+         local light = (minetest.get_node_light(pos) or 0)
 
-	 if light <= 12 then
-	    --hungry eat stuff in the dark
-	    if self.energy < self.energy_max then
-	       if  animals.eat_flora(pos, 0.006) == true then
-		  self:modify('energy',10)
-	       elseif animals.eat_grassy_sediment_under(pos, 0.01) == true then
-		  self:modify('energy',5)
-	       else
-		  --wander random
-		  mobkit.animate(self,'walk')
-		  --mobkit.hq_roam(self,10)
-		  animals.hq_roam_surface_group(self, 'spreading', 20)
-	       end
-	    else
-	       --full
-	       mobkit.hq_roam(self,1)
-	    end
-	 elseif random()<0.5 and self.energy < self.energy_max then
-	    --slower, less effective feeding during day
-	    if  animals.eat_flora(pos, 0.001) then
-	       self:modify('energy',4)
-	    elseif animals.eat_grassy_sediment_under(pos, 0.001) then
-	       self:modify('energy',1)
-	    else
-	       --wander random
-	       mobkit.animate(self,'walk')
-	       animals.hq_roam_dark(self,10)
-	    end
-	 else
-	    --get out of the light
-	    animals.hq_roam_dark(self,15)
-	 end
-
-
+         if light <= 12 then
+            --hungry eat stuff in the dark
+            if self.energy < self.energy_max then
+               if  animals.eat_flora(pos, 0.006) == true then
+                  self:modify('energy',10)
+               elseif animals.eat_grassy_sediment_under(pos, 0.01) == true then
+                  self:modify('energy',5)
+               else
+                  --wander random
+                  mobkit.animate(self,'walk')
+                  --mobkit.hq_roam(self,10)
+                  animals.hq_roam_surface_group(self, 'spreading', 20)
+               end
+            else
+               --full
+               mobkit.hq_roam(self,1)
+            end
+         elseif random()<0.5 and self.energy < self.energy_max then
+            --slower, less effective feeding during day
+            if  animals.eat_flora(pos, 0.001) then
+               self:modify('energy',4)
+            elseif animals.eat_grassy_sediment_under(pos, 0.001) then
+               self:modify('energy',1)
+            else
+               --wander random
+               mobkit.animate(self,'walk')
+               animals.hq_roam_dark(self,10)
+            end
+         else
+            --get out of the light
+            animals.hq_roam_dark(self,15)
+         end
 
 
-	 --reproduction
-	 --asexual parthogenesis, eggs
-	 if random() < 0.008
-	    and not rival
-	    and not pred
-	    and self.hp >= self.max_hp
-	    and self.energy >= (self.energy_max * 0.7) then
-	    animals.place_egg(self, pos)
-	 end
+
+
+         --reproduction
+         --asexual parthogenesis, eggs
+         if random() < 0.008
+            and not rival
+            and not pred
+            and self.hp >= self.max_hp
+            and self.energy >= (self.energy_max * 0.7) then
+            animals.place_egg(self, pos)
+         end
 
       end
 
       -------------------
       --generic behaviour
       if mobkit.is_queue_empty_high(self) then
-	 mobkit.animate(self,'walk')
-	 animals.hq_roam_dark(self,10,1)
+         mobkit.animate(self,'walk')
+         animals.hq_roam_dark(self,10,1)
       end
    end
 end
@@ -136,8 +136,8 @@ end
 ----------------------------------------------
 -- SETTING OF SNEACHAN INTERACTOR SETTINGS
 animals.add_interactors("animals:sneachan","predators", "animals:pegasun",
-			"animals:pegasun_male", "animals:kubwakubwa",
-			"animals:darkasthaan")
+                        "animals:pegasun_male", "animals:kubwakubwa",
+                        "animals:darkasthaan")
 animals.add_interactors("animals:sneachan","rivals", "self", "animals:impethu")
 
 -- Animal Data
@@ -187,7 +187,7 @@ self_data = {
    --movement
    springiness=0,
    buoyancy = 1.01,
-   max_speed = 1,					-- m/s
+   max_speed = 1,                                       -- m/s
    --attack
    attack={range=0.3, damage_groups={fleshy=1}},
    armor_groups = {fleshy=100},
@@ -201,10 +201,10 @@ self_data = {
    },
    sounds = {
       warn = {
-	 name = "animals_sneachan_warn",
-	 gain={0.05, 0.2},
-	 fade={0.5, 1.5},
-	 pitch={0.6, 1.3},
+         name = "animals_sneachan_warn",
+         gain={0.05, 0.2},
+         fade={0.5, 1.5},
+         pitch={0.6, 1.3},
       },
    },
    --on actions
@@ -212,15 +212,15 @@ self_data = {
       {name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
    },
    on_rightclick = function(self, clicker, time_from_last_click,
-			    tool_capabilities)
+                            tool_capabilities)
       animals.stun_catch_mob(self, clicker, time_from_last_click,
-			     tool_capabilities)
+                             tool_capabilities)
       animals.fight_or_flight(self, clicker)
    end,
    _on_death = function(self, pos)
       local good_temp,temp_status = animals.temp_comfy(self)
       if good_temp or temp_status ~= "cold" then
-	 return
+         return
       end
       animals.emergency_egg(self, pos)
    end,
@@ -229,22 +229,22 @@ self_data = {
       description = S('Sneachan Eggs'),
       tiles = {"animals_sneachan_eggs.png"},
       egg_conditions_correct = function(pos,data)
-	 data = data or minimal.get_nodedef(data)
-	 if not data then return false,true end -- break egg
-	 local egg_time = data.egg_time
-	 local temp = climate.get_point_temp(pos)
-	 if temp < 10 then
-	    return false,math.random(egg_time,egg_time*4)
-	    -- can't hatch, send new time
-	 end
-	 local light = (minetest.get_node_light(pos) or 0)
-	 if light <= 10 then
-	    return true -- can hatch
-	 else
-	    return 0.3 -- chance of hatch
-	 end
-	 -- try again next season
-	 return false,math.random(egg_time,egg_time*2)
+         data = data or minimal.get_nodedef(data)
+         if not data then return false,true end -- break egg
+         local egg_time = data.egg_time
+         local temp = climate.get_point_temp(pos)
+         if temp < 10 then
+            return false,math.random(egg_time,egg_time*4)
+            -- can't hatch, send new time
+         end
+         local light = (minetest.get_node_light(pos) or 0)
+         if light <= 10 then
+            return true -- can hatch
+         else
+            return 0.3 -- chance of hatch
+         end
+         -- try again next season
+         return false,math.random(egg_time,egg_time*2)
       end,
    },
    -- spawnegg or live animal

@@ -28,7 +28,7 @@ local function brain(self)
 
       --die from exhaustion or age
       if not animals.core_life(self, pos) then
-	 return
+         return
       end
       local age = self.age
 
@@ -40,17 +40,17 @@ local function brain(self)
       --High priority actions
       if prty < 50 then
 
-	 --Threats
-	 local plyr = animals.get_nearby_player(self)
-	 if plyr then
-	    prty = 55
-	    animals.fight_or_flight(self, plyr, prty, 0.15)
-	 end
+         --Threats
+         local plyr = animals.get_nearby_player(self)
+         if plyr then
+            prty = 55
+            animals.fight_or_flight(self, plyr, prty, 0.15)
+         end
 
-	 if (animals.predator_avoid(self) or plyr) then
-	    prty = 55
-	    self.conserve = false -- on the move, no more conserving
-	 end
+         if (animals.predator_avoid(self) or plyr) then
+            prty = 55
+            self.conserve = false -- on the move, no more conserving
+         end
 
       end
 
@@ -60,44 +60,44 @@ local function brain(self)
 
       if prty < 20 and self.conserve ~= true then
 
-	 --territorial behaviour
-	 local rival = animals.territorial(self, true)
+         --territorial behaviour
+         local rival = animals.territorial(self, true)
 
 
-	 --feeding
-	 --hunt prey
-	 if self.energy < self.energy_max then
-	    if not animals.prey_hunt(self, 25) then
-	       --random search for darkness
-	       animals.hq_roam_dark(self,15)
+         --feeding
+         --hunt prey
+         if self.energy < self.energy_max then
+            if not animals.prey_hunt(self, 25) then
+               --random search for darkness
+               animals.hq_roam_dark(self,15)
 
-	       if (self.energy <= self.cn_min) then
-		  self.conserve = true
-	       end
-	    end
-	 end
+               if (self.energy <= self.cn_min) then
+                  self.conserve = true
+               end
+            end
+         end
 
-	 --reproduction
-	 --asexual parthogenesis, eggs
-	 --when in prime condition
-	 if random() < 0.1
-	    and not rival
-	    and self.hp >= self.max_hp
-	    and self.energy >= self.energy_egg + 100
-	    and self.age >= self.mature_age then
-	    animals.place_egg(self, pos)
-	 end
+         --reproduction
+         --asexual parthogenesis, eggs
+         --when in prime condition
+         if random() < 0.1
+            and not rival
+            and self.hp >= self.max_hp
+            and self.energy >= self.energy_egg + 100
+            and self.age >= self.mature_age then
+            animals.place_egg(self, pos)
+         end
       elseif (self.conserve == true) then
-	 if (animals.prey_hunt(self,40)) then
-	    self.conserve = false -- found prey, get out of hibernation
-	 end
+         if (animals.prey_hunt(self,40)) then
+            self.conserve = false -- found prey, get out of hibernation
+         end
       end
 
       -------------------
       --generic behaviour
       if mobkit.is_queue_empty_high(self) and self.conserve ~= true then
-	 mobkit.animate(self,'walk')
-	 animals.hq_roam_dark(self,10,1)
+         mobkit.animate(self,'walk')
+         animals.hq_roam_dark(self,10,1)
       end
    end
 end
@@ -112,11 +112,11 @@ end
 ----------------------------------------------
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
 animals.add_interactors("animals:kubwakubwa","predators",
-			"animals:darkasthaan", "animals:sarkamos")
+                        "animals:darkasthaan", "animals:sarkamos")
 animals.add_interactors("animals:kubwakubwa","prey", "animals:pegasun",
-			"animals:sneachan", "animals:impethu", "animals:gundu")
+                        "animals:sneachan", "animals:impethu", "animals:gundu")
 animals.add_interactors("animals:kubwakubwa","rivals", "self",
-			"animals:pegasun_male")
+                        "animals:pegasun_male")
 
 ----------------------------------------------
 -- Animal Data
@@ -172,8 +172,8 @@ local self_data = {
    --movement
    springiness=0,
    buoyancy = 1.01,
-   max_speed = 0.75,					-- m/s
-   view_range = 10,					-- nodes/meters
+   max_speed = 0.75,                                    -- m/s
+   view_range = 10,                                     -- nodes/meters
    --attack
    attack={range=0.4, damage_groups={fleshy=4}},
    armor_groups = {fleshy=100},
@@ -186,10 +186,10 @@ local self_data = {
    },
    sounds = {
       warn = {
-	 name = "animals_kubwakubwa_warn",
-	 gain={0.4, 0.8},
-	 fade={0.5, 1.5},
-	 pitch={0.9, 1.1},
+         name = "animals_kubwakubwa_warn",
+         gain={0.4, 0.8},
+         fade={0.5, 1.5},
+         pitch={0.9, 1.1},
       },
    },
    -- on actions
@@ -197,15 +197,15 @@ local self_data = {
       {name = "animals:carcass_invert_large", chance = 1, min = 1, max = 1,},
    },
    on_rightclick = function(self, clicker, time_from_last_click,
-			    tool_capabilities)
+                            tool_capabilities)
       animals.stun_catch_mob(self, clicker, time_from_last_click,
-			     tool_capabilities)
+                             tool_capabilities)
       animals.fight_or_flight(self, clicker)
    end,
    _on_death = function(self, pos)
       local good_temp,temp_status = animals.temp_comfy(self)
       if good_temp or temp_status ~= "cold" then
-	 return
+         return
       end
       animals.emergency_egg(self, pos)
    end,
@@ -214,19 +214,19 @@ local self_data = {
       description = S('Kubwakubwa Eggs'),
       tiles = {"animals_kubwakubwa_eggs.png"},
       node_box = {
-	 type = "fixed",
-	 fixed = {-0.0625, -0.5, -0.0625,  0.0625, -0.375, 0.0625},
+         type = "fixed",
+         fixed = {-0.0625, -0.5, -0.0625,  0.0625, -0.375, 0.0625},
       },
       egg_conditions_correct = function(pos,data)
-	 data = data or minimal.get_nodedef(pos)
-	 if not data then return false,true end -- break egg
-	 local egg_time = data.egg_time
-	 local temp = climate.get_point_temp(pos)
-	 if (temp < 12) then
-	    -- too cold to hatch, wait again (with increased time)
-	    return false,math.random(egg_time,egg_time*3)
-	 end
-	 return true
+         data = data or minimal.get_nodedef(pos)
+         if not data then return false,true end -- break egg
+         local egg_time = data.egg_time
+         local temp = climate.get_point_temp(pos)
+         if (temp < 12) then
+            -- too cold to hatch, wait again (with increased time)
+            return false,math.random(egg_time,egg_time*3)
+         end
+         return true
       end,
    },
    -- spawnegg or live animal

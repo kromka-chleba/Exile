@@ -142,54 +142,54 @@ for i in ipairs(list) do
 
    --raw
    minetest.register_node("animals:carcass_"..name, {
-			     description = S('@1 Carcass', desc),
-			     tiles = {"animals_carcass.png"},
-			     drawtype = "nodebox",
-			     paramtype = "light",
-			     node_box = {
-				type = "fixed",
-				fixed = box
-			     },
-			     stack_max = stack/2,
-			     groups = {snappy = 3, dig_immediate = 3,
-				       falling_node = 1, temp_pass = 1,
-				       raw_cooked = 1, heatable = heat,
-				       carcass = carcass},
-			     sounds = nodes_nature.node_sound_defaults(),
+                             description = S('@1 Carcass', desc),
+                             tiles = {"animals_carcass.png"},
+                             drawtype = "nodebox",
+                             paramtype = "light",
+                             node_box = {
+                                type = "fixed",
+                                fixed = box
+                             },
+                             stack_max = stack/2,
+                             groups = {snappy = 3, dig_immediate = 3,
+                                       falling_node = 1, temp_pass = 1,
+                                       raw_cooked = 1, heatable = heat,
+                                       carcass = carcass},
+                             sounds = nodes_nature.node_sound_defaults(),
    })
 
    --cooked
    minetest.register_node("animals:carcass_"..name.. "_cooked", {
-			     description = S('Cooked @1', desc),
-			     tiles = {"nodes_nature_silt.png"},
-			     drawtype = "nodebox",
-			     paramtype = "light",
-			     node_box = {
-				type = "fixed",
-				fixed = box
-			     },
-			     stack_max = stack,
-			     groups = {snappy = 3, dig_immediate = 3,
-				       falling_node = 1, temp_pass = 1,
-				       raw_cooked = 2, carcass = carcass},
-			     sounds = nodes_nature.node_sound_defaults(),
+                             description = S('Cooked @1', desc),
+                             tiles = {"nodes_nature_silt.png"},
+                             drawtype = "nodebox",
+                             paramtype = "light",
+                             node_box = {
+                                type = "fixed",
+                                fixed = box
+                             },
+                             stack_max = stack,
+                             groups = {snappy = 3, dig_immediate = 3,
+                                       falling_node = 1, temp_pass = 1,
+                                       raw_cooked = 2, carcass = carcass},
+                             sounds = nodes_nature.node_sound_defaults(),
    })
 
    --burned
    minetest.register_node("animals:carcass_"..name.. "_burned", {
-			     description = S('Burned @1', desc),
-			     tiles = {"animals_carcass_burned.png"},
-			     drawtype = "nodebox",
-			     paramtype = "light",
-			     node_box = {
-				type = "fixed",
-				fixed = box
-			     },
-			     stack_max = stack,
-			     groups = {snappy = 3, dig_immediate = 3,
-				       falling_node = 1, temp_pass = 1,
-				       raw_cooked = 3, carcass = carcass},
-			     sounds = nodes_nature.node_sound_defaults(),
+                             description = S('Burned @1', desc),
+                             tiles = {"animals_carcass_burned.png"},
+                             drawtype = "nodebox",
+                             paramtype = "light",
+                             node_box = {
+                                type = "fixed",
+                                fixed = box
+                             },
+                             stack_max = stack,
+                             groups = {snappy = 3, dig_immediate = 3,
+                                       falling_node = 1, temp_pass = 1,
+                                       raw_cooked = 3, carcass = carcass},
+                             sounds = nodes_nature.node_sound_defaults(),
    })
 
    HEALTH.add_food_hooks("animals:carcass_"..name)

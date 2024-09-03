@@ -1,4 +1,4 @@
-----------------------------------------------------------------------
+---------------------------------------------------------------------
 -- Gundu
 --a small fish
 --[[
@@ -56,7 +56,7 @@ local function brain(self)
       -- Also recharges health from energy
       --die from exhaustion or age
       if not animals.core_life(self, pos) then
-	 return
+         return
       end
 
 
@@ -66,27 +66,27 @@ local function brain(self)
       local pred = nil
 
       if prty < 50 then
-	 --Threats
-	 local plyr = animals.get_nearby_player(self)
-	 if plyr then
-	    animals.fight_or_flight(self, plyr)
-	 end
+         --Threats
+         local plyr = animals.get_nearby_player(self)
+         if plyr then
+            animals.fight_or_flight(self, plyr)
+         end
 
-	 pred = animals.predator_avoid(self)
+         pred = animals.predator_avoid(self)
 
-	 --Return to water
-	 if not self.isinliquid then
-	    mobkit.clear_queue_high(self)
-	    animals.hq_swimfrompos(self,66,pos,1)
-	 end
-	 -- Temp out of range
-	 local temp = climate.get_point_temp(pos, true)
-	 if not animals.temp_comfy(self,temp) then
-	    local vel = self.object:get_velocity()
-	    vel.y = vel.y-0.2
-	    self.object:set_velocity(vel)
-	    mobkit.hq_aqua_roam(self,10,0.2)
-	 end
+         --Return to water
+         if not self.isinliquid then
+            mobkit.clear_queue_high(self)
+            animals.hq_swimfrompos(self,66,pos,1)
+         end
+         -- Temp out of range
+         local temp = climate.get_point_temp(pos, true)
+         if not animals.temp_comfy(self,temp) then
+            local vel = self.object:get_velocity()
+            vel.y = vel.y-0.2
+            self.object:set_velocity(vel)
+            mobkit.hq_aqua_roam(self,10,0.2)
+         end
 
       end
 
@@ -95,78 +95,78 @@ local function brain(self)
       --Low priority actions
       if prty < 20 then
 
-	 --social behaviour
-	 local rival
-	 if pred then
-	    animals.flock(self, 21, self.view_range/2, 2, self.max_speed)
-	 elseif random() <0.15 then
-	    rival = animals.territorial(self, false)
-	 elseif random() <0.01 then
-	    rival = animals.territorial(self, true)
-	 elseif random() <0.25 then
-	    animals.flock(self, 15, 2, self.max_speed/2)
-	 end
+         --social behaviour
+         local rival
+         if pred then
+            animals.flock(self, 21, self.view_range/2, 2, self.max_speed)
+         elseif random() <0.15 then
+            rival = animals.territorial(self, false)
+         elseif random() <0.01 then
+            rival = animals.territorial(self, true)
+         elseif random() <0.25 then
+            animals.flock(self, 15, 2, self.max_speed/2)
+         end
 
-	 local tod = animals.timeofday()
-	 local light = minetest.get_node_light(pos) or 0
-	 local lightm = minetest.get_node_light(pos, 0.5) -- daylight level
-	    or 0
-	 -- pred-less, rival-less activities
-	 if not pred and not rival then
-	    -- no pred, no rivals
-	    --feeding
-	    --in bright light, when no threats
-	    if self.energy < self.energy_max and light >= 5 then
-	       -- feeding
-	       local yield = 1 -- some light
-	       if light >= 12 then
-		  -- so so much light big yummy
-		  yield = 3
-	       elseif light >= 9 then
-		  -- many light
-		  yield = 2
-	       end
-	       self:modify('energy',yield)
-	    end
-	    --reproduction
-	    --asexual parthogenesis, eggs
-	    --no threats, darkness, peak condition
-	    if random() < 0.1
-	       and lightm <= 11
-	       and tod == "night" -- lay at night
-	       and self.hp >= self.max_hp
-	       and self.energy >= (self.energy_max * 0.99) then
-	       animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
-	    end
-	 end
+         local tod = animals.timeofday()
+         local light = minetest.get_node_light(pos) or 0
+         local lightm = minetest.get_node_light(pos, 0.5) -- daylight level
+            or 0
+         -- pred-less, rival-less activities
+         if not pred and not rival then
+            -- no pred, no rivals
+            --feeding
+            --in bright light, when no threats
+            if self.energy < self.energy_max and light >= 5 then
+               -- feeding
+               local yield = 1 -- some light
+               if light >= 12 then
+                  -- so so much light big yummy
+                  yield = 3
+               elseif light >= 9 then
+                  -- many light
+                  yield = 2
+               end
+               self:modify('energy',yield)
+            end
+            --reproduction
+            --asexual parthogenesis, eggs
+            --no threats, darkness, peak condition
+            if random() < 0.1
+               and lightm <= 11
+               and tod == "night" -- lay at night
+               and self.hp >= self.max_hp
+               and self.energy >= (self.energy_max * 0.99) then
+               animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
+            end
+         end
 
-	 --movement
-	 if tod == "night" then
-	    --sink at night to lay eggs
-	    local vel = self.object:get_velocity()
-	    vel.y = vel.y-0.2
-	    self.object:set_velocity(vel)
-	    mobkit.hq_aqua_roam(self,10,0.2)
+         --movement
+         if tod == "night" then
+            --sink at night to lay eggs
+            local vel = self.object:get_velocity()
+            vel.y = vel.y-0.2
+            self.object:set_velocity(vel)
+            mobkit.hq_aqua_roam(self,10,0.2)
 
-	 elseif light <= 9 then
-	    --rise during day if not in best light
-	    local vel = self.object:get_velocity()
-	    vel.y = vel.y+0.2
-	    self.object:set_velocity(vel)
-	    mobkit.hq_aqua_roam(self,10, random(1, self.max_speed))
+         elseif light <= 9 then
+            --rise during day if not in best light
+            local vel = self.object:get_velocity()
+            vel.y = vel.y+0.2
+            self.object:set_velocity(vel)
+            mobkit.hq_aqua_roam(self,10, random(1, self.max_speed))
 
-	 else
-	    --no special movement
-	    mobkit.hq_aqua_roam(self,5, random(0.5, self.max_speed/2))
+         else
+            --no special movement
+            mobkit.hq_aqua_roam(self,5, random(0.5, self.max_speed/2))
 
-	 end
+         end
       end
 
       -------------------
       --generic behaviour
       if mobkit.is_queue_empty_high(self) then
-	 mobkit.animate(self,'def')
-	 mobkit.hq_aqua_roam(self,10,1)
+         mobkit.animate(self,'def')
+         mobkit.hq_aqua_roam(self,10,1)
       end
    end
 end
@@ -183,7 +183,7 @@ end
 ----------------------------------------------
 -- SETTING OF GUNDU INTERACTOR SETTINGS
 animals.add_interactors("animals:gundu","predators",
-			"animals:sarkamos", "animals:darkasthaan")
+                        "animals:sarkamos", "animals:darkasthaan")
 animals.add_interactors("animals:gundu","rivals", "self")
 animals.add_interactors("animals:gundu","friends", "self")
 
@@ -241,30 +241,30 @@ local self_data = {
    },
    sounds = {
       flee = {
-	 name = "animals_water_swish",
-	 gain={0.5, 1.5},
-	 fade={0.5, 1.5},
-	 pitch={0.5, 1.5},
+         name = "animals_water_swish",
+         gain={0.5, 1.5},
+         fade={0.5, 1.5},
+         pitch={0.5, 1.5},
       },
       call = {
-	 name = "animals_gundu_call",
-	 gain={0.05, 0.15},
-	 fade={0.5, 1.5},
-	 pitch={0.6, 1.2},
+         name = "animals_gundu_call",
+         gain={0.05, 0.15},
+         fade={0.5, 1.5},
+         pitch={0.6, 1.2},
       },
       punch = {
-	 name = "animals_punch",
-	 gain={0.5, 1},
-	 fade={0.5, 1.5},
-	 pitch={0.5, 1.5},
+         name = "animals_punch",
+         gain={0.5, 1},
+         fade={0.5, 1.5},
+         pitch={0.5, 1.5},
       },
    },
    --movement
    springiness=0.5,
    buoyancy = 1,
-   max_speed = 5,					-- m/s
-   jump_height = 1.5,				-- nodes/meters
-   view_range = 5,					-- nodes/meters
+   max_speed = 5,                                       -- m/s
+   jump_height = 1.5,                           -- nodes/meters
+   view_range = 5,                                      -- nodes/meters
    --attack
    attack={range=0.3, damage_groups={fleshy=1}},
    armor_groups = {fleshy=100},
@@ -273,9 +273,9 @@ local self_data = {
       {name = "animals:carcass_fish_small", chance = 1, min = 1, max = 1,},
    },
    on_rightclick = function(self, clicker, time_from_last_click,
-			    tool_capabilities)
+                            tool_capabilities)
       animals.stun_catch_mob(self, clicker, time_from_last_click,
-			     tool_capabilities)
+                             tool_capabilities)
       animals.fight_or_flight(self, clicker)
    end,
    -- egg

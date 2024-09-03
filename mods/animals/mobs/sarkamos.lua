@@ -26,18 +26,18 @@ local function brain(self)
       local pos = mobkit.get_stand_pos(self)
       --die from exhaustion or age
       if not animals.core_life(self, pos) then
-	 return
+         return
       end
       local yaw = self.object:get_yaw()
       local nodes = {f=mobkit.pos_translate2d(pos,yaw,1.5)}
       nodes.fu = animals.node_drawtype(minimal.shift_pos(nodes.f,{y=-1}))
       nodes.f = animals.node_drawtype(nodes.f)
       if (self.energy < self.energy_max
-	  and animals.node_drawtype(pos) ~= "airlike")
-	 and (nodes.f ~= "liquid") then
-	 self.object:add_velocity({x=0,y=random(10,30)/10,z=0})
-	 mobkit.clear_queue_high(self)
-	 mobkit.hq_aqua_turn(self,68,yaw+10,2)
+          and animals.node_drawtype(pos) ~= "airlike")
+         and (nodes.f ~= "liquid") then
+         self.object:add_velocity({x=0,y=random(10,30)/10,z=0})
+         mobkit.clear_queue_high(self)
+         mobkit.hq_aqua_turn(self,68,yaw+10,2)
       end
 
 
@@ -58,55 +58,55 @@ local function brain(self)
       --Low priority actions
       if prty < 20 then
 
-	 --territorial behaviour
-	 local rival = animals.territorial(self, false)
+         --territorial behaviour
+         local rival = animals.territorial(self, false)
 
-	 --feeding
-	 if self.energy < self.energy_max then
-	    --You are prey
-	    local plyr = animals.get_nearby_player(self)
-	    if plyr then
-	       animals.fight_or_flight(self, plyr, 25, 0.4)
-	    end
+         --feeding
+         if self.energy < self.energy_max then
+            --You are prey
+            local plyr = animals.get_nearby_player(self)
+            if plyr then
+               animals.fight_or_flight(self, plyr, 25, 0.4)
+            end
 
-	    if not animals.prey_hunt(self, 25) then
-	       --random search for darkness
-	       mobkit.hq_aqua_roam(self,15,self.max_speed/3)
-	       if self.energy <= self.energy_max*0.06 then
-		  -- super hungry, time to be a cannibal
-		  rival = animals.territorial(self, true, 5)
-	       end
-	    end
-	 end
-	 --reproduction
-	 --asexual parthogenesis, eggs
-	 --when in prime condition
-	 --in dark
-	 local light = minetest.get_node_light(pos, 0.5) or 0
-	 local tod = animals.timeofday()
+            if not animals.prey_hunt(self, 25) then
+               --random search for darkness
+               mobkit.hq_aqua_roam(self,15,self.max_speed/3)
+               if self.energy <= self.energy_max*0.06 then
+                  -- super hungry, time to be a cannibal
+                  rival = animals.territorial(self, true, 5)
+               end
+            end
+         end
+         --reproduction
+         --asexual parthogenesis, eggs
+         --when in prime condition
+         --in dark
+         local light = minetest.get_node_light(pos, 0.5) or 0
+         local tod = animals.timeofday()
 
-	 local pregnant = self.age >= self.mature_age
-	    and self.energy >= self.energy_max
-	 local can_reproduce =
-	    pregnant and (random() < 0.004 and not rival and tod == "night"
-			  and self.hp >= self.max_hp)
+         local pregnant = self.age >= self.mature_age
+            and self.energy >= self.energy_max
+         local can_reproduce =
+            pregnant and (random() < 0.004 and not rival and tod == "night"
+                          and self.hp >= self.max_hp)
 
-	 if pregnant then
-	    -- heavy with eggs, sink to look for a laying spot
-	    self.object:add_velocity({ x = 0, y = -0.2,
-				       z = 0})
-	 end
+         if pregnant then
+            -- heavy with eggs, sink to look for a laying spot
+            self.object:add_velocity({ x = 0, y = -0.2,
+                                       z = 0})
+         end
 
-	 if can_reproduce then
-	    animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
-	 end
+         if can_reproduce then
+            animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
+         end
       end
 
       -------------------
       --generic behaviour
       if mobkit.is_queue_empty_high(self) then
-	 mobkit.animate(self,'def')
-	 mobkit.hq_aqua_roam(self,10,1)
+         mobkit.animate(self,'def')
+         mobkit.hq_aqua_roam(self,10,1)
       end
    end
 end
@@ -123,8 +123,8 @@ end
 ----------------------------------------------
 -- SETTING OF SARKAMOS INTERACTOR SETTINGS
 animals.add_interactors("animals:sarkamos","prey", "animals:gundu",
-			"animals:pegasun","animals:pegasun_male",
-			"animals:kubwakubwa", "animals:darkasthaan")
+                        "animals:pegasun","animals:pegasun_male",
+                        "animals:kubwakubwa", "animals:darkasthaan")
 animals.add_interactors("animals:sarkamos","rivals", "self")
 
 ----------------------------------------------
@@ -173,9 +173,9 @@ local self_data = {
    --movement
    springiness=0.5,
    buoyancy = 1,
-   max_speed = 3,					-- m/s
-   jump_height = 2,				-- nodes/meters
-   view_range = 7,					-- nodes/meters
+   max_speed = 3,                                       -- m/s
+   jump_height = 2,                             -- nodes/meters
+   view_range = 7,                                      -- nodes/meters
    --attack
    attack={range=3, damage_groups={fleshy=10}},
    armor_groups = {fleshy=100},
@@ -188,16 +188,16 @@ local self_data = {
    },
    sounds = {
       flee = {
-	 name = "animals_water_swish",
-	 gain={0.5, 1.5},
-	 fade={0.5, 1.5},
-	 pitch={0.5, 1.5},
+         name = "animals_water_swish",
+         gain={0.5, 1.5},
+         fade={0.5, 1.5},
+         pitch={0.5, 1.5},
       },
       bite = {
-	 name = "animals_bite",
-	 gain={0.4, 0.8},
-	 fade={0.5, 1.5},
-	 pitch={0.6, 1.1},
+         name = "animals_bite",
+         gain={0.4, 0.8},
+         fade={0.5, 1.5},
+         pitch={0.6, 1.1},
       },
    },
    --on actions
@@ -206,8 +206,8 @@ local self_data = {
    },
    on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
       if animals.stun_catch_mob(self, clicker, time_from_last_click,
-				tool_capabilities) then -- attack kidnapper
-	 animals.fight_or_flight(self, clicker, nil, 1)
+                                tool_capabilities) then -- attack kidnapper
+         animals.fight_or_flight(self, clicker, nil, 1)
       end
    end,
    -- egg
