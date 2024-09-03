@@ -13,6 +13,7 @@ nodes_nature.stone_list = {
 	{"conglomerate", S("Conglomerate"), 3,  "sediment", "nodes_nature:gravel",},
 }
 nodes_nature.rock_list = {
+	{"coquina", S("Coquina"), 3},
 	{"limestone", S("Limestone"), 3},
 	{"ironstone", S("Ironstone"), 3},
 	{"granite", S("Granite"), 1},
