@@ -33,6 +33,18 @@ local boulders = {
         flags = "all_floors",
     },
 
+        {--[[Boulders:coquina boulder]]
+        name = "nodes_nature:coquina_boulder",
+        deco_type = "simple",
+        place_on = "nodes_nature:coquina",
+        sidelen = 80,
+        fill_ratio = 0.050000,
+        y_max = 31000,
+        y_min = -31000,
+        decoration = "nodes_nature:coquina_boulder",
+        flags = "all_floors",
+    },
+
     {--[[Boulders:basalt boulder]]
         name = "nodes_nature:basalt_boulder",
         deco_type = "simple",
