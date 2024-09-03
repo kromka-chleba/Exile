@@ -77,7 +77,7 @@ minetest.register_ore({
 minetest.register_ore({
   ore_type        = "stratum",
   ore             = "nodes_nature:sandstone",
-  wherein         = {"nodes_nature:limestone"},
+  wherein         = {"nodes_nature:limestone", "nodes_nature:coquina"},
   clust_scarcity  = 1,
   y_max           = 70,
   y_min           = 30,
@@ -95,7 +95,7 @@ minetest.register_ore({
 minetest.register_ore({
   ore_type        = "stratum",
   ore             = "nodes_nature:claystone",
-  wherein         = {"nodes_nature:limestone"},
+  wherein         = {"nodes_nature:limestone", "nodes_nature:coquina"},
   clust_scarcity  = 1,
   y_max           = 90,
   y_min           = 50,
@@ -114,7 +114,7 @@ minetest.register_ore({
 minetest.register_ore({
   ore_type        = "stratum",
   ore             = "nodes_nature:conglomerate",
-  wherein         = {"nodes_nature:limestone"},
+  wherein         = {"nodes_nature:coquina"},
   clust_scarcity  = 1,
   y_max           = 110,
   y_min           = 70,
@@ -132,7 +132,7 @@ minetest.register_ore({
 minetest.register_ore({
   ore_type        = "stratum",
   ore             = "nodes_nature:siltstone",
-  wherein         = {"nodes_nature:limestone"},
+  wherein         = {"nodes_nature:coquina"},
   clust_scarcity  = 1,
   y_max           = 130,
   y_min           = 90,
@@ -150,7 +150,7 @@ minetest.register_ore({
 minetest.register_ore({
   ore_type        = "stratum",
   ore             = "nodes_nature:sandstone",
-  wherein         = {"nodes_nature:limestone"},
+  wherein         = {"nodes_nature:coquina"},
   clust_scarcity  = 1,
   y_max           = 150,
   y_min           = 110,
