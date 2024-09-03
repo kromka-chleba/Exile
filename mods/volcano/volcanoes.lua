@@ -63,7 +63,7 @@ local depth_maxwidth_dist = depth_maxwidth-depth_base
 local c_ocean_sed = minetest.get_content_id("nodes_nature:gravel_wet_salty") --TODO: black sand
 
 local c_ash = minetest.get_content_id("nodes_nature:volcanic_ash")
-local c_sand = minetest.get_content_id("nodes_nature:sand") --TODO: black sand
+local c_sand = minetest.get_content_id("nodes_nature:sand") --TODO: black sand?
 local c_gravel = minetest.get_content_id("nodes_nature:gravel")
 local c_soil = minetest.get_content_id("nodes_nature:highland_soil") --TODO: maybe have a unique soil for volcano?
 
@@ -298,6 +298,9 @@ minetest.register_on_generated(function(minp, maxp, seed)
     elseif math.random()>0.80 then
       c_top = c_ash
       c_filler = c_gravel
+    else
+      c_top = c_scoria
+      c_filler =  c_basalt
     end
 
 		local pipestuff
