@@ -178,8 +178,8 @@ function mobkit.get_next_waypoint_fast(self,tpos,nogopos)
 					   mobkit.neighbor_shift(neighbor,-1))
       if heightl and abs(heightl-height)<0.001 then
 	 local heightr =
-	    mobkit.is_neighbor_node_reachable(self,mobkit.neighbor_shift
-					      (neighbor,1))
+	    mobkit.is_neighbor_node_reachable(self,
+					      mobkit.neighbor_shift(neighbor,1))
 	 if heightr and abs(heightr-height)<0.001 then
 	    fast = true
 	    dir.y = 0
