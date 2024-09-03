@@ -17,6 +17,7 @@ nodes_nature.rock_list = {
 	{"ironstone", S("Ironstone"), 3},
 	{"granite", S("Granite"), 1},
 	{"basalt", S("Basalt"), 2},
+	{"scoria", S("Scoria"), 3},
 	{"gneiss", S("Gneiss"), 1},
 	{"jade", S("Jade"), 1},
 
