@@ -496,7 +496,7 @@ local function place_hammer(itemstack, placer, pointed_thing, placed_name)
     local under_front = minetest.get_node(under_front_pos)
     local def_above = minetest.registered_nodes[above.name]
     local def_under = minetest.registered_nodes[under_front.name]
-    if ( def_above and not def_above.walkable )
+    if ( def_above and ( not def_above.walkable ) and def_above.buildable_to )
         -- check if walkable below to avoid throwing tools into abyss
        and (def_under and def_under.walkable ) then
 	   if (minetest.get_item_group(above.name,"woody_plant") > 0
