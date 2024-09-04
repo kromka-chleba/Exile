@@ -547,7 +547,6 @@ local erupt = function(pos, aname, h)
 			height = height + 1
 			pos.y = pos.y + 1
 			minetest.set_node(pos, {name = "nodes_nature:lava_flowing"})
-			minetest.sound_play("nodes_nature_erupt_lava",	{pos = pos, max_hear_distance = 50, gain = 5})
 			local posa = 	{x = pos.x, y = pos.y+1, z = pos.z}
 			lava_particle(posa)
 			aname = minetest.get_node(posa).name
@@ -555,6 +554,10 @@ local erupt = function(pos, aname, h)
 			break
 		end
 	end
+    if math.random() < 0.01 then
+        -- We don't want to play this too often otherwise the sound is glitchy
+        minetest.sound_play("nodes_nature_erupt_lava", {pos = pos, max_hear_distance = 50, gain = 5})
+    end
 end
 
 
