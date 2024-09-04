@@ -5,8 +5,8 @@
 local S = nodes_nature.S
 
 -- Load tables from data_rock.lua
-stone_list = stone_list
-rock_list  = rock_list
+local stone_list = nodes_nature.stone_list
+local rock_list  = nodes_nature.rock_list
 
 function cobble_on_place(itemstack, placer, pointed_thing, name)
   local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)

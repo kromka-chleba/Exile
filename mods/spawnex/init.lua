@@ -156,6 +156,9 @@ minetest.register_entity("spawnex:gate",{
 	      self.object:remove() return
 	   end
 	   self.timer = ( self.timer or 0 ) + dtime
+           if math.floor(self.timer*10)/10 %5 == 0 then -- every 5.0 seconds
+	      self.object:set_sprite(nil, 15, 0.05) -- 'cause per-client
+           end
 	   if self.timer < self.timelimit then return end
 	   self.timer = 0
 	   local obj = self.object
@@ -436,6 +439,12 @@ function region.spawn(player)
    if not player or not player:is_player() then return end
    pirnt("region spawn")
    local meta = player:get_meta()
+   if minetest.settings:get_bool("disable_spawnex", false) then
+      local pos = minetest.string_to_pos(meta:get_string("spawning"))
+      minetest.add_entity(vector.new(pos.x, pos.y+1.5, pos.z), "spawnex:gate")
+      player:set_pos(pos)
+      return
+   end
    local home = string2hex(meta:get("exile_spawnhome")) or defhex
    local spawnat = home
    if wide_spawn then

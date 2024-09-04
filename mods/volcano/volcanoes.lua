@@ -59,29 +59,37 @@ local radius_vent = 8 -- approximate minimum radius of vent - noise adds a lot t
 local depth_maxwidth_dist = depth_maxwidth-depth_base
 
 --nodes
-local snow_line = 350 -- above this elevation snow is added to the dirt type
-local snow_border = 25 -- transitional zone
 
-local c_ocean_sed = minetest.get_content_id("nodes_nature:gravel_wet_salty")
-local c_dune_soil = minetest.get_content_id("nodes_nature:volcanic_ash")
-local c_sand = minetest.get_content_id("nodes_nature:sand")
+local c_ocean_sed = minetest.get_content_id("nodes_nature:gravel_wet_salty") --TODO: black sand
+
+local c_ash = minetest.get_content_id("nodes_nature:volcanic_ash")
+local c_sand = minetest.get_content_id("nodes_nature:sand") --TODO: black sand?
 local c_gravel = minetest.get_content_id("nodes_nature:gravel")
-local c_snow = minetest.get_content_id("nodes_nature:snow")
-local c_high_soil = minetest.get_content_id("nodes_nature:highland_soil")
+local c_soil = minetest.get_content_id("nodes_nature:highland_soil") --TODO: maybe have a unique soil for volcano?
+
 local c_moss = minetest.get_content_id("nodes_nature:moss")
 
 local c_lava =  minetest.get_content_id("nodes_nature:lava_source")
 local c_basalt = minetest.get_content_id("nodes_nature:basalt")
-local c_boulder = minetest.get_content_id("nodes_nature:basalt_boulder")
-local c_cobble = {}
- c_cobble[1] = minetest.get_content_id("nodes_nature:basalt_cobble1")
- c_cobble[2] = minetest.get_content_id("nodes_nature:basalt_cobble2")
- c_cobble[3] = minetest.get_content_id("nodes_nature:basalt_cobble3")
+local c_scoria = minetest.get_content_id("nodes_nature:scoria")
+
+local c_boulder_basalt = minetest.get_content_id("nodes_nature:basalt_boulder")
+local c_boulder_scoria = minetest.get_content_id("nodes_nature:scoria_boulder")
+
+local c_cobble_basalt = {}
+ c_cobble_basalt[1] = minetest.get_content_id("nodes_nature:basalt_cobble1")
+ c_cobble_basalt[2] = minetest.get_content_id("nodes_nature:basalt_cobble2")
+ c_cobble_basalt[3] = minetest.get_content_id("nodes_nature:basalt_cobble3")
+
+ local c_cobble_scoria = {}
+  c_cobble_scoria[1] = minetest.get_content_id("nodes_nature:scoria_cobble1")
+  c_cobble_scoria[2] = minetest.get_content_id("nodes_nature:scoria_cobble2")
+  c_cobble_scoria[3] = minetest.get_content_id("nodes_nature:scoria_cobble3")
 
 local c_air = minetest.get_content_id("air")
 
-local c_cone = c_basalt
-
+local c_cone_1 = c_basalt
+local c_cone_2 = c_scoria
 ------------------------------------------------------------------------
 -- offset for alignment
 local get_corner = function(pos)
@@ -159,14 +167,27 @@ end
 local perlin_params = {
 	offset = 0,
 	scale = 1,
-	spread = {x=30, y=30, z=30},
+	spread = {x=32, y=32, z=32},
 	seed = -40681,
 	octaves = 3,
 	persist = 0.7
 }
 
+local perlin_caves = {
+	offset = 0,
+	scale = 1,
+	spread = {x=96, y=16, z=96},
+	seed = -9681,
+	octaves = 3,
+	persist = 0.3
+}
+
 local nvals_perlin_buffer = {}
 local nobj_perlin = nil
+
+local nvals_perlin_caves_buffer = {}
+local nobj_perlin_caves = nil
+
 local data = {}
 local p2data = {}
 
@@ -222,6 +243,11 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
 	nobj_perlin = nobj_perlin or minetest.get_perlin_map(perlin_params, chunk_lengths)
 	local nvals_perlin = nobj_perlin:get_3d_map_flat(minp, nvals_perlin_buffer)
+
+  nobj_perlin_caves = nobj_perlin_caves or minetest.get_perlin_map(perlin_caves, chunk_lengths)
+  local nvals_perlin_caves = nobj_perlin_caves:get_3d_map_flat(minp, nvals_perlin_caves_buffer)
+
+
 	local noise_area = VoxelArea:new{MinEdge=minp, MaxEdge=maxp}
 	local noise_iterator = noise_area:iterp(minp, maxp)
 
@@ -236,7 +262,10 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	for vi, x, y, z in area:iterp_xyz(minp, maxp) do
 		local vi3d = noise_iterator()
 
-		local distance_perturbation = (nvals_perlin[vi3d]+1)*10
+    local nvals = nvals_perlin[vi3d]
+    local nvals_caves = nvals_perlin_caves[vi3d]
+
+		local distance_perturbation = (nvals+1)*10
 		local distance = vector.distance({x=x, y=y, z=z}, {x=x_coord, y=y, z=z_coord}) - distance_perturbation
 
 
@@ -246,154 +275,190 @@ minetest.register_on_generated(function(minp, maxp, seed)
 		local c_dust
 
 		if state < state_dormant then
+      if math.random()<0.33 then
+        c_dust = c_moss
+      end
 			if y < water_level + 2 then
 				c_top = c_ocean_sed
 				c_filler = c_ocean_sed
-			elseif y > snow_line then
-				c_top = c_high_soil
-				c_filler =  c_gravel
-				c_dust = c_snow
-			elseif y > snow_line - snow_border then
-				c_top = c_high_soil
-				c_filler =  c_gravel
-				if math.random()>0.25 then
-					c_dust = c_snow
-				end
-			elseif y > snow_line - snow_border *2 then
-				c_top = c_high_soil
-				c_filler =  c_gravel
-				if math.random()>0.5 then
-					c_dust = c_snow
-				end
-			elseif y > snow_line - snow_border *3 then
-				c_top = c_dune_soil
-				c_filler =  c_gravel
-				if math.random()>0.75 then
-					c_dust = c_snow
-				end
-			else
-				--c_dust = c_boulder
-				c_top = c_dune_soil
-				c_filler = c_gravel
-			end
-		elseif y > snow_line then
-			c_dust = c_snow
-			c_top = c_sand
-			c_filler = c_gravel
-		else
-			--c_dust = c_boulder
-			c_top = c_sand
-			c_filler = c_gravel
-		end
+      elseif math.random()>0.95 then
+        c_top = c_ash
+        c_filler =  c_gravel
+      elseif math.random()>0.75 then
+        c_top = c_sand
+        c_filler = c_gravel
+      else
+        c_top = c_soil
+        c_filler =  c_gravel
+      end
+
+    elseif math.random()>0.90 then
+      c_top = c_sand
+      c_filler =  c_gravel
+    elseif math.random()>0.80 then
+      c_top = c_ash
+      c_filler = c_gravel
+    else
+      c_top = c_scoria
+      c_filler =  c_basalt
+    end
 
 		local pipestuff
 		local liningstuff
 		if y < depth_lava + math.random() * 1.1 then
 			pipestuff = c_lava
-			liningstuff = c_basalt
+      if math.random()>0.5 then
+        liningstuff = c_cone_1
+      else
+        liningstuff = c_cone_2
+      end
 		else
 			if state < state_dormant then
-				pipestuff = c_basalt -- dormant volcano
-				liningstuff = c_basalt
+        if math.random()>0.5 then
+          pipestuff = c_cone_1
+        else
+          pipestuff = c_cone_2
+        end
+        if math.random()>0.5 then
+          liningstuff = c_cone_1
+        else
+          liningstuff = c_cone_2
+        end
 			else
-				pipestuff = c_air -- active volcano
-				liningstuff = c_basalt
+				pipestuff = c_air
+        if math.random()>0.5 then
+          liningstuff = c_cone_1
+        else
+          liningstuff = c_cone_2
+        end
 			end
 		end
 
 		-- Actually create the volcano
 		if y < depth_base then
+
 		   if y < depth_root + chamber_radius then -- Magma chamber lower half
 		      local lower_half = ((y - depth_root) / chamber_radius) * chamber_radius
 		      if distance < lower_half + radius_vent then
-			 data[vi] = c_lava
-			 -- Put lava in the magma chamber even for extinct
-			 -- volcanoes, if someone really wants to dig for it
-			 -- it's down there.
+            data[vi] = c_lava
+            -- Put lava in the magma chamber even for extinct
+            -- volcanoes, if someone really wants to dig for it
+            -- it's down there.
 		      elseif distance < lower_half + radius_lining
-			 and data[vi] ~= c_air
-			 and data[vi] ~= c_lava then
-			 -- leave holes into caves and into existing lava
-			 data[vi] = liningstuff
+          and data[vi] ~= c_air
+          and data[vi] ~= c_lava then
+            -- leave holes into caves and into existing lava
+            data[vi] = liningstuff
 		      end
-		   elseif y < depth_root + chamber_radius * 2 then
-		      -- Magma chamber upper half
-		      local upper_half = (1 - (y - depth_root - chamber_radius)
-					  / chamber_radius) * chamber_radius
-		      if distance < upper_half + radius_vent then
-			 data[vi] = c_lava
-		      elseif distance < upper_half + radius_lining
-			 and data[vi] ~= c_air
-			 and data[vi] ~= c_lava then
-			 -- leave holes into caves and into existing lava
-			 data[vi] = liningstuff
+        elseif y < depth_root + chamber_radius * 2 then
+          -- Magma chamber upper half
+          local upper_half = (1 - (y - depth_root - chamber_radius) / chamber_radius) * chamber_radius
+          if distance < upper_half + radius_vent then
+            data[vi] = c_lava
+          elseif distance < upper_half + radius_lining
+          and data[vi] ~= c_air
+          and data[vi] ~= c_lava then
+            -- leave holes into caves and into existing lava
+            data[vi] = liningstuff
 		      end
-		   else -- pipe
-		      if distance < radius_vent then
-			 data[vi] = pipestuff
-		      elseif distance < radius_lining
-			 and data[vi] ~= c_air
-			 and data[vi] ~= c_lava then
-			 -- leave holes into caves and into existing lava
-			 data[vi] = liningstuff
-		      end
-		   end
-		elseif y < depth_maxwidth then -- root
-		   if distance < radius_vent then
-		      data[vi] = pipestuff
-		   elseif distance < radius_lining then
-		      data[vi] = liningstuff
-		   elseif distance < radius_lining +
-		      ((y - depth_base)/depth_maxwidth_dist) * base_radius then
-		      data[vi] = c_cone
-		   end
-		elseif y < depth_peak + 5 then -- cone
-		   local current_elevation = y - depth_maxwidth
-		   local peak_elevation = depth_peak - depth_maxwidth
-		   if current_elevation > peak_elevation - caldera and distance < current_elevation - peak_elevation + caldera then
-				data[vi] = c_air -- caldera
-			elseif distance < radius_vent then
-				data[vi] = pipestuff
-			elseif distance < radius_lining then
-				data[vi] = liningstuff
-			elseif distance <  current_elevation * -volcano.slope + base_radius then
-				data[vi] = c_cone
-				if data[vi + area.ystride] == c_air and c_dust ~= nil then
-				   local die = math.random()
-				   if c_dust ~= c_boulder then
-				      if die > 0.98 then
-					 c_dust = c_boulder
-				      elseif die>0.95 then
-					 c_dust = c_cobble[math.random(1,3)]
-					 p2data[vi + area.ystride] = math.random(0,3)
-				      end
-				   end
-				   data[vi + area.ystride] = c_dust
-				end
-			elseif c_top ~= nil and c_filler ~= nil
-			   and distance < current_elevation * -volcano.slope
-			   + base_radius + nvals_perlin[vi3d] +1.5 then
-				data[vi] = c_top
-				if data[vi - area.ystride] == c_top then
-					data[vi - area.ystride] = c_filler
-				end
-				if data[vi + area.ystride] == c_air then
-				   local die = math.random()
-					if die > 0.995 then
-					   data[vi + area.ystride] = c_boulder
-					elseif	die > 0.985 then
-					   data[vi + area.ystride] = c_cobble[math.random(1,3)]
-					   p2data[vi + area.ystride] = math.random(0,3)
-					elseif die > 0.95 then
-					   data[vi + area.ystride] = c_moss
-					elseif c_dust ~= nil then
-					   data[vi + area.ystride] = c_dust
-					end
-				end
-			end
+        else -- pipe
+          if distance < radius_vent then
+            data[vi] = pipestuff
+          elseif distance < radius_lining
+          and data[vi] ~= c_air
+          and data[vi] ~= c_lava then
+            -- leave holes into caves and into existing lava
+            data[vi] = liningstuff
+          end
+        end
 
-		end
-	end
+		elseif y < depth_maxwidth then -- root
+      if distance < radius_vent then
+        data[vi] = pipestuff
+      elseif distance < radius_lining then
+        data[vi] = liningstuff
+      elseif distance < radius_lining + ((y - depth_base)/depth_maxwidth_dist) * base_radius then
+        if math.random()>0.5 then
+          data[vi] = c_cone_1
+        else
+          data[vi] = c_cone_2
+        end
+      end
+
+    elseif y < depth_peak + 5 then -- cone
+      local current_elevation = y - depth_maxwidth
+		  local peak_elevation = depth_peak - depth_maxwidth
+
+		  if current_elevation > peak_elevation - caldera and distance < current_elevation - peak_elevation + caldera then
+        data[vi] = c_air -- caldera
+      elseif distance < radius_vent then
+        data[vi] = pipestuff
+      elseif distance < radius_lining then
+        data[vi] = liningstuff
+      elseif distance <  current_elevation * -volcano.slope + base_radius then
+        if nvals_caves > 0 and nvals_caves < 0.1
+        and nvals > 0 and nvals < 0.15 then
+          if state < state_dormant then
+            pipestuff = c_air
+          end
+          data[vi] = pipestuff
+        else
+          if math.random()>0.5 then
+            data[vi] = c_cone_1
+          else
+            data[vi] = c_cone_2
+          end
+        end
+
+        if data[vi + area.ystride] == c_air and c_dust ~= nil then
+          local die = math.random()
+          if c_dust ~= c_boulder then
+            if die > 0.98 then
+              c_dust = c_boulder_basalt
+            elseif die > 0.95 then
+              c_dust = c_cobble_basalt[math.random(1,3)]
+              p2data[vi + area.ystride] = math.random(0,3)
+            elseif die > 0.90 then
+              c_dust = c_boulder_scoria
+            elseif die > 0.85 then
+              c_dust = c_cobble_scoria[math.random(1,3)]
+              p2data[vi + area.ystride] = math.random(0,3)
+            end
+          end
+          data[vi + area.ystride] = c_dust
+        end
+
+        elseif c_top ~= nil
+        and c_filler ~= nil
+        and distance < current_elevation * -volcano.slope + base_radius + nvals_perlin[vi3d] +1.5 then
+          data[vi] = c_top
+
+          if data[vi - area.ystride] == c_top then
+            data[vi - area.ystride] = c_filler
+          end
+
+          if data[vi + area.ystride] == c_air then
+				   local die = math.random()
+
+           if die > 0.99 then
+             data[vi + area.ystride] = c_boulder_basalt
+           elseif	die > 0.98 then
+             data[vi + area.ystride] = c_cobble_basalt[math.random(1,3)]
+             p2data[vi + area.ystride] = math.random(0,3)
+           elseif die > 0.93 then
+             data[vi + area.ystride] = c_boulder_scoria
+           elseif	die > 0.92 then
+             data[vi + area.ystride] = c_cobble_scoria[math.random(1,3)]
+             p2data[vi + area.ystride] = math.random(0,3)
+           elseif die > 0.90 then
+             data[vi + area.ystride] = c_moss
+           elseif c_dust ~= nil then
+             data[vi + area.ystride] = c_dust
+           end
+         end
+       end
+     end
+   end
 
 	--send data back to voxelmanip
 	vm:set_data(data)

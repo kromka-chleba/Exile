@@ -2,6 +2,7 @@
 
 -- Globals
 deco = deco or {}
+nodes_nature = nodes_nature
 
 -- Import
 local path = minetest.get_modpath("mapgen")
@@ -32,6 +33,18 @@ local boulders = {
         flags = "all_floors",
     },
 
+        {--[[Boulders:coquina boulder]]
+        name = "nodes_nature:coquina_boulder",
+        deco_type = "simple",
+        place_on = "nodes_nature:coquina",
+        sidelen = 80,
+        fill_ratio = 0.050000,
+        y_max = 31000,
+        y_min = -31000,
+        decoration = "nodes_nature:coquina_boulder",
+        flags = "all_floors",
+    },
+
     {--[[Boulders:basalt boulder]]
         name = "nodes_nature:basalt_boulder",
         deco_type = "simple",
@@ -42,6 +55,18 @@ local boulders = {
         y_min = -31000,
         decoration = "nodes_nature:basalt_boulder",
         flags = "all_floors",
+    },
+
+    {--[[Boulders:scoria boulder]]
+      name = "nodes_nature:scoria_boulder",
+      deco_type = "simple",
+      place_on = "nodes_nature:scoria",
+      sidelen = 80,
+      fill_ratio = 0.050000,
+      y_max = 31000,
+      y_min = -31000,
+      decoration = "nodes_nature:scoria_boulder",
+      flags = "all_floors",
     },
 
     {--[[Boulders:ironstone, dense on deposits]]
@@ -140,8 +165,8 @@ local gravel_cobble_on = {
 -- places cobbles only on their mother rock
 function generate_cobbles(name, fill_ratio, place_on)
     local new_list = {}
-    for i in ipairs(rock_list) do
-        local rock_name = rock_list[i][1]
+    for i in ipairs(nodes_nature.rock_list) do
+        local rock_name = nodes_nature.rock_list[i][1]
         local cobble_on = { "nodes_nature:" .. rock_name }
         local cobble_fill_ratio = fill_ratio
         local y_max = 31000

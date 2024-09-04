@@ -226,6 +226,7 @@ local rope_def = {
 	},
 	connects_to = {"group:rope_block"},
 	connect_sides = {"top"},
+	collision_box = {type="regular"},
 	selection_box = {
 		type = "fixed",
 		fixed = {-1/8, -1/2, -1/8, 1/8, 1/2, 1/8},
@@ -264,6 +265,7 @@ local rope_bottom_def = {
 	},
 	connects_to = {"group:rope_block"},
 	connect_sides = {"top"},
+	collision_box = {type="regular"},
 	selection_box = {
 		type = "fixed",
 		fixed = {-1/8, -1/2, -1/8, 1/8, 1/2, 1/8},

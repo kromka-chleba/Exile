@@ -35,6 +35,7 @@ minetest.register_ore({
 	wherein = {
 		"nodes_nature:granite",
 		"nodes_nature:basalt",
+		"nodes_nature:scoria",
 		"nodes_nature:conglomerate",
 		"nodes_nature:limestone",
 	},

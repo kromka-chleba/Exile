@@ -46,14 +46,13 @@ minetest.register_node("tech:crushed_lime", {
 	groups = {crumbly = 3, falling_node = 1, heatable =10},
 	sounds = nodes_nature.node_sound_gravel_defaults(),
         on_construct = function(pos)
-		--length(i.e. difficulty of firing), interval for checks (speed)
-		ncrafting.set_roast(pos, 3, 10)
+	   --length(i.e. difficulty of firing), interval for checks (speed)
+	   ncrafting.set_roast(pos, 3, 10)
 	end,
 	on_timer = function(pos, elapsed)
-        --finished product, length, heat
-        --(realisticallty should be 900, but too hard for fires)
+	   --finished product, length, heat
 	   return ncrafting.roast(pos, "tech:crushed_lime", "tech:quicklime",
-				  3, 850)
+				  3, 900)
 	end,
 })
 
@@ -68,7 +67,7 @@ minetest.register_node("tech:quicklime", {
 	groups = {crumbly = 3, falling_node = 1},
 	sounds = nodes_nature.node_sound_sand_defaults(),
 	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(10)
+	   minetest.get_node_timer(pos):start(10)
 	end,
 
 	on_timer = function(pos, elapsed)
@@ -77,32 +76,40 @@ minetest.register_node("tech:quicklime", {
 	--XXX This is a bug; should look harder for the water source.
 	local p_water = minetest.find_node_near(pos, 1, {"group:water"})
 	if p_water then
-		local p_name = minetest.get_node(p_water).name
-		--check water type. Salt would ruin it.
-		local water_type = minetest.get_item_group(p_name, "water")
-		if water_type == 1 then
-			minimal.switch_node(pos, {name = "tech:slaked_lime"})
-			minetest.set_node(p_water, {name = "air"})
-			minetest.sound_play("tech_boil",	{pos = pos, max_hear_distance = 8, gain = 1})
-		elseif water_type == 2 then
-			minetest.swap_node(pos, {name = "tech:slaked_lime_ruined"})
-			minetest.set_node(p_water, {name = "air"})
-			minetest.sound_play("tech_boil",	{pos = pos, max_hear_distance = 8, gain = 1})
-		end
-	        return false
+	   local p_name = minetest.get_node(p_water).name
+	   --check water type. Salt would ruin it.
+	   local water_type = minetest.get_item_group(p_name, "water")
+	   if water_type == 1 then
+	      minimal.switch_node(pos, {name = "tech:slaked_lime"})
+	      minetest.set_node(p_water, {name = "air"})
+	      minetest.sound_play("tech_boil",
+				  {pos = pos, max_hear_distance = 8, gain = 1})
+	   elseif water_type == 2 then
+	      minetest.swap_node(pos, {name = "tech:slaked_lime_ruined"})
+	      minetest.set_node(p_water, {name = "air"})
+	      minetest.sound_play("tech_boil",
+				  {pos = pos, max_hear_distance = 8, gain = 1})
+	   end
+	   return false
 	end
 
 	--slowly revert to lime by reacting with the air, or slake by rain
 	if minetest.find_node_near(pos, 1, {"air"}) then
-		if random() > 0.99 then
-			if climate.get_rain(pos) then
-				minimal.switch_node(pos, {name = "tech:slaked_lime"})
-				minetest.sound_play("tech_boil",	{pos = pos, max_hear_distance = 8, gain = 1})
-			else
-				minimal.switch_node(pos, {name = "tech:crushed_lime"})
-				return false
-			end
-		end
+	   if random() > 0.99 and climate.get_rain(pos) then
+	      minimal.switch_node(pos, {name = "tech:slaked_lime"})
+	      minetest.sound_play("tech_boil",
+				  {pos = pos, max_hear_distance = 8, gain = 1})
+	   end
+
+	   local node = minetest.get_node(pos)
+	   node.param2 = node.param2 + random(2,6)
+
+	   if node.param2 > 99 then
+		 minimal.switch_node(pos, {name = "tech:crushed_lime"})
+		 return false
+	   else
+	      minetest.swap_node(pos, node)
+	   end
 	end
 
 	--it's still here...
@@ -119,29 +126,38 @@ minetest.register_node("tech:slaked_lime", {
 	stack_max = minimal.stack_max_bulky *2,
 	groups = {crumbly = 3, falling_node = 1},
 	sounds = nodes_nature.node_sound_sand_defaults({
-		footstep = {name = "nodes_nature_mud", gain = 0.4},
-		dug = {name = "nodes_nature_mud", gain = 0.4}}),
-  on_construct = function(pos)
-		minetest.get_node_timer(pos):start(60)
+	      footstep = {name = "nodes_nature_mud", gain = 0.4},
+	      dug = {name = "nodes_nature_mud", gain = 0.4}}),
+	on_construct = function(pos)
+	   minetest.get_node_timer(pos):start(60)
 	end,
 
 	on_timer = function(pos, elapsed)
-    if random() > 0.9 then
-      --wash it away
-      if minetest.find_node_near(pos, 1, {"group:water"}) or climate.get_rain(pos) then
-        minetest.set_node(pos, {name = "air"})
-        return false
-      end
+	   local node = minetest.get_node(pos)
+	   local wet = bit.rshift(bit.band(node.param2,240), 4) -- left 4 bits
+	   local dry = bit.band(node.param2,15) -- right 4 bits
 
-      --slowly revert to lime by reacting with the air
-      if minetest.find_node_near(pos, 1, {"air"}) then
-        minimal.switch_node(pos, {name = "tech:crushed_lime"})
-        return false
-      end
-    end
+	   -- wash it away with rain or water
+	   if minetest.find_node_near(pos, 1, {"group:water"})
+	      or climate.get_rain(pos) then
+	      wet = wet + 1
+	      if wet > 8 then
+		 minetest.set_node(pos, {name = "air"})
+		 return false
+	      end
+	   elseif minetest.find_node_near(pos, 1, {"air"}) then
+	      -- or slowly revert to lime by reacting with the air
+	      dry = dry + 1
+	      if dry == 15 then
+		 minimal.switch_node(pos, {name = "tech:crushed_lime"})
+		 return false
+	      end
+	   end
 
-    --it's still here...
-    return true
+	   node.param2 = bit.lshift(wet, 4) + dry
+	   minetest.swap_node(pos, node)
+	   --it's still here...
+	   return true
 	end,
 })
 
@@ -250,6 +266,15 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
+
+crafting.register_recipe({
+	type = {"hammering_block","hammer"},
+	output = "tech:crushed_lime",
+	items = {"group:coquina_cobble 8"},
+	level = 1,
+	always_known = true,
+})
+
 
 --mix mortar
 crafting.register_recipe({
@@ -777,7 +802,7 @@ stairs.register_stair_and_slab(
 --added mortar binds them so not diggable by hand or falling.
 --drop unmortared stone.
 
-function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mortar_type, 
+function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mortar_type,
 		brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
 	brick_mortar_recycle_type = brick_mortar_recycle_type or brick_mortar_type
 	block_mortar_recycle_type = block_mortar_recycle_type or block_mortar_type
@@ -875,10 +900,12 @@ local sediments = {
 }
 
 local stones = {
+	{"coquina", S("Coquina"), 3},
 	{"limestone", S("Limestone"), 3},
 	{"ironstone", S("Ironstone"), 3},
 	{"granite", S("Granite"), 1},
 	{"basalt", S("Basalt"), 2},
+	{"scoria", S("Scoria"), 3},
 	{"gneiss", S("Gneiss"), 1},
 	{"jade", S("Jade"), 1},
 }
@@ -893,7 +920,7 @@ local mb_bricks_m = 'masonry_bench_bricks_mortar'
 local mb_blocks = 'masonry_bench_blocks'
 local mb_blocks_m = 'masonry_bench_blocks_mortar'
 local mb_mixing = 'masonry_bench_mixing'
---register_mortar_nodes (list, mortar_type,brick_mortar_type, block_mortar_type, 
+--register_mortar_nodes (list, mortar_type,brick_mortar_type, block_mortar_type,
 --		brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
 
 register_mortar_nodes (sediments, { bmb }, { bmb_bricks }, { bmb_blocks }, { bmb_mixing }, { bmb_mixing }, true)
