@@ -10,139 +10,158 @@ core = core
 local fall_damage_multiplier = 1.5
 
 minetest.override_item("air", { groups = { air = 1,
-					   not_in_creative_inventory = 1} })
+                                           not_in_creative_inventory = 1} })
 
 --A new item_place that allows disabling sneak-rightclick behavior for nodes
 --Needed for tech:stick
 function minetest.item_place(itemstack, placer, pointed_thing, param2)
-        -- Call on_rightclick if the pointed node defines it
-        if pointed_thing.type == "node" and minetest.is_player(placer) then
-          local ndef = minimal.get_nodedef( pointed_thing.under )
+    -- Call on_rightclick if the pointed node defines it
+    if pointed_thing.type == "node" and minetest.is_player(placer) then
+        local ndef = minimal.get_nodedef( pointed_thing.under )
 
-          if ndef and (ndef.override_sneak == true or not placer:get_player_control().sneak) then
-            local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+        if ndef and (ndef.override_sneak == true
+                     or not placer:get_player_control().sneak) then
+            local on_click = minimal.on_rightclick(itemstack, placer,
+                                                   pointed_thing)
             if on_click ~= false then
-              return on_click or itemstack
+                return on_click or itemstack
             end
-          end
         end
+    end
 
-        if itemstack:get_definition( ).type == "node" then
-                return minetest.item_place_node( itemstack, placer, pointed_thing, param2 )
-        end
-        return itemstack, nil
+    if itemstack:get_definition( ).type == "node" then
+        return minetest.item_place_node( itemstack, placer,
+                                         pointed_thing, param2 )
+    end
+    return itemstack, nil
 end
 
 
 --Basic protection support
 local old_is_protected = minetest.is_protected
 function minetest.is_protected(pos, name, pos_meta)
-  -- custom userdata or tables with get_player_name() permitted
-  name = type(name) == "string" and name or (type(name) == "userdata" or type(name) == "table")
-    and name.get_player_name and name:get_player_name()
-  if type(name) ~= "string" then
-    -- nil things can't touch stuff
-    return true
-  end
-  -- you can specify the meta as third argument
-  pos_meta = type(pos_meta) == "userdata" and pos_meta or minetest.get_meta(pos)
-  local owner = pos_meta:get_string("owner") -- original protector of node
-  local bypass = minetest.check_player_privs(name, "protection_bypass")
-  -- check if owner is nil, owner is equal to name, or bypass, otherwise assume no access (false)
-  local access = ( owner == "" or owner == name or bypass ) or false
-  -- not the owner, check if there's an access_list and if they're on the VIP list
-  if not access then
-    local access_list = pos_meta:get_string("access_list")
-    -- if access_list, then parse its json
-    access_list = access_list ~= "" and minetest.parse_json(access_list) or nil
-    if access_list then
-      for _,granted in ipairs(access_list) do
-        if name == granted then
-          access = true
-          break
-        end
-      end
+    -- custom userdata or tables with get_player_name() permitted
+    name = type(name) == "string" and name
+        or (type(name) == "userdata"
+            or type(name) == "table")
+        and name.get_player_name and name:get_player_name()
+    if type(name) ~= "string" then
+        -- nil things can't touch stuff
+        return true
     end
-  end
+    -- you can specify the meta as third argument
+    pos_meta = type(pos_meta) == "userdata" and pos_meta
+        or minetest.get_meta(pos)
+    local owner = pos_meta:get_string("owner") -- original protector of node
+    local bypass = minetest.check_player_privs(name, "protection_bypass")
+    -- check if owner is nil, owner is equal to name, or bypass,
+    --   otherwise assume no access (false)
+    local access = ( owner == ""
+                     or owner == name
+                     or bypass )
+        or false
+    -- not the owner, check if there's an access_list
+    --   and if they're on the VIP list
+    if not access then
+        local access_list = pos_meta:get_string("access_list")
+        -- if access_list, then parse its json
+        access_list = access_list ~= "" and minetest.parse_json(access_list)
+            or nil
+        if access_list then
+            for _,granted in ipairs(access_list) do
+                if name == granted then
+                    access = true
+                    break
+                end
+            end
+        end
+    end
 
-  -- no access, is protected
-  if not access then
-    return true
-  end
-  -- minetest's old protection always returns false so this is pointless...
-  return old_is_protected(pos, name, pos_meta)
+    -- no access, is protected
+    if not access then
+        return true
+    end
+    -- minetest's old protection always returns false so this is pointless...
+    return old_is_protected(pos, name, pos_meta)
 end
 
 local old_node_dig = minetest.node_dig
 function minetest.node_dig(pos, node, digger)
-   -- Return protection nail if node was nailed
-   minimal.protection_on_dig(pos,node,digger)
-   if minetest.is_player(digger) and not minimal.player_in_creative(digger) then
-      local witem = digger:get_wielded_item()
-      local drops = minetest.get_node_drops(node, witem)
-      local inv = digger:get_inventory()
-      local full = inv:room_for_item("main", node.name)
-      if drops then -- drops something else, maybe multiple items. handle them
-	 full = false
-	 inv:set_size("temp", inv:get_size("main"))
-	 inv:set_list("temp", inv:get_list("main"))
-	 for k, v in pairs(drops) do
-	    if not full and inv:room_for_item("temp", drops[k]) then
-	       inv:add_item("temp", drops[k])
-	    else
-	       full = true
-	    end
-	 end
-	 inv:set_list("temp", {})
-	 inv:set_size("temp", 0)
-      end
-      if full then
-	 if minimal.stop_on_inv_full(digger) then
-	    return false
-	 end
-      end
-   end
-   return old_node_dig(pos, node, digger)
+    -- Return protection nail if node was nailed
+    minimal.protection_on_dig(pos,node,digger)
+    if minetest.is_player(digger)
+        and not minimal.player_in_creative(digger) then
+
+        local witem = digger:get_wielded_item()
+        local drops = minetest.get_node_drops(node, witem)
+        local inv = digger:get_inventory()
+        local full = inv:room_for_item("main", node.name)
+        if drops then -- drops something else, maybe multiple items. handle them
+            full = false
+            inv:set_size("temp", inv:get_size("main"))
+            inv:set_list("temp", inv:get_list("main"))
+            for k, v in pairs(drops) do
+                if not full and inv:room_for_item("temp", drops[k]) then
+                    inv:add_item("temp", drops[k])
+                else
+                    full = true
+                end
+            end
+            inv:set_list("temp", {})
+            inv:set_size("temp", 0)
+        end
+        if full then
+            if minimal.stop_on_inv_full(digger) then
+                return false
+            end
+        end
+    end
+    return old_node_dig(pos, node, digger)
 end
 
 -- Transfer metadata from node to item and back.
 minetest.register_on_mods_loaded(function()
-	-- Add a preserve_metadata callback to all nodes
-	for oName, override in pairs( minetest.registered_nodes ) do
-		local old_preserve_metadata = override.preserve_metadata
-		minetest.override_item(oName, {
-			preserve_metadata = function(pos, oldNode, oldmeta, drops)
-				if drops[1] then
-					local imeta=drops[1]:get_meta()
-					minimal.metadata.preserve_metadata(imeta,oldmeta)
-					if type(old_preserve_metadata) == 'function' then
-						old_preserve_metadata(pos, oldNode, oldmeta, drops)
-					end
-				end
+        -- Add a preserve_metadata callback to all nodes
+        for oName, override in pairs( minetest.registered_nodes ) do
+            local old_preserve_metadata = override.preserve_metadata
+            minetest.override_item(
+                oName, {
+                    preserve_metadata = function(pos, oldNode, oldmeta, drops)
+                        if drops[1] then
+                            local imeta=drops[1]:get_meta()
+                            minimal.metadata.preserve_metadata(imeta,oldmeta)
+                            if type(old_preserve_metadata) == 'function' then
+                                old_preserve_metadata(pos, oldNode,
+                                                      oldmeta, drops)
+                            end
+                        end
 
-			end,
-		})
-		local old_after_place_node = override.after_place_node
-		minetest.override_item(oName, {
-			after_place_node = function(pos, placer, itemstack, pointed_thing)
-				local imeta = itemstack:get_meta()
-				local meta = minetest.get_meta(pos)
-				minimal.metadata.after_place_node(imeta,meta)
-				if type(old_after_place_node) == 'function' then
-					old_after_place_node(pos, placer, itemstack, pointed_thing)
-				end
-			end,
-		})
-	end
+                    end,
+            })
+            local old_after_place_node = override.after_place_node
+            minetest.override_item(
+                oName, {
+                    after_place_node = function(pos, placer, itemstack,
+                                                pointed_thing)
+                        local imeta = itemstack:get_meta()
+                        local meta = minetest.get_meta(pos)
+                        minimal.metadata.after_place_node(imeta,meta)
+                        if type(old_after_place_node) == 'function' then
+                            old_after_place_node(pos, placer, itemstack,
+                                                 pointed_thing)
+                        end
+                    end,
+            })
+        end
 
 end)
 
 --Increase fall damage
 minetest.register_on_player_hpchange(function(player, hp_change, reason)
-	if reason.type == "fall" then
-		hp_change = hp_change*fall_damage_multiplier
-	end
-	return hp_change
+        if reason.type == "fall" then
+            hp_change = hp_change*fall_damage_multiplier
+        end
+        return hp_change
 end, true)
 
 -- Falling
@@ -151,30 +170,30 @@ local SCALE = 0.667
 local gravity = tonumber(core.settings:get("movement_gravity")) or 9.81
 
 local facedir_to_euler = {
-	{y = 0, x = 0, z = 0},
-	{y = -math.pi/2, x = 0, z = 0},
-	{y = math.pi, x = 0, z = 0},
-	{y = math.pi/2, x = 0, z = 0},
-	{y = math.pi/2, x = -math.pi/2, z = math.pi/2},
-	{y = math.pi/2, x = math.pi, z = math.pi/2},
-	{y = math.pi/2, x = math.pi/2, z = math.pi/2},
-	{y = math.pi/2, x = 0, z = math.pi/2},
-	{y = -math.pi/2, x = math.pi/2, z = math.pi/2},
-	{y = -math.pi/2, x = 0, z = math.pi/2},
-	{y = -math.pi/2, x = -math.pi/2, z = math.pi/2},
-	{y = -math.pi/2, x = math.pi, z = math.pi/2},
-	{y = 0, x = 0, z = math.pi/2},
-	{y = 0, x = -math.pi/2, z = math.pi/2},
-	{y = 0, x = math.pi, z = math.pi/2},
-	{y = 0, x = math.pi/2, z = math.pi/2},
-	{y = math.pi, x = math.pi, z = math.pi/2},
-	{y = math.pi, x = math.pi/2, z = math.pi/2},
-	{y = math.pi, x = 0, z = math.pi/2},
-	{y = math.pi, x = -math.pi/2, z = math.pi/2},
-	{y = math.pi, x = math.pi, z = 0},
-	{y = -math.pi/2, x = math.pi, z = 0},
-	{y = 0, x = math.pi, z = 0},
-	{y = math.pi/2, x = math.pi, z = 0}
+    {y = 0, x = 0, z = 0},
+    {y = -math.pi/2, x = 0, z = 0},
+    {y = math.pi, x = 0, z = 0},
+    {y = math.pi/2, x = 0, z = 0},
+    {y = math.pi/2, x = -math.pi/2, z = math.pi/2},
+    {y = math.pi/2, x = math.pi, z = math.pi/2},
+    {y = math.pi/2, x = math.pi/2, z = math.pi/2},
+    {y = math.pi/2, x = 0, z = math.pi/2},
+    {y = -math.pi/2, x = math.pi/2, z = math.pi/2},
+    {y = -math.pi/2, x = 0, z = math.pi/2},
+    {y = -math.pi/2, x = -math.pi/2, z = math.pi/2},
+    {y = -math.pi/2, x = math.pi, z = math.pi/2},
+    {y = 0, x = 0, z = math.pi/2},
+    {y = 0, x = -math.pi/2, z = math.pi/2},
+    {y = 0, x = math.pi, z = math.pi/2},
+    {y = 0, x = math.pi/2, z = math.pi/2},
+    {y = math.pi, x = math.pi, z = math.pi/2},
+    {y = math.pi, x = math.pi/2, z = math.pi/2},
+    {y = math.pi, x = 0, z = math.pi/2},
+    {y = math.pi, x = -math.pi/2, z = math.pi/2},
+    {y = math.pi, x = math.pi, z = 0},
+    {y = -math.pi/2, x = math.pi, z = 0},
+    {y = 0, x = math.pi, z = 0},
+    {y = math.pi/2, x = math.pi, z = 0}
 }
 
 minetest.register_entity(
@@ -253,7 +272,8 @@ minetest.register_entity(
             elseif def.drawtype ~= "airlike" then
                 local itemstring = node.name
                 if minetest.is_colored_paramtype(def.paramtype2) then
-                    itemstring = minetest.itemstring_with_palette(itemstring, node.param2)
+                    itemstring = minetest.itemstring_with_palette(
+                        itemstring, node.param2)
                 end
                 -- FIXME: solution needed for paramtype2 == "leveled"
                 -- Calculate size of falling node
@@ -281,10 +301,12 @@ minetest.register_entity(
                 nb_types[def.node_box.type] and def.node_box.fixed then
                 local box = table.copy(def.node_box.fixed)
                 if type(box[1]) == "table" then
-                    box = #box == 1 and box[1] or nil -- We can only use a single box
+                    box = #box == 1 and box[1]
+                        or nil -- We can only use a single box
                 end
                 if box then
-                    if def.paramtype2 == "leveled" and (self.node.level or 0) > 0 then
+                    if def.paramtype2 == "leveled" and (self.node.level
+                                                        or 0) > 0 then
                         box[5] = -0.5 + self.node.level / 64
                     end
                     self.object:set_properties({
@@ -296,40 +318,47 @@ minetest.register_entity(
             -- Rotate entity
             if def.drawtype == "torchlike" then
                 self.object:set_yaw(math.pi*0.25)
-            elseif ((node.param2 ~= 0 or def.drawtype == "nodebox" or def.drawtype == "mesh")
+            elseif ((node.param2 ~= 0 or def.drawtype == "nodebox"
+                     or def.drawtype == "mesh")
                 and (def.wield_image == "" or def.wield_image == nil))
                 or def.drawtype == "signlike"
                 or def.drawtype == "mesh"
                 or def.drawtype == "normal"
                 or def.drawtype == "nodebox" then
-                if (def.paramtype2 == "facedir" or def.paramtype2 == "colorfacedir") then
+                if (def.paramtype2 == "facedir"
+                    or def.paramtype2 == "colorfacedir") then
+
                     local fdir = node.param2 % 32 % 24
                     -- Get rotation from a precalculated lookup table
                     local euler = facedir_to_euler[fdir + 1]
                     if euler then
                         self.object:set_rotation(euler)
                     end
-                elseif (def.paramtype2 == "4dir" or def.paramtype2 == "color4dir") then
+                elseif (def.paramtype2 == "4dir"
+                        or def.paramtype2 == "color4dir") then
                     local fdir = node.param2 % 4
                     -- Get rotation from a precalculated lookup table
                     local euler = facedir_to_euler[fdir + 1]
                     if euler then
                         self.object:set_rotation(euler)
                     end
-                elseif (def.drawtype ~= "plantlike" and
-			def.drawtype ~= "plantlike_rooted" and
-                        (def.paramtype2 == "wallmounted" or
-			 def.paramtype2 == "colorwallmounted" or
-			 def.drawtype == "signlike")) then
-		   local rot = node.param2 % 8
-		   if (def.drawtype == "signlike" and
-		       def.paramtype2 ~= "wallmounted" and
-		       def.paramtype2 ~= "colorwallmounted") then
-		      -- Change rotation to "floor" by default for non-wallmounted paramtype2
+                elseif (def.drawtype ~= "plantlike"
+                        and def.drawtype ~= "plantlike_rooted"
+                        and (def.paramtype2 == "wallmounted"
+                             or def.paramtype2 == "colorwallmounted"
+                             or def.drawtype == "signlike")) then
+                    local rot = node.param2 % 8
+                    if (def.drawtype == "signlike"
+                        and def.paramtype2 ~= "wallmounted"
+                        and def.paramtype2 ~= "colorwallmounted") then
+                        -- Change rotation to "floor" by default
+                        --   for non-wallmounted paramtype2
                         rot = 1
                     end
                     local pitch, yaw, roll = 0, 0, 0
-                    if def.drawtype == "nodebox" or def.drawtype == "mesh" then
+                    if def.drawtype == "nodebox"
+                        or def.drawtype == "mesh" then
+
                         if rot == 0 then
                             pitch, yaw = math.pi/2, 0
                         elseif rot == 1 then
@@ -361,7 +390,10 @@ minetest.register_entity(
                         elseif rot == 1 then
                             yaw = yaw - math.pi/2
                         end
-                    elseif def.drawtype == "mesh" or def.drawtype == "normal" or def.drawtype == "nodebox" then
+                    elseif def.drawtype == "mesh"
+                        or def.drawtype == "normal"
+                        or def.drawtype == "nodebox" then
+
                         if rot >= 0 and rot <= 1 then
                             roll = roll + math.pi
                         else
@@ -369,12 +401,15 @@ minetest.register_entity(
                         end
                     end
                     self.object:set_rotation({x=pitch, y=yaw, z=roll})
-                elseif (def.drawtype == "mesh" and def.paramtype2 == "degrotate") then
+                elseif (def.drawtype == "mesh"
+                        and def.paramtype2 == "degrotate") then
                     local p2 = (node.param2 - (def.place_param2 or 0)) % 240
                     local yaw = (p2 / 240) * (math.pi * 2)
                     self.object:set_yaw(yaw)
-                elseif (def.drawtype == "mesh" and def.paramtype2 == "colordegrotate") then
-                    local p2 = (node.param2 % 32 - (def.place_param2 or 0) % 32) % 24
+                elseif (def.drawtype == "mesh"
+                        and def.paramtype2 == "colordegrotate") then
+                    local p2 = (node.param2 % 32 - (def.place_param2
+                                                    or 0) % 32) % 24
                     local yaw = (p2 / 24) * (math.pi * 2)
                     self.object:set_yaw(yaw)
                 end
@@ -424,7 +459,8 @@ minetest.register_entity(
             local np = vector.copy(bcp)
             if bcd and bcd.buildable_to and
                 ((not self.floats or bcd.liquidtype == "none") or
-                    (self.floats and self.liquidtype ~= "none" and bcd.liquidtype ~= "source")) then
+                    (self.floats and self.liquidtype ~= "none"
+                     and bcd.liquidtype ~= "source")) then
                 minetest.remove_node(bcp)
             else
                 np.y = np.y + 1
@@ -502,7 +538,8 @@ minetest.register_entity(
             end
 
             if not bcp then
-                -- We're colliding with something, but not the ground. Irrelevant to us.
+                -- We're colliding with something, but not the ground.
+                -- Irrelevant to us.
                 if player_collision then
                     -- Continue falling through players by moving a little into
                     -- their collision box
