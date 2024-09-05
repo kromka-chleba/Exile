@@ -1,26 +1,26 @@
 --CLIMATE
 
 --[[
-Uses a markov chain to switch between weather states.
-Has seasonal and diurnal fluctations in temperature, which adjust
-the probability for which switch will occur (e.g rain more likely in cold)
+   Uses a markov chain to switch between weather states.
+   Has seasonal and diurnal fluctations in temperature, which adjust
+   the probability for which switch will occur (e.g rain more likely in cold)
 
-This is climate rather than "weather" in the sense it treats the whole map
-as the same, i.e. not big enough to get regional variation.
+   This is climate rather than "weather" in the sense it treats the whole map
+   as the same, i.e. not big enough to get regional variation.
 
 
-A specific locations Temperature and more can be called elsewhere (e.g. for health)
+   A specific locations Temperature and more can be called elsewhere (e.g. for health)
 
 ]]
 
 
 
 climate = {
-	active_weather = {},
-	active_temp = {},
-	active_sea_temp = {},
-	lock_temp = false,
-	lock_weather = false
+   active_weather = {},
+   active_temp = {},
+   active_sea_temp = {},
+   lock_temp = false,
+   lock_weather = false
 }
 
 -- Server language setting, for sending date string to log or beerchat
@@ -52,9 +52,9 @@ dofile(modpath .. "/history.lua")
 local weathers_folder = minetest.get_dir_list(modpath.."/weathers")
 -- runs each lua file in the weathers folder
 for _,file in pairs(weathers_folder) do
-  if file:sub(#file-3,#file) == ".lua" then
-    dofile(modpath.."/weathers/"..file)
-  end
+   if file:sub(#file-3,#file) == ".lua" then
+      dofile(modpath.."/weathers/"..file)
+   end
 end
 
 
@@ -74,13 +74,13 @@ local plvl_mid = 25
 
 -- Set weather to something nice for start
 local good_start_weathers = {
-    "overcast",
-    "light_rain",
-    "overcast_light_rain",
-    "light_haze",
-    "light_snow",
-    "overcast_light_snow",
-    "clear",
+   "overcast",
+   "light_rain",
+   "overcast_light_rain",
+   "light_haze",
+   "light_snow",
+   "overcast_light_snow",
+   "clear",
 }
 local good_random = good_start_weathers[math.random(1, #good_start_weathers)]
 climate.active_weather = climate.registered_weathers[good_random]
@@ -102,15 +102,15 @@ climate.weather_override = {}
 --------------------
 --create a random interval for the weather to last
 local function set_active_interval()
-  local intv = base_interval + math.random(-base_int_range, base_int_range)
-  return intv
+   local intv = base_interval + math.random(-base_int_range, base_int_range)
+   return intv
 end
 
 --yearly average
 local dc_mean = 13
 
 function climate.mean_year_temp()
-    return dc_mean
+   return dc_mean
 end
 
 local function get_seasonal_waves()
@@ -158,134 +158,139 @@ local function update_player_sounds(p_name, pos)
       end
    elseif pos.y < -11 and sound then
       local x = 1-(-1*pos.y-12)/5
-	if x < 0 then
-	   minetest.sound_stop(sound)
-	   sound_handlers[p_name] = nil
-	else
-	   minetest.sound_fade(sound, 0.5, x)
-	end
+      if x < 0 then
+         minetest.sound_stop(sound)
+         sound_handlers[p_name] = nil
+      else
+         minetest.sound_fade(sound, 0.5, x)
+      end
    elseif pos.y > -17 and active_weather.sound_loop and not sound then
       sound_handlers[p_name] =
-	   minetest.sound_play(climate.active_weather.sound_loop,
-			       {to_player = p_name, loop = true, gain = 0.1})
+         minetest.sound_play(climate.active_weather.sound_loop,
+                             {to_player = p_name, loop = true, gain = 0.1})
    end
    prev_sound[p_name] = active_weather.name
 end
 
 -- get moon's phase (returns 0 to 12)
 local function get_moon_phase()
-  local bounds = {x = 37, y = 37}
-  local phscount = 12 -- there are 12 base phases
+   local bounds = {x = 37, y = 37}
+   local phscount = 12 -- there are 12 base phases
 
-  local days = minetest.get_day_count() % 80 -- get current year's date
+   local days = minetest.get_day_count() % 80 -- get current year's date
 
-  days = days % 40 + 1 -- refresh phases every 40th day (2 times per year) (add 1 to get an accurate date)
-  -- starts bright, turns dark, goes bright, ditto
+   days = days % 40 + 1 -- refresh phases every 40th day (2 times per year)
+   -- (add 1 to get an accurate date)
+   -- starts bright, turns dark, goes bright, ditto
 
-  for i = 1, phscount, 1 do
-    if (days/40 <= i/(phscount)) then
-      return i, bounds, (phscount)
-    end
-  end
+   for i = 1, phscount, 1 do
+      if (days/40 <= i/(phscount)) then
+         return i, bounds, (phscount)
+      end
+   end
 end
 
 local function get_moon_texture(texture,spctype)
-  -- spctype for setting custom moon phases
-  if (type(texture) == "table") then
-    texture = texture.texture
-  end
-  if (type(texture) ~= "string") then
-    return ""
-  end
-  if (texture ~= "moon.png") then -- do not conflict with other provided textures
-    return texture
-  end
+   -- spctype for setting custom moon phases
+   if (type(texture) == "table") then
+      texture = texture.texture
+   end
+   if (type(texture) ~= "string") then
+      return ""
+   end
+   if (texture ~= "moon.png") then
+      -- do not conflict with other provided textures
+      return texture
+   end
 
-  local frame,bounds,phscount = get_moon_phase() -- specified frame, x & y image bounds, and total count of phases
-  frame = -(bounds.y * (frame - 1))
+   local frame,bounds,phscount = get_moon_phase()
+   -- specified frame, x & y image bounds, and total count of phases
+   frame = -(bounds.y * (frame - 1))
 
-  if (spctype ~= nil) then
-     -- if a spctype is specified, then seek other specified moon textures
-    frame = -(bounds.y * phscount) -- set frame to maximum
-  elseif (spctype == "number") then -- manually setting the frame, hmm?
-    spctype = minimal.math_clamp(spctype,0,phscount)
-    frame = -(bounds.y * math.ceil(spctype))
-  end
-  -- yields an invisible texture (as the position beyond the 12th frame
-  -- is not yet a specified texture, until someone does make it so :o)
-  -- adds possibilities for "blood moon", "solar eclipse", and other
-  -- possible moon modifiers IF specified and IF made in the vertical
-  -- frame (add at bottom of the vertical png)
-  if (spctype == "nil") then
-    frame = frame - bounds.y
-  end
+   if (spctype ~= nil) then
+      -- if a spctype is specified, then seek other specified moon textures
+      frame = -(bounds.y * phscount) -- set frame to maximum
+   elseif (spctype == "number") then -- manually setting the frame, hmm?
+      spctype = minimal.math_clamp(spctype,0,phscount)
+      frame = -(bounds.y * math.ceil(spctype))
+   end
+   -- yields an invisible texture (as the position beyond the 12th frame
+   -- is not yet a specified texture, until someone does make it so :o)
+   -- adds possibilities for "blood moon", "solar eclipse", and other
+   -- possible moon modifiers IF specified and IF made in the vertical
+   -- frame (add at bottom of the vertical png)
+   if (spctype == "nil") then
+      frame = frame - bounds.y
+   end
 
-  texture = "[combine:"..bounds.x.."x"..bounds.y.."..:0,"..frame.."="..texture
-  -- using combine as a discount verticalframe to prevent conflict
-  --   if more moon modifiers are added,
-  -- e.g.  "[combine:37x37:0,1=moon.png" = phase 1
-  --   or waxing crescent of moon vertical png
+   texture = "[combine:"..bounds.x.."x"..bounds.y.."..:0,"..frame.."="..texture
+   -- using combine as a discount verticalframe to prevent conflict
+   --   if more moon modifiers are added,
+   -- e.g.  "[combine:37x37:0,1=moon.png" = phase 1
+   --   or waxing crescent of moon vertical png
 
-  return texture
+   return texture
 end
 
 --------------------
 --set the sky, for on join and when new weather set
 local function set_sky_clouds(player,...)
-  local args = {...} -- custom args, for example if an alternative moon phase is asked for
+   local args = {...}
+   -- custom args, for example if an alternative moon phase is asked for
 
-	local p_name = player:get_player_name()
-	local active_weather = climate.get_player_weather(p_name)
+   local p_name = player:get_player_name()
+   local active_weather = climate.get_player_weather(p_name)
 
-	player:set_sky(active_weather.sky_data)
-	local clouds = active_weather.cloud_data
-	local pheight = player:get_pos().y
-	if clouds.height < 9000 and pheight > 8999 then
-	   clouds.height = clouds.height + 9000
-	elseif clouds.height > 9000 and pheight < 9000 then
-	   clouds.height = clouds.height - 9000
-	end
-	player:set_clouds(clouds)
-	local wth = table.copy(active_weather)
-	local actmp, _ = get_seasonal_waves()
-	actmp = actmp - 15 -- move centerpoint
-	wth.moon_data.scale = wth.moon_data.scale + (-actmp / 50 + 0.3)
-	wth.sun_data.scale = wth.sun_data.scale + (actmp / 50 + 0.3)
-  if (wth.moon_data.visible == true and wth.moon_data.texture == "moon.png") then
-    wth.moon_data.texture = get_moon_texture(wth.moon_data,args[1])
-  end
-	player:set_moon(wth.moon_data)
-	player:set_sun(wth.sun_data)
-	player:set_stars(active_weather.star_data)
+   player:set_sky(active_weather.sky_data)
+   local clouds = active_weather.cloud_data
+   local pheight = player:get_pos().y
+   if clouds.height < 9000 and pheight > 8999 then
+      clouds.height = clouds.height + 9000
+   elseif clouds.height > 9000 and pheight < 9000 then
+      clouds.height = clouds.height - 9000
+   end
+   player:set_clouds(clouds)
+   local wth = table.copy(active_weather)
+   local actmp, _ = get_seasonal_waves()
+   actmp = actmp - 15 -- move centerpoint
+   wth.moon_data.scale = wth.moon_data.scale + (-actmp / 50 + 0.3)
+   wth.sun_data.scale = wth.sun_data.scale + (actmp / 50 + 0.3)
+   if (wth.moon_data.visible == true
+       and wth.moon_data.texture == "moon.png") then
+      wth.moon_data.texture = get_moon_texture(wth.moon_data,args[1])
+   end
+   player:set_moon(wth.moon_data)
+   player:set_sun(wth.sun_data)
+   player:set_stars(active_weather.star_data)
 end
 
 -- update sky for moon phases (accessible to climate depends)
 function climate.update_sky(player,...)
-  if not (minetest.is_player(player)) then
-    return
-  end
+   if not (minetest.is_player(player)) then
+      return
+   end
 
-  set_sky_clouds(player,...)
+   set_sky_clouds(player,...)
 end
 
 -- updates sky boxes for all players (accessible to climate depends)
 function climate.update_skies(...)
-  for _,player in ipairs(minetest.get_connected_players()) do
-    climate.update_sky(player,...)
-  end
+   for _,player in ipairs(minetest.get_connected_players()) do
+      climate.update_sky(player,...)
+   end
 end
 
 local function get_weather_table(name)
-	for rname, reg_weather in pairs(climate.registered_weathers) do
-	   if name == rname then
-	      local active_weather = reg_weather
-	      return active_weather
-	   end
-	end
-	--error, got a name it can't find
-	--currently will likely make it crash
-	minetest.log("error", "Climate: "..name.." not found")
-	return
+   for rname, reg_weather in pairs(climate.registered_weathers) do
+      if name == rname then
+         local active_weather = reg_weather
+         return active_weather
+      end
+   end
+   --error, got a name it can't find
+   --currently will likely make it crash
+   minetest.log("error", "Climate: "..name.." not found")
+   return
 
 end
 
@@ -318,32 +323,32 @@ end
 --SAVE AND LOAD
 
 local function save_weather()
-    --save state so can be reloaded.
-    --only actually needed on log out,... but that doesn't work
-    store:set_string("weather", climate.active_weather.name)
-    store:set_float("temp", climate.active_temp)
-    store:set_float("sea_temp", climate.active_sea_temp)
-    store:set_float("ran_walk", ran_walk)
+   --save state so can be reloaded.
+   --only actually needed on log out,... but that doesn't work
+   store:set_string("weather", climate.active_weather.name)
+   store:set_float("temp", climate.active_temp)
+   store:set_float("sea_temp", climate.active_sea_temp)
+   store:set_float("ran_walk", ran_walk)
 end
 
 -- this works, register_on_leaveplayer doesn't
 minetest.register_on_shutdown(function()
-        save_weather()
+      save_weather()
 end)
 
 minetest.register_on_joinplayer(
-    function(player)
-        local p_name = player:get_player_name()
-        -- load any prior weather overrides
-        local ovr = player:get_meta():get_string("weather_override")
-        if ovr ~= "" then
-            climate.set_weather_override(p_name, player, ovr)
-        else
-            update_player_sounds(p_name)
-        end
-        set_sky_clouds(player)
-        --set weather effects for this player
-        minetest.chat_send_player(p_name, climate.datestring())
+   function(player)
+      local p_name = player:get_player_name()
+      -- load any prior weather overrides
+      local ovr = player:get_meta():get_string("weather_override")
+      if ovr ~= "" then
+         climate.set_weather_override(p_name, player, ovr)
+      else
+         update_player_sounds(p_name)
+      end
+      set_sky_clouds(player)
+      --set weather effects for this player
+      minetest.chat_send_player(p_name, climate.datestring())
 end)
 
 --get weather from storage, override random start values
@@ -367,27 +372,27 @@ local function load_saved_weather()
       save_weather() -- save initial random data
    end
 
-    --same again, but for temperature
-    local temp = store:get_float("temp")
-    if temp then
-        climate.active_temp = temp
-    end
-    local stemp = store:get_float("sea_temp")
-    if stemp then
-        climate.active_sea_temp = stemp
-    end
-    climate.lock_temp = minetest.is_yes(store:get_string("lock_temp"))
-    climate.lock_weather = minetest.is_yes(store:get_string("lock_weather"))
-    --same again, but for ran_walk
-    local ranw = store:get_float("ran_walk")
-    if ranw then
-        ran_walk = ranw
-    end
-    --load climate_history
-    local ch = store:get_string("climate_history")
-    if ch ~= nil then
-        climate.load_history(ch)
-    end
+   --same again, but for temperature
+   local temp = store:get_float("temp")
+   if temp then
+      climate.active_temp = temp
+   end
+   local stemp = store:get_float("sea_temp")
+   if stemp then
+      climate.active_sea_temp = stemp
+   end
+   climate.lock_temp = minetest.is_yes(store:get_string("lock_temp"))
+   climate.lock_weather = minetest.is_yes(store:get_string("lock_weather"))
+   --same again, but for ran_walk
+   local ranw = store:get_float("ran_walk")
+   if ranw then
+      ran_walk = ranw
+   end
+   --load climate_history
+   local ch = store:get_string("climate_history")
+   if ch ~= nil then
+      climate.load_history(ch)
+   end
 end
 
 --------------------
@@ -416,58 +421,58 @@ local function fair_select_weather()
 end
 
 local function select_new_active_weather()
-    --select a new active_weather from probabilities
-    --it will loop through and try to change the weather
-    if climate.lock_weather then return end
+   --select a new active_weather from probabilities
+   --it will loop through and try to change the weather
+   if climate.lock_weather then return end
 
-    local new_weather_name = fair_select_weather()
-    --did it succeed in getting a new state?
-    if new_weather_name and new_weather_name ~= climate.active_weather.name then
+   local new_weather_name = fair_select_weather()
+   --did it succeed in getting a new state?
+   if new_weather_name and new_weather_name ~= climate.active_weather.name then
 
       --we need to update the sky and set the new
-       climate.active_weather = get_weather_table(new_weather_name)
-       store:set_string("weather", climate.active_weather.name)
-    end
-    --do for each player
-    for _,player in ipairs(minetest.get_connected_players()) do
-       --set sky and clouds for new state using the new active_weather
-       set_sky_clouds(player)
-       update_player_sounds(player:get_player_name())
-    end
+      climate.active_weather = get_weather_table(new_weather_name)
+      store:set_string("weather", climate.active_weather.name)
+   end
+   --do for each player
+   for _,player in ipairs(minetest.get_connected_players()) do
+      --set sky and clouds for new state using the new active_weather
+      set_sky_clouds(player)
+      update_player_sounds(player:get_player_name())
+   end
 end
 
 local function set_world_temperature()
-    --this is a universal temperature for the whole map
-    --we treat the whole map as one coherent region, with a single climate
-    --specific player temp adjusted from this (e.g. by altitude)
-    if climate.lock_temp then return end
+   --this is a universal temperature for the whole map
+   --we treat the whole map as one coherent region, with a single climate
+   --specific player temp adjusted from this (e.g. by altitude)
+   if climate.lock_temp then return end
 
-    --get day night wave
-    local tod = minetest.get_timeofday()
-    --diff between day and night is this x2
-    local dn_amp = -8
-    local dn_period = (2*math.pi)/1 ---match day length
-    local dn_wav = dn_amp * math.cos(tod * dn_period)
+   --get day night wave
+   local tod = minetest.get_timeofday()
+   --diff between day and night is this x2
+   local dn_amp = -8
+   local dn_period = (2*math.pi)/1 ---match day length
+   local dn_wav = dn_amp * math.cos(tod * dn_period)
 
-    --random walk...an incremental fluctuation that is capped
-    ran_walk = ran_walk + math.random(-2, 2)
-    if ran_walk > ran_walk_range or ran_walk < -ran_walk_range then
-       ran_walk = ran_walk/1.04
-    end
-    local dc_wav, sea_wav = get_seasonal_waves()
-    --sum waves plus some random noise
-    climate.active_temp =  dc_wav + dn_wav + ran_walk
-    climate.active_sea_temp = sea_wav + ((dn_wav + ran_walk) * 0.3)
-    --save state so can be reloaded.
-    --only actually needed on log out,... but that doesn't work
-    store:set_float("temp", climate.active_temp)
-    store:set_float("sea_temp", climate.active_sea_temp)
-    store:set_float("ran_walk", ran_walk)
+   --random walk...an incremental fluctuation that is capped
+   ran_walk = ran_walk + math.random(-2, 2)
+   if ran_walk > ran_walk_range or ran_walk < -ran_walk_range then
+      ran_walk = ran_walk/1.04
+   end
+   local dc_wav, sea_wav = get_seasonal_waves()
+   --sum waves plus some random noise
+   climate.active_temp =  dc_wav + dn_wav + ran_walk
+   climate.active_sea_temp = sea_wav + ((dn_wav + ran_walk) * 0.3)
+   --save state so can be reloaded.
+   --only actually needed on log out,... but that doesn't work
+   store:set_float("temp", climate.active_temp)
+   store:set_float("sea_temp", climate.active_sea_temp)
+   store:set_float("ran_walk", ran_walk)
 end
 
 function climate.refresh()
-    set_world_temperature()
-    select_new_active_weather()
+   set_world_temperature()
+   select_new_active_weather()
 end
 
 --------------------------
@@ -484,191 +489,200 @@ minetest.register_on_mods_loaded(function()
 end)
 
 minetest.register_globalstep(function(dtime)
-  timer = timer + dtime
-  timer_r = timer_r + dtime
-  timer_s = timer_s + dtime
-  --update weather state
-  if timer > active_weather_interval then
-     --timer has expired, switch to a new weather state
-     --reset timer and interval
-     timer = 0
-     active_weather_interval = set_active_interval()
-     --save interval
-     set_world_temperature()
-     select_new_active_weather()
-  end
-  if timer_r >= 60 then -- it's time to record changes
-     climate.record_history(climate)
-     store:set_string("climate_history", climate.get_history())
-     timer_r = 0
-  end
-  if timer_s >= 0.1 then -- update sound levels for underground transition
-     for _,player in ipairs(minetest.get_connected_players()) do
-	local ppos = player:get_pos()
-	update_player_sounds(player:get_player_name(), ppos)
-     end
-     timer_s = 0
-  end
+      timer = timer + dtime
+      timer_r = timer_r + dtime
+      timer_s = timer_s + dtime
+      --update weather state
+      if timer > active_weather_interval then
+         --timer has expired, switch to a new weather state
+         --reset timer and interval
+         timer = 0
+         active_weather_interval = set_active_interval()
+         --save interval
+         set_world_temperature()
+         select_new_active_weather()
+      end
+      if timer_r >= 60 then -- it's time to record changes
+         climate.record_history(climate)
+         store:set_string("climate_history", climate.get_history())
+         timer_r = 0
+      end
+      if timer_s >= 0.1 then -- update sound levels for underground transition
+         for _,player in ipairs(minetest.get_connected_players()) do
+            local ppos = player:get_pos()
+            update_player_sounds(player:get_player_name(), ppos)
+         end
+         timer_s = 0
+      end
 end)
 
 --------------------------------------------------------------------
 --CHAT COMMANDS
 
 
-minetest.register_privilege("set_temp", {
-	description = "Set the Climate active temperature",
-	give_to_singleplayer = false
-})
+local temp_priv = {
+   description = "Set the Climate active temperature",
+   give_to_singleplayer = false
+}
+minetest.register_privilege("set_temp", temp_priv)
 
 
-minetest.register_chatcommand("set_temp", {
-  params = "<temp>",
-  description = "Set the Climate active temperature",
-  privs = {privs=true},
-  func = function(name, param)
-     local newtemp = tonumber(param)
-     if not newtemp then
-	return false, ("Unadjusted base temp: "..climate.active_temp)
-     end
-     if newtemp < -100 or newtemp > 100 then
-	return false, "Invalid temperature"
-     end
-     if minetest.check_player_privs(name, {set_temp = true}) then
-	climate.active_temp = newtemp
+local cmd_set_t = {
+   params = "<temp>",
+   description = "Set the Climate active temperature",
+   privs = {privs=true},
+   func = function(name, param)
+      local newtemp = tonumber(param)
+      if not newtemp then
+         return false, ("Unadjusted base temp: "..climate.active_temp)
+      end
+      if newtemp < -100 or newtemp > 100 then
+         return false, "Invalid temperature"
+      end
+      if minetest.check_player_privs(name, {set_temp = true}) then
+         climate.active_temp = newtemp
 
-	--only actually needed on log out,... but that doesn't work
-	store:set_float("temp", climate.active_temp)
+         --only actually needed on log out,... but that doesn't work
+         store:set_float("temp", climate.active_temp)
 
-	return true, "Climate active temperature set to: "..newtemp
+         return true, "Climate active temperature set to: "..newtemp
 
-     else
-	return false, "You need the set_temp privilege to use this command."
-     end
-  end,
-})
-
-
-minetest.register_chatcommand("lock_temp", {
-  description = "Disable automatic temperature changes",
-  privs = {set_temp=true},
-  func = function(name, param)
-     climate.lock_temp = true
-     store:set_string("lock_temp", "true")
-  end,
-})
+      else
+         return false, "You need the set_temp privilege to use this command."
+      end
+   end,
+}
+minetest.register_chatcommand("set_temp", cmd_set_t)
 
 
-minetest.register_chatcommand("unlock_temp", {
-  description = "Re-enable automatic temperature changes",
-  privs = {set_temp=true},
-  func = function(name, param)
-     climate.lock_temp = false
-     store:set_string("lock_temp", "false")
-  end,
-})
+local cmd_lock_t = {
+   description = "Disable automatic temperature changes",
+   privs = {set_temp=true},
+   func = function(name, param)
+      climate.lock_temp = true
+      store:set_string("lock_temp", "true")
+   end,
+}
+minetest.register_chatcommand("lock_temp", cmd_lock_t)
+
+
+local cmd_unlock_t = {
+   description = "Re-enable automatic temperature changes",
+   privs = {set_temp=true},
+   func = function(name, param)
+      climate.lock_temp = false
+      store:set_string("lock_temp", "false")
+   end,
+}
+minetest.register_chatcommand("unlock_temp", cmd_unlock_t)
 
 
 -------------
 
-minetest.register_privilege("set_weather", {
-	description = "Set the Climate active weather",
-	give_to_singleplayer = false
-})
+local weather_priv = {
+                               description = "Set the Climate active weather",
+                               give_to_singleplayer = false
+}
+minetest.register_privilege("set_weather", weather_priv)
 
 
-minetest.register_chatcommand("set_weather", {
- params = "<weather> | help",
- description = "Set the Climate active weather",
- privs = {set_weather=true},
- func = function(name, param)
-    if minetest.check_player_privs(name, {set_weather = true}) then
-       --check valid
-       if param == "help" then
-	  local wlist = "Available weather states:\n"
-	  for i = 1,#climate.weather_index do
-	     wlist = wlist..climate.weather_index[i].."\n"
-	  end
-	  return false, wlist
-       end
+local cmd_set_w = {
+   params = "<weather> | help",
+   description = "Set the Climate active weather",
+   privs = {set_weather=true},
+   func = function(name, param)
+      if minetest.check_player_privs(name, {set_weather = true}) then
+         --check valid
+         if param == "help" then
+            local wlist = "Available weather states:\n"
+            for i = 1,#climate.weather_index do
+               wlist = wlist..climate.weather_index[i].."\n"
+            end
+            return false, wlist
+         end
 
-       if param == "" then
-	  return false, ("Current weather is "..climate.active_weather.name)
-       end
+         if param == "" then
+            return false, ("Current weather is "..climate.active_weather.name)
+         end
 
-       local weather = get_weather_table(param)
-       if weather then
-	  climate.active_weather = weather
-	  --do for each player
-	  for _,player in ipairs(minetest.get_connected_players()) do
-	     --set sky and clouds for new state using the new active_weather
+         local weather = get_weather_table(param)
+         if weather then
+            climate.active_weather = weather
+            --do for each player
+            for _,player in ipairs(minetest.get_connected_players()) do
+               --set sky and clouds for new state using the new active_weather
 
-	     set_sky_clouds(player)
-	     update_player_sounds(player:get_player_name())
+               set_sky_clouds(player)
+               update_player_sounds(player:get_player_name())
 
-	  end
-	  --only actually needed on log out,... but that doesn't work
-	  store:set_string("weather", climate.active_weather.name)
+            end
+            --only actually needed on log out,... but that doesn't work
+            store:set_string("weather", climate.active_weather.name)
 
-	  return true, "Climate active weather set to: "..param
-       end
-    else
-       return false, "You need the set_temp privilege to use this command."
-    end
- end,
-})
+            return true, "Climate active weather set to: "..param
+         end
+      else
+         return false, "You need the set_temp privilege to use this command."
+      end
+   end,
+}
+minetest.register_chatcommand("set_weather", cmd_set_w)
+
+local cmd_lock_w = {
+   description = "Disable automatic weather changes",
+   privs = {set_weather=true},
+   func = function(name, param)
+      climate.lock_weather = true
+      store:set_string("lock_weather", "true")
+   end,
+}
+minetest.register_chatcommand("lock_weather", cmd_lock_w)
 
 
-minetest.register_chatcommand("lock_weather", {
-  description = "Disable automatic weather changes",
-  privs = {set_weather=true},
-  func = function(name, param)
-     climate.lock_weather = true
-     store:set_string("lock_weather", "true")
-  end,
-})
-
-
-minetest.register_chatcommand("unlock_weather", {
-  description = "Re-enable automatic weather changes",
-  privs = {set_weather=true},
-  func = function(name, param)
-     climate.lock_weather = false
-     store:set_string("lock_weather", "false")
-  end,
-})
+local cmd_unlock_w = {
+   description = "Re-enable automatic weather changes",
+   privs = {set_weather=true},
+   func = function(name, param)
+      climate.lock_weather = false
+      store:set_string("lock_weather", "false")
+   end,
+}
+minetest.register_chatcommand("unlock_weather", cmd_unlock_w)
 
 -------------
 
-minetest.register_chatcommand("set_woverride", {
-    params = "<weather name>",
-    description = "Sets your weather override",
-    privs = {set_weather=true},
-    func = function(name, param)
-       if minetest.check_player_privs(name, {set_weather = false}) then
-	  return
-       end
-       if param == "" or param == "help" then
-	  return false
-       end
-       if param == "none" then
-	  climate.set_weather_override(name, nil, "")
-	  return
-       end
-       local weather = climate.registered_weathers[param]
-       if weather then
-	  climate.set_weather_override(name, nil, param)
-       else
-	  return false, "argument must be a valid weather name, or none"
-       end
-    end
-})
+local cmd_wover = {
+   params = "<weather name>",
+   description = "Sets your weather override",
+   privs = {set_weather=true},
+   func = function(name, param)
+      if minetest.check_player_privs(name, {set_weather = false}) then
+         return
+      end
+      if param == "" or param == "help" then
+         return false
+      end
+      if param == "none" then
+         climate.set_weather_override(name, nil, "")
+         return
+      end
+      local weather = climate.registered_weathers[param]
+      if weather then
+         climate.set_weather_override(name, nil, param)
+      else
+         return false, "argument must be a valid weather name, or none"
+      end
+   end
+}
+minetest.register_chatcommand("set_woverride", cmd_wover)
 
 if minetest.get_modpath('beerchat') then -- we have beerchat installed
    beerchat = beerchat
    minetest.register_on_mods_loaded(function()
-	 beerchat.register_relaycommand("date", function(uname, text, protocol)
-                local date = climate.datestring()
-		return minetest.get_translated_string(lang, date)
+	 beerchat.register_relaycommand(
+            "date", function(uname, text, protocol)
+               local date = climate.datestring()
+               return minetest.get_translated_string(lang, date)
 	 end)
    end)
 end
@@ -676,16 +690,19 @@ end
 
 -- MOON PHASE CHECKING LOOP
 
-local mphl_interval = (5*60) -- moon_phase_loop_interval (25% an Exile day or 8 minutes)
+local mphl_interval = (5*60)
+-- moon_phase_loop_interval (25% an Exile day or 8 minutes)
 local function moon_phase_loop()
-  --local tod = minetest.get_timeofday() or 0
+   --local tod = minetest.get_timeofday() or 0
 
-  -- only set skies while the moon is not up (nvm lol, keeping the old code lines just in case though)
-  --if not (tod < 0.23 or tod > 0.75) then
-    climate.update_skies()
-  --end
+   -- only set skies while the moon is not up
+   -- (nvm lol, keeping the old code lines just in case though)
+   --if not (tod < 0.23 or tod > 0.75) then
+   climate.update_skies()
+   --end
 
-  minetest.after(mphl_interval,moon_phase_loop)
+   minetest.after(mphl_interval,moon_phase_loop)
 end
 
-minetest.after(mphl_interval,moon_phase_loop) -- sky is set on player join, check again after interval
+minetest.after(mphl_interval,moon_phase_loop)
+-- sky is set on player join, check again after interval

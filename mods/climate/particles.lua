@@ -2,44 +2,55 @@
 -- Particles helpers
 ---------------------------------------
 
+climate = climate
+
 local particle_idx = {} -- a list of weathers currently active for particles
 local particle_table = {}
 
 -- trying to locate position for particles by player look direction for performance reason.
 -- it is costly to generate many particles around player so goal is focus mainly on front view.
 local get_random_pos = function(player, offset)
-	local look_dir = player:get_look_dir()
-	local player_pos = player:get_pos()
+   local look_dir = player:get_look_dir()
+   local player_pos = player:get_pos()
 
-	local random_pos_x
-	local random_pos_y
-	local random_pos_z
+   local random_pos_x
+   local random_pos_y
+   local random_pos_z
 
-	if look_dir.x > 0 then
-		if look_dir.z > 0 then
-			random_pos_x = math.random(player_pos.x - offset.back, player_pos.x + offset.front) + math.random()
-			random_pos_z = math.random(player_pos.z - offset.back, player_pos.z + offset.front) + math.random()
-		else
-			random_pos_x = math.random(player_pos.x - offset.back, player_pos.x + offset.front) + math.random()
-			random_pos_z = math.random(player_pos.z - offset.front, player_pos.z + offset.back) + math.random()
-		end
-	else
-		if look_dir.z > 0 then
-			random_pos_x = math.random(player_pos.x - offset.front, player_pos.x + offset.back) + math.random()
-			random_pos_z = math.random(player_pos.z - offset.back, player_pos.z + offset.front) + math.random()
-		else
-			random_pos_x = math.random(player_pos.x - offset.front, player_pos.x + offset.back) + math.random()
-			random_pos_z = math.random(player_pos.z - offset.front, player_pos.z + offset.back) + math.random()
-		end
-	end
+   if look_dir.x > 0 then
+      if look_dir.z > 0 then
+         random_pos_x = math.random(player_pos.x - offset.back,
+                                    player_pos.x + offset.front) + math.random()
+         random_pos_z = math.random(player_pos.z - offset.back,
+                                    player_pos.z + offset.front) + math.random()
+      else
+         random_pos_x = math.random(player_pos.x - offset.back,
+                                    player_pos.x + offset.front) + math.random()
+         random_pos_z = math.random(player_pos.z - offset.front,
+                                    player_pos.z + offset.back) + math.random()
+      end
+   else
+      if look_dir.z > 0 then
+         random_pos_x = math.random(player_pos.x - offset.front,
+                                    player_pos.x + offset.back) + math.random()
+         random_pos_z = math.random(player_pos.z - offset.back,
+                                    player_pos.z + offset.front) + math.random()
+      else
+         random_pos_x = math.random(player_pos.x - offset.front,
+                                    player_pos.x + offset.back) + math.random()
+         random_pos_z = math.random(player_pos.z - offset.front,
+                                    player_pos.z + offset.back) + math.random()
+      end
+   end
 
-	if offset.bottom ~= nil then
-		random_pos_y = math.random(player_pos.y - offset.bottom, player_pos.y + offset.top)
-	else
-		random_pos_y = player_pos.y + offset.top
-	end
+   if offset.bottom ~= nil then
+      random_pos_y = math.random(player_pos.y - offset.bottom,
+                                 player_pos.y + offset.top)
+   else
+      random_pos_y = player_pos.y + offset.top
+   end
 
-	return {x=random_pos_x, y=random_pos_y, z=random_pos_z}
+   return {x=random_pos_x, y=random_pos_y, z=random_pos_z}
 end
 
 
@@ -47,31 +58,33 @@ end
 -- checks if player is undewater. This is needed in order to
 -- turn off weather particles generation.
 local is_underwater = function(player)
-	local ppos = player:get_pos()
-	if not ppos then return end -- player disconnected
-	local offset = player:get_eye_offset()
-	local player_eye_pos = {
-		x = ppos.x + offset.x,
-		y = ppos.y + offset.y + 1.5,
-		z = ppos.z + offset.z}
-	local node_level = minetest.get_node_level(player_eye_pos)
-	if node_level == 8 or node_level == 7 then
-		return true
-	end
-	return false
+   local ppos = player:get_pos()
+   if not ppos then return end -- player disconnected
+   local offset = player:get_eye_offset()
+   local player_eye_pos = {
+      x = ppos.x + offset.x,
+      y = ppos.y + offset.y + 1.5,
+      z = ppos.z + offset.z}
+   local node_level = minetest.get_node_level(player_eye_pos)
+   if node_level == 8 or node_level == 7 then
+      return true
+   end
+   return false
 end
 
 
 -- outdoor check based on node light level
 local is_outdoor = function(pos, offset_y)
-	if offset_y == nil then
-		offset_y = 0
-	end
+   if offset_y == nil then
+      offset_y = 0
+   end
 
-	if minimal.get_daylight({x=pos.x, y=pos.y + offset_y, z=pos.z}, 0.5) == 15 then
-		return true
-	end
-	return false
+   if minimal.get_daylight({x=pos.x,
+                            y=pos.y + offset_y,
+                            z=pos.z}, 0.5) == 15 then
+      return true
+   end
+   return false
 end
 
 climate.add_particle = function(vel, acc, ext, size, tex, player)

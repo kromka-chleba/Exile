@@ -39,8 +39,8 @@ function climate.record_history(climate)
    end
    local w = climate.active_weather.name
    if (w == 'overcast_heavy_rain'
-	  or w == 'overcast_rain'
-	  or w == 'thunderstorm'
+       or w == 'overcast_rain'
+       or w == 'thunderstorm'
        or w == 'superstorm') then
       ch = ch + 4 -- rain: 0100
    end
@@ -80,70 +80,70 @@ end
 -- returns time in seconds when conditions were good for growing
 -- and time when it rained
 function climate.good_time_rain_time(duration, mushroom)
-    local good_chunks = 0
-    local rain_chunks = 0
-    local chunks = floor(duration / 60)
-    for i = 0,chunks,1 do
-        local conditions = history(i)
-        if conditions == nil then -- we don't have any history!
-            return good_chunks, rain_chunks
-        end
-        if (conditions.sun == true or mushroom == true)
-            and conditions.grow == true then
-            good_chunks = good_chunks + 1
-            if conditions.rain == true then
-                rain_chunks = rain_chunks + 1
-            end
-        end
-    end
-    return good_chunks * 60, rain_chunks * 60
+   local good_chunks = 0
+   local rain_chunks = 0
+   local chunks = floor(duration / 60)
+   for i = 0,chunks,1 do
+      local conditions = history(i)
+      if conditions == nil then -- we don't have any history!
+         return good_chunks, rain_chunks
+      end
+      if (conditions.sun == true or mushroom == true)
+         and conditions.grow == true then
+         good_chunks = good_chunks + 1
+         if conditions.rain == true then
+            rain_chunks = rain_chunks + 1
+         end
+      end
+   end
+   return good_chunks * 60, rain_chunks * 60
 end
 
 -- counts number of chunks having a given property
 local function number_of_chunks(property, duration)
-    local chunks = floor(duration / 60)
-    local total = 0
-    for i = 0,chunks,1 do
-        local conditions = history(i)
-        if conditions[property] == true then
-	    total = total + 1
-        end
-    end
-    return total
+   local chunks = floor(duration / 60)
+   local total = 0
+   for i = 0,chunks,1 do
+      local conditions = history(i)
+      if conditions[property] == true then
+         total = total + 1
+      end
+   end
+   return total
 end
 
 ------------------------------
 -- checks the climate record, and returns how long it rained
 function climate.rain_amount(duration)
-    return number_of_chunks("rain", duration)
+   return number_of_chunks("rain", duration)
 end
 
 -- gets time in seconds it rained
 function climate.rain_time(duration)
-    return number_of_chunks("rain", duration) * 60
+   return number_of_chunks("rain", duration) * 60
 end
 
 -- gets time in seconds it was sunny
 function climate.sun_time(duration)
-    return number_of_chunks("sun", duration) * 60
+   return number_of_chunks("sun", duration) * 60
 end
 
 -- gets time weather was good for growing
 function climate.grow_time(duration)
-    return number_of_chunks("grow", duration) * 60
+   return number_of_chunks("grow", duration) * 60
 end
 
 -- returns true if plant was killed
 -- duplicating the code for performance
 function climate.plant_killed(duration)
-    local chunks = floor(duration / 60)
-    for i = 0,chunks,1 do
-        local conditions = history(i)
-        if conditions and conditions.kill == true then
-	    return true
-        end
-    end
-    return false
+   local chunks = floor(duration / 60)
+   for i = 0,chunks,1 do
+      local conditions = history(i)
+      if conditions and conditions.kill == true then
+         return true
+      end
+   end
+   return false
 end
 
 local last_rained -- caches the gametime value of the last rain
@@ -198,11 +198,12 @@ function climate.datestring()
 	    "in the year of our exile @4", timestr, sdays, season, year)
 end
 
-minetest.register_chatcommand("date", {
-	params = "",
-	description = "Shows the current date and year of exile.",
-	privs = {},
-	func = function(name, param)
-	   minetest.chat_send_player(name, climate.datestring())
-	end,
-})
+local datecmd = {
+   params = "",
+   description = "Shows the current date and year of exile.",
+   privs = {},
+   func = function(name, param)
+      minetest.chat_send_player(name, climate.datestring())
+   end,
+}
+minetest.register_chatcommand("date", datecmd)
