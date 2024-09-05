@@ -80,9 +80,9 @@
 
 --[[Define Biomes Table]]--
 local biome_list = {
-	--                                                                                               node   depth  node                 depth                                                                                                                            
-	--                                      node   node       depth  node        depth   node        water  water  river    node        river  cave        node       dungeon    vert                                           heat                humidity             
-	--          name                        dust   top        top    filler      filler  stone       top    top    water    riverbed    bed    liquid      dungeon    stair      blend  y_max               y_min               point               point                
+	--                                                                                               node   depth  node                 depth
+	--                                      node   node       depth  node        depth   node        water  water  river    node        river  cave        node       dungeon    vert                                           heat                humidity
+	--          name                        dust   top        top    filler      filler  stone       top    top    water    riverbed    bed    liquid      dungeon    stair      blend  y_max               y_min               point               point
 	--[[01]]  { "grassland"              ,   nil,  prairie  ,    1,  clay     ,     2,   limestone,   nil,   nil,  air   ,  duff_wet ,    1,   {potable},  drystack,  stair_ds,    5,   upland_min       ,  beach_max        ,  middle           ,  middle          ,  },
 	--[[02]]  { "upland_grassland"       ,  snow,  prairie  ,    1,  clay     ,     2,   limestone,   nil,   nil,  air   ,  grass_wet,    1,   {potable},  drystack,  stair_ds,    5,   highland_min     ,  upland_min       ,  middle           ,  middle          ,  },
 	--[[03]]  { "marshland"              ,   nil,  marsh_wet,    1,  silt_wet ,     6,   limestone,   nil,   nil,  air   ,  silt_wet ,    5,   {potable},  drystack,  stair_ds,    2,   lowland_max      ,  beach_max        ,  high             ,  extreme_high    ,  },

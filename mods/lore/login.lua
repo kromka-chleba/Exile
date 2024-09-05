@@ -69,11 +69,11 @@ local function show_motd(player, force)
       meta:set_string("seen_motd",hash)
    end
    local spec = "formspec_version[3]"..
-		"size[7,7.5]"..
-		"styletype[scrollbar;bgimg=artifacts_antiquorium.png]"..
-		"hypertext[0.5,0.75;6,5;introtext; "..
-		S("Message of the Day:\n\n")
-		..motd.."]"
+      "size[7,7.5]"..
+      "styletype[scrollbar;bgimg=artifacts_antiquorium.png]"..
+      "hypertext[0.5,0.75;6,5;introtext; "..
+      S("Message of the Day:\n\n")
+      ..motd.."]"
    if newplayer[playername] then
       spec = spec.."bgcolor[;both;#bbb]"..
 	 "background9[0,0;7,7.5;9slice-deep.png;false;10]"
@@ -103,26 +103,26 @@ end
 ------------------------------------------------------------------------------
 --effects at source
 local function doGatewayFX(player)
-    local pos = player:get_pos()
-    if not pos then return end
-    minetest.sound_play( {name="lore_gateway", gain=0.75},
-       {pos=pos, max_hear_distance=100})
-    minetest.add_particlespawner({
-      amount = 10,
-      time = 1,
-      minpos = {x=pos.x-1, y=pos.y, z=pos.z-1},
-      maxpos = {x=pos.x+1, y=pos.y+1, z=pos.z+1},
-      minvel = {x = -2,  y = 0,  z = -2},
-      maxvel = {x = 2, y = 0, z = 2},
-      minacc = {x = -4, y = 0, z = -4},
-      maxacc = {x = 4, y = 0.5, z = 4},
-      minexptime = 0.5,
-      maxexptime = 2,
-      minsize = 1,
-      maxsize = 10,
-      texture = "gateway_sparks.png",
-      glow = 15,
-    })
+   local pos = player:get_pos()
+   if not pos then return end
+   minetest.sound_play( {name="lore_gateway", gain=0.75},
+      {pos=pos, max_hear_distance=100})
+   minetest.add_particlespawner({
+         amount = 10,
+         time = 1,
+         minpos = {x=pos.x-1, y=pos.y, z=pos.z-1},
+         maxpos = {x=pos.x+1, y=pos.y+1, z=pos.z+1},
+         minvel = {x = -2,  y = 0,  z = -2},
+         maxvel = {x = 2, y = 0, z = 2},
+         minacc = {x = -4, y = 0, z = -4},
+         maxacc = {x = 4, y = 0.5, z = 4},
+         minexptime = 0.5,
+         maxexptime = 2,
+         minsize = 1,
+         maxsize = 10,
+         texture = "gateway_sparks.png",
+         glow = 15,
+   })
 end
 
 ------------------------------------------------------------------------------
@@ -177,8 +177,8 @@ local jumpstart_queue_delay = tonumber(minetest.settings:get(
 					  "exile_jumpstart_queue_delay")) or 20
 
 function queue_clear(playername)
-      player_queue[playername] = {}
-      if waiting[playername] then waiting[playername]:cancel() end
+   player_queue[playername] = {}
+   if waiting[playername] then waiting[playername]:cancel() end
 end
 
 local function queue_push(player, func_to_run, qname)
@@ -219,7 +219,7 @@ local function queue_start(player)
 					   "forcibly restarted queue for "..
 					   name)
 			      queue_start(player)
-	 end)
+            end)
 	 return
       end
    end
@@ -278,9 +278,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 
-minetest.register_chatcommand("motd",{
-        description = S("This command shows the current message of the day."),
-	func = function(name, param)
-	   show_motd(minetest.get_player_by_name(name), true)
-	end
+minetest.register_chatcommand(
+   "motd",{
+      description = S("This command shows the current message of the day."),
+      func = function(name, param)
+         show_motd(minetest.get_player_by_name(name), true)
+      end
 })

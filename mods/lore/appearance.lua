@@ -6,7 +6,7 @@
 --TODO: Set up peoples and polities for character origin, use those instead
 local HC = {"black", "gray", "brown", "red", "blonde"}
 local SC = {"tan", "pale", "red", "yellow", "brown", "black"}
-	    --unnatural colors
+--unnatural colors
 local USC= {"greenmen","bluemen","graymen","redmen"}
 local EC = {"blue","brown","gray","green","hazel","violet"}
 
@@ -22,7 +22,7 @@ local function NewBody(player)
    end
    local HColor = HC[math.random(1,#HC)]
    local EColor = EC[math.random(1,#EC)]
-   base_texture["skin"].color = SColor 
+   base_texture["skin"].color = SColor
    base_texture["hair"].color = HColor
    base_texture["eye"] = "player_"..EColor.."_eye.png"
    player_api.save_base_texture(player, base_texture)

@@ -10,24 +10,24 @@ local S = lore.S
 
 local __stash_timeout = 60*60*24*14 -- keep for 2 weeks
 local function stash_inventory(player, stash, list)
-	local timeout = os.time() - __stash_timeout
-	local pmeta = player:get_meta()
-	local stash_table = {}
-	-- Purge expired entries from the list
-	if pmeta:contains(stash) then
-		stash_table=minetest.deserialize(pmeta:get_string(stash))
-		for i, stack in ipairs(stash_table) do
-			if stack.epoch < timeout then
-				stash_table[i] = nil -- expire old entries
-			end
-		end
-	end
-	-- Append new entries to the list
-	for _, stack in ipairs(list) do
-	   table.insert(stash_table, stack)
-	end
-	-- save the stash to player meta
-	pmeta:set_string(stash, minetest.serialize(stash_table))
+   local timeout = os.time() - __stash_timeout
+   local pmeta = player:get_meta()
+   local stash_table = {}
+   -- Purge expired entries from the list
+   if pmeta:contains(stash) then
+      stash_table=minetest.deserialize(pmeta:get_string(stash))
+      for i, stack in ipairs(stash_table) do
+         if stack.epoch < timeout then
+            stash_table[i] = nil -- expire old entries
+         end
+      end
+   end
+   -- Append new entries to the list
+   for _, stack in ipairs(list) do
+      table.insert(stash_table, stack)
+   end
+   -- save the stash to player meta
+   pmeta:set_string(stash, minetest.serialize(stash_table))
 end
 
 local function dump_stash(player)
@@ -43,13 +43,13 @@ local function dump_stash(player)
 end
 
 local function killplayer(name)
-    local player = minetest.get_player_by_name(name)
-    if not player then
-        -- exit if the player left or we somehow got garbage
-        return
-    end
-    player:set_hp(1) -- for players who hit the death formspec bug
-    if not minimal.player_in_creative(player) then
+   local player = minetest.get_player_by_name(name)
+   if not player then
+      -- exit if the player left or we somehow got garbage
+      return
+   end
+   player:set_hp(1) -- for players who hit the death formspec bug
+   if not minimal.player_in_creative(player) then
       -- Don't remove inventory from creative mode players, just kill 'em
       player:set_hp(0)
       return
@@ -112,7 +112,9 @@ end
 
 local function restart (name, param)
    local nowtime = minetest.get_gametime()
-   if timestamp[name] and  ( timestamp[name] +3 ) > nowtime then return end
+   if timestamp[name] and  ( timestamp[name] +3 ) > nowtime then
+      return -- 3 second ratelimit: Don't run killthemagain() until it finishes
+   end
 
    local plyr = minetest.get_player_by_name(name)
    if plyr and plyr:get_hp() == 0 then -- they're stuck in an invalid state
@@ -132,44 +134,47 @@ local function restart (name, param)
    end
 end
 
-minetest.register_chatcommand("restart",{
-	privs = {
-		interact = true,
-	},
-        description =
-	   S("Give up on your current character without leaving a "..
-	   "trace. Everything you hold will be lost. Have a new Exile "..
-	   "appear in this world in their stead and try your hand at "..
-	   "survival again."),
-	func = restart
+minetest.register_chatcommand(
+   "restart",{
+      privs = {
+         interact = true,
+      },
+      description =
+         S("Give up on your current character without leaving a "..
+           "trace. Everything you hold will be lost. Have a new Exile "..
+           "appear in this world in their stead and try your hand at "..
+           "survival again."),
+      func = restart
 })
 
-minetest.register_chatcommand("respawn",{
-	privs = {
-		interact = true,
-	},
-        description = S("This command is an alias for /restart. See there for "..
-			"further information."),
-	func = restart
+minetest.register_chatcommand(
+   "respawn",{
+      privs = {
+         interact = true,
+      },
+      description = S("This command is an alias for /restart. See there for "..
+                      "further information."),
+      func = restart
 })
 
-minetest.register_chatcommand("recover_inv",{
-	params = "<playername>",
-	privs = {
-		server = true,
-	},
-        description = "This command allows admins to recover a player's "..
-	   "inventory after they have restarted.\n"..
-	   "Items will be dropped at their feet.",
-	func = function(name, param)
-	   local ply = minetest.get_player_by_name(param)
-	   if not ply then return "Could not find player "..tostring(param) end
-	   if dump_stash(ply) then
-	      return "Dumped all stashed inventory for "..param
-	   else
-	      return "Failed to dump stashed inventory for "..param
-	   end
-	end
+minetest.register_chatcommand(
+   "recover_inv",{
+      params = "<playername>",
+      privs = {
+         server = true,
+      },
+      description = "This command allows admins to recover a player's "..
+         "inventory after they have restarted.\n"..
+         "Items will be dropped at their feet.",
+      func = function(name, param)
+         local ply = minetest.get_player_by_name(param)
+         if not ply then return "Could not find player "..tostring(param) end
+         if dump_stash(ply) then
+            return "Dumped all stashed inventory for "..param
+         else
+            return "Failed to dump stashed inventory for "..param
+         end
+      end
 })
 
 

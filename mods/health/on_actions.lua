@@ -9,48 +9,51 @@ sfinv = sfinv
 HEALTH = HEALTH
 
 local function modify_hp(...) -- player, hp_amt
-  return HEALTH.modify_hp(...)
+   return HEALTH.modify_hp(...)
 end
 local function modify_int(...) -- player, int_name, int_value
-  return HEALTH.modify_int(...)
+   return HEALTH.modify_int(...)
 end
 
 
 -- for HEALTH.register_on_player_eat
 local health_eat_callbacks = {}
 function HEALTH.register_on_player_eat(func)
-  if type(func) == "function" then
-    health_eat_callbacks[#health_eat_callbacks + 1] = func
-  end
+   if type(func) == "function" then
+      health_eat_callbacks[#health_eat_callbacks + 1] = func
+   end
 end
 -----------------------------
 --On Actions
 --
 --Consummable items
 function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_table
-   if (not minetest.is_player(user) or not minetest.settings:get_bool("enable_damage")) then
+   if (not minetest.is_player(user)
+       or not minetest.settings:get_bool("enable_damage")) then
       return
    end
-  f_table = type(f_table) == "table" and f_table or HEALTH.get_food_stats(itemstack)
-  if not f_table then
-    return itemstack
-  end
-  f_table = type(f_table) == "table" and HEALTH.get_food_stats(f_table) or HEALTH.get_food_stats(itemstack)
+   f_table = type(f_table) == "table" and f_table
+      or HEALTH.get_food_stats(itemstack)
+   if not f_table then
+      return itemstack
+   end
+   f_table = type(f_table) == "table" and HEALTH.get_food_stats(f_table)
+      or HEALTH.get_food_stats(itemstack)
 
-  local meta = user:get_meta()
-  -- set new values
-  modify_hp(user,f_table.hp)
-  modify_int(meta,"thirst",f_table.th)
-  modify_int(meta,"hunger",f_table.hu)
-  modify_int(meta,"energy",f_table.en)
-  modify_int(meta,"temperature",f_table.temp)
-  local st = player_api.get_state(user)
-  if st then
-     st:set_progress("thirst", f_table.th)
-     st:set_progress("hunger", f_table.hu)
-     st:set_progress("energy", f_table.en)
-     st:set_progress("int_temp", f_table.temp)
-  end
+   local meta = user:get_meta()
+   -- set new values
+   modify_hp(user,f_table.hp)
+   modify_int(meta,"thirst",f_table.th)
+   modify_int(meta,"hunger",f_table.hu)
+   modify_int(meta,"energy",f_table.en)
+   modify_int(meta,"temperature",f_table.temp)
+   local st = player_api.get_state(user)
+   if st then
+      st:set_progress("thirst", f_table.th)
+      st:set_progress("hunger", f_table.hu)
+      st:set_progress("energy", f_table.en)
+      st:set_progress("int_temp", f_table.temp)
+   end
 
 
    -- and update malus (need for setting correct physics)
@@ -58,37 +61,45 @@ function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_tabl
    --update form so can see change while looking
    sfinv.set_player_inventory_formspec(user)
 
-   --minetest.chat_send_player(name, minetest.registered_items[item].description .." effect = Health: "..hp_change..", Thirst: "..thirst_change.. ", Hunger: "..hunger_change.. ", Energy: "..energy_change.. ", Body Temperature: "..temp_change )
-  if type(itemstack) == "userdata" and type(itemstack["take_item"]) == "function" then
-    -- only play eating sound if an itemstack
-    local pos = user:get_pos()
-    local sound = f_table.sound
-    if sound.name ~= "" then
-      minetest.sound_play(sound.name, minimal.merge_tables(sound,{pos=pos}))
-    end
-    local replace_item = f_table.rwi
-    --replace/take (non-creative)
-    if not minimal.player_in_creative(user) then
-      itemstack:take_item()
-      if itemstack:get_count() == 0 then
-        itemstack:add_item(replace_item)
-      else
-        local inv = user:get_inventory()
-        if inv:room_for_item("main", replace_item) then
-          inv:add_item("main", replace_item)
-        else
-          minetest.add_item(pos, replace_item)
-        end
-      end
-    end
-  end
+   --[[
+   minetest.chat_send_player(
+      name, minetest.registered_items[item].description ..
+      " effect = Health: "..hp_change..", Thirst: "..thirst_change..
+      ", Hunger: "..hunger_change.. ", Energy: "..energy_change..
+      ", Body Temperature: "..temp_change )
+   ]]
+   if type(itemstack) == "userdata"
+      and type(itemstack["take_item"]) == "function" then
+      -- only play eating sound if an itemstack
 
-  -- register_on_player_eat callbacks
-  if #health_eat_callbacks > 0 then
-    for _,func in pairs(health_eat_callbacks) do
-      func(itemstack, user, f_table)
-    end
-  end
+      local pos = user:get_pos()
+      local sound = f_table.sound
+      if sound.name ~= "" then
+         minetest.sound_play(sound.name, minimal.merge_tables(sound,{pos=pos}))
+      end
+      local replace_item = f_table.rwi
+      --replace/take (non-creative)
+      if not minimal.player_in_creative(user) then
+         itemstack:take_item()
+         if itemstack:get_count() == 0 then
+            itemstack:add_item(replace_item)
+         else
+            local inv = user:get_inventory()
+            if inv:room_for_item("main", replace_item) then
+               inv:add_item("main", replace_item)
+            else
+               minetest.add_item(pos, replace_item)
+            end
+         end
+      end
+   end
+
+   -- register_on_player_eat callbacks
+   if #health_eat_callbacks > 0 then
+      for _,func in pairs(health_eat_callbacks) do
+         func(itemstack, user, f_table)
+      end
+   end
 
    return itemstack
 end
@@ -159,10 +170,14 @@ local function fast_interval(dtime)
 	    local player_pos = player:get_pos()
 
 	    local water = minimal.in_group(player_pos,"water")
-	    player_pos.y = player_pos.y + 0.6 --adjust to body height (for radiant heat)
+	    player_pos.y = player_pos.y + 0.6
+            --adjust to body height (for radiant heat)
+
 	    local enviro_temp = climate.get_point_temp(player_pos, true)
-	    --being outside tolerance range will drain energy. When energy is drained will succumb.
-	    --[safe] comfort zone ->[low cost]->stress zone ->[high cost]-> danger zone->[damage]
+	    --being outside tolerance range will drain energy.
+            --  When energy is drained will succumb.
+	    -- [safe] comfort zone ->[low cost]->
+            --   stress zone ->[high cost]-> danger zone->[damage]
 
 	    local comfort_low = meta:get_int("clothing_temp_min")
 	    local comfort_high = meta:get_int("clothing_temp_max") + 1

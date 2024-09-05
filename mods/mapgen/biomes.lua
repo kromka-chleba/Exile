@@ -86,745 +86,752 @@ local gneiss           = "nodes_nature:gneiss"
 
 ---Alternate settings for Carpathian mapgen
 if minetest.get_mapgen_setting("mg_name") == "carpathian" then
-    coastal_min = 3
-    tidal_max   = 2
-    minetest.log("info", "using alternate biome settings for carpathan mapgen")
+   coastal_min = 3
+   tidal_max   = 2
+   minetest.log("info", "using alternate biome settings for carpathan mapgen")
 end
 
 --[[ Biomes ]]--[[
-    01. Coastal Forest
-    02. Coastal Woodland
-    03. Lowland Forest
-    04. Lowland Woodland
-    05. Upland Forest
-    06. Upland Woodland
-    07. Swamp Forest
-    08. Marshland
-    09. Coastal Shrubland
-    10. Coastal Grassland
-    11. Lowland Shrubland
-    12. Lowland Grassland
-    13. Upland Shrubland
-    14. Upland Grassland
-    15. Coastal Barrenland
-    16. Coastal Duneland
-    17. Lowland Barrenland
-    18. Lowland Duneland
-    19. Upland Barrenland
-    20. Upland Duneland
-    21. Highland
-    22. Highland Scree
-    23. Highland Rock
-    24. Sandy Beach
-    25. Silty Beach
-    26. Gravel Beach
-    27. Sandy Coast
-    28. Silty Coast
-    29. Gravel Coast
-    30. Shallow Water
-    31. Deep Water
-    32. Underground
-    33. Deep Underground
-    34. Mantle
+   01. Coastal Forest
+   02. Coastal Woodland
+   03. Lowland Forest
+   04. Lowland Woodland
+   05. Upland Forest
+   06. Upland Woodland
+   07. Swamp Forest
+   08. Marshland
+   09. Coastal Shrubland
+   10. Coastal Grassland
+   11. Lowland Shrubland
+   12. Lowland Grassland
+   13. Upland Shrubland
+   14. Upland Grassland
+   15. Coastal Barrenland
+   16. Coastal Duneland
+   17. Lowland Barrenland
+   18. Lowland Duneland
+   19. Upland Barrenland
+   20. Upland Duneland
+   21. Highland
+   22. Highland Scree
+   23. Highland Rock
+   24. Sandy Beach
+   25. Silty Beach
+   26. Gravel Beach
+   27. Sandy Coast
+   28. Silty Coast
+   29. Gravel Coast
+   30. Shallow Water
+   31. Deep Water
+   32. Underground
+   33. Deep Underground
+   34. Mantle
 ]]
 
 --[[Define Biomes Table]]--
 local biome_list = {
-    --Forests & Woodland
-    --[[01]]
-    {
-        name = "Coastal Forest",
-        node_top = forest,
-        depth_top = 1,
-        node_filler = silt,
-        depth_filler = 3,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = silt_wet,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = coastal_max,
-        y_min = coastal_min,
-        heat_point = x_low,
-        humidity_point = high,
-        _color = {r = 75, g = 114, b = 72},
-    },
+   --Forests & Woodland
+   --[[01]]
+   {
+      name = "Coastal Forest",
+      node_top = forest,
+      depth_top = 1,
+      node_filler = silt,
+      depth_filler = 3,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = silt_wet,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = coastal_max,
+      y_min = coastal_min,
+      heat_point = x_low,
+      humidity_point = high,
+      _color = {r = 75, g = 114, b = 72},
+   },
 
-    --[[02]]
-    {
-        name = "Coastal Woodland",
-        node_top = woodl,
-        depth_top = 1,
-        node_filler = silt,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = silt_wet,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = coastal_max,
-        y_min = coastal_min,
-        heat_point = high,
-        humidity_point = high,
-        _color = {r = 85, g = 84, b = 32},
-    },
+   --[[02]]
+   {
+      name = "Coastal Woodland",
+      node_top = woodl,
+      depth_top = 1,
+      node_filler = silt,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = silt_wet,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = coastal_max,
+      y_min = coastal_min,
+      heat_point = high,
+      humidity_point = high,
+      _color = {r = 85, g = 84, b = 32},
+   },
 
-    --[[03]]
-    {
-        name = "Lowland Forest",
-        node_top = forest,
-        depth_top = 1,
-        node_filler = silt,
-        depth_filler = 3,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = forest_wet,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = lowland_max,
-        y_min = lowland_min,
-        heat_point = x_low,
-        humidity_point = x_high,
-        _color = {r = 85, g = 104, b = 62},
-    },
+   --[[03]]
+   {
+      name = "Lowland Forest",
+      node_top = forest,
+      depth_top = 1,
+      node_filler = silt,
+      depth_filler = 3,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = forest_wet,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = lowland_max,
+      y_min = lowland_min,
+      heat_point = x_low,
+      humidity_point = x_high,
+      _color = {r = 85, g = 104, b = 62},
+   },
 
-    --[[04]]
-    {
-        name = "Lowland Woodland",
-        node_top = woodl,
-        depth_top = 1,
-        node_filler = silt,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = woodl_wet,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = lowland_max,
-        y_min = lowland_min,
-        heat_point = middle,
-        humidity_point = x_high,
-        _color = {r = 95, g = 74, b = 22},
-    },
+   --[[04]]
+   {
+      name = "Lowland Woodland",
+      node_top = woodl,
+      depth_top = 1,
+      node_filler = silt,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = woodl_wet,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = lowland_max,
+      y_min = lowland_min,
+      heat_point = middle,
+      humidity_point = x_high,
+      _color = {r = 95, g = 74, b = 22},
+   },
 
-    --[[05]]
-    {
-        name = "Upland Forest",
-        node_top = up_forest,
-        depth_top = 1,
-        node_filler = clay,
-        depth_filler = 2,
-        node_stone = coquina,
-        node_river_water = air,
-        node_riverbed = up_forest_wet,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  25,
-        y_max = upland_max,
-        y_min = upland_min,
-        heat_point = x_low,
-        humidity_point = x_high,
-        _color = {r = 95, g = 94, b = 62},
-    },
+   --[[05]]
+   {
+      name = "Upland Forest",
+      node_top = up_forest,
+      depth_top = 1,
+      node_filler = clay,
+      depth_filler = 2,
+      node_stone = coquina,
+      node_river_water = air,
+      node_riverbed = up_forest_wet,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  25,
+      y_max = upland_max,
+      y_min = upland_min,
+      heat_point = x_low,
+      humidity_point = x_high,
+      _color = {r = 95, g = 94, b = 62},
+   },
 
-    --[[06]]
-    {
-        name = "Upland Woodland",
-        node_top = up_woodl,
-        depth_top = 1,
-        node_filler = clay,
-        depth_filler = 2,
-        node_stone = coquina,
-        node_river_water = air,
-        node_riverbed = up_woodl_wet,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  25,
-        y_max = upland_max,
-        y_min = upland_min,
-        heat_point = middle,
-        humidity_point = x_high,
-        _color = {r = 105, g = 64, b = 22},
-    },
+   --[[06]]
+   {
+      name = "Upland Woodland",
+      node_top = up_woodl,
+      depth_top = 1,
+      node_filler = clay,
+      depth_filler = 2,
+      node_stone = coquina,
+      node_river_water = air,
+      node_riverbed = up_woodl_wet,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  25,
+      y_max = upland_max,
+      y_min = upland_min,
+      heat_point = middle,
+      humidity_point = x_high,
+      _color = {r = 105, g = 64, b = 22},
+   },
 
-    --Wetlands
-    --[[07]]
-    {
-        name = "Swamp Forest",
-        node_top = sw_forest_wet,
-        depth_top = 1,
-        node_filler = silt_wet,
-        depth_filler = 3,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = clay_wet,
-        depth_riverbed = 3,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = coastal_max+5,
-        y_min = coastal_min,
-        heat_point = x_low,
-        humidity_point = x_high+5,
-        _color = {r = 110, g = 73, b = 42},
-    },
+   --Wetlands
+   --[[07]]
+   {
+      name = "Swamp Forest",
+      node_top = sw_forest_wet,
+      depth_top = 1,
+      node_filler = silt_wet,
+      depth_filler = 3,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = clay_wet,
+      depth_riverbed = 3,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = coastal_max+5,
+      y_min = coastal_min,
+      heat_point = x_low,
+      humidity_point = x_high+5,
+      _color = {r = 110, g = 73, b = 42},
+   },
 
-    --[[08]]
-    {
-        name = "Marshland",
-        node_top = marsh_wet,
-        depth_top = 1,
-        node_filler = silt_wet,
-        depth_filler = 3,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = clay_wet,
-        depth_riverbed = 3,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = coastal_max+8,
-        y_min = coastal_min,
-        heat_point = middle,
-        humidity_point = x_high+5,
-        _color = {r = 130, g = 63, b = 32},
-    },
+   --[[08]]
+   {
+      name = "Marshland",
+      node_top = marsh_wet,
+      depth_top = 1,
+      node_filler = silt_wet,
+      depth_filler = 3,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = clay_wet,
+      depth_riverbed = 3,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = coastal_max+8,
+      y_min = coastal_min,
+      heat_point = middle,
+      humidity_point = x_high+5,
+      _color = {r = 130, g = 63, b = 32},
+   },
 
-    --Shrublands & Grasslands
-    --[[09]]
-    {
-        name = "Coastal Shrubland",
-        node_top = c_shland,
-        depth_top = 1,
-        node_filler = silt,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = gravel_w,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = coastal_max,
-        y_min = coastal_min,
-        heat_point = low,
-        humidity_point = middle,
-        _color = {r = 163, g = 160, b = 84},
-    },
+   --Shrublands & Grasslands
+   --[[09]]
+   {
+      name = "Coastal Shrubland",
+      node_top = c_shland,
+      depth_top = 1,
+      node_filler = silt,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = gravel_w,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = coastal_max,
+      y_min = coastal_min,
+      heat_point = low,
+      humidity_point = middle,
+      _color = {r = 163, g = 160, b = 84},
+   },
 
-    --[[10]]
-    {
-        name = "Coastal Grassland",
-        node_top = c_grland,
-        depth_top = 1,
-        node_filler = clay,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = gravel_w,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = coastal_max,
-        y_min = coastal_min,
-        heat_point = high,
-        humidity_point = middle,
-        _color = {r = 173, g = 140, b = 74},
-    },
+   --[[10]]
+   {
+      name = "Coastal Grassland",
+      node_top = c_grland,
+      depth_top = 1,
+      node_filler = clay,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = gravel_w,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = coastal_max,
+      y_min = coastal_min,
+      heat_point = high,
+      humidity_point = middle,
+      _color = {r = 173, g = 140, b = 74},
+   },
 
-    --[[11]]
-    {
-        name = "Lowland Shrubland",
-        node_top = shland,
-        depth_top = 1,
-        node_filler = clay,
-        depth_filler = 3,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = shland,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = lowland_max,
-        y_min = lowland_min,
-        heat_point = low,
-        humidity_point = middle,
-        _color = {r = 173, g = 150, b = 74},
-    },
+   --[[11]]
+   {
+      name = "Lowland Shrubland",
+      node_top = shland,
+      depth_top = 1,
+      node_filler = clay,
+      depth_filler = 3,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = shland,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = lowland_max,
+      y_min = lowland_min,
+      heat_point = low,
+      humidity_point = middle,
+      _color = {r = 173, g = 150, b = 74},
+   },
 
-    --[[12]]
-    {
-        name = "Lowland Grassland",
-        node_top = grland,
-        depth_top = 1,
-        node_filler = clay,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = grland,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = lowland_max,
-        y_min = lowland_min,
-        heat_point = high,
-        humidity_point = middle,
-        _color = {r = 183, g = 130, b = 64},
-    },
+   --[[12]]
+   {
+      name = "Lowland Grassland",
+      node_top = grland,
+      depth_top = 1,
+      node_filler = clay,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = grland,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = lowland_max,
+      y_min = lowland_min,
+      heat_point = high,
+      humidity_point = middle,
+      _color = {r = 183, g = 130, b = 64},
+   },
 
-    --[[13]]
-    {
-        name = "Upland Shrubland",
-        node_top = up_shland,
-        depth_top = 1,
-        node_filler = clay,
-        depth_filler = 2,
-        node_stone = coquina,
-        node_river_water = air,
-        node_riverbed = gravel,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  25,
-        y_max = upland_max,
-        y_min = upland_min,
-        heat_point = low,
-        humidity_point = middle,
-        _color = {r = 183, g = 140, b = 64},
-    },
+   --[[13]]
+   {
+      name = "Upland Shrubland",
+      node_top = up_shland,
+      depth_top = 1,
+      node_filler = clay,
+      depth_filler = 2,
+      node_stone = coquina,
+      node_river_water = air,
+      node_riverbed = gravel,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  25,
+      y_max = upland_max,
+      y_min = upland_min,
+      heat_point = low,
+      humidity_point = middle,
+      _color = {r = 183, g = 140, b = 64},
+   },
 
-    --[[14]]
-    {
-        name = "Upland Grassland",
-        node_top = up_grland,
-        depth_top = 1,
-        node_filler = clay,
-        depth_filler = 1,
-        node_stone = coquina,
-        node_river_water = air,
-        node_riverbed = gravel,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  25,
-        y_max = upland_max,
-        y_min = upland_min,
-        heat_point = high,
-        humidity_point = middle,
-        _color = {r = 193, g = 120, b = 54},
-    },
-
-
-    --Barrenlands & Dunelands
-    --[[15]]
-    {
-        name = "Coastal Barrenland",
-        node_top = c_barren,
-        depth_top = 1,
-        node_filler = gravel,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = gravel_w,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = coastal_max,
-        y_min = coastal_min,
-        heat_point = mid_low,
-        humidity_point = x_low,
-        _color = {r = 252, g = 226, b = 180},
-    },
-
-    --[[16]]
-    {
-        name = "Coastal Duneland",
-        node_top = c_dune,
-        depth_top = 1,
-        node_filler = sand,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = gravel_w,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = coastal_max,
-        y_min = coastal_min,
-        heat_point = mid_high,
-        humidity_point = x_low,
-        _color = {r = 245, g = 123, b = 36},
-    },
-
-    --[[17]]
-    {
-        name = "Lowland Barrenland",
-        node_top = barren,
-        depth_top = 1,
-        node_filler = gravel,
-        depth_filler = 3,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = gravel,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = lowland_max,
-        y_min = lowland_min,
-        heat_point = mid_low,
-        humidity_point = x_low,
-        _color = {r = 222, g = 216, b = 170},
-    },
-
-    --[[18]]
-    {
-        name = "Lowland Duneland",
-        node_top = dune,
-        depth_top = 1,
-        node_filler = sand,
-        depth_filler = 3,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = gravel,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  5,
-        y_max = lowland_max,
-        y_min = lowland_min,
-        heat_point = mid_high,
-        humidity_point = x_low,
-        _color = {r = 215, g = 113, b = 46},
-    },
-
-    --[[19]]
-    {
-        name = "Upland Barrenland",
-        node_top = up_barren,
-        depth_top = 1,
-        node_filler = gravel,
-        depth_filler = 1,
-        node_stone = coquina,
-        node_river_water = air,
-        node_riverbed = gravel,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  25,
-        y_max = upland_max,
-        y_min = upland_min,
-        heat_point = mid_low,
-        humidity_point = x_low,
-        _color = {r = 215, g = 216, b = 160},
-    },
-
-    --[[20]]
-    {
-        name = "Upland Duneland",
-        node_top = up_dune,
-        depth_top = 1,
-        node_filler = sand,
-        depth_filler = 1,
-        node_stone = coquina,
-        node_river_water = air,
-        node_riverbed = gravel,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  25,
-        y_max = upland_max,
-        y_min = upland_min,
-        heat_point = mid_high,
-        humidity_point = x_low,
-        _color = {r = 205, g = 103, b = 36},
-    },
+   --[[14]]
+   {
+      name = "Upland Grassland",
+      node_top = up_grland,
+      depth_top = 1,
+      node_filler = clay,
+      depth_filler = 1,
+      node_stone = coquina,
+      node_river_water = air,
+      node_riverbed = gravel,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  25,
+      y_max = upland_max,
+      y_min = upland_min,
+      heat_point = high,
+      humidity_point = middle,
+      _color = {r = 193, g = 120, b = 54},
+   },
 
 
-    --Highland
-    --[[21]]
-    {
-        name = "Highland",
-        node_top = hland,
-        depth_top = 1,
-        node_filler = gravel,
-        depth_filler = 1,
-        node_stone = coquina,
-        node_river_water = air,
-        node_riverbed = gravel,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  25,
-        y_max = highland_max,
-        y_min = highland_min,
-        heat_point = middle,
-        humidity_point = middle,
-        _color = {r = 76, g = 61, b = 54},
-    },
+   --Barrenlands & Dunelands
+   --[[15]]
+   {
+      name = "Coastal Barrenland",
+      node_top = c_barren,
+      depth_top = 1,
+      node_filler = gravel,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = gravel_w,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = coastal_max,
+      y_min = coastal_min,
+      heat_point = mid_low,
+      humidity_point = x_low,
+      _color = {r = 252, g = 226, b = 180},
+   },
 
-    --[[22]]
-    {
-        name = "Highland Scree",
-        node_top = gravel,
-        depth_top = 1,
-        node_filler = silt,
-        depth_filler = 1,
-        node_stone = coquina,
-        node_river_water = air,
-        node_riverbed = gravel,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  25,
-        y_max = upper_limit,
-        y_min = highland_min,
-        heat_point = x_low,
-        humidity_point = low,
-        _color = {r = 70, g = 70, b = 70},
-    },
+   --[[16]]
+   {
+      name = "Coastal Duneland",
+      node_top = c_dune,
+      depth_top = 1,
+      node_filler = sand,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = gravel_w,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = coastal_max,
+      y_min = coastal_min,
+      heat_point = mid_high,
+      humidity_point = x_low,
+      _color = {r = 245, g = 123, b = 36},
+   },
 
-    --[[23]]
-    {
-        name = "Highland Rock",
-        node_top = air,
-        depth_top = 1,
-        node_filler = gravel,
-        depth_filler = 2,
-        node_stone = coquina,
-        node_river_water = air,
-        node_riverbed = gravel,
-        depth_riverbed = 1,
-        node_cave_liquid = {potable},
-        vertical_blend =  25,
-        y_max = upper_limit,
-        y_min = highland_min,
-        heat_point = x_high,
-        humidity_point = low,
-        _color = {r = 90, g = 90, b = 90},
-    },
+   --[[17]]
+   {
+      name = "Lowland Barrenland",
+      node_top = barren,
+      depth_top = 1,
+      node_filler = gravel,
+      depth_filler = 3,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = gravel,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = lowland_max,
+      y_min = lowland_min,
+      heat_point = mid_low,
+      humidity_point = x_low,
+      _color = {r = 222, g = 216, b = 170},
+   },
 
-    --Coasts
-    --[[24]]
-    {
-        name = "Sandy Beach",
-        node_top = sand,
-        depth_top = 3,
-        node_filler = sand_ws,
-        depth_filler = 1,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = sand_ws,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  1,
-        y_max = tidal_max,
-        y_min = tidal_min,
-        heat_point = high,
-        humidity_point = middle,
-        _color = {r = 144, g = 141, b = 118},
-    },
+   --[[18]]
+   {
+      name = "Lowland Duneland",
+      node_top = dune,
+      depth_top = 1,
+      node_filler = sand,
+      depth_filler = 3,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = gravel,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  5,
+      y_max = lowland_max,
+      y_min = lowland_min,
+      heat_point = mid_high,
+      humidity_point = x_low,
+      _color = {r = 215, g = 113, b = 46},
+   },
 
-    --[[25]]
-    {
-        name = "Silty Beach",
-        node_top = silt,
-        depth_top = 3,
-        node_filler = silt_ws,
-        depth_filler = 1,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = silt_ws,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  1,
-        y_max = tidal_max,
-        y_min = tidal_min,
-        heat_point = middle,
-        humidity_point = high,
-        _color = {r = 108, g = 85, b = 66},
-    },
+   --[[19]]
+   {
+      name = "Upland Barrenland",
+      node_top = up_barren,
+      depth_top = 1,
+      node_filler = gravel,
+      depth_filler = 1,
+      node_stone = coquina,
+      node_river_water = air,
+      node_riverbed = gravel,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  25,
+      y_max = upland_max,
+      y_min = upland_min,
+      heat_point = mid_low,
+      humidity_point = x_low,
+      _color = {r = 215, g = 216, b = 160},
+   },
 
-    --[[26]]
-    {
-        name = "Gravel Beach",
-        node_top = gravel,
-        depth_top = 3,
-        node_filler = gravel_ws,
-        depth_filler = 1,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = gravel_ws,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  1,
-        y_max = tidal_max,
-        y_min = tidal_min,
-        heat_point = low,
-        humidity_point = middle,
-        _color = {r = 103, g = 101, b = 93},
-    },
+   --[[20]]
+   {
+      name = "Upland Duneland",
+      node_top = up_dune,
+      depth_top = 1,
+      node_filler = sand,
+      depth_filler = 1,
+      node_stone = coquina,
+      node_river_water = air,
+      node_riverbed = gravel,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  25,
+      y_max = upland_max,
+      y_min = upland_min,
+      heat_point = mid_high,
+      humidity_point = x_low,
+      _color = {r = 205, g = 103, b = 36},
+   },
 
-    --[[27]]
-    {
-        name = "Sandy Coast",
-        node_top = sand_ws,
-        depth_top = 1,
-        node_filler = sand_ws,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = sand_ws,
-        depth_riverbed = 3,
-        node_cave_liquid = {potable},
-        vertical_blend =  2,
-        y_max = littoral_max,
-        y_min = littoral_min,
-        heat_point = high,
-        humidity_point = low,
-        _color = {r = 144, g = 141, b = 128},
-    },
 
-    --[[28]]
-    {
-        name = "Silty Coast",
-        node_top = silt_ws,
-        depth_top = 1,
-        node_filler = silt_ws,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = silt_ws,
-        depth_riverbed = 3,
-        node_cave_liquid = {potable},
-        vertical_blend =  2,
-        y_max = littoral_max,
-        y_min = littoral_min,
-        heat_point = middle,
-        humidity_point = high,
-        _color = {r = 108, g = 85, b = 76},
-    },
+   --Highland
+   --[[21]]
+   {
+      name = "Highland",
+      node_top = hland,
+      depth_top = 1,
+      node_filler = gravel,
+      depth_filler = 1,
+      node_stone = coquina,
+      node_river_water = air,
+      node_riverbed = gravel,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  25,
+      y_max = highland_max,
+      y_min = highland_min,
+      heat_point = middle,
+      humidity_point = middle,
+      _color = {r = 76, g = 61, b = 54},
+   },
 
-    --[[29]]
-    {
-        name = "Gravel Coast",
-        node_top = gravel_ws,
-        depth_top = 1,
-        node_filler = gravel_ws,
-        depth_filler = 2,
-        node_stone = limestone,
-        node_river_water = air,
-        node_riverbed = gravel_ws,
-        depth_riverbed = 3,
-        node_cave_liquid = {potable},
-        vertical_blend =  2,
-        y_max = littoral_max,
-        y_min = littoral_min,
-        heat_point = low,
-        humidity_point = low,
-        _color = {r = 103, g = 101, b = 103},
-    },
+   --[[22]]
+   {
+      name = "Highland Scree",
+      node_top = gravel,
+      depth_top = 1,
+      node_filler = silt,
+      depth_filler = 1,
+      node_stone = coquina,
+      node_river_water = air,
+      node_riverbed = gravel,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  25,
+      y_max = upper_limit,
+      y_min = highland_min,
+      heat_point = x_low,
+      humidity_point = low,
+      _color = {r = 70, g = 70, b = 70},
+   },
 
-    --Depths
-    --[[30]]
-    {
-        name = "Shallow Water",
-        node_top = sand_ws,
-        depth_top = 1,
-        node_filler = sand_ws,
-        depth_filler = 3,
-        node_stone = limestone,
-        node_riverbed = sand_ws,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  1,
-        y_max = neritic_max,
-        y_min = neritic_min,
-        heat_point = middle,
-        humidity_point = middle,
-        _color = {r = 33, g = 55, b = 75},
-    },
+   --[[23]]
+   {
+      name = "Highland Rock",
+      node_top = air,
+      depth_top = 1,
+      node_filler = gravel,
+      depth_filler = 2,
+      node_stone = coquina,
+      node_river_water = air,
+      node_riverbed = gravel,
+      depth_riverbed = 1,
+      node_cave_liquid = {potable},
+      vertical_blend =  25,
+      y_max = upper_limit,
+      y_min = highland_min,
+      heat_point = x_high,
+      humidity_point = low,
+      _color = {r = 90, g = 90, b = 90},
+   },
 
-    --[[31]]
-    {
-        name = "Deep Water",
-        node_top = silt_ws,
-        depth_top = 1,
-        node_filler = silt_ws,
-        depth_filler = 3,
-        node_stone = granite,
-        node_riverbed = sand_ws,
-        depth_riverbed = 2,
-        node_cave_liquid = {potable},
-        vertical_blend =  10,
-        y_max = oceanic_max,
-        y_min = oceanic_min,
-        heat_point = middle,
-        humidity_point = middle,
-        _color = {r = 18, g = 25, b = 59},
-    },
+   --Coasts
+   --[[24]]
+   {
+      name = "Sandy Beach",
+      node_top = sand,
+      depth_top = 3,
+      node_filler = sand_ws,
+      depth_filler = 1,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = sand_ws,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  1,
+      y_max = tidal_max,
+      y_min = tidal_min,
+      heat_point = high,
+      humidity_point = middle,
+      _color = {r = 144, g = 141, b = 118},
+   },
 
-    --[[32]]
-    {
-        name = "Underground",
-        node_stone = granite,
-        node_cave_liquid = {potable},
-        vertical_blend =  20,
-        y_max = abyssal_max,
-        y_min = abyssal_min,
-        heat_point = middle,
-        humidity_point = middle,
-        _color = {r = 15, g = 15, b = 15},
-    },
+   --[[25]]
+   {
+      name = "Silty Beach",
+      node_top = silt,
+      depth_top = 3,
+      node_filler = silt_ws,
+      depth_filler = 1,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = silt_ws,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  1,
+      y_max = tidal_max,
+      y_min = tidal_min,
+      heat_point = middle,
+      humidity_point = high,
+      _color = {r = 108, g = 85, b = 66},
+   },
 
-    --[[33]]
-    {
-        name = "Deep Underground",
-        node_stone = gneiss,
-        node_cave_liquid = {lava},
-        vertical_blend =  100,
-        y_max = bedrock_max,
-        y_min = bedrock_min,
-        heat_point = middle,
-        humidity_point = middle,
-        _color = {r = 5, g = 5, b = 5},
-    },
+   --[[26]]
+   {
+      name = "Gravel Beach",
+      node_top = gravel,
+      depth_top = 3,
+      node_filler = gravel_ws,
+      depth_filler = 1,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = gravel_ws,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  1,
+      y_max = tidal_max,
+      y_min = tidal_min,
+      heat_point = low,
+      humidity_point = middle,
+      _color = {r = 103, g = 101, b = 93},
+   },
 
-    --[[34]]
-    {
-        name = "Mantle",
-        node_stone = lava,
-        node_cave_liquid = {lava},
-        vertical_blend =  100,
-        y_max = mantle_max,
-        y_min = lower_limit,
-        heat_point = middle,
-        humidity_point = middle,
-        _color = {r = 105, g = 5, b = 5},
-    },
+   --[[27]]
+   {
+      name = "Sandy Coast",
+      node_top = sand_ws,
+      depth_top = 1,
+      node_filler = sand_ws,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = sand_ws,
+      depth_riverbed = 3,
+      node_cave_liquid = {potable},
+      vertical_blend =  2,
+      y_max = littoral_max,
+      y_min = littoral_min,
+      heat_point = high,
+      humidity_point = low,
+      _color = {r = 144, g = 141, b = 128},
+   },
+
+   --[[28]]
+   {
+      name = "Silty Coast",
+      node_top = silt_ws,
+      depth_top = 1,
+      node_filler = silt_ws,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = silt_ws,
+      depth_riverbed = 3,
+      node_cave_liquid = {potable},
+      vertical_blend =  2,
+      y_max = littoral_max,
+      y_min = littoral_min,
+      heat_point = middle,
+      humidity_point = high,
+      _color = {r = 108, g = 85, b = 76},
+   },
+
+   --[[29]]
+   {
+      name = "Gravel Coast",
+      node_top = gravel_ws,
+      depth_top = 1,
+      node_filler = gravel_ws,
+      depth_filler = 2,
+      node_stone = limestone,
+      node_river_water = air,
+      node_riverbed = gravel_ws,
+      depth_riverbed = 3,
+      node_cave_liquid = {potable},
+      vertical_blend =  2,
+      y_max = littoral_max,
+      y_min = littoral_min,
+      heat_point = low,
+      humidity_point = low,
+      _color = {r = 103, g = 101, b = 103},
+   },
+
+   --Depths
+   --[[30]]
+   {
+      name = "Shallow Water",
+      node_top = sand_ws,
+      depth_top = 1,
+      node_filler = sand_ws,
+      depth_filler = 3,
+      node_stone = limestone,
+      node_riverbed = sand_ws,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  1,
+      y_max = neritic_max,
+      y_min = neritic_min,
+      heat_point = middle,
+      humidity_point = middle,
+      _color = {r = 33, g = 55, b = 75},
+   },
+
+   --[[31]]
+   {
+      name = "Deep Water",
+      node_top = silt_ws,
+      depth_top = 1,
+      node_filler = silt_ws,
+      depth_filler = 3,
+      node_stone = granite,
+      node_riverbed = sand_ws,
+      depth_riverbed = 2,
+      node_cave_liquid = {potable},
+      vertical_blend =  10,
+      y_max = oceanic_max,
+      y_min = oceanic_min,
+      heat_point = middle,
+      humidity_point = middle,
+      _color = {r = 18, g = 25, b = 59},
+   },
+
+   --[[32]]
+   {
+      name = "Underground",
+      node_stone = granite,
+      node_cave_liquid = {potable},
+      vertical_blend =  20,
+      y_max = abyssal_max,
+      y_min = abyssal_min,
+      heat_point = middle,
+      humidity_point = middle,
+      _color = {r = 15, g = 15, b = 15},
+   },
+
+   --[[33]]
+   {
+      name = "Deep Underground",
+      node_stone = gneiss,
+      node_cave_liquid = {lava},
+      vertical_blend =  100,
+      y_max = bedrock_max,
+      y_min = bedrock_min,
+      heat_point = middle,
+      humidity_point = middle,
+      _color = {r = 5, g = 5, b = 5},
+   },
+
+   --[[34]]
+   {
+      name = "Mantle",
+      node_stone = lava,
+      node_cave_liquid = {lava},
+      vertical_blend =  100,
+      y_max = mantle_max,
+      y_min = lower_limit,
+      heat_point = middle,
+      humidity_point = middle,
+      _color = {r = 105, g = 5, b = 5},
+   },
 }
 
 --[[Loop to Iterate for Registrations]]--
 for i in pairs(biome_list) do
-    minetest.register_biome(biome_list[i])
+   minetest.register_biome(biome_list[i])
 end
 
 local function export_amidst_file()
-	local wpath = minetest.get_worldpath()
-	local wname = wpath:match( "([^/\\]+)$" )
+   local wpath = minetest.get_worldpath()
+   local wname = wpath:match( "([^/\\]+)$" )
 
-	local filespec = wpath..'/amidst_biomes.mt'
-	local file, err = io.open( filespec, 'w')
+   local filespec = wpath..'/amidst_biomes.mt'
+   local file, err = io.open( filespec, 'w')
 
-	if (err ~= nil) then
-	   return
-	end
+   if (err ~= nil) then
+      return
+   end
 
-	local str = string.format( '{ "name":"Exile v4 (%s)", "biomeList":[\n\n', wname )
-	file:write( str )
+   local str = string.format( '{ "name":"Exile v4 (%s)", "biomeList":[\n\n',
+                              wname )
+   file:write( str )
 
-	for _, biome in pairs(biome_list) do
-		str = string.format(
-			'   { "name":%-24s, "color":{ "r":%3d, "g":%3d, "b":%3d },  "y_min":%6d,  "y_max":%6d,  "heat_point":%6.2f,  "humidity_point":%6.2f  },\n',
-		   '"'..biome.name..'"', biome._color.r, biome._color.g, biome._color.b, biome.y_min, biome.y_max, biome.heat_point, biome.humidity_point)
-		file:write( str )
-	end
+   for _, biome in pairs(biome_list) do
+      str = string.format(
+         '   { "name":%-24s, "color":{ "r":%3d, "g":%3d, "b":%3d },  '..
+         '"y_min":%6d,  "y_max":%6d,  '..
+         '"heat_point":%6.2f,  "humidity_point":%6.2f  },\n',
+         '"'..biome.name..'"', biome._color.r, biome._color.g, biome._color.b,
+         biome.y_min, biome.y_max,
+         biome.heat_point, biome.humidity_point)
+      file:write( str )
+   end
 
    file:write( '\n] }\n' )
 
    file:flush()
    file:close()
 end
+
+--export_amidst_file()

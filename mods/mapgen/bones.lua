@@ -62,12 +62,12 @@ loot_table = {
    {"tech:maraka_bread_burned", 1, 4},
 }
 local bones_formspec = -- #TODO: get the bones mod to set this?
-	"size[8,9]" ..
-	"list[current_name;main;0,0.3;8,4;]" ..
-	"list[current_player;main;0,4.85;8,1;]" ..
-	"list[current_player;main;0,6.08;8,3;8]" ..
-	"listring[current_name;main]" ..
-	"listring[current_player;main]"
+   "size[8,9]" ..
+   "list[current_name;main;0,0.3;8,4;]" ..
+   "list[current_player;main;0,4.85;8,1;]" ..
+   "list[current_player;main;0,6.08;8,3;8]" ..
+   "listring[current_name;main]" ..
+   "listring[current_player;main]"
 
 local counts = { light = 0, dark = 0 }
 
@@ -121,21 +121,21 @@ minetest.register_lbm({
 
 -- Placeholder node, replaced at runtime with bones:bones, filled with loot
 minetest.register_node("mapgen:exile_bones", {
-	description = S("Bones of a long-dead exile"),
-	inventory_image = "bones_inv.png",
-	wield_image = "bones_inv.png",
-	drop = "bones:bones",
-	tiles = {"bones_bone.png"},
-	stack_max = minimal.stack_max_bulky,
-	drawtype = "nodebox",
-	node_box = minimal.nodebox["bones"],
-	paramtype = "light",
-	paramtype2 = "facedir",
-	sunlight_propagates = true,
-	walkable = true,
-	groups = {not_in_creative_inventory = 1},
-	sounds = nodes_nature.node_sound_gravel_defaults(),
-	on_punch = replace
+                          description = S("Bones of a long-dead exile"),
+                          inventory_image = "bones_inv.png",
+                          wield_image = "bones_inv.png",
+                          drop = "bones:bones",
+                          tiles = {"bones_bone.png"},
+                          stack_max = minimal.stack_max_bulky,
+                          drawtype = "nodebox",
+                          node_box = minimal.nodebox["bones"],
+                          paramtype = "light",
+                          paramtype2 = "facedir",
+                          sunlight_propagates = true,
+                          walkable = true,
+                          groups = {not_in_creative_inventory = 1},
+                          sounds = nodes_nature.node_sound_gravel_defaults(),
+                          on_punch = replace
 })
 
 if _EXILE_DEBUG then
@@ -151,20 +151,20 @@ local path = minetest.get_modpath("mapgen")
 local sna = dofile(path.."/soils_and_altitudes.lua")
 
 local on = minimal.concat_tables({ sna.all_soils_on,
-				 sna.cave_mushrooms_on,
-				 sna.clay_on })
+                                   sna.cave_mushrooms_on,
+                                   sna.clay_on })
 
 local bones = {
-    {
-        name = "mapgen:exile_bones",
-        deco_type = "simple",
-        place_on = on,
-        sidelen = 80,
-        fill_ratio = 0.000100,
-        y_min = -200, -- caves
-        y_max = 300, -- and mountains
-        decoration = "mapgen:exile_bones",
-    },
+   {
+      name = "mapgen:exile_bones",
+      deco_type = "simple",
+      place_on = on,
+      sidelen = 80,
+      fill_ratio = 0.000100,
+      y_min = -200, -- caves
+      y_max = 300, -- and mountains
+      decoration = "mapgen:exile_bones",
+   },
 }
 
 return { bones = bones }
