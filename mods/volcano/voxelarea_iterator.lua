@@ -1,4 +1,5 @@
--- These functions are a minor modification of the voxel area iterator defined in the built in voxelarea.lua lua code.
+-- These functions are a minor modification of the voxel area iterator
+--  defined in the built-in voxelarea.lua lua code.
 -- As such, this file is separately licened under the LGPL as follows:
 
 -- License of Minetest source code
@@ -22,54 +23,56 @@
 --51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 function VoxelArea:iter_xyz(minx, miny, minz, maxx, maxy, maxz)
-	local i = self:index(minx, miny, minz) - 1
-	
-	local x = minx - 1 -- subtracting one because x gets incremented before it gets returned the first time.
-	local xrange = maxx - minx + 1
-	local nextaction = i + 1 + xrange
+   local i = self:index(minx, miny, minz) - 1
 
-	local y = 0
-	local yrange = maxy - miny + 1
-	local yreqstride = self.ystride - xrange
+   local x = minx - 1
+   -- subtracting one because x gets incremented
+   --  before it gets returned the first time.
+   local xrange = maxx - minx + 1
+   local nextaction = i + 1 + xrange
 
-	local z = 0
-	local zrange = maxz - minz + 1
-	local multistride = self.zstride - ((yrange - 1) * self.ystride + xrange)
+   local y = 0
+   local yrange = maxy - miny + 1
+   local yreqstride = self.ystride - xrange
 
-	return function()
-		-- continue i until it needs to jump
-		i = i + 1
-		x = x + 1
-		if i ~= nextaction then
-			return i, x, y+miny, z+minz
-		end
+   local z = 0
+   local zrange = maxz - minz + 1
+   local multistride = self.zstride - ((yrange - 1) * self.ystride + xrange)
 
-		-- continue y until maxy is exceeded
-		y = y + 1
-		x = minx -- new line
-		if y ~= yrange then
-			-- set i to index(minx, miny + y, minz + z) - 1
-			i = i + yreqstride
-			nextaction = i + xrange
-			return i, x, y+miny, z+minz
-		end
+   return function()
+      -- continue i until it needs to jump
+      i = i + 1
+      x = x + 1
+      if i ~= nextaction then
+         return i, x, y+miny, z+minz
+      end
 
-		-- continue z until maxz is exceeded
-		z = z + 1
-		if z == zrange then
-			-- cuboid finished, return nil
-			return
-		end
+      -- continue y until maxy is exceeded
+      y = y + 1
+      x = minx -- new line
+      if y ~= yrange then
+         -- set i to index(minx, miny + y, minz + z) - 1
+         i = i + yreqstride
+         nextaction = i + xrange
+         return i, x, y+miny, z+minz
+      end
 
-		-- set i to index(minx, miny, minz + z) - 1
-		i = i + multistride
+      -- continue z until maxz is exceeded
+      z = z + 1
+      if z == zrange then
+         -- cuboid finished, return nil
+         return
+      end
 
-		y = 0
-		nextaction = i + xrange
-		return i, x, y+miny, z+minz
-	end
+      -- set i to index(minx, miny, minz + z) - 1
+      i = i + multistride
+
+      y = 0
+      nextaction = i + xrange
+      return i, x, y+miny, z+minz
+   end
 end
 
 function VoxelArea:iterp_xyz(minp, maxp)
-	return self:iter_xyz(minp.x, minp.y, minp.z, maxp.x, maxp.y, maxp.z)
+   return self:iter_xyz(minp.x, minp.y, minp.z, maxp.x, maxp.y, maxp.z)
 end
