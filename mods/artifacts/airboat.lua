@@ -11,36 +11,36 @@ local saved_airboats = minetest.deserialize(store:get_string("savedab"), true)
 -- Functions
 
 local function get_sign(i)
-	if i == 0 then
-		return 0
-	else
-		return i / math.abs(i)
-	end
+   if i == 0 then
+      return 0
+   else
+      return i / math.abs(i)
+   end
 end
 
 -- Airboat entity
 
 local airboat = {
-	_desc = S("Airboat"),
-	initial_properties = {
-		physical = true,
-		collide_with_objects = true,
-		selectionbox = {-0.9, 0.5, -0.9, 0.9, 1.7, 0.9},
-		collisionbox = {-1.4, -2, -1.4, 1.4, 2, 1.4},
-		visual = "wielditem",
-		visual_size = {x = 2.0, y = 2.0}, -- Scale up of nodebox is these * 1.5
-		textures = {"artifacts:airboat_nodebox"},
-	},
+   _desc = S("Airboat"),
+   initial_properties = {
+      physical = true,
+      collide_with_objects = true,
+      selectionbox = {-0.9, 0.5, -0.9, 0.9, 1.7, 0.9},
+      collisionbox = {-1.4, -2, -1.4, 1.4, 2, 1.4},
+      visual = "wielditem",
+      visual_size = {x = 2.0, y = 2.0}, -- Scale up of nodebox is these * 1.5
+      textures = {"artifacts:airboat_nodebox"},
+   },
 
-	-- Custom fields
-	driver = nil,
-	removed = false,
-	redundant = false,
-	v = 0,
-	vx = 0,
-	vy = 0,
-	rot = 0,
-	auto = false,
+   -- Custom fields
+   driver = nil,
+   removed = false,
+   redundant = false,
+   v = 0,
+   vx = 0,
+   vy = 0,
+   rot = 0,
+   auto = false,
 }
 
 function airboat.attach (self, player, pname)
@@ -69,71 +69,75 @@ function airboat.attach (self, player, pname)
 end
 
 function airboat.on_rightclick(self, clicker)
-	if not clicker or not clicker:is_player() then
-		return
-	end
-	local name = clicker:get_player_name()
-	local pos = clicker:get_pos()
-	if self.driver and name == self.driver then
-	   local node local height = 0 local tgt = pos
-	   repeat
-	      tgt = vector.add(tgt, vector.new(0, -1, 0))
-	      height = height + 1
-	      node = minetest.get_node(tgt)
-	   until minetest.registered_nodes[node.name].walkable == true
-					   or height > 5
-	   if height > 5 then
-	      minetest.sound_play("artifacts_airboat_doorlocked", {pos = pos, gain = 1, max_hear_distance = 6})
-	      return
-	   end
-	   -- Detach
-	   self.driver = nil
-	   self.auto = false
-	   clicker:set_detach()
-	   player_api.player_attached[name] = false
-	   minetest.after(0.2, function()
-			     if not minetest.is_player(clicker) then return end
-			     player_api.set_animation(clicker, "stand" , 30)
-			     clicker:set_eye_offset({x = 0, y = 0, z = 0},
-				{x = 0, y = 0, z = 0})
-	   end)
-	   minetest.sound_play("artifacts_airboat_gear",
-			       {pos = pos, gain = 1, max_hear_distance = 6})
-	   minetest.after(0.1, function()
-			     clicker:set_pos(pos)
-	   end)
-	elseif not self.driver then
-	   self:attach(clicker, name)
-	end
+   if not clicker or not clicker:is_player() then
+      return
+   end
+   local name = clicker:get_player_name()
+   local pos = clicker:get_pos()
+   if self.driver and name == self.driver then
+      local node local height = 0 local tgt = pos
+      repeat
+         tgt = vector.add(tgt, vector.new(0, -1, 0))
+         height = height + 1
+         node = minetest.get_node(tgt)
+      until minetest.registered_nodes[node.name].walkable == true
+         or height > 5
+      if height > 5 then
+         minetest.sound_play("artifacts_airboat_doorlocked",
+                             {pos = pos, gain = 1, max_hear_distance = 6})
+         return
+      end
+      -- Detach
+      self.driver = nil
+      self.auto = false
+      clicker:set_detach()
+      player_api.player_attached[name] = false
+      minetest.after(0.2, function()
+                        if not minetest.is_player(clicker) then return end
+                        player_api.set_animation(clicker, "stand" , 30)
+                        clicker:set_eye_offset({x = 0, y = 0, z = 0},
+                           {x = 0, y = 0, z = 0})
+      end)
+      minetest.sound_play("artifacts_airboat_gear",
+                          {pos = pos, gain = 1, max_hear_distance = 6})
+      minetest.after(0.1, function()
+                        clicker:set_pos(pos)
+      end)
+   elseif not self.driver then
+      self:attach(clicker, name)
+   end
 end
 
 function airboat.on_punch(self, puncher)
-	if not puncher or not puncher:is_player() or self.removed then
-		return
-	end
+   if not puncher or not puncher:is_player() or self.removed then
+      return
+   end
 
-        local pos = puncher:get_pos()
-	if not self.driver then
-		-- Move to inventory
-		self.removed = true
-		local inv = puncher:get_inventory()
-		if not (minimal.player_in_creative(puncher))
-				or not inv:contains_item("main", "artifacts:airboat") then
-			local leftover = inv:add_item("main", "artifacts:airboat")
-			if not leftover:is_empty() then
-				minetest.add_item(self.object:get_pos(), leftover)
-			end
-		end
-		minetest.after(0.1, function()
+   local pos = puncher:get_pos()
+   if not self.driver then
+      -- Move to inventory
+      self.removed = true
+      local inv = puncher:get_inventory()
+      if not (minimal.player_in_creative(puncher))
+         or not inv:contains_item("main", "artifacts:airboat") then
+         local leftover = inv:add_item("main", "artifacts:airboat")
+         if not leftover:is_empty() then
+            minetest.add_item(self.object:get_pos(), leftover)
+         end
+      end
+      minetest.after(0.1, function()
 			self.object:remove()
-			minetest.sound_play("artifacts_airboat_gear", {pos = pos, gain = 1, max_hear_distance = 6})
-		end)
-	end
+			minetest.sound_play("artifacts_airboat_gear",
+                                            {pos = pos, gain = 1,
+                                             max_hear_distance = 6})
+      end)
+   end
 end
 
 local function clonk(pos)
    if random()>0.98 then
-      minetest.sound_play("artifacts_airboat_gear", {pos = pos, gain = 0.25, max_hear_distance = 6})
+      minetest.sound_play("artifacts_airboat_gear", {pos = pos, gain = 0.25,
+                                                     max_hear_distance = 6})
    end
 end
 
@@ -151,112 +155,114 @@ end
 
 local steplimit = 0
 function airboat.on_step(self, dtime)
-	steplimit = steplimit + dtime
-	if not minetest.is_singleplayer and steplimit < 0.4 then
-	   return
-	end
-	steplimit = 0
-	if self.redundant == true then
-	   if self.driver == nil then
-	      self.object:remove()
-	   else
-	      self.redundant = false
-	   end
-	   return
-	end
-	local lyaw = self.object:get_yaw()
-	local lvelocity = vector.rotate_around_axis(
-	   self.object:get_velocity(),
-	   {x=0, y=1, z=0},
-	   lyaw * -1)
-	local accel = vector.new()
-	--Using three digits of precision
-	self.v = math.floor(lvelocity.z * 1000) / 1000 -- forward speed
-	self.vx = math.floor(lvelocity.x * 1000) / 1000 -- lateral speed
-	self.vy = math.floor(lvelocity.y * 1000) / 1000 -- vertical speed
-	local pos = self.object:get_pos()
+   steplimit = steplimit + dtime
+   if not minetest.is_singleplayer and steplimit < 0.4 then
+      return
+   end
+   steplimit = 0
+   if self.redundant == true then
+      if self.driver == nil then
+         self.object:remove()
+      else
+         self.redundant = false
+      end
+      return
+   end
+   local lyaw = self.object:get_yaw()
+   local lvelocity = vector.rotate_around_axis(
+      self.object:get_velocity(),
+      {x=0, y=1, z=0},
+      lyaw * -1)
+   local accel = vector.new()
+   --Using three digits of precision
+   self.v = math.floor(lvelocity.z * 1000) / 1000 -- forward speed
+   self.vx = math.floor(lvelocity.x * 1000) / 1000 -- lateral speed
+   self.vy = math.floor(lvelocity.y * 1000) / 1000 -- vertical speed
+   local pos = self.object:get_pos()
 
-	-- Controls
-	if self.driver then
+   -- Controls
+   if self.driver then
 
-	   local driver_objref = minetest.get_player_by_name(self.driver)
-	   if driver_objref then
-	      local ctrl = driver_objref:get_player_control()
-	      if (ctrl.up and ctrl.down) or (ctrl.left and ctrl.right) then
-		 if not self.auto then
-		    self.auto = true
-		    minetest.sound_play("artifacts_airboat_gear", {pos = pos, gain = 1, max_hear_distance = 6})
-		    minetest.chat_send_player(self.driver,
-					      S("[airboat] Cruise on"))
-		 end
-	      elseif ctrl.down then
-		 self.v = self.v - 0.1
-		 if self.auto then
-		    self.auto = false
-		    minetest.sound_play("artifacts_airboat_gear", {pos = pos, gain = 1, max_hear_distance = 6})
-		    minetest.chat_send_player(self.driver,
-					      S("[airboat] Cruise off"))
-		 end
-	      elseif ctrl.up or self.auto then
-		 self.v = self.v + 0.1
-	      end
-	      if ctrl.left then
-		 if ctrl.aux1 then
-		    self.vx = self.vx + -0.2
-		 else
-		    self.rot = self.rot + 0.005
-		 end
-		 clonk(pos)
-	      elseif ctrl.right then
-		 if ctrl.aux1 then
-		    self.vx = self.vx + 0.2
-		 else
-		    self.rot = self.rot - 0.005
-		 end
-		 clonk(pos)
-	      end
-	      if ctrl.jump then
-		 self.vy = self.vy + 0.06
-		 clonk(pos)
-	      elseif ctrl.sneak then
-		 self.vy = self.vy - 0.06
-		 clonk(pos)
-	      end
-	   else -- has a driver but no driver object, driver has been lost
-	      minetest.log("action","An airboat at "..pos.x.."/"..pos.y.."/"..
-			   pos.z.." has lost its driver due to crash or "..
-			   "disconnect, removing it.")
-	      self:on_detach_child()
-	   end
-	end
+      local driver_objref = minetest.get_player_by_name(self.driver)
+      if driver_objref then
+         local ctrl = driver_objref:get_player_control()
+         if (ctrl.up and ctrl.down) or (ctrl.left and ctrl.right) then
+            if not self.auto then
+               self.auto = true
+               minetest.sound_play("artifacts_airboat_gear",
+                                   {pos = pos, gain = 1, max_hear_distance = 6})
+               minetest.chat_send_player(self.driver,
+                                         S("[airboat] Cruise on"))
+            end
+         elseif ctrl.down then
+            self.v = self.v - 0.1
+            if self.auto then
+               self.auto = false
+               minetest.sound_play("artifacts_airboat_gear",
+                                   {pos = pos, gain = 1, max_hear_distance = 6})
+               minetest.chat_send_player(self.driver,
+                                         S("[airboat] Cruise off"))
+            end
+         elseif ctrl.up or self.auto then
+            self.v = self.v + 0.1
+         end
+         if ctrl.left then
+            if ctrl.aux1 then
+               self.vx = self.vx + -0.2
+            else
+               self.rot = self.rot + 0.005
+            end
+            clonk(pos)
+         elseif ctrl.right then
+            if ctrl.aux1 then
+               self.vx = self.vx + 0.2
+            else
+               self.rot = self.rot - 0.005
+            end
+            clonk(pos)
+         end
+         if ctrl.jump then
+            self.vy = self.vy + 0.06
+            clonk(pos)
+         elseif ctrl.sneak then
+            self.vy = self.vy - 0.06
+            clonk(pos)
+         end
+      else -- has a driver but no driver object, driver has been lost
+         minetest.log("action","An airboat at "..pos.x.."/"..pos.y.."/"..
+                      pos.z.." has lost its driver due to crash or "..
+                      "disconnect, removing it.")
+         self:on_detach_child()
+      end
+   end
 
-	-- Early return for stationary vehicle
-	if self.v == 0 and self.rot == 0 and self.vy == 0 and self.vx == 0 then
-		self.object:set_pos(self.object:get_pos())
-		return
-	end
+   -- Early return for stationary vehicle
+   if self.v == 0 and self.rot == 0 and self.vy == 0 and self.vx == 0 then
+      self.object:set_pos(self.object:get_pos())
+      return
+   end
 
-	-- Reduction and limiting of rotation
-	self.rot = limit_and_reduce(self.rot, 0.015, 0.0003)
-	-- Reduction and limiting of speed: forward, vertical, lateral
-	self.v  = limit_and_reduce(self.v,  4, 0.02)
-	self.vy = limit_and_reduce(self.vy, 2, 0.03)
-	self.vx = limit_and_reduce(self.vx, 2, 0.03)
+   -- Reduction and limiting of rotation
+   self.rot = limit_and_reduce(self.rot, 0.015, 0.0003)
+   -- Reduction and limiting of speed: forward, vertical, lateral
+   self.v  = limit_and_reduce(self.v,  4, 0.02)
+   self.vy = limit_and_reduce(self.vy, 2, 0.03)
+   self.vx = limit_and_reduce(self.vx, 2, 0.03)
 
-	-- Bouyancy in liquids
-	local p = self.object:get_pos()
-	p.y = p.y - 1.5
-	local def = minetest.registered_nodes[minetest.get_node(p).name]
-	if def and (def.liquidtype == "source" or def.liquidtype == "flowing") then
-	   accel = vector.add(accel, {x = 0, y = 10, z = 0})
-	end
-	local newvec = vector.subtract(vector.new(self.vx, self.vy, self.v),
-				       lvelocity)
-	newvec = vector.rotate_around_axis(newvec,
-					   { x = 0, y = 1, z = 0 }, lyaw)
-	self.object:add_velocity(newvec)
-	self.object:set_acceleration(accel)
-	self.object:set_yaw(lyaw + (1 + dtime) * self.rot)
+   -- Bouyancy in liquids
+   local p = self.object:get_pos()
+   p.y = p.y - 1.5
+   local def = minetest.registered_nodes[minetest.get_node(p).name]
+   if def and (def.liquidtype == "source" or def.liquidtype == "flowing") then
+      accel = vector.add(accel, {x = 0, y = 10, z = 0})
+   end
+   local newvec = vector.subtract(vector.new(self.vx, self.vy, self.v),
+                                  lvelocity)
+   newvec = vector.rotate_around_axis(newvec,
+                                      { x = 0, y = 1, z = 0 }, lyaw)
+   self.object:add_velocity(newvec)
+   self.object:set_acceleration(accel)
+   self.object:set_yaw(lyaw + (1 + dtime) * self.rot)
 end
 
 
@@ -265,49 +271,54 @@ minetest.register_entity("artifacts:airboat", airboat)
 
 -- Craftitem
 
-minetest.register_craftitem("artifacts:airboat", {
-	description = S("Airboat"),
-	inventory_image = "artifacts_airboat_inv.png",
-	stack_max = 1,
-	wield_scale = {x = 4, y = 4, z = 4},
-	liquids_pointable = true,
+local airboat_def = {
+   description = S("Airboat"),
+   inventory_image = "artifacts_airboat_inv.png",
+   stack_max = 1,
+   wield_scale = {x = 4, y = 4, z = 4},
+   liquids_pointable = true,
 
-	on_place = function(itemstack, placer, pointed_thing)
-    -- will cause issues with .under and .above if it isn't a node type
-    if pointed_thing.type ~= "node" then
-			return itemstack
-		end
-    if not minetest.is_player(placer) then
-      return itemstack
-    end
-		local under = pointed_thing.under
-
-		-- if player isn't sneaking...
-    if not placer:get_player_control().sneak then
-      -- Run any on_rightclick function of pointed node instead
-      local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
-      if on_click ~= false then
-        return on_click
+   on_place = function(itemstack, placer,
+                       pointed_thing)
+      -- will cause issues with .under and .above
+      --  if it isn't a node type
+      if pointed_thing.type ~= "node" then
+         return itemstack
       end
-    end
+      if not minetest.is_player(placer) then
+         return itemstack
+      end
+      local under = pointed_thing.under
 
-    under = minimal.shift_pos(under,{y = 2})
-		local air_boat = minetest.add_entity(under,
-			"artifacts:airboat")
-		minetest.sound_play("artifacts_airboat_gear",
-				    {pos = under,
-				     gain = 1, max_hear_distance = 6})
-		if air_boat then
+      -- if player isn't sneaking...
+      if not placer:get_player_control().sneak then
+         -- Run any on_rightclick function of pointed node instead
+         local on_click = minimal.on_rightclick(itemstack, placer,
+                                                pointed_thing)
+         if on_click ~= false then
+            return on_click
+         end
+      end
 
-      air_boat:set_yaw(placer:get_look_horizontal())
+      under = minimal.shift_pos(under,{y = 2})
+      local air_boat = minetest.add_entity(under,
+                                           "artifacts:airboat")
+      minetest.sound_play("artifacts_airboat_gear",
+                          {pos = under,
+                           gain = 1, max_hear_distance = 6})
+      if air_boat then
 
-		   if not (minimal.player_in_creative(placer)) then
-		      itemstack:take_item()
-		   end
-		end
-		return itemstack
-	end,
-})
+         air_boat:set_yaw(placer:get_look_horizontal())
+
+         if not (minimal.player_in_creative(placer)) then
+            itemstack:take_item()
+         end
+      end
+      return itemstack
+   end,
+}
+
+minetest.register_craftitem("artifacts:airboat", airboat_def)
 
 function airboat.on_activate(self, staticdata, dtime_s)
    local mypos = self.object:get_pos()
@@ -350,34 +361,36 @@ end
 
 
 -- Nodebox for entity wielditem visual
+local airboat_nodebox ={
+   description = "Airboat Nodebox",
+   tiles = { -- Top, base, right, left, front, back
+      "artifacts_airboat_top.png",
+      "artifacts_airboat_base.png",
+      "artifacts_airboat_right.png",
+      "artifacts_airboat_right.png^[transformFX",
+      -- flip right to left, use 1 less texture file
+      "artifacts_airboat_front.png",
+      "artifacts_airboat_back.png",
+   },
+   paramtype = "light",
+   drawtype = "nodebox",
+   node_box = {
+      type = "fixed",
+      fixed = {
+         {-0.1875, -0.375, -0.1875, 0.1875, -0.3125, 0.25}, -- seat_floor
+         {-0.25, -0.1875, -0.1875, -0.1875, -0.0625, 0.1875}, -- seat_side_1
+         {0.1875, -0.1875, -0.1875, 0.25, -0.0625, 0.1875}, -- seat_side_2
+         {-0.25, -0.375, -0.25, 0.25, 0.125, -0.1875}, -- seat_side_back
+         {-0.25, -0.3125, 0.1875, 0.25, -0.125, 0.25}, -- seat_side_front
+         {-0.25, 0.125, -0.25, 0.25, 0.1875, 0.125}, -- seat_roof
+         {-0.5, 0.1875, -0.5, -0.125, 0.5, 0.5}, -- balloon
+         {0.125, 0.1875, -0.5, 0.5, 0.5, 0.5}, -- balloon2
+      }
+   },
+   groups = {not_in_creative_inventory = 1},
+}
 
-minetest.register_node("artifacts:airboat_nodebox", {
-	description = "Airboat Nodebox",
-	tiles = { -- Top, base, right, left, front, back
-		"artifacts_airboat_top.png",
-		"artifacts_airboat_base.png",
-		"artifacts_airboat_right.png",
-		"artifacts_airboat_right.png^[transformFX", -- flip right to left, use 1 less texture file
-		"artifacts_airboat_front.png",
-		"artifacts_airboat_back.png",
-	},
-	paramtype = "light",
-	drawtype = "nodebox",
-	node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.1875, -0.375, -0.1875, 0.1875, -0.3125, 0.25}, -- seat_floor
-			{-0.25, -0.1875, -0.1875, -0.1875, -0.0625, 0.1875}, -- seat_side_1
-			{0.1875, -0.1875, -0.1875, 0.25, -0.0625, 0.1875}, -- seat_side_2
-			{-0.25, -0.375, -0.25, 0.25, 0.125, -0.1875}, -- seat_side_back
-			{-0.25, -0.3125, 0.1875, 0.25, -0.125, 0.25}, -- seat_side_front
-			{-0.25, 0.125, -0.25, 0.25, 0.1875, 0.125}, -- seat_roof
-			{-0.5, 0.1875, -0.5, -0.125, 0.5, 0.5}, -- balloon
-			{0.125, 0.1875, -0.5, 0.5, 0.5, 0.5}, -- balloon2
-		}
-	},
-	groups = {not_in_creative_inventory = 1},
-})
+minetest.register_node("artifacts:airboat_nodebox", airboat_nodebox)
 
 minetest.register_on_joinplayer(function(player)
       local plname = player:get_player_name()
@@ -387,9 +400,9 @@ minetest.register_on_joinplayer(function(player)
 	 local air_boat = minetest.add_entity(pos,
 					      "artifacts:airboat")
 	 if air_boat then
-	       air_boat:set_yaw(yaw)
-	       local ab = air_boat:get_luaentity()
-	       ab:attach(player, plname)
+            air_boat:set_yaw(yaw)
+            local ab = air_boat:get_luaentity()
+            ab:attach(player, plname)
 	 end
 	 minetest.after(5, function()
 			   saved_airboats[plname] = nil

@@ -3,6 +3,7 @@
 --e.g. for chests, pots etc
 
 artifacts = artifacts
+storage = storage
 local S = artifacts.S
 
 ---------------------------------------------------
@@ -25,43 +26,44 @@ end
 ----------------------------------------------------
 --ANTIQUORIUM CHEST
 ----------------------------------------------------
-storage.register_storage("artifacts:antiquorium_chest",{
-  description = S("@1 chest", S("Antiquorium")),
-	tiles = {"artifacts_antiquorium_chest_top.png",
-			"artifacts_antiquorium_chest_bottom.png",
-			"artifacts_antiquorium_chest_side.png",
-			"artifacts_antiquorium_chest_side.png",
-			"artifacts_antiquorium_chest_side.png",
-			"artifacts_antiquorium_chest_side.png"},
-	paramtype2 = "facedir",
-  node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.5, -0.4375, -0.5, 0.5, -0.25, 0.5}, -- NodeBox1
-			{-0.5, 0.375, -0.5, 0.5, 0.5, 0.5}, -- NodeBox2
-			{-0.5, -0.5, -0.5, -0.3125, -0.4375, -0.3125}, -- NodeBox3
-			{-0.5, -0.5, 0.3125, -0.3125, -0.4375, 0.5}, -- NodeBox4
-			{0.3125, -0.5, 0.3125, 0.5, -0.4375, 0.5}, -- NodeBox5
-			{0.3125, -0.5, -0.5, 0.5, -0.4375, -0.3125}, -- NodeBox6
-			{-0.4375, -0.25, -0.4375, 0.4375, 0.375, 0.4375}, -- NodeBox7
-		}
-	},
-  groups = {cracky = 1},
-  sounds = nodes_nature.node_sound_glass_defaults({
-    storage_close = {
-      name = "artifacts_antiquorium_storage_close",
-      gain = 0.4,
-      max_hear_distance = 14,
-      pitch = {0.96,1.05}
-    },
-    storage_open = {
-      name = "artifacts_antiquorium_storage_open",
-      gain = 0.4,
-      max_hear_distance = 14,
-      pitch = {0.96,1.05}
-    }
-  }),
-  
-  -- formspec_width already defined in base register_storage as 8
-  formspec_height = 8,
-})
+local antiq_chest = {
+   description = S("@1 chest", S("Antiquorium")),
+   tiles = {"artifacts_antiquorium_chest_top.png",
+            "artifacts_antiquorium_chest_bottom.png",
+            "artifacts_antiquorium_chest_side.png",
+            "artifacts_antiquorium_chest_side.png",
+            "artifacts_antiquorium_chest_side.png",
+            "artifacts_antiquorium_chest_side.png"},
+   paramtype2 = "facedir",
+   node_box = {
+      type = "fixed",
+      fixed = {
+         {-0.5, -0.4375, -0.5, 0.5, -0.25, 0.5}, -- NodeBox1
+         {-0.5, 0.375, -0.5, 0.5, 0.5, 0.5}, -- NodeBox2
+         {-0.5, -0.5, -0.5, -0.3125, -0.4375, -0.3125}, -- NodeBox3
+         {-0.5, -0.5, 0.3125, -0.3125, -0.4375, 0.5}, -- NodeBox4
+         {0.3125, -0.5, 0.3125, 0.5, -0.4375, 0.5}, -- NodeBox5
+         {0.3125, -0.5, -0.5, 0.5, -0.4375, -0.3125}, -- NodeBox6
+         {-0.4375, -0.25, -0.4375, 0.4375, 0.375, 0.4375}, -- NodeBox7
+      }
+   },
+   groups = {cracky = 1},
+   sounds = nodes_nature.node_sound_glass_defaults({
+         storage_close = {
+            name = "artifacts_antiquorium_storage_close",
+            gain = 0.4,
+            max_hear_distance = 14,
+            pitch = {0.96,1.05}
+         },
+         storage_open = {
+            name = "artifacts_antiquorium_storage_open",
+            gain = 0.4,
+            max_hear_distance = 14,
+            pitch = {0.96,1.05}
+         }
+   }),
+
+   -- formspec_width already defined in base register_storage as 8
+   formspec_height = 8,
+}
+storage.register_storage("artifacts:antiquorium_chest", antiq_chest)
