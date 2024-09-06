@@ -41,7 +41,11 @@ end
 
 -- #860 Exile PR changes names for certain fruits for standardization
 -- update old nodenames
-minetest.register_alias_force("nodes_nature:maraka_nut_marker","nodes_nature:maraka_fruit_marker")
-minetest.register_alias_force("nodes_nature:kagum_pod_marker","nodes_nature:kagum_fruit_marker")
-minetest.register_alias_force("nodes_nature:amma_nut_marker","nodes_nature:amma_fruit_marker")
-minetest.register_alias_force("nodes_nature:daoja_berry_marker","nodes_nature:daoja_fruit_marker")
+minetest.register_alias_force("nodes_nature:maraka_nut_marker",
+                              "nodes_nature:maraka_fruit_marker")
+minetest.register_alias_force("nodes_nature:kagum_pod_marker",
+                              "nodes_nature:kagum_fruit_marker")
+minetest.register_alias_force("nodes_nature:amma_nut_marker",
+                              "nodes_nature:amma_fruit_marker")
+minetest.register_alias_force("nodes_nature:daoja_berry_marker",
+                              "nodes_nature:daoja_fruit_marker")

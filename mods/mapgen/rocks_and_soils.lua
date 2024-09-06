@@ -33,7 +33,7 @@ local boulders = {
         flags = "all_floors",
     },
 
-        {--[[Boulders:coquina boulder]]
+    {--[[Boulders:coquina boulder]]
         name = "nodes_nature:coquina_boulder",
         deco_type = "simple",
         place_on = "nodes_nature:coquina",
@@ -58,15 +58,15 @@ local boulders = {
     },
 
     {--[[Boulders:scoria boulder]]
-      name = "nodes_nature:scoria_boulder",
-      deco_type = "simple",
-      place_on = "nodes_nature:scoria",
-      sidelen = 80,
-      fill_ratio = 0.050000,
-      y_max = 31000,
-      y_min = -31000,
-      decoration = "nodes_nature:scoria_boulder",
-      flags = "all_floors",
+        name = "nodes_nature:scoria_boulder",
+        deco_type = "simple",
+        place_on = "nodes_nature:scoria",
+        sidelen = 80,
+        fill_ratio = 0.050000,
+        y_max = 31000,
+        y_min = -31000,
+        decoration = "nodes_nature:scoria_boulder",
+        flags = "all_floors",
     },
 
     {--[[Boulders:ironstone, dense on deposits]]
@@ -114,7 +114,8 @@ local extra_soils = {
         place_on = sna.forest_on,
         place_offset_y = -1,
         sidelen = 04,
-        noise_params = {offset=-0.60, scale=1.0000, spread={x=32, y=32, z=32}, seed=1995, octaves=2, persist=1.0},
+        noise_params = {offset=-0.60, scale=1.0000, spread={x=32, y=32, z=32},
+                        seed=1995, octaves=2, persist=1.0},
         y_max = sna.lowland_max,
         y_min = sna.beach_max,
         decoration = "nodes_nature:rich_forest_soil",
@@ -127,7 +128,8 @@ local extra_soils = {
         place_on = sna.woodland_on,
         place_offset_y = -1,
         sidelen = 04,
-        noise_params = {offset=-0.60, scale=1.0000, spread={x=32, y=32, z=32}, seed=1995, octaves=2, persist=1.0},
+        noise_params = {offset=-0.60, scale=1.0000, spread={x=32, y=32, z=32},
+                        seed=1995, octaves=2, persist=1.0},
         y_max = sna.lowland_max,
         y_min = sna.beach_max,
         decoration = "nodes_nature:rich_woodland_soil",
@@ -141,21 +143,21 @@ local cobble_gravel_fill_ratio = 0.001
 local cobble_soil_fill_ratio = 0.0005
 
 local beach_cobble_on = {
-   "nodes_nature:silt_wet_salty",
-   "nodes_nature:silt_wet",
-   "nodes_nature:sand_wet_salty",
-   "nodes_nature:sand_wet",
-   "nodes_nature:sand",
-   "nodes_nature:gravel_wet_salty",
-   "nodes_nature:gravel_wet",
-   "nodes_nature:loam",
-   "nodes_nature:loam_wet",
-   "nodes_nature:clay",
-   "nodes_nature:clay_wet",
+    "nodes_nature:silt_wet_salty",
+    "nodes_nature:silt_wet",
+    "nodes_nature:sand_wet_salty",
+    "nodes_nature:sand_wet",
+    "nodes_nature:sand",
+    "nodes_nature:gravel_wet_salty",
+    "nodes_nature:gravel_wet",
+    "nodes_nature:loam",
+    "nodes_nature:loam_wet",
+    "nodes_nature:clay",
+    "nodes_nature:clay_wet",
 }
 
 local gravel_cobble_on = {
-   "nodes_nature:gravel",
+    "nodes_nature:gravel",
 }
 
 ----Cobbles----

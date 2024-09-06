@@ -32,16 +32,17 @@ local on_place_plant = function(itemstack, placer, pointed_thing)
     local ground = minimal.get_nodedef(pointed_thing.under)
     local above = minetest.get_node(pointed_thing.above)
     if not (minimal.in_group(ground, "sediment") -- no sediment below/air above
-	    and minetest.get_item_group(above.name, "air") > 0 ) then
-       if not (minetest.is_player(placer) -- if player not sneakin'
-	       and placer:get_player_control().sneak) then
-        local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
-        if on_click ~= false then
-          return on_click or itemstack
+            and minetest.get_item_group(above.name, "air") > 0 ) then
+        if not (minetest.is_player(placer) -- if player not sneakin'
+                and placer:get_player_control().sneak) then
+            local on_click = minimal.on_rightclick(itemstack, placer,
+                                                   pointed_thing)
+            if on_click ~= false then
+                return on_click or itemstack
+            end
         end
-      end
 
-      return itemstack
+        return itemstack
     end
     return minetest.item_place_node(itemstack, placer, pointed_thing)
 end
@@ -172,7 +173,8 @@ function plant.new(args)
         thorns = thorns,
         climbable = args.climbable,
         nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
-        seedling_nodebox = args.seedling_nodebox or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
+        seedling_nodebox = args.seedling_nodebox
+            or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
         waving = waving,
         seed_number = args.seed_number or 6,
     }
@@ -380,9 +382,11 @@ function plant.get_base_props(plant_def)
         sounds = plant.get_sounds(plant_def),
         _seed_name = plant.get_seed_name(plant_def.name),
         after_place_node = function(pos, placer, itemstack, pointed_thing)
-            if minetest.is_player(placer) and not (minimal.player_in_creative(placer)) then
-              plant.set_to_domesticated(pos)
-              plant.death_chance_on_replant(pos)
+            if minetest.is_player(placer) and
+                not (minimal.player_in_creative(placer)) then
+
+                plant.set_to_domesticated(pos)
+                plant.death_chance_on_replant(pos)
             end
         end,
     }
@@ -419,7 +423,8 @@ function plant.get_plantlike_props(plant_def)
         waving = plant_def.waving,
         groups = plant.get_groups(plant_def)
     }
-    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
+    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def),
+                                           props))
 end
 
 function plant.get_plantlike_mature_props(plant_def)
@@ -501,8 +506,8 @@ function plant.get_seedling_base_props(plant_def)
         _next_life_stage = plantname,
         on_timer = function(pos, elapsed)
             return plant.grow_plant(pos, elapsed,
-                              plant_def.growing_time,
-                              plant_def.soil_preferences)
+                                    plant_def.growing_time,
+                                    plant_def.soil_preferences)
         end,
         on_place = function(itemstack, placer, pointed_thing)
             return on_place_plant(itemstack, placer, pointed_thing)
@@ -511,7 +516,8 @@ function plant.get_seedling_base_props(plant_def)
             plant.start_growing_plant(pos, plant_def.growing_time)
         end,
     }
-    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def), props))
+    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def),
+                                           props))
 end
 
 function plant.get_plantlike_seedling_props(plant_def)
@@ -564,8 +570,8 @@ function plant.get_plantlike_flowering_props(plant_def)
     base.groups = minimal.merge_tables(base.groups, {flowering_plant = 1})
     base.on_timer = function(pos, elapsed)
         return plant.grow_plant(pos, elapsed,
-                          plant_def.growing_time,
-                          plant_def.soil_preferences)
+                                plant_def.growing_time,
+                                plant_def.soil_preferences)
     end
     base.on_place = function(itemstack, placer, pointed_thing)
         return on_place_plant(itemstack, placer, pointed_thing)
@@ -581,23 +587,23 @@ end
 
 local function fruiting_on_punch(pos, node, puncher, pointed_thing)
     local node_name = minetest.get_node(pos).name
-   local nodedef = minetest.registered_nodes[node_name]
-   local function replace()
-      if node.param2 < 64 then
-	 plant.set_to_half_wild(pos)
-      end
-      if nodedef._fruitless_name then
-	 minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
-      end
-   end
+    local nodedef = minetest.registered_nodes[node_name]
+    local function replace()
+        if node.param2 < 64 then
+            plant.set_to_half_wild(pos)
+        end
+        if nodedef._fruitless_name then
+            minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
+        end
+    end
     local inv = puncher and puncher:get_inventory()
     local new_stack = ItemStack(nodedef._fruit_name)
     if inv and inv:room_for_item("main", new_stack) then
-       replace()
-       inv:add_item("main", new_stack)
+        replace()
+        inv:add_item("main", new_stack)
     elseif not minimal.stop_on_inv_full(puncher) then
-       replace()
-       minetest.add_item(pos, new_stack)
+        replace()
+        minetest.add_item(pos, new_stack)
     end
 end
 
@@ -855,26 +861,35 @@ function plant.get_seed_base_props(plant_def)
             plant.start_growing_seed(pos)
         end,
         on_place = function(itemstack, placer, pointed_thing)
-          local stack_name = itemstack:get_name() -- will get cleared by on_place_plant, get before
-          local return_itmstk = on_place_plant(itemstack, placer, pointed_thing) -- return_itemstack
-          if (minetest.is_player(placer) and
-          type(return_itmstk) == "userdata" and return_itmstk:get_count() <= 0) then
-            local stack_index = placer:get_wield_index() -- get index to avoid getting emptying stack
-            -- should not run if in creative (you're not losing any seeds!)
-            local p_inv = placer:get_inventory() 
-            local inv_table = p_inv:get_list("main")
-            if inv_table then
-              for itm_index,itm_stk in pairs(inv_table) do -- itemstack index, itemstack
-                if (stack_index ~= itm_index and itm_stk:get_name() == stack_name) then
-                  -- use itemstack's index to get and remove it
-                  return_itmstk = p_inv:get_stack("main",itm_index)
-                  p_inv:set_stack("main",itm_index,ItemStack(''))
-                  break
+            local stack_name = itemstack:get_name()
+            -- will get cleared by on_place_plant, get before
+
+            local return_itmstk = on_place_plant(itemstack, placer,
+                                                 pointed_thing)
+            -- return_itemstack
+            if ( minetest.is_player(placer) and
+                 type(return_itmstk) == "userdata"
+                 and return_itmstk:get_count() <= 0 ) then
+                local stack_index = placer:get_wield_index()
+                -- get index to avoid getting emptying stack
+                
+                -- should not run if in creative (you're not losing any seeds!)
+                local p_inv = placer:get_inventory() 
+                local inv_table = p_inv:get_list("main")
+                if inv_table then
+                    for itm_index,itm_stk in pairs(inv_table) do
+                        -- itemstack index, itemstack
+                        if ( stack_index ~= itm_index
+                             and itm_stk:get_name() == stack_name ) then
+                            -- use itemstack's index to get and remove it
+                            return_itmstk = p_inv:get_stack("main",itm_index)
+                            p_inv:set_stack("main",itm_index,ItemStack(''))
+                            break
+                        end
+                    end
                 end
-              end
             end
-          end
-          return return_itmstk
+            return return_itmstk
         end,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             plant.set_to_domesticated(pos)
@@ -911,18 +926,19 @@ function plant.register_threshing_recipes(plant_def)
     local function reg_recipe(source)
         crafting.register_recipe({
                 type = "threshing_spot",
-                output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number,
+                output = plant.get_seed_name(plant_def.name).." "..
+                    plant_def.seed_number,
                 items = {source},
                 level = 1,
                 always_known = true,
         })
---IB        crafting.register_recipe({
---IB                type = "threshing_spot",
---IB                output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number * 6,
---IB                items = {source.." 6"},
---IB                level = 1,
---IB                always_known = true,
---IB        })
+        --IB        crafting.register_recipe({
+        --IB                type = "threshing_spot",
+        --IB                output = plant.get_seed_name(plant_def.name).." "..plant_def.seed_number * 6,
+        --IB                items = {source.." 6"},
+        --IB                level = 1,
+        --IB                always_known = true,
+        --IB        })
     end
     if plant_def.fruit and not plant_def.only_dead_fruit then
         reg_recipe(plant.get_fruit_name(plant_def.name))

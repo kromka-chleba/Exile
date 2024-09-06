@@ -174,7 +174,8 @@ local function spring_to_winter_pairs(include_slopes, include_roots)
 end
 
 local function get_winter_soil_names(include_slopes, include_roots)
-    local spring_to_winter = spring_to_winter_pairs(include_slopes, include_roots)
+    local spring_to_winter = spring_to_winter_pairs(include_slopes,
+                                                    include_roots)
     local names = {}
     for _, winter in pairs(spring_to_winter) do
         table.insert(names, winter)
@@ -184,7 +185,8 @@ end
 
 local function winter_to_spring_pairs(include_slopes, include_roots)
     local soil_pairs = {}
-    local spring_to_winter = spring_to_winter_pairs(include_slopes, include_roots)
+    local spring_to_winter = spring_to_winter_pairs(include_slopes,
+                                                    include_roots)
     for spring, winter in pairs(spring_to_winter) do
         soil_pairs[winter] = spring
     end
@@ -449,17 +451,17 @@ local spring_labels = {
 
 minetest.register_lbm({
         name = "nodes_nature:spring_chunk_lbm",
-	label = "Spring soil finder for mapchunk shepherd",
-	nodenames = spring_soils,
+        label = "Spring soil finder for mapchunk shepherd",
+        nodenames = spring_soils,
         run_at_every_load = false,
-	action = function(pos, node)
+        action = function(pos, node)
             local hash = ms.mapchunk_hash(pos)
             if not ms.contains_labels(hash, spring_labels) then
                 ms.save_mapchunk(hash, true)
                 ms.handle_labels(hash, spring_labels)
                 ms.add_labels(hash, {"scanned"})
             end
-	end,
+        end,
 })
 
 local winter_labels = {
@@ -469,15 +471,15 @@ local winter_labels = {
 
 minetest.register_lbm({
         name = "nodes_nature:winter_chunk_lbm",
-	label = "Winter soil finder for mapchunk shepherd",
-	nodenames = winter_soils,
+        label = "Winter soil finder for mapchunk shepherd",
+        nodenames = winter_soils,
         run_at_every_load = false,
-	action = function(pos, node)
+        action = function(pos, node)
             local hash = ms.mapchunk_hash(pos)
             if not ms.contains_labels(hash, winter_labels) then
                 ms.save_mapchunk(hash, true)
                 ms.handle_labels(hash, winter_labels)
                 ms.add_labels(hash, {"scanned"})
             end
-	end,
+        end,
 })

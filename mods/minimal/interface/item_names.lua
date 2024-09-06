@@ -8,93 +8,94 @@ local hudbars_mod = minetest.get_modpath("hudbars")
 local hud_type = minimal.hud_type
 
 local function set_hud(player)
-	local player_name = player:get_player_name()
-	local off = {x=0, y=-75}
-	if air_hud_mod or hud_mod then
-		off.y = off.y - 20
-	elseif hudbars_mod then
-		off.y = off.y + 13
-	end
-	item_names[player_name] = {
-		hud = player:hud_add({
-			[hud_type] = "text",
-			position = {x=0.5, y=1},
-			offset = off,
-			alignment = {x=0, y=0},
-			number = 0xFFFFFF,
-			text = "",
-		}),
-		dtime = dlimit,
-		index = 1,
-		itemname = ""
-	}
+    local player_name = player:get_player_name()
+    local off = {x=0, y=-75}
+    if air_hud_mod or hud_mod then
+        off.y = off.y - 20
+    elseif hudbars_mod then
+        off.y = off.y + 13
+    end
+    item_names[player_name] = {
+        hud = player:hud_add({
+                [hud_type] = "text",
+                position = {x=0.5, y=1},
+                offset = off,
+                alignment = {x=0, y=0},
+                number = 0xFFFFFF,
+                text = "",
+        }),
+        dtime = dlimit,
+        index = 1,
+        itemname = ""
+    }
 end
 
 minetest.register_on_joinplayer(function(player)
-	minetest.after(0, set_hud, player)
+        minetest.after(0, set_hud, player)
 end)
 
 minetest.register_on_leaveplayer(function(player)
-	item_names[player:get_player_name()] = nil
+        item_names[player:get_player_name()] = nil
 end)
 
 local function get_use_string(def)
-   -- Figure out what the item is good for, add UI hints accordingly
-   local desc = ""
-   if def.name == "" then return "" end
-   if def._dig_tip then
-      desc = desc.."^"
-   end
-   if def._use_tip then
-      if desc ~= ""  then desc = desc.." / " end
-      desc = desc.. "◊"
-   end
-   if def._place_tip then
-      if desc ~= ""  then desc = desc.." / " end
-      desc = desc.. "v"
-   end
-   if desc ~= "" then
-      desc = " ( "..desc.." )"
-   end
-   return desc
+    -- Figure out what the item is good for, add UI hints accordingly
+    local desc = ""
+    if def.name == "" then return "" end
+    if def._dig_tip then
+        desc = desc.."^"
+    end
+    if def._use_tip then
+        if desc ~= ""  then desc = desc.." / " end
+        desc = desc.. "◊"
+    end
+    if def._place_tip then
+        if desc ~= ""  then desc = desc.." / " end
+        desc = desc.. "v"
+    end
+    if desc ~= "" then
+        desc = " ( "..desc.." )"
+    end
+    return desc
 end
 
 minetest.register_globalstep(function(dtime)
-	for _, player in pairs(minetest.get_connected_players()) do
-		local pname = player:get_player_name()
-		local data = item_names[pname]
-		if not data or not data.hud then
-			data = {} -- Update on next step
-			set_hud(player)
-		end
+        for _, player in pairs(minetest.get_connected_players()) do
+            local pname = player:get_player_name()
+            local data = item_names[pname]
+            if not data or not data.hud then
+                data = {} -- Update on next step
+                set_hud(player)
+            end
 
-		local index = player:get_wield_index()
-		local stack = player:get_wielded_item()
-		local itemname = stack:get_name()
+            local index = player:get_wield_index()
+            local stack = player:get_wielded_item()
+            local itemname = stack:get_name()
 
-		if data.hud and data.dtime < dlimit then
-			data.dtime = data.dtime + dtime
-			if data.dtime > dlimit then
-				player:hud_change(data.hud, 'text', "")
-			end
-		end
+            if data.hud and data.dtime < dlimit then
+                data.dtime = data.dtime + dtime
+                if data.dtime > dlimit then
+                    player:hud_change(data.hud, 'text', "")
+                end
+            end
 
-		if data.hud and (itemname ~= data.itemname or index ~= data.index) then
-			data.itemname = itemname
-			data.index = index
-			data.dtime = 0
+            if data.hud and (itemname ~= data.itemname
+                             or index ~= data.index) then
+                data.itemname = itemname
+                data.index = index
+                data.dtime = 0
 
-			local desc = stack:get_short_description() or itemname
-			local def = minetest.registered_items[itemname]
-			if not def then
-			   minetest.log("action", pname.." wielded an invalid"..
-					" object, "..itemname)
-			else
-			   desc = desc..get_use_string(def)
+                local desc = stack:get_short_description() or itemname
+                local def = minetest.registered_items[itemname]
+                if not def then
+                    minetest.log("action", pname.." wielded an invalid"..
+                                 " object, "..itemname)
+                else
+                    desc = desc..get_use_string(def)
 
-			   player:hud_change(data.hud, 'text', desc)
-			end
-		end
-	end
+                    player:hud_change(data.hud, 'text', desc)
+                end
+            end
+        end
 end)
 

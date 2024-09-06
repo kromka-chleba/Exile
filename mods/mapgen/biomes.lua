@@ -803,28 +803,35 @@ for i in pairs(biome_list) do
 end
 
 local function export_amidst_file()
-	local wpath = minetest.get_worldpath()
-	local wname = wpath:match( "([^/\\]+)$" )
+    local wpath = minetest.get_worldpath()
+    local wname = wpath:match( "([^/\\]+)$" )
 
-	local filespec = wpath..'/amidst_biomes.mt'
-	local file, err = io.open( filespec, 'w')
+    local filespec = wpath..'/amidst_biomes.mt'
+    local file, err = io.open( filespec, 'w')
 
-	if (err ~= nil) then
-	   return
-	end
+    if (err ~= nil) then
+        return
+    end
 
-	local str = string.format( '{ "name":"Exile v4 (%s)", "biomeList":[\n\n', wname )
-	file:write( str )
+    local str = string.format( '{ "name":"Exile v4 (%s)", "biomeList":[\n\n',
+                               wname )
+    file:write( str )
 
-	for _, biome in pairs(biome_list) do
-		str = string.format(
-			'   { "name":%-24s, "color":{ "r":%3d, "g":%3d, "b":%3d },  "y_min":%6d,  "y_max":%6d,  "heat_point":%6.2f,  "humidity_point":%6.2f  },\n',
-		   '"'..biome.name..'"', biome._color.r, biome._color.g, biome._color.b, biome.y_min, biome.y_max, biome.heat_point, biome.humidity_point)
-		file:write( str )
-	end
+    for _, biome in pairs(biome_list) do
+        str = string.format(
+            '   { "name":%-24s, "color":{ "r":%3d, "g":%3d, "b":%3d },  '..
+            '"y_min":%6d,  "y_max":%6d,  '..
+            '"heat_point":%6.2f,  "humidity_point":%6.2f  },\n',
+            '"'..biome.name..'"', biome._color.r, biome._color.g, biome._color.b,
+            biome.y_min, biome.y_max,
+            biome.heat_point, biome.humidity_point)
+        file:write( str )
+    end
 
-   file:write( '\n] }\n' )
+    file:write( '\n] }\n' )
 
-   file:flush()
-   file:close()
+    file:flush()
+    file:close()
 end
+
+--export_amidst_file()

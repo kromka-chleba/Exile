@@ -3,25 +3,25 @@
 
 
 --[[
-Biggest pros:
--ease of use
--no need for stone (cheap)
+    Biggest pros:
+    -ease of use
+    -no need for stone (cheap)
 
 
-Bricks:
-clay + sand -> unfired loose brick (using brick mold etc)
-Fire @ >600 (more like 1000?. Depends on the clay. We'll do within range of our wood fire)
--> fired loose brick
-Plus mortar -> bricks and mortar
+    Bricks:
+    clay + sand -> unfired loose brick (using brick mold etc)
+    Fire @ >600 (more like 1000?. Depends on the clay. We'll do within range of our wood fire)
+    -> fired loose brick
+    Plus mortar -> bricks and mortar
 
 
-Mortar
-sand + binder + water (modern just uses cement. Ancient is lime)
-Lime mortar:
-crush limestone - > crushed lime
--> fire @ > 900C ->quicklime
--> + water = slaked lime
-3 sand + one lime slaked lime -> lime mortar
+    Mortar
+    sand + binder + water (modern just uses cement. Ancient is lime)
+    Lime mortar:
+    crush limestone - > crushed lime
+    -> fire @ > 900C ->quicklime
+    -> + water = slaked lime
+    3 sand + one lime slaked lime -> lime mortar
 
 ]]
 -----------------------------------------------------------
@@ -39,126 +39,129 @@ local random = math.random
 --crushed_lime
 --broken into gravel
 --fire into quicklime
-minetest.register_node("tech:crushed_lime", {
-	description = S("Crushed Lime"),
-	tiles = {"tech_crushed_lime.png"},
-	stack_max = minimal.stack_max_bulky *2,
-	groups = {crumbly = 3, falling_node = 1, heatable =10},
-	sounds = nodes_nature.node_sound_gravel_defaults(),
+minetest.register_node(
+    "tech:crushed_lime", {
+        description = S("Crushed Lime"),
+        tiles = {"tech_crushed_lime.png"},
+        stack_max = minimal.stack_max_bulky *2,
+        groups = {crumbly = 3, falling_node = 1, heatable =10},
+        sounds = nodes_nature.node_sound_gravel_defaults(),
         on_construct = function(pos)
-	   --length(i.e. difficulty of firing), interval for checks (speed)
-	   ncrafting.set_roast(pos, 3, 10)
-	end,
-	on_timer = function(pos, elapsed)
-	   --finished product, length, heat
-	   return ncrafting.roast(pos, "tech:crushed_lime", "tech:quicklime",
-				  3, 900)
-	end,
+            --length(i.e. difficulty of firing), interval for checks (speed)
+            ncrafting.set_roast(pos, 3, 10)
+        end,
+        on_timer = function(pos, elapsed)
+            --finished product, length, heat
+            return ncrafting.roast(pos, "tech:crushed_lime", "tech:quicklime",
+                                   3, 900)
+        end,
 })
 
 
 
 --quicklime
 --turns back into lime when exposed to air
-minetest.register_node("tech:quicklime", {
-	description = S("Quicklime"),
-	tiles = {"tech_quicklime.png"},
-	stack_max = minimal.stack_max_bulky *2,
-	groups = {crumbly = 3, falling_node = 1},
-	sounds = nodes_nature.node_sound_sand_defaults(),
-	on_construct = function(pos)
-	   minetest.get_node_timer(pos):start(10)
-	end,
+minetest.register_node(
+    "tech:quicklime", {
+        description = S("Quicklime"),
+        tiles = {"tech_quicklime.png"},
+        stack_max = minimal.stack_max_bulky *2,
+        groups = {crumbly = 3, falling_node = 1},
+        sounds = nodes_nature.node_sound_sand_defaults(),
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(10)
+        end,
 
-	on_timer = function(pos, elapsed)
+        on_timer = function(pos, elapsed)
 
-	--slake
-	--XXX This is a bug; should look harder for the water source.
-	local p_water = minetest.find_node_near(pos, 1, {"group:water"})
-	if p_water then
-	   local p_name = minetest.get_node(p_water).name
-	   --check water type. Salt would ruin it.
-	   local water_type = minetest.get_item_group(p_name, "water")
-	   if water_type == 1 then
-	      minimal.switch_node(pos, {name = "tech:slaked_lime"})
-	      minetest.set_node(p_water, {name = "air"})
-	      minetest.sound_play("tech_boil",
-				  {pos = pos, max_hear_distance = 8, gain = 1})
-	   elseif water_type == 2 then
-	      minetest.swap_node(pos, {name = "tech:slaked_lime_ruined"})
-	      minetest.set_node(p_water, {name = "air"})
-	      minetest.sound_play("tech_boil",
-				  {pos = pos, max_hear_distance = 8, gain = 1})
-	   end
-	   return false
-	end
+            --slake
+            --XXX This is a bug; should look harder for the water source.
+            local p_water = minetest.find_node_near(pos, 1, {"group:water"})
+            if p_water then
+                local p_name = minetest.get_node(p_water).name
+                --check water type. Salt would ruin it.
+                local water_type = minetest.get_item_group(p_name, "water")
+                if water_type == 1 then
+                    minimal.switch_node(pos, {name = "tech:slaked_lime"})
+                    minetest.set_node(p_water, {name = "air"})
+                    minetest.sound_play("tech_boil",
+                                        {pos = pos, max_hear_distance = 8, gain = 1})
+                elseif water_type == 2 then
+                    minetest.swap_node(pos, {name = "tech:slaked_lime_ruined"})
+                    minetest.set_node(p_water, {name = "air"})
+                    minetest.sound_play("tech_boil",
+                                        {pos = pos, max_hear_distance = 8, gain = 1})
+                end
+                return false
+            end
 
-	--slowly revert to lime by reacting with the air, or slake by rain
-	if minetest.find_node_near(pos, 1, {"air"}) then
-	   if random() > 0.99 and climate.get_rain(pos) then
-	      minimal.switch_node(pos, {name = "tech:slaked_lime"})
-	      minetest.sound_play("tech_boil",
-				  {pos = pos, max_hear_distance = 8, gain = 1})
-	   end
+            --slowly revert to lime by reacting with the air, or slake by rain
+            if minetest.find_node_near(pos, 1, {"air"}) then
+                if random() > 0.99 and climate.get_rain(pos) then
+                    minimal.switch_node(pos, {name = "tech:slaked_lime"})
+                    minetest.sound_play("tech_boil",
+                                        {pos = pos, max_hear_distance = 8, gain = 1})
+                end
 
-	   local node = minetest.get_node(pos)
-	   node.param2 = node.param2 + random(2,6)
+                local node = minetest.get_node(pos)
+                node.param2 = node.param2 + random(2,6)
 
-	   if node.param2 > 99 then
-		 minimal.switch_node(pos, {name = "tech:crushed_lime"})
-		 return false
-	   else
-	      minetest.swap_node(pos, node)
-	   end
-	end
+                if node.param2 > 99 then
+                    minimal.switch_node(pos, {name = "tech:crushed_lime"})
+                    return false
+                else
+                    minetest.swap_node(pos, node)
+                end
+            end
 
-	--it's still here...
-	return true
-	end,
+            --it's still here...
+            return true
+        end,
 })
 
 
 --slaked lime
 --turns back into lime when exposed to air
-minetest.register_node("tech:slaked_lime", {
-	description = S("Slaked Lime"),
-	tiles = {"tech_flour.png"},
-	stack_max = minimal.stack_max_bulky *2,
-	groups = {crumbly = 3, falling_node = 1},
-	sounds = nodes_nature.node_sound_sand_defaults({
-	      footstep = {name = "nodes_nature_mud", gain = 0.4},
-	      dug = {name = "nodes_nature_mud", gain = 0.4}}),
-	on_construct = function(pos)
-	   minetest.get_node_timer(pos):start(60)
-	end,
+minetest.register_node(
+    "tech:slaked_lime", {
+        description = S("Slaked Lime"),
+        tiles = {"tech_flour.png"},
+        stack_max = minimal.stack_max_bulky *2,
+        groups = {crumbly = 3, falling_node = 1},
+        sounds = nodes_nature.node_sound_sand_defaults({
+                footstep = {name = "nodes_nature_mud", gain = 0.4},
+                dug = {name = "nodes_nature_mud", gain = 0.4}}),
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(60)
+        end,
 
-	on_timer = function(pos, elapsed)
-	   local node = minetest.get_node(pos)
-	   local wet = bit.rshift(bit.band(node.param2,240), 4) -- left 4 bits
-	   local dry = bit.band(node.param2,15) -- right 4 bits
+        on_timer = function(pos, elapsed)
+            local node = minetest.get_node(pos)
+            local wet = bit.rshift(bit.band(node.param2,240), 4) -- left 4 bits
+            local dry = bit.band(node.param2,15) -- right 4 bits
 
-	   -- wash it away with rain or water
-	   if minetest.find_node_near(pos, 1, {"group:water"})
-	      or climate.get_rain(pos) then
-	      wet = wet + 1
-	      if wet > 8 then
-		 minetest.set_node(pos, {name = "air"})
-		 return false
-	      end
-	   elseif minetest.find_node_near(pos, 1, {"air"}) then
-	      -- or slowly revert to lime by reacting with the air
-	      dry = dry + 1
-	      if dry == 15 then
-		 minimal.switch_node(pos, {name = "tech:crushed_lime"})
-		 return false
-	      end
-	   end
+            -- wash it away with rain or water
+            if minetest.find_node_near(pos, 1, {"group:water"})
+                or climate.get_rain(pos) then
+                wet = wet + 1
+                if wet > 8 then
+                    minetest.set_node(pos, {name = "air"})
+                    return false
+                end
+            elseif minetest.find_node_near(pos, 1, {"air"}) then
+                -- or slowly revert to lime by reacting with the air
+                dry = dry + 1
+                if dry == 15 then
+                    minimal.switch_node(pos, {name = "tech:crushed_lime"})
+                    return false
+                end
+            end
 
-	   node.param2 = bit.lshift(wet, 4) + dry
-	   minetest.swap_node(pos, node)
-	   --it's still here...
-	   return true
-	end,
+            node.param2 = bit.lshift(wet, 4) + dry
+            minetest.swap_node(pos, node)
+            --it's still here...
+            return true
+        end,
 })
 
 
@@ -166,36 +169,37 @@ minetest.register_node("tech:slaked_lime", {
 --same as above, but got mixed with salt water, I suspect that's bad...
 --but can't find what would happen
 --turns back into lime when exposed to air
-minetest.register_node("tech:slaked_lime_ruined", {
-	description = S("Slaked Lime (ruined)"),
-	tiles = {"tech_flour.png"},
-	stack_max = minimal.stack_max_bulky *2,
-	groups = {crumbly = 3, falling_node = 1},
-	sounds = nodes_nature.node_sound_sand_defaults({
-		footstep = {name = "nodes_nature_mud", gain = 0.4},
-		dug = {name = "nodes_nature_mud", gain = 0.4}}),
-  on_construct = function(pos)
-		minetest.get_node_timer(pos):start(60)
-	end,
+minetest.register_node(
+    "tech:slaked_lime_ruined", {
+        description = S("Slaked Lime (ruined)"),
+        tiles = {"tech_flour.png"},
+        stack_max = minimal.stack_max_bulky *2,
+        groups = {crumbly = 3, falling_node = 1},
+        sounds = nodes_nature.node_sound_sand_defaults({
+                footstep = {name = "nodes_nature_mud", gain = 0.4},
+                dug = {name = "nodes_nature_mud", gain = 0.4}}),
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(60)
+        end,
 
-	on_timer = function(pos, elapsed)
-    --wash it away
-    if minetest.find_node_near(pos, 1, {"group:water"}) or climate.get_rain(pos) then
-      minetest.set_node(pos, {name = "air"})
-      return false
-    end
+        on_timer = function(pos, elapsed)
+            --wash it away
+            if minetest.find_node_near(pos, 1, {"group:water"}) or climate.get_rain(pos) then
+                minetest.set_node(pos, {name = "air"})
+                return false
+            end
 
-    --slowly revert to lime by reacting with the air
-    if minetest.find_node_near(pos, 1, {"air"}) then
-      if random() > 0.9 then
-        minimal.switch_node(pos, {name = "tech:crushed_lime"})
-        return false
-      end
-    end
+            --slowly revert to lime by reacting with the air
+            if minetest.find_node_near(pos, 1, {"air"}) then
+                if random() > 0.9 then
+                    minimal.switch_node(pos, {name = "tech:crushed_lime"})
+                    return false
+                end
+            end
 
-    --it's still here...
-    return true
-	end,
+            --it's still here...
+            return true
+        end,
 })
 
 
@@ -203,54 +207,56 @@ minetest.register_node("tech:slaked_lime_ruined", {
 --Lime mortar
 --Hooray... the product we actually want. Slaked lime with sand
 --really should set to something, but creates logical mass balance problems
-minetest.register_node("tech:lime_mortar_slab", {
-	description = S("Lime Mortar Slab"),
-	tiles = {"tech_lime_mortar.png"},
-	drawtype = "nodebox",
-	node_box = {
-		type = "fixed",
-		fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
-	},
-	stack_max = minimal.stack_max_bulky *4,
-	groups = {crumbly = 3, falling_node = 1},
-	sounds = nodes_nature.node_sound_sand_defaults({
-		footstep = {name = "nodes_nature_mud", gain = 0.4},
-		dug = {name = "nodes_nature_mud", gain = 0.4}}),
-	_use_tip = S("Combine with another slab"),
-	_on_use_item = function(player, wielded_item, pointed_thing)
-			return minimal.slabs_combine(player, wielded_item,
-					pointed_thing, "tech:lime_mortar")
-	end,
+minetest.register_node(
+    "tech:lime_mortar_slab", {
+        description = S("Lime Mortar Slab"),
+        tiles = {"tech_lime_mortar.png"},
+        drawtype = "nodebox",
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
+        },
+        stack_max = minimal.stack_max_bulky *4,
+        groups = {crumbly = 3, falling_node = 1},
+        sounds = nodes_nature.node_sound_sand_defaults({
+                footstep = {name = "nodes_nature_mud", gain = 0.4},
+                dug = {name = "nodes_nature_mud", gain = 0.4}}),
+        _use_tip = S("Combine with another slab"),
+        _on_use_item = function(player, wielded_item, pointed_thing)
+            return minimal.slabs_combine(player, wielded_item,
+                                         pointed_thing, "tech:lime_mortar")
+        end,
 })
 
 
-minetest.register_node("tech:lime_mortar", {
-	description = S("Lime Mortar"),
-	tiles = {"tech_lime_mortar.png"},
-	stack_max = minimal.stack_max_bulky *2,
-	groups = {crumbly = 3, falling_node = 1},
-	sounds = nodes_nature.node_sound_sand_defaults({
-		footstep = {name = "nodes_nature_mud", gain = 0.4},
-		dug = {name = "nodes_nature_mud", gain = 0.4}
-	}),
-    _splits_by_hand = "tech:lime_mortar_slab",
-    _on_use_node = minimal.slabs_split_hand,
-})
-
-crafting.register_recipe({
-	type = "brick_makers_bench_mixing",
-	output = "tech:lime_mortar",
-	items = {"tech:lime_mortar_slab 2"},
-	level = 1,
-	always_known = true,
+minetest.register_node(
+    "tech:lime_mortar", {
+        description = S("Lime Mortar"),
+        tiles = {"tech_lime_mortar.png"},
+        stack_max = minimal.stack_max_bulky *2,
+        groups = {crumbly = 3, falling_node = 1},
+        sounds = nodes_nature.node_sound_sand_defaults({
+                footstep = {name = "nodes_nature_mud", gain = 0.4},
+                dug = {name = "nodes_nature_mud", gain = 0.4}
+        }),
+        _splits_by_hand = "tech:lime_mortar_slab",
+        _on_use_node = minimal.slabs_split_hand,
 })
 
 crafting.register_recipe({
-	type = "brick_makers_bench_mixing",
-	output = "tech:lime_mortar_slab 2",
-	items = {"tech:lime_mortar"},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench_mixing",
+        output = "tech:lime_mortar",
+        items = {"tech:lime_mortar_slab 2"},
+        level = 1,
+        always_known = true,
+})
+
+crafting.register_recipe({
+        type = "brick_makers_bench_mixing",
+        output = "tech:lime_mortar_slab 2",
+        items = {"tech:lime_mortar"},
+        level = 1,
+        always_known = true,
 })
 
 
@@ -260,29 +266,29 @@ crafting.register_recipe({
 
 --crush lime
 crafting.register_recipe({
-	type = {"hammering_block","hammer"},
-	output = "tech:crushed_lime",
-	items = {"group:limestone_cobble 8"},
-	level = 1,
-	always_known = true,
+        type = {"hammering_block","hammer"},
+        output = "tech:crushed_lime",
+        items = {"group:limestone_cobble 8"},
+        level = 1,
+        always_known = true,
 })
 
 crafting.register_recipe({
-	type = {"hammering_block","hammer"},
-	output = "tech:crushed_lime",
-	items = {"group:coquina_cobble 8"},
-	level = 1,
-	always_known = true,
+        type = {"hammering_block","hammer"},
+        output = "tech:crushed_lime",
+        items = {"group:coquina_cobble 8"},
+        level = 1,
+        always_known = true,
 })
 
 
 --mix mortar
 crafting.register_recipe({
-	type = "brick_makers_bench",
-	output = "tech:lime_mortar_slab 8",
-	items = {"tech:slaked_lime", "nodes_nature:sand 3"},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench",
+        output = "tech:lime_mortar_slab 8",
+        items = {"tech:slaked_lime", "nodes_nature:sand 3"},
+        level = 1,
+        always_known = true,
 })
 
 
@@ -292,94 +298,96 @@ crafting.register_recipe({
 --step one bricks, it's same deal as pottery
 --
 
-minetest.register_node('tech:loose_brick_unfired', {
-	description = S('Loose Bricks (unfired)'),
-	tiles = {"tech_roof_tiles_unfired.png"},
-	stack_max = minimal.stack_max_bulky *4,
-  drawtype = "nodebox",
-	paramtype = "light",
-  paramtype2 = "facedir",
-  node_box = {
-		type = "fixed",
-		fixed = {
-			{0.0625, -0.5, -0.5, 0.5, -0.25, -0.25}, -- NodeBox11
-			{-0.5, -0.5, -0.5, -0.0625, -0.25, -0.25}, -- NodeBox12
-			{-0.5, -0.5, -0.125, -0.0625, -0.25, 0.125}, -- NodeBox13
-			{-0.5, -0.5, 0.25, -0.0625, -0.25, 0.5}, -- NodeBox14
-			{0.0625, -0.5, -0.125, 0.5, -0.25, 0.125}, -- NodeBox15
-			{0.0625, -0.5, 0.25, 0.5, -0.25, 0.5}, -- NodeBox16
-			{0.1875, -0.25, -0.5, 0.4375, 0, 0}, -- NodeBox22
-			{0.25, -0.25, 0, 0.5, 0, 0.5}, -- NodeBox23
-			{-0.4375, -0.25, -0.5, -0.1875, 0,0}, -- NodeBox24
-			{-0.375, -0.25, 0, -0.125, 0, 0.5}, -- NodeBox25
-			{-0.125, -0.25, -0.1875, 0.125, 0, 0.3125}, -- NodeBox26
-			{0.0625, 0, -0.4375, 0.5, 0.25, -0.1875}, -- NodeBox27
-			{0.0625, 0, -0.125, 0.5, 0.25, 0.125}, -- NodeBox28
-			{0, 0, 0.25, 0.4375, 0.25, 0.5}, -- NodeBox29
-			{-0.4375, 0, 0.1875, 0, 0.25, 0.4375}, -- NodeBox30
-			{-0.5, 0, -0.125, -0.0625, 0.25, 0.125}, -- NodeBox31
-			{-0.5, 0, -0.4375, -0.0625, 0.25, -0.1875}, -- NodeBox32
-			{-0.375, 0.25, 0, -0.125, 0.5, 0.5}, -- NodeBox33
-			{-0.5, 0.25, -0.5, -0.25, 0.5, 0}, -- NodeBox34
-			{-0.125, 0.25, -0.5, 0.125, 0.5, 0}, -- NodeBox35
-			{0.1875, 0.25, -0.5, 0.4375, 0.5, 0}, -- NodeBox36
-			{0.25, 0.25, 0, 0.5, 0.5, 0.5}, -- NodeBox37
-			{-0.0625, 0.25, 0, 0.1875, 0.5, 0.5}, -- NodeBox38
-		}
-	},
-	groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_dirt_defaults(),
-  on_construct = function(pos)
-		--length(i.e. difficulty of firing), interval for checks (speed)
-		ncrafting.set_firing(pos, 40, 10)
-	end,
-	on_dig = function(pos, node, digger)
-	   return ncrafting.on_dig_pottery(pos, node, digger, 40)
-	end,
-	on_timer = function(pos, elapsed)
-	   return ncrafting.fire_pottery(pos, 'tech:loose_brick_unfired',
-					 'tech:loose_brick', 40, 850)
-	end,
+minetest.register_node(
+    'tech:loose_brick_unfired', {
+        description = S('Loose Bricks (unfired)'),
+        tiles = {"tech_roof_tiles_unfired.png"},
+        stack_max = minimal.stack_max_bulky *4,
+        drawtype = "nodebox",
+        paramtype = "light",
+        paramtype2 = "facedir",
+        node_box = {
+            type = "fixed",
+            fixed = {
+                {0.0625, -0.5, -0.5, 0.5, -0.25, -0.25}, -- NodeBox11
+                {-0.5, -0.5, -0.5, -0.0625, -0.25, -0.25}, -- NodeBox12
+                {-0.5, -0.5, -0.125, -0.0625, -0.25, 0.125}, -- NodeBox13
+                {-0.5, -0.5, 0.25, -0.0625, -0.25, 0.5}, -- NodeBox14
+                {0.0625, -0.5, -0.125, 0.5, -0.25, 0.125}, -- NodeBox15
+                {0.0625, -0.5, 0.25, 0.5, -0.25, 0.5}, -- NodeBox16
+                {0.1875, -0.25, -0.5, 0.4375, 0, 0}, -- NodeBox22
+                {0.25, -0.25, 0, 0.5, 0, 0.5}, -- NodeBox23
+                {-0.4375, -0.25, -0.5, -0.1875, 0,0}, -- NodeBox24
+                {-0.375, -0.25, 0, -0.125, 0, 0.5}, -- NodeBox25
+                {-0.125, -0.25, -0.1875, 0.125, 0, 0.3125}, -- NodeBox26
+                {0.0625, 0, -0.4375, 0.5, 0.25, -0.1875}, -- NodeBox27
+                {0.0625, 0, -0.125, 0.5, 0.25, 0.125}, -- NodeBox28
+                {0, 0, 0.25, 0.4375, 0.25, 0.5}, -- NodeBox29
+                {-0.4375, 0, 0.1875, 0, 0.25, 0.4375}, -- NodeBox30
+                {-0.5, 0, -0.125, -0.0625, 0.25, 0.125}, -- NodeBox31
+                {-0.5, 0, -0.4375, -0.0625, 0.25, -0.1875}, -- NodeBox32
+                {-0.375, 0.25, 0, -0.125, 0.5, 0.5}, -- NodeBox33
+                {-0.5, 0.25, -0.5, -0.25, 0.5, 0}, -- NodeBox34
+                {-0.125, 0.25, -0.5, 0.125, 0.5, 0}, -- NodeBox35
+                {0.1875, 0.25, -0.5, 0.4375, 0.5, 0}, -- NodeBox36
+                {0.25, 0.25, 0, 0.5, 0.5, 0.5}, -- NodeBox37
+                {-0.0625, 0.25, 0, 0.1875, 0.5, 0.5}, -- NodeBox38
+            }
+        },
+        groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        on_construct = function(pos)
+            --length(i.e. difficulty of firing), interval for checks (speed)
+            ncrafting.set_firing(pos, 40, 10)
+        end,
+        on_dig = function(pos, node, digger)
+            return ncrafting.on_dig_pottery(pos, node, digger, 40)
+        end,
+        on_timer = function(pos, elapsed)
+            return ncrafting.fire_pottery(pos, 'tech:loose_brick_unfired',
+                                          'tech:loose_brick', 40, 850)
+        end,
 })
 
 
-minetest.register_node('tech:loose_brick', {
-	description = S('Loose Bricks'),
-	tiles = {"tech_roof_tiles.png"},
-	stack_max = minimal.stack_max_bulky *4,
-  drawtype = "nodebox",
-	paramtype = "light",
-  paramtype2 = "facedir",
-  node_box = {
-		type = "fixed",
-		fixed = {
-			{0.0625, -0.5, -0.5, 0.5, -0.25, -0.25}, -- NodeBox11
-			{-0.5, -0.5, -0.5, -0.0625, -0.25, -0.25}, -- NodeBox12
-			{-0.5, -0.5, -0.125, -0.0625, -0.25, 0.125}, -- NodeBox13
-			{-0.5, -0.5, 0.25, -0.0625, -0.25, 0.5}, -- NodeBox14
-			{0.0625, -0.5, -0.125, 0.5, -0.25, 0.125}, -- NodeBox15
-			{0.0625, -0.5, 0.25, 0.5, -0.25, 0.5}, -- NodeBox16
-			{0.1875, -0.25, -0.5, 0.4375, 0, 0}, -- NodeBox22
-			{0.25, -0.25, 0, 0.5, 0, 0.5}, -- NodeBox23
-			{-0.4375, -0.25, -0.5, -0.1875, 0,0}, -- NodeBox24
-			{-0.375, -0.25, 0, -0.125, 0, 0.5}, -- NodeBox25
-			{-0.125, -0.25, -0.1875, 0.125, 0, 0.3125}, -- NodeBox26
-			{0.0625, 0, -0.4375, 0.5, 0.25, -0.1875}, -- NodeBox27
-			{0.0625, 0, -0.125, 0.5, 0.25, 0.125}, -- NodeBox28
-			{0, 0, 0.25, 0.4375, 0.25, 0.5}, -- NodeBox29
-			{-0.4375, 0, 0.1875, 0, 0.25, 0.4375}, -- NodeBox30
-			{-0.5, 0, -0.125, -0.0625, 0.25, 0.125}, -- NodeBox31
-			{-0.5, 0, -0.4375, -0.0625, 0.25, -0.1875}, -- NodeBox32
-			{-0.375, 0.25, 0, -0.125, 0.5, 0.5}, -- NodeBox33
-			{-0.5, 0.25, -0.5, -0.25, 0.5, 0}, -- NodeBox34
-			{-0.125, 0.25, -0.5, 0.125, 0.5, 0}, -- NodeBox35
-			{0.1875, 0.25, -0.5, 0.4375, 0.5, 0}, -- NodeBox36
-			{0.25, 0.25, 0, 0.5, 0.5, 0.5}, -- NodeBox37
-			{-0.0625, 0.25, 0, 0.1875, 0.5, 0.5}, -- NodeBox38
-		}
-	},
-	groups = {oddly_breakable_by_hand = 3, falling_node = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+minetest.register_node(
+    'tech:loose_brick', {
+        description = S('Loose Bricks'),
+        tiles = {"tech_roof_tiles.png"},
+        stack_max = minimal.stack_max_bulky *4,
+        drawtype = "nodebox",
+        paramtype = "light",
+        paramtype2 = "facedir",
+        node_box = {
+            type = "fixed",
+            fixed = {
+                {0.0625, -0.5, -0.5, 0.5, -0.25, -0.25}, -- NodeBox11
+                {-0.5, -0.5, -0.5, -0.0625, -0.25, -0.25}, -- NodeBox12
+                {-0.5, -0.5, -0.125, -0.0625, -0.25, 0.125}, -- NodeBox13
+                {-0.5, -0.5, 0.25, -0.0625, -0.25, 0.5}, -- NodeBox14
+                {0.0625, -0.5, -0.125, 0.5, -0.25, 0.125}, -- NodeBox15
+                {0.0625, -0.5, 0.25, 0.5, -0.25, 0.5}, -- NodeBox16
+                {0.1875, -0.25, -0.5, 0.4375, 0, 0}, -- NodeBox22
+                {0.25, -0.25, 0, 0.5, 0, 0.5}, -- NodeBox23
+                {-0.4375, -0.25, -0.5, -0.1875, 0,0}, -- NodeBox24
+                {-0.375, -0.25, 0, -0.125, 0, 0.5}, -- NodeBox25
+                {-0.125, -0.25, -0.1875, 0.125, 0, 0.3125}, -- NodeBox26
+                {0.0625, 0, -0.4375, 0.5, 0.25, -0.1875}, -- NodeBox27
+                {0.0625, 0, -0.125, 0.5, 0.25, 0.125}, -- NodeBox28
+                {0, 0, 0.25, 0.4375, 0.25, 0.5}, -- NodeBox29
+                {-0.4375, 0, 0.1875, 0, 0.25, 0.4375}, -- NodeBox30
+                {-0.5, 0, -0.125, -0.0625, 0.25, 0.125}, -- NodeBox31
+                {-0.5, 0, -0.4375, -0.0625, 0.25, -0.1875}, -- NodeBox32
+                {-0.375, 0.25, 0, -0.125, 0.5, 0.5}, -- NodeBox33
+                {-0.5, 0.25, -0.5, -0.25, 0.5, 0}, -- NodeBox34
+                {-0.125, 0.25, -0.5, 0.125, 0.5, 0}, -- NodeBox35
+                {0.1875, 0.25, -0.5, 0.4375, 0.5, 0}, -- NodeBox36
+                {0.25, 0.25, 0, 0.5, 0.5, 0.5}, -- NodeBox37
+                {-0.0625, 0.25, 0, 0.1875, 0.5, 0.5}, -- NodeBox38
+            }
+        },
+        groups = {oddly_breakable_by_hand = 3, falling_node = 1},
+        sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
 
@@ -388,30 +396,30 @@ minetest.register_node('tech:loose_brick', {
 --Mortared Bricks
 
 minetest.register_node("tech:bricks_and_mortar", {
-	description = S("Brick and Mortar"),
-	tiles = {"tech_bricks_and_mortar.png"},
-	stack_max = minimal.stack_max_bulky * 4,
-	paramtype2 = "facedir",
-	drop = "tech:loose_brick",
-	groups = {cracky = 2, masonry = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+                           description = S("Brick and Mortar"),
+                           tiles = {"tech_bricks_and_mortar.png"},
+                           stack_max = minimal.stack_max_bulky * 4,
+                           paramtype2 = "facedir",
+                           drop = "tech:loose_brick",
+                           groups = {cracky = 2, masonry = 1},
+                           sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
 
 stairs.register_stair_and_slab(
-	"bricks_and_mortar",
-	"tech:bricks_and_mortar",
-	"brick_makers_bench",
-	"true",
-	"brick_makers_bench_mixing",
-	{cracky = 2},
-	{"tech_bricks_and_mortar.png"},
-	S("Brick and Mortar Stair"),
-	S("Brick and Mortar Slab"),
-	minimal.stack_max_medium,
-	nodes_nature.node_sound_stone_defaults(),
-	nil,
-	"tech:loose_brick"
+    "bricks_and_mortar",
+    "tech:bricks_and_mortar",
+    "brick_makers_bench",
+    "true",
+    "brick_makers_bench_mixing",
+    {cracky = 2},
+    {"tech_bricks_and_mortar.png"},
+    S("Brick and Mortar Stair"),
+    S("Brick and Mortar Slab"),
+    minimal.stack_max_medium,
+    nodes_nature.node_sound_stone_defaults(),
+    nil,
+    "tech:loose_brick"
 )
 
 
@@ -420,20 +428,20 @@ stairs.register_stair_and_slab(
 
 --unfired
 crafting.register_recipe({
-	type = "brick_makers_bench",
-	output = "tech:loose_brick_unfired 8",
-	items = {'nodes_nature:clay_wet 4', 'nodes_nature:sand_wet 2'},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench",
+        output = "tech:loose_brick_unfired 8",
+        items = {'nodes_nature:clay_wet 4', 'nodes_nature:sand_wet 2'},
+        level = 1,
+        always_known = true,
 })
 
 --mix with mortar
 crafting.register_recipe({
-	type = "brick_makers_bench",
-	output = "tech:bricks_and_mortar 8",
-	items = {"tech:lime_mortar_slab", "tech:loose_brick 8"},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench",
+        output = "tech:bricks_and_mortar 8",
+        items = {"tech:lime_mortar_slab", "tech:loose_brick 8"},
+        level = 1,
+        always_known = true,
 })
 
 
@@ -442,240 +450,245 @@ crafting.register_recipe({
 --ROOF TILES
 
 --loose tiles allow for bulk firing, later craft into usable tile
-minetest.register_node("tech:roof_tile_loose_unfired", {
-	description = S("Loose Roof Tile (unfired)"),
-	tiles = {"tech_roof_tiles_unfired.png"},
-	stack_max = minimal.stack_max_medium/2,
-  drawtype = "nodebox",
-	paramtype = "light",
-  paramtype2 = "facedir",
-	node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.5, -0.5, -0.5, -0.25, -0.375, -0.0625}, -- NodeBox1
-			{-0.5, -0.5, 0.0625, -0.25, -0.375, 0.5}, -- NodeBox2
-			{-0.125, -0.5, -0.5, 0.125, -0.375, -0.0625}, -- NodeBox3
-			{0.25, -0.5, -0.5, 0.5, -0.375, -0.0625}, -- NodeBox4
-			{-0.125, -0.5, 0.0625, 0.125, -0.375, 0.5}, -- NodeBox5
-			{0.25, -0.5, 0.0625, 0.5, -0.375, 0.5}, -- NodeBox6
-			{-0.5, -0.375, 0.25, -0.0625, -0.25, 0.5}, -- NodeBox7
-			{-0.5, -0.375, -0.0625, -0.0625, -0.25, 0.1875}, -- NodeBox8
-			{-0.5, -0.375, -0.4375, -0.0625, -0.25, -0.1875}, -- NodeBox9
-			{0, -0.375, -0.4375, 0.4375, -0.25, -0.1875}, -- NodeBox10
-			{0.0625, -0.375, -0.125, 0.5, -0.25, 0.125}, -- NodeBox11
-			{0.0625, -0.375, 0.1875, 0.5, -0.25, 0.4375}, -- NodeBox12
-			{-0.4375, -0.25, -0.5, -0.1875, -0.125, -0.0625}, -- NodeBox13
-			{-0.125, -0.25, -0.4375, 0.125, -0.125, 0}, -- NodeBox14
-			{0.25, -0.25, -0.5, 0.5, -0.125, -0.0625}, -- NodeBox15
-			{0.1875, -0.25, 0.0625, 0.4375, -0.125, 0.5}, -- NodeBox16
-			{-0.125, -0.25, 0.0625, 0.125, -0.125, 0.5}, -- NodeBox17
-			{-0.5, -0.25, 0.0625, -0.25, -0.125, 0.5}, -- NodeBox18
-			{0, -0.125, -0.4375, 0.4375, 0, -0.1875}, -- NodeBox19
-			{-0.5, -0.125, -0.5, -0.0625, 0, -0.25}, -- NodeBox20
-			{-0.5, -0.125, -0.125, -0.0625, 0, 0.125}, -- NodeBox21
-			{-0.5, -0.125, 0.25, -0.0625, 0, 0.5}, -- NodeBox22
-			{0.0625, -0.125, 0.25, 0.5, 0, 0.5}, -- NodeBox23
-			{0.0625, -0.125, -0.125, 0.5, 0, 0.125}, -- NodeBox24
-			{-0.4375, 0, 0.0625, -0.1875, 0.125, 0.5}, -- NodeBox28
-			{-0.0625, 0, 0.0625, 0.1875, 0.125, 0.5}, -- NodeBox29
-			{0.25, 0, 0.0625, 0.5, 0.125, 0.5}, -- NodeBox30
-			{0.1875, 0, -0.5, 0.4375, 0.125, -0.0625}, -- NodeBox31
-			{-0.125, 0, -0.4375, 0.125, 0.125, 0}, -- NodeBox32
-			{-0.5, 0, -0.4375, -0.25, 0.125, 0}, -- NodeBox33
-			{0.0625, 0.125, -0.125, 0.5, 0.25, 0.125}, -- NodeBox34
-			{0.0625, 0.125, 0.1875, 0.5, 0.25, 0.4375}, -- NodeBox35
-			{0.0625, 0.125, -0.5, 0.5, 0.25, -0.25}, -- NodeBox36
-			{-0.5, 0.125, -0.5, -0.0625, 0.25, -0.25}, -- NodeBox37
-			{-0.5, 0.125, -0.125, -0.0625, 0.25, 0.125}, -- NodeBox38
-			{-0.4375, 0.125, 0.25, 0, 0.25, 0.5}, -- NodeBox39
-			{-0.4375, 0.25, -0.5, -0.1875, 0.375, -0.0625}, -- NodeBox40
-			{-0.0625, 0.25, -0.4375, 0.1875, 0.375, 0}, -- NodeBox41
-			{0.25, 0.25, -0.4375, 0.5, 0.375, 0}, -- NodeBox42
-			{0.1875, 0.25, 0.0625, 0.4375, 0.375, 0.5}, -- NodeBox43
-			{-0.125, 0.25, 0.0625, 0.125, 0.375, 0.5}, -- NodeBox44
-			{-0.5, 0.25, 0, -0.25, 0.375, 0.4375}, -- NodeBox45
-			{-0.4375, 0.375, -0.4375, 0, 0.5, -0.1875}, -- NodeBox46
-			{0.0625, 0.375, -0.4375, 0.5, 0.5, -0.1875}, -- NodeBox47
-			{0.0625, 0.375, -0.125, 0.5, 0.5, 0.125}, -- NodeBox48
-			{0.0625, 0.375, 0.1875, 0.5, 0.5, 0.4375}, -- NodeBox49
-			{-0.4375, 0.375, 0.1875, 0, 0.5, 0.4375}, -- NodeBox50
-			{-0.4375, 0.375, -0.125, 0, 0.5, 0.125}, -- NodeBox51
-		}
-	},
-  groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_dirt_defaults(),
-  on_construct = function(pos)
-		--length(i.e. difficulty of firing), interval for checks (speed)
-		ncrafting.set_firing(pos, 40, 10)
-	end,
-	on_dig = function(pos, node, digger)
-	   return ncrafting.on_dig_pottery(pos, node, digger, 40)
-	end,
-	on_timer = function(pos, elapsed)
-	   return ncrafting.fire_pottery(pos, 'tech:roof_tile_loose_unfired',
-					 'tech:roof_tile_loose', 40, 850)
-	end,
+minetest.register_node(
+    "tech:roof_tile_loose_unfired", {
+        description = S("Loose Roof Tile (unfired)"),
+        tiles = {"tech_roof_tiles_unfired.png"},
+        stack_max = minimal.stack_max_medium/2,
+        drawtype = "nodebox",
+        paramtype = "light",
+        paramtype2 = "facedir",
+        node_box = {
+            type = "fixed",
+            fixed = {
+                {-0.5, -0.5, -0.5, -0.25, -0.375, -0.0625}, -- NodeBox1
+                {-0.5, -0.5, 0.0625, -0.25, -0.375, 0.5}, -- NodeBox2
+                {-0.125, -0.5, -0.5, 0.125, -0.375, -0.0625}, -- NodeBox3
+                {0.25, -0.5, -0.5, 0.5, -0.375, -0.0625}, -- NodeBox4
+                {-0.125, -0.5, 0.0625, 0.125, -0.375, 0.5}, -- NodeBox5
+                {0.25, -0.5, 0.0625, 0.5, -0.375, 0.5}, -- NodeBox6
+                {-0.5, -0.375, 0.25, -0.0625, -0.25, 0.5}, -- NodeBox7
+                {-0.5, -0.375, -0.0625, -0.0625, -0.25, 0.1875}, -- NodeBox8
+                {-0.5, -0.375, -0.4375, -0.0625, -0.25, -0.1875}, -- NodeBox9
+                {0, -0.375, -0.4375, 0.4375, -0.25, -0.1875}, -- NodeBox10
+                {0.0625, -0.375, -0.125, 0.5, -0.25, 0.125}, -- NodeBox11
+                {0.0625, -0.375, 0.1875, 0.5, -0.25, 0.4375}, -- NodeBox12
+                {-0.4375, -0.25, -0.5, -0.1875, -0.125, -0.0625}, -- NodeBox13
+                {-0.125, -0.25, -0.4375, 0.125, -0.125, 0}, -- NodeBox14
+                {0.25, -0.25, -0.5, 0.5, -0.125, -0.0625}, -- NodeBox15
+                {0.1875, -0.25, 0.0625, 0.4375, -0.125, 0.5}, -- NodeBox16
+                {-0.125, -0.25, 0.0625, 0.125, -0.125, 0.5}, -- NodeBox17
+                {-0.5, -0.25, 0.0625, -0.25, -0.125, 0.5}, -- NodeBox18
+                {0, -0.125, -0.4375, 0.4375, 0, -0.1875}, -- NodeBox19
+                {-0.5, -0.125, -0.5, -0.0625, 0, -0.25}, -- NodeBox20
+                {-0.5, -0.125, -0.125, -0.0625, 0, 0.125}, -- NodeBox21
+                {-0.5, -0.125, 0.25, -0.0625, 0, 0.5}, -- NodeBox22
+                {0.0625, -0.125, 0.25, 0.5, 0, 0.5}, -- NodeBox23
+                {0.0625, -0.125, -0.125, 0.5, 0, 0.125}, -- NodeBox24
+                {-0.4375, 0, 0.0625, -0.1875, 0.125, 0.5}, -- NodeBox28
+                {-0.0625, 0, 0.0625, 0.1875, 0.125, 0.5}, -- NodeBox29
+                {0.25, 0, 0.0625, 0.5, 0.125, 0.5}, -- NodeBox30
+                {0.1875, 0, -0.5, 0.4375, 0.125, -0.0625}, -- NodeBox31
+                {-0.125, 0, -0.4375, 0.125, 0.125, 0}, -- NodeBox32
+                {-0.5, 0, -0.4375, -0.25, 0.125, 0}, -- NodeBox33
+                {0.0625, 0.125, -0.125, 0.5, 0.25, 0.125}, -- NodeBox34
+                {0.0625, 0.125, 0.1875, 0.5, 0.25, 0.4375}, -- NodeBox35
+                {0.0625, 0.125, -0.5, 0.5, 0.25, -0.25}, -- NodeBox36
+                {-0.5, 0.125, -0.5, -0.0625, 0.25, -0.25}, -- NodeBox37
+                {-0.5, 0.125, -0.125, -0.0625, 0.25, 0.125}, -- NodeBox38
+                {-0.4375, 0.125, 0.25, 0, 0.25, 0.5}, -- NodeBox39
+                {-0.4375, 0.25, -0.5, -0.1875, 0.375, -0.0625}, -- NodeBox40
+                {-0.0625, 0.25, -0.4375, 0.1875, 0.375, 0}, -- NodeBox41
+                {0.25, 0.25, -0.4375, 0.5, 0.375, 0}, -- NodeBox42
+                {0.1875, 0.25, 0.0625, 0.4375, 0.375, 0.5}, -- NodeBox43
+                {-0.125, 0.25, 0.0625, 0.125, 0.375, 0.5}, -- NodeBox44
+                {-0.5, 0.25, 0, -0.25, 0.375, 0.4375}, -- NodeBox45
+                {-0.4375, 0.375, -0.4375, 0, 0.5, -0.1875}, -- NodeBox46
+                {0.0625, 0.375, -0.4375, 0.5, 0.5, -0.1875}, -- NodeBox47
+                {0.0625, 0.375, -0.125, 0.5, 0.5, 0.125}, -- NodeBox48
+                {0.0625, 0.375, 0.1875, 0.5, 0.5, 0.4375}, -- NodeBox49
+                {-0.4375, 0.375, 0.1875, 0, 0.5, 0.4375}, -- NodeBox50
+                {-0.4375, 0.375, -0.125, 0, 0.5, 0.125}, -- NodeBox51
+            }
+        },
+        groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        on_construct = function(pos)
+            --length(i.e. difficulty of firing), interval for checks (speed)
+            ncrafting.set_firing(pos, 40, 10)
+        end,
+        on_dig = function(pos, node, digger)
+            return ncrafting.on_dig_pottery(pos, node, digger, 40)
+        end,
+        on_timer = function(pos, elapsed)
+            return ncrafting.fire_pottery(pos, 'tech:roof_tile_loose_unfired',
+                                          'tech:roof_tile_loose', 40, 850)
+        end,
 })
 
-minetest.register_node("tech:roof_tile_loose", {
-	description = S("Loose Roof Tile"),
-	tiles = {"tech_roof_tiles.png"},
-	stack_max = minimal.stack_max_medium/2,
-  drawtype = "nodebox",
-	paramtype = "light",
-  paramtype2 = "facedir",
-	node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.5, -0.5, -0.5, -0.25, -0.375, -0.0625}, -- NodeBox1
-			{-0.5, -0.5, 0.0625, -0.25, -0.375, 0.5}, -- NodeBox2
-			{-0.125, -0.5, -0.5, 0.125, -0.375, -0.0625}, -- NodeBox3
-			{0.25, -0.5, -0.5, 0.5, -0.375, -0.0625}, -- NodeBox4
-			{-0.125, -0.5, 0.0625, 0.125, -0.375, 0.5}, -- NodeBox5
-			{0.25, -0.5, 0.0625, 0.5, -0.375, 0.5}, -- NodeBox6
-			{-0.5, -0.375, 0.25, -0.0625, -0.25, 0.5}, -- NodeBox7
-			{-0.5, -0.375, -0.0625, -0.0625, -0.25, 0.1875}, -- NodeBox8
-			{-0.5, -0.375, -0.4375, -0.0625, -0.25, -0.1875}, -- NodeBox9
-			{0, -0.375, -0.4375, 0.4375, -0.25, -0.1875}, -- NodeBox10
-			{0.0625, -0.375, -0.125, 0.5, -0.25, 0.125}, -- NodeBox11
-			{0.0625, -0.375, 0.1875, 0.5, -0.25, 0.4375}, -- NodeBox12
-			{-0.4375, -0.25, -0.5, -0.1875, -0.125, -0.0625}, -- NodeBox13
-			{-0.125, -0.25, -0.4375, 0.125, -0.125, 0}, -- NodeBox14
-			{0.25, -0.25, -0.5, 0.5, -0.125, -0.0625}, -- NodeBox15
-			{0.1875, -0.25, 0.0625, 0.4375, -0.125, 0.5}, -- NodeBox16
-			{-0.125, -0.25, 0.0625, 0.125, -0.125, 0.5}, -- NodeBox17
-			{-0.5, -0.25, 0.0625, -0.25, -0.125, 0.5}, -- NodeBox18
-			{0, -0.125, -0.4375, 0.4375, 0, -0.1875}, -- NodeBox19
-			{-0.5, -0.125, -0.5, -0.0625, 0, -0.25}, -- NodeBox20
-			{-0.5, -0.125, -0.125, -0.0625, 0, 0.125}, -- NodeBox21
-			{-0.5, -0.125, 0.25, -0.0625, 0, 0.5}, -- NodeBox22
-			{0.0625, -0.125, 0.25, 0.5, 0, 0.5}, -- NodeBox23
-			{0.0625, -0.125, -0.125, 0.5, 0, 0.125}, -- NodeBox24
-			{-0.4375, 0, 0.0625, -0.1875, 0.125, 0.5}, -- NodeBox28
-			{-0.0625, 0, 0.0625, 0.1875, 0.125, 0.5}, -- NodeBox29
-			{0.25, 0, 0.0625, 0.5, 0.125, 0.5}, -- NodeBox30
-			{0.1875, 0, -0.5, 0.4375, 0.125, -0.0625}, -- NodeBox31
-			{-0.125, 0, -0.4375, 0.125, 0.125, 0}, -- NodeBox32
-			{-0.5, 0, -0.4375, -0.25, 0.125, 0}, -- NodeBox33
-			{0.0625, 0.125, -0.125, 0.5, 0.25, 0.125}, -- NodeBox34
-			{0.0625, 0.125, 0.1875, 0.5, 0.25, 0.4375}, -- NodeBox35
-			{0.0625, 0.125, -0.5, 0.5, 0.25, -0.25}, -- NodeBox36
-			{-0.5, 0.125, -0.5, -0.0625, 0.25, -0.25}, -- NodeBox37
-			{-0.5, 0.125, -0.125, -0.0625, 0.25, 0.125}, -- NodeBox38
-			{-0.4375, 0.125, 0.25, 0, 0.25, 0.5}, -- NodeBox39
-			{-0.4375, 0.25, -0.5, -0.1875, 0.375, -0.0625}, -- NodeBox40
-			{-0.0625, 0.25, -0.4375, 0.1875, 0.375, 0}, -- NodeBox41
-			{0.25, 0.25, -0.4375, 0.5, 0.375, 0}, -- NodeBox42
-			{0.1875, 0.25, 0.0625, 0.4375, 0.375, 0.5}, -- NodeBox43
-			{-0.125, 0.25, 0.0625, 0.125, 0.375, 0.5}, -- NodeBox44
-			{-0.5, 0.25, 0, -0.25, 0.375, 0.4375}, -- NodeBox45
-			{-0.4375, 0.375, -0.4375, 0, 0.5, -0.1875}, -- NodeBox46
-			{0.0625, 0.375, -0.4375, 0.5, 0.5, -0.1875}, -- NodeBox47
-			{0.0625, 0.375, -0.125, 0.5, 0.5, 0.125}, -- NodeBox48
-			{0.0625, 0.375, 0.1875, 0.5, 0.5, 0.4375}, -- NodeBox49
-			{-0.4375, 0.375, 0.1875, 0, 0.5, 0.4375}, -- NodeBox50
-			{-0.4375, 0.375, -0.125, 0, 0.5, 0.125}, -- NodeBox51
-		}
-	},
-  groups = {oddly_breakable_by_hand = 3, falling_node = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
-})
-
-
-minetest.register_node("tech:roof_tile", {
-	description = S("Roof Tile"),
-	tiles = {"tech_roof_tiles.png"},
-	stack_max = minimal.stack_max_medium,
-  drawtype = "nodebox",
-  paramtype2 = "facedir",
-  node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.5, 0.25, 0.125, -0.25, 0.5, 0.5}, -- s1
-			{-0.5, 0, -0.0625, -0.25, 0.25, 0.3125}, -- s2
-			{-0.5, -0.25, -0.25, -0.25, 0, 0.125}, -- s3
-			{-0.5, -0.5, -0.5, -0.25, -0.25, -0.125}, -- s4
-			{0.25, 0.25, 0.125, 0.5, 0.5, 0.5}, -- s5
-			{0.25, -0.5, -0.5, 0.5, -0.25, -0.125}, -- s6
-			{0.25, 0, -0.0625, 0.5, 0.25, 0.3125}, -- s7
-			{0.25, -0.25, -0.25, 0.5, 0, 0.125}, -- s8
-			{-0.25, 0.25, 0.125, 0.25, 0.4375, 0.5}, -- NodeBox23
-			{-0.25, 0, -0.0625, 0.25, 0.1875, 0.3125}, -- NodeBox24
-			{-0.25, -0.25, -0.25, 0.25, -0.0625, 0.125}, -- NodeBox25
-			{-0.25, -0.5, -0.5, 0.25, -0.3125, -0.125}, -- NodeBox26
-			{-0.25, -0.3125, -0.3125, 0.25, -0.25, -0.125}, -- NodeBox30
-			{-0.25, -0.0625, -0.125, 0.25, 0, 0.125}, -- NodeBox32
-			{-0.25, 0.1875, 0.0625, 0.25, 0.25, 0.3125}, -- NodeBox33
-			{-0.25, 0.4375, 0.3125, 0.25, 0.5, 0.5}, -- NodeBox34
-		}
-	},
-	groups = {cracky = 3, oddly_breakable_by_hand = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+minetest.register_node(
+    "tech:roof_tile_loose", {
+        description = S("Loose Roof Tile"),
+        tiles = {"tech_roof_tiles.png"},
+        stack_max = minimal.stack_max_medium/2,
+        drawtype = "nodebox",
+        paramtype = "light",
+        paramtype2 = "facedir",
+        node_box = {
+            type = "fixed",
+            fixed = {
+                {-0.5, -0.5, -0.5, -0.25, -0.375, -0.0625}, -- NodeBox1
+                {-0.5, -0.5, 0.0625, -0.25, -0.375, 0.5}, -- NodeBox2
+                {-0.125, -0.5, -0.5, 0.125, -0.375, -0.0625}, -- NodeBox3
+                {0.25, -0.5, -0.5, 0.5, -0.375, -0.0625}, -- NodeBox4
+                {-0.125, -0.5, 0.0625, 0.125, -0.375, 0.5}, -- NodeBox5
+                {0.25, -0.5, 0.0625, 0.5, -0.375, 0.5}, -- NodeBox6
+                {-0.5, -0.375, 0.25, -0.0625, -0.25, 0.5}, -- NodeBox7
+                {-0.5, -0.375, -0.0625, -0.0625, -0.25, 0.1875}, -- NodeBox8
+                {-0.5, -0.375, -0.4375, -0.0625, -0.25, -0.1875}, -- NodeBox9
+                {0, -0.375, -0.4375, 0.4375, -0.25, -0.1875}, -- NodeBox10
+                {0.0625, -0.375, -0.125, 0.5, -0.25, 0.125}, -- NodeBox11
+                {0.0625, -0.375, 0.1875, 0.5, -0.25, 0.4375}, -- NodeBox12
+                {-0.4375, -0.25, -0.5, -0.1875, -0.125, -0.0625}, -- NodeBox13
+                {-0.125, -0.25, -0.4375, 0.125, -0.125, 0}, -- NodeBox14
+                {0.25, -0.25, -0.5, 0.5, -0.125, -0.0625}, -- NodeBox15
+                {0.1875, -0.25, 0.0625, 0.4375, -0.125, 0.5}, -- NodeBox16
+                {-0.125, -0.25, 0.0625, 0.125, -0.125, 0.5}, -- NodeBox17
+                {-0.5, -0.25, 0.0625, -0.25, -0.125, 0.5}, -- NodeBox18
+                {0, -0.125, -0.4375, 0.4375, 0, -0.1875}, -- NodeBox19
+                {-0.5, -0.125, -0.5, -0.0625, 0, -0.25}, -- NodeBox20
+                {-0.5, -0.125, -0.125, -0.0625, 0, 0.125}, -- NodeBox21
+                {-0.5, -0.125, 0.25, -0.0625, 0, 0.5}, -- NodeBox22
+                {0.0625, -0.125, 0.25, 0.5, 0, 0.5}, -- NodeBox23
+                {0.0625, -0.125, -0.125, 0.5, 0, 0.125}, -- NodeBox24
+                {-0.4375, 0, 0.0625, -0.1875, 0.125, 0.5}, -- NodeBox28
+                {-0.0625, 0, 0.0625, 0.1875, 0.125, 0.5}, -- NodeBox29
+                {0.25, 0, 0.0625, 0.5, 0.125, 0.5}, -- NodeBox30
+                {0.1875, 0, -0.5, 0.4375, 0.125, -0.0625}, -- NodeBox31
+                {-0.125, 0, -0.4375, 0.125, 0.125, 0}, -- NodeBox32
+                {-0.5, 0, -0.4375, -0.25, 0.125, 0}, -- NodeBox33
+                {0.0625, 0.125, -0.125, 0.5, 0.25, 0.125}, -- NodeBox34
+                {0.0625, 0.125, 0.1875, 0.5, 0.25, 0.4375}, -- NodeBox35
+                {0.0625, 0.125, -0.5, 0.5, 0.25, -0.25}, -- NodeBox36
+                {-0.5, 0.125, -0.5, -0.0625, 0.25, -0.25}, -- NodeBox37
+                {-0.5, 0.125, -0.125, -0.0625, 0.25, 0.125}, -- NodeBox38
+                {-0.4375, 0.125, 0.25, 0, 0.25, 0.5}, -- NodeBox39
+                {-0.4375, 0.25, -0.5, -0.1875, 0.375, -0.0625}, -- NodeBox40
+                {-0.0625, 0.25, -0.4375, 0.1875, 0.375, 0}, -- NodeBox41
+                {0.25, 0.25, -0.4375, 0.5, 0.375, 0}, -- NodeBox42
+                {0.1875, 0.25, 0.0625, 0.4375, 0.375, 0.5}, -- NodeBox43
+                {-0.125, 0.25, 0.0625, 0.125, 0.375, 0.5}, -- NodeBox44
+                {-0.5, 0.25, 0, -0.25, 0.375, 0.4375}, -- NodeBox45
+                {-0.4375, 0.375, -0.4375, 0, 0.5, -0.1875}, -- NodeBox46
+                {0.0625, 0.375, -0.4375, 0.5, 0.5, -0.1875}, -- NodeBox47
+                {0.0625, 0.375, -0.125, 0.5, 0.5, 0.125}, -- NodeBox48
+                {0.0625, 0.375, 0.1875, 0.5, 0.5, 0.4375}, -- NodeBox49
+                {-0.4375, 0.375, 0.1875, 0, 0.5, 0.4375}, -- NodeBox50
+                {-0.4375, 0.375, -0.125, 0, 0.5, 0.125}, -- NodeBox51
+            }
+        },
+        groups = {oddly_breakable_by_hand = 3, falling_node = 1},
+        sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
 
-minetest.register_node("tech:roof_tile_oc", {
-	description = S("Roof Tile (outer corner)"),
-	tiles = {"tech_roof_tiles.png"},
-	stack_max = minimal.stack_max_medium,
-  drawtype = "nodebox",
-  paramtype2 = "facedir",
-  node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.5, 0.1875, 0.25, -0.25, 0.5, 0.5}, -- s1
-			{-0.25, -0.0625, 0, 0, 0.25, 0.25}, -- NodeBox40
-			{0, -0.3125, -0.25, 0.25, 0, 0}, -- NodeBox41
-			{0.25, -0.5, -0.5, 0.5, -0.25, -0.25}, -- NodeBox42
-			{-0.5, -0.5, -0.5, 0.25, -0.3125, -0.25}, -- NodeBox43
-			{-0.5, -0.25, -0.25, 0, -0.0625, 0}, -- NodeBox44
-			{-0.5, 0, 0, -0.25, 0.1875, 0.25}, -- NodeBox45
-			{-0.25, 0, 0.25, 0, 0.1875, 0.5}, -- NodeBox47
-			{0, -0.25, 0, 0.25, -0.0625, 0.5}, -- NodeBox48
-			{0.25, -0.5, -0.25, 0.5, -0.3125, 0.5}, -- NodeBox49
-			{-0.5, 0.1875, 0.125, -0.25, 0.3125, 0.25}, -- NodeBox54
-			{-0.25, 0.1875, 0.25, -0.125, 0.3125, 0.5}, -- NodeBox55
-			{-0.5, -0.0625, -0.125, 0, 0.0625, 0}, -- NodeBox56
-			{0, -0.0625, 0, 0.125, 0.0625, 0.5}, -- NodeBox57
-			{0.25, -0.3125, -0.25, 0.375, -0.1875, 0.5}, -- NodeBox58
-			{-0.5, -0.3125, -0.375, 0.25, -0.1875, -0.25}, -- NodeBox59
-		}
-	},
-	groups = {cracky = 3, oddly_breakable_by_hand = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+minetest.register_node(
+    "tech:roof_tile", {
+        description = S("Roof Tile"),
+        tiles = {"tech_roof_tiles.png"},
+        stack_max = minimal.stack_max_medium,
+        drawtype = "nodebox",
+        paramtype2 = "facedir",
+        node_box = {
+            type = "fixed",
+            fixed = {
+                {-0.5, 0.25, 0.125, -0.25, 0.5, 0.5}, -- s1
+                {-0.5, 0, -0.0625, -0.25, 0.25, 0.3125}, -- s2
+                {-0.5, -0.25, -0.25, -0.25, 0, 0.125}, -- s3
+                {-0.5, -0.5, -0.5, -0.25, -0.25, -0.125}, -- s4
+                {0.25, 0.25, 0.125, 0.5, 0.5, 0.5}, -- s5
+                {0.25, -0.5, -0.5, 0.5, -0.25, -0.125}, -- s6
+                {0.25, 0, -0.0625, 0.5, 0.25, 0.3125}, -- s7
+                {0.25, -0.25, -0.25, 0.5, 0, 0.125}, -- s8
+                {-0.25, 0.25, 0.125, 0.25, 0.4375, 0.5}, -- NodeBox23
+                {-0.25, 0, -0.0625, 0.25, 0.1875, 0.3125}, -- NodeBox24
+                {-0.25, -0.25, -0.25, 0.25, -0.0625, 0.125}, -- NodeBox25
+                {-0.25, -0.5, -0.5, 0.25, -0.3125, -0.125}, -- NodeBox26
+                {-0.25, -0.3125, -0.3125, 0.25, -0.25, -0.125}, -- NodeBox30
+                {-0.25, -0.0625, -0.125, 0.25, 0, 0.125}, -- NodeBox32
+                {-0.25, 0.1875, 0.0625, 0.25, 0.25, 0.3125}, -- NodeBox33
+                {-0.25, 0.4375, 0.3125, 0.25, 0.5, 0.5}, -- NodeBox34
+            }
+        },
+        groups = {cracky = 3, oddly_breakable_by_hand = 1},
+        sounds = nodes_nature.node_sound_stone_defaults(),
+})
+
+
+minetest.register_node(
+    "tech:roof_tile_oc", {
+        description = S("Roof Tile (outer corner)"),
+        tiles = {"tech_roof_tiles.png"},
+        stack_max = minimal.stack_max_medium,
+        drawtype = "nodebox",
+        paramtype2 = "facedir",
+        node_box = {
+            type = "fixed",
+            fixed = {
+                {-0.5, 0.1875, 0.25, -0.25, 0.5, 0.5}, -- s1
+                {-0.25, -0.0625, 0, 0, 0.25, 0.25}, -- NodeBox40
+                {0, -0.3125, -0.25, 0.25, 0, 0}, -- NodeBox41
+                {0.25, -0.5, -0.5, 0.5, -0.25, -0.25}, -- NodeBox42
+                {-0.5, -0.5, -0.5, 0.25, -0.3125, -0.25}, -- NodeBox43
+                {-0.5, -0.25, -0.25, 0, -0.0625, 0}, -- NodeBox44
+                {-0.5, 0, 0, -0.25, 0.1875, 0.25}, -- NodeBox45
+                {-0.25, 0, 0.25, 0, 0.1875, 0.5}, -- NodeBox47
+                {0, -0.25, 0, 0.25, -0.0625, 0.5}, -- NodeBox48
+                {0.25, -0.5, -0.25, 0.5, -0.3125, 0.5}, -- NodeBox49
+                {-0.5, 0.1875, 0.125, -0.25, 0.3125, 0.25}, -- NodeBox54
+                {-0.25, 0.1875, 0.25, -0.125, 0.3125, 0.5}, -- NodeBox55
+                {-0.5, -0.0625, -0.125, 0, 0.0625, 0}, -- NodeBox56
+                {0, -0.0625, 0, 0.125, 0.0625, 0.5}, -- NodeBox57
+                {0.25, -0.3125, -0.25, 0.375, -0.1875, 0.5}, -- NodeBox58
+                {-0.5, -0.3125, -0.375, 0.25, -0.1875, -0.25}, -- NodeBox59
+            }
+        },
+        groups = {cracky = 3, oddly_breakable_by_hand = 1},
+        sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
 
 
-minetest.register_node("tech:roof_tile_ic", {
-	description = S("Roof Tile (inner corner)"),
-	tiles = {"tech_roof_tiles.png"},
-	stack_max = minimal.stack_max_medium,
-  drawtype = "nodebox",
-  paramtype2 = "facedir",
-  node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.5, 0.1875, 0.25, -0.25, 0.5, 0.5}, -- s1
-			{-0.25, -0.0625, 0, 0, 0.25, 0.25}, -- NodeBox40
-			{0, -0.3125, -0.25, 0.25, 0, 0}, -- NodeBox41
-			{0.25, -0.5, -0.5, 0.5, -0.25, -0.25}, -- NodeBox42
-			{-0.125, -0.3125, -0.5, 0.25, -0.125, -0.25}, -- NodeBox60
-			{-0.375, -0.0625, -0.5, 0, 0.125, 0}, -- NodeBox61
-			{-0.5, 0.1875, -0.5, -0.25, 0.375, 0.25}, -- NodeBox62
-			{-0.25, 0.1875, 0.25, 0.5, 0.375, 0.5}, -- NodeBox63
-			{0, -0.0625, 0, 0.5, 0.125, 0.375}, -- NodeBox64
-			{0.25, -0.3125, -0.25, 0.5, -0.125, 0.125}, -- NodeBox65
-			{-0.125, -0.125, -0.5, 0.0625, -0.0625, -0.25}, -- NodeBox66
-			{-0.375, 0.125, -0.5, -0.1875, 0.1875, 0}, -- NodeBox67
-			{-0.5, 0.375, -0.5, -0.375, 0.5, 0.25}, -- NodeBox68
-			{-0.25, 0.375, 0.375, 0.5, 0.5, 0.5}, -- NodeBox69
-			{0, 0.125, 0.1875, 0.5, 0.1875, 0.375}, -- NodeBox70
-			{0.25, -0.125, -0.0625, 0.5, -0.0625, 0.125}, -- NodeBox71
-		}
-	},
-	groups = {cracky = 3, oddly_breakable_by_hand = 1},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+minetest.register_node(
+    "tech:roof_tile_ic", {
+        description = S("Roof Tile (inner corner)"),
+        tiles = {"tech_roof_tiles.png"},
+        stack_max = minimal.stack_max_medium,
+        drawtype = "nodebox",
+        paramtype2 = "facedir",
+        node_box = {
+            type = "fixed",
+            fixed = {
+                {-0.5, 0.1875, 0.25, -0.25, 0.5, 0.5}, -- s1
+                {-0.25, -0.0625, 0, 0, 0.25, 0.25}, -- NodeBox40
+                {0, -0.3125, -0.25, 0.25, 0, 0}, -- NodeBox41
+                {0.25, -0.5, -0.5, 0.5, -0.25, -0.25}, -- NodeBox42
+                {-0.125, -0.3125, -0.5, 0.25, -0.125, -0.25}, -- NodeBox60
+                {-0.375, -0.0625, -0.5, 0, 0.125, 0}, -- NodeBox61
+                {-0.5, 0.1875, -0.5, -0.25, 0.375, 0.25}, -- NodeBox62
+                {-0.25, 0.1875, 0.25, 0.5, 0.375, 0.5}, -- NodeBox63
+                {0, -0.0625, 0, 0.5, 0.125, 0.375}, -- NodeBox64
+                {0.25, -0.3125, -0.25, 0.5, -0.125, 0.125}, -- NodeBox65
+                {-0.125, -0.125, -0.5, 0.0625, -0.0625, -0.25}, -- NodeBox66
+                {-0.375, 0.125, -0.5, -0.1875, 0.1875, 0}, -- NodeBox67
+                {-0.5, 0.375, -0.5, -0.375, 0.5, 0.25}, -- NodeBox68
+                {-0.25, 0.375, 0.375, 0.5, 0.5, 0.5}, -- NodeBox69
+                {0, 0.125, 0.1875, 0.5, 0.1875, 0.375}, -- NodeBox70
+                {0.25, -0.125, -0.0625, 0.5, -0.0625, 0.125}, -- NodeBox71
+            }
+        },
+        groups = {cracky = 3, oddly_breakable_by_hand = 1},
+        sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
 
@@ -684,54 +697,54 @@ minetest.register_node("tech:roof_tile_ic", {
 
 --unfired
 crafting.register_recipe({
-	type = "brick_makers_bench",
-	output = "tech:roof_tile_loose_unfired",
-	items = {'nodes_nature:clay_wet 6'},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench",
+        output = "tech:roof_tile_loose_unfired",
+        items = {'nodes_nature:clay_wet 6'},
+        level = 1,
+        always_known = true,
 })
 
 --usable tile
 crafting.register_recipe({
-	type = "brick_makers_bench",
-	output = "tech:roof_tile 6",
-	items = {'tech:roof_tile_loose'},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench",
+        output = "tech:roof_tile 6",
+        items = {'tech:roof_tile_loose'},
+        level = 1,
+        always_known = true,
 })
 
 
 --switch inner/outer
 crafting.register_recipe({
-	type = "brick_makers_bench_mixing",
-	output = "tech:roof_tile_ic",
-	items = {"tech:roof_tile"},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench_mixing",
+        output = "tech:roof_tile_ic",
+        items = {"tech:roof_tile"},
+        level = 1,
+        always_known = true,
 })
 
 crafting.register_recipe({
-	type = "brick_makers_bench_mixing",
-	output = "tech:roof_tile_oc",
-	items = {"tech:roof_tile"},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench_mixing",
+        output = "tech:roof_tile_oc",
+        items = {"tech:roof_tile"},
+        level = 1,
+        always_known = true,
 })
 
 crafting.register_recipe({
-	type = "brick_makers_bench_mixing",
-	output = "tech:roof_tile",
-	items = {"tech:roof_tile_ic"},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench_mixing",
+        output = "tech:roof_tile",
+        items = {"tech:roof_tile_ic"},
+        level = 1,
+        always_known = true,
 })
 
 crafting.register_recipe({
-	type = "brick_makers_bench_mixing",
-	output = "tech:roof_tile",
-	items = {"tech:roof_tile_oc"},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench_mixing",
+        output = "tech:roof_tile",
+        items = {"tech:roof_tile_oc"},
+        level = 1,
+        always_known = true,
 })
 
 
@@ -740,59 +753,61 @@ crafting.register_recipe({
 
 -- solid block of tiles, fired, matches the roof tiles, can make tiled stairs
 
-minetest.register_node("tech:tile_block_unfired", {
-	description = S("Tile Block (unfired)"),
-	tiles = {"tech_roof_tiles_unfired.png"},
-	stack_max = minimal.stack_max_medium/2,
-	drawtype = "normal",
-	paramtype = "light",
-	paramtype2 = "facedir",
-	groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_dirt_defaults(),
-	on_construct = function(pos)
-		--length(i.e. difficulty of firing), interval for checks (speed)
-		ncrafting.set_firing(pos, 40, 10)
-	end,
-	on_dig = function(pos, node, digger)
-	   return ncrafting.on_dig_pottery(pos, node, digger, 40)
-	end,
-	on_timer = function(pos, elapsed)
-	   return ncrafting.fire_pottery(pos, 'tech:tile_block_unfired',
-					 'tech:tile_block', 40, 850)
-	end,
+minetest.register_node(
+    "tech:tile_block_unfired", {
+        description = S("Tile Block (unfired)"),
+        tiles = {"tech_roof_tiles_unfired.png"},
+        stack_max = minimal.stack_max_medium/2,
+        drawtype = "normal",
+        paramtype = "light",
+        paramtype2 = "facedir",
+        groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        on_construct = function(pos)
+            --length(i.e. difficulty of firing), interval for checks (speed)
+            ncrafting.set_firing(pos, 40, 10)
+        end,
+        on_dig = function(pos, node, digger)
+            return ncrafting.on_dig_pottery(pos, node, digger, 40)
+        end,
+        on_timer = function(pos, elapsed)
+            return ncrafting.fire_pottery(pos, 'tech:tile_block_unfired',
+                                          'tech:tile_block', 40, 850)
+        end,
 })
 
-minetest.register_node("tech:tile_block", {
-	description = S("Tile Block"),
-	tiles = {"tech_roof_tiles.png"},
-	stack_max = minimal.stack_max_medium/2,
-	drawtype = "normal",
-	paramtype = "light",
-	paramtype2 = "facedir",
-	groups = {cracky = 3},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+minetest.register_node(
+    "tech:tile_block", {
+        description = S("Tile Block"),
+        tiles = {"tech_roof_tiles.png"},
+        stack_max = minimal.stack_max_medium/2,
+        drawtype = "normal",
+        paramtype = "light",
+        paramtype2 = "facedir",
+        groups = {cracky = 3},
+        sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
 crafting.register_recipe({
-	type = "brick_makers_bench",
-	output = "tech:tile_block_unfired",
-	items = {'nodes_nature:clay_wet 1'},
-	level = 1,
-	always_known = true,
+        type = "brick_makers_bench",
+        output = "tech:tile_block_unfired",
+        items = {'nodes_nature:clay_wet 1'},
+        level = 1,
+        always_known = true,
 })
 
 stairs.register_stair_and_slab(
-	"tile",
-	"tech:tile_block",
-	"brick_makers_bench_mixing",
-	"true",
-	"brick_makers_bench_mixing",
-	{cracky = 3},
-	{"tech_roof_tiles.png"},
-	S("Tile Stair"),
-	S("Tile Slab"),
-	minimal.stack_max_medium,
-	nodes_nature.node_sound_stone_defaults()
+    "tile",
+    "tech:tile_block",
+    "brick_makers_bench_mixing",
+    "true",
+    "brick_makers_bench_mixing",
+    {cracky = 3},
+    {"tech_roof_tiles.png"},
+    S("Tile Stair"),
+    S("Tile Slab"),
+    minimal.stack_max_medium,
+    nodes_nature.node_sound_stone_defaults()
 )
 
 --------------------------------------------------------------------
@@ -803,111 +818,113 @@ stairs.register_stair_and_slab(
 --drop unmortared stone.
 
 function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mortar_type,
-		brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
-	brick_mortar_recycle_type = brick_mortar_recycle_type or brick_mortar_type
-	block_mortar_recycle_type = block_mortar_recycle_type or block_mortar_type
+                                brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
+    brick_mortar_recycle_type = brick_mortar_recycle_type or brick_mortar_type
+    block_mortar_recycle_type = block_mortar_recycle_type or block_mortar_type
 
-	for i in ipairs(list) do
-		local name = list[i][1]
-		local desc = list[i][2]
-		local hardness = list[i][3]
-
-
-		--blocks and bricks
-		--Bricks
-		minetest.register_node("tech:"..name.."_brick_mortar", {
-			description = S("@1 Brick with Mortar", desc),
-			tiles = {"nodes_nature_"..name.."_brick.png^tech_mortar_brick.png"},
-			drop = "nodes_nature:"..name.."_brick",
-			paramtype2 = "facedir",
-			stack_max = minimal.stack_max_bulky *3,
-			groups = {cracky = hardness, masonry = 1},
-			sounds = nodes_nature.node_sound_stone_defaults(),
-		})
-
-		--block
-		minetest.register_node("tech:"..name.."_block_mortar", {
-			description = S("@1 Block with Mortar", desc),
-			tiles = {"nodes_nature_"..name.."_block.png^tech_mortar_block.png"},
-			paramtype2 = "facedir",
-			drop = "nodes_nature:"..name.."_block",
-			stack_max = minimal.stack_max_bulky *2,
-			groups = {cracky = hardness, masonry = 1},
-			sounds = nodes_nature.node_sound_stone_defaults(),
-		})
-
-		--
-		crafting.register_recipe({
-			type = brick_mortar_type,
-			output = "tech:"..name.."_brick_mortar 4",
-			items = {"nodes_nature:"..name.."_brick 4", "tech:lime_mortar_slab"},
-			level = 1,
-			always_known = true,
-		})
-
-		crafting.register_recipe({
-			type = block_mortar_type,
-			output = "tech:"..name.."_block_mortar 4",
-			items = {"nodes_nature:"..name.."_block 4", "tech:lime_mortar_slab"},
-			level = 1,
-			always_known = true,
-		})
+    for i in ipairs(list) do
+        local name = list[i][1]
+        local desc = list[i][2]
+        local hardness = list[i][3]
 
 
-		--stairs and slabs
-		--brick
-		stairs.register_stair_and_slab(
-			name.."_brick_mortar",
-			"tech:"..name.."_brick_mortar",
-			brick_mortar_type,
-			"true",
-			brick_mortar_recycle_type,
-			{cracky = hardness},
-			{"nodes_nature_"..name.."_brick.png^tech_mortar_brick.png" },
-			S("@1 Brick with Mortar Stair", desc),
-			S("@1 Brick with Mortar Slab", desc),
-			minimal.stack_max_bulky * 6,
-			nodes_nature.node_sound_stone_defaults()
-		)
+        --blocks and bricks
+        --Bricks
+        minetest.register_node(
+            "tech:"..name.."_brick_mortar", {
+                description = S("@1 Brick with Mortar", desc),
+                tiles = {"nodes_nature_"..name.."_brick.png^tech_mortar_brick.png"},
+                drop = "nodes_nature:"..name.."_brick",
+                paramtype2 = "facedir",
+                stack_max = minimal.stack_max_bulky *3,
+                groups = {cracky = hardness, masonry = 1},
+                sounds = nodes_nature.node_sound_stone_defaults(),
+        })
 
-		--block
-		if sediment ~= true then
-		   -- masonry table's cluttered bad, so let's say you can't easily make
-		   --  block stairs and slabs from the four crumbly sedimentary rocks
-		   stairs.register_stair_and_slab(
-			name.."_block_mortar",
-			"tech:"..name.."_block_mortar",
-			block_mortar_type,
-			"false",
-			block_mortar_recycle_type,
-			{cracky = hardness},
-			{"nodes_nature_"..name.."_block.png^tech_mortar_block.png" },
-			S("@1 Block with Mortar Stair", desc),
-			S("@1 Block with Mortar Slab", desc),
-			minimal.stack_max_bulky * 4,
-			nodes_nature.node_sound_stone_defaults()
-		   )
-		end
-	end
+        --block
+        minetest.register_node(
+            "tech:"..name.."_block_mortar", {
+                description = S("@1 Block with Mortar", desc),
+                tiles = {"nodes_nature_"..name.."_block.png^tech_mortar_block.png"},
+                paramtype2 = "facedir",
+                drop = "nodes_nature:"..name.."_block",
+                stack_max = minimal.stack_max_bulky *2,
+                groups = {cracky = hardness, masonry = 1},
+                sounds = nodes_nature.node_sound_stone_defaults(),
+        })
+
+        --
+        crafting.register_recipe({
+                type = brick_mortar_type,
+                output = "tech:"..name.."_brick_mortar 4",
+                items = {"nodes_nature:"..name.."_brick 4", "tech:lime_mortar_slab"},
+                level = 1,
+                always_known = true,
+        })
+
+        crafting.register_recipe({
+                type = block_mortar_type,
+                output = "tech:"..name.."_block_mortar 4",
+                items = {"nodes_nature:"..name.."_block 4", "tech:lime_mortar_slab"},
+                level = 1,
+                always_known = true,
+        })
+
+
+        --stairs and slabs
+        --brick
+        stairs.register_stair_and_slab(
+            name.."_brick_mortar",
+            "tech:"..name.."_brick_mortar",
+            brick_mortar_type,
+            "true",
+            brick_mortar_recycle_type,
+            {cracky = hardness},
+            {"nodes_nature_"..name.."_brick.png^tech_mortar_brick.png" },
+            S("@1 Brick with Mortar Stair", desc),
+            S("@1 Brick with Mortar Slab", desc),
+            minimal.stack_max_bulky * 6,
+            nodes_nature.node_sound_stone_defaults()
+        )
+
+        --block
+        if sediment ~= true then
+            -- masonry table's cluttered bad, so let's say you can't easily make
+            --  block stairs and slabs from the four crumbly sedimentary rocks
+            stairs.register_stair_and_slab(
+                name.."_block_mortar",
+                "tech:"..name.."_block_mortar",
+                block_mortar_type,
+                "false",
+                block_mortar_recycle_type,
+                {cracky = hardness},
+                {"nodes_nature_"..name.."_block.png^tech_mortar_block.png" },
+                S("@1 Block with Mortar Stair", desc),
+                S("@1 Block with Mortar Slab", desc),
+                minimal.stack_max_bulky * 4,
+                nodes_nature.node_sound_stone_defaults()
+            )
+        end
+    end
 end
 
 
 local sediments = {
-	{"claystone", S("Claystone"), 3},
-	{"siltstone", S("Siltstone"), 3},
-	{"sandstone", S("Sandstone"), 3},
-	{"conglomerate", S("Conglomerate"), 3},
+    {"claystone", S("Claystone"), 3},
+    {"siltstone", S("Siltstone"), 3},
+    {"sandstone", S("Sandstone"), 3},
+    {"conglomerate", S("Conglomerate"), 3},
 }
 
 local stones = {
-	{"coquina", S("Coquina"), 3},
-	{"limestone", S("Limestone"), 3},
-	{"ironstone", S("Ironstone"), 3},
-	{"granite", S("Granite"), 1},
-	{"basalt", S("Basalt"), 2},
-	{"scoria", S("Scoria"), 3},
-	{"gneiss", S("Gneiss"), 1},
-	{"jade", S("Jade"), 1},
+    {"coquina", S("Coquina"), 3},
+    {"limestone", S("Limestone"), 3},
+    {"ironstone", S("Ironstone"), 3},
+    {"granite", S("Granite"), 1},
+    {"basalt", S("Basalt"), 2},
+    {"scoria", S("Scoria"), 3},
+    {"gneiss", S("Gneiss"), 1},
+    {"jade", S("Jade"), 1},
 }
 local bmb = 'brick_makers_bench'
 local bmb_blocks = 'brick_makers_bench_blocks'
@@ -921,7 +938,7 @@ local mb_blocks = 'masonry_bench_blocks'
 local mb_blocks_m = 'masonry_bench_blocks_mortar'
 local mb_mixing = 'masonry_bench_mixing'
 --register_mortar_nodes (list, mortar_type,brick_mortar_type, block_mortar_type,
---		brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
+--              brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
 
 register_mortar_nodes (sediments, { bmb }, { bmb_bricks }, { bmb_blocks }, { bmb_mixing }, { bmb_mixing }, true)
 register_mortar_nodes (stones, { mb }, { mb_bricks }, { mb_blocks }, { mb_mixing }, { mb_mixing })

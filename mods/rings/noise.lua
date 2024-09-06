@@ -20,16 +20,20 @@ end
 
 local function get_2d_map_flat(noise, minp)
     if not noise.noise_map_obj then
-        noise.noise_map_obj = minetest.get_perlin_map(noise.params, noise.chunk_size)
+        noise.noise_map_obj = minetest.get_perlin_map(noise.params,
+                                                      noise.chunk_size)
     end
     -- switched around z and y as this is the usual use case
-    noise.noise_map_obj:get_2d_map_flat({x = minp.x, y = minp.z, z = 0}, noise.buffer_2d)
+    noise.noise_map_obj:get_2d_map_flat(
+        {x = minp.x, y = minp.z, z = 0},
+        noise.buffer_2d )
     return noise.buffer_2d
 end
 
 local function get_3d_map_flat(noise, minp)
     if not noise.noise_map_obj then
-        noise.noise_map_obj = minetest.get_perlin_map(noise.params, noise.chunk_size)
+        noise.noise_map_obj = minetest.get_perlin_map(noise.params,
+                                                      noise.chunk_size)
     end
     noise.noise_map_obj:get_3d_map_flat(minp, noise.buffer_3d)
     return noise.buffer_3d

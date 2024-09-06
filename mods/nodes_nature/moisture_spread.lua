@@ -7,6 +7,7 @@ local nn = nodes_nature
 local rt = nn.replacement_types
 local ms = mapchunk_shepherd
 local seasons = seasons
+tgcr = tgcr
 
 ----------------------------------------------------------------
 -- flowing Water erode
@@ -14,98 +15,103 @@ local seasons = seasons
 --and cannot shift them anywhere else
 --eventually getting a stable "river" bed shape if it can
 local function water_erode(pos, node)
-   --take the sediment under it and move it to the side
-   local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
-   local under_name = minetest.get_node(pos_under).name
-   if minetest.get_item_group(under_name, "sediment") > 0 then
+    --take the sediment under it and move it to the side
+    local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
+    local under_name = minetest.get_node(pos_under).name
+    if minetest.get_item_group(under_name, "sediment") > 0 then
 
-      --move it to another part of water, so long as it is grounded
-      local pos_flow = minetest.find_nodes_in_area(
-	 {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-	 {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
-	 {"nodes_nature:freshwater_flowing", "nodes_nature:salt_water_flowing" })
+        --move it to another part of water, so long as it is grounded
+        local pos_flow = minetest.find_nodes_in_area(
+            {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+            {x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
+            {"nodes_nature:freshwater_flowing",
+             "nodes_nature:salt_water_flowing" })
 
-      if #pos_flow > 0 then
-	 --select a random one
-	 local pos2 = pos_flow[math.random(#pos_flow)]
-	 --check under
-	 local pos_uf = {x = pos2.x, y = pos2.y - 1, z = pos2.z}
-	 local uf_name = minetest.get_node(pos_uf).name
+        if #pos_flow > 0 then
+            --select a random one
+            local pos2 = pos_flow[math.random(#pos_flow)]
+            --check under
+            local pos_uf = {x = pos2.x, y = pos2.y - 1, z = pos2.z}
+            local uf_name = minetest.get_node(pos_uf).name
 
-	 local nodedefu = minetest.registered_nodes[uf_name]
-	 if not nodedefu then
-	    return
-	 end
+            local nodedefu = minetest.registered_nodes[uf_name]
+            if not nodedefu then
+                return
+            end
 
-	 if nodedefu.walkable then
+            if nodedefu.walkable then
 
-	    --shift the sediment and put the water in its place
-	    minetest.remove_node(pos)
-	    minetest.set_node(pos_under, {name = node.name})
-	    --set dropped
-	    local nodedef = minetest.registered_nodes[under_name]
-	    if not nodedef then
-	       return
-	    end
-	    minetest.set_node(pos2, {name = nodedef.drop})
-	 end
-      end
+                --shift the sediment and put the water in its place
+                minetest.remove_node(pos)
+                minetest.set_node(pos_under, {name = node.name})
+                --set dropped
+                local nodedef = minetest.registered_nodes[under_name]
+                if not nodedef then
+                    return
+                end
+                minetest.set_node(pos2, {name = nodedef.drop})
+            end
+        end
 
-   elseif minetest.get_item_group(under_name, "water") > 0 or under_name == "air" then
-      --it is a water fall
-      --take sediment from beside and move under to fill gap
-      --move it to another part of water, so long as it is grounded
-      local xpos1 = { x = pos.x - 1, y = pos.y, z = pos.z }
-      local xpos2 = { x = pos.x + 1, y = pos.y, z = pos.z}
-      local xfind =  minetest.find_nodes_in_area(xpos1, xpos2,
-						 {"group:sediment"})
-      local zpos1 = { x = pos.x , y = pos.y, z = pos.z - 1}
-      local zpos2 = { x = pos.x , y = pos.y, z = pos.z + 1}
-      local zfind =  minetest.find_nodes_in_area(zpos1, zpos2,
-						 {"group:sediment"})
-      local pos_flow = minimal.concat_tables(xfind, zfind)
+    elseif minetest.get_item_group(under_name, "water") > 0
+        or under_name == "air" then
 
-      if #pos_flow > 0 then
-	 --select a random one
-	 local pos2 = pos_flow[math.random(#pos_flow)]
+        --it is a water fall
+        --take sediment from beside and move under to fill gap
+        --move it to another part of water, so long as it is grounded
+        local xpos1 = { x = pos.x - 1, y = pos.y, z = pos.z }
+        local xpos2 = { x = pos.x + 1, y = pos.y, z = pos.z}
+        local xfind =  minetest.find_nodes_in_area(xpos1, xpos2,
+                                                   {"group:sediment"})
+        local zpos1 = { x = pos.x , y = pos.y, z = pos.z - 1}
+        local zpos2 = { x = pos.x , y = pos.y, z = pos.z + 1}
+        local zfind =  minetest.find_nodes_in_area(zpos1, zpos2,
+                                                   {"group:sediment"})
+        local pos_flow = minimal.concat_tables(xfind, zfind)
 
-	 --check under is solid
-	 local pos_uf = {x = pos_under.x, y = pos_under.y - 1, z = pos_under.z}
-	 local uf_name = minetest.get_node(pos_uf).name
+        if #pos_flow > 0 then
+            --select a random one
+            local pos2 = pos_flow[math.random(#pos_flow)]
 
-	 local nodedefu = minetest.registered_nodes[uf_name]
-	 if not nodedefu then
-	    return
-	 end
+            --check under is solid
+            local pos_uf = {x = pos_under.x, y = pos_under.y - 1,
+                            z = pos_under.z}
+            local uf_name = minetest.get_node(pos_uf).name
 
-	 if nodedefu.walkable then
-	    --take it and drop it underneath
-	    --set dropped
-	    local side_name = minetest.get_node(pos2).name
-	    local nodedef = minetest.registered_nodes[side_name]
-	    if not nodedef then
-	       return
-	    end
-	    minetest.remove_node(pos2)
-	    minetest.set_node(pos_under, {name = nodedef.drop})
-	 end
-      end
+            local nodedefu = minetest.registered_nodes[uf_name]
+            if not nodedefu then
+                return
+            end
 
-   end
+            if nodedefu.walkable then
+                --take it and drop it underneath
+                --set dropped
+                local side_name = minetest.get_node(pos2).name
+                local nodedef = minetest.registered_nodes[side_name]
+                if not nodedef then
+                    return
+                end
+                minetest.remove_node(pos2)
+                minetest.set_node(pos_under, {name = nodedef.drop})
+            end
+        end
+
+    end
 end
 
 
 --
 --
 minetest.register_abm({
-	label = "Water Erode",
-	nodenames = {"nodes_nature:freshwater_flowing", "nodes_nature:salt_water_flowing"},
-	neighbors = {"group:sediment"},
-	interval = 120,
-	chance = 30,
-	action = function(...)
-		water_erode(...)
-	end
+        label = "Water Erode",
+        nodenames = {"nodes_nature:freshwater_flowing",
+                     "nodes_nature:salt_water_flowing"},
+        neighbors = {"group:sediment"},
+        interval = 120,
+        chance = 30,
+        action = function(...)
+            water_erode(...)
+        end
 })
 
 -----------------------------------
@@ -219,7 +225,8 @@ end
 local function pick_evaporator(season)
     local new_evaporator = false
     if season == "summer_early" or season == "summer_late" then
-        -- The Evaporator - destroyer of worlds, the sovereign of drought and thirst
+        -- The Evaporator - destroyer of worlds, the sovereign of drought
+        -- and thirst
         new_evaporator = "the_evaporator"
         evap_chance = 1/35
     else
@@ -636,7 +643,8 @@ local function moisture_spread(pos)
         if node_above.name == "air" then
             -- only leach out if there are 2 nodes of air
             tgcr.make_replacement(pos, rt.REPLACEMENT_DRY)
-            minetest.set_node(pos_air, {name = "nodes_nature:freshwater_source"})
+            minetest.set_node(pos_air,
+                              {name = "nodes_nature:freshwater_source"})
         end
     end
 end

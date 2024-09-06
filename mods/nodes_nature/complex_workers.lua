@@ -11,8 +11,8 @@ local ignore_id = minetest.get_content_id("ignore")
 
 local chunk_side = ms.chunk_side()
 
-function nn.create_evaporator(args)
-    local args = table.copy(args)
+function nn.create_evaporator(args_in)
+    local args = table.copy(args_in)
     local find_replace_pairs = args.find_replace_pairs
     local neighbors = args.neighbors
     local labels_to_add = args.add_labels or {}
@@ -43,7 +43,8 @@ function nn.create_evaporator(args)
         local data_light = vm_data.light
 
         -- I made up this equation
-        -- below 0 there should be no evaporation but that's fake (irl there's still evap)
+        -- below 0 there should be no evaporation but that's fake
+        --  (irl there's still evap)
         -- for mean = 13 it gets values:
         -- 5 °C:  0.73
         -- 10°C:  1.93
@@ -53,7 +54,8 @@ function nn.create_evaporator(args)
         -- 50°C: 18.39
         -- So input chance = 1/35 sounds reasonable (can simulate air humidity)
         -- this gives 0.52 chance for 50°C, 0.257 for 30°C, 0.05 for 10°C
-        local temperature_cofactor = climate.active_temp^1.4 / climate.mean_year_temp()
+        local temperature_cofactor =
+            climate.active_temp^1.4 / climate.mean_year_temp()
         if temperature_cofactor <= 0 then
             temperature_cofactor = 0.5
         end
@@ -67,7 +69,9 @@ function nn.create_evaporator(args)
 
                 -- need to handle them edges in moisture_spread.lua
                 -- too lazy for that today
-                if not (x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79) then
+                if not (x == 0 or x == 79 or
+                        z == 0 or z == 79 or
+                        y == 0 or y == 79) then
 
                     local has_air = false
 
@@ -86,7 +90,8 @@ function nn.create_evaporator(args)
                     if water_ids[data[i]] and has_air then
                         local light = data_light[i]
                         local light_cofactor = light / 15
-                        evap_chance = temperature_cofactor * light_cofactor * chance * 1/15
+                        evap_chance = temperature_cofactor * light_cofactor
+                            * chance * 1/15
                         if evap_chance >= math.random() then
                             data[i] = replacement
                         end
@@ -94,7 +99,8 @@ function nn.create_evaporator(args)
                         -- is sediment
                         local light = data_light[i + chunk_side] or 0
                         local light_cofactor = light / 15
-                        evap_chance = temperature_cofactor * light_cofactor * chance
+                        evap_chance = temperature_cofactor * light_cofactor
+                            * chance
                         if not has_air then
                             -- 5 times slower if plant grows on top
                             evap_chance = 1/5 * evap_chance
@@ -120,9 +126,9 @@ end
 
 -- Moisture spread --
 
-function nn.create_soak_out_move_down(args)
+function nn.create_soak_out_move_down(args_in)
     -- Arguments and labels
-    local args = table.copy(args)
+    local args = table.copy(args_in)
     local wet_to_dry = args.wet_to_dry
     local buildable_to_liquid = args.buildable_to_liquid
     local labels_to_add = args.add_labels or {}
@@ -341,7 +347,8 @@ function nn.create_soak_out_move_down(args)
                 soak_out(i)
             else
                 local node_pos = vector.new(x, y, z)
-                table.insert(nn.moisture_orphans[hash], vector.add(pos_min, node_pos))
+                table.insert(nn.moisture_orphans[hash],
+                             vector.add(pos_min, node_pos))
             end
         end
 
@@ -356,8 +363,8 @@ function nn.create_soak_out_move_down(args)
     end
 end
 
-function nn.create_gravity_soak_in(args)
-    local args = table.copy(args)
+function nn.create_gravity_soak_in(args_in)
+    local args = table.copy(args_in)
     local wet_to_dry = args.wet_to_dry
     local buildable_to_liquid = args.buildable_to_liquid
     local labels_to_add = args.add_labels or {}
@@ -403,12 +410,15 @@ function nn.create_gravity_soak_in(args)
                 if replacement and i ~= previous_i then
                     -- z, y, x have values 0 - 79
                     local z = math.floor((i - 1) / chunk_side^2)
-                    local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
+                    local y = math.floor((i - 1 - z
+                                          * chunk_side^2) / chunk_side)
                     local x = (i - 1) % 80
                     local node_pos = vector.new(x, y, z)
                     local dry_below = dry_to_wet_ids[data[i - chunk_side]]
                     local seawater_below = seawater_ids[data[i - chunk_side]]
-                    if x == 0 or x == 79 or z == 0 or z == 79 or y == 0 or y == 79 then
+                    if x == 0 or x == 79 or
+                        z == 0 or z == 79 or
+                        y == 0 or y == 79 then
                         -- borders here
                         if last then
                             table.insert(orphans, i)

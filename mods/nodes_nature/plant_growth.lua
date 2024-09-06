@@ -28,8 +28,10 @@ function soil_preferences.new(args)
 end
 
 function soil_preferences.is_sediment_good(sed_name, plant_prefs)
-    local rocky_substrate = minetest.get_item_group(sed_name, "rocky_substrate")
-    local organic_substrate = minetest.get_item_group(sed_name, "organic_substrate")
+    local rocky_substrate = minetest.get_item_group(sed_name,
+                                                    "rocky_substrate")
+    local organic_substrate = minetest.get_item_group(sed_name,
+                                                      "organic_substrate")
     local density = minetest.get_item_group(sed_name, "density")
     if not plant_prefs then return true end
     if rocky_substrate then
@@ -71,7 +73,8 @@ local function seed_soil_response(pos, soil_prefs)
     elseif wetness == 2 then -- salty
         return 0
     end
-    local is_soil_good = soil_preferences.is_sediment_good(node_under, soil_prefs)
+    local is_soil_good = soil_preferences.is_sediment_good(node_under,
+                                                           soil_prefs)
     local ag_soil = minetest.get_item_group(node_under, "agricultural_soil")
     local fertile_soil = minetest.get_item_group(node_under, "fertile_soil")
     if is_soil_good then
@@ -315,12 +318,12 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed)
         local nodedef = minimal.get_nodedef(pos)
         if nodedef._next_life_stage then
             local meta = minetest.get_meta(pos)
-	    local health
-	    if not meta:get("health") then
-	       health = base_health + base_health * math.random(-1, 1) * 0.1
-	    else
-	       health = meta:get_int("health")
-	    end
+            local health
+            if not meta:get("health") then
+                health = base_health + base_health * math.random(-1, 1) * 0.1
+            else
+                health = meta:get_int("health")
+            end
             minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
             meta:set_int("health", health)
         end
@@ -383,7 +386,7 @@ local function progress_underground(pos, elapsed)
 end
 
 local function past_growth_progress(pos, elapsed)
-   if elapsed > plant_base_timer then
+    if elapsed > plant_base_timer then
         if pos.y < -15 then
             return progress_underground(pos, elapsed)
         else

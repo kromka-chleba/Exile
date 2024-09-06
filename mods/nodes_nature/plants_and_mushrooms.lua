@@ -212,25 +212,27 @@ local plant_list = {
      seasonal_type = "succulent_flowering", fruit = true,
      texture_scale = 1.2, thorns = true, move_resistance = 4},
 
-     {name = "salia", description = S("Salia"),
-      drawtype = "plantlike", mesh_type = 4,
-      plant_type = "herbaceous_plant", waving = true,
-      growing_time = plant_base_growing_time,
-      dye_candidate = true, dominant_color = "red",
-      fruit = true, seasonal_type = "early"},
+    {name = "salia", description = S("Salia"),
+     drawtype = "plantlike", mesh_type = 4,
+     plant_type = "herbaceous_plant", waving = true,
+     growing_time = plant_base_growing_time,
+     dye_candidate = true, dominant_color = "red",
+     fruit = true, seasonal_type = "early"},
 
-      {name = "fretin", description = S("Fretin"),
-       drawtype = "plantlike", plant_type = "herbaceous_plant",
-       waving = true,
-       mesh_type = 2, growing_time = plant_base_growing_time,
-       dye_candidate = true, dominant_color = "black",
-       seasonal_type = "whole_season",
-       edible_seedling = true},
+    {name = "fretin", description = S("Fretin"),
+     drawtype = "plantlike", plant_type = "herbaceous_plant",
+     waving = true,
+     mesh_type = 2, growing_time = plant_base_growing_time,
+     dye_candidate = true, dominant_color = "black",
+     seasonal_type = "whole_season",
+     edible_seedling = true},
 
     -- Mushrooms
 
-    --lambakap. is also a mushroom.
-    --slow growing food and water source, main crop for longterm underground living.
+    --Lambakap. is also a mushroom.
+    -- slow growing food and water source,
+    -- main crop for longterm underground living.
+
     {name = "lambakap", description = S("Lambakap"),
      drawtype = "nodebox", nodebox = lambakap_nodebox,
      lifeform_type = "mushroom", plant_type = "mushroom",
@@ -238,8 +240,10 @@ local plant_list = {
      dye_candidate = true, dominant_color = "red",
      bioluminescence = 2, extra_groups = {flammable = 6}},
 
-    --reshedaar.  is also a mushroom.
-    --slow growing fibre mushroom, main fibre crop for longterm underground living.
+    --Reshedaar.  is also a mushroom.
+    -- slow growing fibre mushroom,
+    -- main fibre crop for longterm underground living.
+
     --(can't be bioluminescent or conflicts with recipe)
     {name = "reshedaar", description = S("Reshedaar"),
      drawtype = "nodebox", nodebox = reshedaar_nodebox,
@@ -248,7 +252,9 @@ local plant_list = {
      dye_candidate = true, dominant_color = "red",},
 
     --Mahal. is also a mushroom.
-    --slow growing woody mushroom, main stick crop for longterm underground living.
+    -- slow growing woody mushroom,
+    -- main stick crop for longterm underground living.
+
     {name = "mahal", description = S("Mahal"),
      drawtype = "nodebox", nodebox = mahal_nodebox,
      lifeform_type = "mushroom", plant_type = "woody_plant",
@@ -354,12 +360,12 @@ local plant_list = {
      seasonal_type = "whole_season"},
 
     {name = "muhle", description = S("Muhle"),
-      drawtype = "plantlike", plant_type = "fibrous_plant",
-      mesh_type = 4,  waving = true,
-      growing_time = plant_base_growing_time * 2,
-      dye_candidate = true, dominant_color = "black",
-      seasonal_type = "late", fruit = true, winter_fruit = true,
-      move_resistance = 4},
+     drawtype = "plantlike", plant_type = "fibrous_plant",
+     mesh_type = 4,  waving = true,
+     growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "black",
+     seasonal_type = "late", fruit = true, winter_fruit = true,
+     move_resistance = 4},
 
     {name = "damo", description = S("Damo"),
      drawtype = "plantlike", mesh_type = 4,
@@ -391,26 +397,30 @@ local plant_list = {
     {name = "gemedi", description = S("Gemedi"),
      mesh_type = 2,
      drawtype = "plantlike", plant_type = "cane", waving = false,
-     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
+     growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, seasonal_type = "cane"},
 
     -- Bamboos
     {name = "chalin", description = S("Chalin"),
      mesh_type = 2,
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
-     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
+     growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, climbable = true, seasonal_type = "whole_season_woody",
      move_resistance = 1},
 
     {name = "tiken", description = S("Tiken"),
      mesh_type = 2,
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
-     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
+     growing_time = plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
 
     {name = "saguati", description = S("Saguati"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
-     growing_time = plant_base_growing_time * 4, dye_candidate = true, dominant_color = "green",
+     growing_time = plant_base_growing_time * 4,
+     dye_candidate = true, dominant_color = "green",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
 }
 
@@ -494,7 +504,8 @@ minetest.register_craftitem(
             local pos_below = minimal.get_pos_under(pointed_thing.above)
             local sediment = minimal.in_group(pos_below, "sediment")
             if sediment and above.name == "air" then
-                minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_fruitless"})
+                minetest.set_node(pointed_thing.above,
+                                  { name = "nodes_nature:rzepicha_fruitless" })
                 plant.set_to_domesticated(pointed_thing.above)
                 if not minimal.player_in_creative(placer) then
                     itemstack:take_item()
@@ -518,7 +529,8 @@ minetest.register_craftitem(
             local pos_below = minimal.get_pos_under(pointed_thing.above)
             local sediment = minimal.in_group(pos_below, "sediment")
             if sediment and above.name == "air" then
-                minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_seedling5"})
+                minetest.set_node(pointed_thing.above,
+                                  { name = "nodes_nature:rzepicha_seedling5" })
                 plant.set_to_domesticated(pointed_thing.above)
                 if not minimal.player_in_creative(placer) then
                     itemstack:take_item()
@@ -555,24 +567,24 @@ minetest.override_item(
 --marbhan has a Neurotoxin
 minetest.override_item(
     "nodes_nature:marbhan",{
-		_on_consume = function(user, itemstack, pointed_thing)
-      --Similar to hemlock, which tastes musty or like mouse urine
-      minetest.chat_send_player(user:get_player_name(),
-                            S("This plant has a foul musty flavor."))
+        _on_consume = function(user, itemstack, pointed_thing)
+            --Similar to hemlock, which tastes musty or like mouse urine
+            minetest.chat_send_player(user:get_player_name(),
+                                      S("This plant has a foul musty flavor."))
 
-      return HEALTH.eatdrink(itemstack, user, pointed_thing)
-  end,
+            return HEALTH.eatdrink(itemstack, user, pointed_thing)
+        end,
 })
 
 
 --nebiyi has a Hepatotoxin
 minetest.override_item(
     "nodes_nature:nebiyi",{
-		_on_consume = function(user, itemstack, pointed_thing)
-    --Flowers look a bit like oleander; it causes intense stomach pain
-      minetest.chat_send_player(user:get_player_name(),
-                                  S("Your stomach hurts terribly."))
+        _on_consume = function(user, itemstack, pointed_thing)
+            --Flowers look a bit like oleander; it causes intense stomach pain
+            minetest.chat_send_player(user:get_player_name(),
+                                      S("Your stomach hurts terribly."))
 
-        return HEALTH.eatdrink(itemstack, user, pointed_thing)
-    end,
+            return HEALTH.eatdrink(itemstack, user, pointed_thing)
+        end,
 })

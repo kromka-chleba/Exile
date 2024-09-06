@@ -80,15 +80,16 @@ function lightsource.save_to_inventory(desc, pos, digger, lit)
     local player_inv = digger:get_inventory()
     if player_inv:room_for_item("main", new_stack) then
         player_inv:add_item("main", new_stack)
-	minetest.remove_node(pos)
+        minetest.remove_node(pos)
     elseif not minimal.stop_on_inv_full(digger) then
-       minetest.add_item(pos, new_stack)
-       minetest.remove_node(pos)
+        minetest.add_item(pos, new_stack)
+        minetest.remove_node(pos)
     end
 end
 
 local function check_for_moisture(pos)
-    return climate.get_rain(pos) or minetest.find_node_near(pos, 1, {"group:water"})
+    return climate.get_rain(pos)
+        or minetest.find_node_near(pos, 1, {"group:water"})
 end
 
 local function check_for_air(pos)
@@ -117,13 +118,13 @@ function lightsource.burn_fuel(desc, pos, meta)
     meta = meta or minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
     if ( fuel < 1 or not check_for_air(pos) or
-	 desc.put_out_by_moisture and check_for_moisture(pos) )then
-       lightsource.extinguish(desc, pos)
-       return false -- stop timer
+         desc.put_out_by_moisture and check_for_moisture(pos) )then
+        lightsource.extinguish(desc, pos)
+        return false -- stop timer
     else
         -- lightsource.spawn_particles(desc, pos)
         meta:set_int("fuel", fuel - math.random(-1, 3))
-	lightsource.update_fuel_infotext(desc, pos, meta)
+        lightsource.update_fuel_infotext(desc, pos, meta)
         return true -- next iteration
     end
 end
@@ -149,7 +150,9 @@ function lightsource.refill(desc, pos, clicker, itemstack)
     if stack_name == desc.fuel_name then
         if fuel and fuel < desc.max_fuel then
             fuel = fuel + desc.refill_ratio * desc.max_fuel
-            if fuel > desc.max_fuel then fuel = desc.max_fuel end -- yeah, I know lol
+            if fuel > desc.max_fuel then
+                fuel = desc.max_fuel -- yeah, I know lol
+            end
             meta:set_int("fuel", fuel)
             local name = clicker:get_player_name()
             if not minimal.player_in_creative(name) then
@@ -164,8 +167,8 @@ end
 
 -- for new infotext function handling
 function lightsource.infotext_get(pos, nodedef, meta, params)
-  params = minimal.infotext_update_params(meta, params)
-  params.description = nodedef.description
-  local infotext = minimal.infotext_get_base_string(nil, meta, params)
-  return infotext..(params.status and "\n"..params.status or "")
+    params = minimal.infotext_update_params(meta, params)
+    params.description = nodedef.description
+    local infotext = minimal.infotext_get_base_string(nil, meta, params)
+    return infotext..(params.status and "\n"..params.status or "")
 end

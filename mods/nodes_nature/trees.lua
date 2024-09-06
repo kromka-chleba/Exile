@@ -3,12 +3,12 @@
 --
 
 --[[param2
-Currently the following meshes are choosable:
-  * 0 = a "x" shaped plant (ordinary plant)
-  * 1 = a "+" shaped plant (just rotated 45 degrees)
-  * 2 = a "*" shaped plant with 3 faces instead of 2
-  * 3 = a "#" shaped plant with 4 faces instead of 2
-  * 4 = a "#" shaped plant with 4 faces that lean
+    Currently the following meshes are choosable:
+    * 0 = a "x" shaped plant (ordinary plant)
+    * 1 = a "+" shaped plant (just rotated 45 degrees)
+    * 2 = a "*" shaped plant with 3 faces instead of 2
+    * 3 = a "#" shaped plant with 4 faces instead of 2
+    * 4 = a "#" shaped plant with 4 faces that lean
 ]]
 
 -- Internationalization
@@ -31,103 +31,123 @@ minimal = minimal
 
 -- Leafdecay
 local function leafdecay_after_destruct(pos, oldnode, def)
-	for _, v in pairs(minetest.find_nodes_in_area(vector.subtract(pos, def.radius),
-			vector.add(pos, def.radius), def.leaves)) do
-		local node = minetest.get_node(v)
-		local timer = minetest.get_node_timer(v)
-		if node.param2 == 0 and not timer:is_started() then
-			timer:start(random(20, 120) / 10)
-		end
-	end
+    for _, v in pairs(minetest.find_nodes_in_area(
+                          vector.subtract(pos, def.radius),
+                          vector.add(pos, def.radius), def.leaves)) do
+        local node = minetest.get_node(v)
+        local timer = minetest.get_node_timer(v)
+        if node.param2 == 0 and not timer:is_started() then
+            timer:start(random(20, 120) / 10)
+        end
+    end
 end
 
 local function leafdecay_on_timer(pos, def)
-	if minetest.find_node_near(pos, def.radius, def.trunks) then
-		return false
-	end
+    if minetest.find_node_near(pos, def.radius, def.trunks) then
+        return false
+    end
 
-	local node = minetest.get_node(pos)
-	local drops = minetest.get_node_drops(node.name)
-	for _, item in ipairs(drops) do
-		local is_leaf
-		for _, v in pairs(def.leaves) do
-			if v == item then
-				is_leaf = true
-			end
-		end
-		if minetest.get_item_group(item, "leafdecay_drop") ~= 0 or
-				not is_leaf then
-			minetest.add_item({
-				x = pos.x - 0.5 + random(),
-				y = pos.y - 0.5 + random(),
-				z = pos.z - 0.5 + random(),
-			}, item)
-		end
-	end
+    local node = minetest.get_node(pos)
+    local drops = minetest.get_node_drops(node.name)
+    for _, item in ipairs(drops) do
+        local is_leaf
+        for _, v in pairs(def.leaves) do
+            if v == item then
+                is_leaf = true
+            end
+        end
+        if minetest.get_item_group(item, "leafdecay_drop") ~= 0 or
+            not is_leaf then
+            minetest.add_item({
+                    x = pos.x - 0.5 + random(),
+                    y = pos.y - 0.5 + random(),
+                    z = pos.z - 0.5 + random(),
+                              }, item)
+        end
+    end
 
-	minetest.remove_node(pos)
-	minetest.check_for_falling(pos)
+    minetest.remove_node(pos)
+    minetest.check_for_falling(pos)
 end
 
 local function register_leafdecay(def)
-	assert(def.leaves)
-	assert(def.trunks)
-	assert(def.radius)
-	for _, v in pairs(def.trunks) do
-		minetest.override_item(v, {
-			after_destruct = function(pos, oldnode)
-				leafdecay_after_destruct(pos, oldnode, def)
-			end,
-		})
-	end
-	for _, v in pairs(def.leaves) do
-		minetest.override_item(v, {
-			on_timer = function(pos)
-				leafdecay_on_timer(pos, def)
-			end,
-		})
-	end
+    assert(def.leaves)
+    assert(def.trunks)
+    assert(def.radius)
+    for _, v in pairs(def.trunks) do
+        minetest.override_item(v, {
+                                   after_destruct = function(pos, oldnode)
+                                       leafdecay_after_destruct(pos, oldnode,
+                                                                def)
+                                   end,
+        })
+    end
+    for _, v in pairs(def.leaves) do
+        minetest.override_item(v, {
+                                   on_timer = function(pos)
+                                       leafdecay_on_timer(pos, def)
+                                   end,
+        })
+    end
 end
 
--- get mark timer data (for determining how you should operate a node timer for treestuff)
+-- get mark timer data
+--  (for determining how you should operate a node timer for treestuff)
+
 -- use timer max table to determine set time
 -- use timer min table to determine the lowest point that it should ever go to
+
 -- data (nodedef), datatype (leaf, fruit, defaults to log otherwise)
+
 local function get_mark_timer_data(data, dtype)
-  data = type(data) == "table" and minetest.registered_nodes[data.name] or minimal.get_nodedef(data)
-  -- returns no data on failure
-  if not data then return end
-  -- getting timer from base tree timer values
-  local dtype_time = dtype == "leaves" and trees.tree_base_leaf_growth or dtype == "fruit" and trees.tree_base_fruit_growth
-    or trees.tree_base_tree_growth
-  -- setting up "mark_timer" to be used as future logic
-  -- prioritize provided nodedef, otherwise create one with provided base dtype logic
-  local mark_timer = {min=data.mark_timer_min, max=data.mark_timer_max, randtime = data.mark_timer_randomtime}
-  -- get and set values for max and min
-  mark_timer.max = mark_timer.max or mark_timer.min and mark_timer.min * 6 or dtype_time
-  mark_timer.min = mark_timer.min or mark_timer.max / 6
-  -- round up
-  mark_timer.max = math.ceil(mark_timer.max)
-  mark_timer.min = math.ceil(mark_timer.min)
-  -- set randtime values
-  mark_timer.randtime = type(mark_timer.randtime) == "table" and mark_timer.randtime or type(mark_timer.randtime) == "number"
-    and {mark_timer.randtime*0.95, mark_timer.randtime} or {} -- create empty for below
-  -- set random max (2nd parameter) to max if above max or set to max if empty
-  mark_timer.randtime[2] = mark_timer.randtime[2] and
-    (mark_timer.randtime[2] > mark_timer.max and mark_timer.max or mark_timer.randtime[2]) or mark_timer.max
-  -- set random min (1st parameter) to min if below min or set to min if empty
-  mark_timer.randtime[1] = mark_timer.randtime[1] and
-    (mark_timer.randtime[1] < mark_timer.min and mark_timer.min or mark_timer.randtime[1]) or mark_timer.min
-  -- syntactic sugar functions
-  function mark_timer:get_new_time()
-    return random(mark_timer.randtime[1], mark_timer.randtime[2])
-  end
-  function mark_timer:mutate_time(old_time)
-    if type(old_time) ~= "number" then return old_time end
-    return math.max(old_time - random(1, 1200), mark_timer.min)
-  end
-  -- return
-  return mark_timer
+    data = type(data) == "table" and minetest.registered_nodes[data.name]
+        or minimal.get_nodedef(data)
+    -- returns no data on failure
+    if not data then return end
+    -- getting timer from base tree timer values
+    local dtype_time = dtype == "leaves" and trees.tree_base_leaf_growth
+        or dtype == "fruit" and trees.tree_base_fruit_growth
+        or trees.tree_base_tree_growth
+    -- setting up "mark_timer" to be used as future logic
+    -- prioritize provided nodedef,
+    --  otherwise create one with provided base dtype logic
+    local mark_timer = {min=data.mark_timer_min,
+                        max=data.mark_timer_max,
+                        randtime = data.mark_timer_randomtime}
+    -- get and set values for max and min
+    mark_timer.max = mark_timer.max
+        or mark_timer.min and mark_timer.min * 6
+        or dtype_time
+    mark_timer.min = mark_timer.min or mark_timer.max / 6
+    -- round up
+    mark_timer.max = math.ceil(mark_timer.max)
+    mark_timer.min = math.ceil(mark_timer.min)
+    -- set randtime values
+    mark_timer.randtime =
+        type(mark_timer.randtime) == "table" and mark_timer.randtime
+        or type(mark_timer.randtime) == "number" and {mark_timer.randtime*0.95,
+                                                      mark_timer.randtime}
+        or {} -- create empty for below
+    -- set random max (2nd parameter) to max if above max or set to max if empty
+    mark_timer.randtime[2] = mark_timer.randtime[2] and
+        (mark_timer.randtime[2] > mark_timer.max and mark_timer.max
+         or mark_timer.randtime[2])
+        or mark_timer.max
+    -- set random min (1st parameter) to min if below min or set to min if empty
+    mark_timer.randtime[1] = mark_timer.randtime[1] and
+        (mark_timer.randtime[1] < mark_timer.min and mark_timer.min
+         or mark_timer.randtime[1])
+        or mark_timer.min
+    -- syntactic sugar functions
+    function mark_timer:get_new_time()
+        return random(mark_timer.randtime[1], mark_timer.randtime[2])
+    end
+    function mark_timer:mutate_time(old_time)
+        if type(old_time) ~= "number" then return old_time end
+        return math.max(old_time - random(1, 1200), mark_timer.min)
+    end
+    -- return
+    return mark_timer
 end
 
 ---------------------------------------------------------
@@ -136,115 +156,128 @@ end
 -- e.g. has relating leaves, fruits, or trunks
 -- permits tree-less leaves and fruits to regrow from each other
 local function tree_mark_can_regrow(pos, def)
-  def = type(def) == "string" and minetest.registered_nodes[def] or type(def) == "table"
-    and minetest.registered_nodes[def.name] or minimal.get_nodedef(def)
-  if not def then return false end
-  -- get tree variant for information
-  local tree_def = minetest.registered_nodes[def.tree]
-  if not tree_def then
-    -- oh wait, we're the tree! ah silly me
-    if def and def.groups and def.groups.tree then
-      tree_def = def
-    -- permit allowing to search for other nodes of itself (tree-less leaves or fruits)
-    else
-      -- create a weird tree_def
-      tree_def = {
-        tree_fruits = def.tree_fruits or def.name:sub(-5) == "fruit" and {def.name} or nil,
-        tree_leaves = def.tree_leaves or def.name:sub(-6) == "leaves" and {def.name} or nil
-      }
-    end
-  end
-  -- literally couldn't save anything, what was going on with your code?
-  if not (tree_def.name or tree_def.tree_fruits or tree_def.tree_leaves) then
-    return false
-  end
-  -- got tree_def, now get supporting nodes
-  local nodes = {}
-  -- get positions
-  for x = -1, 1 do
-    local npos = {}
-    npos.x = pos.x + x
-    for y = -1, 1 do
-      npos.y = pos.y + y
-      for z = -1, 1 do
-        npos.z = pos.z + z
-        -- if not original position
-        if not (x == 0 and y == 0 and z == 0) then
-          local nodename = minetest.get_node(npos).name
-          nodes[nodename] = (nodes[nodename] and nodes[nodename] + 1) or 1
+    def = type(def) == "string" and minetest.registered_nodes[def]
+        or type(def) == "table" and minetest.registered_nodes[def.name]
+        or minimal.get_nodedef(def)
+    if not def then return false end
+    -- get tree variant for information
+    local tree_def = minetest.registered_nodes[def.tree]
+    if not tree_def then
+        -- oh wait, we're the tree! ah silly me
+        if def and def.groups and def.groups.tree then
+            tree_def = def
+            -- permit allowing to search for other nodes of itself
+            --  (tree-less leaves or fruits)
+        else
+            -- create a weird tree_def
+            tree_def = {
+                tree_fruits = def.tree_fruits
+                    or def.name:sub(-5) == "fruit" and {def.name}
+                    or nil,
+                tree_leaves = def.tree_leaves
+                    or def.name:sub(-6) == "leaves" and {def.name}
+                    or nil
+            }
         end
-      end
     end
-  end
-  -- get types of nodes to search for
-  local search = {tree_def.name}
-  for _,add in pairs(tree_def.tree_fruits or {}) do
-    search[#search + 1] = add
-  end
-  for _,add in pairs(tree_def.tree_leaves or {}) do
-    search[#search + 1] = add
-  end
-  -- now to check through valid neighbouring tree trunks, fruits, and leaves
-  for _,support in pairs(search) do
-    if nodes[support] then return true end
-  end
-  return false
+    -- literally couldn't save anything, what was going on with your code?
+    if not (tree_def.name or tree_def.tree_fruits or tree_def.tree_leaves) then
+        return false
+    end
+    -- got tree_def, now get supporting nodes
+    local nodes = {}
+    -- get positions
+    for x = -1, 1 do
+        local npos = {}
+        npos.x = pos.x + x
+        for y = -1, 1 do
+            npos.y = pos.y + y
+            for z = -1, 1 do
+                npos.z = pos.z + z
+                -- if not original position
+                if not (x == 0 and y == 0 and z == 0) then
+                    local nodename = minetest.get_node(npos).name
+                    nodes[nodename] = (nodes[nodename] and nodes[nodename] + 1)
+                        or 1
+                end
+            end
+        end
+    end
+    -- get types of nodes to search for
+    local search = {tree_def.name}
+    for _,add in pairs(tree_def.tree_fruits or {}) do
+        search[#search + 1] = add
+    end
+    for _,add in pairs(tree_def.tree_leaves or {}) do
+        search[#search + 1] = add
+    end
+    -- now to check through valid neighbouring tree trunks, fruits, and leaves
+    for _,support in pairs(search) do
+        if nodes[support] then return true end
+    end
+    return false
 end
 
 -- used for on_timer of tree_marks
--- determines whether or not to check later, to grow the tree_mark saved name, or to remove the tree_mark
+-- determines whether or not to check later,
+--  to grow the tree_mark saved name, or to remove the tree_mark
 local function tree_mark_timer(pos, elapsed)
-  -- let's run this around again folks!
-  if seasons.is_winter() then return true end
-  local meta = minetest.get_meta(pos)
-  local saved_name = meta:get_string("saved_name")
-  -- backwards compatibility for fruit (get alias of saved_name if exists)
-  if not minetest.registered_nodes[saved_name] then
-    saved_name = minetest.registered_aliases[saved_name]
-  end
-  -- Tree mark w/no name from schematic or a nil node, remove
-  if saved_name == "" or not minetest.registered_nodes[saved_name] then
-    minetest.remove_node(pos)
-    return false
-  end
-  -- now for nodes, timer stuff
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[saved_name]
-  local timer_data = get_mark_timer_data(nodedef,
-    (nodedef.name:sub(-6) == "leaves" and "leaves" or nodedef.name:sub(-5) == "fruit" and "fruit" or nil)
-  )
-  -- could not get timer_data (how???), remove node
-  if not timer_data then
-    minetest.remove_node(pos)
-    return false
-  end
-  local ntimer = minetest.get_node_timer(pos)
-  local timeout = ntimer:get_timeout()
-  -- timer is unnecessarily long, shorten back down
-  if timeout > timer_data.max then
-    timeout = timer_data:get_new_time()
-  end
-  -- can we grow from this tree mark?
-  if tree_mark_can_regrow(pos, nodedef) then
-    -- needs rain for growth
-    if climate.get_rain(pos, 15) or climate.time_since_rain(elapsed) > 0 then
-      -- fix for tree mark's param2 being 16 if dug by player (there was no proper application of this param2 16 lol)
-      if node.param2 == 16 and nodedef.place_param2 then
-        node.param2 = nodedef.place_param2
-      end
-      minetest.set_node(pos, {name=saved_name, param2 = node.param2})
-    -- no rain, so wait, but for a shorter time
+    -- let's run this around again folks!
+    if seasons.is_winter() then return true end
+    local meta = minetest.get_meta(pos)
+    local saved_name = meta:get_string("saved_name")
+    -- backwards compatibility for fruit (get alias of saved_name if exists)
+    if not minetest.registered_nodes[saved_name] then
+        saved_name = minetest.registered_aliases[saved_name]
+    end
+    -- Tree mark w/no name from schematic or a nil node, remove
+    if saved_name == "" or not minetest.registered_nodes[saved_name] then
+        minetest.remove_node(pos)
+        return false
+    end
+    -- now for nodes, timer stuff
+    local node = minetest.get_node(pos)
+    local nodedef = minetest.registered_nodes[saved_name]
+    local timer_data = get_mark_timer_data(
+        nodedef,
+        ( nodedef.name:sub(-6) == "leaves" and "leaves"
+          or nodedef.name:sub(-5) == "fruit" and "fruit"
+          or nil ) )
+    -- could not get timer_data (how???), remove node
+    if not timer_data then
+        minetest.remove_node(pos)
+        return false
+    end
+    local ntimer = minetest.get_node_timer(pos)
+    local timeout = ntimer:get_timeout()
+    -- timer is unnecessarily long, shorten back down
+    if timeout > timer_data.max then
+        timeout = timer_data:get_new_time()
+    end
+    -- can we grow from this tree mark?
+    if tree_mark_can_regrow(pos, nodedef) then
+        -- needs rain for growth
+        if climate.get_rain(pos, 15)
+            or climate.time_since_rain(elapsed) > 0 then
+            -- fix for tree mark's param2 being 16 if dug by player
+            --  (there was no proper application of this param2 16 lol)
+            if node.param2 == 16 and nodedef.place_param2 then
+                node.param2 = nodedef.place_param2
+            end
+            minetest.set_node(pos, {name=saved_name, param2 = node.param2})
+            -- no rain, so wait, but for a shorter time
+        else
+            minetest.get_node_timer(pos):set(timer_data:mutate_time(timeout), 0)
+            return true
+        end
     else
-      minetest.get_node_timer(pos):set(timer_data:mutate_time(timeout), 0)
-      return true
+        local season_n, season_day = seasons.get_season_and_day()
+        -- season number, season day
+        if season_n == 1 and season_day < 11 then
+            return true -- wait until late spring to give up on regrowth
+        end
+        minetest.remove_node(pos) -- it's dead, Jim!
     end
-  else
-    local season_n, season_day = seasons.get_season_and_day() -- season number, season day
-    if season_n == 1 and season_day < 11 then
-      return true -- wait until late spring to give up on regrowth
-    end
-    minetest.remove_node(pos) -- it's dead, Jim!
-  end
 end
 
 --
@@ -254,7 +287,7 @@ end
 minetest.register_node(
     "nodes_nature:tree_mark", {
         description = S("Tree Marker"),
-	drawtype = "airlike",
+        drawtype = "airlike",
         paramtype = "light",
         sunlight_propagates = true,
         walkable = false,
@@ -271,15 +304,15 @@ minetest.register_node(
 
 -- DEBUG: uncomment to make tree marks visible and pointable
 --[[
-   minetest.override_item(
-      "nodes_nature:tree_mark", {
-	 tiles = {"climate_air.png"},
-	 post_effect_color = {a = 5, r = 254, g = 254, b = 254},
-	 color = {a=0, r=254, g = 254, b = 254},
-	 use_texture_alpha = "blend",
-	 drawtype = "allfaces",
-	 pointable = true
-   })
+    minetest.override_item(
+    "nodes_nature:tree_mark", {
+    tiles = {"climate_air.png"},
+    post_effect_color = {a = 5, r = 254, g = 254, b = 254},
+    color = {a=0, r=254, g = 254, b = 254},
+    use_texture_alpha = "blend",
+    drawtype = "allfaces",
+    pointable = true
+    })
 --]]
 
 
@@ -288,334 +321,386 @@ minetest.register_node(
 -- save dug tree part as a tree mark
 -- by_player parameter is currently unused (why did we have this?)
 local function save_to_tree_mark(pos, oldnode, by_player)
-  minetest.set_node(pos, {name = "nodes_nature:tree_mark", param2 = oldnode.param2})
-  local meta = minetest.get_meta(pos)
-  meta:set_string("saved_name", oldnode.name)
+    minetest.set_node(pos, {name = "nodes_nature:tree_mark",
+                            param2 = oldnode.param2})
+    local meta = minetest.get_meta(pos)
+    meta:set_string("saved_name", oldnode.name)
 end
 
 -- register_leaves
 -- register leaves for a tree (or without one?)
 -- tree parameter used for ensuring growback
 function trees.register_leaves(name, def, tree)
-  assert(type(name) == "string", "trees.register_leaves: got non-string for name: "..tostring(name).." : "..type(name))
-  assert(type(def) == "table","trees.register_leaves: got non-table for definition: "..tostring(def).." : "..type(def))
-  assert(name:sub(-6) == "leaves","trees.register_leaves: improper naming convention, expected 'leaves' at end, got: "..name:sub(-6))
-  tree = type(tree) == "string" and tree or type(tree) == "table" and type(tree.name) == "string" and tree.name or nil
-  def.tree = tree -- used to associate to for regrowth from tree_mark
-  -- leaf groups
-  def.groups = def.groups or {}
-  def.groups.choppy = def.groups.choppy or 3
-  def.groups.flammable = def.groups.flammable or 2
-  def.groups.woody_plant = 1
-  def.groups.leafdecay = 1
-  def.groups.leafdecay_drop = 1
-  def.groups.drops_leaves = def.groups.drops_leaves or 1
-  -- if less than 1 then no dropping leaves
-  def.groups.drops_leaves = def.groups.drops_leaves > 0 and def.groups.drops_leaves or nil
-  -- non-groups stuff
-  def.drawtype = def.drawtype or "plantlike"
-  def.tiles = def.tiles or {name:gsub(":","_")..".png"}
-  def.paramtype = def.paramtype or "light"
-  def.paramtype2 = def.paramtype2 or "meshoptions"
-  def.visual_scale = def.visual_scale or def.paramtype2 == "meshoptions" and 1 or nil
-  def.stack_max = def.stack_max or minimal.stack_max_bulky * 3
-  def.place_param2 = def.place_param2 or 4
-  -- leaves not walkable normally
-  if type(def.walkable) ~= "boolean" then def.walkable = false end
-  -- leaves are usually climbable!
-  def.climbable = type(def.climbable) ~= "boolean" and true or def.climbable
-  def.sounds = def.sounds or nodes_nature.node_sound_leaves_defaults()
+    assert(type(name) == "string",
+           "trees.register_leaves: got non-string for name: "..
+           tostring(name).." : "..type(name))
+    assert(type(def) == "table",
+           "trees.register_leaves: got non-table for definition: "..
+           tostring(def).." : "..type(def))
+    assert(name:sub(-6) == "leaves",
+           "trees.register_leaves: improper naming convention, expected "..
+           "'leaves' at end, got: "..name:sub(-6))
+    tree = type(tree) == "string" and tree
+        or type(tree) == "table" and type(tree.name) == "string" and tree.name
+        or nil
+    def.tree = tree -- used to associate to for regrowth from tree_mark
+    -- leaf groups
+    def.groups = def.groups or {}
+    def.groups.choppy = def.groups.choppy or 3
+    def.groups.flammable = def.groups.flammable or 2
+    def.groups.woody_plant = 1
+    def.groups.leafdecay = 1
+    def.groups.leafdecay_drop = 1
+    def.groups.drops_leaves = def.groups.drops_leaves or 1
+    -- if less than 1 then no dropping leaves
+    def.groups.drops_leaves =
+        def.groups.drops_leaves > 0 and def.groups.drops_leaves or nil
+    -- non-groups stuff
+    def.drawtype = def.drawtype or "plantlike"
+    def.tiles = def.tiles or {name:gsub(":","_")..".png"}
+    def.paramtype = def.paramtype or "light"
+    def.paramtype2 = def.paramtype2 or "meshoptions"
+    def.visual_scale = def.visual_scale
+        or def.paramtype2 == "meshoptions" and 1 or nil
+    def.stack_max = def.stack_max or minimal.stack_max_bulky * 3
+    def.place_param2 = def.place_param2 or 4
+    -- leaves not walkable normally
+    if type(def.walkable) ~= "boolean" then def.walkable = false end
+    -- leaves are usually climbable!
+    def.climbable = type(def.climbable) ~= "boolean" and true or def.climbable
+    def.sounds = def.sounds or nodes_nature.node_sound_leaves_defaults()
 
-  -- functions
-  def.after_place_node = def.after_place_node or function(pos, placer, itemstack)
-    if minimal.player_in_creative(placer) or not minetest.is_player(placer) then
-      return
+    -- functions
+    def.after_place_node = def.after_place_node or function(pos, placer,
+                                                            itemstack)
+        if minimal.player_in_creative(placer)
+            or not minetest.is_player(placer) then
+
+            return
+        end
+        minimal.switch_node(pos, {name=def.name,
+                                  param2 = def.place_param2 + 128})
     end
-    minimal.switch_node(pos, {name=def.name, param2 = def.place_param2 + 128})
-  end
 
-  def.after_destruct = def.after_destruct or function(pos, node)
-    -- wild
-    if node.param2 < 128 then
-      save_to_tree_mark(pos, node, false)
-      local season, day = seasons.get_season_and_day()
-      -- late winter (hunger)
-      if season == 4 then
-        local remaining = 20 - day
-        minetest.get_node_timer(pos):start(
-            random(remaining * 1200, (remaining+5)*1200)
-        )
-      -- not winter
-      else
-        minetest.log("info", "Node at "..
-          pos.x.."/"..pos.y.."/"..pos.z..
-          " was destroyed outside winter")
-        -- nodetimer time
-        local timer_data = get_mark_timer_data(def,"leaves")
-        minetest.get_node_timer(pos):start(timer_data:get_new_time())
-      end
+    def.after_destruct = def.after_destruct or function(pos, node)
+        -- wild
+        if node.param2 < 128 then
+            save_to_tree_mark(pos, node, false)
+            local season, day = seasons.get_season_and_day()
+            -- late winter (hunger)
+            if season == 4 then
+                local remaining = 20 - day
+                minetest.get_node_timer(pos):start(
+                    random(remaining * 1200, (remaining+5)*1200)
+                                                  )
+                -- not winter
+            else
+                minetest.log("info", "Node at "..
+                             pos.x.."/"..pos.y.."/"..pos.z..
+                             " was destroyed outside winter")
+                -- nodetimer time
+                local timer_data = get_mark_timer_data(def,"leaves")
+                minetest.get_node_timer(pos):start(timer_data:get_new_time())
+            end
+        end
     end
-  end
 
-  def.after_dig_node = def.after_dig_node or function(pos, oldnode, oldmetadata, digger)
-    -- wild
-    if oldnode.param2 < 128 then
-      save_to_tree_mark(pos, oldnode, true)
-      local timer_data = get_mark_timer_data(def,"leaves")
-      minetest.get_node_timer(pos):start(timer_data:get_new_time())
+    def.after_dig_node = def.after_dig_node or function(pos, oldnode,
+                                                        oldmetadata, digger)
+        -- wild
+        if oldnode.param2 < 128 then
+            save_to_tree_mark(pos, oldnode, true)
+            local timer_data = get_mark_timer_data(def,"leaves")
+            minetest.get_node_timer(pos):start(timer_data:get_new_time())
+        end
     end
-  end
 
-  -- finalizing leaves definition and updating def variable to it (for use by functions above)
-  minetest.register_node(name,def)
-  def = minetest.registered_nodes[name]
-  return def -- return def for use
+    -- finalizing leaves definition and updating def variable to it
+    --  (for use by functions above)
+    minetest.register_node(name,def)
+    def = minetest.registered_nodes[name]
+    return def -- return def for use
 end
 
 -- register_fruit
 -- register fruit for a tree (or without one?)
 -- tree parameter used for ensuring growback
 function trees.register_fruit(name, def, tree)
-  assert(type(name) == "string", "trees.register_fruit: got non-string for name: "..tostring(name).." : "..type(name))
-  assert(type(def) == "table","trees.register_fruit: got non-table for definition: "..tostring(def).." : "..type(def))
-  assert(name:sub(-5) == "fruit","trees.register_fruit: improper naming convention, expected 'fruit' at end, got: "..name:sub(-5))
-  def.tree = tree -- used to associate to for regrowth from tree_mark
-  -- fruit groups
-  def.groups = def.groups or {}
-  def.groups.fruit = 1
-  def.groups.tree_fruit = 1
-  def.groups.flammable = def.groups.flammable or 2
-  def.groups.dig_immediate = def.groups.dig_immediate or 3
-  def.groups.leafdecay = def.groups.leafdecay or 3
-  def.groups.leafdecay_drop = 1
-  def.groups.drops_leaves = def.groups.drops_leaves or 1
-  -- ncrafting_dye_candidate ?
-  -- if less than 1 then no dropping leaves
-  def.groups.drops_leaves = def.groups.drops_leaves > 0 and def.groups.drops_leaves or nil
-  def.selection_box = def.selection_box or {
-    fixed = {-3 / 16, -7 / 16, -3 / 16,
-    3 / 16, 4 / 16, 3 / 16}
-  }
-  -- very cheap way of making a selection box (just the table itself)
-  if not def.selection_box.fixed and type(def.selection_box) == "table" then
-    def.selection_box = {fixed = def.selection_box}
-  end
-  def.selection_box.type = def.selection_box.type or "fixed"
-  def.drawtype = def.drawtype or "plantlike"
-  def.stack_max = def.stack_max or minimal.stack_max_medium
-  -- imagery
-  local texture_base = name:gsub(":","_")
-  def.tiles = def.tiles or {texture_base..".png"}
-  def.inventory_image = def.inventory_image or texture_base..".png"
-  def.wield_image = def.wield_image or def.inventory_image
-  -- paramtypes
-  def.paramtype = def.paramtype or "light"
-  def.paramtype2 = def.paramtype2 or "meshoptions"
-  def.place_param2 = def.place_param2 or 1 -- 2
-  -- default true
-  def.sunlight_propagates = type(def.sunlight_propagates) ~= "boolean" and true or def.sunlight_propagates
-  if type(def.walkable) ~= "boolean" then def.walkable = false end -- default false
-  def.sounds = def.sounds or nodes_nature.node_sound_defaults()
-
-  -- ncrafting dye
-  def.groups.ncrafting_dye_candidate = def.dyecandidate == true and 1 or
-    type(def.dyecandidate) == "number" and def.dyecandidate > 0 and def.dyecandidate or nil
-  -- only go for dye stuff is a dye candidate
-  if def.groups.ncrafting_dye_candidate then
-    def._ncrafting_dye_dcolor = def._ncrafting_dye_dcolor or def.dominantcolor or "none"
-    -- remove from def
-    def.dyecandidate = nil
-    def.dominantcolor = nil
-  -- remove unnecessary value
-  else
-    def._ncrafting_dye_dcolor = nil
-  end
-
-  -- functions
-  def.after_place_node = def.after_place_node or function(pos, placer, itemstack)
-    if minimal.player_in_creative(placer) or not minetest.is_player(placer) then
-      return
+    assert(type(name) == "string",
+           "trees.register_fruit: got non-string for name: "..
+           tostring(name).." : "..type(name))
+    assert(type(def) == "table",
+           "trees.register_fruit: got non-table for definition: "..
+           tostring(def).." : "..type(def))
+    assert(name:sub(-5) == "fruit",
+           "trees.register_fruit: improper naming convention, expected "..
+           "'fruit' at end, got: "..name:sub(-5))
+    def.tree = tree -- used to associate to for regrowth from tree_mark
+    -- fruit groups
+    def.groups = def.groups or {}
+    def.groups.fruit = 1
+    def.groups.tree_fruit = 1
+    def.groups.flammable = def.groups.flammable or 2
+    def.groups.dig_immediate = def.groups.dig_immediate or 3
+    def.groups.leafdecay = def.groups.leafdecay or 3
+    def.groups.leafdecay_drop = 1
+    def.groups.drops_leaves = def.groups.drops_leaves or 1
+    -- ncrafting_dye_candidate ?
+    -- if less than 1 then no dropping leaves
+    def.groups.drops_leaves =
+        def.groups.drops_leaves > 0 and def.groups.drops_leaves or nil
+    def.selection_box = def.selection_box or {
+        fixed = {-3 / 16, -7 / 16, -3 / 16,
+                 3 / 16, 4 / 16, 3 / 16}
+                                             }
+    -- very cheap way of making a selection box (just the table itself)
+    if not def.selection_box.fixed and type(def.selection_box) == "table" then
+        def.selection_box = {fixed = def.selection_box}
     end
-    minimal.switch_node(pos, {name=def.name, param2 = def.place_param2 + 128})
-  end
+    def.selection_box.type = def.selection_box.type or "fixed"
+    def.drawtype = def.drawtype or "plantlike"
+    def.stack_max = def.stack_max or minimal.stack_max_medium
+    -- imagery
+    local texture_base = name:gsub(":","_")
+    def.tiles = def.tiles or {texture_base..".png"}
+    def.inventory_image = def.inventory_image or texture_base..".png"
+    def.wield_image = def.wield_image or def.inventory_image
+    -- paramtypes
+    def.paramtype = def.paramtype or "light"
+    def.paramtype2 = def.paramtype2 or "meshoptions"
+    def.place_param2 = def.place_param2 or 1 -- 2
+    -- default true
+    def.sunlight_propagates =
+        type(def.sunlight_propagates) ~= "boolean" and true
+        or def.sunlight_propagates
+    if type(def.walkable) ~= "boolean" then def.walkable = false end
+    def.sounds = def.sounds or nodes_nature.node_sound_defaults()
 
-  def.after_destruct = def.after_destruct or function(pos, node, oldmetadata, digger)
-    if node.param2 < 128 then
-      save_to_tree_mark(pos, node, false)
-      local season, day = seasons.get_season_and_day()
-      -- late winter (hunger)
-      if season == 4 then
-        local remaining = 20 - day
-        minetest.get_node_timer(pos):start(
-            random(remaining * 1200, (remaining+5)*1200)
-        )
-      -- not winter
-      else
-        -- nodetimer time
-        local timer_data = get_mark_timer_data(def,"fruit")
-        minetest.get_node_timer(pos):start(timer_data:get_new_time())
-      end
+    -- ncrafting dye
+    def.groups.ncrafting_dye_candidate = def.dyecandidate == true and 1 or
+        type(def.dyecandidate) == "number"
+        and def.dyecandidate > 0 and def.dyecandidate or nil
+    -- only go for dye stuff is a dye candidate
+    if def.groups.ncrafting_dye_candidate then
+        def._ncrafting_dye_dcolor =
+            def._ncrafting_dye_dcolor
+            or def.dominantcolor
+            or "none"
+        -- remove from def
+        def.dyecandidate = nil
+        def.dominantcolor = nil
+        -- remove unnecessary value
+    else
+        def._ncrafting_dye_dcolor = nil
     end
-  end
 
-  def.after_dig_node = def.after_dig_node or function(pos, oldnode, oldmetadata, digger)
-    if oldnode.param2 < 128 then
-      save_to_tree_mark(pos, oldnode, true)
-      local timer_data = get_mark_timer_data(def,"fruit")
-      minetest.get_node_timer(pos):start(timer_data:get_new_time())
+    -- functions
+    def.after_place_node = def.after_place_node or function(pos, placer,
+                                                            itemstack)
+        if minimal.player_in_creative(placer)
+            or not minetest.is_player(placer) then
+
+            return
+        end
+        minimal.switch_node(pos, {name=def.name,
+                                  param2 = def.place_param2 + 128})
     end
-  end
 
-  -- finalizing fruit_def
-  local food_table = def.food_table
-  def.food_table = nil
-  minetest.register_node(name,def) -- define node first before food_table
-  -- permit food_table argument if provided
-  HEALTH.add_food_hooks(name, food_table)
-  -- updating def for use by above functions
-  def = minetest.registered_nodes[name]
-  return def -- return def for use
+    def.after_destruct = def.after_destruct or function(pos, node,
+                                                        oldmetadata, digger)
+        if node.param2 < 128 then
+            save_to_tree_mark(pos, node, false)
+            local season, day = seasons.get_season_and_day()
+            -- late winter (hunger)
+            if season == 4 then
+                local remaining = 20 - day
+                minetest.get_node_timer(pos):start(
+                    random(remaining * 1200, (remaining+5)*1200)
+                                                  )
+                -- not winter
+            else
+                -- nodetimer time
+                local timer_data = get_mark_timer_data(def,"fruit")
+                minetest.get_node_timer(pos):start(timer_data:get_new_time())
+            end
+        end
+    end
+
+    def.after_dig_node = def.after_dig_node or function(pos, oldnode,
+                                                        oldmetadata, digger)
+        if oldnode.param2 < 128 then
+            save_to_tree_mark(pos, oldnode, true)
+            local timer_data = get_mark_timer_data(def,"fruit")
+            minetest.get_node_timer(pos):start(timer_data:get_new_time())
+        end
+    end
+
+    -- finalizing fruit_def
+    local food_table = def.food_table
+    def.food_table = nil
+    minetest.register_node(name,def) -- define node first before food_table
+    -- permit food_table argument if provided
+    HEALTH.add_food_hooks(name, food_table)
+    -- updating def for use by above functions
+    def = minetest.registered_nodes[name]
+    return def -- return def for use
 end
 
 -- register_tree
 -- for registering a tree and all the content that follows!
 function trees.register_tree(name,def)
-  assert(type(name) == "string","trees.register_tree: got non-string for name: "..tostring(name).." : "..type(name))
-  assert(type(def) == "table","trees.register_tree: got non-table for definition: "..tostring(def).." : "..type(def))
-  -- check for description and error if unable, as well as other desc argument
-  def.description = def.description or def.desc
-  def.desc = nil
-  assert(type(def.description) == "string","trees.register_tree: base 'description' string needed, got: "..
-    tostring(def.description).." : "..type(def.description))
-  local desc = def.description -- use for ease of typing + prevent accidental override
-  -- add mod_origin
-  if not name:match(":") then
-    def.mod_origin = def.mod_origin or "nodes_nature"
-    name = def.mod_origin..":"..name
-  -- create mod_origin (because we use it lol)
-  elseif not def.mod_origin then
-    local firstp = name:find(":") -- get index of first found ":" - defined as "first point"
-    -- grab mod_origin from name and set it
-    def.mod_origin = name:sub(1,firstp-1)
-  end
-  -- set name for original def
-  def.name = name.."_tree"
-  -- ease of access to defs
-  local leaf_def = def.leaf_def or def.leaves_def
-  local fruit_def = def.fruit_def
-  if leaf_def then
-    leaf_def.description = leaf_def.description or S("@1 Leaves",desc)
-    -- finalize leaf_def
-    leaf_def = trees.register_leaves(name.."_leaves",leaf_def,def.name) -- update leaf_def
-    def.tree_leaves = {leaf_def.name} -- add name to tree_leaves table
-    def.leaf_def = nil
-  end
-  if fruit_def then
-    fruit_def.description = fruit_def.description or S("@1 Fruit",desc)
-    -- finalize fruit_def
-    fruit_def = trees.register_fruit(name.."_fruit",fruit_def,def.name) -- update fruit_def
-    def.tree_fruits = {fruit_def.name}
-    def.fruit_def = nil
-  end
-  -- used to locate textures
-  local texture_base = name:gsub(":","_")
-  -- tree trunk
-  def.description = def.log_description or S("@1 Tree",desc)
-  def.groups = def.groups or {}
-  def.groups.tree = 1
-  def.groups.choppy = def.groups.choppy or (def.hardwood and 1) or 2
-  def.hardwood = nil
-  -- whether or not tree is a hardwood (less than 2 choppy)
-  def.groups.hard_tree = def.groups.choppy <= 1 and 1 or nil
-  -- flame susceptibility calculation ('hardness' aka choppy multiplied by -2)
-  def.groups.flammable = def.groups.flammable or (10 - (def.groups.choppy * -2))
-  -- other trunk stuff
-  def.stack_max = def.stack_max or minimal.stack_max_bulky
-  def.tiles = def.tiles or {
-    texture_base.."_tree_top.png",
-    texture_base.."_tree_top.png",
-    texture_base.."_tree.png"
-  }
-  def.paramtype = def.paramtype or "light"
-  def.paramtype2 = def.paramtype2 or "facedir"
-  def.is_ground_content = false
-  def.sounds = def.sounds or nodes_nature.node_sound_wood_defaults()
-  -- functions
-  def.on_place = def.on_place or minetest.rotate_node
-  def.after_place_node = def.after_place_node or function(pos, placer, itemstack)
-    minetest.set_node(pos, {name=def.name, param2 = 1 + 128})
-  end
-  def.after_dig_node = def.after_dig_node or function(pos, node)
-    -- wild
-    if node.param2 < 128 then
-      save_to_tree_mark(pos, node, true)
-      local timer_data = get_mark_timer_data(def)
-      minetest.get_node_timer(pos):start(timer_data:get_new_time())
-    end
-  end
-  -- tree log (when a tree trunk is cut)
-  local log_def = def.log_def or {}
-  log_def.name = name.."_log"
-  log_def.description = log_def.description or S("@1 Log",def.description)
-  log_def.groups = log_def.groups or {}
-  log_def.groups.log = 1
-  log_def.groups.choppy = log_def.groups.choppy or def.groups.choppy
-  log_def.groups.flammable = log_def.groups.flamamble or def.groups.flammable
-  log_def.groups.hard_wood = def.groups.hard_tree and 1 or nil
-  log_def.tiles = log_def.tiles or {
-    texture_base.."_log_top.png",
-    texture_base.."_log_top.png",
-    texture_base.."_log.png"
-  }
-  log_def.stack_max = log_def.stack_max or def.stack_max
-  log_def.drawtype = log_def.drawtype or "nodebox"
-  log_def.paramtype = log_def.paramtype or "light"
-  log_def.paramtype2 = log_def.paramtype2 or "facedir"
-  log_def.node_box = log_def.node_box or log_def.drawtype == "nodebox" and {
-    type = "fixed",
-    fixed = {
-      {-0.4375, -0.5, -0.4375, 0.4375, 0.5, 0.4375},
-      {-0.375, -0.5, 0.4375, 0.375, 0.5, 0.5},
-      {-0.375, -0.5, -0.5, 0.375, 0.5, -0.4375},
-      {0.4375, -0.5, -0.375, 0.5, 0.5, 0.375},
-      {-0.5, -0.5, -0.375, -0.4375, 0.5, 0.375},
-    }
-  }
-  log_def.is_ground_content = false
-  log_def.sounds = log_def.sounds or def.sounds
-  -- functions
-  log_def.on_place = log_def.on_place or minetest.rotate_node
-  -- register log
-  minetest.register_node(log_def.name,log_def)
+    assert(type(name) == "string",
+           "trees.register_tree: got non-string for name: "..
+           tostring(name).." : "..type(name))
+    assert(type(def) == "table",
+           "trees.register_tree: got non-table for definition: "..
+           tostring(def).." : "..type(def))
+    -- check for description and error if unable, as well as other desc argument
+    def.description = def.description or def.desc
+    def.desc = nil
+    assert(type(def.description) == "string",
+           "trees.register_tree: base 'description' string needed, got: "..
+           tostring(def.description).." : "..type(def.description))
+    local desc = def.description
+    -- use for ease of typing + prevent accidental override
 
-  -- after log definition stuff
-  def.drop = log_def.name
-  -- register tree trunk
-  minetest.register_node(def.name,def)
-  -- set leafdecay mechanics
-  local tree_leafdecay = {
-    trunks = {def.name},
-    leaves = {fruit_def and fruit_def.name, leaf_def and leaf_def.name},
-    radius = 3,
-  }
-  -- only register leafdecay if we have either fruit or leaves
-  if #tree_leafdecay.leaves > 0 then
-    register_leafdecay(tree_leafdecay)
-  end
-  -- slabs, stairs
-  -- only functional difference between hard and soft woods is the crafting
-  stairs.register_stair_and_slab(
-    log_def.name:gsub(def.mod_origin..":",""), -- remove mod_origin from name
-    log_def.name, -- used for crafting
-    {"chopping_block","axe_mixing"},--..(def.groups.hard_tree and " 2" or "")},
-    "false",
-    {"chopping_block","axe_mixing"},--..(def.groups.hard_tree and " 2" or "")},
-    {choppy = log_def.groups.choppy, flammable = log_def.groups.flammable - 2,
-     woodslab = 1},
-    log_def.tiles,
-    S("@1 Log Stair", def.description),
-    S("@1 Log Slab", def.description),
-    log_def.stack_max * 2, -- twice log_def stackmax
-    log_def.sounds
-  )
+    -- add mod_origin
+    if not name:match(":") then
+        def.mod_origin = def.mod_origin or "nodes_nature"
+        name = def.mod_origin..":"..name
+        -- create mod_origin (because we use it lol)
+    elseif not def.mod_origin then
+        local firstp = name:find(":")
+        -- get index of first found ":" - defined as "first point"
+
+        -- grab mod_origin from name and set it
+        def.mod_origin = name:sub(1,firstp-1)
+    end
+    -- set name for original def
+    def.name = name.."_tree"
+    -- ease of access to defs
+    local leaf_def = def.leaf_def or def.leaves_def
+    local fruit_def = def.fruit_def
+    if leaf_def then
+        leaf_def.description = leaf_def.description or S("@1 Leaves",desc)
+        -- finalize leaf_def
+        leaf_def = trees.register_leaves(name.."_leaves",
+                                         leaf_def,def.name) -- update leaf_def
+        def.tree_leaves = {leaf_def.name} -- add name to tree_leaves table
+        def.leaf_def = nil
+    end
+    if fruit_def then
+        fruit_def.description = fruit_def.description or S("@1 Fruit",desc)
+        -- finalize fruit_def
+        fruit_def = trees.register_fruit(name.."_fruit",fruit_def,
+                                         def.name) -- update fruit_def
+        def.tree_fruits = {fruit_def.name}
+        def.fruit_def = nil
+    end
+    -- used to locate textures
+    local texture_base = name:gsub(":","_")
+    -- tree trunk
+    def.description = def.log_description or S("@1 Tree",desc)
+    def.groups = def.groups or {}
+    def.groups.tree = 1
+    def.groups.choppy = def.groups.choppy or (def.hardwood and 1) or 2
+    def.hardwood = nil
+    -- whether or not tree is a hardwood (less than 2 choppy)
+    def.groups.hard_tree = def.groups.choppy <= 1 and 1 or nil
+    -- flame susceptibility calculation ('hardness' aka choppy multiplied by -2)
+    def.groups.flammable = def.groups.flammable
+        or (10 - (def.groups.choppy * -2))
+    -- other trunk stuff
+    def.stack_max = def.stack_max or minimal.stack_max_bulky
+    def.tiles = def.tiles or {
+        texture_base.."_tree_top.png",
+        texture_base.."_tree_top.png",
+        texture_base.."_tree.png"
+                             }
+    def.paramtype = def.paramtype or "light"
+    def.paramtype2 = def.paramtype2 or "facedir"
+    def.is_ground_content = false
+    def.sounds = def.sounds or nodes_nature.node_sound_wood_defaults()
+    -- functions
+    def.on_place = def.on_place or minetest.rotate_node
+    def.after_place_node = def.after_place_node or function(pos, placer,
+                                                            itemstack)
+        minetest.set_node(pos, {name=def.name, param2 = 1 + 128})
+    end
+    def.after_dig_node = def.after_dig_node or function(pos, node)
+        -- wild
+        if node.param2 < 128 then
+            save_to_tree_mark(pos, node, true)
+            local timer_data = get_mark_timer_data(def)
+            minetest.get_node_timer(pos):start(timer_data:get_new_time())
+        end
+    end
+    -- tree log (when a tree trunk is cut)
+    local log_def = def.log_def or {}
+    log_def.name = name.."_log"
+    log_def.description = log_def.description or S("@1 Log",def.description)
+    log_def.groups = log_def.groups or {}
+    log_def.groups.log = 1
+    log_def.groups.choppy = log_def.groups.choppy or def.groups.choppy
+    log_def.groups.flammable = log_def.groups.flamamble or def.groups.flammable
+    log_def.groups.hard_wood = def.groups.hard_tree and 1 or nil
+    log_def.tiles = log_def.tiles or {
+        texture_base.."_log_top.png",
+        texture_base.."_log_top.png",
+        texture_base.."_log.png"
+                                     }
+    log_def.stack_max = log_def.stack_max or def.stack_max
+    log_def.drawtype = log_def.drawtype or "nodebox"
+    log_def.paramtype = log_def.paramtype or "light"
+    log_def.paramtype2 = log_def.paramtype2 or "facedir"
+    log_def.node_box = log_def.node_box
+        or log_def.drawtype == "nodebox" and
+        {
+            type = "fixed",
+            fixed = {
+                {-0.4375, -0.5, -0.4375, 0.4375, 0.5, 0.4375},
+                {-0.375, -0.5, 0.4375, 0.375, 0.5, 0.5},
+                {-0.375, -0.5, -0.5, 0.375, 0.5, -0.4375},
+                {0.4375, -0.5, -0.375, 0.5, 0.5, 0.375},
+                {-0.5, -0.5, -0.375, -0.4375, 0.5, 0.375},
+            }
+        }
+    log_def.is_ground_content = false
+    log_def.sounds = log_def.sounds or def.sounds
+    -- functions
+    log_def.on_place = log_def.on_place or minetest.rotate_node
+    -- register log
+    minetest.register_node(log_def.name,log_def)
+
+    -- after log definition stuff
+    def.drop = log_def.name
+    -- register tree trunk
+    minetest.register_node(def.name,def)
+    -- set leafdecay mechanics
+    local tree_leafdecay = {
+        trunks = {def.name},
+        leaves = {fruit_def and fruit_def.name, leaf_def and leaf_def.name},
+        radius = 3,
+    }
+    -- only register leafdecay if we have either fruit or leaves
+    if #tree_leafdecay.leaves > 0 then
+        register_leafdecay(tree_leafdecay)
+    end
+    -- slabs, stairs
+    -- only functional difference between hard and soft woods is the crafting
+    stairs.register_stair_and_slab(
+        log_def.name:gsub(def.mod_origin..":",""), -- remove mod_origin from name
+        log_def.name, -- used for crafting
+        {"chopping_block","axe_mixing"},--..(def.groups.hard_tree and " 2" or "")},
+        "false",
+        {"chopping_block","axe_mixing"},--..(def.groups.hard_tree and " 2" or "")},
+        {choppy = log_def.groups.choppy,
+         flammable = log_def.groups.flammable - 2,
+         woodslab = 1},
+        log_def.tiles,
+        S("@1 Log Stair", def.description),
+        S("@1 Log Slab", def.description),
+        log_def.stack_max * 2, -- twice log_def stackmax
+        log_def.sounds
+    )
 end

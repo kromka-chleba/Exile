@@ -22,14 +22,14 @@ function register_from_list(name, decor_list)
         return
     end
     for i = 1, #decor_list do
-       local d = decor_list[i]
-       if d.deco_type == "simple" then
-	  local deconame = d.decoration or ""
-	  if not minetest.registered_nodes[deconame] then
-	     minetest.log("error", "Mapgen: "..d.name..
-			  " deco: "..deconame.." does not exist!")
-	  end
-       end
+        local d = decor_list[i]
+        if d.deco_type == "simple" then
+            local deconame = d.decoration or ""
+            if not minetest.registered_nodes[deconame] then
+                minetest.log("error", "Mapgen: "..d.name..
+                             " deco: "..deconame.." does not exist!")
+            end
+        end
         minetest.register_decoration(decor_list[i])
     end
 end
