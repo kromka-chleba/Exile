@@ -1342,10 +1342,12 @@ end
 --this is specific to each health effect so must call that function
 function HEALTH.add_new_effect(player, name)
 
-	if player == nil then return end -- we don't give effects to sneachans
-	local meta = player:get_meta()
-	local effects_list = meta:get_string("effects_list")
-	effects_list = minetest.deserialize(effects_list) or {}
+    if not minetest.is_player(player) then
+        return -- we don't give effects to sneachans
+    end
+    local meta = player:get_meta()
+    local effects_list = meta:get_string("effects_list")
+    effects_list = minetest.deserialize(effects_list) or {}
 
 	--effect already present. call function to decide how to progress it
 	for i, effect in ipairs(effects_list) do
