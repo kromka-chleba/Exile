@@ -507,13 +507,6 @@ end
 local function get_mean_temp(pos) -- this could be put somewhere else like in climate or minimal
     local temps = {}
 
-    if (type(pos) ~= "table") then -- no pos table is given then
-        return 15
-    elseif (type(pos.x) ~= "number" or type(pos.y) ~= "number"
-            or type(pos.z) ~= "number") then -- incase an invalid pos is given
-        return 15
-    end
-
     for x = -1, 1, 1 do -- create matrix of possible positions
         for y = -1, 1, 1 do
             for z = -1, 1, 1 do
