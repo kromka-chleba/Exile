@@ -607,6 +607,39 @@ minetest.register_node(
                            --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
 })
 
+minetest.register_node(
+    "tech:mortar_pestle_wooden",{
+        description   = S("Wooden Mortar and Pestle"),
+        exile_crafting = {
+            craft_types = {"mortar_and_pestle"},
+            craft_level = 1,
+        },
+        drawtype      = "nodebox",
+        tiles         = {"tech_primitive_wood.png"},
+        stack_max     = minimal.stack_max_bulky *2,
+        paramtype     = "light",
+        paramtype2    = "facedir",
+        groups        = {falling_node = 1, dig_immediate = 3, craftedby = 1},
+        node_box      = {
+            type  = "fixed",
+            fixed = {
+                {-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
+                {-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
+                {-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
+                {-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
+                {-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
+                { 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
+                {-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
+            }
+        },
+        sounds        = nodes_nature.node_sound_wood_defaults(),
+        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+                                                       itemstack,pointed_thing)
+        end
+                           --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
+})
+
 --IB-20240226 ---- Boulders ----
 --IB-20240226 --grind a mortar_and_pestle
 --IB-20240226 -- crafting.register_recipe({
@@ -1043,12 +1076,7 @@ crafting.register_recipe({ --spinning wheel. wood,
         level  = 1,
         always_known = true,
 })
-	type   = {"axe", "carpentry_bench"},
-	output = "tech:spinning_wheel",
-	items  = {'group:log 2'},
-	level  = 1,
-	always_known = true,
-	})
+
 crafting.register_recipe({ --loom. wood, fibre for mechanisms
         type   = {"axe", "carpentry_bench"} ,
         output = "tech:loom",
