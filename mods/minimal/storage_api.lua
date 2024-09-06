@@ -68,24 +68,13 @@ function storage.can_dig(pos,player,can_grab)
     return can_interact(pos, player, meta) and inv_empty
 end
 
-function storage.get_inventory(pos)
-    if ( type(pos.x) == "number"
-         and type(pos.y) == "number"
-         and type(pos.z) == "number") then
-        return minetest.get_meta(pos):get_inventory()
-    elseif (type(pos["get_inventory"]) == "function") then
-        -- allow meta as an argument
-        return pos:get_inventory()
-    end
-end
-
 function storage.on_construct(pos, width, height)
     local meta = minetest.get_meta(pos)
 
     local form = storage.get_storage_formspec(pos, width, height, meta)
     meta:set_string("formspec", form)
 
-    local inv = storage.get_inventory(meta)
+    local inv = meta.get_inventory()
     inv:set_size("main", width*height)
 end
 
