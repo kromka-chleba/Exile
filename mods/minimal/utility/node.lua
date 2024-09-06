@@ -16,18 +16,6 @@ local function is_meta(meta)
     return false
 end
 
--- check if a valid pos was given
-local function is_pos(pos)
-    if (type(pos) == "table") then
-        if (type(pos.x) == "number"
-            and type(pos.y) == "number" and type(pos.z) == "number") then
-            return true
-        end
-    end
-
-    return false
-end
-
 function minimal.switch_node(pos, node, after_place)
     --Swap a node, but run its on_construct, so that
     -- timers etc. are started, but metadata is left intact
@@ -35,7 +23,7 @@ function minimal.switch_node(pos, node, after_place)
     -- after_place is to be a table of 3 parameters:
     -- placer, itemstack, pointed_thing
     --    though does not need to be specified for switch_node to work
-    assert(is_pos(pos), "exile_game.switch_node: Invalid pos given")
+    assert(vector.check(pos), "exile_game.switch_node: Invalid pos given")
     local node_def = minetest.registered_nodes[node.name]
     if not node_def then
         minetest.log("error",
@@ -108,7 +96,7 @@ function minimal.node_set_int(pos, name, value)
     local meta
     if (is_meta(pos)) then
         meta = pos
-    elseif (is_pos(pos)) then
+    elseif (vector.check(pos)) then
         meta = minetest.get_meta(pos)
     else
         error("exile_game.node_set_int: Invalid pos given")
@@ -121,7 +109,7 @@ function minimal.node_get_int(pos, name)
     local meta
     if (is_meta(pos)) then
         meta = pos
-    elseif (is_pos(pos)) then
+    elseif (vector.check(pos)) then
         meta = minetest.get_meta(pos)
     else
         error("exile_game.node_get_int: Invalid pos given")
@@ -139,7 +127,7 @@ function minimal.node_set_string(pos, name, value)
     local meta
     if (is_meta(pos)) then
         meta = pos
-    elseif (is_pos(pos)) then
+    elseif (vector.check(pos)) then
         meta = minetest.get_meta(pos)
     else
         error("exile_game.node_set_string: Invalid pos given")
@@ -152,7 +140,7 @@ function minimal.node_get_string(pos, name)
     local meta
     if (is_meta(pos)) then
         meta = pos
-    elseif (is_pos(pos)) then
+    elseif (vector.check(pos)) then
         meta = minetest.get_meta(pos)
     else
         error("exile_game.node_get_string: Invalid pos given")
@@ -165,7 +153,7 @@ function minimal.node_get_string(pos, name)
 end
 
 function minimal.force_place(pos, node)
-    assert(is_pos(pos),"exile_game.force_place: Invalid pos given")
+    assert(vector.check(pos),"exile_game.force_place: Invalid pos given")
     minetest.remove_node(pos)
     minetest.set_node(pos, node)
 end
@@ -174,7 +162,7 @@ end
 -- can have x, y, z of pos2 be omitted
 function minimal.shift_pos(pos,pos2)
     -- simple error messages to make debugging easier
-    assert( is_pos(pos),"exile_game.shift_pos: Invalid pos provided "..
+    assert( vector.check(pos),"exile_game.shift_pos: Invalid pos provided "..
             "(not a table or missing coodinates)")
     assert( type(pos2) == "table","exile_game.shift_pos: Invalid pos2 "..
             "provided (not a table or missing coodinates)")
@@ -207,7 +195,7 @@ end
 
 local function get_node_name(pos)
     local node_name
-    if is_pos(pos) then
+    if vector.check(pos) then
         node_name = minetest.get_node(pos).name
     elseif (type(pos) == "table" and type(pos.name) == "string") then
         node_name = pos.name
@@ -248,7 +236,7 @@ function minimal.in_group(pos, group_name)
 end
 
 function minimal.safe_landing_spot(pos)
-    if not is_pos(pos) then return false end
+    if not vector.check(pos) then return false end
     local floor = vector.new( pos.x, pos.y-1, pos.z )
     local def_top = minimal.get_nodedef(minimal.shift_pos(pos,{y = 1}))
     local def_bot = minimal.get_nodedef(pos)
@@ -278,13 +266,13 @@ function minimal.safe_landing_spot(pos)
 end
 
 function minimal.get_param2(pos)
-    assert(is_pos(pos),"exile_game.get_param2: Invalid pos given")
+    assert(vector.check(pos),"exile_game.get_param2: Invalid pos given")
     local node = minetest.get_node(pos)
     return node.param2
 end
 
 function minimal.force_place_keep_param2(pos, name)
-    assert(is_pos(pos),"exile_game.force_place_keep_param2: Invalid pos given")
+    assert(vector.check(pos),"exile_game.force_place_keep_param2: Invalid pos given")
     local param2 = minimal.get_param2(pos)
     minimal.force_place(pos, {name = name, param2 = param2})
 end
@@ -305,7 +293,7 @@ function minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
     if aboveorunder then
         pos = pointed_thing.above
     end
-    if not is_pos(pos) then
+    if not vector.check(pos) then
         return false
     end
 
