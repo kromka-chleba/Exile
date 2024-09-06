@@ -1043,6 +1043,12 @@ crafting.register_recipe({ --spinning wheel. wood,
         level  = 1,
         always_known = true,
 })
+	type   = {"axe", "carpentry_bench"},
+	output = "tech:spinning_wheel",
+	items  = {'group:log 2'},
+	level  = 1,
+	always_known = true,
+	})
 crafting.register_recipe({ --loom. wood, fibre for mechanisms
         type   = {"axe", "carpentry_bench"} ,
         output = "tech:loom",
