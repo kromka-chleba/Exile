@@ -41,12 +41,11 @@ end
 
 function mobkit.pos_shift(pos,vec)
     -- vec components can be omitted e.g. vec={y=1}
-    vec.x=vec.x or 0
-    vec.y=vec.y or 0
-    vec.z=vec.z or 0
-    return {x=pos.x+vec.x,
-            y=pos.y+vec.y,
-            z=pos.z+vec.z}
+    return vector.new(
+        vec.x or 0,
+        vec.y or 0,
+        vec.z or 0
+    )
 end
 
 function mobkit.pos_translate2d(pos,yaw,dist)
@@ -106,11 +105,11 @@ function mobkit.get_nodename_off(pos,vec)
 end
 
 function mobkit.get_node_pos(pos)
-    return  {
-        x=floor(pos.x+0.5),
-        y=floor(pos.y+0.5),
-        z=floor(pos.z+0.5),
-    }
+    return  vector.new(
+        floor(pos.x+0.5),
+        floor(pos.y+0.5),
+        floor(pos.z+0.5)
+    )
 end
 
 function mobkit.get_nodes_in_area(pos1,pos2,full)
@@ -296,11 +295,15 @@ end
 
 function mobkit.dir_to_rot(v,rot)
     rot = rot or {x=0,y=0,z=0}
-    return {x = (v.x==0 and v.y==0 and v.z==0) and rot.x
-                or math.atan2(v.y,vector.length({x=v.x,y=0,z=v.z})),
-            y = (v.x==0 and v.z==0) and rot.y
-                or minetest.dir_to_yaw(v),
-            z=rot.z}
+    return vector.new(
+        (v.x==0 and v.y==0 and v.z==0) and rot.x
+        or math.atan2(v.y,vector.length({x=v.x,y=0,z=v.z})),
+
+        (v.x==0 and v.z==0) and rot.y
+
+        or minetest.dir_to_yaw(v),
+        rot.z
+    )
 end
 
 function mobkit.rot_to_dir(rot) -- keep rot within <-pi/2,pi/2>
