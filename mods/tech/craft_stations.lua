@@ -920,16 +920,16 @@ crafting.register_recipe({
 	})
 
 crafting.register_recipe({ --spinning wheel. wood,
-	type   = {"carpentry_bench"},
+	type   = {"axe", "carpentry_bench"},
 	output = "tech:spinning_wheel",
-	items  = {'group:hard_wood 2'},
+	items  = {'group:log 2'},
 	level  = 1,
 	always_known = true,
 	})
 crafting.register_recipe({ --loom. wood, fibre for mechanisms
-	type   = {"carpentry_bench"} ,
+	type   = {"axe", "carpentry_bench"} ,
 	output = "tech:loom",
-	items  = {'group:hard_wood 2', 'tech:coarse_fibre 12'},
+	items  = {'group:log 2', 'tech:coarse_fibre 12'},
 	level  = 1,
 	always_known = true,
 	})
