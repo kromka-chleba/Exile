@@ -4,7 +4,7 @@
 artifacts = {}
 artifacts.S = minetest.get_translator("artifacts")
 artifacts.FS = function(...)
-   return minetest.formspec_escape(artifacts.S(...))
+    return minetest.formspec_escape(artifacts.S(...))
 end
 
 local modpath = minetest.get_modpath('artifacts')

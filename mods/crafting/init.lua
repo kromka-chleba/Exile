@@ -17,7 +17,7 @@
 
 -- placeholder icon for crafting gui
 minetest.register_craftitem("crafting:placeholder",{
-  inventory_image = "crafting_placeholder.png"
+                                inventory_image = "crafting_placeholder.png"
 })
 
 
@@ -26,16 +26,16 @@ dofile(minetest.get_modpath("crafting") .. "/async_craft.lua")
 dofile(minetest.get_modpath("crafting") .. "/gui.lua")
 
 if minetest.global_exists("awards") then
-   awards.register_on_unlock(function(name, award)
-         if award.unlocks_crafts then
-            crafting.unlock(name, award.unlocks_crafts)
-         end
-   end)
+    awards.register_on_unlock(function(name, award)
+            if award.unlocks_crafts then
+                crafting.unlock(name, award.unlocks_crafts)
+            end
+    end)
 
-   crafting.register_on_craft(function(name, recipe)
-         local player = minetest.get_player_by_name(name)
-         if player then
-            awards.notify_craft(player, recipe.output, recipe.output_n or 1)
-         end
-   end)
+    crafting.register_on_craft(function(name, recipe)
+            local player = minetest.get_player_by_name(name)
+            if player then
+                awards.notify_craft(player, recipe.output, recipe.output_n or 1)
+            end
+    end)
 end

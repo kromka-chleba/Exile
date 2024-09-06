@@ -342,19 +342,19 @@ local water_trees = {
 
 local barrenland_trees = {
 
-  {--[[Trees:very rare maraka in barrenland]]
-      name = "bl_maraka_tree",
-      deco_type = "schematic",
-      place_on = sna.barrenland_on,
-      place_offset_y = -3,
-      sidelen = 16,
-      noise_params = {offset=0.00, scale=0.00025, spread={x=250, y=250, z=250}, seed=222, octaves=2, persist=0.6},
-      y_max = sna.lowland_max,
-      y_min = sna.beach_max,
-      schematic = deco.find_schematic("maraka_tree"),
-      flags = "place_center_x, place_center_z",
-      rotation = "random",
-  },
+    {--[[Trees:very rare maraka in barrenland]]
+        name = "bl_maraka_tree",
+        deco_type = "schematic",
+        place_on = sna.barrenland_on,
+        place_offset_y = -3,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.00025, spread={x=250, y=250, z=250}, seed=222, octaves=2, persist=0.6},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        schematic = deco.find_schematic("maraka_tree"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
 
 
 }

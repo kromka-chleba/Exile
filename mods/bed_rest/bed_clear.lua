@@ -2,18 +2,18 @@
 --Clears busted bed tops from the map as soon as they're loaded
 
 if minetest.settings:get_bool('exile_bed_clear') then
-   minetest.log("warning","Bed clear LBM is enabled, searching for broken beds")
-   local lbm_def = {
-      --This should clean up nodes that don't get deleted for some reason
-      nodenames={"tech:sleeping_spot_top",
-                 "tech:sleeping_mat_top",
-                 "tech:primitive_bed_top",
-                 "tech:mattress_top",
-                 "tech:bed_top"},
-         label="Remove leftover half-beds",
-         name="bed_rest:bed_cleanup",
-         run_at_every_load = true,
-         action = function(pos)
+    minetest.log("warning","Bed clear LBM is enabled, searching for broken beds")
+    local lbm_def = {
+        --This should clean up nodes that don't get deleted for some reason
+        nodenames={"tech:sleeping_spot_top",
+                   "tech:sleeping_mat_top",
+                   "tech:primitive_bed_top",
+                   "tech:mattress_top",
+                   "tech:bed_top"},
+        label="Remove leftover half-beds",
+        name="bed_rest:bed_cleanup",
+        run_at_every_load = true,
+        action = function(pos)
             local canExist = false
             local topname = minetest.get_node(pos).name
             local bottomname = topname:gsub("%_top","_bottom")
@@ -27,18 +27,18 @@ if minetest.settings:get_bool('exile_bed_clear') then
                                                        {bottomname, "ignore"})
             --"ignore" is an unloaded node, there could be a bottom in there
             if #xfind > 0 then
-               canExist = true
+                canExist = true
             end
             if #zfind > 0 then
-               canExist = true
+                canExist = true
             end
             if not canExist then
-               minetest.log("warning",
-                            "Removing an unconnected bed half at "..
-                            pos.x..", "..pos.z)
-               minetest.remove_node(pos)
+                minetest.log("warning",
+                             "Removing an unconnected bed half at "..
+                             pos.x..", "..pos.z)
+                minetest.remove_node(pos)
             end
-         end
-   }
-   minetest.register_lbm(lbm_def)
+        end
+    }
+    minetest.register_lbm(lbm_def)
 end
