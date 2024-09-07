@@ -117,7 +117,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
     local c_stone = minetest.get_content_id("rings:antiquorium")
     local c_destone = minetest.get_content_id("rings:moon_glass")
-    local c_air = minetest.get_content_id("air")
+    local c_air = minetest.get_content_id("artifacts:void_space")--minetest.get_content_id("air")
 
     local sidelen = x1 - x0 + 1
     local chulens3d = {x = sidelen, y = sidelen, z = sidelen}
