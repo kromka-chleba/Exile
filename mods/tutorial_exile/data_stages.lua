@@ -6,12 +6,12 @@ return
             size = vector.new(50,1,50),
             start = vector.new(0,0,0),
             location = vector.new(0,0,0),
-            entry = function(player, name)
+            entry = function(player, name, offset)
                 -- examples
                 minetest.set_privs(name, { interact = false })
                 player:set_armor_groups({ immortal = 1})
             end,
-            exit = function(player, name)
+            exit = function(player, name, offset)
                 minetest.set_privs(name, { interact = true })
                 player:set_armor_groups({ immortal = 0})
             end,

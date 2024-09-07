@@ -15,6 +15,7 @@ tutorial = {}
 local modpath = minetest.get_modpath("tutorial_exile")
 dofile(modpath..'/nodes.lua')
 dofile(modpath..'/overrides.lua')
+dofile(modpath..'/entities.lua')
 
 local stage = dofile(modpath..'/stage.lua')
 local worldpath=minetest.get_worldpath()
