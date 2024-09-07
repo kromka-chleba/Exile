@@ -13,9 +13,9 @@ crafting.register_recipe({
 
 
 crafting.register_recipe({
-	type = "weaving_frame",
-	output = "ropes:wood1rope_block",
-	items = {"group:log", "tech:coarse_fibre 96"},
-	level = 1,
-	always_known = true,
+        type = "weaving_frame",
+        output = "ropes:wood1rope_block",
+        items = {"group:log", "tech:coarse_fibre 96"},
+        level = 1,
+        always_known = true,
 })
