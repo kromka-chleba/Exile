@@ -79,50 +79,95 @@ local p
 -----------------------------------------------------------------------
 
 local default_exits = {
-    {act = 'cube', node = n_ex, loc = vn(0, 21, 19), size = vn(1, 3, 2)},
-    {act = 'cube', node = n_ex, loc = vn(0, 21, 39), size = vn(1, 3, 2)},
-    {act = 'cube', node = n_ex, loc = vn(0, 21, 59), size = vn(1, 3, 2)},
-    {act = 'cube', node = n_ex, loc = vn(79, 21, 19), size = vn(1, 3, 2)},
-    {act = 'cube', node = n_ex, loc = vn(79, 21, 39), size = vn(1, 3, 2)},
-    {act = 'cube', node = n_ex, loc = vn(79, 21, 59), size = vn(1, 3, 2)},
-    {act = 'cube', node = n_ex, loc = vn(19, 21, 0), size = vn(2, 3, 1)},
-    {act = 'cube', node = n_ex, loc = vn(39, 21, 0), size = vn(2, 3, 1)},
-    {act = 'cube', node = n_ex, loc = vn(59, 21, 0), size = vn(2, 3, 1)},
-    {act = 'cube', node = n_ex, loc = vn(19, 21, 79), size = vn(2, 3, 1)},
-    {act = 'cube', node = n_ex, loc = vn(39, 21, 79), size = vn(2, 3, 1)},
-    {act = 'cube', node = n_ex, loc = vn(59, 21, 79), size = vn(2, 3, 1)},
-    {act = 'cube', node = n_ex, loc = vn(0, 51, 39), size = vn(1, 3, 2)},
-    {act = 'cube', node = n_ex, loc = vn(79, 51, 39), size = vn(1, 3, 2)},
-    {act = 'cube', node = n_ex, loc = vn(39, 51, 0), size = vn(2, 3, 1)},
-    {act = 'cube', node = n_ex, loc = vn(39, 51, 79), size = vn(2, 3, 1)}
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(0, 21, 19), size = vn(1, 3, 2)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(0, 21, 39), size = vn(1, 3, 2)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(0, 21, 59), size = vn(1, 3, 2)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(79, 21, 19), size = vn(1, 3, 2)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(79, 21, 39), size = vn(1, 3, 2)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(79, 21, 59), size = vn(1, 3, 2)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(19, 21, 0), size = vn(2, 3, 1)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(39, 21, 0), size = vn(2, 3, 1)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(59, 21, 0), size = vn(2, 3, 1)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(19, 21, 79), size = vn(2, 3, 1)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(39, 21, 79), size = vn(2, 3, 1)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(59, 21, 79), size = vn(2, 3, 1)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(0, 51, 39), size = vn(1, 3, 2)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(79, 51, 39), size = vn(1, 3, 2)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(39, 51, 0), size = vn(2, 3, 1)},
+    {act = 'cube', node = n_ex, floor = lamp_block, loc = vn(39, 51, 79), size = vn(2, 3, 1)}
 }
 
 local upper_cross = {
-    {act = 'cube', node = 'air', loc = vn(0, 51, 39), size = vn(80, 3, 2)},
-    {act = 'cube', node = 'air', loc = vn(39, 51, 0), size = vn(2, 3, 80)}
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 51, 39), size = vn(80, 3, 2)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(39, 51, 0), size = vn(2, 3, 80)},
+    --lamp cieling
+    {act = 'cube', node = lamp_block, loc = vn(2, 54, 39), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(39, 54, 2), size = vn(2, 1, 8)},
+    --lamp cieling2
+    {act = 'cube', node = lamp_block, loc = vn(70, 54, 39), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(39, 54, 70), size = vn(2, 1, 8)},
 }
 
 local upper_cross_hash = {
-    {act = 'cube', node = 'air', loc = vn(19, 51, 0), size = vn(2, 3, 80)},
-    {act = 'cube', node = 'air', loc = vn(59, 51, 0), size = vn(2, 3, 80)},
-    {act = 'cube', node = 'air', loc = vn(0, 51, 59), size = vn(80, 3, 2)},
-    {act = 'cube', node = 'air', loc = vn(0, 51, 19), size = vn(80, 3, 2)}
+    --corridors
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(19, 51, 0), size = vn(2, 3, 80)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(59, 51, 0), size = vn(2, 3, 80)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 51, 59), size = vn(80, 3, 2)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 51, 19), size = vn(80, 3, 2)},
+    --lamp cieling
+    {act = 'cube', node = lamp_block, loc = vn(19, 54, 2), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(59, 54, 2), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(2, 54, 59), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(2, 54, 19), size = vn(8, 1, 2)},
+    --lamp cieling 2
+    {act = 'cube', node = lamp_block, loc = vn(19, 54, 70), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(59, 54, 70), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(70, 54, 59), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(70, 54, 19), size = vn(8, 1, 2)},
+
 }
 
 local lower_cross = {
-    {act = 'cube', node = 'air', loc = vn(19, 21, 0), size = vn(2, 3, 80)},
-    {act = 'cube', node = 'air', loc = vn(39, 21, 0), size = vn(2, 3, 80)},
-    {act = 'cube', node = 'air', loc = vn(0, 21, 39), size = vn(80, 3, 2)},
-    {act = 'cube', node = 'air', loc = vn(59, 21, 0), size = vn(2, 3, 80)},
-    {act = 'cube', node = 'air', loc = vn(0, 21, 59), size = vn(80, 3, 2)},
-    {act = 'cube', node = 'air', loc = vn(0, 21, 19), size = vn(80, 3, 2)}
+    --corrdors
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(19, 21, 0), size = vn(2, 3, 80)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(39, 21, 0), size = vn(2, 3, 80)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(59, 21, 0), size = vn(2, 3, 80)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 21, 39), size = vn(80, 3, 2)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 21, 59), size = vn(80, 3, 2)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 21, 19), size = vn(80, 3, 2)},
+    --lamp cieling
+    {act = 'cube', node = lamp_block, loc = vn(19, 24, 2), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(39, 24, 2), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(59, 24, 2), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(2, 24, 39), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(2, 24, 59), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(2, 24, 19), size = vn(8, 1, 2)},
+    --lamp cieling2
+    {act = 'cube', node = lamp_block, loc = vn(19, 24, 70), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(39, 24, 70), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(59, 24, 70), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(70, 24, 39), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(70, 24, 59), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(70, 24, 19), size = vn(8, 1, 2)},
+
 }
 
 local lower_cross_hash = {
-    {act = 'cube', node = 'air', loc = vn(19, 21, 0), size = vn(2, 3, 80)},
-    {act = 'cube', node = 'air', loc = vn(59, 21, 0), size = vn(2, 3, 80)},
-    {act = 'cube', node = 'air', loc = vn(0, 21, 59), size = vn(80, 3, 2)},
-    {act = 'cube', node = 'air', loc = vn(0, 21, 19), size = vn(80, 3, 2)}
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(19, 21, 0), size = vn(2, 3, 80)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(59, 21, 0), size = vn(2, 3, 80)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 21, 59), size = vn(80, 3, 2)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 21, 19), size = vn(80, 3, 2)},
+    -- lamp cieling
+    {act = 'cube', node = lamp_block, loc = vn(19, 24, 2), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(59, 24, 2), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(2, 24, 59), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(2, 24, 19), size = vn(8, 1, 2)},
+    -- lamp cieling2
+    {act = 'cube', node = lamp_block, loc = vn(19, 24, 70), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(59, 24, 70), size = vn(2, 1, 8)},
+    {act = 'cube', node = lamp_block, loc = vn(70, 24, 59), size = vn(8, 1, 2)},
+    {act = 'cube', node = lamp_block, loc = vn(70, 24, 19), size = vn(8, 1, 2)},
+
 }
 
 local lower_stair = {
@@ -595,25 +640,25 @@ local highway_linked = {
     {
         act = 'cube',
         node = 'air',
-        floor = stone_main,
+        floor = special_stone,
         loc = vn(0, 51, 39),
         size = vn(80, 3, 2)
     }, {
         act = 'cube',
         node = 'air',
-        floor = stone_main,
+        floor = special_stone,
         loc = vn(39, 51, 0),
         size = vn(2, 3, 80)
        }, {
         act = 'cube',
         node = 'air',
-        floor = stone_main,
+        floor = special_stone,
         loc = vn(0, 21, 39),
         size = vn(80, 3, 2)
           }, {
         act = 'cube',
         node = 'air',
-        floor = stone_main,
+        floor = special_stone,
         loc = vn(39, 21, 0),
         size = vn(2, 3, 80)
              }, -- exit rooms
@@ -786,10 +831,10 @@ local highway_no_shaft_linked = {
         loc = vn(32, 32, 0),
         size = vn(16, 16, 80)
        }, -- corridors
-    {act = 'cube', node = 'air', loc = vn(0, 51, 39), size = vn(80, 3, 2)},
-    {act = 'cube', node = 'air', loc = vn(39, 51, 0), size = vn(2, 3, 80)},
-    {act = 'cube', node = 'air', loc = vn(0, 21, 39), size = vn(80, 3, 2)},
-    {act = 'cube', node = 'air', loc = vn(39, 21, 0), size = vn(2, 3, 80)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 51, 39), size = vn(80, 3, 2)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(39, 51, 0), size = vn(2, 3, 80)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(0, 21, 39), size = vn(80, 3, 2)},
+    {act = 'cube', node = 'air', floor = special_stone, loc = vn(39, 21, 0), size = vn(2, 3, 80)},
 
     -- ladder access
     {
