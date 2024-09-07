@@ -9,6 +9,7 @@
 
 --stratum layer
 --LIME 140
+--conglomerate
 --sand
 --silt
 --conglomerate
@@ -28,13 +29,13 @@ minetest.register_ore({
         y_max           = 10,
         y_min           = -30,
         noise_params    = {
-            offset = 24,
-            scale = 16,
-            spread = {x = 128, y = 128, z = 128},
+            offset = -10,
+            scale = 1,
+            spread = {x = 64, y = 32, z = 64},
             seed = 6622,
             octaves = 1,
         },
-        stratum_thickness = 30,
+        stratum_thickness = 12,
 })
 
 --2
@@ -46,13 +47,13 @@ minetest.register_ore({
         y_max           = 30,
         y_min           = -10,
         noise_params    = {
-            offset = 24,
-            scale = 16,
-            spread = {x = 128, y = 128, z = 128},
+            offset = 10,
+            scale = 1,
+            spread = {x = 64, y = 32, z = 64},
             seed = 91132,
             octaves = 1,
         },
-        stratum_thickness = 30,
+        stratum_thickness = 12,
 })
 
 --3
@@ -64,13 +65,13 @@ minetest.register_ore({
         y_max           = 50,
         y_min           = 10,
         noise_params    = {
-            offset = 24,
-            scale = 16,
-            spread = {x = 128, y = 128, z = 128},
+            offset = 30,
+            scale = 1,
+            spread = {x = 64, y = 32, z = 64},
             seed = 7822,
             octaves = 1,
         },
-        stratum_thickness = 30,
+        stratum_thickness = 12,
 })
 
 --4
@@ -82,13 +83,13 @@ minetest.register_ore({
         y_max           = 70,
         y_min           = 30,
         noise_params    = {
-            offset = 24,
-            scale = 16,
-            spread = {x = 128, y = 128, z = 128},
+            offset = 50,
+            scale = 1,
+            spread = {x = 64, y = 32, z = 64},
             seed = 1232,
             octaves = 1,
         },
-        stratum_thickness = 30,
+        stratum_thickness = 12,
 })
 
 --5
@@ -100,13 +101,13 @@ minetest.register_ore({
         y_max           = 90,
         y_min           = 50,
         noise_params    = {
-            offset = 24,
-            scale = 16,
-            spread = {x = 128, y = 128, z = 128},
+            offset = 70,
+            scale = 1,
+            spread = {x = 64, y = 32, z = 64},
             seed = 88532,
             octaves = 1,
         },
-        stratum_thickness = 30,
+        stratum_thickness = 12,
 })
 
 
@@ -119,13 +120,13 @@ minetest.register_ore({
         y_max           = 110,
         y_min           = 70,
         noise_params    = {
-            offset = 24,
-            scale = 16,
-            spread = {x = 128, y = 128, z = 128},
+            offset = 90,
+            scale = 1,
+            spread = {x = 64, y = 32, z = 64},
             seed = 10812,
             octaves = 1,
         },
-        stratum_thickness = 30,
+        stratum_thickness = 12,
 })
 
 --7
@@ -137,13 +138,13 @@ minetest.register_ore({
         y_max           = 130,
         y_min           = 90,
         noise_params    = {
-            offset = 24,
-            scale = 16,
-            spread = {x = 128, y = 128, z = 128},
+            offset = 110,
+            scale = 1,
+            spread = {x = 64, y = 32, z = 64},
             seed = 9222,
             octaves = 1,
         },
-        stratum_thickness = 30,
+        stratum_thickness = 12,
 })
 
 --8
@@ -155,13 +156,31 @@ minetest.register_ore({
         y_max           = 150,
         y_min           = 110,
         noise_params    = {
-            offset = 24,
-            scale = 16,
-            spread = {x = 128, y = 128, z = 128},
+            offset = 120,
+            scale = 1,
+            spread = {x = 64, y = 32, z = 64},
             seed = 1111,
             octaves = 1,
         },
-        stratum_thickness = 30,
+        stratum_thickness = 12,
+})
+
+--9
+minetest.register_ore({
+    ore_type        = "stratum",
+    ore             = "nodes_nature:conglomerate",
+    wherein         = {"nodes_nature:coquina"},
+    clust_scarcity  = 1,
+    y_max           = 170,
+    y_min           = 130,
+    noise_params    = {
+        offset = 150,
+        scale = 1,
+        spread = {x = 64, y = 32, z = 64},
+        seed = 7171,
+        octaves = 1,
+    },
+    stratum_thickness = 24,
 })
 
 
