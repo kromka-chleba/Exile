@@ -329,7 +329,6 @@ local on_dig = function(pos, node, digger, width, height)
     return false
 end
 
--- #TODO: isn't this function supposed to be used somewhere?
 local allow_metadata_inventory_put = function(pos, listname, index,
                                               stack, player)
     if not string.match(stack:get_name(), "backpacks:") then
@@ -456,6 +455,11 @@ function backpacks.register_backpack(name, def)
                                 and not minimal.in_group(pos,"no_dump")),
                                (def.can_pack
                                 and not minimal.in_group(pos,"no_pack")))
+    end
+    def.allow_metadata_inventory_put = function(pos, listname, index,
+                                                stack, player)
+        return allow_metadata_inventory_put(pos, listname, index,
+                                            stack, player)
     end
     -- infotext handling
     def.on_infotext = def.on_infotext or function(pos, nodedef, meta, params)
