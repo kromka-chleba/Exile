@@ -647,7 +647,7 @@ local lava_actions = function(pos, node)
     if pos_air then
 
         --do eruption
-        if ran() > 0.63 then
+        if gpos > 8 and ran() > 0.63 then
             erupt(pos, aname, 2 + gpos)
             --spread instability
             local spos = minetest.find_node_near(pos, 1,
