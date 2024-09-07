@@ -691,7 +691,7 @@ local lava_actions = function(pos, node)
                 or minetest.get_item_group(aname, "crumbly") > 0 then
 
                 --check it has "force" nearby
-                if #gpos > 8 then -- We ran this check already, reuse it
+                if gpos > 8 then -- We ran this check already, reuse it
                     --melt above
                     lava_particle(posa)
                     minetest.set_node(posa, {name = "nodes_nature:lava_source"})
