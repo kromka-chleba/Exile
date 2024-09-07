@@ -205,15 +205,16 @@ local function display_info(pos, player)
     itext = info[itext] or "INFO"
     local width = meta:get("tutinfo_width") or "8"
     local height = meta:get("tutinfo_height") or"4.5"
-    local half = ( (tonumber(width) or 7) / 2) - 1
+    local btnx = ( (tonumber(width) or 7) / 2) - 1
+    local btny = height - 1.5
     minetest.show_formspec(player:get_player_name(),
                            "informational",
                            "formspec_version[3]"..
                            "size["..width..","..height.."]"..
                            "hypertext[0.5,0.75;"..
-                           width - 1 ..",2;introtext;"..
+                           width - 1 ..","..(height-2.5)..";introtext;"..
                            itext.."]"..
-                           "button_exit["..half..",3;2,1;X;- X -]")
+                           "button_exit["..btnx..","..btny..";2,1;X;- X -]")
 end
 
 ncrafting.register_switch(
