@@ -74,7 +74,7 @@ function storage.on_construct(pos, width, height)
     local form = storage.get_storage_formspec(pos, width, height, meta)
     meta:set_string("formspec", form)
 
-    local inv = meta.get_inventory()
+    local inv = meta:get_inventory()
     inv:set_size("main", width*height)
 end
 
