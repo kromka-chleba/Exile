@@ -14,14 +14,18 @@
 -- Internationalization
 local S = nodes_nature.S
 
-trees = {}
+nodes_nature = nodes_nature
+local nn = nodes_nature
+
+nn.trees = {}
+local trees = nn.trees
 
 trees.tree_base_tree_growth = 31000
 trees.tree_base_leaf_growth = 21000
 trees.tree_base_fruit_growth = 19000
 
 local random = math.random
-seasons = seasons
+local seasons = nn.seasons
 minimal = minimal
 ---------------------------------------------------------
 --

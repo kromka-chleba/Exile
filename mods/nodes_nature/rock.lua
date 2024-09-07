@@ -29,7 +29,8 @@ for i in ipairs(stone_list) do
     local name = stone_list[i][1]
     local desc = stone_list[i][2]
     local hardness = stone_list[i][3]
-    local type = stone_list[i][4]
+    --local type = stone_list[i][4]
+    -- #TODO: what was this for?
     local sediment = stone_list[i][5]
 
 

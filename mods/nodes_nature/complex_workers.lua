@@ -1,12 +1,13 @@
 ----------------------------------------------------------------
 -- Complex domain-specific workers using the mapchunk shepherd
 
+mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
+nodes_nature = nodes_nature
 local nn = nodes_nature
 local climate = climate
 
 local placeholder_id_pairs = ms.placeholder_id_pairs()
-local placeholder_id_finder_pairs = ms.placeholder_id_finder_pairs()
 local ignore_id = minetest.get_content_id("ignore")
 
 local chunk_side = ms.chunk_side()
@@ -35,8 +36,8 @@ function nn.create_evaporator(args_in)
         local id = minetest.get_content_id(water)
         water_ids[id] = true
     end
-    return function(pos_min, pos_max, vm_data, chance)
-        local chance = chance or 1/35
+    return function(pos_min, pos_max, vm_data, chance_in)
+        local chance = chance_in or 1/35
         --local t1 = minetest.get_us_time()
         local found = false
         local data = vm_data.nodes
@@ -85,7 +86,7 @@ function nn.create_evaporator(args_in)
                         has_air = true
                     end
 
-                    local evap_chance = false
+                    local evap_chance
 
                     if water_ids[data[i]] and has_air then
                         local light = data_light[i]
@@ -325,7 +326,6 @@ function nn.create_soak_out_move_down(args_in)
                 add_both(index + chunk_side^2)
             end
 
-            local below_index = i - chunk_side
             local above_index = i + chunk_side
             check_both(i)
             check_wet(above_index)
@@ -375,7 +375,7 @@ function nn.create_gravity_soak_in(args_in)
     local dry_to_wet_ids = table.copy(placeholder_id_pairs)
     local buildable_to_liquid_ids = table.copy(placeholder_id_pairs)
     local liquid_to_air_ids = table.copy(placeholder_id_pairs)
-    local seawater = args.seawater
+    local seawater_list = args.seawater
     local seawater_ids = table.copy(placeholder_id_pairs)
     local air_id = minetest.get_content_id(args.air)
     for wet, dry in pairs(wet_to_dry) do
@@ -390,7 +390,7 @@ function nn.create_gravity_soak_in(args_in)
         buildable_to_liquid_ids[buildable_id] = liquid_id
         liquid_to_air_ids[liquid_id] = air_id
     end
-    for _, seawater in pairs(seawater) do
+    for _, seawater in pairs(seawater_list) do
         local seawater_id = minetest.get_content_id(seawater)
         seawater_ids[seawater_id] = true
     end
@@ -413,7 +413,6 @@ function nn.create_gravity_soak_in(args_in)
                     local y = math.floor((i - 1 - z
                                           * chunk_side^2) / chunk_side)
                     local x = (i - 1) % 80
-                    local node_pos = vector.new(x, y, z)
                     local dry_below = dry_to_wet_ids[data[i - chunk_side]]
                     local seawater_below = seawater_ids[data[i - chunk_side]]
                     if x == 0 or x == 79 or

@@ -12,7 +12,7 @@ local c_alpha = minimal.compat_alpha
 --firing difficulty
 local base_firing = ncrafting.base_firing
 local firing_int = ncrafting.firing_int
-sediment = sediment
+local sediment = nodes_nature.sediment
 lightsource = lightsource
 lightsource_description = lightsource_description
 

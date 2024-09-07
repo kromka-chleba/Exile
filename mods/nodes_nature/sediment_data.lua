@@ -9,6 +9,12 @@ local S = nodes_nature.S
 ---------------------------------------------
 
 local c_alpha = minimal.compat_alpha
+nodes_nature = nodes_nature
+local nn = nodes_nature
+
+local sediment = nn.sediment
+local soil = nn.soil
+local registered_sediments = nn.registered_sediments
 
 -- list of sediments to be used for mapgen
 local sediment_list = {
@@ -213,7 +219,7 @@ for i = 1, #registered_sediments do
     props.groups.roots = 1
     props.groups.spreading = 0
     props.use_texture_alpha = c_alpha.blend
-    local root_texture = ""
+    local root_texture
     if props.groups.winter_soil and props.groups.winter_soil > 0 then
         root_texture = "nodes_nature_roots_winter.png"
     else

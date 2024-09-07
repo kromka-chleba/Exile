@@ -3,11 +3,14 @@
 --move wettness through sediment
 --other water effects
 
+mapchunk_shepherd = mapchunk_shepherd
+nodes_nature = nodes_nature
+tgcr = tgcr
+
 local nn = nodes_nature
 local rt = nn.replacement_types
 local ms = mapchunk_shepherd
-local seasons = seasons
-tgcr = tgcr
+local seasons = nn.seasons
 
 ----------------------------------------------------------------
 -- flowing Water erode
@@ -223,7 +226,7 @@ local function evaporator()
 end
 
 local function pick_evaporator(season)
-    local new_evaporator = false
+    local new_evaporator
     if season == "summer_early" or season == "summer_late" then
         -- The Evaporator - destroyer of worlds, the sovereign of drought
         -- and thirst
@@ -398,10 +401,7 @@ local total_thawer =
     )
 
 local current_thawer = false
-local thawer_changed = true
 local thawer_running = false
-local thawer_interval = false
-local thawer = false
 
 local function disable_thawer()
     if thawer_running then
@@ -550,7 +550,7 @@ local function get_buildable_to()
     local good = {}
     table.insert(good, "air")
     for name, nodedef in pairs(minetest.registered_nodes) do
-        local floodable = nodedef.floodable
+        --local floodable = nodedef.floodable
         -- if floodable and string.find(name, "nodes_nature") then
         --     table.insert(good, name)
         -- end
@@ -656,9 +656,9 @@ local function water_source_down(pos)
     local node = minetest.get_node(pos)
 
     minetest.check_for_falling(pos)
-    node = minetest.get_node(pos)
+    local nodenow = minetest.get_node(pos)
 
-    if minetest.get_item_group(node.name, "water") == 0 then
+    if minetest.get_item_group(nodenow.name, "water") == 0 then
         -- not water
         return
     end
@@ -716,7 +716,6 @@ local function water_source_down(pos)
 
     local pos_under = vector.new(pos)
     pos_under.y = pos_under.y - 1
-    local node_under = minetest.get_node(pos_under)
 
     --Fresh water should not float on top of the ocean
     if pos_under.name == "nodes_nature:salt_water_source" and

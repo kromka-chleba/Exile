@@ -5,12 +5,10 @@
 local S = nodes_nature.S
 
 ---------------------------------------
-local random = math.random
-local floor = math.floor
-local c_alpha = minimal.compat_alpha
 
-plant_base_growing_time = plant_base_growing_time
-plant_base_timer = plant_base_timer
+nodes_nature = nodes_nature
+local nn = nodes_nature
+
 local add_food_hooks = HEALTH.add_food_hooks
 wielded_light = wielded_light
 
@@ -63,7 +61,7 @@ end
 
 --Underwater Rooted plants
 
-searooted_list = searooted_list
+local searooted_list = nn.searooted_list
 for i in ipairs(searooted_list) do
     local name = searooted_list[i][1]
     local desc = searooted_list[i][2]

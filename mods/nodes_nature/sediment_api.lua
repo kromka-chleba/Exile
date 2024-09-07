@@ -6,13 +6,22 @@
 -- Internationalization
 local S = nodes_nature.S
 
+mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
 
 local c_alpha = minimal.compat_alpha
 local c = nodes_nature.replacement_types
 tgcr = tgcr
+nodes_nature = nodes_nature
+local nn = nodes_nature
 
-registered_sediments = {}
+nn.sediment = {}
+local sediment = nn.sediment
+nn.registered_sediments = {}
+local registered_sediments = nn.registered_sediments
+
+nn.soil = {}
+local soil = nn.soil
 
 local do_slopes_for_node_name
 do
@@ -28,13 +37,11 @@ do
 end
 
 -- Useful objects for node definitions
-sediment = {}
 sediment.hardness = {
     soft = 3,
     medium = 2,
     hard = 1,
 }
-local hardness = sediment.hardness
 
 local textures = {
     wet = "nodes_nature_mud.png",
@@ -66,7 +73,6 @@ sediment.sounds = {
             footstep = {name = "nodes_nature_mud", gain = 0.4},
             dug = {name = "nodes_nature_mud", gain = 0.4}}),
 }
-local sounds = sediment.sounds
 
 -- Utility functions
 -----------------------------------
@@ -352,7 +358,6 @@ sediment.do_slopes = do_slopes_for_node_name
 
 -- Soils
 -----------------------------------
-soil = {}
 
 soil.get_dry_name = sediment.get_dry_name
 soil.get_wet_name = sediment.get_wet_name
@@ -397,12 +402,12 @@ function soil.get_winter_wet_side_texture_name(basename, sedname)
 end
 
 function soil.new(args)
-    local soil = {
+    local newsoil = {
         name = args.name,
         description = args.description,
         sediment = args.sediment,
     }
-    return soil
+    return newsoil
 end
 
 --Till soil
@@ -610,7 +615,6 @@ end
 
 function fertile_soil.get_dry_node_props(soil_desc)
     local sed = soil_desc.sediment
-    local name = fertile_soil.get_dry_name(sed.name)
     local props =
         merge_tables(
             sediment.get_dry_node_props(sed), {
@@ -644,7 +648,6 @@ end
 
 function fertile_soil.get_wet_node_props(soil_desc)
     local sed = soil_desc.sediment
-    local name = fertile_soil.get_wet_name(sed.name)
     local props =
         merge_tables(
             sediment.get_wet_node_props(sed), {

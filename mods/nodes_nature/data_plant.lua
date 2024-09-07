@@ -1,11 +1,13 @@
 -- Internationalization
 local S = nodes_nature.S
 
-trees = trees
+nodes_nature = nodes_nature
+local nn = nodes_nature
+local trees = nn.trees
 
 
 --Underwater Rooted plants
-searooted_list = {
+nodes_nature.searooted_list = {
     ---
     {"kelp",
      S("Riraemu"),

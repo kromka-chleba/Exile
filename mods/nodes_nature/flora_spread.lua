@@ -5,10 +5,15 @@
 -- cane growth
 --spreading surfaces
 
+nodes_nature = nodes_nature
+mapchunk_shepherd = mapchunk_shepherd
+
 local nsl = naturalslopeslib
 local ms = mapchunk_shepherd
-local plant = plant
-seasons = seasons
+local nn = nodes_nature
+
+local plant = nn.plant
+local seasons = nn.seasons
 
 ----------------------------------------------------------------
 -- Flora & mushrooms
@@ -261,7 +266,7 @@ minetest.register_abm({
                 local drop = string.gsub(soil_nodedef.drop, "_wet", "")
                 if drop == string.gsub(sed_nodedef.drop, "_wet", "") then
                     if light_above and light_above >= 13 then
-                        local replace_with = ""
+                        local replace_with
                         if minetest.get_item_group(node.name,
                                                    "wet_sediment") == 1 then
                             replace_with = soil_nodedef._wet_name

@@ -9,21 +9,17 @@ local S = nodes_nature.S
 
 ---------------------------------------------------------
 
-local random = math.random
-local floor = math.floor
 local c_alpha = minimal.compat_alpha
-seasons = seasons
-seasonal_types = seasonal_types
-
-local add_food_hooks = HEALTH.add_food_hooks
-wielded_light = wielded_light
 
 -- Globals
-plant = plant or {}
+nodes_nature = nodes_nature
+wielded_light = wielded_light
 
-local plant_base_growing_time = plant_base_growing_time
-local plant_base_timer = plant_base_timer
-local seed_growing_time = seed_growing_time
+local nn = nodes_nature
+local seasons = nn.seasons
+local seasonal_types = nn.seasonal_types
+local add_food_hooks = HEALTH.add_food_hooks
+local plant = nodes_nature.plant
 
 ---------------------------
 -- Prevent placing seed anywhere but sediment
@@ -202,8 +198,8 @@ function plant.get_root_texture_name(basename)
 end
 
 
-function plant.get_seedling_name(basename, nr)
-    local nr = nr or ""
+function plant.get_seedling_name(basename, nr_in)
+    local nr = nr_in or ""
     local mod_name = minetest.get_current_modname()
     return mod_name..":"..basename.."_seedling"..nr
 end
@@ -317,7 +313,7 @@ function plant.get_seedling_groups(plant_def)
 end
 
 function plant.get_seed_groups(plant_def)
-    local base = {}
+    local base
     if plant_def.lifeform_type == "mushroom" then
         base = minimal.merge_tables(
             base_groups.spore,
@@ -359,7 +355,6 @@ function plant.get_seasonal_props(plant_def)
 end
 
 function plant.get_base_props(plant_def)
-    local name = plant.get_name(plant_def.name)
     local props = {
         description = plant_def.description,
         tiles = {plant.get_texture_name(plant_def.name)},
@@ -816,8 +811,6 @@ function plant.register_plantlike_seedling(plant_def)
 end
 
 function plant.get_seed_base_props(plant_def)
-    local plantname = plant.get_name(plant_def.name)
-    local seed_name = plant.get_seed_name(plant_def.name)
     local next_life_stage = plant.get_seedling_name(plant_def.name, 1)
     local seed_texture, seed_description
     if plant_def.lifeform_type == "mushroom" or
@@ -872,9 +865,9 @@ function plant.get_seed_base_props(plant_def)
                  and return_itmstk:get_count() <= 0 ) then
                 local stack_index = placer:get_wield_index()
                 -- get index to avoid getting emptying stack
-                
+
                 -- should not run if in creative (you're not losing any seeds!)
-                local p_inv = placer:get_inventory() 
+                local p_inv = placer:get_inventory()
                 local inv_table = p_inv:get_list("main")
                 if inv_table then
                     for itm_index,itm_stk in pairs(inv_table) do

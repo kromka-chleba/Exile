@@ -1,6 +1,8 @@
 -- Compost
 
-sediment = sediment
+nodes_nature = nodes_nature
+local nn = nodes_nature
+local sediment = nn.sediment
 
 -- Internationalization
 local S = nodes_nature.S

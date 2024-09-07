@@ -1,6 +1,7 @@
 -- Internationalization
 local S = nodes_nature.S
 
+nodes_nature = nodes_nature
 local nn = nodes_nature
 
 local function register_leaf_marker(name)

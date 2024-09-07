@@ -61,13 +61,13 @@ local function get_after_destruct(name, renewable)
             local new_pos = vector.new(pos)
             for i = 1, 100 do
                 new_pos.y = new_pos.y + 1
-                local node = minetest.get_node(new_pos)
-                if node.name == "air" or
-                    node.name == "nodes_nature:"..name.."_flowing" then
+                local newnode = minetest.get_node(new_pos)
+                if newnode.name == "air" or
+                    newnode.name == "nodes_nature:"..name.."_flowing" then
                     state.replaced = true
                     minetest.set_node(new_pos, {name = oldnode.name})
                     break
-                elseif node.name ~= "nodes_nature:"..name.."_source" then
+                elseif newnode.name ~= "nodes_nature:"..name.."_source" then
                     -- we hit a ceiling
                     break
                 end
@@ -691,11 +691,7 @@ local lava_actions = function(pos, node)
                 or minetest.get_item_group(aname, "crumbly") > 0 then
 
                 --check it has "force" nearby
-                local gpos = minetest.find_nodes_in_area(
-                    {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-                    {x = pos.x + 1, y = pos.y, z = pos.z + 1},
-                    {"nodes_nature:lava_source"})
-                if #gpos > 8 then
+                if #gpos > 8 then -- We ran this check already, reuse it
                     --melt above
                     lava_particle(posa)
                     minetest.set_node(posa, {name = "nodes_nature:lava_source"})

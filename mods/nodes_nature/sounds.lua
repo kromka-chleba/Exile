@@ -2,6 +2,8 @@
 --
 -- Sounds
 --
+nodes_nature = nodes_nature
+
 function nodes_nature.node_sound_defaults(table)
     table = table or {}
     table.footstep = table.footstep or
@@ -74,7 +76,7 @@ function nodes_nature.node_sound_water_defaults(table)
     table = table or {}
     table.footstep = table.footstep or
         {name = "nodes_nature_water_footstep", gain = 0.2}
-    table.place = table.place or 
+    table.place = table.place or
         {name = "nodes_nature_place_water", gain = 0.6, pitch = 0.94}
     nodes_nature.node_sound_defaults(table)
     return table
@@ -131,7 +133,7 @@ function nodes_nature.node_sound_grassysnow_defaults(def)
         {name = "nodes_nature_grassysnow_footstep", gain = 0.3}
     def.dig = def.dig or
         {name = "nodes_nature_dig_grassysnow", gain = 0.3}
-    def.dug = def.dug or 
+    def.dug = def.dug or
         {name = "nodes_nature_grassysnow_footstep", gain = 0.44, pitch = 0.88}
     nodes_nature.node_sound_dirt_defaults(def)
     return def
