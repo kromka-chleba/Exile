@@ -2697,9 +2697,8 @@ function animals.get_nearby_player(self,forceplyr)
     end
 end
 
--- Taken directly from mobkit to properly calculate fall damage
+-- Taken directly from mobkit to properly calculate drowning
 function animals.vitals(self)
-
 
     -- vitals: oxygen
     if self.lung_capacity then
@@ -2709,9 +2708,7 @@ function animals.vitals(self)
         local drawtype_above = node_drawtype(minimal.pos_shift(lowpos,{y=1}))
 
         -- override self.isinliquid
-        if drawtype_above == "liquid" then
-            self.isinliquid = true
-        end
+        self.isinliquid = self.isinliquid or (drawtype_above == "liquid" and true) or false
 
         local oxygen_min = self.oxygen_min or self.lung_capacity
         local breathing_rate = self.breating_rate or 1
@@ -2731,6 +2728,11 @@ function animals.vitals(self)
                 if (self.oxygen <= oxygen_min
                     or dangerous == true) then -- if uncomfortable, swim to shore
                     animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
+                    -- (if on ground) and if there's potential air, gasp for air!!!
+                    -- (doesn't work due to the timing of when vitals is ran - every sec)
+                    --if self.isonground and drawtype_above ~= "liquid" then
+                        --mobkit.lq_dumbjump(self,0.9)
+                    --end
                 end
             else
                 self.oxygen = math_clamp(self.oxygen + breathing_rate, 0,
@@ -2763,6 +2765,7 @@ end
 function animals.hq_liquid_recovery(self,prty)
     local radius = 1
     local yaw = 0
+    local n_s -- no surface (could not find a surface)
     local func = function(self)
         if not self.isinliquid then return true end
         local pos=self.object:get_pos()
@@ -2773,36 +2776,33 @@ function animals.hq_liquid_recovery(self,prty)
             mobkit.hq_swimto(self,prty,pos2)
             return true
         end
-        yaw=yaw+pi*0.25
-        if yaw>2*pi then
-            radius=radius+1
-            if radius > self.view_range then
-                yaw = random(0,(yaw+pi*2) * 100)
-                -- random direction attempt (save decimals)
-                yaw = yaw/100
-                radius = random(math_clamp(3,self.view_range,
-                                           self.view_range),self.view_range)
-                -- swim anywhere! (or try to...)
-                mobkit.turn2yaw(self,yaw)
-                vec = minetest.yaw_to_dir(yaw)
-                pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
-
-                if (node_drawtype(pos2) ~= "liquid"
-                    or node_drawtype(mobkit.pos_shift(pos2,{y=1})) ~= "liquid") then
-                    -- made my OWN swimto because mobkit SUCKS 3:<
-                    pos2 = vector.normalize(vector.direction({x = pos.x,
-                                                              y = pos2.y,
-                                                              z = pos.z},
-                                                pos2))
-                    mobkit.turn2yaw(self,minetest.dir_to_yaw(pos2))
-                    pos2 = vector.multiply(pos2,3)
-                    pos2.y = pos2.y + 2
-                    self.object:set_velocity(pos2)
+        -- looking around now
+        yaw=yaw+(pi*0.25)
+        -- couldn't find a node in immediate vicinity, increase scanning radius
+        if radius < self.view_range and yaw>2*pi then
+            radius = radius + 1
+        end
+        -- no surfaces to go to could be found, we're going rambo
+        if n_s then
+            -- move_chance, always try to move if radius equals view_range, or on a 80% of radius/view_range chance
+            -- set to 0 if we don't have to do this
+            -- higher chances if radius is getting closer to view_range
+            local m_c = (radius >= self.view_range and 1.01 or radius > 1
+                and (radius/self.view_range) * .8) or 0
+            -- random chance
+            if m_c > random() then
+                local height, liquidflag = mobkit.get_terrain_height(pos2)
+                -- isn't water, let's wing it!
+                if not liquidflag then
+                    mobkit.lq_turn2pos(self, pos2)
+                    mobkit.lq_dumbwalk(self, pos2, 2)
+                    radius = 1 -- reset search radius
                 end
-
-                radius = 1
             end
-            yaw = 0
+      -- no surface in reach can be ascertained, try to find one instead
+      elseif radius >= self.view_range or node_drawtype(minimal.shift_pos(pos,{y=1})) ~= "liquid" then
+            radius = 1 -- reset radius
+            n_s = true
         end
     end
     mobkit.queue_high(self,func,prty)
