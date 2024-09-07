@@ -78,12 +78,12 @@ local drop_entity = {
 
             --food poisoning
             if random() < 0.005 then
-                HEALTH.add_new_effect(clicker, {"Food Poisoning", 1})
+                HEALTH.add_new_effect(puncher, {"Food Poisoning", 1})
             end
 
             --parasites
             if random() < 0.001 then
-                HEALTH.add_new_effect(clicker, {"Intestinal Parasites"})
+                HEALTH.add_new_effect(puncher, {"Intestinal Parasites"})
             end
 
         end
