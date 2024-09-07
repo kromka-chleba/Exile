@@ -5,7 +5,7 @@
 ------------------------------
 
 local superstorm = {}
-
+lightning = lightning
 
 superstorm.name = 'superstorm'
 

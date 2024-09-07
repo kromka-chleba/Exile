@@ -5,6 +5,7 @@
 ------------------------------
 
 local thunderstorm = {}
+lightning = lightning
 
 thunderstorm.name = 'thunderstorm'
 

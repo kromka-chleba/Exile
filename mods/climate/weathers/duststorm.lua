@@ -5,6 +5,7 @@
 ------------------------------
 
 local duststorm = {}
+lightning = lightning
 
 duststorm.name = 'duststorm'
 
