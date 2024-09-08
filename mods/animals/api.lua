@@ -2731,7 +2731,7 @@ function animals.vitals(self)
                 self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
                 if (self.oxygen <= oxygen_min
                     or dangerous == true) then -- if uncomfortable, swim to shore
-                    animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
+                    animals.hq_liquid_recovery(self,70) -- LIQUID RECOVERY
                     -- (if on ground) and if there's potential air, gasp for air!!!
                     -- (doesn't work due to the timing of when vitals is ran - every sec)
                     --if self.isonground and drawtype_above ~= "liquid" then
@@ -2770,7 +2770,8 @@ function animals.hq_liquid_recovery(self,prty)
     local radius = 1
     local yaw = 0
     local n_s -- no surface (could not find a surface)
-    local goto_pos
+    --local goto_pos
+    local old_pos
     local func = function(self)
         if not self.isinliquid then return true end
         local pos=self.object:get_pos()
@@ -2792,7 +2793,7 @@ function animals.hq_liquid_recovery(self,prty)
             -- move_chance, always try to move if radius equals view_range, or on a 80% of radius/view_range chance
             -- set to 0 if we don't have to do this
             -- higher chances if radius is getting closer to view_range
-            local m_c = goto_pos == nil and (radius >= self.view_range and 1.01 or radius > 1
+            local m_c = (radius >= self.view_range and 1.01 or radius > 1
                 and (radius/self.view_range) * .8) or nil
             -- random chance
             if m_c and m_c > random() then
@@ -2800,11 +2801,19 @@ function animals.hq_liquid_recovery(self,prty)
                 local height, liquidflag = mobkit.get_terrain_height(pos2)
                 -- isn't water, let's wing it!
                 if not liquidflag then
-                    goto_pos = pos2
+                    mobkit.lq_turn2pos(self, pos2)
+                    mobkit.lq_dumbwalk(self, pos2, 2)
                     radius = 1 -- reset search radius
                 end
             end
+            if old_pos and vector.distance(pos, old_pos) < 0.05 then
+              mobkit.clear_queue_low(self) -- clear all other low level tasks to prioritize jumping
+              self.isonground = random() < 0.2 and true or self.isonground
+              mobkit.lq_dumbjump(self, 2)
+            end
+            old_pos = pos
             -- prioritize going to 1 position first
+            --[[
             if goto_pos then
               -- passable used to calculate what's in front
               local passable = mobkit.pos_shift(pos,vector.multiply(vec,1))
@@ -2827,6 +2836,7 @@ function animals.hq_liquid_recovery(self,prty)
                 goto_pos = nil
               end
             end
+          --]]
       -- no surface in reach can be ascertained, try to find one instead
       elseif radius >= self.view_range or node_drawtype(minimal.shift_pos(pos,{y=1})) ~= "liquid" then
             radius = 1 -- reset radius
