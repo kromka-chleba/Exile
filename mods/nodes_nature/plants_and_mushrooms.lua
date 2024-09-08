@@ -230,6 +230,14 @@ local plant_list = {
      seasonal_type = "whole_season",
      edible_seedling = true},
 
+    {name = "urimi", description = S("Urimi"),
+     drawtype = "plantlike", plant_type = "herbaceous_plant",
+     waving = true,
+     mesh_type = 2, growing_time = nn.plant_base_growing_time,
+     dye_candidate = true, dominant_color = "black",
+     seasonal_type = "whole_season",
+     edible_seedling = false},
+
     -- Mushrooms
 
     --Lambakap. is also a mushroom.

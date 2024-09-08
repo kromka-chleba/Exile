@@ -272,6 +272,18 @@ local moss_and_stuff = {
         decoration = "nodes_nature:moss",
     },
 
+    {--[[forest:urimi]]
+        name = "fr_nn:urimi",
+        deco_type = "simple",
+        place_on = sna.forest_on,
+        sidelen = 80,
+        fill_ratio = 0.100000,
+        y_max = sna.lowland_max,
+        y_min = sna.coastal_max,
+        decoration = "nodes_nature:urimi",
+        param2 = 2,
+    },
+
     {--[[all:moss]]
         name = "all_nn:moss",
         deco_type = "simple",
