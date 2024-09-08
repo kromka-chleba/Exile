@@ -99,6 +99,7 @@ local function spawn_offset(hex1, max_count)
         else
             vgl = volcano.estimate_ground_level(check) or 0
             local chunk = ms.mapchunk_hash(check)
+            local label_store = ms.label_store.new(chunk)
             local bname =
                 minetest.get_biome_name(minetest.get_biome_data(
                                             vector.new(check.x,
@@ -106,7 +107,7 @@ local function spawn_offset(hex1, max_count)
                                                        check.z)).biome)
             if not isagoodbiome(bname) then biomecount = biomecount + 1 end
             if  sl > vgl and -- not at a volcano
-                not ms.contains_labels(chunk, badplaces)
+                not label_store:contains_labels(badplaces)
             -- not a blacklisted label
                 and  isagoodbiome(bname) then -- not a blacklisted biome name
                 tgt = check
