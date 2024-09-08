@@ -172,7 +172,7 @@ local tree_list = {
     },
     tulatula = {
         desc = S("Tulatula"),
-        hardwood = true,
+        hardwood = false,
         fruit_def = {
             description = S("Tulatula Pods"),
             selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
