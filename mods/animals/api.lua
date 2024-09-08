@@ -3236,6 +3236,7 @@ function animals.register_animal(name,def)
     spawnegg.class = def.class
     spawnegg.energy_egg = def.energy_egg
     spawnegg.young_per_egg = def.young_per_egg
+    spawnegg.drops = def.drops
     def.spawnegg = spawnegg
     animals.register_spawnegg(spawnegg)
 
