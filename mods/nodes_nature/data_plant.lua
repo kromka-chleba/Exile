@@ -170,6 +170,17 @@ local tree_list = {
         },
         leaf_def = {}
     },
+    tulatula = {
+        desc = S("Tulatula"),
+        hardwood = false,
+        fruit_def = {
+            description = S("Tulatula Pods"),
+            selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
+            dyecandidate = true,
+            dominantcolor = "indigo"
+        },
+        leaf_def = {}
+    },
 }
 
 for treename,treedef in pairs(tree_list) do
