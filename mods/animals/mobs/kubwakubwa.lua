@@ -54,6 +54,9 @@ local function brain(self)
 
         end
 
+        if self.isinliquid then
+          self.isonground = true
+        end
 
         ----------------------
         --Low priority actions
@@ -171,12 +174,13 @@ local self_data = {
     logic = brain,
     --movement
     springiness=0,
-    buoyancy = 0.9, -- 1.01
+    buoyancy = 1.01,
     max_speed = 0.75,                                    -- m/s
     view_range = 10,                                     -- nodes/meters
     --attack
-    attack={range=0.7, damage_groups={fleshy=4}},
+    attack={range=0.9, damage_groups={fleshy=4}},
     armor_groups = {fleshy=100},
+    hunting_depth = 4,
     -- animation + sounds
     animation = {
         walk={range={x=0,y=20},speed=20,loop=true},
