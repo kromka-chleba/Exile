@@ -112,7 +112,7 @@ Fruitless @1=@1 sans fruit
 @1 Seeds=Graines de @1
 @1 Root=Racine de @1
 # plants_and_mushrooms
-Barszcz=Barszcz
+Barshocha=Barshocha
 Wrotycz=Wrotycz
 Wiha=Wiha
 Momo=Momo
@@ -165,7 +165,7 @@ Momo Pepper=Poivre de Momo
 Wiha Berries=Baies de Wiha
 Muhle Berries=Baies de Muhle
 Anperla tuber=Tubercule d'Anperla
-Barszcz root=Racine de Barszcz
+Barshocha root=Racine de Barshocha
 Rzepicha root=Racine de Rzepicha
 # foody stuff (plants_and_mushrooms.lua, liquids.lua)
 This plant has a foul musty flavor.=Cette plante a un goût de moisi.

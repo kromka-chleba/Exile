@@ -69,7 +69,7 @@ local wrotycz_soil_prefs =
 
 local plant_list = {
     -- Herbs
-    {name = "barszcz", description = S("Barszcz"),
+    {name = "barszcz", description = S("Barshocha"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
@@ -487,7 +487,7 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:barszcz_root",{
         tiles = {"nodes_nature_red_ochre.png"},
-        description = S("Barszcz root"),
+        description = S("Barshocha root"),
         wield_image = "nodes_nature_barszcz_root.png",
         inventory_image = "nodes_nature_barszcz_root.png",
         node_box = {

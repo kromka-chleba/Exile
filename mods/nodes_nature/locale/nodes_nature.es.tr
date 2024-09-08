@@ -113,7 +113,7 @@ Fruitless @1=@1 sin fruta
 @1 Seeds=Semillas de @1
 @1 Root=
 # plants_and_mushrooms
-Barszcz=
+Barshocha= 
 Wrotycz=
 Wiha=
 Momo=
@@ -166,7 +166,7 @@ Momo Pepper=
 Wiha Berries=
 Muhle Berries=
 Anperla tuber=
-Barszcz root=
+Barshocha root=
 Rzepicha root=
 # foody stuff (plants_and_mushrooms.lua, liquids.lua)
 This plant has a foul musty flavor.=

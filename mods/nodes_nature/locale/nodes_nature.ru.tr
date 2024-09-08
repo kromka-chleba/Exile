@@ -112,7 +112,7 @@ Fruitless @1=Бесплодный @1
 @1 Seeds=Семена @1
 @1 Root=@1 Корень
 # plants_and_mushrooms
-Barszcz=Баршч
+Barshocha=Баршч
 Wrotycz=Вротыч
 Wiha=Виха
 Momo=Момо
@@ -165,7 +165,7 @@ Momo Pepper=Перец Момо
 Wiha Berries=Ягоды Виха
 Muhle Berries=Ягоды Мухле
 Anperla tuber=Клубень анперлы
-Barszcz root=Корень барщицы
+Barshocha root=Корень барщицы
 Rzepicha root=Корень Ржепича
 # foody stuff (plants_and_mushrooms.lua, liquids.lua)
 This plant has a foul musty flavor.=Это растение обладает неприятным затхлым ароматом.
