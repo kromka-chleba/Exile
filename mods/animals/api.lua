@@ -1698,11 +1698,12 @@ function animals.prey_hunt(self, prty)
         end
         local tgtpos = targ.object:get_pos()
         local drawtype = node_drawtype(tgtpos)
-        if (drawtype == "liquid" and (self.oxygen_min
-                                      and self.oxygen > self.oxygen_min)) then
+        if drawtype == "liquid" and (self.oxygen_min
+              and self.oxygen > self.oxygen_min) then
             -- look for a solid node underneath (safe to hunt)
+            -- custom hunting_depth to check how far down this solid node has to be
             --  and if meant to hunt prey that's in water
-            tgtpos = minimal.pos_shift(tgtpos,{y = -1})
+            tgtpos = minimal.pos_shift(tgtpos,{y = -(self.hunting_depth or 1)})
             drawtype = node_drawtype(tgtpos)
         end
         if (drawtype ~= "liquid") then
@@ -2158,6 +2159,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             return true
         end
         if not mobkit.is_alive(tgtobj) then return true end
+        if self.oxygen < (self.oxygen_min or self.lung_capacity*0.9) then return true end
 
         if mobkit.is_queue_empty_low(self) then
             local pos = mobkit.get_stand_pos(self)
@@ -2707,8 +2709,10 @@ function animals.vitals(self)
         local drawtype = node_drawtype(lowpos) -- node at hitbox top
         local drawtype_above = node_drawtype(minimal.pos_shift(lowpos,{y=1}))
 
-        -- override self.isinliquid
-        self.isinliquid = self.isinliquid or (drawtype_above == "liquid" and true) or false
+        -- override self.isinliquid from mobkit to account for overhead water
+        self.isinliquid = self.isinliquid or drawtype_above == "liquid" or false
+        -- do after above calculation for hunting_depth if specified
+        drawtype_above = self.hunting_depth and node_drawtype(minimal.pos_shift(lowpos,{y=self.hunting_depth})) or drawtype_above
 
         local oxygen_min = self.oxygen_min or self.lung_capacity
         local breathing_rate = self.breating_rate or 1
@@ -2716,7 +2720,7 @@ function animals.vitals(self)
         -- determines whether or not the animal should try to get out
         --  (if there's too much water)
         local dangerous = false
-        if (node_drawtype(mobkit.pos_shift(lowpos,{y=-1})) == "liquid"
+        if (node_drawtype(mobkit.pos_shift(lowpos,{y=-(self.hunting_depth or 1)})) == "liquid"
             or drawtype_above == "liquid"
             or oxygen_min == self.lung_capacity) then
             dangerous = true
@@ -2766,6 +2770,7 @@ function animals.hq_liquid_recovery(self,prty)
     local radius = 1
     local yaw = 0
     local n_s -- no surface (could not find a surface)
+    local goto_pos
     local func = function(self)
         if not self.isinliquid then return true end
         local pos=self.object:get_pos()
@@ -2787,17 +2792,40 @@ function animals.hq_liquid_recovery(self,prty)
             -- move_chance, always try to move if radius equals view_range, or on a 80% of radius/view_range chance
             -- set to 0 if we don't have to do this
             -- higher chances if radius is getting closer to view_range
-            local m_c = (radius >= self.view_range and 1.01 or radius > 1
-                and (radius/self.view_range) * .8) or 0
+            local m_c = goto_pos == nil and (radius >= self.view_range and 1.01 or radius > 1
+                and (radius/self.view_range) * .8) or nil
             -- random chance
-            if m_c > random() then
+            if m_c and m_c > random() then
+                --pos2 = minimal.pos_shift(pos2,{y=-1})
                 local height, liquidflag = mobkit.get_terrain_height(pos2)
                 -- isn't water, let's wing it!
                 if not liquidflag then
-                    mobkit.lq_turn2pos(self, pos2)
-                    mobkit.lq_dumbwalk(self, pos2, 2)
+                    goto_pos = pos2
                     radius = 1 -- reset search radius
                 end
+            end
+            -- prioritize going to 1 position first
+            if goto_pos then
+              -- passable used to calculate what's in front
+              local passable = mobkit.pos_shift(pos,vector.multiply(vec,1))
+              passable = node_drawtype(minimal.pos_shift(passable,{y=1}))
+              passable = passable == "liquid" or passable == "air"
+              -- turn to and walk to goto_pos
+              mobkit.lq_turn2pos(self, goto_pos)
+              mobkit.lq_dumbwalk(self, goto_pos, 2)
+              -- clear goto_pos if close enough
+              if vector.distance(pos, goto_pos) < 0.5 then
+                goto_pos = nil
+              -- cannot reasonably get to this place, try to jump
+              elseif not passable then
+                minetest.log(self.name..": cannot pass at "..pos.y)
+                --self.isonground = true
+                mobkit.clear_queue_low(self) -- clear all other low level tasks to prioritize jumping
+                mobkit.lq_dumbjump(self, 2)
+              -- 1% chance of refreshing goto_pos
+              elseif random() < 0.01 then
+                goto_pos = nil
+              end
             end
       -- no surface in reach can be ascertained, try to find one instead
       elseif radius >= self.view_range or node_drawtype(minimal.shift_pos(pos,{y=1})) ~= "liquid" then
