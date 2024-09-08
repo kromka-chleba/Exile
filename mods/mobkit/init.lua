@@ -42,9 +42,9 @@ end
 function mobkit.pos_shift(pos,vec)
     -- vec components can be omitted e.g. vec={y=1}
     return vector.new(
-        vec.x or 0,
-        vec.y or 0,
-        vec.z or 0
+        pos.x + (vec.x or 0),
+        pos.y + (vec.y or 0),
+        pos.z + (vec.z or 0)
     )
 end
 
