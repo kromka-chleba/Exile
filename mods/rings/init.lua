@@ -51,6 +51,7 @@ minetest.register_node("rings:moon_glass", {
                            drop = "artifacts:moon_glass",
 })
 
+dofile(minetest.get_modpath("rings") .. "/meru.lua")
 
 local c_ring_o = minetest.get_content_id("rings:antiquorium")
 -- outer shell material

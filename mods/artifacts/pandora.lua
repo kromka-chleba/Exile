@@ -5,7 +5,7 @@
 ------------------------------------
 
 local S = artifacts.S
-
+local c_alpha = minimal.compat_alpha
 ------------------------------------
 --BAD GOOD IDEAS and GOOD BAD IDEAS
 --things that might even be useful, but are slightly problematic
@@ -54,11 +54,35 @@ minetest.register_tool('artifacts:metastim', {
                            on_use = inject_metastim,
 })
 
-------------------------------------
---CURIOSITIES
-------------------------------------
-
 
 ------------------------------------
 --THE DANGEROUS AND EVIL
+------------------------------------
+
+--Exotic physics
+-- a patch of space at absolute zero
+local void_def = {
+    description = "Void Space",
+    tiles = {"artifacts_void_space.png"},
+    drawtype = "glasslike",
+    paramtype = "light",
+    sunlight_propagates = true,
+    walkable = false,
+    pointable = false,
+    diggable = false,
+    buildable_to = false,
+    floodable = false,
+    temp_effect = -12,
+    temp_effect_max = -273,
+    drop = "",
+    drowning = 1,
+    groups = {temp_pass = 1, temp_effect = 1},
+    post_effect_color = {a = 220, r = 0, g = 0, b = 0},
+    color = {a = 220, r = 0, g = 0, b = 0},
+    use_texture_alpha = c_alpha.blend
+}
+minetest.register_node("artifacts:void_space", void_def)
+
+------------------------------------
+--CURIOSITIES
 ------------------------------------
