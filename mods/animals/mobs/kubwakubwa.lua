@@ -81,10 +81,10 @@ local function brain(self)
             --asexual parthogenesis, eggs
             --when in prime condition
             if random() < 0.1
-                and not rival
                 and self.hp >= self.max_hp
                 and self.energy >= self.energy_egg + 100
-                and self.age >= self.mature_age then
+                and self.age >= self.mature_age
+                and not rival then
                 animals.place_egg(self, pos)
             end
         elseif (self.conserve == true) then
@@ -171,11 +171,11 @@ local self_data = {
     logic = brain,
     --movement
     springiness=0,
-    buoyancy = 1.01,
+    buoyancy = 0.9, -- 1.01
     max_speed = 0.75,                                    -- m/s
     view_range = 10,                                     -- nodes/meters
     --attack
-    attack={range=0.4, damage_groups={fleshy=4}},
+    attack={range=0.7, damage_groups={fleshy=4}},
     armor_groups = {fleshy=100},
     -- animation + sounds
     animation = {
