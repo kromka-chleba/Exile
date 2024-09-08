@@ -40,7 +40,7 @@ local function rooted_place(itemstack, placer, pointed_thing, node_name,
     end
 
     if (def_top and def_top.liquidtype == "source" and
-        minimal.in_group(def_top.name, "water") ) then
+        minimal.is_group(def_top.name, "water") ) then
         if not minetest.is_protected(pos, player_name) and
             not minetest.is_protected(pos_top, player_name) then
             minetest.swap_node(pos, {name = node_name,

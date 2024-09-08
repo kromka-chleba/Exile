@@ -229,8 +229,8 @@ minetest.register_node(
         on_place = function(itemstack, placer, pointed_thing)
             local under = pointed_thing.under
             local above = pointed_thing.above
-            
-            if minimal.in_group(above, "water") then
+
+            if minimal.pos_group(above, "water") then
                 on_throw(itemstack, placer, pointed_thing.under)
                 if not minimal.player_in_creative(placer) then
                     itemstack:take_item(1)

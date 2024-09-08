@@ -114,7 +114,7 @@ function storage.dump_inventory(pos, meta)
 
     -- verify if the dumped inventory belongs to a storage container
     local stor_node = minetest.get_node(pos)
-    if not minimal.in_group(stor_node,"storage") then return end
+    if not minimal.is_group(stor_node.name,"storage") then return end
 
     meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
     -- don't attempt to empty out an empty inventory
@@ -137,7 +137,7 @@ end
 -- optional meta argument, otherwise gets meta
 local function to_burnt(pos, meta)
     local stor_node = minetest.get_node(pos)
-    if not minimal.in_group(stor_node,"storage") then
+    if not minimal.is_group(stor_node.name,"storage") then
         return -- not storage, why did this get ran?
     end
     stor_node = minetest.registered_nodes[stor_node.name]
@@ -159,7 +159,7 @@ local function to_burnt(pos, meta)
     end
 
     -- if burn_to node is not storage then don't try to add storage aspects to it!
-    if not minimal.in_group(burn_to,"storage") then return end
+    if not minimal.is_group(stor_node.burn_to,"storage") then return end
 
     -- creating burn_to storage variant
     -- get formspec width and height

@@ -21,7 +21,7 @@ local seasons = nn.seasons
 
 local function flora_spread(pos, node)
     local pos_under = minimal.get_pos_under(pos)
-    if not minimal.in_group(pos_under, "sediment") then
+    if not minimal.pos_group(pos_under, "sediment") then
         return
     end
     local under = minetest.get_node(pos_under)
@@ -240,10 +240,10 @@ minetest.register_abm({
         min_y = -30,
         max_y = 500,
         action = function(pos, node)
-            local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
+            local pos_above = vector.new(pos.x, pos.y + 1, pos.z)
             local above_name = minetest.get_node(pos_above).name
             if above_name ~= "air"
-                and not minimal.in_group(pos_above, "flora") then
+                and not minimal.pos_group(pos_above, "flora") then
 
                 return
             end

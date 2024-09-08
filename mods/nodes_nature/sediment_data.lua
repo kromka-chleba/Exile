@@ -268,7 +268,7 @@ for i = 1, #registered_sediments do
             else
                 minetest.add_item(pos, root_stack)
             end
-            if not minimal.in_group(w_item,"hoe") then
+            if not minimal.is_group(w_item:get_name(),"hoe") then
                 local sed_stack = ItemStack(props.drop)
                 if player_inv:room_for_item("main", sed_stack) then
                     player_inv:add_item("main", sed_stack)

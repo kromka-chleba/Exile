@@ -104,7 +104,7 @@ minetest.register_allow_player_inventory_action(function(player, action,
             return
         end
         if stack then
-            local item_group = minimal.in_group(stack:get_name(),"cloth")
+            local item_group = minimal.is_group(stack:get_name(),"cloth")
             if not item_group -- not a cloth
                 or item_group == 6 then -- is a blanket
                 return 0
@@ -115,7 +115,7 @@ minetest.register_allow_player_inventory_action(function(player, action,
 
             for _,itemstack in pairs(cloth_list) do
                 local cloth_name = itemstack:get_name()
-                if (minimal.in_group(cloth_name,"cloth") == item_group) then
+                if (minimal.is_group(cloth_name,"cloth") == item_group) then
                     -- if same type of clothing article found then
                     if (from_inv == "main") then
                         -- if new itemstack is coming from player inventory

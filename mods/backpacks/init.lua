@@ -444,17 +444,17 @@ function backpacks.register_backpack(name, def)
     def._on_use_item = function(player, itemstack, pointed_thing)
         if not (pointed_thing and pointed_thing.under) then return end
         local pos = pointed_thing.under
-        local node = minetest.get_node(pos)
-        if not (minimal.in_group(node,"storage")
-                or node.name == "bones:bones") then return end
-        if minimal.in_group(node,"no_packdump") then return end
+        local nname = minetest.get_node(pos).name
+        if not (minimal.is_group(nname,"storage")
+                or nname == "bones:bones") then return end
+        if minimal.is_group(nname,"no_packdump") then return end
         local pname = player:get_player_name()
         if minetest.is_protected(pos,pname) then return end
         show_packdump_formspec(pos, player, itemstack,
                                (def.can_dump
-                                and not minimal.in_group(pos,"no_dump")),
+                                and not minimal.is_group(nname, "no_dump")),
                                (def.can_pack
-                                and not minimal.in_group(pos,"no_pack")))
+                                and not minimal.is_group(nname, "no_pack")))
     end
     def.allow_metadata_inventory_put = function(pos, listname, index,
                                                 stack, player)

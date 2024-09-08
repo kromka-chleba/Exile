@@ -77,7 +77,7 @@ function clothing.on_rightclick(itemstack, user, pointed_thing)
         return
     end
 
-    local item_group = minimal.in_group(itemstack:get_name(),"cloth")
+    local item_group = minimal.is_group(itemstack:get_name(),"cloth")
     if (not item_group or item_group == 6) then
         return
     end
@@ -88,7 +88,7 @@ function clothing.on_rightclick(itemstack, user, pointed_thing)
     -- check for another similar cloth
     for _,cloth in pairs(cloth_list) do
         local cloth_name = cloth:get_name()
-        if (minimal.in_group(cloth_name,"cloth") == item_group) then
+        if (minimal.is_group(cloth_name,"cloth") == item_group) then
             -- if same type of clothing article found then
             local removed = player_inv:remove_item("cloths", cloth)
             -- take old cloth

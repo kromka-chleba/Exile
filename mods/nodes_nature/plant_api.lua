@@ -27,7 +27,7 @@ local plant = nodes_nature.plant
 local on_place_plant = function(itemstack, placer, pointed_thing)
     local ground = minimal.get_nodedef(pointed_thing.under)
     local above = minetest.get_node(pointed_thing.above)
-    if not (minimal.in_group(ground, "sediment") -- no sediment below/air above
+    if not (minimal.pos_group(ground, "sediment") -- no sediment below/air above
             and minetest.get_item_group(above.name, "air") > 0 ) then
         if not (minetest.is_player(placer) -- if player not sneakin'
                 and placer:get_player_control().sneak) then

@@ -15,7 +15,7 @@ local function destruct_bed(pos, n)
         other = vector.add(pos, dir)
     end
 
-    if minimal.in_group(other,"bed") then
+    if minimal.pos_group(other,"bed") then
         -- Swap node leaves meta, but doesn't call destruct_bed again
         minetest.swap_node(other, {name = "air"})
         minetest.remove_node(other) -- Now clear meta

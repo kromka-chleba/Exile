@@ -169,7 +169,7 @@ local function fast_interval(dtime)
                 --Environmental temperature
                 local player_pos = player:get_pos()
 
-                local water = minimal.in_group(player_pos,"water")
+                local water = minimal.pos_group(player_pos,"water")
                 player_pos.y = player_pos.y + 0.6
                 --adjust to body height (for radiant heat)
 
@@ -328,7 +328,7 @@ local function fast_interval(dtime)
                     local posu = player_pos
                     posu.y = posu.y - 1.6
 
-                    if minimal.in_group(posu, "wet_sediment") then
+                    if minimal.pos_group(posu, "wet_sediment") then
                         HEALTH.add_new_effect(player, {"Fungal Infection", 1})
                     end
                 end

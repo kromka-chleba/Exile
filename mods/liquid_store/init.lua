@@ -303,7 +303,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
             -- Call on_rightclick if the pointed node defines it
             --   (do not on_rightclick for liquids or liquid_storage)
             if not (ndef.drawtype == "liquid"
-                    or minimal.in_group(ndef,"liquid_storage")) then
+                    or minimal.is_group(node.name,"liquid_storage")) then
                 local on_click = minimal.on_rightclick(itemstack, user,
                                                        pointed_thing)
                 if on_click ~= false then

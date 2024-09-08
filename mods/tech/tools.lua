@@ -46,8 +46,8 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
     if ( def_above and ( not def_above.walkable ) and def_above.buildable_to )
     -- check if walkable below to avoid throwing tools into abyss
         and (def_under and def_under.walkable ) then
-        if (minimal.in_group(above,"woody_plant")
-            and minimal.in_group(above,"cane_plant")) then
+        if (minimal.is_group(above.name,"woody_plant")
+            and minimal.is_group(above.name,"cane_plant")) then
             -- replace bamboo with air so that the tool places appropriately
             minetest.swap_node(pointed_thing.above,
                                {name = "air"})

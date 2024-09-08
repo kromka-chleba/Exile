@@ -203,19 +203,16 @@ function minimal.get_nodedef(pos)
     return nodedef
 end
 
-function minimal.in_group(pos, group_name)
-    local node_name = minetest.get_node(pos).name
-    assert(type(node_name) == "string",
-           "exile_game.in_group: Invalid pos or name provided for node, got "..
-           type(node_name))
-    assert(type(group_name) == "string",
-           "exile_game.in_group: Invalid group_name provided, got "..
-           type(group_name))
-    local group_val = minetest.get_item_group(node_name,group_name)
-    if (group_val > 0) then
-        return group_val
+function minimal.pos_group(pos, group_name)
+    if not vector.check(pos) then
+        if type(pos) == "table" and pos.x then
+            print("pos_group: deprecated pos table use")
+            print(debug.traceback())
+        else error("pos_group: invalid pos") end
     end
-    return false
+    local node_name = minetest.get_node(pos).name
+    local group_val = minetest.get_item_group(node_name, group_name)
+    if group_val > 0 then return group_val end
 end
 
 function minimal.safe_landing_spot(pos)

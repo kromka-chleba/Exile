@@ -2,12 +2,14 @@ ncrafting = ncrafting
 
 local function get_soil_pos(pos)
     local node = minetest.get_node(pos)
-    if (minimal.in_group(node,"flora") or minimal.in_group(node,"seed")) then
+    if (minimal.is_group(node.name,"flora")
+        or minimal.is_group(node.name,"seed")) then
+        
         pos.y = pos.y - 1
         node = minetest.get_node(pos)
     end
-    if minimal.in_group(node,"sediment") or
-        minimal.in_group(node,"dry_sediment")  then
+    if minimal.is_group(node.name,"sediment") or
+        minimal.is_group(node.name,"dry_sediment")  then
         return pos
         -- permit interactions with compost
     elseif minetest.get_item_group(node.name,"compost") == 1
@@ -193,7 +195,7 @@ function ncrafting.fertilize(pos, puncher, itemstack)
         -- prevent the ability to fertilize something already fertilized lol
         return itemstack
     end
-    if (minimal.in_group(itemdef,"compost")
+    if (minimal.is_group(ndef.name,"compost")
         and type(node_name) == "string") then
 
         if not minetest.registered_nodes[node_name] then
@@ -211,7 +213,7 @@ function ncrafting.fertilize(pos, puncher, itemstack)
         -- prevent the ability to enrich something already enriched lol
         return itemstack
     end
-    if ( minimal.in_group(itemdef,"fertilizer" )
+    if ( minimal.is_group(ndef.name,"fertilizer" )
          and type(node_name) == "string" ) then
         if not minetest.registered_nodes[node_name] then
             minetest.log("error","ncrafting: '"..node_name..
