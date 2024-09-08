@@ -10,7 +10,7 @@ local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 local ms = mapchunk_shepherd
 
-ms.labels.register("volcano")
+ms.tag.register("volcano")
 
 local volcano = volcano or {}
 
@@ -240,7 +240,7 @@ minetest.register_on_generated(function(vm, minp, maxp, seed)
     -- Add the "volcano" label to volcano chunks
     local hash = ms.mapchunk_hash(emin)
     local volcano_watchdog = ms.mapgen_watchdog.new(hash)
-    volcano_watchdog:push_added_labels("volcano")
+    volcano_watchdog:mark_for_addition("volcano")
     volcano_watchdog:save_gen_notify()
 
         local sidelen = mapgen_chunksize * 16 --length of a mapblock

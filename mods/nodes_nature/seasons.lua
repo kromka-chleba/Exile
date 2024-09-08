@@ -436,9 +436,7 @@ minetest.register_lbm({
         action = function(pos, _node)
             local hash = ms.mapchunk_hash(pos)
             if not ms.contains_labels(hash, spring_labels) then
-                ms.save_mapchunk(hash, true)
                 ms.handle_labels(hash, spring_labels)
-                ms.add_labels(hash, {"scanned"})
             end
         end,
 })
@@ -456,9 +454,7 @@ minetest.register_lbm({
         action = function(pos, _node)
             local hash = ms.mapchunk_hash(pos)
             if not ms.contains_labels(hash, winter_labels) then
-                ms.save_mapchunk(hash, true)
                 ms.handle_labels(hash, winter_labels)
-                ms.add_labels(hash, {"scanned"})
             end
         end,
 })
