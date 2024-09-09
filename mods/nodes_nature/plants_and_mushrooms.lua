@@ -78,7 +78,7 @@ local plant_list = {
      roots = 5,
      winter_fruit = true, dry_fruit = true},
 
-    {name = "wrotycz", description = S("Wrotycz"),
+    {name = "wrotycz", description = S("Vortecha"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
