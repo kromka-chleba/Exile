@@ -127,7 +127,7 @@ local plant_list = {
      winter_fruit = false, seasonal_type = "tuber",
      fruit = true, roots = 8},
 
-    {name = "rzepicha", description = S("Rzepicha"),
+    {name = "rzepicha", description = S("Jepiha"),
      plant_type = "herbaceous_plant", waving = true,
      drawtype = "plantlike", mesh_type = 0,
      growing_time = nn.plant_base_growing_time * 2,
@@ -505,7 +505,7 @@ minetest.override_item(
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root",
     {
-        description = S("Rzepicha root"),
+        description = S("Jepiha root"),
         inventory_image = "nodes_nature_rzepicha_root.png",
         wield_image = "nodes_nature_rzepicha_root.png",
         stack_max = minimal.stack_max_medium,
@@ -530,7 +530,7 @@ minetest.register_craftitem(
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root_winter",
     {
-        description = S("Rzepicha root"),
+        description = S("Jepiha root"),
         inventory_image = "nodes_nature_rzepicha_root_winter.png",
         wield_image = "nodes_nature_rzepicha_root_winter.png",
         stack_max = minimal.stack_max_medium,
