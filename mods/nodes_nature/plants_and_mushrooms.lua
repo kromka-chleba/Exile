@@ -151,7 +151,7 @@ local plant_list = {
      dye_candidate = true, dominant_color = "yellow",
      fruit = true, seasonal_type = "early_flower"},
 
-    {name = "srebroplon", description = S("Srebropłon"),
+    {name = "srebroplon", description = S("Serebro"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = nn.plant_base_growing_time * 0.4,
