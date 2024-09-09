@@ -297,12 +297,13 @@ minetest.register_node(
                 -- do not accidentally eat snow when combining slabs
                 return
             end
-            if not minimal.slabs_combine(player, wielded_item, pointed_thing,
-                                         "nodes_nature:snow_block") then
-                return wielded_item:get_definition()._on_consume(player,
-                                                                 wielded_item,
-                                                                 pointed_thing)
-            end
+
+            return minimal.slabs_combine(player, wielded_item,
+                                         pointed_thing,
+                                         "nodes_nature:snow_block")
+            or wielded_item:get_definition()._on_consume(player,
+                                                         wielded_item,
+                                                         pointed_thing)
         end,
 })
 
