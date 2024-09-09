@@ -144,7 +144,7 @@ local plant_list = {
      seasonal_type = "mainly_flower",
      dry_fruit = true},
 
-    {name = "ziarnoplon", description = S("Ziarnopłon"),
+    {name = "ziarnoplon", description = S("Jarno"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = nn.plant_base_growing_time * 0.4,
