@@ -69,7 +69,7 @@ local wrotycz_soil_prefs =
 
 local plant_list = {
     -- Herbs
-    {name = "barszcz", description = S("Barszcz"),
+    {name = "barszcz", description = S("Barshocha"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
@@ -78,7 +78,7 @@ local plant_list = {
      roots = 5,
      winter_fruit = true, dry_fruit = true},
 
-    {name = "wrotycz", description = S("Wrotycz"),
+    {name = "wrotycz", description = S("Vortecha"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
@@ -127,7 +127,7 @@ local plant_list = {
      winter_fruit = false, seasonal_type = "tuber",
      fruit = true, roots = 8},
 
-    {name = "rzepicha", description = S("Rzepicha"),
+    {name = "rzepicha", description = S("Jepiha"),
      plant_type = "herbaceous_plant", waving = true,
      drawtype = "plantlike", mesh_type = 0,
      growing_time = nn.plant_base_growing_time * 2,
@@ -144,14 +144,14 @@ local plant_list = {
      seasonal_type = "mainly_flower",
      dry_fruit = true},
 
-    {name = "ziarnoplon", description = S("Ziarnopłon"),
+    {name = "ziarnoplon", description = S("Jarno"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = nn.plant_base_growing_time * 0.4,
      dye_candidate = true, dominant_color = "yellow",
      fruit = true, seasonal_type = "early_flower"},
 
-    {name = "srebroplon", description = S("Srebropłon"),
+    {name = "srebroplon", description = S("Serebro"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
      growing_time = nn.plant_base_growing_time * 0.4,
@@ -328,7 +328,7 @@ local plant_list = {
      dye_candidate = true, dominant_color = "red",
      texture_scale = 1, seasonal_type = "whole_season_woody"},
 
-    {name = "drapacz", description = S("Drapacz"),
+    {name = "drapacz", description = S("Drapacho"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = false, thorns = true, move_resistance = 4,
      mesh_type = 0, growing_time = nn.plant_base_growing_time * 4,
@@ -487,7 +487,7 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:barszcz_root",{
         tiles = {"nodes_nature_red_ochre.png"},
-        description = S("Barszcz root"),
+        description = S("Barshocha root"),
         wield_image = "nodes_nature_barszcz_root.png",
         inventory_image = "nodes_nature_barszcz_root.png",
         node_box = {
@@ -505,7 +505,7 @@ minetest.override_item(
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root",
     {
-        description = S("Rzepicha root"),
+        description = S("Jepiha root"),
         inventory_image = "nodes_nature_rzepicha_root.png",
         wield_image = "nodes_nature_rzepicha_root.png",
         stack_max = minimal.stack_max_medium,
@@ -530,7 +530,7 @@ minetest.register_craftitem(
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root_winter",
     {
-        description = S("Rzepicha root"),
+        description = S("Jepiha root"),
         inventory_image = "nodes_nature_rzepicha_root_winter.png",
         wield_image = "nodes_nature_rzepicha_root_winter.png",
         stack_max = minimal.stack_max_medium,

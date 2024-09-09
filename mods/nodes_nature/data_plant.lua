@@ -122,11 +122,11 @@ local tree_list = {
         }
     },
     jalowiec = {
-        desc = S("Jalowiec"),
-        log_description = S("Jalowiec Shrub"),
+        desc = S("Yalovy"),
+        log_description = S("Yalovy Shrub"),
         hardwood = true,
         fruit_def = {
-            description = S("Jalowiec Cone"),
+            description = S("Yalovy Cone"),
             groups = {drops_leaves = 0},
             selection_box = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},
             dyecandidate = true,
