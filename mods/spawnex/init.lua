@@ -396,6 +396,7 @@ end
 
 function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
     if not player or not player:is_player() then return end
+    if minetest.settings:get_bool("disable_spawnex", false) then return end
     pirnt("region prespawn")
     local meta = player and player:get_meta()
     local home = centrhx or string2hex(meta:get("exile_spawnhome")) or defhex
@@ -442,7 +443,9 @@ function region.spawn(player)
     if not player or not player:is_player() then return end
     pirnt("region spawn")
     local meta = player:get_meta()
-    if minetest.settings:get_bool("disable_spawnex", false) then
+    local spawning = meta:get_string("spawning")
+    if minetest.settings:get_bool("disable_spawnex", false)
+        and spawning ~= "" then -- this clause is just-in-case, may be unneeded
         local pos = minetest.string_to_pos(meta:get_string("spawning"))
         minetest.add_entity(vector.new(pos.x, pos.y+1.5, pos.z), "spawnex:gate")
         player:set_pos(pos)
@@ -475,6 +478,11 @@ function region.spawn(player)
     add_job("close", 60, spawnat)
     save_jobs()
 end
+
+if minetest.settings:get_bool("disable_spawnex", false) == false then
+    return -- shouldn't need any of this
+end
+
 
 --------------------------------------------------------------------------
 -- Player tracking and update jobs
