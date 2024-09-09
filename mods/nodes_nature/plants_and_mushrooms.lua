@@ -328,7 +328,7 @@ local plant_list = {
      dye_candidate = true, dominant_color = "red",
      texture_scale = 1, seasonal_type = "whole_season_woody"},
 
-    {name = "drapacz", description = S("Drapacz"),
+    {name = "drapacz", description = S("Drapacho"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = false, thorns = true, move_resistance = 4,
      mesh_type = 0, growing_time = nn.plant_base_growing_time * 4,
