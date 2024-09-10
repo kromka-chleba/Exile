@@ -3,10 +3,11 @@
 #currentrevision.lua
 Display the current git revision=
 This server is currently running git revision=
-#interface/infotext.lua
-Owner=
+Owner:=
+Label:=
 #interface/inventory.lua
 Missing required items!=
+Query=
 Main=
 Bag1=
 Bag2=
@@ -15,11 +16,10 @@ Bag4=
 Input Items=
 Craft Type=
 Crafting=
-Quantity=
 Single=
 Stack=
 Maximum=
-Query=
+Quantity=
 #playersettings.lua
 Enable wide HUDbar=
 Show numeric stats=

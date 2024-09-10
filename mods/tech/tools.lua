@@ -430,10 +430,10 @@ local adze_dig = S("Cut softwood logs")
 
 --Placed *material* adze
 for material,materialincaps in
-    pairs ({["jade"]="Jade",["granite"]="Granite",["basalt"]="Basalt" }) do
+    pairs ({["jade"]=S("Jade"),["granite"]=S("Granite"),["basalt"]=S("Basalt") }) do
     minetest.register_node(
         "tech:adze_" .. material .. "_placed", {
-            description = S("Placed" .. materialincaps .. "adze"),
+            description = S("Placed @1 adze", materialincaps),
             exile_crafting = {
                 craft_types = {"axe","knife_wattle","axe_mixing"},
                 craft_level = 1,
@@ -482,17 +482,17 @@ local adze_type = {
         ["crumbly_use"]=1 },
     --current default based on old granite, others are legacy one
     ["_basalt"] = {
-        ["caps"]="Basalt ", ["image"]="_basalt",
+        ["caps"]=S("Basalt"), ["image"]="_basalt",
         ["choppy_use"]= 0.9,
         ["snappy_use"]= 0.7,
         ["crumbly_use"]=0.9 }, --less uses than granite bc softer stone
     ["_jade"] = {
-        ["caps"]="Jade ", ["image"]="_jade",
+        ["caps"]=S("Jade"), ["image"]="_jade",
         ["choppy_use"]= 1.5,
         ["snappy_use"]= 1,
         ["crumbly_use"]=1 }, --many more uses than granite.
     ["_granite"] = {
-        ["caps"]="Granite ", ["image"]="_granite",
+        ["caps"]=S("Granite"), ["image"]="_granite",
         ["choppy_use"]= 1,
         ["snappy_use"]= 0.8,
         ["crumbly_use"]=1 } --granite adze. best for chopping
@@ -503,7 +503,7 @@ local adze_type = {
 for name, def in pairs (adze_type) do
     minetest.register_tool(
         "tech:adze".. name, {
-            description = S(def["caps"] .. "Adze"),
+            description = S("@1 Adze", def["caps"]),
             inventory_image = "tech_tool_adze" .. def["image"] .. ".png",
             tool_capabilities = {
                 full_punch_interval = base_punch_int * 1.1,
@@ -1010,8 +1010,8 @@ crafting.register_recipe({
 local hammer_list = {
     [""]="", -- default Hammer
     -- Legacy hammers needed only for old maps.
-    ["_basalt"]="Basalt ", -- Basalt hammer
-    ["_granite"]="Granite " -- granite hammer
+    ["_basalt"]=S("Basalt"), -- Basalt hammer
+    ["_granite"]=S("Granite") -- granite hammer
 }
 
 for min,max in pairs(hammer_list) do
@@ -1020,7 +1020,7 @@ for min,max in pairs(hammer_list) do
 
     minetest.register_tool(
         "tech:hammer" .. min, {
-            description = S(max .. "Hammer"),
+            description = S("@1 Hammer", max),
             inventory_image = "tech_tool_hammer" .. image .. ".png",
             tool_capabilities = {
                 full_punch_interval = base_punch_int * 1.2,
@@ -1070,10 +1070,10 @@ end
 -- })
 
 
-for mat , caps in pairs({["basalt"]="Basalt", ["granite"]="Granite"}) do
+for mat , caps in pairs({["basalt"]=S("Basalt"), ["granite"]=S("Granite")}) do
     minetest.register_node(
         "tech:hammer_" .. mat .. "_placed", {
-            description = S("Placed " .. caps .. " Hammer"),
+            description = S("Placed @1 Hammer", caps),
             exile_crafting = {
                 craft_types = {"hammer", "hammer_mixing"},
                 craft_level = 1,

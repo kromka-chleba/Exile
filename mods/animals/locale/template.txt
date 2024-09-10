@@ -1,6 +1,5 @@
 # textdomain: animals
 # crafts.lua
-@1 Eggs=
 # api_capture.lua
 Slaughter the animal=
 @1 Invertebrate=

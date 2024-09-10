@@ -72,8 +72,6 @@ minetest.register_craftitem("tech:soup", {
 
 local function clear_pot(pos)
     local meta = minetest.get_meta(pos)
-    --minimal.infotext_set(pos,meta,
-    --S("Status: Unprepared pot\nContents: <EMPTY>\nNote: Add water to pot to make soup"))
     meta:set_string("formspec", "")
     meta:set_string("type", "")
     meta:set_string("status", "") -- "" = unprepared, "Cooking", "Finished"
@@ -137,7 +135,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
     end
     local contents="" -- String containing list of pot contents
     if meta:get_string('type') == 'Soup' then
-        contents="Water, "
+        contents=S("Water, ")
     end
     for i = 1, #inv do
         local result = HEALTH.get_food_stats(inv[i],true) -- second parameter: prefer cooked, raw if none
@@ -295,14 +293,14 @@ local function pot_cook(pos, elapsed)
                 imeta:set_string("description", S("@1 soup",firstingr or "Odd"))
                 meta:get_inventory(pos):set_list("main", inv)
                 meta:set_string("contents_string",S("Contents: @1 soup",firstingr))
-                meta:set_string("status_string",S("Status: @1 pot (finished)",kind))
+                meta:set_string("status_string",S("Status: @1 pot (finished)", S(kind)))
                 meta:set_string("status", "finished")
                 minimal.infotext_set_new(pos, meta) -- update infotext
                 return
             elseif temp < cook_temp[kind] then
                 if status ~= 'cooling' then
                     meta:set_string("status", "cooling")
-                    meta:set_string("status_string",S('Status: @1 pot',kind))
+                    meta:set_string("status_string",S('Status: @1 pot', S(kind)))
                     minimal.infotext_set_new(pos, meta)
                 end
                 return
@@ -312,7 +310,7 @@ local function pot_cook(pos, elapsed)
                 end
                 if status ~= 'cooking' then
                     meta:set_string('status', 'cooking')
-                    meta:set_string('status_string',S("Status: @1 pot (cooking)",kind))
+                    meta:set_string('status_string',S("Status: @1 pot (cooking)", S(kind)))
                     minimal.infotext_set_new(pos, meta)
                     spawn_steam(pos,{amt={14,24}})
                     minetest.sound_play("tech_frying_start",{
