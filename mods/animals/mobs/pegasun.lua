@@ -303,7 +303,7 @@ local self_data = {
     warn_distance = 14,
     player_warn_distance = 10,
     aggression_distance = 5,
-    stepheight = 1.1,
+    stepheight = 0.8,
     --attack
     attack={range=0.6, damage_groups={fleshy=2}},
     armor_groups = {fleshy=100},
