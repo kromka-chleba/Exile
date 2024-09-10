@@ -11,7 +11,7 @@ local player_attached = player_api.player_attached
 local USE_KEY = "aux1" --  or "zoom" #TODO: Make it configurable
 
 local csm_players = {}
-local aux_fire_rate = 350000 -- 0.35 sec in us
+local aux_fire_rate = 500000 -- 0.5 sec in us
 
 -- Prevent knockback for attached players
 local old_calculate_knockback = minetest.calculate_knockback
