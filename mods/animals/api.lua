@@ -1540,12 +1540,12 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
     local run_timer = self.runfrom_timer
         or notscared and (self.runfrom_break_timer or 10) or 20
     local exclaim_timer = 4
-    local range = minetest.is_player(tgtobj) and self.player_alert_distance
+    local range = minetest.is_player(tgtobj) and self.player_warn_distance
         or animals.is_interactor(
-            self,'predators',tgtobj) and self.predator_alert_distance
+            self,'predators',tgtobj) and self.predator_warn_distance
         or animals.is_interactor(
             self,'rivals',tgtobj)
-        and self.territorial_alert_distance or self.alert_distance
+        and self.territorial_warn_distance or self.warn_distance
     if not notscared then mobkit.make_sound(self,'scared') end
 
     local func = function(self)
@@ -1674,7 +1674,7 @@ function animals.predator_avoid(self, prty, chance)
     local pred_itr = self.predator_interactions -- predator_interact
     for  _,_ in ipairs(pred_table) do
         local pred, pred_index = get_closest(self,pred_table,
-                                             self.warn_dist or self.view_range)
+                                             self.warn_distance or self.view_range)
         if not pred then
             table.remove(pred_table, pred_index)
         else
@@ -2212,7 +2212,7 @@ function animals.territorial(self, eat, chance_multiplier)
         local rival = mobkit.get_closest_entity(self, riv)
 
         if rival then
-            local range = self.territorial_alert_distance or self.alert_distance
+            local range = self.territorial_warn_distance or self.warn_distance
             --flee if hurt
             if self.hp < self.max_hp/4 then
                 mobkit.animate(self,'fast')
@@ -2690,8 +2690,8 @@ function animals.get_nearby_player(self,forceplyr)
         if forceplyr then return plyr end
         -- if player, then check if player is NOT in creative...
         if (not minimal.player_in_creative(plyr)) then
-            if get_dist(self,plyr) >= (self.player_alert_distance
-                                       or self.alert_distance) then
+            if get_dist(self,plyr) >= (self.player_warn_distance
+                                       or self.warn_distance) then
                 return
             end
             return plyr
@@ -3349,10 +3349,9 @@ function animals.register_animal(name,def)
     def.absolute_death_temp = (type(def.absolute_death_temp) == "number"
                                and def.absolute_death_temp
                                or def.burn_max_temp + 300)
-    -- set values for aggression, warn, and alert distances
-    def.alert_distance =
-        type(def.alert_distance) == "number" and def.alert_distance
-        or def.view_range
+    -- set values for aggression and warn distances
+    -- warn is for when it begins warning the rival/predator
+    -- aggression is for when it goes on the attack
     def.warn_distance
         = type(def.warn_distance) == "number" and def.warn_distance
         or math.ceil(def.view_range*0.8)

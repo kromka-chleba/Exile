@@ -300,13 +300,13 @@ local self_data = {
     max_speed = 2,                                       -- m/s
     jump_height = 1.2,                           -- nodes/meters
     view_range = 26,                                     -- nodes/meters
-    alert_distance = 16,
-    player_alert_distance = 10,
+    warn_distance = 14,
+    player_warn_distance = 10,
+    aggression_distance = 5,
     stepheight = 1.1,
     --attack
     attack={range=0.6, damage_groups={fleshy=2}},
     armor_groups = {fleshy=100},
-    warn_dist = 14,
     --on actions
     drops = {
         {name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},
@@ -384,9 +384,10 @@ end
 self_male.sounds = {
     warn = {
         name = "animals_pegasun_warn",
-        gain={0.3, 0.6},
+        gain={0.5, 0.8},
         fade={0.5, 1.5},
         pitch={0.9, 1.1},
+        max_hear_distance = 50
     },
     scared = {
         name = "animals_pegasun_scared",
