@@ -1,4 +1,10 @@
 # textdomain: tutorial_exile
 Welcome to Exile!=
-tut_intro=
-tut_ask=
+Exile is an original game with unique mechanics@nthat may be unfamiliar to players of other voxel@ngames. It may be difficult to learn.=
+Would you like to enter a tutorial mode@nto learn how to play the game?=
+Press the dig button to pick up or strike things.=
+Press the place button to put things down.=
+Press the use button to activate items and nodes.@n This is E by default on PC, AUX1 or sprint on mobile.=
+Press the zoom key to see the name of what you're looking at. @n This is Z by default on PC, and the binoculars or magnifying lens on mobile=
+Double-tap sneak to crouch and get through small spaces.@n@nIf server lag makes this hard, you can use the /crouch command, or install exile_csm, theclient-side mod to handle controls locally=
+Disabled in the tutorial=

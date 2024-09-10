@@ -404,6 +404,7 @@ local gp_a_black = {
 
 local gp_a_white = table.copy(gp_a_black)
 gp_a_white.tiles = {"nodes_nature_limestone.png"}
+gp_a_white.description = S("Gamepiece (white)")
 
 minetest.register_node("artifacts:gamepiece_a_black", gp_a_black)
 minetest.register_node("artifacts:gamepiece_a_white", gp_a_white)
@@ -439,6 +440,7 @@ local gp_b_black = {
 
 local gp_b_white = table.copy(gp_b_black)
 gp_b_white.tiles = {"nodes_nature_limestone.png"}
+gp_b_white.description = S("Gamepiece (white)")
 
 minetest.register_node("artifacts:gamepiece_b_black", gp_b_black)
 minetest.register_node("artifacts:gamepiece_b_white", gp_b_white)
@@ -475,6 +477,7 @@ local gp_c_black = {
 
 local gp_c_white = table.copy(gp_c_black)
 gp_c_white.tiles = {"nodes_nature_limestone.png"}
+gp_c_white.description = S("Gamepiece (white)")
 
 minetest.register_node("artifacts:gamepiece_c_black", gp_c_black)
 minetest.register_node("artifacts:gamepiece_c_white", gp_c_white)
