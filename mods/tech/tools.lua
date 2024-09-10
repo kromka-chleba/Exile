@@ -16,7 +16,7 @@
 local S = tech.S
 
 local c_alpha = minimal.compat_alpha
-soil = soil
+local soil = nodes_nature.soil
 
 local base_use = 500
 local base_punch_int = minimal.hand_punch_int
