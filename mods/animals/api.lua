@@ -2806,37 +2806,15 @@ function animals.hq_liquid_recovery(self,prty)
                     radius = 1 -- reset search radius
                 end
             end
+            -- try jumping if stuck in one position
             if old_pos and vector.distance(pos, old_pos) < 0.05 then
               mobkit.clear_queue_low(self) -- clear all other low level tasks to prioritize jumping
+              -- 20% chance of just forcing us to technically be "on the ground"
               self.isonground = random() < 0.2 and true or self.isonground
               mobkit.lq_dumbjump(self, 2)
             end
+            -- continuously update for above calculation
             old_pos = pos
-            -- prioritize going to 1 position first
-            --[[
-            if goto_pos then
-              -- passable used to calculate what's in front
-              local passable = mobkit.pos_shift(pos,vector.multiply(vec,1))
-              passable = node_drawtype(minimal.pos_shift(passable,{y=1}))
-              passable = passable == "liquid" or passable == "air"
-              -- turn to and walk to goto_pos
-              mobkit.lq_turn2pos(self, goto_pos)
-              mobkit.lq_dumbwalk(self, goto_pos, 2)
-              -- clear goto_pos if close enough
-              if vector.distance(pos, goto_pos) < 0.5 then
-                goto_pos = nil
-              -- cannot reasonably get to this place, try to jump
-              elseif not passable then
-                minetest.log(self.name..": cannot pass at "..pos.y)
-                --self.isonground = true
-                mobkit.clear_queue_low(self) -- clear all other low level tasks to prioritize jumping
-                mobkit.lq_dumbjump(self, 2)
-              -- 1% chance of refreshing goto_pos
-              elseif random() < 0.01 then
-                goto_pos = nil
-              end
-            end
-          --]]
       -- no surface in reach can be ascertained, try to find one instead
       elseif radius >= self.view_range or node_drawtype(minimal.shift_pos(pos,{y=1})) ~= "liquid" then
             radius = 1 -- reset radius
