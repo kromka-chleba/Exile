@@ -98,7 +98,7 @@ local function brain(self)
             end
 
             if can_reproduce then
-                animals.place_egg(self, pos, 'nodes_nature:salt_water_source')
+                animals.place_egg(self, pos)
             end
         end
 
