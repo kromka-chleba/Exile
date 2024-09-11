@@ -223,8 +223,7 @@ local self_data = {
     -- spawnegg or live animal
     spawnegg = {
         desc = S("Live Sarkamos"),
-        inv_img = "animals_sarkamos_item.png",
-        stack = minimal.stack_max_medium/2
+        stack_max = minimal.stack_max_medium/2
     },
 }
 animals.register_animal("animals:sarkamos",self_data)
