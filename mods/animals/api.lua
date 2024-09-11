@@ -131,6 +131,59 @@ function animals.temp_comfy(self,temp)
     return false
 end
 
+-- TODO: YOU NEED TO CHANGE THIS UP! FIX SOME NOTATION!
+-- "sizeify" function
+-- meant to scale an animal's collision box and visual size
+-- "perc" is how much percentage to modify by
+-- "base" boolean used for determining whether to calculate from defined stats (true) or local ones (false)
+-- without "base", changes will be accumulative
+-- with "base", will do percentage from registered_entities's index of initial_properties
+function animals.sizeify(self, perc, base)
+    if not (type(self) == "table" or type(self) == "userdata") then return end
+    base = type(base) == "boolean" and base or false
+    perc = type(perc) == "number" and perc or nil
+    -- perc cannot be 1 if we're NOT calculating from base value
+    -- if we're calculating from base value then we assume we're resetting if it's 1
+    perc = base and perc or perc ~= 1 and perc or nil
+    if not perc then return end
+    -- get init_props from registered_entity if calculating from base
+    -- allows for resetting or modifying upon base collisionbox and visual_size instead of accumulative
+    local init_props = base and minetest.registered_entities[self.name] or nil
+    init_props = init_props and init_props.initial_properties
+    init_props = init_props and table.copy(init_props) or nil -- copy gotten props as to not modify overall table
+    -- we're in runtime, prefer modifying the object instead of overall self table
+    if type(self.object) == "userdata" then
+        self = self.object
+    end
+    -- add percentage to provided table (collisionbox, visual_size only)
+    local function add_perc(tb)
+        if type(tb) ~= "table" then return tb end
+        -- look for numbers inside of
+        for index,value in pairs(tb) do
+          -- only modify said value if a number
+          if type(value) == "number" then
+            tb[index] = value*perc
+          end
+        end
+        -- return now modified table
+        return tb
+    end
+    -- object perspective
+    if type(self) == "userdata" then
+        init_props = init_props or base == false and self:get_properties() or nil
+        if not init_props then return end
+        init_props.collisionbox = add_perc(init_props.collisionbox)
+        init_props.visual_size = add_perc(init_props.visual_size)
+        self:set_properties(init_props)
+  -- expected self table (before runtime)
+    else
+        init_props = init_props or base == false and self.initial_properties or nil
+        if not init_props then return end
+        init_props.collisionbox = add_perc(init_props.collisionbox)
+        init_props.visual_size = add_perc(init_props.visual_size)
+    end
+end
+
 --------------------------------------------------------------------------
 -- node interactions
 --------------------------------------------------------------------------
