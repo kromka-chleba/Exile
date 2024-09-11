@@ -2,6 +2,8 @@
 -- Stores and sets all player-facing settings through a formspec
 
 minimal = minimal
+lore = lore
+
 local S = minimal.S
 local mtshowstats = minetest.settings:get_bool("exile_hud_show_stats") or true
 local mtwidehud = minetest.settings:get_bool("exile_hud_wide_hotbar") or false
@@ -12,6 +14,7 @@ local temp_fromnum = { "Celsius", "Fahrenheit", "Kelvin" }
 local mthudopacity = tonumber(minetest.settings:get(
                                   "exile_hud_icon_transparency")) or 127
 local mtinvburst = minetest.settings:get_bool("exile_drop_on_full_inv") or false
+local mtnomusic = minetest.settings:get_bool("exile_disable_music") or false
 
 local theme_fromnum = minimal.get_gui_theme_list() -- numeric table of theme names
 local theme_tonum = {} -- A reverse lookup, enter theme name, get index number
@@ -43,6 +46,7 @@ function minimal.show_player_settings(playername, meta)
     local themenum = tostring(theme_tonum[theme])
     local opacity = tostring(meta:get("hud_opacity") or mthudopacity)
     local invburst = tostring(meta:get("drop_on_full_inv") or mtinvburst)
+    local nomusic = tostring(meta:get("disable_music") or mtnomusic )
 
     local spec =
         "formspec_version[6]"..
@@ -57,14 +61,15 @@ function minimal.show_player_settings(playername, meta)
         "checkbox[1,2.5;invburst;  "..
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
-        "label[1,3.5;"..S("Temperature scale")..":]"..
-        "dropdown[5,3.25;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
+        "checkbox[1,3;nomusic;   "..S("Disable music")..";"..nomusic.."]"..
+        "label[1,4;"..S("Temperature scale")..":]"..
+        "dropdown[5,3.75;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
         tempnum..";true]"..
-        "label[1,4.25;"..S("GUI theme")..":]"..
-        "dropdown[5,4;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
-        "label[1,5.05;"..S("HUD Opacity level")..":]"..
+        "label[1,4.75;"..S("GUI theme")..":]"..
+        "dropdown[5,4.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+        "label[1,5.8;"..S("HUD Opacity level")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
-        "scrollbar[1,5.5;6,0.5;horizontal;HudOpac;"..opacity.."]"
+        "scrollbar[4,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
     minetest.show_formspec(playername, "player_settings", spec)
 end
 
@@ -116,6 +121,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             end
             if fields.invburst then
                 meta:set_string("drop_on_full_inv", fields.invburst)
+            end
+            if fields.nomusic then
+                meta:set_string("disable_music", fields.nomusic)
+                if fields.nomusic == "true" then lore.stopmusic(name) end
             end
             if reopen == true then
                 minetest.close_formspec(name, "player_settings")

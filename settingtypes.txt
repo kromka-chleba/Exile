@@ -73,6 +73,9 @@ disable_spawnex (Disable the spawn gate system) bool false
 #Suggested for difficult servers
 exile_wide_spawn (Extend the potential spawn radius)  bool false
 
+#Disables the playback of the theme song on first spawn for all players
+exile_disable_music (Disable the theme song) bool false
+
 ## Settings for map generation
 
 # This setting will enable the new v4 biomes for Exile.

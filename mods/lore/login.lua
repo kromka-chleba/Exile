@@ -135,11 +135,22 @@ minetest.register_on_respawnplayer(function(player)
         return true
 end)
 
-function play_themesong(name)
+local songs_playing = {}
+
+local function play_themesong(name)
     minetest.after(8, function()
-                       minetest.sound_play({ name = "exile_theme", gain = 0.75 },
+                       songs_playing[name] = minetest.sound_play({
+                               name = "exile_theme", gain = 0.75 },
                            { to_player = name })
     end)
+end
+
+function lore.stopmusic(name)
+    local handle = songs_playing[name]
+    if handle then
+        minetest.sound_stop(handle)
+    end
+    songs_playing[name] = nil
 end
 
 local function first_spawn(player)
@@ -147,7 +158,7 @@ local function first_spawn(player)
     HEALTH.reset_attributes(player) -- All stats back to starting values
     local pname = player:get_player_name()
     newplayer[pname] = nil
-    if minimal.mt_required_version(5,4,0) then
+    if minetest.features.dynamic_add_media_table then
         minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
                                          "/music/exile_theme.ogg",
                                      to_player = pname
@@ -176,7 +187,7 @@ local waiting = {} -- players with open formspecs
 local jumpstart_queue_delay = tonumber(minetest.settings:get(
                                            "exile_jumpstart_queue_delay")) or 20
 
-function queue_clear(playername)
+function queue_clear(playername) -- actually local, defined above
     player_queue[playername] = {}
     if waiting[playername] then waiting[playername]:cancel() end
 end
