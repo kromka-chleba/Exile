@@ -746,7 +746,8 @@ function animals.place_egg(self, pos, medium, e_ov)
     end
     -- ensure there exists an egg node to place
     local egg_data = self.egg_name or self.egg or self.name.."_eggs"
-    egg_data = type(egg_data) == "string" and minetest.registered_nodes[egg_data] or type(egg_data) == "table" and egg_data
+    egg_data = type(egg_data) == "string" and minetest.registered_nodes[egg_data]
+        or type(egg_data) == "table" and egg_data
     if not egg_data then return end
     -- use first a medium override, otherwise check egg's required medium
     medium = (type(medium) == "string" and medium ~= "" and medium)
@@ -774,29 +775,29 @@ function animals.place_egg(self, pos, medium, e_ov)
     local can_lay = objcount <= max_pop
     -- check node for if it's a compatible medium now
     if can_lay then
-      can_lay = false -- temporarily set can_lay to false (checking medium)
-      -- convert to table for next functionality
-      if type(medium) == "string" then
-        medium = {medium}
-      end
-      -- allow multiple acceptable "mediums"
-      for _,tag in pairs(medium) do
-        -- verify if string
-        tag = type(tag) == "string" and tag or nil
-        if tag then
-          -- check if node_name is equal to provided medium tag
-          can_lay = c_node.name == tag
-          -- allow group detection if layable area hasn't been found 
-          if can_lay ~= true and tag:sub(1,6) == "group:" then
-            local group = c_node.groups and c_node.groups[tag:sub(7)]
-            can_lay = group and group > 0
-          end
+        can_lay = false -- temporarily set can_lay to false (checking medium)
+        -- convert to table for next functionality
+        if type(medium) == "string" then
+            medium = {medium}
         end
-        -- we verified we can lay an egg here, no more checking
-        if can_lay then break end
-      end
+        -- allow multiple acceptable "mediums"
+        for _,tag in pairs(medium) do
+            -- verify if string
+            tag = type(tag) == "string" and tag or nil
+            if tag then
+                -- check if node_name is equal to provided medium tag
+                can_lay = c_node.name == tag
+                -- allow group detection if layable area hasn't been found 
+                if can_lay ~= true and tag:sub(1,6) == "group:" then
+                    local group = c_node.groups and c_node.groups[tag:sub(7)]
+                    can_lay = group and group > 0
+                end
+            end
+            -- we verified we can lay an egg here, no more checking
+            if can_lay then break end
+        end
     end
-    --minetest.log(self.name..": "..tostring(medium).." ;; "..minetest.get_node(p).name)
+
     if can_lay then
 
         local posu = {x = p.x, y = p.y - 1, z = p.z}
@@ -1807,8 +1808,8 @@ function animals.prey_hunt(self, prty)
         end
         local tgtpos = targ.object:get_pos()
         local drawtype = node_drawtype(tgtpos)
-        if drawtype == "liquid" and (self.oxygen_min
-              and self.oxygen > self.oxygen_min) then
+        if drawtype == "liquid" and self.hp >= self.max_hp and
+            (self.oxygen_min and self.oxygen > self.oxygen_min) then
             -- look for a solid node underneath (safe to hunt)
             -- custom hunting_depth to check how far down this solid node has to be
             --  and if meant to hunt prey that's in water
