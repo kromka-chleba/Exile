@@ -12,20 +12,16 @@ player_api = player_api
 -- Note: This is currently broken due to a bug in Irrlicht, leave at 0
 local animation_blend = 0
 
-player_api.registered_models = { }
+local incoming_models = {}
+player_api.registered_models = setmetatable({}, {
+        __index = incoming_models,
+        __newindex = function()
+            error("Attempted to write directly to registered models")
+        end,
+})
 
 -- Local for speed.
 local models = player_api.registered_models
-
-function player_api.register_model(name, def)
-    models[name] = def
-end
-
--- stubs for old api functions
-function player_api.register_skin_modifier(modifier_func)
-end
-function player_api.read_textures_and_meta(hook)
-end
 
 -- Player stats and animations
 local player_model = {}
@@ -33,6 +29,10 @@ local player_textures = {}
 local player_anim = {}
 
 player_api.player_attached = {}
+
+function player_api.register_model(name, def)
+    incoming_models[name] = def
+end
 
 function player_api.get_animation(player, name)
     if not name then
@@ -66,17 +66,9 @@ end
 function player_api.get_gender_model(gender)
     local model
     if gender == "male" then
-        if minetest.get_modpath("3d_armor")~=nil then
-            model =  "3d_armor_character.b3d"
-        else
-            model = "character.b3d"
-        end
+        model = "character.b3d"
     else
-        if minetest.get_modpath("3d_armor")~=nil then
-            model =  "3d_armor_female.b3d"
-        else
-            model = "character-f.b3d"
-        end
+        model = "character-f.b3d"
     end
     return model
 end
@@ -173,15 +165,13 @@ function player_api.set_texture(player)
     local cloth = player_api.compose_cloth(player)
     local gender = player_api.get_gender(player)
     local gender_model = player_api.get_gender_model(gender)
-    player_api.registered_models[gender_model].textures[1] = cloth
+    local textures = table.copy(
+        player_api.registered_models[gender_model].textures)
+    textures[1] = cloth
     player_api.set_model(player, gender_model)
-    if minetest.get_modpath("3d_armor")~=nil then
-        --armor.default_skin = cloth
-        armor.textures[name].skin = cloth
-    end
 
-    player_textures[name] = models[gender_model].textures
-    player_api.set_textures(player, models[gender_model].textures)
+    player_textures[name] = textures
+    player_api.set_textures(player, textures)
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
