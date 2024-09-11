@@ -735,16 +735,31 @@ end
 
 
 ----------------------------------------------------
---put an egg in the world, return energy
+-- place_egg, animals.place_egg
+-- put an egg in the world, return true or nil on success or failure
+-- returns false if can't get egg or too many of its kind are around
+-- self, pos, medium, e_ov (energy_override)
+-- medium can be string or table (if the node that the creature is in, can harbour an egg)
 function animals.place_egg(self, pos, medium, e_ov)
-    -- self, position, medium, energy_override
-    -- uses self's energy and energy_egg (with optional max_pop)
-    if (medium == nil or medium == "") then
-        medium = "air"
+    if type(self) ~= "table" then
+        error("animals.place_egg: got invalid 'self' (expected table) for placing an egg, got type '"..type(self).."'")
     end
+    -- ensure there exists an egg node to place
+    local egg_data = self.egg_name or self.egg or self.name.."_eggs"
+    egg_data = type(egg_data) == "string" and minetest.registered_nodes[egg_data] or type(egg_data) == "table" and egg_data
+    if not egg_data then return end
+    -- use first a medium override, otherwise check egg's required medium
+    medium = (type(medium) == "string" and medium ~= "" and medium)
+        or type(medium) == "table" and medium or nil
+    medium = medium or egg_data.egg_medium or "air"
+    -- get pos if no pos provided and round up pos
+    pos = pos or mobkit.get_stand_pos(self)
     local p = mobkit.get_node_pos(pos)
+    -- check if what we're about to lay an egg in is even a valid node
+    local c_node = minetest.registered_nodes[minetest.get_node(p).name] -- current_node
+    if not c_node then return end -- not a valid node, return
+    -- uses self's energy and energy_egg (with optional max_pop)
     local e_egg = self.energy_egg
-    local egg_name = self.egg_name or self.name.."_eggs"
     -- seek a "self.egg_name" or create an egg_name using the placer's name
     local max_pop = self.max_pop or max_objects
 
@@ -752,16 +767,43 @@ function animals.place_egg(self, pos, medium, e_ov)
     local check_name = string.gsub(self.name,"_male","")
     check_name = string.gsub(self.name,"_baby","")
 
+    -- number of its kind in an area
     local objcount = #animals.get_entities_inside_radius(check_name,
                                                          pos, mo_check_radius)
-
-    if minetest.get_node(p).name == medium and objcount <= max_pop then
+    -- first check if we're overpopulated
+    local can_lay = objcount <= max_pop
+    -- check node for if it's a compatible medium now
+    if can_lay then
+      can_lay = false -- temporarily set can_lay to false (checking medium)
+      -- convert to table for next functionality
+      if type(medium) == "string" then
+        medium = {medium}
+      end
+      -- allow multiple acceptable "mediums"
+      for _,tag in pairs(medium) do
+        -- verify if string
+        tag = type(tag) == "string" and tag or nil
+        if tag then
+          -- check if node_name is equal to provided medium tag
+          can_lay = c_node.name == tag
+          -- allow group detection if layable area hasn't been found 
+          if can_lay ~= true and tag:sub(1,6) == "group:" then
+            local group = c_node.groups and c_node.groups[tag:sub(7)]
+            can_lay = group and group > 0
+          end
+        end
+        -- we verified we can lay an egg here, no more checking
+        if can_lay then break end
+      end
+    end
+    --minetest.log(self.name..": "..tostring(medium).." ;; "..minetest.get_node(p).name)
+    if can_lay then
 
         local posu = {x = p.x, y = p.y - 1, z = p.z}
         local n = mobkit.nodeatpos(posu)
 
         if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
-            minetest.set_node(p, {name = egg_name})
+            minetest.set_node(p, {name = egg_data.name})
             if type(e_ov) == "number" and e_ov >= 15 then
                 -- energy override noted, jot it down
 
@@ -775,6 +817,7 @@ function animals.place_egg(self, pos, medium, e_ov)
         end
 
     end
+
 end
 
 -- place an egg during near or precise death (and die)
@@ -831,24 +874,37 @@ end
 function animals.hatch_egg(pos, egg_data, medium, replace, name)
     -- egg_data, position
     -- CUSTOM OVERRIDES:
-    --  medium (to spawn entities in - can be nil),
+    --  medium (to spawn entities in - can be nil (will only check for air), string, or table),
     --  replace (replace with - can be nil),
     --  name (optional, but required if not included in self)
     egg_data = egg_data or minimal.get_nodedef(pos)
     if type(egg_data) ~= "table" then
         return false
     end
-    -- fix medium, replace (check if node otherwise use air)
+    -- fix medium, replace
     medium = medium or egg_data.egg_medium
-    medium = minetest.registered_nodes[medium] or {name="air"}
-    medium = medium.name
+    medium = type(medium) == "table" and medium or {medium}
+    -- purify medium table
+    for tagi,tag in pairs(medium) do -- tag index, tag
+      -- not a node, nuh-uh-uh!
+      if not minetest.registered_nodes[tag] then
+        -- don't delete if we were secretly a group check
+        if tag:sub(1,6) ~= "group:" then
+          medium[tagi] = nil
+        end
+      end
+    end
+    -- add "air" if medium table has no existing nodes
+    if #medium == 0 then
+      medium[1] = "air"
+    end
     replace = replace or egg_data.egg_replace
     replace = minetest.registered_nodes[replace] or {name="air"}
     replace = replace.name
 
     local suitable = minetest.find_nodes_in_area(
         {x=pos.x-1, y=pos.y-1, z=pos.z-1},
-        {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium})
+        {x=pos.x+1, y=pos.y+1, z=pos.z+1}, medium)
     --if can't find the stuff this mob moves through then it dies
     if #suitable < 1 then
         minetest.set_node(pos, {name = replace})
