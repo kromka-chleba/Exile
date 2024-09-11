@@ -184,6 +184,7 @@ self_data = {
     energy_egg = "energy_max*0.7",  --energy that goes to egg
     egg_time = 60*10,
     young_per_egg = {2,4}, --will get this/energy_egg starting energy
+    emergency_egg_chance = 0.95,
     -- lifespan
     lifespan = "energy_max*4",
     -- interactions
@@ -231,6 +232,13 @@ self_data = {
         animals.stun_catch_mob(self, clicker, time_from_last_click,
                                tool_capabilities)
         animals.fight_or_flight(self, clicker)
+    end,
+    _on_death = function(self, pos)
+        local good_temp,temp_status = animals.temp_comfy(self)
+        if good_temp or temp_status ~= "cold" then
+            return
+        end
+        animals.emergency_egg(self, pos)
     end,
     -- eggs
     egg = {
