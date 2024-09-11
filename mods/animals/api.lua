@@ -2983,6 +2983,7 @@ function animals.register_egg(def, animal)
                 fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
             }
     end
+    def.paramtype = def.paramtype or "light"
 
     def.groups = def.groups or {}
     def.groups.egg = def.groups.egg or 1
