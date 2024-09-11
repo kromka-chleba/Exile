@@ -758,6 +758,21 @@ function animals.place_egg(self, pos, medium, e_ov)
     -- check if what we're about to lay an egg in is even a valid node
     local c_node = minetest.registered_nodes[minetest.get_node(p).name] -- current_node
     if not c_node then return end -- not a valid node, return
+    -- work around to slabs and cobble not permitting egg lay
+    if c_node.walkable then
+      -- get collision box (for cobble) or node box (for slabs)
+      local box = c_node.collision_box or c_node.drawtype == "nodebox" and c_node.node_box
+      -- don't lay eggs on top of eggs
+      if box and box.fixed and not (c_node.groups and c_node.groups.egg) then
+        -- if not an array of boxes
+        if type(box.fixed[1]) ~= "table" then
+          -- check pos above
+          p = minimal.pos_shift(p,{y=1})
+          c_node = minetest.registered_nodes[minetest.get_node(p).name]
+          if not c_node then return end
+        end
+      end
+    end
     -- uses self's energy and energy_egg (with optional max_pop)
     local e_egg = self.energy_egg
     -- seek a "self.egg_name" or create an egg_name using the placer's name
