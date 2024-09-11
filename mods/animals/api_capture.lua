@@ -172,7 +172,7 @@ animals.register_spawnegg = function(name, def, animal)
 
   -- definitions
   def.description = def.description or
-      (animal and animal._desc and S("@1 Live",animal._desc))
+      (animal and animal._desc and S("Live @1",animal._desc))
   -- get inventory_image or convert name into an image string expecting png
   def.inventory_image = def.inventory_image or name:gsub(":","_").."_item.png"
   def.stack_max = def.stack_max or minimal.stack_max_medium
@@ -243,15 +243,15 @@ animals.register_spawnegg = function(name, def, animal)
   -- custom functions
   -- slaughtering mechanics
   def._on_use_item = def._on_use_item or function(player, wielded_item, pointed_thing)
-      if type(player) ~= "userdata" or type(player) ~= "table" then return end
-      local itemdef = type(wielded_item) == "userdata" and wielded_item.get_definition and wielded_item:get_definition()
+      if type(player) ~= "userdata" and type(player) ~= "table" then return end
+      local itemdef = wielded_item and wielded_item.get_definition and wielded_item:get_definition()
       if not itemdef then return end
       -- get and play slaughter sound
       local sound = itemdef.sounds.slaughter
       if sound then
           sound = table.copy(sound)
           sound.pos = player:get_pos()
-          minimal.sound_play(sound.name,sound)
+          minimal.sound_play(sound)
       end
       -- convert to drops
       local inv = player.get_inventory and player:get_inventory()
@@ -265,10 +265,13 @@ animals.register_spawnegg = function(name, def, animal)
               if sound then
                 sound = table.copy(sound)
                 sound.pos = player:get_pos()
-                minimal.sound_play(sound.name,sound)
+                minimal.sound_play(sound)
               end
           end
       end
+      wielded_item:take_item()
+      player:set_wielded_item(wielded_item)
+      return wielded_item
   end
   -- register spawnegg and return definition
   minetest.register_craftitem(name, def)
