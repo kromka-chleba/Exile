@@ -147,8 +147,8 @@ animals.register_spawnegg = function(name, def, animal)
   animal = type(animal) == "table" and animal or type(animal) == "string" and animal or name
   animal = type(animal) == "table" and animal or type(animal) == "string" and minetest.registered_entities[animal]
   assert(animal,
-    "animals.register_spawnegg: was given an improper 'animal' definition (spawn_animal/3rd function paramter) for "..name..
-    ". Could not find in registered_entities or was not given a string to index with or a definition table to use.")
+    "animals.register_spawnegg: was given an improper 'animal' definition (3rd function paramter) for "..name..
+    ". Was not given a definition table or could not find provided string in registered_entities.")
   name = type(name) == "string" and name or animal.name
   assert(type(name) == "string",
          "animals.register_spawnegg: was not provided a string for name, got '"
