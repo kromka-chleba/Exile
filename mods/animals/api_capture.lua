@@ -136,34 +136,28 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
 end
 
 -- animals.register_spawnegg, register_spawnegg
--- spawnegg registration, requires the following values if not provided with an animal table:
---[[
-    energy_egg (energy given to egg as a total)
-    young_per_egg (how many children per egg - used for energy_egg calculation)
-    spawn_animal (what animal to spawn, can be table or string (will check registered_entities))
---]]
--- if liquids_pointable isn't boolean, will set to true if the provided animal is aquatic
+-- spawnegg registration, requires animal parameter
+-- will create a young_per_egg and energy_egg (egg_energy) if not provided with one
+-- if liquids_pointable isn't boolean, will set to true if the provided animal is aquatic (class == 2)
 -- if inventory_image isn't provided, will seek for one using the animal's name, expecting a png
 animals.register_spawnegg = function(name, def, animal)
-  name = type(name) == "string" and name or animal and animal.name
-  assert(type(name) == "string",
-         "animals.register_spawnegg: was not provided a string for name, got '"
-         ..type(name).."'")
   assert(type(def) == "table",
          "animals.register_spawnegg: provided spawnegg definition is not a table!")
-
-  -- animal argument handling
-  animal = animal or def.spawn_animal or name
-  animal = type(animal) == "table" and animal
-      or type(animal) == "string" and minetest.registered_entities[animal] or nil
+  -- animal getting
+  animal = type(animal) == "table" and animal or type(animal) == "string" and animal or name
+  animal = type(animal) == "table" and animal or type(animal) == "string" and minetest.registered_entities[animal]
   assert(animal,
     "animals.register_spawnegg: was given an improper 'animal' definition (spawn_animal/3rd function paramter) for "..name..
     ". Could not find in registered_entities or was not given a string to index with or a definition table to use.")
-  def.spawn_animal = animal
+  name = type(name) == "string" and name or animal.name
+  assert(type(name) == "string",
+         "animals.register_spawnegg: was not provided a string for name, got '"
+         ..type(name).."'")
 
   -- custom definitions
-  def.egg_energy = def.egg_energy or animal and animal.energy_egg or 100
-  def.young_per_egg = def.young_per_egg or animal and animal.young_per_egg or 1
+  def.spawn_animal = animal
+  def.egg_energy = def.egg_energy or animal.energy_egg or 100
+  def.young_per_egg = def.young_per_egg or animal.young_per_egg or 1
   def._use_tip = def._use_tip or S("Slaughter the animal")
 
   -- groups
@@ -172,15 +166,15 @@ animals.register_spawnegg = function(name, def, animal)
 
   -- definitions
   def.description = def.description or
-      (animal and animal._desc and S("Live @1",animal._desc))
+      (animal._desc and S("Live @1",animal._desc)) or name
   -- get inventory_image or convert name into an image string expecting png
   def.inventory_image = def.inventory_image or name:gsub(":","_").."_item.png"
   def.stack_max = def.stack_max or minimal.stack_max_medium
-  if animal and animal.class == 2 and type(def.liquids_pointable) ~= "boolean" then
+  if animal.class == 2 and type(def.liquids_pointable) ~= "boolean" then
     def.liquids_pointable = true
   end
   def.liquids_pointable = type(def.liquids_pointable) == "boolean" and def.liquids_pointable or false
-  def.drops = def.drops or animal and animal.drops or nil
+  def.drops = def.drops or animal.drops or nil
 
   -- sounds (#TODO: sound for drops)
   def.sounds = def.sounds or {}
