@@ -147,9 +147,9 @@ local self_data = {
 
     -- animal stats
     max_hp = 20,
-    lung_capacity = 25,
+    lung_capacity = 36,
     oxygen_min = "lung_capacity*0.4",
-    breathing_rate = 5,
+    breathing_rate = 6,
     -- comfort temps
     min_temp = 7,
     max_temp = 60,
