@@ -131,7 +131,6 @@ function animals.temp_comfy(self,temp)
     return false
 end
 
--- TODO: YOU NEED TO CHANGE THIS UP! FIX SOME NOTATION!
 -- "sizeify" function
 -- meant to scale an animal's collision box and visual size
 -- "perc" is how much percentage to modify by
