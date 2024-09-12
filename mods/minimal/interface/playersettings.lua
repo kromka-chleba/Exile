@@ -2,7 +2,7 @@
 -- Stores and sets all player-facing settings through a formspec
 
 minimal = minimal
-lore = lore
+lore = lore or {}
 
 local S = minimal.S
 local mtshowstats = minetest.settings:get_bool("exile_hud_show_stats") or true
