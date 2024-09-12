@@ -1,7 +1,7 @@
 player_api = player_api
 
 local states = {} -- table of all defined or registered states
-local playerstates = {} -- holds all player state objects
+local playerstates = {} -- holds all player state objects, indexed by pname
 -- { playername = pstate }
 
 local S = minetest.get_translator("player_api")
@@ -29,9 +29,8 @@ local health_S = minetest.get_translator("health")
     }
     severity_txt = { -- text labels (translation strings), nil entries will just be blank
     [0] = _S("(who cares)"), _S("(mild)"), _S("(moderate)"), _S("(severe)"), _S("(extreme)")
-    } -- (Follows threshold levels)
+    } -- (Follows threshold levels, ie "who cares" is 0-20. "extreme" is 81+)
 ]]--
-
 
 
 function player_api.register_state(state_table)
@@ -170,7 +169,7 @@ function pstate.add_progress(self, state, adjustment)
     stbl.progress = stbl.progress + adjustment
     local newsev = progress_to_severity(stbl)
     if sev ~= newsev then
-        -- run callbacks for state changes
+        -- #TODO: run callbacks for state changes
     end
     stbl.severity = newsev
 end
