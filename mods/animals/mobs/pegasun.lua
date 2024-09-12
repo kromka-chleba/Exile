@@ -210,11 +210,11 @@ local self_data = {
         max_hp = 40,
         physical = true,
         collide_with_objects = true,
-        collisionbox = {-0.16, -0.75, -0.16, 0.16, -0.25, 0.16},
+        collisionbox = {-0.1728, -0.81, -0.1728, 0.1728, -0.27, 0.1728,},
         visual = "mesh",
         mesh = "animals_pegasun.b3d",
         textures = {"animals_pegasun.png"},
-        visual_size = {x = 1, y = 1},
+        visual_size = {x = 1.08, y = 1.08},
         makes_footstep_sound = true,
     },
     _desc = S("Female Pegasun"),
@@ -300,13 +300,13 @@ local self_data = {
     max_speed = 2,                                       -- m/s
     jump_height = 1.2,                           -- nodes/meters
     view_range = 26,                                     -- nodes/meters
-    alert_distance = 16,
-    player_alert_distance = 10,
-    stepheight = 1.1,
+    warn_distance = 14,
+    player_warn_distance = 10,
+    aggression_distance = 5,
+    stepheight = 0.8,
     --attack
     attack={range=0.6, damage_groups={fleshy=2}},
     armor_groups = {fleshy=100},
-    warn_dist = 14,
     --on actions
     drops = {
         {name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},
@@ -346,16 +346,7 @@ self_male.egg = nil
 --self_male.logic = brain_male
 self_male.initial_properties.max_hp = 45
 self_male.initial_properties.textures = {"animals_pegasun_male.png"}
--- sexual dimorphism, male bigger then female
-for index,data in pairs(self_male.initial_properties) do
-    if index == "collisionbox" or index == "visual_size" then
-        for index2,value in pairs(data) do
-            if type(value) == "number" then
-                data[index2] = value*1.15 -- size increase by 15%
-            end
-        end
-    end
-end
+animals.sizeify(self_male,1.15) -- sexual dimorphism, male bigger then female (15%)
 -- physical properties
 self_male.max_speed = 2.5
 self_male.jump_height = 1.5
@@ -384,9 +375,10 @@ end
 self_male.sounds = {
     warn = {
         name = "animals_pegasun_warn",
-        gain={0.3, 0.6},
+        gain={0.5, 0.8},
         fade={0.5, 1.5},
         pitch={0.9, 1.1},
+        max_hear_distance = 50
     },
     scared = {
         name = "animals_pegasun_scared",

@@ -131,6 +131,58 @@ function animals.temp_comfy(self,temp)
     return false
 end
 
+-- "sizeify" function
+-- meant to scale an animal's collision box and visual size
+-- "perc" is how much percentage to modify by
+-- "base" boolean used for determining whether to calculate from defined stats (true) or local ones (false)
+-- without "base", changes will be accumulative
+-- with "base", will do percentage from registered_entities's index of initial_properties
+function animals.sizeify(self, perc, base)
+    if not (type(self) == "table" or type(self) == "userdata") then return end
+    base = type(base) == "boolean" and base or false
+    perc = type(perc) == "number" and perc or nil
+    -- perc cannot be 1 if we're NOT calculating from base value
+    -- if we're calculating from base value then we assume we're resetting if it's 1
+    perc = base and perc or perc ~= 1 and perc or nil
+    if not perc then return end
+    -- get init_props from registered_entity if calculating from base
+    -- allows for resetting or modifying upon base collisionbox and visual_size instead of accumulative
+    local init_props = base and minetest.registered_entities[self.name] or nil
+    init_props = init_props and init_props.initial_properties
+    init_props = init_props and table.copy(init_props) or nil -- copy gotten props as to not modify overall table
+    -- we're in runtime, prefer modifying the object instead of overall self table
+    if type(self.object) == "userdata" then
+        self = self.object
+    end
+    -- add percentage to provided table (collisionbox, visual_size only)
+    local function add_perc(tb)
+        if type(tb) ~= "table" then return tb end
+        -- look for numbers inside of
+        for index,value in pairs(tb) do
+          -- only modify said value if a number
+          if type(value) == "number" then
+            tb[index] = value*perc
+          end
+        end
+        -- return now modified table
+        return tb
+    end
+    -- object perspective
+    if type(self) == "userdata" then
+        init_props = init_props or base == false and self:get_properties() or nil
+        if not init_props then return end
+        init_props.collisionbox = add_perc(init_props.collisionbox)
+        init_props.visual_size = add_perc(init_props.visual_size)
+        self:set_properties(init_props)
+  -- expected self table (before runtime)
+    else
+        init_props = init_props or base == false and self.initial_properties or nil
+        if not init_props then return end
+        init_props.collisionbox = add_perc(init_props.collisionbox)
+        init_props.visual_size = add_perc(init_props.visual_size)
+    end
+end
+
 --------------------------------------------------------------------------
 -- node interactions
 --------------------------------------------------------------------------
@@ -675,16 +727,47 @@ end
 
 
 ----------------------------------------------------
---put an egg in the world, return energy
+-- place_egg, animals.place_egg
+-- put an egg in the world, return true or nil on success or failure
+-- returns false if can't get egg or too many of its kind are around
+-- self, pos, medium, e_ov (energy_override)
+-- medium can be string or table (if the node that the creature is in, can harbour an egg)
 function animals.place_egg(self, pos, medium, e_ov)
-    -- self, position, medium, energy_override
-    -- uses self's energy and energy_egg (with optional max_pop)
-    if (medium == nil or medium == "") then
-        medium = "air"
+    if type(self) ~= "table" then
+        error("animals.place_egg: got invalid 'self' (expected table) for placing an egg, got type '"..type(self).."'")
     end
+    -- ensure there exists an egg node to place
+    local egg_data = self.egg_name or self.egg or self.name.."_eggs"
+    egg_data = type(egg_data) == "string" and minetest.registered_nodes[egg_data]
+        or type(egg_data) == "table" and egg_data
+    if not egg_data then return end
+    -- use first a medium override, otherwise check egg's required medium
+    medium = (type(medium) == "string" and medium ~= "" and medium)
+        or type(medium) == "table" and medium or nil
+    medium = medium or egg_data.egg_medium or "air"
+    -- get pos if no pos provided and round up pos
+    pos = pos or mobkit.get_stand_pos(self)
     local p = mobkit.get_node_pos(pos)
+    -- check if what we're about to lay an egg in is even a valid node
+    local c_node = minetest.registered_nodes[minetest.get_node(p).name] -- current_node
+    if not c_node then return end -- not a valid node, return
+    -- work around to slabs and cobble not permitting egg lay
+    if c_node.walkable then
+      -- get collision box (for cobble) or node box (for slabs)
+      local box = c_node.collision_box or c_node.drawtype == "nodebox" and c_node.node_box
+      -- don't lay eggs on top of eggs
+      if box and box.fixed and not (c_node.groups and c_node.groups.egg) then
+        -- if not an array of boxes
+        if type(box.fixed[1]) ~= "table" then
+          -- check pos above
+          p = minimal.pos_shift(p,{y=1})
+          c_node = minetest.registered_nodes[minetest.get_node(p).name]
+          if not c_node then return end
+        end
+      end
+    end
+    -- uses self's energy and energy_egg (with optional max_pop)
     local e_egg = self.energy_egg
-    local egg_name = self.egg_name or self.name.."_eggs"
     -- seek a "self.egg_name" or create an egg_name using the placer's name
     local max_pop = self.max_pop or max_objects
 
@@ -692,16 +775,43 @@ function animals.place_egg(self, pos, medium, e_ov)
     local check_name = string.gsub(self.name,"_male","")
     check_name = string.gsub(self.name,"_baby","")
 
+    -- number of its kind in an area
     local objcount = #animals.get_entities_inside_radius(check_name,
                                                          pos, mo_check_radius)
+    -- first check if we're overpopulated
+    local can_lay = objcount <= max_pop
+    -- check node for if it's a compatible medium now
+    if can_lay then
+        can_lay = false -- temporarily set can_lay to false (checking medium)
+        -- convert to table for next functionality
+        if type(medium) == "string" then
+            medium = {medium}
+        end
+        -- allow multiple acceptable "mediums"
+        for _,tag in pairs(medium) do
+            -- verify if string
+            tag = type(tag) == "string" and tag or nil
+            if tag then
+                -- check if node_name is equal to provided medium tag
+                can_lay = c_node.name == tag
+                -- allow group detection if layable area hasn't been found 
+                if can_lay ~= true and tag:sub(1,6) == "group:" then
+                    local group = c_node.groups and c_node.groups[tag:sub(7)]
+                    can_lay = group and group > 0
+                end
+            end
+            -- we verified we can lay an egg here, no more checking
+            if can_lay then break end
+        end
+    end
 
-    if minetest.get_node(p).name == medium and objcount <= max_pop then
+    if can_lay then
 
         local posu = {x = p.x, y = p.y - 1, z = p.z}
         local n = mobkit.nodeatpos(posu)
 
         if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
-            minetest.set_node(p, {name = egg_name})
+            minetest.set_node(p, {name = egg_data.name})
             if type(e_ov) == "number" and e_ov >= 15 then
                 -- energy override noted, jot it down
 
@@ -715,6 +825,7 @@ function animals.place_egg(self, pos, medium, e_ov)
         end
 
     end
+
 end
 
 -- place an egg during near or precise death (and die)
@@ -771,24 +882,37 @@ end
 function animals.hatch_egg(pos, egg_data, medium, replace, name)
     -- egg_data, position
     -- CUSTOM OVERRIDES:
-    --  medium (to spawn entities in - can be nil),
+    --  medium (to spawn entities in - can be nil (will only check for air), string, or table),
     --  replace (replace with - can be nil),
     --  name (optional, but required if not included in self)
     egg_data = egg_data or minimal.get_nodedef(pos)
     if type(egg_data) ~= "table" then
         return false
     end
-    -- fix medium, replace (check if node otherwise use air)
+    -- fix medium, replace
     medium = medium or egg_data.egg_medium
-    medium = minetest.registered_nodes[medium] or {name="air"}
-    medium = medium.name
+    medium = type(medium) == "table" and medium or {medium}
+    -- purify medium table
+    for tagi,tag in pairs(medium) do -- tag index, tag
+      -- not a node, nuh-uh-uh!
+      if not minetest.registered_nodes[tag] then
+        -- don't delete if we were secretly a group check
+        if tag:sub(1,6) ~= "group:" then
+          medium[tagi] = nil
+        end
+      end
+    end
+    -- add "air" if medium table has no existing nodes
+    if #medium == 0 then
+      medium[1] = "air"
+    end
     replace = replace or egg_data.egg_replace
     replace = minetest.registered_nodes[replace] or {name="air"}
     replace = replace.name
 
     local suitable = minetest.find_nodes_in_area(
         {x=pos.x-1, y=pos.y-1, z=pos.z-1},
-        {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {medium})
+        {x=pos.x+1, y=pos.y+1, z=pos.z+1}, medium)
     --if can't find the stuff this mob moves through then it dies
     if #suitable < 1 then
         minetest.set_node(pos, {name = replace})
@@ -1533,12 +1657,12 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
     local run_timer = self.runfrom_timer
         or notscared and (self.runfrom_break_timer or 10) or 20
     local exclaim_timer = 4
-    local range = minetest.is_player(tgtobj) and self.player_alert_distance
+    local range = minetest.is_player(tgtobj) and self.player_warn_distance
         or animals.is_interactor(
-            self,'predators',tgtobj) and self.predator_alert_distance
+            self,'predators',tgtobj) and self.predator_warn_distance
         or animals.is_interactor(
             self,'rivals',tgtobj)
-        and self.territorial_alert_distance or self.alert_distance
+        and self.territorial_warn_distance or self.warn_distance
     if not notscared then mobkit.make_sound(self,'scared') end
 
     local func = function(self)
@@ -1667,7 +1791,7 @@ function animals.predator_avoid(self, prty, chance)
     local pred_itr = self.predator_interactions -- predator_interact
     for  _,_ in ipairs(pred_table) do
         local pred, pred_index = get_closest(self,pred_table,
-                                             self.warn_dist or self.view_range)
+                                             self.warn_distance or self.view_range)
         if not pred then
             table.remove(pred_table, pred_index)
         else
@@ -1691,11 +1815,12 @@ function animals.prey_hunt(self, prty)
         end
         local tgtpos = targ.object:get_pos()
         local drawtype = node_drawtype(tgtpos)
-        if (drawtype == "liquid" and (self.oxygen_min
-                                      and self.oxygen > self.oxygen_min)) then
+        if drawtype == "liquid" and self.hp >= self.max_hp and
+            (self.oxygen_min and self.oxygen > self.oxygen_min) then
             -- look for a solid node underneath (safe to hunt)
+            -- custom hunting_depth to check how far down this solid node has to be
             --  and if meant to hunt prey that's in water
-            tgtpos = minimal.pos_shift(tgtpos,{y = -1})
+            tgtpos = minimal.pos_shift(tgtpos,{y = -(self.hunting_depth or 1)})
             drawtype = node_drawtype(tgtpos)
         end
         if (drawtype ~= "liquid") then
@@ -2151,6 +2276,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             return true
         end
         if not mobkit.is_alive(tgtobj) then return true end
+        if self.oxygen < (self.oxygen_min or self.lung_capacity*0.9) then return true end
 
         if mobkit.is_queue_empty_low(self) then
             local pos = mobkit.get_stand_pos(self)
@@ -2203,7 +2329,7 @@ function animals.territorial(self, eat, chance_multiplier)
         local rival = mobkit.get_closest_entity(self, riv)
 
         if rival then
-            local range = self.territorial_alert_distance or self.alert_distance
+            local range = self.territorial_warn_distance or self.warn_distance
             --flee if hurt
             if self.hp < self.max_hp/4 then
                 mobkit.animate(self,'fast')
@@ -2681,8 +2807,8 @@ function animals.get_nearby_player(self,forceplyr)
         if forceplyr then return plyr end
         -- if player, then check if player is NOT in creative...
         if (not minimal.player_in_creative(plyr)) then
-            if get_dist(self,plyr) >= (self.player_alert_distance
-                                       or self.alert_distance) then
+            if get_dist(self,plyr) >= (self.player_warn_distance
+                                       or self.warn_distance) then
                 return
             end
             return plyr
@@ -2690,9 +2816,8 @@ function animals.get_nearby_player(self,forceplyr)
     end
 end
 
--- Taken directly from mobkit to properly calculate fall damage
+-- Taken directly from mobkit to properly calculate drowning
 function animals.vitals(self)
-
 
     -- vitals: oxygen
     if self.lung_capacity then
@@ -2701,10 +2826,10 @@ function animals.vitals(self)
         local drawtype = node_drawtype(lowpos) -- node at hitbox top
         local drawtype_above = node_drawtype(minimal.pos_shift(lowpos,{y=1}))
 
-        -- override self.isinliquid
-        if drawtype_above == "liquid" then
-            self.isinliquid = true
-        end
+        -- override self.isinliquid from mobkit to account for overhead water
+        self.isinliquid = self.isinliquid or drawtype_above == "liquid" or false
+        -- do after above calculation for hunting_depth if specified
+        drawtype_above = self.hunting_depth and node_drawtype(minimal.pos_shift(lowpos,{y=self.hunting_depth})) or drawtype_above
 
         local oxygen_min = self.oxygen_min or self.lung_capacity
         local breathing_rate = self.breating_rate or 1
@@ -2712,7 +2837,7 @@ function animals.vitals(self)
         -- determines whether or not the animal should try to get out
         --  (if there's too much water)
         local dangerous = false
-        if (node_drawtype(mobkit.pos_shift(lowpos,{y=-1})) == "liquid"
+        if (node_drawtype(mobkit.pos_shift(lowpos,{y=-(self.hunting_depth or 1)})) == "liquid"
             or drawtype_above == "liquid"
             or oxygen_min == self.lung_capacity) then
             dangerous = true
@@ -2723,7 +2848,12 @@ function animals.vitals(self)
                 self.oxygen = math_clamp(self.oxygen - 0.5,0,self.lung_capacity)
                 if (self.oxygen <= oxygen_min
                     or dangerous == true) then -- if uncomfortable, swim to shore
-                    animals.hq_liquid_recovery(self,60) -- LIQUID RECOVERY
+                    animals.hq_liquid_recovery(self,70) -- LIQUID RECOVERY
+                    -- (if on ground) and if there's potential air, gasp for air!!!
+                    -- (doesn't work due to the timing of when vitals is ran - every sec)
+                    --if self.isonground and drawtype_above ~= "liquid" then
+                        --mobkit.lq_dumbjump(self,0.9)
+                    --end
                 end
             else
                 self.oxygen = math_clamp(self.oxygen + breathing_rate, 0,
@@ -2756,6 +2886,9 @@ end
 function animals.hq_liquid_recovery(self,prty)
     local radius = 1
     local yaw = 0
+    local n_s -- no surface (could not find a surface)
+    --local goto_pos
+    local old_pos
     local func = function(self)
         if not self.isinliquid then return true end
         local pos=self.object:get_pos()
@@ -2766,36 +2899,43 @@ function animals.hq_liquid_recovery(self,prty)
             mobkit.hq_swimto(self,prty,pos2)
             return true
         end
-        yaw=yaw+pi*0.25
-        if yaw>2*pi then
-            radius=radius+1
-            if radius > self.view_range then
-                yaw = random(0,(yaw+pi*2) * 100)
-                -- random direction attempt (save decimals)
-                yaw = yaw/100
-                radius = random(math_clamp(3,self.view_range,
-                                           self.view_range),self.view_range)
-                -- swim anywhere! (or try to...)
-                mobkit.turn2yaw(self,yaw)
-                vec = minetest.yaw_to_dir(yaw)
-                pos2 = mobkit.pos_shift(pos,vector.multiply(vec,radius))
-
-                if (node_drawtype(pos2) ~= "liquid"
-                    or node_drawtype(mobkit.pos_shift(pos2,{y=1})) ~= "liquid") then
-                    -- made my OWN swimto because mobkit SUCKS 3:<
-                    pos2 = vector.normalize(vector.direction({x = pos.x,
-                                                              y = pos2.y,
-                                                              z = pos.z},
-                                                pos2))
-                    mobkit.turn2yaw(self,minetest.dir_to_yaw(pos2))
-                    pos2 = vector.multiply(pos2,3)
-                    pos2.y = pos2.y + 2
-                    self.object:set_velocity(pos2)
+        -- looking around now
+        yaw=yaw+(pi*0.25)
+        -- couldn't find a node in immediate vicinity, increase scanning radius
+        if radius < self.view_range and yaw>2*pi then
+            radius = radius + 1
+        end
+        -- no surfaces to go to could be found, we're going rambo
+        if n_s then
+            -- move_chance, always try to move if radius equals view_range, or on a 80% of radius/view_range chance
+            -- set to 0 if we don't have to do this
+            -- higher chances if radius is getting closer to view_range
+            local m_c = (radius >= self.view_range and 1.01 or radius > 1
+                and (radius/self.view_range) * .8) or nil
+            -- random chance
+            if m_c and m_c > random() then
+                --pos2 = minimal.pos_shift(pos2,{y=-1})
+                local height, liquidflag = mobkit.get_terrain_height(pos2)
+                -- isn't water, let's wing it!
+                if not liquidflag then
+                    mobkit.lq_turn2pos(self, pos2)
+                    mobkit.lq_dumbwalk(self, pos2, 2)
+                    radius = 1 -- reset search radius
                 end
-
-                radius = 1
             end
-            yaw = 0
+            -- try jumping if stuck in one position
+            if old_pos and vector.distance(pos, old_pos) < 0.05 then
+              mobkit.clear_queue_low(self) -- clear all other low level tasks to prioritize jumping
+              -- 20% chance of just forcing us to technically be "on the ground"
+              self.isonground = random() < 0.2 and true or self.isonground
+              mobkit.lq_dumbjump(self, 2)
+            end
+            -- continuously update for above calculation
+            old_pos = pos
+      -- no surface in reach can be ascertained, try to find one instead
+      elseif radius >= self.view_range or node_drawtype(minimal.shift_pos(pos,{y=1})) ~= "liquid" then
+            radius = 1 -- reset radius
+            n_s = true
         end
     end
     mobkit.queue_high(self,func,prty)
@@ -2836,6 +2976,7 @@ function animals.register_egg(def, animal)
                 fixed = {-0.08, -0.5, -0.08,  0.08, -0.4375, 0.08}, -- bug-sized egg
             }
     end
+    def.paramtype = def.paramtype or "light"
 
     def.groups = def.groups or {}
     def.groups.egg = def.groups.egg or 1
@@ -3305,10 +3446,9 @@ function animals.register_animal(name,def)
     def.absolute_death_temp = (type(def.absolute_death_temp) == "number"
                                and def.absolute_death_temp
                                or def.burn_max_temp + 300)
-    -- set values for aggression, warn, and alert distances
-    def.alert_distance =
-        type(def.alert_distance) == "number" and def.alert_distance
-        or def.view_range
+    -- set values for aggression and warn distances
+    -- warn is for when it begins warning the rival/predator
+    -- aggression is for when it goes on the attack
     def.warn_distance
         = type(def.warn_distance) == "number" and def.warn_distance
         or math.ceil(def.view_range*0.8)

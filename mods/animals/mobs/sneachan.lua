@@ -170,7 +170,7 @@ self_data = {
     --energy that goes to egg
     egg_time = 60*10,
     young_per_egg = {3,7}, --will get this/energy_egg starting energy
-    emergency_egg_chance = 0.75,
+    emergency_egg_chance = 0.9,
     -- lifespan
     lifespan = "energy_max*2",
     -- interactions
