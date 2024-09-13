@@ -49,9 +49,11 @@ local theme_inv = [[
 		list[current_player;main;0,5.85;8,3;8]
 	]]
 
-function sfinv.make_formspec(player, context, content, show_inv, size)
+function sfinv.make_formspec(player, context, content, show_inv)
 	local tmp = {
-		size or "size[8,8.6]",
+		"formspec_version[5]",
+		"size[10.5,10.9]",
+		"position[0.5,0.48]",
 		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
 		show_inv and theme_inv or "",
 		content

@@ -682,14 +682,8 @@ function minimal.register_inventory_sfinv()
                 get = function(self, player, context)
                     local formspec = minimal.make_inventory_formspec(player,
                                                                      context)
-                    local options = {
-                        'formspec_version[5]',
-                        -- hacking in formspec_version before size[]
-                        'size[10.5,10.5]',
-                    }
                     local output = sfinv.make_formspec(
-                        player, context, formspec, false, table.concat(options,
-                                                                       ""))
+                        player, context, formspec, false)
                     return output
                 end,
                 on_player_receive_fields = function(self, player,
@@ -754,6 +748,9 @@ function minimal.make_inventory_formspec(player,context)
     qtylab[qtyID] = minetest.colorize("cyan", qtylab[qtyID])
 
     local output =
+        'formspec_version[5]' ..
+        'size[10.5,10.9]' ..
+        'position[0.5,0.48]' ..
         'label[.35,6.1;'..S("Quantity")..':]' ..
         -- 'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]' ..
         'checkbox[3.0,6.1;qty1;'..qtylab[1]..';'..qtytab[1]..']' ..
@@ -786,6 +783,7 @@ function minimal.make_inventory_formspec(player,context)
 end
 
 minimal.register_inventory_sfinv()
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
         if formname ~= 'exile:crafting' then return false; end -- Not our form.
 
@@ -798,13 +796,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
         if process_receive_fields(player, formname, fields) then
             local formspec = minimal.make_inventory_formspec(player)
-            if formspec and formspec ~= "" then
-                formspec = 'formspec_version[5]size[10.5,10]' .. formspec
+            if formspec then
                 minetest.show_formspec(player_name,'exile:crafting',formspec)
             end
         end
 end)
 
+-- display craft form on right click on a tool
 function minimal.crafting_item_on_rightclick(pos,node,clicker,
                                              itemstack,pointed_thing)
     local craft_item = ItemStack(node.name)
@@ -829,8 +827,7 @@ function minimal.crafting_item_on_rightclick(pos,node,clicker,
     }
     inventoryFS_cache[player_name] = cache
     set_cache(player_name, pInv, sItemID)
-    local formspec = 'formspec_version[5]size[10.5,10]'..
-        minimal.make_inventory_formspec(clicker)
+    local formspec = minimal.make_inventory_formspec(clicker)
     minetest.show_formspec(player_name,'exile:crafting',formspec)
     return itemstack
 end
