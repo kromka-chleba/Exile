@@ -1,6 +1,5 @@
 # textdomain: animals
 # crafts.lua
-@1 Eggs=Яйцо @1
 # api_capture.lua
 Slaughter the animal=Убить животное
 @1 Invertebrate=@1 беспозвоночный
@@ -41,3 +40,8 @@ Live Sarkamos=Живой Саркамос
 Sneachan=Сничан
 Sneachan Eggs=Яйца Сничана
 Live Sneachan=Живой Сничан
+
+
+##### not used anymore #####
+
+@1 Eggs=Яйцо @1

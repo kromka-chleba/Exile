@@ -1,6 +1,6 @@
 ---------------------------------------------------------
 -- Seasonal changes for Exile
--- 
+--
 
 -- Internationalization
 local S = nodes_nature.S
@@ -8,10 +8,13 @@ local S = nodes_nature.S
 ---------------------------------------
 
 local nsl = naturalslopeslib
+mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
+nodes_nature = nodes_nature
 local nn = nodes_nature
 
-seasons = {}
+nn.seasons = {}
+local seasons = nn.seasons
 
 seasons.season_names = {
     "spring_early",
@@ -26,7 +29,7 @@ seasons.season_names = {
 
 local season_names = seasons.season_names
 local set_day_please = false
-local days_to_skip = false
+local days_to_skip
 local set_day_pending = false
 
 -- the variable below controls the season
@@ -35,7 +38,6 @@ local current_season = ""
 -- life is a tragedy but sometimes also a comedy
 -- there's no /set_date command in minetest so we wrote one
 local function move_time_forward(days)
-    local days = days
     local old_time = minetest.get_timeofday()
     local function loop()
         if days > 0 then
@@ -70,7 +72,6 @@ minetest.register_chatcommand(
             end
             local day = math.floor(param)
             local current_day = minetest.get_day_count() % 80 + 1
-            local days_to_skip = 0
             if day > current_day then
                 days_to_skip = day - current_day
             elseif day < current_day then
@@ -174,7 +175,8 @@ local function spring_to_winter_pairs(include_slopes, include_roots)
 end
 
 local function get_winter_soil_names(include_slopes, include_roots)
-    local spring_to_winter = spring_to_winter_pairs(include_slopes, include_roots)
+    local spring_to_winter = spring_to_winter_pairs(include_slopes,
+                                                    include_roots)
     local names = {}
     for _, winter in pairs(spring_to_winter) do
         table.insert(names, winter)
@@ -184,7 +186,8 @@ end
 
 local function winter_to_spring_pairs(include_slopes, include_roots)
     local soil_pairs = {}
-    local spring_to_winter = spring_to_winter_pairs(include_slopes, include_roots)
+    local spring_to_winter = spring_to_winter_pairs(include_slopes,
+                                                    include_roots)
     for spring, winter in pairs(spring_to_winter) do
         soil_pairs[winter] = spring
     end
@@ -196,7 +199,7 @@ local winter_soils = get_winter_soil_names()
 local spring_to_winter = spring_to_winter_pairs(true, true)
 local winter_to_spring = winter_to_spring_pairs(true, true)
 
-local spring_soil_finder =
+--local spring_soil_finder =
     ms.create_simple_finder(
         {to_find = spring_soils,
          add_labels = {"spring_soil"},
@@ -204,7 +207,7 @@ local spring_soil_finder =
         }
     )
 
-local winter_soil_finder =
+--local winter_soil_finder =
     ms.create_simple_finder(
         {to_find = winter_soils,
          add_labels = {"winter_soil"},
@@ -262,11 +265,11 @@ local function get_seasonal_plant_names()
     return plant_names
 end
 
-local function get_plant_season_pairs(current_season)
+local function get_plant_season_pairs(season_param)
     local plant_pairs = {}
     for name, nodedef in pairs(minetest.registered_nodes) do
         if minetest.get_item_group(name, "seasonal") > 0 then
-            local replacement = nodedef["_"..current_season]
+            local replacement = nodedef["_"..season_param]
             if replacement then
                 plant_pairs[name] = replacement
             end
@@ -449,17 +452,17 @@ local spring_labels = {
 
 minetest.register_lbm({
         name = "nodes_nature:spring_chunk_lbm",
-	label = "Spring soil finder for mapchunk shepherd",
-	nodenames = spring_soils,
+        label = "Spring soil finder for mapchunk shepherd",
+        nodenames = spring_soils,
         run_at_every_load = false,
-	action = function(pos, node)
+        action = function(pos, node)
             local hash = ms.mapchunk_hash(pos)
             if not ms.contains_labels(hash, spring_labels) then
                 ms.save_mapchunk(hash, true)
                 ms.handle_labels(hash, spring_labels)
                 ms.add_labels(hash, {"scanned"})
             end
-	end,
+        end,
 })
 
 local winter_labels = {
@@ -469,15 +472,15 @@ local winter_labels = {
 
 minetest.register_lbm({
         name = "nodes_nature:winter_chunk_lbm",
-	label = "Winter soil finder for mapchunk shepherd",
-	nodenames = winter_soils,
+        label = "Winter soil finder for mapchunk shepherd",
+        nodenames = winter_soils,
         run_at_every_load = false,
-	action = function(pos, node)
+        action = function(pos, node)
             local hash = ms.mapchunk_hash(pos)
             if not ms.contains_labels(hash, winter_labels) then
                 ms.save_mapchunk(hash, true)
                 ms.handle_labels(hash, winter_labels)
                 ms.add_labels(hash, {"scanned"})
             end
-	end,
+        end,
 })

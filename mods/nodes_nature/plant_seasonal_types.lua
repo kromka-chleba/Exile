@@ -3,10 +3,11 @@
 
 -- Internationalization
 local S = nodes_nature.S
+nodes_nature = nodes_nature
 
 ---------------------------------------------------------
 
-seasonal_types = {
+nodes_nature.seasonal_types = {
     early = {
         _spring_early = "_seedling3",
         _spring_late = "_flowering",

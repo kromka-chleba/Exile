@@ -25,8 +25,8 @@ dofile(modpath .. "/bed_clear.lua")
 
 local temp = minetest.deserialize(bed_rest.store:get_string("bedrest"), true)
 if temp then
-   bed_rest.level = temp["level"]
-   bed_rest.player = temp["player"]
-   bed_rest.pos = temp["pos"]
-   bed_rest.bed_position = temp["bed_position"]
+    bed_rest.level = temp["level"]
+    bed_rest.player = temp["player"]
+    bed_rest.pos = temp["pos"]
+    bed_rest.bed_position = temp["bed_position"]
 end

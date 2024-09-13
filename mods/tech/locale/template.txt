@@ -1,5 +1,8 @@
 # textdomain: tech
 # backpacks.lua
+# animal_crafts.lua
+Cracked Egg=
+Fried Egg=
 Woven Bag=
 Wicker Bag=
 Fabric Bag=
@@ -41,14 +44,16 @@ Claystone=
 Siltstone=
 Sandstone=
 Conglomerate=
+Coquina=
 # bricks_and_mortar.lua
 Limestone=
 Ironstone=
+Scoria=
+Gneiss=
+Combine with another slab=
 Granite=
 Basalt=
-Gneiss=
 Jade=
-Combine with another slab=
 # clothing.lua
 Woven Hat=
 Sun Hat=
@@ -67,11 +72,21 @@ Light Fabric Tunic=
 Thick Fabric Tunic=
 # cooking-pot.lua
 Soup=
-Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=
-Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=
+Soup Pot=
+Contents: Water=
+Note: Add food to the pot to make soup=
+Water, =
+Contents: @1=
 @1 soup=
+Contents: @1 soup=
+Status: @1 pot (finished)=
+Status: @1 pot=
+Status: @1 pot (cooking)=
 Cooking Pot=
 This pot is full and heavy. Spill it?=
+Unprepared Pot=
+Contents: <EMPTY>=
+Note: Add water to pot to make soup=
 Cooking Pot (unfired)=
 Eat=
 Crafting=
@@ -104,6 +119,7 @@ Chopping Block=
 Basalt Mortar and Pestle=
 Granite Mortar and Pestle=
 Limestone Mortar and Pestle=
+Wooden Mortar and Pestle=
 Anvil=
 Masonry Bench=
 Brick Maker's Bench=
@@ -145,6 +161,8 @@ Rammed Earth=
 Rammed Earth Stair=
 Rammed Earth Slab=
 Wicker well lining=
+Wet wicker well lining=
+Salty wet wicker well lining=
 Reinforce a well wall=
 Loose Wattle=
 Wattle Door Frame=
@@ -223,10 +241,13 @@ Iron Key=
 Grant key owner access.=
 # Lantern
 Lantern Case=
+Status: needs a @1 and a wick (@2)!=
 Status: needs a clear glass pane and a wick (coarse fibre)!=
 Lantern Case with a wick=
+Status: needs a @1!=
 Status: needs a clear glass pane!=
 Lantern Case with Glass=
+Status: needs a wick (@1)!=
 Status: needs a wick (coarse fibre)!=
 Unlit Lantern=
 Lit Lantern=
@@ -240,7 +261,9 @@ Pick up a node's facing=
 Flip to lever=
 Apply facing to another node=
 Empty=
+@1% fuel left=
 fuel left=
+Status: @1=
 Status: =
 # plant_crafts.lua
 Stick=
@@ -257,9 +280,6 @@ Mashed Anperla (uncooked)=
 Mashed Anperla=
 Burned Anperla=
 Vegetable Oil=
-# animal_crafts.lua
-Cracked Egg=
-Fried Egg=
 # Pottery
 Broken Pottery Slab=
 # pottery.lua
@@ -292,13 +312,8 @@ Till soil slowly=
 Place tool for plant crafts=
 Placed Digging Stick=
 Cut softwood logs=
-Adze=
-Placed Granite Adze=
-Placed Basalt Adze=
-Placed Jade Adze=
-Basalt Adze=
-Jade Adze=
-Granite Adze=
+Placed @1 adze=
+@1 Adze=
 Stone Club=
 Strike=
 Stun animals=
@@ -317,12 +332,9 @@ Placed Iron Pickaxe=
 Iron Hoe=
 Till soil quickly=
 Placed Iron Hoe=
-Hammer=
+@1 Hammer=
 Stun animals@n or Place on solid surface for hammering crafts=
-Placed Granite Hammer=
-Placed Basalt Hammer=
-Basalt Hammer=
-Granite Hammer=
+Placed @1 Hammer=
 # torch.lua
 Torch=
 Clay Water Pot=

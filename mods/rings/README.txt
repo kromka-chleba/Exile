@@ -1,3 +1,9 @@
-# rings mod
-This mod adds rings to the landscape, as our first kind of major landmark.
-The code for the ring is thanks to Skamiz Kazzarch of the Minetest forums.
+# Rings: surface megastructures
+=============================
+Adds broken rings structures scattered around the map, and a tall tower in the centre of the map.
+
+
+# Authors of source code
+----------------------
+Rings by Skamiz Kazzarch of the Minetest forums
+Meru adapted from Mount Meru by Paramat (WTFPL)

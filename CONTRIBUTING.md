@@ -38,8 +38,10 @@ Make your changes and `commit`(s), then `push` them:
 
 Now you can go to your fork’s Codeberg page and submit a `PR` to `master`, via the handy web interface.
 
-# Some Simple Guidelines
+# Some Simple PR Guidelines
 Try to keep your `PR`s focused. Don’t be a politician and bundle your “fund the schools” `PR` together with your “build a bridge to my summer home” `PR`. One `PR` per feature/bugfix, please: No omnibus.
+
+Avoid formatting changes to lines you haven't edited, see style guidelines below.
 
 Try to keep your `commit`s manageably small. The platonic ideal is to have them be atomic, i.e. as small as possible without leaving the code in a broken state. `Git` allows you to find the exact `commit` that introduced a bug, via `git bisect`, which is more useful the smaller that `commit` turns out to be.
 
@@ -51,3 +53,17 @@ The `v4` branch is where major development is going on right now, with the `mast
 
 # Rebasing Stale Branches
 “The primary reason for rebasing is to maintain a linear project history.”<sup>[[†]](https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase)</sup>
+
+
+## Style guidelines
+To match our codebase, configure your editor to use 4 spaces for indents
+
+Try to keep lines below 80 columns when possible, and below 120 at the absolute widest.
+Narrow lines improve ease of reading, and aid clarity and comprehension. Also, Luacheck will produce warnings for lines wider than 130 columns.
+
+When dealing with large "and/or" blocks, try to break them primarily before an "or", to keep "and" clauses on one line when possible.
+Grouping them on separate lines can improve clarity.
+
+If this puts the start of the "and/or" clauses on the same indent level as the code below, insert a line break for separation, or else enclose the block in parentheses and indent them to match.
+
+Please use #TODO for things that need doing later.

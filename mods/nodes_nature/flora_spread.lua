@@ -5,9 +5,15 @@
 -- cane growth
 --spreading surfaces
 
+nodes_nature = nodes_nature
+mapchunk_shepherd = mapchunk_shepherd
+
 local nsl = naturalslopeslib
 local ms = mapchunk_shepherd
-local plant = plant
+local nn = nodes_nature
+
+local plant = nn.plant
+local seasons = nn.seasons
 
 ----------------------------------------------------------------
 -- Flora & mushrooms
@@ -15,8 +21,8 @@ local plant = plant
 
 local function flora_spread(pos, node)
     local pos_under = minimal.get_pos_under(pos)
-    if not minimal.in_group(pos_under, "sediment") then
-      return
+    if not minimal.pos_group(pos_under, "sediment") then
+        return
     end
     local under = minetest.get_node(pos_under)
     -- prevent spreading to slopes
@@ -53,62 +59,62 @@ local function flora_spread(pos, node)
 end
 
 local function undersea_flora_spread(pos, node)
-   local nodedef = minetest.registered_nodes[node.name]
-   local substrate = nodedef.node_dig_prediction
-   local pos0 = vector.subtract(pos, 4)
-   local pos1 = vector.add(pos, 4)
-   -- Testing shows that a threshold of 3 results in an appropriate maximum
-   -- density of approximately 7 flora per 9x9 area.
-   if #minetest.find_nodes_in_area(pos0, pos1, "group:flora") > 3 then
-      return
-   end
-   pos0 = vector.subtract(pos, {x=4,y=2,z=4})
-   pos1 = vector.add(pos, {x=4,y=2,z=4})
-   --find a random saltwater node
-   local tgts = minetest.find_nodes_in_area(pos0, pos1,
-				       "nodes_nature:salt_water_source")
-   if #tgts == 0 then return end
-   local tgt = tgts[math.random(1,#tgts)]
-   -- seek down until we hit the seabed
-   local down = vector.new(0, -1, 0)
-   local under = vector.add(tgt, down)
-   local uname = minetest.get_node(under).name
-   while uname == "nodes_nature:salt_water_source" do
-      tgt = under
-      under = vector.add(tgt, down)
-      uname = minetest.get_node(under).name
-   end
-   if uname ~= substrate then -- it's not the right soil for this plant
-      return
-   end
-   minetest.place_node(tgt, { name = node.name })
+    local nodedef = minetest.registered_nodes[node.name]
+    local substrate = nodedef.node_dig_prediction
+    local pos0 = vector.subtract(pos, 4)
+    local pos1 = vector.add(pos, 4)
+    -- Testing shows that a threshold of 3 results in an appropriate maximum
+    -- density of approximately 7 flora per 9x9 area.
+    if #minetest.find_nodes_in_area(pos0, pos1, "group:flora") > 3 then
+        return
+    end
+    pos0 = vector.subtract(pos, {x=4,y=2,z=4})
+    pos1 = vector.add(pos, {x=4,y=2,z=4})
+    --find a random saltwater node
+    local tgts = minetest.find_nodes_in_area(pos0, pos1,
+                                             "nodes_nature:salt_water_source")
+    if #tgts == 0 then return end
+    local tgt = tgts[math.random(1,#tgts)]
+    -- seek down until we hit the seabed
+    local down = vector.new(0, -1, 0)
+    local under = vector.add(tgt, down)
+    local uname = minetest.get_node(under).name
+    while uname == "nodes_nature:salt_water_source" do
+        tgt = under
+        under = vector.add(tgt, down)
+        uname = minetest.get_node(under).name
+    end
+    if uname ~= substrate then -- it's not the right soil for this plant
+        return
+    end
+    minetest.place_node(tgt, { name = node.name })
 end
 
 ---------------
 
 minetest.register_abm({
-	label = "Flora spread",
-	nodenames = {"group:mature_flora", "group:fruiting_plant"},
-	interval = 260,
-	chance = 60,
-	max_y = 400,
-	min_y = -2000,
-	action = function(pos, node)
+        label = "Flora spread",
+        nodenames = {"group:mature_flora", "group:fruiting_plant"},
+        interval = 260,
+        chance = 60,
+        max_y = 400,
+        min_y = -2000,
+        action = function(pos, node)
             -- plants and mushrooms
             flora_spread(pos, node)
-	end,
+        end,
 })
 
 minetest.register_abm({
-	label = "Sea flora spread",
-	nodenames = {"group:flora_sea"},
-	interval = 260,
-	chance = 60,
-	max_y = 1,
-	min_y = -15,
-	action = function(pos, node)
+        label = "Sea flora spread",
+        nodenames = {"group:flora_sea"},
+        interval = 260,
+        chance = 60,
+        max_y = 1,
+        min_y = -15,
+        action = function(pos, node)
             undersea_flora_spread(pos, node)
-	end,
+        end,
 })
 
 local cane_interval = 220
@@ -192,7 +198,8 @@ local function grow_cane(pos, node)
     -- catch up and growing
     for i = 1, nr_to_grow + 1 do
         if height < 6 and node.name == "air" then
-            minetest.set_node(pos, {name = plant_name, param2 = nodedef.place_param2})
+            minetest.set_node(pos, {name = plant_name,
+                                    param2 = nodedef.place_param2})
             pos.y = pos.y + 1
             node = minetest.get_node(pos)
             height = height + 1
@@ -206,15 +213,15 @@ end
 
 
 minetest.register_abm({
-	label = "Grow cane",
-	nodenames = {"group:cane_plant"},
+        label = "Grow cane",
+        nodenames = {"group:cane_plant"},
         neighbors = {"group:sediment"},
-	interval = cane_interval,
-	chance = 3,
-	catch_up = true,
-	action = function(...)
-		grow_cane(...)
-	end
+        interval = cane_interval,
+        chance = 3,
+        catch_up = true,
+        action = function(...)
+            grow_cane(...)
+        end
 })
 
 
@@ -224,19 +231,20 @@ minetest.register_abm({
 --
 
 minetest.register_abm({
-	label = "Surface spread",
-	nodenames = {"group:bare_sediment"},
-	neighbors = {"group:spreading"},
-	interval = 161,
-        min_y = 5,
-	chance = 15,
-	catch_up = false,
+        label = "Surface spread",
+        nodenames = {"group:bare_sediment"},
+        neighbors = {"group:spreading"},
+        interval = 161,
+        chance = 15,
+        catch_up = false,
         min_y = -30,
         max_y = 500,
-	action = function(pos, node)
-            local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
+        action = function(pos, node)
+            local pos_above = vector.new(pos.x, pos.y + 1, pos.z)
             local above_name = minetest.get_node(pos_above).name
-            if above_name ~= "air" and not minimal.in_group(pos_above, "flora") then
+            if above_name ~= "air"
+                and not minimal.pos_group(pos_above, "flora") then
+
                 return
             end
             -- Don't spread at night
@@ -258,8 +266,9 @@ minetest.register_abm({
                 local drop = string.gsub(soil_nodedef.drop, "_wet", "")
                 if drop == string.gsub(sed_nodedef.drop, "_wet", "") then
                     if light_above and light_above >= 13 then
-                        local replace_with = ""
-                        if minetest.get_item_group(node.name, "wet_sediment") == 1 then
+                        local replace_with
+                        if minetest.get_item_group(node.name,
+                                                   "wet_sediment") == 1 then
                             replace_with = soil_nodedef._wet_name
                         else
                             replace_with = soil_nodedef._dry_name
@@ -271,7 +280,8 @@ minetest.register_abm({
                         if id then -- We're a slope, preserve that
                             replace_with = nsl.get_all_slopes(replace_with)[id]
                         end
-                        minetest.set_node(pos, {name = replace_with, param2 = node.param2})
+                        minetest.set_node(pos, {name = replace_with,
+                                                param2 = node.param2})
                         ms.labels_to_position(pos,
                                               {"spring_soil"},
                                               {"no_spring_soil", "no_soil",
@@ -284,52 +294,54 @@ minetest.register_abm({
 })
 
 minetest.register_abm({
-	label = "Remove buried and covered grass",
-	nodenames = {"group:spreading"},
-	interval = 211,
-	chance = 1,
-	catch_up = false,
+        label = "Remove buried and covered grass",
+        nodenames = {"group:spreading"},
+        interval = 211,
+        chance = 1,
+        catch_up = false,
         min_y = -30,
         max_y = 500,
-	action = function(pos, node)
+        action = function(pos, node)
             local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
             local soil_nodedef = minetest.registered_nodes[node.name]
             local light_above = minimal.get_daylight(pos_above, 0.5)
             if not light_above or light_above < 10 then
                 minetest.set_node(pos, {name = soil_nodedef.drop})
             end
-	end
+        end
 })
 
 minetest.register_abm({
-	label = "Ziarnoplon mutation",
-	nodenames = {"nodes_nature:ziarnoplon_flowering",
+        label = "Ziarnoplon mutation",
+        nodenames = {"nodes_nature:ziarnoplon_flowering",
                      "nodes_nature:srebroplon_flowering"},
-	interval = 301,
-	chance = 500,
-	catch_up = false,
+        interval = 301,
+        chance = 500,
+        catch_up = false,
         min_y = -30,
         max_y = 500,
-	action = function(pos, node)
+        action = function(pos, node)
             if node.name == "nodes_nature:ziarnoplon_flowering" then
                 if math.random() > 0.99 then
-                    minimal.force_place_keep_param2(pos, "nodes_nature:srebroplon_flowering")
+                    minimal.force_place_keep_param2(
+                        pos, "nodes_nature:srebroplon_flowering")
                 end
             else
                 if math.random() > 0.70 then
-                    minimal.force_place_keep_param2(pos, "nodes_nature:ziarnoplon_flowering")
+                    minimal.force_place_keep_param2(
+                        pos, "nodes_nature:ziarnoplon_flowering")
                 end
             end
-	end
+        end
 })
 
 minetest.register_abm({
-	label = "Root regrowth",
-	nodenames = {"group:roots"},
-	interval = 1600,
-	chance = 3,
-	catch_up = true,
-	action = function(pos, node)
+        label = "Root regrowth",
+        nodenames = {"group:roots"},
+        interval = 1600,
+        chance = 3,
+        catch_up = true,
+        action = function(pos, node)
             local meta = minetest.get_meta(pos)
             local name = meta:get_string("root_name")
             local nr = meta:get_float("root_nr")
@@ -351,5 +363,5 @@ minetest.register_abm({
                 local seedling_name = string.gsub(name, "_root", "_seedling2")
                 minetest.place_node(pos_above, {name = seedling_name})
             end
-	end
+        end
 })

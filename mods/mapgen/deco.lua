@@ -22,14 +22,14 @@ function register_from_list(name, decor_list)
         return
     end
     for i = 1, #decor_list do
-       local d = decor_list[i]
-       if d.deco_type == "simple" then
-	  local deconame = d.decoration or ""
-	  if not minetest.registered_nodes[deconame] then
-	     minetest.log("error", "Mapgen: "..d.name..
-			  " deco: "..deconame.." does not exist!")
-	  end
-       end
+        local d = decor_list[i]
+        if d.deco_type == "simple" then
+            local deconame = d.decoration or ""
+            if not minetest.registered_nodes[deconame] then
+                minetest.log("error", "Mapgen: "..d.name..
+                             " deco: "..deconame.." does not exist!")
+            end
+        end
         minetest.register_decoration(decor_list[i])
     end
 end
@@ -90,7 +90,7 @@ local function start_egg_timers(pos, minp, maxp, blockseed, extra_args)
 end
 
 local function remove_floating_canes(pos, minp, maxp, blockseed, extra_args)
-    if minimal.in_group(pos, "cane_plant") then
+    if minimal.pos_group(pos, "cane_plant") then
         return
     end
     local pos_top = {x = pos.x, y = pos.y + 8, z = pos.z}

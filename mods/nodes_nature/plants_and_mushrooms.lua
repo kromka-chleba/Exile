@@ -3,6 +3,9 @@
 
 -- Internationalization
 local S = nodes_nature.S
+nodes_nature = nodes_nature
+local nn = nodes_nature
+local plant = nodes_nature.plant
 
 ---------------------------------------------------------
 
@@ -38,7 +41,7 @@ local moss_nodebox = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}
 
 
 local wrotycz_soil_prefs =
-    soil_preferences.new({
+    nn.soil_preferences.new({
             rocky_substrate = {min = 2, max = 2},
             organic_substrate = {min = 2, max = 2},
             density = {min = 4, max = 4},
@@ -66,19 +69,19 @@ local wrotycz_soil_prefs =
 
 local plant_list = {
     -- Herbs
-    {name = "barszcz", description = S("Barszcz"),
+    {name = "barszcz", description = S("Barshocha"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
      fruit = true, seasonal_type = "tuber",
      roots = 5,
      winter_fruit = true, dry_fruit = true},
 
-    {name = "wrotycz", description = S("Wrotycz"),
+    {name = "wrotycz", description = S("Vortecha"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
      soil_preferences = wrotycz_soil_prefs, fruit = true,
      seasonal_type = "late", winter_fruit = true,
@@ -87,7 +90,7 @@ local plant_list = {
     {name = "wiha", description = S("Wiha"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
      fruit = true, seasonal_type = "early",
      winter_fruit = true,},
@@ -95,7 +98,7 @@ local plant_list = {
     {name = "momo", description = S("Momo"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
      fruit = true, winter_fruit = false,
      seasonal_type = "late"},
@@ -103,7 +106,7 @@ local plant_list = {
     {name = "galanta", description = S("Galanta"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 0.4,
+     growing_time = nn.plant_base_growing_time * 0.4,
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "whole_season",
      edible_seedling = true},
@@ -111,7 +114,7 @@ local plant_list = {
     {name = "vansano", description = S("Vansano"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 1.2,
+     growing_time = nn.plant_base_growing_time * 1.2,
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "long", winter_fruit = false,
      dry_fruit = true},
@@ -119,15 +122,15 @@ local plant_list = {
     {name = "anperla", description = S("Anperla"),
      plant_type = "herbaceous_plant", waving = true,
      drawtype = "plantlike", mesh_type = 3,
-     growing_time = plant_base_growing_time * 3,
+     growing_time = nn.plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "green",
      winter_fruit = false, seasonal_type = "tuber",
      fruit = true, roots = 8},
 
-    {name = "rzepicha", description = S("Rzepicha"),
+    {name = "rzepicha", description = S("Jepiha"),
      plant_type = "herbaceous_plant", waving = true,
      drawtype = "plantlike", mesh_type = 0,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
      winter_fruit = false, seasonal_type = "tuber",
      fruit = true},
@@ -135,23 +138,23 @@ local plant_list = {
     {name = "hakimi", description = S("Hakimi"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "blue",
      fruit = true, winter_fruit = true,
      seasonal_type = "mainly_flower",
      dry_fruit = true},
 
-    {name = "ziarnoplon", description = S("Ziarnopłon"),
+    {name = "ziarnoplon", description = S("Jarno"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
-     growing_time = plant_base_growing_time * 0.4,
+     growing_time = nn.plant_base_growing_time * 0.4,
      dye_candidate = true, dominant_color = "yellow",
      fruit = true, seasonal_type = "early_flower"},
 
-    {name = "srebroplon", description = S("Srebropłon"),
+    {name = "srebroplon", description = S("Serebro"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 3,
-     growing_time = plant_base_growing_time * 0.4,
+     growing_time = nn.plant_base_growing_time * 0.4,
      dye_candidate = true, dominant_color = "blue",
      fruit = true, seasonal_type = "early_flower",
      bioluminescence = 3},
@@ -159,19 +162,19 @@ local plant_list = {
     {name = "orom", description = S("Orom"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "black"},
 
     {name = "veke", description = S("Veke"),
      drawtype = "plantlike", mesh_type = 0,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "black"},
 
     {name = "tikusati", description = S("Tikusati"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
      fruit = true, seasonal_type = "medium",
      winter_fruit = true, dry_fruit = true},
@@ -179,14 +182,14 @@ local plant_list = {
     {name = "malinka", description = S("Malinka"),
      drawtype = "plantlike", mesh_type = 1,
      plant_type = "herbaceous_plant", waving = true,
-     growing_time = plant_base_growing_time * 1.5,
+     growing_time = nn.plant_base_growing_time * 1.5,
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "medium", winter_fruit = false},
 
     {name = "malina", description = S("Malina"),
      drawtype = "plantlike", mesh_type = 3,
      plant_type = "woody_plant", waving = true,
-     growing_time = plant_base_growing_time * 2.5,
+     growing_time = nn.plant_base_growing_time * 2.5,
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "long", winter_fruit = false,
      move_resistance = 3, thorns = true},
@@ -194,91 +197,105 @@ local plant_list = {
     {name = "yellow_malina", description = S("Yellow Malina"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "woody_plant", waving = true,
-     growing_time = plant_base_growing_time * 2.5,
+     growing_time = nn.plant_base_growing_time * 2.5,
      dye_candidate = true, dominant_color = "green",
      fruit = true, seasonal_type = "long", winter_fruit = false,
      move_resistance = 3, thorns = true},
 
     {name = "gevaari", description = S("Gevaari"),
      drawtype = "plantlike", plant_type = "herbaceous_plant",
-     mesh_type = 1, growing_time = plant_base_growing_time * 4,
+     mesh_type = 1, growing_time = nn.plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "whole_season", thorns = true, move_resistance = 4},
 
     {name = "obesa", description = S("Obesa"),
      drawtype = "plantlike", plant_type = "herbaceous_plant",
-     mesh_type = 0, growing_time = plant_base_growing_time * 4,
+     mesh_type = 0, growing_time = nn.plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "succulent_flowering", fruit = true,
      texture_scale = 1.2, thorns = true, move_resistance = 4},
 
-     {name = "salia", description = S("Salia"),
-      drawtype = "plantlike", mesh_type = 4,
-      plant_type = "herbaceous_plant", waving = true,
-      growing_time = plant_base_growing_time,
-      dye_candidate = true, dominant_color = "red",
-      fruit = true, seasonal_type = "early"},
+    {name = "salia", description = S("Salia"),
+     drawtype = "plantlike", mesh_type = 4,
+     plant_type = "herbaceous_plant", waving = true,
+     growing_time = nn.plant_base_growing_time,
+     dye_candidate = true, dominant_color = "red",
+     fruit = true, seasonal_type = "early"},
 
-      {name = "fretin", description = S("Fretin"),
-       drawtype = "plantlike", plant_type = "herbaceous_plant",
-       waving = true,
-       mesh_type = 2, growing_time = plant_base_growing_time,
-       dye_candidate = true, dominant_color = "black",
-       seasonal_type = "whole_season",
-       edible_seedling = true},
+    {name = "fretin", description = S("Fretin"),
+     drawtype = "plantlike", plant_type = "herbaceous_plant",
+     waving = true,
+     mesh_type = 2, growing_time = nn.plant_base_growing_time,
+     dye_candidate = true, dominant_color = "black",
+     seasonal_type = "whole_season",
+     edible_seedling = true},
+
+    {name = "urimi", description = S("Urimi"),
+     drawtype = "plantlike", plant_type = "herbaceous_plant",
+     waving = true,
+     mesh_type = 2, growing_time = nn.plant_base_growing_time,
+     dye_candidate = true, dominant_color = "black",
+     seasonal_type = "whole_season",
+     edible_seedling = false},
 
     -- Mushrooms
 
-    --lambakap. is also a mushroom.
-    --slow growing food and water source, main crop for longterm underground living.
+    --Lambakap. is also a mushroom.
+    -- slow growing food and water source,
+    -- main crop for longterm underground living.
+
     {name = "lambakap", description = S("Lambakap"),
      drawtype = "nodebox", nodebox = lambakap_nodebox,
      lifeform_type = "mushroom", plant_type = "mushroom",
-     growing_time = plant_base_growing_time * 3,
+     growing_time = nn.plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "red",
      bioluminescence = 2, extra_groups = {flammable = 6}},
 
-    --reshedaar.  is also a mushroom.
-    --slow growing fibre mushroom, main fibre crop for longterm underground living.
+    --Reshedaar.  is also a mushroom.
+    -- slow growing fibre mushroom,
+    -- main fibre crop for longterm underground living.
+
     --(can't be bioluminescent or conflicts with recipe)
     {name = "reshedaar", description = S("Reshedaar"),
      drawtype = "nodebox", nodebox = reshedaar_nodebox,
      lifeform_type = "mushroom", plant_type = "fibrous_plant",
-     growing_time = plant_base_growing_time * 3,
+     growing_time = nn.plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "red",},
 
     --Mahal. is also a mushroom.
-    --slow growing woody mushroom, main stick crop for longterm underground living.
+    -- slow growing woody mushroom,
+    -- main stick crop for longterm underground living.
+
     {name = "mahal", description = S("Mahal"),
      drawtype = "nodebox", nodebox = mahal_nodebox,
      lifeform_type = "mushroom", plant_type = "woody_plant",
-     growing_time = plant_base_growing_time * 3,
+     growing_time = nn.plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "red",
      bioluminescence = 1,},
 
     {name = "merki", description = S("Merki"),
      drawtype = "plantlike", bioluminescence = 2,
      lifeform_type = "mushroom", plant_type = "mushroom",
-     mesh_type = 0, growing_time = plant_base_growing_time * 2},
+     mesh_type = 0, growing_time = nn.plant_base_growing_time * 2},
 
     {name = "nebiyi", description = S("Nebiyi"),
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
-     mesh_type = 1, growing_time = plant_base_growing_time,
+     mesh_type = 1, growing_time = nn.plant_base_growing_time,
      dye_candidate = true, dominant_color = "indigo",
      seasonal_type = "late_mushroom"},
 
     {name = "marbhan", description = S("Marbhan"),
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
-     mesh_type = 2, growing_time = plant_base_growing_time * 2,
+     mesh_type = 2, growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
      seasonal_type = "whole_season"},
 
     {name = "zufani", description = S("Zufani"),
      drawtype = "plantlike",
      lifeform_type = "mushroom", plant_type = "mushroom",
-     mesh_type = 2, growing_time = plant_base_growing_time * 2,
+     mesh_type = 2, growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
      seasonal_type = "late_mushroom", fruit = true,
      only_dead_fruit = true, winter_fruit = true},
@@ -286,7 +303,7 @@ local plant_list = {
     -- Woody
     {name = "tsaplop", description = S("Tsaplop"),
      drawtype = "plantlike", plant_type = "woody_plant",
-     mesh_type = 0, growing_time = plant_base_growing_time * 4,
+     mesh_type = 0, growing_time = nn.plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "whole_season_woody",
      texture_scale = 1.2, thorns = true, move_resistance = 4},
@@ -294,34 +311,34 @@ local plant_list = {
     {name = "jogalan", description = S("Jogalan"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
-     mesh_type = 0, growing_time = plant_base_growing_time * 2,
+     mesh_type = 0, growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "black"},
 
     {name = "gitiri", description = S("Gitiri"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
-     mesh_type = 2, growing_time = plant_base_growing_time * 2,
+     mesh_type = 2, growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "green",
      texture_scale = 1.2, seasonal_type = "whole_season_woody"},
 
     {name = "badyl", description = S("Badyl"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
-     mesh_type = 0, growing_time = plant_base_growing_time * 2,
+     mesh_type = 0, growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "red",
      texture_scale = 1, seasonal_type = "whole_season_woody"},
 
-    {name = "drapacz", description = S("Drapacz"),
+    {name = "drapacz", description = S("Drapacho"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = false, thorns = true, move_resistance = 4,
-     mesh_type = 0, growing_time = plant_base_growing_time * 4,
+     mesh_type = 0, growing_time = nn.plant_base_growing_time * 4,
      dye_candidate = true, dominant_color = "red",
      texture_scale = 1.2, seasonal_type = "whole_season_woody"},
 
     {name = "bronach", description = S("Bronach"),
      drawtype = "plantlike", plant_type = "woody_plant",
      waving = true,
-     mesh_type = 3, growing_time = plant_base_growing_time * 2,
+     mesh_type = 3, growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "crimson",
      texture_scale = 1.2, seasonal_type = "whole_season_woody"},
 
@@ -329,14 +346,14 @@ local plant_list = {
     {name = "sari", description = S("Sari"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growing_time * 0.5,
+     growing_time = nn.plant_base_growing_time * 0.5,
      dye_candidate = true, dominant_color = "yellow",
      seasonal_type = "whole_season"},
 
     {name = "tanai", description = S("Tanai"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growing_time * 1.5,
+     growing_time = nn.plant_base_growing_time * 1.5,
      dye_candidate = true, dominant_color = "crimson",
      seasonal_type = "whole_season"},
 
@@ -344,27 +361,27 @@ local plant_list = {
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
      dye_candidate = true,
-     growing_time = plant_base_growing_time * 2},
+     growing_time = nn.plant_base_growing_time * 2},
 
     {name = "alaf", description = S("Alaf"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growing_time * 2,
+     growing_time = nn.plant_base_growing_time * 2,
      dye_candidate = true, dominant_color = "yellow",
      seasonal_type = "whole_season"},
 
     {name = "muhle", description = S("Muhle"),
-      drawtype = "plantlike", plant_type = "fibrous_plant",
-      mesh_type = 4,  waving = true,
-      growing_time = plant_base_growing_time * 2,
-      dye_candidate = true, dominant_color = "black",
-      seasonal_type = "late", fruit = true, winter_fruit = true,
-      move_resistance = 4},
+     drawtype = "plantlike", plant_type = "fibrous_plant",
+     mesh_type = 4,  waving = true,
+     growing_time = nn.plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "black",
+     seasonal_type = "late", fruit = true, winter_fruit = true,
+     move_resistance = 4},
 
     {name = "damo", description = S("Damo"),
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = plant_base_growing_time,
+     growing_time = nn.plant_base_growing_time,
      dye_candidate = true, dominant_color = "green",
      seasonal_type = "whole_season", edible_seedling = true},
 
@@ -372,45 +389,49 @@ local plant_list = {
      drawtype = "plantlike", mesh_type = 4,
      plant_type = "fibrous_plant", waving = true,
      dye_candidate = true,
-     growing_time = plant_base_growing_time * 1.5,
+     growing_time = nn.plant_base_growing_time * 1.5,
      seasonal_type = "whole_season"},
 
     -- Moss
     {name = "moss", description = S("Moss"),
      drawtype = "nodebox", nodebox = moss_nodebox,
-     plant_type = "moss", growing_time = plant_base_growing_time * 3,
+     plant_type = "moss", growing_time = nn.plant_base_growing_time * 3,
      dye_candidate = true, dominant_color = "green",},
 
     -- Canes
     {name = "cana", description = S("Cana"),
      mesh_type = 2, seasonal_type = "cane",
      drawtype = "plantlike", plant_type = "cane", waving = false,
-     growing_time = plant_base_growing_time * 2, seed_number = 1,
+     growing_time = nn.plant_base_growing_time * 2, seed_number = 1,
      extra_groups = {cana = 1}},
 
     {name = "gemedi", description = S("Gemedi"),
      mesh_type = 2,
      drawtype = "plantlike", plant_type = "cane", waving = false,
-     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
+     growing_time = nn.plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, seasonal_type = "cane"},
 
     -- Bamboos
     {name = "chalin", description = S("Chalin"),
      mesh_type = 2,
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
-     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
+     growing_time = nn.plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, climbable = true, seasonal_type = "whole_season_woody",
      move_resistance = 1},
 
     {name = "tiken", description = S("Tiken"),
      mesh_type = 2,
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
-     growing_time = plant_base_growing_time * 2, dye_candidate = true, dominant_color = "yellow",
+     growing_time = nn.plant_base_growing_time * 2,
+     dye_candidate = true, dominant_color = "yellow",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
 
     {name = "saguati", description = S("Saguati"),
      drawtype = "plantlike", plant_type = "bamboo", waving = false,
-     growing_time = plant_base_growing_time * 4, dye_candidate = true, dominant_color = "green",
+     growing_time = nn.plant_base_growing_time * 4,
+     dye_candidate = true, dominant_color = "green",
      seed_number = 1, thorns = true, seasonal_type = "whole_season_woody"},
 }
 
@@ -466,7 +487,7 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:barszcz_root",{
         tiles = {"nodes_nature_red_ochre.png"},
-        description = S("Barszcz root"),
+        description = S("Barshocha root"),
         wield_image = "nodes_nature_barszcz_root.png",
         inventory_image = "nodes_nature_barszcz_root.png",
         node_box = {
@@ -484,7 +505,7 @@ minetest.override_item(
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root",
     {
-        description = S("Rzepicha root"),
+        description = S("Jepiha root"),
         inventory_image = "nodes_nature_rzepicha_root.png",
         wield_image = "nodes_nature_rzepicha_root.png",
         stack_max = minimal.stack_max_medium,
@@ -492,9 +513,10 @@ minetest.register_craftitem(
         on_place = function(itemstack, placer, pointed_thing)
             local above = minetest.get_node(pointed_thing.above)
             local pos_below = minimal.get_pos_under(pointed_thing.above)
-            local sediment = minimal.in_group(pos_below, "sediment")
+            local sediment = minimal.pos_group(pos_below, "sediment")
             if sediment and above.name == "air" then
-                minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_fruitless"})
+                minetest.set_node(pointed_thing.above,
+                                  { name = "nodes_nature:rzepicha_fruitless" })
                 plant.set_to_domesticated(pointed_thing.above)
                 if not minimal.player_in_creative(placer) then
                     itemstack:take_item()
@@ -508,7 +530,7 @@ minetest.register_craftitem(
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root_winter",
     {
-        description = S("Rzepicha root"),
+        description = S("Jepiha root"),
         inventory_image = "nodes_nature_rzepicha_root_winter.png",
         wield_image = "nodes_nature_rzepicha_root_winter.png",
         stack_max = minimal.stack_max_medium,
@@ -516,9 +538,10 @@ minetest.register_craftitem(
         on_place = function(itemstack, placer, pointed_thing)
             local above = minetest.get_node(pointed_thing.above)
             local pos_below = minimal.get_pos_under(pointed_thing.above)
-            local sediment = minimal.in_group(pos_below, "sediment")
+            local sediment = minimal.pos_group(pos_below, "sediment")
             if sediment and above.name == "air" then
-                minetest.set_node(pointed_thing.above, {name = "nodes_nature:rzepicha_seedling5"})
+                minetest.set_node(pointed_thing.above,
+                                  { name = "nodes_nature:rzepicha_seedling5" })
                 plant.set_to_domesticated(pointed_thing.above)
                 if not minimal.player_in_creative(placer) then
                     itemstack:take_item()
@@ -555,24 +578,24 @@ minetest.override_item(
 --marbhan has a Neurotoxin
 minetest.override_item(
     "nodes_nature:marbhan",{
-		_on_consume = function(user, itemstack, pointed_thing)
-      --Similar to hemlock, which tastes musty or like mouse urine
-      minetest.chat_send_player(user:get_player_name(),
-                            S("This plant has a foul musty flavor."))
+        _on_consume = function(user, itemstack, pointed_thing)
+            --Similar to hemlock, which tastes musty or like mouse urine
+            minetest.chat_send_player(user:get_player_name(),
+                                      S("This plant has a foul musty flavor."))
 
-      return HEALTH.eatdrink(itemstack, user, pointed_thing)
-  end,
+            return HEALTH.eatdrink(itemstack, user, pointed_thing)
+        end,
 })
 
 
 --nebiyi has a Hepatotoxin
 minetest.override_item(
     "nodes_nature:nebiyi",{
-		_on_consume = function(user, itemstack, pointed_thing)
-    --Flowers look a bit like oleander; it causes intense stomach pain
-      minetest.chat_send_player(user:get_player_name(),
-                                  S("Your stomach hurts terribly."))
+        _on_consume = function(user, itemstack, pointed_thing)
+            --Flowers look a bit like oleander; it causes intense stomach pain
+            minetest.chat_send_player(user:get_player_name(),
+                                      S("Your stomach hurts terribly."))
 
-        return HEALTH.eatdrink(itemstack, user, pointed_thing)
-    end,
+            return HEALTH.eatdrink(itemstack, user, pointed_thing)
+        end,
 })

@@ -35,13 +35,57 @@ local daoja_swamp_trees = {
 }
 
 local forest_trees = {
-    {--[[Trees:dominant amma forest]]
-        name = "amma_forest_ll",
+    {--[[Trees:dominant coastal amma forest]]
+        name = "amma_forest_coast",
         deco_type = "schematic",
         place_on = sna.forest_on,
         place_offset_y = -4,
         sidelen = 80,
         fill_ratio = 0.007000,
+        y_max = sna.coastal_max,
+        y_min = sna.beach_max,
+        schematic = deco.find_schematic("amma"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
+    {--[[Trees:dominant tulatula forest]]
+        name = "tulatula_forest_ll",
+        deco_type = "schematic",
+        place_on = sna.forest_on,
+        place_offset_y = -6,
+        sidelen = 80,
+        fill_ratio = 0.019000,
+        y_max = sna.lowland_max,
+        y_min = sna.coastal_max,
+        --large schematic size causes issues maybe?
+        --has unusual gaps for some reason?
+        schematic = deco.find_schematic("tulatula"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
+    {--[[Trees:dominant tulatula young forest]]
+        name = "tulatula_forest_ll_young",
+        deco_type = "schematic",
+        place_on = sna.forest_on,
+        place_offset_y = -3,
+        sidelen = 80,
+        fill_ratio = 0.015000,
+        y_max = sna.lowland_max + 2,
+        y_min = sna.coastal_max - 2,
+        schematic = deco.find_schematic("tulatula_young"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
+    {--[[Trees:understory lowland amma forest]]
+        name = "amma_forest_ll",
+        deco_type = "schematic",
+        place_on = sna.forest_on,
+        place_offset_y = -4,
+        sidelen = 80,
+        fill_ratio = 0.001000,
         y_max = sna.lowland_max,
         y_min = sna.beach_max,
         schematic = deco.find_schematic("amma"),
@@ -188,6 +232,34 @@ local woodland_trees = {
         y_max = sna.upland_max,
         y_min = sna.beach_max,
         schematic = deco.find_schematic("jalowiec4"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
+    {--[[Trees:rare tulatula in woodland]]
+        name = "tulatula_woodland",
+        deco_type = "schematic",
+        place_on = sna.woodland_on,
+        place_offset_y = -6,
+        sidelen = 80,
+        fill_ratio = 0.000020,
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        schematic = deco.find_schematic("tulatula"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
+    {--[[Trees:rare young tulatula in woodland]]
+        name = "tulatula_woodland_young",
+        deco_type = "schematic",
+        place_on = sna.woodland_on,
+        place_offset_y = -3,
+        sidelen = 80,
+        fill_ratio = 0.000020,
+        y_max = sna.lowland_max +5,
+        y_min = sna.beach_max,
+        schematic = deco.find_schematic("tulatula_young"),
         flags = "place_center_x, place_center_z",
         rotation = "random",
     },
@@ -342,19 +414,19 @@ local water_trees = {
 
 local barrenland_trees = {
 
-  {--[[Trees:very rare maraka in barrenland]]
-      name = "bl_maraka_tree",
-      deco_type = "schematic",
-      place_on = sna.barrenland_on,
-      place_offset_y = -3,
-      sidelen = 16,
-      noise_params = {offset=0.00, scale=0.00025, spread={x=250, y=250, z=250}, seed=222, octaves=2, persist=0.6},
-      y_max = sna.lowland_max,
-      y_min = sna.beach_max,
-      schematic = deco.find_schematic("maraka_tree"),
-      flags = "place_center_x, place_center_z",
-      rotation = "random",
-  },
+    {--[[Trees:very rare maraka in barrenland]]
+        name = "bl_maraka_tree",
+        deco_type = "schematic",
+        place_on = sna.barrenland_on,
+        place_offset_y = -3,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.00025, spread={x=250, y=250, z=250}, seed=222, octaves=2, persist=0.6},
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        schematic = deco.find_schematic("maraka_tree"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
 
 
 }

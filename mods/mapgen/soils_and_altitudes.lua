@@ -134,33 +134,44 @@ return {
     },
 
     gravel_on = {
-        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina", "nodes_nature:gneiss", "nodes_nature:conglomerate",
+        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina",
+        "nodes_nature:gneiss", "nodes_nature:conglomerate",
     },
 
     sand_on = {
-        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina", "nodes_nature:gneiss", "nodes_nature:sandstone",
+        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina",
+        "nodes_nature:gneiss", "nodes_nature:sandstone",
     },
 
     silt_on = {
-        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina", "nodes_nature:gneiss", "nodes_nature:siltstone",
+        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina",
+        "nodes_nature:gneiss", "nodes_nature:siltstone",
     },
 
     clay_on = {
-        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina", "nodes_nature:gneiss", "nodes_nature:claystone",
+        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina",
+        "nodes_nature:gneiss", "nodes_nature:claystone",
     },
 
     cave_mushrooms_on = {
-        "nodes_nature:silt", "nodes_nature:clay", "nodes_nature:sand", "nodes_nature:gravel",
-        "nodes_nature:silt_wet", "nodes_nature:clay_wet", "nodes_nature:sand_wet", "nodes_nature:gravel_wet",
+        "nodes_nature:silt", "nodes_nature:clay",
+        "nodes_nature:sand", "nodes_nature:gravel",
+        "nodes_nature:silt_wet", "nodes_nature:clay_wet",
+        "nodes_nature:sand_wet", "nodes_nature:gravel_wet",
     },
 
     fish_on = {
-        "nodes_nature:silt_wet_salty", "nodes_nature:sand_wet_salty","nodes_nature:gravel_wet_salty",
+        "nodes_nature:silt_wet_salty", "nodes_nature:sand_wet_salty",
+        "nodes_nature:gravel_wet_salty",
     },
 
     cave_egg_on = {
-        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina", "nodes_nature:ironstone", "nodes_nature:gneiss",
-        "nodes_nature:granite_boulder", "nodes_nature:limestone_boulder", "nodes_nature:coquina_boulder", "nodes_nature:ironstone_boulder", "nodes_nature:gneiss_boulder",
-        "nodes_nature:sandstone", "nodes_nature:siltstone", "nodes_nature:claystone", "nodes_nature:conglomerate",
+        "nodes_nature:granite", "nodes_nature:limestone", "nodes_nature:coquina",
+        "nodes_nature:ironstone", "nodes_nature:gneiss",
+        "nodes_nature:granite_boulder", "nodes_nature:limestone_boulder",
+        "nodes_nature:coquina_boulder", "nodes_nature:ironstone_boulder",
+        "nodes_nature:gneiss_boulder", "nodes_nature:sandstone",
+        "nodes_nature:siltstone", "nodes_nature:claystone",
+        "nodes_nature:conglomerate",
     },
 }

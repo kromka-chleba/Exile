@@ -15,9 +15,9 @@ Input Items="Eingabegegenstände"
 Craft Type="Fertigungstyp"
 Crafting="Fertigung"
 Quantity="Menge"
-Single=
-Stack=
-Maximum=
+Single="Einzel"
+Stack="Stapel"
+Maximum="Maximum"
 Query=
 or=
 #playersettings.lua

@@ -11,17 +11,23 @@ local path = minetest.get_modpath("nodes_nature")
 
 --crafting spots
 crafting.register_type("mixing_spot")
-crafting.register_type("threshing_spot", S("Threshing"), "nodes_nature:galanta_seed")
+crafting.register_type("threshing_spot", S("Threshing"),
+                       "nodes_nature:galanta_seed")
 crafting.register_type("hammering_block")
 crafting.register_type("weaving_spot")
 crafting.register_type("grinding_spot")
 crafting.register_type("chopping_block")
 crafting.register_type("masonry_bench", S("Crafting"), "tech:masonry_bench")
-crafting.register_type("masonry_bench_bricks", S("Bricks"), "stairs:stair_limestone_brick")
-crafting.register_type("masonry_bench_bricks_mortar", S("Bricks & Mortar"), "stairs:stair_limestone_brick_mortar")
-crafting.register_type("masonry_bench_blocks", S("Blocks"), "stairs:stair_limestone_block")
-crafting.register_type("masonry_bench_blocks_mortar", S("Blocks & Mortar"), "stairs:stair_limestone_block_mortar")
-crafting.register_type("masonry_bench_mixing", S("Mixing"), "tech:limestone_block_mortar")
+crafting.register_type("masonry_bench_bricks", S("Bricks"),
+                       "stairs:stair_limestone_brick")
+crafting.register_type("masonry_bench_bricks_mortar", S("Bricks & Mortar"),
+                       "stairs:stair_limestone_brick_mortar")
+crafting.register_type("masonry_bench_blocks", S("Blocks"),
+                       "stairs:stair_limestone_block")
+crafting.register_type("masonry_bench_blocks_mortar", S("Blocks & Mortar"),
+                       "stairs:stair_limestone_block_mortar")
+crafting.register_type("masonry_bench_mixing", S("Mixing"),
+                       "tech:limestone_block_mortar")
 --------------------------------
 
 dofile(path.."/replacement_types.lua")

@@ -63,125 +63,140 @@ local hotbar_slotnum_font_mono = false
 
 
 minimal.update_hotbar_slotnums = function(player, hotbar_itemcount)
-  local func_name = "minimal.update_hotbar_slotnums"
-  -- check args
-  -- {
-  if not minetest.is_player(player) then
-    local val_enclosure = type(player) == "string" and "\"" or ""
-    minetest.log("error", func_name .. "():"
-      .. " arg1 (`player`) must be a valid player object!"
-      .. " Instead is type " .. type(player) .. " of value: "
-      .. val_enclosure .. tostring(player) .. val_enclosure
-    )
-    return
-  end
-
-  if type(hotbar_itemcount) ~= "number" then
-    local val_enclosure = type(hotbar_itemcount) == "string" and "\"" or ""
-    minetest.log("error", func_name .. "():"
-      .. " arg2 (`hotbar_itemcount`) must be a number!"
-      .. " Instead is type " .. type(hotbar_itemcount) .. " of value: "
-      .. val_enclosure .. tostring(hotbar_itemcount) .. val_enclosure
-    )
-    return
-  end
-
-  -- "round half up" (round up from <integer_part>.5)
-  local hotbar_itemcount_int = math.floor(hotbar_itemcount + .5)
-  if hotbar_itemcount ~= hotbar_itemcount_int then
-    minetest.log("warning", func_name .. "():"
-      .. " arg2 (`hotbar_itemcount`, orig.val.: " .. tostring(hotbar_itemcount)
-      .. ") rounded to the nearest integer: " .. tostring(hotbar_itemcount_int)
-    )
-    hotbar_itemcount = hotbar_itemcount_int
-  end
-
-  local hotbar_itemcount_clamped = minimal.math_clamp(hotbar_itemcount, 1, 32)
-  if hotbar_itemcount ~= hotbar_itemcount_clamped then
-    minetest.log("warning", func_name .. "():"
-      .. " arg2 (`hotbar_itemcount`, prev.val.: " .. tostring(hotbar_itemcount)
-      .. ") clamped to the interval valid for hotbar itemcount (1..32): "
-      .. tostring(hotbar_itemcount_clamped)
-    )
-    hotbar_itemcount = hotbar_itemcount_clamped
-  end
-  -- }
-
-  -- number-label only slots which have keyboard shortcuts
-  local hotbar_slotnum_last_idx = math.min(hotbar_itemcount, 10)
-
-  -- get hotbar slotnum hud elem ID store for the given player,
-  --  or create it if does not exist
-  local player_hotbar_slotnums = m_hud_data.hotbar_slotnums[player:get_player_name()]
-  if type(player_hotbar_slotnums) ~= "table" then
-    player_hotbar_slotnums = {}
-    m_hud_data.hotbar_slotnums[player:get_player_name()] = player_hotbar_slotnums
-  end
-  -- slotnums.count & slotnum_last_idx correspond, because slots are numbered from 1
-  if player_hotbar_slotnums.count == hotbar_slotnum_last_idx then
-    -- don't refresh the hud if the same number of hotbar_slotsnums is wanted
-    return
-  end
-  player_hotbar_slotnums.count = hotbar_slotnum_last_idx
-
-  -- remove old hud elems
-  for key, hudid in pairs(player_hotbar_slotnums) do
-    -- key of text elems is the index number of the corresponding hotbar slot
-    --  so this should ignore "letter-named" keys such as "count"
-    if type(key) == "number" then
-      player:hud_remove(hudid)
-    end
-  end
-
-  -- relative y (offset) coord of hotbar slot numbers to be created
-  local hotbar_slotnum_y_rel  = (
-    -- components hierarchically:
-    0  -- at: screen bottom edge (req: position.y == 1)
-    -- seems fixed in Minetest v5.7.0
+    local func_name = "minimal.update_hotbar_slotnums"
+    -- check args
     -- {
-    +hotbar_img_bottom_offset_y  -- at: hotbar img bottom y (offset from screen bottom edge)
-    -- at: slot "boundary" bottom edge inside hotbar img (offset from hotbar bottom edge)
-    +hotbar_slot_bottom_offset_y
-    -hotbar_slot_size  -- at: slot "boundary" top edge inside hotbar img
+    if not minetest.is_player(player) then
+        local val_enclosure = type(player) == "string" and "\"" or ""
+        minetest.log("error", func_name .. "():"
+                     .. " arg1 (`player`) must be a valid player object!"
+                     .. " Instead is type " .. type(player) .. " of value: "
+                     .. val_enclosure .. tostring(player) .. val_enclosure
+        )
+        return
+    end
+
+    if type(hotbar_itemcount) ~= "number" then
+        local val_enclosure = type(hotbar_itemcount) == "string" and "\"" or ""
+        minetest.log("error", func_name .. "():"
+                     .. " arg2 (`hotbar_itemcount`) must be a number!"
+                     .. " Instead is type " .. type(hotbar_itemcount) .. " of value: "
+                     .. val_enclosure .. tostring(hotbar_itemcount) .. val_enclosure
+        )
+        return
+    end
+
+    -- "round half up" (round up from <integer_part>.5)
+    local hotbar_itemcount_int = math.floor(hotbar_itemcount + .5)
+    if hotbar_itemcount ~= hotbar_itemcount_int then
+        minetest.log(
+            "warning", func_name .. "():"
+            .. " arg2 (`hotbar_itemcount`, orig.val.: " .. tostring(hotbar_itemcount)
+            .. ") rounded to the nearest integer: " .. tostring(hotbar_itemcount_int)
+        )
+        hotbar_itemcount = hotbar_itemcount_int
+    end
+
+    local hotbar_itemcount_clamped = minimal.math_clamp(hotbar_itemcount, 1, 32)
+    if hotbar_itemcount ~= hotbar_itemcount_clamped then
+        minetest.log(
+            "warning", func_name .. "():"
+            .. " arg2 (`hotbar_itemcount`, prev.val.: " .. tostring(hotbar_itemcount)
+            .. ") clamped to the interval valid for hotbar itemcount (1..32): "
+            .. tostring(hotbar_itemcount_clamped)
+        )
+        hotbar_itemcount = hotbar_itemcount_clamped
+    end
     -- }
-    -- depends on chosen hotbar img
-    -- at: slot top border's bottom edge inside hotbar slot
-    +hotbar_slot_borderw_inner_top
-    -- customize
-    -- offset text elems top edge from slot top border's inner edge (req: alignment.y == 1)
-    +hotbar_slotnum_offset_y
-  )
-  -- should be a tiny bit faster if not reallocating variables in each loop cycle
-  local hotbar_slot_shift
-  local hotbar_slotnum_x_rel
-  for hotbar_slot_idx = 1, hotbar_slotnum_last_idx, 1 do
-    -- curr. slot position in center-h.aligned hotbar (in units of "slot")
-    hotbar_slot_shift = hotbar_slot_idx - 1 - hotbar_itemcount/2
 
-    -- relative x (offset) coord of hotbar slot number to be created
-    hotbar_slotnum_x_rel = (
-      -- components hierarchically:
-      0  -- at: horiz. center of screen (req: position.x == .5)
-      -- `hotbar_slot_size` seems fixed in Minetest v5.7.0
-      +hotbar_slot_shift * hotbar_slot_size  -- at: curr. slot "boundary"'s left edge
-      -- depends on chosen hotbar img
-      +hotbar_slot_borderw_inner_left  -- at: curr. slot left border's inner edge
-      -- customize
-      -- offset text elems left edge from slot left border's inner edge (req: alignment.x == 1)
-      +hotbar_slotnum_offset_x
+    -- number-label only slots which have keyboard shortcuts
+    local hotbar_slotnum_last_idx = math.min(hotbar_itemcount, 10)
+
+    -- get hotbar slotnum hud elem ID store for the given player,
+    --  or create it if does not exist
+    local player_hotbar_slotnums = m_hud_data.hotbar_slotnums[
+        player:get_player_name()]
+    if type(player_hotbar_slotnums) ~= "table" then
+        player_hotbar_slotnums = {}
+        m_hud_data.hotbar_slotnums[
+            player:get_player_name()] = player_hotbar_slotnums
+    end
+    -- slotnums.count & slotnum_last_idx correspond, because slots are numbered from 1
+    if player_hotbar_slotnums.count == hotbar_slotnum_last_idx then
+        -- don't refresh the hud if the same number of hotbar_slotsnums is wanted
+        return
+    end
+    player_hotbar_slotnums.count = hotbar_slotnum_last_idx
+
+    -- remove old hud elems
+    for key, hudid in pairs(player_hotbar_slotnums) do
+        -- key of text elems is the index number of the corresponding hotbar slot
+        --  so this should ignore "letter-named" keys such as "count"
+        if type(key) == "number" then
+            player:hud_remove(hudid)
+        end
+    end
+
+    -- relative y (offset) coord of hotbar slot numbers to be created
+    local hotbar_slotnum_y_rel  = (
+        -- components hierarchically:
+        0  -- at: screen bottom edge (req: position.y == 1)
+        -- seems fixed in Minetest v5.7.0
+        -- {
+        +hotbar_img_bottom_offset_y  -- at: hotbar img bottom y (offset from screen bottom edge)
+        -- at: slot "boundary" bottom edge inside hotbar img (offset from hotbar bottom edge)
+        +hotbar_slot_bottom_offset_y
+        -hotbar_slot_size  -- at: slot "boundary" top edge inside hotbar img
+        -- }
+        -- depends on chosen hotbar img
+        -- at: slot top border's bottom edge inside hotbar slot
+        +hotbar_slot_borderw_inner_top
+        -- customize
+        -- offset text elems top edge from slot top border's inner edge
+        -- (req: alignment.y == 1)
+        +hotbar_slotnum_offset_y
     )
+    -- should be a tiny bit faster if not reallocating variables in each loop cycle
+    local hotbar_slot_shift
+    local hotbar_slotnum_x_rel
+    for hotbar_slot_idx = 1, hotbar_slotnum_last_idx, 1 do
+        -- curr. slot position in center-h.aligned hotbar (in units of "slot")
+        hotbar_slot_shift = hotbar_slot_idx - 1 - hotbar_itemcount/2
 
-    -- create hotbar slot number hud element & save its ID
-    -- key of text elem is the index number of the hotbar slot
-    player_hotbar_slotnums[hotbar_slot_idx] = player:hud_add({
-      [hud_type] = "text",
-      alignment = {x = 1, y = 1},  -- elem is to -1:left/up, 0:center, 1:right/down from anchor point
-      -- elem is offset & anchored from point at 100% of screen y (bottom) & 50% of screen x (center)
-      position = {x = .5, y = 1},
-      offset = {x = hotbar_slotnum_x_rel, y = hotbar_slotnum_y_rel},
-      number = tonumber("0x" .. hotbar_slotnum_color),  -- make it very visible
-      text = tostring(hotbar_slot_idx % 10),
-      style = hotbar_slotnum_font_mono and 4 or 0,  -- bitfield; 4: monospaced
-    })
-  end
+        -- relative x (offset) coord of hotbar slot number to be created
+        hotbar_slotnum_x_rel = (
+            -- components hierarchically:
+            0  -- at: horiz. center of screen (req: position.x == .5)
+            -- `hotbar_slot_size` seems fixed in Minetest v5.7.0
+            +hotbar_slot_shift * hotbar_slot_size
+            -- at: curr. slot "boundary"'s left edge
+
+            -- depends on chosen hotbar img
+            +hotbar_slot_borderw_inner_left
+            -- at: curr. slot left border's inner edge
+
+            -- customize
+            -- offset text elems left edge from slot left border's inner edge
+            --  (req: alignment.x == 1)
+            +hotbar_slotnum_offset_x
+        )
+
+        -- create hotbar slot number hud element & save its ID
+        -- key of text elem is the index number of the hotbar slot
+        player_hotbar_slotnums[hotbar_slot_idx] = player:hud_add({
+                [hud_type] = "text",
+                alignment = {x = 1, y = 1},
+                -- elem is to -1:left/up, 0:center, 1:right/down from anchor point
+
+                -- elem is offset & anchored from point at 100% of screen y (bottom)
+                --  & 50% of screen x (center)
+                position = {x = .5, y = 1},
+                offset = {x = hotbar_slotnum_x_rel, y = hotbar_slotnum_y_rel},
+                number = tonumber("0x" .. hotbar_slotnum_color),
+                -- make it very visible
+                text = tostring(hotbar_slot_idx % 10),
+                style = hotbar_slotnum_font_mono and 4 or 0,
+                -- bitfield; 4: monospaced
+        })
+    end
 end

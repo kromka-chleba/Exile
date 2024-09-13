@@ -6,13 +6,17 @@ local S = nodes_nature.S
 
 ---------------------------------------------------------
 
-plant = {}
-soil_preferences = {}
-seasons = seasons
+nodes_nature = nodes_nature
+local nn = nodes_nature
 
-plant_base_growing_time = 500
-plant_base_timer = 40
-seed_growing_time = 40
+nn.plant = {}
+nn.soil_preferences = {}
+local soil_preferences = nn.soil_preferences
+local seasons = nn.seasons
+
+nn.plant_base_growing_time = 500
+nn.plant_base_timer = 40
+nn.seed_growing_time = 40
 
 local good_time_rain_time = climate.good_time_rain_time
 
@@ -28,8 +32,10 @@ function soil_preferences.new(args)
 end
 
 function soil_preferences.is_sediment_good(sed_name, plant_prefs)
-    local rocky_substrate = minetest.get_item_group(sed_name, "rocky_substrate")
-    local organic_substrate = minetest.get_item_group(sed_name, "organic_substrate")
+    local rocky_substrate = minetest.get_item_group(sed_name,
+                                                    "rocky_substrate")
+    local organic_substrate = minetest.get_item_group(sed_name,
+                                                      "organic_substrate")
     local density = minetest.get_item_group(sed_name, "density")
     if not plant_prefs then return true end
     if rocky_substrate then
@@ -71,7 +77,8 @@ local function seed_soil_response(pos, soil_prefs)
     elseif wetness == 2 then -- salty
         return 0
     end
-    local is_soil_good = soil_preferences.is_sediment_good(node_under, soil_prefs)
+    local is_soil_good = soil_preferences.is_sediment_good(node_under,
+                                                           soil_prefs)
     local ag_soil = minetest.get_item_group(node_under, "agricultural_soil")
     local fertile_soil = minetest.get_item_group(node_under, "fertile_soil")
     if is_soil_good then
@@ -97,14 +104,14 @@ end
 
 local function is_on_sediment(pos)
     local pos_under = minimal.get_pos_under(pos)
-    return minimal.in_group(pos_under, "sediment")
+    return minimal.pos_group(pos_under, "sediment")
 end
 
 local function is_mushroom(pos)
-    return minimal.in_group(pos, "mushroom")
+    return minimal.pos_group(pos, "mushroom")
 end
 
-function plant.get_light(pos)
+function nn.plant.get_light(pos)
     local pos_above = minimal.get_pos_above(pos)
     local natural = minimal.get_daylight(pos_above) or 0
     local artificial = minetest.get_node_light(pos_above) or 0
@@ -115,7 +122,7 @@ function plant.get_light(pos)
 end
 
 local function is_dark(pos)
-    local light = plant.get_light(pos)
+    local light = nn.plant.get_light(pos)
     return light < 4
 end
 
@@ -133,7 +140,7 @@ end
 
 local function get_light_cofactor(pos)
     local average_daily_light = calculate_average_light(pos) / 9.25
-    local current_light = plant.get_light(pos) / 15
+    local current_light = nn.plant.get_light(pos) / 15
     if average_daily_light < 1 then
         return current_light
     else
@@ -182,7 +189,6 @@ end
 
 local function get_root_number(pos)
     local pos_under = minimal.get_pos_under(pos)
-    local nodedef_under = minimal.get_nodedef(pos_under)
     local meta = minetest.get_meta(pos_under)
     local nr = meta:get_float("root_nr")
     return nr
@@ -233,7 +239,7 @@ local function deplete_soil(pos)
     end
 end
 
-function plant.kill(pos, natural_death)
+function nn.plant.kill(pos, natural_death)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
     if minetest.get_item_group(node.name, "flora") == 0 then
@@ -260,7 +266,7 @@ function plant.kill(pos, natural_death)
             dead_names.induced = nodedef._dead_fruitless_name
         end
     end
-    local dead_name = ""
+    local dead_name
     if natural_death then
         dead_name = dead_names.natural or "air"
     else
@@ -274,7 +280,7 @@ local function was_light_here(pos, elapsed)
     if is_dark(pos) and
         is_dark_when_day(pos) and
         not is_mushroom(pos) and
-        elapsed > base_health * plant_base_timer then
+        elapsed > base_health * nn.plant_base_timer then
         return false
     end
     return true
@@ -282,21 +288,21 @@ end
 
 local function kill_no_light(pos, elapsed)
     if not was_light_here(pos, elapsed) then
-        plant.kill(pos, false)
+        nn.plant.kill(pos, false)
         return true
     end
 end
 
 local function kill_extreme_temp(pos, elapsed)
     if is_temperature_extreme(pos) then
-        plant.kill(pos, false)
+        nn.plant.kill(pos, false)
         return true
     end
 end
 
 local function kill_climate_history(pos, elapsed)
     if climate.plant_killed(elapsed) then
-        plant.kill(pos, false)
+        nn.plant.kill(pos, false)
         return true
     end
 end
@@ -305,7 +311,7 @@ local is_winter = seasons.is_winter
 
 local function kill_in_winter(pos, elapsed)
     if not are_conditions_good(pos) and is_winter() then
-        plant.kill(pos, true)
+        nn.plant.kill(pos, true)
         return true
     end
 end
@@ -315,12 +321,12 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed)
         local nodedef = minimal.get_nodedef(pos)
         if nodedef._next_life_stage then
             local meta = minetest.get_meta(pos)
-	    local health
-	    if not meta:get("health") then
-	       health = base_health + base_health * math.random(-1, 1) * 0.1
-	    else
-	       health = meta:get_int("health")
-	    end
+            local health
+            if not meta:get("health") then
+                health = base_health + base_health * math.random(-1, 1) * 0.1
+            else
+                health = meta:get_int("health")
+            end
             minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
             meta:set_int("health", health)
         end
@@ -352,7 +358,7 @@ local function calculate_growth_progress(pos, good_cycles_in, rain_cycles_in)
 end
 
 local function time_to_cycles(time)
-    return time / plant_base_timer
+    return time / nn.plant_base_timer
 end
 
 local function progress_surface(pos, elapsed)
@@ -383,7 +389,7 @@ local function progress_underground(pos, elapsed)
 end
 
 local function past_growth_progress(pos, elapsed)
-   if elapsed > plant_base_timer then
+    if elapsed > nn.plant_base_timer then
         if pos.y < -15 then
             return progress_underground(pos, elapsed)
         else
@@ -405,7 +411,7 @@ end
 
 local function seed_elapsed(meta)
     local elapsed = meta:get_int("elapsed")
-    if elapsed > plant_base_timer then
+    if elapsed > nn.plant_base_timer then
         meta:set_int("elapsed", 0)
         return elapsed
     end
@@ -424,32 +430,32 @@ local function add_to_param2(pos, nr)
     minetest.swap_node(pos, {name = name, param2 = new_param2})
 end
 
-function plant.set_to_wild(pos)
+function nn.plant.set_to_wild(pos)
     add_to_param2(pos, 0)
 end
 
-function plant.set_to_domesticated(pos)
+function nn.plant.set_to_domesticated(pos)
     add_to_param2(pos, 64)
 end
 
-function plant.set_to_half_wild(pos)
+function nn.plant.set_to_half_wild(pos)
     add_to_param2(pos, 128)
 end
 
 ------------------ Global functions of the API ------------------
 
-function plant.start_growing_seed(pos)
-    local timer_min = seed_growing_time - 0.25 * seed_growing_time
-    local timer_max = seed_growing_time + 0.25 * seed_growing_time
+function nn.plant.start_growing_seed(pos)
+    local timer_min = nn.seed_growing_time - 0.25 * nn.seed_growing_time
+    local timer_max = nn.seed_growing_time + 0.25 * nn.seed_growing_time
     local timer = minetest.get_node_timer(pos)
     timer:start(math.random(timer_min, timer_max))
 end
 
-function plant.grow_seed(pos, elapsed)
+function nn.plant.grow_seed(pos, elapsed)
     local nodedef = minimal.get_nodedef(pos)
     local good_time = good_time_rain_time(elapsed, is_mushroom(pos))
     -- if conditions were good for germination we don't care about the present
-    if elapsed > seed_growing_time and good_time >= 60 then
+    if elapsed > nn.seed_growing_time and good_time >= 60 then
         -- pass elapsed to seedlings so we can catch up from there
         minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
         minimal.node_set_int(pos, "elapsed", elapsed)
@@ -461,25 +467,25 @@ function plant.grow_seed(pos, elapsed)
     return false -- the seed becomes a seedling (stops the timer)
 end
 
-function plant.death_chance_on_replant(pos)
-    plant.set_to_domesticated(pos)
+function nn.plant.death_chance_on_replant(pos)
+    nn.plant.set_to_domesticated(pos)
     -- random chance to kill the plant when replanting
     if math.random() < 1/4 then
         local timer = minetest.get_node_timer(pos)
         timer:stop()
-        minetest.after(3, function () plant.kill(pos, false) end)
+        minetest.after(3, function () nn.plant.kill(pos, false) end)
     end
 end
 
-function plant.start_growing_plant(pos, growing_time)
-    local timer_min = plant_base_timer - 0.1 * plant_base_timer
-    local timer_max = plant_base_timer + 0.1 * plant_base_timer
+function nn.plant.start_growing_plant(pos, growing_time)
+    local timer_min = nn.plant_base_timer - 0.1 * nn.plant_base_timer
+    local timer_max = nn.plant_base_timer + 0.1 * nn.plant_base_timer
     minimal.node_set_int(pos, "growth", growing_time)
     local timer = minetest.get_node_timer(pos)
     timer:start(math.random(timer_min, timer_max))
 end
 
-function plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
+function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     local param2 = minimal.get_param2(pos)
     if param2 < 63 then return end -- No reason to run on wild plants
     local meta = minetest.get_meta(pos)
@@ -496,11 +502,11 @@ function plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         return false
     end
     if param2 >= 128 and is_winter() then
-        plant.set_to_wild(pos)
-        plant.kill(pos, true)
+        nn.plant.set_to_wild(pos)
+        nn.plant.kill(pos, true)
     end
     if health <= 0 then
-        plant.kill(pos, true)
+        nn.plant.kill(pos, true)
     end
     if not are_conditions_good(pos) then
         current_progress = 0
