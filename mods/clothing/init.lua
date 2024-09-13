@@ -59,9 +59,9 @@ local clothing_page = {
             -- clothes display
             "list[current_player;cloths;0.75,0.75;2,3;]" ..
             --player inventory display    
-            "list[current_player;main;0.35,7.6;8,1;]"..
-            "list[current_player;main;0.35,8.85;8,3;8]" ..
-            "label[0.35,10.4;Tip : use \"shift\" key to switch clothes]" ..
+            "list[current_player;main;0.35,7.4;8,1;]"..
+            "list[current_player;main;0.35,8.65;8,3;8]" ..
+            "label[0.35,10.2;Tip : use \"shift\" key to switch clothes]" ..
             
             -- enable to move cltohes from one inventory to an other using "shift" key
             "listring[current_player;cloths]"..
