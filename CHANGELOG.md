@@ -1,5 +1,9 @@
 # Changelog:
 
+## [2024-09-13][2023-09-13__0.3.18c]
+   - Improvements to ropes, quicklime/slaked lime, and tile floors
+   - Minor bugfixes
+
 ## [2024-08-24][2023-08-24__0.3.18b]
    - Fix crash on animal capture in MT 5.9.0
 
