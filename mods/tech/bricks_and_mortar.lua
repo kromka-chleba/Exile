@@ -731,10 +731,28 @@ minetest.register_node("tech:tile_block_unfired", {
 	end,
 	on_timer = function(pos, elapsed)
 	   return ncrafting.fire_pottery(pos, 'tech:tile_block_unfired',
-					 'tech:tile_block', 40, 850)
+					 'tech:tile_block_loose', 40, 850)
 	end,
 })
 
+minetest.register_node(
+    "tech:tile_block_loose", {
+        description = S("Tile Block (Loose)"),
+	tiles = {"tech_roof_tiles.png^[colorize:#AAA:40"},
+	stack_max = minimal.stack_max_medium/2,
+	drawtype = "normal",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {cracky = 3, oddly_breakable_by_hand = 3 },
+	sounds = nodes_nature.node_sound_stone_defaults(),
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(30)
+        end,
+        on_timer = function(pos, elapsed)
+            local p2 = minetest.get_node(pos).param2
+            minetest.set_node(pos, { name = "tech:tile_block", param2 = p2 })
+        end
+})
 minetest.register_node("tech:tile_block", {
 	description = S("Tile Block"),
 	tiles = {"tech_roof_tiles.png"},
