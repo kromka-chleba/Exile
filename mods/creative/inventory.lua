@@ -124,18 +124,18 @@ function creative.register_tab(name, title, items)
                 local esc = minetest.formspec_escape
                 return sfinv.make_formspec(
                     player, context,
-                    "label[6.2,3.35;" ..
+                    "label[7.8,5;" ..
                     minetest.colorize("#FFFF00", tostring(pagenum)) ..
                     " / " .. tostring(pagemax) .. "]" ..
                     
-                    [[image[4.06,3.4;0.8,0.8;creative_trash_icon.png]
+                    [[image[9.2,6.3;0.8,0.8;creative_trash_icon.png]
                listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]
-               list[detached:creative_trash;main;4,3.3;1,1;]
+               list[detached:creative_trash;main;7.9,6.2;1,1;]
                listring[]
-               image_button[5.4,3.25;0.8,0.8;creative_prev_icon.png;creative_prev;]
-               image_button[7.2,3.25;0.8,0.8;creative_next_icon.png;creative_next;]
-               image_button[2.1,3.25;0.8,0.8;creative_search_icon.png;creative_search;]
-               image_button[2.75,3.25;0.8,0.8;creative_clear_icon.png;creative_clear;]
+               image_button[6.4,4.6;0.8,0.8;creative_prev_icon.png;creative_prev;]
+               image_button[9.2,4.6;0.8,0.8;creative_next_icon.png;creative_next;]
+               image_button[4,4.6;0.8,0.8;creative_search_icon.png;creative_search;]
+               image_button[4.75,4.6;0.8,0.8;creative_clear_icon.png;creative_clear;]
                 ]] ..
                 "tooltip[creative_search;" .. esc(S("Search")) .. "]" ..
                 "tooltip[creative_clear;" .. esc(S("Reset")) .. "]" ..
@@ -143,11 +143,11 @@ function creative.register_tab(name, title, items)
                 "tooltip[creative_next;" .. esc(S("Next page")) .. "]" ..
                 "listring[current_player;main]" ..
                 "field_close_on_enter[creative_filter;false]" ..
-                "field[0.3,3.5;2.2,1;creative_filter;;" ..
+                "field[0.5,4.6;3.2,0.8;creative_filter;;" ..
                 esc(inv.filter) .. "]" ..
                 "listring[detached:creative_" .. player_name .. ";main]" ..
                 "list[detached:creative_" .. player_name
-                .. ";main;0,0;8,3;" .. tostring(start_i) .. "]" ..
+                .. ";main;0.35,0.5;8,3;" .. tostring(start_i) .. "]" ..
                 creative.formspec_add, true)
             end,
             on_enter = function(self, player, context)
