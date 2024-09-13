@@ -467,18 +467,18 @@ local function cache_player_recipes(cache, player_name, pInv)
     end
     -- add Scrollable container
     local columns = 6 -- can show 6 items accross without scrollbar
-    if #recipe_list > 24 then
+    if #recipe_list > 18 then
         columns = 5
-        local scroll_max = math.ceil(#recipe_list / 5 )
+        local scroll_max = math.ceil(#recipe_list / 4 )
         recipesFS[#recipesFS + 1] =
             'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
             .. 'smallstep=1;largestep=1;thumbsize=1]'
         recipesFS[#recipesFS + 1]
-            = 'scrollbar[9.2,1.2;.5,4.6;vertical;recipes_scroll;'
+            = 'scrollbar[9.2,1.2;.5,3.45;vertical;recipes_scroll;'
             .. sScroll .. ']'
     end
     recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1;'..
-        tostring(columns + 1)..',5;recipes_scroll;vertical;1]'
+        tostring(columns + 1)..',3.75;recipes_scroll;vertical;1.25]'
     -- Add recipe buttons in columns of 5 or 6
     local x = 0
     local y = 0
