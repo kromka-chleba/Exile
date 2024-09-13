@@ -511,7 +511,11 @@ minetest.register_node(
 ----------------------------------------------
 
 -- "" one is default to have a without material display name in crafting formspec (recipes)
-for mat,capsMat in pairs ({[""]="", ["_basalt"]="Basalt ",["_granite"]="Granite ",["_limestone"]="Limestone "}) do
+for mat,capsMat in pairs ({
+        [""]="", 
+        ["_basalt"]="Basalt ",
+        ["_granite"]="Granite ",
+        ["_limestone"]="Limestone "}) do
     local image = mat
     if image == "" then image = "_limestone" end -- puttine limestone look as default
     minetest.register_node(
@@ -550,7 +554,7 @@ end
 
 
 minetest.register_node(
-    "tech:mortar_pestle_wooden",{
+    "tech:mortar_pestle_wooden",{ -- no recipe for it yet ?
         description   = S("Wooden Mortar and Pestle"),
         exile_crafting = {
             craft_types = {"mortar_and_pestle"},
@@ -587,8 +591,11 @@ minetest.register_node(
 crafting.register_recipe({
     type   = "hand_tools",
     output = "tech:mortar_pestle",
-    items  = {{'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
-    {"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"}, 'nodes_nature:sand'},
+    items  = {
+        {'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
+        {"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"},
+        'nodes_nature:sand'
+    },
     where = '@1.material == @2.material',
     material = 1,  -- set material from selected inptut item 1.
     material_output = "tech:mortar_pestle_%material%",

@@ -4,8 +4,8 @@
 Display the current git revision=
 This server is currently running git revision=
 #interface/infotext.lua
-Owner=
-Label=
+Owner:=
+Label:=
 #interface/inventory.lua
 Missing required items!=
 Query=
