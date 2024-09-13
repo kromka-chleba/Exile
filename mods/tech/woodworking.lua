@@ -4,19 +4,6 @@
 -- Internationalisaton
 local S = tech.S
 
-
-
------------------------------------------------------------
--- wooden mortar and pestle
-crafting.register_recipe({
-    type = {"axe", "carpentry_bench"},
-    output = "tech:mortar_pestle_wooden",
-    items = {'group:log 2'},
-    level = 1,
-    always_known = true,
-})
-
-
 -----------------------------------------------------------
 --primitive_wooden_chest -- see storage
 crafting.register_recipe({

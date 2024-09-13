@@ -3,6 +3,7 @@
 #currentrevision.lua
 Display the current git revision=
 This server is currently running git revision=
+#interface/infotext.lua
 Owner:=
 Label:=
 #interface/inventory.lua
@@ -16,10 +17,11 @@ Bag4=
 Input Items=
 Craft Type=
 Crafting=
+Quantity=
 Single=
 Stack=
 Maximum=
-Quantity=
+or=
 #playersettings.lua
 Enable wide HUDbar=
 Show numeric stats=

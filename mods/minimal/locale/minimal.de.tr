@@ -18,6 +18,8 @@ Quantity="Menge"
 Single="Einzel"
 Stack="Stapel"
 Maximum="Maximum"
+Query=
+or=
 #playersettings.lua
 Enable wide HUDbar="Weite HUD-Leiste aktivieren"
 Show numeric stats="Zahlenwerte anzeigen"

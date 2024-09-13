@@ -7,7 +7,6 @@ Owner:=Владелец:
 Label:=Метка:
 #interface/inventory.lua
 Missing required items!=Отсутствуют необходимые предметы!
-Query=Запрос
 Main=Осн
 Bag1=Сум1
 Bag2=Сум2
@@ -18,8 +17,10 @@ Craft Type=Инструмент:
 Crafting=Создание
 Single=Один
 Stack=Стек
-Maximum=Максимум    
+Maximum=Максимум
 Quantity=Количество:
+Query=Запрос
+or=
 #playersettings.lua
 Enable wide HUDbar=Включить широкую панель HUDbar
 Show numeric stats=Показывать числовую статистику

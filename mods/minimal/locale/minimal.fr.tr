@@ -20,6 +20,7 @@ Single=Un seul
 Stack=Une pile
 Maximum=Le maximum
 Query=Requête
+or=ou
 #playersettings.lua
 Enable wide HUDbar=Activer une large barre d'outils
 Show numeric stats=Montrer des stats numériques
