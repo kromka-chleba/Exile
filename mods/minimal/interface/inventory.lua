@@ -259,6 +259,7 @@ local function process_receive_fields(player, formname, fields)
     -- Process quit
     if fields.quit then
         minimal.close_inventory_formspec(player)
+        inventoryFS_cache[player_name] = 'closed' -- added to reset quantity to "single" when we close the inventory and avoid accidentaly max
         return true -- cache updated in close
     end
     -- process scrollbar
