@@ -128,13 +128,13 @@ function creative.register_tab(name, title, items)
                     minetest.colorize("#FFFF00", tostring(pagenum)) ..
                     " / " .. tostring(pagemax) .. "]" ..
                     
-                    [[image[9.2,6.3;0.8,0.8;creative_trash_icon.png]
+                    [[image[9.15,6.15;0.8,0.8;creative_trash_icon.png]
                listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]
-               list[detached:creative_trash;main;7.9,6.2;1,1;]
+               list[detached:creative_trash;main;9.1,6.05;1,1;]
                listring[]
                image_button[6.4,4.6;0.8,0.8;creative_prev_icon.png;creative_prev;]
                image_button[9.2,4.6;0.8,0.8;creative_next_icon.png;creative_next;]
-               image_button[4,4.6;0.8,0.8;creative_search_icon.png;creative_search;]
+               image_button[3.85,4.6;0.8,0.8;creative_search_icon.png;creative_search;]
                image_button[4.75,4.6;0.8,0.8;creative_clear_icon.png;creative_clear;]
                 ]] ..
                 "tooltip[creative_search;" .. esc(S("Search")) .. "]" ..
