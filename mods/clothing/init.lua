@@ -41,6 +41,7 @@ minetest.override_item("player_api:cloth_unisex_footwear_default", {
 ------------------------------------------------------------
 -- Inventory page
 
+-- #TODO I think size is useless now, maybe make containers later
 local clothing_formspec = "size[10.5,10.9]"
 
 local clothing_page = {
@@ -69,24 +70,24 @@ local clothing_page = {
             
             
             -- overview of what it looks like
-            "model[5.2,2.45;2.8,4.2;character;character.b3d;"..basetex..
+            -- #TODO do not change rotation angle when changing clothes, if possible, maybe saving the current angle in context/cache like in crafting tab
+            "model[5.2,2.45;2.6,3.9;character;character.b3d;"..basetex..
             ";-20,160;;true;;]"
         return sfinv.make_formspec(player, context,
                                    formspec, false)
     end
 }
+
 sfinv.register_page("clothing:clothing", clothing_page)
 
--- #TODO do not change rotation angle when changing clothes, if possible
+
 minetest.register_on_player_inventory_action(function(player, action,
                                                       inventory, inventory_info)
         if inventory_info.to_list == "cloths"
             or inventory_info.from_list == "cloths" then
-
             clothing.update_player(player)
         end
 end)
-
 
 
 minetest.register_allow_player_inventory_action(function(player, action,

@@ -106,13 +106,13 @@ local function sfinv_get(self, player, context)
         bio = lore.generate_bio(player)
     end
 
-    local y = 3.4
+    local y = 0.8
     local eff_form = ""
     local st = player_api.get_state(player)
     local labels = st:read_labels()
     for _, effect in ipairs(labels) do
         y = y + 0.4
-        eff_form = eff_form.."label[0.1,"..y.."; "..effect[1]..
+        eff_form = eff_form.."label[0.8,"..y.."; "..effect[1]..
             (effect[1] ~= "" and " " or "") -- only add a space if effect[1] exists
             ..(effect[2] or "").."]"
     end
@@ -120,16 +120,23 @@ local function sfinv_get(self, player, context)
     local basetex = minetest.formspec_escape(
         player_api.get_current_texture(player) )
 
-    local formspec = "label[0.1,0.1; "..S("Name").. ": ".. name .. "]"..
-        "label[4,0.1; "..S("Days Survived")..": ".. days .. "]"..
-        "label[4,0.6; "..S("Lives")..": " .. lives .. "]"..
-        "label[0.1,1.1; "..S("Biography")..": " .. bio .. "]"..
+    local formspec = 
+        "label[0.5,0.8; "..S("Name").. ": ".. name .. "]"..
+        "label[5,0.8; "..S("Days Survived")..": ".. days .. "]"..
+        "label[5,1.4; "..S("Lives")..": " .. lives .. "]"..
+        "label[0.5,2.4; "..S("Biography")..": " .. bio .. "]"..
         "style[player_settings;border=false]"..
-        "image_button_exit[7,0.15;0.75,0.75;gear.png;player_settings;]"..
-        "label[0.65,3.1; "..S("Health Effects")..":]"..
-        eff_form..
-        "image[0,3.05;0.65,0.65;hud_sick.png]"..
-        "model[6.5,6;2,3;character;character.b3d;"..basetex..
+        "image_button_exit[9,0.65;0.75,0.65;gear.png;player_settings;]"..
+        
+        -- Health effects display
+        "container[1.2,5.2]" ..
+        "image[0,0;0.65,0.65;hud_sick.png]"..
+        "label[0.8,0.35; "..S("Health Effects")..":]"..
+            eff_form..
+        "container_end[]" ..
+        
+        
+        "model[6.7,5.2;2,3;character;character.b3d;"..basetex..
         ";-20,160;;true;;]"
 
 
