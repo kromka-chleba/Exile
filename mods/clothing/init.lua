@@ -41,9 +41,7 @@ minetest.override_item("player_api:cloth_unisex_footwear_default", {
 ------------------------------------------------------------
 -- Inventory page
 
-local clothing_formspec = "size[8,8.5]"..
-    "list[current_player;main;0,4.7;8,1;]"..
-    "list[current_player;main;0,5.85;8,3;8]"
+local clothing_formspec = "size[10.5,10.9]"
 
 local clothing_page = {
     title = S("Clothing"),
@@ -55,14 +53,23 @@ local clothing_page = {
             player_api.get_current_texture(player) )
 
         local formspec = clothing_formspec..
-            "label[3,0.4;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]"..
-            "label[3,1;" .. FS("Max Temperature Tolerance: @1", cur_tmax) .. " ]"..
-            --"list[detached:"..name.."_clothing;clothing;0,0.5;2,3;]"..
-            "list[current_player;cloths;0,0.5;2,3;]" ..
-            "listring[current_player;main]"..
-            --"listring[detached:"..name.."_clothing;clothing]"
+            "label[4,1;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]"..
+            "label[4,1.5;" .. FS("Max Temperature Tolerance: @1", cur_tmax) .. " ]"..
+
+            -- clothes display
+            "list[current_player;cloths;0.75,0.75;2,3;]" ..
+            --player inventory display    
+            "list[current_player;main;0.35,7.6;8,1;]"..
+            "list[current_player;main;0.35,8.85;8,3;8]" ..
+            "label[0.35,10.4;Tip : use \"shift\" key to switch clothes]" ..
+            
+            -- enable to move cltohes from one inventory to an other using "shift" key
             "listring[current_player;cloths]"..
-            "model[6.5,2;2,3;character;character.b3d;"..basetex..
+            "listring[current_player;main]"..
+            
+            
+            -- overview of what it looks like
+            "model[5.2,2.45;2.8,4.2;character;character.b3d;"..basetex..
             ";-20,160;;true;;]"
         return sfinv.make_formspec(player, context,
                                    formspec, false)
@@ -70,6 +77,7 @@ local clothing_page = {
 }
 sfinv.register_page("clothing:clothing", clothing_page)
 
+-- #TODO do not change rotation angle when changing clothes, if possible
 minetest.register_on_player_inventory_action(function(player, action,
                                                       inventory, inventory_info)
         if inventory_info.to_list == "cloths"
