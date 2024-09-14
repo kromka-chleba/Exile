@@ -140,12 +140,9 @@ function ncrafting.fertilize(pos, puncher, itemstack)
         -- definition don't exist
         return
     end
-
     -- find all possible variations of a replaceable
     if type(itemdef._fertilize_replace_with) == "string" then
         replace_with = itemdef._fertilize_replace_with
-    elseif type(itemdef.fertilize_replace_with) == "string" then
-        replace_with = itemdef.fertilize_replace_with
     else
         local slab = string.gsub(itemstack:get_name(),ndef.mod_origin..":","")
         slab = "stairs:slab_"..slab
@@ -195,7 +192,7 @@ function ncrafting.fertilize(pos, puncher, itemstack)
         -- prevent the ability to fertilize something already fertilized lol
         return itemstack
     end
-    if (minimal.is_group(ndef.name,"compost")
+    if (minimal.is_group(itemdef.name,"compost")
         and type(node_name) == "string") then
 
         if not minetest.registered_nodes[node_name] then
@@ -213,7 +210,7 @@ function ncrafting.fertilize(pos, puncher, itemstack)
         -- prevent the ability to enrich something already enriched lol
         return itemstack
     end
-    if ( minimal.is_group(ndef.name,"fertilizer" )
+    if ( minimal.is_group(itemdef.name,"fertilizer" )
          and type(node_name) == "string" ) then
         if not minetest.registered_nodes[node_name] then
             minetest.log("error","ncrafting: '"..node_name..
