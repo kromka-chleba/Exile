@@ -9,14 +9,24 @@ Footwear=
 Cape=Cape
 Keeps you warm in bed=Vous maintient au chaud dans le lit
 Unisex=Unisexe
+You already wear that!=Vous portez déjà la même chose !
+Inventory is full : the clothing you wore was thrown on the floor!=L'inventaire est plein, le vêtement que vous portiez a été jeté au sol !
+
+Naked=Nu(e)
+(mild)=(effet léger)
+(moderate)=(effet modéré)
+(severe)=(sévère)
+(extreme)=(extrême)
+
+#cloths.lua
 Purple Stripe Summer T-shirt=
 Fresh Summer Denim Shorts=
 Common Black Shoes=Chaussures noires banales
 Pink Bow=
 Classic Green Sweater=
 Fine Blue Pants=
-Naked=Nu(e)
-(mild)=(effet léger)
-(moderate)=(effet modéré)
-(severe)=(sévère)
-(extreme)=(extrême)
+
+# clothing_tab.lua
+Clothing=Vêtements
+Min Temperature Tolerance: @1=Température minimum tolérée: @1
+Max Temperature Tolerance: @1=Température maximum tolérée: @1
