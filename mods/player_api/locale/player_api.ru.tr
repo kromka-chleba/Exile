@@ -9,14 +9,24 @@ Footwear=Обувь
 Cape=Накидка
 Keeps you warm in bed=Сохраняет тепло в постели
 Unisex=Унисекс
+You already wear that!=
+Inventory is full : the clothing you wore was thrown on the floor!=
+
+Naked=Голый
+(mild)=(слабый)
+(moderate)=(умеренный)
+(severe)=(тяжелый)
+(extreme)=(экстремальный)
+
+#cloths.lua
 Purple Stripe Summer T-shirt=Летняя футболка в фиолетовую полоску
 Fresh Summer Denim Shorts=Легкие летние джинсовые шорты
 Common Black Shoes=Обычные черные туфли
 Pink Bow=Розовый бант
 Classic Green Sweater=Классический зеленый свитер
 Fine Blue Pants=Изящные синие брюки
-Naked=Голый
-(mild)=(слабый)
-(moderate)=(умеренный)
-(severe)=(тяжелый)
-(extreme)=(экстремальный)
+
+# clothing_tab.lua
+Clothing=Одежда
+Min Temperature Tolerance: @1=Мин. допустимая температура: @1
+Max Temperature Tolerance: @1=Макс. допустимая температура: @1

@@ -5,7 +5,9 @@ function minimal.is_group(name, group_name)
         error("item_group: not a valid item")
     end
     local group_val = minetest.get_item_group(name, group_name)
-    if group_val > 0 then return group_val end
+    if group_val > 0 then 
+        return group_val 
+    end
 end
 
 function minimal.swap_tool(player, wielded_item, newtool)

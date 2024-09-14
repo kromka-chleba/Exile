@@ -74,7 +74,7 @@ local function killplayer(name)
     end
     stash_inventory(player,'restart_list',restart_list)
     -- Disable effects of clothes
-    clothing:update_temp(player)
+    player_api.update_temp(player)
     player:set_hp(0)
 end
 
@@ -176,5 +176,3 @@ minetest.register_chatcommand(
             end
         end
 })
-
-
