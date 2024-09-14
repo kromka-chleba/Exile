@@ -135,6 +135,7 @@ minetest.register_on_leaveplayer(function(player)
         player_api.player_attached[name] = nil
 end)
 
+-- isn't that unused ?
 function player_api.get_gender_formspec(name)
     local text = S("Select your gender")
 

@@ -1,5 +1,5 @@
 # textdomain: clothing
-# init.lua
-Clothing=Vestimenta
-Min Temperature Tolerance: @1=Temperatura mínima tolerada: @1
-Max Temperature Tolerance: @1=Temperatura máxima tolerada: @1
+
+#api.lua
+equipped!=
+You already wear the same clothing.=

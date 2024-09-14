@@ -9,18 +9,25 @@ Footwear=Calzado
 Cape=
 Keeps you warm in bed=
 Unisex=Unisex
-Purple Stripe Summer T-shirt=Camiseta veraniega púrpura a rayas
-Fresh Summer Denim Shorts=Pantalones vaqueros cortos y frescos
-Common Black Shoes=Zapatos negros comunes
-Pink Bow=Lazo rosa
-Classic Green Sweater=Jersei verde clásico
-Fine Blue Pants=Pantalones azules finos
+
 Naked=
 (mild)=
 (moderate)=
 (severe)=
 (extreme)=
 
+#cloths.lua
+Purple Stripe Summer T-shirt=Camiseta veraniega púrpura a rayas
+Fresh Summer Denim Shorts=Pantalones vaqueros cortos y frescos
+Common Black Shoes=Zapatos negros comunes
+Pink Bow=Lazo rosa
+Classic Green Sweater=Jersei verde clásico
+Fine Blue Pants=Pantalones azules finos
+
+# clothing_tab.lua
+Clothing=Vestimenta
+Min Temperature Tolerance: @1=Temperatura mínima tolerada: @1
+Max Temperature Tolerance: @1=Temperatura máxima tolerada: @1
 
 ##### not used anymore #####
 
