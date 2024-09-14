@@ -804,7 +804,7 @@ end)
 minetest.register_on_respawnplayer(function(player)
         HEALTH.set_default_attributes(player)
         sfinv.set_player_inventory_formspec(player)
-        clothing:update_temp(player)
+        player_api.update_temp(player)
 end)
 
 minetest.register_on_leaveplayer(function(player, timed_out)

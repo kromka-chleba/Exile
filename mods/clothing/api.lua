@@ -1,125 +1,65 @@
 ----------------------------------------------------------
 
 clothing = clothing
+local S = clothing.S
 
 -- Integration: without this skinsdb crashes
 clothing.register_on_update = function() end
+    
 
-clothing.update_temp = function(self, player)
-    -- set clothing and update comfortable temperature range
-    --[[
-        clothing temp_min: subtracted from minimum temperature tolerance
-        clothing temp_max: added to maximum temperature tolerance
-
-        e.g. if current comfort range is 21 to 35 then...
-        temp_min: 6
-        temp_max: -8
-        new range = 15 to 28 (e.g. you put on a warm coat)
-
-        note: ranges are
-        -comfort zone: no energy drain
-        -stress zone: some energy drain
-        -danger zone: large energy drain
-        -extreme zone: direct damage
-
-    ]]
-
-    -- default range, no clothes yet
-
-    local defaults = HEALTH.get_default_attributes()
-    local temp_min = assert(defaults.clothing_temp_min)
-    local temp_max = assert(defaults.clothing_temp_max)
-
-    if not player then
-        return
-    end
-    local inv = player:get_inventory():get_list("cloths")
-    local armorgroups = {fleshy = 100}
-    for i=1, #inv do
-        local stack = ItemStack(inv[i])
-        if stack:get_count() == 1 then
-            local def = stack:get_definition()
-            -- set comfortable temperature range
-            if def.temp_min and def.temp_max then
-                temp_min = temp_min - def.temp_min
-                temp_max = temp_max + def.temp_max
-            end
-            if def.adminclothes then
-                armorgroups.immortal = 1
-            end
-            if def.armor then
-                armorgroups.fleshy = armorgroups.fleshy - def.armor
-            end
-        end
-    end
-    -- apply new temperature comfort range
-    local meta = player:get_meta()
-    meta:set_int("clothing_temp_min", temp_min)
-    meta:set_int("clothing_temp_max", temp_max )
-    sfinv.set_player_inventory_formspec(player)
-    -- Apply armorgroups changes
-    if minetest.settings:get_bool("enable_damage") then
-        player:set_armor_groups(armorgroups)
-    end
-end
-
-function clothing.update_player(player)
-    if not minetest.is_player(player) then
-        return
-    end
-    player_api.set_texture(player)
-    clothing:update_temp(player)
-end
-
+-- This is used to equip cloths from HUD main inventory with right click
 function clothing.on_rightclick(itemstack, user, pointed_thing)
     -- deletes items (or reproduces if programmed differently - gotta fix)
     if not (minetest.is_player(user) and itemstack) then
         return
     end
-
+    
     local item_group = minimal.is_group(itemstack:get_name(),"cloth")
+    -- if item is not a clothing or a blanket, do nothing
     if (not item_group or item_group == 6) then
         return
     end
-    local player_inv = user:get_inventory()
-    local cloth_list = player_inv:get_list("cloths")
-
+    -- else, itemstack is a clothing. Pich one of them
     local new_cloth = itemstack:take_item()
-    -- check for another similar cloth
-    for _,cloth in pairs(cloth_list) do
-        local cloth_name = cloth:get_name()
-        if (minimal.is_group(cloth_name,"cloth") == item_group) then
-            -- if same type of clothing article found then
-            local removed = player_inv:remove_item("cloths", cloth)
-            -- take old cloth
-
-            -- if enough room in player inventory
-            if player_inv:room_for_item("main",removed) then
-                -- add to player inventory (and prevent weird hat reproduction
-                --   or deletion by checking itemstack count)
+    -- check correct destination
+    local p_inv = user:get_inventory()
+    local destination = player_api.get_inv_name_from_group(item_group)
+    -- if nothing in here, just put the picked clothing in it
+    if p_inv:is_empty(destination) then
+        p_inv:add_item(destination, new_cloth)
+        minetest.chat_send_player(user:get_player_name(), new_cloth:get_short_description().. " " .. S("equipped!"))
+        -- else gets what is in here for an exchange
+    else
+        local in_dest = p_inv:get_stack(destination, 1)
+        -- check that count is 1 (should always be the case, but...)
+        if in_dest:get_count()>1 then
+            minetest.log("We should have more than 1 clothing in that slot !")
+        end
+        -- check if this is the same clothing, if yes do nothing
+        if new_cloth:equals(in_dest) then
+            minetest.chat_send_player(user:get_player_name(), S("You already wear the same clothing."))
+            -- don't return itemstack to not modify the source itemstack
+            return
+        else
+            -- put new clothing in destination
+            p_inv:set_stack(destination,1,new_cloth)
+            minetest.chat_send_player(user:get_player_name(), new_cloth:get_short_description().. " " .. S("equipped!"))
+            -- returning old cloth to source, or on the ground if no room
+            -- warning, inv itemstack is updated only after end of call, so room is not free before
+            if p_inv:room_for_item("main",in_dest) then            
                 if (itemstack:get_count() == 0) then
-                    -- if this stack is about to be cleared... return removed instead
-                    itemstack = removed
+                  -- if this stack is about to be cleared... return in_dest, it will be added to inventory at the end of the call
+                  itemstack = in_dest
                 else
-                    player_inv:add_item("main",removed)
-                end
+                  p_inv:add_item("main",in_dest)
+                end                
             else
-                -- otherwise throw it to the ground
-                minetest.item_drop(removed, user, user:get_pos())
+                minetest.item_drop(in_dest, user, user:get_pos())
+                minetest.chat_send_player(user:get_player_name(),S("Inventory is full : the clothing you wore was thrown on the floor."))
             end
-            break
         end
     end
-
-    -- add new_cloth to cloth inventory
-    if player_inv:room_for_item("cloths",new_cloth) then
-        player_inv:add_item("cloths",new_cloth)
-    else
-        -- something went terribly wrong (cloths is full somehow)... drop the cloth
-        minetest.item_drop(new_cloth,user, user:get_pos())
-    end
-
-    clothing.update_player(user)
-
+    -- update player settings
+    player_api.update_player(user)
     return itemstack
 end

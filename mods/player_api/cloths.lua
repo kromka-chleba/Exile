@@ -1,14 +1,106 @@
 local S = minetest.get_translator("player_api")
 
-function player_api.has_cloths(player)
-    local inv = player:get_inventory()
-    if inv:is_empty("cloths") then
-        return false
-    else
-        return true
+
+-- defines cloth groups and inventories
+-- [groupe_code] = {inv_name, tooltip}
+local cloth_groups = {
+    [1] = {["name"]="hat", ["tooltip"]= S("Head")},
+    [2] = {["name"]="shirt", ["tooltip"]=S("Upper")},
+    [3] = {["name"]="pants",  ["tooltip"]=S("Lower")},
+    [4] = {["name"]="shoes",  ["tooltip"]=S("Footwear")},
+    [5] = {["name"]="cape", ["tooltip"]=S("Cape")},
+    [6] = {["name"]="blanket",  ["tooltip"]=S("Keeps you warm in bed")}
+}
+
+
+-- get inv cloth lists
+function player_api.get_groups()
+    return cloth_groups
+end
+
+-- return matching player inventory name with group number
+function player_api.get_inv_name_from_group(nb)
+	local t = cloth_groups[nb]
+	if t then
+		return t["name"]
+	end
+end
+
+function player_api.get_inv_names()
+    local t = {}
+    for _, group in ipairs(cloth_groups) do
+        table.insert(t,group["name"])
+	end
+    return t
+end
+
+-- set tooltip associated to each groups["cloth"] code
+local function get_tooltip_from_group (group_nb)
+    local group = cloth_groups[group_nb]
+    if group then
+        return "(" .. group["tooltip"].. ")" or ""
     end
 end
 
+
+-- Exile clothing was stored as a metadata string, migrate to new inv
+local function load_clothing_metadata(player)    
+    local player_inv = player:get_inventory()
+    local meta = player:get_meta()
+    local clothing_meta = meta:get_string("clothing:inventory")
+    local clothes = clothing_meta and minetest.deserialize(clothing_meta) or {}
+    if clothing_meta == "" then
+        return
+    end
+    -- Fill detached slots
+    --clothing_inv:set_size("clothing", 6)
+    for i = 1, 6 do
+        player_inv:set_stack(cloth_groups[i]["name"], 1, clothes[i] or "")
+        --overwrite current clothes, but it will be empty on first migration
+    end
+    meta:set_string("clothing:inventory", "")
+end
+
+-- dealing with old cloth inventory versions
+local function migrate_cloths(player, pinv)
+    --import old clothing
+    load_clothing_metadata(player)
+    -- this part is to migrate from old "cloths" inventory to separated ones
+    local cloths_list = pinv:get_list("cloths")
+    if cloths_list then
+        -- erased new inventory if there is any
+        for index,stack in ipairs(cloths_list) do
+            if stack and stack ~= ItemStack("") then
+                local slot_nb = minimal.is_group(stack:get_name(),"cloth")
+                if slot_nb then
+                    pinv:set_stack(player_api.get_inv_name_from_group(slot_nb),1, stack)
+                end
+            end
+        end 
+        -- delete list
+        pinv:set_size("cloths", 0)
+    end 
+end
+
+-- Create the "clothes" inventories
+function player_api.set_cloths(player)
+    local inv = player:get_inventory()
+    --dealing with old players part : --
+    migrate_cloths(player, inv)                           
+    -- only used to move clothes with shift  
+    inv:set_size("temp_slot",1)  
+    -- new invetories
+    for _,group in ipairs(cloth_groups) do 
+        local name = group["name"]
+        if not inv:get_list(name) then
+            inv:set_size(name,1)
+        end
+    end
+    player_api.set_texture(player)
+end
+
+
+-- Defines how to register clothes
 function player_api.register_cloth(name, def)
     if not(def.inventory_image) then
         def.wield_image = def.texture
@@ -20,20 +112,10 @@ function player_api.register_cloth(name, def)
     local gender, gender_color
     local description
     if not def.attached then
-        if def.groups["cloth"] == 1 then
-            tooltip = S("Head")
-        elseif def.groups["cloth"] == 2 then
-            tooltip = S("Upper")
-        elseif def.groups["cloth"] == 3 then
-            tooltip = S("Lower")
-        elseif def.groups["cloth"] == 4 then
-            tooltip = S("Footwear")
-        elseif def.groups["cloth"] == 5 then
-            tooltip = S("Cape")
-        elseif def.groups["cloth"] == 6 then
-            tooltip = S("Keeps you warm in bed")
+        local cloth_type = def.groups["cloth"]
+        if cloth_type then
+            tooltip = get_tooltip_from_group (cloth_type)
         end
-        tooltip = "(" .. tooltip .. ")"
         if def.gender == "male" then
             gender = S("Male")
             gender_color = "#00baff"
@@ -51,7 +133,7 @@ function player_api.register_cloth(name, def)
         description = description or nil,
         inventory_image = def.inventory_image or nil,
         wield_image = def.wield_image or nil,
-        stack_max = def.stack_max or 16,
+        stack_max = def.stack_max or 16, -- #TODO maybe arrange defaults here and not in local variable in clothing
         _cloth_attach = def.attach or nil,
         _cloth_attached = def.attached or false,
         _cloth_texture = def.texture or nil,
@@ -83,6 +165,7 @@ function player_api.register_cloth(name, def)
     minetest.register_craftitem(name, newdef)
 end
 
+-- Default clothing only needed in creative mod
 player_api.register_cloth(
     "player_api:cloth_female_upper_default", {
         description = S("Purple Stripe Summer T-shirt"),
@@ -115,6 +198,7 @@ player_api.register_cloth(
         gender = "unisex",
         groups = {cloth = 4},
 })
+
 
 player_api.register_cloth(
     "player_api:cloth_female_head_default", {
@@ -149,15 +233,191 @@ player_api.register_cloth(
         groups = {cloth = 3},
 })
 
+--Not available except through creative
+minetest.override_item("player_api:cloth_unisex_footwear_default", {
+                           temp_min = 50,
+                           temp_max = 50,
+                           adminclothes = true,
+})
+
+
 minetest.register_alias("admin_shoes",
                         "player_api:cloth_unisex_footwear_default")
+                        
+-- temperatures dealing
+player_api.update_temp = function(player)
+    -- set clothing and update comfortable temperature range
+    --[[
+        clothing temp_min: subtracted from minimum temperature tolerance
+        clothing temp_max: added to maximum temperature tolerance
 
-function player_api.set_cloths(player)
-    --Create the "cloths" inventory
+        e.g. if current comfort range is 21 to 35 then...
+        temp_min: 6
+        temp_max: -8
+        new range = 15 to 28 (e.g. you put on a warm coat)
+
+        note: ranges are
+        -comfort zone: no energy drain
+        -stress zone: some energy drain
+        -danger zone: large energy drain
+        -extreme zone: direct damage
+
+    ]]
+
+    -- default range, no clothes yet
+
+    local defaults = HEALTH.get_default_attributes()
+    local temp_min = assert(defaults.clothing_temp_min)
+    local temp_max = assert(defaults.clothing_temp_max)
+
+    if not player then
+        return
+    end
     local inv = player:get_inventory()
-    inv:set_size("cloths", 6)
+    local armorgroups = {fleshy = 100}
+    for _, name in ipairs(player_api.get_inv_names()) do
+        local stack = inv:get_stack(name, 1)
+        if stack:get_count() == 1 then -- should always be the case
+            local def = stack:get_definition()
+            -- set comfortable temperature range
+            if def.temp_min and def.temp_max then
+                temp_min = temp_min - def.temp_min
+                temp_max = temp_max + def.temp_max
+            end
+            if def.adminclothes then
+                armorgroups.immortal = 1
+            end
+            if def.armor then
+                armorgroups.fleshy = armorgroups.fleshy - def.armor
+            end
+        end
+    end
+    -- apply new temperature comfort range
+    local meta = player:get_meta()
+    meta:set_int("clothing_temp_min", temp_min)
+    meta:set_int("clothing_temp_max", temp_max )
+    sfinv.set_player_inventory_formspec(player)
+    -- Apply armorgroups changes
+    if minetest.settings:get_bool("enable_damage") then
+        player:set_armor_groups(armorgroups)
+    end
 end
 
+function player_api.update_player(player)
+    if not minetest.is_player(player) then
+        return
+    end
+    player_api.set_texture(player)
+    player_api.update_temp(player)
+end
+
+-- decide what to allow as inventory actions with clothes
+minetest.register_allow_player_inventory_action(
+function(player, action,inventory, inventory_info)
+    -- close old cloths
+    -- used for shift click, cloths as transitory inv
+    if inventory_info.to_list == "temp_slot" then 
+        if action == "move" then  
+            local from_list = inventory_info.from_list
+            local stack = inventory:get_stack(from_list, inventory_info.from_index)
+            if stack then                
+                local item_group = minimal.is_group(stack:get_name(),"cloth")
+                if not item_group or item_group == 6 then 
+                    return 0
+                elseif inventory:get_stack(cloth_groups[item_group]["name"], 1):get_name() == stack:get_name() then
+                    minetest.chat_send_player(player:get_player_name(), S("You already wear that!"))
+                    return 0 -- #TODO and yet it still move then undo, investigate why
+                else
+                    -- move all stack with shift allowed
+                    -- beacause else shift + move will repeat the process 1 by 1 any way untile it does the whole stack
+                    return 
+                end
+            end
+        end
+        return 0
+    end 
+    
+    -- if destination is a cloth inventory
+    for group,t in ipairs(cloth_groups) do
+        local name = t["name"]
+        if  inventory_info.to_list ==  name then
+            if action == "move" then       
+                -- check if item is a cloth of the good type
+                local from_list = inventory_info.from_list
+                local stack = inventory:get_stack(from_list, inventory_info.from_index)
+                if stack then                
+                    local item_group = minimal.is_group(stack:get_name(),"cloth")
+                    -- block move/put if this is not a cloth or a blanket (6)
+                    if not item_group or item_group == 6 then 
+                        return 0
+                        -- else block if not the good type
+                    elseif item_group ~= group then
+                        return 0
+                        -- else check if slot is empty
+                    elseif inventory:is_empty(name) then
+                        return 1
+                        -- else check if slot already contain that item : 
+                    elseif inventory:get_stack(name, 1):get_name() == stack:get_name() then
+                        minetest.chat_send_player(player:get_player_name(),S("You already wear that!"))
+                        return 0
+                        --in any other case, allow 1 item to be moved in
+                    else
+                        return 1
+                    end
+                end        
+            end
+        end
+    end
+    -- in any other cases, allow the action
+    return -- I am not sure about that return (useful ?)
+end)
+
+-- update player settings if cloths change
+minetest.register_on_player_inventory_action(function(player, action,
+    inventory, inventory_info)
+    local from_list = inventory_info.from_list
+    local to_list = inventory_info.to_list
+    -- update player settings if we add/remove cloths
+    for _, group in ipairs(cloth_groups) do
+        if from_list == group["name"] or to_list == group["name"] then
+            -- update texture and temp settings
+            player_api.update_player(player)
+            break
+        end
+    end    
+    -- added for shift moving #TODO WIP
+    if to_list == "temp_slot" then
+        local stack = inventory:get_stack("temp_slot", inventory_info.to_index)
+        -- if stack bigger than 1, give back the rest to the source
+        local too_much = stack:get_count()-1
+        if too_much>0 then
+            local give_back = stack:take_item(too_much)
+            inventory:set_stack(from_list,inventory_info.from_index, give_back)
+        end
+        -- at this step we checked before that has a correct cloth group
+        -- and there is only 1 item in stack
+        local item_group = minimal.is_group(stack:get_name(),"cloth")
+        local destination = player_api.get_inv_name_from_group(item_group)
+        -- take cloth already in spot if there is some
+        local in_dest = inventory:get_stack(destination, 1)
+        
+        -- replacing it with new cloth
+        inventory:set_stack(destination,1,stack)
+        -- returning old cloth to source, or on the ground if no room
+        if inventory:room_for_item(from_list,in_dest) then
+            inventory:add_item(from_list,in_dest)
+        else
+            minetest.item_drop(in_dest, player, player:get_pos())
+            minetest.chat_send_player(player:get_player_name(),S("Inventory is full : the clothing you wore was thrown on the floor."))
+        end
+        -- empty cloths slot
+        inventory:set_stack("temp_slot",1,ItemStack(""))
+        -- update texture and temp settings
+        player_api.update_player(player)
+    end          
+end)
+
+-- cloth composing
 local cloth_pos = {
     "48,0",
     "32,32",
@@ -167,24 +427,26 @@ local cloth_pos = {
     "0,32",
 }
 
+-- not sure what it does...
 function player_api.compose_cloth(player)
     if not minetest.is_player(player) then print("NOT A PLAYER") return end
     local gender = player_api.get_gender(player)
     local inv = player:get_inventory()
-    local inv_list = inv:get_list("cloths")
     local upper_ItemStack, lower_ItemStack, footwear_ItemStack, head_ItemStack, cape_ItemStack, blanket_ItemStack
     local underwear = false
     local bra = false
     local attached_cloth = {}
     local blanket = false
-    for i = 1, #inv_list do
-        local item_name = inv_list[i]:get_name()
+    
+    for _, name in ipairs(player_api.get_inv_names()) do
+        local stack = inv:get_stack(name, 1)
+        local item_name = stack:get_name()
         local cloth_itemstack = minetest.registered_items[item_name]
         --minetest.chat_send_all(item_name)
         local cloth_type = minetest.get_item_group(item_name, "cloth")
         --if cloth_type then minetest.chat_send_all(cloth_type) end
         local color = ""
-        local indx = inv_list[i]:get_meta():get_int("palette_index") / 8
+        local indx = stack:get_meta():get_int("palette_index") / 8
         local dye = dye_to_colorstring(indx)
         if indx and indx > 0 and not ( dye == "" ) then
             color = "\\^\\[multiply\\:\\"..dye
