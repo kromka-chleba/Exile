@@ -10,9 +10,8 @@ dofile(modpath..'/tooltips.lua')
 dofile(modpath..'/inventory.lua') -- Inventory / Crafting formspec
 dofile(modpath..'/playersettings.lua')
 
-function minimal.warn_message(player, message)
+function minimal.send_message(player, message)
     if not minetest.is_player(player) then return end
-    local player_name = player:get_player_name()
     local hud = player:hud_add({
             hud_elem = "text",
             text = message,
@@ -20,10 +19,15 @@ function minimal.warn_message(player, message)
             number = 0xFFFFFF,
             offset = { x = 0, y = -165 },
     })
-    minetest.sound_play("failure", {to_player = player_name})
     minetest.after(
         1, function()
             if not minetest.is_player(player) then return end
             player:hud_remove(hud)
     end)
+end
+function minimal.warn_message(player, message)
+    if not minetest.is_player(player) then return end
+    local player_name = player:get_player_name()
+    minetest.sound_play("failure", {to_player = player_name})
+    minimal.send_message(player, message)
 end
