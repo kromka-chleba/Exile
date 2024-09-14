@@ -2,6 +2,8 @@
 ------------- init ------------
 minimal.warn_inv_full(player)
 		- Blinks the hotbar and plays the failure sound
+minimal.warn_message(player, message)
+                - Plays a failure sound and displays 'message' above the hotbar
 minimal.stop_on_inv_full(player)
 		- Runs warn_inv_full() and returns the player or global
 		   settings for whether to drop items or refuse to dig;

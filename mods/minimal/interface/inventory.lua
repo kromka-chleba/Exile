@@ -345,8 +345,11 @@ local function process_receive_fields(player, formname, fields)
                     inventoryFS_cache[player_name] = cache
                     return true -- crafted
                 else
-                    minetest.chat_send_player(
-                        player_name, S("Missing required items!"))
+                    -- #TODO: see why this is duplicated in crafting/gui.lua
+                    --  since that doesn't seem to be used
+                    minimal.warn_message(player, S("Missing required items!"))
+                    --minetest.chat_send_player(
+                    --    player_name, S("Missing required items!"))
                     return true -- failed but we handled it
                 end
             end
