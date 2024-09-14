@@ -104,8 +104,6 @@ end
 -- data (nodedef), datatype (leaf, fruit, defaults to log otherwise)
 
 local function get_mark_timer_data(data, dtype)
-    data = type(data) == "table" and minetest.registered_nodes[data.name]
-        or minimal.get_nodedef(data)
     -- returns no data on failure
     if not data then return end
     -- getting timer from base tree timer values

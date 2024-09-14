@@ -229,7 +229,7 @@ self_data = {
         description = S('Sneachan Eggs'),
         tiles = {"animals_sneachan_eggs.png"},
         egg_conditions_correct = function(pos,data)
-            data = data or minimal.get_nodedef(data)
+            data = data or minimal.get_nodedef(pos)
             if not data then return false,true end -- break egg
             local egg_time = data.egg_time
             local temp = climate.get_point_temp(pos)

@@ -11,13 +11,14 @@ local function get_desc(stack)
     -- if a table or userdata still, then default to just stack
     stack = type(stack) == "string" and stack
         or  (type(stack) == "table"
-             and type(stack.name) ~= "string") and minimal.get_nodedef(stack)
+             and type(stack.name) == "string"
+             and minetest.registered_nodes[stack.name] )
         or (type(stack) == "userdata" or type(stack) == "table") and stack
     -- if a string then create ItemStack with,
     --   if a table then create an ItemStack with the name
     -- if already a userdata, assume it is an ItemStack
     stack = type(stack) == "string" and ItemStack(stack)
-        or type(stack) == "table" and stack.name and ItemStack(stack.name)
+         or type(stack) == "table" and stack.name and ItemStack(stack.name)
         or type(stack) == "userdata" and stack
     -- couldn't get itemstack, return nil
     if not stack then return end

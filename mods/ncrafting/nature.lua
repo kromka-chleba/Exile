@@ -135,11 +135,12 @@ function ncrafting.fertilize(pos, puncher, itemstack)
         return
     end
     local ndef = minimal.get_nodedef(pos)
-    local itemdef = minimal.get_nodedef(itemstack:get_name())
+    local itemdef = minetest.registered_nodes[itemstack:get_name()]
     if not (ndef and itemdef) then
         -- definition don't exist
         return
     end
+
     -- find all possible variations of a replaceable
     if type(itemdef._fertilize_replace_with) == "string" then
         replace_with = itemdef._fertilize_replace_with
@@ -155,6 +156,7 @@ function ncrafting.fertilize(pos, puncher, itemstack)
 
     -- avoid having to set up a "fertilized" boolean to prevent another check over
     local function complete()
+
         -- allow a custom "after_fertilize" function
         if type(itemdef._after_fertilize) == "function" then
             return itemdef._after_fertilize(pos, itemstack, puncher)
