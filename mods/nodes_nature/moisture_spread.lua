@@ -584,7 +584,7 @@ local function moisture_spread(pos)
     local water_type = minetest.get_item_group(nodename, "wet_sediment")
     --1= fresh or 2 = salty
 
-    if not nodedef or not water_type then
+    if not nodedef or water_type == 0 then
         return
     end
 
@@ -716,9 +716,10 @@ local function water_source_down(pos)
 
     local pos_under = vector.new(pos)
     pos_under.y = pos_under.y - 1
+    local node_under = minetest.get_node(pos_under)
 
     --Fresh water should not float on top of the ocean
-    if pos_under.name == "nodes_nature:salt_water_source" and
+    if node_under.name == "nodes_nature:salt_water_source" and
         node.name == "nodes_nature:freshwater_source" then
         minetest.remove_node(pos)
         return
