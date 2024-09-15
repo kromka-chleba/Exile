@@ -1,7 +1,7 @@
 ----------------------------------------------------------
 
 clothing = clothing
-local S = clothing.S
+local S = minetest.get_translator("clothing")
 
 -- Integration: without this skinsdb crashes
 clothing.register_on_update = function() end
@@ -28,7 +28,7 @@ function clothing.on_rightclick(itemstack, user, pointed_thing)
     if p_inv:is_empty(destination) then
         p_inv:add_item(destination, new_cloth)
         minetest.chat_send_player(user:get_player_name(), new_cloth:get_short_description().. " " .. S("equipped!"))
-        -- else gets what is in here for an exchange
+    -- else gets what is in here for an exchange
     else
         local in_dest = p_inv:get_stack(destination, 1)
         -- check that count is 1 (should always be the case, but...)
@@ -46,13 +46,11 @@ function clothing.on_rightclick(itemstack, user, pointed_thing)
             minetest.chat_send_player(user:get_player_name(), new_cloth:get_short_description().. " " .. S("equipped!"))
             -- returning old cloth to source, or on the ground if no room
             -- warning, inv itemstack is updated only after end of call, so room is not free before
-            if p_inv:room_for_item("main",in_dest) then            
-                if (itemstack:get_count() == 0) then
+            if (itemstack:get_count() == 0) then
                   -- if this stack is about to be cleared... return in_dest, it will be added to inventory at the end of the call
                   itemstack = in_dest
-                else
-                  p_inv:add_item("main",in_dest)
-                end                
+            elseif p_inv:room_for_item("main",in_dest) then 
+                p_inv:add_item("main",in_dest)               
             else
                 minetest.item_drop(in_dest, user, user:get_pos())
                 minetest.chat_send_player(user:get_player_name(),S("Inventory is full : the clothing you wore was thrown on the floor."))
