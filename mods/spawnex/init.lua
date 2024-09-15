@@ -482,9 +482,9 @@ function region.spawn(player)
     local spawning = meta:get_string("spawning")
     if minetest.settings:get_bool("disable_spawnex", false)
         and spawning ~= "" then -- this clause is just-in-case, may be unneeded
-        local pos = minetest.string_to_pos(meta:get_string("spawning"))
-        if pos:range(vector.zero()) <  100 then -- Inside Mt. Meru!
-            pos = fallback_spawn_pos("0:0") -- Grab a fallback spot
+        local pos = minetest.string_to_pos(spawning)
+        if pos:distance(vector.zero()) <  100 then -- Inside Mt. Meru!
+            pos = fallback_spawn_pos(string2hex("0:0")) -- Grab a fallback spot
         end
         minetest.add_entity(vector.new(pos.x, pos.y+1.5, pos.z), "spawnex:gate")
         player:set_pos(pos)
