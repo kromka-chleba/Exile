@@ -140,16 +140,25 @@ minetest.register_entity(
             visual_size = { x = 0, y = 0, z = 0},
             spritediv = { x = 1, y = 15 },
             --nametag = "GATE",
-            glow = 64,
+            glow = 16,
             shaded = false,
             show_on_minimap = true,
         },
         _desc = "A gate from somewhere else",
+        on_activate = function(self, staticdata, dtime_s)
+            if staticdata and staticdata ~= "" then
+                print("loaded gate timer: ",staticdata," + ",dtime_s)
+                self.timer = (tonumber(staticdata) or 0 ) + dtime_s
+            else
+                self.timer = 0
+            end
+        end,
         on_step = function(self, dtime, moveresult)
             if not self.init then
                 self.init = true
                 self.size = 0
-                self.timer = 0
+                self.timer = self.timer or 0
+                self.resend = 0
                 self.timelimit = size_change_rate
                 self.object:set_sprite(nil, 15, 0.05) -- 20 fps
                 self.state = "opening"
@@ -158,8 +167,10 @@ minetest.register_entity(
                 self.object:remove() return
             end
             self.timer = ( self.timer or 0 ) + dtime
-            if math.floor(self.timer*10)/10 %5 == 0 then -- every 5.0 seconds
+            self.resend = self.resend + dtime
+            if self.resend > 5 then -- every 5.0 seconds
                 self.object:set_sprite(nil, 15, 0.05) -- 'cause per-client
+                self.resend = 0
             end
             if self.timer < self.timelimit then return end
             self.timer = 0
@@ -195,6 +206,10 @@ minetest.register_entity(
                 change_size()
             end
         end,
+        get_staticdata = function(self)
+            print("setting staticdata to ",self.timer)
+            return tostring(self.timer)
+        end
 })
 
 --------------------------------------------------------------------------
@@ -412,6 +427,22 @@ function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
     meta:set_string("exile_spawnat", hex2string(tgt))
 end
 
+local function walkable_and_open(pos)
+    local node = minetest.get_node(pos)
+    if node.name == "ignore" then
+        return nil
+    end
+    local def = minetest.registered_nodes[node.name]
+    if not def or def.walkable == true then
+        return false
+    end
+    local light = minimal.get_daylight(pos, 0.5)
+    if light < 6 then -- light > 5 indicates we're probably not underground
+        return false
+    end
+    return true
+end
+
 local function fixplayer(player, quiet)
     if not minetest.is_player(player) then return end
     if not quiet then
@@ -422,33 +453,44 @@ local function fixplayer(player, quiet)
         player:set_pos(vector.new(pos.x, pos.y + 5, pos.z))
         minetest.after(0, fixplayer, player, true)
     end
-    local node = minetest.get_node(pos)
-    if node.name == "ignore" then
-        minetest.after(0.1, fixplayer, player, true)
-        return
-    end
-    local light = minimal.get_daylight(pos, 0.5)
-    if light < 6 then
+    local good = walkable_and_open(pos)
+    if good == true then return end
+    if good == false then
         go_up()
         return
     end
-    local def = minetest.registered_nodes[node.name]
-    if not def or def.walkable == true then
-        go_up()
-    end
-    return -- light > 5 indicates we're probably not underground
+    -- Not loaded, try again
+    minetest.after(0.1, fixplayer, player, true)
+    return
 end
 
 function region.spawn(player)
     if not player or not player:is_player() then return end
+
+    local function checkplayer(pos)
+        local good = walkable_and_open(pos)
+        if good == true then return end
+        if good == false then
+            fixplayer(player)
+            return
+        end
+        -- Not loaded, try again
+        minetest.after(0.1, checkplayer, player, true)
+        return
+    end
+
     pirnt("region spawn")
     local meta = player:get_meta()
     local spawning = meta:get_string("spawning")
     if minetest.settings:get_bool("disable_spawnex", false)
         and spawning ~= "" then -- this clause is just-in-case, may be unneeded
         local pos = minetest.string_to_pos(meta:get_string("spawning"))
+        if pos:range(vector.zero()) <  100 then -- Inside Mt. Meru!
+            pos = fallback_spawn_pos("0:0") -- Grab a fallback spot
+        end
         minetest.add_entity(vector.new(pos.x, pos.y+1.5, pos.z), "spawnex:gate")
         player:set_pos(pos)
+        checkplayer(pos)
         return
     end
     local home = string2hex(meta:get("exile_spawnhome")) or defhex
@@ -460,18 +502,17 @@ function region.spawn(player)
 
     local sadef = region.get(spawnat)
     local gate = sadef.currentgate
-    local guessed_gate = false
     if not gate then
         gate = region.fast_gate(spawnat)
         sadef.currentgate = gate
         load_gate(spawnat)
-        guessed_gate = true
     end
     sadef.open = true
     pirnt("spawn: ",dump(sadef.currentgate))
     sadef.gate = minetest.add_entity(gate, "spawnex:gate")
     player:set_pos(gate)
-    if guessed_gate then fixplayer(player) end
+    checkplayer(gate)
+
     -- get a new spawn location, but wait until this gate is closed!
     minetest.after(70, function() region.prespawn(player) end )
     add_job("queue", 20, spawnat)
@@ -620,6 +661,27 @@ minetest.register_on_dieplayer(function(player)
               " died, calling region.prespawn")
         region.prespawn(player)
 end)
+
+--------------------------------------------------------------------------
+-- Commands
+
+minetest.register_chatcommand(
+    "fixplayer",{
+        description = "Fix a player who is stuck underground,"..
+            " probably from the use of /fbspawn",
+        params = "<playername>",
+        privs = "server",
+        func = function(name,param)
+            local player
+            if param then
+                player = minetest.get_player_by_name(param)
+            end
+            if not player then
+                player = minetest.get_player_by_name(name)
+            end
+            fixplayer(player)
+        end
+})
 
 --------------------------------------------------------------------------
 -- Debug commands
@@ -816,24 +878,6 @@ minetest.register_chatcommand(
             player:set_pos(spos)
             return true, minetest.pos_to_string(ppos).." -> "..
                 minetest.pos_to_string(spos)
-        end
-})
-
-minetest.register_chatcommand(
-    "fixplayer",{
-        description = "Fix a player who is stuck underground,"..
-            " probably from the use of /fbspawn",
-        params = "<playername>",
-        privs = "server",
-        func = function(name,param)
-            local player
-            if param then
-                player = minetest.get_player_by_name(param)
-            end
-            if not player then
-                player = minetest.get_player_by_name(name)
-            end
-            fixplayer(player)
         end
 })
 
