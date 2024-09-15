@@ -1,5 +1,6 @@
 local S = minetest.get_translator("player_api")
 
+-- clothes groups definitions --------------------------------------------------
 
 -- defines cloth groups and inventories
 -- [groupe_code] = {inv_name, tooltip}
@@ -11,7 +12,6 @@ local cloth_groups = {
     [5] = {["name"]="cape", ["tooltip"]=S("Cape")},
     [6] = {["name"]="blanket",  ["tooltip"]=S("Keeps you warm in bed")}
 }
-
 
 -- get inv cloth lists
 function player_api.get_groups()
@@ -41,7 +41,6 @@ local function get_tooltip_from_group (group_nb)
         return "(" .. group["tooltip"].. ")" or ""
     end
 end
-
 
 -- Exile clothing was stored as a metadata string, migrate to new inv
 local function load_clothing_metadata(player)    
@@ -100,6 +99,7 @@ function player_api.set_cloths(player)
     player_api.set_texture(player)
 end
 
+-- Clothes registering ---------------------------------------------------------
 
 -- Defines how to register clothes
 function player_api.register_cloth(name, def)
@@ -241,11 +241,10 @@ minetest.override_item("player_api:cloth_unisex_footwear_default", {
                            adminclothes = true,
 })
 
-
 minetest.register_alias("admin_shoes",
                         "player_api:cloth_unisex_footwear_default")
                         
--- temperatures dealing
+-- temperatures dealing --------------------------------------------------------
 player_api.update_temp = function(player)
     -- set clothing and update comfortable temperature range
     --[[
@@ -312,7 +311,7 @@ function player_api.update_player(player)
     player_api.update_temp(player)
 end
 
--- cloth composing
+-- cloth composing -------------------------------------------------------------
 local cloth_pos = {
     "48,0",
     "32,32",
@@ -425,7 +424,7 @@ function player_api.compose_cloth(player)
     return cloth
 end
 
--- move cloth from and to inventor --------------------------------------------
+-- move cloth from and to inventory --------------------------------------------
 
 -- decide what to allow as inventory actions with clothes
 minetest.register_allow_player_inventory_action(
