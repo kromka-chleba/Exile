@@ -147,7 +147,6 @@ minetest.register_entity(
         _desc = "A gate from somewhere else",
         on_activate = function(self, staticdata, dtime_s)
             if staticdata and staticdata ~= "" then
-                print("loaded gate timer: ",staticdata," + ",dtime_s)
                 self.timer = (tonumber(staticdata) or 0 ) + dtime_s
             else
                 self.timer = 0
@@ -207,7 +206,6 @@ minetest.register_entity(
             end
         end,
         get_staticdata = function(self)
-            print("setting staticdata to ",self.timer)
             return tostring(self.timer)
         end
 })
