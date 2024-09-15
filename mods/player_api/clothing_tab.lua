@@ -1,5 +1,5 @@
 -- Internationalization
-local S = minetest.get_translator("clothing")
+local S = minetest.get_translator("player_api")
 local FS = function(...)
     return minetest.formspec_escape(S(...))
 end
