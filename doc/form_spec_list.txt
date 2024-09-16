@@ -4,6 +4,12 @@ Form_spec used in Exile
 To be completed : the idea is to list which form is where to edited them easily. 
 
 Pressing inventory key form :
-------------------
+------------------------------
+We use sfinv mod to generate tabs if needed, then call a page per tab.
+
+Forms are meant to be size[10.5,10.9] in real coordinates, 
+as set in 'sfinv.make_formspec' function in mods/sfinv/api.lua
+
 - Crafting tab is in /mods/minimal/interface/inventory.lua
 - Character tab is in mods/lore/char_tab.lua
+- Clothing tab container is in mods/player_api/equip.lua

@@ -61,7 +61,7 @@ player_api.register_cloth(
         inventory_image = "tech_inv_woven_sandals.png",
         texture = "tech_uv_woven_sandals.png",
         stack_max = cloth_stack_max,
-        groups = {cloth = 4, clothing=1},
+        groups = {cloth = 4},
         customfields= {temp_min = 1, temp_max = 1}
 })
 

@@ -31,7 +31,7 @@ equipped!=équipé !
 You already wear the same cloth.=Vous portez déjà le même vếtement.
 You can't equip a blanket outside of a bed.=Vous ne pouvez pas équiper une couverture en dehors d'un lit.
 
-# clothing_tab.lua
+# equip.lua
 Clothing=Vêtements
 Min Temperature Tolerance: @1=Température minimum tolérée: @1
 Max Temperature Tolerance: @1=Température maximum tolérée: @1

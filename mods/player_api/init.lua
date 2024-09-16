@@ -9,7 +9,7 @@ dofile(modpath .. "/hand.lua")
 dofile(modpath .. "/base_texture.lua")
 dofile(modpath .. "/cloths.lua")
 dofile(modpath .. "/controls.lua")
-dofile(modpath .. "/clothing_tab.lua")
+dofile(modpath .. "/equip.lua")
 
 animation_table = {
     -- Standard animations.

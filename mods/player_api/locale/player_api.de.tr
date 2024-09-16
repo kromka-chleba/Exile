@@ -23,7 +23,7 @@ Pink Bow=
 Classic Green Sweater=
 Fine Blue Pants=
 
-# clothing_tab.lua
+# equip.lua
 Clothing="Kleidung"
 Min Temperature Tolerance: @1="Min. Temperaturtoleranz: @1"
 Max Temperature Tolerance: @1="Max. Temperaturtoleranz: @1"
