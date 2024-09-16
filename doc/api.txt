@@ -1,17 +1,21 @@
 [[[        functions        ]]]
 ----------- interface ---------
-minimal.send_message(player, message)
+minimal.send_message(playername, message, duration)
                 - Displays 'message' above the hotbar
+                - duration is optional; # of seconds to display, defaults to 1
+minimal.warn_message(playername, message, duration)
+                - Play the failure sound and display 'message' above the hotbar
+
 minimal.warn_inv_full(player)
 		- Blinks the hotbar and plays the failure sound
-minimal.warn_message(player, message)
-                - Play the failure sound and display 'message' above the hotbar
 minimal.stop_on_inv_full(player)
 		- Runs warn_inv_full() and returns the player or global
 		   settings for whether to drop items or refuse to dig;
 		   true means don't drop items
+
 minimal.hotbar_blink(player, color)
 		- Make the hotbar flash the `ColorString` for 0.5 seconds
+
 ----------- utility -----------
 minimal.concat_tables(numeric_t1, numeric_t2)
 +minimal.merge_tables(keyval_t1, ...)

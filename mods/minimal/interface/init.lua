@@ -10,8 +10,10 @@ dofile(modpath..'/tooltips.lua')
 dofile(modpath..'/inventory.lua') -- Inventory / Crafting formspec
 dofile(modpath..'/playersettings.lua')
 
-function minimal.send_message(player, message)
-    if not minetest.is_player(player) then return end
+function minimal.send_message(player_name, message, duration)
+    local player = minetest.get_player_by_name(player_name)
+    if not minetest.is_player(player) then return end -- just in case of log out?
+
     local hud = player:hud_add({
             hud_elem = "text",
             text = message,
@@ -19,15 +21,14 @@ function minimal.send_message(player, message)
             number = 0xFFFFFF,
             offset = { x = 0, y = -165 },
     })
-    minetest.after(
-        1, function()
-            if not minetest.is_player(player) then return end
-            player:hud_remove(hud)
+    minetest.after(duration or 1, function()
+                       if not minetest.is_player(player) then return end
+                       player:hud_remove(hud)
     end)
 end
-function minimal.warn_message(player, message)
-    if not minetest.is_player(player) then return end
-    local player_name = player:get_player_name()
+function minimal.warn_message(player_name, message, duration)
+    if not minetest.get_player_by_name(player_name) then return end
+
     minetest.sound_play("failure", {to_player = player_name})
-    minimal.send_message(player, message)
+    minimal.send_message(player_name, message, duration)
 end
