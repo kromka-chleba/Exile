@@ -21,7 +21,7 @@ end
 
 -- Inventory page to create "clothing" tab formspec-----------------------------
 --[[ It will be put in a size[10.5,10.9] formspec 
-    (see function sfinv.make_formspec in mods/sfinv for integration) ]]
+    (see function sfinv.make_formspec_for_exile in mods/sfinv for integration) ]]
 
 -- Generate the listring loop to deal with shif-click use
 local function generate_shiftclick_ring()
@@ -87,7 +87,7 @@ local clothing_page = {
             "container_end[]"
             }
             -- call a function making a size[10.5,10.9] formspec with that content and adding tabs if needed
-        return sfinv.make_formspec(player, context,
+        return sfinv.make_formspec_for_exile(player, context,
                                    table.concat(formspec), true)
     end
 }
