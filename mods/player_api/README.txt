@@ -6,10 +6,16 @@ Provides an API to allow multiple mods to set player models and textures.
 Also sets the default model, texture, and player flags.
 This mod is only for content related to the Player API and the player object.
 
+-multiskin model
+-health temp tolerances
+-plus complete basic set of clothes
+
 Authors of source code
 ----------------------
 Originally by celeron55, Perttu Ahola <celeron55@gmail.com> (LGPLv2.1+)
 Various Minetest developers and contributors (LGPLv2.1+)
+Health temp tolerances and basic clothes were added by Dokimi
+Various changes where made by Mantar and lili36.
 
 Authors of media (textures, models and sounds)
 ----------------------------------------------
