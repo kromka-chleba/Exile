@@ -51,8 +51,6 @@ local function load_clothing_metadata(player)
     if clothing_meta == "" then
         return
     end
-    -- Fill detached slots
-    --clothing_inv:set_size("clothing", 6)
     for i = 1, 6 do
         player_inv:set_stack(cloth_groups[i]["name"], 1, clothes[i] or "")
         --overwrite current clothes, but it will be empty on first migration
@@ -154,7 +152,7 @@ function player_api.register_cloth(name, def)
                                              user, itemstack, pointed_thing)
             end
         end
-        return clothing.on_rightclick(itemstack, user, pointed_thing)
+        return player_api.on_rightclick(itemstack, user, pointed_thing)
     end
     newdef.on_place = newdef.on_secondary_use -- no point for on_place, make it run on_secondary_use
     if def.customfields then
@@ -426,6 +424,31 @@ end
 
 -- move cloth from and to inventory --------------------------------------------
 
+-- refuses or accept move to clothing slots
+local function allow_move_to_cloth (player, inventory, from_list, from_index)
+    local stack = inventory:get_stack(from_list, from_index)
+    if stack then                
+        local item_group = minimal.is_group(stack:get_name(),"cloth")
+        -- refuse the move if not a cloth
+        if not item_group then
+            return 0
+        else
+            -- refuse if this is a blanket and I am not in bed
+            if item_group == 6 and player_api.get_state(player, "health"):is("resting") == false then  
+                minetest.chat_send_player(player:get_player_name(), S("You can't equip a blanket outside of a bed."))              
+                return 0
+            -- If this is a cloth I am already wearing the same thing                
+            elseif inventory:get_stack(cloth_groups[item_group]["name"], 1):get_name() == stack:get_name() then
+                minetest.chat_send_player(player:get_player_name(), S("You already wear that!"))
+                return 0 
+            -- else allow 1
+            else
+                return 1
+            end
+        end
+    end
+end
+
 -- decide what to allow as inventory actions with clothes
 minetest.register_allow_player_inventory_action(
 function(player, action,inventory, inventory_info)
@@ -433,53 +456,21 @@ function(player, action,inventory, inventory_info)
     -- used for shift click, cloths as transitory inv
     if inventory_info.to_list == "temp_slot" then 
         if action == "move" then  
-            local from_list = inventory_info.from_list
-            local stack = inventory:get_stack(from_list, inventory_info.from_index)
-            if stack then                
-                local item_group = minimal.is_group(stack:get_name(),"cloth")
-                if not item_group or item_group == 6 then 
-                    return 0
-                elseif inventory:get_stack(cloth_groups[item_group]["name"], 1):get_name() == stack:get_name() then
-                    minetest.chat_send_player(player:get_player_name(), S("You already wear that!"))
-                    return 0 -- #TODO and yet it still move then undo, investigate why
-                else
-                    -- move all stack with shift allowed
-                    -- beacause else shift + move will repeat the process 1 by 1 any way untile it does the whole stack
-                    return 
-                end
+            if allow_move_to_cloth(player, inventory, inventory_info.from_list, inventory_info.from_index) == 0 then
+                return 0
+            else
+                -- (if I allow only 1, shift-click process will repeat it anyway    untile it did the whole stack)
+                return
             end
         end
-        return 0
     end 
     
     -- if destination is a cloth inventory
     for group,t in ipairs(cloth_groups) do
         local name = t["name"]
         if  inventory_info.to_list ==  name then
-            if action == "move" then       
-                -- check if item is a cloth of the good type
-                local from_list = inventory_info.from_list
-                local stack = inventory:get_stack(from_list, inventory_info.from_index)
-                if stack then                
-                    local item_group = minimal.is_group(stack:get_name(),"cloth")
-                    -- block move/put if this is not a cloth or a blanket (6)
-                    if not item_group or item_group == 6 then 
-                        return 0
-                        -- else block if not the good type
-                    elseif item_group ~= group then
-                        return 0
-                        -- else check if slot is empty
-                    elseif inventory:is_empty(name) then
-                        return 1
-                        -- else check if slot already contain that item : 
-                    elseif inventory:get_stack(name, 1):get_name() == stack:get_name() then
-                        minetest.chat_send_player(player:get_player_name(),S("You already wear that!"))
-                        return 0
-                        --in any other case, allow 1 item to be moved in
-                    else
-                        return 1
-                    end
-                end        
+            if action == "move" then      
+                return allow_move_to_cloth(player, inventory, inventory_info.from_list, inventory_info.from_index)
             end
         end
     end
@@ -489,7 +480,7 @@ end)
 
 local function equip_with_shift_redirect(player, inventory, from_list, from_index)
     local stack = inventory:get_stack("temp_slot", 1)
-    -- if stack bigger than 1, give back the rest to the source
+    -- if stack bigger than 1, give back the rest to the source 
     local too_much = stack:get_count()-1
     if too_much>0 then
         local give_back = stack:take_item(too_much)
@@ -501,7 +492,6 @@ local function equip_with_shift_redirect(player, inventory, from_list, from_inde
     local destination = player_api.get_inv_name_from_group(item_group)
     -- take cloth already in spot if there is some
     local in_dest = inventory:get_stack(destination, 1)
-    
     -- replacing it with new cloth
     inventory:set_stack(destination,1,stack)
     -- returning old cloth to source, or on the ground if no room
@@ -535,3 +525,59 @@ minetest.register_on_player_inventory_action(function(player, action,
         equip_with_shift_redirect(player,inventory, from_list, inventory_info.from_index)
     end          
 end)
+
+-- This is used to equip cloths from HUD main inventory with right click
+-- the player move the arms until I rotate... #TODO ?
+function player_api.on_rightclick(itemstack, user, pointed_thing)
+    -- deletes items (or reproduces if programmed differently - gotta fix)
+    if not (minetest.is_player(user) and itemstack) then
+        return
+    end
+    
+    local item_group = minimal.is_group(itemstack:get_name(),"cloth")
+    -- if item is not a clothing or a blanket, do nothing
+    if (not item_group or item_group == 6) then
+        return
+    end
+    -- else, itemstack is a clothing. Pich one of them
+    local new_cloth = itemstack:take_item()
+    -- check correct destination
+    local p_inv = user:get_inventory()
+    local destination = player_api.get_inv_name_from_group(item_group)
+    -- if nothing in here, just put the picked clothing in it
+    if p_inv:is_empty(destination) then
+        p_inv:add_item(destination, new_cloth)
+        minetest.chat_send_player(user:get_player_name(), new_cloth:get_short_description().. " " .. S("equipped!"))
+    -- else gets what is in here for an exchange
+    else
+        local in_dest = p_inv:get_stack(destination, 1)
+        -- check that count is 1 (should always be the case, but...)
+        if in_dest:get_count()>1 then
+            minetest.log("We should have more than 1 clothing in that slot !")
+        end
+        -- check if this is the same clothing, if yes do nothing
+        if new_cloth:equals(in_dest) then
+            minetest.chat_send_player(user:get_player_name(), S("You already wear the same cloth."))
+            -- don't return itemstack to not modify the source itemstack
+            return
+        else
+            -- put new clothing in destination
+            p_inv:set_stack(destination,1,new_cloth)
+            minetest.chat_send_player(user:get_player_name(), new_cloth:get_short_description().. " " .. S("equipped!"))
+            -- returning old cloth to source, or on the ground if no room
+            -- warning, inv itemstack is updated only after end of call, so room is not free before
+            if (itemstack:get_count() == 0) then
+                  -- if this stack is about to be cleared... return in_dest, it will be added to inventory at the end of the call
+                  itemstack = in_dest
+            elseif p_inv:room_for_item("main",in_dest) then 
+                p_inv:add_item("main",in_dest)               
+            else
+                minetest.item_drop(in_dest, user, user:get_pos())
+                minetest.chat_send_player(user:get_player_name(),S("Inventory is full : the clothing you wore was thrown on the floor."))
+            end
+        end
+    end
+    -- update player settings
+    player_api.update_player(user)
+    return itemstack
+end

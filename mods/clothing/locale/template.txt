@@ -1,5 +1,1 @@
 # textdomain: clothing
-
-#api.lua
-equipped!=
-You already wear the same clothing.=
