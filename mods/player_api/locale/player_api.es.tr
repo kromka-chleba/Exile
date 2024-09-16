@@ -24,7 +24,7 @@ Pink Bow=Lazo rosa
 Classic Green Sweater=Jersei verde clásico
 Fine Blue Pants=Pantalones azules finos
 
-# clothing_tab.lua
+# equip.lua
 Clothing=Vestimenta
 Min Temperature Tolerance: @1=Temperatura mínima tolerada: @1
 Max Temperature Tolerance: @1=Temperatura máxima tolerada: @1
