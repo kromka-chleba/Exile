@@ -7,9 +7,9 @@ dofile(modpath .. "/states.lua")
 dofile(modpath .. "/api.lua")
 dofile(modpath .. "/hand.lua")
 dofile(modpath .. "/base_texture.lua")
-dofile(modpath .. "/cloths.lua")
+dofile(modpath .. "/clothing/init.lua") -- ex cloths.lua + ex "clothing" mod
 dofile(modpath .. "/controls.lua")
-dofile(modpath .. "/equip.lua")
+
 
 animation_table = {
     -- Standard animations.
@@ -69,12 +69,13 @@ minetest.register_on_joinplayer(function(player)
     pinv:set_size("hand", 1)
     -- create the "clothes" inventories if needed
     -- also amange migrations issues
-    player_api.set_cloths(player)    
+    player_api.set_cloths(player) -- creating inventories if needed
+    player_api.set_texture(player) -- setting texture according to current state  
 
     -- set default clothing (I think ?)
-    local cloth = player_api.compose_cloth(player)
+    local cloth = player_api.compose_cloth(player) -- but we did compose it in set_texture
     
-    player_api.update_temp(player) -- #TODO check where to put it
+    player_api.update_temp(player) -- #TODO do we separate that part ?
     
     local gender_model = player_api.get_gender_model(gender)
     player_api.registered_models[gender_model].textures[1] = cloth

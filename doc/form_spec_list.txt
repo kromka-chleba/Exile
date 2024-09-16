@@ -12,3 +12,4 @@ as set in 'sfinv.make_formspec' function in mods/sfinv/api.lua
 - Crafting tab is in /mods/minimal/interface/inventory.lua
 - Character tab is in mods/lore/char_tab.lua
 - Clothing tab container is in mods/player_api/equip.lua
+- Game settings (in character tab) are in mods/minimal/interface/playersettings.lua
