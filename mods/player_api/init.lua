@@ -75,7 +75,7 @@ minetest.register_on_joinplayer(function(player)
     -- set default clothing (I think ?)
     local cloth = player_api.compose_cloth(player) -- but we did compose it in set_texture
     
-    player_api.update_temp(player) -- #TODO do we separate that part ?
+    player_api.update_equipment_effects(player) -- #TODO do we separate that part ?
     
     local gender_model = player_api.get_gender_model(gender)
     player_api.registered_models[gender_model].textures[1] = cloth
