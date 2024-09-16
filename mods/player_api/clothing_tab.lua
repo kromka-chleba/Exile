@@ -44,19 +44,19 @@ local clothing_page = {
               
             --model overview
             -- #TODO do not change rotation angle when changing clothes, if possible, maybe saving the current angle in context/cache like in crafting tab
-            "model[5.2,2.45;2.6,3.9;character;character.b3d;"..basetex..
+            "model[5.25,2.45;2.6,3.9;character;character.b3d;"..basetex..
             ";-20,160;;true;;]",
             
             --2) inventories
             -- for tests with shift only
             --"list[current_player;temp_slot;8,2;1,1;]" ..
             -- #TODO add images or tooltips to indicate what goes where
-            "list[current_player;hat;4,2;1,1;]",
-            "list[current_player;shirt;4,3.25;1,1;]",
-            "list[current_player;pants;4,4.5;1,1;]",
-            "list[current_player;shoes;4,5.75;1,1;]",
-            "list[current_player;cape;8,3.25;1,1;]",
-            "list[current_player;blanket;8,4.5;1,1;]",
+            "list[current_player;hat;4.08,2;1,1;]",
+            "list[current_player;shirt;4.08,3.25;1,1;]",
+            "list[current_player;pants;4.08,4.5;1,1;]",
+            "list[current_player;shoes;4.08,5.75;1,1;]",
+            "list[current_player;cape;7.88,3.25;1,1;]",
+            "list[current_player;blanket;7.88,5.75;1,1;]",
             --player inventory display : currently done in sfinv/api.lua   
             --"list[current_player;main;0.35,7.3;8,1;]"..
             --"list[current_player;main;0.35,8.55;8,3;8]" ..
