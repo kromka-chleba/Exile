@@ -9,8 +9,7 @@ Footwear=
 Cape=Cape
 Keeps you warm in bed=Vous maintient au chaud dans le lit
 Unisex=Unisexe
-You already wear that!=Vous portez déjà la même chose !
-Inventory is full : the clothing you wore was thrown on the floor!=L'inventaire est plein, le vêtement que vous portiez a été jeté au sol !
+
 
 Naked=Nu(e)
 (mild)=(effet léger)
@@ -25,6 +24,12 @@ Common Black Shoes=Chaussures noires banales
 Pink Bow=
 Classic Green Sweater=
 Fine Blue Pants=
+
+You already wear that!=Vous portez déjà la même chose !
+Inventory is full : the clothing you wore was thrown on the floor!=L'inventaire est plein, le vêtement que vous portiez a été jeté au sol !
+equipped!=équipé !
+You already wear the same cloth.=Vous portez déjà le même vếtement.
+You can't equip a blanket outside of a bed.=Vous ne pouvez pas équiper une couverture en dehors d'un lit.
 
 # clothing_tab.lua
 Clothing=Vêtements

@@ -9,8 +9,6 @@ Footwear=
 Cape=
 Keeps you warm in bed=
 Unisex=
-You already wear that!=
-Inventory is full : the clothing you wore was thrown on the floor!=
 
 Naked=
 (mild)=
@@ -25,6 +23,12 @@ Common Black Shoes=
 Pink Bow=
 Classic Green Sweater=
 Fine Blue Pants=
+
+equipped!=
+You already wear the same cloth.=
+You already wear that!=
+Inventory is full : the clothing you wore was thrown on the floor!=
+You can't equip a blanket outside of a bed.=
 
 # clothing_tab.lua
 Clothing=
