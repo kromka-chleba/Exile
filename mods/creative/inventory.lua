@@ -122,7 +122,7 @@ function creative.register_tab(name, title, items)
                 local pagenum = math.floor(start_i / (3*8) + 1)
                 local pagemax = math.ceil(inv.size / (3*8))
                 local esc = minetest.formspec_escape
-                return sfinv.make_formspec(
+                return sfinv.make_formspec_for_exile(
                     player, context,
                     "label[7.8,5;" ..
                     minetest.colorize("#FFFF00", tostring(pagenum)) ..

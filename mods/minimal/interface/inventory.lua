@@ -682,7 +682,7 @@ function minimal.register_inventory_sfinv()
                 get = function(self, player, context)
                     local formspec = minimal.make_inventory_formspec(player,
                                                                      context)
-                    local output = sfinv.make_formspec(
+                    local output = sfinv.make_formspec_for_exile(
                         player, context, formspec, false)
                     return output
                 end,

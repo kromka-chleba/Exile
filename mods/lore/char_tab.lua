@@ -154,7 +154,7 @@ local function register_tab()
             --end,
             get = function(self, player, context)
                 local formspec = sfinv_get(self, player, context)
-                return sfinv.make_formspec(player, context, formspec, false)
+                return sfinv.make_formspec_for_exile(player, context, formspec, false)
             end
     })
 end
