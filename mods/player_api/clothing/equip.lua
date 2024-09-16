@@ -7,6 +7,9 @@ Only one cloth is allowed in each slot.
 Temperatures and formspec are updated at each equip/unequip action.
 ]]
 
+-- #TODO regrouping with the action on form effects ?
+-- like where do we refresh ? I would like to keep in memory the rotation of the model
+
 local cloth_groups = player_api.get_groups()
 
 -- Internationalization---------------------------------------------------------

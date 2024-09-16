@@ -125,9 +125,7 @@ local function wear_blanket(player, bed_pos, donning)
         end
     end   
     -- update player settings 
-    -- #TODO update of model is broken
-    player_api.update_temp(player)
-    player_api.set_texture(player)
+    player_api.update_player(player)
 end
 
 -----------------------------------------------------------------

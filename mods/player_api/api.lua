@@ -192,7 +192,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         end
         player_api.set_base_textures(player) --set the default base_texture
         player_api.set_cloths(player) --set the default clothes
-        player_api.set_texture(player)
+        player_api.set_texture(player) -- set textures, using composing from clothes
 end)
 
 local invisible = {}
