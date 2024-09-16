@@ -25,6 +25,8 @@ local clothing_page = {
             ";-20,160;;true;;]" ..
             
             --2) inventories
+            -- for tests with shift only
+            --"list[current_player;temp_slot;8,2;1,1;]" ..
             -- #TODO add images or tooltips to indicate what goes where
             "list[current_player;hat;4,2;1,1;]" ..
             "list[current_player;shirt;4,3.25;1,1;]" ..

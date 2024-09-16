@@ -19,6 +19,7 @@ local modpath = minetest.get_modpath("bed_rest")
 
 -- Load files
 
+dofile(modpath .. "/break_taker.lua")
 dofile(modpath .. "/functions.lua")
 dofile(modpath .. "/api.lua")
 dofile(modpath .. "/bed_clear.lua")
