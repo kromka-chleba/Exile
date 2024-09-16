@@ -48,13 +48,13 @@ local function wear_blanket(player, bed_pos, donning)
     local bed_meta = minetest.get_meta(bed_pos)
     local bedInv = bed_meta:get_inventory()
     bedInv:set_size('main',1)
-    
+
     local name = player:get_player_name()
     local p_inv = player:get_inventory()
-    
+
     local newstack
     local to_remove
-    
+
     --if I want to remove the blanket
     if donning==false then
         -- checking bed inventory
@@ -77,16 +77,16 @@ local function wear_blanket(player, bed_pos, donning)
                 -- #TODO weirdly if not updatinf infostext here I got no infotext anymore ?
                 bed_meta:set_string("blanket",S("Bed: Contains Blanket"))
                 minimal.infotext_set_new(bed_pos, bed_meta)
-                
+
             end
             -- empty clothing slot
             p_inv:set_stack('blanket',1,ItemStack(''))
-            --if bed has no blanket to remove  
+            --if bed has no blanket to remove
         else
             minetest.log("There is no blanket to remove from the bed")
             return
-        end    
-        
+        end
+
     --if I want to put a blanket
     else
         -- do I have a blanket to put in from inventory ?
@@ -94,7 +94,7 @@ local function wear_blanket(player, bed_pos, donning)
         -- I have a blanket to place
         if newstack and not newstack:is_empty() then
             -- in case bed is not empty, take what is in it
-            to_remove = bedInv:get_stack('main',1)            
+            to_remove = bedInv:get_stack('main',1)
             -- put new blanket in bed inventory
             bedInv:set_stack('main',1,newstack)
             -- put it in clothing slot too
@@ -102,7 +102,7 @@ local function wear_blanket(player, bed_pos, donning)
             -- update info
             bed_meta:set_string("blanket",S("Bed: Contains Blanket"))
             minimal.infotext_set_new(bed_pos, bed_meta)
-            
+
             -- if the bed was not empty, I have an old blanket to deal with
             if not to_remove:is_empty() then
                 -- if we can, take it in inventory
@@ -115,20 +115,17 @@ local function wear_blanket(player, bed_pos, donning)
                     minetest.chat_send_player(
                     player:get_player_name(), S("You have no room to hold your blanket, so you drop it."))
                     minetest.sound_play("nodes_nature_dig_snappy",
-                    {pos = p_pos, gain = .8, max_hear_distance = 2}) 
+                    {pos = p_pos, gain = .8, max_hear_distance = 2})
                 end
-            end        
+            end
             -- I have no blanket to place
         else
             minetest.log("There is no blanket to add to the bed")
             return -- not sure if I should return flase to indicate the fail
         end
-    end   
-    -- update player settings 
-    -- #TODO update of model is broken
-    player_api.update_temp(player)
-    player_api.set_texture(player)
-    clothing:update_temp(player)
+    end
+    -- update player settings
+    player_api.update_player(player)
 end
 
 -----------------------------------------------------------------

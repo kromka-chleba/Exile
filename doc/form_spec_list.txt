@@ -15,3 +15,4 @@ as set in 'sfinv.make_formspec' function in mods/sfinv/api.lua
 - Recipes in craft panel tooltip formatting is in /mods/minimal/interface/inventory.lua 
 cache_player_recipes
 - Clothing tab container is in mods/player_api/equip.lua
+- Game settings (in character tab) are in mods/minimal/interface/playersettings.lua
