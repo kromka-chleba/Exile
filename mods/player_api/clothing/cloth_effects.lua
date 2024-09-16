@@ -9,7 +9,8 @@ local S = minetest.get_translator("player_api")
 -- set clothing and update comfortable temperature range
 -- also set armor (but we don't have armor in clothes def yet)
 -- 2nd arg is optionnal as shortcut to say "don't bother checking the equipment, I am naked", like after kill/restart
-player_api.update_temp = function(player, naked)
+-- This function also update the clothing formspec
+player_api.update_equipment_effects = function(player, naked)
 
     --[[
         clothing temp_min: subtracted from minimum temperature tolerance
@@ -71,6 +72,6 @@ player_api.update_temp = function(player, naked)
     sfinv.set_player_inventory_formspec(player)
 end
 
-player_api.reset_cloth_effects = function(player)
-    return player_api.update_temp (player, naked)
+player_api.reset_equipment_effects = function(player)
+    return player_api.update_equipment_effects (player, naked)
 end

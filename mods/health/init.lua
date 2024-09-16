@@ -762,8 +762,6 @@ function HEALTH.update_player_physics(player)
 end
 
 minetest.register_on_joinplayer(function(player)
-        sfinv.set_player_inventory_formspec(player)
-
         --set physics etc
         HEALTH.update_player_physics(player)
         local meta = player:get_meta()
@@ -785,6 +783,8 @@ minetest.register_on_joinplayer(function(player)
             end
             meta:set_string("player_velocity", "")
         end
+        -- update player's form to display thoses settings
+        sfinv.set_player_inventory_formspec(player)
 end)
 
 minetest.register_on_dieplayer(function(player)
@@ -803,7 +803,7 @@ end)
 
 minetest.register_on_respawnplayer(function(player)
         HEALTH.set_default_attributes(player)
-        player_api.reset_cloth_effects(player)
+        player_api.reset_equipment_effects(player)
 end)
 
 minetest.register_on_leaveplayer(function(player, timed_out)

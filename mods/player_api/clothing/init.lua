@@ -12,10 +12,13 @@ dofile(modpath .. "/clothing/cloth_effects.lua")
 -- clothing_tab and equip/unequip functions
 dofile(modpath .. "/clothing/equip.lua")
 
+-- update texture, temp and armor effects, and clothing tab formspec
 function player_api.update_player(player)
     if not minetest.is_player(player) then
         return
     end
-    player_api.set_texture(player)
-    player_api.update_temp(player)
+    -- update texture
+    player_api.set_texture(player) 
+    -- update effects and clothing formspec
+    player_api.update_equipment_effects(player)
 end
