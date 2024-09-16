@@ -242,6 +242,7 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
     local new_cloth = itemstack:take_item() 
     -- if destination is not empty, get a copy and empty it
         -- note : allow function already checked if they were identical (meaning had the same name)
+        
     local in_dest
     if not p_inv:is_empty(destination) then
         in_dest = p_inv:get_stack(destination, 1)
@@ -269,5 +270,7 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
             minetest.chat_send_player(user:get_player_name(),S("Inventory is full : the clothing you wore was thrown on the floor."))
             return itemstack
         end
-    end  
+    else
+        return itemstack   
+    end 
 end
