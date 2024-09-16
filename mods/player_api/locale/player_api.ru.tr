@@ -29,7 +29,7 @@ You already wear the same cloth.=
 You already wear that!=
 Inventory is full : the clothing you wore was thrown on the floor!=
 
-# clothing_tab.lua
+# equip.lua
 Clothing=Одежда
 Min Temperature Tolerance: @1=Мин. допустимая температура: @1
 Max Temperature Tolerance: @1=Макс. допустимая температура: @1
