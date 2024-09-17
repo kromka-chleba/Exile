@@ -38,10 +38,10 @@ player_api.update_equipment_effects = function(player, naked)
         return
     end
     
+    local armorgroups = {fleshy = 100}
     if not naked then
         -- check clothes if not naked
-        local inv = player:get_inventory()
-        local armorgroups = {fleshy = 100}
+        local inv = player:get_inventory()    
         for _, name in ipairs(player_api.get_inv_names()) do
             local stack = inv:get_stack(name, 1)
             if stack:get_count() == 1 then -- should always be the case
