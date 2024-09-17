@@ -237,8 +237,8 @@ animals.register_spawnegg = function(name, def, animal)
   -- custom functions
   -- slaughtering mechanics
   def._on_use_item = def._on_use_item or function(player, wielded_item, pointed_thing)
-      if type(player) ~= "userdata" and type(player) ~= "table" then return end
-      local itemdef = wielded_item and wielded_item.get_definition and wielded_item:get_definition()
+      if not minetest.is_player(player) then return end
+      local itemdef = wielded_item:get_definition()
       if not itemdef then return end
       -- get and play slaughter sound
       local sound = itemdef.sounds.slaughter
