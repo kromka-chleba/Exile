@@ -87,13 +87,13 @@ local function restart_confirm (confirmed, _, player, name)
         local function loop()
             if not minetest.is_player(player) then return end
             if remaining <= 0 then
-                minetest.chat_send_player(name, S("POP!"))
+                minimal.send_message(name, S("POP!"))
                 killplayer(name)
             else
-                minetest.chat_send_player(name, S("Restart in: @1 seconds.",
+                minimal.send_message(name, S("Restart in: @1 seconds.",
                                                   remaining))
-                remaining = remaining - 10
-                minetest.after(10, loop)
+                remaining = remaining - 5
+                minetest.after(5, loop)
             end
         end
         loop()
