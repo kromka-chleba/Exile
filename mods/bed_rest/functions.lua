@@ -376,8 +376,8 @@ local function wear_blanket(player, bed_pos, donning)
     if not bedInv:is_empty('main') then
         minimal.infotext_set_new(bed_pos, bed_meta)
     end
-    clothing:update_temp(player)
     player_api.set_texture(player)
+    clothing:update_temp(player)
 end
 
 -----------------------------------------------------------------
