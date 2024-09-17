@@ -259,7 +259,9 @@ local function process_receive_fields(player, formname, fields)
     -- Process quit
     if fields.quit then
         minimal.close_inventory_formspec(player)
-        inventoryFS_cache[player_name] = 'closed' -- added to reset quantity to "single" when we close the inventory and avoid accidentaly max
+        inventoryFS_cache[player_name] = 'closed'
+        -- added to reset quantity to "single" when we close the inventory
+        --  and avoid accidentaly max
         return true -- cache updated in close
     end
     -- process scrollbar
@@ -386,7 +388,9 @@ end
 local function cache_player_recipes(cache, player_name, pInv)
     -- this is for more clarity, choice of display settings
     local line_number = 3 -- 3 lines of recipes displayed
-    local grid_size = 1.2 -- size of a square of recipe : 1*1 of image + 0.1 margins around, used to place them on a grid, including tabs
+    local grid_size = 1.2
+    -- size of a square of recipe : 1*1 of image + 0.1 margins around,
+    --  used to place them on a grid, including tabs
     --
     local recipesFS = {}
     local sItem = cache.sItem    -- craft type Item selected
@@ -473,7 +477,7 @@ local function cache_player_recipes(cache, player_name, pInv)
     local columns = 6 -- can show 6 items accross without scrollbar
     if #recipe_list > columns * line_number then
         columns = columns -1 -- discard a line to make room for scrollbar
-        local scroll_max = math.ceil(#recipe_list / columns)-line_number 
+        local scroll_max = math.ceil(#recipe_list / columns)-line_number
         recipesFS[#recipesFS + 1] =
             'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
             .. 'smallstep=1;largestep=line_number;thumbsize=1]'
@@ -482,7 +486,7 @@ local function cache_player_recipes(cache, player_name, pInv)
             .. sScroll .. ']'
     end
     recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1;'..
-        tostring(columns + 1)..',3.75;recipes_scroll;vertical;' .. 
+        tostring(columns + 1)..',3.75;recipes_scroll;vertical;' ..
         grid_size .. ']'
     -- Add recipe buttons in columns of 5 or 6
     local x = 0

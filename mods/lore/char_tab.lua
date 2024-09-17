@@ -120,22 +120,22 @@ local function sfinv_get(self, player, context)
     local basetex = minetest.formspec_escape(
         player_api.get_current_texture(player) )
 
-    local formspec = 
+    local formspec =
         "label[0.5,0.8; "..S("Name").. ": ".. name .. "]"..
         "label[5,0.8; "..S("Days Survived")..": ".. days .. "]"..
         "label[5,1.4; "..S("Lives")..": " .. lives .. "]"..
         "label[0.5,2.4; "..S("Biography")..": " .. bio .. "]"..
         "style[player_settings;border=false]"..
         "image_button_exit[9,0.65;0.75,0.65;gear.png;player_settings;]"..
-        
+
         -- Health effects display
         "container[1.2,5.2]" ..
         "image[0,0;0.65,0.65;hud_sick.png]"..
         "label[0.8,0.35; "..S("Health Effects")..":]"..
             eff_form..
         "container_end[]" ..
-        
-        
+
+
         "model[6.7,5.2;2,3;character;character.b3d;"..basetex..
         ";-20,160;;true;;]"
 

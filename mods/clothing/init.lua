@@ -19,6 +19,8 @@ clothing = {
     },
 }
 
+sfinv = sfinv
+
 -- Internationalization
 local S = minetest.get_translator("clothing")
 local FS = function(...)
@@ -48,8 +50,10 @@ local clothing_page = {
     title = S("Clothing"),
     get = function(self, player, context)
         local meta = player:get_meta()
-        local cur_tmin = climate.get_temp_string(meta:get_int("clothing_temp_min"), meta)
-        local cur_tmax = climate.get_temp_string(meta:get_int("clothing_temp_max"), meta)
+        local cur_tmin = climate.get_temp_string(
+            meta:get_int("clothing_temp_min"), meta)
+        local cur_tmax = climate.get_temp_string(
+            meta:get_int("clothing_temp_max"), meta)
         local basetex = minetest.formspec_escape(
             player_api.get_current_texture(player) )
 
@@ -59,18 +63,20 @@ local clothing_page = {
 
             -- clothes display
             "list[current_player;cloths;0.75,0.75;2,3;]" ..
-            --player inventory display : currently done in sfinv/api.lua   
+            --player inventory display : currently done in sfinv/api.lua
             --"list[current_player;main;0.35,7.3;8,1;]"..
             --"list[current_player;main;0.35,8.55;8,3;8]" ..
             "label[0.35,10.2;Tip : use \"shift\" key to switch clothes]" ..
-            
-            -- enable to move cltohes from one inventory to an other using "shift" key
+
+            -- enable to move clothes from one inventory to another with shift
             "listring[current_player;cloths]"..
             "listring[current_player;main]"..
-            
-            
+
+
             -- overview of what it looks like
-            -- #TODO do not change rotation angle when changing clothes, if possible, maybe saving the current angle in context/cache like in crafting tab
+            -- #TODO do not change rotation angle when changing clothes,
+            --  if possible, maybe saving the current angle in context/cache
+            --  like in crafting tab
             "model[5.2,2.45;2.6,3.9;character;character.b3d;"..basetex..
             ";-20,160;;true;;]"
         return sfinv.make_formspec(player, context,
@@ -128,7 +134,8 @@ minetest.register_allow_player_inventory_action(function(player, action,
                     -- if same type of clothing article found then
                     if (from_inv == "main") then
                         -- if new itemstack is coming from player inventory
-                        local removed = player_inv:remove_item("cloths", itemstack)
+                        local removed = player_inv:remove_item(
+                            "cloths", itemstack)
                         -- take the old itemstack
                         if player_inv:room_for_item("main",removed) then
                             -- add to player inventory

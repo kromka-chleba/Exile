@@ -70,7 +70,8 @@ end
 function creative.update_creative_inventory(player_name, tab_content)
     local creative_list = {}
     local inv = player_inventory[player_name] or
-        creative.init_creative_inventory(minetest.get_player_by_name(player_name))
+        creative.init_creative_inventory(
+            minetest.get_player_by_name(player_name))
     local player_inv = minetest.get_inventory({type = "detached",
                                                name = "creative_" ..
                                                    player_name})
@@ -127,7 +128,7 @@ function creative.register_tab(name, title, items)
                     "label[7.8,5;" ..
                     minetest.colorize("#FFFF00", tostring(pagenum)) ..
                     " / " .. tostring(pagemax) .. "]" ..
-                    
+
                     [[image[9.15,6.15;0.8,0.8;creative_trash_icon.png]
                listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]
                list[detached:creative_trash;main;9.1,6.05;1,1;]
