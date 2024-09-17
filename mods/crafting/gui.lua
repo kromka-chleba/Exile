@@ -144,8 +144,8 @@ local function make_on_show_function(ctype, level, inv_size, context)
                                              inv_size, context)
         minetest.show_formspec(player:get_player_name(), formname, formspec)
     end
-    minetest.register_on_player_receive_fields(function(player, _, fields)
-            if formname ~= _formname then
+    minetest.register_on_player_receive_fields(function(player, fname, fields)
+            if fname ~= formname then
                 return
             end
 
