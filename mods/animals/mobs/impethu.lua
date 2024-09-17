@@ -266,9 +266,7 @@ self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        desc = S("Live Impethu"),
-        inv_img = "animals_impethu_item.png",
-        stack = minimal.stack_max_medium
+        desc = S("Live Impethu")
     },
 }
 animals.register_animal("animals:impethu", self_data)

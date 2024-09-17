@@ -331,9 +331,7 @@ local self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        desc = S("Live Female Pegasun"),
-        inv_img = "animals_pegasun_item.png",
-        stack = minimal.stack_max_medium
+        description = S("Live Female Pegasun")
     }
 }
 self_data = animals.register_animal("animals:pegasun",self_data)
@@ -414,7 +412,7 @@ self_male.sounds = {
 -- attack
 self_male.attack={range=0.9, damage_groups={fleshy=4}}
 -- male spawnegg or live animal modifications
-self_male.spawnegg.desc = S("Live Male Pegasun")
+self_male.spawnegg.description = S("Live Male Pegasun")
 self_male._desc = S("Male Pegasun")
 -- registering male
 animals.register_animal(self_male.name,self_male)

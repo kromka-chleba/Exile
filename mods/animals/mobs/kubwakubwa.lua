@@ -239,9 +239,7 @@ local self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        desc = S("Live Kubwakubwa"),
-        inv_img = "animals_kubwakubwa_item.png",
-        stack = minimal.stack_max_medium
+        description = S("Live Kubwakubwa")
     },
 }
 self_data.energy_egg = self_data.energy_max*0.5 --energy that goes to egg

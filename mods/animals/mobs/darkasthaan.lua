@@ -219,9 +219,7 @@ local self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        desc = S("Live Darkasthaan"),
-        inv_img = "animals_darkasthaan_item.png",
-        stack = minimal.stack_max_medium
+        desc = S("Live Darkasthaan")
     },
 }
 self_data.energy_egg = self_data.energy_max/3  --energy that goes to egg

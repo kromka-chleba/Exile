@@ -42,7 +42,7 @@ local pos_to_spawn = function(name, pos)
     local x = pos.x
     local y = pos.y
     local z = pos.z
-    local def = minetest.registered_entities[name]
+    local def = type(name) == "table" and name or minetest.registered_entities[name]
     local props = def.initial_properties
     if not def or not props then return end
     if props.visual_size.x then
@@ -135,105 +135,141 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
     end
 end
 
+-- animals.register_spawnegg, register_spawnegg
+-- spawnegg registration, requires animal parameter
+-- will create a young_per_egg and energy_egg (egg_energy) if not provided with one
+-- if liquids_pointable isn't boolean, will set to true if the provided animal is aquatic (class == 2)
+-- if inventory_image isn't provided, will seek for one using the animal's name, expecting a png
+animals.register_spawnegg = function(name, def, animal)
+  assert(type(def) == "table",
+         "animals.register_spawnegg: provided spawnegg definition is not a table!")
+  -- animal getting
+  animal = type(animal) == "table" and animal or type(animal) == "string" and animal or name
+  animal = type(animal) == "table" and animal or type(animal) == "string" and minetest.registered_entities[animal]
+  assert(animal,
+    "animals.register_spawnegg: was given an improper 'animal' definition (3rd function paramter) for "..name..
+    ". Was not given a definition table or could not find provided string in registered_entities.")
+  name = type(name) == "string" and name or animal.name
+  assert(type(name) == "string",
+         "animals.register_spawnegg: was not provided a string for name, got '"
+         ..type(name).."'")
 
+  -- custom definitions
+  def.spawn_animal = animal
+  def.egg_energy = def.egg_energy or animal.energy_egg or 100
+  def.young_per_egg = def.young_per_egg or animal.young_per_egg or 1
+  def._use_tip = def._use_tip or S("Slaughter the animal")
 
+  -- groups
+  def.groups = def.groups or {}
+  def.groups.spawn_egg = 1
 
--- spawnegg registration, requires the following values:
---[[
-    stack (itemstack stack_max)
-    desc (itemstack description)
-    inv_img (itemstack inventory image)
+  -- definitions
+  def.description = def.description or
+      (animal._desc and S("Live @1",animal._desc)) or name
+  -- get inventory_image or convert name into an image string expecting png
+  def.inventory_image = def.inventory_image or name:gsub(":","_").."_item.png"
+  def.stack_max = def.stack_max or minimal.stack_max_medium
+  if animal.class == 2 and type(def.liquids_pointable) ~= "boolean" then
+    def.liquids_pointable = true
+  end
+  def.liquids_pointable = type(def.liquids_pointable) == "boolean" and def.liquids_pointable or false
+  def.drops = def.drops or animal.drops or nil
 
-    energy_egg (energy given to egg as a total)
-    young_per_egg (how many children per egg - used for energy_egg calculation)
-    class (optional - used to determine if aquatic)
---]]
-animals.register_spawnegg = function(self)
-    local name = self.name
-    assert(type(name) == "string","animals.register_spawnegg: provided self "..
-           "data does not contain a name!")
-    local stack = type(self.stack) == "number" and self.stack or 1
-    local desc = type(self.desc) == "string" and self.desc or ""
-    local inv_img = type(self.inv_img) == "string" and self.inv_img or ""
-    local ee = self.energy_egg or 100
-    local ype = self.young_per_egg or 1
-    local liquids_pointable = false
-    if (self.class == 2) then
-        liquids_pointable = true
-    end
-    local item_table = { -- register new spawn egg containing mob information
-        description = desc,
-        inventory_image = inv_img,
-        stack_max = stack,
-        groups = {spawn_egg = 1},
-        drops = self.drops or {},
-        liquids_pointable = liquids_pointable,
-        _use_tip = S("Slaughter the animal"),
-        _on_use_item = function(player, wielded_item, pointed_thing)
-            local def = minetest.registered_items[wielded_item:get_name()]
-            wielded_item:take_item()
-            player:set_wielded_item(wielded_item)
-            minetest.sound_play("animals_slaughter",{pos = player:get_pos(),
-                                                     gain = 0.5, pitch = (
-                                                         math.random(69,80)/100)})
-            local inv = player:get_inventory()
-            for _,item in ipairs(def.drops) do
-                if inv:room_for_item("main", item) then
-                    inv:add_item("main", item)
-                else
-                    minetest.add_item(minimal.shift_pos(player:get_pos(), { y=1 }),
-                                      item)
-                    -- #TODO: Sound for drops
-                end
-            end
-        end,
-        on_place = function(itemstack, placer, pointed_thing)
-            local spawn_pos = pointed_thing.above
-            -- am I clicking on something with existing on_rightclick function?
-            local def = minimal.get_nodedef(pointed_thing.under)
-            if (def and def.drawtype ~= "liquid" and -- ignore liquids
-                pointed_thing.type ~= nil) then
-                -- prevent running on_rightclick function upon custom item drop
-                local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
-                if on_click ~= false then
-                    return on_click
-                end
-            end
-            if not minetest.registered_entities[name] then
-                -- entity not registered, prevent rest of code execution
-                return
-            end
-            if (self.class == 2 and def.drawtype == "liquid") then
-                -- place fish properly into water
-                spawn_pos = minimal.pos_shift(pointed_thing.under,{y = -1})
-            end
-            if spawn_pos
-                and not minetest.is_protected(spawn_pos,
-                                              placer:get_player_name()) then
-                spawn_pos = pos_to_spawn(name, spawn_pos)
-                local ent = create_mob(placer, itemstack, name, spawn_pos)
-                --set energy value
-                if not mobkit.recall(ent,'energy') then
-                    --# of seconds it will survive without food
-                    local energy = ee / animals.calculate_egg_young(ype)
-                    mobkit.remember(ent,'energy',energy)
-                end
-            end
-            return itemstack
-        end,
-    }
-    -- dropped animal egg spawns the animal
-    function item_table.on_drop(itemstack, dropper, pos)
-        -- craft a quick pointed_thing lol
-        local pointed_thing = {}
-        pointed_thing.above = minimal.shift_pos(pos,{y = 1})
-        --{x = pos.x, y = pos.y + 1, z = pos.z}
-        pointed_thing.under = pos
+  -- sounds (#TODO: sound for drops)
+  def.sounds = def.sounds or {}
+  def.sounds.slaughter = def.sounds.slaughter or {
+      name = "animals_slaughter",
+      gain = 0.5,
+      pitch = {0.69,0.80}
+  }
 
-        return item_table.on_place(itemstack, dropper, pointed_thing)
-        -- run on_place function
-    end
-    minetest.register_craftitem(name, item_table) -- register egg
+  -- functions
+  def.on_place = def.on_place or function(itemstack, placer, pointed_thing)
+      local itemdef = itemstack and itemstack:get_definition()
+      local s_animal = itemdef and itemdef.spawn_animal -- spawn animal
+      if not s_animal then return end -- no spawn animal
+      local spawn_pos = pointed_thing.above
+      -- am I clicking on something with an existing on_rightclick function?
+      local nodedef = minimal.get_nodedef(pointed_thing.under)
+      if (nodedef and itemdef.drawtype ~= "liquid" and -- ignore liquids
+          pointed_thing.type ~= nil) then
+          -- prevent running on_rightclick function upon custom item drop
+          local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+          if on_click ~= false then
+              return on_click
+          end
+      end
+      
+      if not itemdef.spawn_animal then
+          -- entity not registered, prevent rest of code execution
+          return
+      end
+      if (itemdef.liquids_pointable and itemdef.drawtype == "liquid") then
+          -- place fish properly into water
+          spawn_pos = minimal.pos_shift(pointed_thing.under,{y = -1})
+      end
+      if spawn_pos
+          and not minetest.is_protected(spawn_pos,
+                                        placer:get_player_name()) then
+          spawn_pos = pos_to_spawn(s_animal, spawn_pos)
+          local ent = create_mob(placer, itemstack, s_animal.name, spawn_pos)
+          --set energy value
+          if not mobkit.recall(ent,'energy') then
+              --# of seconds it will survive without food
+              local energy = itemdef.egg_energy / animals.calculate_egg_young(itemdef.young_per_egg)
+              mobkit.remember(ent,'energy',energy)
+          end
+      end
+      return itemstack
+  end
+
+  def.on_drop = def.on_drop or function(itemstack, dropper, pos)
+      -- craft a quick pointed_thing lol
+      local pointed_thing = {}
+      pointed_thing.above = minimal.shift_pos(pos,{y = 1})
+      pointed_thing.under = pos
+
+      -- run on_place function (if it exists, should!!!)
+      return type(def.on_place) == "function" and def.on_place(itemstack, dropper, pointed_thing) or nil
+  end
+
+  -- custom functions
+  -- slaughtering mechanics
+  def._on_use_item = def._on_use_item or function(player, wielded_item, pointed_thing)
+      if not minetest.is_player(player) then return end
+      local itemdef = wielded_item:get_definition()
+      if not itemdef then return end
+      -- get and play slaughter sound
+      local sound = itemdef.sounds.slaughter
+      if sound then
+          sound = table.copy(sound)
+          sound.pos = player:get_pos()
+          minimal.sound_play(sound)
+      end
+      -- convert to drops
+      local inv = player.get_inventory and player:get_inventory()
+      for _,item in pairs(itemdef.drops) do
+          if inv and inv:room_for_item("main", item) then
+              inv:add_item("main", item)
+          -- no inventory or no room in inventory
+          else
+              minetest.add_item(minimal.shift_pos(player:get_pos(), {y=1}), item)
+              sound = itemdef.sounds.slaughter_drop
+              if sound then
+                sound = table.copy(sound)
+                sound.pos = player:get_pos()
+                minimal.sound_play(sound)
+              end
+          end
+      end
+      wielded_item:take_item()
+      player:set_wielded_item(wielded_item)
+      return wielded_item
+  end
+  -- register spawnegg and return definition
+  minetest.register_craftitem(name, def)
+  return minetest.registered_items[name]
 end
 
 

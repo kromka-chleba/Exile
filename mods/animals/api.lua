@@ -3368,18 +3368,7 @@ function animals.register_animal(name,def)
     assert(type(spawnegg) ==
            "table","animals.register_animal: defined 'spawnegg' is not a "..
            "table for itemdef, got "..type(spawnegg))
-    spawnegg.name = name
-    spawnegg.desc = spawnegg.desc or spawnegg.description or ""
-    spawnegg.inv_img = spawnegg.inv_img
-        or spawnegg.inventory_image
-        or "animals_carcass.png"
-    spawnegg.stack = spawnegg.stack or spawnegg.stack_max or 1
-    spawnegg.class = def.class
-    spawnegg.energy_egg = def.energy_egg
-    spawnegg.young_per_egg = def.young_per_egg
-    spawnegg.drops = def.drops
-    def.spawnegg = spawnegg
-    animals.register_spawnegg(spawnegg)
+    def.spawnegg = animals.register_spawnegg(name, def.spawnegg, def)
 
     -- fix or issue errors about improperly set capture_interactions
     if def.capture_interactions then
