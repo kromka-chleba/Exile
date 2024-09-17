@@ -259,6 +259,9 @@ local function process_receive_fields(player, formname, fields)
     -- Process quit
     if fields.quit then
         minimal.close_inventory_formspec(player)
+        inventoryFS_cache[player_name] = 'closed'
+        -- added to reset quantity to "single" when we close the inventory
+        --  and avoid accidentaly max
         return true -- cache updated in close
     end
     -- process scrollbar
@@ -387,6 +390,12 @@ end
 -- or selected inventory changes
 -- It is triggered by setting cache.recipesFS = nil
 local function cache_player_recipes(cache, player_name, pInv)
+    -- this is for more clarity, choice of display settings
+    local line_number = 3 -- 3 lines of recipes displayed
+    local grid_size = 1.2
+    -- size of a square of recipe : 1*1 of image + 0.1 margins around,
+    --  used to place them on a grid, including tabs
+    --
     local recipesFS = {}
     local sItem = cache.sItem    -- craft type Item selected
     local sTab = cache.sTab              -- selected craft type tab
@@ -458,7 +467,7 @@ local function cache_player_recipes(cache, player_name, pInv)
     -- Add tab header
     recipesFS[#recipesFS + 1] = "style_type[item_image_button;border=false]"
     for i=1, #cTabs do
-        local leftPoint = 3.3 + (i - 1) * 1.2
+        local leftPoint = 3.3 + (i - 1) * grid_size
         local item_name = crafting.icon_item_name[cTabs[i]]
             or 'crafting:placeholder'
         recipesFS[#recipesFS + 1] = 'item_image_button['..(leftPoint)..
@@ -470,18 +479,19 @@ local function cache_player_recipes(cache, player_name, pInv)
     end
     -- add Scrollable container
     local columns = 6 -- can show 6 items accross without scrollbar
-    if #recipe_list > 24 then
-        columns = 5
-        local scroll_max = math.ceil(#recipe_list / 5 )
+    if #recipe_list > columns * line_number then
+        columns = columns -1 -- discard a line to make room for scrollbar
+        local scroll_max = math.ceil(#recipe_list / columns)-line_number
         recipesFS[#recipesFS + 1] =
             'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
-            .. 'smallstep=1;largestep=1;thumbsize=1]'
+            .. 'smallstep=1;largestep=line_number;thumbsize=1]'
         recipesFS[#recipesFS + 1]
-            = 'scrollbar[9.2,1.2;.5,4.6;vertical;recipes_scroll;'
+            = 'scrollbar[9.2,1.2;.5,3.45;vertical;recipes_scroll;'
             .. sScroll .. ']'
     end
     recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1;'..
-        tostring(columns + 1)..',5;recipes_scroll;vertical;1]'
+        tostring(columns + 1)..',3.75;recipes_scroll;vertical;' ..
+        grid_size .. ']'
     -- Add recipe buttons in columns of 5 or 6
     local x = 0
     local y = 0
@@ -491,7 +501,7 @@ local function cache_player_recipes(cache, player_name, pInv)
         local item_description=ItemStack(recipe_output):get_description()
 
         local id = result.recipe.id
-        local bg_coords =  tostring(x * 1.2) ..','.. tostring(y * 1.2 + 0.2)
+        local bg_coords =  tostring(x * grid_size) ..','.. tostring(y * grid_size + 0.2)
         -- set background image
         local bg_image
         local craftable = result.craftable
@@ -504,7 +514,8 @@ local function cache_player_recipes(cache, player_name, pInv)
             ";1,1;" .. bg_image .. "]"
         -- Add button image
         local btn_coords =
-            tostring( x* 1.2 + 0.1 ) .. ','..tostring( y * 1.2 + 0.3 )
+            tostring( x * grid_size + 0.1 ) .. ','..
+            tostring( y * grid_size + 0.3 )
         recipesFS[#recipesFS + 1] = 'item_image_button['
             .. btn_coords .. ';.8,.8;'
             .. recipe_output .. ';sResult_' .. id ..';]'
@@ -683,14 +694,8 @@ function minimal.register_inventory_sfinv()
                 get = function(self, player, context)
                     local formspec = minimal.make_inventory_formspec(player,
                                                                      context)
-                    local options = {
-                        'formspec_version[5]',
-                        -- hacking in formspec_version before size[]
-                        'size[10.5,10.5]',
-                    }
                     local output = sfinv.make_formspec(
-                        player, context, formspec, false, table.concat(options,
-                                                                       ""))
+                        player, context, formspec, false)
                     return output
                 end,
                 on_player_receive_fields = function(self, player,
@@ -755,6 +760,9 @@ function minimal.make_inventory_formspec(player,context)
     qtylab[qtyID] = minetest.colorize("cyan", qtylab[qtyID])
 
     local output =
+        'formspec_version[5]' ..
+        'size[10.5,10.9]' ..
+        'position[0.5,0.48]' ..
         'label[.35,6.1;'..S("Quantity")..':]' ..
         -- 'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]' ..
         'checkbox[3.0,6.1;qty1;'..qtylab[1]..';'..qtytab[1]..']' ..
@@ -787,6 +795,7 @@ function minimal.make_inventory_formspec(player,context)
 end
 
 minimal.register_inventory_sfinv()
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
         if formname ~= 'exile:crafting' then return false; end -- Not our form.
 
@@ -799,13 +808,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
         if process_receive_fields(player, formname, fields) then
             local formspec = minimal.make_inventory_formspec(player)
-            if formspec and formspec ~= "" then
-                formspec = 'formspec_version[5]size[10.5,10]' .. formspec
+            if formspec then
                 minetest.show_formspec(player_name,'exile:crafting',formspec)
             end
         end
 end)
 
+-- display craft form on right click on a tool
 function minimal.crafting_item_on_rightclick(pos,node,clicker,
                                              itemstack,pointed_thing)
     local craft_item = ItemStack(node.name)
@@ -830,8 +839,7 @@ function minimal.crafting_item_on_rightclick(pos,node,clicker,
     }
     inventoryFS_cache[player_name] = cache
     set_cache(player_name, pInv, sItemID)
-    local formspec = 'formspec_version[5]size[10.5,10]'..
-        minimal.make_inventory_formspec(clicker)
+    local formspec = minimal.make_inventory_formspec(clicker)
     minetest.show_formspec(player_name,'exile:crafting',formspec)
     return itemstack
 end

@@ -19,6 +19,8 @@ clothing = {
     },
 }
 
+sfinv = sfinv
+
 -- Internationalization
 local S = minetest.get_translator("clothing")
 local FS = function(...)
@@ -41,44 +43,57 @@ minetest.override_item("player_api:cloth_unisex_footwear_default", {
 ------------------------------------------------------------
 -- Inventory page
 
-local clothing_formspec = "size[8,8.5]"..
-    "list[current_player;main;0,4.7;8,1;]"..
-    "list[current_player;main;0,5.85;8,3;8]"
+-- #TODO I think size is useless now, maybe make containers later
+local clothing_formspec = "size[10.5,10.9]"
 
 local clothing_page = {
     title = S("Clothing"),
     get = function(self, player, context)
         local meta = player:get_meta()
-        local cur_tmin = climate.get_temp_string(meta:get_int("clothing_temp_min"), meta)
-        local cur_tmax = climate.get_temp_string(meta:get_int("clothing_temp_max"), meta)
+        local cur_tmin = climate.get_temp_string(
+            meta:get_int("clothing_temp_min"), meta)
+        local cur_tmax = climate.get_temp_string(
+            meta:get_int("clothing_temp_max"), meta)
         local basetex = minetest.formspec_escape(
             player_api.get_current_texture(player) )
 
         local formspec = clothing_formspec..
-            "label[3,0.4;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]"..
-            "label[3,1;" .. FS("Max Temperature Tolerance: @1", cur_tmax) .. " ]"..
-            --"list[detached:"..name.."_clothing;clothing;0,0.5;2,3;]"..
-            "list[current_player;cloths;0,0.5;2,3;]" ..
-            "listring[current_player;main]"..
-            --"listring[detached:"..name.."_clothing;clothing]"
+            "label[4,1;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]"..
+            "label[4,1.5;" .. FS("Max Temperature Tolerance: @1", cur_tmax) .. " ]"..
+
+            -- clothes display
+            "list[current_player;cloths;0.75,0.75;2,3;]" ..
+            --player inventory display : currently done in sfinv/api.lua
+            --"list[current_player;main;0.35,7.3;8,1;]"..
+            --"list[current_player;main;0.35,8.55;8,3;8]" ..
+            "label[0.35,10.2;Tip : use \"shift\" key to switch clothes]" ..
+
+            -- enable to move clothes from one inventory to another with shift
             "listring[current_player;cloths]"..
-            "model[6.5,2;2,3;character;character.b3d;"..basetex..
+            "listring[current_player;main]"..
+
+
+            -- overview of what it looks like
+            -- #TODO do not change rotation angle when changing clothes,
+            --  if possible, maybe saving the current angle in context/cache
+            --  like in crafting tab
+            "model[5.2,2.45;2.6,3.9;character;character.b3d;"..basetex..
             ";-20,160;;true;;]"
         return sfinv.make_formspec(player, context,
-                                   formspec, false)
+                                   formspec, true)
     end
 }
+
 sfinv.register_page("clothing:clothing", clothing_page)
+
 
 minetest.register_on_player_inventory_action(function(player, action,
                                                       inventory, inventory_info)
         if inventory_info.to_list == "cloths"
             or inventory_info.from_list == "cloths" then
-
             clothing.update_player(player)
         end
 end)
-
 
 
 minetest.register_allow_player_inventory_action(function(player, action,
@@ -119,7 +134,8 @@ minetest.register_allow_player_inventory_action(function(player, action,
                     -- if same type of clothing article found then
                     if (from_inv == "main") then
                         -- if new itemstack is coming from player inventory
-                        local removed = player_inv:remove_item("cloths", itemstack)
+                        local removed = player_inv:remove_item(
+                            "cloths", itemstack)
                         -- take the old itemstack
                         if player_inv:room_for_item("main",removed) then
                             -- add to player inventory
