@@ -222,8 +222,8 @@ local function wear_blanket(player, bed_pos, donning)
    if not bedInv:is_empty('main') then
       minimal.infotext_merge(bed_pos, 'Bed: Contains Blanket', bed_meta)
    end
-   clothing:update_temp(player)
    player_api.set_texture(player)
+   clothing:update_temp(player)
 end
 
 -----------------------------------------------------------------
