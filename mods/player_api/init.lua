@@ -4,10 +4,10 @@ player_api = {}
 local modpath = minetest.get_modpath("player_api")
 
 dofile(modpath .. "/states.lua")
-dofile(modpath .. "/api.lua")
 dofile(modpath .. "/hand.lua")
 dofile(modpath .. "/base_texture.lua")
 dofile(modpath .. "/clothing/init.lua") -- ex cloths.lua + ex "clothing" mod
+dofile(modpath .. "/api.lua")
 dofile(modpath .. "/controls.lua")
 
 
@@ -69,7 +69,7 @@ minetest.register_on_joinplayer(function(player)
     pinv:set_size("hand", 1)
     -- create the "clothes" inventories if needed
     -- also amange migrations issues
-    player_api.set_cloths(player) -- creating inventories if needed
+    player_api.set_cloths(player) -- init and migrates inv if needed
     player_api.set_texture(player) -- setting texture according to current state  
 
     -- set default clothing (I think ?)

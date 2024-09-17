@@ -44,9 +44,23 @@ local function get_tooltip_from_group (group_nb)
     end
 end
 
+-- Create the "clothes" inventories
+function player_api.init_cloths(player, pinv)
+    local inv = pinv or player:get_inventory()                   
+    -- one inventory per group type
+    for _,group in ipairs(cloth_groups) do 
+        local name = group["name"]
+        if not inv:get_list(name) then
+            inv:set_size(name,1)
+        end
+    end
+    -- only used to move clothes with shift  
+    inv:set_size("temp_slot",1)
+    inv:set_stack("temp_slot",1,ItemStack("")) 
+end
+    
 -- Exile clothing was stored as a metadata string, migrate to new inv
-local function load_clothing_metadata(player)    
-    local player_inv = player:get_inventory()
+local function load_clothing_metadata(player, player_inv)    
     local meta = player:get_meta()
     local clothing_meta = meta:get_string("clothing:inventory")
     local clothes = clothing_meta and minetest.deserialize(clothing_meta) or {}
@@ -63,7 +77,7 @@ end
 -- dealing with old cloth inventory versions
 local function migrate_cloths(player, pinv)
     --import old clothing
-    load_clothing_metadata(player)
+    load_clothing_metadata(player, pinv)
     -- this part is to migrate from old "cloths" inventory to separated ones
     local cloths_list = pinv:get_list("cloths")
     if cloths_list then
@@ -72,7 +86,7 @@ local function migrate_cloths(player, pinv)
             if stack and stack ~= ItemStack("") then
                 local slot_nb = minimal.is_group(stack:get_name(),"cloth")
                 if slot_nb then
-                    pinv:set_stack(player_api.get_inv_name_from_group(slot_nb),1, stack)
+                    pinv:set_stack(cloth_groups[slot_nb]["name"],1, stack)
                 end
             end
         end 
@@ -81,21 +95,12 @@ local function migrate_cloths(player, pinv)
     end 
 end
 
--- Create the "clothes" inventories
+-- init inventories and migrates
 function player_api.set_cloths(player)
     local inv = player:get_inventory()
+    player_api.init_cloths(player, inv)
     --dealing with old players part : --
     migrate_cloths(player, inv)                           
-    -- only used to move clothes with shift  
-    inv:set_size("temp_slot",1)
-    inv:set_stack("temp_slot",1,ItemStack(""))  
-    -- new invetories
-    for _,group in ipairs(cloth_groups) do 
-        local name = group["name"]
-        if not inv:get_list(name) then
-            inv:set_size(name,1)
-        end
-    end
 end
 
 -- Clothes registering ---------------------------------------------------------
@@ -198,7 +203,6 @@ player_api.register_cloth(
         gender = "unisex",
         groups = {cloth = 4},
 })
-
 
 player_api.register_cloth(
     "player_api:cloth_female_head_default", {
