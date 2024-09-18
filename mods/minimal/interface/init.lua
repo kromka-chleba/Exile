@@ -19,7 +19,7 @@ function minimal.send_message(player_name, message, duration)
             text = message,
             position = { x = 0.5, y = 1 },
             number = 0xFFFFFF,
-            offset = { x = 0, y = -165 },
+            offset = { x = 0, y = -80 },
     })
     minetest.after(duration or 1, function()
                        if not minetest.is_player(player) then return end
