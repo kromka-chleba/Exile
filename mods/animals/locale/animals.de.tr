@@ -1,6 +1,5 @@
 # textdomain: animals
 # crafts.lua
-@1 Eggs="@1-Eier"
 # api_capture.lua
 Slaughter the animal="Das Tier schlachten"
 @1 Invertebrate="@1 Wirbelloser"
@@ -11,39 +10,23 @@ Large="Großer"
 @1 Carcass=@1kadaver
 Cooked @1=Gekochter @1
 Burned @1=Verbrannter @1
+# api_capture.lua + #api.lua
+@1 Eggs=@1-Eier
+Live @1=@1 Lebend
 # darkasthaan.lua
-Darkasthaan="Darkasthaan"
-# darkasthaan.lua
-Darkasthaan Eggs=Darkasthaan-Eier
-Live Darkasthaan="Darkasthaan lebend"
+Darkasthaan=Darkasthaan
 # gundu.lua
-Gundu="Gundu"
-# gundu.lua
-Gundu Eggs=Gundu-Eier
-Live Gundu="Gundu lebend"
+Gundu=Gundu
 # impethu.lua
-Impethu="Impethu"
-# impethu.lua
-Impethu Eggs=Impethu-Eier
-Live Impethu="Impethu lebend"
+Impethu=Impethu
 # kubwakubwa.lua
-Kubwakubwa="Kubwakubwa"
-# kubwakubwa.lua
-Kubwakubwa Eggs=Kubwakubwa-Eier
-Live Kubwakubwa="Kubwakubwa lebend"
-Female Pegasun=Weiblicher Pegasun
+Kubwakubwa=Kubwakubwa
 # pegasun.lua
 Pegasun Egg=Pegasun-Ei
-Live Female Pegasun="Weiblicher Pegasun lebend"
-Live Male Pegasun="Männlicher Pegasun lebend"
+Live Female Pegasun=Weiblicher Pegasun Lebend
+Female Pegasun=Weiblicher Pegasun
 Male Pegasun=Männlicher Pegasun
 # sarkamos.lua
-Sarkamos="Sarkamos"
-# sarkamos.lua
-Sarkamos Eggs=Sarkamos-Eier
-Live Sarkamos="Sarkamos lebend"
+Sarkamos=Sarkamos
 # sneachan.lua
-Sneachan="Sneachan"
-# sneachan.lua
-Sneachan Eggs=Sneachan-Eier
-Live Sneachan="Sneachan lebend"
+Sneachan=Sneachan

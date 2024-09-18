@@ -11,7 +11,7 @@ Cooked @1=Приготовленный @1
 Burned @1=Сожжённый @1
 # api_capture.lua + #api.lua
 @1 Eggs=Яйца @1
-@1 Live=Живой @1
+Live @1=Живой @1
 # darkasthaan.lua
 Darkasthaan=Даркастаан
 # gundu.lua
