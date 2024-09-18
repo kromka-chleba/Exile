@@ -242,7 +242,6 @@ self_data = {
     end,
     -- eggs
     egg = {
-        description = S('Impethu Eggs'),
         tiles = {"animals_sneachan_eggs.png^[multiply:#c49a82"},
         egg_conditions_correct = function(pos,data)
             data = data or minimal.get_nodedef(pos)

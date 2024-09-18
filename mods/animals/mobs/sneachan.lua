@@ -226,7 +226,6 @@ self_data = {
     end,
     -- eggs
     egg = {
-        description = S('Sneachan Eggs'),
         tiles = {"animals_sneachan_eggs.png"},
         egg_conditions_correct = function(pos,data)
             data = data or minimal.get_nodedef(pos)

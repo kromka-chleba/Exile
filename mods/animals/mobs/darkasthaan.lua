@@ -210,7 +210,6 @@ local self_data = {
     end,
     -- eggs
     egg = {
-        description = S('Darkasthaan Eggs'),
         tiles = {"animals_darkasthaan_eggs.png"},
         node_box = {
             type = "fixed",

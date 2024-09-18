@@ -22,6 +22,8 @@ local mo_check_radius = 40 -- maxobject check radius
 animals = animals
 mobkit = mobkit
 
+local S = animals.S
+
 local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 if use_vh1 then
     VH1 = VH1
