@@ -478,16 +478,34 @@ local function give_all_to_player(inv, list)
     end
 end
 
-function crafting.pick_required_item(inv, lists, item, located)
-    -- Search inventory lists, pull items required for craft
-    -- returns a table of items to be taken { { [list} = ,  [item] = }, {..} }
-    -- or nil, if requirements were not met
-    local count=0  -- count of items found and added to located table.
+
+function crafting.parse_where(recipe, items, item_idx, num_added)
+    if recipe.where or type(recipe.where) ~= 'string' then
+        return nil
+    end
+    local result = recipe.where_results or recipe.where
+
+    -- @1.material == @2.material
+    --   local input1,key1,test,input2,key2 =
+    --print("where: "..recipe.where)
+    --print(dump( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") ))
+end
+
+-- not in original mod
+--[[ Search inventory list given to find the required item
+    stop when required quantity is found
+    return a table of items to pick per list :
+    {[list1] = {stack1, stack2, ...}, [list2] = {stack1, stack2}, ...}
+    return nil if not found/not enough ]]
+-- currently only used in local
+function crafting.pick_required_item(inv, lists, item)
+    local picked_table ={}
     item = ItemStack(item)
-    local itemName = item:get_name()
+    local itemName = item:get_name()     
     --print("Attempting to pick ",itemName)
     local group_stats = crafting.get_group_stats(itemName)
     local required = item:get_count()
+    -- pars list my order of priority
     for _, list in ipairs(lists) do
         -- search stacks in provided inv lists
         for i = 1, inv:get_size(list) do
@@ -506,102 +524,124 @@ function crafting.pick_required_item(inv, lists, item, located)
                 if found:get_count() > required then
                     found:set_count(required)
                 end
-
-                located[#located + 1] = { ["list"] = list, ["item"] = found }
-                count = count + 1
-
+                -- add itemstack to the ones to take from that list
+                if picked_table [list] then
+                    table.insert(picked_table[list], found)
+                else
+                    picked_table [list] = {found}
+                end            
                 required = required - found:get_count()
             end
+            -- if I don't need more, stop parsing the list
             if required <= 0 then
                 break
             end
         end
+        -- if I don't need more, stop parsing the lists
         if required <= 0 then
             break
         end
+    end 
+    -- if I couldn't find enough, return nil
+    if required > 0 then
+        return nil
+    else 
+        return picked_table
     end
-
-    if required > 0 and count > 0 then
-        -- not enough so delete located items
-        --print("Not enough, deleting")
-        for j=1,count do
-            located[#located] = nil
-        end
-        count=0
-    end
-    --print("Returning count: ",count)
-    return count
 end
 
+-- Choose items to take from inv in case of conditional list
+local function pick_alternate_items(inv, listname, item)
+    if (type(item) == 'table') then
+        -- create intermediate pick table of possible choices
+        local temp_p_t = {}
+        -- find conItem in lists and put the result in pick_table[j] 
+        for _, conItem in ipairs(item) do          
+            local pri = crafting.pick_required_item(inv, listname,
+            conItem)
+            if pri then
+                --[[ optionnal shortcut : 
+                if the first item has items in the first inv list,
+                stop and take that one]]
+                if pri [listname[1]] then
+                    return pri
+                else
+                    table.insert(temp_p_t, pri)
+                end
+            end                
+        end
+        --[[if no one was in the first list, choose the one to pick:
+        take the 1st one who had some item in higher priority list]]
+        if next(temp_p_t) then
+            for i, source in ipairs(listname) do
+                for _, pt in ipairs(temp_p_t) do
+                    if pt[source] then
+                        return pt
+                    end
+                end
+            end
+        end 
+        -- if none was found
+        return nil  
+    else 
+        return crafting.pick_required_item(inv, listname, item)                   
+    end
+end
 
-function crafting.parse_where(recipe, items, item_idx, num_added)
-    if recipe.where or type(recipe.where) ~= 'string' then
+--[[ in external mod :
+    Returns a list of stacks to take, or nil if the required items could not
+    be found.
+
+    Modified for Exile to deal with table in listname
+    where items are taken from inventories in order passed
+    Returns a list of what was found per list
+
+    {[list1] = {stack1, stack2, ...}, [list2] = {stack1, stack2}, ...}
+
+    To keep compatibility with external mod, 
+    Returns a list of stack if listname only had one element.
+
+    Returns nil if not found or not enought for recipe
+]]
+function crafting.find_required_items(inv, listname, recipe) 
+    if not listname then
         return nil
     end
-    local result = recipe.where_results or recipe.where
-
-    -- @1.material == @2.material
-    --   local input1,key1,test,input2,key2 =
-    --print("where: "..recipe.where)
-    --print(dump( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") ))
-end
-
--- Trawls input items/player inv, pulls all valid ingredients for recipe
--- Returns a list of what was found
-function crafting.find_required_items(inv, listname, recipe)    
-    local items = {}
-    -- updated to allow passing of a table of listnames
-    -- items are taken from inventories in order passed
-    -- this converts old use of this function to new use
+    -- added to deal with multple input lists but keep compatibility
     if type(listname) ~= 'table' then
         listname = { listname }
     end
-
+    -- to store found items
+    local found_table = {}
+    -- initiate ound_table
+    for i, list in ipairs(listname) do        
+        found_table[list]={}
+    end
     --print("Recipe Items: "..dump(recipe.items))
     for i, item in ipairs(recipe.items) do
-        local picked = false      -- assume we don't find it
         -- Conditional input list to process
-        if (type(item) == 'table') then
-            for _, conItem in ipairs(item) do
-                local count = crafting.pick_required_item(inv, listname,
-                                                          conItem, items)
-                if count >0 then
-                    picked = true
-                    break
+        local pick_table = pick_alternate_items(inv, listname, item)                  
+        -- if this part is found, add it to found_table
+        if pick_table then
+            for list, picked_litems in pairs (pick_table) do    
+                for _,picked_stack in pairs(picked_litems) do
+                    table.insert(found_table[list],picked_stack)
                 end
             end
+        -- if this part is not found, stop
         else
-            if crafting.pick_required_item(inv, listname, item, items) >0 then
-                picked = true
-            end
-        end
-        if not picked then
-            --print("Picked nothing")
-            return nil -- didn't find
+            return nil
         end
     end
-    --print("Picked ",dump(items))
-    return items
+    
+    -- Return found list
+    if #listname == 1 then
+        --if we had only one list, return only a list of stack to keep mod compatibility
+        return found_table[listname[1]]
+    else
+        return found_table
+    end
 end
-
--- IB---
--- IB---
--- IB---                                                -- check for where clause involving this recipe input item
--- IB---                                                if recipe.where
--- IB---print("where: "..recipe.where)
--- IB---print( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") )
--- IB---
--- IB---
--- IB---                                                        if crafting.parse_where(recipe,items, i, count) then
--- IB---                                                                picked = true
--- IB---                                                                break
--- IB---                                                        else
--- IB---                                                                items[#items] = nil --delete picked item because where failed
--- IB---                                                        end
--- IB---                                                else
--- IB---
--- IB---
-
 
 function crafting.has_required_items(inv, listname, recipe)
     return crafting.find_required_items(inv, listname, recipe) ~= nil
@@ -611,31 +651,36 @@ function crafting.register_on_craft(func)
     table.insert(crafting.registered_on_crafts, func)
 end
 
+--[[ In external mod
+* Will try to take itemsfrom `listname` and put output in the `outlistname` list in `inv`.
+* Returns true on success.
+]]
 function crafting.perform_craft(name, inv, listname, outlistname, recipe)
-
-    -- updated to allow passing of a table of listnames
-    -- items are taken from inventories in order passed
-    -- this converts old use of this function to new use
-    if type(listname) ~= 'table' then
-        listname = { listname }
-    end
-
+    -- get list of items required for the recipe (if found)
     local founditems = crafting.find_required_items(inv, listname, recipe)
     if not founditems then
         return false
     end
-
-    -- Take items
+    
+    --[[ updated to allow passing of a table of listnames
+    -- items are taken from inventories in order passed
+    -- this converts old use of this function to new use]]
+    if type(listname) ~= 'table' then
+        founditems = {[listname] = founditems}
+    end
+    
+    -- Take items from inventory
     local taken = {}
-    --print("Need ",reqcount," of ",need:get_name())
-
-    for _, have in pairs(founditems) do
-        local took = inv:remove_item(have.list, have.item)
-        if took:get_count() > 0 then
-            taken[#taken + 1] = took
+    
+    for source, items in pairs(founditems) do
+        for _,item in pairs(items) do
+            local took = inv:remove_item(source, item)
+            if took:get_count() > 0 then
+                taken[#taken + 1] = took
+            end
         end
     end
-
+    
     for i=1, #crafting.registered_on_crafts do
         crafting.registered_on_crafts[i](name, recipe)
     end
@@ -644,23 +689,23 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
     if recipe.material then
         local material_def = ItemStack(taken[recipe.material]):get_definition()
         material = material_def.exile_crafting
-            and material_def.exile_crafting.material
+        and material_def.exile_crafting.material
         if not material then -- issue #814
             error("crafting.perform_craft: missing exile_crafting or "
-                  .."exile_crafting.material but got material '"
-                  ..tostring(recipe.material).."' known as in taken: '"
-                  ..tostring(taken[recipe.material]).."' from '"
-                  ..material_def.name..";;"..material_def.description
-                  .."' to craft '"..recipe.output
-                  .."'. Crafting commenced by "..tostring(name))
+            .."exile_crafting.material but got material '"
+            ..tostring(recipe.material).."' known as in taken: '"
+            ..tostring(taken[recipe.material]).."' from '"
+            ..material_def.name..";;"..material_def.description
+            .."' to craft '"..recipe.output
+            .."'. Crafting commenced by "..tostring(name))
         end
     end
-
-
+    
+    
     local make_output = recipe.output
     if recipe.material_output then
         make_output = string.gsub(recipe.material_output,
-                                  "%%material%%", material)
+        "%%material%%", material)
     end
     local itemstack = ItemStack(make_output)
     local imeta = itemstack:get_meta()
@@ -675,7 +720,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
         end
         imeta:set_string('short_description', sdesc)
     end
-
+    
     -- set material
     if material then
         imeta:set_string('material', material)
@@ -687,23 +732,23 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
             local image = string.gsub(recipe.tiles_name, '%%material%%', material)
             imeta:set_string('inventory_tiles', image)
         end
-
+        
     end
-
+    
     -- Add Tool Tips to Description
-
+    
     if idef._tool_tips and idef._tool_tips ~= '' then
         --imeta:set_string('description',sdesc .. idef._tool_tips)
-
+        
     end
     local items_to_add = {}
     local count = itemstack:get_count()
     -- fix for tools not being added properly
     -- (have to manually get the count from the string...)
     if minetest.registered_tools[itemstack:get_name()]
-        and string.match(make_output," ") then
+    and string.match(make_output," ") then
         local toolcount = make_output:sub(#itemstack:get_name()+1,
-                                          #make_output):gsub(" ", "" )
+        #make_output):gsub(" ", "" )
         count = ""
         for i=1,#toolcount do
             local char = toolcount:sub(i,i) -- individual char
