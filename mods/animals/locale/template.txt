@@ -10,7 +10,6 @@ Large=
 Cooked @1=
 Burned @1=
 # api_capture.lua + #api.lua
-#api.lua
 @1 Eggs=
 Live @1=
 # darkasthaan.lua
