@@ -79,7 +79,7 @@ local clothing_page = {
             --  like in crafting tab
             "model[5.2,2.45;2.6,3.9;character;character.b3d;"..basetex..
             ";-20,160;;true;;]"
-        return sfinv.make_formspec(player, context,
+        return sfinv.make_formspec_for_exile(player, context,
                                    formspec, true)
     end
 }
