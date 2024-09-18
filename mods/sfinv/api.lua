@@ -51,12 +51,17 @@ local theme_inv = { -- #TODO the images seem useless
 		"list[current_player;main;0.35,".. inv_y .. ";8,1;]",
 		"list[current_player;main;0.35,".. inv_y + 1.25 .. ";8,3;8]"
 	}
+	
+function sfinv.make_formspec_for_exile(player, context, content, show_inv)
+	local size = "formspec_version[5]" ..
+		"size[10.5,10.9]" ..
+		"position[0.5,0.48]"
+	return sfinv.make_formspec(player, context, content, show_inv, size)
+end
 
-function sfinv.make_formspec(player, context, content, show_inv)
+function sfinv.make_formspec(player, context, content, show_inv, size)
 	local tmp = {
-		"formspec_version[5]",
-		"size[10.5,10.9]",
-		"position[0.5,0.48]",
+		size or "size[8,9.1]",
 		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
 		show_inv and table.concat(theme_inv,"") or "",
 		content
