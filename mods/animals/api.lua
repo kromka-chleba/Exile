@@ -881,14 +881,16 @@ end
 
 ----------------------------------------------------
 --release offspring from an egg (called from timers)
-function animals.hatch_egg(pos, egg_data, medium, replace, name)
+function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
     -- egg_data, position
     -- CUSTOM OVERRIDES:
     --  medium (to spawn entities in - can be nil (will only check for air), string, or table),
     --  replace (replace with - can be nil),
-    --  name (optional, but required if not included in self)
+    --  spawn (optional, but required if no egg_hatching in egg_data), can be string or a list of names
     egg_data = egg_data or minimal.get_nodedef(pos)
+    -- destroy node if we can't get egg_data
     if type(egg_data) ~= "table" then
+        minetest.set_node(pos, {name = "air"})
         return false
     end
     -- fix medium, replace
@@ -912,24 +914,35 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name)
     replace = minetest.registered_nodes[replace] or {name="air"}
     replace = replace.name
 
+    -- removes egg
+    local function destroy_egg()
+      minetest.set_node(pos, {name = replace})
+    end
+
     local suitable = minetest.find_nodes_in_area(
         {x=pos.x-1, y=pos.y-1, z=pos.z-1},
         {x=pos.x+1, y=pos.y+1, z=pos.z+1}, medium)
     --if can't find the stuff this mob moves through then it dies
     if #suitable < 1 then
-        minetest.set_node(pos, {name = replace})
+        destroy_egg()
         return false
     end
 
+    local young_per_egg = animals.calculate_egg_young(egg_data)
+    if not young_per_egg then
+      destroy_egg()
+      return false
+    end
+
     -- get what to hatch into
-    if (type(name) ~= "string") then
+    if type(spawn) ~= "string" and egg_data.egg_hatching then
         local hatching = egg_data.egg_hatching
         local sort_table = {}
         for h_name,h_perc in pairs(hatching) do -- hatch_name, hatch_percentage
             table.insert(sort_table,{h_perc,h_name})
         end
         if #sort_table == 1 then
-            name = sort_table[1][2]
+            spawn = sort_table[1][2]
             -- sort_table[1]={0.5,"name"}
         elseif #sort_table == 2 then
             if sort_table[2][1] > sort_table[1][1] then
@@ -939,12 +952,15 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name)
                 table.remove(sort_table,3)
             end
             -- math.random() on largest percent first
-            if sort_table[1][1] <= math.random() then
-                name = sort_table[1][2]
-            else
-                name = sort_table[2][2]
+            spawn = {}
+            for i = 1,2 do
+              if sort_table[1][1] <= math.random() then
+                  spawn[i] = sort_table[1][2]
+              else
+                  spawn[i] = sort_table[2][2]
+              end
             end
-        else -- manually sort it so greatest is at the top, lowest at the bottom
+        elseif #sort_table > 2 then -- manually sort it so greatest is at the top, lowest at the bottom
             local hatching_table = {}
             for index,info in pairs(sort_table) do
                 if #hatching_table <= 0 then
@@ -968,76 +984,89 @@ function animals.hatch_egg(pos, egg_data, medium, replace, name)
                     table.insert(hatching_table,insert[1],insert[2])
                 end
             end
-            -- now iterate through hatching_table randomly to get a name
-            for _,info in pairs(hatching_table) do
-                if info[1] >= math.random() then
-                    name = info[2]
-                    break
+            -- create a list
+            spawn = {}
+            for i = 1, young_per_egg do
+                -- now iterate through hatching_table randomly to get a name
+                for _,info in pairs(hatching_table) do
+                    if info[1] >= math.random() then
+                        spawn[i] = info[2]
+                        break
+                    end
                 end
-            end
-            -- last "else", get largest percent
-            if not name then
-                -- code smell until I figure out why having mixed unsorted
-                -- and set percentages for hatching causes index 1 to be index 0
-                name = (hatching_table[1] and hatching_table[1][2])
-                    or (hatching_table[0] and hatching_table[0][2])
+                -- last "else", get largest percent
+                if not spawn[i] then
+                    -- code smell until I figure out why having mixed unsorted
+                    -- and set percentages for hatching causes index 1 to be index 0
+                    spawn[i] = (hatching_table[1] and hatching_table[1][2])
+                        or (hatching_table[0] and hatching_table[0][2])
+                end
+                
             end
         end
+        -- if none of these if statements fit, then spawn is just a list of names, don't worry
     end
 
-    local entity_data = minetest.registered_entities[name]
-    if not entity_data then
-        error("animals.hatch_egg: got '"..tostring(name)..
-              "' to hatch, but it does not exist!")
+    -- only do spawning if we can spawn somethin'
+    spawn = type(spawn) == "table" and spawn or type(spawn) == "string" and {spawn} or nil
+    if not spawn then
+      destroy_egg()
+      return false
     end
-
+    -- energy egg - how much energy is given to each spawned young
     local energy_egg = egg_data.energy_egg
     local meta = minetest.get_meta(pos):get_float("energy_egg")
-    if (meta > 0) then
+    if (meta > young_per_egg) then
         energy_egg = meta
     end
-    local young_per_egg = animals.calculate_egg_young(egg_data)
-    -- prioritize max_pop defined in egg_data
-    -- otherwise entity_data, then base max_objects
-    local max_pop = egg_data.max_pop or entity_data.max_pop or max_objects
+    -- ensure is number and greater than young_per_egg
+    energy_egg = energy_egg and energy_egg > young_per_egg and energy_egg or 100
 
-    if not (name and energy_egg and young_per_egg) then
-        return false
-    end
-    if (energy_egg < 0) then
-        return false
-    end
+    local objcounts = {} -- used to determine the counts of each defined creature
+    local could_hatch = false
+    for _,name in pairs(spawn) do
+        local entity_data = minetest.registered_entities[name]
+        assert(entity_data,"animals.hatch_egg: got '"..tostring(name)..
+            "' to hatch, but it does not exist!")
+        -- prioritize max_pop defined in egg_data
+        -- otherwise entity_data, then base max_objects
+        local max_pop = egg_data.max_pop or entity_data.max_pop or max_objects
 
-    -- remove male or baby identifier when checking names
-    local check_name = string.gsub(name,"_male","")
-    check_name = string.gsub(name,"_baby","")
+        -- remove male or baby identifier when checking names
+        local check_name = string.gsub(name,"_male","")
+        check_name = string.gsub(name,"_baby","")
 
-    local start_e = math.floor(energy_egg/young_per_egg)
-    local objcount = #animals.get_entities_inside_radius(check_name, pos, mo_check_radius)
-    for i = 1, young_per_egg, 1 do
-        if (objcount >= max_pop) then
-            break
+        -- get specified objcount from objcounts table (of check_name) or set a new one
+        local objcount = objcounts[check_name] or #animals.get_entities_inside_radius(check_name, pos, mo_check_radius)
+
+        local start_e = math.floor(energy_egg/young_per_egg) -- starting energy per each, start_energy
+        -- only if less than or equal to current max population
+        if objcount <= max_pop then
+            could_hatch = true
+            local ran_pos = suitable[random(#suitable)]
+            ran_pos.y = ran_pos.y - (entity_data.initial_properties.collisionbox[2]
+                                     + entity_data.initial_properties.collisionbox[5])
+            local ent = minetest.add_entity(ran_pos, name)
+            local sounds = egg_data.sounds
+            if sounds and sounds.egg_hatch then
+                local sound = table.copy(sounds.egg_hatch)
+                sound.pos = pos
+                minetest.sound_play(sound.name, sound)
+            end
+            -- spawn entity, apply starting energy
+            ent = ent:get_luaentity()
+            mobkit.remember(ent,'energy', start_e)
+            mobkit.remember(ent,'age',0)
+            objcount = objcount + 1
         end
-        local ran_pos = suitable[random(#suitable)]
-        ran_pos.y = ran_pos.y - (entity_data.initial_properties.collisionbox[2]
-                                 + entity_data.initial_properties.collisionbox[5])
-        local ent = minetest.add_entity(ran_pos, name)
-        local sounds = egg_data.sounds
-        if sounds and sounds.egg_hatch then
-            local sound = table.copy(sounds.egg_hatch)
-            sound.pos = pos
-            minetest.sound_play(sound.name, sound)
-        end
-        --minetest.sound_play("animals_hatch_egg", {pos = pos, gain = 0.8, max_hear_distance = 8})
-        ent = ent:get_luaentity()
-        mobkit.remember(ent,'energy', start_e)
-        mobkit.remember(ent,'age',0)
-        objcount = objcount + 1
+        -- update object counts
+        objcounts[check_name] = objcount
     end
+    -- try hatching another time
+    if not could_hatch then return true end
 
-    minetest.set_node(pos, {name = replace})
+    destroy_egg()
     return false
-
 end
 
 --------------------------------------------------------------------------
@@ -2971,7 +3000,7 @@ function animals.register_egg(def, animal)
 
 
 
-    def.description = def.description or (animal._desc and S("@1 Eggs",animal._desc)) or ""
+    def.description = def.description or (animal and animal._desc and S("@1 Eggs",animal._desc)) or name
     def.tiles = def.tiles or {"animals_gundu_eggs.png"}
     def.stack_max = def.stack_max or minimal.stack_max_medium
     def.drawtype = def.drawtype or "nodebox"
