@@ -123,6 +123,8 @@ function default_def.on_timer(pos)
     if work_remaining <= 0 then
         local idx    = meta:get_int("recipe_idx")
         local recipe = crafting.get_recipe(idx)
+        -- try to craft items taking from "input" and putting result in "main"
+        -- #TODO is it used ?
         if not crafting.perform_craft(player_name,
                                       inv, "input", "main", recipe) then
             minetest.log("error", "Async station " ..
