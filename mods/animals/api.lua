@@ -814,6 +814,7 @@ function animals.place_egg(self, pos, medium, e_ov)
 
         if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
             minetest.set_node(p, {name = egg_data.name})
+            e_ov = e_ov or self.energy < e_egg and self.energy -- can't lay eggs lower than energy_egg properly
             if type(e_ov) == "number" and e_ov >= 15 then
                 -- energy override noted, jot it down
 
@@ -834,8 +835,9 @@ end
 
 -- generic function to be utilized by any "emergency_egg" custom function
 -- in animals' self
-function animals.emergency_egg(self, pos, medium)
-    local egg_chance = self.emergency_egg_chance or 1
+-- 'chance' override permitted for custom percentage from usual
+function animals.emergency_egg(self, pos, medium, chance)
+    local egg_chance = chance or self.emergency_egg_chance or 1
 
     local energy = self.energy
     if (type(energy) ~= "number" or energy < 15) then
@@ -843,10 +845,11 @@ function animals.emergency_egg(self, pos, medium)
     end
 
     if (random() < egg_chance) then
-        -- lay egg
-        animals.place_egg(self, pos, medium, energy)
-        self.energy = -1 -- kill --mobkit.remember(self,"energy",0) -- kill
-        return true
+        -- lay egg and die if successful
+        if animals.place_egg(self, pos, medium, energy) then
+            self.energy = -1
+            return true
+        end
     end
 
     return false
