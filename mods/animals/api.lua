@@ -928,6 +928,7 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
         return false
     end
 
+    -- young per egg should be explicitly defined in egg_data
     local young_per_egg = animals.calculate_egg_young(egg_data)
     if not young_per_egg then
       destroy_egg()
@@ -1020,6 +1021,7 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
         energy_egg = meta
     end
     -- ensure is number and greater than young_per_egg
+    -- energy_egg should explicitly be contained in egg_data
     energy_egg = energy_egg and energy_egg > young_per_egg and energy_egg or 100
 
     local objcounts = {} -- used to determine the counts of each defined creature
@@ -1058,6 +1060,9 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
             mobkit.remember(ent,'energy', start_e)
             mobkit.remember(ent,'age',0)
             objcount = objcount + 1
+        -- let's not waste energy, give more energy to each new young (remove from young_per_egg)
+        else
+            young_per_egg = young_per_egg - 1
         end
         -- update object counts
         objcounts[check_name] = objcount
