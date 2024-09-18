@@ -14,7 +14,6 @@
 HEALTH = {}
 sfinv = sfinv
 player_monoids = player_monoids
-clothing = clothing
 
 -- Internationalization
 HEALTH.S = minetest.get_translator("health")
@@ -181,6 +180,9 @@ function HEALTH.set_meta_stats(player, stats, meta)
     meta:set_int("lives", stats.lives)
     meta:set_int("move", stats.move)
     meta:set_int("jump", stats.jump)
+    -- Note: maybe use  "comfort_temp" name not "clothing-temp"
+    -- to make it clear this doesn't depend on clothing system
+    -- I didn't do the rename because fear for migration issues
     meta:set_int("clothing_temp_min", stats.clothing_temp_min)
     meta:set_int("clothing_temp_max", stats.clothing_temp_max)
 end

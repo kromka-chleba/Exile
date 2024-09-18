@@ -4,7 +4,6 @@
 --Local table to store pending confirmations.
 local timestamp = {}
 region = region
-clothing = clothing
 lore = lore
 local S = lore.S
 

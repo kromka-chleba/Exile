@@ -12,7 +12,6 @@ local store = bed_rest.store
 
 player_api = player_api
 player_monoids = player_monoids
-clothing = clothing
 minimal = minimal
 
 -- after this many IRL days, beds in multiplayer will no longer be protected
@@ -43,7 +42,6 @@ end
 
 
 -- if donning == false, remove blanket from bed, else put blanket on bed
---#TODO works but display in clothing tab doesn't update well, until I also change cloths
 local function wear_blanket(player, bed_pos, donning)
     local bed_meta = minetest.get_meta(bed_pos)
     local bedInv = bed_meta:get_inventory()

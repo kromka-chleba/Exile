@@ -1,8 +1,6 @@
 
 
 local modpath = minetest.get_modpath(minetest.get_current_modname())
-clothing = clothing
-
 
 local colors = {
     white = "FFFFFF",

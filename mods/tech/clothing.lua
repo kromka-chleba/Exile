@@ -82,7 +82,7 @@ player_api.register_cloth(
         inventory_image = "tech_inv_woven_cape.png",
         texture = "tech_uv_woven_cape.png",
         stack_max = cloth_stack_max,
-        groups = {cloth = 5, cape = 1, clothing_cape=1},
+        groups = {cloth = 5},
         customfields= {temp_min = 2, temp_max = 1}
 })
 
@@ -102,7 +102,7 @@ player_api.register_cloth(
         inventory_image = "tech_inv_woven_poncho.png",
         texture = "tech_uv_woven_poncho.png",
         stack_max = cloth_stack_max,
-        groups = {cloth = 2, clothing_shirt = 1,},
+        groups = {cloth = 2},
         customfields= {temp_min = 2, temp_max = 1}
 })
 
@@ -122,7 +122,7 @@ player_api.register_cloth(
         inventory_image = "tech_inv_woven_leggings.png",
         texture = "tech_uv_woven_leggings.png",
         stack_max = cloth_stack_max,
-        groups = {cloth = 3, clothing_pants=1},
+        groups = {cloth = 3},
         customfields= {temp_min = 1, temp_max = 0}
 })
 

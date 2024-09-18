@@ -1,6 +1,19 @@
 -- regroups old player_api/clots.lua + old "clothing" mod
 -- #TODO : add dev and licesne info (Dokimi etc) from old mod
 
+-----------------------------------------------------------
+--CLOTHING init
+------------------------------------------------------------
+-- unused except in test_clothing file as archive
+-- registered cllabacks are all empty
+clothing = {
+	registered_callbacks = {
+		on_update = {},
+		on_equip = {},
+		on_unequip = {},
+	},
+}
+
 local modpath = minetest.get_modpath("player_api")
 
 -- where cloths inventory and registration function are defined
