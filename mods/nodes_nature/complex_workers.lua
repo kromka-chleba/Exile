@@ -89,7 +89,7 @@ function nn.create_evaporator(args_in)
                     local evap_chance
 
                     if water_ids[data[i]] and has_air then
-                        local light = data_light[i]
+                        local light = data_light[i] or 0
                         local light_cofactor = light / 15
                         evap_chance = temperature_cofactor * light_cofactor
                             * chance * 1/15
