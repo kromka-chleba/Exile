@@ -4,3 +4,6 @@
 [submodule "utilities/minetest_schemedit"]
 	path = utilities/minetest_schemedit
 	url  = https://repo.or.cz/minetest_schemedit.git
+[submodule "mods/mapchunk_shepherd"]
+	path = mods/mapchunk_shepherd
+	url = https://codeberg.org/perfect_city_game_studio/mapchunk_shepherd.git
