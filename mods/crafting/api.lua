@@ -546,9 +546,9 @@ function crafting.parse_where(recipe, items, item_idx, num_added)
     --print(dump( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") ))
 end
 
-function crafting.find_required_items(inv, listname, recipe)
-    -- Trawls input items/player inv, pulls all valid ingredients for recipe
-    -- Returns a list of what was found
+-- Trawls input items/player inv, pulls all valid ingredients for recipe
+-- Returns a list of what was found
+function crafting.find_required_items(inv, listname, recipe)    
     local items = {}
     -- updated to allow passing of a table of listnames
     -- items are taken from inventories in order passed

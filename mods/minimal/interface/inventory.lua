@@ -341,6 +341,7 @@ local function process_receive_fields(player, formname, fields)
                     minetest.log("error", "[inventoryFS] Player clicked a "..
                                  "button they shouldn't have been able to")
                     return true
+                -- try to craft, checking first "input_items" list, then sInv
                 elseif crafting.perform_craft(
                     player_name, inv, {"input_items",sInv}, sInv, recipe) then
                     cache.recipesFS = nil

@@ -30,6 +30,8 @@ local function sanitize(badstring)
     return badstring
 end
 
+
+-- #TODO isn't that function depreciated -> crfting page with sfinv ?
 function crafting.result_select_on_receive_results(player, type, level,
                                                    context, fields)
     -- Was a tab selected?
@@ -72,6 +74,8 @@ function crafting.result_select_on_receive_results(player, type, level,
                     minetest.log("error", "[crafting] Player clicked a button "..
                                  "they shouldn't have been able to")
                     return true
+                -- #TODO crafting without input priority, is it used ?
+                -- it shouldn't be anymore in Exile, if yes, document it
                 elseif crafting.perform_craft(name, inv, "main", "main", recipe) then
                     return true -- crafted
                 else
@@ -212,4 +216,3 @@ function crafting.make_on_place(type, level, inv_size)
         show(placer, context)
     end
 end
-
