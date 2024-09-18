@@ -290,7 +290,7 @@ local self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        stack = minimal.stack_max_medium/2
+        stack_max = minimal.stack_max_medium/2
     },
 }
 animals.register_animal("animals:gundu",self_data)
