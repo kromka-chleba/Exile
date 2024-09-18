@@ -1,10 +1,10 @@
 # textdomain: animals
 # crafts.lua
 # api_capture.lua
-Slaughter the animal="Das Tier schlachten"
-@1 Invertebrate="@1 Wirbelloser"
-Small="Kleiner"
-Large="Großer"
+Slaughter the animal=Das Tier schlachten
+@1 Invertebrate=@1 Wirbelloser
+Small=Kleiner
+Large=Großer
 @1 Bird=@1 Vogel
 @1 Fish=@1 Fisch
 @1 Carcass=@1kadaver
