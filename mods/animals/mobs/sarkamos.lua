@@ -222,7 +222,6 @@ local self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        desc = S("Live Sarkamos"),
         stack_max = minimal.stack_max_medium/2
     },
 }

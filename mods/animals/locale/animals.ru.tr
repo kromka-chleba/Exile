@@ -1,6 +1,5 @@
 # textdomain: animals
 # crafts.lua
-# api_capture.lua
 Slaughter the animal=Убить животное
 @1 Invertebrate=@1 беспозвоночный
 Small=Маленькая
@@ -10,38 +9,23 @@ Large=Большая
 @1 Carcass=Туша @1
 Cooked @1=Приготовленный @1
 Burned @1=Сожжённый @1
+# api_capture.lua + #api.lua
+@1 Eggs=Яйца @1
+@1 Live=Живой @1
 # darkasthaan.lua
 Darkasthaan=Даркастаан
-Darkasthaan Eggs=Яйца даркастаана
-Live Darkasthaan=Живой даркастаан
 # gundu.lua
 Gundu=Гунду
-Gundu Eggs=Яйца Гунду
-Live Gundu=Живой Гунду
 # impethu.lua
 Impethu=Импету
-Impethu Eggs=Яйца Импету
-Live Impethu=Живой Импету
 # kubwakubwa.lua
 Kubwakubwa=Кубвакубва
-Kubwakubwa Eggs=Яйца Кубвакубва
-Live Kubwakubwa=Живой Кубвакубва
-Female Pegasun=Самка Пегасуна
 # pegasun.lua
 Pegasun Egg=Яйцо Пегасуна
 Live Female Pegasun=Живая самка Пегасуна
-Live Male Pegasun=Живой самец Пегасуна
+Female Pegasun=Самка Пегасуна
 Male Pegasun=Самец Пегасуна
 # sarkamos.lua
 Sarkamos=Саркамос
-Sarkamos Eggs=Яйца Саркамоса
-Live Sarkamos=Живой Саркамос
 # sneachan.lua
 Sneachan=Сничан
-Sneachan Eggs=Яйца Сничана
-Live Sneachan=Живой Сничан
-
-
-##### not used anymore #####
-
-@1 Eggs=Яйцо @1

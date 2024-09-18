@@ -237,10 +237,7 @@ local self_data = {
             return true
         end,
     },
-    -- spawnegg or live animal
-    spawnegg = {
-        description = S("Live Kubwakubwa")
-    },
+    -- spawnegg (live animal) handled in animal registration
 }
 self_data.energy_egg = self_data.energy_max*0.5 --energy that goes to egg
 self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.4

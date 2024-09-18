@@ -153,6 +153,9 @@ animals.register_spawnegg = function(name, def, animal)
   assert(type(name) == "string",
          "animals.register_spawnegg: was not provided a string for name, got '"
          ..type(name).."'")
+  -- fix name properly (we use it to find textures sometimes)
+  name = name:sub(1,1) == ":" and minetest.get_current_modname()..name or
+      not name:match(":") and minetest.get_current_modname()..":"..name or name
 
   -- custom definitions
   def.spawn_animal = animal

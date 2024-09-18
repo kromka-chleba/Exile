@@ -264,9 +264,6 @@ self_data = {
         end,
 
     },
-    -- spawnegg or live animal
-    spawnegg = {
-        desc = S("Live Impethu")
-    },
+    -- spawnegg (live animal) handled in animal registration
 }
 animals.register_animal("animals:impethu", self_data)

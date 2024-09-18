@@ -2963,9 +2963,13 @@ function animals.register_egg(def, animal)
         error("animals.register_egg: was given an 'animal' argument that "..
               "was invalid, nil or table only, got '"..type(animal).."'")
     end
+    -- fix name properly
+    name = name:sub(1,1) == ":" and minetest.get_current_modname()..name or
+        not name:match(":") and minetest.get_current_modname()..":"..name or name
 
 
-    def.description = def.desc or def.description or ""
+
+    def.description = def.description or (animal._desc and S("@1 Eggs",animal._desc)) or ""
     def.tiles = def.tiles or {"animals_gundu_eggs.png"}
     def.stack_max = def.stack_max or minimal.stack_max_medium
     def.drawtype = def.drawtype or "nodebox"
@@ -3368,7 +3372,7 @@ function animals.register_animal(name,def)
     assert(type(spawnegg) ==
            "table","animals.register_animal: defined 'spawnegg' is not a "..
            "table for itemdef, got "..type(spawnegg))
-    def.spawnegg = animals.register_spawnegg(name, def.spawnegg, def)
+    def.spawnegg = animals.register_spawnegg(name, spawnegg, def)
 
     -- fix or issue errors about improperly set capture_interactions
     if def.capture_interactions then

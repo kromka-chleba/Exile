@@ -247,9 +247,6 @@ self_data = {
             return false,math.random(egg_time,egg_time*2)
         end,
     },
-    -- spawnegg or live animal
-    spawnegg = {
-        description = S("Live Sneachan")
-    },
+    -- spawnegg (live animal) handled in animal registration
 }
 animals.register_animal("animals:sneachan",self_data)

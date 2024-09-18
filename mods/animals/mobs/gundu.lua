@@ -290,8 +290,6 @@ local self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        desc = S("Live Gundu"),
-        inv_img = "animals_gundu_item.png",
         stack = minimal.stack_max_medium/2
     },
 }
