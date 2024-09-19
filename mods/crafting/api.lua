@@ -388,7 +388,8 @@ local function item_does_match (item,search, lang_code)
         local test = item:get_short_description()
         -- #TODO warning maybe not compatible wiht old clients
         local desc =  minetest.get_translated_string(lang_code or "en", item:get_short_description())
-        if string.find(desc:lower(), search:lower()) then
+        -- search should have had  minimal.make_search_string applied already
+        if string.find( minimal.make_search_string(desc), search) then
             return true
         else
             return false

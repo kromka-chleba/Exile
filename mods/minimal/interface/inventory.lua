@@ -304,14 +304,13 @@ local function process_receive_fields(player, formname, fields)
         -- force to redraw the recipes
         cache.recipesFS = nil
         cache.output = ""
-        done = true -- #TODO unsure yet
+        done = true
     end
-    -- #TODO doesn't redisplay the recipe if search is cancelled, until I change tab
     if fields.crafting_filter or
         fields.key_enter_field == "crafting_search" then
-        
-        if cache.sSearch ~= (fields.crafting_search):lower() then --#TODO deal with accent in other languages    
-            cache.sSearch = (fields.crafting_search):lower()
+        local transformed = minimal.make_search_string(fields.crafting_search)
+        if cache.sSearch ~= transformed then
+            cache.sSearch = transformed
             -- will force to resort recipes
             crafting.sort_order_by_player[player_name]=nil
             -- reset the scroll bar
@@ -321,6 +320,10 @@ local function process_receive_fields(player, formname, fields)
             cache.output = ""
             done = true
         else
+            --[[#TODO : make the search label to transform ? (without reforming the recipe formspec, just the search part) or at the opposite, leave it untouched and transform the cache only when we test ? but that would need more transformations... to decide...
+            Other thing is that the non update can make us thing it doesn't work..
+            ]]
+            
             return false
         end
     end
