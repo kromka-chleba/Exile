@@ -170,6 +170,8 @@ local function first_spawn(player)
     end
     -- Bang! new player appears in the world
     minetest.after(0.15, function()
+                       -- #TODO: check if this .after() still serves a purpose
+                       if not minetest.is_player(player) then return end
                        region.spawn(player)
                        doGatewayFX(player)
                        player_api.set_invisible(player, false)
