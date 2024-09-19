@@ -35,10 +35,30 @@ crafting = {
 
 local S = minetest.get_translator("crafting")
 
+-- list og items by crafing group
+local groups_table = {}
+
+-- generate list of items by groups
+-- to be called in minetest.register_on_mods_loaded
+local function sort_by_group()
+    for name, itemdef in pairs(minetest.registered_items) do
+        for group_name, value in pairs(itemdef.groups) do
+            if value >= 1 then
+                if not groups_table[group_name] then
+                    groups_table[group_name] = {name}
+                else
+                    table.insert(groups_table[group_name], name)
+                end
+            end
+        end
+    end
+end
+
 -- Group names from recipes for the translation script
 -- The translation will be performed when descriptions are generated
 -- Note : cobble's group could be passed as nodes_nature:xxx-cobble1
 --   item instead of group since we only can drop cobble1 type
+-- #TODO do we need it this we translation group desc in gstat ?
 local groupNameForTranslations = {
     S("log"), S("fibrous plant"), S("sand"), S("compostable"),
     S("hard wood"), S("cana"), S("woody plant"), S("woodslab"),
@@ -82,6 +102,7 @@ end
 -- have to wait for all modules load before generating
 -- station lists
 minetest.register_on_mods_loaded( function ()
+        sort_by_group()
         for _,recipe in ipairs(crafting.recipes_by_id) do
             if type(recipe.type) == "string" then
                 recipe.type = { recipe.type }
@@ -351,19 +372,85 @@ local function get_real_name(name)
     return name
 end
 
+-- Returns true if the search string is in item's short description
+-- accept string or ItemStack
 
-function crafting.get_all(ctype, level, item_hash, unlocked)
+-- TODO not working, desc is not good
+-- also is maybe called for too many recipes
+local function item_does_match (item,search, lang_code)
+    if not search then
+        return true
+    elseif type(search) ~= "string" then -- should happend
+        minetest.log("not a string")
+        return true
+    else
+        local item = ItemStack(item)
+        local test = item:get_short_description()
+        -- #TODO warning maybe not compatible wiht old clients
+        local desc =  minetest.get_translated_string(lang_code or "en", item:get_short_description())
+        if string.find(desc:lower(), search:lower()) then
+            return true
+        else
+            return false
+        end
+    end
+end
+
+-- #TODO generate hash of all string matching with a recipe after registering at start
+
+-- testing if searched name is in this row
+-- search is a string
+-- row is a table of ItemStacks or groups
+local function row_does_contain (row, search, lang_code)
+    -- else, testing it one of the ingredient matchs the filter
+    if type(row) ~= "table" then
+        row = {row}
+    end
+    for _,item in pairs(row) do
+        local gstats = crafting.get_group_stats(item)
+        -- if this is a groupe, get item names in it
+        if gstats then
+            local g_name = gstats.name
+            for _, item_name in ipairs(groups_table[g_name]) do
+                if item_does_match (item_name,search, lang_code) then
+                    return true
+                end
+            end
+        -- if this is a single item
+        else
+            local item = ItemStack(item) -- #TODO not sure it is usefull            
+            if item_does_match (item,search, lang_code) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+-- get all possible recipes to display
+function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
     assert(crafting.recipes[ctype], "No such craft type!")
+    assert(not search or type(search) == "string", "search need to be a string")
     local results = {}
     for _, recipe in pairs(crafting.recipes[ctype]) do
         local craftable = true
+        local displayed = (not search) -- true if no search, false else
         if recipe.level <= level and (recipe.always_known
                                       or unlocked[recipe.output]) then
+            -- display if output matchs search
+            if item_does_match (recipe.output,search, lang_code) then
+                 displayed = true
+            end
+
             local items = {}
             -- Check what ingredients are available
             for recipe_row, rowItem in ipairs(recipe.items) do
                 local rItems = {} -- row items
                 local pickable = false
+                -- display if any input matchs search)
+                if row_does_contain (rowItem, search, lang_code) then
+                    displayed = true
+                end
                 for i,item in ipairs(crafting.peek_item(rowItem, item_hash)) do
                     rItems[#rItems+1] = item
                     if item.available then
@@ -407,12 +494,14 @@ function crafting.get_all(ctype, level, item_hash, unlocked)
                     end
                 end
             end
-
-            results[#results + 1] = {
-                recipe    = recipe,
-                items     = items,
-                craftable = craftable,
-            }
+            -- add recipe to list only if it matchs search
+            if displayed then
+                results[#results + 1] = {
+                    recipe    = recipe,
+                    items     = items,
+                    craftable = craftable,
+                }                
+            end
         end
     end
 
@@ -440,15 +529,17 @@ function crafting.set_item_hashes_from_list(inv, listname, item_hash)
     end
 end
 
-function crafting.get_all_for_player(player, ctype, level)
-    local unlocked = crafting.get_unlocked(player:get_player_name())
+function crafting.get_all_for_player(player, ctype, level, search)
+    local pname = player:get_player_name()
+    local unlocked = crafting.get_unlocked(pname)
     -- build player items hash
     local item_hash = {}
     -- reset group hash
     crafting.item_by_group = {}
     crafting.set_item_hashes_from_list(player:get_inventory(), "main", item_hash)
     -- Get all available recipies and mark craftible ones.
-    local results =  crafting.get_all(ctype, level, item_hash, unlocked)
+    local lang_code = minetest.get_player_information(pname).lang_code
+    local results =  crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
     return results
 end
 

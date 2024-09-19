@@ -19,7 +19,7 @@ Single=Один
 Stack=Стек
 Maximum=Максимум
 Quantity=Количество:
-Query=Запрос
+Search=Запрос
 or=
 #playersettings.lua
 Enable wide HUDbar=Включить широкую панель HUDbar

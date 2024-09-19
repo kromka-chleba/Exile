@@ -8,7 +8,7 @@ Owner:=
 Label:=
 #interface/inventory.lua
 Missing required items!=
-Query=
+Search=
 Main=
 Bag1=
 Bag2=

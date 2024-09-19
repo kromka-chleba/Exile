@@ -18,7 +18,7 @@ Quantity="Menge"
 Single="Einzel"
 Stack="Stapel"
 Maximum="Maximum"
-Query=
+Search=
 or=
 #playersettings.lua
 Enable wide HUDbar="Weite HUD-Leiste aktivieren"

@@ -19,7 +19,7 @@ Quantity=Quantité
 Single=Un seul
 Stack=Une pile
 Maximum=Le maximum
-Query=Requête
+Search=Requête
 or=ou
 #playersettings.lua
 Enable wide HUDbar=Activer une large barre d'outils
