@@ -53,7 +53,6 @@ local function sort_by_group()
         end
     end
 end
-
 -- Group names from recipes for the translation script
 -- The translation will be performed when descriptions are generated
 -- Note : cobble's group could be passed as nodes_nature:xxx-cobble1
@@ -442,7 +441,6 @@ function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
             if item_does_match (recipe.output,search, lang_code) then
                  displayed = true
             end
-
             local items = {}
             -- Check what ingredients are available
             for recipe_row, rowItem in ipairs(recipe.items) do
@@ -495,6 +493,7 @@ function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
                     end
                 end
             end
+
             -- add recipe to list only if it matchs search
             if displayed then
                 results[#results + 1] = {

@@ -247,6 +247,7 @@ local function process_qty(recipe,qty,item_hash)
     end
 end
 
+
 -- return true if something changed, false else
 local function process_receive_fields(player, formname, fields)
     --   if formname ~= '' or formname ~= 'exile:crafting' then return false; end -- Not our form.
