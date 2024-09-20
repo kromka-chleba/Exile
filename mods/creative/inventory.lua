@@ -69,9 +69,11 @@ end
 
 function creative.update_creative_inventory(player_name, tab_content)
     local creative_list = {}
+    local lang_code = minetest.get_player_information(player_name).lang_code
     local inv = player_inventory[player_name] or
         creative.init_creative_inventory(
             minetest.get_player_by_name(player_name))
+
     local player_inv = minetest.get_inventory({type = "detached",
                                                name = "creative_" ..
                                                    player_name})
@@ -79,9 +81,16 @@ function creative.update_creative_inventory(player_name, tab_content)
     local items = inventory_cache[tab_content]
         or init_creative_cache(tab_content)
 
+    -- filter part : look for filter in name or short_description
     for name, def in pairs(items) do
+        -- get the description in correct language
+        local desc =  minetest.get_translated_string(lang_code, def.description)
+        -- remove accent + lowercap
+        desc = minimal.make_search_string(desc)
+        -- if name (in English as in code) or description matches filter, do
         if def.name:find(inv.filter, 1, true) or
-            def.description:lower():find(inv.filter, 1, true) then
+            desc:find(inv.filter, 1, true) then
+
             creative_list[#creative_list+1] = name
         end
     end
@@ -171,7 +180,7 @@ function creative.register_tab(name, title, items)
                 elseif fields.creative_search or
                     fields.key_enter_field == "creative_filter" then
                     inv.start_i = 0
-                    inv.filter = fields.creative_filter:lower()
+                    inv.filter = minimal.make_search_string(fields.creative_filter)
                     creative.update_creative_inventory(player_name, items)
                     sfinv.set_player_inventory_formspec(player, context)
                 elseif not fields.quit then

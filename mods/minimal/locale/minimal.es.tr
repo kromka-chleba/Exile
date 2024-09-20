@@ -18,7 +18,7 @@ Quantity=
 Single=
 Stack=
 Maximum=
-Query=
+Search=
 or=
 #playersettings.lua
 Enable wide HUDbar=Enciende la barra ancha del HUD

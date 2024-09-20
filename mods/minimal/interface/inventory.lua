@@ -37,8 +37,9 @@ ctypes:set_list('main',{
 --      sTab   = selected_craft_tab     -- index of selected tab in ctypes - default = 1
 --      sLevel = selected craft_type_level -- set by craft type item selected
 --      sScroll = selected scroll level -- needed to draw scroll container
+--      sSearch = current filter in search field #TODO to implement
 --      cTabs = table_of_craftItem_tabs -- set by def.exile_crafting.craft_type.
---      sInv = selected_inventory       -- set by bag buttons
+--      sInv = selected_inventory       -- set by bag buttons #TODO not here anymore, right ?
 --      -- The Following are tables of formspec strings
 --      -- Set output = "" to force redraw using cashed details
 --      -- to trigger redraw of a section, set the section to nil
@@ -46,7 +47,7 @@ ctypes:set_list('main',{
 --      -- cache.recipesFS = nil, and cache.output = ""
 --      craft_typeFS = {},
 --      craft_itemsFS = {},
---  recipesFS = {},
+--      recipesFS = {},
 --      inventoryFS = {},
 --      output = "",
 --      }
@@ -124,6 +125,7 @@ local function set_cache(player_name,inv,sItemID,qtyID)
     cache.craft_typesFS = nil
     cache.input_itemsFS = nil
     cache.recipesFS = nil
+    cache.sSearch = nil
     cache.output = ""
     cache.sInv = cache.sInv or 'main'
     -- XXX need to make sure selected inv exists.
@@ -245,7 +247,7 @@ local function process_qty(recipe,qty,item_hash)
     end
 end
 
-
+-- return true if something changed, false else
 local function process_receive_fields(player, formname, fields)
     --   if formname ~= '' or formname ~= 'exile:crafting' then return false; end -- Not our form.
     local player_name = player:get_player_name()
@@ -284,7 +286,7 @@ local function process_receive_fields(player, formname, fields)
             end
         end
     end
-    -- process craft tabs.
+    -- process craft tabs. --#TODO seems unused
     if fields.sCraftTab then
         cache.sTab = tonumber(fields.sCraftTab)
         cache.sScroll = 0
@@ -293,13 +295,46 @@ local function process_receive_fields(player, formname, fields)
         --                crafting.sort_order_by_player[player_name] = nil
         done = true
     end
+    if fields.crafting_clear then
+        -- will force to resort recipes
+        crafting.sort_order_by_player[player_name]=nil
+        -- reset the scroll bar
+        cache.sScroll = 0
+        cache.sSearch = nil
+        -- force to redraw the recipes
+        cache.recipesFS = nil
+        cache.output = ""
+        done = true
+    end
+    if fields.crafting_filter or
+        fields.key_enter_field == "crafting_search" then
+        local transformed = minimal.make_search_string(fields.crafting_search)
+        if cache.sSearch ~= transformed then
+            cache.sSearch = transformed
+            -- will force to resort recipes
+            crafting.sort_order_by_player[player_name]=nil
+            -- reset the scroll bar
+            cache.sScroll = 0
+            -- force to redraw the recipes
+            cache.recipesFS = nil -- #TODO should trigger rebuild of recipe list but doesn't properly unless I reset tab ?
+            cache.output = ""
+            done = true
+        else
+            --[[#TODO : make the search label to transform ? (without reforming the recipe formspec, just the search part) or at the opposite, leave it untouched and transform the cache only when we test ? but that would need more transformations... to decide...
+            Other thing is that the non update can make us thing it doesn't work..
+            ]]
+
+            return false
+        end
+    end
+    -- process new craft tabs
     for i = 1, 10, 1 do
         if fields['sCraftTab_'..i] then
             cache.sTab = i
             cache.sScroll = 0
             cache.recipesFS = nil
             cache.output = ""
-            --             crafting.sort_order_by_player[player_name] = nil
+            -- crafting.sort_order_by_player[player_name] = nil
             done = true
         end
     end
@@ -367,7 +402,8 @@ local function process_receive_fields(player, formname, fields)
     return true
 end
 
-local function recipes_for_player(cache, pInv, player_name, ctype, level)
+-- #TODO see when what is called and were to put languages
+local function recipes_for_player(cache, pInv, player_name, ctype, level, search)
     local unlocked = crafting.get_unlocked(player_name)
     -- build player items hash
     local item_hash = {}
@@ -383,13 +419,15 @@ local function recipes_for_player(cache, pInv, player_name, ctype, level)
     -- save item_hash to cache
     cache.item_hash = item_hash
     -- Get all available recipies and mark craftible ones.
-    local results =  crafting.get_all(ctype, level, item_hash, unlocked)
+    -- #TODO maybe just pass the player and cache and not have that many parameters
+    local results =  crafting.get_all(ctype, level, item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
     return results
 end
 
 -- This needs to be rebuilt every time the craft_type, craft_tab, input_items,
 -- or selected inventory changes
 -- It is triggered by setting cache.recipesFS = nil
+-- #TODO the search doesn't correctly update, same with seeds changing (inventory change)
 local function cache_player_recipes(cache, player_name, pInv)
     -- this is for more clarity, choice of display settings
     local line_number = 3 -- 3 lines of recipes displayed
@@ -399,12 +437,14 @@ local function cache_player_recipes(cache, player_name, pInv)
     --
     local recipesFS = {}
     local sItem = cache.sItem    -- craft type Item selected
-    local sTab = cache.sTab              -- selected craft type tab
+    local sTab = cache.sTab      -- selected craft type tab
     local sLevel = cache.sLevel  -- level associated with selected craft type
     local cTabs = cache.cTabs    -- Crafting tabs to display
     local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
+    local sSearch = cache.sSearch
     local recipe_list = recipes_for_player(cache, pInv, player_name,
-                                           cTabs[sTab], sLevel)
+                                           cTabs[sTab], sLevel, sSearch)
+
     -- keep a sort hash so order doesn't change while crafting things
 
     --print ("--------------------------]cache_player_recipes()[------------------")
@@ -441,6 +481,7 @@ local function cache_player_recipes(cache, player_name, pInv)
             end
         end
     else
+        --minetest.log("I need to sort")
         -- sort craftable recipes to top of list
         for _,result in ipairs(recipe_list) do
             local id = result.recipe.id
@@ -496,6 +537,7 @@ local function cache_player_recipes(cache, player_name, pInv)
     -- Add recipe buttons in columns of 5 or 6
     local x = 0
     local y = 0
+    -- display each recipe in sorted list
     for i, result in ipairs(sorted) do
         -- recipe
         local recipe_output = result.recipe.output
@@ -547,9 +589,11 @@ local function cache_player_recipes(cache, player_name, pInv)
     end
 
     recipesFS[#recipesFS + 1] = 'scroll_container_end[]'
-    recipesFS[#recipesFS + 1] = 'field_close_on_enter[query;false]'
-    recipesFS[#recipesFS + 1] = 'field[0.4,9.5;3.0,0.5;query;'.. S("Query")..';]'
-    recipesFS[#recipesFS + 1] = 'button[3.7,9.5;0.6,0.5;?;?]'
+    recipesFS[#recipesFS + 1] = 'field_close_on_enter[crafting_search;false]'
+    recipesFS[#recipesFS + 1] = 'field[0.4,9.5;3.0,0.6;crafting_search;'.. S("Search")..';'.. (sSearch or "") .. ']'
+    --recipesFS[#recipesFS + 1] = 'button[3.7,9.5;0.6,0.5;crafting_filter;?]'
+    recipesFS[#recipesFS + 1] = 'image_button[3.5,9.5;0.6,0.6;creative_search_icon.png;crafting_filter;]'
+    recipesFS[#recipesFS + 1] = 'image_button[4.2,9.5;0.6,0.6;creative_clear_icon.png;crafting_clear;]'
     cache.recipesFS = table.concat(recipesFS, "")
     cache.output = ""
     return cache
@@ -701,8 +745,10 @@ function minimal.register_inventory_sfinv()
                 end,
                 on_player_receive_fields = function(self, player,
                                                     context, fields)
-                    process_receive_fields(player, "", fields)
-                    sfinv.set_player_inventory_formspec(player, context)
+                    -- if something changed, redraw the page
+                    if process_receive_fields(player, "", fields) then
+                        sfinv.set_player_inventory_formspec(player, context)
+                    end
                 end,
                 on_enter = function(self, player, context)
                     local player_name = player:get_player_name()
@@ -736,6 +782,7 @@ function minimal.make_inventory_formspec(player,context)
         return nil -- no player name
     end
     local cache = inventoryFS_cache[player_name]
+
     -- context exists for inventory formspec only
     if not context and cache == 'closed' then
         return nil
