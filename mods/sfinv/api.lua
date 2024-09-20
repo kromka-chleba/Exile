@@ -60,7 +60,7 @@ function sfinv.make_formspec(player, context, content, show_inv, size)
 	return table.concat(tmp, "")
 end
 
--- Exile added part ------------------------------------------------------------
+-- Exile added part -------------------------------------------------------------
 local inv_y = 7.3
 
 local exile_theme_inv = {
