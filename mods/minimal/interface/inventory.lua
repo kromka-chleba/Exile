@@ -30,31 +30,33 @@ ctypes:set_list('main',{
                     -- 'tech:grinding_stone_granite',
 })
 
--- The inventory formspec is cached for each player like this:
--- inventoryFS_cache[player_name] = {
---      epoch  = os.time(),             -- Used to expire cache
---      sItem  = selected_craft_type_item -- set by craft_type item buttons defaults - to first
---      sTab   = selected_craft_tab     -- index of selected tab in ctypes - default = 1
---      sLevel = selected craft_type_level -- set by craft type item selected
---      sScroll = selected scroll level -- needed to draw scroll container
---      sSearch = current filter in search field #TODO to implement
---      cTabs = table_of_craftItem_tabs -- set by def.exile_crafting.craft_type.
---      sInv = selected_inventory       -- set by bag buttons #TODO not here anymore, right ?
---      -- The Following are tables of formspec strings
---      -- Set output = "" to force redraw using cashed details
---      -- to trigger redraw of a section, set the section to nil
---      -- eg) to regenerate the recipes list, set
---      -- cache.recipesFS = nil, and cache.output = ""
---      craft_typeFS = {},
---      craft_itemsFS = {},
---      recipesFS = {},
---      inventoryFS = {},
---      output = "",
---      }
--- output is cleared if any of the elements is updated to force a redraw
--- each section of the formspec is cached as string.  If updated,
--- a section should be set to nil and output set to "" to force a redraw.
--- only sections cleared are recreated via make_inventory_formspec
+--[[ The inventory formspec is cached for each player like this:
+    inventoryFS_cache[player_name] = {
+        epoch  = os.time(),             -- Used to expire cache
+        sItem  = selected_craft_type_item -- set by craft_type item buttons defaults - to first
+        sTab   = selected_craft_tab     -- index of selected tab in ctypes - default = 1
+        sLevel = selected craft_type_level -- set by craft type item selected
+        sScroll = selected scroll level -- needed to draw scroll container
+        sSearch = current filter in search field #TODO to implement
+        cTabs = table_of_craftItem_tabs -- set by def.exile_crafting.craft_type.
+        sInv = selected_inventory       -- set by bag buttons #TODO not here anymore, right ?
+        -- The Following are tables of formspec strings
+        -- Set output = "" to force redraw using cashed details
+        -- to trigger redraw of a section, set the section to nil
+        -- eg) to regenerate the recipes list, set
+        -- cache.recipesFS = nil, and cache.output = ""
+        craft_typeFS = {},
+        craft_itemsFS = {},
+        recipesFS = {},
+        searchFS= "", -- search container
+        inventoryFS = {},
+        output = "",
+    }
+    output is cleared if any of the elements is updated to force a redraw
+    each section of the formspec is cached as string.  If updated,
+    a section should be set to nil and output set to "" to force a redraw.
+    only sections cleared are recreated via make_inventory_formspec
+]]
 
 local inventoryFS_cache = {}
 
@@ -430,6 +432,7 @@ end
 -- This needs to be rebuilt every time the craft_type, craft_tab, input_items,
 -- or selected inventory changes
 -- It is triggered by setting cache.recipesFS = nil
+-- #TODO it is currently not rebuild on closing/reopening formspec, and should be
 local function cache_player_recipes(cache, player_name, pInv)
     -- this is for more clarity, choice of display settings
     local line_number = 3 -- 3 lines of recipes displayed
@@ -554,7 +557,7 @@ local function cache_player_recipes(cache, player_name, pInv)
             .. sScroll .. ']'
     end
     recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1.2;'..
-        tostring(columns + 1)..',3.75;recipes_scroll;vertical;' ..
+        tostring(columns + 1)..','..(1.25 * line_number)..';recipes_scroll;vertical;' ..
         grid_size .. ']'
     -- Add recipe buttons in columns of 5 or 6
     local x = 0
@@ -612,12 +615,26 @@ local function cache_player_recipes(cache, player_name, pInv)
     end
 
     recipesFS[#recipesFS + 1] = 'scroll_container_end[]'
-    recipesFS[#recipesFS + 1] = 'field_close_on_enter[crafting_search;false]'
-    recipesFS[#recipesFS + 1] = 'field[0.4,9.5;3.0,0.6;crafting_search;'.. S("Search")..';'.. (sSearch or "") .. ']'
-    --recipesFS[#recipesFS + 1] = 'button[3.7,9.5;0.6,0.5;crafting_filter;?]'
-    recipesFS[#recipesFS + 1] = 'image_button[3.5,9.5;0.6,0.6;creative_search_icon.png;crafting_filter;]'
-    recipesFS[#recipesFS + 1] = 'image_button[4.2,9.5;0.6,0.6;creative_clear_icon.png;crafting_clear;]'
+
+    -- saving new cache
     cache.recipesFS = table.concat(recipesFS, "")
+    cache.output = ""
+    return cache
+end
+
+-- Build search field to be in container
+local function cache_search_field(cache)
+    result={
+    'field_close_on_enter[crafting_search;false]',
+    --'field[0,0;3.0,0.6;crafting_search;'.. S("Search")..';'.. (sSearch or "") .. ']'
+    'field[0,0;3.0,0.6;crafting_search;;'.. (cache.sSearch or "") .. ']',
+    --recipesFS[#recipesFS + 1] = 'button[3.7,9.5;0.6,0.5;crafting_filter;?]'
+    'image_button[3.1,0;0.6,0.6;creative_search_icon.png;crafting_filter;]',
+    'image_button[3.8,0;0.6,0.6;creative_clear_icon.png;crafting_clear;]'
+    }
+
+    -- saving new cache
+    cache.searchFS = table.concat(result,"")
     cache.output = ""
     return cache
 end
@@ -629,7 +646,7 @@ local function cache_player_inventory(cache, pInv)
     local inventory = {}
     inventory[#inventory + 1] = 'style_type[list;size=;spacing=]'
     inventory[#inventory + 1] = 'list[current_player;' ..
-        selected .. ';.4,6.7;8,2;0]'
+        selected .. ';.4,7.8;8,2;0]'
     inventory[#inventory + 1] = 'listring[]'
     -- inventory[#inventory + 1] = 'tabheader[.4,9.8;inventory_tab;'..S("Main")..","..S("Bag1")..","..S("Bag2")..","..S("Bag3")..","..S("Bag4")..';1;true;false]'
 
@@ -647,11 +664,11 @@ local function cache_player_input_list(cache, pInv)
     end
 
     local input_listFS = {
-        'container[.4,3.8]',
+        'container[.4,2.8]',
         'label[0,0;'..S("Input Items")..']',
         --                'box[0,.2;2.5,2.5;black]',
         'style_type[list;size=.7,.7;spacing=.1]',
-        'list[current_player;input_items;.1,.3;3,3;0]',
+        'list[current_player;input_items;.1,.3;2,3;0]',
         'container_end[]',
     }
     cache.input_listFS = table.concat(input_listFS, "")
@@ -702,6 +719,24 @@ local function cache_player_craft_types(cache, pInv)
     return cache
 end
 
+
+-- Empty craft_type items and delete the associated inventory
+local function delete_craft_types(pInv)
+    if not pInv:is_empty('craft_types') then
+        for i=1, pInv:get_size('craft_types') do
+            local empty = ItemStack("")
+            pInv:set_stack('craft_types', i, empty)
+        end
+        -- Return items to player.
+        -- copies of items added will be added to
+        -- the inventory list 'craft_items_return'
+        -- they need to be returned here.
+    end
+    -- delete craft_types list
+    pInv:set_size('craft_types',0)
+end
+
+-- #TODO need to update recipes when we get new things in inventory outside the formspec (like I get new wood plant, but stick is not green)
 -- Call when the inventory formspec is closed to clear cache
 function minimal.close_inventory_formspec(player)
     local player_name = player:get_player_name()
@@ -738,19 +773,9 @@ function minimal.close_inventory_formspec(player)
             end
         end
     end
+
     -- Empty craft_type items
-    if not pInv:is_empty('craft_types') then
-        for i=1, pInv:get_size('craft_types') do
-            local empty = ItemStack("")
-            pInv:set_stack('craft_types', i, empty)
-        end
-        -- Return items to player.
-        -- copies of items added will be added to
-        -- the inventory list 'craft_items_return'
-        -- they need to be returned here.
-    end
-    -- delete craft_types list
-    pInv:set_size('craft_types',0)
+    delete_craft_types(pInv)
 end
 
 function minimal.register_inventory_sfinv()
@@ -830,39 +855,54 @@ function minimal.make_inventory_formspec(player,context)
     qtytab[qtyID] = 'true'
     qtylab[qtyID] = minetest.colorize("cyan", qtylab[qtyID])
 
-    local output =
-        'formspec_version[5]' ..
-        'size[10.5,10.9]' ..
-        'position[0.5,0.48]' ..
-        'label[.35,6.1;'..S("Quantity")..':]' ..
-        -- 'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]' ..
-        'checkbox[3.0,6.1;qty1;'..qtylab[1]..';'..qtytab[1]..']' ..
-        'checkbox[5.0,6.1;qty2;'..qtylab[2]..';'..qtytab[2]..']' ..
-        'checkbox[7.0,6.1;qty3;'..qtylab[3]..';'..qtytab[3]..']'
+    local output = {
+        'formspec_version[5]',
+        'size[10.5,10.9]',
+        'position[0.5,0.48]',
+
+        -- quantity choices :
+        'container[0.35,7.2]',
+        'label[0,0;'..S("Quantity")..':]',
+        -- 'dropdown[1.5,6.0;1.4,.4;qty;Single,Stack,Maximum;1;true]',
+        'checkbox[2.6,0;qty1;'..qtylab[1]..';'..qtytab[1]..']',
+        'checkbox[4.65,0;qty2;'..qtylab[2]..';'..qtytab[2]..']' ,
+        'checkbox[6.65,0;qty3;'..qtylab[3]..';'..qtytab[3]..']' ,
+        'container_end[]'
+    }
     -- add Craft Types
     --   if not cache.craft_typeFS then
     cache = cache_player_craft_types(cache, pInv)
     --   end
-    output = output .. cache.craft_typeFS
+    table.insert(output,cache.craft_typeFS)
     -- add Input List
     --   if not cache.input_listFS then
     cache = cache_player_input_list(cache,pInv)
     --   end
-    output = output .. cache.input_listFS
+    table.insert(output,cache.input_listFS)
     -- add Recipes List
     --   if not cache.recipesFS then
     cache = cache_player_recipes(cache,player_name,pInv)
     --   end
-    output = output .. cache.recipesFS
+    table.insert(output, cache.recipesFS)
+
+    --search field
+    table.insert(output, 'container[3.2, 5.2]')
+    cache = cache_search_field(cache)
+    table.insert(output, cache.searchFS)
+    table.insert(output, 'container_end[]')
+
+
     -- add Inventory List
     --   if not cache.inventoryFS then
     cache = cache_player_inventory(cache,player)
     --   end
-    output = output .. cache.inventoryFS
+    table.insert(output, cache.inventoryFS)
+
     -- Save output to cache and update
-    cache.output = output
+    local result = table.concat(output)
+    cache.output = result
     inventoryFS_cache[player_name] = cache
-    return output
+    return result
 end
 
 minimal.register_inventory_sfinv()
