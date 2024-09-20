@@ -38,6 +38,10 @@ local FULL_RANGE = 6000
 --to stop excessive back and forth
 local recent_teleports = {}
 
+-- Minimum time for a pad to charge
+local pad_time = 20
+
+
 ------------------------------------------------------------
 --TRANSPORTER PAD
 
@@ -376,6 +380,35 @@ local function transporter_power_rightclick(pos, node, player,
 end
 
 --
+local function finish_emerge(blockpos, action, calls_remaining, pad_table)
+    local pos, start_time = unpack(pad_table)
+    if ( action == minetest.EMERGE_ERRORED
+         or action == minetest.EMERGE_CANCELLED ) then
+        minetest.sound_play("artifacts_transport_error",
+                            {pos = pos, gain = 1, max_hear_distance = 6})
+       return
+    end
+    if calls_remaining <= 0 then
+        local function charge_pad()
+            minimal.switch_node(pos,
+                                {name = "artifacts:transporter_pad_active"})
+            minetest.sound_play("artifacts_transport_charged",
+                                {pos = pos, gain = 2, max_hear_distance = 20})
+            local color = tonumber(minetest.get_meta(pos):get("stretch") or 0)
+            transporter_particles(pos, color)
+
+        end
+
+        local total = minetest.get_gametime() - start_time
+        if total < pad_time then
+            local delay = pad_time - total
+            minetest.after(delay, charge_pad)
+        else
+            charge_pad()
+        end
+    end
+end
+
 local function transporter_rightclick(pos, node, player,
 				      itemstack, pointed_thing)
    if itemstack:get_name() == "artifacts:transporter_key" then
@@ -426,23 +459,26 @@ local function transporter_rightclick(pos, node, player,
 		   y = dpos.y + MIN_DIST,
 		   z = dpos.z + MIN_DIST}
 
-      minetest.emerge_area(p1, p2)
+        minetest.emerge_area(p1, p2, finish_emerge,
+                             { pos, minetest.get_gametime()
+        })
+        local dest = minetest.pos_to_string(dpos)
 
-      local dest = minetest.pos_to_string(dpos)
+        --create charging pad and copy over meta data
+        local meta_tran = minetest.get_meta(pos)
 
-      --create charging pad and copy over meta data
-      local meta_tran = minetest.get_meta(pos)
-		minimal.switch_node(pos,
-				    {name="artifacts:transporter_pad_charging"})
-		minetest.sound_play("artifacts_transport_charge",
-				    {pos = pos, gain = 2, max_hear_distance = 20})
-		meta_tran:set_string("tmp_dest", dest)
-		meta_tran:set_string("tmp_random", random)
-		meta_tran:set_string("stretch", stretch)
-	else
-	   minetest.sound_play("artifacts_transport_error",
-			       {pos = pos, gain = 1, max_hear_distance = 6})
-	end
+        minimal.switch_node(pos,
+                            {name="artifacts:transporter_pad_charging"})
+        minetest.sound_play("artifacts_transport_charge",
+                            {pos = pos, gain = 2, max_hear_distance = 20})
+        meta_tran:set_string("tmp_dest", dest)
+        meta_tran:set_string("tmp_random", random)
+        meta_tran:set_string("stretch", stretch)
+
+    else
+        minetest.sound_play("artifacts_transport_error",
+                            {pos = pos, gain = 1, max_hear_distance = 6})
+    end
 
 end
 
@@ -814,41 +850,31 @@ minetest.register_node('artifacts:transporter_pad', {
 	sounds = nodes_nature.node_sound_glass_defaults(),
 })
 
-
-minetest.register_node('artifacts:transporter_pad_charging', {
-	description = 'Transporter Pad (Charging)',
-	tiles = {'artifacts_antiquorium.png^artifacts_moon_glass.png'},
-	stack_max = minimal.stack_max_bulky,
-	drawtype = "nodebox",
-	paramtype = "light",
-	light_source = 3,
-	drop = 'artifacts:transporter_pad',
-	node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.5, 0, -0.5, -0.125, 0.0625, -0.125}, -- NodeBox1
-			{0.125, 0, -0.5, 0.5, 0.0625, -0.125}, -- NodeBox2
-			{0.125, 0, 0.125, 0.5, 0.0625, 0.5}, -- NodeBox3
-			{-0.5, 0, 0.125, -0.125, 0.0625, 0.5}, -- NodeBox4
-			{-0.375, -0.125, -0.375, 0.375, 0.0, 0.375}, -- NodeBox5
-			{-0.4375, -0.3125, -0.4375, 0.4375, -0.125, 0.4375}, -- NodeBox6
-			{-0.5, -0.5, -0.5, 0.5, -0.3125, 0.5}, -- NodeBox7
-			{-0.125, 0, -0.125, 0.125, 0.0625, 0.125}, -- NodeBox9
-		}
-	},
-	groups = {},
-	sounds = nodes_nature.node_sound_glass_defaults(),
-	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(20)
-	end,
-	on_timer = function(pos, elapsed)
-	   minimal.switch_node(pos, {name = "artifacts:transporter_pad_active"})
-	   minetest.sound_play("artifacts_transport_charged",
-			       {pos = pos, gain = 2, max_hear_distance = 20})
-	   local color = tonumber(minetest.get_meta(pos):get("stretch") or 0)
-	   transporter_particles(pos, color)
-	end,
-})
+local pad_def_charging = {
+    description = S('Transporter Pad (Charging)'),
+    tiles = {'artifacts_antiquorium.png^artifacts_moon_glass.png'},
+    stack_max = minimal.stack_max_bulky,
+    drawtype = "nodebox",
+    paramtype = "light",
+    light_source = 3,
+    drop = 'artifacts:transporter_pad',
+    node_box = {
+        type = "fixed",
+        fixed = {
+            {-0.5, 0, -0.5, -0.125, 0.0625, -0.125}, -- NodeBox1
+            {0.125, 0, -0.5, 0.5, 0.0625, -0.125}, -- NodeBox2
+            {0.125, 0, 0.125, 0.5, 0.0625, 0.5}, -- NodeBox3
+            {-0.5, 0, 0.125, -0.125, 0.0625, 0.5}, -- NodeBox4
+            {-0.375, -0.125, -0.375, 0.375, 0.0, 0.375}, -- NodeBox5
+            {-0.4375, -0.3125, -0.4375, 0.4375, -0.125, 0.4375}, -- NodeBox6
+            {-0.5, -0.5, -0.5, 0.5, -0.3125, 0.5}, -- NodeBox7
+            {-0.125, 0, -0.125, 0.125, 0.0625, 0.125}, -- NodeBox9
+        }
+    },
+    groups = {},
+    sounds = nodes_nature.node_sound_glass_defaults(),
+}
+minetest.register_node('artifacts:transporter_pad_charging', pad_def_charging)
 
 
 minetest.register_node('artifacts:transporter_pad_active', {
