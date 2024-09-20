@@ -526,7 +526,7 @@ local function cache_player_recipes(cache, player_name, pInv)
             local tool_tip ="\n"
             for _, item in ipairs(row) do
                 local color = item.have >= item.need and "#6f6" or "#f66"
-                if tool_tip ~= "\n" then 
+                if tool_tip ~= "\n" then
 					tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color) .. S("or") .. " "
 				else
 					tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color)

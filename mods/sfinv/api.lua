@@ -51,7 +51,7 @@ local theme_inv = { -- #TODO the images seem useless
 		"list[current_player;main;0.35,".. inv_y .. ";8,1;]",
 		"list[current_player;main;0.35,".. inv_y + 1.25 .. ";8,3;8]"
 	}
-	
+
 function sfinv.make_formspec_for_exile(player, context, content, show_inv)
 	local size = "formspec_version[5]" ..
 		"size[10.5,10.9]" ..
