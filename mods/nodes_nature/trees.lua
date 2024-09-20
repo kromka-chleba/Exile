@@ -386,7 +386,7 @@ function trees.register_leaves(name, def, tree)
 
     def.after_destruct = def.after_destruct or function(pos, node)
         -- wild
-        if node.param2 < 128 then
+        if node.param2 < 128 and minetest.is_creative_enabled() == false then
             save_to_tree_mark(pos, node, false)
             local season, day = seasons.get_season_and_day()
             -- late winter (hunger)
@@ -410,7 +410,7 @@ function trees.register_leaves(name, def, tree)
     def.after_dig_node = def.after_dig_node or function(pos, oldnode,
                                                         oldmetadata, digger)
         -- wild
-        if oldnode.param2 < 128 then
+        if oldnode.param2 < 128 and minetest.is_creative_enabled() == false then
             save_to_tree_mark(pos, oldnode, true)
             local timer_data = get_mark_timer_data(def,"leaves")
             minetest.get_node_timer(pos):start(timer_data:get_new_time())
@@ -510,7 +510,7 @@ function trees.register_fruit(name, def, tree)
 
     def.after_destruct = def.after_destruct or function(pos, node,
                                                         oldmetadata, digger)
-        if node.param2 < 128 then
+        if node.param2 < 128 and minetest.is_creative_enabled() == false then
             save_to_tree_mark(pos, node, false)
             local season, day = seasons.get_season_and_day()
             -- late winter (hunger)
@@ -530,7 +530,7 @@ function trees.register_fruit(name, def, tree)
 
     def.after_dig_node = def.after_dig_node or function(pos, oldnode,
                                                         oldmetadata, digger)
-        if oldnode.param2 < 128 then
+        if oldnode.param2 < 128 and minetest.is_creative_enabled() == false then
             save_to_tree_mark(pos, oldnode, true)
             local timer_data = get_mark_timer_data(def,"fruit")
             minetest.get_node_timer(pos):start(timer_data:get_new_time())
@@ -631,7 +631,7 @@ function trees.register_tree(name,def)
     end
     def.after_dig_node = def.after_dig_node or function(pos, node)
         -- wild
-        if node.param2 < 128 then
+        if node.param2 < 128 and minetest.is_creative_enabled() == false then
             save_to_tree_mark(pos, node, true)
             local timer_data = get_mark_timer_data(def)
             minetest.get_node_timer(pos):start(timer_data:get_new_time())
