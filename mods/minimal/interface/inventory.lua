@@ -450,7 +450,6 @@ local function cache_player_recipes(cache, player_name, pInv)
                                            cTabs[sTab], sLevel, sSearch)
 
     -- keep a sort hash so order doesn't change while crafting things
-
     --print ("--------------------------]cache_player_recipes()[------------------")
     local sortHash = crafting.sort_order_by_player[player_name]
     if not sortHash or not sortHash.ctype then
@@ -512,11 +511,11 @@ local function cache_player_recipes(cache, player_name, pInv)
     for i=1, #cTabs do
         tab_table[i] = "     "
     end
-    
+
     recipesFS[#recipesFS + 1] = "style_type[item_image_button;bgimg_middle=4]" ..
     -- if this tab is selected, change style
     "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
-        
+
     for i=1, #cTabs do
         local leftPoint = 3.2 + (i - 1) * 0.85 -- grid_size
         local item_name = crafting.icon_item_name[cTabs[i]]
@@ -541,8 +540,6 @@ local function cache_player_recipes(cache, player_name, pInv)
             ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
                                              or cTabs[i])) ..
             ';#000000;#ffffff]'
-
-
     end
     -- add Scrollable container
     local columns = 6 -- can show 6 items accross without scrollbar
