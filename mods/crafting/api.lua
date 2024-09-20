@@ -501,7 +501,7 @@ end
 function crafting.pick_required_item(inv, lists, item)
     local picked_table ={}
     item = ItemStack(item)
-    local itemName = item:get_name()     
+    local itemName = item:get_name()
     --print("Attempting to pick ",itemName)
     local group_stats = crafting.get_group_stats(itemName)
     local required = item:get_count()
@@ -529,7 +529,7 @@ function crafting.pick_required_item(inv, lists, item)
                     table.insert(picked_table[list], found)
                 else
                     picked_table [list] = {found}
-                end            
+                end
                 required = required - found:get_count()
             end
             -- if I don't need more, stop parsing the list
@@ -541,11 +541,11 @@ function crafting.pick_required_item(inv, lists, item)
         if required <= 0 then
             break
         end
-    end 
+    end
     -- if I couldn't find enough, return nil
     if required > 0 then
         return nil
-    else 
+    else
         return picked_table
     end
 end
@@ -555,12 +555,12 @@ local function pick_alternate_items(inv, listname, item)
     if (type(item) == 'table') then
         -- create intermediate pick table of possible choices
         local temp_p_t = {}
-        -- find conItem in lists and put the result in pick_table[j] 
-        for _, conItem in ipairs(item) do          
+        -- find conItem in lists and put the result in pick_table[j]
+        for _, conItem in ipairs(item) do
             local pri = crafting.pick_required_item(inv, listname,
             conItem)
             if pri then
-                --[[ optionnal shortcut : 
+                --[[ optionnal shortcut :
                 if the first item has items in the first inv list,
                 stop and take that one]]
                 if pri [listname[1]] then
@@ -568,7 +568,7 @@ local function pick_alternate_items(inv, listname, item)
                 else
                     table.insert(temp_p_t, pri)
                 end
-            end                
+            end
         end
         --[[if no one was in the first list, choose the one to pick:
         take the 1st one who had some item in higher priority list]]
@@ -580,11 +580,11 @@ local function pick_alternate_items(inv, listname, item)
                     end
                 end
             end
-        end 
+        end
         -- if none was found
-        return nil  
-    else 
-        return crafting.pick_required_item(inv, listname, item)                   
+        return nil
+    else
+        return crafting.pick_required_item(inv, listname, item)
     end
 end
 
@@ -598,12 +598,12 @@ end
 
     {[list1] = {stack1, stack2, ...}, [list2] = {stack1, stack2}, ...}
 
-    To keep compatibility with external mod, 
+    To keep compatibility with external mod,
     Returns a list of stack if listname only had one element.
 
     Returns nil if not found or not enought for recipe
 ]]
-function crafting.find_required_items(inv, listname, recipe) 
+function crafting.find_required_items(inv, listname, recipe)
     if not listname then
         return nil
     end
@@ -614,16 +614,16 @@ function crafting.find_required_items(inv, listname, recipe)
     -- to store found items
     local found_table = {}
     -- initiate ound_table
-    for i, list in ipairs(listname) do        
+    for i, list in ipairs(listname) do
         found_table[list]={}
     end
     --print("Recipe Items: "..dump(recipe.items))
     for i, item in ipairs(recipe.items) do
         -- Conditional input list to process
-        local pick_table = pick_alternate_items(inv, listname, item)                  
+        local pick_table = pick_alternate_items(inv, listname, item)
         -- if this part is found, add it to found_table
         if pick_table then
-            for list, picked_litems in pairs (pick_table) do    
+            for list, picked_litems in pairs (pick_table) do
                 for _,picked_stack in pairs(picked_litems) do
                     table.insert(found_table[list],picked_stack)
                 end
@@ -633,7 +633,7 @@ function crafting.find_required_items(inv, listname, recipe)
             return nil
         end
     end
-    
+
     -- Return found list
     if #listname == 1 then
         --if we had only one list, return only a list of stack to keep mod compatibility
@@ -661,17 +661,17 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
     if not founditems then
         return false
     end
-    
+
     --[[ updated to allow passing of a table of listnames
     -- items are taken from inventories in order passed
     -- this converts old use of this function to new use]]
     if type(listname) ~= 'table' then
         founditems = {[listname] = founditems}
     end
-    
+
     -- Take items from inventory
     local taken = {}
-    
+
     for source, items in pairs(founditems) do
         for _,item in pairs(items) do
             local took = inv:remove_item(source, item)
@@ -680,7 +680,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
             end
         end
     end
-    
+
     for i=1, #crafting.registered_on_crafts do
         crafting.registered_on_crafts[i](name, recipe)
     end
@@ -700,8 +700,8 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
             .."'. Crafting commenced by "..tostring(name))
         end
     end
-    
-    
+
+
     local make_output = recipe.output
     if recipe.material_output then
         make_output = string.gsub(recipe.material_output,
@@ -720,7 +720,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
         end
         imeta:set_string('short_description', sdesc)
     end
-    
+
     -- set material
     if material then
         imeta:set_string('material', material)
@@ -732,14 +732,14 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
             local image = string.gsub(recipe.tiles_name, '%%material%%', material)
             imeta:set_string('inventory_tiles', image)
         end
-        
+
     end
-    
+
     -- Add Tool Tips to Description
-    
+
     if idef._tool_tips and idef._tool_tips ~= '' then
         --imeta:set_string('description',sdesc .. idef._tool_tips)
-        
+
     end
     local items_to_add = {}
     local count = itemstack:get_count()
