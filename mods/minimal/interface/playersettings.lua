@@ -61,14 +61,14 @@ function minimal.show_player_settings(playername, meta)
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
         "checkbox[1,3;nomusic;   "..S("Disable music")..";"..nomusic.."]"..
-        "label[1,4;"..S("Temperature scale")..":]"..
-        "dropdown[5,3.75;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
+        "label[1,3.75;"..S("Temperature scale")..":]"..
+        "dropdown[5,3.5;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
         tempnum..";true]"..
-        "label[1,4.75;"..S("GUI theme")..":]"..
-        "dropdown[5,4.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
-        "label[1,5.8;"..S("HUD Opacity level")..":]"..
+        "label[1,4.25;"..S("GUI theme")..":]"..
+        "dropdown[5,4;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+        "label[1,5;"..S("HUD Opacity level")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
-        "scrollbar[4,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
+        "scrollbar[2,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
     minetest.show_formspec(playername, "player_settings", spec)
 end
 

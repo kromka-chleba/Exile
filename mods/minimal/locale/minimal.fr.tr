@@ -26,6 +26,7 @@ Enable wide HUDbar=Activer une large barre d'outils
 Show numeric stats=Montrer des stats numériques
 Enable Break-taker popup=Autoriser la pop-up de pause de jeu
 Allow digging with a full inventory=Autoriser le minage avec un inventaire plein
+Disable music=Désactiver la musique
 Temperature scale=Unité de température
 GUI theme=Thème de l'interface
 HUD Opacity level=Niveau d'opacité de la barre d'outils
