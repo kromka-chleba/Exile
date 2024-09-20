@@ -413,7 +413,11 @@ local bedspot = {
         self.timer = nil
         self.count = ( self.count or 0 ) + 1
         local chrilden = self.object:get_children()
-        if #chrilden < 1 or self.count > 9 then -- cannot frigth back?!
+        if self.count > 9 and #chrilden > 0 then
+            chrilden[1]:set_detach()
+            table.remove(chrilden, 1) -- to new york, too lady to rest
+        end
+        if #chrilden < 1 then -- cannot frigth back?!
             self.object:remove()
             return
         end
