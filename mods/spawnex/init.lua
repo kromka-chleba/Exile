@@ -173,6 +173,7 @@ minetest.register_entity(
             end
             if self.timer < self.timelimit then return end
             self.timer = 0
+            print("portal on_step")
             local obj = self.object
             local function change_size()
                 obj:set_properties({ visual_size = { x = self.size,
@@ -204,6 +205,7 @@ minetest.register_entity(
                 end
                 change_size()
             end
+            print("done")
         end,
         get_staticdata = function(self)
             return tostring(self.timer)

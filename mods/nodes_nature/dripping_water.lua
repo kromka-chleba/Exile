@@ -32,6 +32,7 @@ local drop_entity = {
     end,
 
     on_step = function(self, dtime)
+        print("dripping water on_step")
         local k = math.random(1,444)
         local ownpos = self.object:get_pos()
 
@@ -53,6 +54,7 @@ local drop_entity = {
                 {pos = ownpos, gain = math.random(0.5,1),
                  max_hear_distance = 12})
         end
+        print("done")
     end,
 
     on_punch=function(self, puncher, time_from_last_punch,

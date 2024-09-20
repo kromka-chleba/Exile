@@ -3299,7 +3299,13 @@ function animals.register_animal(name,def)
     --}
 
     -- mobkit dependency
-    def.on_step = def.on_step or mobkit.stepfunc
+    local step_temp = def.on_step or mobkit.stepfunc
+    def.on_step = function(self, dtime, moveresult)
+        local nm = self.name or self.get_luaentity and self.get_luaentity().name
+        print("Animals on_step for ",nm)
+        step_temp(self, dtime, moveresult)
+        print("done")
+    end
     def.on_activate = def.on_activate or mobkit.actfunc
     def.get_staticdata = def.get_staticdata or mobkit.statfunc
 

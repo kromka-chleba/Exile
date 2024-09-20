@@ -94,6 +94,7 @@ function spears_set_entity(spear_type, base_damage, toughness)
                 self.object:remove()
                 return false
             end
+            print("spear on-step")
             local pos = self.object:get_pos()
             local velocity = self.object:get_velocity()
             local speed = vector.length(velocity)
@@ -103,6 +104,7 @@ function spears_set_entity(spear_type, base_damage, toughness)
                 if check_node ~= SPEARS_NODE_STICKY then -- Fall when node is removed
                     self.object:remove()
                     minetest.add_item(pos, {name='spears:spear_' .. spear_type, wear = wear})
+                    print("done")
                     return false
                 end
             else -- Spear is flying
@@ -122,6 +124,7 @@ function spears_set_entity(spear_type, base_damage, toughness)
                         minetest.sound_play("spears_hit", {pos = pos}, true)
                         wear = spears_wear(wear, toughness)
                         minetest.add_item(pos, {name='spears:spear_' .. spear_type, wear = wear})
+                        print("done")
                         return true
                     end
                 end
@@ -139,16 +142,19 @@ function spears_set_entity(spear_type, base_damage, toughness)
                         minetest.sound_play("default_tool_breaks", {pos = pos}, true)
                         self.object:remove()
                         minetest.add_item(pos, {name='defaut:stick'})
+                        print("done")
                         return false
                     elseif check_middle_node ~= SPEARS_NODE_THROUGH then
                         minetest.sound_play("default_metal_footstep", {pos = pos}, true)
                         self.object:remove()
                         minetest.add_item(pos, {name='spears:spear_' .. spear_type, wear = wear})
+                        print("done")
                         return false
                     elseif check_node == SPEARS_NODE_CRACKY then
                         minetest.sound_play("default_metal_footstep", {pos = pos}, true)
                         self.object:remove()
                         minetest.add_item(pos, {name='spears:spear_' .. spear_type, wear = wear})
+                        print("done")
                         return false
                     elseif check_node == SPEARS_NODE_STICKY and check_middle_node == SPEARS_NODE_THROUGH then
                         self.object:set_acceleration(SPEARS_V_ZERO)
@@ -165,6 +171,7 @@ function spears_set_entity(spear_type, base_damage, toughness)
                     self.object:set_acceleration(acceleration)
                 end
             end
+            print("done")
         end,
     }
     return SPEAR_ENTITY

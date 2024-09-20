@@ -501,6 +501,9 @@ minetest.register_entity(
         on_step = function(self, dtime, moveresult)
             -- Fallback code since collision detection can't tell us
             -- about liquids (which do not collide)
+            local nm = self.name
+                or self.get_luaentity and self.get_luaentity().name
+            print("Falling node on_step for ",nm)
             if self.floats then
                 local pos = self.object:get_pos()
 
@@ -511,6 +514,7 @@ minetest.register_entity(
                 if bcd and bcd.liquidtype ~= "none" then
                     if self:try_place(bcp, bcn) then
                         self.object:remove()
+                        print("done")
                         return
                     end
                 end
@@ -553,10 +557,12 @@ minetest.register_entity(
                     ))
                     self.object:set_pos(self.object:get_pos():offset(0, -0.5, 0))
                 end
+                print("done")
                 return
             elseif bcn.name == "ignore" then
                 -- Delete on contact with ignore at world edges
                 self.object:remove()
+                print("done")
                 return
             end
 
@@ -593,6 +599,7 @@ minetest.register_entity(
                 end
             end
             self.object:remove()
+            print("done")
         end
 })
 

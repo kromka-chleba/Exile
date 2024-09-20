@@ -160,12 +160,14 @@ function airboat.on_step(self, dtime)
         return
     end
     steplimit = 0
+    print("airboat on_step")
     if self.redundant == true then
         if self.driver == nil then
             self.object:remove()
         else
             self.redundant = false
         end
+        print("done")
         return
     end
     local lyaw = self.object:get_yaw()
@@ -241,6 +243,7 @@ function airboat.on_step(self, dtime)
     -- Early return for stationary vehicle
     if self.v == 0 and self.rot == 0 and self.vy == 0 and self.vx == 0 then
         self.object:set_pos(self.object:get_pos())
+        print("done")
         return
     end
 
@@ -265,6 +268,7 @@ function airboat.on_step(self, dtime)
     self.object:add_velocity(newvec)
     self.object:set_acceleration(accel)
     self.object:set_yaw(lyaw + (1 + dtime) * self.rot)
+    print("done")
 end
 
 

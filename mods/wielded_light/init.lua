@@ -642,7 +642,9 @@ local item = {
 		self.wielded_light = true
 		local stack = ItemStack(self.itemstring)
 		local item_name = stack:get_name()
+                print("wielded_light on_step for ",item_name)
 		wielded_light.track_item_entity(self.object, "item", item_name)
+                print("done")
 	end
 }
 setmetatable(item, {__index = builtin_item})

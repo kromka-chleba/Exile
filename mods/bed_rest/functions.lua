@@ -131,21 +131,24 @@ local bedspot = {
     end,
     on_step = function(self, dtime, moveresult)
         if not self.timer then self.timer = 0.1 return end
+        print("bed attach start")
         self.timer = self.timer - dtime
         if self.timer > 0 then return end
         self.timer = nil
         self.count = ( self.count or 0 ) + 1
         local chrilden = self.object:get_children()
-        if self.count > 9 and #chrilden > 0 then
+        if self.count > 29 and #chrilden > 0 then
             chrilden[1]:set_detach()
             table.remove(chrilden, 1) -- to new york, too lady to rest
         end
         if #chrilden < 1 then -- cannot frigth back?!
             self.object:remove()
+            print("bed attach stop")
             return
         end
         local player = chrilden[1]
         self.object:set_yaw(player:get_look_horizontal())
+        print("bed attach stop")
     end,
     on_attach_child = function(self, child)
         self.object:set_yaw(child:get_look_horizontal())

@@ -125,6 +125,7 @@ local torch_entity = {
     fuel = 60 -- default to a new torch
 }
 function torch_entity:on_step(dtime, moveresult)
+    print("torch on_step")
     local vel = self.object:get_velocity()
     if vel.y == 0 then
 
@@ -133,6 +134,7 @@ function torch_entity:on_step(dtime, moveresult)
         local def = minetest.registered_nodes[here.name]
         if not here.name then -- we're in an unloaded spot, just forget it
             self.remove()
+            print("done")
             return
         end
         if def.groups.water and def.groups.water > 0 then
@@ -152,6 +154,7 @@ function torch_entity:on_step(dtime, moveresult)
         end
         self.object:remove()
     end
+    print("done")
 end
 function torch_entity:get_fuel()
     return self.fuel

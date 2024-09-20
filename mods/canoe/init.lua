@@ -157,6 +157,7 @@ function canoe.on_step(self, dtime)
         and steplimit < 0.2 then
         return
     end
+    print("canoe on_step")
     dtime = steplimit
     steplimit = 0
     local lyaw = self.object:get_yaw()
@@ -215,6 +216,7 @@ function canoe.on_step(self, dtime)
     --early return if motionless
     if self.v == 0 and lvelocity.x == 0
         and lvelocity.y == 0 and lvelocity.x == 0 then
+        print("done")
         return
     end
 
@@ -257,6 +259,7 @@ function canoe.on_step(self, dtime)
         lyaw)
     self.object:add_velocity(new_velo)
     self.object:set_acceleration(new_acce)
+    print("done")
 end
 
 
