@@ -3177,27 +3177,34 @@ function animals.register_egg(def, animal)
     end
 end
 
+animals.registered_animals = {}
 
 
+
+-- animals.register_animal register_animal
+-- register an animal with setup values for ease of programming
+-- will be set with the following boolean values: animal (can be false/true, defaults true), mob (will always be true)
 function animals.register_animal(name,def)
-    if type(name) ~= "string" then
-        error(debug.traceback(
-                  "animals.register_animal: name is not a string, got '"..
-                  tostring(name).."'",2))
-    end
-    if type(def) ~= "table" then
-        error(debug.traceback(
-                  "animals.register_animal: definition is not a table, got '"
-                  ..tostring(def).."'",2))
-    end
-    if type(def.logic) ~= "function" then
-        error(debug.traceback("animals.register_animal: no 'logic' function "..
-                              "provided for definition, got '"..
-                              tostring(def.logic).."'",2))
-    end
+    assert(type(name) == "string",
+        "animals.register_animal: given name is not a string, got type '"..
+        tostring(name).."'")
+    assert(type(def) == "table",
+        "animals.register_animal: provided definition is not a table, got type '"..
+        tostring(def).."'")
+    assert(type(def.logic) == "function",
+        "animals.register_animal: no 'logic' function provided for definition, got type '"..
+        tostring(def.logic).."'")
 
-    name = (not name:match(":") and "animals:"..name) or name
+    -- fix name properly
+    -- colon at first part of string, indicative of no modname
+    -- no colon, no mod name or colon associated, add one
+    name = name:sub(1,1) == ":" and minetest.get_current_modname()..name or
+        not name:match(":") and minetest.get_current_modname()..":"..name or name
     def.name = name
+
+    -- basic mob booleans for identification
+    def.mob = true
+    def.animal = type(def.animal) ~= "boolean" and true or def.animal
 
     -- initial properties
     local init_prop = def.initial_properties or {}
@@ -3575,5 +3582,7 @@ function animals.register_animal(name,def)
 
     -- creature
     minetest.register_entity(name,def)
+    -- add to registered animals table
+    animals.registered_animals[name] = minetest.registered_entities[name]
     return minetest.registered_entities[name]
 end
