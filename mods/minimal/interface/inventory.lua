@@ -668,7 +668,7 @@ local function cache_player_craft_types(cache, pInv)
     local cTabs = cache.cTabs    -- Crafting tabs to display
     local craft_typeFS = {
         'container[.4,.6]',
-        'label[0,0;'..S("Craft Type")..']',
+        'label[0,0;'..S("Tool used")..']',
         -- 'box[0,.2;2.5,1.9;black]',
     }
     local x = 0
