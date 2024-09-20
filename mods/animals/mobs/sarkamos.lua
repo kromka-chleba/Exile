@@ -212,7 +212,6 @@ local self_data = {
     end,
     -- egg
     egg = {
-        description = S('Sarkamos Eggs'),
         tiles = {"animals_gundu_eggs.png"},
         stack_max = minimal.stack_max_bulky,
         groups = {egg = 3},
@@ -222,7 +221,6 @@ local self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        desc = S("Live Sarkamos"),
         stack_max = minimal.stack_max_medium/2
     },
 }

@@ -89,8 +89,7 @@ local function brain(self)
                     animals.place_egg(self, pos)
                 -- if very old and on 80% chance, lay egg and die, we were gon die soon anyways
                 elseif self.age >= (self.lifespan * 0.9) and random() < 0.8 and not (self.energy < 25) then
-                    animals.place_egg(self, pos, nil, self.energy)
-                    self:set('energy',-1,true)
+                    animals.emergency_egg(self, pos, nil, 0.8)
                     return
                 end
             end
@@ -219,7 +218,6 @@ local self_data = {
     end,
     -- eggs
     egg = {
-        description = S('Kubwakubwa Eggs'),
         tiles = {"animals_kubwakubwa_eggs.png"},
         node_box = {
             type = "fixed",
@@ -237,10 +235,7 @@ local self_data = {
             return true
         end,
     },
-    -- spawnegg or live animal
-    spawnegg = {
-        description = S("Live Kubwakubwa")
-    },
+    -- spawnegg (live animal) handled in animal registration
 }
 self_data.energy_egg = self_data.energy_max*0.5 --energy that goes to egg
 self_data.cn_min = (self_data.energy_egg / self_data.young_per_egg[2]) * 0.4

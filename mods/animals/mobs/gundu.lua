@@ -280,7 +280,6 @@ local self_data = {
     end,
     -- egg
     egg = {
-        description = S('Gundu Eggs'),
         tiles = {"animals_gundu_eggs.png"},
         stack_max = minimal.stack_max_bulky,
         groups = {egg = 3},
@@ -290,9 +289,7 @@ local self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        desc = S("Live Gundu"),
-        inv_img = "animals_gundu_item.png",
-        stack = minimal.stack_max_medium/2
+        stack_max = minimal.stack_max_medium/2
     },
 }
 animals.register_animal("animals:gundu",self_data)

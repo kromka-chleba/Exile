@@ -412,7 +412,7 @@ self_male.sounds = {
 -- attack
 self_male.attack={range=0.9, damage_groups={fleshy=4}}
 -- male spawnegg or live animal modifications
-self_male.spawnegg.description = S("Live Male Pegasun")
+self_male.spawnegg.description = nil -- handled in spawnegg registration
 self_male._desc = S("Male Pegasun")
 -- registering male
 animals.register_animal(self_male.name,self_male)

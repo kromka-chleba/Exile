@@ -70,9 +70,9 @@ local function brain(self)
             if light <= 12 then
                 --hungry eat stuff in the dark
                 if self.energy < self.energy_max then
-                    if  animals.eat_flora(pos, 0.006) == true then
+                    if  animals.eat_flora(pos, 0.005) == true then
                         self:modify('energy',10)
-                    elseif animals.eat_grassy_sediment_under(pos, 0.01) == true then
+                    elseif animals.eat_grassy_sediment_under(pos, 0.008) == true then
                         self:modify('energy',5)
                     else
                         --wander random
@@ -105,12 +105,23 @@ local function brain(self)
 
             --reproduction
             --asexual parthogenesis, eggs
-            if random() < 0.008
-                and not rival
-                and not pred
-                and self.hp >= self.max_hp
-                and self.energy >= (self.energy_max * 0.7) then
-                animals.place_egg(self, pos)
+            -- full health, no rival or pred
+            if self.hp >= self.max_hp and not (rival or pred) then
+                -- energy over 140% of energy_max and on 0.8% chance
+                if self.energy >= self.energy_egg * 1.4 and random() < 0.008 then
+                    animals.place_egg(self, pos)
+                -- higher chance of laying eggs near death
+                elseif self.energy > self.energy_egg * 1.05 and self.age >= self.lifespan * 0.8 and
+                    random() < 0.05 then
+                    animals.place_egg(self, pos)
+                -- don't even depend on checking own energy
+                elseif self.energy > 25 and self.age >= self.lifespan * 0.935 then
+                  -- 15% for over 93.5% lifespan, 35% for over 96% lifespan,
+                  -- 80% for over 98% lifespan
+                  local lay_chance = self.age > self.lifespan * 0.98 and 0.8
+                      or self.age > self.lifespan * 0.96 and 0.35 or 0.15
+                      animals.emergency_egg(self, pos, nil, lay_chance)
+                end
             end
 
         end
@@ -226,7 +237,6 @@ self_data = {
     end,
     -- eggs
     egg = {
-        description = S('Sneachan Eggs'),
         tiles = {"animals_sneachan_eggs.png"},
         egg_conditions_correct = function(pos,data)
             data = data or minimal.get_nodedef(pos)
@@ -247,9 +257,6 @@ self_data = {
             return false,math.random(egg_time,egg_time*2)
         end,
     },
-    -- spawnegg or live animal
-    spawnegg = {
-        description = S("Live Sneachan")
-    },
+    -- spawnegg (live animal) handled in animal registration
 }
 animals.register_animal("animals:sneachan",self_data)
