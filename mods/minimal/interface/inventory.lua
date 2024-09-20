@@ -323,7 +323,7 @@ local function process_receive_fields(player, formname, fields)
             --[[#TODO : make the search label to transform ? (without reforming the recipe formspec, just the search part) or at the opposite, leave it untouched and transform the cache only when we test ? but that would need more transformations... to decide...
             Other thing is that the non update can make us thing it doesn't work..
             ]]
-            
+
             return false
         end
     end
@@ -444,7 +444,7 @@ local function cache_player_recipes(cache, player_name, pInv)
     local sSearch = cache.sSearch
     local recipe_list = recipes_for_player(cache, pInv, player_name,
                                            cTabs[sTab], sLevel, sSearch)
-    
+
     -- keep a sort hash so order doesn't change while crafting things
 
     --print ("--------------------------]cache_player_recipes()[------------------")
@@ -782,7 +782,7 @@ function minimal.make_inventory_formspec(player,context)
         return nil -- no player name
     end
     local cache = inventoryFS_cache[player_name]
-    
+
     -- context exists for inventory formspec only
     if not context and cache == 'closed' then
         return nil

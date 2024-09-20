@@ -419,7 +419,7 @@ local function row_does_contain (row, search, lang_code)
             end
         -- if this is a single item
         else
-            local item = ItemStack(item) -- #TODO not sure it is usefull            
+            local item = ItemStack(item) -- #TODO not sure it is usefull
             if item_does_match (item,search, lang_code) then
                 return true
             end
@@ -501,7 +501,7 @@ function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
                     recipe    = recipe,
                     items     = items,
                     craftable = craftable,
-                }                
+                }
             end
         end
     end
