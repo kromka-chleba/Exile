@@ -27,7 +27,7 @@ crafting.register_type("crafting_spot",
 --crafting.register_type("threshing_spot")...has to be done in nodes_nature
 crafting.register_type("weaving_frame",
                        S("Weaving"),
-                       "tech:woven_poncho")
+                       "tech_paint_lw_weave.png")
 crafting.register_type("weaving_frame_mixing",
                        S("Mixing"),
                        "tech:weaving_frame")
@@ -76,18 +76,18 @@ crafting.register_type("glass_furnace",
 -- Tool based crafting stations
 crafting.register_type("hand", -- Empty hand tool; Replace crafting spot
                        S("Crafting"),
-                       "tech:stick")
+                       "tech_paint_lw_hand.png")
 -- crafting.register_type("hand_create", S("Create"), "tech:brick_makers_bench")        -- Assemble crafting stations by hand.
 crafting.register_type("hand_pottery",
                        S("Pottery"),
-                       "tech:clay_water_pot")     -- Pottery tab
+                       "tech_paint_lw_pot.png")     -- Pottery tab
 -- crafting.register_type("hand_wattle", S("Wattle"), "tech:wattle")            -- Wattle Tab
 crafting.register_type("hand_tools",
                        S("Tools"),
-                       "tech:hammer_basalt")  -- Tools Tab
+                       "tech_paint_lw_figure_tool.png")  -- Tools Tab
 crafting.register_type("hand_mixing",
                        S("Mixing"),
-                       "stairs:stair_thatch")       -- Mixing Tab
+                       "tech_paint_wh_stairs.png")       -- Mixing Tab
 
 crafting.register_type("knife",
                        S("Crafting"),
