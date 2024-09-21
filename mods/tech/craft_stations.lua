@@ -74,9 +74,9 @@ crafting.register_type("glass_furnace",
                        "tech:glass_furnace")
 
 -- Tool based crafting stations
-crafting.register_type("hand",
+crafting.register_type("hand", -- Empty hand tool; Replace crafting spot
                        S("Crafting"),
-                       "tech:stick")             -- Empty hand tool; Replace crafting spot
+                       "tech:stick")
 -- crafting.register_type("hand_create", S("Create"), "tech:brick_makers_bench")        -- Assemble crafting stations by hand.
 crafting.register_type("hand_pottery",
                        S("Pottery"),
@@ -510,7 +510,7 @@ minetest.register_node(
 -- Stone mortar and pestle -----------
 --"" one is default to have a without material display name in crafting formspec (recipes)
 for mat,capsMat in pairs ({
-        [""]="", 
+        [""]="",
         ["_basalt"]="Basalt ",
         ["_granite"]="Granite ",
         ["_limestone"]="Limestone "}) do
@@ -520,9 +520,9 @@ for mat,capsMat in pairs ({
         "tech:mortar_pestle" .. mat,{
             description   = S(capsMat .. "Mortar and Pestle"),
             exile_crafting = {
-    		    craft_types = {"mortar_and_pestle"},
-    		    craft_level = 1,
-    	    },
+                craft_types = {"mortar_and_pestle"},
+                craft_level = 1,
+            },
             drawtype      = "nodebox",
             tiles         = {"nodes_nature" .. image .. ".png"},
             stack_max     = minimal.stack_max_bulky *2,
@@ -547,7 +547,7 @@ for mat,capsMat in pairs ({
             end
             --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
         }
-    )    
+    )
 end
 
 ----Below the code to have only one mortar in recipe list, from Izzy + modified to display "no material" mortar_pestle"
@@ -556,7 +556,7 @@ end
 --     type   = "hand_tools",
 --     output = "tech:mortar_pestle",
 --     items  = {
---         {'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'}, 
+--         {'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'},
 --         {"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"},
 --         'nodes_nature:sand'
 --     },
@@ -584,7 +584,7 @@ end
 -- Wooden mortar and pestle
 ----------------------------
 minetest.register_node(
-    "tech:mortar_pestle_wooden",{ 
+    "tech:mortar_pestle_wooden",{
         description   = S("Wooden Mortar and Pestle"),
         exile_crafting = {
             craft_types = {"mortar_and_pestle"},
@@ -707,7 +707,7 @@ crafting.register_recipe({ -- from sticks
 
 -- Anvil : metal working
 minetest.register_node(
-    "tech:anvil", { 
+    "tech:anvil", {
         description   = S("Anvil"),
         exile_crafting = {
             craft_types = {"anvil","anvil_mixing"},
@@ -1033,7 +1033,7 @@ minetest.register_node(
 --IB-20240226    level  = 1,
 --IB-20240226    always_known = true,
 --IB-20240226    })
---IB-20240226 
+--IB-20240226
 
 --IB-20240226 ----Wood chopping_block
 --IB-20240226 crafting.register_recipe({

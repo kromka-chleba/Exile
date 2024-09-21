@@ -228,6 +228,7 @@ minetest.register_tool(
 minetest.register_node(
     "tech:stone_knife_placed", {
         description = S("Placed Stone Knife"),
+        inventory_image = "tech_tool_stone_chopper.png",
         exile_crafting = {
             craft_types = {"knife",'knife_wattle','knife_mixing'},
             craft_level = 1,
@@ -361,6 +362,7 @@ minetest.register_tool(
 minetest.register_node(
     "tech:digging_stick_placed", {
         description = S("Placed Digging Stick"),
+        inventory_image = "tech_tool_digging_stick.png^[transformR90",
         exile_crafting = {
             craft_types = {"threshing_spot","soil_mixing", "shovel_agriculture"},
             craft_level = 1,
@@ -434,6 +436,7 @@ for material,materialincaps in
     minetest.register_node(
         "tech:adze_" .. material .. "_placed", {
             description = S("Placed @1 adze", materialincaps),
+            inventory_image = "tech_tool_adze_"..material..".png",
             exile_crafting = {
                 craft_types = {"axe","knife_wattle","axe_mixing"},
                 craft_level = 1,
@@ -622,6 +625,7 @@ minetest.register_tool(
 minetest.register_node(
     "tech:axe_iron_placed", {
         description = S("Placed Iron Axe"),
+        inventory_image = "tech_tool_axe_iron.png",
         exile_crafting = {
             craft_types = {"axe","knife_wattle","axe_mixing"},
             craft_level = 2,
@@ -691,6 +695,7 @@ minetest.register_tool(
 minetest.register_node(
     "tech:shovel_iron_placed", {
         description = S("Placed Iron Shovel"),
+        inventory_image = "tech_tool_shovel_iron.png^[transformR90",
         exile_crafting = {
             craft_types = {"threshing_spot","soil_mixing", "shovel_agriculture"},
             craft_level = 1,
@@ -779,6 +784,7 @@ minetest.register_tool(
 minetest.register_node(
     "tech:pickaxe_iron_placed", {
         description = S("Placed Iron Pickaxe"),
+        inventory_image = "tech_tool_pickaxe_iron.png",
         drawtype = "mesh",
         mesh = "pickaxe_placed.obj",
         tiles = {name = "tech_axe_iron_placed.png"},
@@ -836,6 +842,7 @@ minetest.register_tool(
 minetest.register_node(
     "tech:hoe_iron_placed", {
         description = S("Placed Iron Hoe"),
+        inventory_image = "tech_tool_hoe_iron.png",
         exile_crafting = {
             craft_types = {"threshing_spot","soil_mixing", "shovel_agriculture"},
             craft_level = 1,
@@ -1074,6 +1081,7 @@ for mat , caps in pairs({["basalt"]=S("Basalt"), ["granite"]=S("Granite")}) do
     minetest.register_node(
         "tech:hammer_" .. mat .. "_placed", {
             description = S("Placed @1 Hammer", caps),
+            inventory_image = "tech_tool_hammer_" .. mat .. ".png",
             exile_crafting = {
                 craft_types = {"hammer", "hammer_mixing"},
                 craft_level = 1,
