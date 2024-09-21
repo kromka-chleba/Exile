@@ -88,42 +88,33 @@ local function wear_blanket(player, bed_pos, donning)
 
     --if I want to put a blanket
     else
-        -- do I have a blanket to put in from inventory ?
-        newstack = blanket_find(p_inv, "main")
-        -- I have a blanket to place
+        -- if a blanket is already on the bed, take that one
+        newstack = bedInv:get_stack('main',1)
         if newstack and not newstack:is_empty() then
-            -- in case bed is not empty, take what is in it
-            to_remove = bedInv:get_stack('main',1)
-            -- put new blanket in bed inventory
-            bedInv:set_stack('main',1,newstack)
-            -- put it in clothing slot too
+            -- put it in clothing slot (should be empty)
             p_inv:set_stack('blanket',1,newstack)
-            -- update info
-            bed_meta:set_string("blanket",S("Bed: Contains Blanket"))
-            minimal.infotext_set_new(bed_pos, bed_meta)
 
-            -- if the bed was not empty, I have an old blanket to deal with
-            if not to_remove:is_empty() then
-                -- if we can, take it in inventory
-                if p_inv:room_for_item('main',to_remove) then
-                    p_inv:add_item('main',to_remove)
-                -- else put it on the ground
-                else
-                    local p_pos = player:get_pos()
-                    minetest.item_drop(to_remove, player, p_pos)
-                    minetest.chat_send_player(
-                    player:get_player_name(), S("You have no room to hold your blanket, so you drop it."))
-                    minetest.sound_play("nodes_nature_dig_snappy",
-                    {pos = p_pos, gain = .8, max_hear_distance = 2})
-                end
-            end
-            -- I have no blanket to place
+        -- else, try to take one from inventory
         else
-            minetest.log("There is no blanket to add to the bed")
-            return -- not sure if I should return flase to indicate the fail
+            newstack = blanket_find(p_inv, "main")
+            -- I have a blanket to place
+            if newstack and not newstack:is_empty() then
+                -- put new blanket in bed inventory
+                bedInv:set_stack('main',1,newstack)
+                -- put it in clothing slot too
+                p_inv:set_stack('blanket',1,newstack)
+                -- update info
+                bed_meta:set_string("blanket",S("Bed: Contains Blanket"))
+                minimal.infotext_set_new(bed_pos, bed_meta)
+
+            -- else, I have no blanket to place, do nothing
+            else
+                minetest.log("There is no blanket to add to the bed")
+                return -- not sure if I should return false to indicate the fail
+            end
         end
     end
-    -- update player settings
+    -- update player look and cloth effects
     player_api.update_player(player)
 end
 
@@ -281,7 +272,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
         --check with break taker
         bed_rest.break_taker(name,player:get_meta():get_string("breaktaker"))
 
-        --wear a blanket from inventory
+        --wear a blanket from inventory or use one in the bed if any
         wear_blanket(player, bed_pos, true)
 
         -- physics, eye_offset, etc
