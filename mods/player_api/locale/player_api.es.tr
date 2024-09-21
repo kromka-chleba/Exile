@@ -24,6 +24,8 @@ Pink Bow=Lazo rosa
 Classic Green Sweater=Jersei verde clásico
 Fine Blue Pants=Pantalones azules finos
 
+You can't equip a blanket outside of a bed.=
+
 # equip.lua
 Clothing=Vestimenta
 Min Temperature Tolerance: @1=Temperatura mínima tolerada: @1

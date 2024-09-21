@@ -26,6 +26,8 @@ Pink Bow=
 Classic Green Sweater=
 Fine Blue Pants=
 
+You can't equip a blanket outside of a bed.=
+
 # equip.lua
 Clothing=
 Min Temperature Tolerance: @1=

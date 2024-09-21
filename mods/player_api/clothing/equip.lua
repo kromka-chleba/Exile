@@ -118,14 +118,15 @@ local function allow_cloth_equip (player, inventory, stack)
         end
         -- else refuse if this is a blanket and I am not in bed
         if item_group == 6 and player_api.get_state(player, "health"):is("resting") == false then
-            minetest.chat_send_player(player:get_player_name(), S("You can't equip a blanket outside of a bed."))
+            minimal.send_message(
+                player:get_player_name(),
+                S("You can't equip a blanket outside of a bed."), 2)
             return 0
         end
 
         local destination = player_api.get_inv_name_from_group(item_group)
         -- else, if I am already wearing the same thing
         if inventory:get_stack(destination, 1):get_name() == stack:get_name() then
-            minetest.chat_send_player(player:get_player_name(), S("You already wear that!"))
             return 0
             -- else allow 1 to destination
         else
@@ -255,7 +256,6 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
 
     -- add it in destination
     p_inv:add_item(destination, new_cloth)
-    minetest.chat_send_player(user:get_player_name(), new_cloth:get_short_description().. " " .. S("equipped!"))
     -- update player settings
     player_api.update_player(user)
 

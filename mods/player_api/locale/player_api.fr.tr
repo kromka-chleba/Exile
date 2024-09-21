@@ -25,10 +25,6 @@ Pink Bow=
 Classic Green Sweater=
 Fine Blue Pants=
 
-You already wear that!=Vous portez déjà la même chose !
-Inventory is full : the clothing you wore was thrown on the floor!=L'inventaire est plein, le vêtement que vous portiez a été jeté au sol !
-equipped!=équipé !
-You already wear the same cloth.=Vous portez déjà le même vếtement.
 You can't equip a blanket outside of a bed.=Vous ne pouvez pas équiper une couverture en dehors d'un lit.
 
 # equip.lua
