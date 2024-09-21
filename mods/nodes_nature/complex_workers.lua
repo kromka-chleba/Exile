@@ -66,13 +66,13 @@ function nn.create_evaporator(args_in)
             if replacement then
                 local z = math.floor((i - 1) / chunk_side^2)
                 local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
-                local x = (i - 1) % 80
+                local x = (i - 1) % chunk_side
 
                 -- need to handle them edges in moisture_spread.lua
                 -- too lazy for that today
-                if not (x == 0 or x == 79 or
-                        z == 0 or z == 79 or
-                        y == 0 or y == 79) then
+                if not (x == 0 or x == chunk_side - 1 or
+                        z == 0 or z == chunk_side - 1 or
+                        y == 0 or y == chunk_side - 1) then
 
                     local has_air = false
 
@@ -340,7 +340,7 @@ function nn.create_soak_out_move_down(args_in)
         for i, _ in pairs(unmoved) do
             local z = math.floor((i - 1) / chunk_side^2)
             local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
-            local x = (i - 1) % 80
+            local x = (i - 1) % chunk_side
             if not (x == 0 or x == chunk_side - 1 or
                     z == 0 or z == chunk_side - 1 or
                     y == 0 or y == chunk_side - 1) then
@@ -412,12 +412,12 @@ function nn.create_gravity_soak_in(args_in)
                     local z = math.floor((i - 1) / chunk_side^2)
                     local y = math.floor((i - 1 - z
                                           * chunk_side^2) / chunk_side)
-                    local x = (i - 1) % 80
+                    local x = (i - 1) % chunk_side
                     local dry_below = dry_to_wet_ids[data[i - chunk_side]]
                     local seawater_below = seawater_ids[data[i - chunk_side]]
-                    if x == 0 or x == 79 or
-                        z == 0 or z == 79 or
-                        y == 0 or y == 79 then
+                    if x == 0 or x == chunk_side - 1 or
+                        z == 0 or z == chunk_side - 1 or
+                        y == 0 or y == chunk_side - 1 then
                         -- borders here
                         if last then
                             table.insert(orphans, i)
@@ -485,7 +485,7 @@ function nn.create_gravity_soak_in(args_in)
             if liquid_to_air_ids[data[orphan]] then
                 local air_z = math.floor((orphan - 1) / chunk_side^2)
                 local air_y = math.floor((orphan - 1 - air_z * chunk_side^2) / chunk_side)
-                local air_x = (orphan - 1) % 80
+                local air_x = (orphan - 1) % chunk_side
                 local air_pos = vector.new(air_x, air_y, air_z)
                 table.insert(nn.water_orphans[hash], vector.add(pos_min, air_pos))
             end
