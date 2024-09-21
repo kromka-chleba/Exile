@@ -4,6 +4,8 @@
 local S = minetest.get_translator("player_api")
 --------------------------------------------------------------------------------
 
+player_api = player_api
+
 -- defines cloth groups and inventories
 -- [groupe_code] = {inv_name, tooltip}
 local cloth_groups = {
