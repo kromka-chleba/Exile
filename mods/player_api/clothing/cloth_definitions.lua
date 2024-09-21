@@ -46,21 +46,21 @@ end
 
 -- Create the "clothes" inventories
 function player_api.init_cloths(player, pinv)
-    local inv = pinv or player:get_inventory()                   
+    local inv = pinv or player:get_inventory()
     -- one inventory per group type
-    for _,group in ipairs(cloth_groups) do 
+    for _,group in ipairs(cloth_groups) do
         local name = group["name"]
         if not inv:get_list(name) then
             inv:set_size(name,1)
         end
     end
-    -- only used to move clothes with shift  
+    -- only used to move clothes with shift
     inv:set_size("temp_slot",1)
-    inv:set_stack("temp_slot",1,ItemStack("")) 
+    inv:set_stack("temp_slot",1,ItemStack(""))
 end
-    
+
 -- Exile clothing was stored as a metadata string, migrate to new inv
-local function load_clothing_metadata(player, player_inv)    
+local function load_clothing_metadata(player, player_inv)
     local meta = player:get_meta()
     local clothing_meta = meta:get_string("clothing:inventory")
     local clothes = clothing_meta and minetest.deserialize(clothing_meta) or {}
@@ -89,10 +89,10 @@ local function migrate_cloths(player, pinv)
                     pinv:set_stack(cloth_groups[slot_nb]["name"],1, stack)
                 end
             end
-        end 
+        end
         -- delete list
         pinv:set_size("cloths", 0)
-    end 
+    end
 end
 
 -- init inventories and migrates
@@ -100,7 +100,7 @@ function player_api.set_cloths(player)
     local inv = player:get_inventory()
     player_api.init_cloths(player, inv)
     --dealing with old players part : --
-    migrate_cloths(player, inv)                           
+    migrate_cloths(player, inv)
 end
 
 -- Clothes registering ---------------------------------------------------------
@@ -246,4 +246,3 @@ minetest.override_item("player_api:cloth_unisex_footwear_default", {
 
 minetest.register_alias("admin_shoes",
                         "player_api:cloth_unisex_footwear_default")
-                        

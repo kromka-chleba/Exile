@@ -22,7 +22,7 @@ function player_api.compose_cloth(player)
     local bra = false
     local attached_cloth = {}
     local blanket = false
-    
+
     for _, name in ipairs(player_api.get_inv_names()) do
         local stack = inv:get_stack(name, 1)
         local item_name = stack:get_name()

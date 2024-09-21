@@ -1,5 +1,5 @@
 ----------------------------------------------------------
---CLOTHING 
+--CLOTHING
 --This file only defines clothes and their recipe
 
 -- Internationalization

@@ -230,7 +230,7 @@ end
 
 local player_inventory_lists = { "main", "craft"}
 -- add all player clothing inventories
-for _, name in ipairs (player_api.get_inv_names()) do    
+for _, name in ipairs (player_api.get_inv_names()) do
     table.insert(player_inventory_lists, name )
 end
 --#TODO check here the implication of changing cloths to separate invs
