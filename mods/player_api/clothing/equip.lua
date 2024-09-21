@@ -9,6 +9,8 @@ Temperatures and formspec are updated at each equip/unequip action.
 
 -- #TODO regrouping with the action on form effects ?
 -- like where do we refresh ? I would like to keep in memory the rotation of the model
+player_api = player_api
+sfinv = sfinv
 
 local cloth_groups = player_api.get_groups()
 
@@ -62,7 +64,9 @@ local clothing_page = {
             "label[4,1.5;" .. FS("Max Temperature Tolerance: @1", cur_tmax) .. " ]",
 
             --model overview
-            -- #TODO do not change rotation angle when changing clothes, if possible, maybe saving the current angle in context/cache like in crafting tab
+            -- #TODO do not change rotation angle when changing clothes,
+            --  if possible, maybe saving the current angle in context/cache
+            --  like in crafting tab
             "model[5.25,2.45;2.6,3.9;character;character.b3d;"..basetex..
             ";-20,160;;true;;]",
 
@@ -234,7 +238,7 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
 
     -- else, equip and return modified itemstack if needed
     if not destination then -- shouldn't happen, but well..
-        local item_group = minimal.is_group(stack:get_name(),"cloth")
+        local item_group = minimal.is_group(itemstack:get_name(),"cloth")
         destination = player_api.get_inv_name_from_group(item_group)
     end
 
