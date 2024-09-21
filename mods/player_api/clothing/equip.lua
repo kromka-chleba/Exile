@@ -193,7 +193,7 @@ local function redirect(player, inventory, from_list, from_index, fromslot)
         inventory:add_item(from_list,in_dest)
     else
         minetest.item_drop(in_dest, player, player:get_pos())
-        minetest.chat_send_player(player:get_player_name(),S("Inventory is full : the clothing you wore was thrown on the floor."))
+        minimal.warn_inv_full(player)
     end
     -- empty cloths slot
     inventory:set_stack(fromslot,1,ItemStack(""))
@@ -271,7 +271,7 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
             return itemstack
         else
             minetest.item_drop(in_dest, user, user:get_pos())
-            minetest.chat_send_player(user:get_player_name(),S("Inventory is full : the clothing you wore was thrown on the floor."))
+            minimal.warn_inv_full(user)
             return itemstack
         end
     else
