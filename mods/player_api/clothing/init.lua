@@ -31,7 +31,7 @@ function player_api.update_player(player)
         return
     end
     -- update texture
-    player_api.set_texture(player) 
+    player_api.set_texture(player)
     -- update effects and clothing formspec
     player_api.update_equipment_effects(player)
 end

@@ -48,8 +48,8 @@ local theme_inv = [[
 		list[current_player;main;0,5.2;8,1;]
 		list[current_player;main;0,6.35;8,3;8]
 	]]
-	
-	
+
+
 function sfinv.make_formspec(player, context, content, show_inv, size)
 	local tmp = {
 		size or "size[8,9.1]",
