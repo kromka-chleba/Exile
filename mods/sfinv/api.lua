@@ -61,18 +61,9 @@ function sfinv.make_formspec(player, context, content, show_inv, size)
 end
 
 -- Exile added part ------------------------------------------------------------
-local inv_x = 0.35
 local inv_y = 7.3
 
-local exile_theme_inv = { -- #TODO the images seem useless
-		"image[".. inv_x ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 1 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 2 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 3 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 4 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 5 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 6 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 7 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
+local exile_theme_inv = {
 		"list[current_player;main;0.35,".. inv_y .. ";8,1;]",
 		"list[current_player;main;0.35,".. inv_y + 1.25 .. ";8,3;8]"
 	}
