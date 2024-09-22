@@ -249,7 +249,7 @@ function airboat.on_step(self, dtime)
 	p.y = p.y - 1.5
 	local def = minetest.registered_nodes[minetest.get_node(p).name]
 	if def and (def.liquidtype == "source" or def.liquidtype == "flowing") then
-	   accel = vector.add(accel, {x = 0, y = 10, z = 0})
+	   accel = vector.add(accel, {x = 0, y = 5, z = 0})
 	end
 	local newvec = vector.subtract(vector.new(self.vx, self.vy, self.v),
 				       lvelocity)
