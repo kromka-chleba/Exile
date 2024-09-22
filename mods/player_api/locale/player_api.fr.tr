@@ -9,14 +9,25 @@ Footwear=
 Cape=Cape
 Keeps you warm in bed=Vous maintient au chaud dans le lit
 Unisex=Unisexe
+
+
+Naked=Nu(e)
+(mild)=(effet léger)
+(moderate)=(effet modéré)
+(severe)=(sévère)
+(extreme)=(extrême)
+
+#cloths.lua
 Purple Stripe Summer T-shirt=
 Fresh Summer Denim Shorts=
 Common Black Shoes=Chaussures noires banales
 Pink Bow=
 Classic Green Sweater=
 Fine Blue Pants=
-Naked=Nu(e)
-(mild)=(effet léger)
-(moderate)=(effet modéré)
-(severe)=(sévère)
-(extreme)=(extrême)
+
+You can't equip a blanket outside of a bed.=Vous ne pouvez pas équiper une couverture en dehors d'un lit.
+
+# equip.lua
+Clothing=Vêtements
+Min Temperature Tolerance: @1=Température minimum tolérée: @1
+Max Temperature Tolerance: @1=Température maximum tolérée: @1

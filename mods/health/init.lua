@@ -14,7 +14,6 @@
 HEALTH = {}
 sfinv = sfinv
 player_monoids = player_monoids
-clothing = clothing
 
 -- Internationalization
 HEALTH.S = minetest.get_translator("health")
@@ -181,6 +180,9 @@ function HEALTH.set_meta_stats(player, stats, meta)
     meta:set_int("lives", stats.lives)
     meta:set_int("move", stats.move)
     meta:set_int("jump", stats.jump)
+    -- Note: maybe use  "comfort_temp" name not "clothing-temp"
+    -- to make it clear this doesn't depend on clothing system
+    -- I didn't do the rename because fear for migration issues
     meta:set_int("clothing_temp_min", stats.clothing_temp_min)
     meta:set_int("clothing_temp_max", stats.clothing_temp_max)
 end
@@ -762,8 +764,6 @@ function HEALTH.update_player_physics(player)
 end
 
 minetest.register_on_joinplayer(function(player)
-        sfinv.set_player_inventory_formspec(player)
-
         --set physics etc
         HEALTH.update_player_physics(player)
         local meta = player:get_meta()
@@ -785,6 +785,8 @@ minetest.register_on_joinplayer(function(player)
             end
             meta:set_string("player_velocity", "")
         end
+        -- update player's form to display thoses settings
+        sfinv.set_player_inventory_formspec(player)
 end)
 
 minetest.register_on_dieplayer(function(player)
@@ -803,8 +805,7 @@ end)
 
 minetest.register_on_respawnplayer(function(player)
         HEALTH.set_default_attributes(player)
-        sfinv.set_player_inventory_formspec(player)
-        clothing:update_temp(player)
+        player_api.reset_equipment_effects(player)
 end)
 
 minetest.register_on_leaveplayer(function(player, timed_out)
