@@ -957,8 +957,8 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
             end
             -- math.random() on largest percent first
             spawn = {}
-            for i = 1,2 do
-              if sort_table[1][1] <= math.random() then
+            for i = 1, young_per_egg do
+              if sort_table[1][1] >= math.random() then
                   spawn[i] = sort_table[1][2]
               else
                   spawn[i] = sort_table[2][2]
@@ -1005,7 +1005,7 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
                     spawn[i] = (hatching_table[1] and hatching_table[1][2])
                         or (hatching_table[0] and hatching_table[0][2])
                 end
-                
+                minetest.log(young_per_egg.." : "..spawn[i])
             end
         end
         -- if none of these if statements fit, then spawn is just a list of names, don't worry
