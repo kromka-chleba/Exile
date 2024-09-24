@@ -213,6 +213,35 @@ minetest.register_node(
         _use_tip = S("Eat"),
 })
 
+-- rhuya flour (RAW)
+-- needs to be cooked to purify toxins
+minetest.register_node("tech:rhuya_flour",{
+  description = S("Raw Rhuya Flour"),
+  tiles = {"tech_rhuya_flour.png"},
+  stack_max = minimal.stack_max_medium * 2,
+  drawtype = "nodebox",
+  node_box = {
+    type = "fixed",
+    fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+  },
+  groups = {dig_immediate = 3, falling_node=1, flour=1},
+  sounds = nodes_nature.node_sound_dirt_defaults()
+})
+
+-- purified rhuya flour
+minetest.register_node("tech:rhuya_flour_cooked",{
+  description = S("Rhuya Flour"),
+  tiles = {"tech_flour.png"},
+  stack_max = minimal.stack_max_medium * 2,
+  drawtype = "nodebox",
+  node_box = {
+    type = "fixed",
+    fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+  },
+  groups = {dig_immediate = 3, falling_node=1, flour=1},
+  sounds = nodes_nature.node_sound_dirt_defaults()
+})
+
 ---- plant-based recipes
 
 --
@@ -298,6 +327,16 @@ crafting.register_recipe({
 --IB    level = 1,
 --IB    always_known = true,
 --IB })
+
+-- grind rhuya flour
+
+crafting.register_recipe({
+    type = "mortar_and_pestle",
+    output = "tech:rhuya_flour",
+    items = {'nodes_nature:rhuya_seed 12'},
+    level = 1,
+    always_known = true,
+})
 
 -- ANIMAL PRODUCTS
 
