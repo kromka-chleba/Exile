@@ -68,7 +68,7 @@ minetest.register_node(
 minetest.register_node(
     "tech:maraka_bread_cooked", {
         description = S("Maraka Cake"),
-        tiles = {"tech_flour_bitter.png"},
+        tiles = {"tech_flour_strong.png"},
         stack_max = minimal.stack_max_medium * 4,
         paramtype = "light",
         sunlight_propagates = true,
@@ -239,6 +239,20 @@ minetest.register_node("tech:rhuya_flour_cooked",{
     fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
   },
   groups = {dig_immediate = 3, falling_node=1, flour=1},
+  sounds = nodes_nature.node_sound_dirt_defaults()
+})
+
+-- oops, you burnt it!
+minetest.register_node("tech:rhuya_flour_burned",{
+  description = S("Burnt Rhuya Flour"),
+  tiles = {"tech_flour_burned.png"},
+  stack_max = minimal.stack_max_medium * 3,
+  drawtype = "nodebox",
+  node_box = {
+    type = "fixed",
+    fixed = {-7/16, -0.5, -7/16, 7/16, -0.42, 7/16},
+  },
+  groups = {dig_immediate = 3, falling_node=1, compostable=1},
   sounds = nodes_nature.node_sound_dirt_defaults()
 })
 
