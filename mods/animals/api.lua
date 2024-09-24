@@ -1017,7 +1017,6 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
     -- only do spawning if we can spawn somethin'
     spawn = type(spawn) == "table" and spawn or type(spawn) == "string" and {spawn} or nil
     if not spawn then
-      minetest.log("no spawn")
       destroy_egg()
       return false
     end
@@ -1075,10 +1074,7 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
         objcounts[check_name] = objcount
     end
     -- try hatching another time
-    if not could_hatch then
-      minetest.log("hatch again at "..minetest.pos_to_string(pos)) 
-      return true 
-    end
+    if not could_hatch then return true end
 
     destroy_egg()
     return false
@@ -3145,25 +3141,21 @@ function animals.register_egg(def, animal)
             return false
         elseif type(new_time) == "number" then
             -- start new timer with given new_time
-            minetest.log("new timer")
             minetest.get_node_timer(pos):start(new_time)
             return false
         end
         -- now for actual hatching (or other options)
         if hatch == true then
             -- try to hatch as according to hatch_egg
-            local hatch = animals.hatch_egg(pos, data)
-            minetest.log(tostring(hatch))
-            return hatch
+            return animals.hatch_egg(pos, data)
         elseif type(hatch) == "number" and hatch > 0 then
             -- random chance
             if random() <= hatch then
                 return animals.hatch_egg(pos, data)
             end
-        else
-            -- continue to try to hatch, at another time
-            return true
         end
+        -- continue to try to hatch, at another time
+        return true
     end
 
     -- egg_conditions_correct(pos, data)
