@@ -115,7 +115,7 @@ minetest.register_node(
             meta:set_string(
                 "status",S("Status: needs a @1!",
                            minetest.registered_nodes[
-                               "Tech:pane_clear"].description))
+                               "tech:pane_clear"].description))
             minimal.infotext_set_new(pos, meta)
             --minimal.infotext_merge(pos, S("Status: needs a clear glass pane!"),
             --meta)
