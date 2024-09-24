@@ -945,9 +945,13 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
         for h_name,h_perc in pairs(hatching) do -- hatch_name, hatch_percentage
             table.insert(sort_table,{h_perc,h_name})
         end
+        -- spawn is made into a table and iterated over
+        -- printing names as many times as young_per_egg
         if #sort_table == 1 then
-            spawn = sort_table[1][2]
-            -- sort_table[1]={0.5,"name"}
+            spawn = {}
+            for i = 1, young_per_egg do
+              spawn[i] = sort_table[1][2]
+            end
         elseif #sort_table == 2 then
             if sort_table[2][1] > sort_table[1][1] then
                 -- if last index has a greater percent chance,
@@ -1005,7 +1009,6 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
                     spawn[i] = (hatching_table[1] and hatching_table[1][2])
                         or (hatching_table[0] and hatching_table[0][2])
                 end
-                minetest.log(young_per_egg.." : "..spawn[i])
             end
         end
         -- if none of these if statements fit, then spawn is just a list of names, don't worry
@@ -1014,6 +1017,7 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
     -- only do spawning if we can spawn somethin'
     spawn = type(spawn) == "table" and spawn or type(spawn) == "string" and {spawn} or nil
     if not spawn then
+      minetest.log("no spawn")
       destroy_egg()
       return false
     end
@@ -1071,7 +1075,10 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
         objcounts[check_name] = objcount
     end
     -- try hatching another time
-    if not could_hatch then return true end
+    if not could_hatch then
+      minetest.log("hatch again at "..minetest.pos_to_string(pos)) 
+      return true 
+    end
 
     destroy_egg()
     return false
@@ -3138,13 +3145,16 @@ function animals.register_egg(def, animal)
             return false
         elseif type(new_time) == "number" then
             -- start new timer with given new_time
+            minetest.log("new timer")
             minetest.get_node_timer(pos):start(new_time)
             return false
         end
         -- now for actual hatching (or other options)
         if hatch == true then
             -- try to hatch as according to hatch_egg
-            return animals.hatch_egg(pos, data)
+            local hatch = animals.hatch_egg(pos, data)
+            minetest.log(tostring(hatch))
+            return hatch
         elseif type(hatch) == "number" and hatch > 0 then
             -- random chance
             if random() <= hatch then
