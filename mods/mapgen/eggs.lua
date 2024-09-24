@@ -7,6 +7,19 @@ deco = deco or {}
 local path = minetest.get_modpath("mapgen")
 local sna = dofile(path.."/soils_and_altitudes.lua")
 
+-- MAPGEN SPECIFIC EGG BUNCHES
+-- pegasun
+animals.register_egg({
+  name = "mapgen:pegasun_bunch",
+  egg_hatching = {
+    ["animals:pegasun"] = 0.8,
+    "animals:pegasun_male"
+  },
+  egg_time = 5,
+  young_per_egg = {3,5},
+  energy_egg = 20000 -- will be divided by 3 or 5 give or take
+})
+
 local eggs = {
     {--[[Animals:gundu]]
         name = "animals:gundu_eggs",
@@ -101,7 +114,7 @@ local eggs = {
                         seed=1882, octaves=2, persist=2},
         y_max = sna.upland_max,
         y_min = sna.beach_max,
-        decoration = "animals:pegasun_eggs",
+        decoration = "mapgen:pegasun_bunch",
         flags = "all_floors",
     },
 
@@ -114,7 +127,7 @@ local eggs = {
                         seed=1882, octaves=2, persist=2},
         y_max = sna.upland_max,
         y_min = sna.beach_max,
-        decoration = "animals:pegasun_eggs",
+        decoration = "mapgen:pegasun_bunch",
         flags = "all_floors",
     },
 
