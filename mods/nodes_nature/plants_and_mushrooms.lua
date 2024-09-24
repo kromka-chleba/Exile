@@ -239,6 +239,7 @@ local plant_list = {
      edible_seedling = false},
 
     -- Rhuya: Kind of a mix between corn and wheat, corn-like fruit and plant size, wheat-like seed purposes
+    -- fruit is toxic (and seeds maintain a bit of fruit toxins), tasting like like pine sap - bitter, and a bit sour
     {name = "rhuya", description = S("Rhuya"),
      drawtype = "plantlike", waving = true,
      plant_type = "herbaceous_plant", mesh_type = 0,
