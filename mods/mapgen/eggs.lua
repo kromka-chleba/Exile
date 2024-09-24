@@ -17,7 +17,8 @@ animals.register_egg({
   },
   egg_time = 5,
   young_per_egg = {3,5},
-  energy_egg = 20000 -- will be divided by 3 or 5 give or take
+  energy_egg = 20000, -- will be divided by 3 or 5 give or take
+  groups = {timer = 2}
 })
 
 local eggs = {
