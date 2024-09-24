@@ -238,6 +238,14 @@ local plant_list = {
      seasonal_type = "whole_season",
      edible_seedling = false},
 
+    -- Rhuya: Kind of a mix between corn and wheat, corn-like fruit and plant size, wheat-like seed purposes
+    {name = "rhuya", description = S("Rhuya"),
+     drawtype = "plantlike", waving = true,
+     plant_type = "herbaceous_plant", mesh_type = 0,
+     growing_time = nn.plant_base_growing_time * 3,
+     dye_candidate = false, texture_scale = 1.6,
+     fruit = true, seasonal_type = "early", dry_fruit = true},
+
     -- Mushrooms
 
     --Lambakap. is also a mushroom.
@@ -598,4 +606,18 @@ minetest.override_item(
 
             return HEALTH.eatdrink(itemstack, user, pointed_thing)
         end,
+})
+
+minetest.override_item("nodes_nature:rhuya_seed",{
+    inventory_image = "nodes_nature_rhuya_seed.png",
+    wield_image = "nodes_nature_rhuya_seed.png",
+    tiles = {"nodes_nature_rhuya_seed.png"},
+    node_box = {
+        type = "fixed",
+        fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
+    },
+    selection_box = {
+        type = "fixed",
+        fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
+    },
 })
