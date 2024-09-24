@@ -3155,7 +3155,9 @@ function animals.register_egg(def, animal)
             end
         end
         -- continue to try to hatch, at another time
-        return true
+        new_time = data.egg_time or 100
+        minetest.get_node_timer(pos):start(random(new_time,new_time*2))
+        return false
     end
 
     -- egg_conditions_correct(pos, data)
