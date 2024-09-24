@@ -123,6 +123,8 @@ HEALTH.food_table = {
     ["nodes_nature:obesa_flowering"] = {hp = -2, th = 10, hu = 6, en = -4},
     ["nodes_nature:maraka_fruit"] = {hu = 5, en = 5},
     ["nodes_nature:sasaran_fruit"] = {hu = 1},
+    ["nodes_nature:rhuya_fruit"] = {hu = 5, en = -6, th = -3},
+    ["nodes_nature:rhuya_seed"] = {hu = 2, en = -2}, -- has toxins from fruit
     -- drugs
     ["nodes_nature:tikusati"] = {hu = -2, en = 2},
     ["tech:tiku"] = {hu = -24, en = 96},
@@ -342,6 +344,15 @@ HEALTH.harm_table = {
     },
     ["nodes_nature:rzepicha_root"] = {bm_fp},
     ["nodes_nature:rzepicha_root_winter"] = {bm_fp},
+    ["nodes_nature:rhuya_fruit"] = {
+        {tags = "Neurotoxicity", ch = 0.6, sv = {1,2}},
+        {tags = "Hepatotoxicity", ch = 0.35, sv = {1,3}},
+        {tags = "Food Poisoning", ch = 0.4, sv = {1,2}}
+    },
+    ["nodes_nature:rhuya_seed"] = {
+        {tags = {"Neurotoxicity","Hepatotoxicity"}, ch = 0.06, sv = {1,2}},
+        {tags = "Food Poisoning", ch = 0.1, sv = 1}
+    },
     -- sea plants
     ["nodes_nature:sea_lettuce"] = {
         {tags = "Food Poisoning", ch = 0.050, sv = 1},
