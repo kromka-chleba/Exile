@@ -167,6 +167,17 @@ function player_api.register_cloth(name, def)
         end
     end
 
+    -- updates player cloth effects on dropping
+    -- in case this is dropped from cloth inventory in formspec
+    newdef.on_drop = function (itemstack, dropper, pos)
+        local leftover = minetest.item_drop(itemstack, dropper, pos)
+        -- update cloth effects
+        minetest.after(0.1, function()
+            player_api.update_player(dropper)
+            end)
+        return leftover
+    end
+
     minetest.register_craftitem(name, newdef)
 end
 
