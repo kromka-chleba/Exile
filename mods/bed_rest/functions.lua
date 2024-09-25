@@ -40,8 +40,9 @@ local function blanket_find(inv,listName)
     return nil
 end
 
+--[[ This function makes me equip a blanket (if possible) when going into bed with donning == true setting.
+    It makes me leave a blanket (if I had one equipped) on the bed when standing up, with donning == false setting. ]]
 
--- if donning == false, remove blanket from bed, else put blanket on bed
 local function wear_blanket(player, bed_pos, donning)
     local bed_meta = minetest.get_meta(bed_pos)
     local bedInv = bed_meta:get_inventory()
@@ -50,69 +51,52 @@ local function wear_blanket(player, bed_pos, donning)
     local name = player:get_player_name()
     local p_inv = player:get_inventory()
 
-    local newstack
+    local blanket
 
-    local to_remove
-
-    --if I want to remove the blanket
+    --if stand up and leave a blanket in the bed from my cloth inventory
     if donning==false then
-        -- checking bed inventory
-        newstack = bedInv:get_stack('main',1)
-        --if we had a blanket in bed
-        if newstack and not newstack:is_empty() then
-            -- put it in player's inventory or back to bed
-            -- if we can, take it in inventory
-            if p_inv:room_for_item('main',newstack) then
-                p_inv:add_item('main',newstack)
-                -- empty bed inventory
-                bedInv:set_stack('main',1,ItemStack(''))
-                -- update bed's infotext
-                bed_meta:set_string("blanket","")
-                minimal.infotext_set_new(bed_pos, bed_meta)
-                -- else leave it on the bed
-            else
-                minetest.chat_send_player(
-                player:get_player_name(), S("You have no room to take the blanket with you, so you left it on the bed."))
-                -- #TODO weirdly if not updatinf infostext here I got no infotext anymore ?
-                bed_meta:set_string("blanket",S("Bed: Contains Blanket"))
-                minimal.infotext_set_new(bed_pos, bed_meta)
-
-            end
+        -- if I had a blanket on me leave it on the bed
+        if not p_inv:is_empty('blanket') then
+            blanket = p_inv:get_stack('blanket',1)
+            -- add blanket to bed
+            bedInv:set_stack('main',1,blanket)
+            bed_meta:set_string("blanket",S("Bed: Contains Blanket"))
             -- empty clothing slot
             p_inv:set_stack('blanket',1,ItemStack(''))
-            --if bed has no blanket to remove
-        else
-            minetest.log("There is no blanket to remove from the bed")
-            return
+        -- else bed remain empty
+        else -- #TODO  if not updating infostext here I got no infotext anymore
+            bed_meta:set_string("blanket","")
         end
+        minimal.infotext_set_new(bed_pos, bed_meta)
 
-    --if I want to put a blanket
+        -- empty clothing slot
+        p_inv:set_stack('blanket',1,ItemStack(''))
+
+    --if I want to put a blanket on me when going in bed
     else
-        -- if a blanket is already on the bed, take that one
-        newstack = bedInv:get_stack('main',1)
-        if newstack and not newstack:is_empty() then
-            -- put it in clothing slot (should be empty)
-            p_inv:set_stack('blanket',1,newstack)
+        -- if a blanket is already on the bed, equip that one
+        blanket = bedInv:get_stack('main',1)
+        if blanket and not blanket:is_empty() then
+            p_inv:set_stack('blanket',1,blanket)
+            bedInv:set_stack('main',1,ItemStack(''))
 
         -- else, try to take one from inventory
         else
-            newstack = blanket_find(p_inv, "main")
-            -- I have a blanket to place
-            if newstack and not newstack:is_empty() then
-                -- put new blanket in bed inventory
-                bedInv:set_stack('main',1,newstack)
-                -- put it in clothing slot too
-                p_inv:set_stack('blanket',1,newstack)
-                -- update info
-                bed_meta:set_string("blanket",S("Bed: Contains Blanket"))
-                minimal.infotext_set_new(bed_pos, bed_meta)
+            -- try to remove one from inventory
+            blanket = blanket_find(p_inv, "main")
+            -- if succeed
+            if blanket and not blanket:is_empty() then
+                -- equip this blanket
+                p_inv:set_stack('blanket',1,blanket)
 
-            -- else, I have no blanket to place, do nothing
+            -- else, I have no blanket, do nothing
             else
-                minetest.log("There is no blanket to add to the bed")
-                return -- not sure if I should return false to indicate the fail
+                return
             end
         end
+        -- blanket is on me (or no blanket) and not in the bed's inv
+        bed_meta:set_string("blanket","")
+        minimal.infotext_set_new(bed_pos, bed_meta)
     end
     -- update player look and cloth effects
     player_api.update_player(player)
@@ -222,7 +206,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
         end
         bed_rest.bed_position[name] = nil
 
-        --remove blanket
+        --remove blanket from the player cloths
         if bedp then
             wear_blanket(player, bedp, false)
         elseif bed_pos then
