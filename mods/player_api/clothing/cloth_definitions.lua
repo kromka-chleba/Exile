@@ -91,7 +91,7 @@ local function migrate_cloths(player, pinv)
             end
         end
         -- delete list
-        pinv:set_size("cloths", 0)
+        -- pinv:set_size("cloths", 0) -- #TODO uncomment that line when Mantar is done with testing
     end
 end
 
