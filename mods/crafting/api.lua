@@ -15,6 +15,22 @@
 -- License along with this library; if not, write to the Free Software
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
+-- modified by various Exile devs
+
+-- General functions ------------------------------------------
+-- return merged array of a1 and a2, a1, beeing before a2
+local function array_merge(a1, a2)
+    local result = {}
+    for i, el in ipairs(a1) do
+        result[i]=el
+    end
+    local n = #a1
+    for i, el in ipairs(a2) do
+        result[n+i]=el
+    end
+    return result
+end
+
 
 -- Warning: this is a circular dependency; minimal depends on crafting, too
 --minimal = minimal
@@ -371,12 +387,12 @@ local function get_real_name(name)
     return name
 end
 
--- Returns true if the search string is in item's short description
--- accept string or ItemStack
+-- SEARCH part (filter) --------------------------------------------------------
 
--- TODO not working, desc is not good
--- also is maybe called for too many recipes
-local function item_does_match (item,search, lang_code)
+-- #TODO generate hash of all string matching with a recipe after registering at start
+
+-- Returns true if the search string is in item's short description
+local function item_does_match (item, search, lang_code)
     if not search then
         return true
     elseif type(search) ~= "string" then -- should happend
@@ -395,8 +411,6 @@ local function item_does_match (item,search, lang_code)
         end
     end
 end
-
--- #TODO generate hash of all string matching with a recipe after registering at start
 
 -- testing if searched name is in this row
 -- search is a string
@@ -427,30 +441,113 @@ local function row_does_contain (row, search, lang_code)
     return false
 end
 
--- get all possible recipes to display
-function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
+--------------------------------------------------------------------------------
+
+--[[ Returns items :
+    a key-value table, key being item name and value being a table:
+    * `have` - how many the player has
+    * `need` - how many of this item needed*
+]]
+function crafting.is_craftable (level, item_hash, unlocked, recipe)
+    local craftable = false
+
+    -- if I know that recipe
+    if recipe.level <= level and (recipe.always_known
+    or unlocked[recipe.output]) then
+
+        craftable = true
+        local items = {}
+        -- Check what ingredients are available
+        for recipe_row, rowItem in ipairs(recipe.items) do
+            local rItems = {} -- row items
+            local pickable = false
+
+            for i,item in ipairs(crafting.peek_item(rowItem, item_hash)) do
+
+                rItems[#rItems+1] = item
+                if item.available then
+                    pickable = true -- at least one item is available
+                end
+            end
+
+            items[recipe_row]=rItems -- save items by recipe input row
+            if not pickable then
+                craftable = false
+                -- don't have any of the needed ingredients from this row.
+            end
+        end
+        -- check if we have a where clause only if its craftable
+        if craftable and recipe.where then
+            craftable = false -- assume this failes unless we find a match.
+            -- recipe.where should look something like this:
+            --   @1.material == @2.material
+            --   @x where x is the input item row number
+            local lParam, lKey, test, rParam, rKey =
+            string.match(
+            recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")
+            for _,left in ipairs( items[tonumber(lParam)] ) do
+                local lName = get_real_name(left.name)
+                if left.available then
+                    for _,right in ipairs(items[tonumber(rParam)]) do
+                        local rName = get_real_name(right.name)
+                        if right.available then
+                            local left_def = ItemStack(lName):get_definition()
+                            local lValue = left_def.exile_crafting[lKey]
+                            local right_def = ItemStack(rName):get_definition()
+                            local rValue = right_def.exile_crafting[rKey]
+                            -- find the operator
+                            if test == '==' and lValue == rValue then
+                                craftable = true
+                            end
+                            if test == '~=' and lValue ~= rValue then
+                                craftable = true
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return craftable
+end
+
+--[[ get all recipe to display, sorted in 2 lists :
+    returns craftable and uncraftable table of results
+    format of each table is the one documented for crafting.get_all
+]]
+function crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, lang_code)
     assert(crafting.recipes[ctype], "No such craft type!")
     assert(not search or type(search) == "string", "search need to be a string")
-    local results = {}
+    local craftable_t = {}
+    local uncraftable_t = {}
+
     for _, recipe in pairs(crafting.recipes[ctype]) do
         local craftable = true
+        -- if no filter is active, always display
         local displayed = (not search) -- true if no search, false else
+
+        -- if I know that recipe
         if recipe.level <= level and (recipe.always_known
-                                      or unlocked[recipe.output]) then
-            -- display if output matchs search
+        or unlocked[recipe.output]) then
+
+            -- if output matches the active filtre, display
             if item_does_match (recipe.output,search, lang_code) then
-                 displayed = true
+                displayed = true
             end
             local items = {}
             -- Check what ingredients are available
             for recipe_row, rowItem in ipairs(recipe.items) do
                 local rItems = {} -- row items
                 local pickable = false
-                -- display if any input matchs search)
+
+                -- if any input matches the filter, display
                 if row_does_contain (rowItem, search, lang_code) then
                     displayed = true
                 end
+
                 for i,item in ipairs(crafting.peek_item(rowItem, item_hash)) do
+
                     rItems[#rItems+1] = item
                     if item.available then
                         pickable = true -- at least one item is available
@@ -469,8 +566,8 @@ function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
                 --   @1.material == @2.material
                 --   @x where x is the input item row number
                 local lParam, lKey, test, rParam, rKey =
-                    string.match(
-                        recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")
+                string.match(
+                recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")
                 for _,left in ipairs( items[tonumber(lParam)] ) do
                     local lName = get_real_name(left.name)
                     if left.available then
@@ -495,17 +592,30 @@ function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
             end
 
             -- add recipe to list only if it matchs search
-            if displayed then
-                results[#results + 1] = {
+            if craftable then
+                craftable_t[#craftable_t + 1] = {
                     recipe    = recipe,
                     items     = items,
                     craftable = craftable,
+                    displayed = displayed
+                }
+            else
+                uncraftable_t[#uncraftable_t + 1] = {
+                    recipe    = recipe,
+                    items     = items,
+                    craftable = craftable,
+                    displayed = displayed
                 }
             end
         end
     end
+    return craftable_t,uncraftable_t
+end
 
-    return results
+-- get all unlocked recipes to display
+function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
+    local c_t, u_t = crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, lang_code)
+    return array_merge(c_t,u_t)
 end
 
 

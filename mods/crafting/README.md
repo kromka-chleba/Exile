@@ -61,7 +61,8 @@ be used twice: `default:wood, group:wood`.
 			* `have` - how many the player has
 			* `need` - how many of this item needed
 		* `recipe` - the recipe
-		* `craftable` - is craftable?		
+		* `craftable` - is craftable?
+		* `displayed` - does is matchs the search (filter) ?      
 	* `craftable` is a table of the items the player can craft with the items they have.
 	* `uncraftable` is a table of items the player knows about, but is missing items for.
 

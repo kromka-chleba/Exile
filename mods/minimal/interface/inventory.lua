@@ -47,6 +47,17 @@ ctypes:set_list('main',{
         -- cache.recipesFS = nil, and cache.output = ""
         craft_typeFS = {},
         craft_itemsFS = {},
+
+        --model of follwing table is :
+            -- recipes =  {
+            --     recipe    = recipe,
+            --     items     = items,
+            --     craftable = craftable,
+            --     displayed = displayed
+            -- }
+        c_recipes= nil -- list of craftable recipes to display
+        u_recipes=nil -- list of uncraftable recipes to display
+
         recipesFS = {},
         searchFS= "", -- search container
         inventoryFS = {},
@@ -129,6 +140,8 @@ local function set_cache(player_name,inv,sItemID,qtyID)
     cache.input_itemsFS = nil
     cache.recipesFS = nil
     cache.sSearch = nil
+    cache.c_recipes=nil
+    cache.u_recipes=nil
     cache.output = ""
     cache.sInv = cache.sInv or 'main'
     -- XXX need to make sure selected inv exists.
@@ -250,6 +263,31 @@ local function process_qty(recipe,qty,item_hash)
     end
 end
 
+local function update_recipes_lists(player_name, cache, item_hash)
+    local c_recipes = cache.c_recipes
+    local u_recipes = cache.u_recipes
+    local unlocked = crafting.get_unlocked(player_name)
+    for i, result in ipairs(c_recipes) do
+        -- if not craftable anymore, change backgound/status
+        if not crafting.is_craftable (cache.sLevel, item_hash, unlocked, result.recipe) then
+            result.craftable = false
+        end
+    end
+    local new_u={}
+    cache.u_recipes = new_u
+    for i, result in ipairs(u_recipes) do
+        -- if it became craftable, add to previous list and hide in this one
+        if crafting.is_craftable (cache.sLevel, item_hash, unlocked, result.recipe) then
+            result.craftable = true
+            c_recipes[#c_recipes + 1] = result
+        else -- else keep it in uncraftable list
+            new_u[#new_u + 1] = result
+            minetest.log("recipe output " .. tostring(result.recipe.output))
+            minetest.log("#cache.u_recipes " .. tostring(#cache.u_recipes))
+        end
+    end
+end
+
 -- return true if something changed, false else
 local function process_receive_fields(player, formname, fields)
     --   if formname ~= '' or formname ~= 'exile:crafting' then return false; end -- Not our form.
@@ -289,10 +327,12 @@ local function process_receive_fields(player, formname, fields)
             end
         end
     end
-    -- process craft tabs. --#TODO seems unused
+    -- process craft tabs.
     if fields.sCraftTab then
         cache.sTab = tonumber(fields.sCraftTab)
         cache.sScroll = 0
+        inventoryFS_cache[player_name].c_recipes=nil
+        inventoryFS_cache[player_name].u_recipes=nil
         cache.recipesFS = nil
         cache.output = ""
         --                crafting.sort_order_by_player[player_name] = nil
@@ -300,7 +340,10 @@ local function process_receive_fields(player, formname, fields)
     end
     if fields.crafting_clear then
         -- will force to resort recipes
-        crafting.sort_order_by_player[player_name]=nil
+        --crafting.sort_order_by_player[player_name]=nil
+        -- #TODO change the display setting in same list instead
+        inventoryFS_cache[player_name].c_recipes=nil
+        inventoryFS_cache[player_name].u_recipes=nil
         -- reset the scroll bar
         cache.sScroll = 0
         cache.sSearch = nil
@@ -315,7 +358,10 @@ local function process_receive_fields(player, formname, fields)
         if cache.sSearch ~= transformed then
             cache.sSearch = transformed
             -- will force to resort recipes
-            crafting.sort_order_by_player[player_name]=nil
+            --crafting.sort_order_by_player[player_name]=nil
+            -- #TODO change the display setting in same list instead
+            inventoryFS_cache[player_name].c_recipes=nil
+            inventoryFS_cache[player_name].u_recipes=nil
             -- reset the scroll bar
             cache.sScroll = 0
             -- force to redraw the recipes
@@ -334,16 +380,20 @@ local function process_receive_fields(player, formname, fields)
     -- so it seems we can deal with 10 tabs, no more
     for i = 1, 10, 1 do
         if fields['sCraftTab_'..i] then
-            cache.sTab = i
-            cache.sScroll = 0
-            cache.recipesFS = nil
-            cache.output = ""
-            -- crafting.sort_order_by_player[player_name] = nil
+            if cache.sTab ~=i then
+                cache.sTab = i
+                cache.sScroll = 0
+                cache.c_recipes=nil
+                cache.u_recipes=nil
+                cache.recipesFS = nil
+                cache.output = ""
+            end
             done = true
         end
     end
     if not done then
-        -- process all fields for button pushes.
+        --[[ process all fields for button pushes.
+            used for recipes crafting]]
         local btn_type
         local btn_id
         for btn, value in pairs(fields) do
@@ -354,12 +404,14 @@ local function process_receive_fields(player, formname, fields)
             end
         end
 
+        -- processing quantity buttons
         if cache.qty ~= 1 and fields.qty1 then
             cache.qty = 1
         elseif cache.qty ~= 2 and fields.qty2 then
             cache.qty = 2
         elseif cache.qty ~= 3 and fields.qty3 then
             cache.qty = 3
+
         elseif btn_type then
             if btn_type == 'sCraftType' then
                 btn_id = tonumber(btn_id)
@@ -367,6 +419,8 @@ local function process_receive_fields(player, formname, fields)
                 --  crafting.sort_order_by_player[player_name] = nil
             elseif btn_type == 'sInv' then
                 cache.sInv = btn_id -- Inventory name
+
+            -- if we pushed a recipe button
             elseif btn_type == 'sResult' then
                 local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
                 local ctype = cache.cTabs[cache.sTab]
@@ -374,7 +428,8 @@ local function process_receive_fields(player, formname, fields)
                 local sInv = cache.sInv
                 local qty = cache.qty or 1
 
-                process_qty(recipe,qty,cache.item_hash)
+
+                process_qty(recipe,qty, item_hash)
                 if not crafting.can_craft(player_name, ctype,
                                           sLevel, recipe) then
                     minetest.log("error", "[inventoryFS] Player clicked a "..
@@ -425,8 +480,18 @@ local function recipes_for_player(cache, pInv, player_name, ctype, level, search
     cache.item_hash = item_hash
     -- Get all available recipies and mark craftible ones.
     -- #TODO maybe just pass the player and cache and not have that many parameters
-    local results =  crafting.get_all(ctype, level, item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
-    return results
+    local c_recipes = cache.c_recipes
+    local u_recipes = cache.u_recipes
+    if not (c_recipes and u_recipes) then
+        c_recipes, u_recipes =  crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
+        -- save the lists in the cache
+        cache.c_recipes=c_recipes
+        cache.u_recipes=u_recipes
+    else
+        update_recipes_lists(player_name, cache, item_hash)
+    end
+
+    return cache.c_recipes, cache.u_recipes
 end
 
 -- This needs to be rebuilt every time the craft_type, craft_tab, input_items,
@@ -434,12 +499,7 @@ end
 -- It is triggered by setting cache.recipesFS = nil
 -- #TODO it is currently not rebuild on closing/reopening formspec, and should be
 local function cache_player_recipes(cache, player_name, pInv)
-    -- this is for more clarity, choice of display settings
-    local line_number = 3 -- 3 lines of recipes displayed
-    local grid_size = 1.2
-    --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
-        used to place them on a grid, including tabs]]
-    local recipesFS = {}
+    local recipesFS = {}         -- final fromspec
     local sItem = cache.sItem    -- craft type Item selected
     local sTab = cache.sTab      -- selected craft type tab
     local sLevel = cache.sLevel  -- level associated with selected craft type
@@ -449,67 +509,16 @@ local function cache_player_recipes(cache, player_name, pInv)
     -- get recipe list to display
     -- this list indicates if the recipe is craftable or not
     -- it contains only the recipes matching the search parameter
-    local recipe_list = recipes_for_player(cache, pInv, player_name,
-                                           cTabs[sTab], sLevel, sSearch)
+    local c_recipes, u_recipes = recipes_for_player(cache, pInv, player_name,
+    cTabs[sTab], sLevel, sSearch)
 
-    -- keep a sort hash so order doesn't change while crafting things
-    --print ("--------------------------]cache_player_recipes()[------------------")
-    local sortHash = crafting.sort_order_by_player[player_name]
-    if not sortHash or not sortHash.ctype then
-        sortHash = {
-            ctype = sItem,
-            ctab = sTab,
-            count = 0,
-            hash = {},
-        }
-    else
-        if sortHash.ctype ~= sItem or sortHash.ctab ~= sTab then
-            --print('Tab changed')
-            sortHash.ctype = sItem
-            sortHash.ctab = sTab
-            sortHash.count = 0
-            sortHash.hash = {}
-        end
-    end
-    local sorted = {}
-    local not_craftable = {}
-    if sortHash.count > 0 then
-        --print('Using sort hash')
-        for _,result in ipairs(recipe_list) do
-            local id = tonumber(result.recipe.id)
-            local order = sortHash.hash[id]
-            if not order then
-                --print('no order: '..dump(result))
-            else
-                sorted[order] = result
-            end
-        end
-    else
-        -- sort craftable recipes to top of list
-        for _,result in ipairs(recipe_list) do
-            local id = result.recipe.id
-            if result.craftable then
-                sorted[#sorted+1] = result
-                sortHash.hash[id] = #sorted
-                sortHash.count = sortHash.count+1
-                --print('Craftable - ['..#sorted..'] '..result.recipe.output..' - ID#'..result.recipe.id)
-            else
-                not_craftable[#not_craftable+1] = result
-            end
-        end
-        for _,result in ipairs(not_craftable) do
-            sorted[#sorted+1] = result
-            local id = result.recipe.id
-            sortHash.hash[id] = #sorted
-            sortHash.count = sortHash.count+1
-            --print('NOT Craftable - ['..#sorted..'] '..result.recipe.output..' - ID#'..result.recipe.id)
-        end
-        --save sort hash
-        --print('Saving sortHash count: '..sortHash.count)
-        --print(dump(sortHash))
-        crafting.sort_order_by_player[player_name] = sortHash
-    end
-    -- Add tab header
+    -- this is for more clarity, choice of display settings
+    --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
+        used to place them on a grid, including tabs]]
+    local line_number = 3 -- 3 lines of recipes displayed
+    local grid_size = 1.2
+
+    -- Add tab header -------------------------------------------------
     local tab_table = {}
     for i=1, #cTabs do
         tab_table[i] = "     "
@@ -544,11 +553,14 @@ local function cache_player_recipes(cache, player_name, pInv)
                                              or cTabs[i])) ..
             ';#000000;#ffffff]'
     end
-    -- add Scrollable container
+
+    -- add Scrollable container for recipes --------------------------
+
     local columns = 6 -- can show 6 items accross without scrollbar
-    if #recipe_list > columns * line_number then
+    local nb_recipes = #c_recipes+#u_recipes
+    if nb_recipes > columns * line_number then
         columns = columns -1 -- discard a line to make room for scrollbar
-        local scroll_max = math.ceil(#recipe_list / columns)-line_number
+        local scroll_max = math.ceil(nb_recipes / columns)-line_number
         recipesFS[#recipesFS + 1] =
             'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
             .. 'smallstep=1;largestep=line_number;thumbsize=1]'
@@ -556,20 +568,28 @@ local function cache_player_recipes(cache, player_name, pInv)
             = 'scrollbar[9.4,1.4;.5,3.43;vertical;recipes_scroll;'
             .. sScroll .. ']'
     end
-    recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1.2;'..
-        tostring(columns + 1)..','..(1.25 * line_number)..';recipes_scroll;vertical;' ..
-        grid_size .. ']'
-    -- Add recipe buttons in columns of 5 or 6
+    recipesFS[#recipesFS + 1] = table.concat({
+        'scroll_container[3.2,1.2;',
+        tostring(columns + 1),',',(1.25 * line_number),
+        ';recipes_scroll;vertical;', grid_size , ']'
+        },"")
+
+    -- Add recipe buttons in container  ------------------------------
     local x = 0
     local y = 0
-    -- display each recipe in sorted list
-    for i, result in ipairs(sorted) do
-        -- recipe
+
+    --[[ display individual recipe slot
+        Return associated formspec string
+    ]]
+    local function display_recipe(result, x, y)
+        local form_table={}
+        -- place recipe
         local recipe_output = result.recipe.output
         local item_description=ItemStack(recipe_output):get_description()
 
         local id = result.recipe.id
         local bg_coords =  tostring(x * grid_size) ..','.. tostring(y * grid_size + 0.2)
+
         -- set background image
         local bg_image
         local craftable = result.craftable
@@ -578,43 +598,88 @@ local function cache_player_recipes(cache, player_name, pInv)
         else
             bg_image = 'crafting_slot_uncraftable.png'
         end
-        recipesFS[#recipesFS +1] = "image[" .. bg_coords ..
-            ";1,1;" .. bg_image .. "]"
+        form_table[1] = "image[" .. bg_coords .. ";1,1;" .. bg_image .. "]"
+
         -- Add button image
         local btn_coords =
             tostring( x * grid_size + 0.1 ) .. ','..
             tostring( y * grid_size + 0.3 )
-        recipesFS[#recipesFS + 1] =    "style_type[item_image_button;border=false;bgimg_middle=]"
-        recipesFS[#recipesFS + 1] = 'item_image_button['
-            .. btn_coords .. ';.8,.8;'
-            .. recipe_output .. ';sResult_' .. id ..';]'
-        recipesFS[#recipesFS + 1] = 'tooltip[sResult_' .. id..';'
-            .. minetest.formspec_escape(item_description .. "\n")
+
+        form_table[2] = table.concat({
+            "style_type[item_image_button;border=false;bgimg_middle=]",
+            'item_image_button[',
+            btn_coords,
+            ';.8,.8;',
+            recipe_output,
+            ';sResult_',
+            id,
+            ';]'
+        },"")
+
+        -- add recipe's tooltip part 1 : output's description
+        form_table[3] = table.concat({
+            'tooltip[sResult_',
+            id,
+            ';',
+            minetest.formspec_escape(item_description .. "\n")
+        },"")
+
+        -- add recipe's tooltip part 2 : inputs
+        local index = 4
         for _, row in ipairs(result.items) do
             local tool_tip ="\n"
             for _, item in ipairs(row) do
                 local color = item.have >= item.need and "#6f6" or "#f66"
                 if tool_tip ~= "\n" then
-					tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color) .. S("or") .. " "
-				else
-					tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color)
-				end
+                    tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color) .. S("or") .. " "
+                else
+                    tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color)
+                end
                 tool_tip = tool_tip
-                    ..  item.short .. ": "
-                    ..  item.have .."/".. item.need .." "
+                ..  item.short .. ": "
+                ..  item.have .."/".. item.need .." "
             end
-            recipesFS[#recipesFS + 1] = minetest.formspec_escape(tool_tip)
+            form_table[index] = minetest.formspec_escape(tool_tip)
+            index = index +1
         end
-        recipesFS[#recipesFS + 1] =
-            minetest.get_color_escape_sequence("#ffffff") .. ']'
-        x = x + 1
-        if x >= columns  then
-            x = 0
-            y = y + 1
-        end
+        -- #TODO check the use/placement of following line
+        form_table[#form_table+1]=
+        minetest.get_color_escape_sequence("#ffffff") .. ']'
+        -- return result as string
+        return table.concat(form_table,"")
     end
 
+    --[[ display each recipe in list if result.displayed = true
+    return
+    - associated formspec string
+    - c and y of next slot
+    ]]
+    local function display_recipes(list, x, y)
+        local list_form={}
+        for i, result in ipairs(list) do
+            -- display if this recipe matches the filter
+            if result.displayed == true then
+                list_form[#list_form + 1] =
+                display_recipe(result,x ,y)
+
+                x = x + 1
+                if x >= columns  then
+                    x = 0
+                    y = y + 1
+                end
+            end
+        end
+        return table.concat(list_form,""),x,y
+    end
+
+    -- display craftable recipes
+    recipesFS[#recipesFS + 1], x, y = display_recipes(c_recipes, 0, 0)
+    -- display uncraftable recipes
+    recipesFS[#recipesFS + 1] = display_recipes(u_recipes, x, y)
+    -------------------------------------------------------------------
+
     recipesFS[#recipesFS + 1] = 'scroll_container_end[]'
+    --------------------------------------------------------------------
 
     -- saving new cache
     cache.recipesFS = table.concat(recipesFS, "")
@@ -750,7 +815,9 @@ function minimal.close_inventory_formspec(player)
     --   inventoryFS_cache[player_name].output=""
 
     -- Delete sorted items cache
-    crafting.sort_order_by_player[player_name] = nil
+    --crafting.sort_order_by_player[player_name] = nil
+    inventoryFS_cache[player_name].c_recipes=nil
+    inventoryFS_cache[player_name].u_recipes=nil
 
     -- Delete Cache
     local pInv = player:get_inventory()
@@ -801,11 +868,13 @@ function minimal.register_inventory_sfinv()
                 on_enter = function(self, player, context)
                     local player_name = player:get_player_name()
                     print ("--------------------------]ENTER[-------------------")
-                    crafting.sort_order_by_player[player_name] = nil
+                    inventoryFS_cache[player_name].c_recipes=nil
+                    inventoryFS_cache[player_name].u_recipes=nil
                 end,
                 on_leave = function(self, player, context)
                     local player_name = player:get_player_name()
-                    crafting.sort_order_by_player[player_name] = nil
+                    inventoryFS_cache[player_name].c_recipes=nil
+                    inventoryFS_cache[player_name].u_recipes=nil
                     print ("--------------------------]LEAVE[-------------------")
                 end,
                 --  on_enter = function(self, player, context)
