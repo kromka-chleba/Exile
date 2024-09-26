@@ -355,39 +355,51 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
         tab_table[i] = "     "
     end
 
-    recipesFS[#recipesFS + 1] = "style_type[item_image_button;bgimg_middle=4]" ..
-    -- if this tab is selected, change style
-    "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
+    -- generate formspec for crafting tabs
+    local function tab_pan()
+        local pan_t = {
+            "style_type[item_image_button;bgimg_middle=4]",
+            -- if this tab is selected, change style
+            "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
+            }
 
-    for i=1, #cTabs do
-        local leftPoint = 3.2 + (i - 1) * 0.85 -- grid_size
-        local item_name = crafting.icon_item_name[cTabs[i]]
+        local leftPoint, topPoint =nil,nil
+        for i=1, #cTabs do
+            leftPoint = (i - 1) * 0.85 -- grid_size
+            topPoint = 0.45
+            local item_name = crafting.icon_item_name[cTabs[i]]
             or 'crafting:placeholder'
-        local button_type = 'item_image_button['
-        local suffix = ']'
-        if item_name == string.gsub(item_name, ":", "") then -- not an item
-            button_type = 'image_button['
-            -- item_image_button and image_button formats differ, so..
-            suffix = ';;false]' -- hide borders on item_, which has extra fields
-        end
-        recipesFS[#recipesFS + 1] = button_type..(leftPoint)..
-            ',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';'..suffix
-        
-		-- old version :
-		--set focus on selected tab
-        --if i == sTab then
-        --    recipesFS[#recipesFS + 1] = 'set_focus[sCraftTab_' .. i .. ';true]'
-        --end
 
-        --recipesFS[#recipesFS + 1] = 'item_image_button['..(leftPoint)..
-        --',0.45;0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
+            -- #TODO new version to check/integrate :
+            --local button_type = 'item_image_button['
+            --local suffix = ']'
+            --if item_name == string.gsub(item_name, ":", "") then -- not an item
+            --    button_type = 'image_button['
+            --    -- item_image_button and image_button formats differ, so..
+            --    suffix = ';;false]' -- hide borders on item_, which has extra fields
+            --end
+            --recipesFS[#recipesFS + 1] = button_type..(leftPoint)..
+            --    ',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';'..suffix
 
-........--tooltips of tabs
-		recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
+            --set focus on selected tab
+            if i == sTab then
+                pan_t[#pan_t + 1] = 'set_focus[sCraftTab_' .. i .. ';true]'
+            end
+
+            pan_t[#pan_t + 1] = 'item_image_button['..(leftPoint)..
+            ','..(topPoint)..';0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
+
+            pan_t[#pan_t + 1] = 'tooltip[sCraftTab_'.. i ..
             ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
-                                             or cTabs[i])) ..
+            or cTabs[i])) ..
             ';#000000;#ffffff]'
+        end
+        return tofstring(pan_t)
     end
+    -- add tabs to the global recipes formspec
+    recipesFS[#recipesFS + 1] = 'container[3.2,0]'
+    recipesFS[#recipesFS + 1] = tab_pan()
+    recipesFS[#recipesFS + 1] = 'container_end[]'
 
     -- #TODO needs to be cleaned, doing 2 sperate functions maybe
     -- also not sure about the cache.output part (still used ?)
