@@ -21,6 +21,7 @@ crafting = crafting
 sfinv = sfinv
 
 --#TODO focus is on the search field on opening by default, so if we use again inventoy key to close, it writes on the field instead
+
 -- Create global default detached "craft_types" inventory
 -- Used to populate players craft_types
 local ctypes = minetest.create_detached_inventory("craft_types")
@@ -180,7 +181,6 @@ local function set_cache(player_name,inv,sItemID,qtyID)
     inventoryFS_cache[player_name]=cache
     return cache
 end
-
 
 -- process "quantity" setting
 local function process_qty(recipe,qty,item_hash)
@@ -374,11 +374,15 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
             ',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';'..suffix
         
 		-- old version :
-		-- recipesFS[#recipesFS + 1] = 'item_image_button['..
-		--(leftPoint)..
+		--set focus on selected tab
+        --if i == sTab then
+        --    recipesFS[#recipesFS + 1] = 'set_focus[sCraftTab_' .. i .. ';true]'
+        --end
+
+        --recipesFS[#recipesFS + 1] = 'item_image_button['..(leftPoint)..
         --',0.45;0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
-            
-		--tooltips of tabs
+
+........--tooltips of tabs
 		recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
             ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
                                              or cTabs[i])) ..
@@ -682,6 +686,7 @@ function minimal.close_inventory_formspec(player)
 
     -- Empty craft_type items
     delete_craft_types(pInv)
+
     -- update recipe list to have refresh button
     cache_player_recipes(inventoryFS_cache[player_name],player_name,pInv, false)
 end
@@ -928,6 +933,8 @@ function minimal.make_inventory_formspec(player,context)
     if not cache or cache == 'closed' then
         cache = set_cache(player_name,pInv)
     end
+
+
     --IB-test    if cache and cache.output and cache.output ~= "" then
     --IB-test            if os.time() > cache.epoch + __inventoryFS_cache_timeout then
     --IB-test                    inventoryFS_cache[player_name].epoch=os.time()
@@ -995,6 +1002,8 @@ function minimal.make_inventory_formspec(player,context)
 end
 
 minimal.register_inventory_sfinv()
+
+
 
 -- used when inventory tab was opened with right click on a tool
 minetest.register_on_player_receive_fields(function(player, formname, fields)
