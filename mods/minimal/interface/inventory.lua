@@ -14,11 +14,13 @@
 --
 
 local S = minetest.get_translator("minimal")
+local tofstring = function(t) return table.concat(t,"") end
 
 minimal = minimal
 crafting = crafting
 sfinv = sfinv
 
+--#TODO focus is on the search field on opening by default, so if we use again inventoy key to close, it writes on the field instead
 -- Create global default detached "craft_types" inventory
 -- Used to populate players craft_types
 local ctypes = minetest.create_detached_inventory("craft_types")
@@ -180,6 +182,7 @@ local function set_cache(player_name,inv,sItemID,qtyID)
 end
 
 
+-- process "quantity" setting
 local function process_qty(recipe,qty,item_hash)
     if qty > 1 then -- more then single requested find max
         local oItem = ItemStack(recipe.output)
@@ -263,6 +266,10 @@ local function process_qty(recipe,qty,item_hash)
     end
 end
 
+--[[ take current craftable and uncraftable list and
+    recheck if each one is craftable or not
+    update those lists in cache
+]]
 local function update_recipes_lists(player_name, cache, item_hash)
     local c_recipes = cache.c_recipes
     local u_recipes = cache.u_recipes
@@ -282,10 +289,401 @@ local function update_recipes_lists(player_name, cache, item_hash)
             c_recipes[#c_recipes + 1] = result
         else -- else keep it in uncraftable list
             new_u[#new_u + 1] = result
-            minetest.log("recipe output " .. tostring(result.recipe.output))
-            minetest.log("#cache.u_recipes " .. tostring(#cache.u_recipes))
         end
     end
+end
+
+-- build recipes list to display in crafting tab
+-- is search is not nil, it returns only the ones matching the search criteria
+local function recipes_for_player(cache, pInv, player_name, ctype, level, search)
+    local unlocked = crafting.get_unlocked(player_name)
+    -- build player items hash
+    local item_hash = {}
+    -- add input_items inventory
+    if pInv:get_size('input_items') > 0 then
+        crafting.set_item_hashes_from_list(pInv, 'input_items', item_hash)
+    end
+    -- add selected inventory
+    local selected = cache.sInv or 'main'
+    if pInv:get_size(selected) > 0 then
+        crafting.set_item_hashes_from_list(pInv, selected, item_hash)
+    end
+    -- save item_hash to cache
+    cache.item_hash = item_hash
+    -- Get all available recipies and mark craftible ones.
+    -- #TODO maybe just pass the player and cache and not have that many parameters
+    local c_recipes = cache.c_recipes
+    local u_recipes = cache.u_recipes
+    if not (c_recipes and u_recipes) then
+        c_recipes, u_recipes =  crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
+        -- save the lists in the cache
+        cache.c_recipes=c_recipes
+        cache.u_recipes=u_recipes
+    else
+        update_recipes_lists(player_name, cache, item_hash)
+    end
+
+    return cache.c_recipes, cache.u_recipes
+end
+
+--[[Recreated Recipe part of the formspec
+- updated = true : displays refreshed recipe list.
+needs to be triggered when the craft_type, craft_tab, input_items,
+or selected inventory changes
+- updated = false : displays a button in recipe panel to indicate that the  recipe list is not up-to-date (but as it was when the formspec was closed)
+This is because there is currently no callback for "I opened the inventory" so closng it will create a formspec that will be the one dsplayed on re-opening
+needs to be triggered when we close the formspec
+]]
+local function cache_player_recipes(cache, player_name, pInv, updated)
+    local recipesFS = {}         -- final fromspec
+    local sItem = cache.sItem    -- craft type Item selected
+    local sTab = cache.sTab      -- selected craft type tab
+    local sLevel = cache.sLevel  -- level associated with selected craft type
+    local cTabs = cache.cTabs    -- Crafting tabs to display
+    local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
+    local sSearch = cache.sSearch
+
+    -- this is for more clarity, choice of display settings
+    --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
+    used to place them on a grid, including tabs]]
+    local line_number = 3 -- 3 lines of recipes displayed
+    local grid_size = 1.2
+
+    -- Add tab header -------------------------------------------------
+    local tab_table = {}
+    for i=1, #cTabs do
+        tab_table[i] = "     "
+    end
+
+    recipesFS[#recipesFS + 1] = "style_type[item_image_button;bgimg_middle=4]" ..
+    -- if this tab is selected, change style
+    "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
+
+    for i=1, #cTabs do
+        local leftPoint = 3.2 + (i - 1) * 0.85 -- grid_size
+        local item_name = crafting.icon_item_name[cTabs[i]]
+            or 'crafting:placeholder'
+        local button_type = 'item_image_button['
+        local suffix = ']'
+        if item_name == string.gsub(item_name, ":", "") then -- not an item
+            button_type = 'image_button['
+            -- item_image_button and image_button formats differ, so..
+            suffix = ';;false]' -- hide borders on item_, which has extra fields
+        end
+        recipesFS[#recipesFS + 1] = button_type..(leftPoint)..
+            ',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';'..suffix
+        
+		-- old version :
+		-- recipesFS[#recipesFS + 1] = 'item_image_button['..
+		--(leftPoint)..
+        --',0.45;0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
+            
+		--tooltips of tabs
+		recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
+            ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
+                                             or cTabs[i])) ..
+            ';#000000;#ffffff]'
+    end
+
+    -- #TODO needs to be cleaned, doing 2 sperate functions maybe
+    -- also not sure about the cache.output part (still used ?)
+    if updated == false then
+        recipesFS[#recipesFS + 1]= tofstring({
+            'container[3.2,1.2]',
+            'button[0.25,1;6,2;refresh_r;',
+            S("Get list of recipes"),
+            ']',
+            'container_end[]'
+        })
+        -- saving new cache
+        cache.recipesFS = tofstring(recipesFS)
+        cache.output = ""
+        return cache
+    end
+
+    -- add Scrollable container for recipes --------------------------
+    -- get recipe list to display
+    -- this list indicates if the recipe is craftable or not
+    -- it contains only the recipes matching the search parameter
+    local c_recipes, u_recipes = recipes_for_player(cache, pInv, player_name,
+    cTabs[sTab], sLevel, sSearch)
+
+    local columns = 6 -- can show 6 items accross without scrollbar
+    local nb_recipes = #c_recipes+#u_recipes
+    if nb_recipes > columns * line_number then
+        columns = columns -1 -- discard a line to make room for scrollbar
+        local scroll_max = math.ceil(nb_recipes / columns)-line_number
+        recipesFS[#recipesFS + 1] =
+        'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
+        .. 'smallstep=1;largestep=line_number;thumbsize=1]'
+        recipesFS[#recipesFS + 1]
+        = 'scrollbar[9.4,1.4;.5,3.43;vertical;recipes_scroll;'
+        .. sScroll .. ']'
+    end
+    recipesFS[#recipesFS + 1] = tofstring({
+        'scroll_container[3.2,1.2;',
+        tostring(columns + 1),',',(1.25 * line_number),
+        ';recipes_scroll;vertical;', grid_size , ']'
+    })
+
+    -- Add recipe buttons in container  ------------------------------
+    local x = 0
+    local y = 0
+
+    --[[ display individual recipe slot
+    Return associated formspec string
+    ]]
+    local function display_recipe(result, x, y)
+        local form_table={}
+        -- place recipe
+        local recipe_output = result.recipe.output
+        local item_description=ItemStack(recipe_output):get_description()
+
+        local id = result.recipe.id
+        local bg_coords =  tostring(x * grid_size) ..','.. tostring(y * grid_size + 0.2)
+
+        -- set background image
+        local bg_image
+        local craftable = result.craftable
+        if craftable then
+            bg_image = 'crafting_slot_craftable.png'
+        else
+            bg_image = 'crafting_slot_uncraftable.png'
+        end
+        form_table[1] = "image[" .. bg_coords .. ";1,1;" .. bg_image .. "]"
+
+        -- Add button image
+        local btn_coords =
+        tostring( x * grid_size + 0.1 ) .. ','..
+        tostring( y * grid_size + 0.3 )
+        form_table[2] = tofstring({
+            "style_type[item_image_button;border=false;bgimg_middle=]",
+            'item_image_button[',
+            btn_coords,
+            ';.8,.8;',
+            recipe_output,
+            ';sResult_',
+            id,
+            ';]'
+        })
+
+        -- add recipe's tooltip part 1 : output's description
+        form_table[3] = tofstring({
+            'tooltip[sResult_',
+            id,
+            ';',
+            minetest.formspec_escape(item_description .. "\n")
+        })
+
+        -- add recipe's tooltip part 2 : inputs
+        local index = 4
+        for _, row in ipairs(result.items) do
+            local tool_tip ="\n"
+            for _, item in ipairs(row) do
+                local color = item.have >= item.need and "#6f6" or "#f66"
+                if tool_tip ~= "\n" then
+                    tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color) .. S("or") .. " "
+                else
+                    tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color)
+                end
+                tool_tip = tool_tip
+                ..  item.short .. ": "
+                ..  item.have .."/".. item.need .." "
+            end
+            form_table[index] = minetest.formspec_escape(tool_tip)
+            index = index +1
+        end
+        -- #TODO check the use/placement of following line
+        form_table[#form_table+1]=
+        minetest.get_color_escape_sequence("#ffffff") .. ']'
+        -- return result as string
+        return tofstring(form_table)
+    end
+
+    --[[ display each recipe in list if result.displayed = true
+    return
+    - associated formspec string
+    - c and y of next slot
+    ]]
+    local function display_recipes(list, x, y)
+        local list_form={}
+        for i, result in ipairs(list) do
+            -- display if this recipe matches the filter
+            if result.displayed == true then
+                list_form[#list_form + 1] =
+                display_recipe(result,x ,y)
+
+                x = x + 1
+                if x >= columns  then
+                    x = 0
+                    y = y + 1
+                end
+            end
+        end
+        return tofstring(list_form),x,y
+    end
+
+    -- display craftable recipes
+    recipesFS[#recipesFS + 1], x, y = display_recipes(c_recipes, 0, 0)
+    -- display uncraftable recipes
+    recipesFS[#recipesFS + 1] = display_recipes(u_recipes, x, y)
+    -------------------------------------------------------------------
+
+    recipesFS[#recipesFS + 1] = 'scroll_container_end[]'
+    --------------------------------------------------------------------
+
+    -- saving new cache
+    cache.recipesFS = tofstring(recipesFS)
+    cache.output = ""
+    return cache
+end
+
+-- Build search field to be in container
+local function cache_search_field(cache)
+    result={
+        'field_close_on_enter[crafting_search;false]',
+        --'field[0,0;3.0,0.6;crafting_search;'.. S("Search")..';'.. (sSearch or "") .. ']'
+        'field[0,0;3.0,0.6;crafting_search;;'.. (cache.sSearch or "") .. ']',
+        --recipesFS[#recipesFS + 1] = 'button[3.7,9.5;0.6,0.5;crafting_filter;?]'
+        'image_button[3.1,0;0.6,0.6;creative_search_icon.png;crafting_filter;]',
+        'image_button[3.8,0;0.6,0.6;creative_clear_icon.png;crafting_clear;]'
+    }
+
+    -- saving new cache
+    cache.searchFS = tofstring(result)
+    cache.output = ""
+    return cache
+end
+
+-- This needs to be rebuilt every time you change the inventory being viewed - so clicking bags
+-- This is triggered by setting cache.inventory = nil
+local function cache_player_inventory(cache, pInv)
+    local selected = cache.sInv or 'main'
+    local inventory = {}
+    inventory[#inventory + 1] = 'style_type[list;size=;spacing=]'
+    inventory[#inventory + 1] = 'list[current_player;' ..
+    selected .. ';.4,7.8;8,2;0]'
+    inventory[#inventory + 1] = 'listring[]'
+    -- inventory[#inventory + 1] = 'tabheader[.4,9.8;inventory_tab;'..S("Main")..","..S("Bag1")..","..S("Bag2")..","..S("Bag3")..","..S("Bag4")..';1;true;false]'
+
+    cache.inventoryFS = tofstring(inventory);
+    cache.output = ""
+    return cache
+end
+
+-- Shouldn't need to be rebuilt more then once per player per restart
+local function cache_player_input_list(cache, pInv)
+    local inputs = pInv:get_list('input_items')
+    if not inputs or #inputs ~= 6 then
+        -- create inputs inventory list and draw formspec for input_itmes
+        pInv:set_size('input_items', 6)
+    end
+
+    local input_listFS = {
+        'container[.4,2.8]',
+        'label[0,0;'..S("Input Items")..']',
+        --                'box[0,.2;2.5,2.5;black]',
+        'style_type[list;size=.7,.7;spacing=.1]',
+        'list[current_player;input_items;.1,.3;2,3;0]',
+        'container_end[]',
+    }
+    cache.input_listFS = tofstring(input_listFS)
+    cache.output = ""
+    return cache
+end
+
+-- Shouldn't need to rebuild this more then once per player per restart
+-- or when player adds to their craft_types
+-- See adding tools/benches to input_items list
+local function cache_player_craft_types(cache, pInv)
+    local selected = cache.sItem or 'crafting_spot' -- default to hand crafting
+    local cItems = load_craft_types(pInv)
+    local cTabs = cache.cTabs    -- Crafting tabs to display
+    local craft_typeFS = {
+        'container[.4,.6]',
+        'label[0,0;'..S("Tool used")..']',
+        -- 'box[0,.2;2.5,1.9;black]',
+    }
+    local x = 0
+    local y = 0
+    for i,stack in ipairs(cItems) do
+        local coords = tostring(x * 1.0 + 0.1) ..','.. tostring(y * 1.0 + 0.3)
+        if not stack:is_empty() then
+            -- Dipslay item image
+            local itemname = stack:get_name()
+            craft_typeFS[#craft_typeFS + 1] =
+                'item_image_button[' .. coords .. ';0.8,0.8;'
+                .. itemname ..';sCraftType_' .. i .. ';]'
+            craft_typeFS[#craft_typeFS + 1] =
+                'tooltip[sCraftType_' .. i .. ';'
+                .. stack:get_short_description() .. ']'
+        else
+            -- display empty space
+            craft_typeFS[#craft_typeFS + 1] =
+                'image[' ..coords..';0.8,0.8;crafting_slot_empty.png]'
+        end
+        x = x + 1
+        if x > 1 then
+            x = 0
+            y = y + 1
+        end
+    end
+
+    craft_typeFS[#craft_typeFS + 1] = 'container_end[]'
+    cache.craft_typeFS=tofstring(craft_typeFS);
+    cache.output = ""
+    return cache
+end
+
+
+-- Empty craft_type items and delete the associated inventory
+local function delete_craft_types(pInv)
+    if not pInv:is_empty('craft_types') then
+        for i=1, pInv:get_size('craft_types') do
+            local empty = ItemStack("")
+            pInv:set_stack('craft_types', i, empty)
+        end
+        -- Return items to player.
+        -- copies of items added will be added to
+        -- the inventory list 'craft_items_return'
+        -- they need to be returned here.
+    end
+    -- delete craft_types list
+    pInv:set_size('craft_types',0)
+end
+
+-- Call when the inventory formspec is closed to clear cache
+-- #TODO : would be good to still save the curent subtab instead of clearing everything
+function minimal.close_inventory_formspec(player)
+    local player_name = player:get_player_name()
+    if not (player_name and player_name ~= "") then
+        return nil -- no player name
+    end
+
+    -- Return Items in input_items list to player
+    local pInv = player:get_inventory()
+    if not pInv:is_empty('input_items') then
+        for i=1, pInv:get_size('input_items') do
+            local stack = pInv:get_stack('input_items', i)
+            if not stack:is_empty() then
+                -- Try to add to main inventory
+                if pInv:room_for_item('main', stack) then
+                    stack = pInv:add_item('main', stack)
+                end
+                -- Drop item if no room in inventory
+                if not stack:is_empty() then
+                    minetest.item_drop(stack, player, player:get_pos())
+                end
+                -- Set stack to empty stack in input_items inventory
+                pInv:set_stack('input_items',i,ItemStack(''))
+            end
+        end
+    end
+
+    -- Empty craft_type items
+    delete_craft_types(pInv)
+    -- update recipe list to have refresh button
+    cache_player_recipes(inventoryFS_cache[player_name],player_name,pInv, false)
 end
 
 -- return true if something changed, false else
@@ -300,9 +698,9 @@ local function process_receive_fields(player, formname, fields)
     local done =
         false -- flag to skip processing buttons and skip to saving changes.
     -- Process quit
+    -- called when escaping the formspec using inventory key
     if fields.quit then
         minimal.close_inventory_formspec(player)
-        inventoryFS_cache[player_name] = 'closed'
         -- added to reset quantity to "single" when we close the inventory
         --  and avoid accidentaly max
         return true -- cache updated in close
@@ -338,6 +736,7 @@ local function process_receive_fields(player, formname, fields)
         --                crafting.sort_order_by_player[player_name] = nil
         done = true
     end
+    -- process search buttons
     if fields.crafting_clear then
         -- will force to resort recipes
         --crafting.sort_order_by_player[player_name]=nil
@@ -375,6 +774,12 @@ local function process_receive_fields(player, formname, fields)
 
             return false
         end
+    end
+    -- process get recipes button
+    if fields.refresh_r then
+        cache_player_recipes(cache, player_name, inv, true)
+        cache.output = ""
+        done = true
     end
     -- process new craft tabs
     -- so it seems we can deal with 10 tabs, no more
@@ -461,390 +866,6 @@ local function process_receive_fields(player, formname, fields)
     return true
 end
 
--- build recipes list to display in crafting tab
--- is search is not nil, it returns only the ones matching the search criteria
-local function recipes_for_player(cache, pInv, player_name, ctype, level, search)
-    local unlocked = crafting.get_unlocked(player_name)
-    -- build player items hash
-    local item_hash = {}
-    -- add input_items inventory
-    if pInv:get_size('input_items') > 0 then
-        crafting.set_item_hashes_from_list(pInv, 'input_items', item_hash)
-    end
-    -- add selected inventory
-    local selected = cache.sInv or 'main'
-    if pInv:get_size(selected) > 0 then
-        crafting.set_item_hashes_from_list(pInv, selected, item_hash)
-    end
-    -- save item_hash to cache
-    cache.item_hash = item_hash
-    -- Get all available recipies and mark craftible ones.
-    -- #TODO maybe just pass the player and cache and not have that many parameters
-    local c_recipes = cache.c_recipes
-    local u_recipes = cache.u_recipes
-    if not (c_recipes and u_recipes) then
-        c_recipes, u_recipes =  crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
-        -- save the lists in the cache
-        cache.c_recipes=c_recipes
-        cache.u_recipes=u_recipes
-    else
-        update_recipes_lists(player_name, cache, item_hash)
-    end
-
-    return cache.c_recipes, cache.u_recipes
-end
-
--- This needs to be rebuilt every time the craft_type, craft_tab, input_items,
--- or selected inventory changes
--- It is triggered by setting cache.recipesFS = nil
--- #TODO it is currently not rebuild on closing/reopening formspec, and should be
-local function cache_player_recipes(cache, player_name, pInv)
-    local recipesFS = {}         -- final fromspec
-    local sItem = cache.sItem    -- craft type Item selected
-    local sTab = cache.sTab      -- selected craft type tab
-    local sLevel = cache.sLevel  -- level associated with selected craft type
-    local cTabs = cache.cTabs    -- Crafting tabs to display
-    local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
-    local sSearch = cache.sSearch
-    -- get recipe list to display
-    -- this list indicates if the recipe is craftable or not
-    -- it contains only the recipes matching the search parameter
-    local c_recipes, u_recipes = recipes_for_player(cache, pInv, player_name,
-    cTabs[sTab], sLevel, sSearch)
-
-    -- this is for more clarity, choice of display settings
-    --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
-        used to place them on a grid, including tabs]]
-    local line_number = 3 -- 3 lines of recipes displayed
-    local grid_size = 1.2
-
-    -- Add tab header -------------------------------------------------
-    local tab_table = {}
-    for i=1, #cTabs do
-        tab_table[i] = "     "
-    end
-
-    recipesFS[#recipesFS + 1] = "style_type[item_image_button;bgimg_middle=4]" ..
-    -- if this tab is selected, change style
-    "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
-
-    for i=1, #cTabs do
-        local leftPoint = 3.2 + (i - 1) * 0.85 -- grid_size
-        local item_name = crafting.icon_item_name[cTabs[i]]
-            or 'crafting:placeholder'
-        local button_type = 'item_image_button['
-        local suffix = ']'
-        if item_name == string.gsub(item_name, ":", "") then -- not an item
-            button_type = 'image_button['
-            -- item_image_button and image_button formats differ, so..
-            suffix = ';;false]' -- hide borders on item_, which has extra fields
-        end
-        recipesFS[#recipesFS + 1] = button_type..(leftPoint)..
-            ',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';'..suffix
-        
-		-- old version :
-		-- recipesFS[#recipesFS + 1] = 'item_image_button['..
-		--(leftPoint)..
-        --',0.45;0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
-            
-		--tooltips of tabs
-		recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
-            ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
-                                             or cTabs[i])) ..
-            ';#000000;#ffffff]'
-    end
-
-    -- add Scrollable container for recipes --------------------------
-
-    local columns = 6 -- can show 6 items accross without scrollbar
-    local nb_recipes = #c_recipes+#u_recipes
-    if nb_recipes > columns * line_number then
-        columns = columns -1 -- discard a line to make room for scrollbar
-        local scroll_max = math.ceil(nb_recipes / columns)-line_number
-        recipesFS[#recipesFS + 1] =
-            'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
-            .. 'smallstep=1;largestep=line_number;thumbsize=1]'
-        recipesFS[#recipesFS + 1]
-            = 'scrollbar[9.4,1.4;.5,3.43;vertical;recipes_scroll;'
-            .. sScroll .. ']'
-    end
-    recipesFS[#recipesFS + 1] = table.concat({
-        'scroll_container[3.2,1.2;',
-        tostring(columns + 1),',',(1.25 * line_number),
-        ';recipes_scroll;vertical;', grid_size , ']'
-        },"")
-
-    -- Add recipe buttons in container  ------------------------------
-    local x = 0
-    local y = 0
-
-    --[[ display individual recipe slot
-        Return associated formspec string
-    ]]
-    local function display_recipe(result, x, y)
-        local form_table={}
-        -- place recipe
-        local recipe_output = result.recipe.output
-        local item_description=ItemStack(recipe_output):get_description()
-
-        local id = result.recipe.id
-        local bg_coords =  tostring(x * grid_size) ..','.. tostring(y * grid_size + 0.2)
-
-        -- set background image
-        local bg_image
-        local craftable = result.craftable
-        if craftable then
-            bg_image = 'crafting_slot_craftable.png'
-        else
-            bg_image = 'crafting_slot_uncraftable.png'
-        end
-        form_table[1] = "image[" .. bg_coords .. ";1,1;" .. bg_image .. "]"
-
-        -- Add button image
-        local btn_coords =
-            tostring( x * grid_size + 0.1 ) .. ','..
-            tostring( y * grid_size + 0.3 )
-
-        form_table[2] = table.concat({
-            "style_type[item_image_button;border=false;bgimg_middle=]",
-            'item_image_button[',
-            btn_coords,
-            ';.8,.8;',
-            recipe_output,
-            ';sResult_',
-            id,
-            ';]'
-        },"")
-
-        -- add recipe's tooltip part 1 : output's description
-        form_table[3] = table.concat({
-            'tooltip[sResult_',
-            id,
-            ';',
-            minetest.formspec_escape(item_description .. "\n")
-        },"")
-
-        -- add recipe's tooltip part 2 : inputs
-        local index = 4
-        for _, row in ipairs(result.items) do
-            local tool_tip ="\n"
-            for _, item in ipairs(row) do
-                local color = item.have >= item.need and "#6f6" or "#f66"
-                if tool_tip ~= "\n" then
-                    tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color) .. S("or") .. " "
-                else
-                    tool_tip = tool_tip ..  minetest.get_color_escape_sequence(color)
-                end
-                tool_tip = tool_tip
-                ..  item.short .. ": "
-                ..  item.have .."/".. item.need .." "
-            end
-            form_table[index] = minetest.formspec_escape(tool_tip)
-            index = index +1
-        end
-        -- #TODO check the use/placement of following line
-        form_table[#form_table+1]=
-        minetest.get_color_escape_sequence("#ffffff") .. ']'
-        -- return result as string
-        return table.concat(form_table,"")
-    end
-
-    --[[ display each recipe in list if result.displayed = true
-    return
-    - associated formspec string
-    - c and y of next slot
-    ]]
-    local function display_recipes(list, x, y)
-        local list_form={}
-        for i, result in ipairs(list) do
-            -- display if this recipe matches the filter
-            if result.displayed == true then
-                list_form[#list_form + 1] =
-                display_recipe(result,x ,y)
-
-                x = x + 1
-                if x >= columns  then
-                    x = 0
-                    y = y + 1
-                end
-            end
-        end
-        return table.concat(list_form,""),x,y
-    end
-
-    -- display craftable recipes
-    recipesFS[#recipesFS + 1], x, y = display_recipes(c_recipes, 0, 0)
-    -- display uncraftable recipes
-    recipesFS[#recipesFS + 1] = display_recipes(u_recipes, x, y)
-    -------------------------------------------------------------------
-
-    recipesFS[#recipesFS + 1] = 'scroll_container_end[]'
-    --------------------------------------------------------------------
-
-    -- saving new cache
-    cache.recipesFS = table.concat(recipesFS, "")
-    cache.output = ""
-    return cache
-end
-
--- Build search field to be in container
-local function cache_search_field(cache)
-    result={
-    'field_close_on_enter[crafting_search;false]',
-    --'field[0,0;3.0,0.6;crafting_search;'.. S("Search")..';'.. (sSearch or "") .. ']'
-    'field[0,0;3.0,0.6;crafting_search;;'.. (cache.sSearch or "") .. ']',
-    --recipesFS[#recipesFS + 1] = 'button[3.7,9.5;0.6,0.5;crafting_filter;?]'
-    'image_button[3.1,0;0.6,0.6;creative_search_icon.png;crafting_filter;]',
-    'image_button[3.8,0;0.6,0.6;creative_clear_icon.png;crafting_clear;]'
-    }
-
-    -- saving new cache
-    cache.searchFS = table.concat(result,"")
-    cache.output = ""
-    return cache
-end
-
--- This needs to be rebuilt every time you change the inventory being viewed - so clicking bags
--- This is triggered by setting cache.inventory = nil
-local function cache_player_inventory(cache, pInv)
-    local selected = cache.sInv or 'main'
-    local inventory = {}
-    inventory[#inventory + 1] = 'style_type[list;size=;spacing=]'
-    inventory[#inventory + 1] = 'list[current_player;' ..
-        selected .. ';.4,7.8;8,2;0]'
-    inventory[#inventory + 1] = 'listring[]'
-    -- inventory[#inventory + 1] = 'tabheader[.4,9.8;inventory_tab;'..S("Main")..","..S("Bag1")..","..S("Bag2")..","..S("Bag3")..","..S("Bag4")..';1;true;false]'
-
-    cache.inventoryFS = table.concat(inventory, "");
-    cache.output = ""
-    return cache
-end
-
--- Shouldn't need to be rebuilt more then once per player per restart
-local function cache_player_input_list(cache, pInv)
-    local inputs = pInv:get_list('input_items')
-    if not inputs or #inputs ~= 6 then
-        -- create inputs inventory list and draw formspec for input_itmes
-        pInv:set_size('input_items', 6)
-    end
-
-    local input_listFS = {
-        'container[.4,2.8]',
-        'label[0,0;'..S("Input Items")..']',
-        --                'box[0,.2;2.5,2.5;black]',
-        'style_type[list;size=.7,.7;spacing=.1]',
-        'list[current_player;input_items;.1,.3;2,3;0]',
-        'container_end[]',
-    }
-    cache.input_listFS = table.concat(input_listFS, "")
-    cache.output = ""
-    return cache
-end
-
--- Shouldn't need to rebuild this more then once per player per restart
--- or when player adds to their craft_types
--- See adding tools/benches to input_items list
-local function cache_player_craft_types(cache, pInv)
-    local selected = cache.sItem or 'crafting_spot' -- default to hand crafting
-    local cItems = load_craft_types(pInv)
-    local cTabs = cache.cTabs    -- Crafting tabs to display
-    local craft_typeFS = {
-        'container[.4,.6]',
-        'label[0,0;'..S("Tool used")..']',
-        -- 'box[0,.2;2.5,1.9;black]',
-    }
-    local x = 0
-    local y = 0
-    for i,stack in ipairs(cItems) do
-        local coords = tostring(x * 1.0 + 0.1) ..','.. tostring(y * 1.0 + 0.3)
-        if not stack:is_empty() then
-            -- Dipslay item image
-            local itemname = stack:get_name()
-            craft_typeFS[#craft_typeFS + 1] =
-                'item_image_button[' .. coords .. ';0.8,0.8;'
-                .. itemname ..';sCraftType_' .. i .. ';]'
-            craft_typeFS[#craft_typeFS + 1] =
-                'tooltip[sCraftType_' .. i .. ';'
-                .. stack:get_short_description() .. ']'
-        else
-            -- display empty space
-            craft_typeFS[#craft_typeFS + 1] =
-                'image[' ..coords..';0.8,0.8;crafting_slot_empty.png]'
-        end
-        x = x + 1
-        if x > 1 then
-            x = 0
-            y = y + 1
-        end
-    end
-
-    craft_typeFS[#craft_typeFS + 1] = 'container_end[]'
-    cache.craft_typeFS=table.concat(craft_typeFS,"");
-    cache.output = ""
-    return cache
-end
-
-
--- Empty craft_type items and delete the associated inventory
-local function delete_craft_types(pInv)
-    if not pInv:is_empty('craft_types') then
-        for i=1, pInv:get_size('craft_types') do
-            local empty = ItemStack("")
-            pInv:set_stack('craft_types', i, empty)
-        end
-        -- Return items to player.
-        -- copies of items added will be added to
-        -- the inventory list 'craft_items_return'
-        -- they need to be returned here.
-    end
-    -- delete craft_types list
-    pInv:set_size('craft_types',0)
-end
-
--- #TODO need to update recipes when we get new things in inventory outside the formspec (like I get new wood plant, but stick is not green)
--- Call when the inventory formspec is closed to clear cache
-function minimal.close_inventory_formspec(player)
-    local player_name = player:get_player_name()
-    if not (player_name and player_name ~= "") then
-        return nil -- no player name
-    end
-    -- Assume recipes will need to be redrawn on reopen
-    --   inventoryFS_cache[player_name].recipesFS = nil
-    --   inventoryFS_cache[player_name].craft_typesFS = nil
-    -- clear cached output to force redraw for new formspec
-    --   inventoryFS_cache[player_name].output=""
-
-    -- Delete sorted items cache
-    --crafting.sort_order_by_player[player_name] = nil
-    inventoryFS_cache[player_name].c_recipes=nil
-    inventoryFS_cache[player_name].u_recipes=nil
-
-    -- Delete Cache
-    local pInv = player:get_inventory()
-
-    -- Return Items in input_items list to player
-    if not pInv:is_empty('input_items') then
-        for i=1, pInv:get_size('input_items') do
-            local stack = pInv:get_stack('input_items', i)
-            if not stack:is_empty() then
-                -- Try to add to main inventory
-                if pInv:room_for_item('main', stack) then
-                    stack = pInv:add_item('main', stack)
-                end
-                -- Drop item if no room in inventory
-                if not stack:is_empty() then
-                    minetest.item_drop(stack, player, player:get_pos())
-                end
-                -- Set stack to empty stack in input_items inventory
-                pInv:set_stack('input_items',i,ItemStack(''))
-            end
-        end
-    end
-
-    -- Empty craft_type items
-    delete_craft_types(pInv)
-end
-
 function minimal.register_inventory_sfinv()
     if minetest.global_exists("sfinv") then
         local homepage = sfinv.get_homepage_name() -- get name of homepage
@@ -868,13 +889,11 @@ function minimal.register_inventory_sfinv()
                 on_enter = function(self, player, context)
                     local player_name = player:get_player_name()
                     print ("--------------------------]ENTER[-------------------")
-                    inventoryFS_cache[player_name].c_recipes=nil
-                    inventoryFS_cache[player_name].u_recipes=nil
+                    --set_cache(player:get_player_name(),player:get_inventory())
                 end,
                 on_leave = function(self, player, context)
                     local player_name = player:get_player_name()
-                    inventoryFS_cache[player_name].c_recipes=nil
-                    inventoryFS_cache[player_name].u_recipes=nil
+                    --cache = "closed" -- #TODO not sure about that
                     print ("--------------------------]LEAVE[-------------------")
                 end,
                 --  on_enter = function(self, player, context)
@@ -949,9 +968,10 @@ function minimal.make_inventory_formspec(player,context)
     --   end
     table.insert(output,cache.input_listFS)
     -- add Recipes List
-    --   if not cache.recipesFS then
-    cache = cache_player_recipes(cache,player_name,pInv)
-    --   end
+    -- #TODO improve the way different caches are updated
+    if cache.recipesFS == nil then
+        cache_player_recipes(cache,player_name,pInv, true)
+    end
     table.insert(output, cache.recipesFS)
 
     --search field
@@ -976,13 +996,13 @@ end
 
 minimal.register_inventory_sfinv()
 
+-- used when inventory tab was opened with right click on a tool
 minetest.register_on_player_receive_fields(function(player, formname, fields)
         if formname ~= 'exile:crafting' then return false; end -- Not our form.
 
         local player_name = player:get_player_name()
         if fields.quit then
             minimal.close_inventory_formspec(player)
-            inventoryFS_cache[player_name] = 'closed'
             return true -- cache updated in close
         end
 
