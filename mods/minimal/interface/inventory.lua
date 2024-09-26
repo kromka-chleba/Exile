@@ -350,10 +350,6 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
     local grid_size = 1.2
 
     -- Add tab header -------------------------------------------------
-    local tab_table = {}
-    for i=1, #cTabs do
-        tab_table[i] = "     "
-    end
 
     -- generate formspec for crafting tabs
     local function tab_pan()
