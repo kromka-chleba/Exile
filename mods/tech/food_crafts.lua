@@ -225,7 +225,8 @@ minetest.register_node("tech:rhuya_flour",{
     fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
   },
   groups = {dig_immediate = 3, falling_node=1, flour=1},
-  sounds = nodes_nature.node_sound_dirt_defaults()
+  sounds = nodes_nature.node_sound_dirt_defaults(),
+  paramtype = "light"
 })
 
 -- purified rhuya flour
@@ -238,8 +239,41 @@ minetest.register_node("tech:rhuya_flour_cooked",{
     type = "fixed",
     fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
   },
+  groups = {dig_immediate = 3, falling_node=1, flour=1, cake_flour = 1},
+  sounds = nodes_nature.node_sound_dirt_defaults(),
+  paramtype = "light"
+})
+
+-- WINTERY rhuya flour (RAW)
+-- needs to be cooked also
+
+minetest.register_node("tech:rhuya_flour_wintery",{
+  description = S("Raw Wintery Rhuya Flour"),
+  tiles = {"tech_rhuya_flour_wintery.png"},
+  stack_max = minimal.stack_max_medium * 2,
+  drawtype = "nodebox",
+  node_box = {
+    type = "fixed",
+    fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+  },
   groups = {dig_immediate = 3, falling_node=1, flour=1},
-  sounds = nodes_nature.node_sound_dirt_defaults()
+  sounds = nodes_nature.node_sound_dirt_defaults(),
+  paramtype = "light"
+})
+
+-- purified wintery rhuya flour
+minetest.register_node("tech:rhuya_flour_wintery_cooked",{
+  description = S("Wintery Rhuya Flour"),
+  tiles = {"tech_flour_strong.png"},
+  stack_max = minimal.stack_max_medium * 2,
+  drawtype = "nodebox",
+  node_box = {
+    type = "fixed",
+    fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+  },
+  groups = {dig_immediate = 3, falling_node=1, flour=1, bread_flour = 1},
+  sounds = nodes_nature.node_sound_dirt_defaults(),
+  paramtype = "light"
 })
 
 -- oops, you burnt it!
@@ -253,7 +287,8 @@ minetest.register_node("tech:rhuya_flour_burned",{
     fixed = {-7/16, -0.5, -7/16, 7/16, -0.42, 7/16},
   },
   groups = {dig_immediate = 3, falling_node=1, compostable=1},
-  sounds = nodes_nature.node_sound_dirt_defaults()
+  sounds = nodes_nature.node_sound_dirt_defaults(),
+  paramtype = "light"
 })
 
 ---- plant-based recipes
