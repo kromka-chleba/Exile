@@ -245,7 +245,7 @@ local plant_list = {
      plant_type = "herbaceous_plant", mesh_type = 0,
      growing_time = nn.plant_base_growing_time * 3,
      dye_candidate = false, texture_scale = 1.6,
-     fruit = true, seasonal_type = "early", dry_fruit = true},
+     fruit = true, seasonal_type = "mainly_flower", dry_fruit = true},
 
     -- Mushrooms
 
