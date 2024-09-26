@@ -37,7 +37,7 @@ ctypes:set_list('main',{
 --      sTab   = selected_craft_tab     -- index of selected tab in ctypes - default = 1
 --      sLevel = selected craft_type_level -- set by craft type item selected
 --      sScroll = selected scroll level -- needed to draw scroll container
---      sSearch = current filter in search field #TODO to implement
+--      sSearch = current filter in search field
 --      cTabs = table_of_craftItem_tabs -- set by def.exile_crafting.craft_type.
 --      sInv = selected_inventory       -- set by bag buttons #TODO not here anymore, right ?
 --      -- The Following are tables of formspec strings
@@ -532,18 +532,21 @@ local function cache_player_recipes(cache, player_name, pInv)
             ',0.45;0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';'..suffix
 
 		-- old version :
-		-- recipesFS[#recipesFS + 1] = 'item_image_button['..
-		--(leftPoint)..
+		--set focus on selected tab
+        --if i == sTab then
+        --    recipesFS[#recipesFS + 1] = 'set_focus[sCraftTab_' .. i .. ';true]'
+        --end
+
+        --recipesFS[#recipesFS + 1] = 'item_image_button['..(leftPoint)..
         --',0.45;0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
 
-		--tooltips of tabs
+        --tooltips of tabs
 		recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
             ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
                                              or cTabs[i])) ..
             ';#000000;#ffffff]'
-
-
     end
+
     -- add Scrollable container
     local columns = 6 -- can show 6 items accross without scrollbar
     if #recipe_list > columns * line_number then
