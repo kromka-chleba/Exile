@@ -79,7 +79,7 @@ minetest.register_node(
             fixed = {-0.28, -0.5, -0.28, 0.28, -0.32, 0.28},
         },
         groups = {crumbly = 3, falling_node = 1, dig_immediate = 3,
-                  temp_pass = 1, heatable = 80, edible = 1},
+                  temp_pass = 1, heatable = 80, edible = 1, bread_flour = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         _use_tip = S("Eat"),
 })
