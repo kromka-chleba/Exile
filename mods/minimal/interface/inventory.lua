@@ -354,6 +354,7 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
     -- generate formspec for crafting tabs
     local function tab_pan()
         local pan_t = {
+            --'container[0,0]',
             "style_type[item_image_button;bgimg_middle=4]",
             -- if this tab is selected, change style
             "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
@@ -362,7 +363,8 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
         local leftPoint, topPoint =nil,nil
         for i=1, #cTabs do
             leftPoint = (i - 1) * 0.85 -- grid_size
-            topPoint = 0.45
+            topPoint = 0
+            ---------------------------------------------------------------
             local item_name = crafting.icon_item_name[cTabs[i]]
             or 'crafting:placeholder'
 
@@ -390,18 +392,18 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
             or cTabs[i])) ..
             ';#000000;#ffffff]'
         end
+
+        --pan_t[#pan_t + 1] = 'container_end[]'
         return tofstring(pan_t)
     end
     -- add tabs to the global recipes formspec
-    recipesFS[#recipesFS + 1] = 'container[3.2,0]'
     recipesFS[#recipesFS + 1] = tab_pan()
-    recipesFS[#recipesFS + 1] = 'container_end[]'
 
     -- #TODO needs to be cleaned, doing 2 sperate functions maybe
     -- also not sure about the cache.output part (still used ?)
     if updated == false then
         recipesFS[#recipesFS + 1]= tofstring({
-            'container[3.2,1.2]',
+            'container[0,0.75]',
             'button[0.25,1;6,2;refresh_r;',
             S("Get list of recipes"),
             ']',
@@ -429,11 +431,11 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
         'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
         .. 'smallstep=1;largestep=line_number;thumbsize=1]'
         recipesFS[#recipesFS + 1]
-        = 'scrollbar[9.4,1.4;.5,3.43;vertical;recipes_scroll;'
+        = 'scrollbar[6.2,0.95;.5,3.43;vertical;recipes_scroll;'
         .. sScroll .. ']'
     end
     recipesFS[#recipesFS + 1] = tofstring({
-        'scroll_container[3.2,1.2;',
+        'scroll_container[0,0.75;',
         tostring(columns + 1),',',(1.25 * line_number),
         ';recipes_scroll;vertical;', grid_size , ']'
     })
@@ -987,13 +989,15 @@ function minimal.make_inventory_formspec(player,context)
     if cache.recipesFS == nil then
         cache_player_recipes(cache,player_name,pInv, true)
     end
-    table.insert(output, cache.recipesFS)
+    output[#output + 1] = 'container[3.2, 0.45]'
+    output[#output + 1] = cache.recipesFS
+    output[#output + 1] = 'container_end[]'
 
     --search field
-    table.insert(output, 'container[3.2, 5.2]')
+    output[#output + 1] = 'container[3.2, 5.2]'
     cache = cache_search_field(cache)
-    table.insert(output, cache.searchFS)
-    table.insert(output, 'container_end[]')
+    output[#output + 1] = cache.searchFS
+    output[#output + 1] = 'container_end[]'
 
 
     -- add Inventory List
