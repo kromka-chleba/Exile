@@ -83,6 +83,9 @@ end
 
 -- return a copy of str with no accent and lower cap
 function minimal.make_search_string(str)
+    if not str then
+        return nil
+    end
     return minimal.remove_accented(str):lower()
 end
 
