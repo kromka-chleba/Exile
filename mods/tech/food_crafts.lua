@@ -246,12 +246,12 @@ minetest.register_node(
         paramtype = "light"
 })
 
--- WINTERY rhuya flour (RAW)
+-- HARDY rhuya flour (RAW)
 -- needs to be cooked also
 
 minetest.register_node(
     "tech:rhuya_flour_wintery", {
-        description = S("Raw Wintery Rhuya Flour"),
+        description = S("Raw Hardy Rhuya Flour"),
         tiles = {"tech_rhuya_flour_wintery.png"},
         stack_max = minimal.stack_max_medium * 2,
         drawtype = "nodebox",
@@ -267,7 +267,7 @@ minetest.register_node(
 -- purified wintery rhuya flour
 minetest.register_node(
     "tech:rhuya_flour_wintery_cooked",  {
-        description = S("Wintery Rhuya Flour"),
+        description = S("Hardy Rhuya Flour"),
         tiles = {"tech_flour_strong.png"},
         stack_max = minimal.stack_max_medium * 2,
         drawtype = "nodebox",
@@ -388,6 +388,14 @@ crafting.register_recipe({
     type = "mortar_and_pestle",
     output = "tech:rhuya_flour",
     items = {'nodes_nature:rhuya_seed 12'},
+    level = 1,
+    always_known = true,
+})
+
+crafting.register_recipe({
+    type = "mortar_and_pestle",
+    output = "tech:rhuya_flour_wintery",
+    items = {'nodes_nature:rhuya_wintery_seed 12'},
     level = 1,
     always_known = true,
 })
