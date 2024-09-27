@@ -58,6 +58,16 @@ nodes_nature.seasonal_types = {
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
+    wintery = {
+        _spring_early = "_seed",
+        _spring_late = "_seedling3",
+        _summer_early = "_seedling5",
+        _summer_late = "_flowering",
+        _fall_early = "_flowering",
+        _fall_late = "_fruiting",
+        _winter_early = "_fruiting",
+        _winter_late = "_dead",
+    },
     mainly_flower = {
         _spring_early = "_seedling3",
         _spring_late = "_flowering",
