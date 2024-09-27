@@ -53,8 +53,6 @@ nodes_nature.seasonal_types = {
         _spring_late = "_seed",
         _summer_early = "_seed",
         _summer_late = "_seedling5",
-        _fall_early = "",
-        _fall_late = "",
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
@@ -90,31 +88,14 @@ nodes_nature.seasonal_types = {
     },
     whole_season = {
         _spring_early = "_seedling5",
-        _spring_late = "",
-        _summer_early = "",
-        _summer_late = "",
-        _fall_early = "",
-        _fall_late = "",
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
     cane = {
-        _spring_early = "",
-        _spring_late = "",
-        _summer_early = "",
-        _summer_late = "",
-        _fall_early = "",
-        _fall_late = "",
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
     whole_season_woody = {
-        _spring_early = "",
-        _spring_late = "",
-        _summer_early = "",
-        _summer_late = "",
-        _fall_early = "",
-        _fall_late = "",
         _winter_early = "_dead",
         _winter_late = "_dead",
     },
@@ -139,3 +120,17 @@ nodes_nature.seasonal_types = {
         _winter_late = "_dead",
     },
 }
+-- local scope
+do
+  -- add missing values
+  for _,st in pairs(nodes_nature.seasonal_types) do --
+    st._spring_early = st._spring_early or ""
+    st._spring_late = st._spring_late or ""
+    st._summer_early = st._summer_early or ""
+    st._summer_late = st._summer_late or ""
+    st._fall_early = st._fall_early or ""
+    st._fall_late = st._fall_late or ""
+    st._winter_early = st._winter_early or ""
+    st._winter_late = st._winter_late or ""
+  end
+end
