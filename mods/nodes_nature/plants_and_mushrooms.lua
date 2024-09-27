@@ -248,6 +248,7 @@ local plant_list = {
      fruit = true, seasonal_type = "mainly_flower", dry_fruit = true},
 
     -- Rhuya: Winter Variant
+    -- NOT meant to appear in the wild (domesticated only, do not add to mapgen)
     -- Like the regular rhuya, but now with its own antifreeze (sorta)! Still quite toxic
     -- Fruit encased in an insulated harder shell (see about modifying recipes so that a knife is required?);
     -- possibly cacao pod consistency or harder
@@ -623,8 +624,10 @@ minetest.override_item(
 -- rhuya overrides
 -- override textures and rendering for rhuya seeds
 for _,rhuya in pairs({"","_wintery"}) do
+    local seed_name = "nodes_nature:rhuya"..rhuya.."_seed"
+    local seed_on_place = minetest.registered_nodes[seed_name].on_place
     minetest.override_item(
-        "nodes_nature:rhuya"..rhuya.."_seed",  {
+        seed_name,  {
             inventory_image = "nodes_nature_rhuya_seed.png",
             wield_image = "nodes_nature_rhuya_seed.png",
             tiles = {"nodes_nature_rhuya_seed.png"},
@@ -636,6 +639,42 @@ for _,rhuya in pairs({"","_wintery"}) do
                 type = "fixed",
                 fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
             },
+            -- functionality for normal rhuya seeds turning to wintery, or wintery becoming normal
+            on_place = function(itemstack, placer, pointed_thing)
+                if not pointed_thing then return seed_on_place(itemstack, placer, pointed_thing) end
+                itemstack = seed_on_place(itemstack, placer, pointed_thing)
+                if not itemstack then return itemstack end
+                local itemdef = itemstack:get_definition()
+                local pos = pointed_thing.above
+                if minetest.get_node(pos).name ~= itemdef.name then return end
+                -- winter variant (5% chance to return to normal)
+                if #itemdef.name == 31 and math.random() < 0.05 then
+                    -- convert to normal after 4 seconds
+                    minetest.after(4, function()
+                        -- only if node still exists
+                        if minetest.get_node(pos).name == itemdef.name then
+                            minetest.swap_node(pos, {name = itemdef.name:gsub("_wintery","")})
+                        end
+                    end)
+                -- non-winter variant (85% chance to check if should be wintery)
+                elseif math.random() < 0.85 then
+                    local temp = climate.get_point_temp(pos)
+                    local convert = temp < 5 and 0.1 or nil -- convert (chance) 10% or nil
+                    if convert then
+                      -- 30%, 50%, 70%, 99%
+                      convert = temp < 1 and 0.3 or convert
+                      convert = temp < -2 and 0.5 or convert
+                      convert = temp < -5 and 0.7 or convert
+                      convert = temp < -9 and 0.99 or convert
+                      -- convert after 4 seconds
+                      minetest.after(4, function()
+                          if minetest.get_node(pos).name == itemdef.name then
+                              minetest.swap_node(pos,{name = itemdef.name:gsub("rhuya","rhuya_wintery")})
+                          end
+                      end)
+                    end
+                end
+            end
     })
     -- override fruit stack size
     minetest.override_item(
