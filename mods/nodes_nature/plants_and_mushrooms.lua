@@ -247,6 +247,17 @@ local plant_list = {
      dye_candidate = false, texture_scale = 1.6,
      fruit = true, seasonal_type = "mainly_flower", dry_fruit = true},
 
+    -- Rhuya: Winter Variant
+    -- Like the regular rhuya, but now with its own antifreeze (sorta)! Still quite toxic
+    -- Fruit encased in an insulated harder shell (see about modifying recipes so that a knife is required?);
+    -- possibly cacao pod consistency or harder
+    {name = "rhuya_wintery", description = S("Hardy Rhuya"),
+     drawtype = "plantlike", waving = false,
+     plant_type = "herbaceous_plant", mesh_type = 0,
+     growing_time = nn.plant_base_growing_time * 3,
+     dye_candidate = false, texture_scale = 1.85,
+     fruit = true, seasonal_type = "mainly_flower", dry_fruit = true},
+
     -- Mushrooms
 
     --Lambakap. is also a mushroom.
@@ -609,16 +620,33 @@ minetest.override_item(
         end,
 })
 
-minetest.override_item("nodes_nature:rhuya_seed",{
-    inventory_image = "nodes_nature_rhuya_seed.png",
-    wield_image = "nodes_nature_rhuya_seed.png",
-    tiles = {"nodes_nature_rhuya_seed.png"},
-    node_box = {
-        type = "fixed",
-        fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
-    },
-    selection_box = {
-        type = "fixed",
-        fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
-    },
+-- rhuya overrides
+-- override textures and rendering for rhuya seeds
+for _,rhuya in pairs({"","_wintery"}) do
+    minetest.override_item(
+        "nodes_nature:rhuya"..rhuya.."_seed",  {
+            inventory_image = "nodes_nature_rhuya_seed.png",
+            wield_image = "nodes_nature_rhuya_seed.png",
+            tiles = {"nodes_nature_rhuya_seed.png"},
+            node_box = {
+                type = "fixed",
+                fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
+            },
+            selection_box = {
+                type = "fixed",
+                fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
+            },
+    })
+    -- override fruit stack size
+    minetest.override_item(
+        "nodes_nature:rhuya"..rhuya.."_fruit",  {
+            stack_max = minimal.stack_max_medium/2
+    })
+end
+
+minetest.override_item(
+    "nodes_nature:rhuya_wintery_dead", {
+        inventory_image = "nodes_nature_rhuya_dead.png",
+        wield_image = "nodes_nature_rhuya_dead.png",
+        tiles = {"nodes_nature_rhuya_dead.png"}
 })
