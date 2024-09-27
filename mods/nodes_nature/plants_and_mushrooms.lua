@@ -651,10 +651,9 @@ for _,rhuya in pairs({"","_wintery"}) do
                 if #itemdef.name == 31 and math.random() < 0.05 then
                     -- convert to normal after 4 seconds
                     minetest.after(4, function()
+                        if minetest.get_node(pos).name ~= itemdef.name then return end
                         -- only if node still exists
-                        if minetest.get_node(pos).name == itemdef.name then
-                            minetest.swap_node(pos, {name = itemdef.name:gsub("_wintery","")})
-                        end
+                        minetest.swap_node(pos, {name = itemdef.name:gsub("_wintery","")})
                     end)
                 -- non-winter variant (85% chance to check if should be wintery)
                 elseif math.random() < 0.85 then
@@ -668,9 +667,8 @@ for _,rhuya in pairs({"","_wintery"}) do
                       convert = temp < -9 and 0.99 or convert
                       -- convert after 4 seconds
                       minetest.after(4, function()
-                          if minetest.get_node(pos).name == itemdef.name then
-                              minetest.swap_node(pos,{name = itemdef.name:gsub("rhuya","rhuya_wintery")})
-                          end
+                          if minetest.get_node(pos).name ~= itemdef.name then return end
+                          minetest.swap_node(pos,{name = itemdef.name:gsub("rhuya","rhuya_wintery")})
                       end)
                     end
                 end
