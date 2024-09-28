@@ -34,4 +34,13 @@ function player_api.update_player(player)
     player_api.set_texture(player)
     -- update effects and clothing formspec
     player_api.update_equipment_effects(player)
+
+	-- #TODO to remove when Mantar is done with testing
+	-- Following is to copy each change to old cloth inventory (deprecitated)
+	do
+		local pinv = player:get_inventory()
+		for i,group in ipairs(player_api.get_groups()) do
+			pinv:set_stack("cloths",i, pinv:get_stack(group["name"],1))
+	    end
+	end
 end
