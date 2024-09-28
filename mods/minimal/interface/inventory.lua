@@ -706,9 +706,10 @@ function minimal.make_inventory_formspec(player,context)
     qtylab[qtyID] = minetest.colorize("cyan", qtylab[qtyID])
 
     local output = {
-        'formspec_version[5]',
-        'size[10.5,10.9]',
-        'position[0.5,0.48]',
+        --'formspec_version[5]',
+        --'size[10.5,10.9]',
+        --'position[0.5,0.48]',
+        'container[0,0]'
     }
 
     -- Craft Types (tool used) part --------------------------------------------
@@ -732,27 +733,27 @@ function minimal.make_inventory_formspec(player,context)
 
     -- Search field part -------------------------------------------------------
 
-    output[#output + 1] = 'container[3, 6.2]'
+    output[#output + 1] = 'container[3, 5.2]'
     cache = cache_search_field(cache)
     output[#output + 1] = cache.searchFS
     output[#output + 1] = 'container_end[]'
 
     -- Quantity buttons part ---------------------------------------------------
 
+    output[#output + 1] = 'container[0.45,6.4]'
     local qty_b = {
         -- 'container[0.35,7.2]',
-        'container[0.45,7.4]',
         'label[0,0;'..S("Quantity")..':]',
         'checkbox[2.6,0;qty1;'..qtylab[1]..';'..qtytab[1]..']',
         'checkbox[4.65,0;qty2;'..qtylab[2]..';'..qtytab[2]..']' ,
-        'checkbox[6.65,0;qty3;'..qtylab[3]..';'..qtytab[3]..']' ,
-        'container_end[]'
+        'checkbox[6.65,0;qty3;'..qtylab[3]..';'..qtytab[3]..']'
     }
     output[#output + 1] = tofstring(qty_b)
+    output[#output + 1] = 'container_end[]'
 
     -- Inventory List part------------------------------------------------------
 
-    output[#output + 1] = 'container[0.8,8]'
+    output[#output + 1] = 'container[0.8,7.2]'
     --   if not cache.inventoryFS then
     --output[#output + 1] = 'container[0.4,7.8]'
     cache = cache_player_inventory(cache)
@@ -773,6 +774,7 @@ function minimal.make_inventory_formspec(player,context)
     output[#output + 1] = 'listring[]'
 
     -- Save output to cache and update -----------------------------------------
+    output[#output + 1] = 'container_end[]'
     local result = table.concat(output)
     cache.output = result
     inventoryFS_cache[player_name] = cache

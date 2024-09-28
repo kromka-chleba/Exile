@@ -61,7 +61,7 @@ function sfinv.make_formspec(player, context, content, show_inv, size)
 end
 
 -- Exile added part -------------------------------------------------------------
-local inv_y = 7.3
+local inv_y = 7.2
 
 local exile_theme_inv = {
 		"list[current_player;main;0.35,".. inv_y .. ";8,1;]",
@@ -70,15 +70,17 @@ local exile_theme_inv = {
 
 function sfinv.make_formspec_for_exile(player, context, content, show_inv)
 	local tmp = {
-		"formspec_version[5]",
-		"size[11.2,10.9]",
-		"position[0.5,0.46]",
+        "formspec_version[5]",
+		--"size[11.2,10.5]",
+		"size[11.2,10]",
+		"position[0.5,0.5]",
 		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
 		show_inv and table.concat(exile_theme_inv,"") or "",
 		content
 	}
 	return table.concat(tmp, "")
 end
+
 --------------------------------------------------------------------------------
 
 function sfinv.get_homepage_name(player)
