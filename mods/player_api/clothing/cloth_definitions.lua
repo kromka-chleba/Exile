@@ -60,7 +60,7 @@ function player_api.init_cloths(player, pinv)
     inv:set_size("temp_slot",1)
     inv:set_stack("temp_slot",1,ItemStack(""))
 
-    -- #TODO following to remove when Mantar is done with testing
+    -- #TODO: "cloths" inv is deprecated; remove this after some time, post v4
     do
         if not inv:get_list("cloths") then
             inv:set_size("cloths",6)
@@ -100,7 +100,7 @@ local function migrate_cloths(player, pinv)
             end
         end
         -- delete list
-        -- #TODO uncomment following line when Mantar is done with testing
+        -- #TODO: "cloths" inv is deprecated, remove some time after v4 release
         -- pinv:set_size("cloths", 0)
     end
 end

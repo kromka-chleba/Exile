@@ -37,8 +37,8 @@ function player_api.update_player(player)
     -- update effects and clothing formspec
     player_api.update_equipment_effects(player)
 
-	-- #TODO to remove when Mantar is done with testing
-	-- Following is to copy each change to old cloth inventory (deprecitated)
+	-- #TODO to remove at some point after v4 is released
+	-- Keeps new inv slots in sync with old "cloths" inventory (deprecated)
 	do
 		local pinv = player:get_inventory()
 		for i,group in ipairs(player_api.get_groups()) do
