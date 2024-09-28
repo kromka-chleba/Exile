@@ -1,8 +1,5 @@
 # textdomain: tech
 # backpacks.lua
-# animal_crafts.lua
-Cracked Egg=Разбитое яйцо
-Fried Egg=Яичница
 Woven Bag=Вязанная сумка
 Wicker Bag=Плетеная сумка
 Fabric Bag=Тканевая сумка
@@ -268,6 +265,8 @@ Status: =Состояние:
 # plant_crafts.lua
 Stick=Палка
 Grass Fibre=Растительные волокна
+Vegetable Oil=Растительное масло
+# food_crafts.lua
 Bitter Maraka Flour=Мука из горького марака
 Maraka Flour=Мука из марака
 Unbaked Maraka Cake=Невыпеченный торт из марака
@@ -279,7 +278,13 @@ Cooked Anperla Tuber=Приготовленный клубень анперлы
 Mashed Anperla (uncooked)=Пюре из анперлы (не приготовленно)
 Mashed Anperla=Пюре из анперлы
 Burned Anperla=Сгоревшая анперла
-Vegetable Oil=Растительное масло
+Raw Rhuya Flour=
+Raw Hardy Rhuya Flour=
+Rhuya Flour=
+Hardy Rhuya Flour=
+# animal food_crafts
+Cracked Egg=Разбитое яйцо
+Fried Egg=Яичница
 # Pottery
 Broken Pottery Slab=Плита из разбитой керамики
 # pottery.lua
