@@ -49,6 +49,7 @@ local function killplayer(name)
         return
     end
     player:set_hp(1) -- for players who hit the death formspec bug
+    -- See Minetest issues, #11523
     if not minimal.player_in_creative(player) then
         -- Don't remove inventory from creative mode players, just kill 'em
         player:set_hp(0)
