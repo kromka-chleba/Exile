@@ -4,7 +4,6 @@
 --Local table to store pending confirmations.
 local timestamp = {}
 region = region
-clothing = clothing
 lore = lore
 local S = lore.S
 
@@ -56,9 +55,14 @@ local function killplayer(name)
         return
     end
     local player_inv = player:get_inventory()
+    -- get inv lists we want to empty
+    local inv_names = player_api.get_inv_names()
+    table.insert(inv_names, 'main')
+    table.insert(inv_names, 'craft')
     local epoch=os.time()
     local restart_list = {}
-    for _, list_name in ipairs({'main','craft','cloths'}) do
+    -- empty them
+    for _, list_name in ipairs(inv_names) do
         if not player_inv:is_empty(list_name) then
             for _, stack in ipairs(player_inv:get_list(list_name)) do
                 if stack:get_name() ~= "" then
@@ -74,8 +78,8 @@ local function killplayer(name)
         end
     end
     stash_inventory(player,'restart_list',restart_list)
-    -- Disable effects of clothes
-    clothing:update_temp(player)
+    -- reset effects of clothes to defaults now that we are naked
+    player_api.reset_equipment_effects(player)
     player:set_hp(0)
 end
 
@@ -177,5 +181,3 @@ minetest.register_chatcommand(
             end
         end
 })
-
-

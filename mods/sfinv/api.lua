@@ -36,38 +36,50 @@ function sfinv.get_nav_fs(player, context, nav, current_idx)
 	end
 end
 
-local inv_x = 0.35
-local inv_y = 7.3
+local theme_inv = [[
+		image[0,5.2;1,1;gui_hb_bg.png]
+		image[1,5.2;1,1;gui_hb_bg.png]
+		image[2,5.2;1,1;gui_hb_bg.png]
+		image[3,5.2;1,1;gui_hb_bg.png]
+		image[4,5.2;1,1;gui_hb_bg.png]
+		image[5,5.2;1,1;gui_hb_bg.png]
+		image[6,5.2;1,1;gui_hb_bg.png]
+		image[7,5.2;1,1;gui_hb_bg.png]
+		list[current_player;main;0,5.2;8,1;]
+		list[current_player;main;0,6.35;8,3;8]
+	]]
 
-local theme_inv = { -- #TODO the images seem useless
-		"image[".. inv_x ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 1 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 2 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 3 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 4 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 5 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 6 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"image[".. inv_x + 7 ..",".. inv_y .. ";1,1;gui_hb_bg.png]",
-		"list[current_player;main;0.35,".. inv_y .. ";8,1;]",
-		"list[current_player;main;0.35,".. inv_y + 1.25 .. ";8,3;8]"
-	}
-
-function sfinv.make_formspec_for_exile(player, context, content, show_inv)
-	local size = "formspec_version[5]" ..
-		"size[10.5,10.9]" ..
-		"position[0.5,0.48]"
-	return sfinv.make_formspec(player, context, content, show_inv, size)
-end
 
 function sfinv.make_formspec(player, context, content, show_inv, size)
 	local tmp = {
 		size or "size[8,9.1]",
 		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
-		show_inv and table.concat(theme_inv,"") or "",
+		show_inv and theme_inv or "",
 		content
 	}
 	return table.concat(tmp, "")
 end
+
+-- Exile added part ------------------------------------------------------------
+local inv_y = 7.3
+
+local exile_theme_inv = {
+		"list[current_player;main;0.35,".. inv_y .. ";8,1;]",
+		"list[current_player;main;0.35,".. inv_y + 1.25 .. ";8,3;8]"
+	}
+
+function sfinv.make_formspec_for_exile(player, context, content, show_inv)
+	local tmp = {
+		"formspec_version[5]",
+		"size[10.5,10.9]",
+		"position[0.5,0.48]",
+		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
+		show_inv and table.concat(exile_theme_inv,"") or "",
+		content
+	}
+	return table.concat(tmp, "")
+end
+--------------------------------------------------------------------------------
 
 function sfinv.get_homepage_name(player)
 	return "survival:crafting"

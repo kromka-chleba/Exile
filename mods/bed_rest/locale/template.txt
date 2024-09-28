@@ -140,6 +140,7 @@ You've been here long enough to justify a real break.@nThink of this as a remind
 Bed: Contains Blanket=
 # other messages
 You have no room to hold your blanket, so you drop it.=
+You have no room to take the blanket with you, so you left it on the bed.=
 This bed is already occupied!=
 # expects owner name to be after 
 Status: Occupied by @1=

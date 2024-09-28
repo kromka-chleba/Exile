@@ -1,39 +1,35 @@
 Exile mod: clothing
 ========================
+
+this folder is partially from ex-mod "clothing" from Dokimi.
+
 Allows adding of clothing.
 
-
-
-
-
 Groups:
--clothing vs cape: for rendering. Regular clothes layer vs cape clothes layer.
--clothing_pants/hat/shirt etc: type of clothes (to stop stacking the same type of item)
+1 for hat
+2 for upper part
+3 for lower part
+4 for shoes
+5 for cape
+6 for blanket
+Each group number is linked to a position on the 3D model for textures.
+Additionnal groups from old mod were removed because unused yet.
 
-Stack max should always be 1, to prevent wearing 50 hats at once etc.
-
+Armor effect dealing is in function but we have no armor in cloth definition yet.
+Current effet of cloths is only temperature.
 
 temp_min = lowers minimum temperature tolerance by this much
 temp_max = raises maximum by this much
-
-Use default calls for most clothes. This adds removes temperature effects.
-on_equip = clothing.default_equip,
-on_unequip = clothing.default_unequip
 
 Modified versions of these functions could be made for special effects. e.g. enabling flight, speed shoes etc
 
 See test clothing for examples.
 
 
-
-
-
 Authors of source code
 ----------------------
 Adapted from "Clothing" by Stuart Jones - LGPL v2.1
-
-
-
+Modified and merged into Player_api byt lili36.
 
 
 Authors of media

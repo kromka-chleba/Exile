@@ -9,14 +9,26 @@ Footwear=
 Cape=
 Keeps you warm in bed=
 Unisex=
-Purple Stripe Summer T-shirt=
-Fresh Summer Denim Shorts=
-Common Black Shoes=
-Pink Bow=
-Classic Green Sweater=
-Fine Blue Pants=
+You already wear that!=
+Inventory is full : the clothing you wore was thrown on the floor!=
+
 Naked=
 (mild)=
 (moderate)=
 (severe)=
 (extreme)=
+
+#cloths.lua
+Purple Stripe Summer T-shirt=
+Fresh Summer Denim Shorts=
+Common Black Shoes=Chaussures noires banales
+Pink Bow=
+Classic Green Sweater=
+Fine Blue Pants=
+
+You can't equip a blanket outside of a bed.=
+
+# equip.lua
+Clothing=
+Min Temperature Tolerance: @1=
+Max Temperature Tolerance: @1=

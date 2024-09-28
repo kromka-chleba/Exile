@@ -1,8 +1,6 @@
 
 
 local modpath = minetest.get_modpath(minetest.get_current_modname())
-clothing = clothing
-
 
 local colors = {
     white = "FFFFFF",
@@ -18,7 +16,7 @@ for color, hex in pairs(colors) do
         inventory_image = "clothing_inv_hat.png^[multiply:#"..hex,
         uv_image = "(clothing_uv_hat.png^[multiply:#"..hex..")",
         stack_max = 1,
-        groups = {clothing = 1, clothing_hat = 1,},
+        groups = {cloth = 1}, -- Hat
         temp_min = 2,
         temp_max = 2,
         on_equip = clothing.default_equip,
@@ -30,7 +28,7 @@ for color, hex in pairs(colors) do
         description = desc.." Cotton Shirt",
         inventory_image = "clothing_inv_shirt.png^[multiply:#"..hex,
         uv_image = "(clothing_uv_shirt.png^[multiply:#"..hex..")",
-        groups = {clothing = 1, clothing_shirt=1},
+        groups = {cloth = 2}, -- Upper part
         temp_min = 4,
         temp_max = 2,
         on_equip = clothing.default_equip,
@@ -42,7 +40,7 @@ for color, hex in pairs(colors) do
         description = desc.." Cotton Pants",
         inventory_image = "clothing_inv_pants.png^[multiply:#"..hex,
         uv_image = "(clothing_uv_pants.png^[multiply:#"..hex..")",
-        groups = {clothing = 1, clothing_pants=1},
+        groups = {cloth = 3}, -- Lower part
         temp_min = 3,
         temp_max = 2,
         on_equip = clothing.default_equip,
@@ -54,7 +52,7 @@ for color, hex in pairs(colors) do
         description = desc.." Cotton Cape",
         inventory_image = "clothing_inv_cape.png^[multiply:#"..hex,
         uv_image = "(clothing_uv_cape.png^[multiply:#"..hex..")",
-        groups = {cape = 1, clothing_cape=1},
+        groups = {cloth = 5}, -- Cape
         temp_min = 1,
         temp_max = 1,
         on_equip = clothing.default_equip,
@@ -66,7 +64,7 @@ for color, hex in pairs(colors) do
         description = desc.." Shoes",
         inventory_image = "clothing_inv_shoes.png^[multiply:#"..hex,
         uv_image = "(clothing_uv_shoes.png^[multiply:#"..hex..")",
-        groups = {clothing = 1, clothing_shoes=1},
+        groups = {cloth = 4}, -- Footwear
         temp_min = 1,
         temp_max = 1,
         on_equip = clothing.default_equip,
