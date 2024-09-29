@@ -27,6 +27,10 @@ Fine Blue Pants=
 
 You can't equip a blanket outside of a bed.=Vous ne pouvez pas équiper une couverture en dehors d'un lit.
 
+equipped!=équipé !
+You already wear that!=Vos portez déjà la même chose !
+Inventory is full : the clothing you wore was thrown on the floor!=L'inventaire est plein ! le vêtement que vous portez a été jeté au sol.
+
 # equip.lua
 Clothing=Vêtements
 Min Temperature Tolerance: @1=Température minimum tolérée: @1
