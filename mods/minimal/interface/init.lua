@@ -86,21 +86,42 @@ function minimal.make_search_string(str)
     return minimal.remove_accented(str):lower()
 end
 
+-- messages displayed stored in "occupied" to not display over an other message
+local occupied = {}
+local message_offset = { x = -40, y = 20 }
+
 function minimal.send_message(player_name, message, duration)
     local player = minetest.get_player_by_name(player_name)
     if not minetest.is_player(player) then return end -- just in case of log out?
 
+    -- checking for first free spot to display the message
+    local j=1
+    -- get first free spot
+    for i,y in ipairs(occupied) do
+        j=j+1
+    end
+    message_offset.y = (occupied[j-1] or -10) + 20
+    occupied[j]=message_offset.y
+
+    -- adding the message
     local hud = player:hud_add({
             hud_elem = "text",
+            position = { x = 1, y = 0 },
+            offset = message_offset ,
             text = message,
-            position = { x = 0.5, y = 1 },
             number = 0xFFFFFF,
-            offset = { x = 0, y = -80 },
+            scale = {x=50,y=20}, --not working, don't know why
+            --z_index=100,
+            alignment= {x = -1, y = 1}, --right align
     })
+
+    -- reset after a while
     minetest.after(duration or 1, function()
-                       if not minetest.is_player(player) then return end
+                       if not minetest.is_player(player) then
+                           return end
                        player:hud_remove(hud)
-    end)
+                       occupied[j]=nil
+                    end)
 end
 function minimal.warn_message(player_name, message, duration)
     if not minetest.get_player_by_name(player_name) then return end
