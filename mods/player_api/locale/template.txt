@@ -25,6 +25,9 @@ Classic Green Sweater=Classic Green Sweater
 Fine Blue Pants=Fine Blue Pants
 
 You can't equip a blanket outside of a bed.=You can't equip a blanket outside of a bed.
+equipped!=equipped!
+You already wear that!=You already wear that!
+Inventory is full : the clothing you wore was thrown on the floor!=Inventory is full : the clothing you wore was thrown on the floor!
 
 # equip.lua
 Clothing=Clothing
