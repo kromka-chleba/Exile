@@ -20,8 +20,6 @@ minimal = minimal
 crafting = crafting
 sfinv = sfinv
 
---#TODO focus is on the search field on opening by default, so if we use again inventoy key to close, it writes on the field instead
-
 -- Create global default detached "craft_types" inventory
 -- Used to populate players craft_types
 local ctypes = minetest.create_detached_inventory("craft_types")
@@ -40,7 +38,7 @@ ctypes:set_list('main',{
         sTab   = selected_craft_tab     -- index of selected tab in ctypes - default = 1
         sLevel = selected craft_type_level -- set by craft type item selected
         sScroll = selected scroll level -- needed to draw scroll container
-        sSearch = current filter in search field #TODO to implement
+        sSearch = current filter in search field
         cTabs = table_of_craftItem_tabs -- set by def.exile_crafting.craft_type.
         sInv = selected_inventory       -- set by bag buttons #TODO not here anymore, right ?
         -- The Following are tables of formspec strings
@@ -1013,6 +1011,7 @@ do
                     sfinv.set_player_inventory_formspec(player, context)
                 end
             end,
+            -- selecting the tab from an other tab
             on_enter = function(self, player, context)
                 local player_name = player:get_player_name()
                 print ("--------------------------]ENTER[-------------------")
