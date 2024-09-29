@@ -153,7 +153,21 @@ Jan Wielkiewicz (CC BY-SA 3.0)
     nodes_nature_frosty.png
     nodes_nature_frosty_side.png
     nodes_nature_icy.png
-    
+
+From TPH (CC0)
+(aka tph9677/TubberPupperHusker/TubberPupper/Damotrix)
+<damotrixrob@gmail.com>
+	nodes_nature_rhuya_fruitless.png
+	nodes_nature_rhuya_flowering.png
+	nodes_nature_rhuya_fruiting.png
+	nodes_nature_rhuya_fruit.png
+	nodes_nature_rhuya_seed.png
+	nodes_nature_rhuya_dead.png
+	nodes_nature_rhuya_wintery_fruitless.png
+	nodes_nature_rhuya_wintery_fruiting.png
+	nodes_nature_rhuya_wintery_flowering.png
+	nodes_nature_rhuya_wintery_fruit.png
+
 From Minetest Game Default:
   Gambit (CC BY-SA 3.0):
     default_snow.png
