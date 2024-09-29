@@ -623,71 +623,106 @@ minetest.override_item(
 
 -- rhuya overrides
 -- override textures and rendering for rhuya seeds
-for _,rhuya in pairs({"","_wintery"}) do
-    local seed_name = "nodes_nature:rhuya"..rhuya.."_seed"
-    local seed_on_place = minetest.registered_nodes[seed_name].on_place
-    minetest.override_item(
-        seed_name,  {
-            inventory_image = "nodes_nature_rhuya_seed.png",
-            wield_image = "nodes_nature_rhuya_seed.png",
-            tiles = {"nodes_nature_rhuya_seed.png"},
-            node_box = {
-                type = "fixed",
-                fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
-            },
-            selection_box = {
-                type = "fixed",
-                fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
-            },
-            -- functionality for normal rhuya seeds turning to wintery, or wintery becoming normal
-            on_place = function(itemstack, placer, pointed_thing)
-                if not pointed_thing then return seed_on_place(itemstack, placer, pointed_thing) end
-                itemstack = seed_on_place(itemstack, placer, pointed_thing)
-                if not itemstack then return itemstack end
-                local itemdef = itemstack:get_definition()
-                local pos = pointed_thing.above
-                if minetest.get_node(pos).name ~= itemdef.name then return end
-                -- winter variant (5% chance to return to normal)
-                if #itemdef.name == 31 and math.random() < 0.05 then
-                    -- convert to normal after 4 seconds
-                    minetest.after(4, function()
-                        local node = minetest.get_node(pos)
-                        if node.name ~= itemdef.name then return end
-                        node.name = node.name:gsub("_wintery","")
-                        -- only if node still exists
-                        minetest.swap_node(pos, node)
-                    end)
-                -- non-winter variant (85% chance to check if should be wintery)
-                elseif math.random() < 0.85 then
-                    local temp = climate.get_point_temp(pos)
-                    local convert = temp < 5 and 0.1 or nil -- convert (chance) 10% or nil
-                    if convert then
-                      -- 30%, 50%, 70%, 99%
-                      convert = temp < 1 and 0.3 or convert
-                      convert = temp < -2 and 0.5 or convert
-                      convert = temp < -5 and 0.7 or convert
-                      convert = temp < -9 and 0.99 or convert
-                      -- convert after 4 seconds
-                      minetest.after(4, function()
-                          local node = minetest.get_node(pos)
-                          if node.name ~= itemdef.name then return end
-                          node.name = node.name:gsub("rhuya","rhuya_wintery")
-                          minetest.swap_node(pos, node)
-                      end)
+do -- local scope to prevent global access
+    for _,rhuya in pairs({"","_wintery"}) do
+        local seed_name = "nodes_nature:rhuya"..rhuya.."_seed"
+        local seed_on_place = minetest.registered_nodes[seed_name].on_place
+        minetest.override_item(
+            seed_name,  {
+                inventory_image = "nodes_nature_rhuya_seed.png",
+                wield_image = "nodes_nature_rhuya_seed.png",
+                tiles = {"nodes_nature_rhuya_seed.png"},
+                node_box = {
+                    type = "fixed",
+                    fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
+                },
+                selection_box = {
+                    type = "fixed",
+                    fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
+                },
+                -- functionality for normal rhuya seeds turning to wintery, or wintery becoming normal
+                on_place = function(itemstack, placer, pointed_thing)
+                    if not pointed_thing then return seed_on_place(itemstack, placer, pointed_thing) end
+                    itemstack = seed_on_place(itemstack, placer, pointed_thing)
+                    if not itemstack then return itemstack end
+                    local itemdef = itemstack:get_definition()
+                    local pos = pointed_thing.above
+                    if minetest.get_node(pos).name ~= itemdef.name then return end
+                    -- winter variant (5% chance to return to normal)
+                    if #itemdef.name == 31 and math.random() < 0.05 then
+                        -- convert to normal after 4 seconds
+                        minetest.after(4, function()
+                            local node = minetest.get_node(pos)
+                            if node.name ~= itemdef.name then return end
+                            node.name = node.name:gsub("_wintery","")
+                            -- only if node still exists
+                            minetest.swap_node(pos, node)
+                        end)
+                    -- non-winter variant (95% chance to check if should be wintery)
+                    elseif math.random() < 0.95 then
+                        local temp = climate.get_point_temp(pos)
+                        local convert = temp < 7 and 0.1 or nil -- convert (chance) 10% or nil
+                        if convert then
+                          -- 30%, 50%, 70%, 99%
+                          convert = temp < 3 and 0.3 or convert
+                          convert = temp < 0 and 0.5 or convert
+                          convert = temp < -4 and 0.7 or convert
+                          convert = temp < -9 and 0.99 or convert
+                          if math.random() < convert then
+                              -- convert after 4 seconds
+                              minetest.after(4, function()
+                                  local node = minetest.get_node(pos)
+                                  if node.name ~= itemdef.name then return end
+                                  node.name = node.name:gsub("rhuya","rhuya_wintery")
+                                  minetest.swap_node(pos, node)
+                              end)
+                          end
+                        end
                     end
                 end
+        })
+        -- override fruit stack size
+        minetest.override_item(
+            "nodes_nature:rhuya"..rhuya.."_fruit",  {
+                stack_max = minimal.stack_max_medium/2
+        })
+    end
+
+    -- override on_timer for seedling1 and 2, for regular rhuya (convert to wintery)
+    for i = 1, 2 do
+        local name = "nodes_nature:rhuya_seedling"..i
+        local old_on_timer = minetest.registered_nodes[name].on_timer
+        minetest.override_item(name,  {
+            on_timer = function(pos, ...)
+                -- have a chance of becoming wintery
+                -- 1: 20% chance, 2: 10% chance to check
+                if math.random() < (0.2/i) then
+                    local temp = climate.get_point_temp(pos)
+                    local convert = temp < 8 and 0.05 or nil -- convert chance (5% or nil)
+                    if convert then
+                        convert = temp < 6 and 0.3 or convert
+                        convert = temp < 1 and 0.8 or convert
+                        convert = temp < -1 and 0.99 or convert
+                        if math.random() < convert then
+                            -- convert to wintery
+                            local node = minetest.get_node(pos)
+                            if node.name ~= name then return end
+                            node.name = node.name:gsub("rhuya","rhuya_wintery")
+                            minetest.swap_node(pos, node)
+                            return true
+                        end
+                    end
+                end
+                -- just do regular timer stuff if we don't do the above successfully
+                return old_on_timer(pos, ...)
             end
-    })
-    -- override fruit stack size
+        })
+    end
+
     minetest.override_item(
-        "nodes_nature:rhuya"..rhuya.."_fruit",  {
-            stack_max = minimal.stack_max_medium/2
+        "nodes_nature:rhuya_wintery_dead", {
+            inventory_image = "nodes_nature_rhuya_dead.png",
+            wield_image = "nodes_nature_rhuya_dead.png",
+            tiles = {"nodes_nature_rhuya_dead.png"}
     })
 end
-
-minetest.override_item(
-    "nodes_nature:rhuya_wintery_dead", {
-        inventory_image = "nodes_nature_rhuya_dead.png",
-        wield_image = "nodes_nature_rhuya_dead.png",
-        tiles = {"nodes_nature_rhuya_dead.png"}
-})
