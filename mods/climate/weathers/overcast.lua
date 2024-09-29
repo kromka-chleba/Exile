@@ -63,6 +63,12 @@ overcast.star_data = {
 }
 
 
+overcast.lighting = {
+    saturation = 0.5,
+    shadows = { intensity = 0.5 },
+    volumetric = { strength = 0.8 },
+}
+
 
 --probabilities in each temp class
 overcast.chain = {

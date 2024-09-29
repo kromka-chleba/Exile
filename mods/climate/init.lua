@@ -13,6 +13,7 @@
 
 ]]
 
+local dolighting = minetest.settings:get_bool("exile_weather_lighting", false)
 
 
 climate = {
@@ -262,6 +263,10 @@ local function set_sky_clouds(player,...)
     player:set_moon(wth.moon_data)
     player:set_sun(wth.sun_data)
     player:set_stars(active_weather.star_data)
+    if dolighting and wth.lighting then
+        print("Lighting!")
+        player:set_lighting(wth.lighting)
+    end
 end
 
 -- update sky for moon phases (accessible to climate depends)
@@ -494,6 +499,8 @@ minetest.register_globalstep(function(dtime)
         timer_s = timer_s + dtime
         --update weather state
         if timer > active_weather_interval then
+            dolighting = minetest.settings:get_bool(
+                "exile_weather_lighting", false)
             --timer has expired, switch to a new weather state
             --reset timer and interval
             timer = 0

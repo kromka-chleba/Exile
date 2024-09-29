@@ -61,6 +61,11 @@ haze.star_data = {
 }
 
 
+haze.lighting = {
+    saturation = 0.8,
+    shadows = { intensity = 0.5 },
+    volumetric = { strength = 1.0 },
+}
 
 
 

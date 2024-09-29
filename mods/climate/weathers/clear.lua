@@ -59,6 +59,11 @@ clear.star_data = {
     color = "#80FCFEFF"
 }
 
+clear.lighting = {
+    saturation = 1.0,
+    shadows = { intensity = 0.6 },
+    volumetric = { strength = 1 },
+}
 
 
 
