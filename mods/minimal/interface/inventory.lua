@@ -667,9 +667,8 @@ end
 -- It returns the cache value unless something has updated or it times out
 -- updates are triggered by setting cache.output = "" and the section to
 -- redraw is set to nil - eg cache.recipesFS = nil to redraw recipes list.
-function minimal.make_inventory_formspec(player,context)
+local function make_inventory_formspec(player,context)
     local player_name = player:get_player_name()
-
     local pInv = player:get_inventory()
     if not (player_name and player_name ~= "") then
         return nil -- no player name
@@ -1001,7 +1000,7 @@ do
         homepage, {
             title = S("Crafting"),
             get = function(self, player, context)
-                local formspec = minimal.make_inventory_formspec(player,
+                local formspec = make_inventory_formspec(player,
                 context)
                 local output = sfinv.make_formspec_for_exile(
                 player, context, formspec, false)
@@ -1034,6 +1033,15 @@ do
     end
 end
 
+local function make_tool_formspec(player)
+    return tofstring({
+            "formspec_version[5]",
+    		--"size[11.2,10.5]" ..
+    		"size[11.2,10]",
+    		"position[0.5,0.5]",
+            make_inventory_formspec(player)
+        })
+end
 
 -- used when inventory tab was opened with right click on a tool
 minetest.register_on_player_receive_fields(function(player, formname, fields)
@@ -1046,7 +1054,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         end
 
         if process_receive_fields(player, formname, fields) then
-            local formspec = minimal.make_inventory_formspec(player)
+            local formspec = make_tool_formspec(player)
             if formspec then
                 minetest.show_formspec(player_name,'exile:crafting',formspec)
             end
@@ -1078,7 +1086,7 @@ function minimal.crafting_item_on_rightclick(pos,node,clicker,
     }
     inventoryFS_cache[player_name] = cache
     set_cache(player_name, pInv, sItemID)
-    local formspec = minimal.make_inventory_formspec(clicker)
+    local formspec = make_tool_formspec(clicker)
     minetest.show_formspec(player_name,'exile:crafting',formspec)
     return itemstack
 end
