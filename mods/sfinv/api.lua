@@ -87,7 +87,7 @@ function sfinv.make_formspec_for_exile(player, context, content, show_inv)
 		"position[0.5,0.5]",
 		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
 		add_setting_button(),
-		show_inv and table.concat(theme_inv,"") or "",
+		show_inv and table.concat(exile_theme_inv,"") or "",
 		content
 	}
 	return table.concat(tmp, "")
