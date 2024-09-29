@@ -64,9 +64,11 @@ end
 local function add_setting_button()
 	return "style[player_settings;border=false; noclip =true]"..
 	--"image_button[11.4,-0.75;0.7,0.7;gear.png;player_settings;]"
-	--"background9[0,0;1,1;gui_formbg.png;true;10]"..
-	"style[player_settings;bgimg=gui_formbg.png;bgimg_middle=10]"..
-	"image_button[11.25,-0.08;1.05,1.05;gear.png;player_settings;]"
+
+	--"style[player_settings;bgimg=gui_formbg.png;bgimg_middle=10]"..
+	--"image_button[11.25,-0.08;1.05,1.05;gear2.png;player_settings;]"
+
+	"image_button[11.45,0.2;0.75,0.75;gear.png;player_settings;]"
 end
 
 local inv_x = 0.8
