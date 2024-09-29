@@ -34,7 +34,7 @@ if not temp_tonum[mttempscale] then
     mttempscale = "Celsius"
 end
 
-function minimal.show_player_settings(playername, meta)
+local function sfinv_get(playername, meta)
     local hud16 = meta:get("hud16") or mtwidehud
     local showstats = meta:get("hud_show_stats") or mtshowstats
     local breaktaker = meta:get("breaktaker") or (not mtnobreak)
@@ -69,68 +69,81 @@ function minimal.show_player_settings(playername, meta)
         "label[1,5;"..S("HUD Opacity level")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
         "scrollbar[2,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
-    minetest.show_formspec(playername, "player_settings", spec)
+    return spec
 end
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
-        local name = player:get_player_name()
-        if fields.player_settings == "" then
-            -- Pressed a button named "player_settings", from char tab or elsewhere
-            local meta = player:get_meta()
-            minetest.after(0.1, function()
-                               minimal.show_player_settings(name, meta)
-            end)
-        end
-        if formname == "player_settings" then
-            local meta = player:get_meta()
-            -- dropdowns always return a value, so we check if it's changed
-            local oldtheme = meta:get("gui_theme") or "default"
-            local oldtempscale = meta:get("tempscale") or mttempscale
+function minimal.show_player_settings(playername, meta)
+    minetest.show_formspec(playername, "player_settings",  sfinv_get(playername, meta))
+end
 
-            local reopen = false
-            local num = tonumber(fields.gui_theme) -- table[1] ~= table["1"] !
-            if theme_fromnum[num] and theme_fromnum[num] ~= oldtheme then
-                meta:set_string("gui_theme", theme_fromnum[num])
-                minimal.apply_gui_theme(player, meta, theme_fromnum[num])
-                reopen = true
-            end
-            num = tonumber(fields.tempscale)
-            if temp_fromnum[num] and temp_fromnum[num] ~= oldtempscale then
-                meta:set_string("tempscale", temp_fromnum[num])
-            end
-            if fields.HudOpac then
-                local ev = minetest.explode_scrollbar_event(fields.HudOpac)
-                if ev.type == "CHG" then
-                    meta:set_string("hud_opacity", ev.value)
-                    HEALTH.hud_update_settings(name, { opacity = ev.value })
-                end
-            end
-            if fields.hud16 then
-                meta:set_string("hud16", fields.hud16)
-                minimal.set_hotbar(player, fields.hud16)
-            end
-            if fields.showstats then
-                meta:set_string("hud_show_stats", fields.showstats)
-                HEALTH.hud_update_settings(name,
-                                           { showstats = tobool(
-                                                 fields.showstats) })
-            end
-            if fields.breaktaker then
-                meta:set_string("breaktaker", fields.breaktaker)
-            end
-            if fields.invburst then
-                meta:set_string("drop_on_full_inv", fields.invburst)
-            end
-            if fields.nomusic then
-                meta:set_string("disable_music", fields.nomusic)
-                -- #TODO: put music handling into minimal where it belongs
-                if fields.nomusic == "true" then lore.stopmusic(name) end
-            end
-            if reopen == true then
-                minetest.close_formspec(name, "player_settings")
-                minetest.after(0.2, function()
-                                   minimal.show_player_settings(name, meta)
-                end)
-            end
+-- return true if something changed, false else
+local function process_receive_fields(player, formname, fields)
+    local name = player:get_player_name()
+    local meta = player:get_meta()
+    -- dropdowns always return a value, so we check if it's changed
+    local oldtheme = meta:get("gui_theme") or "default"
+    local oldtempscale = meta:get("tempscale") or mttempscale
+
+    local num = tonumber(fields.gui_theme) -- table[1] ~= table["1"] !
+    if theme_fromnum[num] and theme_fromnum[num] ~= oldtheme then
+        meta:set_string("gui_theme", theme_fromnum[num])
+        minimal.apply_gui_theme(player, meta, theme_fromnum[num])
+        --#TODO we need to close and reopen here
+        return true
+    end
+    num = tonumber(fields.tempscale)
+    if temp_fromnum[num] and temp_fromnum[num] ~= oldtempscale then
+        meta:set_string("tempscale", temp_fromnum[num])
+    end
+    if fields.HudOpac then
+        local ev = minetest.explode_scrollbar_event(fields.HudOpac)
+        if ev.type == "CHG" then
+            meta:set_string("hud_opacity", ev.value)
+            HEALTH.hud_update_settings(name, { opacity = ev.value })
         end
-end)
+    end
+    if fields.hud16 then
+        meta:set_string("hud16", fields.hud16)
+        minimal.set_hotbar(player, fields.hud16)
+    end
+    if fields.showstats then
+        meta:set_string("hud_show_stats", fields.showstats)
+        HEALTH.hud_update_settings(name,
+        { showstats = tobool(
+        fields.showstats) })
+    end
+    if fields.breaktaker then
+        meta:set_string("breaktaker", fields.breaktaker)
+    end
+    if fields.invburst then
+        meta:set_string("drop_on_full_inv", fields.invburst)
+    end
+    if fields.nomusic then
+        meta:set_string("disable_music", fields.nomusic)
+        -- #TODO: put music handling into minimal where it belongs
+        if fields.nomusic == "true" then lore.stopmusic(name) end
+    end
+end
+
+-- Register player_setting formspec as inv tab
+do
+    if minetest.global_exists("sfinv") then
+        sfinv.register_page(
+        "minimal:player_settings", {
+            title = S("Settings"),
+            is_in_nav = function(player, context) return false end,
+            get = function(self, player, context)
+                local formspec = sfinv_get(player:get_player_name(), player:get_meta())
+                return sfinv.make_formspec_for_exile(player, context, formspec, false)
+            end,
+            on_player_receive_fields = function(self, player,
+                context, fields)
+                -- if something changed, redraw the page
+                if process_receive_fields(player, "", fields) then
+                    sfinv.set_player_inventory_formspec(player, context)
+                    minetest.show_formspec(player:get_player_name(), "", "")
+                end
+            end,
+        })
+    end
+end

@@ -71,9 +71,7 @@ ctypes:set_list('main',{
     a section should be set to nil and output set to "" to force a redraw.
     only sections cleared are recreated via make_inventory_formspec
 ]]
-
 local inventoryFS_cache = {}
-
 
 --[[ Thoses functions where made by Izzy and not used anymore...
     Seems to be used to clean old cache
@@ -115,7 +113,6 @@ local function process_button(key,btypes)
     end
     return nil,nil -- button types not found
 end
-
 
 -- Load craft type : buttons on the top left "tool used"
 -- stored as detached inventory of size 2 : hand + placed tool if any
@@ -335,6 +332,7 @@ local function cache_player_craft_types(cache, pInv)
 end
 
 -- Recipes list part -----------------------------------------------------------
+
 --[[ take current craftable and uncraftable list and
     recheck if each one is craftable or not
     update those lists in cache
@@ -464,6 +462,7 @@ local function display_recipe(result, x, y)
     -- return result as string
     return tofstring(form_table)
 end
+
 --[[Recreated Recipe part of the formspec
 - updated = true : displays refreshed recipe list.
 needs to be triggered when the craft_type, craft_tab, input_items,
@@ -484,7 +483,7 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
     -- this is for more clarity, choice of display settings
     --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
     used to place them on a grid, including tabs]]
-    local line_number = 3 -- 3 lines of recipes displayed
+    local line_number = 3 -- nb of lines of recipes displayed
     local grid_size = 1.2
 
     -- Add tab header -------------------------------------------------
@@ -528,7 +527,6 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
             or cTabs[i])) ..
             ';#000000;#ffffff]'
         end
-
         --pan_t[#pan_t + 1] = 'container_end[]'
 
     -- add tabs to the global recipes formspec
@@ -597,7 +595,6 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
 
         recipesFS[#recipesFS + 1] = 'scroll_container_end[]'
     end
-
     -- saving new cache
     cache.recipesFS = tofstring(recipesFS)
     cache.output = ""
@@ -605,6 +602,7 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
 end
 
 -- Search field part -------------------------------------------------------
+
 -- Build search field to be in container
 local function cache_search_field(cache)
     result={
@@ -625,7 +623,6 @@ end
 -- Input inventory part --------------------------------------------------------
 
 -- Generated Input inventory List Cache
-
 -- Shouldn't need to be rebuilt more then once per player per restart
 local function cache_player_input_list(cache, pInv)
     local inputs = pInv:get_list('input_items')
@@ -997,48 +994,45 @@ local function process_receive_fields(player, formname, fields)
 end
 
 -- Register crafting formspec as inv tab
-function minimal.register_inventory_sfinv()
+do
     if minetest.global_exists("sfinv") then
         local homepage = sfinv.get_homepage_name() -- get name of homepage
         sfinv.register_page(
-            homepage, {
-                title = S("Crafting"),
-                get = function(self, player, context)
-                    local formspec = minimal.make_inventory_formspec(player,
-                                                                     context)
-                    local output = sfinv.make_formspec_for_exile(
-                        player, context, formspec, false)
-                    return output
-                end,
-                on_player_receive_fields = function(self, player,
-                                                    context, fields)
-                    -- if something changed, redraw the page
-                    if process_receive_fields(player, "", fields) then
-                        sfinv.set_player_inventory_formspec(player, context)
-                    end
-                end,
-                on_enter = function(self, player, context)
-                    local player_name = player:get_player_name()
-                    print ("--------------------------]ENTER[-------------------")
-                    --set_cache(player:get_player_name(),player:get_inventory())
-                end,
-                on_leave = function(self, player, context)
-                    local player_name = player:get_player_name()
-                    --cache = "closed" -- #TODO not sure about that
-                    print ("--------------------------]LEAVE[-------------------")
-                end,
-                --  on_enter = function(self, player, context)
-                --          local player_name = player:get_player_name()
-                --          inventoryFS_cache[player_name].recipesFS=nil
-                --          inventoryFS_cache[player_name].output=""
-                --          sfinv.set_player_inventory_formspec(player,context)
-                --  end
+        homepage, {
+            title = S("Crafting"),
+            get = function(self, player, context)
+                local formspec = minimal.make_inventory_formspec(player,
+                context)
+                local output = sfinv.make_formspec_for_exile(
+                player, context, formspec, false)
+                return output
+            end,
+            on_player_receive_fields = function(self, player,
+                context, fields)
+                -- if something changed, redraw the page
+                if process_receive_fields(player, "", fields) then
+                    sfinv.set_player_inventory_formspec(player, context)
+                end
+            end,
+            on_enter = function(self, player, context)
+                local player_name = player:get_player_name()
+                print ("--------------------------]ENTER[-------------------")
+                --set_cache(player:get_player_name(),player:get_inventory())
+            end,
+            on_leave = function(self, player, context)
+                local player_name = player:get_player_name()
+                --cache = "closed" -- #TODO not sure about that
+                print ("--------------------------]LEAVE[-------------------")
+            end,
+            --  on_enter = function(self, player, context)
+            --          local player_name = player:get_player_name()
+            --          inventoryFS_cache[player_name].recipesFS=nil
+            --          inventoryFS_cache[player_name].output=""
+            --          sfinv.set_player_inventory_formspec(player,context)
+            --  end
         })
     end
 end
-
-minimal.register_inventory_sfinv()
-
 
 
 -- used when inventory tab was opened with right click on a tool

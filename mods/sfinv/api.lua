@@ -60,28 +60,38 @@ function sfinv.make_formspec(player, context, content, show_inv, size)
 	return table.concat(tmp, "")
 end
 
--- Exile added part -------------------------------------------------------------
+-- added for Exile
+local function add_setting_button()
+	return "style[player_settings;border=false; noclip =true]"..
+	--"image_button[11.4,-0.75;0.7,0.7;gear.png;player_settings;]"
+	--"background9[0,0;1,1;gui_formbg.png;true;10]"..
+	"style[player_settings;bgimg=gui_formbg.png;bgimg_middle=10]"..
+	"image_button[11.25,-0.08;1.05,1.05;gear.png;player_settings;]"
+end
+
+local inv_x = 0.8
 local inv_y = 7.2
 
 local exile_theme_inv = {
-		"list[current_player;main;0.35,".. inv_y .. ";8,1;]",
-		"list[current_player;main;0.35,".. inv_y + 1.25 .. ";8,3;8]"
+		"list[current_player;main;".. inv_x .. ",".. inv_y .. ";8,1;]",
+		"list[current_player;main;".. inv_x .. ",".. inv_y + 1.25 .. ";8,3;8]"
 	}
 
 function sfinv.make_formspec_for_exile(player, context, content, show_inv)
 	local tmp = {
-        "formspec_version[5]",
-		--"size[11.2,10.5]",
+		"formspec_version[5]",
+		--"size[11.2,10.5]" ..
 		"size[11.2,10]",
 		"position[0.5,0.5]",
 		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
-		show_inv and table.concat(exile_theme_inv,"") or "",
+		add_setting_button(),
+		show_inv and table.concat(theme_inv,"") or "",
 		content
 	}
 	return table.concat(tmp, "")
 end
 
---------------------------------------------------------------------------------
+
 
 function sfinv.get_homepage_name(player)
 	return "survival:crafting"
@@ -206,6 +216,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				sfinv.set_page(player, id)
 			end
 		end
+	-- was settings button pushed ?
+	elseif fields.player_settings == "" then
+		local meta = player:get_meta()
+			sfinv.set_page(player, "minimal:player_settings")
 	else
 		-- Pass event to page
 		local page = sfinv.pages[context.page]
