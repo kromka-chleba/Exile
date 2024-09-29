@@ -142,6 +142,10 @@ TPH
  * tech_yolkandalbumen_icon.png
  * tech_fried_egg.png
  * tech_fried_egg_icon.png
+ * tech_flour_strong.png
+ * tech_rhuya_flour.png
+ * tech_rhuya_flour_wintery.png
+ * tech_tuber_cooked.png
 --
 
 TPH/Dokimi
