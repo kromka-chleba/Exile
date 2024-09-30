@@ -245,6 +245,7 @@ Status: =
 # plant_crafts.lua
 Stick=Vara
 Grass Fibre=
+Vegetable Oil=Aceite Vegetal
 Bitter Maraka Flour=Harina Amarga de Maraka
 Maraka Flour=Harina de Maraka
 Unbaked Maraka Cake=Masa Cruda de Maraka
@@ -256,8 +257,11 @@ Cooked Anperla Tuber=Tuberculo de Anperla Cocido
 Mashed Anperla (uncooked)=Puré de Anperla Crudo
 Mashed Anperla=Puré de Anperla
 Burned Anperla=Puré de Anperla Quemado
-Vegetable Oil=Aceite Vegetal
-# animal_crafts.lua
+Raw Rhuya Flour=
+Raw Hardy Rhuya Flour=
+Rhuya Flour=
+Hardy Rhuya Flour=
+# animal food_crafts
 Cracked Egg=
 Fried Egg=Huevo Frito
 # Pottery

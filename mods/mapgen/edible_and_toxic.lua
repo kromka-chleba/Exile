@@ -708,6 +708,18 @@ local toxic_plants = {
         decoration = "nodes_nature:gevaari",
         param2 = 1,
     },
+
+    {--[[Highland:rhuya]]
+        name = "hl_nn:rhuya",
+        deco_type = "simple",
+        place_on = sna.highland_on,
+        sidelen = 40,
+        fill_ratio = 0.005500,
+        y_max = 31000,
+        y_min = sna.upland_max,
+        decoration = "nodes_nature:rhuya_fruitless",
+        param2 = 0,
+    },
     -- End of toxic
 }
 

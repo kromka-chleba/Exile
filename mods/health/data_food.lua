@@ -123,6 +123,9 @@ HEALTH.food_table = {
     ["nodes_nature:obesa_flowering"] = {hp = -2, th = 10, hu = 6, en = -4},
     ["nodes_nature:maraka_fruit"] = {hu = 5, en = 5},
     ["nodes_nature:sasaran_fruit"] = {hu = 1},
+    ["nodes_nature:rhuya_fruit"] = {hu = 26, en = -6, th = -3}, -- fruit is toxic but nutritious
+    ["nodes_nature:rhuya_seed"] = {hu = 2, en = -2}, -- has toxins from fruit
+    ["nodes_nature:rhuya_wintery_seed"] = {hu = 4, en = -2}, -- has toxins from fruit
     -- drugs
     ["nodes_nature:tikusati"] = {hu = -2, en = 2},
     ["tech:tiku"] = {hu = -24, en = 96},
@@ -158,7 +161,9 @@ HEALTH.bake_table = {
     ["animals:carcass_bird_small"] = {temp = 100, time = 6},
     ["animals:carcass_fish_small"] = {temp = 100, time = 6},
     ["animals:carcass_fish_large"] = {temp = 100, time = 18},
-    ['tech:yolk_and_albumen'] = {temp = 100, time = 2}
+    ['tech:yolk_and_albumen'] = {temp = 100, time = 2},
+    ['tech:rhuya_flour'] = {temp = 100, time = 5},
+    ['tech:rhuya_flour_wintery'] = {temp = 100, time = 8, burned='tech:rhuya_flour_burned'}
 }
 
 -- tags (what diseases to spawn, single string or table of diseases), ch=chance, sv=severity
@@ -341,6 +346,19 @@ HEALTH.harm_table = {
     },
     ["nodes_nature:rzepicha_root"] = {bm_fp},
     ["nodes_nature:rzepicha_root_winter"] = {bm_fp},
+    ["nodes_nature:rhuya_fruit"] = {
+        {tags = "Neurotoxicity", ch = 0.6, sv = {1,2}},
+        {tags = "Hepatotoxicity", ch = 0.35, sv = {1,3}},
+        {tags = "Food Poisoning", ch = 0.4, sv = {1,2}}
+    },
+    ["nodes_nature:rhuya_seed"] = {
+        {tags = {"Neurotoxicity","Hepatotoxicity"}, ch = 0.06, sv = {1,2}},
+        {tags = "Food Poisoning", ch = 0.1, sv = 1}
+    },
+    ["nodes_nature:rhuya_wintery_seed"] = {
+        {tags = {"Neurotoxicity","Hepatotoxicity"}, ch = 0.1, sv = {1,2}},
+        {tags = "Food Poisoning", ch = 0.1, sv = 1}
+    },
     -- sea plants
     ["nodes_nature:sea_lettuce"] = {
         {tags = "Food Poisoning", ch = 0.050, sv = 1},

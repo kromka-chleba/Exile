@@ -245,6 +245,7 @@ Status:="Zustand:"
 # plant_crafts.lua
 Stick="Stock"
 Grass Fibre="Grasfaser"
+Vegetable Oil="Pflanzenöl"
 Bitter Maraka Flour="Bitteres Marakamehl"
 Maraka Flour="Marakamehl"
 Unbaked Maraka Cake="Roher Marakakuchen"
@@ -256,8 +257,11 @@ Cooked Anperla Tuber="Gebrannte Anperlaknolle"
 Mashed Anperla (uncooked)="Gestampfte Anperla (roh)"
 Mashed Anperla="Gestampfte Anperla"
 Burned Anperla="Verbrannte Anperla"
-Vegetable Oil="Pflanzenöl"
-# animal_crafts.lua
+Raw Rhuya Flour=
+Raw Hardy Rhuya Flour=
+Rhuya Flour=
+Hardy Rhuya Flour=
+# animal food_crafts
 Cracked Egg=
 Fried Egg=Setzei
 # Pottery

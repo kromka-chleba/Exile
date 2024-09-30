@@ -245,6 +245,7 @@ Status: =Statut:
 # plant_crafts.lua
 Stick=Bâton
 Grass Fibre=Fibres végétales
+Vegetable Oil=Huile végétale
 Bitter Maraka Flour=Farine de Maraka amère
 Maraka Flour=Farine de Maraka
 Unbaked Maraka Cake=Gâteau de Maraka non cuit
@@ -256,8 +257,11 @@ Cooked Anperla Tuber=Tubercule d'Anperla cuit
 Mashed Anperla (uncooked)=Purée d'Anperla (non cuite)
 Mashed Anperla=Purée d'Anperla
 Burned Anperla=Anperla brûlé
-Vegetable Oil=Huile végétale
-# animal_crafts.lua
+Raw Rhuya Flour=
+Raw Hardy Rhuya Flour=
+Rhuya Flour=
+Hardy Rhuya Flour=
+# animal food_crafts
 Cracked Egg=oeuf fêlé
 Fried Egg=Œuf au Plat
 # Pottery

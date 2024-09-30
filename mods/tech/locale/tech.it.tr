@@ -245,6 +245,8 @@ Status: =
 # plant_crafts.lua
 Stick=
 Grass Fibre=
+Vegetable Oil=
+# food_crafts.lua
 Bitter Maraka Flour=
 Maraka Flour=
 Unbaked Maraka Cake=
@@ -256,7 +258,13 @@ Cooked Anperla Tuber=
 Mashed Anperla (uncooked)=
 Mashed Anperla=
 Burned Anperla=
-Vegetable Oil=
+Raw Rhuya Flour=
+Raw Hardy Rhuya Flour=
+Rhuya Flour=
+Hardy Rhuya Flour=
+# animal food_crafts
+Cracked Egg=
+Fried Egg=
 # animal_crafts.lua
 Cracked Egg=
 Fried Egg=Uovo all'occhio di bue
