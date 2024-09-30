@@ -72,10 +72,7 @@ player_api.update_equipment_effects = function(player, naked)
         player:set_armor_groups(armorgroups)
     end
     -- update clothing tab formspec
-    --#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus druign the process
-    minetest.after(0.1, function()
-            return sfinv.set_player_inventory_formspec(player)
-            end)
+    --sfinv.set_player_inventory_formspec(player)
 end
 
 player_api.reset_equipment_effects = function(player)
