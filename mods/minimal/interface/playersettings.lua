@@ -34,7 +34,7 @@ if not temp_tonum[mttempscale] then
     mttempscale = "Celsius"
 end
 
-local function sfinv_get(playername, meta)
+local function get_form(playername, meta)
     local hud16 = meta:get("hud16") or mtwidehud
     local showstats = meta:get("hud_show_stats") or mtshowstats
     local breaktaker = meta:get("breaktaker") or (not mtnobreak)
@@ -69,11 +69,12 @@ local function sfinv_get(playername, meta)
         "label[1,5;"..S("HUD Opacity level")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
         "scrollbar[2,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
+        --"button[2.8,6.5;3,1;goback;"..S('Back').."]"
     return spec
 end
 
 function minimal.show_player_settings(playername, meta)
-    minetest.show_formspec(playername, "player_settings",  sfinv_get(playername, meta))
+    minetest.show_formspec(playername, "player_settings",  get_form(playername, meta))
 end
 
 -- return true if something changed, false else
@@ -84,11 +85,20 @@ local function process_receive_fields(player, formname, fields)
     local oldtheme = meta:get("gui_theme") or "default"
     local oldtempscale = meta:get("tempscale") or mttempscale
 
+    if fields.goback then
+        -- #TODO tab not working if I do that
+        -- sfinv.set_page(player,sfinv.get_homepage_name(player))
+        minetest.show_formspec(player:get_player_name(), formname, "")
+        return true
+    end
+    -- changing GUI theme
     local num = tonumber(fields.gui_theme) -- table[1] ~= table["1"] !
     if theme_fromnum[num] and theme_fromnum[num] ~= oldtheme then
         meta:set_string("gui_theme", theme_fromnum[num])
         minimal.apply_gui_theme(player, meta, theme_fromnum[num])
         --#TODO we need to close and reopen here
+        minimal.show_player_settings(name, meta)
+        --minetest.show_formspec(player:get_player_name(), "", "")
         return true
     end
     num = tonumber(fields.tempscale)
@@ -125,15 +135,24 @@ local function process_receive_fields(player, formname, fields)
     end
 end
 
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname ~= "player_settings" then
+		return false
+	else
+        return process_receive_fields(player, formname, fields)
+    end
+end)
+
+
 -- Register player_setting formspec as inv tab
-do
+--[[do
     if minetest.global_exists("sfinv") then
         sfinv.register_page(
         "minimal:player_settings", {
             title = S("Settings"),
             is_in_nav = function(player, context) return false end,
             get = function(self, player, context)
-                local formspec = sfinv_get(player:get_player_name(), player:get_meta())
+                local formspec = get_form(player:get_player_name(), player:get_meta())
                 return sfinv.make_formspec_for_exile(player, context, formspec, false)
             end,
             on_player_receive_fields = function(self, player,
@@ -141,9 +160,8 @@ do
                 -- if something changed, redraw the page
                 if process_receive_fields(player, "", fields) then
                     sfinv.set_player_inventory_formspec(player, context)
-                    minetest.show_formspec(player:get_player_name(), "", "")
                 end
             end,
         })
     end
-end
+end]]

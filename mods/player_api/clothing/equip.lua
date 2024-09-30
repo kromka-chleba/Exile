@@ -213,9 +213,11 @@ minetest.register_on_player_inventory_action(function(player, action,
     for _, group in ipairs(cloth_groups) do
         if from_list == group["name"] or to_list == group["name"] then
             -- update texture and temp settings
+            player_api.update_player(player)
+            --[[#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus druign the process only if setting button is a part of sfinv
             minetest.after(0.1, function()
                 return player_api.update_player(player)
-                end)
+            end)]]
             break
         end
     end
@@ -223,10 +225,11 @@ minetest.register_on_player_inventory_action(function(player, action,
     if to_list == "temp_slot" then
         redirect(player,inventory, from_list, inventory_info.from_index,"temp_slot")
         -- update texture and temp settings
-        --#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus druign the process
+        player_api.update_player(player)
+        --[[#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus druign the process only if setting button is a part of sfinv
         minetest.after(0.1, function()
             return player_api.update_player(player)
-            end)
+        end)]]
     end
 end)
 
