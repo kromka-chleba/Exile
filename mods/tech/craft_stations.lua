@@ -126,6 +126,9 @@ crafting.register_type('cobble')        -- Replacing grinding stone
 crafting.register_type('pickaxe',
                        S("Pickaxe"),
                        "tech:pickaxe_iron")    -- nothing yet
+-- food-based crafting stations
+crafting.register_type('breadmaking',
+                        S("Breadmaking"))
 
 -- location limit craft spots --------------------
 -- grouplist/banlistg {{group1, group_number}, {'stone', 1}}
@@ -520,7 +523,7 @@ for mat,capsMat in pairs ({
         "tech:mortar_pestle" .. mat,{
             description   = S(capsMat .. "Mortar and Pestle"),
             exile_crafting = {
-                craft_types = {"mortar_and_pestle"},
+                craft_types = {"mortar_and_pestle", 'breadmaking'},
                 craft_level = 1,
             },
             drawtype      = "nodebox",

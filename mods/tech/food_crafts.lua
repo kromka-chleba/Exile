@@ -296,6 +296,53 @@ minetest.register_node(
         paramtype = "light"
 })
 
+---- DOUGHS
+
+minetest.register_node(
+    "tech:maraka_dough",  {
+        description = S("Maraka Dough"),
+        tiles = {"tech_dough_strong.png"},
+        stack_max = minimal.stack_max_medium * 3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-4/16, -0.5, -4/16, 4/16, -4/16, 4/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
+minetest.register_node(
+    "tech:rhuya_dough",  {
+        description = S("Rhuya Dough"),
+        tiles = {"tech_dough.png"},
+        stack_max = minimal.stack_max_medium * 3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -4/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, dough=1, cake_dough=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
+minetest.register_node(
+    "tech:rhuya_wintery_dough",  {
+        description = S("Hardy Rhuya Dough"),
+        tiles = {"tech_dough_strong.png"},
+        stack_max = minimal.stack_max_medium * 3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -4/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
 ---- plant-based recipes
 
 --
@@ -399,6 +446,32 @@ crafting.register_recipe({
     level = 1,
     always_known = true,
 })
+
+-- wet flours for doughs
+
+for dough,flour in pairs(
+  {["tech:maraka_dough"] = "tech:maraka_bread_cooked 14",
+  ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked"}) do
+    -- get count from itemstring
+    local count = tonumber(flour:match"%s%d+") -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
+    if not count then
+        -- otherwise set one and add it to flour
+        count = 12
+        flour = flour.." "..count
+    end
+    -- iterate through every empty water pot
+    for _,water_pot in pairs({"tech:clay_water_pot", "tech:wooden_water_pot"}) do
+        crafting.register_recipe({
+            type = "breadmaking",
+            output = dough.." "..count,
+            -- only the freshwater variant
+            items = {flour, water_pot.."_freshwater"},
+            replace = water_pot,
+            level = 1,
+            always_known = true
+        })
+    end
+end
 
 -- ANIMAL PRODUCTS
 
