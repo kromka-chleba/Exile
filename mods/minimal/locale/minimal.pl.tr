@@ -18,6 +18,9 @@ Quantity=
 Single=
 Stack=
 Maximum=
+Search=
+or=
+
 #playersettings.lua
 Enable wide HUDbar=
 Show numeric stats=
@@ -25,7 +28,8 @@ Enable Break-taker popup=
 Allow digging with a full inventory=
 Temperature scale=
 GUI theme=
-HUD Opacity level=
+HUD Opacity=
+
 # protection.lua
 Access List=
 Delete=

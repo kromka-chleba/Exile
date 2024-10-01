@@ -21,6 +21,7 @@ Stack="Stapel"
 Maximum="Maximum"
 Search=
 or=
+
 #playersettings.lua
 Enable wide HUDbar="Weite HUD-Leiste aktivieren"
 Show numeric stats="Zahlenwerte anzeigen"
@@ -28,7 +29,8 @@ Enable Break-taker popup="Pausennehmer-Popup-Fenster aktivieren"
 Allow digging with a full inventory="Graben mit vollen Inventar erlauben"
 Temperature scale="Temperaturskala"
 GUI theme="GUI-Thema"
-HUD Opacity level="HUD-Undurchsichtigkeit"
+HUD Opacity="HUD-Undurchsichtigkeit"
+
 # protection.lua
 Access List="Zugriffsliste"
 Delete="Löschen"

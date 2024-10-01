@@ -41,7 +41,7 @@ local function get_form(playername, meta)
     local tempscale = meta:get("tempscale") or mttempscale
     local tempnum = temp_tonum[tempscale] or temp_tonum[mttempscale]
     local theme = meta:get("gui_theme") or "default"
-    local themelist = minimal.get_gui_theme_list(",")
+    local themelist = table.concat(minimal.get_gui_theme_titles(),",")
     local themenum = tostring(theme_tonum[theme])
     local opacity = tostring(meta:get("hud_opacity") or mthudopacity)
     local invburst = tostring(meta:get("drop_on_full_inv") or mtinvburst)
@@ -60,7 +60,7 @@ local function get_form(playername, meta)
         "checkbox[1,2.5;invburst;  "..
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
-        "checkbox[1,3;nomusic;   "..S("Disable music")..";"..nomusic.."]"..
+        "checkbox[1,3;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
         -- Temperature scale setting
         "label[1,3.75;"..S("Temperature scale")..":]"..
         "dropdown[5,3.5;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
@@ -69,7 +69,7 @@ local function get_form(playername, meta)
         "label[1,4.25;"..S("GUI theme")..":]"..
         "dropdown[5,4;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
         -- HUD Opacity
-        "label[1,5;"..S("HUD Opacity level")..":]"..
+        "label[1,5;"..S("HUD Opacity")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
         "scrollbar[2,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
         --"button[2.8,6.5;3,1;goback;"..S('Back').."]"

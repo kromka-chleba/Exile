@@ -22,6 +22,7 @@ Single=
 Stack=
 Maximum=
 or=
+
 #playersettings.lua
 Enable wide HUDbar=
 Show numeric stats=
@@ -30,7 +31,12 @@ Allow digging with a full inventory=
 Disable music=
 Temperature scale=
 GUI theme=
-HUD Opacity level=
+HUD Opacity=
+Default=
+Antiglass=
+Antiblue=
+Legacy grey=
+
 # protection.lua
 Access List=
 Delete=
@@ -44,6 +50,7 @@ Crafted by=
 Burnt Storage Pile=
 Label=
 Set=
+
 #triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=
 Reset player=
@@ -84,6 +91,7 @@ Display an image and text@n<icon name.png>,<text>=
 Value:=
 False=
 True=
+
 # triggers
 Exile trigger node=
 Configured trigger=
