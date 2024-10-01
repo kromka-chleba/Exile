@@ -61,7 +61,7 @@ function minimal.show_player_settings(playername, meta)
         "checkbox[1,2.5;invburst;  "..
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
-        "checkbox[1,3;nomusic;   "..S("Disable music")..";"..nomusic.."]"..
+        "checkbox[1,3;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
         "label[1,4;"..S("Temperature scale")..":]"..
         "dropdown[5,3.75;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
         tempnum..";true]"..
