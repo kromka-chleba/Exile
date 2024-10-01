@@ -347,6 +347,8 @@ function stairs.register_stair_outer(subname, recipeitem, craft_station, recycle
     end
     local new_groups = table.copy(groups)
     new_groups.stair = 1
+    --#TODO being able to split description for translation would be great
+    -- Outer clay stairs could be "stairs + outer + clay" in French
     minetest.register_node(":stairs:stair_outer_" .. subname, {
                                description = S("Outer @1", description),
                                drawtype = "nodebox",
