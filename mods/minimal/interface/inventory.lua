@@ -298,23 +298,38 @@ local function cache_player_tool_types(cache, pInv)
     local selected = cache.sTool or 'crafting_spot' -- default to hand crafting
     local tool_list = cache.tool_list or generate_tools_list()
     local tool_tabsFS = {
-        'label[0,0;'..S("Tool used")..']'
+        'label[0,0;'..S("Tool used")..']',
         -- 'box[0,.2;2.5,1.9;black]',
+        'container[0,0.3]',
+        'style_type[item_image_button;border=false;bgimg_middle=]'
     }
+
     local x = 0
     local y = 0
+    local bg_coords,coords
     for i,tool in ipairs(tool_list) do
-        local coords = tostring(x * 1.0 + 0.1) ..','.. tostring(y * 1.0 + 0.3)
+        minetest.log("tool is :" .. tostring(tool))
+        bg_coords = tostring(x * 1.0) ..','.. tostring(y * 1.0)
+        coords = tostring(x * 1.0) ..','.. tostring(y * 1.0)
+        if tool == selected then
+            bg_image = 'selected.png'
+        else
+            bg_image = 'not_selected.png'
+        end
+
+        tool_tabsFS[#tool_tabsFS + 1] =
+            "image[" .. bg_coords .. ";0.9,0.9;" .. bg_image .. "]"
+
         if tool~="" then
             -- Dipslay item image
             tool_tabsFS[#tool_tabsFS + 1] =
-            'item_image_button[' .. coords .. ';0.8,0.8;'
-            .. tool ..';b_sTool_' .. i .. ';]'
+               'item_image_button[' .. coords .. ';0.9,0.9;'
+               .. tool ..';b_sTool_' .. i .. ';]'
             tool_tabsFS[#tool_tabsFS + 1] =
-            'tooltip[b_sTool_' .. i .. ';'
-            .. ItemStack(tool):get_short_description() .. ']'
+                'tooltip[b_sTool_' .. i .. ';'
+                .. ItemStack(tool):get_short_description() .. ']'
         else
-            -- display empty space
+            -- display empty space #TODO unused right now
             tool_tabsFS[#tool_tabsFS + 1] =
             'image[' ..coords..';0.8,0.8;crafting_slot_empty.png]'
         end
@@ -324,6 +339,8 @@ local function cache_player_tool_types(cache, pInv)
             y = y + 1
         end
     end
+
+    tool_tabsFS[#tool_tabsFS + 1] ='container_end[]'
 
     cache.tool_tabsFS=tofstring(tool_tabsFS);
     cache.output = ""
@@ -487,45 +504,58 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
     -- Add tab header -------------------------------------------------
 
     -- generate formspec for crafting tabs
-        local pan_t = {
-            --'container[0,0]',
-            "style_type[item_image_button;bgimg_middle=4]",
-            -- if this tab is selected, change style
-            "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
-            }
 
-        local leftPoint, topPoint =nil,nil
-        for i=1, #cTabs do
-            leftPoint = (i - 1) * 0.85
-            topPoint = 0
-            ---------------------------------------------------------------
-            local item_name = crafting.icon_item_name[cTabs[i]]
-            or 'crafting:placeholder'
-            -- #TODO new version to check/integrate :
-            --local button_type = 'item_image_button['
-            --local suffix = ']'
-            --if item_name == string.gsub(item_name, ":", "") then -- not an item
-            --    button_type = 'image_button['
-            --    -- item_image_button and image_button formats differ, so..
-            --    suffix = ';;false]' -- hide borders on item_, which has extra fields
-            --end
-            --recipesFS[#recipesFS + 1] = button_type..(leftPoint)..
-            --    ',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';'..suffix
+    local bg_image = 'not_selected.png'
 
-            --set focus on selected tab
-            if i == sTab then
-                pan_t[#pan_t + 1] = 'set_focus[sCraftTab_' .. i .. ';true]'
-            end
+    local pan_t = {
+        --'container[0,0]',
+        --[[ style 1 : no border
+        "style_type[item_image_button;border=false;bgimg_middle=4]",]]
 
-            pan_t[#pan_t + 1] = 'item_image_button['..(leftPoint)..
-            ','..(topPoint)..';0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
+        -- style 2 : with border
+        "style_type[item_image_button;border=true;bgimg_middle=4]",
+        --if this tab is selected, change style
+        "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
+    }
 
-            pan_t[#pan_t + 1] = 'tooltip[sCraftTab_'.. i ..
-            ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
-            or cTabs[i])) ..
-            ';#000000;#ffffff]'
+    local coords
+    for i=1, #cTabs do
+        coords = tostring((i - 1) * 0.85) ..',0'
+        ---------------------------------------------------------------
+        local item_name = crafting.icon_item_name[cTabs[i]]
+        or 'crafting:placeholder'
+        -- #TODO new version to check/integrate :
+        --local button_type = 'item_image_button['
+        --local suffix = ']'
+        --if item_name == string.gsub(item_name, ":", "") then -- not an item
+        --    button_type = 'image_button['
+        --    -- item_image_button and image_button formats differ, so..
+        --    suffix = ';;false]' -- hide borders on item_, which has extra fields
+        --end
+        --recipesFS[#recipesFS + 1] = button_type..(leftPoint)..
+        --    ',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';'..suffix
+
+        --set focus on selected tab
+        if i == sTab then
+            --[[ style 1 : no border
+            pan_t[#pan_t + 1] =
+            "image[" .. coords .. ";0.8,0.8;selected.png]"]]
+            pan_t[#pan_t + 1] =
+            'set_focus[sCraftTab_' .. i .. ';true]'
+        --[[ style 1 : no border
+        else
+            pan_t[#pan_t + 1] =
+            "image[" .. coords .. ";0.8,0.8;not_selected.png]"]]
         end
-        --pan_t[#pan_t + 1] = 'container_end[]'
+
+        pan_t[#pan_t + 1] = 'item_image_button['..coords..';0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
+
+        pan_t[#pan_t + 1] = 'tooltip[sCraftTab_'.. i ..
+        ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
+        or cTabs[i])) ..
+        ';#000000;#ffffff]'
+    end
+    --pan_t[#pan_t + 1] = 'container_end[]'
 
     -- add tabs to the global recipes formspec
     recipesFS[#recipesFS + 1] = tofstring(pan_t)
