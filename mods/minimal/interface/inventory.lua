@@ -72,7 +72,6 @@ end
         sLevel = selected craft_type_level -- set by craft type item selected
         sScroll = selected scroll level -- needed to draw scroll container
         sSearch = current filter in search field
-        sInv = selected_inventory       -- set by bag buttons #TODO not here anymore, right ?
         -- The Following are tables of formspec strings
         -- Set output = "" to force redraw using cashed details
         -- to trigger redraw of a section, set the section to nil
@@ -184,10 +183,6 @@ local function set_cache(player_name,inv,sToolD, qtyID)
     cache.c_recipes=nil
     cache.u_recipes=nil
     cache.output = ""
-    -- right now, bag things is unused
-    cache.sInv = cache.sInv or 'main'
-    -- XXX need to make sure selected inv exists.
-    -- #TODO: find out if this ^^ is an izzyb todo?
     ----------------------------------------------
     cache.qty = qtyID or 1
 
@@ -374,10 +369,9 @@ local function recipes_for_player(cache, pInv, player_name, ctype, level, search
     if pInv:get_size('input_items') > 0 then
         crafting.set_item_hashes_from_list(pInv, 'input_items', item_hash)
     end
-    -- add selected inventory
-    local selected = cache.sInv or 'main'
-    if pInv:get_size(selected) > 0 then
-        crafting.set_item_hashes_from_list(pInv, selected, item_hash)
+    -- add main inventory
+    if pInv:get_size('main') > 0 then
+        crafting.set_item_hashes_from_list(pInv,'main', item_hash)
     end
     -- save item_hash to cache
     cache.item_hash = item_hash
@@ -651,15 +645,10 @@ end
 --[[ This needs to be rebuilt every time you change the inventory being viewed - so clicking bags
 -- This is triggered by setting cache.inventory = nil]]
 local function cache_player_inventory(cache)
-    local selected = cache.sInv or 'main'
     local inventory = {
         'style_type[list;size=;spacing=]',
-        'list[current_player;' .. selected .. ';0,0;8,2;0]'
+        'list[current_player;main;0,0;8,2;0]'
     }
-
-    -- old bags part
-    -- inventory[#inventory + 1] = 'tabheader[.4,9.8;inventory_tab;'..S("Main")..","..S("Bag1")..","..S("Bag2")..","..S("Bag3")..","..S("Bag4")..';1;true;false]'
-
     cache.inventoryFS = tofstring(inventory);
     cache.output = ""
     return cache
@@ -935,7 +924,7 @@ local function process_receive_fields(player, formname, fields)
         local btn_id
         for btn, value in pairs(fields) do
             btn_type,btn_id = process_button(
-                btn,{'sResult','b_sTool','sInv','qty1','qty2','qty3'})
+                btn,{'sResult','b_sTool','qty1','qty2','qty3'})
             if btn_type ~= nil then
                 break       -- We found a button
             end
@@ -954,15 +943,12 @@ local function process_receive_fields(player, formname, fields)
                 btn_id = tonumber(btn_id)
                 cache = set_cache(player_name,inv,btn_id)
                 --  crafting.sort_order_by_player[player_name] = nil
-            elseif btn_type == 'sInv' then
-                cache.sInv = btn_id -- Inventory name
 
             -- if we pushed a recipe button
             elseif btn_type == 'sResult' then
                 local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
                 local ctype = get_craft_tabs(cache.sTool)[cache.sTab]
                 local sLevel = cache.sLevel
-                local sInv = cache.sInv
                 local qty = cache.qty or 1
 
                 process_qty(recipe,qty, item_hash)
@@ -971,9 +957,9 @@ local function process_receive_fields(player, formname, fields)
                     minetest.log("error", "[inventoryFS] Player clicked a "..
                                  "button they shouldn't have been able to")
                     return true
-                -- try to craft, checking first "input_items" list, then sInv
+                -- try to craft, checking first "input_items" list
                 elseif crafting.perform_craft(
-                    player_name, inv, {"input_items",sInv}, sInv, recipe) then
+                    player_name, inv, {"input_items",'main'}, 'main', recipe) then
                     cache.recipesFS = nil
                     cache.output = ""
                     inventoryFS_cache[player_name] = cache
@@ -1082,7 +1068,6 @@ function minimal.crafting_item_on_rightclick(pos,node,clicker,
         sTool = craft_item,
         sToolID = 2, -- select that tool button
         sTab = 1, -- first tab of tool
-        sInv = 'main', -- main inventory
         output = '',
         qty = 1, -- craft single quantity
     }
