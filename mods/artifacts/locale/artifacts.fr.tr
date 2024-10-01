@@ -1,0 +1,137 @@
+# textdomain: artifacts
+# general
+# airboat.lua
+Airboat=Dirigeable
+[airboat] Cruise on=[dirigeable] Mode croisière activé
+[airboat] Cruise off=[dirigeable] Mode croisière désactivé
+Jade=jade
+Gold=or
+@1 Sculpture=Sculpture en @1
+Gamepiece (black)=pièce de jeu (noire)
+Gamepiece (white)=pièce de jeu (blanche)
+Singing Stone=Pierre chantante
+Drumming Stone=Pierre tambourinante
+# materials.lua
+Moon Glass=Verre de lune
+# bell.lua
+Automated Bell=Cloche automatique
+# map.lua
+Geosurveyor@nUse with 'Minimap' key=
+Sun Stone=Pierre de soleil
+Moon Stone=Pierre de lune
+Star Stone=Pierre d'étoile
+@1 Ladder=échelle en @1
+@1 Door=porte en @1
+@1 Trapdoor=trappe en @1
+Trampoline=Trampoline
+Conveyor=Convoyeur
+Antiquorium=antiquorium
+# pandora.lua
+Meta-Stim Injector=Injecteur de Méta-Stim
+# storage.lua 
+@1 chest=coffre en @1
+LIGHT MEASUREMENT:=MESURE DE LUMINOSITÉ :
+LIGHT LEVEL @= =LUMINOSITÉ @=
+Light Meter=posemètre (mesure la luminosité)
+List light level of node or self=
+OBJECT TEMPERATURE MEASUREMENT:=MESURE DE TEMPERATURE DE L'OBJET :
+TEMPERATURE @= =TEMPÉRATURE @=
+Temperature Probe=
+List temperature of node=
+# probes;
+NOT MEASURABLE!=
+BURN UNITS REMAINING:=
+Fuel Probe=
+List fuel units of node=
+SMELTING UNITS REMAINING:=
+Smelter Probe=
+List remaining units of node for smelting=
+FIRING UNITS REMAINING:=
+Potter's Probe=
+List remaining firing units of unfired clay=
+COOKING UNITS REMAINING:=
+Chef's Probe=
+List remaining cooking units of pointed food=
+GROUPS:=
+PLANT TYPE:=
+Wild=
+Domesticated=
+Half-wild=
+PLANT GROWTH NOT MEASURABLE!=
+GROWTH UNITS REMAINING:=
+PLANT HEALTH NOT MEASURABLE!=
+Health=
+STATE:=
+wet=
+salty=
+dry=
+FERTILITY:=
+ROOTS:=
+NOT MEASURABLE: NEEDS A PLANT OR SOIL=
+Farmer's Probe=
+List stats of plant or soil=
+# tools.lua
+@1 Chisel=
+Spyglass=
+View far distances=
+SELF=
+Age:=
+1 year old=
+@1 years old=
+1 day old=
+@1 days old=
+# player + animal
+CONDITION=
+units=
+Energy=
+Body Temp=
+Hunger=
+Thirst=
+Effects=
+Age=
+seconds=
+Oxygen:=
+# binary
+Yes=
+No=
+Pregnant:=
+ANIMAL=
+Animal Probe=
+List stats of pointed animal or player=
+Inspect self=
+Admin's Probe=
+List groups of pointed node=
+KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
+Bond Transporter to Target=
+Replace Transporter Bond with NEW Target=
+Target name=
+KEY IS BLANK!: use leftclick to save this location=
+Destination:=
+Location:=
+TRANSPORTER DESTINATION SET TO: @1 at @2=
+KEY CAN ONLY SAVE FROM TRANSPORTER PAD=
+Key's target name=
+Wipe Key=
+Create Bonded Key=
+Transporter Key=
+Transporter Key to =
+TRANSPORTER KEY CREATED TO: @1=
+Transporter Pad=
+Transporter Pad (Charging)=
+Transporter Pad (active)=
+Transporter Power Core (charged)=
+Transporter Power Core (depleted)=
+Transporter Focalizer=
+Transporter Stabilizer=
+Transporter Regulator=
+Cancel=
+Destination name=
+# wayfinder.lua
+Wayfinder to @1=
+WAYFINDER BONDED TO: @1 @2=
+WAYFINDER BOND LOST=
+WAYFINDER ALREADY BONDED=
+WAYFINDER CAN ONLY BOND TO WAYSTONE=
+Permanently Bond=
+Wayfinder=
+Waystone=
