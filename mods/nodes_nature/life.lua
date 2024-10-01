@@ -509,12 +509,17 @@ for i in ipairs(plantlist) do
 
 	--seeds and spores
 
+	local inventory_seed_image
 	if not seed_image then
 		if type == "mushroom" then
 			seed_image = "nodes_nature_spores.png"
+			inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..plantname..".png)^[resize:16x16^nodes_nature_spores.png"
 		else
 			seed_image = "nodes_nature_seeds.png"
+			inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..plantname..".png)^[resize:16x16^nodes_nature_seeds.png"
 		end
+	else
+		inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..plantname..".png)^"..seed_image
 	end
 
 	if not seed_desc then
@@ -529,7 +534,7 @@ for i in ipairs(plantlist) do
 		description = seed_desc,
 		drawtype = "nodebox",
 		tiles = {seed_image},
-		inventory_image = seed_image,
+		inventory_image = inventory_seed_image,
 		node_box = {
 			type = "fixed",
 			fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
