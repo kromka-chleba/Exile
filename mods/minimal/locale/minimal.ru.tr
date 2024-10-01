@@ -21,6 +21,7 @@ Maximum=Максимум
 Quantity=Количество:
 Search=Запрос
 or=
+
 #playersettings.lua
 Enable wide HUDbar=Включить широкую панель HUDbar
 Show numeric stats=Показывать числовую статистику
@@ -28,7 +29,8 @@ Enable Break-taker popup=Включить всплывающее окно бре
 Allow digging with a full inventory=Разрешить копать с полным инвентарем
 Temperature scale=Шкала температуры
 GUI theme=Тема графического интерфейса
-HUD Opacity level=Уровень непрозрачности HUD
+HUD Opacity=Уровень непрозрачности HUD
+
 # protection.lua
 Access List=Список доступа
 Delete=Удалить
