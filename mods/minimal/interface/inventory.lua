@@ -509,13 +509,13 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
 
     local pan_t = {
         --'container[0,0]',
-        --[[ style 1 : no border
-        "style_type[item_image_button;border=false;bgimg_middle=4]",]]
+        --style 1 : no border
+        "style_type[item_image_button;border=false;bgimg_middle=4]",
 
-        -- style 2 : with border
+        --[[ style 2 : with border
         "style_type[item_image_button;border=true;bgimg_middle=4]",
         --if this tab is selected, change style
-        "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
+        "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"]]
     }
 
     local coords
@@ -537,15 +537,15 @@ local function cache_player_recipes(cache, player_name, pInv, updated)
 
         --set focus on selected tab
         if i == sTab then
-            --[[ style 1 : no border
+            -- style 1 : no border
             pan_t[#pan_t + 1] =
-            "image[" .. coords .. ";0.8,0.8;selected.png]"]]
+            "image[" .. coords .. ";0.8,0.8;selected.png]"
             pan_t[#pan_t + 1] =
             'set_focus[sCraftTab_' .. i .. ';true]'
-        --[[ style 1 : no border
+        -- style 1 : no border
         else
             pan_t[#pan_t + 1] =
-            "image[" .. coords .. ";0.8,0.8;not_selected.png]"]]
+            "image[" .. coords .. ";0.8,0.8;not_selected.png]"
         end
 
         pan_t[#pan_t + 1] = 'item_image_button['..coords..';0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
