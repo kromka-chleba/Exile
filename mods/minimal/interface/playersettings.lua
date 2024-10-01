@@ -61,11 +61,14 @@ local function get_form(playername, meta)
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
         "checkbox[1,3;nomusic;   "..S("Disable music")..";"..nomusic.."]"..
+        -- Temperature scale setting
         "label[1,3.75;"..S("Temperature scale")..":]"..
         "dropdown[5,3.5;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
         tempnum..";true]"..
+        -- GUI theme setting
         "label[1,4.25;"..S("GUI theme")..":]"..
         "dropdown[5,4;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+        -- HUD Opacity
         "label[1,5;"..S("HUD Opacity level")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
         "scrollbar[2,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
