@@ -1,8 +1,8 @@
 # textdomain: minimal
 #utility/general.lua
 #currentrevision.lua
-Display the current git revision=
-This server is currently running git revision=
+Display the current git revision=Afficher la révision git en cours
+This server is currently running git revision=Ce serveur fait actuellement tourner la révision git
 #interface/infotext.lua
 Owner=Propriétaire
 #interface/inventory.lua
@@ -19,7 +19,7 @@ Quantity=Quantité
 Single=Un seul
 Stack=Une pile
 Maximum=Le maximum
-Search=Requête
+Search=Filtre
 or=ou
 
 #playersettings.lua
@@ -27,6 +27,7 @@ Enable wide HUDbar=Activer une large barre d'outils
 Show numeric stats=Montrer des stats numériques
 Enable Break-taker popup=Autoriser la pop-up de pause de jeu
 Allow digging with a full inventory=Autoriser le minage avec un inventaire plein
+Disable music=Désactiver la musique
 Temperature scale=Unité de température
 GUI theme=Thème de l'interface
 HUD Opacity=Opacité de la barre d'outils
@@ -36,34 +37,34 @@ Antiblue=Bleu antique
 Legacy Grey=Gris standard
 
 # protection.lua
-Access List=
+Access List=Liste d'accès autorisés
 Delete=Effacer
 Close=Fermer
-Access list empty.=
-Deleted @1 from access list.=
-@1 already has access=
-@1 granted access=
-Can't grant access to items you don't own= Il n'est pas possible de donner l'accès à des objets dontvous n'êtes pas le propriétaire
-Crafted by= Fabriqué par
-Burnt Storage Pile= pile de stockage brûlée
-Label= Label
-Set= Editer
+Access list empty.=Liste d'accès autorisés vide.
+Deleted @1 from access list.=@1 a été supprimé de la liste d'accès autorisés.
+@1 already has access=@1 a déjà accès
+@1 granted access=accès donné à @1
+Can't grant access to items you don't own=Il n'est pas possible de donner l'accès à des objets dont vous n'êtes pas le propriétaire
+Crafted by=Fabriqué par
+Burnt Storage Pile=Pile d'objets brûlés
+Label=Label
+Set=Éditer
 #triggers.lua
-Invalid teleport vector, must be '(x,y,z)'=
-Reset player=
-Will reset player stats to full=
-Hurt player=
-Hits player for <value> damage, 1-20=
-Set energy=
-Set player energy to <value> percent=
-Set HP=
-Set player hp to <value>, 0-20=
-Set hunger=
-Set player hunger to <value> percent=
-Set thirst=
-Set player thirst to <value> percent=
-Teleport=
-Send player to an exact xyz position=
+Invalid teleport vector, must be '(x,y,z)'=Vecteur de téléportation invalide, doit être de la forme '(x,y,z)'
+Reset player=Réinitialiser le joueur
+Will reset player stats to full=Réinitialiser les statistiques du joueur à 100%
+Hurt player=Blesser le joueur
+Hits player for <value> damage, 1-20=Taper le joueur pour <value> dommages, 1-20
+Set energy=Ajuster l'énergie
+Set player energy to <value> percent=Mettre l'énergie du joueur à <value>%
+Set HP=Régler les points de vie
+Set player hp to <value>, 0-20=Mettre les points de vie du joueur à <value>, 0-20
+Set hunger=Ajuster la faim
+Set player hunger to <value> percent=Mettre la faim du joueur à <value>%
+Set thirst=Ajuster la soif
+Set player thirst to <value> percent=Mettre la soif du joueur à <value>%
+Teleport=Téléporter
+Send player to an exact xyz position=Envoyer le joueur à la position exacte xyz
 Relaport=
 Send player a relative xyz distance=
 Clear inventory=
@@ -76,7 +77,7 @@ This requires a unique label.=
 Set weather=
 Changes weather displayed to player=
 Use /set_weather help to list available weather.=
-Reset weather=
+Reset weather=Réinitialiser la météo
 Restores normal weather for player=
 Hide hud elements=
 Hide health/energy/thirst/hunger/temp/=
@@ -85,15 +86,15 @@ Show hud elements=
 Restore all hidden hud elements=
 Show hud splash=
 Display an image and text@n<icon name.png>,<text>=
-Value:=
-False=
-True=
+Value:=Valeur :
+False=Faux
+True=Vrai
 # triggers
 Exile trigger node=
 Configured trigger=
 Unset=
-Yes=
-No=
+Yes=Oui
+No=Non
 Error in zone def ranges=
 Upper corner=
 ( North / Up / East )=
@@ -107,9 +108,3 @@ Range=
 Copy=
 Values=
 Exile zone trigger node=
-
-
-##### not used anymore #####
-
-# Stairs
-Inner @1=
