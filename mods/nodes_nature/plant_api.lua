@@ -813,19 +813,23 @@ end
 
 function plant.get_seed_base_props(plant_def)
     local next_life_stage = plant.get_seedling_name(plant_def.name, 1)
-    local seed_texture, seed_description
+    local seed_texture, seed_description, inventory_seed_image
     if plant_def.lifeform_type == "mushroom" or
         plant_def.plant_type == "moss" then
         seed_texture = "nodes_nature_spores.png"
+        inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..
+            plant_def.name..".png)^[resize:16x16^nodes_nature_spores.png"
         seed_description = S("@1 Spores", plant_def.description)
     else
         seed_texture = "nodes_nature_seeds.png"
+        inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..
+            plant_def.name..".png)^[resize:16x16^nodes_nature_seeds.png"
         seed_description = S("@1 Seeds", plant_def.description)
     end
     local props = {
         description = plant_def.seed_description or seed_description,
         tiles = {seed_texture},
-        inventory_image = seed_texture,
+        inventory_image = inventory_seed_image,
         wield_image = seed_texture,
         use_texture_alpha = c_alpha.clip,
         stack_max = minimal.stack_max_light,
