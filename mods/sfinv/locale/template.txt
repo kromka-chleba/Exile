@@ -1,2 +1,4 @@
 # textdomain:sfinv
-Crafting=
+
+#unused
+#Crafting=
