@@ -70,7 +70,8 @@ local function add_setting_button()
 
 	-- without background
 	return "style[player_settings;border=false; noclip =true]"..
-	"image_button[11.4,-0.75;0.7,0.7;gear2.png;player_settings;]"
+	--"image_button[11.4,-0.75;0.7,0.7;gear2.png;player_settings;]"
+	"image_button[-1,-0.7;0.7,0.7;gear2.png;player_settings;]"
 end
 
 local inv_x = 0.8
