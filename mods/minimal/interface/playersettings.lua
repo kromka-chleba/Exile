@@ -42,7 +42,7 @@ function minimal.show_player_settings(playername, meta)
     local tempscale = meta:get("tempscale") or mttempscale
     local tempnum = temp_tonum[tempscale] or temp_tonum[mttempscale]
     local theme = meta:get("gui_theme") or "default"
-    local themelist = minimal.get_gui_theme_list(",")
+    local themelist = table.concat(minimal.get_gui_theme_titles(),",")
     local themenum = tostring(theme_tonum[theme])
     local opacity = tostring(meta:get("hud_opacity") or mthudopacity)
     local invburst = tostring(meta:get("drop_on_full_inv") or mtinvburst)
@@ -90,9 +90,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
             local reopen = false
             local num = tonumber(fields.gui_theme) -- table[1] ~= table["1"] !
-            if theme_fromnum[num] and theme_fromnum[num] ~= oldtheme then
-                meta:set_string("gui_theme", theme_fromnum[num])
-                minimal.apply_gui_theme(player, meta, theme_fromnum[num])
+            local new_theme = theme_fromnum[num]
+            if new_theme and new_theme ~= oldtheme then
+                meta:set_string("gui_theme", new_theme)
+                minimal.apply_gui_theme(player, meta, new_theme)
                 reopen = true
             end
             num = tonumber(fields.tempscale)

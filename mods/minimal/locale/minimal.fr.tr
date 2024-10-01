@@ -29,6 +29,11 @@ Allow digging with a full inventory=Autoriser le minage avec un inventaire plein
 Temperature scale=Unité de température
 GUI theme=Thème de l'interface
 HUD Opacity level=Niveau d'opacité de la barre d'outils
+Default=Par défaut
+Antiglass=Verre antique
+Antiblue=Bleu antique
+Legacy Grey=Gris standard
+
 # protection.lua
 Access List=
 Delete=Effacer
