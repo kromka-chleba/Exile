@@ -250,7 +250,7 @@ minetest.register_node(
 -- needs to be cooked also
 
 minetest.register_node(
-    "tech:rhuya_flour_wintery", {
+    "tech:rhuya_wintery_flour", {
         description = S("Raw Hardy Rhuya Flour"),
         tiles = {"tech_rhuya_flour_wintery.png"},
         stack_max = minimal.stack_max_medium * 2,
@@ -266,7 +266,7 @@ minetest.register_node(
 
 -- purified wintery rhuya flour
 minetest.register_node(
-    "tech:rhuya_flour_wintery_cooked",  {
+    "tech:rhuya_wintery_flour_cooked",  {
         description = S("Hardy Rhuya Flour"),
         tiles = {"tech_flour_strong.png"},
         stack_max = minimal.stack_max_medium * 2,
@@ -279,6 +279,10 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light"
 })
+
+-- better standardize node names
+minetest.register_alias_force("tech:rhuya_flour_wintery", "tech:rhuya_wintery_flour")
+minetest.register_alias_force("tech:rhuya_flour_wintery_cooked",  "tech:rhuya_wintery_flour_cooked")
 
 -- oops, you burnt it!
 minetest.register_node(
@@ -450,13 +454,13 @@ crafting.register_recipe({
 -- wet flours for doughs
 
 for dough,flour in pairs(
-  {["tech:maraka_dough"] = "tech:maraka_bread_cooked 14",
+  {["tech:maraka_dough"] = "tech:maraka_bread_cooked 12",
   ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked"}) do
     -- get count from itemstring
     local count = tonumber(flour:match"%s%d+") -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
     if not count then
         -- otherwise set one and add it to flour
-        count = 12
+        count = 8
         flour = flour.." "..count
     end
     -- iterate through every empty water pot

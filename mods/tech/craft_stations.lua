@@ -128,7 +128,8 @@ crafting.register_type('pickaxe',
                        "tech:pickaxe_iron")    -- nothing yet
 -- food-based crafting stations
 crafting.register_type('breadmaking',
-                        S("Breadmaking"))
+                        S("Breadmaking"),
+                        "tech_breadmaking_crafticon.png")
 
 -- location limit craft spots --------------------
 -- grouplist/banlistg {{group1, group_number}, {'stone', 1}}
