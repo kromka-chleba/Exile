@@ -347,6 +347,53 @@ minetest.register_node(
         paramtype = "light"
 })
 
+---- FERMENTED DOUGHS
+
+minetest.register_node(
+    "tech:maraka_dough_fermented",  {
+        description = S("Fermented Maraka Dough"),
+        tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png"},
+        stack_max = minimal.stack_max_medium * 3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-4/16, -0.5, -4/16, 4/16, -3/16, 4/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
+minetest.register_node(
+    "tech:rhuya_dough_fermented",  {
+        description = S("Fermented Rhuya Dough"),
+        tiles = {"tech_dough.png^tech_dough_aerated_mask.png"},
+        stack_max = minimal.stack_max_medium * 3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -3/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, dough=1, cake_dough=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
+minetest.register_node(
+    "tech:rhuya_wintery_dough_fermented",  {
+        description = S("Fermented Hardy Rhuya Dough"),
+        tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png"},
+        stack_max = minimal.stack_max_medium * 3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -3/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
 ---- plant-based recipes
 
 --
