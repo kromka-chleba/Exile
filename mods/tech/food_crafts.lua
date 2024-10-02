@@ -330,7 +330,17 @@ local function get_dough_on_timer(chance)
             return true
         -- let's try fermenting
         elseif math.random() <= chance then
-            -- we're starting to ferment because math.random said so
+            -- check for temp_range first before trying to ferment
+            local nodedef = minimal.get_nodedef(pos)
+            local temp_range = nodedef._ferment_temp_range
+            if temp_range then
+                local temp = climate.get_point_temp(pos)
+                if temp <= temp_range.min or temp >= temp_range.max then
+                    -- loop again if conditions not right
+                    return true
+                end
+            end
+            -- chance and temp successful, ferment!
             ncrafting.get_or_create_ferment(pos,meta)
             ncrafting.ferment_on_construct(pos)
             return false
@@ -418,7 +428,7 @@ minetest.register_node(
         groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
-        _ferment_time = {min=2,max=4},--{min=20,max=46},
+        _ferment_time = {min=20,max=46},
         _ferment_temp_range = dough_yeast_temp_range,
         _ferment_to = "tech:rhuya_wintery_dough_fermented",
         on_construct = function(pos)
