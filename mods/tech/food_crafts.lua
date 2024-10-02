@@ -302,6 +302,61 @@ minetest.register_node(
 
 ---- DOUGHS
 
+-- dough fermentation mechanics
+local dough_yeast_temp_range = {min=15, max=40}
+
+local function get_dough_on_timer(chance)
+    chance = chance or 0.09 -- provided chance or 9%
+    -- provide function return to run
+    return function(pos, elapsed, ch) -- ch is chance override
+        local meta = minetest.get_meta(pos)
+        ch = ch or chance
+        if meta:get_int("ferment") ~= 0 then -- we're fermentin'
+            -- we're done fermenting!
+            if not ncrafting.ferment_on_timer(pos, elapsed) then
+                local node = minetest.get_node(pos)
+                local metat = meta:to_table()
+                metat.fields = {}
+                local baking_data = HEALTH.bake_table[node.name]
+                if baking_data then
+                  metat.fields.baking = baking_data.time
+                end
+                meta = meta:from_table(metat)
+                node.param2 = 1 -- set param2 to 1 for "fresh batch"
+                minetest.swap_node(pos,node)
+                return false
+            end
+            -- otherwise continue fermenting
+            return true
+        -- let's try fermenting
+        elseif math.random() <= chance then
+            -- we're starting to ferment because math.random said so
+            ncrafting.get_or_create_ferment(pos,meta)
+            ncrafting.ferment_on_construct(pos)
+            return false
+        end
+        -- check again later
+        minetest.get_node_timer(pos):start(120)
+        return false
+    end
+end
+
+local function dough_preserve_metadata(pos, oldnode, oldmeta, drops)
+    local meta = minetest.get_meta(pos)
+    if meta:get_int("ferment") == 0 then return end
+    if meta:get_string('description') == "" then
+      meta:set_string('description',S("Fermenting @1",drops[1]:get_description()))
+    end
+    ncrafting.ferment_preserve_metadata(pos, oldnode, meta, drops[1])
+end
+
+local dough_after_place_node = function(pos, placer, itemstack, pointed_thing)
+    -- not fermenting, return
+    if itemstack:get_meta():get_int("ferment") == 0 then return end
+    -- we're fermenting, run ferment after_place
+    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
+end
+
 minetest.register_node(
     "tech:maraka_dough",  {
         description = S("Maraka Dough"),
@@ -314,7 +369,16 @@ minetest.register_node(
         },
         groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
-        paramtype = "light"
+        paramtype = "light",
+        _ferment_time = {min=15,max=36},
+        _ferment_temp_range = dough_yeast_temp_range,
+        _ferment_to = "tech:maraka_dough_fermented",
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+        end,
+        on_timer = get_dough_on_timer(),
+        preserve_metadata = dough_preserve_metadata,
+        after_place_node = dough_after_place_node
 })
 
 minetest.register_node(
@@ -329,7 +393,16 @@ minetest.register_node(
         },
         groups = {dig_immediate = 3, falling_node=1, dough=1, cake_dough=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
-        paramtype = "light"
+        paramtype = "light",
+        _ferment_time = {min=12,max=30},
+        _ferment_temp_range = dough_yeast_temp_range,
+        _ferment_to = "tech:rhuya_dough_fermented",
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+        end,
+        on_timer = get_dough_on_timer(0.25), -- 25% chance
+        preserve_metadata = dough_preserve_metadata,
+        after_place_node = dough_after_place_node
 })
 
 minetest.register_node(
@@ -344,54 +417,142 @@ minetest.register_node(
         },
         groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
-        paramtype = "light"
+        paramtype = "light",
+        _ferment_time = {min=2,max=4},--{min=20,max=46},
+        _ferment_temp_range = dough_yeast_temp_range,
+        _ferment_to = "tech:rhuya_wintery_dough_fermented",
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+        end,
+        on_timer = get_dough_on_timer(),
+        preserve_metadata = dough_preserve_metadata,
+        after_place_node = dough_after_place_node,
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+        end,
+        on_timer = get_dough_on_timer(0.12), -- 12% chance
+        preserve_metadata = dough_preserve_metadata,
+        after_place_node = dough_after_place_node
 })
 
 ---- FERMENTED DOUGHS
 
+local function ferm_dough_preserve_metadata(pos, oldnode, oldmeta, drops)
+    -- can't get yeast from this, not a fresh batch
+    if not oldnode then return end
+    if not oldnode.param2 == 1 then return end
+    local nodedef = minetest.registered_nodes[oldnode.name]
+    local get_microbes = nodedef.breads_get_microbes or
+      function()
+          return math.random(1,5)
+      end
+    -- get fresh batch catchable microbes
+    local microbes = get_microbes(pos, oldnode, nodedef)
+    if not microbes then return end
+    microbes = type(microbes) ~= "table" and {microbes}
+    for _,item in pairs(microbes) do
+        if type(item) == "number" then
+            item = "tech:yeast_dough "..item
+        end
+        if type(item) == "string" then
+          drops[#drops + 1] = item
+        end
+    end
+end
+
 minetest.register_node(
     "tech:maraka_dough_fermented",  {
-        description = S("Fermented Maraka Dough"),
-        tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png"},
+        description = S("Fermented @1",S("Maraka Dough")),
+        tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
         stack_max = minimal.stack_max_medium * 3,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
           fixed = {-4/16, -0.5, -4/16, 4/16, -3/16, 4/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        groups = {dig_immediate = 3, falling_node=1, fermented_dough=1, fermented_bread_dough=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
-        paramtype = "light"
+        paramtype = "light",
+        preserve_metadata = ferm_dough_preserve_metadata
 })
 
 minetest.register_node(
     "tech:rhuya_dough_fermented",  {
-        description = S("Fermented Rhuya Dough"),
-        tiles = {"tech_dough.png^tech_dough_aerated_mask.png"},
+        description = S("Fermented @1",S("Rhuya Dough")),
+        tiles = {"tech_dough.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
         stack_max = minimal.stack_max_medium * 3,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
           fixed = {-5/16, -0.5, -5/16, 5/16, -3/16, 5/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, cake_dough=1},
+        groups = {dig_immediate = 3, falling_node=1, fermented_dough=1, fermented_cake_dough=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
-        paramtype = "light"
+        paramtype = "light",
+        preserve_metadata = ferm_dough_preserve_metadata
 })
 
 minetest.register_node(
     "tech:rhuya_wintery_dough_fermented",  {
-        description = S("Fermented Hardy Rhuya Dough"),
-        tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png"},
+        description = S("Fermented @1",S("Hardy Rhuya Dough")),
+        tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
         stack_max = minimal.stack_max_medium * 3,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
           fixed = {-5/16, -0.5, -5/16, 5/16, -3/16, 5/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        groups = {dig_immediate = 3, falling_node=1, fermented_dough=1, fermented_bread_dough=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
-        paramtype = "light"
+        paramtype = "light",
+        preserve_metadata = ferm_dough_preserve_metadata,
+        breads_get_microbes = function(pos, oldnode, nodedef)
+            return math.random(3,10)
+        end
+})
+
+-- YEASTS
+
+local function yeast_infect(pos, nodedef)
+    nodedef = nodedef or minimal.get_nodedef(nodedef)
+    -- we don't affect no non-doughs
+    if not (nodedef.groups and nodedef.groups.dough) then return end
+    -- can't ferment
+    if not nodedef._ferment_to then return end
+    local meta = minetest.get_meta(pos)
+    -- already fermenting, return
+    if meta:contains("ferment") then return end
+    -- successful infection
+    ncrafting.ferment_on_construct(pos)
+    -- allow fermentables to list and play a custom infect sound
+    local infect_sound = nodedef.sounds and nodedef.sounds.place_infect or {
+        name = "nodes_nature_dig_snappy",
+        gain = 0.7
+    }
+    infect_sound = table.copy(infect_sound)
+    infect_sound.pos = pos
+    minetest.sound_play(infect_sound.name, infect_sound)
+    return true -- tell the function of successful infection
+end
+
+minetest.register_craftitem(
+    "tech:yeast_dough", {
+        description = S("Ikippe Yeast"),
+        inventory_image = "tech_yeast_dough_spores.png",
+        stack_max = minimal.stack_max_medium*4,
+        on_place = function(itemstack, player, pointed_thing)
+            if not pointed_thing or pointed_thing.type ~= "node" then
+                return
+            end
+            local pos = pointed_thing.under
+            -- can't infect, return
+            if not yeast_infect(pos) then return end
+            -- successfully infected, take away item
+            if not minimal.player_in_creative(player) then
+                itemstack:take_item()
+                return itemstack
+            end
+        end,
 })
 
 ---- plant-based recipes
