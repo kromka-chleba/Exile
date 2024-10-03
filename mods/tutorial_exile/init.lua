@@ -114,7 +114,7 @@ end
 
 minetest.register_chatcommand(
     "test_tut",{
-        --      privs = "server",
+        privs = "server",
         func = function(name,param)
             local tmp = disable_tutorial
             disable_tutorial = false
