@@ -879,7 +879,7 @@ end
 
 -- Call when the inventory formspec is closed to clear cache
 -- #TODO : would be good to still save the curent subtab instead of clearing everything
-function minimal.close_inventory_formspec(player)
+local function close_inventory_formspec(player)
     local player_name = player:get_player_name()
     if not (player_name and player_name ~= "") then
         return nil -- no player name
@@ -940,7 +940,7 @@ local function process_receive_fields(player, formname, fields)
     -- Process quit
     -- called when escaping the formspec using inventory key
     if fields.quit then
-        minimal.close_inventory_formspec(player)
+        close_inventory_formspec(player)
         return true -- cache updated in close
     end
     -- process scrollbar
@@ -1147,7 +1147,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         if fields.quit then
             -- reset tool list
             cache_tool_remove(player, cache)
-            minimal.close_inventory_formspec(player)
+            close_inventory_formspec(player)
             return true -- cache updated in close
         end
 
