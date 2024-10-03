@@ -643,11 +643,10 @@ do -- local scope to prevent global access
                 -- functionality for normal rhuya seeds turning to wintery, or wintery becoming normal
                 on_place = function(itemstack, placer, pointed_thing)
                     if not pointed_thing then return seed_on_place(itemstack, placer, pointed_thing) end
-                    itemstack = seed_on_place(itemstack, placer, pointed_thing)
-                    if not itemstack then return itemstack end
                     local itemdef = itemstack:get_definition()
+                    itemstack = seed_on_place(itemstack, placer, pointed_thing)
                     local pos = pointed_thing.above
-                    if minetest.get_node(pos).name ~= itemdef.name then return end
+                    if minetest.get_node(pos).name ~= itemdef.name then return itemstack end
                     -- winter variant (5% chance to return to normal)
                     if #itemdef.name == 31 and math.random() < 0.05 then
                         -- convert to normal after 4 seconds
@@ -679,6 +678,7 @@ do -- local scope to prevent global access
                           end
                         end
                     end
+                    return itemstack -- return changes
                 end
         })
         -- override fruit stack size
