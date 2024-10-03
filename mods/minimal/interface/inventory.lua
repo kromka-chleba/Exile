@@ -50,19 +50,6 @@ local function debug_cache(table)
 end
 ]]
 
-local function process_button(key,btypes)
-    for _,prefix in ipairs(btypes) do
-        if key:sub(1, #prefix) == prefix then
-            local num = string.match(key, prefix.."_([0-9]+)")
-            if num then
-                return prefix, num
-            end
-        end
-    end
-    return nil,nil -- button types not found
-end
-
-
 --[[ The inventory formspec is cached for each player like this:
     inventoryFS_cache[player_name] = {
         epoch  = os.time(),             -- Used to expire cache
@@ -101,7 +88,6 @@ end
     a section should be set to nil and output set to "" to force a redraw.
     only sections cleared are recreated via make_inventory_formspec
 ]]
-
 local inventoryFS_cache = {}
 
 --Basic functions --------------------------------------------------------------
@@ -123,7 +109,7 @@ local function generate_tools_list(craft_item)
     end
 end
 
--- return level for that tool (#TODO I think this is unused, not sure yet)
+-- return level for that tool
 -- set by def.exile_crafting.craft_level of registered tool/item/node
 local function get_tool_level(tool)
     if not tool then
@@ -177,6 +163,8 @@ local function get_craft_tabs(tool)
         print('ERROR: Missing exile_crafting craft_types definition for '..tool)
     end
 end
+
+-- Recipes list part -----------------------------------------------------------
 
 -- process "quantity" setting
 local function process_qty(recipe,qty,item_hash)
@@ -261,10 +249,6 @@ local function process_qty(recipe,qty,item_hash)
         recipe.items = pItems
     end
 end
-
--- Recipes list part -----------------------------------------------------------
-
-
 --[[ take current craftable and uncraftable list and
     recheck if each one is craftable or not
     update those lists in cache
@@ -721,7 +705,6 @@ local function make_inventory_formspec(player,context)
         cache = initiate_cache(player)
     end
 
-
     --IB-test    if cache and cache.output and cache.output ~= "" then
     --IB-test            if os.time() > cache.epoch + __inventoryFS_cache_timeout then
     --IB-test                    inventoryFS_cache[player_name].epoch=os.time()
@@ -767,7 +750,9 @@ local function make_inventory_formspec(player,context)
     -- Search field part -------------------------------------------------------
 
     output[#output + 1] = 'container[3, 5.2]'
-    FS_search_field_to_cache(cache)
+    if cache.searchFS == nil then
+        FS_search_field_to_cache(cache)
+    end
     output[#output + 1] = cache.searchFS
     output[#output + 1] = 'container_end[]'
 
@@ -813,8 +798,24 @@ local function make_inventory_formspec(player,context)
     return result
 end
 
+local function get_inventory_formspec(player,context)
+    local cache = inventoryFS_cache[player:get_player_name()]
+    if cache and cache.output and cache.output ~= "" then
+        return cache.output
+    else
+        return make_inventory_formspec(player,context)
+    end
+end
+
 
 -- Cache modifications  -------------------------------------------------------
+
+local function cache_reset_recipes(cache)
+    cache.c_recipes = nil -- list of craftable recipes to display
+    cache.u_recipes =nil -- list of uncraftable recipes to display
+    cache.recipesFS = nil -- delete recipes formspect from cache
+    cache.sScroll = 0 -- reset scrollbar to top
+end
 
 -- optional cache
 -- change to hand if tool==nil
@@ -836,12 +837,9 @@ local function cache_tool_change(player, tool, cache)
         cache.sTool = tool or default_tool
         cache.sLevel = get_tool_level(tool)
         cache.sTab = 1 -- default to first tab
-        cache.sScroll = 0 -- reset scrollbar to top
         FS_tool_types_to_cache(cache)
         cache.craft_itemsFS = nil
-        cache.c_recipes= nil -- list of craftable recipes to display
-        cache.u_recipes=nil -- list of uncraftable recipes to display
-        cache.recipesFS = nil
+        cache_reset_recipes(cache)
         cache.output=""
     end
 end
@@ -858,7 +856,6 @@ local function cache_tool_remove(player, cache)
     -- unselect tool to default
     cache_tool_change(player, nil, cache)
 end
-
 
 local function cache_tool_add(player, a_tool, cache)
     if not a_tool then
@@ -910,8 +907,23 @@ function minimal.close_inventory_formspec(player)
 
     local cache = inventoryFS_cache[player_name]
 
+    -- added to reset quantity to "single" when we close the inventory
+    --  and avoid accidentaly max
+    cache.qty = 1
     -- update recipe list to have refresh button
     FS_recipes_to_cache(cache,player_name,pInv, false)
+end
+
+local function process_button(key,btypes)
+    for _,prefix in ipairs(btypes) do
+        if key:sub(1, #prefix) == prefix then
+            local num = string.match(key, prefix.."_([0-9]+)")
+            if num then
+                return prefix, num
+            end
+        end
+    end
+    return nil,nil -- button types not found
 end
 
 -- return true if something changed, false else
@@ -929,8 +941,6 @@ local function process_receive_fields(player, formname, fields)
     -- called when escaping the formspec using inventory key
     if fields.quit then
         minimal.close_inventory_formspec(player)
-        -- added to reset quantity to "single" when we close the inventory
-        --  and avoid accidentaly max
         return true -- cache updated in close
     end
     -- process scrollbar
@@ -956,12 +966,9 @@ local function process_receive_fields(player, formname, fields)
     -- process craft tabs.
     if fields.sCraftTab then
         cache.sTab = tonumber(fields.sCraftTab)
-        cache.sScroll = 0
-        inventoryFS_cache[player_name].c_recipes=nil
-        inventoryFS_cache[player_name].u_recipes=nil
-        cache.recipesFS = nil
+        cache_reset_recipes(cache)
         cache.output = ""
-        --                crafting.sort_order_by_player[player_name] = nil
+        -- crafting.sort_order_by_player[player_name] = nil
         done = true
     end
     -- process search buttons
@@ -982,6 +989,7 @@ local function process_receive_fields(player, formname, fields)
     if fields.crafting_filter or
         fields.key_enter_field == "crafting_search" then
         local transformed = minimal.make_search_string(fields.crafting_search)
+        -- if I changed the text in the search field, reset recipes
         if cache.sSearch ~= transformed then
             cache.sSearch = transformed
             -- will force to resort recipes
@@ -992,14 +1000,10 @@ local function process_receive_fields(player, formname, fields)
             -- reset the scroll bar
             cache.sScroll = 0
             -- force to redraw the recipes
-            cache.recipesFS = nil -- #TODO should trigger rebuild of recipe list but doesn't properly unless I reset tab ?
+            cache.recipesFS = nil
             cache.output = ""
             done = true
         else
-            --[[#TODO : make the search label to transform ? (without reforming the recipe formspec, just the search part) or at the opposite, leave it untouched and transform the cache only when we test ? but that would need more transformations... to decide...
-            Other thing is that the non update can make us thing it doesn't work..
-            ]]
-
             return false
         end
     end
@@ -1010,15 +1014,11 @@ local function process_receive_fields(player, formname, fields)
         done = true
     end
     -- process new craft tabs
-    -- so it seems we can deal with 10 tabs, no more
-    for i = 1, 10, 1 do
+    for i = 1, #(get_craft_tabs(cache.sTool)), 1 do
         if fields['sCraftTab_'..i] then
             if cache.sTab ~=i then
                 cache.sTab = i
-                cache.sScroll = 0
-                cache.c_recipes=nil
-                cache.u_recipes=nil
-                cache.recipesFS = nil
+                cache_reset_recipes(cache)
                 cache.output = ""
             end
             done = true
@@ -1097,11 +1097,9 @@ do
         homepage, {
             title = S("Crafting"),
             get = function(self, player, context)
-                local formspec = make_inventory_formspec(player,
-                context)
-                local output = sfinv.make_formspec_for_exile(
-                player, context, formspec, false)
-                return output
+                local formspec = get_inventory_formspec(player,context)
+                return sfinv.make_formspec_for_exile(
+                                            player, context, formspec, false)
             end,
             on_player_receive_fields = function(self, player,
                 context, fields)
