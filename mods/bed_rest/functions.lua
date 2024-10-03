@@ -171,6 +171,7 @@ end
 --grab_blanket(inv = clothing_inv, list = "clothing") for removal
 -----------------------------------------------------------------
 local function wear_blanket(player, bed_pos, donning)
+    if not bed_pos then return end
    local bed_meta = minetest.get_meta(bed_pos)
    local bedInv = bed_meta:get_inventory()
    bedInv:set_size('main',1)
@@ -480,6 +481,10 @@ end)
 minetest.register_on_dieplayer(function(player)
 	local name = player:get_player_name()
 	local hud_flags = player:hud_get_flags()
+
+        if bed_rest.bed_position[name] then
+            wear_blanket(player, bed_rest.bed_position[name], false)
+        end
 
 	bed_rest.player[name] = nil
 	bed_rest.bed_position[name] = nil
