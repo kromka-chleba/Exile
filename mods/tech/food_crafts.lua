@@ -372,7 +372,7 @@ minetest.register_node(
     "tech:maraka_dough",  {
         description = S("Maraka Dough"),
         tiles = {"tech_dough_strong.png"},
-        stack_max = minimal.stack_max_medium * 3,
+        stack_max = minimal.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -396,7 +396,7 @@ minetest.register_node(
     "tech:rhuya_dough",  {
         description = S("Rhuya Dough"),
         tiles = {"tech_dough.png"},
-        stack_max = minimal.stack_max_medium * 3,
+        stack_max = minimal.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -420,7 +420,7 @@ minetest.register_node(
     "tech:rhuya_wintery_dough",  {
         description = S("Hardy Rhuya Dough"),
         tiles = {"tech_dough_strong.png"},
-        stack_max = minimal.stack_max_medium * 3,
+        stack_max = minimal.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -475,7 +475,7 @@ minetest.register_node(
     "tech:maraka_dough_fermented",  {
         description = S("Fermented @1",S("Maraka Dough")),
         tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
-        stack_max = minimal.stack_max_medium * 3,
+        stack_max = minimal.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -492,7 +492,7 @@ minetest.register_node(
     "tech:rhuya_dough_fermented",  {
         description = S("Fermented @1",S("Rhuya Dough")),
         tiles = {"tech_dough.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
-        stack_max = minimal.stack_max_medium * 3,
+        stack_max = minimal.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -509,7 +509,7 @@ minetest.register_node(
     "tech:rhuya_wintery_dough_fermented",  {
         description = S("Fermented @1",S("Hardy Rhuya Dough")),
         tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
-        stack_max = minimal.stack_max_medium * 3,
+        stack_max = minimal.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -583,8 +583,8 @@ minetest.register_node(
           type = "fixed",
           fixed = {
             {-5/16, -0.5, -5/16, 5/16, -7/16, 5/16}, -- bottom
-            {-6/16, -7/16, -6/16, 6/16, -3/16, 6/16}, -- main
-            {-5/16, -3/16, -5/16, 5/16, -2/16, 5/16} -- top
+            {-6/16, -7/16, -6/16, 6/16, -1/16, 6/16}, -- main
+            {-5/16, -3/16, -5/16, 5/16, 0, 5/16} -- top
           }
         },
         sounds = nodes_nature.node_sound_dirt_defaults(),
