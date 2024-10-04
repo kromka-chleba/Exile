@@ -811,19 +811,43 @@ function plant.register_plantlike_seedling(plant_def)
                            plant.get_plantlike_seedling_props(plant_def))
 end
 
+local function file_exists(path)
+    local f = io.open(path, "r")
+    if f then
+        f:close()
+        return true
+    end
+    return false
+end
+
 function plant.get_seed_base_props(plant_def)
     local next_life_stage = plant.get_seedling_name(plant_def.name, 1)
     local seed_texture, seed_description, inventory_seed_image
+    local plant_img = plant.get_texture_name(plant_def.name)
+
+    local filename = minetest.get_modpath('nodes_nature')..'/textures/'..plant_img
+    -- if not file for basic mature plant, try fruitless version
+    if not file_exists(filename) then
+        plant_img = plant.get_fruitless_texture_name(plant_def.name)
+
+        filename = minetest.get_modpath('nodes_nature')..'/textures/'..plant_img
+    end
+    -- if still no file, display log
+    if not file_exists(filename) then
+        minetest.log ("No image to display for " .. plant_def.name)
+        plant_img ="empty.png" -- display empty background
+    end
+
     if plant_def.lifeform_type == "mushroom" or
         plant_def.plant_type == "moss" then
         seed_texture = "nodes_nature_spores.png"
-        inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..
-            plant_def.name..".png)^[resize:16x16^nodes_nature_spores.png"
+        inventory_seed_image = "([combine:32x32:0,0="..
+             plant_img..")^[resize:16x16^nodes_nature_spores.png"
         seed_description = S("@1 Spores", plant_def.description)
     else
         seed_texture = "nodes_nature_seeds.png"
-        inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..
-            plant_def.name..".png)^[resize:16x16^nodes_nature_seeds.png"
+        inventory_seed_image = "([combine:32x32:0,0="..
+             plant_img..")^[resize:16x16^nodes_nature_seeds.png"
         seed_description = S("@1 Seeds", plant_def.description)
     end
     local props = {
