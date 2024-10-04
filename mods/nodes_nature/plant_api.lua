@@ -963,6 +963,29 @@ function plant.register_fuel(plant_def)
     })
 end
 
+-- return a texture to be used as output display in recipe panel
+local function get_seed_recipe_display(plant_def, source)
+    local source_img
+
+    local source_def = minetest.registered_items[source] or minetest.registered_nodes[source]
+    if source_def then
+        source_img = source_def.inventory_image
+    end
+    -- This is the case for some moss/mushroom types (nodebox)
+    if not source_img or source_img=="" then
+        source_img =plant.get_base_image(source_def)
+    end
+
+    if plant_def.lifeform_type == "mushroom" or
+        plant_def.plant_type == "moss" then
+
+        return "((".. source_img.."^[resize:32x32)^[opacity:100)^[combine:32x32:12,0=nodes_nature_spores.png\\^[resize\\:20x20"
+    else
+        -- #TODO I fear some perf issue with the resize, on loading recipe panel
+        return "((".. source_img.."^[resize:32x32)^[opacity:140)^[combine:32x32:12,0=nodes_nature_seeds.png\\^[resize\\:20x20"
+    end
+end
+
 function plant.register_threshing_recipes(plant_def)
     local function reg_recipe(source)
         crafting.register_recipe({
@@ -972,6 +995,7 @@ function plant.register_threshing_recipes(plant_def)
                 items = {source},
                 level = 1,
                 always_known = true,
+                _display=get_seed_recipe_display(plant_def, source)
         })
         --IB        crafting.register_recipe({
         --IB                type = "threshing_spot",

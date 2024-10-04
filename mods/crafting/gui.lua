@@ -349,16 +349,30 @@ local function FS_display_recipe(result, x, y)
     local btn_coords =
     tostring( x + 0.1 ) .. ','..
     tostring( y + 0.3 )
-    form_table[2] = tofstring({
-        "style_type[item_image_button;border=false;bgimg_middle=]",
-        'item_image_button[',
-        btn_coords,
-        ';.8,.8;',
-        recipe_output,
-        ';sResult_',
-        id,
-        ';]'
-    })
+
+    if result.recipe._display then
+        form_table[2] = tofstring({
+            "style_type[image_button;border=false;bgimg_middle=]",
+            'image_button[',
+            btn_coords,
+            ';.8,.8;',
+            minetest.formspec_escape(result.recipe._display),
+            ';sResult_',
+            id,
+            ';]'
+        })
+    else
+        form_table[2] = tofstring({
+            "style_type[item_image_button;border=false;bgimg_middle=]",
+            'item_image_button[',
+            btn_coords,
+            ';.8,.8;',
+            recipe_output,
+            ';sResult_',
+            id,
+            ';]'
+        })
+    end
 
     -- add recipe's tooltip part 1 : output's description
     form_table[3] = tofstring({

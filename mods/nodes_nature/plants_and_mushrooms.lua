@@ -364,12 +364,16 @@ local plant_list = {
      texture_scale = 1.2, seasonal_type = "whole_season_woody"},
 
     -- Grasses
-    {name = "sari", description = S("Sari"),
-     drawtype = "plantlike", mesh_type = 2,
-     plant_type = "fibrous_plant", waving = true,
-     growing_time = nn.plant_base_growing_time * 0.5,
-     dye_candidate = true, dominant_color = "yellow",
-     seasonal_type = "whole_season"},
+    {name = "sari",
+    description = S("Sari"),
+    drawtype = "plantlike",
+    mesh_type = 2,
+    plant_type = "fibrous_plant",
+    waving = true,
+    growing_time = nn.plant_base_growing_time * 0.5,
+    dye_candidate = true,
+    dominant_color = "yellow",
+    seasonal_type = "whole_season"},
 
     {name = "tanai", description = S("Tanai"),
      drawtype = "plantlike", mesh_type = 4,

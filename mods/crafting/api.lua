@@ -109,6 +109,9 @@ function crafting.register_recipe(def)
     if type(def.replace) ~= "table" then
         def.replace = {def.replace}
     end
+    -- custom preview for formspec
+    def._display = def._display
+
     def.id = #crafting.recipes_by_id + 1
     crafting.recipes_by_output[def.output] = def
     crafting.recipes_by_id[def.id] = def

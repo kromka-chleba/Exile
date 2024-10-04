@@ -43,6 +43,7 @@ be used twice: `default:wood, group:wood`.
 		* `items`  - A list of ingredients, eg: `{"stone", "wood 3"}`.
 		* `level`  - level of station required.
 		* `always_known` - If true, this recipe will never need to be unlocked.
+        * `_display` - string of image to display in recipe panel
 
 * crafting.get_recipe(id)
 	* Get recipe by ID
