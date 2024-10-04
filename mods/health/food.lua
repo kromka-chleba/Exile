@@ -485,10 +485,12 @@ function HEALTH.add_food_hooks(name,info)
         return -- only def related code ahead, return if no def found
     end
     local groups = def.groups or {}
-    if food_table[name] and not groups.edible
-        and name:split(":")[1] ~= "nodes_nature" then -- cuz plant api is awful
+    if food_table[name] and not groups.edible then
+        if name:split(":")[1] ~= "nodes_nature" then -- cuz plant api is awful
 
-        minetest.log("warning", "No edible group set for "..name..", patching")
+            minetest.log("warning",
+                         "No edible group set for "..name..", patching")
+        end
         groups.edible = 1
         minetest.override_item(name, {
                                    _use_tip = S("Eat"),
