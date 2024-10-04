@@ -33,7 +33,7 @@ local themes_by_id = {
 
 --return list of theme's names (translated version to display)
 function minimal.get_gui_theme_titles()
-    l = {}
+    local l = {}
     for id, theme in ipairs(themes_by_id) do
         l[id] = theme.title
     end
