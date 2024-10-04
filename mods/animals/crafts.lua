@@ -154,7 +154,7 @@ for i in ipairs(list) do
                                groups = {snappy = 3, dig_immediate = 3,
                                          falling_node = 1, temp_pass = 1,
                                          raw_cooked = 1, heatable = heat,
-                                         carcass = carcass},
+                                         carcass = carcass, edible = 1},
                                sounds = nodes_nature.node_sound_defaults(),
     })
 
@@ -171,7 +171,8 @@ for i in ipairs(list) do
                                stack_max = stack,
                                groups = {snappy = 3, dig_immediate = 3,
                                          falling_node = 1, temp_pass = 1,
-                                         raw_cooked = 2, carcass = carcass},
+                                         raw_cooked = 2, carcass = carcass,
+                                         edible = 1},
                                sounds = nodes_nature.node_sound_defaults(),
     })
 
@@ -188,7 +189,8 @@ for i in ipairs(list) do
                                stack_max = stack,
                                groups = {snappy = 3, dig_immediate = 3,
                                          falling_node = 1, temp_pass = 1,
-                                         raw_cooked = 3, carcass = carcass},
+                                         raw_cooked = 3, carcass = carcass,
+                                         edible = 1},
                                sounds = nodes_nature.node_sound_defaults(),
     })
 

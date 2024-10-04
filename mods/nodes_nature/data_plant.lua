@@ -77,6 +77,7 @@ local tree_list = {
     tangkal = {
         desc = S("Tangkal"),
         fruit_def = {
+            groups = {edible = 1},
             selection_box = {-0.1, 0.1, -0.1, 0.1, 0.5, 0.1},
             dyecandidate = true,
             dominantcolor = "crimson",
@@ -90,6 +91,7 @@ local tree_list = {
         hardwood = true,
         fruit_def = {
             description = S("Maraka Nut"),
+            groups = {edible = 1},
             selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
             dyecandidate = true,
             dominantcolor = "black"
@@ -101,6 +103,7 @@ local tree_list = {
         desc = S("Panasee"),
         hardwood = true,
         fruit_def = {
+            groups = {edible = 1},
             selection_box = {-0.1, -0.2, -0.1, 0.1, 0.5, 0.1},
             place_param2 = 2,
             dyecandidate = true,
@@ -112,7 +115,7 @@ local tree_list = {
         desc = S("Sasaran"),
         fruit_def = {
             description = S("Sasaran Cone"),
-            groups = {drops_leaves = 0},
+            groups = {drops_leaves = 0, edible = 1},
             selection_box = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},
             dyecandidate = true,
             dominantcolor = "yellow"
@@ -127,7 +130,7 @@ local tree_list = {
         hardwood = true,
         fruit_def = {
             description = S("Yalovy Cone"),
-            groups = {drops_leaves = 0},
+            groups = {drops_leaves = 0, edible = 1},
             selection_box = {-0.1, -0.5, -0.1, 0.1, -0.1, 0.1},
             dyecandidate = true,
             dominantcolor = "yellow",
@@ -153,6 +156,7 @@ local tree_list = {
         desc = S("Amma"),
         fruit_def = {
             description = S("Amma Nut"),
+            groups = {edible = 1},
             selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
             dyecandidate = true,
             dominantcolor = "black"
@@ -164,6 +168,7 @@ local tree_list = {
         hardwood = true,
         fruit_def = {
             description = S("Daoja Berry"),
+            groups = {edible = 1},
             selection_box = {-0.1, -0.5, -0.1, 0.1, -0.3, 0.1},
             dyecandidate = true,
             dominantcolor = "crimson"
@@ -175,6 +180,7 @@ local tree_list = {
         hardwood = false,
         fruit_def = {
             description = S("Tulatula Pods"),
+            groups = { edible = 1 },
             selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
             dyecandidate = true,
             dominantcolor = "indigo"

@@ -408,7 +408,7 @@ minetest.register_node(
         description = S("Cracked Egg"),
         tiles = {"tech_yolkandalbumen.png"},
         inventory_image = "tech_yolkandalbumen_icon.png",
-        groups = {dig_immediate=3, falling_node=1, heatable=60},
+        groups = {dig_immediate=3, falling_node=1, heatable=60, edible = 1},
         stack_max = math.floor(minimal.stack_max_medium*1.5),
         drawtype = "mesh",
         mesh = "yolkalbumen.obj",

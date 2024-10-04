@@ -476,7 +476,7 @@ function HEALTH.add_food_hooks(name,info)
     -- Adds hooks for edible foods, as well as bakeable things
     if type(info) == "table" then
         if not HEALTH.add_food_table(name,info) then
-            -- fatal error! lol
+            error()
             return
         end
     end
@@ -485,7 +485,9 @@ function HEALTH.add_food_hooks(name,info)
         return -- only def related code ahead, return if no def found
     end
     local groups = def.groups or {}
-    if food_table[name] and not groups.edible then
+    if food_table[name] and not groups.edible
+        and name:split(":")[1] ~= "nodes_nature" then -- cuz plant api is awful
+
         minetest.log("warning", "No edible group set for "..name..", patching")
         groups.edible = 1
         minetest.override_item(name, {
