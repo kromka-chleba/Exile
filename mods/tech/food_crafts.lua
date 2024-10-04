@@ -317,6 +317,7 @@ local function get_dough_on_timer(chance)
                 local node = minetest.get_node(pos)
                 local metat = meta:to_table()
                 metat.fields = {}
+                -- set baking data if we're a bakeable
                 local baking_data = HEALTH.bake_table[node.name]
                 if baking_data then
                   metat.fields.baking = baking_data.time
@@ -450,7 +451,7 @@ minetest.register_node(
 local function ferm_dough_preserve_metadata(pos, oldnode, oldmeta, drops)
     -- can't get yeast from this, not a fresh batch
     if not oldnode then return end
-    if not oldnode.param2 == 1 then return end
+    if oldnode.param2 ~= 1 then return end
     local nodedef = minetest.registered_nodes[oldnode.name]
     local get_microbes = nodedef.breads_get_microbes or
       function()
@@ -524,7 +525,7 @@ minetest.register_node(
 -- YEASTS
 
 local function yeast_infect(pos, nodedef)
-    nodedef = nodedef or minimal.get_nodedef(nodedef)
+    nodedef = nodedef or minetest.registered_nodes[minetest.get_node(pos).name]
     -- we don't affect no non-doughs
     if not (nodedef.groups and nodedef.groups.dough) then return end
     -- can't ferment

@@ -19,6 +19,7 @@ HEALTH = HEALTH
 
 HEALTH.food_table = {
     -- name   hp  th  hu   en  temp, replacewithitem (not implemented yet)
+    -- player crafts
     ["tech:maraka_bread_cooked"] = {hu = 24, en = 14},
     ["tech:maraka_bread_burned"] = {hu = 12, en = 7},
     ["tech:peeled_anperla_cooked"] = {th = 2, hu = 12, en = 7},
@@ -27,6 +28,9 @@ HEALTH.food_table = {
     -- example: burned anperla tubers are inedible, so no entry
     ["tech:mashed_anperla_cooked"] = {th = 12, hu = 72, en = 42},
     ["tech:mashed_anperla_burned"] = {th = 6, hu = 36, en = 21},
+    -- black bread aka peasant's bread, more protein than cakey crumbly bread
+    ["tech:bread_black"] = {hu = 60, en = 12},
+    ["tech:bread_crumbly"] = {hu = 32, en = 18, th = 3},
     ["nodes_nature:sea_lettuce"] = {hu = 5, en = -10},
     ["nodes_nature:sea_lettuce_cooked"] = {hu = 5},
     ["nodes_nature:vansano_seed"] = {hu = 1},
@@ -163,7 +167,10 @@ HEALTH.bake_table = {
     ["animals:carcass_fish_large"] = {temp = 100, time = 18},
     ['tech:yolk_and_albumen'] = {temp = 100, time = 2},
     ['tech:rhuya_flour'] = {temp = 100, time = 5},
-    ['tech:rhuya_flour_wintery'] = {temp = 100, time = 8, burned='tech:rhuya_flour_burned'}
+    ['tech:rhuya_flour_wintery'] = {temp = 100, time = 8, burned='tech:rhuya_flour_burned'},
+    ['tech:maraka_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'},
+    ['tech:rhuya_dough_fermented'] = {temp = 110, time = 4, cooked='tech:bread_crumbly', burned='tech:bread_burned'},
+    ['tech:rhuya_wintery_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'}
 }
 
 -- tags (what diseases to spawn, single string or table of diseases), ch=chance, sv=severity
