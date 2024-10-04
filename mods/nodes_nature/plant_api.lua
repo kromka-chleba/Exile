@@ -862,13 +862,11 @@ function plant.get_seed_base_props(plant_def)
         plant_def.plant_type == "moss" then
 
         seed_texture = "nodes_nature_spores.png"
-        inventory_seed_image = "([combine:32x32:0,0="..
-            plant_img..")^[resize:16x16^nodes_nature_spores.png"
+        inventory_seed_image = "((".. plant_img.."^[resize:32x32)^[opacity:100)^[combine:32x32:8,0=nodes_nature_spores.png\\^[resize\\:24x24"
         seed_description = S("@1 Spores", plant_def.description)
     else
         seed_texture = "nodes_nature_seeds.png"
-        inventory_seed_image = "([combine:32x32:0,0="..
-            plant_img..")^[resize:16x16^nodes_nature_seeds.png"
+        inventory_seed_image = "((".. plant_img.."^[resize:32x32)^[opacity:100)^[combine:32x32:8,0=nodes_nature_seeds.png\\^[resize\\:24x24"
         seed_description = S("@1 Seeds", plant_def.description)
     end
     local props = {
