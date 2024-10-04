@@ -18,7 +18,11 @@
 HEALTH = HEALTH
 
 HEALTH.food_table = {
-    -- name   hp  th  hu   en  temp, replacewithitem (not implemented yet)
+    -- name: {hp=0,th=0,hu=0,en=0,temp=0,rwi='replaceme',eat_sound=''}
+    -- hp is a player's health, th is thirst, hu is hunger, and en is energy
+    -- temp is how much the player's body temp gets affected upon consuming (see snow)
+    -- rwi aka "replacewithitem" is the name of an itemstack to replace with upon consumption (see skulling a pot of tang)
+    -- eat_sound is what sound instead plays when consumed (see pot of tang)
     -- player crafts
     ["tech:maraka_bread_cooked"] = {hu = 24, en = 14},
     ["tech:maraka_bread_burned"] = {hu = 12, en = 7},
