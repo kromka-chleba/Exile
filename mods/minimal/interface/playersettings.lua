@@ -2,7 +2,6 @@
 -- Stores and sets all player-facing settings through a formspec
 
 minimal = minimal
-lore = lore or {}
 
 local S = minimal.S
 local mtshowstats = minetest.settings:get_bool("exile_hud_show_stats") or true
@@ -124,6 +123,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             end
             if fields.nomusic then
                 meta:set_string("disable_music", fields.nomusic)
+                -- #TODO: put music handling into minimal where it belongs
                 if fields.nomusic == "true" then lore.stopmusic(name) end
             end
             if reopen == true then

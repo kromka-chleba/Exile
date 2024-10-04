@@ -131,8 +131,9 @@ minetest.register_chatcommand(
             tutorial.exit(minetest.get_player_by_name(name))
         end
 })
-worldedit = worldedit
-if worldedit then
+
+if minetest.get_modpath("worldedit") then
+    worldedit = worldedit
     minetest.register_chatcommand(
         "save_tutr",{
             privs = "server",
