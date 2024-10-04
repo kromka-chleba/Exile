@@ -838,16 +838,22 @@ end
 function plant.get_seed_base_props(plant_def)
     local next_life_stage = get_name(plant_def.name,"seedling", 1)
     local seed_texture, seed_description, inventory_seed_image
+    -- [[get dead fruiting texture if only_dead_fruit, get fruiting texture if fruiting, or otherwise use regular plant texture]]
+    local plant_img = plant_def.only_dead_fruit and get_texture(plant_def.name, "dead") or
+        plant_def.fruit and get_texture(plant_def.name, "fruiting") or
+        get_texture(plant_def.name)
+
     if plant_def.lifeform_type == "mushroom" or
         plant_def.plant_type == "moss" then
+
         seed_texture = "nodes_nature_spores.png"
-        inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..
-            plant_def.name..".png)^[resize:16x16^nodes_nature_spores.png"
+        inventory_seed_image = "([combine:32x32:0,0="..
+            plant_img..")^[resize:16x16^nodes_nature_spores.png"
         seed_description = S("@1 Spores", plant_def.description)
     else
         seed_texture = "nodes_nature_seeds.png"
-        inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..
-            plant_def.name..".png)^[resize:16x16^nodes_nature_seeds.png"
+        inventory_seed_image = "([combine:32x32:0,0="..
+            plant_img..")^[resize:16x16^nodes_nature_seeds.png"
         seed_description = S("@1 Seeds", plant_def.description)
     end
     local props = {
