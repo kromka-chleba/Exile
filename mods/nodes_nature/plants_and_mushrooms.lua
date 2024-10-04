@@ -647,8 +647,9 @@ do -- local scope to prevent global access
                     itemstack = seed_on_place(itemstack, placer, pointed_thing)
                     local pos = pointed_thing.above
                     if minetest.get_node(pos).name ~= itemdef.name then return itemstack end
-                    -- winter variant (5% chance to return to normal)
-                    if #itemdef.name == 31 and math.random() < 0.05 then
+                    -- winter variant (3% chance to return to normal)
+                    if #itemdef.name == 31 then
+                        if math.random() > 0.03 then return end
                         -- convert to normal after 4 seconds
                         minetest.after(4, function()
                             local node = minetest.get_node(pos)
