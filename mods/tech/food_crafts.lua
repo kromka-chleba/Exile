@@ -565,6 +565,65 @@ minetest.register_craftitem(
         end,
 })
 
+---- BREADS
+
+-- peasant's bread, not much flavour, just basic bread
+minetest.register_node(
+    "tech:bread_black", {
+        description = S("Black Bread"),
+        groups = {dig_immediate = 3, falling_node=1, baked_bread=1},
+        tiles = {"tech_bread_black.png"},
+        stack_max = minimal.stack_max_medium*2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {
+            {-5/16, -0.5, -5/16, 5/16, -7/16, 5/16}, -- bottom
+            {-6/16, -7/16, -6/16, 6/16, -3/16, 6/16}, -- main
+            {-5/16, -3/16, -5/16, 5/16, -2/16, 5/16} -- top
+          }
+        },
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+})
+
+-- cakey type of bread, moist and soft
+minetest.register_node(
+    "tech:bread_crumbly", {
+        description = S("Crumbly Bread"),
+        groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
+        tiles = {"tech_bread_crumbly.png"},
+        stack_max = minimal.stack_max_medium*2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {
+            {-5/16, -0.5, -5/16, 5/16, -2/16, 5/16}, -- main
+            {-4/16, -2/16, -4/16, 4/16, -1/16, 4/16} -- top
+          }
+        },
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+})
+
+-- yuck! can't eat this!
+minetest.register_node(
+    "tech:bread_burned",  {
+        description = S("Burned Bread"),
+        groups = {dig_immediate = 3, falling_node=1, compostable=1},
+        tiles = {"tech_flour_burned.png"},
+        stack_max = minimal.stack_max_medium*4,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {
+            {-4/16, -0.5, -4/16, 4/16, -2/16, 4/16}, -- main
+          }
+        },
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+})
+
 ---- plant-based recipes
 
 --
