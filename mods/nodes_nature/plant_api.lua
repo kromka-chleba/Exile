@@ -178,13 +178,6 @@ function plant.new(args)
     return def
 end
 
-
-function plant.get_seedling_name(basename, nr_in)
-    local nr = nr_in or ""
-    local mod_name = minetest.get_current_modname()
-    return mod_name..":"..basename.."_seedling"..nr
-end
-
 --[[return the registered name of given variant of the plant.
     var is optional and has to be a string
     var can take following values :
@@ -196,9 +189,11 @@ end
         - fruiting
         - fruitless
         - seed
+        - seedling
         - root
+    nr is mandatory for "seedling"
     ]]
-function plant.get_name(basename, var)
+function plant.get_name(basename, var, nr)
     local suffix
     -- if we want base plant
     if not var then
@@ -209,32 +204,37 @@ function plant.get_name(basename, var)
             minetest.log("var has to be a string in plant.get_texture")
             return
         end
-        for _,v in ipairs({
-                        "dead",
-                        "dead_fruitless",
-                        "flowering",
-                        "fruit",
-                        "fruiting",
-                        "fruitless",
-                        "seed",
-                        "root"}) do
-            if var == v then
-                suffix = "_" .. var
-                break
+        if var == "seedling" then
+            if not nr then
+                nr = "1"
+            end
+            suffix = "_" .. var .. nr
+        else
+            for _,v in ipairs({
+                            "dead",
+                            "dead_fruitless",
+                            "flowering",
+                            "fruit",
+                            "fruiting",
+                            "fruitless",
+                            "seed",
+                            "root"}) do
+                if var == v then
+                    suffix = "_" .. var
+                    break
+                end
             end
         end
     end
     -- if we asked for an other variant, return error message
     if not suffix then
-        minetest.log("in plant.get_texture : variant in parameter isn't in the list")
+        minetest.log("in plant.get_name : variant in parameter isn't in the list")
         return
     else
         local mod_name = minetest.get_current_modname()
-        return  mod_name..":"..basename..suffix
+        return mod_name .. ":" .. basename .. suffix
     end
 end
-
-
 
 --[[return texture (string) of given variant of the plant.
     var is optional and has to be a string
@@ -544,10 +544,10 @@ function plant.register_plantlike_seedlings(plant_def)
     local nr = plant_def.seedling_number
     for i = 1, nr - 1 do
         local props = plant.get_plantlike_seedling_props(plant_def)
-        props._next_life_stage = plant.get_seedling_name(plant_def.name, i + 1)
+        props._next_life_stage = plant.get_name(plant_def.name,"seedling", i + 1)
         props.visual_scale = i / nr
         props.groups.seedling = i
-        local seedling_name = plant.get_seedling_name(plant_def.name, i)
+        local seedling_name = plant.get_name(plant_def.name,"seedling", i)
         minetest.register_node(seedling_name, props)
         if plant_def.edible_seedling then
             add_food_hooks(seedling_name)
@@ -559,13 +559,13 @@ function plant.register_plantlike_seedlings(plant_def)
         props._next_life_stage = plant.get_name(plant_def.name,"flowering")
     end
     props.groups.seedling = 5
-    minetest.register_node(plant.get_seedling_name(plant_def.name, nr), props)
+    minetest.register_node(plant.get_name(plant_def.name,"seedling", nr), props)
     if plant_def.edible_seedling then
-        add_food_hooks(plant.get_seedling_name(plant_def.name, nr))
+        add_food_hooks(plant.get_name(plant_def.name,"seedling", nr))
     end
     -- compatibility with old worlds
     minetest.register_alias(plant.get_name(plant_def.name).."_seedling",
-                            plant.get_seedling_name(plant_def.name, nr))
+                            plant.get_name(plant_def.name,"seedling", nr))
 end
 
 function plant.get_plantlike_flowering_props(plant_def)
@@ -809,11 +809,11 @@ function plant.get_3D_seedling_props(plant_def)
 end
 
 function plant.register_3D_seedling(plant_def)
-    minetest.register_node(plant.get_seedling_name(plant_def.name, 1),
+    minetest.register_node(plant.get_name(plant_def.name,"seedling", 1),
                            plant.get_3D_seedling_props(plant_def))
     -- compatibility with old worlds
     minetest.register_alias(plant.get_name(plant_def.name).."_seedling",
-                            plant.get_seedling_name(plant_def.name, 1))
+                            plant.get_name(plant_def.name,"seedling", 1))
 end
 
 -- A mature, non-seasonal plant. Grasses and such.
@@ -828,12 +828,12 @@ function plant.register_plantlike(plant_def)
 end
 
 function plant.register_plantlike_seedling(plant_def)
-    minetest.register_node(plant.get_seedling_name(plant_def.name, 1),
+    minetest.register_node(plant.get_name(plant_def.name,"seedling", 1),
                            plant.get_plantlike_seedling_props(plant_def))
 end
 
 function plant.get_seed_base_props(plant_def)
-    local next_life_stage = plant.get_seedling_name(plant_def.name, 1)
+    local next_life_stage = plant.get_name(plant_def.name,"seedling", 1)
     local seed_texture, seed_description, inventory_seed_image
     if plant_def.lifeform_type == "mushroom" or
         plant_def.plant_type == "moss" then
