@@ -193,26 +193,10 @@ function plant.get_root_name(basename)
     return mod_name..":"..basename.."_root"
 end
 
-function plant.get_root_texture_name(basename)
-    local mod_name = minetest.get_current_modname()
-    return mod_name.."_"..basename.."_root.png"
-end
-
-
 function plant.get_seedling_name(basename, nr_in)
     local nr = nr_in or ""
     local mod_name = minetest.get_current_modname()
     return mod_name..":"..basename.."_seedling"..nr
-end
-
-function plant.get_texture_name(basename)
-    local mod_name = minetest.get_current_modname()
-    return mod_name.."_"..basename..".png"
-end
-
-function plant.get_seedling_texture_name(basename)
-    local mod_name = minetest.get_current_modname()
-    return mod_name.."_"..basename.."_seedling.png"
 end
 
 function plant.get_flowering_name(basename)
@@ -245,34 +229,54 @@ function plant.get_dead_fruitless_name(basename)
     return mod_name..":"..basename.."_dead_fruitless"
 end
 
-function plant.get_flowering_texture_name(basename)
-    local mod_name = minetest.get_current_modname()
-    return mod_name.."_"..basename.."_flowering"..".png"
-end
 
-function plant.get_fruiting_texture_name(basename)
-    local mod_name = minetest.get_current_modname()
-    return mod_name.."_"..basename.."_fruiting"..".png"
-end
-
-function plant.get_fruit_texture_name(basename)
-    local mod_name = minetest.get_current_modname()
-    return mod_name.."_"..basename.."_fruit"..".png"
-end
-
-function plant.get_fruitless_texture_name(basename)
-    local mod_name = minetest.get_current_modname()
-    return mod_name.."_"..basename.."_fruitless"..".png"
-end
-
-function plant.get_dead_fruitless_texture_name(basename)
-    local mod_name = minetest.get_current_modname()
-    return mod_name.."_"..basename.."_dead_fruitless"..".png"
-end
-
-function plant.get_dead_texture_name(basename)
-    local mod_name = minetest.get_current_modname()
-    return mod_name.."_"..basename.."_dead"..".png"
+--[[return texture (string) of given variant of the plant.
+    var is optional and has to be a string
+    var can take following values :
+        - nil (base texture)
+        - dead
+        - dead_fruitless
+        - flowering
+        - fruit
+        - fruiting
+        - fruitless
+        - seedling
+        - root
+    ]]
+function plant.get_texture(basename, var)
+    local suffix
+    -- if we want base plant
+    if not var then
+        suffix = ""
+    -- if we want one of listed states below
+    else
+        if type(var) ~= "string" then
+            minetest.log("var has to be a string in plant.get_texture")
+            return
+        end
+        for _,v in ipairs({
+                        "dead",
+                        "dead_fruitless",
+                        "flowering",
+                        "fruit",
+                        "fruiting",
+                        "fruitless",
+                        "seedling",
+                        "root"}) do
+            if var == v then
+                suffix = "_" .. var
+                break
+            end
+        end
+    end
+    -- if we asked for an other variant, return error message
+    if not suffix then
+        minetest.log("in plant.get_texture : variant in parameter isn't in the list")
+        return
+    else
+        local mod_name = minetest.get_current_modname()
+        return  mod_name.."_"..basename..suffix..".png"
+    end
 end
 
 function plant.get_groups(plant_def)
@@ -358,7 +362,7 @@ end
 function plant.get_base_props(plant_def)
     local props = {
         description = plant_def.description,
-        tiles = {plant.get_texture_name(plant_def.name)},
+        tiles = {plant.get_texture(plant_def.name)},
         stack_max = minimal.stack_max_medium,
         paramtype = "light",
         visual_scale = plant_def.texture_scale,
@@ -377,6 +381,7 @@ function plant.get_base_props(plant_def)
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
         _seed_name = plant.get_seed_name(plant_def.name),
+
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             if minetest.is_player(placer) and
                 not (minimal.player_in_creative(placer)) then
@@ -411,8 +416,8 @@ end
 
 function plant.get_plantlike_props(plant_def)
     local props = {
-        inventory_image = plant.get_texture_name(plant_def.name),
-        wield_image = plant.get_texture_name(plant_def.name),
+        inventory_image = plant.get_texture(plant_def.name),
+        wield_image = plant.get_texture(plant_def.name),
         drawtype = "plantlike",
         paramtype2 = "meshoptions",
         place_param2 = plant_def.mesh_type,
@@ -520,10 +525,11 @@ function plant.get_plantlike_seedling_props(plant_def)
     local base = minimal.merge_tables(
         plant.get_plantlike_props(plant_def),
         plant.get_seedling_base_props(plant_def))
+    local texture = plant.get_texture(plant_def.name, "seedling")
     local props = {
-        tiles = {plant.get_seedling_texture_name(plant_def.name)},
-        inventory_image = plant.get_seedling_texture_name(plant_def.name),
-        wield_image = plant.get_seedling_texture_name(plant_def.name),
+        tiles = {texture},
+        inventory_image = texture,
+        wield_image = texture,
     }
     return table.copy(minimal.merge_tables(base, props))
 end
@@ -559,10 +565,11 @@ end
 function plant.get_plantlike_flowering_props(plant_def)
     local base = plant.get_plantlike_props(plant_def)
     base.description = S("Flowering @1", plant_def.description)
-    base.tiles = {plant.get_flowering_texture_name(plant_def.name)}
+    local texture = plant.get_texture(plant_def.name, "flowering")
+    base.tiles = {texture}
     base._next_life_stage = plant.get_fruiting_name(plant_def.name)
-    base.inventory_image = plant.get_flowering_texture_name(plant_def.name)
-    base.wield_image = plant.get_flowering_texture_name(plant_def.name)
+    base.inventory_image = texture
+    base.wield_image = texture
     base.groups = minimal.merge_tables(base.groups, {flowering_plant = 1})
     base.on_timer = function(pos, elapsed)
         return plant.grow_plant(pos, elapsed,
@@ -606,15 +613,16 @@ end
 function plant.get_plantlike_fruiting_props(plant_def)
     local base = plant.get_plantlike_flowering_props(plant_def)
     base.description = S("Fruiting @1", plant_def.description)
-    base.tiles = {plant.get_fruiting_texture_name(plant_def.name)}
+    local texture = plant.get_texture(plant_def.name, "fruiting")
+    base.tiles = {texture}
     base._fruitless_name = plant.get_fruitless_name(plant_def.name)
     base._fruit_name = plant.get_fruit_name(plant_def.name)
-    base.inventory_image = plant.get_fruiting_texture_name(plant_def.name)
+    base.inventory_image = texture
     base.groups.fruiting_plant = 1
     base.groups.flowering_plant = nil
     base.groups.mature_flora = 1
     base.groups.ncrafting_dye_candidate = nil
-    base.wield_image = plant.get_fruiting_texture_name(plant_def.name)
+    base.wield_image = texture
     base.on_punch = fruiting_on_punch
     return table.copy(base)
 end
@@ -622,9 +630,10 @@ end
 function plant.get_plantlike_dead_fruitless_props(plant_def)
     local base = plant.get_plantlike_props(plant_def)
     base.description = S("Dead Fruitless @1", plant_def.description)
-    base.inventory_image = plant.get_dead_fruitless_texture_name(plant_def.name)
-    base.wield_image = plant.get_dead_fruitless_texture_name(plant_def.name)
-    base.tiles = {plant.get_dead_fruitless_texture_name(plant_def.name)}
+    local texture = plant.get_texture(plant_def.name, "dead_fruitless")
+    base.inventory_image = texture
+    base.wield_image = texture
+    base.tiles = {texture}
     base.groups.compostable = 1
     base.after_place_node = function(pos)
         if minimal.get_param2(pos) < 64 then
@@ -660,9 +669,10 @@ function plant.get_plantlike_dead_props(plant_def)
     end
     base.groups.ncrafting_dye_candidate = nil
     base.groups.compostable = 1
-    base.tiles = {plant.get_dead_texture_name(plant_def.name)}
-    base.inventory_image = plant.get_dead_texture_name(plant_def.name)
-    base.wield_image = plant.get_dead_texture_name(plant_def.name)
+    local texture = plant.get_texture(plant_def.name, "dead")
+    base.tiles = {texture}
+    base.inventory_image = texture
+    base.wield_image = texture
     base._next_life_stage = false
     base.description = S("Dead @1", plant_def.description)
     base.after_place_node = function(pos)
@@ -690,9 +700,9 @@ plant.register_plantlike_dead = plant.register_plantlike_dead_fruiting
 function plant.register_fruit(plant_def)
     local props = {
         description = S("@1 Fruit", plant_def.description),
-        inventory_image = plant.get_fruit_texture_name(plant_def.name),
+        inventory_image = plant.get_texture(plant_def.name,"fruit"),
         groups = {fruit=1},
-        wield_image = plant.get_fruit_texture_name(plant_def.name),
+        wield_image = plant.get_texture(plant_def.name,"fruit"),
         stack_max = minimal.stack_max_medium,
     }
     if plant_def.dye_candidate then
@@ -709,10 +719,11 @@ end
 function plant.get_plantlike_fruitless_props(plant_def)
     local base = plant.get_plantlike_flowering_props(plant_def)
     base.description = S("Fruitless @1", plant_def.description)
-    base.inventory_image = plant.get_fruitless_texture_name(plant_def.name)
-    base.wield_image = plant.get_fruitless_texture_name(plant_def.name)
+    local texture = plant.get_texture(plant_def.name, "fruitless")
+    base.inventory_image = texture
+    base.wield_image = texture
     base._next_life_stage = plant.get_flowering_name(plant_def.name)
-    base.tiles = {plant.get_fruitless_texture_name(plant_def.name)}
+    base.tiles = {texture}
     return table.copy(base)
 end
 
@@ -774,7 +785,7 @@ function plant.get_3D_seedling_props(plant_def)
         plant.get_3D_props(plant_def),
         plant.get_seedling_base_props(plant_def))
     local props = {
-        tiles = {plant.get_texture_name(plant_def.name)},
+        tiles = {plant.get_texture(plant_def.name)},
         node_box = {
             type = "fixed",
             fixed = plant_def.seedling_nodebox,
@@ -904,8 +915,8 @@ end
 
 function plant.register_root(plant_def)
     local props = plant.get_seed_base_props(plant_def)
-    props.inventory_image = plant.get_root_texture_name(plant_def.name)
-    props.wield_image = plant.get_root_texture_name(plant_def.name)
+    props.inventory_image = plant.get_texture(plant_def.name,"root")
+    props.wield_image = plant.get_texture(plant_def.name,"root")
     props.description = S("@1 Root", plant_def.description)
     minetest.register_node(
         plant.get_root_name(plant_def.name),
