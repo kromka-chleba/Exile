@@ -495,6 +495,7 @@ function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
                     end
                 end
             end
+
             -- add recipe to list only if it matchs search
             if displayed then
                 results[#results + 1] = {

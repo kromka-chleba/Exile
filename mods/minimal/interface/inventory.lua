@@ -97,7 +97,8 @@ local function process_button(key,btypes)
 end
 
 
---
+-- Load craft type : buttons on the top left
+-- stored as detached inventory of size 2 : hand + placed tool if any
 local function load_craft_types(inv, craft_item)
     local cItems = inv:get_list('craft_types')
     if not cItems or inv:is_empty('craft_types') then
@@ -328,6 +329,7 @@ local function process_receive_fields(player, formname, fields)
         end
     end
     -- process new craft tabs
+    -- so it seems we can deal with 10 tabs, no more
     for i = 1, 10, 1 do
         if fields['sCraftTab_'..i] then
             cache.sTab = i
@@ -402,7 +404,8 @@ local function process_receive_fields(player, formname, fields)
     return true
 end
 
--- #TODO see when what is called and were to put languages
+-- build recipes list to display in crafting tab
+-- is search is not nil, it returns only the ones matching the search criteria
 local function recipes_for_player(cache, pInv, player_name, ctype, level, search)
     local unlocked = crafting.get_unlocked(player_name)
     -- build player items hash
@@ -427,14 +430,12 @@ end
 -- This needs to be rebuilt every time the craft_type, craft_tab, input_items,
 -- or selected inventory changes
 -- It is triggered by setting cache.recipesFS = nil
--- #TODO the search doesn't correctly update, same with seeds changing (inventory change)
 local function cache_player_recipes(cache, player_name, pInv)
     -- this is for more clarity, choice of display settings
     local line_number = 3 -- 3 lines of recipes displayed
     local grid_size = 1.2
-    -- size of a square of recipe : 1*1 of image + 0.1 margins around,
-    --  used to place them on a grid, including tabs
-    --
+    --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
+        used to place them on a grid, including tabs]]
     local recipesFS = {}
     local sItem = cache.sItem    -- craft type Item selected
     local sTab = cache.sTab      -- selected craft type tab
@@ -442,6 +443,9 @@ local function cache_player_recipes(cache, player_name, pInv)
     local cTabs = cache.cTabs    -- Crafting tabs to display
     local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
     local sSearch = cache.sSearch
+    -- get recipe list to display
+    -- this list indicates if the recipe is craftable or not
+    -- it contains only the recipes matching the search parameter
     local recipe_list = recipes_for_player(cache, pInv, player_name,
                                            cTabs[sTab], sLevel, sSearch)
 
@@ -467,8 +471,6 @@ local function cache_player_recipes(cache, player_name, pInv)
     end
     local sorted = {}
     local not_craftable = {}
-    --print('sortHash.ctype: '..sortHash.ctype..' sortHash.ctab: '..sortHash.ctab..' count: '..sortHash.count)
-    --print('sItem: '..sItem..' sTab: '..sTab)
     if sortHash.count > 0 then
         --print('Using sort hash')
         for _,result in ipairs(recipe_list) do
@@ -481,7 +483,6 @@ local function cache_player_recipes(cache, player_name, pInv)
             end
         end
     else
-        --minetest.log("I need to sort")
         -- sort craftable recipes to top of list
         for _,result in ipairs(recipe_list) do
             local id = result.recipe.id
@@ -507,9 +508,17 @@ local function cache_player_recipes(cache, player_name, pInv)
         crafting.sort_order_by_player[player_name] = sortHash
     end
     -- Add tab header
-    recipesFS[#recipesFS + 1] = "style_type[item_image_button;border=false]"
+    local tab_table = {}
     for i=1, #cTabs do
-        local leftPoint = 3.3 + (i - 1) * grid_size
+        tab_table[i] = "     "
+    end
+
+    recipesFS[#recipesFS + 1] = "style_type[item_image_button;bgimg_middle=4]" ..
+    -- if this tab is selected, change style
+    "style[sCraftTab_"..sTab..";bgcolor=#FFFFFF]"
+
+    for i=1, #cTabs do
+        local leftPoint = 3.2 + (i - 1) * 0.85 -- grid_size
         local item_name = crafting.icon_item_name[cTabs[i]]
             or 'crafting:placeholder'
         local button_type = 'item_image_button['
@@ -520,11 +529,20 @@ local function cache_player_recipes(cache, player_name, pInv)
             suffix = ';;false]' -- hide borders on item_, which has extra fields
         end
         recipesFS[#recipesFS + 1] = button_type..(leftPoint)..
-            ',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';'..suffix
-        recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
+            ',0.45;0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';'..suffix
+
+		-- old version :
+		-- recipesFS[#recipesFS + 1] = 'item_image_button['..
+		--(leftPoint)..
+        --',0.45;0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
+
+		--tooltips of tabs
+		recipesFS[#recipesFS + 1] = 'tooltip[sCraftTab_'.. i ..
             ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
                                              or cTabs[i])) ..
             ';#000000;#ffffff]'
+
+
     end
     -- add Scrollable container
     local columns = 6 -- can show 6 items accross without scrollbar
@@ -535,10 +553,10 @@ local function cache_player_recipes(cache, player_name, pInv)
             'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
             .. 'smallstep=1;largestep=line_number;thumbsize=1]'
         recipesFS[#recipesFS + 1]
-            = 'scrollbar[9.2,1.2;.5,3.45;vertical;recipes_scroll;'
+            = 'scrollbar[9.4,1.4;.5,3.43;vertical;recipes_scroll;'
             .. sScroll .. ']'
     end
-    recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1;'..
+    recipesFS[#recipesFS + 1] = 'scroll_container[3.2,1.2;'..
         tostring(columns + 1)..',3.75;recipes_scroll;vertical;' ..
         grid_size .. ']'
     -- Add recipe buttons in columns of 5 or 6
@@ -566,6 +584,7 @@ local function cache_player_recipes(cache, player_name, pInv)
         local btn_coords =
             tostring( x * grid_size + 0.1 ) .. ','..
             tostring( y * grid_size + 0.3 )
+        recipesFS[#recipesFS + 1] =    "style_type[item_image_button;border=false;bgimg_middle=]"
         recipesFS[#recipesFS + 1] = 'item_image_button['
             .. btn_coords .. ';.8,.8;'
             .. recipe_output .. ';sResult_' .. id ..';]'

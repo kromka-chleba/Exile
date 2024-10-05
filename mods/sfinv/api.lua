@@ -64,8 +64,8 @@ end
 local inv_y = 7.3
 
 local exile_theme_inv = {
-		"list[current_player;main;0.35,".. inv_y .. ";8,1;]",
-		"list[current_player;main;0.35,".. inv_y + 1.25 .. ";8,3;8]"
+		"list[current_player;main;0.8,".. inv_y .. ";8,1;]",
+		"list[current_player;main;0.8,".. inv_y + 1.25 .. ";8,3;8]"
 	}
 
 function sfinv.make_formspec_for_exile(player, context, content, show_inv)
