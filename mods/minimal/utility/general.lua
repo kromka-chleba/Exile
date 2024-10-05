@@ -321,7 +321,46 @@ function minimal.sound_play(...)
     return minimal.make_sound(...)
 end
 
+-- file_exists
+-- used to determine if a specified file path exists
+-- must be a proper raw path (see minetest.get_modpath)
+function minimal.file_exists(path)
+    assert(type(path) == "string",
+        "exile.file_exists: got invalid path (non-string) to check, got "..type(path))
+    local f = io.open(path,'r') -- reading only with 'r' mode
+    if f then
+        -- have to close it after opening
+        f:close()
+        return true
+    end
+    return false
+end
 
+-- image_exists
+-- uses file_exists to determine if an image exists
+-- will not get images with modifiers "^"
+-- OPTIONAL: subpath parameter for checking a subpath within /textures/
+-- OPTIONAL: modname parameter for checking within a specific mod instead of what calls function
+function minimal.image_exists(name, subpath, modname)
+  assert(type(name) == "string",
+      "exile.image_exists: got invalid name (non-string) to check for, got "..type(name))
+  assert(name:match("%."),
+      "exile.image_exists: got no image extension (no delimiter (no dot)), cannot try to find image")
+  modname = type(modname) == "string" and modname or minetest.get_current_modname() -- confirm or get mod name
+  if not modname then return false end -- couldn't get modname
+  local path = minetest.get_modpath(modname)
+  if not path then return false end -- couldn't get modpath
+  -- purify custom subpath
+  subpath = type(subpath) == "string" and subpath or nil
+  -- add slash to end of subpath
+  subpath = subpath and subpath:sub(#subpath) ~= "/" and subpath.."/" or subpath
+  -- delete slash at beginning of subpath if one or if subpath is nil, make it as an empty string
+  subpath = subpath and subpath:sub(1) == "/" and subpath:sub(2,#subpath) or subpath or ""
+  -- complete path string
+  path = path.."/textures/"..subpath..name
+  -- return boolean, path
+  return minimal.file_exists(path), path
+end
 
 -- Yes or no dialog
 --
