@@ -122,11 +122,11 @@ local function sfinv_get(self, player, context)
 
     local formspec =
         "label[0.5,0.8; "..S("Name").. ": ".. name .. "]"..
-        "label[5,0.8; "..S("Days Survived")..": ".. days .. "]"..
-        "label[5,1.4; "..S("Lives")..": " .. lives .. "]"..
+        -- #TODO see if I can fix the right corner of the label
+        -- with table maybe
+        "label[6,0.8; "..S("Days Survived")..": ".. days .. "]"..
+        "label[6,1.4; "..S("Lives")..": " .. lives .. "]"..
         "label[0.5,2.4; "..S("Biography")..": " .. bio .. "]"..
-        "style[player_settings;border=false]"..
-        "image_button_exit[9,0.65;0.75,0.65;gear.png;player_settings;]"..
 
         -- Health effects display
         "container[1.2,5.2]" ..
@@ -144,8 +144,8 @@ local function sfinv_get(self, player, context)
 end
 
 
-
-local function register_tab()
+-- Register character formspec as tab in sfinv
+do
     sfinv.register_page(
         "lore:char_tab", {
             title = S("Character"),
@@ -158,5 +158,3 @@ local function register_tab()
             end
     })
 end
-
-register_tab()
