@@ -34,7 +34,8 @@ HUD Opacity=Opacité de la barre d'outils
 Default=Par défaut
 Antiglass=Verre antique
 Antiblue=Bleu antique
-Legacy Grey=Gris standard
+Legacy Grey=Gris minetest
+New Grey=Nouveau gris
 
 # protection.lua
 Access List=
