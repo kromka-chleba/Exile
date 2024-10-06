@@ -61,7 +61,22 @@ function sfinv.make_formspec(player, context, content, show_inv, size)
 end
 
 -- Exile added part ------------------------------------------------------------
-local inv_y = 7.3
+local function add_setting_button()
+    --[[ with background
+    return "style[player_settings;border=false; noclip =true; bgimg=gui_formbg.png;bgimg_middle=10]"..
+    --"style[player_settings:focused;border=true ]"..
+    "image_button[11.25,-0.08;1.05,1.05;gear.png;player_settings;]"
+    ]]
+
+    -- without background
+    return "style[player_settings;border=false; noclip =true]"..
+	-- on the right
+    "image_button[11.4,-0.75;0.7,0.7;gear2.png;player_settings;]"
+	-- on the left
+    --"image_button[-1,-0.7;0.7,0.7;gear2.png;player_settings;]"
+end
+
+local inv_y = 7.2
 
 local exile_theme_inv = {
 		"list[current_player;main;0.8,".. inv_y .. ";8,1;]",
@@ -75,11 +90,13 @@ function sfinv.make_formspec_for_exile(player, context, content, show_inv)
         "size[11.2,10]",
 		"position[0.5,0.5]",
 		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
+        add_setting_button(),
         show_inv and table.concat(exile_theme_inv,"") or "",
 		content
 	}
 	return table.concat(tmp, "")
 end
+
 --------------------------------------------------------------------------------
 
 function sfinv.get_homepage_name(player)
@@ -205,6 +222,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				sfinv.set_page(player, id)
 			end
 		end
+	-- was settings button pushed ?
+	elseif fields.player_settings then
+		--sfinv.set_page(player, "minimal:player_settings")
+        minimal.show_player_settings(name, player:get_meta())
 	else
 		-- Pass event to page
 		local page = sfinv.pages[context.page]

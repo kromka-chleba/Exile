@@ -821,21 +821,18 @@ local function cache_tool_change(player, tool, cache)
     if not cache then
         cache = initiate_cache(player)
     end
-    -- if I don't change the tool, do nothing
-    if cache.sTool == tool then
-        return
 
-    -- else change tool
-    else
+    -- if I don't change the tool, don't change the tabs and recipes
+    if cache.sTool ~= tool then
         cache.sToolID =  tool_to_ID(tool, cache)
-        cache.sTool = tool or default_tool
+        cache.sTool = tool
         cache.sLevel = get_tool_level(tool)
         cache.sTab = 1 -- default to first tab
-        FS_tool_types_to_cache(cache)
-        cache.craft_itemsFS = nil
         cache_reset_recipes(cache)
-        cache.output=""
     end
+    
+    FS_tool_types_to_cache(cache)
+    cache.output=""
 end
 
 -- remove tool
@@ -994,6 +991,7 @@ local function process_receive_fields(player, formname, fields)
     end
     -- process get recipes button
     if fields.refresh_r then
+        cache.sScroll= 0 -- reset scrolling bar on top
         FS_recipes_to_cache(cache, player_name, inv, true)
         cache.output = ""
         done = true
