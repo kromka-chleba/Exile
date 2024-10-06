@@ -18,6 +18,10 @@ local themes = {
         "bgcolor[#080808BB;true]"..
         "background9[5,5;1,1;gui_formbg.png;true;10]"..
         "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]",
+    ["Legacy Grey 2"] =
+        "bgcolor[#080808BB;false]"..
+        "background9[5,5;1,1;gui_formbg.png;true;10]"..
+        "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]",
 }
 
 themes.default = themes[minetest.settings:get("exile_default_gui_theme")] or
@@ -30,7 +34,8 @@ local themes_by_id = {
     {name = "default", title = S('Default'), description = ""},
     {name = "Antiglass" , title = S('Antiglass'), description = ""},
     {name = "Antiblue", title = S('Antiblue'), description = ""},
-    {name = "Legacy Grey", title = S('Legacy Grey'), description = ""}
+    {name = "Legacy Grey", title = S('Legacy Grey'), description = ""},
+    {name = "Legacy Grey 2", title = S('New Grey'), description = ""}
 }
 
 --return list of theme's names (translated version to display)

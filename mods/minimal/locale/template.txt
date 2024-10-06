@@ -36,6 +36,7 @@ Default=
 Antiglass=
 Antiblue=
 Legacy grey=
+New Grey=
 
 # protection.lua
 Access List=
