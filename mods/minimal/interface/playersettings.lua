@@ -41,7 +41,7 @@ function minimal.show_player_settings(playername, meta)
     local tempscale = meta:get("tempscale") or mttempscale
     local tempnum = temp_tonum[tempscale] or temp_tonum[mttempscale]
     local theme = meta:get("gui_theme") or "default"
-    local themelist = minimal.get_gui_theme_list(",")
+    local themelist = table.concat(minimal.get_gui_theme_titles(),",")
     local themenum = tostring(theme_tonum[theme])
     local opacity = tostring(meta:get("hud_opacity") or mthudopacity)
     local invburst = tostring(meta:get("drop_on_full_inv") or mtinvburst)
@@ -60,15 +60,19 @@ function minimal.show_player_settings(playername, meta)
         "checkbox[1,2.5;invburst;  "..
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
-        "checkbox[1,3;nomusic;   "..S("Disable music")..";"..nomusic.."]"..
-        "label[1,4;"..S("Temperature scale")..":]"..
-        "dropdown[5,3.75;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
+        "checkbox[1,3;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
+        -- Temperature scale setting
+        "label[1,3.75;"..S("Temperature scale")..":]"..
+        "dropdown[5,3.5;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
         tempnum..";true]"..
-        "label[1,4.75;"..S("GUI theme")..":]"..
-        "dropdown[5,4.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
-        "label[1,5.8;"..S("HUD Opacity level")..":]"..
+        -- GUI theme setting
+        "label[1,4.25;"..S("GUI theme")..":]"..
+        "dropdown[5,4;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+        -- HUD Opacity
+        "label[1,5;"..S("HUD Opacity")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
-        "scrollbar[4,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
+        "scrollbar[2,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
+
     minetest.show_formspec(playername, "player_settings", spec)
 end
 
@@ -88,16 +92,21 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             local oldtempscale = meta:get("tempscale") or mttempscale
 
             local reopen = false
+
+            -- changing GUI theme
             local num = tonumber(fields.gui_theme) -- table[1] ~= table["1"] !
             if theme_fromnum[num] and theme_fromnum[num] ~= oldtheme then
                 meta:set_string("gui_theme", theme_fromnum[num])
                 minimal.apply_gui_theme(player, meta, theme_fromnum[num])
+                --#TODO we need to close and reopen here
+                minimal.show_player_settings(name, meta)
                 reopen = true
             end
             num = tonumber(fields.tempscale)
             if temp_fromnum[num] and temp_fromnum[num] ~= oldtempscale then
                 meta:set_string("tempscale", temp_fromnum[num])
             end
+            -- setting HUD Opacity
             if fields.HudOpac then
                 local ev = minetest.explode_scrollbar_event(fields.HudOpac)
                 if ev.type == "CHG" then

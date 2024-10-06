@@ -1,5 +1,8 @@
 minimal = minimal -- Only used to extend namespace
 
+-- translation
+local S = minimal.S
+
 local themes = {
     ["Antiglass"] =
         "bgcolor[#080808BB;false]"..
@@ -20,6 +23,35 @@ local themes = {
 themes.default = themes[minetest.settings:get("exile_default_gui_theme")] or
     themes.Antiglass
 
+-- To allow translation
+--[[#TODO descrption field is unused yet,
+    intention was to use it (maybe) to display a description under the dropdown in formspec, for example to explain what "default" theme is]]
+local themes_by_id = {
+    {name = "default", title = S('Default'), description = ""},
+    {name = "Antiglass" , title = S('Antiglass'), description = ""},
+    {name = "Antiblue", title = S('Antiblue'), description = ""},
+    {name = "Legacy Grey", title = S('Legacy Grey'), description = ""}
+}
+
+--return list of theme's names (translated version to display)
+function minimal.get_gui_theme_titles()
+    l = {}
+    for id, theme in ipairs(themes_by_id) do
+        l[id] = theme.title
+    end
+    return l
+end
+
+--return list of themes
+function minimal.get_gui_theme_list()
+    l = {}
+    for id, theme in ipairs(themes_by_id) do
+        l[id] = theme.name
+    end
+    return l
+end
+
+-- apply theme
 function minimal.apply_gui_theme(player, meta, name)
     if not name and not meta then
         meta = player:get_meta()
@@ -33,23 +65,7 @@ function minimal.apply_gui_theme(player, meta, name)
     player:set_formspec_prepend(themes[name])
 end
 
-function minimal.get_gui_theme_list(separator)
-    -- Returns either a table, or a string if separator is specified
-    local listy = ""
-    local tabley = {}
-    local sep = ""
-    for nm, _ in pairs(themes) do
-        if separator == nil or type(separator) ~= "string" then
-            table.insert(tabley, nm)
-            listy = nil
-        else
-            listy = listy..sep..nm
-            sep = separator -- Don't add the separator before the first one
-        end
-    end
-    return listy or tabley
-end
-
+-- save theme in player's meta, then applies it
 function minimal.set_gui_theme(player, meta, themename)
     if not meta then
         meta = player:get_meta()
