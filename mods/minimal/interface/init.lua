@@ -126,6 +126,7 @@ function minimal.send_message(player_name, message, duration)
                        occupied[j]=nil
                     end)
 end
+
 function minimal.warn_message(player_name, message, duration)
     if not minetest.get_player_by_name(player_name) then return end
 

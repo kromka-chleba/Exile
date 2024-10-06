@@ -994,6 +994,7 @@ local function process_receive_fields(player, formname, fields)
     end
     -- process get recipes button
     if fields.refresh_r then
+        cache.sScroll= 0 -- reset scrolling bar on top
         FS_recipes_to_cache(cache, player_name, inv, true)
         cache.output = ""
         done = true
