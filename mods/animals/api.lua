@@ -597,7 +597,6 @@ function animals.core_life(self, pos)
         if type(self._on_death) == "function" then
             self._on_death(self, pos)
         end
-        mobkit.clear_queue_high(self)
         animals.hq_die(self)
         return false
     end
