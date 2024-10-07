@@ -321,7 +321,57 @@ function minimal.sound_play(...)
     return minimal.make_sound(...)
 end
 
+-- filepath_exists
+-- used to determine if a specified filepath exists
+-- must be a proper raw path (see minetest.get_modpath)
+function minimal.filepath_exists(path)
+    assert(type(path) == "string",
+        "exile.filepath_exists: got invalid path (non-string) to check, got "..type(path))
+    local f = nil -- file object but nil (set prematurely to prevent error crash with io.open)
+    local sucs,errmsg = pcall(function() -- success, error message
+        f = io.open(path,'r') -- reading only with 'r' mode
+    end)
+    -- error, provide an informative message and permit runtime
+    if not sucs then
+        minetest.log("error",
+            "minimal.filepath_exists: got an error with io.open, did you forget to specify a "..
+            "proper path with minetest.get_modpath()? See error here below: ")
+        minetest.log("error",errmsg)
+    end
+    -- check if file object exists
+    if f then
+        -- have to close it after opening
+        f:close()
+        return true
+    end
+    return false
+end
 
+-- image_exists
+-- uses filepath_exists to determine if an image exists
+-- will not get images with modifiers "^"
+-- OPTIONAL: subpath parameter for checking a subpath within /textures/
+-- OPTIONAL: modname parameter for checking within a specific mod instead of what calls function
+function minimal.image_exists(name, subpath, modname)
+  assert(type(name) == "string",
+      "exile.image_exists: got invalid name (non-string) to check for, got "..type(name))
+  assert(name:match("%."),
+      "exile.image_exists: got no image extension (no delimiter (no dot)), cannot try to find image")
+  modname = type(modname) == "string" and modname or minetest.get_current_modname() -- confirm or get mod name
+  if not modname then return false end -- couldn't get modname
+  local path = minetest.get_modpath(modname)
+  if not path then return false end -- couldn't get modpath
+  -- purify custom subpath
+  subpath = type(subpath) == "string" and subpath or nil
+  -- add slash to end of subpath
+  subpath = subpath and subpath:sub(#subpath) ~= "/" and subpath.."/" or subpath
+  -- delete slash at beginning of subpath if one or if subpath is nil, make it as an empty string
+  subpath = subpath and subpath:sub(1) == "/" and subpath:sub(2,#subpath) or subpath or ""
+  -- complete path string
+  path = path.."/textures/"..subpath..name
+  -- return boolean, path
+  return minimal.filepath_exists(path), path
+end
 
 -- Yes or no dialog
 --
