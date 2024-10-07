@@ -75,6 +75,9 @@ local function brain(self)
                     animals.hq_roam_dark(self,15)
 
                     if (self.energy <= self.cn_min) then
+                        -- stop all activity, we're conserving our energy!
+                        mobkit.clear_queue_low(self)
+                        mobkit.clear_queue_high(self)
                         self.conserve = true
                     end
                 end
@@ -93,10 +96,9 @@ local function brain(self)
                     return
                 end
             end
-        elseif (self.conserve == true) then
-            if (animals.prey_hunt(self,40)) then
-                self.conserve = false -- found prey, get out of hibernation
-            end
+        elseif self.conserve == true then
+            -- found prey, get out of hibernation
+            self.conserve = not animals.prey_hunt(self, 40)
         end
 
         -------------------

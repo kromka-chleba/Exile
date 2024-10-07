@@ -585,7 +585,6 @@ end
 function animals.core_life(self, pos)
     self.energy = self.energy or mobkit.recall(self,'energy') or 1
     self.age = self.age or mobkit.recall(self,'age') or 0
-    self.conserve = self.conserve or mobkit.recall(self,'conserve')
 
     self:modify('age',1)
     animals.vitals(self)
@@ -594,7 +593,6 @@ function animals.core_life(self, pos)
         if type(self._on_death) == "function" then
             self._on_death(self, pos)
         end
-        mobkit.clear_queue_high(self)
         animals.hq_die(self)
         return false
     end
@@ -719,10 +717,6 @@ function animals.core_life(self, pos)
     --save energy, age, and other values if provided
     mobkit.remember(self,'age',self.age)
     mobkit.remember(self,'energy',self.energy)
-    if type(self.conserve) == "boolean" then
-        -- only animals that try to conserve
-        mobkit.remember(self,'conserve',self.conserve)
-    end
     return true
 end
 
