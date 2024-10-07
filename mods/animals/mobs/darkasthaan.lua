@@ -70,6 +70,9 @@ local function brain(self)
                     animals.hq_roam_dark(self,15)
 
                     if (self.energy <= self.cn_min) then
+                        -- stop all activity, we're conserving our energy!
+                        mobkit.clear_queue_low(self)
+                        mobkit.clear_queue_high(self)
                         self.conserve = true
                     end
                 end
@@ -85,11 +88,9 @@ local function brain(self)
                 and age >= self.mature_age then
                 animals.place_egg(self, pos)
             end
-        elseif (self.conserve == true) then
-            if animals.prey_hunt(self,40) then
-                -- if found food then get outta hibernation
-                self.conserve = false
-            end
+        elseif self.conserve == true then
+            -- found food, get outta hibernation
+            self.conserve = not animals.prey_hunt(self, 40)
         end
 
         -------------------

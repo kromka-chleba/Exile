@@ -585,7 +585,10 @@ end
 function animals.core_life(self, pos)
     self.energy = self.energy or mobkit.recall(self,'energy') or 1
     self.age = self.age or mobkit.recall(self,'age') or 0
-    self.conserve = self.conserve or mobkit.recall(self,'conserve')
+    -- assume we're forgetting conserve if we have a conservation minimum
+    if type(self.conserve) ~= "boolean" and self.cn_min then
+      self.conserve = mobkit.recall(self, 'conserve')
+    end
 
     self:modify('age',1)
     animals.vitals(self)
