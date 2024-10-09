@@ -288,6 +288,21 @@ function plant.get_texture(basename, var)
 end
 local get_texture = plant.get_texture
 
+-- #TODO kind of dirty since plant_def can be either a plant props def table, or a registered item def table
+function plant.get_base_image(plant_def)
+    local basename = plant_def.name
+    -- if we had a non plant def with a complete name, take the short one
+    if string.find(basename, ":") then
+        basename = basename:split(":")[2]
+    end
+    if plant_def and plant_def.drawtype == "nodebox" then
+        local mod_name = minetest.get_current_modname()
+        return  mod_name .. "_" .. basename .. "_display.png"
+    else
+        return plant.get_texture(basename)
+    end
+end
+
 function plant.get_groups(plant_def)
     local plant_type = plant_def.plant_type
     local groups = plant_groups[plant_type]
@@ -841,7 +856,7 @@ function plant.get_seed_base_props(plant_def)
     -- [[get dead fruiting texture if only_dead_fruit, get fruiting texture if fruiting, or otherwise use regular plant texture]]
     local plant_img = plant_def.only_dead_fruit and get_texture(plant_def.name, "dead") or
         plant_def.fruit and get_texture(plant_def.name, "fruiting") or
-        get_texture(plant_def.name)
+        plant.get_base_image(plant_def)
 
     if plant_def.lifeform_type == "mushroom" or
         plant_def.plant_type == "moss" then
