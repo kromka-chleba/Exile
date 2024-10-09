@@ -360,8 +360,9 @@ self_male.friends = nil
 self_male.predator_interactions = {
     default = 0.8,
     ["animals:kubwakubwa"] = 1,
+    ["animals:sarkamos"] = 0.15
 }
-self_male.player_interaction = 1
+self_male.player_interaction = 0.9
 -- male functions
 self_male.on_rightclick = function(self, clicker, time_from_last_click,
                                    tool_capabilities)
