@@ -373,6 +373,12 @@ function minimal.image_exists(name, subpath, modname)
   return minimal.filepath_exists(path), path
 end
 
+-- get name without the mods: before it
+function minimal.get_short_name(reg_name)
+    startindex, endindex = string.find(reg_name, ":")
+    return string.sub(reg_name, endindex + 1)
+end
+
 -- Yes or no dialog
 --
 -- "question" will be displayed to the player
@@ -426,4 +432,3 @@ minetest.register_on_player_receive_fields(function(player,
         end
         open_yesno[playername] = nil
 end)
-
