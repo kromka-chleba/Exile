@@ -1012,3 +1012,272 @@ minetest.register_on_mods_loaded(function()
 end)
 
 -- vim: set ts=4 sw=4 :
+
+--- TPH REVISION
+
+sediment2 = {
+    registered_sediments = {}
+}
+
+local function soil_modify_tiles(tiles, texture)
+    -- modify tiles accordingly
+    for i, tile in pairs(tiles) do
+        -- account for a tile that is actually a table, check name
+        if type(tile) == "table" and tile.name then
+            tile.name = tile.name"^"..texture
+        -- just a regular string, continue as normal
+        elseif type(tile) == "string" then
+            tiles[i] = tile.."^"..texture
+        end
+    end
+end
+
+-- get properties according to provided dry, wet, and wet_salty tables, return all 3 inside of a table
+-- dry table is required, wet and wet_salty tables are not required
+-- if wet or wet_salty tables are defined as false, will not create them
+-- returns a table of property tables under the indexes of "dry", "wet", and "wet_salty"
+-- defaults to silt soil properties if not provided or lackluster
+-- provides predicted soil type according to soil properties (nn_soil_type)
+-- following properties are used for calculation: density and rocky_substrate
+-- automatically gets sounds according to predicted soil type if sounds aren't provided
+function sediment2.create_soil_props(dry, wet, wet_salty)
+    assert(type(dry) == "table","sediment.create_soil: no base dry sediment table provided")
+    assert(type(dry.name) == "string","sediment.create_soil: no name provided for dry sediment (specify in table)")
+    -- props of dry
+    -- groups
+    local groups = dry.groups or {}
+    groups.falling_node = 1
+    groups.bare_sediment = 1 -- no grass, we're bare!
+    -- silt basics (if not provided)
+    groups.crumbly = groups.crumbly or 3 -- softness, 3 is very soft, 2 is clay-soft, 1 is... idk we don't have a soil for that yet
+    -- inorganic matter content 0-4
+    groups.rocky_substrate = groups.rocky_substrate or 1
+    -- organic matter content 0-4
+    groups.organic_substrate = groups.organic_substrate or 3
+    -- values 0-4 (+ 2 for fertile soils)
+    groups.fertility = groups.fertility or 3
+    -- soil density (clay - dense, loam - not), values 0-4 
+    groups.density = groups.density or 3
+    -- set groups
+    dry.groups = groups
+    -- provide "soil_like" for what type of sounds to get
+    local soil_like = groups.rocky_substrate >= 4 and (groups.density >= 3 and "gravel" or "sand") or
+        groups.rocky_substrate >= 2 and groups.density >= 4 and "clay" or "silt"
+    dry.nn_soil_like = soil_like
+    -- set up mod_origin and name using mod_origin
+    dry.mod_origin = minetest.get_current_modname()
+    dry.name = dry.name:sub(1,1) == ":" and dry.mod_origin..dry.name or
+        (not dry.name:match(":")) and dry.mod_origin..":"..dry.name or dry.name
+    -- other params
+    dry.description = dry.description or dry.name -- you wanna be silly and not provide description, we'll get silly
+    dry.stack_max = dry.stack_max or minimal.stack_max_bulky
+    dry.drawtype = dry.drawtype or "normal"
+    dry.tiles = type(dry.tiles) == "table" and dry.tiles or {dry.name:gsub(":","_")..".png"}
+    dry.use_texture_alpha = dry.use_texture_alpha or c_alpha.clip
+    dry.paramtype = dry.paramtype or "light"
+    -- custom params
+    dry._dry_name = dry.name
+    -- props of wet variant (do not create or add to props if false)
+    wet = type(wet) == 'table' and wet or wet ~= false and {} or false
+    if wet ~= false then
+        -- pre-merge modifications
+        wet.description = wet.description or S("Wet @1",dry.description)
+        -- modify tiles accordingly
+        if not wet.tiles then
+            wet.tiles = table.copy(dry.tiles)
+            soil_modify_tiles(wet.tiles, textures.wet)
+        end
+        -- name and drop
+        wet.name = dry.name.."_wet"
+        wet.drop = wet.drop or wet.name
+        -- merge and stats
+        wet = merge_tables(dry, wet)
+        dry._wet_name = wet.name
+        wet._wet_name = wet.name
+        wet._dry_name = dry.name
+        -- actual registration
+        wet.groups = merge_tables(groups, wet.groups)
+        wet.groups.wet_sediment = 1
+        wet.groups.puts_out_fire = 1
+        -- sound
+        wet.sounds = wet.sounds or (soil_like == "gravel" and table.copy(sediment.sounds.gravel_wet))
+            or (soil_like == "sand" and table.copy(sediment.sounds.sand_wet))
+            or table.copy(sediment.sounds.dirt_wet)
+    end
+    -- register wet_salty (do not create or add to props if false)
+    wet_salty = type(wet_salty) == 'table' and wet_salty
+        or wet_salty ~= "false" and {} or false
+    if wet_salty ~= false then
+        -- pre-merge modifications
+        wet_salty.description = wet_salty.description or S("Salty Wet @1",dry.description)
+        -- modify tiles accordingly
+        if not wet_salty.tiles then
+            wet_salty.tiles = table.copy(dry.tiles) -- be sure to copy as to not overwrite!
+            -- provide tiles table, texture modifier
+            soil_modify_tiles(wet_salty.tiles,textures.wet.."^"..textures.salty)
+        end
+        -- name and drop
+        wet_salty.name = dry.name.."_wet_salty"
+        wet_salty.drop = wet_salty.name
+        -- merge and stats
+        wet_salty = merge_tables(dry, wet_salty)
+        dry._wet_salty_name = wet_salty.name
+        wet_salty._dry_name = dry.name
+        wet_salty._wet_name = wet and wet.name or nil
+        if wet then
+            wet._wet_salty_name = wet_salty.name
+        end
+        -- actual registration
+        wet_salty.groups = merge_tables(groups, wet_salty.groups)
+        wet_salty.groups.wet_sediment = 2
+        wet_salty.groups.puts_out_fire = 1
+        -- sound (prioritize provided wet_salty sounds, then provided wet sounds, then create one if still non-existent)
+        wet_salty.sounds = wet_salty.sounds or wet and wet.sounds and table.copy(wet.sounds) or
+            (soil_like == "gravel" and table.copy(sediment.sounds.gravel_wet))
+            or (soil_like == "sand" and table.copy(sediment.sounds.sand_wet))
+            or table.copy(sediment.sounds.dirt_wet)
+    end
+    -- post-wet definitions
+    groups.dry_sediment = 1
+    -- sound
+    dry.sounds = dry.sounds or (soil_like == "gravel" and table.copy(sediment.sounds.gravel)) or
+            (soil_like == "sand" and table.copy(sediment.sounds.sand)) or table.copy(sediment.sounds.dirt)
+    -- return for calling party to register
+    return {dry=dry,wet=wet,wet_salty=wet_salty}
+end
+
+-- automatically register as a node, add sediment ID, returns sediment ID
+-- utilizes create_soil_props to get properties
+-- same parameters as create_soil_props
+-- 4th "gen_props" boolean option, default true, if false then does not attempt to run through getting more properties
+function sediment2.register_soil(dry, wet, wet_salty, gen_props)
+    gen_props = type(gen_props) ~= "boolean" and true or gen_props
+    -- add properties to provided soils or go along as is if gen_props is false
+    local soils = gen_props and sediment2.create_soil_props(dry, wet, wet_salty)
+        or {dry, wet, wet_salty}
+    -- get total count of registered sediments, add 1
+    local sed_num = #sediment2.registered_sediments + 1
+    sediment2.registered_sediments[sed_num] = soils.dry.name
+    -- iterate over to add said sediment number
+    for _, data in pairs(soils) do
+        data.groups.sediment = sed_num
+        minetest.register_node(data.name, data)
+        -- see about other stuff like slopes
+    end
+    return sed_num
+end
+
+-- test, do not add to game lol
+sediment2.register_soil({
+    name = "euro",
+    tiles = {"nodes_nature_silt.png"},
+    groups = {
+        rocky_substrate = 2,
+        density = 4,
+    },
+})
+--[[
+function sediment.new(args)
+    local groups =
+        {falling_node = 1, crumbly = args.hardness,
+         sediment = args.id,
+         rocky_substrate = args.rocky_substrate, -- inorganic matter content 0-4
+         organic_substrate = args.organic_substrate, -- organic matter content 0-4
+         fertility = args.fertility, -- values 0-4 (+ 2 for fertile soils)
+         density = args.density,
+         -- soil density (clay - dense, loam - not), values 0-4
+        }
+    -- added support for the sediment data table containing groups.
+    if args.groups ~= nil then
+        groups = merge_tables(groups, args.groups)
+    end
+    local mod_name = minetest.get_current_modname()
+    -- allows making artificial soils
+    local sed = {
+        name = args.name,
+        description = args.description,
+        hardness = args.hardness,
+        id = args.id,
+        texture_name = args.texture_name,
+        sound = args.sound,
+        sound_wet = args.sound_wet,
+        groups = groups,
+        groups_wet =
+            merge_tables(groups, {wet_sediment = 1, puts_out_fire = 1}),
+        groups_wet_salty =
+            merge_tables(groups, {wet_sediment = 2, puts_out_fire = 1}),
+        mod_name = mod_name,
+    }
+    return sed
+end
+
+function sediment.get_base_props(sed)
+    local props = {
+        stack_max = minimal.stack_max_bulky,
+        _dry_name = sediment.get_dry_name(sed.name),
+        _wet_name = sediment.get_wet_name(sed.name),
+        _wet_salty_name = sediment.get_wet_salty_name(sed.name),
+        use_texture_alpha = c_alpha.clip,
+        after_place_node = function(pos, placer, itemstack, pointed_thing)
+            if pos.y < -15 then
+                -- No labels when underground
+                return
+            end
+            local labels = {}
+            local remove_labels = {"no_soil"}
+            if minimal.pos_group(pos, "spreading") then
+                table.insert(labels, "spring_soil")
+                table.insert(remove_labels, "no_spring_soil")
+                table.insert(remove_labels, "bare_soil")
+            elseif minimal.pos_group(pos, "winter_soil") then
+                table.insert(labels, "winter_soil")
+                table.insert(remove_labels, "no_winter_soil")
+                table.insert(remove_labels, "bare_soil")
+            else
+                table.insert(labels, "bare_soil")
+            end
+            ms.labels_to_position(pos, labels, remove_labels)
+        end,
+    }
+    return props
+end
+
+function sediment.get_dry_node_props(sed)
+    local props = {
+        description = sed.description,
+        tiles = {sediment.get_dry_texture_name(sed.name)},
+        groups = sed.groups,
+        drop = sediment.get_dry_name(sed.name),
+        sounds = sed.sound,
+    }
+    props.groups.dry_sediment = 1
+    return merge_tables(sediment.get_base_props(sed), props)
+end
+
+function sediment.register_dry(sed)
+    local props = sediment.get_dry_node_props(sed)
+    props = table.copy(props)
+    props.groups.bare_sediment = 1
+    local dry_name = sediment.get_dry_name(sed.name)
+    minetest.register_node(dry_name, props)
+    sediment.do_slopes(dry_name)
+    defer_tgcr.register_replacement(dry_name,
+                                    sediment.get_wet_name(sed.name),
+                                    c.REPLACEMENT_WET)
+    defer_tgcr.register_replacement(dry_name,
+                                    sediment.get_wet_salty_name(sed.name),
+                                    c.REPLACEMENT_SALTY)
+    table.insert(registered_sediments, dry_name)
+end
+
+function sediment.get_wet_node_props(sed)
+    local props = {
+        description = S("Wet @1", sed.description),
+        tiles = {sediment.get_wet_texture_name(sed.texture_name or sed.name)},
+        groups = sed.groups_wet,
+        drop = sediment.get_wet_name(sed.name),
+        sounds = sed.sound_wet,
+    }
+    return merge_tables(sediment.get_base_props(sed), props)
+end
+--]]
