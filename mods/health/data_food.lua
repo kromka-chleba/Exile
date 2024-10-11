@@ -33,8 +33,8 @@ HEALTH.food_table = {
     ["tech:mashed_anperla_cooked"] = {th = 12, hu = 72, en = 42},
     ["tech:mashed_anperla_burned"] = {th = 6, hu = 36, en = 21},
     -- black bread aka peasant's bread, more protein than cakey crumbly bread
-    ["tech:bread_black"] = {hu = 60, en = 12},
-    ["tech:bread_crumbly"] = {hu = 32, en = 18, th = 3},
+    ["tech:bread_black"] = {hu = 36, en = 12},
+    ["tech:bread_crumbly"] = {hu = 28, en = 18, th = 3},
     ["nodes_nature:sea_lettuce"] = {hu = 5, en = -10},
     ["nodes_nature:sea_lettuce_cooked"] = {hu = 5},
     ["nodes_nature:vansano_seed"] = {hu = 1},
