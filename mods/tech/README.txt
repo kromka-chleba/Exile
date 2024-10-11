@@ -146,6 +146,13 @@ TPH
  * tech_rhuya_flour.png
  * tech_rhuya_flour_wintery.png
  * tech_tuber_cooked.png
+ * tech_dough.png
+ * tech_dough_strong.png
+ * tech_bread_black.png
+ * tech_bread_crumbly.png
+ * tech_dough_aerated_mask.png
+ * tech_yeast_dough_overlay.png
+ * tech_yeast_dough_spores.png
 --
 
 TPH/Dokimi
