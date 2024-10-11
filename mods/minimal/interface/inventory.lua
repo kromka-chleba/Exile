@@ -1041,7 +1041,7 @@ local function process_receive_fields(player, formname, fields)
                 local sLevel = cache.sLevel
                 local qty = cache.qty or 1
 
-                process_qty(recipe,qty, item_hash)
+                process_qty(recipe,qty, cache.item_hash)
                 if not crafting.can_craft(player_name, ctype,
                                           sLevel, recipe) then
                     minetest.log("error", "[inventoryFS] Player clicked a "..
