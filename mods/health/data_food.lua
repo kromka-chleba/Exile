@@ -26,12 +26,12 @@ HEALTH.food_table = {
     -- player crafts
     ["tech:maraka_bread_cooked"] = {hu = 24, en = 14},
     ["tech:maraka_bread_burned"] = {hu = 12, en = 7},
-    ["tech:peeled_anperla_cooked"] = {th = 2, hu = 12, en = 7},
+    ["tech:peeled_anperla_cooked"] = {th = 1, hu = 6, en = 2},
     ["nodes_nature:rzepicha_root"] = {th = 4, hu = 35, en = 5},
     ["nodes_nature:rzepicha_root_winter"] = {th = 4, hu = 35, en = 5},
     -- example: burned anperla tubers are inedible, so no entry
-    ["tech:mashed_anperla_cooked"] = {th = 12, hu = 72, en = 42},
-    ["tech:mashed_anperla_burned"] = {th = 6, hu = 36, en = 21},
+    ["tech:mashed_anperla_cooked"] = {th = 6, hu = 36, en = 12},
+    ["tech:mashed_anperla_burned"] = {th = 3, hu = 18, en = 6},
     -- black bread aka peasant's bread, more protein than cakey crumbly bread
     ["tech:bread_black"] = {hu = 36, en = 12},
     ["tech:bread_crumbly"] = {hu = 28, en = 18, th = 3},
@@ -355,8 +355,12 @@ HEALTH.harm_table = {
         {tags = "Food Poisoning", ch = 0.01, sv = 1},
         {tags = "Hepatotoxicity", ch = 0.01, sv = {1, 2}}
     },
-    ["nodes_nature:rzepicha_root"] = {bm_fp},
-    ["nodes_nature:rzepicha_root_winter"] = {bm_fp},
+    ["nodes_nature:rzepicha_root"] = {
+        {tags = "Food Poisoning", ch = 0.35, sv = {1,2}}
+    },
+    ["nodes_nature:rzepicha_root_winter"] = {
+        {tags = "Food Poisoning", ch = 0.35, sv = {1,2}}
+    },
     ["nodes_nature:rhuya_fruit"] = {
         {tags = "Neurotoxicity", ch = 0.6, sv = {1,2}},
         {tags = "Hepatotoxicity", ch = 0.35, sv = {1,3}},
