@@ -618,7 +618,7 @@ local function make_inventory_formspec(player,context)
         local inputs = pInv:get_list('input_items')
         if not inputs or #inputs ~= 9 then
             -- create inputs inventory list and draw formspec for input_itmes
-            pInv:set_size('input_items', 6)
+            pInv:set_size('input_items', 9)
         end
 
         cache.input_listFS = tofstring({
