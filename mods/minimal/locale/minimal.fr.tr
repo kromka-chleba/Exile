@@ -4,23 +4,8 @@
 Display the current git revision=Afficher la révision git en cours
 This server is currently running git revision=Ce serveur fait actuellement tourner la révision git
 #interface/infotext.lua
-Owner=Propriétaire
-#interface/inventory.lua
-Missing required items!=Il manque des matériaux obligatoires !
-Main=Principal
-Bag1=Sac n°1
-Bag2=Sac n°2
-Bag3=Sac n°3
-Bag4=Sac n°4
-Input Items=Ingrédients
-Tool used=Outil utilisé
-Crafting=Artisanat
-Quantity=Quantité 
-Single=Un seul
-Stack=Une pile
-Maximum=Le maximum
-Search=Filtre
-or=ou
+Owner:=Propriétaire :
+Label:=
 
 #playersettings.lua
 Enable wide HUDbar=Activer une large barre d'outils
