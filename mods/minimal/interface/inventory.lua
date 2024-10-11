@@ -472,6 +472,7 @@ local function FS_recipes_to_cache(cache, player_name, pInv, updated)
     local pan_t = {
         --style 1 : no border
         "style_type[item_image_button;border=false;bgimg_middle=4]",
+        "style_type[image_button;border=false;bgimg_middle=4]"
 
         --[[ style 2 : with border
         "style_type[item_image_button;border=true;bgimg_middle=4]",
@@ -483,19 +484,6 @@ local function FS_recipes_to_cache(cache, player_name, pInv, updated)
     for i=1, #cTabs do
         coords = tostring((i - 1) * 0.85) ..',0'
         ---------------------------------------------------------------
-        local item_name = crafting.icon_item_name[cTabs[i]]
-        or 'crafting:placeholder'
-        -- #TODO new version to check/integrate :
-        --local button_type = 'item_image_button['
-        --local suffix = ']'
-        --if item_name == string.gsub(item_name, ":", "") then -- not an item
-        --    button_type = 'image_button['
-        --    -- item_image_button and image_button formats differ, so..
-        --    suffix = ';;false]' -- hide borders on item_, which has extra fields
-        --end
-        --recipesFS[#recipesFS + 1] = button_type..(leftPoint)..
-        --    ',0.3;0.6,0.6;'.. item_name .. ';sCraftTab_'..i..';'..suffix
-
         --set focus on selected tab
         if i == sTab then
             pan_t[#pan_t + 1] =
@@ -503,7 +491,6 @@ local function FS_recipes_to_cache(cache, player_name, pInv, updated)
             -- style 1 : no border
             pan_t[#pan_t + 1] =
             "image[" .. coords .. ";0.8,0.8;selected.png]"
-
         else
             -- style 1 : no border
             --[[uncomment this to activate background of tabs
@@ -512,7 +499,16 @@ local function FS_recipes_to_cache(cache, player_name, pInv, updated)
             ]]
         end
 
-        pan_t[#pan_t + 1] = 'item_image_button['..coords..';0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
+        local item_name = crafting.icon_item_name[cTabs[i]]
+        or 'crafting:placeholder'
+
+        -- checking if given field is an image or not.
+        local button_type = 'item_image_button['
+        if item_name == string.gsub(item_name, ":", "") then -- not an item
+            button_type = 'image_button['
+        end
+
+        pan_t[#pan_t + 1] = button_type .. coords .. ';0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
 
         pan_t[#pan_t + 1] = 'tooltip[sCraftTab_'.. i ..
         ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
