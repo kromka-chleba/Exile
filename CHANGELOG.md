@@ -1,5 +1,11 @@
 # Changelog:
 
+## [2024-10-12][2023-10-12__0.3.18d]
+   - Seed images showing the plant
+   - Remove air pockets around tree roots
+   - Improvements to airboat, transporter
+   - Minor fixes
+
 ## [2024-09-13][2023-09-13__0.3.18c]
    - Improvements to ropes, quicklime/slaked lime, and tile floors
    - Minor bugfixes
