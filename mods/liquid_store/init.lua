@@ -197,27 +197,39 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
     if handle_interaction(user, pointed_thing) ~= "node" then
         return
     end
-
-    minetest.check_for_falling(pointed_thing.under) -- install gravity
-
-    -- Check if pointing to a liquid source
+    -- get node and name
     local node = minetest.get_node(pointed_thing.under)
     local name = node.name
+    -- check protection
+    if check_protection(pointed_thing.under, user,
+                        "take ".. name) then
+        return
+    end
+
+    minetest.check_for_falling(pointed_thing.under) -- install gravity
+    -- get nodedef
+    local nodedef = minetest.registered_nodes[name]
+    if not nodedef then return end -- wasn't anything we could anyways
+
+    -- prioritize any liquid_store_fillup function
+    if nodedef.ls_fillup then
+        local new_wield = nodedef.ls_fillup(itemstack, user, pointed_thing.under, nodedef)
+        -- if nothing given, then we know to just continue with code as per usual
+        -- otherwise return new_wield
+        if new_wield then return new_wield end
+    end
+
+    -- Check if pointing to a liquid source
     if on_scoop_change[name] then
         name = on_scoop_change[name]
     end
     local liquiddef = liquid_store.liquids[name]
     local storeddef = liquid_store.get_sl_def(name)
 
-    -- check protection
-    if check_protection(pointed_thing.under, user,
-                        "take ".. node.name) then
-        return
-    end
-
+    -- pointing at a liquid
     if liquiddef and
-        name == liquiddef.source then -- pointing at a liquid
-        -- find a registered stored liquid who has an empty that matches
+        name == liquiddef.source then
+        -- find a registered stored liquid which has an empty that matches
         -- what we are using and a source that matches our liquid
         local plr_creative = minimal.player_in_creative(user)
         -- only remove liquid if in creative, fill stack otherwise
@@ -240,7 +252,8 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
             liquid_metadata(pointed_thing.under,node,new_wield)
             return new_wield
         end
-    elseif storeddef then -- pointing at a stored liquid
+    -- pointing at a stored liquid
+    elseif storeddef then
         local new_wield = liquid_store.fill_store(user, itemstack,
                                                   storeddef.source)
         if not new_wield then return end -- nothing matches
@@ -250,12 +263,10 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 
         liquid_metadata(pointed_thing.under,node,new_wield)
         return new_wield
-    else -- neither liquid nor a stored liquid
-        -- non-liquid nodes will have their on_punch triggered
-        local node_def = minetest.registered_nodes[node.name]
-        if node_def then
-            node_def.on_punch(pointed_thing.under, node, user, pointed_thing)
-        end
+    -- neither liquid nor a stored liquid
+    -- non-liquid nodes will have their on_punch triggered
+    elseif nodedef.on_punch then 
+        nodedef.on_punch(pointed_thing.under, node, user, pointed_thing)
         return itemstack
     end
 
