@@ -287,24 +287,27 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     -- if dump isn't a specified boolean, set to true
     -- (can be set to false so liquid stores such as watering cans
     --   do not dump their contents)
-    if type(dump) ~= "boolean" then
-        dump = storeddef.dumpable
-        if type(dump) ~= "boolean" then
-            dump = true
-        end
-    end
-    -- do not dump an unregistered source!
+    -- if dump isn't specified, check storeddef.dumpable
+    -- if that isn't specified, set to true
+    dump = type(dump) ~= "boolean" and storeddef.dumpable or dump
+    dump = type(dump) ~= "boolean" and true or dump
+    -- get liquid source definition
     local sourcedef = minetest.registered_nodes[source]
-    if (source == "" or not sourcedef) then
-        dump = false
-    end
+    -- do not dump an unregistered source! set to false
+    dump = sourcedef and dump or false
 
     local ppos = pointed_thing.under -- place_pos
     local buildable_to = true -- allow for replacing nil nodes
 
     local node = minetest.get_node_or_nil(pointed_thing.under)
     local ndef = node and minetest.registered_nodes[node.name]
-    local stored
+    -- prioritize liquid_store_pourin function
+    if ndef and ndef.ls_pourin then
+        local new_wield = ndef.ls_pourin(itemstack, user, ppos, source, ndef)
+        -- if nothing given, then we know to just continue with code as per usual
+        -- otherwise return new_wield
+        if new_wield then return new_wield end
+    end
     -- made into a function as it is needed twice
     local function can_rightclick()
         -- if node definition and if player and not sneaking
@@ -318,17 +321,19 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
                 local on_click = minimal.on_rightclick(itemstack, user,
                                                        pointed_thing)
                 if on_click ~= false then
-                    return on_click
+                    -- can be returned nil, so default to itemstack
+                    return on_click or itemstack
                 end
             end
         end
     end
 
+    local stored
     local click_result = can_rightclick()
     -- prioritize on_rightclick
     if click_result then
         return click_result
-        -- check out my cool definition instead
+    -- check out my cool definition instead
     elseif ndef then
         stored = find_stored(ndef, source)
         -- don't remove liquids
@@ -341,18 +346,21 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
 
         ppos = pointed_thing.under
         ndef = minimal.get_nodedef(ppos)
+        -- prioritize liquid_store_pourin function
+        if ndef.ls_pourin then
+            local new_wield = ndef.ls_pourin(itemstack, user, ppos, source, ndef)
+            if new_wield then return new_wield end
+        end
         -- don't remove liquids
         buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to
             or false
-    end
-    -- finishing touches if ndef found (verify with the found node!)
-    click_result = can_rightclick()
-    if click_result then
-        return click_result
-    elseif ndef then
-        -- If pointing at a full liquid store don't dump
-        if liquid_store.get_sl_def(node) then
-            dump = false
+        -- finishing touches if ndef found (verify with the found node!)
+        click_result = can_rightclick()
+        if click_result then
+            return click_result
+        elseif ndef then
+            -- If pointing at a full liquid store don't dump
+            dump = (not liquid_store.get_sl_def(node)) and dump or false
         end
     end
     -- we tried, can't do it
