@@ -39,5 +39,5 @@ poorly=schlecht
 comfortably=schlecht
 (Sweating)=(Schwitzend)
 #init.lua
-Hyperthermia=
-Hypothermia=
+Hyperthermia="Hyperthermie"
+Hypothermia="Hypothermie"
