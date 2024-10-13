@@ -454,6 +454,13 @@ minetest.register_node(
             -- revv up those cookin' engines!
             local timer = minetest.get_node_timer(pos)
             timer:start(6)
+            -- play pour sounds if provided
+            local pourdef = itemstack:get_definition()
+            if pourdef and pourdef.sounds and pourdef.sounds.pour then
+                local sound = pourdef.sounds.pour
+                minimal.sound_play(minimal.merge_tables(sound,{pos = pos}))
+            end
+            -- drain or keep pot depending on if in creative
             if not minimal.player_in_creative(user) then
                 return liquid_store.drain_store(user, itemstack)
             end
