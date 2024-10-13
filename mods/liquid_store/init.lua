@@ -336,7 +336,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     -- check out my cool definition instead
     elseif ndef then
         stored = find_stored(ndef, source)
-        -- don't remove liquids
+        -- don't remove liquid source nodes
         buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to
             or false
     end
@@ -351,7 +351,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
             local new_wield = ndef.ls_pourin(itemstack, user, ppos, source, ndef)
             if new_wield then return new_wield end
         end
-        -- don't remove liquids
+        -- don't remove liquid source nodes
         buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to
             or false
         -- finishing touches if ndef found (verify with the found node!)
@@ -500,6 +500,9 @@ function liquid_store.register_stored_liquid(name,def)
         type(def))
 
     def.empty = def.empty or def.nodename_empty
+    assert(type(minetest.registered_nodes[def.empty]) == "table",
+        "liquid_store.register_stored_liquid: expected nodedef (could not find) for empty variant of '"..
+        name.."'. Got '"..tostring(def.empty).."' type: "..type(def.empty))
     def.nodename_empty = nil
 
     liquid_store.stored_liquids[name] = {
@@ -518,8 +521,7 @@ function liquid_store.register_stored_liquid(name,def)
     def.groups.liquid_storage = 1
     -- sounds; get provided or use empty node's sound or node sound defaults
     def.sounds = def.sounds
-        or (minetest.registered_nodes[def.empty]
-            and type(minetest.registered_nodes[def.empty].sounds) == "table"
+        or type(minetest.registered_nodes[def.empty].sounds) == "table"
             and table.copy(minetest.registered_nodes[def.empty].sounds))
         or nodes_nature.node_sound_defaults()
     -- functions
