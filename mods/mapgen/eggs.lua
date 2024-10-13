@@ -21,13 +21,27 @@ animals.register_egg({
   groups = {timer = 2}
 })
 
+-- chichasa
+animals.register_egg({
+    name = "mapgen:chichasa_bunch",
+    egg_hatching = {
+      ["animals:chichasa"] = 0.8,
+      "animals:chichasa_male"
+    },
+    egg_time = 5,
+    young_per_egg = {3,5},
+    energy_egg = 20000, -- will be divided by 3 or 5 give or take
+    groups = {timer = 2}
+  })
+  
+
 local eggs = {
     {--[[Animals:gundu]]
         name = "animals:gundu_eggs",
         deco_type = "simple",
         place_on = sna.fish_on,
         sidelen = 80,
-        fill_ratio = 0.000500,
+        fill_ratio = 0.000400,
         y_max = -3,
         y_min = -25,
         decoration = "animals:gundu_eggs",
@@ -39,7 +53,7 @@ local eggs = {
         deco_type = "simple",
         place_on = sna.fish_on,
         sidelen = 80,
-        fill_ratio = 0.000070,
+        fill_ratio = 0.000060,
         y_max = -5,
         y_min = -35,
         decoration = "animals:sarkamos_eggs",
@@ -111,8 +125,8 @@ local eggs = {
         deco_type = "simple",
         place_on = sna.badland_on,
         sidelen = 16,
-        noise_params = {offset=0.00, scale=0.0015, spread={x=64, y=64, z=64},
-                        seed=1882, octaves=2, persist=2},
+        noise_params = {offset=0.00, scale=0.0008, spread={x=64, y=64, z=64},
+                        seed=1882, octaves=1, persist=1},
         y_max = sna.upland_max,
         y_min = sna.beach_max,
         decoration = "mapgen:pegasun_bunch",
@@ -124,11 +138,37 @@ local eggs = {
         deco_type = "simple",
         place_on = sna.not_badland_soils_on,
         sidelen = 16,
-        noise_params = {offset=0.00, scale=0.0030, spread={x=64, y=64, z=64},
-                        seed=1882, octaves=2, persist=2},
+        noise_params = {offset=0.00, scale=0.0016, spread={x=64, y=64, z=64},
+                        seed=1882, octaves=1, persist=1},
         y_max = sna.upland_max,
         y_min = sna.beach_max,
         decoration = "mapgen:pegasun_bunch",
+        flags = "all_floors",
+    },
+
+        {--[[Animals:chichasa-badlands]]
+        name = "animals:chichasa_eggs_badland",
+        deco_type = "simple",
+        place_on = sna.badland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0008, spread={x=64, y=64, z=64},
+                        seed=1080, octaves=1, persist=1},
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
+        decoration = "mapgen:chichasa_bunch",
+        flags = "all_floors",
+    },
+
+    {--[[Animals:chichasa-notbadlands]]
+        name = "animals:chichasa_eggs",
+        deco_type = "simple",
+        place_on = sna.not_badland_soils_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0016, spread={x=64, y=64, z=64},
+                        seed=1080, octaves=1, persist=1},
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
+        decoration = "mapgen:chichasa_bunch",
         flags = "all_floors",
     },
 
@@ -137,7 +177,7 @@ local eggs = {
         deco_type = "simple",
         place_on = sna.badland_on,
         sidelen = 80,
-        fill_ratio = 0.004000,
+        fill_ratio = 0.001000,
         y_max = sna.highland_max,
         y_min = sna.beach_max,
         decoration = "animals:sneachan_eggs",
@@ -149,7 +189,7 @@ local eggs = {
         deco_type = "simple",
         place_on = sna.not_badland_soils_on,
         sidelen = 80,
-        fill_ratio = 0.002000,
+        fill_ratio = 0.001500,
         y_max = sna.highland_max,
         y_min = sna.beach_max,
         decoration = "animals:sneachan_eggs",
