@@ -141,8 +141,10 @@ end
 ---------------
 
 -- SETTING OF IMPETHU INTERACTOR SETTINGS
-animals.add_interactors("animals:impethu","predators", "animals:pegasun",
-                        "animals:pegasun_male", "animals:kubwakubwa",
+animals.add_interactors("animals:impethu","predators",
+                        "animals:pegasun", "animals:pegasun_male",
+                        "animals:chichasa", "animals:chichasa_male",
+                        "animals:kubwakubwa",
                         "animals:darkasthaan")
 animals.add_interactors("animals:impethu","rivals", "animals:sneachan", "self")
 

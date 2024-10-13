@@ -198,7 +198,8 @@ animals.add_interactors("animals:pegasun","rivals", "self")
 
 -- MALE INTERACTORS
 animals.add_interactors("animals:pegasun_male","friends", "animals:pegasun")
-animals.add_interactors("animals:pegasun_male","rivals", "self")
+animals.add_interactors("animals:pegasun_male","rivals", "self",
+                        "animals:chichasa", "animals:chichasa_male")
 
 ------------------------------------------------------------------------
 --FEMALE

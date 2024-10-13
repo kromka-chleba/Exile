@@ -146,9 +146,10 @@ end
 
 ----------------------------------------------
 -- SETTING OF SNEACHAN INTERACTOR SETTINGS
-animals.add_interactors("animals:sneachan","predators", "animals:pegasun",
-                        "animals:pegasun_male", "animals:kubwakubwa",
-                        "animals:darkasthaan")
+animals.add_interactors("animals:sneachan","predators",
+                        "animals:pegasun", "animals:pegasun_male",
+                        "animals:chichasa", "animals:chichasa_male",
+                        "animals:kubwakubwa", "animals:darkasthaan")
 animals.add_interactors("animals:sneachan","rivals", "self", "animals:impethu")
 
 -- Animal Data

@@ -201,8 +201,10 @@ animals.add_interactors("animals:chichasa","friends", "self",
 animals.add_interactors("animals:chichasa","rivals", "self")
 
 -- MALE INTERACTORS
-animals.add_interactors("animals:chichasa_male","friends", "animals:chichasa")
-animals.add_interactors("animals:chichasa_male","rivals", "self")
+animals.add_interactors("animals:chichasa_male","friends", "animals:chichasa",
+                        "animals:pegasun")
+animals.add_interactors("animals:chichasa_male","rivals", "self",
+                        "animals:pegasun", "animals:pegasun_male")
 
 ------------------------------------------------------------------------
 --FEMALE
