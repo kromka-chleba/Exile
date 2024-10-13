@@ -306,7 +306,7 @@ local self_data = {
     view_range = 26,       -- nodes/meters
     warn_distance = 4,     --NotPegasun (shorter distance)
     player_warn_distance = 4, --NotPegasun (shorter distance)
-    aggression_distance = 1, --NotPegasun (shorter distance)
+    aggression_distance = 2, --NotPegasun (shorter distance)
     stepheight = 0.8,
     --attack
     attack={range=0.6, damage_groups={fleshy=1}}, --NotPegasun (weaker)
