@@ -243,7 +243,7 @@ local self_data = {
     young_per_egg = 1,           --will get this/energy_egg starting energy
     -- lifespan
     lifespan = "energy_max*15",
-    mature_age = "energy_max*0.36", -- 36% of energy_max (8000) or 2880
+    mature_age = "energy_max*0.2", -- 20% of energy_max (8000) or 1600 --NotPegasun (lower)
     -- interactions
     -- predators + rivals automatically defined in registration
     consume_non_prey = false,
@@ -307,9 +307,9 @@ local self_data = {
     warn_distance = 4,     --NotPegasun (shorter distance)
     player_warn_distance = 4, --NotPegasun (shorter distance)
     aggression_distance = 2, --NotPegasun (shorter distance)
-    stepheight = 0.8,
+    stepheight = 1.05,  --NotPegasun
     --attack
-    attack={range=0.6, damage_groups={fleshy=1}}, --NotPegasun (weaker)
+    attack={range=0.9, damage_groups={fleshy=1}}, --NotPegasun (weaker)
     armor_groups = {fleshy=100},
     --on actions
     drops = {
@@ -328,7 +328,7 @@ local self_data = {
         stack_max = minimal.stack_max_medium,
         node_box = {
             type = "fixed",
-            fixed = {-0.125, -0.5, -0.125,  0.125, -0.125, 0.125},
+            fixed = {-0.125, -0.5, -0.125,  0.125, -0.25, 0.125}, --NotPegasun (smaller)
         },
         groups = {egg = 2},
         egg_hatching = {"animals:chichasa","animals:chichasa_male"},
@@ -360,7 +360,7 @@ self_male.sex = "male"
 self_male.rivals = nil
 self_male.friends = nil
 -- unique predator + player interactions
-self_male.predator_interactions = 0.02 --NotPegasun (run away!)
+self_male.predator_interactions = 0.03 --NotPegasun (run away!)
 self_male.player_interaction = 0.02 --NotPegasun (run away!)
 -- male functions
 self_male.on_rightclick = function(self, clicker, time_from_last_click,
@@ -411,7 +411,7 @@ self_male.sounds = {
     },
 }
 -- attack
-self_male.attack={range=0.6, damage_groups={fleshy=1}} --NotPegasun (weaker)
+self_male.attack={range=0.9, damage_groups={fleshy=1}} --NotPegasun (weaker)
 -- male spawnegg or live animal modifications
 self_male.spawnegg.description = nil -- handled in spawnegg registration
 self_male._desc = S("Male Chichasa")
