@@ -36,3 +36,7 @@ pegasun: adapted from chicken, mobs_animal by Krupnov Pavel and TenPlus1 (MIT)
 Gundu call sound: based on http://soundbible.com/1660-Underwater-Pool.html, Attribution 3.0, Mike Koenig.
 
 sneachan: from silverfish mobs_mc Mineclone2, GPLv3
+
+chichasa model & texture: from Animalia by ElCeejo (MIT License)
+
+chichasa sounds: Dokimi, CC-BY-SA 4.0
