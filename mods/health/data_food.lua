@@ -118,6 +118,7 @@ HEALTH.food_table = {
     ["animals:impethu_eggs"] = {hu = 4},
     ["animals:kubwakubwa_eggs"] = {hu = 6},
     ["animals:pegasun_eggs"] = {hu = 5},
+    ["animals:chichasa_eggs"] = {hu = 5},
     ["animals:sarkamos_eggs"] = {th = 10, hu = 40},
     ["animals:sneachan_eggs"] = {hu = 3},
     -- toxic
@@ -440,6 +441,10 @@ HEALTH.harm_table = {
         {tags = "Intestinal Parasites", ch = 0.01, sv = 1}
     },
     ["animals:pegasun_eggs"] = {
+        {tags = "Food Poisoning", ch = 0.02, sv = {1, 2}},
+        {tags = "Intestinal Parasites", ch = 0.005, sv = 1}
+    },
+    ["animals:chichasa_eggs"] = {
         {tags = "Food Poisoning", ch = 0.02, sv = {1, 2}},
         {tags = "Intestinal Parasites", ch = 0.005, sv = 1}
     },
