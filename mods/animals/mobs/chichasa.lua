@@ -412,8 +412,7 @@ self_male.sounds = {
         pitch={0.5, 1.5},
     },
 }
--- attack
-self_male.attack={range=0.9, damage_groups={fleshy=1}} --NotPegasun (weaker)
+
 -- male spawnegg or live animal modifications
 self_male.spawnegg.description = nil -- handled in spawnegg registration
 self_male._desc = S("Male Chichasa")
