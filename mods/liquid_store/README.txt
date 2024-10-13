@@ -45,3 +45,14 @@ Adapted for Exile from buckets from Minetest game:
 Kahrl <kahrl@gmx.net> (LGPLv2.1+)
 celeron55, Perttu Ahola <celeron55@gmail.com> (LGPLv2.1+)
 Various Minetest developers and contributors (LGPLv2.1+)
+Heavily modified by the Exile Team
+
+
+
+Authors of media (sounds)
+----------------------
+TPH
+(aka tph9677/TubberPupperHusker/TubberPupper/Damotrix)
+<damotrixrob@gmail.com>
+(marked CC0 1.0)
+liquid_store_water_pour.(0-2).ogg

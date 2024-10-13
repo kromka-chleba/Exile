@@ -373,6 +373,11 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
         if check_protection(ppos, user, "fill up "..nodename_empty) then
             return
         end
+        local def = itemstack:get_definition()
+        if def.sounds and def.sounds.pour then
+            local sound = def.sounds.pour
+            minimal.sound_play(minimal.merge_tables(sound,{pos = ppos}))
+        end
         minimal.switch_node(ppos, {name = stored}, {user, itemstack,
                                                     pointed_thing})
         return handle_stacks(user, itemstack, nodename_empty)
@@ -517,6 +522,13 @@ function liquid_store.register_stored_liquid(name,def)
         or type(minetest.registered_nodes[def.empty].sounds) == "table"
             and table.copy(minetest.registered_nodes[def.empty].sounds)
         or nodes_nature.node_sound_defaults()
+    -- if set to false, sets to nil, otherwise adds pour sound
+    def.sounds.pour = def.sounds.pour or def.sounds.pour ~= false and {
+        name = "liquid_store_water_pour",
+        pitch = {0.85,1.05},
+        gain = 0.3,
+        max_hear_distance = 8
+    } or nil
     -- functions
     def.on_use = def.on_use or function(...)
         return liquid_store.on_use_filled_bucket(...)
