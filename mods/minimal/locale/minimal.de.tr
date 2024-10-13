@@ -12,15 +12,15 @@ Bag2="Tasche2"
 Bag3="Tasche3"
 Bag4="Tasche4"
 Input Items="Eingabegegenstände"
-Tool used=
+Tool used="Benutztes Werkzeug"
 #Craft Type="Fertigungstyp"
 Crafting="Fertigung"
 Quantity="Menge"
 Single="Einzel"
 Stack="Stapel"
 Maximum="Maximum"
-Search=
-or=
+Search="Suche"
+or="oder"
 
 #playersettings.lua
 Enable wide HUDbar="Weite HUD-Leiste aktivieren"
@@ -109,3 +109,11 @@ Exile zone trigger node="Exile-Zonen-Trigger-Node"
 
 # Stairs
 Inner @1="Innere @1"
+Disable music="Musik deaktivieren"
+Default="Standard"
+Antiglass="Antiglas"
+Antiblue="Antiblau"
+Legacy grey="legacy-grau"
+New Grey="neugrau"
+Label:="Beschriftung:"
+Owner:="Eigentümer:"
