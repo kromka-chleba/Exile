@@ -2675,8 +2675,15 @@ function animals.add_interactors(creature, itype, ...)
     -- adds the minetest luaentity names of creatures to a
     --  certain interaction type provided by a specified creature
 
-    -- for example, animals.add_interactor("rivals","pegasun","animals:pegasun")
-    -- would add the entity "animals:pegasun" to the rivals of "pegasun"
+    -- for example, animals.add_interactors("animals:pegasun","rivals", "animals:sneachan")
+    -- would add the entity 'animals:sneachan' to the rivals of "animals:pegasun"
+    -- "self" can be used to add oneself instead of repeating name as so:
+    -- animals.add_interactors("animals:pegasun","rivals", "self")
+
+    -- control "autoassign" can be determined as true or false at end of "..." list (default true)
+    -- will add counterparts to a specified interactiontype
+    -- so if you specify a creature as a pred to yours, it will add yours as a prey to said creature
+    -- setting it false will prevent this autoassign
 
     -- lowercase strings for easier finding and indexing
     if type(creature) == "table" then
@@ -2733,6 +2740,16 @@ function animals.add_interactors(creature, itype, ...)
     -- convert specified creatures into an easily accessible table
     --  (the ... for multiple args)
     local posscreatures = {...}
+    -- autoassign:
+    -- if you add a creature as a rival, it will add yours as a rival to the creature
+    -- if you add a creature as a pred, it will add yours as a prey to the creature
+    -- only works for prey/predators, friends/rivals, no other strings will be sought inverted
+    local autoassign = true
+    -- autoassign can be specified at the end of a list, will be removed from the table
+    if type(posscreatures[#posscreatures]) == "boolean" then
+        autoassign = posscreatures[#posscreatures]
+        posscreatures[#posscreatures] = nil
+    end
     for _,interactor in ipairs(posscreatures) do
         -- unpacks table and adds to posscreatures
         if type(interactor) == "table" then
@@ -2749,6 +2766,30 @@ function animals.add_interactors(creature, itype, ...)
             -- add said creature as an "interactor" within the provided
             --  interactiontype (if specified creature is an entity name)
             itable[#itable + 1] = interactor
+            -- autoassign described above (we also don't want to autoassign ourselves lol)
+            if autoassign and creature ~= interactor then
+                -- only apply to interaction types that have a counterpart
+                -- counterpart interaction type
+                local c_itype = itype == "predators" and "prey" or itype == "prey" and "predators" or
+                    (itype == "rivals" or itype == "friends") and itype or nil
+                if c_itype then
+                    -- if doesn't exist yet, create an empty table to loop over
+                    local c_itable = animals.get_interactors(interactor, c_itype) or {}
+                    -- check if we were already added to prevent duplication (by looping over table)
+                    -- counterpart added
+                    local c_added = false
+                    for _, existing in ipairs(c_itable) do
+                        -- created true and break if found
+                        c_added = creature == existing
+                        if c_added then break end
+                    end
+                    -- add ourselves as an interactor
+                    if not c_added then
+                        -- set autoassign to false to prevent stack overflow
+                        animals.add_interactors(interactor, c_itype, creature, false)
+                    end
+                end
+            end
         end
     end
     -- will override entity's interaction type with the provided animals
