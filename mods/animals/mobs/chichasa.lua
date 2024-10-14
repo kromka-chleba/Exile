@@ -254,7 +254,7 @@ local self_data = {
     capture_interactions = {
         club = 0.25,
     },
-    herding_distance = 2,
+    herding_distance = 5,
     sex = "female",
     -- logic for mobkit
     logic = brain,
@@ -306,8 +306,8 @@ local self_data = {
     max_speed = 2.5,       -- m/s --NotPegasun (faster)
     jump_height = 1.2,     -- nodes/meters
     view_range = 26,       -- nodes/meters
-    warn_distance = 4,     --NotPegasun (shorter distance)
-    player_warn_distance = 4, --NotPegasun (shorter distance)
+    warn_distance = 6,     --NotPegasun (shorter distance)
+    player_warn_distance = 6, --NotPegasun (shorter distance)
     aggression_distance = 2, --NotPegasun (shorter distance)
     stepheight = 1.05,  --NotPegasun
     --attack
