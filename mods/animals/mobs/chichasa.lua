@@ -249,12 +249,12 @@ local self_data = {
     -- interactions
     -- predators + rivals automatically defined in registration
     consume_non_prey = false,
-    player_interaction = 0.01,
-    predator_interactions = 0.01,
+    player_interaction = 0.005,
+    predator_interactions = 0.005,
     capture_interactions = {
-        club = 0.25,
+        club = 0.25, --NotPegasun (harder to catch)
     },
-    herding_distance = 5,
+    herding_distance = 5, --NotPegasun (scares easier)
     sex = "female",
     -- logic for mobkit
     logic = brain,
@@ -362,8 +362,8 @@ self_male.sex = "male"
 self_male.rivals = nil
 self_male.friends = nil
 -- unique predator + player interactions
-self_male.predator_interactions = 0.03 --NotPegasun (run away!)
-self_male.player_interaction = 0.02 --NotPegasun (run away!)
+self_male.predator_interactions = 0.02 --NotPegasun (run away!)
+self_male.player_interaction = 0.01 --NotPegasun (run away!)
 -- male functions
 self_male.on_rightclick = function(self, clicker, time_from_last_click,
                                    tool_capabilities)
