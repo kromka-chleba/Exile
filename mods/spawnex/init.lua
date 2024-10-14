@@ -238,16 +238,19 @@ end
 
 local function save_rgns(hex)
     local function writeout(hx, tb)
-        local str = minetest.write_json(tb, nil) or minetest.serialize(tb)
+        local str, err = minetest.write_json(tb, nil)
+        if err then
+            pirnt("Spawnex: Fatal error saving region ",hx)
+            error(err)
+        end
         storage:set_string(hx, str)
     end
     if hex then -- save just one
         writeout(hex2string(hex), rgns[hex])
-        return
     end
     local idx = {}
     for nm, dat in pairs(rgns) do
-        writeout(nm, dat)
+        if not hex then writeout(nm, dat) end
         table.insert(idx, nm)
     end
 
@@ -268,6 +271,7 @@ local function save_jobs()
 end
 
 function add_job(name, time, hex)
+    pirnt("Adding job: ",name," at ",hex2string(hex))
     jobs[name.."_"..hex2string(hex)] = {
         name = name, timer = 0, finish = time, target = hex }
 end
@@ -301,8 +305,9 @@ end
 local function setup_gate(hex) -- create potential gate
     local def = region.get(hex)
     if not def.currentgate then
-        pirnt("setup new gate for ",hex2string(hex))
         def.currentgate = find_gate_pos(hex)
+        pirnt("setup new gate for ",hex2string(hex),
+              " - got: ",minetest.pos_to_string(def.currentgate))
         if def.currentgate == nil then
             add_job("setup", 1, hex)
             return false
@@ -324,7 +329,7 @@ function queue_next_gate(hex) -- Set up next gate before closing current one
         distance = candidate:distance(def.currentgate)
     end
     -- not too close to previous spawn, please
-    if candidate == nil or distance > 400 then
+    if candidate == nil or distance < 400 then
         add_job("queue", 9, hex)
         return
     end
@@ -477,7 +482,7 @@ function region.spawn(player)
         return
     end
 
-    pirnt("region spawn")
+    pirnt("region spawn for ",player:get_player_name())
     local meta = player:get_meta()
     local spawning = meta:get_string("spawning")
     if minetest.settings:get_bool("disable_spawnex", false)
@@ -506,7 +511,8 @@ function region.spawn(player)
         load_gate(spawnat)
     end
     sadef.open = true
-    pirnt("spawn: ",dump(sadef.currentgate))
+    pirnt("spawn: ",hex2string(spawnat)," : ",
+          minetest.pos_to_string(sadef.currentgate))
     sadef.gate = minetest.add_entity(gate, "spawnex:gate")
     player:set_pos(gate)
     checkplayer(gate)
@@ -575,6 +581,7 @@ local function spawnex_global(dtime)
     for nm, dat in pairs(jobs) do -- run jobs
         dat.timer = dat.timer + dtime
         if dat.timer > dat.finish then
+            pirnt("Spawnex running job:",dat.name," at ",hex2string(dat.target))
             func[dat.name](dat.target)
             jobs[nm] = nil
             savejobs = true
@@ -602,8 +609,9 @@ local function spawnex_global(dtime)
             local ppos = player:get_pos()
             local dfrom = distance_to_hex(ppos, home)
             if dfrom > maxdist then -- we're well out of our home region
-                saveout = saveout or player_moved_to_new_region(player, pname,
+                local moved = player_moved_to_new_region(player, pname,
                                                                 ppos, home)
+                saveout = saveout or moved
                 home = homecache[pname] -- in case we updated
             end
             if saveout then
@@ -617,6 +625,13 @@ local function spawnex_global(dtime)
     end
 end
 minetest.register_globalstep(spawnex_global)
+
+--------------------------------------------------------------------------
+-- Shutdown
+minetest.register_on_shutdown(function()
+        save_jobs()
+        save_rgns()
+end)
 
 --------------------------------------------------------------------------
 -- Startup and new player setup
@@ -811,14 +826,24 @@ minetest.register_chatcommand(
             local ppos = player:get_pos()
             local hex = string2hex(param) or map2hex(ppos)
             local r = region.get(hex)
-            if not r.currentgate then return true, "unloaded" end
+            local jobnames = ""
+            for nm, job in pairs(jobs) do
+                if job.target == hex then
+                    jobnames = jobnames .. nm .. ", "
+                end
+            end
+            jobnames = jobnames ~= "" and "\nJobs: "..jobnames or ""
+            if not r.currentgate then
+                return true, "unloaded, "..jobnames
+            end
             return true, "Hex at "..hex2string(hex).." : \n"..
                 (r.currentgate and "Current gate: "..
                  minetest.pos_to_string(r.currentgate) or "No current gate")..
                 (r.forceloaded and "[Loaded]" or "")..
                 (r.open and "[Open]" or "")..
                 (r.nextgate and "\nNext gate: "..
-                 minetest.pos_to_string(r.currentgate) or "")
+                 minetest.pos_to_string(r.currentgate) or "")..
+                jobnames
         end
 })
 
@@ -902,3 +927,22 @@ minetest.register_chatcommand(
         end
 })
 
+minetest.register_chatcommand(
+    "spawnex_inspect",{
+        description = "Dumps all data concerning spawnex to log",
+        params = "storage",
+        privs = "server",
+        func = function(name,param)
+            if param ~= "storage" then
+                pirnt("--- Regions (rgns) ---")
+                pirnt(dump(rgns))
+                pirnt("--- Job queue (jobs) ---")
+                pirnt(dump(jobs))
+            else
+                pirnt("--- Storage (rgn_index) ---")
+                print(storage:get_string("rgn_index"))
+                pirnt("--- Storage (jobs) ---")
+                print(dump(minetest.deserialize(storage:get_string("jobs"))))
+            end
+        end
+})
