@@ -2679,21 +2679,21 @@ function animals.add_interactors(creature, itype, ...)
     -- would add the entity "animals:pegasun" to the rivals of "pegasun"
 
     -- lowercase strings for easier finding and indexing
-    if (type(itype) ~= "string") then
-        return
-    else
-        itype = string.lower(itype)
-    end
-
     if type(creature) == "table" then
         -- get "name" of said table
         creature = creature.name
     end
-    if type(creature) == "string" then
-        creature = string.lower(creature)
-    else
-        return
-    end
+    assert(type(creature) == "string",
+        "animals.add_interactors: could not get valid name from creature (not a string or table with .name string). Got '"..
+        tostring(creature).."' type "..type(creature))
+    -- we only work lowercase
+    creature = creature:lower()
+
+    assert(type(itype) == "string",
+        "animals.add_interactors: attempt to add inapplicable itype (non-string) for '"..creature
+        .."'. Got '"..tostring(itype).."' type "..type(itype))
+    itype = itype:lower()
+
     local entity = minetest.registered_entities[creature]
     -- utilized for searching and override
 
@@ -2701,19 +2701,21 @@ function animals.add_interactors(creature, itype, ...)
     -- finds the creature's table provided within animals.interactors
     if (type(interactable) ~= "table") then -- creates new one if not found
         animals.interactors[creature] = {}
-
         interactable = animals.interactors[creature]
     end
 
-    local itable = animals.interactors[creature][itype]
+    -- interaction table
     -- finds the specified interactiontype table within creature's table
-    if (type(itable) ~= "table") then
-        -- check for in possible entity or create a new interactiontype
-        --  table if not found
+    local itable = animals.interactors[creature][itype]
 
+    -- check for itable in entity (if registered already) or create a new interactiontype
+    --  table if not found
+    if (type(itable) ~= "table") then
         -- check if entity exists, and check if it has the interactiontype
         if entity then
             itable = entity[itype]
+            -- if itype exists, copy it for local modifications and set it in the
+            -- global interactors table under said itype
             if itable then
                 itable = table.copy(itable) -- pass a copy
                 animals.interactors[creature][itype] = itable
@@ -2727,15 +2729,18 @@ function animals.add_interactors(creature, itype, ...)
         end
     end
 
-    local posscreatures = {...}
+    -- possible creatures
     -- convert specified creatures into an easily accessible table
     --  (the ... for multiple args)
-    for _,interactor in pairs(posscreatures) do
+    local posscreatures = {...}
+    for _,interactor in ipairs(posscreatures) do
+        -- unpacks table and adds to posscreatures
         if type(interactor) == "table" then
             for _,readd in pairs(interactor) do
                 table.insert(posscreatures,readd)
             end
         end
+        -- name of said creature
         if (type(interactor) == "string") then
             -- allow simplification with "self" parameter
             if interactor == "self" then
@@ -2761,21 +2766,19 @@ function animals.get_interactors(creature,itype)
     -- get a table of the creatures that interact with the
     --  specified creature in the specified interactiontype way
 
-    if (type(itype) ~= "string") then
-        return
-    else
-        itype = string.lower(itype)
-    end
+    -- get name of table if table
+    creature = type(creature) == "table" and creature.name or creature
+    assert(type(creature) == "string",
+        "animals.get_interactors: could not get valid name from creature (not a string or table with .name string). Got '"..
+        tostring(creature).."' type "..type(creature))
+    -- we only work lowercase
+    creature = creature:lower()
 
-    if type(creature) == "table" then
-        -- get "name" of said table
-        creature = creature.name
-    end
-    if type(creature) == "string" then
-        creature = string.lower(creature)
-    else
-        return
-    end
+    assert(type(itype) == "string",
+        "animals.get_interactors: attempt to get inapplicable itype (non-string) for '"..creature
+        .."'. Got '"..tostring(itype).."' type "..type(itype))
+    itype = itype:lower()
+
     -- get the creature's interactors table
     local interactable = animals.interactors[creature]
     if type(interactable) ~= "table" then
