@@ -74,7 +74,7 @@ local function clear_pot(pos)
     local meta = minetest.get_meta(pos)
     meta:set_string("formspec", "")
     meta:set_string("type", "")
-    meta:set_string("status", "") -- "" = unprepared, "Cooking", "Finished"
+    meta:set_string("status", "") -- "" = unprepared, then: prepared (water), cooking/cooling, finished
     meta:set_string("status_string","")
     meta:set_string("contents_string","")
     meta:set_string("note","")
@@ -273,7 +273,7 @@ local function pot_cook(pos, elapsed)
                 minimal.infotext_set_new(pos, meta) -- update infotext
                 return
             elseif temp < cook_temp[kind] then
-                if status ~= 'cooling' then
+                if status ~= "prepared" and status ~= 'cooling' then
                     meta:set_string("status", "cooling")
                     meta:set_string("status_string",S('Status: @1 pot', S(kind)))
                     minimal.infotext_set_new(pos, meta)
@@ -414,7 +414,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             local status = meta:get_string("status")
             --prevent removing items once cooking begins
-            if status ~= "" and status ~= "finished" then -- "" means cooking never started.
+            if status ~= "" and status ~= "finished" and status ~= "prepared" then -- "" means cooking never started.
                 return 0
             end
             meta:set_int("baking", meta:get_int("baking")
@@ -445,6 +445,7 @@ minetest.register_node(
             if meta:get_string("status") ~= "" then return end -- pot is active, return
             -- it's soupin' time
             meta:set_string("type","Soup")
+            meta:set_string("status","prepared") -- between water and ingredients, and cooling/cooking/finished
             meta:set_string("status_string",S("Soup Pot"))
             meta:set_string("contents_string",S("Contents: Water"))
             meta:set_string("note",S("Note: Add food to the pot to make soup"))
