@@ -78,9 +78,7 @@ local tofstring = function(t) return table.concat(t,"") end
         searchFS= "", -- search container
         output = "",
     }
-    output is cleared if any of the elements is updated to force a redraw
-    each section of the formspec is cached as string.  If updated,
-    a section should be set to nil and output set to "" to force a redraw.
+    If updated,a section should be set to nil to force a redraw.
     only sections cleared are recreated via make_inventory_formspec
 ]]
 local inventoryFS_cache = {}
@@ -395,16 +393,8 @@ local function FS_display_recipe(result, x, y)
     return tofstring(form_table)
 end
 
---[[Recreated Recipe part of the formspec
-- updated = true : displays refreshed recipe list.
-needs to be triggered when the craft_type, craft_tab, input_items,
-or selected inventory changes
-- updated = false : displays a button in recipe panel to indicate that the  recipe list is not up-to-date (but as it was when the formspec was closed)
-This is because there is currently no callback for "I opened the inventory" so closng it will create a formspec that will be the one dsplayed on re-opening
-needs to be triggered when we close the formspec
-]]
---#TODO I think this is called too many times and could be optimized ?
-local function FS_recipes_to_cache(cache, player_name, pInv, updated)
+--Recreated Recipe part of the formspec
+local function FS_recipes_to_cache(cache, player_name, pInv)
     local recipesFS = {}         -- final fromspec
     -- this is for more clarity, choice of display settings
     --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
@@ -414,70 +404,60 @@ local function FS_recipes_to_cache(cache, player_name, pInv, updated)
 
     -- Add recipes list -------------------------------------------------
 
-    -- #TODO needs to be cleaned, doing 2 sperate functions maybe
-    -- also not sure about the cache.output part (still used ?)
-    if updated == false then
-        recipesFS[#recipesFS + 1]= tofstring({
-            'button[0.25,1.75;6,2;refresh_r;',
-            S("Get list of recipes"),
-            ']',
-        })
-    else
-        -- add Scrollable container for recipes --------------------------
-        -- get recipe list to display
-        -- this list indicates if the recipe is craftable or not
-        -- it contains only the recipes matching the search parameter
-        local to_display, nb_recipes = get_recipes_list (cache, pInv, player_name, cache.sorted)
+    -- add Scrollable container for recipes --------------------------
+    -- get recipe list to display
+    -- this list indicates if the recipe is craftable or not
+    -- it contains only the recipes matching the search parameter
+    local to_display, nb_recipes = get_recipes_list (cache, pInv, player_name, cache.sorted)
 
-        local columns = 6 -- can show 6 items accross without scrollbar
+    local columns = 6 -- can show 6 items accross without scrollbar
 
-        -- add scrollbar if needed
-        -- #TODO don't reset the recipe lists just because of the scrollbar
-        local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
-        if nb_recipes > columns * line_number then
-            -- columns = columns -1 -- discard a line to make room for scrollbar
-            local scroll_max = math.ceil(nb_recipes / columns)-line_number
-            recipesFS[#recipesFS + 1] =
-            'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
-            .. 'smallstep=1;largestep=line_number;thumbsize=1]'
-            recipesFS[#recipesFS + 1]
-            = 'scrollbar[7.1,0.95;.5,' .. (1.14*line_number) .. ';vertical;recipes_scroll;'
-            .. sScroll .. ']'
-        end
+    -- add scrollbar if needed
+    -- #TODO don't reset the recipe lists just because of the scrollbar
+    local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
+    if nb_recipes > columns * line_number then
+        -- columns = columns -1 -- discard a line to make room for scrollbar
+        local scroll_max = math.ceil(nb_recipes / columns)-line_number
+        recipesFS[#recipesFS + 1] =
+        'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
+        .. 'smallstep=1;largestep=line_number;thumbsize=1]'
+        recipesFS[#recipesFS + 1]
+        = 'scrollbar[7.1,0.95;.5,' .. (1.14*line_number) .. ';vertical;recipes_scroll;'
+        .. sScroll .. ']'
+    end
 
-        -- create scroll container
-        recipesFS[#recipesFS + 1] = tofstring({'scroll_container[0,0.75;',
-                                            tostring(columns + 1),',',
-                                            (1.25 * line_number),
-                                            ';recipes_scroll;vertical;',
-                                             grid_size ,
-                                              ']'
-                                            })
+    -- create scroll container
+    recipesFS[#recipesFS + 1] = tofstring({'scroll_container[0,0.75;',
+                                        tostring(columns + 1),',',
+                                        (1.25 * line_number),
+                                        ';recipes_scroll;vertical;',
+                                         grid_size ,
+                                          ']'
+                                        })
 
-        -- Add recipe buttons in container  ------------------------------
-        local x = 0
-        local y = 0
+    -- Add recipe buttons in container  ------------------------------
+    local x = 0
+    local y = 0
 
-        --#TODO make a version with unique list for non ordered list as asked by Meniptah
-        for _, r_list in ipairs (to_display) do
-            --displays all recipes matchng with search field
-            for i, result in ipairs(r_list) do
-                -- display if this recipe matches the filter
-                if result.displayed == true then
-                    recipesFS[#recipesFS + 1] =
-                        FS_display_recipe(result, x * grid_size, y * grid_size)
+    --#TODO make a version with unique list for non ordered list as asked by Meniptah
+    for _, r_list in ipairs (to_display) do
+        --displays all recipes matchng with search field
+        for i, result in ipairs(r_list) do
+            -- display if this recipe matches the filter
+            if result.displayed == true then
+                recipesFS[#recipesFS + 1] =
+                    FS_display_recipe(result, x * grid_size, y * grid_size)
 
-                    x = x + 1
-                    if x >= columns  then
-                        x = 0
-                        y = y + 1
-                    end
+                x = x + 1
+                if x >= columns  then
+                    x = 0
+                    y = y + 1
                 end
             end
         end
-
-        recipesFS[#recipesFS + 1] = 'scroll_container_end[]'
     end
+
+    recipesFS[#recipesFS + 1] = 'scroll_container_end[]'
 
     -- saving new cache
     cache.recipesFS = tofstring(recipesFS)
@@ -578,7 +558,7 @@ local function make_inventory_formspec(player,context)
     end
 
     if cache.recipesFS == nil then
-        FS_recipes_to_cache(cache,player_name,pInv, true)
+        FS_recipes_to_cache(cache,player_name,pInv)
     end
 
     output[#output + 1] = 'container[3.5, 0.45]'
@@ -933,13 +913,6 @@ local function process_receive_fields(player, formname, fields)
         -- redraw if filter changed
         return set_search_to(cache, fields.crafting_search)
     end
-    -- process get recipes button
-    if fields.refresh_r then
-        cache.sScroll= 0 -- reset scrolling bar on top
-        FS_recipes_to_cache(cache, player_name, inv, true)
-        cache.output = ""
-        done = true
-    end
     -- process new craft tabs
     for i = 1, #(get_craft_tabs(cache.sTool)), 1 do
         if fields['sCraftTab_'..i] then
@@ -1114,3 +1087,64 @@ function crafting.crafting_item_on_rightclick(pos,node,clicker,
     return itemstack
 end
 
+-- update recipe list on inventory action outside the formspec
+-- #TODO do better when we can
+-- to come, we hope ! #TODO
+-- minetest.register_on_inventory_open(function(inventory)
+-- end)
+
+function crafting.refresh_recipes_FS(player)
+    local player_name = player:get_player_name()
+    local cache = inventoryFS_cache[player_name]
+    if cache then
+        cache_reset_recipes(cache)
+    end
+    sfinv.set_player_inventory_formspec(player)
+end
+
+minetest.register_on_player_inventory_action(function(player, action,
+    inventory, inventory_info)
+    local from_list = inventory_info.from_list
+    local to_list = inventory_info.to_list
+    local listname = inventory_info.listname
+
+    if from_list == "main" or to_list == "main"
+                           or listname == "main"
+                           or listname == "input_items" then
+
+        if from_list == "input_items" or to_list == "input_items" then
+            return
+        end
+        core.after(0.1, crafting.refresh_recipes_FS , player)
+    end
+end
+)
+
+minetest.register_on_item_pickup(function(itemstack, picker)
+    if picker:is_player() then
+        core.after(0.1, crafting.refresh_recipes_FS , picker)
+    end
+end
+)
+
+minetest.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack, pointed_thing)
+    if placer:is_player() then
+        core.after(0.1, crafting.refresh_recipes_FS , placer)
+    end
+end
+)
+
+minetest.register_on_dignode(function(pos, oldnode, digger)
+    if digger:is_player() then
+        core.after(0.1, crafting.refresh_recipes_FS , digger)
+    end
+end
+)
+
+-- #TODO useless for now (we use on_use and _on_consume)
+minetest.register_on_item_eat(function(itemstack, picker)
+    if picker:is_player() then
+        core.after(0.1, crafting.refresh_recipes_FS , picker)
+    end
+end
+)
