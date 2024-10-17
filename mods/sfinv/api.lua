@@ -87,7 +87,7 @@ function sfinv.make_formspec_for_exile(player, context, content, show_inv)
 	local tmp = {
         "formspec_version[5]",
 		--"size[11.2,10.5]",
-        "size[11.2,10]",
+        "size[11.4,10]",
 		"position[0.5,0.5]",
 		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
         add_setting_button(),

@@ -262,8 +262,7 @@ local function FS_tool_types_to_cache(cache)
     local tool_list = cache.tool_list or generate_tools_list()
     local tool_tabsFS = {
         'label[0,0;'..S("Tool used")..']',
-        -- 'box[0,.2;2.5,1.9;black]',
-        'container[0,0.3]',
+        'container[0.1,0.3]',
         'style_type[item_image_button;border=false;bgimg_middle=]'
     }
 
@@ -290,10 +289,6 @@ local function FS_tool_types_to_cache(cache)
             tool_tabsFS[#tool_tabsFS + 1] =
                 'tooltip[b_sTool_' .. i .. ';'
                 .. ItemStack(tool):get_short_description() .. ']'
-        else
-            -- display empty space #TODO unused right now
-            tool_tabsFS[#tool_tabsFS + 1] =
-            'image[' ..coords..';0.8,0.8;crafting_slot_empty.png]'
         end
         x = x + 1
         if x > 1 then
@@ -453,7 +448,7 @@ local function FS_recipes_to_cache(cache, player_name, pInv, updated)
                 -- display if this recipe matches the filter
                 if result.displayed == true then
                     recipesFS[#recipesFS + 1] =
-                    FS_display_recipe(result, x * grid_size, y * grid_size)
+                        FS_display_recipe(result, x * grid_size, y * grid_size)
 
                     x = x + 1
                     if x >= columns  then
@@ -569,14 +564,14 @@ local function make_inventory_formspec(player,context)
         FS_recipes_to_cache(cache,player_name,pInv, true)
     end
 
-    output[#output + 1] = 'container[3.2, 0.45]'
+    output[#output + 1] = 'container[3.5, 0.45]'
     output[#output + 1] = cache.FS_craftabs
     output[#output + 1] = cache.recipesFS
     output[#output + 1] = 'container_end[]'
 
     -- Search field part -------------------------------------------------------
 
-    output[#output + 1] = 'container[3.2, 5.2]'
+    output[#output + 1] = 'container[3.5, 5.2]'
     if cache.searchFS == nil then
         -- Build search field to be in container
         cache.searchFS = tofstring({
@@ -600,11 +595,11 @@ local function make_inventory_formspec(player,context)
 
     output[#output + 1] = 'container[0.45,6.4]'
     output[#output + 1] = tofstring({
-        'label[0,0;'..S("Quantity")..':]',
-        'checkbox[2.6,0;qty1;'..qtylab[1]..';'..qtytab[1]..']',
-        'checkbox[4.65,0;qty2;'..qtylab[2]..';'..qtytab[2]..']' ,
-        'checkbox[6.65,0;qty3;'..qtylab[3]..';'..qtytab[3]..']'
-    }
+            'label[0,0;'..S("Quantity")..':]',
+            'checkbox[2.6,0;qty1;'..qtylab[1]..';'..qtytab[1]..']',
+            'checkbox[4.65,0;qty2;'..qtylab[2]..';'..qtytab[2]..']' ,
+            'checkbox[6.65,0;qty3;'..qtylab[3]..';'..qtytab[3]..']'
+        }
     )
     output[#output + 1] = 'container_end[]'
 
@@ -624,7 +619,7 @@ local function make_inventory_formspec(player,context)
         -- Generated Input inventory List Cache
         -- Shouldn't need to be rebuilt more then once per player per restart
         local inputs = pInv:get_list('input_items')
-        if not inputs or #inputs ~= 6 then
+        if not inputs or #inputs ~= 9 then
             -- create inputs inventory list and draw formspec for input_itmes
             pInv:set_size('input_items', 6)
         end
@@ -632,7 +627,7 @@ local function make_inventory_formspec(player,context)
         cache.input_listFS = tofstring({
             'label[0,0;'..S("Use first:")..']',
             'style_type[list;size=.7,.7;spacing=.1]',
-            'list[current_player;input_items;0.1,.3;2,3;0]',
+            'list[current_player;input_items;0.1,0.4;3,3;0]',
         }
     )
     end
