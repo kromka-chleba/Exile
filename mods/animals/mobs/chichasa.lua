@@ -1,9 +1,13 @@
 ----------------------------------------------------------------------
--- Pegasun
---chicken like bird
+-- Chichasa
+--small ground bird
 --[[
     males and females, must mate to reproduce.
     lives off flora, spreading surface and insects
+    small, harmless, difficult to catch or see.
+    The peace loving hippy cousin of the mighty pegasun
+    Use much the same values as pegasun, so they can be balanced together.
+    Search for "NotPegasun" to find values unique to chichasa
 ]]
 ---------------------------------------------------------------------
 animals = animals
@@ -134,9 +138,9 @@ local function brain(self)
                 elseif self.sexual and random() < (male and 0.7 or 0.5) then
                     --we are randy
                     mobkit.make_sound(self,'mating')
-                    local mate = male and animals.mate_assess(self, 'animals:pegasun')
+                    local mate = male and animals.mate_assess(self, 'animals:chichasa')
                         or not male and animals.mate_assess(self,
-                                                            'animals:pegasun_male')
+                                                            'animals:chichasa_male')
                     if mate then
                         if male then -- we're going in brothers
                             -- go get her!
@@ -187,38 +191,39 @@ end
 ---------------
 
 ----------------------------------------------
--- SETTING OF PEGASUN INTERACTOR SETTINGS
-animals.add_interactors("animals:pegasun","predators", "animals:kubwakubwa",
+-- SETTING INTERACTOR SETTINGS
+animals.add_interactors("animals:chichasa","predators", "animals:kubwakubwa",
                         "animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("animals:pegasun","prey", "animals:sneachan",
+animals.add_interactors("animals:chichasa","prey", "animals:sneachan",
                         "animals:impethu")
-animals.add_interactors("animals:pegasun","friends", "self",
-                        "animals:pegasun_male")
-animals.add_interactors("animals:pegasun","rivals", "self")
+animals.add_interactors("animals:chichasa","friends", "self",
+                        "animals:chichasa_male")
+animals.add_interactors("animals:chichasa","rivals", "self")
 
 -- MALE INTERACTORS
-animals.add_interactors("animals:pegasun_male","friends", "animals:pegasun")
-animals.add_interactors("animals:pegasun_male","rivals", "self",
-                        "animals:chichasa", "animals:chichasa_male")
+animals.add_interactors("animals:chichasa_male","friends", "animals:chichasa",
+                        "animals:pegasun")
+animals.add_interactors("animals:chichasa_male","rivals", "self",
+                        "animals:pegasun", "animals:pegasun_male")
 
 ------------------------------------------------------------------------
 --FEMALE
 local self_data = {
-    name = "animals:pegasun",
+    name = "animals:chichasa",
     --core
-    -- _desc = "Female Pegasun",
+    -- _desc = "Female Chichasa",
     initial_properties = {
         max_hp = 40,
         physical = true,
         collide_with_objects = true,
-        collisionbox = {-0.1728, -0.81, -0.1728, 0.1728, -0.27, 0.1728,},
+        collisionbox = {-0.25, 0, -0.25, 0.25, 0.5, 0.25,},
         visual = "mesh",
-        mesh = "animals_pegasun.b3d",
-        textures = {"animals_pegasun.png"},
-        visual_size = {x = 1.08, y = 1.08},
+        mesh = "animals_chichasa.b3d",
+        textures = {"animals_chichasa.png"},
+        visual_size = {x = 6, y = 6},
         makes_footstep_sound = true,
     },
-    _desc = S("Female Pegasun"),
+    _desc = S("Female Chichasa"),
     timeout = 0,
 
     -- animal stats
@@ -240,56 +245,56 @@ local self_data = {
     young_per_egg = 1,           --will get this/energy_egg starting energy
     -- lifespan
     lifespan = "energy_max*15",
-    mature_age = "energy_max*0.36", -- 36% of energy_max (8000) or 2880
+    mature_age = "energy_max*0.2", -- 20% of energy_max (8000) or 1600 --NotPegasun (lower)
     -- interactions
     -- predators + rivals automatically defined in registration
     consume_non_prey = false,
-    player_interaction = 0.01,
-    predator_interactions = 0.01,
+    player_interaction = 0.005,
+    predator_interactions = 0.005,
     capture_interactions = {
-        club = 0.35,
+        club = 0.25, --NotPegasun (harder to catch)
     },
-    herding_distance = 2,
+    herding_distance = 5, --NotPegasun (scares easier)
     sex = "female",
     -- logic for mobkit
     logic = brain,
     -- animations + sounds
     animation = {
-        walk={range={x=71, y=90}, speed=24, loop=true},
-        fast={range={x=91, y=110}, speed=24, loop=true},
+        walk={range={x=41, y=59}, speed=30, loop=true},
+        fast={range={x=91, y=110}, speed=45, loop=true},
         stand={
-            {range={x=1, y=31}, speed=28, loop=true},
-            {range={x=31, y=70}, speed=32, loop=true},
+            {range={x=1, y=39}, speed=20, loop=true},
+            {range={x=61, y=89}, speed=45, loop=true},
         },
-        dead = { range = {x=0, y=0}, speed = 0, loop=false},
+        dead = { range = {x=91, y=99}, speed = 70, loop=false},
     },
     sounds = {
         warn = {
-            name = "animals_pegasun_warn",
+            name = "animals_chichasa_warn",
             gain={0.2, 0.5},
             fade={0.5, 1.5},
             pitch={0.9, 1.1},
         },
         scared = {
-            name = "animals_pegasun_scared",
+            name = "animals_chichasa_scared",
             gain={0.2, 0.3},
             fade={0.5, 1.5},
             pitch={1.3, 1.4},
         },
         call = {
-            name = "animals_pegasun_call",
+            name = "animals_chichasa_call",
             gain={0.2, 0.4},
             fade={0.5, 1.5},
             pitch={0.9, 1.1},
         },
         mating = {
-            name = "animals_pegasun_warn",
+            name = "animals_chichasa_mate",
             gain={0.4, 0.7},
             fade={0.5, 1.5},
             pitch={1.2,1.7}--{0.9, 1.4},
         },
         attack = {
-            name = "animals_pegasun_attack",
+            name = "animals_chichasa_attack",
             gain={0.4, 0.7},
             fade={0.5, 1.5},
             pitch={0.9, 1.4},
@@ -298,15 +303,15 @@ local self_data = {
     --movement
     springiness=0,
     buoyancy = 1.01,
-    max_speed = 2,                                       -- m/s
-    jump_height = 1.2,                           -- nodes/meters
-    view_range = 26,                                     -- nodes/meters
-    warn_distance = 14,
-    player_warn_distance = 10,
-    aggression_distance = 5,
-    stepheight = 0.8,
+    max_speed = 2.5,       -- m/s --NotPegasun (faster)
+    jump_height = 1.2,     -- nodes/meters
+    view_range = 26,       -- nodes/meters
+    warn_distance = 6,     --NotPegasun (shorter distance)
+    player_warn_distance = 6, --NotPegasun (shorter distance)
+    aggression_distance = 2, --NotPegasun (shorter distance)
+    stepheight = 1.05,  --NotPegasun
     --attack
-    attack={range=0.6, damage_groups={fleshy=2}},
+    attack={range=0.9, damage_groups={fleshy=1}}, --NotPegasun (weaker)
     armor_groups = {fleshy=100},
     --on actions
     drops = {
@@ -320,34 +325,34 @@ local self_data = {
     end,
     -- egg
     egg = {
-        description = S('Pegasun Egg'),
+        description = S('Chichasa Egg'),
         tiles = {"animals_gundu_eggs.png"},
         stack_max = minimal.stack_max_medium,
         node_box = {
             type = "fixed",
-            fixed = {-0.125, -0.5, -0.125,  0.125, -0.125, 0.125},
+            fixed = {-0.125, -0.5, -0.125,  0.125, -0.25, 0.125}, --NotPegasun (smaller)
         },
         groups = {egg = 2},
-        egg_hatching = {"animals:pegasun","animals:pegasun_male"},
+        egg_hatching = {"animals:chichasa","animals:chichasa_male"},
     },
     -- spawnegg or live animal
     spawnegg = {
-        description = S("Live Female Pegasun")
+        description = S("Live Female Chichasa")
     }
 }
-self_data = animals.register_animal("animals:pegasun",self_data)
+self_data = animals.register_animal("animals:chichasa",self_data)
 local self_male = table.copy(self_data)
-self_male.name = "animals:pegasun_male"
+self_male.name = "animals:chichasa_male"
 -- don't register egg again for male
 self_male.egg = nil
 -- modifications for males
 -- initial properties
 --self_male.logic = brain_male
 self_male.initial_properties.max_hp = 45
-self_male.initial_properties.textures = {"animals_pegasun_male.png"}
+self_male.initial_properties.textures = {"animals_chichasa_male.png"}
 animals.sizeify(self_male,1.15) -- sexual dimorphism, male bigger then female (15%)
 -- physical properties
-self_male.max_speed = 2.5
+self_male.max_speed = 3  --NotPegasun (faster)
 self_male.jump_height = 1.5
 -- male energy, lifespan, and misc interactive
 self_male.lifespan = self_data.lifespan*1.2
@@ -357,11 +362,8 @@ self_male.sex = "male"
 self_male.rivals = nil
 self_male.friends = nil
 -- unique predator + player interactions
-self_male.predator_interactions = {
-    default = 0.8,
-    ["animals:kubwakubwa"] = 1,
-}
-self_male.player_interaction = 1
+self_male.predator_interactions = 0.02 --NotPegasun (run away!)
+self_male.player_interaction = 0.01 --NotPegasun (run away!)
 -- male functions
 self_male.on_rightclick = function(self, clicker, time_from_last_click,
                                    tool_capabilities)
@@ -373,32 +375,32 @@ end
 -- sounds
 self_male.sounds = {
     warn = {
-        name = "animals_pegasun_warn",
+        name = "animals_chichasa_warn",
         gain={0.5, 0.8},
         fade={0.5, 1.5},
         pitch={0.9, 1.1},
         max_hear_distance = 50
     },
     scared = {
-        name = "animals_pegasun_scared",
+        name = "animals_chichasa_scared",
         gain={0.3, 0.4},
         fade={0.5, 1.5},
         pitch={1.2, 1.3},
     },
     call = {
-        name = "animals_pegasun_call",
+        name = "animals_chichasa_call",
         gain={0.2, 0.5},
         fade={0.5, 1.5},
         pitch={0.9, 1.1},
     },
     mating = {
-        name = "animals_pegasun_warn",--"animals_pegasun_mate"
+        name = "animals_chichasa_mate",
         gain={0.5, 0.9},
         fade={0.5, 1.5},
         pitch={1.2,1.5}--{0.8, 1.2},
     },
     attack = {
-        name = "animals_pegasun_attack",
+        name = "animals_chichasa_attack",
         gain={0.6, 0.8},
         fade={0.5, 1.5},
         pitch={0.7, 1.1},
@@ -410,10 +412,9 @@ self_male.sounds = {
         pitch={0.5, 1.5},
     },
 }
--- attack
-self_male.attack={range=0.9, damage_groups={fleshy=4}}
+
 -- male spawnegg or live animal modifications
 self_male.spawnegg.description = nil -- handled in spawnegg registration
-self_male._desc = S("Male Pegasun")
+self_male._desc = S("Male Chichasa")
 -- registering male
 animals.register_animal(self_male.name,self_male)
