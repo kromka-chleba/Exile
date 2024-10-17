@@ -16,46 +16,47 @@ loot_table = {
    -- Tools
    -- if max amount is nil and the item is a tool, wear will be applied
    -- max of 1 or more will give a stack of unused tools (wear would split them)
-   {"tech:digging_stick", 2 },
-   {"tech:stone_chopper", 2},
-   {"tech:adze_granite", 6},
-   {"artifacts:spyglass", 8, 1},
-   {"spears:spear_stone", 2 },
-   {"tech:paint_lime_white", 2 },
-   {"tech:paint_glow_paint", 2 },
-   {"inferno:fire_sticks", 1 },
-   -- Materials
-   {"nodes_nature:clay", 1, 2 },
-   {"nodes_nature:silt", 1, 2 },
-   {"nodes_nature:loam", 1, 2 },
-   {"nodes_nature:sand", 1, 2 },
-   {"tech:rammed_earth", 1, 3 },
-   {"tech:charcoal", 2, 4 },
-   {"tech:thatch", 2, 8 },
-   {"tech:stick", 1, 18 },
-   -- Items
-   {"tech:torch", 1, 8 }, -- TODO: support fuel values perhaps?
-   {"tech:small_wood_fire_unlit", 1, 2 },
-   {"tech:clay_oil_lamp_unlit", 2 },
-   {"tech:clay_oil_lamp_unfired", 1 },
-   {"doors:door_wattle", 2, 4 }, -- They can't resist
-   {"tech:wattle", 1, 6 },
-   {"tech:wattle_loose", 1, 6 },
-   {"tech:clay_water_pot_unfired", 1, 2},
-   {"tech:clay_water_pot", 5, 2},
-   {"backpacks:backpack_wicker_bag", 4 },
-   {"tech:sleeping_mat_bottom", 1, 3 },
-   {"ropes:ropeladder_top", 3, 5 },
-   {"nodes_nature:lambakap_seed", 3, 24 },
-   -- Edible but not rotten?
-   {"nodes_nature:sasaran_cone", 1, 16 },
-   {"nodes_nature:vansano_seed", 1, 36 },
-   {"nodes_nature:merki", 2, 6 },
-   {"tech:herbal_medicine", 3, 3},
-   {"tech:tiku", 2, 4},
-   {"tech:vegetable_oil", 1, 6},
-   {"tech:maraka_bread_cooked", 3, 4},
-   {"tech:maraka_bread_burned", 1, 4},
+    {"tech:digging_stick", 2 },
+    {"tech:stone_chopper", 2},
+    {"tech:adze_granite", 6},
+    {"artifacts:spyglass", 8, 1},
+    {"artifacts:wayfinder_1", 5, 1},
+    {"spears:spear_stone", 2 },
+    {"tech:paint_lime_white", 2 },
+    {"tech:paint_glow_paint", 2 },
+    {"inferno:fire_sticks", 1 },
+    -- Materials
+    {"nodes_nature:clay", 1, 2 },
+    {"nodes_nature:silt", 1, 2 },
+    {"nodes_nature:loam", 1, 2 },
+    {"nodes_nature:sand", 1, 2 },
+    {"tech:rammed_earth", 1, 3 },
+    {"tech:charcoal", 2, 4 },
+    {"tech:thatch", 2, 8 },
+    {"tech:stick", 1, 18 },
+    -- Items
+    {"tech:torch", 1, 8 }, -- TODO: support fuel values perhaps?
+    {"tech:small_wood_fire_unlit", 1, 2 },
+    {"tech:clay_oil_lamp_unlit", 2 },
+    {"tech:clay_oil_lamp_unfired", 1 },
+    {"doors:door_wattle", 2, 4 }, -- They can't resist
+    {"tech:wattle", 1, 6 },
+    {"tech:wattle_loose", 1, 6 },
+    {"tech:clay_water_pot_unfired", 1, 2},
+    {"tech:clay_water_pot", 5, 2},
+    {"backpacks:backpack_wicker_bag", 4 },
+    {"tech:sleeping_mat_bottom", 1, 3 },
+    {"ropes:ropeladder_top", 3, 5 },
+    {"nodes_nature:lambakap_seed", 3, 24 },
+    -- Edible but not rotten?
+    {"nodes_nature:sasaran_cone", 1, 16 },
+    {"nodes_nature:vansano_seed", 1, 36 },
+    {"nodes_nature:merki", 2, 6 },
+    {"tech:herbal_medicine", 3, 3},
+    {"tech:tiku", 2, 4},
+    {"tech:vegetable_oil", 1, 6},
+    {"tech:maraka_bread_cooked", 3, 4},
+    {"tech:maraka_bread_burned", 1, 4},
 }
 local bones_formspec = -- #TODO: get the bones mod to set this?
 	"size[8,9]" ..
