@@ -69,6 +69,9 @@ local tofstring = function(t) return table.concat(t,"") end
             -- }
         c_recipes= nil -- list of craftable recipes to display
         u_recipes=nil -- list of uncraftable recipes to display
+        recipes = nil -- unsorter list of recipes
+        sorted = true -- do I want the list to be sorted or not ?
+        --#TODO could be put as player setting, or in crafting sfinv as button
 
         FS_craftabs = nil
         recipesFS = {},
@@ -175,11 +178,10 @@ local function initiate_cache(player)
     cache.sTab = 1 -- default to first tab
     cache.cTabs = get_craft_tabs(cache.sTool)
     cache.sScroll = 0 -- reset scrollbar to top
+    cache.sorted = true -- tell if we sort list or not #TODO for futur setting, currently always true
 
     -- quantity selector
     cache.qty = 1
-    -- Search field
-    cache.sSearch = nil --current filter in search field
 
     -- final formspec
     cache.output = ""
@@ -218,10 +220,7 @@ local function update_recipes_lists(player_name, cache, item_hash)
     end
 end
 
--- build recipes list to display in crafting tab
--- is search is not nil, it returns only the ones matching the search criteria
-local function recipes_for_player(cache, pInv, player_name, ctype, level, search)
-    local unlocked = crafting.get_unlocked(player_name)
+local function get_item_hash(pInv)
     -- build player items hash
     local item_hash = {}
     -- add input_items inventory
@@ -232,22 +231,44 @@ local function recipes_for_player(cache, pInv, player_name, ctype, level, search
     if pInv:get_size('main') > 0 then
         crafting.set_item_hashes_from_list(pInv,'main', item_hash)
     end
-    -- save item_hash to cache
-    cache.item_hash = item_hash
-    -- Get all available recipies and mark craftible ones.
-    -- #TODO maybe just pass the player and cache and not have that many parameters
-    local c_recipes = cache.c_recipes
-    local u_recipes = cache.u_recipes
-    if not (c_recipes and u_recipes) then
-        c_recipes, u_recipes =  crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
-        -- save the lists in the cache
-        cache.c_recipes=c_recipes
-        cache.u_recipes=u_recipes
-    else
-        update_recipes_lists(player_name, cache, item_hash)
-    end
 
-    return cache.c_recipes, cache.u_recipes
+    return item_hash
+end
+
+-- build recipes list to display in crafting tab
+-- is search is not nil, it returns only the ones matching the search criteria
+-- return sorted lists if sorted = true, unique list else
+-- also return the size as 2nd return
+local function get_recipes_list(cache, pInv, player_name, sorted)
+    local cTabs = get_craft_tabs(cache.sTool)    -- Crafting tabs to display
+    local sTab = cache.sTab      -- selected craft type tab
+    local ctype = cTabs[sTab]
+    local sLevel = cache.sLevel  -- level associated with selected craft type
+    local sSearch = cache.sSearch
+    local unlocked = crafting.get_unlocked(player_name)
+
+    cache.item_hash = get_item_hash(pInv)
+
+    -- Get all available recipies and mark craftible ones.
+    if sorted == true then
+        local c_recipes = cache.c_recipes
+        local u_recipes = cache.u_recipes
+        if not (c_recipes and u_recipes) then
+            c_recipes, u_recipes =  crafting.get_all_sorted(ctype, sLevel, cache.item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
+            -- save the lists in the cache
+            cache.c_recipes=c_recipes
+            cache.u_recipes=u_recipes
+        else
+            update_recipes_lists(player_name, cache, cache.item_hash)
+        end
+        return {cache.c_recipes, cache.u_recipes},
+                (#cache.c_recipes + #cache.u_recipes)
+    elseif not sorted then --sorted is false or non given
+        if not cache.recipes then
+            cache.recipes = crafting.get_all(ctype, sLevel, cache.item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
+        end
+        return {cache.recipes}, #cache.recipes
+    end
 end
 
 -- Formspec generations -------------------------------------------------------
@@ -385,13 +406,6 @@ needs to be triggered when we close the formspec
 --#TODO I think this is called too many times and could be optimized ?
 local function FS_recipes_to_cache(cache, player_name, pInv, updated)
     local recipesFS = {}         -- final fromspec
-    local sTool = cache.sTool    -- craft type Item selected
-    local sTab = cache.sTab      -- selected craft type tab
-    local sLevel = cache.sLevel  -- level associated with selected craft type
-    local cTabs = get_craft_tabs(sTool)    -- Crafting tabs to display
-    local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
-    local sSearch = cache.sSearch
-
     -- this is for more clarity, choice of display settings
     --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
     used to place them on a grid, including tabs]]
@@ -413,12 +427,13 @@ local function FS_recipes_to_cache(cache, player_name, pInv, updated)
         -- get recipe list to display
         -- this list indicates if the recipe is craftable or not
         -- it contains only the recipes matching the search parameter
-        local c_recipes, u_recipes = recipes_for_player(cache, pInv,        player_name, cTabs[sTab], sLevel, sSearch)
+        local to_display, nb_recipes = get_recipes_list (cache, pInv, player_name, cache.sorted)
 
         local columns = 6 -- can show 6 items accross without scrollbar
-        local nb_recipes = #c_recipes+#u_recipes
 
         -- add scrollbar if needed
+        -- #TODO don't reset the recipe lists just because of the scrollbar
+        local sScroll = cache.sScroll or 0 -- default to 1 for top of scroll
         if nb_recipes > columns * line_number then
             -- columns = columns -1 -- discard a line to make room for scrollbar
             local scroll_max = math.ceil(nb_recipes / columns)-line_number
@@ -431,18 +446,20 @@ local function FS_recipes_to_cache(cache, player_name, pInv, updated)
         end
 
         -- create scroll container
-        recipesFS[#recipesFS + 1] = tofstring({
-            'scroll_container[0,0.75;',
-            tostring(columns + 1),',',(1.25 * line_number),
-            ';recipes_scroll;vertical;', grid_size , ']'
-        })
+        recipesFS[#recipesFS + 1] = tofstring({'scroll_container[0,0.75;',
+                                            tostring(columns + 1),',',
+                                            (1.25 * line_number),
+                                            ';recipes_scroll;vertical;',
+                                             grid_size ,
+                                              ']'
+                                            })
 
         -- Add recipe buttons in container  ------------------------------
         local x = 0
         local y = 0
 
         --#TODO make a version with unique list for non ordered list as asked by Meniptah
-        for _, r_list in ipairs ({c_recipes, u_recipes}) do
+        for _, r_list in ipairs (to_display) do
             --displays all recipes matchng with search field
             for i, result in ipairs(r_list) do
                 -- display if this recipe matches the filter
@@ -653,7 +670,8 @@ end
 local function cache_reset_recipes(cache)
     -- will force to resort recipes
     cache.c_recipes = nil -- list of craftable recipes to display
-    cache.u_recipes =nil -- list of uncraftable recipes to display
+    cache.u_recipes = nil -- list of uncraftable recipes to display
+    cache.recipes = nil
     cache.recipesFS = nil -- delete recipes formspect from cache
     cache.sScroll = 0 -- reset scrollbar to top
 end
@@ -769,8 +787,8 @@ local function close_inventory_formspec(player)
     cache.qty = 1
     -- reset and redraw Search field
     set_search_to(cache, nil)
-    -- update recipe list to have refresh button
-    FS_recipes_to_cache(cache,player_name,pInv, false)
+    -- update recipe list #TODO this is only to resort list, improve to just do that, not the whole test
+    cache_reset_recipes(cache)
 end
 
 local function process_button(key,btypes)
@@ -1095,3 +1113,4 @@ function crafting.crafting_item_on_rightclick(pos,node,clicker,
     minetest.show_formspec(player_name,'exile:crafting',formspec)
     return itemstack
 end
+

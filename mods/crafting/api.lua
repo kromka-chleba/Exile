@@ -518,10 +518,26 @@ end
     format of each table is the one documented for crafting.get_all
 ]]
 function crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, lang_code)
-    assert(crafting.recipes[ctype], "No such craft type!")
-    assert(not search or type(search) == "string", "search need to be a string")
+    local t = crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
     local craftable_t = {}
     local uncraftable_t = {}
+
+    for _, result in ipairs (t) do
+        -- add recipe to list only if it matchs search
+        if result.craftable then
+            craftable_t[#craftable_t + 1] = result
+        else
+            uncraftable_t[#uncraftable_t + 1] = result
+        end
+    end
+    return craftable_t,uncraftable_t
+end
+
+-- get all unlocked recipes to display
+function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
+    assert(crafting.recipes[ctype], "No such craft type!")
+    assert(not search or type(search) == "string", "search need to be a string")
+    local t = {}
 
     for _, recipe in pairs(crafting.recipes[ctype]) do
         local craftable = true
@@ -594,30 +610,15 @@ function crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, lang
             end
 
             -- add recipe to list only if it matchs search
-            if craftable then
-                craftable_t[#craftable_t + 1] = {
-                    recipe    = recipe,
-                    items     = items,
-                    craftable = craftable,
-                    displayed = displayed
-                }
-            else
-                uncraftable_t[#uncraftable_t + 1] = {
-                    recipe    = recipe,
-                    items     = items,
-                    craftable = craftable,
-                    displayed = displayed
-                }
-            end
+            t[#t + 1] = {
+                recipe    = recipe,
+                items     = items,
+                craftable = craftable,
+                displayed = displayed
+            }
         end
     end
-    return craftable_t,uncraftable_t
-end
-
--- get all unlocked recipes to display
-function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
-    local c_t, u_t = crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, lang_code)
-    return array_merge(c_t,u_t)
+    return t
 end
 
 
