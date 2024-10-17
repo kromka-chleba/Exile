@@ -22,7 +22,7 @@ loot_table = {
     {"tech:stone_chopper", 2},
     {"tech:adze_granite", 6},
     {"artifacts:spyglass", 8, 1},
-    {"artifacts:wayfinder", 5, 1},
+    {"artifacts:wayfinder_1", 5, 1},
     {"spears:spear_stone", 2 },
     {"tech:paint_lime_white", 2 },
     {"tech:paint_ochre_red", 2 },
