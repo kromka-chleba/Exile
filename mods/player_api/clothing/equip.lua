@@ -209,14 +209,15 @@ minetest.register_on_player_inventory_action(function(player, action,
     inventory, inventory_info)
     local from_list = inventory_info.from_list
     local to_list = inventory_info.to_list
+    local listname = inventory_info.listname
     -- update player settings if we add/remove cloths
     for _, group in ipairs(cloth_groups) do
-        if from_list == group["name"] or to_list == group["name"] then
+        if from_list == group["name"]
+            or to_list == group["name"]
+            or listname == group["name"] then
             -- update texture and temp settings
             --[[#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus during the process since I added setting button in sfinv : it seems this is linked to the fact that the gear button gets the focus]]
-            minetest.after(0.1, function()
-                return player_api.update_player(player)
-            end)
+            core.after(0.1, player_api.update_player, player)
             break
         end
     end
@@ -225,9 +226,7 @@ minetest.register_on_player_inventory_action(function(player, action,
         redirect(player,inventory, from_list, inventory_info.from_index,"temp_slot")
         -- update texture and temp settings
         --[[#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus during the process since I added setting button in sfinv : it seems this is linked to the fact that the gear button gets the focus]]
-        minetest.after(0.1, function()
-            return player_api.update_player(player)
-        end)
+        core.after(0.1, player_api.update_player, player)
     end
 end)
 
