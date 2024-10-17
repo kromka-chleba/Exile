@@ -604,6 +604,15 @@ function animals.core_life(self, pos)
         self:modify('energy',-self.energy_loss)
     end
 
+    -- size difference mechanics, only call upon startup (nil size_dif)
+    if not self.size_dif then
+        self.size_dif = mobkit.recall(self,"size_dif") or 1
+        if self.size_dif ~= 1 then
+            animals.sizeify(self, self.size_dif)
+        end
+    end
+    animals.age_mechanics(self)
+
     -- get temp
     local temp = climate.get_point_temp(pos, true)
     if (temp == 450) then
@@ -2894,6 +2903,117 @@ function animals.get_nearby_player(self,forceplyr)
             return plyr
         end
     end
+end
+
+-- animals.size_dif_mechanics
+-- modifies max_hp, speed, attack, and capture mechanics depending on self.size_dif
+-- does not modify actual animal's physical object - see animals.sizeify for that
+function animals.size_dif_mechanics(self)
+    local dif = self.size_dif
+    if not dif then return end
+    if not self.object then return end -- we don't even have a physical body!!!
+    local data = minetest.registered_entities[self.name]
+    if not data then return end
+    self.max_speed = data.max_speed * dif
+    local max_hp = data.initial_properties and data.initial_properties.max_hp
+    local attack = data.attack
+    local cap_interact = data.capture_interactions
+    -- checks
+    if max_hp then
+        -- round down max_hp after multiplying it by dif, ensure it's no less than 1
+        -- smaller have less hp, bigger have more hp
+        max_hp = math.max(math.floor(max_hp*dif), 1)
+        local props = self.object:get_properties()
+        -- if got object properties, update them to new max_hp (if max_hp does not equal object max_hp)
+        if props and max_hp ~= props.max_hp then
+            props.max_hp = max_hp
+            self.object:set_properties(props)
+        end
+        -- set self values
+        self.max_hp = max_hp
+        -- if current hp is greater than new max_hp, clamp down or leave it as is
+        self.hp = self.hp > max_hp and max_hp or self.hp
+    end
+    if attack then
+        -- reset to data attack values
+        if dif == 1 then
+            self.attack = attack
+        else
+            -- copy for local modifications
+            attack = table.copy(attack)
+            attack.range = attack.range*dif -- increase/decrease range depending on size dif (smaller less bigger more)
+            -- copy damage_groups or create blank table (won't be iterated over)
+            attack.damage_groups = attack.damage_groups and table.copy(attack.damage_groups) or {}
+            for dmgtype, dmg in pairs(attack.damage_groups) do
+                -- increase/decrease each damage according to size dif
+                attack.damage_groups[dmgtype] = math.max(math.floor(dmg*dif),1)
+            end
+            -- update attack
+            self.attack = attack
+        end
+    end
+    if cap_interact then
+        -- reset to data capture interactions
+        if dif == 1 then
+            self.capture_interactions = cap_interact
+        else
+            -- copy for local modifications (don't want to modify global table!)
+            cap_interact = table.copy(cap_interact)
+            for captype, capvalue in pairs(cap_interact) do -- capture type, capture value (percentage/table)
+                if type(capvalue) == "table" then
+                    -- again, copy for local modifications
+                    capvalue = table.copy(capvalue)
+                    for ind,caperc in pairs(capvalue) do -- index, capture percentage
+                        capvalue[ind] = math.min(caperc / dif, 1)
+                    end
+                elseif type(capvalue) == "number" then
+                    -- clamp below 1 with math.min
+                    -- divide capvalue by difference to get higher chance for smaller sizes, lower chance for bigger
+                    cap_interact[captype] = math.min(capvalue / dif, 1)
+                end
+            end
+            -- update
+            self.capture_interactions = cap_interact
+        end
+    end
+end
+
+-- animals.age_mechanics
+-- modifies animal size (sizeify) and "size_dif" (size difference) value according to age
+-- determines with "growth phases", base_size_dif (base size difference), and a min_size (minimum size)
+function animals.age_mechanics(self, phases)
+    -- get or create a "mature_age" to base age_mechanics off of
+    local mature_age = self.mature_age or (self.lifespan * 0.12)
+    if self.size_dif == 1 and self.age >= mature_age then return end -- we're a big kid now, no more modifications !
+    local size = 1 -- expected base size dif
+    local min_size = 0.25 -- can't be smaller than 25%
+    phases = phases or 6 -- allow phases override, base of 6
+    -- PHASE;;
+    -- get phase by interpolating using age divided by (mature_age divided by phases), rounding the result,
+    -- and ensuring it's not under 1 (has to be 1 or over)
+    -- determine requirement for first phase with mature_age/phases
+    -- divide age by first phase requirement to determine how much over for phases
+    -- e.g. a mature_age of 1200 would be divided by 6 for 200
+    -- an age of 300 divided by 200 would be 1.5, rounded down to 1 for phase 1
+    -- an age of 430 divided by 200 would be 2.15, rounded down to 2 for phase 2
+    local phase = math.max(math.floor(self.age/(mature_age/phases)),1)
+    -- DIF;;
+    -- determine size difference based on phase, while limiting between min_size and base size dif
+    -- using BEDMAS, subtract size by min_size to get a smaller limited number to multiply-
+    -- by the percentage made from phase divided by phases
+    -- finally, add min_size as a base to the value
+    -- e.g. if min_size is 0.25, base size 1, and if there are 6 total phases
+    -- then the first phase size difference will be 0.375
+    -- size-min_size would be 0.75, which is then multiplied by phase/phases (1/6 making 0.16666)
+    -- which would be 0.75 times 0.16666 : 0.125
+    -- which then has min_size added to as a base: 0.25 + 0.125 for 0.375
+    local dif = min_size+(size-min_size)*(phase/phases)
+    -- we're already this size, no updating!
+    if self.size_dif == dif then return end
+    self:set('size_dif',dif,true) -- set internal "size_dif" value for memory
+    animals.sizeify(self, dif, true) -- update physically to new size (use base size)
+    animals.size_dif_mechanics(self) -- update stats to new size
+    return true
 end
 
 -- Taken directly from mobkit to properly calculate drowning
