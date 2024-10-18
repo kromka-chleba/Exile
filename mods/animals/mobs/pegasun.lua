@@ -239,6 +239,7 @@ local self_data = {
     -- lifespan
     lifespan = "energy_max*15",
     mature_age = "energy_max*0.36", -- 36% of energy_max (8000) or 2880
+    growth_min_size = 0.4,
     -- interactions
     -- predators + rivals automatically defined in registration
     consume_non_prey = false,

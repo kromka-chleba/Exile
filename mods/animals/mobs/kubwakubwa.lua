@@ -88,7 +88,7 @@ local function brain(self)
             --health is fine, of age, and no rival
             if self.hp >= self.max_hp and self.age > self.mature_age and not rival then
                 --when in prime condition
-                if self.energy >= self.energy_egg + 100 and random() < 0.1 then
+                if self.energy >= self.energy_egg + 100 and random() < 0.05 then
                     animals.place_egg(self, pos)
                 -- if very old and on 80% chance, lay egg and die, we were gon die soon anyways
                 elseif self.age >= (self.lifespan * 0.9) and random() < 0.8 and not (self.energy < 25) then
