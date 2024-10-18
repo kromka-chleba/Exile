@@ -609,6 +609,8 @@ function animals.core_life(self, pos)
         self.size_dif = mobkit.recall(self,"size_dif") or 1
         if self.size_dif ~= 1 then
             animals.sizeify(self, self.size_dif)
+            -- update stats according to size
+            animals.size_dif_mechanics(self)
         end
     end
     animals.age_mechanics(self)
