@@ -2133,13 +2133,13 @@ function animals.hurt_target(self,target,consume)
             energytake = (200*dmg)
         end
 
-        self:modify('energy',energytake*.3) -- take 30%
+        self:modify('energy',energytake*.25) -- take 25%
         ent.energy = ent_e - energytake
         -- make opponent lose energy (use old way due to players)
 
         if (ent.hp <= dmg) then
-            self:modify('energy',energytake*.9)
-            -- add 90% of opponent's energy for nomming fully
+            self:modify('energy',energytake*.75)
+            -- add 75% of opponent's energy for nomming fully
             if not targ_specs.player then
                 ent.object:remove()
             end
