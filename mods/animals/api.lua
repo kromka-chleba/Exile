@@ -2981,13 +2981,19 @@ end
 -- animals.age_mechanics
 -- modifies animal size (sizeify) and "size_dif" (size difference) value according to age
 -- determines with "growth phases", base_size_dif (base size difference), and a min_size (minimum size)
-function animals.age_mechanics(self, phases)
+function animals.age_mechanics(self)
+    -- not ready to grow, return
+    if self.growth_next_age and self.age < self.growth_next_age then return end
     -- get or create a "mature_age" to base age_mechanics off of
     local mature_age = self.mature_age or (self.lifespan * 0.12)
-    if self.size_dif == 1 and self.age >= mature_age then return end -- we're a big kid now, no more modifications !
-    local size = 1 -- expected base size dif
-    local min_size = 0.25 -- can't be smaller than 25%
-    phases = phases or 6 -- allow phases override, base of 6
+    -- we're a big kid now, no more modifications !
+    if self.age >= mature_age and not self.growth_next_age then
+        return
+    end
+    -- some helpful variables
+    local size = self.base_size_def or 1 -- expected base size dif
+    local min_size = self.growth_min_size or 0.25 -- can't be smaller than 25%
+    local phases = self.growth_phases or 6 -- allow phases override, otherwise 6
     -- PHASE;;
     -- get phase by interpolating using age divided by (mature_age divided by phases), rounding the result,
     -- and ensuring it's not under 1 (has to be 1 or over)
@@ -3008,6 +3014,11 @@ function animals.age_mechanics(self, phases)
     -- which would be 0.75 times 0.16666 : 0.125
     -- which then has min_size added to as a base: 0.25 + 0.125 for 0.375
     local dif = min_size+(size-min_size)*(phase/phases)
+    -- growth_next_age;;
+    -- predict age for next phase (current phase + 1)
+    -- predict by dividing next phase by total phases for a percentage, then multiplied mature_age by such
+    -- CLEAR OUT growth_next_age if next phase is greater than total phases
+    self.growth_next_age = phase < phases and mature_age*((phase+1)/phases) or nil
     -- we're already this size, no updating!
     if self.size_dif == dif then return end
     self:set('size_dif',dif,true) -- set internal "size_dif" value for memory
