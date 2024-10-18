@@ -1075,6 +1075,7 @@ function sediment2.create_soil_props(dry, wet, wet_salty)
     dry.tiles = type(dry.tiles) == "table" and dry.tiles or {dry.name:gsub(":","_")..".png"}
     dry.use_texture_alpha = dry.use_texture_alpha or c_alpha.clip
     dry.paramtype = dry.paramtype or "light"
+    dry.drop = dry.name
     -- custom params
     dry._dry_name = dry.name
     -- functions
@@ -1182,16 +1183,210 @@ function sediment2.register_soil(dry, wet, wet_salty, gen_props)
     return sed_num
 end
 
--- test, do not add to game lol
-sediment2.register_soil({
-    name = "euro",
-    tiles = {"nodes_nature_silt.png"},
-    groups = {
-        rocky_substrate = 2,
-        density = 4,
-    }
-})
+local sediment2_list = {
+    {
+      name = "eloam",
+        description = S("Loam"),
+        tiles = {"nodes_nature_loam.png"},
+        groups = {
+            rocky_substrate = 1,
+            organic_substrate = 4,
+            fertility = 4,
+            density = 1,
+        }
+    },
+    {
+      name = "eclay",
+        description = S("Clay"),
+        tiles = {"nodes_nature_clay.png"},
+        groups = {
+            crumbly = 2,
+            rocky_substrate = 2,
+            organic_substrate = 2,
+            fertility = 2,
+            density = 4,
+        },
+    },
+    {
+      name = "esilt",
+        description = S("Silt"),
+        tiles = {"nodes_nature_silt.png"},
+        groups = {
+            rocky_substrate = 1,
+            organic_substrate = 3,
+            fertility = 3,
+            density = 3,
+        }
+    },
+    {
+      name = "esand",
+        description = S("Sand"),
+        tiles = {"nodes_nature_sand.png"},
+        groups = {
+            rocky_substrate = 4,
+            organic_substrate = 0,
+            fertility = 1,
+            density = 2,
+        }
+    },
+    {
+      name = "egravel",
+        description = S("Gravel"),
+        tiles = {"nodes_nature_gravel.png"},
+        groups = {
+            rocky_substrate = 4,
+            organic_substrate = 0,
+            fertility = 1,
+            density = 4,
+            gravel = 1
+        }
+    },
+    {
+      name = "evolcanic_ash",
+        description = S("Volcanic Ash"),
+        tiles = {"nodes_nature_volcanic_ash.png"},
+        groups = {
+            rocky_substrate = 4,
+            organic_substrate = 0,
+            fertility = 4,
+            density = 1,
+        }
+    },
+}
 
+for _,new_sedi in pairs(sediment2_list) do
+    sediment2.register_soil(new_sedi)
+end
+
+--
+function sediment2.create_grassy_props(def, soil)
+    assert(type(def) == "table",
+        "sediment.create_grassy_props: no base grassy table provided for definition, got type "..type(def))
+    assert(type(def.name) == "string",
+        "sediment.create_grassy_props: no name provided for grassy, got type "..type(def.name))
+    -- get mod_origin, create name, set _dry_name, get soildef
+    def.mod_origin = minetest.get_current_modname()
+    def.name = def.name:sub(1,1) == ":" and def.mod_origin..def.name or
+        (not def.name:match(":")) and def.mod_origin..":"..def.name or def.name
+    def._dry_name = def.name
+    local soildef = minetest.registered_nodes[soil]
+    assert(soildef,
+        "sediment.create_grassy_props: missing soil definition (expected string, could not find in "..
+        "minetest.registered_nodes) to base off of for '"..def.name.."'")
+    -- basic params
+    def.description = def.description or def.name -- you wanna be silly and not provide description, we'll get silly
+    def.nn_soil_like = soildef.nn_soil_like
+    def._bare_name = soildef.name
+    -- figure out tiles
+    local grasscolor = def.grasscolor or nil
+    def.grasscolor = nil
+    def.tiles = def.tiles or {}
+    -- check top, bottom, and basic side tile
+    for i=1,3 do
+        if not def.tiles[i] then
+            def.tiles[i] = i == 1 and soildef.tiles[i] or i == 2 and (soildef.tiles[i] or soildef.tiles[1]) or
+                i == 3 and (soildef.tiles[i] or soildef.tiles[1])
+            if type(def.tiles[i]) == "table" then
+                def.tiles[i].name = def.tiles[i].name..(i ~= 2 and
+                    (grasscolor and "^(@grass^[multiply:"..grasscolor..")" or "^@grass") or "")
+            else
+                def.tiles[i] = def.tiles[i]..(i ~= 2 and 
+                    (grasscolor and "^(@grass^[multiply:"..grasscolor..")" or "^@grass") or "")
+            end
+        end
+    end
+    -- fix other side tiles
+    for i=4,6 do
+        def.tiles[i] = def.tiles[i] or def.tiles[3]
+    end
+    -- adjust tiles
+    for tilenum, tile in ipairs(def.tiles) do
+        local tilestring = type(tile) == "table" and tile.name or tile
+        local optimal_soil_tile
+        for i=tilenum,1,-1 do
+            optimal_soil_tile = soildef.tiles[i]
+            if optimal_soil_tile then break end
+        end
+
+        tilestring = tilestring:gsub("@soil",optimal_soil_tile)
+        tilestring = tilestring:gsub("@grass",(tilenum < 3 and "nodes_nature_grassy_grayscale.png" or
+            "nodes_nature_grassy_grayscale_side.png"))
+        --tilestring = tilestring:gsub("@grdetail",(tilenum < 3 and "nodes_nature_grass_detail.png" or
+            --"nodes_nature_grassy_grayscale_side.png"))
+        if type(tile) == "table" then
+            tile.name = tilestring
+        else
+            def.tiles[tilenum] = tilestring
+        end
+    end
+    -- groups
+    def.groups = def.groups or {}
+    def.groups = merge_tables(soildef.groups, def.groups)
+    def.groups.spreading = def.groups.spreading or 1
+    def.groups.bare_sediment = nil
+    -- functions
+    def.after_place_node = def.after_place_node or function(pos, placer, itemstack, pointed_thing)
+        if pos.y < -15 then
+            -- No labels when underground
+            return
+        end
+        -- labels, remove_labels
+        ms.labels_to_position(pos, {"spring_soil"}, {"no_spring_soil","bare_soil"})
+    end
+    -- get and check wet variant
+    local wet_soildef = minetest.registered_nodes[soildef._wet_name]
+    local wet = def.wet_def or def.wet
+    -- clear
+    def.wet_def = nil
+    def.wet = nil
+    -- can exclude grassy wet if false
+    wet = type(wet) == "table" and wet or wet ~= false and {} or nil
+    -- remove wet definition if wet_soildef doesn't exist
+    wet = wet_soildef and wet or nil
+    if wet then
+        -- modify tiles accordingly
+        if not wet.tiles then
+            wet.tiles = table.copy(def.tiles)
+            soil_modify_tiles(wet.tiles, textures.wet)
+        end
+        -- names and description
+        wet.name = def.name.."_wet"
+        wet._dry_name = def.name
+        def._wet_name = wet.name
+        wet._bare_name = wet_soildef.name
+        wet.description = wet.description or S("Wet @1",def.description)
+        -- wet groups
+        wet.groups = wet.groups or {}
+        wet.groups.spreading = def.groups.spreading or 1
+        wet.groups = merge_tables(wet_soildef.groups, wet.groups)
+        wet.groups.bare_sediment = nil
+        -- merge wet_soildef properties into wet grassy
+        wet = merge_tables(wet_soildef, wet)
+    end
+    -- get rest of properties from soildef
+    def = merge_tables(soildef, def)
+    return {dry=def, wet=wet}
+end
+
+-- register_grassy
+function sediment2.register_grassy(def, soil)
+    local grasses = sediment2.create_grassy_props(def, soil)
+    -- iterate over to register
+    for _, data in pairs(grasses) do
+        minetest.register_node(data.name, data)
+        -- see about other stuff like slopes
+    end
+    return true
+end
+
+sediment2.register_grassy({
+    name = "birmingham",
+      description = "Birmingham",
+      grasscolor = "#a0b62d"--"#f5dd42",
+  },
+"nodes_nature:esilt")
+
+--[[
 function sediment.get_base_props(sed)
     local props = {
         stack_max = minimal.stack_max_bulky,
