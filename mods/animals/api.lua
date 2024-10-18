@@ -64,7 +64,46 @@ local function flee_sound(self)
     if not self.isinliquid then
         return
     end
-    mobkit.make_sound(self,'flee')
+    animals.make_sound(self,'flee','scared')
+end
+
+-- animals.make_sound
+-- based off of mobkit.make_sound
+-- can have a list of strings or tables to use if one or the other does not exist
+-- will be prioritized from first parameter to last provided
+-- sound1, sound2, sound3 (if sound1 doesn't exist, then sound2, and so on)
+function animals.make_sound(self,...)
+    if not self.object then return end
+    if not self.sounds then return end
+    -- allow for list of "alternative" sounds to be checked for
+    local names = {...}
+    local spec
+    -- iterate over provided names
+    for i=1,#names do
+        -- accept strings or custom tables if they have a "name" index
+        spec = type(names[i]) == "table" and names[i] or self.sounds[names[i]]
+        -- pick random sound if it's a spec for random sounds
+        spec = type(spec) == "table" and #spec > 0 and spec[random(#spec)] or spec
+        -- table, and has a name? WE GOT IT!!!
+        if type(spec) == "table" and type(spec.name) == "string" then
+            break
+        else -- clear out so we're not using a bad spec
+            spec = nil
+        end
+    end
+    if not spec then return end -- couldn't get a valid spec, can't play!
+    spec = table.copy(spec)
+    spec.object = self.object
+    -- permit randomized ranges for values
+    local function in_range(value)
+        return type(value) == 'table' and value[1]+random()*(value[2]-value[1]) or value
+    end
+    spec.gain = in_range(spec.gain)
+    spec.fade = in_range(spec.fade)
+    spec.pitch = in_range(spec.pitch)
+    spec.max_hear_distance = in_range(spec.max_hear_distance)
+    -- play and return sound ID
+    return minetest.sound_play(spec.name, spec)
 end
 
 -- return the luaentity + object of a provided userdata if possible into a table
@@ -1575,7 +1614,7 @@ function mobkit.hq_chaseafter(self,prty,tgtobj)
             local pos = mobkit.get_stand_pos(self)
             local opos = tgtobj:get_pos()
             if vector.distance(pos,opos) > 3 then
-                mobkit.make_sound(self,'warn')
+                animals.make_sound(self,'warn')
                 mobkit.goto_next_waypoint(self,opos)
             else
                 mobkit.lq_idle(self,1)
@@ -1637,18 +1676,18 @@ function animals.on_punch(self, puncher, time_from_last_punch,
                           tool_capabilities, dir, dmg)
     if not mobkit.is_alive(self) then
         -- oops I'm dead
-        mobkit.make_sound(self,"punch_death")
+        animals.make_sound(self,"punch_death",'punch')
         return
     end
     dmg = (type(dmg) == "number" and dmg or 0)
     -- do damage
-    mobkit.make_sound(self,'punch')
+    animals.make_sound(self,'punch')
     animals.modify_hp(self,-dmg)
 
     local conserve = mobkit.recall(self,'conserve')
     if (self.hp < self.max_hp/10 or self.hp <= (dmg * 2)
         or conserve == true) then
-        mobkit.make_sound(self,'warn')
+        animals.make_sound(self,'scared','warn')
         animals.fight_or_flight(self, puncher, nil, 0)
     else
         animals.fight_or_flight(self, puncher, 75)
@@ -1691,7 +1730,7 @@ function animals.hq_warn(self, threat, prty)
             end
             -- make noise in random intervals
             if timer > tgttime then
-                mobkit.make_sound(self,'warn')
+                animals.make_sound(self,'warn')
                 tgttime = timer + 1.1 + random()*1.5
             end
         end
@@ -1710,7 +1749,7 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
         or animals.is_interactor(
             self,'rivals',tgtobj)
         and self.territorial_warn_distance or self.warn_distance
-    if not notscared then mobkit.make_sound(self,'scared') end
+    if not notscared then animals.make_sound(self,'scared','warn') end
 
     local func = function(self)
         if not mobkit.is_alive(tgtobj) then return true end
@@ -1722,7 +1761,7 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
             return true
         end
         if exclaim_timer <= 0 then
-            mobkit.make_sound(self,'scared')
+            animals.make_sound(self,'scared','warn')
             exclaim_timer = random(37,70)/10
         end
         local dist = get_dist(self,tgtobj)
@@ -2184,7 +2223,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 
         if init then
             mobkit.animate(self,'fast')
-            mobkit.make_sound(self,'attack')
+            animals.make_sound(self,'attack','bite')
             init = false
         end
 
@@ -2220,7 +2259,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
             end
         end
         if animals.target_in_range(self,tgt) then -- bite
-            mobkit.make_sound(self,'bite')
+            animals.make_sound(self,'bite','attack')
             mobkit.hq_aqua_turn(self,prty,yaw-pi,speed)
             return animals.hurt_target(self,tgtobj,eat)
         end
@@ -2248,7 +2287,7 @@ local function lq_jumpattack_eat(self,height,target,consume)
             local vel = self.object:get_velocity()
             vel.y = -mobkit.gravity*sqrt(height*2/-mobkit.gravity)
             self.object:set_velocity(vel)
-            mobkit.make_sound(self,'charge')
+            animals.make_sound(self,'charge')
             phase=2
         elseif phase==2 then
             local dir = minetest.yaw_to_dir(self.object:get_yaw())
@@ -2273,7 +2312,7 @@ local function lq_jumpattack_eat(self,height,target,consume)
                 local vy = self.object:get_velocity().y
                 self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
                 -- play attack sound if defined
-                mobkit.make_sound(self,'attack')
+                animals.make_sound(self,'attack','bite')
                 phase=4
 
                 -- eat bits of opponent
@@ -2381,7 +2420,7 @@ function animals.territorial(self, eat, chance_multiplier)
             if self.hp < self.max_hp/4 then
                 mobkit.animate(self,'fast')
                 if self.class ~= 2 then
-                    mobkit.make_sound(self,'warn')
+                    animals.make_sound(self,'scared','warn')
                     animals.hq_runfrom(self, 25, rival)
                 else
                     flee_sound(self)
@@ -2434,7 +2473,7 @@ function animals.territorial(self, eat, chance_multiplier)
                 else -- harass
                     mobkit.animate(self,'fast')
                     if self.class ~= 2 then
-                        mobkit.make_sound(self,'warn')
+                        animals.make_sound(self,'warn')
                         mobkit.hq_chaseafter(self,25,rival)
                     else
                         animals.hq_swimafter(self, 15, rival, self.max_speed)
@@ -2444,7 +2483,7 @@ function animals.territorial(self, eat, chance_multiplier)
             else -- run from
                 mobkit.animate(self,'fast')
                 if self.class ~= 2 then
-                    mobkit.make_sound(self,'warn')
+                    animals.make_sound(self,'scared','warn')
                     animals.hq_runfrom(self,25,rival)
                 else
                     animals.hq_swimfrom(self, 25, rival ,self.max_speed)
@@ -2528,7 +2567,7 @@ function animals.hq_flock_water(self,prty,tgtobj, min_dist, speed)
             local tyaw = tgtobj:get_yaw()
 
             mobkit.hq_aqua_turn(self,prty+1,tyaw,tvel)
-            mobkit.make_sound(self,'call')
+            animals.make_sound(self,'call')
             return true
         end
 
@@ -2556,11 +2595,11 @@ function animals.flock(self, prty, min_dist, herding_dist, aqua_speed)
             --get distance, if too far away go to them
             if aqua_speed then
                 mobkit.animate(self,'walk')
-                mobkit.make_sound(self,'call')
+                animals.make_sound(self,'call')
                 animals.hq_flock_water(self, prty, friend, herding_dist, aqua_speed)
             else
                 mobkit.animate(self,'walk')
-                mobkit.make_sound(self,'call')
+                animals.make_sound(self,'call')
                 animals.hq_flock(self, prty, friend, herding_dist)
             end
             return true
@@ -2588,7 +2627,7 @@ function animals.hq_mate(self,prty,tgtobj)
             local dist = vector.distance(pos,tpos)
             if dist <= self.attack.range then
                 mobkit.lq_idle(self,1)
-                mobkit.make_sound(self,'mating')
+                animals.make_sound(self,'mating','call')
                 if self.sex == "male" then
                     --get the other one pregnant
                     tgtobj:set('pregnant',true,true)
@@ -2599,7 +2638,7 @@ function animals.hq_mate(self,prty,tgtobj)
                 self.sexual = false
                 return true
             else
-                mobkit.make_sound(self,'call')
+                animals.make_sound(self,'call')
                 mobkit.goto_next_waypoint(self,tpos)
             end
         end

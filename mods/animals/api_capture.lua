@@ -124,10 +124,10 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
         end
     end
     -- catch chance
-    mobkit.make_sound(self,'punch')
+    animals.make_sound(self,'punch')
     if success_rate >= math.random() then
         -- successful catch
-        mobkit.make_sound(self,'punch')
+        animals.make_sound(self,'caught','punch')
         animals.capture(self, clicker)
         return true,true -- creature can be captured + is captured
     else
@@ -295,7 +295,10 @@ animals.capture = function(self, clicker)
     local inv = clicker:get_inventory()
     if inv:room_for_item("main", new_stack) then
         inv:add_item("main", new_stack)
-        self.object:remove()
+        -- fix for pegasun scared sound playing globally (delete object on delay)
+        minetest.after(0.05,function()
+            self.object:remove()
+        end)
     else
         minimal.warn_inv_full(clicker)
     end
