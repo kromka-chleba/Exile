@@ -306,12 +306,12 @@ local function setup_gate(hex) -- create potential gate
     local def = region.get(hex)
     if not def.currentgate then
         def.currentgate = find_gate_pos(hex)
-        pirnt("setup new gate for ",hex2string(hex),
-              " - got: ",minetest.pos_to_string(def.currentgate))
         if def.currentgate == nil then
             add_job("setup", 1, hex)
             return false
         else
+            pirnt("setup new gate for ",hex2string(hex),
+                  " - got: ",minetest.pos_to_string(def.currentgate))
             save_rgns(hex)
         end
         return true
