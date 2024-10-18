@@ -74,7 +74,7 @@ local function clear_pot(pos)
     local meta = minetest.get_meta(pos)
     meta:set_string("formspec", "")
     meta:set_string("type", "")
-    meta:set_string("status", "") -- "" = unprepared, "Cooking", "Finished"
+    meta:set_string("status", "") -- "" = unprepared, then: prepared (water), cooking/cooling, finished
     meta:set_string("status_string","")
     meta:set_string("contents_string","")
     meta:set_string("note","")
@@ -84,39 +84,14 @@ local function clear_pot(pos)
 end
 
 local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
-    local meta = minetest.get_meta(pos)
-    local itemname = itemstack:get_name()
-    local status = meta:get_string("status")
     local timer = minetest.get_node_timer(pos)
-
-    if status == "" then  -- unprepared pot
-        local liquid = liquid_store.contents(itemname)
-        if liquid == "nodes_nature:freshwater_source" then
-            meta:set_string("type", "Soup")
-            meta:set_string("status_string",S("Soup Pot"))
-            meta:set_string("contents_string",S("Contents: Water"))
-            meta:set_string("note",S("Note: Add food to the pot to make soup"))
-            minimal.infotext_set_new(pos, meta)
-            meta:set_string("formspec", pot_formspec)
-            meta:set_int("baking", cook_time)
-            timer:start(6)
-            if not minimal.player_in_creative(clicker) then
-                if itemname ~= liquid then -- it's stored in a container
-                    return liquid_store.drain_store(clicker, itemstack)
-                else
-                    itemstack:take_item()
-                end
-            end
-        end
-        return itemstack
-        -- XXX Was going to add ability to take water out of a prepared pot but more complicated
-        -- then expected will try again later
-        --   elseif ptype == "Soup" then -- Pot has water, but not cooking
-    end
-    if status ~= "" and timer:is_started() == false then
-        timer:start(6) -- timer died somehow? restart it here
-    end
-    --TODO: use oil for fried food, saltwater for salted food (to preserve it)
+    -- restart timer if there's issues
+    if timer:is_started() then return end
+    -- timer is dead, check status
+    local meta = minetest.get_meta(pos)
+    local status = meta:get_string("status")
+    if status == "" then return end -- no issues, pot hasn't started
+    timer:start(6) -- timer died somehow? restart it here
 end
 
 local function pot_receive_fields(pos, formname, fields, sender)
@@ -298,7 +273,7 @@ local function pot_cook(pos, elapsed)
                 minimal.infotext_set_new(pos, meta) -- update infotext
                 return
             elseif temp < cook_temp[kind] then
-                if status ~= 'cooling' then
+                if status ~= "prepared" and status ~= 'cooling' then
                     meta:set_string("status", "cooling")
                     meta:set_string("status_string",S('Status: @1 pot', S(kind)))
                     minimal.infotext_set_new(pos, meta)
@@ -439,7 +414,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             local status = meta:get_string("status")
             --prevent removing items once cooking begins
-            if status ~= "" and status ~= "finished" then -- "" means cooking never started.
+            if status ~= "" and status ~= "finished" and status ~= "prepared" then -- "" means cooking never started.
                 return 0
             end
             meta:set_int("baking", meta:get_int("baking")
@@ -460,6 +435,41 @@ minetest.register_node(
             -- status_string, owner, contents, note
             return params.status_string..(params.owner and params.owner ~= "" and "\n"..params.owner or "")..
                 "\n"..params.contents_string..(params.note and "\n"..params.note or "")
+        end,
+        -- liquid_store_pourin callback
+        -- so we don't need to set up functionality for water in pot_rightclick
+        ls_pourin = function(itemstack, user, pos, source, selfdef)
+            -- not even water we can use! return!
+            if source ~= "nodes_nature:freshwater_source" then return end
+            local meta = minetest.get_meta(pos)
+            if meta:get_string("status") ~= "" then return end -- pot is active, return
+            -- it's soupin' time
+            meta:set_string("type","Soup")
+            meta:set_string("status","prepared") -- between water and ingredients, and cooling/cooking/finished
+            meta:set_string("status_string",S("Soup Pot"))
+            meta:set_string("contents_string",S("Contents: Water"))
+            meta:set_string("note",S("Note: Add food to the pot to make soup"))
+            minimal.infotext_set_new(pos, meta)
+            meta:set_string("formspec", pot_formspec)
+            meta:set_int("baking", cook_time)
+            -- revv up those cookin' engines!
+            local timer = minetest.get_node_timer(pos)
+            timer:start(6)
+            -- play pour sounds if provided
+            local pourdef = itemstack:get_definition()
+            if pourdef and pourdef.sounds and pourdef.sounds.pour then
+                local sound = pourdef.sounds.pour
+                minimal.sound_play(minimal.merge_tables(sound,{pos = pos}))
+            end
+            -- drain or keep pot depending on if in creative
+            if not minimal.player_in_creative(user) then
+                return liquid_store.drain_store(user, itemstack)
+            end
+            return itemstack
+            -- TODO: use oil for fried food, saltwater for salted food (to preserve it)
+            -- XXX Was going to add ability to take water out of a prepared pot but more complicated
+            -- then expected will try again later
+            -- TPH: just see about using ls_fillup! :D ^^^
         end
 })
 

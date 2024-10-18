@@ -197,27 +197,39 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
     if handle_interaction(user, pointed_thing) ~= "node" then
         return
     end
-
-    minetest.check_for_falling(pointed_thing.under) -- install gravity
-
-    -- Check if pointing to a liquid source
+    -- get node and name
     local node = minetest.get_node(pointed_thing.under)
     local name = node.name
+    -- check protection
+    if check_protection(pointed_thing.under, user,
+                        "take ".. name) then
+        return
+    end
+
+    minetest.check_for_falling(pointed_thing.under) -- install gravity
+    -- get nodedef
+    local nodedef = minetest.registered_nodes[name]
+    if not nodedef then return end -- wasn't anything we could anyways
+
+    -- prioritize any liquid_store_fillup function
+    if nodedef.ls_fillup then
+        local new_wield = nodedef.ls_fillup(itemstack, user, pointed_thing.under, nodedef)
+        -- if nothing given, then we know to just continue with code as per usual
+        -- otherwise return new_wield
+        if new_wield then return new_wield end
+    end
+
+    -- Check if pointing to a liquid source
     if on_scoop_change[name] then
         name = on_scoop_change[name]
     end
     local liquiddef = liquid_store.liquids[name]
     local storeddef = liquid_store.get_sl_def(name)
 
-    -- check protection
-    if check_protection(pointed_thing.under, user,
-                        "take ".. node.name) then
-        return
-    end
-
+    -- pointing at a liquid
     if liquiddef and
-        name == liquiddef.source then -- pointing at a liquid
-        -- find a registered stored liquid who has an empty that matches
+        name == liquiddef.source then
+        -- find a registered stored liquid which has an empty that matches
         -- what we are using and a source that matches our liquid
         local plr_creative = minimal.player_in_creative(user)
         -- only remove liquid if in creative, fill stack otherwise
@@ -240,7 +252,8 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
             liquid_metadata(pointed_thing.under,node,new_wield)
             return new_wield
         end
-    elseif storeddef then -- pointing at a stored liquid
+    -- pointing at a stored liquid
+    elseif storeddef then
         local new_wield = liquid_store.fill_store(user, itemstack,
                                                   storeddef.source)
         if not new_wield then return end -- nothing matches
@@ -250,12 +263,10 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 
         liquid_metadata(pointed_thing.under,node,new_wield)
         return new_wield
-    else -- neither liquid nor a stored liquid
-        -- non-liquid nodes will have their on_punch triggered
-        local node_def = minetest.registered_nodes[node.name]
-        if node_def then
-            node_def.on_punch(pointed_thing.under, node, user, pointed_thing)
-        end
+    -- neither liquid nor a stored liquid
+    -- non-liquid nodes will have their on_punch triggered
+    elseif nodedef.on_punch then 
+        nodedef.on_punch(pointed_thing.under, node, user, pointed_thing)
         return itemstack
     end
 
@@ -276,24 +287,27 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     -- if dump isn't a specified boolean, set to true
     -- (can be set to false so liquid stores such as watering cans
     --   do not dump their contents)
-    if type(dump) ~= "boolean" then
-        dump = storeddef.dumpable
-        if type(dump) ~= "boolean" then
-            dump = true
-        end
-    end
-    -- do not dump an unregistered source!
+    -- if dump isn't specified, check storeddef.dumpable
+    -- if that isn't specified, set to true
+    dump = type(dump) ~= "boolean" and storeddef.dumpable or dump
+    dump = type(dump) ~= "boolean" and true or dump
+    -- get liquid source definition
     local sourcedef = minetest.registered_nodes[source]
-    if (source == "" or not sourcedef) then
-        dump = false
-    end
+    -- do not dump an unregistered source! set to false
+    dump = sourcedef and dump or false
 
     local ppos = pointed_thing.under -- place_pos
     local buildable_to = true -- allow for replacing nil nodes
 
     local node = minetest.get_node_or_nil(pointed_thing.under)
     local ndef = node and minetest.registered_nodes[node.name]
-    local stored
+    -- prioritize liquid_store_pourin function
+    if ndef and ndef.ls_pourin then
+        local new_wield = ndef.ls_pourin(itemstack, user, ppos, source, ndef)
+        -- if nothing given, then we know to just continue with code as per usual
+        -- otherwise return new_wield
+        if new_wield then return new_wield end
+    end
     -- made into a function as it is needed twice
     local function can_rightclick()
         -- if node definition and if player and not sneaking
@@ -307,20 +321,22 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
                 local on_click = minimal.on_rightclick(itemstack, user,
                                                        pointed_thing)
                 if on_click ~= false then
-                    return on_click
+                    -- can be returned nil, so default to itemstack
+                    return on_click or itemstack
                 end
             end
         end
     end
 
+    local stored
     local click_result = can_rightclick()
     -- prioritize on_rightclick
     if click_result then
         return click_result
-        -- check out my cool definition instead
+    -- check out my cool definition instead
     elseif ndef then
         stored = find_stored(ndef, source)
-        -- don't remove liquids
+        -- don't remove liquid source nodes
         buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to
             or false
     end
@@ -330,18 +346,21 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
 
         ppos = pointed_thing.under
         ndef = minimal.get_nodedef(ppos)
-        -- don't remove liquids
+        -- prioritize liquid_store_pourin function
+        if ndef.ls_pourin then
+            local new_wield = ndef.ls_pourin(itemstack, user, ppos, source, ndef)
+            if new_wield then return new_wield end
+        end
+        -- don't remove liquid source nodes
         buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to
             or false
-    end
-    -- finishing touches if ndef found (verify with the found node!)
-    click_result = can_rightclick()
-    if click_result then
-        return click_result
-    elseif ndef then
-        -- If pointing at a full liquid store don't dump
-        if liquid_store.get_sl_def(node) then
-            dump = false
+        -- finishing touches if ndef found (verify with the found node!)
+        click_result = can_rightclick()
+        if click_result then
+            return click_result
+        elseif ndef then
+            -- If pointing at a full liquid store don't dump
+            dump = (not liquid_store.get_sl_def(node)) and dump or false
         end
     end
     -- we tried, can't do it
@@ -353,6 +372,11 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     if stored then
         if check_protection(ppos, user, "fill up "..nodename_empty) then
             return
+        end
+        local def = itemstack:get_definition()
+        if def.sounds and def.sounds.pour then
+            local sound = def.sounds.pour
+            minimal.sound_play(minimal.merge_tables(sound,{pos = ppos}))
         end
         minimal.switch_node(ppos, {name = stored}, {user, itemstack,
                                                     pointed_thing})
@@ -383,68 +407,56 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     end
 end
 
-function liquid_store.on_place(itemstack, placer, pointed_thing, place_name)
+-- used by both stored liquids and empty buckets
+function liquid_store.on_place(itemstack, placer, pointed_thing)
     if handle_interaction(placer, pointed_thing) ~= "node" then
         return
     end
 
     local pos = pointed_thing.under
     local pos_top = pointed_thing.above
-    local isliquid = false -- prevent placement of liquid that can't be grabbed
 
-    place_name = type(place_name) == "string" and place_name
-        or itemstack:get_name()
+    local place_name = itemstack:get_name()
+    -- no, no nils allowed
+    if not minetest.registered_nodes[place_name] then return end
 
     local node = minetest.get_node(pos) -- grab a possible liquid if correct
-    local nodedata = minetest.registered_nodes[node.name]
+    local ndef = minetest.registered_nodes[node.name] -- node definition
     local stored = find_stored(place_name, node)
-    if (stored) then
-        isliquid = true
-    end
+    -- prevent placement of itemstack if following is a liquid or stored liquid (prevents if true)
+    local isliquid = ndef.drawtype == "liquid" or stored and true or false
 
-    local protected = false local top_protected = false
-    if (minetest.is_player(placer)) then
-        if minetest.is_protected(pos, placer:get_player_name()) then
-            protected = true
-        end
-        if minetest.is_protected(pos_top, placer:get_player_name()) then
-            top_protected = true
-        end
-
-        if (type(nodedata) == "table" and not placer:get_player_control().sneak
-            and not isliquid
-            and minetest.get_item_group(node.name,"liquid_storage") == 0) then
-            if (type(nodedata["on_rightclick"]) == "function") then
-                return nodedata.on_rightclick(pos, node, placer, itemstack,
+    -- locals can be listed like this :D
+    local protected, top_protected = minetest.is_protected(pos, placer), minetest.is_protected(pos_top, placer)
+    -- if player, check rightclick functionality (if not a liquid)
+    if minetest.is_player(placer) then
+        if type(ndef) == "table" and not placer:get_player_control().sneak
+            and minetest.get_item_group(node.name,"liquid_storage") == 0
+            and not isliquid then
+            if ndef.on_rightclick then
+                return ndef.on_rightclick(pos, node, placer, itemstack,
                                               pointed_thing)
             end
         end
     end
-
-    local tndef = minimal.get_nodedef(pos_top)
     -- top_node definition - check if can be placed
-    if not tndef then -- do not place if can't find nodedata
-        return
-    end
+    local tndef = minimal.get_nodedef(pos_top)
+    if not tndef then return end -- do not place if can't find node def
 
-    if stored and ( not protected ) then
+    if stored and not protected then
         -- if a possible liquid and an empty bucket
         return liquid_store.on_use_empty_bucket(itemstack, placer,
                                                 pointed_thing)
-    elseif (type(minetest.registered_nodes[place_name]) == "table") then
-
+    else
         -- verify if we can place the bucket
-        if ( nodedata.buildable_to ~= true or protected == true
-             or isliquid == true ) then -- Can't build here,
-            -- attempt to use top to place above/in front of the node
-            if tndef.buildable_to == true and not top_protected then
-                pos = pos_top
-            else -- Can't place bucket on either top or bottom node, give up
-                return
-            end
+        if ndef.buildable_to ~= true or protected == true
+             or isliquid == true then -- Can't build here,
+            -- attempt to use pos_top to place above/in front of the node
+            pos = (tndef.buildable_to and not top_protected) and pos_top or nil
+            if not pos then return end -- Can't place bucket on either top or bottom node, give up
         end
 
-        if not (minimal.player_in_creative(placer)) then
+        if not minimal.player_in_creative(placer) then
             itemstack:take_item()
         end
         -- place the bucket
@@ -457,19 +469,14 @@ function liquid_store.on_place(itemstack, placer, pointed_thing, place_name)
 end
 
 
--- Register a new stored liquid...
---    source = name of the source node
---    nodename = name of the new bucket  (or nil if liquid is not takeable)
---    nodename_empty = name of the empty bucket
---    tiles  = textures of the new bucket
---    desc = text description of the bucket item
---    groups = (optional) groups of the bucket item, for example {water_bucket = 1}
---    force_renew = (optional) bool. Force the liquid source to renew if it has a
---                  source neighbour, even if defined as 'liquid_renewable = false'.
---                  Needed to avoid creating holes in sloping rivers.
--- This function can be called from any mod (that depends on liquid_store).
--- Also need to register the liquid itself seperately
 
+-- register_stored_liquid
+-- registers a bucket of liquid (hence the name, "stored liquid")
+-- registers like a node, except expects 2 additional parameters:
+--    empty/nodename_empty: an empty bucket of the stored liquid
+--    source: the liquid that gets transferred
+-- has an optional boolean value "dumpable";
+-- default is true unless source is not a registered node, then defaults to false
 function liquid_store.register_stored_liquid(name,def)
     assert(
         type(name) == "string",
@@ -480,8 +487,21 @@ function liquid_store.register_stored_liquid(name,def)
         "liquid_store.register_stored_liquid: expected definition table, got "..
         type(def))
 
+    -- add mod_origin to name
+    name = name:sub(1,1) == ":" and minetest.get_current_modname()..name or
+        (not name:match(":")) and minetest.get_current_modname()..":"..name or name
+
+    -- check def.empty and set
     def.empty = def.empty or def.nodename_empty
+    assert(type(minetest.registered_nodes[def.empty]) == "table",
+        "liquid_store.register_stored_liquid: expected nodedef (could not find) for empty variant of '"..
+        name.."'. Got '"..tostring(def.empty).."' type: "..type(def.empty))
     def.nodename_empty = nil
+
+    if def.source == "" or not def.source then
+        minetest.log("error",name..": does not have a proper source to transfer, "..
+            "will not be able to transfer liquids properly!")
+    end
 
     liquid_store.stored_liquids[name] = {
         nodename = name,
@@ -499,16 +519,22 @@ function liquid_store.register_stored_liquid(name,def)
     def.groups.liquid_storage = 1
     -- sounds; get provided or use empty node's sound or node sound defaults
     def.sounds = def.sounds
-        or (minetest.registered_nodes[def.empty]
-            and type(minetest.registered_nodes[def.empty].sounds) == "table"
-            and table.copy(minetest.registered_nodes[def.empty].sounds))
+        or type(minetest.registered_nodes[def.empty].sounds) == "table"
+            and table.copy(minetest.registered_nodes[def.empty].sounds)
         or nodes_nature.node_sound_defaults()
+    -- if set to false, sets to nil, otherwise adds pour sound
+    def.sounds.pour = def.sounds.pour or def.sounds.pour ~= false and {
+        name = "liquid_store_water_pour",
+        pitch = {0.85,1.05},
+        gain = 0.3,
+        max_hear_distance = 8
+    } or nil
     -- functions
     def.on_use = def.on_use or function(...)
         return liquid_store.on_use_filled_bucket(...)
     end
     def.on_place = def.on_place or function(itemstack, placer, pointed_thing)
-        return liquid_store.on_place(itemstack, placer, pointed_thing, name)
+        return liquid_store.on_place(itemstack, placer, pointed_thing)
     end
     def.drawtype = def.drawtype or def.mesh and "mesh"
         or def.node_box and "nodebox"
