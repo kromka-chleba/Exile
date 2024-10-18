@@ -101,6 +101,13 @@ local function brain(self)
             self.conserve = not animals.prey_hunt(self, 40)
         end
 
+        prty = mobkit.get_queue_priority(self)
+        -- why am I just idling in water? let's get outta here lol
+        if prty < 15 and self.isinliquid then
+            -- why am I just idling in water? let's get outta here lol
+            animals.hq_liquid_recovery(self,60)
+        end
+
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) and self.conserve ~= true then
