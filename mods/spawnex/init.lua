@@ -524,7 +524,7 @@ function region.spawn(player)
     save_jobs()
 end
 
-if minetest.settings:get_bool("disable_spawnex", false) == false then
+if minetest.settings:get_bool("disable_spawnex", false) == true then
     return -- shouldn't need any of this
 end
 
