@@ -89,6 +89,7 @@ local function handle_stacks(player, itemstack, new_item)
                                minetest.add_item(player:get_pos(), itemstack)
                                minimal.warn_inv_full(player)
                            end
+                           crafting.refresh_recipes_FS(player) -- #TODO is that dirty to refresh crafting formspec in HEALTH mod ?
         end)
         return new_item
         -- we're just replacing, no worries :D
@@ -193,6 +194,8 @@ end
 
 --Function for empty buckets to call on_use... as return (so gives item)
 function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
+    core.after(0.1, crafting.refresh_recipes_FS, user) -- #TODO is that dirty to refresh crafting formspec here ?
+    --#TODO test if this is a player (is that needed ?)
 
     if handle_interaction(user, pointed_thing) ~= "node" then
         return
@@ -274,6 +277,9 @@ end
 
 --Function for filled buckets to call on_use... as return (so gives item)
 function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump, source, nodename_empty)
+    core.after(0.1, crafting.refresh_recipes_FS, user) -- #TODO is that dirty to refresh crafting formspec here ?
+    --#TODO test if this is a player (is that needed ?)
+
     -- Must be pointing to node
     if handle_interaction(user, pointed_thing) ~= "node" then
         return

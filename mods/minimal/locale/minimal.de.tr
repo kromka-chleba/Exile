@@ -4,23 +4,7 @@
 Display the current git revision="Zeigt die aktuelle git-Version an"
 This server is currently running git revision="Auf diesem Server läuft aktuell Git-Revision"
 #interface/infotext.lua
-Owner="Eigentümer"
-Missing required items!="Es fehlen benötigte Gegenstände!"
-Main="Haupt"
-Bag1="Tasche1"
-Bag2="Tasche2"
-Bag3="Tasche3"
-Bag4="Tasche4"
-Input Items="Eingabegegenstände"
-Tool used=
-#Craft Type="Fertigungstyp"
-Crafting="Fertigung"
-Quantity="Menge"
-Single="Einzel"
-Stack="Stapel"
-Maximum="Maximum"
-Search=
-or=
+Owner:="Eigentümer :"
 
 #playersettings.lua
 Enable wide HUDbar="Weite HUD-Leiste aktivieren"

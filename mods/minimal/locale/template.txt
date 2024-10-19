@@ -6,22 +6,6 @@ This server is currently running git revision=
 #interface/infotext.lua
 Owner:=
 Label:=
-#interface/inventory.lua
-Missing required items!=
-Search=
-Main=
-Bag1=
-Bag2=
-Bag3=
-Bag4=
-Input Items=
-Tool used=
-Crafting=
-Quantity=
-Single=
-Stack=
-Maximum=
-or=
 
 #playersettings.lua
 Enable wide HUDbar=

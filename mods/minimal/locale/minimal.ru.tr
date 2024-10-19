@@ -5,23 +5,6 @@ Display the current git revision=Отображение текущей реви�
 This server is currently running git revision=На этом сервере в данный момент выполняется ревизия git
 Owner:=Владелец:
 Label:=Метка:
-#interface/inventory.lua
-Missing required items!=Отсутствуют необходимые предметы!
-Main=Осн
-Bag1=Сум1
-Bag2=Сум2
-Bag3=Сум3
-Bag4=Сум4
-Input Items=Создавать из:
-Tool used=
-#Craft Type=Инструмент:
-Crafting=Создание
-Single=Один
-Stack=Стек
-Maximum=Максимум
-Quantity=Количество:
-Search=Запрос
-or=
 
 #playersettings.lua
 Enable wide HUDbar=Включить широкую панель HUDbar

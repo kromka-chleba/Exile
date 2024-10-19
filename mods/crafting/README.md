@@ -94,12 +94,15 @@ be used twice: `default:wood, group:wood`.
 	* `context` - server-side storage between show and submit, can be `{}`.
 		* `crafting_page` - page to show
 
+* unused and commented in Exile --------------------------------------------
 * crafting.result_select_on_receive_results(player, type, level, context, fields)
 	* Handles form submissions for the result selector.
 	* Returns true if the formspec should be shown again.
 
 * crafting.make_on_rightclick(type, level, inv_size)
 	* Returns a function to be used as on_rightclick for node work stations.
+
+-----------------------------------------------------------------------------
 
 * crafting.create_async_station(name, type, level, def_inactive, def_active)
 	* Makes a station which players put items into and then leave to craft.

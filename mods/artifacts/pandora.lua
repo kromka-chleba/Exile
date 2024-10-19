@@ -38,10 +38,14 @@ local function inject_metastim(itemstack, player, pointed_thing)
             texture = "health_superpower.png",
             glow = 15,
     })
-    
+
     if not (minimal.player_in_creative(player)) then
         itemstack:add_wear(65535/(20-1))
     end
+
+    -- #TODO not sure this is the correct place
+    -- to upadte health formspec
+    core.after(0.1, sfinv.set_player_inventory_formspec , player)
 
     return itemstack
 

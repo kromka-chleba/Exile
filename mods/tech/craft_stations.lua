@@ -248,7 +248,7 @@ minetest.register_node(
         sounds        = nodes_nature.node_sound_wood_defaults(),
         sunlight_propagates = true,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         -- on_rightclick = crafting.make_on_rightclick("crafting_spot", 2, { x = 8, y = 3 }),
@@ -286,7 +286,7 @@ minetest.register_node(
         sounds        = nodes_nature.node_sound_wood_defaults(),
         sunlight_propagates = true,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick("mixing_spot", 2, { x = 8, y = 3 }),
@@ -324,7 +324,7 @@ minetest.register_node(
         sounds            = nodes_nature.node_sound_wood_defaults(),
         sunlight_propagates = true,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick     = crafting.make_on_rightclick("threshing_spot", 2, { x = 8, y = 3 }),
@@ -371,7 +371,7 @@ minetest.register_node(
         sounds        = nodes_nature.node_sound_stone_defaults(),
         sunlight_propagates = true,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick("weaving_frame", 2, { x = 8, y = 3 }),
@@ -414,7 +414,7 @@ minetest.register_node(
         sounds        = nodes_nature.node_sound_stone_defaults(),
         sunlight_propagates = true,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
@@ -459,7 +459,7 @@ minetest.register_node(
         sounds        = nodes_nature.node_sound_stone_defaults(),
         sunlight_propagates = true,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick("hammering_block", 2, { x = 8, y = 3 }),
@@ -547,7 +547,7 @@ for mat,capsMat in pairs ({
             },
             sounds        = nodes_nature.node_sound_stone_defaults(),
             on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-                return minimal.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+                return crafting.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
             end
             --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
         }
@@ -614,7 +614,7 @@ minetest.register_node(
         },
         sounds        = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end
                            --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
@@ -687,7 +687,7 @@ minetest.register_node(
                          flammable = 8, craftedby = 1},
         sounds        = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick(
@@ -735,7 +735,7 @@ minetest.register_node(
                          temp_pass = 1, craftedby = 1},
         sounds        = nodes_nature.node_sound_stone_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end
         --on_rightclick = crafting.make_on_rightclick({"anvil","anvil_mixing"}, 2, { x = 8, y = 3 }),
@@ -778,7 +778,7 @@ minetest.register_node(
                          flammable = 8, craftedby = 1},
         sounds        = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end
         --on_rightclick = crafting.make_on_rightclick("carpentry_bench", 2, { x = 8, y = 3 }),
@@ -824,7 +824,7 @@ minetest.register_node(
                          temp_pass = 1, craftedby = 1},
         sounds        = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick(
@@ -872,7 +872,7 @@ minetest.register_node(
                          flammable = 8, craftedby = 1},
         sounds        = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick("spinning_wheel", 2, { x = 8, y = 3 }),
@@ -923,7 +923,7 @@ minetest.register_node(
                          flammable = 8, craftedby = 1},
         sounds        = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end
         --on_rightclick = crafting.make_on_rightclick("loom", 2, { x = 8, y = 3 }),
@@ -967,7 +967,7 @@ minetest.register_node(
                          temp_pass = 1, craftedby = 1},
         sounds        = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end
         --on_rightclick = crafting.make_on_rightclick("glass_furnace", 2, { x = 8, y = 3 }),
@@ -1021,7 +1021,7 @@ minetest.register_node(
         },
         sounds        = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end
                            --on_rightclick = crafting.make_on_rightclick({"weaving_frame","weaving_frame_mixing"}, 2, { x = 8, y = 3 }),
@@ -1074,7 +1074,7 @@ minetest.register_node(
         },
         sounds = nodes_nature.node_sound_stone_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end
         --on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
@@ -1115,7 +1115,7 @@ minetest.register_node(
         },
         sounds = nodes_nature.node_sound_stone_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end
         --on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
@@ -1155,7 +1155,7 @@ minetest.register_node(
         },
         sounds = nodes_nature.node_sound_stone_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return minimal.crafting_item_on_rightclick(pos,node,clicker,
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick("grinding_stone", 2, { x = 8, y = 3 }),
@@ -1202,7 +1202,7 @@ if legacy_stations == true then
                                      clicker, itemstack,
                                      pointed_thing)
                 return
-                    minimal.crafting_item_on_rightclick(
+                    crafting.crafting_item_on_rightclick(
                         pos,node,clicker,itemstack,
                         pointed_thing)
             end
@@ -1238,7 +1238,7 @@ if legacy_stations == true then
             sounds        = nodes_nature.node_sound_wood_defaults(),
             on_rightclick = function(pos, node, clicker, itemstack,
                                      pointed_thing)
-                return minimal.crafting_item_on_rightclick(
+                return crafting.crafting_item_on_rightclick(
                     pos,node,clicker,itemstack,pointed_thing)
             end
             --on_rightclick = crafting.make_on_rightclick("hammering_block", 2, { x = 8, y = 3 }),

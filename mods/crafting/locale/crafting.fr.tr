@@ -17,6 +17,23 @@ bundleable fiber=fibre empaquetable
 Any @1=Tout type de @1
 Missing required items!=Il manque des objets requis!
 
+#gui.lua
+Missing required items!=Il manque des objets requis!
+Main=Principal
+Bag1=Sac n°1
+Bag2=Sac n°2
+Bag3=Sac n°3
+Bag4=Sac n°4
+Use first:=Utiliser en priorité :
+Tool used=Outil utilisé
+Crafting=Artisanat
+Quantity=Quantité 
+Single=Un seul
+Stack=Une pile
+Maximum=Le maximum
+Search=Requête
+or=ou
+
 #groups
 limestone cobble=caillou calcaire 
 basalt cobble=caillou de basalte

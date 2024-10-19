@@ -10,7 +10,7 @@ We use sfinv mod to generate tabs if needed, then call a page per tab.
 Forms are meant to be size[10.5,10.9] in real coordinates,
 as set in 'sfinv.make_formspec_for_exile' function in mods/sfinv/api.lua
 
-- Crafting tab is in /mods/minimal/interface/inventory.lua
+- Crafting tab is in /mods/crafting/gui.lua
 - Character tab is in mods/lore/char_tab.lua
 - Clothing tab container is in mods/player_api/equip.lua
 - Game settings (in character tab) are in mods/minimal/interface/playersettings.lua

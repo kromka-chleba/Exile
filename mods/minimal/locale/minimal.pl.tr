@@ -4,22 +4,8 @@
 Display the current git revision=
 This server is currently running git revision=
 #interface/infotext.lua
-Owner=
-Missing required items!=
-Main=
-Bag1=
-Bag2=
-Bag3=
-Bag4=
-Input Items=
-Tool used=
-Crafting=
-Quantity=
-Single=
-Stack=
-Maximum=
-Search=
-or=
+Owner:=
+Label:=
 
 #playersettings.lua
 Enable wide HUDbar=
