@@ -199,8 +199,7 @@ animals.add_interactors("animals:chichasa","friends", "self",
 animals.add_interactors("animals:chichasa","rivals", "self")
 
 -- MALE INTERACTORS
-animals.add_interactors("animals:chichasa_male","friends", "animals:chichasa",
-                        "animals:pegasun")
+animals.add_interactors("animals:chichasa_male","friends", "animals:chichasa")
 animals.add_interactors("animals:chichasa_male","rivals", "self",
                         "animals:pegasun", "animals:pegasun_male")
 
@@ -239,11 +238,12 @@ local self_data = {
     -- energy
     energy_max = 8000,   --secs it can survive without food
     energy_egg = "energy_max*0.4",  --energy that goes to egg
-    egg_time = 60*25,
+    egg_time = 60*22,
     young_per_egg = 1,           --will get this/energy_egg starting energy
     -- lifespan
     lifespan = "energy_max*15",
     mature_age = "energy_max*0.2", -- 20% of energy_max (8000) or 1600 --NotPegasun (lower)
+    growth_min_size = 0.4,
     -- interactions
     -- predators + rivals automatically defined in registration
     consume_non_prey = false,
@@ -305,9 +305,7 @@ local self_data = {
     jump_height = 1.2,     -- nodes/meters
     view_range = 26,       -- nodes/meters
     warn_distance = 6,     --NotPegasun (shorter distance)
-    player_warn_distance = 6, --NotPegasun (shorter distance)
     aggression_distance = 2, --NotPegasun (shorter distance)
-    stepheight = 1.05,  --NotPegasun
     --attack
     attack={range=0.9, damage_groups={fleshy=1}}, --NotPegasun (weaker)
     armor_groups = {fleshy=100},
