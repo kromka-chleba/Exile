@@ -661,7 +661,10 @@ function animals.core_life(self, pos)
         -- set to 1 and don't remember it if not specified or was 1
         self.size_dif = self.size_dif or 1
     end
-    animals.age_mechanics(self)
+
+    if self.age_mechanics then
+        self:age_mechanics()
+    end
 
     -- get temp
     local temp = climate.get_point_temp(pos, true)
@@ -3556,9 +3559,9 @@ function animals.register_animal(name,def)
 
     -- drops = {} -- add drops for your animal upon death
     -- set up drops if provided (clear if not a string or table)
-    def.drops = type(def.drops) == "string" and {{name=def.drops}} or type(def.drops) == "table" and def.drops or nil
+    def.drops = type(def.drops) == "string" and {{name=def.drops}} or type(def.drops) == "table" and def.drops or {}
     if def.drops then
-        for i,drop in pairs(def.drops) do
+        for i,drop in ipairs(def.drops) do
             -- clear if not a table, convert to adequate table if string
             drop = type(drop) == "string" and {name=drop} or type(drop) == "table" and drop or nil
             if drop and drop.name then
@@ -3823,6 +3826,9 @@ function animals.register_animal(name,def)
         value = self:set(vname, self[vname] + value, memorize)
         return value
     end
+    -- age mechanics (opt out with false)
+    def.age_mechanics = type(def.age_mechanics) == "function" and def.age_mechanics or
+        def.age_mechanics ~= false and animals.age_mechanics or nil
 
     -- creature
     minetest.register_entity(name,def)
