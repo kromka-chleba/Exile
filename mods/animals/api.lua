@@ -3021,6 +3021,7 @@ function animals.size_dif_mechanics(self)
                       -- divide capvalue by difference to get higher chance for smaller sizes, lower chance for bigger
                         capvalue[ind] = math.min(caperc / dif, 1)
                     end
+                    cap_interact[captype] = capvalue
                 end
             end
             -- update
