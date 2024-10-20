@@ -3536,23 +3536,43 @@ function animals.register_animal(name,def)
 
     -- sounds
     -- create sounds for your animal
-    -- use mobkit.make_sound(self,name) to play them
+    -- use animals.make_sound(self,name) to play them
+    -- animals.make_sound can have a list of "alternatives" to play
     local sounds = def.sounds or {}
     sounds.punch = sounds.punch or { -- plays when animal is punched
         name = "animals_punch",
         gain={0.5, 1.2},
         fade={0.5, 1.5},
         pitch={0.5, 1.5},
-                                   }
-    sounds.punch_death = sounds.punch_death or {
+    }
+    -- opt out of punch_death by setting to false
+    sounds.punch_death = sounds.punch_death or sounds.punch_dead ~= false and {
         -- plays if animal is punched while dead
         name = "animals_punch_death",
         gain = {1,1.5},
         fade = {0.5,1.5},
         pitch = {0.5,0.8},
-                                               }
+     } or nil
 
     -- drops = {} -- add drops for your animal upon death
+    -- set up drops if provided (clear if not a string or table)
+    def.drops = type(def.drops) == "string" and {{name=def.drops}} or type(def.drops) == "table" and def.drops or nil
+    if def.drops then
+        for i,drop in pairs(def.drops) do
+            -- clear if not a table, convert to adequate table if string
+            drop = type(drop) == "string" and {name=drop} or type(drop) == "table" and drop or nil
+            if drop and drop.name then
+                -- set chance, min, and max
+                drop.chance = drop.chance or 1
+                drop.min = drop.min or 1
+                drop.max = drop.max or drop.min
+            else -- remove if no name
+                drop = nil
+            end
+            -- update
+            def.drops[i] = drop
+        end
+    end
 
     -- functions
     def.on_punch = def.on_punch or function(self, puncher, time_from_last_punch,

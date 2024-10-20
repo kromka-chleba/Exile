@@ -227,9 +227,7 @@ self_data = {
     attack={range=0.3, damage_groups={fleshy=1}},
     armor_groups = {fleshy=100},
     --on actions
-    drops = {
-        {name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_invert_small",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
         animals.stun_catch_mob(self, clicker, time_from_last_click,

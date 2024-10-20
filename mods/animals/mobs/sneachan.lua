@@ -221,9 +221,7 @@ self_data = {
         },
     },
     --on actions
-    drops = {
-        {name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_invert_small",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
         animals.stun_catch_mob(self, clicker, time_from_last_click,

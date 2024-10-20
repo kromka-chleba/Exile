@@ -177,7 +177,7 @@ animals.register_spawnegg = function(name, def, animal)
     def.liquids_pointable = true
   end
   def.liquids_pointable = type(def.liquids_pointable) == "boolean" and def.liquids_pointable or false
-  def.drops = def.drops or animal.drops or nil
+  def.drops = def.drops or animal.drops or {}
 
   -- sounds (#TODO: sound for drops)
   def.sounds = def.sounds or {}
