@@ -3549,7 +3549,7 @@ function animals.register_animal(name,def)
         pitch={0.5, 1.5},
     }
     -- opt out of punch_death by setting to false
-    sounds.punch_death = sounds.punch_death or sounds.punch_dead ~= false and {
+    sounds.punch_death = sounds.punch_death or sounds.punch_death ~= false and {
         -- plays if animal is punched while dead
         name = "animals_punch_death",
         gain = {1,1.5},

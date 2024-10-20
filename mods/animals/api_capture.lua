@@ -24,6 +24,7 @@ local create_mob = function(placer, itemstack, name, pos)
     local mob = minetest.add_entity(pos, name, sdata)
 
     local ent = mob:get_luaentity()
+    ent.hp = tonumber(meta:get_string("hp")) or ent.hp
     if memory then
         for key,value in pairs(memory) do
             mobkit.remember(ent,key,value)
@@ -278,18 +279,14 @@ end
 
 
 animals.capture = function(self, clicker)
-    -- add special mob egg with all mob informationl
+    -- add special mob egg with all mob information
     local new_stack = ItemStack(self.name)
     local stack_meta = new_stack:get_meta()
-    --local sett ="---TABLE---: "
-    --local sett = ""
-    --local i = 0
-    for key, value in pairs(self) do
-        if key == "hp" then
-            stack_meta:set_string(key, value)
-        elseif key == "memory" then
-            stack_meta:set_string(key, minetest.serialize(value))
-        end
+    if self.hp then
+        stack_meta:set_string("hp", self.hp)
+    end
+    if self.memory then
+        stack_meta:set_string("memory", minetest.serialize(self.memory))
     end
 
     local inv = clicker:get_inventory()
