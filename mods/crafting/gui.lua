@@ -1135,21 +1135,21 @@ end
 )
 
 minetest.register_on_item_pickup(function(itemstack, picker)
-    if picker:is_player() then
+    if picker and picker:is_player() then
         core.after(0.1, crafting.refresh_recipes_FS , picker)
     end
 end
 )
 
 minetest.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack, pointed_thing)
-    if placer:is_player() then
+    if placer and placer:is_player() then
         core.after(0.1, crafting.refresh_recipes_FS , placer)
     end
 end
 )
 
 minetest.register_on_dignode(function(pos, oldnode, digger)
-    if digger:is_player() then
+    if digger and digger:is_player() then
         core.after(0.1, crafting.refresh_recipes_FS , digger)
     end
 end
