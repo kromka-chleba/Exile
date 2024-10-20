@@ -194,8 +194,6 @@ end
 -- SETTING INTERACTOR SETTINGS
 animals.add_interactors("animals:chichasa","predators", "animals:kubwakubwa",
                         "animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("animals:chichasa","prey", "animals:sneachan",
-                        "animals:impethu")
 animals.add_interactors("animals:chichasa","friends", "self",
                         "animals:chichasa_male")
 animals.add_interactors("animals:chichasa","rivals", "self")

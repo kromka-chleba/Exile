@@ -146,7 +146,8 @@ animals.add_interactors("animals:impethu","predators",
                         "animals:chichasa", "animals:chichasa_male",
                         "animals:kubwakubwa",
                         "animals:darkasthaan")
-animals.add_interactors("animals:impethu","rivals", "animals:sneachan", "self")
+-- don't need to tell sneachan we're a rival of them
+animals.add_interactors("animals:impethu","rivals", "animals:sneachan", "self", false)
 
 ----------------------------------------------
 -- The Animal

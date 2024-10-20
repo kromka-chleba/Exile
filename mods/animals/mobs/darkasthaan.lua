@@ -113,13 +113,8 @@ end
 
 ----------------------------------------------
 -- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
-animals.add_interactors(
-    "animals:darkasthaan","prey", 
-    "animals:kubwakubwa",
-    "animals:pegasun", "animals:pegasun_male",
-    "animals:chichasa", "animals:chichasa_male",
-    "animals:sneachan", "animals:impethu", 
-    "animals:gundu", "animals:sarkamos")
+-- unique interaction, don't add darkasthaan as pred to sarkamos
+animals.add_interactors("animals:darkasthaan", "prey", "animals:sarkamos", false)
 animals.add_interactors("animals:darkasthaan","rivals", "self")
 
 ----------------------------------------------

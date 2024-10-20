@@ -121,11 +121,9 @@ end
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
 animals.add_interactors("animals:kubwakubwa","predators",
                         "animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("animals:kubwakubwa","prey", "animals:pegasun",
-                        "animals:chichasa", "animals:chichasa_male",
-                        "animals:sneachan", "animals:impethu", "animals:gundu")
+-- don't need to tell male pegasuns we're a rival of them
 animals.add_interactors("animals:kubwakubwa","rivals", "self",
-                        "animals:pegasun_male")
+                        "animals:pegasun_male", false)
 
 ----------------------------------------------
 -- Animal Data
