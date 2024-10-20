@@ -3017,12 +3017,10 @@ function animals.size_dif_mechanics(self)
                     -- again, copy for local modifications
                     capvalue = table.copy(capvalue)
                     for ind,caperc in pairs(capvalue) do -- index, capture percentage
+                      -- clamp below or equal to 1 with math.min
+                      -- divide capvalue by difference to get higher chance for smaller sizes, lower chance for bigger
                         capvalue[ind] = math.min(caperc / dif, 1)
                     end
-                elseif type(capvalue) == "number" then
-                    -- clamp below 1 with math.min
-                    -- divide capvalue by difference to get higher chance for smaller sizes, lower chance for bigger
-                    cap_interact[captype] = math.min(capvalue / dif, 1)
                 end
             end
             -- update
