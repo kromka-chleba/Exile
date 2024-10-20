@@ -643,14 +643,23 @@ function animals.core_life(self, pos)
         self:modify('energy',-self.energy_loss)
     end
 
-    -- size difference mechanics, only call upon startup (nil size_dif)
+    -- size difference mechanics, only call upon startup or nil size_dif
     if not self.size_dif then
-        self.size_dif = mobkit.recall(self,"size_dif") or 1
-        if self.size_dif ~= 1 then
+        -- "base_size_dif" is a desired size from the usual adult size (say, an adult that grows to be smaller or larger)
+        self.base_size_dif = self.base_size_dif or mobkit.recall(self,"base_size_dif") or nil
+        -- current size_dif, modified by age_mechanics system
+        self.size_dif = mobkit.recall(self,"size_dif") or self.base_size_dif
+        -- clear out size_dif if it equals 1, ensure to remember this decision
+        if self.size_dif == 1 then
+            self:set("size_dif",nil,true)
+        -- we're fine with this, custom size_dif
+        elseif self.size_dif then
             animals.sizeify(self, self.size_dif)
             -- update stats according to size
             animals.size_dif_mechanics(self)
         end
+        -- set to 1 and don't remember it if not specified or was 1
+        self.size_dif = self.size_dif or 1
     end
     animals.age_mechanics(self)
 
@@ -3032,7 +3041,7 @@ function animals.age_mechanics(self)
         return
     end
     -- some helpful variables
-    local size = self.base_size_def or 1 -- expected base size dif
+    local size = self.base_size_def or 1 -- expected base size dif for adult (expected usual, permit custom)
     local min_size = self.growth_min_size or 0.25 -- can't be smaller than 25%
     local phases = self.growth_phases or 6 -- allow phases override, otherwise 6
     -- PHASE;;
@@ -3057,9 +3066,10 @@ function animals.age_mechanics(self)
     local dif = min_size+(size-min_size)*(phase/phases)
     -- growth_next_age;;
     -- predict age for next phase (current phase + 1)
-    -- predict by dividing next phase by total phases for a percentage, then multiplied mature_age by such
-    -- CLEAR OUT growth_next_age if next phase is greater than total phases
+    -- predict by dividing next phase by total phases for a percentage, then multiply mature_age by such
+    -- CLEAR OUT growth_next_age if current phase is going to be greater than or equal to total phases
     self.growth_next_age = phase < phases and mature_age*((phase+1)/phases) or nil
+    self.growth_current_phase = phase -- add self value for growth_current_phase
     -- we're already this size, no updating!
     if self.size_dif == dif then return end
     self:set('size_dif',dif,true) -- set internal "size_dif" value for memory
