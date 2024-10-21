@@ -172,7 +172,7 @@ HEALTH.bake_table = {
     ["animals:carcass_fish_large"] = {temp = 100, time = 18},
     ['tech:yolk_and_albumen'] = {temp = 100, time = 2},
     ['tech:rhuya_flour'] = {temp = 100, time = 5},
-    ['tech:rhuya_flour_wintery'] = {temp = 100, time = 8, burned='tech:rhuya_flour_burned'},
+    ['tech:rhuya_wintery_flour'] = {temp = 100, time = 8, burned='tech:rhuya_flour_burned'},
     ['tech:maraka_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'},
     ['tech:rhuya_dough_fermented'] = {temp = 110, time = 4, cooked='tech:bread_crumbly', burned='tech:bread_burned'},
     ['tech:rhuya_wintery_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'}
