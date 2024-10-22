@@ -160,6 +160,10 @@ function canoe.on_punch(self, puncher, time_from_last_punch,
 
     -- play a pseudo-animation for being hit
     check_and_play_canoe_anim(self)
+    -- no point to making our own make_sound when one already exists!
+    if mobkit and mobkit.make_sound then
+        mobkit.make_sound(self,"hit")
+    end
 
     -- if player and either: puncher is the driver or no driver
     -- then increase pickup_progress
@@ -219,27 +223,15 @@ function canoe.on_punch(self, puncher, time_from_last_punch,
             self.object:remove()
         end)
     end
-    
-    --[[
-    if not self.driver then
-        --self.removed = true
-        local inv = puncher:get_inventory()
-        if not minimal.player_in_creative(puncher)
-            or not inv:contains_item("main", "canoe:canoe") then
-            minetest.log("boap")
-            local leftover = inv:add_item("main", "canoe:canoe")
-            -- if no room in inventory add a replacement canoe to the world
-            if not leftover:is_empty() then
-                minetest.add_item(self.object:get_pos(), leftover)
-            end
-        end
-        -- delay remove to ensure player is detached
-        --minetest.after(0.1, function()
-                           --self.object:remove()
-        --end)
-    end
-    --]]
 end
+
+canoe.sounds = {
+    hit = {
+        name = "nodes_nature_dig_choppy",
+        gain = {0.95,1.5},
+        pitch = {0.9,1.25}
+    }
+}
 
 local function limit_and_reduce(vec, cap, decay)
     local s = get_sign(vec)
