@@ -154,16 +154,13 @@ function canoe.on_punch(self, puncher, time_from_last_punch,
     self.hp = self.hp or self.object:get_hp() -- set hp if not set
     local is_player = minetest.is_player(puncher)
 
+    -- get name and check if in creative
     local name = is_player and puncher:get_player_name()
-    -- if we're the driver and punching, then eject!
-    if self.driver and (self.hp <= 0 or name == self.driver) then
-        self.driver = nil
-        puncher:set_detach()
-        player_api.player_attached[name] = false
-    end
+    local in_creative = is_player and minimal.player_in_creative(puncher)
 
     -- play a pseudo-animation for being hit
     check_and_play_canoe_anim(self)
+
     -- if player and either: puncher is the driver or no driver
     -- then increase pickup_progress
     if is_player and ((self.driver and name == self.driver) or not self.driver) then
@@ -171,7 +168,32 @@ function canoe.on_punch(self, puncher, time_from_last_punch,
     -- else, this boat is gon sink!
     else
         self.pickup_progress = nil
-        self.hp = self.hp - 1
+        -- damage
+        local dmg = tool_capabilities and tool_capabilities.damage_groups
+        -- do "woody" damage or fleshy divided by 3
+        dmg = dmg and (dmg.woody or (dmg.fleshy/3)) or 1
+        local fpi = tool_capabilities and tool_capabilities.full_punch_interval or 1
+        -- get damage percentage from time_from_last_punch (or fpi if not provied) divided by fpi, clamp to fpi if over
+        -- times harm by it
+        dmg = in_creative and dmg or dmg * math.min((time_from_last_punch or fpi) / fpi, fpi)
+        -- only harm canoe if damage is over 0.25
+        if dmg > 0.25 then
+            self.hp = self.hp - dmg
+        end
+    end
+    -- if we're the driver and punching, then eject! or if the ship's going down, eject the driver!
+    if self.driver and (self.hp <= 0 or name == self.driver) then
+        -- if it's player ejecting, then set to puncher
+        -- if it's the driver being injected by a sinking canoe, then eject the driver
+        -- ensure it's set to a separate driver variable
+        local driver = name == self.driver and puncher or
+            self.hp <= 0 and (self.driver and minetest.get_player_by_name(self.driver)) or nil
+        -- ensure the driver PROPERLY detaches
+        if driver then
+            driver:set_detach()
+            player_api.player_attached[driver:get_player_name()] = false
+        end
+        self.driver = nil
     end
     -- now for what to do when we've finally picked up the boat... or destroyed it!
     if self.hp <= 0 or (self.pickup_progress and self.pickup_progress > 3) then
@@ -180,7 +202,7 @@ function canoe.on_punch(self, puncher, time_from_last_punch,
         if self.hp > 0 and is_player then
             local inv = puncher:get_inventory()
             -- if not in creative or in creative but there is no canoe in inventory
-            if not minimal.player_in_creative(puncher)
+            if not in_creative
                 or not inv:contains_item("main", "canoe:canoe") then
                 local leftover = inv:add_item("main", "canoe:canoe")
                 -- if no room in inventory add a replacement canoe to the world
@@ -193,7 +215,7 @@ function canoe.on_punch(self, puncher, time_from_last_punch,
             minetest.add_item(self.object:get_pos(), ItemStack("canoe:canoe"))
         end
         -- delay remove to ensure player is detached
-        minetest.after(0.06,function()
+        minetest.after(0.1,function()
             self.object:remove()
         end)
     end
