@@ -123,11 +123,26 @@ local function spawn_offset(hex1, max_count)
 end
 
 --------------------------------------------------------------------------
--- Gate entity
+-- Gate's portal entity
 local rate = 3 -- speed of open/close
 local max_size = 6 -- how big it should get
 local open_time = 59 -- how long to stay open
 local size_change_rate = 0.05 -- frame rate of opening/closing, 20fps
+local portals = {} -- find a region's portal object, [hexstring] = ObjectRef
+
+local function delportal(object)
+    local ourhex = map2hex(object:get_pos())
+    portals[hex2string(ourhex)] = nil
+    object:remove()
+end
+local function addportal(object)
+    if not object then return end -- unloaded?
+    local ourhex = map2hex(object:get_pos())
+    if portals[hex2string(ourhex)] then -- one portal entity per hex plz
+        delportal(portals[hex2string(ourhex)])
+    end
+    portals[hex2string(ourhex)] = object
+end
 
 minetest.register_entity(
     "spawnex:gate",{
@@ -151,6 +166,7 @@ minetest.register_entity(
             else
                 self.timer = 0
             end
+            addportal(self.object)
         end,
         on_step = function(self, dtime, moveresult)
             if not self.init then
@@ -163,7 +179,7 @@ minetest.register_entity(
                 self.state = "opening"
             end
             if self.state == "closed" then
-                self.object:remove() return
+                delportal(self.object) return
             end
             self.timer = ( self.timer or 0 ) + dtime
             self.resend = self.resend + dtime
@@ -240,8 +256,9 @@ local function save_rgns(hex)
     local function writeout(hx, tb)
         local str, err = minetest.write_json(tb, nil)
         if err then
-            pirnt("Spawnex: Fatal error saving region ",hx)
-            error(err)
+            pirnt("Spawnex: Error saving region ",hx)
+            pirnt("Dump of region data: ",dump(tb))
+            return
         end
         storage:set_string(hx, str)
     end
@@ -513,7 +530,7 @@ function region.spawn(player)
     sadef.open = true
     pirnt("spawn: ",hex2string(spawnat)," : ",
           minetest.pos_to_string(sadef.currentgate))
-    sadef.gate = minetest.add_entity(gate, "spawnex:gate")
+    addportal(minetest.add_entity(gate, "spawnex:gate"))
     player:set_pos(gate)
     checkplayer(gate)
 
@@ -721,10 +738,13 @@ minetest.register_chatcommand(
 
 minetest.register_chatcommand(
     "checkhex",{
-        description = "Find the distance to the center of your current region",
+        description = "Find the distance to the center of your (or a player's) current region",
+        params = "<playername, optional>",
         --privs = "server",
         func = function(name,param)
-            local ppos = minetest.get_player_by_name(name):get_pos():round()
+            local player = minetest.get_player_by_name(param)
+                or minetest.get_player_by_name(name)
+            local ppos = player:get_pos():round()
             local nearest = map2hex(ppos)
             local num = hexnum(nearest)
             return true, "hex #"..tostring(num).." "..hex2string(nearest)..
@@ -770,6 +790,28 @@ minetest.register_chatcommand(
         end
 })
 
+minetest.register_chatcommand(
+    "hexportu",{
+        privs = "server",
+        description = "Teleport player to the specified region's hex",
+        params = "<player> <Hx:Hz>",
+        func = function(name,param)
+            local pname, tgtstr = unpack(param:split(" ", false, 1))
+            print("Got ",pname," and ",tgtstr)
+            local player = minetest.get_player_by_name(pname:gsub(",",""))
+            local tgt = string2hex(tgtstr)
+            if not tgt or not player then
+                return false, "Invalid parameters, must be playername, <hex #, x> <hex #, z>"
+            end
+            local ppos = player:get_pos():round()
+            local spos = spawn_offset(tgt)
+            if spos == nil then return false, "can't find a valid pos" end
+            player:set_pos(spos)
+            return true, pname.." hexported: "..
+                minetest.pos_to_string(ppos).." -> "..
+                minetest.pos_to_string(spos)
+        end
+})
 minetest.register_chatcommand(
     "hexport",{
         privs = "server",
@@ -820,7 +862,7 @@ minetest.register_chatcommand(
     "hexstat",{
         description = "Get stats for your current region, or specify one",
         params = "none or <Hx:Hz>",
-        --privs = "server",
+        privs = "server",
         func = function(name,param)
             local player = minetest.get_player_by_name(name)
             local ppos = player:get_pos()
