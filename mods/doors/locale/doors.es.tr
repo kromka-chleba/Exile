@@ -1,6 +1,6 @@
 # textdomain: doors
 Hidden Door Segment=Segmento de puerta oculta
-You can't open this door, =
+You can't open this door,="No puedes abrir esta puerta,"
 You do not own this locked door.=Esta puerta cerrada no te pertenece.
 a locked door=una puerta cerrada
 You do not own this trapdoor.=Esta trampilla no te pertenece.
