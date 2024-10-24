@@ -336,7 +336,8 @@ for i in ipairs(list) do
     local box = list[i][4]
     local hardness = list[i][5]
 
-    local sound = nodes_nature.node_sound_stone_defaults()
+    local sound = material == "Gold" and tech.node_sound_metal_defaults() or
+        nodes_nature.node_sound_stone_defaults()
     local sun = false
     local light = 0
     if material == "Moon Glass" then
