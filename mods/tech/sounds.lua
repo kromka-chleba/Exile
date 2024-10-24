@@ -31,3 +31,13 @@ function tech.node_sound_metal_defaults(table)
     nodes_nature.node_sound_defaults(table)
     return table
 end
+
+function tech.node_sound_metal_tray_defaults(table)
+    table = table or {}
+    table.place = table.place or
+        {name = "tech_metal_tray_place", gain = 0.6}
+    table.dug = table.dug or
+        {name = "tech_metal_tray_dug", gain = 0.6}
+    tech.node_sound_metal_defaults(table)
+    return table
+end

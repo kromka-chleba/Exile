@@ -504,10 +504,10 @@ minetest.register_node(
 
             },
         stack_max = minimal.stack_max_bulky * 2,
-        sounds = tech.node_sound_metal_defaults(),
+        sounds = tech.node_sound_metal_tray_defaults(),
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {cracky = 3, oddly_breakable_by_hand = 3},
+        groups = {cracky = 3, oddly_breakable_by_hand = 3, falling_node = 1},
         sunlight_propagates = true,
 })
 
@@ -532,10 +532,10 @@ minetest.register_node(
 
             },
         stack_max = minimal.stack_max_bulky * 2,
-        sounds = tech.node_sound_metal_defaults(),
+        sounds = tech.node_sound_metal_tray_defaults(),
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {dig_immediate = 3},
+        groups = {dig_immediate = 3, falling_node = 1},
         sunlight_propagates = true,
         on_dig = function(pos, node, digger)
             minetest.sound_play("tech_glass_dug",{
@@ -575,10 +575,10 @@ minetest.register_node(
 
             },
         stack_max = minimal.stack_max_bulky * 2,
-        sounds = tech.node_sound_metal_defaults(),
+        sounds = tech.node_sound_metal_tray_defaults(),
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {dig_immediate = 3},
+        groups = {dig_immediate = 3, falling_node = 1},
         sunlight_propagates = true,
         on_dig = function(pos, node, digger)
             minetest.sound_play("tech_glass_dug",{
