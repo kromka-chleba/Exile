@@ -504,7 +504,7 @@ minetest.register_node(
 
             },
         stack_max = minimal.stack_max_bulky * 2,
-        sounds = tech.node_sound_metal_tray_defaults(),
+        sounds = tech.node_sound_metal_hollow_defaults(),
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {cracky = 3, oddly_breakable_by_hand = 3, falling_node = 1},
@@ -532,7 +532,7 @@ minetest.register_node(
 
             },
         stack_max = minimal.stack_max_bulky * 2,
-        sounds = tech.node_sound_metal_tray_defaults(),
+        sounds = tech.node_sound_metal_hollow_defaults(),
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {dig_immediate = 3, falling_node = 1},
@@ -575,7 +575,7 @@ minetest.register_node(
 
             },
         stack_max = minimal.stack_max_bulky * 2,
-        sounds = tech.node_sound_metal_tray_defaults(),
+        sounds = tech.node_sound_metal_hollow_defaults(),
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {dig_immediate = 3, falling_node = 1},
