@@ -72,7 +72,7 @@ doors.register(
         stack_max = minimal.stack_max_bulky *2,
         inventory_image = "tech_iron_door_item.png",
         groups = {cracky = 3, oddly_breakable_by_hand = 1},
-        sounds = nodes_nature.node_sound_stone_defaults(),
+        sounds = tech.node_sound_metal_defaults(),
 })
 
 doors.register_trapdoor("tech:trapdoor_iron", {
@@ -85,7 +85,7 @@ doors.register_trapdoor("tech:trapdoor_iron", {
                             tile_side = "tech_trapdoor_iron_side.png",
                             use_texture_alpha = c_alpha.clip,
                             groups = {cracky = 3, oddly_breakable_by_hand = 1},
-                            sounds = nodes_nature.node_sound_stone_defaults(),
+                            sounds = tech.node_sound_metal_defaults(),
 })
 
 ------------------------------------

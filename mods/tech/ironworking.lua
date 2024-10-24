@@ -354,7 +354,7 @@ minetest.register_node(
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {falling_node = 1, dig_immediate=3, temp_pass = 1},
-        sounds = nodes_nature.node_sound_stone_defaults(),
+        sounds = tech.node_sound_metal_defaults(),
 })
 
 --recipe

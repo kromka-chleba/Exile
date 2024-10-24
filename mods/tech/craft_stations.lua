@@ -733,7 +733,7 @@ minetest.register_node(
         paramtype2    = "facedir",
         groups        = {dig_immediate=3, falling_node = 1,
                          temp_pass = 1, craftedby = 1},
-        sounds        = nodes_nature.node_sound_stone_defaults(),
+        sounds        = tech.node_sound_metal_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)

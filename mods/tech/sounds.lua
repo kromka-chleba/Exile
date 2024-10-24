@@ -17,3 +17,17 @@ function tech.node_sound_glass_defaults(table)
     nodes_nature.node_sound_defaults(table)
     return table
 end
+
+function tech.node_sound_metal_defaults(table)
+    table = table or {}
+    table.place = table.place or
+        {name = "tech_metal_place", gain = 0.5}
+    table.dig = table.dig or
+        {name = "tech_metal_dig", gain = 0.35}
+    table.dug = table.dug or
+        {name = "tech_metal_dig", gain = 0.6, pitch = 0.84}
+    table.footstep = table.footstep or
+        {name = "tech_metal_place", gain = 0.3, pitch = 0.85}
+    nodes_nature.node_sound_defaults(table)
+    return table
+end
