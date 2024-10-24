@@ -38,6 +38,10 @@ tech_clay_storage_(open/close).ogg
 tech_wooden_storage_(open/close).ogg
 tech_iron_chest_(open/close).ogg
 tech_glass_(place/dig/dug).(0-4).ogg
+tech_metal_dig.(0-4).ogg
+tech_metal_place.(0-3).ogg
+tech_metal_hollow_dug.(0-3).ogg
+tech_metal_hollow_place.(0-5).ogg
 --
 
 
