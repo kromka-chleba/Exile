@@ -27,6 +27,10 @@ local function take_item_replace_node(pos, node, clicker, itemstack, pointed_thi
             itemstack:take_item()
         end
         minetest.swap_node(pos, {name = node_name})
+        -- run node's on_construct function (updates infotext properly)
+        local on_construct = minetest.registered_nodes[node_name]
+        on_construct = on_construct and on_construct.on_construct
+        if on_construct then on_construct(pos) end
         return itemstack
     end
 end
