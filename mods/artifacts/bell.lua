@@ -153,6 +153,7 @@ local bell_def = {
     stack_max = 1,
     groups = {oddly_breakable_by_hand = 3, attached_node = 1, temp_pass = 1},
 
+    sounds = tech.node_sound_metal_defaults({dig=false}),
     on_punch = function (pos,node,puncher)
         minetest.sound_play( 'artifacts_bell_punch',
                              { pos = pos, gain = 1.5, max_hear_distance = 300,});

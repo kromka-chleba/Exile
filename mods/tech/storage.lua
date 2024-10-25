@@ -182,7 +182,7 @@ storage.register_storage(
                 {-0.0625, 0.25, -0.4375, 0.0625, 0.375, -0.375}, -- NodeBox10
             }
         },
-        sounds = nodes_nature.node_sound_wood_defaults({
+        sounds = tech.node_sound_metal_hollow_defaults({
                 storage_close = {
                     name = "tech_iron_chest_close",
                     gain = 1.1,

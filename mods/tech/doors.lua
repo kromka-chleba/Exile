@@ -72,7 +72,7 @@ doors.register(
         stack_max = minimal.stack_max_bulky *2,
         inventory_image = "tech_iron_door_item.png",
         groups = {cracky = 3, oddly_breakable_by_hand = 1},
-        sounds = nodes_nature.node_sound_stone_defaults(),
+        sounds = tech.node_sound_metal_hollow_defaults(),
 })
 
 doors.register_trapdoor("tech:trapdoor_iron", {
@@ -85,7 +85,7 @@ doors.register_trapdoor("tech:trapdoor_iron", {
                             tile_side = "tech_trapdoor_iron_side.png",
                             use_texture_alpha = c_alpha.clip,
                             groups = {cracky = 3, oddly_breakable_by_hand = 1},
-                            sounds = nodes_nature.node_sound_stone_defaults(),
+                            sounds = tech.node_sound_metal_hollow_defaults(),
 })
 
 ------------------------------------
@@ -99,7 +99,7 @@ doors.register("door_glass_green", {
                    inventory_image = "tech_door_glass_green_item.png",
                    use_texture_alpha = c_alpha.blend,
                    groups = {cracky = 3, oddly_breakable_by_hand = 1},
-                   sounds = nodes_nature.node_sound_glass_defaults(),
+                   sounds = tech.node_sound_glass_defaults(),
 })
 
 doors.register_trapdoor("tech:trapdoor_glass_green", {
@@ -112,7 +112,7 @@ doors.register_trapdoor("tech:trapdoor_glass_green", {
                             tile_side = "tech_trapdoor_wooden_side.png",
                             use_texture_alpha = c_alpha.blend,
                             groups = {cracky = 3, oddly_breakable_by_hand = 1},
-                            sounds = nodes_nature.node_sound_stone_defaults(),
+                            sounds = tech.node_sound_glass_defaults(),
 })
 
 doors.register("door_glass_clear", {
@@ -123,7 +123,7 @@ doors.register("door_glass_clear", {
                    inventory_image = "tech_door_glass_clear_item.png",
                    use_texture_alpha = c_alpha.blend,
                    groups = {cracky = 3, oddly_breakable_by_hand = 1},
-                   sounds = nodes_nature.node_sound_glass_defaults(),
+                   sounds = tech.node_sound_glass_defaults(),
 })
 
 doors.register_trapdoor("tech:trapdoor_glass_clear", {
@@ -136,7 +136,7 @@ doors.register_trapdoor("tech:trapdoor_glass_clear", {
                             tile_side = "tech_trapdoor_wooden_side.png",
                             use_texture_alpha = c_alpha.blend,
                             groups = {cracky = 3, oddly_breakable_by_hand = 1},
-                            sounds = nodes_nature.node_sound_stone_defaults(),
+                            sounds = tech.node_sound_glass_defaults(),
 })
 ------------------------------------
 --RECIPES
