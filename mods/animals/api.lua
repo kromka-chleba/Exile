@@ -1910,7 +1910,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
              or minimal.player_in_creative(threat)) then
         -- fight!
         if self.class == 2 then
-            mobkit.hq_aqua_attack(self, prty, threat.object
+            animals.hq_aqua_attack_eat(self, prty, threat.object
                                   or threat, self.max_speed)
         else
             animals.hq_warn(self, threat, prty)
@@ -2284,22 +2284,20 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 
     local tyaw = 0
     local prvscanpos = {x=0,y=0,z=0}
-    local init = true
     local tgtbox = tgtobj:get_properties().collisionbox
 
+    animals.animate(self,'fast')
+    animals.make_sound(self,'attack','bite')
+    local bitenext = time() -- bite debounce
+
     local func = function(self)
-        if time() > timer then
+        local c_time = time() -- current_time
+        if c_time > timer then
             return true
         end
 
         if not mobkit.is_alive(tgtobj) then
             return true
-        end
-
-        if init then
-            animals.animate(self,'fast')
-            animals.make_sound(self,'attack','bite')
-            init = false
         end
 
         local pos = mobkit.get_stand_pos(self)
@@ -2333,9 +2331,10 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
                 self.object:set_velocity({x=vel.x,y=vel.y-0.5,z=vel.z})
             end
         end
-        if animals.target_in_range(self,tgt) then -- bite
+        if c_time >= bitenext and animals.target_in_range(self,tgt) then -- bite
             animals.make_sound(self,'bite','attack')
             mobkit.hq_aqua_turn(self,prty,yaw-pi,speed)
+            bitenext = c_time + (2*random())
             return animals.hurt_target(self,tgtobj,eat)
         end
         mobkit.go_forward_horizontal(self,speed)
