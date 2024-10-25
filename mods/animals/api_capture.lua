@@ -196,7 +196,9 @@ animals.register_spawnegg = function(name, def, animal)
       local spawn_pos = pointed_thing.above
       -- am I clicking on something with an existing on_rightclick function?
       local nodedef = minimal.get_nodedef(pointed_thing.under)
-      if (nodedef and itemdef.drawtype ~= "liquid" and -- ignore liquids
+      -- don't run rightclick function if sneaking
+      if (minetest.is_player(placer) and not placer:get_player_control().sneak) and
+      (nodedef and nodedef.drawtype ~= "liquid" and -- ignore liquids
           pointed_thing.type ~= nil) then
           -- prevent running on_rightclick function upon custom item drop
           local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
