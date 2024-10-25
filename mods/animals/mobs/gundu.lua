@@ -165,7 +165,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'def')
+            animals.animate(self,'def')
             mobkit.hq_aqua_roam(self,10,1)
         end
     end

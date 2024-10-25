@@ -81,7 +81,7 @@ local function brain(self)
             --feeding
             --eat stuff in the dark
             if light <= self.max_light then
-                mobkit.animate(self,'walk')
+                animals.animate(self,'walk')
                 if not rival and self.energy < self.energy_max then
                     -- actively find nodes to eat at
                     if random() <= 0.7  then
@@ -125,7 +125,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'walk')
+            animals.animate(self,'walk')
             animals.hq_roam_dark(self,10,1)
         end
     end

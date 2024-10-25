@@ -121,17 +121,24 @@ function animals.animate(self, ...)
     local anims = {...}
     if not self.animation then return end
     local aparams -- animation params
+    -- custom id identifier (will be used for setting _anim if provided, otherwise gets found anims tag)
+    local id
     for i=1,#anims do
         aparams = anims[i]
         if self._anim == aparams then return end -- we're ALREADY playing this animation!
         aparams = type(aparams) == "table" and aparams or self.animation[aparams]
-        -- if a table, check for if it's a list of animations and get a random one, otherwise get just the table or
+        id = aparams and aparams.id
+        -- check for if it's a list of animations and get a random one, otherwise get just the table or
         -- remove if not table
-        aparams = type(aparams) == "table" and (#aparams > 0 and aparams[random(#aparams)] or aparams) or nil
+        aparams = aparams and (#aparams > 0 and aparams[random(#aparams)] or aparams) or nil
+        -- permit custom "id" identifier if provided
+        -- otherwise use the provided anims tag
+        id = id or (aparams and aparams.id) or anims[i]
+        if self._anim == id then return end -- already playing this unique animation, return!
         -- we got what we've always wished for... an animation!
         -- set _anim as the one found the anims table, and end the loop!
         if aparams and aparams.range then
-            self._anim = anims[i]
+            self._anim = id
             break
         else -- clear and check again
             aparams = nil
@@ -143,10 +150,23 @@ function animals.animate(self, ...)
         return
     end
     aparams.frame_blend = aparams.frame_blend or 0 -- is this necessary? taken from mobkit.animate
-    -- success! return true
+    -- success! return animinfo
     self.object:set_animation(aparams.range, aparams.speed,
                               aparams.frame_blend, aparams.loop)
-    return true
+    local animinfo = {
+        -- expected total time length of animation (end frame - start frame divided by speed (frames per second) )
+        time = aparams.speed ~= 0 and (math.abs(aparams.range.y-aparams.range.x)/aparams.speed) or 0,
+        -- if not boolean will be false, otherwise will be the boolean
+        looped = type(aparams.loop) == "boolean" and aparams.loop
+    }
+    -- this animation isn't meant to loop (and there isn't exclusion), we can erase it from _anim after its time
+    if animinfo.time > 0 and not (animinfo.looped or aparams.no_erase) then
+        minetest.after(animinfo.time-0.05, function()
+            -- clear or leave be if doesn't equal id
+            self._anim = self._anim == id and nil or self._anim
+        end)
+    end
+    return animinfo
 end
 
 -- return the luaentity + object of a provided userdata if possible into a table

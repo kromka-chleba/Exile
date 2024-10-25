@@ -87,7 +87,7 @@ local function brain(self)
 
             -- exploring
             if random() < ce then
-                mobkit.animate(self,'walk')
+                animals.animate(self,'walk')
                 -- let's prioritize eating more
                 if ceat >= 0.3 then
                     ceat = ceat + (ce*(ceat/0.5))
@@ -100,7 +100,7 @@ local function brain(self)
                         elseif not (random() <= 0.25
                                     and animals.prey_hunt(self,30)) then
                             --wander randomly for plants if can't find prey
-                            mobkit.animate(self,'walk')
+                            animals.animate(self,'walk')
                             animals.hq_roam_walkable_group(self, 'flora',
                                                            "cane_plant", 15)
                             -- go for group, ignore group, priority
@@ -177,7 +177,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'walk')
+            animals.animate(self,'walk')
             mobkit.hq_roam(self,10)
         end
     end

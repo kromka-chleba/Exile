@@ -76,7 +76,7 @@ local function brain(self)
                         self:modify('energy',5)
                     else
                         --wander random
-                        mobkit.animate(self,'walk')
+                        animals.animate(self,'walk')
                         --mobkit.hq_roam(self,10)
                         animals.hq_roam_surface_group(self, 'spreading', 20)
                     end
@@ -92,7 +92,7 @@ local function brain(self)
                     self:modify('energy',1)
                 else
                     --wander random
-                    mobkit.animate(self,'walk')
+                    animals.animate(self,'walk')
                     animals.hq_roam_dark(self,10)
                 end
             else
@@ -129,7 +129,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'walk')
+            animals.animate(self,'walk')
             animals.hq_roam_dark(self,10,1)
         end
     end
