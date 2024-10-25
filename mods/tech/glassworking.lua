@@ -306,7 +306,7 @@ liquid_store.register_stored_liquid(
         source = "tech:potash_source",
         empty = "tech:wooden_water_pot",
         description = S("Wooden Water Pot with Potash Solution"),
-        groups = {dig_immediate = 2},
+        groups = {dig_immediate = 2, flammable = 3},
         sounds = nodes_nature.node_sound_wood_defaults(),
         tiles = {
             "tech_primitive_wood.png^tech_pot_empty.png^tech_pot_potash.png",
@@ -417,6 +417,24 @@ minetest.override_item(
 
             return true
         end,
+
+})
+minetest.override_item("tech:wooden_water_pot_potash",
+{
+	on_construct = function(pos)
+		minetest.get_node_timer(pos):start(math.random(10,20))
+	end,
+        on_burn = function(pos)
+            minetest.swap_node(pos, {name = "tech:potash"})
+        end,
+	on_timer = function(pos, elapsed)
+		if climate.get_point_temp(pos) > 100 then
+			minetest.swap_node(pos, {name = "tech:potash"})
+			return false
+		end
+
+		return true
+	end,
 
 })
 
