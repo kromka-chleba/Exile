@@ -106,6 +106,49 @@ function animals.make_sound(self,...)
     return minetest.sound_play(spec.name, spec)
 end
 
+-- animals.animate
+-- based off of mobkit.make_sound
+-- like animals.make_sound:
+-- can have a list of strings or tables to use if one or the other does not exist
+-- will be prioritized from first parameter to last provided
+function animals.animate(self, ...)
+    -- can't animate this, we're gone! clear _anim
+    if not self.object then
+        self._anim = nil
+        return
+    end
+    -- list of animation names or animation tables
+    local anims = {...}
+    if not self.animation then return end
+    local aparams -- animation params
+    for i=1,#anims do
+        aparams = anims[i]
+        if self._anim == aparams then return end -- we're ALREADY playing this animation!
+        aparams = type(aparams) == "table" and aparams or self.animation[aparams]
+        -- if a table, check for if it's a list of animations and get a random one, otherwise get just the table or
+        -- remove if not table
+        aparams = type(aparams) == "table" and (#aparams > 0 and aparams[random(#aparams)] or aparams) or nil
+        -- we got what we've always wished for... an animation!
+        -- set _anim as the one found the anims table, and end the loop!
+        if aparams and aparams.range then
+            self._anim = anims[i]
+            break
+        else -- clear and check again
+            aparams = nil
+        end
+    end
+    -- can't animate as this, remove _anim and return
+    if not aparams then
+        self._anim = nil
+        return
+    end
+    aparams.frame_blend = aparams.frame_blend or 0 -- is this necessary? taken from mobkit.animate
+    -- success! return true
+    self.object:set_animation(aparams.range, aparams.speed,
+                              aparams.frame_blend, aparams.loop)
+    return true
+end
+
 -- return the luaentity + object of a provided userdata if possible into a table
 function animals.get_structure(obj)
     local obj_t = {} -- obj_table
@@ -771,7 +814,7 @@ function animals.core_life(self, pos)
 
     if (self.conserve == true) then
         mobkit.clear_queue_low(self)
-        mobkit.animate(self,"dead")
+        animals.animate(self,"dead")
     end
 
     -----------------
@@ -1720,7 +1763,7 @@ function animals.hq_warn(self, threat, prty)
     local func = function(self)
         if not mobkit.is_alive(threat) then return true end
         if init then
-            mobkit.animate(self,'stand')
+            animals.animate(self,'stand')
             init = false
         end
 
@@ -1854,7 +1897,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
         end
     else
         -- flight!
-        mobkit.animate(self,'fast')
+        animals.animate(self,'fast')
         if self.class == 2 then
             animals.hq_swimfrom(self, 55, minetest.is_player(threat) and threat
                                 or threat.object, self.max_speed)
@@ -1947,7 +1990,7 @@ function animals.prey_hunt(self, prty)
             end
         end
         if (drawtype == "liquid") then
-            mobkit.animate(self,'fast')
+            animals.animate(self,'fast')
             flee_sound(self)
             animals.hq_aqua_attack_eat(self, prty, targ.object, self.max_speed)
             return true
@@ -2234,7 +2277,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
         end
 
         if init then
-            mobkit.animate(self,'fast')
+            animals.animate(self,'fast')
             animals.make_sound(self,'attack','bite')
             init = false
         end
@@ -2430,7 +2473,7 @@ function animals.territorial(self, eat, chance_multiplier)
             local range = self.territorial_warn_distance or self.warn_distance
             --flee if hurt
             if self.hp < self.max_hp/4 then
-                mobkit.animate(self,'fast')
+                animals.animate(self,'fast')
                 if self.class ~= 2 then
                     animals.make_sound(self,'scared','warn')
                     animals.hq_runfrom(self, 25, rival)
@@ -2483,7 +2526,7 @@ function animals.territorial(self, eat, chance_multiplier)
                         animals.hq_aqua_attack_eat(self, 25, rival, self.max_speed)
                     end
                 else -- harass
-                    mobkit.animate(self,'fast')
+                    animals.animate(self,'fast')
                     if self.class ~= 2 then
                         animals.make_sound(self,'warn')
                         mobkit.hq_chaseafter(self,25,rival)
@@ -2493,7 +2536,7 @@ function animals.territorial(self, eat, chance_multiplier)
                 end
                 return true
             else -- run from
-                mobkit.animate(self,'fast')
+                animals.animate(self,'fast')
                 if self.class ~= 2 then
                     animals.make_sound(self,'scared','warn')
                     animals.hq_runfrom(self,25,rival)
@@ -2606,11 +2649,11 @@ function animals.flock(self, prty, min_dist, herding_dist, aqua_speed)
         if friend and get_dist(self, friend) <= min_dist then
             --get distance, if too far away go to them
             if aqua_speed then
-                mobkit.animate(self,'walk')
+                animals.animate(self,'walk')
                 animals.make_sound(self,'call')
                 animals.hq_flock_water(self, prty, friend, herding_dist, aqua_speed)
             else
-                mobkit.animate(self,'walk')
+                animals.animate(self,'walk')
                 animals.make_sound(self,'call')
                 animals.hq_flock(self, prty, friend, herding_dist)
             end
