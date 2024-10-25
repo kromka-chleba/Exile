@@ -1,5 +1,9 @@
 # Changelog:
 
+## [2024-10-25][2023-10-25__0.3.18e]
+   - Wooden potash pots burn up when you cook them
+   - A few bugfixes
+
 ## [2024-10-12][2023-10-12__0.3.18d]
    - Seed images showing the plant
    - Remove air pockets around tree roots
