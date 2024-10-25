@@ -308,7 +308,7 @@ liquid_store.register_stored_liquid(
 		}
 	},
 	S("Wooden Water Pot with Potash Solution"),
-	{dig_immediate = 2})
+	{dig_immediate = 2, flammable = 3 })
 
 liquid_store.register_liquid("tech:potash_source", "tech:potash_flowing", false)
 
@@ -391,6 +391,24 @@ minetest.override_item("tech:clay_water_pot_potash",
 	on_timer = function(pos, elapsed)
 		if climate.get_point_temp(pos) > 100 then
 			minetest.swap_node(pos, {name = "tech:dry_potash_pot"})
+			return false
+		end
+
+		return true
+	end,
+
+})
+minetest.override_item("tech:wooden_water_pot_potash",
+{
+	on_construct = function(pos)
+		minetest.get_node_timer(pos):start(math.random(10,20))
+	end,
+        on_burn = function(pos)
+            minetest.swap_node(pos, {name = "tech:potash"})
+        end,
+	on_timer = function(pos, elapsed)
+		if climate.get_point_temp(pos) > 100 then
+			minetest.swap_node(pos, {name = "tech:potash"})
 			return false
 		end
 
