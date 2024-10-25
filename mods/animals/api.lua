@@ -1637,14 +1637,19 @@ end
 function animals.hq_swimfrom(self,prty,tgtobj,speed)
     local timer = time() + 2
 
+    local function end_func()
+        self.threat = nil
+        return true
+    end
+
     local func = function()
 
         if time() > timer then
-            return true
+            return end_func()
         end
 
         if not mobkit.is_alive(tgtobj) then
-            return true
+            return end_func()
         end
         local pos = mobkit.get_stand_pos(self)
         local opos = tgtobj:get_pos()
@@ -1663,7 +1668,7 @@ function animals.hq_swimfrom(self,prty,tgtobj,speed)
             mobkit.hq_aqua_turn(self,prty,swimto,speed)
 
         else
-            return true
+            return end_func()
         end
 
     end
@@ -1798,6 +1803,7 @@ function animals.hq_warn(self, threat, prty)
 
             mobkit.remember(self,'hate',tgtspec.object:get_player_name())
             animals.hq_attack_eat(self, prty+10, tgtspec.object) -- priority
+            self.threat = tgtspec.object
         else
             timer = timer+self.dtime
             if mobkit.is_queue_empty_low(self) then
@@ -1826,14 +1832,19 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
         and self.territorial_warn_distance or self.warn_distance
     if not notscared then animals.make_sound(self,'scared','warn') end
 
+    local function end_func()
+        self.threat = nil
+        return true
+    end
+
     local func = function(self)
-        if not mobkit.is_alive(tgtobj) then return true end
+        if not mobkit.is_alive(tgtobj) then return end_func() end
         run_timer = run_timer - self.dtime
         if not notscared then
             exclaim_timer = exclaim_timer - self.dtime
         end
         if run_timer <= 0 then
-            return true
+            return end_func()
         end
         if exclaim_timer <= 0 then
             animals.make_sound(self,'scared','warn')
@@ -1859,7 +1870,7 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
                 mobkit.goto_next_waypoint(self,tpos)
             else
                 self.object:set_velocity({x=0,y=0,z=0})
-                return true
+                return end_func()
             end
         end
     end
@@ -1868,7 +1879,6 @@ end
 
 --attack or run vs entity or player
 function animals.fight_or_flight(self, threat, prty, chance)
-    mobkit.clear_queue_high(self)
     prty = type(prty) == "number" and prty or 55
     if type(chance) ~= "number" then
         if minetest.is_player(threat) then
@@ -1901,6 +1911,8 @@ function animals.fight_or_flight(self, threat, prty, chance)
             end
         end
     end
+    if self.threat and (self.threat == threat.object or threat) then return end
+    mobkit.clear_queue_high(self) -- clear all other high tasks
     --fight chance, or run away
     -- (+against players as well, there was a notice about attacking players
     --  that are attached, maybe fixed?)
@@ -1910,6 +1922,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
              or minimal.player_in_creative(threat)) then
         -- fight!
         if self.class == 2 then
+            self.threat = threat.object or threat
             animals.hq_aqua_attack_eat(self, prty, threat.object
                                   or threat, self.max_speed)
         else
@@ -1918,6 +1931,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
     else
         -- flight!
         animals.animate(self,'fast')
+        self.threat = threat.object or threat
         if self.class == 2 then
             animals.hq_swimfrom(self, 55, minetest.is_player(threat) and threat
                                 or threat.object, self.max_speed)
@@ -2290,14 +2304,19 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
     animals.make_sound(self,'attack','bite')
     local bitenext = time() -- bite debounce
 
+    local function end_func()
+        self.threat = nil
+        return
+    end
+
     local func = function(self)
         local c_time = time() -- current_time
         if c_time > timer then
-            return true
+            return end_func()
         end
 
         if not mobkit.is_alive(tgtobj) then
-            return true
+            return end_func()
         end
 
         local pos = mobkit.get_stand_pos(self)
@@ -2335,7 +2354,10 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
             animals.make_sound(self,'bite','attack')
             mobkit.hq_aqua_turn(self,prty,yaw-pi,speed)
             bitenext = c_time + (2*random())
-            return animals.hurt_target(self,tgtobj,eat)
+            -- if true, successfully killed and ate
+            if animals.hurt_target(self,tgtobj,eat) then
+                return end_func()
+            end
         end
         mobkit.go_forward_horizontal(self,speed)
     end
@@ -2410,9 +2432,16 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
     local attack_range = self.attack.range or 0.5
 
     tgt = animals.get_structure(tgt)
-    if not tgt then return end
+    if not tgt then
+        self.threat = nil
+        return
+    end
     local tgtobj = tgt.object
     tgt = tgt.ent
+    local function end_func()
+        self.threat = nil
+        return true
+    end
     if type(eat) ~= "boolean" then
         eat = minetest.is_player(tgtobj) and self.consume_players == true
 
@@ -2433,10 +2462,10 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             else
                 mobkit.hq_roam(self,15)
             end
-            return true
+            return end_func()
         end
-        if not mobkit.is_alive(tgtobj) then return true end
-        if self.oxygen < (self.oxygen_min or self.lung_capacity*0.9) then return true end
+        if not mobkit.is_alive(tgtobj) then return end_func() end
+        if self.oxygen < (self.oxygen_min or self.lung_capacity*0.9) then return end_func() end
 
         if mobkit.is_queue_empty_low(self) then
             local pos = mobkit.get_stand_pos(self)
@@ -2460,7 +2489,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             else
                 if dist > self.view_range then
                     -- out of sight, out of mind
-                    return true
+                    return end_func()
                 end
                 mobkit.lq_dumbwalk(
                     self,mobkit.pos_shift(tpos,{x=random(-20,20)/10,
