@@ -3119,6 +3119,27 @@ function animals.size_dif_mechanics(self)
             self.capture_interactions = cap_interact
         end
     end
+    -- decrease aggression if smol
+    local player_aggro = data.player_interaction
+    local pred_aggro = data.predator_interactions
+    if dif < 1 then
+        -- multiplied by size difference
+        self.player_interaction = player_aggro and player_aggro * dif or self.player_interaction
+        pred_aggro = pred_aggro and table.copy(pred_aggro)
+        -- pred aggression will ALWAYS be a table
+        if pred_aggro then
+            for aggroname, aggrovalue in pairs(pred_aggro) do
+                aggrovalue = aggrovalue * dif
+                pred_aggro[aggroname] = aggrovalue
+            end
+            -- set for self
+            self.predator_interactions = pred_aggro
+        end
+    -- reset to registration values
+    else
+        self.player_interaction = player_aggro
+        self.predator_interations = pred_aggro
+    end
 end
 
 -- animals.age_mechanics
