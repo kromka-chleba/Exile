@@ -817,7 +817,8 @@ local function process_qty(recipe,qty,item_hash)
                 local iItem = ItemStack(iRow)
                 local iName = iItem:get_name()
                 local iNeed = iItem:get_count()
-                local iHave = item_hash[iName] or 0
+                -- #TODO: Make sure this is correct. item_hash is nil sometimes?
+                local iHave = item_hash and item_hash[iName] or 0
                 local max = math.floor(iHave/iNeed)
                 row_max = row_max + max
             end
