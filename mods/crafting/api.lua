@@ -447,6 +447,98 @@ end
 
 --------------------------------------------------------------------------------
 
+-- #TODO quick function to fix some bug, all of this should be improved/concatenate later.
+-- check ingredients in item hash to update result's table for that recipe, and updateds the result table containing craftable state, items and displayed state.
+-- returns nil and update result table to nil if recipe is not unlocked or level is not ok
+function crafting.update_recipe_state(result, level, unlocked, item_hash, search, lang_code)
+    if not result or type(result) ~= "table" then
+        core.log("in crafting/api.lua : there is no recipe to check")
+        return -- #TODO check if we do better
+    end
+
+    local recipe = result.recipe
+    if not recipe then
+        core.log("in crafting/api.lua : recipe is missing")
+        return -- #TODO check if we do better
+    end
+
+    -- if I d'ont know that recipe, delete the entry
+    if not (recipe.level <= level and (recipe.always_known
+    or unlocked[recipe.output])) then
+        result = nil
+        return
+    else
+        local craftable = true
+        -- if no filter is active, always display
+        local displayed = (not search) -- true if no search, false else
+        -- if output matches the active filtre, display
+        if item_does_match (recipe.output,search, lang_code) then
+            displayed = true
+        end
+
+        local items = {}
+        -- Check what ingredients are available
+        for recipe_row, rowItem in ipairs(recipe.items) do
+            local rItems = {} -- row items
+            local pickable = false
+
+            -- if any input matches the filter, display
+            if row_does_contain (rowItem, search, lang_code) then
+                displayed = true
+            end
+
+            for i,item in ipairs(crafting.peek_item(rowItem, item_hash)) do
+
+                rItems[#rItems+1] = item
+                if item.available then
+                    pickable = true -- at least one item is available
+                end
+            end
+            items[recipe_row]=rItems -- save items by recipe input row
+            if not pickable then
+                craftable = false
+                -- don't have any of the needed ingredients from this row.
+            end
+        end
+        -- check if we have a where clause only if its craftable
+        if craftable and recipe.where then
+            craftable = false -- assume this failes unless we find a match.
+            -- recipe.where should look something like this:
+            --   @1.material == @2.material
+            --   @x where x is the input item row number
+            local lParam, lKey, test, rParam, rKey =
+            string.match(
+            recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")
+            for _,left in ipairs( items[tonumber(lParam)] ) do
+                local lName = get_real_name(left.name)
+                if left.available then
+                    for _,right in ipairs(items[tonumber(rParam)]) do
+                        local rName = get_real_name(right.name)
+                        if right.available then
+                            local left_def = ItemStack(lName):get_definition()
+                            local lValue = left_def.exile_crafting[lKey]
+                            local right_def = ItemStack(rName):get_definition()
+                            local rValue = right_def.exile_crafting[rKey]
+                            -- find the operator
+                            if test == '==' and lValue == rValue then
+                                craftable = true
+                            end
+                            if test == '~=' and lValue ~= rValue then
+                                craftable = true
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    -- updates result
+    result.items = items
+    result.craftable = craftable
+    result.displayed = displayed
+    return result
+    end
+end
+
 --[[ Returns items :
     a key-value table, key being item name and value being a table:
     * `have` - how many the player has

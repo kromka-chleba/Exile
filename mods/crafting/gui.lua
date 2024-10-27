@@ -199,23 +199,24 @@ local function update_recipes_lists(player_name, cache, item_hash)
     local c_recipes = cache.c_recipes
     local u_recipes = cache.u_recipes
     local unlocked = crafting.get_unlocked(player_name)
+    -- updates ingredients state and infotext in first list
     for i, result in ipairs(c_recipes) do
-        -- if not craftable anymore, change backgound/status
-        if not crafting.is_craftable (cache.sLevel, item_hash, unlocked, result.recipe) then
-            result.craftable = false
-        end
+        crafting.update_recipe_state(result, cache.sLevel, unlocked, item_hash)
     end
+
+    -- updates ingredients state and infotext in second list
+    -- and move new craftable recipes to end of first one
     local new_u={}
-    cache.u_recipes = new_u
     for i, result in ipairs(u_recipes) do
+        crafting.update_recipe_state(result, cache.sLevel, unlocked, item_hash)
         -- if it became craftable, add to previous list and hide in this one
-        if crafting.is_craftable (cache.sLevel, item_hash, unlocked, result.recipe) then
-            result.craftable = true
+        if result.craftable then
             c_recipes[#c_recipes + 1] = result
         else -- else keep it in uncraftable list
             new_u[#new_u + 1] = result
         end
     end
+    cache.u_recipes = new_u
 end
 
 local function get_item_hash(pInv)
@@ -252,7 +253,7 @@ local function get_recipes_list(cache, pInv, player_name, sorted)
         local c_recipes = cache.c_recipes
         local u_recipes = cache.u_recipes
         if not (c_recipes and u_recipes) then
-            c_recipes, u_recipes =  crafting.get_all_sorted(ctype, sLevel, cache.item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
+            c_recipes, u_recipes =  crafting.get_all_sorted(ctype, sLevel, cache.item_hash, unlocked, sSearch, minetest.get_player_information(player_name).lang_code)
             -- save the lists in the cache
             cache.c_recipes=c_recipes
             cache.u_recipes=u_recipes
