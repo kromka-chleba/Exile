@@ -818,6 +818,8 @@ local function process_qty(recipe,qty,item_hash)
                 local iName = iItem:get_name()
                 local iNeed = iItem:get_count()
                 -- #TODO: Make sure this is correct. item_hash is nil sometimes?
+                -- no it shouldn't be called with nil itemhash
+                -- but we could check with item_hash = item_hash or {}
                 local iHave = item_hash and item_hash[iName] or 0
                 local max = math.floor(iHave/iNeed)
                 row_max = row_max + max
@@ -972,8 +974,10 @@ local function process_receive_fields(player, formname, fields)
                 local ctype = get_craft_tabs(cache.sTool)[cache.sTab]
                 local sLevel = cache.sLevel
                 local qty = cache.qty or 1
+                --#TODO I need to improve the way cache.item_hash is assigned/modified
+                local item_hash = cache.item_hash or get_item_hash(inv)
 
-                process_qty(recipe,qty, cache.item_hash)
+                process_qty(recipe,qty, item_hash)
                 if not crafting.can_craft(player_name, ctype,
                                           sLevel, recipe) then
                     minetest.log("error", "[inventoryFS] Player clicked a "..
