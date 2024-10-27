@@ -49,7 +49,7 @@ end
 
 --return list of themes
 function minimal.get_gui_theme_list()
-    l = {}
+    local l = {}
     for id, theme in ipairs(themes_by_id) do
         l[id] = theme.name
     end
