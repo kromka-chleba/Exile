@@ -163,8 +163,8 @@ end
 local function initiate_cache(player)
     local cache = inventoryFS_cache[player:get_player_name()] or {}
     -- erase cache
-    for _,v in pairs(cache) do
-        v = nil
+    for k,_ in pairs(cache) do
+        cache[k] = nil
     end
     cache.epoch = os.time()
 
@@ -253,7 +253,11 @@ local function get_recipes_list(cache, pInv, player_name, sorted)
         local c_recipes = cache.c_recipes
         local u_recipes = cache.u_recipes
         if not (c_recipes and u_recipes) then
-            c_recipes, u_recipes =  crafting.get_all_sorted(ctype, sLevel, cache.item_hash, unlocked, sSearch, minetest.get_player_information(player_name).lang_code)
+            c_recipes, u_recipes =
+                crafting.get_all_sorted(ctype, sLevel, cache.item_hash,
+                                        unlocked, sSearch,
+                                        minetest.get_player_information(
+                                            player_name).lang_code)
             -- save the lists in the cache
             cache.c_recipes=c_recipes
             cache.u_recipes=u_recipes
@@ -264,7 +268,10 @@ local function get_recipes_list(cache, pInv, player_name, sorted)
                 (#cache.c_recipes + #cache.u_recipes)
     elseif not sorted then --sorted is false or non given
         if not cache.recipes then
-            cache.recipes = crafting.get_all(ctype, sLevel, cache.item_hash, unlocked, search, minetest.get_player_information(player_name).lang_code)
+            cache.recipes = crafting.get_all(ctype, sLevel, cache.item_hash,
+                                             unlocked, sSearch,
+                                             minetest.get_player_information(
+                                                 player_name).lang_code)
         end
         return {cache.recipes}, #cache.recipes
     end
@@ -680,9 +687,9 @@ local function cache_set_craft_tabs(cache, sTab, cTabs)
 end
 
 -- change to hand if tool==nil
-local function cache_tool_change(player, tool, cache)
+local function cache_tool_change(player, tool, inputcache)
     tool = tool or default_tool
-    local cache =  cache or inventoryFS_cache[player:get_player_name()]
+    local cache =  inputcache or inventoryFS_cache[player:get_player_name()]
 
     -- if no cache, then generate it ? #TODO
     if not cache then
@@ -702,8 +709,8 @@ end
 
 -- remove tool
 -- cache parameter is optional
-local function cache_tool_remove(player, cache)
-    local cache =  cache or inventoryFS_cache[player:get_player_name()]
+local function cache_tool_remove(player, inputcache)
+    local cache =  inputcache or inventoryFS_cache[player:get_player_name()]
     -- if no cache, then generate it
     if not cache then
         cache = initiate_cache(player)
@@ -713,11 +720,11 @@ local function cache_tool_remove(player, cache)
     cache_tool_change(player, nil, cache)
 end
 
-local function cache_tool_add(player, a_tool, cache)
+local function cache_tool_add(player, a_tool, inputcache)
     if not a_tool then
         return
     end
-    local cache =  cache or inventoryFS_cache[player:get_player_name()]
+    local cache = inputcache or inventoryFS_cache[player:get_player_name()]
     -- if no cache, then generate it
     if not cache then
         cache = initiate_cache(player)
@@ -866,14 +873,14 @@ local function process_qty(recipe,qty,item_hash)
                     local iName = iItem:get_name()
                     local iEach = iItem:get_count()
                     local iHave = item_hash[iName] or 0
-                    local oCount = math.floor(iHave / iEach)
-                    if oCount > 0 then
-                        if oCount > row_maxCount then
-                            oCount = row_maxCount
+                    local ioCount = math.floor(iHave / iEach)
+                    if ioCount > 0 then
+                        if ioCount > row_maxCount then
+                            ioCount = row_maxCount
                             -- no more then max_count should be picked.
                         end
-                        pItems[#pItems+1] = iName .." "..oCount * iEach
-                        row_maxCount = row_maxCount - oCount
+                        pItems[#pItems+1] = iName .." "..ioCount * iEach
+                        row_maxCount = row_maxCount - ioCount
                         if row_maxCount == 0 then
                             break
                         end
@@ -1033,12 +1040,12 @@ do
                 end,
                 -- selecting the tab from an other tab
                 on_enter = function(self, player, context)
-                    local player_name = player:get_player_name()
+                    --local player_name = player:get_player_name()
                     print ("--------------------------]ENTER[-------------------")
                     --set_cache(player:get_player_name(),player:get_inventory())
                 end,
                 on_leave = function(self, player, context)
-                    local player_name = player:get_player_name()
+                    --local player_name = player:get_player_name()
                     --cache = "closed" -- #TODO not sure about that
                     print ("--------------------------]LEAVE[-------------------")
                 end,
