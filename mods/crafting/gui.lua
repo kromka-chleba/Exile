@@ -551,7 +551,7 @@ local function make_inventory_formspec(player,context)
                 -- style 1 : no border
                 pan_t[#pan_t + 1] =
                 "image[" .. coords .. ";0.8,0.8;selected.png]"
-            else
+            --else
                 -- style 1 : no border
                 --[[uncomment this to activate background of tabs
                 pan_t[#pan_t + 1] =
