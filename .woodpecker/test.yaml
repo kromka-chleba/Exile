@@ -1,12 +1,12 @@
-when:
-  - event: push
-    branch: action_test
-
 clone:
   - name: git
     image: woodpeckerci/plugin-git
     settings:
       depth: 0
+
+when:
+  - event: push
+    branch: action_test
 
 steps:
   - name: luacheck
