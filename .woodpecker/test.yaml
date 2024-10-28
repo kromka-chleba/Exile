@@ -3,7 +3,7 @@ when:
     branch: action_test
 
 clone:
-  git:
+  - name: git
     image: woodpeckerci/plugin-git
     settings:
       depth: 0
