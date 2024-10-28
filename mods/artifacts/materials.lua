@@ -3,6 +3,11 @@
 --exotic building materials
 ------------------------------------
 
+minimal = minimal
+artifacts = artifacts
+nodes_nature = nodes_nature
+tech = tech
+
 local c_alpha = minimal.compat_alpha
 
 local S = artifacts.S
@@ -236,7 +241,7 @@ local door = {
     description = S("@1 Door",S("Antiquorium")),
     inventory_image = "artifacts_antiquorium_door_item.png",
     groups = {cracky = 2},
-    sounds = nodes_nature.node_sound_glass_defaults(),
+    sounds = tech.node_sound_metal_hollow_defaults(),
 }
 
 
@@ -247,7 +252,7 @@ local trapdoor = {
     tile_front = "artifacts_antiquorium_chest_top.png",
     tile_side = "artifacts_antiquorium_chest_top.png",
     groups = {cracky = 2},
-    sounds = nodes_nature.node_sound_wood_defaults(),
+    sounds = tech.node_sound_metal_hollow_defaults(),
 }
 doors.register("door_antiquorium", door)
 doors.register_trapdoor("artifacts:trapdoor_antiquorium", trapdoor)
