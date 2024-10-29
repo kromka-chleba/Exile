@@ -253,6 +253,8 @@ local function pot_cook(pos, elapsed)
                 for i = 1, #inv do
                     inv[i]:clear()
                 end
+                -- somehow you can get a soup without a proper firstingr, whodathunkit?
+                firstingr = firstingr or "Odd"
                 spawn_steam(pos,{amt={22,45}})
                 minetest.sound_play("tech_frying_final",{
                                         pos = pos,
@@ -265,7 +267,7 @@ local function pot_cook(pos, elapsed)
                 local portion = divide_portions(total)
                 portion.th = portion.th + (100 / portions)
                 imeta:set_string("eat_value", minetest.serialize(portion))
-                imeta:set_string("description", S("@1 soup",firstingr or "Odd"))
+                imeta:set_string("description", S("@1 soup",firstingr))
                 meta:get_inventory(pos):set_list("main", inv)
                 meta:set_string("contents_string",S("Contents: @1 soup",firstingr))
                 meta:set_string("status_string",S("Status: @1 pot (finished)", S(kind)))
