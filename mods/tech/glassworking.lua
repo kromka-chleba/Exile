@@ -159,6 +159,7 @@ minetest.register_node(
         use_texture_alpha = c_alpha.blend,
         sunlight_propagates = true,
         on_construct = function(pos)
+            climate.heat_transfer(pos, "tech:green_glass_ingot")
             minetest.get_node_timer(pos):start(20)
         end,
         on_timer = function(pos)
@@ -484,6 +485,7 @@ minetest.register_node(
             minetest.get_node_timer(pos):start(20)
         end,
         on_timer = function(pos)
+            climate.heat_transfer(pos, "tech:clear_glass_ingot")
             if pane_cast_check(pos) then
                 return false -- end the timer
             else
