@@ -18,6 +18,7 @@
 -- Dependencies
 __DEBUG__ = __DEBUG__
 volcano = volcano
+minimal = minimal
 mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
 
@@ -25,7 +26,7 @@ local function pirnt(...) -- lol print
     local tab = {...}
     local out = ""
     for i = 1, #tab do
-        out = out..tostring(tab[i])
+        out = table.concat({out, tostring(tab[i]) })
     end
     minetest.log("action", out)
 end
@@ -40,7 +41,6 @@ local dirstring, hexnum,
     hex2map, map2hex,
     get_neighbor, get_neighbors,
     distance_to_hex, hexdir_from_look_horiz = dofile(modpath.."/hex.lua")
-
 local defhex = {0,0}
 
 local function fallback_spawn_pos(hex)
