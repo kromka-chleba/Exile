@@ -130,16 +130,19 @@ local open_time = 59 -- how long to stay open
 local size_change_rate = 0.05 -- frame rate of opening/closing, 20fps
 local portals = {} -- find a region's portal object, [hexstring] = ObjectRef
 
-local function delportal(object)
-    local ourhex = map2hex(object:get_pos())
+local function delportal(object, objhex)
+    if not object then return end -- portal entity was unloaded already?
+    local ourhex = objhex or map2hex(object:get_pos())
     portals[hex2string(ourhex)] = nil
     object:remove()
 end
 local function addportal(object)
     if not object then return end -- unloaded?
     local ourhex = map2hex(object:get_pos())
-    if portals[hex2string(ourhex)] then -- one portal entity per hex plz
-        delportal(portals[hex2string(ourhex)])
+    if portals[hex2string(ourhex)]
+        and portals[hex2string(ourhex)] ~= object then
+        -- one portal entity per hex plz
+        delportal(portals[hex2string(ourhex)], ourhex)
     end
     portals[hex2string(ourhex)] = object
 end
@@ -530,7 +533,7 @@ function region.spawn(player)
     sadef.open = true
     pirnt("spawn: ",hex2string(spawnat)," : ",
           minetest.pos_to_string(sadef.currentgate))
-    addportal(minetest.add_entity(gate, "spawnex:gate"))
+    minetest.add_entity(gate, "spawnex:gate")
     player:set_pos(gate)
     checkplayer(gate)
 
