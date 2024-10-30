@@ -76,7 +76,7 @@ local function brain(self)
                         self:modify('energy',5)
                     else
                         --wander random
-                        mobkit.animate(self,'walk')
+                        animals.animate(self,'walk')
                         --mobkit.hq_roam(self,10)
                         animals.hq_roam_surface_group(self, 'spreading', 20)
                     end
@@ -92,7 +92,7 @@ local function brain(self)
                     self:modify('energy',1)
                 else
                     --wander random
-                    mobkit.animate(self,'walk')
+                    animals.animate(self,'walk')
                     animals.hq_roam_dark(self,10)
                 end
             else
@@ -129,7 +129,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'walk')
+            animals.animate(self,'walk')
             animals.hq_roam_dark(self,10,1)
         end
     end
@@ -150,7 +150,8 @@ animals.add_interactors("animals:sneachan","predators",
                         "animals:pegasun", "animals:pegasun_male",
                         "animals:chichasa", "animals:chichasa_male",
                         "animals:kubwakubwa", "animals:darkasthaan")
-animals.add_interactors("animals:sneachan","rivals", "self", "animals:impethu")
+-- don't need to tell impethu we're a rival of them
+animals.add_interactors("animals:sneachan","rivals", "self", "animals:impethu", false)
 
 -- Animal Data
 local self_data -- define earlier for utilization in functions
@@ -220,9 +221,7 @@ self_data = {
         },
     },
     --on actions
-    drops = {
-        {name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_invert_small",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
         animals.stun_catch_mob(self, clicker, time_from_last_click,

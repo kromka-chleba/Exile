@@ -165,7 +165,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'def')
+            animals.animate(self,'def')
             mobkit.hq_aqua_roam(self,10,1)
         end
     end
@@ -183,7 +183,7 @@ end
 ----------------------------------------------
 -- SETTING OF GUNDU INTERACTOR SETTINGS
 animals.add_interactors("animals:gundu","predators",
-                        "animals:sarkamos", "animals:darkasthaan")
+                        "animals:sarkamos", "animals:darkasthaan", "animals:kubwakubwa")
 animals.add_interactors("animals:gundu","rivals", "self")
 animals.add_interactors("animals:gundu","friends", "self")
 
@@ -269,9 +269,7 @@ local self_data = {
     attack={range=0.3, damage_groups={fleshy=1}},
     armor_groups = {fleshy=100},
     --on actions
-    drops = {
-        {name = "animals:carcass_fish_small", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_fish_small",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
         animals.stun_catch_mob(self, clicker, time_from_last_click,

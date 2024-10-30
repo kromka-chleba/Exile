@@ -96,7 +96,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) and self.conserve ~= true then
-            mobkit.animate(self,'walk')
+            animals.animate(self,'walk')
             animals.hq_roam_dark(self,10,1)
         end
     end
@@ -113,13 +113,8 @@ end
 
 ----------------------------------------------
 -- SETTING OF DARKASTHAAN INTERACTOR SETTINGS
-animals.add_interactors(
-    "animals:darkasthaan","prey", 
-    "animals:kubwakubwa",
-    "animals:pegasun", "animals:pegasun_male",
-    "animals:chichasa", "animals:chichasa_male",
-    "animals:sneachan", "animals:impethu", 
-    "animals:gundu", "animals:sarkamos")
+-- unique interaction, don't add darkasthaan as pred to sarkamos
+animals.add_interactors("animals:darkasthaan", "prey", "animals:sarkamos", false)
 animals.add_interactors("animals:darkasthaan","rivals", "self")
 
 ----------------------------------------------
@@ -168,7 +163,7 @@ local self_data = {
     --  due to multiple values needed
     -- lifespan
     lifespan = "energy_max*12",
-    mature_age = "energy_max*0.1",
+    mature_age = "energy_max*0.35",
     -- interactions
     -- prey + rivals automatically defined in registration
     capture_interactions = {
@@ -202,9 +197,7 @@ local self_data = {
         },
     },
     --on actions
-    drops = {
-        {name = "animals:carcass_invert_large", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_invert_large",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
         if animals.stun_catch_mob(self, clicker, time_from_last_click,

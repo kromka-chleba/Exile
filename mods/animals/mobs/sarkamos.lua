@@ -105,7 +105,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'def')
+            animals.animate(self,'def')
             mobkit.hq_aqua_roam(self,10,1)
         end
     end
@@ -122,10 +122,8 @@ end
 
 ----------------------------------------------
 -- SETTING OF SARKAMOS INTERACTOR SETTINGS
-animals.add_interactors("animals:sarkamos","prey", "animals:gundu",
-                        "animals:pegasun","animals:pegasun_male",
-                        "animals:chichasa", "animals:chichasa_male",
-                        "animals:kubwakubwa", "animals:darkasthaan")
+-- unique interaction, don't add sarkamos as pred to darkasthaan
+animals.add_interactors("animals:sarkamos", "prey", "animals:darkasthaan", false)
 animals.add_interactors("animals:sarkamos","rivals", "self")
 
 ----------------------------------------------
@@ -202,9 +200,7 @@ local self_data = {
         },
     },
     --on actions
-    drops = {
-        {name = "animals:carcass_fish_large", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_fish_large",
     on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
         if animals.stun_catch_mob(self, clicker, time_from_last_click,
                                   tool_capabilities) then -- attack kidnapper

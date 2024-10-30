@@ -87,7 +87,7 @@ local function brain(self)
 
             -- exploring
             if random() < ce then
-                mobkit.animate(self,'walk')
+                animals.animate(self,'walk')
                 -- let's prioritize eating more
                 if ceat >= 0.3 then
                     ceat = ceat + (ce*(ceat/0.5))
@@ -97,17 +97,17 @@ local function brain(self)
                     if male then
                         if (animals.eat_flora(pos,0.001) == true) then -- mmm plants
                             self:modify('energy',18)
-                        elseif not (random() <= 0.5
+                        elseif not (random() <= 0.25
                                     and animals.prey_hunt(self,30)) then
                             --wander randomly for plants if can't find prey
-                            mobkit.animate(self,'walk')
+                            animals.animate(self,'walk')
                             animals.hq_roam_walkable_group(self, 'flora',
                                                            "cane_plant", 15)
                             -- go for group, ignore group, priority
                         end
                     else
-                        if not (random() <= 0.85 and animals.prey_hunt(self,30)) then
-                            if (animals.eat_flora(pos,0.005) == true) then
+                        if not (random() <= 0.5 and animals.prey_hunt(self,30)) then
+                            if (animals.eat_flora(pos,0.003) == true) then
                                 self:modify('energy',18)
                             else
                                 -- look for flora that's not a cane_plant
@@ -130,12 +130,12 @@ local function brain(self)
                 self.sexual = self.age >= self.mature_age
                     and self.hp >= self.max_hp and not self.pregnant
                     and self.energy >= (male and self.energy_max*0.25
-                                        or self.energy_egg * 1.5)
+                                        or self.energy_egg * 1.22)
                 -- territorial
                 if random()< (male and 0.7 or 0.01) then
                     animals.territorial(self, false)
                     -- sexual behaviours
-                elseif self.sexual and random() < (male and 0.7 or 0.5) then
+                elseif self.sexual and random() < (male and 0.95 or 0.75) then
                     --we are randy
                     mobkit.make_sound(self,'mating')
                     local mate = male and animals.mate_assess(self, 'animals:chichasa')
@@ -155,7 +155,7 @@ local function brain(self)
                         mobkit.hq_roam(self,40)
                     end
                     --are we already pregnant?
-                elseif random() < 0.05 and self.pregnant then
+                elseif random() < 0.08 and self.pregnant then
                     mobkit.lq_idle(self,3)
                     if animals.place_egg(self, pos) then
                         self:set('pregnant',false,true)
@@ -177,7 +177,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'walk')
+            animals.animate(self,'walk')
             mobkit.hq_roam(self,10)
         end
     end
@@ -194,15 +194,12 @@ end
 -- SETTING INTERACTOR SETTINGS
 animals.add_interactors("animals:chichasa","predators", "animals:kubwakubwa",
                         "animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("animals:chichasa","prey", "animals:sneachan",
-                        "animals:impethu")
 animals.add_interactors("animals:chichasa","friends", "self",
                         "animals:chichasa_male")
 animals.add_interactors("animals:chichasa","rivals", "self")
 
 -- MALE INTERACTORS
-animals.add_interactors("animals:chichasa_male","friends", "animals:chichasa",
-                        "animals:pegasun")
+animals.add_interactors("animals:chichasa_male","friends", "animals:chichasa")
 animals.add_interactors("animals:chichasa_male","rivals", "self",
                         "animals:pegasun", "animals:pegasun_male")
 
@@ -241,11 +238,12 @@ local self_data = {
     -- energy
     energy_max = 8000,   --secs it can survive without food
     energy_egg = "energy_max*0.4",  --energy that goes to egg
-    egg_time = 60*25,
+    egg_time = 60*22,
     young_per_egg = 1,           --will get this/energy_egg starting energy
     -- lifespan
     lifespan = "energy_max*15",
     mature_age = "energy_max*0.2", -- 20% of energy_max (8000) or 1600 --NotPegasun (lower)
+    growth_min_size = 0.4,
     -- interactions
     -- predators + rivals automatically defined in registration
     consume_non_prey = false,
@@ -307,16 +305,12 @@ local self_data = {
     jump_height = 1.2,     -- nodes/meters
     view_range = 26,       -- nodes/meters
     warn_distance = 6,     --NotPegasun (shorter distance)
-    player_warn_distance = 6, --NotPegasun (shorter distance)
     aggression_distance = 2, --NotPegasun (shorter distance)
-    stepheight = 1.05,  --NotPegasun
     --attack
     attack={range=0.9, damage_groups={fleshy=1}}, --NotPegasun (weaker)
     armor_groups = {fleshy=100},
     --on actions
-    drops = {
-        {name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_bird_small",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
         animals.stun_catch_mob(self, clicker, time_from_last_click,

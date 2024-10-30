@@ -83,7 +83,7 @@ local function brain(self)
 
             -- exploring
             if random() < ce then
-                mobkit.animate(self,'walk')
+                animals.animate(self,'walk')
                 -- let's prioritize eating more
                 if ceat >= 0.3 then
                     ceat = ceat + (ce*(ceat/0.5))
@@ -96,7 +96,7 @@ local function brain(self)
                         elseif not (random() <= 0.5
                                     and animals.prey_hunt(self,30)) then
                             --wander randomly for plants if can't find prey
-                            mobkit.animate(self,'walk')
+                            animals.animate(self,'walk')
                             animals.hq_roam_walkable_group(self, 'flora',
                                                            "cane_plant", 15)
                             -- go for group, ignore group, priority
@@ -173,7 +173,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'walk')
+            animals.animate(self,'walk')
             mobkit.hq_roam(self,10)
         end
     end
@@ -190,8 +190,6 @@ end
 -- SETTING OF PEGASUN INTERACTOR SETTINGS
 animals.add_interactors("animals:pegasun","predators", "animals:kubwakubwa",
                         "animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("animals:pegasun","prey", "animals:sneachan",
-                        "animals:impethu")
 animals.add_interactors("animals:pegasun","friends", "self",
                         "animals:pegasun_male")
 animals.add_interactors("animals:pegasun","rivals", "self")
@@ -241,6 +239,7 @@ local self_data = {
     -- lifespan
     lifespan = "energy_max*15",
     mature_age = "energy_max*0.36", -- 36% of energy_max (8000) or 2880
+    growth_min_size = 0.4,
     -- interactions
     -- predators + rivals automatically defined in registration
     consume_non_prey = false,
@@ -309,9 +308,7 @@ local self_data = {
     attack={range=0.6, damage_groups={fleshy=2}},
     armor_groups = {fleshy=100},
     --on actions
-    drops = {
-        {name = "animals:carcass_bird_small", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_bird_small",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
         animals.stun_catch_mob(self, clicker, time_from_last_click,
@@ -360,8 +357,9 @@ self_male.friends = nil
 self_male.predator_interactions = {
     default = 0.8,
     ["animals:kubwakubwa"] = 1,
+    ["animals:sarkamos"] = 0.15
 }
-self_male.player_interaction = 1
+self_male.player_interaction = 0.9
 -- male functions
 self_male.on_rightclick = function(self, clicker, time_from_last_click,
                                    tool_capabilities)

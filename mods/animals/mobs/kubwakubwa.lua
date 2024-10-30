@@ -88,7 +88,7 @@ local function brain(self)
             --health is fine, of age, and no rival
             if self.hp >= self.max_hp and self.age > self.mature_age and not rival then
                 --when in prime condition
-                if self.energy >= self.energy_egg + 100 and random() < 0.1 then
+                if self.energy >= self.energy_egg + 100 and random() < 0.05 then
                     animals.place_egg(self, pos)
                 -- if very old and on 80% chance, lay egg and die, we were gon die soon anyways
                 elseif self.age >= (self.lifespan * 0.9) and random() < 0.8 and not (self.energy < 25) then
@@ -101,10 +101,17 @@ local function brain(self)
             self.conserve = not animals.prey_hunt(self, 40)
         end
 
+        prty = mobkit.get_queue_priority(self)
+        -- why am I just idling in water? let's get outta here lol
+        if prty < 15 and self.isinliquid then
+            -- why am I just idling in water? let's get outta here lol
+            animals.hq_liquid_recovery(self,60)
+        end
+
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) and self.conserve ~= true then
-            mobkit.animate(self,'walk')
+            animals.animate(self,'walk')
             animals.hq_roam_dark(self,10,1)
         end
     end
@@ -121,11 +128,9 @@ end
 -- SETTING OF KUBWAKUBWA INTERACTOR SETTINGS
 animals.add_interactors("animals:kubwakubwa","predators",
                         "animals:darkasthaan", "animals:sarkamos")
-animals.add_interactors("animals:kubwakubwa","prey", "animals:pegasun",
-                        "animals:chichasa", "animals:chichasa_male",
-                        "animals:sneachan", "animals:impethu", "animals:gundu")
+-- don't need to tell male pegasuns we're a rival of them
 animals.add_interactors("animals:kubwakubwa","rivals", "self",
-                        "animals:pegasun_male")
+                        "animals:pegasun_male", false)
 
 ----------------------------------------------
 -- Animal Data
@@ -203,9 +208,7 @@ local self_data = {
         },
     },
     -- on actions
-    drops = {
-        {name = "animals:carcass_invert_large", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_invert_large",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
         animals.stun_catch_mob(self, clicker, time_from_last_click,

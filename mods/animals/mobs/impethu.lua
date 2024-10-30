@@ -81,7 +81,7 @@ local function brain(self)
             --feeding
             --eat stuff in the dark
             if light <= self.max_light then
-                mobkit.animate(self,'walk')
+                animals.animate(self,'walk')
                 if not rival and self.energy < self.energy_max then
                     -- actively find nodes to eat at
                     if random() <= 0.7  then
@@ -125,7 +125,7 @@ local function brain(self)
         -------------------
         --generic behaviour
         if mobkit.is_queue_empty_high(self) then
-            mobkit.animate(self,'walk')
+            animals.animate(self,'walk')
             animals.hq_roam_dark(self,10,1)
         end
     end
@@ -146,7 +146,8 @@ animals.add_interactors("animals:impethu","predators",
                         "animals:chichasa", "animals:chichasa_male",
                         "animals:kubwakubwa",
                         "animals:darkasthaan")
-animals.add_interactors("animals:impethu","rivals", "animals:sneachan", "self")
+-- don't need to tell sneachan we're a rival of them
+animals.add_interactors("animals:impethu","rivals", "animals:sneachan", "self", false)
 
 ----------------------------------------------
 -- The Animal
@@ -226,9 +227,7 @@ self_data = {
     attack={range=0.3, damage_groups={fleshy=1}},
     armor_groups = {fleshy=100},
     --on actions
-    drops = {
-        {name = "animals:carcass_invert_small", chance = 1, min = 1, max = 1,},
-    },
+    drops = "animals:carcass_invert_small",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
         animals.stun_catch_mob(self, clicker, time_from_last_click,

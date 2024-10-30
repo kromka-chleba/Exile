@@ -24,6 +24,7 @@ local create_mob = function(placer, itemstack, name, pos)
     local mob = minetest.add_entity(pos, name, sdata)
 
     local ent = mob:get_luaentity()
+    ent.hp = tonumber(meta:get_string("hp")) or ent.hp
     if memory then
         for key,value in pairs(memory) do
             mobkit.remember(ent,key,value)
@@ -124,10 +125,10 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
         end
     end
     -- catch chance
-    mobkit.make_sound(self,'punch')
+    animals.make_sound(self,'punch')
     if success_rate >= math.random() then
         -- successful catch
-        mobkit.make_sound(self,'punch')
+        animals.make_sound(self,'caught','punch')
         animals.capture(self, clicker)
         return true,true -- creature can be captured + is captured
     else
@@ -177,7 +178,7 @@ animals.register_spawnegg = function(name, def, animal)
     def.liquids_pointable = true
   end
   def.liquids_pointable = type(def.liquids_pointable) == "boolean" and def.liquids_pointable or false
-  def.drops = def.drops or animal.drops or nil
+  def.drops = def.drops or animal.drops or {}
 
   -- sounds (#TODO: sound for drops)
   def.sounds = def.sounds or {}
@@ -195,7 +196,9 @@ animals.register_spawnegg = function(name, def, animal)
       local spawn_pos = pointed_thing.above
       -- am I clicking on something with an existing on_rightclick function?
       local nodedef = minimal.get_nodedef(pointed_thing.under)
-      if (nodedef and itemdef.drawtype ~= "liquid" and -- ignore liquids
+      -- don't run rightclick function if sneaking
+      if (minetest.is_player(placer) and not placer:get_player_control().sneak) and
+      (nodedef and nodedef.drawtype ~= "liquid" and -- ignore liquids
           pointed_thing.type ~= nil) then
           -- prevent running on_rightclick function upon custom item drop
           local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
@@ -278,24 +281,23 @@ end
 
 
 animals.capture = function(self, clicker)
-    -- add special mob egg with all mob informationl
+    -- add special mob egg with all mob information
     local new_stack = ItemStack(self.name)
     local stack_meta = new_stack:get_meta()
-    --local sett ="---TABLE---: "
-    --local sett = ""
-    --local i = 0
-    for key, value in pairs(self) do
-        if key == "hp" then
-            stack_meta:set_string(key, value)
-        elseif key == "memory" then
-            stack_meta:set_string(key, minetest.serialize(value))
-        end
+    if self.hp then
+        stack_meta:set_string("hp", self.hp)
+    end
+    if self.memory then
+        stack_meta:set_string("memory", minetest.serialize(self.memory))
     end
 
     local inv = clicker:get_inventory()
     if inv:room_for_item("main", new_stack) then
         inv:add_item("main", new_stack)
-        self.object:remove()
+        -- fix for pegasun scared sound playing globally (delete object on delay)
+        minetest.after(0.05,function()
+            self.object:remove()
+        end)
     else
         minimal.warn_inv_full(clicker)
     end

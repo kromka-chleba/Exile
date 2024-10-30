@@ -64,7 +64,109 @@ local function flee_sound(self)
     if not self.isinliquid then
         return
     end
-    mobkit.make_sound(self,'flee')
+    animals.make_sound(self,'flee','scared')
+end
+
+-- animals.make_sound
+-- based off of mobkit.make_sound
+-- can have a list of strings or tables to use if one or the other does not exist
+-- will be prioritized from first parameter to last provided
+-- sound1, sound2, sound3 (if sound1 doesn't exist, then sound2, and so on)
+function animals.make_sound(self,...)
+    if not self.object then return end
+    if not self.sounds then return end
+    -- allow for list of "alternative" sounds to be checked for
+    local names = {...}
+    local spec
+    -- iterate over provided names
+    for i=1,#names do
+        -- accept strings or custom tables if they have a "name" index
+        spec = type(names[i]) == "table" and names[i] or self.sounds[names[i]]
+        -- pick random sound if it's a spec for random sounds
+        spec = type(spec) == "table" and #spec > 0 and spec[random(#spec)] or spec
+        -- table, and has a name? WE GOT IT!!!
+        if type(spec) == "table" and type(spec.name) == "string" then
+            break
+        else -- clear out so we're not using a bad spec
+            spec = nil
+        end
+    end
+    if not spec then return end -- couldn't get a valid spec, can't play!
+    spec = table.copy(spec)
+    spec.object = self.object
+    -- permit randomized ranges for values
+    local function in_range(value)
+        return type(value) == 'table' and value[1]+random()*(value[2]-value[1]) or value
+    end
+    spec.gain = in_range(spec.gain)
+    spec.fade = in_range(spec.fade)
+    spec.pitch = in_range(spec.pitch)
+    spec.max_hear_distance = in_range(spec.max_hear_distance)
+    -- play and return sound ID
+    return minetest.sound_play(spec.name, spec)
+end
+
+-- animals.animate
+-- based off of mobkit.make_sound
+-- like animals.make_sound:
+-- can have a list of strings or tables to use if one or the other does not exist
+-- will be prioritized from first parameter to last provided
+function animals.animate(self, ...)
+    -- can't animate this, we're gone! clear _anim
+    if not self.object then
+        self._anim = nil
+        return
+    end
+    -- list of animation names or animation tables
+    local anims = {...}
+    if not self.animation then return end
+    local aparams -- animation params
+    -- custom id identifier (will be used for setting _anim if provided, otherwise gets found anims tag)
+    local id
+    for i=1,#anims do
+        aparams = anims[i]
+        if self._anim == aparams then return end -- we're ALREADY playing this animation!
+        aparams = type(aparams) == "table" and aparams or self.animation[aparams]
+        id = aparams and aparams.id
+        -- check for if it's a list of animations and get a random one, otherwise get just the table or
+        -- remove if not table
+        aparams = aparams and (#aparams > 0 and aparams[random(#aparams)] or aparams) or nil
+        -- permit custom "id" identifier if provided
+        -- otherwise use the provided anims tag
+        id = id or (aparams and aparams.id) or anims[i]
+        if self._anim == id then return end -- already playing this unique animation, return!
+        -- we got what we've always wished for... an animation!
+        -- set _anim as the one found the anims table, and end the loop!
+        if aparams and aparams.range then
+            self._anim = id
+            break
+        else -- clear and check again
+            aparams = nil
+        end
+    end
+    -- can't animate as this, remove _anim and return
+    if not aparams then
+        self._anim = nil
+        return
+    end
+    aparams.frame_blend = aparams.frame_blend or 0 -- is this necessary? taken from mobkit.animate
+    -- success! return animinfo
+    self.object:set_animation(aparams.range, aparams.speed,
+                              aparams.frame_blend, aparams.loop)
+    local animinfo = {
+        -- expected total time length of animation (end frame - start frame divided by speed (frames per second) )
+        time = aparams.speed ~= 0 and (math.abs(aparams.range.y-aparams.range.x)/aparams.speed) or 0,
+        -- if not boolean will be false, otherwise will be the boolean
+        looped = type(aparams.loop) == "boolean" and aparams.loop
+    }
+    -- this animation isn't meant to loop (and there isn't exclusion), we can erase it from _anim after its time
+    if animinfo.time > 0 and not (animinfo.looped or aparams.no_erase) then
+        minetest.after(animinfo.time-0.05, function()
+            -- clear or leave be if doesn't equal id
+            self._anim = self._anim == id and nil or self._anim
+        end)
+    end
+    return animinfo
 end
 
 -- return the luaentity + object of a provided userdata if possible into a table
@@ -604,6 +706,29 @@ function animals.core_life(self, pos)
         self:modify('energy',-self.energy_loss)
     end
 
+    -- size difference mechanics, only call upon startup or nil size_dif
+    if not self.size_dif then
+        -- "base_size_dif" is a desired size from the usual adult size (say, an adult that grows to be smaller or larger)
+        self.base_size_dif = self.base_size_dif or mobkit.recall(self,"base_size_dif") or nil
+        -- current size_dif, modified by age_mechanics system
+        self.size_dif = mobkit.recall(self,"size_dif") or self.base_size_dif
+        -- clear out size_dif if it equals 1, ensure to remember this decision
+        if self.size_dif == 1 then
+            self:set("size_dif",nil,true)
+        -- we're fine with this, custom size_dif
+        elseif self.size_dif then
+            animals.sizeify(self, self.size_dif)
+            -- update stats according to size
+            animals.size_dif_mechanics(self)
+        end
+        -- set to 1 and don't remember it if not specified or was 1
+        self.size_dif = self.size_dif or 1
+    end
+
+    if self.age_mechanics then
+        self:age_mechanics()
+    end
+
     -- get temp
     local temp = climate.get_point_temp(pos, true)
     if (temp == 450) then
@@ -709,7 +834,7 @@ function animals.core_life(self, pos)
 
     if (self.conserve == true) then
         mobkit.clear_queue_low(self)
-        mobkit.animate(self,"dead")
+        animals.animate(self,"dead")
     end
 
     -----------------
@@ -1512,14 +1637,19 @@ end
 function animals.hq_swimfrom(self,prty,tgtobj,speed)
     local timer = time() + 2
 
+    local function end_func()
+        self.threat = nil
+        return true
+    end
+
     local func = function()
 
         if time() > timer then
-            return true
+            return end_func()
         end
 
         if not mobkit.is_alive(tgtobj) then
-            return true
+            return end_func()
         end
         local pos = mobkit.get_stand_pos(self)
         local opos = tgtobj:get_pos()
@@ -1538,7 +1668,7 @@ function animals.hq_swimfrom(self,prty,tgtobj,speed)
             mobkit.hq_aqua_turn(self,prty,swimto,speed)
 
         else
-            return true
+            return end_func()
         end
 
     end
@@ -1564,7 +1694,7 @@ function mobkit.hq_chaseafter(self,prty,tgtobj)
             local pos = mobkit.get_stand_pos(self)
             local opos = tgtobj:get_pos()
             if vector.distance(pos,opos) > 3 then
-                mobkit.make_sound(self,'warn')
+                animals.make_sound(self,'warn')
                 mobkit.goto_next_waypoint(self,opos)
             else
                 mobkit.lq_idle(self,1)
@@ -1626,18 +1756,18 @@ function animals.on_punch(self, puncher, time_from_last_punch,
                           tool_capabilities, dir, dmg)
     if not mobkit.is_alive(self) then
         -- oops I'm dead
-        mobkit.make_sound(self,"punch_death")
+        animals.make_sound(self,"punch_death",'punch')
         return
     end
     dmg = (type(dmg) == "number" and dmg or 0)
     -- do damage
-    mobkit.make_sound(self,'punch')
+    animals.make_sound(self,'punch')
     animals.modify_hp(self,-dmg)
 
     local conserve = mobkit.recall(self,'conserve')
     if (self.hp < self.max_hp/10 or self.hp <= (dmg * 2)
         or conserve == true) then
-        mobkit.make_sound(self,'warn')
+        animals.make_sound(self,'scared','warn')
         animals.fight_or_flight(self, puncher, nil, 0)
     else
         animals.fight_or_flight(self, puncher, 75)
@@ -1658,7 +1788,7 @@ function animals.hq_warn(self, threat, prty)
     local func = function(self)
         if not mobkit.is_alive(threat) then return true end
         if init then
-            mobkit.animate(self,'stand')
+            animals.animate(self,'stand')
             init = false
         end
 
@@ -1673,6 +1803,7 @@ function animals.hq_warn(self, threat, prty)
 
             mobkit.remember(self,'hate',tgtspec.object:get_player_name())
             animals.hq_attack_eat(self, prty+10, tgtspec.object) -- priority
+            self.threat = tgtspec.object
         else
             timer = timer+self.dtime
             if mobkit.is_queue_empty_low(self) then
@@ -1680,7 +1811,7 @@ function animals.hq_warn(self, threat, prty)
             end
             -- make noise in random intervals
             if timer > tgttime then
-                mobkit.make_sound(self,'warn')
+                animals.make_sound(self,'warn')
                 tgttime = timer + 1.1 + random()*1.5
             end
         end
@@ -1689,9 +1820,15 @@ function animals.hq_warn(self, threat, prty)
 end
 
 -- runfrom, flee from target
-function animals.hq_runfrom(self,prty,tgtobj,notscared)
-    local run_timer = self.runfrom_timer
-        or notscared and (self.runfrom_break_timer or 10) or 20
+-- custom 'scared' boolean determines whether or not running from target because of fear or to just cool off
+-- if not fear, then we don't increase timer or make scared sounds
+function animals.hq_runfrom(self,prty,tgtobj,scared)
+    -- default is that we're scared
+    scared = type(scared) ~= "boolean" and true or scared
+    -- choose regular runfrom_timer or 20 sec if scared
+    -- otherwise if not scared, choose in order: runfrom_break_timer, runfrom_timer divided by 2, or 10
+    local run_timer = scared and (self.runfrom_timer or 20)
+        or self.runfrom_break_timer or (self.runfrom_timer and self.runfrom_timer/2) or 10
     local exclaim_timer = 4
     local range = minetest.is_player(tgtobj) and self.player_warn_distance
         or animals.is_interactor(
@@ -1699,23 +1836,28 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
         or animals.is_interactor(
             self,'rivals',tgtobj)
         and self.territorial_warn_distance or self.warn_distance
-    if not notscared then mobkit.make_sound(self,'scared') end
+    if scared then animals.make_sound(self,'scared','warn') end
+
+    local function end_func()
+        self.threat = nil
+        return true
+    end
 
     local func = function(self)
-        if not mobkit.is_alive(tgtobj) then return true end
+        if not mobkit.is_alive(tgtobj) then return end_func() end
         run_timer = run_timer - self.dtime
-        if not notscared then
+        if scared then
             exclaim_timer = exclaim_timer - self.dtime
         end
         if run_timer <= 0 then
-            return true
+            return end_func()
         end
         if exclaim_timer <= 0 then
-            mobkit.make_sound(self,'scared')
+            animals.make_sound(self,'scared','warn')
             exclaim_timer = random(37,70)/10
         end
         local dist = get_dist(self,tgtobj)
-        if dist <= self.warn_distance and not notscared then
+        if dist <= self.warn_distance and scared then
             run_timer = run_timer + random(1,5)/10
             -- random chance of 0.1 to 0.5 second addition
             if dist <= self.aggression_distance then
@@ -1734,7 +1876,7 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
                 mobkit.goto_next_waypoint(self,tpos)
             else
                 self.object:set_velocity({x=0,y=0,z=0})
-                return true
+                return end_func()
             end
         end
     end
@@ -1743,7 +1885,6 @@ end
 
 --attack or run vs entity or player
 function animals.fight_or_flight(self, threat, prty, chance)
-    mobkit.clear_queue_high(self)
     prty = type(prty) == "number" and prty or 55
     if type(chance) ~= "number" then
         if minetest.is_player(threat) then
@@ -1776,6 +1917,8 @@ function animals.fight_or_flight(self, threat, prty, chance)
             end
         end
     end
+    if self.threat and (self.threat == threat.object or threat) then return end
+    mobkit.clear_queue_high(self) -- clear all other high tasks
     --fight chance, or run away
     -- (+against players as well, there was a notice about attacking players
     --  that are attached, maybe fixed?)
@@ -1785,14 +1928,16 @@ function animals.fight_or_flight(self, threat, prty, chance)
              or minimal.player_in_creative(threat)) then
         -- fight!
         if self.class == 2 then
-            mobkit.hq_aqua_attack(self, prty, threat.object
+            self.threat = threat.object or threat
+            animals.hq_aqua_attack_eat(self, prty, threat.object
                                   or threat, self.max_speed)
         else
             animals.hq_warn(self, threat, prty)
         end
     else
         -- flight!
-        mobkit.animate(self,'fast')
+        animals.animate(self,'fast')
+        self.threat = threat.object or threat
         if self.class == 2 then
             animals.hq_swimfrom(self, 55, minetest.is_player(threat) and threat
                                 or threat.object, self.max_speed)
@@ -1885,7 +2030,7 @@ function animals.prey_hunt(self, prty)
             end
         end
         if (drawtype == "liquid") then
-            mobkit.animate(self,'fast')
+            animals.animate(self,'fast')
             flee_sound(self)
             animals.hq_aqua_attack_eat(self, prty, targ.object, self.max_speed)
             return true
@@ -2083,13 +2228,13 @@ function animals.hurt_target(self,target,consume)
             energytake = (200*dmg)
         end
 
-        self:modify('energy',energytake*.3) -- take 30%
+        self:modify('energy',energytake*.25) -- take 25%
         ent.energy = ent_e - energytake
         -- make opponent lose energy (use old way due to players)
 
         if (ent.hp <= dmg) then
-            self:modify('energy',energytake*.9)
-            -- add 90% of opponent's energy for nomming fully
+            self:modify('energy',energytake*.75)
+            -- add 75% of opponent's energy for nomming fully
             if not targ_specs.player then
                 ent.object:remove()
             end
@@ -2159,22 +2304,25 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 
     local tyaw = 0
     local prvscanpos = {x=0,y=0,z=0}
-    local init = true
     local tgtbox = tgtobj:get_properties().collisionbox
 
+    animals.animate(self,'fast')
+    animals.make_sound(self,'attack','bite')
+    local bitenext = time() -- bite debounce
+
+    local function end_func()
+        self.threat = nil
+        return
+    end
+
     local func = function(self)
-        if time() > timer then
-            return true
+        local c_time = time() -- current_time
+        if c_time > timer then
+            return end_func()
         end
 
         if not mobkit.is_alive(tgtobj) then
-            return true
-        end
-
-        if init then
-            mobkit.animate(self,'fast')
-            mobkit.make_sound(self,'attack')
-            init = false
+            return end_func()
         end
 
         local pos = mobkit.get_stand_pos(self)
@@ -2208,10 +2356,14 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
                 self.object:set_velocity({x=vel.x,y=vel.y-0.5,z=vel.z})
             end
         end
-        if animals.target_in_range(self,tgt) then -- bite
-            mobkit.make_sound(self,'bite')
+        if c_time >= bitenext and animals.target_in_range(self,tgt) then -- bite
+            animals.make_sound(self,'bite','attack')
             mobkit.hq_aqua_turn(self,prty,yaw-pi,speed)
-            return animals.hurt_target(self,tgtobj,eat)
+            bitenext = c_time + (2*random())
+            -- if true, successfully killed and ate
+            if animals.hurt_target(self,tgtobj,eat) then
+                return end_func()
+            end
         end
         mobkit.go_forward_horizontal(self,speed)
     end
@@ -2237,7 +2389,7 @@ local function lq_jumpattack_eat(self,height,target,consume)
             local vel = self.object:get_velocity()
             vel.y = -mobkit.gravity*sqrt(height*2/-mobkit.gravity)
             self.object:set_velocity(vel)
-            mobkit.make_sound(self,'charge')
+            animals.make_sound(self,'charge')
             phase=2
         elseif phase==2 then
             local dir = minetest.yaw_to_dir(self.object:get_yaw())
@@ -2262,7 +2414,7 @@ local function lq_jumpattack_eat(self,height,target,consume)
                 local vy = self.object:get_velocity().y
                 self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
                 -- play attack sound if defined
-                mobkit.make_sound(self,'attack')
+                animals.make_sound(self,'attack','bite')
                 phase=4
 
                 -- eat bits of opponent
@@ -2285,10 +2437,17 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                             and self.aggression_timer or 12)
     local attack_range = self.attack.range or 0.5
 
+    local function end_func()
+        self.threat = nil
+        return true
+    end
     tgt = animals.get_structure(tgt)
-    if not tgt then return end
+    if not tgt then
+        return end_func()
+    end
     local tgtobj = tgt.object
     tgt = tgt.ent
+    
     if type(eat) ~= "boolean" then
         eat = minetest.is_player(tgtobj) and self.consume_players == true
 
@@ -2304,15 +2463,15 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
     local func = function(self)
         if time() > timer then
             if not animals.is_interactor(self,"prey",tgt.name) then
-                -- we've done enough, get away from them now
-                animals.hq_runfrom(self, prty-4, tgtobj, true)
+                -- we've done enough, get away from them now (false so that we aren't scared)
+                animals.hq_runfrom(self, prty-4, tgtobj, false)
             else
                 mobkit.hq_roam(self,15)
             end
-            return true
+            return end_func()
         end
-        if not mobkit.is_alive(tgtobj) then return true end
-        if self.oxygen < (self.oxygen_min or self.lung_capacity*0.9) then return true end
+        if not mobkit.is_alive(tgtobj) then return end_func() end
+        if self.oxygen < (self.oxygen_min or self.lung_capacity*0.9) then return end_func() end
 
         if mobkit.is_queue_empty_low(self) then
             local pos = mobkit.get_stand_pos(self)
@@ -2336,7 +2495,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             else
                 if dist > self.view_range then
                     -- out of sight, out of mind
-                    return true
+                    return end_func()
                 end
                 mobkit.lq_dumbwalk(
                     self,mobkit.pos_shift(tpos,{x=random(-20,20)/10,
@@ -2368,9 +2527,9 @@ function animals.territorial(self, eat, chance_multiplier)
             local range = self.territorial_warn_distance or self.warn_distance
             --flee if hurt
             if self.hp < self.max_hp/4 then
-                mobkit.animate(self,'fast')
+                animals.animate(self,'fast')
                 if self.class ~= 2 then
-                    mobkit.make_sound(self,'warn')
+                    animals.make_sound(self,'scared','warn')
                     animals.hq_runfrom(self, 25, rival)
                 else
                     flee_sound(self)
@@ -2421,9 +2580,9 @@ function animals.territorial(self, eat, chance_multiplier)
                         animals.hq_aqua_attack_eat(self, 25, rival, self.max_speed)
                     end
                 else -- harass
-                    mobkit.animate(self,'fast')
+                    animals.animate(self,'fast')
                     if self.class ~= 2 then
-                        mobkit.make_sound(self,'warn')
+                        animals.make_sound(self,'warn')
                         mobkit.hq_chaseafter(self,25,rival)
                     else
                         animals.hq_swimafter(self, 15, rival, self.max_speed)
@@ -2431,9 +2590,9 @@ function animals.territorial(self, eat, chance_multiplier)
                 end
                 return true
             else -- run from
-                mobkit.animate(self,'fast')
+                animals.animate(self,'fast')
                 if self.class ~= 2 then
-                    mobkit.make_sound(self,'warn')
+                    animals.make_sound(self,'scared','warn')
                     animals.hq_runfrom(self,25,rival)
                 else
                     animals.hq_swimfrom(self, 25, rival ,self.max_speed)
@@ -2517,7 +2676,7 @@ function animals.hq_flock_water(self,prty,tgtobj, min_dist, speed)
             local tyaw = tgtobj:get_yaw()
 
             mobkit.hq_aqua_turn(self,prty+1,tyaw,tvel)
-            mobkit.make_sound(self,'call')
+            animals.make_sound(self,'call')
             return true
         end
 
@@ -2544,12 +2703,12 @@ function animals.flock(self, prty, min_dist, herding_dist, aqua_speed)
         if friend and get_dist(self, friend) <= min_dist then
             --get distance, if too far away go to them
             if aqua_speed then
-                mobkit.animate(self,'walk')
-                mobkit.make_sound(self,'call')
+                animals.animate(self,'walk')
+                animals.make_sound(self,'call')
                 animals.hq_flock_water(self, prty, friend, herding_dist, aqua_speed)
             else
-                mobkit.animate(self,'walk')
-                mobkit.make_sound(self,'call')
+                animals.animate(self,'walk')
+                animals.make_sound(self,'call')
                 animals.hq_flock(self, prty, friend, herding_dist)
             end
             return true
@@ -2577,7 +2736,7 @@ function animals.hq_mate(self,prty,tgtobj)
             local dist = vector.distance(pos,tpos)
             if dist <= self.attack.range then
                 mobkit.lq_idle(self,1)
-                mobkit.make_sound(self,'mating')
+                animals.make_sound(self,'mating','call')
                 if self.sex == "male" then
                     --get the other one pregnant
                     tgtobj:set('pregnant',true,true)
@@ -2588,7 +2747,7 @@ function animals.hq_mate(self,prty,tgtobj)
                 self.sexual = false
                 return true
             else
-                mobkit.make_sound(self,'call')
+                animals.make_sound(self,'call')
                 mobkit.goto_next_waypoint(self,tpos)
             end
         end
@@ -2675,25 +2834,32 @@ function animals.add_interactors(creature, itype, ...)
     -- adds the minetest luaentity names of creatures to a
     --  certain interaction type provided by a specified creature
 
-    -- for example, animals.add_interactor("rivals","pegasun","animals:pegasun")
-    -- would add the entity "animals:pegasun" to the rivals of "pegasun"
+    -- for example, animals.add_interactors("animals:pegasun","rivals", "animals:sneachan")
+    -- would add the entity 'animals:sneachan' to the rivals of "animals:pegasun"
+    -- "self" can be used to add oneself instead of repeating name as so:
+    -- animals.add_interactors("animals:pegasun","rivals", "self")
+
+    -- control "autoassign" can be determined as true or false at end of "..." list (default true)
+    -- will add counterparts to a specified interactiontype
+    -- so if you specify a creature as a pred to yours, it will add yours as a prey to said creature
+    -- setting it false will prevent this autoassign
 
     -- lowercase strings for easier finding and indexing
-    if (type(itype) ~= "string") then
-        return
-    else
-        itype = string.lower(itype)
-    end
-
     if type(creature) == "table" then
         -- get "name" of said table
         creature = creature.name
     end
-    if type(creature) == "string" then
-        creature = string.lower(creature)
-    else
-        return
-    end
+    assert(type(creature) == "string",
+        "animals.add_interactors: could not get valid name from creature (not a string or table with .name string). Got '"..
+        tostring(creature).."' type "..type(creature))
+    -- we only work lowercase
+    creature = creature:lower()
+
+    assert(type(itype) == "string",
+        "animals.add_interactors: attempt to add inapplicable itype (non-string) for '"..creature
+        .."'. Got '"..tostring(itype).."' type "..type(itype))
+    itype = itype:lower()
+
     local entity = minetest.registered_entities[creature]
     -- utilized for searching and override
 
@@ -2701,19 +2867,21 @@ function animals.add_interactors(creature, itype, ...)
     -- finds the creature's table provided within animals.interactors
     if (type(interactable) ~= "table") then -- creates new one if not found
         animals.interactors[creature] = {}
-
         interactable = animals.interactors[creature]
     end
 
-    local itable = animals.interactors[creature][itype]
+    -- interaction table
     -- finds the specified interactiontype table within creature's table
-    if (type(itable) ~= "table") then
-        -- check for in possible entity or create a new interactiontype
-        --  table if not found
+    local itable = animals.interactors[creature][itype]
 
+    -- check for itable in entity (if registered already) or create a new interactiontype
+    --  table if not found
+    if (type(itable) ~= "table") then
         -- check if entity exists, and check if it has the interactiontype
         if entity then
             itable = entity[itype]
+            -- if itype exists, copy it for local modifications and set it in the
+            -- global interactors table under said itype
             if itable then
                 itable = table.copy(itable) -- pass a copy
                 animals.interactors[creature][itype] = itable
@@ -2727,15 +2895,28 @@ function animals.add_interactors(creature, itype, ...)
         end
     end
 
-    local posscreatures = {...}
+    -- possible creatures
     -- convert specified creatures into an easily accessible table
     --  (the ... for multiple args)
-    for _,interactor in pairs(posscreatures) do
+    local posscreatures = {...}
+    -- autoassign:
+    -- if you add a creature as a rival, it will add yours as a rival to the creature
+    -- if you add a creature as a pred, it will add yours as a prey to the creature
+    -- only works for prey/predators, friends/rivals, no other strings will be sought inverted
+    local autoassign = true
+    -- autoassign can be specified at the end of a list, will be removed from the table
+    if type(posscreatures[#posscreatures]) == "boolean" then
+        autoassign = posscreatures[#posscreatures]
+        posscreatures[#posscreatures] = nil
+    end
+    for _,interactor in ipairs(posscreatures) do
+        -- unpacks table and adds to posscreatures
         if type(interactor) == "table" then
             for _,readd in pairs(interactor) do
                 table.insert(posscreatures,readd)
             end
         end
+        -- name of said creature
         if (type(interactor) == "string") then
             -- allow simplification with "self" parameter
             if interactor == "self" then
@@ -2744,6 +2925,30 @@ function animals.add_interactors(creature, itype, ...)
             -- add said creature as an "interactor" within the provided
             --  interactiontype (if specified creature is an entity name)
             itable[#itable + 1] = interactor
+            -- autoassign described above (we also don't want to autoassign ourselves lol)
+            if autoassign and creature ~= interactor then
+                -- only apply to interaction types that have a counterpart
+                -- counterpart interaction type
+                local c_itype = itype == "predators" and "prey" or itype == "prey" and "predators" or
+                    (itype == "rivals" or itype == "friends") and itype or nil
+                if c_itype then
+                    -- if doesn't exist yet, create an empty table to loop over
+                    local c_itable = animals.get_interactors(interactor, c_itype) or {}
+                    -- check if we were already added to prevent duplication (by looping over table)
+                    -- counterpart added
+                    local c_added = false
+                    for _, existing in ipairs(c_itable) do
+                        -- created true and break if found
+                        c_added = creature == existing
+                        if c_added then break end
+                    end
+                    -- add ourselves as an interactor
+                    if not c_added then
+                        -- set autoassign to false to prevent stack overflow
+                        animals.add_interactors(interactor, c_itype, creature, false)
+                    end
+                end
+            end
         end
     end
     -- will override entity's interaction type with the provided animals
@@ -2761,21 +2966,19 @@ function animals.get_interactors(creature,itype)
     -- get a table of the creatures that interact with the
     --  specified creature in the specified interactiontype way
 
-    if (type(itype) ~= "string") then
-        return
-    else
-        itype = string.lower(itype)
-    end
+    -- get name of table if table
+    creature = type(creature) == "table" and creature.name or creature
+    assert(type(creature) == "string",
+        "animals.get_interactors: could not get valid name from creature (not a string or table with .name string). Got '"..
+        tostring(creature).."' type "..type(creature))
+    -- we only work lowercase
+    creature = creature:lower()
 
-    if type(creature) == "table" then
-        -- get "name" of said table
-        creature = creature.name
-    end
-    if type(creature) == "string" then
-        creature = string.lower(creature)
-    else
-        return
-    end
+    assert(type(itype) == "string",
+        "animals.get_interactors: attempt to get inapplicable itype (non-string) for '"..creature
+        .."'. Got '"..tostring(itype).."' type "..type(itype))
+    itype = itype:lower()
+
     -- get the creature's interactors table
     local interactable = animals.interactors[creature]
     if type(interactable) ~= "table" then
@@ -2850,6 +3053,149 @@ function animals.get_nearby_player(self,forceplyr)
             return plyr
         end
     end
+end
+
+-- animals.size_dif_mechanics
+-- modifies max_hp, speed, attack, and capture mechanics depending on self.size_dif
+-- does not modify actual animal's physical object - see animals.sizeify for that
+function animals.size_dif_mechanics(self)
+    local dif = self.size_dif
+    if not dif then return end
+    if not self.object then return end -- we don't even have a physical body!!!
+    local data = minetest.registered_entities[self.name]
+    if not data then return end
+    self.max_speed = data.max_speed * dif
+    local max_hp = data.initial_properties and data.initial_properties.max_hp
+    local attack = data.attack
+    local cap_interact = data.capture_interactions
+    -- checks
+    if max_hp then
+        -- round down max_hp after multiplying it by dif, ensure it's no less than 1
+        -- smaller have less hp, bigger have more hp
+        max_hp = math.max(math.floor(max_hp*dif), 1)
+        local props = self.object:get_properties()
+        -- if got object properties, update them to new max_hp (if max_hp does not equal object max_hp)
+        if props and max_hp ~= props.max_hp then
+            props.max_hp = max_hp
+            self.object:set_properties(props)
+        end
+        -- set self values
+        self.max_hp = max_hp
+        -- if current hp is greater than new max_hp, clamp down or leave it as is
+        self.hp = self.hp > max_hp and max_hp or self.hp
+    end
+    if attack then
+        -- reset to data attack values
+        if dif == 1 then
+            self.attack = attack
+        else
+            -- copy for local modifications
+            attack = table.copy(attack)
+            attack.range = attack.range*dif -- increase/decrease range depending on size dif (smaller less bigger more)
+            -- copy damage_groups or create blank table (won't be iterated over)
+            attack.damage_groups = attack.damage_groups and table.copy(attack.damage_groups) or {}
+            for dmgtype, dmg in pairs(attack.damage_groups) do
+                -- increase/decrease each damage according to size dif
+                attack.damage_groups[dmgtype] = math.max(math.floor(dmg*dif),1)
+            end
+            -- update attack
+            self.attack = attack
+        end
+    end
+    if cap_interact then
+        -- reset to data capture interactions
+        if dif == 1 then
+            self.capture_interactions = cap_interact
+        else
+            -- copy for local modifications (don't want to modify global table!)
+            cap_interact = table.copy(cap_interact)
+            for captype, capvalue in pairs(cap_interact) do -- capture type, capture value (percentage/table)
+                if type(capvalue) == "table" then
+                    -- again, copy for local modifications
+                    capvalue = table.copy(capvalue)
+                    for ind,caperc in pairs(capvalue) do -- index, capture percentage
+                      -- clamp below or equal to 1 with math.min
+                      -- divide capvalue by difference to get higher chance for smaller sizes, lower chance for bigger
+                        capvalue[ind] = math.min(caperc / dif, 1)
+                    end
+                    cap_interact[captype] = capvalue
+                end
+            end
+            -- update
+            self.capture_interactions = cap_interact
+        end
+    end
+    -- decrease aggression if smol
+    local player_aggro = data.player_interaction
+    local pred_aggro = data.predator_interactions
+    if dif < 1 then
+        -- multiplied by size difference
+        self.player_interaction = player_aggro and player_aggro * dif or self.player_interaction
+        pred_aggro = pred_aggro and table.copy(pred_aggro)
+        -- pred aggression will ALWAYS be a table
+        if pred_aggro then
+            for aggroname, aggrovalue in pairs(pred_aggro) do
+                aggrovalue = aggrovalue * dif
+                pred_aggro[aggroname] = aggrovalue
+            end
+            -- set for self
+            self.predator_interactions = pred_aggro
+        end
+    -- reset to registration values
+    else
+        self.player_interaction = player_aggro
+        self.predator_interations = pred_aggro
+    end
+end
+
+-- animals.age_mechanics
+-- modifies animal size (sizeify) and "size_dif" (size difference) value according to age
+-- determines with "growth phases", base_size_dif (base size difference), and a min_size (minimum size)
+function animals.age_mechanics(self)
+    -- not ready to grow, return
+    if self.growth_next_age and self.age < self.growth_next_age then return end
+    -- get or create a "mature_age" to base age_mechanics off of
+    local mature_age = self.mature_age or (self.lifespan * 0.12)
+    -- we're a big kid now, no more modifications !
+    if self.age >= mature_age and not self.growth_next_age then
+        return
+    end
+    -- some helpful variables
+    local size = self.base_size_def or 1 -- expected base size dif for adult (expected usual, permit custom)
+    local min_size = self.growth_min_size or 0.25 -- can't be smaller than 25%
+    local phases = self.growth_phases or 6 -- allow phases override, otherwise 6
+    -- PHASE;;
+    -- get phase by interpolating using age divided by (mature_age divided by phases), rounding the result,
+    -- and ensuring it's not under 1 (has to be 1 or over)
+    -- determine requirement for first phase with mature_age/phases
+    -- divide age by first phase requirement to determine how much over for phases
+    -- e.g. a mature_age of 1200 would be divided by 6 for 200
+    -- an age of 300 divided by 200 would be 1.5, rounded down to 1 for phase 1
+    -- an age of 430 divided by 200 would be 2.15, rounded down to 2 for phase 2
+    local phase = math.max(math.floor(self.age/(mature_age/phases)),1)
+    -- DIF;;
+    -- determine size difference based on phase, while limiting between min_size and base size dif
+    -- using BEDMAS, subtract size by min_size to get a smaller limited number to multiply-
+    -- by the percentage made from phase divided by phases
+    -- finally, add min_size as a base to the value
+    -- e.g. if min_size is 0.25, base size 1, and if there are 6 total phases
+    -- then the first phase size difference will be 0.375
+    -- size-min_size would be 0.75, which is then multiplied by phase/phases (1/6 making 0.16666)
+    -- which would be 0.75 times 0.16666 : 0.125
+    -- which then has min_size added to as a base: 0.25 + 0.125 for 0.375
+    local dif = min_size+(size-min_size)*(phase/phases)
+    -- growth_next_age;;
+    -- predict age for next phase (current phase + 1)
+    -- predict by dividing next phase by total phases for a percentage, then multiply mature_age by such
+    -- CLEAR OUT growth_next_age if current phase is going to be greater than or equal to total phases
+    self.growth_next_age = phase < phases and mature_age*((phase+1)/phases) or nil
+    self.growth_current_phase = phase -- add self value for growth_current_phase
+    -- we're already this size, no updating!
+    if self.size_dif == dif then return end
+    self:set('size_dif',dif,true) -- set internal "size_dif" value for memory
+    animals.sizeify(self, dif, true) -- update physically to new size (use base size)
+    animals.size_dif_mechanics(self) -- update stats to new size
+    return true
 end
 
 -- Taken directly from mobkit to properly calculate drowning
@@ -3310,23 +3656,43 @@ function animals.register_animal(name,def)
 
     -- sounds
     -- create sounds for your animal
-    -- use mobkit.make_sound(self,name) to play them
+    -- use animals.make_sound(self,name) to play them
+    -- animals.make_sound can have a list of "alternatives" to play
     local sounds = def.sounds or {}
     sounds.punch = sounds.punch or { -- plays when animal is punched
         name = "animals_punch",
         gain={0.5, 1.2},
         fade={0.5, 1.5},
         pitch={0.5, 1.5},
-                                   }
-    sounds.punch_death = sounds.punch_death or {
+    }
+    -- opt out of punch_death by setting to false
+    sounds.punch_death = sounds.punch_death or sounds.punch_death ~= false and {
         -- plays if animal is punched while dead
         name = "animals_punch_death",
         gain = {1,1.5},
         fade = {0.5,1.5},
         pitch = {0.5,0.8},
-                                               }
+     } or nil
 
     -- drops = {} -- add drops for your animal upon death
+    -- set up drops if provided (clear if not a string or table)
+    def.drops = type(def.drops) == "string" and {{name=def.drops}} or type(def.drops) == "table" and def.drops or {}
+    if def.drops then
+        for i,drop in ipairs(def.drops) do
+            -- clear if not a table, convert to adequate table if string
+            drop = type(drop) == "string" and {name=drop} or type(drop) == "table" and drop or nil
+            if drop and drop.name then
+                -- set chance, min, and max
+                drop.chance = drop.chance or 1
+                drop.min = drop.min or 1
+                drop.max = drop.max or drop.min
+            else -- remove if no name
+                drop = nil
+            end
+            -- update
+            def.drops[i] = drop
+        end
+    end
 
     -- functions
     def.on_punch = def.on_punch or function(self, puncher, time_from_last_punch,
@@ -3577,6 +3943,9 @@ function animals.register_animal(name,def)
         value = self:set(vname, self[vname] + value, memorize)
         return value
     end
+    -- age mechanics (opt out with false)
+    def.age_mechanics = type(def.age_mechanics) == "function" and def.age_mechanics or
+        def.age_mechanics ~= false and animals.age_mechanics or nil
 
     -- creature
     minetest.register_entity(name,def)
