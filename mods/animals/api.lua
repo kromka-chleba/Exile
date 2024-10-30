@@ -2437,17 +2437,17 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                             and self.aggression_timer or 12)
     local attack_range = self.attack.range or 0.5
 
-    tgt = animals.get_structure(tgt)
-    if not tgt then
-        self.threat = nil
-        return
-    end
-    local tgtobj = tgt.object
-    tgt = tgt.ent
     local function end_func()
         self.threat = nil
         return true
     end
+    tgt = animals.get_structure(tgt)
+    if not tgt then
+        return end_func()
+    end
+    local tgtobj = tgt.object
+    tgt = tgt.ent
+    
     if type(eat) ~= "boolean" then
         eat = minetest.is_player(tgtobj) and self.consume_players == true
 
