@@ -1820,9 +1820,15 @@ function animals.hq_warn(self, threat, prty)
 end
 
 -- runfrom, flee from target
-function animals.hq_runfrom(self,prty,tgtobj,notscared)
-    local run_timer = self.runfrom_timer
-        or notscared and (self.runfrom_break_timer or 10) or 20
+-- custom 'scared' boolean determines whether or not running from target because of fear or to just cool off
+-- if not fear, then we don't increase timer or make scared sounds
+function animals.hq_runfrom(self,prty,tgtobj,scared)
+    -- default is that we're scared
+    scared = type(scared) ~= "boolean" and true or scared
+    -- choose regular runfrom_timer or 20 sec if scared
+    -- otherwise if not scared, choose in order: runfrom_break_timer, runfrom_timer divided by 2, or 10
+    local run_timer = scared and (self.runfrom_timer or 20)
+        or self.runfrom_break_timer or (self.runfrom_timer and self.runfrom_timer/2) or 10
     local exclaim_timer = 4
     local range = minetest.is_player(tgtobj) and self.player_warn_distance
         or animals.is_interactor(
@@ -1830,7 +1836,7 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
         or animals.is_interactor(
             self,'rivals',tgtobj)
         and self.territorial_warn_distance or self.warn_distance
-    if not notscared then animals.make_sound(self,'scared','warn') end
+    if scared then animals.make_sound(self,'scared','warn') end
 
     local function end_func()
         self.threat = nil
@@ -1840,7 +1846,7 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
     local func = function(self)
         if not mobkit.is_alive(tgtobj) then return end_func() end
         run_timer = run_timer - self.dtime
-        if not notscared then
+        if scared then
             exclaim_timer = exclaim_timer - self.dtime
         end
         if run_timer <= 0 then
@@ -1851,7 +1857,7 @@ function animals.hq_runfrom(self,prty,tgtobj,notscared)
             exclaim_timer = random(37,70)/10
         end
         local dist = get_dist(self,tgtobj)
-        if dist <= self.warn_distance and not notscared then
+        if dist <= self.warn_distance and scared then
             run_timer = run_timer + random(1,5)/10
             -- random chance of 0.1 to 0.5 second addition
             if dist <= self.aggression_distance then
@@ -2457,8 +2463,8 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
     local func = function(self)
         if time() > timer then
             if not animals.is_interactor(self,"prey",tgt.name) then
-                -- we've done enough, get away from them now
-                animals.hq_runfrom(self, prty-4, tgtobj, true)
+                -- we've done enough, get away from them now (false so that we aren't scared)
+                animals.hq_runfrom(self, prty-4, tgtobj, false)
             else
                 mobkit.hq_roam(self,15)
             end
