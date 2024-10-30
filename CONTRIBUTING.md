@@ -54,6 +54,12 @@ The `v4` branch is where major development is going on right now, with the `mast
 # Rebasing Stale Branches
 “The primary reason for rebasing is to maintain a linear project history.”<sup>[[†]](https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase)</sup>
 
+# Hiding reformatting commits in git-blame:
+We have an ignore-revs file for git blame. If needed, you can do 
+`git blame --ignore-revs-file .git-blame-ignore-revs <file>`
+or use
+`git config --global blame.ignoreRevsFile .git-blame-ignore-revs`
+to configure git to always use the file if present.
 
 ## Style guidelines
 To match our codebase, configure your editor to use 4 spaces for indents
