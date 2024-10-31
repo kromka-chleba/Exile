@@ -26,6 +26,21 @@ function sfinv.override_page(name, def)
 	end
 end
 
+function sfinv.remove_page(pagename)
+    local def = sfinv.pages[pagename] local removed = false
+    for i = 1, #sfinv.pages_unordered do
+        if not removed then
+            if sfinv.pages_unordered[i] == def then
+                removed = true
+            end
+        end
+        if removed == true then
+            sfinv.pages_unordered[i] = sfinv.pages_unordered[i + 1]
+        end
+    end
+    sfinv.pages[pagename] = nil
+end
+
 function sfinv.get_nav_fs(player, context, nav, current_idx)
 	-- Only show tabs if there is more than one page
 	if #nav > 1 then
@@ -100,7 +115,7 @@ end
 --------------------------------------------------------------------------------
 
 function sfinv.get_homepage_name(player)
-	return "survival:crafting"
+	return "sfinv:crafting"
 end
 
 function sfinv.get_formspec(player, context)
@@ -167,21 +182,18 @@ function sfinv.set_player_inventory_formspec(player, context)
 	player:set_inventory_formspec(fs)
 end
 
--- should be renamed to select_page
--- this one gets called when user changes the page
 function sfinv.set_page(player, pagename)
-    local context = sfinv.get_or_create_context(player) -- stores current pages, names, etc.
-    local oldpage = sfinv.pages[context.page] -- the page that was selected previously
-    if oldpage and oldpage.on_leave then
-        oldpage:on_leave(player, context)
-    end
-    context.page = pagename
-    local page = sfinv.pages[pagename]
-    if page.on_enter then
-        page:on_enter(player, context)
-    end
-     -- this one should be responsible for displaying tabs
-    sfinv.set_player_inventory_formspec(player, context)
+	local context = sfinv.get_or_create_context(player)
+	local oldpage = sfinv.pages[context.page]
+	if oldpage and oldpage.on_leave then
+		oldpage:on_leave(player, context)
+	end
+	context.page = pagename
+	local page = sfinv.pages[pagename]
+	if page.on_enter then
+		page:on_enter(player, context)
+	end
+	sfinv.set_player_inventory_formspec(player, context)
 end
 
 function sfinv.get_page(player)

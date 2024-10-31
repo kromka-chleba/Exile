@@ -657,6 +657,17 @@ local function make_inventory_formspec(player,context)
     -- listring between input and main inv -------------------------------------
     output[#output + 1] = 'listring[]'
 
+    -- re-add worldedit gui button if that exists ------------------------------
+    if minetest.global_exists("worldedit")
+        and minetest.get_modpath("worldedit_gui")
+        and minetest.check_player_privs(player, {worldedit=true}) then
+        output[#output + 1] = tofstring({
+            "image_button[9.75,0.5;0.75,0.75;inventory_plus_worldedit_gui.png;",
+            "worldedit_gui;]",
+            "tooltip[worldedit_gui;Edit your World!]"
+        })
+    end
+
     -- Save output to cache and update -----------------------------------------
     output[#output + 1] = 'container_end[]'
 
@@ -1021,45 +1032,47 @@ end
 
 -- Register crafting formspec as inv tab
 do
-    if minetest.global_exists("sfinv") then
-        local homepage = sfinv.get_homepage_name() -- get name of homepage
-        sfinv.register_page(
-            homepage, {
-                title = S("Crafting"),
-                get = function(self, player, context)
-                    local formspec = make_inventory_formspec(player,context)
-                    return sfinv.make_formspec_for_exile(player, context,
-                                                            formspec, false)
-                end,
-                on_player_receive_fields = function(self, player,
-                                                    context, fields)
-                    -- if something changed, redraw the page
-                    if process_receive_fields(player, "", fields) then
-                        sfinv.set_player_inventory_formspec(player, context)
-                    end
-                end,
-                -- selecting the tab from an other tab
-                on_enter = function(self, player, context)
-                    --local player_name = player:get_player_name()
-                    print ("--------------------------]ENTER[-------------------")
-                    --set_cache(player:get_player_name(),player:get_inventory())
-                end,
-                on_leave = function(self, player, context)
-                    --local player_name = player:get_player_name()
-                    --cache = "closed" -- #TODO not sure about that
-                    print ("--------------------------]LEAVE[-------------------")
-                end,
-                --  on_enter = function(self, player, context)
-                --          local player_name = player:get_player_name()
-                --          local cache=inventoryFS_cache[player_name]
-                --          if cache and type(cache) == table then
-                --              cache.c_recipes=nil
-                --              cache.u_recipes=nil
-                --          end
-                --          sfinv.set_player_inventory_formspec(player,context)
-                --  end
-        })
-    end
+    if not minetest.global_exists("sfinv") then error("Sfinv is missing?") end
+
+    local homepage = sfinv.get_homepage_name() -- get name of homepage
+    sfinv.remove_page(homepage)
+
+    sfinv.register_page(
+        homepage, {
+            title = S("Crafting"),
+            get = function(self, player, context)
+                local formspec = make_inventory_formspec(player,context)
+                return sfinv.make_formspec_for_exile(player, context,
+                                                     formspec, false)
+            end,
+            on_player_receive_fields = function(self, player,
+                                                context, fields)
+                -- if something changed, redraw the page
+                if process_receive_fields(player, "", fields) then
+                    sfinv.set_player_inventory_formspec(player, context)
+                end
+            end,
+            -- selecting the tab from an other tab
+            on_enter = function(self, player, context)
+                --local player_name = player:get_player_name()
+                print ("--------------------------]ENTER[-------------------")
+                --set_cache(player:get_player_name(),player:get_inventory())
+            end,
+            on_leave = function(self, player, context)
+                --local player_name = player:get_player_name()
+                --cache = "closed" -- #TODO not sure about that
+                print ("--------------------------]LEAVE[-------------------")
+            end,
+            --  on_enter = function(self, player, context)
+            --          local player_name = player:get_player_name()
+            --          local cache=inventoryFS_cache[player_name]
+            --          if cache and type(cache) == table then
+            --              cache.c_recipes=nil
+            --              cache.u_recipes=nil
+            --          end
+            --          sfinv.set_player_inventory_formspec(player,context)
+            --  end
+    })
 end
 
 -- Crafting formspec on tool station -------------------------------------------
