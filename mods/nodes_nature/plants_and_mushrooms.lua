@@ -455,82 +455,69 @@ local plant_list = {
 -- makes all plants in the game
 plant.register_all(plant_list)
 
-
 ----------------------------------------------
---Extra effects
+-- post-plant registration overrides
 
-minetest.register_craftitem(
-    "nodes_nature:rzepicha_root",
-    {
-        description = S("Jepiha root"),
-        inventory_image = "nodes_nature_rzepicha_root.png",
-        wield_image = "nodes_nature_rzepicha_root.png",
-        stack_max = minimal.stack_max_medium,
-        groups = {},
-        on_place = function(itemstack, placer, pointed_thing)
-            local above = minetest.get_node(pointed_thing.above)
-            local pos_below = minimal.get_pos_under(pointed_thing.above)
-            local sediment = minimal.pos_group(pos_below, "sediment")
-            if sediment and above.name == "air" then
-                minetest.set_node(pointed_thing.above,
-                                  { name = "nodes_nature:rzepicha_fruitless" })
-                plant.set_to_domesticated(pointed_thing.above)
-                if not minimal.player_in_creative(placer) then
-                    itemstack:take_item()
-                end
+-- Jepiha (Rzepicha) overrides;
+
+local function set_up_jepiha_on_place(alive)
+    alive = type(alive) ~= "boolean" and true or false
+    return function(itemstack, placer, pointed_thing)
+        local above = minetest.get_node(pointed_thing.above)
+        local pos_below = minimal.get_pos_under(pointed_thing.above)
+        local sediment = minimal.pos_group(pos_below, "sediment")
+        if sediment and above.name == "air" then
+            -- place fruitless if alive, seedling5 if dead
+            minetest.set_node(pointed_thing.above,
+                { name = (alive and "nodes_nature:rzepicha_fruitless" or "nodes_nature:rzepicha_seedling5") })
+            plant.set_to_domesticated(pointed_thing.above)
+            if not minimal.player_in_creative(placer) then
+                itemstack:take_item()
             end
-            return itemstack
-        end,
-    }
-)
+        end
+        return itemstack
+    end
+end
 
-minetest.register_craftitem(
-    "nodes_nature:rzepicha_root_winter",
-    {
-        description = S("Jepiha root"),
-        inventory_image = "nodes_nature_rzepicha_root_winter.png",
-        wield_image = "nodes_nature_rzepicha_root_winter.png",
-        stack_max = minimal.stack_max_medium,
-        groups = {},
-        on_place = function(itemstack, placer, pointed_thing)
-            local above = minetest.get_node(pointed_thing.above)
-            local pos_below = minimal.get_pos_under(pointed_thing.above)
-            local sediment = minimal.pos_group(pos_below, "sediment")
-            if sediment and above.name == "air" then
-                minetest.set_node(pointed_thing.above,
-                                  { name = "nodes_nature:rzepicha_seedling5" })
-                plant.set_to_domesticated(pointed_thing.above)
-                if not minimal.player_in_creative(placer) then
-                    itemstack:take_item()
-                end
-            end
-            return itemstack
-        end,
-    }
-)
+-- prior rzepicha root craftitems --> actual plant registration
+minetest.register_alias_force("nodes_nature:rzepicha_root","nodes_nature:rzepicha_fruitless")
+minetest.register_alias_force("nodes_nature:rzepicha_root_winter","nodes_nature:rzepicha_dead")
 
-HEALTH.add_food_hooks("nodes_nature:rzepicha_root")
-HEALTH.add_food_hooks("nodes_nature:rzepicha_root_winter")
+HEALTH.add_food_hooks("nodes_nature:rzepicha_fruitless")
+HEALTH.add_food_hooks("nodes_nature:rzepicha_dead")
 
+-- modify fruitless and dead jepiha to show their uprooted variants, plus functionality of prior craftitem variant
 minetest.override_item(
     "nodes_nature:rzepicha_fruitless",
-    {drop = "nodes_nature:rzepicha_root"}
-)
-
-minetest.override_item(
-    "nodes_nature:rzepicha_fruiting",
-    {drop = "nodes_nature:rzepicha_root"}
-)
-
-minetest.override_item(
-    "nodes_nature:rzepicha_flowering",
-    {drop = "nodes_nature:rzepicha_root"}
+    {
+        description = S("@1 Root",S("Jepiha")),
+        inventory_image = "nodes_nature_rzepicha_root.png",
+        wield_image = "nodes_nature_rzepicha_root.png",
+        on_place = set_up_jepiha_on_place()
+    }
 )
 
 minetest.override_item(
     "nodes_nature:rzepicha_dead",
-    {drop = "nodes_nature:rzepicha_root_winter"}
+    {
+        description = S("@1 Root",S("Jepiha")),--S("Jepiha root"),
+        inventory_image = "nodes_nature_rzepicha_root_winter.png",
+        wield_image = "nodes_nature_rzepicha_root_winter.png",
+        on_place = set_up_jepiha_on_place(false)
+    }
 )
+
+minetest.override_item(
+    "nodes_nature:rzepicha_fruiting",
+    {drop = "nodes_nature:rzepicha_fruitless"}
+)
+
+minetest.override_item(
+    "nodes_nature:rzepicha_flowering",
+    {drop = "nodes_nature:rzepicha_fruitless"}
+)
+
+-- on consume overrides
 
 --marbhan has a Neurotoxin
 minetest.override_item(
