@@ -132,50 +132,54 @@ local plant_groups = {
 --   * 3 = a "#" shaped plant with 4 faces instead of 2
 --   * 4 = a "#" shaped plant with 4 faces that lean
 
-function plant.new(args)
-    assert(type(args.name) == "string",
-          "plant.new: got non-string for name, got type '"..type(args.name).."'")
+function plant.new(def)
+    assert(type(def) == "table",
+        "plant.new: got non-table for definition, got type '"..type(def).."'")
+    assert(type(def.name) == "string",
+        "plant.new: got non-string for name, got type '"..type(def.name).."'")
+    assert(def.lifeform_type,
+        "plant.new: needs lifeform_type to be specified, please specify as either:\n"..
+        "herbaceous_plant, woody_plant, mushroom, fibrous_plant, moss, cane, or bamboo")
     local mod_origin = minetest.get_current_modname()
     -- add mod_origin to name if not provided
-    args.name = args.name:sub(1,1) == ":" and mod_origin..args.name or
-        not args.name:match(":") and mod_origin..":"..args.name
-    local seasons = args.seasons
-    if not args.seasons and args.seasonal_type then
-        seasons = seasonal_types[args.seasonal_type]
-    end
-    local def = {
-        name = args.name,
-        description = args.description,
-        mod_origin = mod_origin,
-        soil_preferences = args.soil_preferences,
-        growing_time = args.growing_time,
-        light_range = args.light_range,
-        mesh_type = args.mesh_type, -- see the comment above
-        drawtype = args.drawtype, -- plantlike, nodebox, mesh
-        bioluminescence = args.bioluminescence,
-        lifeform_type = args.lifeform_type,
-        seedling_number = args.seedling_number or 5,
-        plant_type = args.plant_type,
-        texture_scale = args.texture_scale or 1,
-        move_resistance = args.move_resistance,
-        seasons = seasons,
-        extra_groups = args.extra_groups,
-        dye_candidate = args.dye_candidate or false,
-        dominant_color = args.dominant_color,
-        fruit = args.fruit,
-        winter_fruit = args.winter_fruit,
-        only_dead_fruit = args.only_dead_fruit,
-        edible_seedling = args.edible_seedling,
-        dry_fruit = args.dry_fruit,
-        roots = args.roots,
-        thorns = args.thorns and 1 or nil, -- nil if not provided
-        climbable = args.climbable,
-        nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
-        seedling_nodebox = args.seedling_nodebox
-            or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
-        waving = args.waving and 1 or nil,
-        seed_number = args.seed_number or 6,
-    }
+    def.name = def.name:sub(1,1) == ":" and mod_origin..def.name or
+        not def.name:match(":") and mod_origin..":"..def.name
+    def.mod_origin = mod_origin
+    def.drawtype = def.drawtype or "plantlike" -- plantlike, nodebox, mesh
+    def.seedling_number = def.seedling_number or 5
+    def.texture_scale = def.texture_scale or 1
+    -- if we have a dominant color specified, then we're a dye_candidate!
+    def.dye_candidate = def.dyecandidate or def.dominant_color and true or false
+    -- set winter_fruit to true if only_dead_fruit is provided
+    def.winter_fruit = def.winter_fruit or def.only_dead_fruit and true or false
+    -- set fruit to true if winter_fruit or dry_fruit
+    def.fruit = def.fruit or
+        (def.winter_fruit or def.dry_fruit) and true or false
+    def.nodebox = def.nodebox
+        or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4}
+    def.seedling_nodebox = def.seedling_nodebox
+        or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2}
+    -- how many seeds upon crafting
+    def.seed_number = def.seed_number or 6
+    -- nil if not provided
+    def.thorns = def.thorns and 1 or nil
+    def.waving = def.waving and 1 or nil
+    -- season mechanics
+    def.seasons = def.seasons or def.seasonal_type
+        and seasonal_types[def.seasonal_type] or nil
+    --[[ other custom values checked for definition:
+        growing_time
+        soil_preferences
+        light_range
+        mesh_type -- see the comment above
+        bioluminescence
+        move_resistance
+        climbable
+        dry_fruit, only_dead_fruit
+        roots
+        climbable
+        seed_type, seed_texture, seed_description
+    --]]
     return def
 end
 
@@ -839,12 +843,30 @@ end
 
 function plant.get_seed_base_props(plant_def)
     local next_life_stage = get_name(plant_def.name,"seedling", 1)
-    local seed_texture, seed_description, inventory_seed_image
     -- [[get dead fruiting texture if only_dead_fruit, get fruiting texture if fruiting, or otherwise use regular plant texture]]
     local plant_img = plant_def.only_dead_fruit and get_texture(plant_def.name, "dead") or
         plant_def.fruit and get_texture(plant_def.name, "fruiting") or
         plant.get_base_image(plant_def)
 
+    -- spores or seeds
+    local seed_type = plant_def.seed_type or
+        (plant_def.lifeform_type == "mushroom" or plant_def.lifeform_type == "moss") and "spores" or
+        "seeds"
+    -- get seed texture (permits custom "seed_texture" field)
+    -- spores if spores, otherwise default to seeds
+    local seed_texture = plant_def.seed_texture or
+        seed_type == "spores" and "nodes_nature_spores.png" or
+        "nodes_nature_seeds.png"
+    -- get seed desc (permits custom "seed_description" field)
+    -- Spores if spores, otherwise default to Seeds
+    local seed_description = plant_def.seed_description or
+        seed_type == "spores" and S("@1 Spores", plant_def.description) or
+        S("@1 Seeds", plant_def.description)
+    -- create inventory image for seed
+    local inventory_seed_image = "((" .. plant_img.."^[resize:32x32)^[opacity:100)"..
+    "^[combine:32x32:8,0="..seed_texture.."\\^[resize\\:24x24"
+    
+--[[
     if plant_def.lifeform_type == "mushroom" or
         plant_def.plant_type == "moss" then
 
@@ -856,6 +878,7 @@ function plant.get_seed_base_props(plant_def)
         inventory_seed_image = "((".. plant_img.."^[resize:32x32)^[opacity:100)^[combine:32x32:8,0=nodes_nature_seeds.png\\^[resize\\:24x24"
         seed_description = S("@1 Seeds", plant_def.description)
     end
+--]]
     local props = {
         description = plant_def.seed_description or seed_description,
         tiles = {seed_texture},

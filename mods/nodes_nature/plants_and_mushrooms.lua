@@ -245,7 +245,8 @@ local plant_list = {
      plant_type = "herbaceous_plant", mesh_type = 0,
      growing_time = nn.plant_base_growing_time * 3,
      dye_candidate = false, texture_scale = 1.6,
-     fruit = true, seasonal_type = "late", dry_fruit = true},
+     fruit = true, seasonal_type = "late", dry_fruit = true,
+     seed_texture = "nodes_nature_rhuya_seed.png"},
 
     -- Rhuya: Winter Variant
     -- NOT meant to appear in the wild (domesticated only, do not add to mapgen)
@@ -257,7 +258,8 @@ local plant_list = {
      plant_type = "herbaceous_plant", mesh_type = 0,
      growing_time = nn.plant_base_growing_time * 3,
      dye_candidate = false, texture_scale = 1.85,
-     fruit = true, seasonal_type = "wintery", dry_fruit = true},
+     fruit = true, seasonal_type = "wintery", dry_fruit = true,
+     seed_texture = "nodes_nature_rhuya_seed.png"},
 
     -- Mushrooms
 
@@ -633,9 +635,6 @@ do -- local scope to prevent global access
         local seed_on_place = minetest.registered_nodes[seed_name].on_place
         minetest.override_item(
             seed_name,  {
-                inventory_image = "nodes_nature_rhuya_seed.png",
-                wield_image = "nodes_nature_rhuya_seed.png",
-                tiles = {"nodes_nature_rhuya_seed.png"},
                 node_box = {
                     type = "fixed",
                     fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
