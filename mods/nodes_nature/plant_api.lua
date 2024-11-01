@@ -200,46 +200,51 @@ end
         - root
     nr is mandatory for "seedling"
     ]]
+-- plant name, variant, number (for seedlings)
 function plant.get_name(basename, var, nr)
-    local suffix
-    -- if we want base plant
-    if not var then
-        suffix = ""
-    -- if we want one of listed states below
-    else
-        if type(var) ~= "string" then
-            minetest.log("var has to be a string in plant.get_texture")
-            return
-        end
-        if var == "seedling" then
-            if not nr then
-                nr = "1"
+    assert(type(basename) == "string",
+        "plant.get_name: got non-string plant name for getting name, got '"..type(basename).."'")
+    -- nil or empty string is "base plant"
+    var = not var and "" or var
+    assert(type(var) == "string",
+        "plant.get_name: variant for '"..basename.."' has to be a string or nil, got type '"..type(var).."'")
+    -- remove underscore from beginning if found
+    var = var ~= "" and var:sub(1,1) == "_" and var:sub(2) or var
+    -- seedling, get number
+    if var == "seedling" then
+        -- set number if not provided
+        nr = type(nr) == "number" and nr or 1
+        var = "_"..var..nr
+    -- check if valid variant
+    elseif var ~= "" then
+        -- variants list
+        local vars = {
+            "dead",
+            "dead_fruitless",
+            "flowering",
+            "fruit",
+            "fruiting",
+            "fruitless",
+            "seed",
+            "root"
+        }
+        -- verify it's a valid variant
+        for _,v in ipairs(vars) do
+            -- valid variant, break checking loop
+            if var == v then
+                var = "_"..var
+                break
             end
-            suffix = "_" .. var .. nr
-        else
-            for _,v in ipairs({
-                            "dead",
-                            "dead_fruitless",
-                            "flowering",
-                            "fruit",
-                            "fruiting",
-                            "fruitless",
-                            "seed",
-                            "root"}) do
-                if var == v then
-                    suffix = "_" .. var
-                    break
-                end
-            end
         end
+        -- error if invalid variant (check if has "_" at beginning)
+        -- print valid variants out by concat'ing table
+        assert(var:sub(1,1) == "_",
+        "plant.get_name: invalid variant for "..basename..", got '"..var.."', needs to be following:\n"..
+            table.concat(vars,", "))
     end
-    -- if we asked for an other variant, return error message
-    if not suffix then
-        minetest.log("in plant.get_name : variant in parameter isn't in the list")
-        return
-    end
+
     -- return name type
-    return basename..suffix
+    return basename..var
 end
 
 local get_name = plant.get_name
