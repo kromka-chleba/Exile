@@ -262,38 +262,27 @@ local get_name = plant.get_name
         - seedling
         - root
     ]]
+-- uses what get_name provides, but turns it into a texture!
 function plant.get_texture(basename, var)
-    local suffix
-    -- if we want base plant
-    if not var then
-        suffix = ""
-    -- if we want one of listed states below
-    else
-        if type(var) ~= "string" then
-            minetest.log("var has to be a string in plant.get_texture")
-            return
-        end
-        for _,v in ipairs({
-                        "dead",
-                        "dead_fruitless",
-                        "flowering",
-                        "fruit",
-                        "fruiting",
-                        "fruitless",
-                        "seedling",
-                        "root"}) do
-            if var == v then
-                suffix = "_" .. var
-                break
-            end
-        end
+    local texture
+    -- why reword what we did above?? let's just use get_name lol
+    local success, info = pcall(function()
+        texture = get_name(basename, var)
+    end)
+    -- if there's an error, then error!
+    -- except sneakily replace get_name with get_texture lol
+    if not success then
+        -- info can be nil? well dang, we don't know what happened
+        info = info or "plant.get_texture: unexpected error"
+        assert(success,info:gsub("get_name:","get_texture:"))
     end
-    -- if we asked for an other variant, return error message
-    if not suffix then
-        minetest.log("in plant.get_texture : variant in parameter isn't in the list")
-        return
+    -- if seedling, cut number off
+    if texture:match("seedling") then
+        texture = texture:sub(1,-2)
     end
-    return (basename..suffix):gsub(":","_")..".png"
+    -- return texture with .png extension
+    -- replace the ":" with "_" for image
+    return texture:gsub(":","_")..".png"
 end
 local get_texture = plant.get_texture
 
