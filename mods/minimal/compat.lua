@@ -14,22 +14,6 @@ minetest.log("action", "Running on version: "..version.project.." "..
 minimal.mtversion = { project = version.project, major = major,
 		      minor = minor, patch = patch, dev = dev }
 
-function minimal.mt_required_version(maj, min, pat)
-   if minimal.mtversion.project ~= "Minetest" then
-      return false -- Not running Minetest? #TODO check indiv feature support
-   end
-   if minimal.mtversion.major > maj or
-      ( minimal.mtversion.major == maj and
-	minimal.mtversion.minor > min ) or
-      ( minimal.mtversion.major == maj and
-	minimal.mtversion.minor == min and
-	minimal.mtversion.patch >= pat ) then
-      return true
-   else
-      return false
-   end
-end
-
 function minimal.get_daylight(pos, tod)
    if minetest.get_natural_light then
       return minetest.get_natural_light(pos, tod)
@@ -39,12 +23,12 @@ function minimal.get_daylight(pos, tod)
 end
 
 minimal.compat_alpha = {}
-if minimal.mt_required_version(5, 4, 0) then
-   minimal.compat_alpha = {
-      ["blend"] = "blend",
-      ["opaque"] = "opaque",
-      ["clip"] = "clip",
-   }
+if minetest.has_feature("use_texture_alpha_string_modes") then
+    minimal.compat_alpha = {
+        ["blend"] = "blend",
+        ["opaque"] = "opaque",
+        ["clip"] = "clip",
+    }
 else
    minimal.compat_alpha = {
       ["blend"] = true,
