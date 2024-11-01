@@ -1,74 +1,77 @@
 # Changelog:
 
-## [2024-10-25][2023-10-25__0.3.18e]
+## [2024-11-01][2024-11-01__0.3.18e]
+   - Fix warnings on Luanti 5.10.0
+
+## [2024-10-25][2024-10-25__0.3.18e]
    - Wooden potash pots burn up when you cook them
    - A few bugfixes
 
-## [2024-10-12][2023-10-12__0.3.18d]
+## [2024-10-12][2024-10-12__0.3.18d]
    - Seed images showing the plant
    - Remove air pockets around tree roots
    - Improvements to airboat, transporter
    - Minor fixes
 
-## [2024-09-13][2023-09-13__0.3.18c]
+## [2024-09-13][2024-09-13__0.3.18c]
    - Improvements to ropes, quicklime/slaked lime, and tile floors
    - Minor bugfixes
 
-## [2024-08-24][2023-08-24__0.3.18b]
+## [2024-08-24][2024-08-24__0.3.18b]
    - Fix crash on animal capture in MT 5.9.0
 
-## [2024-08-23][2023-08-23__0.3.18a]
+## [2024-08-23][2024-08-23__0.3.18a]
    - Improved Minetest 5.9.0 support
    - bugfixes
 
-## [2024-07-18][2023-07-18__0.3.18]
+## [2024-07-18][2024-07-18__0.3.18]
    - Added glass doors and trapdoors
    - Hang an oil lamp from the ceiling
    - Support for the Unicode Signs [ucsigns] mod
    - Better texture for roof/floor tiles
    - Inventory images for coarse & fine fabrics
 
-## [2024-06-04][2023-06-04__0.3.17f]
+## [2024-06-04][2024-06-04__0.3.17f]
    - Potash liquid is caustic
 
-## [2024-04-22][2023-04-22__0.3.17e]
-## [2024-04-06][2023-04-06__0.3.17d]
+## [2024-04-22][2024-04-22__0.3.17e]
+## [2024-04-06][2024-04-06__0.3.17d]
    - bugfixes
 
-## [2024-03-28][2023-03-28__0.3.17c]
+## [2024-03-28][2024-03-28__0.3.17c]
    - Support for ExchangeClone mod
    - more bugfixes
 
-## [2024-03-24][2023-03-23__0.3.17b]
-## [2024-03-23][2023-03-23__0.3.17a]
+## [2024-03-24][2024-03-23__0.3.17b]
+## [2024-03-23][2024-03-23__0.3.17a]
    - bugfixes
 
-## [2024-03-22][2023-03-22__0.3.17]
+## [2024-03-22][2024-03-22__0.3.17]
    - Informational states displayed on character tab
    - Drystack and Rammed earth arches: build a wall, knock out the middle
    - server command: /recover_inv <player> to restore inv lost on restart
 
-## [2024-03-03][2023-03-03__0.3.16]
+## [2024-03-03][2024-03-03__0.3.16]
   - Replaced NC-licensed Gundu, Exile should be fully free now
   - WITT for Exile: show the names of things when you press the zoom key
   - Improved light meter
   - Added /crouch as alternative to double-tapping shift, in case of lag
   - Less trouble with lowering ropes/ladders
 
-## [2024-01-16][2023-01-16__0.3.15d]
+## [2024-01-16][2024-01-16__0.3.15d]
   - Add a player model to clothing page, too!
   - Increase /ping timeout on servers
   - Fix for a mobile issue with bed rest
 
-## [2024-01-09][2023-01-09__0.3.15c]
+## [2024-01-09][2024-01-09__0.3.15c]
   - Fixed a crafting screen bug
   - Fixed some positional audio quirks
 
-## [2024-01-09][2023-01-09__0.3.15b]
+## [2024-01-09][2024-01-09__0.3.15b]
   - Added a player model to the character tab
   - Fix for the "disappearing hammer" bug
 
-## [2024-01-08][2023-01-08__0.3.15]
+## [2024-01-08][2024-01-08__0.3.15]
   - Bones of previous exiles, with various items
   - Sun hat and sandals
   - Fires more likely to die out than burn forever
