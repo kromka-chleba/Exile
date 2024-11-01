@@ -212,7 +212,7 @@ function plant.get_name(basename, var, nr)
     -- nil or empty string is "base plant"
     var = not var and "" or var
     assert(type(var) == "string",
-        "plant.get_name: variant for '"..basename.."' has to be a string or nil, got type '"..type(var).."'")
+        "plant.get_name: plant variant for '"..basename.."' has to be a string or nil, got type '"..type(var).."'")
     -- remove underscore from beginning if found
     var = var ~= "" and var:sub(1,1) == "_" and var:sub(2) or var
     -- seedling, get number
@@ -244,7 +244,7 @@ function plant.get_name(basename, var, nr)
         -- error if invalid variant (check if has "_" at beginning)
         -- print valid variants out by concat'ing table
         assert(var:sub(1,1) == "_",
-        "plant.get_name: invalid variant for "..basename..", got '"..var.."', needs to be following:\n"..
+        "plant.get_name: invalid plant variant for "..basename..", got '"..var.."', needs to be following:\n"..
             table.concat(vars,", "))
     end
 
@@ -279,7 +279,7 @@ function plant.get_texture(basename, var)
     if not success then
         -- info can be nil? well dang, we don't know what happened
         info = info or "plant.get_texture: unexpected error"
-        assert(success,info:gsub("get_name:","get_texture:"))
+        error(info:gsub("get_name:","get_texture:"))
     end
     -- if seedling, cut number off
     if texture:match("seedling") then
