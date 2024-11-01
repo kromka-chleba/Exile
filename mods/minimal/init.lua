@@ -42,11 +42,7 @@ minetest.register_on_joinplayer(function(player)
         local p_name = player:get_player_name()
         --Custom small inventory
         minetest.get_inventory({type="player", name=p_name}):set_size("main", 16)
-        --enable shadows if using minetest 5.6.0+
-        if minimal.mt_required_version(5,6,0) then
-            minetest.log("action", "MT5.6.0+, enabling shadows for "..p_name)
-            player:set_lighting({
-                    shadows = { intensity = 0.33 }
-            })
-        end
+        player:set_lighting({
+                shadows = { intensity = 0.33 }
+        })
 end)
