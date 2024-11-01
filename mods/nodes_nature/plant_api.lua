@@ -139,12 +139,6 @@ function plant.new(args)
     -- add mod_origin to name if not provided
     args.name = args.name:sub(1,1) == ":" and mod_origin..args.name or
         not args.name:match(":") and mod_origin..":"..args.name
-    local waving
-    if args.waving then
-        waving = 1
-    end
-    local thorns
-    if args.thorns then thorns = 1 end
     local seasons = args.seasons
     if not args.seasons and args.seasonal_type then
         seasons = seasonal_types[args.seasonal_type]
@@ -174,12 +168,12 @@ function plant.new(args)
         edible_seedling = args.edible_seedling,
         dry_fruit = args.dry_fruit,
         roots = args.roots,
-        thorns = thorns,
+        thorns = args.thorns and 1 or nil, -- nil if not provided
         climbable = args.climbable,
         nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
         seedling_nodebox = args.seedling_nodebox
             or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
-        waving = waving,
+        waving = args.waving and 1 or nil,
         seed_number = args.seed_number or 6,
     }
     return def
