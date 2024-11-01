@@ -857,7 +857,7 @@ function plant.get_seed_base_props(plant_def)
 
     -- spores or seeds
     local seed_type = plant_def.seed_type or
-        (plant_def.lifeform_type == "mushroom" or plant_def.lifeform_type == "moss") and "spores" or
+        (plant_def.lifeform_type == "mushroom" or plant_def.plant_type == "moss") and "spores" or
         "seeds"
     -- get seed texture (permits custom "seed_texture" field)
     -- spores if spores, otherwise default to seeds
