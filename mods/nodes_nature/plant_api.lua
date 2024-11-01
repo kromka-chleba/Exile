@@ -147,30 +147,33 @@ function plant.new(def)
     def.name = def.name:sub(1,1) == ":" and mod_origin..def.name or
         not def.name:match(":") and mod_origin..":"..def.name
     def.mod_origin = mod_origin
+    -- graphical
     def.drawtype = def.drawtype or "plantlike" -- plantlike, nodebox, mesh
-    def.seedling_number = def.seedling_number or 5
     def.texture_scale = def.texture_scale or 1
+    def.nodebox = def.nodebox
+        or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4}
+    def.seedling_nodebox = def.seedling_nodebox
+        or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2}
     -- if we have a dominant color specified, then we're a dye_candidate!
     def.dye_candidate = def.dyecandidate or def.dominant_color and true or false
+    -- fruit mechanics
     -- set winter_fruit to true if only_dead_fruit is provided
     def.winter_fruit = def.winter_fruit or def.only_dead_fruit and true or false
     -- set fruit to true if winter_fruit or dry_fruit
     def.fruit = def.fruit or
         (def.winter_fruit or def.dry_fruit) and true or false
-    def.nodebox = def.nodebox
-        or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4}
-    def.seedling_nodebox = def.seedling_nodebox
-        or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2}
+    -- growing mechanics
+    def.seedling_number = def.seedling_number or 5 -- number of seedlings the plant has
+    def.growing_time = def.growing_time or nn.plant_base_growing_time
+    -- season mechanics
+    def.seasons = def.seasons or def.seasonal_type
+        and seasonal_types[def.seasonal_type] or nil
     -- how many seeds upon crafting
     def.seed_number = def.seed_number or 6
     -- nil if not provided
     def.thorns = def.thorns and 1 or nil
     def.waving = def.waving and 1 or nil
-    -- season mechanics
-    def.seasons = def.seasons or def.seasonal_type
-        and seasonal_types[def.seasonal_type] or nil
     --[[ other custom values checked for definition:
-        growing_time
         soil_preferences
         light_range
         mesh_type -- see the comment above
