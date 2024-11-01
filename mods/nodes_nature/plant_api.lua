@@ -137,8 +137,10 @@ function plant.new(def)
         "plant.new: got non-table for definition, got type '"..type(def).."'")
     assert(type(def.name) == "string",
         "plant.new: got non-string for name, got type '"..type(def.name).."'")
-    assert(def.lifeform_type,
-        "plant.new: needs lifeform_type to be specified, please specify as either:\n"..
+    -- permit plant_type to be derived from lifeform_type
+    def.plant_type = def.plant_type or def.lifeform_type
+    assert(def.plant_type,
+        "plant.new: needs plant_type to be specified, please specify as either:\n"..
         "herbaceous_plant, woody_plant, mushroom, fibrous_plant, moss, cane, or bamboo")
     local mod_origin = minetest.get_current_modname()
     -- add mod_origin to name if not provided
