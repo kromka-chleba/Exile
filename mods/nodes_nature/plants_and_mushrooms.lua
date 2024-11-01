@@ -73,9 +73,8 @@ local plant_list = {
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
-     dominant_color = "yellow",
-     seasonal_type = "tuber",
-     roots = 5,
+     dominant_color = "yellow", seasonal_type = "tuber",
+     roots = 5, root_tiles = {"nodes_nature_red_ochre.png"},
      winter_fruit = true, dry_fruit = true},
 
     {name = "wrotycz", description = S("Vortecha"),
@@ -122,7 +121,7 @@ local plant_list = {
      drawtype = "plantlike", mesh_type = 3,
      growing_time = nn.plant_base_growing_time * 3,
      dominant_color = "green", seasonal_type = "tuber",
-     fruit = true, roots = 8},
+     fruit = true, roots = 8, root_description = S("Anperla tuber")},
 
     {name = "rzepicha", description = S("Jepiha"),
      plant_type = "herbaceous_plant", waving = true,
@@ -459,43 +458,6 @@ plant.register_all(plant_list)
 
 ----------------------------------------------
 --Extra effects
-
--- tuber
-minetest.override_item(
-    "nodes_nature:anperla_root",{
-        tiles = {"nodes_nature_silt.png"},
-        description = S("Anperla tuber"),
-        wield_image = "nodes_nature_tuber.png",
-        inventory_image = "nodes_nature_tuber.png",
-        node_box = {
-            type = "fixed",
-            fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
-        },
-        selection_box = {
-            type = "fixed",
-            fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
-        },
-        stack_max = minimal.stack_max_medium,
-        walkable = true,
-})
-
-minetest.override_item(
-    "nodes_nature:barszcz_root",{
-        tiles = {"nodes_nature_red_ochre.png"},
-        description = S("Barshocha root"),
-        wield_image = "nodes_nature_barszcz_root.png",
-        inventory_image = "nodes_nature_barszcz_root.png",
-        node_box = {
-            type = "fixed",
-            fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
-        },
-        selection_box = {
-            type = "fixed",
-            fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
-        },
-        stack_max = minimal.stack_max_medium,
-        walkable = true,
-})
 
 minetest.register_craftitem(
     "nodes_nature:rzepicha_root",

@@ -185,6 +185,7 @@ function plant.new(def)
         climbable
         seed_type, seed_texture, seed_description
         fruit_description
+        root_description, root_tiles
     --]]
     return def
 end
@@ -871,20 +872,7 @@ function plant.get_seed_base_props(plant_def)
     -- create inventory image for seed
     local inventory_seed_image = "((" .. plant_img.."^[resize:32x32)^[opacity:100)"..
     "^[combine:32x32:8,0="..seed_texture.."\\^[resize\\:24x24"
-    
---[[
-    if plant_def.lifeform_type == "mushroom" or
-        plant_def.plant_type == "moss" then
 
-        seed_texture = "nodes_nature_spores.png"
-        inventory_seed_image = "((".. plant_img.."^[resize:32x32)^[opacity:100)^[combine:32x32:8,0=nodes_nature_spores.png\\^[resize\\:24x24"
-        seed_description = S("@1 Spores", plant_def.description)
-    else
-        seed_texture = "nodes_nature_seeds.png"
-        inventory_seed_image = "((".. plant_img.."^[resize:32x32)^[opacity:100)^[combine:32x32:8,0=nodes_nature_seeds.png\\^[resize\\:24x24"
-        seed_description = S("@1 Seeds", plant_def.description)
-    end
---]]
     local props = {
         description = plant_def.seed_description or seed_description,
         tiles = {seed_texture},
@@ -963,9 +951,18 @@ end
 
 function plant.register_root(plant_def)
     local props = plant.get_seed_base_props(plant_def)
-    props.inventory_image = get_texture(plant_def.name,"root")
-    props.wield_image = get_texture(plant_def.name,"root")
-    props.description = S("@1 Root", plant_def.description)
+    local root_texture = get_texture(plant_def.name,"root")
+    props.inventory_image = root_texture
+    props.wield_image = root_texture
+    props.tiles = plant_def.root_tiles or {"nodes_nature_silt.png"}
+    props.description = plant_def.root_description or S("@1 Root", plant_def.description)
+    props.node_box = {
+        type = "fixed",
+        fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
+    }
+    props.selection_box = nil -- clear seed selection_box
+    props.stack_max = minimal.stack_max_medium
+    props.walkable = true
     minetest.register_node(
         get_name(plant_def.name,"root"),
         props)
