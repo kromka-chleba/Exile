@@ -6,131 +6,146 @@ local S = nodes_nature.S
 nodes_nature = nodes_nature
 
 ---------------------------------------------------------
+nodes_nature.seasonal_types = {}
+-- permit registering custom seasonal types
+function nodes_nature.register_seasonal_type(name, def)
+    def.spring_early = def.spring_early or ""
+    def.spring_late = def.spring_late or ""
+    def.summer_early = def.summer_early or ""
+    def.summer_late = def.summer_late or ""
+    def.fall_early = def.fall_early or ""
+    def.fall_late = def.fall_late or ""
+    def.winter_early = def.winter_early or ""
+    def.winter_late = def.winter_late or ""
+    -- set names properly for usage for nodes to a new table
+    local fixdef = {}
+    -- add underscore to bottom of tag and value
+    for tag,val in pairs(def) do
+        -- add underscore before value
+        if val ~= "" then
+            val = val:sub(1,1) ~= "_" and "_"..val or val
+        end
+        fixdef["_"..tag] = val
+    end
+    nodes_nature.seasonal_types[name] = fixdef
+    return def
+end
 
-nodes_nature.seasonal_types = {
+local st_list = {
     early = {
-        _spring_early = "_seedling3",
-        _spring_late = "_flowering",
-        _summer_early = "_fruiting",
-        _summer_late = "_fruiting",
-        _fall_early = "_fruiting",
-        _fall_late = "_dead",
-        _winter_early = "_dead",
-        _winter_late = "_seed",
+        spring_early = "seedling3",
+        spring_late = "flowering",
+        summer_early = "fruiting",
+        summer_late = "fruiting",
+        fall_early = "fruiting",
+        fall_late = "dead",
+        winter_early = "dead",
+        winter_late = "seed",
     },
     medium = {
-        _spring_early = "_seed",
-        _spring_late = "_seedling3",
-        _summer_early = "_flowering",
-        _summer_late = "_fruiting",
-        _fall_early = "_fruiting",
-        _fall_late = "_dead",
-        _winter_early = "_dead",
-        _winter_late = "_dead",
+        spring_early = "seed",
+        spring_late = "seedling3",
+        summer_early = "flowering",
+        summer_late = "fruiting",
+        fall_early = "fruiting",
+        fall_late = "dead",
+        winter_early = "dead",
+        winter_late = "dead",
     },
     long = {
-        _spring_early = "_seedling5",
-        _spring_late = "_fruitless",
-        _summer_early = "_flowering",
-        _summer_late = "_fruiting",
-        _fall_early = "_fruiting",
-        _fall_late = "_fruiting",
-        _winter_early = "_dead",
-        _winter_late = "_dead",
+        spring_early = "seedling5",
+        spring_late = "fruitless",
+        summer_early = "flowering",
+        summer_late = "fruiting",
+        fall_early = "fruiting",
+        fall_late = "fruiting",
+        winter_early = "dead",
+        winter_late = "dead",
     },
     late = {
-        _spring_early = "_dead",
-        _spring_late = "_seedling3",
-        _summer_early = "_seedling5",
-        _summer_late = "_flowering",
-        _fall_early = "_fruiting",
-        _fall_late = "_fruiting",
-        _winter_early = "_dead",
-        _winter_late = "_dead",
+        spring_early = "dead",
+        spring_late = "seedling3",
+        summer_early = "seedling5",
+        summer_late = "flowering",
+        fall_early = "fruiting",
+        fall_late = "fruiting",
+        winter_early = "dead",
+        winter_late = "dead",
     },
     late_mushroom = {
-        _spring_early = "_dead",
-        _spring_late = "_seed",
-        _summer_early = "_seed",
-        _summer_late = "_seedling5",
-        _winter_early = "_dead",
-        _winter_late = "_dead",
+        spring_early = "dead",
+        spring_late = "seed",
+        summer_early = "seed",
+        summer_late = "seedling5",
+        winter_early = "dead",
+        winter_late = "dead",
     },
     wintery = {
-        _spring_early = "_seed",
-        _spring_late = "_seedling3",
-        _summer_early = "_seedling5",
-        _summer_late = "_flowering",
-        _fall_early = "_flowering",
-        _fall_late = "_fruiting",
-        _winter_early = "_fruiting",
-        _winter_late = "_dead",
+        spring_early = "seed",
+        spring_late = "seedling3",
+        summer_early = "seedling5",
+        summer_late = "flowering",
+        fall_early = "flowering",
+        fall_late = "fruiting",
+        winter_early = "fruiting",
+        winter_late = "dead",
     },
     mainly_flower = {
-        _spring_early = "_seedling3",
-        _spring_late = "_flowering",
-        _summer_early = "_flowering",
-        _summer_late = "_flowering",
-        _fall_early = "_fruiting",
-        _fall_late = "_dead",
-        _winter_early = "_dead",
-        _winter_late = "_seed",
+        spring_early = "seedling3",
+        spring_late = "flowering",
+        summer_early = "flowering",
+        summer_late = "flowering",
+        fall_early = "fruiting",
+        fall_late = "dead",
+        winter_early = "dead",
+        winter_late = "seed",
     },
     early_flower = {
-        _spring_early = "_flowering",
-        _spring_late = "_flowering",
-        _summer_early = "_fruiting",
-        _summer_late = "_fruitless",
-        _fall_early = "_fruitless",
-        _fall_late = "_fruitless",
-        _winter_early = "_dead",
-        _winter_late = "_seed",
+        spring_early = "flowering",
+        spring_late = "flowering",
+        summer_early = "fruiting",
+        summer_late = "fruitless",
+        fall_early = "fruitless",
+        fall_late = "fruitless",
+        winter_early = "dead",
+        winter_late = "seed",
     },
     whole_season = {
-        _spring_early = "_seedling5",
-        _winter_early = "_dead",
-        _winter_late = "_dead",
+        spring_early = "seedling5",
+        winter_early = "dead",
+        winter_late = "dead",
     },
     cane = {
-        _winter_early = "_dead",
-        _winter_late = "_dead",
+        winter_early = "dead",
+        winter_late = "dead",
     },
     whole_season_woody = {
-        _winter_early = "_dead",
-        _winter_late = "_dead",
+        winter_early = "dead",
+        winter_late = "dead",
     },
     succulent_flowering = {
-        _spring_early = "_fruitless",
-        _spring_late = "_flowering",
-        _summer_early = "_flowering",
-        _summer_late = "_fruiting",
-        _fall_early = "_fruitless",
-        _fall_late = "_fruitless",
-        _winter_early = "_dead",
-        _winter_late = "_dead",
+        spring_early = "fruitless",
+        spring_late = "flowering",
+        summer_early = "flowering",
+        summer_late = "fruiting",
+        fall_early = "fruitless",
+        fall_late = "fruitless",
+        winter_early = "dead",
+        winter_late = "dead",
     },
     tuber = {
-        _spring_early = "_seedling5",
-        _spring_late = "_flowering",
-        _summer_early = "_fruiting",
-        _summer_late = "_fruiting",
-        _fall_early = "_fruitless",
-        _fall_late = "_dead",
-        _winter_early = "_dead",
-        _winter_late = "_dead",
+        spring_early = "seedling5",
+        spring_late = "flowering",
+        summer_early = "fruiting",
+        summer_late = "fruiting",
+        fall_early = "fruitless",
+        fall_late = "dead",
+        winter_early = "dead",
+        winter_late = "dead",
     },
 }
--- local scope
-do
-  -- add missing values
-  for _,st in pairs(nodes_nature.seasonal_types) do --
-    st._spring_early = st._spring_early or ""
-    st._spring_late = st._spring_late or ""
-    st._summer_early = st._summer_early or ""
-    st._summer_late = st._summer_late or ""
-    st._fall_early = st._fall_early or ""
-    st._fall_late = st._fall_late or ""
-    st._winter_early = st._winter_early or ""
-    st._winter_late = st._winter_late or ""
-  end
+
+-- register all seasonal types
+for name, def in pairs(st_list) do
+    nodes_nature.register_seasonal_type(name, def)
 end
