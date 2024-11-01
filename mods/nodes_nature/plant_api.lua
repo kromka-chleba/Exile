@@ -133,6 +133,12 @@ local plant_groups = {
 --   * 4 = a "#" shaped plant with 4 faces that lean
 
 function plant.new(args)
+    assert(type(args.name) == "string",
+          "plant.new: got non-string for name, got type '"..type(args.name).."'")
+    local mod_origin = minetest.get_current_modname()
+    -- add mod_origin to name if not provided
+    args.name = args.name:sub(1,1) == ":" and mod_origin..args.name or
+        not args.name:match(":") and mod_origin..":"..args.name
     local waving
     if args.waving then
         waving = 1
@@ -146,6 +152,7 @@ function plant.new(args)
     local def = {
         name = args.name,
         description = args.description,
+        mod_origin = mod_origin,
         soil_preferences = args.soil_preferences,
         growing_time = args.growing_time,
         light_range = args.light_range,
@@ -230,10 +237,9 @@ function plant.get_name(basename, var, nr)
     if not suffix then
         minetest.log("in plant.get_name : variant in parameter isn't in the list")
         return
-    else
-        local mod_name = minetest.get_current_modname()
-        return mod_name .. ":" .. basename .. suffix
     end
+    -- return name type
+    return basename..suffix
 end
 
 local get_name = plant.get_name
@@ -281,23 +287,16 @@ function plant.get_texture(basename, var)
     if not suffix then
         minetest.log("in plant.get_texture : variant in parameter isn't in the list")
         return
-    else
-        local mod_name = minetest.get_current_modname()
-        return  mod_name.."_"..basename..suffix..".png"
     end
+    return (basename..suffix):gsub(":","_")..".png"
 end
 local get_texture = plant.get_texture
 
 -- #TODO kind of dirty since plant_def can be either a plant props def table, or a registered item def table
 function plant.get_base_image(plant_def)
     local basename = plant_def.name
-    -- if we had a non plant def with a complete name, take the short one
-    if string.find(basename, ":") then
-        basename = basename:split(":")[2]
-    end
     if plant_def and plant_def.drawtype == "nodebox" then
-        local mod_name = minetest.get_current_modname()
-        return  mod_name .. "_" .. basename .. "_display.png"
+        return basename:gsub(":","_").."_display.png"
     else
         return plant.get_texture(basename)
     end
