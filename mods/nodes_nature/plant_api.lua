@@ -610,15 +610,14 @@ function plant.get_plantlike_flowering_props(plant_def)
 end
 
 local function fruiting_on_punch(pos, node, puncher, pointed_thing)
-    local node_name = minetest.get_node(pos).name
-    local nodedef = minetest.registered_nodes[node_name]
+    local nodedef = minetest.registered_nodes[minetest.get_node(pos).name]
+    -- what, we're just going to let you constantly grab fruit??
+    if not nodedef._fruitless_name then return end
     local function replace()
         if node.param2 < 64 then
             plant.set_to_half_wild(pos)
         end
-        if nodedef._fruitless_name then
-            minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
-        end
+        minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
     end
     local inv = puncher and puncher:get_inventory()
     local new_stack = ItemStack(nodedef._fruit_name)
