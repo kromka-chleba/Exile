@@ -111,15 +111,11 @@ local st_list = {
         winter_late = "seed",
     },
     whole_season = {
+        winter_early = "dead",
+        winter_late = "dead",
+    },
+    whole_season_seedling = {
         spring_early = "seedling5",
-        winter_early = "dead",
-        winter_late = "dead",
-    },
-    cane = {
-        winter_early = "dead",
-        winter_late = "dead",
-    },
-    whole_season_woody = {
         winter_early = "dead",
         winter_late = "dead",
     },
