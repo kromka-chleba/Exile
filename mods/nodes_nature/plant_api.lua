@@ -184,6 +184,7 @@ function plant.new(def)
         roots
         climbable
         seed_type, seed_texture, seed_description
+        fruit_description
     --]]
     return def
 end
@@ -719,7 +720,11 @@ plant.register_plantlike_dead = plant.register_plantlike_dead_fruiting
 
 function plant.register_fruit(plant_def)
     local props = {
-        description = S("@1 Fruit", plant_def.description),
+        -- permit custom fruit description, or do dry fruit description if dry fruit
+        -- otherwise do regular fruit description
+        description = plant_def.fruit_description or
+            plant_def.dry_fruit and S("@1 Dry Fruit", plant_def.description)
+            or S("@1 Fruit", plant_def.description),
         inventory_image = get_texture(plant_def.name,"fruit"),
         groups = {fruit=1},
         wield_image = get_texture(plant_def.name,"fruit"),
@@ -728,9 +733,6 @@ function plant.register_fruit(plant_def)
     if plant_def.dye_candidate then
         props.groups.ncrafting_dye_candidate = 1
         props._ncrafting_dye_dcolor = plant_def.dominant_color
-    end
-    if plant_def.dry_fruit then
-        props.description = S("@1 Dry Fruit", plant_def.description)
     end
     local fruit_name = get_name(plant_def.name, "fruit")
     minetest.register_craftitem(fruit_name, props)

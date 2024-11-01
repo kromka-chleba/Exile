@@ -93,14 +93,14 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "red",
      fruit = true, seasonal_type = "early",
-     winter_fruit = true,},
+     winter_fruit = true, fruit_description = S("Wiha Berries")},
 
     {name = "momo", description = S("Momo"),
      drawtype = "plantlike", mesh_type = 2,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
-     dominant_color = "red",
-     fruit = true, seasonal_type = "late"},
+     dominant_color = "red", seasonal_type = "late",
+     fruit = true, fruit_description = S("Momo Pepper")},
 
     {name = "galanta", description = S("Galanta"),
      drawtype = "plantlike", mesh_type = 4,
@@ -314,7 +314,7 @@ local plant_list = {
      mesh_type = 2, growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "yellow",
      seasonal_type = "late_mushroom",
-     only_dead_fruit = true},
+     only_dead_fruit = true, fruit_description = S("Zufani Amber")},
 
     -- Woody
     {name = "tsaplop", description = S("Tsaplop"),
@@ -395,7 +395,7 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "black",
      seasonal_type = "late", fruit = true, winter_fruit = true,
-     move_resistance = 4},
+     fruit_description = S("Muhle Berries"), move_resistance = 4},
 
     {name = "damo", description = S("Damo"),
      drawtype = "plantlike", mesh_type = 4,
@@ -455,29 +455,6 @@ local plant_list = {
 
 -- makes all plants in the game
 plant.register_all(plant_list)
-
-----------------------------------------------
---Name overrides
-
-minetest.override_item(
-    "nodes_nature:zufani_fruit", {
-        description = S("Zufani Amber"),
-})
-
-minetest.override_item(
-    "nodes_nature:momo_fruit", {
-        description = S("Momo Pepper"),
-})
-
-minetest.override_item(
-    "nodes_nature:wiha_fruit", {
-        description = S("Wiha Berries"),
-})
-
-minetest.override_item(
-    "nodes_nature:muhle_fruit", {
-        description = S("Muhle Berries"),
-})
 
 
 ----------------------------------------------
