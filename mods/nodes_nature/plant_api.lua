@@ -133,15 +133,17 @@ local plant_groups = {
 --   * 4 = a "#" shaped plant with 4 faces that lean
 
 function plant.new(def)
-    assert(type(def) == "table",
-        "plant.new: got non-table for definition, got type '"..type(def).."'")
-    assert(type(def.name) == "string",
-        "plant.new: got non-string for name, got type '"..type(def.name).."'")
+    if type(def) ~= "table" then
+        error("plant.new: got non-table for definition, got type '"..type(def).."'")
+    elseif type(def.name) ~= "string" then
+        error("plant.new: got non-string for name, got type '"..type(def.name).."'")
+    end
     -- permit plant_type to be derived from lifeform_type
     def.plant_type = def.plant_type or def.lifeform_type
-    assert(def.plant_type,
-        "plant.new: needs plant_type to be specified, please specify as either:\n"..
-        "herbaceous_plant, woody_plant, mushroom, fibrous_plant, moss, cane, or bamboo")
+    if not def.plant_type then
+        error("plant.new: needs plant_type to be specified, please specify as either:\n"..
+            "herbaceous_plant, woody_plant, mushroom, fibrous_plant, moss, cane, or bamboo")
+    end
     local mod_origin = minetest.get_current_modname()
     -- add mod_origin to name if not provided
     def.name = def.name:sub(1,1) == ":" and mod_origin..def.name or
@@ -207,13 +209,15 @@ end
     ]]
 -- plant name, variant, number (for seedlings)
 function plant.get_name(basename, var, nr)
-    assert(type(basename) == "string",
-        "plant.get_name: got non-string plant name for getting name, got '"..type(basename).."'")
     -- nil or empty string is "base plant"
     var = not var and "" or var
-    assert(type(var) == "string",
-        "plant.get_name: plant variant for '"..basename.."' has to be a string or nil, got type '"..type(var).."'")
-    -- remove underscore from beginning if found
+    if type(basename) ~= "string" then
+        error("plant.get_name: got non-string plant name for getting name, got '"..type(basename).."'")
+    elseif type(var) ~= "string" then
+        error("plant.get_name: plant variant for '"..basename.."' has to be a string or nil, got type '"..type(var).."'")
+    end  
+    -- remove underscore from beginning if found (incase underscore is provided)
+    -- underscore is used to check if we got a valid variant
     var = var ~= "" and var:sub(1,1) == "_" and var:sub(2) or var
     -- seedling, get number
     if var == "seedling" then
@@ -243,9 +247,10 @@ function plant.get_name(basename, var, nr)
         end
         -- error if invalid variant (check if has "_" at beginning)
         -- print valid variants out by concat'ing table
-        assert(var:sub(1,1) == "_",
-        "plant.get_name: invalid plant variant for "..basename..", got '"..var.."', needs to be following:\n"..
-            table.concat(vars,", "))
+        if var:sub(1,1) ~= "_" then
+            error("plant.get_name: invalid plant variant for "..basename..", got '"..var.."', needs to be following:\n"..
+                table.concat(vars,", "))
+        end
     end
 
     -- return name type
