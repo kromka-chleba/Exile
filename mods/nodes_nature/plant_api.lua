@@ -132,49 +132,62 @@ local plant_groups = {
 --   * 3 = a "#" shaped plant with 4 faces instead of 2
 --   * 4 = a "#" shaped plant with 4 faces that lean
 
-function plant.new(args)
-    local waving
-    if args.waving then
-        waving = 1
+function plant.new(def)
+    if type(def) ~= "table" then
+        error("plant.new: got non-table for definition, got type '"..type(def).."'")
+    elseif type(def.name) ~= "string" then
+        error("plant.new: got non-string for name, got type '"..type(def.name).."'")
     end
-    local thorns
-    if args.thorns then thorns = 1 end
-    local seasons = args.seasons
-    if not args.seasons and args.seasonal_type then
-        seasons = seasonal_types[args.seasonal_type]
+    -- permit plant_type to be derived from lifeform_type
+    def.plant_type = def.plant_type or def.lifeform_type
+    if not def.plant_type then
+        error("plant.new: needs plant_type to be specified, please specify as either:\n"..
+            "herbaceous_plant, woody_plant, mushroom, fibrous_plant, moss, cane, or bamboo")
     end
-    local def = {
-        name = args.name,
-        description = args.description,
-        soil_preferences = args.soil_preferences,
-        growing_time = args.growing_time,
-        light_range = args.light_range,
-        mesh_type = args.mesh_type, -- see the comment above
-        drawtype = args.drawtype, -- plantlike, nodebox, mesh
-        bioluminescence = args.bioluminescence,
-        lifeform_type = args.lifeform_type,
-        seedling_number = args.seedling_number or 5,
-        plant_type = args.plant_type,
-        texture_scale = args.texture_scale or 1,
-        move_resistance = args.move_resistance,
-        seasons = seasons,
-        extra_groups = args.extra_groups,
-        dye_candidate = args.dye_candidate or false,
-        dominant_color = args.dominant_color,
-        fruit = args.fruit,
-        winter_fruit = args.winter_fruit,
-        only_dead_fruit = args.only_dead_fruit,
-        edible_seedling = args.edible_seedling,
-        dry_fruit = args.dry_fruit,
-        roots = args.roots,
-        thorns = thorns,
-        climbable = args.climbable,
-        nodebox = args.nodebox or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4},
-        seedling_nodebox = args.seedling_nodebox
-            or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2},
-        waving = waving,
-        seed_number = args.seed_number or 6,
-    }
+    local mod_origin = minetest.get_current_modname()
+    -- add mod_origin to name if not provided
+    def.name = def.name:sub(1,1) == ":" and mod_origin..def.name or
+        not def.name:match(":") and mod_origin..":"..def.name
+    def.mod_origin = mod_origin
+    -- graphical
+    def.drawtype = def.drawtype or "plantlike" -- plantlike, nodebox, mesh
+    def.texture_scale = def.texture_scale or 1
+    def.nodebox = def.nodebox
+        or {-0.4, -0.5, -0.4, 0.4, -0.2, 0.4}
+    def.seedling_nodebox = def.seedling_nodebox
+        or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2}
+    def.dye_candidate = def.dye_candidate or false
+    -- fruit mechanics
+    -- set winter_fruit to true if only_dead_fruit is provided
+    def.winter_fruit = def.winter_fruit or def.only_dead_fruit and true or false
+    -- set fruit to true if winter_fruit or dry_fruit
+    def.fruit = def.fruit or
+        (def.winter_fruit or def.dry_fruit) and true or false
+    -- growing mechanics
+    def.seedling_number = def.seedling_number or 5 -- number of seedlings the plant has
+    def.growing_time = def.growing_time or nn.plant_base_growing_time
+    -- season mechanics
+    def.seasons = def.seasons or def.seasonal_type
+        and seasonal_types[def.seasonal_type] or nil
+    -- how many seeds upon crafting
+    def.seed_number = def.seed_number or 6
+    -- nil if not provided
+    def.thorns = def.thorns and 1 or nil
+    def.waving = def.waving and 1 or nil
+    --[[ other custom values checked for definition:
+        soil_preferences
+        light_range
+        mesh_type -- see the comment above
+        bioluminescence
+        move_resistance
+        climbable
+        dry_fruit, only_dead_fruit
+        roots
+        climbable
+        seed_type, seed_texture, seed_description
+        fruit_description
+        root_description, root_tiles
+    --]]
     return def
 end
 
@@ -193,47 +206,54 @@ end
         - root
     nr is mandatory for "seedling"
     ]]
+-- plant name, variant, number (for seedlings)
 function plant.get_name(basename, var, nr)
-    local suffix
-    -- if we want base plant
-    if not var then
-        suffix = ""
-    -- if we want one of listed states below
-    else
-        if type(var) ~= "string" then
-            minetest.log("var has to be a string in plant.get_texture")
-            return
+    -- nil or empty string is "base plant"
+    var = not var and "" or var
+    if type(basename) ~= "string" then
+        error("plant.get_name: got non-string plant name for getting name, got '"..type(basename).."'")
+    elseif type(var) ~= "string" then
+        error("plant.get_name: plant variant for '"..basename.."' has to be a string or nil, got type '"..type(var).."'")
+    end  
+    -- remove underscore from beginning if found (incase underscore is provided)
+    -- underscore is used to check if we got a valid variant
+    var = var ~= "" and var:sub(1,1) == "_" and var:sub(2) or var
+    -- seedling, get number
+    if var == "seedling" then
+        -- set number if not provided
+        nr = type(nr) == "number" and nr or 1
+        var = "_"..var..nr
+    -- check if valid variant
+    elseif var ~= "" then
+        -- variants list
+        local vars = {
+            "dead",
+            "dead_fruitless",
+            "flowering",
+            "fruit",
+            "fruiting",
+            "fruitless",
+            "seed",
+            "root"
+        }
+        -- verify it's a valid variant
+        for _,v in ipairs(vars) do
+            -- valid variant, break checking loop
+            if var == v then
+                var = "_"..var
+                break
+            end
         end
-        if var == "seedling" then
-            if not nr then
-                nr = "1"
-            end
-            suffix = "_" .. var .. nr
-        else
-            for _,v in ipairs({
-                            "dead",
-                            "dead_fruitless",
-                            "flowering",
-                            "fruit",
-                            "fruiting",
-                            "fruitless",
-                            "seed",
-                            "root"}) do
-                if var == v then
-                    suffix = "_" .. var
-                    break
-                end
-            end
+        -- error if invalid variant (check if has "_" at beginning)
+        -- print valid variants out by concat'ing table
+        if var:sub(1,1) ~= "_" then
+            error("plant.get_name: invalid plant variant for "..basename..", got '"..var.."', needs to be following:\n"..
+                table.concat(vars,", "))
         end
     end
-    -- if we asked for an other variant, return error message
-    if not suffix then
-        minetest.log("in plant.get_name : variant in parameter isn't in the list")
-        return
-    else
-        local mod_name = minetest.get_current_modname()
-        return mod_name .. ":" .. basename .. suffix
-    end
+
+    -- return name type
+    return basename..var
 end
 
 local get_name = plant.get_name
@@ -251,53 +271,35 @@ local get_name = plant.get_name
         - seedling
         - root
     ]]
+-- uses what get_name provides, but turns it into a texture!
 function plant.get_texture(basename, var)
-    local suffix
-    -- if we want base plant
-    if not var then
-        suffix = ""
-    -- if we want one of listed states below
-    else
-        if type(var) ~= "string" then
-            minetest.log("var has to be a string in plant.get_texture")
-            return
-        end
-        for _,v in ipairs({
-                        "dead",
-                        "dead_fruitless",
-                        "flowering",
-                        "fruit",
-                        "fruiting",
-                        "fruitless",
-                        "seedling",
-                        "root"}) do
-            if var == v then
-                suffix = "_" .. var
-                break
-            end
-        end
+    local texture
+    -- why reword what we did above?? let's just use get_name lol
+    local success, info = pcall(function()
+        texture = get_name(basename, var)
+    end)
+    -- if there's an error, then error!
+    -- except sneakily replace get_name with get_texture lol
+    if not success then
+        -- info can be nil? well dang, we don't know what happened
+        info = info or "plant.get_texture: unexpected error"
+        error(info:gsub("get_name:","get_texture:"))
     end
-    -- if we asked for an other variant, return error message
-    if not suffix then
-        minetest.log("in plant.get_texture : variant in parameter isn't in the list")
-        return
-    else
-        local mod_name = minetest.get_current_modname()
-        return  mod_name.."_"..basename..suffix..".png"
+    -- if seedling, cut number off
+    if texture:match("seedling") then
+        texture = texture:sub(1,-2)
     end
+    -- return texture with .png extension
+    -- replace the ":" with "_" for image
+    return texture:gsub(":","_")..".png"
 end
 local get_texture = plant.get_texture
 
 -- #TODO kind of dirty since plant_def can be either a plant props def table, or a registered item def table
 function plant.get_base_image(plant_def)
     local basename = plant_def.name
-    -- if we had a non plant def with a complete name, take the short one
-    if string.find(basename, ":") then
-        basename = basename:split(":")[2]
-    end
     if plant_def and plant_def.drawtype == "nodebox" then
-        local mod_name = minetest.get_current_modname()
-        return  mod_name .. "_" .. basename .. "_display.png"
+        return basename:gsub(":","_").."_display.png"
     else
         return plant.get_texture(basename)
     end
@@ -613,15 +615,14 @@ function plant.get_plantlike_flowering_props(plant_def)
 end
 
 local function fruiting_on_punch(pos, node, puncher, pointed_thing)
-    local node_name = minetest.get_node(pos).name
-    local nodedef = minetest.registered_nodes[node_name]
+    local nodedef = minetest.registered_nodes[minetest.get_node(pos).name]
+    -- what, we're just going to let you constantly grab fruit??
+    if not nodedef._fruitless_name then return end
     local function replace()
         if node.param2 < 64 then
             plant.set_to_half_wild(pos)
         end
-        if nodedef._fruitless_name then
-            minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
-        end
+        minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
     end
     local inv = puncher and puncher:get_inventory()
     local new_stack = ItemStack(nodedef._fruit_name)
@@ -723,7 +724,11 @@ plant.register_plantlike_dead = plant.register_plantlike_dead_fruiting
 
 function plant.register_fruit(plant_def)
     local props = {
-        description = S("@1 Fruit", plant_def.description),
+        -- permit custom fruit description, or do dry fruit description if dry fruit
+        -- otherwise do regular fruit description
+        description = plant_def.fruit_description or
+            plant_def.dry_fruit and S("@1 Dry Fruit", plant_def.description)
+            or S("@1 Fruit", plant_def.description),
         inventory_image = get_texture(plant_def.name,"fruit"),
         groups = {fruit=1},
         wield_image = get_texture(plant_def.name,"fruit"),
@@ -732,9 +737,6 @@ function plant.register_fruit(plant_def)
     if plant_def.dye_candidate then
         props.groups.ncrafting_dye_candidate = 1
         props._ncrafting_dye_dcolor = plant_def.dominant_color
-    end
-    if plant_def.dry_fruit then
-        props.description = S("@1 Dry Fruit", plant_def.description)
     end
     local fruit_name = get_name(plant_def.name, "fruit")
     minetest.register_craftitem(fruit_name, props)
@@ -852,23 +854,29 @@ end
 
 function plant.get_seed_base_props(plant_def)
     local next_life_stage = get_name(plant_def.name,"seedling", 1)
-    local seed_texture, seed_description, inventory_seed_image
     -- [[get dead fruiting texture if only_dead_fruit, get fruiting texture if fruiting, or otherwise use regular plant texture]]
     local plant_img = plant_def.only_dead_fruit and get_texture(plant_def.name, "dead") or
         plant_def.fruit and get_texture(plant_def.name, "fruiting") or
         plant.get_base_image(plant_def)
 
-    if plant_def.lifeform_type == "mushroom" or
-        plant_def.plant_type == "moss" then
+    -- spores or seeds
+    local seed_type = plant_def.seed_type or
+        (plant_def.lifeform_type == "mushroom" or plant_def.plant_type == "moss") and "spores" or
+        "seeds"
+    -- get seed texture (permits custom "seed_texture" field)
+    -- spores if spores, otherwise default to seeds
+    local seed_texture = plant_def.seed_texture or
+        seed_type == "spores" and "nodes_nature_spores.png" or
+        "nodes_nature_seeds.png"
+    -- get seed desc (permits custom "seed_description" field)
+    -- Spores if spores, otherwise default to Seeds
+    local seed_description = plant_def.seed_description or
+        seed_type == "spores" and S("@1 Spores", plant_def.description) or
+        S("@1 Seeds", plant_def.description)
+    -- create inventory image for seed
+    local inventory_seed_image = "((" .. plant_img.."^[resize:32x32)^[opacity:100)"..
+    "^[combine:32x32:8,0="..seed_texture.."\\^[resize\\:24x24"
 
-        seed_texture = "nodes_nature_spores.png"
-        inventory_seed_image = "((".. plant_img.."^[resize:32x32)^[opacity:100)^[combine:32x32:8,0=nodes_nature_spores.png\\^[resize\\:24x24"
-        seed_description = S("@1 Spores", plant_def.description)
-    else
-        seed_texture = "nodes_nature_seeds.png"
-        inventory_seed_image = "((".. plant_img.."^[resize:32x32)^[opacity:100)^[combine:32x32:8,0=nodes_nature_seeds.png\\^[resize\\:24x24"
-        seed_description = S("@1 Seeds", plant_def.description)
-    end
     local props = {
         description = plant_def.seed_description or seed_description,
         tiles = {seed_texture},
@@ -947,9 +955,18 @@ end
 
 function plant.register_root(plant_def)
     local props = plant.get_seed_base_props(plant_def)
-    props.inventory_image = get_texture(plant_def.name,"root")
-    props.wield_image = get_texture(plant_def.name,"root")
-    props.description = S("@1 Root", plant_def.description)
+    local root_texture = get_texture(plant_def.name,"root")
+    props.inventory_image = root_texture
+    props.wield_image = root_texture
+    props.tiles = plant_def.root_tiles or {"nodes_nature_silt.png"}
+    props.description = plant_def.root_description or S("@1 Root", plant_def.description)
+    props.node_box = {
+        type = "fixed",
+        fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
+    }
+    props.selection_box = nil -- clear seed selection_box
+    props.stack_max = minimal.stack_max_medium
+    props.walkable = true
     minetest.register_node(
         get_name(plant_def.name,"root"),
         props)

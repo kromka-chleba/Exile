@@ -27,8 +27,8 @@ HEALTH.food_table = {
     ["tech:maraka_bread_cooked"] = {hu = 24, en = 14},
     ["tech:maraka_bread_burned"] = {hu = 12, en = 7},
     ["tech:peeled_anperla_cooked"] = {th = 1, hu = 6, en = 2},
-    ["nodes_nature:rzepicha_root"] = {th = 4, hu = 35, en = 5},
-    ["nodes_nature:rzepicha_root_winter"] = {th = 4, hu = 35, en = 5},
+    ["nodes_nature:rzepicha_fruitless"] = {th = 4, hu = 35, en = 5},
+    ["nodes_nature:rzepicha_dead"] = {th = 4, hu = 35, en = 5},
     -- example: burned anperla tubers are inedible, so no entry
     ["tech:mashed_anperla_cooked"] = {th = 6, hu = 36, en = 12},
     ["tech:mashed_anperla_burned"] = {th = 3, hu = 18, en = 6},
@@ -356,10 +356,10 @@ HEALTH.harm_table = {
         {tags = "Food Poisoning", ch = 0.01, sv = 1},
         {tags = "Hepatotoxicity", ch = 0.01, sv = {1, 2}}
     },
-    ["nodes_nature:rzepicha_root"] = {
+    ["nodes_nature:rzepicha_fruitless"] = {
         {tags = "Food Poisoning", ch = 0.35, sv = {1,2}}
     },
-    ["nodes_nature:rzepicha_root_winter"] = {
+    ["nodes_nature:rzepicha_dead"] = {
         {tags = "Food Poisoning", ch = 0.35, sv = {1,2}}
     },
     ["nodes_nature:rhuya_fruit"] = {
