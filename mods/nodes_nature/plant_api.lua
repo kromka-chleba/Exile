@@ -157,7 +157,9 @@ function plant.new(def)
     def.seedling_nodebox = def.seedling_nodebox
         or {-0.2, -0.5, -0.2, 0.2, -0.3, 0.2}
     -- if we have a dominant color specified, then we're a dye_candidate!
-    def.dye_candidate = def.dyecandidate or def.dominant_color and true or false
+    -- at least, if dye_candidate isn't set as false
+    def.dye_candidate = type(def.dye_candidate) ~= "boolean" and (def.dominant_color and true) or
+        def.dye_candidate or false
     -- fruit mechanics
     -- set winter_fruit to true if only_dead_fruit is provided
     def.winter_fruit = def.winter_fruit or def.only_dead_fruit and true or false
