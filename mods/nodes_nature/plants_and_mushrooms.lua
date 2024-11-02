@@ -433,10 +433,6 @@ local function set_up_jepiha_on_place(alive)
     end
 end
 
--- prior rzepicha root craftitems --> actual plant registration
-minetest.register_alias_force("nodes_nature:rzepicha_root","nodes_nature:rzepicha_fruitless")
-minetest.register_alias_force("nodes_nature:rzepicha_root_winter","nodes_nature:rzepicha_dead")
-
 HEALTH.add_food_hooks("nodes_nature:rzepicha_fruitless")
 HEALTH.add_food_hooks("nodes_nature:rzepicha_dead")
 
