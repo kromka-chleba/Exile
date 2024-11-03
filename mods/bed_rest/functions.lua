@@ -156,15 +156,8 @@ local bedspot = {
 }
 minetest.register_entity("bed_rest:bedspot", bedspot)
 
-local function stopmove(player, pos, lives, meta)
+local function stopmove(player, pos)
     if (not player) or (not player:is_player()) then return end
-    if not meta then meta = player:get_meta() end
-    if lives then
-        local newlives = meta:get_string("lives")
-        if lives < tonumber(newlives) then
-            return -- Player has died before this fired
-        end
-    end
     local dropspot = vector.new(pos.x, pos.y + 0.6, pos.z)
     player:set_attach(minetest.add_entity(dropspot, "bed_rest:bedspot"), "")
 end
@@ -226,11 +219,6 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 
         -- lay down, provided we have a valid bed position
     elseif bed_pos then
-        local pmeta = player:get_meta()
-        local velo = player:get_velocity() or player:get_player_velocity()
-        if velo.x ~= 0 then return end
-        if velo.y ~= 0 then return end
-        if velo.z ~= 0 then return end
         -- Check if bed is occupied
         for nm, other_pos in pairs(bed_rest.bed_position) do
             if vector.distance(bed_pos, other_pos) < 0.1
@@ -275,8 +263,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
         player_monoids.speed:add_change(player, 0, "bed_rest:resting")
         player_monoids.jump:add_change(player, 0, "bed_rest:resting")
         player_monoids.gravity:add_change(player, 0, "bed_rest:resting")
-        local lives = tonumber(pmeta:get_string("lives"))
-        stopmove(player,p, lives, pmeta)
+        stopmove(player,p)
         player_api.player_attached[name] = true
         hud_flags.wielditem = false
         player_api.set_animation(player, "lay")
