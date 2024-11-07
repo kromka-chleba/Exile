@@ -65,7 +65,7 @@ end
 animals.stun_catch_mob = function(self, clicker, time_from_last_click,
                                   tool_capabilities)--,chance,canhand)
     if not clicker or not minetest.is_player(clicker) then return end
-    if self.hp <= 0 then return end
+    if self.no_interact then return end
     local item = clicker:get_wielded_item()
     local item_name = item:get_name()
     tool_capabilities = type(tool_capabilities) == "table" and tool_capabilities
@@ -295,6 +295,7 @@ animals.capture = function(self, clicker)
     if inv:room_for_item("main", new_stack) then
         inv:add_item("main", new_stack)
         -- fix for pegasun scared sound playing globally (delete object on delay)
+        self.no_interact = true
         minetest.after(0.05,function()
             self.object:remove()
         end)

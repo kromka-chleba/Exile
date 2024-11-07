@@ -585,6 +585,8 @@ function animals.hq_die(self)
     -- clear all priorities
     mobkit.clear_queue_high(self)
     mobkit.clear_queue_low(self)
+    -- set no interact
+    self.no_interact = true
     -- fallover
     self.logic = function(self) end      -- brain dead as well
     animals.handle_drops(self,despawn_time)
