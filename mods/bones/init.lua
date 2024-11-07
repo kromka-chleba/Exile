@@ -6,7 +6,11 @@
 -- Load support for MT game translation.
 local S = minetest.get_translator("bones")
 
+-- Declare globals
+minimal = minimal
 creative = creative
+player_api = player_api
+nodes_nature = nodes_nature
 
 bones = {}
 
@@ -230,10 +234,10 @@ end
 
 local player_inventory_lists = { "main", "craft"}
 -- add all player clothing inventories
-for _, name in ipairs (player_api.get_inv_names()) do    
+for _, name in ipairs (player_api.get_inv_names()) do
     table.insert(player_inventory_lists, name )
 end
---#TODO check here the implication of changing cloths to separate invs
+--#TODO check here the implication of changing clothes to separate invs
 
 bones.player_inventory_lists = player_inventory_lists
 
@@ -309,6 +313,8 @@ minetest.register_on_dieplayer(function(player)
                 end
                 player_inv:set_list(list_name, {})
             end
+            player_api.update_player(player)
+
             drop(pos, ItemStack("bones:bones"))
             minetest.log("action", player_name .. " dies at " .. pos_string ..
                          ". Inventory dropped")
@@ -357,6 +363,7 @@ minetest.register_on_dieplayer(function(player)
             end
             player_inv:set_list(list_name, {})
         end
+        player_api.update_player(player)
 
         meta:set_string("formspec", bones_formspec)
         meta:set_string("owner", player_name)
