@@ -4,6 +4,12 @@
 -----------------------------------
 -------------------------------------------------
 
+-- Declare globals
+minimal = minimal
+crafting = crafting
+nodes_nature = nodes_nature
+tech = tech
+
 -- Internationalization
 local S = tech.S
 
@@ -78,7 +84,8 @@ crafting.register_type("glass_furnace",
 crafting.register_type("hand", -- Empty hand tool; Replace crafting spot
                        S("Crafting"),
                        "tech:stick")
--- crafting.register_type("hand_create", S("Create"), "tech:brick_makers_bench")        -- Assemble crafting stations by hand.
+-- crafting.register_type("hand_create", S("Create"), "tech:brick_makers_bench")
+   -- Assemble crafting stations by hand.
 crafting.register_type("hand_pottery",
                        S("Pottery"),
                        "tech:clay_water_pot")     -- Pottery tab
@@ -692,7 +699,8 @@ minetest.register_node(
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick(
-        --      {"brick_makers_bench", "brick_makers_bench_blocks", "brick_makers_bench_bricks", "brick_makers_bench_mixing"},
+        --      {"brick_makers_bench", "brick_makers_bench_blocks",
+        --       "brick_makers_bench_bricks", "brick_makers_bench_mixing"},
                            --      2, { x = 8, y = 3 }),
 })
 
@@ -1025,7 +1033,8 @@ minetest.register_node(
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end
-                           --on_rightclick = crafting.make_on_rightclick({"weaving_frame","weaving_frame_mixing"}, 2, { x = 8, y = 3 }),
+        --on_rightclick = crafting.make_on_rightclick({"weaving_frame",
+        --                     "weaving_frame_mixing"}, 2, { x = 8, y = 3 }),
 })
 
 --IB-20240226

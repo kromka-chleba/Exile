@@ -12,6 +12,13 @@
 
 ]]
 
+-- Declare globals
+minimal = minimal
+crafting = crafting
+nodes_nature = nodes_nature
+tech = tech
+
+
 -- Internationalization
 local S = tech.S
 
@@ -130,8 +137,9 @@ local function is_spot_valid(node, good_on)
     end
     return false
 end
--- currently unused, replaced by crafting.crafting_item_on_rightclick in minetest.register_node()"tech:hammer_" .. mat .. "_placed", ..)
--- opens the hammering spot GUI if the hammer is placed on a solid node
+    -- currently unused, replaced by crafting.crafting_item_on_rightclick
+    -- in minetest.register_node()"tech:hammer_" .. mat .. "_placed", ..)
+    -- opens the hammering spot GUI if the hammer is placed on a solid node
 local function open_hammering_spot_if_valid(pos, node, clicker, itemstack,
                                             pointed_thing)
     local good_on = {{"stone", 1}, {"masonry", 1}, {"boulder", 1},
@@ -147,8 +155,9 @@ local function open_hammering_spot_if_valid(pos, node, clicker, itemstack,
     end
 end
 
--- currently unused, replaced by crafting.crafting_item_on_rightclick in minetest.register_node("tech:adze_" .. material .. "_placed", ..)
--- opens the chopping spot GUI if the hammer is placed on a solid node
+    -- currently unused, replaced by crafting.crafting_item_on_rightclick
+    -- in minetest.register_node("tech:adze_" .. material .. "_placed", ..)
+    -- opens the chopping spot GUI if the hammer is placed on a solid node
 local function open_chopping_spot_if_valid(pos, node, clicker, itemstack,
                                            pointed_thing, level)
     local good_on = {{"stone", 1}, {"masonry", 1}, {"soft_stone", 1},
@@ -182,7 +191,7 @@ local crude_dmg = minimal.hand_dmg * 2
 local crude_snap3 = minimal.hand_snap * crude
 local crude_snap2 = crude_snap3 * minimal.t_scale2
 local crude_snap1 = crude_snap3 * minimal.t_scale1
-local crude_snap0 = 100 -- really long dig time - effectively disabled
+--local crude_snap0 = 100 -- really long dig time - effectively disabled
 --crumbly
 local crude_crum3 = minimal.hand_crum * crude
 local crude_crum2 = crude_crum3 * minimal.t_scale2
@@ -191,7 +200,7 @@ local crude_crum0 = 100 -- really long dig time - effectively disabled
 --choppy
 local crude_chop3 = minimal.hand_chop * crude
 local crude_chop2 = crude_chop3 * minimal.t_scale2
-local crude_chop0 = 100 -- really long dig time - effectively disabled
+--local crude_chop0 = 100 -- really long dig time - effectively disabled
 --cracky
 --none at this level
 
@@ -525,7 +534,8 @@ do
                 }
 
     -- Register adzes as minetest.tool
-    --#TODO idea would be that default one wouldn't really be craftable but only here as default in the recipes in inventory ?
+    --#TODO idea would be that default one wouldn't really be craftable but
+    --  only here as default in the recipes in inventory ?
     for name, def in pairs (adze_type) do
         minetest.register_tool(
         "tech:adze".. name, {
@@ -705,7 +715,8 @@ do
     -- crafting.register_recipe({
     --      type = "hand_tools",
     --      output = "tech:hammer",
-    --      items = {{"group:basalt_cobble","group:granite_cobble"}, 'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
+    --      items = {{"group:basalt_cobble","group:granite_cobble"},
+    --          'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
     --      material = 1, -- first item sets material.
     --     material_output = "tech:hammer_%material%",
     --      level = 1,
