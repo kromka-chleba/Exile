@@ -42,7 +42,9 @@ minetest.register_on_joinplayer(function(player)
         local p_name = player:get_player_name()
         --Custom small inventory
         minetest.get_inventory({type="player", name=p_name}):set_size("main", 16)
-        player:set_lighting({
-                shadows = { intensity = 0.33 }
-        })
+        if player.set_lighting then
+            player:set_lighting({
+                    shadows = { intensity = 0.33 }
+            })
+        end
 end)
