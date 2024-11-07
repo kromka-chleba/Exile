@@ -584,7 +584,7 @@ end
 ---(on discussion 2024 - 08 )
 for _,mat in ipairs({"limestone","basalt","granite"}) do
     crafting.register_recipe({
-    type   = "hand_tools",
+    type   = { "hand_tools", "grinding_stone" },
     output = "tech:mortar_pestle_" .. mat,
     items  = {"nodes_nature:" .. mat .. "_boulder","group:" .. mat .. "_cobble", "nodes_nature:sand"},
     level  = 1,

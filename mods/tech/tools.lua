@@ -570,7 +570,7 @@ do
     -- Register recipes to craft adzes
     for _,mat in ipairs ({"jade","basalt","granite"}) do
         crafting.register_recipe({
-                type = "hand_tools",
+                type = {"hand_tools", "grinding_stone" },
                 output = "tech:adze_"..mat,
                 items = {"group:" .. mat .."_cobble",'tech:stick',
                          'group:fibrous_plant 4', 'nodes_nature:sand'},
@@ -701,7 +701,7 @@ do
     -- Defines recipes for different hammers
     for _,mat in ipairs ({"basalt","granite"}) do
         crafting.register_recipe({
-            type = "hand_tools",
+                type = { "hand_tools", "grinding_stone" },
             output = "tech:hammer_"..mat,
             items = {"group:" .. mat .."_cobble", 'tech:stick',
             'group:fibrous_plant 4', 'nodes_nature:sand'},
@@ -752,7 +752,7 @@ minetest.register_tool("tech:stone_club",
     )
 
 crafting.register_recipe({
-        type = "hand_tools",
+        type = { "hand_tools", "grinding_stone" },
         output = "tech:stone_club",
         items = {"group:granite_cobble", 'nodes_nature:sand'},
         level = 1,
