@@ -37,12 +37,12 @@ function player_api.update_player(player)
     -- update effects and clothing formspec
     player_api.update_equipment_effects(player)
 
-	-- #TODO to remove at some point after v4 is released
-	-- Keeps new inv slots in sync with old "cloths" inventory (deprecated)
-	do
-		local pinv = player:get_inventory()
-		for i,group in ipairs(player_api.get_groups()) do
-			pinv:set_stack("cloths",i, pinv:get_stack(group["name"],1))
-	    end
-	end
+    -- #TODO to remove at some point after v4 is released
+    -- Keeps new inv slots in sync with old "cloths" inventory (deprecated)
+    do
+        local pinv = player:get_inventory()
+        for i,group in ipairs(player_api.get_groups()) do
+            pinv:set_stack("cloths",i, pinv:get_stack(group["name"],1))
+        end
+    end
 end

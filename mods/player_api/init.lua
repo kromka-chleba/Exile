@@ -64,19 +64,19 @@ minetest.register_on_joinplayer(function(player)
     if gender == "" then
         player_api.set_gender(player, "random") --set random gender
     end
-    
+
     local pinv = player:get_inventory()
     pinv:set_size("hand", 1)
     -- create the "clothes" inventories if needed
     -- also amange migrations issues
     player_api.set_cloths(player) -- init and migrates inv if needed
-    player_api.set_texture(player) -- setting texture according to current state  
+    player_api.set_texture(player) -- setting texture according to current state
 
     -- set default clothing (I think ?)
     local cloth = player_api.compose_cloth(player) -- but we did compose it in set_texture
-    
+
     player_api.update_equipment_effects(player) -- #TODO do we separate that part ?
-    
+
     local gender_model = player_api.get_gender_model(gender)
     player_api.registered_models[gender_model].textures[1] = cloth
     player_api.set_model(player, gender_model)
