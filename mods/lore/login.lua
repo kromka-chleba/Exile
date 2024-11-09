@@ -113,7 +113,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	 reset_attributes(player) -- All stats back to starting values
 	 doGatewayFX(player)
 	 local pname = player:get_player_name()
-	 if minimal.mt_required_version(5,4,0) then
+	 if minetest.features.dynamic_add_media_table then
 	    minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
 					    "/music/exile_theme.ogg",
 					 to_player = pname
