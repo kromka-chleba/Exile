@@ -2,6 +2,7 @@
 Select your gender=Выберите свой пол
 Male=Мужчина
 Female=Женщина
+Naked=Голый
 Head=Голова
 Upper=Верхняя
 Lower=Нижняя
@@ -9,13 +10,6 @@ Footwear=Обувь
 Cape=Накидка
 Keeps you warm in bed=Сохраняет тепло в постели
 Unisex=Унисекс
-
-Naked=Голый
-(mild)=(слабый)
-(moderate)=(умеренный)
-(severe)=(тяжелый)
-(extreme)=(экстремальный)
-
 #cloths.lua
 Purple Stripe Summer T-shirt=Летняя футболка в фиолетовую полоску
 Fresh Summer Denim Shorts=Легкие летние джинсовые шорты
@@ -23,15 +17,15 @@ Common Black Shoes=Обычные черные туфли
 Pink Bow=Розовый бант
 Classic Green Sweater=Классический зеленый свитер
 Fine Blue Pants=Изящные синие брюки
-
-equipped!=
-You already wear the same cloth.=
-You already wear that!=
-Inventory is full : the clothing you wore was thrown on the floor!=
-
-You can't equip a blanket outside of a bed.=
-
 # equip.lua
 Clothing=Одежда
 Min Temperature Tolerance: @1=Мин. допустимая температура: @1
 Max Temperature Tolerance: @1=Макс. допустимая температура: @1
+You can't equip a blanket outside of a bed.=Вы не можете использовать одеяло вне кровати.
+You already wear that!=Вы уже носите это!
+Inventory is full : the clothing you wore was thrown on the floor.=Инвентарь переполнен: одежда, которую вы носили, была брошена на пол.
+equipped!=Экипировано!
+(mild)=(слабый)
+(moderate)=(умеренный)
+(severe)=(тяжелый)
+(extreme)=(экстремальный)

@@ -141,11 +141,15 @@ Life can only be understood backwards; but it must be lived forwards.=Жизнь
 BREAK TIME!=ВРЕМЯ ПЕРЕРЫВА!
 You've been here long enough to justify a real break.@nThink of this as a reminder from your better self.@nGo get some rest. Leave Exile behind. You can come back any time.=Вы здесь уже достаточно долго, чтобы оправдать настоящий перерыв.@nСчитайте это напоминанием от вашего лучшего "я".@nИди и отдохни. Оставьте Изгнание позади. Вы можете вернуться в любое время.
 Bed: Contains Blanket=Кровать: содержит одеяло
-# other messages
-You have no room to hold your blanket, so you drop it.=У вас нет места, чтобы удержать одеяло, и вы бросаете его.
 This bed is already occupied!=Эта кровать уже занята!
 # expects owner name to be after 
 Status: Occupied by @1=Статус: Занимает @1
 # related to above
 Status: Occupied by @1 (old)=Статус: Занимает @1 (давно)
+
+
+##### not used anymore #####
+
+# other messages
+You have no room to hold your blanket, so you drop it.=У вас нет места, чтобы удержать одеяло, и вы бросаете его.
 My approach is to look for what I’m interested in using@nand if it’s there I use it=Мой подход заключается в поиске того, что мне интересно использовать,@nи если это есть, я это использую

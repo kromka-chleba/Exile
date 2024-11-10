@@ -3,18 +3,24 @@
 #currentrevision.lua
 Display the current git revision=Отображение текущей ревизии git
 This server is currently running git revision=На этом сервере в данный момент выполняется ревизия git
+#interface/infotext.lua
 Owner:=Владелец:
 Label:=Метка:
-
 #playersettings.lua
 Enable wide HUDbar=Включить широкую панель HUDbar
 Show numeric stats=Показывать числовую статистику
 Enable Break-taker popup=Включить всплывающее окно брейктейкера
 Allow digging with a full inventory=Разрешить копать с полным инвентарем
+Disable music=Отключить музыку
 Temperature scale=Шкала температуры
 GUI theme=Тема графического интерфейса
 HUD Opacity=Уровень непрозрачности HUD
-
+Settings=Настройки
+Default=По умолчанию
+Antiglass=Прозрачный
+Antiblue=Темносиний
+Legacy Grey=Устаревший серый
+New Grey=Новый серый
 # protection.lua
 Access List=Список доступа
 Delete=Удалить
@@ -91,6 +97,24 @@ Exile zone trigger node=Узел зоны запуска изгнания
 
 ##### not used anymore #####
 
+Tool used=Используемый инструмент
+or=или
+Get list of recipes=Получить список рецептов
+Search=Запрос
+Input Items=Создавать из:
+Single=Один
+Stack=Стек
+Maximum=Максимум
+Quantity=Количество:
+#interface/inventory.lua
+Missing required items!=Отсутствуют необходимые предметы!
+#Craft Type=Инструмент:
+Crafting=Создание
+Main=Осн
+Bag1=Сум1
+Bag2=Сум2
+Bag3=Сум3
+Bag4=Сум4
 Send player an exact xyz position=Отправить игрока в точную xyz-позицию
 Any =Любой 
 Any log=Любое бревно

@@ -17,21 +17,13 @@ granite cobble=
 ironstone cobble=
 jade cobble=
 Any @1=
-Missing required items!=
-
-#gui.lua
-Missing required items!=
-Search=
-Main=
-Bag1=
-Bag2=
-Bag3=
-Bag4=
-Use first:=
 Tool used=
-Crafting=
-Quantity=
+or=
 Single=
 Stack=
 Maximum=
-or=
+Quantity=
+Use first:=
+Crafting=
+#gui.lua
+Missing required items!=

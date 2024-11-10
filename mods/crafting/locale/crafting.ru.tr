@@ -17,23 +17,24 @@ granite cobble=гранитный камень
 ironstone cobble=камень железняка
 jade cobble=нефритовый камень
 Any @1=Материал - @1
-Missing required items!=Не хватает необходимых предметов!
-
+Tool used=Инструмент
+or=или
+Single=Один
+Stack=Стек
+Maximum=Максимум
+Quantity=Количество:
+Use first:=Использовать сначала:
+Crafting=Создание
 #gui.lua
 Missing required items!=Отсутствуют необходимые предметы!
+
+
+##### not used anymore #####
+
 Main=Осн
 Bag1=Сум1
 Bag2=Сум2
 Bag3=Сум3
 Bag4=Сум4
-Use first:=
 Input Items=Создавать из:
-Tool used=
-#Craft Type=Инструмент:
-Crafting=Создание
-Single=Один
-Stack=Стек
-Maximum=Максимум
-Quantity=Количество:
 Search=Запрос
-or=
