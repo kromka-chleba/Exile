@@ -19,11 +19,13 @@ local function show(player)
     local ptd = minimal.get_pointed_thing(player, nil, true, returnliquid)
     if not ptd then return end
     if ptd.type == "object" then
-        local obj = ptd.ref:get_luaentity().name
+        local luaent = ptd.ref:get_luaentity()
+        local obj = luaent.name
+        local extra = luaent.witt_extra or {}
         local ndesc = minetest.registered_entities[obj]._desc
         if ndesc then
             witt.show(player, "",
-                      ndesc, obj, "entity")
+                      ndesc, obj, "entity", extra)
             shown[player] = obj
             return
         end
@@ -31,8 +33,8 @@ local function show(player)
 
     if ( ptd.type ~= "node" ) then return end
 
-    local nname = minetest.get_node(ptd.under)
-    nname = ( nname and nname.name )
+    local node = minetest.get_node(ptd.under)
+    local nname = node.name
 
     if not nname then return end
     if shown[player] == nname then return end
@@ -42,10 +44,15 @@ local function show(player)
 
     if not node_definition then return end
 
-    local node_description = node_definition.description
+    local descriptions = { node_definition.description }
     local mod_name, _ = witt.split_item_name(nname)
+    if node_definition.witt_extra then
+        local we_string = core.get_meta(ptd.under):get_string("witt_extra")
+        descriptions = { descriptions[1],
+                         unpack(core.deserialize(we_string) or {}) }
+    end
 
-    witt.show(player, form_view, node_description, nname,
+    witt.show(player, form_view, descriptions, nname,
               item_type, mod_name)
     shown[player] = nname
 end

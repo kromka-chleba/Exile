@@ -164,25 +164,64 @@ function what_is_this_uwu.show_background(player, whud)
 end
 
 
+local function calculate_size(strings, lang_code)
+    local x_size = 0 local count = #strings
+
+    for i = 1, count do
+        strings[i] = core.get_translated_string(lang_code, strings[i])
+        local size = string_to_pixels(strings[i], lang_code) - 18
+        if size > x_size then x_size = size end
+    end
+
+    local _, extra_lines = string.gsub(strings[1], "%\n", "") -- multiline desc
+    count = count + extra_lines - 2
+    if count < 0 then count = 0 end
+    local y_size = 2 + (count / 2)
+    return x_size, y_size
+
+end
+local function format_strings(strings, lang_code)
+    local lf_added = {}
+    for i = 1, #strings do
+        local foo = table.concat({ strings[i],
+                (i < #strings and "\n" or nil )
+        })
+        lf_added[i] = foo
+    end
+    local out = table.concat(lf_added)
+    return out
+end
+
 local function update_size(...)
-    local player, whud, _, node_description, _, item_type, lang_code = ...
-    local size = string_to_pixels(node_description, lang_code) - 18
+    local player, whud, _, descriptions, _, item_type, lang_code = ...
+    local sizex, sizey = calculate_size(descriptions, lang_code)
     local desize = false
     if item_type == "entity" then
         desize = true
-        size = size + 18
+        sizex = sizex + 18
     end
-
-    player:hud_change(whud.bg_mid, "scale", { x = size / 16 + 1.5, y = 2 })
-    player:hud_change(whud.bg_mid, "offset", { x = -size / 2 - 9.5, y = 35 })
-    player:hud_change(whud.bg_right, "offset", { x = size / 2 + 30, y = 35 })
-    player:hud_change(whud.bg_left, "offset", { x = -size / 2 - 25, y = 35 })
-    player:hud_change(whud.image, "offset", { x = -size / 2 - 12.5, y = 35 })
+    local y_scale = sizey
+    local y_off = 33 + 2 * sizey
+    player:hud_change(whud.bg_mid, "scale", { x = sizex / 16 + 1.5,
+                                              y = y_scale })
+    player:hud_change(whud.bg_mid, "offset", { x = -sizex / 2 - 9.5,
+                                               y = y_off })
+    player:hud_change(whud.bg_right, "offset", { x = sizex / 2 + 30,
+                                                 y = y_off })
+    player:hud_change(whud.bg_right, "scale", { x = 2,
+                                              y = y_scale })
+    player:hud_change(whud.bg_left, "offset", { x = -sizex / 2 - 25,
+                                                y = y_off })
+    player:hud_change(whud.bg_left, "scale", { x = 2,
+                                              y = y_scale })
+    player:hud_change(whud.image, "offset", { x = -sizex / 2 - 12.5,
+                                              y = y_off })
     player:hud_change(whud.name, "offset",
-                      { x = -size / 2 + ( desize and 0 or 16.5), y = 35 })
+                      { x = -sizex / 2 + ( desize and 0 or 16.5), y = y_off })
 end
 
-function what_is_this_uwu.show(player, form_view, desc, node_name, item_type)
+function what_is_this_uwu.show(player, form_view, descs, node_name,
+                               item_type, extra)
     local pname = player:get_player_name()
     local w = witt_huds[pname]
 
@@ -193,18 +232,19 @@ function what_is_this_uwu.show(player, form_view, desc, node_name, item_type)
     if item_type ~= "entity" then
         if minetest.registered_items[node_name]
             and minetest.registered_items[node_name]._orig_desc then
-            desc = minetest.registered_items[node_name]._orig_desc
+            descs[1] = minetest.registered_items[node_name]._orig_desc
         end
     end
     w.hidden = false
     local info = minetest.get_player_information(player:get_player_name())
-    local desc_tr = minetest.get_translated_string(info.lang_code, desc)
 
-    update_size(player, w, form_view, desc_tr, node_name,
+    update_size(player, w, form_view, descs, node_name,
                 item_type, info.lang_code)
     player:hud_change(w.image, "text", form_view)
 
-    player:hud_change(w.name, "text", desc_tr)
+    local tr_descs = format_strings(descs, info.lang_code)
+
+    player:hud_change(w.name, "text", tr_descs)
 
     local scale = { x = 0.3, y = 0.3 }
     if item_type ~= "node" then

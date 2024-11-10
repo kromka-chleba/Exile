@@ -172,3 +172,8 @@ _splits_by_hand = node can be split into this with minimal.slabs_split_hand
       Note: Keep them to a single line, imperative tense, like
        "Cut softwood trees", as if you were telling the tool what to do.
 
+witt_extra = if defined, exile_witt will check the node's metadata for extra information, and read a table of strings
+	
+
+[[[ Custom entity definitions ]]]
+witt_extra = if addedm exile_witt will read it as a table of extra strings to be displayed in the entity's WITT popup
