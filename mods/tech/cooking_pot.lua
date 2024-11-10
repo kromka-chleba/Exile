@@ -71,6 +71,7 @@ minetest.register_craftitem("tech:soup", {
 })
 
 local function clear_pot(pos)
+    minetest.get_node_timer(pos):stop()
     local meta = minetest.get_meta(pos)
     meta:set_string("formspec", "")
     meta:set_string("type", "")
