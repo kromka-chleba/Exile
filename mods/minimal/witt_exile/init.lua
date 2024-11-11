@@ -24,10 +24,10 @@ local function show(player)
         local ndesc = minetest.registered_entities[obj]._desc
         local icon = minetest.registered_items[obj]
         if icon then
-            icon = icon.inventory_image and icon.inventory_image.."^[resize:16x16" or nil
+            icon = icon.inventory_image and icon.inventory_image.."^[resize:16x16"
         end
         if ndesc then
-            witt.show(player, icon,
+            witt.show(player, icon or "",
                       ndesc, obj, "entity", extra)
             shown[player] = obj
         end

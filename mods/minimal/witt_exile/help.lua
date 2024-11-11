@@ -193,7 +193,7 @@ local function format_strings(strings, lang_code)
 end
 
 local function update_size(...)
-    local player, whud, _, descriptions, _, item_type, lang_code = ...
+    local player, whud, fm_view, descriptions, _, item_type, lang_code = ...
     local sizex, sizey = calculate_size(descriptions, lang_code)
     local y_scale = sizey
     local y_off = 33 + 2 * sizey
@@ -212,7 +212,7 @@ local function update_size(...)
     player:hud_change(whud.image, "offset", { x = -sizex / 2 - 12.5,
                                               y = y_off })
     player:hud_change(whud.name, "offset",
-                      { x = -sizex / 2 + 16.5, y = y_off })
+                      { x = -sizex / 2 + (fm_view == "" and 0 or 16.5), y = y_off })
 end
 
 function what_is_this_uwu.show(player, form_view, descs, node_name,
