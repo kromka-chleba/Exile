@@ -456,7 +456,9 @@ local function walkable_and_open(pos)
         return nil
     end
     local def = minetest.registered_nodes[node.name]
-    if not def or def.walkable == true then
+    if not def or def.walkable == true
+        or def.liquidtype and def.liquidtype ~= "none" then
+
         return false
     end
     local light = minimal.get_daylight(pos, 0.5)
