@@ -1015,7 +1015,7 @@ local function process_receive_fields(player, formname, fields)
                     minimal.warn_message(player_name,
                                          S("Missing required items!"))
                     --minetest.chat_send_player(
-                    --    player_name, S("Missing required items!"))
+                    --    player_name, ("Missing required items!"))
                     return true -- failed but we handled it
                 end
             end

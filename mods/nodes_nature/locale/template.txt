@@ -171,7 +171,6 @@ Gemedi=
 Chalin=
 Tiken=
 Saguati=
-Jepiha root=
 # foody stuff (plants_and_mushrooms.lua, liquids.lua)
 This plant has a foul musty flavor.=
 Your stomach hurts terribly.=

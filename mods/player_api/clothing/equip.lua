@@ -197,7 +197,7 @@ local function redirect(player, inventory, from_list, from_index, fromslot)
         inventory:add_item(from_list,in_dest)
     else
         minetest.item_drop(in_dest, player, player:get_pos())
-        --minimal.send_message(user:get_player_name(),S("Inventory is full : the clothing you wore was thrown on the floor."),2)
+        --minimal.send_message(user:get_player_name(),("Inventory is full : the clothing you wore was thrown on the floor."),2)
         minimal.warn_inv_full(player)
     end
     -- empty cloths slot
@@ -281,7 +281,7 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
             return itemstack
         else
             minetest.item_drop(in_dest, user, user:get_pos())
-            --minimal.send_message(user:get_player_name(),S("Inventory is full : the clothing you wore was thrown on the floor."),2)
+            --minimal.send_message(user:get_player_name(),("Inventory is full : the clothing you wore was thrown on the floor."),2)
             minimal.warn_inv_full(user)
             return itemstack
         end

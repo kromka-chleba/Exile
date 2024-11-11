@@ -29,7 +29,7 @@ player_api.register_state({
         -- optional entries below
         id = 1, -- numeric id, unique count per mod, might be removed later
         threshold = { [0] =  0, 26, 31, 36, 38, 44, 47, 100}, -- read -4
-        --label = S("body temp"),
+        --label = ("body temp"),
         -- ^^ invisible state. Display uses basic states instead, as example
         severity_txt = {
             [0] = S("Caveman in ice"), S("Frozen"), S("Frostbitten"),

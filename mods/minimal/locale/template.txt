@@ -15,7 +15,6 @@ Disable music=
 Temperature scale=
 GUI theme=
 HUD Opacity=
-Settings=
 Default=
 Antiglass=
 Antiblue=
@@ -93,11 +92,3 @@ Range=
 Copy=
 Values=
 Exile zone trigger node=
-
-
-##### not used anymore #####
-
-#interface/inventory.lua
-Missing required items!=
-# Stairs
-Inner @1=

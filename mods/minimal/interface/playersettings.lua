@@ -175,7 +175,7 @@ end)
     if minetest.global_exists("sfinv") then
         sfinv.register_page(
         "minimal:player_settings", {
-            title = S("Settings"),
+            title = ("Settings"),
             is_in_nav = function(player, context) return false end,
             get = function(self, player, context)
                 local formspec = get_form(player:get_player_name(), player:get_meta())

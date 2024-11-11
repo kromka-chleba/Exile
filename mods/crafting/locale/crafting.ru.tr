@@ -24,17 +24,6 @@ Stack=Стек
 Maximum=Максимум
 Quantity=Количество:
 Use first:=Использовать сначала:
-Crafting=Создание
 #gui.lua
 Missing required items!=Отсутствуют необходимые предметы!
-
-
-##### not used anymore #####
-
-Main=Осн
-Bag1=Сум1
-Bag2=Сум2
-Bag3=Сум3
-Bag4=Сум4
-Input Items=Создавать из:
-Search=Запрос
+Crafting=Создание

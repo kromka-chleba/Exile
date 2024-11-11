@@ -18,10 +18,10 @@ local legacy_stations = true
 local legacy_station_recipes = false
 
 --if not minetest.is_creative_enabled() then
---    crafting.make_global_inventory_tab("crafting", S("Crafting"), "hand")
---    crafting.make_global_inventory_tab("pottery", S("Pottery"), "hand_pottery")
---    crafting.make_global_inventory_tab("wattle", S("Wattle"), "hand_wattle")
---    crafting.make_global_inventory_tab("mixing", S("Mixing"), "hand_mixing")
+--    crafting.make_global_inventory_tab("crafting", ("Crafting"), "hand")
+--    crafting.make_global_inventory_tab("pottery", ("Pottery"), "hand_pottery")
+--    crafting.make_global_inventory_tab("wattle", ("Wattle"), "hand_wattle")
+--    crafting.make_global_inventory_tab("mixing", ("Mixing"), "hand_mixing")
 --end
 
 --Register
@@ -84,12 +84,12 @@ crafting.register_type("glass_furnace",
 crafting.register_type("hand", -- Empty hand tool; Replace crafting spot
                        S("Crafting"),
                        "tech:stick")
--- crafting.register_type("hand_create", S("Create"), "tech:brick_makers_bench")
+-- crafting.register_type("hand_create", ("Create"), "tech:brick_makers_bench")
    -- Assemble crafting stations by hand.
 crafting.register_type("hand_pottery",
                        S("Pottery"),
                        "tech:clay_water_pot")     -- Pottery tab
--- crafting.register_type("hand_wattle", S("Wattle"), "tech:wattle")            -- Wattle Tab
+-- crafting.register_type("hand_wattle", ("Wattle"), "tech:wattle")            -- Wattle Tab
 crafting.register_type("hand_tools",
                        S("Tools"),
                        "tech:hammer_basalt")  -- Tools Tab
@@ -494,7 +494,7 @@ minetest.register_node(
 --IB ----Duplicate and depricated. See legacy stations below
 --IB --chopping_block --crude wood crafts,
 --IB minetest.register_node("tech:chopping_block", {
---IB    description   = S("Chopping Block"),
+--IB    description   = ("Chopping Block"),
 --IB    tiles         = {
 --IB            "tech_chopping_block_top.png",
 --IB            "tech_chopping_block_top.png",

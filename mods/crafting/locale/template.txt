@@ -24,6 +24,6 @@ Stack=
 Maximum=
 Quantity=
 Use first:=
-Crafting=
 #gui.lua
 Missing required items!=
+Crafting=

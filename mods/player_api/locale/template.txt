@@ -23,7 +23,6 @@ Min Temperature Tolerance: @1=
 Max Temperature Tolerance: @1=
 You can't equip a blanket outside of a bed.=
 You already wear that!=
-Inventory is full : the clothing you wore was thrown on the floor.=
 equipped!=
 (mild)=
 (moderate)=

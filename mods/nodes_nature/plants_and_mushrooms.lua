@@ -461,7 +461,7 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:rzepicha_dead",
     {
-        description = S("@1 Root",S("Jepiha")),--S("Jepiha root"),
+        description = S("@1 Root",S("Jepiha")),
         inventory_image = "nodes_nature_rzepicha_root_winter.png",
         wield_image = "nodes_nature_rzepicha_root_winter.png",
         on_place = set_up_jepiha_on_place(false)
