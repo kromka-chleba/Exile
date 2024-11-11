@@ -21,7 +21,7 @@ local stage = dofile(modpath..'/stage.lua')
 local worldpath=minetest.get_worldpath()
 
 --------------------------------------------------------------------------------
--- Entry/exit from tutorial
+-- Start/quit from tutorial
 
 local pstore = {} -- store status of players so we can restore it after tutorial
 local mstore = minetest.get_mod_storage()
@@ -44,18 +44,19 @@ local confirmspec = "formspec_version[6]"..
     "button_exit[2,6;1,1;take_tut;Yes]"..
     "button_exit[5,6;1,1;refuse_tut;No]"
 
-function tutorial.init(player, exitfunc)
+function tutorial.init(player, quitfunc)
     if disable_tutorial then
-        if exitfunc then exitfunc(player) end
+        if quitfunc then quitfunc(player) end
         return
     end
     local name = player:get_player_name()
     pstore[name] = {}
-    pstore[name].exit = exitfunc
+    pstore[name].quit = quitfunc
     minetest.show_formspec(name, "tutorial_exile:confirm", confirmspec)
 end
 
 local function store_player(player)
+    -- save player's state before entering the tutorial
     local name = player:get_player_name()
     local ps = pstore[name]
 
@@ -63,16 +64,22 @@ local function store_player(player)
     local meta = player:get_meta()
     ps.stats = HEALTH.get_player_stats(player, meta)
     meta:set_string("playtime_suspended", "y")
+
+    local inv = player:get_inventory()
+    local invlists = inv:get_lists()
+    ps.inv = invlists
+    for list in pairs(invlists) do -- Clear all inventories
+        inv:set_list(list, {})
+    end
+
     mstore:set_string(name, minetest.write_json(ps))
-    -- #TODO: stash inventory; for people doing the tutorial later optionally
-    --  Unnecessary on first login, we'll reset it all when they spawn in anyway
 end
 
-local function call_exit(player)
+local function quit_tutorial(player)
     local name = player:get_player_name()
-    local ps = pstore[name]
-    if not ps or not ps.exit then return end
-    ps.exit(player)
+    if not pstore[name] then return end
+    if pstore[name].quit then pstore[name].quit(player) end
+    pstore[name] = nil
 end
 
 local function restore_player(player)
@@ -80,20 +87,26 @@ local function restore_player(player)
     local ps = pstore[name] or minetest.parse_json(mstore:get_string(name))
 
     if not ps then return end
-    player:set_pos(ps.pos)
+
+    player:set_pos(ps.pos)  ;  pstore[name].pos = nil
+
     local meta = player:get_meta()
     HEALTH.set_player_stats(player, ps.stats, meta)
+    pstore[name].stats = nil
+
+    local inv = player:get_inventory()
+    inv:set_lists(pstore[name].inv)
+    pstore[name].inv = nil
+
     meta:set_string("playtime_suspended", "")
     mstore:set_string(name, "")
-    pstore[name] = nil
-    -- #TODO: Restore inventory
-    call_exit(player)
+
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
         if formname == "tutorial_exile:confirm" then
             if not fields.take_tut then -- pressed refuse, or closed the form
-                call_exit(player)
+                quit_tutorial(player)
                 pstore[player:get_player_name()] = nil
                 return
             end
@@ -107,6 +120,7 @@ function tutorial.exit(player)
     -- Shut down tutorial, delete regions, possibly rewrite starting area
     stage.exit(player)
     restore_player(player)
+    quit_tutorial(player)
 end
 
 --------------------------------------------------------------------------------
