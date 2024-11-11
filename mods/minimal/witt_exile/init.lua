@@ -25,10 +25,10 @@ local function show(player)
         local ndesc = minetest.registered_entities[obj]._desc
         if ndesc then
             witt.show(player, "",
-                      ndesc, obj, "entity", extra)
+                      { ndesc }, obj, "entity", extra)
             shown[player] = obj
-            return
         end
+        return
     end
 
     if ( ptd.type ~= "node" ) then return end
