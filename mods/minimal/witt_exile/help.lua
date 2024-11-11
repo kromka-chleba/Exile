@@ -218,7 +218,7 @@ local function update_size(...)
     player:hud_change(whud.image, "offset", { x = -sizex / 2 - 12.5,
                                               y = y_off })
     player:hud_change(whud.name, "offset",
-                      { x = -sizex / 2 + (fm_view == "" and 0 or 16.5), y = y_off })
+                      { x = -sizex / 2 + (fm_view == "" and -3.5 or 16.5), y = y_off })
 end
 
 function what_is_this_uwu.show(player, form_view, descs, node_name,
