@@ -6,7 +6,6 @@ This server is currently running git revision=
 #interface/infotext.lua
 Owner:=
 Label:=
-
 #playersettings.lua
 Enable wide HUDbar=
 Show numeric stats=
@@ -19,9 +18,8 @@ HUD Opacity=
 Default=
 Antiglass=
 Antiblue=
-Legacy grey=
+Legacy Grey=
 New Grey=
-
 # protection.lua
 Access List=
 Delete=
@@ -35,7 +33,6 @@ Crafted by=
 Burnt Storage Pile=
 Label=
 Set=
-
 #triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=
 Reset player=
@@ -76,7 +73,6 @@ Display an image and text@n<icon name.png>,<text>=
 Value:=
 False=
 True=
-
 # triggers
 Exile trigger node=
 Configured trigger=
@@ -96,9 +92,3 @@ Range=
 Copy=
 Values=
 Exile zone trigger node=
-
-
-##### not used anymore #####
-
-# Stairs
-Inner @1=

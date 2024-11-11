@@ -1,35 +1,30 @@
 # textdomain: player_api
-Select your gender=Select your gender
-Male=Male
-Female=Female
-Head=Head
-Upper=Upper
-Lower=Lower
-Footwear=Footwear
-Cape=Cape
-Keeps you warm in bed=Keeps you warm in bed
-Unisex=Unisex
-
-Naked=Naked
-(mild)=(mild)
-(moderate)=(moderate)
-(severe)=(severe)
-(extreme)=(extreme)
-
+Select your gender=
+Male=
+Female=
+Naked=
+Head=
+Upper=
+Lower=
+Footwear=
+Cape=
+Keeps you warm in bed=
+Unisex=
 #cloths.lua
-Purple Stripe Summer T-shirt=Purple Stripe Summer T-shirt
-Fresh Summer Denim Shorts=Fresh Summer Denim Shorts
-Common Black Shoes=Common Black Shoes
-Pink Bow=Pink Bow
-Classic Green Sweater=Classic Green Sweater
-Fine Blue Pants=Fine Blue Pants
-
-You can't equip a blanket outside of a bed.=You can't equip a blanket outside of a bed.
-equipped!=equipped!
-You already wear that!=You already wear that!
-Inventory is full : the clothing you wore was thrown on the floor!=Inventory is full : the clothing you wore was thrown on the floor!
-
+Purple Stripe Summer T-shirt=
+Fresh Summer Denim Shorts=
+Common Black Shoes=
+Pink Bow=
+Classic Green Sweater=
+Fine Blue Pants=
 # equip.lua
-Clothing=Clothing
-Min Temperature Tolerance: @1=Min Temperature Tolerance: @1
-Max Temperature Tolerance: @1=Max Temperature Tolerance: @1
+Clothing=
+Min Temperature Tolerance: @1=
+Max Temperature Tolerance: @1=
+You can't equip a blanket outside of a bed.=
+You already wear that!=
+equipped!=
+(mild)=
+(moderate)=
+(severe)=
+(extreme)=

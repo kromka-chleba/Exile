@@ -55,11 +55,11 @@ function lightsource.update_fuel_infotext(desc, pos, meta)
         fuel_string = S("Empty")
     else
         fuel_string = S("@1% fuel left",math.floor(fuel / desc.max_fuel * 100))
-        --fuel_string = math.floor(fuel / desc.max_fuel * 100).."% "..S("fuel left")
+        --fuel_string = math.floor(fuel / desc.max_fuel * 100).."% "..("fuel left")
     end
     meta:set_string("status",S("Status: @1",fuel_string))
     minimal.infotext_set_new(pos, meta)
-    --minimal.infotext_merge(pos, S("Status: ")..fuel_string, meta)
+    --minimal.infotext_merge(pos, ("Status: ")..fuel_string, meta)
 end
 
 function lightsource.save_to_inventory(desc, pos, digger, lit)

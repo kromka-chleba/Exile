@@ -77,7 +77,7 @@ function crafting.result_select_on_receive_results(player, type, level,
                 elseif crafting.perform_craft(name, inv, "main", "main", recipe) then
                     return true -- crafted
                 else
-                    minetest.chat_send_player(name, S("Missing required items!"))
+                    minetest.chat_send_player(name, ("Missing required items!"))
                     return false
                 end
             end

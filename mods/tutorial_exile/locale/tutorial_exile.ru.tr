@@ -8,9 +8,3 @@ Press the use button to activate items and nodes.@n This is E by default on PC, 
 Press the zoom key to see the name of what you're looking at. @n This is Z by default on PC, and the binoculars or magnifying lens on mobile=Нажмите кнопку увеличения, чтобы увидеть название того, на что вы смотрите.@nПо умолчанию это Z на ПК, а на мобильных - бинокль или увеличительная линза.
 Double-tap sneak to crouch and get through small spaces.@n@nIf server lag makes this hard, you can use the /crouch command, or install exile_csm, theclient-side mod to handle controls locally=Дважды нажмите кнопку sneak, чтобы приседать и пробираться через небольшие пространства.@n@nЕсли из-за задержки сервера это сложно сделать, вы можете использовать команду /crouch или установить exile_csm, мод на стороне клиента для локального управления.
 Disabled in the tutorial=Отключить учебник
-
-
-##### not used anymore #####
-
-tut_intro=Exile - это оригинальная игра с уникальной механикой,@nкоторая будет незнакома игрокам других воксельных@nигр. Ее может быть трудно освоить.
-tut_ask=Хотите пройти короткое обучение по@nтому, как играть в игру?

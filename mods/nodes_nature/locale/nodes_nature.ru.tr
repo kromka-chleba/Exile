@@ -118,10 +118,13 @@ Fruitless @1=Бесплодный @1
 Barshocha=Баршоча
 Vortecha=Вортеча
 Wiha=Виха
+Wiha Berries=Ягоды Виха
 Momo=Момо
+Momo Pepper=Перец Момо
 Galanta=Галанта
 Vansano=Ванзано
 Anperla=Анперла
+Anperla tuber=Клубень анперлы
 Jepiha=Джепиха
 Hakimi=Хакими
 Jarno=Ярно
@@ -146,6 +149,7 @@ Merki=Мерки
 Nebiyi=Небии
 Marbhan=Марбхан
 Zufani=Зуфани
+Zufani Amber=Зуфани Амбер
 Tsaplop=Цаплоп
 Jogalan=Йогалан
 Gitiri=Гитири
@@ -157,6 +161,7 @@ Tanai=Танай
 Thoka=Тока
 Alaf=Алаф
 Muhle=Мухле
+Muhle Berries=Ягоды Мухле
 Damo=Дамо
 Tashvish=Ташвиш
 # data_plant.lua
@@ -166,11 +171,6 @@ Gemedi=Гемеди
 Chalin=Чалин
 Tiken=Тикен
 Saguati=Сагуати
-Zufani Amber=Зуфани Амбер
-Momo Pepper=Перец Момо
-Wiha Berries=Ягоды Виха
-Muhle Berries=Ягоды Мухле
-Anperla tuber=Клубень анперлы
 # foody stuff (plants_and_mushrooms.lua, liquids.lua)
 This plant has a foul musty flavor.=Это растение обладает неприятным затхлым ароматом.
 Your stomach hurts terribly.=Ужасно болит живот.
@@ -215,18 +215,3 @@ Tree Marker=Древесный маркер
 @1 Log=Бревно @1
 @1 Log Stair=Бревенчатая лестница @1
 @1 Log Slab=Бревенчатая плита @1
-
-
-##### not used anymore #####
-
-Jalowiec=Яловец
-Maraka Tree=Дерево марака
-Tangkal Tree=Дерево тангкал
-Tangkal Fruit=Фрукт тангкала
-Sasaran Tree=Дерево сасаран
-Kagum Tree=Дерево кагум
-Panasee Tree=Дерево Панаси
-Panasee Fruit=Фрукты Панаси
-Amma Tree=Дерево Амма
-Amma nut=Орех Амма
-Daoja Tree=Дерево Даоджа

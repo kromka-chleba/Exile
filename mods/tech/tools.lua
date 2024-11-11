@@ -227,7 +227,7 @@ minetest.register_tool("tech:stone_chopper",
         groups = {knife = 1, craftedby = 1},
         _dig_tip = S("Cut plants faster than bare hands"),
         _use_tip = S("Flip to stone etcher"),
-        -- _place_tip = S("Place tool for cutting crafts"), -- No such crafts yet
+        -- _place_tip = ("Place tool for cutting crafts"), -- No such crafts yet
         sound = {breaks = "tech_tool_breaks"},
         _on_use_item = function(player, wielded_item, pointed_thing)
             minimal.swap_tool(player, wielded_item, "tech:stone_etcher")

@@ -138,9 +138,6 @@ Life can only be understood backwards; but it must be lived forwards.=
 BREAK TIME!=
 You've been here long enough to justify a real break.@nThink of this as a reminder from your better self.@nGo get some rest. Leave Exile behind. You can come back any time.=
 Bed: Contains Blanket=
-# other messages
-You have no room to hold your blanket, so you drop it.=
-You have no room to take the blanket with you, so you left it on the bed.=
 This bed is already occupied!=
 # expects owner name to be after 
 Status: Occupied by @1=
@@ -150,5 +147,7 @@ Status: Occupied by @1 (old)=
 
 ##### not used anymore #####
 
+# other messages
+You have no room to hold your blanket, so you drop it.=
 # australian;
 My approach is to look for what I’m interested in using@nand if it’s there I use it=

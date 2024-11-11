@@ -71,7 +71,7 @@ minetest.register_node(
                   minetest.registered_nodes["tech:pane_clear"].description,
                   minetest.registered_items["tech:coarse_fibre"].description))
             minimal.infotext_set_new(pos, meta)
-            --minimal.infotext_merge(pos, S("Status: needs a clear glass pane and a wick (coarse fibre)!"), meta)
+            --minimal.infotext_merge(pos, ("Status: needs a clear glass pane and a wick (coarse fibre)!"), meta)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             take_item_replace_node(pos, node, clicker, itemstack, pointed_thing,
@@ -117,7 +117,7 @@ minetest.register_node(
                            minetest.registered_nodes[
                                "tech:pane_clear"].description))
             minimal.infotext_set_new(pos, meta)
-            --minimal.infotext_merge(pos, S("Status: needs a clear glass pane!"),
+            --minimal.infotext_merge(pos, ("Status: needs a clear glass pane!"),
             --meta)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
@@ -159,7 +159,7 @@ minetest.register_node(
                     minetest.registered_items["tech:coarse_fibre"].description))
             minimal.infotext_set_new(pos, meta)
             --minimal.infotext_merge(pos,
-            --S("Status: needs a wick (coarse fibre)!"),
+            --("Status: needs a wick (coarse fibre)!"),
             --meta)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
