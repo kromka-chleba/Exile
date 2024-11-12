@@ -183,7 +183,7 @@ function plant.new(def)
     if def.lifeform_type == "mushroom" then
         light_range.min = light_range.min or 0
         light_range.max = light_range.max or 4
-    elseif def.plant_type == "cane" then
+    elseif (def.plant_type == "cane" or def.plant_type == "bamboo") then
         light_range.min = light_range.min or 14
         light_range.max = light_range.max or 15
     else
@@ -433,6 +433,9 @@ function plant.get_base_props(plant_def)
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
         _seed_name = get_name(plant_def.name,"seed"),
+        -- ranges
+        plant_temp_range = plant_def.temp_range,
+        plant_light_range = plant_def.light_range,
 
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             if minetest.is_player(placer) and
@@ -442,20 +445,17 @@ function plant.get_base_props(plant_def)
                 plant.death_chance_on_replant(pos)
             end
         end,
-    }
-    if plant_def.roots then
-        props._root_name = get_name(plant_def.name,"root")
-    end
-    if plant_def.thorns then
-        props.on_punch = function(pos, node, puncher, pointed_thing)
+        -- custom parameters
+        _root_name = plant_def.roots and get_name(plant_def.name,"root") or nil,
+        on_punch = plant_def.thorns and function(pos, node, puncher, pointed_thing)
             local itemstack = puncher:get_wielded_item()
             local item_name = itemstack:get_name()
             if item_name == "" then
                 local hp = puncher:get_hp()
                 puncher:set_hp(hp-1)
             end
-        end
-    end
+        end or plant_def.on_punch,
+    }
     if plant_def.fruit and plant_def.winter_fruit then
         props = minimal.merge_tables(
             props, {
