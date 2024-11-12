@@ -1,38 +1,20 @@
 ----------------------------------------------------------
 --COOKING POT
 
-
-
-----------------------------------------------------------
---[[
-    Food capacity
-
-    Display:
-    Food %
-    Cooking progress %
-
-    Click with food item to add to pot -> ^food vProgress
-
-    Heat to cook
-
-    Click with hand to eat -> vFood %
-
-
-    Save to inv meta
-
-]]
-
--- Internationalization
 local S = tech.S
 
 minimal = minimal
+liquid_store = liquid_store
 
 local random = math.random
 
-local cook_time = 1
-local cook_temp = { [""] = 101, ["Soup"] = 100 }
-local portions = 10 -- TODO: is this sane? Can we adjust it based on contents?
+--[[
+consider these node-wise:
 
+temp
+portions
+
+]]--
 
 ---------------------
 local pot_box = {
@@ -56,98 +38,441 @@ local pot_box = {
     {0.3125, -0.0625, -0.0625, 0.4375, 0.0625, 0.0625}, -- NodeBox24
 }
 
-local pot_formspec = "size[8,4.1]"..
-    "list[current_name;main;0,0;8,2]"..
-    "list[current_player;main;0,2.3;8,4]"..
-    "listring[current_name;main]"..
-    "listring[current_player;main]"
+local bowl_box = {
+    {-2/16,-0.5,-2/16, 2/16,-7/16,2/16}, -- bottom
+    -- 2nd
+    {-3/16,-7/16,3/16, 3/16,-6/16,2/16}, -- back (+Z)
+    {-3/16,-7/16,-3/16, 3/16,-6/16,-2/16}, -- front (-Z)
+    {3/16,-7/16,-2/16, 2/16,-6/16,2/16}, -- right (+X)
+    {-3/16,-7/16,-2/16, -2/16,-6/16,2/16}, -- left (-X)
+    -- 3rd
+    {-4/16,-6/16,4/16, 4/16,-5/16,3/16}, -- back (+Z)
+    {-4/16,-6/16,-4/16, 4/16,-5/16,-3/16}, -- front (-Z)
+    {4/16,-6/16,-3/16, 3/16,-5/16,3/16}, -- right (+X)
+    {-4/16,-6/16,-3/16, -3/16,-5/16,3/16}, -- left (-X)
+}
 
-minetest.register_craftitem("tech:soup", {
-                                description = S("Soup"),
-                                inventory_image = "tech_soup.png",
-                                stack_max = minimal.stack_max_medium,
-                                groups = { edible = 2 },
-                                _use_tip = S("Eat"),
+-- create bowl_fill_nodebox by adding a thin top layer to emulate soup
+local bowl_fill_box = table.copy(bowl_box)
+bowl_fill_box[#bowl_box + 1] = {-3/16,-6/16,-3/16, 3/16,-5.2/16,3/16}
+
+-- miscellaneous soup functions
+
+-- get what soup/stew it should become judging by definition and the kind specified
+-- nodeonly makes it checks if the found variant is also a node
+local function soup_get_become(def, kind, nodeonly)
+    kind = kind:lower()
+    local result = kind == "stew" and def.stew_to or kind == "soup" and def.soup_to or nil -- what the filled soup/stew is
+    if not result then return end -- no variation found
+    -- gets soup/stew_to variable, adds self name if no colon (indicative of proper name) found
+    result = (not result:match(":")) and def.name..result or result -- allow for simple like "_soup"
+    if not minetest.registered_items[result] then return end -- not a valid item
+    if nodeonly and not minetest.registered_nodes[result] then return end -- not a valid node if specified
+    return result
+end
+
+-- soup node functions
+
+-- soup transfer - for transferring full soups to empty soups
+local function soup_transfer(pos, user, itemstack, nodemeta, imeta, p_inv)
+    local itemdef = itemstack:get_definition()
+    local name = itemdef.name
+    local kind = itemdef.soup_kind or itemdef.groups
+        and (itemdef.groups.soup and "soup" or itemdef.groups.stew and "stew") or name:sub(-4)
+    local become = soup_get_become(minimal.get_nodedef(pos),kind,true)
+    if not become then return end -- couldn't get node variant to transfer as
+    local empty = itemdef.soup_empty or name:sub(1,-6)
+    if not minetest.registered_nodes[empty] then return end -- could not get empty variant
+    -- we can transfer this soup/stew !
+    imeta = imeta or itemstack:get_meta()
+    imeta = imeta:to_table()
+    if not imeta then return end -- weird error occurred, do not do anything! (couldn't turn into data table)
+    minetest.set_node(pos, {name=become})
+    nodemeta = nodemeta or minetest.get_meta(pos)
+    nodemeta:from_table(imeta)
+    -- handle inventory (above does not depend on such if something was to go awry lol)
+    p_inv = p_inv or (user and user.get_inventory and user:get_inventory())
+    if not p_inv then return end
+    empty = ItemStack(empty) -- get empty itemstack
+    -- inventory functionality
+    local plr_creative = minimal.player_in_creative(user)
+    local deplete_bowl = false
+    -- original bowl will not be replaced (more than 1 or player in creative)
+    if itemstack:get_count() > 1 or plr_creative then
+        if p_inv:room_for_item("main",empty) then
+            deplete_bowl = not plr_creative and true
+            p_inv:add_item("main",empty)
+        -- can't add, warn player
+        else
+            minimal.warn_inv_full(user)
+        end
+    -- bowl will be depleted, simply replace instead
+    else
+        itemstack = empty
+    end
+    -- take away 1 bowl
+    if deplete_bowl then
+        itemstack:take_item()
+    end
+    return itemstack
+end
+
+-- transferring node soup/stew to an empty bowl itemstack
+local function soup_on_bowl_empty(pos, user, itemstack, nodemeta, p_inv)
+    local nodedef = minimal.get_nodedef(pos)
+    local name = nodedef.name
+    -- get type of soup, only soup or stew permitted
+    local kind = nodedef.soup_kind or nodedef.groups
+        and (nodedef.groups.soup and "soup" or nodedef.groups.stew and "stew") or name:sub(-4)
+    local become = soup_get_become(itemstack:get_definition(),kind,true)
+    if not become then return end -- couldn't get node variant to transfer as
+    local empty = nodedef.soup_empty or name:sub(1,-6)
+    if not minetest.registered_nodes[empty] then return end -- could not get empty variant
+    -- we can transfer this soup/stew !
+    nodemeta = nodemeta or minetest.get_meta(pos)
+    nodemeta = nodemeta:to_table()
+    if not nodemeta then return end -- weird error occurred, do not do anything! (couldn't turn into table)
+    minetest.set_node(pos, {name=empty})
+    become = ItemStack(become) -- get soup/stew itemstack
+    local imeta = become:get_meta()
+    imeta:from_table(nodemeta)
+    -- handle inventory
+    p_inv = p_inv or (user and user.get_inventory and user:get_inventory())
+    if not p_inv then return end
+    -- inventory functionality
+    local plr_creative = minimal.player_in_creative(user)
+    local deplete_bowl = false
+    -- original itemstack slot will not be replaced (more than 1 bowl or player in creative)
+    if itemstack:get_count() > 1 or plr_creative then
+        if p_inv:room_for_item("main",become) then
+          deplete_bowl = not plr_creative and true
+          p_inv:add_item("main",become)
+        -- can't add, warn player
+        else
+            minimal.warn_inv_full(user)
+        end
+    -- bowl will be depleted, simply replace itemstack instead
+    else
+        itemstack = become
+    end
+    -- take away 1 bowl
+    if deplete_bowl then
+        itemstack:take_item()
+    end
+    return itemstack
+end
+
+-- food bowl + soup/stew functionality
+-- what food bowls and soup bowls do when you click on something with them
+local function soup_on_use(itemstack, user, pointed_thing, is_soup)
+    local pos = pointed_thing and pointed_thing.under
+    if not pos then return end
+    local nodedef = minimal.get_nodedef(pos)
+    local itemdef = itemstack and itemstack.get_definition and itemstack:get_definition()
+    if not (itemdef and nodedef) then return end -- how you get no node or itemstack definition???
+    if type(is_soup) ~= "boolean" then
+        local groups = itemdef.groups
+        if not groups then return end -- how??? what're you doing!!! how do we not have GROUPS!
+        is_soup = (groups.stew or groups.soup) and true or false
+    end
+    -- cooking pot interaction
+    -- soupy interactions
+    if is_soup then
+        -- transfer soup/stew into an empty bowl
+        if nodedef.on_soup_transfer then
+          return nodedef.on_soup_transfer(pos, user, itemstack) or itemstack
+        end
+    -- empty bowl interactions
+    else
+    -- cooking pot or soup/stew interaction
+        if nodedef.on_bowl_empty then
+          return nodedef.on_bowl_empty(pos, user, itemstack) or itemstack
+        end
+    end
+end
+
+-- soup/stew functionality
+-- preserves node meta into itemstack
+local function soup_preserve_metadata(pos, oldnode, oldmeta, drops)
+    oldmeta = minetest.get_meta(pos)
+    local item_meta = drops[1]:get_meta()
+    item_meta:from_table(oldmeta:to_table())
+end
+
+-- soup/stew functionality
+-- preserves item meta into node
+local function soup_after_place(pos, placer, itemstack, pointed_thing)
+    local meta = minetest.get_meta(pos)
+    local item_meta = itemstack and itemstack:get_meta()
+    if not item_meta then return end
+    meta:from_table(item_meta:to_table())
+end
+
+local function register_food_bowl(name, def)
+    assert(type(name) == "string",
+        "tech.register_soup_bowl: got non-string for name, got type '"..type(name).."'")
+    def = type(def) == "table" and def or {}
+    --assert(type(def) == "table",
+        --"tech.register_soup_bowl: got non-table for definition, got type '"..type(def).."'")
+    -- fix name properly
+    -- colon at first part of string, indicative of no modname
+    -- no colon, no mod name or colon associated, add one
+    local mod_origin = minetest.get_current_modname()
+    name = name:sub(1,1) == ":" and mod_origin..name or
+        not name:match(":") and mod_origin..":"..name or name
+    -- figure out variant
+    def.bowl_variant = (type(def.bowl_variant) == "string" and def.bowl_variant:lower()) or "clay"
+    local variant = def.bowl_variant
+    -- base def
+    def.stack_max = def.stack_max or minimal.stack_max_medium
+    def.paramtype = def.paramtype or "light"
+    def.description = def.description or S("Empty Bowl")
+    -- base groups
+    def.groups = def.groups or {}
+    def.groups.dig_immediate = def.groups.dig_immediate or 3
+    def.groups.falling_node = def.groups.falling_node or 1
+    def.groups.food_bowl = 1
+    -- dependent on variant
+    def.groups.pottery = def.groups.pottery or (variant == "clay" and 1) or nil
+    def.groups.flammable = def.groups.flammable or (variant == "wooden" and 2) or nil
+    def.sounds = def.sounds or (variant == "wooden" and nodes_nature.node_sound_wood_defaults() or
+        nodes_nature.node_sound_stone_defaults())
+    def.tiles = def.tiles or (variant == "wooden" and "tech_primitive_wood.png" or "tech_pottery.png")
+    -- convert to tile table
+    if type(def.tiles) == "string" then
+        local tiles = {}
+        -- do 3 copies, since we'll need to save a side and bottom for soups/stews
+        for i=1,3 do
+            tiles[i] = def.tiles
+        end
+        def.tiles = tiles
+    end
+    -- if variant is wooden or clay, find tech_food_bowl icon variants
+    -- if variant is custom, check for modname _food_bowl icon variants
+    def.inventory_image = def.inventory_image or variant and ( (variant == "wooden" or variant == "clay") and
+        "tech_food_bowl_"..variant.."_icon.png" or mod_origin.."_food_bowl_"..variant.."_icon.png") or nil
+    -- nodebox
+    def.drawtype = def.drawtype or "nodebox"
+    def.node_box = def.node_box or def.drawtype == "nodebox" and
+        {type = "fixed", fixed = bowl_box} or nil
+    -- functions
+    def.on_use = def.on_use or soup_on_use
+    --------------- soup and stew variants
+    def.soup_to = def.soup_to or def.soup_to ~= false and "_soup" or nil
+    def.stew_to = def.stew_to or def.stew_to ~= false and "_stew" or nil
+    if type(def.soup_to) == "string" or type(def.soup_to) == "table" then
+        -- figure out name lol
+        local soup = def.soup_to
+        soup = soup == "_soup" and name.."_soup" or soup
+        soup = type(soup) == "string" and {name=soup} or soup
+        soup.name = soup.name or name.."_soup"
+        soup.name = soup.name:sub(1,1) == ":" and mod_origin..soup.name or
+            not soup.name:match(":") and mod_origin..":"..soup.name or soup.name
+        -- set soup_to to soup table name if provided soup_to aint a string
+        def.soup_to = type(def.soup_to) == "string" and def.soup_to or soup.name
+        -- usual table stuff (before definition merge)
+        soup.groups = soup.groups or table.copy(def.groups)
+        soup.groups.soup = 1
+        soup.groups.edible = 2
+        -- get tiles from empty bowl def
+        if not soup.tiles then
+            soup.tiles = table.copy(def.tiles)
+            local tile = soup.tiles[1]
+            if type(tile) == "table" then
+                tile.name = tile.name.."^tech_soup.png"
+            else
+                tile = tile.."^tech_soup.png"
+                soup.tiles[1] = tile
+            end
+        end
+        -- drawtype and node_box
+        soup.drawtype = soup.drawtype or def.drawtype
+        soup.node_box = soup.node_box or soup.drawtype == "nodebox" and
+            {type = "fixed", fixed = bowl_fill_box} or nil
+        -- handle inventory_image and check description
+        soup.inventory_image = soup.inventory_image or def.inventory_image and
+            def.inventory_image.."^tech_soup_icon.png"
+        soup.description = soup.description or S("Bowl of @1 Soup","")
+        -- add empty def to soup def, add empty as value
+        soup = minimal.merge_tables(def, soup)
+        soup.bowl_empty = name
+        -- clear out unnecessary values
+        soup.soup_to = nil
+        soup.stew_to = nil
+        soup.on_soup_transfer = nil
+        -- set soup functions (on_use is carried from empty bowl if not provided)
+        soup.on_bowl_empty = soup.on_bowl_empty or soup_on_bowl_empty
+        -- save nutrition stats
+        soup.preserve_metadata = soup.preserve_metadata or soup_preserve_metadata
+        soup.after_place_node = soup.ater_place_node or soup_after_place
+        -- register
+        minetest.register_node(soup.name, soup)
+    end
+    if type(def.stew_to) == "string" or type(def.stew_to) == "table" then
+        -- figure out name lol
+        local stew = def.stew_to
+        stew = stew == "_stew" and name.."_stew" or stew
+        stew = type(stew) == "string" and {name=stew} or stew
+        stew.name = stew.name or name.."_stew"
+        stew.name = stew.name:sub(1,1) == ":" and mod_origin..stew.name or
+            not stew.name:match(":") and mod_origin..":"..stew.name or stew.name
+        -- set stew_to to stew table name if provided stew_to aint a string
+        def.stew_to = type(def.stew_to) == "string" and def.stew_to or stew.name
+        -- usual table stuff (before definition merge)
+        stew.groups = stew.groups or table.copy(def.groups)
+        stew.groups.stew = 1
+        stew.groups.edible = 2
+        -- get tiles from empty bowl def
+        if not stew.tiles then
+            stew.tiles = table.copy(def.tiles)
+            local tile = stew.tiles[1]
+            if type(tile) == "table" then
+                tile.name = tile.name.."^tech_stew.png"
+            else
+                tile = tile.."^tech_stew.png"
+                stew.tiles[1] = tile
+            end
+        end
+        -- drawtype and node_box
+        stew.drawtype = stew.drawtype or def.drawtype
+        stew.node_box = stew.node_box or stew.drawtype == "nodebox" and
+            {type = "fixed", fixed = bowl_fill_box} or nil
+        -- handle inventory_image and check description
+        stew.inventory_image = stew.inventory_image or def.inventory_image and
+            def.inventory_image.."^tech_stew_icon.png"
+        stew.description = stew.description or S("Bowl of @1 Stew","")
+        -- add empty def to stew def, add empty as value
+        stew = minimal.merge_tables(def, stew)
+        stew.bowl_empty = name
+        -- clear out unnecessary values
+        stew.stew_to = nil
+        stew.soup_to = nil
+        stew.on_soup_transfer = nil
+        -- set stew functions (on_use is carried from empty bowl if not provided)
+        stew.on_bowl_empty = stew.on_bowl_empty or soup_on_bowl_empty
+        -- save nutrition stats
+        stew.preserve_metadata = stew.preserve_metadata or soup_preserve_metadata
+        stew.after_place_node = stew.ater_place_node or soup_after_place
+        -- register
+        minetest.register_node(stew.name, stew)
+    end
+    -- final touches to the empty bowl
+    def.on_soup_transfer = def.on_soup_transfer or soup_transfer
+    minetest.register_node(name,def)
+end
+
+-- registration of clay + wooden food bowls, and their soup + stew variants
+register_food_bowl("food_bowl_clay")
+register_food_bowl("food_bowl_wooden",{
+    bowl_variant = "wooden"
 })
+minetest.register_alias_force("tech:soup","tech:food_bowl_clay_soup")
 
+-- # TODO: add options for more or less slots
+local function get_formspec()
+    local pot_formspec = "size[8,4.1]"..
+        "list[current_name;main;0,0;8,2]"..
+        "list[current_player;main;0,2.3;8,4]"..
+        "listring[current_name;main]"..
+        "listring[current_player;main]"
+    return pot_formspec
+end
+
+-- miscellaneous pot functions
+
+-- status: "" = unprepared, then: prepared (water), cooking/cooling, finished
+-- clear pot function
+-- clears all meta, refreshes formspec
 local function clear_pot(pos)
     minetest.get_node_timer(pos):stop()
+    local ndef = minimal.get_nodedef(pos)
+    if not ndef then return end -- can't do anything with a nil node
     local meta = minetest.get_meta(pos)
-    meta:set_string("formspec", "")
-    meta:set_string("type", "")
-    meta:set_string("status", "") -- "" = unprepared, then: prepared (water), cooking/cooling, finished
-    meta:set_string("status_string","")
-    meta:set_string("contents_string","")
-    meta:set_string("note","")
-    minimal.infotext_set_new(pos, meta)
+    meta:from_table() -- clear out meta
+    minimal.infotext_set_new(pos, meta, nil, nil, ndef)
     local inv = meta:get_inventory()
     inv:set_size("main", 8)
 end
 
-local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
-    local timer = minetest.get_node_timer(pos)
-    -- restart timer if there's issues
-    if timer:is_started() then return end
-    -- timer is dead, check status
-    local meta = minetest.get_meta(pos)
-    local status = meta:get_string("status")
-    if status == "" then return end -- no issues, pot hasn't started
-    timer:start(6) -- timer died somehow? restart it here
+-- get percent of total per each soup bowl
+-- percent must be 1-100
+local function get_eat(total, percent, serialize)
+    percent = type(percent) == "number" and percent or 10 -- default percentage of 10
+    if (percent < 1 or percent > 100) then return end -- maybe do an error instead
+    serialize = type(serialize) ~= "boolean" and true or serialize
+    percent = math.ceil(percent) -- no decimals
+    local result = {}
+    -- iterate over stats, only do calculation if number
+    for stat,value in pairs(total) do
+        if type(value) == "number" then
+            -- floor to get a reasonable integer
+            result[stat] = math.floor(value * (percent/100))
+        end
+    end
+    -- serialize if not otherwise specified
+    result = serialize and minetest.serialize(result) or result
+    return result
 end
 
-local function pot_receive_fields(pos, formname, fields, sender)
-    local meta = minetest.get_meta(pos)
-    local inv = meta:get_inventory():get_list("main")
-    if not inv then -- This is a bugged pot from before commit 851e0ec744
-        meta:get_inventory():set_size("main", 8) -- So, fix it
-        inv = meta:get_inventory():get_list("main")
+-- give a number on how long it should take to cook the stack
+local function calc_baking_time(stack,count)
+    -- #TODO: Check if we're adding to a stack, don't alter
+    local fname = stack:get_name()
+    local bake_data = HEALTH.bake_table[fname]
+    -- get baking time or 1 if already cooked
+    local time = bake_data and bake_data.duration or fname:match("_cooked") and 1 or nil
+    if not time then
+        -- no time, use half of nutrition unit value
+        local ft = HEALTH.get_food_stats(fname)
+        if not ft then return 0 end -- has no time to give (not a food? how?)
+        time = 1 + math.floor(math.abs(ft.hu)/2)
     end
-    local total = {hp=0,th=0,hu=0,en=0}
-    if meta:get_string("status") == "finished" then -- reset the pot for next cook
-        if meta:get_inventory():is_empty("main") then
-            clear_pot(pos)
-        end
+    count = count or stack:get_count()
+    local max_count = stack:get_stack_max()
+    -- divide_multiplier: ensure to get a number that doesn't go below 1
+    -- we basically check what number would be fair to utilize for quantity calculation
+    -- 4 is used as a predictive base as using max_count wouldn't do mass as fairly
+    -- we wouldn't want to do count/4 if the max_count is 2, as this'd make it easier to cook
+    -- so we do a baseline of 4 or the max_count, only an issue with any items with a max_count less than 4
+    local divide_multiplier = (max_count > 3 and 4 or max_count)
+
+    -- calculate time by quantity
+    -- use item count divided by a max_count that's divided by +1 multiplier as a safe guess to the total mass
+    -- minimum of 1 for time
+    return time * math.max(count / (max_count / divide_multiplier),1)
+end
+
+-- adjust baking
+-- ran in pot_on_receive_fields using the total time's worth from all provided ingredients
+-- calculates a difference from subtracting the total by current baking, adds to adjusting values
+-- adjusts two values - baking and "base_baking" 
+-- "base_baking" is used to determine what the pot should "uncook" back to when opened
+local function adjust_baking(meta, total)
+    if type(total) ~= "number" then return end
+    local b_bake = meta:get_int("base_baking")
+    if b_bake == 0 then
+        meta:set_int("base_baking", total)
+        meta:set_int("baking", total)
         return
     end
-    local contents="" -- String containing list of pot contents
-    if meta:get_string('type') == 'Soup' then
-        contents=S("Water, ")
-    end
-    for i = 1, #inv do
-        local result = HEALTH.get_food_stats(inv[i],true) -- second parameter: prefer cooked, raw if none
-        if result then
-            local count = inv[i]:get_count()
-            for stat,value in pairs(result) do
-                if total[stat] then -- prevent temp from being changed lol
-                    total[stat] = total[stat] + (value * count)
-                end
-            end
-            contents = contents..inv[i]:get_short_description()..", "
-        end
-    end
-    contents=contents:sub(1, #contents - 2) -- take last ', ' from contents
-    -- for infotext
-    meta:set_string("contents_string",S("Contents: @1",contents))
-    meta:set_string("note","nil") -- clear note about adding food
-    minimal.infotext_set_new(pos, meta)
-
-    local length = meta:get_int("baking")
-    if length <= (cook_time - 4) then
-        length = length + 4 -- don't open a cooking pot, you'll let the heat out
-        --TODO: Can we drain current temp while the formspec's open? Groups?
-        meta:set_int("baking", length)
-    end
-    meta:set_string("pot_contents", minetest.serialize(total))
+    -- we don't need to modify meta and do calculationes
+    if total == b_bake then return end
+    local bake = meta:get_int("baking")
+    local dif = total - b_bake
+    b_bake = b_bake + dif
+    bake = bake + dif
+    meta:set_int("base_baking", b_bake)
+    meta:set_int("baking", bake)
 end
 
-local function divide_portions(total)
-    local result = total
-    for stat,value in pairs(result) do
-        if type(value) == "number" then
-            result[stat] = (value / portions)
-        end
+-- On dig, ask if the player wants to dump the pot, losing the contents
+local function spill_pot(returnedyes, data, player, playername)
+    if returnedyes then
+        local pot = minetest.get_node(data.spillpos)
+        local potmeta = minetest.get_meta(data.spillpos)
+        potmeta:set_string("type", "")
+        minetest.node_dig(data.spillpos, pot, player)
     end
-    return result
 end
 
 -- spawn steam particles
@@ -220,260 +545,513 @@ local function spawn_steam(pos,def)
     end
 end
 
+-- functionality for determining if a player is looking in a pot
+-- look at minimal/storage_watcher_api.lua for more info
+local get_watchers = minimal.get_watchers
+local add_watcher = minimal.add_watcher
+local remove_watcher = minimal.remove_watcher
+
+
+-- PRIMARY POT FUNCTIONS
+
+-- pot_rightclick - what happens when you open the pot!
+local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
+    if not minetest.is_player(clicker) then return end
+    local meta = minetest.get_meta(pos)
+    local fspec = meta:get_string("formspec")
+    -- likely pot hasn't started or is finished, return
+    if fspec == "" then return end -- can't even access the formspec!
+    -- opening pot
+    -- play a sound if we're the first to open the pot
+    if #get_watchers(pos) == 0 then
+        local ndef = minetest.registered_nodes[node.name]
+        -- get or create sound for pot open
+        local sound = ndef.sounds and ndef.sounds.pot_open
+        sound = sound and table.copy(sound) or {
+            name = "tech_clay_storage_open",
+            gain = 0.4,
+            max_hear_distance = 14
+        }
+        sound.pos = pos
+        minetest.sound_play(sound.name, sound)
+    end
+    add_watcher(pos, clicker)
+end
+
+-- receive fields, what happens when player closes the formspec
+-- if ingredients are added:
+-- ;timer is set or restarted if inactive here
+-- ;note is changed to be nil
+-- ;baking meta is set
+-- plays close sound
+local function pot_receive_fields(pos, formname, fields, sender)
+    local meta = minetest.get_meta(pos)
+    if minetest.is_protected(pos, sender, meta) then return end
+
+    local ndef = minimal.get_nodedef(pos) -- used to get sounds and for infotext setting
+    -- closing pot, 1 less player looking inside (done purposefully before all return checks)
+    -- play a sound if we're the last to close the pot
+    remove_watcher(pos, sender)
+    if #get_watchers(pos) == 0 then
+        -- get or create sound for pot close
+        local sound = ndef.sounds and ndef.sounds.pot_close
+        sound = sound and table.copy(sound) or {
+            name = "tech_clay_storage_close",
+            gain = 0.4,
+            max_hear_distance = 14
+        }
+        sound.pos = pos
+        minetest.sound_play(sound.name, sound)
+    end
+
+    local inv = meta:get_inventory()
+    local inv_main = inv:get_list("main")
+    if not inv_main then -- this is a bugged pot from before commit 851e0ec744
+        return clear_pot(pos) -- return and fix it!
+    end
+    -- return if inventory is empty (add your ingredients lol)
+    if inv:is_empty("main") then
+        meta:set_string("pot_contents","")
+        return
+    end
+    -- total worth of satiation
+    local water_type = meta:get_string("water_type")
+    local total = {hp=0,th=0,hu=0,en=0}
+    local contents = {} -- table containing list of pot contents
+    if water_type == 'nodes_nature:freshwater_source' then -- regular water
+        total.th = 100
+        contents = {S("Water")}
+    elseif water_type == 'nodes_nature:saltwater_source' then -- saltwater, NOT YET IMPLEMENTED
+    end
+    local time = ndef.cook_base_baking or 1
+    -- calculating satiation worth of all items
+    for index, item in pairs(inv_main) do
+        local stats = HEALTH.get_food_stats(item, true) -- second parameter: prefer cooked, raw if none
+        if stats then -- only make calculations if stats are found
+            local count = item:get_count()
+            time = time + calc_baking_time(item, count)
+            for stat,value in pairs(stats) do
+                if total[stat] then -- prevent temp from being changed lol
+                  total[stat] = total[stat] + (value * count)
+                end
+            end
+            -- add to contents table
+            contents[#contents + 1] = item:get_short_description()
+        -- hey, you shouldn't be in here! throw it out!
+        else
+            minetest.add_item(minimal.pos_shift(pos,{y=1}), item)
+            inv:set_stack("main", index, "") -- clear out from inventory
+        end
+    end
+    -- no contents in the pot, do not adjust baking or modify infotext
+    if #contents < 2 then return end
+    -- restart timer if there's issues (or start it)
+    local timer = minetest.get_node_timer(pos)
+    -- timer died, run it again
+    if not timer:is_started() then
+        timer:start(6)
+    end
+    adjust_baking(meta, time)
+    -- convert to string
+    contents = table.concat(contents, ", ")
+    -- for infotext
+    meta:set_string("contents_string",S("Contents: @1",contents))
+    meta:set_string("note","nil") -- clear note about adding food
+    -- pos, meta, meta_params, custom_func, nodedef
+    minimal.infotext_set_new(pos, meta, nil, nil, ndef)
+    -- set soup satiation
+    meta:set_string("pot_contents", minetest.serialize(total))
+end
+
 local function pot_cook(pos, elapsed)
     local meta = minetest.get_meta(pos)
-    local inv = meta:get_inventory():get_list("main")
-    local total = ( minetest.deserialize(meta:get_string("pot_contents")) or
-                    {hp=0,th=0,hu=0,en=0 } )
-    total.th = total.th or 0
-    local kind = meta:get_string("type")
-    climate.heat_transfer(pos, "tech:cooking_pot")
+    -- node definition used to get name, sounds, and determine portions
+    local ndef = minimal.get_nodedef(pos)
+    -- commit heat transfer
+    climate.heat_transfer(pos, ndef.name)
     local temp = climate.get_point_temp(pos)
+    -- meta variables
+    local kind = meta:get_string("type")
     local baking = meta:get_int("baking")
     local status = meta:get_string("status")
+    -- set up sounds
+    local sounds = ndef.sounds or {}
+    sounds.frying_final = sounds.frying_final or {
+        name = "tech_frying_final",
+        gain = 2,
+        fade = 0.1,
+        max_hear_distance = 13,
+    }
+    sounds.frying_start = sounds.frying_start or {
+        name = "tech_frying_start",
+        gain = 1,
+        fade = 1,
+        max_hear_distance = 12,
+    }
+    sounds.frying = sounds.frying or {
+        name = "tech_frying",
+        gain = {2,6},
+        fade = 0.4,
+        max_hear_distance = 10,
+    }
+    -- fix weird changed timeout bug?
+    if status == "" then return end
+
+    -- soup done
     if status == "finished" then
-        -- Handle burning food here
-        --TODO: burned: reduce the value of pot_contents, emit more smoke
+      return -- just end the timer for now
+      -- Handle burning food here
+      --TODO: burned: reduce the value of pot_contents, emit more smoke
+    -- let's do some cooking checks
     else
-        if kind == "Soup" then -- or kind == "etc"; this only runs if we're cooking
+        local inv = meta:get_inventory()
+        local inv_main = inv:get_list("main")
+        -- basically means we're workin on a nice yummy treat
+        if kind == "Soup" then
+            -- finished cooking
             if baking <= 0 then
-                local firstingr
-                for i = 1, #inv do
-                    local ingr = inv[i]:get_short_description()
-                    if ingr ~= "" then
-                        firstingr = ingr
-                        break
+                -- get pot contents table (satiation total)
+                local total = minetest.deserialize(meta:get_string("pot_contents"))
+                local firstingr -- first ingredient (used to determine name of soup)
+                -- we got ourselves odd soup if there's no total
+                if total then
+                    for _,ingr in pairs(inv_main) do
+                        -- get first ingredient
+                        if ingr:get_short_description() ~= "" then
+                            firstingr = ItemStack(ingr) -- get the itemstack for further assessment
+                            break -- end loop
+                        end
                     end
+                    -- get description of first ingredient
+                    if firstingr then
+                        local name = firstingr:get_name()
+                        local bake_var = HEALTH.bake_table[name]
+                        -- get description of the cooked variant
+                        if bake_var then
+                            name = bake_var.cooked or name.."_cooked"
+                            if minetest.registered_items[name] then
+                                firstingr = ItemStack(name)
+                            end
+                        end
+                        firstingr = firstingr:get_short_description()
+                    end
+                else
+                    -- ooOOOOooo mysterious soup! Let's give players a bonus for breaking the game lol
+                    total = {hp=10,th=100,hu=70,en=20}
+                    -- permit ability to grab soup from
+                    meta:set_string("pot_contents",minetest.serialize(total))
                 end
-                if firstingr then
-                    firstingr = firstingr:gsub(" %(uncooked%)","")
-                    firstingr = firstingr:gsub("Unbaked ","")
-                    firstingr = firstingr:gsub(" Carcass","")
-                    firstingr = firstingr.." "
-                end
-                for i = 1, #inv do
-                    inv[i]:clear()
-                end
-                -- somehow you can get a soup without a proper firstingr, whodathunkit?
                 firstingr = firstingr or "Odd"
+                -- setting of variables + backwards compatibility for old table system
+                -- 1, 2, 3, 4 - or hp, th, hu, en
+                for i,val in pairs({"hp","th","hu","en"}) do
+                    total[val] = total[val] or total[i]
+                end
+                -- complete final steps
                 spawn_steam(pos,{amt={22,45}})
-                minetest.sound_play("tech_frying_final",{
-                                        pos = pos,
-                                        gain = 2,
-                                        fade = 0.1,
-                                        max_hear_distance = 13,
-                })
-                inv[1]:replace(ItemStack("tech:soup "..portions))
-                local imeta = inv[1]:get_meta()
-                local portion = divide_portions(total)
-                portion.th = portion.th + (100 / portions)
-                imeta:set_string("eat_value", minetest.serialize(portion))
-                imeta:set_string("description", S("@1 soup",firstingr))
-                meta:get_inventory(pos):set_list("main", inv)
-                meta:set_string("contents_string",S("Contents: @1 soup",firstingr))
-                meta:set_string("status_string",S("Status: @1 pot (finished)", S(kind)))
+                local sound = table.copy(sounds.frying_final)
+                sound.pos = pos
+                minimal.sound_play(sound)
+                -- stew is when hunger content is greater than thirst content
+                kind = total.hu > total.th and "Stew" or kind
+                -- remove formspec + inventory, set percentage
+                meta:set_string("formspec","")
+                inv:set_size("main", 0)
+                meta:set_int("soup_percent",100)
+                -- set as finished
                 meta:set_string("status", "finished")
-                minimal.infotext_set_new(pos, meta) -- update infotext
-                return
-            elseif temp < cook_temp[kind] then
-                if status ~= "prepared" and status ~= 'cooling' then
-                    meta:set_string("status", "cooling")
-                    meta:set_string("status_string",S('Status: @1 pot', S(kind)))
-                    minimal.infotext_set_new(pos, meta)
-                end
-                return
-            elseif temp >= cook_temp[kind] then
-                if meta:get_inventory():is_empty("main") then
-                    return
-                end
+                -- set kind again for soup/stew
+                if kind == "Stew" then meta:set_string("type",kind) end
+                -- get proper description
+                local desc = S(
+                  "Bowl of @1 "..(kind == "Stew" and "Stew" or "Soup"),firstingr
+                )
+                meta:set_string("soup_desc", desc) -- used to name gotten soup
+                inv:set_list("main", inv_main)
+                -- set infotext
+                meta:set_string("contents_string",S("Contents: @1",desc))
+                meta:set_string("status_string",S("Status: @1 pot (finished)",S(kind)))
+                -- pos, meta, meta_params, custom_func, nodedef
+                minimal.infotext_set_new(pos, meta, nil, nil, ndef)
+            -- we're gonna cook!
+            elseif temp >= 100 then
+                if inv:is_empty("main") then return end -- no inventory weird
+                -- not cooking already, let's get to it!
                 if status ~= 'cooking' then
                     meta:set_string('status', 'cooking')
                     meta:set_string('status_string',S("Status: @1 pot (cooking)", S(kind)))
-                    minimal.infotext_set_new(pos, meta)
+                    minimal.infotext_set_new(pos, meta, nil, nil, ndef)
                     spawn_steam(pos,{amt={14,24}})
-                    minetest.sound_play("tech_frying_start",{
-                                            pos = pos,
-                                            gain = 1,
-                                            fade = 1,
-                                            max_hear_distance = 12,
-                    })
+                    local sound = table.copy(sounds.frying_start)
+                    sound.pos = pos
+                    minimal.sound_play(sound)
+                    return true
+                -- already cookin'
                 else
                     spawn_steam(pos)
-                    minimal.sound_play("tech_frying",{
-                                           pos = pos,
-                                           gain = {2,6},
-                                           fade = 0.4,
-                                           max_hear_distance = 10,
-                    })
+                    local sound = table.copy(sounds.frying)
+                    sound.pos = pos
+                    minimal.sound_play(sound)
                 end
-                meta:set_int("baking", baking - 1)
+                baking = baking - 1
+            -- too cold
+            elseif temp < 100 then
+                if status ~= 'prepared' and status ~= 'cooling' then
+                    meta:set_string("status", "cooling")
+                    meta:set_string("status_string",S('Status: @1 pot', S(kind)))
+                    minimal.infotext_set_new(pos, meta, nil, nil, ndef)
+                end
+            end -- baking/temp if statements
+            -- check if we should decrease baking
+            if baking >= 0 then
+                -- someone's peepin!
+                if #get_watchers(pos) > 0 then
+                    local base_baking = meta:get_int("base_baking")
+                    -- only increase baking if base_baking is over 4, and if baking is less than base_baking minus 2
+                    if base_baking >= 4 and (baking <= (base_baking-2)) then
+                      baking = baking + random(1,2) -- add 1 to 2
+                    end
+                end
+                -- now set baking
+                meta:set_int("baking",baking)
             end
-        end -- Soup
-    end -- status == finished
+        
+      end -- 'kind' if statement
+  end -- 'finished' if statement
+  return true
 end
 
-local function calc_baking_time(stack)
-    -- #TODO: Check if we're adding to a stack, don't alter
-    local fname = stack:get_name()
-    -- in order of priority;
-    -- baking time
-    -- already cooked
-    -- use half of nutrition unit value
-    local bake_data = HEALTH.bake_table[fname]
-    local time = bake_data and bake_data.duration or fname:match("_cooked") and 1 or nil
-    if not time then
-        local ft = HEALTH.get_food_stats(fname)
-        if not ft then return 0 end -- has no time to give
-        return 1 + math.floor(math.abs(ft.hu)/2)
-    end
-    return time
-end
-
--- On dig, ask if the player wants to dump the pot, losing the contents
-local function spill_pot(returnedyes, data, player, playername)
-    if returnedyes then
-        local pot = minetest.get_node(data.spillpos)
-        local potmeta = minetest.get_meta(data.spillpos)
-        potmeta:set_string("type", "")
-        minetest.node_dig(data.spillpos, pot, player)
-    end
-end
-
-minetest.register_node(
-    "tech:cooking_pot", {
-        description = S("Cooking Pot"),
-        tiles = {"tech_pottery.png",
-                 "tech_pottery.png",
-                 "tech_pottery.png",
-                 "tech_pottery.png",
-                 "tech_pottery.png"},
-        drawtype = "nodebox",
-        stack_max = minimal.stack_max_bulky,
-        paramtype = "light",
-        paramtype2 = "facedir",
-        node_box = {
-            type = "fixed",
-            fixed = pot_box,
-        },
-        groups = {dig_immediate = 3, pottery = 1, heatable = 75 },
-        sounds = nodes_nature.node_sound_stone_defaults(),
-        on_construct = function(pos)
-            clear_pot(pos)
-        end,
-        on_rightclick = function(...)
-            return pot_rightclick(...)
-        end,
-        on_dig = function(pos, node, digger)
-            local playername = digger:get_player_name()
-            if minetest.is_protected(pos, playername) then
-                return false
-            end
-            local meta = minetest.get_meta(pos)
-            local inv = meta:get_inventory()
-            local pottype = meta:get_string("type")
-            if ( not inv:is_empty("main")
-                 or pottype ~= "") then -- type is empty on uprepared pot
-                minimal.yes_or_no(playername,
-                                  S("This pot is full and heavy. "..
-                                    "Spill it?"), spill_pot,
-                                  { spillpos = pos } )
-                return false
-            end
-            minetest.node_dig(pos, node, digger)
-        end,
-        on_receive_fields = function(...)
-            pot_receive_fields(...)
-        end,
-        on_timer = function(pos, elapsed)
-            pot_cook(pos, elapsed)
-            return true
-        end,
-        allow_metadata_inventory_put = function(
-                pos, listname, index, stack, player)
-            local fname = stack:get_name()
-            if not HEALTH.food_table[fname] and not HEALTH.bake_table[fname] then
-                return 0
-            end
-            local meta = minetest.get_meta(pos)
-            if meta:get_string("status") == "finished" then
-                --prevent adding items after cooking is complete
-                return 0
-            end
-            local inv = meta:get_inventory():get_list(listname)
-            local count = stack:get_count()
-            --if we put new items in during cook, extend "baking" time further
-            meta:set_int("baking", meta:get_int("baking")
-                         + calc_baking_time(stack))
-            for i = 1, #inv do
-                -- Only allow one stack of a given item
-                if not (i == index) and inv[i]:get_name() == stack:get_name() then
+minetest.register_node("tech:cooking_pot",{
+    description = S("Cooking Pot"),
+    tiles = {"tech_pottery.png",
+    "tech_pottery.png",
+    "tech_pottery.png",
+    "tech_pottery.png",
+    "tech_pottery.png"},
+    drawtype = "nodebox",
+    stack_max = minimal.stack_max_bulky,
+    paramtype = "light",
+    paramtype2 = "facedir",
+    node_box = {
+        type = "fixed",
+        fixed = pot_box
+    },
+    groups = {dig_immediate = 3, pottery = 1, cooking_pot = 1, heatable = 75 },
+    sounds = nodes_nature.node_sound_stone_defaults(),
+    on_construct = clear_pot,
+    on_rightclick = pot_rightclick,
+    on_timer = pot_cook,
+    on_dig = function(pos, node, digger)
+        if not minetest.is_player(digger) then return end
+        local playername = digger:get_player_name()
+        local meta = minetest.get_meta(pos)
+        if minetest.is_protected(pos, playername, meta) then
+            return false
+        end
+        local inv = meta:get_inventory()
+        local pottype = meta:get_string("type")
+        if ( not inv:is_empty("main")
+             or pottype ~= "") then -- type is empty on uprepared pot
+            minimal.yes_or_no(playername,
+                              S("This pot is full and heavy. "..
+                                "Spill it?"), spill_pot,
+                              { spillpos = pos } )
+            return false
+        end
+        minetest.node_dig(pos, node, digger)
+    end,
+    -- inventory functions
+    on_receive_fields = pot_receive_fields,
+    allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+        local stackdef = stack:get_definition()
+        -- can't be added to soup
+        if stackdef.groups and
+            stackdef.groups.no_soup and stackdef.groups.no_soup > 0 then
+            return 0
+        end
+        -- not a valid food or cookable
+        if not HEALTH.food_table[stackdef.name] and
+            not HEALTH.bake_table[stackdef.name] then
+            return 0
+        end
+        local meta = minetest.get_meta(pos)
+        if minetest.is_protected(pos, player, meta) then return 0 end
+        -- prevent adding items after cooking is complete
+        if meta:get_string("status") == "finished" then
+          return 0
+        end
+        local inv = meta:get_inventory():get_list(listname)
+        local count = stack:get_count()
+        -- check through pot inventory
+        for i,item in pairs(inv) do
+            -- Only 1 stack of a given item at a time
+            if item:get_name() == stack:get_name() then
+                -- can we fit into this index?
+                if i == index then
+                    -- if count is greater than available space, subtract to
+                    count = math.min(item:get_stack_max() - item:get_count(), count)
+                    if count <= 0 then return 0 end -- can't actually add anymore
+                    break
+                else
                     return 0
                 end
             end
-            return count
-        end,
-        allow_metadata_inventory_take = function(
-                pos, listname, index, stack, player)
-            local meta = minetest.get_meta(pos)
-            local status = meta:get_string("status")
-            --prevent removing items once cooking begins
-            if status ~= "" and status ~= "finished" and status ~= "prepared" then -- "" means cooking never started.
-                return 0
-            end
-            meta:set_int("baking", meta:get_int("baking")
-                         - calc_baking_time(stack))
-            return stack:get_count()
-        end,
-        on_infotext = function(pos, nodedef, meta, params)
-            params = minimal.infotext_update_params(meta, params)
-            params.description = nodedef.description
-            -- get proper owner string
-            params = minimal.infotext_get_base_params(nil, meta, params)
-            -- get base status'
-            params.status_string = params.status_string or S("Unprepared Pot")
-            params.contents_string = params.contents_string or S("Contents: <EMPTY>")
-            params.note = params.note or S("Note: Add water to pot to make soup")
-            if params.note == "nil" then params.note = nil end -- no note to add
-            -- prioritize in order:
-            -- status_string, owner, contents, note
-            return params.status_string..(params.owner and params.owner ~= "" and "\n"..params.owner or "")..
-                "\n"..params.contents_string..(params.note and "\n"..params.note or "")
-        end,
-        -- liquid_store_pourin callback
-        -- so we don't need to set up functionality for water in pot_rightclick
-        ls_pourin = function(itemstack, user, pos, source, selfdef)
-            -- not even water we can use! return!
-            if source ~= "nodes_nature:freshwater_source" then return end
-            local meta = minetest.get_meta(pos)
-            if meta:get_string("status") ~= "" then return end -- pot is active, return
-            -- it's soupin' time
-            meta:set_string("type","Soup")
-            meta:set_string("status","prepared") -- between water and ingredients, and cooling/cooking/finished
-            meta:set_string("status_string",S("Soup Pot"))
-            meta:set_string("contents_string",S("Contents: Water"))
-            meta:set_string("note",S("Note: Add food to the pot to make soup"))
-            minimal.infotext_set_new(pos, meta)
-            meta:set_string("formspec", pot_formspec)
-            meta:set_int("baking", cook_time)
-            -- revv up those cookin' engines!
-            local timer = minetest.get_node_timer(pos)
-            timer:start(6)
-            -- play pour sounds if provided
-            local pourdef = itemstack:get_definition()
-            if pourdef and pourdef.sounds and pourdef.sounds.pour then
-                local sound = pourdef.sounds.pour
-                minimal.sound_play(minimal.merge_tables(sound,{pos = pos}))
-            end
-            -- drain or keep pot depending on if in creative
-            if not minimal.player_in_creative(user) then
-                return liquid_store.drain_store(user, itemstack)
-            end
-            return itemstack
-            -- TODO: use oil for fried food, saltwater for salted food (to preserve it)
-            -- XXX Was going to add ability to take water out of a prepared pot but more complicated
-            -- then expected will try again later
-            -- TPH: just see about using ls_fillup! :D ^^^
         end
+        return count
+    end,
+    allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+        local meta = minetest.get_meta(pos)
+        if minetest.is_protected(pos, player, meta) then return 0 end
+        local status = meta:get_string("status")
+        -- is cooking or already cooked, no takey
+        if status ~= "" and status ~= "prepared" then
+            return 0
+        end
+        -- ok you're allowed to take
+        local count = stack:get_count()
+        return count
+    end,
+    on_infotext = function(pos, nodedef, meta, params)
+        params = minimal.infotext_update_params(meta, params)
+        params.description = nodedef.description -- don't get description in get_base_params
+        -- get proper owner string
+        params = minimal.infotext_get_base_params(nil, meta, params)
+        -- get base status'
+        params.status_string = params.status_string or S("Unprepared Pot")
+        params.contents_string = params.contents_string or S("Contents: <EMPTY>")
+        params.note = params.note or S("Note: Add water to pot to make soup")
+        if params.note == "nil" then params.note = nil end -- no note to add
+        -- percentage system
+        if params.status == "finished" then
+            local leftover = params.soup_percent or 100
+            params.note = S("Leftover: @1%",leftover)
+        end
+        -- prioritize in order:
+        -- status_string, owner, contents, note
+        return params.status_string..(params.owner and params.owner ~= "" and "\n"..params.owner or "")..
+            "\n"..params.contents_string..(params.note and "\n"..params.note or "")
+    end,
+    -- liquid_store_pourin callback
+    -- so we don't need to set up functionality for water in pot_rightclick
+    ls_pourin = function(itemstack, user, pos, source, selfdef)
+        -- not even water we can use! return!
+        if source ~= "nodes_nature:freshwater_source" then return itemstack end
+        local meta = minetest.get_meta(pos)
+        if meta:get_string("status") ~= "" then return itemstack end -- pot is active, return
+        -- it's soupin' time
+        meta:set_string("type","Soup")
+        meta:set_string("status","prepared") -- between water and ingredients, and cooling/cooking/finished
+        meta:set_string("water_type",source) -- set water type
+        meta:set_string("status_string",S("Soup Pot"))
+        meta:set_string("contents_string",S("Contents: Water"))
+        meta:set_string("note",S("Note: Add food to the pot to make soup"))
+        minimal.infotext_set_new(pos, meta, nil, nil, selfdef)
+        meta:set_string("formspec", get_formspec())
+        -- play pour sounds if provided
+        local pourdef = itemstack:get_definition()
+        if pourdef and pourdef.sounds and pourdef.sounds.pour then
+            local sound = pourdef.sounds.pour
+            minimal.sound_play(minimal.merge_tables(sound,{pos = pos}))
+        end
+        -- drain or keep pot depending on if in creative
+        if not minimal.player_in_creative(user) then
+            return liquid_store.drain_store(user, itemstack)
+        end
+        return itemstack
+        -- TODO: use oil for fried food, saltwater for salted food (to preserve it)
+        -- TODO: add salt effect to soup, lessened water
+        -- XXX Was going to add ability to take water out of a prepared pot but more complicated
+        -- then expected will try again later
+        -- TPH: just see about using ls_fillup! :D ^^^
+    end,
+  -- custom functions
+  -- used for filling up a bowl
+  on_bowl_empty = function(pos, user, itemstack, meta, u_inv)
+      local itemdef = itemstack:get_definition()
+      -- needs to be able to become soup or stew, otherwise return
+      if not itemdef or not (itemdef.soup_to or itemdef.stew_to) then return end
+      meta = meta or minetest.get_meta(pos)
+      -- if cooking pot isn't done then there's no soup to get!
+      if meta:get_string("status") ~= "finished" then return end
+      local kind = meta:get_string("type")
+      local become = soup_get_become(itemdef, kind)
+      if not become then return end -- could not get soup/stew variant
+      -- no soup to get, return
+      if meta:get_string("pot_contents") == "" then return end
+      -- clicker needs an inventory
+      u_inv = u_inv or (user and user.get_inventory and user:get_inventory()) -- user inventory
+      if not u_inv then return end
+      -- get nutrition data
+      local total = minetest.deserialize(meta:get_string("pot_contents"))
+      if not total then return end -- could not get
+      -- soup_description, soup_percentage
+      local soup_desc = meta:get_string("soup_desc")
+      local soup_perc = meta:get_int("soup_percent")
+      -- old pot system, let's fix this mess! (compatibility)
+      if soup_desc == "" then
+          local inv = meta:get_inventory()
+          local inv_main = inv:get_list("main")
+          -- get soup description
+          soup_desc = inv_main[1]:get_description()
+          -- update pot and fix da mess
+          meta:set_string("soup_desc", soup_desc)
+          soup_perc = inv_main[1]:get_count()*10 -- times by 10 to get expected percentage
+          -- was an itemstack of 10 soups, so use that for expected calculation ^
+          meta:set_int("soup_percent", soup_perc)
+          inv:set_size("main", 0) -- delete inventory
+          meta:set_string("formspec","") -- delete formspec
+      end
+      -- aint no soup! clear!
+      if soup_perc < 1 then
+          return clear_pot(pos)
+      end
+      -- determine how much to take for soup
+      local take_perc = itemdef.soup_capacity or 10
+      -- ensure take_perc is within limits of current soup_perc
+      take_perc = math.min(take_perc, soup_perc)
+      local eat = get_eat(total, take_perc)
+
+      -- set up soup bowl for player
+      become = ItemStack(become)
+      local becmeta = become:get_meta()
+      becmeta:set_string("eat_value", eat)
+      becmeta:set_string("description", soup_desc)
+      -- modify pot data on success
+      local function modify_pot()
+          -- calculate new soup_perc
+          soup_perc = soup_perc - take_perc
+          -- reset pot upon full clearing
+          if soup_perc < 1 then
+              clear_pot(pos)
+          else -- otherwise lower soup percent
+              meta:set_int("soup_percent", soup_perc)
+              minimal.infotext_set_new(pos, meta)
+          end
+      end
+      -- inventory management
+      local plr_creative = minimal.player_in_creative(user)
+      local deplete_bowl = false
+      -- original itemstack cannot be replaced (more than 1 or player in creative)
+      if itemstack:get_count() > 1 or plr_creative then
+          if u_inv:room_for_item("main",become) then
+              deplete_bowl = not plr_creative and true
+              u_inv:add_item("main",become)
+              modify_pot()
+          -- no room, abort
+          else
+              minimal.warn_inv_full(user)
+          end
+      -- last bowl used, replace instead
+      else
+          itemstack = become
+          modify_pot()
+      end
+      -- only take away 1 bowl if can deplete
+      if deplete_bowl then
+          itemstack:take_item()
+      end
+      return itemstack
+  end
 })
 
 minetest.register_node(
