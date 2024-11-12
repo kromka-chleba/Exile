@@ -182,7 +182,7 @@ function plant.new(def)
     light_range[2] = nil
     if def.lifeform_type == "mushroom" then
         light_range.min = light_range.min or 0
-        light_range.max = light_range.max or 4
+        light_range.max = light_range.max or 3
     elseif (def.plant_type == "cane" or def.plant_type == "bamboo") then
         light_range.min = light_range.min or 14
         light_range.max = light_range.max or 15
@@ -926,6 +926,9 @@ function plant.get_seed_base_props(plant_def)
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
         },
+        -- ranges
+        plant_temp_range = plant_def.temp_range,
+        plant_light_range = plant_def.light_range,
         _next_life_stage = next_life_stage,
         _seed_name = get_name(plant_def.name,"seed"),
         on_timer = function(pos, elapsed)

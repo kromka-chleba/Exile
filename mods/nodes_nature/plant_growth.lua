@@ -107,8 +107,9 @@ local function is_on_sediment(pos)
     return minimal.pos_group(pos_under, "sediment")
 end
 
-local function is_mushroom(pos)
-    return minimal.pos_group(pos, "mushroom")
+local function is_mushroom(pos, mdef)
+    mdef = mdef or minetest.registered_nodes[minetest.get_node(pos).name]
+    return mdef.groups and mdef.groups.mushroom and mdef.groups.mushroom > 0
 end
 
 function nn.plant.get_light(pos)
@@ -121,9 +122,15 @@ function nn.plant.get_light(pos)
     return natural
 end
 
-local function is_dark(pos)
-    local light = nn.plant.get_light(pos)
-    return light < 4
+local function is_light_good(pos, pdef, light)
+    light = light or nn.plant.get_light(pos)
+    return light <= pdef.plant_light_range.max and light >= pdef.plant_light_range.min
+end
+
+local function is_light_good_when_day(pos, pdef, light)
+    local pos_above = minimal.get_pos_above(pos)
+    light = light or minimal.get_daylight(pos_above, 0.5) or 0
+    return is_light_good(pos, pdef, light)
 end
 
 local function calculate_average_light(pos)
@@ -148,42 +155,39 @@ local function get_light_cofactor(pos)
     end
 end
 
-local function is_dark_when_day(pos)
-    local pos_above = minimal.get_pos_above(pos)
-    local light = minimal.get_daylight(pos_above, 0.5) or 0
-    return light < 4
-end
-
-local function is_temperature_extreme(pos)
+local function is_temperature_extreme(pos, pdef)
+    pdef = pdef or minetest.registered_nodes[minetest.get_node(pos).name]
     local temp = climate.get_point_temp(pos)
-    return temp < -30 or temp > 60
+    -- -30C to 60C
+    return temp < (pdef.plant_temp_range.min - 35) or temp > (pdef.plant_temp_range.max + 20)
 end
 
-local function is_temperature_good(pos)
+local function is_temperature_good(pos, pdef)
     local temp = climate.get_point_temp(pos)
-    return temp > 5 and temp < 40
+    return temp > pdef.plant_temp_range.min and temp < pdef.plant_temp_range.max
 end
 
-local function is_soil_and_temp_good(pos)
+local function is_soil_and_temp_good(pos, pdef)
+    pdef = pdef or minetest.registered_nodes[minetest.get_node(pos).name]
     --if not on sediment abort
-    if not is_on_sediment(pos) then
+    if not is_on_sediment(pos, pdef) then
         return false
     end
     --semi-extreme temps stop growth
-    if not is_temperature_good(pos) then
+    if not is_temperature_good(pos, pdef) then
         return false
     end
     return true
 end
 
-local function are_conditions_good(pos)
-    if not is_soil_and_temp_good(pos) then
+local function are_conditions_good(pos, pdef)
+    pdef = pdef or minetest.registered_nodes[minetest.get_node(pos).name]
+    if not is_soil_and_temp_good(pos, pdef) then
         return false
     end
-    --cannot grow indoors (unless a mushroom)
-    if not is_mushroom(pos) and is_dark(pos) then
-        return false
-    end
+    -- light level is insufficient
+    -- too high or too low
+    if not is_light_good(pos, pdef) then return false end
     return true
 end
 
@@ -275,11 +279,9 @@ function nn.plant.kill(pos, natural_death)
     minimal.force_place_keep_param2(pos, dead_name)
 end
 
-local function was_light_here(pos, elapsed)
+local function was_light_here(pos, elapsed, pdef)
     -- 30 cycles without light kill a plant
-    if is_dark(pos) and
-        is_dark_when_day(pos) and
-        not is_mushroom(pos) and
+    if not (is_light_good(pos, pdef) and is_light_good_when_day(pos, pdef)) and
         elapsed > base_health * nn.plant_base_timer then
         return false
     end
@@ -287,7 +289,8 @@ local function was_light_here(pos, elapsed)
 end
 
 local function kill_no_light(pos, elapsed)
-    if not was_light_here(pos, elapsed) then
+    local pdef = minetest.registered_nodes[minetest.get_node(pos).name]
+    if not is_mushroom(pos, pdef) and not was_light_here(pos, elapsed, pdef) then
         nn.plant.kill(pos, false)
         return true
     end
@@ -453,7 +456,7 @@ end
 
 function nn.plant.grow_seed(pos, elapsed)
     local nodedef = minimal.get_nodedef(pos)
-    local good_time = good_time_rain_time(elapsed, is_mushroom(pos))
+    local good_time = good_time_rain_time(elapsed, is_mushroom(pos, nodedef))
     -- if conditions were good for germination we don't care about the present
     if elapsed > nn.seed_growing_time and good_time >= 60 then
         -- pass elapsed to seedlings so we can catch up from there
