@@ -119,6 +119,22 @@ end
 
 function what_is_this_uwu.get_node_tiles(node_name)
     local node = minetest.registered_nodes[node_name]
+    -- retain for its use of description if a different node is sought for its tiles/inventory_image
+    local return_node = node
+    -- checks for nodes that are variations of other cubic ones
+    if node and node.groups then
+        -- show proper image for sediments if slope
+        if node.node_box and node.groups.sediment then
+            node_name = node.groups.wet_sediment == 2 and node._wet_salty_name or
+            node.groups.wet_sediment == 1 and node._wet_name or node._dry_name
+        elseif node.mesh and node.groups.cracky then
+            -- boulder or cobble
+            if node.groups.boulder or node.groups.temp_flow then
+                node_name = node.name:sub(1,-9)
+            end
+        end
+        node = type(node_name) == "string" and minetest.registered_nodes[node_name] or node
+    end
     if not node or (not node.tiles and not node.inventory_image) then
         return "ignore", "node", false
     end
@@ -153,7 +169,7 @@ function what_is_this_uwu.get_node_tiles(node_name)
             tiles[6] = tiles[6].name
         end
 
-        return inventorycube(tiles[1], tiles[6], tiles[3]), "node", node
+        return inventorycube(tiles[1], tiles[6], tiles[3]), "node", return_node
     end
 end
 
@@ -193,13 +209,8 @@ local function format_strings(strings, lang_code)
 end
 
 local function update_size(...)
-    local player, whud, _, descriptions, _, item_type, lang_code = ...
+    local player, whud, fm_view, descriptions, _, item_type, lang_code = ...
     local sizex, sizey = calculate_size(descriptions, lang_code)
-    local desize = false
-    if item_type == "entity" then
-        desize = true
-        sizex = sizex + 18
-    end
     local y_scale = sizey
     local y_off = 33 + 2 * sizey
     player:hud_change(whud.bg_mid, "scale", { x = sizex / 16 + 1.5,
@@ -217,7 +228,7 @@ local function update_size(...)
     player:hud_change(whud.image, "offset", { x = -sizex / 2 - 12.5,
                                               y = y_off })
     player:hud_change(whud.name, "offset",
-                      { x = -sizex / 2 + ( desize and 0 or 16.5), y = y_off })
+                      { x = -sizex / 2 + (fm_view == "" and -3.5 or 16.5), y = y_off })
 end
 
 function what_is_this_uwu.show(player, form_view, descs, node_name,

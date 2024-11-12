@@ -13,19 +13,22 @@ local function unshow(player)
 end
 
 local function show(player)
-    local returnliquid = false
     local def = player:get_wielded_item():get_definition()
-    if def and def.liquids_pointable == true then returnliquid = true end
-    local ptd = minimal.get_pointed_thing(player, nil, true, returnliquid)
+    -- returnliquid as 4th parameter
+    local ptd = minimal.get_pointed_thing(player, nil, true, def and def.liquids_pointable)
     if not ptd then return end
     if ptd.type == "object" then
         local luaent = ptd.ref:get_luaentity()
         local obj = luaent.name
         local extra = luaent.witt_extra or {}
         local ndesc = minetest.registered_entities[obj]._desc
+        local icon = minetest.registered_items[obj]
+        if icon then
+            icon = icon.inventory_image and icon.inventory_image.."^[resize:16x16"
+        end
         if ndesc then
-            witt.show(player, "",
-                      { ndesc }, obj, "entity", extra)
+            witt.show(player, icon or "",
+                      {ndesc}, obj, "entity", extra)
             shown[player] = obj
         end
         return
