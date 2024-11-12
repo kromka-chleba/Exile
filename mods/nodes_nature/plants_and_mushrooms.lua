@@ -217,6 +217,7 @@ local plant_list = {
      edible_seedling = false},
 
     -- rhuyas are not dye candidates, do not specify dominant color
+    -- rhuyas are more resilient, especially hardy/wintery
     -- Rhuya: Kind of a mix between corn and wheat, corn-like fruit and plant size, wheat-like seed purposes
     -- fruit is toxic (and seeds maintain a bit of fruit toxins), tasting like like pine sap - bitter, and a bit sour
     {name = "rhuya", description = S("Rhuya"),
@@ -224,7 +225,8 @@ local plant_list = {
      plant_type = "herbaceous_plant", mesh_type = 0,
      growing_time = nn.plant_base_growing_time * 3,
      seasonal_type = "late", dry_fruit = true,
-     seed_texture = "nodes_nature_rhuya_seed.png"},
+     seed_texture = "nodes_nature_rhuya_seed.png",
+     temp_range = {4,48}},
 
     -- Rhuya: Winter Variant
     -- NOT meant to appear in the wild (domesticated only, do not add to mapgen)
@@ -236,7 +238,8 @@ local plant_list = {
      plant_type = "herbaceous_plant", mesh_type = 0,
      growing_time = nn.plant_base_growing_time * 3,
      seasonal_type = "wintery", dry_fruit = true,
-     seed_texture = "nodes_nature_rhuya_seed.png"},
+     seed_texture = "nodes_nature_rhuya_seed.png",
+     temp_range = {-12,40}},
 
     -- Mushrooms
 
