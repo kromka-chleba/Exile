@@ -119,11 +119,21 @@ end
 
 function what_is_this_uwu.get_node_tiles(node_name)
     local node = minetest.registered_nodes[node_name]
-    -- show proper image for sediments if slope
-    if node and node.node_box and node.groups and node.groups.sediment then
-        node = node.groups.wet_sediment == 2 and node._wet_salty_name or
-        node.groups.wet_sediment == 1 and node._wet_name or node._dry_name or node
-        node = type(node) == "string" and minetest.registered_nodes[node] or node
+    -- retain for its use of description if a different node is sought for its tiles/inventory_image
+    local return_node = node
+    -- checks for nodes that are variations of other cubic ones
+    if node and node.groups then
+        -- show proper image for sediments if slope
+        if node.node_box and node.groups.sediment then
+            node_name = node.groups.wet_sediment == 2 and node._wet_salty_name or
+            node.groups.wet_sediment == 1 and node._wet_name or node._dry_name
+        elseif node.mesh and node.groups.cracky then
+            -- boulder or cobble
+            if node.groups.boulder or node.groups.temp_flow then
+                node_name = node.name:sub(1,-9)
+            end
+        end
+        node = type(node_name) == "string" and minetest.registered_nodes[node_name] or node
     end
     if not node or (not node.tiles and not node.inventory_image) then
         return "ignore", "node", false
@@ -159,7 +169,7 @@ function what_is_this_uwu.get_node_tiles(node_name)
             tiles[6] = tiles[6].name
         end
 
-        return inventorycube(tiles[1], tiles[6], tiles[3]), "node", node
+        return inventorycube(tiles[1], tiles[6], tiles[3]), "node", return_node
     end
 end
 
