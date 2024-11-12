@@ -243,34 +243,38 @@ local plant_list = {
     --Lambakap. is also a mushroom.
     -- slow growing food and water source,
     -- main crop for longterm underground living.
+    -- bioengineered to be somewhat of an extremophile
 
     {name = "lambakap", description = S("Lambakap"),
      drawtype = "nodebox", nodebox = lambakap_nodebox,
      lifeform_type = "mushroom", dominant_color = "red", dye_candidate = true,
      growing_time = nn.plant_base_growing_time * 3,
-     bioluminescence = 2, extra_groups = {flammable = 6}},
+     bioluminescence = 2, extra_groups = {flammable = 6},
+     temp_range={0,75}, light_range={0,10}},
 
     --Reshedaar.  is also a mushroom.
     -- slow growing fibre mushroom,
     -- main fibre crop for longterm underground living.
+    -- survives in higher but not lower temperatures
 
     --(can't be bioluminescent or conflicts with recipe)
     {name = "reshedaar", description = S("Reshedaar"),
      drawtype = "nodebox", nodebox = reshedaar_nodebox,
      lifeform_type = "mushroom", plant_type = "fibrous_plant",
      growing_time = nn.plant_base_growing_time * 3,
-     dominant_color = "red", dye_candidate = true},
+     dominant_color = "red", dye_candidate = true, temp_range={12,65}},
 
     --Mahal. is also a mushroom.
     -- slow growing woody mushroom,
     -- main stick crop for longterm underground living.
+    -- survives in higher but not lower temperatures
 
     {name = "mahal", description = S("Mahal"),
      drawtype = "nodebox", nodebox = mahal_nodebox,
      lifeform_type = "mushroom", plant_type = "woody_plant",
      growing_time = nn.plant_base_growing_time * 3,
      dominant_color = "red", dye_candidate = true,
-     bioluminescence = 1,},
+     bioluminescence = 1, temp_range={12,65}},
 
     {name = "merki", description = S("Merki"),
      bioluminescence = 2, lifeform_type = "mushroom",
@@ -292,7 +296,7 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "yellow", dye_candidate = true,
      seasonal_type = "late_mushroom", only_dead_fruit = true,
-     fruit_description = S("Zufani Amber")},
+     fruit_description = S("Zufani Amber"), light_range={0,15}},
 
     -- Woody
     {name = "tsaplop", description = S("Tsaplop"),
