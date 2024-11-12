@@ -223,8 +223,6 @@ end
 
 function what_is_this_uwu.show(player, form_view, descs, node_name,
                                item_type, extra)
-    -- convert string into table (fix for entity description issues)
-    descs = type(descs) == "table" and descs or {descs}
     local pname = player:get_player_name()
     local w = witt_huds[pname]
 
