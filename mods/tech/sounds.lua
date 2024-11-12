@@ -70,6 +70,22 @@ function tech.node_sound_metal_hollow_defaults(table)
     return table
 end
 
+-- interactive vessels
+-- MUST BE PLAYED with minimal.sound_play
+function tech.interact_sound_cooking_vessel(table)
+    table = table or {}
+    table.frying = table.frying or table.frying ~= false and {
+        name = "tech_frying", gain = {2,6}, fade = 0.4, max_hear_distance = 10,
+    } or nil
+    table.frying_start = table.frying_start or table.frying_start ~= false and {
+        name = "tech_frying_start", gain = 1, fade = 1, max_hear_distance = 12
+    } or nil
+    table.frying_final = table.frying_final or table.frying_final ~= false and {
+        name = "tech_frying_final", gain = 2, fade = 0.1, max_hear_distance = 13
+    } or nil
+    return table
+end
+
 -- foody
 -- breads
 -- TODO: see about getting "crunchy" bread and true unleavened sounds

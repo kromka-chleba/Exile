@@ -676,24 +676,6 @@ local function pot_cook(pos, elapsed)
     local status = meta:get_string("status")
     -- set up sounds
     local sounds = ndef.sounds or {}
-    sounds.frying_final = sounds.frying_final or {
-        name = "tech_frying_final",
-        gain = 2,
-        fade = 0.1,
-        max_hear_distance = 13,
-    }
-    sounds.frying_start = sounds.frying_start or {
-        name = "tech_frying_start",
-        gain = 1,
-        fade = 1,
-        max_hear_distance = 12,
-    }
-    sounds.frying = sounds.frying or {
-        name = "tech_frying",
-        gain = {2,6},
-        fade = 0.4,
-        max_hear_distance = 10,
-    }
     -- fix weird changed timeout bug?
     if status == "" then return end
 
@@ -749,9 +731,9 @@ local function pot_cook(pos, elapsed)
                 end
                 -- complete final steps
                 spawn_steam(pos,{amt={22,45}})
-                local sound = table.copy(sounds.frying_final)
-                sound.pos = pos
-                minimal.sound_play(sound)
+                if sounds.frying_final then
+                    minimal.sound_play(minimal.merge_tables(sounds.frying_final,{pos = pos}))
+                end
                 -- stew is when hunger content is greater than thirst content
                 kind = total.hu > total.th and "Stew" or kind
                 -- remove formspec + inventory, set percentage
@@ -782,16 +764,16 @@ local function pot_cook(pos, elapsed)
                     meta:set_string('status_string',S("Status: @1 pot (cooking)", S(kind)))
                     minimal.infotext_set_new(pos, meta, nil, nil, ndef)
                     spawn_steam(pos,{amt={14,24}})
-                    local sound = table.copy(sounds.frying_start)
-                    sound.pos = pos
-                    minimal.sound_play(sound)
+                    if sounds.frying_start then
+                        minimal.sound_play(minimal.merge_tables(sounds.frying_start,{pos = pos}))
+                    end
                     return true
                 -- already cookin'
                 else
                     spawn_steam(pos)
-                    local sound = table.copy(sounds.frying)
-                    sound.pos = pos
-                    minimal.sound_play(sound)
+                    if sounds.frying then
+                        minimal.sound_play(minimal.merge_tables(sounds.frying,{pos = pos}))
+                    end
                 end
                 baking = baking - 1
             -- too cold
@@ -837,7 +819,7 @@ minetest.register_node("tech:cooking_pot",{
         fixed = pot_box
     },
     groups = {dig_immediate = 3, pottery = 1, cooking_pot = 1, heatable = 75 },
-    sounds = nodes_nature.node_sound_stone_defaults(),
+    sounds = nodes_nature.node_sound_stone_defaults(tech.interact_sound_cooking_vessel()),
     on_construct = clear_pot,
     on_rightclick = pot_rightclick,
     on_timer = pot_cook,
