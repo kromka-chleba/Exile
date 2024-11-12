@@ -299,7 +299,7 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "yellow", dye_candidate = true,
      seasonal_type = "late_mushroom", only_dead_fruit = true,
-     fruit_description = S("Zufani Amber"), light_range={0,15}},
+     fruit_description = S("Zufani Amber"), light_range={max=15}},
 
     -- Woody
     {name = "tsaplop", description = S("Tsaplop"),

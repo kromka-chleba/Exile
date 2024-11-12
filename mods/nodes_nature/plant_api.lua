@@ -184,7 +184,7 @@ function plant.new(def)
         light_range.min = light_range.min or 0
         light_range.max = light_range.max or 3
     elseif (def.plant_type == "cane" or def.plant_type == "bamboo") then
-        light_range.min = light_range.min or 14
+        light_range.min = light_range.min or 12
         light_range.max = light_range.max or 15
     else
         light_range.min = light_range.min or 4
@@ -198,7 +198,7 @@ function plant.new(def)
     temp_range[1] = nil
     temp_range[2] = nil
     -- usual range: 5 to 40C
-    temp_range.min = temp_range.min or 5
+    temp_range.min = temp_range.min or temp_range.max and temp_range.max - 35 or 5
     temp_range.max = temp_range.max or temp_range.min + 35
     def.temp_range = temp_range
     --[[ other custom values checked for definition:
