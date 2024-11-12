@@ -174,9 +174,35 @@ function plant.new(def)
     -- nil if not provided
     def.thorns = def.thorns and 1 or nil
     def.waving = def.waving and 1 or nil
+    -- light range
+    local light_range = def.light_range or {}
+    light_range.min = light_range.min or light_range[1]
+    light_range.max = light_range.max or light_range[2]
+    light_range[1] = nil
+    light_range[2] = nil
+    if def.lifeform_type == "mushroom" then
+        light_range.min = light_range.min or 0
+        light_range.max = light_range.max or 4
+    elseif def.plant_type == "cane" then
+        light_range.min = light_range.min or 14
+        light_range.max = light_range.max or 15
+    else
+        light_range.min = light_range.min or 4
+        light_range.max = light_range.max or 15
+    end
+    def.light_range = light_range
+    -- temp range
+    local temp_range = def.temp_range or {}
+    temp_range.min = temp_range.min or temp_range[1]
+    temp_range.max = temp_range.max or temp_range[2]
+    temp_range[1] = nil
+    temp_range[2] = nil
+    -- usual range: 5 to 40C
+    temp_range.min = temp_range.min or 5
+    temp_range.max = temp_range.max or temp_range.min + 35
+    def.temp_range = temp_range
     --[[ other custom values checked for definition:
         soil_preferences
-        light_range
         mesh_type -- see the comment above
         bioluminescence
         move_resistance
