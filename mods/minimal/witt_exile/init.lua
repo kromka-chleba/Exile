@@ -28,7 +28,7 @@ local function show(player)
         end
         if ndesc then
             witt.show(player, icon or "",
-                      ndesc, obj, "entity", extra)
+                      {ndesc}, obj, "entity", extra)
             shown[player] = obj
         end
         return
