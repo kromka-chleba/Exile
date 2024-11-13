@@ -31,13 +31,11 @@ function soil_preferences.new(args)
     return prefs
 end
 
-function soil_preferences.is_sediment_good(sed_name, plant_prefs)
-    local rocky_substrate = minetest.get_item_group(sed_name,
-                                                    "rocky_substrate")
-    local organic_substrate = minetest.get_item_group(sed_name,
-                                                      "organic_substrate")
-    local density = minetest.get_item_group(sed_name, "density")
+function soil_preferences.is_sediment_good(groups, plant_prefs)
     if not plant_prefs then return true end
+    local rocky_substrate = groups.rocky_substrate
+    local organic_substrate = groups.organic_substrate
+    local density = groups.density
     if rocky_substrate then
         if not (rocky_substrate >= plant_prefs.rocky_substrate.min
                 and rocky_substrate <= plant_prefs.rocky_substrate.max) then
@@ -65,40 +63,29 @@ end
 -- this procedure returns a timer
 local function seed_soil_response(pos, soil_prefs)
     local pos_under = minimal.get_pos_under(pos)
-    local node_under = minetest.get_node(pos_under).name
-    local sediment = minetest.get_item_group(node_under, "sediment")
-    if sediment == 0 then
+    -- sediment def
+    local sdef = minimal.get_nodedef(pos_under)
+    -- huh not a node
+    if not sdef then return 0 end
+    local groups = sdef.groups
+    -- we can't grow on this!!! has no stats!
+    if not groups then return end
+    -- salty wet or not sediment, can't grow on either
+    if groups.wet_sediment == 2 or not groups.sediment then
         return 0
     end
-    local wetness = minetest.get_item_group(node_under, "wet_sediment")
-    local progress = 1
-    if wetness == 1 then
-        progress = progress + 2
-    elseif wetness == 2 then -- salty
-        return 0
-    end
-    local is_soil_good = soil_preferences.is_sediment_good(node_under,
-                                                           soil_prefs)
-    local ag_soil = minetest.get_item_group(node_under, "agricultural_soil")
-    local fertile_soil = minetest.get_item_group(node_under, "fertile_soil")
-    if is_soil_good then
-        progress = progress + 2
-    end
-    -- normal and fertile agri soils can partially cancell effects of bad soil
-    if fertile_soil == 1 then
-        -- this is a hack because fertility doesn't work right now
-        progress = progress + 2
-    end
-    if ag_soil == 1 then
-        progress = progress + 2
-    end
-    if not is_soil_good then
-        return 0
-    end
-    local fertility = minetest.get_item_group(node_under, "fertility")
-    if fertility > 0 then
-        progress = progress + fertility
-    end
+    -- wet bonus
+    local progress = groups.wet_sediment == 1 and 3 or 1
+    -- soil prefs are WIP
+    --local is_soil_good = soil_preferences.is_sediment_good(groups,
+    --                                                       soil_prefs)
+    -- fertile + agricultural bonus
+    -- normal and fertile agri soils can partially cancel effects of bad soil
+    -- fertile_soil: this is a hack because fertility doesn't work right now
+    progress = progress + (groups.fertile_soil and 2 or 0)
+    progress = progress + (groups.agricultural_soil and 2 or 0)
+    -- fertility
+    progress = progress + (groups.fertility or 0)
     return progress
 end
 
