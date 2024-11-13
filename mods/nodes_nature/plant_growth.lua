@@ -156,7 +156,7 @@ local function get_light_cofactor(pos)
 end
 
 local function is_temperature_extreme(pos, pdef)
-    pdef = pdef or minetest.registered_nodes[minetest.get_node(pos).name]
+    pdef = pdef or minimal.get_nodedef(pos)
     local temp = climate.get_point_temp(pos)
     -- -30C to 60C
     return temp < (pdef.plant_temp_range.min - 35) or temp > (pdef.plant_temp_range.max + 20)
@@ -168,7 +168,7 @@ local function is_temperature_good(pos, pdef)
 end
 
 local function is_soil_and_temp_good(pos, pdef)
-    pdef = pdef or minetest.registered_nodes[minetest.get_node(pos).name]
+    pdef = pdef or minimal.get_nodedef(pos)
     --if not on sediment abort
     if not is_on_sediment(pos, pdef) then
         return false
@@ -181,7 +181,7 @@ local function is_soil_and_temp_good(pos, pdef)
 end
 
 local function are_conditions_good(pos, pdef)
-    pdef = pdef or minetest.registered_nodes[minetest.get_node(pos).name]
+    pdef = pdef or minimal.get_nodedef(pos)
     if not is_soil_and_temp_good(pos, pdef) then
         return false
     end
@@ -243,9 +243,10 @@ local function deplete_soil(pos)
     end
 end
 
-function nn.plant.kill(pos, natural_death)
-    local ndef = minetest.registered_nodes[minetest.get_node(pos).name]
-    local groups = ndef and ndef.groups or {}
+function nn.plant.kill(pos, natural_death, pdef, meta)
+    pdef = pdef or minimal.get_nodedef(pos)
+    meta = meta or minetest.get_meta(pos)
+    local groups = pdef and pdef.groups or {}
     -- wasn't a plant, return!
     if not groups.flora then
         return
@@ -263,13 +264,14 @@ function nn.plant.kill(pos, natural_death)
     -- set flowering plant to its dead fruitless
     -- set fruiting plant to its dead fruitless if such exists
     -- otherwise set as air
-    local dead_name = natural_death and (seedling and ndef._seed_name or
-        flowering_plant and ndef._dead_fruitless_name or
-        ndef._dead_name or "air") or
+    local dead_name = natural_death and (seedling and pdef._seed_name or
+        flowering_plant and pdef._dead_fruitless_name or
+        pdef._dead_name or "air") or
         -- INDUCED (from player)
-        seedling and ndef.name or flowering_plant and ndef._dead_fruitless_name or
-        fruiting_plant and ndef._dead_fruitless_name or "air"
+        seedling and pdef.name or flowering_plant and pdef._dead_fruitless_name or
+        fruiting_plant and pdef._dead_fruitless_name or "air"
     minimal.force_place_keep_param2(pos, dead_name)
+    meta:from_table() -- clear out meta upon death
 end
 
 local function was_light_here(pos, elapsed, pdef)
@@ -281,17 +283,17 @@ local function was_light_here(pos, elapsed, pdef)
     return true
 end
 
-local function kill_no_light(pos, elapsed)
-    local pdef = minetest.registered_nodes[minetest.get_node(pos).name]
+local function kill_no_light(pos, elapsed, pdef, meta)
+    pdef = pdef or minimal.get_nodedef(pos)
     if not is_mushroom(pos, pdef) and not was_light_here(pos, elapsed, pdef) then
-        nn.plant.kill(pos, false)
+        nn.plant.kill(pos, false, pdef, meta)
         return true
     end
 end
 
-local function kill_extreme_temp(pos, elapsed)
-    if is_temperature_extreme(pos) then
-        nn.plant.kill(pos, false)
+local function kill_extreme_temp(pos, elapsed, pdef, meta)
+    if is_temperature_extreme(pos, pdef) then
+        nn.plant.kill(pos, false, pdef, meta)
         return true
     end
 end
@@ -485,6 +487,8 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     local param2 = minimal.get_param2(pos)
     if param2 < 63 then return end -- No reason to run on wild plants
     local meta = minetest.get_meta(pos)
+    local pdef = minimal.get_nodedef(pos)
+    if not pdef then return end -- how was this run???
     local elapsed = elapsed_full + seed_elapsed(meta)
     local current_progress = current_growth_progress(pos, elapsed)
     local past_progress = past_growth_progress(pos, elapsed)
@@ -493,16 +497,19 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         health = base_health + base_health * math.random(-1, 1) * 0.1
         meta:set_int("health", health)
     end
-    if kill_no_light(pos, elapsed) then
+    if kill_no_light(pos, elapsed, pdef, meta) then
         -- we had no light so exit before catch up
         return false
     end
+    -- kill semi-wild in winter, set to wild
     if param2 >= 128 and is_winter() then
         nn.plant.set_to_wild(pos)
-        nn.plant.kill(pos, true)
+        nn.plant.kill(pos, true, pdef, meta)
+        return true
     end
     if health <= 0 then
-        nn.plant.kill(pos, true)
+        nn.plant.kill(pos, true, pdef, meta)
+        return
     end
     if not are_conditions_good(pos) then
         current_progress = 0
@@ -520,7 +527,7 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     if growing_left < 0 then
         step_through_life_stage(pos, growing_time, growing_left, elapsed)
     end
-    if kill_extreme_temp(pos, elapsed) then
+    if kill_extreme_temp(pos, elapsed, pdef, meta) then
         return false
     end
     growing_side_effects(pos, progress)
