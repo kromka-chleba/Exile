@@ -314,23 +314,28 @@ local function kill_in_winter(pos, elapsed)
     end
 end
 
-local function step_through_life_stage(pos, growing_time, growing_left, elapsed)
+local function step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
+    pdef = pdef or minimal.get_nodedef(pos)
+    meta = meta or minetest.get_meta(pos)
+    -- create health if not found
+    if not meta:get("health") then
+        meta:set_int("health",
+            base_health + base_health * math.random(-1,1) * 0.1)
+    end
     while growing_left < 0 do
-        local nodedef = minimal.get_nodedef(pos)
-        if nodedef._next_life_stage then
-            local meta = minetest.get_meta(pos)
-            local health
-            if not meta:get("health") then
-                health = base_health + base_health * math.random(-1, 1) * 0.1
-            else
-                health = meta:get_int("health")
-            end
-            minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
-            meta:set_int("health", health)
+        if pdef._next_life_stage then
+            minimal.force_place_keep_param2(pos, pdef._next_life_stage)
+            pdef = pdef._next_life_stage and minetest.registered_nodes[pdef._next_life_stage] or pdef
+        end
+        -- #TODO: fix non-fruiting/flowering plants having no nodetimer
+        -- erases metadata of plants without node timer functionality
+        if not pdef.on_timer then
+            meta:from_table()
+            return
         end
         growing_left = growing_left + growing_time
     end
-    minimal.node_set_int(pos, "growth", growing_left)
+    meta:set_int("growth", growing_left)
     -- after we're done with growth we can check for season
     kill_climate_history(pos, elapsed)
 end
@@ -367,12 +372,10 @@ local function progress_surface(pos, elapsed)
     local good_cycles = time_to_cycles(good_time)
     local rain_cycles = time_to_cycles(rain_time)
 
-
-    local light_cofactor = get_light_cofactor(pos)
-    if mushroom then
-        light_cofactor = 1
-    end
     local progress = calculate_growth_progress(pos, good_cycles, rain_cycles)
+    if mushroom then return progress end
+    local light_cofactor = get_light_cofactor(pos)
+
     return progress * light_cofactor
 end
 
@@ -525,7 +528,7 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     local growing_left = meta:get_int("growth") - progress
     meta:set_int("growth", growing_left)
     if growing_left < 0 then
-        step_through_life_stage(pos, growing_time, growing_left, elapsed)
+        step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
     end
     if kill_extreme_temp(pos, elapsed, pdef, meta) then
         return false
