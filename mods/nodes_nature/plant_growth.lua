@@ -244,38 +244,31 @@ local function deplete_soil(pos)
 end
 
 function nn.plant.kill(pos, natural_death)
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
-    if minetest.get_item_group(node.name, "flora") == 0 then
+    local ndef = minetest.registered_nodes[minetest.get_node(pos).name]
+    local groups = ndef and ndef.groups or {}
+    -- wasn't a plant, return!
+    if not groups.flora then
         return
     end
-    local fruiting_plant =
-        minetest.get_item_group(node.name, "fruiting_plant") > 0
-    local flowering_plant =
-        minetest.get_item_group(node.name, "flowering_plant") > 0
-    local seedling =
-        minetest.get_item_group(node.name, "seedling") > 0
-    local dead_names = {natural = "", induced = ""}
-    if seedling then
-        dead_names.natural = nodedef._seed_name
-        -- to be replaced with a generic dead seedling
-        dead_names.induced = node.name
-    elseif flowering_plant and nodedef._dead_fruitless_name then
-        dead_names.natural = nodedef._dead_fruitless_name
-        dead_names.induced = nodedef._dead_fruitless_name
-    else
-        dead_names.natural = nodedef._dead_name
-        dead_names.induced = nodedef._dead_name
-        if fruiting_plant and nodedef._dead_fruitless_name then
-            dead_names.induced = nodedef._dead_fruitless_name
-        end
-    end
-    local dead_name
-    if natural_death then
-        dead_name = dead_names.natural or "air"
-    else
-        dead_name = dead_names.induced or "air"
-    end
+    -- check raw groups instead of running core.get_item_group
+    local fruiting_plant = groups.fruiting_plant and groups.fruiting_plant > 0
+    local flowering_plant = groups.flowering_plant and groups.flowering_plant > 0
+    local seedling = groups.seedling and groups.seedling > 0
+    -- IF NATURAL DEATH;
+    -- do seed if died as seedling
+    -- do dead fruitless if flowering or do dead if such exists
+    -- otherwise set as air
+    -- IF INDUCED (due to player);
+    -- set seedling to itself (replace with generic dead seedling in the future)
+    -- set flowering plant to its dead fruitless
+    -- set fruiting plant to its dead fruitless if such exists
+    -- otherwise set as air
+    local dead_name = natural_death and (seedling and ndef._seed_name or
+        flowering_plant and ndef._dead_fruitless_name or
+        ndef._dead_name or "air") or
+        -- INDUCED (from player)
+        seedling and ndef.name or flowering_plant and ndef._dead_fruitless_name or
+        fruiting_plant and ndef._dead_fruitless_name or "air"
     minimal.force_place_keep_param2(pos, dead_name)
 end
 
