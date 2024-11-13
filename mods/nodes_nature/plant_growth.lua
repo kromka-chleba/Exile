@@ -317,11 +317,6 @@ end
 local function step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
     pdef = pdef or minimal.get_nodedef(pos)
     meta = meta or minetest.get_meta(pos)
-    -- create health if not found
-    if not meta:get("health") then
-        meta:set_int("health",
-            base_health + base_health * math.random(-1,1) * 0.1)
-    end
     while growing_left < 0 do
         if pdef._next_life_stage then
             minimal.force_place_keep_param2(pos, pdef._next_life_stage)
@@ -461,7 +456,7 @@ function nn.plant.grow_seed(pos, elapsed)
         minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
         minimal.node_set_int(pos, "elapsed", elapsed)
         return false
-    elseif not is_soil_and_temp_good(pos) then
+    elseif not is_soil_and_temp_good(pos, nodedef) then
         return true -- unless dead, try again when conditions are good
     end
     minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
@@ -495,20 +490,21 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     local elapsed = elapsed_full + seed_elapsed(meta)
     local current_progress = current_growth_progress(pos, elapsed)
     local past_progress = past_growth_progress(pos, elapsed)
+    -- we had no light so exit before catch up
+    if kill_no_light(pos, elapsed, pdef, meta) then
+        return false
+    end
+    -- create health if not found
     local health = meta:get_int("health")
     if not meta:get("health") then
         health = base_health + base_health * math.random(-1, 1) * 0.1
         meta:set_int("health", health)
     end
-    if kill_no_light(pos, elapsed, pdef, meta) then
-        -- we had no light so exit before catch up
-        return false
-    end
     -- kill semi-wild in winter, set to wild
     if param2 >= 128 and is_winter() then
         nn.plant.set_to_wild(pos)
         nn.plant.kill(pos, true, pdef, meta)
-        return true
+        return
     end
     if health <= 0 then
         nn.plant.kill(pos, true, pdef, meta)
