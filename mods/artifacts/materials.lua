@@ -24,7 +24,7 @@ local moon_glass = {
     light_source = 5,
     paramtype = "light",
     sunlight_propagates  = true,
-    use_texture_alpha = c_alpha.clip,
+    use_texture_alpha = c_alpha.blend,
     sounds = nodes_nature.node_sound_glass_defaults(),
     groups = {cracky = 1,},
     after_place_node = minimal.protection_after_place_node,

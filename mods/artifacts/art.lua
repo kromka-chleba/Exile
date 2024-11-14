@@ -338,37 +338,35 @@ for i in ipairs(list) do
 
     local sound = material == "Gold" and tech.node_sound_metal_defaults() or
         nodes_nature.node_sound_stone_defaults()
+    local sound = nodes_nature.node_sound_stone_defaults()
     local sun = false
     local light = 0
+    local alpha = c_alpha.clip
     if material == "Moon Glass" then
         sound = nodes_nature.node_sound_glass_defaults()
         sun = true
         light = 5
+        alpha = c_alpha.blend
     end
 
-
-
     minetest.register_node("artifacts:sculpture_"..name, {
-                               description = S("@1 Sculpture",S(material)),
-                               tiles = {texture},
-                               stack_max = minimal.stack_max_bulky *2,
-                               light_source = light,
-                               drawtype = "nodebox",
-                               paramtype = "light",
-                               paramtype2 = "facedir",
-                               node_box = {
-                                   type = "fixed",
-                                   fixed = box
-                               },
-                               use_texture_alpha = c_alpha.clip,
-                               sunlight_propagates = true,
-                               sounds = sound,
-                               groups = {oddly_breakable_by_hand = hardness,
-                                         attached_node = 1, temp_pass = 1},
-                               after_place_node =
-                                   minimal.protection_after_place_node,
+                description = S("@1 Sculpture",S(material)),
+                tiles = {texture},
+                stack_max = minimal.stack_max_bulky *2,
+                light_source = light,
+                drawtype = "nodebox",
+                paramtype = "light",
+                paramtype2 = "facedir",
+                node_box = {
+                        type = "fixed",
+                        fixed = box
+                },
+                use_texture_alpha = alpha,
+                sunlight_propagates = true,
+                sounds = sound,
+                groups = {oddly_breakable_by_hand = hardness, attached_node = 1, temp_pass = 1},
+                after_place_node = minimal.protection_after_place_node,
     })
-
 end
 
 
