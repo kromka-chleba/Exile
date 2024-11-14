@@ -177,7 +177,7 @@ minetest.register_node("tech:lantern_unlit", {
             lightsource.update_fuel_infotext(lantern_desc, pos)
         end,
         on_dig = function(pos, node, digger)
-	    if digger:is_player() then
+	    if core.is_player(digger) then
 	       minimal.protection_on_dig(pos,node,digger)
 	    end
             lightsource.save_to_inventory(lantern_desc, pos, digger, false)
@@ -230,7 +230,7 @@ minetest.register_node("tech:lantern_lit", {
             lightsource.restore_from_inventory(lantern_desc, pos, itemstack)
         end,
         on_dig = function(pos, node, digger)
-	    if digger:is_player() then
+	    if core.is_player(digger) then
 	       minimal.protection_on_dig(pos,node,digger)
 	    end
             lightsource.save_to_inventory(lantern_desc, pos, digger, true)
