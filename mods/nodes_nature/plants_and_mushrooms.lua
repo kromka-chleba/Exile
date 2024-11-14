@@ -39,13 +39,14 @@ local mahal_nodebox = {
 
 local moss_nodebox = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}
 
-
-local wrotycz_soil_prefs =
-    nn.soil_preferences.new({
-            rocky_substrate = {min = 2, max = 2},
-            organic_substrate = {min = 2, max = 2},
-            density = {min = 4, max = 4},
-    })
+-- WE ONLY LIKE CLAY
+local clay_soil_prefs = nn.soil_preferences.new({
+    -- we prefer a rocky_substrate and organic_substrate of 2, -50 if not
+    rocky_substrate = {[0]=-50, -2, 0, -2},
+    organic_substrate = {[0]=-50, -2, 2, -2},
+    -- we like a dense meal
+    density = {[0]=-100, [3]=-2, [4]=1}
+})
 
 --[[
     The best ratio for these plant types should be:
@@ -82,7 +83,7 @@ local plant_list = {
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "yellow", dye_candidate = true,
-     soil_preferences = wrotycz_soil_prefs,
+     soil_preferences = clay_soil_prefs,
      seasonal_type = "late", winter_fruit = true,
      dry_fruit = true},
 

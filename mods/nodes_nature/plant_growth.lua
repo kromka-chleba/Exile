@@ -22,10 +22,10 @@ local good_time_rain_time = climate.good_time_rain_time
 
 local base_health = 100
 
--- WIP
 -- soil_preferences
--- points for "progress", should be integers
--- more complex soil_pref calculations expect numbers
+-- points for "progress", should be integers (see nn.plant.soil_response for how it's used)
+-- more complex soil_pref calculations expect tables with numbers in them
+-- numbered indexes for specific soil group, then a correlating progress integer
 function soil_preferences.new(args)
     args = args or {}
     local prefs = {} -- we only want certain things specified, produce separate table
@@ -62,12 +62,8 @@ function soil_preferences.new(args)
         val = rockstrate[len]
         if len < 4 then
             for i=len,4 do
-                -- set empty index or set val
-                if not rockstrate[i] then
-                    rockstrate[i] = val
-                else
-                    val = rockstrate[i]
-                end
+                -- these won't be set already, force set 'em
+                rockstrate[i] = val
             end
         end
     else
@@ -97,12 +93,8 @@ function soil_preferences.new(args)
         val = orgstrate[len]
         if len < 4 then
             for i=len,4 do
-                -- set empty index or set val
-                if not orgstrate[i] then
-                    orgstrate[i] = val
-                else
-                    val = orgstrate[i]
-                end
+                -- these won't be set already, force set 'em
+                orgstrate[i] = val
             end
         end
     else
@@ -131,12 +123,8 @@ function soil_preferences.new(args)
         val = density[len]
         if len < 4 then
             for i=len,4 do
-                -- set empty index or set val
-                if not density[i] then
-                    density[i] = val
-                else
-                    val = density[i]
-                end
+                -- these won't be set already, force set 'em
+                density[i] = val
             end
         end
     else

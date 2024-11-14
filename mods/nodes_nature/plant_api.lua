@@ -201,8 +201,11 @@ function plant.new(def)
     temp_range.min = temp_range.min or temp_range.max and temp_range.max - 35 or 5
     temp_range.max = temp_range.max or temp_range.min + 35
     def.temp_range = temp_range
+    -- soil_preferences
+    def.soil_preferences = def.soil_preferences or def.soil_prefs
+    -- use soil_preferences.new() to produce a soil_preferences otherwise expect errors if you don't!
+    -- check plant_growth.lua for usage
     --[[ other custom values checked for definition:
-        soil_preferences
         mesh_type -- see the comment above
         bioluminescence
         move_resistance
@@ -436,6 +439,8 @@ function plant.get_base_props(plant_def)
         -- ranges
         plant_temp_range = plant_def.temp_range,
         plant_light_range = plant_def.light_range,
+        -- soil prefs
+        plant_soil_preferences = plant_def.soil_preferences,
 
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             if minetest.is_player(placer) and
@@ -929,6 +934,8 @@ function plant.get_seed_base_props(plant_def)
         -- ranges
         plant_temp_range = plant_def.temp_range,
         plant_light_range = plant_def.light_range,
+        -- soil_prefs
+        plant_soil_preferences = plant_def.soil_preferences,
         _next_life_stage = next_life_stage,
         _seed_name = get_name(plant_def.name,"seed"),
         on_timer = function(pos, elapsed)
