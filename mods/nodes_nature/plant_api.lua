@@ -680,6 +680,10 @@ function plant.get_plantlike_fruiting_props(plant_def)
     base.groups.ncrafting_dye_candidate = nil
     base.wield_image = texture
     base.on_punch = fruiting_on_punch
+    -- won't set growth meta
+    base.on_construct = function(pos)
+        nn.plant.start_growing_plant(pos, plant_def.growing_time, true)
+    end
     return table.copy(base)
 end
 

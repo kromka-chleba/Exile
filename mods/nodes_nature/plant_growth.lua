@@ -417,7 +417,10 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
         end
         growing_left = growing_left + growing_time
     end
-    meta:set_int("growth", growing_left)
+    -- meta gets refreshed by force_place_keep_param2, won't set growth if fruiting
+    if not (pdef.groups and pdef.groups.fruiting_plant) then
+        meta:set_int("growth", growing_left)
+    end
     -- after we're done with growth we can check for season
     kill_climate_history(pos, elapsed)
 end
@@ -560,10 +563,12 @@ function nn.plant.death_chance_on_replant(pos)
     end
 end
 
-function nn.plant.start_growing_plant(pos, growing_time)
+function nn.plant.start_growing_plant(pos, growing_time, is_fruiting)
     local timer_min = nn.plant_base_timer - 0.1 * nn.plant_base_timer
     local timer_max = nn.plant_base_timer + 0.1 * nn.plant_base_timer
-    minimal.node_set_int(pos, "growth", growing_time)
+    if not is_fruiting then
+        minimal.node_set_int(pos, "growth", growing_time)
+    end
     local timer = minetest.get_node_timer(pos)
     timer:start(math.random(timer_min, timer_max))
 end
