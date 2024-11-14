@@ -353,8 +353,8 @@ function nn.plant.kill(pos, natural_death, pdef, meta)
         flowering_plant and pdef._dead_fruitless_name or
         pdef._dead_name or "air") or
         -- INDUCED (from player)
-        seedling and pdef.name or flowering_plant and pdef._dead_fruitless_name or
-        fruiting_plant and pdef._dead_fruitless_name or "air"
+        seedling and pdef.name or (flowering_plant or fruiting_plant) and pdef._dead_fruitless_name or
+        pdef._dead_name or "air"
     minimal.force_place_keep_param2(pos, dead_name)
     meta:from_table() -- clear out meta upon death
 end
