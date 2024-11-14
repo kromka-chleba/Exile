@@ -22,14 +22,134 @@ local good_time_rain_time = climate.good_time_rain_time
 
 local base_health = 100
 
+-- WIP
+-- soil_preferences
+-- points for "progress", should be integers
+-- more complex soil_pref calculations expect numbers
 function soil_preferences.new(args)
-    local prefs = {
-        rocky_substrate = args.rocky_substrate,
-        organic_substrate = args.organic_substrate,
-        density = args.density,
-    }
+    args = args or {}
+    local prefs = {} -- we only want certain things specified, produce separate table
+    -- permit custom attributes to wet, wet_salty, or dry soil
+    prefs.wet = type(args.wet) == "number" and args.wet or 2 -- wet_sediment == 1
+    prefs.wet_salty = type(args.wet_salty) == "number" and args.wet_salty or -1000 -- wet_sediment == 2
+    prefs.dry = type(args.dry) == "number" and args.dry or 0 -- dry_sediment == 1
+    prefs.fertile = type(args.fertile) == "number" and args.fertile or 2 -- fertile_soil
+    prefs.agri = args.agri or args.agricultural -- agricultural_soil
+    prefs.agri = type(prefs.agri) == "number" and prefs.agri or 2
+    -- more complex soil_pref calculations
+    -- rocky substrate
+    local rockstrate = args.rocky_substrate
+    rockstrate = type(rockstrate) == "number" and {[4]=rockstrate} or
+        type(rockstrate) == "table" and rockstrate or nil
+    local len = rockstrate and #rockstrate
+    -- if rockstrate specified and correctly defined (got length)
+    if len then
+        -- iterate down from val, then up from val to fill out table
+        local val = rockstrate[len]
+        -- fill out len to 1 if len is greater than 1
+        if len > 1 then
+            for i=len,1,-1 do
+                -- set empty index or set val
+                if not rockstrate[i] then
+                    rockstrate[i] = val
+                else
+                    val = rockstrate[i]
+                end
+            end
+        end
+        -- fill out len to 4 if len less than 4
+        val = rockstrate[len]
+        if len < 4 then
+            for i=len,4 do
+                -- set empty index or set val
+                if not rockstrate[i] then
+                    rockstrate[i] = val
+                else
+                    val = rockstrate[i]
+                end
+            end
+        end
+    else
+        rockstrate = nil
+    end
+    -- organic substrate
+    local orgstrate = args.organic_substrate
+    orgstrate = type(orgstrate) == "number" and {[4]=orgstrate} or
+        type(orgstrate) == "table" and orgstrate or nil
+    -- reuse len
+    len = orgstrate and #orgstrate
+    -- if orgstrate specified and correctly defined (got length)
+    if len then
+        local val = orgstrate[len]
+        -- fill out len to 1 if len is greater than 1
+        if len > 1 then
+            for i=len,1,-1 do
+                -- set empty index or set val
+                if not orgstrate[i] then
+                    orgstrate[i] = val
+                else
+                    val = orgstrate[i]
+                end
+            end
+        end
+        -- fill out len to 4 if len less than 4
+        val = orgstrate[len]
+        if len < 4 then
+            for i=len,4 do
+                -- set empty index or set val
+                if not orgstrate[i] then
+                    orgstrate[i] = val
+                else
+                    val = orgstrate[i]
+                end
+            end
+        end
+    else
+        orgstrate = nil
+    end
+    local density = args.density
+    density = type(density) == "number" and {[4]=density} or
+        type(density) == "table" and density or nil
+    -- reuse len
+    len = density and #density
+    -- if density specified and correctly defined (got length)
+    if len then
+        local val = density[len]
+        -- fill out len to 1 if len is greater than 1
+        if len > 1 then
+            for i=len,1,-1 do
+                -- set empty index or set val
+                if not density[i] then
+                    density[i] = val
+                else
+                    val = density[i]
+                end
+            end
+        end
+        -- fill out len to 4 if len less than 4
+        val = density[len]
+        if len < 4 then
+            for i=len,4 do
+                -- set empty index or set val
+                if not density[i] then
+                    density[i] = val
+                else
+                    val = density[i]
+                end
+            end
+        end
+    else
+        density = nil
+    end
+    -- set complex prefs
+    prefs.rocky_substrate = rockstrate
+    prefs.organic_substrate = orgstrate
+    prefs.density = density
+
     return prefs
 end
+
+soil_preferences.plant_basic_prefs = soil_preferences.new()
 
 function soil_preferences.is_sediment_good(groups, plant_prefs)
     if not plant_prefs then return true end
