@@ -359,9 +359,11 @@ function nn.plant.kill(pos, natural_death, pdef, meta)
     meta:from_table() -- clear out meta upon death
 end
 
+-- does not account for current lighting (night time) only light at day
 local function was_light_here(pos, elapsed, pdef)
     -- 30 cycles without light kill a plant
-    if not (is_light_good(pos, pdef) and is_light_good_when_day(pos, pdef)) and
+    local light = minimal.get_daylight(minimal.get_pos_above(pos), 0.5) or 0
+    if light < pdef.plant_light_range.min and
         elapsed > base_health * nn.plant_base_timer then
         return false
     end
