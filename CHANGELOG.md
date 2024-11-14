@@ -1,5 +1,9 @@
 # Changelog:
 
+## [2024-11-13][2024-11-13__0.3.18g]
+   - Fix moonglass transparency
+   - Fix for ucsigns mod
+
 ## [2024-11-08][2024-11-08__0.3.18f]
    - Fix warnings on Luanti 5.10.0
 
