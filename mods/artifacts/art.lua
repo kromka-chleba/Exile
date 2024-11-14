@@ -336,8 +336,6 @@ for i in ipairs(list) do
     local box = list[i][4]
     local hardness = list[i][5]
 
-    local sound = material == "Gold" and tech.node_sound_metal_defaults() or
-        nodes_nature.node_sound_stone_defaults()
     local sound = nodes_nature.node_sound_stone_defaults()
     local sun = false
     local light = 0
@@ -347,6 +345,8 @@ for i in ipairs(list) do
         sun = true
         light = 5
         alpha = c_alpha.blend
+    elseif material == "Gold" then
+        tech.node_sound_metal_defaults()
     end
 
     minetest.register_node("artifacts:sculpture_"..name, {
