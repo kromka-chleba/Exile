@@ -518,7 +518,7 @@ minetest.override_item(
 do -- local scope to prevent global access
     for _,rhuya in pairs({"","_wintery"}) do
         local seed_name = "nodes_nature:rhuya"..rhuya.."_seed"
-        local seed_on_place = minetest.registered_nodes[seed_name].on_place
+        local seed_after_place = minetest.registered_nodes[seed_name].after_place_node
         minetest.override_item(
             seed_name,  {
                 node_box = {
@@ -530,12 +530,11 @@ do -- local scope to prevent global access
                     fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
                 },
                 -- functionality for normal rhuya seeds turning to wintery, or wintery becoming normal
-                on_place = function(itemstack, placer, pointed_thing)
-                    if not pointed_thing then return seed_on_place(itemstack, placer, pointed_thing) end
+                after_place_node = function(pos, placer, itemstack, pointed_thing)
                     local itemdef = itemstack:get_definition()
-                    itemstack = seed_on_place(itemstack, placer, pointed_thing)
-                    local pos = pointed_thing.above
-                    if minetest.get_node(pos).name ~= itemdef.name then return itemstack end
+                    itemstack = seed_after_place(pos, placer, itemstack, pointed_thing)
+                    -- a player didn't place this! return!
+                    if not minetest.is_player(placer) then return itemstack end
                     -- winter variant (3% chance to return to normal)
                     if #itemdef.name == 31 then
                         if math.random() > 0.03 then return end
@@ -568,8 +567,8 @@ do -- local scope to prevent global access
                           end
                         end
                     end
-                    return itemstack -- return changes
-                end
+                    return itemstack -- return any changes
+                end,
         })
         -- override fruit stack size
         minetest.override_item(
