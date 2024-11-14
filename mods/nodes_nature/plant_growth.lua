@@ -33,9 +33,10 @@ function soil_preferences.new(args)
     prefs.wet = type(args.wet) == "number" and args.wet or 2 -- wet_sediment == 1
     prefs.wet_salty = type(args.wet_salty) == "number" and args.wet_salty or -1000 -- wet_sediment == 2
     prefs.dry = type(args.dry) == "number" and args.dry or 0 -- dry_sediment == 1
-    prefs.fertile = type(args.fertile) == "number" and args.fertile or 2 -- fertile_soil
-    prefs.agri = args.agri or args.agricultural -- agricultural_soil
-    prefs.agri = type(prefs.agri) == "number" and prefs.agri or 2
+    prefs.fertile_soil = type(args.fertile) == "number" and args.fertile or 2 -- fertile_soil
+    local agri = args.agri or args.agricultural -- agricultural_soil
+    agri = type(agri) == "number" and agri or 2
+    prefs.agricultural_soil = agri
     -- more complex soil_pref calculations
     -- rocky substrate
     local rockstrate = args.rocky_substrate
@@ -149,63 +150,52 @@ function soil_preferences.new(args)
     return prefs
 end
 
+-- allow mods to modify basic_prefs
 soil_preferences.plant_basic_prefs = soil_preferences.new()
 
-function soil_preferences.is_sediment_good(groups, plant_prefs)
-    if not plant_prefs then return true end
-    local rocky_substrate = groups.rocky_substrate
-    local organic_substrate = groups.organic_substrate
-    local density = groups.density
-    if rocky_substrate then
-        if not (rocky_substrate >= plant_prefs.rocky_substrate.min
-                and rocky_substrate <= plant_prefs.rocky_substrate.max) then
-            return false
-        end
-    end
-    if organic_substrate then
-        if not (organic_substrate >= plant_prefs.organic_substrate.min
-                and organic_substrate <= plant_prefs.organic_substrate.max) then
-            return false
-        end
-    end
-    if density then
-        if not (density >= plant_prefs.density.min
-                and density <= plant_prefs.density.max) then
-            return false
-        end
-    end
-    return true
-end
-
 ------------------------------
--- Seeds/seedling soil timers
--- if the soil quality changes under the seed it will slow/speed the timer
--- this procedure returns a timer
-local function seed_soil_response(pos, soil_prefs)
-    local pos_under = minimal.get_pos_under(pos)
-    -- sediment def
-    local sdef = minimal.get_nodedef(pos_under)
-    -- huh not a node
-    if not sdef then return 0 end
-    local groups = sdef.groups
-    -- we can't grow on this!!! has no stats!
-    if not groups then return end
-    -- salty wet or not sediment, can't grow on either
-    if groups.wet_sediment == 2 or not groups.sediment then
-        return 0
+-- used in seed/seedling/(fruiting/flowering/fruitless) timers
+-- if the soil quality changes under the seed, it will either increase or decrease growth progress per iteration
+-- this function returns an integer "progress"
+-- a progress of -5 or less will return no progress (0)
+-- permits carrying of plant + soil definition
+function nn.plant.soil_response(pos, pdef, sdef)
+    pdef = pdef or minimal.get_nodedef(pos)
+    sdef = sdef or minimal.get_nodedef(minimal.get_pos_under(pos))
+    local sgroups = sdef and sdef.groups or {}
+    -- not a sediment, 0!!! (could be a nil node or have no groups either)
+    if not sgroups.sediment then return 0 end
+    -- get and clone soil_prefs as we modify it
+    local soil_prefs = pdef.plant_soil_preferences or soil_preferences.plant_basic_prefs
+    soil_prefs = table.copy(soil_prefs)
+    -- differently written soil_pref names (define progress here as well)
+    local progress = 1 + (sgroups.wet_sediment == 1 and soil_prefs.wet or 0)
+    progress = progress + (sgroups.wet_sediment == 2 and soil_prefs.wet_salty or 0)
+    progress = progress + (sgroups.dry_sediment and soil_prefs.dry or 0)
+    -- remove from soil pref loop check
+    soil_prefs.wet = nil
+    soil_prefs.wet_salty = nil
+    soil_prefs.dry = nil
+    -- not looking so good
+    if progress < -4 then return 0 end
+    -- iterate through soil_prefs
+    for prefname, boost in pairs(soil_prefs) do
+        if sgroups[prefname] then
+            if type(boost) == "table" then
+                -- get index of boost that equals sediment's group number and add it, otherwise add 0
+                progress = progress + (boost[sgroups[prefname]] or 0)
+            else
+                progress = progress + boost
+            end
+        end
+        -- not looking so good
+        if progress < -4 then return 0 end
     end
-    -- wet bonus
-    local progress = groups.wet_sediment == 1 and 3 or 1
-    -- soil prefs are WIP
-    --local is_soil_good = soil_preferences.is_sediment_good(groups,
-    --                                                       soil_prefs)
-    -- fertile + agricultural bonus
-    -- normal and fertile agri soils can partially cancel effects of bad soil
-    -- fertile_soil: this is a hack because fertility doesn't work right now
-    progress = progress + (groups.fertile_soil and 2 or 0)
-    progress = progress + (groups.agricultural_soil and 2 or 0)
-    -- fertility
-    progress = progress + (groups.fertility or 0)
+    -- add fertility of soil
+    progress = progress + (sgroups.fertility or 0)
+    -- prevent from going below and ensure integer
+    progress = progress < 0 and 0 or math.ceil(progress)
+    -- what growth meta should go down by
     return progress
 end
 
@@ -457,7 +447,7 @@ local function calculate_growth_progress(pos, good_cycles_in, rain_cycles_in)
     if rain_cycles == 0 and climate.get_rain(pos) then
         rain_cycles = 1
     end
-    local soil = seed_soil_response(pos, soil_prefs)
+    local soil = nn.plant.soil_response(pos)
     local progress = soil * (good_cycles + rain_cycles * 4)
     return progress
 end
