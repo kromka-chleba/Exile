@@ -608,10 +608,16 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         meta:set_int("health", health + 1)
     end
     local progress = past_progress + current_progress
-    local growing_left = meta:get_int("growth") - progress
-    meta:set_int("growth", growing_left)
-    if growing_left < 0 then
-        step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
+    -- we shant keep growing when we're already fruiting!
+    if not (pdef.groups and pdef.groups.fruiting_plant) then
+        local growing_left = meta:get_int("growth") - progress
+        -- let's play some catchup!
+        if growing_left < 0 then
+            step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
+        -- set growth normally otherwise
+        else
+            meta:set_int("growth", growing_left)
+        end
     end
     if kill_extreme_temp(pos, elapsed, pdef, meta) then
         return false
