@@ -610,7 +610,12 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
             meta:set_int("health", health - 1)
         end
     elseif health < base_health then
-        meta:set_int("health", health + 1)
+        local chance = math.random()
+        -- 2% chance to recover 2 points, 0.05% chance to recover 3
+        health = health + (chance < 0.02 and 2 or chance < 0.0005 and 3 or 1)
+        -- clamp health below base_health
+        health = health > base_health and base_health or health
+        meta:set_int("health", health)
     end
     local progress = past_progress + current_progress
     -- we shant keep growing when we're already fruiting!
