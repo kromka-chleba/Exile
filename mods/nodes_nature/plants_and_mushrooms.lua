@@ -40,12 +40,13 @@ local mahal_nodebox = {
 local moss_nodebox = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}
 
 -- WE ONLY LIKE CLAY
+-- goes from 0 to 4
 local clay_soil_prefs = nn.soil_preferences.new({
     -- we prefer a rocky_substrate and organic_substrate of 2, -50 if not
     rocky_substrate = {[0]=-50, -2, 0, -2},
-    organic_substrate = {[0]=-50, -2, 2, -2},
+    organic_substrate = {[0]=-50, -2, 2, 0},
     -- we like a dense meal
-    density = {[0]=-100, [3]=-2, [4]=1}
+    density = {[0]=-100, -10, -2, -1, 1}
 })
 
 --[[
