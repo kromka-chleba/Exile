@@ -69,8 +69,7 @@ function soil_preferences.new(args)
             end
         end
     else
-        -- base preferences (grpnum of 3 is -1, of 4 is -2)
-        rockstrate = {0,0,-1,-2}
+        rockstrate = nil
     end
     -- organic substrate
     local orgstrate = args.organic_substrate

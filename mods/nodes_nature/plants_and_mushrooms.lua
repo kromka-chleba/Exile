@@ -50,11 +50,6 @@ local clay_only_soil_prefs = soil_pref_new({
     -- we like a dense meal
     density = {[0]=-100, -10, -2, -1, 1}
 })
--- we're fine with deserts (sand) but not gravel so much
-local cactus_soil_prefs = soil_pref_new({
-    rocky_substrate=0,
-    gravel = -1
-})
 -- we live in hostile environments!
 local hardy_gravel_soil_prefs = soil_pref_new({
     rocky_substrate=0,
@@ -240,7 +235,7 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 3,
      seasonal_type = "late", dry_fruit = true,
      seed_texture = "nodes_nature_rhuya_seed.png",
-     temp_range = {4,48}},
+     temp_range = {4,48}, soil_prefs = hardy_gravel_soil_prefs},
 
     -- Rhuya: Winter Variant
     -- NOT meant to appear in the wild (domesticated only, do not add to mapgen)
@@ -253,7 +248,7 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 3,
      seasonal_type = "wintery", dry_fruit = true,
      seed_texture = "nodes_nature_rhuya_seed.png",
-     temp_range = {-12,40}},
+     temp_range = {-12,40}, soil_prefs = hardy_gravel_soil_prefs},
 
     -- Mushrooms
 
@@ -326,7 +321,8 @@ local plant_list = {
     {name = "jogalan", description = S("Jogalan"),
      plant_type = "woody_plant", waving = true, mesh_type = 0,
      growing_time = nn.plant_base_growing_time * 2,
-     dominant_color = "black", dye_candidate = true},
+     dominant_color = "black", dye_candidate = true,
+     soil_prefs = hardy_gravel_soil_prefs},
 
     {name = "gitiri", description = S("Gitiri"),
      plant_type = "woody_plant", waving = true,
@@ -373,7 +369,8 @@ local plant_list = {
     {name = "thoka", description = S("Thoka"),
      mesh_type = 4, dye_candidate = true,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = nn.plant_base_growing_time * 2},
+     growing_time = nn.plant_base_growing_time * 2,
+     soil_prefs = hardy_gravel_soil_prefs},
 
     {name = "alaf", description = S("Alaf"),
      mesh_type = 4, dominant_color = "yellow", dye_candidate = true,
