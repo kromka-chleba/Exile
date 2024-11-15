@@ -22,6 +22,7 @@ minetest.register_node(
         use_texture_alpha = "blend",
 })
 
+
 minetest.register_ore({
         ore_type        = "stratum",
         ore             = "tutorial_exile:invisible_wall",
@@ -36,9 +37,23 @@ minetest.register_node(
     'tutorial_exile:wall', {
         description = 'Tutorial wall',
         tiles = {
-            "tech_rammed_earth.png",
-            "tech_rammed_earth_side.png",
+            "tut_wall.png",
         },
+        groups = { not_in_creative_inventory = 1 },
+})
+
+minetest.register_node(
+    'tutorial_exile:iron_wall', {
+        description = 'Tutorial iron wall',
+        tiles = {{
+                name = "[combine:32x16:0,0=tech_iron.png:16,0=tech_iron.png",
+                align_style = "world",
+                scale = 2
+        }},
+        drawtype = "nodebox",
+        node_box = { type = "fixed",
+                    fixed = {-0.5,-0.5,-0.5,
+                             00.5, 1.5, 0.5 } },
         groups = { not_in_creative_inventory = 1 },
 })
 
@@ -53,7 +68,11 @@ if minetest.is_creative_enabled() then
     minetest.override_item('tutorial_exile:wall', {
                                groups = {crumbly = 1, cracky = 3},
     })
+    minetest.override_item('tutorial_exile:iron_wall', {
+                               groups = {crumbly = 1, cracky = 3},
+    })
 end
+
 
 local lpname = "tut_lighted_path"
 local lpdef = {

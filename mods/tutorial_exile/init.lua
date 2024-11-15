@@ -23,8 +23,9 @@ local worldpath=minetest.get_worldpath()
 --------------------------------------------------------------------------------
 -- Start/quit from tutorial
 
-local pstore = {} -- store status of players so we can restore it after tutorial
 local mstore = minetest.get_mod_storage()
+
+local pstore = {} -- store status of players so we can restore it after tutorial
 
 local welcome = S("Welcome to Exile!")
 local intro = S(
@@ -67,13 +68,32 @@ local function store_player(player)
 
     local inv = player:get_inventory()
     local invlists = inv:get_lists()
-    ps.inv = invlists
     for list in pairs(invlists) do -- Clear all inventories
-        inv:set_list(list, {})
+        for i = 1, #invlists[list] do
+            invlists[list][i] = invlists[list][i]:to_string()
+        end
+        if list ~= "hand" then
+            inv:set_list(list, {})
+        end
     end
+    ps.inv = invlists
+    ps.privs = core.get_player_privs(name)
 
     mstore:set_string(name, minetest.write_json(ps))
 end
+
+local function read_player_store(name)
+        local readps = mstore:get_string(name)
+        if readps then
+            pstore[name] = core.deserialize(readps)
+        end
+end
+minimal.register_on_joinplayer(function(player)
+        local name = player:get_player_name()
+        print(" RESTORING PLAYER STORE FOR ",name)
+        read_player_store(name)
+        print(dump(pstore[name]))
+end)
 
 local function quit_tutorial(player)
     local name = player:get_player_name()
@@ -84,7 +104,7 @@ end
 
 local function restore_player(player)
     local name = player:get_player_name()
-    local ps = pstore[name] or minetest.parse_json(mstore:get_string(name))
+    local ps = pstore[name]
 
     if not ps then return end
 
@@ -95,12 +115,20 @@ local function restore_player(player)
     pstore[name].stats = nil
 
     local inv = player:get_inventory()
-    inv:set_lists(pstore[name].inv)
+    local psinv = pstore[name].inv
+    for list in pairs(psinv) do
+        for i = 1, #psinv[list] do
+            psinv[list][i] = ItemStack(psinv[list][i])
+        end
+    end
+    inv:set_lists(psinv)
     pstore[name].inv = nil
+
+    core.set_player_privs(name, pstore[name].privs)
+    pstore[name].privs = nil
 
     meta:set_string("playtime_suspended", "")
     mstore:set_string(name, "")
-
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
@@ -110,18 +138,20 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 pstore[player:get_player_name()] = nil
                 return
             end
-            local tut_spos = stage.get_spawn_pos(player)
             store_player(player)
-            player:set_pos(tut_spos)
+            stage.open(player)
         end
 end)
 
 function tutorial.exit(player)
     -- Shut down tutorial, delete regions, possibly rewrite starting area
-    stage.exit(player)
+    stage.shutdown(player)
     restore_player(player)
     quit_tutorial(player)
 end
+
+__DEBUG__ = __DEBUG__
+if not __DEBUG__ then return end
 
 --------------------------------------------------------------------------------
 -- Debug commands
@@ -142,6 +172,7 @@ minetest.register_chatcommand(
         privs = "server",
         func = function(name,param)
             minetest.chat_send_player(name, "Stopping tutorial")
+            read_player_store(name)
             tutorial.exit(minetest.get_player_by_name(name))
         end
 })
@@ -179,7 +210,10 @@ minetest.register_chatcommand(
     "size_tutr",{
         privs = "server",
         func = function(name,param)
-            local range, err = minimal.get_region_size(param)
+            local fname = modpath.."/schematics/"..param..".ex_schm"
+            local input, err = minimal.load_region_raw(fname)
+            if not input then return nil, err end
+            local _, range = unpack(input)
             if not range then return false, err end
             local p1 = range.pos1
             local p2 = range.pos2
@@ -191,5 +225,15 @@ minetest.register_chatcommand(
                 ": "..(size.x * size.y * size.z).." nodes"
             minetest.log("action", str)
             return true, str
+        end
+})
+
+minetest.register_chatcommand(
+    "tutr_startpos",{
+        privs = "server",
+        func = function(name,param)
+            local pos, err = stage.distance_to_base(name)
+            if not pos then return err end
+            return true, core.pos_to_string(pos)
         end
 })

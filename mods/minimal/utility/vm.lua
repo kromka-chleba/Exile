@@ -186,3 +186,7 @@ function minimal.get_region_size(name)
     local _, range = unpack(input)
     return range
 end
+function minimal.load_region_raw(name)
+    local input, err = open_region_file(io.open(name, "rb"))
+    return input, err and err..": "..name or nil
+end
