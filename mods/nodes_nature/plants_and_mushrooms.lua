@@ -255,7 +255,7 @@ local plant_list = {
      lifeform_type = "mushroom", dominant_color = "red", dye_candidate = true,
      growing_time = nn.plant_base_growing_time * 3,
      bioluminescence = 2, extra_groups = {flammable = 6},
-     temp_range={0,75}, light_range={0,10}},
+     temp_range={0,75}, light_range={0,12}},
 
     --Reshedaar.  is also a mushroom.
     -- slow growing fibre mushroom,
