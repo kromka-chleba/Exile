@@ -39,14 +39,26 @@ local mahal_nodebox = {
 
 local moss_nodebox = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}
 
+local soil_pref_new = nn.soil_preferences.new
+
 -- WE ONLY LIKE CLAY
 -- goes from 0 to 4
-local clay_soil_prefs = nn.soil_preferences.new({
+local clay_only_soil_prefs = soil_pref_new({
     -- we prefer a rocky_substrate and organic_substrate of 2, -50 if not
     rocky_substrate = {[0]=-50, -2, 0, -2},
     organic_substrate = {[0]=-50, -2, 2, 0},
     -- we like a dense meal
     density = {[0]=-100, -10, -2, -1, 1}
+})
+-- we're fine with deserts (sand) but not gravel so much
+local cactus_soil_prefs = soil_pref_new({
+    rocky_substrate=0,
+    gravel = -1
+})
+-- we live in hostile environments!
+local hardy_gravel_soil_prefs = soil_pref_new({
+    rocky_substrate=0,
+    density=0
 })
 
 --[[
@@ -84,7 +96,7 @@ local plant_list = {
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "yellow", dye_candidate = true,
-     soil_preferences = clay_soil_prefs,
+     soil_preferences = clay_only_soil_prefs,
      seasonal_type = "late", winter_fruit = true,
      dry_fruit = true},
 

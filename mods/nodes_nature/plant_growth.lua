@@ -37,6 +37,8 @@ function soil_preferences.new(args)
     local agri = args.agri or args.agricultural -- agricultural_soil
     agri = type(agri) == "number" and agri or 2
     prefs.agricultural_soil = agri
+    -- permit gravel-specific
+    prefs.gravel = type(args.gravel) == "number" and args.gravel or 0
     -- more complex soil_pref calculations
     -- rocky substrate
     local rockstrate = args.rocky_substrate
@@ -67,7 +69,8 @@ function soil_preferences.new(args)
             end
         end
     else
-        rockstrate = nil
+        -- base preferences (grpnum of 3 is -1, of 4 is -2)
+        rockstrate = {0,0,-1,-2}
     end
     -- organic substrate
     local orgstrate = args.organic_substrate
@@ -128,7 +131,8 @@ function soil_preferences.new(args)
             end
         end
     else
-        density = nil
+        -- grpnum of 4 is -2 points
+        density = {[3]=0,[4]=-2}
     end
     -- set complex prefs
     prefs.rocky_substrate = rockstrate
@@ -160,6 +164,7 @@ function nn.plant.soil_response(pos, pdef, sdef)
     local progress = 1 + (sgroups.wet_sediment == 1 and soil_prefs.wet or 0)
     progress = progress + (sgroups.wet_sediment == 2 and soil_prefs.wet_salty or 0)
     progress = progress + (sgroups.dry_sediment and soil_prefs.dry or 0)
+    progress = progress + (sgroups.gravel and soil_prefs.gravel or 0)
     -- remove from soil pref loop check
     soil_prefs.wet = nil
     soil_prefs.wet_salty = nil
