@@ -52,8 +52,7 @@ local clay_only_soil_prefs = soil_pref_new({
 })
 -- we live in hostile environments!
 local hardy_gravel_soil_prefs = soil_pref_new({
-    rocky_substrate=0,
-    density=0
+    gravel=0
 })
 
 --[[

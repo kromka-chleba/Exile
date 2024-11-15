@@ -38,7 +38,7 @@ function soil_preferences.new(args)
     agri = type(agri) == "number" and agri or 2
     prefs.agricultural_soil = agri
     -- permit gravel-specific
-    prefs.gravel = type(args.gravel) == "number" and args.gravel or 0
+    prefs.gravel = type(args.gravel) == "number" and args.gravel or -2
     -- more complex soil_pref calculations
     -- rocky substrate
     local rockstrate = args.rocky_substrate
@@ -130,8 +130,7 @@ function soil_preferences.new(args)
             end
         end
     else
-        -- grpnum of 4 is -2 points
-        density = {[3]=0,[4]=-2}
+        density = nil
     end
     -- set complex prefs
     prefs.rocky_substrate = rockstrate
