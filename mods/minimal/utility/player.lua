@@ -18,7 +18,33 @@ function minimal.player_in_creative(plyr)
     return false
 end
 
--- ping functionality scope
+
+-- On_join for all players -----------------------------------------------
+
+-- because core on_joinplayer does not work for single or first hosted player
+
+local on_join = {} -- registered on_join functions, works for singleplayer
+
+function minimal.register_on_joinplayer(func)
+    table.insert(on_join, func)
+end
+local function do_on_join(player)
+    for i = 1, #on_join do
+        on_join[i](player)
+    end
+end
+minetest.register_on_joinplayer(function(player)
+        do_on_join(player)
+end)
+
+minetest.after(
+    1, function()
+        for _, player in pairs(core.get_connected_players()) do
+            do_on_join(player)
+        end
+end)
+
+-- ping functionality scope ----------------------------------------------
 do
     local clear_ping_delay = tonumber(minetest.settings:get(
                                           "exile_clear_ping_delay")) or 20
