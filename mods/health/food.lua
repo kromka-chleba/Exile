@@ -128,6 +128,20 @@ function HEALTH.eatdrink_playermade(itemstack, user, pointed_thing)
                                   itemstack:get_name())
         return
     end
+    -- check for any extra stuff we should add to this playermade
+    -- used for soups/stews to get proper returned empty + sound
+    local extra_stats = HEALTH.get_food_stats(itemstack)
+    if extra_stats then
+        for ind,val in pairs(extra_stats) do
+            if type(val) == "number" then
+                -- add any custom stuff
+                t[ind] = val + (t[ind] or 0)
+            -- otherwise overwrite
+            else
+                t[ind] = val
+            end
+        end
+    end
     return HEALTH.use_item(itemstack, user, t)
 end
 
