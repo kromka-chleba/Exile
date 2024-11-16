@@ -1097,3 +1097,71 @@ crafting.register_recipe({
         level = 1,
         always_known = true,
 })
+
+-- soup bowl crafts
+minetest.register_node(
+    "tech:food_bowl_clay_unfired", {
+        description = S("Bowl (unfired)"),
+        tiles = {"nodes_nature_clay.png",
+                 "nodes_nature_clay.png",
+                 "nodes_nature_clay.png",
+                 "nodes_nature_clay.png",
+                 "nodes_nature_clay.png",
+                 "nodes_nature_clay.png"},
+        drawtype = "nodebox",
+        stack_max = minimal.stack_max_medium,
+        paramtype = "light",
+        node_box = {
+            type = "fixed",
+            fixed = bowl_box,
+        },
+        groups = {dig_immediate=3, temp_pass = 1,
+                  falling_node = 1, heatable = 5},
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        on_construct = function(pos)
+            ncrafting.set_firing(pos, ncrafting.base_firing*0.25,
+                                 ncrafting.firing_int)
+        end,
+        on_dig = function(pos, node, digger)
+            return ncrafting.on_dig_pottery(pos, node, digger,
+                                            ncrafting.base_firing*0.25)
+        end,
+        on_timer = function(pos, elapsed)
+            --finished product, length
+            return ncrafting.fire_pottery(pos, "tech:food_bowl_clay_unfired",
+                                          "tech:food_bowl_clay",
+                                          ncrafting.base_firing*0.25, 135)
+        end,
+
+})
+
+crafting.register_recipe({
+        type = {"crafting_spot","hand_pottery"},
+        output = "tech:food_bowl_clay_unfired 3",
+        items = {"nodes_nature:clay_wet"},
+        level = 1,
+        always_known = true,
+})
+crafting.register_recipe({
+        type = {"mixing_spot","hand_pottery"},
+        output = "nodes_nature:clay",
+        items = {"tech:food_bowl_clay_unfired 4"},
+        level = 1,
+        always_known = true,
+})
+-- wooden bowl
+crafting.register_recipe({
+        type = {"axe"},
+        output = "tech:food_bowl_wooden 3",
+        items = {"group:hard_wood", "tech:vegetable_oil 2"},
+        level = 1,
+        always_known = true,
+})
+-- more advanced crafting station
+crafting.register_recipe({
+        type = {"carpentry_bench"},
+        output = "tech:food_bowl_wooden 5",
+        items = {"group:hard_wood", "tech:vegetable_oil 3"},
+        level = 1,
+        always_known = true,
+})
