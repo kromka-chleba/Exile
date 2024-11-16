@@ -578,6 +578,23 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
     add_watcher(pos, clicker)
 end
 
+-- fix compatibility with older pot system
+local function pot_compatibility(meta, inv, inv_main)
+    inv = inv or meta:get_inventory()
+    inv_main = inv_main or inv:get_list("main")
+    -- get soup description
+    local soup_desc = inv_main[1]:get_description()
+    -- update pot and fix da mess
+    meta:set_string("soup_desc", soup_desc)
+    local soup_perc = inv_main[1]:get_count()*10 -- times by 10 to get expected percentage
+    -- was an itemstack of 10 soups, so use that for expected calculation ^
+    meta:set_int("soup_percent", soup_perc)
+    inv:set_size("main", 0) -- delete inventory
+    meta:set_string("formspec","") -- delete formspec
+    -- return results for use: description, percentage
+    return soup_desc, soup_perc
+end
+
 -- receive fields, what happens when player closes the formspec
 -- if ingredients are added:
 -- ;timer is set or restarted if inactive here
@@ -637,6 +654,9 @@ local function pot_receive_fields(pos, formname, fields, sender)
             end
             -- add to contents table
             contents[#contents + 1] = item:get_short_description()
+        -- compatibility with old pot system, otherwise resume as normal
+        elseif index == 1 and item:get_name() == "tech:food_bowl_clay_soup" then
+            pot_compatibility(meta, inv, inv_main)
         -- hey, you shouldn't be in here! throw it out!
         else
             minetest.add_item(minimal.pos_shift(pos,{y=1}), item)
@@ -971,17 +991,7 @@ minetest.register_node("tech:cooking_pot",{
       local soup_perc = meta:get_int("soup_percent")
       -- old pot system, let's fix this mess! (compatibility)
       if soup_desc == "" then
-          local inv = meta:get_inventory()
-          local inv_main = inv:get_list("main")
-          -- get soup description
-          soup_desc = inv_main[1]:get_description()
-          -- update pot and fix da mess
-          meta:set_string("soup_desc", soup_desc)
-          soup_perc = inv_main[1]:get_count()*10 -- times by 10 to get expected percentage
-          -- was an itemstack of 10 soups, so use that for expected calculation ^
-          meta:set_int("soup_percent", soup_perc)
-          inv:set_size("main", 0) -- delete inventory
-          meta:set_string("formspec","") -- delete formspec
+          soup_desc, soup_perc = pot_compatibility(meta)
       end
       -- aint no soup! clear!
       if soup_perc < 1 then
