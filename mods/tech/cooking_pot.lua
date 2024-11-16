@@ -305,6 +305,11 @@ local function register_food_bowl(name, def)
         -- save nutrition stats
         soup.preserve_metadata = soup.preserve_metadata or soup_preserve_metadata
         soup.after_place_node = soup.ater_place_node or soup_after_place
+        -- food stats
+        HEALTH.add_food_table(soup.name,{
+            rwi = name,
+            eat_sound = "nodes_nature_slurp"
+        })
         -- register
         minetest.register_node(soup.name, soup)
     end
@@ -353,6 +358,10 @@ local function register_food_bowl(name, def)
         -- save nutrition stats
         stew.preserve_metadata = stew.preserve_metadata or soup_preserve_metadata
         stew.after_place_node = stew.ater_place_node or soup_after_place
+        -- food stats
+        HEALTH.add_food_table(stew.name,{
+            rwi = name
+        })
         -- register
         minetest.register_node(stew.name, stew)
     end

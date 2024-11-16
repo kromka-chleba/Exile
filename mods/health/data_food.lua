@@ -161,12 +161,7 @@ HEALTH.food_table = {
     -- medicine                              hp  th   hu  en  te
     ["nodes_nature:hakimi_flowering"] = {hp = 1, hu = 1, en = -15},
     ["nodes_nature:merki"] = {hp = 1, hu = 1, en = -15},
-    ["tech:herbal_medicine"] = {hp = 5},
-    -- custom functionality for soups
-    ["tech:food_bowl_clay_soup"] = {eat_sound = "nodes_nature_slurp", rwi="tech:food_bowl_clay"},
-    ["tech:food_bowl_clay_stew"] = {rwi="tech:food_bowl_clay"},
-    ["tech:food_bowl_wooden_soup"] = {eat_sound = "nodes_nature_slurp", rwi="tech:food_bowl_wooden"},
-    ["tech:food_bowl_wooden_stew"] = {rwi="tech:food_bowl_wooden"},
+    ["tech:herbal_medicine"] = {hp = 5}
 }
 
 HEALTH.bake_table = {
