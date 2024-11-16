@@ -210,7 +210,7 @@ end
 
 local function register_food_bowl(name, def)
     assert(type(name) == "string",
-        "tech.register_soup_bowl: got non-string for name, got type '"..type(name).."'")
+        "tech.register_food_bowl: got non-string for name, got type '"..type(name).."'")
     def = type(def) == "table" and def or {}
     --assert(type(def) == "table",
         --"tech.register_soup_bowl: got non-table for definition, got type '"..type(def).."'")
@@ -218,8 +218,7 @@ local function register_food_bowl(name, def)
     -- colon at first part of string, indicative of no modname
     -- no colon, no mod name or colon associated, add one
     local mod_origin = minetest.get_current_modname()
-    name = name:sub(1,1) == ":" and mod_origin..name or
-        not name:match(":") and mod_origin..":"..name or name
+    name = not name:match(":") and mod_origin..":"..name or name
     -- figure out variant
     def.bowl_variant = (type(def.bowl_variant) == "string" and def.bowl_variant:lower()) or "clay"
     local variant = def.bowl_variant
@@ -369,6 +368,8 @@ local function register_food_bowl(name, def)
     def.on_soup_transfer = def.on_soup_transfer or soup_transfer
     minetest.register_node(name,def)
 end
+-- namespace
+tech.register_food_bowl = register_food_bowl
 
 -- registration of clay + wooden food bowls, and their soup + stew variants
 register_food_bowl("food_bowl_clay")
