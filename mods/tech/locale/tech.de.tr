@@ -274,6 +274,9 @@ Ikippe Yeast=Ikippehefe
 # animal food_crafts
 Cracked Egg=Aufgeschlagenes Ei
 Fried Egg=Setzei
+# food_crafts tips/messages
+Infect Dough=
+Yeast added to the @1=
 # Pottery
 Broken Pottery Slab=Zerbrochene Keramikplatte
 # pottery.lua

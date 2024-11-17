@@ -554,14 +554,18 @@ minetest.register_craftitem(
         description = S("Ikippe Yeast"),
         inventory_image = "tech_yeast_dough_spores.png",
         stack_max = minimal.stack_max_medium*4,
+        _place_tip = S("Infect Dough"),
         on_place = function(itemstack, player, pointed_thing)
             if not pointed_thing or pointed_thing.type ~= "node" then
                 return
             end
             local pos = pointed_thing.under
+            local nodedef = minimal.get_nodedef(pos)
             -- can't infect, return
-            if not yeast_infect(pos) then return end
-            -- successfully infected, take away item
+            if not yeast_infect(pos, nodedef) then return end
+            -- successfully infected, take away item and make message
+            minimal.send_message(player:get_player_name(),
+                S("Yeast added to the @1", nodedef.description), 3.5)
             if not minimal.player_in_creative(player) then
                 itemstack:take_item()
                 return itemstack

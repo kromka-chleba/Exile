@@ -278,6 +278,9 @@ Fried Egg=
 # animal_crafts.lua
 Cracked Egg=
 Fried Egg=Uovo all'occhio di bue
+# food_crafts tips/messages
+Infect Dough=
+Yeast added to the @1=
 # Pottery
 Broken Pottery Slab=
 # pottery.lua

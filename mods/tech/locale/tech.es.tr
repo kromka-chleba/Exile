@@ -274,6 +274,9 @@ Ikippe Yeast=
 # animal food_crafts
 Cracked Egg=
 Fried Egg=Huevo Frito
+# food_crafts tips/messages
+Infect Dough=
+Yeast added to the @1=
 # Pottery
 Broken Pottery Slab=
 # pottery.lua

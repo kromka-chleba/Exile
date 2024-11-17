@@ -274,6 +274,9 @@ Ikippe Yeast=
 # animal food_crafts
 Cracked Egg=oeuf fêlé
 Fried Egg=Œuf au Plat
+# food_crafts tips/messages
+Infect Dough=
+Yeast added to the @1=
 # Pottery
 Broken Pottery Slab=Dalle de poterie cassée
 # pottery.lua
