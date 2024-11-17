@@ -306,7 +306,7 @@ minetest.register_node(
 local dough_yeast_temp_range = {min=15, max=40}
 
 local function get_dough_on_timer(chance)
-    chance = chance or 0.09 -- provided chance or 9%
+    chance = chance or 0.07 -- provided chance or 7%
     -- provide function return to run
     return function(pos, elapsed, ch) -- ch is chance override
         local meta = minetest.get_meta(pos)
@@ -411,7 +411,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
-        on_timer = get_dough_on_timer(0.25), -- 25% chance
+        on_timer = get_dough_on_timer(0.1), -- 10% chance
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
 })
@@ -441,7 +441,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
-        on_timer = get_dough_on_timer(0.12), -- 12% chance
+        on_timer = get_dough_on_timer(0.1), -- 10% chance
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
 })
@@ -455,7 +455,7 @@ local function ferm_dough_preserve_metadata(pos, oldnode, oldmeta, drops)
     local nodedef = minetest.registered_nodes[oldnode.name]
     local get_microbes = nodedef.breads_get_microbes or
       function()
-          return math.random(1,5)
+          return math.random(1,3)
       end
     -- get fresh batch catchable microbes
     local microbes = get_microbes(pos, oldnode, nodedef)
@@ -521,7 +521,7 @@ minetest.register_node(
         paramtype = "light",
         preserve_metadata = ferm_dough_preserve_metadata,
         breads_get_microbes = function(pos, oldnode, nodedef)
-            return math.random(3,10)
+            return math.random(2,5)
         end
 })
 
