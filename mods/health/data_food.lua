@@ -35,6 +35,9 @@ HEALTH.food_table = {
     -- black bread aka peasant's bread, more protein than cakey crumbly bread
     ["tech:bread_black"] = {hu = 36, en = 12},
     ["tech:bread_crumbly"] = {hu = 28, en = 18, th = 3},
+    -- unleavened breads
+    ["tech:bread_unleavened"] = {hu = 30, en = 8},
+    ["tech:bread_unleavened_crumbly"] = {hu = 24, en = 14, th = 3},
     ["nodes_nature:sea_lettuce"] = {hu = 5, en = -10},
     ["nodes_nature:sea_lettuce_cooked"] = {hu = 5},
     ["nodes_nature:vansano_seed"] = {hu = 1},
