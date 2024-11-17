@@ -105,7 +105,9 @@ function minimal.send_message(player, message, duration)
     player_name = player_name or player:get_player_name()
 
     -- check or set set duration
-    duration = type(duration) == "number" and duration or 1
+    -- if duration not specified, assumes a 23 char string to last a second
+    -- then calculates duration by dividing message length by 23 (e.g. 35/23 = 1.48sec)
+    duration = type(duration) == "number" and duration or #message/23
 
     local occupied = messages_occupied[player_name]
     -- convert message into table
@@ -166,9 +168,9 @@ function minimal.send_message(player, message, duration)
     return message
 end
 
-function minimal.warn_message(player_name, message, duration)
-    if not minetest.get_player_by_name(player_name) then return end
-
-    minetest.sound_play("failure", {to_player = player_name})
-    minimal.send_message(player_name, message, duration)
+function minimal.warn_message(player_name, ...)
+    -- only play sound on success
+    if minimal.send_message(player_name, ...) then
+        minetest.sound_play("failure", {to_player = player_name})
+    end
 end
