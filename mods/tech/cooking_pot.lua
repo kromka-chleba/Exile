@@ -432,10 +432,15 @@ local function calc_baking_time(stack,count)
     -- get baking time or 1 if already cooked
     local time = bake_data and bake_data.duration or fname:match("_cooked") and 1 or nil
     if not time then
-        -- no time, use half of nutrition unit value
+        -- no time, let's check some stuff
         local ft = HEALTH.get_food_stats(fname)
         if not ft then return 0 end -- has no time to give (not a food? how?)
-        time = 1 + math.floor(math.abs(ft.hu)/2)
+        local sdef = stack:get_definition() -- stackdef
+        -- check if has the group 'cooked', set as 1 similarly to above cooked
+        -- then use group 'baking_time' if exists if not above
+        -- otherwise use half of nutrition unit value
+        time = sdef.groups and (sdef.groups.cooked and 1 or sdef.groups.baking_time) or
+            1 + math.floor(math.abs(ft.hu/2))
     end
     count = count or stack:get_count()
     local max_count = stack:get_stack_max()
