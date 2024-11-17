@@ -614,6 +614,38 @@ minetest.register_node(
         paramtype = "light",
 })
 
+-- basically a type of flatbread
+minetest.register_node(
+    "tech:bread_unleavened",  {
+        description = S("Unleavened Bread"),
+        tiles = {"tech_bread_unleavened.png"},
+        stack_max = minimal.stack_max_medium*3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-4.5/16, -0.5, -4.5/16, 4.5/16, -5/16, 4.5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+})
+
+-- likely similar texture to say a muffin, very cakey
+minetest.register_node(
+    "tech:bread_unleavened_crumbly",  {
+        description = S("Fluffy Unleavened Bread"),
+        tiles = {"tech_bread_unleavened_crumbly.png"},
+        stack_max = minimal.stack_max_medium*3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-4.5/16, -0.5, -4.5/16, 4.5/16, -5/16, 4.5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+})
+
 -- yuck! can't eat this!
 minetest.register_node(
     "tech:bread_burned",  {
