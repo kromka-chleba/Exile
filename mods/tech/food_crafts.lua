@@ -305,20 +305,48 @@ minetest.register_node(
 -- dough fermentation mechanics
 local dough_yeast_temp_range = {min=15, max=40}
 
+-- TODO: better system for fermentation + baking mechanics
 local function get_dough_on_timer(chance)
     chance = chance or 0.07 -- provided chance or 7%
     -- provide function return to run
     return function(pos, elapsed, ch) -- ch is chance override
+        local node = minetest.get_node(pos)
         local meta = minetest.get_meta(pos)
+        -- unleavened bread baking mechanics
+        local baking_data = HEALTH.bake_table[node.name] -- check if we can bake
+        if baking_data then
+            local temp = climate.get_point_temp(pos)
+            -- we're actually cooking! (natural temps can't go over 70 anyways)
+            if temp >= 70 then
+                if not meta:contains("baking") then
+                    -- remove any fermentation
+                    local metat = meta:to_table() or {}
+                    metat.fields = {}
+                    -- add baking int
+                    metat.fields.baking = baking_data.time
+                    meta:from_table(metat)
+                    -- reset timer to be cooking
+                    minetest.get_node_timer(pos):start(ncrafting.cook_rate)
+                    return false
+                end
+            end
+        end
+        -- WE BAKING!! (if we can bake)
+        if baking_data and meta:contains("baking") then
+            return ncrafting.do_bake(pos, elapsed,
+                                 baking_data.temp, baking_data.time,
+                                 baking_data.cooked, baking_data.burned)
+        end
+
         ch = ch or chance
         if meta:get_int("ferment") ~= 0 then -- we're fermentin'
             -- we're done fermenting!
             if not ncrafting.ferment_on_timer(pos, elapsed) then
-                local node = minetest.get_node(pos)
+                node = minetest.get_node(pos)
                 local metat = meta:to_table()
                 metat.fields = {}
                 -- set baking data if we're a bakeable
-                local baking_data = HEALTH.bake_table[node.name]
+                baking_data = HEALTH.bake_table[node.name]
                 if baking_data then
                   metat.fields.baking = baking_data.time
                 end
@@ -332,7 +360,7 @@ local function get_dough_on_timer(chance)
         -- let's try fermenting
         elseif math.random() <= chance then
             -- check for temp_range first before trying to ferment
-            local nodedef = minimal.get_nodedef(pos)
+            local nodedef = minetest.registered_nodes[node.name]
             local temp_range = nodedef._ferment_temp_range
             if temp_range then
                 local temp = climate.get_point_temp(pos)
@@ -378,7 +406,7 @@ minetest.register_node(
           type = "fixed",
           fixed = {-4/16, -0.5, -4/16, 4/16, -4/16, 4/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1, heatable=75},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         _ferment_time = {min=15,max=36},
@@ -402,7 +430,7 @@ minetest.register_node(
           type = "fixed",
           fixed = {-5/16, -0.5, -5/16, 5/16, -4/16, 5/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, cake_dough=1},
+        groups = {dig_immediate = 3, falling_node=1, dough=1, cake_dough=1, heatable=75},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         _ferment_time = {min=12,max=30},
@@ -426,7 +454,7 @@ minetest.register_node(
           type = "fixed",
           fixed = {-5/16, -0.5, -5/16, 5/16, -4/16, 5/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1, heatable=75},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         _ferment_time = {min=20,max=46},
