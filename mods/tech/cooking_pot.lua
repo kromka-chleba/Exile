@@ -933,10 +933,11 @@ minetest.register_node("tech:cooking_pot",{
         params.contents_string = params.contents_string or S("Contents: <EMPTY>")
         params.note = params.note or S("Note: Add water to pot to make soup")
         if params.note == "nil" then params.note = nil end -- no note to add
-        -- percentage system
+        -- percentage system + note to get soup with a bowl
         if params.status == "finished" then
             local leftover = params.soup_percent or 100
-            params.note = S("Leftover: @1%",leftover)
+            params.note = S("Note: Use a Bowl to Get!").."\n"..
+                S("Leftover: @1%",leftover)
         end
         -- prioritize in order:
         -- status_string, owner, contents, note
