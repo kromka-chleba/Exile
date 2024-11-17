@@ -259,7 +259,8 @@ minetest.register_node(
           type = "fixed",
           fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, flour=1, heatable = 80},
+        groups = {dig_immediate = 3, falling_node=1, flour=1,
+                  heatable = 80, temp_pass = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light"
 })
@@ -275,7 +276,8 @@ minetest.register_node(
           type = "fixed",
           fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, flour=1, bread_flour = 1},
+        groups = {dig_immediate = 3, falling_node=1, flour=1,
+                  bread_flour = 1, temp_pass = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light"
 })
