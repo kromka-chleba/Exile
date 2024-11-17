@@ -108,6 +108,7 @@ function minimal.send_message(player, message, duration)
     -- if duration not specified, assumes a 23 char string to last a second
     -- then calculates duration by dividing message length by 23 (e.g. 35/23 = 1.48sec)
     duration = type(duration) == "number" and duration or #message/23
+    duration = 6
 
     local occupied = messages_occupied[player_name]
     -- convert message into table
@@ -148,12 +149,14 @@ function minimal.send_message(player, message, duration)
 
     -- reset after a certain amount of time
     minetest.after(duration, function()
+        -- player still online
+        if minetest.is_player(player) then
+            player:hud_remove(hud)
         -- player left
-        if not minetest.is_player(player) then
+        else
             messages_occupied[player_name] = nil
             return
         end
-        player:hud_remove(hud)
         -- if occupied exists and can find self
         if occupied and occupied[index] then
             -- remove index, remove occupied as a whole if no more messages left
