@@ -94,6 +94,7 @@ Tools=Werkzeuge
 Stations=Stationen
 Agriculture=Ackerbau
 Pickaxe=Spitzhacke
+Breadmaking=
 Cannot place here! Needs a whole block of:=Hier kann es nicht platziert werden! Benötigt einen ganzen Block von:
 Mixing Spot=Mischplatz
 Threshing Spot=Dreschplatz
@@ -269,6 +270,8 @@ Hardy Rhuya Dough=Zäher Rhuyateig
 @1 Fermented=@1 fermentiert
 Black Bread=Schwarzbrot
 Crumbly Bread=Mürbes Brot
+Unleavened Bread=
+Fluffy Unleavened Bread=
 Burned Bread=Verbranntes Brot
 Ikippe Yeast=Ikippehefe
 # animal food_crafts

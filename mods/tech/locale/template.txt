@@ -216,6 +216,8 @@ Fermented @1=
 Ikippe Yeast=
 Black Bread=
 Crumbly Bread=
+Unleavened Bread=
+Fluffy Unleavened Bread=
 Burned Bread=
 # animal food_crafts
 Cracked Egg=
