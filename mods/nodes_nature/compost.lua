@@ -93,6 +93,9 @@ local function decompose_compost(pos, elapsed, dc_name)
         return false
     else
         meta:set_int("decomposition", decomposition)
+	-- compost generates a bit of heat while it's breaking down
+	local temp_effect = speed == wet_speed and 10 or 5
+	climate.air_temp_source(vector.new(pos.x, pos.y+1, pos.z), temp_effect, 40, 0.75, decomposition_interval / 4)
         return true
     end
 end
