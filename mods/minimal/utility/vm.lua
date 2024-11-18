@@ -42,12 +42,14 @@ local vmanip_subregion = minimal.vmanip_subregion
 local zone_instance = zone.instance
 local worldpath=minetest.get_worldpath()
 
-function minimal.save_region(pos1, pos2, name)
+function minimal.save_region(opos1, opos2, name)
     -- Stores the specified area as an .ex_schm file in the world folder
 
     local cids = { } -- like: { -1 = "unknown", 0 = "ignore", 1 = "air", etc. }
     local dat = {}
     local VoxelManip = minetest.get_voxel_manip()
+
+    local pos1, pos2 = vector.sort(opos1, opos2)
     local p1, p2 = VoxelManip:read_from_map(pos1, pos2)
     local VoxAr = VoxelArea(p1, p2)
     local nodes = VoxelManip:get_data()
@@ -118,6 +120,21 @@ local function open_region_file(f)
     return input
 end
 
+local function translate_cids(cid_in)
+    local out = {}
+    for id, name in pairs(cid_in) do
+        if core.registered_nodes[name] then
+            local new_id = core.get_content_id(name)
+            out[id] = new_id
+        else
+            out[id] = core.get_content_id("air")
+            core.log("Warning: Ex_Schm contains unknown node "..name..
+                     " ; placed as air instead")
+        end
+    end
+    return out
+end
+
 function minimal.load_region(base_raw, file)
     -- Loads a stored region and builds it on the map
 
@@ -130,7 +147,10 @@ function minimal.load_region(base_raw, file)
     local partway = minetest.get_us_time() - benchmark
     minetest.log("action", "File read time: "..tostring(partway).." us")
 
+
     benchmark = minetest.get_us_time()
+
+    local translated_ids = translate_cids(cids)
 
     local base = vector.round(base_raw)
     local xlate = vector.subtract(base, range.pos1) -- for translating pos values
@@ -151,7 +171,7 @@ function minimal.load_region(base_raw, file)
                 if type(this) == "number" then
                     this = { id = this, p2 = 0 }
                 end -- id only
-                nodes[index] = minetest.get_content_id(cids[this.id])
+                nodes[index] = translated_ids[this.id]
                 param2[index] = this.p2
                 local tpos = VoxAr:position(index)
                 if this.meta then
