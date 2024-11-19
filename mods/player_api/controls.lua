@@ -152,6 +152,8 @@ local function check_player_surroundings(player, pos, name)
     end
     if node_def and node_def.groups.trigger == 1 then
         fire_trigger(pos, player)
+    elseif node_above_def and node_above_def.groups.trigger == 1 then
+        fire_trigger(pos_above, player)
     end
     checked[name] = { ["pos"] = vector.round(pos), [1] = on_water,
         [2] = node_above_is_solid, [3] = no_crouching, [4] = is_flying }
