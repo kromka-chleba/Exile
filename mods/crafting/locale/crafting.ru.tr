@@ -16,6 +16,8 @@ basalt cobble=базальтовый булыжник
 granite cobble=гранитный камень
 ironstone cobble=камень железняка
 jade cobble=нефритовый камень
+#api.lua
+@1's @2=
 Any @1=Материал - @1
 Tool used=Инструмент
 or=или

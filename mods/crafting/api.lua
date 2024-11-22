@@ -1025,7 +1025,8 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
         imeta:set_string('creator', name)
         -- don't add creator name to sort description for single player
         if not minetest.is_singleplayer() then
-            sdesc = name .. "'s " .. sdesc
+            -- player's so-and-so
+            sdesc = S("@1's @2",name, sdesc)
         end
         imeta:set_string('short_description', sdesc)
     end
