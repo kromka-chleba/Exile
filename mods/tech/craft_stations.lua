@@ -113,10 +113,12 @@ crafting.register_type("knife_mixing",
                        "tech:wood_ash")
 crafting.register_type("hammer",
                        S("Crafting"),
-                       "tech:hammer_basalt")   -- Hammering spot replacement
+                       "tech:hammer_basalt",   -- Hammering spot replacement
+                       {name = "tech_rock_crush", pitch = {0.7, 0.95}})
 crafting.register_type("hammer_mixing",
                        S("Mixing"),
-                       "nodes_nature:limestone_boulder")
+                       "nodes_nature:limestone_boulder",
+                       {name = "tech_rock_crush", pitch = {0.7, 0.95}})
 crafting.register_type('shovel',
                        S("Crafting"),
                        "tech:shovel_iron")     -- farming tools - including digging stick; replace threshing spot
@@ -758,6 +760,7 @@ crafting.register_recipe({ -- crafted from ingots, using hammer
         items  = {'tech:iron_ingot 4'},
         level  = 1,
         always_known = true,
+        sound = "tech_metal_place"
 })
 
 
