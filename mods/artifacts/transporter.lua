@@ -835,25 +835,27 @@ end
 ------------------------------------------------------------------
 --NODES, ITEMS
 
-local pad_def = {
+local pad_nodebox = {
+    type = "fixed",
+    fixed = {
+        {-0.5, 0, -0.5, -0.125, 0.0625, -0.125}, -- NodeBox1
+        {0.125, 0, -0.5, 0.5, 0.0625, -0.125}, -- NodeBox2
+        {0.125, 0, 0.125, 0.5, 0.0625, 0.5}, -- NodeBox3
+        {-0.5, 0, 0.125, -0.125, 0.0625, 0.5}, -- NodeBox4
+        {-0.375, -0.125, -0.375, 0.375, 0.0, 0.375}, -- NodeBox5
+        {-0.4375, -0.3125, -0.4375, 0.4375, -0.125, 0.4375}, -- NodeBox6
+        {-0.5, -0.5, -0.5, 0.5, -0.3125, 0.5}, -- NodeBox7
+        {-0.125, 0, -0.125, 0.125, 0.0625, 0.125}, -- NodeBox9
+    }
+}
+
+minetest.register_node('artifacts:transporter_pad', {
     description = S('Transporter Pad'),
     tiles = {'artifacts_antiquorium.png'},
     stack_max = minimal.stack_max_bulky,
     drawtype = "nodebox",
     paramtype = "light",
-    node_box = {
-        type = "fixed",
-        fixed = {
-            {-0.5, 0, -0.5, -0.125, 0.0625, -0.125}, -- NodeBox1
-            {0.125, 0, -0.5, 0.5, 0.0625, -0.125}, -- NodeBox2
-            {0.125, 0, 0.125, 0.5, 0.0625, 0.5}, -- NodeBox3
-            {-0.5, 0, 0.125, -0.125, 0.0625, 0.5}, -- NodeBox4
-            {-0.375, -0.125, -0.375, 0.375, 0.0, 0.375}, -- NodeBox5
-            {-0.4375, -0.3125, -0.4375, 0.4375, -0.125, 0.4375}, -- NodeBox6
-            {-0.5, -0.5, -0.5, 0.5, -0.3125, 0.5}, -- NodeBox7
-            {-0.125, 0, -0.125, 0.125, 0.0625, 0.125}, -- NodeBox9
-        }
-    },
+    node_box = pad_nodebox,
     groups = { cracky = 2 },
     on_rightclick = transporter_rightclick,
     after_place_node = minimal.protection_after_place_node,
@@ -873,10 +875,9 @@ local pad_def = {
         -- send for update
         return infotext
     end
-}
-minetest.register_node('artifacts:transporter_pad', pad_def)
+})
 
-local pad_def_charging = {
+minetest.register_node('artifacts:transporter_pad_charging',  {
     description = S('Transporter Pad (Charging)'),
     tiles = {'artifacts_antiquorium.png^artifacts_moon_glass.png'},
     stack_max = minimal.stack_max_bulky,
@@ -899,10 +900,9 @@ local pad_def_charging = {
     },
     groups = {},
     sounds = nodes_nature.node_sound_glass_defaults(),
-}
-minetest.register_node('artifacts:transporter_pad_charging', pad_def_charging)
+})
 
-local pad_def_active = {
+minetest.register_node('artifacts:transporter_pad_active', {
     description = S('Transporter Pad (active)'),
     tiles = {'artifacts_antiquorium.png^artifacts_sun_stone.png'},
     stack_max = minimal.stack_max_bulky,
@@ -934,10 +934,28 @@ local pad_def_active = {
         minetest.sound_play("artifacts_transport_fail",
                             {pos = pos, gain = 1, max_hear_distance = 6})
     end,
-}
-minetest.register_node('artifacts:transporter_pad_active', pad_def_active)
+})
 
-local power_def = {
+local power_core_nodebox = {
+    type = "fixed",
+    fixed = {
+        {-0.5, 0.375, -0.5, -0.375, 0.5, 0.5}, -- NodeBox1
+        {0.375, 0.375, -0.5, 0.5, 0.5, 0.5}, -- NodeBox2
+        {0.375, -0.5, -0.5, 0.5, -0.375, 0.5}, -- NodeBox3
+        {-0.5, -0.5, -0.5, -0.375, -0.375, 0.5}, -- NodeBox4
+        {-0.375, -0.5, -0.5, 0.375, -0.375, -0.375}, -- NodeBox5
+        {-0.375, -0.5, 0.375, 0.375, -0.375, 0.5}, -- NodeBox6
+        {-0.375, 0.375, 0.375, 0.375, 0.5, 0.5}, -- NodeBox7
+        {-0.375, 0.375, -0.5, 0.375, 0.5, -0.375}, -- NodeBox8
+        {-0.375, -0.375, -0.375, 0.375, 0.375, 0.375}, -- NodeBox9
+        {-0.125, -0.375, -0.5, 0.125, 0.375, -0.375}, -- NodeBox10
+        {-0.125, -0.375, 0.375, 0.125, 0.375, 0.5}, -- NodeBox11
+        {0.375, -0.375, -0.125, 0.5, 0.375, 0.125}, -- NodeBox12
+        {-0.5, -0.375, -0.125, -0.375, 0.375, 0.125}, -- NodeBox13
+    }
+}
+
+minetest.register_node('artifacts:transporter_power', {
     description = S('Transporter Power Core (charged)'),
     tiles = {
         'artifacts_sun_stone.png',
@@ -947,32 +965,14 @@ local power_def = {
     drawtype = "nodebox",
     paramtype = "light",
     use_texture_alpha = c_alpha.clip,
-    node_box = {
-        type = "fixed",
-        fixed = {
-            {-0.5, 0.375, -0.5, -0.375, 0.5, 0.5}, -- NodeBox1
-            {0.375, 0.375, -0.5, 0.5, 0.5, 0.5}, -- NodeBox2
-            {0.375, -0.5, -0.5, 0.5, -0.375, 0.5}, -- NodeBox3
-            {-0.5, -0.5, -0.5, -0.375, -0.375, 0.5}, -- NodeBox4
-            {-0.375, -0.5, -0.5, 0.375, -0.375, -0.375}, -- NodeBox5
-            {-0.375, -0.5, 0.375, 0.375, -0.375, 0.5}, -- NodeBox6
-            {-0.375, 0.375, 0.375, 0.375, 0.5, 0.5}, -- NodeBox7
-            {-0.375, 0.375, -0.5, 0.375, 0.5, -0.375}, -- NodeBox8
-            {-0.375, -0.375, -0.375, 0.375, 0.375, 0.375}, -- NodeBox9
-            {-0.125, -0.375, -0.5, 0.125, 0.375, -0.375}, -- NodeBox10
-            {-0.125, -0.375, 0.375, 0.125, 0.375, 0.5}, -- NodeBox11
-            {0.375, -0.375, -0.125, 0.5, 0.375, 0.125}, -- NodeBox12
-            {-0.5, -0.375, -0.125, -0.375, 0.375, 0.125}, -- NodeBox13
-        }
-    },
+    node_box = power_core_nodebox,
     groups = { oddly_breakable_by_hand = 3 },
     sounds = nodes_nature.node_sound_glass_defaults(),
     after_place_node = minimal.protection_after_place_node,
     on_rightclick = transporter_power_rightclick,
-}
-minetest.register_node('artifacts:transporter_power', power_def)
+})
 
-local power_def_depleted = {
+minetest.register_node('artifacts:transporter_power_dep', {
     description = S('Transporter Power Core (depleted)'),
     tiles = {
         'artifacts_moon_glass.png',
@@ -981,24 +981,7 @@ local power_def_depleted = {
     drawtype = "nodebox",
     paramtype = "light",
     use_texture_alpha = c_alpha.clip,
-    node_box = {
-        type = "fixed",
-        fixed = {
-            {-0.5, 0.375, -0.5, -0.375, 0.5, 0.5}, -- NodeBox1
-            {0.375, 0.375, -0.5, 0.5, 0.5, 0.5}, -- NodeBox2
-            {0.375, -0.5, -0.5, 0.5, -0.375, 0.5}, -- NodeBox3
-            {-0.5, -0.5, -0.5, -0.375, -0.375, 0.5}, -- NodeBox4
-            {-0.375, -0.5, -0.5, 0.375, -0.375, -0.375}, -- NodeBox5
-            {-0.375, -0.5, 0.375, 0.375, -0.375, 0.5}, -- NodeBox6
-            {-0.375, 0.375, 0.375, 0.375, 0.5, 0.5}, -- NodeBox7
-            {-0.375, 0.375, -0.5, 0.375, 0.5, -0.375}, -- NodeBox8
-            {-0.375, -0.375, -0.375, 0.375, 0.375, 0.375}, -- NodeBox9
-            {-0.125, -0.375, -0.5, 0.125, 0.375, -0.375}, -- NodeBox10
-            {-0.125, -0.375, 0.375, 0.125, 0.375, 0.5}, -- NodeBox11
-            {0.375, -0.375, -0.125, 0.5, 0.375, 0.125}, -- NodeBox12
-            {-0.5, -0.375, -0.125, -0.375, 0.375, 0.125}, -- NodeBox13
-        }
-    },
+    node_box = power_core_nodebox,
     groups = { oddly_breakable_by_hand = 3, heatable = 30 },
     sounds = nodes_nature.node_sound_glass_defaults(),
     on_construct = function(pos)
@@ -1011,10 +994,9 @@ local power_def_depleted = {
     end,
     after_place_node = minimal.protection_after_place_node,
     on_rightclick = transporter_power_rightclick,
-}
-minetest.register_node('artifacts:transporter_power_dep', power_def_depleted)
+})
 
-local focalizer_def = {
+minetest.register_node('artifacts:transporter_focalizer', {
     description = S('Transporter Focalizer'),
     tiles = {'artifacts_antiquorium.png'},
     stack_max = minimal.stack_max_bulky,
@@ -1039,10 +1021,9 @@ local focalizer_def = {
     groups = { cracky = 3 },
     sounds = nodes_nature.node_sound_glass_defaults(),
     after_place_node = minimal.protection_after_place_node,
-}
-minetest.register_node('artifacts:transporter_focalizer', focalizer_def)
+})
 
-local stabilizer_def = {
+minetest.register_node('artifacts:transporter_stabilizer', {
     description = S('Transporter Stabilizer'),
     tiles = {'artifacts_antiquorium.png'},
     stack_max = minimal.stack_max_bulky,
@@ -1063,10 +1044,9 @@ local stabilizer_def = {
     groups = { cracky = 3 },
     sounds = nodes_nature.node_sound_glass_defaults(),
     after_place_node = minimal.protection_after_place_node,
-}
-minetest.register_node('artifacts:transporter_stabilizer', stabilizer_def)
+})
 
-local regulator_def = {
+minetest.register_node('artifacts:transporter_regulator', {
     description = S('Transporter Regulator'),
     tiles = {'artifacts_antiquorium.png'},
     stack_max = minimal.stack_max_bulky,
@@ -1091,8 +1071,7 @@ local regulator_def = {
     groups = { cracky = 3 },
     sounds = nodes_nature.node_sound_glass_defaults(),
     after_place_node = minimal.protection_after_place_node,
-}
-minetest.register_node('artifacts:transporter_regulator', regulator_def)
+})
 
 minetest.register_tool('artifacts:transporter_key', {
                            description = S('Transporter Key'),
