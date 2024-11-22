@@ -249,6 +249,7 @@ crafting.register_recipe({
         items = {"tech:lime_mortar_slab 2"},
         level = 1,
         always_known = true,
+        sound = {name = "nodes_nature_mud", gain = 0.1}
 })
 
 crafting.register_recipe({
@@ -257,6 +258,7 @@ crafting.register_recipe({
         items = {"tech:lime_mortar"},
         level = 1,
         always_known = true,
+        sound = {name = "nodes_nature_mud", gain = 0.1}
 })
 
 
@@ -289,6 +291,7 @@ crafting.register_recipe({
         items = {"tech:slaked_lime", "nodes_nature:sand 3"},
         level = 1,
         always_known = true,
+        sound = {name = "nodes_nature_mud", gain = 0.1}
 })
 
 
@@ -433,6 +436,7 @@ crafting.register_recipe({
         items = {'nodes_nature:clay_wet 4', 'nodes_nature:sand_wet 2'},
         level = 1,
         always_known = true,
+        sound = {name = "nodes_nature_dirt_footstep", pitch={0.6, 0.85}}
 })
 
 --mix with mortar
@@ -702,6 +706,7 @@ crafting.register_recipe({
         items = {'nodes_nature:clay_wet 6'},
         level = 1,
         always_known = true,
+        sound = {name = "nodes_nature_dirt_footstep", pitch={0.6, 0.85}}
 })
 
 --usable tile
@@ -813,6 +818,7 @@ crafting.register_recipe({
         items = {'nodes_nature:clay_wet 1'},
         level = 1,
         always_known = true,
+        sound = {name = "nodes_nature_dirt_footstep", pitch={0.6, 0.85}}
 })
 
 stairs.register_stair_and_slab(

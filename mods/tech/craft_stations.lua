@@ -96,7 +96,8 @@ crafting.register_type("hand", -- Empty hand tool; Replace crafting spot
    -- Assemble crafting stations by hand.
 crafting.register_type("hand_pottery",
                        S("Pottery"),
-                       "tech:clay_water_pot")     -- Pottery tab
+                       "tech:clay_water_pot",     -- Pottery tab
+                       {name = "nodes_nature_dirt_footstep", pitch={0.6, 0.85}})
 -- crafting.register_type("hand_wattle", ("Wattle"), "tech:wattle")            -- Wattle Tab
 crafting.register_type("hand_tools",
                        S("Tools"),
