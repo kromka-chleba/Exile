@@ -816,6 +816,7 @@ crafting.register_recipe({
         items = {{'animals:pegasun_eggs', 'animals:chichasa_eggs'}},
         level = 1,
         always_known = true,
+        sound = "animals_hatch_egg"
 })
 crafting.register_recipe({
         type = "mortar_and_pestle",
@@ -823,4 +824,5 @@ crafting.register_recipe({
         items = {{'animals:pegasun_eggs','animals:chichasa_eggs','animals:kubwakubwa_eggs 2','animals:darkasthaan_eggs 2'}},
         level = 1,
         always_known = true,
+        sound = "animals_hatch_egg"
 })
