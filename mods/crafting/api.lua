@@ -47,6 +47,8 @@ crafting = {
     -- hash of recipe id to display order in sorted array
     icon_item_name = {},
     -- hash of node identifiers to display the crafting type in the interface
+    sounds = {},
+    -- sounds to play when something is crafted within a crafting station
 }
 
 local S = minetest.get_translator("crafting")
@@ -84,11 +86,17 @@ local groupNameForTranslations = {
     S("ironstone cobble"), S("jade cobble")
 }
 
-function crafting.register_type(name, label, icon_item_name)
+function crafting.register_type(name, label, icon_item_name, sound)
     crafting.recipes[name] = {}
     -- add a label for tabs - default to the name
     crafting.tab_labels[name] = (label or name)
     crafting.icon_item_name[name] = icon_item_name
+    -- set up sound mechanism
+    sound = type(sound) == "string" and {name = sound} or type(sound) == "table" and sound
+    if sound and type(sound.name) == "string" then
+        sound.max_hear_distance = sound.max_hear_distance or 10
+        crafting.sounds[name] = sound
+    end
 end
 
 function crafting.register_recipe(def)
@@ -954,7 +962,7 @@ end
 * Will try to take itemsfrom `listname` and put output in the `outlistname` list in `inv`.
 * Returns true on success.
 ]]
-function crafting.perform_craft(name, inv, listname, outlistname, recipe)
+function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     -- get list of items required for the recipe (if found)
     local founditems = crafting.find_required_items(inv, listname, recipe)
     if not founditems then
@@ -1098,6 +1106,12 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
         end
     end
     if warn then minimal.warn_inv_full(player) end
+    -- get a crafting sound
+    local sound = recipe.sound
+    sound = sound or sound ~= false and crafting.sounds[ctype] or nil
+    if sound then
+        minimal.sound_play(minimal.merge_tables(sound, {pos = pos}))
+    end
     return true
 end
 
