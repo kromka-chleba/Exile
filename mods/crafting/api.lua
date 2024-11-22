@@ -100,20 +100,39 @@ function crafting.register_type(name, label, icon_item_name, sound)
 end
 
 function crafting.register_recipe(def)
+    local function recipe_error(txt)
+        error("crafting.register_recipe: issue with "..def.output.." recipe; "..txt)
+    end
     -- multiple output items unsupported due to minimal/interface/inventory.lua
     -- limitations, do replace instead
     assert(type(def.output) == "string",
-           "Output needed in recipe definition (string only)")
-    assert(def.type,   "Type needed in recipe definition")
-    assert(def.items,  "Items needed in recipe definition")
+           "crafting.register_recipe: 'output' needed in recipe definition (string only)")
+    if not def.type then
+        recipe_error("'type' is needed in recipe definition!")
+    end
+    if not def.items then
+        recipe_error("'items' needs to be specified in recipe definition!")
+    end
 
+    -- crafting level
     def.level = def.level or 1
+    if type(def.level) ~= "number" then
+        recipe_error("expected number for 'level', got '"..type(def.level).."'")
+    end
+    -- always_known boolean, set to true unless otherwise specified
+    def.always_known = type(def.always_known) ~= "boolean" and true or def.always_known
     -- Can be more then one craft station for a recipe
     -- Need to store as a table.
-    def.type = type(def.type) == 'string' and {def.type} or type(def.type) == "table" and def.type
-    assert(def.type, "crafting.register_recipe: invalid type, expected string or table, got '"..
-        type(def.type).."'")
-    -- convert into table to iterate through
+    def.type = type(def.type) == 'string' and {def.type} or def.type
+    if type(def.type) ~= "table" then
+        recipe_error("expected string or table for 'type', got '"..type(def.type).."'")
+    end
+    -- items table
+    def.items = type(def.items) == 'string' and {def.items} or def.items
+    if type(def.items) ~= "table" then
+        recipe_error("expected string or table for 'items', got '"..type(def.items).."'")
+    end
+    -- convert into table to iterate through or remove if invalid
     def.replace = type(def.replace) == "string" and {def.replace} or type(def.replace) == "table" and def.replace or nil
     -- custom sound per recipe
     -- permits "false" to prevent playing of crafting station sound
