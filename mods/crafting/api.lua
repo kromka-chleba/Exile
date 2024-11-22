@@ -138,6 +138,9 @@ function crafting.register_recipe(def)
     -- permits "false" to prevent playing of crafting station sound
     def.sound = type(def.sound) == "string" and {name = def.sound} or type(def.sound) == "table" and def.sound or
         def.sound ~= false and nil
+    if def.sound then
+        def.sound.max_hear_distance = def.sound.max_hear_distance or 10
+    end
     -- custom preview for formspec
     def._display = def._display
 
