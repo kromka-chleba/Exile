@@ -48,10 +48,12 @@ crafting.register_type("mortar_and_pestle",
 --crafting.register_type("hammering_block")...has to be done in nodes_nature
 crafting.register_type("anvil",
                        S("Crafting"),
-                       "tech:anvil")
+                       "tech:anvil",
+                       {name = "tech_anvil_craft", pitch = {0.65,1}})
 crafting.register_type("anvil_mixing",
                        S("Mixing"),
-                       "stairs:stair_slag")
+                       "stairs:stair_slag",
+                       {name = "tech_rock_crush", pitch = {0.8, 0.95}})
 crafting.register_type("carpentry_bench",
                        S("Carpentry Bench"),
                        "tech:carpentry_bench")
