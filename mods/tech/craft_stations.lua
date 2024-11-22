@@ -106,6 +106,7 @@ crafting.register_type("hand_mixing",
                        S("Mixing"),
                        "stairs:stair_thatch")       -- Mixing Tab
 
+-- TODO: see about a knife-like sound for knife crafting
 crafting.register_type("knife",
                        S("Crafting"),
                        "tech:stone_chopper")    -- Replace some of the crafting spot
@@ -114,7 +115,8 @@ crafting.register_type("knife_stations",
                        "tech:stone_chopper")   -- Replace some of the crafting spot
 crafting.register_type("knife_wattle",
                        S("Wattle"),
-                       "tech:wattle")      -- Replace some of the crafting spot
+                       "tech:wattle", -- Replace some of the crafting spot
+                       {name = "nodes_nature_wood_footstep", pitch={1, 1.1}, gain=0.3})
 crafting.register_type("knife_mixing",
                        S("Mixing"),
                        "tech:wood_ash")
@@ -131,10 +133,12 @@ crafting.register_type('shovel',
                        "tech:shovel_iron")     -- farming tools - including digging stick; replace threshing spot
 crafting.register_type("shovel_agriculture",
                        S("Agriculture"),
-                       "nodes_nature:loam_agricultural_soil") -- compost, etc.
+                       "nodes_nature:loam_agricultural_soil", -- compost, etc.
+                       "nodes_nature_dirt_footstep")
 crafting.register_type('soil_mixing',
                        S("Mixing"),
-                       "stairs:stair_loam")         -- tab for shovel
+                       "stairs:stair_loam",         -- tab for shovel
+                       "nodes_nature_dirt_footstep")
 crafting.register_type('axe',
                        S("Crafting"),           -- includes adze - replace chopping bock
                        "tech:axe_iron",
