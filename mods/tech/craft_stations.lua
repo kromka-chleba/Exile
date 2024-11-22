@@ -63,16 +63,20 @@ crafting.register_type("carpentry_bench",
 --crafting.register_type("masonry_mixing")...has to be done in nodes_nature
 crafting.register_type("brick_makers_bench",
                        S("Crafting"),
-                       "tech:brick_makers_bench")
+                       "tech:brick_makers_bench",
+                       "nodes_nature_hard_footstep")
 crafting.register_type("brick_makers_bench_bricks",
                        S("Bricks"),
-                       "stairs:stair_limestone_brick_mortar")
+                       "stairs:stair_limestone_brick_mortar",
+                       "nodes_nature_hard_footstep")
 crafting.register_type("brick_makers_bench_blocks",
                        S("Blocks"),
-                       "tech:conglomerate_block_mortar")
+                       "tech:conglomerate_block_mortar",
+                       "nodes_nature_hard_footstep")
 crafting.register_type("brick_makers_bench_mixing",
                        S("Mixing"),
-                       "stairs:stair_mudbrick")
+                       "stairs:stair_mudbrick",
+                       "nodes_nature_hard_footstep")
 
 crafting.register_type("spinning_wheel",
                        S("Spinning Wheel"),
