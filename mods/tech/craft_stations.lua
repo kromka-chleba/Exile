@@ -129,11 +129,13 @@ crafting.register_type('soil_mixing',
                        S("Mixing"),
                        "stairs:stair_loam")         -- tab for shovel
 crafting.register_type('axe',
-                       S("Crafting"),
-                       "tech:axe_iron")           -- includes adze - replace chopping bock
+                       S("Crafting"),           -- includes adze - replace chopping bock
+                       "tech:axe_iron",
+                       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}})
 crafting.register_type('axe_mixing',
                        S("Mixing"),
-                       "stairs:stair_tangkal_log")
+                       "stairs:stair_tangkal_log",
+                       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}})
 crafting.register_type('cobble')        -- Replacing grinding stone
 crafting.register_type('pickaxe',
                        S("Pickaxe"),
