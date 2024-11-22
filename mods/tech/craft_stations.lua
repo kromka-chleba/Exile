@@ -154,7 +154,8 @@ crafting.register_type('pickaxe',
 -- food-based crafting stations
 crafting.register_type('breadmaking',
                         S("Breadmaking"),
-                        "tech_breadmaking_crafticon.png")
+                        "tech_breadmaking_crafticon.png",
+                        {name = "nodes_nature_mud", gain = 0.15})
 
 -- location limit craft spots --------------------
 -- grouplist/banlistg {{group1, group_number}, {'stone', 1}}
@@ -616,7 +617,7 @@ minetest.register_node(
     "tech:mortar_pestle_wooden",{
         description   = S("Wooden Mortar and Pestle"),
         exile_crafting = {
-            craft_types = {"mortar_and_pestle"},
+            craft_types = {"mortar_and_pestle", 'breadmaking'},
             craft_level = 1,
         },
         drawtype      = "nodebox",
