@@ -579,22 +579,6 @@ local function set_from_key(itemstack, placer, pointed_thing)
     end
 end
 
-local function transporter_infotext(pos, nodedef, meta, params)
-    params = minimal.infotext_update_params(meta, params)
-    -- update to current meta
-    params.description = nodedef.description
-    local infotext = minimal.infotext_get_base_string(nil, meta, params)
-    -- transporter options
-    params.dest = params.dest and S("Destination:").." "..params.dest
-    params.loc = params.loc and S("Location:").." "..params.loc
-    -- set up infotext
-    infotext = infotext..
-        (params.dest and "\n"..params.dest or "")..
-        (params.loc and "\n"..params.loc or "")
-    -- send for update
-    return infotext
-end
-
 
 -- Set from key from formspec
 minetest.register_on_player_receive_fields(function(player, formname, fields)
@@ -613,8 +597,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             local meta_tran = minetest.get_meta(pos_tran)
             meta_tran:set_string("target_name", target_name)
             meta_tran:set_string("target_pos", target_pos)
-            minimal.infotext_set_new(pos_tran, meta_tran,
-                                     {dest=target_name}, transporter_infotext)
+            minimal.infotext_set_new(pos_tran, meta_tran)
 
             local player_name = player:get_player_name()
             minetest.sound_play( 'artifacts_key',
@@ -757,11 +740,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             meta:set_string("tmp_target_pos", "")
 
             --set name and infotext of transporter
-            local meta_tran = minetest.get_meta(
-                minetest.string_to_pos(target))
-            minimal.infotext_set_new(target, meta_tran,
-                                     {loc=target_name}, transporter_infotext)
+            target = minetest.string_to_pos(target)
+            local meta_tran = minetest.get_meta(target)
             meta_tran:set_string("tran_name", target_name)
+            minimal.infotext_set_new(target, meta_tran)
 
             minetest.chat_send_player(
                 player_name,
@@ -876,6 +858,21 @@ local pad_def = {
     on_rightclick = transporter_rightclick,
     after_place_node = minimal.protection_after_place_node,
     sounds = nodes_nature.node_sound_glass_defaults(),
+    on_infotext = function(pos, nodedef, meta, params)
+        params = minimal.infotext_update_params(meta, params)
+        -- update to current meta
+        params.description = nodedef.description
+        local infotext = minimal.infotext_get_base_string(nil, meta, params)
+        -- transporter options
+        local loc = params.tran_name and S("Location: @1",params.tran_name) -- location
+        local dest = params.target_name and S("Destination: @1",params.target_name) -- destination
+        -- set up infotext
+        infotext = infotext..
+            (loc and "\n"..loc or "")..
+            (dest and "\n"..dest or "")
+        -- send for update
+        return infotext
+    end
 }
 minetest.register_node('artifacts:transporter_pad', pad_def)
 
