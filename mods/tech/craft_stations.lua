@@ -34,7 +34,8 @@ crafting.register_type("crafting_spot",
 --crafting.register_type("threshing_spot")...has to be done in nodes_nature
 crafting.register_type("weaving_frame",
                        S("Weaving"),
-                       "tech:woven_poncho")
+                       "tech:woven_poncho",
+                       "nodes_nature_grass_footstep")
 crafting.register_type("weaving_frame_mixing",
                        S("Mixing"),
                        "tech:weaving_frame")
@@ -56,7 +57,8 @@ crafting.register_type("anvil_mixing",
                        {name = "tech_rock_crush", pitch = {0.8, 0.95}})
 crafting.register_type("carpentry_bench",
                        S("Carpentry Bench"),
-                       "tech:carpentry_bench")
+                       "tech:carpentry_bench",
+                       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}})
 --crafting.register_type("masonry_bench")...has to be done in nodes_nature
 --crafting.register_type("masonry_mixing")...has to be done in nodes_nature
 crafting.register_type("brick_makers_bench",
