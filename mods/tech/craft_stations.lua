@@ -58,7 +58,7 @@ crafting.register_type("anvil_mixing",
 crafting.register_type("carpentry_bench",
                        S("Carpentry Bench"),
                        "tech:carpentry_bench",
-                       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}})
+                       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}}) -- TODO: maybe use a saw sound?
 --crafting.register_type("masonry_bench")...has to be done in nodes_nature
 --crafting.register_type("masonry_mixing")...has to be done in nodes_nature
 crafting.register_type("brick_makers_bench",
@@ -769,7 +769,7 @@ crafting.register_recipe({ -- crafted from ingots, using hammer
         items  = {'tech:iron_ingot 4'},
         level  = 1,
         always_known = true,
-        sound = "tech_metal_place"
+        sound = {name="tech_metal_dig", pitch={0.6,0.85}}
 })
 
 
