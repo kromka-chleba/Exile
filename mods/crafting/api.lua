@@ -110,13 +110,15 @@ function crafting.register_recipe(def)
     def.level = def.level or 1
     -- Can be more then one craft station for a recipe
     -- Need to store as a table.
-    if type(def.type) == 'string' then
-        def.type = { def.type }
-    end
+    def.type = type(def.type) == 'string' and {def.type} or type(def.type) == "table" and def.type
+    assert(def.type, "crafting.register_recipe: invalid type, expected string or table, got '"..
+        type(def.type).."'")
     -- convert into table to iterate through
-    if type(def.replace) ~= "table" then
-        def.replace = {def.replace}
-    end
+    def.replace = type(def.replace) == "string" and {def.replace} or type(def.replace) == "table" and def.replace or nil
+    -- custom sound per recipe
+    -- permits "false" to prevent playing of crafting station sound
+    def.sound = type(def.sound) == "string" and {name = def.sound} or type(def.sound) == "table" and def.sound or
+        def.sound ~= false and nil
     -- custom preview for formspec
     def._display = def._display
 
