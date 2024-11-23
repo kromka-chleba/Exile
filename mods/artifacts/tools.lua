@@ -364,7 +364,7 @@ local farmers_probe = function(user, pointed_thing)
         if health <= 0 then
             chat_data(name, S("PLANT HEALTH NOT MEASURABLE!"))
         else
-            chat_display(name, string.upper(S("Health")..":"), health)
+            chat_display(name, string.upper(S("Health:")), health)
         end
     end
 
