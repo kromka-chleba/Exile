@@ -70,21 +70,6 @@ local function do_after_generation(deco_name, fun, extra_args)
     )
 end
 
----- Start node timers ----
-local egg_names = {  -- list of strings
-    "animals:gundu_eggs",
-    "animals:sarkamos_eggs",
-    "animals:impethu_eggs",
-    "animals:kubwakubwa_eggs",
-    "animals:kubwakubwa_eggs_forest",
-    "animals:kubwakubwa_eggs_barren",
-    "animals:darkasthaan_eggs",
-    "animals:pegasun_eggs",
-    "animals:pegasun_eggs_badland",
-    "animals:sneachan_eggs",
-    "animals:sneachan_eggs_badland",
-}
-
 local function start_egg_timers(pos, minp, maxp, blockseed, extra_args)
     minetest.get_node_timer(pos):start(1)
 end
@@ -133,8 +118,8 @@ local plants_with_tubers = {
 --------------------------------------------------------------------
 
 -- Start egg timers
-for _, egg in ipairs(egg_names) do
-    do_after_generation(egg, start_egg_timers)
+for _, egg in ipairs(eggs.eggs) do
+    do_after_generation(egg.name, start_egg_timers)
 end
 
 -- Removes floating canes after generation (the final solution)
