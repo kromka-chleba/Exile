@@ -536,12 +536,23 @@ minetest.register_craftitem("artifacts:spyglass", spyglass_def)
 ------------------------------------
 
 local animal_probe = function(user, pointed_thing)
-
-    if pointed_thing.type ~= "object" then
-        return
-    end
-
     local name = user:get_player_name()
+    -- permit getting stats of eggs
+    local pos = pointed_thing.type == "node" and pointed_thing.under
+    if pos then
+        local nodedef = minimal.get_nodedef(pos)
+        -- not a node, has no groups, or isn't an egg
+        if not (nodedef and nodedef.groups and nodedef.groups.egg) then return end
+        local timer = minetest.get_node_timer(pos)
+        local timeout = timer:get_timeout()
+        local gest_perc = timeout ~= 0 and math.floor((timer:get_elapsed()/timeout)*100)
+        local egg_str = gest_perc and S("GESTATION: @1%", gest_perc) or S("EGG IS DEAD")
+        -- now to send the info!
+        chat_display(name, S("@1 CONDITION:", S("EGG")), egg_str)
+        return
+    -- not pointing at an entity, return
+    elseif pointed_thing.type ~= "object" then return end
+    -- getting info of the entity
     local pt_ref = pointed_thing.ref
     if minetest.is_player(pt_ref) then
         local pt_meta = pt_ref:get_meta()
