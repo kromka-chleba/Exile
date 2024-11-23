@@ -88,15 +88,21 @@ local function init_probe(user, pointed_thing)
     end
 
     local under = minetest.get_node(pointed_thing.under)
-    local node_name = under.name
     local param2 = under.param2
-    local nodedef = minetest.registered_nodes[node_name]
+    local nodedef = minetest.registered_nodes[under.name]
     if not nodedef then
         return
     end
     local name = user:get_player_name()
     local meta = minetest.get_meta(pointed_thing.under)
-    return  name, meta, node_name, nodedef, param2
+    return  name, meta, nodedef, param2
+end
+
+-- converts meta into a table for easier checks
+local function init_probe_readonly(user, pointed_thing)
+    local params = {init_probe(user, pointed_thing)}
+    params[2] = params[2]:to_table() or {fields={}} -- meta
+    return unpack(params)
 end
 
 
@@ -145,20 +151,15 @@ minetest.register_craftitem("artifacts:temp_probe", temp_probe_def)
 ------------------------------------
 
 local fuel_probe = function(user, pointed_thing)
+    local name, meta = init_probe_readonly(user, pointed_thing)
+    if not name then return end
 
-    local name, meta = init_probe(user, pointed_thing)
-    if not name then
-        return
-    end
-
-    local measure = meta:get_int("fuel")
-
-    if measure <= 0 then
-        chat_data(name, S("NOT MEASURABLE!"))
-    else
+    local measure = meta.fields.fuel
+    if measure then
         chat_display(name, S("BURN UNITS REMAINING:"), measure)
+    else
+        chat_data(name, S("NOT MEASURABLE!"))
     end
-
 end
 
 
@@ -184,18 +185,15 @@ minetest.register_craftitem("artifacts:fuel_probe", fuel_probe_def)
 ------------------------------------
 
 local smelter_probe = function(user, pointed_thing)
-    local name, meta, node_name = init_probe(user, pointed_thing)
-    if not name then
-        return
-    end
-    local measure = meta:get_int("roast")
+    local name, meta, ndef = init_probe_readonly(user, pointed_thing)
+    if not name then return end
 
-    if measure <= 0 or node_name ~= 'tech:iron_and_slag' then
+    local measure = meta.fields.roast
+    if ndef.name ~= 'tech:iron_and_slag' or not measure then
         chat_data(name, S("NOT MEASURABLE!"))
     else
         chat_display(name, S("SMELTING UNITS REMAINING:"), measure)
     end
-
 end
 
 local smelter_probe_def = {
@@ -221,24 +219,15 @@ minetest.register_craftitem("artifacts:smelter_probe", smelter_probe_def)
 ------------------------------------
 
 local potters_probe = function(user, pointed_thing)
-    local name, meta = init_probe(user, pointed_thing)
-    if not name then
-        return
-    end
+    local name, meta = init_probe_readonly(user, pointed_thing)
+    if not name then return end
 
-    local measure = meta:get("firing")
-    if measure == nil then
-        measure = meta:get_int("roast")
-    else
-        measure = tonumber(measure)
-    end
-
-    if measure <= 0 then
-        chat_data(name, S("NOT MEASURABLE!"))
-    else
+    local measure = meta.fields.firing or meta.fields.roast
+    if measure then
         chat_display(name, S("FIRING UNITS REMAINING:"), measure)
+    else
+        chat_data(name, S("NOT MEASURABLE!"))
     end
-
 end
 
 
@@ -264,19 +253,15 @@ minetest.register_craftitem("artifacts:potters_probe", potters_probe_def)
 ------------------------------------
 
 local chefs_probe = function(user, pointed_thing)
-    local name, meta = init_probe(user, pointed_thing)
-    if not name then
-        return
-    end
+    local name, meta = init_probe_readonly(user, pointed_thing)
+    if not name then return end
 
-    local measure = meta:get_int("baking")
-
-    if measure <= 0 then
-        chat_data(name, S("NOT MEASURABLE!"))
-    else
+    local measure = meta.fields.baking
+    if measure then
         chat_display(name, S("COOKING UNITS REMAINING:"), measure)
+    else
+        chat_data(name, S("NOT MEASURABLE!"))
     end
-
 end
 
 
@@ -301,12 +286,12 @@ minetest.register_craftitem("artifacts:chefs_probe", chefs_probe_def)
 ------------------------------------
 
 local admins_probe = function(user, pointed_thing)
-    local name, meta, node_name, nodedef, param2 =
+    local name, meta, ndef, param2 =
         init_probe(user, pointed_thing)
     if not name then
         return
     end
-    local groups = minetest.serialize(nodedef.groups)
+    local groups = minetest.serialize(ndef.groups)
     groups = groups:gsub("return ", "")
     groups = groups:gsub("{", "")
     groups = groups:gsub("}", "")
@@ -320,18 +305,14 @@ end
 ------------------------------------
 
 local farmers_probe = function(user, pointed_thing)
+    local name, meta, ndef, param2 =
+        init_probe_readonly(user, pointed_thing)
+    if not name then return end
+    local groups = ndef.groups or {}
 
-    local name, meta, node_name, nodedef, param2 =
-        init_probe(user, pointed_thing)
-    if not name then
-        return
-    end
-
-    local growth = meta:get_int("growth")
-    local health = meta:get_int("health")
-    local fertility = nodedef.groups.fertility
-    local roots = nodedef.groups.roots
-    local root_nr = meta:get_float("root_nr")
+    local growth = meta.fields.growth
+    local health = meta.fields.health
+    local fertility = groups.fertility
 
     local check_plant_type = function()
         if param2 < 64 then
@@ -347,43 +328,43 @@ local farmers_probe = function(user, pointed_thing)
     end
 
     local check_growth = function()
-        if growth <= 0 then
-            chat_data(name, S("PLANT GROWTH NOT MEASURABLE!"))
-        else
+        if growth then
             chat_display(name, S("GROWTH UNITS REMAINING:"), growth)
+        else
+            chat_data(name, S("PLANT GROWTH NOT MEASURABLE!"))
         end
     end
 
     local check_health = function()
-        if health <= 0 then
-            chat_data(name, S("PLANT HEALTH NOT MEASURABLE!"))
-        else
+        if health then
             chat_display(name, string.upper(S("Health:")), health)
+        else
+            chat_data(name, S("PLANT HEALTH NOT MEASURABLE!"))
         end
     end
 
-    if nodedef.groups.flora or nodedef.groups.mushroom then
+    if groups.flora or groups.mushroom then
         local plant_type = check_plant_type()
         if plant_type == "dom" or plant_type == "half" then
             check_growth()
             check_health()
         end
-    elseif nodedef.groups.sediment and fertility then
-        if nodedef.groups.wet_sediment == 1 then
+    elseif groups.sediment and fertility then
+        if groups.wet_sediment == 1 then
             chat_display(name, S("STATE:"), S("wet"))
-        elseif nodedef.groups.wet_sediment == 2 then
+        elseif groups.wet_sediment == 2 then
             chat_display(name, S("STATE:"), S("salty"))
         else
             chat_display(name, S("STATE:"), S("dry"))
         end
         chat_display(name, S("FERTILITY:"), fertility)
-        if roots == 1 then
-            chat_display(name, S("ROOTS:"), root_nr)
+        -- this soil has roots!
+        if groups.roots == 1 then
+            chat_display(name, S("ROOTS:"), meta.fields.root_nr)
         end
     else
         chat_data(name, S("NOT MEASURABLE: NEEDS A PLANT OR SOIL"))
     end
-
 end
 
 
