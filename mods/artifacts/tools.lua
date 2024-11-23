@@ -608,8 +608,9 @@ local animal_probe = function(user, pointed_thing)
         local r_ent_oxy = ent.oxygen
         local r_ent_lung = ent.lung_capacity
         if (r_ent_oxy and r_ent_lung) then
+            local perc = math.ceil((r_ent_oxy/r_ent_lung)*1000)/10
             probe_str = probe_str.."    "..S("Oxygen:").." "..
-                ((r_ent_oxy/r_ent_lung)*100).."%"
+                perc.."%"
         end
         local r_ent_sex = ent.sex
         if (r_ent_sex == "female") then
