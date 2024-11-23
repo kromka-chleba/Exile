@@ -580,45 +580,44 @@ local animal_probe = function(user, pointed_thing)
         chat_display(name, S("@1 CONDITION:",p_name), table.concat(stats, "    "))
     else
         local ent = pt_ref:get_luaentity()
-        if not ent then
-            return
-        end
-        if not ent.memory then -- not a mobkit entity with a memory
+        -- not a valid entity or doesn't have memory
+        if not (ent and ent.memory) then
             return
         end
         local r_ent_hp = ent.hp
         local r_ent_e = mobkit.recall(ent,'energy')
         local r_ent_a = mobkit.recall(ent,'age')
-
-        if not r_ent_e or not r_ent_a or not r_ent_hp then
+        -- no energy, age, or HP
+        if not (r_ent_e and r_ent_a and r_ent_hp) then
             return
         end
         r_ent_e = math.floor(r_ent_e)
         r_ent_a = math.floor(r_ent_a)
-
-        local probe_str = S("Health")..": "..r_ent_hp.." "..S("units").."    "..
-            S("Age")..": "..r_ent_a.. " "..S("seconds").."    "..
-            S("Energy")..": "..r_ent_e.." "..S("units")
+        local stats = {
+            S("Health: @1", S("@1 units", tostring(r_ent_hp))),
+            S("Age: @1", S("@1 seconds", tostring(r_ent_a))),
+            S("Energy: @1", S("@1 units", tostring(r_ent_e)))
+        }
         -- optional variables
+        -- oxygen percentage
         local r_ent_oxy = ent.oxygen
         local r_ent_lung = ent.lung_capacity
-        if (r_ent_oxy and r_ent_lung) then
-            local perc = math.ceil((r_ent_oxy/r_ent_lung)*1000)/10
-            probe_str = probe_str.."    "..S("Oxygen:").." "..
-                perc.."%"
+        if r_ent_oxy and r_ent_lung then
+            -- permit 2 decimal points, divide by 100 to ensure it's a proper percentage
+            stats[#stats + 1] = math.ceil((r_ent_oxy/r_ent_lung)*10000)/100
+            -- convert to oxygen percentage string (e.g: Oxygen: 67.53%)
+            stats[#stats] = S("Oxygen: @1%", tostring(stats[#stats]))
         end
+        -- if female, add whether or not we're pregnant
         local r_ent_sex = ent.sex
-        if (r_ent_sex == "female") then
+        if r_ent_sex == "female" then
             local preg = mobkit.recall(ent,"pregnant") or false
-            if (preg == true) then
-                preg = S("Yes")
-            else
-                preg = S("No")
-            end
-            probe_str = probe_str.."    "..S("Pregnant:").." "..preg
+            preg = preg and S("Yes") or S("No")
+            stats[#stats + 1] = S("Pregnant: @1", preg)
         end
-
-        chat_display(name, S("ANIMAL").." "..S("CONDITION")..":", probe_str)
+        -- now to send the info!
+        chat_display(name, S("@1 CONDITION:", S("ANIMAL")), 
+            table.concat(stats, "    "))
     end
 end
 
