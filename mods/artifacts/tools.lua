@@ -539,7 +539,7 @@ local animal_probe = function(user, pointed_thing)
         age = table.concat(age, ", ") -- adds comma after years but not after days
         local stats = {
             S("Health: @1", S("@1 units",tostring(pt_ref:get_hp()))), -- e.g: Health: 20 units
-            age, -- e.g: 2 years old, 45 days old
+            S("Age: @1", age), -- e.g: 2 years old, 45 days old
             S("Energy: @1%", -- e.g: Energy: 56.9%
                 tostring(pt_meta:get_int('energy')/10)), -- out of 1000, divide by 10 to get percentage
             S("Body Temp: @1", -- e.g: 37C
