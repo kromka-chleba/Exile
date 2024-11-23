@@ -33,7 +33,7 @@ Meta-Stim Injector=Инъектор Мета-Стим
 # storage.lua 
 @1 chest=@1 сундук
 LIGHT MEASUREMENT:=ИЗМЕРЕНИЕ ОСВЕЩЕННОСТИ:
-LIGHT LEVEL @= =УРОВЕНЬ ОСВЕЩЕННОСТИ @= 
+LIGHT LEVEL @= @1=УРОВЕНЬ ОСВЕЩЕННОСТИ @= @1
 Light Meter=Измеритель освещенности
 List light level of node or self=Показывает уровень освещенности узла или самого себя
 OBJECT TEMPERATURE MEASUREMENT:=ИЗМЕРЕНИЕ ТЕМПЕРАТУРЫ ОБЪЕКТА:

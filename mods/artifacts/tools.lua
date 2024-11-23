@@ -51,14 +51,8 @@ local light_meter = function(user, pointed_thing)
                                              y = pos.y,
                                              z = pos.z})) or 0)
     end
-    minetest.chat_send_player(name, minetest.colorize("#00ff00",
-                                                      S("LIGHT MEASUREMENT:")))
-    minetest.chat_send_player(name, minetest.colorize("#cc6600",
-                                                      S("LIGHT LEVEL = ")..
-                                                      measure))
-    --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
-
-    --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
+    chat_display(name, S("LIGHT MEASUREMENT:"),
+        S("LIGHT LEVEL = @1", tostring(measure)))
 end
 
 

@@ -31,7 +31,7 @@ Meta-Stim Injector=Injecteur de Méta-Stim
 # storage.lua 
 @1 chest=coffre en @1
 LIGHT MEASUREMENT:=MESURE DE LUMINOSITÉ :
-LIGHT LEVEL @= =LUMINOSITÉ @=
+LIGHT LEVEL @= @1=LUMINOSITÉ @= @1
 Light Meter=posemètre (mesure la luminosité)
 List light level of node or self=
 OBJECT TEMPERATURE MEASUREMENT:=MESURE DE TEMPERATURE DE L'OBJET :

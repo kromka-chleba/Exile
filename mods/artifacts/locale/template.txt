@@ -31,7 +31,7 @@ Meta-Stim Injector=
 # storage.lua 
 @1 chest=
 LIGHT MEASUREMENT:=
-LIGHT LEVEL @= =
+LIGHT LEVEL @= @1=
 Light Meter=
 List light level of node or self=
 OBJECT TEMPERATURE MEASUREMENT:=
