@@ -56,7 +56,7 @@ local light_meter = function(user, pointed_thing)
 end
 
 
-local light_meter_def = {
+minetest.register_craftitem("artifacts:light_meter", {
     description = S("Light Meter"),
     inventory_image = "artifacts_light_meter.png",
     stack_max = 1,
@@ -75,8 +75,7 @@ local light_meter_def = {
         end
         light_meter(user, {ref = user, type = "object"})
     end,
-}
-minetest.register_craftitem("artifacts:light_meter", light_meter_def)
+})
 
 ------------------------------------
 -- General probe setup
@@ -129,7 +128,7 @@ local temp_probe = function(user, pointed_thing)
 end
 
 
-local temp_probe_def = {
+minetest.register_craftitem("artifacts:temp_probe", {
     description = S("Temperature Probe"),
     inventory_image = "artifacts_temp_probe.png",
     wield_image = "artifacts_temp_probe.png^[transformR90",
@@ -142,8 +141,7 @@ local temp_probe_def = {
         temp_probe(user, pointed_thing)
     end,
     _dig_tip = S("List temperature of node")
-}
-minetest.register_craftitem("artifacts:temp_probe", temp_probe_def)
+})
 
 ------------------------------------
 --FUEL PROBE
@@ -163,7 +161,7 @@ local fuel_probe = function(user, pointed_thing)
 end
 
 
-local fuel_probe_def = {
+minetest.register_craftitem("artifacts:fuel_probe", {
     description = S("Fuel Probe"),
     inventory_image = "artifacts_fuel_probe.png",
     wield_image = "artifacts_fuel_probe.png^[transformR90",
@@ -176,8 +174,7 @@ local fuel_probe_def = {
         fuel_probe(user, pointed_thing)
     end,
     _dig_tip = S("List fuel units of node")
-}
-minetest.register_craftitem("artifacts:fuel_probe", fuel_probe_def)
+})
 
 ------------------------------------
 --SMELTER PROBE
@@ -196,7 +193,8 @@ local smelter_probe = function(user, pointed_thing)
     end
 end
 
-local smelter_probe_def = {
+
+minetest.register_craftitem("artifacts:smelter_probe", {
     description = S("Smelter Probe"),
     inventory_image = "artifacts_smelter_probe.png",
     wield_image = "artifacts_smelter_probe.png^[transformR90",
@@ -209,8 +207,7 @@ local smelter_probe_def = {
         smelter_probe(user, pointed_thing)
     end,
     _dig_tip = S("List remaining units of node for smelting"),
-}
-minetest.register_craftitem("artifacts:smelter_probe", smelter_probe_def)
+})
 
 
 ------------------------------------
@@ -231,7 +228,7 @@ local potters_probe = function(user, pointed_thing)
 end
 
 
-local potters_probe_def = {
+minetest.register_craftitem("artifacts:potters_probe", {
     description = S("Potter's Probe"),
     inventory_image = "artifacts_potters_probe.png",
     wield_image = "artifacts_potters_probe.png^[transformR90",
@@ -244,8 +241,7 @@ local potters_probe_def = {
         potters_probe(user, pointed_thing)
     end,
     _dig_tip = S("List remaining firing units of unfired clay"),
-}
-minetest.register_craftitem("artifacts:potters_probe", potters_probe_def)
+})
 
 ------------------------------------
 --CHEFS PROBE
@@ -265,7 +261,7 @@ local chefs_probe = function(user, pointed_thing)
 end
 
 
-local chefs_probe_def = {
+minetest.register_craftitem("artifacts:chefs_probe", {
     description = S("Chef's Probe"),
     inventory_image = "artifacts_chefs_probe.png",
     wield_image = "artifacts_chefs_probe.png^[transformR90",
@@ -278,8 +274,7 @@ local chefs_probe_def = {
         chefs_probe(user, pointed_thing)
     end,
     _dig_tip = S("List remaining cooking units of pointed food")
-}
-minetest.register_craftitem("artifacts:chefs_probe", chefs_probe_def)
+})
 ------------------------------------
 --ADMINS PROBE
 --get node groups
@@ -368,7 +363,7 @@ local farmers_probe = function(user, pointed_thing)
 end
 
 
-local farmers_probe_def = {
+minetest.register_craftitem("artifacts:farmers_probe", {
     description = S("Farmer's Probe"),
     inventory_image = "artifacts_farmers_probe.png",
     wield_image = "artifacts_farmers_probe.png^[transformR90",
@@ -381,8 +376,7 @@ local farmers_probe_def = {
         farmers_probe(user, pointed_thing)
     end,
     _dig_tip = S("List stats of plant or soil")
-}
-minetest.register_craftitem("artifacts:farmers_probe", farmers_probe_def)
+})
 
 
 
@@ -607,7 +601,8 @@ local animal_probe = function(user, pointed_thing)
     end
 end
 
-local animal_probe_def = {
+
+minetest.register_craftitem("artifacts:animal_probe", {
     description = S("Animal Probe"),
     inventory_image = "artifacts_animal_probe.png",
     wield_image = "artifacts_animal_probe.png^[transformR90",
@@ -626,11 +621,10 @@ local animal_probe_def = {
         animal_probe(user, {ref = user, type = "object"})
     end,
     _use_tip = S("Inspect self")
-}
-minetest.register_craftitem("artifacts:animal_probe", animal_probe_def)
+})
 
 -- Group probe (only for developers)
-local admins_probe_def = {
+minetest.register_craftitem("artifacts:admins_probe", {
     description = S("Admin's Probe"),
     inventory_image = "artifacts_admins_probe.png",
     wield_image = "artifacts_admins_probe.png^[transformR90",
@@ -643,5 +637,4 @@ local admins_probe_def = {
         admins_probe(user, pointed_thing)
     end,
     _dig_tip = S("List groups of pointed node")
-}
-minetest.register_craftitem("artifacts:admins_probe", admins_probe_def)
+})
