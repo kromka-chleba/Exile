@@ -544,45 +544,40 @@ local animal_probe = function(user, pointed_thing)
     local name = user:get_player_name()
     local pt_ref = pointed_thing.ref
     if minetest.is_player(pt_ref) then
-        local p_name = pt_ref:get_player_name()
-        if minetest.is_singleplayer() then
-            p_name = S("SELF")
-        end
         local pt_meta = pt_ref:get_meta()
-        local stats = {
-            health = pt_ref:get_hp(),
-            hunger = (pt_meta:get_int('hunger')/1000*100)..'%',
-            thirst = (pt_meta:get_int('thirst')/100*100)..'%',
-            energy = (pt_meta:get_int('energy')/1000*100)..'%',
-            body_temp =
-                climate.get_temp_string(pt_meta:get_int('temperature'),pt_meta),
-            effects = pt_meta:get_int('effects_num'),
+        -- index 1 is years, index 2 is days
+        local age = {
+            0, -- filling out first index for years
+            -- seconds survived
+            math.floor((pt_meta:get_int("char_time_survived") or 0)/1200), -- days (divided by 1200sec to get days)
         }
-        local days = pt_meta:get_int("char_time_survived") or 0
-        days = math.floor(days / 1200)
-        local years = math.floor(days / 80)
-        local age_str = S("Age:").." "
-        if years == 1 then
-            age_str = age_str..S("1 year old")..", "
-        elseif years > 1 then
-            age_str = age_str..S("@1 years old",tostring(years))..", "
+        -- numbered indexes used for proper table.concat functionality
+        age[1] = math.floor(age[2] / 80) -- years
+        age[2] = age[2] - (80 * age[1]) -- modified to look clean (days after the specified year)
+        age[1] = age[1] == 1 and S("1 year old") or S("@1 years old", tostring(age[1]))
+        age[2] = age[2] == 1 and S("1 day old") or S("@1 days old", tostring(age[2]))
+        age = table.concat(age, ", ") -- adds comma after years but not after days
+        local stats = {
+            S("Health: @1", S("@1 units",tostring(pt_ref:get_hp()))), -- e.g: Health: 20 units
+            age, -- e.g: 2 years old, 45 days old
+            S("Energy: @1%", -- e.g: Energy: 56.9%
+                tostring(pt_meta:get_int('energy')/10)), -- out of 1000, divide by 10 to get percentage
+            S("Body Temp: @1", -- e.g: 37C
+                climate.get_temp_string(pt_meta:get_int('temperature'),pt_meta)), -- use command to get in F, C, or K
+            S("Hunger: @1%", -- e.g: 87.5%
+                tostring(pt_meta:get_int('hunger')/10)), -- ditto energy
+            S("Thirst: @1%", -- e.g: 98%
+                tostring(pt_meta:get_int('thirst'))), -- already proper percentage
+            S("Effects: @1",
+                tostring(pt_meta:get_int('effects_num'))) -- number of diseases
+        }
+        local p_name = S("SELF") -- default to self if singleplayer
+        -- get player name if multiplayer
+        if not minetest.is_singleplayer() then
+            p_name = pt_ref:get_player_name()
         end
-        days = days - (80 * years) -- if years is 0, will not be changed
-        if days == 1 then
-            age_str = age_str..S("1 day old")
-        else
-            age_str = age_str..S("@1 days old",tostring(days))
-        end
-
-        chat_display(name, p_name.." "..S("CONDITION")..":",
-                     S("Health")..": "..stats.health.." "..S("units").."    "..
-                     age_str.."    "..
-                     S("Energy")..": "..stats.energy.."    "..
-                     S("Body Temp")..": "..stats.body_temp.."    "..
-                     S("Hunger")..": "..stats.hunger.."    "..
-                     S("Thirst")..": "..stats.thirst.."    "..
-                     S("Effects")..": "..stats.effects.."    "
-        )
+        -- now to send the info!
+        chat_display(name, S("@1 CONDITION:",p_name), table.concat(stats, "    "))
     else
         local ent = pt_ref:get_luaentity()
         if not ent then
