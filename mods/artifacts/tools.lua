@@ -546,7 +546,7 @@ local animal_probe = function(user, pointed_thing)
         local timer = minetest.get_node_timer(pos)
         local timeout = timer:get_timeout()
         local gest_perc = timeout ~= 0 and math.floor((timer:get_elapsed()/timeout)*100)
-        local egg_str = gest_perc and S("GESTATION: @1%", gest_perc) or S("EGG IS DEAD")
+        local egg_str = gest_perc and S("Gestation: @1%", gest_perc) or S("EGG IS DEAD")
         -- now to send the info!
         chat_display(name, S("@1 CONDITION:", S("EGG")), egg_str)
         return
