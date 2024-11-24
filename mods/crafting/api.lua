@@ -47,6 +47,8 @@ crafting = {
     -- hash of recipe id to display order in sorted array
     icon_item_name = {},
     -- hash of node identifiers to display the crafting type in the interface
+    sounds = {},
+    -- sounds to play when something is crafted within a crafting station
 }
 
 local S = minetest.get_translator("crafting")
@@ -84,30 +86,60 @@ local groupNameForTranslations = {
     S("ironstone cobble"), S("jade cobble")
 }
 
-function crafting.register_type(name, label, icon_item_name)
+function crafting.register_type(name, label, icon_item_name, sound)
     crafting.recipes[name] = {}
     -- add a label for tabs - default to the name
     crafting.tab_labels[name] = (label or name)
     crafting.icon_item_name[name] = icon_item_name
+    -- set up sound mechanism
+    sound = type(sound) == "string" and {name = sound} or type(sound) == "table" and sound
+    if sound and type(sound.name) == "string" then
+        sound.max_hear_distance = sound.max_hear_distance or 10
+        crafting.sounds[name] = sound
+    end
 end
 
 function crafting.register_recipe(def)
+    local function recipe_error(txt)
+        error("crafting.register_recipe: issue with "..def.output.." recipe; "..txt)
+    end
     -- multiple output items unsupported due to minimal/interface/inventory.lua
     -- limitations, do replace instead
     assert(type(def.output) == "string",
-           "Output needed in recipe definition (string only)")
-    assert(def.type,   "Type needed in recipe definition")
-    assert(def.items,  "Items needed in recipe definition")
+           "crafting.register_recipe: 'output' needed in recipe definition (string only)")
+    if not def.type then
+        recipe_error("'type' is needed in recipe definition!")
+    end
+    if not def.items then
+        recipe_error("'items' needs to be specified in recipe definition!")
+    end
 
+    -- crafting level
     def.level = def.level or 1
+    if type(def.level) ~= "number" then
+        recipe_error("expected number for 'level', got '"..type(def.level).."'")
+    end
+    -- always_known boolean, set to true unless otherwise specified
+    def.always_known = type(def.always_known) ~= "boolean" and true or def.always_known
     -- Can be more then one craft station for a recipe
     -- Need to store as a table.
-    if type(def.type) == 'string' then
-        def.type = { def.type }
+    def.type = type(def.type) == 'string' and {def.type} or def.type
+    if type(def.type) ~= "table" then
+        recipe_error("expected string or table for 'type', got '"..type(def.type).."'")
     end
-    -- convert into table to iterate through
-    if type(def.replace) ~= "table" then
-        def.replace = {def.replace}
+    -- items table
+    def.items = type(def.items) == 'string' and {def.items} or def.items
+    if type(def.items) ~= "table" then
+        recipe_error("expected string or table for 'items', got '"..type(def.items).."'")
+    end
+    -- convert into table to iterate through or remove if invalid
+    def.replace = type(def.replace) == "string" and {def.replace} or type(def.replace) == "table" and def.replace or nil
+    -- custom sound per recipe
+    -- permits "false" to prevent playing of crafting station sound
+    def.sound = type(def.sound) == "string" and {name = def.sound} or type(def.sound) == "table" and def.sound or
+        def.sound ~= false and nil
+    if def.sound then
+        def.sound.max_hear_distance = def.sound.max_hear_distance or 10
     end
     -- custom preview for formspec
     def._display = def._display
@@ -954,7 +986,7 @@ end
 * Will try to take itemsfrom `listname` and put output in the `outlistname` list in `inv`.
 * Returns true on success.
 ]]
-function crafting.perform_craft(name, inv, listname, outlistname, recipe)
+function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     -- get list of items required for the recipe (if found)
     local founditems = crafting.find_required_items(inv, listname, recipe)
     if not founditems then
@@ -1015,7 +1047,8 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
         imeta:set_string('creator', name)
         -- don't add creator name to sort description for single player
         if not minetest.is_singleplayer() then
-            sdesc = name .. "'s " .. sdesc
+            -- player's so-and-so
+            sdesc = S("@1's @2",name, sdesc)
         end
         imeta:set_string('short_description', sdesc)
     end
@@ -1098,6 +1131,12 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
         end
     end
     if warn then minimal.warn_inv_full(player) end
+    -- get a crafting sound
+    local sound = recipe.sound
+    sound = sound or sound ~= false and crafting.sounds[ctype] or nil
+    if sound then
+        minimal.sound_play(minimal.merge_tables(sound, {pos = pos}))
+    end
     return true
 end
 

@@ -13,7 +13,9 @@ bioluminescent=bioluminescent
 pottery=poterie 
 gravel=gravier 
 
-bundleable fiber=fibre empaquetable  
+bundleable fiber=fibre empaquetable
+#api.lua
+@1's @2=
 Any @1=Tout type de @1
 Missing required items!=Il manque des objets requis!
 

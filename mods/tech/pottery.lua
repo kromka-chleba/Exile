@@ -703,6 +703,7 @@ crafting.register_recipe({
         items = {"tech:clay_oil_lamp_unlit", "group:fibrous_plant"},
         level = 1,
         always_known = true,
+        sound = {name="nodes_nature_grass_footstep", pitch={0.85, 1.1}, gain=0.4}
 })
 --Break up pots
 crafting.register_recipe({
@@ -711,6 +712,8 @@ crafting.register_recipe({
         items = {"group:pottery"},
         level = 1,
         always_known = true,
+        -- TODO: see about using glass breakiing sounds
+        sound = {name = "tech_rock_crush", pitch = {1.1, 1.6}}
 })
 
 --Combine broken pottery slabs and vice versa
@@ -720,6 +723,7 @@ crafting.register_recipe({
         items = {"tech:ruined_pottery_slab 2"},
         level = 1,
         always_known = true,
+        sound = {name = "tech_rock_crush", pitch = {0.8, 0.95}}
 })
 
 crafting.register_recipe({
@@ -728,6 +732,7 @@ crafting.register_recipe({
         items = {"tech:ruined_pottery"},
         level = 1,
         always_known = true,
+        sound = {name = "tech_rock_crush", pitch = {0.8, 0.95}}
 })
 
 -- clay watering can

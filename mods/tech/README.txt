@@ -42,6 +42,8 @@ tech_metal_dig.(0-4).ogg
 tech_metal_place.(0-3).ogg
 tech_metal_hollow_dug.(0-3).ogg
 tech_metal_hollow_place.(0-5).ogg
+tech_anvil_craft.(0-4).ogg
+tech_rock_crush.(0-4).ogg
 --
 
 

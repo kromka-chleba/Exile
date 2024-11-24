@@ -34,7 +34,8 @@ crafting.register_type("crafting_spot",
 --crafting.register_type("threshing_spot")...has to be done in nodes_nature
 crafting.register_type("weaving_frame",
                        S("Weaving"),
-                       "tech:woven_poncho")
+                       "tech:woven_poncho",
+                       "nodes_nature_grass_footstep")
 crafting.register_type("weaving_frame_mixing",
                        S("Mixing"),
                        "tech:weaving_frame")
@@ -48,27 +49,34 @@ crafting.register_type("mortar_and_pestle",
 --crafting.register_type("hammering_block")...has to be done in nodes_nature
 crafting.register_type("anvil",
                        S("Crafting"),
-                       "tech:anvil")
+                       "tech:anvil",
+                       {name = "tech_anvil_craft", pitch = {0.65,1}})
 crafting.register_type("anvil_mixing",
                        S("Mixing"),
-                       "stairs:stair_slag")
+                       "stairs:stair_slag",
+                       {name = "tech_rock_crush", pitch = {0.8, 0.95}})
 crafting.register_type("carpentry_bench",
                        S("Carpentry Bench"),
-                       "tech:carpentry_bench")
+                       "tech:carpentry_bench",
+                       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}}) -- TODO: maybe use a saw sound?
 --crafting.register_type("masonry_bench")...has to be done in nodes_nature
 --crafting.register_type("masonry_mixing")...has to be done in nodes_nature
 crafting.register_type("brick_makers_bench",
                        S("Crafting"),
-                       "tech:brick_makers_bench")
+                       "tech:brick_makers_bench",
+                       "nodes_nature_hard_footstep")
 crafting.register_type("brick_makers_bench_bricks",
                        S("Bricks"),
-                       "stairs:stair_limestone_brick_mortar")
+                       "stairs:stair_limestone_brick_mortar",
+                       "nodes_nature_hard_footstep")
 crafting.register_type("brick_makers_bench_blocks",
                        S("Blocks"),
-                       "tech:conglomerate_block_mortar")
+                       "tech:conglomerate_block_mortar",
+                       "nodes_nature_hard_footstep")
 crafting.register_type("brick_makers_bench_mixing",
                        S("Mixing"),
-                       "stairs:stair_mudbrick")
+                       "stairs:stair_mudbrick",
+                       "nodes_nature_hard_footstep")
 
 crafting.register_type("spinning_wheel",
                        S("Spinning Wheel"),
@@ -88,7 +96,8 @@ crafting.register_type("hand", -- Empty hand tool; Replace crafting spot
    -- Assemble crafting stations by hand.
 crafting.register_type("hand_pottery",
                        S("Pottery"),
-                       "tech:clay_water_pot")     -- Pottery tab
+                       "tech:clay_water_pot",     -- Pottery tab
+                       {name = "nodes_nature_dirt_footstep", pitch={0.6, 0.85}})
 -- crafting.register_type("hand_wattle", ("Wattle"), "tech:wattle")            -- Wattle Tab
 crafting.register_type("hand_tools",
                        S("Tools"),
@@ -97,6 +106,7 @@ crafting.register_type("hand_mixing",
                        S("Mixing"),
                        "stairs:stair_thatch")       -- Mixing Tab
 
+-- TODO: see about a knife-like sound for knife crafting
 crafting.register_type("knife",
                        S("Crafting"),
                        "tech:stone_chopper")    -- Replace some of the crafting spot
@@ -105,31 +115,38 @@ crafting.register_type("knife_stations",
                        "tech:stone_chopper")   -- Replace some of the crafting spot
 crafting.register_type("knife_wattle",
                        S("Wattle"),
-                       "tech:wattle")      -- Replace some of the crafting spot
+                       "tech:wattle", -- Replace some of the crafting spot
+                       {name = "nodes_nature_wood_footstep", pitch={1, 1.1}, gain=0.3})
 crafting.register_type("knife_mixing",
                        S("Mixing"),
                        "tech:wood_ash")
 crafting.register_type("hammer",
                        S("Crafting"),
-                       "tech:hammer_basalt")   -- Hammering spot replacement
+                       "tech:hammer_basalt",   -- Hammering spot replacement
+                       {name = "tech_rock_crush", pitch = {0.7, 0.95}})
 crafting.register_type("hammer_mixing",
                        S("Mixing"),
-                       "nodes_nature:limestone_boulder")
+                       "nodes_nature:limestone_boulder",
+                       {name = "tech_rock_crush", pitch = {0.7, 0.95}})
 crafting.register_type('shovel',
                        S("Crafting"),
                        "tech:shovel_iron")     -- farming tools - including digging stick; replace threshing spot
 crafting.register_type("shovel_agriculture",
                        S("Agriculture"),
-                       "nodes_nature:loam_agricultural_soil") -- compost, etc.
+                       "nodes_nature:loam_agricultural_soil", -- compost, etc.
+                       "nodes_nature_dirt_footstep")
 crafting.register_type('soil_mixing',
                        S("Mixing"),
-                       "stairs:stair_loam")         -- tab for shovel
+                       "stairs:stair_loam",         -- tab for shovel
+                       "nodes_nature_dirt_footstep")
 crafting.register_type('axe',
-                       S("Crafting"),
-                       "tech:axe_iron")           -- includes adze - replace chopping bock
+                       S("Crafting"),           -- includes adze - replace chopping bock
+                       "tech:axe_iron",
+                       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}})
 crafting.register_type('axe_mixing',
                        S("Mixing"),
-                       "stairs:stair_tangkal_log")
+                       "stairs:stair_tangkal_log",
+                       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}})
 crafting.register_type('cobble')        -- Replacing grinding stone
 crafting.register_type('pickaxe',
                        S("Pickaxe"),
@@ -137,7 +154,8 @@ crafting.register_type('pickaxe',
 -- food-based crafting stations
 crafting.register_type('breadmaking',
                         S("Breadmaking"),
-                        "tech_breadmaking_crafticon.png")
+                        "tech_breadmaking_crafticon.png",
+                        {name = "nodes_nature_mud", gain = 0.15})
 
 -- location limit craft spots --------------------
 -- grouplist/banlistg {{group1, group_number}, {'stone', 1}}
@@ -599,7 +617,7 @@ minetest.register_node(
     "tech:mortar_pestle_wooden",{
         description   = S("Wooden Mortar and Pestle"),
         exile_crafting = {
-            craft_types = {"mortar_and_pestle"},
+            craft_types = {"mortar_and_pestle", 'breadmaking'},
             craft_level = 1,
         },
         drawtype      = "nodebox",
@@ -756,6 +774,7 @@ crafting.register_recipe({ -- crafted from ingots, using hammer
         items  = {'tech:iron_ingot 4'},
         level  = 1,
         always_known = true,
+        sound = {name="tech_metal_dig", pitch={0.6,0.85}}
 })
 
 

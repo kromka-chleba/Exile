@@ -1004,7 +1004,7 @@ local function process_receive_fields(player, formname, fields)
                     return true
                 -- try to craft, checking first "input_items" list
                 elseif crafting.perform_craft(
-                    player_name, inv, {"input_items",'main'}, 'main', recipe) then
+                    player_name, inv, {"input_items",'main'}, 'main', recipe, ctype) then
                     cache.recipesFS = nil
                     cache.output = ""
                     inventoryFS_cache[player_name] = cache

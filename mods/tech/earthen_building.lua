@@ -445,6 +445,7 @@ crafting.register_recipe({
         items = {"nodes_nature:clay 3"},
         level = 1,
         always_known = true,
+        sound = "nodes_nature_dirt_footstep"
 })
 
 --recycle rammed_earth with some loss
@@ -454,6 +455,7 @@ crafting.register_recipe({
         items = {"tech:rammed_earth"},
         level = 1,
         always_known = true,
+        sound = "nodes_nature_dirt_footstep"
 })
 
 

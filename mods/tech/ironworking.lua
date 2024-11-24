@@ -364,6 +364,7 @@ crafting.register_recipe({
         items = {'tech:iron_bloom 2'},
         level = 1,
         always_known = true,
+        sound = "tech_metal_dig"
 })
 
 -----------------
