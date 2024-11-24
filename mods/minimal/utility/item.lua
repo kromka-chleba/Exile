@@ -230,7 +230,7 @@ local function create_inventory_object(items, lengthoverride)
         -- can't fit it
         return false
     end
-    function inv:add_item(itemstack, index)
+    function inv:add_item(itemstack, index, take_count)
         -- add itemstack and return leftover
         if type(itemstack) ~= "userdata" or not itemstack["get_meta"] then
             error(debug.traceback(
@@ -242,6 +242,24 @@ local function create_inventory_object(items, lengthoverride)
             return itemstack
         end
         index = type(index) == "number" and math.ceil(index) or nil
+        -- get count and figure out how much we should take away (custom number or itemstack count)
+        -- clamp to lowest number - shouldn't be trying to take more than the actual itemstack count
+        local count = itemstack:get_count()
+        local giveaway = type(take_count) == "number" and math.min(count, take_count) or count
+        local function itemstack_take(num)
+            -- only do calculations if num is provided
+            if num then
+                count = count - num
+                giveaway = giveaway - num
+            end
+            -- empty out itemstack if total count is 0
+            if count == 0 then
+                return ItemStack('')
+            else
+                itemstack:set_count(count)
+            end
+            return itemstack
+        end
         if not index then
             -- add normally
             for item_index,item in pairs(items) do
@@ -250,21 +268,21 @@ local function create_inventory_object(items, lengthoverride)
                     item,itemstack) then
                     -- get the smallest number between the itemstack's count
                     --   or the amount of space left
-                    local amt = math.min(itemstack:get_count(),
+                    local amt = math.min(giveaway,
                                          item:get_free_space())
-                    itemstack:take_item(amt)
+                    itemstack_take(amt)
                     item:set_count(item:get_count() + amt)
                 end
-                if itemstack:is_empty() then
-                    -- no point to iterating through if we're empty!
-                    return ItemStack('')
+                -- we're done giving away
+                if giveaway == 0 then
+                    return itemstack_take()
                 end
             end
             -- could not be added to an equal stack, add to empty
             for item_index,item in pairs(items) do
                 if item:get_name() == "" then
-                    items[item_index] = itemstack
-                    return ItemStack('')
+                    items[item_index] = itemstack:take_item(giveaway)
+                    return itemstack_take(giveaway)
                 end
             end
         elseif minimal.math_clamp(index,1,#items) == index then
@@ -272,15 +290,15 @@ local function create_inventory_object(items, lengthoverride)
             local item = items[index]
             if item:get_name() == "" then
                 -- it's empty, fill it up
-                items[index] = itemstack
-                return ItemStack('')
+                items[index] = itemstack:take_item(giveaway)
+                return itemstack_take(giveaway)
             elseif itemstack_equals(item,itemstack) then
                 if item:item_fits(itemstack) then
                     itemstack = item:add_item(itemstack)
                 else
-                    local amt = math.min(itemstack:get_count(),
+                    local amt = math.min(giveaway,
                                          item:get_free_space())
-                    itemstack:take_item(amt)
+                    itemstack_take(amt)
                     item:set_count(item:get_count() + amt)
                 end
             end
