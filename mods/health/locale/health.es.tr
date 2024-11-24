@@ -4,10 +4,10 @@
 # hud.lua
 # food.lua
 This is inedible.=Esto no es comestible.
-Eat=
-Food Poisoning=
+Eat="Comer"
+Food Poisoning="Intoxicación alimentaria"
 Dust Fever=
-Intestinal Parasites=
+Intestinal Parasites="Parásitos intestinales"
 Tiku High=
 Neurotoxicity="Neurotoxicidad"
 Hepatotoxicity=
@@ -30,7 +30,7 @@ Weary=
 Tired="Cansado"
 Well-rested=
 Starving=
-Thin=
+Thin="Delgado"
 Well-fed=
 Dying of thirst="Muriendo de sed"
 Very thirsty="Muy sediento"
@@ -39,7 +39,7 @@ Resting="Descansando"
 (Shivering)=
 poorly=
 comfortably=
-(Sweating)=
+(Sweating)="(Sudando)"
 #init.lua
 Hyperthermia=
 Hypothermia=
