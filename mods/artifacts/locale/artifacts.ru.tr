@@ -33,7 +33,7 @@ Meta-Stim Injector=Инъектор Мета-Стим
 # storage.lua 
 @1 chest=@1 сундук
 LIGHT MEASUREMENT:=ИЗМЕРЕНИЕ ОСВЕЩЕННОСТИ:
-LIGHT LEVEL @= =УРОВЕНЬ ОСВЕЩЕННОСТИ @= 
+LIGHT LEVEL @= @1=УРОВЕНЬ ОСВЕЩЕННОСТИ @= @1
 Light Meter=Измеритель освещенности
 List light level of node or self=Показывает уровень освещенности узла или самого себя
 OBJECT TEMPERATURE MEASUREMENT:=ИЗМЕРЕНИЕ ТЕМПЕРАТУРЫ ОБЪЕКТА:
@@ -62,7 +62,7 @@ Half-wild=Полу-дикий
 PLANT GROWTH NOT MEASURABLE!=РОСТ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
 GROWTH UNITS REMAINING:=ОСТАВШИЕСЯ ЕДИНИЦЫ РОСТА:
 PLANT HEALTH NOT MEASURABLE!=ЗДОРОВЬЕ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
-Health=Здоровье
+Health:=Здоровье:
 STATE:=СОСТОЯНИЕ:
 wet=влажный
 salty=соленый
@@ -77,27 +77,32 @@ List stats of plant or soil=Показывает состояние растен
 Spyglass=Подзорная труба
 View far distances=Осмотр дальних расстояний
 SELF=СОБСТВЕННОЕ
-Age:=Возраст:
+ANIMAL=ЖИВОТНОЕ
+EGG=ЯЙЦО
+@1 CONDITION:=@1 СОСТОЯНИЕ:
+@1 units=@1 единицы
+Health: @1=Здоровье: @1
+# player energy vs animal energy
+Energy: @1%=Энергия: @1%
+Energy: @1=Энергия: @1
+Body Temp: @1=Температура тела @1
+Hunger: @1%=Голод @1%
+Thirst: @1%=Жажда: @1%
+Effects: @1=Эффекты: @1
+Age: @1=Возраст: @1
 1 year old=1 год
 @1 years old=@1 года
 1 day old=1 день
 @1 days old=@1 дня
 # player + animal
-CONDITION=СОСТОЯНИЕ
-units=единицы
-Energy=Энергия
-Body Temp=Температура тела
-Hunger=Голод
-Thirst=Жажда
-Effects=Эффекты
-Age=Возраст
-seconds=секунды
-Oxygen:=Кислород:
+@1 seconds=@1 секунды
+Oxygen: @1%=Кислород: @1%
 # binary
 Yes=Да
 No=Нет
-Pregnant:=Беременная:
-ANIMAL=ЖИВОТНОЕ
+Pregnant: @1=Беременная: @1
+Gestation: @1%=
+EGG IS DEAD=МЕРТВОЕ ЯЙЦО
 Animal Probe=Зонд животных
 List stats of pointed animal or player=Показывает состояние указанного животного или игрока
 Inspect self=Проверьте себя
