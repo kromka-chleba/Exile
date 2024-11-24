@@ -124,16 +124,30 @@ minetest.register_on_player_receive_fields(function(player,
         -- dump it all into that storage!
         if fields.Dump and (#node_inv:get_full() < node_inv:get_size()
                             and #item_inv:get_empty() ~= #item_list) then
+            local def = minimal.get_nodedef(pos)
             for index,item in pairs(item_list) do
-                item = node_inv:add_item(item)
-                item_list[index] = item
+                local count = item:get_count()
+                count = def.storage_inventory_dump_into and
+                def.storage_inventory_dump_into(item, count, item_inv, index, node_inv) or count
+                -- only modify inventory if count is greater than 0
+                if count > 0 then
+                    item = node_inv:add_item(item, nil, count)
+                    item_list[index] = item
+                end
             end
             update_inv()
             -- pack up that storage
         elseif fields.Pack and (#item_inv:get_full() < item_inv:get_size()) then
+            local def = itemstack:get_definition()
             for index,item in pairs(node_list) do
-                item = item_inv:add_item(item)
-                node_list[index] = item
+                local count = item:get_count()
+                count = def.storage_inventory_dump_into and
+                    def.storage_inventory_dump_into(item, count, node_inv, index, item_inv) or count
+                -- ditto to above
+                if count > 0 then
+                    item = item_inv:add_item(item, nil, count)
+                    node_list[index] = item
+                end
             end
             update_inv()
         end
@@ -329,15 +343,6 @@ local on_dig = function(pos, node, digger, width, height)
     return false
 end
 
-local allow_metadata_inventory_put = function(pos, listname, index,
-                                              stack, player)
-    if not string.match(stack:get_name(), "backpacks:") then
-        return stack:get_count()
-    else
-        return 0
-    end
-end
-
 local wallmount_box = {
     type = "fixed",
     fixed = {
@@ -455,11 +460,6 @@ function backpacks.register_backpack(name, def)
                                 and not minimal.is_group(nname, "no_dump")),
                                (def.can_pack
                                 and not minimal.is_group(nname, "no_pack")))
-    end
-    def.allow_metadata_inventory_put = function(pos, listname, index,
-                                                stack, player)
-        return allow_metadata_inventory_put(pos, listname, index,
-                                            stack, player)
     end
     -- infotext handling
     def.on_infotext = def.on_infotext or function(pos, nodedef, meta, params)
