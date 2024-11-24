@@ -395,3 +395,7 @@ Status: @1 pot (finished)=Status: @1topf (fertig)
 Wooden Mortar and Pestle=Holzmörtel und -stößel
 Status: needs a @1 and a wick (@2)!=Status: Benötigt @1 und einen Docht (@2)!
 Wet wicker well lining=Feuchte Flechtbrunnenauflage
+Tile Block (Loose)="Kachelblock (lose)"
+Breadmaking="Brotherstellung"
+Fermented @1="Fermentiertes @1"
+Fermenting @1="Fermentierendes @1"
