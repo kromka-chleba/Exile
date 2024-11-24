@@ -216,10 +216,15 @@ Fermented @1=
 Ikippe Yeast=
 Black Bread=
 Crumbly Bread=
+Unleavened Bread=
+Fluffy Unleavened Bread=
 Burned Bread=
 # animal food_crafts
 Cracked Egg=
 Fried Egg=
+# food_crafts tips/messages
+Infect Dough=
+Yeast added to the @1=
 # glassworking.lua
 Green Glass Sand Mix=
 Green Glass Ingot=

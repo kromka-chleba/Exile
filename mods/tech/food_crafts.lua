@@ -259,7 +259,8 @@ minetest.register_node(
           type = "fixed",
           fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, flour=1, heatable = 80},
+        groups = {dig_immediate = 3, falling_node=1, flour=1,
+                  heatable = 80, temp_pass = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light"
 })
@@ -275,7 +276,8 @@ minetest.register_node(
           type = "fixed",
           fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, flour=1, bread_flour = 1},
+        groups = {dig_immediate = 3, falling_node=1, flour=1,
+                  bread_flour = 1, temp_pass = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light"
 })
@@ -305,20 +307,49 @@ minetest.register_node(
 -- dough fermentation mechanics
 local dough_yeast_temp_range = {min=15, max=40}
 
+-- TODO: better system for fermentation + baking mechanics
 local function get_dough_on_timer(chance)
-    chance = chance or 0.09 -- provided chance or 9%
+    chance = chance or 0.01 -- provided chance or 1%
     -- provide function return to run
     return function(pos, elapsed, ch) -- ch is chance override
+        local node = minetest.get_node(pos)
         local meta = minetest.get_meta(pos)
+        -- unleavened bread baking mechanics
+        local baking_data = HEALTH.bake_table[node.name] -- check if we can bake
+        local temp -- declare here to reuse in later if statement
+        if baking_data then
+            temp = climate.get_point_temp(pos)
+            -- we're actually cooking! (natural temps can't go over 70 anyways)
+            if temp >= 70 then
+                if not meta:contains("baking") then
+                    -- remove any fermentation
+                    local metat = meta:to_table() or {}
+                    metat.fields = {}
+                    -- add baking int
+                    metat.fields.baking = baking_data.time
+                    meta:from_table(metat)
+                    -- reset timer to be cooking
+                    minetest.get_node_timer(pos):start(ncrafting.cook_rate)
+                    return false
+                end
+            end
+        end
+        -- WE BAKING!! (if we can bake)
+        if baking_data and meta:contains("baking") then
+            return ncrafting.do_bake(pos, elapsed,
+                                 baking_data.temp, baking_data.time,
+                                 baking_data.cooked, baking_data.burned)
+        end
+
         ch = ch or chance
         if meta:get_int("ferment") ~= 0 then -- we're fermentin'
             -- we're done fermenting!
             if not ncrafting.ferment_on_timer(pos, elapsed) then
-                local node = minetest.get_node(pos)
+                node = minetest.get_node(pos)
                 local metat = meta:to_table()
                 metat.fields = {}
                 -- set baking data if we're a bakeable
-                local baking_data = HEALTH.bake_table[node.name]
+                baking_data = HEALTH.bake_table[node.name]
                 if baking_data then
                   metat.fields.baking = baking_data.time
                 end
@@ -332,10 +363,10 @@ local function get_dough_on_timer(chance)
         -- let's try fermenting
         elseif math.random() <= chance then
             -- check for temp_range first before trying to ferment
-            local nodedef = minimal.get_nodedef(pos)
+            local nodedef = minetest.registered_nodes[node.name]
             local temp_range = nodedef._ferment_temp_range
             if temp_range then
-                local temp = climate.get_point_temp(pos)
+                local temp = temp or climate.get_point_temp(pos)
                 if temp <= temp_range.min or temp >= temp_range.max then
                     -- loop again if conditions not right
                     return true
@@ -346,8 +377,8 @@ local function get_dough_on_timer(chance)
             ncrafting.ferment_on_construct(pos)
             return false
         end
-        -- check again later
-        minetest.get_node_timer(pos):start(120)
+        -- check again later (40sec to 85sec)
+        minetest.get_node_timer(pos):start(math.random(40,85))
         return false
     end
 end
@@ -378,7 +409,8 @@ minetest.register_node(
           type = "fixed",
           fixed = {-4/16, -0.5, -4/16, 4/16, -4/16, 4/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1,
+              heatable=75, temp_pass=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         _ferment_time = {min=15,max=36},
@@ -402,7 +434,8 @@ minetest.register_node(
           type = "fixed",
           fixed = {-5/16, -0.5, -5/16, 5/16, -4/16, 5/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, cake_dough=1},
+        groups = {dig_immediate = 3, falling_node=1, dough=1, cake_dough=1,
+            heatable=75, temp_pass=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         _ferment_time = {min=12,max=30},
@@ -411,7 +444,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
-        on_timer = get_dough_on_timer(0.25), -- 25% chance
+        on_timer = get_dough_on_timer(),
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
 })
@@ -426,7 +459,8 @@ minetest.register_node(
           type = "fixed",
           fixed = {-5/16, -0.5, -5/16, 5/16, -4/16, 5/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1},
+        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1,
+            heatable=75, temp_pass=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         _ferment_time = {min=20,max=46},
@@ -441,7 +475,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
-        on_timer = get_dough_on_timer(0.12), -- 12% chance
+        on_timer = get_dough_on_timer(0.03), -- 3% chance
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
 })
@@ -455,7 +489,7 @@ local function ferm_dough_preserve_metadata(pos, oldnode, oldmeta, drops)
     local nodedef = minetest.registered_nodes[oldnode.name]
     local get_microbes = nodedef.breads_get_microbes or
       function()
-          return math.random(1,5)
+          return math.random(1,3)
       end
     -- get fresh batch catchable microbes
     local microbes = get_microbes(pos, oldnode, nodedef)
@@ -482,7 +516,7 @@ minetest.register_node(
           fixed = {-4/16, -0.5, -4/16, 4/16, -3/16, 4/16},
         },
         groups = {dig_immediate = 3, falling_node=1, fermented_dough=1,
-            fermented_bread_dough=1, heatable=85},
+            fermented_bread_dough=1, heatable=85, temp_pass=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         preserve_metadata = ferm_dough_preserve_metadata
@@ -499,7 +533,7 @@ minetest.register_node(
           fixed = {-5/16, -0.5, -5/16, 5/16, -3/16, 5/16},
         },
         groups = {dig_immediate = 3, falling_node=1, fermented_dough=1,
-            fermented_cake_dough=1, heatable=85},
+            fermented_cake_dough=1, heatable=85, temp_pass=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         preserve_metadata = ferm_dough_preserve_metadata
@@ -516,12 +550,12 @@ minetest.register_node(
           fixed = {-5/16, -0.5, -5/16, 5/16, -3/16, 5/16},
         },
         groups = {dig_immediate = 3, falling_node=1, fermented_dough=1,
-            fermented_bread_dough=1, heatable=85},
+            fermented_bread_dough=1, heatable=85, temp_pass=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         preserve_metadata = ferm_dough_preserve_metadata,
         breads_get_microbes = function(pos, oldnode, nodedef)
-            return math.random(3,10)
+            return math.random(2,5)
         end
 })
 
@@ -554,14 +588,18 @@ minetest.register_craftitem(
         description = S("Ikippe Yeast"),
         inventory_image = "tech_yeast_dough_spores.png",
         stack_max = minimal.stack_max_medium*4,
+        _place_tip = S("Infect Dough"),
         on_place = function(itemstack, player, pointed_thing)
             if not pointed_thing or pointed_thing.type ~= "node" then
                 return
             end
             local pos = pointed_thing.under
+            local nodedef = minimal.get_nodedef(pos)
             -- can't infect, return
-            if not yeast_infect(pos) then return end
-            -- successfully infected, take away item
+            if not yeast_infect(pos, nodedef) then return end
+            -- successfully infected, take away item and make message
+            minimal.send_message(player:get_player_name(),
+                S("Yeast added to the @1", nodedef.description), 3.5)
             if not minimal.player_in_creative(player) then
                 itemstack:take_item()
                 return itemstack
@@ -606,6 +644,38 @@ minetest.register_node(
             {-4/16, -2/16, -4/16, 4/16, -1/16, 4/16} -- top
           }
         },
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+})
+
+-- basically a type of flatbread
+minetest.register_node(
+    "tech:bread_unleavened",  {
+        description = S("Unleavened Bread"),
+        tiles = {"tech_bread_unleavened.png"},
+        stack_max = minimal.stack_max_medium*3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-4.5/16, -0.5, -4.5/16, 4.5/16, -5/16, 4.5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+})
+
+-- likely similar texture to say a muffin, very cakey
+minetest.register_node(
+    "tech:bread_unleavened_crumbly",  {
+        description = S("Fluffy Unleavened Bread"),
+        tiles = {"tech_bread_unleavened_crumbly.png"},
+        stack_max = minimal.stack_max_medium*3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-4.5/16, -0.5, -4.5/16, 4.5/16, -5/16, 4.5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
 })

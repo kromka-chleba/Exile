@@ -94,6 +94,7 @@ Tools=
 Stations=
 Agriculture="Agricultura"
 Pickaxe=
+Breadmaking=
 Cannot place here! Needs a whole block of:=
 Mixing Spot=Lugar para Mezclar
 Threshing Spot=Lugar para Trillar
@@ -269,11 +270,16 @@ Hardy Rhuya Dough=
 @1 Fermented=
 Black Bread=
 Crumbly Bread=
+Unleavened Bread=
+Fluffy Unleavened Bread=
 Burned Bread=
 Ikippe Yeast=
 # animal food_crafts
 Cracked Egg=
 Fried Egg=Huevo Frito
+# food_crafts tips/messages
+Infect Dough=
+Yeast added to the @1=
 # Pottery
 Broken Pottery Slab=
 # pottery.lua

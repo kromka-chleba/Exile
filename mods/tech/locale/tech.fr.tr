@@ -94,6 +94,7 @@ Tools=Outils
 Stations=Stations
 Agriculture=Agriculture
 Pickaxe=Pioche
+Breadmaking=
 Cannot place here! Needs a whole block of: =Impossible de placer ici! Besoin d'un bloc entier de:
 Mixing Spot=Emplacement pour le mélange
 Threshing Spot=Emplacement pour le battage
@@ -269,11 +270,16 @@ Hardy Rhuya Dough=
 @1 Fermented=
 Black Bread=
 Crumbly Bread=
+Unleavened Bread=
+Fluffy Unleavened Bread=
 Burned Bread=
 Ikippe Yeast=
 # animal food_crafts
 Cracked Egg=oeuf fêlé
 Fried Egg=Œuf au Plat
+# food_crafts tips/messages
+Infect Dough=
+Yeast added to the @1=
 # Pottery
 Broken Pottery Slab=Dalle de poterie cassée
 # pottery.lua

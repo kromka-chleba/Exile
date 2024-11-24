@@ -216,10 +216,15 @@ Fermented @1=Ферментированное @1
 Ikippe Yeast=Дрожжи Икиппе
 Black Bread=Черный хлеб
 Crumbly Bread=Рассыпчатый хлеб
+Unleavened Bread=
+Fluffy Unleavened Bread=
 Burned Bread=Подгоревший хлеб
 # animal food_crafts
 Cracked Egg=Разбитое яйцо
 Fried Egg=Яичница
+# food_crafts tips/messages
+Infect Dough=
+Yeast added to the @1=
 # glassworking.lua
 Green Glass Sand Mix=Песчаная смесь зеленого стекла
 Green Glass Ingot=Слиток зеленого стекла

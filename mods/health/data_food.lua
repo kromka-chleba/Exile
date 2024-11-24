@@ -35,6 +35,9 @@ HEALTH.food_table = {
     -- black bread aka peasant's bread, more protein than cakey crumbly bread
     ["tech:bread_black"] = {hu = 36, en = 12},
     ["tech:bread_crumbly"] = {hu = 28, en = 18, th = 3},
+    -- unleavened breads
+    ["tech:bread_unleavened"] = {hu = 30, en = 6},
+    ["tech:bread_unleavened_crumbly"] = {hu = 24, en = 10, th = 3},
     ["nodes_nature:sea_lettuce"] = {hu = 5, en = -10},
     ["nodes_nature:sea_lettuce_cooked"] = {hu = 5},
     ["nodes_nature:vansano_seed"] = {hu = 1},
@@ -173,9 +176,14 @@ HEALTH.bake_table = {
     ['tech:yolk_and_albumen'] = {temp = 100, time = 2},
     ['tech:rhuya_flour'] = {temp = 100, time = 5},
     ['tech:rhuya_wintery_flour'] = {temp = 100, time = 8, burned='tech:rhuya_flour_burned'},
+    -- leavened breads
     ['tech:maraka_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'},
     ['tech:rhuya_dough_fermented'] = {temp = 110, time = 4, cooked='tech:bread_crumbly', burned='tech:bread_burned'},
-    ['tech:rhuya_wintery_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'}
+    ['tech:rhuya_wintery_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'},
+    -- unleavened breads
+    ['tech:maraka_dough'] = {temp = 110, time = 4, cooked='tech:bread_unleavened', burned='tech:bread_burned'},
+    ['tech:rhuya_dough'] = {temp = 110, time = 3, cooked='tech:bread_unleavened_crumbly', burned='tech:bread_burned'},
+    ['tech:rhuya_wintery_dough'] = {temp = 110, time = 4, cooked='tech:bread_unleavened', burned='tech:bread_burned'}
 }
 
 -- tags (what diseases to spawn, single string or table of diseases), ch=chance, sv=severity

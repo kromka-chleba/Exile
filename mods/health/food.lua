@@ -184,8 +184,9 @@ end
 -- Add baking properties to the raw and cooked variants
 -- overrides on_construct and on_timer
 local function setup_bakeable(name,bake_info)
-    if not (minetest.registered_nodes[name]
-            and minetest.registered_nodes[bake_info.cooked]) then
+    local raw = minetest.registered_nodes[name]
+    local cooked = minetest.registered_nodes[bake_info.cooked]
+    if not (raw and cooked) then
         -- causes issues with sea_lettuce if not commented out
         --error(name..": missing nodes for baking (raw or cooked variant not found)")
         return
@@ -196,23 +197,27 @@ local function setup_bakeable(name,bake_info)
             return true
         end
     end
-    -- adapted minimal bake_redef
-    local bake_redef = {
-        on_construct = function(pos)
-            if check_error(pos,name) then return true end
-            ncrafting.start_bake(pos, bake_info.time)
-        end,
-        on_timer = function(pos, elapsed)
-            if check_error(pos,name) then return true end
-            return ncrafting.do_bake(pos, elapsed,
-                                     bake_info.temp, bake_info.time,
-                                     bake_info.cooked, bake_info.burned)
-        end
-    }
+    local function on_construct(pos)
+        if check_error(pos,name) then return true end
+        ncrafting.start_bake(pos, bake_info.time)
+    end
+    local function on_timer(pos, elapsed)
+        if check_error(pos,name) then return end
+        return ncrafting.do_bake(pos, elapsed,
+                                 bake_info.temp, bake_info.time,
+                                 bake_info.cooked, bake_info.burned)
+    end
+    -- permit usage of regular node on_construct/on_timer
     -- raw can cook
-    minetest.override_item(name,bake_redef)
+    minetest.override_item(name,{
+        on_construct = raw.on_construct or on_construct,
+        on_timer = raw.on_timer or on_timer
+    })
     -- cooked can burn
-    minetest.override_item(bake_info.cooked,bake_redef)
+    minetest.override_item(cooked.name,{
+        on_construct = cooked.on_construct or on_construct,
+        on_timer = cooked.on_timer or on_timer
+    })
 end
 
 -- only accepts 1 node at a time for baking definition
