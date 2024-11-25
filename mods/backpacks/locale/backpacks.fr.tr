@@ -1,8 +1,8 @@
 # textdomain: backpacks
 # init.lua
 # custom _empty_name, _full_name
-Empty @1=
-Full @1=
+Empty @1=@1 vide
+Full @1=@1 plien
 # pack-dump mechanics
 Dump Into Storage=
 Pack Up Storage=

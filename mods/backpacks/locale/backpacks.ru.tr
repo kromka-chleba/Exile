@@ -1,8 +1,8 @@
 # textdomain: backpacks
 # init.lua
 # custom _empty_name, _full_name
-Empty @1=
-Full @1=
+Empty @1=Пустая @1
+Full @1=Полная @1
 # pack-dump mechanics
 Dump Into Storage=Переместить в хранилище
 Pack Up Storage=Забрать вещи из хранилища
