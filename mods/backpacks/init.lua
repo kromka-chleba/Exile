@@ -347,8 +347,8 @@ function backpacks.register_backpack(name, def)
         end
     end
     -- custom "empty_name" and "full_name"
-    def._empty_name = def._empty_name or def.empty_name or def.description
-    def._full_name = def._full_name or def.full_name or def.description
+    def._empty_name = def._empty_name or def.empty_name or S("Empty @1", def.description)
+    def._full_name = def._full_name or def.full_name or S("Full @1",def.description)
     -- can_dump and can_pack
     def.can_dump = type(def.can_dump) ~= "boolean" and true or def.can_dump
     def.can_pack = type(def.can_pack) ~= "boolean" and true or def.can_pack
