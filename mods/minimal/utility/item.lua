@@ -195,7 +195,9 @@ local function create_inventory_object(items, lengthoverride)
         if inv:is_empty() then
             data = {slots = {inv:get_empty()}, count = 0, max = 0}
             data.slots = data.slots[2]
-            -- we're actually empty, tell any code calling us that we are
+            -- we still should be a list, wrap it!
+            data = {[""] = data}
+            -- we're actually empty, tell any code calling us that we are with second parameter
             return data, true
         end
         for _, item in ipairs(items) do
@@ -231,7 +233,9 @@ local function create_inventory_object(items, lengthoverride)
             -- returning most popular
             data = data[stats.name]
             data.name = stats.name -- add name
+        -- empty, get_item_amounts still acts like a list, get the wrapped empty value
         else
+            data = data[""]
             data.name = ""
         end
         return data
