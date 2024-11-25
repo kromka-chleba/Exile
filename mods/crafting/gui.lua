@@ -860,7 +860,7 @@ local function process_qty(recipe,qty,item_hash)
         -- set output to max_count
         recipe.output = oName .." "..max_count * oCount
         -- adjust replace
-        for i,rItem in pairs(recipe.replace) do -- index, Replace Item
+        for i,rItem in pairs(recipe.replace or {}) do -- index, Replace Item
             rItem = ItemStack(rItem)
             rItem:set_count((rItem:get_count() or 1)
                 * max_count) -- qty is weird, use max_count
