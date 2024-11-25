@@ -120,7 +120,7 @@ local function create_inventory_object(items, lengthoverride)
     end
     function inv:to_string()
         -- convert inventory into a serialized table
-        for index,item in pairs(items) do
+        for index,item in ipairs(items) do
             if item:get_name() ~= "" then
                 -- convert itemstack to string for serialization
                 items[index] = item:to_string()
@@ -137,9 +137,9 @@ local function create_inventory_object(items, lengthoverride)
     end
     -- full, partial, empty gets
     function inv:get_full()
-        -- get indexes of slots that are full
+        -- get slots that are full
         local slots = {}
-        for index,item in pairs(items) do
+        for index,item in ipairs(items) do
             if item:get_count() >= item:get_stack_max() then
                 slots[#slots + 1] = index
             end
@@ -148,9 +148,9 @@ local function create_inventory_object(items, lengthoverride)
         return slots,#slots
     end
     function inv:get_partial()
-        -- get indexes of slots that are partially full
+        -- get slots that are partially full
         local slots = {}
-        for index,item in pairs(items) do
+        for index,item in ipairs(items) do
             if item:get_count() < item:get_stack_max()
                 and not item:is_empty() then
 
@@ -162,12 +162,79 @@ local function create_inventory_object(items, lengthoverride)
     function inv:get_empty()
         -- get slots that are empty
         local slots = {}
-        for index,item in pairs(items) do
+        for index,item in ipairs(items) do
             if item:is_empty() then
                 slots[#slots + 1] = index
             end
         end
         return slots,#slots
+    end
+    -- misc inventory functions
+    function inv:is_empty()
+        if #inv:get_empty() == inv:get_size() then
+            return true
+        end
+        return false
+    end
+    function inv:get_full_partial_empty_count()
+        -- get data of how many slots are full, partial, and empty
+        local data = {
+            full = {inv:get_full()},
+            empty = {inv:get_empty()}
+        }
+        -- get second parameter, the count
+        data.full = data.full[2]
+        data.empty = data.empty[2]
+        -- why run inv:get_partial() when we can calculating using full and empty?
+        data.partial = inv:get_size() - (data.full + data.empty)
+        return data
+    end
+    function inv:get_item_amounts()
+        -- figure out how many items of a type exist (count), their collective max_count, and how many slots they own
+        local data = {}
+        if inv:is_empty() then
+            data = {slots = {inv:get_empty()}, count = 0, max = 0}
+            data.slots = data.slots[2]
+            -- we're actually empty, tell any code calling us that we are
+            return data, true
+        end
+        for _, item in ipairs(items) do
+            if not item:is_empty() then
+                local item_name = item:get_name()
+                local item_data = data[item_name] or {slots = 0, count = 0, max = 0}
+                item_data.slots = item_data.slots + 1
+                item_data.count = item_data.count + item:get_count()
+                item_data.max = item_data.max + item:get_stack_max()
+                data[item_name] = item_data
+            end
+        end
+        return data
+    end
+    function inv:get_most_popular_stats(mode)
+        -- get stats of most popular item in inventory
+        -- permit "modes" to determine which popular item this is;
+        -- accepts "count" or "max"/"max_count", otherwise defaults to determining by slots occupied
+        mode = type(mode) == "string" and mode:lower() or mode
+        mode = mode == "max_count" and "max" or mode
+        local data,is_empty = inv:get_item_amounts()
+        local stats = {name = "", num = 0}
+        if not is_empty then
+            local stats = {name = "", num = 0}
+            for item_name, info in pairs(data) do
+                -- defaults to 'slots'
+                local num = mode == "count" and info.count or mode == "max" and info.max or info.slots
+                if num > stats.num then
+                    stats.name = item_name
+                    stats.num = num
+                end
+            end
+            -- returning most popular
+            data = data[stats.name]
+            data.name = stats.name -- add name
+        else
+            data.name = ""
+        end
+        return data
     end
     -- itemstack interactions
     function inv:room_for_item(itemstack,index)
@@ -185,7 +252,7 @@ local function create_inventory_object(items, lengthoverride)
         index = type(index) == "number" and math.ceil(index) or nil
         if not index then
             local free_space = 0
-            for _,item in pairs(items) do
+            for _,item in ipairs(items) do
                 if item:get_name() == "" then
                     -- check empty slots
                     return true
@@ -262,7 +329,7 @@ local function create_inventory_object(items, lengthoverride)
         end
         if not index then
             -- add normally
-            for item_index,item in pairs(items) do
+            for item_index,item in ipairs(items) do
                 -- if item equals provided itemstacked and there's space inside
                 if item:get_free_space() > 0 and itemstack_equals(
                     item,itemstack) then
@@ -303,7 +370,7 @@ local function create_inventory_object(items, lengthoverride)
                 end
             end
         end
-        return itemstack
+        return itemstack_take()
     end
     function inv:remove_item(index,amount)
         index = type(index) == "number" and math.ceil(index) or nil
