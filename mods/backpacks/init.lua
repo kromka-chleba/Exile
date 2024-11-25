@@ -39,73 +39,66 @@ local function get_formspec(pos, w, h)
     return table.concat(formspec, "")
 end
 
-local function get_description(meta,bag_name,add_string)
-    local desc = bag_name
-    local label = meta:get_string('label')
-    if label ~= '' then
-        desc = desc.." - "..label
-    end
-    if type(add_string) == "string" and add_string ~= "" then
-        desc = desc..add_string
-    end
-    return desc
-end
-
--- set bag stats
--- return usable description
-local function bagitem_set_stats_get_desc(item, imeta, item_inv, idef)
+-- set bag itemstack description + inventory
+-- idef, label are not needed but can be specified to speed up process
+-- imeta or item_inv aren't needed either but are good to specify
+local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef, label)
     imeta = imeta or item:get_meta()
     item_inv = item_inv or minimal.get_item_inventory(item, imeta)
     idef = idef or item:get_definition()
-    local bag_name = idef.description
+    label = label or imeta:get_string('label')
+    local bag_desc = idef.description
+    local add_string -- used for additional info
     local counts = item_inv:get_full_partial_empty_count()
     counts.size = item_inv:get_size()
     -- actually empty
     if counts.size == counts.empty then
         -- empty; no items, return empty_name
         imeta:set_string("inv_main","")
-        return {desc = idef._empty_name}
-    elseif counts.size == (counts.full + counts.partial) then
-        bag_name = idef._full_name
-    end
-    -- set up text colours that'll be used
-    local text_colours = {
-        minetest.get_color_escape_sequence(colours["full"]), -- full
-        minetest.get_color_escape_sequence(colours["partial"]), -- partial
-        minetest.get_color_escape_sequence(colours["neutral"]), -- empty
-        minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
-    }
-    -- get translated or regular stats
-    local slots = {
-        text_colours[1]..(more_info and S("@1 full", counts.full) or counts.full),
-        text_colours[2]..(more_info and S("@1 partial", counts.partial) or counts.partial),
-        text_colours[3]..(more_info and S("@1 empty", counts.empty) or counts.empty)
-    }
-    -- create additional string to itemstack description
-    local add_string
-    -- more descriptive information wanted
-    if more_info then
-          local most_popular = item_inv:get_most_popular_stats()
-          -- turn to number indexed table
-          most_popular = {
-              -- convert name to ItemStack
-              ItemStack(most_popular.name),
-              most_popular.count,
-              most_popular.max
-          }
-          -- get description, add colour
-          most_popular[1] = text_colours[4]..(most_popular[1]:get_short_description()
-              or most_popular[1]:get_description())
-          -- add slots
-          slots = text_colours[3]..S("Slots: @1, @2, @3", slots[1], slots[2], slots[3])
-          add_string = S("@n@1 @2/@3 @n@4", most_popular[1], most_popular[2], most_popular[3], slots)
-    -- basic information
+        bag_desc = idef._empty_name
     else
-        add_string = " "..S("- @1/@2/@3", slots[1], slots[2], slots[3])
+        if counts.size == (counts.full + counts.partial) then
+            bag_desc = idef._full_name
+        end
+        -- set up text colours that'll be used
+        local text_colours = {
+            minetest.get_color_escape_sequence(colours["full"]), -- full
+            minetest.get_color_escape_sequence(colours["partial"]), -- partial
+            minetest.get_color_escape_sequence(colours["neutral"]), -- empty
+            minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
+        }
+        -- get translated or regular stats
+        local slots = {
+            text_colours[1]..(more_info and S("@1 full", counts.full) or counts.full),
+            text_colours[2]..(more_info and S("@1 partial", counts.partial) or counts.partial),
+            text_colours[3]..(more_info and S("@1 empty", counts.empty) or counts.empty)
+        }
+        -- more descriptive information wanted
+        if more_info then
+              local most_popular = item_inv:get_most_popular_stats()
+              -- turn to number indexed table
+              most_popular = {
+                  -- convert name to ItemStack
+                  ItemStack(most_popular.name),
+                  most_popular.count,
+                  most_popular.max
+              }
+              -- get description, add colour
+              most_popular[1] = text_colours[4]..(most_popular[1]:get_short_description()
+                  or most_popular[1]:get_description())
+              -- add slots
+              slots = text_colours[3]..S("Slots: @1, @2, @3", slots[1], slots[2], slots[3])
+              add_string = S("@n@1 @2/@3 @n@4", most_popular[1], most_popular[2], most_popular[3], slots)
+        -- basic information
+        else
+            add_string = " "..S("- @1/@2/@3", slots[1], slots[2], slots[3])
+        end
+        -- set inventory
+        imeta:set_string('inv_main', item_inv:convert())
     end
-    -- set inventory
-    imeta:set_string('inv_main', item_inv:convert())
-    return {desc = bag_name, add = add_string}
+    bag_desc = label ~= '' and bag_desc.." - "..label or bag_desc
+    bag_desc = type(add_string) == "string" and bag_desc..add_string or bag_desc
+    imeta:set_string('description', bag_desc)
 end
 
 local packdump_forms = {}
@@ -186,12 +179,8 @@ minetest.register_on_player_receive_fields(function(player,
         -- simply updates inventory
         local function update_inv()
             inv:set_list("main",node_list)
-            local info = bagitem_set_stats_get_desc(itemstack, item_meta, item_inv)
-            -- Set Description
-            item_meta:set_string('description', get_description(meta,
-                                                            info.desc, info.add))
-            --minimal.set_item_inventory(itemstack, item_meta,
-            --                           "inv_main", item_inv)
+            -- set description
+            bagitem_set_description_and_inventory(itemstack, item_meta, item_inv)
             player:set_wielded_item(itemstack)
         end
         -- dump it all into that storage!
@@ -272,14 +261,12 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
     -- Transfer inventory to item
     local meta = minetest.get_meta(pos)
     local inv = minimal.convert_node_inventory(meta)
-    local info = bagitem_set_stats_get_desc(item, imeta, inv, idef)
     -- Set color
     local color = minetest.strip_param2_color(oldnode.param2,
                                               "colorwallmounted")
     imeta:set_int('palette_index', color)
-    -- Set Description
-    imeta:set_string('description', get_description(meta,
-                                                    info.desc, info.add))
+    -- set description
+    bagitem_set_description_and_inventory(item, imeta, inv, idef, meta:get_string('label'))
     -- Set Formspec
     imeta:set_string('formspec', get_formspec(pos,width,height))
 end
