@@ -135,17 +135,33 @@ crafting.register_recipe({
 ----------------------------------------------------------
 --simple scratcher
 
+grafitti.register_grafitti("tech:scr_del", {image = "tech_paint_scr_del.png"})
 grafitti.register_grafitti("tech:scr_1", {image = "tech_paint_scr_1.png"})
 grafitti.register_grafitti("tech:scr_2", {image = "tech_paint_scr_2.png"})
 grafitti.register_grafitti("tech:scr_3", {image = "tech_paint_scr_3.png"})
 grafitti.register_grafitti("tech:scr_4", {image = "tech_paint_scr_4.png"})
 grafitti.register_grafitti("tech:scr_5", {image = "tech_paint_scr_5.png"})
+grafitti.register_grafitti("tech:scr_up", {image = "tech_paint_scr_up.png"})
 grafitti.register_grafitti("tech:scr_down", {image = "tech_paint_scr_down.png"})
 grafitti.register_grafitti("tech:scr_left", {image = "tech_paint_scr_left.png"})
-grafitti.register_grafitti("tech:scr_n", {image = "tech_paint_scr_n.png"})
 grafitti.register_grafitti("tech:scr_right", {image = "tech_paint_scr_right.png"})
+grafitti.register_grafitti("tech:scr_n", {image = "tech_paint_scr_n.png"})
 grafitti.register_grafitti("tech:scr_u", {image = "tech_paint_scr_u.png"})
-grafitti.register_grafitti("tech:scr_up", {image = "tech_paint_scr_up.png"})
+grafitti.register_grafitti("tech:scr_tree", {image = "tech_paint_scr_tree.png"})
+grafitti.register_grafitti("tech:scr_mountain", {image = "tech_paint_scr_mountain.png"})
+grafitti.register_grafitti("tech:scr_water", {image = "tech_paint_scr_water.png"})
+grafitti.register_grafitti("tech:scr_cave", {image = "tech_paint_scr_cave.png"})
+grafitti.register_grafitti("tech:scr_fruit", {image = "tech_paint_scr_fruit.png"})
+grafitti.register_grafitti("tech:scr_wing", {image = "tech_paint_scr_wing.png"})
+grafitti.register_grafitti("tech:scr_spider", {image = "tech_paint_scr_spider.png"})
+grafitti.register_grafitti("tech:scr_fish", {image = "tech_paint_scr_fish.png"})
+grafitti.register_grafitti("tech:scr_ring", {image = "tech_paint_scr_ring.png"})
+grafitti.register_grafitti("tech:scr_fire", {image = "tech_paint_scr_fire.png"})
+grafitti.register_grafitti("tech:scr_kiln", {image = "tech_paint_scr_kiln.png"})
+grafitti.register_grafitti("tech:scr_mortar", {image = "tech_paint_scr_mortar.png"})
+grafitti.register_grafitti("tech:scr_boat", {image = "tech_paint_scr_boat.png"})
+
+
 
 grafitti.palette_build("tech:scratching")
 
