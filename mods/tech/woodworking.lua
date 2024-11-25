@@ -184,7 +184,7 @@ if ucsigns_available then
                               tiles = { "tech_oiled_wood.png" },
     })
     crafting.register_recipe({
-            type = "chopping_block",
+            type = {"chopping_block", "axe"},
             output = "ucsigns:wall_sign_exile 1",
             items = {'group:log 1'},
             level = 1,
