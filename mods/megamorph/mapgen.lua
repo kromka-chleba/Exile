@@ -138,6 +138,8 @@ local function generate(p_minp, p_maxp, seed)
   local heightmap = minetest.get_mapgen_object("heightmap")
   local surface = {}
 
+  if heightmap == nil then return end
+
   local index = 0
   for z = minp.z, maxp.z do
     surface[z] = {}

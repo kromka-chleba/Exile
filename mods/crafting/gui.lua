@@ -49,13 +49,17 @@ function crafting.make_result_selector(player, type, level, size, context)
 
 	local num_per_page = size.x * size.y
 	local max_pages = math.floor(0.999 + #recipes / num_per_page)
-  
+	local pagedown = "button[-1.4,0.5;0.8,0.8;prev;<]"
+	local pageup = "button[-0.8,0.5;0.8,0.8;next;>]"
   if (max_pages == 0) then -- if max_pages is 0 then make it all 0!!! :D
-    page = 0
-    max_pages = 0
-	elseif page > max_pages or page < 1 then
-		page = ((page - 1) % max_pages) + 1
-	end
+     page = 0
+     max_pages = 0
+  elseif max_pages == 1 then
+     pagedown = ""
+     pageup = ""
+  elseif page > max_pages or page < 1 then
+     page = ((page - 1) % max_pages) + 1
+  end
   context.crafting_page = page -- update context.crafting_page to any modifications made by above code
 
 	local start_i  = (page - 1) * num_per_page + 1
@@ -84,8 +88,8 @@ function crafting.make_result_selector(player, type, level, size, context)
 	formspec[#formspec + 1] = "field[-4.75,0.81;3,0.8;query;;"
 	formspec[#formspec + 1] = context.crafting_query
 	formspec[#formspec + 1] = "]button[-2.2,0.5;0.8,0.8;search;?]"
-	formspec[#formspec + 1] = "button[-1.4,0.5;0.8,0.8;prev;<]"
-	formspec[#formspec + 1] = "button[-0.8,0.5;0.8,0.8;next;>]"
+	formspec[#formspec + 1] = pagedown
+	formspec[#formspec + 1] = pageup
 
 	formspec[#formspec + 1] = "container_end[]"
 
@@ -270,14 +274,15 @@ function crafting.make_on_rightclick(type, level, inv_size)
 	end)
 
 	return function(pos, node, player)
-		local meta = minetest.get_meta(pos)
+		local meta = pos and minetest.get_meta(pos)
 		local name = player:get_player_name()
 		local context = node_fs_context[name] or {}
+		if context.type ~= type then context = {} end
 		node_fs_context[name] = context
 		context.pos   = vector.new(pos)
 		context.type  = type
 		context.level = level
-		context.creator = meta:get_string('creator')
+		context.creator = (meta and meta:get_string('creator')) or name
 
 		show(player, context)
 	end

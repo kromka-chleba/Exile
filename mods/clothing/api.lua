@@ -17,6 +17,9 @@ clothing = {
 	},
 }
 
+-- Integration: without this skinsdb crashes
+clothing.register_on_update = function() end
+
 clothing.update_temp = function(self, player)
 -- set clothing and update comfortable temperature range
 --[[
@@ -37,8 +40,8 @@ note: ranges are
 ]]
 
 -- default range, no clothes yet
-   local temp_min = 20
-   local temp_max = 30
+   local temp_min = 18
+   local temp_max = 32
 
    if not player then
 		return

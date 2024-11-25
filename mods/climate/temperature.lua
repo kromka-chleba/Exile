@@ -104,7 +104,7 @@ climate.can_freeze = function(pos)
 	local node = minetest.get_node(posa).name
 	if minetest.get_item_group(node, "water") > 0 then
 		return false
-	elseif node == 'air' then
+	elseif minetest.get_item_group(node, "air") > 0 then
 		--use air temp for air exposed ()
 		t = climate.get_point_temp(posa)
 	else
@@ -431,8 +431,7 @@ function climate.heat_transfer(pos, nodename, replace)
 	local pos_max = {x=pos.x +1, y=pos.y +1, z=pos.z +1}
 	local pos_min = {x=pos.x -1, y=pos.y -1, z=pos.z -1}
 	local air, cn = minetest.find_nodes_in_area(pos_min, pos_max,
-			    {'air', 'group:water', 'climate:air_temp',
-			     "climate:air_temp_visible"	})
+			    {'group:air', 'group:water'	})
 	--including group:temp_pass causes problems for doing pottery etc in groups (cools down bc of neighbors).
 	--taking them out of temp_pass would allow exploits (e.g. furnaces built from pots)
 	-- it seems good to let air_temp self cool. Any other temp_pass nodes that ought to be here
@@ -477,7 +476,7 @@ local air_def = {
 	diggable = false,
 	buildable_to = true,
 	floodable = true,
-	groups = {temp_pass = 1, heatable = 100},
+	groups = {temp_pass = 1, heatable = 100, air = 1, timer = 11 },
 	on_timer =function(pos, elapsed)
 		return climate.heat_transfer(pos, "climate:air_temp", 'air')
 	end,
@@ -488,9 +487,9 @@ local air_def = {
 minetest.register_node("climate:air_temp", air_def)
 air_def.description = "Temperature Effect Air (Visible)"
 air_def.drawtype = "allfaces"
-air_def.on_timer =function(pos, elapsed)
+air_def.on_timer = function(pos, elapsed)
    return climate.heat_transfer(pos, "climate:air_temp_visible", 'air')
-end,
+end
 minetest.register_node("climate:air_temp_visible", air_def)
 
 
@@ -585,20 +584,21 @@ end
 
 --Get line of temperature, can source transmit effect through to the target.
 --returns boolean, and position (though position not currently useds)
-local line_of_temp = function(node_pos, target_pos)
+local line_of_temp = function(node_pos, tgt_pos)
 	--how close it needs to get
 	local step = 0.5
 
-	--get neighboring node
+	--get neighboring node, round new_pos to prevent infinite loop at +0.5
+	local target_pos = vector.round(tgt_pos)
 	local stepv = vector.direction(node_pos, target_pos)
-	local new_pos = vector.add(node_pos, stepv)
+	local new_pos = vector.round(vector.add(node_pos, stepv))
 
 	--checks
 	local new_name = minetest.get_node(new_pos).name
 	local pass = minetest.get_item_group(new_name,"temp_pass")
 
 	--have reached target
-	if vector.distance(new_pos, target_pos) < step then
+	if vector.distance(new_pos, target_pos) <= step then
 		return true, new_pos
 	end
 
@@ -611,7 +611,7 @@ local line_of_temp = function(node_pos, target_pos)
 		pass = minetest.get_item_group(new_name,"temp_pass")
 
 		--have reached target
-		if vector.distance(new_pos, target_pos) < step then
+		if vector.distance(new_pos, target_pos) <= step then
 			return true, new_pos
 		end
 	end
@@ -710,18 +710,25 @@ end
 
 
 --Function for getting the temperature of a specific location
-climate.get_point_temp = function(pos)
+climate.get_point_temp = function(pos, full)
 
-	--if it's a temp_effect node then thats how hot it is by definition
-	local nodename = minetest.get_node(pos).name
-	local t_effect = minetest.get_item_group(nodename,"temp_effect")
-	if t_effect ~= 0 then
-		local t_effect_max = minetest.registered_nodes[nodename].temp_effect_max
-		return t_effect_max
-	end
+   --if it's a temp_effect node then thats how hot it is by definition
+   -- but for players/animals we need to know more, so we set "full" to true
+   local nodename = minetest.get_node(pos).name
+   local t_effect = minetest.get_item_group(nodename,"temp_effect")
+   local t_effect_max
+   if t_effect ~= 0 then
+      t_effect_max = minetest.registered_nodes[nodename].temp_effect_max
+      if full ~= true then
+	 return t_effect_max
+      end
+   end
 
   --correct the general temperature for location
-	local temp = climate.active_temp
+  local temp = climate.active_temp
+  if t_effect_max then
+     temp = temp + (t_effect_max / 3) -- it's partly counted twice, so reduce it
+  end
   temp = adjust_active_temp(pos, temp)
 
   --take into account heat and cooling sources nearby

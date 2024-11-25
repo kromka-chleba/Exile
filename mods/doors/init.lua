@@ -149,7 +149,7 @@ function doors.door_toggle(pos, node, clicker, itemstack)
 
 	if def.protected and minetest.is_protected(pos, cname) then
 	   minetest.chat_send_player(cname,"You can't open this door, ",cname)
-	   return false
+	   return itemstack
 	end
 
 	local cdir = minetest.dir_to_facedir(clicker:get_look_dir())
@@ -427,7 +427,7 @@ function doors.register(name, def)
 	def.drawtype = "mesh"
 	def.paramtype = "light"
 	def.paramtype2 = "facedir"
-	def.use_texture_alpha = c_alpha.clip
+	def.use_texture_alpha = def.use_texture_alpha or c_alpha.clip
 	def.sunlight_propagates = false
 	def.walkable = true
 	def.is_ground_content = false
@@ -508,7 +508,7 @@ function doors.register_trapdoor(name, def)
 		local cname = clicker:get_player_name()
 		if def.protected and minetest.is_protected(pos, cname) then
 		   minetest.chat_send_player(cname,"You can't open this door, ",cname)
-		   return false
+		   return itemstack
 		end
 
 		--0,2,6, 8 = X;  1,3,15,17 Z
@@ -603,10 +603,10 @@ function doors.register_trapdoor(name, def)
 	def_closed.tiles = {
 		def.tile_front,
 		def.tile_front .. '^[transformFY',
-		def.tile_side,
-		def.tile_side,
-		def.tile_side,
-		def.tile_side
+		{ name = def.tile_side, backface_culling = false },
+		{ name = def.tile_side, backface_culling = false },
+		{ name = def.tile_side, backface_culling = false },
+		{ name = def.tile_side, backface_culling = false },
 	}
 
 	def_opened.node_box = {

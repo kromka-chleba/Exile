@@ -46,14 +46,13 @@ minetest.register_node("tech:crushed_lime", {
 	groups = {crumbly = 3, falling_node = 1, heatable =10},
 	sounds = nodes_nature.node_sound_gravel_defaults(),
         on_construct = function(pos)
-		--length(i.e. difficulty of firing), interval for checks (speed)
-		ncrafting.set_roast(pos, 3, 10)
+	   --length(i.e. difficulty of firing), interval for checks (speed)
+	   ncrafting.set_roast(pos, 3, 10)
 	end,
 	on_timer = function(pos, elapsed)
-        --finished product, length, heat
-        --(realisticallty should be 900, but too hard for fires)
+	   --finished product, length, heat
 	   return ncrafting.roast(pos, "tech:crushed_lime", "tech:quicklime",
-				  3, 850)
+				  3, 900)
 	end,
 })
 
@@ -68,7 +67,7 @@ minetest.register_node("tech:quicklime", {
 	groups = {crumbly = 3, falling_node = 1},
 	sounds = nodes_nature.node_sound_sand_defaults(),
 	on_construct = function(pos)
-		minetest.get_node_timer(pos):start(10)
+	   minetest.get_node_timer(pos):start(10)
 	end,
 
 	on_timer = function(pos, elapsed)
@@ -77,32 +76,40 @@ minetest.register_node("tech:quicklime", {
 	--XXX This is a bug; should look harder for the water source.
 	local p_water = minetest.find_node_near(pos, 1, {"group:water"})
 	if p_water then
-		local p_name = minetest.get_node(p_water).name
-		--check water type. Salt would ruin it.
-		local water_type = minetest.get_item_group(p_name, "water")
-		if water_type == 1 then
-			minimal.switch_node(pos, {name = "tech:slaked_lime"})
-			minetest.set_node(p_water, {name = "air"})
-			minetest.sound_play("tech_boil",	{pos = pos, max_hear_distance = 8, gain = 1})
-		elseif water_type == 2 then
-			minetest.swap_node(pos, {name = "tech:slaked_lime_ruined"})
-			minetest.set_node(p_water, {name = "air"})
-			minetest.sound_play("tech_boil",	{pos = pos, max_hear_distance = 8, gain = 1})
-		end
-	        return false
+	   local p_name = minetest.get_node(p_water).name
+	   --check water type. Salt would ruin it.
+	   local water_type = minetest.get_item_group(p_name, "water")
+	   if water_type == 1 then
+	      minimal.switch_node(pos, {name = "tech:slaked_lime"})
+	      minetest.set_node(p_water, {name = "air"})
+	      minetest.sound_play("tech_boil",
+				  {pos = pos, max_hear_distance = 8, gain = 1})
+	   elseif water_type == 2 then
+	      minetest.swap_node(pos, {name = "tech:slaked_lime_ruined"})
+	      minetest.set_node(p_water, {name = "air"})
+	      minetest.sound_play("tech_boil",
+				  {pos = pos, max_hear_distance = 8, gain = 1})
+	   end
+	   return false
 	end
 
 	--slowly revert to lime by reacting with the air, or slake by rain
 	if minetest.find_node_near(pos, 1, {"air"}) then
-		if random() > 0.99 then
-			if climate.get_rain(pos) then
-				minimal.switch_node(pos, {name = "tech:slaked_lime"})
-				minetest.sound_play("tech_boil",	{pos = pos, max_hear_distance = 8, gain = 1})
-			else
-				minimal.switch_node(pos, {name = "tech:crushed_lime"})
-				return false
-			end
-		end
+	   if random() > 0.99 and climate.get_rain(pos) then
+	      minimal.switch_node(pos, {name = "tech:slaked_lime"})
+	      minetest.sound_play("tech_boil",
+				  {pos = pos, max_hear_distance = 8, gain = 1})
+	   end
+
+	   local node = minetest.get_node(pos)
+	   node.param2 = node.param2 + random(2,6)
+
+	   if node.param2 > 99 then
+		 minimal.switch_node(pos, {name = "tech:crushed_lime"})
+		 return false
+	   else
+	      minetest.swap_node(pos, node)
+	   end
 	end
 
 	--it's still here...
@@ -119,29 +126,38 @@ minetest.register_node("tech:slaked_lime", {
 	stack_max = minimal.stack_max_bulky *2,
 	groups = {crumbly = 3, falling_node = 1},
 	sounds = nodes_nature.node_sound_sand_defaults({
-		footstep = {name = "nodes_nature_mud", gain = 0.4},
-		dug = {name = "nodes_nature_mud", gain = 0.4}}),
-  on_construct = function(pos)
-		minetest.get_node_timer(pos):start(60)
+	      footstep = {name = "nodes_nature_mud", gain = 0.4},
+	      dug = {name = "nodes_nature_mud", gain = 0.4}}),
+	on_construct = function(pos)
+	   minetest.get_node_timer(pos):start(60)
 	end,
 
 	on_timer = function(pos, elapsed)
-    if random() > 0.9 then
-      --wash it away
-      if minetest.find_node_near(pos, 1, {"group:water"}) or climate.get_rain(pos) then
-        minetest.set_node(pos, {name = "air"})
-        return false
-      end
+	   local node = minetest.get_node(pos)
+	   local wet = bit.rshift(bit.band(node.param2,240), 4) -- left 4 bits
+	   local dry = bit.band(node.param2,15) -- right 4 bits
 
-      --slowly revert to lime by reacting with the air
-      if minetest.find_node_near(pos, 1, {"air"}) then
-        minimal.switch_node(pos, {name = "tech:crushed_lime"})
-        return false
-      end
-    end
+	   -- wash it away with rain or water
+	   if minetest.find_node_near(pos, 1, {"group:water"})
+	      or climate.get_rain(pos) then
+	      wet = wet + 1
+	      if wet > 8 then
+		 minetest.set_node(pos, {name = "air"})
+		 return false
+	      end
+	   elseif minetest.find_node_near(pos, 1, {"air"}) then
+	      -- or slowly revert to lime by reacting with the air
+	      dry = dry + 1
+	      if dry == 15 then
+		 minimal.switch_node(pos, {name = "tech:crushed_lime"})
+		 return false
+	      end
+	   end
 
-    --it's still here...
-    return true
+	   node.param2 = bit.lshift(wet, 4) + dry
+	   minetest.swap_node(pos, node)
+	   --it's still here...
+	   return true
 	end,
 })
 
@@ -252,7 +268,7 @@ crafting.register_recipe({
 
 minetest.register_node('tech:loose_brick_unfired', {
 	description = S('Loose Bricks (unfired)'),
-	tiles = {"nodes_nature_clay.png"},
+	tiles = {"tech_roof_tiles_unfired.png"},
 	stack_max = minimal.stack_max_bulky *3,
   drawtype = "nodebox",
 	paramtype = "light",
@@ -286,10 +302,13 @@ minetest.register_node('tech:loose_brick_unfired', {
 		}
 	},
 	groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = nodes_nature.node_sound_dirt_defaults(),
   on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, 40)
 	end,
 	on_timer = function(pos, elapsed)
 	   return ncrafting.fire_pottery(pos, 'tech:loose_brick_unfired',
@@ -398,7 +417,7 @@ crafting.register_recipe({
 --loose tiles allow for bulk firing, later craft into usable tile
 minetest.register_node("tech:roof_tile_loose_unfired", {
 	description = S("Loose Roof Tile (unfired)"),
-	tiles = {"nodes_nature_clay.png"},
+	tiles = {"tech_roof_tiles_unfired.png"},
 	stack_max = minimal.stack_max_medium/2,
   drawtype = "nodebox",
 	paramtype = "light",
@@ -457,10 +476,13 @@ minetest.register_node("tech:roof_tile_loose_unfired", {
 		}
 	},
   groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
-	sounds = nodes_nature.node_sound_stone_defaults(),
+	sounds = nodes_nature.node_sound_dirt_defaults(),
   on_construct = function(pos)
 		--length(i.e. difficulty of firing), interval for checks (speed)
 		ncrafting.set_firing(pos, 40, 10)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, 40)
 	end,
 	on_timer = function(pos, elapsed)
 	   return ncrafting.fire_pottery(pos, 'tech:roof_tile_loose_unfired',
@@ -686,9 +708,86 @@ crafting.register_recipe({
 })
 
 
+--------------------------------------
+--FIRED CLAY TILE BLOCKS
+
+-- solid block of tiles, fired, matches the roof tiles, can make tiled stairs
+
+minetest.register_node("tech:tile_block_unfired", {
+	description = S("Tile Block (unfired)"),
+	tiles = {"tech_roof_tiles_unfired.png"},
+	stack_max = minimal.stack_max_medium/2,
+	drawtype = "normal",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {oddly_breakable_by_hand = 3, falling_node = 1, heatable =15},
+	sounds = nodes_nature.node_sound_dirt_defaults(),
+	on_construct = function(pos)
+		--length(i.e. difficulty of firing), interval for checks (speed)
+		ncrafting.set_firing(pos, 40, 10)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger, 40)
+	end,
+	on_timer = function(pos, elapsed)
+	   return ncrafting.fire_pottery(pos, 'tech:tile_block_unfired',
+					 'tech:tile_block_loose', 40, 850)
+	end,
+})
+
+minetest.register_node(
+    "tech:tile_block_loose", {
+        description = S("Tile Block (Loose)"),
+	tiles = {"tech_roof_tiles.png^[colorize:#AAA:40"},
+	stack_max = minimal.stack_max_medium/2,
+	drawtype = "normal",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {cracky = 3, oddly_breakable_by_hand = 3 },
+	sounds = nodes_nature.node_sound_stone_defaults(),
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(30)
+        end,
+        on_timer = function(pos, elapsed)
+            local p2 = minetest.get_node(pos).param2
+            minetest.set_node(pos, { name = "tech:tile_block", param2 = p2 })
+        end
+})
+minetest.register_node("tech:tile_block", {
+	description = S("Tile Block"),
+	tiles = {"tech_roof_tiles.png"},
+	stack_max = minimal.stack_max_medium/2,
+	drawtype = "normal",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {cracky = 3},
+	sounds = nodes_nature.node_sound_stone_defaults(),
+})
+
+crafting.register_recipe({
+	type = "brick_makers_bench",
+	output = "tech:tile_block_unfired",
+	items = {'nodes_nature:clay_wet 1'},
+	level = 1,
+	always_known = true,
+})
+
+stairs.register_stair_and_slab(
+	"tile",
+	"tech:tile_block",
+	"brick_makers_bench",
+	"true",
+	{cracky = 3},
+	{"tech_roof_tiles.png"},
+	"Tile Stair",
+	"Tile Slab",
+	minimal.stack_max_medium,
+	nodes_nature.node_sound_stone_defaults()
+)
+
 --------------------------------------------------------------------
---MASONARY WITH MORTAR
---made at masonary bench,
+--MASONRY WITH MORTAR
+--made at masonry bench,
 --(except mortared blocks can also be done by brick maker)
 --added mortar binds them so not diggable by hand or falling.
 --drop unmortared stone.

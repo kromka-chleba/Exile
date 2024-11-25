@@ -46,6 +46,7 @@ end
 -- turn off weather particles generation.
 local is_underwater = function(player)
 	local ppos = player:get_pos()
+	if not ppos then return end -- player disconnected
 	local offset = player:get_eye_offset()
 	local player_eye_pos = {
 		x = ppos.x + offset.x,

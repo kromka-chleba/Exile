@@ -178,7 +178,7 @@ end)
 
 -- register items
 for i = 0, 15 do
-	local image = "artifacts_wayfinder_16_"..i..".png"
+	local image = "[combine:16x16:0,0=artifacts_wayfinder_16_base.png:0,"..-(i * 16).."=artifacts_wayfinder_16_points.png"
 	local groups = {}
 	if i > 0 then
 		groups.not_in_creative_inventory = 1

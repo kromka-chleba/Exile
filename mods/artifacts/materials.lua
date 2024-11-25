@@ -19,7 +19,7 @@ minetest.register_node("artifacts:moon_glass", {
 	light_source = 5,
 	paramtype = "light",
 	sunlight_propagates  = true,
-	use_texture_alpha = c_alpha.clip,
+	use_texture_alpha = c_alpha.blend,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	groups = {cracky = 1,},
 	after_place_node = minimal.protection_after_place_node,
@@ -35,19 +35,19 @@ minetest.register_node("artifacts:sun_stone", {
 	stack_max = 1,
 	drawtype = "nodebox",
 	node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.25, -0.5, -0.25, 0.25, -0.4375, 0.25}, -- NodeBox1
-			{-0.0625, -0.5, 0.25, 0.0625, -0.4375, 0.5}, -- NodeBox2
-			{-0.0625, -0.5, -0.5, 0.0625, -0.4375, -0.25}, -- NodeBox3
-			{0.25, -0.5, -0.0625, 0.5, -0.4375, 0.0625}, -- NodeBox4
-			{-0.5, -0.5, -0.0625, -0.25, -0.4375, 0.0625}, -- NodeBox5
-			{-0.1875, -0.4375, -0.1875, 0.1875, -0.375, 0.1875}, -- NodeBox6
-			{0.25, -0.5, -0.3125, 0.3125, -0.4375, -0.25}, -- NodeBox8
-			{0.25, -0.5, 0.25, 0.3125, -0.4375, 0.3125}, -- NodeBox9
-			{-0.3125, -0.5, 0.25, -0.25, -0.4375, 0.3125}, -- NodeBox10
-			{-0.3125, -0.5, -0.3125, -0.25, -0.4375, -0.25}, -- NodeBox11
-		}
+            type = "fixed",
+            fixed = {
+                {-0.25, -0.5, -0.25, 0.25, -0.4375, 0.25}, -- NodeBox1
+                {-0.0625, -0.5, 0.25, 0.0625, -0.4375, 0.5}, -- NodeBox2
+                {-0.0625, -0.5, -0.5, 0.0625, -0.4375, -0.25}, -- NodeBox3
+                {0.25, -0.5, -0.0625, 0.5, -0.4375, 0.0625}, -- NodeBox4
+                {-0.5, -0.5, -0.0625, -0.25, -0.4375, 0.0625}, -- NodeBox5
+                {-0.1875, -0.4375, -0.1875, 0.1875, -0.375, 0.1875}, -- NodeBox6
+                {0.25, -0.5, -0.3125, 0.3125, -0.4375, -0.25}, -- NodeBox8
+                {0.25, -0.5, 0.25, 0.3125, -0.4375, 0.3125}, -- NodeBox9
+                {-0.3125, -0.5, 0.25, -0.25, -0.4375, 0.3125}, -- NodeBox10
+                {-0.3125, -0.5, -0.3125, -0.25, -0.4375, -0.25}, -- NodeBox11
+            }
 	},
 	light_source = 13,
 	paramtype = "light",
@@ -71,42 +71,42 @@ minetest.register_node("artifacts:sun_stone", {
 minetest.register_node("artifacts:moon_stone", {
 	description = "Moon Stone",
 	tiles = {"artifacts_moon_glass.png"},
-  stack_max = 1,
+        stack_max = 1,
 	drawtype = "nodebox",
 	node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.0625, -0.5, -0.0625, 0.0625, -0.375, 0.0625}, -- NodeBox1
-			{0.0625, -0.5, 0.0625, 0.125, -0.375, 0.125}, -- NodeBox2
-			{0.0625, -0.5, -0.125, 0.125, -0.375, -0.0625}, -- NodeBox3
-			{-0.125, -0.5, -0.125, -0.0625, -0.375, -0.0625}, -- NodeBox4
-			{-0.125, -0.5, 0.0625, -0.0625, -0.375, 0.125}, -- NodeBox5
-			{0.125, -0.5, -0.125, 0.25, -0.4375, 0.125}, -- NodeBox6
-			{-0.25, -0.5, -0.125, -0.125, -0.4375, 0.125}, -- NodeBox7
-			{-0.125, -0.5, 0.125, 0.125, -0.4375, 0.25}, -- NodeBox8
-			{-0.125, -0.5, -0.25, 0.125, -0.4375, -0.125}, -- NodeBox9
-			{0.125, -0.5, -0.375, 0.25, -0.4375, -0.25}, -- NodeBox10
-			{0.25, -0.5, -0.25, 0.375, -0.4375, -0.125}, -- NodeBox11
-			{0.25, -0.5, 0.125, 0.375, -0.4375, 0.25}, -- NodeBox12
-			{0.125, -0.5, 0.25, 0.25, -0.4375, 0.375}, -- NodeBox13
-			{-0.25, -0.5, 0.25, -0.125, -0.4375, 0.375}, -- NodeBox14
-			{-0.375, -0.5, 0.125, -0.25, -0.4375, 0.25}, -- NodeBox15
-			{-0.375, -0.5, -0.25, -0.25, -0.4375, -0.125}, -- NodeBox16
-			{-0.25, -0.5, -0.375, -0.125, -0.4375, -0.25}, -- NodeBox17
-			{-0.125, -0.5, -0.5, 0.125, -0.4375, -0.375}, -- NodeBox18
-			{-0.125, -0.5, 0.375, 0.125, -0.4375, 0.5}, -- NodeBox19
-			{-0.5, -0.5, -0.125, -0.375, -0.4375, 0.125}, -- NodeBox20
-			{0.375, -0.5, -0.125, 0.5, -0.4375, 0.125}, -- NodeBox21
-		}
+            type = "fixed",
+            fixed = {
+                {-0.0625, -0.5, -0.0625, 0.0625, -0.375, 0.0625}, -- NodeBox1
+                {0.0625, -0.5, 0.0625, 0.125, -0.375, 0.125}, -- NodeBox2
+                {0.0625, -0.5, -0.125, 0.125, -0.375, -0.0625}, -- NodeBox3
+                {-0.125, -0.5, -0.125, -0.0625, -0.375, -0.0625}, -- NodeBox4
+                {-0.125, -0.5, 0.0625, -0.0625, -0.375, 0.125}, -- NodeBox5
+                {0.125, -0.5, -0.125, 0.25, -0.4375, 0.125}, -- NodeBox6
+                {-0.25, -0.5, -0.125, -0.125, -0.4375, 0.125}, -- NodeBox7
+                {-0.125, -0.5, 0.125, 0.125, -0.4375, 0.25}, -- NodeBox8
+                {-0.125, -0.5, -0.25, 0.125, -0.4375, -0.125}, -- NodeBox9
+                {0.125, -0.5, -0.375, 0.25, -0.4375, -0.25}, -- NodeBox10
+                {0.25, -0.5, -0.25, 0.375, -0.4375, -0.125}, -- NodeBox11
+                {0.25, -0.5, 0.125, 0.375, -0.4375, 0.25}, -- NodeBox12
+                {0.125, -0.5, 0.25, 0.25, -0.4375, 0.375}, -- NodeBox13
+                {-0.25, -0.5, 0.25, -0.125, -0.4375, 0.375}, -- NodeBox14
+                {-0.375, -0.5, 0.125, -0.25, -0.4375, 0.25}, -- NodeBox15
+                {-0.375, -0.5, -0.25, -0.25, -0.4375, -0.125}, -- NodeBox16
+                {-0.25, -0.5, -0.375, -0.125, -0.4375, -0.25}, -- NodeBox17
+                {-0.125, -0.5, -0.5, 0.125, -0.4375, -0.375}, -- NodeBox18
+                {-0.125, -0.5, 0.375, 0.125, -0.4375, 0.5}, -- NodeBox19
+                {-0.5, -0.5, -0.125, -0.375, -0.4375, 0.125}, -- NodeBox20
+                {0.375, -0.5, -0.125, 0.5, -0.4375, 0.125}, -- NodeBox21
+            }
 	},
-  light_source = 7,
+        light_source = 7,
 	paramtype = "light",
 	paramtype2 = "wallmounted",
 	is_ground_content = false,
 	sunlight_propagates = true,
-  use_texture_alpha = c_alpha.blend,
-  temp_effect = -4,
-  temp_effect_max = 0,
+        use_texture_alpha = c_alpha.clip,
+        temp_effect = -4,
+        temp_effect_max = 0,
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	groups = {cracky = 3, oddly_breakable_by_hand = 3, attached_node = 1, temp_effect = 1, temp_pass = 1},
 	after_place_node = minimal.protection_after_place_node,
@@ -123,14 +123,14 @@ minetest.register_node("artifacts:star_stone", {
 	stack_max = minimal.stack_max_medium * 2,
 	drawtype = "nodebox",
 	node_box = {
-		type = "fixed",
-		fixed = {
-			{-0.0625, -0.5, -0.0625, 0.0625, -0.4375, 0.0625}, -- NodeBox1
-			{0.0625, -0.5, 0.0625, 0.125, -0.4375, 0.125}, -- NodeBox2
-			{0.0625, -0.5, -0.125, 0.125, -0.4375, -0.0625}, -- NodeBox3
-			{-0.125, -0.5, -0.125, -0.0625, -0.4375, -0.0625}, -- NodeBox4
-			{-0.125, -0.5, 0.0625, -0.0625, -0.4375, 0.125}, -- NodeBox5
-		}
+            type = "fixed",
+            fixed = {
+                {-0.0625, -0.5, -0.0625, 0.0625, -0.4375, 0.0625}, -- NodeBox1
+                {0.0625, -0.5, 0.0625, 0.125, -0.4375, 0.125}, -- NodeBox2
+                {0.0625, -0.5, -0.125, 0.125, -0.4375, -0.0625}, -- NodeBox3
+                {-0.125, -0.5, -0.125, -0.0625, -0.4375, -0.0625}, -- NodeBox4
+                {-0.125, -0.5, 0.0625, -0.0625, -0.4375, 0.125}, -- NodeBox5
+            }
 	},
 	light_source = 3,
 	paramtype = "light",
@@ -177,6 +177,7 @@ minetest.register_node("artifacts:antiquorium_ladder", {
 	walkable = true,
 	climbable = true,
 	is_ground_content = false,
+	use_texture_alpha = c_alpha.clip,
 	node_box = {
 	        type = "fixed",
 	        fixed = {-0.4,-0.5, -0.5,

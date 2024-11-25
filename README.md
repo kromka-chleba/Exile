@@ -1,6 +1,8 @@
-# Exile
-Created by Dokimi
-for `Minetest 5.3+`
+![Exile](menu/logo.png)
+
+Developed by the Exile Team
+
+for `Minetest 5.5.1+`
 
 CAUTION: _Some people may find parts of this game difficult or disturbing._
 
@@ -23,12 +25,13 @@ Use your wits to find food, water, and shelter before succumbing to the elements
 ### Features
 *Player health effects* — Hypothermia, exhaustion, disease, …  
 *Dynamic natural world* — Seasonal weather, erosion, water flows through soil, …  
-*Plausible building materials* — Make shelters from the rain, kilns, smelters, …  
+*Plausible building materials* — Make shelters from the rain, kilns, smelters, …
+And much more!
 
 ## World Settings
 Valleys is the standard `mapgen` for _Exile_. `Carpathian` is also supported, for a somewhat more difficult and slower-paced game.
 
-`Flat` mostly works, but `Merki`, and therefore the `Glow Paint` and `Herbal Medicine` made from it, will be unavailable. Enable it in `game.conf` if you’d like to try it anyway.
+`Flat` mostly works, many biomes are altitude dependent, therefore many plants will be unavailable. Enable it in `game.conf` if you’d like to try it anyway.
 
 ## Gameplay Guide
 Check out `doc > walkthrough` for a more detailed guide.
@@ -61,7 +64,7 @@ Starvation and freezing are hard to avoid without preparation.
 - **Water**:         You can drink cave drips (click them).
                      Water pots collect rain water.
                      Some plants, and food quench your thirst.
-                     If you’re desperate, you can try to melt ice, 
+                     If you’re desperate, you can try to melt ice,
                      or dig a seepage pit in wet ground and wait for water to flow into it.
 - **Food**:          Eat things and see if you live!
                      You can catch animals with clubs (right-click while wielding).
@@ -78,7 +81,7 @@ Starvation and freezing are hard to avoid without preparation.
                      You will need better tools for those.
 - **Climbing**:      Build stairs and shelters around your base.
                      This will save you energy and protect you from extremes.
-                     You can use sticks to build a ladder, or a pole to shimmy up, 
+                     You can use sticks to build a ladder, or a pole to shimmy up,
                      to get to high places, or descend if you’re careful.
 - **Environment**:   Not every step in crafting can be done at a work station.
                      Some things need to be fired, or soaked in water, etc.
@@ -88,9 +91,9 @@ Starvation and freezing are hard to avoid without preparation.
                      Fires can be temporarily extinguished by punching while them holding sediment.
 - **Charcoal**:      Make it as you would for real — make a wood fire sealed up to limit airflow.
 - **Glassmaking**:   Sand and wood-ash can be made into green glass.
-                     The ash must be soaked, dried, and roasted to make clear glass — 
+                     The ash must be soaked, dried, and roasted to make clear glass —
                      Glass can be melted onto iron trays to make panes for real windows!
-- **Iron smelting**: This is hard. It needs plenty of charcoal, 
+- **Iron smelting**: This is hard. It needs plenty of charcoal,
                      and a space below the iron mixture for slag to drain out.
 
 ## Settings for Multiplayer
@@ -98,21 +101,29 @@ The variable `time_speed` defaults to `72`, and at this rate a player who logs o
 
 Changing speed to `60` will make days last 24 minutes and a new season every real-world day, but he will see the seasons in reverse. At `time_speed` of `96`, days last only 15 minutes, but the player might see spring (year 1) on day 1, summer (year 2) on day 2, etc.
 
-Set `exile_hud_update` to `1.0` second for multiplayer servers on the Internet; a LAN server can probably handle `0.2` seconds.
+It is recommended to set `exile_hud_update` to `1.0` second for multiplayer servers on the Internet; a LAN server can probably handle `0.2` seconds.
+
+If you're compiling your own Minetest, it may be useful to edit src/server/luaentity_sao.cpp to remove lines 347-351, removing the code from `actionstream << puncher->getDescription` through `") punched "` on down to ` << std::endl;` as that code will result in a great deal of unwanted log messages caused by animals attacking each other.
+
+The utilities folder contains a *nix startup script, named startexile.sh. Edit the file to customize the paths, and run it with "./startexile.sh" and "./startexile.sh close" to shut the server down.
 
 ## Mods for Multiplayer
 - [Wield3d](https://github.com/stujones11/wield3d) is recommended.
 - [`Alternode`](https://github.com/AntumMT/mod-alternode) was used to add the “infotext” popups in the spawn shelter on the [Land of Catastrophe](https://exile.planetofnix.com/wiki/pmwiki.php?n=Loc.LandOfCatastrophe) server.
+- [Visual Harm 1ndicators](https://codeberg.org/Mantar/vis_harm_1nd) will add hp bars over the heads of mobs and players
+- [Unicode Signs](https://content.minetest.net/packages/cora/ucsigns/) allows players to craft signs from logs (Minetest 5.6+ required)
+- [Dynamic Input Held Eating](https://content.minetest.net/packages/TPH/tph_eating/) alters eating to require holding the button down
 
 ## Development
 _Exile_ is open-source software — that means the game is as good as you choose to make it. It also means development can be erratic and haphazard at times, so be patient!
 
-_Exile_ is currently in “Alpha,” therefore you can expect that there may be bugs, missing features, performance issues, and perhaps compatibility-breaking updates.
-Despite this, _Exile_ does have enough features to be a playable game and should be stable and mostly bug-free.
+_Exile_ is technically in “Alpha,” as there are still a number of missing features planned. Despite this status, it is as stable and as bug-free as we can make it, and we take great care to ensure compatibilty with existing worlds is maintained between releases.
 
 See the [GitHub repository](https://codeberg.org/Mantar/Exile) for known bugs, and to report new ones.
 
 ## Credits
+Exile was originally created by Dokimi, and is now developed by the Exile Team.
+
 Gratitude is due to all those whose mods have been adapted for use in _Exile_ (see `./mod/` folders for details).
 
 Thanks also to all who have given feedback, fixes, etc.  

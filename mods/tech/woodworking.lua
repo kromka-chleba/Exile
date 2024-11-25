@@ -24,7 +24,7 @@ crafting.register_recipe({
 minetest.register_node("tech:wooden_water_pot", {
 	description = S("Wooden Water Pot"),
 	tiles = {
-		"tech_wooden_water_pot_empty.png",
+		"tech_primitive_wood.png^tech_pot_empty.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -48,6 +48,9 @@ minetest.register_node("tech:wooden_water_pot", {
 	on_use = function(itemstack, user, pointed_thing)
 		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	end,
+  on_place = function(itemstack, placer, pointed_thing)
+    return liquid_store.on_place("tech:wooden_water_pot", itemstack, placer, pointed_thing)
+  end,
 		--collect rain water
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(30,60))
@@ -80,7 +83,7 @@ liquid_store.register_stored_liquid(
 	"tech:wooden_water_pot_salt_water",
 	"tech:wooden_water_pot",
 	{
-		"tech_wooden_water_pot_water.png",
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_water.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -107,7 +110,7 @@ liquid_store.register_stored_liquid(
 	"tech:wooden_water_pot_freshwater",
 	"tech:wooden_water_pot",
 	{
-		"tech_wooden_water_pot_water.png",
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_water.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
 		"tech_primitive_wood.png",
@@ -170,16 +173,14 @@ minetest.register_node("tech:wooden_ladder", {
  description = S("Wooden Ladder"),
  drawtype = "nodebox",
  node_box = {
-		type = "fixed",
-		fixed = {
-			{0.3125, -0.5, 0.3125, 0.5, 0.5, 0.5}, -- NodeBox12
-			{-0.5, -0.5, 0.3125, -0.3125, 0.5, 0.5}, -- NodeBox13
-			{-0.3125, 0.3125, 0.375, 0.3125, 0.4375, 0.4375}, -- NodeBox14
-			{-0.3125, -0.4375, 0.375, 0.3125, -0.3125, 0.4375}, -- NodeBox15
-			{-0.3125, -0.1875, 0.375, 0.3125, -0.0625, 0.4375}, -- NodeBox16
-			{-0.3125, 0.0625, 0.375, 0.3125, 0.1875, 0.4375}, -- NodeBox17
-		}
-	},
+    type = "fixed",
+    fixed = {
+       {0.3125, -0.5, 0.3125, 0.5, 0.5, 0.5}, -- NodeBox12
+       {-0.5, -0.5, 0.3125, -0.3125, 0.5, 0.5}, -- NodeBox13
+       {-0.3125, -0.3125, 0.375, 0.3125, -0.1875, 0.4375}, -- NodeBox16
+       {-0.3125, 0.1875, 0.375, 0.3125, 0.3125, 0.4375}, -- NodeBox17
+    }
+ },
  tiles = { "tech_stick.png"},
  stack_max = minimal.stack_max_medium,
  paramtype = "light",
@@ -304,3 +305,21 @@ crafting.register_recipe({
 	level = 1,
 	always_known = true,
 })
+
+
+local ucsigns_available = minetest.get_modpath("ucsigns")
+if ucsigns_available then
+   print("UCSIGNS AVAILABLE: ",ucsigns_available)
+   screwdriver = lever
+   ucsigns.register_sign("exile", nil, {
+	description = "A sign",
+	tiles = { "tech_oiled_wood.png" },
+   })
+   crafting.register_recipe({
+	type = "chopping_block",
+	output = "ucsigns:wall_sign_exile 1",
+	items = {'group:log 1'},
+	level = 1,
+	always_known = true,
+   })
+end

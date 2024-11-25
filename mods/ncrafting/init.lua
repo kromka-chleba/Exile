@@ -12,6 +12,7 @@ ncrafting = {
 ncrafting.S = minetest.get_translator("tech")
 
 dofile(modpath..'/dyes.lua')
+dofile(modpath..'/arches.lua')
 
 local store = minetest.get_mod_storage()
 
@@ -114,6 +115,19 @@ function ncrafting.set_firing(pos, length, interval)
 	meta:set_int("firing", length)
 	--check heat interval
 	minetest.get_node_timer(pos):start(interval)
+end
+
+function ncrafting.on_dig_pottery(pos, node, digger, length)
+	local meta = minetest.get_meta(pos)
+	local firing = meta:get_int("firing")
+	if firing < length and firing > 0 then
+	   node.name = "tech:broken_pottery"
+	   digger:punch(digger, 1, {full_punch_interval = 1,  -- OOH, BURN!
+				    damage_groups = { fleshy = 1 }, nil })
+	   minetest.set_node(pos, node)
+	else
+	   core.node_dig(pos, node, digger)
+	end
 end
 
 function ncrafting.fire_pottery(pos, selfname, name, length, firing_temp)
@@ -248,3 +262,16 @@ function ncrafting.do_soak(pos, name, length)
       return true
    end
 end
+
+minetest.register_abm({
+      label = "node timer restart",
+      nodenames = "group:timer",
+      interval = 23,
+      chance = 10,
+      action = function(pos, node, active_object_count, active_object_count_wider)
+	 local timer = minetest.get_node_timer(pos)
+	 if not timer:is_started() then
+	    timer:start(minetest.registered_nodes[node.name].groups.timer)
+	 end
+      end,
+})

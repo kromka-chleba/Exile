@@ -11,6 +11,9 @@ craftedby - Add creator meta data to node; used for crafted by labels and keys
 edible - Nodes that are edible - auto adds on_use callbacks to eat
 `nobones`: Don't put this item into bones piles. e.g. crafting spots
 		Note: This destroys the item upon player death
+`unclaimable`: Cannot be nailed down or otherwise owned. e.g. crafting spots
+`drug`: indicates whether or not an item or node is a substance of drug-like explicit interest
+`timer`: this node runs on a timer -- value is the default timer length
 
 Digging:
 ---------
@@ -20,6 +23,9 @@ Values from 1 - 3, with 1 being hardest
 `crumbly`: loose things e.g. sand
 `snappy`: soft, tearable things e.g. plants.
 
+Air:
+--------
+`air`: is air or similar; e.g. air_temp nodes and lit nodes from wielded_light
 
 Fire:
 -----
@@ -33,6 +39,7 @@ Fire:
 Liquids:
 --------
 `water`: 1 = fresh, 2 = salt
+`liquid_storage`: indicates whether or not a node (bucket) stores liquid
 
 
 
@@ -79,6 +86,19 @@ Plant groups
 `flora`: wild plants, will spread
 `bioluminescent`: a living thing that glows.
 `woodslab`: a log that's been cut in half, e.g. stairs/slabs
+
+
+Animals groups
+--------------
+`class`: 1 for "land-borne", 2 for "sea-borne", 3 for "amphibious", 4 for "flying" (not functional)
+`burnt`: false or true (true means it will try to find items with a "burned" or "burnt" suffix), should not be set manually
+
+Misc Animals groups/data
+--------------
+`carcass`: animal carcasses; 1-3 is "invert" (invertebrate), 4-6 is "bird", 7-9 is "fish". +1 is medium, +2 is large
+`egg`: animal eggs; 1 for "invert" (invertebrate), 2 for "bird", 3 for "fish"
+`raw-cooked`: for animal carcasses; 1 for raw, 2 for cooked, 3 for burnt
+
 
 pottery groups
 --------------

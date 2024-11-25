@@ -12,7 +12,9 @@ Some water based code adapted from  waterlife by Gundul (GNU Lesser General Publ
 
 Authors of media (textures, models, sounds)
 ---------------------------
-Gundu: riverfish from waterlife by Gundul, CC-BY-NC-SA 3.0 by Melkor
+Gundu model, animals_color_palette:
+      Copyright (C) Jan Wielkiewicz
+      CC-BY-SA 4.0 https://creativecommons.org/licenses/by-sa/4.0/
 
 Kubwakubwa: spider from Mineclone2 GPLv3, CC BY-SA 4.0
 

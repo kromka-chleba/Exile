@@ -653,7 +653,8 @@ wielded_light.register_player_lightstep(function (player)
 	wielded_light.track_user_entity(player, "wield", player:get_wielded_item():get_name())
 end)
 
-wielded_light.register_lightable_node("air", {groups={temp_pass = 1}}, "")
+wielded_light.register_lightable_node("air", {groups={temp_pass = 1,
+						      air=1}}, "")
 
 ---TEST
 --wielded_light.register_item_light('default:dirt', 14)

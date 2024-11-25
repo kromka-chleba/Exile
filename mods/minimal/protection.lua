@@ -15,13 +15,19 @@ function minimal.protection_nail_use( itemstack, user, pointed_thing )
 		if minimal.click_count_ready(owner, "nail", pt_pos, __nail_use_count) then
 			local pt_node=minetest.get_node(pt_pos)
 			if not (pt_node.name == 'tech:stick'
-				or minetest.get_item_group(pt_node.name, 'flora') > 0
+				or minetest.get_item_group(pt_node.name,
+							   'flora') > 0
+				or minetest.get_item_group(pt_node.name,
+							   'unclaimable') > 0
 			) then
 				local pt_meta=minetest.get_meta(pt_pos)
 				if not pt_meta:contains('owner') then
 					pt_meta:set_string("owner", owner)
 					pt_meta:set_string('nailed', owner)
-					itemstack:take_item()
+          -- take nails if player isn't in creative
+          if not (minimal.player_in_creative(user)) then
+            itemstack:take_item()
+          end
 					minimal.infotext_merge(pt_pos, nil, pt_meta)
 					-- play hammering sound
 					playsound = true
@@ -43,21 +49,33 @@ function minimal.protection_after_place_node( pos, placer, itemstack, pointed_th
 end
 
 function minimal.protection_on_dig(pos,oldnode,digger)
-	local meta = minetest.get_meta(pos)
-	if meta:contains('nailed') then
-		local owner = meta:get_string('owner')
-		if owner == digger:get_player_name() then
-			--give digger back the nails
-			local inv = digger:get_inventory()
-			if inv:room_for_item("main", 'tech:nails') then
-				inv:add_item("main",'tech:nails')
-			else
-				minetest.chat_send_player(digger, "No room in inventory!")
-				minetest.add_item(pos, 'tech:nails')
-			end
-			meta:set_string('nailed', "")
-		end
-	end
+   -- Handles removal of nails from nodes protected by them
+   local meta = minetest.get_meta(pos)
+   if not meta:contains('nailed') then return end
+   if not minetest.is_player(digger) then return end
+
+   local owner = meta:get_string('owner')
+   local dname = digger and digger:get_player_name()
+
+   if owner == dname  then
+      local def = minetest.registered_nodes[oldnode.name]
+      if not def or (def.can_dig and not def.can_dig(pos, digger) ) then
+	 return -- undefined node, or not allowed to dig (like a full backpack)
+      end
+
+      --give digger back the nails (if they're not in creative)
+      if not (minimal.player_in_creative(owner)) then
+        local inv = digger:get_inventory()
+        if inv:room_for_item("main", 'tech:nails') then
+          inv:add_item("main",'tech:nails')
+        else
+          minetest.chat_send_player(dname, "No room in inventory!")
+          minetest.add_item(pos, 'tech:nails')
+        end
+      end
+      meta:set_string('owner', "")
+      meta:set_string('nailed', "")
+   end
 end
 
 

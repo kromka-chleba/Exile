@@ -41,27 +41,13 @@ dofile(modpath .. "/particles.lua")
 dofile(modpath .. "/temperature.lua")
 dofile(modpath .. "/history.lua")
 --weathers
-dofile(modpath .. "/weathers/clear.lua")
-dofile(modpath .. "/weathers/light_cloud.lua")
-dofile(modpath .. "/weathers/medium_cloud.lua")
-dofile(modpath .. "/weathers/sun_shower.lua")
-dofile(modpath .. "/weathers/light_rain.lua")
-dofile(modpath .. "/weathers/overcast_light_rain.lua")
-dofile(modpath .. "/weathers/overcast.lua")
-dofile(modpath .. "/weathers/overcast_rain.lua")
-dofile(modpath .. "/weathers/overcast_heavy_rain.lua")
-dofile(modpath .. "/weathers/thunderstorm.lua")
-dofile(modpath .. "/weathers/superstorm.lua")
-dofile(modpath .. "/weathers/light_haze.lua")
-dofile(modpath .. "/weathers/haze.lua")
-dofile(modpath .. "/weathers/duststorm.lua")
-dofile(modpath .. "/weathers/snow_flurry.lua")
-dofile(modpath .. "/weathers/light_snow.lua")
-dofile(modpath .. "/weathers/overcast_light_snow.lua")
-dofile(modpath .. "/weathers/overcast_snow.lua")
-dofile(modpath .. "/weathers/overcast_heavy_snow.lua")
-dofile(modpath .. "/weathers/snowstorm.lua")
-dofile(modpath .. "/weathers/fog.lua")
+local weathers_folder = minetest.get_dir_list(modpath.."/weathers")
+-- runs each lua file in the weathers folder
+for _,file in pairs(weathers_folder) do
+  if file:sub(#file-3,#file) == ".lua" then
+    dofile(modpath.."/weathers/"..file)
+  end
+end
 
 
 
@@ -133,7 +119,7 @@ local function set_sky_clouds(player)
 end
 
 -----------------
-local function get_weather_table(name, registered_weathers)
+local function get_weather_table(name)
 	for i, reg_weather in ipairs(registered_weathers) do
 	   if name == reg_weather.name then
 	      local active_weather = reg_weather
@@ -173,7 +159,7 @@ minetest.register_on_joinplayer(function(player)
 
       if w_name ~= "" then
 	 --check valid
-	 local weather = get_weather_table(w_name, registered_weathers)
+	 local weather = get_weather_table(w_name)
 	 if weather then
 	    climate.active_weather = weather
 	    minetest.log("action", "Loaded a valid weather: "..w_name)
@@ -203,7 +189,7 @@ minetest.register_on_joinplayer(function(player)
       --load climate_history
       local ch = store:get_string("climate_history")
       if ch ~= nil then
-	 load_climate_history(ch)
+	 climate.load_history(ch)
       end
 
    end
@@ -215,46 +201,42 @@ minetest.register_on_joinplayer(function(player)
       sound_handlers[p_name] = minetest.sound_play(
 	 climate.active_weather.sound_loop, {to_player = p_name, loop = true})
    end
-   minetest.chat_send_player(p_name, exiledatestring())
+   minetest.chat_send_player(p_name, climate.datestring())
 end)
+
+local function temp_category()
+   local temp = climate.active_temp
+   if temp < plvl_froz then return 2 end
+   if temp < plvl_cold then return 3 end
+   if temp < plvl_mid then return 4 end
+   return 5
+end
+
+local function fair_select_weather()
+   local chain = climate.active_weather.chain
+   local category = temp_category()
+   local n = math.random() * #chain -- each chain entry runs 0-100%, add them
+   local total = 0
+   for i, nextw in pairs(chain) do
+      local val = nextw[category]
+      total = total + val
+      if n < total then
+	 return nextw[1]
+      end
+   end
+   return
+end
 
 local function select_new_active_weather()
     --select a new active_weather from probabilities
     --it will loop through and try to change the weather
-    local new_weather_name
-    for n, next in pairs(climate.active_weather.chain) do
-      --roll dice
-      local c = math.random()
-      --use temperature adjusted probability
-      if climate.active_temp < plvl_froz then
-	 --frozen temperature
-	 if next[2] > c then
-	    new_weather_name = next[1]
-	 end
-      elseif climate.active_temp < plvl_cold then
-	 --cold temperature
-	 if next[3] > c then
-	    new_weather_name = next[1]
-	 end
-      elseif climate.active_temp < plvl_mid then
-	 --mid temperature
-	 if next[4] > c then
-	    new_weather_name = next[1]
-	 end
-      else
-	 --hot temperature
-	 if next[5] > c then
-	    new_weather_name = next[1]
-	 end
-      end
-    end
-
+    local new_weather_name = fair_select_weather()
     --did it succeed in getting a new state?
     if new_weather_name and new_weather_name ~= climate.active_weather.name then
 
       --we need to update the sky and set the new
-       climate.active_weather = get_weather_table(new_weather_name,
-						  registered_weathers)
+       climate.active_weather = get_weather_table(new_weather_name)
+       store:set_string("weather", climate.active_weather.name)
     end
     --do for each player
     for _,player in ipairs(minetest.get_connected_players()) do
@@ -286,7 +268,6 @@ local function set_world_temperature()
     climate.active_sea_temp = sea_wav + ((dn_wav + ran_walk) * 0.3)
     --save state so can be reloaded.
     --only actually needed on log out,... but that doesn't work
-    store:set_string("weather", climate.active_weather.name)
     store:set_float("temp", climate.active_temp)
     store:set_float("sea_temp", climate.active_sea_temp)
     store:set_float("ran_walk", ran_walk)
@@ -310,9 +291,9 @@ end
 -- Main step
 --------------------------
 
-local timer = 0
-local timer_p = 0
-local timer_r = 0
+local timer = 0 -- weather updates
+local timer_p = 0 -- particle updates
+local timer_r = 0 -- record climate history
 
 minetest.register_globalstep(function(dtime)
   local updatesound = false
@@ -332,8 +313,8 @@ minetest.register_globalstep(function(dtime)
      updatesound = true
   end
   if timer_r >= 60 then -- it's time to record changes
-     record_climate_history(climate)
-     store:set_string("climate_history", get_climate_history())
+     climate.record_history(climate)
+     store:set_string("climate_history", climate.get_history())
      timer_r = 0
   end
   timer_p = timer_p + dtime
@@ -420,7 +401,7 @@ minetest.register_privilege("set_weather", {
 
 
 minetest.register_chatcommand("set_weather", {
- params = "<weather> or help",
+ params = "<weather> | help",
  description = "Set the Climate active weather",
  privs = {set_weather=true},
  func = function(name, param)
@@ -434,7 +415,7 @@ minetest.register_chatcommand("set_weather", {
 	  return false, wlist
        end
 
-       local weather = get_weather_table(param, registered_weathers)
+       local weather = get_weather_table(param)
        if weather then
 	  climate.active_weather = weather
 	  --do for each player
@@ -473,18 +454,18 @@ minetest.register_chatcommand("set_weather", {
 -------------
 
 minetest.register_chatcommand("set_tempscale", {
-    params = "f, c, or k",
+    params = "c | f | k",
     description = "Sets the temperature scale used for your own display",
     func = function(name, param)
        if param == "" or param == "help" then
 	  local wlist = "/set_tempscale:\n"..
 	  "Sets the temperature scale used for your own display.\n" ..
-	  "Valid settings are f for Fahrenheit, c for Celsius, and "..
+	  "Valid settings are c for Celsius, f for Fahrenheit, and "..
 	  "k for Kelvin."
 	  return false, wlist
        end
        if param ~= "f" and param ~= "c" and param ~= "k" then
-	  return false, "Invalid scale. Use f, c, or k."
+	  return false, "Invalid scale. Use c, f, or k."
        end
        local player = minetest.get_player_by_name(name)
        local meta = player:get_meta()
@@ -497,3 +478,12 @@ minetest.register_chatcommand("set_tempscale", {
        end
     end,
 })
+
+minetest.register_on_mods_loaded(function()
+      if beerchat then -- we have beerchat installed, add a date command
+	 beerchat.register_relaycommand("date", function()
+                  local date = climate.datestring()
+		  return date
+	 end)
+      end
+end)

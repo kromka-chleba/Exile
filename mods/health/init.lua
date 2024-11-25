@@ -19,6 +19,7 @@ HEALTH.FS = function(...)
     return minetest.formspec_escape(HEALTH.S(...))
 end
 
+dofile(minetest.get_modpath('health')..'/health_states.lua')
 dofile(minetest.get_modpath('health')..'/health_effects.lua')
 dofile(minetest.get_modpath('health')..'/on_actions.lua')
 dofile(minetest.get_modpath('health')..'/hud.lua')
@@ -48,10 +49,15 @@ local temp_max = 32--30
 --e.g. for new players
 local function set_default_attibutes(player)
 	local meta = player:get_meta()
+	local st = player_api.get_state(player)
 	meta:set_int("thirst", 100)
+	st:add("thirst", 100)
 	meta:set_int("hunger", 1000)
+	st:add("hunger", 1000)
 	meta:set_int("energy", 1000)
+	st:add("energy", 1000)
 	meta:set_int("temperature", 37)
+	st:add("int_temp", 37)
 	meta:set_int("heal_rate", heal_rate)
 	meta:set_int("thirst_rate", thirst_rate)
 	meta:set_int("hunger_rate", hunger_rate)
@@ -131,7 +137,7 @@ end
 register_tab()
 
 
-]]
+-- ]]
 
 -----------------------------
 --Applies Health Effects
@@ -147,68 +153,106 @@ local function do_effects_list(meta, player, health, energy, thirst, hunger, tem
 		return h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature
 	end
 
-	for _, effect in ipairs(effects_list) do
+	for key, effect in ipairs(effects_list) do
 
 		local name = effect[1]
 		local order = effect[2]
-
+		local valid = false
 
 		----------
 		if name == "Food Poisoning" then
-			r_rate, mov, jum, temperature = HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, jum, temperature)
+		   r_rate, mov, jum, temperature
+		      = HEALTH.food_poisoning(order, player, meta, effects_list,
+					      r_rate, mov, jum, temperature)
+		   valid = true
 		end
 
 		----------
 		if name == "Fungal Infection" then
-			r_rate, mov, jum, temperature = HEALTH.fungal_infection(order, player, meta, effects_list, r_rate, mov, jum, temperature)
+		   r_rate, mov, jum, temperature
+		      = HEALTH.fungal_infection(order, player, meta,
+						effects_list, r_rate, mov, jum,
+						temperature)
+		   valid = true
 		end
 
 		----------
 		if name == "Dust Fever" then
-			r_rate, mov, jum, temperature = HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov, jum, temperature)
+		   r_rate, mov, jum, temperature
+		      = HEALTH.dust_fever(order, player, meta, effects_list,
+					  r_rate, mov, jum, temperature)
+		   valid = true
 		end
 
 		----------
 		if name == "Drunk" then
-			r_rate, mov, jum, h_rate, temperature = HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum, h_rate, temperature)
+		   r_rate, mov, jum, h_rate, temperature
+		      = HEALTH.drunk(order, player, meta, effects_list,
+				     r_rate, mov, jum, h_rate, temperature)
+		   valid = true
 		end
 
 		----------
 		if name == "Hangover" then
-			mov, jum = HEALTH.hangover(order, player, meta, effects_list, mov, jum)
+		   mov, jum = HEALTH.hangover(order, player, meta,
+					      effects_list, mov, jum)
+		   valid = true
 		end
 
 		----------
 		if name == "Intestinal Parasites" then
-			r_rate, hun_rate = HEALTH.intestinal_parasites(order, player, meta, effects_list, r_rate, hun_rate)
+		   r_rate, hun_rate
+		      = HEALTH.intestinal_parasites(order, player, meta,
+						    effects_list, r_rate,
+						    hun_rate)
+		   valid = true
 		end
 
 		----------
 		if name == "Tiku High" then
-			r_rate, hun_rate, mov, jum, temperature = HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, mov, jum, temperature)
+		   r_rate, hun_rate, mov, jum, temperature
+		      = HEALTH.tiku_high(order, player, meta, effects_list,
+					 r_rate, hun_rate, mov, jum, temperature)
+		   valid = true
 		end
 
 		----------
 		if name == "Neurotoxicity" then
-			mov, jum = HEALTH.neurotoxicity(order, player, meta, effects_list, mov, jum)
+		   mov, jum = HEALTH.neurotoxicity(order, player, meta,
+						   effects_list, mov, jum)
+		   valid = true
 		end
 
 		----------
 		if name == "Hepatotoxicity" then
-			mov, jum, r_rate, h_rate = HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_rate, h_rate)
+		   mov, jum, r_rate, h_rate
+		      = HEALTH.hepatotoxicity(order, player, meta, effects_list,
+					      mov, jum, r_rate, h_rate)
+		   valid = true
 		end
 
 		----------
 		if name == "Photosensitivity" then
-			h_rate, r_rate = HEALTH.photosensitivity(order, player, meta, effects_list, h_rate, r_rate)
+		   h_rate, r_rate
+		      = HEALTH.photosensitivity(order, player, meta,
+						effects_list, h_rate, r_rate)
+		   valid = true
 		end
 
 		---------
 		if name == "Meta-Stim" then
-			h_rate, r_rate, hun_rate, t_rate = HEALTH.meta_stim(order, player, meta, effects_list, h_rate, r_rate, hun_rate, t_rate)
+		   h_rate, r_rate, hun_rate, t_rate
+		      = HEALTH.meta_stim(order, player, meta, effects_list,
+					 h_rate, r_rate, hun_rate, t_rate)
+		   valid = true
 		end
 
-
+		if valid == false then
+		   table.remove(effects_list, key)
+		   meta:set_string("effects_list",
+				   minetest.serialize(effects_list))
+		   meta:set_int("effects_num", #effects_list)
+		end
 	end
 
 	return h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature
@@ -237,7 +281,6 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 	local r_rate = recovery_rate
 	local mov = move
 	local jum = jump
-
 
 	--(hunger/Energy has 10x stock)
 	--0-20 starving/severe dehydrated: malus, no heal
@@ -372,30 +415,26 @@ function HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, 
 		jum = jum - 1
 	end
 
-	--temp malus..severe..having this happen would make you very ill
-	if temperature > 100 or temperature < 0 then
-		--you dead
-		h_rate = h_rate - 10000
-		r_rate = r_rate - 10000
-		mov = mov - 10000
-		jum = jum - 10000
-	elseif temperature > 47 or temperature < 27 then
-		h_rate = h_rate - 16
-		r_rate = r_rate - 64
-		mov = mov - 80
-		jum = jum - 80
-	elseif temperature > 43 or temperature < 32 then
-		h_rate = h_rate - 8
-		r_rate = r_rate - 32
-		mov = mov - 40
-		jum = jum - 40
-	elseif temperature > 38 or temperature < 37 then
-		h_rate = h_rate - 4
-		r_rate = r_rate - 8
-		mov = mov - 20
-		jum = jum - 20
-	end
+	local st = player_api.get_state_by_name(name)
+	st:set_progress("int_temp", temperature)
+	local l = st:get_severity("int_temp") - 4
 
+	local effect = HEALTH.internal_temp_table[math.abs(l)]
+
+	h_rate = h_rate + effect.h_adj
+	r_rate = r_rate + effect.r_adj
+	mov = mov + effect.mov_adj
+	jum = jum + effect.mov_adj
+
+	local sev = math.abs(l)
+
+	if l > 0 then
+	   st:add_basic("bodytemp", "Hyperthermia", 3, sev)
+	elseif l < 0 then
+	   st:add_basic("bodytemp", "Hypothermia", 3, sev)
+	elseif st:is("bodytemp") then
+	   st:clear("bodytemp")
+	end
 	--health effects
 	local HE_mov
 	local HE_jum
@@ -453,6 +492,12 @@ minetest.register_on_joinplayer(function(player)
 	local hunger = meta:get_int("hunger")
 	local energy = meta:get_int("energy")
 	local temperature = meta:get_int("temperature")
+	local st = player_api.get_state_by_name(name)
+	st:add("int_temp", temperature)
+	st:add("energy", energy)
+	st:add("hunger", hunger)
+	st:add("thirst", thirst)
+
 	HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
 
 	local velo = meta:get_string("player_velocity")
@@ -513,7 +558,6 @@ if minetest.settings:get_bool("enable_damage") then
 				local energy = meta:get_int("energy")
 				local temperature = meta:get_int("temperature")
 
-
 				--apply rate adjustments so they are correct for current player status
 				local h_rate, r_rate, t_rate, hun_rate, mov, jum, health, energy, thirst, hunger, temperature  = HEALTH.malus_bonus(player, name, meta, health, energy, thirst, hunger, temperature)
 
@@ -563,7 +607,6 @@ if minetest.settings:get_bool("enable_damage") then
 				else
 					temperature1 = temperature
 				end
-
 				if health1 < 0 then
 					health1 = 0
 				elseif health1 > 20 then
@@ -578,6 +621,11 @@ if minetest.settings:get_bool("enable_damage") then
 				meta:set_int("hunger", hunger1)
 				meta:set_int("energy", energy1)
 				meta:set_int("temperature", temperature1)
+				local st = player_api.get_state_by_name(name)
+				st:set_progress("int_temp", temperature)
+				st:set_progress("energy", energy)
+				st:set_progress("hunger", hunger)
+				st:set_progress("thirst", thirst)
 				--update form so can see change while looking
 				sfinv.set_player_inventory_formspec(player)
 
@@ -593,3 +641,4 @@ if minetest.settings:get_bool("enable_damage") then
 	end)
 
 end
+

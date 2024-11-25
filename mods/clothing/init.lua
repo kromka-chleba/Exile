@@ -34,6 +34,8 @@ sfinv.register_page("clothing:clothing", {
 		local meta = player:get_meta()
 		local cur_tmin = climate.get_temp_string(meta:get_int("clothing_temp_min"), meta)
 		local cur_tmax = climate.get_temp_string(meta:get_int("clothing_temp_max"), meta)
+		local basetex = minetest.formspec_escape(
+		   player_api.get_current_texture(player) )
 
 		local formspec = clothing_formspec..
 		"label[3,0.4;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]"..
@@ -42,7 +44,9 @@ sfinv.register_page("clothing:clothing", {
 		"list[current_player;cloths;0,0.5;2,3;]" ..
 		"listring[current_player;main]"..
 		--"listring[detached:"..name.."_clothing;clothing]"
-		"listring[current_player;cloths]"
+		"listring[current_player;cloths]"..
+		"model[6.5,2;2,3;character;character.b3d;"..basetex..
+		   ";-20,160;;true;;]"
 		return sfinv.make_formspec(player, context,
 		formspec, false)
 	end
@@ -50,8 +54,8 @@ sfinv.register_page("clothing:clothing", {
 
 minetest.register_on_player_inventory_action(function(player, action, inventory, inventory_info)
       if inventory_info.to_list == "cloths" or inventory_info.from_list == "cloths" then
-	 clothing:update_temp(player)
 	 player_api.set_texture(player)
+	 clothing:update_temp(player)
       end
 end)
 
@@ -127,73 +131,6 @@ end
 minetest.register_on_joinplayer(function(player)
       --import old clothing
       load_clothing_metadata(player)
-      clothing:update_temp(player)
       player_api.set_texture(player)
-end)
-
----------------------------------------------------------
---Player death
-local drop_clothes = function(pos, stack)
-	local node = minetest.get_node_or_nil(pos)
-	if node then
-		local obj = minetest.add_item(pos, stack)
-		if obj then
-			obj:setvelocity({x=math.random(-1, 1), y=5, z=math.random(-1, 1)})
-		end
-	end
-end
-
-
-
-minetest.register_on_dieplayer(function(player)
-
-	local drop = {}
-	if minetest.check_player_privs(player, "creative") then
-	   return -- Creative mode players keep their inv & leave no bones
-	end
-	local player_inv = player:get_inventory()
-	local clothes = player_inv:get_list("cloths") or {}
-
-	for i=1, #clothes do
-		local stack = clothes[i]
-		--queue to drop, remove effects, remove item
-		if stack:get_count() > 0 then
-		   table.insert(drop, stack)
-		   player_inv:remove_item("cloths", stack:get_name())
-		end
-	end
-
-	--reset appearance
-	player_api.set_texture(player)
-
-	local pos = player:get_pos()
-	local name = player:get_player_name()
-	minetest.after(1, function()
-		local meta = nil
-		local maxp = vector.add(pos, 8)
-		local minp = vector.subtract(pos, 8)
-		local bones = minetest.find_nodes_in_area(minp, maxp, {"bones:bones"})
-		for _, p in pairs(bones) do
-			local m = minetest.get_meta(p)
-			if m:get_string("owner") == name then
-				meta = m
-				break
-			end
-		end
-		if meta then
-			local inv = meta:get_inventory()
-			for _,stack in ipairs(drop) do
-				if inv:room_for_item("main", stack) then
-					inv:add_item("main", stack)
-				else
-					drop_clothes(pos, stack)
-				end
-			end
-		else
-			for _,stack in ipairs(drop) do
-				drop_clothes(pos, stack)
-			end
-		end
-	end)
-
+      clothing:update_temp(player)
 end)

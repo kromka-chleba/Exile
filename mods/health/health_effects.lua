@@ -49,8 +49,48 @@ various minor effects (symptoms) shared by many diseases (e.g. vomiting). Called
 
 ]]
 
-
 local random = math.random
+player_monoids = player_monoids
+HEALTH = HEALTH
+
+------------------------------------------------------------------
+-- VERIFYING FUNCTIONS
+------------------------------------------------------------------
+
+local function get_life_num(player) -- gets player's "lives" and returns it
+  --assert(type(player) == "userdata","get_life_num: invalid argument for 'player'")
+  --assert(player:is_player(),"get_life_num: player is not a player")
+  if (type(player) ~= "userdata") then
+    return 0,"get_life_num: invalid argument for 'player'"
+  end
+  if (player:is_player() ~= true) then
+    return 0,"get_life_num: 'player' is not a player"
+  end
+
+  local pmeta = player:get_meta()
+
+  return pmeta:get_int("lives") or 0
+end
+
+local function is_illness_valid(player,life_num)
+   -- general function that will decide whether a sickness
+   -- should continue or not
+  --if (type(sickdata) ~= "table") then
+    --return false
+  --end
+
+  --local life_num = sickdata.life_num
+
+  if (type(life_num) ~= "number") then
+    return false
+  elseif (life_num == get_life_num(player)) then
+     -- if assigned life_num to effect was the current player then say illness
+     --  is valid and good to go :D (poor player lol)
+    return true
+  else
+    return false
+  end
+end
 
 ------------------------------------------------------------------
 --COMPONENT EFFECTS
@@ -60,6 +100,8 @@ local random = math.random
 --throw up losing some food and water
 local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max, t_min, t_max, h_min, h_max )
 	--vomit repeatedly after time
+  local life_num = get_life_num(player)
+
 	local ranrep = random(repeat_min, repeat_max)
 
 	local randel = 0
@@ -67,6 +109,9 @@ local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max,
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
 
 			local pos = player:get_pos()
 			minetest.sound_play("health_vomit", {pos = pos, gain = 0.5, max_hear_distance = 2})
@@ -97,6 +142,8 @@ end
 --stagger, make player hard to control
 local function stagger(player, repeat_min, repeat_max, delay_min, delay_max, stag)
 
+  local life_num = get_life_num(player)
+
 	local name = player:get_player_name()
 
 	--move erraticly repeatedly after time
@@ -106,6 +153,10 @@ local function stagger(player, repeat_min, repeat_max, delay_min, delay_max, sta
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
+
 			if not bed_rest.player[name] then
 				local xr = random(-stag, stag)
 				local zr = random(-stag, stag)
@@ -119,6 +170,7 @@ end
 
 --organ failure... time to die...
 local function organ_failure(player, repeat_min, repeat_max, delay_min, delay_max, dam_min, dam_max)
+  local life_num = get_life_num(player)
 
 	local ranrep = random(repeat_min, repeat_max)
 	local name = player:get_player_name()
@@ -129,6 +181,9 @@ local function organ_failure(player, repeat_min, repeat_max, delay_min, delay_ma
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
 
 			local ran_dam =  random(dam_min, dam_max)
 
@@ -152,6 +207,8 @@ end
 --hallucinate
 local function auditory_hallucination(player, repeat_min, repeat_max, delay_min, delay_max, min_gain, max_gain)
 	--hear things repeatedly after time
+  local life_num = get_life_num(player)
+
 	local ranrep = random(repeat_min, repeat_max)
 	local name = player:get_player_name()
 
@@ -160,6 +217,10 @@ local function auditory_hallucination(player, repeat_min, repeat_max, delay_min,
 	for i=1, ranrep do
 		randel = randel + random(delay_min, delay_max)
 		minetest.after(randel, function()
+
+      if (is_illness_valid(player,life_num) ~= true) then
+        return
+      end
 
 			local pos = player:get_pos()
 			-- happens after randel delay, so player may be gone
@@ -230,7 +291,6 @@ end
 
 --end timer, e.g. when removing an effect
 local function end_timer(meta, t_name)
-	local time = meta:get_int(t_name)
 	meta:set_int(t_name,0)
 end
 
@@ -267,7 +327,9 @@ end
 --RUN health functions:
 ---------------------------------------------------------------------------
 --Default progression and regression, for effects with timers
-local function default_timer_progress(effect_name, t_min, t_max, max_order, c_boost, meta, effects_list, current_order, added_order, internal)
+local function default_timer_progress(effect_name, t_min, t_max, max_order,
+				      c_boost, meta, effects_list,
+				      current_order, added_order, internal)
 
 	--was called internally so can skip comparisons (it will be higher)
 	if internal == true then
@@ -297,7 +359,9 @@ local function default_timer_progress(effect_name, t_min, t_max, max_order, c_bo
 end
 
 
-local function default_timer_regress(player, effect_name, t_min, t_max, meta, effects_list, current_order, removed_order, replace_nil, internal)
+local function default_timer_regress(player, effect_name, t_min, t_max, meta,
+				     effects_list, current_order, removed_order,
+				     replace_nil, internal)
 	--was called internally so can skip comparisons
 	if internal == true then
 		if current_order <= 0 then
@@ -359,7 +423,8 @@ vomiting, fever, etc
 ]]--
 
 
-function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, jum, temperature)
+function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate,
+			       mov, jum, temperature)
 
 	--APPLY SYMPTOMS
 	if order == 1 then
@@ -422,7 +487,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, r_rate, mov, j
 				added_order = 4
 			end
 			--food_poisoning_progress(meta, effects_list, order, added_order, true)
-			default_timer_progress("Food Poisoning", 3, 6, 4, 0.2, meta, effects_list, current_order, added_order, true)
+			default_timer_progress("Food Poisoning", 3, 6, 4, 0.2, meta, effects_list, order, added_order, true)
 		else
 			--food_poisoning_regress(meta, effects_list, order-1, nil, true)
 			default_timer_regress(player, "Food Poisoning", 3, 6, meta, effects_list, order-1, nil, nil, true)
@@ -444,7 +509,8 @@ Soil fungus got into your skin. Something vaguely like Mycetoma.
 For Exile, you get it from wet soil, a reason not to live in a mud hole.
 ]]--
 
-function HEALTH.fungal_infection(order, player, meta, effects_list, r_rate, mov, jum, temperature)
+function HEALTH.fungal_infection(order, player, meta, effects_list, r_rate,
+				 mov, jum, temperature)
 
 	--APPLY SYMPTOMS
 	if order == 1 then
@@ -486,7 +552,7 @@ function HEALTH.fungal_infection(order, player, meta, effects_list, r_rate, mov,
 			if added_order > 4 then
 				added_order = 4
 			end
-			default_timer_progress("Fungal Infection", 6, 12, 4, 0.2, meta, effects_list, current_order, added_order, true)
+			default_timer_progress("Fungal Infection", 6, 12, 4, 0.2, meta, effects_list, order, added_order, true)
 		else
 			default_timer_regress(player, "Fungal Infection", 6, 12, meta, effects_list, order-1, nil, nil, true)
 		end
@@ -506,7 +572,8 @@ Dust storm born soil fungus got into your lungs. Something vaguely like Valley F
 
 ]]--
 
-function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov, jum, temperature)
+function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov,
+			   jum, temperature)
 
 	--APPLY SYMPTOMS
 	if order == 1 then
@@ -559,7 +626,7 @@ function HEALTH.dust_fever(order, player, meta, effects_list, r_rate, mov, jum, 
 			if added_order > 4 then
 				added_order = 4
 			end
-			default_timer_progress("Dust Fever", 6, 12, 4, 0.2, meta, effects_list, current_order, added_order, true)
+			default_timer_progress("Dust Fever", 6, 12, 4, 0.2, meta, effects_list, order, added_order, true)
 		else
 			default_timer_regress(player, "Dust Fever", 6, 12, meta, effects_list, order-1, nil, nil, true)
 		end
@@ -581,7 +648,8 @@ Alcohol intoxication. Stumble around. Extreme level is alcohol poisoning
 ]]--
 
 
-function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum, h_rate, temperature)
+function HEALTH.drunk(order, player, meta, effects_list, r_rate, mov, jum,
+		      h_rate, temperature)
 	local max_drunk = meta:get_int("max_hangover") or 0
 	--APPLY SYMPTOMS
 	if order == 1 then
@@ -723,7 +791,8 @@ Gut worms etc. Increased hunger.
 ]]--
 
 
-function HEALTH.intestinal_parasites(order, player, meta, effects_list, r_rate, hun_rate)
+function HEALTH.intestinal_parasites(order, player, meta, effects_list,
+				     r_rate, hun_rate)
 	--no orders, or progression.
 	--you get them, then hope they go away (or cure them)
 	--hunger quicker, recover slower
@@ -752,7 +821,8 @@ Extreme is an overdose
 ]]--
 
 
-function HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, mov, jum, temperature)
+function HEALTH.tiku_high(order, player, meta, effects_list, r_rate,
+			  hun_rate, mov, jum, temperature)
 	local max_drunk = meta:get_int("max_hangover") or 0
 	--APPLY SYMPTOMS
 	if order == 1 then
@@ -844,7 +914,7 @@ function HEALTH.tiku_high(order, player, meta, effects_list, r_rate, hun_rate, m
 			if added_order > 4 then
 				added_order = 4
 			end
-			default_timer_progress("Tiku High", 3, 6, 3, 0.2, meta, effects_list, current_order, added_order, true)
+			default_timer_progress("Tiku High", 3, 6, 3, 0.2, meta, effects_list, order, added_order, true)
 		else
 			order = order - 1
 			-- recover with a hangover that matches most extreme point achieved
@@ -936,7 +1006,8 @@ effect_name = "Hepatotoxicity"
 liver poison. vomiting, death
 
 ]]--
-function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum, r_rate, h_rate)
+function HEALTH.hepatotoxicity(order, player, meta, effects_list, mov, jum,
+			       r_rate, h_rate)
 
 	--APPLY SYMPTOMS
 	--you're fine until you really aren't
@@ -1010,7 +1081,8 @@ Light sensitivity
 i.e. you are coming up in blisters if exposed to sun
 ]]--
 
-function HEALTH.photosensitivity(order, player, meta, effects_list, h_rate, r_rate )
+function HEALTH.photosensitivity(order, player, meta, effects_list,
+				 h_rate, r_rate )
 
 	--APPLY SYMPTOMS
 	--you're fine unless in the sun
@@ -1066,7 +1138,8 @@ A slight bit of a techno-vampire vibe
 ]]--
 
 
-function HEALTH.meta_stim(order, player, meta, effects_list, h_rate, r_rate, hun_rate, t_rate)
+function HEALTH.meta_stim(order, player, meta, effects_list, h_rate,
+			  r_rate, hun_rate, t_rate)
 	local max_metastim = meta:get_int("max_metastim") or 0
 
 
@@ -1221,7 +1294,9 @@ function HEALTH.meta_stim(order, player, meta, effects_list, h_rate, r_rate, hun
 	if do_timer(meta, "Meta-Stim", 12, 24) == true then
 		order = order - 1
 		-- end with a toxic hangover that matches most extreme point achieved
-		default_timer_regress(player, "Meta-Stim", 12, 24, meta, effects_list, order, nil, {"Neurotoxicity", max_metastim}, true)
+		default_timer_regress(player, "Meta-Stim", 12, 24, meta,
+				      effects_list, order, nil,
+				      {"Neurotoxicity", max_metastim}, true)
 
 		--reset to zero
 		if order <= 0 then
@@ -1267,10 +1342,12 @@ end
 --this is specific to each health effect so must call that function
 function HEALTH.add_new_effect(player, name)
 
-	if player == nil then return end -- we don't give effects to sneachans
-	local meta = player:get_meta()
-	local effects_list = meta:get_string("effects_list")
-	effects_list = minetest.deserialize(effects_list) or {}
+    if not minetest.is_player(player) then
+        return -- we don't give effects to sneachans
+    end
+    local meta = player:get_meta()
+    local effects_list = meta:get_string("effects_list")
+    effects_list = minetest.deserialize(effects_list) or {}
 
 	--effect already present. call function to decide how to progress it
 	for i, effect in ipairs(effects_list) do
@@ -1285,7 +1362,7 @@ function HEALTH.add_new_effect(player, name)
 			elseif name[1] == "Dust Fever" then
 				default_timer_progress("Dust Fever", 6, 12, 4, 0.2, meta, effects_list, effect[2], name[2])
 			elseif name[1] == "Drunk" then
-				default_timer_progress("Drunk", 3, 6, 4, 0.2, meta, effects_list, effect[2], name[2])
+				default_timer_progress("Drunk", 3, 6, 4, 0.4, meta, effects_list, effect[2], name[2])
 			elseif name[1] == "Hangover" then
 				default_timer_progress("Hangover", 4, 8, 4, 0.4, meta, effects_list, effect[2], name[2])
 			elseif name[1] == "Intestinal Parasites" then
@@ -1307,7 +1384,6 @@ function HEALTH.add_new_effect(player, name)
 			return
 		end
 	end
-
 
 	--doesn't currently exist, so add and update HUD, list
 	table.insert(effects_list, name)
@@ -1375,7 +1451,7 @@ end
 -------------------------------------------------------------------
 --[[
 minetest.register_craftitem("health:bug_test_food", {
-	description = "Bug TESTING FOOD",
+	description = "Bug TESTING Poison",
 	inventory_image = "tech_vegetable_oil.png",
 	stack_max = 500,
 	groups = {flammable = 1},
@@ -1396,7 +1472,7 @@ minetest.register_craftitem("health:bug_test_food", {
 })
 
 minetest.register_craftitem("health:bug_test_food2", {
-	description = "Bug TESTING FOOD 2",
+	description = "Bug TESTING Panacea",
 	inventory_image = "tech_vegetable_oil.png",
 	stack_max = 500,
 	groups = {flammable = 1},
@@ -1404,16 +1480,10 @@ minetest.register_craftitem("health:bug_test_food2", {
 
   on_use = function(itemstack, user, pointed_thing)
 
-		--HEALTH.remove_new_effect(user, {"Food Poisoning", 3})
-		--HEALTH.remove_new_effect(user, {"Drunk", 4})
-		--HEALTH.remove_new_effect(user, {"Hangover", 4})
-		--HEALTH.remove_new_effect(user, {"Intestinal Parasites"})
-		--HEALTH.remove_new_effect(user, {"Tiku High", 4})
-		--HEALTH.remove_new_effect(user, {"Neurotoxicity", 4})
-		--HEALTH.remove_new_effect(user, {"Hepatotoxicity", 4})
-		--HEALTH.remove_new_effect(user, {"Photosensitivity", 4})
-		--HEALTH.remove_new_effect(user, {"Meta-Stim", 4})
-
+	local meta = user:get_meta()
+	meta:set_int("effects_num", 0 )
+	meta:set_string("effects_list", minetest.serialize({}))
   end,
 })
-]]
+
+]]--

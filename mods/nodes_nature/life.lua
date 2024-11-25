@@ -21,7 +21,7 @@ local c_alpha = minimal.compat_alpha
 
 plant_base_growth = plant_base_growth
 plant_base_timer = plant_base_timer
-crop_rewind = crop_rewind
+crop_rewind = climate.crop_rewind
 exile_add_food_hooks = exile_add_food_hooks
 creative = creative
 wielded_light = wielded_light
@@ -31,12 +31,23 @@ wielded_light = wielded_light
 --
 
 local function dig_up(pos, node, digger)
-	if digger == nil then return end
+	if digger == nil or not minetest.is_player(digger) then return end
+	-- #TODO: allow animals to dig cane plants?
 	local lnode = wielded_light.get_unlit_node(node)
 	local np = {x = pos.x, y = pos.y + 1, z = pos.z}
 	local unode = wielded_light.get_unlit_node(minetest.get_node(np))
-	if lnode.name == unode.name then
-		minetest.node_dig(np, unode, digger)
+	local count = 0
+	while lnode.name == unode.name do
+	   count = count + 1
+	   minetest.set_node(np, {name = "air"})
+	   np.y = np.y + 1
+	   unode = wielded_light.get_unlit_node(minetest.get_node(np))
+	end
+	if count > 0 then
+	   local inv = digger:get_inventory()
+	   local leftover = inv:add_item('main',
+					 lnode.name.." "..tostring(count))
+	   if leftover then minetest.add_item(pos, leftover) end
 	end
 end
 
@@ -240,7 +251,7 @@ local on_place_seedling = function(itemstack, placer, pointed_thing)
    local ground = minetest.get_node(pointed_thing.under)
    local above = minetest.get_node(pointed_thing.above)
    if minetest.get_item_group(ground.name,"sediment") == 0
-   or above.name ~= "air" then
+   or minetest.get_item_group(above.name, "air") == 0 then
       local udef = minetest.registered_nodes[ground.name]
       if udef and udef.on_rightclick and
 	 not (placer and placer:is_player() and
@@ -498,12 +509,17 @@ for i in ipairs(plantlist) do
 
 	--seeds and spores
 
+	local inventory_seed_image
 	if not seed_image then
 		if type == "mushroom" then
 			seed_image = "nodes_nature_spores.png"
+			inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..plantname..".png)^[resize:16x16^nodes_nature_spores.png"
 		else
 			seed_image = "nodes_nature_seeds.png"
+			inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..plantname..".png)^[resize:16x16^nodes_nature_seeds.png"
 		end
+	else
+		inventory_seed_image = "([combine:32x32:0,0=nodes_nature_"..plantname..".png)^"..seed_image
 	end
 
 	if not seed_desc then
@@ -518,7 +534,7 @@ for i in ipairs(plantlist) do
 		description = seed_desc,
 		drawtype = "nodebox",
 		tiles = {seed_image},
-		inventory_image = seed_image,
+		inventory_image = inventory_seed_image,
 		node_box = {
 			type = "fixed",
 			fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
@@ -1095,13 +1111,13 @@ crafting.register_recipe({
 end
 
 
---bulk recipes x6
+--bulk recipes x4 use 4 -> 24 here because anperla tuber has medium bulk = 24
 for i in ipairs(plantlist) do
 	local plantname = plantlist[i][1]
 	crafting.register_recipe({
 		type = "threshing_spot",
-		output = "nodes_nature:"..plantname.."_seed 36",
-		items = {"nodes_nature:"..plantname.." 6"},
+		output = "nodes_nature:"..plantname.."_seed 24",
+		items = {"nodes_nature:"..plantname.." 4"},
 		level = 1,
 		always_known = true,
 	})

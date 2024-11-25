@@ -5,6 +5,7 @@ local dlimit = 3  -- HUD element will be hidden after this many seconds
 local air_hud_mod = minetest.get_modpath("4air")
 local hud_mod = minetest.get_modpath("hud")
 local hudbars_mod = minetest.get_modpath("hudbars")
+local hud_type = minimal.hud_type
 
 local function set_hud(player)
 	local player_name = player:get_player_name()
@@ -16,7 +17,7 @@ local function set_hud(player)
 	end
 	item_names[player_name] = {
 		hud = player:hud_add({
-			hud_elem_type = "text",
+			[hud_type] = "text",
 			position = {x=0.5, y=1},
 			offset = off,
 			alignment = {x=0, y=0},
@@ -39,7 +40,8 @@ end)
 
 minetest.register_globalstep(function(dtime)
 	for _, player in pairs(minetest.get_connected_players()) do
-		local data = item_names[player:get_player_name()]
+		local pname = player:get_player_name()
+		local data = item_names[pname]
 		if not data or not data.hud then
 			data = {} -- Update on next step
 			set_hud(player)
@@ -61,15 +63,14 @@ minetest.register_globalstep(function(dtime)
 			data.index = index
 			data.dtime = 0
 
-			local desc = stack.get_meta
-				and stack:get_meta():get_string("description")
-
-			if not desc or desc == "" then
-				-- Try to use default description when none is set in the meta
-				local def = minetest.registered_items[itemname]
-				desc = def and def.description or ""
+			local desc = stack:get_short_description() or itemname
+			local def = minetest.registered_items[itemname]
+			if not def then
+			   minetest.log("action", pname.." wielded an invalid"..
+					" object, "..itemname)
+			else
+			   player:hud_change(data.hud, 'text', desc)
 			end
-			player:hud_change(data.hud, 'text', desc)
 		end
 	end
 end)

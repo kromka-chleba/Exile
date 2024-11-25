@@ -15,15 +15,29 @@ mobkit = mobkit
 
 local light_meter = function(user, pointed_thing)
 
-  local name =user:get_player_name()
-  local pos = user:get_pos()
+   local name =user:get_player_name()
 
-	minetest.chat_send_player(name, minetest.colorize("#00ff00", "LIGHT MEASUREMENT:"))
-
-  local measure = ((minetest.get_node_light({x = pos.x, y = pos.y, z = pos.z})) or 0)
-
-  minetest.chat_send_player(name, minetest.colorize("#cc6600","LIGHT LEVEL = "..measure))
-  --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
+   local measure
+   if pointed_thing and pointed_thing.type == "node" then
+      local tgt = pointed_thing.under
+      measure = vector.check(tgt) and minetest.get_node_light(tgt) or nil
+      if measure == 0 then
+	 -- It's a solid node, the user probably wants the spot above instead
+	 tgt = pointed_thing.over
+	 measure = vector.check(tgt) and minetest.get_node_light(tgt) or nil
+      end
+   end
+   if not measure then
+      local pos = user:get_pos()
+      measure = ((minetest.get_node_light({x = pos.x,
+					   y = pos.y,
+					   z = pos.z})) or 0)
+   end
+   minetest.chat_send_player(name, minetest.colorize("#00ff00",
+						     "LIGHT MEASUREMENT:"))
+   minetest.chat_send_player(name, minetest.colorize("#cc6600",
+						     "LIGHT LEVEL = "..measure))
+   --minetest.sound_play("ecobots2_tool_good", {gain = 0.2, pos = pos, max_hear_distance = 5})
 
 end
 
@@ -307,7 +321,9 @@ local function use_spyglass(player)
 	player:set_fov(10, false)
 
 	minetest.after(5, function()
-			player:set_fov(0, false)
+			  if player and minetest.is_player(player) then
+			     player:set_fov(0, false)
+			  end
 	end)
 
 end
@@ -339,7 +355,7 @@ local animal_probe = function(user, pointed_thing)
 
   local name = user:get_player_name()
   local pt_ref = pointed_thing.ref
-  if pt_ref:is_player() then
+  if minetest.is_player(pt_ref) then
 	local pt_meta = pt_ref:get_meta()
 	local stats = {
 		health = pt_ref:get_hp(),
@@ -360,6 +376,9 @@ local animal_probe = function(user, pointed_thing)
 	))
   else
 	local ent = pt_ref:get_luaentity()
+  if (type(ent) == "nil") then
+    return
+  end
 	if not ent.memory then -- not a mobkit entity with a memory
 		return
 	end

@@ -20,7 +20,10 @@ local create_mob = function(placer, itemstack, name, pos)
 			mobkit.remember(ent,key,value)
 		end
 	end
-	itemstack:take_item() -- since mob is unique we remove egg once spawned
+  -- if player isn't in creative
+  if not (minimal.player_in_creative(placer)) then
+    itemstack:take_item() -- since mob is unique we remove egg once spawned
+  end
 	return ent
 end
 
@@ -30,11 +33,14 @@ local pos_to_spawn = function(name, pos)
 	local x = pos.x
 	local y = pos.y
 	local z = pos.z
-	if minetest.registered_entities[name] and minetest.registered_entities[name].visual_size.x then
-		if minetest.registered_entities[name].visual_size.x >= 32 and
-			minetest.registered_entities[name].visual_size.x <= 48 then
+	local def = minetest.registered_entities[name]
+	local props = def.initial_properties
+	if not def or not props then return end
+	if props.visual_size.x then
+		if props.visual_size.x >= 32 and
+			props.visual_size.x <= 48 then
 				y = y + 2
-		elseif minetest.registered_entities[name].visual_size.x > 48 then
+		elseif props.visual_size.x > 48 then
 			y = y + 5
 		else
 			y = y + 1
@@ -46,12 +52,13 @@ end
 
 
 --use stunning weapon plus chance to catch
-animals.stun_catch_mob = function(self, clicker,chance)
+animals.stun_catch_mob = function(self, clicker,chance, canhand)
+	if self.hp <= 0 then return end
 	local item = clicker:get_wielded_item()
-	item = item:get_name()
-	item = minetest.get_item_group(item,"club")
+	local item_name = item:get_name()
+	item = minetest.get_item_group(item_name,"club")
 
-	if item ~=0 then
+	if (item ~=0 or (canhand == true and item_name == "")) then
 		--hit
 		mobkit.make_sound(self,'punch')
 		--catch chance
@@ -99,9 +106,6 @@ animals.register_egg = function(name, desc, inv_img, stack, energy)
 end
 
 
-
-
-
 animals.capture = function(self, clicker)
 	local new_stack = ItemStack(self.name) 	-- add special mob egg with all mob information
 	local stack_meta = new_stack:get_meta()
@@ -109,24 +113,14 @@ animals.capture = function(self, clicker)
 	--local sett = ""
 	--local i = 0
 	for key, value in pairs(self) do
-		local what_type = type(value)
-		if what_type ~= "function"
-		and what_type ~= "nil"
-		and what_type ~= "userdata"
-		then
-			if what_type == "boolean" or what_type == "number" then
-				value = tostring(value)
-			end
-			if key == 'memory' then 
-				value = minetest.serialize(value)
-			end
-			stack_meta:set_string(key, value)
-		end
+	   if key == "hp" then
+	      stack_meta:set_string(key, value)
+	   elseif key == "memory" then
+	      stack_meta:set_string(key, minetest.serialize(value))
+	   end
 	end
 
-
 	local inv = clicker:get_inventory()
-	local pname = clicker:get_player_name()
 	if inv:room_for_item("main", new_stack) then
 		inv:add_item("main", new_stack)
 	else

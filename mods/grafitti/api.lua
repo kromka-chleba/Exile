@@ -12,21 +12,21 @@ local _palette = {
 
 local _placers = {}
 
-function get_part_pos(i, size)
+local function get_part_pos(i, size)
     local row = (math.floor((i-1) / size.x))
     local col = i-1 - math.floor((i-1)/size.x)*size.x
     return {row=row, col=col}
 end
 
-function get_relative_node_pos(part_pos, center)
+local function get_relative_node_pos(part_pos, center)
     return {x=part_pos.col-center.col, y=part_pos.row-center.row}
 end
 
-function is_main_node(node_pos)
+local function is_main_node(node_pos)
     return node_pos.x == 0 and node_pos.y == 0
 end
 
-function get_node_name(name, node_pos)
+local function get_node_name(name, node_pos)
     if is_main_node(node_pos) then return name end
 
     local x = node_pos.x < 0 and "m"..math.abs(node_pos.x) or node_pos.x
@@ -34,11 +34,11 @@ function get_node_name(name, node_pos)
     return name .."_".. x .."_".. y
 end
 
-function get_image_name(name, part_pos, part_size)
+local function get_image_name(name, part_pos, part_size)
     return name .."^[sheet:".. part_size.x .."x".. part_size.y ..":".. part_pos.col ..",".. part_pos.row
 end
 
-function get_node_pos(pos, node_pos, param2)
+local function get_node_pos(pos, node_pos, param2)
     if param2 == 0 then
         return {x=pos.x+node_pos.x, y=pos.y, z=pos.z+node_pos.y}
     end
@@ -64,7 +64,7 @@ function get_node_pos(pos, node_pos, param2)
     end
 end
 
-function init_def_values(def)
+local function init_def_values(def)
     def = def or {}
     def.size = def.size or {x=1, y=1}
     def.center = def.center or {row=0, col=0}
@@ -189,9 +189,69 @@ function g.palette_build(formspec_name)
     end)
 end
 
-function show_palette(painter, formspec_name)
+function g.show_palette(painter, formspec_name)
     minetest.show_formspec(painter:get_player_name(), formspec_name, g._palettes[formspec_name])
 end
+
+function g.paint(itemstack, user, pointed_thing, palette)
+   local player_name = user:get_player_name()
+   local meta = itemstack:get_meta()
+
+   if pointed_thing.type ~= "node" then
+      return nil
+   end
+
+   if minetest.is_protected(pointed_thing.above, player_name)
+      or minetest.is_protected(pointed_thing.under, player_name)
+   then
+      return nil
+   end
+
+   local node_under = minetest.get_node(pointed_thing.under)
+   local node_under_def = core.registered_items[node_under.name]
+   if node_under_def and node_under_def.buildable_to then
+      if node_under_def.groups.grafitti then
+	 minetest.add_node(pointed_thing.under, {name = "air"})
+	 minetest.sound_play("grafitti_scrape",
+			     {pos = pointed_thing.above,
+			      max_hear_distance = 4, gain = 1})
+      end
+      return nil
+   end
+
+   local node_above = minetest.get_node(pointed_thing.above)
+   local node_above_def = core.registered_items[node_above.name]
+   if node_above_def and not node_above_def.buildable_to then
+      return nil
+   end
+
+   if node_above_def.groups.grafitti then
+      minetest.add_node(pointed_thing.above, {name = "air"})
+      minetest.sound_play("grafitti_scrape",
+			  {pos = pointed_thing.above,
+			   max_hear_distance = 4, gain = 1})
+      return nil
+   end
+
+   if ( pointed_thing.type == "nothing" or
+	meta:get_string("grafitti") == "" ) then
+      grafitti.show_palette(user, palette)
+      return nil
+   end
+
+   _placers[minetest.pos_to_string(pointed_thing.above)] = player_name
+   local dir = vector.direction(pointed_thing.above, pointed_thing.under)
+   local wallmounted = minetest.dir_to_wallmounted(dir)
+   minetest.add_node(pointed_thing.above, {name = meta:get_string("grafitti"), param2=wallmounted})
+   minetest.sound_play("grafitti_paint",	{pos = pointed_thing.above, max_hear_distance = 4, gain = 1})
+
+   if not (minimal.player_in_creative(user)) then
+      itemstack:add_wear(65535/(2000-1))
+   end
+
+   return itemstack
+end
+
 
 function g.register_brush(brush_name, def)
     minetest.register_tool(brush_name, {
@@ -201,65 +261,16 @@ function g.register_brush(brush_name, def)
         groups = { brush=1 },
 
         on_place = function(itemstack, placer, pointed_thing)
-            show_palette(placer, def.palette)
+	   grafitti.show_palette(placer, def.palette)
         end,
 
         on_secondary_use = function(itemstack, user, pointed_thing)
-          show_palette(user, def.palette)
+          grafitti.show_palette(user, def.palette)
         end,
 
         on_use = function(itemstack, user, pointed_thing)
-            local player_name = user:get_player_name()
-            local meta = itemstack:get_meta()
-
-            if pointed_thing.type ~= "node" then
-                return nil
-            end
-
-            if minetest.is_protected(pointed_thing.above, player_name)
-            or minetest.is_protected(pointed_thing.under, player_name)
-            then
-                return nil
-            end
-
-            local node_under = minetest.get_node(pointed_thing.under)
-            local node_under_def = core.registered_items[node_under.name]
-            if node_under_def and node_under_def.buildable_to then
-                if node_under_def.groups.grafitti then
-                    minetest.add_node(pointed_thing.under, {name = "air"})
-                    minetest.sound_play("grafitti_scrape",	{pos = pointed_thing.above, max_hear_distance = 4, gain = 1})
-                end
-                return nil
-            end
-
-            local node_above = minetest.get_node(pointed_thing.above)
-            local node_above_def = core.registered_items[node_above.name]
-            if node_above_def and not node_above_def.buildable_to then
-                return nil
-            end
-
-            if node_above_def.groups.grafitti then
-                minetest.add_node(pointed_thing.above, {name = "air"})
-                minetest.sound_play("grafitti_scrape",	{pos = pointed_thing.above, max_hear_distance = 4, gain = 1})
-                return nil
-            end
-
-            if ( pointed_thing.type == "nothing" or
-		 meta:get_string("grafitti") == "" ) then
-                show_palette(user, def.palette)
-                return nil
-            end
-	    
-            _placers[minetest.pos_to_string(pointed_thing.above)] = player_name
-            local dir = vector.direction(pointed_thing.above, pointed_thing.under)
-            local wallmounted = minetest.dir_to_wallmounted(dir)
-            minetest.add_node(pointed_thing.above, {name = meta:get_string("grafitti"), param2=wallmounted})
-            minetest.sound_play("grafitti_paint",	{pos = pointed_thing.above, max_hear_distance = 4, gain = 1})
-
-            itemstack:add_wear(65535/(2000-1))
-
-            return itemstack
-        end
+	   return grafitti.paint(itemstack, user, pointed_thing, def.palette)
+	end
     })
 
 end

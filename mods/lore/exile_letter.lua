@@ -46,11 +46,12 @@ local judger = {
   "Council",
   "Courts",
   "Presidium",
-  "Law Giver's",
+  "Law Givers",
   "King's Justice",
   "Sheriff",
   "Exarch",
   "Prefect",
+  "Seneschal",
   --cults
   "Brotherhood",
   "Sisterhood",
@@ -424,24 +425,24 @@ local generate_text = function(player, freshspawn)
 
   --
   letter_text =
-    "By decree of the "..judge..
-    " of "..polity_name..": "..
-    "\n \n "..
+    "<center><b>By decree of the "..judge..
+    " of "..polity_name..":"..
+    "\n "..
     "\n  "..your_name.." of "..origin_name..
-    "\n \n "..
+    "\n "..
     "\nis hereby sentenced to exile for the crimes of "..
     "\n  "..
     "\n"..cr1..
-    "\n    "..
+    "\n"..
     "\nand "..
-    "\n  "..
+    "\n"..
     "\n"..cr2.."."..
-    "\n \n \n"..
+    "\n \n"..
     "\n"..genderSU[gend].." is banished to the land of "..exile_land.."."..
     "\n  "..
     "\nThe land of the "..terror.."."..
-    "\n  \n \n"..
-    "\n"..your_woe
+    "\n \n"..
+    "\n<i>"..your_woe
 
   return letter_text
 end
@@ -449,13 +450,17 @@ end
 --------------------------------------------
 local function get_formspec(meta, letter_text)
 
-	local formspec = {
+   local formspec = {
     "size[9,11]",
-	"textarea[1.5,1.5;8.6,10.6;;" .. minetest.formspec_escape(letter_text) .. ";]",
+    "hypertext[0.75,1;8,10.6;;"..minetest.formspec_escape(letter_text) .."]",
     "button_exit[8.2,10.6;0.8,0.5;exit_form;X]",
-	"background[0,0;18,11;lore_exile_letter_bg.png;true]"}
-
-	return table.concat(formspec, "")
+    "background[0,0;18,11;lore_exile_letter_bg.png;true]"}
+   local pname = meta:get_string("creator")
+   if pname then
+      formspec[1] = formspec[1].."hypertext[0.5,10.5;8,1;;"..
+	 "<style color=#000><i>"..pname.."]"
+   end
+   return table.concat(formspec, "")
 end
 
 local function setup_letter(player, imeta)
@@ -511,9 +516,10 @@ minetest.register_node("lore:exile_letter", {
   after_place_node = after_place,
   on_secondary_use = on_secondary_use,
   preserve_metadata = function(pos, oldnode, oldmeta, drops)
-     local letter_text = oldmeta["lore:letter_text"]
-     local stack_meta = drops[1]:get_meta()
-     stack_meta:set_string("lore:letter_text", letter_text)
+     local imeta = drops[1]:get_meta()
+     imeta:from_table({
+	   fields = { creator = oldmeta.creator,
+		      ["lore:letter_text"] = oldmeta["lore:letter_text"] } })
   end,
 })
 

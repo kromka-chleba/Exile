@@ -1,16 +1,29 @@
 minimal = minimal
 
-function minimal.switch_node(pos, node)
+function minimal.switch_node(pos, node, after_place)
    --Swap a node, but run its on_construct, so that
    -- timers etc. are started, but metadata is left intact
-   if not minetest.registered_nodes[node.name] then
+
+   -- after_place is to be a table of 3 parameters:
+   -- placer, itemstack, pointed_thing - though does not need to be specified for switch_node to work
+   local node_def = minetest.registered_nodes[node.name]
+   if not node_def then
       minetest.log("error","Attempted to switch_node to an invalid node: "..node.name)
       return
    end
    minetest.swap_node(pos, node)
-   if minetest.registered_nodes[node.name].on_construct then
-      minetest.registered_nodes[node.name].on_construct(pos)
+   if node_def.on_construct then
+      node_def.on_construct(pos)
    end
+  if (type(after_place) == "table") then
+    if (node_def.after_place_node) then
+      local placer = after_place[1]
+      local itemstack = after_place[2]
+      local pointed_thing = after_place[3]
+
+      node_def.after_place_node(pos, placer, itemstack, pointed_thing)
+    end
+  end
 end
 
 function minimal.safe_landing_spot(pos)
@@ -51,7 +64,7 @@ function minimal.safe_landing_spot(pos)
 end
 
 -- Call in on_rightclick wrapper like this:
--- on_rightclick = function (pos, node, clicker, itemstack, pointed_thing) 
+-- on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
 --     return minimal.slabs_combine(pos,node,itemstack,'tech:large_wood_fire_ext')
 -- end
 function minimal.slabs_combine(pos, node, itemstack, swap_node)
@@ -95,6 +108,51 @@ function minimal.click_count_ready(name, id, pos, count, timeout)
 	return false
 end
 
+function minimal.get_pointed_thing(player,rn, obj, liq)
+   -- Gets the pointed node or object. Player objects will return
+   --  a non-standard type of "player"
+
+   -- params: rn = custom "range" to override, return obj or liq if true
+
+   -- get the player by name if string
+  if (type(player) == "string") then
+    player = minetest.get_player_by_name(player)
+  end
+  local range = 5 -- out to 5 nodes
+  if not minetest.is_player(player) then
+     error("exile_game.get_pointed_thing: Invalid player specified (or "..
+	   "improper name), got type "..type(player))
+  elseif type(rn) == "number" then
+    -- override with provided range number if a number
+    range = rn
+  else
+    -- get range of player's wielded item and use that
+    local w_itemdef = player:get_wielded_item()
+    w_itemdef = w_itemdef:get_definition()
+    if w_itemdef and type(w_itemdef.range) == "number" then
+      range = w_itemdef.range
+    end
+  end
+   local ppos = player:get_pos()
+   local offset = player:get_eye_offset()
+   local eye_height = player:get_properties().eye_height + ( offset.y / 10 )
+   ppos.y = ppos.y + ( eye_height )
+   local lookdir = vector.multiply(player:get_look_dir(), range)
+   local pointpos = vector.add(ppos, lookdir)
+   local ray = minetest.raycast(ppos, pointpos, obj or false, liq or false)
+   local point
+   repeat
+      point = ray:next()
+   until ( not point ) -- nil
+      or point.type == "node"
+      or (point.type == "object" and point.ref ~= player) -- object + not player
+   if point and point.type
+      and point.type == "object" and point.ref:is_player() then
+      point.type = "player" -- differentiate players from lua entities
+   end
+   return point
+end
+
 function minimal.sanitize_string(badstring)
    local disallowed = { "\\", "{", "}", "^", ";",
 			--lua magic characters
@@ -107,6 +165,49 @@ function minimal.sanitize_string(badstring)
    return badstring
 end
 
+-- check if a provided player is in creative mode
+local creative_mode_cache = minetest.settings:get_bool("creative_mode")
+function minimal.player_in_creative(plyr)
+  -- get the player by name if string
+  if (type(plyr) == "string") then
+    plyr = minetest.get_player_by_name(plyr)
+  end
+  -- if player is a player...
+  if (minetest.is_player(plyr)) then
+    if (minetest.check_player_privs(plyr,"creative") or creative_mode_cache == true) then
+      return true
+    end
+  end
+
+  return false
+end
+
+
+function minimal.math_clamp(num,min,max) -- math.clamp implementation from my function library (TPH/TubberPupperHusker)
+  -- PARAMETERS: num;"number" - number to be clamped | min;"number" - minimum number that 'num' can be | max;"number" - maximum number that 'num' can be
+  -- RETURNS: number - 'num' that is clamped (or not if 'num' is between 'min' and 'max')
+  -- FUNCTION: clamps a specified number between a min & max
+  ------------------------------------------------------------------------------------------------------------------
+  assert(type(num) == "number","math.clamp: no number provided to be clamped!")
+  assert(type(min) == "number","math.clamp: no minimum number provided for clamping")
+  assert(type(max) == "number","math.clamp: no maximum number provided for clamping")
+
+  -- if num, min, and max are numbers then
+  if (min > max) then -- if programmer puts max number in place of minimum number... don't punish them for it
+    local temp = min -- create a temporary value so that 'min' can be stored
+    min = max
+    max = temp -- set 'max' to the temporary value
+  end
+
+  if (num < min) then
+    num = min
+  elseif (num > max) then
+    num = max
+  end
+  -- "if elseif" statement because if it's lower than minimum then it's obviously not going to be greater than maximum and vice versa (and DO NOT clamp if the number is between min and max)
+
+  return num
+end
 
 -- Yes or no dialog
 --

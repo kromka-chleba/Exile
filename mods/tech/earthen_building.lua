@@ -16,11 +16,12 @@ minetest.register_node("tech:drystack", {
 	description = S("Drystack"),
 	tiles = {"tech_drystack.png"},
 	stack_max = minimal.stack_max_bulky *1.5,
-	groups = {cracky = 3, crumbly = 1, falling_node = 1, oddly_breakable_by_hand = 1},
+	groups = {cracky = 3, crumbly = 1, falling_node = 1,
+		  oddly_breakable_by_hand = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
-
+ncrafting.register_arch("tech:drystack")
 
 -- Stairs and slab for drystack
 stairs.register_stair_and_slab(
@@ -81,6 +82,8 @@ minetest.register_node('tech:rammed_earth', {
 	groups = {crumbly = 1, cracky = 3, falling_node = 1},
 	sounds = nodes_nature.node_sound_dirt_defaults(),
 })
+
+ncrafting.register_arch("tech:rammed_earth")
 
 stairs.register_stair_and_slab(
 	"rammed_earth",
@@ -303,7 +306,7 @@ minetest.override_item("stairs:slab_thatch",
 --Recipes
 
 --
---Hand crafts (Cradting spot)
+--Hand crafts (Crafting spot)
 --
 
 ----craft drystack from gravel

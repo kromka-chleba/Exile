@@ -23,6 +23,26 @@ local function destruct_bed(pos, n)
 end
 
 
+local function is_invalid_pos(pos, player_name)
+   if minetest.is_protected(pos, player_name) and
+      not minetest.check_player_privs(player_name, "protection_bypass") then
+      minetest.record_protection_violation(pos, player_name)
+      return true
+   end
+
+   local node_def = minetest.registered_nodes[minetest.get_node(pos).name]
+   if not node_def or not node_def.buildable_to
+      or string.match(node_def.drawtype, "liquid")
+      or node_def.drawtype == "plantlike"
+      or node_def.drawtype == "signlike"
+      or node_def.drawtype == "torchlike"
+      or node_def.drawtype == "firelike"
+   then
+      return true
+   end
+   return false
+end
+
 
 ----------------------------------------
 function bed_rest.register_bed(name, def)
@@ -48,7 +68,7 @@ function bed_rest.register_bed(name, def)
 			fixed = def.selectionbox,
 		},
 
-		walkable = def.walkable or true,
+		walkable = def.walkable,
 		buildable_to = def.buildable_to or false,
 		floodable = def.floodable or false,
 		on_punch = def.on_punch,
@@ -72,31 +92,19 @@ function bed_rest.register_bed(name, def)
 				pos = pointed_thing.above
 			end
 
-			local player_name = placer and placer:get_player_name() or ""
-
-			if minetest.is_protected(pos, player_name) and
-					not minetest.check_player_privs(player_name, "protection_bypass") then
-				minetest.record_protection_violation(pos, player_name)
-				return itemstack
+			local playername = ""
+			if placer and placer:is_player() then
+			   playername = placer:get_player_name()
 			end
 
-			local node_def = minetest.registered_nodes[minetest.get_node(pos).name]
-			if not node_def or not node_def.buildable_to then
+			if is_invalid_pos(pos, playername) then
 				return itemstack
 			end
 
 			local dir = placer and placer:get_look_dir() and
 				minetest.dir_to_facedir(placer:get_look_dir()) or 0
 			local botpos = vector.add(pos, minetest.facedir_to_dir(dir))
-
-			if minetest.is_protected(botpos, player_name) and
-					not minetest.check_player_privs(player_name, "protection_bypass") then
-				minetest.record_protection_violation(botpos, player_name)
-				return itemstack
-			end
-
-			local botdef = minetest.registered_nodes[minetest.get_node(botpos).name]
-			if not botdef or not botdef.buildable_to then
+			if is_invalid_pos(botpos, playername) then
 				return itemstack
 			end
 
@@ -104,7 +112,7 @@ function bed_rest.register_bed(name, def)
 			minetest.set_node(botpos, {name = name .. "_top", param2 = dir})
 
 			if not (creative and creative.is_enabled_for
-					and creative.is_enabled_for(player_name)) then
+					and creative.is_enabled_for(playername)) then
 				itemstack:take_item()
 			end
 			return itemstack
@@ -156,9 +164,10 @@ function bed_rest.register_bed(name, def)
 			end
 			node.param2 = new_param2
 			-- do not remove_node here - it will trigger destroy_bed()
-			minetest.set_node(p, {name = "air"})
-			minetest.set_node(pos, node)
-			minetest.set_node(newp, {name = name .. "_top", param2 = new_param2})
+			minetest.swap_node(p, {name = "air"})
+      minetest.remove_node(p)
+			minetest.swap_node(pos, node)
+			minetest.swap_node(newp, {name = name .. "_top", param2 = new_param2})
 			return true
 		end,
 		can_dig = function(pos, player)
@@ -194,7 +203,7 @@ function bed_rest.register_bed(name, def)
 			return bed_rest.can_dig(p, player)
 		end,
 
-		walkable = def.walkable or true,
+		walkable = def.walkable,
 		buildable_to = def.buildable_to or false,
 		floodable = def.floodable or false,
 		on_punch = def.on_punch,
@@ -202,5 +211,4 @@ function bed_rest.register_bed(name, def)
 	})
 
 	minetest.register_alias(name, name .. "_bottom")
-
 end

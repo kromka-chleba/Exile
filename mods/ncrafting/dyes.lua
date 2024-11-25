@@ -77,6 +77,7 @@ local neighbors = {
 local undefined_dyes = table.copy(dyelist)
 
 function ncrafting.set_treatment(meta, action)
+   if not meta:get("ncrafting:bundled_plant") then return end
    local valid_method = false
    for i = 1,#methods do
       if action == methods[i] then
@@ -218,7 +219,7 @@ local function bundlename(meta, plant, treatment)
    if minetest.registered_nodes[plant] then
       fmt_plant = "of "..minetest.registered_nodes[plant].description
    else
-      minetest.log("error","NCRAFTING: Bundle could not get name of plant: ",plant)
+      minetest.log("error","NCRAFTING: Bundle could not get name of plant: "..plant)
    end
    if treatment and treatment ~= "" then
       fmt_treatment = ", "..methodstring[treatment]
@@ -237,7 +238,7 @@ bundledef = {
    paramtype = "light",
    paramtype2 = "none",
    groups = { dig_immediate = 3, heatable = 50, _ncrafting_bundle = 1,
-	      falling_node = 1},
+	      falling_node = 1, timer = 15 },
    after_place_node = function(pos, placer, itemstack, pointed_thing)
       local meta = minetest.get_meta(pos)
       local imeta = itemstack:get_meta()
@@ -300,7 +301,6 @@ for name, number in pairs(bundlelist) do
       if meta["ncrafting:bundle_failed"] == "true" then
 	 return -- this is a failed bundle, don't treat it further
       end
-      meta:set_string("infotext",  bundlename(meta))
       ncrafting.start_bake(pos, 15) -- 1.5 minutes to bake
    end
    tbdef.on_timer = function(pos, elapsed)
@@ -446,6 +446,10 @@ minetest.register_node(":ncrafting:dye_table", {
 	      local plantname = pdef.name
 	      local dcolor = pdef._ncrafting_dye_dcolor or "none"
 	      local bundle = ItemStack("ncrafting:bundle_"..dcolor)
+        if (plantname == "" or plantname == nil) then
+          -- prevent crafting of an empty bundle
+          return
+        end
 	      local imeta = bundle:get_meta()
 	      imeta:set_string("ncrafting:bundled_plant", plantname)
 	      imeta:set_string("description", bundlename(imeta, plantname, nil))
@@ -480,8 +484,6 @@ minetest.register_node(":ncrafting:dye_table", {
 
 -----------------------------------------------
 -- Dye pot
-
---#TODO: Add a way to dump a dye pot, or put water in to clear the dye
 
 local pot_formspec = "size[8,4.1]"..
    "button_exit[6,0;2,1;dump;"..S("Dump").."]"..

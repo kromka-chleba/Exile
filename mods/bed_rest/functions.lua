@@ -4,9 +4,10 @@
 -----------------------------------------------------------------
 
 local pi = math.pi
-local store = minetest.get_mod_storage()
 --silence luacheck warnings about accessing globals:
 bed_rest = bed_rest
+local store = bed_rest.store
+
 player_api = player_api
 player_monoids = player_monoids
 clothing = clothing
@@ -14,11 +15,6 @@ minimal = minimal
 
 -- after this many IRL days, beds in multiplayer will no longer be protected
 local days_until_timeout = 7
-
-function load_bedrest()
-   local loaded = minetest.deserialize(store:get_string("bedrest"), true)
-   return loaded
-end
 
 ----------------------------------------------------
 --Break taker
@@ -175,6 +171,7 @@ end
 --grab_blanket(inv = clothing_inv, list = "clothing") for removal
 -----------------------------------------------------------------
 local function wear_blanket(player, bed_pos, donning)
+    if not bed_pos then return end
    local bed_meta = minetest.get_meta(bed_pos)
    local bedInv = bed_meta:get_inventory()
    bedInv:set_size('main',1)
@@ -224,10 +221,10 @@ local function wear_blanket(player, bed_pos, donning)
 		end
    end
    if not bedInv:is_empty('main') then
-	   bed_meta:set_string('infotext','Bed: Contains Blanket')
+      minimal.infotext_merge(bed_pos, 'Bed: Contains Blanket', bed_meta)
    end
-   clothing:update_temp(player)
    player_api.set_texture(player)
+   clothing:update_temp(player)
 end
 
 -----------------------------------------------------------------
@@ -247,12 +244,43 @@ local function get_look_yaw(pos)
 	end
 end
 
+minetest.register_entity("bed_rest:bedspot", {
+   initial_properties = {collisionbox = {0, -0.025, 0, 0.01, 0.01, 0.01},
+			 visual="upright_sprite",
+			 textures = { "empty.png" },
+			 physical = true
+			},
+   on_activate = function(self) -- fall down until we hit the bed, aka pomf
+      self.object:set_velocity(vector.new(0,-2,0))
+   end,
+   on_step = function(self, dtime, moveresult)
+      if not self.timer then self.timer = 0.1 return end
+      self.timer = self.timer - dtime
+      if self.timer > 0 then return end
+      self.timer = nil
+      self.count = ( self.count or 0 ) + 1
+      local chrilden = self.object:get_children()
+      if #chrilden < 1 or self.count > 9 then -- cannot frigth back?!
+	 self.object:remove()
+	 return
+      end
+      local player = chrilden[1]
+      self.object:set_yaw(player:get_look_horizontal())
+   end,
+   on_attach_child = function(self, child)
+      self.object:set_yaw(child:get_look_horizontal())
+   end,
+   on_detach_child = function(self, child)
+      self.object:remove()
+   end
+})
 
 local function stopmove(player, pos)
-   local velo = player:get_velocity() or player:get_player_velocity()
-   player:add_velocity(-velo)
-   if pos then player:set_pos(pos) end
+    if (not player) or (not player:is_player()) then return end
+    local dropspot = vector.new(pos.x, pos.y + 0.6, pos.z)
+    player:set_attach(minetest.add_entity(dropspot, "bed_rest:bedspot"), "")
 end
+
 
 -----------------------------------------------------------------
 local function lay_down(player, level, pos, bed_pos, state, skip)
@@ -263,6 +291,8 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		return
 	end
 
+	local st = player_api.get_state_by_name(name)
+
 	-- stand up
 	if state ~= nil and not state then
 	   local p = bed_rest.pos[name] or nil
@@ -272,6 +302,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 	   end
 	   bed_rest.player[name] = nil
 	   bed_rest.level[name] = nil
+	   st:clear("resting")
 
 	   -- skip here to prevent sending player specific changes
 	   -- (used for players who may have left, and have no player object)
@@ -297,38 +328,35 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		-- physics, eye_offset, etc
 		player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
 		player_api.player_attached[name] = false
+		player:set_detach()
 		player_monoids.speed:del_change(player, "bed_rest:resting")
 		player_monoids.jump:del_change(player, "bed_rest:resting")
 		player_monoids.gravity:del_change(player, "bed_rest:resting")
 		hud_flags.wielditem = true
 		player_api.set_animation(player, "stand")
 
-	-- lay down, provided we have a valid bed position
-	elseif bed_pos then
-	   stopmove(player)
-	   local velo = player:get_velocity() or player:get_player_velocity()
-	   if velo.x ~= 0 then return end
-	   if velo.y ~= 0 then return end
-	   if velo.z ~= 0 then return end
-		-- Check if bed is occupied
-		for nm, other_pos in pairs(bed_rest.bed_position) do
-		   if vector.distance(bed_pos, other_pos) < 0.1
-		      and nm ~= name then
-			   minetest.chat_send_player(name, ("This bed is already occupied!"))
-			   local meta = minetest.get_meta(bed_pos)
-			   minimal.infotext_merge(bed_pos,'Status: Occupied by '..nm,meta)
-			   return false
-			end
-		end
-		bed_rest.pos[name] = pos
-		bed_rest.bed_position[name] = bed_pos
-		bed_rest.player[name] = 1
-		bed_rest.level[name] = level
-		if not minetest.is_singleplayer() then
-		   minimal.infotext_merge(bed_pos,'Status: Occupied by '..name)
-		   minetest.get_node_timer(bed_pos):start(60 * 60 * 24 *
-							  days_until_timeout)
-		end
+        -- lay down, provided we have a valid bed position
+    elseif bed_pos then
+        -- Check if bed is occupied
+        for nm, other_pos in pairs(bed_rest.bed_position) do
+            if vector.distance(bed_pos, other_pos) < 0.1
+                and nm ~= name then
+                minetest.chat_send_player(name, "This bed is already occupied!")
+                local meta = minetest.get_meta(bed_pos)
+                minimal.infotext_merge(bed_pos,'Status: Occupied by '..nm,meta)
+                return false
+            end
+        end
+        bed_rest.pos[name] = pos
+        bed_rest.bed_position[name] = bed_pos
+        bed_rest.player[name] = 1
+        bed_rest.level[name] = level
+        st:add("resting")
+        if not minetest.is_singleplayer() then
+            minimal.infotext_merge(bed_pos,'Status: Occupied by '..name)
+            minetest.get_node_timer(bed_pos):start(60 * 60 * 24 *
+                                                   days_until_timeout)
+        end
 
 		--check with break taker
 		break_taker(name,player:get_meta():get_string("BreaktakerPref"))
@@ -336,33 +364,33 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 		--wear a blanket from inventory
 		wear_blanket(player, bed_pos, true)
 
-		-- physics, eye_offset, etc
-		player:set_eye_offset({x = 0, y = -12, z = 0}, {x = 0, y = -4.5, z = 0})
-		local yaw, param2 = get_look_yaw(bed_pos)
-		player:set_look_horizontal(yaw)
-		local dir = minetest.facedir_to_dir(param2)
-		local p = {x = bed_pos.x + dir.x / 2, y = bed_pos.y, z = bed_pos.z + dir.z / 2}
-		--clear physics
-		player_monoids.speed:del_change(player, "health:physics")
-		player_monoids.jump:del_change(player, "health:physics")
-		player_monoids.speed:del_change(player, "health:physics_HE")
-		player_monoids.jump:del_change(player, "health:physics_HE")
-		player_monoids.speed:add_change(player, 0, "bed_rest:resting")
-		player_monoids.jump:add_change(player, 0, "bed_rest:resting")
-		player_monoids.gravity:add_change(player, 0, "bed_rest:resting")
-		minetest.after(0.2, function() stopmove(player,p) end)
-		player:set_pos(p)
-		player_api.player_attached[name] = true
-		hud_flags.wielditem = false
-		player_api.set_animation(player, "lay")
-	else -- no valid bed pos? put them back. Cut down version of "stand up"
-	   local p = bed_rest.pos[name] or nil
-	   if p then -- better hope it's safe, we don't know where your bed is
-	      player:set_pos(p)
-	   end
-	   bed_rest.player[name] = nil
-	   bed_rest.level[name] = nil
-	end
+        -- physics, eye_offset, etc
+        player:set_eye_offset({x = 0, y = -12, z = 0}, {x = 0, y = -4.5, z = 0})
+        local yaw, param2 = get_look_yaw(bed_pos)
+        player:set_look_horizontal(yaw)
+        local dir = minetest.facedir_to_dir(param2)
+        local p = {x = bed_pos.x + dir.x / 2, y = bed_pos.y,
+                   z = bed_pos.z + dir.z / 2}
+        --clear physics
+        player_monoids.speed:del_change(player, "health:physics")
+        player_monoids.jump:del_change(player, "health:physics")
+        player_monoids.speed:del_change(player, "health:physics_HE")
+        player_monoids.jump:del_change(player, "health:physics_HE")
+        player_monoids.speed:add_change(player, 0, "bed_rest:resting")
+        player_monoids.jump:add_change(player, 0, "bed_rest:resting")
+        player_monoids.gravity:add_change(player, 0, "bed_rest:resting")
+        stopmove(player,p)
+        player_api.player_attached[name] = true
+        hud_flags.wielditem = false
+        player_api.set_animation(player, "lay")
+    else -- no valid bed pos? put them back. Cut down version of "stand up"
+        local p = bed_rest.pos[name] or nil
+        if p then -- better hope it's safe, we don't know where your bed is
+            player:set_pos(p)
+        end
+        bed_rest.player[name] = nil
+        bed_rest.level[name] = nil
+    end
 
 	local brtemp = {}
 	brtemp.level = bed_rest.level
@@ -441,6 +469,10 @@ minetest.register_on_dieplayer(function(player)
 	local name = player:get_player_name()
 	local hud_flags = player:hud_get_flags()
 
+        if bed_rest.bed_position[name] then
+            wear_blanket(player, bed_rest.bed_position[name], false)
+        end
+
 	bed_rest.player[name] = nil
 	bed_rest.bed_position[name] = nil
 	bed_rest.level[name] = nil
@@ -449,7 +481,9 @@ minetest.register_on_dieplayer(function(player)
 	player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
 	player:set_look_horizontal(math.random(1, 180) / 100)
 	player_api.player_attached[name] = false
-	player:set_physics_override(1, 1, 1)
+	player_monoids.speed:del_change(player, "bed_rest:resting")
+	player_monoids.jump:del_change(player, "bed_rest:resting")
+	player_monoids.gravity:del_change(player, "bed_rest:resting")
 	hud_flags.wielditem = true
 	player_api.set_animation(player, "stand")
 
@@ -470,7 +504,7 @@ end
 
 --------------------------------------------
 minetest.register_chatcommand("breaktaker", {
-    params = "on or off",
+    params = "on | off",
     description = "Switch the break taker off or on per user",
     func = function(name, param)
        if param == "" or param == "help" then

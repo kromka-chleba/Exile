@@ -38,7 +38,11 @@ minetest.register_node("tech:stick", {
  climbable = true,
  floodable = true,
  on_flood = function(pos, oldnode, newnode)
-   minetest.add_item(pos, ItemStack("tech:stick"))
+    minetest.add_item(pos, ItemStack("tech:stick"))
+    pos.y = pos.y + 1
+    minetest.after(0, function()
+		      minetest.check_for_falling(pos)
+    end)
    return false
  end,
  sunlight_propagates = true,

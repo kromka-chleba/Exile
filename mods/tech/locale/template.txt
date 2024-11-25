@@ -32,6 +32,8 @@ Loose Roof Tile=
 Roof Tile=
 Roof Tile (outer corner)=
 Roof Tile (inner corner)=
+Tile Block (unfired)=
+Tile Block=
 @1 Brick with Mortar=
 @1 Block with Mortar=
 
@@ -72,7 +74,6 @@ Herbal Medicine=
 Tang=
 Tang (unfermented)=
 Tiku (stimulant)=
-Tiku High=
 
 # fibreworking.lua
 Unretted Cana Bundle=

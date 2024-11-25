@@ -80,3 +80,7 @@ From Minetest Game Default:
   Gambit (CC BY-SA 3.0):
     default_snow.png
     default_snowball.png
+
+From rubberduck on opengameart (https://opengameart.org/users/rubberduck) CC0:
+ nodes_nature_place_glass.ogg (glass_02.ogg from 100 CC0 SFX pack)
+ nodes_nature_remove_glass.ogg (glass_05.ogg from 100 CC0 SFX pack)

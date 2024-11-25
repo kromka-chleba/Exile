@@ -1,4 +1,17 @@
 function spears_throw (itemstack, player, pointed_thing)
+	local pointed_a = pointed_thing.above
+	local pointed_b = pointed_thing.under
+	if pointed_thing.type == "node" then
+	   local node = minetest.get_node(pointed_b)
+	   local def = minetest.registered_nodes[node.name]
+	   if def and def.on_rightclick then
+	      def.on_rightclick(pointed_b, node, player,
+				itemstack, pointed_thing)
+	      return false
+	   end
+	elseif pointed_thing.type == "object" then
+	   return false
+	end
 	local spear = itemstack:get_name() .. '_entity'
 	local player_pos = player:get_pos()
 	local head_pos = vector.new(player_pos.x, player_pos.y + player:get_properties().eye_height, player_pos.z)
@@ -8,8 +21,6 @@ function spears_throw (itemstack, player, pointed_thing)
 	local yaw = player:get_look_horizontal()
 	local rotation = vector.new(0, yaw + math.pi/2, pitch + math.pi/6)
 	local wear = itemstack:get_wear()
-	local pointed_a = pointed_thing.above
-	local pointed_b = pointed_thing.under	
 	if pointed_thing.type == "node" and vector.distance(pointed_a, throw_pos) < 1 then -- Stick into node
 		local node = minetest.get_node(pointed_b)
 		local check_node = spears_check_node(node.name)
@@ -24,7 +35,7 @@ function spears_throw (itemstack, player, pointed_thing)
 			spear_object:get_luaentity()._wear = wear
 			spear_object:get_luaentity()._stickpos = pointed_b
 			minetest.sound_play("default_place_node", {pos = pointed_a}, true)
-			return false
+			return true
 		end
 	else -- Avoid hitting yourself and throw
 		local throw_speed = SPEARS_THROW_SPEED
@@ -47,17 +58,27 @@ function spears_set_entity(spear_type, base_damage, toughness)
 		initial_properties = {
 			physical = false,
 			visual = "item",
-			visual_size = {x = 0.5, y = 0.5, z = 0.5},
+			visual_size = {x = 0.3, y = 0.3, z = 0.3},
 			wield_item = "spears:spear_" .. spear_type,
-			collisionbox = {-0.3, -0.3, -0.3, 0.3, 0.3, 0.3},
+			collisionbox = {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
 		},
 
 		on_activate = function (self, staticdata, dtime_s)
 			self.object:set_armor_groups({immortal = 1})
 		end,
-		
+
 		on_punch = function (self, puncher)
-			if puncher:is_player() then -- Grab the spear
+		   if minetest.settings:get_bool("creative_mode") then
+		      local wi = puncher:get_wielded_item(puncher)
+		      if wi then
+			 local nm = wi:get_name()
+			 if string.match(nm, "spears:") then
+			    self.object:remove()
+			    return
+			 end
+		      end
+		   end
+		   if puncher:is_player() then -- Grab the spear
 				local stack = {name='spears:spear_' .. spear_type, wear = self._wear}
 				local inv = puncher:get_inventory()
 				if inv:room_for_item("main", stack) then

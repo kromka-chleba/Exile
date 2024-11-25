@@ -6,15 +6,23 @@ local random = math.random
 
 --Drop entities
 minetest.register_entity("nodes_nature:drop_water", {
-	hp_max = 2,
-	physical = true,
-	collide_with_objects = false,
-	collisionbox = {-0.05,-0.05,-0.05,0.05,0.05,0.05},
-	visual = "cube",
-	visual_size = {x=0.05, y=0.1},
-	textures = {"nodes_nature_freshwater.png","nodes_nature_freshwater.png","nodes_nature_freshwater.png","nodes_nature_freshwater.png", "nodes_nature_freshwater.png","nodes_nature_freshwater.png"},
-	spritediv = {x=1, y=1},
-	initial_sprite_basepos = {x=0, y=0},
+	initial_properties = {
+	   hp_max = 2,
+	   physical = true,
+	   collide_with_objects = false,
+	   collisionbox = {-0.05,-0.05,-0.05,0.05,0.05,0.05},
+	   visual = "cube",
+	   visual_size = {x=0.05, y=0.1},
+	   textures = {"nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png",
+		       "nodes_nature_freshwater.png"},
+	   spritediv = {x=1, y=1},
+	   initial_sprite_basepos = {x=0, y=0},
+	},
+	_desc = "Water drop",
 
 	on_activate = function(self, staticdata)
 		self.object:set_sprite({x=0,y=0}, 1, 1, true)
@@ -58,15 +66,15 @@ minetest.register_entity("nodes_nature:drop_water", {
 			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.1})
 			self.object:remove()
 
-			--food poisoning
-			if random() < 0.005 then
-				HEALTH.add_new_effect(clicker, {"Food Poisoning", 1})
-			end
+            --food poisoning
+            if random() < 0.005 then
+                HEALTH.add_new_effect(puncher, {"Food Poisoning", 1})
+            end
 
-			--parasites
-			if random() < 0.001 then
-				HEALTH.add_new_effect(clicker, {"Intestinal Parasites"})
-			end
+            --parasites
+            if random() < 0.001 then
+                HEALTH.add_new_effect(puncher, {"Intestinal Parasites"})
+            end
 
 		end
 	end,

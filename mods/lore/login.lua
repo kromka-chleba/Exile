@@ -1,7 +1,11 @@
 --login.lua
 --A login screen to show to new players
 
-local logintext = ( "  You can scarcely hear the sound of them "..
+local S = minetest.get_translator("lore")
+
+local logintext = S("login_text")
+if string.match(logintext, "login_text") then -- Untranslated? Use default
+   logintext =       ( "  You can scarcely hear the sound of them "..
 		       "reading the list of your crimes over the " ..
 		       "louder jeering of your kinsmen, but it's already "..
 		       "too late to protest your innocence. "..
@@ -10,6 +14,7 @@ local logintext = ( "  You can scarcely hear the sound of them "..
 		       "punishment that is to be given, and then you "..
 		       "are pushed through a gateway to die in the "..
 		       "cursed land of the Ancients, as an.." )
+end
 
 local loginspec = ("formspec_version[3]"..
 		       "size[7,7.5]"..
@@ -19,13 +24,20 @@ local loginspec = ("formspec_version[3]"..
 		   "image[1.5,6;6,2;logo.png]" )
 
 
+local newplayer = {} -- visual_size doesn't work in on_newplayer, only in on_join
+
 minetest.register_on_newplayer(function(player)
-      local props = player:get_properties()
-      -- hide new players until they read the intro (is_visible fails?)
-      props.visual_size = {x=0.0001,y=0.0001,z=0.0001}
-      props.nametag = " "
-      player:set_properties(props)
+      newplayer[player:get_player_name()] = true
       minetest.show_formspec(player:get_player_name(),"lore:login",loginspec)
+end)
+-- process continues in on_joinplayer
+minetest.register_on_joinplayer(function(player)
+      local name = player:get_player_name()
+      if newplayer[name] and newplayer[name] == true then
+	 -- hide new players until they read the intro
+	 player_api.set_invisible(player, true)
+	 newplayer[name] = false
+      end
 end)
 
 local rspawn_available = false
@@ -42,7 +54,8 @@ local function safepoint_and_rspawn(player)
       local safepoint = minetest.setting_get_pos("exile_safe_spawn_pos")
       local meta = player:get_meta()
       local lives = meta:get_int("lives")
-      local safespawn = minetest.setting_get_pos("exile_safe_spawn_lives") or 0
+      local safespawn = tonumber(minetest.settings:get(
+				    "exile_safe_spawn_lives")) or 0
       if lives <= safespawn and safepoint then
 	 player:set_pos(safepoint)
 	 return true -- disable regular respawn
@@ -95,12 +108,12 @@ function play_themesong(name)
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-      --maybe unnecessary, but guarantee they won't be penalized for reading
       if formname == "lore:login" then
+	 -- Guarantee they won't be penalized for reading:
 	 reset_attributes(player) -- All stats back to starting values
 	 doGatewayFX(player)
 	 local pname = player:get_player_name()
-	 if minimal.mt_required_version(5,4,0) then
+	 if minetest.features.dynamic_add_media_table then
 	    minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
 					    "/music/exile_theme.ogg",
 					 to_player = pname
@@ -110,12 +123,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				       "/music/exile_theme.ogg")
 	    play_themesong(pname)
 	 end
-	 local props = player:get_properties()
-	 props.nametag = "" -- An empty tag defaults to player's name
-	 props.is_visible = true -- Bang! new player appears in the world
-	 props.visual_size = {x=1,y=1,z=1}
+	 -- Bang! new player appears in the world
 	 minetest.after(0.25, function()
-			   player:set_properties(props)
+			   player_api.set_invisible(player, false)
 	 end)
       end
 end)

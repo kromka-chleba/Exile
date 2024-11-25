@@ -220,6 +220,9 @@ generate_cobbles("beach", cobble_beach_fill_ratio, beach_cobble_on)
 generate_cobbles("gravel", cobble_gravel_fill_ratio, gravel_cobble_on)
 generate_cobbles("soil", cobble_soil_fill_ratio, all_soils_on)
 
+local path = minetest.get_modpath("mapgen")
+local bones = dofile(path.."/bones.lua")
+
 ----Register----
 for i in ipairs(decoration_list) do
 	minetest.register_decoration(
@@ -244,6 +247,40 @@ for i in ipairs(decoration_list) do
 		}
 	)
 end
+
+----Register----
+
+function register_from_list(name, decor_list)
+    if not decor_list then
+        minetest.log("error", "Mapgen: Deco: "..name.." is nil!")
+        return
+    end
+    for i = 1, #decor_list do
+        minetest.register_decoration(decor_list[i])
+    end
+end
+
+register_from_list("Bones", bones.bones)
+
+-- Calls function 'fun' for every decoration named 'deco_name'
+-- just after generation.
+-- fun is a function with arguments:
+-- pos, minp, maxp, blockseed, extra_args (an object)
+local function do_after_generation(deco_name, fun, extra_args)
+    local id = minetest.get_decoration_id(deco_name)
+    minetest.set_gen_notify({decoration = true}, {id})
+    minetest.register_on_generated(
+        function(minp, maxp, blockseed)
+            local gennotify = minetest.get_mapgen_object("gennotify")
+            local pos_list = gennotify["decoration#"..id] or {}
+            for _, pos in ipairs(pos_list) do
+                local apos = minimal.get_pos_above(pos)
+                fun(apos, minp, maxp, blockseed, extra_args)
+            end
+        end
+    )
+end
+
 ---- Start node timers ----
 local egg_names = {  -- list of strings
 	"gundu_eggs",

@@ -223,6 +223,7 @@ minetest.register_node("tech:potash_source", {
 	liquid_range = 2,
 	liquid_renewable = false,
 	post_effect_color = {a = post_alpha, r = 30, g = 60, b = 90},
+  damage_per_second = 2,
 	groups = {water = 2, cools_lava = 1, puts_out_fire = 1},
 	sounds = nodes_nature.node_sound_water_defaults(),
   })
@@ -232,7 +233,8 @@ minetest.register_node("tech:potash_source", {
 	description = S("Flowing Potash Solution"),
 	drawtype = "flowingliquid",
 	tiles = {"tech_potash.png"},
-	special_tiles = {"tech_potash.png"},
+	special_tiles = {"tech_potash.png",
+			 "tech_potash.png"},
 	use_texture_alpha = c_alpha.blend,
 	paramtype = "light",
 	paramtype2 = "flowingliquid",
@@ -252,6 +254,7 @@ minetest.register_node("tech:potash_source", {
 	liquid_viscosity = 1,
 	liquid_renewable = false,
 	post_effect_color = {a = post_alpha, r = 30, g = 60, b = 90},
+  damage_per_second = 1,
 	groups = {water = 2, not_in_creative_inventory = 1, puts_out_fire = 1, cools_lava = 1},
 	sounds = nodes_nature.node_sound_water_defaults(),
   })
@@ -262,7 +265,7 @@ liquid_store.register_stored_liquid(
 	"tech:clay_water_pot_potash",
 	"tech:clay_water_pot",
 	{
-		"tech_water_pot_potash.png",
+		"tech_pottery.png^tech_pot_empty.png^tech_pot_potash.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -280,7 +283,32 @@ liquid_store.register_stored_liquid(
 		}
 	},
 	S("Clay Water Pot with Potash Solution"),
-	{dig_immediate = 2})
+	{dig_immediate = 2, pottery = 1})
+-- solution in wooden pot
+liquid_store.register_stored_liquid(
+	"tech:potash_source",
+	"tech:wooden_water_pot_potash",
+	"tech:wooden_water_pot",
+	{
+		"tech_primitive_wood.png^tech_pot_empty.png^tech_pot_potash.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png",
+		"tech_primitive_wood.png"
+	},
+	{
+		type = "fixed",
+		fixed = {
+			{-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+			{-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+			{-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+			{-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+			{-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+		}
+	},
+	S("Wooden Water Pot with Potash Solution"),
+	{dig_immediate = 2, flammable = 3 })
 
 liquid_store.register_liquid("tech:potash_source", "tech:potash_flowing", false)
 
@@ -321,7 +349,7 @@ minetest.register_abm(
 minetest.register_node("tech:dry_potash_pot", {
 	description = S("Clay Water Pot With Potash"),
 	tiles = {
-		"tech_water_pot_empty.png",
+		"tech_pottery.png^tech_pot_empty.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
 		"tech_pottery.png",
@@ -363,6 +391,24 @@ minetest.override_item("tech:clay_water_pot_potash",
 	on_timer = function(pos, elapsed)
 		if climate.get_point_temp(pos) > 100 then
 			minetest.swap_node(pos, {name = "tech:dry_potash_pot"})
+			return false
+		end
+
+		return true
+	end,
+
+})
+minetest.override_item("tech:wooden_water_pot_potash",
+{
+	on_construct = function(pos)
+		minetest.get_node_timer(pos):start(math.random(10,20))
+	end,
+        on_burn = function(pos)
+            minetest.swap_node(pos, {name = "tech:potash"})
+        end,
+	on_timer = function(pos, elapsed)
+		if climate.get_point_temp(pos) > 100 then
+			minetest.swap_node(pos, {name = "tech:potash"})
 			return false
 		end
 
@@ -661,11 +707,14 @@ minetest.register_node("tech:glass_bottle_green", {
 	on_use = function(itemstack, user, pointed_thing)
 		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	end,
+  on_place = function(itemstack, placer, pointed_thing)
+    return liquid_store.on_place("tech:glass_bottle_green", itemstack, placer, pointed_thing)
+  end,
 		--collect rain water
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(30,60))
 	end,
-	groups = {dig_immediate = 2, pottery = 1, temp_pass = 1},
+	groups = {dig_immediate = 2, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	use_texture_alpha = c_alpha.blend,
 	selection_box = {
@@ -687,11 +736,14 @@ minetest.register_node("tech:glass_bottle_clear", {
 	on_use = function(itemstack, user, pointed_thing)
 		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	end,
+  on_place = function(itemstack, placer, pointed_thing)
+    return liquid_store.on_place("tech:glass_bottle_clear", itemstack, placer, pointed_thing)
+  end,
 		--collect rain water
 	on_construct = function(pos)
 		minetest.get_node_timer(pos):start(math.random(30,60))
 	end,
-	groups = {dig_immediate = 2, pottery = 1, temp_pass = 1},
+	groups = {dig_immediate = 2, temp_pass = 1},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	use_texture_alpha = c_alpha.blend,
 	selection_box = {

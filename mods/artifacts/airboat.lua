@@ -20,7 +20,8 @@ end
 -- Airboat entity
 
 local airboat = {
-		initial_properties = {
+	_desc = "Airboat",
+	initial_properties = {
 		physical = true,
 		collide_with_objects = true,
 		selectionbox = {-0.9, 0.5, -0.9, 0.9, 1.7, 0.9},
@@ -61,7 +62,7 @@ function airboat.attach (self, player, pname)
 			{x = 0, y = 0, z = 0})
    end)
    minetest.sound_play("artifacts_airboat_gear",
-		       {pos = self.object:get_pos().pos, gain = 1,
+		       {pos = self.object:get_pos(), gain = 1,
 			max_hear_distance = 6})
    player:set_look_horizontal(self.object:get_yaw())
 end
@@ -90,6 +91,7 @@ function airboat.on_rightclick(self, clicker)
 	   clicker:set_detach()
 	   player_api.player_attached[name] = false
 	   minetest.after(0.2, function()
+			     if not minetest.is_player(clicker) then return end
 			     player_api.set_animation(clicker, "stand" , 30)
 			     clicker:set_eye_offset({x = 0, y = 0, z = 0},
 				{x = 0, y = 0, z = 0})
@@ -247,7 +249,7 @@ function airboat.on_step(self, dtime)
 	p.y = p.y - 1.5
 	local def = minetest.registered_nodes[minetest.get_node(p).name]
 	if def and (def.liquidtype == "source" or def.liquidtype == "flowing") then
-	   accel = vector.add(accel, {x = 0, y = 10, z = 0})
+	   accel = vector.add(accel, {x = 0, y = 5, z = 0})
 	end
 	local newvec = vector.subtract(vector.new(self.vx, self.vy, self.v),
 				       lvelocity)
@@ -356,7 +358,7 @@ minetest.register_node("artifacts:airboat_nodebox", {
 		"artifacts_airboat_top.png",
 		"artifacts_airboat_base.png",
 		"artifacts_airboat_right.png",
-		"artifacts_airboat_left.png",
+		"artifacts_airboat_right.png^[transformFX", -- flip right to left, use 1 less texture file
 		"artifacts_airboat_front.png",
 		"artifacts_airboat_back.png",
 	},

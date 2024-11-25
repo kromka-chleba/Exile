@@ -88,7 +88,7 @@ local function check_for_moisture(pos)
 end
 
 local function check_for_air(pos)
-    return minetest.find_node_near(pos, 1, {"air"})
+    return minetest.find_node_near(pos, 1, {"group:air"})
 end
 
 function lightsource.extinguish(desc, pos)
@@ -148,11 +148,12 @@ function lightsource.refill(desc, pos, clicker, itemstack)
             if fuel > desc.max_fuel then fuel = desc.max_fuel end -- yeah, I know lol
             meta:set_int("fuel", fuel)
             local name = clicker:get_player_name()
-            if not minetest.is_creative_enabled(name) then
+            if not minimal.player_in_creative(name) then
                 itemstack:take_item()
             end
             lightsource.update_fuel_infotext(desc, pos)
-            return itemstack
+            return true
         end
     end
+    return false
 end

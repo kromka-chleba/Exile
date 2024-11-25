@@ -98,11 +98,13 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	 meta:set_string("formspec", pot_formspec)
 	 meta:set_int("baking", cook_time)
 	 timer:start(6)
-	 if itemname ~= liquid then -- it's stored in a container
-	    return liquid_store.drain_store(clicker, itemstack)
-	 else
-	    itemstack:take_item()
-	 end
+  if not minimal.player_in_creative(clicker) then
+    if itemname ~= liquid then -- it's stored in a container
+      return liquid_store.drain_store(clicker, itemstack)
+    else
+      itemstack:take_item()
+    end
+  end
       end
       return itemstack
 -- XXX Was going to add ability to take water out of a prepared pot but more complicated
@@ -189,7 +191,8 @@ local function pot_cook(pos, elapsed)
 		      if baking <= 0 then
 			 local firstingr
 			 for i = 1, #inv do
-			    local ingr = inv[i]:get_description()
+			    local ingr = inv[i]:get_description() or
+			       inv[i]:get_short_description()
 			    if ingr ~= "" then
 			       firstingr = ingr
 			       break
@@ -204,12 +207,18 @@ local function pot_cook(pos, elapsed)
 			 for i = 1, #inv do
 			    inv[i]:clear()
 			 end
+       minetest.sound_play("tech_frying_final",{
+          pos = pos,
+          gain = 2,
+          fade = 0.1,
+          max_hear_distance = 13,
+        })
 			 inv[1]:replace(ItemStack("tech:soup "..portions))
 			 local imeta = inv[1]:get_meta()
 			 local portion = divide_portions(total)
 			 portion[2] = portion[2] + (100 / portions)
 			 imeta:set_string("eat_value", minetest.serialize(portion))
-			 imeta:set_string("description", S("@1 soup",firstingr))
+			 imeta:set_string("description", S("@1 soup",firstingr or "Odd"))
 			 meta:get_inventory(pos):set_list("main", inv)
 			 minimal.infotext_merge(pos, {
 				"Contents: "..S("@1 soup",firstingr),
@@ -230,6 +239,19 @@ local function pot_cook(pos, elapsed)
 			 if status ~= 'cooking' then
 				 meta:set_string('status', 'cooking')
 				 minimal.infotext_merge(pos, "Status: "..kind.." pot (cooking)", meta)
+         minetest.sound_play("tech_frying_start",{
+          pos = pos,
+          gain = 1,
+          fade = 1,
+          max_hear_distance = 12,
+        })
+      else
+        minetest.sound_play("tech_frying",{
+          pos = pos,
+          gain = 4,
+          fade = 0.4,
+          max_hear_distance = 5,
+        })
 			 end
 			 meta:set_int("baking", baking - 1)
 		      end
@@ -276,7 +298,7 @@ minetest.register_node("tech:cooking_pot", {
 		type = "fixed",
 		fixed = pot_box,
 	},
-	groups = {dig_immediate = 3, pottery = 1},
+	groups = {dig_immediate = 3, pottery = 1, heatable = 75 },
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
 	   clear_pot(pos)
@@ -363,10 +385,16 @@ minetest.register_node("tech:cooking_pot_unfired", {
 		type = "fixed",
 		fixed = pot_box,
 	},
-	groups = {dig_immediate=3, temp_pass = 1, falling_node = 1, heatable = 20},
+	groups = {dig_immediate=3, temp_pass = 1,
+		  falling_node = 1, heatable = 20},
 	sounds = nodes_nature.node_sound_stone_defaults(),
 	on_construct = function(pos)
-	   ncrafting.set_firing(pos, ncrafting.base_firing, ncrafting.firing_int)
+	   ncrafting.set_firing(pos, ncrafting.base_firing,
+				ncrafting.firing_int)
+	end,
+	on_dig = function(pos, node, digger)
+	   return ncrafting.on_dig_pottery(pos, node, digger,
+					   ncrafting.base_firing)
 	end,
 	on_timer = function(pos, elapsed)
 		--finished product, length

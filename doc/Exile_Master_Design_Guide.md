@@ -4,7 +4,7 @@ This document exists to explain Exile's design approach. It is the master docume
 
 Any collective activity needs a shared vision and culture. The hope is that the ideas and principles described here can guide discussions, keep the design focused around a coherent vision, and help new contributors understand what Exile is about and how it works.
 
-This is a set of suggestions and guides, subject to discussion and revision, rather than unbreakable laws. People make decisions, not pieces of paper. 
+This is a set of suggestions and guides, subject to discussion and revision, rather than unbreakable laws. People make decisions, not pieces of paper.
 
 Please read relevant sections if you want to contribute content to the game (beyond simple bugfixes). It's much easier to discover that an idea clashes with Exile's design at the start rather than after long hours of coding.
 
@@ -61,10 +61,10 @@ Please be aware: at a surface level Exile is similar to many other games. Howeve
 
 ### *Is My Idea Good?*
 - Rather than "Good" or "Bad" try to think in terms of "Fit". Is this idea right for the game? Does it meet the design criteria? A bad implementation can be improved. A bad fit was never appropriate to begin with.
-- We'd rather accept new ideas and contributions than reject them. That said, oftentimes even good ideas just don't fit. No game can be all things to all people. 
+- We'd rather accept new ideas and contributions than reject them. That said, oftentimes even good ideas just don't fit. No game can be all things to all people.
 
 ### *My Idea Doesn't Fit, But I Still Think it's a Good Idea*
-- This is why modding exists. Create an independent mod. 
+- This is why modding exists. Create an independent mod.
 - Exile is intended to be modding friendly. If something in the game makes it difficult to add your mod, then raise the issue so this can be fixed and made easier for modders.
 
 ### *But I Really Want My Idea in the Core Game*
@@ -81,7 +81,7 @@ Limitations:
 - While it might "bend the rules", the feature still shouldn't break the design intent of the game.
 - The feature should be non-critical content. The game can be played without it.
 
-## Review and Critique 
+## Review and Critique
 - Having other people examine your work can be an anxiety inducing. This document exists to help remove some of the pain by keeping things focused on design rather than personality.
 - If discussions drift into bad process, consider referring to design points in this guide to get things refocused on the project instead of clashing personalities.
 - Remember, we all have bad days and limitations.
@@ -121,10 +121,10 @@ Bad process:
 - Exile's natural world is scientifically informed, based on the original developer's own expertise in ecology, plus inspiration from landscape painting, nature documentaries and similar.
 - Science fiction and fantasy are great sources of ideas. Exile is sci-fi, and often uses fantasy aesthetics.
 - The themes of tragedy and exile are inspired by ancient Greek plays, and real history.
- 
+
 ## Intended Audience
 - Age range: older teen to adult. The game might contain mature content and themes, but we are not interested in the "bad taste" types of mature content that typically cause controversy (e.g. extreme gore, pornography etc).
-- Culture/Language: global, with translations where possible. A common project does require a common language. Lacking anything better, the preferred language for development is English. We acknowledge this creates unwanted difficulties for non-English speakers. 
+- Culture/Language: global, with translations where possible. A common project does require a common language. Lacking anything better, the preferred language for development is English. We acknowledge this creates unwanted difficulties for non-English speakers.
 - Player skill level: sufficiently accessible to beginners for casual play, but optimized for experienced players.
 
 ## Core Design Elements
@@ -150,9 +150,9 @@ What do you do // Why is it in the game (e.g. emotional effect)
 - For example, adding a "Return Home" phase of the game requiring conquering a city would be feature creep. That idea is better as an independent game (and it might be a great game too!).
 
 ### *Depth*
-- True depth comes from adding interaction between core mechanics. 
+- True depth comes from adding interaction between core mechanics.
 - Core Mechanics Interaction = Emergent Possibility Space
-- The core mechanics interact so that emergent experiences come out of them (both in terms of actual actions, and the emotions or "feel" of the experience). The more these mechanics interact the more possibility of depth exists. A wider possibility space of player experiences. 
+- The core mechanics interact so that emergent experiences come out of them (both in terms of actual actions, and the emotions or "feel" of the experience). The more these mechanics interact the more possibility of depth exists. A wider possibility space of player experiences.
 - For example, Building can influence Physiology (e.g. building shelters to rest in), and Physiology can influence Building (e.g. running out of energy to build shelter). This sets up a feedback loop of interacting mechanics generating interesting experiences and player actions. (e.g. the player runs out of energy, so can't build shelter, so builds a fire instead, then accidently sets themselves on fire, then it rains and the fire goes out, and because they are now wounded they soon freeze to death. Without the interactions this wouldn't happen).
 - All the core mechanics combined gives the game it's underlying soul. Wonder at the environment + Meaning from character + High stakes from physiology + Creative accomplishment from building = the feeling you get playing Exile specifically, rather than some other game.
 
@@ -194,7 +194,7 @@ Dark Souls is famous for helping people overcome depression. This is achieved by
 - Beauty amidst pain and struggle. Not everything is bad or evil. In fact much remains wonderful, even in the darkest times.
 - Acceptance for failure and brokenness. Two of the biggest fears people have are rejection and failure. Exile starts out by rejecting you, after that you fail repeatedly. You can learn to accept and overcome these fears.
 
-Compare this with games based on wish fulfilment. Success is easy, or everything is happy. This provides escapism, but only by contrasting with the difficulties of your real life. In Exile you are presented with problems worse than your real life, then you discover you can overcome them. 
+Compare this with games based on wish fulfilment. Success is easy, or everything is happy. This provides escapism, but only by contrasting with the difficulties of your real life. In Exile you are presented with problems worse than your real life, then you discover you can overcome them.
 
 ### *No Toxic Heroism or Excessive Wish-fulfilment:*
 Many games are built around the belief that people want to experience a god-like power fantasy of violent domination. Exile is not that game. This means: no Hero's Journey, no Chosen Ones, no singlehandedly saving the universe. You're character is a small thing in an overwhelming world of vast size and age.
@@ -209,7 +209,7 @@ For more understanding of this perspective, read "The Carrier Bag Theory of Fict
 
 ### *Amor fati (love fate):*
 - Central to good mental health is learning to accept reality (e.g. as in mindfulness meditation).
-- The game might not give you what you wanted, but perhaps you will discover things you didn't know you needed. You don't choose your hand, you choose how you play it. You must learn to accept who your character is, and their tragic fate. 
+- The game might not give you what you wanted, but perhaps you will discover things you didn't know you needed. You don't choose your hand, you choose how you play it. You must learn to accept who your character is, and their tragic fate.
 
 ### *Multiplayer Favours Cooperation Rather Than Conflict:*
 - While people are free to play as they please, consistency with the rest of the design is likely to push things towards cooperation.
@@ -244,7 +244,7 @@ For more understanding of this perspective, read "The Carrier Bag Theory of Fict
 - What counts as difficult varies between players and skill levels, so the game requires a spread of challenge in different areas.
 
 ### *Experimentation and Discovery:*
-- Mastering survival and technology is never about levelling up it's about figuring out how the world works. Exile contains secrets to discover and problems to solve. 
+- Mastering survival and technology is never about levelling up it's about figuring out how the world works. Exile contains secrets to discover and problems to solve.
 
 ### *Appropriate Technology Choices:*
 - The player tries to choose the best technology for the situation, rather than grind up a linear tech tree.
@@ -253,7 +253,7 @@ For more understanding of this perspective, read "The Carrier Bag Theory of Fict
 
 ### *Intrinsic Motivators Over Extrinsic Motivators:*
 - The player should be primarily engaged internally (e.g. creativity, exploration, fun, joy, meaning etc).
-- External engagement (e.g. rewards, points, access to items, new levels etc) are okay, but they take second place and are problematic if they conflict with intrinsic motivators (which they often do). 
+- External engagement (e.g. rewards, points, access to items, new levels etc) are okay, but they take second place and are problematic if they conflict with intrinsic motivators (which they often do).
 
 
 ## Design Principles - Nature
@@ -327,14 +327,14 @@ Any one should be able to play this game if they want. That means:
 ### *Style:*
 - Narrative is mostly open and ambiguous, left to the player's own interpretation and imagination. As with the ambiguous scifi-fantasy aspect, this allows a diverse range of players to have very different experiences of the game.
 
-### *Tone:* 
+### *Tone:*
 - The subject matter is fairly dark, but being a block world it's hard to take the game overly seriously.
 - Exile is open to being light-hearted in tone when appropriate, in combination with the inherently darker aspects of the game. e.g. some Exile character stories are fairly ridiculous, and deaths often come from having done something idiotic.
 
 ### *Setting: The Ancients*
 Thousands of years ago a powerful civilization once existed. They are known as the Ancients.
 
-The Ancient's ruling ideology pursued power above all else, with the ultimate goal of transcending physical reality itself. They believed the physical world was corrupt, compared to a perfect disembodied state of pure rational consciousness capable of shaping reality at will. Nature, and even people, were simply resources to be used in the pursuit of this ultimate power. 
+The Ancient's ruling ideology pursued power above all else, with the ultimate goal of transcending physical reality itself. They believed the physical world was corrupt, compared to a perfect disembodied state of pure rational consciousness capable of shaping reality at will. Nature, and even people, were simply resources to be used in the pursuit of this ultimate power.
 
 The Ancients never saw a megaproject they didn't like.
 
@@ -394,7 +394,7 @@ While the mood is appropriate, it might not make much sense to explicitly identi
 
 ### *Setting: Gateways*
 - This is how the exodus left the city, and how exiles are sent back. It is a ultra-powerful form of teleportation.
-- The Gateways were created for the same reasons people fantasize about colonizing Mars because they think Earth is doomed. In this world people actually tried to do something like that. The Gateways create wormholes (or something similar) to other planets, or maybe even space stations or other exotic locations. 
+- The Gateways were created for the same reasons people fantasize about colonizing Mars because they think Earth is doomed. In this world people actually tried to do something like that. The Gateways create wormholes (or something similar) to other planets, or maybe even space stations or other exotic locations.
 
 ### *Setting: Non-exodus Cultures*
 - The Ancient's city in the game is just one city. A civilisation of this sophistication could have controlled an entire planet.
@@ -538,18 +538,37 @@ Dense areas are cold, open are hot. e.g. woodland (hot) vs forest (cold).
 - Bottom of the map is unsurvivable lava.
 
 ## Naming Conventions for Nature
-Exile is not Earth. Plants and animals are unique species with unique names.
+- Exile is not Earth. Plants and animals are unique species with unique names.
 
-Many of the names were adapted from world languages (often by typing random words into online Translators), or at least mimic the sound structure of certain languages. Things got jumbled up, but it roughly started out this way: 
+- Many of the original plant & animal names were adapted from world languages (often by typing random words into online translators), or at least mimic the sound structure of certain languages. Those original names were also shaped by the original developer's cultural background, which means many names ended up sounding like a combination of English and Maori, plus hints of European Romance languages and East Asian languages.
+
+- For consistent naming try to follow these rules. Occasional exceptions are okay. The aim is for plausible sounding names, that fit with the rest of the game.
+
+Sounds structure:
+Names should be constructed by combining components as so:
+- use open syllables e.g. ka, ke, ki
+- use open vowels e.g. a, e, i, au, ao, ai
+- use syllables with soft endings e.g. kal, kam, kas, kah, kar
+- use vowels with soft endings e.g. al, af, as, ar, ah
+- Two to four syllables is usually enough.
+- Examples: ha-ki-mi, wi-ha, a-laf, im-peth-u
+- occasional deviations from this pattern are acceptable
+
+Theme:
+Names may wish to follow the biome's theme. Consider deriving your names from real world languages as follows:
 - grasslands: African
 - marshlands: Celtic
 - barren lands: Central Asia
 - forests: S/SE/E Asia
 - underground: India
 - water life: Polynesian
+- Deviations from this pattern are acceptable. Things started with this pattern, but have since become jumbled up.
 
-Geology, soils etc uses standard names (e.g. limestone, clay) as such processes are the same regardless what planet you are on.  
-
+Other:
+- The person who makes the item gets first dibs at naming it, within reason.
+- Try to avoid obvious recognizable words from the major world languages (e.g. English, Spanish).
+- Try not to name things after real world plants and animals (e.g. oak tree, tiger)
+- Geology, soils etc uses standard names (e.g. limestone, clay) as such processes are the same regardless what planet you are on.
 
 
 ## Art Style
@@ -621,7 +640,7 @@ Because it's better to have the argument in a self-aware manner, rather than pai
 
 ### *Mental Illness:*
 - Character psychological states are difficult to represent in a first-person game for practical reasons.
-- Be aware of the potential for accidently trivializing serious conditions. 
+- Be aware of the potential for accidently trivializing serious conditions.
 
 ### *Gaming Addiction"*
 - Many people have problems with excessive gaming. Exile should be designed in a way that minimizes that issue, or at least doesn't worsen things.
@@ -630,7 +649,7 @@ Because it's better to have the argument in a self-aware manner, rather than pai
 - This game might be played by someone who is actively suicidal or experiencing suicidal thoughts. The game needs to be a safe place for them while they manage that problem.
 - Game balance should never make suicide an optimal strategy, nor have rewards that can only be achieved via suicide.
 - Anything that is not the player consciously deciding to end a character's life should not be framed as suicide. e.g. "choose new character" NOT "commit suicide"
-- Detailing suicide methods is problematic (e.g. allowing the player to make a noose and hang themselves). A suicidal person may attempt to use such a method for real. 
+- Detailing suicide methods is problematic (e.g. allowing the player to make a noose and hang themselves). A suicidal person may attempt to use such a method for real.
 - Suicide should not be glamorized as something easy, painless, or desirable (the "Werther Effect"). If suicide is to be deliberately portrayed it should show the reality - the attempt is often slow, painful, and results in long term injury instead of death. Better still is to portray characters overcoming suicidal impulses and achieving recovery (The "Papageno Effect").
 
 ### Misc:
@@ -652,6 +671,10 @@ Many any other subjects might arise, and need more careful attention one day. e.
 ### *How to Create Content in Minetest:*
 Refer to [Rubenwardy's modding book for a guide](https://rubenwardy.com/minetest_modding_book/en/index.html)
 
+### *How to Contribute:*
+- See CONTRIBUTING.md for instructions.
+- Refer to the [Pro Git book](https://git-scm.com/book/en/v2) for advice on using Git.
+
 ### *Clarity:*
 - The code base needs to be understandable to diverse people, many of whom are amateurs.
 
@@ -664,46 +687,3 @@ Refer to [Rubenwardy's modding book for a guide](https://rubenwardy.com/minetest
 ### *Compatibility:*
 - Compatibility breaking updates are acceptable while Exile is still in early development (preferably including legacy support).
 - However, as the player base grows and the game gets more stable breaking things will become more problematic.
-
-
-## Module Directory
-
-- animals: animal mobs
-- artifacts: Undercity items
-- backpacks: api for bags
-- bed_rest: api for beds
-- bones: api for bones
-- canoe: api for small boats
-- climate: weather and temperature system
-- clothing: api for clothes
-- crafting: api for crafting system (shared Minetest content)
-- creative: enables creative mode
-- doors: api for doors
-- exile_env_sounds: environmental sound effects
-- grafitti: api for paint
-- health: the health system
-- inferno: fires and flammability
-- lightning: thunder and lightning
-- liquid_store: api for water vessels
-- lore: character and story system
-- mapgen: biomes and decorations
-- megamorph: mapgen Undercity structures
-- minimal: core essential and commonly used code
-- mobkit: mobs api (shared Minetest content)
-- naturalslopeslib: stepped hillsides api (shared Minetest content)
-- ncrafting: in world crafting functions e.g. soaking, baking
-- nodes_nature: natural world blocks and associated processes
-- player_api: player models etc (shared Minetest content)
-- player_monoids: api for assisting with player physics (shared Minetest content)
-- rings: mapgen spawns large ruined ring structures
-- ropes: api for ropes and rope ladders
-- sfinv: inventory api (shared Minetest content)
-- spears: throwable spears api (shared Minetest content)
-- stairs: slabs and stairs api
-- tech: most player crafted items
-- volcano: mapgen spawns volcanoes and lava tubes
-- wielded_light: player holdable light effects (shared Minetest content)
-
-
- 
-

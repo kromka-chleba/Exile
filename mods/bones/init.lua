@@ -37,41 +37,7 @@ minetest.register_node("bones:bones", {
 	tiles = {"bones_bone.png"},
 	stack_max = minimal.stack_max_bulky,
 	drawtype = "nodebox",
-	node_box = {
-			type = "fixed",
-			fixed = {
-				{-0.1250, -0.5000, -0.5000,  0.0625, -0.3750,  0.0625}, -- NodeBox1
-				{-0.1875, -0.5000,  0.0625,  0.1250, -0.3125,  0.2500}, -- NodeBox2
-				{ 0.0625, -0.5000, -0.5000,  0.3125, -0.4375, -0.3750}, -- NodeBox3
-				{-0.3750, -0.5000, -0.5000, -0.1250, -0.4375, -0.3750}, -- NodeBox4
-				{ 0.0625, -0.5000, -0.3125,  0.3125, -0.4375, -0.2500}, -- NodeBox5
-				{-0.3750, -0.5000, -0.3125, -0.1250, -0.4375, -0.2500}, -- NodeBox6
-				{-0.3750, -0.4375, -0.3125, -0.3125, -0.3125, -0.2500}, -- NodeBox7
-				{ 0.2500, -0.4375, -0.3125,  0.3125, -0.3125, -0.2500}, -- NodeBox8
-				{ 0.0000, -0.3125, -0.3125,  0.3125, -0.2500, -0.2500}, -- NodeBox9
-				{-0.3750, -0.3125, -0.3125, -0.0625, -0.2500, -0.2500}, -- NodeBox10
-				{-0.0625, -0.3125, -0.3125,  0.0000, -0.2500, -0.0625}, -- NodeBox11
-				{-0.3750, -0.5000, -0.1875, -0.1250, -0.4375, -0.1250}, -- NodeBox12
-				{-0.3750, -0.3125, -0.1875, -0.0625, -0.2500, -0.1250}, -- NodeBox13
-				{-0.3750, -0.4375, -0.1875, -0.3125, -0.3125, -0.1250}, -- NodeBox14
-				{ 0.0625, -0.5000, -0.1875,  0.3125, -0.4375, -0.1250}, -- NodeBox15
-				{ 0.2500, -0.4375, -0.1875,  0.3125, -0.3125, -0.1250}, -- NodeBox16
-				{ 0.3750, -0.5000, -0.4375,  0.4375, -0.4375, -0.1250}, -- NodeBox17
-				{-0.4375, -0.5000, -0.2500, -0.3750, -0.4375,  0.0625}, -- NodeBox18
-				{-0.3125, -0.5000,  0.1250, -0.1875, -0.4375,  0.4375}, -- NodeBox19
-				{ 0.1875, -0.5000,  0.0000,  0.2500, -0.3750,  0.4375}, -- NodeBox20
-				{ 0.3125, -0.5000, -0.0625,  0.5000, -0.4375,  0.1250}, -- NodeBox21
-				{ 0.2500, -0.3750, -0.1250,  0.4375, -0.1875,  0.1875}, -- NodeBox23
-				{ 0.3125, -0.4375, -0.0625,  0.4375, -0.3750,  0.1250}, -- NodeBox28
-				{ 0.3125, -0.5000,  0.4375,  0.5000, -0.4375,  0.5000}, -- NodeBox29
-				{-0.4375, -0.5000,  0.1875, -0.3750, -0.4375,  0.3750}, -- NodeBox30
-				{ 0.4375, -0.2500, -0.1250,  0.5000, -0.1875,  0.1875}, -- NodeBox31
-				{ 0.4375, -0.3750, -0.1250,  0.5000, -0.3125,  0.1875}, -- NodeBox32
-				{ 0.4375, -0.3125, -0.1250,  0.5000, -0.2500, -0.0625}, -- NodeBox33
-				{ 0.4375, -0.3125,  0.1250,  0.5000, -0.2500,  0.1875}, -- NodeBox34
-				{ 0.4375, -0.3125,  0.0000,  0.5000, -0.2500,  0.0625}, -- NodeBox35
-			}
-		},
+	node_box = minimal.nodebox["bones"],
 	paramtype = "light",
 	paramtype2 = "facedir",
 	sunlight_propagates = true,
@@ -86,6 +52,25 @@ minetest.register_node("bones:bones", {
 			name = player:get_player_name()
 		end
 		return is_owner(pos, name) and inv:is_empty("main")
+	end,
+
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+	   local stack_meta = itemstack:get_meta():to_table()
+	   minetest.get_meta(pos):from_table(stack_meta)
+	end,
+
+	preserve_metadata = function(pos, oldnode, oldmeta, drops)
+	   local imeta = drops[1]:get_meta()
+	   if (not oldmeta) then return end
+	   if oldmeta.char_name and oldmeta.ex_origin then
+	      local info = S("@1 of @2's bones",
+			     oldmeta.char_name, oldmeta.ex_origin)
+	      imeta:from_table({
+		    fields = { char_name = oldmeta.char_name,
+			       ex_origin = oldmeta.ex_origin,
+			       description = info,
+			       infotext = info } })
+	   end
 	end,
 
 	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
@@ -145,12 +130,7 @@ minetest.register_node("bones:bones", {
 
 		-- remove bones if player emptied them
 		if has_space then
-			if player_inv:room_for_item("main", {name = "bones:bones"}) then
-				player_inv:add_item("main", {name = "bones:bones"})
-			else
-				minetest.add_item(pos,"bones:bones")
-			end
-			minetest.remove_node(pos)
+		   minetest.node_dig(pos,node,player)
 		end
 	end,
 
@@ -169,30 +149,30 @@ minetest.register_node("bones:bones", {
 	end,
 })
 
-local function may_replace(pos, player)
+local function may_replace(pos, player, pname)
 	local node_name = minetest.get_node(pos).name
-	local node_definition = minetest.registered_nodes[node_name]
-
+	local node_def = minetest.registered_nodes[node_name]
 	-- if the node is unknown, we return false
-	if not node_definition then
+	if not node_def then
 		return false
 	end
 
 	-- allow replacing air and liquids
-	if node_name == "air" or node_definition.liquidtype ~= "none" then
+	if (node_def.drawtype == "airlike" and node_def.buildable_to == true)
+	   or node_def.liquidtype ~= "none" then
 		return true
 	end
 
 	-- don't replace filled chests and other nodes that don't allow it
-	local can_dig_func = node_definition.can_dig
-	if can_dig_func and not can_dig_func(pos, player) then
+	local can_dig_func = node_def.can_dig
+	if can_dig_func and player and not can_dig_func(pos, player) then
 		return false
 	end
 
 	-- default to each nodes buildable_to; if a placed block would replace it, why shouldn't bones?
 	-- flowers being squished by bones are more realistical than a squished stone, too
 	-- exception are of course any protected buildable_to
-	return node_definition.buildable_to and not minetest.is_protected(pos, player:get_player_name())
+	return node_def.buildable_to and not minetest.is_protected(pos, pname)
 end
 
 local drop = function(pos, itemstack)
@@ -206,7 +186,7 @@ local drop = function(pos, itemstack)
 	end
 end
 
-local player_inventory_lists = { "main", "craft" }
+local player_inventory_lists = { "main", "craft", "cloths" }
 bones.player_inventory_lists = player_inventory_lists
 
 local function is_all_empty(player_inv)
@@ -252,13 +232,20 @@ minetest.register_on_dieplayer(function(player)
 	end
 
 	-- check if it's possible to place bones, if not find space near player
-	if bones_mode == "bones" and not may_replace(pos, player) then
-		local air = minetest.find_node_near(pos, 1, {"air"})
+	if bones_mode == "bones" and not may_replace(pos, player,
+						     player_name) then
+	   local above = vector.new(pos.x,pos.y+1,pos.z)
+	   if may_replace(above, player, player_name) then
+	      pos = above
+	   else
+	      local air = minetest.find_node_near(pos, 1, {"air",
+							   "group:water"} )
 		if air and not minetest.is_protected(air, player_name) then
 			pos = air
 		else
 			bones_mode = "drop"
 		end
+	   end
 	end
 
 	if bones_mode == "drop" then
@@ -320,6 +307,13 @@ minetest.register_on_dieplayer(function(player)
 	meta:set_string("formspec", bones_formspec)
 	meta:set_string("owner", player_name)
 
+	local playermeta = player:get_meta():to_table()
+	local charname = playermeta.fields.char_name
+	local origin = playermeta.fields.ex_origin
+	if charname and origin then
+	   meta:set_string("char_name", charname)
+	   meta:set_string("ex_origin", origin)
+	end
 	if share_bones_time ~= 0 then
 		minimal.infotext_merge(pos,'Status: '..S("@1's fresh bones", player_name),meta)
 		if share_bones_time_early == 0 or not minetest.is_protected(pos, player_name) then

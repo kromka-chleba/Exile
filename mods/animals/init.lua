@@ -9,16 +9,13 @@ dofile(path.."/crafts.lua")
 dofile(path.."/api_capture.lua")
 dofile(path.."/api.lua")
 
-
-dofile(path.."/impethu.lua")
-dofile(path.."/kubwakubwa.lua")
-dofile(path.."/darkasthaan.lua")
-
-dofile(path.."/gundu.lua")
-dofile(path.."/sarkamos.lua")
-
-dofile(path.."/pegasun.lua")
-dofile(path.."/sneachan.lua")
+local mobs_folder = minetest.get_dir_list(path.."/mobs") -- get each file in folder
+for _,file in pairs(mobs_folder) do
+  -- run any lua file inside of "animals/mobs" (put animals in here)
+   if file:sub(#file-3,#file) == ".lua" then
+      dofile(path.."/mobs/"..file)
+   end
+end
 
 ---
 --Food Web
