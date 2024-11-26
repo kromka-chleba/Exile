@@ -2314,7 +2314,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 
     local function end_func()
         self.threat = nil
-        return
+        return true
     end
 
     local func = function(self)
