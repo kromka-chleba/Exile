@@ -1888,6 +1888,15 @@ end
 --attack or run vs entity or player
 function animals.fight_or_flight(self, threat, prty, chance)
     prty = type(prty) == "number" and prty or 55
+    if self.class ~= 2 then
+        -- wait! check if we're in water!
+        local nodeat = minimal.get_nodedef(mobkit.get_stand_pos(self))
+        if nodeat.drawtype == "liquid" then
+            -- GOTTA GET OUT
+            animals.hq_liquid_recovery(self, 70)
+            return
+        end
+    end
     if type(chance) ~= "number" then
         if minetest.is_player(threat) then
             chance = self.player_interaction
@@ -1919,7 +1928,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
             end
         end
     end
-    if self.threat and (self.threat == threat.object or threat) then return end
+    if chance ~= 0 and self.threat and (self.threat == threat.object or threat) then return end
     mobkit.clear_queue_high(self) -- clear all other high tasks
     --fight chance, or run away
     -- (+against players as well, there was a notice about attacking players
@@ -2314,7 +2323,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 
     local function end_func()
         self.threat = nil
-        return
+        return true
     end
 
     local func = function(self)
@@ -3147,6 +3156,17 @@ function animals.size_dif_mechanics(self)
     else
         self.player_interaction = player_aggro
         self.predator_interations = pred_aggro
+    end
+    -- fix animals growing and falling underground (hopefully?)
+    if data.initial_properties then
+        local pos = self.object:get_pos()
+        local nodeat = minimal.get_nodedef(pos)
+        -- stuck in a node that we can walk on
+        if nodeat.walkable then
+            pos.y = pos.y + 1 + (abs(data.initial_properties.collisionbox[2]) +
+                abs(data.initial_properties.collisionbox[5]))
+            self.object:set_pos(pos)
+        end
     end
 end
 
