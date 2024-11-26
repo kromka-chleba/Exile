@@ -100,6 +100,10 @@ local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef
     bag_desc = type(add_string) == "string" and bag_desc..add_string or bag_desc
     bag_desc = type(idef.backpack_use_tip) == "string" and
         bag_desc.."\n"..idef.backpack_use_tip or bag_desc
+    bag_desc = type(idef.backpack_dig_tip) == "string" and
+        bag_desc.."\n"..idef.backpack_dig_tip or bag_desc
+    bag_desc = type(idef.backpack_place_tip) == "string" and
+        bag_desc.."\n"..idef.backpack_place_tip or bag_desc
     imeta:set_string('description', bag_desc)
 end
 
