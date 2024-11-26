@@ -1888,6 +1888,15 @@ end
 --attack or run vs entity or player
 function animals.fight_or_flight(self, threat, prty, chance)
     prty = type(prty) == "number" and prty or 55
+    if self.class ~= 2 then
+        -- wait! check if we're in water!
+        local nodeat = minimal.get_nodedef(mobkit.get_stand_pos(self))
+        if nodeat.drawtype == "liquid" then
+            -- GOTTA GET OUT
+            animals.hq_liquid_recovery(self, 70)
+            return
+        end
+    end
     if type(chance) ~= "number" then
         if minetest.is_player(threat) then
             chance = self.player_interaction
