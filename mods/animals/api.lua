@@ -3148,6 +3148,17 @@ function animals.size_dif_mechanics(self)
         self.player_interaction = player_aggro
         self.predator_interations = pred_aggro
     end
+    -- fix animals growing and falling underground (hopefully?)
+    if data.initial_properties then
+        local pos = self.object:get_pos()
+        local nodeat = minimal.get_nodedef(pos)
+        -- stuck in a node that we can walk on
+        if nodeat.walkable then
+            pos.y = pos.y + 1 + (abs(data.initial_properties.collisionbox[2]) +
+                abs(data.initial_properties.collisionbox[5]))
+            self.object:set_pos(pos)
+        end
+    end
 end
 
 -- animals.age_mechanics
