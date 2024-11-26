@@ -64,8 +64,6 @@ backpacks.register_backpack(
 backpacks.register_backpack(
     "fabric_bag",{
         description = S("Fabric Bag"),
-        empty_name = S("Empty Fabric Bag"),
-        full_name = S("Full Fabric Bag"),
         texture = "tech_coarse_fabric.png",
         width = 8,
         height = 4,

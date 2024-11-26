@@ -1,9 +1,21 @@
 # textdomain: backpacks
 # init.lua
+# custom _empty_name, _full_name
+Empty @1=Пустая @1
+Full @1=Полная @1
+# pack-dump mechanics
 Dump Into Storage=Переместить в хранилище
 Pack Up Storage=Забрать вещи из хранилища
+# popular_item + slots
+@n@1 @2/@3 @n@4=
+Slots: @1, @2, @3=Слоты: @1, @2, @3
 @1 full=@1 полный
 @1 partial=@1 частично
 @1 empty=@1 пустой
-Slots: @1, @2, @3=Слоты: @1, @2, @3
+# basic slots
 @1/@2/@3=@1/@2/@3
+# use_tip
+Dump or pack=
+Dump=
+Pack=
+@1 contents into storage=

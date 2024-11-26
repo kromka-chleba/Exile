@@ -39,6 +39,74 @@ local function get_formspec(pos, w, h)
     return table.concat(formspec, "")
 end
 
+-- set bag itemstack description + inventory
+-- idef, label are not needed but can be specified to speed up process
+-- imeta or item_inv aren't needed either but are good to specify
+local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef, label)
+    imeta = imeta or item:get_meta()
+    item_inv = item_inv or minimal.get_item_inventory(item, imeta)
+    idef = idef or item:get_definition()
+    label = label or imeta:get_string('label')
+    local bag_desc = idef.description
+    local add_string -- used for additional info
+    local counts = item_inv:get_full_partial_empty_count()
+    counts.size = item_inv:get_size()
+    -- actually empty
+    if counts.size == counts.empty then
+        -- empty; no items, return empty_name
+        imeta:set_string("inv_main","")
+        bag_desc = idef._empty_name
+    else
+        if counts.size == (counts.full + counts.partial) then
+            bag_desc = idef._full_name
+        end
+        -- set up text colours that'll be used
+        local text_colours = {
+            minetest.get_color_escape_sequence(colours["full"]), -- full
+            minetest.get_color_escape_sequence(colours["partial"]), -- partial
+            minetest.get_color_escape_sequence(colours["neutral"]), -- empty
+            minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
+        }
+        -- get translated or regular stats
+        local slots = {
+            text_colours[1]..(more_info and S("@1 full", counts.full) or counts.full),
+            text_colours[2]..(more_info and S("@1 partial", counts.partial) or counts.partial),
+            text_colours[3]..(more_info and S("@1 empty", counts.empty) or counts.empty)
+        }
+        -- more descriptive information wanted
+        if more_info then
+              local most_popular = item_inv:get_most_popular_stats()
+              -- turn to number indexed table
+              most_popular = {
+                  -- convert name to ItemStack
+                  ItemStack(most_popular.name),
+                  most_popular.count,
+                  most_popular.max
+              }
+              -- get description, add colour
+              most_popular[1] = text_colours[4]..(most_popular[1]:get_short_description()
+                  or most_popular[1]:get_description())
+              -- add slots
+              slots = text_colours[3]..S("Slots: @1, @2, @3", slots[1], slots[2], slots[3])
+              add_string = S("@n@1 @2/@3 @n@4", most_popular[1], most_popular[2], most_popular[3], slots)
+        -- basic information
+        else
+            add_string = " "..S("- @1/@2/@3", slots[1], slots[2], slots[3])
+        end
+        -- set inventory
+        imeta:set_string('inv_main', item_inv:convert())
+    end
+    bag_desc = label ~= '' and bag_desc.." - "..label or bag_desc
+    bag_desc = type(add_string) == "string" and bag_desc..add_string or bag_desc
+    bag_desc = type(idef.backpack_use_tip) == "string" and
+        bag_desc.."\n"..idef.backpack_use_tip or bag_desc
+    bag_desc = type(idef.backpack_dig_tip) == "string" and
+        bag_desc.."\n"..idef.backpack_dig_tip or bag_desc
+    bag_desc = type(idef.backpack_place_tip) == "string" and
+        bag_desc.."\n"..idef.backpack_place_tip or bag_desc
+    imeta:set_string('description', bag_desc)
+end
+
 local packdump_forms = {}
 local function show_packdump_formspec(pos, playername, itemstack,
                                       can_dump, can_pack)
@@ -117,40 +185,42 @@ minetest.register_on_player_receive_fields(function(player,
         -- simply updates inventory
         local function update_inv()
             inv:set_list("main",node_list)
-            minimal.set_item_inventory(itemstack, item_meta,
-                                       "inv_main", item_inv)
+            -- set description
+            bagitem_set_description_and_inventory(itemstack, item_meta, item_inv)
             player:set_wielded_item(itemstack)
         end
         -- dump it all into that storage!
         if fields.Dump and (#node_inv:get_full() < node_inv:get_size()
                             and #item_inv:get_empty() ~= #item_list) then
+            local def = minimal.get_nodedef(pos)
             for index,item in pairs(item_list) do
-                item = node_inv:add_item(item)
-                item_list[index] = item
+                local count = item:get_count()
+                count = def.storage_inventory_dump_into and
+                def.storage_inventory_dump_into(item, count, item_inv, index, node_inv) or count
+                -- only modify inventory if count is greater than 0
+                if count > 0 then
+                    item = node_inv:add_item(item, nil, count)
+                    item_list[index] = item
+                end
             end
             update_inv()
             -- pack up that storage
         elseif fields.Pack and (#item_inv:get_full() < item_inv:get_size()) then
+            local def = itemstack:get_definition()
             for index,item in pairs(node_list) do
-                item = item_inv:add_item(item)
-                node_list[index] = item
+                local count = item:get_count()
+                count = def.storage_inventory_dump_into and
+                    def.storage_inventory_dump_into(item, count, node_inv, index, item_inv) or count
+                -- ditto to above
+                if count > 0 then
+                    item = item_inv:add_item(item, nil, count)
+                    node_list[index] = item
+                end
             end
             update_inv()
         end
         clear()
 end)
-
-local function get_description(node,meta,bag_name,add_string)
-    local desc = bag_name--minetest.registered_nodes[node.name].description
-    local label = meta:get_string('label')
-    if label ~= '' then
-        desc = desc.." - "..label
-    end
-    if type(add_string) == "string" and add_string ~= "" then
-        desc = desc..add_string
-    end
-    return desc
-end
 
 local after_place_node = function(pos, placer, itemstack, pointed_thing)
     local node = minetest.get_node(pos)
@@ -196,120 +266,13 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
     local bag_name = idef.description
     -- Transfer inventory to item
     local meta = minetest.get_meta(pos)
-    local inv = meta:get_inventory()
-    local list = {}
-    local for_calculation = {}
-    local space_taken = {0,0,0} -- full, partial, empty
-    for i, stack in ipairs(inv:get_list("main")) do
-        if stack:get_name() == "" then
-            list[i] = ""
-            space_taken[3] = space_taken[3] + 1
-            -- nothing in itemstack, considered "empty"
-        else
-            list[i] = stack:to_string()
-            local stack_count = stack:get_count()
-            local stack_max = stack:get_stack_max()
-            if (stack_count >= stack_max) then
-                -- allow for a stack count greater than its stack max in
-                --  case of weirdness, to calculate for "full"
-                space_taken[1] = space_taken[1] + 1
-            else
-                -- less than stack_max, considered "partial"
-                space_taken[2] = space_taken[2] + 1
-            end
-            local stack_table = for_calculation[stack:get_name()]
-            if not stack_table then
-                stack_table = {1, stack_count, stack_max}
-                -- indexes filled, total count, total counted max capacity
-            else
-                stack_table[1] = stack_table[1] + 1 -- indexes occupied
-                stack_table[2] = stack_table[2] + stack_count
-                stack_table[3] = stack_table[3] + stack_max
-            end
-            for_calculation[stack:get_name()] = stack_table
-        end
-    end
-    local list_size = space_taken[1] + space_taken[2] -- full + partial
-    local add_string
-    if list_size > 0 then
-        imeta:set_string('inv_main', minetest.serialize(list))
-        -- set list as "inv_main" metadata for item
-
-        local highest_data
-        for item_name,data in pairs(for_calculation) do
-            -- highest_data calculation
-            if not highest_data then
-                highest_data = data
-                table.insert(highest_data,1,item_name)
-                -- add item's name to beginning of table
-            elseif data[1] > highest_data[2] then
-                highest_data = data
-                table.insert(highest_data,1,item_name)
-            end
-        end
-        -- add the "[[" to the beginning to see what has to be removed
-        -- to remove popular_item (other parts of code will become unnecessary)
-        local popular_item = ItemStack(highest_data[1])
-        if popular_item then
-            if popular_item:get_short_description() then
-                popular_item = popular_item:get_short_description()
-            else
-                popular_item = popular_item:get_description()
-            end
-            popular_item = popular_item.." "..highest_data[3].."/"..
-                highest_data[4] -- amount of items/amount of max possible items
-        else
-            popular_item = ""
-        end
-        --]]
-        local inv_max = inv:get_size("main")
-        if list_size == inv_max then
-            -- full or near full, set full_name
-            bag_name = idef._full_name
-        end
-        local text_colours = {
-            minetest.get_color_escape_sequence(colours["full"]), -- full
-            minetest.get_color_escape_sequence(colours["partial"]), -- partial
-            minetest.get_color_escape_sequence(colours["neutral"]), -- empty
-            minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
-        }
-        popular_item = text_colours[4]..popular_item
-        -- remove if removing popular_item
-        space_taken[1] =
-            text_colours[1]..(more_info and S("@1 full", space_taken[1])
-                              or space_taken[1])
-        space_taken[2] =
-            text_colours[2]..(more_info and S("@1 partial", space_taken[2])
-                              or space_taken[2])
-        space_taken[3] =
-            text_colours[3]..(more_info and S("@1 empty", space_taken[3])
-                              or space_taken[3])
-        if more_info then
-            space_taken = text_colours[3]..
-                S("Slots: @1, @2, @3",
-                  space_taken[1],
-                  space_taken[2],
-                  space_taken[3])
-            add_string = "\n"..popular_item.."\n"..space_taken
-            -- remove "popular_item.."\n".." if removing popular_item
-        else
-            add_string = " - "..S("@1/@2/@3", space_taken[1]..text_colours[3],
-                                  space_taken[2]..text_colours[3], space_taken[3])
-            -- add_string = " - "..("@1/@2/@3", space_taken[1], space_taken[2], space_taken[3])
-        end
-
-    else
-        -- empty, no items, set empty_name
-        bag_name = idef._empty_name
-        imeta:set_string("inv_main","")
-    end
+    local inv = minimal.convert_node_inventory(meta)
     -- Set color
     local color = minetest.strip_param2_color(oldnode.param2,
                                               "colorwallmounted")
     imeta:set_int('palette_index', color)
-    -- Set Description
-    imeta:set_string('description', get_description(oldnode, meta,
-                                                    bag_name, add_string))
+    -- set description
+    bagitem_set_description_and_inventory(item, imeta, inv, idef, meta:get_string('label'))
     -- Set Formspec
     imeta:set_string('formspec', get_formspec(pos,width,height))
 end
@@ -327,15 +290,6 @@ local on_dig = function(pos, node, digger, width, height)
         return minetest.node_dig(pos, node, digger)
     end
     return false
-end
-
-local allow_metadata_inventory_put = function(pos, listname, index,
-                                              stack, player)
-    if not string.match(stack:get_name(), "backpacks:") then
-        return stack:get_count()
-    else
-        return 0
-    end
 end
 
 local wallmount_box = {
@@ -399,15 +353,20 @@ function backpacks.register_backpack(name, def)
         end
     end
     -- custom "empty_name" and "full_name"
-    def._empty_name = def._empty_name or def.empty_name or def.description
-    def._full_name = def._full_name or def.full_name or def.description
+    def._empty_name = def._empty_name or def.empty_name or S("Empty @1", def.description)
+    def._full_name = def._full_name or def.full_name or S("Full @1",def.description)
     -- can_dump and can_pack
     def.can_dump = type(def.can_dump) ~= "boolean" and true or def.can_dump
     def.can_pack = type(def.can_pack) ~= "boolean" and true or def.can_pack
-    -- use tip related (use_tips do not properly display)
-    --def._use_tip = (def.can_dump and def.can_pack and "Dump or pack"
-    -- or def.can_dump and "Dump" or def.can_pack and "Pack") or nil
-    --def._use_tip = def._use_tip and ("@1 contents into storage",S(def._use_tip))
+    -- tooltips
+    def.backpack_place_tip = def._place_tip and minetest.colorize("#ccccff", "v : "..def._place_tip) or nil
+    def.backpack_dig_tip = def._dig_tip and minetest.colorize("#ccccff", "^ : "..def._dig_tip) or nil
+    if not def._use_tip then
+        def._use_tip = (def.can_dump and def.can_pack and "Dump or pack"
+            or def.can_dump and "Dump" or def.can_pack and "Pack") or nil
+        def._use_tip = def._use_tip and S("@1 contents into storage", S(def._use_tip)) or nil
+    end
+    def.backpack_use_tip = def._use_tip and minetest.colorize("#ccccff", "◊ : "..def._use_tip) or nil
     -- formspec params
     def.formspec_width = def.formspec_width or def.width
     def.formspec_height = def.formspec_height or def.height
@@ -416,6 +375,9 @@ function backpacks.register_backpack(name, def)
     def.full_name = nil
     def.width = nil
     def.height = nil
+    def._use_tip = nil
+    def._place_tip = nil
+    def._dig_tip = nil
     -- basic def stuff
     def.paramtype2 = def.paramtype2 or "colorwallmounted"
     def.palette = "natural_dyes.png"
@@ -444,22 +406,18 @@ function backpacks.register_backpack(name, def)
     def._on_use_item = function(player, itemstack, pointed_thing)
         if not (pointed_thing and pointed_thing.under) then return end
         local pos = pointed_thing.under
-        local nname = minetest.get_node(pos).name
-        if not (minimal.is_group(nname,"storage")
-                or nname == "bones:bones") then return end
-        if minimal.is_group(nname,"no_packdump") then return end
+        local ndef = minimal.get_nodedef(pos)
+        if not (ndef and ndef.groups) then return end
+        -- needs to be storage or bones
+        if not (ndef.groups.storage or ndef.name == "bones:bones") then return end
+        if ndef.groups.no_packdump then return end
         local pname = player:get_player_name()
         if minetest.is_protected(pos,pname) then return end
         show_packdump_formspec(pos, player, itemstack,
                                (def.can_dump
-                                and not minimal.is_group(nname, "no_dump")),
+                                and not ndef.groups.no_dump),
                                (def.can_pack
-                                and not minimal.is_group(nname, "no_pack")))
-    end
-    def.allow_metadata_inventory_put = function(pos, listname, index,
-                                                stack, player)
-        return allow_metadata_inventory_put(pos, listname, index,
-                                            stack, player)
+                                and not ndef.groups.no_pack))
     end
     -- infotext handling
     def.on_infotext = def.on_infotext or function(pos, nodedef, meta, params)

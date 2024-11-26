@@ -1,12 +1,20 @@
 # textdomain: backpacks
 # init.lua
+# custom _empty_name, _full_name
+Empty @1=Volle @1
+Full @1=Leere @1
+# pack-dump mechanics
 Dump Into Storage=In Lagerplatz abladen
 Pack Up Storage=Lagerplatz einpacken
+# popular_item + slots
+@n@1 @2/@3 @n@4=@n@1 @2/@3 @n@4
+Slots: @1, @2, @3=Plätze: @1, @2, @3
 @1 full=@1 voll
 @1 partial=@1 zum Teil
 @1 empty=@1 leer
-Slots: @1, @2, @3=Plätze: @1, @2, @3
+# basic slots
 @1/@2/@3=@1/@2/@3
+# use_tip
 Dump or pack=Abladen oder packen
 Dump=Abladen
 Pack=Packen
