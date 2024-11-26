@@ -164,6 +164,7 @@ local self_data = {
     -- lifespan
     lifespan = "energy_max*12",
     mature_age = "energy_max*0.35",
+    growth_phases = 12,
     -- interactions
     -- prey + rivals automatically defined in registration
     capture_interactions = {
