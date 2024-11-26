@@ -1928,7 +1928,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
             end
         end
     end
-    if self.threat and (self.threat == threat.object or threat) then return end
+    if chance ~= 0 and self.threat and (self.threat == threat.object or threat) then return end
     mobkit.clear_queue_high(self) -- clear all other high tasks
     --fight chance, or run away
     -- (+against players as well, there was a notice about attacking players
