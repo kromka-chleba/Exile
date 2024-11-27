@@ -88,47 +88,91 @@ function minimal.make_search_string(str)
     return minimal.remove_accented(str):lower()
 end
 
--- messages displayed stored in "occupied" to not display over an other message
-local occupied = {}
+-- messages displayed stored in "messages_occupied" to not display over an other message
+local messages_occupied = {}
 local message_offset = { x = -40, y = 20 }
 
-function minimal.send_message(player_name, message, duration)
-    local player = minetest.get_player_by_name(player_name)
-    if not minetest.is_player(player) then return end -- just in case of log out?
-
-    -- checking for first free spot to display the message
-    local j=1
-    -- get first free spot
-    for i,y in ipairs(occupied) do
-        j=j+1
+function minimal.send_message(player, message, duration)
+    if type(message) ~= "string" then
+        error("minimal.send_message: got invalid type for message, got '"..type(message).."'")
     end
-    message_offset.y = (occupied[j-1] or -10) + 20
-    occupied[j]=message_offset.y
+    -- get player's name for table
+    local player_name = type(player) == "string" and player
+    -- prefer player object, permit player name
+    player = type(player) == "userdata" and player or
+        type(player) == "string" and minetest.get_player_by_name(player)
+    if not minetest.is_player(player) then return end -- logged out or wasn't valid
+    player_name = player_name or player:get_player_name()
+
+    -- check or set set duration
+    -- if duration not specified, assumes a 23 char string to last a second
+    -- then calculates duration by dividing message length by 23 (e.g. 35/23 = 1.48sec)
+    duration = type(duration) == "number" and duration or #message/23
+
+    local occupied = messages_occupied[player_name]
+    -- convert message into table
+    message = {text = message, y = message_offset.y}
+    local index = 1
+    -- created messages_occupied table for player
+    if not occupied then
+        occupied = {}
+        messages_occupied[player_name] = occupied
+        occupied[index] = message
+    -- check for first free spot to display message
+    else
+        -- iterate to 1 over
+        for i=1,(#occupied + 1) do
+            index = i
+            -- found free spot, end loop
+            if not occupied[i] then
+                break
+            end
+        end
+        -- set message y coordinate
+        message.y = message.y + ((index-1) * 20)
+        occupied[index] = message
+    end
 
     -- adding the message
     local hud = player:hud_add({
             hud_elem = "text",
             position = { x = 1, y = 0 },
-            offset = message_offset ,
-            text = message,
+            offset = {x = message_offset.x, y = message.y},
+            text = message.text,
             number = 0xFFFFFF,
             scale = {x=50,y=20}, --not working, don't know why
             --z_index=100,
             alignment= {x = -1, y = 1}, --right align
     })
+    message.hud = hud
 
-    -- reset after a while
-    minetest.after(duration or 1, function()
-                       if not minetest.is_player(player) then
-                           return end
-                       player:hud_remove(hud)
-                       occupied[j]=nil
-                    end)
+    -- reset after a certain amount of time
+    minetest.after(duration, function()
+        -- player still online
+        if minetest.is_player(player) then
+            player:hud_remove(hud)
+        -- player left
+        else
+            messages_occupied[player_name] = nil
+            return
+        end
+        -- if occupied exists and can find self
+        if occupied and occupied[index] then
+            -- remove index, remove occupied as a whole if no more messages left
+            occupied[index] = nil
+            if #occupied == 0 then
+                messages_occupied[player_name] = nil
+            end
+        end
+    end)
+
+    -- return message table on success
+    return message
 end
 
-function minimal.warn_message(player_name, message, duration)
-    if not minetest.get_player_by_name(player_name) then return end
-
-    minetest.sound_play("failure", {to_player = player_name})
-    minimal.send_message(player_name, message, duration)
+function minimal.warn_message(player_name, ...)
+    -- only play sound on success
+    if minimal.send_message(player_name, ...) then
+        minetest.sound_play("failure", {to_player = player_name})
+    end
 end
