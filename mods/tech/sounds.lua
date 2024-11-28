@@ -4,6 +4,7 @@
 
 tech = tech
 
+-- earthenware/ceramics
 function tech.node_sound_earthenware_defaults(table)
     table = table or {}
     table.place = table.place or {
@@ -27,6 +28,7 @@ function tech.node_sound_earthenware_defaults(table)
     return table
 end
 
+-- glasses
 function tech.node_sound_glass_defaults(table)
     table = table or {}
     table.place = table.place or
@@ -41,6 +43,7 @@ function tech.node_sound_glass_defaults(table)
     return table
 end
 
+-- metallic
 function tech.node_sound_metal_defaults(table)
     table = table or {}
     table.place = table.place or
@@ -64,5 +67,39 @@ function tech.node_sound_metal_hollow_defaults(table)
     table.footstep = table.footstep or
         {name = "tech_metal_hollow_place", gain = 0.3, pitch = 0.85}
     tech.node_sound_metal_defaults(table)
+    return table
+end
+
+-- foody
+-- breads
+-- TODO: see about getting "crunchy" bread and true unleavened sounds
+-- sounds are just sounds of me interacting with a soft croissant - TPH
+function tech.node_sound_bread_unleavened_defaults(table)
+    table = table or {}
+    table.place = table.place or
+        {name = "tech_bread_place", gain = 0.35, pitch = 1.05}
+    table.dug = table.dug or
+        {name = "tech_bread_place", gain = 0.35, pitch = 0.9}
+    table.footstep = table.footstep or
+        {name = "tech_bread_footstep", gain = 0.15}
+    table.dig = table.dig or
+        {name = "tech_bread_footstep",
+        gain = 0.3, pitch = 1.3}
+    nodes_nature.node_sound_dirt_defaults(table)
+    return table
+end
+
+function tech.node_sound_bread_defaults(table)
+    table = table or {}
+    table.place = table.place or
+        {name = "tech_bread_place"}
+    table.dug = table.dug or
+        {name = "tech_bread_place", pitch = 0.85}
+    table.footstep = table.footstep or
+        {name = "tech_bread_footstep", gain = 0.2}
+    table.dig = table.dig or
+        {name = "tech_bread_footstep",
+        gain = 0.35, pitch = 1.2}
+    tech.node_sound_bread_unleavened_defaults(table)
     return table
 end

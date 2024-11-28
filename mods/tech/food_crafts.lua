@@ -625,7 +625,7 @@ minetest.register_node(
             {-5/16, -3/16, -5/16, 5/16, 0, 5/16} -- top
           }
         },
-        sounds = nodes_nature.node_sound_dirt_defaults(),
+        sounds = tech.node_sound_bread_defaults(),
         paramtype = "light",
 })
 
@@ -644,7 +644,7 @@ minetest.register_node(
             {-4/16, -2/16, -4/16, 4/16, -1/16, 4/16} -- top
           }
         },
-        sounds = nodes_nature.node_sound_dirt_defaults(),
+        sounds = tech.node_sound_bread_defaults(),
         paramtype = "light",
 })
 
@@ -660,7 +660,7 @@ minetest.register_node(
           fixed = {-4.5/16, -0.5, -4.5/16, 4.5/16, -5/16, 4.5/16},
         },
         groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
-        sounds = nodes_nature.node_sound_dirt_defaults(),
+        sounds = tech.node_sound_bread_unleavened_defaults(),
         paramtype = "light",
 })
 
@@ -676,7 +676,7 @@ minetest.register_node(
           fixed = {-4.5/16, -0.5, -4.5/16, 4.5/16, -5/16, 4.5/16},
         },
         groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
-        sounds = nodes_nature.node_sound_dirt_defaults(),
+        sounds = tech.node_sound_bread_unleavened_defaults(),
         paramtype = "light",
 })
 
