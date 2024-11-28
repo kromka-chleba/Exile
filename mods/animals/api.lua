@@ -367,21 +367,6 @@ function animals.modify_hp(self,hp)
 end
 
 --------------------------------------------------------------------------
--- Sounds
---------------------------------------------------------------------------
-
-function animals.node_sound_egg_defaults(table)
-    table = table or {}
-    table.egg_hatch = {
-        name = "animals_hatch_egg",
-        gain = 0.8,
-        max_hear_distance = 8
-    }
-    table = nodes_nature.node_sound_defaults(table)
-    return table
-end
-
---------------------------------------------------------------------------
 -- Tracking
 --------------------------------------------------------------------------
 
