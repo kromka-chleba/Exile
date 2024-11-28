@@ -598,8 +598,8 @@ minetest.register_craftitem(
             -- can't infect, return
             if not yeast_infect(pos, nodedef) then return end
             -- successfully infected, take away item and make message
-            minimal.send_message(player:get_player_name(),
-                S("Yeast added to the @1", nodedef.description), 3.5)
+            minimal.send_message(nil, player,
+                S("Yeast added to the @1", nodedef.description))
             if not minimal.player_in_creative(player) then
                 itemstack:take_item()
                 return itemstack

@@ -192,7 +192,7 @@ function airboat.on_step(self, dtime)
                     minetest.sound_play("artifacts_airboat_gear",
                                         {pos = pos, gain = 1,
                                          max_hear_distance = 6})
-                    minimal.send_message(self.driver,
+                    minimal.send_message(driver_objref, self.driver,
                                          S("[airboat] Cruise on"), 3)
                 end
             elseif ctrl.down then
@@ -202,7 +202,7 @@ function airboat.on_step(self, dtime)
                     minetest.sound_play("artifacts_airboat_gear",
                                         {pos = pos, gain = 1,
                                          max_hear_distance = 6})
-                    minimal.send_message(self.driver,
+                    minimal.send_message(driver_objref, self.driver,
                                          S("[airboat] Cruise off"), 3)
                 end
             elseif ctrl.up or self.auto then
