@@ -119,8 +119,8 @@ local function allow_cloth_equip (player, inventory, stack)
         -- else refuse if this is a blanket and I am not in bed
         if item_group == 6 and player_api.get_state(player, "health"):is("resting") == false then
             minimal.send_message(
-                player:get_player_name(),
-                S("You can't equip a blanket outside of a bed."), 2)
+                player, nil,
+                S("You can't equip a blanket outside of a bed."))
             return 0
         end
 
@@ -128,8 +128,8 @@ local function allow_cloth_equip (player, inventory, stack)
         -- else, if I am already wearing the same thing
         if inventory:get_stack(destination, 1):get_name() == stack:get_name() then
             minimal.send_message(
-                player:get_player_name(),
-                S("You already wear that!"), 1)
+                player, nil,
+                S("You already wear that!"))
             return 0
             -- else allow 1 to destination
         else
@@ -197,7 +197,7 @@ local function redirect(player, inventory, from_list, from_index, fromslot)
         inventory:add_item(from_list,in_dest)
     else
         minetest.item_drop(in_dest, player, player:get_pos())
-        --minimal.send_message(user:get_player_name(),("Inventory is full : the clothing you wore was thrown on the floor."),2)
+        --minimal.send_message(player, nil, ("Inventory is full : the clothing you wore was thrown on the floor."),2)
         minimal.warn_inv_full(player)
     end
     -- empty cloths slot
@@ -265,7 +265,7 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
 
     -- add it in destination
     p_inv:add_item(destination, new_cloth)
-     minimal.send_message(user:get_player_name(),        new_cloth:get_short_description().. " " .. S("equipped!"),2)
+     minimal.send_message(user, nil, new_cloth:get_short_description().. " " .. S("equipped!"))
     -- update player settings
     player_api.update_player(user)
 
@@ -281,7 +281,7 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
             return itemstack
         else
             minetest.item_drop(in_dest, user, user:get_pos())
-            --minimal.send_message(user:get_player_name(),("Inventory is full : the clothing you wore was thrown on the floor."),2)
+            --minimal.send_message(user, nil, ("Inventory is full : the clothing you wore was thrown on the floor."))
             minimal.warn_inv_full(user)
             return itemstack
         end

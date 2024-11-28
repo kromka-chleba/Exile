@@ -88,21 +88,59 @@ function minimal.make_search_string(str)
     return minimal.remove_accented(str):lower()
 end
 
+-- sorts player and player_name for send_messages functionality (maybe make into a proper minimal function?)
+-- returns back as player, player_name or nil on failure
+local function sort_player_and_name(player, player_name)
+    if minetest.is_player(player_name) then
+        -- switch player and player_name
+        if type(player) == "string" then
+            -- we're replacing player with player_name, creating a temporary value to set player_name
+            local temp = player
+            player = player_name
+            player_name = temp
+        -- switch player to player_name, get player's name for player_name
+        else
+            player = player_name
+            player_name = player:get_player_name()
+        end
+    elseif type(player) == "string" then
+        -- switch player_name and player
+        if minetest.is_player(player_name) then
+            -- we're replacing player_name with player, creating a temporary value to set player
+            local temp = player_name
+            player_name = player
+            player = temp
+        -- switch player_name to player, get player obj from player_name
+        else
+            player_name = player
+            player = minetest.get_player_by_name(player)
+        end
+    -- ascertain values if one is nil
+    -- get player_name from player or get player from player_name
+    else
+        player = minetest.is_player(player) and player
+        player_name = type(player_name) == "string" and player_name
+        -- don't overwrite if already fine, otherwise try to seek proper values
+        player = player or player_name and minetest.get_player_by_name(player_name)
+        player_name = player_name or player and player:get_player_name()
+    end
+    -- only return results on success
+    if minetest.is_player(player) and type(player_name) == "string" then
+        return player, player_name
+    end
+end
+
 -- messages displayed stored in "messages_occupied" to not display over an other message
 local messages_occupied = {}
 local message_offset = { x = -40, y = 20 }
 
-function minimal.send_message(player, message, duration)
+function minimal.send_message(player, player_name, message, duration)
+    player, player_name = sort_player_and_name(player, player_name)
+    -- player might've left, let's not error
+    if not player then return end
     if type(message) ~= "string" then
         error("minimal.send_message: got invalid type for message, got '"..type(message).."'")
     end
-    -- get player's name for table
-    local player_name = type(player) == "string" and player
-    -- prefer player object, permit player name
-    player = type(player) == "userdata" and player or
-        type(player) == "string" and minetest.get_player_by_name(player)
-    if not minetest.is_player(player) then return end -- logged out or wasn't valid
-    player_name = player_name or player:get_player_name()
 
     -- check or set set duration
     -- if duration not specified, assumes a 23 char string to last a second
@@ -170,9 +208,13 @@ function minimal.send_message(player, message, duration)
     return message
 end
 
-function minimal.warn_message(player_name, ...)
+-- produces error noise if successfully sends message
+function minimal.warn_message(player, player_name, ...)
+    player, player_name = sort_player_and_name(player, player_name)
+    -- player might've signed off, don't error
+    if not player then return end
     -- only play sound on success
-    if minimal.send_message(player_name, ...) then
+    if minimal.send_message(player, player_name, ...) then
         minetest.sound_play("failure", {to_player = player_name})
     end
 end
