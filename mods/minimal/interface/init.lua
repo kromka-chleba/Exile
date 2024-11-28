@@ -143,9 +143,9 @@ function minimal.send_message(player, player_name, message, duration)
     end
 
     -- check or set set duration
-    -- if duration not specified, assumes a 23 char string to last a second
-    -- then calculates duration by dividing message length by 23 (e.g. 35/23 = 1.48sec)
-    duration = type(duration) == "number" and duration or #message/23
+    -- if duration not specified, assumes a 20 char string to last a second
+    -- then calculates duration by dividing message length by 20 (e.g. 35/20 = 1.75sec)
+    duration = type(duration) == "number" and duration or #message/20
 
     local occupied = messages_occupied[player_name]
     -- convert message into table
