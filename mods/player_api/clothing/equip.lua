@@ -265,7 +265,7 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
 
     -- add it in destination
     p_inv:add_item(destination, new_cloth)
-     minimal.send_message(user, nil, new_cloth:get_short_description().. " " .. S("equipped!"))
+    minimal.send_message(user, nil, S("@1 equipped!", new_cloth:get_short_description()))
     -- update player settings
     player_api.update_player(user)
 
