@@ -329,7 +329,7 @@ minetest.register_node(
         },
         liquids_pointable = true,
         groups = {dig_immediate = 3, pottery = 1, temp_pass = 1, timer = 45},
-        sounds = nodes_nature.node_sound_stone_defaults(),
+        sounds = tech.node_sound_earthenware_defaults(),
         on_use = function(itemstack, user, pointed_thing)
             return liquid_store.on_use_empty_bucket(itemstack, user,
                                                     pointed_thing)
@@ -352,7 +352,6 @@ liquid_store.register_stored_liquid(
         dumpable = false,
         description = S("Clay Watering Can with Freshwater"),
         groups = {dig_immediate = 2, pottery = 1},
-        sounds = nodes_nature.node_sound_stone_defaults(),
         tiles = {
             "tech_pottery.png^tech_watering_can_empty.png^tech_pot_water.png",
             "tech_pottery.png",
@@ -379,7 +378,6 @@ liquid_store.register_stored_liquid(
         dumpable = false,
         description = S("Clay Watering Can with Salt Water"),
         groups = {dig_immediate = 2, pottery = 1},
-        sounds = nodes_nature.node_sound_stone_defaults(),
         tiles = {
             "tech_pottery.png^tech_watering_can_empty.png^tech_pot_water.png",
             "tech_pottery.png",
