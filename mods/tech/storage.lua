@@ -18,7 +18,7 @@ storage.register_storage(
                  "tech_pottery.png",
                  "tech_pottery.png",
                  "tech_pottery.png"},
-        sounds = nodes_nature.node_sound_stone_defaults({
+        sounds = tech.node_sound_earthenware_defaults({
                 storage_close = {
                     name = "tech_clay_storage_close",
                     gain = 0.3,

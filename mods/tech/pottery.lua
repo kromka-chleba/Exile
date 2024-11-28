@@ -359,7 +359,7 @@ minetest.register_node(
             }
         },
         groups = {dig_immediate=3, pottery = 1, temp_pass = 1, falling_node = 1},
-        sounds = nodes_nature.node_sound_stone_defaults(),
+        sounds = tech.node_sound_earthenware_defaults(),
         on_flood = function(pos, oldnode, newnode)
             minetest.add_item(pos, ItemStack("tech:clay_oil_lamps 1"))
             return false
@@ -436,7 +436,7 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
             }
         },
         groups = {dig_immediate=3, pottery = 1, temp_pass = 1, falling_node = 1},
-        sounds = nodes_nature.node_sound_stone_defaults(),
+        sounds = tech.node_sound_earthenware_defaults(),
         floodable = true,
         on_flood = function(pos, oldnode, newnode)
             local fuel = minetest.get_meta(pos):get_int("fuel")

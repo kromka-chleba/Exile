@@ -4,6 +4,29 @@
 
 tech = tech
 
+function tech.node_sound_earthenware_defaults(table)
+    table = table or {}
+    table.place = table.place or {
+        name = "tech_ceramic_place",
+        pitch = 0.8
+    }
+    table.dig = table.dig or {
+        name = "tech_ceramic_dig",
+        pitch = 0.95,
+    }
+    table.dug = table.dug or {
+        name = "tech_ceramic_place",
+        pitch = 0.9
+    }
+    table.footstep = table.footstep or {
+        name = "tech_ceramic_dig",
+        pitch = 1.05,
+        gain = 0.3
+    }
+    nodes_nature.node_sound_stone_defaults(table)
+    return table
+end
+
 function tech.node_sound_glass_defaults(table)
     table = table or {}
     table.place = table.place or
