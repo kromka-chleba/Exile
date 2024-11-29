@@ -1131,8 +1131,8 @@ minetest.register_node(
             type = "fixed",
             fixed = bowl_box,
         },
-        groups = {dig_immediate=3, temp_pass = 1,
-                  falling_node = 1, heatable = 5},
+        groups = {dig_immediate=3, --temp_pass = 1,
+                  falling_node = 1, heatable = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
         on_construct = function(pos)
             ncrafting.set_firing(pos, ncrafting.base_firing*0.25,
@@ -1143,10 +1143,11 @@ minetest.register_node(
                                             ncrafting.base_firing*0.25)
         end,
         on_timer = function(pos, elapsed)
-            --finished product, length
+            --finished product, length, temperature
+            --it'd be more realistic for the temp to be 440+, but sometimes we have to suspend reality for convenience
             return ncrafting.fire_pottery(pos, "tech:food_bowl_clay_unfired",
                                           "tech:food_bowl_clay",
-                                          ncrafting.base_firing*0.25, 135)
+                                          math.floor(ncrafting.base_firing*0.25), 250)
         end,
 
 })
