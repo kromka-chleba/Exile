@@ -20,6 +20,13 @@ local S = tech.S
 
 grafitti = grafitti
 
+--ancient
+
+
+--abstract
+grafitti.register_grafitti("tech:an_spot", {image = "tech_paint_an_spot.png"})
+
+
 --lime White
 
 
