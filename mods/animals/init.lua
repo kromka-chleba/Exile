@@ -5,6 +5,7 @@ animals.S = minetest.get_translator("animals")
 
 local path = minetest.get_modpath(minetest.get_current_modname())
 
+dofile(path.."/node_sounds.lua")
 dofile(path.."/crafts.lua")
 dofile(path.."/api_capture.lua")
 dofile(path.."/api.lua")

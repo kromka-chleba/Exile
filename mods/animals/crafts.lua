@@ -155,7 +155,7 @@ for i in ipairs(list) do
                                          falling_node = 1, temp_pass = 1,
                                          raw_cooked = 1, heatable = heat,
                                          carcass = carcass, edible = 1},
-                               sounds = nodes_nature.node_sound_defaults(),
+                               sounds = animals.node_sound_meat_defaults(),
     })
 
     --cooked
@@ -173,7 +173,7 @@ for i in ipairs(list) do
                                          falling_node = 1, temp_pass = 1,
                                          raw_cooked = 2, carcass = carcass,
                                          edible = 1},
-                               sounds = nodes_nature.node_sound_defaults(),
+                               sounds = animals.node_sound_meat_cooked_defaults(),
     })
 
     --burned

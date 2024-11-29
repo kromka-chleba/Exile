@@ -27,6 +27,9 @@ Kubwakubwa_warn.ogg: TenPlus1, from `mobs_monster` or `mobs_animal` mod (MIT Lic
 
 animals_hatch_egg(+.1-2).ogg: TPH/TubberPupperHusker/TubberPupper
 
+animals_meat_place(+.1-2).ogg: TPH/TubberPupperHusker/TubberPupper
+animals_meat_dug(+.1-2).ogg: TPH/TubberPupperHusker/TubberPupper
+
 darkasthaan: adapted from spider2 from Mobs Monster by TenPlus1 (MIT License)
 
 impethu: adapted from silkworm from Petz by Runs, CC BY-SA 4.0
