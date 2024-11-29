@@ -235,7 +235,7 @@ local function register_food_bowl(name, def)
     def.groups.pottery = def.groups.pottery or (variant == "clay" and 1) or nil
     def.groups.flammable = def.groups.flammable or (variant == "wooden" and 2) or nil
     def.sounds = def.sounds or (variant == "wooden" and nodes_nature.node_sound_wood_defaults() or
-        nodes_nature.node_sound_stone_defaults())
+        tech.node_sound_earthenware_defaults())
     def.tiles = def.tiles or (variant == "wooden" and "tech_primitive_wood.png" or "tech_pottery.png")
     -- convert to tile table
     if type(def.tiles) == "string" then
@@ -854,7 +854,7 @@ minetest.register_node("tech:cooking_pot",{
         fixed = pot_box
     },
     groups = {dig_immediate = 3, pottery = 1, cooking_pot = 1, heatable = 75 },
-    sounds = nodes_nature.node_sound_stone_defaults(tech.interact_sound_cooking_vessel()),
+    sounds = tech.node_sound_earthenware_defaults(tech.interact_sound_cooking_vessel()),
     on_construct = clear_pot,
     on_rightclick = pot_rightclick,
     on_timer = pot_cook,
