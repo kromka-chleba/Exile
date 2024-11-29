@@ -20,12 +20,6 @@ local S = tech.S
 
 grafitti = grafitti
 
---ancient
-
-
---abstract
-grafitti.register_grafitti("tech:an_spot", {image = "tech_paint_an_spot.png"})
-
 
 --lime White
 
@@ -142,7 +136,6 @@ crafting.register_recipe({
 ----------------------------------------------------------
 --simple scratcher
 
-grafitti.register_grafitti("tech:scr_del", {image = "tech_paint_scr_del.png"})
 grafitti.register_grafitti("tech:scr_1", {image = "tech_paint_scr_1.png"})
 grafitti.register_grafitti("tech:scr_2", {image = "tech_paint_scr_2.png"})
 grafitti.register_grafitti("tech:scr_3", {image = "tech_paint_scr_3.png"})
