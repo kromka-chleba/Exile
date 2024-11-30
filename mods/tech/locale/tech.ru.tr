@@ -83,6 +83,7 @@ Leftover: @1%=
 Soup=Суп
 Stew=
 Unprepared Pot=Неподготовленный горшок
+Soup Pot=Горшок для супа
 Status: @1 pot=Статус: Содержит - @1
 Status: @1 pot (cooking)=Статус: Готовится - @1
 Status: @1 pot (finished)=Статус: Готов - @1

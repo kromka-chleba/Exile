@@ -77,9 +77,10 @@ Contents: <EMPTY>=
 Contents: Water=
 Leftover: @1%=
 #; status
-Unprepared Pot=
 Soup=Sopa
 Stew=
+Soup Pot=
+Unprepared Pot=
 Status: @1 pot=
 Status: @1 pot (cooking)=
 Status: @1 pot (finished)=

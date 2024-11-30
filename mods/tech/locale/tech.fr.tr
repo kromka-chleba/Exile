@@ -80,6 +80,7 @@ Leftover: @1%=
 Soup=Soupe
 Stew=
 Unprepared Pot=Marmite
+Soup Pot=Marmite
 Status: @1 pot=
 Status: @1 pot (cooking)=
 Status: @1 pot (finished)=
@@ -390,11 +391,7 @@ Wooden Floor Boards=Planches de plancher en bois
 Wooden Stairs=Escalier en bois
 
 
-##### not used anymore #####
 
-Status : Unprepared pot@nContents : <EMPTY>@nNote : Add water to pot to make soup=Statut : Pot non préparé@nContenu : <VIDE>@nRemarque : Ajoutez de l'eau au pot pour faire de la soupe
-Status : Soup Pot@nContents : Water@nNote : Add food to the pot to make soup=Statut : Pot de soupe@nContenu : Eau@nRemarque : Ajoutez de la nourriture au pot pour faire de la soupe
-This pot is full and heavy. Spill it ?=Cette marmite est pleine et lourde. La renverser ?
 Cannot place here ! Needs a whole block of : =Impossible de placer ici ! Besoin d'un bloc entier de :
 Status : needs a clear glass pane and a wick (coarse fibre) !=Statut : nécessite un carreau de verre clair et une mèche (fibre grossière) !
 Status : needs a clear glass pane !=Statut : nécessite un carreau de verre clair !
