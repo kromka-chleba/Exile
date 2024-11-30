@@ -797,6 +797,11 @@ minetest.register_on_dieplayer(function(player)
         player_monoids.jump:del_change(player, "health:physics_HE")
         --clear Health effects list
         local meta = player:get_meta()
+        -- remove metastim effects upon death
+        if meta:get_int("max_metastim") > 0 then
+            player_monoids.fly:del_change(player, "health:metastim")
+            player_monoids.gravity:del_change(player, "health:metastim")
+        end
         meta:set_string("effects_list", "")
         meta:set_int("effects_num", 0)
         -- stop all sounds
