@@ -723,6 +723,7 @@ local function pot_cook(pos, elapsed)
     else
         local inv = meta:get_inventory()
         local inv_main = inv:get_list("main")
+        local opened = #get_watchers(pos) > 0
         -- basically means we're workin on a nice yummy treat
         if kind == "Soup" then
             -- finished cooking
@@ -805,9 +806,16 @@ local function pot_cook(pos, elapsed)
                     return true
                 -- already cookin'
                 else
-                    spawn_steam(pos)
+                    -- lots of steam if opened
+                    spawn_steam(pos, opened and {amt={22,40}} or nil)
                     if sounds.frying then
-                        minimal.sound_play(minimal.merge_tables(sounds.frying,{pos = pos}))
+                        -- play a sound indicating we're opened!
+                        if opened and sounds.frying_open then
+                            minimal.sound_play(minimal.merge_tables(sounds.frying_open,{pos = pos}))
+                        -- play as normal
+                        else
+                            minimal.sound_play(minimal.merge_tables(sounds.frying,{pos = pos}))
+                        end
                     end
                 end
                 baking = baking - 1
@@ -822,7 +830,7 @@ local function pot_cook(pos, elapsed)
             -- check if we should decrease baking
             if baking >= 0 then
                 -- someone's peepin!
-                if #get_watchers(pos) > 0 then
+                if opened then
                     local base_baking = meta:get_int("base_baking")
                     -- only increase baking if base_baking is over 4, and if baking is less than base_baking minus 2
                     if base_baking >= 4 and (baking <= (base_baking-2)) then

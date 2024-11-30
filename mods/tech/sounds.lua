@@ -72,16 +72,20 @@ end
 
 -- interactive vessels
 -- MUST BE PLAYED with minimal.sound_play
+-- sounds can be denied from autosetting with declaring "false"
 function tech.interact_sound_cooking_vessel(table)
     table = table or {}
     table.frying = table.frying or table.frying ~= false and {
-        name = "tech_frying", gain = {2,6}, fade = 0.4, max_hear_distance = 10,
+        name = "tech_frying", gain = {0.2,0.55}, fade = 0.4, max_hear_distance = 10,
     } or nil
+    -- pot is OPENED!
+    table.frying_open = table.frying_open or table.frying_open ~= "false" and {
+        name = "tech_frying", gain = {0.7, 1.5}, fade = 0.1, max_hear_distance = 22, pitch = {0.4, 0.7}}
     table.frying_start = table.frying_start or table.frying_start ~= false and {
-        name = "tech_frying_start", gain = 1, fade = 1, max_hear_distance = 12
+        name = "tech_frying_start", gain = 0.25, fade = 1, max_hear_distance = 12
     } or nil
     table.frying_final = table.frying_final or table.frying_final ~= false and {
-        name = "tech_frying_final", gain = 2, fade = 0.1, max_hear_distance = 13
+        name = "tech_frying_final", gain = 2, fade = 0.1, max_hear_distance = 15
     } or nil
     return table
 end
