@@ -12,7 +12,8 @@ local path = minetest.get_modpath("nodes_nature")
 --crafting spots
 crafting.register_type("mixing_spot")
 crafting.register_type("threshing_spot", S("Threshing"),
-                       "nodes_nature:galanta_seed")
+                       "nodes_nature:galanta_seed",
+                       {name = "nodes_nature_fruit_break", pitch={0.85, 1.1}, gain={0.4,0.8}})
 crafting.register_type("hammering_block")
 crafting.register_type("weaving_spot")
 crafting.register_type("grinding_spot")
