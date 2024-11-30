@@ -961,7 +961,7 @@ minetest.register_node("tech:cooking_pot",{
         meta:set_string("status","prepared") -- between water and ingredients, and cooling/cooking/finished
         meta:set_string("water_type",source) -- set water type
         meta:set_string("status_string",S("Soup Pot"))
-        meta:set_string("contents_string",S("Contents: Water"))
+        meta:set_string("contents_string",S("Contents: @1",S("Water")))
         meta:set_string("note",S("Note: Add food to the pot to make soup"))
         minimal.infotext_set_new(pos, meta, nil, nil, selfdef)
         meta:set_string("formspec", get_formspec())

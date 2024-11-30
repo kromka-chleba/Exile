@@ -74,7 +74,6 @@ Bowl of @1 Soup=
 Water=
 Contents: @1=Contenu: @1
 Contents: <EMPTY>=Contenu: <VIDE>
-Contents: Water=Contenu: Eau
 Leftover: @1%=
 #; status
 Soup=Soupe
