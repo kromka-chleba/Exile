@@ -501,6 +501,12 @@ minetest.register_node(
         on_timer =function(pos, elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
+            -- catchup
+            -- only do catchup if elapsed is over burn_rate (was out of chunk rendering) and fuel is greater than 2
+            -- subtract fuel by: divide result + 0.5 with math.ceil to round (using elapsed divided by base_burn_rate)
+            -- don't go lower than 2 or else that'd be cheatsy :3
+            fuel = elapsed > base_burn_rate * 1.5 and fuel > 2 and
+                math.max(fuel - math.ceil((elapsed/base_burn_rate*1.5)+0.5), 2) or fuel
             if fuel < 1 then
                 -- Charcoal must  start w/ fresh fuel value so no swap_node here
                 minetest.set_node(pos, {name = "tech:charcoal"})
@@ -547,6 +553,9 @@ minetest.register_node(
         on_timer =function(pos, elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
+            -- see note on small_wood_fire_smoldering for info on this
+            fuel = elapsed > base_burn_rate * 1.5 and fuel > 1 and
+                math.max(fuel - math.ceil((elapsed/base_burn_rate*1.5)+0.5), 1) or fuel
             if fuel < 1 then
                 -- Charcoal must start w/ fresh fuel value so no swap_node here
                 minetest.set_node(pos, {name = "tech:charcoal_block"})
