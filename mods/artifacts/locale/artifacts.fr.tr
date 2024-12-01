@@ -31,7 +31,7 @@ Meta-Stim Injector=Injecteur de Méta-Stim
 # storage.lua 
 @1 chest=coffre en @1
 LIGHT MEASUREMENT:=MESURE DE LUMINOSITÉ :
-LIGHT LEVEL @= @1=LUMINOSITÉ @= @1
+LIGHT LEVEL @= =LUMINOSITÉ @=
 Light Meter=posemètre (mesure la luminosité)
 List light level of node or self=
 OBJECT TEMPERATURE MEASUREMENT:=MESURE DE TEMPERATURE DE L'OBJET :
@@ -60,7 +60,7 @@ Half-wild=
 PLANT GROWTH NOT MEASURABLE!=
 GROWTH UNITS REMAINING:=
 PLANT HEALTH NOT MEASURABLE!=
-Health:=
+Health=
 STATE:=
 wet=
 salty=
@@ -74,33 +74,28 @@ List stats of plant or soil=
 @1 Chisel=
 Spyglass=
 View far distances=
-# player + animal
 SELF=
-ANIMAL=
-EGG=
-@1 CONDITION:=
-@1 units=
-Health: @1=
-# player energy vs animal energy
-Energy: @1%=
-Energy: @1=
-Body Temp: @1=
-Hunger: @1%=
-Thirst: @1%=
-Effects: @1=
-Age: @1=
+Age:=
 1 year old=
 @1 years old=
 1 day old=
 @1 days old=
-@1 seconds=
-Oxygen: @1%=
+# player + animal
+CONDITION=
+units=
+Energy=
+Body Temp=
+Hunger=
+Thirst=
+Effects=
+Age=
+seconds=
+Oxygen:=
 # binary
 Yes=
 No=
-Pregnant: @1=
-Gestation: @1%=
-EGG IS DEAD=
+Pregnant:=
+ANIMAL=
 Animal Probe=
 List stats of pointed animal or player=
 Inspect self=
