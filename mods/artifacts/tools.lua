@@ -100,6 +100,8 @@ end
 -- converts meta into a table for easier checks
 local function init_probe_readonly(user, pointed_thing)
     local params = {init_probe(user, pointed_thing)}
+    -- no meta parameter, return!
+    if not params[2] then return end
     params[2] = params[2]:to_table() or {fields={}} -- meta
     return unpack(params)
 end
