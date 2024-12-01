@@ -66,6 +66,11 @@ From Minetest Game Default:
     http://freesound.org/people/Ryding/sounds/94337/
       default_snow_footstep.*.ogg
 
+From TPH (CC0)
+(aka tph9677/TubberPupperHusker/TubberPupper/Damotrix)
+<damotrixrob@gmail.com>
+	nodes_nature_fruit_break.(0-2).ogg
+
 Authors of media (textures, models)
 ------------------------
 Dokimi (CC BY-SA 3.0)
