@@ -501,12 +501,25 @@ minetest.register_node(
         on_timer =function(pos, elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
+
+            -- Limit catchup: Charcoal making requires careful monitoring,
+            -- but it would be unfair to have it go out or turn to ash
+            -- if you were away too long, and we don't make players adjust
+            -- air intake anyway, it's all abstracted, so abstract this too
+            if elapsed > 300 then elapsed = 300 end -- 5 minutes = 1/4 day
+
             -- catchup
-            -- only do catchup if elapsed is over burn_rate (was out of chunk rendering) and fuel is greater than 2
-            -- subtract fuel by: divide result + 0.5 with math.ceil to round (using elapsed divided by base_burn_rate)
+            -- only do catchup if elapsed is over burn_rate (was out of
+            --   chunk rendering) and fuel is greater than 2
+            -- subtract fuel by: divide result + 0.5 with math.ceil
+            --   to round (using elapsed divided by base_burn_rate)
             -- don't go lower than 2 or else that'd be cheatsy :3
+
+            -- base burn rate is slowed 50% (1 per 6 seconds) when smoldering
             fuel = elapsed > base_burn_rate * 1.5 and fuel > 2 and
-                math.max(fuel - math.ceil((elapsed/base_burn_rate*1.5)+0.5), 2) or fuel
+                math.max(fuel - math.ceil((elapsed/
+                                           (base_burn_rate*1.5))+0.5), 2)
+                or fuel
             if fuel < 1 then
                 -- Charcoal must  start w/ fresh fuel value so no swap_node here
                 minetest.set_node(pos, {name = "tech:charcoal"})
@@ -553,9 +566,13 @@ minetest.register_node(
         on_timer =function(pos, elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
-            -- see note on small_wood_fire_smoldering for info on this
+            -- see notes on small_wood_fire_smoldering for info on this
+            if elapsed > 300 then elapsed = 300 end -- 5 minutes = 1/4 day
+
             fuel = elapsed > base_burn_rate * 1.5 and fuel > 1 and
-                math.max(fuel - math.ceil((elapsed/base_burn_rate*1.5)+0.5), 1) or fuel
+                math.max(fuel - math.ceil((elapsed/
+                                           (base_burn_rate*1.5))+0.5), 1)
+                or fuel
             if fuel < 1 then
                 -- Charcoal must start w/ fresh fuel value so no swap_node here
                 minetest.set_node(pos, {name = "tech:charcoal_block"})
