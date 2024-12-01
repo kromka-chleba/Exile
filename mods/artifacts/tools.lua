@@ -537,9 +537,15 @@ local animal_probe = function(user, pointed_thing)
         -- numbered indexes used for proper table.concat functionality
         age[1] = math.floor(age[2] / 80) -- years
         age[2] = age[2] - (80 * age[1]) -- modified to look clean (days after the specified year)
-        age[1] = age[1] == 1 and S("1 year old") or S("@1 years old", tostring(age[1]))
         age[2] = age[2] == 1 and S("1 day old") or S("@1 days old", tostring(age[2]))
-        age = table.concat(age, ", ") -- adds comma after years but not after days
+        -- display year if a year or older
+        if age[1] > 0 then
+            age[1] = age[1] == 1 and S("1 year old") or S("@1 years old", tostring(age[1]))
+            age = table.concat(age, ", ") -- adds comma after years but not after days
+        -- just use day string only
+        else
+            age = age[2]
+        end
         local stats = {
             S("Health: @1", S("@1 units",tostring(pt_ref:get_hp()))), -- e.g: Health: 20 units
             S("Age: @1", age), -- e.g: 2 years old, 45 days old
