@@ -150,9 +150,14 @@ function HEALTH.get_food_stats(name,prefercooked)
     if type(name) == "userdata" and type(name["get_name"]) == "function" then
         name = name:get_name()
     end
-    local ft = type(name) == "table" and name or -- food_table
-        (prefercooked and type(name) == "string" and food_table[name.."_cooked"])
-        or food_table[name]
+    -- predetermined food table or name found in food_table
+    local ft = type(name) == "table" and name or food_table[name] or name
+    -- if preferred cooked, string (name), and can be baked...
+    if prefercooked and type(ft) == "string" and HEALTH.bake_table[name] then
+        -- get cooked value or return
+        ft = HEALTH.bake_table[name].cooked or name.."_cooked"
+        ft = food_table[ft]
+    end
     if type(ft) ~= "table" then
         return
     end
