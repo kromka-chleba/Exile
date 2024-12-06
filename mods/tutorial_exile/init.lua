@@ -56,8 +56,8 @@ function tutorial.init(player, quitfunc)
     minetest.show_formspec(name, "tutorial_exile:confirm", confirmspec)
 end
 
+-- save player's state before entering the tutorial
 local function store_player(player)
-    -- save player's state before entering the tutorial
     local name = player:get_player_name()
     local ps = pstore[name]
 
@@ -65,6 +65,7 @@ local function store_player(player)
     local meta = player:get_meta()
     ps.stats = HEALTH.get_player_stats(player, meta)
     meta:set_string("playtime_suspended", "y")
+    region.disable_spawnex(name)
 
     local inv = player:get_inventory()
     local invlists = inv:get_lists()
@@ -79,27 +80,9 @@ local function store_player(player)
     ps.inv = invlists
     ps.privs = core.get_player_privs(name)
 
-    mstore:set_string(name, minetest.write_json(ps))
-end
+    mstore:set_string(name, core.serialize(ps))
 
-local function read_player_store(name)
-        local readps = mstore:get_string(name)
-        if readps then
-            pstore[name] = core.deserialize(readps)
-        end
-end
-minimal.register_on_joinplayer(function(player)
-        local name = player:get_player_name()
-        print(" RESTORING PLAYER STORE FOR ",name)
-        read_player_store(name)
-        print(dump(pstore[name]))
-end)
-
-local function quit_tutorial(player)
-    local name = player:get_player_name()
-    if not pstore[name] then return end
-    if pstore[name].quit then pstore[name].quit(player) end
-    pstore[name] = nil
+    player:override_day_night_ratio(1)
 end
 
 local function restore_player(player)
@@ -128,14 +111,34 @@ local function restore_player(player)
     pstore[name].privs = nil
 
     meta:set_string("playtime_suspended", "")
+    region.enable_spawnex(name)
     mstore:set_string(name, "")
+    player:override_day_night_ratio()
 end
 
+local function read_player_store(name)
+        local readps = mstore:get_string(name)
+        if readps then
+            pstore[name] = core.deserialize(readps)
+        end
+end
+
+minimal.register_on_joinplayer(function(player)
+        local name = player:get_player_name()
+        read_player_store(name)
+end)
+
+-- Tutorial's closed, call the next login function if any
+local function after_tutorial(player)
+    local name = player:get_player_name()
+    if not pstore[name] then return end
+    if pstore[name].quit then pstore[name].quit(player) end
+    pstore[name] = nil
+end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
         if formname == "tutorial_exile:confirm" then
             if not fields.take_tut then -- pressed refuse, or closed the form
-                quit_tutorial(player)
-                pstore[player:get_player_name()] = nil
+                after_tutorial(player)
                 return
             end
             store_player(player)
@@ -143,11 +146,12 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         end
 end)
 
+-- Shut down tutorial, delete regions, possibly rewrite starting area
 function tutorial.exit(player)
-    -- Shut down tutorial, delete regions, possibly rewrite starting area
     stage.shutdown(player)
+    triggers.clear_used_triggers(player:get_player_name())
     restore_player(player)
-    quit_tutorial(player)
+    after_tutorial(player)
 end
 
 __DEBUG__ = __DEBUG__
@@ -172,7 +176,7 @@ minetest.register_chatcommand(
         privs = "server",
         func = function(name,param)
             minetest.chat_send_player(name, "Stopping tutorial")
-            read_player_store(name)
+            --read_player_store(name)
             tutorial.exit(minetest.get_player_by_name(name))
         end
 })

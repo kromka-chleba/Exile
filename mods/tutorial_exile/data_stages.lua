@@ -1,3 +1,5 @@
+tutorial = tutorial
+
 local shelter_entry, shelter_exit = dofile(
     minetest.get_modpath("tutorial_exile").."/shelter.lua")
 
@@ -11,17 +13,19 @@ return
             start = vector.new(17,9253,25),
             -- location is relative to instance base pos
             location = vector.new(0,9260,0), -- but this one's hardcoded
+            splashicon = nil, -- These are displayed on entering
+            splashtext = "Welcome to the tutorial",
 
             -- examples for entry/exit functions:
-            entry = function(self, player, name)
-                -- self is the instance data, incl offset
+            entry = function(self, player, name, instance)
+                -- self is this stage data, instance is the instance data +offset
                 print(name," is entering ",self.name)
                 local privs = core.get_player_privs(name)
-                privs.interact = false
+                privs.interact = nil
                 core.set_player_privs(name, privs)
                 --player:set_armor_groups({ immortal = 1})
             end,
-            exit = function(self, player, name)
+            exit = function(self, player, name, instance)
                 local privs = core.get_player_privs(name)
                 privs.interact = true
                 core.set_player_privs(name, privs)
@@ -34,14 +38,23 @@ return
             size = vector.new(12,9,18),
             start = vector.new(3,5,15),
             location = vector.new(0,0,0),
+            entry = function(self, player, name, instance)
+                local tgt = instance.offset -- absolute map location
+                    + vector.new(6,4,9) -- where to put the entity
+                local ent = minetest.get_objects_inside_radius(tgt, 1)
+                print("ENT: ",dump(ent))
+                if not ent or #ent == 0 then
+                    minetest.add_entity( tgt, "tutorial_exile:place_blocker" )
+                end
+            end,
         },
         [2] = {
             name = "Movement",
             schem = "movement",
             size = vector.new(46, 28, 22),
-            start = vector.new(5,3,16),
+            start = vector.new(5,2,16),
             location = vector.new(80,0,0),
-            exit = function(self, player, name)
+            exit = function(self, player, name, instance)
                 minetest.chat_send_player(name, "Area complete")
             end,
         },
@@ -61,11 +74,11 @@ return
             start = vector.new(5,5,5),
             location = vector.new(80,0,80),
         },
-        [7] ={
+        [5] ={
             name = "Crafting",
             schem = "crafting",
             size = vector.new(36,20,43),
-            start = vector.new(5,5,5),
-            location = vector.new(0,80,0),
+            start = vector.new(13,12,17),
+            location = vector.new(160,0,0),
         },
     }

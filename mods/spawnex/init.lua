@@ -33,6 +33,7 @@ end
 
 -- Config options
 local wide_spawn = minetest.settings:get_bool("exile_wide_spawn") or false
+local disabled = {} -- players the spawn is temporarily disabled for
 
 -- Load hex tools
 local modpath = minetest.get_modpath("spawnex")
@@ -434,7 +435,9 @@ end
 
 function region.prespawn(player, centrhx) -- Ready a spawn gate for this player
     if not player or not player:is_player() then return end
-    if minetest.settings:get_bool("disable_spawnex", false) then return end
+    local pname = player:get_player_name()
+    if disabled[pname] or minetest.settings:get_bool("disable_spawnex",
+                                                     false) then return end
     pirnt("region prespawn")
     local meta = player and player:get_meta()
     local home = centrhx or string2hex(meta:get("exile_spawnhome")) or defhex
@@ -468,6 +471,9 @@ local function walkable_and_open(pos)
     return true
 end
 
+--------------------------------------------------------------------------
+-- Spawning
+
 local function fixplayer(player, quiet)
     if not minetest.is_player(player) then return end
     if not quiet then
@@ -491,6 +497,8 @@ end
 
 function region.spawn(player)
     if not player or not player:is_player() then return end
+    local pname = player:get_player_name()
+    if disabled[pname] then return end
 
     local function checkplayer(pos)
         local good = walkable_and_open(pos)
@@ -504,7 +512,7 @@ function region.spawn(player)
         return
     end
 
-    pirnt("region spawn for ",player:get_player_name())
+    pirnt("region spawn for ",pname)
     local meta = player:get_meta()
     local spawning = meta:get_string("spawning")
     if minetest.settings:get_bool("disable_spawnex", false)
@@ -599,6 +607,36 @@ local function player_moved_to_new_region(player, pname, ppos, home)
     return saveout
 end
 
+local function handle_player(player, pname)
+    local home = homecache[pname]
+    local meta -- only read it if we need it, and hold it for later
+    local saveout = false
+    if not home then
+        meta = player:get_meta()
+        home = string2hex(meta:get_string("exile_spawnhome"))
+        if not home then
+            home = defhex -- default for new players
+            saveout = true
+        end
+        homecache[pname] = home
+    end
+    local ppos = player:get_pos()
+    local dfrom = distance_to_hex(ppos, home)
+    if dfrom > maxdist then -- we're well out of our home region
+        local moved = player_moved_to_new_region(player, pname,
+                                                 ppos, home)
+        saveout = saveout or moved
+        home = homecache[pname] -- in case we updated
+    end
+    if saveout then
+        if not meta then meta = player:get_meta() end
+        meta:set_string("exile_spawnhome", hex2string(home))
+        meta:set_string("exile_spawnat", "")
+        pirnt(pname..": home hex changed, selecting spawn pos")
+        region.prespawn(player, home)
+    end
+end
+
 local function spawnex_global(dtime)
     for nm, dat in pairs(jobs) do -- run jobs
         dat.timer = dat.timer + dtime
@@ -616,37 +654,21 @@ local function spawnex_global(dtime)
         timer = 0 -- Check for players who have moved
         for _, player in pairs(minetest.get_connected_players()) do
             local pname = player:get_player_name()
-            local home = homecache[pname]
-            local meta -- only read it if we need it, and hold it for later
-            local saveout = false
-            if not home then
-                meta = player:get_meta()
-                home = string2hex(meta:get_string("exile_spawnhome"))
-                if not home then
-                    home = defhex -- default for new players
-                    saveout = true
-                end
-                homecache[pname] = home
-            end
-            local ppos = player:get_pos()
-            local dfrom = distance_to_hex(ppos, home)
-            if dfrom > maxdist then -- we're well out of our home region
-                local moved = player_moved_to_new_region(player, pname,
-                                                                ppos, home)
-                saveout = saveout or moved
-                home = homecache[pname] -- in case we updated
-            end
-            if saveout then
-                if not meta then meta = player:get_meta() end
-                meta:set_string("exile_spawnhome", hex2string(home))
-                meta:set_string("exile_spawnat", "")
-                pirnt(pname..": home hex changed, selecting spawn pos")
-                region.prespawn(player, home)
+            if not disabled[pname] then
+                handle_player(player, pname)
             end
         end
     end
 end
 minetest.register_globalstep(spawnex_global)
+
+function region.disable_spawnex(playername)
+    disabled[playername] = true
+end
+function region.enable_spawnex(playername)
+    disabled[playername] = nil
+end
+
 
 --------------------------------------------------------------------------
 -- Shutdown
@@ -692,7 +714,9 @@ minetest.register_on_joinplayer(function(player)
 end)
 
 minetest.register_on_dieplayer(function(player)
-        pirnt("Player "..player:get_player_name()..
+        local pname = player:get_player_name()
+        if disabled[pname] then return end
+        pirnt("Player "..pname..
               " died, calling region.prespawn")
         region.prespawn(player)
 end)

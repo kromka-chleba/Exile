@@ -27,6 +27,12 @@ local function used_before(nmeta, pname)
     end
 end
 
+function triggers.clear_used_triggers(name)
+    for label in pairs(usedlist) do
+        usedlist[label][name] = nil
+    end
+end
+
 
 -- Triggers: -------------------------------------------------------------
 
@@ -154,10 +160,11 @@ local function showall_hud(player, pname, pos, nmeta, metastring)
     HEALTH.show_hud_elements(player, nil, "all")
 end
 
+
 local splash = {}
-
-
-local function hud_splash(player, pname, pos, nmeta, metastring)
+-- Show an icon and line of text on the center of the player's screen
+function triggers.hud_splash(player, icon_name, text_line, pname)
+    if not pname then pname = player:get_player_name() end
     local function clear_splash()
         local spl = splash[pname] or {}
         if spl.icon then player:hud_remove(spl.icon) end
@@ -165,15 +172,12 @@ local function hud_splash(player, pname, pos, nmeta, metastring)
         splash[pname] = nil
     end
 
-    if used_before(nmeta, pname) then
-        return
-    end
     if splash[pname] then
         splash[pname].job:cancel()
         clear_splash()
     end
-    local icon = string.split(metastring, ",")[1]
-    local text = string.split(metastring, ",")[2]
+    local icon = icon_name
+    local text = text_line
     local item = {}
     if icon then
         item.icon = player:hud_add({
@@ -200,6 +204,15 @@ local function hud_splash(player, pname, pos, nmeta, metastring)
     end)
 end
 
+-- private call that handles translation from metastring
+local function hud_splash(player, pname, pos, nmeta, metastring)
+    if used_before(nmeta, pname) then
+        return
+    end
+    local icon = string.split(metastring, ",")[1]
+    local text = string.split(metastring, ",")[2]
+    triggers.hud_splash(player, icon, text, pname)
+end
 
 triggers.defs = {
     ["tr_reset"] = reset_player,

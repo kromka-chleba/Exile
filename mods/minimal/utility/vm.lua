@@ -191,7 +191,7 @@ function minimal.load_region(base_raw, file)
     end
     VoxelManip:set_data(nodes)
     VoxelManip:set_param2_data(param2)
-    VoxelManip:calc_lighting()
+    --VoxelManip:calc_lighting()
     VoxelManip:write_to_map()
     zone_instance("close") -- close the instancer and fire up all loaded zones
     benchmark = minetest.get_us_time() - benchmark

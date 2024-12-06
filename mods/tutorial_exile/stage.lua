@@ -10,11 +10,12 @@ local stages = dofile(modpath..'/data_stages.lua')
 
 -- Loading/unloading areas -----------------------------------------------
 
-local delay = 11 -- number of seconds to wait before loading next stage
+local delay = 7 -- number of seconds to wait before loading next stage
 local i_num = {} -- [playername ] = [tutorial_instance_number]
 local instance = {} -- track instance contents, to repurpose them. contains:
 --[[a= {
     [instance_num] = {
+    number = 1, this instance's number,
     in_use = false,
     active = 0, -- last active stage #
     ready = 0, -- counts up when a stage has finished loading
@@ -51,7 +52,8 @@ local function add_stage(num, finish)
     local current = inst.ready + 1
     if stages[current] == nil then return end -- All done
     if finish and current == finish + 1 then
-        inst.in_use = false return -- Reloaded a previous stage, set inactive
+        inst.in_use = false
+        inst.active = 0 return -- Reloaded a previous stage, set inactive
     end
     local anchor = vector.add(inst.offset, stages[current].location)
     loadschem(anchor, stages[current].schem)
@@ -59,8 +61,8 @@ local function add_stage(num, finish)
     minetest.after(delay, add_stage, num, finish)
 end
 
+-- Begin reloading any visited stages
 local function reload(num)
-    -- reload any visited stages
     instance[num].in_use = false
     instance[num].ready = 0
     minetest.after(delay, add_stage, num, instance[num].active)
@@ -86,20 +88,30 @@ function stage.shutdown(player) -- For when a player quits the tutorial instance
     local pname = player:get_player_name()
     local num = i_num[pname]
     if not num or minetest.is_singleplayer() then return end
-    unload[pname] = true
+    if instance[num].active == 6 then -- Finished, clear and reset
+        reload(num)
+        instance[num].active = 1
+    else -- Not complete, keep it set up for the player
+        unload[pname] = true
+    end
 end
 
--- Spawn the landing zone on first load, set a map_meta env to track
-local LZ_spawned = minetest.get_mapgen_setting("tutorial_lz_spawned")
-if not LZ_spawned then core.set_mapgen_setting("tutorial_lz_spawned", "true") end
-local enable_tutorial = minetest.settings:get("exile_enabletutorial") or true
-minetest.after(1, function()
-        print("-------LZ------ ",not LZ_spawned, enable_tutorial)
-        if (not LZ_spawned) and enable_tutorial then
-            print("Tutorial: Spawning Landing Zone")
+-- Spawn the landing zone on first load or when requested if /test_tut is used
+local mstore = minetest.get_mod_storage()
+local LZ_spawned = mstore:get("tutorial_lz_spawned")
+local enable_tutorial = minetest.settings:get("exile_enabletutorial") or false
+
+local function spawn_lz()
+            print("TUTORIAL_EXILE: Spawning a Landing Zone")
             loadschem(vector.new(0,9250,0), "landingzone")
+            LZ_spawned = true
+            mstore:set_string("tutorial_lz_spawned", "true")
+end
+
+minetest.after(1, function()
+        if ( not LZ_spawned ) and enable_tutorial then
+            spawn_lz()
         end
-        print("-------LZ------ ")
 end)
 
 -- Moving players through the stages -------------------------------------
@@ -122,13 +134,13 @@ local function stage_init(pname, selected_stage)
         if not instance[i].in_use then
             selected = i
             instance[i].in_use = true
-            active = instance[i].active + 1
+            active = instance[i].active -- Don't reload past the last used stage
         end
     end
     if selected == 0 then -- didn't find an unused; create new
         selected = #instance + 1
         instance[selected] = {
-            in_use = true, active = 0, ready = 0,
+            in_use = true, active = 0, ready = 0, number = selected,
             offset = calc_offset(selected)
         }
     end
@@ -166,12 +178,26 @@ local function enter_stage(player, playername)
     local inst = instance[num]
     if not num or not inst then print("can't enter_stage: ",pname) return end
 
-    move_to_spawn_pos(player, pname)
     print("Entering stage: ",inst.active)
+    move_to_spawn_pos(player, pname)
+    if stages[inst.active].splashtext then
+        triggers.hud_splash(player,
+                            stages[inst.active].splashicon,
+                            stages[inst.active].splashtext,
+                            pname)
+    end
+
     if stages[inst.active].entry then
-        stages[inst.active]:entry(player, pname)
+        stages[inst.active]:entry(player, pname, inst)
     end
 end
+
+minetest.register_on_respawnplayer(function(player)
+        local meta = player:get_meta()
+        if meta:get_string("playtime_suspended") == "y" then
+            enter_stage(player)
+        end
+end)
 
 -- called whenever the player moved between stages
 local function stage_change(player, playername)
@@ -181,22 +207,33 @@ local function stage_change(player, playername)
     if not num or not inst then print("can't stage_change: ",pname) return end
     print("Leaving stage ",inst.active," of ",#stages)
     if stages[inst.active].exit then
-        stages[inst.active]:exit(player, playername)
+        stages[inst.active]:exit(player, playername, inst)
     end
     inst.active = inst.active + 1
     if inst.active > #stages then
         print("All done, last stage")
         tutorial.exit(player)
+        return
     end
     enter_stage(player, pname)
 end
 
-function stage.open(player) -- called when a player enters the tutorial
+local function stage_go(player)
     local pname = player:get_player_name(player)
     if not i_num[pname] then
         stage_init(pname)
     end
     enter_stage(player)
+end
+
+function stage.open(player) -- called when a player enters the tutorial
+    if not LZ_spawned then
+        spawn_lz()
+        -- delay for loading LZ, to avoid slowing the subsequent stage loads
+        minetest.after(1, stage_go, player)
+    else
+        stage_go(player)
+    end
 end
 
 
