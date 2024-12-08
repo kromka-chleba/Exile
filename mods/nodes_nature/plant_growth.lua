@@ -595,11 +595,19 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         health = base_health + base_health * math.random(-1, 1) * 0.1
         meta:set_int("health", health)
     end
-    -- kill semi-wild in winter, set to wild
-    if param2 >= 128 and is_winter() then
-        nn.plant.set_to_wild(pos)
-        nn.plant.kill(pos, true, pdef, meta)
-        return
+    -- semi-wild growth mechanics
+    if param2 >= 128 then
+        -- kill semi-wild in winter, set to wild
+        if is_winter() then
+            nn.plant.set_to_wild(pos)
+            nn.plant.kill(pos, true, pdef, meta)
+            return
+        -- set to wild if we're currently the same name as our type in the specific season
+        elseif pdef["_"..seasons.get_season_name()] == pdef.name then
+            nn.plant.set_to_wild(pos)
+            meta:from_table() -- clear meta
+            return
+        end
     end
     if health <= 0 then
         nn.plant.kill(pos, true, pdef, meta)
