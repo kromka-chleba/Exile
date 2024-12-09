@@ -225,15 +225,6 @@ local function register_food_bowl_filled(name, def, empty, transfer)
         error(func_tag.." could not get definition for empty for '"..name..
           "', not a string or valid definition table!")
     end
-    --[[
-    -- if no definition for empty we can't do anythin'!
-    if type(empty) ~= "string" then
-        error(func_tag.." expected string for empty, got '"..type(empty).."'")
-    end
-    if not minetest.registered_nodes[empty] then
-        error(func_tag.." empty bowl for '"..name.."': '"..tostring(empty).."' is not a defined node!")
-    end
-    --]]
     -- definition check
     if type(def) ~= "table" then
         error(func_tag.." expected table for definition, got '"..type(def).."'")
@@ -247,9 +238,7 @@ local function register_food_bowl_filled(name, def, empty, transfer)
     -- replace "." with "_filled." if no mesh specified
     def.mesh = def.drawtype == "mesh" and (def.mesh or empty.mesh:gsub("%.", "_filled.")) or nil
     def.node_box = def.drawtype == "nodebox" and (def.node_box or {
-        type = "fixed",
-        fixed = table.copy(bowl_fill_box)
-    }) or nil
+        type = "fixed", fixed = table.copy(bowl_fill_box)}) or nil
     -- groups
     def.groups = def.groups or (empty.groups and table.copy(empty.groups)) or {}
     def.groups.falling_node = def.groups.falling_node or 1
@@ -265,14 +254,14 @@ local function register_food_bowl_filled(name, def, empty, transfer)
     -- set tiles
     if not def.tiles or not def.tiles[1] then
         -- how???
-        if not empty.tiles or not empty.tiles[1]then
+        if type(empty.tiles) ~= "table" or not empty.tiles[1]then
             error(func_tag.." empty bowl '"..empty.name.."' does not have tiles!")
         end
         def.tiles = table.copy(empty.tiles)
         def.liquid_texture = def.liquid_texture or soupstew == "soup" and
             "tech_soup.png" or soupstew == "stew" and "tech_stew.png"
         if type(def.liquid_texture) ~= "string" then
-            error(func_tag.." soupstew (soup or stew being true) not specified and expected string for liquid_texture, got '"..
+            error(func_tag.." soupstew (soup or stew set in groups) not specified or expected string for liquid_texture, got '"..
                 type(def.liquid_texture).."'")
         end
         -- increase tile length to 3 if less (and if not mesh)
@@ -281,6 +270,8 @@ local function register_food_bowl_filled(name, def, empty, transfer)
                 if not def.tiles[ind + 1] then
                     def.tiles[ind + 1] = type(tile) == "table" and table.copy(tile) or tile
                 end
+                -- just need 3 tiles, break loop
+                if #def.tiles >= 3 then break end
             end
         end
         -- add soup/stew/misc texture to top of tiles
@@ -340,9 +331,8 @@ end
 local function register_food_bowl(name, def)
     assert(type(name) == "string",
         "tech.register_food_bowl: got non-string for name, got type '"..type(name).."'")
+    -- permit lazy lack of definition
     def = type(def) == "table" and def or {}
-    --assert(type(def) == "table",
-        --"tech.register_soup_bowl: got non-table for definition, got type '"..type(def).."'")
     -- fix name properly
     -- colon at first part of string, indicative of no modname
     -- no colon, no mod name or colon associated, add one
@@ -368,14 +358,7 @@ local function register_food_bowl(name, def)
         tech.node_sound_earthenware_defaults())
     def.tiles = def.tiles or (variant == "wooden" and "tech_primitive_wood.png" or "tech_pottery.png")
     -- convert to tile table
-    if type(def.tiles) == "string" then
-        local tiles = {}
-        -- do 3 copies, since we'll need to save a side and bottom for soups/stews
-        for i=1,3 do
-            tiles[i] = def.tiles
-        end
-        def.tiles = tiles
-    end
+    def.tiles = type(def.tiles) == "string" and {def.tiles} or def.tiles
     -- if variant is wooden or clay, find tech_food_bowl icon variants
     -- if variant is custom, check for modname _food_bowl icon variants
     def.inventory_image = def.inventory_image or variant and ( (variant == "wooden" or variant == "clay") and
@@ -399,53 +382,6 @@ local function register_food_bowl(name, def)
         soup.groups.soup = 1
         soup.groups.edible = 2
         def.soup_to = register_food_bowl_filled(soup.name, soup, def)
-        --[[
-        soup.name = not soup.name:match(":") and mod_origin..":"..soup.name or soup.name
-        -- set soup_to to soup table name if provided soup_to aint a string
-        def.soup_to = type(def.soup_to) == "string" and def.soup_to or soup.name
-        -- usual table stuff (before definition merge)
-        soup.groups = soup.groups or table.copy(def.groups)
-        soup.groups.soup = 1
-        soup.groups.edible = 2
-        -- get tiles from empty bowl def
-        if not soup.tiles then
-            soup.tiles = table.copy(def.tiles)
-            local tile = soup.tiles[1]
-            if type(tile) == "table" then
-                tile.name = tile.name.."^tech_soup.png"
-            else
-                tile = tile.."^tech_soup.png"
-                soup.tiles[1] = tile
-            end
-        end
-        -- drawtype and node_box
-        soup.drawtype = soup.drawtype or def.drawtype
-        soup.node_box = soup.node_box or soup.drawtype == "nodebox" and
-            {type = "fixed", fixed = bowl_fill_box} or nil
-        -- handle inventory_image and check description
-        soup.inventory_image = soup.inventory_image or def.inventory_image and
-            def.inventory_image.."^tech_soup_icon.png"
-        soup.description = soup.description or S("Bowl of @1 Soup","")
-        -- add empty def to soup def, add empty as value
-        soup = minimal.merge_tables(def, soup)
-        soup.bowl_empty = name
-        -- clear out unnecessary values
-        soup.soup_to = nil
-        soup.stew_to = nil
-        soup.on_soup_transfer = nil
-        -- set soup functions (on_use is carried from empty bowl if not provided)
-        soup.on_bowl_empty = soup.on_bowl_empty or soup_on_bowl_empty
-        -- save nutrition stats
-        soup.preserve_metadata = soup.preserve_metadata or soup_preserve_metadata
-        soup.after_place_node = soup.ater_place_node or soup_after_place
-        -- food stats
-        HEALTH.add_food_table(soup.name,{
-            rwi = name,
-            eat_sound = "nodes_nature_slurp"
-        })
-        -- register
-        minetest.register_node(soup.name, soup)
-        --]]
     end
     if type(def.stew_to) == "string" or type(def.stew_to) == "table" then
         -- figure out name lol
@@ -458,52 +394,6 @@ local function register_food_bowl(name, def)
         stew.groups.stew = 1
         stew.groups.edible = 2
         def.stew_to = register_food_bowl_filled(stew.name, stew, def)
-        --[[
-        stew.name = not stew.name:match(":") and mod_origin..":"..stew.name or stew.name
-        -- set stew_to to stew table name if provided stew_to aint a string
-        def.stew_to = type(def.stew_to) == "string" and def.stew_to or stew.name
-        -- usual table stuff (before definition merge)
-        stew.groups = stew.groups or table.copy(def.groups)
-        stew.groups.stew = 1
-        stew.groups.edible = 2
-        -- get tiles from empty bowl def
-        if not stew.tiles then
-            stew.tiles = table.copy(def.tiles)
-            local tile = stew.tiles[1]
-            if type(tile) == "table" then
-                tile.name = tile.name.."^tech_stew.png"
-            else
-                tile = tile.."^tech_stew.png"
-                stew.tiles[1] = tile
-            end
-        end
-        -- drawtype and node_box
-        stew.drawtype = stew.drawtype or def.drawtype
-        stew.node_box = stew.node_box or stew.drawtype == "nodebox" and
-            {type = "fixed", fixed = bowl_fill_box} or nil
-        -- handle inventory_image and check description
-        stew.inventory_image = stew.inventory_image or def.inventory_image and
-            def.inventory_image.."^tech_stew_icon.png"
-        stew.description = stew.description or S("Bowl of @1 Stew","")
-        -- add empty def to stew def, add empty as value
-        stew = minimal.merge_tables(def, stew)
-        stew.bowl_empty = name
-        -- clear out unnecessary values
-        stew.stew_to = nil
-        stew.soup_to = nil
-        stew.on_soup_transfer = nil
-        -- set stew functions (on_use is carried from empty bowl if not provided)
-        stew.on_bowl_empty = stew.on_bowl_empty or soup_on_bowl_empty
-        -- save nutrition stats
-        stew.preserve_metadata = stew.preserve_metadata or soup_preserve_metadata
-        stew.after_place_node = stew.ater_place_node or soup_after_place
-        -- food stats
-        HEALTH.add_food_table(stew.name,{
-            rwi = name
-        })
-        -- register
-        minetest.register_node(stew.name, stew)
-        --]]
     end
     -- final touches to the empty bowl
     def.on_soup_transfer = def.on_soup_transfer or soup_transfer
