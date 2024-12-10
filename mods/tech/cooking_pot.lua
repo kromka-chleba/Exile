@@ -66,23 +66,79 @@ local function soup_get_become(def, kind, nodeonly)
     if not result then return end -- no variation found
     -- gets soup/stew_to variable, adds self name if no colon (indicative of proper name) found
     result = (not result:match(":")) and def.name..result or result -- allow for simple like "_soup"
-    if not minetest.registered_items[result] then return end -- not a valid item
-    if nodeonly and not minetest.registered_nodes[result] then return end -- not a valid node if specified
+    --if not minetest.registered_items[result] then return end -- not a valid item
+    if not minetest.registered_nodes[result] then return end -- not a valid node if specified
     return result
+end
+
+-- basically we want to get the become variant of empty
+-- and get the empty variant of become
+-- so we essentially reverse what was given to us
+-- accepts itemstack, pos, or nodename string for either
+local function get_empty_become(empty, become)
+    -- get definition of empty
+    local edef = type(empty) == "userdata" and empty.get_definition and empty:get_definition() or
+        vector.check(empty) and minimal.get_nodedef(empty) or core.registered_nodes[empty]
+    if not edef then return end
+    -- get definition of become
+    local bdef = type(become) == "userdata" and become.get_definition and become:get_definition() or
+        vector.check(become) and minimal.get_nodedef(become) or core.registered_nodes[become]
+    if not bdef then return end
+    local kind = bdef.soup_kind or bdef.groups and (bdef.groups.soup and "soup" or bdef.groups.stew and "stew") or
+        bdef.name:sub(-4)
+    -- get become variant of empty
+    become = soup_get_become(edef, kind)
+    -- get empty variant of become
+    empty = bdef.soup_empty or bdef.name:sub(1,-6)
+    -- return on success, will be string
+    if become and core.registered_nodes[empty] then
+        -- empty will be the empty variant of become
+        -- become will be the become variant of empty
+        return empty, become
+    end
+end
+
+-- handles soup/stew/custom bowl with empty bowl interactions
+-- itemstack is what will be depleted/replaced
+-- adding is what we're adding to the player's inventory
+-- user is the player/entity performing this action
+-- NOT REQUIRED PARAMETER: inv is the inventory of "user" - will be grabbed from "user" if not provided
+local function soup_handle_inventory(itemstack, adding, user, inv)
+    -- get inventory if not provided (permits use by custom entities)
+    inv = inv or (type(user) == "table" or type(user) == "userdata")
+        and user.get_inventory and user:get_inventory()
+    if not inv then return end
+    -- inventory functionality
+    local plr_creative = minimal.player_in_creative(user)
+    local deplete_stack = false -- depleting instead of replacing
+    -- original bowl will not be replaced (more than 1 or player in creative)
+    if itemstack:get_count() > 1 or plr_creative then
+        if inv:room_for_item("main", adding) then
+            deplete_stack = not plr_creative and true
+            inv:add_item("main", adding)
+        -- can't add, warn player
+        elseif core.is_player(user) then
+            minimal.warn_inv_full(user)
+        end
+    -- bowl will be depleted, simply replace instead
+    else
+        itemstack = adding
+    end
+    -- take away 1 bowl
+    if deplete_stack then
+        itemstack:take_item()
+    end
+    return itemstack
 end
 
 -- soup node functions
 
--- soup transfer - for transferring full soups to empty soups
+-- soup transfer - for transferring full soups to empty bowls
 local function soup_transfer(pos, user, itemstack, nodemeta, imeta, p_inv)
-    local itemdef = itemstack:get_definition()
-    local name = itemdef.name
-    local kind = itemdef.soup_kind or itemdef.groups
-        and (itemdef.groups.soup and "soup" or itemdef.groups.stew and "stew") or name:sub(-4)
-    local become = soup_get_become(minimal.get_nodedef(pos),kind,true)
-    if not become then return end -- couldn't get node variant to transfer as
-    local empty = itemdef.soup_empty or name:sub(1,-6)
-    if not minetest.registered_nodes[empty] then return end -- could not get empty variant
+    -- get empty of itemstack, become of empty bowl at pos
+    local empty, become = get_empty_become(pos, itemstack)
+    -- could not transfer (no empty or no become)
+    if not (empty and become) then return end
     -- we can transfer this soup/stew !
     imeta = imeta or itemstack:get_meta()
     imeta = imeta:to_table()
@@ -90,44 +146,16 @@ local function soup_transfer(pos, user, itemstack, nodemeta, imeta, p_inv)
     minetest.set_node(pos, {name=become})
     nodemeta = nodemeta or minetest.get_meta(pos)
     nodemeta:from_table(imeta)
+    empty = ItemStack(empty) -- get empty itemstack for inventory mechanics
     -- handle inventory (above does not depend on such if something was to go awry lol)
-    p_inv = p_inv or (user and user.get_inventory and user:get_inventory())
-    if not p_inv then return end
-    empty = ItemStack(empty) -- get empty itemstack
-    -- inventory functionality
-    local plr_creative = minimal.player_in_creative(user)
-    local deplete_bowl = false
-    -- original bowl will not be replaced (more than 1 or player in creative)
-    if itemstack:get_count() > 1 or plr_creative then
-        if p_inv:room_for_item("main",empty) then
-            deplete_bowl = not plr_creative and true
-            p_inv:add_item("main",empty)
-        -- can't add, warn player
-        else
-            minimal.warn_inv_full(user)
-        end
-    -- bowl will be depleted, simply replace instead
-    else
-        itemstack = empty
-    end
-    -- take away 1 bowl
-    if deplete_bowl then
-        itemstack:take_item()
-    end
-    return itemstack
+    return soup_handle_inventory(itemstack, empty, user, p_inv)
 end
 
 -- transferring node soup/stew to an empty bowl itemstack
 local function soup_on_bowl_empty(pos, user, itemstack, nodemeta, p_inv)
-    local nodedef = minimal.get_nodedef(pos)
-    local name = nodedef.name
-    -- get type of soup, only soup or stew permitted
-    local kind = nodedef.soup_kind or nodedef.groups
-        and (nodedef.groups.soup and "soup" or nodedef.groups.stew and "stew") or name:sub(-4)
-    local become = soup_get_become(itemstack:get_definition(),kind,true)
-    if not become then return end -- couldn't get node variant to transfer as
-    local empty = nodedef.soup_empty or name:sub(1,-6)
-    if not minetest.registered_nodes[empty] then return end -- could not get empty variant
+    -- get empty of soup at pos, become of empty bowl itemstack
+    local empty, become = get_empty_become(itemstack, pos)
+    if not (empty and become) then return end
     -- we can transfer this soup/stew !
     nodemeta = nodemeta or minetest.get_meta(pos)
     nodemeta = nodemeta:to_table()
@@ -137,29 +165,7 @@ local function soup_on_bowl_empty(pos, user, itemstack, nodemeta, p_inv)
     local imeta = become:get_meta()
     imeta:from_table(nodemeta)
     -- handle inventory
-    p_inv = p_inv or (user and user.get_inventory and user:get_inventory())
-    if not p_inv then return end
-    -- inventory functionality
-    local plr_creative = minimal.player_in_creative(user)
-    local deplete_bowl = false
-    -- original itemstack slot will not be replaced (more than 1 bowl or player in creative)
-    if itemstack:get_count() > 1 or plr_creative then
-        if p_inv:room_for_item("main",become) then
-          deplete_bowl = not plr_creative and true
-          p_inv:add_item("main",become)
-        -- can't add, warn player
-        else
-            minimal.warn_inv_full(user)
-        end
-    -- bowl will be depleted, simply replace itemstack instead
-    else
-        itemstack = become
-    end
-    -- take away 1 bowl
-    if deplete_bowl then
-        itemstack:take_item()
-    end
-    return itemstack
+    return soup_handle_inventory(itemstack, become, user, p_inv)
 end
 
 -- food bowl + soup/stew functionality
