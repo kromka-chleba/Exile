@@ -59,14 +59,12 @@ bowl_fill_box[#bowl_box + 1] = {-3/16,-6/16,-3/16, 3/16,-5.2/16,3/16}
 -- miscellaneous soup functions
 
 -- get what soup/stew it should become judging by definition and the kind specified
--- nodeonly makes it checks if the found variant is also a node
-local function soup_get_become(def, kind, nodeonly)
+local function soup_get_become(def, kind)
     kind = kind:lower()
     local result = kind == "stew" and def.stew_to or kind == "soup" and def.soup_to or nil -- what the filled soup/stew is
     if not result then return end -- no variation found
     -- gets soup/stew_to variable, adds self name if no colon (indicative of proper name) found
     result = (not result:match(":")) and def.name..result or result -- allow for simple like "_soup"
-    --if not minetest.registered_items[result] then return end -- not a valid item
     if not minetest.registered_nodes[result] then return end -- not a valid node if specified
     return result
 end
@@ -84,6 +82,8 @@ local function get_empty_become(empty, become)
     local bdef = type(become) == "userdata" and become.get_definition and become:get_definition() or
         vector.check(become) and minimal.get_nodedef(become) or core.registered_nodes[become]
     if not bdef then return end
+    -- get "soup kind" from either bdef's soup_kind, groups, or grabbing the last 4 characters of its name
+    -- which should either be "soup" or "stew"
     local kind = bdef.soup_kind or bdef.groups and (bdef.groups.soup and "soup" or bdef.groups.stew and "stew") or
         bdef.name:sub(-4)
     -- get become variant of empty
@@ -134,7 +134,7 @@ end
 -- soup node functions
 
 -- soup transfer - for transferring full soups to empty bowls
-local function soup_transfer(pos, user, itemstack, nodemeta, imeta, p_inv)
+local function soup_transfer(pos, user, itemstack, p_inv, nodemeta, imeta)
     -- get empty of itemstack, become of empty bowl at pos
     local empty, become = get_empty_become(pos, itemstack)
     -- could not transfer (no empty or no become)
@@ -152,7 +152,7 @@ local function soup_transfer(pos, user, itemstack, nodemeta, imeta, p_inv)
 end
 
 -- transferring node soup/stew to an empty bowl itemstack
-local function soup_on_bowl_empty(pos, user, itemstack, nodemeta, p_inv)
+local function soup_on_bowl_empty(pos, user, itemstack, p_inv, nodemeta)
     -- get empty of soup at pos, become of empty bowl itemstack
     local empty, become = get_empty_become(itemstack, pos)
     if not (empty and become) then return end
@@ -186,13 +186,13 @@ local function soup_on_use(itemstack, user, pointed_thing, is_soup)
     if is_soup then
         -- transfer soup/stew into an empty bowl
         if nodedef.on_soup_transfer then
-          return nodedef.on_soup_transfer(pos, user, itemstack) or itemstack
+            return nodedef.on_soup_transfer(pos, user, itemstack) or itemstack
         end
     -- empty bowl interactions
     else
     -- cooking pot or soup/stew interaction
         if nodedef.on_bowl_empty then
-          return nodedef.on_bowl_empty(pos, user, itemstack) or itemstack
+            return nodedef.on_bowl_empty(pos, user, itemstack) or itemstack
         end
     end
 end
