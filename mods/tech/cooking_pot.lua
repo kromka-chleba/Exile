@@ -59,13 +59,20 @@ bowl_fill_box[#bowl_box + 1] = {-3/16,-6/16,-3/16, 3/16,-5.2/16,3/16}
 -- miscellaneous soup functions
 
 -- get what soup/stew it should become judging by definition and the kind specified
-local function soup_get_become(def, kind)
+-- mod_origin for differring mods
+local function soup_get_become(def, kind, mod_origin)
     kind = kind:lower()
     -- what type the filled soup/stew or filled bowl is, permit custom
     local result = kind == "stew" and def.stew_to or kind == "soup" and def.soup_to or
         "_"..kind
     -- gets soup/stew_to variable, adds self name if no colon (indicative of proper name) found
     result = (not result:match(":")) and def.name..result or result -- allow for simple like "_soup"
+    if type(mod_origin) == "string" and def.mod_origin ~= mod_origin then
+        -- remove old mod_name from beginning of name (by string.sub'ing own mod_origin length + 1)
+        -- add differing mod_origin
+        -- could use :gsub() but what if someone has the mod_origin somewhere else in the name? and why readd ":"?
+        result = mod_origin..result:sub((#def.mod_origin)+1)
+    end
     if not minetest.registered_nodes[result] then return end -- not a valid node if specified
     return result
 end
@@ -85,10 +92,10 @@ local function get_empty_become(empty, become)
     if not bdef then return end
     -- get "soup kind" from either bdef's soup_kind, groups, or grabbing the last 4 characters of its name
     -- which should either be "soup" or "stew"
-    local kind = bdef.soup_kind or bdef.groups and (bdef.groups.soup and "soup" or bdef.groups.stew and "stew") or
-        bdef.name:sub(-4)
+    local kind = type(bdef.soup_kind) == "string" and bdef.soup_kind or
+        bdef.groups and (bdef.groups.soup and "soup" or bdef.groups.stew and "stew") or bdef.name:sub(-4)
     -- get become variant of empty
-    become = soup_get_become(edef, kind)
+    become = soup_get_become(edef, kind, bdef.mod_origin)
     -- get empty variant of become
     empty = bdef.soup_empty or bdef.name:sub(1,-6)
     -- return on success, will be string
@@ -136,17 +143,21 @@ end
 
 -- soup transfer - for transferring full soups to empty bowls
 local function soup_transfer(pos, user, itemstack, p_inv, nodemeta, imeta)
+    -- get itemstack definition for soup_no_meta_transfer check
+    local itemdef = itemstack:get_definition()
     -- get empty of itemstack, become of empty bowl at pos
-    local empty, become = get_empty_become(pos, itemstack)
+    local empty, become = get_empty_become(pos, itemdef.name)
     -- could not transfer (no empty or no become)
     if not (empty and become) then return end
-    -- we can transfer this soup/stew !
-    imeta = imeta or itemstack:get_meta()
-    imeta = imeta:to_table()
-    if not imeta then return end -- weird error occurred, do not do anything! (couldn't turn into data table)
-    minetest.set_node(pos, {name=become})
-    nodemeta = nodemeta or minetest.get_meta(pos)
-    nodemeta:from_table(imeta)
+    -- we can transfer this soup/stew/filled bowl !
+    if not itemdef.soup_no_meta_transfer then
+        imeta = imeta or itemstack:get_meta()
+        imeta = imeta:to_table()
+        if not imeta then return end -- weird error occurred, do not do anything! (couldn't turn into data table)
+        minetest.set_node(pos, {name=become})
+        nodemeta = nodemeta or minetest.get_meta(pos)
+        nodemeta:from_table(imeta)
+    end
     empty = ItemStack(empty) -- get empty itemstack for inventory mechanics
     -- handle inventory (above does not depend on such if something was to go awry lol)
     return soup_handle_inventory(itemstack, empty, user, p_inv)
@@ -154,17 +165,21 @@ end
 
 -- transferring node soup/stew to an empty bowl itemstack
 local function soup_on_bowl_empty(pos, user, itemstack, p_inv, nodemeta)
+    -- used for getting soup_no_meta_transfer
+    local nodedef = minimal.get_nodedef(pos)
     -- get empty of soup at pos, become of empty bowl itemstack
-    local empty, become = get_empty_become(itemstack, pos)
+    local empty, become = get_empty_become(itemstack, nodedef.name)
     if not (empty and become) then return end
-    -- we can transfer this soup/stew !
-    nodemeta = nodemeta or minetest.get_meta(pos)
-    nodemeta = nodemeta:to_table()
-    if not nodemeta then return end -- weird error occurred, do not do anything! (couldn't turn into table)
-    minetest.set_node(pos, {name=empty})
+    -- we can transfer this soup/stew/filled bowl !
     become = ItemStack(become) -- get soup/stew itemstack
-    local imeta = become:get_meta()
-    imeta:from_table(nodemeta)
+    if not nodedef.soup_no_meta_transfer then
+        nodemeta = nodemeta or minetest.get_meta(pos)
+        nodemeta = nodemeta:to_table()
+        if not nodemeta then return end -- weird error occurred, do not do anything! (couldn't turn into table)
+        local imeta = become:get_meta()
+        imeta:from_table(nodemeta)
+    end
+    minetest.set_node(pos, {name=empty})
     -- handle inventory
     return soup_handle_inventory(itemstack, become, user, p_inv)
 end
@@ -219,7 +234,7 @@ end
 -- requires name, a definition, and an "empty" (a node information to revert to when transferring or eaten)
 -- "empty" can be a name or a table that is similar to a node definition (expects name parameter)
 -- used by register_food_bowl to register soups/stews
-local function register_food_bowl_filled(name, def, empty, transfer)
+local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
     -- used for error messages
     local func_tag = "tech.register_food_bowl_filled:"
     if type(name) ~= "string" then
@@ -251,6 +266,9 @@ local function register_food_bowl_filled(name, def, empty, transfer)
     def.groups.falling_node = def.groups.falling_node or 1
     def.groups.dig_immediate = def.groups.dig_immediate or 3
     def.groups.food_bowl_filled = 1
+    -- whether or not we should have functions relating to metadata
+    -- dependent upon groups for alternative "true" - edible 2 will make it true if not provided
+    save_meta = type(save_meta) ~= "boolean" and def.groups.edible == 2 or type(save_meta) == "boolean" and save_meta
     -- figure out if we're a soup or stew
     local soupstew = def.groups.soup and "soup" or def.groups.stew and "stew" or nil
     -- set description
@@ -291,7 +309,7 @@ local function register_food_bowl_filled(name, def, empty, transfer)
             or "^tech_soup_icon.png")
     end
     -- note empty variant
-    def.bowl_empty = empty.name
+    def.soup_empty = empty.name
     -- remove group nums of less than 1
     -- ind = index or group name, grp = group number
     for ind,grp in pairs(def.groups) do
@@ -299,20 +317,19 @@ local function register_food_bowl_filled(name, def, empty, transfer)
             def.groups[ind] = nil
         end
     end
-    -- used for determining whether or not to save unique meta between node and itemstack
-    local save_meta = type(def.metadata_save) ~= "boolean" and def.groups.edible == 2 and true or
-        def.metadata_save or false
-    def.metadata_save = nil
     -- register transfer functions + functionality
     if transfer then
         -- set soup functions
         -- TODO: modify soup_on_use and soup_on_bowl_empty to have a non-meta equivalent
         def.on_use = def.on_use or soup_on_use -- used for when clicking on a node
         def.on_bowl_empty = def.on_bowl_empty or soup_on_bowl_empty -- used for when being grabbed from (being grabbed at)
+        -- used for determining whether or not to save unique meta between node and itemstack
         if save_meta then
             -- save nutrition stats/unique meta
             def.preserve_metadata = def.preserve_metadata or soup_preserve_metadata
             def.after_place_node = def.ater_place_node or soup_after_place
+        else
+            def.soup_no_meta_transfer = true
         end
     end
     -- derive eat sound and clear definition
