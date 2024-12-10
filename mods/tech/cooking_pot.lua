@@ -61,8 +61,9 @@ bowl_fill_box[#bowl_box + 1] = {-3/16,-6/16,-3/16, 3/16,-5.2/16,3/16}
 -- get what soup/stew it should become judging by definition and the kind specified
 local function soup_get_become(def, kind)
     kind = kind:lower()
-    local result = kind == "stew" and def.stew_to or kind == "soup" and def.soup_to or nil -- what the filled soup/stew is
-    if not result then return end -- no variation found
+    -- what type the filled soup/stew or filled bowl is, permit custom
+    local result = kind == "stew" and def.stew_to or kind == "soup" and def.soup_to or
+        "_"..kind
     -- gets soup/stew_to variable, adds self name if no colon (indicative of proper name) found
     result = (not result:match(":")) and def.name..result or result -- allow for simple like "_soup"
     if not minetest.registered_nodes[result] then return end -- not a valid node if specified
@@ -333,6 +334,8 @@ local function register_food_bowl_filled(name, def, empty, transfer)
     core.register_node(name, def)
     return name
 end
+-- namespace
+tech.register_food_bowl_filled = register_food_bowl_filled
 
 local function register_food_bowl(name, def)
     assert(type(name) == "string",
