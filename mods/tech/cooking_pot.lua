@@ -141,7 +141,7 @@ end
 
 -- soup node functions
 
--- soup transfer - for transferring full soups to empty bowls
+-- soup transfer - for transferring itemstack soups/stews/filled bowls to empty bowl nodes
 local function soup_transfer(pos, user, itemstack, p_inv, nodemeta, imeta)
     -- get itemstack definition for soup_no_meta_transfer check
     local itemdef = itemstack:get_definition()
@@ -157,13 +157,15 @@ local function soup_transfer(pos, user, itemstack, p_inv, nodemeta, imeta)
         minetest.set_node(pos, {name=become})
         nodemeta = nodemeta or minetest.get_meta(pos)
         nodemeta:from_table(imeta)
+    else
+        minetest.set_node(pos, {name=become})
     end
     empty = ItemStack(empty) -- get empty itemstack for inventory mechanics
     -- handle inventory (above does not depend on such if something was to go awry lol)
     return soup_handle_inventory(itemstack, empty, user, p_inv)
 end
 
--- transferring node soup/stew to an empty bowl itemstack
+-- transferring node soup/stew/filled bowl to an empty bowl itemstack
 local function soup_on_bowl_empty(pos, user, itemstack, p_inv, nodemeta)
     -- used for getting soup_no_meta_transfer
     local nodedef = minimal.get_nodedef(pos)
@@ -195,7 +197,7 @@ local function soup_on_use(itemstack, user, pointed_thing, is_soup)
     if type(is_soup) ~= "boolean" then
         local groups = itemdef.groups
         if not groups then return end -- how??? what're you doing!!! how do we not have GROUPS!
-        is_soup = (groups.stew or groups.soup) and true or false
+        is_soup = (groups.stew or groups.soup or itemdef.soup_kind) and true or false
     end
     -- cooking pot interaction
     -- soupy interactions
