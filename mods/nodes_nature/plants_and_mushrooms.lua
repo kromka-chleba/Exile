@@ -294,13 +294,13 @@ local plant_list = {
     {name = "nebiyi", description = S("Nebiyi"),
      lifeform_type = "mushroom", mesh_type = 1,
      growing_time = nn.plant_base_growing_time, seasonal_type = "late_mushroom",
-     dye_candidate = true, dominant_color = "indigo"},
+     dye_candidate = true, dominant_color = "indigo", light_range={max=15}},
 
     {name = "marbhan", description = S("Marbhan"),
      lifeform_type = "mushroom", mesh_type = 2,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "red", dye_candidate = true,
-     seasonal_type = "whole_season_seedling"},
+     seasonal_type = "whole_season_seedling", light_range={max=15}},
 
     {name = "zufani", description = S("Zufani"),
      lifeform_type = "mushroom", mesh_type = 2,
