@@ -233,9 +233,13 @@ local function soup_after_place(pos, placer, itemstack, pointed_thing)
 end
 
 -- register_food_bowl_filled
+-- used by register_food_bowl to register soups/stews
 -- requires name, a definition, and an "empty" (a node information to revert to when transferring or eaten)
 -- "empty" can be a name or a table that is similar to a node definition (expects name parameter)
--- used by register_food_bowl to register soups/stews
+-- optional transfer (boolean), save_meta (boolean), and food_table (table)
+-- transfer permits transferring between empty and filled bowls, default true unless boolean specified
+-- save_meta saves the meta between transfers or when placed, default is false unless specified or edible is 2
+-- food_table only gets set if the filled bowl is edible and food_table is table or nil
 -- name can have empty's name automatically added with "@empty"
 local function register_food_bowl_filled(name, def, empty, transfer, save_meta, food_table)
     -- used for error messages
@@ -346,9 +350,9 @@ local function register_food_bowl_filled(name, def, empty, transfer, save_meta, 
         end
     end
     -- edible functionality
-    if def.groups.edible then
+    food_table = food_table or {}
+    if def.groups.edible and type(food_table) == "table" then
         -- set up food_table (add replacewithitem, eat_sound if soup)
-        food_table = food_table or {}
         food_table.rwi = food_table.rwi or empty.name
         food_table.eat_sound = food_table.eat_sound or soupstew == "soup" and "nodes_nature_slurp" or nil
         -- food stats
