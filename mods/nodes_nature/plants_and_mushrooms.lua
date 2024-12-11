@@ -41,14 +41,17 @@ local moss_nodebox = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}
 
 local soil_pref_new = nn.soil_preferences.new
 
--- WE ONLY LIKE CLAY
--- goes from 0 to 4
-local clay_only_soil_prefs = soil_pref_new({
-    -- we prefer a rocky_substrate and organic_substrate of 2, -50 if not
-    rocky_substrate = {[0]=-50, -2, 0, -2},
-    organic_substrate = {[0]=-50, -2, 2, 0},
-    -- we like a dense meal
-    density = {[0]=-100, -10, -2, -1, 1}
+-- tables go from 1 to 4
+-- likes 0 being specified though
+-- we like clay
+local clay_bonus_soil_prefs = soil_pref_new({
+    -- we prefer a rocky_substrate and organic_substrate of 2
+    rocky_substrate = {0, 1, 0},
+    organic_substrate = {0, 1, 0},
+    -- we like a dense meal (not sure why 3 lonesome isn't satisfactory)
+    density = {[2]=0, [3]=0, [4]=2},
+    -- don't mean we like gravel though - negate gravel density
+    gravel = -2
 })
 -- we live in hostile environments!
 local hardy_gravel_soil_prefs = soil_pref_new({
@@ -90,7 +93,7 @@ local plant_list = {
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "yellow", dye_candidate = true,
-     soil_preferences = clay_only_soil_prefs,
+     soil_preferences = clay_bonus_soil_prefs,
      seasonal_type = "late", winter_fruit = true,
      dry_fruit = true},
 
