@@ -236,12 +236,12 @@ end
 -- used by register_food_bowl to register soups/stews
 -- requires name, a definition, and an "empty" (a node information to revert to when transferring or eaten)
 -- "empty" can be a name or a table that is similar to a node definition (expects name parameter)
--- optional transfer (boolean), save_meta (boolean), and food_table (table)
+-- optional food_table (table), transfer (boolean), and save_meta (boolean)
+-- food_table only gets set if the filled bowl is edible and food_table is table or nil
 -- transfer permits transferring between empty and filled bowls, default true unless boolean specified
 -- save_meta saves the meta between transfers or when placed, default is false unless specified or edible is 2
--- food_table only gets set if the filled bowl is edible and food_table is table or nil
 -- name can have empty's name automatically added with "@empty"
-local function register_food_bowl_filled(name, def, empty, transfer, save_meta, food_table)
+local function register_food_bowl_filled(name, def, empty, food_table, transfer, save_meta)
     -- used for error messages
     local func_tag = "tech.register_food_bowl_filled:"
     if type(name) ~= "string" then
