@@ -314,11 +314,15 @@ local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
             def.tiles[1].."^"..def.filled_texture
         def.filled_texture = nil -- clear from def
     end
-    -- set inventory image
-    if empty.inventory_image and soupstew and not def.inventory_image then
-        def.inventory_image = empty.inventory_image..(soupstew == "stew"and "^tech_stew_icon.png"
-            or "^tech_soup_icon.png")
+    -- set inventory image if not provided
+    -- do not set inventory_image if it equals to false (don't want inventory_image)
+    -- otherwise looks for filled_icon or autosets to stew's icon if neither are provided
+    if def.inventory_image ~= "false" and type(def.inventory_image) ~= "string" and empty.inventory_image then
+        def.inventory_image = empty.inventory_image..(soupstew == "soup" and "^tech_soup_icon.png" or
+            type(def.filled_icon) == "string" and "^"..def.filled_icon or "^tech_stew_icon.png")
+        def.filled_icon = nil -- clear from def
     end
+    def.inventory_image = def.inventory_image ~= false and def.inventory_image or nil
     -- note empty variant
     def.soup_empty = empty.name
     -- remove group nums of less than 1
