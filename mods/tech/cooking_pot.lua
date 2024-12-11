@@ -323,6 +323,9 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
         def.inventory_image = empty.inventory_image..(soupstew == "soup" and "^tech_soup_icon.png" or
             type(def.filled_icon) == "string" and "^"..def.filled_icon or "^tech_stew_icon.png")
         def.filled_icon = nil -- clear from def
+        -- if wield_image isn't false, set as inventory_image, otherwise nil
+        def.wield_image = def.wield_image ~= "false" and def.wield_image or
+            def.inventory_image or nil
     end
     def.inventory_image = def.inventory_image ~= false and def.inventory_image or nil
     -- note empty variant
@@ -403,6 +406,8 @@ local function register_food_bowl(name, def)
     -- if variant is custom, check for modname _food_bowl icon variants
     def.inventory_image = def.inventory_image or variant and ( (variant == "wooden" or variant == "clay") and
         "tech_food_bowl_"..variant.."_icon.png" or mod_origin.."_food_bowl_"..variant.."_icon.png") or nil
+    -- set wield image to inventory_image
+    def.wield_image = def.wield_image or def.inventory_image
     -- nodebox
     def.drawtype = def.drawtype or "nodebox"
     def.node_box = def.node_box or def.drawtype == "nodebox" and
