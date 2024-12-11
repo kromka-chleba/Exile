@@ -293,12 +293,10 @@ local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
             error(func_tag.." empty bowl '"..empty.name.."' does not have tiles!")
         end
         def.tiles = table.copy(empty.tiles)
-        def.filled_texture = def.filled_texture or soupstew == "soup" and
-            "tech_soup.png" or soupstew == "stew" and "tech_stew.png" or def.filled_texture
-        if type(def.filled_texture) ~= "string" then
-            error(func_tag.." soupstew (soup or stew set in groups) not specified or expected string for filled_texture, got '"..
-                type(def.filled_texture).."'")
-        end
+        -- what texture will be applied on the top texture - or what will be shown for the bowl's ingredients
+        -- prioritizes "filled_texture" or sets the soup texture if soup or defaults to the stew texture
+        def.filled_texture = type(def.filled_texture) == "string" and def.filled_texture or
+            soupstew == "soup" and "tech_soup.png" or "tech_stew.png"
         -- increase tile length to 3 if less (and if not mesh)
         if #def.tiles < 3 and not def.mesh then
             for ind, tile in pairs(def.tiles) do
