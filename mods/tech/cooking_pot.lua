@@ -237,7 +237,7 @@ end
 -- "empty" can be a name or a table that is similar to a node definition (expects name parameter)
 -- used by register_food_bowl to register soups/stews
 -- name can have empty's name automatically added with "@empty"
-local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
+local function register_food_bowl_filled(name, def, empty, transfer, save_meta, food_table)
     -- used for error messages
     local func_tag = "tech.register_food_bowl_filled:"
     if type(name) ~= "string" then
@@ -285,7 +285,7 @@ local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
     local desc_tag = def.description_tag
     def.description_tag = nil
     def.description = def.description or soupstew == "soup" and S("Bowl of @1 Soup","") or soupstew == "stew" and
-        S("Bowl of @1 Stew","") or desc_tag and S("Bowl of @1",def.description_tag) or name
+        S("Bowl of @1 Stew","") or desc_tag and S("Bowl of @1", desc_tag) or name
     -- set tiles
     if not def.tiles or not def.tiles[1] then
         -- how???
@@ -345,17 +345,14 @@ local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
             def.soup_no_meta_transfer = true
         end
     end
-    -- derive eat sound and clear definition
-    local eat_sound = (type(def.eat_sound) == "table" or type(def.eat_sound) == "string") and def.eat_sound
-        or soupstew == "soup" and "nodes_nature_slurp" or nil
-    def.eat_sound = nil
     -- edible functionality
     if def.groups.edible then
+        -- set up food_table (add replacewithitem, eat_sound if soup)
+        food_table = food_table or {}
+        food_table.rwi = food_table.rwi or empty.name
+        food_table.eat_sound = food_table.eat_sound or soupstew == "soup" and "nodes_nature_slurp" or nil
         -- food stats
-        HEALTH.add_food_table(name,{
-            rwi = empty.name,
-            eat_sound = eat_sound
-        })
+        HEALTH.add_food_table(name, food_table)
     end
     -- misc extra stuff
     def.paramtype = def.paramtype or empty.paramtype or "light"
