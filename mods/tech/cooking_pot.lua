@@ -234,6 +234,7 @@ end
 -- requires name, a definition, and an "empty" (a node information to revert to when transferring or eaten)
 -- "empty" can be a name or a table that is similar to a node definition (expects name parameter)
 -- used by register_food_bowl to register soups/stews
+-- name can have empty's name automatically added with "@empty"
 local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
     -- used for error messages
     local func_tag = "tech.register_food_bowl_filled:"
@@ -250,6 +251,13 @@ local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
     -- definition check
     if type(def) ~= "table" then
         error(func_tag.." expected table for definition, got '"..type(def).."'")
+    end
+    -- permit option to automatically add empty bowl's name to definition name by specifying "@empty"
+    if name:match("@empty") then
+        -- remove empty's mod_origin from empty's name
+        local modless_empty = empty.name:gsub(empty.mod_origin..":","")
+        -- replace with modless_empty
+        name = name:gsub("@empty", modless_empty)
     end
     -- add mod_origin to name if not provided
     def.mod_origin = core.get_current_modname()
@@ -283,11 +291,11 @@ local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
             error(func_tag.." empty bowl '"..empty.name.."' does not have tiles!")
         end
         def.tiles = table.copy(empty.tiles)
-        def.liquid_texture = def.liquid_texture or soupstew == "soup" and
-            "tech_soup.png" or soupstew == "stew" and "tech_stew.png"
-        if type(def.liquid_texture) ~= "string" then
-            error(func_tag.." soupstew (soup or stew set in groups) not specified or expected string for liquid_texture, got '"..
-                type(def.liquid_texture).."'")
+        def.filled_texture = def.filled_texture or soupstew == "soup" and
+            "tech_soup.png" or soupstew == "stew" and "tech_stew.png" or def.filled_texture
+        if type(def.filled_texture) ~= "string" then
+            error(func_tag.." soupstew (soup or stew set in groups) not specified or expected string for filled_texture, got '"..
+                type(def.filled_texture).."'")
         end
         -- increase tile length to 3 if less (and if not mesh)
         if #def.tiles < 3 and not def.mesh then
@@ -300,8 +308,9 @@ local function register_food_bowl_filled(name, def, empty, transfer, save_meta)
             end
         end
         -- add soup/stew/misc texture to top of tiles
-        def.tiles[1] = type(def.tiles[1]) == "table" and def.tiles[1].name.."^"..def.liquid_texture or
-            def.tiles[1].."^"..def.liquid_texture
+        def.tiles[1] = type(def.tiles[1]) == "table" and def.tiles[1].name.."^"..def.filled_texture or
+            def.tiles[1].."^"..def.filled_texture
+        def.filled_texture = nil -- clear from def
     end
     -- set inventory image
     if empty.inventory_image and soupstew and not def.inventory_image then
