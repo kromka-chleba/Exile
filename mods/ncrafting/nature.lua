@@ -95,8 +95,22 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, node_suffix, empty
                 return
             end
             -- if not in creative, empty the can out
-            itemstack:take_item()
-            return ItemStack(empty_container), true
+            empty_container = ItemStack(empty_container)
+            -- huh, how do you have more than one watering? ok then...
+            if itemstack:get_count() > 1 then
+                itemstack:take_item() -- take 1 from slot
+                local inv = core.is_player(user) and user:get_inventory()
+                if inv:room_for_item("main", empty_container) then
+                    inv:add_item("main", empty_container)
+                else
+                    minimal.warn_inv_full(user)
+                    core.add_item(user:get_pos(), empty_container)
+                end
+            -- not more than 1, replace
+            else
+                itemstack = empty_container
+            end
+            return itemstack, true
         end
     end
 
