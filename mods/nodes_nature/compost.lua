@@ -164,14 +164,9 @@ for i = 1, 4 do
         reg_compost._dig_tip = S("Fertilize and soak soil")
         reg_compost.on_use = function(itemstack, user, pointed_thing)
             if pointed_thing.type == "node" then
-                local return_val = {ncrafting.fertilize(pointed_thing.under,
-                                                        user, itemstack)}
-                -- only wet the soil if successfully fertilized
-                --  (will be true or nil for the 3rd parameter)
-                if return_val[3] then
-                    ncrafting.water_soil(itemstack, user, pointed_thing,"","")
-                end
-                return return_val[1]
+                -- 4th parameter for wetting the soil
+                -- only wets soil if successfully fertilized
+                return ncrafting.fertilize(pointed_thing.under,user, itemstack, true)
             else
                 minimal.item_pickup(user, pointed_thing)
             end

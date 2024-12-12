@@ -120,7 +120,8 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, node_suffix, empty
 end
 
 -- fertilize soil with a fertilizer
-function ncrafting.fertilize(pos, puncher, itemstack)
+-- 4th parameter boolean "wet" used to wet the soil on success
+function ncrafting.fertilize(pos, puncher, itemstack, wet)
     assert(vector.check(pos),
            "ncrafting.fertilize: provided position is not a position!")
     local inv
@@ -157,10 +158,13 @@ function ncrafting.fertilize(pos, puncher, itemstack)
     replace_with = ItemStack(replace_with)
 
     -- avoid having to set up a "fertilized" boolean to prevent another check over
-    local function complete()
+    local function complete(node_name)
         -- allow a custom "after_fertilize" function
         if type(itemdef._after_fertilize) == "function" then
             return itemdef._after_fertilize(pos, itemstack, puncher)
+        end
+        if wet and node_name then
+            wet_soil(pos, core.registered_nodes[node_name])
         end
         -- proceed as usual
         if not replace_with then
@@ -203,7 +207,7 @@ function ncrafting.fertilize(pos, puncher, itemstack)
             return itemstack
         end
         minetest.swap_node(pos, {name = node_name})
-        return complete()
+        return complete(node_name)
     end
 
     -- prioritize enriching second
@@ -219,7 +223,7 @@ function ncrafting.fertilize(pos, puncher, itemstack)
             return itemstack
         end
         minetest.swap_node(pos, {name = node_name})
-        return complete()
+        return complete(node_name)
     end
 
     return itemstack
