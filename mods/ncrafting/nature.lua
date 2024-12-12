@@ -1,67 +1,59 @@
 ncrafting = ncrafting
 
-local function get_soil_pos(pos)
-    local node = minetest.get_node(pos)
-    if (minimal.is_group(node.name,"flora")
-        or minimal.is_group(node.name,"seed")) then
-        
+-- figure out if a soil - gets soil underneath plants
+local function get_soil_pos(pos, ndef)
+    ndef = ndef or minimal.get_nodedef(pos)
+    local groups = ndef and ndef.groups
+    if not groups then return end
+    -- if plant or seed, check underneath
+    if groups.flora or groups.seed then
         pos.y = pos.y - 1
-        node = minetest.get_node(pos)
+        ndef = minimal.get_nodedef(pos)
+        groups = ndef and ndef.groups
+        if not groups then return end
     end
-    if minimal.is_group(node.name,"sediment") or
-        minimal.is_group(node.name,"dry_sediment")  then
-        return pos
-        -- permit interactions with compost
-    elseif minetest.get_item_group(node.name,"compost") == 1
-        or minetest.get_item_group(node.name,"undecomposed_compost") == 1 then
-
-        return pos
+    -- now to check if a sediment
+    if groups.sediment or groups.dry_sediment or
+      -- permit interactions with compost
+      groups.compost or groups.undecomposed_compost then
+        -- return pos and nodedef
+        return pos, ndef
     end
-    return
 end
 
 -- provides "wet" as a suffix already, so that all that needs to be applied
 -- is either nothing or "salty" to get "wet_salty"
 -- may remove this in the future if different liquids exist
-local function wet_soil(pos, suffix)
-    if not vector.check(pos) then
-        return
-    end
+local function wet_soil(pos, ndef, suffix)
+    if not vector.check(pos) then return end
     local node = minetest.get_node(pos)
-    if (type(suffix) ~= "string") then
-        suffix = ""
-    else
-        -- lowercase it :D
-        suffix = string.lower(suffix)
-    end
-    if (suffix ~= "" and string.sub(suffix,1,1) ~= "_") then
-        -- add underscore if not found
-        suffix = "_"..suffix
-    end
-    if (suffix == "_wet") then
-        -- we define it later on, clear it
-        suffix = ""
-    end
-    suffix = "_wet"..suffix
+    ndef = ndef or minetest.registered_nodes[node.name]
+    ndef = ndef or minimal.get_nodedef(ndef)
+    -- set suffix as empty or lowercase if provided
+    suffix = type(suffix) ~= "string" and "" or suffix:lower()
+    -- we define _wet later on, clear it - otherwise continue as normal
+    suffix = (suffix == "wet" or suffix == "_wet") and "" or suffix
+    -- add "_wet" prefix
+    -- if not empty, add an underscore if not provided, otherwise add prefix to suffix normally
+    suffix = suffix ~= "" and (suffix:sub(1,1) ~= "_" and "_wet_"..suffix or "_wet"..suffix) or "_wet"
 
     -- check if watered block exists
     local wet_node_name = node.name .. suffix
     -- otherwise do normal checking
-    if not minetest.registered_nodes[wet_node_name] and
-        string.match(node.name,"depleted") then
+    if not minetest.registered_nodes[wet_node_name] and node.name:match("depleted") then
         -- depleted nodes with roots have "depleted" behind the "roots", so
         --  I declare this if statement first
         -- IF the provided node is "depleted", look for its proper depleted
         --  wet variant
+        wet_node_name = wet_node_name:gsub("_depleted","")
         wet_node_name = string.gsub(wet_node_name,"_depleted","")
         wet_node_name = wet_node_name.."_depleted"
         -- we didn't erase "_wet" from the name
     end
-    if not minetest.registered_nodes[wet_node_name]
-        and string.match(node.name,"roots") then
+    if not minetest.registered_nodes[wet_node_name] and node.name:match("roots") then
         -- IF the provided node is "roots", look for its proper roots
         --  wet variant
-        wet_node_name = string.gsub(wet_node_name,"_roots","")
+        wet_node_name = wet_node_name:gsub("_roots","")
         wet_node_name = wet_node_name.."_roots"
         -- we didn't erase "_wet" from the name
     end
@@ -83,7 +75,7 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, node_suffix, empty
     assert(type(pointed_thing) == "table",
            "ncrafting.water_soil: provided pointed_thing is not a table! "..
            "got: "..type(pointed_thing))
-    if not empty_container then
+    if itemstack and not empty_container then
         local storeddef = liquid_store.get_sl_def(itemstack:get_name())
         empty_container = storeddef and storeddef.nodename_empty
     end
@@ -92,11 +84,11 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, node_suffix, empty
            type(empty_container))
 
     -- can only water nodes
-    if (pointed_thing.type == "node"
-        and itemstack) then
-        local pos = get_soil_pos(pointed_thing.under)
+    if pointed_thing.type == "node"
+        and itemstack then
+        local pos, ndef = get_soil_pos(pointed_thing.under)
         -- will only return a pos if a soil is found
-        if (vector.check(pos) and wet_soil(pos, node_suffix)) then
+        if pos and wet_soil(pos, ndef, node_suffix) then
             -- if position is good and can wet the soil
             -- check if player is in creative
             if minimal.player_in_creative(user) then
