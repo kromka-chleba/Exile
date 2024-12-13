@@ -114,6 +114,7 @@ end
 local function CandidateList()
     -- Gathers a list of all plants that have not been chosen
     -- as a dye source yet
+    local NoC = 0 -- number of candidates
     dye_candidates = ncrafting.loadstore("dye_candidates") or {}
 
     for nm, def in pairs(minetest.registered_items) do
@@ -130,11 +131,13 @@ local function CandidateList()
                 dye_candidates[nm] = {}
                 dye_candidates[nm].dcolor = def._ncrafting_dye_dcolor or "none"
                 dye_candidates[nm].weight = def.groups.ncrafting_dye_candidate
+                NoC = NoC + 1 -- add to list of applicable candidates
             else -- a color comes from this plant, remove it from the todo list
                 undefined_dyes[dye_source[nm].color] = nil
             end
         end
     end
+    return NoC -- return for GenerateDyes
 end
 
 local function NewRollTable(color)
@@ -154,19 +157,36 @@ local function NewRollTable(color)
     return NewTable
 end
 
-local function GenerateDyes(seed) -- Generate dye_sources based on mapgen seed
+-- NoC - number of candidates, how many candidates have been listed
+local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen seed
     local rando = PcgRandom(seed)
+    if type(NoC) ~= "number" then
+        error("ncrafting.GenerateDyes: did not get NoC - number of candidates")
+    end
+    -- (WIP?) candidates per dye -- how many candidates can be hypothetically allocated to each dye out of candidate amount
+    --local CpD = math.floor(NoC/#dyelist)
+    -- solutions per dye -- how many solutions - crafts should each dye have
+    local SpD = math.floor(NoC/28) -- 29 is how many dye candidates exist in v3, subtract 1 for 28 anyways
     for dye, _ in pairs(undefined_dyes) do
         minetest.log("action","Dye: Generating "..dye.." dye")
         -- create tables to roll on for any new dyes
         local rolltable = NewRollTable(dye)
         local max = #rolltable
+
         if max and max > 0 then
-            local select = rolltable[rando:next(1, max)]
-            dye_source[select] = {}
-            dye_source[select].color = dye
-            dye_source[select].method = methods[rando:next(1, #methods)]
-            dye_candidates[select] = nil -- remove used plants from the list
+            SpD = math.min(max, SpD) -- ensure SpD is below max
+            for set=1, SpD do
+                local chose = {i=rando:next(1, max)} -- get index we'll want
+                chose.nm = rolltable[chose.i] -- get name as 2nd parameter
+                -- remove rolltable index to prevent accidental replace + decrease max
+                table.remove(chose, chose.i)
+                max = max - 1
+                chose = chose.nm -- set chose properly
+                dye_source[chose] = {}
+                dye_source[chose].color = dye
+                dye_source[chose].method = methods[rando:next(1, #methods)]
+                dye_candidates[chose] = nil -- remove used plants from the list
+            end
         end
     end
 
@@ -195,8 +215,7 @@ end
 
 minetest.register_on_mods_loaded(function()
         dye_source = ncrafting.loadstore64("dye_source") or {}
-        CandidateList()
-        GenerateDyes(SelectSeed())
+        GenerateDyes(SelectSeed(), CandidateList())
         ncrafting.savestore("dye_candidates", dye_candidates)
         ncrafting.savestore64("dye_source", dye_source)
         minetest.log("action","Dye generation finished")
