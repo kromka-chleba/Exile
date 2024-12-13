@@ -161,12 +161,18 @@ end
 local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen seed
     local rando = PcgRandom(seed)
     if type(NoC) ~= "number" then
-        error("ncrafting.GenerateDyes: did not get NoC - number of candidates")
+        error("ncrafting; GenerateDyes: did not get NoC - number of candidates")
     end
-    -- (WIP?) candidates per dye -- how many candidates can be hypothetically allocated to each dye out of candidate amount
-    --local CpD = math.floor(NoC/#dyelist)
+    -- get direct count of dyes
+    local dyecount = 0
+    for _,_ in pairs(dyelist) do
+        dyecount = dyecount + 1
+    end
+    -- candidates per dye -- how many candidates can be hypothetically allocated to each dye out of candidate amount
+    local CpD = math.floor(NoC/dyecount)
     -- solutions per dye -- how many solutions - crafts should each dye have
-    local SpD = math.floor(NoC/28) -- 29 is how many dye candidates exist in v3, subtract 1 for 28 anyways
+    local SpD = math.floor(CpD/4) -- divide by 4 to get a similar result to v3's 29 NoC which make for 1 solution per each dye
+    -- 29/#dyelist or 7 = 4.1428
     for dye, _ in pairs(undefined_dyes) do
         minetest.log("action","Dye: Generating "..dye.." dye")
         -- create tables to roll on for any new dyes
@@ -174,8 +180,7 @@ local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen s
         local max = #rolltable
 
         if max and max > 0 then
-            SpD = math.min(max, SpD) -- ensure SpD is below max
-            for set=1, SpD do
+            for set=1, math.min(max, SpD) do -- ensure SpD is locally below max
                 local chose = {i=rando:next(1, max)} -- get index we'll want
                 chose.nm = rolltable[chose.i] -- get name as 2nd parameter
                 -- remove rolltable index to prevent accidental replace + decrease max
