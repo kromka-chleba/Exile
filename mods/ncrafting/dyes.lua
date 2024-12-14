@@ -213,11 +213,10 @@ local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen s
     minetest.log("info", "Dye: "..stringy)
 end
 
-local function SelectSeed()
-    local doworldseed = minetest.settings:get("ncrafting_worldseed")
-    if doworldseed == nil then
-        doworldseed = true
-    end
+local function SelectSeed(doworldseed)
+    doworldseed = type(doworldseed) ~= "boolean" and minetest.settings:get("ncrafting_worldseed") or doworldseed
+    -- set to true if not boolean
+    doworldseed = type(doworldseed) ~= "boolean" and true or doworldseed
     if doworldseed == true then
         minetest.log("action","Dye generation phase -- using the world seed")
         return minetest.get_mapgen_setting("seed")
@@ -304,15 +303,19 @@ minetest.register_chatcommand("dye",{
         local cmd = param[1]
         if cmd == "regen" then
             -- permit "seed" argument
-            local seed = param[2] and tonumber(param[2]) or nil
+            local seed = param[2] == "random" and SelectSeed(false) or tonumber(param[2])
             if load_generate_dyes(seed, true) then
                 minetest.chat_send_player(name, "Successfully regenerated dyes")
+                if seed then
+                    minetest.chat_send_player(name, "Using Seed: "..tostring(seed))
+                end
             end
         elseif cmd == "list" then
             list_dyes(name)
         -- no such command!
         else
-            local errormsg = {type(cmd) == "string" and "Not A Valid Command! See Below:" or "No Command Specified, See Below:"}
+            local errormsg = {cmd == "help" and "Commands Below:" or type(cmd) == "string" and "Not A Valid Command! See Below:"
+                or "No Command Specified, See Below:"}
             errormsg[#errormsg + 1] = "/dye list"
             errormsg[#errormsg + 1] = "/dye regen <seed>"
             errormsg = table.concat(errormsg,"\n")
