@@ -273,21 +273,27 @@ local function list_dyes(plrname)
         if dyelist[cdye] then
             check_dyes[cdye] = check_dyes[cdye] or {}
             cdye = check_dyes[cdye]
+            -- string it
             cdye[#cdye + 1] = candidate.." by "..info.method
-      end
+        end
     end
+    -- use table.concat cause it's faster
     local stringy = {"Dye sources:"}
     for dye,data in pairs(check_dyes) do
+        -- will look like: "dye : {info}"
         local ministringy = {dye, ": {", "", "}"}
+        -- "||" for "or"
         ministringy[3] = table.concat(data, " || ")
+        -- add dye info to stringy and table.concat it with spaces
         stringy[#stringy + 1] = table.concat(ministringy, " ")
     end
+    -- place "\n" for each
     stringy = table.concat(stringy,"\n")
+    -- send info to plrname and return string
     if plrname then
         core.chat_send_player(plrname, stringy)
-    else
-        return stringy
     end
+    return stringy
 end
 
 minetest.register_chatcommand("dye",{
@@ -297,11 +303,20 @@ minetest.register_chatcommand("dye",{
         param = param:split(" ")
         local cmd = param[1]
         if cmd == "regen" then
-            if load_generate_dyes(nil, true) then
+            -- permit "seed" argument
+            local seed = param[2] and tonumber(param[2]) or nil
+            if load_generate_dyes(seed, true) then
                 minetest.chat_send_player(name, "Successfully regenerated dyes")
             end
         elseif cmd == "list" then
             list_dyes(name)
+        -- no such command!
+        else
+            local errormsg = {type(cmd) == "string" and "Not A Valid Command! See Below:" or "No Command Specified, See Below:"}
+            errormsg[#errormsg + 1] = "/dye list"
+            errormsg[#errormsg + 1] = "/dye regen <seed>"
+            errormsg = table.concat(errormsg,"\n")
+            return false,errormsg
         end
     end,
     privs = {debug = true}
