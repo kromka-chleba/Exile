@@ -204,13 +204,7 @@ local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen s
         end
     end
 
-    -- Displays current world's dye source, turn on info level logging to see it
-    local stringy = ""
-    for k, v in pairs(dye_source) do
-        stringy = stringy .. k .. " = ".. v.color .. " by ".. v.method .."\n"
-    end
-    minetest.log("info", "Dye sources:")
-    minetest.log("info", "Dye: "..stringy)
+    -- see /dye list to see each dye
 end
 
 local function SelectSeed(doworldseed)
@@ -316,8 +310,13 @@ minetest.register_chatcommand("dye",{
         else
             local errormsg = {cmd == "help" and "Commands Below:" or type(cmd) == "string" and "Not A Valid Command! See Below:"
                 or "No Command Specified, See Below:"}
-            errormsg[#errormsg + 1] = "/dye list"
-            errormsg[#errormsg + 1] = "/dye regen <seed>"
+            errormsg = minimal.merge_tables(errormsg,{
+                "/dye list",
+                "Lists each dye and their corresponding sources + methods",
+                "/dye regen <seed>",
+                "Regenerates dye sources, custom <seed> can be number or 'random', defaults to worldseed otherwise",
+                "If seed is not provided or different from generated, does not overwrite pre-existing dye sources"
+            })
             errormsg = table.concat(errormsg,"\n")
             return false,errormsg
         end
