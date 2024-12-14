@@ -111,11 +111,11 @@ local function is_excluded(candidate_name, def)
     end
 end
 
-local function CandidateList()
+local function CandidateList(regen)
     -- Gathers a list of all plants that have not been chosen
     -- as a dye source yet
-    local NoC = 0 -- number of candidates
-    dye_candidates = ncrafting.loadstore("dye_candidates") or {}
+    local NoC, LC = 0,0 -- number of candidates, leftover candidates
+    dye_candidates = not regen and ncrafting.loadstore("dye_candidates") or {}
 
     for nm, def in pairs(minetest.registered_items) do
         if is_excluded(nm, def) then
@@ -131,13 +131,15 @@ local function CandidateList()
                 dye_candidates[nm] = {}
                 dye_candidates[nm].dcolor = def._ncrafting_dye_dcolor or "none"
                 dye_candidates[nm].weight = def.groups.ncrafting_dye_candidate
-                NoC = NoC + 1 -- add to list of applicable candidates
+                LC = LC + 1 -- add to number of applicable candidates
             else -- a color comes from this plant, remove it from the todo list
+                NoC = NoC + 1 -- still was a candidate!
                 undefined_dyes[dye_source[nm].color] = nil
             end
         end
     end
-    return NoC -- return for GenerateDyes
+    NoC = NoC + LC -- add leftover candidates to NoCs
+    return NoC, LC -- return NoC for GenerateDyes, optional return LC
 end
 
 local function NewRollTable(color)
@@ -157,7 +159,7 @@ local function NewRollTable(color)
     return NewTable
 end
 
-local function get_solutions_per_dye(NoC)
+local function calculate_solutions_per_dye(NoC)
     if type(NoC) ~= "number" then return end
     -- get direct count of dyes
     local dyecount = 0
@@ -176,7 +178,7 @@ end
 local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen seed
     local rando = PcgRandom(seed)
     -- used for figuring out how many sources to add for a dye
-    local SpD = get_solutions_per_dye(NoC)
+    local SpD = calculate_solutions_per_dye(NoC)
     if not SpD then
         error("ncrafting; GenerateDyes: did not get NoC - number of candidates")
     end
@@ -247,9 +249,11 @@ local function all_dyes_generated()
 end
 
 local function load_generate_dyes(seed, regen)
+    -- if regen, empty all tables
     dye_source = not regen and ncrafting.loadstore64("dye_source") or {}
+    -- do not run check if purposefully regenerating
     if not regen and all_dyes_generated() then return end -- don't generate if all dyes have been covered
-    GenerateDyes(seed or SelectSeed(), CandidateList())
+    GenerateDyes(seed or SelectSeed(), CandidateList(regen)) -- regen candidate list if regen
     ncrafting.savestore("dye_candidates", dye_candidates)
     ncrafting.savestore64("dye_source", dye_source)
     minetest.log("action","Dye generation finished")
