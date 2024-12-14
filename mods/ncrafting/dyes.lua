@@ -218,13 +218,37 @@ local function SelectSeed()
     end
 end
 
-minetest.register_on_mods_loaded(function()
-        dye_source = ncrafting.loadstore64("dye_source") or {}
-        GenerateDyes(SelectSeed(), CandidateList())
-        ncrafting.savestore("dye_candidates", dye_candidates)
-        ncrafting.savestore64("dye_source", dye_source)
-        minetest.log("action","Dye generation finished")
-end)
+-- check if all dyes have been successfully generated
+local function all_dyes_generated()
+    local check_dyes = {}
+    -- set up a table with each existing dye, set to false so that it can be overwritten
+    for dye,_ in pairs(dyelist) do
+        check_dyes[dye] = false
+    end
+    -- look through dye_source table to check if each dye has a source
+    for _,info in pairs(dye_source) do
+        -- set to true if found
+        check_dyes[info.color] = check_dyes[info.color] or true
+    end
+    -- ensure all listed dyes have a source
+    for dye,confirmed in pairs(check_dyes) do
+        -- we must generate!
+        if not confirmed then return end
+    end
+    -- bro... don't generate...
+    return true
+end
+
+local function load_generate_dyes()
+    dye_source = ncrafting.loadstore64("dye_source") or {}
+    if all_dyes_generated() then return end -- don't generate if all dyes have been covered
+    GenerateDyes(SelectSeed(), CandidateList())
+    ncrafting.savestore("dye_candidates", dye_candidates)
+    ncrafting.savestore64("dye_source", dye_source)
+    minetest.log("action","Dye generation finished")
+end
+
+minetest.register_on_mods_loaded(load_generate_dyes)
 
 -----------------------------------------------
 -- Bundled plants
