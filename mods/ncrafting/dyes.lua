@@ -157,12 +157,8 @@ local function NewRollTable(color)
     return NewTable
 end
 
--- NoC - number of candidates, how many candidates have been listed
-local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen seed
-    local rando = PcgRandom(seed)
-    if type(NoC) ~= "number" then
-        error("ncrafting; GenerateDyes: did not get NoC - number of candidates")
-    end
+local function get_solutions_per_dye(NoC)
+    if type(NoC) ~= "number" then return end
     -- get direct count of dyes
     local dyecount = 0
     for _,_ in pairs(dyelist) do
@@ -173,6 +169,17 @@ local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen s
     -- solutions per dye -- how many solutions - crafts should each dye have
     local SpD = math.floor(CpD/4) -- divide by 4 to get a similar result to v3's 29 NoC which make for 1 solution per each dye
     -- 29/#dyelist or 7 = 4.1428
+    return SpD
+end
+
+-- NoC - number of candidates, how many candidates have been listed
+local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen seed
+    local rando = PcgRandom(seed)
+    -- used for figuring out how many sources to add for a dye
+    local SpD = get_solutions_per_dye(NoC)
+    if not SpD then
+        error("ncrafting; GenerateDyes: did not get NoC - number of candidates")
+    end
     for dye, _ in pairs(undefined_dyes) do
         minetest.log("action","Dye: Generating "..dye.." dye")
         -- create tables to roll on for any new dyes
@@ -239,16 +246,62 @@ local function all_dyes_generated()
     return true
 end
 
-local function load_generate_dyes()
-    dye_source = ncrafting.loadstore64("dye_source") or {}
-    if all_dyes_generated() then return end -- don't generate if all dyes have been covered
-    GenerateDyes(SelectSeed(), CandidateList())
+local function load_generate_dyes(seed, regen)
+    dye_source = not regen and ncrafting.loadstore64("dye_source") or {}
+    if not regen and all_dyes_generated() then return end -- don't generate if all dyes have been covered
+    GenerateDyes(seed or SelectSeed(), CandidateList())
     ncrafting.savestore("dye_candidates", dye_candidates)
     ncrafting.savestore64("dye_source", dye_source)
     minetest.log("action","Dye generation finished")
+    return true
 end
 
 minetest.register_on_mods_loaded(load_generate_dyes)
+
+-- dye commands
+
+-- Displays current world's dye source, turn on info level logging to see it
+local function list_dyes(plrname)
+    local check_dyes = {}
+    -- convert dye_source into information rather dominated by the dye color
+    for candidate,info in pairs(dye_source) do
+        local cdye = info.color -- chosen dye
+        if dyelist[cdye] then
+            check_dyes[cdye] = check_dyes[cdye] or {}
+            cdye = check_dyes[cdye]
+            cdye[#cdye + 1] = candidate.." by "..info.method
+      end
+    end
+    local stringy = {"Dye sources:"}
+    for dye,data in pairs(check_dyes) do
+        local ministringy = {dye, ": {", "", "}"}
+        ministringy[3] = table.concat(data, " || ")
+        stringy[#stringy + 1] = table.concat(ministringy, " ")
+    end
+    stringy = table.concat(stringy,"\n")
+    if plrname then
+        core.chat_send_player(plrname, stringy)
+    else
+        return stringy
+    end
+end
+
+minetest.register_chatcommand("dye",{
+    func = function(name, param)
+        if type(param) ~= "string" then return end
+        param = param:lower()
+        param = param:split(" ")
+        local cmd = param[1]
+        if cmd == "regen" then
+            if load_generate_dyes(nil, true) then
+                minetest.chat_send_player(name, "Successfully regenerated dyes")
+            end
+        elseif cmd == "list" then
+            list_dyes(name)
+        end
+    end,
+    privs = {debug = true}
+})
 
 -----------------------------------------------
 -- Bundled plants
