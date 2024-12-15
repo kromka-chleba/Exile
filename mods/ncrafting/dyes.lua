@@ -114,30 +114,37 @@ local function is_excluded(candidate_name, def)
     end
 end
 
-local function CandidateList(regen)
+local function CandidateList()
     -- Gathers a list of all plants that have not been chosen
     -- as a dye source yet
     local NoC, LC = 0,0 -- number of candidates, leftover candidates
-    --dye_candidates = not regen and ncrafting.loadstore("dye_candidates") or {}
 
-    for nm, def in pairs(minetest.registered_items) do
-        if is_excluded(nm, def) then
-            def.groups.ncrafting_dye_candidate = nil
-            dye_candidates[nm] = nil
-            if dye_source[nm] then
-                minetest.log("action","Dye: Clearing "..dye_source[nm].color..
-                             " dye because "..nm.." is not a valid candidate")
-                dye_source[nm] = nil
-            end
-        elseif def.groups.ncrafting_dye_candidate ~= nil then
-            if dye_source[nm] == nil then
-                dye_candidates[nm] = {}
-                dye_candidates[nm].dcolor = def._ncrafting_dye_dcolor or "none"
-                dye_candidates[nm].weight = def.groups.ncrafting_dye_candidate
-                LC = LC + 1 -- add to number of applicable candidates
-            else -- a color comes from this plant, remove it from the todo list
-                NoC = NoC + 1 -- still was a candidate!
-                undefined_dyes[dye_source[nm].color] = nil
+    -- refresh/create dye_candidates table
+    dye_candidates = {}
+    for nm, def in pairs(core.registered_items) do
+        -- don't do anything with a 0 or below
+        if def.groups.ncrafting_dye_candidate and def.groups.ncrafting_dye_candidate > 0 then
+            -- your dye candidates privileges have been REVOKED!
+            if is_excluded(nm, def) then
+                def.groups.ncrafting_dye_candidate = nil
+                if dye_source[nm] then
+                    minetest.log("action","Dye: Clearing "..dye_source[nm].color..
+                                 " dye because "..nm.." is not a valid candidate")
+                    dye_source[nm] = nil
+                end
+            -- we good, time to add!
+            else
+                -- a color already comes from this, remove the color from our todo list
+                if dye_source[nm] then
+                    undefined_dyes[dye_source[nm].color] = nil
+                    NoC = NoC + 1 -- was still a dye candidate!
+                -- adding it to our todo list for generation!
+                else
+                    dye_candidates[nm] = {}
+                    dye_candidates[nm].dcolor = def._ncrafting_dye_dcolor or "none" -- dominantcolor
+                    dye_candidates[nm].weight = def.groups.ncrafting_dye_candidate -- weight determined by group number
+                    LC = LC + 1 -- add to number of applicable candidates
+                end
             end
         end
     end
@@ -179,6 +186,7 @@ end
 
 -- SpD - solutions per dye, how many sources to make per dye
 local function GenerateDyes(seed, SpD) -- Generate dye_sources based on mapgen seed
+    minetest.log("Seed "..tostring(seed).." ; SpD "..SpD)
     local rando = PcgRandom(seed)
     -- used for figuring out how many sources to add for a dye
     if type(SpD) ~= "number" then
@@ -191,6 +199,7 @@ local function GenerateDyes(seed, SpD) -- Generate dye_sources based on mapgen s
         local max = #rolltable
 
         if max and max > 0 then
+            minetest.log(dye.." dye;;;; Max "..max.." ; SpD "..SpD.." : MIN'D "..math.min(max, SpD))
             for set=1, math.min(max, SpD) do -- ensure SpD is locally below max
                 local chose = {i=rando:next(1, max)} -- get index we'll want
                 chose.nm = rolltable[chose.i] -- get name as 2nd parameter
@@ -250,25 +259,22 @@ end
 -- save for merge with predefined dye_source and dye_candidates -- see register_on_mods_loaded for its application
 local hardcode
 
--- merge dye_source and dye_candidates with in_file values if provided
--- in_file values should NOT be saved to world
+-- merge dye_source with hardcoded values if provided
+-- hardcoded values should NOT be saved to world
 local function add_hardcode()
-    dye_candidates = hardcode.candidates and minimal.merge_tables(dye_candidates, hardcode.candidates) or dye_candidates
     dye_source = hardcode.source and minimal.merge_tables(dye_source, hardcode.source) or dye_source
 end
 
 local function generate_and_save_dyes(seed, regen, SpD)
-    -- if regen, empty dye_source
-    dye_source = regen and {}
-    -- do not run check if purposefully regenerating
-    if not regen and all_dyes_generated() then return end -- don't generate if all dyes have been covered
-    local NoC = CandidateList(regen) -- regen candidate list if regen is true
+    dye_source = regen and {} or dye_source
+    undefined_dyes = regen and table.copy(dyelist) or undefined_dyes
+    local NoC = CandidateList()
     -- permit custom SpD parameter
     SpD = type(SpD) == "number" and SpD or calculate_solutions_per_dye(NoC)
+    minetest.log("NoC "..NoC.." : SpD "..SpD.." : seed "..tostring(seed))
     -- now to generate
     GenerateDyes(seed or SelectSeed(), SpD)
     -- save and print dye generation finish
-    ncrafting.savestore("dye_candidates", dye_candidates)
     ncrafting.savestore64("dye_source", dye_source)
     -- merge with hardcode values
     add_hardcode()
@@ -280,10 +286,8 @@ minetest.register_on_mods_loaded(function()
     -- set up hardcoded dye candidates + sources
     hardcode = {
         source = type(dye_source) == "table" and table.copy(dye_source),
-        candidates = type(dye_candidates) == "table" and table.copy(dye_candidates)
     }
-    -- load candidates and sources
-    dye_candidates = ncrafting.loadstore("dye_candidates") or {}
+    -- load sources
     dye_source = ncrafting.loadstore64("dye_source") or {}
     -- check if already generated, if so, don't save
     if all_dyes_generated() then
