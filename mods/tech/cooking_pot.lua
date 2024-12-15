@@ -364,6 +364,7 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
     -- misc extra stuff
     def.paramtype = def.paramtype or empty.paramtype or "light"
     def.sounds = def.sounds or empty.sounds and table.copy(empty.sounds) or nodes_nature.node_sound_defaults()
+    def.stack_max = def.stack_max or empty.stack_max
     -- register node and return name
     core.register_node(name, def)
     return name
