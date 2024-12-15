@@ -48,18 +48,21 @@ end
 -----------------------------------------------
 -- Dye creation
 
-local dye_candidates -- list of all unused plants that existed at world creation
---[[
-    table: "plants:tulip_yellow" = {
-    ["weight"] = 2, -- value of dye_candidate grp, increases odds of being a dye
-    ["dcolor"] = "yellow" -- dominant color, higher odds of blue/green/yellow }
-]]--
-local dye_source = {} -- table of selected dye plants, and table
---[[
-    table: "plants:daisy" = {
-    ["color"]  = "white", -- selected color
-    ["method"] = "soak", -- method of creating the dye }
-]]--
+-- list of items that can be bundled and possibly processed into a dye (grabbed from registered_items on after mods loaded)
+-- do NOT define POTENTIAL dyes here, instead add "ncrafting_dye_candidate" to your item's groups and
+-- _ncrafting_dye_dcolor (dominant color) to your item's definition
+-- ;;
+-- dye_candidate group is used as a weight, increases odds of its possibility as a dye the higher it is
+-- dominant color (dcolor) gives it a higher odd of producing a similar color (yellow would give higher odds of blue/green/yellow)
+local dye_candidates
+
+-- table of bundleable dye sources
+-- must be an index with the item's name and a table with a color correlated to a dyelist index and
+-- a method correlated to a methodstring index
+-- e.g: ["tech:bread_black"] = {color = "red", method = "burn"}
+-- ;; these will be set as hardcoded dye sources
+-- do NOT add ANY items with a stack_max of 3 or less - won't be able to make dyes out of 'em!
+local dye_source
 
 local methods = { "cook", "soak", "burn" }
 local methodstring = {
@@ -115,7 +118,7 @@ local function CandidateList(regen)
     -- Gathers a list of all plants that have not been chosen
     -- as a dye source yet
     local NoC, LC = 0,0 -- number of candidates, leftover candidates
-    dye_candidates = not regen and ncrafting.loadstore("dye_candidates") or {}
+    --dye_candidates = not regen and ncrafting.loadstore("dye_candidates") or {}
 
     for nm, def in pairs(minetest.registered_items) do
         if is_excluded(nm, def) then
@@ -224,6 +227,7 @@ end
 
 -- check if all dyes have been successfully generated
 local function all_dyes_generated()
+    if not dye_source then return end -- no dye_source !
     local check_dyes = {}
     -- set up a table with each existing dye, set to false so that it can be overwritten
     for dye,_ in pairs(dyelist) do
@@ -243,9 +247,19 @@ local function all_dyes_generated()
     return true
 end
 
-local function load_generate_dyes(seed, regen, SpD)
-    -- if regen, empty all tables
-    dye_source = not regen and ncrafting.loadstore64("dye_source") or {}
+-- save for merge with predefined dye_source and dye_candidates -- see register_on_mods_loaded for its application
+local hardcode
+
+-- merge dye_source and dye_candidates with in_file values if provided
+-- in_file values should NOT be saved to world
+local function add_hardcode()
+    dye_candidates = hardcode.candidates and minimal.merge_tables(dye_candidates, hardcode.candidates) or dye_candidates
+    dye_source = hardcode.source and minimal.merge_tables(dye_source, hardcode.source) or dye_source
+end
+
+local function generate_and_save_dyes(seed, regen, SpD)
+    -- if regen, empty dye_source
+    dye_source = regen and {}
     -- do not run check if purposefully regenerating
     if not regen and all_dyes_generated() then return end -- don't generate if all dyes have been covered
     local NoC = CandidateList(regen) -- regen candidate list if regen is true
@@ -256,11 +270,30 @@ local function load_generate_dyes(seed, regen, SpD)
     -- save and print dye generation finish
     ncrafting.savestore("dye_candidates", dye_candidates)
     ncrafting.savestore64("dye_source", dye_source)
+    -- merge with hardcode values
+    add_hardcode()
     minetest.log("action","Dye generation finished")
     return true
 end
 
-minetest.register_on_mods_loaded(load_generate_dyes)
+minetest.register_on_mods_loaded(function()
+    -- set up hardcoded dye candidates + sources
+    hardcode = {
+        source = type(dye_source) == "table" and table.copy(dye_source),
+        candidates = type(dye_candidates) == "table" and table.copy(dye_candidates)
+    }
+    -- load candidates and sources
+    dye_candidates = ncrafting.loadstore("dye_candidates") or {}
+    dye_source = ncrafting.loadstore64("dye_source") or {}
+    -- check if already generated, if so, don't save
+    if all_dyes_generated() then
+        add_hardcode() -- merge hardcode if dyes had been sufficiently generated
+        minetest.log("action", "Dyes successfully loaded")
+        return
+    end
+    -- generate and save
+    generate_and_save_dyes()
+end)
 
 -- dye commands
 
@@ -312,7 +345,7 @@ minetest.register_chatcommand("dye",{
                 SpD = math.min(SpD, 35) -- clamp below 35
                 SpD = math.max(SpD, 1) -- clamp above 0
             end
-            if load_generate_dyes(seed, true, SpD) then
+            if generate_and_save_dyes(seed, true, SpD) then
                 minetest.chat_send_player(name, "Successfully regenerated dyes")
                 if seed then
                     minetest.chat_send_player(name, "Using Seed: "..seed)
@@ -572,7 +605,8 @@ minetest.register_node(
             end
             local def = stack:get_definition()
             local meta = minetest.get_meta(pos)
-            if def.groups.ncrafting_dye_candidate then -- plants to be bundled
+            -- can be bundled
+            if dye_source[def.name] then
                 local craftslot = meta:get_inventory():get_stack(listname,
                                                                  index)
                 local invcount = craftslot:get_count() or 0
