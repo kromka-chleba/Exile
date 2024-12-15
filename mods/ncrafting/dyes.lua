@@ -174,13 +174,12 @@ local function calculate_solutions_per_dye(NoC)
     return SpD
 end
 
--- NoC - number of candidates, how many candidates have been listed
-local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen seed
+-- SpD - solutions per dye, how many sources to make per dye
+local function GenerateDyes(seed, SpD) -- Generate dye_sources based on mapgen seed
     local rando = PcgRandom(seed)
     -- used for figuring out how many sources to add for a dye
-    local SpD = calculate_solutions_per_dye(NoC)
-    if not SpD then
-        error("ncrafting; GenerateDyes: did not get NoC - number of candidates")
+    if type(SpD) ~= "number" then
+        error("ncrafting; GenerateDyes: did not get SpD - solutions per dye")
     end
     for dye, _ in pairs(undefined_dyes) do
         minetest.log("action","Dye: Generating "..dye.." dye")
@@ -208,7 +207,10 @@ local function GenerateDyes(seed, NoC) -- Generate dye_sources based on mapgen s
 end
 
 local function SelectSeed(doworldseed)
-    doworldseed = type(doworldseed) ~= "boolean" and minetest.settings:get("ncrafting_worldseed") or doworldseed
+    -- get ncrafting worldseed setting if not boolean
+    if type(doworldseed) ~= "boolean" then
+        doworldseed = core.settings:get("ncrafting_worldseed")
+    end
     -- set to true if not boolean
     doworldseed = type(doworldseed) ~= "boolean" and true or doworldseed
     if doworldseed == true then
@@ -241,12 +243,17 @@ local function all_dyes_generated()
     return true
 end
 
-local function load_generate_dyes(seed, regen)
+local function load_generate_dyes(seed, regen, SpD)
     -- if regen, empty all tables
     dye_source = not regen and ncrafting.loadstore64("dye_source") or {}
     -- do not run check if purposefully regenerating
     if not regen and all_dyes_generated() then return end -- don't generate if all dyes have been covered
-    GenerateDyes(seed or SelectSeed(), CandidateList(regen)) -- regen candidate list if regen
+    local NoC = CandidateList(regen) -- regen candidate list if regen is true
+    -- permit custom SpD parameter
+    SpD = type(SpD) == "number" and SpD or calculate_solutions_per_dye(NoC)
+    -- now to generate
+    GenerateDyes(seed or SelectSeed(), SpD)
+    -- save and print dye generation finish
     ncrafting.savestore("dye_candidates", dye_candidates)
     ncrafting.savestore64("dye_source", dye_source)
     minetest.log("action","Dye generation finished")
@@ -298,10 +305,21 @@ minetest.register_chatcommand("dye",{
         if cmd == "regen" then
             -- permit "seed" argument
             local seed = param[2] == "random" and SelectSeed(false) or tonumber(param[2])
-            if load_generate_dyes(seed, true) then
+            -- permit solutions per dye argument
+            local SpD = tonumber(param[3])
+            if type(SpD) == "number" then
+                SpD = math.ceil(SpD) -- no floats
+                SpD = math.min(SpD, 35) -- clamp below 35
+                SpD = math.max(SpD, 1) -- clamp above 0
+            end
+            if load_generate_dyes(seed, true, SpD) then
                 minetest.chat_send_player(name, "Successfully regenerated dyes")
                 if seed then
-                    minetest.chat_send_player(name, "Using Seed: "..tostring(seed))
+                    minetest.chat_send_player(name, "Using Seed: "..seed)
+                end
+                -- solutions per dye
+                if SpD then
+                    minetest.chat_send_player(name, "With a Solutions per Dye of "..SpD)
                 end
             end
         elseif cmd == "list" then
@@ -313,9 +331,10 @@ minetest.register_chatcommand("dye",{
             errormsg = minimal.merge_tables(errormsg,{
                 "/dye list",
                 "Lists each dye and their corresponding sources + methods",
-                "/dye regen <seed>",
-                "Regenerates dye sources, custom <seed> can be number or 'random', defaults to worldseed otherwise",
-                "If seed is not provided or different from generated, does not overwrite pre-existing dye sources"
+                "/dye regen <seed> <SpD>",
+                "Regenerates dye sources, optional <seed> can be number or 'random', defaults to worldseed otherwise",
+                "If seed is not provided or different from generated, does not overwrite pre-existing dye sources",
+                "optional SpD or 'Solutions per Dye' is how many sources for each dye there should be (1-35)"
             })
             errormsg = table.concat(errormsg,"\n")
             return false,errormsg
