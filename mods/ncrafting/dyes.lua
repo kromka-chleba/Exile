@@ -204,7 +204,7 @@ local function GenerateDyes(seed, SpD) -- Generate dye_sources based on mapgen s
                 local chose = {i=rando:next(1, max)} -- get index we'll want
                 chose.nm = rolltable[chose.i] -- get name as 2nd parameter
                 -- remove rolltable index to prevent accidental replace + decrease max
-                table.remove(chose, chose.i)
+                table.remove(rolltable, chose.i)
                 max = max - 1
                 chose = chose.nm -- set chose properly
                 dye_source[chose] = {}
