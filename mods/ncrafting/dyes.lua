@@ -79,7 +79,6 @@ local neighbors = {
     ["blue"] = { "green", "blue", "indigo" },
     ["indigo"] = { "blue", "indigo", "red" },
 }
-local undefined_dyes = table.copy(dyelist)
 
 function ncrafting.set_treatment(meta, action)
     if not meta:get("ncrafting:bundled_plant") then return end
@@ -134,21 +133,17 @@ local function CandidateList()
                 end
             -- we good, time to add!
             else
-                -- a color already comes from this, remove the color from our todo list
-                if dye_source[nm] then
-                    undefined_dyes[dye_source[nm].color] = nil
-                    NoC = NoC + 1 -- was still a dye candidate!
-                -- adding it to our todo list for generation!
-                else
+                NoC = NoC + 1 -- all ye who lay here, were possible candidates
+                -- not a set up dye_source yet
+                if not dye_source[nm] then
                     dye_candidates[nm] = {}
                     dye_candidates[nm].dcolor = def._ncrafting_dye_dcolor or "none" -- dominantcolor
                     dye_candidates[nm].weight = def.groups.ncrafting_dye_candidate -- weight determined by group number
-                    LC = LC + 1 -- add to number of applicable candidates
+                    LC = LC + 1 -- leftover candidates
                 end
             end
         end
     end
-    NoC = NoC + LC -- add leftover candidates to NoCs
     return NoC, LC -- return NoC for GenerateDyes, optional return LC
 end
 
@@ -186,7 +181,6 @@ end
 
 -- SpD - solutions per dye, how many sources to make per dye
 local function GenerateDyes(seed, SpD) -- Generate dye_sources based on mapgen seed
-    minetest.log("Seed "..tostring(seed).." ; SpD "..SpD)
     local rando = PcgRandom(seed)
     -- used for figuring out how many sources to add for a dye
     if type(SpD) ~= "number" then
@@ -258,10 +252,15 @@ local function all_dyes_generated()
     for dye,_ in pairs(dyelist) do
         check_dyes[dye] = false
     end
-    -- look through dye_source table to check if each dye has a source
-    for _,info in pairs(dye_source) do
-        -- set to true if found
-        check_dyes[info.color] = check_dyes[info.color] or true
+    -- look through dye_source table to check if each dye has a corresponding source
+    for nm,info in pairs(dye_source) do
+        if core.registered_items[nm] then
+            -- set to true if found
+            check_dyes[info.color] = check_dyes[info.color] or true
+        -- remove from dye_source
+        else
+            dye_source[nm] = nil
+        end
     end
     -- ensure all listed dyes have a source
     for dye,confirmed in pairs(check_dyes) do
@@ -286,7 +285,6 @@ local function generate_and_save_dyes(seed, reset, SpD)
     local NoC = CandidateList()
     -- permit custom SpD parameter
     SpD = type(SpD) == "number" and SpD or calculate_solutions_per_dye(NoC)
-    minetest.log("NoC "..NoC.." : SpD "..SpD.." : seed "..tostring(seed))
     -- now to generate
     GenerateDyes(seed or SelectSeed(), SpD)
     -- save and print dye generation finish
