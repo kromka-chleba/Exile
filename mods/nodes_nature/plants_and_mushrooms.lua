@@ -55,7 +55,7 @@ local clay_bonus_soil_prefs = soil_pref_new({
 })
 -- we live in hostile environments!
 local hardy_gravel_soil_prefs = soil_pref_new({
-    gravel=0
+    gravel=1
 })
 
 --[[
@@ -264,7 +264,7 @@ local plant_list = {
      lifeform_type = "mushroom", dominant_color = "red", dye_candidate = true,
      growing_time = nn.plant_base_growing_time * 3,
      bioluminescence = 2, extra_groups = {flammable = 6},
-     temp_range={0,75}, light_range={0,12}},
+     temp_range={0,75}, light_range={0,13}},
 
     --Reshedaar.  is also a mushroom.
     -- slow growing fibre mushroom,

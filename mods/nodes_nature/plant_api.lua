@@ -180,12 +180,15 @@ function plant.new(def)
     light_range.max = light_range.max or light_range[2]
     light_range[1] = nil
     light_range[2] = nil
+    -- mushrooms don't like too much light
     if def.lifeform_type == "mushroom" then
         light_range.min = light_range.min or 0
-        light_range.max = light_range.max or 10
+        light_range.max = light_range.max or 12
+    -- canes require more light
     elseif (def.plant_type == "cane" or def.plant_type == "bamboo") then
         light_range.min = light_range.min or 12
         light_range.max = light_range.max or 15
+    -- regular plants
     else
         light_range.min = light_range.min or 4
         light_range.max = light_range.max or 15

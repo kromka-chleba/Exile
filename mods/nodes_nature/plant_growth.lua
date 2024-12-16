@@ -31,14 +31,14 @@ function soil_preferences.new(args)
     local prefs = {} -- we only want certain things specified, produce separate table
     -- permit custom attributes to wet, wet_salty, or dry soil
     prefs.wet = type(args.wet) == "number" and args.wet or 2 -- wet_sediment == 1
-    prefs.wet_salty = type(args.wet_salty) == "number" and args.wet_salty or -1000 -- wet_sediment == 2
+    prefs.wet_salty = type(args.wet_salty) == "number" and args.wet_salty or -50 -- wet_sediment == 2
     prefs.dry = type(args.dry) == "number" and args.dry or 0 -- dry_sediment == 1
     prefs.fertile_soil = type(args.fertile) == "number" and args.fertile or 2 -- fertile_soil
     local agri = args.agri or args.agricultural -- agricultural_soil
     agri = type(agri) == "number" and agri or 2
     prefs.agricultural_soil = agri
     -- permit gravel-specific
-    prefs.gravel = type(args.gravel) == "number" and args.gravel or -2
+    prefs.gravel = type(args.gravel) == "number" and args.gravel or 0
     -- more complex soil_pref calculations
     -- rocky substrate
     local rockstrate = args.rocky_substrate
