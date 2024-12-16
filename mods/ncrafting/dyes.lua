@@ -192,25 +192,41 @@ local function GenerateDyes(seed, SpD) -- Generate dye_sources based on mapgen s
     if type(SpD) ~= "number" then
         error("ncrafting; GenerateDyes: did not get SpD - solutions per dye")
     end
-    for dye, _ in pairs(undefined_dyes) do
-        minetest.log("action","Dye: Generating "..dye.." dye")
-        -- create tables to roll on for any new dyes
-        local rolltable = NewRollTable(dye)
-        local max = #rolltable
+    -- current Solutions per Dyes
+    local cSpDs = {}
+    for _, dye_info in pairs(dye_source) do
+      local cSpD = cSpDs[dye_info.color] or 0
+      -- update how many current solutions exist
+      cSpD = cSpD + 1
+      -- set to cSpDs table
+      cSpDs[dye_info.color] = cSpD
+    end
+    -- check through all existing dyes in dyelist
+    for dye, _ in pairs(dyelist) do
+        local cSpD = cSpDs[dye] or 0
+        if cSpD < SpD then
+            minetest.log("action","Dye: Generating "..dye.." dye")
+            -- create tables to roll on for any new dyes
+            local rolltable = NewRollTable(dye)
+            local max = #rolltable
 
-        if max and max > 0 then
-            minetest.log(dye.." dye;;;; Max "..max.." ; SpD "..SpD.." : MIN'D "..math.min(max, SpD))
-            for set=1, math.min(max, SpD) do -- ensure SpD is locally below max
-                local chose = {i=rando:next(1, max)} -- get index we'll want
-                chose.nm = rolltable[chose.i] -- get name as 2nd parameter
-                -- remove rolltable index to prevent accidental replace + decrease max
-                table.remove(rolltable, chose.i)
-                max = max - 1
-                chose = chose.nm -- set chose properly
-                dye_source[chose] = {}
-                dye_source[chose].color = dye
-                dye_source[chose].method = methods[rando:next(1, #methods)]
-                dye_candidates[chose] = nil -- remove used plants from the list
+            --- max has to be over SpD or it gets awkwaaaard
+            if max and max > SpD then
+                minetest.log("max "..max.." over SpD "..SpD)
+                minetest.log(tostring(cSpD))
+                minetest.log(dye.." dye;;;; Max "..max.." ; SpD "..SpD.." : MIN'D "..math.min(max, SpD))
+                for set=(cSpD + 1), SpD do
+                    local chose = {i=rando:next(1, max)} -- get index we'll want
+                    chose.nm = rolltable[chose.i] -- get name as 2nd parameter
+                    -- remove rolltable index to prevent accidental replace + decrease max
+                    table.remove(rolltable, chose.i)
+                    max = max - 1
+                    chose = chose.nm -- set chose properly
+                    dye_source[chose] = {}
+                    dye_source[chose].color = dye
+                    dye_source[chose].method = methods[rando:next(1, #methods)]
+                    dye_candidates[chose] = nil -- remove used plants from the list
+                end
             end
         end
     end
@@ -265,9 +281,8 @@ local function add_hardcode()
     dye_source = hardcode.source and minimal.merge_tables(dye_source, hardcode.source) or dye_source
 end
 
-local function generate_and_save_dyes(seed, regen, SpD)
-    dye_source = regen and {} or dye_source
-    undefined_dyes = regen and table.copy(dyelist) or undefined_dyes
+local function generate_and_save_dyes(seed, reset, SpD)
+    dye_source = reset and {} or dye_source
     local NoC = CandidateList()
     -- permit custom SpD parameter
     SpD = type(SpD) == "number" and SpD or calculate_solutions_per_dye(NoC)
@@ -339,7 +354,8 @@ minetest.register_chatcommand("dye",{
         param = param:lower()
         param = param:split(" ")
         local cmd = param[1]
-        if cmd == "regen" then
+        -- regen/reset command
+        if cmd == "regen" or cmd == "reset" then
             -- permit "seed" argument
             local seed = param[2] == "random" and SelectSeed(false) or tonumber(param[2])
             -- permit solutions per dye argument
@@ -349,8 +365,9 @@ minetest.register_chatcommand("dye",{
                 SpD = math.min(SpD, 35) -- clamp below 35
                 SpD = math.max(SpD, 1) -- clamp above 0
             end
-            if generate_and_save_dyes(seed, true, SpD) then
-                minetest.chat_send_player(name, "Successfully regenerated dyes")
+            if generate_and_save_dyes(seed, cmd == "reset" and true or nil, SpD) then
+                minetest.chat_send_player(name, (cmd == "regen" and "Successfully regenerated dyes" or
+                    "Successfully resetted dyes"))
                 if seed then
                     minetest.chat_send_player(name, "Using Seed: "..seed)
                 end
