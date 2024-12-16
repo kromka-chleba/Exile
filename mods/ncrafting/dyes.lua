@@ -625,7 +625,7 @@ minetest.register_node(
             local def = stack:get_definition()
             local meta = minetest.get_meta(pos)
             -- can be bundled
-            if dye_source[def.name] then
+            if dye_candidates[def.name] or dye_source[def.name] then
                 local craftslot = meta:get_inventory():get_stack(listname,
                                                                  index)
                 local invcount = craftslot:get_count() or 0
