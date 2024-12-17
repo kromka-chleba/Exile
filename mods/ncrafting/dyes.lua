@@ -211,9 +211,6 @@ local function GenerateDyes(seed, SpD) -- Generate dye_sources based on mapgen s
 
             --- max has to be over SpD or it gets awkwaaaard
             if max and max > SpD then
-                minetest.log("max "..max.." over SpD "..SpD)
-                minetest.log(tostring(cSpD))
-                minetest.log(dye.." dye;;;; Max "..max.." ; SpD "..SpD.." : MIN'D "..math.min(max, SpD))
                 for set=(cSpD + 1), SpD do
                     local chose = {i=rando:next(1, max)} -- get index we'll want
                     chose.nm = rolltable[chose.i] -- get name as 2nd parameter
@@ -281,6 +278,28 @@ local function generate_and_save_dyes(seed, reset, SpD)
     local NoC = CandidateList()
     -- permit custom SpD parameter
     SpD = type(SpD) == "number" and SpD or calculate_solutions_per_dye(NoC)
+    -- check if there's sufficient solutions per dye
+    if not reset then
+        -- current solutions per dye
+        local cSpDs = {}
+        -- add 1 per solution found
+        for _,dye_info in pairs(dye_source) do
+            cSpDs[dye_info.color] = cSpDs[dye_info.color] or 0
+            cSpDs[dye_info.color] = cSpDs[dye_info.color] + 1
+        end
+        -- figure out if the SpD specified isn't necessary
+        for _,count in pairs(cSpDs) do
+            -- if it's lower, then we should generate
+            if count < SpD then
+                cSpDs.unfinished = true -- whether or not we should return
+                break
+            end
+        end
+        -- we're good already, don't need to regen
+        if not cSpDs.unfinished then
+            return false
+        end
+    end
     -- now to generate
     GenerateDyes(seed or SelectSeed(), SpD)
     -- save and print dye generation finish
@@ -363,6 +382,9 @@ minetest.register_chatcommand("dye",{
                 if SpD then
                     minetest.chat_send_player(name, "With a Solutions per Dye of "..SpD)
                 end
+            -- can't regenerate or reset (tho would just be regenerate)
+            else
+                return false, "Could not modify dyes successfully"
             end
         elseif cmd == "list" then
             list_dyes(name)
@@ -376,7 +398,10 @@ minetest.register_chatcommand("dye",{
                 "/dye regen <seed> <SpD>",
                 "Regenerates dye sources, optional <seed> can be number or 'random', defaults to worldseed otherwise",
                 "If seed is not provided or different from generated, does not overwrite pre-existing dye sources",
-                "optional SpD or 'Solutions per Dye' is how many sources for each dye there should be (1-35)"
+                "optional SpD or 'Solutions per Dye' is how many sources for each dye there should be (1-35)",
+                "If optional SpD is less than current the SpD for each dye, then it will NOT regenerate",
+                "/dye reset <seed> <SpD>",
+                "Resets all dye sources and generates them over again, see /dye regen for <seed> and <SpD>"
             })
             errormsg = table.concat(errormsg,"\n")
             return false,errormsg
