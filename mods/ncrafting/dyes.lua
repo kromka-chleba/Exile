@@ -48,21 +48,14 @@ end
 -----------------------------------------------
 -- Dye creation
 
--- list of items that can be bundled and possibly processed into a dye (grabbed from registered_items on after mods loaded)
--- do NOT define POTENTIAL dyes here, instead add "ncrafting_dye_candidate" to your item's groups and
--- _ncrafting_dye_dcolor (dominant color) to your item's definition
--- ;;
--- dye_candidate group is used as a weight, increases odds of its possibility as a dye the higher it is
--- dominant color (dcolor) gives it a higher odd of producing a similar color (yellow would give higher odds of blue/green/yellow)
-local dye_candidates
-
--- table of bundleable dye sources
+-- table of hardcoded bundleable dye sources
 -- must be an index with the item's name and a table with a color correlated to a dyelist index and
 -- a method correlated to a methodstring index
 -- e.g: ["tech:bread_black"] = {color = "red", method = "burn"}
 -- ;; these will be set as hardcoded dye sources
 -- do NOT add ANY items with a stack_max of 3 or less - won't be able to make dyes out of 'em!
-local dye_source
+-- these should NOT be saved to world
+local hard_dye_source = {} -- hardcoded dye sources
 
 local methods = { "cook", "soak", "burn" }
 local methodstring = {
@@ -113,6 +106,18 @@ local function is_excluded(candidate_name, def)
     end
 end
 
+-- list of items that can be bundled and possibly processed into a dye (grabbed from registered_items on after mods loaded)
+-- do NOT define POTENTIAL dyes here, instead add "ncrafting_dye_candidate" to your item's groups and
+-- _ncrafting_dye_dcolor (dominant color) to your item's definition
+-- ;;
+-- dye_candidate group is used as a weight, increases odds of its possibility as a dye the higher it is
+-- dominant color (dcolor) gives it a higher odd of producing a similar color (yellow would give higher odds of blue/green/yellow)
+local dye_candidates
+
+-- table of bundleable dye sources
+-- these are generated
+local dye_source
+
 local function CandidateList()
     -- Gathers a list of all plants that have not been chosen
     -- as a dye source yet
@@ -135,7 +140,7 @@ local function CandidateList()
             else
                 NoC = NoC + 1 -- all ye who lay here, were possible candidates
                 -- not a set up dye_source yet
-                if not dye_source[nm] then
+                if not (dye_source[nm] or hard_dye_source[nm]) then
                     dye_candidates[nm] = {}
                     dye_candidates[nm].dcolor = def._ncrafting_dye_dcolor or "none" -- dominantcolor
                     dye_candidates[nm].weight = def.groups.ncrafting_dye_candidate -- weight determined by group number
@@ -271,15 +276,6 @@ local function all_dyes_generated()
     return true
 end
 
--- save for merge with predefined dye_source and dye_candidates -- see register_on_mods_loaded for its application
-local hardcode
-
--- merge dye_source with hardcoded values if provided
--- hardcoded values should NOT be saved to world
-local function add_hardcode()
-    dye_source = hardcode.source and minimal.merge_tables(dye_source, hardcode.source) or dye_source
-end
-
 local function generate_and_save_dyes(seed, reset, SpD)
     dye_source = reset and {} or dye_source
     local NoC = CandidateList()
@@ -289,22 +285,16 @@ local function generate_and_save_dyes(seed, reset, SpD)
     GenerateDyes(seed or SelectSeed(), SpD)
     -- save and print dye generation finish
     ncrafting.savestore64("dye_source", dye_source)
-    -- merge with hardcode values
-    add_hardcode()
     minetest.log("action","Dye generation finished")
     return true
 end
 
 minetest.register_on_mods_loaded(function()
-    -- set up hardcoded dye candidates + sources
-    hardcode = {
-        source = type(dye_source) == "table" and table.copy(dye_source),
-    }
     -- load sources
     dye_source = ncrafting.loadstore64("dye_source") or {}
     -- check if already generated, if so, don't save
     if all_dyes_generated() then
-        add_hardcode() -- merge hardcode if dyes had been sufficiently generated
+        -- merge hardcode if dyes had been sufficiently generated
         minetest.log("action", "Dyes successfully loaded")
         return
     end
@@ -625,7 +615,7 @@ minetest.register_node(
             local def = stack:get_definition()
             local meta = minetest.get_meta(pos)
             -- can be bundled
-            if dye_candidates[def.name] or dye_source[def.name] then
+            if dye_candidates[def.name] or dye_source[def.name] or hard_dye_source[def.name] then
                 local craftslot = meta:get_inventory():get_stack(listname,
                                                                  index)
                 local invcount = craftslot:get_count() or 0
@@ -679,9 +669,9 @@ minetest.register_node(
                 local plants = bmeta:get_string("ncrafting:bundled_plant")
                 local treatment = bmeta:get_string("ncrafting:bundle_treatment")
                 local result = ""
-                if ( dye_source[plants] and
-                     dye_source[plants].method == treatment ) then
-                    result = "ncrafting:dye_"..dye_source[plants].color.." 2"
+                local dye_params = dye_source[plants] or hard_dye_source[plants]
+                if dye_params and dye_params.method == treatment then
+                    result = "ncrafting:dye_"..dye_params.color.." 2"
                     inv:set_stack("craft", 1, ItemStack(""))
                 else
                     minetest.sound_play("snappy",{pos = pos, gain = 5,
