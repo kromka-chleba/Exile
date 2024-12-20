@@ -312,8 +312,6 @@ end
 minetest.register_on_mods_loaded(function()
     -- load sources
     dye_source = ncrafting.loadstore64("dye_source") or {}
-    -- load candidates for dye checking, provide SpD result as argument for generate and save dyes
-    local SpD = calculate_solutions_per_dye(CandidateList())
     -- check if already generated, if so, don't save
     if all_dyes_generated() then
         -- merge hardcode if dyes had been sufficiently generated
@@ -321,7 +319,7 @@ minetest.register_on_mods_loaded(function()
         return
     end
     -- generate and save
-    generate_and_save_dyes(nil, nil, SpD)
+    generate_and_save_dyes()
 end)
 
 -- dye commands
@@ -648,7 +646,8 @@ minetest.register_node(
             local def = stack:get_definition()
             local meta = minetest.get_meta(pos)
             -- can be bundled
-            if dye_candidates[def.name] or dye_source[def.name] or hard_dye_source[def.name] then
+            if dye_source[def.name] or hard_dye_source[def.name] or
+              (def.groups and def.groups.ncrafting_dye_candidate) then
                 return stack:get_count()
             end
             if def._ncrafting_bundle == 2 then -- bundle to be checked
