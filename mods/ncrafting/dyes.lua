@@ -200,24 +200,23 @@ local function GenerateDyes(seed, SpD) -- Generate dye_sources based on mapgen s
       -- set to cSpDs table
       cSpDs[dye_info.color] = cSpD
     end
-    -- check through all existing dyes in dyelist
-    for dye, _ in pairs(dyelist) do
-        local cSpD = cSpDs[dye] or 0
-        if cSpD < SpD then
-            minetest.log("action","Dye: Generating "..dye.." dye")
-            -- create tables to roll on for any new dyes
-            local rolltable = NewRollTable(dye)
-            local max = #rolltable
+    -- iterate through SpD first to generate dyes like an array, applying layers
+    -- going through each colour one time to generate initial colours, then going back and doing it again as a new layer
+    for set=1, SpD do
+        -- iterate through each dye (ordered)
+        for dye,_ in pairs(dyelist) do
+            local cSpD = cSpDs[dye] or 0
+            -- only do generation if space is not occupied
+            if cSpD < set then
+                minetest.log("action","Dye: Generating solution #"..set.." of "..dye.." dye")
+                -- create tables to roll on for any new dyes
+                local rolltable = NewRollTable(dye)
+                local max = #rolltable
 
-            --- max has to be over SpD or it gets awkwaaaard
-            if max and max > SpD then
-                for set=(cSpD + 1), SpD do
-                    local chose = {i=rando:next(1, max)} -- get index we'll want
-                    chose.nm = rolltable[chose.i] -- get name as 2nd parameter
-                    -- remove rolltable index to prevent accidental replace + decrease max
-                    table.remove(rolltable, chose.i)
-                    max = max - 1
-                    chose = chose.nm -- set chose properly
+                --- max has to be over SpD or it gets awkwaaaard
+                if max and max > SpD then
+                    -- choose a name out of rolltable
+                    local chose = rolltable[rando:next(1, max)]
                     dye_source[chose] = {}
                     dye_source[chose].color = dye
                     dye_source[chose].method = methods[rando:next(1, #methods)]
