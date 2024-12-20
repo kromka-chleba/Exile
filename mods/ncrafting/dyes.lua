@@ -567,20 +567,23 @@ local table_formspec_base = "formspec_version[5]" ..
 local table_formspec = {}
 table_formspec[0] = table_formspec_base.. -- Empty state
     "image_button[4.9,1.2;1.2,1;blank.png;nocommand;-  ;false;true;blank.png]"
-table_formspec[1] = table_formspec_base..
-    "image_button[4.9,1.2;1.2,1;button25.png;nocommand;-  ;false;true;button25.png]"
-table_formspec[2] = table_formspec_base..
-    "image_button[4.9,1.2;1.2,1;button50.png;nocommand;-  ;false;true;button50.png]"
-table_formspec[3] = table_formspec_base..
-    "image_button[4.9,1.2;1.2,1;button75.png;nocommand;-  ;false;true;button75.png]"
+-- create 25%, 50%, 75% formspecs
+for i=1, 3 do
+    local perc = (i/4)*100
+    -- e.g. button25.png
+    local png = table.concat({"button",tostring(perc),".png"})
+    -- put png twice (? doesn't do anything if I remove it)
+    table_formspec[i] = table.concat({table_formspec_base,"image_button[4.9,1.2;1.2,1;",
+        png,";nocommand;-  ;false;true;",png,"]"})
+end
 table_formspec[4] = table_formspec_base.. -- Ready to make a bundle
     "image_button[4.9,1.2;1.2,1;buttonGO.png;dyebundle;->;false;true;blank.png]"
 table_formspec[5] = table_formspec_base.. -- Ready to test a treated bundle
     "image_button[4.9,1.2;1.2,1;buttonGO.png;dyetest;??;false;true;blank.png]"
 
-local function adjust_button(pos)
-    local meta = minetest.get_meta(pos)
-    local inv  = meta:get_inventory()
+local function adjust_button(pos, meta, inv)
+    meta = meta or minetest.get_meta(pos)
+    inv = inv or meta:get_inventory()
     local craftslot = inv:get_stack("craft", 1)
     local count = craftslot:get_count() or 0
     if craftslot:get_definition()._ncrafting_bundle == 2 then
@@ -751,7 +754,7 @@ minetest.register_node(
                 end
                 inv:set_stack("craftresult", 1, ItemStack(result))
             end
-            adjust_button(pos)
+            adjust_button(pos, meta, inv)
         end,
 })
 
