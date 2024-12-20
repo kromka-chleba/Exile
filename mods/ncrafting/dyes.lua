@@ -640,14 +640,10 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             -- can be bundled
             if dye_source[def.name] or hard_dye_source[def.name] or
-              (def.groups and def.groups.ncrafting_dye_candidate) then
+              (def.groups and def.groups.ncrafting_dye_candidate) or
+            -- or is a bundle that can be checked
+              def._ncrafting_bundle == 2 then
                 return stack:get_count()
-            end
-            if def._ncrafting_bundle == 2 then -- bundle to be checked
-                local craftslot = meta:get_inventory():get_stack(listname,
-                                                                 index)
-                local invcount = craftslot:get_count() or 0
-                return 1 - invcount
             end
             return 0
         end,
@@ -717,22 +713,20 @@ minetest.register_node(
                 local bundle = inv:get_stack("craft", 1)
                 local bmeta = bundle:get_meta()
                 local bdata = bmeta:to_table()
-                if not bdata then return end -- could not get bundle meta's data
+                if not (bdata and bdata.fields) then return end -- could not get bundle meta's data
+                local plants = bdata.fields["ncrafting:bundled_plant"]
+                local treatment = bdata.fields["ncrafting:bundle_treatment"]
                 -- prevent dye destruction because of malformed metadata
-                if not (bdata.fields and bdata.fields["ncrafting:bundled_plant"] and
-                    bdata.fields["ncrafting:bundle_treatment"]) then
-                    return
-                end
-                local plants = bdata.fields["ncrafting:bundled_plant"]--bmeta:get_string("ncrafting:bundled_plant")
-                local treatment = bdata.fields["ncrafting:bundle_treatment"]--bmeta:get_string("ncrafting:bundle_treatment")
+                if not (plants and treatment) then return end
                 local result = ""
                 local dye_params = dye_source[plants] or hard_dye_source[plants]
                 if dye_params and dye_params.method == treatment then
                     if tsounds.dye_craft then
                         minimal.sound_play(minimal.merge_tables(tsounds.dye_craft, {pos = pos}))
                     end
-                    result = "ncrafting:dye_"..dye_params.color.." 2"
-                    inv:set_stack("craft", 1, ItemStack(""))
+                    -- bundle count can determine how much dye is created at once
+                    -- example of what below produces: "ncrafting:dye_red 2"
+                    result = table.concat({"ncrafting:dye_",dye_params.color," ",tostring(bundle:get_count()*2)})
                 else
                     if tsounds.dye_fail then
                         minimal.sound_play(minimal.merge_tables(tsounds.dye_fail, {pos = pos}))
@@ -742,8 +736,8 @@ minetest.register_node(
                     bdata.fields.description = bundlename(bmeta, plants, treatment, bdata)
                     bmeta:from_table(bdata)
                     result = bundle
-                    inv:set_stack("craft", 1, ItemStack(""))
                 end
+                inv:set_stack("craft", 1, ItemStack("")) -- empty craft/input slot
                 inv:set_stack("craftresult", 1, ItemStack(result))
             end
             adjust_button(pos, meta, inv)
