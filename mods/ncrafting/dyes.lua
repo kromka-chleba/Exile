@@ -790,6 +790,9 @@ local function dyepot_stir(pos, puncher)
         minetest.node_dig(pos, node, puncher)
         return true
     end
+    -- get definition for sounds
+    local ndef = core.registered_nodes[node.name]
+    local nsounds = ndef.sounds or {} -- node sounds
     local color = minetest.strip_param2_color(node.param2,
                                               "colorwallmounted")
     local rotation = node.param2 - color
@@ -801,11 +804,18 @@ local function dyepot_stir(pos, puncher)
     local soak = meta:get_int("dye_soak") or 1
     if soak >= spins then
         -- finish after defined # of spin steps have stirred it
+        if nsounds.stir_finished then
+            minimal.sound_play(nsounds.stir_finished, {pos = pos})
+        end
         stackmeta:set_string("palette_index",color*8)
         inv:set_stack("main", 1, stack)
         color = drain_dyepot(color)
         meta:set_int("dye_soak", 1)
+    -- stirring, getting that dye into
     else
+        if nsounds.stir then
+            minimal.sound_play(nsounds.stir, {pos = pos})
+        end
         meta:set_int("dye_soak", soak + 1)
     end
     node.param2 = color*8 + spin_table[rotation]
@@ -969,6 +979,11 @@ core.register_on_mods_loaded(function()
         })
     })
     core.override_item("ncrafting:dye_pot",{
-        sounds = tech.node_sound_earthenware_defaults()
+        sounds = tech.node_sound_earthenware_defaults({
+            stir = {name = "nodes_nature_place_water", gain = {0.4,0.6},
+                pitch = {1,1.4}, max_hear_distance = 8},
+            stir_finished = {name = "nodes_nature_place_water", gain = {0.7,0.9},
+                pitch = {0.65, 0.82}, max_hear_distance = 8}
+        })
     })
 end)
