@@ -585,6 +585,8 @@ local function adjust_button(pos)
     local count = craftslot:get_count() or 0
     if craftslot:get_definition()._ncrafting_bundle == 2 then
         count = 5
+    else
+        count = math.min(count, 4) -- clamp to 4 if over
     end
     if not inv:is_empty("craftresult", 1) then
         count = 0
@@ -644,11 +646,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             -- can be bundled
             if dye_candidates[def.name] or dye_source[def.name] or hard_dye_source[def.name] then
-                local craftslot = meta:get_inventory():get_stack(listname,
-                                                                 index)
-                local invcount = craftslot:get_count() or 0
-                local max = 4 - invcount
-                return max
+                return stack:get_count()
             end
             if def._ncrafting_bundle == 2 then -- bundle to be checked
                 local craftslot = meta:get_inventory():get_stack(listname,
@@ -684,12 +682,41 @@ minetest.register_node(
                 if tsounds.dye_bundle then
                     minimal.sound_play(minimal.merge_tables(tsounds.dye_bundle, {pos = pos}))
                 end
+                -- figure out bundle count
+                local bundlecount = {raw=plants:get_count()/4, max=bundle:get_stack_max()}
+                bundlecount.count = math.floor(bundlecount.raw) -- save as floor'd
+                -- we still have plants leftover
+                -- count over max (plants over maximum bundleable bundles)
+                -- or count does not equal raw (can't be divided into 4)
+                if bundlecount.count > bundlecount.max or bundlecount.count ~= bundlecount.raw then
+                    -- if raw is greater than max, subtract raw by it or set to false for next calculation
+                    bundlecount.leftover = bundlecount.count > bundlecount.max
+                        and bundlecount.raw - bundlecount.max
+                    -- over max
+                    -- subtract count by a floor'd leftover to ensure proper count of bundles
+                    if bundlecount.leftover then
+                        bundlecount.count = bundlecount.count - math.floor(bundlecount.leftover)
+                    -- under max
+                    -- subtract raw by count to get leftover
+                    else
+                        bundlecount.leftover = bundlecount.raw - bundlecount.count
+                    end
+                    -- multiply by 4 to get integer of leftover plants
+                    bundlecount.leftover = bundlecount.leftover * 4
+                    plants:set_count(bundlecount.leftover)
+                -- clear out ItemStack if equal (emptied)
+                else
+                    plants = ItemStack("")
+                end
+                -- set bundle count to floor'd value
+                bundle:set_count(bundlecount.count)
+                -- set bundle's meta
                 local imeta = bundle:get_meta()
                 imeta:set_string("ncrafting:bundled_plant", plantname)
                 imeta:set_string("description", bundlename(imeta,
                                                            plantname, nil))
                 inv:set_stack("craftresult", 1, bundle)
-                inv:set_stack("craft", 1, ItemStack(""))
+                inv:set_stack("craft", 1, plants)
             end
             if fields.dyetest then -- Try to turn treated bundle into a dye
                 local bundle = inv:get_stack("craft", 1)
