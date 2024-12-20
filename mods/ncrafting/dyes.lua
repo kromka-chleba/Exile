@@ -416,7 +416,7 @@ minetest.register_chatcommand("dye",{
 -----------------------------------------------
 -- Bundled plants
 
-bundlelist = {["none"] = 0}
+local bundlelist = {["none"] = 0}
 for k, v in pairs(dyelist) do
     bundlelist[k] = v
 end
@@ -450,7 +450,7 @@ local function bundlename(meta, plant, treatment)
     return S("@1bundle of @2, @3", prefix, fmt_plant, fmt_treatment)
 end
 
-bundledef = {
+local bundledef = {
     description = S("Bundle of plants"),
     inventory_image = "tech_retted_cana_bundle.png", -- #TODO: proper texture
     tiles = { {name="tech_retted_cana_bundle.png"} },
@@ -1016,4 +1016,13 @@ core.register_on_mods_loaded(function()
                 pitch = {0.65, 0.82}, max_hear_distance = 8}
         })
     })
+    -- add sounds to bundles
+    for name,_ in pairs(bundlelist) do
+        core.override_item("ncrafting:bundle_"..name,{
+            sounds = nodes_nature.node_sound_leaves_defaults()
+        })
+        core.override_item("ncrafting:bundle_treated_"..name,{
+            sounds = nodes_nature.node_sound_leaves_defaults()
+        })
+    end
 end)
