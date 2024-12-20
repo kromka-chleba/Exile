@@ -1,5 +1,7 @@
 --dyes.lua
 
+minimal = minimal
+
 -- Internationalization
 local S = ncrafting.S
 local NS = function(s) return s end
@@ -310,6 +312,8 @@ end
 minetest.register_on_mods_loaded(function()
     -- load sources
     dye_source = ncrafting.loadstore64("dye_source") or {}
+    -- load candidates for dye checking, provide SpD result as argument for generate and save dyes
+    local SpD = calculate_solutions_per_dye(CandidateList())
     -- check if already generated, if so, don't save
     if all_dyes_generated() then
         -- merge hardcode if dyes had been sufficiently generated
@@ -317,7 +321,7 @@ minetest.register_on_mods_loaded(function()
         return
     end
     -- generate and save
-    generate_and_save_dyes()
+    generate_and_save_dyes(nil, nil, SpD)
 end)
 
 -- dye commands
@@ -665,6 +669,8 @@ minetest.register_node(
         on_receive_fields = function(pos, formname, fields, sender)
             local meta = minetest.get_meta(pos)
             local inv = meta:get_inventory()
+            local tdef = minimal.get_nodedef(pos) -- table definition (dyer table)
+            local tsounds = tdef.sounds or {} -- table sounds
             if fields.dyebundle then -- bundle 4 plants together
                 local plants = inv:get_stack("craft", 1)
                 local pdef = plants:get_definition()
@@ -695,11 +701,17 @@ minetest.register_node(
                 local result = ""
                 local dye_params = dye_source[plants] or hard_dye_source[plants]
                 if dye_params and dye_params.method == treatment then
+                    if tsounds.dye_craft then
+                        minimal.sound_play(minimal.merge_tables(tsounds.dye_craft, {pos = pos}))
+                    end
                     result = "ncrafting:dye_"..dye_params.color.." 2"
                     inv:set_stack("craft", 1, ItemStack(""))
                 else
-                    minetest.sound_play("snappy",{pos = pos, gain = 5,
-                                                  max_hear_distance = 8})
+                    if tsounds.dye_fail then
+                        minimal.sound_play(minimal.merge_tables(tsounds.dye_fail, {pos = pos}))
+                    end
+                    --minetest.sound_play("snappy",{pos = pos, gain = 5,
+                                                  --max_hear_distance = 8})
                     bmeta:set_string("ncrafting:bundle_failed", "true")
                     bmeta:set_string("description", bundlename(bmeta,
                                                                plants,
@@ -939,3 +951,19 @@ minetest.register_node(
             end
         end,
 })
+
+-- add sounds on mods loaded due to crash from having either tech or nodes_nature depend on nodecrafting
+core.register_on_mods_loaded(function()
+    nodes_nature = nodes_nature
+    tech = tech
+    core.override_item("ncrafting:dye_table",{
+        sounds = nodes_nature.node_sound_wood_defaults({
+            dye_craft = {name = "ncrafting_dye_craft", gain = {0.1, 0.2},
+                pitch = {0.8, 1}, max_hear_distance = 8},
+            dye_fail = {name = "snappy", gain = 5, max_hear_distance = 8}
+        })
+    })
+    core.override_item("ncrafting:dye_pot",{
+        sounds = tech.node_sound_earthenware_defaults()
+    })
+end)
