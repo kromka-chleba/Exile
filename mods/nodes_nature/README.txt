@@ -69,7 +69,7 @@ From Minetest Game Default:
 From TPH (CC0)
 (aka tph9677/TubberPupperHusker/TubberPupper/Damotrix)
 <damotrixrob@gmail.com>
-	nodes_nature_fruit_break.(0-2).ogg
+	nodes_nature_fruit_break.(0-4).ogg
 	nodes_nature_ice_dug.(0-4).ogg
 	nodes_nature_ice_footstep.(0-6).ogg
 
