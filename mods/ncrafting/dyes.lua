@@ -681,6 +681,9 @@ minetest.register_node(
                     -- prevent crafting of an empty bundle
                     return
                 end
+                if tsounds.dye_bundle then
+                    minimal.sound_play(minimal.merge_tables(tsounds.dye_bundle, {pos = pos}))
+                end
                 local imeta = bundle:get_meta()
                 imeta:set_string("ncrafting:bundled_plant", plantname)
                 imeta:set_string("description", bundlename(imeta,
@@ -958,9 +961,11 @@ core.register_on_mods_loaded(function()
     tech = tech
     core.override_item("ncrafting:dye_table",{
         sounds = nodes_nature.node_sound_wood_defaults({
-            dye_craft = {name = "ncrafting_dye_craft", gain = {0.1, 0.2},
+            dye_craft = {name = "ncrafting_dye_craft", gain = {0.2, 0.4},
                 pitch = {0.8, 1}, max_hear_distance = 8},
-            dye_fail = {name = "snappy", gain = 5, max_hear_distance = 8}
+            dye_fail = {name = "snappy", gain = 5, max_hear_distance = 8},
+            dye_bundle = {name = "tech_woven_basket_open", gain = 0.35,
+                pitch = {0.72, 1}, max_hear_distance = 8},
         })
     })
     core.override_item("ncrafting:dye_pot",{
