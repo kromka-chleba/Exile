@@ -674,16 +674,16 @@ minetest.register_node(
             if fields.dyebundle then -- bundle 4 plants together
                 local plants = inv:get_stack("craft", 1)
                 local pdef = plants:get_definition()
-                local plantname = pdef.name
-                local dcolor = pdef._ncrafting_dye_dcolor or "none"
-                local bundle = ItemStack("ncrafting:bundle_"..dcolor)
-                if (plantname == "" or plantname == nil) then
-                    -- prevent crafting of an empty bundle
+                -- prevent crafting of an empty bundle
+                if pdef.name == "" or not pdef.name then
                     return
                 end
                 if tsounds.dye_bundle then
                     minimal.sound_play(minimal.merge_tables(tsounds.dye_bundle, {pos = pos}))
                 end
+                -- bundle and its color
+                local dcolor = pdef._ncrafting_dye_dcolor or "none"
+                local bundle = ItemStack("ncrafting:bundle_"..dcolor)
                 -- figure out bundle count
                 local bundlecount = {raw=plants:get_count()/4, max=bundle:get_stack_max()}
                 bundlecount.count = math.floor(bundlecount.raw) -- save as floor'd
@@ -714,9 +714,9 @@ minetest.register_node(
                 bundle:set_count(bundlecount.count)
                 -- set bundle's meta
                 local imeta = bundle:get_meta()
-                imeta:set_string("ncrafting:bundled_plant", plantname)
+                imeta:set_string("ncrafting:bundled_plant", pdef.name)
                 imeta:set_string("description", bundlename(imeta,
-                                                           plantname, nil))
+                                                           pdef.name, nil))
                 inv:set_stack("craftresult", 1, bundle)
                 inv:set_stack("craft", 1, plants)
             end
