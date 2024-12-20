@@ -364,6 +364,9 @@ minetest.register_chatcommand("dye",{
         local cmd = param[1]
         -- regen/reset command
         if cmd == "regen" or cmd == "reset" then
+            if not core.check_player_privs(name, "debug") then
+                return false, "Insufficient privilege to run "..cmd..": 'debug' privilege needed"
+            end
             -- permit "seed" argument
             local seed = param[2] == "random" and SelectSeed(false) or tonumber(param[2])
             -- permit solutions per dye argument
@@ -391,24 +394,25 @@ minetest.register_chatcommand("dye",{
             list_dyes(name)
         -- no such command!
         else
-            local errormsg = {cmd == "help" and "Commands Below:" or type(cmd) == "string" and "Not A Valid Command! See Below:"
-                or "No Command Specified, See Below:"}
-            errormsg = minimal.merge_tables(errormsg,{
-                "/dye list",
-                "Lists each dye and their corresponding sources + methods",
-                "/dye regen <seed> <SpD>",
-                "Regenerates dye sources, optional <seed> can be number or 'random', defaults to worldseed otherwise",
-                "If seed is not provided or different from generated, does not overwrite pre-existing dye sources",
-                "optional SpD or 'Solutions per Dye' is how many sources for each dye there should be (1-35)",
-                "If optional SpD is less than current the SpD for each dye, then it will NOT regenerate",
-                "/dye reset <seed> <SpD>",
-                "Resets all dye sources and generates them over again, see /dye regen for <seed> and <SpD>"
-            })
-            errormsg = table.concat(errormsg,"\n")
-            return false,errormsg
+            if cmd == "help" then
+                local desc = core.registered_chatcommands["dye"].description -- get details
+                return false, table.concat({"Commands Below:", desc}, "\n")
+            end
+            return false, (type(cmd) == "string" and "Not A Valid Command! Check /dye help or /help dye for Commands" or
+                "No Command Specified, Check /dye help or /help dye for Commands")
         end
     end,
-    privs = {debug = true}
+    privs = {server = true},
+    description = table.concat({"/dye list",
+        "Lists each dye and their corresponding sources + methods",
+        ":: reset and regen require DEBUG priv",
+        "/dye regen <seed> <SpD>",
+        "Regenerates dye sources, optional <seed> can be number or 'random', defaults to worldseed otherwise",
+        "If seed is not provided or different from generated, does not overwrite pre-existing dye sources",
+        "optional SpD or 'Solutions per Dye' is how many sources for each dye there should be (1-35)",
+        "If optional SpD is less than current the SpD for each dye, then it will NOT regenerate",
+        "/dye reset <seed> <SpD>",
+        "Resets all dye sources and generates them over again, see /dye regen for <seed> and <SpD>"}, "\n")
 })
 
 -----------------------------------------------
