@@ -731,10 +731,13 @@ minetest.register_node(
                     if tsounds.dye_fail then
                         minimal.sound_play(minimal.merge_tables(tsounds.dye_fail, {pos = pos}))
                     end
-                    -- edit and save meta
-                    bdata.fields["ncrafting:bundle_failed"] = "true"
-                    bdata.fields.description = bundlename(bmeta, plants, treatment, bdata)
-                    bmeta:from_table(bdata)
+                    -- why waste computational power on a bundle we already declared useless?
+                    if bdata.fields["ncrafting:bundle_failed"] ~= "true" then
+                        -- edit and save meta
+                        bdata.fields["ncrafting:bundle_failed"] = "true"
+                        bdata.fields.description = bundlename(bmeta, plants, treatment, bdata)
+                        bmeta:from_table(bdata)
+                    end
                     result = bundle
                 end
                 inv:set_stack("craft", 1, ItemStack("")) -- empty craft/input slot
