@@ -420,32 +420,25 @@ for k, v in pairs(dyelist) do
 end
 
 -- Generate a readable name to be set on infotext, for easier tracking
-local function bundlename(meta, plant, treatment)
-    local fmt_plant = ""
-    local fmt_treatment
-    local prefix = ""
-    if plant == nil then
-        plant = meta:get_string("ncrafting:bundled_plant")
+local function bundlename(meta, plant, treatment, mdata)
+    -- metadata turned into a table for ease
+    mdata = mdata or meta and meta:to_table()
+    mdata = mdata and mdata.fields -- get fields
+    -- figure out plant (plant name), treatment, and plant def
+    plant = plant or mdata and mdata["ncrafting:bundled_plant"]
+    treatment = treatment or mdata and mdata["ncrafting:bundle_treatment"]
+    local def = core.registered_items[plant]
+    -- figure out prefix, fmt_plant, and fmt_treatment
+    local prefix = mdata and mdata["ncrafting:bundle_failed"] == "true" and S("useless") or ""
+    local fmt_plant = def and (def._orig_desc or def.description)
+    if not fmt_plant then
+        minetest.log("error","NCRAFTING: Bundle could not get name of plant: "..plant)
+        fmt_plant = "unknown"
     end
-    if meta and meta:get_string("ncrafting:bundle_failed") == "true" then
-        prefix = S("useless ")
-    end
-    if treatment == nil and meta then
-        treatment = meta:get_string("ncrafting:bundle_treatment")
-    end
-    local def = minetest.registered_items[plant]
-    if def and (def._orig_desc or def.description) then
-        fmt_plant = (def._orig_desc or def.description)
-    else
-        minetest.log("error",
-                     "NCRAFTING: Bundle could not get name of plant: "..plant)
-    end
-    if treatment and treatment ~= "" then
-        fmt_treatment = S(methodstring[treatment])
-    else
-        fmt_treatment = S("untreated")
-    end
-    return S("@1bundle of @2, @3", prefix, fmt_plant, fmt_treatment)
+    -- get descriptive and translated string of bundle's treatment or untreated
+    local fmt_treatment = treatment and treatment ~= "" and S(methodstring[treatment]) or S("untreated")
+    -- return completed string
+    return S("@1 bundle of @2, @3", prefix, fmt_plant, fmt_treatment)
 end
 
 local bundledef = {
@@ -723,13 +716,15 @@ minetest.register_node(
             if fields.dyetest then -- Try to turn treated bundle into a dye
                 local bundle = inv:get_stack("craft", 1)
                 local bmeta = bundle:get_meta()
+                local bdata = bmeta:to_table()
+                if not bdata then return end -- could not get bundle meta's data
                 -- prevent dye destruction because of malformed metadata
-                if not (bmeta:contains("ncrafting:bundled_plant")
-                        and bmeta:contains("ncrafting:bundle_treatment")) then
+                if not (bdata.fields and bdata.fields["ncrafting:bundled_plant"] and
+                    bdata.fields["ncrafting:bundle_treatment"]) then
                     return
                 end
-                local plants = bmeta:get_string("ncrafting:bundled_plant")
-                local treatment = bmeta:get_string("ncrafting:bundle_treatment")
+                local plants = bdata.fields["ncrafting:bundled_plant"]--bmeta:get_string("ncrafting:bundled_plant")
+                local treatment = bdata.fields["ncrafting:bundle_treatment"]--bmeta:get_string("ncrafting:bundle_treatment")
                 local result = ""
                 local dye_params = dye_source[plants] or hard_dye_source[plants]
                 if dye_params and dye_params.method == treatment then
@@ -742,12 +737,10 @@ minetest.register_node(
                     if tsounds.dye_fail then
                         minimal.sound_play(minimal.merge_tables(tsounds.dye_fail, {pos = pos}))
                     end
-                    --minetest.sound_play("snappy",{pos = pos, gain = 5,
-                                                  --max_hear_distance = 8})
-                    bmeta:set_string("ncrafting:bundle_failed", "true")
-                    bmeta:set_string("description", bundlename(bmeta,
-                                                               plants,
-                                                               treatment))
+                    -- edit and save meta
+                    bdata.fields["ncrafting:bundle_failed"] = "true"
+                    bdata.fields.description = bundlename(bmeta, plants, treatment, bdata)
+                    bmeta:from_table(bdata)
                     result = bundle
                     inv:set_stack("craft", 1, ItemStack(""))
                 end
