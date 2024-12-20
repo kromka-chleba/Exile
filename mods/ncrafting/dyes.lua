@@ -971,7 +971,7 @@ core.register_on_mods_loaded(function()
     tech = tech
     core.override_item("ncrafting:dye_table",{
         sounds = nodes_nature.node_sound_wood_defaults({
-            dye_craft = {name = "ncrafting_dye_craft", gain = {0.2, 0.4},
+            dye_craft = {name = "ncrafting_dye_craft", gain = {0.3, 0.5},
                 pitch = {0.8, 1}, max_hear_distance = 8},
             dye_fail = {name = "snappy", gain = 5, max_hear_distance = 8},
             dye_bundle = {name = "tech_woven_basket_open", gain = 0.35,
