@@ -802,7 +802,7 @@ local function dyepot_stir(pos, puncher)
     local function drain_dyepot(curcolor)
         curcolor = curcolor + 1 -- increase color to next lighter shade
         if curcolor % 3 == 1 then -- have we left the color band?
-            curcolor = 0 -- no more dye left
+            curcolor = 31 -- no more dye left (colour of water)
         end
         return curcolor
     end
