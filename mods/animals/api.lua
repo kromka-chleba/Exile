@@ -3478,10 +3478,10 @@ function animals.register_egg(def, animal)
         local egg_time = data.egg_time
         assert(egg_time,"animal egg couldn't get egg_time: "..(data.name))
         -- if custom egg_conditions_correct function then prioritize that
-        --  otherwise hatch is true, new_time is nil
         local hatch,new_time = (data.egg_conditions_correct
                                 and data.egg_conditions_correct(pos, data))
-            or true,nil
+        --  otherwise hatch is true, new_time is nil
+        hatch = type(hatch) ~= "boolean" and true or hatch
         -- get a "time" to hatch by
         if new_time == true then
             -- you tell the egg to never hatch
