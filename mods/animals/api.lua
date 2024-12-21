@@ -3482,14 +3482,14 @@ function animals.register_egg(def, animal)
                                 and data.egg_conditions_correct(pos, data))
         -- you tell the egg to never hatch
         if type(new_time) == true then return false end
-        --  otherwise hatch is true and new_time is nil unless otherwise specified
-        hatch = type(hatch) ~= "boolean" and true or hatch
         -- figure out whether we should hatch or not
         -- permit custom percentage argument for hatching
         if type(hatch) == "number" then
             -- will be true if random is below, otherwise false
             hatch = random() <= hatch
         end
+        --  otherwise hatch is true and new_time is nil unless otherwise specified
+        hatch = type(hatch) ~= "boolean" and true or hatch
         -- now for actual hatching (or other options)
         if hatch then
             -- try to hatch as according to hatch_egg

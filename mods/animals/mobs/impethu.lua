@@ -249,18 +249,12 @@ self_data = {
             if not data then return false,true end -- break egg
             local egg_time = data.egg_time
             local temp = climate.get_point_temp(pos)
-            if (temp < 12) then
-                return false,math.random(egg_time,egg_time*4)
-                -- can't hatch, too cold, send new time
-            end
-            local light = (minetest.get_node_light(pos) or 0)
-            if light <= self_data.max_light then
-                return true
-            else
-                return 0.2
-                -- chance of hatching during the sun anyways AAAAAA MY EYES!!!
-            end
-            return false,math.random(egg_time,egg_time*2) -- regular egg_timer
+            -- light equal to or less than tolerable light
+            local comflight = (minetest.get_node_light(pos) or 0) <= self_data.max_light
+            -- darkness must have a warm temp of 14, otherwise a day temp can be 8
+            local comftemp = comflight and temp > 14 or temp > 8
+            -- 5% chance to hatch in bad light - if hatch fails, then increase egg_time length on random
+            return (comftemp and (comflight or 0.05) or false), random(egg_time, egg_time*6)
         end,
 
     },

@@ -234,7 +234,7 @@ local self_data = {
             if not data then return false,true end -- break egg
             local egg_time = data.egg_time
             local temp = climate.get_point_temp(pos)
-            if (temp < 12) then
+            if temp < 16 then
                 -- too cold to hatch, wait again (with increased time)
                 return false,math.random(egg_time,egg_time*3)
             end
