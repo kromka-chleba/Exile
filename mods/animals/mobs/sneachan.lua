@@ -181,7 +181,7 @@ self_data = {
     energy_max = 5000,--secs it can survive without food
     energy_egg = "energy_max*0.5",--(self_data.energy_max*0.5)
     --energy that goes to egg
-    egg_time = 6,--60*10,
+    egg_time = 60*10,
     young_per_egg = {3,7}, --will get this/energy_egg starting energy
     emergency_egg_chance = 0.9,
     -- lifespan
@@ -242,27 +242,14 @@ self_data = {
             data = data or minimal.get_nodedef(pos)
             if not data then return false,true end -- break egg
             local egg_time = data.egg_time
-            -- can't hatch, send new time
-            local function bad_temp()
-                return false,math.random(egg_time, egg_time*4)
-            end
             local temp = climate.get_point_temp(pos)
             local light = (minetest.get_node_light(pos) or 0)
-            if light <= 10 then
-                -- too cold for a comfortable night
-                if temp < 10 then
-                    return bad_temp()
-                end
-                return true -- can hatch
-            else
-                -- too uncomfortable for a day temp
-                if temp < 19 then
-                    return bad_temp()
-                end
-                return 0.3 -- chance of hatch
-            end
-            -- try again next season
-            return false,math.random(egg_time,egg_time*2)
+            local comflight = light <= 10 -- comfortable light
+            -- comfortable temp ("day" more than 18C, more than 9C otherwise)
+            local comftemp = comflight and temp > 9 or temp > 18
+            -- if temp comfy: hatch chance of 30% if "day" otherwise hatch or seek a new hatching time
+            -- double time for hatching again if uncomfortable temp
+            return (comftemp and (comflight or 0.3) or false), (not comftemp and random(egg_time*2, egg_time*4) or nil)
         end,
     },
     -- spawnegg (live animal) handled in animal registration
