@@ -3480,26 +3480,25 @@ function animals.register_egg(def, animal)
         -- if custom egg_conditions_correct function then prioritize that
         local hatch,new_time = (data.egg_conditions_correct
                                 and data.egg_conditions_correct(pos, data))
-        --  otherwise hatch is true, new_time is nil
+        -- you tell the egg to never hatch
+        if type(new_time) == true then return false end
+        --  otherwise hatch is true and new_time is nil unless otherwise specified
         hatch = type(hatch) ~= "boolean" and true or hatch
+        -- figure out whether we should hatch or not
+        -- permit custom percentage argument for hatching
+        if type(hatch) == "number" then
+            -- will be true if random is below, otherwise false
+            hatch = random() <= hatch
+        end
+        -- now for actual hatching (or other options)
+        if hatch then
+            -- try to hatch as according to hatch_egg
+            return animals.hatch_egg(pos, data)
         -- get a "time" to hatch by
-        if new_time == true then
-            -- you tell the egg to never hatch
-            return false
         elseif type(new_time) == "number" then
             -- start new timer with given new_time
             minetest.get_node_timer(pos):start(new_time)
             return false
-        end
-        -- now for actual hatching (or other options)
-        if hatch == true then
-            -- try to hatch as according to hatch_egg
-            return animals.hatch_egg(pos, data)
-        elseif type(hatch) == "number" and hatch > 0 then
-            -- random chance
-            if random() <= hatch then
-                return animals.hatch_egg(pos, data)
-            end
         end
         -- continue to try to hatch, at another time
         new_time = data.egg_time or 100
