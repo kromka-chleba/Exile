@@ -16,6 +16,8 @@ local c_alpha = minimal.compat_alpha
 minetest.register_node("tech:salt_sea", {
     description = S("Sea Salt"),
     tiles = {"tech_salt_refined.png"},
+    inventory_image = "tech_salt_refined_icon.png",
+    wield_image = "tech_salt_refined_icon.png",
     stack_max = minimal.stack_max_medium * 3,
     drawtype = "nodebox",
     node_box = {
