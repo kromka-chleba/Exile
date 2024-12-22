@@ -30,7 +30,7 @@ minetest.register_node("tech:salt_sea", {
         },
     },
     groups = {dig_immediate = 3, falling_node = 1, edible = 1},
-    sounds = nodes_nature.node_sound_stone_defaults(),
+    sounds = tech.node_sound_powder_defaults(),
     paramtype = "light"
 })
 
