@@ -246,6 +246,7 @@ Stick=
 Grass Fibre=
 Vegetable Oil=
 # food_crafts.lua
+Sea Salt=
 Bitter Maraka Flour=
 Maraka Flour=
 Unbaked Maraka Cake=
@@ -347,6 +348,7 @@ Torch=
 Clay Water Pot=
 Clay Water Pot with Salt Water=
 Clay Water Pot with Freshwater=
+Salty Clay Water Pot=
 Wooden Water Pot=
 Wooden Water Pot with Salt Water=
 Wooden Water Pot with Freshwater=

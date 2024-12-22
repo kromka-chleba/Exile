@@ -163,6 +163,8 @@ TPH
  * tech_dough_aerated_mask.png
  * tech_yeast_dough_overlay.png
  * tech_yeast_dough_spores.png
+ * tech_salt_refined.png
+ * tech_salt_refined_icon.png
 --
 
 TPH/Dokimi
