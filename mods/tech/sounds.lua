@@ -103,3 +103,18 @@ function tech.node_sound_bread_defaults(table)
     tech.node_sound_bread_unleavened_defaults(table)
     return table
 end
+
+-- for fine powders like salt or sugar
+function tech.node_sound_powder_defaults(table)
+    table = table or {}
+    table.footstep = table.footstep or
+        {name = "tech_powder_footstep", gain = 0.15}
+    table.place = table.place or
+        {name = "tech_powder_place", gain = 0.5}
+    table.dig = table.dig or
+        {name = "tech_powder_footstep", gain = 0.24, pitch = 1.2}
+    table.dug = table.dug or
+        {name = "tech_powder_place", gain = 0.5, pitch = 0.85}
+    nodes_nature.node_sound_defaults(table)
+    return table
+end

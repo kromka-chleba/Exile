@@ -48,6 +48,8 @@ tech_ceramic_place.(0-2).ogg
 tech_ceramic_dig.(0-5).ogg
 tech_bread_place.(0-2).ogg
 tech_bread_footstep.(0-4).ogg
+tech_powder_footstep.(0-4).ogg
+tech_powder_place.ogg
 --
 
 
@@ -163,6 +165,8 @@ TPH
  * tech_dough_aerated_mask.png
  * tech_yeast_dough_overlay.png
  * tech_yeast_dough_spores.png
+ * tech_salt_refined.png
+ * tech_salt_refined_icon.png
 --
 
 TPH/Dokimi

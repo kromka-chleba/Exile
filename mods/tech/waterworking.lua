@@ -106,7 +106,7 @@ liquid_store.register_stored_liquid(
         source = "nodes_nature:salt_water_source",
         empty = "tech:clay_water_pot",
         description = S("Clay Water Pot with Salt Water"),
-        groups = {dig_immediate=2, pottery = 1},
+        groups = {dig_immediate=2, pottery = 1, heatable = 60},
         tiles = {
             "tech_pottery.png^tech_pot_empty.png^tech_pot_water.png",
             "tech_pottery.png",
@@ -125,6 +125,59 @@ liquid_store.register_stored_liquid(
                 {-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
             }
         },
+        on_construct = function(pos)
+            -- roast of 5, checking every 10 seconds
+            return ncrafting.set_roast(pos, 5, 10)
+        end,
+        on_timer = function(pos, elapsed)
+            local name = minetest.get_node(pos).name
+            -- temp of 102C
+            -- change name from clay_water_salt_water to clay_water_pot_dry_salt
+            if not ncrafting.roast(pos, name, name:sub(1,#name-10).."pot_dry_salt", nil, 102) then
+                -- complete, play boil sound
+                minimal.sound_play({name = "tech_boil", pos = pos, max_hear_distance = 10,
+                    gain = 0.8, pitch = {0.95,1.2}})
+                return false
+            end
+            return true
+        end
+})
+
+-- pot with collectable salt
+minetest.register_node("tech:clay_water_pot_dry_salt",{
+    description = S("Salty Clay Water Pot"),
+    tiles = {
+        "tech_pottery.png^tech_pot_empty.png",
+        "tech_pottery.png",
+        "tech_pottery.png"
+    },
+    groups = {dig_immediate=2, pottery = 1, temp_pass = 1},
+    sounds = tech.node_sound_earthenware_defaults(),
+    drop = {
+      -- chance of getting 6 salt at most, 1 at least
+      items = {
+        {items = {"tech:clay_water_pot"}},
+        {items = {"tech:salt_sea 1"}},
+        {rarity=2,items = {"tech:salt_sea"}},
+        {rarity=2,items = {"tech:salt_sea"}},
+        {rarity=3,items = {"tech:salt_sea"}},
+        {rarity=4,items = {"tech:salt_sea"}},
+        {rarity=6,items = {"tech:salt_sea"}}
+      }
+    },
+    drawtype = "nodebox",
+    node_box = {
+        type = "fixed",
+        fixed = {
+            {-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+            {-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+            {-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+            {-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+            {-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+        }
+    },
+    stack_max = minimal.stack_max_bulky,
+    paramtype = "light",
 })
 
 --clay pot with freshwater

@@ -190,6 +190,7 @@ Large Wood Fire (extinguished)=Большой дровяной костер (п�
 Small Charcoal Fire (extinguished)=Малый костер из древесного угля (потушен)
 Large Charcoal Fire (extinguished)=Большой костер из древесного угля (потушен)
 # food_crafts.lua
+Sea Salt=
 Bitter Maraka Flour=Мука из горького марака
 Maraka Flour=Мука из марака
 Unbaked Maraka Cake=Невыпеченный торт из марака
@@ -350,6 +351,7 @@ Torch=Факел
 Clay Water Pot=Глиняный горшок для воды
 Clay Water Pot with Salt Water=Глиняный горшок с соленой водой
 Clay Water Pot with Freshwater=Глиняный горшок с пресной водой
+Salty Clay Water Pot=
 Wooden Water Pot=Деревянный горшок для воды
 Wooden Water Pot with Salt Water=Деревянный горшок с соленой водой
 Wooden Water Pot with Freshwater=Деревянный горшок с пресной водой

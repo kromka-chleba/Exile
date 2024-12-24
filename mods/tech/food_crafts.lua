@@ -9,6 +9,31 @@ local S = tech.S
 
 local c_alpha = minimal.compat_alpha
 
+
+------ MINERAL PRODUCTS
+
+-- sea salt
+minetest.register_node("tech:salt_sea", {
+    description = S("Sea Salt"),
+    tiles = {"tech_salt_refined.png"},
+    inventory_image = "tech_salt_refined_icon.png",
+    wield_image = "tech_salt_refined_icon.png",
+    stack_max = minimal.stack_max_medium * 3,
+    drawtype = "nodebox",
+    node_box = {
+        type = "fixed",
+        fixed = {
+            {-2/16, -0.5, -2/16, 2/16, -7.5/16, 2/16},
+            {-1.5/16, -7.5/16, -1.5/16, 1.5/16, -7/16, 1.5/16},
+            {-1/16, -7/16, -1/16, 1/16, -6.5/16, 1/16},
+            {-0.5/16, -6.5/16, -0.5/16, 0.5/16, -6/16, 0.5/16},
+        },
+    },
+    groups = {dig_immediate = 3, falling_node = 1, edible = 1},
+    sounds = tech.node_sound_powder_defaults(),
+    paramtype = "light"
+})
+
 ------ PLANT PRODUCTS
 
 --bitter maraka flour

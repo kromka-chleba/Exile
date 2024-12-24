@@ -38,10 +38,12 @@ HEALTH.food_table = {
     -- unleavened breads
     ["tech:bread_unleavened"] = {hu = 30, en = 6},
     ["tech:bread_unleavened_crumbly"] = {hu = 24, en = 10, th = 3},
+    -- misc
     ["nodes_nature:sea_lettuce"] = {hu = 5, en = -10},
     ["nodes_nature:sea_lettuce_cooked"] = {hu = 5},
     ["nodes_nature:vansano_seed"] = {hu = 1},
     ["nodes_nature:tikusati_seed"] = {hu = -2, en = 2},
+    ["tech:salt_sea"] = {en = 1, th = -3},
     -- animal crafts
     ["tech:yolk_and_albumen"] = {hu = 11, th = 2},
     ["tech:yolk_and_albumen_cooked"] = {hu = 22, en = 2},
