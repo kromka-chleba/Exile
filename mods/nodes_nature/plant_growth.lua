@@ -243,34 +243,34 @@ local function get_light_cofactor(pos)
     end
 end
 
-local function is_temperature_extreme(pos, pdef)
+local function is_temperature_extreme(pos, pdef, temp)
     pdef = pdef or minimal.get_nodedef(pos)
-    local temp = climate.get_point_temp(pos)
+    temp = temp or climate.get_point_temp(pos)
     -- -30C to 60C
     return temp < (pdef.plant_temp_range.min - 35) or temp > (pdef.plant_temp_range.max + 20)
 end
 
-local function is_temperature_good(pos, pdef)
-    local temp = climate.get_point_temp(pos)
+local function is_temperature_good(pos, pdef, temp)
+    temp = temp or climate.get_point_temp(pos)
     return temp > pdef.plant_temp_range.min and temp < pdef.plant_temp_range.max
 end
 
-local function is_soil_and_temp_good(pos, pdef)
+local function is_soil_and_temp_good(pos, pdef, temp)
     pdef = pdef or minimal.get_nodedef(pos)
     --if not on sediment abort
     if not is_on_sediment(pos, pdef) then
         return false
     end
     --semi-extreme temps stop growth
-    if not is_temperature_good(pos, pdef) then
+    if not is_temperature_good(pos, pdef, temp) then
         return false
     end
     return true
 end
 
-local function are_conditions_good(pos, pdef)
+local function are_conditions_good(pos, pdef, temp)
     pdef = pdef or minimal.get_nodedef(pos)
-    if not is_soil_and_temp_good(pos, pdef) then
+    if not is_soil_and_temp_good(pos, pdef, temp) then
         return false
     end
     -- light level is insufficient
@@ -381,8 +381,8 @@ local function kill_no_light(pos, elapsed, pdef, meta)
     end
 end
 
-local function kill_extreme_temp(pos, elapsed, pdef, meta)
-    if is_temperature_extreme(pos, pdef) then
+local function kill_extreme_temp(pos, elapsed, pdef, meta, temp)
+    if is_temperature_extreme(pos, pdef, temp) then
         nn.plant.kill(pos, false, pdef, meta)
         return true
     end
@@ -585,6 +585,7 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     local elapsed = elapsed_full + seed_elapsed(meta)
     local current_progress = current_growth_progress(pos, elapsed)
     local past_progress = past_growth_progress(pos, elapsed)
+    local temp = climate.get_point_temp(pos) -- temperature
     -- we had no light so exit before catch up
     if kill_no_light(pos, elapsed, pdef, meta) then
         return false
@@ -613,7 +614,7 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         nn.plant.kill(pos, true, pdef, meta)
         return
     end
-    if not are_conditions_good(pos) then
+    if not are_conditions_good(pos, pdef, temp) then
         current_progress = 0
         if is_winter() then
             meta:set_int("health", health - 3)
@@ -640,7 +641,7 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
             meta:set_int("growth", growing_left)
         end
     end
-    if kill_extreme_temp(pos, elapsed, pdef, meta) then
+    if kill_extreme_temp(pos, elapsed, pdef, meta, temp) then
         return false
     end
     growing_side_effects(pos, progress)
