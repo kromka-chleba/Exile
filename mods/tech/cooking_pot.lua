@@ -1220,12 +1220,12 @@ minetest.register_node(
                   falling_node = 1, heatable = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
         on_construct = function(pos)
-            ncrafting.set_firing(pos, ncrafting.base_firing*0.25,
+            ncrafting.set_firing(pos, math.floor(ncrafting.base_firing*0.25),
                                  ncrafting.firing_int)
         end,
         on_dig = function(pos, node, digger)
             return ncrafting.on_dig_pottery(pos, node, digger,
-                                            ncrafting.base_firing*0.25)
+                                            math.floor(ncrafting.base_firing*0.25))
         end,
         on_timer = function(pos, elapsed)
             --finished product, length, temperature
