@@ -593,8 +593,8 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     -- create health if not found
     local health = meta:get_int("health")
     if not meta:get("health") then
-        health = base_health + base_health * math.random(-1, 1) * 0.1
-        meta:set_int("health", health)
+        -- 10% less or more
+        health = base_health * math.random(90,110)/100
     end
     -- semi-wild growth mechanics
     if param2 >= 128 then
@@ -610,16 +610,17 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
             return
         end
     end
-    if health <= 0 then
-        nn.plant.kill(pos, true, pdef, meta)
-        return
+    -- KILL OR HURT
+    if kill_extreme_temp(pos, elapsed, pdef, meta, temp) then
+        return false
     end
+    -- hurt or heal
     if not are_conditions_good(pos, pdef, temp) then
         current_progress = 0
         if is_winter() then
-            meta:set_int("health", health - 3)
+            health = health - 3
         else
-            meta:set_int("health", health - 1)
+            health = health - 1
         end
     elseif health < base_health then
         local chance = math.random()
@@ -627,8 +628,15 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         health = health + (chance < 0.02 and 2 or chance < 0.0005 and 3 or 1)
         -- clamp health below base_health
         health = health > base_health and base_health or health
-        meta:set_int("health", health)
     end
+    -- kill if we on da DEATH bed
+    if health <= 0 then
+        nn.plant.kill(pos, true, pdef, meta)
+        return
+    end
+    -- set health
+    meta:set_int("health", health)
+    -- figure out growth
     local progress = past_progress + current_progress
     -- we shant keep growing when we're already fruiting!
     if not (pdef.groups and pdef.groups.fruiting_plant) then
@@ -640,9 +648,6 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         else
             meta:set_int("growth", growing_left)
         end
-    end
-    if kill_extreme_temp(pos, elapsed, pdef, meta, temp) then
-        return false
     end
     growing_side_effects(pos, progress)
     return true
