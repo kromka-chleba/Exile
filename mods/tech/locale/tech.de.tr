@@ -63,31 +63,50 @@ Light Fabric Trousers=Leichete Stoffhose
 Thick Fabric Trousers=Dicke Stoffhose
 Light Fabric Tunic=Leiche Stofftunika
 Thick Fabric Tunic=Dicke Stofftunika
-# cooking-pot.lua
-Soup=Suppe
-Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=Unvorbereiteter Topf@nInhalt: <LEER>@nAnmerkung: Wasser in Topf geben, um Suppe zu machen
-Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=Suppentopf@nInhalt: Wasser@nAnmerkung: Nahrung hinzugeben, um Suppe zu machen
-@1 soup=@1-Suppe
-Cooking Pot=Kochtopf
-This pot is full and heavy. Spill it?=Dieser Topf ist voll und schwer. Ausschütten?
+# cooking_pot.lua
+Bowl (unfired)=
+Empty Bowl=
 Cooking Pot (unfired)=Kochtopf (ungebrannt)
+Cooking Pot=Kochtopf
+Bowl of @1 Stew=
+Bowl of @1 Soup=
+#; contents
+Water=Wasser
+Contents: @1=Inhalt: @1
+Contents: <EMPTY>=Inhalt: <LEER>
+Contents: Water=Inhalt: Wasser
+Leftover: @1%=
+#; status
+Soup=Suppe
+Stew=
+Unprepared Pot=Unvorbereiteter Topf
+Status: @1 pot=
+Status: @1 pot (cooking)=
+Status: @1 pot (finished)=
+#; note + questions
+This pot is full and heavy. Spill it?=Dieser Topf ist voll und schwer. Ausschütten?
+Note: Add water to pot to make soup=Anmerkung: Wasser in Topf geben, um Suppe zu machen
+Note: Add food to the pot to make soup=Anmerkung: Nahrung hinzugeben, um Suppe zu machen
+Note: Use a Bowl to Get!=
+# misc use tips
 Eat=Essen
-Crafting=Fertigung
-Pottery=Töpferei
+Drink=Trinken
 Create=Machen
-Mixing=Mischen
 # craft-stations.lua
 Crafting Spot=Fertigungsplatz
 # Craft station
 Weaving=Weben
+Mixing=Mischen
 Grinding stone=Schleifstein
 Mortar and pestle=Mörser und Stößel
+Crafting=Fertigung
 Carpentry Bench=Schreinerbank
 Bricks=Ziegel
 Blocks=Blöcke
 Spinning Wheel=Spinnrad
 Loom=Webstuhl
 Glass furnace=Glasofen
+Pottery=Töpferei
 Tools=Werkzeuge
 Stations=Stationen
 Agriculture=Ackerbau
@@ -131,7 +150,6 @@ Tang Vinegar with Mother=Tang-Essig mit Mutter
 Mother of Tang=Mutter von Tang
 Infect Other Pots=Andere Töpfe infizieren
 Tang=Tang
-Drink=Trinken
 Tang (unfermented)=Tang (unfermentiert)
 # hearthen_building.lua
 Drystack=Trockenmauer

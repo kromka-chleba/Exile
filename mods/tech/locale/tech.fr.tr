@@ -63,31 +63,50 @@ Light Fabric Trousers=Pantalon en tissu léger
 Thick Fabric Trousers=Pantalon en tissu épais
 Light Fabric Tunic=Tunique en tissu léger
 Thick Fabric Tunic=Tunique en tissu épais
-# cooking-pot.lua
-Soup=Soupe
-Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=Marmite@nContenu: <VIDE>@nRemarque: Ajoutez de l'eau à la marmite pour faire de la soupe
-Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=Marmite@nContenu: Eau@nRemarque: Ajoutez de la nourriture à la marmite pour faire de la soupe
-@1 soup=Soupe de @1
-Cooking Pot=Marmite
-This pot is full and heavy. Spill it?=Cette marmite est pleine et lourde. La renverser?
+# cooking_pot.lua
 Cooking Pot (unfired)=Marmite (non cuite)
+Bowl (unfired)=
+Cooking Pot=Marmite
+Empty Bowl=
+Bowl of @1 Stew=
+Bowl of @1 Soup=
+#; contents
+Water=
+Contents: @1=Contenu: @1
+Contents: <EMPTY>=Contenu: <VIDE>
+Contents: Water=Contenu: Eau
+Leftover: @1%=
+#; status
+Soup=Soupe
+Stew=
+Unprepared Pot=Marmite
+Status: @1 pot=
+Status: @1 pot (cooking)=
+Status: @1 pot (finished)=
+#; note + questions
+This pot is full and heavy. Spill it?=Cette marmite est pleine et lourde. La renverser?
+Note: Add water to pot to make soup=Remarque: Ajoutez de l'eau à la marmite pour faire de la soupe
+Note: Add food to the pot to make soup=Remarque: Ajoutez de la nourriture à la marmite pour faire de la soupe
+Note: Use a Bowl to Get!=
+# misc use tips
 Eat=Manger
-Crafting=Artisanat
-Pottery=Poterie
+Drink=Boire
 Create=Créer
-Mixing=Mélange
 # craft-stations.lua
 Crafting Spot=Artisanat de base
 # Craft station
 Weaving=Tissage
+Mixing=Mélange
 Grinding stone=Meule
 Mortar and pestle=Mortier et pilon
+Crafting=Artisanat
 Carpentry Bench=Établi de menuiserie
 Bricks=Briques
 Blocks=Blocs
 Spinning Wheel=Rouet
 Loom=Métier à tisser
 Glass furnace=Four à verre
+Pottery=Poterie
 Tools=Outils
 Stations=Stations
 Agriculture=Agriculture
@@ -131,7 +150,6 @@ Tang Vinegar with Mother=Vinaigre de Tang avec mère
 Mother of Tang=Mère de Tang
 Infect Other Pots=Infecter d'autres pots
 Tang=Tang
-Drink=Boire
 Tang (unfermented)=Tang (non fermenté)
 # hearthen_building.lua
 Drystack=Pierres sèches

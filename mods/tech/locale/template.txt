@@ -66,25 +66,34 @@ Light Fabric Trousers=
 Thick Fabric Trousers=
 Light Fabric Tunic=
 Thick Fabric Tunic=
-# cooking-pot.lua
-Soup=
-Water, =
+# cooking_pot.lua
+Cooking Pot (unfired)=
+Bowl (unfired)=
+Cooking Pot=
+Empty Bowl=
+Bowl of @1 Stew=
+Bowl of @1 Soup=
+#; contents
+Water=
 Contents: @1=
-@1 soup=
-Contents: @1 soup=
-Status: @1 pot (finished)=
+Contents: <EMPTY>=
+Contents: Water=
+Leftover: @1%=
+#; status
+Soup=
+Stew=
+Unprepared Pot=
 Status: @1 pot=
 Status: @1 pot (cooking)=
-Cooking Pot=
+Status: @1 pot (finished)=
+#; note + questions
 This pot is full and heavy. Spill it?=
-Unprepared Pot=
-Contents: <EMPTY>=
 Note: Add water to pot to make soup=
-Soup Pot=
-Contents: Water=
 Note: Add food to the pot to make soup=
-Cooking Pot (unfired)=
+Note: Use a Bowl to Get!=
+# misc use tips
 Eat=
+Drink=
 # craft-stations.lua
 Crafting Spot=
 # Craft station
@@ -141,7 +150,6 @@ Tang Vinegar with Mother=
 Mother of Tang=
 Infect Other Pots=
 Tang=
-Drink=
 Tang (unfermented)=
 # hearthen_building.lua
 Drystack=
