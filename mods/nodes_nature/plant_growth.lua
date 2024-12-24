@@ -616,8 +616,8 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         -- heal up if conditions are good and our health is lower than usual
         if health < base_health then
             local chance = math.random()
-            -- 2% chance to recover 2 points, 0.05% chance to recover 3
-            health = health + (chance < 0.02 and 2 or chance < 0.0005 and 3 or 1)
+            -- 4% chance to recover 2 points, 0.5% chance to recover 3
+            health = health + (chance < 0.04 and 2 or chance < 0.005 and 3 or 1)
             -- clamp health below base_health
             health = health > base_health and base_health or health
         end
