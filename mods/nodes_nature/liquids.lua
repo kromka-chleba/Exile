@@ -369,7 +369,7 @@ minetest.register_node(
         temp_effect_max = 0,
         groups = {cracky = 3, crumbly = 1, cools_lava = 1,
                   puts_out_fire = 1, slippery = 3, temp_effect = 1},
-        sounds = nodes_nature.node_sound_snow_defaults(),
+        sounds = nodes_nature.node_sound_ice_defaults(),
 })
 
 
@@ -386,7 +386,7 @@ minetest.register_node(
         temp_effect_max = 0,
         groups = {cracky = 3, crumbly = 1, cools_lava = 1,
                   puts_out_fire = 1, slippery = 3, temp_effect = 1},
-        sounds = nodes_nature.node_sound_snow_defaults(),
+        sounds = nodes_nature.node_sound_ice_defaults(),
 })
 
 

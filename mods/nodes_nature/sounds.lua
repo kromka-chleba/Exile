@@ -127,6 +127,23 @@ function nodes_nature.node_sound_snow_defaults(table)
 end
 
 
+
+function nodes_nature.node_sound_ice_defaults(table)
+    table = table or {}
+    table.footstep = table.footstep or
+        {name = "nodes_nature_ice_footstep", gain = 0.55}
+    table.dig = table.dig or
+        {name = "nodes_nature_ice_footstep", gain = 0.65, pitch = 0.75}
+    table.dug = table.dug or
+        {name = "nodes_nature_ice_dug", gain = 0.8, pitch = 0.9}
+    table.place = table.place or
+        {name = "nodes_nature_ice_dug", gain = 0.5, pitch = 1.05}
+    nodes_nature.node_sound_snow_defaults(table)
+    return table
+end
+
+
+
 function nodes_nature.node_sound_grassysnow_defaults(def)
     def = def or {}
     def.footstep = def.footstep or
