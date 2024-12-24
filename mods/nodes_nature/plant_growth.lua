@@ -397,13 +397,6 @@ end
 
 local is_winter = seasons.is_winter
 
-local function kill_in_winter(pos, elapsed)
-    if not are_conditions_good(pos) and is_winter() then
-        nn.plant.kill(pos, true)
-        return true
-    end
-end
-
 local function step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
     pdef = pdef or minimal.get_nodedef(pos)
     meta = meta or minetest.get_meta(pos)
@@ -614,25 +607,37 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     if kill_extreme_temp(pos, elapsed, pdef, meta, temp) then
         return false
     end
-    -- hurt or heal
-    if not are_conditions_good(pos, pdef, temp) then
-        current_progress = 0
-        if is_winter() then
-            health = health - 3
-        else
-            health = health - 1
-        end
-    elseif health < base_health then
-        local chance = math.random()
-        -- 2% chance to recover 2 points, 0.05% chance to recover 3
-        health = health + (chance < 0.02 and 2 or chance < 0.0005 and 3 or 1)
-        -- clamp health below base_health
-        health = health > base_health and base_health or health
-    end
     -- kill if we on da DEATH bed
     if health <= 0 then
         nn.plant.kill(pos, true, pdef, meta)
         return
+    -- good conditions mechanics
+    elseif are_conditions_good(pos, pdef, temp) then
+        -- heal up if conditions are good and our health is lower than usual
+        if health < base_health then
+            local chance = math.random()
+            -- 2% chance to recover 2 points, 0.05% chance to recover 3
+            health = health + (chance < 0.02 and 2 or chance < 0.0005 and 3 or 1)
+            -- clamp health below base_health
+            health = health > base_health and base_health or health
+        end
+    -- conditions bad, no progress allowed
+    -- calculate damage from temperature if applicable
+    else
+        current_progress = 0
+        local templimits = {max = pdef.plant_temp_range.max, min = pdef.plant_temp_range.min}
+        -- chlorophyll degrades around 70C -- assume max + 20
+        -- ceil rounds up, abs ensures positive integers
+        -- higher temperatures relatively tolerable
+        if temp > templimits.max then
+            health = health - math.ceil(math.abs((temp - templimits.max)/10))
+        -- colder temps not as tolerable
+        elseif temp < templimits.min then
+            health = health - math.ceil(math.abs((temp - templimits.min)/8))
+        -- we just don't like these conditions, we picky
+        else
+            health = health - 1
+        end
     end
     -- set health
     meta:set_int("health", health)
