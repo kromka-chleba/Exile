@@ -250,6 +250,7 @@ end
 -- check if all dyes have been successfully generated
 local function all_dyes_generated()
     if not dye_source then return end -- no dye_source !
+    if not next(dye_source) then return end -- no indexes in dye_source!
     local check_dyes = {}
     -- set up a table with each existing dye, set to false so that it can be overwritten
     for dye,_ in pairs(dyelist) do
@@ -281,24 +282,29 @@ local function generate_and_save_dyes(seed, reset, SpD)
     SpD = type(SpD) == "number" and SpD or calculate_solutions_per_dye(NoC)
     -- check if there's sufficient solutions per dye
     if not reset then
-        -- current solutions per dye
-        local cSpDs = {}
-        -- add 1 per solution found
-        for _,dye_info in pairs(dye_source) do
-            cSpDs[dye_info.color] = cSpDs[dye_info.color] or 0
-            cSpDs[dye_info.color] = cSpDs[dye_info.color] + 1
-        end
-        -- figure out if the SpD specified isn't necessary
-        for _,count in pairs(cSpDs) do
-            -- if it's lower, then we should generate
-            if count < SpD then
-                cSpDs.unfinished = true -- whether or not we should return
-                break
+        -- is dye gen finished? check all_dye_generated and set as true, otherwise false - we got work to do!
+        local gen_finished = all_dyes_generated(dye_source) and true or false
+        -- only do checking if we can reasonably assume it had sufficiently generated prior
+        if gen_finished then
+            -- current solutions per dye (list as not finished, until it is!)
+            local cSpDs = {}
+            -- add 1 per solution found
+            for _,dye_info in pairs(dye_source) do
+                cSpDs[dye_info.color] = cSpDs[dye_info.color] or 0
+                cSpDs[dye_info.color] = cSpDs[dye_info.color] + 1
             end
-        end
-        -- we're good already, don't need to regen
-        if not cSpDs.unfinished then
-            return false
+            -- figure out if the SpD specified isn't necessary
+            for _,count in pairs(cSpDs) do
+                -- if it's lower, then we should generate
+                if count < SpD then
+                    gen_finished = false -- whether or not we should return
+                    break
+                end
+            end
+            -- we're good already, don't need to regen
+            if gen_finished then
+                return false
+            end
         end
     end
     -- now to generate
