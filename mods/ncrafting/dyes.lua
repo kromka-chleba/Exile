@@ -248,19 +248,20 @@ local function SelectSeed(doworldseed)
 end
 
 -- check if all dyes have been successfully generated
-local function all_dyes_generated()
+-- permit custom check for SpD (which will instead utilize addition and comparison)
+local function all_dyes_generated(SpD)
     if not dye_source then return end -- no dye_source !
     if not next(dye_source) then return end -- no indexes in dye_source!
     local check_dyes = {}
-    -- set up a table with each existing dye, set to false so that it can be overwritten
+    -- set up a table with each existing dye, set to false so that it can be overwritten or 0 for addition if SpD noted
     for dye,_ in pairs(dyelist) do
-        check_dyes[dye] = false
+        check_dyes[dye] = SpD and 0 or false
     end
     -- look through dye_source table to check if each dye has a corresponding source
     for nm,info in pairs(dye_source) do
         if core.registered_items[nm] then
-            -- set to true if found
-            check_dyes[info.color] = check_dyes[info.color] or true
+            -- set to true if found or add to if SpD is specified
+            check_dyes[info.color] = SpD and check_dyes[info.color] + 1 or check_dyes[info.color] or true
         -- remove from dye_source
         else
             dye_source[nm] = nil
@@ -268,8 +269,9 @@ local function all_dyes_generated()
     end
     -- ensure all listed dyes have a source
     for dye,confirmed in pairs(check_dyes) do
-        -- we must generate!
-        if not confirmed then return end
+        -- we must generate! if SpD is specified, then return failure if dye doesn't have required amount
+        -- if SpD not specified, then a simple false condition works!
+        if SpD and confirmed < SpD or not confirmed then return end
     end
     -- bro... don't generate...
     return true
@@ -280,33 +282,10 @@ local function generate_and_save_dyes(seed, reset, SpD)
     local NoC = CandidateList()
     -- permit custom SpD parameter
     SpD = type(SpD) == "number" and SpD or calculate_solutions_per_dye(NoC)
-    -- check if there's sufficient solutions per dye
-    if not reset then
-        -- is dye gen finished? check all_dye_generated and set as true, otherwise false - we got work to do!
-        local gen_finished = all_dyes_generated(dye_source) and true or false
-        -- only do checking if we can reasonably assume it had sufficiently generated prior
-        if gen_finished then
-            -- current solutions per dye (list as not finished, until it is!)
-            local cSpDs = {}
-            -- add 1 per solution found
-            for _,dye_info in pairs(dye_source) do
-                cSpDs[dye_info.color] = cSpDs[dye_info.color] or 0
-                cSpDs[dye_info.color] = cSpDs[dye_info.color] + 1
-            end
-            -- figure out if the SpD specified isn't necessary
-            for _,count in pairs(cSpDs) do
-                -- if it's lower, then we should generate
-                if count < SpD then
-                    gen_finished = false -- whether or not we should return
-                    break
-                end
-            end
-            -- we're good already, don't need to regen
-            if gen_finished then
-                return false
-            end
-        end
-    end
+    -- check if there's sufficient solutions per dye (if not resetting)
+    -- check all_dyes_generated with custom SpD argument
+    -- if sufficiently generated (e.g. amount of dyes equal SpD or more), returns
+    if not reset and all_dyes_generated(SpD) then return false end
     -- now to generate
     GenerateDyes(seed or SelectSeed(), SpD)
     -- save and print dye generation finish
@@ -324,8 +303,8 @@ minetest.register_on_mods_loaded(function()
         minetest.log("action", "Dyes successfully loaded")
         return
     end
-    -- generate and save
-    generate_and_save_dyes()
+    -- generate and save (nil argument for seed, true for reset to avoid another dyes_generated check)
+    generate_and_save_dyes(nil, true)
 end)
 
 -- dye commands
