@@ -474,20 +474,50 @@ local stone_chop2 = crude_chop2 * stone
 
 
 -- Adzes ---------------------------------------------------
--- stone adze. best for chopping
-
-do
-    local adze_dig = S("Cut softwood logs")
-
-    -- Placed *material* adze
-    -- Register placed asze as nodes and crafting.tools
-    for material,materialincaps in
-    pairs ({["jade"]=S("Jade"),["granite"]=S("Granite"),["basalt"]=S("Basalt") }) do
-
-        minetest.register_node(
-        "tech:adze_" .. material .. "_placed", {
-            description = S("Placed @1 adze", materialincaps),
-            inventory_image = "tech_tool_adze_"..material..".png",
+-- suffix/material, definition
+-- registers tool, placed, and recipe
+local function register_adze(suffix, def)
+    -- tool string
+    local tool = "tech:adze_"..suffix
+    -- tool durability
+    local uses = def.uses or {}
+    def.uses = nil -- remove from definition
+    uses.choppy = uses.choppy or 1
+    uses.snappy = uses.snappy or 1
+    uses.crumbly = uses.crumbly or 1
+    -- register tool
+    minetest.register_tool(
+        tool, {
+            description = S("@1 Adze", def.description),
+            inventory_image = "tech_tool_adze_" .. suffix .. ".png",
+            tool_capabilities = {
+                full_punch_interval = base_punch_int * 1.1,
+                groupcaps={
+                    choppy = {times={[2]=stone_chop2, [3]=stone_chop3},
+                      uses=stone_use * uses.choppy,
+                      maxlevel=stone_max_lvl},
+                    snappy= {times={[1]=stone_snap1, [2]=stone_snap2,
+                      [3]=stone_snap3},
+                      uses=stone_use * uses.snappy,
+                      maxlevel=stone_max_lvl},
+                    crumbly = {times={[3]=crude_crum3},
+                      uses=base_use*uses.crumbly,
+                      maxlevel=crude_max_lvl},
+                },
+                damage_groups = {fleshy = stone_dmg},
+            },
+            groups = {axe = 1, craftedby = 1},
+            sound = {breaks = "tech_tool_breaks"},
+            _dig_tip = S("Cut softwood logs"),
+            on_place = function(itemstack, placer, pointed_thing)
+                return place_tool(itemstack, placer, pointed_thing)
+            end,
+    })
+    -- register placed
+    minetest.register_node(
+        tool.."_placed", {
+            description = S("Placed @1 adze", def.description),
+            inventory_image = "tech_tool_adze_"..suffix..".png",
             exile_crafting = {
                 craft_types = {"axe","knife_wattle","axe_mixing"},
                 craft_level = 1,
@@ -498,7 +528,7 @@ do
             },
             drawtype = "mesh",
             mesh = "adze_placed.obj",
-            tiles = {name = "tech_adze_" .. material .. "_placed.png"},
+            tiles = {name = "tech_adze_" .. suffix .. "_placed.png"},
             paramtype = "light",
             paramtype2 = "facedir",
             sounds = nodes_nature.node_sound_stone_defaults(),
@@ -518,98 +548,38 @@ do
                 return crafting.crafting_item_on_rightclick(pos,node,
                 clicker,itemstack,
                 pointed_thing)
-                --            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 1)
             end,
             on_dig = function(pos, node, digger)
                 on_dig_tool(pos, node, digger)
             end,
-        })
-    end
-
-    --Defines adze type with {name_material, desc_Material, used_material}
-    local adze_type = {
-                [""]={
-                    ["caps"]="",["image"]="_jade",
-                    ["choppy_use"]= 1,
-                    ["snappy_use"]= 0.8,
-                    ["crumbly_use"]=1 },
-                --current default based on old granite, others are legacy one
-                ["_basalt"] = {
-                    ["caps"]=S("Basalt"), ["image"]="_basalt",
-                    ["choppy_use"]= 0.9,
-                    ["snappy_use"]= 0.7,
-                    ["crumbly_use"]=0.9 }, --less uses than granite bc softer stone
-                ["_jade"] = {
-                        ["caps"]=S("Jade"), ["image"]="_jade",
-                        ["choppy_use"]= 1.5,
-                        ["snappy_use"]= 1,
-                        ["crumbly_use"]=1 }, --many more uses than granite.
-                ["_granite"] = {
-                            ["caps"]=S("Granite"), ["image"]="_granite",
-                            ["choppy_use"]= 1,
-                            ["snappy_use"]= 0.8,
-                            ["crumbly_use"]=1 } --granite adze. best for chopping
-                }
-
-    -- Register adzes as minetest.tool
-    --#TODO idea would be that default one wouldn't really be craftable but
-    --  only here as default in the recipes in inventory ?
-    for name, def in pairs (adze_type) do
-        minetest.register_tool(
-        "tech:adze".. name, {
-            description = S("@1 Adze", def["caps"]),
-            inventory_image = "tech_tool_adze" .. def["image"] .. ".png",
-            tool_capabilities = {
-                full_punch_interval = base_punch_int * 1.1,
-                groupcaps={
-                    choppy = {times={[2]=stone_chop2, [3]=stone_chop3},
-                    uses=stone_use *def["choppy_use"],
-                    maxlevel=stone_max_lvl},
-                    snappy= {times={[1]=stone_snap1, [2]=stone_snap2,
-                    [3]=stone_snap3},
-                    uses=stone_use * def["snappy_use"],
-                    maxlevel=stone_max_lvl},
-                    crumbly = {times={[3]=crude_crum3},
-                    uses=base_use*def["crumbly_use"],
-                    maxlevel=crude_max_lvl},
-                },
-                damage_groups = {fleshy = stone_dmg},
-            },
-            groups = {axe = 1, craftedby = 1},
-            sound = {breaks = "tech_tool_breaks"},
-            _dig_tip = adze_dig,
-            on_place = function(itemstack, placer, pointed_thing)
-                return place_tool(itemstack, placer, pointed_thing)
-            end,
-        })
-    end
-
-    -- Register recipes to craft adzes
-    for _,mat in ipairs ({"jade","basalt","granite"}) do
-        crafting.register_recipe({
-                type = {"hand_tools", "grinding_stone" },
-                output = "tech:adze_"..mat,
-                items = {"group:" .. mat .."_cobble",'tech:stick',
-                         'group:fibrous_plant 4', 'nodes_nature:sand'},
-                level = 1,
-                always_known = true,
-                replace = 'nodes_nature:sand'
-        })
-    end
-
-    ---- unique version all in one :
-    -- crafting.register_recipe({
-    --      type = "hand_tools",
-    --      output = "tech:adze",
-    --      items = {{"group:jade_cobble","group:basalt_cobble","group:granite_cobble"},
-    --              'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-    --      material = 1, -- first item sets material.
-    --      material_output = "tech:adze_%material%",
-    --      level = 1,
-    --      always_known = true,
-    --   replace = 'nodes_nature:sand'
-    -- })
+    })
+    -- recipe
+    crafting.register_recipe({
+        type = {"hand_tools", "grinding_stone" },
+        output = tool,
+        items = {"group:" .. suffix .."_cobble",'tech:stick',
+                 'group:fibrous_plant 4', 'nodes_nature:sand'},
+        level = 1,
+        always_known = true,
+        replace = 'nodes_nature:sand'
+    })
 end
+-- less uses than granite bc softer stone
+register_adze("basalt", {
+    description = S("Basalt"),
+    uses = {choppy = 0.9, snappy = 0.7, crumbly = 0.9}
+})
+-- more uses than granite
+register_adze("jade", {
+    description = S("Jade"),
+    uses = {choppy = 1.5}
+})
+-- best for chopping
+register_adze("granite", {
+    description = S("Granite"),
+    uses = {snappy = 0.8}
+})
+
 
 --IB-20240226 --grind adze
 --IB-20240226 crafting.register_recipe({
