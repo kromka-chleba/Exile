@@ -79,22 +79,38 @@ local function place_tool(itemstack, placer, pointed_thing)
     return itemstack
 end
 
-local function on_dig_tool(pos, node, digger, name, material)
-    if minetest.is_protected(pos, digger) then
+local function on_dig_tool(pos, node, digger, material)
+    local ndef = core.registered_nodes[node.name]
+    -- get _tool or node's name subtract where "_placed" would be (8 from length)
+    local tooldef = core.registered_items[ (ndef._tool or ndef.name:sub(1, -8)) ]
+    if not tooldef then return end -- no definition, return
+    local meta = minetest.get_meta(pos) -- we use meta for protection checking
+    if minetest.is_protected(pos, digger, meta) then
         return -- can't dig tools you don't own
     end
     minimal.protection_on_dig(pos,node,digger)
-    local meta = minetest.get_meta(pos)
-    local wear = meta:get_int("wear")
+    -- get data from 
+    local ndata = meta:to_table()
+    if not ndata then return end -- could not get data, return
     local player_inv = digger:get_inventory()
-    local stack = ItemStack(name)
-    stack:set_wear(wear)
-    if material then
-        local imeta = stack:get_meta()
-        imeta:set_string('inventory_image', "tech_tool_hammer_" ..
-                         material.. ".png")
-        imeta:set_string('material', material)
+    local stack = ItemStack(tooldef.name)
+    -- set wear from meta
+    local wear = tonumber(ndata.fields.wear)
+    if wear then
+        stack:set_wear(wear)
+        ndata.fields.wear = nil -- remove from fields
     end
+    -- check material and save node meta to item's meta
+    if tooldef.groups and (tooldef.groups.savemeta or tooldef.groups.craftedby) then
+        -- set inventory_image and material if material provided
+        if material then
+            ndata.fields.inventory_image = "tech_tool_hammer_"..material..".png"
+            ndata.fields.material = material
+        end
+        local imeta = stack:get_meta()
+        imeta:from_table(ndata)
+    end
+    -- add to player's inventory, otherwise if inventory is full and  player has stop_on_inv_full off, drop as item
     if player_inv:room_for_item("main", stack) then
         minetest.remove_node(pos)
         player_inv:add_item("main", stack)
@@ -267,13 +283,14 @@ minetest.register_node("tech:stone_knife_placed",
             type = "fixed",
             fixed = {-4/16, -8/16, -4/16, 4/16, -7/16, 4/16},
         },
+        _tool = "tech:stone_chopper", -- what tool to return we're dug
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
             --            open_knife(pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:stone_chopper")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -413,7 +430,7 @@ minetest.register_node("tech:digging_stick_placed",
             --            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:digging_stick")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -504,7 +521,7 @@ do
                 --            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 1)
             end,
             on_dig = function(pos, node, digger)
-                on_dig_tool(pos, node, digger, "tech:adze_" .. material .. "")
+                on_dig_tool(pos, node, digger)
             end,
         })
     end
@@ -693,7 +710,7 @@ do
                 --            open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
             end,
             on_dig = function(pos, node, digger)
-                on_dig_tool(pos, node, digger, "tech:hammer_" .. mat, mat)
+                on_dig_tool(pos, node, digger, mat)
             end,
         })
     end
@@ -853,7 +870,7 @@ minetest.register_node("tech:axe_iron_placed",
                                                        itemstack,pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:axe_iron")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -931,7 +948,7 @@ minetest.register_node("tech:shovel_iron_placed",
             --            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:shovel_iron")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -1037,7 +1054,7 @@ minetest.register_node("tech:pickaxe_iron_placed",
             -- possible future crafting?
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:pickaxe_iron")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -1111,7 +1128,7 @@ minetest.register_node("tech:hoe_iron_placed",
             --            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:hoe_iron")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
