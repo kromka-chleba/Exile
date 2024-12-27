@@ -33,15 +33,17 @@ local base_punch_int = minimal.hand_punch_int
 --Tool placing
 
 --Places a tool
-local function place_tool(itemstack, placer, pointed_thing, placed_name)
+local function place_tool(itemstack, placer, pointed_thing)
     -- check if the pointed item has on_rightclick ... (will run it automatically)
     local to_return = minimal.on_rightclick(itemstack, placer, pointed_thing)
     if to_return ~= false then
         -- if not false then return the result (rightclick ran successfully)
         return to_return
     end
-    placed_name = type(placed_name) == "string" and placed_name or itemstack:get_name().."_placed"
+    local idef = itemstack:get_definition()
+    local placed_name = idef._tool_placed or itemstack:get_name().."_placed" -- get placed name
     local place_item = ItemStack(placed_name)
+    if not core.registered_nodes[placed_name] then return end -- don't do anything if we can't actually place it
     local above = pointed_thing.above
     local abdef = minimal.get_nodedef(above) -- above def
     local ufdef = minimal.get_nodedef(minimal.pos_shift(above, {y=-1})) -- under_front def
@@ -56,7 +58,6 @@ local function place_tool(itemstack, placer, pointed_thing, placed_name)
         minetest.set_node(above, {name = "air"})
     end
     -- check if should save meta
-    local idef = itemstack:get_definition()
     local idata = {fields = {}}
     if idef.groups and (idef.groups.savemeta or idef.groups.craftedby) then
         local imeta = itemstack:get_meta()
@@ -226,6 +227,7 @@ minetest.register_tool("tech:stone_chopper",
             damage_groups = {fleshy= crude_dmg},
         },
         groups = {knife = 1, craftedby = 1},
+        _tool_placed = "tech:stone_knife_placed",
         _dig_tip = S("Cut plants faster than bare hands"),
         _use_tip = S("Flip to stone etcher"),
         -- _place_tip = ("Place tool for cutting crafts"), -- No such crafts yet
@@ -235,8 +237,7 @@ minetest.register_tool("tech:stone_chopper",
             return false
         end,
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:stone_knife_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -375,8 +376,7 @@ minetest.register_tool("tech:digging_stick",
         _on_use_item = till_soil,
         _place_tip = S("Place tool for plant crafts"),
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:digging_stick_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -562,8 +562,7 @@ do
             sound = {breaks = "tech_tool_breaks"},
             _dig_tip = adze_dig,
             on_place = function(itemstack, placer, pointed_thing)
-                return place_tool(itemstack, placer, pointed_thing,
-                "tech:adze" .. name .. "_placed")
+                return place_tool(itemstack, placer, pointed_thing)
             end,
         })
     end
@@ -646,7 +645,7 @@ do
             _place_tip = S("Stun animals\n"..
             " or Place on solid surface for hammering crafts"),
             on_place = function(itemstack, placer, pointed_thing)
-                return place_tool(itemstack, placer, pointed_thing, "tech:hammer" .. suffix .. "_placed")
+                return place_tool(itemstack, placer, pointed_thing)
             end,
             groups = {club = 1, craftedby = 1},
             sound = {breaks = "tech_tool_breaks"},
@@ -814,8 +813,7 @@ minetest.register_tool("tech:axe_iron",
         groups = {axe = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:axe_iron_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -896,8 +894,7 @@ minetest.register_tool("tech:shovel_iron",
         _use_tip = S("Till soil"),
         _place_tip = S("Place for plant crafts"),
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:shovel_iron_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -1010,8 +1007,7 @@ minetest.register_tool("tech:pickaxe_iron",
         groups = {pickaxe = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:pickaxe_iron_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -1079,8 +1075,7 @@ minetest.register_tool("tech:hoe_iron",
         _on_use_item = till_soil,
         _place_tip = S("Place tool for plant crafts"),
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer,
-                              pointed_thing, "tech:hoe_iron_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
