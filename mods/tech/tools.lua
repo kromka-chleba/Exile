@@ -34,46 +34,47 @@ local base_punch_int = minimal.hand_punch_int
 
 --Places a tool
 local function place_tool(itemstack, placer, pointed_thing, placed_name)
-    local place_item = ItemStack(placed_name)
-    local above = minetest.get_node(pointed_thing.above)
     -- check if the pointed item has on_rightclick ... (will run it automatically)
     local to_return = minimal.on_rightclick(itemstack, placer, pointed_thing)
     if to_return ~= false then
         -- if not false then return the result (rightclick ran successfully)
         return to_return
     end
-    local under_front_pos = {x = pointed_thing.above.x,
-                             y = pointed_thing.above.y - 1,
-                             z = pointed_thing.above.z}
-    local under_front = minetest.get_node(under_front_pos)
-    local def_above = minetest.registered_nodes[above.name]
-    local def_under = minetest.registered_nodes[under_front.name]
+    placed_name = type(placed_name) == "string" and placed_name or itemstack:get_name().."_placed"
+    local place_item = ItemStack(placed_name)
+    local above = pointed_thing.above
+    local abdef = minimal.get_nodedef(above) -- above def
+    local ufdef = minimal.get_nodedef(minimal.pos_shift(above, {y=-1})) -- under_front def
+    if not (abdef and ufdef) then return end -- not a defined node
     -- check if not walkable - there's empty space over the node
-    --  (air, water, etc.)
-    if ( def_above and ( not def_above.walkable ) and def_above.buildable_to )
-    -- check if walkable below to avoid throwing tools into abyss
-        and (def_under and def_under.walkable ) then
-        if (minimal.is_group(above.name,"woody_plant")
-            and minimal.is_group(above.name,"cane_plant")) then
-            -- replace bamboo with air so that the tool places appropriately
-            minetest.swap_node(pointed_thing.above,
-                               {name = "air"})
-        end
-        local wear = itemstack:get_wear()
-        -- place if not
-        itemstack:take_item(1)
-        local ppos = pointed_thing.above
-        minetest.item_place_node(place_item, placer, pointed_thing)
-        local meta = minetest.get_meta(pointed_thing.above)
-        meta:set_int("wear", wear)
-        local pname = "non-player"
-        if minetest.is_player(placer) then
-            pname = placer:get_player_name()
-        end
-        minetest.log("action", pname.." placed "..placed_name.." at "..
-                     ppos.x.."/"..ppos.y.."/"..ppos.z)
-        return itemstack
+    --  (air, water, etc.) if not, return
+    if abdef.walkable or not abdef.buildable_to then return end
+    -- check if walkable below to avoid throwing tools into abyss, return if not
+    if not ufdef.walkable then return end
+    -- check if a cane_plant or woody_plant and remove the node so that tool places properly
+    if abdef.groups and (abdef.groups.woody_plant or abdef.groups.cane_plant) then
+        minetest.set_node(above, {name = "air"})
     end
+    -- check if should save meta
+    local idef = itemstack:get_definition()
+    local idata = {fields = {}}
+    if idef.groups and (idef.groups.savemeta or idef.groups.craftedby) then
+        local imeta = itemstack:get_meta()
+        idata = imeta:to_table() or idata -- convert meta into table, otherwise go to premade table on failure
+    end
+    -- adds wear to meta
+    idata.fields.wear = itemstack:get_wear()
+    -- take and place tool
+    itemstack:take_item(1)
+    local ppos = pointed_thing.above
+    minetest.item_place_node(place_item, placer, pointed_thing)
+    -- save to node meta
+    local meta = minetest.get_meta(pointed_thing.above)
+    meta:from_table(idata)
+    -- name for debugging
+    local pname = minetest.is_player(placer) and placer:get_player_name() or "non-player"
+    minetest.log("action", pname.." placed "..placed_name.." at "..
+                 ppos.x.."/"..ppos.y.."/"..ppos.z)
     return itemstack
 end
 
