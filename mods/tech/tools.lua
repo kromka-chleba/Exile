@@ -65,6 +65,7 @@ local function place_tool(itemstack, placer, pointed_thing)
     end
     -- adds wear to meta
     idata.fields.wear = itemstack:get_wear()
+    idata.fields.wear = idata.fields.wear ~= 0 and idata.fields.wear or nil -- remove if no wear at all
     -- take and place tool
     itemstack:take_item(1)
     local ppos = pointed_thing.above
@@ -79,7 +80,7 @@ local function place_tool(itemstack, placer, pointed_thing)
     return itemstack
 end
 
-local function on_dig_tool(pos, node, digger, material)
+local function on_dig_tool(pos, node, digger)
     local ndef = core.registered_nodes[node.name]
     -- get _tool or node's name subtract where "_placed" would be (8 from length)
     local tooldef = core.registered_items[ (ndef._tool or ndef.name:sub(1, -8)) ]
@@ -100,13 +101,8 @@ local function on_dig_tool(pos, node, digger, material)
         stack:set_wear(wear)
         ndata.fields.wear = nil -- remove from fields
     end
-    -- check material and save node meta to item's meta
+    -- save node meta to item's meta if applicable (savemeta or craftedby in groups)
     if tooldef.groups and (tooldef.groups.savemeta or tooldef.groups.craftedby) then
-        -- set inventory_image and material if material provided
-        if material then
-            ndata.fields.inventory_image = "tech_tool_hammer_"..material..".png"
-            ndata.fields.material = material
-        end
         local imeta = stack:get_meta()
         imeta:from_table(ndata)
     end
@@ -668,7 +664,7 @@ local function register_hammer(suffix, desc)
             pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, suffix)
+            on_dig_tool(pos, node, digger)
         end,
     })
     -- register recipe
