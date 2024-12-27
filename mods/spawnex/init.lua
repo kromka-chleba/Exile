@@ -500,7 +500,7 @@ function region.spawn(player)
             return
         end
         -- Not loaded, try again
-        minetest.after(0.1, checkplayer, player, true)
+        minetest.after(0.1, checkplayer, pos)
         return
     end
 
