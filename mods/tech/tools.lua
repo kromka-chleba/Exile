@@ -629,118 +629,93 @@ end
 --IB-20240226 })
 
 -- Hammers -------------------------------------------------
-
-do
-    local hammer_list = {
-        [""]="", -- default Hammer
-        -- Legacy hammers needed only for old maps.
-        ["_basalt"]=S("Basalt"), -- Basalt hammer
-        ["_granite"]=S("Granite") -- granite hammer
-    }
-
-    -- Register different hammers as tool
-    for suffix,desc in pairs(hammer_list) do
-        if suffix == "" then suffix = "_basalt" end --using basalt image for inventory as default
-
-        minetest.register_tool(
-        "tech:hammer" .. suffix, {
-            description = S("@1 Hammer", desc),
-            inventory_image = "tech_tool_hammer" .. suffix .. ".png",
-            tool_capabilities = {
-                full_punch_interval = base_punch_int * 1.2,
-                groupcaps={
-                    choppy = {times={[3]=crude_chop3},
-                    uses=base_use*0.5, maxlevel=crude_max_lvl},
-                    snappy = {times={[3]=crude_snap3},
-                    uses=base_use*0.5, maxlevel=crude_max_lvl},
-                    crumbly = {times= {[3]=crude_crum3},
-                    uses=base_use*0.5, maxlevel=crude_max_lvl}
-                },
-                damage_groups = {fleshy=stone_dmg + 1},
-                -- +1 was added in new default hammer, legacy one had only stone_dmg
+-- suffix/material, description
+-- registers tool, placed, and recipe
+local function register_hammer(suffix, desc)
+    -- register tool
+    local tool = "tech:hammer_"..suffix -- used in tool registration, placed, and recipe
+    minetest.register_tool(
+    tool, {
+        description = S("@1 Hammer", desc),
+        inventory_image = "tech_tool_hammer_" .. suffix .. ".png",
+        tool_capabilities = {
+            full_punch_interval = base_punch_int * 1.2,
+            groupcaps={
+                choppy = {times={[3]=crude_chop3},
+                uses=base_use*0.5, maxlevel=crude_max_lvl},
+                snappy = {times={[3]=crude_snap3},
+                uses=base_use*0.5, maxlevel=crude_max_lvl},
+                crumbly = {times= {[3]=crude_crum3},
+                uses=base_use*0.5, maxlevel=crude_max_lvl}
             },
-            _place_tip = S("Stun animals\n"..
-            " or Place on solid surface for hammering crafts"),
-            on_place = function(itemstack, placer, pointed_thing)
-                return place_tool(itemstack, placer, pointed_thing)
-            end,
-            groups = {club = 1, craftedby = 1},
-            sound = {breaks = "tech_tool_breaks"},
-        })
-    end
-
-    -- Register different placed hammers as nodes and crafting.tools
-    for mat , caps in pairs({["basalt"]=S("Basalt"), ["granite"]=S("Granite")}) do
-        minetest.register_node(
-        "tech:hammer_" .. mat .. "_placed", {
-            description = S("Placed @1 Hammer", caps),
-            inventory_image = "tech_tool_hammer_" .. mat .. ".png",
-            exile_crafting = {
-                craft_types = {"hammer", "hammer_mixing"},
-                craft_level = 1,
-                material = mat,
-                good_on = {
-                    {"stone", 1}, {"masonry", 1},
-                    {"boulder", 1}, {"soft_stone", 1},
-                    {"tree", 1}, {"log", 1}
-                },
+            damage_groups = {fleshy=stone_dmg + 1},
+            -- +1 was added in new default hammer, legacy one had only stone_dmg
+        },
+        _place_tip = S("Stun animals\n"..
+        " or Place on solid surface for hammering crafts"),
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing)
+        end,
+        groups = {club = 1, craftedby = 1},
+        sound = {breaks = "tech_tool_breaks"},
+    })
+    -- register placed
+    minetest.register_node(
+        tool.."_placed", {
+            description = S("Placed @1 Hammer", desc),
+        inventory_image = "tech_tool_hammer_" .. suffix .. ".png",
+        exile_crafting = {
+            craft_types = {"hammer", "hammer_mixing"},
+            craft_level = 1,
+            material = suffix,
+            good_on = {
+                {"stone", 1}, {"masonry", 1},
+                {"boulder", 1}, {"soft_stone", 1},
+                {"tree", 1}, {"log", 1}
             },
-            drawtype = "mesh",
-            mesh = "hammer_placed.obj",
-            tiles = {name = "tech_hammer_" .. mat .. "_placed.png"},
-            paramtype = "light",
-            paramtype2 = "facedir",
-            sounds = nodes_nature.node_sound_stone_defaults(),
-            groups = {dig_immediate = 3, temp_pass = 1,
-            falling_node = 1, not_in_creative_inventory = 1},
-            use_texture_alpha = c_alpha.clip,
-            node_box = {
-                type = "fixed",
-                fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
-            },
-            selection_box = {
-                type = "fixed",
-                fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
-            },
-            on_rightclick = function(pos, node, clicker,
-                itemstack, pointed_thing)
-                return crafting.crafting_item_on_rightclick(pos,node,
-                clicker,itemstack,
-                pointed_thing)
-                --            open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
-            end,
-            on_dig = function(pos, node, digger)
-                on_dig_tool(pos, node, digger, mat)
-            end,
-        })
-    end
-
-    -- Defines recipes for different hammers
-    for _,mat in ipairs ({"basalt","granite"}) do
-        crafting.register_recipe({
-                type = { "hand_tools", "grinding_stone" },
-            output = "tech:hammer_"..mat,
-            items = {"group:" .. mat .."_cobble", 'tech:stick',
-            'group:fibrous_plant 4', 'nodes_nature:sand'},
-            level = 1,
-            always_known = true,
-            replace = 'nodes_nature:sand'
-        })
-    end
-
-    ---- unique version all in one :
-    -- crafting.register_recipe({
-    --      type = "hand_tools",
-    --      output = "tech:hammer",
-    --      items = {{"group:basalt_cobble","group:granite_cobble"},
-    --          'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-    --      material = 1, -- first item sets material.
-    --     material_output = "tech:hammer_%material%",
-    --      level = 1,
-    --      always_known = true,
-    --   replace = 'nodes_nature:sand'
-    -- })
+        },
+        drawtype = "mesh",
+        mesh = "hammer_placed.obj",
+        tiles = {name = "tech_hammer_" .. suffix .. "_placed.png"},
+        paramtype = "light",
+        paramtype2 = "facedir",
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        groups = {dig_immediate = 3, temp_pass = 1,
+        falling_node = 1, not_in_creative_inventory = 1},
+        use_texture_alpha = c_alpha.clip,
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+        selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        on_rightclick = function(pos, node, clicker,
+            itemstack, pointed_thing)
+            return crafting.crafting_item_on_rightclick(pos,node,
+            clicker,itemstack,
+            pointed_thing)
+        end,
+        on_dig = function(pos, node, digger)
+            on_dig_tool(pos, node, digger, suffix)
+        end,
+    })
+    -- register recipe
+    crafting.register_recipe({
+        type = { "hand_tools", "grinding_stone" },
+        output = tool,
+        items = {"group:" .. suffix .."_cobble", 'tech:stick',
+        'group:fibrous_plant 4', 'nodes_nature:sand'},
+        level = 1,
+        always_known = true,
+        replace = 'nodes_nature:sand'
+    })
 end
+-- basalt and granite hammer
+register_hammer("basalt", S("Basalt"))
+register_hammer("granite", S("Granite"))
+
 
 --Stone club -----------------------------------------------
 -- A weapon. Not very good for anything else
