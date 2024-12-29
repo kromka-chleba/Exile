@@ -607,4 +607,8 @@ do -- local scope to prevent global access
             wield_image = "nodes_nature_rhuya_dead.png",
             tiles = {"nodes_nature_rhuya_dead.png"}
     })
+
+    -- groups not protected by metatable (even on 5.10!), we can lazily and directly override
+    local rhuya_fruit_groups = minetest.registered_items["nodes_nature:rhuya_fruit"].groups
+    rhuya_fruit_groups.no_soup = 1
 end

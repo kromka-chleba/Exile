@@ -63,31 +63,50 @@ Light Fabric Trousers=Pantalon de Tela Ligera
 Thick Fabric Trousers=Pantalon de Tela Gruesa
 Light Fabric Tunic=Tunica de Tela Ligera
 Thick Fabric Tunic=Tunica de Tela Gruesa
-# cooking-pot.lua
-Soup=Sopa
-Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=
-Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=
-@1 soup=Sopa de @1
-Cooking Pot=Olla Ceramica
-This pot is full and heavy. Spill it?=
+# cooking_pot.lua
 Cooking Pot (unfired)=Olla Ceramica sin Curar
-Eat="Comer"
-Crafting=
-Pottery=
+Bowl (unfired)=
+Cooking Pot=Olla Ceramica
+Empty Bowl=
+Bowl of @1 Stew=
+Bowl of @1 Soup=
+#; contents
+Water=
+Contents: @1=
+Contents: <EMPTY>=
+Leftover: @1%=
+#; status
+Soup=Sopa
+Stew=
+Soup Pot=
+Unprepared Pot=
+Status: @1 pot=
+Status: @1 pot (cooking)=
+Status: @1 pot (finished)=
+#; note + questions
+This pot is full and heavy. Spill it?=
+Note: Add water to pot to make soup=
+Note: Add food to the pot to make soup=
+Note: Use a Bowl to Get!=
+# misc use tips
+Eat=Comer
+Drink=
 Create="Crear"
-Mixing=
 # craft-stations.lua
 Crafting Spot=Lugar para Fabricar
 # Craft station
 Weaving=
+Mixing=
 Grinding stone=Piedra de Amolar
 Mortar and pestle=
+Crafting=
 Carpentry Bench=Banco de Carpintería
 Bricks=
 Blocks=
 Spinning Wheel=Rueca Hiladora
 Loom=Telar
 Glass furnace=Horno para Vidrio
+Pottery=
 Tools=
 Stations=
 Agriculture="Agricultura"
@@ -131,7 +150,6 @@ Tang Vinegar with Mother=
 Mother of Tang=
 Infect Other Pots=
 Tang=Sidra de Tangkal
-Drink=
 Tang (unfermented)=Sidra de Tangkal sin Fermentar
 # hearthen_building.lua
 Drystack=Grava Apilada

@@ -128,6 +128,20 @@ function HEALTH.eatdrink_playermade(itemstack, user, pointed_thing)
                                   itemstack:get_name())
         return
     end
+    -- check for any extra stuff we should add to this playermade
+    -- used for soups/stews to get proper returned empty + sound
+    local extra_stats = HEALTH.get_food_stats(itemstack)
+    if extra_stats then
+        for ind,val in pairs(extra_stats) do
+            if type(val) == "number" then
+                -- add any custom stuff
+                t[ind] = val + (t[ind] or 0)
+            -- otherwise overwrite
+            else
+                t[ind] = val
+            end
+        end
+    end
     return HEALTH.use_item(itemstack, user, t)
 end
 
@@ -136,9 +150,14 @@ function HEALTH.get_food_stats(name,prefercooked)
     if type(name) == "userdata" and type(name["get_name"]) == "function" then
         name = name:get_name()
     end
-    local ft = type(name) == "table" and name or -- food_table
-        (prefercooked and type(name) == "string" and food_table[name.."_cooked"])
-        or food_table[name]
+    -- predetermined food table or name found in food_table
+    local ft = type(name) == "table" and name or food_table[name] or name
+    -- if preferred cooked and can be baked...
+    if prefercooked and HEALTH.bake_table[name] then
+        -- get cooked value or return
+        ft = HEALTH.bake_table[name].cooked or name.."_cooked"
+        ft = food_table[ft]
+    end
     if type(ft) ~= "table" then
         return
     end

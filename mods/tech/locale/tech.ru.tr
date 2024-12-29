@@ -66,25 +66,34 @@ Light Fabric Trousers=Брюки из легкой ткани
 Thick Fabric Trousers=Брюки из плотной ткани
 Light Fabric Tunic=Туника из легкой ткани
 Thick Fabric Tunic=Туника из плотной ткани
-# cooking-pot.lua
-Soup=Суп
-Water, =Вода, 
+# cooking_pot.lua
+Cooking Pot (unfired)=Горшок для приготовления пищи (необожженный)
+Bowl (unfired)=
+Cooking Pot=Горшок для приготовления пищи
+Empty Bowl=
+Bowl of @1 Stew=
+Bowl of @1 Soup=
+#; contents
+Water=Вода
 Contents: @1=Содержимое: @1
-@1 soup=Суп из @1
-Contents: @1 soup=Содержимое: @1 суп
-Status: @1 pot (finished)=Статус: Готов - @1
+Contents: <EMPTY>=Содержимое: <ПУСТО>
+Leftover: @1%=
+#; status
+Soup=Суп
+Stew=
+Unprepared Pot=Неподготовленный горшок
+Soup Pot=Горшок для супа
 Status: @1 pot=Статус: Содержит - @1
 Status: @1 pot (cooking)=Статус: Готовится - @1
-Cooking Pot=Горшок для приготовления пищи
+Status: @1 pot (finished)=Статус: Готов - @1
+#; note + questions
 This pot is full and heavy. Spill it?=Этот горшок полный и тяжелый. Вылить его?
-Unprepared Pot=Неподготовленный горшок
-Contents: <EMPTY>=Содержимое: <ПУСТО>
 Note: Add water to pot to make soup=Примечание: Добавьте воды в горшок, чтобы приготовить суп
-Soup Pot=Горшок для супа
-Contents: Water=Содержимое: Вода
 Note: Add food to the pot to make soup=Примечание: Добавьте продукты в горшок, чтобы приготовить суп
-Cooking Pot (unfired)=Горшок для приготовления пищи (необожженный)
+Note: Use a Bowl to Get!=
+# misc use tips
 Eat=Есть
+Drink=Выпить
 # craft-stations.lua
 Crafting Spot=Место создания
 # Craft station
@@ -141,7 +150,6 @@ Tang Vinegar with Mother=Танговый уксус с маткой
 Mother of Tang=Матка Танга
 Infect Other Pots=Заразить другие горшки
 Tang=Танг
-Drink=Выпить
 Tang (unfermented)=Танг (неферментированный)
 # hearthen_building.lua
 Drystack=Сухой штабель

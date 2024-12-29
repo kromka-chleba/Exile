@@ -26,6 +26,7 @@ Roof Tile=
 Roof Tile (outer corner)=
 Roof Tile (inner corner)=
 Tile Block (unfired)=
+Tile Block (Loose)=
 Tile Block=
 Tile Stair=
 Tile Slab=
@@ -39,14 +40,16 @@ Claystone=
 Siltstone=
 Sandstone=
 Conglomerate=
+Coquina=
 # bricks_and_mortar.lua
 Limestone=
 Ironstone=
+Scoria=
+Gneiss=
+Combine with another slab=
 Granite=
 Basalt=
-Gneiss=
 Jade=
-Combine with another slab=
 # clothing.lua
 Woven Hat=
 Sun Hat=
@@ -63,53 +66,69 @@ Light Fabric Trousers=
 Thick Fabric Trousers=
 Light Fabric Tunic=
 Thick Fabric Tunic=
-# cooking-pot.lua
-Soup=
-Status: Unprepared pot@nContents: <EMPTY>@nNote: Add water to pot to make soup=
-Status: Soup Pot@nContents: Water@nNote: Add food to the pot to make soup=
-@1 soup=
-Cooking Pot=
-This pot is full and heavy. Spill it?=
+# cooking_pot.lua
 Cooking Pot (unfired)=
+Bowl (unfired)=
+Cooking Pot=
+Empty Bowl=
+Bowl of @1 Stew=
+Bowl of @1 Soup=
+#; contents
+Water=
+Contents: @1=
+Contents: <EMPTY>=
+Leftover: @1%=
+#; status
+Soup=
+Stew=
+Unprepared Pot=
+Soup Pot=
+Status: @1 pot=
+Status: @1 pot (cooking)=
+Status: @1 pot (finished)=
+#; note + questions
+This pot is full and heavy. Spill it?=
+Note: Add water to pot to make soup=
+Note: Add food to the pot to make soup=
+Note: Use a Bowl to Get!=
+# misc use tips
 Eat=
-Crafting=
-Pottery=
-Create=
-Mixing=
+Drink=
 # craft-stations.lua
 Crafting Spot=
 # Craft station
 Weaving=
+Mixing=
 Grinding stone=
 Mortar and pestle=
+Crafting=
 Carpentry Bench=
 Bricks=
 Blocks=
 Spinning Wheel=
 Loom=
 Glass furnace=
+Pottery=
 Tools=
 Stations=
 Agriculture=
 Pickaxe=
 Breadmaking=
-Cannot place here! Needs a whole block of:=
+Cannot place here! Needs a whole block of: =
 Mixing Spot=
 Threshing Spot=
 Weaving Spot=
 Grinding Spot=
 Hammering Spot=
-Chopping Block=
-Basalt Mortar and Pestle=
-Granite Mortar and Pestle=
-Limestone Mortar and Pestle=
+Wooden Mortar and Pestle=
+Brick Maker's Bench=
 Anvil=
 Masonry Bench=
-Brick Maker's Bench=
 Weaving Frame=
 Granite Grinding Stone=
 Limestone Grinding Stone=
 Basalt Grinding Stone=
+Chopping Block=
 Hammering Block=
 Wattle=
 # doors.lua
@@ -131,7 +150,6 @@ Tang Vinegar with Mother=
 Mother of Tang=
 Infect Other Pots=
 Tang=
-Drink=
 Tang (unfermented)=
 # hearthen_building.lua
 Drystack=
@@ -144,6 +162,8 @@ Rammed Earth=
 Rammed Earth Stair=
 Rammed Earth Slab=
 Wicker well lining=
+Wet wicker well lining=
+Salty wet wicker well lining=
 Reinforce a well wall=
 Loose Wattle=
 Wattle Door Frame=
@@ -177,6 +197,41 @@ Small Wood Fire (extinguished)=
 Large Wood Fire (extinguished)=
 Small Charcoal Fire (extinguished)=
 Large Charcoal Fire (extinguished)=
+# food_crafts.lua
+Sea Salt=
+Bitter Maraka Flour=
+Maraka Flour=
+Unbaked Maraka Cake=
+Maraka Cake=
+Maraka Cake Burned=
+Peeled Anperla Tuber=
+Burned Anperla Tuber=
+Cooked Anperla Tuber=
+Mashed Anperla (uncooked)=
+Mashed Anperla=
+Burned Anperla=
+Raw Rhuya Flour=
+Rhuya Flour=
+Raw Hardy Rhuya Flour=
+Hardy Rhuya Flour=
+Burnt Rhuya Flour=
+Fermenting @1=
+Maraka Dough=
+Rhuya Dough=
+Hardy Rhuya Dough=
+Fermented @1=
+Ikippe Yeast=
+Black Bread=
+Crumbly Bread=
+Unleavened Bread=
+Fluffy Unleavened Bread=
+Burned Bread=
+# animal food_crafts
+Cracked Egg=
+Fried Egg=
+# food_crafts tips/messages
+Infect Dough=
+Yeast added to the @1=
 # glassworking.lua
 Green Glass Sand Mix=
 Green Glass Ingot=
@@ -222,11 +277,11 @@ Iron Key=
 Grant key owner access.=
 # Lantern
 Lantern Case=
-Status: needs a clear glass pane and a wick (coarse fibre)!=
+Status: needs a @1 and a wick (@2)!=
 Lantern Case with a wick=
-Status: needs a clear glass pane!=
+Status: needs a @1!=
 Lantern Case with Glass=
-Status: needs a wick (coarse fibre)!=
+Status: needs a wick (@1)!=
 Unlit Lantern=
 Lit Lantern=
 # lever.lua
@@ -239,47 +294,12 @@ Pick up a node's facing=
 Flip to lever=
 Apply facing to another node=
 Empty=
-fuel left=
-Status:=
+@1% fuel left=
+Status: @1=
 # plant_crafts.lua
 Stick=
 Grass Fibre=
 Vegetable Oil=
-# food_crafts.lua
-Sea Salt=
-Bitter Maraka Flour=
-Maraka Flour=
-Unbaked Maraka Cake=
-Maraka Cake=
-Maraka Cake Burned=
-Peeled Anperla Tuber=
-Burned Anperla Tuber=
-Cooked Anperla Tuber=
-Mashed Anperla (uncooked)=
-Mashed Anperla=
-Burned Anperla=
-Raw Rhuya Flour=
-Raw Hardy Rhuya Flour=
-Rhuya Flour=
-Hardy Rhuya Flour=
-Burnt Rhuya Flour=
-Maraka Dough=
-Rhuya Dough=
-Hardy Rhuya Dough=
-@1 Fermenting=
-@1 Fermented=
-Black Bread=
-Crumbly Bread=
-Unleavened Bread=
-Fluffy Unleavened Bread=
-Burned Bread=
-Ikippe Yeast=
-# animal food_crafts
-Cracked Egg=
-Fried Egg=
-# food_crafts tips/messages
-Infect Dough=
-Yeast added to the @1=
 # Pottery
 Broken Pottery Slab=
 # pottery.lua
@@ -304,7 +324,6 @@ Iron Chest=
 Stone Knife=
 Cut plants faster than bare hands=
 Flip to stone etcher=
-Place tool for cutting crafts=
 Placed Stone Knife=
 Digging Stick=
 Dig hard earth=
@@ -312,13 +331,11 @@ Till soil slowly=
 Place tool for plant crafts=
 Placed Digging Stick=
 Cut softwood logs=
-Adze=
-Placed Granite Adze=
-Placed Basalt Adze=
-Placed Jade Adze=
-Basalt Adze=
-Jade Adze=
-Granite Adze=
+Placed @1 adze=
+@1 Adze=
+@1 Hammer=
+Stun animals@n or Place on solid surface for hammering crafts=
+Placed @1 Hammer=
 Stone Club=
 Strike=
 Stun animals=
@@ -337,12 +354,6 @@ Placed Iron Pickaxe=
 Iron Hoe=
 Till soil quickly=
 Placed Iron Hoe=
-Hammer=
-Stun animals@n or Place on solid surface for hammering crafts=
-Placed Granite Hammer=
-Placed Basalt Hammer=
-Basalt Hammer=
-Granite Hammer=
 # torch.lua
 Torch=
 Clay Water Pot=
@@ -368,11 +379,3 @@ Clear Glass Bottle With Fresh Water=
 Wooden Ladder=
 Wooden Floor Boards=
 Wooden Stairs=
-
-
-##### not used anymore #####
-
-# nodecrafting
-Dump=
-# dye
-red dye=
