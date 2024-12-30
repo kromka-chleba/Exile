@@ -517,28 +517,29 @@ local function seed_elapsed(meta)
     return 0
 end
 
-local function add_to_param2(pos, nr)
-    local nodedef = minimal.get_nodedef(pos)
-    local name = nodedef.name
+-- optional pdef argument
+local function add_to_param2(pos, nr, pdef)
+    pdef = pdef or minimal.get_nodedef(pos)
     -- is a seed, doesn't have place_param2
-    if not nodedef.place_param2 and nodedef._next_life_stage then
-        local seedling_name = nodedef._next_life_stage
-        nodedef = minetest.registered_nodes[seedling_name]
+    if not pdef.place_param2 and pdef._next_life_stage then
+        -- idk why we're turning into a seedling but ok
+        -- in case not a node, default to what we were before
+        pdef = core.registered_nodes[pdef._next_life_stage] or pdef
     end
-    local new_param2 = (nodedef.place_param2 or 0) + nr
-    minetest.swap_node(pos, {name = name, param2 = new_param2})
+    local new_param2 = (pdef.place_param2 or 0) + nr
+    minetest.swap_node(pos, {name = pdef.name, param2 = new_param2})
 end
 
-function nn.plant.set_to_wild(pos)
-    add_to_param2(pos, 0)
+function nn.plant.set_to_wild(pos, pdef)
+    add_to_param2(pos, 0, pdef)
 end
 
-function nn.plant.set_to_domesticated(pos)
-    add_to_param2(pos, 64)
+function nn.plant.set_to_domesticated(pos, pdef)
+    add_to_param2(pos, 64, pdef)
 end
 
-function nn.plant.set_to_half_wild(pos)
-    add_to_param2(pos, 128)
+function nn.plant.set_to_half_wild(pos, pdef)
+    add_to_param2(pos, 128, pdef)
 end
 
 ------------------ Global functions of the API ------------------
@@ -611,12 +612,12 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     if param2 >= 128 then
         -- kill semi-wild in winter, set to wild
         if is_winter() then
-            nn.plant.set_to_wild(pos)
+            nn.plant.set_to_wild(pos, pdef)
             nn.plant.kill(pos, true, pdef, meta)
             return
         -- set to wild if we're currently the same name as our type in the specific season
         elseif pdef["_"..seasons.get_season_name()] == pdef.name then
-            nn.plant.set_to_wild(pos)
+            nn.plant.set_to_wild(pos, pdef)
             clear_meta(meta) -- clear meta
             return
         end
