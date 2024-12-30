@@ -332,8 +332,9 @@ local function deplete_soil(pos)
 end
 
 -- clears plant-unique meta (growth, health, and elapsed) while leaving any other fields
-local function clear_meta(meta)
-    local data = meta:to_table()
+-- permit data argument for if to_table was already called
+local function clear_meta(meta, data)
+    data = data or meta:to_table()
     if not data then return end -- failed to get data
     if not data.fields then return end -- failed to get fields
     data.fields.growth = nil
@@ -343,7 +344,8 @@ local function clear_meta(meta)
 end
 
 function nn.plant.kill(pos, natural_death, pdef, meta)
-    pdef = pdef or minimal.get_nodedef(pos)
+    local pnode = minetest.get_node(pos)
+    pdef = pdef or core.registered_nodes[pnode.name]
     meta = meta or minetest.get_meta(pos)
     local groups = pdef and pdef.groups or {}
     -- wasn't a plant, return!
@@ -363,14 +365,15 @@ function nn.plant.kill(pos, natural_death, pdef, meta)
     -- set flowering plant to its dead fruitless
     -- set fruiting plant to its dead fruitless if such exists
     -- otherwise set as air
-    local dead_name = natural_death and (seedling and pdef._seed_name or
+    pnode.name = natural_death and (seedling and pdef._seed_name or
         flowering_plant and pdef._dead_fruitless_name or
         pdef._dead_name or "air") or
         -- INDUCED (from player)
         seedling and pdef.name or flowering_plant and pdef._dead_fruitless_name or
         pdef._dead_name or "air"
-    minimal.force_place_keep_param2(pos, dead_name)
-    clear_meta(meta) -- clear out meta upon death
+    -- reuse same node stats that we got, save meta
+    minimal.switch_node(pos, pnode)
+    clear_meta(meta) -- clear out plant-specific meta upon death
 end
 
 -- does not account for current lighting (night time) only light at day
@@ -409,25 +412,28 @@ end
 local is_winter = seasons.is_winter
 
 local function step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
-    pdef = pdef or minimal.get_nodedef(pos)
+    local pnode = minetest.get_node(pos) -- plant node
+    pdef = pdef or core.registered_nodes[pnode.name]
     meta = meta or minetest.get_meta(pos)
+    local data = meta:to_table()
+    if not (data and data.fields) then return end -- could not get data properly this time around
     while growing_left < 0 do
         if pdef._next_life_stage then
-            minimal.force_place_keep_param2(pos, pdef._next_life_stage)
             pdef = pdef._next_life_stage and minetest.registered_nodes[pdef._next_life_stage] or pdef
+            pnode.name = pdef.name -- update node name here
+            minimal.switch_node(pos, pnode) -- save meta (incase custom meta is set)
         end
         -- #TODO: fix non-fruiting/flowering plants having no nodetimer
         -- erases metadata of plants without node timer functionality
         if not pdef.on_timer then
-            clear_meta(meta)
+            clear_meta(meta, data)
             return
         end
         growing_left = growing_left + growing_time
     end
-    -- meta gets refreshed by force_place_keep_param2, won't set growth if fruiting
-    if not (pdef.groups and pdef.groups.fruiting_plant) then
-        meta:set_int("growth", growing_left)
-    end
+    -- if not fruiting, set growing_left otherwise do NOT set growing
+    data.fields.growth = not pdef.groups and pdef.groups.fruiting_plant and growing_left or nil
+    meta:from_table(data) -- save data
     -- after we're done with growth we can check for season
     kill_climate_history(pos, elapsed)
 end
