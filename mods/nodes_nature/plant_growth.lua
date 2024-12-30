@@ -331,6 +331,17 @@ local function deplete_soil(pos)
     end
 end
 
+-- clears plant-unique meta (growth, health, and elapsed) while leaving any other fields
+local function clear_meta(meta)
+    local data = meta:to_table()
+    if not data then return end -- failed to get data
+    if not data.fields then return end -- failed to get fields
+    data.fields.growth = nil
+    data.fields.health = nil
+    data.fields.elapsed = nil
+    meta:from_table(data) -- set with modified fields
+end
+
 function nn.plant.kill(pos, natural_death, pdef, meta)
     pdef = pdef or minimal.get_nodedef(pos)
     meta = meta or minetest.get_meta(pos)
@@ -359,7 +370,7 @@ function nn.plant.kill(pos, natural_death, pdef, meta)
         seedling and pdef.name or flowering_plant and pdef._dead_fruitless_name or
         pdef._dead_name or "air"
     minimal.force_place_keep_param2(pos, dead_name)
-    meta:from_table() -- clear out meta upon death
+    clear_meta(meta) -- clear out meta upon death
 end
 
 -- does not account for current lighting (night time) only light at day
@@ -408,7 +419,7 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
         -- #TODO: fix non-fruiting/flowering plants having no nodetimer
         -- erases metadata of plants without node timer functionality
         if not pdef.on_timer then
-            meta:from_table()
+            clear_meta(meta)
             return
         end
         growing_left = growing_left + growing_time
@@ -599,7 +610,7 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         -- set to wild if we're currently the same name as our type in the specific season
         elseif pdef["_"..seasons.get_season_name()] == pdef.name then
             nn.plant.set_to_wild(pos)
-            meta:from_table() -- clear meta
+            clear_meta(meta) -- clear meta
             return
         end
     end
