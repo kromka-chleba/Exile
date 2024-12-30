@@ -279,48 +279,48 @@ local function are_conditions_good(pos, pdef, temp)
     return true
 end
 
-local function get_root_number(pos)
-    local pos_under = minimal.get_pos_under(pos)
-    local meta = minetest.get_meta(pos_under)
-    local nr = meta:get_float("root_nr")
-    return nr
+-- expected to be pos underneath plant
+local function get_root_number(pos, meta)
+    meta = meta or minetest.get_meta(pos)
+    return meta:get_float("root_nr")
 end
 
-local function set_roots(pos, nr, root_name)
-    local pos_under = minimal.get_pos_under(pos)
-    local nodedef_under = minimal.get_nodedef(pos_under)
-    if not nodedef_under.groups.sediment or
-        nodedef_under.groups.wet_sediment == 2 then
-        return
-    elseif not nodedef_under.groups.roots then
-        if nodedef_under.groups.natural_slope then
-            minetest.set_node(pos_under, {name = nodedef_under.drop.."_roots"})
+-- pos and meta should be the soil pos and meta
+local function set_roots(pos, meta, pdef, nr)
+    local sdef = minimal.get_nodedef(pos) -- soil def
+    if not sdef.groups then return end -- can't even check groups!
+    -- salty wet sediment or not a sediment at all
+    if sdef.groups.wet_sediment == 2 or not sdef.groups.sediment then return end
+    -- not a rooted soil (let's root it!)
+    if not sdef.groups.roots then
+        -- a sloped sediment
+        if sdef.groups.natural_slope then
+            minetest.set_node(pos, {name = sdef.drop.."_roots"})
         else
-            minetest.set_node(pos_under, {name = nodedef_under.name.."_roots"})
+            minetest.set_node(pos, {name = sdef.name.."_roots"})
         end
     end
-    local meta = minetest.get_meta(pos_under)
-    meta:set_string("root_name", root_name)
+    -- now for meta changes
+    meta:set_string("root_name", pdef._root_name)
     meta:set_float("root_nr", nr)
 end
 
-local function add_roots(pos, nr, root_name)
-    local old_nr = get_root_number(pos)
-    set_roots(pos, old_nr + nr, root_name)
-end
-
-local function grow_roots(pos, progress)
-    local plant_nodedef = minimal.get_nodedef(pos)
-    local max_root_nr = plant_nodedef.groups.plant_with_roots
+local function grow_roots(pos, progress, pdef)
+    pdef = pdef or minimal.get_nodedef(pos)
+    if type(pdef._root_name) ~= "string" then return end -- shouldn't even be running this function
+    local max_root_nr = pdef and pdef.groups and pdef.groups.plant_with_roots
     if not max_root_nr then return end
-    local current_nr = get_root_number(pos)
-    --local nr = progress * math.random(0.005, 0.02)
-    local nr = 0.001 * math.random(1, 10) * progress
-    if nr + current_nr > max_root_nr then
-        set_roots(pos, max_root_nr, plant_nodedef._root_name)
-    else
-        add_roots(pos, nr, plant_nodedef._root_name)
-    end
+    local spos = minimal.get_pos_under(pos) -- soil pos
+    local smeta = core.get_meta(spos) -- soil meta
+    local nr = get_root_number(spos, smeta) -- current number
+    -- why are we adding to the roots when at max??? return
+    if nr >= max_root_nr then return end
+    -- adding to number of roots
+    nr = nr + (0.001 * math.random(1, 10) * progress)
+    -- clamp below max_root number if over
+    nr = nr > max_root_nr and max_root_nr or nr
+    -- set with new number
+    set_roots(spos, smeta, pdef, nr)
 end
 
 local function deplete_soil(pos)
