@@ -432,7 +432,8 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
         growing_left = growing_left + growing_time
     end
     -- if not fruiting, set growing_left otherwise do NOT set growing
-    data.fields.growth = not pdef.groups and pdef.groups.fruiting_plant and growing_left or nil
+    -- round growing_left
+    data.fields.growth = not (pdef.groups and pdef.groups.fruiting_plant) and math.floor(growing_left + 0.5) or nil
     meta:from_table(data) -- save data
     -- after we're done with growth we can check for season
     kill_climate_history(pos, elapsed, pdef, meta)
@@ -520,11 +521,12 @@ end
 -- optional pdef argument
 local function add_to_param2(pos, nr, pdef)
     pdef = pdef or minimal.get_nodedef(pos)
-    -- is a seed, doesn't have place_param2
-    if not pdef.place_param2 and pdef._next_life_stage then
-        -- idk why we're turning into a seedling but ok
-        -- in case not a node, default to what we were before
-        pdef = core.registered_nodes[pdef._next_life_stage] or pdef
+    -- get place_param2
+    local place_param2 = pdef.place_param2
+    -- doesn't have a place_param2, get one from seedling
+    if not place_param2 then
+        local next_stage = core.registered_nodes[pdef._next_life_stage]
+        place_param2 = next_stage and next_stage.place_param2
     end
     local new_param2 = (pdef.place_param2 or 0) + nr
     minetest.swap_node(pos, {name = pdef.name, param2 = new_param2})
