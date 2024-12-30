@@ -299,12 +299,13 @@ local function set_roots(pos, meta, pdef, nr)
     meta:set_float("root_nr", nr)
 end
 
-local function grow_roots(pos, progress, pdef)
+-- pos is plant's pos, spos is soil position
+-- pdef is optional but helpful to provide
+local function grow_roots(pos, spos, progress, pdef)
     pdef = pdef or minimal.get_nodedef(pos)
     if type(pdef._root_name) ~= "string" then return end -- shouldn't even be running this function
     local max_root_nr = pdef and pdef.groups and pdef.groups.plant_with_roots
     if not max_root_nr then return end
-    local spos = minimal.get_pos_under(pos) -- soil pos
     local smeta = core.get_meta(spos) -- soil meta
     local nr = smeta:get_float("root_nr") -- number of roots
     -- why are we adding to the roots when at max??? return
@@ -318,10 +319,9 @@ local function grow_roots(pos, progress, pdef)
 end
 
 local function deplete_soil(pos)
-    local node_name = minetest.get_node(pos).name
-    local nodedef = minetest.registered_nodes[node_name]
-    if nodedef._depleted_name then
-        minetest.swap_node(pos, {name = nodedef._depleted_name})
+    local sdef = minimal.get_nodedef(pos)
+    if sdef._depleted_name then
+        minetest.swap_node(pos, {name = sdef._depleted_name})
     end
 end
 
@@ -433,13 +433,13 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
     kill_climate_history(pos, elapsed, pdef, meta)
 end
 
-local function growing_side_effects(pos, progress)
+local function growing_side_effects(pos, progress, pdef)
     local pos_under = minimal.get_pos_under(pos)
     --chance to deplete soil
     if math.random() <= 0.0001 then
         deplete_soil(pos_under)
     end
-    grow_roots(pos, progress)
+    grow_roots(pos, pos_under, progress, pdef)
 end
 
 local function calculate_growth_progress(pos, good_cycles_in, rain_cycles_in)
@@ -658,6 +658,7 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
     meta:set_int("health", health)
     -- figure out growth
     local progress = past_progress + current_progress
+    if progress == 0 then return true end -- we can't do any growing, return for another loop!
     -- we shant keep growing when we're already fruiting!
     if not (pdef.groups and pdef.groups.fruiting_plant) then
         local growing_left = meta:get_int("growth") - progress
@@ -669,6 +670,6 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
             meta:set_int("growth", growing_left)
         end
     end
-    growing_side_effects(pos, progress)
+    growing_side_effects(pos, progress, pdef)
     return true
 end
