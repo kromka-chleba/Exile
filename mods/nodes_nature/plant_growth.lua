@@ -402,9 +402,9 @@ local function kill_extreme_temp(pos, elapsed, pdef, meta, temp)
     end
 end
 
-local function kill_climate_history(pos, elapsed)
+local function kill_climate_history(pos, elapsed, pdef, meta)
     if climate.plant_killed(elapsed) then
-        nn.plant.kill(pos, false)
+        nn.plant.kill(pos, false, pdef, meta)
         return true
     end
 end
@@ -435,7 +435,7 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
     data.fields.growth = not pdef.groups and pdef.groups.fruiting_plant and growing_left or nil
     meta:from_table(data) -- save data
     -- after we're done with growth we can check for season
-    kill_climate_history(pos, elapsed)
+    kill_climate_history(pos, elapsed, pdef, meta)
 end
 
 local function growing_side_effects(pos, progress)
@@ -545,8 +545,8 @@ end
 ------------------ Global functions of the API ------------------
 
 function nn.plant.start_growing_seed(pos)
-    local timer_min = nn.seed_growing_time - 0.25 * nn.seed_growing_time
-    local timer_max = nn.seed_growing_time + 0.25 * nn.seed_growing_time
+    local timer_min = nn.seed_growing_time * 0.75
+    local timer_max = nn.seed_growing_time * 1.25
     local timer = minetest.get_node_timer(pos)
     timer:start(math.random(timer_min, timer_max))
 end
@@ -579,8 +579,8 @@ function nn.plant.death_chance_on_replant(pos)
 end
 
 function nn.plant.start_growing_plant(pos, growing_time, is_fruiting)
-    local timer_min = nn.plant_base_timer - 0.1 * nn.plant_base_timer
-    local timer_max = nn.plant_base_timer + 0.1 * nn.plant_base_timer
+    local timer_min = nn.plant_base_timer * 0.9
+    local timer_max = nn.plant_base_timer * 1.1
     if not is_fruiting then
         minimal.node_set_int(pos, "growth", growing_time)
     end
