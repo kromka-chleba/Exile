@@ -550,19 +550,20 @@ function nn.plant.start_growing_seed(pos)
     timer:start(math.random(timer_min, timer_max))
 end
 
-function nn.plant.grow_seed(pos, elapsed)
-    local nodedef = minimal.get_nodedef(pos)
-    local good_time = good_time_rain_time(elapsed, is_mushroom(pos, nodedef))
+function nn.plant.grow_seed(pos, elapsed, pdef, meta)
+    local pnode = minetest.get_node(pos)
+    pdef = pdef or core.registered_nodes[pnode.name]
+    meta = meta or minetest.get_meta(pos)
+    local good_time = good_time_rain_time(elapsed, is_mushroom(pos, pdef))
     -- if conditions were good for germination we don't care about the present
     if elapsed > nn.seed_growing_time and good_time >= 60 then
         -- pass elapsed to seedlings so we can catch up from there
-        minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
-        minimal.node_set_int(pos, "elapsed", elapsed)
-        return false
-    elseif not is_soil_and_temp_good(pos, nodedef) then
+        meta:set_int("elapsed", elapsed)
+    elseif not is_soil_and_temp_good(pos, pdef) then
         return true -- unless dead, try again when conditions are good
     end
-    minimal.force_place_keep_param2(pos, nodedef._next_life_stage)
+    pnode.name = pdef._next_life_stage -- becoming seedling, reuse same node data
+    minimal.switch_node(pos, pnode) -- switch to seedling and save meta
     return false -- the seed becomes a seedling (stops the timer)
 end
 
