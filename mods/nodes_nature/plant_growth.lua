@@ -279,12 +279,6 @@ local function are_conditions_good(pos, pdef, temp)
     return true
 end
 
--- expected to be pos underneath plant
-local function get_root_number(pos, meta)
-    meta = meta or minetest.get_meta(pos)
-    return meta:get_float("root_nr")
-end
-
 -- pos and meta should be the soil pos and meta
 local function set_roots(pos, meta, pdef, nr)
     local sdef = minimal.get_nodedef(pos) -- soil def
@@ -312,10 +306,10 @@ local function grow_roots(pos, progress, pdef)
     if not max_root_nr then return end
     local spos = minimal.get_pos_under(pos) -- soil pos
     local smeta = core.get_meta(spos) -- soil meta
-    local nr = get_root_number(spos, smeta) -- current number
+    local nr = smeta:get_float("root_nr") -- number of roots
     -- why are we adding to the roots when at max??? return
     if nr >= max_root_nr then return end
-    -- adding to number of roots
+    -- adding to number of roots by progression
     nr = nr + (0.001 * math.random(1, 10) * progress)
     -- clamp below max_root number if over
     nr = nr > max_root_nr and max_root_nr or nr
