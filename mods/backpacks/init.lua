@@ -278,11 +278,12 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
 end
 
 local on_dig = function(pos, node, digger, width, height)
+    if not core.is_player(digger) then return end
     if minetest.is_protected(pos, digger:get_player_name()) then
         return false
     end
     local player_inv = digger:get_inventory()
-    -- See if it fits in invenotry
+    -- See if it fits in inventory
     local new = ItemStack(node)
     if player_inv:room_for_item("main", new) then
         --Call default node_dig() to remove node and make item
