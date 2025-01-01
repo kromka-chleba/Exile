@@ -100,7 +100,8 @@ Crafting Spot=
 Weaving=
 Mixing=
 Grinding stone=
-Mortar and pestle=
+@1 Mortar and Pestle=
+Wooden Mortar and Pestle=
 Crafting=
 Carpentry Bench=
 Bricks=
@@ -120,7 +121,6 @@ Threshing Spot=
 Weaving Spot=
 Grinding Spot=
 Hammering Spot=
-Wooden Mortar and Pestle=
 Brick Maker's Bench=
 Anvil=
 Masonry Bench=
@@ -379,11 +379,3 @@ Clear Glass Bottle With Fresh Water=
 Wooden Ladder=
 Wooden Floor Boards=
 Wooden Stairs=
-
-
-##### not used anymore #####
-
-# nodecrafting
-Dump=
-# dye
-red dye=
