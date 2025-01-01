@@ -611,15 +611,13 @@ local function make_inventory_formspec(player,context,istool)
 
     -- Optional CraftedBy string -----------------------------------------------
 
-    if istool and cache.meta then
-        local creator = cache.meta:get_string("creator")
-        if creator ~= "" then
-            output[#output + 1] = tofstring({
-                'container[0.45,',ycoord-1,']',
-                'label[0,0;',S("Crafted by: @1", creator),']',
-                'container_end[]'
-            })
-        end
+    -- do not display in hand crafting
+    if istool and cache.sTool ~= default_tool and cache.creatortag and cache.creatortag ~= "" then
+        output[#output + 1] = tofstring({
+            'container[0.45,',ycoord-1,']',
+            'label[0,0;',S("Crafted by: @1", cache.creatortag),']',
+            'container_end[]'
+        })
     end
 
     -- Quantity buttons part ---------------------------------------------------
@@ -741,6 +739,10 @@ local function cache_tool_change(player, tool, inputcache, pos, meta)
             idef = core.registered_items[tool._tool] or core.registered_items[tool:sub(1,-8)] or idef
             cache.meta = idef and idef.groups and (idef.groups.craftedby or idef.groups.savemeta) and
                 cache.pos and core.get_meta(pos) or nil
+            -- get creator string for craftedby mechanics
+            if cache.meta then
+                cache.creatortag = cache.meta:get_string("creator")
+            end
         end
     end
 
@@ -758,6 +760,7 @@ local function cache_tool_remove(player, inputcache)
     else
         cache.pos = nil
         cache.meta = nil
+        cache.creatortag = nil
     end
 
     cache.tool_list = generate_tools_list()
