@@ -557,6 +557,7 @@ end
 local function register_mortar_and_pestle(name, def)
     def = type(def) == "string" and {tag = def} or type(def) == "table" and def or {}
     def.description = def.description or def.tag and S("@1 Mortar and Pestle", def.tag) or nil
+    def.tag = nil -- remove from def
     -- grab recipe if provided
     local recipe = def.recipe or {}
     def.recipe = nil
@@ -617,55 +618,21 @@ local function register_mortar_and_pestle(name, def)
 end
 
 -- need to change old tech:mortar_pestle to tech:mortar_pestle_limestone
-register_mortar_and_pestle("basalt", S("Basalt"))
-register_mortar_and_pestle("granite", S("Granite"))
-register_mortar_and_pestle("limestone", S("Limestone"))
-
-
--- Wooden mortar and pestle
-----------------------------
-minetest.register_node(
-    "tech:mortar_pestle_wooden",{
-        description   = S("Wooden Mortar and Pestle"),
-        exile_crafting = {
-            craft_types = {"mortar_and_pestle", 'breadmaking'},
-            craft_level = 1,
-        },
-        drawtype      = "nodebox",
-        tiles         = {"tech_primitive_wood.png"},
-        stack_max     = minimal.stack_max_bulky *2,
-        paramtype     = "light",
-        paramtype2    = "facedir",
-        groups        = {falling_node = 1, dig_immediate = 3, craftedby = 1},
-        node_box      = {
-            type  = "fixed",
-            fixed = {
-                {-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
-                {-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
-                {-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
-                {-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
-                {-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
-                { 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
-                {-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
-            }
-        },
-        sounds        = nodes_nature.node_sound_wood_defaults(),
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return crafting.crafting_item_on_rightclick(pos,node,clicker,
-                                                       itemstack,pointed_thing)
-        end,
-        preserve_metadata = station_preserve_metadata,
-        after_place_node = station_after_place
-                           --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
+-- less translation work needed if we just use the nodes_nature description lol
+register_mortar_and_pestle("basalt", core.registered_nodes["nodes_nature:basalt"].description)
+register_mortar_and_pestle("granite", core.registered_nodes["nodes_nature:granite"].description)
+register_mortar_and_pestle("limestone", core.registered_nodes["nodes_nature:limestone"].description)
+-- wooden mortar and pestle
+register_mortar_and_pestle("wooden", {
+    description = S("Wooden Mortar and Pestle"),
+    tiles = {"tech_primitive_wood.png"},
+    sounds = nodes_nature.node_sound_wood_defaults(),
+    recipe = {
+        type = {"axe", "carpentry_bench"},
+        items = {'group:log 2'}
+    }
 })
 
-crafting.register_recipe({
-    type = {"axe", "carpentry_bench"},
-    output = "tech:mortar_pestle_wooden",
-    items = {'group:log 2'},
-    level = 1,
-    always_known = true,
-})
 
 --------------------------------------------------------------
 
