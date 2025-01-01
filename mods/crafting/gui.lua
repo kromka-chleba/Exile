@@ -491,7 +491,8 @@ end
 -- It returns the cache value unless something has updated or it times out
 -- updates are triggered by setting cache.output = "" and the section to
 -- redraw is set to nil - eg cache.recipesFS = nil to redraw recipes list.
-local function make_inventory_formspec(player,context)
+-- istool boolean - moves buttons about to show space for a potential craftedby
+local function make_inventory_formspec(player,context,istool)
     local player_name = player:get_player_name()
     local pInv = player:get_inventory()
     if not (player_name and player_name ~= "") then
@@ -604,6 +605,23 @@ local function make_inventory_formspec(player,context)
     output[#output + 1] = cache.searchFS
     output[#output + 1] = 'container_end[]'
 
+    -- short break for figuring out how much space to add ----------------------
+
+    local ycoord = istool and 7.4 or 6.4
+
+    -- Optional CraftedBy string -----------------------------------------------
+
+    if istool and cache.meta then
+        local creator = cache.meta:get_string("creator")
+        if creator ~= "" then
+            output[#output + 1] = tofstring({
+                'container[0.45,',ycoord-1,']',
+                'label[0,0;',S("Crafted by: @1", creator),']',
+                'container_end[]'
+            })
+        end
+    end
+
     -- Quantity buttons part ---------------------------------------------------
 
     local qtyID = cache.qty or 1
@@ -612,7 +630,7 @@ local function make_inventory_formspec(player,context)
     qtytab[qtyID] = 'true'
     qtylab[qtyID] = minetest.colorize("cyan", qtylab[qtyID])
 
-    output[#output + 1] = 'container[0.45,6.4]'
+    output[#output + 1] = table.concat({'container[0.45,',ycoord,']'})
     output[#output + 1] = tofstring({
             'label[0,0;'..S("Quantity")..':]',
             'checkbox[2.6,0;qty1;'..qtylab[1]..';'..qtytab[1]..']',
@@ -624,7 +642,8 @@ local function make_inventory_formspec(player,context)
 
     -- Inventory List part------------------------------------------------------
 
-    output[#output + 1] = 'container[0.8,7.2]'
+    ycoord = ycoord + 0.8
+    output[#output + 1] = table.concat({'container[0.8,',ycoord,']'})
     output[#output + 1] = tofstring({
         'style_type[list;size=;spacing=]',
         'list[current_player;main;0,0;8,2;0]'
@@ -1097,9 +1116,9 @@ local function make_tool_formspec(player)
     return tofstring({
             "formspec_version[5]",
             --"size[11.2,10.5]" ..
-            "size[11.2,10]",
+            "size[11.2,11]",
             "position[0.5,0.5]",
-            make_inventory_formspec(player)
+            make_inventory_formspec(player, nil, true)
         })
 end
 
