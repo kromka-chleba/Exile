@@ -574,6 +574,18 @@ for mat,capsMat in pairs ({
             sounds        = nodes_nature.node_sound_stone_defaults(),
             on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
                 return crafting.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+            end,
+            -- since we have crafted by in our groups ...
+            preserve_metadata = function(pos, oldnode, oldmeta, drops)
+                local itemstack = drops[1]
+                local imeta = itemstack:get_meta()
+                -- just steal meta from oldmeta
+                imeta:from_table({fields = oldmeta})
+            end,
+            after_place_node = function(pos, placer, itemstack, pointed_thing)
+                local imeta = itemstack:get_meta()
+                local meta = core.get_meta(pos)
+                meta:from_table(imeta:to_table())
             end
             --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
         }
