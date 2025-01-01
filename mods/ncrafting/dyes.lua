@@ -168,6 +168,7 @@ local function NewRollTable(color)
             end
         end
     end
+    table.sort(NewTable) -- try to make generation somewhat consistent by ordering alphabetically
     return NewTable
 end
 
@@ -202,11 +203,17 @@ local function GenerateDyes(seed, SpD) -- Generate dye_sources based on mapgen s
       -- set to cSpDs table
       cSpDs[dye_info.color] = cSpD
     end
+    -- try to make generation consistent by putting into numbered indexes and sorting
+    local sortedlist = {}
+    for dye,_ in pairs(dyelist) do
+        sortedlist[#sortedlist + 1] = dye
+    end
+    table.sort(sortedlist) -- sort alphabetically
     -- iterate through SpD first to generate dyes like an array, applying layers
     -- going through each colour one time to generate initial colours, then going back and doing it again as a new layer
     for set=1, SpD do
         -- iterate through each dye (ordered)
-        for dye,_ in pairs(dyelist) do
+        for _,dye in ipairs(sortedlist) do
             local cSpD = cSpDs[dye] or 0
             -- only do generation if space is not occupied
             if cSpD < set then
