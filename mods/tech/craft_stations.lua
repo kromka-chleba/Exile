@@ -534,6 +534,22 @@ minetest.register_node(
 --IB    })
 --IB
 
+-- used for transferring meta between placeable stations and their itemstacks to save creator meta
+local function station_preserve_metadata(pos, oldnode, oldmeta, drops)
+    local item = drops[1]
+    local imeta = item:get_meta()
+    -- just steal meta from oldmeta (which will be fields)
+    imeta:from_table({fields = oldmeta})
+end
+-- ditto to above
+local function station_after_place(pos, placer, itemstack, pointed_thing)
+    local imeta = itemstack:get_meta()
+    local meta = core.get_meta(pos)
+    -- transfer from itemstack to node
+    meta:from_table(imeta:to_table())
+end
+
+
 -- Mortar and pestle. for grinding food etc ----------------
 ----------------------------------------------
 
@@ -576,17 +592,8 @@ for mat,capsMat in pairs ({
                 return crafting.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
             end,
             -- since we have crafted by in our groups ...
-            preserve_metadata = function(pos, oldnode, oldmeta, drops)
-                local itemstack = drops[1]
-                local imeta = itemstack:get_meta()
-                -- just steal meta from oldmeta
-                imeta:from_table({fields = oldmeta})
-            end,
-            after_place_node = function(pos, placer, itemstack, pointed_thing)
-                local imeta = itemstack:get_meta()
-                local meta = core.get_meta(pos)
-                meta:from_table(imeta:to_table())
-            end
+            preserve_metadata = station_preserve_metadata,
+            after_place_node = station_after_place
             --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
         }
     )
@@ -654,7 +661,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
                            --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
 })
 
@@ -728,6 +737,8 @@ minetest.register_node(
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick(
         --      {"brick_makers_bench", "brick_makers_bench_blocks",
         --       "brick_makers_bench_bricks", "brick_makers_bench_mixing"},
@@ -776,7 +787,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick({"anvil","anvil_mixing"}, 2, { x = 8, y = 3 }),
 })
 
@@ -820,7 +833,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick("carpentry_bench", 2, { x = 8, y = 3 }),
 })
 
@@ -867,6 +882,8 @@ minetest.register_node(
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick(
         --      {"masonry_bench","masonry_bench_blocks","masonry_bench_bricks", "masonry_bench_mixing"},
                            --      2, { x = 8, y = 3 }),
