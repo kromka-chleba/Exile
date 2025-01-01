@@ -698,7 +698,7 @@ local function cache_set_craft_tabs(cache, sTab, cTabs)
 end
 
 -- change to hand if tool==nil
-local function cache_tool_change(player, tool, inputcache)
+local function cache_tool_change(player, tool, inputcache, pos, meta)
     tool = tool or default_tool
     local cache =  inputcache or inventoryFS_cache[player:get_player_name()]
 
@@ -713,6 +713,16 @@ local function cache_tool_change(player, tool, inputcache)
         cache.sTool = tool
         cache.sLevel = get_tool_level(tool)
         cache_set_craft_tabs(cache, 1, get_craft_tabs(tool))
+        -- save pos and meta for more unique interactions (this only gets updated on tool change)
+        cache.pos = cache.pos or type(pos) == "table" and vector.check(pos) and pos or nil
+        -- don't try to update if default
+        if tool ~= default_tool and not cache.meta then
+            local idef = core.registered_items[tool]
+            -- see tech/tools for why we check _tool or remove letters from name
+            idef = core.registered_items[tool._tool] or core.registered_items[tool:sub(1,-8)] or idef
+            cache.meta = idef and idef.groups and (idef.groups.craftedby or idef.groups.savemeta) and
+                cache.pos and core.get_meta(pos) or nil
+        end
     end
 
     cache.tool_tabsFS= nil
@@ -725,13 +735,18 @@ local function cache_tool_remove(player, inputcache)
     -- if no cache, then generate it
     if not cache then
         cache = initiate_cache(player)
+    -- clear out node specific cache
+    else
+        cache.pos = nil
+        cache.meta = nil
     end
+
     cache.tool_list = generate_tools_list()
     -- unselect tool to default
     cache_tool_change(player, nil, cache)
 end
 
-local function cache_tool_add(player, a_tool, inputcache)
+local function cache_tool_add(player, a_tool, inputcache, pos, meta)
     if not a_tool then
         return
     end
@@ -744,7 +759,7 @@ local function cache_tool_add(player, a_tool, inputcache)
     -- later we could remove r_tool
     cache.tool_list = generate_tools_list(a_tool)
     -- unselect tool to default
-    cache_tool_change(player, a_tool, cache)
+    cache_tool_change(player, a_tool, cache, pos, meta)
 end
 
 -- change Search field and reset formspec accordingly
@@ -1120,7 +1135,7 @@ function crafting.crafting_item_on_rightclick(pos,node,clicker,
 
     local cache = inventoryFS_cache[player_name] or initiate_cache(clicker)
 
-    cache_tool_add(clicker, craft_item, cache)
+    cache_tool_add(clicker, craft_item, cache, pos)
 
     local formspec = make_tool_formspec(clicker)
     minetest.show_formspec(player_name,'exile:crafting',formspec)
