@@ -932,6 +932,8 @@ minetest.register_node(
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick("spinning_wheel", 2, { x = 8, y = 3 }),
 })
 
@@ -982,7 +984,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick("loom", 2, { x = 8, y = 3 }),
 })
 
@@ -1026,7 +1030,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick("glass_furnace", 2, { x = 8, y = 3 }),
 })
 
@@ -1080,7 +1086,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick({"weaving_frame",
         --                     "weaving_frame_mixing"}, 2, { x = 8, y = 3 }),
 })
