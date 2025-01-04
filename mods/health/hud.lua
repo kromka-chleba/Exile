@@ -311,7 +311,6 @@ end
 
 -- player, hud_data, health type (e.g. health or hunger), color, opacity, text value
 -- will do blink for you
--- #TODO: set up some system for updates (older values) and see whether or not we should run hud_change
 local function health_hud_change(player, hud_data, htype, color, opac, textval, texthidden)
     local hud1 = hud_data[concat_text("p_",htype)] -- e.g. "p_hunger"
     local hud2 = hud_data[concat_text("p_",htype,"_text")]
@@ -389,6 +388,9 @@ local function temp(player, hud_data, meta, hidden)
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value
     local v = meta:get_int("temperature")
+    local prev_v = hud_data["p_body_temp_prev"]
+    if prev_v == v then return end -- don't update hud if we're the same value
+    hud_data["p_body_temp_prev"] = v -- add to prev
     local stat_col, ttype = color_bodytemp(v)
     local t = climate.get_temp_string(v, meta)
     -- update hud
@@ -427,6 +429,9 @@ local function enviro_temp(player, hud_data, meta, hidden)
     local player_pos = player:get_pos()
     player_pos.y = player_pos.y + 0.6 --adjust to body height
     local v = math.floor(climate.get_point_temp(player_pos, true))
+    local prev_v = hud_data["p_enviro_temp_prev"]
+    if prev_v == v then return end -- don't update hud if we're the same value
+    hud_data["p_enviro_temp_prev"] = v -- add to prev
     local stat_col, ttype, overlay = color_envirotemp(v, meta)
     if overlay then
         if not hud_data.overlay then
