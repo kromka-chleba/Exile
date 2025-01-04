@@ -349,7 +349,7 @@ local function energy(player, hud_data, meta, hidden)
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value percentage
     local v = meta:get_int("energy")
-    v = (v/1000)*100
+    v = v/10 -- we can already derive a percentage (1000/10)
     local stat_col = color(v)
     local t = concat_text(v, " %")
     -- update energy hud
@@ -360,8 +360,7 @@ local function thirst(player, hud_data, meta, hidden)
     -- hidden means opacity of 0
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value percentage
-    local v = meta:get_int("thirst")
-    v = (v/100)*100
+    local v = meta:get_int("thirst") -- (we're already a percentage, 100 out of 100)
     local t = concat_text(v, " %")
     local stat_col = color(v)
     -- update thirst hud
@@ -373,7 +372,7 @@ local function hunger(player, hud_data, meta, hidden)
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value percentage
     local v = meta:get_int("hunger")
-    v = (v/1000)*100
+    v = v/10 -- we can already derive a percentage (1000/10)
     local t = concat_text(v, " %")
     local stat_col = color(v)
     -- update hunger hud
