@@ -318,7 +318,7 @@ local function health_hud_change(player, hud_data, htype, color, opac, textval, 
     if not (hud1 and hud2) then return end
     -- get blink of temp if body_temp, otherwise assume htype
     local image = concat_text("hud_",htype,".png^[colorize:#",color,
-      "^[opacity:",opac,blink(hud_data.blink[(htype == "body_temp" and "temp" or htype)]) )
+      "^[opacity:",opac,blink(hud_data.blink[htype]) )
     player:hud_change(hud1, "text", image) -- update icon
     -- tonumber opac for comparison
     opac = type(opac) == "number" and opac or tonumber(opac)
@@ -340,69 +340,46 @@ local function health(player, hud_data, hidden)
     v = (v/20)*100
     local stat_col = color(v)
     local t = concat_text(v, " %")
-    -- update stats hud
+    -- update health hud
     health_hud_change(player, hud_data, "health", stat_col, opac, t, hidden)
 end
 
 local function energy(player, hud_data, meta, hidden)
+    -- hidden means opacity of 0
+    local opac = hidden and 0 or hud_data.opacity or mthudopacity
+    -- get value percentage
     local v = meta:get_int("energy")
     v = (v/1000)*100
     local stat_col = color(v)
-    local t = v .." %"
-    local hud1 = hud_data.p_energy
-    local opac = hud_data.opacity or mthudopacity
-    if hidden then opac = 0 end
-    player:hud_change(hud1, "text", "hud_energy.png^[colorize:#"..
-                      stat_col.."^[opacity:"..opac..
-                      blink(hud_data.blink["energy"]))
-    local hud2 = hud_data.p_energy_text
-    player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-
-    if not hidden and are_stats_visible(hud_data) then
-        player:hud_change(hud2, "text", t)
-    else
-        player:hud_change(hud2, "text", "")
-    end
+    local t = concat_text(v, " %")
+    -- update energy hud
+    health_hud_change(player, hud_data, "energy", stat_col, opac, t, hidden)
 end
 
 local function thirst(player, hud_data, meta, hidden)
+    -- hidden means opacity of 0
+    local opac = hidden and 0 or hud_data.opacity or mthudopacity
+    -- get value percentage
     local v = meta:get_int("thirst")
     v = (v/100)*100
-    local t = v .." %"
+    local t = concat_text(v, " %")
     local stat_col = color(v)
     local hud1 =  hud_data.p_thirst
-    local opac = hud_data.opacity or mthudopacity
-    if hidden then opac = 0 end
-    player:hud_change(hud1, "text", "hud_thirst.png^[colorize:#"..
-                      stat_col.."^[opacity:"..opac..
-                      blink(hud_data.blink["thirst"]))
-    local hud2 = hud_data.p_thirst_text
-    player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-    if not hidden and are_stats_visible(hud_data) then
-        player:hud_change(hud2, "text", t)
-    else
-        player:hud_change(hud2, "text", "")
-    end
+    -- update thirst hud
+    health_hud_change(player, hud_data, "thirst", stat_col, opac, t, hidden)
 end
 
 local function hunger(player, hud_data, meta, hidden)
+    -- hidden means opacity of 0
+    local opac = hidden and 0 or hud_data.opacity or mthudopacity
+    -- get value percentage
     local v = meta:get_int("hunger")
     v = (v/1000)*100
-    local t = v .." %"
+    local t = concat_text(v, " %")
     local stat_col = color(v)
     local hud1 =  hud_data.p_hunger
-    local opac = hud_data.opacity or mthudopacity
-    if hidden then opac = 0 end
-    player:hud_change(hud1, "text", "hud_hunger.png^[colorize:#"..
-                      stat_col.."^[opacity:"..opac..
-                      blink(hud_data.blink["hunger"]))
-    local hud2 = hud_data.p_hunger_text
-    player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-    if not hidden and are_stats_visible(hud_data) then
-        player:hud_change(hud2, "text", t)
-    else
-        player:hud_change(hud2, "text", "")
-    end
+    -- update hunger hud
+    health_hud_change(player, hud_data, "hunger", stat_col, opac, t, hidden)
 end
 
 local function temp(player, hud_data, meta, hidden)
