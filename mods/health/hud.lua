@@ -316,6 +316,10 @@ local function health_hud_change(player, hud_data, htype, color, opac, textval, 
     local hud1 = hud_data[concat_text("p_",htype)] -- e.g. "p_hunger"
     local hud2 = hud_data[concat_text("p_",htype,"_text")]
     if not (hud1 and hud2) then return end
+    local prev_textval_ind = concat_text("p_",htype,"_prev") -- previous textval index
+    local prev_textval = hud_data[prev_textval_ind]
+    if prev_textval == textval then return end -- don't update huds if we're the same value
+    hud_data[prev_textval_ind] = textval -- add to prev
     -- get blink of temp if body_temp, otherwise assume htype
     local image = concat_text("hud_",htype,".png^[colorize:#",color,
       "^[opacity:",opac,blink(hud_data.blink[(htype == "sick" and "effects" or htype)]) )
