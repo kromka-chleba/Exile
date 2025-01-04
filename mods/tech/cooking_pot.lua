@@ -966,9 +966,9 @@ minetest.register_node("tech:cooking_pot",{
     on_receive_fields = pot_receive_fields,
     allow_metadata_inventory_put = function(pos, listname, index, stack, player)
         local stackdef = stack:get_definition()
-        -- can't be added to soup
+        -- can't be added to soup (not edible == 1 or is no_soup)
         if stackdef.groups and
-            stackdef.groups.no_soup and stackdef.groups.no_soup > 0 then
+            (stackdef.groups.no_soup and stackdef.groups.no_soup > 0 or stackdef.groups.edible ~= 1) then
             return 0
         end
         -- not a valid food or cookable
