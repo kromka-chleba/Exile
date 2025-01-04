@@ -514,20 +514,22 @@ minetest.register_globalstep(function(dtime)
                     wielded_hud.list[wi].update(player, name, meta)
                 end
 
-                local lb = tobool(meta:get_string("hud16"))
-
-                player:hud_change(hud_data.p_health, "offset",
-                                  {x = hud_health_x - longbarpos[lb].x,
-                                   y = hud_vert_pos + longbarpos[lb].y})
-                player:hud_change(hud_data.p_health_text, "offset",
-                                  {x = hud_health_x - longbarpos[lb].x,
-                                   y = hud_vert_pos + hud_text_y + longbarpos[lb].y})
-                player:hud_change(hud_data.p_sick, "offset",
-                                  {x = hud_body_temp_x + longbarpos[lb].x,
-                                   y = hud_vert_pos + longbarpos[lb].y})
-                player:hud_change(hud_data.p_sick_text, "offset",
-                                  {x = hud_body_temp_x + longbarpos[lb].x,
-                                   y = hud_vert_pos + hud_text_y + longbarpos[lb].y})
+                local lb = tobool(meta:get_string("hud16")) -- long hotbar
+                if hud.lb ~= lb then
+                    player:hud_change(hud_data.p_health, "offset",
+                                      {x = hud_health_x - longbarpos[lb].x,
+                                       y = hud_vert_pos + longbarpos[lb].y})
+                    player:hud_change(hud_data.p_health_text, "offset",
+                                      {x = hud_health_x - longbarpos[lb].x,
+                                       y = hud_vert_pos + hud_text_y + longbarpos[lb].y})
+                    player:hud_change(hud_data.p_sick, "offset",
+                                      {x = hud_body_temp_x + longbarpos[lb].x,
+                                       y = hud_vert_pos + longbarpos[lb].y})
+                    player:hud_change(hud_data.p_sick_text, "offset",
+                                      {x = hud_body_temp_x + longbarpos[lb].x,
+                                       y = hud_vert_pos + hud_text_y + longbarpos[lb].y})
+                    hud.lb = lb -- save to hud data for check
+                end
             end
             timer = 0
             return nil
