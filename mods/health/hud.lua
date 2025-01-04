@@ -381,7 +381,7 @@ end
 
 -- body temperature
 local function temp(player, hud_data, meta, hidden)
-  -- hidden means opacity of 0
+    -- hidden means opacity of 0
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value
     local v = meta:get_int("temperature")
@@ -440,16 +440,16 @@ local function enviro_temp(player, hud_data, meta, hidden)
     local t = climate.get_temp_string(v, meta)
     local newhud = hud_data.p_air_temp
     local newhud2 = hud_data.p_air_temp_type
-    local opac = hud_data.opacity or mthudopacity
-    if hidden then opac = 0 end
-    player:hud_change(newhud, "text", "hud_air_temp.png^[colorize:#"..
-                      stat_col.."^[opacity:"..opac..
-                      blink(hud_data.blink["enviro_temp"]))
-    player:hud_change(newhud2, "text", ttype..
-                      ".png^[opacity:"..opac) -- don't colorize)
+    -- hidden means opacity of 0
+    local opac = hidden and 0 or hud_data.opacity or mthudopacity
+    player:hud_change(newhud, "text", concat_text("hud_air_temp.png^[colorize:#",stat_col,
+      "^[opacity:",opac, blink(hud_data.blink["enviro_temp"]) ) )
+    -- don't colorize (cold/hot icon above icon)
+    player:hud_change(newhud2, "text", concat_text(ttype, ".png^[opacity:",opac) )
+    -- only update text if text isn't hidden and stats are visible
     local hud2 = hud_data.p_air_temp_text
-    player:hud_change(hud2, "number", tonumber("0x"..stat_col))
     if not hidden and are_stats_visible(hud_data) then
+        player:hud_change(hud2, "number", tonumber(concat_text("0x",stat_col)) )
         player:hud_change(hud2, "text", t)
     else
         player:hud_change(hud2, "text", "")
