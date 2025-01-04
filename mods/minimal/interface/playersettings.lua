@@ -90,10 +90,10 @@ end
 
 -- permit check for settings by other mods
 local changed_callbacks = {}
--- player, setting name, setting value
-local function setting_changed(player, name, value)
+-- player, setting name, setting value, meta
+local function setting_changed(player, name, value, meta)
     for _, func in ipairs(changed_callbacks) do
-        func(player, name, value)
+        func(player, name, value, meta)
     end
 end
 
@@ -119,7 +119,7 @@ local function process_receive_fields(player, formname, fields)
     if theme_fromnum[num] and theme_fromnum[num] ~= oldtheme then
         meta:set_string("gui_theme", theme_fromnum[num])
         minimal.apply_gui_theme(player, meta, theme_fromnum[num])
-        setting_changed(player, "gui_theme", theme_fromnum[num])
+        setting_changed(player, "gui_theme", theme_fromnum[num], meta)
         --#TODO we need to close and reopen here
         minimal.show_player_settings(name, meta)
         return true
@@ -127,7 +127,7 @@ local function process_receive_fields(player, formname, fields)
     num = tonumber(fields.tempscale)
     if temp_fromnum[num] and temp_fromnum[num] ~= oldtempscale then
         meta:set_string("tempscale", temp_fromnum[num])
-        setting_changed(player, "tempscale", temp_fromnum[num])
+        setting_changed(player, "tempscale", temp_fromnum[num], meta)
     end
 
     -- setting HUD Opacity
@@ -136,14 +136,14 @@ local function process_receive_fields(player, formname, fields)
         if ev.type == "CHG" then
             meta:set_string("hud_opacity", ev.value)
             HEALTH.hud_update_settings(name, { opacity = ev.value })
-            setting_changed(player, "hud_opacity", tonumber(ev.value))
+            setting_changed(player, "hud_opacity", tonumber(ev.value), meta)
         end
     end
     -- setting large HUD
     if fields.hud16 then
         meta:set_string("hud16", fields.hud16)
         minimal.set_hotbar(player, fields.hud16)
-        setting_changed(player, "hud16", tobool(fields.hud16))
+        setting_changed(player, "hud16", tobool(fields.hud16), meta)
     end
     -- setting numeric stats
     if fields.showstats then
@@ -151,22 +151,22 @@ local function process_receive_fields(player, formname, fields)
         HEALTH.hud_update_settings(name,
         { showstats = tobool(
         fields.showstats) })
-        setting_changed(player, "hud_show_stats", tobool(fields.showstats))
+        setting_changed(player, "hud_show_stats", tobool(fields.showstats), meta)
     end
     -- setting Breaktaker pop-up on/off
     if fields.breaktaker then
         meta:set_string("breaktaker", fields.breaktaker)
-        setting_changed(player, "breaktaker", tobool(fields.breaktaker))
+        setting_changed(player, "breaktaker", tobool(fields.breaktaker), meta)
     end
     -- setting possibility to drop item on full inv
     if fields.invburst then
         meta:set_string("drop_on_full_inv", fields.invburst)
-        setting_changed(player, "drop_on_full_inv", tobool(fields.invburst))
+        setting_changed(player, "drop_on_full_inv", tobool(fields.invburst), meta)
     end
     -- setting music on/off
     if fields.nomusic then
         meta:set_string("disable_music", fields.nomusic)
-        setting_changed(player, "disable_music", tobool(fields.nomusic))
+        setting_changed(player, "disable_music", tobool(fields.nomusic), meta)
         -- #TODO: put music handling into minimal where it belongs
         if fields.nomusic == "true" then lore.stopmusic(name) end
     end
