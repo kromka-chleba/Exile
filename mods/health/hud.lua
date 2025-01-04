@@ -24,11 +24,14 @@ local hud_type = minimal.hud_type
 -- In text coloring we concat an 0x and convert the resulting string to a number.
 --              tostring("0x"..stat_color)
 
-local stat_fine         = "FFFFFF"
-local stat_slight       = "FDFF46"
-local stat_problem      = "FF8100"
-local stat_major        = "DF0000"
-local stat_extreme      = "8008FF"
+HEALTH.stat_color = {
+    fine = "FFFFFF", -- white
+    slight = "FDFF46", -- yellow
+    problem = "FF8100", -- orange
+    major = "DF0000", -- red
+    extreme = "8008FF" -- purple
+}
+local stat_color = HEALTH.stat_color
 
 local hud_vert_pos      = -128 -- all HUD icon vertical position
 local hud_extra_y       = -16  -- pixel offset for hot/cold icons
@@ -233,32 +236,32 @@ minetest.register_on_joinplayer(function(player) setup_hud(player) end)
 -- status indicator colors for use in stat display option
 
 local function color(v)
-    local stat_col = stat_fine
+    local stat_col = stat_color.fine
     if v <= 20 then
-        stat_col = stat_extreme
+        stat_col = stat_color.extreme
     elseif v <= 40 then
-        stat_col = stat_major
+        stat_col = stat_color.major
     elseif v <= 60 then
-        stat_col = stat_problem
+        stat_col = stat_color.problem
     elseif v <= 80 then
-        stat_col = stat_slight
+        stat_col = stat_color.slight
     end
     return stat_col
 end
 
 local function color_bodytemp(v)
-    local stat_col = stat_fine
+    local stat_col = stat_color.fine
     local ttype = "hud_temp_normal"
     if v > 47 or v < 27 then
-        stat_col = stat_extreme
+        stat_col = stat_color.extreme
         if v > 47 then ttype = "hud_temp_hot" end
         if v < 27 then ttype = "hud_temp_cold" end
     elseif v > 43 or v < 32 then
-        stat_col = stat_major
+        stat_col = stat_color.major
         if v > 43 then ttype = "hud_temp_hot" end
         if v < 32 then ttype = "hud_temp_cold" end
     elseif v > 38 or v < 37 then
-        stat_col = stat_problem
+        stat_col = stat_color.problem
         if v > 38 then ttype = "hud_temp_hot" end
         if v < 37 then ttype = "hud_temp_cold" end
     end
@@ -275,19 +278,19 @@ local function color_envirotemp(v, meta)
     local danger_high = stress_high +40
     local overlay
 
-    local stat_col = stat_fine
+    local stat_col = stat_color.fine
     local ttype = "hud_temp_normal"
 
     if v > danger_high or v < danger_low then
-        stat_col = stat_extreme
+        stat_col = stat_color.extreme
         if v > danger_high then ttype = "hud_temp_hot" end
         if v < danger_low then ttype = "hud_temp_cold" end
     elseif v > stress_high or v < stress_low then
-        stat_col = stat_major
+        stat_col = stat_color.major
         if v > stress_high then ttype = "hud_temp_hot" end
         if v < stress_low then ttype = "hud_temp_cold" end
     elseif v > comfort_high or v < comfort_low then
-        stat_col = stat_slight
+        stat_col = stat_color.slight
         if v > comfort_high then ttype = "hud_temp_hot" end
         if v < comfort_low then ttype = "hud_temp_cold" end
     end
@@ -458,17 +461,17 @@ local function enviro_temp(player, hud_data, meta, hidden)
 end
 
 local function effects(player, hud_data, meta, hidden)
-    local stat_col = stat_fine
+    local stat_col = stat_color.fine
     local v = meta:get_int("effects_num")
     local t = "x"..v
     if v > 0 then
-        stat_col = stat_slight
+        stat_col = stat_color.slight
     elseif v > 1 then
-        stat_col = stat_problem
+        stat_col = stat_color.problem
     elseif v > 2 then
-        stat_col = stat_major
+        stat_col = stat_color.major
     elseif v > 3 then
-        stat_col = stat_extreme
+        stat_col = stat_color.extreme
     end
     local hud1 = hud_data.p_sick
     local opac = hud_data.opacity or mthudopacity
