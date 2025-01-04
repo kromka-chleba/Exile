@@ -318,7 +318,7 @@ local function health_hud_change(player, hud_data, htype, color, opac, textval, 
     if not (hud1 and hud2) then return end
     -- get blink of temp if body_temp, otherwise assume htype
     local image = concat_text("hud_",htype,".png^[colorize:#",color,
-      "^[opacity:",opac,blink(hud_data.blink[htype]) )
+      "^[opacity:",opac,blink(hud_data.blink[(htype == "sick" and "effects" or htype)]) )
     player:hud_change(hud1, "text", image) -- update icon
     -- tonumber opac for comparison
     opac = type(opac) == "number" and opac or tonumber(opac)
@@ -364,7 +364,6 @@ local function thirst(player, hud_data, meta, hidden)
     v = (v/100)*100
     local t = concat_text(v, " %")
     local stat_col = color(v)
-    local hud1 =  hud_data.p_thirst
     -- update thirst hud
     health_hud_change(player, hud_data, "thirst", stat_col, opac, t, hidden)
 end
@@ -377,7 +376,6 @@ local function hunger(player, hud_data, meta, hidden)
     v = (v/1000)*100
     local t = concat_text(v, " %")
     local stat_col = color(v)
-    local hud1 =  hud_data.p_hunger
     -- update hunger hud
     health_hud_change(player, hud_data, "hunger", stat_col, opac, t, hidden)
 end
@@ -457,31 +455,23 @@ local function enviro_temp(player, hud_data, meta, hidden)
 end
 
 local function effects(player, hud_data, meta, hidden)
+    -- hidden means opacity of 0
+    local opac = hidden and 0 or hud_data.opacity or mthudopacity
+    -- calculate stat color
     local stat_col = stat_color.fine
     local v = meta:get_int("effects_num")
-    local t = "x"..v
-    if v > 0 then
-        stat_col = stat_color.slight
-    elseif v > 1 then
-        stat_col = stat_color.problem
+    local t = concat_text("x", v)
+    if v > 4 then
+        stat_col = stat_color.extreme
     elseif v > 2 then
         stat_col = stat_color.major
-    elseif v > 3 then
-        stat_col = stat_color.extreme
+    elseif v > 1 then
+        stat_col = stat_color.problem
+    elseif v > 0 then
+        stat_col = stat_color.slight
     end
-    local hud1 = hud_data.p_sick
-    local opac = hud_data.opacity or mthudopacity
-    if hidden then opac = 0 end
-    player:hud_change(hud1, "text", "hud_sick.png^[colorize:#"..
-                      stat_col.."^[opacity:"..opac..
-                      blink(hud_data.blink["effects"]))
-    local hud2 = hud_data.p_sick_text
-    player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-    if not hidden and are_stats_visible(hud_data) then
-        player:hud_change(hud2, "text", t)
-    else
-        player:hud_change(hud2, "text", "")
-    end
+    -- update effects (sick) hud
+    health_hud_change(player, hud_data, "sick", stat_col, opac, t, hidden)
 end
 
 local timer = 0
