@@ -70,6 +70,11 @@ local function tobool(str)
     return false
 end
 
+-- must be ALL string or number
+local function concat_text(...)
+    return table.concat({...},"")
+end
+
 local typelist = { "health", "energy", "thirst", "hunger",
                    "temp", "enviro_temp", "effects" }
 function HEALTH.hide_hud_elements(player, meta, list, hide)
@@ -304,25 +309,39 @@ local function color_envirotemp(v, meta)
     return stat_col, ttype, overlay
 end
 
-local function health(player, hud_data, hidden)
-    local v = player:get_hp()
-    v = (v/20)*100
-    local stat_col = color(v)
-    local t = v .." %"
-    local hud1 = hud_data.p_health
-    local opac = hud_data.opacity or mthudopacity
-    if hidden then opac = 0 end
-    player:hud_change(hud1, "text", "hud_health.png^[colorize:#"..
-                      stat_col.."^[opacity:"..opac..
-                      blink(hud_data.blink["health"]))
-
-    local hud2 = hud_data.p_health_text
-    player:hud_change(hud2, "number", tonumber("0x"..stat_col))
-    if not hidden and are_stats_visible(hud_data) then
-        player:hud_change(hud2, "text", t)
+-- player, hud_data, health type (e.g. health or hunger), color, opacity, text value
+-- will do blink for you
+-- #TODO: set up some system for updates (older values) and see whether or not we should run hud_change
+local function health_hud_change(player, hud_data, htype, color, opac, textval, texthidden)
+    local hud1 = hud_data[concat_text("p_",htype)] -- e.g. "p_hunger"
+    local hud2 = hud_data[concat_text("p_",htype,"_text")]
+    if not (hud1 and hud2) then return end
+    -- get blink of temp if body_temp, otherwise assume htype
+    local image = concat_text("hud_",htype,".png^[colorize:#",color,
+      "^[opacity:",opac,blink(hud_data.blink[(htype == "body_temp" and "temp" or htype)]) )
+    player:hud_change(hud1, "text", image) -- update icon
+    -- tonumber opac for comparison
+    opac = type(opac) == "number" and opac or tonumber(opac)
+    -- update numbered percentages if text is not hidden and stats visible
+    if not texthidden and are_stats_visible(hud_data) then
+        player:hud_change(hud2, "number", tonumber(concat_text("0x", color)) )
+        player:hud_change(hud2, "text", textval)
+    -- otherwise hide
     else
         player:hud_change(hud2, "text", "")
     end
+end
+
+local function health(player, hud_data, hidden)
+    -- hidden means opacity of 0
+    local opac = hidden and 0 or hud_data.opacity or mthudopacity
+    -- get value percentage
+    local v = player:get_hp()
+    v = (v/20)*100
+    local stat_col = color(v)
+    local t = concat_text(v, " %")
+    -- update stats hud
+    health_hud_change(player, hud_data, "health", stat_col, opac, t, hidden)
 end
 
 local function energy(player, hud_data, meta, hidden)
