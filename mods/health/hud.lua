@@ -380,22 +380,25 @@ local function hunger(player, hud_data, meta, hidden)
     health_hud_change(player, hud_data, "hunger", stat_col, opac, t, hidden)
 end
 
+-- body temperature
 local function temp(player, hud_data, meta, hidden)
+  -- hidden means opacity of 0
+    local opac = hidden and 0 or hud_data.opacity or mthudopacity
+    -- get value
     local v = meta:get_int("temperature")
     local stat_col, ttype = color_bodytemp(v)
     local t = climate.get_temp_string(v, meta)
+    -- update hud
     local hud1 = hud_data.p_body_temp
-    local opac = hud_data.opacity or mthudopacity
-    if hidden then opac = 0 end
-    player:hud_change(hud1, "text", "hud_body_temp.png^[colorize:#"..
-                      stat_col.."^[opacity:"..opac..
-                      blink(hud_data.blink["temp"]))
-    local hudtype = hud_data.p_body_temp_type
+    player:hud_change(hud1, "text", concat_text("hud_body_temp.png^[colorize:#", stat_col,
+      "^[opacity:", opac, blink(hud_data.blink["temp"]) ) )
+    -- only update text if text isn't hidden and stats are visible
     local hudtext = hud_data.p_body_temp_text
-    player:hud_change(hudtype, "text", ttype..
-                      ".png^[opacity:"..opac) -- don't colorize
-    player:hud_change(hudtext, "number", tonumber("0x"..stat_col))
     if not hidden and are_stats_visible(hud_data) then
+        local hudtype = hud_data.p_body_temp_type
+        -- don't colorize (cold/hot icon above icon)
+        player:hud_change(hudtype, "text", concat_text(ttype, ".png^[opacity:", opac) )
+        player:hud_change(hudtext, "number", tonumber(concat_text("0x", stat_col)) ) -- colorize
         player:hud_change(hudtext, "text", t)
     else
         player:hud_change(hudtext, "text", "")
