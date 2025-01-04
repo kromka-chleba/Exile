@@ -137,11 +137,19 @@ end)
 
 local songs_playing = {}
 
-local function play_themesong(name)
+local function play_themesong(name, meta)
     minetest.after(8, function()
-                       songs_playing[name] = minetest.sound_play({
-                               name = "exile_theme", gain = 0.75 },
-                           { to_player = name })
+        -- check settings
+        if not meta then
+            local plr = core.get_player_by_name(name)
+            if not core.is_player(plr) then return end -- why are we playing to a player that left?
+            meta = plr:get_meta() -- get meta to check setting
+        end
+        if meta:get_string("disable_music") == "true" then return end -- no playing music!
+        -- play as we would
+        songs_playing[name] = minetest.sound_play({
+               name = "exile_theme", gain = 0.75 },
+           { to_player = name })
     end)
 end
 
@@ -153,7 +161,14 @@ function lore.stopmusic(name)
     songs_playing[name] = nil
 end
 
+-- stop music if setting changes
+minimal.register_on_player_setting_change(function(player, setting, value, meta)
+    if setting ~= "disable_music" or value ~= true then return end
+    lore.stopmusic(player:get_player_name())
+end)
+
 local function first_spawn(player)
+    local meta = player:get_meta() -- we use this
     -- Guarantee they won't be penalized for reading:
     HEALTH.reset_attributes(player) -- All stats back to starting values
     local pname = player:get_player_name()
@@ -166,7 +181,7 @@ local function first_spawn(player)
     else
         minetest.dynamic_add_media(minetest.get_modpath("lore")..
                                    "/music/exile_theme.ogg")
-        play_themesong(pname)
+        play_themesong(pname, meta)
     end
     -- Bang! new player appears in the world
     minetest.after(0.15, function()
@@ -175,7 +190,7 @@ local function first_spawn(player)
                        region.spawn(player)
                        doGatewayFX(player)
                        player_api.set_invisible(player, false)
-                       player:get_meta():set_string("spawning", "")
+                       meta:set_string("spawning", "")
     end)
 end
 

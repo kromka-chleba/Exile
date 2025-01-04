@@ -167,8 +167,7 @@ local function process_receive_fields(player, formname, fields)
     if fields.nomusic then
         meta:set_string("disable_music", fields.nomusic)
         setting_changed(player, "disable_music", tobool(fields.nomusic), meta)
-        -- #TODO: put music handling into minimal where it belongs
-        if fields.nomusic == "true" then lore.stopmusic(name) end
+        -- #TODO: put music handling into minimal where it belongs (now handled in lore fully instead, what do we do now?)
     end
 end
 
