@@ -82,17 +82,29 @@ function HEALTH.hide_hud_elements(player, meta, list, hide)
     -- Takes a string of elements to hide, or "all", sets them hidden
     -- Needs either player or meta to apply changes to
     -- hide, if true, inverts this function to show elements
-    if not meta and not player then
-        error("Tried to hide hud elements for non-existent player and meta!")
+    if not core.is_player(player) then
+        error("HEALTH.hide_hud_elements: tried to hide hud elements for non-existent (or inactive) player!")
     end
-    if not meta then meta = player:get_meta() end
-    local hidetable = {}
-    for i = 1, #typelist do
-        if string.match(list, typelist[i]) or string == "all" then
-            hidetable[typelist[i]] = ( true ~= hide)
+    local hud_data = hud[player:get_player_name()]
+    if not hud_data then return end -- no hud data to speak of, return don't error
+    meta = type(meta) == "userdata" and meta or player:get_meta()
+    -- handle list mechanic
+    list = type(list) == "string" and list:lower() or list
+    list = type(list) == "string" and list ~= "all" and list:split(",") or list
+    list = list == "all" and {"health", "energy", "thirst", "hunger", "body_temp", "enviro_temp", "sick"}
+    if list ~= "all" and type(list) ~= "table" then
+        error("HEALTH.hide_hude_elements: expected table for list, got type '"..type(list).."'")
+    end
+    -- now to check through that list
+    for _,tag in pairs(list) do
+        tag = tag == "effects" and "sick" or tag == "temp" and "body_temp" or tag
+        -- check if we exist in hud_data, otherwise skip over
+        tag = concat_text("p_",tag)
+        if hud_data[tag] then
+            -- remove index with "or nil" if not hidden
+            hud_data[concat_text(tag,"_hidden")] = (true ~= hide) or nil
         end
     end
-    meta:set_string("hidehud", minetest.serialize(hidetable))
 end
 
 function HEALTH.show_hud_elements(player, meta, list)
@@ -385,7 +397,7 @@ local function hunger(player, hud_data, meta)
 end
 
 -- body temperature
-local function temp(player, hud_data, meta, hidden)
+local function temp(player, hud_data, meta)
     -- hidden means opacity of 0
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value
@@ -401,6 +413,7 @@ local function temp(player, hud_data, meta, hidden)
       "^[opacity:", opac, blink(hud_data.blink["temp"]) ) )
     -- only update text if text isn't hidden and stats are visible
     local hudtext = hud_data.p_body_temp_text
+    local hidden = hud_data.p_body_temp_hidden
     if not hidden and are_stats_visible(hud_data) then
         local hudtype = hud_data.p_body_temp_type
         -- don't colorize (cold/hot icon above icon)
@@ -426,7 +439,7 @@ local function do_overlay(player, pname, pos, overlay)
     hud[pname].overlay = handle
 end
 
-local function enviro_temp(player, hud_data, meta, hidden)
+local function enviro_temp(player, hud_data, meta)
     local pname = player:get_player_name()
     local player_pos = player:get_pos()
     player_pos.y = player_pos.y + 0.6 --adjust to body height
@@ -459,6 +472,7 @@ local function enviro_temp(player, hud_data, meta, hidden)
     player:hud_change(newhud2, "text", concat_text(ttype, ".png^[opacity:",opac) )
     -- only update text if text isn't hidden and stats are visible
     local hud2 = hud_data.p_air_temp_text
+    local hidden = hud_data.p_enviro_temp_hidden
     if not hidden and are_stats_visible(hud_data) then
         player:hud_change(hud2, "number", tonumber(concat_text("0x",stat_col)) )
         player:hud_change(hud2, "text", t)
