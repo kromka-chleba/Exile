@@ -250,25 +250,16 @@ end
 -- sets meta values between certain limits and updates meta
 function HEALTH.set_int(meta,name,value)
     assert(type(meta) == "userdata",
-           "health.set_int: meta/player is not a valid 'userdata'")
-    if (minetest.is_player(meta)) then
-        meta = meta:get_meta()
-    end
+           "HEALTH.set_int: meta/player is not a valid 'userdata'")
+    meta = core.is_player(meta) and meta:get_meta() or meta
     assert(is_meta(meta),
-           "health.set_int: invalid first parameter given for meta/player")
-    if (type(value) ~= "number") then
-        value = 0
-    end
+           "HEALTH.set_int: meta/player is not a valid 'userdata'")
+    -- permit strings to number
+    value = type(value) == "number" and value or type(value) ~= "number" and tonumber(value) or 0
 
-    if (type(name) ~= "string") then
-        name = tostring(name)
-        name = string.lower(name)
-    else
-        name = string.lower(name)
-    end
-    if (meta:get(name) == nil) then
-        return 0
-    end
+    -- assert string and lowercase it
+    name = type(name) ~= "string" and tostring(name) or name
+    name = name:lower()
 
     value = math.ceil(value)
     -- check for names to set custom limits
@@ -286,25 +277,16 @@ end
 --   to reliably modify stats like hunger or thirst
 function HEALTH.modify_int(meta,name,value)
     assert(type(meta) == "userdata",
-           "health.modify_int: player/meta is not a valid 'userdata'")
-    if minetest.is_player(meta) then
-        meta = meta:get_meta()
-    end
+           "HEALTH.set_int: meta/player is not a valid 'userdata'")
+    meta = core.is_player(meta) and meta:get_meta() or meta
     assert(is_meta(meta),
-           "health.modify_int: invalid first parameter given for player/meta")
-    if (type(value) ~= "number") then
-        value = 0
-    end
+           "HEALTH.set_int: meta/player is not a valid 'userdata'")
+    -- permit strings to number
+    value = type(value) == "number" and value or type(value) ~= "number" and tonumber(value) or 0
 
-    if (type(name) ~= "string") then
-        name = tostring(name)
-        name = string.lower(name)
-    else
-        name = string.lower(name)
-    end
-    if (meta:get(name) == nil) then -- if key doesn't exist
-        return 0
-    end
+    -- assert string and lowercase it
+    name = type(name) ~= "string" and tostring(name) or name
+    name = name:lower()
 
     local stat = meta:get_int(name)
     value = math.ceil(value) -- no floats
@@ -320,22 +302,17 @@ end
 -- calculates player status in reference to the player's stats and health, saves adjusted rates
 -- returns the adjusted rates so they can be used if desired
 -- dontset will prevent setting the variables
+-- meta is optional
 function HEALTH.health_calc(player,meta,dontset)
-    assert(minetest.is_player(player) == true,
-           "health.health_calc: provided 'player' is not a player!")
-
-    if ( not type(dontset) == "boolean" ) then
-        dontset = false
+    if not core.is_player(player) then
+        error("HEALTH.health_calc: not given an active player")
     end
+    dontset = type(dontset) == "boolean" and dontset or false -- will be dontset if true otherwise defaults to false
+    -- incase meta not provided then get it!
+    meta = is_meta(meta) and meta or player:get_meta()
     local pname = player:get_player_name()
     local bstats = HEALTH.get_default_attributes() -- get base starting stats
-    local stats
-
-    -- incase meta is not provided then (get it! :D)
-    if not is_meta(meta) then
-        meta = player:get_meta()
-    end
-    stats = HEALTH.get_meta_stats(meta)
+    local stats = HEALTH.get_meta_stats(meta)
 
     -- player's current stats as variables
     local health = player:get_hp()
@@ -514,18 +491,16 @@ function HEALTH.health_calc(player,meta,dontset)
     stats.recovery_rate = r_rate
     stats.move = mov
     stats.jump = jum
-    -- set player's meta
-    if not dontset then
-        for name,value in pairs(stats) do
-            if (type(value) == "number") then
-                HEALTH.set_int(meta,name,value)
-            elseif (type(value) == "string") then
-                meta:set_string(value)
-            end
+    -- return adjust rates so can be applied if necessary
+    if dontset then return stats end -- just return stats without meta modification
+    -- set player's meta otherwise and return stats
+    for name,value in pairs(stats) do
+        if (type(value) == "number") then
+            HEALTH.set_int(meta,name,value)
+        elseif (type(value) == "string") then
+            meta:set_string(value)
         end
     end
-
-    --return adjusted rates so can be applied if necessary
     return stats
 end
 -----------------------------
