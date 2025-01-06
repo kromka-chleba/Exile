@@ -271,17 +271,19 @@ function HEALTH.modify_hp(player,value)
     return phealth -- return modified health
 end
 
--- sets meta values between certain limits and updates meta
--- permits player argument for meta
-function HEALTH.set_int(meta,name,value)
-    meta = is_meta(meta) and meta or core.is_player(meta) and meta:get_meta()
-    assert(meta,
-           "HEALTH.set_int: meta argument is not an active player or metadata!")
+-- meta argument optional
+-- sets player stat values between certain limits
+function HEALTH.set_int(player,meta,name,value)
+    if type(name) ~= "string" then
+        error("HEALTH.set_int: expected string for stat name (3rd parameter) got type '"..type(name).."'")
+    end
+    assert(core.is_player(player), "HEALTH.set_int: not given an active player")
+    meta = is_meta(meta) and meta or player:get_meta()
+    assert(is_meta(meta),
+           "HEALTH.set_int: meta argument is not metadata!")
     -- permit strings to number
+    -- lowercase stat name
     value = type(value) == "number" and value or type(value) ~= "number" and tonumber(value) or 0
-
-    -- assert string and lowercase it
-    name = type(name) ~= "string" and tostring(name) or name
     name = name:lower()
 
     value = math.ceil(value)
@@ -296,23 +298,26 @@ function HEALTH.set_int(meta,name,value)
     return value -- return provided value
 end
 
+-- optional meta argument
 -- allows any code that depends on HEALTH to use modify_int
---   to reliably modify stats like hunger or thirst
-function HEALTH.modify_int(meta,name,value)
-    meta = is_meta(meta) and meta or core.is_player(meta) and meta:get_meta()
-    assert(meta,
-           "HEALTH.modify_int: meta argument is not an active player or metadata!")
+--   to reliably modify stats like hunger or thirst without hardsetting accidentally or calculating for it
+function HEALTH.modify_int(player,meta,name,value)
+    if type(name) ~= "string" then
+        error("HEALTH.modify_int: expected string for stat name (3rd parameter) got type '"..type(name).."'")
+    end
+    assert(core.is_player(player), "HEALTH.modify_int: not given an active player")
+    meta = is_meta(meta) and meta or player:get_meta()
+    assert(is_meta(meta),
+           "HEALTH.modify_int: meta argument is not metadata!")
     -- permit strings to number
+    -- lowercase stat name
     value = type(value) == "number" and value or type(value) ~= "number" and tonumber(value) or 0
-
-    -- assert string and lowercase it
-    name = type(name) ~= "string" and tostring(name) or name
     name = name:lower()
 
     local stat = meta:get_int(name)
     value = math.ceil(value) -- no floats
 
-    return HEALTH.set_int(meta,name,(stat + value))
+    return HEALTH.set_int(player,meta,name,(stat + value))
     -- return modified value (use set_int to keep metadata within limits)
 end
 
@@ -517,7 +522,7 @@ function HEALTH.health_calc(player,meta,dontset)
     -- set player's meta otherwise and return stats
     for name,value in pairs(stats) do
         if (type(value) == "number") then
-            HEALTH.set_int(meta,name,value)
+            HEALTH.set_int(player,meta,name,value)
         elseif (type(value) == "string") then
             meta:set_string(value)
         end
@@ -733,7 +738,7 @@ function HEALTH.malus_bonus(player,meta)
     -- set player's meta to diseased
     for name,value in pairs(stats) do
         if (type(value) == "number" and name ~= "move" or name ~= "jump") then
-            HEALTH.set_int(meta,name,value)
+            HEALTH.set_int(player,meta,name,value)
         elseif (type(value) == "string") then
             meta:set_string(value)
         end
@@ -878,13 +883,13 @@ minetest.register_globalstep(function(dtime)
 
                     --update
                     HEALTH.modify_hp(player,h_rate)
-                    temperature = HEALTH.modify_int(
+                    temperature = HEALTH.modify_int(player,
                         meta,"temperature",temperature1)
-                    thirst = HEALTH.modify_int(meta,
+                    thirst = HEALTH.modify_int(player,meta,
                                                "thirst",t_rate)
-                    hunger = HEALTH.modify_int(meta,
+                    hunger = HEALTH.modify_int(player,meta,
                                                "hunger",hun_rate)
-                    energy = HEALTH.modify_int(meta,"energy",r_rate)
+                    energy = HEALTH.modify_int(player,meta,"energy",r_rate)
 
                     local st = player_api.get_state_by_name(name)
                     st:set_progress("int_temp", temperature)

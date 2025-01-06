@@ -132,8 +132,8 @@ local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max,
 
                 --must directly set them, as time delay means it isn't
                 --  feeding into main health loop
-                HEALTH.modify_int(meta,"thirst",-rant)
-                HEALTH.modify_int(meta,"hunger",-ranh)
+                HEALTH.modify_int(player,meta,"thirst",-rant)
+                HEALTH.modify_int(player,meta,"hunger",-ranh)
         end)
     end
 end

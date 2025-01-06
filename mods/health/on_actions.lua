@@ -43,10 +43,10 @@ function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_tabl
     local meta = user:get_meta()
     -- set new values
     modify_hp(user,f_table.hp)
-    modify_int(meta,"thirst",f_table.th)
-    modify_int(meta,"hunger",f_table.hu)
-    modify_int(meta,"energy",f_table.en)
-    modify_int(meta,"temperature",f_table.temp)
+    modify_int(user,meta,"thirst",f_table.th)
+    modify_int(user,meta,"hunger",f_table.hu)
+    modify_int(user,meta,"energy",f_table.en)
+    modify_int(user,meta,"temperature",f_table.temp)
     local st = player_api.get_state(user)
     if st then
         st:set_progress("thirst", f_table.th)
@@ -365,9 +365,9 @@ local function fast_interval(dtime)
                 st:set_progress("thirst", thirst)
 
                 --update
-                HEALTH.set_int(meta,"energy",energy)
-                HEALTH.set_int(meta,"hunger",hunger)
-                HEALTH.set_int(meta,"thirst",thirst)
+                HEALTH.set_int(player,meta,"energy",energy)
+                HEALTH.set_int(player,meta,"hunger",hunger)
+                HEALTH.set_int(player,meta,"thirst",thirst)
                 player:set_hp(health)
                 --update form so can see change while looking
                 sfinv.set_player_inventory_formspec(player)

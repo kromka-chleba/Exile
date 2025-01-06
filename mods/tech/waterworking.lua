@@ -44,7 +44,7 @@ local function drink_water(player)
     local thirst = meta:get_int("thirst")
     if thirst < 100 then
         -- only drink when thirsty, return true and set player's thirst if so
-        HEALTH.set_int(meta,"thirst",100)
+        HEALTH.set_int(player,meta,"thirst",100)
         return true
     end
 end
