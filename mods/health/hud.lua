@@ -245,7 +245,7 @@ local setup_hud = function(player)
         image = make_image_hud(player,
             {x = hud_sick_x + longbarpos[lb].x,
             y = hud_vert_pos + longbarpos[lb].y},
-            "hud_sick.png" ),
+            "hud_effects.png" ),
         text = make_text_hud(player,
             {x = hud_sick_x + longbarpos[lb].x,
             y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
@@ -328,27 +328,25 @@ end
 -- player, hud_data, health type (e.g. health or hunger), color, opacity, text value
 -- will do blink for you
 local function health_hud_change(player, hud_data, htype, color, opac, textval)
-    local hud1 = hud_data[concat_text("p_",htype)] -- e.g. "p_hunger"
-    local hud2 = hud_data[concat_text("p_",htype,"_text")]
-    if not (hud1 and hud2) then return end
-    local prev_textval_ind = concat_text("p_",htype,"_prev") -- previous textval index
-    local prev_textval = hud_data[prev_textval_ind]
-    if prev_textval == textval then return end -- don't update huds if we're the same value
-    hud_data[prev_textval_ind] = textval -- add to prev
+    local data = hud_data[htype]
+    if not (data and data.image and data.text) then return end
+    local prev_text = data.prev_text -- previous textval index
+    if data.prev_text == textval then return end -- don't update huds if we're the same value
+    hud_data.prev_text = textval -- add to prev
     -- get blink of temp if body_temp, otherwise assume htype
     local image = concat_text("hud_",htype,".png^[colorize:#",color,
-      "^[opacity:",opac,blink(hud_data.blink[(htype == "sick" and "effects" or htype)]) )
-    player:hud_change(hud1, "text", image) -- update icon
+      "^[opacity:",opac,blink(hud_data.blink[htype]) )
+    player:hud_change(data.image, "text", image) -- update icon
     -- tonumber opac for comparison
     opac = type(opac) == "number" and opac or tonumber(opac)
     -- update numbered percentages if text is not hidden and stats visible
-    local texthidden = hud_data[concat_text("p_",htype,"_hidden")]
+    local texthidden = data.hidden
     if not texthidden and are_stats_visible(hud_data) then
-        player:hud_change(hud2, "number", tonumber(concat_text("0x", color)) )
-        player:hud_change(hud2, "text", textval)
+        player:hud_change(data.text, "number", tonumber(concat_text("0x", color)) )
+        player:hud_change(data.text, "text", textval)
     -- otherwise hide
     else
-        player:hud_change(hud2, "text", "")
+        player:hud_change(data.text, "text", "")
     end
 end
 
@@ -403,24 +401,25 @@ end
 local function temp(player, hud_data, meta)
     -- hidden means opacity of 0
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
+    -- get data
+    local data = hud_data.body_temp
+    if not (data and data.image and data.flare and data.text) then return end
     -- get value
     local v = meta:get_int("temperature")
-    local prev_v = hud_data["p_body_temp_prev"]
-    if prev_v == v then return end -- don't update hud if we're the same value
-    hud_data["p_body_temp_prev"] = v -- add to prev
+    if data.prev_v == v then return end -- don't update hud if we're the same value
+    data.prev_v = v -- add to prev
     local stat_col, ttype = color_bodytemp(v)
     local t = climate.get_temp_string(v, meta)
     -- update hud
-    local hud1 = hud_data.p_body_temp
-    player:hud_change(hud1, "text", concat_text("hud_body_temp.png^[colorize:#", stat_col,
+    player:hud_change(data.image, "text", concat_text("hud_body_temp.png^[colorize:#", stat_col,
       "^[opacity:", opac, blink(hud_data.blink["temp"]) ) )
     -- only update text if text isn't hidden and stats are visible
-    local hudtext = hud_data.p_body_temp_text
-    local hidden = hud_data.p_body_temp_hidden
+    local hudtext = data.text
+    local hidden = data.hidden
     if not hidden and are_stats_visible(hud_data) then
         local hudtype = hud_data.p_body_temp_type
         -- don't colorize (cold/hot icon above icon)
-        player:hud_change(hudtype, "text", concat_text(ttype, ".png^[opacity:", opac) )
+        player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:", opac) )
         player:hud_change(hudtext, "number", tonumber(concat_text("0x", stat_col)) ) -- colorize
         player:hud_change(hudtext, "text", t)
     else
@@ -443,13 +442,16 @@ local function do_overlay(player, pname, pos, overlay)
 end
 
 local function enviro_temp(player, hud_data, meta)
+    -- get data
+    local data = hud_data.enviro_temp
+    if not (data and data.image and data.flare and data.text) then return end
+    -- get position and check temp
     local pname = player:get_player_name()
     local player_pos = player:get_pos()
     player_pos.y = player_pos.y + 0.6 --adjust to body height
     local v = math.floor(climate.get_point_temp(player_pos, true))
-    local prev_v = hud_data["p_enviro_temp_prev"]
-    if prev_v == v then return end -- don't update hud if we're the same value
-    hud_data["p_enviro_temp_prev"] = v -- add to prev
+    if data.prev_v == v then return end -- don't update hud if we're the same value
+    data.prev_v = v -- add to prev
     local stat_col, ttype, overlay = color_envirotemp(v, meta)
     if overlay then
         if not hud_data.overlay then
@@ -465,22 +467,19 @@ local function enviro_temp(player, hud_data, meta)
         hud_data.overlay = nil
     end
     local t = climate.get_temp_string(v, meta)
-    local newhud = hud_data.p_air_temp
-    local newhud2 = hud_data.p_air_temp_type
     -- hidden means opacity of 0
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
-    player:hud_change(newhud, "text", concat_text("hud_air_temp.png^[colorize:#",stat_col,
+    player:hud_change(data.image, "text", concat_text("hud_air_temp.png^[colorize:#",stat_col,
       "^[opacity:",opac, blink(hud_data.blink["enviro_temp"]) ) )
     -- don't colorize (cold/hot icon above icon)
-    player:hud_change(newhud2, "text", concat_text(ttype, ".png^[opacity:",opac) )
+    player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:",opac) )
     -- only update text if text isn't hidden and stats are visible
-    local hud2 = hud_data.p_air_temp_text
-    local hidden = hud_data.p_enviro_temp_hidden
+    local hidden = data.hidden
     if not hidden and are_stats_visible(hud_data) then
-        player:hud_change(hud2, "number", tonumber(concat_text("0x",stat_col)) )
-        player:hud_change(hud2, "text", t)
+        player:hud_change(data.text, "number", tonumber(concat_text("0x",stat_col)) )
+        player:hud_change(data.text, "text", t)
     else
-        player:hud_change(hud2, "text", "")
+        player:hud_change(data.text, "text", "")
     end
 end
 
@@ -500,8 +499,8 @@ local function effects(player, hud_data, meta, hidden)
     elseif v > 0 then
         stat_col = stat_color.slight
     end
-    -- update effects (sick) hud
-    health_hud_change(player, hud_data, "sick", stat_col, opac, t, hidden)
+    -- update effects hud
+    health_hud_change(player, hud_data, "effects", stat_col, opac, t, hidden)
 end
 
 -- update placement of hud icons when hud16 (longbar) is modified
@@ -509,17 +508,17 @@ end
 minimal.register_on_player_setting_change(function(player, setting, value, meta)
     if setting ~= "hud16" then return end
     local hud_data = hud[player:get_player_name()]
-    if not hud_data then return end
-    player:hud_change(hud_data.p_health, "offset",
+    if not (hud_data and hud_data.health and hud_data.effects) then return end
+    player:hud_change(hud_data.health.image, "offset",
                       {x = hud_health_x - longbarpos[value].x,
                        y = hud_vert_pos + longbarpos[value].y})
-    player:hud_change(hud_data.p_health_text, "offset",
+    player:hud_change(hud_data.health.text, "offset",
                       {x = hud_health_x - longbarpos[value].x,
                        y = hud_vert_pos + hud_text_y + longbarpos[value].y})
-    player:hud_change(hud_data.p_sick, "offset",
+    player:hud_change(hud_data.effects.image, "offset",
                       {x = hud_body_temp_x + longbarpos[value].x,
                        y = hud_vert_pos + longbarpos[value].y})
-    player:hud_change(hud_data.p_sick_text, "offset",
+    player:hud_change(hud_data.effects.text, "offset",
                       {x = hud_body_temp_x + longbarpos[value].x,
                        y = hud_vert_pos + hud_text_y + longbarpos[value].y})
 end)
