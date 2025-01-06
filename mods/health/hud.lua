@@ -507,8 +507,8 @@ minimal.register_on_player_setting_change(function(player, setting, value, meta)
         player:hud_change(hud_data.effects.text, "offset",
                           {x = hud_body_temp_x + longbarpos[value].x,
                            y = hud_vert_pos + hud_text_y + longbarpos[value].y})
-    -- modifying opacity
-    elseif setting == "hud_opacity" then
+    -- modifying opacity or show_stats
+    elseif (setting == "hud_opacity" or setting == "hud_show_stats") then
         -- iterate over each hud
         for nm,data in pairs(hud_data) do
             -- if we have a function for it, call it!
@@ -522,7 +522,7 @@ end)
 -- only change hud when stats have been modified
 HEALTH.register_on_stat_change(function(player, setting, value, meta)
     -- player's "temperature" will be "body_temp"
-    setting = setting == "temperature" and "body_temp" or setting
+    setting = setting == "temperature" and "body_temp" or setting == "effects_num" and "effects" or setting
     local stat_func = stat_funcs[setting]
     -- not found
     if not stat_func then return end
