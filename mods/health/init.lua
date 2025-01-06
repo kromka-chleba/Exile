@@ -108,8 +108,9 @@ function HEALTH.get_default_attributes()
 end
 
 --e.g. for new players
-function HEALTH.set_default_attributes(player)
-    local meta = player:get_meta()
+-- permits 2nd parameter for player's meta argument
+function HEALTH.set_default_attributes(player, meta)
+    meta = meta or player:get_meta()
     local attrb = HEALTH.get_default_attributes()
     player:set_hp(attrb.health)
     for name,value in pairs(attrb) do
