@@ -295,6 +295,7 @@ function HEALTH.set_int(player,meta,name,value)
     end
     meta:set_int(name,value)
 
+    stat_changed(player, name, value, meta)
     return value -- return provided value
 end
 
