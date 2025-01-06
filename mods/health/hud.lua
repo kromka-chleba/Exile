@@ -330,9 +330,6 @@ end
 local function health_hud_change(player, hud_data, htype, color, textval)
     local data = hud_data[htype]
     if not (data and data.image and data.text) then return end
-    local prev_text = data.prev_text -- previous textval index
-    if data.prev_text == textval then return end -- don't update huds if we're the same value
-    hud_data.prev_text = textval -- add to prev
     -- get opacity (hidden means opacity of 0)
     local opac = data.hidden and 0 or hud_data.opacity or mthudopacity
     opac = type(opac) == "number" and opac or tonumber(opac) or 127
@@ -353,16 +350,6 @@ local function health_hud_change(player, hud_data, htype, color, textval)
     end
 end
 
-local function health(player, hud_data)
-    -- get value percentage
-    local v = player:get_hp()
-    v = (v/20)*100
-    local stat_col = color(v)
-    local t = concat_text(v, " %")
-    -- update health hud
-    health_hud_change(player, hud_data, "health", stat_col, t)
-end
-
 local function do_overlay(player, pname, pos, overlay)
     local handle = player:hud_add({
             name = overlay,
@@ -378,6 +365,15 @@ local function do_overlay(player, pname, pos, overlay)
 end
 
 local stat_funcs = {
+    health = function(player, hud_data)
+        -- get value percentage
+        local v = player:get_hp()
+        v = (v/20)*100
+        local stat_col = color(v)
+        local t = concat_text(v, " %")
+        -- update health hud
+        health_hud_change(player, hud_data, "health", stat_col, t)
+    end,
     energy = function(player, hud_data, meta)
         -- get value percentage
         local v = meta:get_int("energy")
@@ -410,8 +406,6 @@ local stat_funcs = {
         if not (data and data.image and data.flare and data.text) then return end
         -- get value
         local v = meta:get_int("temperature")
-        if data.prev_v == v then return end -- don't update hud if we're the same value
-        data.prev_v = v -- add to prev
         local stat_col, ttype = color_bodytemp(v)
         local t = climate.get_temp_string(v, meta)
         -- get opacity (hidden means opacity of 0)
@@ -498,21 +492,31 @@ local stat_funcs = {
 -- update placement of hud icons when hud16 (longbar) is modified
 -- value will be false or true
 minimal.register_on_player_setting_change(function(player, setting, value, meta)
-    if setting ~= "hud16" then return end
     local hud_data = hud[player:get_player_name()]
-    if not (hud_data and hud_data.health and hud_data.effects) then return end
-    player:hud_change(hud_data.health.image, "offset",
-                      {x = hud_health_x - longbarpos[value].x,
-                       y = hud_vert_pos + longbarpos[value].y})
-    player:hud_change(hud_data.health.text, "offset",
-                      {x = hud_health_x - longbarpos[value].x,
-                       y = hud_vert_pos + hud_text_y + longbarpos[value].y})
-    player:hud_change(hud_data.effects.image, "offset",
-                      {x = hud_body_temp_x + longbarpos[value].x,
-                       y = hud_vert_pos + longbarpos[value].y})
-    player:hud_change(hud_data.effects.text, "offset",
-                      {x = hud_body_temp_x + longbarpos[value].x,
-                       y = hud_vert_pos + hud_text_y + longbarpos[value].y})
+    if not hud_data then return end
+    if setting == "hud16" and (hud_data.health and hud_data.effects) then
+        player:hud_change(hud_data.health.image, "offset",
+                          {x = hud_health_x - longbarpos[value].x,
+                           y = hud_vert_pos + longbarpos[value].y})
+        player:hud_change(hud_data.health.text, "offset",
+                          {x = hud_health_x - longbarpos[value].x,
+                           y = hud_vert_pos + hud_text_y + longbarpos[value].y})
+        player:hud_change(hud_data.effects.image, "offset",
+                          {x = hud_body_temp_x + longbarpos[value].x,
+                           y = hud_vert_pos + longbarpos[value].y})
+        player:hud_change(hud_data.effects.text, "offset",
+                          {x = hud_body_temp_x + longbarpos[value].x,
+                           y = hud_vert_pos + hud_text_y + longbarpos[value].y})
+    -- modifying opacity
+    elseif setting == "hud_opacity" then
+        -- iterate over each hud
+        for nm,data in pairs(hud_data) do
+            -- if we have a function for it, call it!
+            if stat_funcs[nm] then
+                stat_funcs[nm](player, hud_data, meta)
+            end
+        end
+    end
 end)
 
 -- only change hud when stats have been modified
@@ -544,7 +548,7 @@ minetest.register_globalstep(function(dtime)
                     return
                 end
                 -- update health and enviro_temp
-                health(player, hud_data)
+                stat_funcs["health"](player, hud_data)
                 stat_funcs["enviro_temp"](player, hud_data)
                 local wi = player:get_wielded_item():get_name()
                 if hud_data.wh ~= wi then -- changed, remove it
