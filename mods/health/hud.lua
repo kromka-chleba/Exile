@@ -177,76 +177,79 @@ local setup_hud = function(player)
 
     local lb = tobool(meta:get_string("hud16")) -- nil -> default false
 
-    hud_data.p_health = make_image_hud(player,
-                                       {x = hud_health_x - longbarpos[lb].x,
-                                        y = hud_vert_pos + longbarpos[lb].y},
-                                       "hud_health.png" )
+    hud_data.health = {
+        image = make_image_hud(player,
+            {x = hud_health_x - longbarpos[lb].x,
+            y = hud_vert_pos + longbarpos[lb].y},
+           "hud_health.png" ),
+        text = make_text_hud(player,
+            {x = hud_health_x - longbarpos[lb].x,
+            y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
+    }
 
-    hud_data.p_hunger = make_image_hud(player,
-                                       {x = hud_hunger_x, y = hud_vert_pos},
-                                       "hud_hunger.png" )
+    hud_data.hunger = {
+        image = make_image_hud(player,
+            {x = hud_hunger_x, y = hud_vert_pos},
+            "hud_hunger.png" ),
+        text = make_text_hud(player,
+            {x = hud_hunger_x,
+            y = hud_vert_pos + hud_text_y} )
+    }
 
-    hud_data.p_thirst = make_image_hud(player,
-                                       {x = hud_thirst_x, y = hud_vert_pos},
-                                       "hud_thirst.png" )
+    hud_data.thirst = {
+        image = make_image_hud(player,
+            {x = hud_thirst_x, y = hud_vert_pos},
+            "hud_thirst.png" ),
+        text = make_text_hud(player,
+            {x = hud_thirst_x,
+            y = hud_vert_pos + hud_text_y} )
+    }
 
-    hud_data.p_energy = make_image_hud(player,
-                                       {x = hud_energy_x, y = hud_vert_pos},
-                                       "hud_energy.png" )
+    hud_data.energy = {
+        image = make_image_hud(player,
+            {x = hud_energy_x, y = hud_vert_pos},
+            "hud_energy.png" ),
+        text = make_text_hud(player,
+            {x = hud_energy_x,
+            y = hud_vert_pos + hud_text_y} )
+    }
 
-    hud_data.p_body_temp = make_image_hud(player,
-                                          {x = hud_body_temp_x, y = hud_vert_pos},
-                                          "hud_body_temp.png" )
+    hud_data.body_temp = {
+        image = make_image_hud(player,
+            {x = hud_body_temp_x, y = hud_vert_pos},
+            "hud_body_temp.png" ),
+        -- small little icon above our icon
+        flare = make_image_hud(player,
+            {x = hud_body_temp_x,
+            y = hud_vert_pos + hud_extra_y},
+            "hud_temp_normal.png" ),
+        text = make_text_hud(player,
+            {x = hud_body_temp_x,
+            y = hud_vert_pos + hud_text_y} )
+    }
 
-    hud_data.p_body_temp_type = make_image_hud(player,
-                                               {x = hud_body_temp_x,
-                                                y = hud_vert_pos + hud_extra_y},
-                                               "hud_temp_normal.png" )
+    hud_data.enviro_temp = {
+        image = make_image_hud(player,
+            {x = hud_air_temp_x, y = hud_vert_pos},
+            "hud_air_temp.png" ),
+        flare = make_image_hud(player,
+            {x = hud_air_temp_x,
+            y = hud_vert_pos + hud_extra_y},
+            "hud_temp_normal.png" ),
+        text = make_text_hud(player,
+            {x = hud_air_temp_x,
+            y = hud_vert_pos + hud_text_y} )
+    }
 
-    hud_data.p_air_temp = make_image_hud(player,
-                                         {x = hud_air_temp_x, y = hud_vert_pos},
-                                         "hud_air_temp.png" )
-
-    hud_data.p_air_temp_type = make_image_hud(player,
-                                              {x = hud_air_temp_x,
-                                               y = hud_vert_pos + hud_extra_y},
-                                              "hud_temp_normal.png" )
-
-    hud_data.p_sick = make_image_hud(player,
-                                     {x = hud_sick_x + longbarpos[lb].x,
-                                      y = hud_vert_pos + longbarpos[lb].y},
-                                     "hud_sick.png" )
-
-    hud_data.p_health_text = make_text_hud(
-        player,
-        {x = hud_health_x - longbarpos[lb].x,
-         y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
-
-    hud_data.p_hunger_text = make_text_hud(player,
-                                           {x = hud_hunger_x,
-                                            y = hud_vert_pos + hud_text_y} )
-
-    hud_data.p_thirst_text = make_text_hud(player,
-                                           {x = hud_thirst_x,
-                                            y = hud_vert_pos + hud_text_y} )
-
-    hud_data.p_energy_text = make_text_hud(player,
-                                           {x = hud_energy_x,
-                                            y = hud_vert_pos + hud_text_y} )
-
-    hud_data.p_body_temp_text = make_text_hud(player,
-                                              {x = hud_body_temp_x,
-                                               y = hud_vert_pos + hud_text_y} )
-
-    hud_data.p_air_temp_text = make_text_hud(player,
-                                             {x = hud_air_temp_x,
-                                              y = hud_vert_pos + hud_text_y} )
-
-    hud_data.p_sick_text = make_text_hud(
-        player,
-        {x = hud_sick_x + longbarpos[lb].x,
-         y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
-
+    hud_data.effects = {
+        image = make_image_hud(player,
+            {x = hud_sick_x + longbarpos[lb].x,
+            y = hud_vert_pos + longbarpos[lb].y},
+            "hud_sick.png" ),
+        text = make_text_hud(player,
+            {x = hud_sick_x + longbarpos[lb].x,
+            y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
+    }
 end
 
 minetest.register_on_joinplayer(function(player) setup_hud(player) end)
