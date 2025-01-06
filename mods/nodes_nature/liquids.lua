@@ -287,7 +287,7 @@ minetest.register_node(
         temp_effect_max = 0,
         groups = {crumbly = 3, falling_node = 1, temp_effect = 1, temp_pass = 1,
                   puts_out_fire = 1, fall_damage_add_percent = -25,
-                  edible = 1},
+                  edible = 1, no_soup = 1},
         sounds = nodes_nature.node_sound_snow_defaults(),
         _use_tip = S("Combine with another slab\n or eat if you're desperate"),
         _on_use_item = function(player, wielded_item, pointed_thing)
@@ -319,7 +319,7 @@ minetest.register_node(
         _use_tip = S("Eat if you're desperate"),
         groups = {crumbly = 3, falling_node = 1, temp_effect = 1,
                   puts_out_fire = 1, cools_lava = 1,
-                  fall_damage_add_percent = -50, edible = 1,
+                  fall_damage_add_percent = -50, edible = 1, no_soup = 1,
         },
         sounds = nodes_nature.node_sound_snow_defaults(),
 })
