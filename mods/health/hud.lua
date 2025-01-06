@@ -448,6 +448,8 @@ local function enviro_temp(player, hud_data, meta)
     local v = math.floor(climate.get_point_temp(player_pos, true))
     if data.prev_v == v then return end -- don't update hud if we're the same value
     data.prev_v = v -- add to prev
+    -- get meta and temperature reading
+    meta = type(meta) == "userdata" and meta or player:get_meta()
     local stat_col, ttype, overlay = color_envirotemp(v, meta)
     if overlay then
         if not hud_data.overlay then
@@ -537,23 +539,23 @@ minetest.register_globalstep(function(dtime)
 
                 local hidehud =  minetest.deserialize(meta:get_string("hidehud"))
                     or {}
-                health(player, hud_data, hidehud.health)
-                energy(player, hud_data, meta, hidehud.energy)
-                thirst(player, hud_data, meta, hidehud.thirst)
-                hunger(player, hud_data, meta, hidehud.hunger)
-                temp(player, hud_data, meta, hidehud.temp)
-                enviro_temp(player, hud_data, meta, hidehud.enviro_temp)
-                effects(player, hud_data, meta, hidehud.effects)
+                health(player, hud_data)
+                energy(player, hud_data, meta)
+                thirst(player, hud_data, meta)
+                hunger(player, hud_data, meta)
+                temp(player, hud_data, meta)
+                enviro_temp(player, hud_data, meta)
+                effects(player, hud_data, meta)
                 local wi = player:get_wielded_item():get_name()
                 if hud_data.wh ~= wi then -- changed, remove it
                     if wielded_hud.list[hud_data.wh] then
-                        wielded_hud.list[hud_data.wh].unwield(player, name, meta)
+                        wielded_hud.list[hud_data.wh].unwield(player, name)
                     end
                     hud_data.wh = nil
                 end
                 if wielded_hud.list[wi] then
                     hud_data.wh = wi
-                    wielded_hud.list[wi].update(player, name, meta)
+                    wielded_hud.list[wi].update(player, name)
                 end
             end
             timer = 0
