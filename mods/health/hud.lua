@@ -6,7 +6,8 @@
 HEALTH = HEALTH
 local S = HEALTH.S
 
-local hud = {}
+HEALTH.player_huds = {}
+local hud = HEALTH.player_huds
 local hudupdateseconds = tonumber(minetest.settings:get("exile_hud_update"))
 -- global setting for whether to show stats
 local mtshowstats = minetest.settings:get_bool("exile_hud_show_stats") or true
@@ -311,7 +312,7 @@ end
 
 -- player, hud_data, health type (e.g. health or hunger), color, opacity, text value
 -- will do blink for you
-local function health_hud_change(player, hud_data, htype, color, opac, textval, texthidden)
+local function health_hud_change(player, hud_data, htype, color, opac, textval)
     local hud1 = hud_data[concat_text("p_",htype)] -- e.g. "p_hunger"
     local hud2 = hud_data[concat_text("p_",htype,"_text")]
     if not (hud1 and hud2) then return end
@@ -326,6 +327,7 @@ local function health_hud_change(player, hud_data, htype, color, opac, textval, 
     -- tonumber opac for comparison
     opac = type(opac) == "number" and opac or tonumber(opac)
     -- update numbered percentages if text is not hidden and stats visible
+    local texthidden = hud_data[concat_text("p_",htype,"_hidden")]
     if not texthidden and are_stats_visible(hud_data) then
         player:hud_change(hud2, "number", tonumber(concat_text("0x", color)) )
         player:hud_change(hud2, "text", textval)
@@ -335,7 +337,7 @@ local function health_hud_change(player, hud_data, htype, color, opac, textval, 
     end
 end
 
-local function health(player, hud_data, hidden)
+local function health(player, hud_data)
     -- hidden means opacity of 0
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value percentage
@@ -344,10 +346,10 @@ local function health(player, hud_data, hidden)
     local stat_col = color(v)
     local t = concat_text(v, " %")
     -- update health hud
-    health_hud_change(player, hud_data, "health", stat_col, opac, t, hidden)
+    health_hud_change(player, hud_data, "health", stat_col, opac, t)
 end
 
-local function energy(player, hud_data, meta, hidden)
+local function energy(player, hud_data, meta)
     -- hidden means opacity of 0
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value percentage
@@ -356,10 +358,10 @@ local function energy(player, hud_data, meta, hidden)
     local stat_col = color(v)
     local t = concat_text(v, " %")
     -- update energy hud
-    health_hud_change(player, hud_data, "energy", stat_col, opac, t, hidden)
+    health_hud_change(player, hud_data, "energy", stat_col, opac, t)
 end
 
-local function thirst(player, hud_data, meta, hidden)
+local function thirst(player, hud_data, meta)
     -- hidden means opacity of 0
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value percentage
@@ -367,10 +369,10 @@ local function thirst(player, hud_data, meta, hidden)
     local t = concat_text(v, " %")
     local stat_col = color(v)
     -- update thirst hud
-    health_hud_change(player, hud_data, "thirst", stat_col, opac, t, hidden)
+    health_hud_change(player, hud_data, "thirst", stat_col, opac, t)
 end
 
-local function hunger(player, hud_data, meta, hidden)
+local function hunger(player, hud_data, meta)
     -- hidden means opacity of 0
     local opac = hidden and 0 or hud_data.opacity or mthudopacity
     -- get value percentage
@@ -379,7 +381,7 @@ local function hunger(player, hud_data, meta, hidden)
     local t = concat_text(v, " %")
     local stat_col = color(v)
     -- update hunger hud
-    health_hud_change(player, hud_data, "hunger", stat_col, opac, t, hidden)
+    health_hud_change(player, hud_data, "hunger", stat_col, opac, t)
 end
 
 -- body temperature
