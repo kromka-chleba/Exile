@@ -32,10 +32,10 @@ dofile(minetest.get_modpath('health')..'/food.lua')
 local interval = 60
 
 local function is_meta(meta)
-    if type(meta) == "userdata" then
-        if meta["get_int"] and meta["get_string"] then
-            return true
-        end
+    if type(meta) ~= "userdata" then return end
+    -- metadata will have get_int and get_string
+    if meta.get_int and meta.get_string then
+        return true
     end
 end
 
@@ -110,7 +110,7 @@ end
 --e.g. for new players
 -- permits 2nd parameter for player's meta argument
 function HEALTH.set_default_attributes(player, meta)
-    meta = type(meta) == "userdata" and meta or player:get_meta()
+    meta = is_meta(meta) and meta or player:get_meta()
     local attrb = HEALTH.get_default_attributes()
     player:set_hp(attrb.health)
     for name,value in pairs(attrb) do
@@ -140,12 +140,9 @@ end
 
 -- permits player or meta argument
 function HEALTH.get_meta_stats(meta)
-    assert(type(meta) == "userdata",
-           "health.get_meta_stats: meta/player is not a valid 'userdata'")
-    if minetest.is_player(meta) then
-        meta = meta:get_meta()
-    elseif not is_meta(meta) then
-        error("HEALTH.get_meta_stats: invalid parameter given for meta/player (not active player or not userdata)")
+    meta = is_meta(meta) and meta or core.is_player(meta) and meta:get_meta()
+    if not meta then
+        error("HEALTH.get_meta_stats: invalid parameter given for meta/player (not active player or not valid metadata)")
     end
     -- stats
     return {
@@ -168,7 +165,10 @@ end
 -- set meta stats -- expects stats table with specified stats below
 -- optional meta argument
 function HEALTH.set_meta_stats(player, stats, meta)
-    meta = type(meta) == "userdata" and meta or player:get_meta()
+    if not core.is_player(player) then
+        error("HEALTH.set_meta_stats: not given an active player")
+    end
+    meta = is_meta(meta) and meta or player:get_meta()
     if not (type(stats) == "table" and stats.thirst) then
         error("HEALTH.set_meta_stats: no stats or improper stats given, lacks 'thirst' field and got type '"..type(stats).."'")
     end
@@ -195,7 +195,7 @@ function HEALTH.get_player_stats(player, meta)
     if not core.is_player(player) then
         error("HEALTH.get_player_stats: not given an active player")
     end
-    meta = type(meta) == "userdata" and meta or player:get_meta()
+    meta = is_meta(meta) and meta or player:get_meta()
     local fields = HEALTH.get_meta_stats(meta)
     fields.health = player:get_hp()
     return fields
@@ -206,7 +206,7 @@ function HEALTH.set_player_stats(player, stats, meta)
     if not core.is_player(player) then
         error("HEALTH.set_player_stats: not given an active player")
     end
-    meta = type(meta) == "userdata" and meta or player:get_meta()
+    meta = is_meta(meta) and meta or player:get_meta()
     if not (type(stats) == "table" and stats.thirst) then
         error("HEALTH.set_player_stats: no stats or improper stats given, lacks 'thirst' field and got type '"..type(stats).."'")
     end
@@ -215,18 +215,10 @@ function HEALTH.set_player_stats(player, stats, meta)
 end
 
 function HEALTH.get_life_num(meta) -- gets player's "lives" and returns it
-    if type(meta) ~= "userdata" then
-        -- "HEALTH.get_life_num: invalid argument for 'meta/player'"
-        return 0
-    end
-    if (minetest.is_player(meta)) then
-        meta = meta:get_meta()
-    end
-    if not is_meta(meta) then
-        -- "HEALTH.get_life_num: could not get metadata"
-        return 0
-    end
-
+    meta = is_meta(meta) and meta or core.is_player(meta) and meta:get_meta()
+    -- no meta, return 0
+    if not meta then return 0 end
+    -- otherwise return amount of lives
     return meta:get_int("lives") or 0
 end
 
@@ -248,12 +240,11 @@ function HEALTH.modify_hp(player,value)
 end
 
 -- sets meta values between certain limits and updates meta
+-- permits player argument for meta
 function HEALTH.set_int(meta,name,value)
-    assert(type(meta) == "userdata",
-           "HEALTH.set_int: meta/player is not a valid 'userdata'")
-    meta = core.is_player(meta) and meta:get_meta() or meta
-    assert(is_meta(meta),
-           "HEALTH.set_int: meta/player is not a valid 'userdata'")
+    meta = is_meta(meta) and meta or core.is_player(meta) and meta:get_meta()
+    assert(meta,
+           "HEALTH.set_int: meta argument is not an active player or metadata!")
     -- permit strings to number
     value = type(value) == "number" and value or type(value) ~= "number" and tonumber(value) or 0
 
@@ -276,11 +267,9 @@ end
 -- allows any code that depends on HEALTH to use modify_int
 --   to reliably modify stats like hunger or thirst
 function HEALTH.modify_int(meta,name,value)
-    assert(type(meta) == "userdata",
-           "HEALTH.set_int: meta/player is not a valid 'userdata'")
-    meta = core.is_player(meta) and meta:get_meta() or meta
-    assert(is_meta(meta),
-           "HEALTH.set_int: meta/player is not a valid 'userdata'")
+    meta = is_meta(meta) and meta or core.is_player(meta) and meta:get_meta()
+    assert(meta,
+           "HEALTH.modify_int: meta argument is not an active player or metadata!")
     -- permit strings to number
     value = type(value) == "number" and value or type(value) ~= "number" and tonumber(value) or 0
 
