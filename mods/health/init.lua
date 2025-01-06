@@ -21,12 +21,6 @@ HEALTH.FS = function(...)
     return minetest.formspec_escape(HEALTH.S(...))
 end
 
-dofile(minetest.get_modpath('health')..'/health_states.lua')
-dofile(minetest.get_modpath('health')..'/health_effects.lua')
-dofile(minetest.get_modpath('health')..'/on_actions.lua')
-dofile(minetest.get_modpath('health')..'/hud.lua')
-dofile(minetest.get_modpath('health')..'/food.lua')
-
 
 --frequency of updating and applying effects
 local interval = 60
@@ -720,6 +714,13 @@ function HEALTH.malus_bonus(player,meta)
 
     return stats
 end
+
+-- load each lua file after most function definitions
+dofile(minetest.get_modpath('health')..'/health_states.lua')
+dofile(minetest.get_modpath('health')..'/health_effects.lua')
+dofile(minetest.get_modpath('health')..'/on_actions.lua')
+dofile(minetest.get_modpath('health')..'/hud.lua')
+dofile(minetest.get_modpath('health')..'/food.lua')
 -----------------------------
 
 
