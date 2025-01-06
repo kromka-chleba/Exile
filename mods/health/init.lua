@@ -712,7 +712,7 @@ local function do_effects_list(player, meta, stats)
     -- update effects_list
     meta:set_string("effects_list",
                     minetest.serialize(effects_list))
-    meta:set_int("effects_num", #effects_list)
+    HEALTH.set_int(player, meta, "effects_num", #effects_list)
 
     return stats
 end
@@ -818,7 +818,7 @@ minetest.register_on_dieplayer(function(player)
         player_monoids.fly:del_change(player, "health:metastim")
         player_monoids.gravity:del_change(player, "health:metastim")
         meta:set_string("effects_list", "")
-        meta:set_int("effects_num", 0)
+        HEALTH.set_int(player, meta, "effects_num", 0)
         -- stop all sounds
         HEALTH.stop_sounds(player)
 end)
