@@ -110,7 +110,7 @@ end
 --e.g. for new players
 -- permits 2nd parameter for player's meta argument
 function HEALTH.set_default_attributes(player, meta)
-    meta = meta or player:get_meta()
+    meta = type(meta) == "userdata" and meta or player:get_meta()
     local attrb = HEALTH.get_default_attributes()
     player:set_hp(attrb.health)
     for name,value in pairs(attrb) do
@@ -138,15 +138,17 @@ end
 
 -- MISCELLANEOUS GET FUNCTIONS
 
+-- permits player or meta argument
 function HEALTH.get_meta_stats(meta)
     assert(type(meta) == "userdata",
            "health.get_meta_stats: meta/player is not a valid 'userdata'")
-    if (minetest.is_player(meta)) then
+    if minetest.is_player(meta) then
         meta = meta:get_meta()
     elseif not is_meta(meta) then
-        error("health.get_meta_stats: invalid parameter given for meta/player")
+        error("HEALTH.get_meta_stats: invalid parameter given for meta/player (not active player or not userdata)")
     end
-    local stats = {
+    -- stats
+    return {
         thirst = meta:get_int("thirst"),
         hunger = meta:get_int("hunger"),
         energy = meta:get_int("energy"),
@@ -159,16 +161,16 @@ function HEALTH.get_meta_stats(meta)
         move = meta:get_int("move"),
         jump = meta:get_int("jump"),
         clothing_temp_min = meta:get_int("clothing_temp_min"),
-        clothing_temp_max = meta:get_int("clothing_temp_max"),
+        clothing_temp_max = meta:get_int("clothing_temp_max")
     }
-
-    return stats
 end
 
+-- set meta stats -- expects stats table with specified stats below
+-- optional meta argument
 function HEALTH.set_meta_stats(player, stats, meta)
-    if not meta then meta = player:get_meta() end
-    if not stats or not stats.thirst then
-        error("No stats given to set_meta_stats")
+    meta = type(meta) == "userdata" and meta or player:get_meta()
+    if not (type(stats) == "table" and stats.thirst) then
+        error("HEALTH.set_meta_stats: no stats or improper stats given, lacks 'thirst' field and got type '"..type(stats).."'")
     end
     meta:set_int("thirst", stats.thirst)
     meta:set_int("hunger", stats.hunger)
@@ -188,20 +190,25 @@ function HEALTH.set_meta_stats(player, stats, meta)
     meta:set_int("clothing_temp_max", stats.clothing_temp_max)
 end
 
-
+-- returns player's health stats - meta argument is optional
 function HEALTH.get_player_stats(player, meta)
-    assert(minetest.is_player(player) == true,
-           "get_player_stats: 'player' is not a player")
-    if not meta then meta = player:get_meta() end
+    if not core.is_player(player) then
+        error("HEALTH.get_player_stats: not given an active player")
+    end
+    meta = type(meta) == "userdata" and meta or player:get_meta()
     local fields = HEALTH.get_meta_stats(meta)
     fields.health = player:get_hp()
     return fields
 end
 
+-- sets player's health stats - meta argument is optional
 function HEALTH.set_player_stats(player, stats, meta)
-    if not meta then meta = player:get_meta() end
-    if not stats or not stats.thirst then
-        error("No stats given to set_player_stats")
+    if not core.is_player(player) then
+        error("HEALTH.set_player_stats: not given an active player")
+    end
+    meta = type(meta) == "userdata" and meta or player:get_meta()
+    if not (type(stats) == "table" and stats.thirst) then
+        error("HEALTH.set_player_stats: no stats or improper stats given, lacks 'thirst' field and got type '"..type(stats).."'")
     end
     player:set_hp(stats.health)
     HEALTH.set_meta_stats(player, stats, meta)
