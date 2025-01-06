@@ -374,38 +374,39 @@ local stat_funcs = {
         -- update health hud
         health_hud_change(player, hud_data, "health", stat_col, t)
     end,
-    energy = function(player, hud_data, meta)
+    -- permit sending over the noted value
+    energy = function(player, hud_data, meta, v)
         -- get value percentage
-        local v = meta:get_int("energy")
+        v = v or meta:get_int("energy")
         v = v/10 -- we can already derive a percentage (1000/10)
         local stat_col = color(v)
         local t = concat_text(v, " %")
         -- update energy hud
         health_hud_change(player, hud_data, "energy", stat_col, t)
     end,
-    thirst = function(player, hud_data, meta)
+    thirst = function(player, hud_data, meta, v)
         -- get value percentage
-        local v = meta:get_int("thirst") -- (we're already a percentage, 100 out of 100)
+        v = v or meta:get_int("thirst") -- (we're already a percentage, 100 out of 100)
         local t = concat_text(v, " %")
         local stat_col = color(v)
         -- update thirst hud
         health_hud_change(player, hud_data, "thirst", stat_col, t)
     end,
-    hunger = function(player, hud_data, meta)
+    hunger = function(player, hud_data, meta, v)
         -- get value percentage
-        local v = meta:get_int("hunger")
+        v = v or meta:get_int("hunger")
         v = v/10 -- we can already derive a percentage (1000/10)
         local t = concat_text(v, " %")
         local stat_col = color(v)
         -- update hunger hud
         health_hud_change(player, hud_data, "hunger", stat_col, t)
     end,
-    body_temp = function(player, hud_data, meta)
+    body_temp = function(player, hud_data, meta, v)
         -- get data
         local data = hud_data.body_temp
         if not (data and data.image and data.flare and data.text) then return end
         -- get value
-        local v = meta:get_int("temperature")
+        v = v or meta:get_int("temperature")
         local stat_col, ttype = color_bodytemp(v)
         local t = climate.get_temp_string(v, meta)
         -- get opacity (hidden means opacity of 0)
@@ -427,7 +428,7 @@ local stat_funcs = {
             player:hud_change(hudtext, "text", "")
         end
     end,
-    enviro_temp = function(player, hud_data, meta, forceupdate)
+    enviro_temp = function(player, hud_data, meta, v, forceupdate)
         -- get data
         local data = hud_data.enviro_temp
         if not (data and data.image and data.flare and data.text) then return end
@@ -435,7 +436,7 @@ local stat_funcs = {
         local pname = player:get_player_name()
         local player_pos = player:get_pos()
         player_pos.y = player_pos.y + 0.6 --adjust to body height
-        local v = math.floor(climate.get_point_temp(player_pos, true))
+        v = v or math.floor(climate.get_point_temp(player_pos, true))
         if data.prev_v == v and not forceupdate then return end -- don't update hud if we're the same value (and no forced update)
         data.prev_v = v -- add to prev
         -- get meta and temperature reading
@@ -470,10 +471,10 @@ local stat_funcs = {
             player:hud_change(data.text, "text", "")
         end
     end,
-    effects = function(player, hud_data, meta)
+    effects = function(player, hud_data, meta, v)
         -- calculate stat color
         local stat_col = stat_color.fine
-        local v = meta:get_int("effects_num")
+        v = v or meta:get_int("effects_num")
         local t = concat_text("x", v)
         if v > 4 then
             stat_col = stat_color.extreme
@@ -513,8 +514,9 @@ minimal.register_on_player_setting_change(function(player, setting, value, meta)
         for nm,data in pairs(hud_data) do
             -- if we have a function for it, call it!
             if stat_funcs[nm] then
-                -- 4th parameter "forcedupdate" for enviro_temp
-                stat_funcs[nm](player, hud_data, meta, true)
+                -- carry over value got from change
+                -- 5th parameter "forcedupdate" for enviro_temp
+                stat_funcs[nm](player, hud_data, meta, value, true)
             end
         end
     end
