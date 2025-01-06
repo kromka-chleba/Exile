@@ -206,7 +206,7 @@ local setup_hud = function(player)
 
     hud_data.p_health_text = make_text_hud(
         player,
-        {x = hud_health_x + longbarpos[lb].x,
+        {x = hud_health_x - longbarpos[lb].x,
          y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
 
     hud_data.p_hunger_text = make_text_hud(player,
@@ -231,7 +231,7 @@ local setup_hud = function(player)
 
     hud_data.p_sick_text = make_text_hud(
         player,
-        {x = hud_sick_x,
+        {x = hud_sick_x + longbarpos[lb].x,
          y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
 
 end
@@ -485,6 +485,27 @@ local function effects(player, hud_data, meta, hidden)
     health_hud_change(player, hud_data, "sick", stat_col, opac, t, hidden)
 end
 
+-- update placement of hud icons when hud16 (longbar) is modified
+-- value will be false or true
+minimal.register_on_player_setting_change(function(player, setting, value, meta)
+    if setting ~= "hud16" then return end
+    local hud_data = hud[player:get_player_name()]
+    if not hud_data then return end
+    player:hud_change(hud_data.p_health, "offset",
+                      {x = hud_health_x - longbarpos[value].x,
+                       y = hud_vert_pos + longbarpos[value].y})
+    player:hud_change(hud_data.p_health_text, "offset",
+                      {x = hud_health_x - longbarpos[value].x,
+                       y = hud_vert_pos + hud_text_y + longbarpos[value].y})
+    player:hud_change(hud_data.p_sick, "offset",
+                      {x = hud_body_temp_x + longbarpos[value].x,
+                       y = hud_vert_pos + longbarpos[value].y})
+    player:hud_change(hud_data.p_sick_text, "offset",
+                      {x = hud_body_temp_x + longbarpos[value].x,
+                       y = hud_vert_pos + hud_text_y + longbarpos[value].y})
+end)
+
+
 local timer = 0
 local blinktimer = 0
 
@@ -521,23 +542,6 @@ minetest.register_globalstep(function(dtime)
                 if wielded_hud.list[wi] then
                     hud_data.wh = wi
                     wielded_hud.list[wi].update(player, name, meta)
-                end
-
-                local lb = tobool(meta:get_string("hud16")) -- long hotbar
-                if hud.lb ~= lb then
-                    player:hud_change(hud_data.p_health, "offset",
-                                      {x = hud_health_x - longbarpos[lb].x,
-                                       y = hud_vert_pos + longbarpos[lb].y})
-                    player:hud_change(hud_data.p_health_text, "offset",
-                                      {x = hud_health_x - longbarpos[lb].x,
-                                       y = hud_vert_pos + hud_text_y + longbarpos[lb].y})
-                    player:hud_change(hud_data.p_sick, "offset",
-                                      {x = hud_body_temp_x + longbarpos[lb].x,
-                                       y = hud_vert_pos + longbarpos[lb].y})
-                    player:hud_change(hud_data.p_sick_text, "offset",
-                                      {x = hud_body_temp_x + longbarpos[lb].x,
-                                       y = hud_vert_pos + hud_text_y + longbarpos[lb].y})
-                    hud.lb = lb -- save to hud data for check
                 end
             end
             timer = 0
