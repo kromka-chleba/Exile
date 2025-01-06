@@ -363,66 +363,6 @@ local function health(player, hud_data)
     health_hud_change(player, hud_data, "health", stat_col, t)
 end
 
-local function energy(player, hud_data, meta)
-    -- get value percentage
-    local v = meta:get_int("energy")
-    v = v/10 -- we can already derive a percentage (1000/10)
-    local stat_col = color(v)
-    local t = concat_text(v, " %")
-    -- update energy hud
-    health_hud_change(player, hud_data, "energy", stat_col, t)
-end
-
-local function thirst(player, hud_data, meta)
-    -- get value percentage
-    local v = meta:get_int("thirst") -- (we're already a percentage, 100 out of 100)
-    local t = concat_text(v, " %")
-    local stat_col = color(v)
-    -- update thirst hud
-    health_hud_change(player, hud_data, "thirst", stat_col, t)
-end
-
-local function hunger(player, hud_data, meta)
-    -- get value percentage
-    local v = meta:get_int("hunger")
-    v = v/10 -- we can already derive a percentage (1000/10)
-    local t = concat_text(v, " %")
-    local stat_col = color(v)
-    -- update hunger hud
-    health_hud_change(player, hud_data, "hunger", stat_col, t)
-end
-
--- body temperature
-local function temp(player, hud_data, meta)
-    -- get data
-    local data = hud_data.body_temp
-    if not (data and data.image and data.flare and data.text) then return end
-    -- get value
-    local v = meta:get_int("temperature")
-    if data.prev_v == v then return end -- don't update hud if we're the same value
-    data.prev_v = v -- add to prev
-    local stat_col, ttype = color_bodytemp(v)
-    local t = climate.get_temp_string(v, meta)
-    -- get opacity (hidden means opacity of 0)
-    local opac = data.hidden and 0 or hud_data.opacity or mthudopacity
-    opac = type(opac) == "number" and opac or tonumber(opac) or 127
-    -- update hud
-    player:hud_change(data.image, "text", concat_text("hud_body_temp.png^[colorize:#", stat_col,
-      "^[opacity:", opac, blink(hud_data.blink["temp"]) ) )
-    -- only update text if text isn't hidden and stats are visible
-    local hudtext = data.text
-    local hidden = data.hidden
-    if not hidden and are_stats_visible(hud_data) then
-        local hudtype = hud_data.p_body_temp_type
-        -- don't colorize (cold/hot icon above icon)
-        player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:", opac) )
-        player:hud_change(hudtext, "number", tonumber(concat_text("0x", stat_col)) ) -- colorize
-        player:hud_change(hudtext, "text", t)
-    else
-        player:hud_change(hudtext, "text", "")
-    end
-end
-
 local function do_overlay(player, pname, pos, overlay)
     local handle = player:hud_add({
             name = overlay,
@@ -437,67 +377,123 @@ local function do_overlay(player, pname, pos, overlay)
     hud[pname].overlay = handle
 end
 
-local function enviro_temp(player, hud_data, meta)
-    -- get data
-    local data = hud_data.enviro_temp
-    if not (data and data.image and data.flare and data.text) then return end
-    -- get position and check temp
-    local pname = player:get_player_name()
-    local player_pos = player:get_pos()
-    player_pos.y = player_pos.y + 0.6 --adjust to body height
-    local v = math.floor(climate.get_point_temp(player_pos, true))
-    if data.prev_v == v then return end -- don't update hud if we're the same value
-    data.prev_v = v -- add to prev
-    -- get meta and temperature reading
-    meta = type(meta) == "userdata" and meta or player:get_meta()
-    local stat_col, ttype, overlay = color_envirotemp(v, meta)
-    if overlay then
-        if not hud_data.overlay then
-            do_overlay(player, pname, player_pos, overlay)
-        elseif player:hud_get(hud_data.overlay) and
-            ( overlay ~= player:hud_get(hud_data.overlay).name ) then
-            -- direct transition from one overlay to another
-            player:hud_remove(hud_data.overlay)
-            do_overlay(player, pname, player_pos, overlay)
+local stat_funcs = {
+    energy = function(player, hud_data, meta)
+        -- get value percentage
+        local v = meta:get_int("energy")
+        v = v/10 -- we can already derive a percentage (1000/10)
+        local stat_col = color(v)
+        local t = concat_text(v, " %")
+        -- update energy hud
+        health_hud_change(player, hud_data, "energy", stat_col, t)
+    end,
+    thirst = function(player, hud_data, meta)
+        -- get value percentage
+        local v = meta:get_int("thirst") -- (we're already a percentage, 100 out of 100)
+        local t = concat_text(v, " %")
+        local stat_col = color(v)
+        -- update thirst hud
+        health_hud_change(player, hud_data, "thirst", stat_col, t)
+    end,
+    hunger = function(player, hud_data, meta)
+        -- get value percentage
+        local v = meta:get_int("hunger")
+        v = v/10 -- we can already derive a percentage (1000/10)
+        local t = concat_text(v, " %")
+        local stat_col = color(v)
+        -- update hunger hud
+        health_hud_change(player, hud_data, "hunger", stat_col, t)
+    end,
+    body_temp = function(player, hud_data, meta)
+        -- get data
+        local data = hud_data.body_temp
+        if not (data and data.image and data.flare and data.text) then return end
+        -- get value
+        local v = meta:get_int("temperature")
+        if data.prev_v == v then return end -- don't update hud if we're the same value
+        data.prev_v = v -- add to prev
+        local stat_col, ttype = color_bodytemp(v)
+        local t = climate.get_temp_string(v, meta)
+        -- get opacity (hidden means opacity of 0)
+        local opac = data.hidden and 0 or hud_data.opacity or mthudopacity
+        opac = type(opac) == "number" and opac or tonumber(opac) or 127
+        -- update hud
+        player:hud_change(data.image, "text", concat_text("hud_body_temp.png^[colorize:#", stat_col,
+          "^[opacity:", opac, blink(hud_data.blink["temp"]) ) )
+        -- only update text if text isn't hidden and stats are visible
+        local hudtext = data.text
+        local hidden = data.hidden
+        if not hidden and are_stats_visible(hud_data) then
+            local hudtype = hud_data.p_body_temp_type
+            -- don't colorize (cold/hot icon above icon)
+            player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:", opac) )
+            player:hud_change(hudtext, "number", tonumber(concat_text("0x", stat_col)) ) -- colorize
+            player:hud_change(hudtext, "text", t)
+        else
+            player:hud_change(hudtext, "text", "")
         end
-    elseif hud_data.overlay then -- remove overlay
-        player:hud_remove(hud_data.overlay)
-        hud_data.overlay = nil
-    end
-    local t = climate.get_temp_string(v, meta)
-    -- get opacity (hidden means opacity of 0)
-    local opac = data.hidden and 0 or hud_data.opacity or mthudopacity
-    opac = type(opac) == "number" and opac or tonumber(opac) or 127
-    player:hud_change(data.image, "text", concat_text("hud_air_temp.png^[colorize:#",stat_col,
-      "^[opacity:",opac, blink(hud_data.blink["enviro_temp"]) ) )
-    -- don't colorize (cold/hot icon above icon)
-    player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:",opac) )
-    -- only update text if not hidden and stats are visible
-    if not data.hidden and are_stats_visible(hud_data) then
-        player:hud_change(data.text, "number", tonumber(concat_text("0x",stat_col)) )
-        player:hud_change(data.text, "text", t)
-    else
-        player:hud_change(data.text, "text", "")
-    end
-end
-
-local function effects(player, hud_data, meta)
-    -- calculate stat color
-    local stat_col = stat_color.fine
-    local v = meta:get_int("effects_num")
-    local t = concat_text("x", v)
-    if v > 4 then
-        stat_col = stat_color.extreme
-    elseif v > 2 then
-        stat_col = stat_color.major
-    elseif v > 1 then
-        stat_col = stat_color.problem
-    elseif v > 0 then
-        stat_col = stat_color.slight
-    end
-    -- update effects hud
-    health_hud_change(player, hud_data, "effects", stat_col, t)
-end
+    end,
+    enviro_temp = function(player, hud_data, meta)
+        -- get data
+        local data = hud_data.enviro_temp
+        if not (data and data.image and data.flare and data.text) then return end
+        -- get position and check temp
+        local pname = player:get_player_name()
+        local player_pos = player:get_pos()
+        player_pos.y = player_pos.y + 0.6 --adjust to body height
+        local v = math.floor(climate.get_point_temp(player_pos, true))
+        if data.prev_v == v then return end -- don't update hud if we're the same value
+        data.prev_v = v -- add to prev
+        -- get meta and temperature reading
+        meta = type(meta) == "userdata" and meta or player:get_meta()
+        local stat_col, ttype, overlay = color_envirotemp(v, meta)
+        if overlay then
+            if not hud_data.overlay then
+                do_overlay(player, pname, player_pos, overlay)
+            elseif player:hud_get(hud_data.overlay) and
+                ( overlay ~= player:hud_get(hud_data.overlay).name ) then
+                -- direct transition from one overlay to another
+                player:hud_remove(hud_data.overlay)
+                do_overlay(player, pname, player_pos, overlay)
+            end
+        elseif hud_data.overlay then -- remove overlay
+            player:hud_remove(hud_data.overlay)
+            hud_data.overlay = nil
+        end
+        local t = climate.get_temp_string(v, meta)
+        -- get opacity (hidden means opacity of 0)
+        local opac = data.hidden and 0 or hud_data.opacity or mthudopacity
+        opac = type(opac) == "number" and opac or tonumber(opac) or 127
+        player:hud_change(data.image, "text", concat_text("hud_air_temp.png^[colorize:#",stat_col,
+          "^[opacity:",opac, blink(hud_data.blink["enviro_temp"]) ) )
+        -- don't colorize (cold/hot icon above icon)
+        player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:",opac) )
+        -- only update text if not hidden and stats are visible
+        if not data.hidden and are_stats_visible(hud_data) then
+            player:hud_change(data.text, "number", tonumber(concat_text("0x",stat_col)) )
+            player:hud_change(data.text, "text", t)
+        else
+            player:hud_change(data.text, "text", "")
+        end
+    end,
+    effects = function(player, hud_data, meta)
+        -- calculate stat color
+        local stat_col = stat_color.fine
+        local v = meta:get_int("effects_num")
+        local t = concat_text("x", v)
+        if v > 4 then
+            stat_col = stat_color.extreme
+        elseif v > 2 then
+            stat_col = stat_color.major
+        elseif v > 1 then
+            stat_col = stat_color.problem
+        elseif v > 0 then
+            stat_col = stat_color.slight
+        end
+        -- update effects hud
+        health_hud_change(player, hud_data, "effects", stat_col, t)
+  end,
+}
 
 -- update placement of hud icons when hud16 (longbar) is modified
 -- value will be false or true
@@ -519,6 +515,18 @@ minimal.register_on_player_setting_change(function(player, setting, value, meta)
                        y = hud_vert_pos + hud_text_y + longbarpos[value].y})
 end)
 
+-- only change hud when stats have been modified
+HEALTH.register_on_stat_change(function(player, setting, value, meta)
+    -- player's "temperature" will be "body_temp"
+    setting = setting == "temperature" and "body_temp" or setting
+    local stat_func = stat_funcs[setting]
+    -- not found
+    if not stat_func then return end
+    local hud_data = hud[player:get_player_name()]
+    if not hud_data then return end -- no hud_data oops
+    stat_func(player, hud_data, meta)
+end)
+
 
 local timer = 0
 local blinktimer = 0
@@ -531,21 +539,13 @@ minetest.register_globalstep(function(dtime)
             for _0, player in ipairs(minetest.get_connected_players()) do
 
                 local name = player:get_player_name()
-                local meta = player:get_meta()
                 local hud_data = hud[name]
                 if not hud_data then
                     return
                 end
-
-                local hidehud =  minetest.deserialize(meta:get_string("hidehud"))
-                    or {}
+                -- update health and enviro_temp
                 health(player, hud_data)
-                energy(player, hud_data, meta)
-                thirst(player, hud_data, meta)
-                hunger(player, hud_data, meta)
-                temp(player, hud_data, meta)
-                enviro_temp(player, hud_data, meta)
-                effects(player, hud_data, meta)
+                stat_funcs["enviro_temp"](player, hud_data)
                 local wi = player:get_wielded_item():get_name()
                 if hud_data.wh ~= wi then -- changed, remove it
                     if wielded_hud.list[hud_data.wh] then
