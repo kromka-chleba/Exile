@@ -414,20 +414,20 @@ local stat_funcs = {
         -- update hud
         player:hud_change(data.image, "text", concat_text("hud_body_temp.png^[colorize:#", stat_col,
           "^[opacity:", opac, blink(hud_data.blink["temp"]) ) )
+        -- don't colorize (cold/hot icon above icon)
+        player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:", opac) )
         -- only update text if text isn't hidden and stats are visible
         local hudtext = data.text
         local hidden = data.hidden
         if not hidden and are_stats_visible(hud_data) then
             local hudtype = hud_data.p_body_temp_type
-            -- don't colorize (cold/hot icon above icon)
-            player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:", opac) )
             player:hud_change(hudtext, "number", tonumber(concat_text("0x", stat_col)) ) -- colorize
             player:hud_change(hudtext, "text", t)
         else
             player:hud_change(hudtext, "text", "")
         end
     end,
-    enviro_temp = function(player, hud_data, meta)
+    enviro_temp = function(player, hud_data, meta, forceupdate)
         -- get data
         local data = hud_data.enviro_temp
         if not (data and data.image and data.flare and data.text) then return end
@@ -436,7 +436,7 @@ local stat_funcs = {
         local player_pos = player:get_pos()
         player_pos.y = player_pos.y + 0.6 --adjust to body height
         local v = math.floor(climate.get_point_temp(player_pos, true))
-        if data.prev_v == v then return end -- don't update hud if we're the same value
+        if data.prev_v == v and not forceupdate then return end -- don't update hud if we're the same value (and no forced update)
         data.prev_v = v -- add to prev
         -- get meta and temperature reading
         meta = type(meta) == "userdata" and meta or player:get_meta()
@@ -513,7 +513,8 @@ minimal.register_on_player_setting_change(function(player, setting, value, meta)
         for nm,data in pairs(hud_data) do
             -- if we have a function for it, call it!
             if stat_funcs[nm] then
-                stat_funcs[nm](player, hud_data, meta)
+                -- 4th parameter "forcedupdate" for enviro_temp
+                stat_funcs[nm](player, hud_data, meta, true)
             end
         end
     end
