@@ -686,10 +686,8 @@ function animals.core_life(self, pos)
         return false
     end
 
-    if not self.conserve then
-        self:modify('energy',-self.energy_loss)
-    elseif (random() <= 0.005) then
-        -- 0.5% chance to lose energy during energy conservation
+    -- 0.5% chance to lose energy during energy conservation
+    if not self.conserve or random() <= 0.005 then
         self:modify('energy',-self.energy_loss)
     end
 
@@ -1440,16 +1438,11 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
     -- self, groups (table or string), ignoregroups (table or string), priority
     local timer = time() + 15
 
-    if (type(groups) == "string") then
-        groups = {groups}
-    elseif (type(groups) ~= "table") then
-        groups = {}
-    end
-    if (type(iggroups) == "string") then
-        iggroups = {iggroups}
-    elseif (type(iggroups) ~= "table") then
-        iggroups = {}
-    end
+    -- ensure groups is table
+    groups = type(groups) == "table" and groups or type(groups) == "string" and {groups}
+    if not groups then return end -- no groups to check
+    -- ignore groups (convert to table to iterate over anyways)
+    iggroups = type(iggroups) == "table" and iggroups or type(iggroups) == "string" and {iggroups} or {}
 
     local func=function(self)
 
@@ -1463,7 +1456,7 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
             local height, tpos, liquidflag =
                 mobkit.is_neighbor_node_reachable(self, neighbor)
 
-            if (tpos) then
+            if tpos then
                 local temp = climate.get_point_temp(tpos, true)
                 if not (animals.temp_comfy(self,temp)) then
                     -- do not go to this position
@@ -1473,30 +1466,28 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
 
             if height and not liquidflag then
                 --is it the correct?
-                local n_node = minetest.get_node(tpos).name
-
-                local nodeapp = true
-                -- node appropriate -- if node should be walked to
+                local ndef = minimal.get_nodedef(tpos)
+                local ngroups = ndef and ndef.groups
+                if not groups then return true end -- can't walk to this node, no groups!
+                -- check if we should ignore this node first
                 for _,group in pairs(iggroups) do
-                    if (minetest.get_item_group(n_node,group) > 0) then
-                        -- if node is in a group that is to be ignored...
-                        nodeapp = false
-                        break
+                    if ngroups[group] and ngroups[group] > 0 then
+                        -- if node is in a group that is to be ignored... don't walk to it!
+                        return true
                     end
                 end
-                if (nodeapp == false) then
-                    -- found a node to be ignored oop, don't walk to it
-                    return true
-                end
+                -- node appropriate
+                local nodeapp = false -- set as false initially
                 for _,group in pairs(groups) do
-                    if (minetest.get_item_group(n_node,group) > 0) then
+                    if ngroups[group] and ngroups[group] > 0 then
                         -- if node is in a specified group then...
                         -- let's go it :D
+                        nodeapp = true
                         break
                     end
                 end
 
-                if (nodeapp == true) then
+                if nodeapp then
                     mobkit.dumbstep(self, height, tpos, 0.3)
                 else
                     return true
