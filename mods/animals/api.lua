@@ -1147,11 +1147,10 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
         local max_pop = egg_data.max_pop or entity_data.max_pop or max_objects
 
         -- remove male or baby identifier when checking names
-        local check_name = string.gsub(name,"_male","")
-        check_name = string.gsub(name,"_baby","")
-
+        local check_name = name:gsub("_male","")
+        check_name = check_name:gsub("_baby","")
         -- get specified objcount from objcounts table (of check_name) or set a new one
-        local objcount = objcounts[check_name] or #animals.get_entities_inside_radius(check_name, pos, mo_check_radius)
+        local objcount = objcounts[check_name] or #animals.get_entities_inside_radius(check_name, pos)
 
         local start_e = math.floor(energy_egg/young_per_egg) -- starting energy per each, start_energy
         -- only if less than or equal to current max population
@@ -1171,13 +1170,12 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
             ent = ent:get_luaentity()
             mobkit.remember(ent,'energy', start_e)
             mobkit.remember(ent,'age',0)
-            objcount = objcount + 1
+            -- update object counts
+            objcounts[check_name] = objcount + 1
         -- let's not waste energy, give more energy to each new young (remove from young_per_egg)
         else
             young_per_egg = young_per_egg - 1
         end
-        -- update object counts
-        objcounts[check_name] = objcount
     end
     -- try hatching another time
     if not could_hatch then return true end
@@ -2768,50 +2766,37 @@ function animals.mate_assess(self, name)
 end
 
 function animals.get_entities_inside_radius(creature,pos,radius,match_string)
-    radius = (type(radius) == "number" and radius or 30)
-    -- will use string.match if true
-    if (type(match_string) ~= "boolean") then
-        match_string = true
-    end
-    -- if provided creature is an entity or objectref
-    if (type(creature) == "userdata") then
-        if (type(creature["get_luaentity"]) == "function") then
-            creature = creature:get_luaentity()
-        end
-        if (type(creature) ~= "nil" and type(creature) ~= "boolean"
-            and type(creature) ~= "string") then
-            creature = creature["name"]
-        else
-            creature = ""
-        end
-    end
-
-    creature = (type(creature) == "string" and creature or "*")
-    if (type(pos) ~= "table") then
-        return
-    end
-    if (type(pos.x) ~= "number" or type(pos.y) ~= "number"
-        or type(pos.z) ~= "number") then
+    -- no pos
+    if not vector.check(pos) then
         minetest.log("warning","animals.get_entities_inside_radius: provided position is invalid")
         return
     end
+    -- figure out radius
+    radius = type(radius) == "number" and radius or mo_check_radius
+    -- will use string.match if true
+    match_string = type(match_string) ~= "boolean" and true or match_string
+    -- if provided creature is an objectref
+    if type(creature) == "userdata" and type(creature.get_luaentity) == "function" then
+        creature = creature:get_luaentity()
+    end
+    -- get string or "name" from creature table
+    creature = type(creature) == "string" and creature or type(creature) == "table" and creature.name
+    -- "*" means all
+    creature = type(creature) == "string" and creature or "*"
 
+    -- begin looking
     local objs = minetest.get_objects_inside_radius(pos,radius)
     local aobjs = {}
 
-    for _,v in pairs(objs) do
-        local name = ""
-        local obj
-        if (type(v) ~= "nil") then
-            obj = v:get_luaentity()
-        end
-        if (type(obj) ~= "nil") then
-            name = obj.name
-        end
-        if (type(name) == "string") then
-            -- if match_string is true, then will use string.match()
-            if (name == creature or creature == "*"
-                or (match_string == true and string.match(creature,name))) then
+    for _,v in ipairs(objs) do
+        local obj = type(v) == "userdata" and v:get_luaentity()
+        if obj then
+            local name = obj.name
+            -- check if string and make further checks if so
+            -- we only accept creatures with a name value
+            if type(name) == "string" and
+              -- "*" is anyone,
+              (creature == "*" or match_string and creature:match(name) or name == creature) then
                 aobjs[#aobjs + 1] = v
             end
         end
