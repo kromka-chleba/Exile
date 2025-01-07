@@ -1389,7 +1389,8 @@ end
 
 ----------------------------------------------
 --roam to a walkable (by group) i.e. walk into the node itself c.f. under
-function animals.hq_roam_walkable_group(self, prty, groups, iggroups)
+function animals.hq_roam_walkable_group(self, prty, groups, iggroups, failfunc)
+    if not mobkit.is_queue_empty_high(self) then return end -- shouldn't run
     -- self, groups (table or string), ignoregroups (table or string), priority
     local timer = time() + 15
 
@@ -1399,60 +1400,62 @@ function animals.hq_roam_walkable_group(self, prty, groups, iggroups)
     -- ignore groups (convert to table to iterate over anyways)
     iggroups = type(iggroups) == "table" and iggroups or type(iggroups) == "string" and {iggroups} or {}
 
-    local func=function(self)
+    local function wefailed()
+        if type(failfunc) == "function" then
+            failfunc(self, prty+20)
+        end
+    end
 
+    local neighbor = random(8)
+    local height, tpos, liquidflag =
+        mobkit.is_neighbor_node_reachable(self, neighbor)
+
+    if tpos then
+        local temp = climate.get_point_temp(tpos, true)
+        if not (animals.temp_comfy(self,temp)) then
+            -- do not go to this position
+            height = nil
+        end
+    end
+
+    if height and not liquidflag then
+        --is it the correct?
+        local ndef = minimal.get_nodedef(tpos)
+        -- get nodedef at position below if no nodedef or is airlike
+        if not ndef or ndef.drawtype == "airlike" then
+            minimal.get_nodedef(minimal.shift_pos(tpos, {y=-1}))
+        end
+        local ngroups = ndef and ndef.groups
+        if not groups then return wefailed() end -- can't walk to this node, no groups!
+        -- check if we should ignore this node first
+        for _,group in pairs(iggroups) do
+            if ngroups[group] and ngroups[group] > 0 then
+                -- if node is in a group that is to be ignored... don't walk to it!
+                return wefailed()
+            end
+        end
+        -- node appropriate
+        local nodeapp = false -- set as false initially
+        for _,group in pairs(groups) do
+            if ngroups[group] and ngroups[group] > 0 then
+                -- if node is in a specified group then...
+                -- let's go it :D
+                nodeapp = true
+                break
+            end
+        end
+
+        height = nodeapp and height or nil
+    end
+    if not height then return wefailed() end
+
+    local func=function(self)
         if time() > timer then
             return true
         end
 
         if mobkit.is_queue_empty_low(self) and self.isonground then
-            local neighbor = random(8)
-
-            local height, tpos, liquidflag =
-                mobkit.is_neighbor_node_reachable(self, neighbor)
-
-            if tpos then
-                local temp = climate.get_point_temp(tpos, true)
-                if not (animals.temp_comfy(self,temp)) then
-                    -- do not go to this position
-                    height = nil
-                end
-            end
-
-            if height and not liquidflag then
-                --is it the correct?
-                local ndef = minimal.get_nodedef(tpos)
-                -- get nodedef at position below if no nodedef or is airlike
-                if not ndef or ndef.drawtype == "airlike" then
-                    minimal.get_nodedef(minimal.shift_pos(tpos, {y=-1}))
-                end
-                local ngroups = ndef and ndef.groups
-                if not groups then return true end -- can't walk to this node, no groups!
-                -- check if we should ignore this node first
-                for _,group in pairs(iggroups) do
-                    if ngroups[group] and ngroups[group] > 0 then
-                        -- if node is in a group that is to be ignored... don't walk to it!
-                        return true
-                    end
-                end
-                -- node appropriate
-                local nodeapp = false -- set as false initially
-                for _,group in pairs(groups) do
-                    if ngroups[group] and ngroups[group] > 0 then
-                        -- if node is in a specified group then...
-                        -- let's go it :D
-                        nodeapp = true
-                        break
-                    end
-                end
-
-                if nodeapp then
-                    mobkit.dumbstep(self, height, tpos, 0.3)
-                else
-                    return true
-                end
-            end
-
+            mobkit.dumbstep(self, height, tpos, 0.3)
         end
     end
     mobkit.queue_high(self,func,prty)
