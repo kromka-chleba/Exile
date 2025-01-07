@@ -85,9 +85,9 @@ local function brain(self)
                 if not rival and self.energy < self.energy_max then
                     -- actively find nodes to eat at
                     if random() <= 0.7  then
-                        animals.hq_roam_walkable_group(self, 'stone', nil, 15)
+                        animals.hq_roam_walkable_group(self, 15, 'stone')
                     else
-                        animals.hq_roam_walkable_group(self, 'sediment', nil, 15)
+                        animals.hq_roam_walkable_group(self, 15, 'sediment')
                     end
                     local u_node = minetest.get_node(minimal.shift_pos(pos,{y=-1}))
                     -- why use several get_item_group calls?

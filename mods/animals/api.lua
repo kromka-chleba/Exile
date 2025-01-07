@@ -1389,7 +1389,7 @@ end
 
 ----------------------------------------------
 --roam to a walkable (by group) i.e. walk into the node itself c.f. under
-function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
+function animals.hq_roam_walkable_group(self, prty, groups, iggroups)
     -- self, groups (table or string), ignoregroups (table or string), priority
     local timer = time() + 15
 
@@ -1422,6 +1422,10 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
             if height and not liquidflag then
                 --is it the correct?
                 local ndef = minimal.get_nodedef(tpos)
+                -- get nodedef at position below if no nodedef or is airlike
+                if not ndef or ndef.drawtype == "airlike" then
+                    minimal.get_nodedef(minimal.shift_pos(tpos, {y=-1}))
+                end
                 local ngroups = ndef and ndef.groups
                 if not groups then return true end -- can't walk to this node, no groups!
                 -- check if we should ignore this node first

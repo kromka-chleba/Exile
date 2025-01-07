@@ -77,7 +77,7 @@ local function brain(self)
                     else
                         --wander random
                         animals.animate(self,'walk')
-                        animals.hq_roam_walkable_group(self, 'spreading', 'cane_plant', 20)
+                        animals.hq_roam_walkable_group(self, 20, 'spreading', 'cane_plant')
                     end
                 --full, so wander randomly
                 else
@@ -93,7 +93,7 @@ local function brain(self)
                 -- 10% chance to look for food anyways
                 elseif random() < 0.10 then
                     animals.animate(self,'walk')
-                    animals.hq_roam_walkable_group(self, 'spreading', 'cane_plant', 20)
+                    animals.hq_roam_walkable_group(self, 20, 'spreading', 'cane_plant')
                 --wander random (we do it in later parts of the code), 5% chance to clear it out
                 elseif random() < 0.05 or prty < 10 then
                     mobkit.clear_queue_high(self)

@@ -97,8 +97,8 @@ local function brain(self)
                                     and animals.prey_hunt(self,30)) then
                             --wander randomly for plants if can't find prey
                             animals.animate(self,'walk')
-                            animals.hq_roam_walkable_group(self, 'flora',
-                                                           "cane_plant", 15)
+                            animals.hq_roam_walkable_group(self, 15, 'flora',
+                                                           "cane_plant")
                             -- go for group, ignore group, priority
                         end
                     else
@@ -107,8 +107,8 @@ local function brain(self)
                                 self:modify('energy',18)
                             else
                                 -- look for flora that's not a cane_plant
-                                animals.hq_roam_walkable_group(self, 'flora',
-                                                               "cane_plant", 15)
+                                animals.hq_roam_walkable_group(self, 15, 'flora',
+                                                               "cane_plant")
                                 -- self, go for group, ignore group, priority
                             end
                         end
