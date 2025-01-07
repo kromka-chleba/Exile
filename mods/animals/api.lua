@@ -835,6 +835,41 @@ end
 
 
 ----------------------------------------------------
+
+------ YOUNG PER EGG CALCULATIONS
+-- young per egg should be ordered as {min, max}
+-- get an amount of offspring to release
+-- optional getmax boolean for getting minimum or maximum
+function animals.calculate_egg_young(ype, getmax)
+    ype = type(ype) == "userdata" and ype.get_luaentity and ype:get_luaentity() or ype -- young per egg
+    ype = type(ype) == "table" and ype or ype
+    -- don't even have a 2nd argument for ype, shaking my head!
+    ype = type(ype) == "table" and type(ype[2]) ~= "number" and ype[1]
+    -- get maximum or minimum (true for max, false for minimum)
+    if type(getmax) == "boolean" then
+        if type(ype) == "table" then
+            ype = getmax and ype[2] or ype[1]
+        end
+    -- randomize between arguments
+    elseif type(ype) == "table" then
+        ype = random(ype[1], ype[2])
+    end
+    -- return number on success
+    return type(ype) == "number" and ype or nil
+end
+
+-- get the energy distributed to each young according to self's energy_egg
+-- if not provided young_per_egg, grabs from self
+-- if ype is a table, gets the highest number in table (highest possible yield of young)
+function animals.get_energy_per_ype(self, ype)
+    ype = ype or self.young_per_egg
+    -- get maximum of ype's indexes
+    ype = animals.calculate_egg_young(ype, true) -- get max
+    if self.energy_egg and type(ype) == "number" then
+        return self.energy_egg/ype
+    end
+end
+
 -- place_egg, animals.place_egg
 -- put an egg in the world, return true or nil on success or failure
 -- returns false if can't get egg or too many of its kind are around
@@ -876,47 +911,32 @@ function animals.place_egg(self, pos, medium, e_ov)
     end
     -- uses self's energy and energy_egg (with optional max_pop)
     local e_egg = self.energy_egg
-    -- seek a "self.egg_name" or create an egg_name using the placer's name
-    local max_pop = self.max_pop or max_objects
-
-    -- remove male or baby identifier when checking names
-    local check_name = string.gsub(self.name,"_male","")
-    check_name = string.gsub(self.name,"_baby","")
-
-    -- number of its kind in an area
-    local objcount = #animals.get_entities_inside_radius(check_name,
-                                                         pos, mo_check_radius)
-    -- first check if we're overpopulated
-    local can_lay = objcount <= max_pop
     -- check node for if it's a compatible medium now
-    if can_lay then
-        can_lay = false -- temporarily set can_lay to false (checking medium)
-        -- convert to table for next functionality
-        if type(medium) == "string" then
-            medium = {medium}
-        end
-        -- allow multiple acceptable "mediums"
-        for _,tag in pairs(medium) do
-            -- verify if string
-            tag = type(tag) == "string" and tag or nil
-            if tag then
-                -- check if node_name is equal to provided medium tag
-                can_lay = c_node.name == tag
-                -- allow group detection if layable area hasn't been found 
-                if can_lay ~= true and tag:sub(1,6) == "group:" then
-                    local group = c_node.groups and c_node.groups[tag:sub(7)]
-                    can_lay = group and group > 0
-                end
+    local can_lay = false -- temporarily set can_lay as false (checking medium)
+    -- convert to table for next functionality
+    if type(medium) == "string" then
+        medium = {medium}
+    end
+    -- allow multiple acceptable "mediums"
+    for _,tag in pairs(medium) do
+        -- verify if string
+        tag = type(tag) == "string" and tag or nil
+        if tag then
+            -- check if node_name is equal to provided medium tag
+            can_lay = c_node.name == tag
+            -- allow group detection if layable area hasn't been found 
+            if can_lay ~= true and tag:sub(1,6) == "group:" then
+                local group = c_node.groups and c_node.groups[tag:sub(7)]
+                can_lay = group and group > 0
             end
-            -- we verified we can lay an egg here, no more checking
-            if can_lay then break end
         end
+        -- we verified we can lay an egg here, no more checking
+        if can_lay then break end
     end
 
     if can_lay then
-
-        local posu = {x = p.x, y = p.y - 1, z = p.z}
-        local n = mobkit.nodeatpos(posu)
+        -- get nodedef of node underneath p
+        local n = minimal.get_nodedef(minimal.pos_shift(p, {y=-1}))
 
         if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
             minetest.set_node(p, {name = egg_data.name})
@@ -959,33 +979,6 @@ function animals.emergency_egg(self, pos, medium, chance)
     end
 
     return false
-end
-
-----------------------------------------------------
--- get an amount of offspring to release
-function animals.calculate_egg_young(self)
-    local young_per_egg = self
-    -- in case you just want to just pass the young_per_egg instead
-    if (type(self) == "table" or type(self) == "userdata") then
-        -- either use a found young_per_egg or self
-        -- (assuming is young_per_egg table)
-        young_per_egg = self.young_per_egg or young_per_egg
-    end
-
-    if (type(young_per_egg) == "table") then
-        -- allow for randomized amount of young per egg
-        if (type(young_per_egg[1]) == "number"
-            and type(young_per_egg[2]) ~= "number") then
-            -- if only one number provided, use that
-            young_per_egg = {young_per_egg[1],young_per_egg[1]}
-        elseif (type(young_per_egg[1]) ~= "number"
-                and type(young_per_egg[2]) ~= "number") then
-            return
-        end
-        young_per_egg = random(young_per_egg[1],young_per_egg[2])
-    end
-
-    return type(young_per_egg) == "number" and young_per_egg or nil
 end
 
 ----------------------------------------------------
