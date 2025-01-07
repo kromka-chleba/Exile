@@ -842,9 +842,9 @@ end
 -- optional getmax boolean for getting minimum or maximum
 function animals.calculate_egg_young(ype, getmax)
     ype = type(ype) == "userdata" and ype.get_luaentity and ype:get_luaentity() or ype -- young per egg
-    ype = type(ype) == "table" and ype or ype
+    ype = type(ype) == "table" and (ype.young_per_egg or ype) or ype -- permit getting ype from table if provided
     -- don't even have a 2nd argument for ype, shaking my head!
-    ype = type(ype) == "table" and type(ype[2]) ~= "number" and ype[1]
+    ype = type(ype) == "table" and type(ype[2]) ~= "number" and ype[1] or ype
     -- get maximum or minimum (true for max, false for minimum)
     if type(getmax) == "boolean" then
         if type(ype) == "table" then
