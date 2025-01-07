@@ -861,11 +861,13 @@ end
 -- get the energy distributed to each young according to self's energy_egg
 -- if not provided young_per_egg, grabs from self
 -- if ype is a table, gets the highest number in table (highest possible yield of young)
-function animals.get_energy_per_ype(self, ype)
+-- ee is energy_egg, expected number, if not provided gets self's energy_egg
+function animals.get_energy_per_ype(self, ype, ee)
     ype = ype or self.young_per_egg
+    ee = type(ee) == "number" and ee or self.energy_egg
     -- get maximum of ype's indexes
     ype = animals.calculate_egg_young(ype, true) -- get max
-    if self.energy_egg and type(ype) == "number" then
+    if type(ee) == "number" and type(ype) == "number" then
         return self.energy_egg/ype
     end
 end
@@ -934,20 +936,33 @@ function animals.place_egg(self, pos, medium, e_ov)
         if can_lay then break end
     end
 
+    -- energy override - what energy we should instead dedicate to this egg
+    e_ov = type(e_ov) == "number" and e_ov or self.energy < e_egg and self.energy -- can't lay eggs lower than energy_egg properly
+    -- checking our information
+    if e_ov then
+        -- required energy_egg - how much energy should be the bare minimum for override
+        -- if conservation_min (cn_min) is specified then it should be energy to survive 2 minutes, otherwise 6 minutes
+        -- multiplied by energy_loss as this is how much energy we lose per second
+        local required_ee = ((self.cn_min and 120 or 360)*self.energy_loss)
+        -- each spawnable young should be able to get at minimum the required_ee
+        -- if not, do NOT lay
+        if animals.get_energy_per_ype(self, nil, e_ov) < required_ee then
+            can_lay = nil
+        end
+    end
+
     if can_lay then
         -- get nodedef of node underneath p
         local n = minimal.get_nodedef(minimal.pos_shift(p, {y=-1}))
-
+        -- if nodedef and walkable and not a tree_mark
         if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
             minetest.set_node(p, {name = egg_data.name})
-            e_ov = e_ov or self.energy < e_egg and self.energy -- can't lay eggs lower than energy_egg properly
-            if type(e_ov) == "number" and e_ov >= 15 then
+            -- set energy_override instead of energy_egg if its necessity is calculated
+            if type(e_ov) == "number" then
                 -- energy override noted, jot it down
-
                 local meta = minetest.get_meta(pos)
                 meta:set_float("energy_egg",e_ov)
                 e_egg = e_ov
-                -- set custom energy_egg
             end
             self:modify('energy',-e_egg)
             return true
