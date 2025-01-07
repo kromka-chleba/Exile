@@ -77,11 +77,11 @@ local function brain(self)
                     else
                         --wander random
                         animals.animate(self,'walk')
-                        --mobkit.hq_roam(self,10)
-                        animals.hq_roam_surface_group(self, 'spreading', 20)
+                        animals.hq_roam_walkable_group(self, 'spreading', 'cane_plant', 20)
                     end
+                --full, so wander randomly
                 else
-                    --full
+                    animals.animate(self,'walk')
                     mobkit.hq_roam(self,1)
                 end
             elseif random()<0.5 and self.energy < self.energy_max then
@@ -90,10 +90,13 @@ local function brain(self)
                     self:modify('energy',4)
                 elseif animals.eat_grassy_sediment_under(pos, 0.001) then
                     self:modify('energy',1)
-                else
-                    --wander random
+                -- 10% chance to look for food anyways
+                elseif random() < 0.10 then
                     animals.animate(self,'walk')
-                    animals.hq_roam_dark(self,10)
+                    animals.hq_roam_walkable_group(self, 'spreading', 'cane_plant', 20)
+                --wander random (we do it in later parts of the code), 5% chance to clear it out
+                elseif random() < 0.05 or prty < 10 then
+                    mobkit.clear_queue_high(self)
                 end
             else
                 --get out of the light
