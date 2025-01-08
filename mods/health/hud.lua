@@ -326,9 +326,14 @@ local function do_overlay(player, pname, pos, overlay)
 end
 
 local stat_funcs = {
-    health = function(player, hud_data)
-        -- get value percentage
-        local v = player:get_hp()
+    -- we don't use meta or v for health stat_func, but all stat_funcs are called with it provided
+    health = function(player, hud_data, meta, v, forceupdate)
+        local data = hud_data.health
+        if not data then return end -- no health hud data
+        -- get value percentage (we don't accept as a function parameter)
+        v = player:get_hp()
+        if not forceupdate and data.prev_v == v then return end -- no need to update, return (if not forceupdate)
+        data.prev_v = v -- update for future checks
         v = (v/20)*100
         local stat_col = color(v)
         local t = concat_text(v, " %")
