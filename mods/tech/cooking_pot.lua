@@ -126,6 +126,9 @@ local function soup_handle_inventory(itemstack, adding, user, inv)
             inv:add_item("main", adding)
         -- can't add, warn player
         elseif core.is_player(user) then
+            deplete_stack = not plr_creative and true -- deplete anyways but one day fix this
+            -- also drop at feet
+            core.add_item(user:get_pos(), adding)
             minimal.warn_inv_full(user)
         end
     -- bowl will be depleted, simply replace instead
