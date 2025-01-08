@@ -433,18 +433,7 @@ local stat_funcs = {
 }
 
 -- BLINKING AND OTHER BASIC FUNCTIONALITY
-local typelist = { "health", "energy", "thirst", "hunger",
-                   "temp", "enviro_temp", "effects" }
-function HEALTH.hide_hud_elements(player, meta, list, hide)
-    -- Takes a string of elements to hide, or "all", sets them hidden
-    -- Needs either player or meta to apply changes to
-    -- hide, if true, inverts this function to show elements
-    if not core.is_player(player) then
-        error("HEALTH.hide_hud_elements: tried to hide hud elements for non-existent (or inactive) player!")
-    end
-    local hud_data = hud[player:get_player_name()]
-    if not hud_data then return end -- no hud data to speak of, return don't error
-    meta = type(meta) == "userdata" and meta or player:get_meta()
+local function get_list(list)
     -- handle list mechanic
     list = type(list) == "string" and list:lower() or list
     list = type(list) == "string" and list ~= "all" and list:split(",") or list
@@ -455,12 +444,33 @@ function HEALTH.hide_hud_elements(player, meta, list, hide)
             list[#list + 1] = nm
         end
     end
-    if list ~= "all" and type(list) ~= "table" then
+    return list
+end
+
+-- things can be named alternatively, supports legacy tags as well
+local function get_list_tag(tag)
+    return tag == "temp" and "body_temp" or tag == "sick" and "effects" or tag
+end
+
+function HEALTH.hide_hud_elements(player, meta, list, hide)
+    -- Takes a string of elements to hide, or "all", sets them hidden
+    -- Needs either player or meta to apply changes to
+    -- hide, if true, inverts this function to show elements
+    if not core.is_player(player) then
+        error("HEALTH.hide_hud_elements: tried to hide hud elements for non-existent (or inactive) player!")
+    end
+    local hud_data = hud[player:get_player_name()]
+    if not hud_data then return end -- no hud data to speak of, return don't error
+    -- get and check list
+    list = get_list(list)
+    if type(list) ~= "table" then
         error("HEALTH.hide_hude_elements: expected table for list, got type '"..type(list).."'")
     end
+    -- get meta
+    meta = type(meta) == "userdata" and meta or player:get_meta()
     -- now to check through that list
     for _,tag in pairs(list) do
-        tag = tag == "temp" and "body_temp" or tag == "sick" and "effects" or tag
+        tag = get_list_tag(tag)
         -- check if we exist in hud_data, otherwise skip over
         local data = hud_data[tag]
         if data then
@@ -490,13 +500,34 @@ function HEALTH.blink_hud_elements(playername, list, setblink, player)
     -- Takes a string of elements or "all", sets them blinking
     -- Needs either playername or player to apply changes to
     -- setblink is the state, true/false/nil
-    if not playername and not player then
-        error("Tried to blink hud elements for non-existent player!")
+    playername = type(playername) == "string" and playername or core.is_player(player) and player:get_player_name() or playername
+    if type(playername) ~= "string" then
+        error("HEALTH.blink_hud_elements: did not get string for 'playername' or name from player, got '"..
+            type(playername).."'")
     end
-    if not playername then playername = player:get_player_name() end
-    for i = 1, #typelist do
-        if string.match(list, typelist[i]) or string == "all" then
-            hud[playername]["blink"][typelist[i]] = setblink
+    local hud_data = hud[playername]
+    if not hud_data then return end -- no hud data to speak of, return don't error
+    -- get and check list
+    list = get_list(list)
+    if type(list) ~= "table" then
+        error("HEALTH.blink_hud_elements: expected table for list, got type '"..type(list).."'")
+    end
+    -- get meta
+    local meta = player:get_meta()
+    -- now to check through that list
+    for _,tag in pairs(list) do
+        tag = get_list_tag(tag)
+        -- check if we exist in hud_data, otherwise skip over
+        local blink = hud_data.blink
+        if not blink then
+            blink = {}
+            hud_data.blink = blink
+        end
+        -- only blink if hud element and its function exists
+        if stat_funcs[tag] then
+            blink[tag] = setblink
+            -- call function for update
+            stat_funcs[tag](player, hud_data, meta, nil, true)
         end
     end
 end
