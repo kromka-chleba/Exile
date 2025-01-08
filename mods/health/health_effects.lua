@@ -1510,7 +1510,7 @@ function HEALTH.add_new_effect(player, name)
     --doesn't currently exist, so add and update HUD, list
     table.insert(effects_list, name)
     local num = #effects_list or 0
-    meta:set_int("effects_num", num )
+    HEALTH.set_int(player, meta, "effects_num", num)
     meta:set_string("effects_list", minetest.serialize(effects_list))
 
 end
