@@ -33,6 +33,8 @@ HEALTH.stat_color = {
     extreme = "8008FF" -- purple
 }
 local stat_color = HEALTH.stat_color
+-- how quick the HUD should blink
+HEALTH.hud_blink_length = 0.5
 
 local hud_vert_pos      = -128 -- all HUD icon vertical position
 local hud_extra_y       = -16  -- pixel offset for hot/cold icons
@@ -76,6 +78,16 @@ local function are_stats_visible(hud_data)
         ( hud_data.showstats == nil and mtshowstats == true ) )
 end
 
+-- get time function for setting times
+local function get_time(since)
+    local ctime = core.get_server_uptime()
+    -- since parameter to determine how much time has passed since the provided timestamp
+    if type(since) == "number" then
+        ctime = ctime - since
+    end
+    return ctime
+end
+
 -- must be ALL string or number
 local function concat_text(...)
     return table.concat({...},"")
@@ -101,7 +113,6 @@ local setup_hud = function(player)
     local hud_data = {}
 
     hud[playername] = hud_data
-    hud_data.blink = {}
 
     local meta = player:get_meta()
     hud_data.show_stats = meta:get("exile_hud_show_stats")
@@ -189,8 +200,15 @@ end
 minetest.register_on_joinplayer(function(player) setup_hud(player) end)
 
 -- makes icons "blink"
-local function blink(bool)
-    if not bool then
+-- player's hud_data, hudtype (so name of hud according to stat_funcs)
+local function blink(hud_data, htype)
+    -- no blink table, so nothing currently blinking
+    if not hud_data.blink then return "" end
+    local data = hud_data.blink[htype]
+    -- not in blink table or invalid table data
+    if not data then return "" end
+    -- update blink
+    if not data.bool then
         return ""
     end
     return "^[multiply:#000000"
@@ -277,7 +295,7 @@ local function health_hud_change(player, hud_data, htype, color, textval)
     opac = type(opac) == "number" and opac or tonumber(opac) or 127
     -- get blink of temp if body_temp, otherwise assume htype
     local image = concat_text("hud_",htype,".png^[colorize:#",color,
-      "^[opacity:",opac,blink(hud_data.blink[htype]) )
+      "^[opacity:",opac,blink(hud_data, htype) )
     player:hud_change(data.image, "text", image) -- update icon
     -- tonumber opac for comparison
     opac = type(opac) == "number" and opac or tonumber(opac)
@@ -356,7 +374,7 @@ local stat_funcs = {
         opac = type(opac) == "number" and opac or tonumber(opac) or 127
         -- update hud
         player:hud_change(data.image, "text", concat_text("hud_body_temp.png^[colorize:#", stat_col,
-          "^[opacity:", opac, blink(hud_data.blink["temp"]) ) )
+          "^[opacity:", opac, blink(hud_data, "body_temp") ) )
         -- don't colorize (cold/hot icon above icon)
         player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:", opac) )
         -- only update text if text isn't hidden and stats are visible
@@ -402,7 +420,7 @@ local stat_funcs = {
         local opac = data.hidden and 0 or hud_data.opacity or mthudopacity
         opac = type(opac) == "number" and opac or tonumber(opac) or 127
         player:hud_change(data.image, "text", concat_text("hud_air_temp.png^[colorize:#",stat_col,
-          "^[opacity:",opac, blink(hud_data.blink["enviro_temp"]) ) )
+          "^[opacity:",opac, blink(hud_data, "enviro_temp") ) )
         -- don't colorize (cold/hot icon above icon)
         player:hud_change(data.flare, "text", concat_text(ttype, ".png^[opacity:",opac) )
         -- only update text if not hidden and stats are visible
@@ -471,8 +489,8 @@ function HEALTH.hide_hud_elements(player, meta, list, hide)
     -- now to check through that list
     for _,tag in pairs(list) do
         tag = get_list_tag(tag)
-        -- check if we exist in hud_data, otherwise skip over
-        local data = hud_data[tag]
+        -- check if we exist in hud_data and have a function, otherwise skip over
+        local data = stat_funcs[tag] and hud_data[tag]
         if data then
             -- remove index with "or nil" if not hidden
             data.hidden = (true ~= hide) or nil
@@ -507,28 +525,40 @@ function HEALTH.blink_hud_elements(playername, list, setblink, player)
     end
     local hud_data = hud[playername]
     if not hud_data then return end -- no hud data to speak of, return don't error
+    -- check for and if not specified, get player for meta
+    player = core.is_player(player) and player or core.get_player_by_name(playername)
+    if not player then return end -- not online, why is there hud_data..?
     -- get and check list
     list = get_list(list)
     if type(list) ~= "table" then
         error("HEALTH.blink_hud_elements: expected table for list, got type '"..type(list).."'")
+    end
+    -- set up blinkables table if doesn't exist
+    local blink = hud_data.blink
+    if setblink and not blink then
+        blink = {}
+        hud_data.blink = blink
+    -- trying to stop blinking of currently no blinking occurring! just return
+    else
+        return
     end
     -- get meta
     local meta = player:get_meta()
     -- now to check through that list
     for _,tag in pairs(list) do
         tag = get_list_tag(tag)
-        -- check if we exist in hud_data, otherwise skip over
-        local blink = hud_data.blink
-        if not blink then
-            blink = {}
-            hud_data.blink = blink
-        end
-        -- only blink if hud element and its function exists
-        if stat_funcs[tag] then
-            blink[tag] = setblink
+        -- check if we exist in hud_data and have a function, otherwise skip over
+        local data = stat_funcs[tag] and hud_data[tag]
+        if data then
+            -- add to blink table if setblink, otherwise remove from blink
+            blink[tag] = setblink and {time = get_time(), bool = true} or nil
             -- call function for update
             stat_funcs[tag](player, hud_data, meta, nil, true)
         end
+    end
+    -- remove blink if empty
+    if next(blink) == nil then
+        hud_data.blink = nil
     end
 end
 
@@ -580,12 +610,9 @@ end)
 
 
 local timer = 0
-local blinktimer = 0
 
 minetest.register_globalstep(function(dtime)
         timer = timer + dtime
-        blinktimer = blinktimer + dtime
-        if blinktimer > 0.5 then blinktimer = 0 ; blinkingnow = not blinkingnow end
         if timer > hudupdateseconds then
             for _0, player in ipairs(minetest.get_connected_players()) do
 
@@ -594,9 +621,27 @@ minetest.register_globalstep(function(dtime)
                 if not hud_data then
                     return
                 end
-                -- update health and enviro_temp
-                stat_funcs["health"](player, hud_data)
-                stat_funcs["enviro_temp"](player, hud_data)
+                -- check blink to see if we should update huds for blinking
+                if hud_data.blink then
+                    -- declare meta to reuse
+                    local meta
+                    for nm,data in pairs(hud_data.blink) do
+                        if stat_funcs[nm] and type(data) == "table" and data.time then
+                            -- switch it up if time to switch
+                            if get_time(data.time) > HEALTH.hud_blink_length then
+                                -- check meta and get meta if need
+                                meta = meta or player:get_meta()
+                                data.bool = data.bool ~= true -- true becomes false, false becomes true
+                                -- player, hud_data, meta, value (set as nil), true for forceupdate
+                                stat_funcs[nm](player, hud_data, meta, nil, true)
+                            end
+                        end
+                    end
+                -- otherwise update health and enviro_temp normally
+                else
+                    stat_funcs["health"](player, hud_data)
+                    stat_funcs["enviro_temp"](player, hud_data)
+                end
                 local wi = player:get_wielded_item():get_name()
                 if hud_data.wh ~= wi then -- changed, remove it
                     if wielded_hud.list[hud_data.wh] then
