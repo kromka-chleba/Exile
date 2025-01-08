@@ -527,7 +527,7 @@ minimal.register_on_player_setting_change(function(player, setting, value, meta)
             if stat_funcs[nm] then
                 -- carry over value got from change
                 -- 5th parameter "forcedupdate" for enviro_temp
-                stat_funcs[nm](player, hud_data, meta, value, true)
+                stat_funcs[nm](player, hud_data, meta, nil, true)
             end
         end
     end
