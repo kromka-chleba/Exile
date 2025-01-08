@@ -6,8 +6,7 @@
 HEALTH = HEALTH
 local S = HEALTH.S
 
-HEALTH.player_huds = {}
-local hud = HEALTH.player_huds
+local hud = {}
 local hudupdateseconds = tonumber(minetest.settings:get("exile_hud_update"))
 -- global setting for whether to show stats
 local mtshowstats = minetest.settings:get_bool("exile_hud_show_stats") or true
@@ -599,6 +598,10 @@ minimal.register_on_player_setting_change(function(player, setting, value, meta)
                 stat_funcs[nm](player, hud_data, meta, nil, true)
             end
         end
+    -- update setting-based huds on tempscale change
+    elseif setting == "tempscale" then
+        stat_funcs.body_temp(player, hud_data, meta, nil)
+        stat_funcs.enviro_temp(player, hud_data, meta, nil, true)
     end
 end)
 
