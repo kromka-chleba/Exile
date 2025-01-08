@@ -364,6 +364,35 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
         -- food stats
         HEALTH.add_food_table(name, food_table)
     end
+    -- consume on rightclick (if not already provided or not false and has the edible group)
+    def.on_rightclick = def.on_rightclick or def.on_rightclick ~= false and def.groups.edible and
+      function(pos, node, clicker, itemstack, pointed_thing)
+          local ndef = core.registered_nodes[node.name]
+          if not (ndef.groups and ndef.groups.edible) then return end -- not edible
+          if itemstack:get_name() ~= "" then return end -- we should only eat with an empty hand
+          local ft = HEALTH.food_table[node.name]
+          if not ft then return end -- no food stats
+          local nrpl = core.registered_nodes[ft.rwi] -- node replace, checks food table's replacewithitem
+          if not nrpl then return end -- can't replace due to it not existing
+          node.name = ft.rwi -- replacing using node data
+          local ediblestack = ItemStack(ndef.name) -- use stack for reference
+          -- playermade edible
+          if ndef.groups.edible == 2 then
+              local meta = core.get_meta(pos)
+              local eat_value = meta:get_string("eat_value")
+              meta:set_string("eat_value","") -- clear as we're consuming
+              -- transfer eat_value to ediblestack
+              local imeta = ediblestack:get_meta()
+              imeta:set_string("eat_value",eat_value)
+              HEALTH.eatdrink_playermade(ediblestack, clicker, pointed_thing)
+          -- regular edible
+          else
+              HEALTH.eatdrink(ediblestack, clicker, pointed_thing)
+          end
+          -- play eating sound
+          local eat_sound = ft.eat_sound
+          minimal.switch_node(pos, node) -- save any meta
+      end or nil
     -- misc extra stuff
     def.paramtype = def.paramtype or empty.paramtype or "light"
     def.sounds = def.sounds or empty.sounds and table.copy(empty.sounds) or nodes_nature.node_sound_defaults()
