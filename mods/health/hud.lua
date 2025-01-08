@@ -483,7 +483,7 @@ function HEALTH.hide_hud_elements(player, meta, list, hide)
     -- get and check list
     list = get_list(list)
     if type(list) ~= "table" then
-        error("HEALTH.hide_hude_elements: expected table for list, got type '"..type(list).."'")
+        error("HEALTH.hide_hud_elements: expected table or 'all' for list, got type '"..type(list).."'")
     end
     -- get meta
     meta = type(meta) == "userdata" and meta or player:get_meta()
@@ -532,7 +532,7 @@ function HEALTH.blink_hud_elements(playername, list, setblink, player)
     -- get and check list
     list = get_list(list)
     if type(list) ~= "table" then
-        error("HEALTH.blink_hud_elements: expected table for list, got type '"..type(list).."'")
+        error("HEALTH.blink_hud_elements: expected table or 'all' for list, got type '"..type(list).."'")
     end
     local blink = hud_data.blink
     -- set up blink table if doesn't exist and we wanna blink or otherwise return if no blink table
