@@ -81,6 +81,7 @@ end
 -- get time function for setting times
 local function get_time(since)
     local ctime = core.get_server_uptime()
+    ctime = math.floor(ctime * 10 + 0.5)/10 -- round first decimal point
     -- since parameter to determine how much time has passed since the provided timestamp
     if type(since) == "number" then
         ctime = ctime - since
@@ -533,14 +534,16 @@ function HEALTH.blink_hud_elements(playername, list, setblink, player)
     if type(list) ~= "table" then
         error("HEALTH.blink_hud_elements: expected table for list, got type '"..type(list).."'")
     end
-    -- set up blinkables table if doesn't exist
     local blink = hud_data.blink
-    if setblink and not blink then
-        blink = {}
-        hud_data.blink = blink
-    -- trying to stop blinking of currently no blinking occurring! just return
-    else
-        return
+    -- set up blink table if doesn't exist and we wanna blink or otherwise return if no blink table
+    if not blink then
+        if setblink then
+            blink = {}
+            hud_data.blink = blink
+        -- trying to stop blinking of currently no blinking occurring! just return
+        else
+            return
+        end
     end
     -- get meta
     local meta = player:get_meta()
@@ -632,6 +635,7 @@ minetest.register_globalstep(function(dtime)
                                 -- check meta and get meta if need
                                 meta = meta or player:get_meta()
                                 data.bool = data.bool ~= true -- true becomes false, false becomes true
+                                data.time = get_time()
                                 -- player, hud_data, meta, value (set as nil), true for forceupdate
                                 stat_funcs[nm](player, hud_data, meta, nil, true)
                             end
