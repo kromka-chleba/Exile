@@ -525,13 +525,15 @@ end)
 -- only change hud when stats have been modified
 HEALTH.register_on_stat_change(function(player, setting, value, meta)
     -- player's "temperature" will be "body_temp"
-    setting = setting == "temperature" and "body_temp" or setting == "effects_num" and "effects" or setting
+    setting = setting == "temperature" and "body_temp" or setting == "effects_num" and "effects" or
+      (setting == "clothing_temp_max" or setting == "clothing_temp_min") and "enviro_temp" or setting
     local stat_func = stat_funcs[setting]
     -- not found
     if not stat_func then return end
     local hud_data = hud[player:get_player_name()]
     if not hud_data then return end -- no hud_data oops
-    stat_func(player, hud_data, meta)
+    -- player, hud_data, meta, value (if not enviro_temp), true for forceupdate
+    stat_func(player, hud_data, meta, setting ~= "enviro_temp" and value or nil, true)
 end)
 
 
