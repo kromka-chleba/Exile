@@ -223,14 +223,8 @@ local changed_callbacks = {}
 local changed_hp_callbacks = {}
 -- player, setting name, setting value, player's meta
 local function stat_changed(player, name, value, meta)
-    if name == "hp" then
-        for _, func in ipairs(changed_hp_callbacks) do
-            func(player, value) -- we don't access meta anyways
-        end
-    else
-        for _, func in ipairs(changed_callbacks) do
-            func(player, name, value, meta)
-        end
+    for _, func in ipairs(changed_callbacks) do
+        func(player, name, value, meta)
     end
 end
 
@@ -242,15 +236,6 @@ HEALTH.register_on_stat_change = function(func)
     end
     -- add func to callbacks
     changed_callbacks[#changed_callbacks + 1] = func
-end
-
--- register a function to be called when health changes
-HEALTH.register_on_hp_change = function(func)
-    if type(func) ~= "function" then
-        error("HEALTH.register_on_hp_change: expected function, got type '"..type(func).."'")
-    end
-    -- add func to callbacks
-    changed_hp_callbacks[#changed_hp_callbacks + 1] = func
 end
 
 -- SETTING AND MODIFYING FUNCTIONS
@@ -267,7 +252,6 @@ function HEALTH.modify_hp(player,value)
     phealth = math_clamp(phealth + value,0,HEALTH.max_hp)
     player:set_hp(phealth)
 
-    stat_changed(player, "hp", phealth)
     return phealth -- return modified health
 end
 
