@@ -71,80 +71,14 @@ local function tobool(str)
     return false
 end
 
--- must be ALL string or number
-local function concat_text(...)
-    return table.concat({...},"")
-end
-
-local typelist = { "health", "energy", "thirst", "hunger",
-                   "temp", "enviro_temp", "effects" }
-function HEALTH.hide_hud_elements(player, meta, list, hide)
-    -- Takes a string of elements to hide, or "all", sets them hidden
-    -- Needs either player or meta to apply changes to
-    -- hide, if true, inverts this function to show elements
-    if not core.is_player(player) then
-        error("HEALTH.hide_hud_elements: tried to hide hud elements for non-existent (or inactive) player!")
-    end
-    local hud_data = hud[player:get_player_name()]
-    if not hud_data then return end -- no hud data to speak of, return don't error
-    meta = type(meta) == "userdata" and meta or player:get_meta()
-    -- handle list mechanic
-    list = type(list) == "string" and list:lower() or list
-    list = type(list) == "string" and list ~= "all" and list:split(",") or list
-    list = list == "all" and {"health", "energy", "thirst", "hunger", "body_temp", "enviro_temp", "sick"}
-    if list ~= "all" and type(list) ~= "table" then
-        error("HEALTH.hide_hude_elements: expected table for list, got type '"..type(list).."'")
-    end
-    -- now to check through that list
-    for _,tag in pairs(list) do
-        tag = tag == "temp" and "body_temp" or tag
-        -- check if we exist in hud_data, otherwise skip over
-        local data = hud_data[tag]
-        if data then
-            -- remove index with "or nil" if not hidden
-            data.hidden = (true ~= hide) or nil
-        end
-    end
-end
-
-function HEALTH.show_hud_elements(player, meta, list)
-    HEALTH.hide_hud_elements(player, meta, list, true)
-end
-
-function HEALTH.hud_update_settings(player_name, table)
-    local hud_data = hud[player_name]
-    for nm, val in pairs(table) do
-        hud_data[nm] = val
-    end
-end
-
-
 local function are_stats_visible(hud_data)
     return (( hud_data.showstats and hud_data.showstats == true ) or
         ( hud_data.showstats == nil and mtshowstats == true ) )
 end
 
-function HEALTH.blink_hud_elements(playername, list, setblink, player)
-    -- Takes a string of elements or "all", sets them blinking
-    -- Needs either playername or player to apply changes to
-    -- setblink is the state, true/false/nil
-    if not playername and not player then
-        error("Tried to blink hud elements for non-existent player!")
-    end
-    if not playername then playername = player:get_player_name() end
-    for i = 1, #typelist do
-        if string.match(list, typelist[i]) or string == "all" then
-            hud[playername]["blink"][typelist[i]] = setblink
-        end
-    end
-end
-
-local blinkingnow = false
-local function blink(bool)
-    if not bool or blinkingnow == true then
-        return ""
-    end
-    return "^[multiply:#000000"
+-- must be ALL string or number
+local function concat_text(...)
+    return table.concat({...},"")
 end
 
 local stdpos = { x = .5, y = 1}
@@ -253,6 +187,14 @@ local setup_hud = function(player)
 end
 
 minetest.register_on_joinplayer(function(player) setup_hud(player) end)
+
+-- makes icons "blink"
+local function blink(bool)
+    if not bool then
+        return ""
+    end
+    return "^[multiply:#000000"
+end
 
 -- status indicator colors for use in stat display option
 
@@ -489,6 +431,75 @@ local stat_funcs = {
         health_hud_change(player, hud_data, "effects", stat_col, t)
   end,
 }
+
+-- BLINKING AND OTHER BASIC FUNCTIONALITY
+local typelist = { "health", "energy", "thirst", "hunger",
+                   "temp", "enviro_temp", "effects" }
+function HEALTH.hide_hud_elements(player, meta, list, hide)
+    -- Takes a string of elements to hide, or "all", sets them hidden
+    -- Needs either player or meta to apply changes to
+    -- hide, if true, inverts this function to show elements
+    if not core.is_player(player) then
+        error("HEALTH.hide_hud_elements: tried to hide hud elements for non-existent (or inactive) player!")
+    end
+    local hud_data = hud[player:get_player_name()]
+    if not hud_data then return end -- no hud data to speak of, return don't error
+    meta = type(meta) == "userdata" and meta or player:get_meta()
+    -- handle list mechanic
+    list = type(list) == "string" and list:lower() or list
+    list = type(list) == "string" and list ~= "all" and list:split(",") or list
+    -- we want to hide ALL hud elements, so let's do that
+    if list == "all" then
+        list = {}
+        for nm,_ in pairs(stat_funcs) do
+            list[#list + 1] = nm
+        end
+    end
+    if list ~= "all" and type(list) ~= "table" then
+        error("HEALTH.hide_hude_elements: expected table for list, got type '"..type(list).."'")
+    end
+    -- now to check through that list
+    for _,tag in pairs(list) do
+        tag = tag == "temp" and "body_temp" or tag == "sick" and "effects" or tag
+        -- check if we exist in hud_data, otherwise skip over
+        local data = hud_data[tag]
+        if data then
+            -- remove index with "or nil" if not hidden
+            data.hidden = (true ~= hide) or nil
+            -- call function for update
+            stat_funcs[tag](player, hud_data, meta, nil, true)
+        end
+    end
+end
+
+function HEALTH.show_hud_elements(player, meta, list)
+    HEALTH.hide_hud_elements(player, meta, list, true)
+end
+
+function HEALTH.hud_update_settings(player_name, table)
+    local hud_data = hud[player_name]
+    for nm, val in pairs(table) do
+        -- don't permit overriding hud data
+        if not stat_funcs[nm] then
+            hud_data[nm] = val
+        end
+    end
+end
+
+function HEALTH.blink_hud_elements(playername, list, setblink, player)
+    -- Takes a string of elements or "all", sets them blinking
+    -- Needs either playername or player to apply changes to
+    -- setblink is the state, true/false/nil
+    if not playername and not player then
+        error("Tried to blink hud elements for non-existent player!")
+    end
+    if not playername then playername = player:get_player_name() end
+    for i = 1, #typelist do
+        if string.match(list, typelist[i]) or string == "all" then
+            hud[playername]["blink"][typelist[i]] = setblink
+        end
+    end
+end
 
 -- update placement of hud icons when hud16 (longbar) is modified
 -- value will be false or true
