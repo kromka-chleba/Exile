@@ -48,7 +48,7 @@ local tofstring = function(t) return table.concat(t,"") end
         sToolID = selected tool index in list -- set to 1 by default
         sTool  = selected tool name
         sTab   = selected_craft_tab     -- index of selected tab in craft_types  - default = 1
-        cTabs = nil
+        cTabs = nil -- "hand", "hand_tool", etc; all output tool type sections
         sLevel = selected craft_type_level -- set by craft type item selected
         sScroll = selected scroll level -- needed to draw scroll container
         sSearch = current filter in search field
@@ -541,7 +541,7 @@ local function make_inventory_formspec(player,context)
         }
 
         local coords
-        for i=1, #cTabs do
+        for i=1, #cTabs do -- go over recipe tabs: hand, tools, weaving, etc
             coords = tostring((i - 1) * 0.85) ..',0'
             ---------------------------------------------------------------
             --set focus on selected tab
@@ -816,13 +816,13 @@ local function process_button(key,btypes)
     return nil,nil -- button types not found
 end
 
--- process "quantity" setting
+-- Quantity sets single, stack or maximum -- this finds how many we can craft
 local function process_qty(recipe,qty,item_hash)
     if qty > 1 then -- more then single requested find max
         local oItem = ItemStack(recipe.output)
         local oName = oItem:get_name()
-        local oCount = oItem:get_count() or 1
         local max_count = 0
+        local prior_count
         -- check each row of input items
         for i,input in ipairs(recipe.items) do
             -- single item inputs need to be processed in table form
@@ -847,6 +847,11 @@ local function process_qty(recipe,qty,item_hash)
                 max_count = row_max
                 -- can't have a count bigger then any input row.
             end
+            if prior_count and prior_count < max_count then
+                max_count = prior_count
+            else
+                prior_count = max_count
+            end
         end
         if qty == 2 then -- stack requested so adjust max to max for stack.
             local def = minetest.registered_nodes[oName]
@@ -858,13 +863,13 @@ local function process_qty(recipe,qty,item_hash)
             end
         end
         -- set output to max_count
-        recipe.output = oName .." "..max_count * oCount
+        recipe.output = oName .." "..max_count
         -- adjust replace
         for i,rItem in pairs(recipe.replace or {}) do -- index, Replace Item
             rItem = ItemStack(rItem)
             rItem:set_count((rItem:get_count() or 1)
-                * max_count) -- qty is weird, use max_count
-            recipe.replace[i] = rItem:to_string() -- to_string works as of 5.0+
+                * max_count)
+            recipe.replace[i] = rItem:to_string()
         end
         local pItems = {} -- picked items list
         -- set input items to values for max_count
@@ -874,7 +879,8 @@ local function process_qty(recipe,qty,item_hash)
                 local iCount = iItem:get_count()
                 if iCount > 0 then
                     local count = iCount * max_count
-                    pItems[#pItems+1] = iItem:get_name() .. " " .. count
+                    local take = iItem:get_name() .. " " .. count
+                    pItems[#pItems+1] = take
                 end
             else
                 local row_maxCount = max_count
@@ -890,7 +896,8 @@ local function process_qty(recipe,qty,item_hash)
                             ioCount = row_maxCount
                             -- no more then max_count should be picked.
                         end
-                        pItems[#pItems+1] = iName .." "..ioCount * iEach
+                        local taking = iName .." "..ioCount * iEach
+                        pItems[#pItems+1] = taking
                         row_maxCount = row_maxCount - ioCount
                         if row_maxCount == 0 then
                             break
@@ -990,6 +997,7 @@ local function process_receive_fields(player, formname, fields)
             -- if we pushed a recipe button
             elseif btn_type == 'sResult' then
                 local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
+
                 local ctype = get_craft_tabs(cache.sTool)[cache.sTab]
                 local sLevel = cache.sLevel
                 local qty = cache.qty or 1
@@ -997,6 +1005,7 @@ local function process_receive_fields(player, formname, fields)
                 local item_hash = cache.item_hash or get_item_hash(inv)
 
                 process_qty(recipe,qty, item_hash)
+
                 if not crafting.can_craft(player_name, ctype,
                                           sLevel, recipe) then
                     minetest.log("error", "[inventoryFS] Player clicked a "..

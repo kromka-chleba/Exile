@@ -494,7 +494,7 @@ function crafting.update_recipe_state(result, level, unlocked, item_hash, search
         return -- #TODO check if we do better
     end
 
-    -- if I d'ont know that recipe, delete the entry
+    -- if I don't know that recipe, delete the entry
     if not (recipe.level <= level and (recipe.always_known
     or unlocked[recipe.output])) then
         result = nil
@@ -532,6 +532,7 @@ function crafting.update_recipe_state(result, level, unlocked, item_hash, search
                 -- don't have any of the needed ingredients from this row.
             end
         end
+
         -- check if we have a where clause only if its craftable
         if craftable and recipe.where then
             craftable = false -- assume this failes unless we find a match.
@@ -935,6 +936,7 @@ end
     Returns nil if not found or not enought for recipe
 ]]
 function crafting.find_required_items(inv, listname, recipe)
+
     if not listname then
         return nil
     end
@@ -942,9 +944,10 @@ function crafting.find_required_items(inv, listname, recipe)
     if type(listname) ~= 'table' then
         listname = { listname }
     end
+
     -- to store found items
     local found_table = {}
-    -- initiate ound_table
+    -- initiate found_table
     for i, list in ipairs(listname) do
         found_table[list]={}
     end
