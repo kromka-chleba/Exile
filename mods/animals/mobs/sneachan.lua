@@ -75,7 +75,7 @@ local function brain(self)
                 foodfuncs = {
                     -- eat flora
                     flora_suc = function(self, lprty)
-                        self:modify('energy',(badlight and 16 or 8))
+                        self:modify('energy',(badlight and 10 or 4))
                         if random() < (badlight and 0.005 or 0.001) then
                             animals.eat_flora(pos, 1)
                         end
@@ -85,7 +85,7 @@ local function brain(self)
                           foodfuncs.spreading_suc, foodfuncs.spreading_fail)
                     end,
                     spreading_suc = function(self, lprty)
-                        self:modify('energy', (badlight and 8 or 3))
+                        self:modify('energy', (badlight and 5 or 1))
                         if random() < (badlight and 0.008 or 0.001) then
                             animals.eat_grassy_sediment_under(pos, 1)
                         end
@@ -97,17 +97,25 @@ local function brain(self)
                             animals.animate(self,'walk')
                             animals.hq_roam_walkable_group(self, lprty, {'spreading', 'flora'}, 'cane_plant',
                               -- 90% chance to just randomly roam or 30% if day
-                              nil, (random() < (badlight and 0.9 or 0.3) and mobkit.hq_roam or animals.hq_roam_dark))
-                        --wander random (we do it in later parts of the code), 5% chance to clear it out
-                        elseif random() < 0.05 or prty < 10 then
-                            mobkit.clear_queue_high(self)
+                              nil, (random() < (badlight and 0.3 or 0.9) and mobkit.hq_roam or animals.hq_roam_dark))
+                        --wander random
+                        else
+                            animals.animate(self,'walk')
+                            mobkit.hq_roam(self, 9)
                         end
                     end
                 }
                 -- if it's day, then we have a chance of just... not wanting to eat today
-                if badlight or random() < 0.8 then
+                if badlight or random() < 0.5 then
                     animals.hq_roam_walkable_group(self, 14, 'flora', 'cane_plant',
                       foodfuncs.flora_suc, foodfuncs.flora_fail)
+                -- clear queue in favour of darkness seeking
+                elseif random() < 0.5 then
+                    mobkit.clear_queue_high(self)
+                -- wander random
+                elseif random() < 0.05 then
+                    animals.animate(self,'walk')
+                    mobkit.hq_roam(self, 8)
                 end
             end
 

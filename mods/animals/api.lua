@@ -1198,90 +1198,84 @@ end
 
 ----------------------------------------------
 --roam to places with equal or lesser darkness
+
+local function light_check(self,pos,tpos)
+    if not pos then
+        pos = mobkit.get_stand_pos(self)
+    end
+    if not tpos then
+        return false
+    end
+    local light = minetest.get_node_light(pos, 0.5) or 0
+    local lightn = minetest.get_node_light(tpos, 0.5) or 0
+
+    if (lightn < light) then
+        return "desirable"
+    elseif (lightn <= light) then
+        return true
+    end
+end
+
 function animals.hq_roam_dark(self,prty)
+    if not self.isonground then return end -- can't even get anywhere yet!
+    if not mobkit.is_queue_empty_high(self) then return end -- shouldn't run
     local timer = time() + 30
+
+    local light_valid -- check if light is gooood
+    local pos = mobkit.get_stand_pos(self)
+
+    -- declare prior to calculations
+    local height, tpos, liquidflag
+    -- we REALLY want to find a better light
+    if prty >= 45 then
+        local numstring
+        local bl_pos -- bestlight_pos
+        for i = 1, 8 do
+            local h, tp, lf
+            numstring, h, tp, lf = get_reachable_node(self,numstring)
+            -- shortened versions of "height, tpos, liquidflag"
+
+            if tp and animals.temp_comfy(self,tp) then
+                local l_check = light_check(self,bl_pos,tp)
+                if l_check == "desirable" then
+                    height, tpos, liquidflag = h, tp, lf
+                    bl_pos = tp
+                    break
+                elseif l_check == true then
+                    height, tpos, liquidflag = h, tp, lf
+                    bl_pos = tp
+                end
+            end
+        end
+        -- go to a bad area to find better dark on random chance of 8 if can't find a bestlight pos
+        light_valid = bl_pos and true or random(1,8) == 8
+    -- it's not too serious rn
+    else
+        local neighbor = random(8)
+        height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
+        if tpos then
+            local temp = climate.get_point_temp(tpos, true)
+            -- do not go to this position, not a good temp!
+            if not animals.temp_comfy(self,temp) then
+                height = nil
+            end
+        end
+        light_valid = height and light_check(pos, tpos)
+    end
+
+    if not light_valid then return end -- bad light
+    local walked -- used to determine if we made it to our destination
     local func=function()
         if time() > timer then
             return true
         end
 
-        local function light_check(pos,tpos)
-            if not pos then
-                pos = mobkit.get_stand_pos(self)
-            end
-            if not tpos then
-                return false
-            end
-            local light = minetest.get_node_light(pos, 0.5) or 0
-            local lightn = minetest.get_node_light(tpos, 0.5) or 0
-
-            if (lightn <= light) then
+        if mobkit.is_queue_empty_low(self) and self.isonground then
+            if walked then
                 return true
-            elseif (lightn < light) then
-                return "desirable"
             end
-        end
-
-        if (mobkit.is_queue_empty_low(self) and self.isonground)
-            or (prty >= 45 and self.isonground) then
-
-            local light_valid = false
-            local pos = mobkit.get_stand_pos(self)
-            local neighbor = random(8)
-
-            local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
-
-            if (tpos) then
-                local temp = climate.get_point_temp(tpos, true)
-                if not (animals.temp_comfy(self,temp)) then
-                    -- do not go to this position
-                    height = nil
-                end
-            end
-            if (prty >= 45) then
-                local numstring
-                local bl_pos -- bestlight_pos
-                for i = 1, 8, 1 do
-                    local h, tp, lf
-                    numstring, h, tp, lf = get_reachable_node(self,numstring)
-                    -- shortened versions of "height, tpos, liquidflag"
-
-                    if (tp and animals.temp_comfy(self,tp)) then
-                        local l_check = light_check(bl_pos,tp)
-                        if (l_check == "desirable") then
-                            height, tpos, liquidflag = h, tp, lf
-                            bl_pos = tp
-                            break
-                        elseif (l_check == true) then
-                            height, tpos, liquidflag = h, tp, lf
-                            bl_pos = tp
-                        end
-                    end
-                end
-                if bl_pos then
-                    light_valid = true
-                elseif (random(1,8) == 8) then
-                    -- go to a bad area to find better dark
-                    light_valid = true
-                end
-            else
-                if light_check(pos,tpos) then
-                    light_valid = true
-                end
-            end
-
-            if height and not liquidflag then
-                if light_valid then
-                    if (prty >= 45) then
-                        mobkit.dumbstep(self,height,tpos,1)
-                    else
-                        mobkit.dumbstep(self,height,tpos,0.3)
-                    end
-                    return false
-                else
-                    return true
-                end
-            end
+            mobkit.dumbstep(self,height,tpos,(prty >= 45 and 1 or 0.3))
+            walked = true
         end
     end
     mobkit.queue_high(self,func,prty)
