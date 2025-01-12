@@ -66,45 +66,50 @@ local function brain(self)
 
             --feeding
             local light = (minetest.get_node_light(pos) or 0)
+            local badlight = light <= 12
 
-            if light <= 12 then
-                --hungry eat stuff in the dark
-                if self.energy < self.energy_max then
-                    if  animals.eat_flora(pos, 0.005) == true then
-                        self:modify('energy',10)
-                    elseif animals.eat_grassy_sediment_under(pos, 0.008) == true then
-                        self:modify('energy',5)
-                    else
-                        --wander random
-                        animals.animate(self,'walk')
-                        animals.hq_roam_walkable_group(self, 20, 'spreading', 'cane_plant', animals.hq_roam_dark)
+            --hungry, go eat stuff
+            if self.energy < self.energy_max then
+                local foodfuncs -- declare for self indexing
+                -- less effective eating in day
+                foodfuncs = {
+                    -- eat flora
+                    flora_suc = function(self, lprty)
+                        self:modify('energy',(badlight and 16 or 8))
+                        if random() < (badlight and 0.005 or 0.001) then
+                            animals.eat_flora(pos, 1)
+                        end
+                    end,
+                    flora_fail = function(self, lprty)
+                        animals.hq_roam_walkable_group(self, lprty, 'spreading', nil,
+                          foodfuncs.spreading_suc, foodfuncs.spreading_fail)
+                    end,
+                    spreading_suc = function(self, lprty)
+                        self:modify('energy', (badlight and 8 or 3))
+                        if random() < (badlight and 0.008 or 0.001) then
+                            animals.eat_grassy_sediment_under(pos, 1)
+                        end
+                    end,
+                    spreading_fail = function(self, lprty)
+                        --wander for food
+                        -- 10% if too bright
+                        if light <= 12 or random() < 0.1 then
+                            animals.animate(self,'walk')
+                            animals.hq_roam_walkable_group(self, lprty, {'spreading', 'flora'}, 'cane_plant',
+                              -- 90% chance to just randomly roam or 30% if day
+                              nil, (random() < (badlight and 0.9 or 0.3) and mobkit.hq_roam or animals.hq_roam_dark))
+                        --wander random (we do it in later parts of the code), 5% chance to clear it out
+                        elseif random() < 0.05 or prty < 10 then
+                            mobkit.clear_queue_high(self)
+                        end
                     end
-                --full, so wander randomly
-                else
-                    animals.animate(self,'walk')
-                    mobkit.hq_roam(self,1)
+                }
+                -- if it's day, then we have a chance of just... not wanting to eat today
+                if badlight or random() < 0.8 then
+                    animals.hq_roam_walkable_group(self, 14, 'flora', 'cane_plant',
+                      foodfuncs.flora_suc, foodfuncs.flora_fail)
                 end
-            elseif random()<0.5 and self.energy < self.energy_max then
-                --slower, less effective feeding during day
-                if  animals.eat_flora(pos, 0.001) then
-                    self:modify('energy',4)
-                elseif animals.eat_grassy_sediment_under(pos, 0.001) then
-                    self:modify('energy',1)
-                -- 10% chance to look for food anyways
-                elseif random() < 0.10 then
-                    animals.animate(self,'walk')
-                    animals.hq_roam_walkable_group(self, 20, 'spreading', 'cane_plant', animals.hq_roam_dark)
-                --wander random (we do it in later parts of the code), 5% chance to clear it out
-                elseif random() < 0.05 or prty < 10 then
-                    mobkit.clear_queue_high(self)
-                end
-            else
-                --get out of the light
-                animals.hq_roam_dark(self,15)
             end
-
-
-
 
             --reproduction
             --asexual parthogenesis, eggs

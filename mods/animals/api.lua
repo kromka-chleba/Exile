@@ -1389,21 +1389,68 @@ end
 
 ----------------------------------------------
 --roam to a walkable (by group) i.e. walk into the node itself c.f. under
-function animals.hq_roam_walkable_group(self, prty, groups, iggroups, failfunc)
+function animals.hq_roam_walkable_group(self, prty, groups, iggroups, successfunc, failfunc)
     if not mobkit.is_queue_empty_high(self) then return end -- shouldn't run
-    -- self, groups (table or string), ignoregroups (table or string), priority
-    local timer = time() + 15
+    -- timer lasts 12 seconds per unit of max_speed (0.5 would be 24, 1.5 would be 8)
+    local timer = time() + (12/self.max_speed)
 
     -- ensure groups is table
     groups = type(groups) == "table" and groups or type(groups) == "string" and {groups}
     if not groups then return end -- no groups to check
     -- ignore groups (convert to table to iterate over anyways)
-    iggroups = type(iggroups) == "table" and iggroups or type(iggroups) == "string" and {iggroups} or {}
+    iggroups = type(iggroups) == "table" and iggroups or type(iggroups) == "string" and {iggroups} or nil
 
+    -- failed to find an adequate position
     local function wefailed()
         if type(failfunc) == "function" then
-            failfunc(self, prty+20)
+            failfunc(self, prty)
         end
+    end
+
+    local function wesucceed()
+        if type(successfunc) == "function" then
+            successfunc(self, prty)
+        end
+        return true
+    end
+
+    -- is this the right place to be?
+    local function on_it(pos)
+        --is it the correct?
+        local ndef = minimal.get_nodedef(pos)
+        if not ndef then return wefailed() end
+        -- get nodedef at position below if nodedef is airlike
+        if ndef.drawtype == "airlike" then
+            ndef = minimal.get_nodedef(minimal.shift_pos(pos, {y=-1}))
+            if not ndef then return wefailed() end
+        end
+        local ngroups = ndef and ndef.groups
+        if not ngroups then return wefailed() end -- can't walk to this node, no groups!
+        -- check if we should ignore this node first
+        if iggroups then
+            for _,group in pairs(iggroups) do
+                if ngroups[group] and ngroups[group] > 0 then
+                    -- if node is in a group that is to be ignored... don't walk to it!
+                    return wefailed()
+                end
+            end
+        end
+        -- node appropriate
+        local nodeapp = false -- set as false initially
+        for _,group in pairs(groups) do
+            if ngroups[group] and ngroups[group] > 0 then
+                -- if node is in a specified group then...
+                -- let's go it :D
+                nodeapp = true
+                break
+            end
+        end
+        if nodeapp then return true end
+    end
+
+    -- we're already here, all good!
+    if on_it(self.object:get_pos()) then
+        return wesucceed()
     end
 
     local neighbor = random(8)
@@ -1418,45 +1465,38 @@ function animals.hq_roam_walkable_group(self, prty, groups, iggroups, failfunc)
         end
     end
 
-    if height and not liquidflag then
-        --is it the correct?
-        local ndef = minimal.get_nodedef(tpos)
-        -- get nodedef at position below if no nodedef or is airlike
-        if not ndef or ndef.drawtype == "airlike" then
-            minimal.get_nodedef(minimal.shift_pos(tpos, {y=-1}))
-        end
-        local ngroups = ndef and ndef.groups
-        if not groups then return wefailed() end -- can't walk to this node, no groups!
-        -- check if we should ignore this node first
-        for _,group in pairs(iggroups) do
-            if ngroups[group] and ngroups[group] > 0 then
-                -- if node is in a group that is to be ignored... don't walk to it!
-                return wefailed()
-            end
-        end
-        -- node appropriate
-        local nodeapp = false -- set as false initially
-        for _,group in pairs(groups) do
-            if ngroups[group] and ngroups[group] > 0 then
-                -- if node is in a specified group then...
-                -- let's go it :D
-                nodeapp = true
-                break
-            end
-        end
+    -- liquid, too uncomfy to go there, or not what we're looking for
+    if liquidflag or not (height and on_it(tpos)) then return wefailed() end
 
-        height = nodeapp and height or nil
-    end
-    if not height then return wefailed() end
-
+    -- used to determine if we made it to our destination
+    local walked
     local func=function(self)
+        -- outta time, return
         if time() > timer then
             return true
         end
 
+        -- queue empties when dumpstep is finished
         if mobkit.is_queue_empty_low(self) and self.isonground then
+            -- return most of our parameters back
+            if walked then
+                prty = prty + 1
+                return wesucceed()
+            end
+            -- dumpstep stops when we've finished walking, so set a boolean to check when we run this code again
             mobkit.dumbstep(self, height, tpos, 0.3)
+            walked = true
+        --[[
+        elseif walked and vector.distance(self.object:get_pos(), tpos) < (self.attack and
+          self.attack.range or self.eat_range or 0.5) then
+            prty = prty + 1
+            if type(successfunc) == "function" then
+                successfunc(self, prty+1)
+            end
+            return true
+        --]]
         end
+        --core.log(""..vector.distance(self.object:get_pos(), tpos))
     end
     mobkit.queue_high(self,func,prty)
 end
