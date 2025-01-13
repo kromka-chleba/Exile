@@ -364,26 +364,25 @@ minetest.register_abm({
         chance = 3,
         catch_up = true,
         action = function(pos, node)
+            if seasons.is_winter() then return end -- it's winter, let's not regrow, at all lol
+            local above_pos = minimal.pos_shift(pos, {y=1})
+            local above = core.get_node(above_pos)
+            -- something above, ahhh!! check before ever checking meta
+            if above.name ~= "air" then return end
             local meta = minetest.get_meta(pos)
             local name = meta:get_string("root_name")
-            local nr = meta:get_float("root_nr")
-            local pos_above = minimal.get_pos_above(pos)
-            local above_name = minetest.get_node(pos_above).name
-            if above_name ~= "air" or name == "" then
-                return
-            end
-            local temp = climate.get_point_temp(pos_above)
-            local winter = seasons.is_winter()
-            if temp <= 10 and winter or
-                temp < 5 and not winter then
-                return
-            end
-            if nr >= 1 then
-                local seedling_name = string.gsub(name, "_root", "_seedling5")
-                minetest.place_node(pos_above, {name = seedling_name})
-            else
-                local seedling_name = string.gsub(name, "_root", "_seedling2")
-                minetest.place_node(pos_above, {name = seedling_name})
-            end
+            if name == "" then return end -- no name
+            local pdef = core.registered_nodes[name:gsub("_root","")] -- plant def
+            if not pdef then return end -- not a node, plant
+            local nr = meta:get_float("root_nr") -- root number
+            local temp = climate.get_point_temp(above_pos)
+            -- temp range
+            local temp_range = pdef.plant_temp_range or {min=5,max=40}
+            if temp < temp_range.min or temp > temp_range.max then return end -- too cold too hot
+            -- get type of seedling and place
+            local seedling_name = nr >= 1 and name:gsub("_root", "_seedling5") or
+              name:gsub("_root", "_seedling2")
+            if not core.registered_nodes[seedling_name] then return end -- not a node
+            core.place_node(above_pos, {name = seedling_name})
         end
 })
