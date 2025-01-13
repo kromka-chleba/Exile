@@ -20,14 +20,15 @@ local seasons = nn.seasons
 --
 
 local function flora_spread(pos, node)
-    local pos_under = minimal.get_pos_under(pos)
-    if not minimal.pos_group(pos_under, "sediment") then
+    -- check if we're on top of sediment
+    local pos_under = minimal.pos_shift(pos, {y=-1})
+    local under = core.get_node(pos_under)
+    local underdef = core.registered_nodes[under.name]
+    if not (underdef and underdef.groups and underdef.groups.sediment) then
         return
     end
-    local under = minetest.get_node(pos_under)
     -- prevent spreading to slopes
-    local under_nodedef = minimal.get_nodedef(pos_under)
-    local slope = under_nodedef.groups.natural_slope
+    local slope = underdef.groups.natural_slope
     local under_name = under.name
     if slope then
         under_name = nsl.get_regular_node_name(under.name)
@@ -39,21 +40,26 @@ local function flora_spread(pos, node)
     if #minetest.find_nodes_in_area(pos0, pos1, "group:flora") > 3 then
         return
     end
-    local plant_nodedef = minimal.get_nodedef(pos)
-    local seed_name = plant_nodedef._seed_name
+    local plantdef = core.registered_nodes[node.name]
+    local seed_name = plantdef._seed_name
+    -- seed isn't a node, return!
+    if not core.registered_nodes[seed_name] then return end
+    -- find sediments to transfer to
+    -- #TODO: run nn.plant.soil_response() on soil to figure out whether or not we should spread to the soil
+    -- when we do, store the data so we aren't calling it on the same type of soil for each available node
+    -- possibly check comfortable light (at day time) and temp too
     local soils = minetest.find_nodes_in_area_under_air(
         pos0, pos1, "group:sediment")
     local num_soils = #soils
-    if num_soils >= 1 then
-        for si = 1, math.random(1, num_soils) do
-            local soil = soils[math.random(num_soils)]
-            local soil_name = minetest.get_node(soil).name
-            local above_soil = minimal.get_pos_above(soil)
-            if soil_name == under_name then
-                minetest.set_node(above_soil, {name = seed_name})
-                ms.labels_to_position(above_soil,
-                                      {"seasonal_plants"})
-            end
+    if num_soils == 0 then return end
+    for si = 1, math.random(1, num_soils) do
+        local soil = soils[math.random(num_soils)]
+        local soil_name = minetest.get_node(soil).name
+        local above_soil = minimal.get_pos_above(soil)
+        if soil_name == under_name then
+            minetest.set_node(above_soil, {name = seed_name})
+            ms.labels_to_position(above_soil,
+                                  {"seasonal_plants"})
         end
     end
 end
