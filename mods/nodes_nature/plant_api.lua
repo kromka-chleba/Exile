@@ -174,6 +174,8 @@ function plant.new(def)
     -- nil if not provided
     def.thorns = def.thorns and 1 or nil
     def.waving = def.waving and 1 or nil
+    -- local variable to detect if a cane/bamboo
+    local is_cane = def.plant_type == "cane" or def.plant_type == "bamboo"
     -- light range
     local light_range = def.light_range or {}
     light_range.min = light_range.min or light_range[1]
@@ -185,8 +187,8 @@ function plant.new(def)
         light_range.min = light_range.min or 0
         light_range.max = light_range.max or 12
     -- canes require more light
-    elseif (def.plant_type == "cane" or def.plant_type == "bamboo") then
-        light_range.min = light_range.min or 12
+    elseif is_cane then
+        light_range.min = light_range.min or 13
         light_range.max = light_range.max or 15
     -- regular plants
     else
@@ -201,8 +203,10 @@ function plant.new(def)
     temp_range[1] = nil
     temp_range[2] = nil
     -- usual range: 5 to 40C
-    temp_range.min = temp_range.min or temp_range.max and temp_range.max - 35 or 5
-    temp_range.max = temp_range.max or temp_range.min + 35
+    -- canes and bamboos are 10C to 40C
+    temp_range.min = temp_range.min or temp_range.max and temp_range.max - 35 or
+      is_cane and 10 or 5
+    temp_range.max = temp_range.max or temp_range.min + (is_cane and 30 or 35)
     def.temp_range = temp_range
     -- soil_preferences
     def.soil_preferences = def.soil_preferences or def.soil_prefs
