@@ -187,7 +187,27 @@ local function grow_cane(pos, node)
     if cgroups.wet_sediment == 2 or not cgroups.sediment then
         -- kill if salty or not sediment
         return kill()
-    elseif cgroups.wet_sediment ~= 1 then
+    end
+    -- check our current height
+    local height = 0
+    while node.name == pdef.name and height < 6 do
+        height = height + 1
+        pos.y = pos.y + 1
+        node = minetest.get_node(pos)
+    end
+    -- sufficiently grown, return
+    if height > 5 then return end
+    -- add to meta that we checked, return if first time checking
+    local meta = minetest.get_meta(bottom_cane_pos)
+    local last_time = meta:get_int("last_time")
+    -- no catchup here, set and return
+    if not last_time or last_time == 0 then
+        last_time = minetest.get_gametime()
+        meta:set_int("last_time", last_time)
+        return
+    end
+    -- no growing if not wet
+    if cgroups.wet_sediment ~= 1 then
         -- dry so no growing
         return
     end
@@ -211,24 +231,6 @@ local function grow_cane(pos, node)
         return
     end
 
-    local height = 0
-    while node.name == pdef.name and height < 6 do
-        height = height + 1
-        pos.y = pos.y + 1
-        node = minetest.get_node(pos)
-    end
-    -- sufficiently grown, return
-    if height > 5 then return end
-
-    local meta = minetest.get_meta(bottom_cane_pos)
-    local last_time = meta:get_int("last_time")
-    -- no catchup here, set and return
-    if not last_time or last_time == 0 then
-        last_time = minetest.get_gametime()
-        meta:set_int("last_time", last_time)
-        return
-    end
-
     local elapsed = minetest.get_gametime() - last_time
 
     -- 1.05 margin because ABMs have a small delay
@@ -248,7 +250,16 @@ local function grow_cane(pos, node)
             break
         end
     end
-    meta:set_int("last_time", minetest.get_gametime())
+    -- erase last_time (or meta if otherwise empty) if tall enough, to prevent sudden regrowth on dig
+    if height > 5 then
+        local data = meta:to_table()
+        if data and data.fields then
+            data.fields.last_time = nil
+        end
+        meta:from_table(data)
+    else
+        meta:set_int("last_time", minetest.get_gametime())
+    end
     return true
 end
 
