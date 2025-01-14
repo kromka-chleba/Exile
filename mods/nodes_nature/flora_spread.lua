@@ -125,6 +125,8 @@ minetest.register_abm({
 
 local cane_interval = 220
 
+local checked_canes = {} -- positions of each cane's bottom, used to prevent growth from being called on the same cane
+
 ---------------------------------
 local function grow_cane(pos, node)
     local current_pos = vector.new(pos)
@@ -166,6 +168,22 @@ local function grow_cane(pos, node)
         cgroups = current_node and current_node.groups or {}
     end
 
+    -- get bottom cane prior to other calculations for check
+    local bottom_cane_pos = vector.new(current_pos)
+    bottom_cane_pos.y = bottom_cane_pos.y + 1
+    -- check if we're already being checked
+    local bottom_label = core.pos_to_string(bottom_cane_pos)
+    -- already being checked
+    if checked_canes[bottom_label] then
+        return
+    else
+        checked_canes[bottom_label] = true
+    end
+    -- remove from table after a delay calculated from cane_interval
+    core.after(cane_interval*0.1, function()
+        checked_canes[bottom_label] = nil
+    end)
+
     if cgroups.wet_sediment == 2 or not cgroups.sediment then
         -- kill if salty or not sediment
         return kill()
@@ -174,10 +192,7 @@ local function grow_cane(pos, node)
         return
     end
 
-    local bottom_cane_pos = vector.new(current_pos)
-    bottom_cane_pos.y = bottom_cane_pos.y + 1
     local bottom = core.get_node(bottom_cane_pos) -- bottom cane
-
     -- get temp and light ranges
     -- don't let it prevent growth checks if either or both are nil
     local temp_range, light_range = (pdef.plant_temp_range or {min=10,max=40}),
@@ -207,15 +222,17 @@ local function grow_cane(pos, node)
 
     local meta = minetest.get_meta(bottom_cane_pos)
     local last_time = meta:get_int("last_time")
+    -- no catchup here, set and return
     if not last_time or last_time == 0 then
         last_time = minetest.get_gametime()
         meta:set_int("last_time", last_time)
+        return
     end
 
     local elapsed = minetest.get_gametime() - last_time
 
     -- 1.05 margin because ABMs have a small delay
-    local nr_to_grow = math.floor((elapsed / (cane_interval * 1.05)) + 1)
+    local nr_to_grow = math.floor((elapsed / (cane_interval * 1.05)) + 0.5)
     if nr_to_grow == 0 then return end -- can't even grow yet
 
     -- catch up and growing
