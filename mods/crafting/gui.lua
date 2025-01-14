@@ -816,13 +816,28 @@ local function process_button(key,btypes)
     return nil,nil -- button types not found
 end
 
+
 -- Quantity sets single, stack or maximum -- this finds how many we can craft
 local function process_qty(recipe,qty,item_hash)
-    if qty > 1 then -- more then single requested find max
-        local oItem = ItemStack(recipe.output)
-        local oName = oItem:get_name()
-        local max_count = 0
-        local prior_count
+    if qty == 1 then return end -- only one requested? not our problem
+
+    -- Find multiplier of input needed to craft one max_stack of output items
+    local function calculate_stack_input(item)
+        local output_name = item:get_name()
+        local per_input = item:get_count()
+        local stack_size = core.registered_items[output_name].stack_max
+        return stack_size / per_input
+    end
+
+    -- Find maximum number of outputs we can craft from our inventory
+    local function find_max_craftable()
+        --local oItem = ItemStack(recipe.output)
+        --local oName = oItem:get_name()
+        local max_count = 0 -- how many of these we'll try to craft
+        local prior_count -- how many we can do with previous ingredient
+
+        if not item_hash then error() end -- item_hash should never be nil
+
         -- check each row of input items
         for i,input in ipairs(recipe.items) do
             -- single item inputs need to be processed in table form
@@ -836,78 +851,88 @@ local function process_qty(recipe,qty,item_hash)
                 local iItem = ItemStack(iRow)
                 local iName = iItem:get_name()
                 local iNeed = iItem:get_count()
-                -- #TODO: Make sure this is correct. item_hash is nil sometimes?
-                -- no it shouldn't be called with nil itemhash
-                -- but we could check with item_hash = item_hash or {}
-                local iHave = item_hash and item_hash[iName] or 0
+                local iHave = item_hash[iName] or 0
                 local max = math.floor(iHave/iNeed)
                 row_max = row_max + max
             end
+
             if max_count == 0 or max_count > row_max then
                 max_count = row_max
                 -- can't have a count bigger then any input row.
             end
             if prior_count and prior_count < max_count then
+                -- if we could only craft 2 total with the prior ingredient,
+                -- we can't craft 8 now just 'cause we have lots of this one
                 max_count = prior_count
             else
                 prior_count = max_count
             end
         end
-        if qty == 2 then -- stack requested so adjust max to max for stack.
-            local def = minetest.registered_nodes[oName]
-                or minetest.registered_craftitems[oName]
-                or minetest.registered_tools[oName]
-            local stack_count = def.stack_max or 1
-            if max_count > stack_count then
-                max_count = stack_count
-            end
-        end
-        -- set output to max_count
-        recipe.output = oName .." "..max_count
-        -- adjust replace
-        for i,rItem in pairs(recipe.replace or {}) do -- index, Replace Item
-            rItem = ItemStack(rItem)
-            rItem:set_count((rItem:get_count() or 1)
-                * max_count)
-            recipe.replace[i] = rItem:to_string()
-        end
-        local pItems = {} -- picked items list
-        -- set input items to values for max_count
-        for i,input in ipairs(recipe.items) do
-            if type(input) == 'string' then
-                local iItem = ItemStack(input)
-                local iCount = iItem:get_count()
-                if iCount > 0 then
-                    local count = iCount * max_count
-                    local take = iItem:get_name() .. " " .. count
-                    pItems[#pItems+1] = take
-                end
-            else
-                local row_maxCount = max_count
-                -- use max_count for each row's max
-                for j,iRow in ipairs(input) do
-                    local iItem = ItemStack(iRow)
-                    local iName = iItem:get_name()
-                    local iEach = iItem:get_count()
-                    local iHave = item_hash[iName] or 0
-                    local ioCount = math.floor(iHave / iEach)
-                    if ioCount > 0 then
-                        if ioCount > row_maxCount then
-                            ioCount = row_maxCount
-                            -- no more then max_count should be picked.
-                        end
-                        local taking = iName .." "..ioCount * iEach
-                        pItems[#pItems+1] = taking
-                        row_maxCount = row_maxCount - ioCount
-                        if row_maxCount == 0 then
-                            break
-                        end
-                    end
-                end
-            end
-        end
-        recipe.items = pItems
+        return max_count
     end
+
+    local function handle_input_alternates(input, craft_count, pItems)
+        local row_maxCount = craft_count
+        -- use max_count for each row's max
+        for j,iRow in ipairs(input) do
+            local iItem = ItemStack(iRow)
+            local iName = iItem:get_name()
+            local iEach = iItem:get_count()
+            local iHave = item_hash[iName] or 0
+            local ioCount = math.floor(iHave / iEach)
+            if ioCount > 0 then
+                if ioCount > row_maxCount then
+                    ioCount = row_maxCount
+                    -- no more then max_count should be picked.
+                end
+                local taking = iName .." "..ioCount * iEach
+                pItems[#pItems+1] = taking
+                row_maxCount = row_maxCount - ioCount
+                if row_maxCount == 0 then
+                    break
+                end
+            end
+        end
+    end
+
+
+    -- more then single requested? find max
+    local oItem = ItemStack(recipe.output)
+    local oName = oItem:get_name()
+    local max_count = find_max_craftable()
+
+    if qty == 2 then -- stack requested so adjust max to max for stack.
+        local stack_count = calculate_stack_input(oItem)
+        if max_count > stack_count then
+            max_count = stack_count
+        end
+    end
+    -- set output to max_count
+    local per_input = oItem:get_count() -- How many we get for one input set
+    recipe.output = oName .." ".. per_input * max_count
+    -- adjust replace
+    for i,rItem in pairs(recipe.replace or {}) do -- index, Replace Item
+        rItem = ItemStack(rItem)
+        rItem:set_count((rItem:get_count() or 1)
+            * max_count)
+        recipe.replace[i] = rItem:to_string()
+    end
+    local pItems = {} -- picked items list
+    -- set input items to values for max_count
+    for i,input in ipairs(recipe.items) do
+        if type(input) == 'string' then
+            local iItem = ItemStack(input)
+            local iCount = iItem:get_count()
+            if iCount > 0 then
+                local count = iCount * max_count
+                local take = iItem:get_name() .. " " .. count
+                pItems[#pItems+1] = take
+            end
+        else
+            handle_input_alternates(input, max_count, pItems)
+        end
+    end
+    recipe.items = pItems
 end
 
 -- return true if something changed, false else
