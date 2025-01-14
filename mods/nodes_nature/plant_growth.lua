@@ -550,6 +550,12 @@ end
 function nn.plant.grow_seed(pos, elapsed, pdef, meta)
     local pnode = minetest.get_node(pos)
     pdef = pdef or core.registered_nodes[pnode.name]
+    if not (pdef and pdef.groups) then return end -- end timer, can't even seed!
+    -- if seed, get next_life_stage (become seedling)
+    if pdef.groups.seed then
+        pdef = core.registered_nodes[pdef._next_life_stage]
+        if not (pdef and pdef.groups) then return end -- no definition, end timer
+    end
     meta = meta or minetest.get_meta(pos)
     local good_time = good_time_rain_time(elapsed, is_mushroom(pos, pdef))
     -- if conditions were good for germination we don't care about the present
@@ -559,7 +565,8 @@ function nn.plant.grow_seed(pos, elapsed, pdef, meta)
     elseif not is_soil_and_temp_good(pos, pdef) then
         return true -- unless dead, try again when conditions are good
     end
-    pnode.name = pdef._next_life_stage -- becoming seedling, reuse same node data
+    pnode.name = pdef.name -- becoming seedling, reuse same node data
+    pnode.param2 = pnode.param2 + (pdef.place_param2 or 0) -- ensure we set the proper param2
     minimal.switch_node(pos, pnode) -- switch to seedling and save meta
     return false -- the seed becomes a seedling (stops the timer)
 end
