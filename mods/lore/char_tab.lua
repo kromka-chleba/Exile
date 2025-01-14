@@ -130,7 +130,7 @@ local function sfinv_get(self, player, context)
 
         -- Health effects display
         "container[0.5,5.2]" ..
-        "image[0,0;0.65,0.65;hud_sick.png]"..
+        "image[0,0;0.65,0.65;hud_effects.png]"..
         "label[0.8,0.35; "..S("Health Effects")..":]"..
             eff_form..
         "container_end[]" ..

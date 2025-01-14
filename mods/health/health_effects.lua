@@ -132,8 +132,8 @@ local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max,
 
                 --must directly set them, as time delay means it isn't
                 --  feeding into main health loop
-                HEALTH.modify_int(meta,"thirst",-rant)
-                HEALTH.modify_int(meta,"hunger",-ranh)
+                HEALTH.modify_int(player,meta,"thirst",-rant)
+                HEALTH.modify_int(player,meta,"hunger",-ranh)
         end)
     end
 end
@@ -300,7 +300,7 @@ end
 --finds given effect, removes it and replaces it (optional)
 -- name e.g. "Food Poisoning" (the general type of effect)
 --replace is the table inserted e.g. {"Food Poisoning", 2}
-local function update_list_swap(meta, effects_list, name, replace)
+local function update_list_swap(player, meta, effects_list, name, replace)
 
     for i, effect in ipairs(effects_list) do
         if effect[1] == name then
@@ -315,7 +315,7 @@ local function update_list_swap(meta, effects_list, name, replace)
 
     -- update HUD number, save
     local num = #effects_list or 0
-    meta:set_int("effects_num", num )
+    HEALTH.set_int(player, meta, "effects_num", num)
 
     meta:set_string("effects_list", minetest.serialize(effects_list))
 
@@ -325,13 +325,13 @@ end
 --RUN health functions:
 ---------------------------------------------------------------------------
 --Default progression and regression, for effects with timers
-local function default_timer_progress(effect_name, t_min, t_max, max_order,
+local function default_timer_progress(player, effect_name, t_min, t_max, max_order,
                                       c_boost, meta, effects_list,
                                       current_order, added_order, internal)
 
     --was called internally so can skip comparisons (it will be higher)
     if internal == true then
-        update_list_swap(meta, effects_list, effect_name,
+        update_list_swap(player, meta, effects_list, effect_name,
                          {effect_name, added_order})
         extend_timer(meta, effect_name, t_min, t_max)
         return
@@ -340,7 +340,7 @@ local function default_timer_progress(effect_name, t_min, t_max, max_order,
     --current order vs the order of what we are trying to add
     --higher replaces lower, and extends the timer.
     if current_order < added_order then
-        update_list_swap(meta, effects_list, effect_name,
+        update_list_swap(player, meta, effects_list, effect_name,
                          {effect_name, added_order})
         extend_timer(meta, effect_name, t_min, t_max)
 
@@ -353,7 +353,7 @@ local function default_timer_progress(effect_name, t_min, t_max, max_order,
             if current_order > max_order then
                 current_order = max_order
             end
-            update_list_swap(meta, effects_list, effect_name,
+            update_list_swap(player, meta, effects_list, effect_name,
                              {effect_name, current_order})
         end
     end
@@ -367,7 +367,7 @@ local function default_timer_regress(player, effect_name, t_min, t_max, meta,
     if internal == true then
         if current_order <= 0 then
             --remove from effects list
-            update_list_swap(meta, effects_list, effect_name)
+            update_list_swap(player, meta, effects_list, effect_name)
             end_timer(meta, effect_name)
 
             if replace_nil then
@@ -377,7 +377,7 @@ local function default_timer_regress(player, effect_name, t_min, t_max, meta,
 
         else
             --swap with new lower value
-            update_list_swap(meta, effects_list,
+            update_list_swap(player, meta, effects_list,
                              effect_name, {effect_name, current_order})
             extend_timer(meta, effect_name, t_min, t_max)
         end
@@ -397,7 +397,7 @@ local function default_timer_regress(player, effect_name, t_min, t_max, meta,
         local order = current_order - 1
         if order <= 0 then
             --remove from effects list
-            update_list_swap(meta, effects_list, effect_name)
+            update_list_swap(player, meta, effects_list, effect_name)
             end_timer(meta, effect_name)
             if replace_nil then
                 --swtich to a different effect rather than nothing
@@ -405,7 +405,7 @@ local function default_timer_regress(player, effect_name, t_min, t_max, meta,
             end
         else
             --swap with new lower value
-            update_list_swap(meta, effects_list, effect_name,
+            update_list_swap(player, meta, effects_list, effect_name,
                              {effect_name, order})
             extend_timer(meta, effect_name, t_min, t_max)
         end
@@ -494,7 +494,7 @@ function HEALTH.food_poisoning(order, player, meta, effects_list, stats)
                 added_order = 4
             end
             --food_poisoning_progress(meta, effects_list, order, added_order, true)
-            default_timer_progress("Food Poisoning", 3, 6, 4, 0.2, meta,
+            default_timer_progress(player, "Food Poisoning", 3, 6, 4, 0.2, meta,
                                    effects_list, order, added_order, true)
         else
             --food_poisoning_regress(meta, effects_list, order-1, nil, true)
@@ -570,7 +570,7 @@ function HEALTH.fungal_infection(order, player, meta, effects_list, stats)
             if added_order > 4 then
                 added_order = 4
             end
-            default_timer_progress("Fungal Infection", 6, 12, 4, 0.2, meta,
+            default_timer_progress(player, "Fungal Infection", 6, 12, 4, 0.2, meta,
                                    effects_list, order, added_order, true)
         else
             default_timer_regress(player, "Fungal Infection", 6, 12, meta,
@@ -656,7 +656,7 @@ function HEALTH.dust_fever(order, player, meta, effects_list, stats)
             if added_order > 4 then
                 added_order = 4
             end
-            default_timer_progress("Dust Fever", 6, 12, 4, 0.2, meta,
+            default_timer_progress(player, "Dust Fever", 6, 12, 4, 0.2, meta,
                                    effects_list, order, added_order, true)
         else
             default_timer_regress(player, "Dust Fever", 6, 12, meta,
@@ -860,7 +860,7 @@ function HEALTH.intestinal_parasites(order, player, meta, effects_list, stats)
 
     --end chance
     if random()<0.001 then
-        update_list_swap(meta, effects_list, "Intestinal Parasites")
+        update_list_swap(player, meta, effects_list, "Intestinal Parasites")
     end
 
     --send back modified values
@@ -982,7 +982,7 @@ function HEALTH.tiku_high(order, player, meta, effects_list, stats)
             if added_order > 4 then
                 added_order = 4
             end
-            default_timer_progress("Tiku High", 3, 6, 3, 0.2, meta,
+            default_timer_progress(player, "Tiku High", 3, 6, 3, 0.2, meta,
                                    effects_list, order, added_order, true)
         else
             order = order - 1
@@ -1468,37 +1468,37 @@ function HEALTH.add_new_effect(player, name)
 
             --min timer, max timer (for extensions), max order, chance of adding an equal or lower boosting to a higher order
             if name[1] == "Food Poisoning" then
-                default_timer_progress("Food Poisoning", 3, 6, 4, 0.2, meta,
+                default_timer_progress(player, "Food Poisoning", 3, 6, 4, 0.2, meta,
                                        effects_list, effect[2], name[2])
             elseif name[1] == "Fungal Infection" then
-                default_timer_progress("Fungal Infection", 6, 12, 4, 0.2, meta,
+                default_timer_progress(player, "Fungal Infection", 6, 12, 4, 0.2, meta,
                                        effects_list, effect[2], name[2])
             elseif name[1] == "Dust Fever" then
-                default_timer_progress("Dust Fever", 6, 12, 4, 0.2, meta,
+                default_timer_progress(player, "Dust Fever", 6, 12, 4, 0.2, meta,
                                        effects_list, effect[2], name[2])
             elseif name[1] == "Drunk" then
-                default_timer_progress("Drunk", 3, 6, 4, 0.4, meta,
+                default_timer_progress(player, "Drunk", 3, 6, 4, 0.4, meta,
                                        effects_list, effect[2], name[2])
             elseif name[1] == "Hangover" then
-                default_timer_progress("Hangover", 4, 8, 4, 0.4, meta,
+                default_timer_progress(player, "Hangover", 4, 8, 4, 0.4, meta,
                                        effects_list, effect[2], name[2])
             elseif name[1] == "Intestinal Parasites" then
                 --no progression, only need to block it
                 return
             elseif name[1] == "Tiku High" then
-                default_timer_progress("Tiku High", 3, 6, 4, 0.3, meta,
+                default_timer_progress(player, "Tiku High", 3, 6, 4, 0.3, meta,
                                        effects_list, effect[2], name[2])
             elseif name[1] == "Neurotoxicity" then
-                default_timer_progress("Neurotoxicity", 3, 6, 4, 0.75, meta,
+                default_timer_progress(player, "Neurotoxicity", 3, 6, 4, 0.75, meta,
                                        effects_list, effect[2], name[2])
             elseif name[1] == "Hepatotoxicity" then
-                default_timer_progress("Hepatotoxicity", 6, 12, 4, 0.75, meta,
+                default_timer_progress(player, "Hepatotoxicity", 6, 12, 4, 0.75, meta,
                                        effects_list, effect[2], name[2])
             elseif name[1] == "Photosensitivity" then
-                default_timer_progress("Photosensitivity", 12, 24, 4, 0.1, meta,
+                default_timer_progress(player, "Photosensitivity", 12, 24, 4, 0.1, meta,
                                        effects_list, effect[2], name[2])
             elseif name[1] == "Meta-Stim" then
-                default_timer_progress("Meta-Stim", 12, 24, 4, 1, meta,
+                default_timer_progress(player, "Meta-Stim", 12, 24, 4, 1, meta,
                                        effects_list, effect[2], name[2])
             end
 
@@ -1510,7 +1510,7 @@ function HEALTH.add_new_effect(player, name)
     --doesn't currently exist, so add and update HUD, list
     table.insert(effects_list, name)
     local num = #effects_list or 0
-    meta:set_int("effects_num", num )
+    HEALTH.set_int(player, meta, "effects_num", num)
     meta:set_string("effects_list", minetest.serialize(effects_list))
 
 end
@@ -1549,7 +1549,7 @@ function HEALTH.remove_new_effect(player, name)
                 default_timer_regress(player, "Hangover", 4, 8, meta,
                                       effects_list, effect[2], name[2])
             elseif name[1] == "Intestinal Parasites" then
-                update_list_swap(meta, effects_list, "Intestinal Parasites")
+                update_list_swap(player, meta, effects_list, "Intestinal Parasites")
             elseif name[1] == "Tiku High" then
                 default_timer_regress(player, "Tiku High", 3, 6, meta,
                                       effects_list, effect[2], name[2],

@@ -37,9 +37,9 @@ minetest.register_on_mods_loaded(function() health = HEALTH end)
 local function reset_player(player, pname, pos, nmeta, metastring)
     local pmeta = player:get_meta()
     player:set_hp(20)
-    pmeta:set_string("energy", "1000")
-    pmeta:set_string("hunger", "1000")
-    pmeta:set_string("thirst", "100")
+    health.set_int(player, pmeta, "energy", 1000)
+    health.set_int(player, pmeta, "hunger", 1000)
+    health.set_int(player, pmeta, "thirst", 100)
     health.quick_physics(player, pmeta)
     return true
 end
@@ -64,7 +64,7 @@ local function setenergy(player, pname, pos, nmeta, metastring)
     local val = tonumber(metastring)
     if not val then return end
     local pmeta = player:get_meta()
-    pmeta:set_string("energy", val * 10) -- energy is 1-1000, tenths of percent
+    health.set_int(player, pmeta, "energy", val * 10) -- energy is 1-1000, tenths of percent
     health.quick_physics(player, pmeta)
     return true
 end
@@ -72,7 +72,7 @@ local function sethunger(player, pname, pos, nmeta, metastring)
     local val = tonumber(metastring)
     if not val then return end
     local pmeta = player:get_meta()
-    pmeta:set_string("hunger", val * 10) -- 1-1000, same as energy
+    health.set_int(player, pmeta, "hunger", val * 10) -- 1-1000, same as energy
     health.quick_physics(player, pmeta)
     return true
 end
@@ -80,7 +80,7 @@ local function setthirst(player, pname, pos, nmeta, metastring)
     local val = tonumber(metastring)
     if not val then return end
     local pmeta = player:get_meta()
-    pmeta:set_string("thirst", val) -- thirst is 1-100
+    health.set_int(player, pmeta, "thirst", val) -- thirst is 1-100
     health.quick_physics(player, pmeta)
     return true
 end

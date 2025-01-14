@@ -65,8 +65,8 @@ player_api.update_equipment_effects = function(player, naked)
     end
     -- apply new temperature comfort range
     local meta = player:get_meta()
-    meta:set_int("clothing_temp_min", temp_min)
-    meta:set_int("clothing_temp_max", temp_max )
+    HEALTH.set_int(player, meta, "clothing_temp_min", temp_min)
+    HEALTH.set_int(player, meta, "clothing_temp_max", temp_max)
     -- Apply armorgroups changes
     if minetest.settings:get_bool("enable_damage") then
         player:set_armor_groups(armorgroups)

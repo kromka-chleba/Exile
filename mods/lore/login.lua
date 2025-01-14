@@ -170,7 +170,7 @@ end)
 local function first_spawn(player)
     local meta = player:get_meta() -- we use this
     -- Guarantee they won't be penalized for reading:
-    HEALTH.reset_attributes(player) -- All stats back to starting values
+    HEALTH.reset_attributes(player, meta) -- All stats back to starting values
     local pname = player:get_player_name()
     newplayer[pname] = nil
     if minetest.features.dynamic_add_media_table then

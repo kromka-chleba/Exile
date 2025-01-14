@@ -21,21 +21,15 @@ HEALTH.FS = function(...)
     return minetest.formspec_escape(HEALTH.S(...))
 end
 
-dofile(minetest.get_modpath('health')..'/health_states.lua')
-dofile(minetest.get_modpath('health')..'/health_effects.lua')
-dofile(minetest.get_modpath('health')..'/on_actions.lua')
-dofile(minetest.get_modpath('health')..'/hud.lua')
-dofile(minetest.get_modpath('health')..'/food.lua')
-
 
 --frequency of updating and applying effects
 local interval = 60
 
 local function is_meta(meta)
-    if type(meta) == "userdata" then
-        if meta["get_int"] and meta["get_string"] then
-            return true
-        end
+    if type(meta) ~= "userdata" then return end
+    -- metadata will have get_int and get_string
+    if meta.get_int and meta.get_string then
+        return true
     end
 end
 
@@ -108,8 +102,9 @@ function HEALTH.get_default_attributes()
 end
 
 --e.g. for new players
-function HEALTH.set_default_attributes(player)
-    local meta = player:get_meta()
+-- permits 2nd parameter for player's meta argument
+function HEALTH.set_default_attributes(player, meta)
+    meta = is_meta(meta) and meta or player:get_meta()
     local attrb = HEALTH.get_default_attributes()
     player:set_hp(attrb.health)
     for name,value in pairs(attrb) do
@@ -137,15 +132,14 @@ end
 
 -- MISCELLANEOUS GET FUNCTIONS
 
+-- permits player or meta argument
 function HEALTH.get_meta_stats(meta)
-    assert(type(meta) == "userdata",
-           "health.get_meta_stats: meta/player is not a valid 'userdata'")
-    if (minetest.is_player(meta)) then
-        meta = meta:get_meta()
-    elseif not is_meta(meta) then
-        error("health.get_meta_stats: invalid parameter given for meta/player")
+    meta = is_meta(meta) and meta or core.is_player(meta) and meta:get_meta()
+    if not meta then
+        error("HEALTH.get_meta_stats: invalid parameter given for meta/player (not active player or not valid metadata)")
     end
-    local stats = {
+    -- stats
+    return {
         thirst = meta:get_int("thirst"),
         hunger = meta:get_int("hunger"),
         energy = meta:get_int("energy"),
@@ -158,16 +152,19 @@ function HEALTH.get_meta_stats(meta)
         move = meta:get_int("move"),
         jump = meta:get_int("jump"),
         clothing_temp_min = meta:get_int("clothing_temp_min"),
-        clothing_temp_max = meta:get_int("clothing_temp_max"),
+        clothing_temp_max = meta:get_int("clothing_temp_max")
     }
-
-    return stats
 end
 
+-- set meta stats -- expects stats table with specified stats below
+-- optional meta argument
 function HEALTH.set_meta_stats(player, stats, meta)
-    if not meta then meta = player:get_meta() end
-    if not stats or not stats.thirst then
-        error("No stats given to set_meta_stats")
+    if not core.is_player(player) then
+        error("HEALTH.set_meta_stats: not given an active player")
+    end
+    meta = is_meta(meta) and meta or player:get_meta()
+    if not (type(stats) == "table" and stats.thirst) then
+        error("HEALTH.set_meta_stats: no stats or improper stats given, lacks 'thirst' field and got type '"..type(stats).."'")
     end
     meta:set_int("thirst", stats.thirst)
     meta:set_int("hunger", stats.hunger)
@@ -187,39 +184,58 @@ function HEALTH.set_meta_stats(player, stats, meta)
     meta:set_int("clothing_temp_max", stats.clothing_temp_max)
 end
 
-
+-- returns player's health stats - meta argument is optional
 function HEALTH.get_player_stats(player, meta)
-    assert(minetest.is_player(player) == true,
-           "get_player_stats: 'player' is not a player")
-    if not meta then meta = player:get_meta() end
+    if not core.is_player(player) then
+        error("HEALTH.get_player_stats: not given an active player")
+    end
+    meta = is_meta(meta) and meta or player:get_meta()
     local fields = HEALTH.get_meta_stats(meta)
     fields.health = player:get_hp()
     return fields
 end
 
+-- sets player's health stats - meta argument is optional
 function HEALTH.set_player_stats(player, stats, meta)
-    if not meta then meta = player:get_meta() end
-    if not stats or not stats.thirst then
-        error("No stats given to set_player_stats")
+    if not core.is_player(player) then
+        error("HEALTH.set_player_stats: not given an active player")
+    end
+    meta = is_meta(meta) and meta or player:get_meta()
+    if not (type(stats) == "table" and stats.thirst) then
+        error("HEALTH.set_player_stats: no stats or improper stats given, lacks 'thirst' field and got type '"..type(stats).."'")
     end
     player:set_hp(stats.health)
     HEALTH.set_meta_stats(player, stats, meta)
 end
 
 function HEALTH.get_life_num(meta) -- gets player's "lives" and returns it
-    if type(meta) ~= "userdata" then
-        -- "HEALTH.get_life_num: invalid argument for 'meta/player'"
-        return 0
-    end
-    if (minetest.is_player(meta)) then
-        meta = meta:get_meta()
-    end
-    if not is_meta(meta) then
-        -- "HEALTH.get_life_num: could not get metadata"
-        return 0
-    end
-
+    meta = is_meta(meta) and meta or core.is_player(meta) and meta:get_meta()
+    -- no meta, return 0
+    if not meta then return 0 end
+    -- otherwise return amount of lives
     return meta:get_int("lives") or 0
+end
+
+-- SETTING AND MODIFYING CALLBACKS (WIP, needs improvement and better usage of functions)
+
+-- permit check for change of health by other mods
+local changed_callbacks = {}
+local changed_hp_callbacks = {}
+-- player, setting name, setting value, player's meta
+local function stat_changed(player, name, value, meta)
+    for _, func in ipairs(changed_callbacks) do
+        func(player, name, value, meta)
+    end
+end
+
+-- DOES NOT GET CALLED FOR HP CHANGES SEE (insert)
+-- register a function to be called when a stat changes (hunger, thirst, energy, bodytemp)
+HEALTH.register_on_stat_change = function(func)
+    if type(func) ~= "function" then
+        error("HEALTH.register_on_stat_change: expected function, got type '"..type(func).."'")
+    end
+    -- add func to callbacks
+    changed_callbacks[#changed_callbacks + 1] = func
 end
 
 -- SETTING AND MODIFYING FUNCTIONS
@@ -239,28 +255,20 @@ function HEALTH.modify_hp(player,value)
     return phealth -- return modified health
 end
 
--- sets meta values between certain limits and updates meta
-function HEALTH.set_int(meta,name,value)
-    assert(type(meta) == "userdata",
-           "health.set_int: meta/player is not a valid 'userdata'")
-    if (minetest.is_player(meta)) then
-        meta = meta:get_meta()
+-- meta argument optional
+-- sets player stat values between certain limits
+function HEALTH.set_int(player,meta,name,value)
+    if type(name) ~= "string" then
+        error("HEALTH.set_int: expected string for stat name (3rd parameter) got type '"..type(name).."'")
     end
+    assert(core.is_player(player), "HEALTH.set_int: not given an active player")
+    meta = is_meta(meta) and meta or player:get_meta()
     assert(is_meta(meta),
-           "health.set_int: invalid first parameter given for meta/player")
-    if (type(value) ~= "number") then
-        value = 0
-    end
-
-    if (type(name) ~= "string") then
-        name = tostring(name)
-        name = string.lower(name)
-    else
-        name = string.lower(name)
-    end
-    if (meta:get(name) == nil) then
-        return 0
-    end
+           "HEALTH.set_int: meta argument is not metadata!")
+    -- permit strings to number
+    -- lowercase stat name
+    value = type(value) == "number" and value or type(value) ~= "number" and tonumber(value) or 0
+    name = name:lower()
 
     value = math.ceil(value)
     -- check for names to set custom limits
@@ -271,37 +279,30 @@ function HEALTH.set_int(meta,name,value)
     end
     meta:set_int(name,value)
 
+    stat_changed(player, name, value, meta)
     return value -- return provided value
 end
 
+-- optional meta argument
 -- allows any code that depends on HEALTH to use modify_int
---   to reliably modify stats like hunger or thirst
-function HEALTH.modify_int(meta,name,value)
-    assert(type(meta) == "userdata",
-           "health.modify_int: player/meta is not a valid 'userdata'")
-    if minetest.is_player(meta) then
-        meta = meta:get_meta()
+--   to reliably modify stats like hunger or thirst without hardsetting accidentally or calculating for it
+function HEALTH.modify_int(player,meta,name,value)
+    if type(name) ~= "string" then
+        error("HEALTH.modify_int: expected string for stat name (3rd parameter) got type '"..type(name).."'")
     end
+    assert(core.is_player(player), "HEALTH.modify_int: not given an active player")
+    meta = is_meta(meta) and meta or player:get_meta()
     assert(is_meta(meta),
-           "health.modify_int: invalid first parameter given for player/meta")
-    if (type(value) ~= "number") then
-        value = 0
-    end
-
-    if (type(name) ~= "string") then
-        name = tostring(name)
-        name = string.lower(name)
-    else
-        name = string.lower(name)
-    end
-    if (meta:get(name) == nil) then -- if key doesn't exist
-        return 0
-    end
+           "HEALTH.modify_int: meta argument is not metadata!")
+    -- permit strings to number
+    -- lowercase stat name
+    value = type(value) == "number" and value or type(value) ~= "number" and tonumber(value) or 0
+    name = name:lower()
 
     local stat = meta:get_int(name)
     value = math.ceil(value) -- no floats
 
-    return HEALTH.set_int(meta,name,(stat + value))
+    return HEALTH.set_int(player,meta,name,(stat + value))
     -- return modified value (use set_int to keep metadata within limits)
 end
 
@@ -312,22 +313,17 @@ end
 -- calculates player status in reference to the player's stats and health, saves adjusted rates
 -- returns the adjusted rates so they can be used if desired
 -- dontset will prevent setting the variables
+-- meta is optional
 function HEALTH.health_calc(player,meta,dontset)
-    assert(minetest.is_player(player) == true,
-           "health.health_calc: provided 'player' is not a player!")
-
-    if ( not type(dontset) == "boolean" ) then
-        dontset = false
+    if not core.is_player(player) then
+        error("HEALTH.health_calc: not given an active player")
     end
+    dontset = type(dontset) == "boolean" and dontset or false -- will be dontset if true otherwise defaults to false
+    -- incase meta not provided then get it!
+    meta = is_meta(meta) and meta or player:get_meta()
     local pname = player:get_player_name()
     local bstats = HEALTH.get_default_attributes() -- get base starting stats
-    local stats
-
-    -- incase meta is not provided then (get it! :D)
-    if not is_meta(meta) then
-        meta = player:get_meta()
-    end
-    stats = HEALTH.get_meta_stats(meta)
+    local stats = HEALTH.get_meta_stats(meta)
 
     -- player's current stats as variables
     local health = player:get_hp()
@@ -506,18 +502,16 @@ function HEALTH.health_calc(player,meta,dontset)
     stats.recovery_rate = r_rate
     stats.move = mov
     stats.jump = jum
-    -- set player's meta
-    if not dontset then
-        for name,value in pairs(stats) do
-            if (type(value) == "number") then
-                HEALTH.set_int(meta,name,value)
-            elseif (type(value) == "string") then
-                meta:set_string(value)
-            end
+    -- return adjust rates so can be applied if necessary
+    if dontset then return stats end -- just return stats without meta modification
+    -- set player's meta otherwise and return stats
+    for name,value in pairs(stats) do
+        if (type(value) == "number") then
+            HEALTH.set_int(player,meta,name,value)
+        elseif (type(value) == "string") then
+            meta:set_string(value)
         end
     end
-
-    --return adjusted rates so can be applied if necessary
     return stats
 end
 -----------------------------
@@ -702,7 +696,7 @@ local function do_effects_list(player, meta, stats)
     -- update effects_list
     meta:set_string("effects_list",
                     minetest.serialize(effects_list))
-    meta:set_int("effects_num", #effects_list)
+    HEALTH.set_int(player, meta, "effects_num", #effects_list)
 
     return stats
 end
@@ -729,7 +723,7 @@ function HEALTH.malus_bonus(player,meta)
     -- set player's meta to diseased
     for name,value in pairs(stats) do
         if (type(value) == "number" and name ~= "move" or name ~= "jump") then
-            HEALTH.set_int(meta,name,value)
+            HEALTH.set_int(player,meta,name,value)
         elseif (type(value) == "string") then
             meta:set_string(value)
         end
@@ -748,6 +742,13 @@ function HEALTH.malus_bonus(player,meta)
 
     return stats
 end
+
+-- load each lua file after most function definitions
+dofile(minetest.get_modpath('health')..'/health_states.lua')
+dofile(minetest.get_modpath('health')..'/health_effects.lua')
+dofile(minetest.get_modpath('health')..'/on_actions.lua')
+dofile(minetest.get_modpath('health')..'/hud.lua')
+dofile(minetest.get_modpath('health')..'/food.lua')
 -----------------------------
 
 
@@ -801,7 +802,7 @@ minetest.register_on_dieplayer(function(player)
         player_monoids.fly:del_change(player, "health:metastim")
         player_monoids.gravity:del_change(player, "health:metastim")
         meta:set_string("effects_list", "")
-        meta:set_int("effects_num", 0)
+        HEALTH.set_int(player, meta, "effects_num", 0)
         -- stop all sounds
         HEALTH.stop_sounds(player)
 end)
@@ -867,13 +868,13 @@ minetest.register_globalstep(function(dtime)
 
                     --update
                     HEALTH.modify_hp(player,h_rate)
-                    temperature = HEALTH.modify_int(
+                    temperature = HEALTH.modify_int(player,
                         meta,"temperature",temperature1)
-                    thirst = HEALTH.modify_int(meta,
+                    thirst = HEALTH.modify_int(player,meta,
                                                "thirst",t_rate)
-                    hunger = HEALTH.modify_int(meta,
+                    hunger = HEALTH.modify_int(player,meta,
                                                "hunger",hun_rate)
-                    energy = HEALTH.modify_int(meta,"energy",r_rate)
+                    energy = HEALTH.modify_int(player,meta,"energy",r_rate)
 
                     local st = player_api.get_state_by_name(name)
                     st:set_progress("int_temp", temperature)
