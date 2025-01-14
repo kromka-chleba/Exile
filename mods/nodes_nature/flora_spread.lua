@@ -128,7 +128,8 @@ local cane_interval = 220
 ---------------------------------
 local function grow_cane(pos, node)
     local current_pos = vector.new(pos)
-    local current_node = core.registered_nodes[node.name]
+    local pdef = core.registered_nodes[node.name] -- plant definition
+    local current_node = pdef
     if not current_node.groups then return end -- how?
 
     if current_node.groups.seedling then
@@ -139,30 +140,31 @@ local function grow_cane(pos, node)
     if node.name:sub(-5) == "_dead" then return end
     -- we can't grow here! kill.
     local function kill()
-      for i = 1, 8 do
+      -- will check for 50 tall, but will return if above node aint a cane
+      for i = 1, 50 do
             current_pos.y = current_pos.y + 1
             current_node = core.registered_nodes[core.get_node(current_pos).name]
             if current_node and current_node.groups and current_node.groups.cane_plant then
                 plant.kill(current_pos, true, current_node)
+            -- not a connected cane, so return
+            else
+                return
             end
         end
     end
 
     -- get groups as we check them
     local cgroups = current_node and current_node.groups or {}
-    -- keep looping until we hit a sediment or until current_pos.y is 9 below detected pos
-    local dokill -- we must destroy this plant if true
-    while not current_node.groups.sediment and pos.y - current_pos.y < 9 do
-        -- keep iterating to ensure we get the whole plant
+    -- keep looping until we hit a sediment or not a cane plant
+    while not current_node.groups.sediment do
+        -- uh oh, not a cane plant - and it wasn't soil! KILL!
         if not cgroups.cane_plant then
-            dokill = true
+            return kill()
         end
         current_pos.y = current_pos.y - 1
         current_node = core.registered_nodes[minetest.get_node(current_pos).name]
         cgroups = current_node and current_node.groups or {}
     end
-    -- we should kill this plant
-    if dokill then return kill() end
 
     if cgroups.wet_sediment == 2 or not cgroups.sediment then
         -- kill if salty or not sediment
@@ -175,12 +177,11 @@ local function grow_cane(pos, node)
     local bottom_cane_pos = vector.new(current_pos)
     bottom_cane_pos.y = bottom_cane_pos.y + 1
     local bottom = core.get_node(bottom_cane_pos) -- bottom cane
-    local bdef = core.registered_nodes[bottom.name] -- bottom definition
 
     -- get temp and light ranges
     -- don't let it prevent growth checks if either or both are nil
-    local temp_range, light_range = (bdef.plant_temp_range or {min=10,max=40}),
-      (bdef.plant_light_range or {min=13,max=15})
+    local temp_range, light_range = (pdef.plant_temp_range or {min=10,max=40}),
+      (pdef.plant_light_range or {min=13,max=15})
 
     ---extreme stop growth
     local temp = climate.get_point_temp(pos)
@@ -196,7 +197,7 @@ local function grow_cane(pos, node)
     end
 
     local height = 0
-    while node.name == bdef.name and height < 6 do
+    while node.name == pdef.name and height < 6 do
         height = height + 1
         pos.y = pos.y + 1
         node = minetest.get_node(pos)
@@ -214,13 +215,14 @@ local function grow_cane(pos, node)
     local elapsed = minetest.get_gametime() - last_time
 
     -- 1.05 margin because ABMs have a small delay
-    local nr_to_grow = math.floor(elapsed / (cane_interval * 1.05))
+    local nr_to_grow = math.floor((elapsed / (cane_interval * 1.05)) + 1)
+    if nr_to_grow == 0 then return end -- can't even grow yet
 
     -- catch up and growing
-    for i = 1, nr_to_grow + 1 do
+    for i = 1, nr_to_grow do
         if height < 6 and node.name == "air" then
             -- reuse bottom's param2
-            minetest.set_node(pos, {name = bdef.name,
+            minetest.set_node(pos, {name = pdef.name,
                                     param2 = bottom.param2})
             pos.y = pos.y + 1
             node = minetest.get_node(pos)
