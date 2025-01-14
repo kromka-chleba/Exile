@@ -220,7 +220,7 @@ local function grow_cane(pos, node)
 
     ---extreme stop growth
     local temp = climate.get_point_temp(pos)
-    if temp < temp_range.min and temp > temp_range.max then
+    if temp < temp_range.min or temp > temp_range.max then
         return
     end
 
