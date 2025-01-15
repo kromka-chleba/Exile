@@ -38,6 +38,9 @@ HEALTH.food_table = {
     -- unleavened breads
     ["tech:bread_unleavened"] = {hu = 30, en = 6},
     ["tech:bread_unleavened_crumbly"] = {hu = 24, en = 10, th = 3},
+    -- all-purpose breads
+    ["tech:bread_all"] = {hu = 33, en = 16},
+    ["tech:bread_unleavened_all"] = {hu = 28, en = 12},
     -- misc
     ["nodes_nature:sea_lettuce"] = {hu = 5, en = -10},
     ["nodes_nature:sea_lettuce_cooked"] = {hu = 5},
@@ -185,7 +188,10 @@ HEALTH.bake_table = {
     -- unleavened breads
     ['tech:maraka_dough'] = {temp = 110, time = 4, cooked='tech:bread_unleavened', burned='tech:bread_burned'},
     ['tech:rhuya_dough'] = {temp = 110, time = 3, cooked='tech:bread_unleavened_crumbly', burned='tech:bread_burned'},
-    ['tech:rhuya_wintery_dough'] = {temp = 110, time = 4, cooked='tech:bread_unleavened', burned='tech:bread_burned'}
+    ['tech:rhuya_wintery_dough'] = {temp = 110, time = 4, cooked='tech:bread_unleavened', burned='tech:bread_burned'},
+    -- all-purpose breads
+    ['tech:all_dough'] = {temp = 110, time = 3, cooked='tech:bread_unleavened_all', burned='tech:bread_burned'},
+    ['tech:all_dough_fermented'] = {temp = 110, time = 4, cooked='tech:bread_all', burned='tech:bread_burned'}
 }
 
 -- tags (what diseases to spawn, single string or table of diseases), ch=chance, sv=severity
