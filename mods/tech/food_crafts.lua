@@ -85,7 +85,7 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3, 0.3, -0.3, 0.3},
         },
-        groups = {crumbly = 3, dig_immediate = 3, temp_pass = 1, heatable = 80},
+        groups = {crumbly = 3, dig_immediate = 3, temp_pass = 1, heatable = 80, bread_flour = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
 })
 
@@ -103,6 +103,7 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.28, -0.5, -0.28, 0.28, -0.32, 0.28},
         },
+        -- TODO: after a certain amount of time, remove bread_flour from cooked maraka bread in favour of the raw
         groups = {crumbly = 3, falling_node = 1, dig_immediate = 3,
                   temp_pass = 1, heatable = 80, edible = 1, bread_flour = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
