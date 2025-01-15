@@ -523,6 +523,23 @@ minetest.register_node(
         after_place_node = dough_after_place_node
 })
 
+minetest.register_node(
+    "tech:all_dough",  {
+        description = S("All-Purpose Dough"),
+        -- likewise to all-purpose flour, texture must be a mix of regular and strong dough
+        tiles = {"tech_dough_all.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -4/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, dough=1,
+            heatable=75, temp_pass=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
 ---- FERMENTED DOUGHS
 
 local function ferm_dough_preserve_metadata(pos, oldnode, oldmeta, drops)
@@ -859,7 +876,8 @@ crafting.register_recipe({
 
 for dough,flour in pairs(
   {["tech:maraka_dough"] = "tech:maraka_bread_cooked 12",
-  ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked"}) do
+  ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked",
+  ["tech:all_dough"] = "tech:all_flour"}) do
     -- get count from itemstring
     local count = tonumber(flour:match"%s%d+") -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
     if not count then
