@@ -537,7 +537,16 @@ minetest.register_node(
         groups = {dig_immediate = 3, falling_node=1, dough=1,
             heatable=75, temp_pass=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
-        paramtype = "light"
+        paramtype = "light",
+        _ferment_time = {min=14,max=40},
+        _ferment_temp_range = dough_yeast_temp_range,
+        _ferment_to = "tech:all_dough_fermented",
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+        end,
+        on_timer = get_dough_on_timer(0.02), -- 2% chance
+        preserve_metadata = dough_preserve_metadata,
+        after_place_node = dough_after_place_node
 })
 
 ---- FERMENTED DOUGHS
@@ -616,6 +625,25 @@ minetest.register_node(
         preserve_metadata = ferm_dough_preserve_metadata,
         breads_get_microbes = function(pos, oldnode, nodedef)
             return math.random(2,5)
+        end
+})
+
+minetest.register_node(
+    "tech:all_dough_fermented",  {
+        description = S("Fermented @1",S("All-Purpose Dough")),
+        tiles = {"tech_dough_all.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -3/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, fermented_dough=1, heatable=85, temp_pass=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+        preserve_metadata = ferm_dough_preserve_metadata,
+        breads_get_microbes = function(pos, oldnode, nodedef)
+            return math.random(2,4)
         end
 })
 
