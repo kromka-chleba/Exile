@@ -328,6 +328,23 @@ minetest.register_node(
         paramtype = "light"
 })
 
+-- all-purpose flour
+minetest.register_node(
+    "tech:all_flour",  {
+        description = S("All-Purpose Flour"),
+        -- texture should always be an equal mix of cake flour and bread flour (tech_flour vs tech_flour_strong)
+        tiles = {"tech_flour_all.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, flour=1, temp_pass = 1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
 ---- DOUGHS
 
 -- dough fermentation mechanics
@@ -824,6 +841,16 @@ crafting.register_recipe({
     type = "mortar_and_pestle",
     output = "tech:rhuya_flour_wintery",
     items = {'nodes_nature:rhuya_wintery_seed 12'},
+    level = 1,
+    always_known = true,
+})
+
+-- mix bready flours into all-purpose
+
+crafting.register_recipe({
+    type = "breadmaking",
+    output = "tech:all_flour 2",
+    items = {'group:bread_flour', 'group:cake_flour'},
     level = 1,
     always_known = true,
 })
