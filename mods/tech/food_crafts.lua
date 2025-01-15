@@ -768,6 +768,43 @@ minetest.register_node(
         paramtype = "light",
 })
 
+-- all-purpose breads
+-- reference: https://www.allrecipes.com/recipe/241680/unleavened-bread-for-communion/
+minetest.register_node(
+    "tech:bread_unleavened_all",  {
+        description = S("Basic Cracker"),
+        tiles = {"tech_bread_unleavened_all.png"},
+        stack_max = minimal.stack_max_medium*3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-4/16, -0.5, -4/16, 4/16, -6/16, 4/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
+        sounds = nodes_nature.node_sound_defaults(),--tech.node_sound_bread_unleavened_defaults(),
+        paramtype = "light",
+})
+
+-- all-purpose dough baked (not sure what it'd exactly be, but I imagine soft? - TPH)
+minetest.register_node(
+    "tech:bread_all", {
+        description = S("Soft Bread"),
+        groups = {dig_immediate = 3, falling_node=1, baked_bread=1},
+        tiles = {"tech_bread_all.png"},
+        stack_max = minimal.stack_max_medium*2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {
+            {-5.5/16, -0.5, -5.5/16, 5.5/16, -2/16, 5.5/16}, -- main
+            {-4/16, -2/16, -4/16, 4/16, -1/16, 4/16}, -- 2nd
+            {-2/16, -1/16, -2/16, 2/16, -0.5/16, 2/16} -- top
+          }
+        },
+        sounds = tech.node_sound_bread_defaults(),
+        paramtype = "light",
+})
+
 -- yuck! can't eat this!
 minetest.register_node(
     "tech:bread_burned",  {
