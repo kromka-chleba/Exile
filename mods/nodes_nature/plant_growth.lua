@@ -252,7 +252,7 @@ end
 
 local function is_temperature_good(pos, pdef, temp)
     temp = temp or climate.get_point_temp(pos)
-    return temp > pdef.plant_temp_range.min and temp < pdef.plant_temp_range.max
+    return temp >= pdef.plant_temp_range.min and temp <= pdef.plant_temp_range.max
 end
 
 local function is_soil_and_temp_good(pos, pdef, temp)
