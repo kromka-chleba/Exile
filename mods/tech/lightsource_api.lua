@@ -136,7 +136,6 @@ function lightsource.ignite(desc, pos, meta)
         local node = minetest.get_node(pos)
         node.name = desc.lit_name
         minimal.switch_node(pos, node) -- preserve param2
-        minetest.registered_nodes[desc.lit_name].on_construct(pos)
         meta:set_int("fuel", fuel)
     end
     lightsource.update_fuel_infotext(desc, pos)

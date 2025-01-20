@@ -372,7 +372,7 @@ minetest.register_node(
         _on_use_node = minimal.slabs_split_hand,
         on_burn = function(pos)
             if math.random()<0.5 then
-                minimal.switch_node(pos, {name = "tech:small_wood_fire"})
+                minimal.switch_node(pos, "tech:small_wood_fire")
                 minetest.check_for_falling(pos)
             else
                 minetest.remove_node(pos)

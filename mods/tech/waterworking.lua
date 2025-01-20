@@ -208,7 +208,7 @@ liquid_store.register_stored_liquid(
         --make freshwater Pot drinkable on click
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             if drink_water(clicker) then
-                minimal.switch_node(pos, {name = "tech:clay_water_pot"})
+                minimal.switch_node(pos, "tech:clay_water_pot")
                 minetest.sound_play("nodes_nature_slurp",
                                     {pos = pos, max_hear_distance = 3,
                                      gain = 0.25})
@@ -332,7 +332,7 @@ liquid_store.register_stored_liquid(
         --make freshwater Pot drinkable on click
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             if drink_water(clicker) then
-                minimal.switch_node(pos, {name = "tech:wooden_water_pot"})
+                minimal.switch_node(pos, "tech:wooden_water_pot")
                 minetest.sound_play("nodes_nature_slurp",
                                     {pos = pos, max_hear_distance = 3,
                                      gain = 0.25})
@@ -688,7 +688,7 @@ liquid_store.register_stored_liquid(
         inventory_image = "tech_bottle_icon_water.png^tech_bottle_green_icon.png",
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             if drink_water(clicker) then
-                minimal.switch_node(pos, {name = "tech:glass_bottle_green"})
+                minimal.switch_node(pos, "tech:glass_bottle_green")
                 minetest.sound_play("nodes_nature_slurp",
                                     {pos = pos, max_hear_distance = 3,
                                      gain = 0.25})
@@ -716,7 +716,7 @@ liquid_store.register_stored_liquid(
         inventory_image = "tech_bottle_icon_water.png^tech_bottle_clear_icon.png",
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             if drink_water(clicker) then
-                minimal.switch_node(pos, {name = "tech:glass_bottle_clear"})
+                minimal.switch_node(pos, "tech:glass_bottle_clear")
                 minetest.sound_play("nodes_nature_slurp",
                                     {pos = pos, max_hear_distance = 3,
                                      gain = 0.25})
