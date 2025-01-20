@@ -81,7 +81,7 @@ function minimal.slabs_combine(player, itemstack, pos, combine)
         idef._combined_by_hand(player, itemstack, idef, pos, node, cdef)
     end
     -- now to fully combine
-    minimal.switch_node(pos, {name = combine})
+    minimal.switch_node(pos, combine)
     itemstack:take_item()
     return itemstack
 end
@@ -106,7 +106,7 @@ function minimal.slabs_split_hand(player, pointed_node, pos,
         ndef._split_by_hand(player, itemstack, pos, ndef, split_def)
     end
     -- now to split into two!
-    minimal.switch_node(pos, {name=split_name})
+    minimal.switch_node(pos, split_name)
     wielded_item:replace(itemstack)
     return true
 end
