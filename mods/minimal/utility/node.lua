@@ -13,31 +13,36 @@ function minimal.is_meta(meta)
 end
 local is_meta = minimal.is_meta
 
-function minimal.switch_node(pos, node, after_place)
-    --Swap a node, but run its on_construct, so that
-    -- timers etc. are started, but metadata is left intact
+-- swap a node, but run its on_construct, so that
+-- timers etc are started, but metadata is left intact
+-- node argument can be string, will be set as the "name"
 
-    -- after_place is to be a table of 3 parameters:
-    -- placer, itemstack, pointed_thing
-    --    though does not need to be specified for switch_node to work
+-- after_place is optional but if provided, expected to be a table of 3 parameters
+-- placer (player), itemstack (or itemstack being wielded by player, will be grabbed from player if not provided),
+-- and 3rd, pointed_thing table
+function minimal.switch_node(pos, node, after_place)
     assert(vector.check(pos), "exile_game.switch_node: Invalid pos given")
-    local node_def = minetest.registered_nodes[node.name]
-    if not node_def then
-        error("Attempted to switch_node to an invalid node: "..node.name)
-        return
+    -- permit string argument for node
+    node = type(node) == "string" and {name = node} or node
+    assert(type(node) == "table",
+      "exile_game.switch_node: invalid argument for node - not a string for name or get_node table")
+    assert(type(node.name) == "string", "exile_game.switch_node: invalid argument for node.name - not a string")
+    local ndef = core.registered_nodes[node.name]
+    if not ndef then
+        error("exile_game.switch_node: attempted to switch to an invalid node "..node.name)
     end
     minetest.swap_node(pos, node)
-    if node_def.on_construct then
-        node_def.on_construct(pos)
+    if ndef.on_construct then
+        ndef.on_construct(pos)
     end
-    if (type(after_place) == "table") then
-        if (node_def.after_place_node) then
-            local placer = after_place[1]
-            local itemstack = after_place[2]
-            local pointed_thing = after_place[3]
-
-            node_def.after_place_node(pos, placer, itemstack, pointed_thing)
-        end
+    -- after place option provided
+    if type(after_place) == "table" and type(ndef.after_place_node) == "function" then
+        local player, itemstack = after_place[1], after_place[2]
+        if not core.is_player(player) then return end -- invalid placer argument, not a player
+        -- get wielded item if itemstack not provided
+        itemstack = type(itemstack) == "userdata" and itemstack or player:get_wielded_item()
+        -- placer, itemstack, pointed_thing
+        ndef.after_place_node(pos, player, itemstack, after_place[3])
     end
 end
 
