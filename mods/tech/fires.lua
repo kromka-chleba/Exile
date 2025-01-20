@@ -239,6 +239,28 @@ minetest.register_node(
         end
 })
 
+-- splitting a node block into a half node and half itemstack
+-- split fuel of node block
+local function split_fuel(player, itemstack, pos, ndef, split_def)
+    local meta = core.get_meta(pos)
+    if not meta:contains("fuel") then return end -- no fuel value
+    local fuel = meta:get_int("fuel") / 2
+    meta:set_int("fuel", fuel)
+    local imeta = itemstack:get_meta()
+    imeta:set_int("fuel", fuel)
+end
+
+-- combining a half node and a half itemstack to make a block
+-- combine their fuels
+local function combine_fuel(player, itemstack, def, pos, node, swap_def)
+    local imeta = itemstack:get_meta()
+    if not imeta:contains("fuel") then return end -- no fuel in itemstack
+    local nmeta = core.get_meta(pos) -- node meta
+    local fuel = imeta:get_int("fuel")
+    fuel = fuel + nmeta:get_int("fuel")
+    nmeta:set_int("fuel", fuel)
+end
+
 --Charcoal
 minetest.register_node(
     "tech:charcoal_block", {
@@ -250,6 +272,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_dirt_defaults(),
         _splits_by_hand = "tech:charcoal",
         _on_use_node = minimal.slabs_split_hand,
+        _split_by_hand = split_fuel,
         on_burn = function(pos)
             minimal.switch_node(pos, {name = "tech:large_charcoal_fire"})
             minetest.check_for_falling(pos)
@@ -275,10 +298,9 @@ minetest.register_node(
             minetest.check_for_falling(pos)
         end,
         _use_tip = S("Combine with another slab"),
-        _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing, "tech:charcoal_block")
-        end,
+        _combines_by_hand = "tech:charcoal_block",
+        _on_use_item = minimal.slabs_combine,
+        _combined_by_hand = combine_fuel
 })
 
 
@@ -331,11 +353,9 @@ minetest.register_node(
                   falling_node = 1, flammable = 1},
         sounds = nodes_nature.node_sound_wood_defaults(),
         _use_tip = S("Combine with another slab"),
-        _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing,
-                                         'tech:large_wood_fire_unlit')
-        end,
+        _combines_by_hand = "tech:large_wood_fire_unlit",
+        _on_use_item = minimal.slabs_combine,
+        _combined_by_hand = combine_fuel,
         on_burn = function(pos)
             minimal.switch_node(pos, {name = "tech:small_wood_fire"})
             minetest.check_for_falling(pos)
@@ -353,6 +373,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_wood_defaults(),
         _splits_by_hand = "tech:small_wood_fire_unlit",
         _on_use_node = minimal.slabs_split_hand,
+        _split_by_hand = split_fuel,
         on_burn = function(pos)
             minimal.switch_node(pos, {name = "tech:large_wood_fire"})
             minetest.check_for_falling(pos)
@@ -866,11 +887,9 @@ minetest.register_node(
 
         on_dig = on_dig_fire,
         _use_tip = S("Combine with another slab"),
-        _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(
-                player, wielded_item,
-                pointed_thing,'tech:large_wood_fire_ext')
-        end,
+        _combines_by_hand = "tech:large_wood_fire_ext",
+        _on_use_item = minimal.slabs_combine,
+        _combined_by_hand = combine_fuel,
         after_place_node = after_place_fire,
 
         on_burn = function(pos)
@@ -891,6 +910,7 @@ minetest.register_node(
         after_place_node = after_place_fire,
         _splits_by_hand = "tech:small_wood_fire_ext",
         _on_use_node = minimal.slabs_split_hand,
+        _split_by_hand = split_fuel,
         on_burn = function(pos)
             inferno.ignite(pos)
         end,
@@ -914,11 +934,9 @@ minetest.register_node(
                   temp_pass = 1, flammable = 3},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         _use_tip = S("Combine with another slab"),
-        _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing,
-                                         'tech:large_charcoal_fire_ext')
-        end,
+        _combines_by_hand = "tech:large_charcoal_fire_ext",
+        _on_use_item = minimal.slabs_combine,
+        _combined_by_hand = combine_fuel,
         on_dig = on_dig_fire,
         after_place_node = after_place_fire,
         on_burn = function(pos)
@@ -940,6 +958,7 @@ minetest.register_node(
         after_place_node = after_place_fire,
         _splits_by_hand = "tech:small_charcoal_fire_ext",
         _on_use_node = minimal.slabs_split_hand,
+        _split_by_hand = split_fuel,
         on_burn = function(pos)
             inferno.ignite(pos)
         end,

@@ -46,46 +46,67 @@ function minimal.switch_node(pos, node, after_place)
     end
 end
 
-function minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
-    if not pointed_thing or pointed_thing.type ~= "node" then return end
-    -- Can't combine with nothing, or with objects
-    local pos = pointed_thing.under
-    local node = minetest.get_node(pos)
-    if itemstack:get_name() == node.name then
-        -- combine slabs
-        local stack_meta = itemstack:get_meta()
-        if stack_meta:contains("fuel") then
-            local fuel = stack_meta:get_int("fuel")
-            local pt_meta = minetest.get_meta(pos)
-            fuel = fuel + pt_meta:get_int("fuel")
-            pt_meta:set_int("fuel",fuel)
-        end
-        minimal.switch_node(pos,{name=swap_node})
-        itemstack:take_item()
-        return true
+-- you should be sending us a pos, but we'll allow a pointed_thing
+local function pos_pointed_thing_handling(pos)
+    -- all good, return
+    if vector.check(pos) then return pos end
+    -- not an accessible pointed_thing or pos construct
+    if type(pos) ~= "table" then return end
+    -- return pos.under
+    if pos.under then
+        return pos.under
+    -- create the vector
+    elseif pos.x and pos.y and pos.z then
+        return vector.new(pos.x, pos.y, pos.z)
     end
 end
 
-function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
+-- minimal.slabs_combine: player, itemstack, pos, swap_node
+-- combine isn't required if specified in itemstack's definition
+function minimal.slabs_combine(player, itemstack, pos, combine)
+    pos = pos_pointed_thing_handling(pos)
+    -- Can't combine with nothing, or with objects
+    if not pos then return end
+    local idef = itemstack:get_definition()
+    if not idef or idef.name == "" then return end -- no itemstack definition or is hand, return!
+    combine = type(combine) == "string" and combine or idef._combines_by_hand
+    local cdef = core.registered_nodes[combine] -- combine_def
+    if not cdef then return end -- can't combine into a node successfully (not specified or wasn't a node)
+    local node = core.get_node(pos)
+    -- not even the same thing
+    if node.name ~= idef.name then return end
+    -- permit custom combine interactions
+    if idef._combined_by_hand then
+        -- player, itemstack, definition, pos, node, swap_node definition
+        idef._combined_by_hand(player, itemstack, idef, pos, node, cdef)
+    end
+    -- now to fully combine
+    minimal.switch_node(pos, {name = combine})
+    itemstack:take_item()
+    return itemstack
+end
+
+function minimal.slabs_split_hand(player, pointed_node, pos,
                                   wielded_item)
-    if not pointed_thing then return end -- Can't split from nothing
+    pos = pos_pointed_thing_handling(pos)
+    if not pos then return end -- can't split from nothing or objects
     if wielded_item:get_name() ~= "" then return end -- must be empty handed
-    local nname = pointed_node.name
-    local split_node = minetest.registered_nodes[nname]._splits_by_hand
-    if not split_node then
-        error("Tried to split a slab with no splits_by_hand defined! "..
-              pointed_node.name.." -- "..dump(split_node))
+    local nname = pointed_node.name -- nodename
+    local split_name = core.registered_nodes[nname]._splits_by_hand
+    local split_def = core.registered_nodes[split_name]
+    if not split_def then
+        error("Tried to split a slab with invalid splits_by_hand defined! "..
+              pointed_node.name.." -- "..dump(split_name))
     end
-    local pos = pointed_thing.under
-    local meta = minetest.get_meta(pos)
-    local itemstack = ItemStack(split_node)
-    if meta:contains("fuel") then
-        local fuel = meta:get_int("fuel") / 2
-        meta:set_int("fuel", fuel)
-        local imeta = itemstack:get_meta()
-        imeta:set_int("fuel", fuel)
+    local ndef = core.registered_nodes[nname] -- node definition
+    local itemstack = ItemStack(split_name)
+    -- permit custom split interactions
+    if ndef._split_by_hand then
+        -- player, pos, our node def, definition of node we're splitting into
+        ndef._split_by_hand(player, itemstack, pos, ndef, split_def)
     end
-    minimal.switch_node(pos, {name=split_node})
+    -- now to split into two!
+    minimal.switch_node(pos, {name=split_name})
     wielded_item:replace(itemstack)
     return true
 end
