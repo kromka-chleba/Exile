@@ -268,33 +268,24 @@ end
 
 -- will handle converting on_place functionality into on_rightclick
 --   (returns given itemstack or nil)
--- USE minimal.on_rightclick_possible to VERIFY if this function should be ran
 function minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
     -- seek under or above (anything not true is under, true is above)
-    if aboveorunder ~= true then
-        aboveorunder = false
-    end
-    if not (minetest.is_player(user) and itemstack
-            and type(pointed_thing) == "table") then
+    -- default is false
+    aboveorunder = type(aboveorunder) == "boolean" and aboveorunder or false
+    -- needs to be a player, a proper itemstack, and a proper pointed_thing
+    if not (core.is_player(user) and type(itemstack) == "userdata" and
+      type(pointed_thing) == "table") then
         return false
     end
-    local pos = pointed_thing.under
-    if aboveorunder then
-        pos = pointed_thing.above
-    end
-    if not vector.check(pos) then
-        return false
-    end
+    -- checks above if aboveorunder is true
+    local pos = aboveorunder and pointed_thing.above or pointed_thing.under
+    if not vector.check(pos) then return false end -- not a proper pos
 
-    local nodedef = minimal.get_nodedef(pos)
-
-    if not nodedef then
-        return false
-    end
+    local nodedef, node = minimal.get_nodedef(pos)
+    if not nodedef then return false end -- not a proper node
 
     -- can rightclick
     if nodedef.on_rightclick then
-        local node = minetest.get_node(pos)
         return nodedef.on_rightclick(pos, node, user, itemstack, pointed_thing)
     end
     -- can't rightclick
