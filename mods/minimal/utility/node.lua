@@ -202,14 +202,14 @@ function minimal.get_pos_above(pos)
     return vector.new(pos.x, pos.y + 1, pos.z)
 end
 
+-- get_nodedef: gets node definition and returns it with the get_node as well
 function minimal.get_nodedef(pos)
-    local node_name = minetest.get_node(pos).name
-    if not node_name then
-        -- got nothing, return nothing
-        return
-    end
-    local nodedef = minetest.registered_nodes[node_name]
-    return nodedef
+    local node = core.get_node(pos)
+    local ndef = core.registered_nodes[node.name]
+    -- no definition detected, return!
+    if not ndef then return end
+    -- permit returning get_node result too
+    return ndef, node
 end
 
 function minimal.pos_group(pos, group_name)
