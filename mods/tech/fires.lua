@@ -45,12 +45,12 @@ local function can_smolder(pos, meta, fire_name, ash_name)
 
         f = f - wet_loss
         if f <= 0 then
-            minimal.switch_node(pos, {name = ash_name})
+            minimal.switch_node(pos, ash_name)
         else
             local ext_name = minetest.get_node(pos).name:gsub(
                 "_smoldering",
                 "_ext")
-            minimal.switch_node(pos, {name = ext_name})
+            minimal.switch_node(pos, ext_name)
         end
         minetest.sound_play("nodes_nature_cool_lava",
                             {pos = pos, max_hear_distance = 16, gain = 0.25})
@@ -60,7 +60,7 @@ local function can_smolder(pos, meta, fire_name, ash_name)
     --check for the presence of air
     if minetest.find_node_near(pos, 1, {"air"}) then
         --air, roar back to full flame
-        minimal.switch_node(pos, {name = fire_name})
+        minimal.switch_node(pos, fire_name)
         return false
     else
         return true
@@ -76,10 +76,10 @@ local function can_burn_air(pos, meta, smolder_name, ash_name)
 
         f = f - wet_loss
         if f <= 0 then
-            minimal.switch_node(pos, {name = ash_name})
+            minimal.switch_node(pos, ash_name)
         else
             local ext_name = minetest.get_node(pos).name.."_ext"
-            minimal.switch_node(pos, {name = ext_name})
+            minimal.switch_node(pos, ext_name)
         end
         minetest.sound_play("nodes_nature_cool_lava",
                             {pos = pos, max_hear_distance = 16, gain = 0.25})
@@ -91,7 +91,7 @@ local function can_burn_air(pos, meta, smolder_name, ash_name)
         return true
     else
         --smolder
-        minimal.switch_node(pos, {name = smolder_name})
+        minimal.switch_node(pos, smolder_name)
         return false
     end
 end
@@ -274,7 +274,7 @@ minetest.register_node(
         _on_use_node = minimal.slabs_split_hand,
         _split_by_hand = split_fuel,
         on_burn = function(pos)
-            minimal.switch_node(pos, {name = "tech:large_charcoal_fire"})
+            minimal.switch_node(pos, "tech:large_charcoal_fire")
             minetest.check_for_falling(pos)
         end,
 })
@@ -294,7 +294,7 @@ minetest.register_node(
         groups = {crumbly = 3, falling_node = 1, fertilizer = 1, flammable = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         on_burn = function(pos)
-            minimal.switch_node(pos, {name = "tech:small_charcoal_fire"})
+            minimal.switch_node(pos, "tech:small_charcoal_fire")
             minetest.check_for_falling(pos)
         end,
         _use_tip = S("Combine with another slab"),
@@ -323,7 +323,7 @@ local function extinguish_fire(pos, puncher, ext_name)
 
     if minetest.get_item_group(ist_name, "sediment") >= 1
     then
-        minimal.switch_node(pos, {name = ext_name})
+        minimal.switch_node(pos, ext_name)
         minetest.sound_play("nodes_nature_cool_lava",   {pos = pos, max_hear_distance = 16, gain = 0.25})
 
     else
@@ -357,7 +357,7 @@ minetest.register_node(
         _on_use_item = minimal.slabs_combine,
         _combined_by_hand = combine_fuel,
         on_burn = function(pos)
-            minimal.switch_node(pos, {name = "tech:small_wood_fire"})
+            minimal.switch_node(pos, "tech:small_wood_fire")
             minetest.check_for_falling(pos)
         end
 })
@@ -375,7 +375,7 @@ minetest.register_node(
         _on_use_node = minimal.slabs_split_hand,
         _split_by_hand = split_fuel,
         on_burn = function(pos)
-            minimal.switch_node(pos, {name = "tech:large_wood_fire"})
+            minimal.switch_node(pos, "tech:large_wood_fire")
             minetest.check_for_falling(pos)
         end
 })
@@ -420,7 +420,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, {name = "tech:wood_ash"})
+                minimal.switch_node(pos, "tech:wood_ash")
                 return false
             elseif can_burn_air(pos, meta, "tech:small_wood_fire_smoldering",
                                 "tech:wood_ash" ) then
@@ -469,7 +469,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, {name = "tech:wood_ash_block"})
+                minimal.switch_node(pos, "tech:wood_ash_block")
                 return false
             elseif can_burn_air(pos, meta, "tech:large_wood_fire_smoldering",
                                 "tech:wood_ash_block") then
@@ -657,7 +657,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, {name = "tech:wood_ash"})
+                minimal.switch_node(pos, "tech:wood_ash")
                 return false
             elseif can_burn_air(pos, meta,
                                 "tech:small_charcoal_fire_smoldering",
@@ -708,7 +708,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, {name = "tech:wood_ash_block"})
+                minimal.switch_node(pos, "tech:wood_ash_block")
                 return false
             elseif can_burn_air(
                 pos, meta, "tech:large_charcoal_fire_smoldering",
@@ -763,7 +763,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, {name = "tech:wood_ash"})
+                minimal.switch_node(pos, "tech:wood_ash")
                 return false
             else
                 if can_smolder(pos, meta, 'tech:small_charcoal_fire',
@@ -807,7 +807,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, {name = "tech:wood_ash_block"})
+                minimal.switch_node(pos, "tech:wood_ash_block")
                 return false
             else
                 if can_smolder(pos, meta, 'tech:large_charcoal_fire',
