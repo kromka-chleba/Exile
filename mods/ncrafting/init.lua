@@ -155,7 +155,7 @@ function ncrafting.fire_pottery(pos, selfname, name, length, firing_temp)
 
     if firing <= 0 then
         --finished firing
-        minimal.switch_node(pos, {name = name})
+        minimal.switch_node(pos, name)
         return false
     elseif temp < fire_temp then
         if firing < length and temp < fire_temp/2 then
@@ -210,7 +210,7 @@ function ncrafting.do_bake(pos, elapsed, heat, length, cookname, burnname)
         return true
     elseif baking == 0 then
         --finished firing
-        minimal.switch_node(pos, {name = name_cooked})
+        minimal.switch_node(pos, name_cooked)
         ncrafting.set_treatment(meta, "cook")
         minetest.check_for_falling(pos)
         local cook_def = minetest.registered_nodes[name_cooked]
@@ -279,7 +279,7 @@ function ncrafting.do_soak(pos, name, interval, catchup, detectfunc)
         meta:set_int("soaking",soaking)
         if soaking <= 0 then
             -- finished
-            minimal.switch_node(pos, {name = name})
+            minimal.switch_node(pos, name)
             ncrafting.set_treatment(meta, "soak")
             return false
         end
