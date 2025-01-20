@@ -95,7 +95,7 @@ local function teleport_effects(target_pos, pos, player, player_name,
     transporter_particles(pos, stretch)
 
     --swap out power core
-    minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
+    minimal.switch_node(power, "artifacts:transporter_power_dep")
     minimal.infotext_set_new(power) -- set node description and owner
     set_charging(power, 5, 20)
     --go to target
@@ -369,7 +369,7 @@ local function transporter_power_rightclick(pos, node, player,
     local new = ItemStack(swap_b)
 
     itemstack:take_item()
-    minimal.switch_node(pos, {name=swap_a})
+    minimal.switch_node(pos, swap_a)
     minimal.infotext_set_new(pos) -- Set description and owner of swapped core
     if pInv:room_for_item("main", new) then
         pInv:add_item("main", new)
@@ -390,8 +390,7 @@ local function finish_emerge(blockpos, action, calls_remaining, pad_table)
     end
     if calls_remaining <= 0 then
         local function charge_pad()
-            minimal.switch_node(pos,
-                                {name = "artifacts:transporter_pad_active"})
+            minimal.switch_node(pos, "artifacts:transporter_pad_active")
             minetest.sound_play("artifacts_transport_charged",
                                 {pos = pos, gain = 2, max_hear_distance = 20})
             local color = tonumber(minetest.get_meta(pos):get("stretch") or 0)
@@ -467,8 +466,7 @@ local function transporter_rightclick(pos, node, player,
         --create charging pad and copy over meta data
         local meta_tran = minetest.get_meta(pos)
 
-        minimal.switch_node(pos,
-                            {name="artifacts:transporter_pad_charging"})
+        minimal.switch_node(pos, "artifacts:transporter_pad_charging")
         minetest.sound_play("artifacts_transport_charge",
                             {pos = pos, gain = 2, max_hear_distance = 20})
         meta_tran:set_string("tmp_dest", dest)
@@ -816,7 +814,7 @@ local function charge_power(pos, selfname, name, length)
 
     if charging <= 0 then
         --finished
-        minimal.switch_node(pos, {name=name})
+        minimal.switch_node(pos, name)
         minimal.infotext_set_new(pos,meta) -- Set Description and Owner
         meta:set_float("temp", 14)
         return false
@@ -930,7 +928,7 @@ minetest.register_node('artifacts:transporter_pad_active', {
         minetest.get_node_timer(pos):start(30)
     end,
     on_timer = function(pos, elapsed)
-        minimal.switch_node(pos, {name = "artifacts:transporter_pad"})
+        minimal.switch_node(pos, "artifacts:transporter_pad")
         minetest.sound_play("artifacts_transport_fail",
                             {pos = pos, gain = 1, max_hear_distance = 6})
     end,
