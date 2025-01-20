@@ -25,13 +25,7 @@ end
 --frequency of updating and applying effects
 local interval = 60
 
-local function is_meta(meta)
-    if type(meta) ~= "userdata" then return end
-    -- metadata will have get_int and get_string
-    if meta.get_int and meta.get_string then
-        return true
-    end
-end
+local is_meta = minimal.is_meta
 
 -- minimal/utility/general.lua
 local function math_clamp(num,min,max)
