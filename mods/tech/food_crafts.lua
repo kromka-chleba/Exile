@@ -442,6 +442,16 @@ local dough_after_place_node = function(pos, placer, itemstack, pointed_thing)
     ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 end
 
+local dough_infection = function(player, pos, nodedef, itemstack, idef)
+    idef = idef or itemstack and itemstack:get_definition()
+    if not (idef and idef.groups and idef.groups.infect_dough) then return end
+    local meta = core.get_meta(pos)
+    if meta:contains("ferment") then return end -- already infected
+    -- successful infection
+    ncrafting.ferment_on_construct(pos)
+    return true
+end
+
 minetest.register_node(
     "tech:maraka_dough",  {
         description = S("Maraka Dough"),
@@ -462,6 +472,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
+        on_microbial_infection = dough_infection,
         on_timer = get_dough_on_timer(),
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
@@ -487,6 +498,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
+        on_microbial_infection = dough_infection,
         on_timer = get_dough_on_timer(),
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
@@ -518,6 +530,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
+        on_microbial_infection = dough_infection,
         on_timer = get_dough_on_timer(0.03), -- 3% chance
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
@@ -544,9 +557,64 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
+        on_microbial_infection = dough_infection,
         on_timer = get_dough_on_timer(0.02), -- 2% chance
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
+})
+
+-- YEASTS
+
+local function yeast_infect(player, pos, nodedef, itemstack, idef)
+    -- permit string "nodedef" for checking name
+    nodedef = type(nodedef) == "string" and core.registered_nodes[nodedef] or nodedef
+    -- accept table nodedef, otherwise get from pos
+    nodedef = type(nodedef) == "table" and nodedef or minimal.get_nodedef(pos)
+    if not nodedef then return end -- not a definition
+    -- can't ferment or no infection function
+    if not (nodedef._ferment_to and nodedef.on_microbial_infection) then return end
+    idef = idef or itemstack:get_definition()
+    -- check if we can infect
+    local can_infect = nodedef.on_microbial_infection(player, pos, nodedef, itemstack, idef)
+    if not can_infect then return end -- don't do yeast-y things if couldn't infect
+    -- allow fermentables to list and play a custom infect sound
+    -- otherwise default to own infect sound
+    local infect_sound = nodedef.sounds and nodedef.sounds.place_infect or
+      idef.sounds and idef.sounds.infect
+    if infect_sound then
+        minimal.sound_play(minimal.merge_tables(infect_sound, {pos = pos}))
+    end
+    -- successfully infected, take away item and make message
+    minimal.send_message(player, nil,
+        S("Yeast added to the @1", nodedef.description))
+    if not minimal.player_in_creative(player) then
+        itemstack:take_item()
+        return itemstack
+    end
+end
+
+minetest.register_craftitem(
+    "tech:yeast_dough", {
+        description = S("Ikippe Yeast"),
+        inventory_image = "tech_yeast_dough_spores.png",
+        stack_max = minimal.stack_max_medium*4,
+        sounds = {
+            infect = {
+                name = "nodes_nature_dig_snappy",
+                gain = 0.7
+            }
+        },
+        groups = {infect_dough = 1},
+        _place_tip = S("Infect Dough"),
+        on_place = function(itemstack, player, pointed_thing)
+            if not pointed_thing or pointed_thing.type ~= "node" then
+                return
+            end
+            local pos = pointed_thing.under
+            local nodedef = minimal.get_nodedef(pos)
+            -- will do stuff if can infect, otherwise will do nothing
+            return yeast_infect(player, pos, nodedef, itemstack)
+        end,
 })
 
 ---- FERMENTED DOUGHS
@@ -645,54 +713,6 @@ minetest.register_node(
         breads_get_microbes = function(pos, oldnode, nodedef)
             return math.random(2,4)
         end
-})
-
--- YEASTS
-
-local function yeast_infect(pos, nodedef)
-    nodedef = nodedef or minetest.registered_nodes[minetest.get_node(pos).name]
-    -- we don't affect no non-doughs
-    if not (nodedef.groups and nodedef.groups.dough) then return end
-    -- can't ferment
-    if not nodedef._ferment_to then return end
-    local meta = minetest.get_meta(pos)
-    -- already fermenting, return
-    if meta:contains("ferment") then return end
-    -- successful infection
-    ncrafting.ferment_on_construct(pos)
-    -- allow fermentables to list and play a custom infect sound
-    local infect_sound = nodedef.sounds and nodedef.sounds.place_infect or {
-        name = "nodes_nature_dig_snappy",
-        gain = 0.7
-    }
-    infect_sound = table.copy(infect_sound)
-    infect_sound.pos = pos
-    minetest.sound_play(infect_sound.name, infect_sound)
-    return true -- tell the function of successful infection
-end
-
-minetest.register_craftitem(
-    "tech:yeast_dough", {
-        description = S("Ikippe Yeast"),
-        inventory_image = "tech_yeast_dough_spores.png",
-        stack_max = minimal.stack_max_medium*4,
-        _place_tip = S("Infect Dough"),
-        on_place = function(itemstack, player, pointed_thing)
-            if not pointed_thing or pointed_thing.type ~= "node" then
-                return
-            end
-            local pos = pointed_thing.under
-            local nodedef = minimal.get_nodedef(pos)
-            -- can't infect, return
-            if not yeast_infect(pos, nodedef) then return end
-            -- successfully infected, take away item and make message
-            minimal.send_message(player, nil,
-                S("Yeast added to the @1", nodedef.description))
-            if not minimal.player_in_creative(player) then
-                itemstack:take_item()
-                return itemstack
-            end
-        end,
 })
 
 ---- BREADS
