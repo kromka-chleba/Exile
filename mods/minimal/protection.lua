@@ -172,34 +172,35 @@ function minimal.protection_after_place_node( pos, placer, itemstack,
     return minimal.player_in_creative(placer)
 end
 
-function minimal.protection_on_dig(pos,oldnode,digger)
+function minimal.protection_on_dig(pos,oldnode,digger,meta)
+    if not core.is_player(digger) then return end -- not a player
+    -- undefined node, or not allowed to dig (like a full backpack)
+    local def = minetest.registered_nodes[oldnode.name]
+    if not def or (def.can_dig and not def.can_dig(pos, digger) ) then
+        return
+    end
     -- Handles removal of nails from nodes protected by them
-    local meta = minetest.get_meta(pos)
-    if not meta:contains('nailed') then return end
-    local owner = meta:get_string('owner')
-    if owner == "" then
-        minetest.log("error", "Blank owner for nailed item "..oldnode.name..
+    meta = meta or minetest.get_meta(pos)
+    local mdata = meta:to_table()
+    if not mdata then return end -- oops, all funkiness!
+    if not mdata.nailed then return end -- wasn't nailed
+    if not mdata.owner or mdata.owner == "" then
+        minetest.log("error", "Blank owner for nailed item "..def.name..
                      " at "..minetest.pos_to_string(pos))
     end
-    local digname = digger
-        and digger:get_player_name() -- nil or "" if non-player
-    if owner == digname then
-        local def = minetest.registered_nodes[oldnode.name]
-        if not def or (def.can_dig and not def.can_dig(pos, digger) ) then
-            return
-            -- undefined node, or not allowed to dig (like a full backpack)
+    if mdata.owner ~= digger:get_player_name() then return end -- you are NOT the owner!
+    --give digger back the nails (if they're not in creative)
+    if not minimal.player_in_creative(digger) then
+        local inv = digger:get_inventory()
+        if inv:room_for_item("main", 'tech:nails') then
+            inv:add_item("main",'tech:nails')
+        else
+            minimal.warn_inv_full(digger)
+            minetest.add_item(pos, 'tech:nails')
         end
-        --give digger back the nails (if they're not in creative)
-        if not (minimal.player_in_creative(owner)) then
-            local inv = digger:get_inventory()
-            if inv:room_for_item("main", 'tech:nails') then
-                inv:add_item("main",'tech:nails')
-            else
-                minimal.warn_inv_full(digger)
-                minetest.add_item(pos, 'tech:nails')
-            end
-        end
-        meta:set_string('owner', "")
-        meta:set_string('nailed', "")
     end
+    -- remove owner and nailed from meta properly
+    mdata.owner = nil
+    mdata.nailed = nil
+    meta:from_table(mdata)
 end
