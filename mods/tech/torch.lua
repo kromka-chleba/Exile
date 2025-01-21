@@ -20,14 +20,13 @@ local heat = 450
 -------------------------------------------
 --save usage into inventory, to prevent infinite torch supply
 local on_dig = function(pos, node, digger)
+    if not core.is_player(digger) then return end
 
-    if not digger then return false end
-
-    if minetest.is_protected(pos, digger:get_player_name()) then
+    local meta = minetest.get_meta(pos)
+    if minetest.is_protected(pos, digger, meta) then
         return false
     end
 
-    local meta = minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
     --round off fuel numbers for better stacking: 10-15 = 10
     --16-20 = 20, lean a bit towards reducing fuel for balance
@@ -37,6 +36,7 @@ local on_dig = function(pos, node, digger)
     local stack_meta = new_stack:get_meta()
     stack_meta:set_int("fuel", fuel)
 
+    minimal.protection_on_dig(pos, node, digger, meta)
 
     local player_inv = digger:get_inventory()
     if player_inv:room_for_item("main", new_stack) then
@@ -223,9 +223,7 @@ minetest.register_node(
             wall_bottom = {-1/8, -1/2, -1/8, 1/8, 2/16, 1/8},
         },
         sounds = nodes_nature.node_sound_wood_defaults(),
-        on_dig = function(pos, node, digger)
-            on_dig(pos, node, digger)
-        end,
+        on_dig = on_dig,
         on_place = function(itemstack, placer, pointed_thing)
             local under = pointed_thing.under
             local above = pointed_thing.above
@@ -326,9 +324,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_wood_defaults(),
         floodable = true,
         on_flood = on_flood,
-        on_dig = function(pos, node, digger)
-            on_dig(pos, node, digger)
-        end,
+        on_dig = on_dig,
         on_construct = function(pos)
             --duration of burn
             local meta = minetest.get_meta(pos)
@@ -384,9 +380,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_wood_defaults(),
         floodable = true,
         on_flood = on_flood,
-        on_dig = function(pos, node, digger)
-            on_dig(pos, node, digger)
-        end,
+        on_dig = on_dig,
         on_construct = function(pos)
             --duration of burn
             local meta = minetest.get_meta(pos)
