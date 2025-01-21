@@ -256,17 +256,18 @@ crafting.register_recipe({
 ---------------------
 --save usage into inventory, to prevent infinite supply
 local on_dig_iron_and_slag = function(pos, node, digger)
-    if not digger or minetest.is_protected(pos,
-                                           digger:get_player_name()) then
+    if not core.is_player(digger) then return end
+    local meta = core.get_meta(pos)
+    if minetest.is_protected(pos, digger, meta) then
         return false
     end
-
-    local meta = minetest.get_meta(pos)
     local roast = meta:get_int("roast")
 
     local new_stack = ItemStack("tech:iron_and_slag")
     local stack_meta = new_stack:get_meta()
     stack_meta:set_int("roast", roast)
+
+    minimal.protection_on_dig(pos, node, digger, meta) -- give back nails if protected
 
     local player_inv = digger:get_inventory()
     if player_inv:room_for_item("main", new_stack) then
@@ -308,13 +309,8 @@ minetest.register_node(
             return roast(pos, "tech:iron_and_slag",
                          "tech:iron_bloom", 50, 1350, true)
         end,
-
-        on_dig = function(pos, node, digger)
-            on_dig_iron_and_slag(pos, node, digger)
-        end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            after_place_iron_and_slag(pos, placer, itemstack, pointed_thing)
-        end,
+        on_dig = on_dig_iron_and_slag,
+        after_place_node = after_place_iron_and_slag
 })
 
 
