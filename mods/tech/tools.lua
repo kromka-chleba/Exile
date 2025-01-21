@@ -85,11 +85,11 @@ local function on_dig_tool(pos, node, digger)
     -- get _tool or node's name subtract where "_placed" would be (8 from length)
     local tooldef = core.registered_items[ (ndef._tool or ndef.name:sub(1, -8)) ]
     if not tooldef then return end -- no definition, return
-    local meta = minetest.get_meta(pos) -- we use meta for protection checking
+    local meta = core.get_meta(pos) -- we use meta for protection checking
     if minetest.is_protected(pos, digger, meta) then
         return -- can't dig tools you don't own
     end
-    minimal.protection_on_dig(pos,node,digger)
+    minimal.protection_on_dig(pos,node,digger,meta)
     -- get data from 
     local ndata = meta:to_table()
     if not ndata then return end -- could not get data, return

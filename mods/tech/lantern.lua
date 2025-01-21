@@ -205,9 +205,7 @@ minetest.register_node(
             lightsource.update_fuel_infotext(lantern_desc, pos)
         end,
         on_dig = function(pos, node, digger)
-            if core.is_player(digger) then
-                minimal.protection_on_dig(pos,node,digger)
-            end
+            minimal.protection_on_dig(pos,node,digger)
             lightsource.save_to_inventory(lantern_desc, pos, digger, false)
         end,
         on_ignite = function(pos, user)
@@ -261,9 +259,7 @@ minetest.register_node(
             lightsource.restore_from_inventory(lantern_desc, pos, itemstack)
         end,
         on_dig = function(pos, node, digger)
-	    if core.is_player(digger) then
-                minimal.protection_on_dig(pos,node,digger)
-	    end
+            minimal.protection_on_dig(pos,node,digger)
             lightsource.save_to_inventory(lantern_desc, pos, digger, true)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
