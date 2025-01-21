@@ -569,7 +569,8 @@ minetest.register_craftitem(
         sounds = {
             nail_down = {
                 name = "tech_hammer",
-                gain = 0.15,
+                gain = {0.12,0.35},
+                pitch = {0.9,1.1},
                 max_hear_distance = 20
             }
         },
