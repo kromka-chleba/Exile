@@ -8,8 +8,6 @@ minimal = minimal
 
 local __nail_use_count = 3
 
-local __open_access_list={}
-
 function minimal.protection_is_ownable(pos)
     -- permits regular position or pointed_thing
     pos = minimal.get_usable_position(pos)
@@ -23,6 +21,8 @@ function minimal.protection_is_ownable(pos)
     -- can claim this
     return true
 end
+
+local __open_access_list={}
 
 function minimal.protection_key_click(itemstack, clicker, pos, meta)
     if not core.is_player(clicker) then return end -- not a player
@@ -45,7 +45,7 @@ function minimal.protection_key_click(itemstack, clicker, pos, meta)
     end
 
     if fs_list ~= '' then
-        __open_access_list[player_name] = { pos = pos }
+        __open_access_list[player_name] = { pos = pos, meta = meta }
         local formspec = table.concat({"formspec_version[6]",
             "size[10.5,4]box[0.4,0.9;9.8,1.6;red]",
             "label[4.3,0.5;",S("Access List"),"]",
@@ -60,40 +60,46 @@ function minimal.protection_key_click(itemstack, clicker, pos, meta)
 
 end
 
+local function remove_access_list_view(pname)
+    __open_access_list[pname] = nil
+    return true
+end
+
 minetest.register_on_player_receive_fields(
     function(player,formname,fields)
         if formname ~= "protection:access_list" then
             return
         end
-        local player_name=player:get_player_name()
-        if fields.Delete and  __open_access_list
-            and __open_access_list[player_name]
-            and __open_access_list[player_name].pos then
-            local pt_pos = __open_access_list[player_name].pos
-            local pt_meta = minetest.get_meta(pt_pos)
-            local list_json = pt_meta and pt_meta:get_string("access_list")
-            local access_list = {}
-            if list_json and list_json ~= '' then
-                access_list = minetest.parse_json(list_json)
-                for i,granted in ipairs(access_list) do
-                    if fields.access_list == granted then
-                        access_list[i] = nil
-                    end
-                end
-                minetest.chat_send_player(player_name,
-                                          S("Deleted @1 from access list.",
-                                            fields.access_list))
-            end
-            -- write out json
-            if #access_list > 0 then
-                pt_meta:set_string("access_list",
-                                   minetest.write_json(access_list))
-            else
-                pt_meta:set_string("access_list", "")
+        local pname = player:get_player_name()
+        if not __open_access_list[pname] then return end -- no data, how did you open this?
+        -- exited formspec regularly (not pressing on delete)
+        if fields.quit and not fields.Delete then return remove_access_list_view(pname) end
+        -- shuffling through who to remove then
+        if not fields.Delete then return true end
+        -- properly pressed on Delete, see what to do
+        local meta = __open_access_list[pname].meta
+        if not meta then return remove_access_list_view(pname) end -- how unfortunate, no meta!
+        local list_json = meta:get_string("access_list")
+        if list_json == '' then return remove_access_list_view(pname) end -- no information
+        local access_list = core.parse_json(list_json)
+        for i,granted in ipairs(access_list) do
+            if granted == fields.access_list then
+                table.remove(access_list, i)
+                core.chat_send_player(pname,
+                  S("Deleted @1 from access list.",
+                    fields.access_list))
+                break
             end
         end
-        __open_access_list[player_name] = nil
-        return true
+        -- write out json
+        if #access_list > 0 then
+            meta:set_string("access_list",
+              minetest.write_json(access_list))
+        -- clear out json, no more in access list!
+        else
+            meta:set_string("access_list", '')
+        end
+        return remove_access_list_view(pname)
     end
 )
 
