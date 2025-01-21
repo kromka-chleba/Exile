@@ -159,6 +159,7 @@ function minimal.protection_nail_use( user, itemstack, pos, meta )
     if idef.sounds and idef.sounds.nail_down then
         minimal.sound_play(minimal.merge_tables(idef.sounds.nail_down, {pos = pos}))
     end
+    return itemstack
 end
 
 
@@ -182,13 +183,14 @@ function minimal.protection_on_dig(pos,oldnode,digger,meta)
     -- Handles removal of nails from nodes protected by them
     meta = meta or minetest.get_meta(pos)
     local mdata = meta:to_table()
-    if not mdata then return end -- oops, all funkiness!
-    if not mdata.nailed then return end -- wasn't nailed
-    if not mdata.owner or mdata.owner == "" then
+    local fields = mdata and mdata.fields
+    if not fields then return end -- oops, all funkiness! (couldn't to_table() )
+    if not fields.nailed then return end -- wasn't nailed
+    if not fields.owner or fields.owner == "" then
         minetest.log("error", "Blank owner for nailed item "..def.name..
                      " at "..minetest.pos_to_string(pos))
     end
-    if mdata.owner ~= digger:get_player_name() then return end -- you are NOT the owner!
+    if fields.owner ~= digger:get_player_name() then return end -- you are NOT the owner!
     --give digger back the nails (if they're not in creative)
     if not minimal.player_in_creative(digger) then
         local inv = digger:get_inventory()
@@ -200,7 +202,7 @@ function minimal.protection_on_dig(pos,oldnode,digger,meta)
         end
     end
     -- remove owner and nailed from meta properly
-    mdata.owner = nil
-    mdata.nailed = nil
+    fields.owner = nil
+    fields.nailed = nil
     meta:from_table(mdata)
 end
