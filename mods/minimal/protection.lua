@@ -40,25 +40,19 @@ function minimal.protection_key_click(itemstack, clicker, pos, meta)
     if list_json and list_json ~= '' then
         local access_list = minetest.parse_json(list_json)
         if access_list and #access_list > 0 then
-            for i,name in ipairs(access_list) do
-                fs_list = fs_list .. name
-                if i < #access_list then
-                    fs_list =fs_list .. ","
-                end
-            end
+            fs_list = table.concat(access_list, ",")
         end
     end
 
     if fs_list ~= '' then
         __open_access_list[player_name] = { pos = pos }
-        local formspec = "formspec_version[6]"
-            .. "size[10.5,4]"
-            .. "box[0.4,0.9;9.8,1.6;red]"
-            .. "label[4.3,0.5;"..S("Access List").."]"
-            .. "dropdown[1.1,1.35;4.8,0.7;access_list;"
-            .. fs_list .. ";1;false]"
-            .. "button_exit[6.6,1.3;3,0.8;Delete;"..S("Delete").."]"
-            .. "button_exit[3.7,2.8;3,0.8;Close;"..S("Close").."]"
+        local formspec = table.concat({"formspec_version[6]",
+            "size[10.5,4]box[0.4,0.9;9.8,1.6;red]",
+            "label[4.3,0.5;",S("Access List"),"]",
+            "dropdown[1.1,1.35;4.8,0.7;access_list;"
+            ,fs_list,";1;false]button_exit[6.6,1.3;3,0.8;Delete;",
+            S("Delete"),"]button_exit[3.7,2.8;3,0.8;Close;",
+            S("Close"),"]"})
         minetest.show_formspec(player_name, "protection:access_list", formspec)
     else
         minetest.chat_send_player(player_name, S("Access list empty."))
