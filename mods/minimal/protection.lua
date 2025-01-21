@@ -139,26 +139,26 @@ function minimal.protection_key_use( itemstack, user, pos, meta )
       key))
 end
 
-function minimal.protection_nail_use( itemstack, user, pointed_thing )
-    if not pointed_thing or pointed_thing.type ~= "node" then return end
+function minimal.protection_nail_use( user, itemstack, pos, meta )
+    if not core.is_player(user) then return end
+    pos = minimal.get_usable_position(pos)
+    if not minimal.protection_is_ownable(pos) then return end -- shouldn't be able to do anything with this
+    meta = meta or core.get_meta(pos)
+    if meta:get_string("owner") ~= "" then return end -- has an owner already, return!
+    -- let's claim this meta for us!
     local owner = user:get_player_name()
-    local playsound = false
-    local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-    if minimal.protection_is_ownable(pt_pos) then
-        local pt_meta=minetest.get_meta(pt_pos)
-        if not pt_meta:contains('owner') then
-            pt_meta:set_string("owner", owner)
-            pt_meta:set_string('nailed', owner)
-            -- take nails if player isn't in creative
-            if not (minimal.player_in_creative(user)) then
-                itemstack:take_item()
-            end
-            minimal.infotext_set_new(pt_pos, pt_meta)
-            -- play hammering sound
-            playsound = true
-        end
+    meta:set_string("owner", owner)
+    meta:set_string("nailed", owner)
+    -- take nails if player isn't in creative
+    if not (minimal.player_in_creative(user)) then
+        itemstack:take_item()
     end
-    return itemstack, playsound
+    minimal.infotext_set_new(pos, meta)
+    -- check for hammering sound and play it
+    local idef = itemstack:get_definition()
+    if idef.sounds and idef.sounds.nail_down then
+        minimal.sound_play(minimal.merge_tables(idef.sounds.nail_down, {pos = pos}))
+    end
 end
 
 

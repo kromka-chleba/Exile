@@ -566,18 +566,14 @@ minetest.register_craftitem(
         inventory_image = "tech_iron_nails.png",
         stack_max = minimal.stack_max_light,
         _use_tip = S("Protect Item"),
-        _on_use_item = function(user, itemstack, pointed_thing)
-            local istack, playsound = minimal.protection_nail_use(
-                itemstack, user, pointed_thing)
-            if playsound then
-                minetest.sound_play("tech_hammer", {
-                                        pos = user:get_pos(),
-                                        gain = 0.15,
-                                        max_hear_distance=20
-                })
-            end
-            return istack
-        end
+        sounds = {
+            nail_down = {
+                name = "tech_hammer",
+                gain = 0.15,
+                max_hear_distance = 20
+            }
+        },
+        _on_use_item = minimal.protection_nail_use
 })
 
 minetest.register_craftitem(
