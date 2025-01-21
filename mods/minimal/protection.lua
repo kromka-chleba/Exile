@@ -103,44 +103,40 @@ minetest.register_on_player_receive_fields(
     end
 )
 
-function minimal.protection_key_use( itemstack, user, pointed_thing )
-    if not pointed_thing or pointed_thing.type ~= "node" then return end
-    local owner = user:get_player_name()
-    --local key_owner_test = itemstack:get_meta():get_string("creator")
-    local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-    if minimal.protection_is_ownable(pt_pos) then
-        local pt_meta=minetest.get_meta(pt_pos)
-        local pt_owner = pt_meta:get_string('owner')
-        if pt_meta:contains('owner') and pt_owner == owner then
-            local key_owner = itemstack:get_meta():get_string("creator")
-            local access_list = {}
-            local list = pt_meta:get_string("access_list")
-            local add_name = true -- Assume we're adding the name
-            if list and list ~= "" then
-                access_list = minetest.parse_json(list)
-                for _,name in ipairs(access_list) do
-                    if name == key_owner then
-                        minetest.chat_send_player(owner,
-                                                  S("@1 already has access",
-                                                    key_owner))
-                        add_name = false
-                        break
-                    end
-                end
-            end
-            if add_name then
-                table.insert(access_list, key_owner)
-                pt_meta:set_string("access_list",
-                                   minetest.write_json(access_list))
-                minetest.chat_send_player(owner,
-                                          S("@1 granted access",
-                                            key_owner))
-            end
-        else
-            minetest.chat_send_player(
-                owner, S("Can't grant access to items you don't own"))
+function minimal.protection_key_use( itemstack, user, pos, meta )
+    if not core.is_player(user) then return end
+    pos = minimal.get_usable_position(pos)
+    if not minimal.protection_is_ownable(pos) then return end -- shouldn't be able to do anything with this
+    local pname = user:get_player_name()
+    meta = meta or core.get_meta(pos)
+    local owner = meta:get_string('owner')
+    -- no owner here or we don't own this
+    if owner == "" or pname ~= owner then
+        minetest.chat_send_player(pname,
+          S("Can't grant access to items you don't own"))
+        return
+    end
+    local key = itemstack:get_meta():get_string("creator") -- creator of key (key owner)
+    -- get list
+    local list = meta:get_string("access_list")
+    list = list ~= "" and core.parse_json(list) or {}
+    -- let's see if we're already in here
+    for _,name in ipairs(list) do
+        -- ah! we're already here, return!
+        if name == key then
+            minetest.chat_send_player(pname,
+              S("@1 already has access",
+                key))
+            return
         end
     end
+    -- let's add the key owner to list
+    table.insert(list, key)
+    meta:set_string("access_list",
+      minetest.write_json(list))
+    minetest.chat_send_player(pname,
+      S("@1 granted access",
+      key))
 end
 
 function minimal.protection_nail_use( itemstack, user, pointed_thing )
