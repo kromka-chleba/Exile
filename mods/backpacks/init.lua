@@ -279,11 +279,9 @@ end
 
 local on_dig = function(pos, node, digger, width, height)
     if not core.is_player(digger) then return end
-    local meta = core.get_meta(pos)
-    if minetest.is_protected(pos, digger:get_player_name(), meta) then
+    if minetest.is_protected(pos, digger:get_player_name()) then
         return false
     end
-    minimal.protection_on_dig(pos, node, digger, meta)
     local player_inv = digger:get_inventory()
     -- See if it fits in inventory
     local new = ItemStack(node)
