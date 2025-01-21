@@ -10,23 +10,21 @@ local __nail_use_count = 3
 
 local __open_access_list={}
 
-function minimal.protection_is_ownable( pointed_thing, pt_pos )
-    if pointed_thing.type == 'node' then
-        if pt_pos == nil then
-            pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-        end
-        local pt_node=minetest.get_node(pt_pos)
-        if not (pt_node.name == 'tech:stick'
-                or minetest.get_item_group(pt_node.name,
-                                           'flora') > 0
-                or minetest.get_item_group(pt_node.name,
-                                           'unclaimable') > 0
-        ) then
-            return true
-        else
-            return false
-        end
+function minimal.protection_is_ownable(pos)
+    -- got a pointed thing
+    if not vector.check(pos) and (type(pos) == "table" and pos.type == 'node') then
+        pos = pos.under
     end
+    -- not given a proper position
+    if not vector.check(pos) then return false end
+    local node = core.get_node(pos)
+    if not (node.name == 'tech:stick' or core.get_item_group(node.name, 'flora') > 0 or
+      core.get_item_group(node.name, 'unclaimable') > 0) then
+        -- can't touch this
+        return false
+    end
+    -- can claim this
+    return true
 end
 
 function minimal.protection_key_click( itemstack, clicker, pointed_thing)
@@ -115,7 +113,7 @@ function minimal.protection_key_use( itemstack, user, pointed_thing )
     local owner = user:get_player_name()
     --local key_owner_test = itemstack:get_meta():get_string("creator")
     local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-    if minimal.protection_is_ownable(pointed_thing, pt_pos) then
+    if minimal.protection_is_ownable(pt_pos) then
         local pt_meta=minetest.get_meta(pt_pos)
         local pt_owner = pt_meta:get_string('owner')
         if pt_meta:contains('owner') and pt_owner == owner then
@@ -155,7 +153,7 @@ function minimal.protection_nail_use( itemstack, user, pointed_thing )
     local owner = user:get_player_name()
     local playsound = false
     local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-    if minimal.protection_is_ownable(pointed_thing, pt_pos) then
+    if minimal.protection_is_ownable(pt_pos) then
         local pt_meta=minetest.get_meta(pt_pos)
         if not pt_meta:contains('owner') then
             pt_meta:set_string("owner", owner)
