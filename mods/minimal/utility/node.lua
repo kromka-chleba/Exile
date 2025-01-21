@@ -326,3 +326,13 @@ function minimal.dig_up(pos, node, digger)
     end
     return false
 end
+
+-- expects pointed_thing, but will return a proper position if provided one
+-- basically core.get_pointed_thing_position but permits throwing a pos into it
+function minimal.get_usable_position(pt, ...)
+    if type(pt) ~= "table" then return end -- not a table
+    if vector.check(pt) then return pt end -- is a position
+    if pt.x and pt.y and pt.z then return vector.new(pt.x, pt.y, pt.z) end -- also a position but table'd
+    -- now off to our friend
+    return core.get_pointed_thing_position(pt, ...)
+end

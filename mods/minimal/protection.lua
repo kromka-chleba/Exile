@@ -11,12 +11,9 @@ local __nail_use_count = 3
 local __open_access_list={}
 
 function minimal.protection_is_ownable(pos)
-    -- got a pointed thing
-    if not vector.check(pos) and (type(pos) == "table" and pos.type == 'node') then
-        pos = pos.under
-    end
-    -- not given a proper position
-    if not vector.check(pos) then return false end
+    -- permits regular position or pointed_thing
+    pos = minimal.get_usable_position(pos)
+    if not pos then return end -- no pos
     local node = core.get_node(pos)
     if not (node.name == 'tech:stick' or core.get_item_group(node.name, 'flora') > 0 or
       core.get_item_group(node.name, 'unclaimable') > 0) then
