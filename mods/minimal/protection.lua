@@ -15,8 +15,8 @@ function minimal.protection_is_ownable(pos)
     pos = minimal.get_usable_position(pos)
     if not pos then return end -- no pos
     local node = core.get_node(pos)
-    if not (node.name == 'tech:stick' or core.get_item_group(node.name, 'flora') > 0 or
-      core.get_item_group(node.name, 'unclaimable') > 0) then
+    if node.name == 'tech:stick' or core.get_item_group(node.name, 'flora') > 0 or
+      core.get_item_group(node.name, 'unclaimable') > 0 then
         -- can't touch this
         return false
     end
@@ -24,21 +24,19 @@ function minimal.protection_is_ownable(pos)
     return true
 end
 
-function minimal.protection_key_click( itemstack, clicker, pointed_thing)
-    if not pointed_thing or pointed_thing.type ~= 'node' then
-        return
-    end
-    local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-    local pt_meta = minetest.get_meta(pt_pos)
+function minimal.protection_key_click(itemstack, clicker, pos, meta)
+    if not core.is_player(clicker) then return end -- not a player
+    pos = minimal.get_usable_position(pos)
+    meta = meta or minetest.get_meta(pos)
     local player_name = clicker:get_player_name()
-    local pt_owner = pt_meta:get_string('owner')
-    if pt_owner and pt_owner ~= player_name then
+    local owner = meta:get_string('owner')
+    -- cannot modify for though we're not the rightful owner
+    if owner ~= player_name then
         return
     end
 
     local fs_list ="";
-
-    local list_json = pt_meta:get_string("access_list")
+    local list_json = meta:get_string("access_list")
     if list_json and list_json ~= '' then
         local access_list = minetest.parse_json(list_json)
         if access_list and #access_list > 0 then
@@ -52,7 +50,7 @@ function minimal.protection_key_click( itemstack, clicker, pointed_thing)
     end
 
     if fs_list ~= '' then
-        __open_access_list[player_name] = { pos = pt_pos }
+        __open_access_list[player_name] = { pos = pos }
         local formspec = "formspec_version[6]"
             .. "size[10.5,4]"
             .. "box[0.4,0.9;9.8,1.6;red]"
