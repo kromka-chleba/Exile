@@ -41,7 +41,7 @@ for i in ipairs(stone_list) do
     local block = raw[1].."_block"
     block = {block, block:gsub(":","_")..".png"}
     local brick = raw[1].."_brick"
-    brick = {brick, brick:gsub(":","_")..".png"}
+    brick = {brick, raw[2].."^nodes_nature_brick_pattern_soft.png"}
     -- group
     g = {cracky = hardness, crumbly = 1, soft_stone = 1}
     dropped = { max_items = 1,
