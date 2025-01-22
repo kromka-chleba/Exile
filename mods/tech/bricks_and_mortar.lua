@@ -851,6 +851,8 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
         local name = list[i][1]
         local desc = list[i][2]
         local hardness = list[i][3]
+        local brick = core.registered_nodes["nodes_nature:"..name.."_brick"]
+        local block = core.registered_nodes["nodes_nature:"..name.."_block"]
 
 
         --blocks and bricks
@@ -858,8 +860,8 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
         minetest.register_node(
             "tech:"..name.."_brick_mortar", {
                 description = S("@1 Brick with Mortar", desc),
-                tiles = {"nodes_nature_"..name.."_brick.png^tech_mortar_brick.png"},
-                drop = "nodes_nature:"..name.."_brick",
+                tiles = {brick.tiles[1].."^tech_mortar_brick.png"},
+                drop = brick.name,
                 paramtype2 = "facedir",
                 stack_max = minimal.stack_max_bulky *3,
                 groups = {cracky = hardness, masonry = 1},
@@ -870,9 +872,9 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
         minetest.register_node(
             "tech:"..name.."_block_mortar", {
                 description = S("@1 Block with Mortar", desc),
-                tiles = {"nodes_nature_"..name.."_block.png^tech_mortar_block.png"},
+                tiles = {block.tiles[1].."^tech_mortar_block.png"},
                 paramtype2 = "facedir",
-                drop = "nodes_nature:"..name.."_block",
+                drop = block.name,
                 stack_max = minimal.stack_max_bulky *2,
                 groups = {cracky = hardness, masonry = 1},
                 sounds = nodes_nature.node_sound_stone_defaults(),
@@ -882,7 +884,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
         crafting.register_recipe({
                 type = brick_mortar_type,
                 output = "tech:"..name.."_brick_mortar 4",
-                items = {"nodes_nature:"..name.."_brick 4", "tech:lime_mortar_slab"},
+                items = {brick.name.." 4", "tech:lime_mortar_slab"},
                 level = 1,
                 always_known = true,
         })
@@ -890,7 +892,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
         crafting.register_recipe({
                 type = block_mortar_type,
                 output = "tech:"..name.."_block_mortar 4",
-                items = {"nodes_nature:"..name.."_block 4", "tech:lime_mortar_slab"},
+                items = {block.name.." 4", "tech:lime_mortar_slab"},
                 level = 1,
                 always_known = true,
         })
@@ -905,7 +907,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
             "true",
             brick_mortar_recycle_type,
             {cracky = hardness},
-            {"nodes_nature_"..name.."_brick.png^tech_mortar_brick.png" },
+            {brick.tiles[1].."^tech_mortar_brick.png"},
             S("@1 Brick with Mortar Stair", desc),
             S("@1 Brick with Mortar Slab", desc),
             minimal.stack_max_bulky * 6,
@@ -923,7 +925,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
                 "false",
                 block_mortar_recycle_type,
                 {cracky = hardness},
-                {"nodes_nature_"..name.."_block.png^tech_mortar_block.png" },
+                {block.tiles[1].."^tech_mortar_block.png"},
                 S("@1 Block with Mortar Stair", desc),
                 S("@1 Block with Mortar Slab", desc),
                 minimal.stack_max_bulky * 4,

@@ -174,6 +174,15 @@ From TPH (CC0)
 	nodes_nature_rhuya_wintery_fruiting.png
 	nodes_nature_rhuya_wintery_flowering.png
 	nodes_nature_rhuya_wintery_fruit.png
+	nodes_nature_claystone.png
+	nodes_nature_siltstone.png
+	nodes_nature_sandstone.png
+	nodes_nature_block_pattern.png
+	nodes_nature_block_pattern_soft.png
+	nodes_nature_block_pattern_jade.png
+	nodes_nature_brick_pattern.png
+	nodes_nature_brick_pattern_soft.png
+	nodes_nature_brick_pattern_jade.png
 
 From Minetest Game Default:
   Gambit (CC BY-SA 3.0):
