@@ -125,6 +125,14 @@ for i in ipairs(rock_list) do
     local name = rock_list[i][1]
     local desc = rock_list[i][2]
     local hardness = rock_list[i][3]
+    -- brick and block patterns
+    local brickpattern = rock_list[i][4]
+    -- default reg pattern, soft for soft, otherwise utilizes what was provided
+    brickpattern = brickpattern == "soft" and "nodes_nature_brick_pattern_soft.png" or brickpattern or
+      "nodes_nature_brick_pattern.png"
+    local blockpattern = rock_list[i][5]
+    blockpattern = blockpattern == "soft" and "nodes_nature_block_pattern_soft.png" or blockpattern or
+      "nodes_nature_block_pattern.png"
 
     --harder rocks drop boulders
     local g = {cracky = hardness, stone = 1}
@@ -135,9 +143,9 @@ for i in ipairs(rock_list) do
     local cobble = raw.."_cobble"
     raw = {raw, raw:gsub(":","_")..".png"} -- name, texture
     local brick = raw[1].."_brick"
-    brick = {brick, brick:gsub(":","_")..".png"}
+    brick = {brick, raw[2].."^"..brickpattern}
     local block = raw[1].."_block"
-    block = {block, block:gsub(":","_")..".png"}
+    block = {block, raw[2].."^"..blockpattern}
 
     --register raw
     minetest.register_node(raw[1], {
