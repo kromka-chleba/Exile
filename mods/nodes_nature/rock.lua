@@ -121,28 +121,36 @@ for i in ipairs(rock_list) do
 
     --harder rocks drop boulders
     local g = {cracky = hardness, stone = 1}
-    local dropped = "nodes_nature:"..name.."_boulder"
     local s = nodes_nature.node_sound_stone_defaults()
 
+    local raw = core.get_current_modname()..":"..name
+    local boulder = raw.."_boulder"
+    local cobble = raw.."_cobble"
+    raw = {raw, raw:gsub(":","_")..".png"} -- name, texture
+    local brick = raw[1].."_brick"
+    brick = {brick, brick:gsub(":","_")..".png"}
+    local block = raw[1].."_block"
+    block = {block, block:gsub(":","_")..".png"}
+
     --register raw
-    minetest.register_node("nodes_nature:"..name, {
+    minetest.register_node(raw[1], {
                                description = desc,
-                               tiles = {"nodes_nature_"..name..".png"},
+                               tiles = {raw[2]},
                                stack_max = minimal.stack_max_bulky,
                                groups = g,
-                               drop = dropped,
+                               drop = boulder,
                                sounds = s,
     })
 
     --boulder
-    minetest.register_node("nodes_nature:"..name.."_boulder",{
+    minetest.register_node(boulder,{
                                description = S("@1 Boulder", desc),
                                exile_crafting = {
                                    material = name,
                                },
                                drawtype = "mesh",
                                mesh = "nodes_nature_boulder.obj",
-                               tiles = {"nodes_nature_"..name..".png"},
+                               tiles = {raw[2]},
                                stack_max = minimal.stack_max_bulky,
                                paramtype = "light",
                                paramtype2 = "facedir",
@@ -166,9 +174,9 @@ for i in ipairs(rock_list) do
     --blocks and bricks
     --drystone construction. (see tech for the mortared version)
     --Bricks are more portable.
-    minetest.register_node("nodes_nature:"..name.."_brick", {
+    minetest.register_node(brick[1], {
                                description = S("@1 Brick", desc),
-                               tiles = {"nodes_nature_"..name.."_brick.png"},
+                               tiles = {brick[2]},
                                paramtype2 = "facedir",
                                stack_max = minimal.stack_max_bulky *3,
                                groups = {cracky = hardness, falling_node = 1,
@@ -178,9 +186,9 @@ for i in ipairs(rock_list) do
     })
 
     --block is a shaped boulder, so has similar properties
-    minetest.register_node("nodes_nature:"..name.."_block", {
+    minetest.register_node(block[1], {
                                description = S("@1 Block", desc),
-                               tiles = {"nodes_nature_"..name.."_block.png"},
+                               tiles = {block[2]},
                                --drawtype = "nodebox",
                                --paramtype = "light",
                                --[[...fancy block
@@ -208,24 +216,24 @@ for i in ipairs(rock_list) do
     --hammer out blocks etc from boulder
     crafting.register_recipe({
             type = {"masonry_bench","hammer","hammering_block"},
-            output = "nodes_nature:"..name.."_block",
-            items = {"nodes_nature:"..name.."_boulder"},
+            output = block[1],
+            items = {boulder},
             level = 1,
             always_known = true,
     })
 
     crafting.register_recipe({
             type = {"hammer","hammering_block"},
-            output = "nodes_nature:"..name.."_cobble1 8",
-            items = {"nodes_nature:"..name.."_boulder"},
+            output = cobble.."1 8",
+            items = {boulder},
             level = 1,
             always_known = true,
     })
 
     crafting.register_recipe({
             type = "masonry_bench",
-            output = "nodes_nature:"..name.."_brick",
-            items = {"nodes_nature:"..name.."_cobble1 8"},
+            output = brick[1],
+            items = {cobble.."1 8"},
             level = 1,
             always_known = true,
     })
@@ -233,15 +241,15 @@ for i in ipairs(rock_list) do
     --recycle block (e.g. so can get iron ore)
     crafting.register_recipe({
             type = {"hammer_mixing","mixing_spot"},
-            output = "nodes_nature:"..name.."_boulder",
-            items = {"nodes_nature:"..name.."_block"},
+            output = boulder,
+            items = {block[1]},
             level = 1,
             always_known = true,
     })
     crafting.register_recipe({
             type = {"hammer_mixing","mixing_spot"},
-            output = "nodes_nature:"..name.."_cobble1 8",
-            items = {"nodes_nature:"..name.."_brick"},
+            output = cobble.."1 8",
+            items = {brick[1]},
             level = 1,
             always_known = true,
     })
@@ -252,12 +260,12 @@ for i in ipairs(rock_list) do
     --brick
     stairs.register_stair_and_slab(
         name.."_brick",
-        "nodes_nature:"..name.."_brick",
+        brick[1],
         "masonry_bench_bricks",
         "true",
         "masonry_bench_mixing",
         {cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
-        {"nodes_nature_"..name.."_brick.png" },
+        {brick[2]},
         S("@1 Brick Stair", desc),
         S("@1 Brick Slab", desc),
         minimal.stack_max_bulky * 6,
@@ -267,12 +275,12 @@ for i in ipairs(rock_list) do
     --block
     stairs.register_stair_and_slab(
         name.."_block",
-        "nodes_nature:"..name.."_block",
+        block[1],
         "masonry_bench_blocks",
         "false",
         "masonry_bench_mixing",
         {cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
-        {"nodes_nature_"..name.."_block.png" },
+        {block[2]},
         S("@1 Block Stair", desc),
         S("@1 Block Slab", desc),
         minimal.stack_max_bulky * 4,
@@ -289,19 +297,19 @@ for i in ipairs(rock_list) do
     -- cobbles
     for cobble_nr = 1, 3 do
         minetest.register_node(
-            "nodes_nature:"..name.."_cobble"..cobble_nr,{
+            cobble..cobble_nr,{
                 description = S("@1 Cobble", desc),
                 exile_crafting = {
                     material = name,
                 },
                 drawtype = "mesh",
                 mesh = "nodes_nature_cobble"..cobble_nr..".obj",
-                tiles = {"nodes_nature_"..name..".png"},
+                tiles = {raw[2]},
                 stack_max = minimal.stack_max_bulky * 8,
                 paramtype = "light",
                 paramtype2 = "facedir",
                 groups = cobble_groups,
-                drop = "nodes_nature:"..name.."_cobble1",
+                drop = cobble.."1",
                 on_place = function(itemstack, placer, pointed_thing)
                     return cobble_on_place(itemstack, placer,
                                            pointed_thing, name)
