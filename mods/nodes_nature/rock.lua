@@ -38,12 +38,15 @@ for i in ipairs(stone_list) do
     -- default soft pattern, reg for regular, otherwise utilizes what was provided
     brickpattern = brickpattern == "reg" and "nodes_nature_brick_pattern.png" or brickpattern or
       "nodes_nature_brick_pattern_soft.png"
+    local blockpattern = stone_list[i][7]
+    blockpattern = blockpattern == "reg" and "nodes_nature_block_pattern.png" or blockpattern or
+      "nodes_nature_block_pattern_soft.png"
 
     -- declare for ease of use
     local raw = core.get_current_modname()..":"..name
     raw = {raw, raw:gsub(":","_")..".png"} -- name, texture
     local block = raw[1].."_block"
-    block = {block, block:gsub(":","_")..".png"}
+    block = {block, raw[2].."^"..blockpattern}
     local brick = raw[1].."_brick"
     brick = {brick, raw[2].."^"..brickpattern}
     -- group
