@@ -35,13 +35,19 @@ for i in ipairs(stone_list) do
     local sediment = stone_list[i][5]
 
 
-
-
+    -- declare for ease of use
+    local raw = core.get_current_modname()..":"..name
+    raw = {raw, raw:gsub(":","_")..".png"} -- name, texture
+    local block = raw[1].."_block"
+    block = {block, block:gsub(":","_")..".png"}
+    local brick = raw[1].."_brick"
+    brick = {brick, brick:gsub(":","_")..".png"}
+    -- group
     g = {cracky = hardness, crumbly = 1, soft_stone = 1}
     dropped = { max_items = 1,
                 items = {
                     { tools = { "artifacts:antiquorium_chisel" },
-                      items = { "nodes_nature:"..name.."_block" } },
+                      items = { block[1] } },
                     { items = { sediment } }
                 }
     }
@@ -49,9 +55,9 @@ for i in ipairs(stone_list) do
         {footstep = {name = "nodes_nature_hard_footstep", gain = 0.25},})
 
     --register raw
-    minetest.register_node("nodes_nature:"..name, {
+    minetest.register_node(raw[1], {
                                description = desc,
-                               tiles = {"nodes_nature_"..name..".png"},
+                               tiles = {raw[2]},
                                stack_max = minimal.stack_max_bulky,
                                groups = g,
                                drop = dropped,
@@ -61,9 +67,9 @@ for i in ipairs(stone_list) do
     --blocks and bricks
     --drystone construction. (see tech for the mortared version)
     --Bricks are more portable.
-    minetest.register_node("nodes_nature:"..name.."_brick", {
+    minetest.register_node(brick[1], {
                                description = S("@1 Brick", desc),
-                               tiles = {"nodes_nature_"..name.."_brick.png"},
+                               tiles = {brick[2]},
                                paramtype2 = "facedir",
                                stack_max = minimal.stack_max_bulky *3,
                                groups = {cracky = hardness, falling_node = 1,
@@ -73,9 +79,9 @@ for i in ipairs(stone_list) do
     })
 
     --block is cut from stone with a chisel, can be masonry'd to brick
-    minetest.register_node("nodes_nature:"..name.."_block", {
+    minetest.register_node(block[1], {
                                description = S("@1 Block", desc),
-                               tiles = {"nodes_nature_"..name.."_block.png"},
+                               tiles = {block[2]},
                                stack_max = minimal.stack_max_bulky *2,
                                groups = {cracky = hardness, falling_node = 1,
                                          oddly_breakable_by_hand = 1,
@@ -86,12 +92,12 @@ for i in ipairs(stone_list) do
     --brick
     stairs.register_stair_and_slab(
         name.."_brick",
-        "nodes_nature:"..name.."_brick",
+        brick[1],
         "masonry_bench_bricks",
         "true",
         "masonry_bench_bricks",
         {cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
-        {"nodes_nature_"..name.."_brick.png" },
+        {brick[2]}, -- tiles
         S("@1 Brick Stair",desc),
         S("@1 Brick Slab",desc),
         minimal.stack_max_bulky * 6,
@@ -100,8 +106,8 @@ for i in ipairs(stone_list) do
 
     crafting.register_recipe({
             type = "masonry_bench_bricks",
-            output = "nodes_nature:"..name.."_brick",
-            items = {"nodes_nature:"..name.."_block"},
+            output = brick[1],
+            items = {block[1]},
             level = 1,
             always_known = true,
     })
