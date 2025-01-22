@@ -6,12 +6,14 @@ local S = nodes_nature.S
 --sedimentary rocks can be deconstructed into sediment, but not reformed
 --sedimentary rocks are of the weakly consolidated soft variety
 
+-- name, desc, hardness, 'type', sediment, brick pattern, block pattern
 nodes_nature.stone_list = {
     {"sandstone", S("Sandstone"),3, "sediment", "nodes_nature:sand",},
     {"siltstone", S("Siltstone"), 3, "sediment", "nodes_nature:silt",},
     {"claystone", S("Claystone"), 3, "sediment", "nodes_nature:clay",},
-    {"conglomerate", S("Conglomerate"), 3, "sediment", "nodes_nature:gravel",},
+    {"conglomerate", S("Conglomerate"), 3, "sediment", "nodes_nature:gravel", "reg", "reg"},
 }
+-- name, desc, hardness, brick pattern, block pattern
 nodes_nature.rock_list = {
     {"coquina", S("Coquina"), 3},
     {"limestone", S("Limestone"), 3},
@@ -20,7 +22,7 @@ nodes_nature.rock_list = {
     {"basalt", S("Basalt"), 2},
     {"scoria", S("Scoria"), 3},
     {"gneiss", S("Gneiss"), 1},
-    {"jade", S("Jade"), 1},
+    {"jade", S("Jade"), 1, "nodes_nature_brick_pattern_jade.png", "nodes_nature_block_pattern_jade.png"},
 
 }
 
