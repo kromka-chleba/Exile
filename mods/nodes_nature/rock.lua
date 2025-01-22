@@ -33,7 +33,11 @@ for i in ipairs(stone_list) do
     --local type = stone_list[i][4]
     -- #TODO: what was this for?
     local sediment = stone_list[i][5]
-
+    -- brick and block patterns
+    local brickpattern = stone_list[i][6]
+    -- default soft pattern, reg for regular, otherwise utilizes what was provided
+    brickpattern = brickpattern == "reg" and "nodes_nature_brick_pattern.png" or brickpattern or
+      "nodes_nature_brick_pattern_soft.png"
 
     -- declare for ease of use
     local raw = core.get_current_modname()..":"..name
@@ -41,7 +45,7 @@ for i in ipairs(stone_list) do
     local block = raw[1].."_block"
     block = {block, block:gsub(":","_")..".png"}
     local brick = raw[1].."_brick"
-    brick = {brick, raw[2].."^nodes_nature_brick_pattern_soft.png"}
+    brick = {brick, raw[2].."^"..brickpattern}
     -- group
     g = {cracky = hardness, crumbly = 1, soft_stone = 1}
     dropped = { max_items = 1,
