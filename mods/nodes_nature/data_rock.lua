@@ -8,7 +8,7 @@ local S = nodes_nature.S
 
 -- name, desc, hardness, 'type', sediment, brick pattern, block pattern
 nodes_nature.stone_list = {
-    {"sandstone", S("Sandstone"),3, "sediment", "nodes_nature:sand",},
+    {"sandstone", S("Sandstone"),3, "sediment", "nodes_nature:sand", "reg"},
     {"siltstone", S("Siltstone"), 3, "sediment", "nodes_nature:silt",},
     {"claystone", S("Claystone"), 3, "sediment", "nodes_nature:clay", "reg", "reg"},
     {"conglomerate", S("Conglomerate"), 3, "sediment", "nodes_nature:gravel", "reg", "reg"},
