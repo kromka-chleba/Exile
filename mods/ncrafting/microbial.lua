@@ -1,4 +1,5 @@
 ncrafting = ncrafting
+local S = ncrafting.S
 
 local function microbial_infection(player, pos, nodedef, itemstack, idef)
     -- need player and pos
@@ -24,8 +25,8 @@ local function microbial_infection(player, pos, nodedef, itemstack, idef)
         minimal.sound_play(minimal.merge_tables(infect_sound, {pos = pos}))
     end
     -- successfully infected, take away item and run on_successful_infection
-    if type(idef.on_successful_function) == "function" then
-        idef.on_successful_function(player, pos, nodedef, itemstack, idef)
+    if type(idef.on_successful_infection) == "function" then
+        idef.on_successful_infection(player, pos, nodedef, itemstack, idef)
     end
     if not minimal.player_in_creative(player) then
         itemstack:take_item()
@@ -59,7 +60,7 @@ function ncrafting.register_spreadable_microbe(name, def)
     def.on_successful_infection = def.on_successful_infection or def.on_success_infection ~= false and
       function(player, pos, nodedef, itemstack, idef)
           minimal.send_message(player, nil,
-            S("@1 added to the @2", idef.description, nodedef.description))
+            S("@1 added to the @2", itemstack:get_short_description(), nodedef.description))
       end or nil
     -- the function that'll handle infecting stuff
     def.on_place = def.on_place or def.on_place ~= false and
