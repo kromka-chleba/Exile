@@ -59,8 +59,9 @@ function ncrafting.register_spreadable_microbe(name, def)
     -- ditto to sound, false to prevent registration
     def.on_successful_infection = def.on_successful_infection or def.on_success_infection ~= false and
       function(player, pos, nodedef, itemstack, idef)
+          -- get short description of item and nodedef
           minimal.send_message(player, nil,
-            S("@1 added to the @2", itemstack:get_short_description(), nodedef.description))
+            S("@1 added to the @2", itemstack:get_short_description(), ItemStack(nodedef.name):get_short_description()))
       end or nil
     -- the function that'll handle infecting stuff
     def.on_place = def.on_place or def.on_place ~= false and
