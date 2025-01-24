@@ -185,10 +185,12 @@ HEALTH.bake_table = {
     ['tech:maraka_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'},
     ['tech:rhuya_dough_fermented'] = {temp = 110, time = 4, cooked='tech:bread_crumbly', burned='tech:bread_burned'},
     ['tech:rhuya_wintery_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'},
+    ['tech:barszcz_dough_fermented'] = {temp = 110, time = 5, cooked='tech:bread_black', burned='tech:bread_burned'},
     -- unleavened breads
     ['tech:maraka_dough'] = {temp = 110, time = 4, cooked='tech:bread_unleavened', burned='tech:bread_burned'},
     ['tech:rhuya_dough'] = {temp = 110, time = 3, cooked='tech:bread_unleavened_crumbly', burned='tech:bread_burned'},
     ['tech:rhuya_wintery_dough'] = {temp = 110, time = 4, cooked='tech:bread_unleavened', burned='tech:bread_burned'},
+    ['tech:barszcz_dough'] = {temp = 110, time = 3, cooked='tech:bread_unleavened', burned='tech:bread_burned'},
     -- all-purpose breads
     ['tech:all_dough'] = {temp = 110, time = 3, cooked='tech:bread_unleavened_all', burned='tech:bread_burned'},
     ['tech:all_dough_fermented'] = {temp = 110, time = 4, cooked='tech:bread_all', burned='tech:bread_burned'}
