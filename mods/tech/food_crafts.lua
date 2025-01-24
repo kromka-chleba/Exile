@@ -345,6 +345,51 @@ minetest.register_node(
         paramtype = "light"
 })
 
+-- BARSHOCHA FLOUR
+-- needs to be treated with lye (potash solution) to remove toxins
+minetest.register_node(
+    "tech:barszcz_flour_raw", {
+        description = S("Uncured Barshocha Flour"),
+        tiles = {"tech_flour.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, flour=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+        on_construct = function(pos)
+            ncrafting.start_soak(pos, 100, 10)
+        end,
+        on_timer = function(pos, elapsed)
+            -- requires lye to cure
+            return ncrafting.do_soak(pos, "tech:barszcz_flour", 10, elapsed, function(above)
+                above = core.get_node(above)
+                if above.name == "tech:potash_flowing" or above.name == "tech:potash_source" then
+                    return true
+                end
+            end)
+        end
+})
+
+-- bready flour
+minetest.register_node(
+    "tech:barszcz_flour", {
+        description = S("Cured Barshocha Flour"),
+        tiles = {"tech_flour_strong.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, flour=1, bread_flour=1, lye_flour=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
 ---- DOUGHS
 
 -- dough fermentation mechanics
