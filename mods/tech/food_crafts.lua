@@ -349,7 +349,7 @@ minetest.register_node(
 minetest.register_node(
     "tech:barszcz_flour_raw", {
         description = S("Uncured Barshocha Flour"),
-        tiles = {"tech_flour.png"},
+        tiles = {"tech_flour_bitter.png"},
         stack_max = minimal.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
@@ -985,6 +985,16 @@ crafting.register_recipe({
     always_known = true,
 })
 
+-- grind barshocha roots into flour
+
+crafting.register_recipe({
+    type = {"mortar_and_pestle"},
+    output = "tech:barszcz_flour_raw",
+    items = {"nodes_nature:barszcz_root 6"},
+    level = 1,
+    always_known = true,
+})
+
 -- mix bready flours into all-purpose
 
 crafting.register_recipe({
@@ -1000,7 +1010,7 @@ crafting.register_recipe({
 for dough,flour in pairs(
   {["tech:maraka_dough"] = "tech:maraka_bread_cooked 12",
   ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked",
-  ["tech:all_dough"] = "tech:all_flour"}) do
+  ["tech:all_dough"] = "tech:all_flour", ["tech:barszcz_dough"] = "tech:barszcz_flour"}) do
     -- get count from itemstring
     local count = tonumber(flour:match"%s%d+") -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
     if not count then
