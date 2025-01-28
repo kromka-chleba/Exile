@@ -2,8 +2,6 @@ local mod_name = minetest.get_current_modname()
 local mod_path = minetest.get_modpath(mod_name)
 local ms = mapchunk_shepherd
 
-dofile(mod_path.."/shepherd_labels.lua")
-
 -- Finds ocean
 ms.create_biome_finder({
         biome_list = {
