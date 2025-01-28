@@ -87,12 +87,12 @@ end
 local function is_illness_valid(player,meta,life_num)
     -- general function that will decide whether a sickness
     -- should continue or not
-    if player:get_hp() <= 0 then
-        return false
-    end
-    if not meta then
-        meta = player:get_meta()
-    end
+    -- not a player
+    if not core.is_player(player) then return false end
+    -- we ded
+    if player:get_hp() <= 0 then return false end
+    -- now check
+    meta = meta or player:get_meta()
     if (life_num == get_life_num(meta)) then
         -- if assigned life_num to effect was the current player then say illness
         --  is valid and good to go :D (poor player lol)
