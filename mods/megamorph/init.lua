@@ -751,7 +751,7 @@ minetest.after(
         options['artifacts:transporter_focalizer'] =  { 1, 6, nil }
         options['artifacts:transporter_power_dep'] =  { 1, 6, nil }
         options['artifacts:transporter_power'] =  { 1, 6, nil }
-        options['artifacts:transporter_pad'] =  { 1, 6, nil }
+        options['artifacts:transporter_pad'] =  { 1, 5, nil }
 
         options['nodes_nature:lambakap_seed'] =  { 1, 6, 4 }
         options['nodes_nature:reshedaar_seed'] =  { 1, 6, 4 }
