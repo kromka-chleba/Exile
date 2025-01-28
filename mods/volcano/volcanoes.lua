@@ -10,8 +10,6 @@ local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 local ms = mapchunk_shepherd
 
-ms.tag.register("volcano")
-
 local volcano = volcano or {}
 
 --
