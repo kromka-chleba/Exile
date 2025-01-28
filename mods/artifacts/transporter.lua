@@ -428,7 +428,7 @@ local function transporter_rightclick(pos, node, player,
         if stretch > 0 then
             if 10 + rand(0, 100) >= stretch then
                 -- 10% base chance for at/near the pad
-                if stretch * rand() > 33 then -- near miss of the pad
+                if rand() > .33 then -- near miss of the pad
                     random = "random"
                 end
             else -- big miss, maybe as much as 900m away with max stretch
