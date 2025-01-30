@@ -22,6 +22,14 @@ function player_api.get_clothing_groups()
     return cloth_groups
 end
 
+local cloth_inv_lookup = {}
+for i, this in ipairs(cloth_groups) do
+    cloth_inv_lookup[this.name] = i
+end
+function player_api.is_clothing_slot(name)
+    if cloth_inv_lookup[name] then return true end
+end
+
 -- return matching player inventory name with group number
 function player_api.get_inv_name_from_group(nb)
 	local t = cloth_groups[nb]

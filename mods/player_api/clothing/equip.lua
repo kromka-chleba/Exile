@@ -12,8 +12,6 @@ Temperatures and formspec are updated at each equip/unequip action.
 player_api = player_api
 sfinv = sfinv
 
-local cloth_groups = player_api.get_clothing_groups()
-
 -- Internationalization---------------------------------------------------------
 local S = minetest.get_translator("player_api")
 local FS = function(...)
@@ -109,7 +107,7 @@ sfinv.register_page("clothing:clothing", clothing_page)
 
 -- Refuse or accept move of this stack to clothing slots
 -- return the number allowed and the destination inventory name
-local function allow_cloth_equip (player, inventory, stack)
+local function allow_cloth_equip (player, inventory, stack, to_slot)
     if stack then
         local item_group = minimal.is_group(stack:get_name(),"cloth")
         -- refuse the move if not a cloth
@@ -124,17 +122,19 @@ local function allow_cloth_equip (player, inventory, stack)
             return 0
         end
 
-        local destination = player_api.get_inv_name_from_group(item_group)
-
+        local rightplace = player_api.get_inv_name_from_group(item_group)
+        if to_slot and to_slot ~= rightplace then
+            return 0 -- This is the wrong slot
+        end
         -- else, if I am already wearing the same thing
-        if inventory:get_stack(destination, 1):get_name() == stack:get_name() then
+        if inventory:get_stack(rightplace, 1):get_name() == stack:get_name() then
             minimal.send_message(
                 player, nil,
                 S("You already wear that!"))
             return 0
             -- else allow 1 to destination
         else
-            return 1, destination
+            return 1, rightplace
         end
     end
 end
@@ -146,9 +146,11 @@ minetest.register_allow_player_inventory_action(
 function(player, action,inventory, inventory_info)
     -- close old cloths
     -- used for shift click, cloths as transitory inv
-    if inventory_info.to_list == "temp_slot" then
+    local dest_slot = inventory_info.to_list
+    if dest_slot == "temp_slot" then
         if action == "move" then
-            local stack = inventory:get_stack(inventory_info.from_list, inventory_info.from_index)
+            local stack = inventory:get_stack(inventory_info.from_list,
+                                              inventory_info.from_index)
             if allow_cloth_equip(player, inventory, stack) == 0 then
                 return 0
             else
@@ -158,18 +160,14 @@ function(player, action,inventory, inventory_info)
         end
     end
 
-    -- if destination is a cloth inventory
-    for group,t in ipairs(cloth_groups) do
-        local name = t["name"]
-        if  inventory_info.to_list ==  name then
-            if action == "move" then
-                local stack = inventory:get_stack(inventory_info.from_list, inventory_info.from_index)
-                return allow_cloth_equip(player, inventory, stack)
-            end
+    if player_api.is_clothing_slot(dest_slot) then
+        if action == "move" then
+            local stack = inventory:get_stack(inventory_info.from_list,
+                                              inventory_info.from_index)
+            return allow_cloth_equip(player, inventory, stack, dest_slot)
         end
     end
     -- in any other cases, allow the action
-    return -- I am not sure about that return (useful ?)
 end)
 
 -- Redirect cloths to the correct inventory if shift-click was used to equip
@@ -212,15 +210,12 @@ minetest.register_on_player_inventory_action(function(player, action,
     local to_list = inventory_info.to_list
     local listname = inventory_info.listname
     -- update player settings if we add/remove cloths
-    for _, group in ipairs(cloth_groups) do
-        if from_list == group["name"]
-            or to_list == group["name"]
-            or listname == group["name"] then
-            -- update texture and temp settings
-            --[[#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus during the process since I added setting button in sfinv : it seems this is linked to the fact that the gear button gets the focus]]
-            core.after(0.1, player_api.update_player, player)
-            break
-        end
+    if player_api.is_clothing_slot(from_list) or
+        player_api.is_clothing_slot(to_list) or
+        player_api.is_clothing_slot(listname) then
+        -- update texture and temp settings
+        --[[#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus during the process since I added setting button in sfinv : it seems this is linked to the fact that the gear button gets the focus]]
+        core.after(0.1, player_api.update_player, player)
     end
     -- if shift click brought item from inventory to be redirected
     if to_list == "temp_slot" then
