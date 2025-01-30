@@ -12,7 +12,7 @@ Temperatures and formspec are updated at each equip/unequip action.
 player_api = player_api
 sfinv = sfinv
 
-local cloth_groups = player_api.get_groups()
+local cloth_groups = player_api.get_clothing_groups()
 
 -- Internationalization---------------------------------------------------------
 local S = minetest.get_translator("player_api")
@@ -125,6 +125,7 @@ local function allow_cloth_equip (player, inventory, stack)
         end
 
         local destination = player_api.get_inv_name_from_group(item_group)
+
         -- else, if I am already wearing the same thing
         if inventory:get_stack(destination, 1):get_name() == stack:get_name() then
             minimal.send_message(

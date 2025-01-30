@@ -18,7 +18,7 @@ local cloth_groups = {
 }
 
 -- get inv cloth lists
-function player_api.get_groups()
+function player_api.get_clothing_groups()
     return cloth_groups
 end
 

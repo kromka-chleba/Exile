@@ -41,7 +41,7 @@ function player_api.update_player(player)
     -- Keeps new inv slots in sync with old "cloths" inventory (deprecated)
     do
         local pinv = player:get_inventory()
-        for i,group in ipairs(player_api.get_groups()) do
+        for i,group in ipairs(player_api.get_clothing_groups()) do
             pinv:set_stack("cloths",i, pinv:get_stack(group["name"],1))
         end
     end
