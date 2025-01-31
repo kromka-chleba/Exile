@@ -200,9 +200,10 @@ local function is_mushroom(pos, mdef)
     return mdef.groups and mdef.groups.mushroom and mdef.groups.mushroom > 0
 end
 
-function nn.plant.get_light(pos)
+-- time of day
+function nn.plant.get_light(pos, tod)
     local pos_above = minimal.get_pos_above(pos)
-    local natural = minimal.get_daylight(pos_above) or 0
+    local natural = minimal.get_daylight(pos_above, tod) or 0
     local artificial = minetest.get_node_light(pos_above) or 0
     if artificial > natural then
         return artificial
@@ -373,7 +374,8 @@ end
 -- does not account for current lighting (night time) only light at day
 local function was_light_here(pos, elapsed, pdef)
     -- 30 cycles without light kill a plant
-    local light = minimal.get_daylight(minimal.get_pos_above(pos), 0.5) or 0
+    -- get_daylight causes issues with catchup and underground farming
+    local light = nn.plant.get_light(pos, 0.5)--minimal.get_daylight(minimal.get_pos_above(pos), 0.5) or 0
     if light < pdef.plant_light_range.min and
         elapsed > base_health * nn.plant_base_timer then
         return false
@@ -383,7 +385,8 @@ end
 
 local function kill_no_light(pos, elapsed, pdef, meta)
     pdef = pdef or minimal.get_nodedef(pos)
-    if not is_mushroom(pos, pdef) and not was_light_here(pos, elapsed, pdef) then
+    -- if min is over than 0, then we likely depend on light
+    if pdef.plant_light_range.min > 0 and not was_light_here(pos, elapsed, pdef) then
         nn.plant.kill(pos, false, pdef, meta)
         return true
     end
