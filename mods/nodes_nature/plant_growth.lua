@@ -408,7 +408,7 @@ end
 
 local is_winter = seasons.is_winter
 
-local function step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
+local function step_through_life_stage(pos, growing_left, elapsed, pdef, meta)
     local pnode = minetest.get_node(pos) -- plant node
     pdef = pdef or core.registered_nodes[pnode.name]
     meta = meta or minetest.get_meta(pos)
@@ -417,7 +417,7 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
     local finished -- used to determine if we should erase metadata
     while growing_left < 0 do
         pdef = pdef._next_life_stage and core.registered_nodes[pdef._next_life_stage] or pdef
-        growing_left = growing_left + growing_time
+        growing_left = growing_left + pdef.plant_growing_time
         -- #TODO: fix non-fruiting/flowering plants having no nodetimer
         -- erases metadata of plants without node timer functionality
         if not pdef.on_timer then
@@ -429,7 +429,7 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
     pnode.name = pdef.name -- update node name here
     minimal.switch_node(pos, pnode) -- save meta (incase custom meta is set)
     -- as mentioned above, clear meta of plants without nodetimer functionality
-    if finished then clear_meta(meta, data) return end
+    if finished then return clear_meta(meta, data) end
     -- if not fruiting, set growing_left otherwise do NOT set growing
     -- round growing_left
     data.fields.growth = not (pdef.groups and pdef.groups.fruiting_plant) and math.floor(growing_left + 0.5) or nil
@@ -630,8 +630,7 @@ function nn.plant.grow_plant(pos, elapsed_full)
         -- set to wild if we're currently the same name as our type in the specific season
         elseif pdef["_"..seasons.get_season_name()] == pdef.name then
             nn.plant.set_to_wild(pos, pdef)
-            clear_meta(meta) -- clear meta
-            return
+            return clear_meta(meta) -- clear meta
         end
     end
     -- KILL OR HURT
@@ -680,8 +679,7 @@ function nn.plant.grow_plant(pos, elapsed_full)
         local growing_left = meta:get_int("growth") - progress
         -- let's play some catchup!
         if growing_left < 0 then
-            local growing_time = pdef.plant_growing_time
-            step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
+            step_through_life_stage(pos, growing_left, elapsed, pdef, meta)
         -- set growth normally otherwise
         else
             meta:set_int("growth", growing_left)
