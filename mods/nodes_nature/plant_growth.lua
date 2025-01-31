@@ -598,11 +598,12 @@ function nn.plant.start_growing_plant(pos, growing_time, is_fruiting)
 end
 
 function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
-    local param2 = minimal.get_param2(pos)
+    local pnode = core.get_node(pos)
+    local pdef = core.registered_nodes[pnode.name]
+    if not pdef then return end -- how was this run???
+    local param2 = pnode.param2
     if param2 < 63 then return end -- No reason to run on wild plants
     local meta = minetest.get_meta(pos)
-    local pdef = minimal.get_nodedef(pos)
-    if not pdef then return end -- how was this run???
     local elapsed = elapsed_full + seed_elapsed(meta)
     local current_progress = current_growth_progress(pos, elapsed)
     local past_progress = past_growth_progress(pos, elapsed)
