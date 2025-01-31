@@ -586,17 +586,20 @@ function nn.plant.death_chance_on_replant(pos)
     end
 end
 
-function nn.plant.start_growing_plant(pos, growing_time, is_fruiting, meta)
+function nn.plant.start_growing_plant(pos, pdef, meta)
+    pdef = pdef or minimal.get_nodedef(pos)
+    if not pdef then return end -- how!
+    local growingtime = pdef.plant_growing_time
     local nodetime = math.ceil(nn.plant_base_timer * math.random(90,110)/100)
-    if not is_fruiting then
+    if growingtime and not (pdef.groups and pdef.groups.fruiting_plant) then
         meta = meta or core.get_meta(pos)
-        meta:set_int("growth", growing_time)
+        meta:set_int("growth", growingtime)
     end
     local timer = minetest.get_node_timer(pos)
     timer:start(nodetime)
 end
 
-function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
+function nn.plant.grow_plant(pos, elapsed_full)
     local pnode = core.get_node(pos)
     local pdef = core.registered_nodes[pnode.name]
     if not pdef then return end -- how was this run???
@@ -677,6 +680,7 @@ function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
         local growing_left = meta:get_int("growth") - progress
         -- let's play some catchup!
         if growing_left < 0 then
+            local growing_time = pdef.plant_growing_time
             step_through_life_stage(pos, growing_time, growing_left, elapsed, pdef, meta)
         -- set growth normally otherwise
         else

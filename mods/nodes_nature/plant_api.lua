@@ -446,6 +446,7 @@ function plant.get_base_props(plant_def)
         -- ranges
         plant_temp_range = plant_def.temp_range,
         plant_light_range = plant_def.light_range,
+        plant_growing_time = plant_def.growing_time,
         -- soil prefs
         plant_soil_preferences = plant_def.soil_preferences,
 
@@ -570,15 +571,13 @@ function plant.get_seedling_base_props(plant_def)
         groups = plant.get_seedling_groups(plant_def),
         _next_life_stage = plantname,
         on_timer = function(pos, elapsed)
-            return plant.grow_plant(pos, elapsed,
-                                    plant_def.growing_time,
-                                    plant_def.soil_preferences)
+            return plant.grow_plant(pos, elapsed)
         end,
         on_place = function(itemstack, placer, pointed_thing)
             return on_place_plant(itemstack, placer, pointed_thing)
         end,
         on_construct = function(pos)
-            plant.start_growing_plant(pos, plant_def.growing_time)
+            plant.start_growing_plant(pos)
         end,
     }
     return table.copy(minimal.merge_tables(plant.get_base_props(plant_def),
@@ -636,15 +635,13 @@ function plant.get_plantlike_flowering_props(plant_def)
     base.wield_image = texture
     base.groups = minimal.merge_tables(base.groups, {flowering_plant = 1})
     base.on_timer = function(pos, elapsed)
-        return plant.grow_plant(pos, elapsed,
-                                plant_def.growing_time,
-                                plant_def.soil_preferences)
+        return plant.grow_plant(pos, elapsed)
     end
     base.on_place = function(itemstack, placer, pointed_thing)
         return on_place_plant(itemstack, placer, pointed_thing)
     end
     base.on_construct = function(pos)
-        plant.start_growing_plant(pos, plant_def.growing_time)
+        plant.start_growing_plant(pos)
     end
     if plant_def.dye_candidate then
         base.groups.ncrafting_dye_candidate = 1
@@ -689,7 +686,7 @@ function plant.get_plantlike_fruiting_props(plant_def)
     base.on_punch = fruiting_on_punch
     -- won't set growth meta
     base.on_construct = function(pos)
-        nn.plant.start_growing_plant(pos, plant_def.growing_time, true)
+        nn.plant.start_growing_plant(pos)
     end
     return table.copy(base)
 end
