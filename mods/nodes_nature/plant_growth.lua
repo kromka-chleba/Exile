@@ -412,11 +412,7 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
     local data = meta:to_table()
     if not (data and data.fields) then return end -- could not get data properly this time around
     while growing_left < 0 do
-        if pdef._next_life_stage then
-            pdef = pdef._next_life_stage and minetest.registered_nodes[pdef._next_life_stage] or pdef
-            pnode.name = pdef.name -- update node name here
-            minimal.switch_node(pos, pnode) -- save meta (incase custom meta is set)
-        end
+        pdef = pdef._next_life_stage and core.registered_nodes[pdef._next_life_stage] or pdef
         -- #TODO: fix non-fruiting/flowering plants having no nodetimer
         -- erases metadata of plants without node timer functionality
         if not pdef.on_timer then
@@ -425,6 +421,9 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
         end
         growing_left = growing_left + growing_time
     end
+    -- set new node
+    pnode.name = pdef.name -- update node name here
+    minimal.switch_node(pos, pnode) -- save meta (incase custom meta is set)
     -- if not fruiting, set growing_left otherwise do NOT set growing
     -- round growing_left
     data.fields.growth = not (pdef.groups and pdef.groups.fruiting_plant) and math.floor(growing_left + 0.5) or nil
