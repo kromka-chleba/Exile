@@ -547,10 +547,9 @@ end
 ------------------ Global functions of the API ------------------
 
 function nn.plant.start_growing_seed(pos)
-    local timer_min = nn.seed_growing_time * 0.75
-    local timer_max = nn.seed_growing_time * 1.25
+    local nodetime = math.ceil(nn.seed_growing_time * math.random(75,125)/100)
     local timer = minetest.get_node_timer(pos)
-    timer:start(math.random(timer_min, timer_max))
+    timer:start(nodetime)
 end
 
 function nn.plant.grow_seed(pos, elapsed, pdef, meta)
@@ -587,14 +586,14 @@ function nn.plant.death_chance_on_replant(pos)
     end
 end
 
-function nn.plant.start_growing_plant(pos, growing_time, is_fruiting)
-    local timer_min = nn.plant_base_timer * 0.9
-    local timer_max = nn.plant_base_timer * 1.1
+function nn.plant.start_growing_plant(pos, growing_time, is_fruiting, meta)
+    local nodetime = math.ceil(nn.plant_base_timer * math.random(90,110)/100)
     if not is_fruiting then
-        minimal.node_set_int(pos, "growth", growing_time)
+        meta = meta or core.get_meta(pos)
+        meta:set_int("growth", growing_time)
     end
     local timer = minetest.get_node_timer(pos)
-    timer:start(math.random(timer_min, timer_max))
+    timer:start(nodetime)
 end
 
 function nn.plant.grow_plant(pos, elapsed_full, growing_time, soil_prefs)
