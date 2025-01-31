@@ -414,22 +414,26 @@ local function step_through_life_stage(pos, growing_time, growing_left, elapsed,
     meta = meta or minetest.get_meta(pos)
     local data = meta:to_table()
     if not (data and data.fields) then return end -- could not get data properly this time around
+    local finished -- used to determine if we should erase metadata
     while growing_left < 0 do
         pdef = pdef._next_life_stage and core.registered_nodes[pdef._next_life_stage] or pdef
+        growing_left = growing_left + growing_time
         -- #TODO: fix non-fruiting/flowering plants having no nodetimer
         -- erases metadata of plants without node timer functionality
         if not pdef.on_timer then
-            clear_meta(meta, data)
-            return
+            finished = true
+            break
         end
-        growing_left = growing_left + growing_time
     end
     -- set new node
     pnode.name = pdef.name -- update node name here
     minimal.switch_node(pos, pnode) -- save meta (incase custom meta is set)
+    -- as mentioned above, clear meta of plants without nodetimer functionality
+    if finished then clear_meta(meta, data) return end
     -- if not fruiting, set growing_left otherwise do NOT set growing
     -- round growing_left
     data.fields.growth = not (pdef.groups and pdef.groups.fruiting_plant) and math.floor(growing_left + 0.5) or nil
+    data.fields.elapsed = nil -- erase catchup value (as we're done with it for now)
     meta:from_table(data) -- save data
     -- after we're done with growth we can check for season
     kill_climate_history(pos, elapsed, pdef, meta)
