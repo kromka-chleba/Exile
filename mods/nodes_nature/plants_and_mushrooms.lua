@@ -385,7 +385,7 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "black", dye_candidate = true,
      move_resistance = 4, seasonal_type = "late", winter_fruit = true,
-     fruit_description = S("Muhle Berries")},
+     fruit_description = S("Muhle Berries"), soil_prefs = hardy_gravel_soil_prefs},
 
     {name = "damo", description = S("Damo"),
      mesh_type = 4, plant_type = "fibrous_plant", waving = true,
