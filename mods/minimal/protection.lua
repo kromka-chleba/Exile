@@ -23,6 +23,7 @@ end
 local __open_access_list={}
 
 function minimal.protection_key_click(itemstack, clicker, pos, meta)
+    if not pos then return end
     if not core.is_player(clicker) then return end -- not a player
     meta = meta or minetest.get_meta(pos)
     local player_name = clicker:get_player_name()
