@@ -437,6 +437,8 @@ local function step_through_life_stage(pos, growing_left, elapsed, pdef, meta)
     end
     -- set new node
     pnode.name = pdef.name -- update node name here
+    -- turn semi-wild spread to wild
+    pnode.param2 = finished and (pnode.param2 > 127 and (pdef.place_param2 or 0)) or pnode.param2
     minimal.switch_node(pos, pnode) -- save meta (incase custom meta is set)
     -- as mentioned above, clear meta of plants without nodetimer functionality
     if finished then return clear_meta(meta, data) end
