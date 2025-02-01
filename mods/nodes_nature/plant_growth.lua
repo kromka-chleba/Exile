@@ -200,15 +200,15 @@ local function is_mushroom(pos, mdef)
     return mdef.groups and mdef.groups.mushroom and mdef.groups.mushroom > 0
 end
 
--- time of day
+-- get light above plant
+-- tod is timeofday used for natural light
 function nn.plant.get_light(pos, tod)
     local pos_above = minimal.get_pos_above(pos)
     local natural = minimal.get_daylight(pos_above, tod) or 0
     local artificial = minetest.get_node_light(pos_above) or 0
-    if artificial > natural then
-        return artificial
-    end
-    return natural
+    -- first is priority (return either artificial light leve or natural whichever is greatest)
+    -- return natural 2nd, artificial third
+    return artificial > natural and artificial or natural, natural, artificial
 end
 
 local function is_light_good(pos, pdef, light)
@@ -371,25 +371,35 @@ function nn.plant.kill(pos, natural_death, pdef, meta)
     clear_meta(meta) -- clear out plant-specific meta upon death
 end
 
--- does not account for current lighting (night time) only light at day
-local function was_light_here(pos, elapsed, pdef)
-    -- 30 cycles without light kill a plant
-    -- get_daylight causes issues with catchup and underground farming
-    local light = nn.plant.get_light(pos, 0.5)--minimal.get_daylight(minimal.get_pos_above(pos), 0.5) or 0
-    if light < pdef.plant_light_range.min and
-        elapsed > base_health * nn.plant_base_timer then
-        return false
-    end
-    return true
-end
-
-local function kill_no_light(pos, elapsed, pdef, meta)
-    pdef = pdef or minimal.get_nodedef(pos)
-    -- if min is over than 0, then we likely depend on light
-    if pdef.plant_light_range.min > 0 and not was_light_here(pos, elapsed, pdef) then
-        nn.plant.kill(pos, false, pdef, meta)
-        return true
-    end
+-- prefers natural light but permits artificial light at a cost
+local function catchup_progress_light(pos, elapsed, progress, pdef)
+    -- don't even have to catchup
+    if elapsed < base_health * nn.plant_base_timer then return progress end
+    -- we don't care about natural light
+    if pdef.plant_light_range.min <= 0 then return progress end
+    -- light will be either natural or artificial depending on whose greater - get light during noon
+    local light, natural, artificial = nn.plant.get_light(pos, .5)
+    -- if light BAD, we KILL
+    if not is_light_good(pos, pdef, light) then return end
+    -- if light is equal to natural found light (we can do a simple is equal check)
+    -- or permit a greater artificial long as long as natural is alright
+    if light == natural or is_light_good(pos, pdef, natural) then return progress end
+    -- time to check other stuff
+    if progress == 0 then return 0 end -- what, you want us to do calculations with this..?
+    -- we got artificial light, hmm... let's do some calculations about how much it hurts our progress
+    -- 60% of our progress only
+    progress = progress * .65
+    local min_prog = progress/3 -- minimum progress; as low as progress can get (third of progress)
+    -- get max and min
+    local max,min = pdef.plant_light_range.max,pdef.plant_light_range.min
+    -- subtract max and light by min for bettered calculation
+    max,light = max-min,light-min
+    -- check animals.age_mechanics for a similar explanation
+    -- basically clamp calculation between minimum progress (third of 65%) and 65% progress
+    -- divide it by the value of max light range divided by light
+    -- subtract by min
+    progress = min_prog+(progress-min_prog)/(max/light)
+    return progress
 end
 
 local function kill_extreme_temp(pos, elapsed, pdef, meta, temp)
@@ -610,9 +620,12 @@ function nn.plant.grow_plant(pos, elapsed_full)
     local current_progress = current_growth_progress(pos, elapsed)
     local past_progress = past_growth_progress(pos, elapsed)
     local temp = climate.get_point_temp(pos) -- temperature
-    -- we had no light so exit before catch up
-    if kill_no_light(pos, elapsed, pdef, meta) then
-        return false
+    -- check what our progress should be according to light (will be normal if not artificial light dependent)
+    current_progress = catchup_progress_light(pos, elapsed, current_progress, pdef)
+    -- oh, we ded! not enough light!
+    if not current_progress then
+        nn.plant.kill(pos, false, pdef, meta)
+        return
     end
     -- create health if not found
     local health = meta:get_int("health")
