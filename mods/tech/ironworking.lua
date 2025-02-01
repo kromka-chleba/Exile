@@ -256,17 +256,18 @@ crafting.register_recipe({
 ---------------------
 --save usage into inventory, to prevent infinite supply
 local on_dig_iron_and_slag = function(pos, node, digger)
-    if not digger or minetest.is_protected(pos,
-                                           digger:get_player_name()) then
+    if not core.is_player(digger) then return end
+    local meta = core.get_meta(pos)
+    if minetest.is_protected(pos, digger, meta) then
         return false
     end
-
-    local meta = minetest.get_meta(pos)
     local roast = meta:get_int("roast")
 
     local new_stack = ItemStack("tech:iron_and_slag")
     local stack_meta = new_stack:get_meta()
     stack_meta:set_int("roast", roast)
+
+    minimal.protection_on_dig(pos, node, digger, meta) -- give back nails if protected
 
     local player_inv = digger:get_inventory()
     if player_inv:room_for_item("main", new_stack) then
@@ -308,13 +309,8 @@ minetest.register_node(
             return roast(pos, "tech:iron_and_slag",
                          "tech:iron_bloom", 50, 1350, true)
         end,
-
-        on_dig = function(pos, node, digger)
-            on_dig_iron_and_slag(pos, node, digger)
-        end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            after_place_iron_and_slag(pos, placer, itemstack, pointed_thing)
-        end,
+        on_dig = on_dig_iron_and_slag,
+        after_place_node = after_place_iron_and_slag
 })
 
 
@@ -566,17 +562,16 @@ minetest.register_craftitem(
         inventory_image = "tech_iron_nails.png",
         stack_max = minimal.stack_max_light,
         _use_tip = S("Protect Item"),
+        sounds = {
+            nail_down = {
+                name = "tech_hammer",
+                gain = {0.12,0.35},
+                pitch = {0.9,1.1},
+                max_hear_distance = 20
+            }
+        },
         _on_use_item = function(user, itemstack, pointed_thing)
-            local istack, playsound = minimal.protection_nail_use(
-                itemstack, user, pointed_thing)
-            if playsound then
-                minetest.sound_play("tech_hammer", {
-                                        pos = user:get_pos(),
-                                        gain = 0.15,
-                                        max_hear_distance=20
-                })
-            end
-            return istack
+            return minimal.protection_nail_use(user, itemstack, minimal.get_usable_position(pointed_thing))
         end
 })
 
@@ -588,12 +583,12 @@ minetest.register_craftitem(
         groups = { craftedby = 1 },
         _use_tip = S("Grant key owner access."),
         _on_use_item = function(user, itemstack, pointed_thing)
-            minimal.protection_key_use(itemstack, user, pointed_thing)
+            minimal.protection_key_use(itemstack, user, minimal.get_usable_position(pointed_thing))
             --XXX Need a sound to play
         end,
         on_use = function(itemstack, clicker, pointed_thing)
             return minimal.protection_key_click(itemstack, clicker,
-                                                pointed_thing)
+                                                minimal.get_usable_position(pointed_thing))
         end,
 })
 
