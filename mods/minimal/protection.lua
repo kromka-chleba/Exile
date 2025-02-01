@@ -9,8 +9,6 @@ minimal = minimal
 local __nail_use_count = 3
 
 function minimal.protection_is_ownable(pos)
-    -- permits regular position or pointed_thing
-    pos = minimal.get_usable_position(pos)
     if not pos then return end -- no pos
     local node = core.get_node(pos)
     if node.name == 'tech:stick' or core.get_item_group(node.name, 'flora') > 0 or
