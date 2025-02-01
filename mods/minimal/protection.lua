@@ -114,6 +114,7 @@ function minimal.protection_key_use( itemstack, user, pos, meta )
         return
     end
     local key = itemstack:get_meta():get_string("creator") -- creator of key (key owner)
+    if key == "" then return end -- no owner associated!
     -- get list
     local list = meta:get_string("access_list")
     list = list ~= "" and core.parse_json(list) or {}
