@@ -45,26 +45,10 @@ function minimal.switch_node(pos, node, after_place)
         ndef.after_place_node(pos, player, itemstack, after_place[3])
     end
 end
-
--- you should be sending us a pos, but we'll allow a pointed_thing
-local function pos_pointed_thing_handling(pos)
-    -- all good, return
-    if vector.check(pos) then return pos end
-    -- not an accessible pointed_thing or pos construct
-    if type(pos) ~= "table" then return end
-    -- return pos.under
-    if pos.under then
-        return pos.under
-    -- create the vector
-    elseif pos.x and pos.y and pos.z then
-        return vector.new(pos.x, pos.y, pos.z)
-    end
-end
-
 -- minimal.slabs_combine: player, itemstack, pos, swap_node
 -- combine isn't required if specified in itemstack's definition
 function minimal.slabs_combine(player, itemstack, pos, combine)
-    pos = pos_pointed_thing_handling(pos)
+    pos = minimal.get_usable_position(pos)
     -- Can't combine with nothing, or with objects
     if not pos then return end
     local idef = itemstack:get_definition()
@@ -88,7 +72,7 @@ end
 
 function minimal.slabs_split_hand(player, pointed_node, pos,
                                   wielded_item)
-    pos = pos_pointed_thing_handling(pos)
+    pos = minimal.get_usable_position(pos)
     if not pos then return end -- can't split from nothing or objects
     if wielded_item:get_name() ~= "" then return end -- must be empty handed
     local nname = pointed_node.name -- nodename
