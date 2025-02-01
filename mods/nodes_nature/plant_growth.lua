@@ -578,7 +578,7 @@ function nn.plant.grow_seed(pos, elapsed, pdef, meta)
     -- if conditions were good for germination we don't care about the present
     if elapsed > nn.seed_growing_time and good_time >= 60 then
         -- pass elapsed to seedlings so we can catch up from there
-        meta:set_int("elapsed", elapsed)
+        meta:set_int("elapsed", elapsed/nn.plant_base_timer) -- divide for proper cycle
     elseif not is_soil_and_temp_good(pos, pdef) then
         return true -- unless dead, try again when conditions are good
     end
@@ -618,12 +618,14 @@ function nn.plant.grow_plant(pos, elapsed_full)
     local param2 = pnode.param2
     if param2 < 63 then return end -- No reason to run on wild plants
     local meta = minetest.get_meta(pos)
+    elapsed_full = elapsed_full/nn.plant_base_timer -- convert to cycle
     local elapsed = elapsed_full + seed_elapsed(meta)
-    local current_progress = current_growth_progress(pos, elapsed)
-    local past_progress = past_growth_progress(pos, elapsed)
+    local elapsed_secs = elapsed*nn.plant_base_timer
+    local current_progress = current_growth_progress(pos, elapsed_secs)
+    local past_progress = past_growth_progress(pos, elapsed_secs)
     local temp = climate.get_point_temp(pos) -- temperature
     -- check what our progress should be according to light (will be normal if not artificial light dependent)
-    current_progress = catchup_progress_light(pos, elapsed, current_progress, pdef)
+    current_progress = catchup_progress_light(pos, elapsed_secs, current_progress, pdef)
     -- oh, we ded! not enough light!
     if not current_progress then
         nn.plant.kill(pos, false, pdef, meta)
@@ -688,9 +690,20 @@ function nn.plant.grow_plant(pos, elapsed_full)
     end
     -- set health
     meta:set_int("health", health)
-    -- figure out growth
-    local progress = past_progress + current_progress
-    if progress == 0 then return true end -- we can't do any growing, return for another loop!
+    -- figure out growth - past progress is calculated in cycles (of plant_base_timer)
+    -- past_progress is set to 1 if negative or 0
+    local progress = current_progress * (past_progress > 0 and past_progress or 1)
+    -- we can't do any growing, return for another loop!
+    if progress == 0 then
+        -- stored elapsed (if greater than maximum possible cycle)
+        if elapsed > 1.1 then
+            -- don't store more to elapsed than need be (subtract from elapsed variable if not a significant change)
+            -- i.e elapsed_full less than maximum possible cycle
+            elapsed = elapsed_full > nn.plant_base_timer * 1.1 and elapsed or elapsed-elapsed_full
+            meta:set_int("elapsed", elapsed)
+        end
+        return true
+    end
     -- we shant keep growing when we're already fruiting!
     if not (pdef.groups and pdef.groups.fruiting_plant) then
         local growing_left = meta:get_int("growth") - progress
