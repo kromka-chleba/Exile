@@ -625,6 +625,8 @@ function nn.plant.grow_plant(pos, elapsed_full)
     -- oh, we ded! not enough light!
     if not current_progress then
         nn.plant.kill(pos, false, pdef, meta)
+        -- set growth to prevent sudden growth on light reintroduction
+        meta:set_int("growth", pdef.plant_growing_time)
         return
     end
     -- create health if not found
