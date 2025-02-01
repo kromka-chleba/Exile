@@ -24,7 +24,6 @@ local __open_access_list={}
 
 function minimal.protection_key_click(itemstack, clicker, pos, meta)
     if not core.is_player(clicker) then return end -- not a player
-    pos = minimal.get_usable_position(pos)
     meta = meta or minetest.get_meta(pos)
     local player_name = clicker:get_player_name()
     local owner = meta:get_string('owner')
@@ -103,7 +102,6 @@ minetest.register_on_player_receive_fields(
 
 function minimal.protection_key_use( itemstack, user, pos, meta )
     if not core.is_player(user) then return end
-    pos = minimal.get_usable_position(pos)
     if not minimal.protection_is_ownable(pos) then return end -- shouldn't be able to do anything with this
     local pname = user:get_player_name()
     meta = meta or core.get_meta(pos)
@@ -139,7 +137,6 @@ end
 
 function minimal.protection_nail_use( user, itemstack, pos, meta )
     if not core.is_player(user) then return end
-    pos = minimal.get_usable_position(pos)
     if not minimal.protection_is_ownable(pos) then return end -- shouldn't be able to do anything with this
     meta = meta or core.get_meta(pos)
     if meta:get_string("owner") ~= "" then return end -- has an owner already, return!

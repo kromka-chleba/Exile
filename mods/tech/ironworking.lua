@@ -570,7 +570,9 @@ minetest.register_craftitem(
                 max_hear_distance = 20
             }
         },
-        _on_use_item = minimal.protection_nail_use
+        _on_use_item = function(user, itemstack, pointed_thing)
+            return minimal.protection_nail_use(user, itemstack, minimal.get_usable_position(pointed_thing))
+        end
 })
 
 minetest.register_craftitem(
@@ -581,12 +583,12 @@ minetest.register_craftitem(
         groups = { craftedby = 1 },
         _use_tip = S("Grant key owner access."),
         _on_use_item = function(user, itemstack, pointed_thing)
-            minimal.protection_key_use(itemstack, user, pointed_thing)
+            minimal.protection_key_use(itemstack, user, minimal.get_usable_position(pointed_thing))
             --XXX Need a sound to play
         end,
         on_use = function(itemstack, clicker, pointed_thing)
             return minimal.protection_key_click(itemstack, clicker,
-                                                pointed_thing)
+                                                minimal.get_usable_position(pointed_thing))
         end,
 })
 
