@@ -33,66 +33,80 @@ local base_punch_int = minimal.hand_punch_int
 --Tool placing
 
 --Places a tool
-local function place_tool(itemstack, placer, pointed_thing, placed_name)
-    local place_item = ItemStack(placed_name)
-    local above = minetest.get_node(pointed_thing.above)
+local function place_tool(itemstack, placer, pointed_thing)
     -- check if the pointed item has on_rightclick ... (will run it automatically)
     local to_return = minimal.on_rightclick(itemstack, placer, pointed_thing)
     if to_return ~= false then
         -- if not false then return the result (rightclick ran successfully)
         return to_return
     end
-    local under_front_pos = {x = pointed_thing.above.x,
-                             y = pointed_thing.above.y - 1,
-                             z = pointed_thing.above.z}
-    local under_front = minetest.get_node(under_front_pos)
-    local def_above = minetest.registered_nodes[above.name]
-    local def_under = minetest.registered_nodes[under_front.name]
+    local idef = itemstack:get_definition()
+    local placed_name = idef._tool_placed or itemstack:get_name().."_placed" -- get placed name
+    local place_item = ItemStack(placed_name)
+    if not core.registered_nodes[placed_name] then return end -- don't do anything if we can't actually place it
+    local above = pointed_thing.above
+    local abdef = minimal.get_nodedef(above) -- above def
+    local ufdef = minimal.get_nodedef(minimal.pos_shift(above, {y=-1})) -- under_front def
+    if not (abdef and ufdef) then return end -- not a defined node
     -- check if not walkable - there's empty space over the node
-    --  (air, water, etc.)
-    if ( def_above and ( not def_above.walkable ) and def_above.buildable_to )
-    -- check if walkable below to avoid throwing tools into abyss
-        and (def_under and def_under.walkable ) then
-        if (minimal.is_group(above.name,"woody_plant")
-            and minimal.is_group(above.name,"cane_plant")) then
-            -- replace bamboo with air so that the tool places appropriately
-            minetest.swap_node(pointed_thing.above,
-                               {name = "air"})
-        end
-        local wear = itemstack:get_wear()
-        -- place if not
-        itemstack:take_item(1)
-        local ppos = pointed_thing.above
-        minetest.item_place_node(place_item, placer, pointed_thing)
-        local meta = minetest.get_meta(pointed_thing.above)
-        meta:set_int("wear", wear)
-        local pname = "non-player"
-        if minetest.is_player(placer) then
-            pname = placer:get_player_name()
-        end
-        minetest.log("action", pname.." placed "..placed_name.." at "..
-                     ppos.x.."/"..ppos.y.."/"..ppos.z)
-        return itemstack
+    --  (air, water, etc.) if not, return
+    if abdef.walkable or not abdef.buildable_to then return end
+    -- check if walkable below to avoid throwing tools into abyss, return if not
+    if not ufdef.walkable then return end
+    -- check if a cane_plant or woody_plant and remove the node so that tool places properly
+    if abdef.groups and (abdef.groups.woody_plant or abdef.groups.cane_plant) then
+        minetest.set_node(above, {name = "air"})
     end
+    -- check if should save meta
+    local idata = {fields = {}}
+    if idef.groups and (idef.groups.savemeta or idef.groups.craftedby) then
+        local imeta = itemstack:get_meta()
+        idata = imeta:to_table() or idata -- convert meta into table, otherwise go to premade table on failure
+    end
+    -- adds wear to meta
+    idata.fields.wear = itemstack:get_wear()
+    idata.fields.wear = idata.fields.wear ~= 0 and idata.fields.wear or nil -- remove if no wear at all
+    -- take and place tool
+    itemstack:take_item(1)
+    local ppos = pointed_thing.above
+    minetest.item_place_node(place_item, placer, pointed_thing)
+    -- save to node meta
+    local meta = minetest.get_meta(pointed_thing.above)
+    meta:from_table(idata)
+    -- name for debugging
+    local pname = minetest.is_player(placer) and placer:get_player_name() or "non-player"
+    minetest.log("action", pname.." placed "..placed_name.." at "..
+                 ppos.x.."/"..ppos.y.."/"..ppos.z)
     return itemstack
 end
 
-local function on_dig_tool(pos, node, digger, name, material)
-    if minetest.is_protected(pos, digger) then
+local function on_dig_tool(pos, node, digger)
+    local ndef = core.registered_nodes[node.name]
+    -- get _tool or node's name subtract where "_placed" would be (8 from length)
+    local tooldef = core.registered_items[ (ndef._tool or ndef.name:sub(1, -8)) ]
+    if not tooldef then return end -- no definition, return
+    local meta = minetest.get_meta(pos) -- we use meta for protection checking
+    if minetest.is_protected(pos, digger, meta) then
         return -- can't dig tools you don't own
     end
     minimal.protection_on_dig(pos,node,digger)
-    local meta = minetest.get_meta(pos)
-    local wear = meta:get_int("wear")
+    -- get data from 
+    local ndata = meta:to_table()
+    if not ndata then return end -- could not get data, return
     local player_inv = digger:get_inventory()
-    local stack = ItemStack(name)
-    stack:set_wear(wear)
-    if material then
-        local imeta = stack:get_meta()
-        imeta:set_string('inventory_image', "tech_tool_hammer_" ..
-                         material.. ".png")
-        imeta:set_string('material', material)
+    local stack = ItemStack(tooldef.name)
+    -- set wear from meta
+    local wear = tonumber(ndata.fields.wear)
+    if wear then
+        stack:set_wear(wear)
+        ndata.fields.wear = nil -- remove from fields
     end
+    -- save node meta to item's meta if applicable (savemeta or craftedby in groups)
+    if tooldef.groups and (tooldef.groups.savemeta or tooldef.groups.craftedby) then
+        local imeta = stack:get_meta()
+        imeta:from_table(ndata)
+    end
+    -- add to player's inventory, otherwise if inventory is full and  player has stop_on_inv_full off, drop as item
     if player_inv:room_for_item("main", stack) then
         minetest.remove_node(pos)
         player_inv:add_item("main", stack)
@@ -225,6 +239,7 @@ minetest.register_tool("tech:stone_chopper",
             damage_groups = {fleshy= crude_dmg},
         },
         groups = {knife = 1, craftedby = 1},
+        _tool_placed = "tech:stone_knife_placed",
         _dig_tip = S("Cut plants faster than bare hands"),
         _use_tip = S("Flip to stone etcher"),
         -- _place_tip = ("Place tool for cutting crafts"), -- No such crafts yet
@@ -234,8 +249,7 @@ minetest.register_tool("tech:stone_chopper",
             return false
         end,
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:stone_knife_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -265,13 +279,14 @@ minetest.register_node("tech:stone_knife_placed",
             type = "fixed",
             fixed = {-4/16, -8/16, -4/16, 4/16, -7/16, 4/16},
         },
+        _tool = "tech:stone_chopper", -- what tool to return we're dug
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
             --            open_knife(pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:stone_chopper")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -374,8 +389,7 @@ minetest.register_tool("tech:digging_stick",
         _on_use_item = till_soil,
         _place_tip = S("Place tool for plant crafts"),
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:digging_stick_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -412,7 +426,7 @@ minetest.register_node("tech:digging_stick_placed",
             --            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:digging_stick")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -456,20 +470,50 @@ local stone_chop2 = crude_chop2 * stone
 
 
 -- Adzes ---------------------------------------------------
--- stone adze. best for chopping
-
-do
-    local adze_dig = S("Cut softwood logs")
-
-    -- Placed *material* adze
-    -- Register placed asze as nodes and crafting.tools
-    for material,materialincaps in
-    pairs ({["jade"]=S("Jade"),["granite"]=S("Granite"),["basalt"]=S("Basalt") }) do
-
-        minetest.register_node(
-        "tech:adze_" .. material .. "_placed", {
-            description = S("Placed @1 adze", materialincaps),
-            inventory_image = "tech_tool_adze_"..material..".png",
+-- suffix/material, definition
+-- registers tool, placed, and recipe
+local function register_adze(suffix, def)
+    -- tool string
+    local tool = "tech:adze_"..suffix
+    -- tool durability
+    local uses = def.uses or {}
+    def.uses = nil -- remove from definition
+    uses.choppy = uses.choppy or 1
+    uses.snappy = uses.snappy or 1
+    uses.crumbly = uses.crumbly or 1
+    -- register tool
+    minetest.register_tool(
+        tool, {
+            description = S("@1 Adze", def.description),
+            inventory_image = "tech_tool_adze_" .. suffix .. ".png",
+            tool_capabilities = {
+                full_punch_interval = base_punch_int * 1.1,
+                groupcaps={
+                    choppy = {times={[2]=stone_chop2, [3]=stone_chop3},
+                      uses=stone_use * uses.choppy,
+                      maxlevel=stone_max_lvl},
+                    snappy= {times={[1]=stone_snap1, [2]=stone_snap2,
+                      [3]=stone_snap3},
+                      uses=stone_use * uses.snappy,
+                      maxlevel=stone_max_lvl},
+                    crumbly = {times={[3]=crude_crum3},
+                      uses=base_use*uses.crumbly,
+                      maxlevel=crude_max_lvl},
+                },
+                damage_groups = {fleshy = stone_dmg},
+            },
+            groups = {axe = 1, craftedby = 1},
+            sound = {breaks = "tech_tool_breaks"},
+            _dig_tip = S("Cut softwood logs"),
+            on_place = function(itemstack, placer, pointed_thing)
+                return place_tool(itemstack, placer, pointed_thing)
+            end,
+    })
+    -- register placed
+    minetest.register_node(
+        tool.."_placed", {
+            description = S("Placed @1 adze", def.description),
+            inventory_image = "tech_tool_adze_"..suffix..".png",
             exile_crafting = {
                 craft_types = {"axe","knife_wattle","axe_mixing"},
                 craft_level = 1,
@@ -480,7 +524,7 @@ do
             },
             drawtype = "mesh",
             mesh = "adze_placed.obj",
-            tiles = {name = "tech_adze_" .. material .. "_placed.png"},
+            tiles = {name = "tech_adze_" .. suffix .. "_placed.png"},
             paramtype = "light",
             paramtype2 = "facedir",
             sounds = nodes_nature.node_sound_stone_defaults(),
@@ -500,99 +544,38 @@ do
                 return crafting.crafting_item_on_rightclick(pos,node,
                 clicker,itemstack,
                 pointed_thing)
-                --            open_chopping_spot_if_valid(pos, node, clicker, itemstack, pointed_thing, 1)
             end,
             on_dig = function(pos, node, digger)
-                on_dig_tool(pos, node, digger, "tech:adze_" .. material .. "")
+                on_dig_tool(pos, node, digger)
             end,
-        })
-    end
-
-    --Defines adze type with {name_material, desc_Material, used_material}
-    local adze_type = {
-                [""]={
-                    ["caps"]="",["image"]="_jade",
-                    ["choppy_use"]= 1,
-                    ["snappy_use"]= 0.8,
-                    ["crumbly_use"]=1 },
-                --current default based on old granite, others are legacy one
-                ["_basalt"] = {
-                    ["caps"]=S("Basalt"), ["image"]="_basalt",
-                    ["choppy_use"]= 0.9,
-                    ["snappy_use"]= 0.7,
-                    ["crumbly_use"]=0.9 }, --less uses than granite bc softer stone
-                ["_jade"] = {
-                        ["caps"]=S("Jade"), ["image"]="_jade",
-                        ["choppy_use"]= 1.5,
-                        ["snappy_use"]= 1,
-                        ["crumbly_use"]=1 }, --many more uses than granite.
-                ["_granite"] = {
-                            ["caps"]=S("Granite"), ["image"]="_granite",
-                            ["choppy_use"]= 1,
-                            ["snappy_use"]= 0.8,
-                            ["crumbly_use"]=1 } --granite adze. best for chopping
-                }
-
-    -- Register adzes as minetest.tool
-    --#TODO idea would be that default one wouldn't really be craftable but
-    --  only here as default in the recipes in inventory ?
-    for name, def in pairs (adze_type) do
-        minetest.register_tool(
-        "tech:adze".. name, {
-            description = S("@1 Adze", def["caps"]),
-            inventory_image = "tech_tool_adze" .. def["image"] .. ".png",
-            tool_capabilities = {
-                full_punch_interval = base_punch_int * 1.1,
-                groupcaps={
-                    choppy = {times={[2]=stone_chop2, [3]=stone_chop3},
-                    uses=stone_use *def["choppy_use"],
-                    maxlevel=stone_max_lvl},
-                    snappy= {times={[1]=stone_snap1, [2]=stone_snap2,
-                    [3]=stone_snap3},
-                    uses=stone_use * def["snappy_use"],
-                    maxlevel=stone_max_lvl},
-                    crumbly = {times={[3]=crude_crum3},
-                    uses=base_use*def["crumbly_use"],
-                    maxlevel=crude_max_lvl},
-                },
-                damage_groups = {fleshy = stone_dmg},
-            },
-            groups = {axe = 1, craftedby = 1},
-            sound = {breaks = "tech_tool_breaks"},
-            _dig_tip = adze_dig,
-            on_place = function(itemstack, placer, pointed_thing)
-                return place_tool(itemstack, placer, pointed_thing,
-                "tech:adze" .. name .. "_placed")
-            end,
-        })
-    end
-
-    -- Register recipes to craft adzes
-    for _,mat in ipairs ({"jade","basalt","granite"}) do
-        crafting.register_recipe({
-                type = {"hand_tools", "grinding_stone" },
-                output = "tech:adze_"..mat,
-                items = {"group:" .. mat .."_cobble",'tech:stick',
-                         'group:fibrous_plant 4', 'nodes_nature:sand'},
-                level = 1,
-                always_known = true,
-                replace = 'nodes_nature:sand'
-        })
-    end
-
-    ---- unique version all in one :
-    -- crafting.register_recipe({
-    --      type = "hand_tools",
-    --      output = "tech:adze",
-    --      items = {{"group:jade_cobble","group:basalt_cobble","group:granite_cobble"},
-    --              'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-    --      material = 1, -- first item sets material.
-    --      material_output = "tech:adze_%material%",
-    --      level = 1,
-    --      always_known = true,
-    --   replace = 'nodes_nature:sand'
-    -- })
+    })
+    -- recipe
+    crafting.register_recipe({
+        type = {"hand_tools", "grinding_stone" },
+        output = tool,
+        items = {"group:" .. suffix .."_cobble",'tech:stick',
+                 'group:fibrous_plant 4', 'nodes_nature:sand'},
+        level = 1,
+        always_known = true,
+        replace = 'nodes_nature:sand'
+    })
 end
+-- less uses than granite bc softer stone
+register_adze("basalt", {
+    description = S("Basalt"),
+    uses = {choppy = 0.9, snappy = 0.7, crumbly = 0.9}
+})
+-- more uses than granite
+register_adze("jade", {
+    description = S("Jade"),
+    uses = {choppy = 1.5}
+})
+-- best for chopping
+register_adze("granite", {
+    description = S("Granite"),
+    uses = {snappy = 0.8}
+})
+
 
 --IB-20240226 --grind adze
 --IB-20240226 crafting.register_recipe({
@@ -612,118 +595,93 @@ end
 --IB-20240226 })
 
 -- Hammers -------------------------------------------------
-
-do
-    local hammer_list = {
-        [""]="", -- default Hammer
-        -- Legacy hammers needed only for old maps.
-        ["_basalt"]=S("Basalt"), -- Basalt hammer
-        ["_granite"]=S("Granite") -- granite hammer
-    }
-
-    -- Register different hammers as tool
-    for suffix,desc in pairs(hammer_list) do
-        if suffix == "" then suffix = "_basalt" end --using basalt image for inventory as default
-
-        minetest.register_tool(
-        "tech:hammer" .. suffix, {
-            description = S("@1 Hammer", desc),
-            inventory_image = "tech_tool_hammer" .. suffix .. ".png",
-            tool_capabilities = {
-                full_punch_interval = base_punch_int * 1.2,
-                groupcaps={
-                    choppy = {times={[3]=crude_chop3},
-                    uses=base_use*0.5, maxlevel=crude_max_lvl},
-                    snappy = {times={[3]=crude_snap3},
-                    uses=base_use*0.5, maxlevel=crude_max_lvl},
-                    crumbly = {times= {[3]=crude_crum3},
-                    uses=base_use*0.5, maxlevel=crude_max_lvl}
-                },
-                damage_groups = {fleshy=stone_dmg + 1},
-                -- +1 was added in new default hammer, legacy one had only stone_dmg
+-- suffix/material, description
+-- registers tool, placed, and recipe
+local function register_hammer(suffix, desc)
+    -- register tool
+    local tool = "tech:hammer_"..suffix -- used in tool registration, placed, and recipe
+    minetest.register_tool(
+    tool, {
+        description = S("@1 Hammer", desc),
+        inventory_image = "tech_tool_hammer_" .. suffix .. ".png",
+        tool_capabilities = {
+            full_punch_interval = base_punch_int * 1.2,
+            groupcaps={
+                choppy = {times={[3]=crude_chop3},
+                uses=base_use*0.5, maxlevel=crude_max_lvl},
+                snappy = {times={[3]=crude_snap3},
+                uses=base_use*0.5, maxlevel=crude_max_lvl},
+                crumbly = {times= {[3]=crude_crum3},
+                uses=base_use*0.5, maxlevel=crude_max_lvl}
             },
-            _place_tip = S("Stun animals\n"..
-            " or Place on solid surface for hammering crafts"),
-            on_place = function(itemstack, placer, pointed_thing)
-                return place_tool(itemstack, placer, pointed_thing, "tech:hammer" .. suffix .. "_placed")
-            end,
-            groups = {club = 1, craftedby = 1},
-            sound = {breaks = "tech_tool_breaks"},
-        })
-    end
-
-    -- Register different placed hammers as nodes and crafting.tools
-    for mat , caps in pairs({["basalt"]=S("Basalt"), ["granite"]=S("Granite")}) do
-        minetest.register_node(
-        "tech:hammer_" .. mat .. "_placed", {
-            description = S("Placed @1 Hammer", caps),
-            inventory_image = "tech_tool_hammer_" .. mat .. ".png",
-            exile_crafting = {
-                craft_types = {"hammer", "hammer_mixing"},
-                craft_level = 1,
-                material = mat,
-                good_on = {
-                    {"stone", 1}, {"masonry", 1},
-                    {"boulder", 1}, {"soft_stone", 1},
-                    {"tree", 1}, {"log", 1}
-                },
+            damage_groups = {fleshy=stone_dmg + 1},
+            -- +1 was added in new default hammer, legacy one had only stone_dmg
+        },
+        _place_tip = S("Stun animals\n"..
+        " or Place on solid surface for hammering crafts"),
+        on_place = function(itemstack, placer, pointed_thing)
+            return place_tool(itemstack, placer, pointed_thing)
+        end,
+        groups = {club = 1, craftedby = 1},
+        sound = {breaks = "tech_tool_breaks"},
+    })
+    -- register placed
+    minetest.register_node(
+        tool.."_placed", {
+            description = S("Placed @1 Hammer", desc),
+        inventory_image = "tech_tool_hammer_" .. suffix .. ".png",
+        exile_crafting = {
+            craft_types = {"hammer", "hammer_mixing"},
+            craft_level = 1,
+            material = suffix,
+            good_on = {
+                {"stone", 1}, {"masonry", 1},
+                {"boulder", 1}, {"soft_stone", 1},
+                {"tree", 1}, {"log", 1}
             },
-            drawtype = "mesh",
-            mesh = "hammer_placed.obj",
-            tiles = {name = "tech_hammer_" .. mat .. "_placed.png"},
-            paramtype = "light",
-            paramtype2 = "facedir",
-            sounds = nodes_nature.node_sound_stone_defaults(),
-            groups = {dig_immediate = 3, temp_pass = 1,
-            falling_node = 1, not_in_creative_inventory = 1},
-            use_texture_alpha = c_alpha.clip,
-            node_box = {
-                type = "fixed",
-                fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
-            },
-            selection_box = {
-                type = "fixed",
-                fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
-            },
-            on_rightclick = function(pos, node, clicker,
-                itemstack, pointed_thing)
-                return crafting.crafting_item_on_rightclick(pos,node,
-                clicker,itemstack,
-                pointed_thing)
-                --            open_hammering_spot_if_valid(pos, node, clicker, itemstack, pointed_thing)
-            end,
-            on_dig = function(pos, node, digger)
-                on_dig_tool(pos, node, digger, "tech:hammer_" .. mat, mat)
-            end,
-        })
-    end
-
-    -- Defines recipes for different hammers
-    for _,mat in ipairs ({"basalt","granite"}) do
-        crafting.register_recipe({
-                type = { "hand_tools", "grinding_stone" },
-            output = "tech:hammer_"..mat,
-            items = {"group:" .. mat .."_cobble", 'tech:stick',
-            'group:fibrous_plant 4', 'nodes_nature:sand'},
-            level = 1,
-            always_known = true,
-            replace = 'nodes_nature:sand'
-        })
-    end
-
-    ---- unique version all in one :
-    -- crafting.register_recipe({
-    --      type = "hand_tools",
-    --      output = "tech:hammer",
-    --      items = {{"group:basalt_cobble","group:granite_cobble"},
-    --          'tech:stick', 'group:fibrous_plant 4', 'nodes_nature:sand'},
-    --      material = 1, -- first item sets material.
-    --     material_output = "tech:hammer_%material%",
-    --      level = 1,
-    --      always_known = true,
-    --   replace = 'nodes_nature:sand'
-    -- })
+        },
+        drawtype = "mesh",
+        mesh = "hammer_placed.obj",
+        tiles = {name = "tech_hammer_" .. suffix .. "_placed.png"},
+        paramtype = "light",
+        paramtype2 = "facedir",
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        groups = {dig_immediate = 3, temp_pass = 1,
+        falling_node = 1, not_in_creative_inventory = 1},
+        use_texture_alpha = c_alpha.clip,
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5},
+        },
+        selection_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+        },
+        on_rightclick = function(pos, node, clicker,
+            itemstack, pointed_thing)
+            return crafting.crafting_item_on_rightclick(pos,node,
+            clicker,itemstack,
+            pointed_thing)
+        end,
+        on_dig = function(pos, node, digger)
+            on_dig_tool(pos, node, digger)
+        end,
+    })
+    -- register recipe
+    crafting.register_recipe({
+        type = { "hand_tools", "grinding_stone" },
+        output = tool,
+        items = {"group:" .. suffix .."_cobble", 'tech:stick',
+        'group:fibrous_plant 4', 'nodes_nature:sand'},
+        level = 1,
+        always_known = true,
+        replace = 'nodes_nature:sand'
+    })
 end
+-- basalt and granite hammer
+register_hammer("basalt", S("Basalt"))
+register_hammer("granite", S("Granite"))
+
 
 --Stone club -----------------------------------------------
 -- A weapon. Not very good for anything else
@@ -813,8 +771,7 @@ minetest.register_tool("tech:axe_iron",
         groups = {axe = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:axe_iron_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -854,7 +811,7 @@ minetest.register_node("tech:axe_iron_placed",
                                                        itemstack,pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:axe_iron")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -895,8 +852,7 @@ minetest.register_tool("tech:shovel_iron",
         _use_tip = S("Till soil"),
         _place_tip = S("Place for plant crafts"),
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:shovel_iron_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -933,7 +889,7 @@ minetest.register_node("tech:shovel_iron_placed",
             --            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:shovel_iron")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -1009,8 +965,7 @@ minetest.register_tool("tech:pickaxe_iron",
         groups = {pickaxe = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer, pointed_thing,
-                              "tech:pickaxe_iron_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -1040,7 +995,7 @@ minetest.register_node("tech:pickaxe_iron_placed",
             -- possible future crafting?
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:pickaxe_iron")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )
@@ -1078,8 +1033,7 @@ minetest.register_tool("tech:hoe_iron",
         _on_use_item = till_soil,
         _place_tip = S("Place tool for plant crafts"),
         on_place = function(itemstack, placer, pointed_thing)
-            return place_tool(itemstack, placer,
-                              pointed_thing, "tech:hoe_iron_placed")
+            return place_tool(itemstack, placer, pointed_thing)
         end,
         }
     )
@@ -1115,7 +1069,7 @@ minetest.register_node("tech:hoe_iron_placed",
             --            open_digging_stick[1](pos, node, clicker, itemstack, pointed_thing)
         end,
         on_dig = function(pos, node, digger)
-            on_dig_tool(pos, node, digger, "tech:hoe_iron")
+            on_dig_tool(pos, node, digger)
         end,
         }
     )

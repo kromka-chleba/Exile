@@ -534,125 +534,105 @@ minetest.register_node(
 --IB    })
 --IB
 
+-- used for transferring meta between placeable stations and their itemstacks to save creator meta
+local function station_preserve_metadata(pos, oldnode, oldmeta, drops)
+    local item = drops[1]
+    local imeta = item:get_meta()
+    -- just steal meta from oldmeta (which will be fields)
+    imeta:from_table({fields = oldmeta})
+end
+-- ditto to above
+local function station_after_place(pos, placer, itemstack, pointed_thing)
+    local imeta = itemstack:get_meta()
+    local meta = core.get_meta(pos)
+    -- transfer from itemstack to node
+    meta:from_table(imeta:to_table())
+end
+
+
 -- Mortar and pestle. for grinding food etc ----------------
 ----------------------------------------------
 
--- Stone mortar and pestle -----------
---"" one is default to have a without material display name in crafting formspec (recipes)
-for mat,capsMat in pairs ({
-        [""]="",
-        ["_basalt"]="Basalt ",
-        ["_granite"]="Granite ",
-        ["_limestone"]="Limestone "}) do
-    local image = mat
-    if image == "" then image = "_limestone" end -- puttine limestone look as default
-    minetest.register_node(
-        "tech:mortar_pestle" .. mat,{
-            description   = S(capsMat .. "Mortar and Pestle"),
-            exile_crafting = {
-                craft_types = {"mortar_and_pestle", 'breadmaking'},
-                craft_level = 1,
-            },
-            drawtype      = "nodebox",
-            tiles         = {"nodes_nature" .. image .. ".png"},
-            stack_max     = minimal.stack_max_bulky *2,
-            paramtype     = "light",
-            paramtype2    = "facedir",
-            groups        = {falling_node = 1, dig_immediate=3, craftedby = 1},
-            node_box      = {
-                type  = "fixed",
-                fixed = {
-                    {-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
-                    {-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
-                    {-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
-                    {-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
-                    {-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
-                    { 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
-                    {-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
-                }
-            },
-            sounds        = nodes_nature.node_sound_stone_defaults(),
-            on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-                return crafting.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
-            end
-            --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
-        }
-    )
+-- def can be description (tag)
+local function register_mortar_and_pestle(name, def)
+    def = type(def) == "string" and {tag = def} or type(def) == "table" and def or {}
+    def.description = def.description or def.tag and S("@1 Mortar and Pestle", def.tag) or nil
+    def.tag = nil -- remove from def
+    -- grab recipe if provided
+    local recipe = def.recipe or {}
+    def.recipe = nil
+    -- set up exile crafting
+    local exile_crafting = def.exile_crafting or {}
+    local craft_types = exile_crafting.craft_types or {}
+    craft_types[#craft_types + 1] = 'mortar_and_pestle'
+    craft_types[#craft_types + 1] = 'breadmaking'
+    exile_crafting.craft_types = craft_types
+    exile_crafting.craft_level = exile_crafting.craft_level or 1
+    def.exile_crafting = exile_crafting
+    -- now for actual node things
+    def.drawtype = def.drawtype or "nodebox"
+    def.node_box = def.node_box or def.drawtype == "nodebox" and
+      {
+          type  = "fixed",
+          fixed = {
+              {-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
+              {-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
+              {-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
+              {-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
+              {-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
+              { 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
+              {-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
+          }
+      } or nil
+    def.tiles = def.tiles or {"nodes_nature_"..name..".png"}
+    def.stack_max = def.stack_max or minimal.stack_max_bulky * 2
+    def.paramtype = "light"
+    def.paramtype2 = def.paramtype2 or "facedir"
+    def.sounds = def.sounds or nodes_nature.node_sound_stone_defaults()
+    -- set up groups
+    def.groups = def.groups or {}
+    def.groups.falling_node = def.groups.falling_node or 1
+    def.groups.dig_immediate = def.groups.dig_immediate or 3
+    def.groups.craftedby = def.groups.craftedby or 1
+    -- show crafting
+    def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        return crafting.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+    end
+    -- metadata functions (if craftedby)
+    if def.groups.craftedby > 0 then
+        def.preserve_metadata = station_preserve_metadata
+        def.after_place_node = station_after_place
+    end
+    -- register node
+    local nodename = "tech:mortar_pestle_"..name
+    core.register_node(nodename, def)
+    -- register recipe
+    recipe.type = recipe.type or {"hand_tools", "grinding_stone"}
+    recipe.output = nodename
+    -- return sand if recipe.items not specified
+    recipe.replace = not recipe.items and "nodes_nature:sand" or nil
+    recipe.items = recipe.items or {"nodes_nature:"..name.."_boulder", "group:"..name.."_cobble", "nodes_nature:sand"}
+    recipe.level = 1
+    recipe.always_known = true
+    crafting.register_recipe(recipe)
 end
 
-----Below the code to have only one mortar in recipe list, from Izzy + modified to display "no material" mortar_pestle"
----(on discussion 2024 - 08 )
--- crafting.register_recipe({
---     type   = "hand_tools",
---     output = "tech:mortar_pestle",
---     items  = {
---         {'nodes_nature:limestone_boulder','nodes_nature:basalt_boulder','nodes_nature:granite_boulder'},
---         {"group:limestone_cobble","group:basalt_cobble","group:granite_cobble"},
---         'nodes_nature:sand'
---     },
---     where = '@1.material == @2.material',
---     material = 1,  -- set material from selected inptut item 1.
---     material_output = "tech:mortar_pestle_%material%",
---     material_tiles_name = "nodes_nature_%material%.png",
---     level  = 1,
---     always_known = true,
--- })
-
-----Below the code to have 3 separate mortar and pestle in that same recipe list
----(on discussion 2024 - 08 )
-for _,mat in ipairs({"limestone","basalt","granite"}) do
-    crafting.register_recipe({
-    type   = { "hand_tools", "grinding_stone" },
-    output = "tech:mortar_pestle_" .. mat,
-    items  = {"nodes_nature:" .. mat .. "_boulder","group:" .. mat .. "_cobble", "nodes_nature:sand"},
-    level  = 1,
-    always_known = true,
-    })
-end
-
-
--- Wooden mortar and pestle
-----------------------------
-minetest.register_node(
-    "tech:mortar_pestle_wooden",{
-        description   = S("Wooden Mortar and Pestle"),
-        exile_crafting = {
-            craft_types = {"mortar_and_pestle", 'breadmaking'},
-            craft_level = 1,
-        },
-        drawtype      = "nodebox",
-        tiles         = {"tech_primitive_wood.png"},
-        stack_max     = minimal.stack_max_bulky *2,
-        paramtype     = "light",
-        paramtype2    = "facedir",
-        groups        = {falling_node = 1, dig_immediate = 3, craftedby = 1},
-        node_box      = {
-            type  = "fixed",
-            fixed = {
-                {-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
-                {-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
-                {-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
-                {-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
-                {-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
-                { 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
-                {-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
-            }
-        },
-        sounds        = nodes_nature.node_sound_wood_defaults(),
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            return crafting.crafting_item_on_rightclick(pos,node,clicker,
-                                                       itemstack,pointed_thing)
-        end
-                           --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
+-- need to change old tech:mortar_pestle to tech:mortar_pestle_limestone
+-- less translation work needed if we just use the nodes_nature description lol
+register_mortar_and_pestle("basalt", core.registered_nodes["nodes_nature:basalt"].description)
+register_mortar_and_pestle("granite", core.registered_nodes["nodes_nature:granite"].description)
+register_mortar_and_pestle("limestone", core.registered_nodes["nodes_nature:limestone"].description)
+-- wooden mortar and pestle
+register_mortar_and_pestle("wooden", {
+    description = S("Wooden Mortar and Pestle"),
+    tiles = {"tech_primitive_wood.png"},
+    sounds = nodes_nature.node_sound_wood_defaults(),
+    recipe = {
+        type = {"axe", "carpentry_bench"},
+        items = {'group:log 2'}
+    }
 })
 
-crafting.register_recipe({
-    type = {"axe", "carpentry_bench"},
-    output = "tech:mortar_pestle_wooden",
-    items = {'group:log 2'},
-    level = 1,
-    always_known = true,
-})
 
 --------------------------------------------------------------
 
@@ -716,6 +696,8 @@ minetest.register_node(
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick(
         --      {"brick_makers_bench", "brick_makers_bench_blocks",
         --       "brick_makers_bench_bricks", "brick_makers_bench_mixing"},
@@ -764,7 +746,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick({"anvil","anvil_mixing"}, 2, { x = 8, y = 3 }),
 })
 
@@ -808,7 +792,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick("carpentry_bench", 2, { x = 8, y = 3 }),
 })
 
@@ -855,6 +841,8 @@ minetest.register_node(
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick(
         --      {"masonry_bench","masonry_bench_blocks","masonry_bench_bricks", "masonry_bench_mixing"},
                            --      2, { x = 8, y = 3 }),
@@ -903,6 +891,8 @@ minetest.register_node(
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
         end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick("spinning_wheel", 2, { x = 8, y = 3 }),
 })
 
@@ -953,7 +943,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick("loom", 2, { x = 8, y = 3 }),
 })
 
@@ -997,7 +989,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick("glass_furnace", 2, { x = 8, y = 3 }),
 })
 
@@ -1051,7 +1045,9 @@ minetest.register_node(
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             return crafting.crafting_item_on_rightclick(pos,node,clicker,
                                                        itemstack,pointed_thing)
-        end
+        end,
+        preserve_metadata = station_preserve_metadata,
+        after_place_node = station_after_place
         --on_rightclick = crafting.make_on_rightclick({"weaving_frame",
         --                     "weaving_frame_mixing"}, 2, { x = 8, y = 3 }),
 })

@@ -491,7 +491,8 @@ end
 -- It returns the cache value unless something has updated or it times out
 -- updates are triggered by setting cache.output = "" and the section to
 -- redraw is set to nil - eg cache.recipesFS = nil to redraw recipes list.
-local function make_inventory_formspec(player,context)
+-- istool boolean - moves buttons about to show space for a potential craftedby
+local function make_inventory_formspec(player,context,istool)
     local player_name = player:get_player_name()
     local pInv = player:get_inventory()
     if not (player_name and player_name ~= "") then
@@ -604,6 +605,21 @@ local function make_inventory_formspec(player,context)
     output[#output + 1] = cache.searchFS
     output[#output + 1] = 'container_end[]'
 
+    -- short break for figuring out how much space to add ----------------------
+
+    local ycoord = istool and 7.4 or 6.4
+
+    -- Optional CraftedBy string -----------------------------------------------
+
+    -- do not display in hand crafting
+    if istool and cache.sTool ~= default_tool and cache.creatortag and cache.creatortag ~= "" then
+        output[#output + 1] = tofstring({
+            'container[0.45,',ycoord-1,']',
+            'label[0,0;',S("Crafted by: @1", cache.creatortag),']',
+            'container_end[]'
+        })
+    end
+
     -- Quantity buttons part ---------------------------------------------------
 
     local qtyID = cache.qty or 1
@@ -612,7 +628,7 @@ local function make_inventory_formspec(player,context)
     qtytab[qtyID] = 'true'
     qtylab[qtyID] = minetest.colorize("cyan", qtylab[qtyID])
 
-    output[#output + 1] = 'container[0.45,6.4]'
+    output[#output + 1] = table.concat({'container[0.45,',ycoord,']'})
     output[#output + 1] = tofstring({
             'label[0,0;'..S("Quantity")..':]',
             'checkbox[2.6,0;qty1;'..qtylab[1]..';'..qtytab[1]..']',
@@ -624,7 +640,8 @@ local function make_inventory_formspec(player,context)
 
     -- Inventory List part------------------------------------------------------
 
-    output[#output + 1] = 'container[0.8,7.2]'
+    ycoord = ycoord + 0.8
+    output[#output + 1] = table.concat({'container[0.8,',ycoord,']'})
     output[#output + 1] = tofstring({
         'style_type[list;size=;spacing=]',
         'list[current_player;main;0,0;8,2;0]'
@@ -698,7 +715,7 @@ local function cache_set_craft_tabs(cache, sTab, cTabs)
 end
 
 -- change to hand if tool==nil
-local function cache_tool_change(player, tool, inputcache)
+local function cache_tool_change(player, tool, inputcache, pos, meta)
     tool = tool or default_tool
     local cache =  inputcache or inventoryFS_cache[player:get_player_name()]
 
@@ -713,6 +730,20 @@ local function cache_tool_change(player, tool, inputcache)
         cache.sTool = tool
         cache.sLevel = get_tool_level(tool)
         cache_set_craft_tabs(cache, 1, get_craft_tabs(tool))
+        -- save pos and meta for more unique interactions (this only gets updated on tool change)
+        cache.pos = cache.pos or type(pos) == "table" and vector.check(pos) and pos or nil
+        -- don't try to update if default
+        if tool ~= default_tool and not cache.meta then
+            local idef = core.registered_items[tool]
+            -- see tech/tools for why we check _tool or remove letters from name
+            idef = core.registered_items[tool._tool] or core.registered_items[tool:sub(1,-8)] or idef
+            cache.meta = idef and idef.groups and (idef.groups.craftedby or idef.groups.savemeta) and
+                cache.pos and core.get_meta(pos) or nil
+            -- get creator string for craftedby mechanics
+            if cache.meta then
+                cache.creatortag = cache.meta:get_string("creator")
+            end
+        end
     end
 
     cache.tool_tabsFS= nil
@@ -725,13 +756,19 @@ local function cache_tool_remove(player, inputcache)
     -- if no cache, then generate it
     if not cache then
         cache = initiate_cache(player)
+    -- clear out node specific cache
+    else
+        cache.pos = nil
+        cache.meta = nil
+        cache.creatortag = nil
     end
+
     cache.tool_list = generate_tools_list()
     -- unselect tool to default
     cache_tool_change(player, nil, cache)
 end
 
-local function cache_tool_add(player, a_tool, inputcache)
+local function cache_tool_add(player, a_tool, inputcache, pos, meta)
     if not a_tool then
         return
     end
@@ -744,7 +781,7 @@ local function cache_tool_add(player, a_tool, inputcache)
     -- later we could remove r_tool
     cache.tool_list = generate_tools_list(a_tool)
     -- unselect tool to default
-    cache_tool_change(player, a_tool, cache)
+    cache_tool_change(player, a_tool, cache, pos, meta)
 end
 
 -- change Search field and reset formspec accordingly
@@ -1116,9 +1153,9 @@ local function make_tool_formspec(player)
     return tofstring({
             "formspec_version[5]",
             --"size[11.2,10.5]" ..
-            "size[11.2,10]",
+            "size[11.2,11]",
             "position[0.5,0.5]",
-            make_inventory_formspec(player)
+            make_inventory_formspec(player, nil, true)
         })
 end
 
@@ -1154,7 +1191,7 @@ function crafting.crafting_item_on_rightclick(pos,node,clicker,
 
     local cache = inventoryFS_cache[player_name] or initiate_cache(clicker)
 
-    cache_tool_add(clicker, craft_item, cache)
+    cache_tool_add(clicker, craft_item, cache, pos)
 
     local formspec = make_tool_formspec(clicker)
     minetest.show_formspec(player_name,'exile:crafting',formspec)
