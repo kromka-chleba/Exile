@@ -233,9 +233,10 @@ minetest.register_node(
         end,
         _dig_tip = S("Enrich depleted soil"),
         _use_tip = S("Combine with another slab"),
+        _combines_by_hand = "tech:wood_ash_block",
         _on_use_item = function(player, wielded_item, pointed_thing)
             return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing, "tech:wood_ash_block")
+                                         pointed_thing)
         end
 })
 

@@ -290,6 +290,7 @@ minetest.register_node(
                   edible = 1, no_soup = 1},
         sounds = nodes_nature.node_sound_snow_defaults(),
         _use_tip = S("Combine with another slab\n or eat if you're desperate"),
+        _combines_by_hand = "nodes_nature:snow_block",
         _on_use_item = function(player, wielded_item, pointed_thing)
             if pointed_thing and pointed_thing.type == "node"
                 and minetest.get_node(pointed_thing.under).name ==
@@ -298,9 +299,7 @@ minetest.register_node(
                 return
             end
 
-            return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing,
-                                         "nodes_nature:snow_block")
+            return minimal.slabs_combine(player, wielded_item, pointed_thing)
             or wielded_item:get_definition()._on_consume(player,
                                                          wielded_item,
                                                          pointed_thing)

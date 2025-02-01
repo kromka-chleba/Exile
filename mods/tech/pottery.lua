@@ -35,9 +35,9 @@ minetest.register_node(
         groups = {cracky = 3, falling_node = 1, oddly_breakable_by_hand = 3},
         sounds = nodes_nature.node_sound_gravel_defaults(),
         _use_tip = S("Combine with another slab"),
+        _combines_by_hand = "tech:ruined_pottery",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing, "tech:ruined_pottery")
+            return minimal.slabs_combine(player, wielded_item, pointed_thing)
         end,
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ruined_pottery_timer/2)

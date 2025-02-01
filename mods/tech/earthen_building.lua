@@ -397,9 +397,9 @@ stairs.register_stair_and_slab(
 minetest.override_item(
     "stairs:slab_thatch", {
         _use_tip = S("Combine with another slab"),
+        _combines_by_hand = "tech:thatch",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing, "tech:thatch")
+            return minimal.slabs_combine(player, wielded_item, pointed_thing)
         end,
 })
 

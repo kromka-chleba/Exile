@@ -222,9 +222,9 @@ minetest.register_node(
                 footstep = {name = "nodes_nature_mud", gain = 0.4},
                 dug = {name = "nodes_nature_mud", gain = 0.4}}),
         _use_tip = S("Combine with another slab"),
+        _combines_by_hand = "tech:lime_mortar",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing, "tech:lime_mortar")
+            return minimal.slabs_combine(player, wielded_item, pointed_thing)
         end,
 })
 
