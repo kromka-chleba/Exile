@@ -47,8 +47,8 @@ function minimal.switch_node(pos, node, after_place)
 end
 -- minimal.slabs_combine: player, itemstack, pos, swap_node
 -- combine isn't required if specified in itemstack's definition
+-- use minimal.get_usable_position(pointed_thing) to convert pointed_thing to pos
 function minimal.slabs_combine(player, itemstack, pos, combine)
-    pos = minimal.get_usable_position(pos)
     -- Can't combine with nothing, or with objects
     if not pos then return end
     local idef = itemstack:get_definition()

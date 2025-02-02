@@ -236,7 +236,7 @@ minetest.register_node(
         _combines_by_hand = "tech:wood_ash_block",
         _on_use_item = function(player, wielded_item, pointed_thing)
             return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing)
+                                         minimal.get_usable_position(pointed_thing))
         end
 })
 

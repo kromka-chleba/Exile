@@ -299,7 +299,7 @@ minetest.register_node(
                 return
             end
 
-            return minimal.slabs_combine(player, wielded_item, pointed_thing)
+            return minimal.slabs_combine(player, wielded_item, minimal.get_usable_position(pointed_thing))
             or wielded_item:get_definition()._on_consume(player,
                                                          wielded_item,
                                                          pointed_thing)
