@@ -191,33 +191,12 @@ minetest.register_node(
         paramtype = "light"
 })
 -- "Mother" of Tang
-minetest.register_craftitem(
-    "tech:mother_of_tang",{
-        description = S("Mother of Tang"),
-        inventory_image = "tech_mother_of_tang.png",
-        stack_max = minimal.stack_max_medium,
-        groups = {mother_growth=1, tang_mother=1},
-        _place_tip = S("Infect Other Pots"),
-        on_place = function(itemstack, player, pointed_thing)
-            if not pointed_thing or pointed_thing.type ~= "node" then
-                return
-            end
-            local pos = pointed_thing.under
-            local storedlq =
-                liquid_store.stored_liquids[minetest.get_node(pos).name]
-            if not storedlq or storedlq.source ~= "tech:tang_liquid" then
-                return
-            end
-            local meta = minetest.get_meta(pos)
-            if meta:contains("mothering") then return end
-            -- INFECT!
-            meta:set_int("mothering",1)
-            ncrafting.ferment_on_construct(pos)
-            if not minimal.player_in_creative(player) then
-                itemstack:take_item()
-                return itemstack
-            end
-        end,
+ncrafting.register_spreadable_microbe("mother_of_tang",{
+    description = S("Mother of Tang"),
+    inventory_image = "tech_mother_of_tang.png",
+    groups = {tang_mother=1},
+    _place_tip = S("Infect Other Pots"),
+    sounds = {infect=false} -- no sound
 })
 
 
@@ -252,6 +231,16 @@ local function drink_tang(pos, node, clicker, itemstack, pointed_thing, ininv)
                             {pos = pos, max_hear_distance = 3, gain = 0.25})
         return HEALTH.eatdrink(node.name, clicker, pointed_thing)
     end
+end
+
+local function mother_infection(player, pos, nodedef, itemstack, idef)
+    if not (idef.groups and idef.groups.tang_mother) then return end
+    local meta = minetest.get_meta(pos)
+    if meta:contains("mothering") then return end -- already infected
+    -- INFECT!
+    meta:set_int("mothering",1)
+    ncrafting.ferment_on_construct(pos)
+    return true
 end
 
 local function mother_on_timer(pos, elapsed)
@@ -296,6 +285,7 @@ liquid_store.register_stored_liquid(
         _ferment_time = {min=200,max=300},
         _ferment_temp_range = {min=10,max=34},
         _ferment_to = "tech:tang_vinegar_mother",
+        on_microbial_infection = mother_infection,
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
@@ -352,6 +342,7 @@ liquid_store.register_stored_liquid(
         _ferment_time = {min=200,max=300},
         _ferment_temp_range = {min=10,max=34},
         _ferment_to = "tech:wooden_tang_vinegar_mother",
+        on_microbial_infection = mother_infection,
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,

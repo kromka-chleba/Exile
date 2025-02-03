@@ -85,7 +85,7 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3, 0.3, -0.3, 0.3},
         },
-        groups = {crumbly = 3, dig_immediate = 3, temp_pass = 1, heatable = 80},
+        groups = {crumbly = 3, dig_immediate = 3, temp_pass = 1, heatable = 80, cake_flour = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
 })
 
@@ -104,7 +104,7 @@ minetest.register_node(
             fixed = {-0.28, -0.5, -0.28, 0.28, -0.32, 0.28},
         },
         groups = {crumbly = 3, falling_node = 1, dig_immediate = 3,
-                  temp_pass = 1, heatable = 80, edible = 1, bread_flour = 1},
+                  temp_pass = 1, heatable = 80, edible = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         _use_tip = S("Eat"),
 })
@@ -327,6 +327,68 @@ minetest.register_node(
         paramtype = "light"
 })
 
+-- all-purpose flour
+minetest.register_node(
+    "tech:all_flour",  {
+        description = S("All-Purpose Flour"),
+        -- texture should always be an equal mix of cake flour and bread flour (tech_flour vs tech_flour_strong)
+        tiles = {"tech_flour_all.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, flour=1, temp_pass = 1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
+-- BARSHOCHA FLOUR
+-- needs to be treated with lye (potash solution) to remove toxins
+minetest.register_node(
+    "tech:barszcz_flour_raw", {
+        description = S("Uncured Barshocha Flour"),
+        tiles = {"tech_flour_bitter.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, flour=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+        on_construct = function(pos)
+            ncrafting.start_soak(pos, 100, 10)
+        end,
+        on_timer = function(pos, elapsed)
+            -- requires lye to cure
+            return ncrafting.do_soak(pos, "tech:barszcz_flour", 10, elapsed, function(above)
+                above = core.get_node(above)
+                if above.name == "tech:potash_flowing" or above.name == "tech:potash_source" then
+                    return true
+                end
+            end)
+        end
+})
+
+-- bready flour
+minetest.register_node(
+    "tech:barszcz_flour", {
+        description = S("Cured Barshocha Flour"),
+        tiles = {"tech_flour_strong.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-6/16, -0.5, -6/16, 6/16, -0.3, 6/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, flour=1, bread_flour=1, lye_flour=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light"
+})
+
 ---- DOUGHS
 
 -- dough fermentation mechanics
@@ -424,6 +486,16 @@ local dough_after_place_node = function(pos, placer, itemstack, pointed_thing)
     ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
 end
 
+local dough_infection = function(player, pos, nodedef, itemstack, idef)
+    idef = idef or itemstack and itemstack:get_definition()
+    if not (idef and idef.groups and idef.groups.infect_dough) then return end
+    local meta = core.get_meta(pos)
+    if meta:contains("ferment") then return end -- already infected
+    -- successful infection
+    ncrafting.ferment_on_construct(pos)
+    return true
+end
+
 minetest.register_node(
     "tech:maraka_dough",  {
         description = S("Maraka Dough"),
@@ -434,7 +506,7 @@ minetest.register_node(
           type = "fixed",
           fixed = {-4/16, -0.5, -4/16, 4/16, -4/16, 4/16},
         },
-        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1,
+        groups = {dig_immediate = 3, falling_node=1, dough=1, cake_dough=1,
               heatable=75, temp_pass=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
@@ -444,6 +516,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
+        on_microbial_infection = dough_infection,
         on_timer = get_dough_on_timer(),
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
@@ -469,6 +542,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
+        on_microbial_infection = dough_infection,
         on_timer = get_dough_on_timer(),
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
@@ -494,15 +568,71 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
-        on_timer = get_dough_on_timer(),
-        preserve_metadata = dough_preserve_metadata,
-        after_place_node = dough_after_place_node,
-        on_construct = function(pos)
-            minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
-        end,
+        on_microbial_infection = dough_infection,
         on_timer = get_dough_on_timer(0.03), -- 3% chance
         preserve_metadata = dough_preserve_metadata,
         after_place_node = dough_after_place_node
+})
+
+minetest.register_node(
+    "tech:all_dough",  {
+        description = S("All-Purpose Dough"),
+        -- likewise to all-purpose flour, texture must be a mix of regular and strong dough
+        tiles = {"tech_dough_all.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -4/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, dough=1,
+            heatable=75, temp_pass=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+        _ferment_time = {min=14,max=40},
+        _ferment_temp_range = dough_yeast_temp_range,
+        _ferment_to = "tech:all_dough_fermented",
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+        end,
+        on_microbial_infection = dough_infection,
+        on_timer = get_dough_on_timer(0.02), -- 2% chance
+        preserve_metadata = dough_preserve_metadata,
+        after_place_node = dough_after_place_node
+})
+
+minetest.register_node(
+    "tech:barszcz_dough",  {
+        description = S("Barshocha Dough"),
+        tiles = {"tech_dough_strong.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -4/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, dough=1, bread_dough=1,
+            heatable=80, temp_pass=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+        _ferment_time = {min=15,max=40},
+        _ferment_temp_range = dough_yeast_temp_range,
+        _ferment_to = "tech:barszcz_dough_fermented",
+        on_construct = function(pos)
+            minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
+        end,
+        on_microbial_infection = dough_infection,
+        on_timer = get_dough_on_timer(0.005), -- 0.5% chance
+        preserve_metadata = dough_preserve_metadata,
+        after_place_node = dough_after_place_node
+})
+
+-- YEASTS
+
+ncrafting.register_spreadable_microbe("yeast_dough",{
+    description = S("Ikippe Yeast"),
+    _place_tip = S("Infect Dough"),
+    groups = {infect_dough = 1}
 })
 
 ---- FERMENTED DOUGHS
@@ -541,7 +671,7 @@ minetest.register_node(
           fixed = {-4/16, -0.5, -4/16, 4/16, -3/16, 4/16},
         },
         groups = {dig_immediate = 3, falling_node=1, fermented_dough=1,
-            fermented_bread_dough=1, heatable=85, temp_pass=1},
+            fermented_cake_dough=1, heatable=85, temp_pass=1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         preserve_metadata = ferm_dough_preserve_metadata
@@ -584,52 +714,43 @@ minetest.register_node(
         end
 })
 
--- YEASTS
+minetest.register_node(
+    "tech:barszcz_dough_fermented",  {
+        description = S("Fermented @1",S("Barshocha Dough")),
+        tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -3/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, fermented_dough=1,
+            fermented_bread_dough=1, lye_dough=1, gummy_dough=1, heatable=80, temp_pass=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+        preserve_metadata = ferm_dough_preserve_metadata,
+        breads_get_microbes = function(pos, oldnode, nodedef)
+            return math.random(1,6)
+        end
+})
 
-local function yeast_infect(pos, nodedef)
-    nodedef = nodedef or minetest.registered_nodes[minetest.get_node(pos).name]
-    -- we don't affect no non-doughs
-    if not (nodedef.groups and nodedef.groups.dough) then return end
-    -- can't ferment
-    if not nodedef._ferment_to then return end
-    local meta = minetest.get_meta(pos)
-    -- already fermenting, return
-    if meta:contains("ferment") then return end
-    -- successful infection
-    ncrafting.ferment_on_construct(pos)
-    -- allow fermentables to list and play a custom infect sound
-    local infect_sound = nodedef.sounds and nodedef.sounds.place_infect or {
-        name = "nodes_nature_dig_snappy",
-        gain = 0.7
-    }
-    infect_sound = table.copy(infect_sound)
-    infect_sound.pos = pos
-    minetest.sound_play(infect_sound.name, infect_sound)
-    return true -- tell the function of successful infection
-end
-
-minetest.register_craftitem(
-    "tech:yeast_dough", {
-        description = S("Ikippe Yeast"),
-        inventory_image = "tech_yeast_dough_spores.png",
-        stack_max = minimal.stack_max_medium*4,
-        _place_tip = S("Infect Dough"),
-        on_place = function(itemstack, player, pointed_thing)
-            if not pointed_thing or pointed_thing.type ~= "node" then
-                return
-            end
-            local pos = pointed_thing.under
-            local nodedef = minimal.get_nodedef(pos)
-            -- can't infect, return
-            if not yeast_infect(pos, nodedef) then return end
-            -- successfully infected, take away item and make message
-            minimal.send_message(player, nil,
-                S("Yeast added to the @1", nodedef.description))
-            if not minimal.player_in_creative(player) then
-                itemstack:take_item()
-                return itemstack
-            end
-        end,
+minetest.register_node(
+    "tech:all_dough_fermented",  {
+        description = S("Fermented @1",S("All-Purpose Dough")),
+        tiles = {"tech_dough_all.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
+        stack_max = minimal.stack_max_medium * 2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-5/16, -0.5, -5/16, 5/16, -3/16, 5/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, fermented_dough=1, heatable=85, temp_pass=1},
+        sounds = nodes_nature.node_sound_dirt_defaults(),
+        paramtype = "light",
+        preserve_metadata = ferm_dough_preserve_metadata,
+        breads_get_microbes = function(pos, oldnode, nodedef)
+            return math.random(2,4)
+        end
 })
 
 ---- BREADS
@@ -702,6 +823,43 @@ minetest.register_node(
         },
         groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
         sounds = tech.node_sound_bread_unleavened_defaults(),
+        paramtype = "light",
+})
+
+-- all-purpose breads
+-- reference: https://www.allrecipes.com/recipe/241680/unleavened-bread-for-communion/
+minetest.register_node(
+    "tech:bread_unleavened_all",  {
+        description = S("Basic Crackerbread"),
+        tiles = {"tech_bread_unleavened_all.png"},
+        stack_max = minimal.stack_max_medium*3,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {-4/16, -0.5, -4/16, 4/16, -6/16, 4/16},
+        },
+        groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
+        sounds = nodes_nature.node_sound_defaults(),--tech.node_sound_bread_unleavened_defaults(),
+        paramtype = "light",
+})
+
+-- all-purpose dough baked (not sure what it'd exactly be, but I imagine soft? - TPH)
+minetest.register_node(
+    "tech:bread_all", {
+        description = S("Soft Bread"),
+        groups = {dig_immediate = 3, falling_node=1, baked_bread=1},
+        tiles = {"tech_bread_all.png"},
+        stack_max = minimal.stack_max_medium*2,
+        drawtype = "nodebox",
+        node_box = {
+          type = "fixed",
+          fixed = {
+            {-5.5/16, -0.5, -5.5/16, 5.5/16, -2/16, 5.5/16}, -- main
+            {-4/16, -2/16, -4/16, 4/16, -1/16, 4/16}, -- 2nd
+            {-2/16, -1/16, -2/16, 2/16, -0.5/16, 2/16} -- top
+          }
+        },
+        sounds = tech.node_sound_bread_defaults(),
         paramtype = "light",
 })
 
@@ -827,11 +985,32 @@ crafting.register_recipe({
     always_known = true,
 })
 
+-- grind barshocha roots into flour
+
+crafting.register_recipe({
+    type = {"mortar_and_pestle"},
+    output = "tech:barszcz_flour_raw",
+    items = {"nodes_nature:barszcz_root 6"},
+    level = 1,
+    always_known = true,
+})
+
+-- mix bready flours into all-purpose
+
+crafting.register_recipe({
+    type = "breadmaking",
+    output = "tech:all_flour 2",
+    items = {'group:bread_flour', 'group:cake_flour'},
+    level = 1,
+    always_known = true,
+})
+
 -- wet flours for doughs
 
 for dough,flour in pairs(
   {["tech:maraka_dough"] = "tech:maraka_bread_cooked 12",
-  ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked"}) do
+  ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked",
+  ["tech:all_dough"] = "tech:all_flour", ["tech:barszcz_dough"] = "tech:barszcz_flour"}) do
     -- get count from itemstring
     local count = tonumber(flour:match"%s%d+") -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
     if not count then
