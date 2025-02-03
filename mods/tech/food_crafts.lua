@@ -830,7 +830,7 @@ minetest.register_node(
 -- reference: https://www.allrecipes.com/recipe/241680/unleavened-bread-for-communion/
 minetest.register_node(
     "tech:bread_unleavened_all",  {
-        description = S("Basic Cracker"),
+        description = S("Basic Crackerbread"),
         tiles = {"tech_bread_unleavened_all.png"},
         stack_max = minimal.stack_max_medium*3,
         drawtype = "nodebox",
