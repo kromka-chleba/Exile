@@ -514,14 +514,64 @@ local function eject_drops(dropitem, pos, speed)
                 z = ran(-3, 3)
         })
 
-        --placeholder to tidy up
-        minetest.after(6, function()
-                           obj:remove()
-        end)
-
-
+        local itemdef = core.registered_nodes[dropitem]
+        -- not a node, remove after 5 to 35secs
+        if not itemdef then
+            core.after(ran(5, 35), function()
+                obj:remove()
+            end)
+            return
+        end
+        -- function for checking position and placing on success
+        local check_placing -- define prior to be used by self
+        check_placing = function(oldpos)
+            local newpos = obj:get_pos()
+            if not vector.check(newpos) then return end -- we got deletus
+            -- can't be placed, too far from old position
+            if vector.distance(oldpos, newpos) > 0.1 then
+                -- run every 0.7 to 1.2 seconds
+                core.after(ran(7,12)/10, check_placing, newpos)
+                return
+            end
+            -- LET'S PLACE THIS!!!
+            local function place_item()
+                obj:remove() -- remove now that we've placed
+                core.set_node(newpos, {name = dropitem})
+                local place_sound = itemdef.sounds and itemdef.sounds.place
+                -- play place sound
+                if place_sound then
+                    core.sound_play(place_sound.name, minimal.merge_tables(place_sound, {pos = newpos}))
+                end
+                -- check falling
+                if itemdef.groups and itemdef.groups.falling_node then
+                    core.check_single_for_falling(newpos)
+                end
+            end
+            newpos = vector.new(math.floor(newpos.x + 0.5), math.floor(newpos.y + 0.5), math.floor(newpos.z + 0.5))
+            -- ran twice to see if we can place this
+            local try_placing -- define prior to be used by self
+            try_placing = function(tries)
+                -- couldn't place, so remove!
+                if tries and tries > 1 then obj:remove() end
+                -- check up by how many tries
+                newpos.y = tries and newpos.y + tries or newpos.y
+                local andef = minimal.get_nodedef(newpos) -- at node definition
+                -- remove nil nodes
+                if not andef then
+                    place_item()
+                -- we can replace this pesky node
+                elseif andef.buildable_to then
+                    place_item()
+                -- keeps trying until limit is reached (2)
+                else
+                    try_placing(tries and tries + 1 or 1)
+                end
+            end
+            try_placing()
+        end
+        -- begin checks after 0.8 to 1.8 seconds
+        core.after(ran(8,18)/10, check_placing, drop_pos)
     end
-    -- TODO: make these land as placed nodes, not items
 end
 
 
