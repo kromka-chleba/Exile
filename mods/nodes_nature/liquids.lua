@@ -559,8 +559,8 @@ local function eject_drops(dropitem, pos, speed)
                 -- remove nil nodes
                 if not andef then
                     place_item()
-                -- we can replace this pesky node
-                elseif andef.buildable_to then
+                -- we can replace this pesky node (if not lava and is buildable_to)
+                elseif andef.name ~= "nodes_nature:lava_source" and andef.buildable_to then
                     place_item()
                 -- keeps trying until limit is reached (2)
                 else
