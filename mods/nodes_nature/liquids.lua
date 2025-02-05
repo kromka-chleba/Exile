@@ -660,7 +660,7 @@ local lava_actions = function(pos, node)
     climate.air_temp_source(pos, lava_temp_effect, lava_heater, 0.5, 15)
 
     --what's above?
-    local posa =         {x = pos.x, y = pos.y+1, z = pos.z}
+    local posa = vector.new(pos.x, pos.y+1, pos.z)
     local aname = minetest.get_node(posa).name
 
     --exposed to air?
@@ -718,21 +718,15 @@ local lava_actions = function(pos, node)
             end
         end
 
-        local flying = false
-        local pos_under = {x = pos.x, y = pos.y-1, z = pos.z}
-        local under_name = minetest.get_node(pos_under).name
-        local nodedef = minetest.registered_nodes[under_name]
-        local walkable = nodedef.walkable
-        if not nodedef or not walkable then
-            if under_name ~= "nodes_nature:lava_source" then
-                flying = true
-            end
-        end
+        local under_pos = vector.new(pos.x, pos.y-1, pos.z)
+        local under = minimal.get_nodedef(under_pos)
+        -- can throw rocks if not a defined node or if not walkable or not a lava_source
+        local flying = not under and true or not (under.walkable or under.name == "nodes_nature:lava_source") and true
 
         --cool source to basalt, or melt above
         if nodename == "nodes_nature:lava_source" then
 
-            if flying == false and ran()>0.15 then
+            if not flying and ran()>0.15 then
 
                 minetest.set_node(pos, {name = "nodes_nature:basalt"})
                 minetest.sound_play("nodes_nature_cool_lava",
@@ -752,13 +746,12 @@ local lava_actions = function(pos, node)
                                          gain = 0.25})
                 end
             end
-
-            --flowing will solidy the air node and leave tunnels
-            -- launches rocks
+        -- flowing will solidy the air node and leave tunnels
+        -- launches rocks
         elseif nodename == "nodes_nature:lava_flowing" then
 
-            --place stone
-            if flying == false then
+            --place stone blocks
+            if not flying then
                 if ran()<0.75 then
                     minetest.set_node(pos_air, {name = "nodes_nature:scoria"})
                     climate.air_temp_source(pos, lava_temp_effect,
@@ -766,16 +759,13 @@ local lava_actions = function(pos, node)
                 else
                     minetest.set_node(pos, {name = "nodes_nature:basalt"})
                 end
-
+            -- THROW DA BOULDER!
             elseif ran()>0.95 then
-                --minetest.set_node(pos, {name = "nodes_nature:scoria_boulder"})
-                --minetest.check_for_falling(pos)
                 eject_drops("nodes_nature:scoria_boulder", pos, gpos)
             end
 
             minetest.sound_play("nodes_nature_cool_lava",
                                 {pos = pos, max_hear_distance = 16, gain = 0.25})
-            return
         end
 
     end
