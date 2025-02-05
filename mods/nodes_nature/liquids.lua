@@ -572,12 +572,9 @@ local erupt = function(pos, aname, h)
             break
         end
     end
-    if math.random() < 0.01 then
-        -- We don't want to play this too often otherwise the sound is glitchy
-        minetest.sound_play("nodes_nature_erupt_lava", {pos = pos,
-                                                        max_hear_distance = 50,
-                                                        gain = 5})
-    end
+    if height == 0 then return end -- couldn't even erupt
+    local gain = 5*(height/7)
+    minimal.sound_play("nodes_nature_erupt_lava",{pos = pos, gain = {gain,gain*1.3}, pitch = {0.75, 1.35}, max_hear_distance=50})
 end
 
 
@@ -650,7 +647,10 @@ local lava_actions = function(pos, node)
 
         --do eruption
         if gpos > 8 and ran() > 0.63 then
-            erupt(pos, aname, 2 + gpos)
+            -- randomize to prevent sound barrier breaking
+            core.after(ran(4,50)/10, function()
+                erupt(pos, aname, 2 + gpos)
+            end)
             --spread instability
             local spos = minetest.find_node_near(pos, 1,
                                                  {'nodes_nature:lava_source',
@@ -661,7 +661,7 @@ local lava_actions = function(pos, node)
                 if an == 'air' or an == 'climate:air_temp'
                     or an == "nodes_nature:lava_flowing" then
 
-                    minetest.after(ran(0.5,1), function()
+                    minetest.after(ran(20,115)/10, function() -- max should be A BIT more than the lava interval
                                        erupt(spos, an, 1)
                     end)
                 end
