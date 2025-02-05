@@ -627,6 +627,13 @@ local erupt = function(pos, aname, h)
     minimal.sound_play("nodes_nature_erupt_lava",{pos = pos, gain = {gain,gain*1.3}, pitch = {0.75, 1.35}, max_hear_distance=50})
 end
 
+-- utilized quite a few times across code, requires pos for playing at a position
+-- randomizes gain and pitch
+local function lava_cool_sound(pos)
+    minimal.sound_play("nodes_nature_cool_lava",
+        {pos = pos, max_hear_distance = 16, gain = {0.18,0.28}, pitch = {0.8, 1.2}})
+end
+
 
 --cools when exposed to air, melts solids, adds plumes
 local lava_actions = function(pos, node)
@@ -646,9 +653,7 @@ local lava_actions = function(pos, node)
         lava_particle(pos)
         minetest.set_node(pos, {name = "nodes_nature:volcanic_ash"})
         -- PLACEHOLDER! Ash is not technically correct, should be black sand
-        minetest.sound_play("nodes_nature_cool_lava", {pos = pos,
-                                                       max_hear_distance = 16,
-                                                       gain = 0.25})
+        lava_cool_sound(pos)
         minetest.check_for_falling(pos)
         --TODO: steam explosion effects
         return
@@ -729,9 +734,7 @@ local lava_actions = function(pos, node)
             if not flying and ran()>0.15 then
 
                 minetest.set_node(pos, {name = "nodes_nature:basalt"})
-                minetest.sound_play("nodes_nature_cool_lava",
-                                    {pos = pos, max_hear_distance = 16,
-                                     gain = 0.25})
+                lava_cool_sound(pos)
 
             elseif minetest.get_item_group(aname, "cracky") > 0
                 or minetest.get_item_group(aname, "crumbly") > 0 then
@@ -741,9 +744,7 @@ local lava_actions = function(pos, node)
                     --melt above
                     lava_particle(posa)
                     minetest.set_node(posa, {name = "nodes_nature:lava_source"})
-                    minetest.sound_play("nodes_nature_cool_lava",
-                                        {pos = pos, max_hear_distance = 16,
-                                         gain = 0.25})
+                    lava_cool_sound(posa)
                 end
             end
         -- flowing will solidy the air node and leave tunnels
@@ -763,9 +764,7 @@ local lava_actions = function(pos, node)
             elseif ran()>0.95 then
                 eject_drops("nodes_nature:scoria_boulder", pos, gpos)
             end
-
-            minetest.sound_play("nodes_nature_cool_lava",
-                                {pos = pos, max_hear_distance = 16, gain = 0.25})
+            lava_cool_sound(pos)
         end
 
     end
