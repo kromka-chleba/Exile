@@ -524,15 +524,16 @@ local function eject_drops(dropitem, pos, speed)
         end
         -- function for checking position and placing on success
         local check_placing -- define prior to be used by self
-        check_placing = function(oldpos)
-            local newpos = obj:get_pos()
-            if not vector.check(newpos) then return end -- we got deletus
-            -- can't be placed, too far from old position
-            if vector.distance(oldpos, newpos) > 0.1 then
-                -- run every 0.7 to 1.2 seconds
-                core.after(ran(7,12)/10, check_placing, newpos)
-                return
+        check_placing = function()
+            local vel = obj:get_velocity()
+            if not vector.check(vel) then return end -- we got deletus
+            vel = math.abs(vel.x)+math.abs(vel.y)+math.abs(vel.z)
+            -- gotta wait til we stop moving
+            if vel ~= 0 then
+                -- check every 0.4 to 0.7 seconds
+                return core.after(ran(4,7)/10, check_placing)
             end
+            local newpos = obj:get_pos()
             -- LET'S PLACE THIS!!!
             local function place_item()
                 obj:remove() -- remove now that we've placed
@@ -570,7 +571,7 @@ local function eject_drops(dropitem, pos, speed)
             try_placing()
         end
         -- begin checks after 0.8 to 1.8 seconds
-        core.after(ran(8,18)/10, check_placing, drop_pos)
+        core.after(ran(8,18)/10, check_placing)
     end
 end
 
