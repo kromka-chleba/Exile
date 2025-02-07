@@ -734,6 +734,11 @@ local lava_actions = function(pos, node)
 
             if not flying and ran()>0.15 then
 
+                -- maybe use a find node check instead? checking for more than 3 to 5 source nodes?
+                local temp = climate.get_point_temp(posa)
+                local stillmelted = ran() < temp/980
+                if stillmelted then return end
+                core.log(core.pos_to_string(pos).." HARDENING AT "..temp)
                 minetest.set_node(pos, {name = "nodes_nature:basalt"})
                 lava_cool_sound(pos)
 
@@ -754,18 +759,24 @@ local lava_actions = function(pos, node)
 
             --place stone blocks
             if not flying then
-                if ran()<0.75 then
-                    minetest.set_node(pos_air, {name = "nodes_nature:scoria"})
+                local temp = climate.get_point_temp(posa)
+                local stillmelted = ran() < temp/1120
+                if stillmelted then return end
+                local basaltchance = ran() > temp/1400
+                if basaltchance then
+                    core.log("flowing lava "..core.pos_to_string(pos).." hardening at temp "..temp)
+                    core.set_node(pos, {name = "nodes_nature:basalt"})
+                else
+                    core.log("flowing lava "..core.pos_to_string(pos).." making scoria at temp "..temp)
+                    core.set_node(pos_air, {name = "nodes_nature:scoria"})
                     climate.air_temp_source(pos, lava_temp_effect,
                                             lava_heater, 0.5, 15)
-                else
-                    minetest.set_node(pos, {name = "nodes_nature:basalt"})
                 end
+                lava_cool_sound(pos)
             -- THROW DA BOULDER!
             elseif ran()>0.95 then
                 eject_drops("nodes_nature:scoria_boulder", pos, gpos)
             end
-            lava_cool_sound(pos)
         end
 
     end
