@@ -706,30 +706,15 @@ local lava_actions = function(pos, node)
         --do eruption
         if gpos > 8 and ran() > 0.63 then
             -- randomize to prevent sound barrier breaking
-            core.after(ran(4,50)/10, function()
+            core.after(ran(5,115)/10, function() -- max should be a BIT more than the lava interval
                 erupt(pos, aname, 2 + gpos)
             end)
-            --spread instability
-            local spos = minetest.find_node_near(pos, 1,
-                                                 {'nodes_nature:lava_source',
-                                                  "nodes_nature:lava_flowing"})
-            if spos then
-                local pa =  {x = pos.x, y = pos.y+1, z = pos.z}
-                local an = minetest.get_node(pa).name
-                if an == 'air' or an == 'climate:air_temp'
-                    or an == "nodes_nature:lava_flowing" then
-
-                    minetest.after(ran(20,115)/10, function() -- max should be A BIT more than the lava interval
-                                       erupt(spos, an, 1)
-                    end)
-                end
-            end
         end
 
-        local under_pos = vector.new(pos.x, pos.y-1, pos.z)
-        local under = minimal.get_nodedef(under_pos)
+        local posu = vector.new(pos.x, pos.y-1, pos.z) -- pos under
+        local unode = minimal.get_nodedef(posu) -- under node
         -- can throw rocks if not a defined node or if not walkable or not a lava_source
-        local flying = not under and true or not (under.walkable or under.name == "nodes_nature:lava_source") and true
+        local flying = not unode and true or not (unode.walkable or unode.name == "nodes_nature:lava_source") and true
 
         --cool source to basalt, or melt above
         if nodename == "nodes_nature:lava_source" then
