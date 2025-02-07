@@ -438,6 +438,7 @@ local lava_source = {
     liquid_alternative_source = "nodes_nature:lava_source",
     liquid_viscosity = 7,
     liquid_renewable = false,
+    liquid_range = 3,
     damage_per_second = 4 * 2,
     post_effect_color = {a = 191, r = 255, g = 64, b = 0},
     groups = {igniter = 1, temp_effect = 1, temp_pass = 1},
@@ -486,6 +487,7 @@ local lava_flowing = {
     liquid_alternative_source = "nodes_nature:lava_source",
     liquid_viscosity = 7,
     liquid_renewable = false,
+    liquid_range = 3,
     damage_per_second = 4 * 2,
     post_effect_color = {a = 191, r = 255, g = 64, b = 0},
     groups = {igniter = 1, not_in_creative_inventory = 1,
@@ -760,6 +762,10 @@ local lava_actions = function(pos, node)
             --place stone blocks
             if not flying then
                 local temp = climate.get_point_temp(posa)
+                -- get above this node instead (if it was a temp node)
+                if temp > 1120 and aname == "climate:air_temp" then
+                    temp = climate.get_point_temp(minimal.pos_shift(posa,{y=1}))
+                end
                 local stillmelted = ran() < temp/1120
                 if stillmelted then return end
                 local basaltchance = ran() > temp/1400
@@ -792,7 +798,7 @@ minetest.register_abm({
         --neighbors = {"group:cracky", "group:crumbly", 'air', 'climate:air_temp'},
         interval = 10,
         chance = 3,
-        catch_up = false,
+        catch_up = true, -- deal with volcanoes
         action = function(...)
             lava_actions(...)
         end,
