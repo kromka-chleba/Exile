@@ -23,7 +23,7 @@ nodes_nature.rock_list = {
     {"scoria", S("Scoria"), 3},
     {"gneiss", S("Gneiss"), 1},
     {"jade", S("Jade"), 1, "nodes_nature_brick_pattern_jade.png", "nodes_nature_block_pattern_jade.png"},
-
+    {"dunite", S("Dunite"), 1},
 }
 
 nodes_nature.sed_list = {
