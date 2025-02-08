@@ -626,8 +626,8 @@ local erupt = function(pos, aname, h)
         end
     end
     if height == 0 then return end -- couldn't even erupt
-    local gain = 5*(height/7)
-    minimal.sound_play("nodes_nature_erupt_lava",{pos = pos, gain = {gain,gain*1.3}, pitch = {0.75, 1.35}, max_hear_distance=50})
+    local gain = 4*(height/7)
+    minimal.sound_play("nodes_nature_erupt_lava",{pos = pos, gain = {gain,gain*1.4}, pitch = {0.72, 1.45}, max_hear_distance=50})
 end
 
 -- utilized quite a few times across code, requires pos for playing at a position
