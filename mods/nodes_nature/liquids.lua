@@ -669,7 +669,8 @@ local lava_actions = function(pos, node)
 
     --what's above?
     local posa = vector.new(pos.x, pos.y+1, pos.z)
-    local aname = minetest.get_node(posa).name
+    local anode = core.get_node(posa).name
+    anode = core.registered_nodes[anode] or {name=anode, buildable_to=true} -- ensure no issues with undefined nodes
 
     --exposed to air?
     local pos_air = minetest.find_node_near(pos, 1, {"air", "climate:air_temp"})
@@ -707,12 +708,13 @@ local lava_actions = function(pos, node)
         if gpos > 8 and ran() > 0.63 then
             -- randomize to prevent sound barrier breaking
             core.after(ran(5,115)/10, function() -- max should be a BIT more than the lava interval
-                erupt(pos, aname, 2 + gpos)
+                erupt(pos, anode.name, 2 + gpos)
             end)
         end
 
         local posu = vector.new(pos.x, pos.y-1, pos.z) -- pos under
-        local unode = minimal.get_nodedef(posu) -- under node
+        local unode = core.get_node(posu).name -- under node
+        unode = core.registered_nodes[unode] or {name=unode} -- ensure no issues with undefined nodes
         -- can throw rocks if not a defined node or if not walkable or not a lava_source
         local flying = not unode and true or not (unode.walkable or unode.name == "nodes_nature:lava_source") and true
 
@@ -725,12 +727,11 @@ local lava_actions = function(pos, node)
                 local temp = climate.get_point_temp(posa)
                 local stillmelted = ran() < temp/980
                 if stillmelted then return end
-                core.log(core.pos_to_string(pos).." HARDENING AT "..temp)
                 minetest.set_node(pos, {name = "nodes_nature:basalt"})
                 lava_cool_sound(pos)
 
-            elseif minetest.get_item_group(aname, "cracky") > 0
-                or minetest.get_item_group(aname, "crumbly") > 0 then
+            elseif minetest.get_item_group(anode.name, "cracky") > 0
+                or minetest.get_item_group(anode.name, "crumbly") > 0 then
 
                 --check it has "force" nearby
                 if gpos > 8 then -- We ran this check already, reuse it
@@ -753,10 +754,8 @@ local lava_actions = function(pos, node)
                 -- nearing the end of our line, chance to become basalt
                 local basaltchance = node.param2 < 6 and ran() > node.param2/6
                 if basaltchance then
-                    core.log("flowing lava "..core.pos_to_string(pos).." hardening at param2 "..node.param2)
                     core.set_node(pos, {name = "nodes_nature:basalt"})
                 else
-                    core.log("flowing lava "..core.pos_to_string(pos).." making scoria at param2 "..node.param2)
                     core.set_node(pos_air, {name = "nodes_nature:scoria"})
                     climate.air_temp_source(pos, lava_temp_effect,
                                             lava_heater, 0.5, 15)
