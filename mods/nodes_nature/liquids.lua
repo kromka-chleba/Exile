@@ -130,7 +130,7 @@ for _, water in pairs(list) do
             liquid_alternative_flowing = "nodes_nature:"..name.."_flowing",
             liquid_alternative_source = "nodes_nature:"..name.."_source",
             liquid_viscosity = 1,
-            liquid_range = 0,
+            liquid_range = 3,
             liquid_renewable = renew,
             post_effect_color = {a = post_alpha, r = 30, g = 60, b = 90},
             groups = {water = water_g, cools_lava = 1,
@@ -182,7 +182,7 @@ for _, water in pairs(list) do
             drop = "",
             drowning = 1,
             liquidtype = "flowing",
-            liquid_range = 2,
+            liquid_range = 3,
             liquid_alternative_flowing = "nodes_nature:"..name.."_flowing",
             liquid_alternative_source = "nodes_nature:"..name.."_source",
             liquid_viscosity = 1,
@@ -617,7 +617,7 @@ local erupt = function(pos, aname, h)
         if ran()<0.8 then
             height = height + 1
             pos.y = pos.y + 1
-            minetest.set_node(pos, {name = "nodes_nature:lava_flowing"})
+            minetest.set_node(pos, {name = "nodes_nature:lava_flowing", param2=10})
             local posa =   {x = pos.x, y = pos.y+1, z = pos.z}
             lava_particle(posa)
             aname = minetest.get_node(posa).name
@@ -746,19 +746,17 @@ local lava_actions = function(pos, node)
 
             --place stone blocks
             if not flying then
-                local temp = climate.get_point_temp(posa)
-                -- get above this node instead (if it was a temp node)
-                if temp > 1120 and aname == "climate:air_temp" then
-                    temp = climate.get_point_temp(minimal.pos_shift(posa,{y=1}))
-                end
-                local stillmelted = ran() < temp/1120
+                -- still melty if node param2 is greater than 6 or lava underneath
+                -- otherwise random chance with node.param2 divided by 7
+                local stillmelted = (node.param2 > 6 or unode.name:match("lava")) and true or ran() > node.param2/7
                 if stillmelted then return end
-                local basaltchance = ran() > temp/1400
+                -- nearing the end of our line, chance to become basalt
+                local basaltchance = node.param2 < 6 and ran() > node.param2/6
                 if basaltchance then
-                    core.log("flowing lava "..core.pos_to_string(pos).." hardening at temp "..temp)
+                    core.log("flowing lava "..core.pos_to_string(pos).." hardening at param2 "..node.param2)
                     core.set_node(pos, {name = "nodes_nature:basalt"})
                 else
-                    core.log("flowing lava "..core.pos_to_string(pos).." making scoria at temp "..temp)
+                    core.log("flowing lava "..core.pos_to_string(pos).." making scoria at param2 "..node.param2)
                     core.set_node(pos_air, {name = "nodes_nature:scoria"})
                     climate.air_temp_source(pos, lava_temp_effect,
                                             lava_heater, 0.5, 15)
