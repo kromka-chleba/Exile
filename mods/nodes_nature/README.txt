@@ -186,6 +186,7 @@ From TPH (CC0)
 	nodes_nature_brick_pattern_jade.png
 	nodes_nature_lava_source_animated.png
 	nodes_nature_lava_flowing_animated.png
+	nodes_nature_lava.png
 
 Voxeel
 (marked CC0)
