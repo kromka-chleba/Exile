@@ -438,7 +438,7 @@ local lava_source = {
     liquid_alternative_source = "nodes_nature:lava_source",
     liquid_viscosity = 7,
     liquid_renewable = false,
-    liquid_range = 3,
+    liquid_range = 5,
     damage_per_second = 4 * 2,
     post_effect_color = {a = 191, r = 255, g = 64, b = 0},
     groups = {igniter = 1, temp_effect = 1, temp_pass = 1},
@@ -487,7 +487,7 @@ local lava_flowing = {
     liquid_alternative_source = "nodes_nature:lava_source",
     liquid_viscosity = 7,
     liquid_renewable = false,
-    liquid_range = 3,
+    liquid_range = 5,
     damage_per_second = 4 * 2,
     post_effect_color = {a = 191, r = 255, g = 64, b = 0},
     groups = {igniter = 1, not_in_creative_inventory = 1,
@@ -747,12 +747,12 @@ local lava_actions = function(pos, node)
 
             --place stone blocks
             if not flying then
-                -- still melty if node param2 is greater than 6 or lava underneath
-                -- otherwise random chance with node.param2 divided by 7
-                local stillmelted = (node.param2 > 6 or unode.name:match("lava")) and true or ran() > node.param2/7
+                -- still melty if node param2 is greater than 11 or lava underneath
+                -- otherwise random chance with node.param2 divided by 12
+                local stillmelted = (node.param2 > 11 or unode.name:match("lava")) and true or ran() > node.param2/12
                 if stillmelted then return end
                 -- nearing the end of our line, chance to become basalt
-                local basaltchance = node.param2 < 6 and ran() > node.param2/6
+                local basaltchance = node.param2 < 10 and ran() > node.param2/10
                 if basaltchance then
                     core.set_node(pos, {name = "nodes_nature:basalt"})
                 else
