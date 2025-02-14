@@ -762,10 +762,17 @@ local lava_actions = function(pos, node)
                 end
                 lava_cool_sound(pos)
             -- THROW DA ROCKS!
-            elseif ran()>0.95 then
-                -- 0.5% chance to expel dunite cobble
-                if ran()<0.005 then
-                    eject_drops("nodes_nature:dunite_cobble"..ran(3), pos, gpos)
+            elseif ran()>0.98 then
+                -- 34% chance for cobbles
+                if ran()<0.34 then
+                    -- 3% chance to expel dunite cobble
+                    if ran()<0.03 then
+                        eject_drops("nodes_nature:dunite_cobble"..ran(3), pos, gpos)
+                    -- scoria cobble
+                    else
+                        eject_drops("nodes_nature:scoria_cobble"..ran(3), pos, gpos)
+                    end
+                -- BOULDER
                 else
                     eject_drops("nodes_nature:scoria_boulder", pos, gpos)
                 end
