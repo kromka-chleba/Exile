@@ -460,14 +460,14 @@ local function growing_side_effects(pos, progress, pdef)
     grow_roots(pos, pos_under, progress, pdef)
 end
 
-local function calculate_growth_progress(pos, good_cycles_in, rain_cycles_in)
+local function calculate_growth_progress(pos, pdef, good_cycles_in, rain_cycles_in)
     local good_cycles = good_cycles_in or 1
     local rain_cycles = rain_cycles_in or 0
     if rain_cycles == 0 and climate.get_rain(pos) then
         rain_cycles = 1
     end
-    local soil = nn.plant.soil_response(pos)
-    local progress = soil * (good_cycles + rain_cycles * 4)
+    local soil = nn.plant.soil_response(pos, pdef)
+    local progress = soil * (good_cycles + rain_cycles * 1.5)
     return progress
 end
 
@@ -475,7 +475,7 @@ local function time_to_cycles(time)
     return time / nn.plant_base_timer
 end
 
-local function progress_surface(pos, elapsed)
+local function progress_surface(pos, elapsed, pdef)
     local mushroom = is_mushroom(pos)
     -- climate history is stored in 60s chunks, called "cycles" here for reasons
     -- number of cycles
@@ -483,16 +483,16 @@ local function progress_surface(pos, elapsed)
     local good_cycles = time_to_cycles(good_time)
     local rain_cycles = time_to_cycles(rain_time)
 
-    local progress = calculate_growth_progress(pos, good_cycles, rain_cycles)
+    local progress = calculate_growth_progress(pos, pdef, good_cycles, rain_cycles)
     if mushroom then return progress end
     local light_cofactor = get_light_cofactor(pos)
 
     return progress * light_cofactor
 end
 
-local function progress_underground(pos, elapsed)
+local function progress_underground(pos, elapsed, pdef)
     local good_cycles = time_to_cycles(elapsed)
-    local progress = calculate_growth_progress(pos, good_cycles)
+    local progress = calculate_growth_progress(pos, pdef, good_cycles)
     if is_mushroom(pos) then
         return progress
     end
@@ -500,24 +500,25 @@ local function progress_underground(pos, elapsed)
     return progress * light_cofactor
 end
 
-local function past_growth_progress(pos, elapsed)
-    if elapsed > nn.plant_base_timer then
+local function past_growth_progress(pos, elapsed, pdef)
+    -- only check if above greatest possible time
+    if elapsed > nn.plant_base_timer*1.1 then
         if pos.y < -15 then
-            return progress_underground(pos, elapsed)
+            return progress_underground(pos, elapsed, pdef)
         else
-            return progress_surface(pos, elapsed)
+            return progress_surface(pos, elapsed, pdef)
         end
     else
         return 0
     end
 end
 
-local function current_growth_progress(pos, elapsed)
+local function current_growth_progress(pos, elapsed, pdef)
     if is_mushroom(pos) then
-        return calculate_growth_progress(pos)
+        return calculate_growth_progress(pos, pdef)
     else
         local light_cofactor = get_light_cofactor(pos)
-        return calculate_growth_progress(pos) * light_cofactor
+        return calculate_growth_progress(pos, pdef) * light_cofactor
     end
 end
 
@@ -621,8 +622,8 @@ function nn.plant.grow_plant(pos, elapsed_full)
     elapsed_full = elapsed_full/nn.plant_base_timer -- convert to cycle
     local elapsed = elapsed_full + seed_elapsed(meta)
     local elapsed_secs = elapsed*nn.plant_base_timer
-    local current_progress = current_growth_progress(pos, elapsed_secs)
-    local past_progress = past_growth_progress(pos, elapsed_secs)
+    local current_progress = current_growth_progress(pos, elapsed_secs, pdef)
+    local past_progress = past_growth_progress(pos, elapsed_secs, pdef)
     local temp = climate.get_point_temp(pos) -- temperature
     -- check what our progress should be according to light (will be normal if not artificial light dependent)
     current_progress = catchup_progress_light(pos, elapsed_secs, current_progress, pdef)
