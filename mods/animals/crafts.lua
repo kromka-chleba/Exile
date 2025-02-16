@@ -115,30 +115,13 @@ for i in ipairs(list) do
     local stack = list[i][4]
     local heat = list[i][5]
 
-    local carcass = 0
     -- when defining carcass type, add a space of 4 (1 = invert, +4 = bird = 5)
-    if (string.match(name,"invert")) then -- arthropods and insects
-        carcass = 1
-    elseif (string.match(name,"bird")) then
-        carcass = 5
-    elseif (string.match(name,"fish")) then
-        carcass = 9
-    elseif (string.match(name,"reptile")) then
-        carcass = 13
-    elseif (string.match(name,"mammal")) then
-        carcass = 17
-    end
-    if (carcass == 0) then -- unknown carcass type
-        carcass = 1000
-    end
+    -- unknown carcass is 21
+    local carcass = name:match("invert") and 1 or name:match("bird") and 5 or
+      name:match("fish") and 9 or name:match("reptile") and 13 or
+      name:match("mammal") and 17 or 21
     -- small would be the base value - 1 for invert, 4 for bird, 7 for fish
-    if (string.match(name,"medium")) then
-        carcass = carcass + 1
-    elseif (string.match(name,"large")) then
-        carcass = carcass + 2
-    elseif (string.match(name,"gargantuan")) then
-        carcass = carcass + 3
-    end
+    carcass = carcass + (name:match("medium") and 1 or name:match("large") and 2 or name:match("gargantuan") and 3 or 0)
 
     --raw
     minetest.register_node("animals:carcass_"..name, {
