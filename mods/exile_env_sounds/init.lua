@@ -181,78 +181,81 @@ local function update_sound(player)
 
     --undercity darkness haunting
     if ppos.y < -140 and ppos.y > -1150 then
+        --disembodied voices breaking through from another dimension
+        --memories of the past? Or are they trapped somewhere?
+        if ran()<0.1 then
+            
+            local r = ran(-15,15)
+            local ranpos = {x = ppos.x + r, y = ppos.y + r/10, z = ppos.z + r }
+            local node = minetest.get_node(ranpos).name
+            
+            if node ~= 'air' then return end
+            
+            local l = minetest.get_node_light(ranpos)
+            if l < 5 then
 
-        local r = ran(-15,15)
-        local ranpos = {x = ppos.x + r, y = ppos.y + r/10, z = ppos.z + r }
+                local roll = ran()
+                if roll < 0.25 then
+                    minetest.sound_play(
+                        "env_sounds_haunt",
+                        {
+                            pos = ranpos,
+                            to_player = player_name,
+                            --max_hear_distance = 30,
+                            gain = 1.4-math.abs(r/15),
+                        }
+                    )
+                elseif roll < 0.5 then
+                    minetest.sound_play(
+                        "env_sounds_haunt2",
+                        {
+                            pos = ranpos,
+                            to_player = player_name,
+                            --max_hear_distance = 30,
+                            gain = 1.4-math.abs(r/15),
+                        }
+                    )
 
-        local node = minetest.get_node(ranpos).name
-        if node ~= 'air' then return end
+                elseif roll < 0.75 then
+                    minetest.sound_play(
+                        "env_sounds_haunt3",
+                        {
+                            pos = ranpos,
+                            to_player = player_name,
+                            --max_hear_distance = 30,
+                            gain = 1.4-math.abs(r/15),
+                        }
+                    )
+                else
+                    minetest.sound_play(
+                        "env_sounds_haunt4",
+                        {
+                            pos = ranpos,
+                            to_player = player_name,
+                            --max_hear_distance = 30,
+                            gain = 1.4-math.abs(r/15),
+                        }
+                    )
+                end
 
-        local l = minetest.get_node_light(ranpos)
-        if l < 6 then
+                minetest.add_particlespawner({
+                        amount = 24,
+                        time = 12,
+                        minpos = {x=ranpos.x-5, y=ranpos.y-3, z=ranpos.z-5},
+                        maxpos = {x=ranpos.x+5, y=ranpos.y+4, z=ranpos.z+5},
+                        minvel = {x = -0.3,  y = -0.3,  z = -0.3},
+                        maxvel = {x = 0.3, y = 0.4, z = 0.3},
+                        minacc = {x = -0.1, y = -0.1, z = -0.1},
+                        maxacc = {x = 0.1, y = 0.3, z = 0.1},
+                        minexptime = 0.01,
+                        maxexptime = 0.4,
+                        minsize = 0.4,
+                        maxsize = 0.6,
+                        texture = "env_sounds_haunt.png",
+                        glow = 7,
+                })
 
-            --disembodied voices breaking through from another dimension
-            --memories of the past? Or are they trapped somewhere?
-            local roll = ran()
-            if roll < 0.25 then
-                minetest.sound_play(
-                    "env_sounds_haunt",
-                    {
-                        pos = ranpos,
-                        to_player = player_name,
-                        --max_hear_distance = 30,
-                        gain = 1.4-math.abs(r/15),
-                    }
-                )
-            elseif roll < 0.5 then
-                minetest.sound_play(
-                    "env_sounds_haunt2",
-                    {
-                        pos = ranpos,
-                        to_player = player_name,
-                        --max_hear_distance = 30,
-                        gain = 1.4-math.abs(r/15),
-                    }
-                )
-
-            elseif roll < 0.75 then
-                minetest.sound_play(
-                    "env_sounds_haunt3",
-                    {
-                        pos = ranpos,
-                        to_player = player_name,
-                        --max_hear_distance = 30,
-                        gain = 1.4-math.abs(r/15),
-                    }
-                )
-            else
-                minetest.sound_play(
-                    "env_sounds_haunt4",
-                    {
-                        pos = ranpos,
-                        to_player = player_name,
-                        --max_hear_distance = 30,
-                        gain = 1.4-math.abs(r/15),
-                    }
-                )
             end
-
-            minetest.add_particlespawner({
-                    amount = 24,
-                    time = 12,
-                    minpos = {x=ranpos.x-5, y=ranpos.y-3, z=ranpos.z-5},
-                    maxpos = {x=ranpos.x+5, y=ranpos.y+4, z=ranpos.z+5},
-                    minvel = {x = -0.3,  y = -0.3,  z = -0.3},
-                    maxvel = {x = 0.3, y = 0.4, z = 0.3},
-                    minacc = {x = -0.1, y = -0.1, z = -0.1},
-                    maxacc = {x = 0.1, y = 0.3, z = 0.1},
-                    minexptime = 0.01,
-                    maxexptime = 0.4,
-                    minsize = 0.2,
-                    maxsize = 0.4,
-                    texture = "env_sounds_haunt.png",
-                    glow = 7,
-            })
 
         end
 
