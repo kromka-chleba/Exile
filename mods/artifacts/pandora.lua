@@ -68,6 +68,7 @@ minetest.register_tool('artifacts:metastim', {
 local void_def = {
     description = "Void Space",
     tiles = {"artifacts_void_space.png"},
+    light_source = 1,
     drawtype = "glasslike",
     paramtype = "light",
     sunlight_propagates = true,
@@ -86,6 +87,36 @@ local void_def = {
     use_texture_alpha = c_alpha.blend
 }
 minetest.register_node("artifacts:void_space", void_def)
+
+local height_min = -1350
+local height_max = -150
+
+-- add exotic physics to mapgen, in addition to in Mt Meru
+
+local exotic_in = {"group:cracky", "group:crumbly", "group:choppy", "group:snappy"}
+
+local exotic_list = {
+    --exotic matter intrusions
+    { "artifacts:void_space", exotic_in,
+      {offset = 0, scale = 2, spread = {x =  32, y =  32, z =  32}, seed =  21005,
+       octaves = 2, persist = 0.95},  },
+}
+
+for i in ipairs(exotic_list) do
+    minetest.register_ore({
+            ore_type = "vein",
+            ore = exotic_list[i][01],
+            wherein = exotic_list[i][02],
+            y_min = height_min,
+            y_max = height_max,
+            noise_threshold = 0.85,
+            noise_params = exotic_list[i][03],
+            column_height_min = 2,
+            column_height_max = 6,
+            random_factor = 0,
+    })
+end
+
 
 ------------------------------------
 --CURIOSITIES
