@@ -107,6 +107,47 @@ local function update_sound(player)
         end
     end
 
+    --exotic physics sounds
+    if ran()<0.7 then
+
+        local nodes = {"artifacts:void_space"}
+        local lpos, _ = minetest.find_nodes_in_area(areamin, areamax, nodes)
+        local exotics = #lpos
+        lpos = posav(lpos, exotics)
+
+        if exotics >= 1 then
+            minetest.sound_play(
+                "env_sounds_exotics",
+                {
+                    pos = lpos,--posav(lpos, exotics),
+                    to_player = player_name,
+                    gain = min(0.5 + exotics * 0.01, 1),
+                }
+            )
+        --[[--extremely ineffective particle effects. Almost never shows up.
+            -- if it could be fixed that would be nice to have.
+            -- an issue with placing them in the right position?
+            minetest.add_particlespawner({
+                amount = 12,
+                time = 6,
+                minpos = {x=lpos.x-2, y=lpos.y-2, z=lpos.z-2},
+                maxpos = {x=lpos.x+2, y=lpos.y+2, z=lpos.z+2},
+                minvel = {x = -0.3,  y = -0.3,  z = -0.3},
+                maxvel = {x = 0.3, y = 0.4, z = 0.3},
+                minacc = {x = -0.1, y = -0.1, z = -0.1},
+                maxacc = {x = 0.1, y = 0.3, z = 0.1},
+                minexptime = 0.01,
+                maxexptime = 0.4,
+                minsize = 0.4,
+                maxsize = 0.6,
+                texture = "env_sounds_haunt.png",
+                glow = 7,
+        })
+        ]]
+        
+        end
+    end
+
 
     --wind sounds
     if ran()<0.7 then
