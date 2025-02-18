@@ -233,7 +233,7 @@ local function update_sound(player)
             if node ~= 'air' then return end
             
             local l = minetest.get_node_light(ranpos)
-            if l < 5 then
+            if l < 6 then
 
                 local roll = ran()
                 if roll < 0.25 then
