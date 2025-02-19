@@ -223,7 +223,7 @@ local function update_sound(player)
     if ppos.y < -140 and ppos.y > -1150 then
         --disembodied voices breaking through from another dimension
         --memories of the past? Or are they trapped somewhere?
-        if ran()< 0.05 then
+        if ran()< 0.1 then
             
             local r = ran(-15,15)
             local ranpos = {x = ppos.x + r, y = ppos.y + r/10, z = ppos.z + r }

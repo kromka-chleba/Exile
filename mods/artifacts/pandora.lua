@@ -109,7 +109,7 @@ for i in ipairs(exotic_list) do
             wherein = exotic_list[i][02],
             y_min = height_min,
             y_max = height_max,
-            noise_threshold = 0.85,
+            noise_threshold = 0.95,
             noise_params = exotic_list[i][03],
             column_height_min = 2,
             column_height_max = 6,
