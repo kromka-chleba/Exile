@@ -438,7 +438,7 @@ local lava_source = {
     liquid_alternative_source = "nodes_nature:lava_source",
     liquid_viscosity = 3,
     liquid_renewable = false,
-    liquid_range = 4,
+    liquid_range = 6,
     damage_per_second = 4 * 2,
     post_effect_color = {a = 191, r = 255, g = 64, b = 0},
     groups = {igniter = 1, temp_effect = 1, temp_pass = 1},
@@ -487,7 +487,7 @@ local lava_flowing = {
     liquid_alternative_source = "nodes_nature:lava_source",
     liquid_viscosity = 3,
     liquid_renewable = false,
-    liquid_range = 4,
+    liquid_range = 6,
     damage_per_second = 4 * 2,
     post_effect_color = {a = 191, r = 255, g = 64, b = 0},
     groups = {igniter = 1, not_in_creative_inventory = 1,
@@ -754,7 +754,9 @@ local lava_actions = function(pos, node)
                 -- nearing the end of our line, chance to become basalt
                 local basaltchance = node.param2 < 10 and ran() > node.param2/10
                 if basaltchance then
-                    core.set_node(pos, {name = "nodes_nature:basalt"})
+                    -- 5% chance to make peridot nodes
+                    core.set_node(pos, {name = (ran() < 0.05 and
+                        "nodes_nature:basalt_with_peridot" or "nodes_nature:basalt")})
                 else
                     core.set_node(pos_air, {name = "nodes_nature:scoria"})
                     climate.air_temp_source(pos, lava_temp_effect,
@@ -773,7 +775,7 @@ local lava_actions = function(pos, node)
                         eject_drops("nodes_nature:scoria_cobble"..ran(3), pos, gpos)
                     end
                 -- BOULDER
-                elseif ran()<0.02 then -- 2% chance to do a peridot boulder
+                elseif ran()<0.03 then -- 3% chance to do a peridot boulder
                     eject_drops("nodes_nature:basalt_with_peridot_boulder", pos, gpos)
                 else
                     eject_drops("nodes_nature:scoria_boulder", pos, gpos)

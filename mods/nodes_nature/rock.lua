@@ -352,3 +352,11 @@ end
 
 ------------------------------------------------------------------
 --Special features
+
+-- peridot from peridot in basalt
+crafting.register_recipe({
+    type = "hammer",
+    output = "nodes_nature:peridot_cobble1 4",
+    replace = "nodes_nature:basalt_cobble1 4",
+    items = {"group:basalt_with_peridot_cobble 8"}
+})
