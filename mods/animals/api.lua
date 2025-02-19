@@ -532,14 +532,19 @@ function animals.handle_drops(self,despawn_time)
                     -- look for possible "burn" versions of the item to be dropped
                     local possitem = item.."_burned"
                     if (minetest.registered_items[possitem]) then
-                        item = ItemStack(possitem):get_name()
+                        item = possitem
                     end
                     possitem = item.."_burnt"
                     if (minetest.registered_items[possitem]) then
-                        item = ItemStack(possitem):get_name()
+                        item = possitem
                     end
                 end
-                minetest.add_item(dsp_pos, item.." "..tostring(amount))
+                local itemdef = core.registered_nodes[item]
+                local dropped = minetest.add_item(dsp_pos, item.." "..tostring(amount))
+                -- drop our drop and try to place it
+                if itemdef and itemdef.placeable_item_drop then
+                    itemdef.placeable_item_drop(itemdef, dropped)
+                end
             end
         end
     end
