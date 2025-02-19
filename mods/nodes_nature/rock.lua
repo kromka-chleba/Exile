@@ -142,6 +142,13 @@ for i in ipairs(rock_list) do
     local boulder = raw.."_boulder"
     local cobble = raw.."_cobble"
     raw = {raw, raw:gsub(":","_")..".png"} -- name, texture
+    -- unique condition for mixes
+    if raw[2]:match("_with_") then -- we're two different textures!!!
+        raw[2] = raw[2]:split("_with_") -- split into components
+        -- recombine (should only be 2 parameters)
+        -- add .png^ to first component, then add mod name and "_part_" to second component
+        raw[2] = raw[2][1]..".png^"..core.get_current_modname().."_part_"..raw[2][2]
+    end
     local brick = raw[1].."_brick"
     brick = {brick, raw[2].."^"..brickpattern}
     local block = raw[1].."_block"
