@@ -113,25 +113,24 @@ local function update_sound(player)
         local nodes = {"artifacts:void_space"}
         local lpos, _ = minetest.find_nodes_in_area(areamin, areamax, nodes)
         local exotics = #lpos
-        lpos = posav(lpos, exotics)
 
         if exotics >= 1 then
-            minetest.sound_play(
-                "env_sounds_exotics",
-                {
-                    pos = lpos,--posav(lpos, exotics),
-                    to_player = player_name,
-                    gain = min(0.5 + exotics * 0.01, 1),
-                }
-            )
-        --[[--extremely ineffective particle effects. Almost never shows up.
-            -- if it could be fixed that would be nice to have.
-            -- an issue with placing them in the right position?
+
+            minimal.sound_play(
+                        "env_sounds_exotics",
+                         {
+                            pos = posav(lpos, exotics),
+                            to_player = player_name,
+                            pitch = {0.9,1.1},
+                            gain = min(0.3 + exotics * 0.01, 1),
+                        }
+                    )
+
             minetest.add_particlespawner({
                 amount = 12,
-                time = 6,
-                minpos = {x=lpos.x-2, y=lpos.y-2, z=lpos.z-2},
-                maxpos = {x=lpos.x+2, y=lpos.y+2, z=lpos.z+2},
+                time = 12,
+                minpos = {x=ppos.x-3, y=ppos.y-1, z=ppos.z-3},
+                maxpos = {x=ppos.x+3, y=ppos.y+1, z=ppos.z+3},
                 minvel = {x = -0.3,  y = -0.3,  z = -0.3},
                 maxvel = {x = 0.3, y = 0.4, z = 0.3},
                 minacc = {x = -0.1, y = -0.1, z = -0.1},
@@ -143,7 +142,7 @@ local function update_sound(player)
                 texture = "env_sounds_haunt.png",
                 glow = 7,
         })
-        ]]
+
         
         end
     end
@@ -224,7 +223,7 @@ local function update_sound(player)
     if ppos.y < -140 and ppos.y > -1150 then
         --disembodied voices breaking through from another dimension
         --memories of the past? Or are they trapped somewhere?
-        if ran()<0.1 then
+        if ran()< 0.05 then
             
             local r = ran(-15,15)
             local ranpos = {x = ppos.x + r, y = ppos.y + r/10, z = ppos.z + r }
@@ -237,43 +236,45 @@ local function update_sound(player)
 
                 local roll = ran()
                 if roll < 0.25 then
-                    minetest.sound_play(
+
+                    minimal.sound_play(
                         "env_sounds_haunt",
-                        {
+                         {
                             pos = ranpos,
                             to_player = player_name,
-                            --max_hear_distance = 30,
+                            pitch = {0.01,0.4},
                             gain = 1.4-math.abs(r/15),
                         }
                     )
+                    
                 elseif roll < 0.5 then
-                    minetest.sound_play(
+                    minimal.sound_play(
                         "env_sounds_haunt2",
-                        {
+                         {
                             pos = ranpos,
                             to_player = player_name,
-                            --max_hear_distance = 30,
+                            pitch = {0.01,0.4},
                             gain = 1.4-math.abs(r/15),
                         }
                     )
 
                 elseif roll < 0.75 then
-                    minetest.sound_play(
+                    minimal.sound_play(
                         "env_sounds_haunt3",
-                        {
+                         {
                             pos = ranpos,
                             to_player = player_name,
-                            --max_hear_distance = 30,
+                            pitch = {0.01,0.4},
                             gain = 1.4-math.abs(r/15),
                         }
                     )
                 else
-                    minetest.sound_play(
+                    minimal.sound_play(
                         "env_sounds_haunt4",
-                        {
+                         {
                             pos = ranpos,
                             to_player = player_name,
-                            --max_hear_distance = 30,
+                            pitch = {0.01,0.4},
                             gain = 1.4-math.abs(r/15),
                         }
                     )
