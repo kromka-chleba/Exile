@@ -438,7 +438,7 @@ local lava_source = {
     liquid_alternative_source = "nodes_nature:lava_source",
     liquid_viscosity = 3,
     liquid_renewable = false,
-    liquid_range = 6,
+    liquid_range = 5,
     damage_per_second = 4 * 2,
     post_effect_color = {a = 191, r = 255, g = 64, b = 0},
     groups = {igniter = 1, temp_effect = 1, temp_pass = 1},
@@ -487,7 +487,7 @@ local lava_flowing = {
     liquid_alternative_source = "nodes_nature:lava_source",
     liquid_viscosity = 3,
     liquid_renewable = false,
-    liquid_range = 6,
+    liquid_range = 5,
     damage_per_second = 4 * 2,
     post_effect_color = {a = 191, r = 255, g = 64, b = 0},
     groups = {igniter = 1, not_in_creative_inventory = 1,
@@ -502,6 +502,54 @@ minetest.register_node("nodes_nature:lava_source", lava_source)
 
 -----
 -----
+--ejection functions
+-- function for placing ejection drop on success
+local drops_placing -- define prior to be used by self
+-- tries - ran twice to see if possible to place
+drops_placing = function(obj, def, placepos, tries)
+    -- couldn't place so remove!
+    if tries and tries > 2 then obj:remove() end
+    placepos.y = tries and placepos.y + 1 or placepos.y -- add to placepos if there's a tries
+    local atdef = minimal.get_nodedef(placepos) -- at node definition
+    -- remove nil nodes or replace pesky node (not lava source and buildable_to !)
+    if not atdef or (atdef.name ~= "nodes_nature:lava_source" and atdef.buildable_to) then
+        -- LET'S PLACE THIS
+        obj:remove() -- remove now that we've placed
+        core.set_node(placepos, {name = def.name})
+        local place_sound = def.sounds and def.sounds.place
+        -- play place sound
+        if place_sound then
+            core.sound_play(place_sound.name, minimal.merge_tables(place_sound, {pos = placepos}))
+        end
+        -- check falling
+        if def.groups and def.groups.falling_node then
+            core.check_single_for_falling(placepos)
+        end
+    -- keeps trying until limit is reached (3)
+    else
+        core.after(ran(8,20)/10, drops_placing, obj, def, placepos, tries)
+    end
+end
+-- function for checking position and running drops_placing when stopped moving
+local drops_check_placing
+-- was0 is to determine how long object has been sitting still
+drops_check_placing = function(obj, def, was0)
+    local vel = obj:get_velocity()
+    if not vector.check(vel) then return end -- we got deletus
+    was0 = was0 or 0
+    vel = math.abs(vel.x)+math.abs(vel.y)+math.abs(vel.z)
+    -- gotta wait til we fully stop moving
+    if vel == 0 and was0 > 2 then
+        local newpos = obj:get_pos()
+        -- convert to node-ready position
+        newpos = vector.new(math.floor(newpos.x + 0.5), math.floor(newpos.y + 0.5), math.floor(newpos.z + 0.5))
+        return drops_placing(obj, def, newpos)
+    else
+        -- check every 0.3 to 0.6 seconds
+        -- set "was0" to 0 if velocity changed, otherwise add to was0 by 1
+        return core.after(ran(3,6)/10, drops_check_placing, obj, def, vel == 0 and (was0 + 1) or 0)
+    end
+end
 --eject rocks
 local function eject_drops(dropitem, pos, speed)
     local drop_pos = vector.new(pos)
@@ -525,55 +573,8 @@ local function eject_drops(dropitem, pos, speed)
             return
         end
         -- function for checking position and placing on success
-        local check_placing -- define prior to be used by self
-        check_placing = function()
-            local vel = obj:get_velocity()
-            if not vector.check(vel) then return end -- we got deletus
-            vel = math.abs(vel.x)+math.abs(vel.y)+math.abs(vel.z)
-            -- gotta wait til we stop moving
-            if vel ~= 0 then
-                -- check every 0.4 to 0.7 seconds
-                return core.after(ran(4,7)/10, check_placing)
-            end
-            local newpos = obj:get_pos()
-            -- LET'S PLACE THIS!!!
-            local function place_item()
-                obj:remove() -- remove now that we've placed
-                core.set_node(newpos, {name = dropitem})
-                local place_sound = itemdef.sounds and itemdef.sounds.place
-                -- play place sound
-                if place_sound then
-                    core.sound_play(place_sound.name, minimal.merge_tables(place_sound, {pos = newpos}))
-                end
-                -- check falling
-                if itemdef.groups and itemdef.groups.falling_node then
-                    core.check_single_for_falling(newpos)
-                end
-            end
-            newpos = vector.new(math.floor(newpos.x + 0.5), math.floor(newpos.y + 0.5), math.floor(newpos.z + 0.5))
-            -- ran twice to see if we can place this
-            local try_placing -- define prior to be used by self
-            try_placing = function(tries)
-                -- couldn't place, so remove!
-                if tries and tries > 1 then obj:remove() end
-                -- check up by how many tries
-                newpos.y = tries and newpos.y + tries or newpos.y
-                local andef = minimal.get_nodedef(newpos) -- at node definition
-                -- remove nil nodes
-                if not andef then
-                    place_item()
-                -- we can replace this pesky node (if not lava and is buildable_to)
-                elseif andef.name ~= "nodes_nature:lava_source" and andef.buildable_to then
-                    place_item()
-                -- keeps trying until limit is reached (2)
-                else
-                    try_placing(tries and tries + 1 or 1)
-                end
-            end
-            try_placing()
-        end
         -- begin checks after 0.8 to 1.8 seconds
-        core.after(ran(8,18)/10, check_placing)
+        core.after(ran(8,18)/10, drops_check_placing, obj, itemdef)
     end
 end
 
@@ -765,10 +766,11 @@ local lava_actions = function(pos, node)
                 lava_cool_sound(pos)
             -- THROW DA ROCKS!
             elseif ran()>0.98 then
-                -- 34% chance for cobbles
-                if ran()<0.34 then
-                    -- 20% chance to expel peridot cobble
-                    if ran()<0.2 then
+                -- 40% chance for cobbles
+                local cobchance = ran()
+                if cobchance<0.4 then
+                    -- 8% chance to expel peridot cobble
+                    if cobchance<0.08 then -- (20% of 40%)
                         eject_drops("nodes_nature:basalt_with_peridot_cobble"..ran(3), pos, gpos)
                     -- scoria cobble
                     else
