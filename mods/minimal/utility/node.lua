@@ -70,9 +70,9 @@ function minimal.slabs_combine(player, itemstack, pos, combine)
     return itemstack
 end
 
-function minimal.slabs_split_hand(player, pointed_node, pos,
+function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
                                   wielded_item)
-    pos = minimal.get_usable_position(pos)
+    local pos = minimal.get_usable_position(pointed_thing)
     if not pos then return end -- can't split from nothing or objects
     if wielded_item:get_name() ~= "" then return end -- must be empty handed
     local nname = pointed_node.name -- nodename
