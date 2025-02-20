@@ -772,6 +772,9 @@ local lava_actions = function(pos, node)
                     -- 8% chance to expel peridot cobble
                     if cobchance<0.08 then -- (20% of 40%)
                         eject_drops("nodes_nature:basalt_with_peridot_cobble"..ran(3), pos, gpos)
+                    -- 15% chance to expel basalt cobble
+                    elseif cobchance<0.15 then -- (37.5% of 40%)
+                        eject_drops("nodes_nature:basalt_cobble"..ran(3), pos, gpos)
                     -- scoria cobble
                     else
                         eject_drops("nodes_nature:scoria_cobble"..ran(3), pos, gpos)
