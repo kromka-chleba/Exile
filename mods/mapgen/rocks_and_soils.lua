@@ -189,23 +189,26 @@ function generate_cobbles(name, fill_ratio, place_on)
             rock_name == "granite") then
             y_max = -40
         end
-        -- for each type of cobble
-        for j = 1, 3 do
-            local deco = {
-                name = name.."_nn:"..rock_name.."_cobble"..j,
-                deco_type = "simple",
-                place_on = cobble_on,
-                sidelen =  80,
-                fill_ratio = cobble_fill_ratio,
-                y_max = y_max,
-                y_min = -31000,
-                decoration = "nodes_nature:"..rock_name.."_cobble"..j,
-                flags = "all_floors",
-                rotation = "random",
-                param2 = 0,
-                param2_max = 3,
-            }
-            table.insert(new_list, deco)
+        -- no peridot!
+        if not (rock_name == "basalt_with_peridot" or rock_name == "peridot") then
+            -- for each type of cobble
+            for j = 1, 3 do
+                local deco = {
+                    name = name.."_nn:"..rock_name.."_cobble"..j,
+                    deco_type = "simple",
+                    place_on = cobble_on,
+                    sidelen =  80,
+                    fill_ratio = cobble_fill_ratio,
+                    y_max = y_max,
+                    y_min = -31000,
+                    decoration = "nodes_nature:"..rock_name.."_cobble"..j,
+                    flags = "all_floors",
+                    rotation = "random",
+                    param2 = 0,
+                    param2_max = 3,
+                }
+                table.insert(new_list, deco)
+            end
         end
     end
     return new_list
