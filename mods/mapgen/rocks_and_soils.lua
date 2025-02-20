@@ -176,12 +176,10 @@ function generate_cobbles(name, fill_ratio, place_on)
             -- table is not empty, overwriting
             cobble_on = place_on
             -- make basalt on beaches rarer
-            if (rock_name == "basalt") then
-                cobble_fill_ratio = fill_ratio * 0.3
-            end
-            if (rock_name == "ironstone") then
-                cobble_fill_ratio = fill_ratio * 0.5
-            end
+            cobble_fill_ratio = rock_name == "basalt" and fill_ratio * 0.3 or
+                rock_name == "ironstone" and fill_ratio * 0.5 or
+            -- make scoria cobble pretty rare outside of volcanoes
+                rock_name == "scoria" and fill_ratio * 0.005 or fill_ratio
         end
         -- don't place deep rock cobbles on the surface
         if (rock_name == "jade" or
