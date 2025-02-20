@@ -300,7 +300,10 @@ minetest.register_node(
         end,
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:charcoal_block",
-        _on_use_item = minimal.slabs_combine,
+        _on_use_item = function(player, wielded_item, pointed_thing)
+            return minimal.slabs_combine(player, wielded_item,
+                                         minimal.get_usable_position(pointed_thing))
+        end,
         _combined_by_hand = combine_fuel
 })
 
@@ -355,7 +358,10 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_wood_defaults(),
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:large_wood_fire_unlit",
-        _on_use_item = minimal.slabs_combine,
+        _on_use_item = function(player, wielded_item, pointed_thing)
+            return minimal.slabs_combine(player, wielded_item,
+                                         minimal.get_usable_position(pointed_thing))
+        end,
         _combined_by_hand = combine_fuel,
         on_burn = function(pos)
             minimal.switch_node(pos, "tech:small_wood_fire")
@@ -889,7 +895,10 @@ minetest.register_node(
         on_dig = on_dig_fire,
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:large_wood_fire_ext",
-        _on_use_item = minimal.slabs_combine,
+        _on_use_item = function(player, wielded_item, pointed_thing)
+            return minimal.slabs_combine(player, wielded_item,
+                                         minimal.get_usable_position(pointed_thing))
+        end,
         _combined_by_hand = combine_fuel,
         after_place_node = after_place_fire,
 
@@ -936,7 +945,10 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_dirt_defaults(),
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:large_charcoal_fire_ext",
-        _on_use_item = minimal.slabs_combine,
+        _on_use_item = function(player, wielded_item, pointed_thing)
+            return minimal.slabs_combine(player, wielded_item,
+                                         minimal.get_usable_position(pointed_thing))
+        end,
         _combined_by_hand = combine_fuel,
         on_dig = on_dig_fire,
         after_place_node = after_place_fire,
