@@ -638,6 +638,45 @@ local function lava_cool_sound(pos)
         {pos = pos, max_hear_distance = 16, gain = {0.18,0.28}, pitch = {0.8, 1.2}})
 end
 
+-- function for spawning steam with cooled lava
+local function spawn_steam(pos)
+    -- 15 frames, 0.1s/ea (1 extra empty frame at end)
+    -- can be randomized by 85 to 115%
+    local length = 1.5 * (ran(85,115)/100)
+    -- particle definition
+    local pdef = {
+        texture = "nodes_nature_steam_explosion.png^[opacity:"..ran(215,255),
+        animation = {
+            type = "vertical_frames",
+            aspect_w = 16,
+            aspect_h = 16,
+            length = length
+        },
+        -- other particle def
+        amount = ran(12, 50),
+        time = ran(0.5, 1.5),
+        glow = 4,
+        minsize = ran(2, 6),
+        collisiondetection = true,
+        vertical = true,
+        -- pos and velocity
+        minpos = minimal.pos_shift(pos,{x=-0.3,y=-0.2,z=-0.3}),
+        maxpos = minimal.pos_shift(pos,{x=0.3,y=0.5,z=0.3}),
+        minvel = {x=-0.5, y = 0.4, z=-0.5},
+        maxvel = {x=0.5, y=1, z=0.5},
+        -- acceleration
+        minacc = {x=0,y=0.2,z=0},
+        maxacc = {x=0,y=0.5,z=0},
+    }
+    pdef.maxsize = pdef.minsize + ran(8, 20)
+    -- should be a bit less than total animation due to potential lag
+    length = length+(length*ran(0,10))-0.1 -- permit 0 to 5 more iterations
+    pdef.minexptime = length
+    pdef.maxexptime = length
+    -- spawn particle emitter
+    core.add_particlespawner(pdef)
+end
+
 
 --cools when exposed to air, melts solids, adds plumes
 local lava_actions = function(pos, node)
@@ -658,6 +697,7 @@ local lava_actions = function(pos, node)
         minetest.set_node(pos, {name = "nodes_nature:volcanic_ash"})
         -- PLACEHOLDER! Ash is not technically correct, should be black sand
         lava_cool_sound(pos)
+        spawn_steam(pos)
         minetest.check_for_falling(pos)
         --TODO: steam explosion effects
         return
