@@ -36,10 +36,12 @@ for i in ipairs(stone_list) do
     -- brick and block patterns
     local brickpattern = stone_list[i][6]
     -- default soft pattern, reg for regular, otherwise utilizes what was provided
-    brickpattern = brickpattern == "reg" and "nodes_nature_brick_pattern.png" or brickpattern or
+    brickpattern = brickpattern == "reg" and "nodes_nature_brick_pattern.png" or
+      brickpattern == "hard" and "nodes_nature_brick_pattern_hard.png" or brickpattern or
       "nodes_nature_brick_pattern_soft.png"
     local blockpattern = stone_list[i][7]
-    blockpattern = blockpattern == "reg" and "nodes_nature_block_pattern.png" or blockpattern or
+    blockpattern = blockpattern == "reg" and "nodes_nature_block_pattern.png" or
+      blockpattern == "hard" and "nodes_nature_block_pattern_hard.png" or blockpattern or
       "nodes_nature_block_pattern_soft.png"
 
     -- declare for ease of use
@@ -128,10 +130,12 @@ for i in ipairs(rock_list) do
     -- brick and block patterns
     local brickpattern = rock_list[i][4]
     -- default reg pattern, soft for soft, otherwise utilizes what was provided
-    brickpattern = brickpattern == "soft" and "nodes_nature_brick_pattern_soft.png" or brickpattern or
+    brickpattern = brickpattern == "soft" and "nodes_nature_brick_pattern_soft.png" or
+      brickpattern == "hard" and "nodes_nature_brick_pattern_hard.png" or brickpattern or
       "nodes_nature_brick_pattern.png"
     local blockpattern = rock_list[i][5]
-    blockpattern = blockpattern == "soft" and "nodes_nature_block_pattern_soft.png" or blockpattern or
+    blockpattern = blockpattern == "soft" and "nodes_nature_block_pattern_soft.png" or
+      blockpattern == "hard" and "nodes_nature_block_pattern_hard.png" or blockpattern or
       "nodes_nature_block_pattern.png"
 
     --harder rocks drop boulders

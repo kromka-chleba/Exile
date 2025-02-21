@@ -23,8 +23,9 @@ nodes_nature.rock_list = {
     {"scoria", S("Scoria"), 3},
     {"gneiss", S("Gneiss"), 1},
     {"jade", S("Jade"), 1, "nodes_nature_brick_pattern_jade.png", "nodes_nature_block_pattern_jade.png"},
-    {"basalt_with_peridot", S("Peridot in Basalt"), 2, "nodes_nature_brick_pattern_jade.png", "nodes_nature_block_pattern_jade.png"},
-    {"peridot", S("Peridot"), 2, "nodes_nature_brick_pattern_jade.png", "nodes_nature_block_pattern_jade.png"}
+    {"basalt_with_peridot", S("Peridot in Basalt"), 2, "hard", "hard"},
+    {"peridot", S("Peridot"), 2, "nodes_nature_brick_pattern_jade.png", "nodes_nature_block_pattern_jade.png"},
+    {"labradorite", S("Labradorite"), 2, "hard", "hard"}
 }
 
 nodes_nature.sed_list = {
