@@ -808,19 +808,25 @@ local lava_actions = function(pos, node)
             elseif ran()>0.98 then
                 -- 40% chance for cobbles
                 local cobchance = ran()
-                if cobchance<0.4 then
+                local otherboulder = ran()
+                if cobchance<0.42 then
+                    -- 2% chance to expel labradorite cobble
+                    if cobchance<0.01 then -- (2.3% of 42%)
+                        eject_drops("nodes_nature:labradorite_cobble"..ran(3), pos, gpos)
                     -- 8% chance to expel peridot cobble
-                    if cobchance<0.08 then -- (20% of 40%)
+                    elseif cobchance<0.08 then -- (19% of 42%)
                         eject_drops("nodes_nature:basalt_with_peridot_cobble"..ran(3), pos, gpos)
                     -- 15% chance to expel basalt cobble
-                    elseif cobchance<0.15 then -- (37.5% of 40%)
+                    elseif cobchance<0.16 then -- (38.1% of 42%)
                         eject_drops("nodes_nature:basalt_cobble"..ran(3), pos, gpos)
                     -- scoria cobble
                     else
                         eject_drops("nodes_nature:scoria_cobble"..ran(3), pos, gpos)
                     end
                 -- BOULDER
-                elseif ran()<0.03 then -- 3% chance to do a peridot boulder
+                elseif otherboulder<0.002 then -- 0.2% chance to do a labradorite boulder
+                    eject_drops("nodes_nature:labradorite_boulder", pos, gpos)
+                elseif otherboulder<0.03 then -- 3% chance to do a peridot boulder
                     eject_drops("nodes_nature:basalt_with_peridot_boulder", pos, gpos)
                 else
                     eject_drops("nodes_nature:scoria_boulder", pos, gpos)

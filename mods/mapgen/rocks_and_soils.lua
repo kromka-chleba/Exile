@@ -188,7 +188,7 @@ function generate_cobbles(name, fill_ratio, place_on)
             y_max = -40
         end
         -- no peridot!
-        if not (rock_name == "basalt_with_peridot" or rock_name == "peridot") then
+        if not (rock_name == "basalt_with_peridot" or rock_name == "peridot" or rock_name == "labradorite") then
             -- for each type of cobble
             for j = 1, 3 do
                 local deco = {
