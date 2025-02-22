@@ -527,7 +527,7 @@ local function eject_drops(dropitem, pos, speed)
         -- begins checks after 0.8 to 1.8 seconds after call
         -- customized on_drop that utilizes a custom obj and def parameter (for cobble and boulder)
         -- if cobble or boulder, will place
-        itemdef.on_drop(nil, nil, drop_pos, obj, itemdef)
+        itemdef.on_drop(ItemStack(itemdef.name), nil, drop_pos, obj, itemdef)
     end
 end
 

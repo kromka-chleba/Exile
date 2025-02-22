@@ -155,18 +155,32 @@ end
 
 -- true dropper functions
 
+local drops_check_placing -- define prior to be used by self and drops_placing
+
+local function drops_placing_remove(obj, def, pos, count)
+    obj:remove()
+    if count == 1 then return end -- that was all, folks!
+    -- more than one of us in this stack, let's continue
+    count = count - 1
+    obj = ItemStack(def.name.." "..count)
+    obj = core.add_item(minimal.pos_shift(pos,{y=0.5}), obj)
+    if not obj then return end -- failure
+    -- let's see if we can place us!
+    drops_check_placing(obj, def, count)
+end
+
 -- function for placing ejection drop on success
 local drops_placing -- define prior to be used by self
 -- tries - ran twice to see if possible to place
-drops_placing = function(obj, def, placepos, tries)
-    -- couldn't place so remove!
-    if tries and tries > 2 then obj:remove() end
+drops_placing = function(obj, def, placepos, count, tries)
+    -- couldn't place, leave as is
+    if tries and tries > 2 then return end
     placepos.y = tries and placepos.y + 1 or placepos.y -- add to placepos if there's a tries
     local atdef = minimal.get_nodedef(placepos) -- at node definition
     -- remove nil nodes or replace pesky node (not lava source and buildable_to !)
     if not atdef or (atdef.name ~= "nodes_nature:lava_source" and atdef.buildable_to) then
         -- LET'S PLACE THIS
-        obj:remove() -- remove now that we've placed
+        drops_placing_remove(obj, def, placepos, count) -- remove now that we've placed
         core.set_node(placepos, {name = def.name})
         local place_sound = def.sounds and def.sounds.place
         -- play place sound
@@ -179,14 +193,16 @@ drops_placing = function(obj, def, placepos, tries)
         end
     -- keeps trying until limit is reached (3)
     else
-        core.after(ran(8,20)/10, drops_placing, obj, def, placepos, tries)
+        -- add to tries if over 1
+        core.after(ran(8,20)/10, drops_placing, obj, def, placepos, count, tries and tries + 1 or 1)
     end
 end
 
 -- function for checking position and running drops_placing when stopped moving
-local drops_check_placing
+
 -- was0 is to determine how long object has been sitting still
-drops_check_placing = function(obj, def, was0)
+-- count is used to determine if we should run this function with another entity
+drops_check_placing = function(obj, def, count, was0)
     local vel = obj:get_velocity()
     if not vector.check(vel) then return end -- we got deletus
     was0 = was0 or 0
@@ -196,29 +212,29 @@ drops_check_placing = function(obj, def, was0)
         local newpos = obj:get_pos()
         -- convert to node-ready position
         newpos = vector.new(floor(newpos.x + 0.5), floor(newpos.y + 0.5), floor(newpos.z + 0.5))
-        return drops_placing(obj, def, newpos)
+        return drops_placing(obj, def, newpos, count)
     else
         -- check every 0.3 to 0.6 seconds
         -- set "was0" to 0 if velocity changed, otherwise add to was0 by 1
-        return core.after(ran(3,6)/10, drops_check_placing, obj, def, vel == 0 and (was0 + 1) or 0)
+        return core.after(ran(3,6)/10, drops_check_placing, obj, def, count, vel == 0 and (was0 + 1) or 0)
     end
 end
 
 -- should be ran with node's on_drop
 -- for cobble and boulders
-local function rocks_on_drop(itemstack, dropper, pos, drop, name)
-    name = name or itemstack and itemstack:get_name()
+local function rocks_on_drop(itemstack, dropper, pos, drop, def)
+    def = def or itemstack:get_definition()
+    -- check if node
+    if not core.registered_nodes[def.name] then return end -- can't drop dis
+    local count = itemstack:get_count() -- used for determining how many of this to place
     -- only do item_drop function if no "drop" specified
     if not drop then
         itemstack, drop = raw_item_drop(itemstack, dropper, pos)
     end
-    -- get definition for above code (only if node)
-    local def = core.registered_nodes[name]
-    if not def then return end -- can't drop dis
     -- add delays, 20 seconds if from player
     -- normal delay is 0.8 to 1.8 seconds
     local delay = core.is_player(dropper) and 20 or ran(8,18)/10
-    core.after(delay, drops_check_placing, drop, def)
+    core.after(delay, drops_check_placing, drop, def, count)
     return itemstack or true
 end
 
