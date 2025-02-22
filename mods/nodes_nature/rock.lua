@@ -4,6 +4,11 @@
 -- Internationalization
 local S = nodes_nature.S
 
+-- mathy
+local ran = math.random
+local abs = math.abs
+local floor = math.floor
+
 -- Load tables from data_rock.lua
 local stone_list = nodes_nature.stone_list
 local rock_list  = nodes_nature.rock_list
@@ -122,6 +127,101 @@ for i in ipairs(stone_list) do
     })
 end
 
+-- rocks unique functions ----------------------
+-- should put this into minimal, related to https://codeberg.org/Mantar/Exile/pulls/1112 implementation
+local raw_item_drop = function(itemstack, dropper, pos)
+    local dropper_is_player = core.is_player(dropper)
+    local p = table.copy(pos)
+    local cnt = itemstack:get_count()
+    p.y = dropper_is_player and p.y + 1.2 or p.y
+    local item = itemstack:take_item(cnt)
+    local obj = core.add_item(p, item)
+    if obj then
+        if dropper_is_player then
+            local dir = dropper:get_look_dir()
+            dir.x = dir.x * 2.9
+            dir.y = dir.y * 2.9 + 2
+            dir.z = dir.z * 2.9
+            obj:set_velocity(dir)
+            obj:get_luaentity().dropped_by = dropper:get_player_name()
+        end
+        -- return object as 2nd parameter
+        return itemstack, obj
+    end
+    -- If we reach this, adding the object to the
+    -- environment failed
+end
+
+
+-- true dropper functions
+
+-- function for placing ejection drop on success
+local drops_placing -- define prior to be used by self
+-- tries - ran twice to see if possible to place
+drops_placing = function(obj, def, placepos, tries)
+    -- couldn't place so remove!
+    if tries and tries > 2 then obj:remove() end
+    placepos.y = tries and placepos.y + 1 or placepos.y -- add to placepos if there's a tries
+    local atdef = minimal.get_nodedef(placepos) -- at node definition
+    -- remove nil nodes or replace pesky node (not lava source and buildable_to !)
+    if not atdef or (atdef.name ~= "nodes_nature:lava_source" and atdef.buildable_to) then
+        -- LET'S PLACE THIS
+        obj:remove() -- remove now that we've placed
+        core.set_node(placepos, {name = def.name})
+        local place_sound = def.sounds and def.sounds.place
+        -- play place sound
+        if place_sound then
+            core.sound_play(place_sound.name, minimal.merge_tables(place_sound, {pos = placepos}))
+        end
+        -- check falling
+        if def.groups and def.groups.falling_node then
+            core.check_single_for_falling(placepos)
+        end
+    -- keeps trying until limit is reached (3)
+    else
+        core.after(ran(8,20)/10, drops_placing, obj, def, placepos, tries)
+    end
+end
+
+-- function for checking position and running drops_placing when stopped moving
+local drops_check_placing
+-- was0 is to determine how long object has been sitting still
+drops_check_placing = function(obj, def, was0)
+    local vel = obj:get_velocity()
+    if not vector.check(vel) then return end -- we got deletus
+    was0 = was0 or 0
+    vel = abs(vel.x)+abs(vel.y)+abs(vel.z)
+    -- gotta wait til we fully stop moving
+    if vel == 0 and was0 > 2 then
+        local newpos = obj:get_pos()
+        -- convert to node-ready position
+        newpos = vector.new(floor(newpos.x + 0.5), floor(newpos.y + 0.5), floor(newpos.z + 0.5))
+        return drops_placing(obj, def, newpos)
+    else
+        -- check every 0.3 to 0.6 seconds
+        -- set "was0" to 0 if velocity changed, otherwise add to was0 by 1
+        return core.after(ran(3,6)/10, drops_check_placing, obj, def, vel == 0 and (was0 + 1) or 0)
+    end
+end
+
+-- should be ran with node's on_drop
+-- for cobble and boulders
+local function rocks_on_drop(itemstack, dropper, pos, drop, name)
+    name = name or itemstack and itemstack:get_name()
+    -- only do item_drop function if no "drop" specified
+    if not drop then
+        itemstack, drop = raw_item_drop(itemstack, dropper, pos)
+    end
+    -- get definition for above code (only if node)
+    local def = core.registered_nodes[name]
+    if not def then return end -- can't drop dis
+    -- add delays, 20 seconds if from player
+    -- normal delay is 0.8 to 1.8 seconds
+    local delay = core.is_player(dropper) and 20 or ran(8,18)/10
+    core.after(delay, drops_check_placing, drop, def)
+    return itemstack or true
+end
+
 
 for i in ipairs(rock_list) do
     local name = rock_list[i][1]
@@ -194,6 +294,7 @@ for i in ipairs(rock_list) do
                                        {-7/16, -8/16, -7/16, 7/16, 7/16, 7/16},
                                },
                                sounds = nodes_nature.node_sound_stone_defaults(),
+                               on_drop = rocks_on_drop
     })
 
 
@@ -349,6 +450,7 @@ for i in ipairs(rock_list) do
                     fixed = {-5/16, -8/16, -5/16, 5/16, -4/16, 5/16},
                 },
                 sounds = nodes_nature.node_sound_stone_defaults(),
+                on_drop = rocks_on_drop
         })
     end
 

@@ -502,54 +502,6 @@ minetest.register_node("nodes_nature:lava_source", lava_source)
 
 -----
 -----
---ejection functions
--- function for placing ejection drop on success
-local drops_placing -- define prior to be used by self
--- tries - ran twice to see if possible to place
-drops_placing = function(obj, def, placepos, tries)
-    -- couldn't place so remove!
-    if tries and tries > 2 then obj:remove() end
-    placepos.y = tries and placepos.y + 1 or placepos.y -- add to placepos if there's a tries
-    local atdef = minimal.get_nodedef(placepos) -- at node definition
-    -- remove nil nodes or replace pesky node (not lava source and buildable_to !)
-    if not atdef or (atdef.name ~= "nodes_nature:lava_source" and atdef.buildable_to) then
-        -- LET'S PLACE THIS
-        obj:remove() -- remove now that we've placed
-        core.set_node(placepos, {name = def.name})
-        local place_sound = def.sounds and def.sounds.place
-        -- play place sound
-        if place_sound then
-            core.sound_play(place_sound.name, minimal.merge_tables(place_sound, {pos = placepos}))
-        end
-        -- check falling
-        if def.groups and def.groups.falling_node then
-            core.check_single_for_falling(placepos)
-        end
-    -- keeps trying until limit is reached (3)
-    else
-        core.after(ran(8,20)/10, drops_placing, obj, def, placepos, tries)
-    end
-end
--- function for checking position and running drops_placing when stopped moving
-local drops_check_placing
--- was0 is to determine how long object has been sitting still
-drops_check_placing = function(obj, def, was0)
-    local vel = obj:get_velocity()
-    if not vector.check(vel) then return end -- we got deletus
-    was0 = was0 or 0
-    vel = math.abs(vel.x)+math.abs(vel.y)+math.abs(vel.z)
-    -- gotta wait til we fully stop moving
-    if vel == 0 and was0 > 2 then
-        local newpos = obj:get_pos()
-        -- convert to node-ready position
-        newpos = vector.new(math.floor(newpos.x + 0.5), math.floor(newpos.y + 0.5), math.floor(newpos.z + 0.5))
-        return drops_placing(obj, def, newpos)
-    else
-        -- check every 0.3 to 0.6 seconds
-        -- set "was0" to 0 if velocity changed, otherwise add to was0 by 1
-        return core.after(ran(3,6)/10, drops_check_placing, obj, def, vel == 0 and (was0 + 1) or 0)
-    end
-end
 --eject rocks
 local function eject_drops(dropitem, pos, speed)
     local drop_pos = vector.new(pos)
@@ -566,15 +518,16 @@ local function eject_drops(dropitem, pos, speed)
 
         local itemdef = core.registered_nodes[dropitem]
         -- not a node, remove after 5 to 35secs
-        if not itemdef then
+        if not itemdef or not itemdef.on_drop then
             core.after(ran(5, 35), function()
                 obj:remove()
             end)
             return
         end
-        -- function for checking position and placing on success
-        -- begin checks after 0.8 to 1.8 seconds
-        core.after(ran(8,18)/10, drops_check_placing, obj, itemdef)
+        -- begins checks after 0.8 to 1.8 seconds after call
+        -- customized on_drop that utilizes a custom obj and def parameter (for cobble and boulder)
+        -- if cobble or boulder, will place
+        itemdef.on_drop(nil, nil, drop_pos, obj, itemdef)
     end
 end
 
