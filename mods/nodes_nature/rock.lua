@@ -173,8 +173,16 @@ end
 local drops_placing -- define prior to be used by self
 -- tries - ran twice to see if possible to place
 drops_placing = function(obj, def, placepos, count, tries)
-    -- couldn't place, leave as is
-    if tries and tries > 2 then return end
+    -- first check if we should give up
+    if tries then
+        -- couldn't place, leave as is
+        if tries > 3 then return end
+        -- explore around
+        local changeby = ran(-1,1)
+        placepos.x = changeby ~= 0 and placepos.x + changeby or placepos.x
+        -- ensure change if changeby is 0
+        placepos.z = placepos.z + (changeby ~= 0 and ran(-1,1) or ran() < 0.5 and 1 or -1)
+    end
     placepos.y = tries and placepos.y + 1 or placepos.y -- add to placepos if there's a tries
     local atdef = minimal.get_nodedef(placepos) -- at node definition
     -- remove nil nodes or replace pesky node (not lava source and buildable_to !)
@@ -191,10 +199,14 @@ drops_placing = function(obj, def, placepos, count, tries)
         if def.groups and def.groups.falling_node then
             core.check_single_for_falling(placepos)
         end
-    -- keeps trying until limit is reached (3)
+    -- keeps trying until limit is reached (4)
     else
+        -- chance to add to y if not tried before or only once
+        placepos.y = (tries == 1 or tries == nil) and
+          ran() < 0.25 and placepos.y + 1 or placepos.y
         -- add to tries if over 1
-        core.after(ran(8,20)/10, drops_placing, obj, def, placepos, count, tries and tries + 1 or 1)
+        -- every 0.4 to 1 seconds
+        core.after(ran(4,10)/10, drops_placing, obj, def, placepos, count, tries and tries + 1 or 1)
     end
 end
 
