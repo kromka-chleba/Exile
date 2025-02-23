@@ -557,6 +557,13 @@ end
 local erupt = function(pos, aname, h)
 
     local height = 0
+    local scpos = minetest.find_nodes_in_area(
+          {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+          {x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
+          {"nodes_nature:scoria"})
+    if scpos then
+          minetest.set_node(scpos, {name = "nodes_nature:lava_flowing"})
+    end                    
     --erupt
     while (aname == "air" or aname == "climate:air_temp"
            or aname == "nodes_nature:lava_flowing") and height < h do
@@ -625,7 +632,7 @@ local lava_actions = function(pos, node)
     local gpos = minetest.find_nodes_in_area(
         {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
         {x = pos.x + 1, y = pos.y, z = pos.z + 1},
-        {"nodes_nature:lava_source", "nodes_nature:lava_flowing" }
+        {"nodes_nature:lava_source"}
     )
     gpos = #gpos
 
@@ -645,15 +652,33 @@ local lava_actions = function(pos, node)
         end
     ]]
 
+
+    if (minetest.get_item_group(aname, "cracky") > 0 
+       or minetest.get_item_group(aname, "crumbly") > 0) 
+       and nodename == "nodes_nature:lava_source" then
+
+       --check it has "force" nearby
+         if gpos > 7 then -- We ran this check already, reuse it
+         --melt above
+            lava_particle(posa)
+            if aname == "nodes_nature:scoria" then
+              minetest.set_node(posa, {name = "nodes_nature:lava_flowing"})
+            else
+              minetest.set_node(posa, {name = "nodes_nature:lava_source"})
+            end
+            minetest.sound_play("nodes_nature_cool_lava",
+                                        {pos = pos, max_hear_distance = 16,
+                                         gain = 0.25})
+         end
+    end   
+                                 
     if pos_air then
 
         --do eruption
         if gpos > 8 and ran() > 0.63 then
             erupt(pos, aname, 2 + gpos)
             --spread instability
-            local spos = minetest.find_node_near(pos, 1,
-                                                 {'nodes_nature:lava_source',
-                                                  "nodes_nature:lava_flowing"})
+            local spos = minetest.find_node_near(pos, 1, {'nodes_nature:lava_source'})
             if spos then
                 local pa =  {x = pos.x, y = pos.y+1, z = pos.z}
                 local an = minetest.get_node(pa).name
@@ -686,36 +711,17 @@ local lava_actions = function(pos, node)
                 minetest.set_node(pos, {name = "nodes_nature:basalt"})
                 minetest.sound_play("nodes_nature_cool_lava",
                                     {pos = pos, max_hear_distance = 16,
-                                     gain = 0.25})
-
-            elseif minetest.get_item_group(aname, "cracky") > 0
-                or minetest.get_item_group(aname, "crumbly") > 0 then
-
-                --check it has "force" nearby
-                if gpos > 8 then -- We ran this check already, reuse it
-                    --melt above
-                    lava_particle(posa)
-                    minetest.set_node(posa, {name = "nodes_nature:lava_source"})
-                    minetest.sound_play("nodes_nature_cool_lava",
-                                        {pos = pos, max_hear_distance = 16,
-                                         gain = 0.25})
-                end
+                                     gain = 0.25})                
             end
 
             --flowing will solidy the air node and leave tunnels
             -- launches rocks
         elseif nodename == "nodes_nature:lava_flowing" then
-
             --place stone
             if flying == false then
                 if ran()<0.75 then
-                    minetest.set_node(pos_air, {name = "nodes_nature:scoria"})
-                    climate.air_temp_source(pos, lava_temp_effect,
-                                            lava_heater, 0.5, 15)
-                else
-                    minetest.set_node(pos, {name = "nodes_nature:basalt"})
+                   minetest.set_node(pos, {name = "nodes_nature:scoria"})
                 end
-
             elseif ran()>0.95 then
                 --minetest.set_node(pos, {name = "nodes_nature:scoria_boulder"})
                 --minetest.check_for_falling(pos)
