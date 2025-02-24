@@ -566,8 +566,9 @@ local erupt = function(pos, aname, h)
 
     local height = 0
     --erupt
+    -- melt scoria
     while (aname == "air" or aname == "climate:air_temp"
-           or aname == "nodes_nature:lava_flowing") and height < h do
+           or aname == "nodes_nature:lava_flowing" or aname:match("scoria")) and height < h do
         if ran()<0.8 then
             height = height + 1
             pos.y = pos.y + 1
@@ -723,17 +724,6 @@ local lava_actions = function(pos, node)
                 if stillmelted then return end
                 minetest.set_node(pos, {name = "nodes_nature:basalt"})
                 lava_cool_sound(pos)
-
-            elseif minetest.get_item_group(anode.name, "cracky") > 0
-                or minetest.get_item_group(anode.name, "crumbly") > 0 then
-
-                --check it has "force" nearby
-                if gpos > 8 then -- We ran this check already, reuse it
-                    --melt above
-                    lava_particle(posa)
-                    minetest.set_node(posa, {name = "nodes_nature:lava_source"})
-                    lava_cool_sound(posa)
-                end
             end
         -- flowing will solidy the air node and leave tunnels
         -- launches rocks
@@ -786,7 +776,20 @@ local lava_actions = function(pos, node)
                 end
             end
         end
-
+    -- no air, let's try to break out! chance dependent on how many nearby lava nodes (source + flowing)
+    -- can break stones or dirts
+    -- requires more than 6 nearby lava nodes
+    elseif nodename == "nodes_nature:lava_source" and gpos > 6 and (core.get_item_group(anode.name, "cracky") > 0 or
+      core.get_item_group(anode.name, "crumbly") > 0) and ran()<(gpos/20) then
+        -- break scoria or dirt nodes into flowing lava
+        if anode.name:match("scoria") or core.get_item_group(anode.name, "crumbly") > 0 then
+            core.set_node(posa, {name = "nodes_nature:lava_flowing", param2=14}) -- high param2 to prevent hardening
+        -- turn normal rock into a lava source
+        else
+            core.set_node(posa, {name = "nodes_nature:lava_source"})
+        end
+        lava_particle(posa)
+        lava_cool_sound(posa)
     end
 
 end
