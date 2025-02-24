@@ -99,7 +99,6 @@ sediment.register_wet(red_ochre)
 sediment.register_wet_salty(red_ochre)
 
 
-
 local soil_list = {
     --Forest & Woodland
     soil.new({name = "rich_forest_soil",
@@ -331,3 +330,19 @@ for i = 1, #registered_sediments do
     end
     minetest.register_node(name.."_roots", props)
 end
+
+-- register after the fact to prevent root and agricultural variants
+-- keep here until we decide whether or not it's a good idea to have black sand for farming
+local black_sand = sediment.new(
+    {name = "sand_black",
+      description = S("Black Sand"), hardness = sediment.hardness.soft,
+      id = 4, sound = sediment.sounds.sand,
+      sound_wet = sediment.sounds.sand_wet,
+      rocky_substrate = 4,
+      organic_substrate = 0,
+      fertility = 4,
+      density = 2,
+})
+sediment.register_dry(black_sand)
+sediment.register_wet(black_sand)
+sediment.register_wet_salty(black_sand)
