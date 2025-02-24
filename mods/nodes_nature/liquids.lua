@@ -666,12 +666,10 @@ local lava_actions = function(pos, node)
         --or climate.get_rain(pos) then
         --these cool things in caves, possibly due to lava being a light source
         lava_particle(pos)
-        minetest.set_node(pos, {name = "nodes_nature:volcanic_ash"})
-        -- PLACEHOLDER! Ash is not technically correct, should be black sand
+        minetest.set_node(pos, {name = "nodes_nature:sand_black"})
         lava_cool_sound(pos)
         spawn_steam(pos)
         minetest.check_for_falling(pos)
-        --TODO: steam explosion effects
         return
     end
 
