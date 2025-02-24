@@ -573,6 +573,8 @@ local erupt_melt = function(name, ch, dh)
     if name:match("cobble") then return true end
     -- boulder calculations
     if name:match("boulder") and ran()<0.8 then return true end
+    -- we're onto the full rocks
+    if cracky < 2 then return end -- don't melt this, it's a veteran rock
     -- more proper rocks
     -- use cracky group to determine how to melt down (chances lower as you go down)
     -- use current height divided by desired height to determine "strength", the lower the stronger
@@ -797,7 +799,8 @@ local lava_actions = function(pos, node)
     -- no air, let's try to break out! chance dependent on how many nearby lava nodes (source + flowing)
     -- can break stones or dirts
     -- requires more than 6 nearby lava nodes
-    elseif nodename == "nodes_nature:lava_source" and gpos > 6 and (core.get_item_group(anode.name, "cracky") > 0 or
+    -- musn't be cracky 1, too hard to melt, for now
+    elseif nodename == "nodes_nature:lava_source" and gpos > 6 and (core.get_item_group(anode.name, "cracky") > 1 or
       core.get_item_group(anode.name, "crumbly") > 0) and ran()<(gpos/32) then
         -- break scoria or dirt nodes into flowing lava
         if anode.name:match("scoria") or core.get_item_group(anode.name, "crumbly") > 0 then
