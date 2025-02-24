@@ -576,6 +576,8 @@ local erupt_melt = function(name, ch, dh)
     -- more proper rocks
     -- use cracky group to determine how to melt down (chances lower as you go down)
     -- use current height divided by desired height to determine "strength", the lower the stronger
+    -- rig the cracky game to prevent easy basalt melting lol
+    cracky = cracky < 3 and cracky * 0.05
     cracky = (cracky/3)*(1-(ch/dh))
     if ran()<cracky then return true end
 end
