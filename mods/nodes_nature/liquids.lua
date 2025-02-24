@@ -560,6 +560,25 @@ end
 
 
 
+-- used for calculating whether or not an eruption can melt this node to oblivion
+-- nodename, current_height, desired_height
+local erupt_melt = function(name, ch, dh)
+    if name == "air" or name == "climate:air_temp" or name == "nodes_nature_lava_flowing" then
+        return true
+    end
+    -- get hardness of stone (for later calculation)
+    local cracky = core.get_item_group(name, "cracky")
+    if cracky < 1 then return end -- not melting this (not a rock!)
+    -- melt any cobble
+    if name:match("cobble") then return true end
+    -- boulder calculations
+    if name:match("boulder") and ran()<0.8 then return true end
+    -- more proper rocks
+    -- use cracky group to determine how to melt down (chances lower as you go down)
+    -- use current height divided by desired height to determine "strength", the lower the stronger
+    cracky = (cracky/3)*(1-(ch/dh))
+    if ran()<cracky then return true end
+end
 
 --plumes
 local erupt = function(pos, aname, h)
@@ -567,12 +586,11 @@ local erupt = function(pos, aname, h)
     local height = 0
     --erupt
     -- melt scoria
-    while (aname == "air" or aname == "climate:air_temp"
-           or aname == "nodes_nature:lava_flowing" or aname:match("scoria")) and height < h do
-        if ran()<0.8 then
+    while erupt_melt(aname, height, h) and height < h do
+        if ran()<(1-height/(h*2)) then -- complex calculation of where we do current height divided by h
             height = height + 1
             pos.y = pos.y + 1
-            minetest.set_node(pos, {name = "nodes_nature:lava_flowing", param2=10})
+            core.set_node(pos, {name = "nodes_nature:lava_flowing", param2=14})
             local posa =   {x = pos.x, y = pos.y+1, z = pos.z}
             lava_particle(posa)
             aname = minetest.get_node(posa).name
@@ -780,7 +798,7 @@ local lava_actions = function(pos, node)
     -- can break stones or dirts
     -- requires more than 6 nearby lava nodes
     elseif nodename == "nodes_nature:lava_source" and gpos > 6 and (core.get_item_group(anode.name, "cracky") > 0 or
-      core.get_item_group(anode.name, "crumbly") > 0) and ran()<(gpos/20) then
+      core.get_item_group(anode.name, "crumbly") > 0) and ran()<(gpos/32) then
         -- break scoria or dirt nodes into flowing lava
         if anode.name:match("scoria") or core.get_item_group(anode.name, "crumbly") > 0 then
             core.set_node(posa, {name = "nodes_nature:lava_flowing", param2=14}) -- high param2 to prevent hardening
