@@ -656,8 +656,7 @@ end
 local lava_actions = function(pos, node)
 
     --do cooling
-    --TODO: this needs to happen instantly and explosively.
-    -- Currently its a slow unreliable wait.
+    -- somewhat fast
     local coolpos = minetest.find_nodes_in_area(
         {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
         {x = pos.x + 1, y = pos.y, z = pos.z + 1},
@@ -674,6 +673,8 @@ local lava_actions = function(pos, node)
         minetest.check_for_falling(pos)
         return
     end
+
+    if ran()>0.2 then return end -- interval went from 10 to 2, let's add this here to prevent further calculations on chance
 
 
 
@@ -718,7 +719,7 @@ local lava_actions = function(pos, node)
     if pos_air then
 
         --do eruption
-        if gpos > 8 and ran() > 0.15 then
+        if gpos > 8 and ran() > 0.5 then
             -- randomize to prevent sound barrier breaking
             core.after(ran(4,115)/10, function() -- max should be a BIT more than the lava interval
                 erupt(pos, anode.name, 2 + gpos)
@@ -820,7 +821,7 @@ minetest.register_abm({
         label = "Lava actions",
         nodenames = {"nodes_nature:lava_source", "nodes_nature:lava_flowing"},
         --neighbors = {"group:cracky", "group:crumbly", 'air', 'climate:air_temp'},
-        interval = 10,
+        interval = 2,
         chance = 3,
         catch_up = true, -- deal with volcanoes
         action = function(...)
