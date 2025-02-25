@@ -627,11 +627,12 @@ local function spawn_steam(pos)
             length = length
         },
         -- other particle def
-        amount = ran(12, 50),
+        amount = ran(22, 72),
         time = ran(0.5, 1.5),
         glow = 4,
         minsize = ran(2, 6),
         collisiondetection = true,
+        collision_removal = true,
         vertical = true,
         -- pos and velocity
         minpos = minimal.pos_shift(pos,{x=-0.3,y=-0.2,z=-0.3}),
@@ -667,10 +668,19 @@ local lava_actions = function(pos, node)
         --or climate.get_rain(pos) then
         --these cool things in caves, possibly due to lava being a light source
         lava_particle(pos)
-        minetest.set_node(pos, {name = "nodes_nature:sand_black"})
+        core.set_node(pos, {name = "nodes_nature:sand_black"})
+        core.check_for_falling(pos)
         lava_cool_sound(pos)
-        spawn_steam(pos)
-        minetest.check_for_falling(pos)
+        -- check what cooled us down
+        coolpos = #coolpos == 1 and coolpos[1] or coolpos[ran(1,#coolpos)]
+        local cooldef = minimal.get_nodedef(coolpos)
+        local is_ice, is_water = cooldef and cooldef.name:match("ice"), cooldef and cooldef.groups.water
+        -- evaporate water or melt ice
+        if is_ice or is_water then
+            core.set_node(coolpos, {name = (is_ice and "nodes_nature:freshwater_source" or "air")})
+        end
+        -- spawn steam at ice or water otherwise at lava
+        spawn_steam( ((is_ice or is_water) and coolpos or pos) )
         return
     end
 
@@ -719,9 +729,9 @@ local lava_actions = function(pos, node)
     if pos_air then
 
         --do eruption
-        if gpos > 8 and ran() > 0.5 then
+        if gpos > 8 and ran() > 0.63 then
             -- randomize to prevent sound barrier breaking
-            core.after(ran(4,115)/10, function() -- max should be a BIT more than the lava interval
+            core.after(ran(4,65)/10, function() -- max should be a some more than the lava interval
                 erupt(pos, anode.name, 2 + gpos)
             end)
         end
