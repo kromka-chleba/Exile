@@ -574,12 +574,10 @@ local erupt_melt = function(name, ch, dh)
     -- boulder calculations
     if name:match("boulder") and ran()<0.8 then return true end
     -- we're onto the full rocks
-    if cracky < 2 then return end -- don't melt this, it's a veteran rock
-    -- more proper rocks
-    -- use cracky group to determine how to melt down (chances lower as you go down)
+    if cracky < 3 then return end -- don't melt this, it's a veteran rock
+    -- meltable soft rocks (like scoria)
     -- use current height divided by desired height to determine "strength", the lower the stronger
-    -- rig the cracky game to prevent easy basalt melting lol
-    cracky = cracky < 3 and cracky * 0.05 or cracky
+    -- if a cracky of 4 or more ever exists, it'd be easier to melt
     cracky = (cracky/3)*(1-(ch/dh))
     if ran()<cracky then return true end
 end
@@ -720,9 +718,9 @@ local lava_actions = function(pos, node)
     if pos_air then
 
         --do eruption
-        if gpos > 8 and ran() > 0.63 then
+        if gpos > 8 and ran() > 0.15 then
             -- randomize to prevent sound barrier breaking
-            core.after(ran(5,115)/10, function() -- max should be a BIT more than the lava interval
+            core.after(ran(4,115)/10, function() -- max should be a BIT more than the lava interval
                 erupt(pos, anode.name, 2 + gpos)
             end)
         end
