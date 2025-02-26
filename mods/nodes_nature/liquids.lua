@@ -666,21 +666,25 @@ local lava_actions = function(pos, node)
     if #coolpos > 0 then
         --or climate.get_snow(pos)
         --or climate.get_rain(pos) then
-        --these cool things in caves, possibly due to lava being a light source
-        lava_particle(pos)
-        core.set_node(pos, {name = "nodes_nature:sand_black"})
-        core.check_for_falling(pos)
-        lava_cool_sound(pos)
         -- check what cooled us down
         coolpos = #coolpos == 1 and coolpos[1] or coolpos[ran(1,#coolpos)]
         local cooldef = minimal.get_nodedef(coolpos)
         local is_ice, is_water = cooldef and cooldef.name:match("ice"), cooldef and cooldef.groups.water
-        -- evaporate water or melt ice
-        if is_ice or is_water then
+        -- let's compare for a solidification pos
+        -- ensures lava flows don't get blocked by black sand when flowing down into water
+        local produceatcooler = is_water and coolpos.y < pos.y
+        local solidpos = produceatcooler and coolpos or pos
+        -- evaporate water (unless replacing with black sand) or melt ice
+        if is_ice or (is_water and not produceatcooler) then
             core.set_node(coolpos, {name = (is_ice and "nodes_nature:freshwater_source" or "air")})
         end
-        -- spawn steam at ice or water otherwise at lava
-        spawn_steam( ((is_ice or is_water) and coolpos or pos) )
+        -- become black sand, check falling, and produce some dramatics!
+        lava_particle(pos)
+        lava_cool_sound(pos)
+        core.set_node(solidpos, {name = "nodes_nature:sand_black"})
+        core.check_for_falling(solidpos)
+        -- spawn steam at ice or water otherwise at 'solidpos'
+        spawn_steam( ((is_ice or is_water) and coolpos or solidpos) )
         return
     end
 
