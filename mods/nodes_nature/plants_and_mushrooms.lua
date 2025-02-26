@@ -58,6 +58,9 @@ local hardy_gravel_soil_prefs = soil_pref_new({
     gravel=1
 })
 
+-- for more desert-y plants
+local desert_temp = {min=8,max=52}
+
 --[[
     The best ratio for these plant types should be:
     1/3 - edible plants, 1/3 - inedible, 1/3 - slightly toxic
@@ -198,7 +201,7 @@ local plant_list = {
      move_resistance = 3, thorns = true},
 
     {name = "gevaari", description = S("Gevaari"),
-     plant_type = "herbaceous_plant", mesh_type = 1,
+     plant_type = "herbaceous_plant", mesh_type = 1, temp_range = desert_temp,
      growing_time = nn.plant_base_growing_time * 4, thorns = true,
      dominant_color = "green", dye_candidate = true,
      seasonal_type = "whole_season_seedling", move_resistance = 4},
@@ -208,7 +211,7 @@ local plant_list = {
      dominant_color = "green", dye_candidate = true,
      mesh_type = 0, growing_time = nn.plant_base_growing_time * 4,
      seasonal_type = "succulent_flowering", fruit = true,
-     texture_scale = 1.2, move_resistance = 4},
+     texture_scale = 1.2, move_resistance = 4, temp_range = desert_temp},
 
     {name = "salia", description = S("Salia"),
      mesh_type = 4, dominant_color = "red", dye_candidate = true,
@@ -237,7 +240,7 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 1.5,
      seasonal_type = "late", dry_fruit = true,
      seed_texture = "nodes_nature_rhuya_seed.png",
-     temp_range = {4,48}, soil_prefs = hardy_gravel_soil_prefs},
+     temp_range = {4,50}, soil_prefs = hardy_gravel_soil_prefs},
 
     -- Rhuya: Winter Variant
     -- NOT meant to appear in the wild (domesticated only, do not add to mapgen)
@@ -318,7 +321,7 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 4,
      dominant_color = "green", dye_candidate = true,
      seasonal_type = "whole_season", texture_scale = 1.2,
-     move_resistance = 4},
+     move_resistance = 4, temp_range = desert_temp},
 
     {name = "jogalan", description = S("Jogalan"),
      plant_type = "woody_plant", waving = true, mesh_type = 0,
@@ -339,7 +342,7 @@ local plant_list = {
      texture_scale = 1, seasonal_type = "whole_season"},
 
     {name = "drapacz", description = S("Drapacho"),
-     plant_type = "woody_plant", mesh_type = 0,
+     plant_type = "woody_plant", mesh_type = 0, temp_range = desert_temp,
      dominant_color = "red", dye_candidate = true,
      waving = false, thorns = true, move_resistance = 4,
      growing_time = nn.plant_base_growing_time * 4,
@@ -431,7 +434,7 @@ local plant_list = {
      seed_number = 1, seasonal_type = "whole_season"},
 
     {name = "saguati", description = S("Saguati"),
-     plant_type = "bamboo", waving = false,
+     plant_type = "bamboo", waving = false, temp_range = desert_temp,
      growing_time = nn.plant_base_growing_time * 4,
      dominant_color = "green", dye_candidate = true,
      seed_number = 1, thorns = true, seasonal_type = "whole_season"},
