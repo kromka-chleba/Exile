@@ -60,6 +60,7 @@ local hardy_gravel_soil_prefs = soil_pref_new({
 
 -- for more desert-y plants
 local desert_temp = {min=8,max=52}
+local desert_mild_temp = {min=6, max=47}
 
 --[[
     The best ratio for these plant types should be:
@@ -84,7 +85,7 @@ local desert_temp = {min=8,max=52}
 local plant_list = {
     -- Herbs
     {name = "barszcz", description = S("Barshocha"),
-     mesh_type = 2,
+     mesh_type = 2, temp_range = desert_mild_temp,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
       seasonal_type = "tuber", roots = 5,
@@ -92,7 +93,7 @@ local plant_list = {
      dry_fruit = true, dye_candidate = true, dominant_color = "yellow",},
 
     {name = "wrotycz", description = S("Vortecha"),
-     mesh_type = 1,
+     mesh_type = 1, temp_range = desert_mild_temp,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "yellow", dye_candidate = true,
@@ -101,7 +102,7 @@ local plant_list = {
      dry_fruit = true},
 
     {name = "wiha", description = S("Wiha"),
-     mesh_type = 4,
+     mesh_type = 4, temp_range = desert_mild_temp,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "red", dye_candidate = true,
@@ -132,7 +133,7 @@ local plant_list = {
 
     {name = "anperla", description = S("Anperla"),
      plant_type = "herbaceous_plant", waving = true,
-     mesh_type = 3, seasonal_type = "tuber",
+     mesh_type = 3, seasonal_type = "tuber", temp_range = desert_mild_temp,
      growing_time = nn.plant_base_growing_time * 3,
      dominant_color = "green", dye_candidate = true,
      fruit = true, roots = 8, root_description = S("Anperla tuber")},
@@ -163,7 +164,7 @@ local plant_list = {
      fruit = true, seasonal_type = "early_flower",
      bioluminescence = 3},
 
-    {name = "orom", description = S("Orom"),
+    {name = "orom", description = S("Orom"), temp_range = desert_mild_temp,
      mesh_type = 1, dominant_color = "black", dye_candidate = true,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2},
@@ -357,12 +358,10 @@ local plant_list = {
     -- Grasses
     {name = "sari",
     description = S("Sari"),
-    mesh_type = 2,
-    plant_type = "fibrous_plant",
-    waving = true,
+    mesh_type = 2, temp_range = desert_mild_temp,
+    plant_type = "fibrous_plant", waving = true,
     growing_time = nn.plant_base_growing_time * 0.5,
-    dye_candidate = true,
-    dominant_color = "yellow",
+    dye_candidate = true, dominant_color = "yellow",
     seasonal_type = "whole_season_seedling"},
 
     {name = "tanai", description = S("Tanai"),
@@ -381,9 +380,9 @@ local plant_list = {
      mesh_type = 4, dominant_color = "yellow", dye_candidate = true,
      plant_type = "fibrous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
-     seasonal_type = "whole_season_seedling"},
+     seasonal_type = "whole_season_seedling", temp_range = desert_mild_temp},
 
-    {name = "muhle", description = S("Muhle"),
+    {name = "muhle", description = S("Muhle"), temp_range = desert_mild_temp,
      plant_type = "fibrous_plant", mesh_type = 4,  waving = true,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "black", dye_candidate = true,
@@ -396,7 +395,7 @@ local plant_list = {
      edible_seedling = true, seasonal_type = "whole_season_seedling"},
 
     {name = "tashvish", description = S("Tashvish"),
-     mesh_type = 4, dye_candidate = true,
+     mesh_type = 4, dye_candidate = true, temp_range = desert_mild_temp,
      plant_type = "fibrous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 1.5,
      seasonal_type = "whole_season_seedling"},
@@ -416,7 +415,7 @@ local plant_list = {
 
     {name = "gemedi", description = S("Gemedi"),
      mesh_type = 2, dominant_color = "yellow", dye_candidate = true,
-     plant_type = "cane", waving = false,
+     plant_type = "cane", waving = false, temp_range = desert_mild_temp,
      growing_time = nn.plant_base_growing_time * 2,
      seed_number = 1, seasonal_type = "whole_season"},
 
