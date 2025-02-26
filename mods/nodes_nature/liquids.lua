@@ -768,16 +768,17 @@ local lava_actions = function(pos, node)
                 -- otherwise random chance with node.param2 divided by 12
                 local stillmelted = (node.param2 > 11 or unode.name:match("lava")) and true or ran() > node.param2/12
                 if stillmelted then return end
-                -- nearing the end of our line, chance to become basalt
-                local basaltchance = node.param2 < 10 and ran() > node.param2/10
-                if basaltchance then
+                -- nearing the end of our line, chance to become scoria (more air, less lava)
+                local scoriachance = node.param2 < 7 and ran() < node.param2/7
+                if scoriachance then
+                    core.set_node(pos, {name = "nodes_nature:scoria"})
+                    climate.air_temp_source(pos, lava_temp_effect,
+                      lava_heater, 0.5, 15)
+                -- producing basalt
+                else
                     -- 5% chance to make peridot nodes
                     core.set_node(pos, {name = (ran() < 0.05 and
                         "nodes_nature:basalt_with_peridot" or "nodes_nature:basalt")})
-                else
-                    core.set_node(pos_air, {name = "nodes_nature:scoria"})
-                    climate.air_temp_source(pos, lava_temp_effect,
-                                            lava_heater, 0.5, 15)
                 end
                 lava_cool_sound(pos)
             -- THROW DA ROCKS!
