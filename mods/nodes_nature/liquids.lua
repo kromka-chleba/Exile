@@ -672,7 +672,9 @@ local lava_actions = function(pos, node)
         local is_ice, is_water = cooldef and cooldef.name:match("ice"), cooldef and cooldef.groups.water
         -- let's compare for a solidification pos
         -- ensures lava flows don't get blocked by black sand when flowing down into water
-        local produceatcooler = is_water and coolpos.y < pos.y
+        local produceatcooler = is_water and coolpos.y < pos.y and
+        -- last check for x and z checks if water isn't just underneath, if so then replace the lava instead
+          (math.abs(coolpos.x - pos.x) < 2 and math.abs(coolpos.z - pos.z) < 2)
         local solidpos = produceatcooler and coolpos or pos
         -- evaporate water (unless replacing with black sand) or melt ice
         if is_ice or (is_water and not produceatcooler) then
@@ -814,8 +816,10 @@ local lava_actions = function(pos, node)
     -- can break stones or dirts
     -- requires more than 6 nearby lava nodes
     -- musn't be cracky 1, too hard to melt, for now
+    -- use exponents for more dynamic randomization (higher gpos is better), divided by 250
+    -- (more distant chances between each amount of gpos)
     elseif nodename == "nodes_nature:lava_source" and gpos > 6 and (core.get_item_group(anode.name, "cracky") > 1 or
-      core.get_item_group(anode.name, "crumbly") > 0) and ran()<(gpos/32) then
+      core.get_item_group(anode.name, "crumbly") > 0) and ran()<(gpos*(gpos^0.5)/250) then
         -- break scoria or dirt nodes into flowing lava
         if anode.name:match("scoria") or core.get_item_group(anode.name, "crumbly") > 0 then
             core.set_node(posa, {name = "nodes_nature:lava_flowing", param2=14}) -- high param2 to prevent hardening
