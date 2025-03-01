@@ -1004,6 +1004,8 @@ local stones = {
     {"scoria", S("Scoria"), 3},
     {"gneiss", S("Gneiss"), 1},
     {"jade", S("Jade"), 1},
+    {"peridot", S("Peridot"), 2},
+    {"labradorite", S("Labradorite"), 2}
 }
 local bmb = 'brick_makers_bench'
 local bmb_blocks = 'brick_makers_bench_blocks'
