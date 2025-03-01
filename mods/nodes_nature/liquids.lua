@@ -517,7 +517,7 @@ local function eject_drops(dropitem, pos, speed)
         })
 
         local itemdef = core.registered_nodes[dropitem]
-        -- not a node, remove after 5 to 35secs
+        -- not a node or has no on_drop, remove after 5 to 35secs
         if not itemdef or not itemdef.on_drop then
             core.after(ran(5, 35), function()
                 obj:remove()
@@ -562,13 +562,22 @@ end
 
 -- used for calculating whether or not an eruption can melt this node to oblivion
 -- nodename, current_height, desired_height
-local erupt_melt = function(name, ch, dh)
-    if name == "air" or name == "climate:air_temp" or name == "nodes_nature_lava_flowing" then
+local erupt_melt = function(pos, name, ch, dh)
+    if name == "air" or name == "climate:air_temp" or name == "nodes_nature:lava_flowing" then
         return true
     end
+    if name == "nodes_nature:lava_source" then return end -- don't wanna break this
     -- get hardness of stone (for later calculation)
     local cracky = core.get_item_group(name, "cracky")
-    if cracky < 1 then return end -- not melting this (not a rock!)
+    if cracky < 1 then -- not a rock! let's check if we're dirt
+        local crumbly = core.get_item_group(name, "crumbly")
+        if crumbly < 1 then return end -- not a sediment either, won't be melting this
+        -- use multiplication to increase chance of MELT
+        -- no point to calculating for stuff over 2
+        crumbly = crumbly < 3 and ran()<(crumbly*1.3)/3 or crumbly > 2 and true
+        eject_drops(name, pos, dh-ch)
+        return crumbly
+    end
     -- melt any cobble
     if name:match("cobble") then return true end
     -- boulder calculations
@@ -588,7 +597,7 @@ local erupt = function(pos, aname, h)
     local height = 0
     --erupt
     -- melt scoria
-    while erupt_melt(aname, height, h) and height < h do
+    while erupt_melt(pos, aname, height, h) and height < h do
         if ran()<(1-height/(h*2)) then -- complex calculation of where we do current height divided by h
             height = height + 1
             pos.y = pos.y + 1
