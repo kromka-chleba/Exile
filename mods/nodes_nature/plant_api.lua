@@ -453,9 +453,7 @@ function plant.get_base_props(plant_def)
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             if minetest.is_player(placer) and
                 not (minimal.player_in_creative(placer)) then
-
-                plant.set_to_domesticated(pos)
-                plant.death_chance_on_replant(pos)
+                plant.death_chance_on_replant(pos) -- becomes domesticated in function
             end
         end,
         -- custom parameters

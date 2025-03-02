@@ -589,13 +589,16 @@ function nn.plant.grow_seed(pos, elapsed, pdef, meta)
     return false -- the seed becomes a seedling (stops the timer)
 end
 
-function nn.plant.death_chance_on_replant(pos)
+-- optional plant def argument (node definition)
+function nn.plant.death_chance_on_replant(pos, pdef)
     nn.plant.set_to_domesticated(pos)
-    -- random chance to kill the plant when replanting
-    if math.random() < 1/4 then
+    pdef = pdef or minimal.get_nodedef(pos)
+    if pdef.groups and pdef.groups.seedling then return end -- do not run for seedlings to prevent autogrowth
+    -- random chance to kill the plant when replanting (1 in 4, 25% chance)
+    if math.random() < .25 then
         local timer = minetest.get_node_timer(pos)
         timer:stop()
-        minetest.after(3, function () nn.plant.kill(pos, false) end)
+        minetest.after(3, function () nn.plant.kill(pos, false, pdef) end)
     end
 end
 
