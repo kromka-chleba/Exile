@@ -622,11 +622,11 @@ local function make_inventory_formspec(player,context,istool)
 
     -- Quantity buttons part ---------------------------------------------------
 
-    local qtyID = cache.qty or 1
+    cache.qty = cache.qty or 1 --remember what box was checked
     local qtytab = { 'false', 'false', 'false' }
     local qtylab = { S("Single"), S("Stack"), S("Maximum") }
-    qtytab[qtyID] = 'true'
-    qtylab[qtyID] = minetest.colorize("cyan", qtylab[qtyID])
+    qtytab[cache.qty] = 'true'
+    qtylab[cache.qty] = minetest.colorize("cyan", qtylab[cache.qty])
 
     output[#output + 1] = table.concat({'container[0.45,',ycoord,']'})
     output[#output + 1] = tofstring({
@@ -1043,12 +1043,16 @@ local function process_receive_fields(player, formname, fields)
         end
 
         -- processing quantity buttons
-        if cache.qty ~= 1 and fields.qty1 then
+        -- if user checks something to true, register that in cache
+        if cache.qty ~= 1 and fields.qty1=='true' then
             cache.qty = 1
-        elseif cache.qty ~= 2 and fields.qty2 then
+        elseif cache.qty ~= 2 and fields.qty2=='true' then
             cache.qty = 2
-        elseif cache.qty ~= 3 and fields.qty3 then
+        elseif cache.qty ~= 3 and fields.qty3=='true' then
             cache.qty = 3
+        -- elseif everything is unchecked,  delete associated cache (it would be then put to 1(Single) as defaut in formspec creation).
+        elseif (fields.qty1=='false' or fields.qty2=='false' or fields.qty3=='false') then
+            cache.qty = nil
 
         elseif btn_type then
             -- if we changed tool
