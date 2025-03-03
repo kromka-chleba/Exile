@@ -42,8 +42,8 @@ local confirmspec = "formspec_version[6]"..
     "size[8,7]"..
     "hypertext[0.375,0.5;8,5;tut_dialog;"..
     welcome.."\n\n"..intro.."\n\n"..ask.."]"..
-    "button_exit[2,6;1,1;take_tut;Yes]"..
-    "button_exit[5,6;1,1;refuse_tut;No]"
+    "button_exit[2,5;1,1;take_tut;Yes]"..
+    "button_exit[5,5;1,1;refuse_tut;No]"
 
 function tutorial.init(player, quitfunc)
     if disable_tutorial then

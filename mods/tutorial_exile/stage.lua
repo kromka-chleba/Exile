@@ -201,6 +201,7 @@ end)
 
 -- called whenever the player moved between stages
 local function stage_change(player, playername)
+    print("Calling stage change")
     local pname = playername or player:get_player_name()
     local num = i_num[pname]
     local inst = instance[num]
@@ -210,6 +211,7 @@ local function stage_change(player, playername)
         stages[inst.active]:exit(player, playername, inst)
     end
     inst.active = inst.active + 1
+    print("done, now at ",inst.active)
     if inst.active > #stages then
         print("All done, last stage")
         tutorial.exit(player)
@@ -246,9 +248,16 @@ end
 
 tutorial = tutorial
 triggers = triggers
+local used_before = {}
+
 local function stage_trigger(player, pname, pos, nmeta, metastring)
     -- Called when a player reaches the stage exit
+    if used_before[pname] then
+        return -- prevent player_api calling this again before we're done
+    end
+    used_before[pname] = true
     stage_change(player, pname)
+    used_before[pname] = nil
 end
 
 triggers.register("tr_tutnext", stage_trigger, true,
@@ -267,5 +276,13 @@ function stage.distance_to_base(playername)
 end
 
 
-return stage
 
+
+minetest.register_chatcommand(
+    "tutr_next",{
+        privs = "server",
+        func = function(name,param)
+            stage_change(core.get_player_by_name(name), name)
+        end
+})
+return stage

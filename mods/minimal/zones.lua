@@ -265,23 +265,28 @@ function zone.create(name, zonedef)
     zoneinfo[name] = {}
     add_zbts(zdef.id)
     calc_size(zdef)
+    print("Created zone ",name," with definition:")
+    print(dump(zdef))
     return zdef.id
 end
 
 function zone.get_data(id)
-    return zonelist[id]
+    print("Getting zonelist for above id")
+    local def = zonelist[id]
+    return def
 end
 function zone.set_data(id, def)
     zonelist[id] = def
 end
 
 function zone.destroy(id)
+    if not zonelist[id] then return end
     for rmtype, data in pairs(zonebytype) do -- Remove us from all ZBTs
         if data[id] then data[id] = nil
         end
     end
     local name = zonelist[id].name
-    zoneinfo[name] = nil
+    if zoneinfo[name] then zoneinfo[name] = nil end
     zonelist[id] = nil
 end
 
