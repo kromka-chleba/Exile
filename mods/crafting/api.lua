@@ -641,27 +641,14 @@ function crafting.is_craftable (level, item_hash, unlocked, recipe)
     return craftable
 end
 
---[[ get all recipe to display, sorted in 2 lists :
-    returns craftable and uncraftable table of results
-    format of each table is the one documented for crafting.get_all
-]]
-function crafting.get_all_sorted(ctype, level, item_hash, unlocked, search, lang_code)
-    local t = crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
-    local craftable_t = {}
-    local uncraftable_t = {}
-
-    for _, result in ipairs (t) do
-        -- add recipe to list only if it matchs search
-        if result.craftable then
-            craftable_t[#craftable_t + 1] = result
-        else
-            uncraftable_t[#uncraftable_t + 1] = result
-        end
-    end
-    return craftable_t,uncraftable_t
-end
-
--- get all unlocked recipes to display
+--[[ get all unlocked recipes to display
+    return a table with following format :
+    t[i] = {
+    recipe    = recipe -- recipe info
+    items     = items -- list of needed items of the recipe
+    craftable = craftable -- true if we have the input to craft it in item_hash
+    displayed = displayed -- true if it matches the search filter
+    ]]
 function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
     assert(crafting.recipes[ctype], "No such craft type!")
     assert(not search or type(search) == "string", "search need to be a string")
@@ -749,6 +736,24 @@ function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
     return t
 end
 
+--[[ take a recipe list with crafting.get_all return format and sort it in 2 lists :
+    returns craftable and uncraftable table of results
+    format of each table is the one documented for crafting.get_all
+]]
+function crafting.sort_craftable_recipes(t)
+    local craftable_t = {}
+    local uncraftable_t = {}
+
+    for _, result in ipairs (t) do
+        -- add recipe to list only if it matchs search
+        if result.craftable then
+            craftable_t[#craftable_t + 1] = result
+        else
+            uncraftable_t[#uncraftable_t + 1] = result
+        end
+    end
+    return craftable_t,uncraftable_t
+end
 
 function crafting.set_item_hashes_from_list(inv, listname, item_hash)
     for _, stack in pairs(inv:get_list(listname)) do

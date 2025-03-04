@@ -250,32 +250,29 @@ local function get_recipes_list(cache, pInv, player_name, sorted)
 
     cache.item_hash = get_item_hash(pInv)
 
+    if not cache.recipes then
+        cache.recipes = crafting.get_all(ctype, sLevel, cache.item_hash,
+                                         unlocked, sSearch,
+                                         minetest.get_player_information(
+                                             player_name).lang_code)
+    end
+
+    if not sorted then --sorted is false or non given
+        return {cache.recipes}
     -- Get all available recipies and mark craftible ones.
-    if sorted == true then
+    elseif sorted == true then
         local c_recipes = cache.c_recipes
         local u_recipes = cache.u_recipes
         if not (c_recipes and u_recipes) then
             c_recipes, u_recipes =
-                crafting.get_all_sorted(ctype, sLevel, cache.item_hash,
-                                        unlocked, sSearch,
-                                        minetest.get_player_information(
-                                            player_name).lang_code)
+                crafting.sort_craftable_recipes(cache.recipes)
             -- save the lists in the cache
             cache.c_recipes=c_recipes
             cache.u_recipes=u_recipes
         else
             update_recipes_lists(player_name, cache, cache.item_hash)
         end
-        return {cache.c_recipes, cache.u_recipes},
-                (#cache.c_recipes + #cache.u_recipes)
-    elseif not sorted then --sorted is false or non given
-        if not cache.recipes then
-            cache.recipes = crafting.get_all(ctype, sLevel, cache.item_hash,
-                                             unlocked, sSearch,
-                                             minetest.get_player_information(
-                                                 player_name).lang_code)
-        end
-        return {cache.recipes}, #cache.recipes
+        return {cache.c_recipes, cache.u_recipes}
     end
 end
 
@@ -432,8 +429,19 @@ local function FS_recipes_to_cache(cache, player_name, pInv)
     -- get recipe list to display
     -- this list indicates if the recipe is craftable or not
     -- displayed = true only if the recipes matching the search parameter
-    local to_display, nb_recipes = get_recipes_list (cache, pInv, player_name, cache.sorted)
-
+    local raw_list = get_recipes_list (cache, pInv, player_name, cache.sorted)
+    local display_list={}
+    for _, r_list in ipairs (raw_list) do
+        --displays all recipes matchng with search field
+        for i, result in ipairs(r_list) do
+            -- display if this recipe matches the filter
+            if result.displayed == true then
+                display_list[#display_list + 1] = result
+            end
+        end
+    end
+    local nb_recipes=#display_list
+    
     local columns = 6 -- can show 6 items accross without scrollbar
 
     -- add scrollbar if needed
@@ -464,20 +472,14 @@ local function FS_recipes_to_cache(cache, player_name, pInv)
     local y = 0
 
     --#TODO make a version with unique list for non ordered list as asked by Meniptah
-    for _, r_list in ipairs (to_display) do
-        --displays all recipes matchng with search field
-        for i, result in ipairs(r_list) do
-            -- display if this recipe matches the filter
-            if result.displayed == true then
-                recipesFS[#recipesFS + 1] =
-                    FS_display_recipe(result, x * grid_size, y * grid_size)
+    for i, result in ipairs (display_list) do
+        recipesFS[#recipesFS + 1] =
+            FS_display_recipe(result, x * grid_size, y * grid_size)
 
-                x = x + 1
-                if x >= columns  then
-                    x = 0
-                    y = y + 1
-                end
-            end
+        x = x + 1
+        if x >= columns  then
+            x = 0
+            y = y + 1
         end
     end
 
