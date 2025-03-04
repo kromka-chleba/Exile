@@ -790,7 +790,7 @@ local function set_search_to(cache, s)
     local transformed = minimal.make_search_string(s)
     -- if I changed the text in the search field, reset recipes
     if cache.sSearch ~= transformed then
-        cache.sSearch = s
+        cache.sSearch = transformed
         cache.searchFS = nil
         cache_reset_recipes(cache)
         cache.output = ""
