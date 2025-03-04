@@ -199,16 +199,18 @@ local function update_recipes_lists(player_name, cache, item_hash)
     local c_recipes = cache.c_recipes
     local u_recipes = cache.u_recipes
     local unlocked = crafting.get_unlocked(player_name)
+    local search = cache.sSearch
+    local lang_code = minetest.get_player_information(player_name).lang_code
     -- updates ingredients state and infotext in first list
     for i, result in ipairs(c_recipes) do
-        crafting.update_recipe_state(result, cache.sLevel, unlocked, item_hash)
+        crafting.update_recipe_state(result, cache.sLevel, unlocked, item_hash, search, lang_code)
     end
 
     -- updates ingredients state and infotext in second list
     -- and move new craftable recipes to end of first one
     local new_u={}
     for i, result in ipairs(u_recipes) do
-        crafting.update_recipe_state(result, cache.sLevel, unlocked, item_hash)
+        crafting.update_recipe_state(result, cache.sLevel, unlocked, item_hash, search, lang_code)
         -- if it became craftable, add to previous list and hide in this one
         if result.craftable then
             c_recipes[#c_recipes + 1] = result
@@ -429,7 +431,7 @@ local function FS_recipes_to_cache(cache, player_name, pInv)
     -- add Scrollable container for recipes --------------------------
     -- get recipe list to display
     -- this list indicates if the recipe is craftable or not
-    -- it contains only the recipes matching the search parameter
+    -- displayed = true only if the recipes matching the search parameter
     local to_display, nb_recipes = get_recipes_list (cache, pInv, player_name, cache.sorted)
 
     local columns = 6 -- can show 6 items accross without scrollbar
