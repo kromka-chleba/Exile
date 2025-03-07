@@ -187,6 +187,9 @@ From TPH (CC0)
 	nodes_nature_lava_source_animated.png
 	nodes_nature_lava_flowing_animated.png
 	nodes_nature_lava.png
+	nodes_nature_part_peridot.png
+	nodes_nature_peridot.png
+	nodes_nature_labradorite.png
 
 Voxeel
 (marked CC0)
