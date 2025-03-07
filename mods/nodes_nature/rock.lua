@@ -199,6 +199,9 @@ drops_placing = function(obj, def, placepos, count, tries)
         if def.groups and def.groups.falling_node then
             core.check_single_for_falling(placepos)
         end
+    -- melt in lava
+    elseif atdef and atdef.name == "nodes_nature:lava_source" then
+        return obj:remove()
     -- keeps trying until limit is reached (4)
     else
         -- chance to add to y if not tried before or only once
