@@ -203,14 +203,16 @@ local info = { -- #TODO: set up locales, template.txt etc
     ["dig_key"] = "^  "..S("Press the dig button to pick up or strike things."),
     ["place_key"] = "v  "..S("Press the place button to put things down."),
     ["use_key"] = "◊  "..S("Press the use button to activate items and nodes."..
-                           "@n This is E by default on PC, AUX1 or sprint on mobile."),
+                           "@n @n This is E by default on PC, AUX1 or sprint on mobile."),
     ["zoom_key"] = S("Press the zoom key to see the name of what "..
                      "you're looking at. @n This is Z by default on PC, "..
                      "and the binoculars or magnifying lens on mobile"),
     ["crawl"] = S("Double-tap sneak to crouch and get through small spaces.@n"..
                   "@nIf server lag makes this hard, you can use the"..
                   " /crouch command, or install exile_csm, the"..
-                  "client-side mod to handle controls locally")
+                  "client-side mod to handle controls locally"),
+    ["movement"] = S("Loss of energy affects move and jump rate"),
+    ["torch"] = S("Drop a torch to see what's below")
 }
 
 local function display_info(pos, player)

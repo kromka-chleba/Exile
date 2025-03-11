@@ -4,13 +4,18 @@
 --  Allows players to die and go back to the start of a stage, or exit/enter
 
 local stage = {} -- namespace
+HEALTH = HEALTH
+player_api = player_api
 
 local modpath = minetest.get_modpath("tutorial_exile")
 local stages = dofile(modpath..'/data_stages.lua')
 
+local mstore = minetest.get_mod_storage()
+
 -- Loading/unloading areas -----------------------------------------------
 
 local delay = 7 -- number of seconds to wait before loading next stage
+
 local i_num = {} -- [playername ] = [tutorial_instance_number]
 local instance = {} -- track instance contents, to repurpose them. contains:
 --[[a= {
@@ -22,6 +27,28 @@ local instance = {} -- track instance contents, to repurpose them. contains:
     offset = vector.new(), -- cached offset
     }
     }]]--
+
+-- Save/load instance table via mod storage
+-- load_all_instances
+
+local counter = 0
+repeat
+    counter = counter + 1
+    local inp = mstore:get("inst_"..tostring(counter))
+    if inp then
+        instance[counter] = core.deserialize(inp)
+        instance[counter].in_use = false -- we restarted, nobody's logged in now
+    else -- no more instances tracked
+        counter = -1
+    end
+until counter < 0
+
+
+local function save_out(inst)
+    local key = "inst_"..tostring(inst.number)
+    local ser = core.serialize(inst)
+    mstore:set_string(key, ser)
+end
 
 
 -- Find where the instance goes on the map
@@ -47,17 +74,18 @@ local function add_stage(num, finish)
     -- finish is the last active stage in an already-setup tutorial area
 
     -- #TODO: Shift this into an interruptible job system
-    print("Add stage ",num," / ",finish)
     local inst = instance[num]
     local current = inst.ready + 1
     if stages[current] == nil then return end -- All done
     if finish and current == finish + 1 then
         inst.in_use = false
-        inst.active = 0 return -- Reloaded a previous stage, set inactive
+        inst.active = 0
+        return -- Reloaded a previous stage, set inactive
     end
     local anchor = vector.add(inst.offset, stages[current].location)
     loadschem(anchor, stages[current].schem)
     inst.ready = current
+    save_out(inst)
     minetest.after(delay, add_stage, num, finish)
 end
 
@@ -84,20 +112,20 @@ minetest.register_on_leaveplayer(function(player)
         i_num[pname] = nil
 end)
 
+
 function stage.shutdown(player) -- For when a player quits the tutorial instance
     local pname = player:get_player_name()
     local num = i_num[pname]
     if not num or minetest.is_singleplayer() then return end
     if instance[num].active == 6 then -- Finished, clear and reset
         reload(num)
-        instance[num].active = 1
+        save_out(instance[num])
     else -- Not complete, keep it set up for the player
         unload[pname] = true
     end
 end
 
 -- Spawn the landing zone on first load or when requested if /test_tut is used
-local mstore = minetest.get_mod_storage()
 local LZ_spawned = mstore:get("tutorial_lz_spawned")
 local enable_tutorial = minetest.settings:get("exile_enabletutorial") or false
 
@@ -116,6 +144,19 @@ end)
 
 -- Moving players through the stages -------------------------------------
 
+-- Utilities
+
+-- Clears a player's inv and hud and reset attributes, when moving to a stage
+local function clear(player)
+    local inv = player:get_inventory()
+    inv:set_list("main", {})
+    inv:set_list("cloths", {})
+    player_api.compose_cloth(player)
+    HEALTH.show_hud_elements(player, nil, "all")
+    HEALTH.reset_attributes(player)
+    player:override_day_night_ratio(1)
+end
+
 -- Initialize a tutorial instance for this player, or find his existing one
 local function stage_init(pname, selected_stage)
     if not pname or not minetest.get_player_by_name(pname) then
@@ -129,12 +170,16 @@ local function stage_init(pname, selected_stage)
     end
     -- Find a spot that isn't taken, spawn an instance there
     local selected = 0
+    if not selected_stage then selected_stage = 0 end -- start at the start
     local active
     for i = 1, #instance do
-        if not instance[i].in_use then
+        if instance[i].in_use == false
+            and instance[i].ready >= selected_stage then
+
             selected = i
             instance[i].in_use = true
             active = instance[i].active -- Don't reload past the last used stage
+            --break
         end
     end
     if selected == 0 then -- didn't find an unused; create new
@@ -145,6 +190,7 @@ local function stage_init(pname, selected_stage)
         }
     end
     i_num[pname] = selected
+    save_out(instance[selected])
 
     minetest.after(2, add_stage, selected, active)
     return selected
@@ -167,18 +213,19 @@ local function move_to_spawn_pos(player, playername)
     end
 
     -- not currently in, send him to the landing zone
-    print("Moving to spawn pos for stage ",act," at ",core.pos_to_string(pos))
+    print("Moving ",pname," to spawn pos for stage ",
+          act," at ",core.pos_to_string(pos))
     player:set_pos(pos)
 end
 
 
-local function enter_stage(player, playername)
+local function enter_stage(player, playername, preferred_stage)
     local pname = playername or player:get_player_name()
     local num = i_num[pname]
     local inst = instance[num]
     if not num or not inst then print("can't enter_stage: ",pname) return end
 
-    print("Entering stage: ",inst.active)
+    if preferred_stage then inst.active = preferred_stage end
     move_to_spawn_pos(player, pname)
     if stages[inst.active].splashtext then
         triggers.hud_splash(player,
@@ -186,49 +233,46 @@ local function enter_stage(player, playername)
                             stages[inst.active].splashtext,
                             pname)
     end
+    clear(player)
 
     if stages[inst.active].entry then
         stages[inst.active]:entry(player, pname, inst)
     end
 end
 
-minetest.register_on_respawnplayer(function(player)
-        local meta = player:get_meta()
-        if meta:get_string("playtime_suspended") == "y" then
-            enter_stage(player)
-        end
-end)
-
 -- called whenever the player moved between stages
 local function stage_change(player, playername)
-    print("Calling stage change")
     local pname = playername or player:get_player_name()
     local num = i_num[pname]
     local inst = instance[num]
     if not num or not inst then print("can't stage_change: ",pname) return end
-    print("Leaving stage ",inst.active," of ",#stages)
+
     if stages[inst.active].exit then
         stages[inst.active]:exit(player, playername, inst)
     end
+
     inst.active = inst.active + 1
-    print("done, now at ",inst.active)
+    player:get_meta():set_string("tutorial_stage", inst.active)
     if inst.active > #stages then
-        print("All done, last stage")
+        player:get_meta():set_string("tutorial_stage", "")
         tutorial.exit(player)
         return
     end
+    save_out(inst)
     enter_stage(player, pname)
 end
 
-local function stage_go(player)
-    local pname = player:get_player_name(player)
-    if not i_num[pname] then
-        stage_init(pname)
-    end
-    enter_stage(player)
-end
-
 function stage.open(player) -- called when a player enters the tutorial
+    local function stage_go()
+        local pname = player:get_player_name(player)
+        local current_stage =
+            tonumber(player:get_meta():get("tutorial_stage")) or 0
+        if not i_num[pname] then
+            stage_init(pname, tonumber(current_stage))
+        end
+        enter_stage(player, pname, current_stage)
+    end
+
     if not LZ_spawned then
         spawn_lz()
         -- delay for loading LZ, to avoid slowing the subsequent stage loads
@@ -238,6 +282,12 @@ function stage.open(player) -- called when a player enters the tutorial
     end
 end
 
+minetest.register_on_respawnplayer(function(player)
+        local meta = player:get_meta()
+        if meta:get_string("playtime_suspended") == "y" then
+            stage.open(player) -- Jump back to the start of the current stage
+        end
+end)
 
 -- Trigger ---------------------------------------------------------------
 
@@ -276,12 +326,11 @@ function stage.distance_to_base(playername)
 end
 
 
-
-
 minetest.register_chatcommand(
     "tutr_next",{
         privs = "server",
         func = function(name,param)
+            if core.check_player_privs(name, "server") == false then return end
             stage_change(core.get_player_by_name(name), name)
         end
 })

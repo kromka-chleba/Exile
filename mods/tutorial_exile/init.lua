@@ -42,8 +42,8 @@ local confirmspec = "formspec_version[6]"..
     "size[8,7]"..
     "hypertext[0.375,0.5;8,5;tut_dialog;"..
     welcome.."\n\n"..intro.."\n\n"..ask.."]"..
-    "button_exit[2,5;1,1;take_tut;Yes]"..
-    "button_exit[5,5;1,1;refuse_tut;No]"
+    "button_exit[2,5.5;1,0.5;take_tut;Yes]"..
+    "button_exit[5,5.5;1,0.5;refuse_tut;No]"
 
 function tutorial.init(player, quitfunc)
     if disable_tutorial then
@@ -126,7 +126,19 @@ end
 minimal.register_on_joinplayer(function(player)
         local name = player:get_player_name()
         read_player_store(name)
+        if pstore[name] then
+            stage.open(player) -- restart current stage
+        end
 end)
+--[[
+core.register_on_respawnplayer(function(player)
+        local name = player:get_player_name()
+        if pstore[name] then
+            print(name," is rejoining the tutorial")
+            stage.open(player)
+        end -- restart current stage
+    end)
+]]--
 
 -- Tutorial's closed, call the next login function if any
 local function after_tutorial(player)
@@ -164,6 +176,10 @@ minetest.register_chatcommand(
     "test_tut",{
         privs = "server",
         func = function(name,param)
+            if core.check_player_privs(name, "server") == false then return end
+            if pstore[name] then
+                tutorial.exit(core.get_player_by_name(name))
+            end
             local tmp = disable_tutorial
             disable_tutorial = false
             minetest.chat_send_player(name, "Starting tutorial")
@@ -175,6 +191,7 @@ minetest.register_chatcommand(
     "quit_tut",{
         privs = "server",
         func = function(name,param)
+            if core.check_player_privs(name, "server") == false then return end
             minetest.chat_send_player(name, "Stopping tutorial")
             --read_player_store(name)
             tutorial.exit(minetest.get_player_by_name(name))
@@ -187,6 +204,9 @@ if minetest.get_modpath("worldedit") then
         "save_tutr",{
             privs = "server",
             func = function(name,param)
+                if core.check_player_privs(name, "server") == false then
+                    return
+                end
                 local pos1 = worldedit.pos1[name]
                 local pos2 = worldedit.pos2[name]
                 if not vector.check(pos1) or not vector.check(pos2) then
@@ -202,6 +222,7 @@ minetest.register_chatcommand(
     "load_tutr",{
         privs = "server",
         func = function(name,param)
+            if core.check_player_privs(name, "server") == false then return end
             minetest.chat_send_player(name, "Loading region named "..param)
             local player = minetest.get_player_by_name(name)
             local pos = player:get_pos()
@@ -214,6 +235,7 @@ minetest.register_chatcommand(
     "size_tutr",{
         privs = "server",
         func = function(name,param)
+            if core.check_player_privs(name, "server") == false then return end
             local fname = modpath.."/schematics/"..param..".ex_schm"
             local input, err = minimal.load_region_raw(fname)
             if not input then return nil, err end
@@ -236,6 +258,7 @@ minetest.register_chatcommand(
     "tutr_startpos",{
         privs = "server",
         func = function(name,param)
+            if core.check_player_privs(name, "server") == false then return end
             local pos, err = stage.distance_to_base(name)
             if not pos then return err end
             return true, core.pos_to_string(pos)

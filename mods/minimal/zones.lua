@@ -254,6 +254,9 @@ end
 
 -- Create a zone directly, without the use of triggers.
 function zone.create(name, zonedef)
+    if not zoneinfo[name] then
+        error("Tried to create a non-existant zone type of "..name)
+    end
     local zdef = table.copy(zonedef)
     zdef.pos1, zdef.pos2 = vector.sort(zonedef.pos1, zonedef.pos2)
     zdef.shape = zonedef.shape or zs.absolute
@@ -262,16 +265,12 @@ function zone.create(name, zonedef)
     zdef.noexpiry = "true"
 
     zonelist[zdef.id] = zdef
-    zoneinfo[name] = {}
     add_zbts(zdef.id)
     calc_size(zdef)
-    print("Created zone ",name," with definition:")
-    print(dump(zdef))
     return zdef.id
 end
 
 function zone.get_data(id)
-    print("Getting zonelist for above id")
     local def = zonelist[id]
     return def
 end

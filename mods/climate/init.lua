@@ -246,9 +246,9 @@ local function set_sky_clouds(player,...)
     local clouds = active_weather.cloud_data
     local pheight = player:get_pos().y
     if clouds.height < 9000 and pheight > 8999 then
-        clouds.height = clouds.height + 9000
+        clouds.height = clouds.height + 9250
     elseif clouds.height > 9000 and pheight < 9000 then
-        clouds.height = clouds.height - 9000
+        clouds.height = clouds.height - 9250
     end
     player:set_clouds(clouds)
     local wth = table.copy(active_weather)
@@ -663,15 +663,15 @@ local cmd_wover = {
     description = "Sets your weather override",
     privs = {set_weather=true},
     func = function(name, param)
-        if minetest.check_player_privs(name, {set_weather = false}) then
-            return
+        if minetest.check_player_privs(name, {set_weather = false}) == false then
+            return false, "You lack the set_weather permission"
         end
         if param == "" or param == "help" then
-            return false
+            return false, "Enter a weather name or none to clear"
         end
         if param == "none" then
             climate.set_weather_override(name, nil, "")
-            return
+            return true, "Cleared override"
         end
         local weather = climate.registered_weathers[param]
         if weather then
