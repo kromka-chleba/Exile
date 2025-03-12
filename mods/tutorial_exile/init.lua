@@ -80,6 +80,9 @@ local function store_player(player)
     ps.inv = invlists
     ps.privs = core.get_player_privs(name)
 
+    if player_api.is_invisible(player) then ps.invis = true end
+    player_api.set_invisible(player, false)
+
     mstore:set_string(name, core.serialize(ps))
 
     player:override_day_night_ratio(1)
@@ -109,6 +112,9 @@ local function restore_player(player)
 
     core.set_player_privs(name, pstore[name].privs)
     pstore[name].privs = nil
+
+    player_api.set_invisible(player, pstore[name].invis)
+    pstore[name].invis = nil
 
     meta:set_string("playtime_suspended", "")
     region.enable_spawnex(name)
