@@ -51,6 +51,7 @@ function tutorial.init(player, quitfunc)
         return
     end
     local name = player:get_player_name()
+    if pstore[name] then stage.open(player) return end -- already in?
     pstore[name] = {}
     pstore[name].quit = quitfunc
     minetest.show_formspec(name, "tutorial_exile:confirm", confirmspec)

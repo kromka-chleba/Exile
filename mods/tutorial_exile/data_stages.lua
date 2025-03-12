@@ -55,7 +55,7 @@ return
             start = vector.new(5,2,16),
             location = vector.new(80,0,0),
             exit = function(self, player, name, instance)
-                minetest.chat_send_player(name, "Area complete")
+                --minetest.chat_send_player(name, "Area complete")
             end,
         },
         [3] = {
