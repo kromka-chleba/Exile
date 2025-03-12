@@ -134,6 +134,7 @@ liquid_store.register_stored_liquid(
 --make freshwater Pot drinkable on click
 minetest.override_item("tech:wooden_water_pot_freshwater",{
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+            if not core.is_player(clicker) then return end
 		local meta = clicker:get_meta()
 		local thirst = meta:get_int("thirst")
 		--only drink if thirsty
