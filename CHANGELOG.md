@@ -1,5 +1,9 @@
 # Changelog:
 
+## [2025-03-12][2025-03-12__0.3.18h]
+   - More graffiti on the stone etcher
+   - Bug fixes
+
 ## [2024-11-13][2024-11-13__0.3.18g]
    - Fix moonglass transparency
    - Fix for ucsigns mod
