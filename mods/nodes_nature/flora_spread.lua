@@ -20,14 +20,15 @@ local seasons = nn.seasons
 --
 
 local function flora_spread(pos, node)
-    local pos_under = minimal.get_pos_under(pos)
-    if not minimal.pos_group(pos_under, "sediment") then
+    -- check if we're on top of sediment
+    local pos_under = minimal.pos_shift(pos, {y=-1})
+    local under = core.get_node(pos_under)
+    local underdef = core.registered_nodes[under.name]
+    if not (underdef and underdef.groups and underdef.groups.sediment) then
         return
     end
-    local under = minetest.get_node(pos_under)
     -- prevent spreading to slopes
-    local under_nodedef = minimal.get_nodedef(pos_under)
-    local slope = under_nodedef.groups.natural_slope
+    local slope = underdef.groups.natural_slope
     local under_name = under.name
     if slope then
         under_name = nsl.get_regular_node_name(under.name)
@@ -39,21 +40,26 @@ local function flora_spread(pos, node)
     if #minetest.find_nodes_in_area(pos0, pos1, "group:flora") > 3 then
         return
     end
-    local plant_nodedef = minimal.get_nodedef(pos)
-    local seed_name = plant_nodedef._seed_name
+    local plantdef = core.registered_nodes[node.name]
+    local seed_name = plantdef._seed_name
+    -- seed isn't a node, return!
+    if not core.registered_nodes[seed_name] then return end
+    -- find sediments to transfer to
+    -- #TODO: run nn.plant.soil_response() on soil to figure out whether or not we should spread to the soil
+    -- when we do, store the data so we aren't calling it on the same type of soil for each available node
+    -- possibly check comfortable light (at day time) and temp too
     local soils = minetest.find_nodes_in_area_under_air(
         pos0, pos1, "group:sediment")
     local num_soils = #soils
-    if num_soils >= 1 then
-        for si = 1, math.random(1, num_soils) do
-            local soil = soils[math.random(num_soils)]
-            local soil_name = minetest.get_node(soil).name
-            local above_soil = minimal.get_pos_above(soil)
-            if soil_name == under_name then
-                minetest.set_node(above_soil, {name = seed_name})
-                ms.labels_to_position(above_soil,
-                                      {"seasonal_plants"})
-            end
+    if num_soils == 0 then return end
+    for si = 1, math.random(1, num_soils) do
+        local soil = soils[math.random(num_soils)]
+        local soil_name = minetest.get_node(soil).name
+        local above_soil = minimal.get_pos_above(soil)
+        if soil_name == under_name then
+            minetest.set_node(above_soil, {name = seed_name})
+            ms.labels_to_position(above_soil,
+                                  {"seasonal_plants"})
         end
     end
 end
@@ -119,87 +125,124 @@ minetest.register_abm({
 
 local cane_interval = 220
 
+local checked_canes = {} -- positions of each cane's bottom, used to prevent growth from being called on the same cane
+
 ---------------------------------
 local function grow_cane(pos, node)
     local current_pos = vector.new(pos)
-    local current_node = node.name
-    local kill = false
+    local pdef = core.registered_nodes[node.name] -- plant definition
+    local current_node = pdef
+    if not current_node.groups then return end -- how?
 
-    if minetest.get_item_group(current_node, "seedling") > 0 then
+    if current_node.groups.seedling then
         return -- don't grow seedlings
     end
 
-    while ((minetest.get_item_group(current_node, "sediment") == 0 and
-            pos.y - current_pos.y < 9)) do
-        if minetest.get_item_group(current_node, "cane_plant") ~= 1 then
-            kill = true
-        end
-        current_pos.y = current_pos.y - 1
-        current_node = minetest.get_node(current_pos).name
-    end
-
-    local wet_sediment = minetest.get_item_group(current_node, "wet_sediment")
-    local sediment = minetest.get_item_group(current_node, "sediment")
-    local bottom_cane_pos = vector.new(current_pos)
-    bottom_cane_pos.y = bottom_cane_pos.y + 1
-
-    if wet_sediment == 2 or sediment <= 0 then
-        -- kill if salty or not sediment
-        kill = true
-    elseif wet_sediment <= 0 then
-        -- dry so no growing
-        return
-    end
-
-    if kill then
-        for i = 1, 8 do
+    -- dead cane tell no growth
+    if node.name:sub(-5) == "_dead" then return end
+    -- we can't grow here! kill.
+    local function kill()
+      -- will check for 50 tall, but will return if above node aint a cane
+      for i = 1, 50 do
             current_pos.y = current_pos.y + 1
-            current_node = minetest.get_node(pos).name
-            if minetest.get_item_group(current_node, "cane_plant") > 0 then
-                plant.kill(current_pos, true)
+            current_node = core.registered_nodes[core.get_node(current_pos).name]
+            if current_node and current_node.groups and current_node.groups.cane_plant then
+                plant.kill(current_pos, true, current_node)
+            -- not a connected cane, so return
+            else
+                return
             end
         end
+    end
+
+    -- get groups as we check them
+    local cgroups = current_node and current_node.groups or {}
+    -- keep looping until we hit a sediment or not a cane plant
+    while not current_node.groups.sediment do
+        -- uh oh, not a cane plant - and it wasn't soil! KILL!
+        if not cgroups.cane_plant then
+            return kill()
+        end
+        current_pos.y = current_pos.y - 1
+        current_node = core.registered_nodes[minetest.get_node(current_pos).name]
+        cgroups = current_node and current_node.groups or {}
+    end
+
+    -- get bottom cane prior to other calculations for check
+    local bottom_cane_pos = vector.new(current_pos)
+    bottom_cane_pos.y = bottom_cane_pos.y + 1
+    -- check if we're already being checked
+    local bottom_label = core.pos_to_string(bottom_cane_pos)
+    -- already being checked
+    if checked_canes[bottom_label] then
         return
+    else
+        checked_canes[bottom_label] = true
     end
+    -- remove from table after a delay calculated from cane_interval
+    core.after(cane_interval*0.1, function()
+        checked_canes[bottom_label] = nil
+    end)
 
-    local meta = minetest.get_meta(bottom_cane_pos)
-    local last_time = meta:get_int("last_time")
-    if not last_time or last_time == 0 then
-        last_time = minetest.get_gametime()
-        meta:set_int("last_time", last_time)
+    if cgroups.wet_sediment == 2 or not cgroups.sediment then
+        -- kill if salty or not sediment
+        return kill()
     end
-
-    ---extreme stop growth
-    local temp = climate.get_point_temp(pos)
-    if temp < 10 or temp > 40 then
-        return
-    end
-
-    local plant_name = node.name
-
+    -- check our current height
     local height = 0
-    while node.name == plant_name and height < 6 do
+    while node.name == pdef.name and height < 6 do
         height = height + 1
         pos.y = pos.y + 1
         node = minetest.get_node(pos)
     end
+    -- sufficiently grown, return
+    if height > 5 then return end
+    -- add to meta that we checked, return if first time checking
+    local meta = minetest.get_meta(bottom_cane_pos)
+    local last_time = meta:get_int("last_time")
+    -- no catchup here, set and return
+    if not last_time or last_time == 0 then
+        last_time = minetest.get_gametime()
+        meta:set_int("last_time", last_time)
+        return
+    end
+    -- no growing if not wet
+    if cgroups.wet_sediment ~= 1 then
+        -- dry so no growing
+        return
+    end
+
+    local bottom = core.get_node(bottom_cane_pos) -- bottom cane
+    -- get temp and light ranges
+    -- don't let it prevent growth checks if either or both are nil
+    local temp_range, light_range = (pdef.plant_temp_range or {min=10,max=40}),
+      (pdef.plant_light_range or {min=13,max=15})
+
+    ---extreme stop growth
+    local temp = climate.get_point_temp(pos)
+    if temp < temp_range.min or temp > temp_range.max then
+        return
+    end
 
     -- natural or artificial light
-    if plant.get_light(pos) < 13 then
+    local lighthere = plant.get_light(pos)
+    -- if light is too low or too high
+    if lighthere < light_range.min or lighthere > light_range.max then
         return
     end
 
     local elapsed = minetest.get_gametime() - last_time
 
     -- 1.05 margin because ABMs have a small delay
-    local nr_to_grow = math.floor(elapsed / (cane_interval * 1.05))
-    local nodedef = minetest.registered_nodes[plant_name]
+    local nr_to_grow = math.floor((elapsed / (cane_interval * 1.05)) + 0.5)
+    if nr_to_grow == 0 then return end -- can't even grow yet
 
     -- catch up and growing
-    for i = 1, nr_to_grow + 1 do
+    for i = 1, nr_to_grow do
         if height < 6 and node.name == "air" then
-            minetest.set_node(pos, {name = plant_name,
-                                    param2 = nodedef.place_param2})
+            -- reuse bottom's param2
+            minetest.set_node(pos, {name = pdef.name,
+                                    param2 = bottom.param2})
             pos.y = pos.y + 1
             node = minetest.get_node(pos)
             height = height + 1
@@ -207,7 +250,16 @@ local function grow_cane(pos, node)
             break
         end
     end
-    meta:set_int("last_time", minetest.get_gametime())
+    -- erase last_time (or meta if otherwise empty) if tall enough, to prevent sudden regrowth on dig
+    if height > 5 then
+        local data = meta:to_table()
+        if data and data.fields then
+            data.fields.last_time = nil
+        end
+        meta:from_table(data)
+    else
+        meta:set_int("last_time", minetest.get_gametime())
+    end
     return true
 end
 
@@ -342,26 +394,25 @@ minetest.register_abm({
         chance = 3,
         catch_up = true,
         action = function(pos, node)
+            if seasons.is_winter() then return end -- it's winter, let's not regrow, at all lol
+            local above_pos = minimal.pos_shift(pos, {y=1})
+            local above = core.get_node(above_pos)
+            -- something above, ahhh!! check before ever checking meta
+            if above.name ~= "air" then return end
             local meta = minetest.get_meta(pos)
             local name = meta:get_string("root_name")
-            local nr = meta:get_float("root_nr")
-            local pos_above = minimal.get_pos_above(pos)
-            local above_name = minetest.get_node(pos_above).name
-            if above_name ~= "air" or name == "" then
-                return
-            end
-            local temp = climate.get_point_temp(pos_above)
-            local winter = seasons.is_winter()
-            if temp <= 10 and winter or
-                temp < 5 and not winter then
-                return
-            end
-            if nr >= 1 then
-                local seedling_name = string.gsub(name, "_root", "_seedling5")
-                minetest.place_node(pos_above, {name = seedling_name})
-            else
-                local seedling_name = string.gsub(name, "_root", "_seedling2")
-                minetest.place_node(pos_above, {name = seedling_name})
-            end
+            if name == "" then return end -- no name
+            local pdef = core.registered_nodes[name:gsub("_root","")] -- plant def
+            if not pdef then return end -- not a node, plant
+            local nr = meta:get_float("root_nr") -- root number
+            local temp = climate.get_point_temp(above_pos)
+            -- temp range
+            local temp_range = pdef.plant_temp_range or {min=5,max=40}
+            if temp < temp_range.min or temp > temp_range.max then return end -- too cold too hot
+            -- get type of seedling and place
+            local seedling_name = nr >= 1 and name:gsub("_root", "_seedling5") or
+              name:gsub("_root", "_seedling2")
+            if not core.registered_nodes[seedling_name] then return end -- not a node
+            core.place_node(above_pos, {name = seedling_name})
         end
 })

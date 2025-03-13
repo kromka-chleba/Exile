@@ -39,13 +39,28 @@ local mahal_nodebox = {
 
 local moss_nodebox = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}
 
+local soil_pref_new = nn.soil_preferences.new
 
-local wrotycz_soil_prefs =
-    nn.soil_preferences.new({
-            rocky_substrate = {min = 2, max = 2},
-            organic_substrate = {min = 2, max = 2},
-            density = {min = 4, max = 4},
-    })
+-- tables go from 1 to 4
+-- likes 0 being specified though
+-- we like clay
+local clay_bonus_soil_prefs = soil_pref_new({
+    -- we prefer a rocky_substrate and organic_substrate of 2
+    rocky_substrate = {0, 1, 0},
+    organic_substrate = {0, 1, 0},
+    -- we like a dense meal (not sure why 3 lonesome isn't satisfactory)
+    density = {[2]=0, [3]=0, [4]=2},
+    -- don't mean we like gravel though - negate gravel density
+    gravel = -2
+})
+-- we live in hostile environments!
+local hardy_gravel_soil_prefs = soil_pref_new({
+    gravel=1
+})
+
+-- for more desert-y plants
+local desert_temp = {min=8,max=52}
+local desert_mild_temp = {min=6, max=47}
 
 --[[
     The best ratio for these plant types should be:
@@ -70,7 +85,7 @@ local wrotycz_soil_prefs =
 local plant_list = {
     -- Herbs
     {name = "barszcz", description = S("Barshocha"),
-     mesh_type = 2,
+     mesh_type = 2, temp_range = desert_mild_temp,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
       seasonal_type = "tuber", roots = 5,
@@ -78,16 +93,16 @@ local plant_list = {
      dry_fruit = true, dye_candidate = true, dominant_color = "yellow",},
 
     {name = "wrotycz", description = S("Vortecha"),
-     mesh_type = 1,
+     mesh_type = 1, temp_range = desert_mild_temp,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "yellow", dye_candidate = true,
-     soil_preferences = wrotycz_soil_prefs,
+     soil_preferences = clay_bonus_soil_prefs,
      seasonal_type = "late", winter_fruit = true,
      dry_fruit = true},
 
     {name = "wiha", description = S("Wiha"),
-     mesh_type = 4,
+     mesh_type = 4, temp_range = desert_mild_temp,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "red", dye_candidate = true,
@@ -118,7 +133,7 @@ local plant_list = {
 
     {name = "anperla", description = S("Anperla"),
      plant_type = "herbaceous_plant", waving = true,
-     mesh_type = 3, seasonal_type = "tuber",
+     mesh_type = 3, seasonal_type = "tuber", temp_range = desert_mild_temp,
      growing_time = nn.plant_base_growing_time * 3,
      dominant_color = "green", dye_candidate = true,
      fruit = true, roots = 8, root_description = S("Anperla tuber")},
@@ -149,7 +164,7 @@ local plant_list = {
      fruit = true, seasonal_type = "early_flower",
      bioluminescence = 3},
 
-    {name = "orom", description = S("Orom"),
+    {name = "orom", description = S("Orom"), temp_range = desert_mild_temp,
      mesh_type = 1, dominant_color = "black", dye_candidate = true,
      plant_type = "herbaceous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2},
@@ -187,7 +202,7 @@ local plant_list = {
      move_resistance = 3, thorns = true},
 
     {name = "gevaari", description = S("Gevaari"),
-     plant_type = "herbaceous_plant", mesh_type = 1,
+     plant_type = "herbaceous_plant", mesh_type = 1, temp_range = desert_temp,
      growing_time = nn.plant_base_growing_time * 4, thorns = true,
      dominant_color = "green", dye_candidate = true,
      seasonal_type = "whole_season_seedling", move_resistance = 4},
@@ -197,7 +212,7 @@ local plant_list = {
      dominant_color = "green", dye_candidate = true,
      mesh_type = 0, growing_time = nn.plant_base_growing_time * 4,
      seasonal_type = "succulent_flowering", fruit = true,
-     texture_scale = 1.2, move_resistance = 4},
+     texture_scale = 1.2, move_resistance = 4, temp_range = desert_temp},
 
     {name = "salia", description = S("Salia"),
      mesh_type = 4, dominant_color = "red", dye_candidate = true,
@@ -217,14 +232,16 @@ local plant_list = {
      edible_seedling = false},
 
     -- rhuyas are not dye candidates, do not specify dominant color
+    -- rhuyas are more resilient, especially hardy/wintery
     -- Rhuya: Kind of a mix between corn and wheat, corn-like fruit and plant size, wheat-like seed purposes
     -- fruit is toxic (and seeds maintain a bit of fruit toxins), tasting like like pine sap - bitter, and a bit sour
     {name = "rhuya", description = S("Rhuya"),
      waving = true, texture_scale = 1.6,
      plant_type = "herbaceous_plant", mesh_type = 0,
-     growing_time = nn.plant_base_growing_time * 3,
+     growing_time = nn.plant_base_growing_time * 1.5,
      seasonal_type = "late", dry_fruit = true,
-     seed_texture = "nodes_nature_rhuya_seed.png"},
+     seed_texture = "nodes_nature_rhuya_seed.png",
+     temp_range = {4,50}, soil_prefs = hardy_gravel_soil_prefs},
 
     -- Rhuya: Winter Variant
     -- NOT meant to appear in the wild (domesticated only, do not add to mapgen)
@@ -234,43 +251,48 @@ local plant_list = {
     {name = "rhuya_wintery", description = S("Hardy Rhuya"),
      waving = false, texture_scale = 1.85,
      plant_type = "herbaceous_plant", mesh_type = 0,
-     growing_time = nn.plant_base_growing_time * 3,
+     growing_time = nn.plant_base_growing_time * 1.8,
      seasonal_type = "wintery", dry_fruit = true,
-     seed_texture = "nodes_nature_rhuya_seed.png"},
+     seed_texture = "nodes_nature_rhuya_seed.png",
+     temp_range = {-12,40}, soil_prefs = hardy_gravel_soil_prefs},
 
     -- Mushrooms
 
     --Lambakap. is also a mushroom.
     -- slow growing food and water source,
     -- main crop for longterm underground living.
+    -- bioengineered to be somewhat of an extremophile
 
     {name = "lambakap", description = S("Lambakap"),
      drawtype = "nodebox", nodebox = lambakap_nodebox,
      lifeform_type = "mushroom", dominant_color = "red", dye_candidate = true,
      growing_time = nn.plant_base_growing_time * 3,
-     bioluminescence = 2, extra_groups = {flammable = 6}},
+     bioluminescence = 2, extra_groups = {flammable = 6},
+     temp_range={0,75}, light_range={0,13}},
 
     --Reshedaar.  is also a mushroom.
     -- slow growing fibre mushroom,
     -- main fibre crop for longterm underground living.
+    -- survives in higher but not lower temperatures
 
     --(can't be bioluminescent or conflicts with recipe)
     {name = "reshedaar", description = S("Reshedaar"),
      drawtype = "nodebox", nodebox = reshedaar_nodebox,
      lifeform_type = "mushroom", plant_type = "fibrous_plant",
      growing_time = nn.plant_base_growing_time * 3,
-     dominant_color = "red", dye_candidate = true},
+     dominant_color = "red", dye_candidate = true, temp_range={12,65}},
 
     --Mahal. is also a mushroom.
     -- slow growing woody mushroom,
     -- main stick crop for longterm underground living.
+    -- survives in higher but not lower temperatures
 
     {name = "mahal", description = S("Mahal"),
      drawtype = "nodebox", nodebox = mahal_nodebox,
      lifeform_type = "mushroom", plant_type = "woody_plant",
      growing_time = nn.plant_base_growing_time * 3,
      dominant_color = "red", dye_candidate = true,
-     bioluminescence = 1,},
+     bioluminescence = 1, temp_range={12,65}},
 
     {name = "merki", description = S("Merki"),
      bioluminescence = 2, lifeform_type = "mushroom",
@@ -279,20 +301,20 @@ local plant_list = {
     {name = "nebiyi", description = S("Nebiyi"),
      lifeform_type = "mushroom", mesh_type = 1,
      growing_time = nn.plant_base_growing_time, seasonal_type = "late_mushroom",
-     dye_candidate = true, dominant_color = "indigo"},
+     dye_candidate = true, dominant_color = "indigo", light_range={max=15}},
 
     {name = "marbhan", description = S("Marbhan"),
      lifeform_type = "mushroom", mesh_type = 2,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "red", dye_candidate = true,
-     seasonal_type = "whole_season_seedling"},
+     seasonal_type = "whole_season_seedling", light_range={max=15}},
 
     {name = "zufani", description = S("Zufani"),
      lifeform_type = "mushroom", mesh_type = 2,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "yellow", dye_candidate = true,
      seasonal_type = "late_mushroom", only_dead_fruit = true,
-     fruit_description = S("Zufani Amber")},
+     fruit_description = S("Zufani Amber"), light_range={max=15}},
 
     -- Woody
     {name = "tsaplop", description = S("Tsaplop"),
@@ -300,12 +322,13 @@ local plant_list = {
      growing_time = nn.plant_base_growing_time * 4,
      dominant_color = "green", dye_candidate = true,
      seasonal_type = "whole_season", texture_scale = 1.2,
-     move_resistance = 4},
+     move_resistance = 4, temp_range = desert_temp},
 
     {name = "jogalan", description = S("Jogalan"),
      plant_type = "woody_plant", waving = true, mesh_type = 0,
      growing_time = nn.plant_base_growing_time * 2,
-     dominant_color = "black", dye_candidate = true},
+     dominant_color = "black", dye_candidate = true,
+     soil_prefs = hardy_gravel_soil_prefs},
 
     {name = "gitiri", description = S("Gitiri"),
      plant_type = "woody_plant", waving = true,
@@ -320,7 +343,7 @@ local plant_list = {
      texture_scale = 1, seasonal_type = "whole_season"},
 
     {name = "drapacz", description = S("Drapacho"),
-     plant_type = "woody_plant", mesh_type = 0,
+     plant_type = "woody_plant", mesh_type = 0, temp_range = desert_temp,
      dominant_color = "red", dye_candidate = true,
      waving = false, thorns = true, move_resistance = 4,
      growing_time = nn.plant_base_growing_time * 4,
@@ -335,12 +358,10 @@ local plant_list = {
     -- Grasses
     {name = "sari",
     description = S("Sari"),
-    mesh_type = 2,
-    plant_type = "fibrous_plant",
-    waving = true,
+    mesh_type = 2, temp_range = desert_mild_temp,
+    plant_type = "fibrous_plant", waving = true,
     growing_time = nn.plant_base_growing_time * 0.5,
-    dye_candidate = true,
-    dominant_color = "yellow",
+    dye_candidate = true, dominant_color = "yellow",
     seasonal_type = "whole_season_seedling"},
 
     {name = "tanai", description = S("Tanai"),
@@ -352,20 +373,21 @@ local plant_list = {
     {name = "thoka", description = S("Thoka"),
      mesh_type = 4, dye_candidate = true,
      plant_type = "fibrous_plant", waving = true,
-     growing_time = nn.plant_base_growing_time * 2},
+     growing_time = nn.plant_base_growing_time * 2,
+     soil_prefs = hardy_gravel_soil_prefs},
 
     {name = "alaf", description = S("Alaf"),
      mesh_type = 4, dominant_color = "yellow", dye_candidate = true,
      plant_type = "fibrous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 2,
-     seasonal_type = "whole_season_seedling"},
+     seasonal_type = "whole_season_seedling", temp_range = desert_mild_temp},
 
-    {name = "muhle", description = S("Muhle"),
+    {name = "muhle", description = S("Muhle"), temp_range = desert_mild_temp,
      plant_type = "fibrous_plant", mesh_type = 4,  waving = true,
      growing_time = nn.plant_base_growing_time * 2,
      dominant_color = "black", dye_candidate = true,
      move_resistance = 4, seasonal_type = "late", winter_fruit = true,
-     fruit_description = S("Muhle Berries")},
+     fruit_description = S("Muhle Berries"), soil_prefs = hardy_gravel_soil_prefs},
 
     {name = "damo", description = S("Damo"),
      mesh_type = 4, plant_type = "fibrous_plant", waving = true,
@@ -373,7 +395,7 @@ local plant_list = {
      edible_seedling = true, seasonal_type = "whole_season_seedling"},
 
     {name = "tashvish", description = S("Tashvish"),
-     mesh_type = 4, dye_candidate = true,
+     mesh_type = 4, dye_candidate = true, temp_range = desert_mild_temp,
      plant_type = "fibrous_plant", waving = true,
      growing_time = nn.plant_base_growing_time * 1.5,
      seasonal_type = "whole_season_seedling"},
@@ -393,7 +415,7 @@ local plant_list = {
 
     {name = "gemedi", description = S("Gemedi"),
      mesh_type = 2, dominant_color = "yellow", dye_candidate = true,
-     plant_type = "cane", waving = false,
+     plant_type = "cane", waving = false, temp_range = desert_mild_temp,
      growing_time = nn.plant_base_growing_time * 2,
      seed_number = 1, seasonal_type = "whole_season"},
 
@@ -411,7 +433,7 @@ local plant_list = {
      seed_number = 1, seasonal_type = "whole_season"},
 
     {name = "saguati", description = S("Saguati"),
-     plant_type = "bamboo", waving = false,
+     plant_type = "bamboo", waving = false, temp_range = desert_temp,
      growing_time = nn.plant_base_growing_time * 4,
      dominant_color = "green", dye_candidate = true,
      seed_number = 1, thorns = true, seasonal_type = "whole_season"},
@@ -510,7 +532,7 @@ minetest.override_item(
 do -- local scope to prevent global access
     for _,rhuya in pairs({"","_wintery"}) do
         local seed_name = "nodes_nature:rhuya"..rhuya.."_seed"
-        local seed_on_place = minetest.registered_nodes[seed_name].on_place
+        local seed_after_place = minetest.registered_nodes[seed_name].after_place_node
         minetest.override_item(
             seed_name,  {
                 node_box = {
@@ -522,12 +544,11 @@ do -- local scope to prevent global access
                     fixed = {-0.45, -0.5, -0.45,  0.45, -0.48, 0.45},
                 },
                 -- functionality for normal rhuya seeds turning to wintery, or wintery becoming normal
-                on_place = function(itemstack, placer, pointed_thing)
-                    if not pointed_thing then return seed_on_place(itemstack, placer, pointed_thing) end
+                after_place_node = function(pos, placer, itemstack, pointed_thing)
                     local itemdef = itemstack:get_definition()
-                    itemstack = seed_on_place(itemstack, placer, pointed_thing)
-                    local pos = pointed_thing.above
-                    if minetest.get_node(pos).name ~= itemdef.name then return itemstack end
+                    itemstack = seed_after_place(pos, placer, itemstack, pointed_thing)
+                    -- a player didn't place this! return!
+                    if not minetest.is_player(placer) then return itemstack end
                     -- winter variant (3% chance to return to normal)
                     if #itemdef.name == 31 then
                         if math.random() > 0.03 then return end
@@ -560,8 +581,8 @@ do -- local scope to prevent global access
                           end
                         end
                     end
-                    return itemstack -- return changes
-                end
+                    return itemstack -- return any changes
+                end,
         })
         -- override fruit stack size
         minetest.override_item(

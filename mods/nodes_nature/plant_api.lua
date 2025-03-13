@@ -174,9 +174,45 @@ function plant.new(def)
     -- nil if not provided
     def.thorns = def.thorns and 1 or nil
     def.waving = def.waving and 1 or nil
+    -- local variable to detect if a cane/bamboo
+    local is_cane = def.plant_type == "cane" or def.plant_type == "bamboo"
+    -- light range
+    local light_range = def.light_range or {}
+    light_range.min = light_range.min or light_range[1]
+    light_range.max = light_range.max or light_range[2]
+    light_range[1] = nil
+    light_range[2] = nil
+    -- mushrooms don't like too much light
+    if def.lifeform_type == "mushroom" then
+        light_range.min = light_range.min or 0
+        light_range.max = light_range.max or 12
+    -- canes require more light
+    elseif is_cane then
+        light_range.min = light_range.min or 13
+        light_range.max = light_range.max or 15
+    -- regular plants
+    else
+        light_range.min = light_range.min or 4
+        light_range.max = light_range.max or 15
+    end
+    def.light_range = light_range
+    -- temp range
+    local temp_range = def.temp_range or {}
+    temp_range.min = temp_range.min or temp_range[1]
+    temp_range.max = temp_range.max or temp_range[2]
+    temp_range[1] = nil
+    temp_range[2] = nil
+    -- usual range: 5 to 40C
+    -- canes and bamboos are 10C to 40C
+    temp_range.min = temp_range.min or temp_range.max and temp_range.max - 35 or
+      is_cane and 10 or 5
+    temp_range.max = temp_range.max or temp_range.min + (is_cane and 30 or 35)
+    def.temp_range = temp_range
+    -- soil_preferences
+    def.soil_preferences = def.soil_preferences or def.soil_prefs
+    -- use soil_preferences.new() to produce a soil_preferences otherwise expect errors if you don't!
+    -- check plant_growth.lua for usage
     --[[ other custom values checked for definition:
-        soil_preferences
-        light_range
         mesh_type -- see the comment above
         bioluminescence
         move_resistance
@@ -407,29 +443,30 @@ function plant.get_base_props(plant_def)
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
         _seed_name = get_name(plant_def.name,"seed"),
+        -- ranges
+        plant_temp_range = plant_def.temp_range,
+        plant_light_range = plant_def.light_range,
+        plant_growing_time = plant_def.growing_time,
+        -- soil prefs
+        plant_soil_preferences = plant_def.soil_preferences,
 
         after_place_node = function(pos, placer, itemstack, pointed_thing)
             if minetest.is_player(placer) and
                 not (minimal.player_in_creative(placer)) then
-
-                plant.set_to_domesticated(pos)
-                plant.death_chance_on_replant(pos)
+                plant.death_chance_on_replant(pos) -- becomes domesticated in function
             end
         end,
-    }
-    if plant_def.roots then
-        props._root_name = get_name(plant_def.name,"root")
-    end
-    if plant_def.thorns then
-        props.on_punch = function(pos, node, puncher, pointed_thing)
+        -- custom parameters
+        _root_name = plant_def.roots and get_name(plant_def.name,"root") or nil,
+        on_punch = plant_def.thorns and function(pos, node, puncher, pointed_thing)
             local itemstack = puncher:get_wielded_item()
             local item_name = itemstack:get_name()
             if item_name == "" then
                 local hp = puncher:get_hp()
                 puncher:set_hp(hp-1)
             end
-        end
-    end
+        end or plant_def.on_punch,
+    }
     if plant_def.fruit and plant_def.winter_fruit then
         props = minimal.merge_tables(
             props, {
@@ -532,15 +569,13 @@ function plant.get_seedling_base_props(plant_def)
         groups = plant.get_seedling_groups(plant_def),
         _next_life_stage = plantname,
         on_timer = function(pos, elapsed)
-            return plant.grow_plant(pos, elapsed,
-                                    plant_def.growing_time,
-                                    plant_def.soil_preferences)
+            return plant.grow_plant(pos, elapsed)
         end,
         on_place = function(itemstack, placer, pointed_thing)
             return on_place_plant(itemstack, placer, pointed_thing)
         end,
         on_construct = function(pos)
-            plant.start_growing_plant(pos, plant_def.growing_time)
+            plant.start_growing_plant(pos)
         end,
     }
     return table.copy(minimal.merge_tables(plant.get_base_props(plant_def),
@@ -598,15 +633,13 @@ function plant.get_plantlike_flowering_props(plant_def)
     base.wield_image = texture
     base.groups = minimal.merge_tables(base.groups, {flowering_plant = 1})
     base.on_timer = function(pos, elapsed)
-        return plant.grow_plant(pos, elapsed,
-                                plant_def.growing_time,
-                                plant_def.soil_preferences)
+        return plant.grow_plant(pos, elapsed)
     end
     base.on_place = function(itemstack, placer, pointed_thing)
         return on_place_plant(itemstack, placer, pointed_thing)
     end
     base.on_construct = function(pos)
-        plant.start_growing_plant(pos, plant_def.growing_time)
+        plant.start_growing_plant(pos)
     end
     if plant_def.dye_candidate then
         base.groups.ncrafting_dye_candidate = 1
@@ -649,6 +682,10 @@ function plant.get_plantlike_fruiting_props(plant_def)
     base.groups.ncrafting_dye_candidate = nil
     base.wield_image = texture
     base.on_punch = fruiting_on_punch
+    -- won't set growth meta
+    base.on_construct = function(pos)
+        nn.plant.start_growing_plant(pos)
+    end
     return table.copy(base)
 end
 
@@ -900,6 +937,11 @@ function plant.get_seed_base_props(plant_def)
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3,  0.3, -0.48, 0.3},
         },
+        -- ranges
+        plant_temp_range = plant_def.temp_range,
+        plant_light_range = plant_def.light_range,
+        -- soil_prefs
+        plant_soil_preferences = plant_def.soil_preferences,
         _next_life_stage = next_life_stage,
         _seed_name = get_name(plant_def.name,"seed"),
         on_timer = function(pos, elapsed)
