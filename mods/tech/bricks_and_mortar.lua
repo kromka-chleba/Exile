@@ -82,7 +82,7 @@ minetest.register_node(
                 --check water type. Salt would ruin it.
                 local water_type = minetest.get_item_group(p_name, "water")
                 if water_type == 1 then
-                    minimal.switch_node(pos, {name = "tech:slaked_lime"})
+                    minimal.switch_node(pos, "tech:slaked_lime")
                     minetest.set_node(p_water, {name = "air"})
                     minetest.sound_play("tech_boil",
                                         {pos = pos, max_hear_distance = 8, gain = 1})
@@ -98,7 +98,7 @@ minetest.register_node(
             --slowly revert to lime by reacting with the air, or slake by rain
             if minetest.find_node_near(pos, 1, {"air"}) then
                 if random() > 0.99 and climate.get_rain(pos) then
-                    minimal.switch_node(pos, {name = "tech:slaked_lime"})
+                    minimal.switch_node(pos, "tech:slaked_lime")
                     minetest.sound_play("tech_boil",
                                         {pos = pos, max_hear_distance = 8, gain = 1})
                 end
@@ -107,7 +107,7 @@ minetest.register_node(
                 node.param2 = node.param2 + random(2,6)
 
                 if node.param2 > 99 then
-                    minimal.switch_node(pos, {name = "tech:crushed_lime"})
+                    minimal.switch_node(pos, "tech:crushed_lime")
                     return false
                 else
                     minetest.swap_node(pos, node)
@@ -152,7 +152,7 @@ minetest.register_node(
                 -- or slowly revert to lime by reacting with the air
                 dry = dry + 1
                 if dry == 15 then
-                    minimal.switch_node(pos, {name = "tech:crushed_lime"})
+                    minimal.switch_node(pos, "tech:crushed_lime")
                     return false
                 end
             end
@@ -192,7 +192,7 @@ minetest.register_node(
             --slowly revert to lime by reacting with the air
             if minetest.find_node_near(pos, 1, {"air"}) then
                 if random() > 0.9 then
-                    minimal.switch_node(pos, {name = "tech:crushed_lime"})
+                    minimal.switch_node(pos, "tech:crushed_lime")
                     return false
                 end
             end
@@ -222,9 +222,10 @@ minetest.register_node(
                 footstep = {name = "nodes_nature_mud", gain = 0.4},
                 dug = {name = "nodes_nature_mud", gain = 0.4}}),
         _use_tip = S("Combine with another slab"),
+        _combines_by_hand = "tech:lime_mortar",
         _on_use_item = function(player, wielded_item, pointed_thing)
             return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing, "tech:lime_mortar")
+              minimal.get_usable_position(pointed_thing))
         end,
 })
 

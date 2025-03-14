@@ -372,7 +372,7 @@ minetest.register_node(
         _on_use_node = minimal.slabs_split_hand,
         on_burn = function(pos)
             if math.random()<0.5 then
-                minimal.switch_node(pos, {name = "tech:small_wood_fire"})
+                minimal.switch_node(pos, "tech:small_wood_fire")
                 minetest.check_for_falling(pos)
             else
                 minetest.remove_node(pos)
@@ -397,9 +397,10 @@ stairs.register_stair_and_slab(
 minetest.override_item(
     "stairs:slab_thatch", {
         _use_tip = S("Combine with another slab"),
+        _combines_by_hand = "tech:thatch",
         _on_use_item = function(player, wielded_item, pointed_thing)
             return minimal.slabs_combine(player, wielded_item,
-                                         pointed_thing, "tech:thatch")
+              minimal.get_usable_position(pointed_thing))
         end,
 })
 

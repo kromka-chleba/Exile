@@ -3,87 +3,94 @@ wielded_light = wielded_light
 local S = minimal.S
 
 -- check if a valid meta was given
-local function is_meta(meta)
-    if (type(meta) == "userdata") then
-        -- ensure it has these 2 functions lol
-        if (type(meta["set_int"]) == "function"
-            and type(meta["set_string"]) == "function") then
-
-            return true
-        end
-    end
-
-    return false
+function minimal.is_meta(meta)
+    -- meta is userdata and nothin else
+    if type(meta) ~= "userdata" then return false end
+    -- all meta have set_int and set_string
+    if type(meta.set_int) ~= "function" or type(meta.set_string) ~= "function" then return false end
+    -- we're meta
+    return true
 end
+local is_meta = minimal.is_meta
 
+-- swap a node, but run its on_construct, so that
+-- timers etc are started, but metadata is left intact
+-- node argument can be string, will be set as the "name"
+
+-- after_place is optional but if provided, expected to be a table of 3 parameters
+-- placer (player), itemstack (or itemstack being wielded by player, will be grabbed from player if not provided),
+-- and 3rd, pointed_thing table
 function minimal.switch_node(pos, node, after_place)
-    --Swap a node, but run its on_construct, so that
-    -- timers etc. are started, but metadata is left intact
-
-    -- after_place is to be a table of 3 parameters:
-    -- placer, itemstack, pointed_thing
-    --    though does not need to be specified for switch_node to work
     assert(vector.check(pos), "exile_game.switch_node: Invalid pos given")
-    local node_def = minetest.registered_nodes[node.name]
-    if not node_def then
-        error("Attempted to switch_node to an invalid node: "..node.name)
-        return
+    -- permit string argument for node
+    node = type(node) == "string" and {name = node} or node
+    assert(type(node) == "table",
+      "exile_game.switch_node: invalid argument for node - not a string for name or get_node table")
+    assert(type(node.name) == "string", "exile_game.switch_node: invalid argument for node.name - not a string")
+    local ndef = core.registered_nodes[node.name]
+    if not ndef then
+        error("exile_game.switch_node: attempted to switch to an invalid node "..node.name)
     end
     minetest.swap_node(pos, node)
-    if node_def.on_construct then
-        node_def.on_construct(pos)
+    if ndef.on_construct then
+        ndef.on_construct(pos)
     end
-    if (type(after_place) == "table") then
-        if (node_def.after_place_node) then
-            local placer = after_place[1]
-            local itemstack = after_place[2]
-            local pointed_thing = after_place[3]
-
-            node_def.after_place_node(pos, placer, itemstack, pointed_thing)
-        end
+    -- after place option provided
+    if type(after_place) == "table" and type(ndef.after_place_node) == "function" then
+        local player, itemstack = after_place[1], after_place[2]
+        if not core.is_player(player) then return end -- invalid placer argument, not a player
+        -- get wielded item if itemstack not provided
+        itemstack = type(itemstack) == "userdata" and itemstack or player:get_wielded_item()
+        -- placer, itemstack, pointed_thing
+        ndef.after_place_node(pos, player, itemstack, after_place[3])
     end
 end
-
-function minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
-    if not pointed_thing or pointed_thing.type ~= "node" then return end
+-- minimal.slabs_combine: player, itemstack, pos, swap_node
+-- combine isn't required if specified in itemstack's definition
+-- use minimal.get_usable_position(pointed_thing) to convert pointed_thing to pos
+function minimal.slabs_combine(player, itemstack, pos, combine)
     -- Can't combine with nothing, or with objects
-    local pos = pointed_thing.under
-    local node = minetest.get_node(pos)
-    if itemstack:get_name() == node.name then
-        -- combine slabs
-        local stack_meta = itemstack:get_meta()
-        if stack_meta:contains("fuel") then
-            local fuel = stack_meta:get_int("fuel")
-            local pt_meta = minetest.get_meta(pos)
-            fuel = fuel + pt_meta:get_int("fuel")
-            pt_meta:set_int("fuel",fuel)
-        end
-        minimal.switch_node(pos,{name=swap_node})
-        itemstack:take_item()
-        return true
+    if not pos then return end
+    local idef = itemstack:get_definition()
+    if not idef or idef.name == "" then return end -- no itemstack definition or is hand, return!
+    combine = type(combine) == "string" and combine or idef._combines_by_hand
+    local cdef = core.registered_nodes[combine] -- combine_def
+    if not cdef then return end -- can't combine into a node successfully (not specified or wasn't a node)
+    local node = core.get_node(pos)
+    -- not even the same thing
+    if node.name ~= idef.name then return end
+    -- permit custom combine interactions
+    if idef._combined_by_hand then
+        -- player, itemstack, definition, pos, node, swap_node definition
+        idef._combined_by_hand(player, itemstack, idef, pos, node, cdef)
     end
+    -- now to fully combine
+    minimal.switch_node(pos, combine)
+    itemstack:take_item()
+    return itemstack
 end
 
 function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
                                   wielded_item)
-    if not pointed_thing then return end -- Can't split from nothing
+    local pos = minimal.get_usable_position(pointed_thing)
+    if not pos then return end -- can't split from nothing or objects
     if wielded_item:get_name() ~= "" then return end -- must be empty handed
-    local nname = pointed_node.name
-    local split_node = minetest.registered_nodes[nname]._splits_by_hand
-    if not split_node then
-        error("Tried to split a slab with no splits_by_hand defined! "..
-              pointed_node.name.." -- "..dump(split_node))
+    local nname = pointed_node.name -- nodename
+    local split_name = core.registered_nodes[nname]._splits_by_hand
+    local split_def = core.registered_nodes[split_name]
+    if not split_def then
+        error("Tried to split a slab with invalid splits_by_hand defined! "..
+              pointed_node.name.." -- "..dump(split_name))
     end
-    local pos = pointed_thing.under
-    local meta = minetest.get_meta(pos)
-    local itemstack = ItemStack(split_node)
-    if meta:contains("fuel") then
-        local fuel = meta:get_int("fuel") / 2
-        meta:set_int("fuel", fuel)
-        local imeta = itemstack:get_meta()
-        imeta:set_int("fuel", fuel)
+    local ndef = core.registered_nodes[nname] -- node definition
+    local itemstack = ItemStack(split_name)
+    -- permit custom split interactions
+    if ndef._split_by_hand then
+        -- player, pos, our node def, definition of node we're splitting into
+        ndef._split_by_hand(player, itemstack, pos, ndef, split_def)
     end
-    minimal.switch_node(pos, {name=split_node})
+    -- now to split into two!
+    minimal.switch_node(pos, split_name)
     wielded_item:replace(itemstack)
     return true
 end
@@ -93,31 +100,26 @@ function minimal.node_set_int(pos_or_meta, name, value)
              error( "exile_game.node_set_int: Invalid value given, expected "..
                     "number got ".. type(value))
     end
-    local meta
-    if (is_meta(pos_or_meta)) then
-        meta = pos_or_meta
-    elseif (vector.check(pos_or_meta)) then
-        meta = minetest.get_meta(pos_or_meta)
-    else
-        error("exile_game.node_set_int: Invalid pos given")
+    -- meta argument or pos
+    local meta = is_meta(pos_or_meta) and pos_or_meta
+      or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
+    if not meta then
+        error("exile_game.node_set_int: invalid pos or meta given")
     end
 
     meta:set_int(name, value)
 end
 
 function minimal.node_get_int(pos_or_meta, name)
-    local meta
-    if (is_meta(pos_or_meta)) then
-        meta = pos_or_meta
-    elseif (vector.check(pos_or_meta)) then
-        meta = minetest.get_meta(pos_or_meta)
-    else
-        error("exile_game.node_get_int: Invalid pos given")
+    -- meta userdata or pos vector
+    local meta = is_meta(pos_or_meta) and pos_or_meta
+      or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
+    if not meta then
+        error("exile_game.node_get_int: invalid pos or meta given")
     end
     if meta:get(name) then
         return meta:get_int(name)
     end
-
     return false
 end
 
@@ -126,32 +128,27 @@ function minimal.node_set_string(pos_or_meta, name, value)
         error("exile_game.node_set_string: "..
               "Invalid value given, expected string got "..type(value) )
     end
-    local meta
-    if (is_meta(pos_or_meta)) then
-        meta = pos_or_meta
-    elseif (vector.check(pos_or_meta)) then
-        meta = minetest.get_meta(pos_or_meta)
-    else
-        error("exile_game.node_set_string: Invalid pos given")
+    -- meta userdata or pos vector
+    local meta = is_meta(pos_or_meta) and pos_or_meta
+      or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
+    if not meta then
+        error("exile_game.node_set_string: invalid pos or meta given")
     end
 
     meta:set_string(name, value)
 end
 
 function minimal.node_get_string(pos_or_meta, name)
-    local meta
-    if (is_meta(pos_or_meta)) then
-        meta = pos_or_meta
-    elseif (vector.check(pos_or_meta)) then
-        meta = minetest.get_meta(pos_or_meta)
-    else
-        error("exile_game.node_get_string: Invalid pos given")
+    -- meta userdata or pos vector
+    local meta = is_meta(pos_or_meta) and pos_or_meta
+      or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
+    if not meta then
+        error("exile_game.node_get_string: invalid pos or meta given")
     end
     if meta:get(name) then
         return meta:get_string(name)
-    else
-        return false
     end
+    return false
 end
 
 function minimal.force_place(pos, node)
@@ -193,14 +190,14 @@ function minimal.get_pos_above(pos)
     return vector.new(pos.x, pos.y + 1, pos.z)
 end
 
+-- get_nodedef: gets node definition and returns it with the get_node as well
 function minimal.get_nodedef(pos)
-    local node_name = minetest.get_node(pos).name
-    if not node_name then
-        -- got nothing, return nothing
-        return
-    end
-    local nodedef = minetest.registered_nodes[node_name]
-    return nodedef
+    local node = core.get_node(pos)
+    local ndef = core.registered_nodes[node.name]
+    -- no definition detected, return!
+    if not ndef then return end
+    -- permit returning get_node result too
+    return ndef, node
 end
 
 function minimal.pos_group(pos, group_name)
@@ -259,33 +256,24 @@ end
 
 -- will handle converting on_place functionality into on_rightclick
 --   (returns given itemstack or nil)
--- USE minimal.on_rightclick_possible to VERIFY if this function should be ran
 function minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
     -- seek under or above (anything not true is under, true is above)
-    if aboveorunder ~= true then
-        aboveorunder = false
-    end
-    if not (minetest.is_player(user) and itemstack
-            and type(pointed_thing) == "table") then
+    -- default is false
+    aboveorunder = type(aboveorunder) == "boolean" and aboveorunder or false
+    -- needs to be a player, a proper itemstack, and a proper pointed_thing
+    if not (core.is_player(user) and type(itemstack) == "userdata" and
+      type(pointed_thing) == "table") then
         return false
     end
-    local pos = pointed_thing.under
-    if aboveorunder then
-        pos = pointed_thing.above
-    end
-    if not vector.check(pos) then
-        return false
-    end
+    -- checks above if aboveorunder is true
+    local pos = aboveorunder and pointed_thing.above or pointed_thing.under
+    if not vector.check(pos) then return false end -- not a proper pos
 
-    local nodedef = minimal.get_nodedef(pos)
-
-    if not nodedef then
-        return false
-    end
+    local nodedef, node = minimal.get_nodedef(pos)
+    if not nodedef then return false end -- not a proper node
 
     -- can rightclick
     if nodedef.on_rightclick then
-        local node = minetest.get_node(pos)
         return nodedef.on_rightclick(pos, node, user, itemstack, pointed_thing)
     end
     -- can't rightclick

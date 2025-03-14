@@ -62,12 +62,12 @@ local function roast(pos, selfname, name, length, heat, smelt)
         --for others doesn't matter
         if name == "tech:iron_and_slag" then
             temp = meta:get_float("temp")
-            minimal.switch_node(pos, {name = name})
+            minimal.switch_node(pos, name)
             meta:set_float("temp", temp)
             minetest.check_for_falling(pos)
             return false
         else
-            minimal.switch_node(pos, {name = name})
+            minimal.switch_node(pos, name)
             minetest.check_for_falling(pos)
             return false
         end

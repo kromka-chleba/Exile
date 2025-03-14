@@ -171,7 +171,7 @@ local function to_burnt(pos, meta)
     meta:set_int("formspec_height",height)
 
     -- does the inventory saving for me :D \/ (as well as saves owner, label, and the width and height metadata)
-    minimal.switch_node(pos,{name = burn_to.name})
+    minimal.switch_node(pos, burn_to.name)
 end
 
 function storage.register_storage(name,def)

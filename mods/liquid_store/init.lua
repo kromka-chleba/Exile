@@ -261,8 +261,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
                                                   storeddef.source)
         if not new_wield then return end -- nothing matches
         -- clear out pot at pos
-        minimal.switch_node(pointed_thing.under,
-                            {name = storeddef.nodename_empty})
+        minimal.switch_node(pointed_thing.under, storeddef.nodename_empty)
 
         liquid_metadata(pointed_thing.under,node,new_wield)
         return new_wield
@@ -383,8 +382,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
             local sound = def.sounds.pour
             minimal.sound_play(minimal.merge_tables(sound,{pos = ppos}))
         end
-        minimal.switch_node(ppos, {name = stored}, {user, itemstack,
-                                                    pointed_thing})
+        minimal.switch_node(ppos, stored, {user, itemstack, pointed_thing})
         return handle_stacks(user, itemstack, nodename_empty)
 
         -- can replace the node
@@ -400,8 +398,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
             minetest.sound_play(place_sound.name,
                                 minimal.merge_tables(place_sound,{pos = ppos}))
         end
-        minimal.switch_node(ppos, {name = source},
-                            {user, itemstack, pointed_thing})
+        minimal.switch_node(ppos, source, {user, itemstack, pointed_thing})
         minetest.check_for_falling(ppos)
 
         if (minimal.player_in_creative(user)) then
@@ -465,8 +462,7 @@ function liquid_store.on_place(itemstack, placer, pointed_thing)
             itemstack:take_item()
         end
         -- place the bucket
-        minimal.switch_node(pos, {name = place_name},
-                            {placer, itemstack, pointed_thing})
+        minimal.switch_node(pos, place_name, {placer, itemstack, pointed_thing})
         minetest.check_for_falling(pos)
     end
 

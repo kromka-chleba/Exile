@@ -73,7 +73,7 @@ local function roast(pos, selfname, name, heat)
 
     if roasting <= 0 then
         --finished firing
-        minimal.switch_node(pos, {name = name})
+        minimal.switch_node(pos, name)
         if minetest.get_item_group(name,"heatable") > 0 then
             meta:set_float("temp", temp)
         end
