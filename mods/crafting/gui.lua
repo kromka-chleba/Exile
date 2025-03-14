@@ -599,6 +599,7 @@ local function make_inventory_formspec(player,context,istool)
     if cache.searchFS == nil then
         -- Build search field to be in container
         cache.searchFS = tofstring({
+            'style_type[image_button;border=false;bgimg_middle=0]',
             'field_close_on_enter[crafting_search;false]',
             'field[0,0;3.0,0.6;crafting_search;;'.. (cache.sSearch or "") .. ']',
             'image_button[3.1,0;0.6,0.6;creative_search_icon.png;crafting_filter;]',
