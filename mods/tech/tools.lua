@@ -90,7 +90,7 @@ local function on_dig_tool(pos, node, digger)
         return -- can't dig tools you don't own
     end
     minimal.protection_on_dig(pos,node,digger,meta)
-    -- get data from 
+    -- get data from
     local ndata = meta:to_table()
     if not ndata then return end -- could not get data, return
     local player_inv = digger:get_inventory()
@@ -190,6 +190,18 @@ end
 
 
 -- Tools -----------------------------------------------------------------------
+
+minetest.register_tool("tech:hand",
+        {
+        description = S("Bare Hands"),
+        inventory_image = "tech_hand.png",
+        -- copied from tech:crafting_spot
+        exile_crafting = {
+            craft_types  = {'hand','hand_tools','hand_pottery','hand_mixing',
+                            'weaving_frame','threshing_spot'},
+            craft_level  = 2,
+            }
+        })
 
 --1st level -- Crude emergency tools ------------------------------------------
 --------------------------------------------------------------------------------

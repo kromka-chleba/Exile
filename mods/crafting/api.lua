@@ -14,752 +14,54 @@
 -- You should have received a copy of the GNU Lesser General Public
 -- License along with this library; if not, write to the Free Software
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
--- modified by various Exile devs
-
--- General functions ------------------------------------------
--- return merged array of a1 and a2, a1, beeing before a2
-local function array_merge(a1, a2)
-    local result = {}
-    for i, el in ipairs(a1) do
-        result[i]=el
-    end
-    local n = #a1
-    for i, el in ipairs(a2) do
-        result[n+i]=el
-    end
-    return result
-end
-
+--
+-- modified by various Exile devs, lately Izzy for performing craft, and lili for refactoring.
 
 -- Warning: this is a circular dependency; minimal depends on crafting, too
 --minimal = minimal
 
-crafting = {
-    recipes = {},
-    tab_labels = {},
-    recipes_by_id = {},
-    recipes_by_output = {},
-    registered_on_crafts = {},
-    item_by_group = {}, -- hash group:groupname to an item name.
-    -- only last inventory item from group is stored.
-    sort_order_by_player = {},
-    -- hash of recipe id to display order in sorted array
-    icon_item_name = {},
-    -- hash of node identifiers to display the crafting type in the interface
-    sounds = {},
-    -- sounds to play when something is crafted within a crafting station
-}
-
+local crafting = crafting
 local S = minetest.get_translator("crafting")
 
--- list og items by crafing group
-local groups_table = {}
+--[[#TODO comment better
+ seems to be a table where function to launch at craft are stored, like unlocking recipes, level, awards..
+   currently only used in init.lua in case we have an "awards" global var ]]
+local registered_on_crafts = {}
 
--- generate list of items by groups
--- to be called in minetest.register_on_mods_loaded
-local function sort_by_group()
-    for name, itemdef in pairs(minetest.registered_items) do
-        for group_name, value in pairs(itemdef.groups) do
-            if value >= 1 then
-                if not groups_table[group_name] then
-                    groups_table[group_name] = {name}
-                else
-                    table.insert(groups_table[group_name], name)
-                end
-            end
-        end
-    end
+-- register a function to be called at each craft
+function crafting.register_on_craft(func)
+    table.insert(registered_on_crafts, func)
 end
 
--- Group names from recipes for the translation script
--- The translation will be performed when descriptions are generated
--- Note : cobble's group could be passed as nodes_nature:xxx-cobble1
---   item instead of group since we only can drop cobble1 type
--- #TODO do we need it this we translation group desc in gstat ?
-local groupNameForTranslations = {
-    S("log"), S("fibrous plant"), S("sand"), S("compostable"),
-    S("hard wood"), S("cana"), S("woody plant"), S("woodslab"),
-    S("bioluminescent"),  S("pottery"),
-    S("gravel"),  S("bundleable fiber"),
-    S("limestone cobble"), S("basalt cobble"), S("granite cobble"),
-    S("ironstone cobble"), S("jade cobble")
-}
+-- PERFORM CRAFT ---------------------------------------------------------------
 
-function crafting.register_type(name, label, icon_item_name, sound)
-    crafting.recipes[name] = {}
-    -- add a label for tabs - default to the name
-    crafting.tab_labels[name] = (label or name)
-    crafting.icon_item_name[name] = icon_item_name
-    -- set up sound mechanism
-    sound = type(sound) == "string" and {name = sound} or type(sound) == "table" and sound
-    if sound and type(sound.name) == "string" then
-        sound.max_hear_distance = sound.max_hear_distance or 10
-        crafting.sounds[name] = sound
-    end
-end
+crafting.item_by_group = {} -- hash group:groupname to an item name.
 
-function crafting.register_recipe(def)
-    local function recipe_error(txt)
-        error("crafting.register_recipe: issue with "..def.output.." recipe; "..txt)
-    end
-    -- multiple output items unsupported due to minimal/interface/inventory.lua
-    -- limitations, do replace instead
-    assert(type(def.output) == "string",
-           "crafting.register_recipe: 'output' needed in recipe definition (string only)")
-    if not def.type then
-        recipe_error("'type' is needed in recipe definition!")
-    end
-    if not def.items then
-        recipe_error("'items' needs to be specified in recipe definition!")
-    end
+--[[in original mod :
+Iterates through a list in inv and adds or updates entries in item_hash.
+itemhash beeing a table with {item name = item count in inventory} format
 
-    -- crafting level
-    def.level = def.level or 1
-    if type(def.level) ~= "number" then
-        recipe_error("expected number for 'level', got '"..type(def.level).."'")
-    end
-    -- always_known boolean, set to true unless otherwise specified
-    def.always_known = type(def.always_known) ~= "boolean" and true or def.always_known
-    -- Can be more then one craft station for a recipe
-    -- Need to store as a table.
-    def.type = type(def.type) == 'string' and {def.type} or def.type
-    if type(def.type) ~= "table" then
-        recipe_error("expected string or table for 'type', got '"..type(def.type).."'")
-    end
-    -- items table
-    def.items = type(def.items) == 'string' and {def.items} or def.items
-    if type(def.items) ~= "table" then
-        recipe_error("expected string or table for 'items', got '"..type(def.items).."'")
-    end
-    -- convert into table to iterate through or remove if invalid
-    def.replace = type(def.replace) == "string" and {def.replace} or type(def.replace) == "table" and def.replace or nil
-    -- custom sound per recipe
-    -- permits "false" to prevent playing of crafting station sound
-    def.sound = type(def.sound) == "string" and {name = def.sound} or type(def.sound) == "table" and def.sound or
-        def.sound ~= false and nil
-    if def.sound then
-        def.sound.max_hear_distance = def.sound.max_hear_distance or 10
-    end
-    -- custom preview for formspec
-    def._display = def._display
+modified adding groupvalue setting
+meaning item_hash also had "group:" .. groupname index
+and "group:"" .. groupname .. groupvalue index
 
-    def.id = #crafting.recipes_by_id + 1
-    crafting.recipes_by_output[def.output] = def
-    crafting.recipes_by_id[def.id] = def
-    return def.id
-end
-
--- have to wait for all modules load before generating
--- station lists
-minetest.register_on_mods_loaded( function ()
-        sort_by_group()
-        for _,recipe in ipairs(crafting.recipes_by_id) do
-            if type(recipe.type) == "string" then
-                recipe.type = { recipe.type }
-            end
-            for _,station in ipairs(recipe.type) do
-                local tab = crafting.recipes[station]
-                assert(tab,        "Unknown craft type " .. station)
-                tab[#tab + 1] = recipe
-            end
-        end
-end)
-
-
-local unlocked_cache = {}
-function crafting.get_unlocked(name)
-    local player = minetest.get_player_by_name(name)
-    if not player then
-        minetest.log(
-            "warning",
-            "Crafting doesn't support getting unlocks for offline players")
-        return {}
-    end
-
-    local retval = unlocked_cache[name]
-    if not retval then
-        retval = minetest.parse_json(
-            player:get_meta():get("crafting:unlocked") or "{}")
-        unlocked_cache[name] = retval
-    end
-
-    assert(retval)
-
-    return retval
-end
-
-if minetest then
-    minetest.register_on_leaveplayer(function(player)
-            unlocked_cache[player:get_player_name()] = nil
-    end)
-end
-
-local function write_json_dictionary(value)
-    if next(value) then
-        return minetest.write_json(value)
-    else
-        return "{}"
-    end
-end
-
-function crafting.lock_all(name)
-    local player = minetest.get_player_by_name(name)
-    if not player then
-        minetest.log(
-            "warning",
-            "Crafting doesn't support setting unlocks for offline players")
-        return {}
-    end
-
-    local unlocked = crafting.get_unlocked(name)
-
-    for key, _ in pairs(unlocked) do
-        unlocked[key] = nil
-    end
-
-    unlocked_cache[name] = unlocked
-
-    player:get_meta():set_string("crafting:unlocked",
-                                 write_json_dictionary(unlocked))
-end
-
-function crafting.unlock(name, output)
-    local player = minetest.get_player_by_name(name)
-    if not player then
-        minetest.log(
-            "warning",
-            "Crafting doesn't support setting unlocks for offline players")
-        return {}
-    end
-
-    local unlocked = crafting.get_unlocked(name)
-
-    if type(output) == "table" then
-        for i=1, #output do
-            unlocked[output[i]] = true
-            minetest.chat_send_player(name, "You've unlocked " .. output[i])
-        end
-    else
-        unlocked[output] = true
-        minetest.chat_send_player(name, "You've unlocked " .. output)
-    end
-
-    unlocked_cache[name] = unlocked
-    player:get_meta():set_string("crafting:unlocked",
-                                 write_json_dictionary(unlocked))
-end
-
-function crafting.get_recipe(id)
-    return crafting.recipes_by_id[id]
-end
-
--- returns table of details relating to information/parameters noted in a string
-
--- permits format of:
--- group:<groupname>,<groupnumcondition>,<desc>
--- groupname being the group that is necessary
--- groupnumcondition is the required group's number (3,8) or condition (>2 or <6)
--- desc being a custom description (recipe-local)
---  for what the group should be called
--- custom 'correct' function allows one to determine groupnumcondition
---  values that have a condition
--- following can become indexes of 'stats':
---  'name', 'tag', 'num' (number), 'num_cmd', 'desc', 'correct' (function)
--- num and num_cmd will NOT always be valid indexes
-
-function crafting.get_group_stats(grouptag)
-    -- string must contain "group:" or will return nil
-    grouptag = (type(grouptag) == "string" and grouptag:sub(1,6) == "group:")
-        and grouptag or nil
-    if not grouptag then return end
-    --grouptag = grouptag:sub(7,#grouptag) -- remove 'group:'
-    local str_len = #grouptag
-    local stats = {} -- table of "stats" to return
-    -- has parameters to check through
-    if string.match(grouptag,",") then
-        local reader = 7 -- start at 7th character, after "group:"
-        while true do -- use while loop for custom iterator addition+remove
-            if reader >= str_len then break end -- stop if we're over string length
-            local read_char = grouptag:sub(reader,reader)
-            if read_char == "," then -- found parameter
-                if not stats.tag then -- create stats.tag
-                    stats.tag = grouptag:sub(1,reader-1)
-                end
-                reader=reader+1 -- skip ahead to read char after parameter separator
-                if not stats.num then -- assume 1st parameter is custom group num
-                    stats.num = ""
-                    -- add to stats num value with found characters until end
-                    for i=reader,str_len do
-                        read_char = grouptag:sub(i,i)
-                        if read_char == "," then
-                            break -- found end via new parameter line, end
-                        end
-                        stats.num = stats.num..read_char
-                    end
-                    reader=reader+(#stats.num)-1 -- subtract 1 to get parameter lines properly
-                elseif not stats.desc then
-                    -- assume 2nd parameter is custom description
-                    stats.desc = ""
-                    for i=reader,str_len do
-                        read_char = grouptag:sub(i,i)
-                        if read_char == "," then break end
-                        stats.desc = stats.desc..read_char
-                    end
-                    reader=reader+(#stats.desc)-1
-                else -- no more commands to do, end iteration
-                    break
-                end
-            end
-            reader=reader+1 -- gradually increase to iterate through string
-        end
-    end
-    -- if no stats.tag set by parameter line then assume normal
-    if not stats.tag then
-        stats.tag = grouptag
-    end
-    -- sterilize of itemstack parameters
-    if stats.tag:match(" ") then
-        for i=7,#stats.tag do -- start at 7th char
-            if stats.tag:sub(i,i) == " " then -- found it, get only the tag from it
-                stats.tag = stats.tag:sub(1,i-1)
-            end
-        end
-    end
-    -- set up group name
-    stats.name = stats.tag:sub(7,#stats.tag)
-    -- revert to name
-    if not stats.desc then
-        -- Add a translation of the group name
-        stats.desc = S(stats.name:gsub("%_", " ") or "")
-    end
-    -- remove nil indexes
-    for stat,val in pairs(stats) do
-        if val == "" or val:lower() == "nil" then
-            stats[stat] = nil
-        end
-    end
-    -- separate num and condition command
-    if stats.num then
-        local num = tonumber(stats.num) -- if nil then needs to separate
-        if not num then -- separating
-            stats.num_cmd = stats.num:sub(1,1) -- command at beginning
-            num = tonumber(stats.num:sub(2,#stats.num))
-        end
-        if not num then -- you did a command too long likely
-            -- (should only be 1 char) or placed the command after the number
-            error("crafting.get_group_stats: could not properly assess "..
-                  "'num' parameter for grouptag: "..stats.grouptag)
-        end
-        stats.num = num
-    end
-    -- add "correct" function to determine whether or not the
-    --  group-based item can be used for crafting
-    stats.correct = function(amount)
-        local num = stats.num
-        if not num then return true end -- no stats.num value, can be crafted
-        local cmd = stats.num_cmd
-        if num == amount and not cmd then
-            return true -- no "cmd", can be crafted
-        end
-        -- calculate cmd
-        if cmd == "<" and amount < num then
-            return true
-        elseif cmd == ">" and amount > num then
-            return true
-        end
-        return false
-    end
-    return stats
-end
-
-function crafting.peek_item(item_list, item_hash)
-    local items = {}
-    -- single item peeks need to be in table for processing
-    if (type(item_list) ~= 'table') then
-        item_list = { item_list }
-    end
-    for _, item in ipairs(item_list) do
-        local gstats = crafting.get_group_stats(item)
-        local stack = ItemStack(item)
-        local def = table.copy(stack:get_definition())
-        def.name = gstats and gstats.tag or def.name
-        def.description = (gstats and S("Any @1",gstats.desc)) or def.description
-        def._orig_desc = def._orig_desc or def.description
-        local need =  stack:get_count()
-        local have = item_hash[def.name] or 0
-        -- has a specified number (and have isn't 0, don't search unnecessarily)
-        if have ~= 0 and (gstats and gstats.num) then
-            have = item_hash[gstats.tag..gstats.num] or 0
-            local cmd = gstats.num_cmd
-            -- found command, check anew
-            if cmd then
-                have = 0
-                -- start at gstats.num (-1 if less, otherwise +1)
-                -- if less than, work down to 1 (-1), otherwise check until 256
-                for i = (cmd == "<" and gstats.num-1 or gstats.num+1),
-                    (cmd == "<" and 1 or 256), (cmd == "<" and -1 or 1)
-                do
-                    have = have + (item_hash[gstats.tag..i] or 0)
-                end
-            end
-        end
-        items[#items + 1] = {
-            name = def.name,
-            have = have,
-            need = need,
-            available = (have >= need) and true or false,
-            description = def.description,
-            short = def._orig_desc,
-        }
-    end
-    return items
-end
-
-local function get_real_name(name)
-    if name:sub(1, 6) == "group:" then
-        return crafting.item_by_group[name]
-    end
-    return name
-end
-
--- SEARCH part (filter) --------------------------------------------------------
-
--- #TODO generate hash of all string matching with a recipe after registering at start
-
--- Returns true if the search string is in item's short description
-local function item_does_match (item, search, lang_code)
-    if not search then
-        return true
-    elseif type(search) ~= "string" then -- should happend
-        minetest.log("not a string")
-        return true
-    else
-        local item = ItemStack(item)
-        local test = item:get_short_description()
-        -- #TODO warning maybe not compatible wiht old clients
-        local desc =  minetest.get_translated_string(lang_code or "en", item:get_short_description())
-        -- search should have had  minimal.make_search_string applied already
-        if string.find( minimal.make_search_string(desc), search) then
-            return true
-        else
-            return false
-        end
-    end
-end
-
--- testing if searched name is in this row
--- search is a string
--- row is a table of ItemStacks or groups
-local function row_does_contain (row, search, lang_code)
-    -- else, testing it one of the ingredient matchs the filter
-    if type(row) ~= "table" then
-        row = {row}
-    end
-    for _,item in pairs(row) do
-        local gstats = crafting.get_group_stats(item)
-        -- if this is a groupe, get item names in it
-        if gstats then
-            local g_name = gstats.name
-            for _, item_name in ipairs(groups_table[g_name]) do
-                if item_does_match (item_name,search, lang_code) then
-                    return true
-                end
-            end
-        -- if this is a single item
-        else
-            local item = ItemStack(item) -- #TODO not sure it is usefull
-            if item_does_match (item,search, lang_code) then
-                return true
-            end
-        end
-    end
-    return false
-end
-
---------------------------------------------------------------------------------
-
--- #TODO quick function to fix some bug, all of this should be improved/concatenate later.
--- check ingredients in item hash to update result's table for that recipe, and updateds the result table containing craftable state, items and displayed state.
--- returns nil and update result table to nil if recipe is not unlocked or level is not ok
-function crafting.update_recipe_state(result, level, unlocked, item_hash, search, lang_code)
-    if not result or type(result) ~= "table" then
-        core.log("in crafting/api.lua : there is no recipe to check")
-        return -- #TODO check if we do better
-    end
-
-    local recipe = result.recipe
-    if not recipe then
-        core.log("in crafting/api.lua : recipe is missing")
-        return -- #TODO check if we do better
-    end
-
-    -- if I don't know that recipe, delete the entry
-    if not (recipe.level <= level and (recipe.always_known
-    or unlocked[recipe.output])) then
-        result = nil
-        return
-    else
-        local craftable = true
-        -- if no filter is active, always display
-        local displayed = (not search) -- true if no search, false else
-        -- if output matches the active filtre, display
-        if item_does_match (recipe.output,search, lang_code) then
-            displayed = true
-        end
-
-        local items = {}
-        -- Check what ingredients are available
-        for recipe_row, rowItem in ipairs(recipe.items) do
-            local rItems = {} -- row items
-            local pickable = false
-
-            -- if any input matches the filter, display
-            if row_does_contain (rowItem, search, lang_code) then
-                displayed = true
-            end
-
-            for i,item in ipairs(crafting.peek_item(rowItem, item_hash)) do
-
-                rItems[#rItems+1] = item
-                if item.available then
-                    pickable = true -- at least one item is available
-                end
-            end
-            items[recipe_row]=rItems -- save items by recipe input row
-            if not pickable then
-                craftable = false
-                -- don't have any of the needed ingredients from this row.
-            end
-        end
-
-        -- check if we have a where clause only if its craftable
-        if craftable and recipe.where then
-            craftable = false -- assume this failes unless we find a match.
-            -- recipe.where should look something like this:
-            --   @1.material == @2.material
-            --   @x where x is the input item row number
-            local lParam, lKey, test, rParam, rKey =
-            string.match(
-            recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")
-            for _,left in ipairs( items[tonumber(lParam)] ) do
-                local lName = get_real_name(left.name)
-                if left.available then
-                    for _,right in ipairs(items[tonumber(rParam)]) do
-                        local rName = get_real_name(right.name)
-                        if right.available then
-                            local left_def = ItemStack(lName):get_definition()
-                            local lValue = left_def.exile_crafting[lKey]
-                            local right_def = ItemStack(rName):get_definition()
-                            local rValue = right_def.exile_crafting[rKey]
-                            -- find the operator
-                            if test == '==' and lValue == rValue then
-                                craftable = true
-                            end
-                            if test == '~=' and lValue ~= rValue then
-                                craftable = true
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    -- updates result
-    result.items = items
-    result.craftable = craftable
-    result.displayed = displayed
-    return result
-    end
-end
-
---[[ Returns items :
-    a key-value table, key being item name and value being a table:
-    * `have` - how many the player has
-    * `need` - how many of this item needed*
+In addition,
+crafting.item_by_group["group:"" .. groupname] is filled with last stack's name matching that group in inventory list
+#TODO not sure how it is used yet, (lili)
 ]]
-function crafting.is_craftable (level, item_hash, unlocked, recipe)
-    local craftable = false
-
-    -- if I know that recipe
-    if recipe.level <= level and (recipe.always_known
-    or unlocked[recipe.output]) then
-
-        craftable = true
-        local items = {}
-        -- Check what ingredients are available
-        for recipe_row, rowItem in ipairs(recipe.items) do
-            local rItems = {} -- row items
-            local pickable = false
-
-            for i,item in ipairs(crafting.peek_item(rowItem, item_hash)) do
-
-                rItems[#rItems+1] = item
-                if item.available then
-                    pickable = true -- at least one item is available
-                end
-            end
-
-            items[recipe_row]=rItems -- save items by recipe input row
-            if not pickable then
-                craftable = false
-                -- don't have any of the needed ingredients from this row.
-            end
-        end
-        -- check if we have a where clause only if its craftable
-        if craftable and recipe.where then
-            craftable = false -- assume this failes unless we find a match.
-            -- recipe.where should look something like this:
-            --   @1.material == @2.material
-            --   @x where x is the input item row number
-            local lParam, lKey, test, rParam, rKey =
-            string.match(
-            recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")
-            for _,left in ipairs( items[tonumber(lParam)] ) do
-                local lName = get_real_name(left.name)
-                if left.available then
-                    for _,right in ipairs(items[tonumber(rParam)]) do
-                        local rName = get_real_name(right.name)
-                        if right.available then
-                            local left_def = ItemStack(lName):get_definition()
-                            local lValue = left_def.exile_crafting[lKey]
-                            local right_def = ItemStack(rName):get_definition()
-                            local rValue = right_def.exile_crafting[rKey]
-                            -- find the operator
-                            if test == '==' and lValue == rValue then
-                                craftable = true
-                            end
-                            if test == '~=' and lValue ~= rValue then
-                                craftable = true
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    return craftable
-end
-
---[[ get all unlocked recipes to display
-    return a table with following format :
-    t[i] = {
-    recipe    = recipe -- recipe info
-    items     = items -- list of needed items of the recipe
-    craftable = craftable -- true if we have the input to craft it in item_hash
-    displayed = displayed -- true if it matches the search filter
-    ]]
-function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
-    assert(crafting.recipes[ctype], "No such craft type!")
-    assert(not search or type(search) == "string", "search need to be a string")
-    local t = {}
-
-    for _, recipe in pairs(crafting.recipes[ctype]) do
-        local craftable = true
-        -- if no filter is active, always display
-        local displayed = (not search) -- true if no search, false else
-
-        -- if I know that recipe
-        if recipe.level <= level and (recipe.always_known
-        or unlocked[recipe.output]) then
-
-            -- if output matches the active filtre, display
-            if item_does_match (recipe.output,search, lang_code) then
-                displayed = true
-            end
-
-            local items = {}
-            -- Check what ingredients are available
-            for recipe_row, rowItem in ipairs(recipe.items) do
-                local rItems = {} -- row items
-                local pickable = false
-
-                -- if any input matches the filter, display
-                if row_does_contain (rowItem, search, lang_code) then
-                    displayed = true
-                end
-
-                for i,item in ipairs(crafting.peek_item(rowItem, item_hash)) do
-
-                    rItems[#rItems+1] = item
-                    if item.available then
-                        pickable = true -- at least one item is available
-                    end
-                end
-                items[recipe_row]=rItems -- save items by recipe input row
-                if not pickable then
-                    craftable = false
-                    -- don't have any of the needed ingredients from this row.
-                end
-            end
-            -- check if we have a where clause only if its craftable
-            if craftable and recipe.where then
-                craftable = false -- assume this failes unless we find a match.
-                -- recipe.where should look something like this:
-                --   @1.material == @2.material
-                --   @x where x is the input item row number
-                local lParam, lKey, test, rParam, rKey =
-                string.match(
-                recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")
-                for _,left in ipairs( items[tonumber(lParam)] ) do
-                    local lName = get_real_name(left.name)
-                    if left.available then
-                        for _,right in ipairs(items[tonumber(rParam)]) do
-                            local rName = get_real_name(right.name)
-                            if right.available then
-                                local left_def = ItemStack(lName):get_definition()
-                                local lValue = left_def.exile_crafting[lKey]
-                                local right_def = ItemStack(rName):get_definition()
-                                local rValue = right_def.exile_crafting[rKey]
-                                -- find the operator
-                                if test == '==' and lValue == rValue then
-                                    craftable = true
-                                end
-                                if test == '~=' and lValue ~= rValue then
-                                    craftable = true
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
-            -- add recipe to list only if it matchs search
-            t[#t + 1] = {
-                recipe    = recipe,
-                items     = items,
-                craftable = craftable,
-                displayed = displayed
-            }
-        end
-    end
-    return t
-end
-
---[[ take a recipe list with crafting.get_all return format and sort it in 2 lists :
-    returns craftable and uncraftable table of results
-    format of each table is the one documented for crafting.get_all
-]]
-function crafting.sort_craftable_recipes(t)
-    local craftable_t = {}
-    local uncraftable_t = {}
-
-    for _, result in ipairs (t) do
-        -- add recipe to list only if it matchs search
-        if result.craftable then
-            craftable_t[#craftable_t + 1] = result
-        else
-            uncraftable_t[#uncraftable_t + 1] = result
-        end
-    end
-    return craftable_t,uncraftable_t
-end
-
 function crafting.set_item_hashes_from_list(inv, listname, item_hash)
+    -- for every stack in inventory listname
     for _, stack in pairs(inv:get_list(listname)) do
+        -- if stack is not empty
         if not stack:is_empty() then
             local itemname = stack:get_name()
+            -- add its count to item_hash[its name]
             item_hash[itemname] = (item_hash[itemname] or 0) + stack:get_count()
+            --[[ if this stack is part of a group:
+            + add its count to item_hash["group:"" .. groupname]
+             and to item_hash["group:"" .. groupname .. groupvalue]
+            + defines crafting.item_by_group["group:"" .. groupname] = itemname
+            ]]
             local def = minetest.registered_items[itemname]
             if def and def.groups then
                 for groupname,groupvalue in pairs(def.groups) do
@@ -775,18 +77,25 @@ function crafting.set_item_hashes_from_list(inv, listname, item_hash)
     end
 end
 
-function crafting.get_all_for_player(player, ctype, level, search)
-    local pname = player:get_player_name()
-    local unlocked = crafting.get_unlocked(pname)
+--[[returns an item_list from all selected inv list
+    returns like crafting.set_item_hashes_from_list but mixing all lists given in inv_list as one list.
+
+    is used for display and process_qty
+    but I think actual craft doesn't use it and is called with inv list
+    (#TODO : maybe improve that point, reuniting display and craft process)
+    ]]
+function crafting.get_item_hash(pInv, inv_list)
+    if type(inv_list) ~= 'table' then
+        inv_list = {inv_list}
+    end
     -- build player items hash
     local item_hash = {}
-    -- reset group hash
-    crafting.item_by_group = {}
-    crafting.set_item_hashes_from_list(player:get_inventory(), "main", item_hash)
-    -- Get all available recipies and mark craftible ones.
-    local lang_code = minetest.get_player_information(pname).lang_code
-    local results =  crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
-    return results
+    for _,inv_name in ipairs(inv_list) do
+        if pInv:get_size(inv_name) > 0 then
+            crafting.set_item_hashes_from_list(pInv, inv_name, item_hash)
+        end
+    end
+    return item_hash
 end
 
 function crafting.can_craft(name, ctype, level, recipe)
@@ -809,14 +118,8 @@ function crafting.can_craft(name, ctype, level, recipe)
     return false
 end
 
-local function give_all_to_player(inv, list)
-    for _, item in pairs(list) do
-        inv:add_item("main", item)
-    end
-end
-
-
-function crafting.parse_where(recipe, items, item_idx, num_added)
+--[[seems unused since commit 7cb89e779a : was created by Izzy in 2024 in commit f1a5fe20ae]]
+--[[function crafting.parse_where(recipe, items, item_idx, num_added)
     if recipe.where or type(recipe.where) ~= 'string' then
         return nil
     end
@@ -826,7 +129,7 @@ function crafting.parse_where(recipe, items, item_idx, num_added)
     --   local input1,key1,test,input2,key2 =
     --print("where: "..recipe.where)
     --print(dump( string.match(recipe.where, "@(%d+)%.(%w+)%s*(.*)%s*@(%d+)%.(%w+)$") ))
-end
+end]]
 
 -- not in original mod
 --[[ Search inventory list given to find the required item
@@ -834,8 +137,8 @@ end
     return a table of items to pick per list :
     {[list1] = {stack1, stack2, ...}, [list2] = {stack1, stack2}, ...}
     return nil if not found/not enough ]]
--- currently only used in local
-function crafting.pick_required_item(inv, lists, item)
+-- currently only used in local in pick_alternate_items function
+local function pick_required_item(inv, lists, item)
     local picked_table ={}
     item = ItemStack(item)
     local itemName = item:get_name()
@@ -894,7 +197,7 @@ local function pick_alternate_items(inv, listname, item)
         local temp_p_t = {}
         -- find conItem in lists and put the result in pick_table[j]
         for _, conItem in ipairs(item) do
-            local pri = crafting.pick_required_item(inv, listname,
+            local pri = pick_required_item(inv, listname,
             conItem)
             if pri then
                 --[[ optionnal shortcut :
@@ -921,73 +224,83 @@ local function pick_alternate_items(inv, listname, item)
         -- if none was found
         return nil
     else
-        return crafting.pick_required_item(inv, listname, item)
+        return pick_required_item(inv, listname, item)
     end
 end
 
---[[ in external mod :
-    Returns a list of stacks to take, or nil if the required items could not
-    be found.
-
-    Modified for Exile to deal with table in listname
-    where items are taken from inventories in order passed
+--[[ new in Exile :
     Returns a list of what was found per list
 
     {[list1] = {stack1, stack2, ...}, [list2] = {stack1, stack2}, ...}
 
-    To keep compatibility with external mod,
-    Returns a list of stack if listname only had one element.
+    Returns nil if not found or not enought for recipe
+]]
+local function find_required_items_in_invs(inv, listname, recipe)
+        if not listname then
+            return nil
+        end
+        -- added to deal with multple input lists but keep compatibility
+        if type(listname) ~= 'table' then
+            listname = { listname }
+        end
+
+        -- to store found items
+        local found_table = {}
+        -- initiate found_table
+        for i, list in ipairs(listname) do
+            found_table[list]={}
+        end
+        --print("Recipe Items: "..dump(recipe.items))
+        for i, item in ipairs(recipe.items) do
+            -- Conditional input list to process
+            local pick_table = pick_alternate_items(inv, listname, item)
+            -- if this part is found, add it to found_table
+            if pick_table then
+                for list, picked_litems in pairs (pick_table) do
+                    for _,picked_stack in pairs(picked_litems) do
+                        table.insert(found_table[list],picked_stack)
+                    end
+                end
+            -- if this part is not found, stop
+            else
+                return nil
+            end
+        end
+
+        -- Return found list
+        return found_table
+end
+
+--unused in Exile, for mod compatibility
+--it returns a list of stack, all source together, instead of a table of lists per source
+--[[ in external mod :
+    Returns a list of stacks to take, or nil if the required items could not
+    be found.
 
     Returns nil if not found or not enought for recipe
 ]]
 function crafting.find_required_items(inv, listname, recipe)
-
-    if not listname then
-        return nil
-    end
-    -- added to deal with multple input lists but keep compatibility
-    if type(listname) ~= 'table' then
-        listname = { listname }
-    end
-
-    -- to store found items
-    local found_table = {}
-    -- initiate found_table
-    for i, list in ipairs(listname) do
-        found_table[list]={}
-    end
-    --print("Recipe Items: "..dump(recipe.items))
-    for i, item in ipairs(recipe.items) do
-        -- Conditional input list to process
-        local pick_table = pick_alternate_items(inv, listname, item)
-        -- if this part is found, add it to found_table
-        if pick_table then
-            for list, picked_litems in pairs (pick_table) do
-                for _,picked_stack in pairs(picked_litems) do
-                    table.insert(found_table[list],picked_stack)
-                end
-            end
-        -- if this part is not found, stop
-        else
-            return nil
-        end
-    end
-
+    local found_table = find_required_items_in_invs(inv, listname, recipe)
     -- Return found list
     if #listname == 1 then
         --if we had only one list, return only a list of stack to keep mod compatibility
         return found_table[listname[1]]
     else
-        return found_table
+        local result = {}
+        for _,l in ipairs(listname) do
+            for _,stack in ipairs(l) do
+                table.insert(result,stack)
+            end
+        end
+        return result
     end
 end
 
+--[[in original mod. Unused in Exile
+Returns true if the listname list in inv contains the required items.]]
+--#TODO could be adapted to check craftable/uncraftable, instead of our additionnal functions
 function crafting.has_required_items(inv, listname, recipe)
     return crafting.find_required_items(inv, listname, recipe) ~= nil
-end
-
-function crafting.register_on_craft(func)
-    table.insert(crafting.registered_on_crafts, func)
 end
 
 --[[ In external mod
@@ -996,16 +309,9 @@ end
 ]]
 function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     -- get list of items required for the recipe (if found)
-    local founditems = crafting.find_required_items(inv, listname, recipe)
+    local founditems = find_required_items_in_invs(inv, listname, recipe)
     if not founditems then
         return false
-    end
-
-    --[[ updated to allow passing of a table of listnames
-    -- items are taken from inventories in order passed
-    -- this converts old use of this function to new use]]
-    if type(listname) ~= 'table' then
-        founditems = {[listname] = founditems}
     end
 
     -- Take items from inventory
@@ -1022,8 +328,12 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
         end
     end
 
-    for i=1, #crafting.registered_on_crafts do
-        crafting.registered_on_crafts[i](name, recipe)
+    --[[ #TODO comment more : seems to play all function in the table,
+        but we only defined one ?
+        this can be used for unlocking recipes, currently only used for awards
+    ]]
+    for i=1, #registered_on_crafts do
+        registered_on_crafts[i](name, recipe)
     end
 
     -- create item -------------------------------------------------------------
@@ -1159,18 +469,4 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
         minimal.sound_play(minimal.merge_tables(sound, {pos = pos}))
     end
     return true
-end
-
-local function to_hex(str)
-    return (str:gsub('.', function (c)
-                         return string.format('%02X', string.byte(c))
-    end))
-end
-
-function crafting.calc_inventory_list_hash(inv, listname)
-    local str = ""
-    for _, stack in pairs(inv:get_list(listname)) do
-        str = str .. stack:get_name() .. stack:get_count()
-    end
-    return minetest.sha1(to_hex(str))
 end

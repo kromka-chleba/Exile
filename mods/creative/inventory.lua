@@ -2,6 +2,7 @@
 
 creative = creative
 sfinv = sfinv
+minimal = minimal
 
 -- support for MT game translation.
 local S = creative.get_translator

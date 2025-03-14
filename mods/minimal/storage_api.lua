@@ -27,7 +27,7 @@ function storage.get_storage_formspec(pos, w, h, meta)
         "list[current_player;main;0,"..main_offset..";8,2]",
         "listring[current_name;main]",
         "listring[current_player;main]",
-        "list[detached:creative_trash;main;0,"..trash_offset..";1,1;]",
+        "list[detached:minimal_trash;main;0,"..trash_offset..";1,1;]",
         "image[0.05,"..(trash_offset+.10)..
             ";0.8,0.8;creative_trash_icon.png]",
         "field[1.5,"..label_offset..";4,1;label;"..
@@ -242,7 +242,7 @@ function storage.register_storage(name,def)
             end
             return 0
         end
-        
+
     -- custom storage function for filtering
     -- check minimal/utility/item.lua for what to expect with inv and target_inv
     -- inv is our inventory, index is where in the inventory the itemstack is

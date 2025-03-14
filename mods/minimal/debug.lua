@@ -5,21 +5,13 @@ exile = exile
 exile.debug = exile.debug or {
                              }
 
+minimal = minimal
+
 __DEBUG__ = minetest.settings:get_bool("exile_debug")
 
 function exile.debug.print(message)
     if __DEBUG__ then
         minetest.log('warning', message)
-    end
-end
-
-function exile.debug.crafting_stations(station)
-    for _,recipes in pairs(crafting.recipes) do
-        minetest.log('warning', "station: "..station..
-                     "(recipes: "..#recipes..")")
-    end
-    if station then
-        print (dump(crafting.recipes[station]))
     end
 end
 

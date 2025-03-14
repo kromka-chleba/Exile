@@ -25,8 +25,12 @@ Single=
 Stack=
 Maximum=
 Quantity=
+Ingredients:=
 Use first:=
 #gui.lua
 Missing required items!=
 Crafting=
 Crafted by: @1=
+You are using: @1=
+Filter=
+Clear=

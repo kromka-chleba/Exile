@@ -26,6 +26,7 @@ Bag1=Sac n°1
 Bag2=Sac n°2
 Bag3=Sac n°3
 Bag4=Sac n°4
+Ingredients:=Ingredients:
 Use first:=Utiliser en priorité :
 Tool used=Outil utilisé
 Crafting=Artisanat
@@ -35,7 +36,10 @@ Stack=Une pile
 Maximum=Le maximum
 Search=Requête
 or=ou
-Crafted by: @1=
+Crafted by: @1= Fabriqué(e) par : @1
+You are using: @1=Vous utilisez : @1
+Filter=Filtrer
+Clear=Effacer
 
 #groups
 limestone cobble=caillou calcaire

@@ -3,7 +3,6 @@
 -- This may need to moved someplace else eventually.
 
 local S=minimal.S
-creative = creative
 minimal = minimal
 
 local __nail_use_count = 3

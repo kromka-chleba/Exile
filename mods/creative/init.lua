@@ -6,6 +6,7 @@ local S = minetest.get_translator("creative")
 creative = {}
 creative.get_translator = S
 sfinv = sfinv
+minimal = minimal
 
 local creative_mode_cache = minetest.settings:get_bool("creative_mode")
 
