@@ -173,17 +173,10 @@ function tutorial.exit(player)
     after_tutorial(player)
 end
 
-__DEBUG__ = __DEBUG__
-if not __DEBUG__ then return end
-
---------------------------------------------------------------------------------
--- Debug commands
 
 minetest.register_chatcommand(
-    "test_tut",{
-        privs = "server",
+    "tutorial",{
         func = function(name,param)
-            if core.check_player_privs(name, "server") == false then return end
             if pstore[name] then
                 tutorial.exit(core.get_player_by_name(name))
             end
@@ -194,6 +187,13 @@ minetest.register_chatcommand(
             disable_tutorial = tmp
         end
 })
+
+__DEBUG__ = __DEBUG__
+if not __DEBUG__ then return end
+
+--------------------------------------------------------------------------------
+-- Debug commands
+
 minetest.register_chatcommand(
     "quit_tut",{
         privs = "server",
