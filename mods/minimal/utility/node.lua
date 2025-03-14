@@ -101,7 +101,8 @@ function minimal.node_set_int(pos_or_meta, name, value)
                     "number got ".. type(value))
     end
     -- meta argument or pos
-    local meta = is_meta(pos_or_meta) and pos_or_meta or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
+    local meta = is_meta(pos_or_meta) and pos_or_meta
+      or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
     if not meta then
         error("exile_game.node_set_int: invalid pos or meta given")
     end
@@ -111,7 +112,8 @@ end
 
 function minimal.node_get_int(pos_or_meta, name)
     -- meta userdata or pos vector
-    local meta = is_meta(pos_or_meta) and pos_or_meta or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
+    local meta = is_meta(pos_or_meta) and pos_or_meta
+      or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
     if not meta then
         error("exile_game.node_get_int: invalid pos or meta given")
     end
@@ -127,7 +129,8 @@ function minimal.node_set_string(pos_or_meta, name, value)
               "Invalid value given, expected string got "..type(value) )
     end
     -- meta userdata or pos vector
-    local meta = is_meta(pos_or_meta) and pos_or_meta or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
+    local meta = is_meta(pos_or_meta) and pos_or_meta
+      or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
     if not meta then
         error("exile_game.node_set_string: invalid pos or meta given")
     end
@@ -137,7 +140,8 @@ end
 
 function minimal.node_get_string(pos_or_meta, name)
     -- meta userdata or pos vector
-    local meta = is_meta(pos_or_meta) and pos_or_meta or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
+    local meta = is_meta(pos_or_meta) and pos_or_meta
+      or vector.check(pos_or_meta) and core.get_meta(pos_or_meta)
     if not meta then
         error("exile_game.node_get_string: invalid pos or meta given")
     end

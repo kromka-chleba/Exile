@@ -224,7 +224,8 @@ minetest.register_node(
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:lime_mortar",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item, minimal.get_usable_position(pointed_thing))
+            return minimal.slabs_combine(player, wielded_item,
+              minimal.get_usable_position(pointed_thing))
         end,
 })
 
