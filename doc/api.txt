@@ -15,6 +15,8 @@ minimal.stop_on_inv_full(player)
 
 minimal.hotbar_blink(player, color)
 		- Make the hotbar flash the `ColorString` for 0.5 seconds
+triggers.hud_splash(player, icon_name, text_line, <player_name>)
+                - Display icon and text on the center of the hud
 
 ----------- utility -----------
 minimal.concat_tables(numeric_t1, numeric_t2)
@@ -40,14 +42,24 @@ minimal.swap_tool(player, wielded_item, toolname)
 minimal.yes_or_no(pname, question, function_call, attached_data_table)
 		- Sends yes/no formspec to the player, see utility.lua for more
 minimal.make_sound(params_table,sound_name)
-		- adds more functionality to minetest's "sound_play", inspired by mobkit's "make_sound" function
-		if params_table is specified as a string without any corresponding table, will play sound globally
-		gain, max_hear_distance, pitch, fade, and start_time can be set to be random between two values. e.g. "gain={0.5,1.5}"
-		option for multiple players to be specified for to_player and exclude_player within a table exclude_player={"player1","player2"}
+		- adds more functionality to minetest's "sound_play",
+                  inspired by mobkit's "make_sound" function
+		if params_table is specified as a string without any
+		corresponding table, will play sound globally gain,
+                max_hear_distance, pitch, fade, and start_time can be
+		set to be random between two
+		values. e.g. "gain={0.5,1.5}" option for multiple
+		players to be specified for to_player and
+		exclude_player within a table
+		exclude_player={"player1","player2"}
 		can be plural - "to_players={}", "exclude_players={}"
-		params_table and sound_name can be placed reversed (sound_name, params_table) to behave like minetest.sound_play()
-		returns sound ID, if multiple players are specified, returns the first played sound's ID and a table of sound IDs as so:
-		sound1,soundIDs
+		params_table and sound_name can be placed reversed
+		(sound_name, params_table) to behave like
+		minetest.sound_play()
+
+		returns sound ID, if multiple players are specified,
+		returns the first played sound's ID and a table of
+		sound IDs as so: sound1,soundIDs
 --------- utilitynode ---------
 minimal.dig_up(pos, node, digger)
 		- Digs identical nodes up, ignoring lit versions. Used in on_dig
@@ -86,66 +98,96 @@ minimal.register_on_joinplayer(func)
 
 ----------- inventory system (minimal/utility/general) -----------
 minimal.get_item_inventory(itemstack,metadata,inv_name)
-		- Returns custom table that behaves as a custom inventory object
+		- Returns custom table that behaves as a custom
+                  inventory object
 minimal.set_item_inventory(itemstack,metadata,inv_name,inv)
-		- Sets an itemstack's inventory metadata with the provided custom inventory object or table that has only numbered indexes
+		- Sets an itemstack's inventory metadata with the
+                  provided custom inventory object or table that has
+                  only numbered indexes
 minimal.convert_node_inventory(metadata,inv_name)
-		- Gets a node's meta inventory, checks for a list with the corresponding inv_name or "main" if not specified, then
-		creates a custom inventory object. "metadata" can be a pos, metadata, or metadata:get_inventory()
+		- Gets a node's meta inventory, checks for a list with
+                  the corresponding inv_name or "main" if not
+                  specified, then creates a custom inventory
+                  object. "metadata" can be a pos, metadata, or
+                  metadata:get_inventory()
+
 ----------- custom inventory object (minimal/utility/general) -----------
 inv:get_list()
 		- Returns inventory's list of items in table form
 inv:get_size()
-		- Returns the total size of inventory in slots (how many slots the inventory has)
+		- Returns the total size of inventory in slots (how
+                  many slots the inventory has)
 inv:to_string() ( or inv:convert() )
-		- Returns serialized inventory of custom inventory object (string)
+		- Returns serialized inventory of custom inventory
+                  object (string)
 inv:get_full()
-		- Returns a table of the indexes of the inventory's full slots + the number of them (slots of index, number of slots)
-inv:get_partial()
-		- Returns a table of the indexes of the inventory's partially fulfilled slots + the number of them
+		- Returns a table of the indexes of the inventory's
+                  full slots + the number of them (slots of index,
+                  number of slots) inv:get_partial()
+		- Returns a table of the indexes of the inventory's
+                  partially fulfilled slots + the number of them
 inv:get_empty()
-		- Returns a table of the indexes of the inventory's empty slots + the number of them
+		- Returns a table of the indexes of the inventory's
+                  empty slots + the number of them
 inv:room_for_item(itemstack)
-		- Returns true or false depending on whether or not the provided itemstack can be added. If bits of itemstack could be added,
+		- Returns true or false depending on whether or not
+                  the provided itemstack can be added. If bits of
+                  itemstack could be added,
 		returns false + what could be taken from itemstack
 inv:add_item(itemstack, index)
-		- Returns leftover of added itemstack (empty itemstack if successful). If index is specified, attempts to add itemstack to index,
+		- Returns leftover of added itemstack (empty itemstack
+                  if successful). If index is specified, attempts to
+                  add itemstack to index,
 		returns leftover
 inv:remove_item(index,amount)
-		- Takes one (or amount) of itemstack at provided index and returns it. Returns an empty itemstack otherwise.
+		- Takes one (or amount) of itemstack at provided index
+                  and returns it. Returns an empty itemstack
+                  otherwise.
+
 ----------- infotext -----------
 minimal.infotext_purify_params(params)
-		- Always returns modified (or if params is not a table, not modified) params
-		Iterates through params looking for empty values (equal to "") and removing them
+		- Always returns modified (or if params is not a
+		table, not modified) params Iterates through params
+		looking for empty values (equal to "") and removing
+		them
 minimal.infotext_update_params(meta, params)
 		- Returns params (modified or new if not provided)
-		Utilizes meta's "to_table()" function to either create a new params or to
-		merge provided params with meta (meta.fields)
+		Utilizes meta's "to_table()" function to either create
+		a new params or to merge provided params with meta
+		(meta.fields)
 		Provided params has priority over meta in merge
 minimal.infotext_get_base_params(stack, meta, params)
-		- Handles description, owner, and label for infotext with the provided params (or meta
-		if not provided). Returns (copied) params (up to you to overwrite)
-		'stack' can be nil, but you will not get a description param if you do not provide one.
-		'stack' is expected to be an itemstack (but can be pos, any table with a name index,
-		or string). This is used to get a description via ItemStack:get_short_description()
+		- Handles description, owner, and label for infotext
+                with the provided params (or meta if not
+		provided).
+                Returns (copied) params (up to you to overwrite)
+		'stack' can be nil, but you will not get a description
+		param if you do not provide one.
+                'stack' is expected to be an itemstack (but can be
+		pos, any table with a name index, or string). This is
+		used to get a description via
+		ItemStack:get_short_description()
 minimal.infotext_get_base_string(stack, meta, params)
 		- Returns formatted string for infotext setting
-		See infotext_get_base_params for how stack, meta, and params are handled
+		See infotext_get_base_params for how stack, meta, and params
+                are handled
 minimal.infotext_clear(pos, meta)
 		- Clears infotext
-		pos is optional if you have meta provided, otherwise meta is optional if you have
-		pos provided
+		pos is optional if you have meta provided, otherwise meta is
+                optional if you have pos provided
 minimal.infotext_set(pos, meta, params, func, nodedef, stack)
 		- Handles all infotext functionality for you, getting and setting it on success
 		Returns false on failure, formatted infotext string on success
 		Do NOT run in on_infotext callback (will cause recursion)
 		`meta` is semi-optional, will get from pos
 		`params` is semi-optional, will create one from meta
-		`func` is a custom function to run instead of on_infotext node callback or
-		base functionality
+		`func` is a custom function to run instead of
+		on_infotext node callback or base functionality
 		see on_infotext callback to see what is expected of `func`
-		`nodedef` and `stack` are completely optional, `nodedef` is utilized to check for
-		on_infotext callback and `stack` is utilized for infotext_get_base_string
+		`nodedef` and `stack` are completely optional,
+		`nodedef` is utilized to check for on_infotext
+		callback and `stack` is utilized for
+		infotext_get_base_string
 
 
 [[[ Custom node definitions ]]]
@@ -159,14 +201,23 @@ _on_use_object = function(player, intersection_point, wielded_item)
 _on_use_item = function(player, wielded_item, pointed_thing)
 	Called when the player is holding the item and presses "use"
 	_on_use_node and _on_use_object takes precedence over this
-	
+
 
 	^ functions for these should return false if the item/node isn't used.
 
 on_infotext = function(pos, nodedef, meta, params)
-	Called if minimal.infotext_set is called on the provided position (usually by protection nails or internal functions)
-	Params is a table sent by the caller for interpretation by the node, if not issued by caller then there will be one created. Do not expect params to contain all the information you need, you should call `minimal.infotext_update_params(meta, params)` for thisd
-	Expects string or boolean `false` return. `False` prevents infotext writing, otherwise if not given string then will default to base infotext setting
+	Called if minimal.infotext_set is called on the provided
+	position (usually by protection nails or internal functions)
+
+        Params is a table sent by the caller for interpretation by the
+        node, if not issued by caller then there will be one
+        created. Do not expect params to contain all the information
+        you need, you should call
+        `minimal.infotext_update_params(meta, params)` for this
+
+	Expects string or boolean `false` return.
+        `False` prevents infotext writing, otherwise if not given
+	string then will default to base infotext setting
 
 ------------ data ------------
 _till_speed = the rate at which this tool tills soil, higher is better
@@ -175,13 +226,15 @@ _splits_by_hand = node can be split into this with minimal.slabs_split_hand
  Item descriptions for tooltips:
       _orig_desc = the description as it was before tooltips were added
       _dig_tip = What this item/node does when used to dig
-      _use_tip = Same for AUX1/"Use" key 
+      _use_tip = Same for AUX1/"Use" key
       _place_tip = And on a right click
       Note: Keep them to a single line, imperative tense, like
        "Cut softwood trees", as if you were telling the tool what to do.
 
-witt_extra = if defined, exile_witt will check the node's metadata for extra information, and read a table of strings
-	
+witt_extra = if defined, exile_witt will check the node's metadata for
+           extra information, and read a table of strings
+
 
 [[[ Custom entity definitions ]]]
-witt_extra = if addedm exile_witt will read it as a table of extra strings to be displayed in the entity's WITT popup
+witt_extra = if addedm exile_witt will read it as a table of extra
+           strings to be displayed in the entity's WITT popup

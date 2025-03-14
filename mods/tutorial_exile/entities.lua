@@ -21,18 +21,20 @@ local blocker_ent = {
         self.poscheck = vector.new(pos.x, pos.y - 1, pos.z)
     end,
     on_step = function(self, dtime, moveresult)
+        if self.disabled then -- Old entity, or done existing
+            self.object:remove()
+            return
+        end
         self.timer = (self.timer or 0 ) + dtime
         if self.timer < .5 then return end
         self.timer = 0
-        if self.disabled then -- #TODO: reuse a stage by re-enabling?
-            return -- or just delete the entity and respawn for next visitor?
-        end
 
         local node = minetest.get_node(self.poscheck)
         local solid = self.object:get_properties().physical
         local water = minetest.get_item_group(node.name, "water") > 0
         if water and solid then
-            self.object:set_properties({ collide_with_objects = true })
+            self.object:set_properties({ collide_with_objects = false })
+            self.disabled = true
         elseif not water and not solid then
             self.object:set_properties({ collide_with_objects = true })
         end

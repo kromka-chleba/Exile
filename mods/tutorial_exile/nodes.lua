@@ -22,6 +22,7 @@ minetest.register_node(
         use_texture_alpha = "blend",
 })
 
+
 minetest.register_ore({
         ore_type        = "stratum",
         ore             = "tutorial_exile:invisible_wall",
@@ -36,9 +37,23 @@ minetest.register_node(
     'tutorial_exile:wall', {
         description = 'Tutorial wall',
         tiles = {
-            "tech_rammed_earth.png",
-            "tech_rammed_earth_side.png",
+            "tut_wall.png",
         },
+        groups = { not_in_creative_inventory = 1 },
+})
+
+minetest.register_node(
+    'tutorial_exile:iron_wall', {
+        description = 'Tutorial iron wall',
+        tiles = {{
+                name = "[combine:32x16:0,0=tech_iron.png:16,0=tech_iron.png",
+                align_style = "world",
+                scale = 2
+        }},
+        drawtype = "nodebox",
+        node_box = { type = "fixed",
+                    fixed = {-0.5,-0.5,-0.5,
+                             00.5, 1.5, 0.5 } },
         groups = { not_in_creative_inventory = 1 },
 })
 
@@ -53,7 +68,11 @@ if minetest.is_creative_enabled() then
     minetest.override_item('tutorial_exile:wall', {
                                groups = {crumbly = 1, cracky = 3},
     })
+    minetest.override_item('tutorial_exile:iron_wall', {
+                               groups = {crumbly = 1, cracky = 3},
+    })
 end
+
 
 local lpname = "tut_lighted_path"
 local lpdef = {
@@ -184,14 +203,16 @@ local info = { -- #TODO: set up locales, template.txt etc
     ["dig_key"] = "^  "..S("Press the dig button to pick up or strike things."),
     ["place_key"] = "v  "..S("Press the place button to put things down."),
     ["use_key"] = "◊  "..S("Press the use button to activate items and nodes."..
-                           "@n This is E by default on PC, AUX1 or sprint on mobile."),
+                           "@n @n This is E by default on PC, AUX1 or sprint on mobile."),
     ["zoom_key"] = S("Press the zoom key to see the name of what "..
                      "you're looking at. @n This is Z by default on PC, "..
                      "and the binoculars or magnifying lens on mobile"),
     ["crawl"] = S("Double-tap sneak to crouch and get through small spaces.@n"..
                   "@nIf server lag makes this hard, you can use the"..
                   " /crouch command, or install exile_csm, the"..
-                  "client-side mod to handle controls locally")
+                  "client-side mod to handle controls locally"),
+    ["movement"] = S("Loss of energy affects move and jump rate"),
+    ["torch"] = S("Drop a torch to see what's below")
 }
 
 local function display_info(pos, player)

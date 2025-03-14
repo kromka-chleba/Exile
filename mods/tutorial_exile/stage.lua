@@ -4,37 +4,23 @@
 --  Allows players to die and go back to the start of a stage, or exit/enter
 
 local stage = {} -- namespace
+HEALTH = HEALTH
+player_api = player_api
 
 local modpath = minetest.get_modpath("tutorial_exile")
 local stages = dofile(modpath..'/data_stages.lua')
 
---[[ -- no
+local mstore = minetest.get_mod_storage()
 
-    pi[name] = {
-    offset, -- base pos added to the tutorial regions to relocate them
-    pos1, pos2, -- map segment reserved for this player
-    current = 1, -- which stage he is on, if any
-    start = { -- Do we need this? offset and stage data should suffice
-    [1] = nil , -- spawnpos for first stage
-    [2] = nil , -- second, etc
-    },
-    }
+-- Loading/unloading areas -----------------------------------------------
 
-]]--
-
-
-local function get_playername(player_or_name)
-    if type(player_or_name) == "string" then
-        return  player_or_name
-    else
-        return player_or_name:get_player_name()
-    end
-end
+local delay = 7 -- number of seconds to wait before loading next stage
 
 local i_num = {} -- [playername ] = [tutorial_instance_number]
 local instance = {} -- track instance contents, to repurpose them. contains:
 --[[a= {
     [instance_num] = {
+    number = 1, this instance's number,
     in_use = false,
     active = 0, -- last active stage #
     ready = 0, -- counts up when a stage has finished loading
@@ -42,15 +28,45 @@ local instance = {} -- track instance contents, to repurpose them. contains:
     }
     }]]--
 
+-- Save/load instance table via mod storage
+-- load_all_instances
 
+local counter = 0
+repeat
+    counter = counter + 1
+    local inp = mstore:get("inst_"..tostring(counter))
+    if inp then
+        instance[counter] = core.deserialize(inp)
+        instance[counter].in_use = false -- we restarted, nobody's logged in now
+    else -- no more instances tracked
+        counter = -1
+    end
+until counter < 0
+
+
+local function save_out(inst)
+    local key = "inst_"..tostring(inst.number)
+    local ser = core.serialize(inst)
+    mstore:set_string(key, ser)
+end
+
+
+-- Find where the instance goes on the map
 local function calc_offset(num)
     -- Offsets by 2k x 2k, leaving ( 0, 9001, 0 ) empty for now
     -- Positive direction only, ~30 tutorial spots seems like plenty for now
     return vector.new(
         2000 * ( num % 16 ),        -- X
-        9001,                       -- Y
+        9251,                       -- Y
         2000 * math.floor(num / 16) -- Z
     )
+end
+
+local function loadschem(anchor, file)
+    local filename = modpath.."/schematics/"..file..".ex_schm"
+    minetest.log("action", "Loading schematic: "..filename)
+    minimal.load_region(anchor,
+                        io.open(filename, "rb"))
 end
 
 local function add_stage(num, finish)
@@ -62,85 +78,29 @@ local function add_stage(num, finish)
     local current = inst.ready + 1
     if stages[current] == nil then return end -- All done
     if finish and current == finish + 1 then
-        inst.in_use = false return -- Reloaded a previous stage, set inactive
+        inst.in_use = false
+        inst.active = 0
+        return -- Reloaded a previous stage, set inactive
     end
     local anchor = vector.add(inst.offset, stages[current].location)
-    local filename = modpath.."/schematics/"..stages[current].schem..".ex_schm"
-    minetest.log("action", "Loading schematic: "..filename)
-    minimal.load_region(anchor,
-                        --filename)
-                        io.open(filename, "rb"))
+    loadschem(anchor, stages[current].schem)
     inst.ready = current
-    minetest.after(11, add_stage, num, finish)
+    save_out(inst)
+    minetest.after(delay, add_stage, num, finish)
 end
 
-function stage.init(pname, selected_stage)
-    if not pname or not minetest.get_player_by_name(pname) then
-        minetest.log("error", "Tried to init a tutorial stage for non-existant "..
-                     " player: ",dump(pname))
-        return false
-    end
-    if i_num[pname] then -- we're already set up?
-        return
-    end
-    -- Find a spot that isn't taken, spawn an instance there
-    local select = 0
-    local active
-    for i = 1, #instance do
-        if not instance[i].in_use then
-            select = i
-            instance[i].in_use = true
-            active = instance[i].active + 1
-        end
-    end
-    if select == 0 then -- didn't find an unused; create new
-        select = #instance + 1
-        instance[select] = {
-            in_use = true, active = 0, ready = 0,
-            offset = calc_offset(select)
-        }
-    end
-    i_num[pname] = select
-
-    minetest.after(2, add_stage, select, active)
-    return select
-end
-
-function stage.get_spawn_pos(player_or_name)
-    local pname = get_playername(player_or_name)
-    local num = i_num[pname]
-    if not num then
-        num = stage.init(pname)
-    end
-    if num > 0 then -- We're in the tutorial, respawn at current stage
-        local inst = instance[num]
-        return stages[num].start + stages[num].location + inst.offset
-    end
-
-    return stages["lz"].start -- not currently in, send him to the landing zone
-end
-
--- #TODO: Spawn the landing zone on first load, set a map_meta env to track
-
+-- Begin reloading any visited stages
 local function reload(num)
-    -- reload any visited stages
     instance[num].in_use = false
     instance[num].ready = 0
-    minetest.after(11, add_stage, num, instance[num].active)
+    minetest.after(delay, add_stage, num, instance[num].active)
 end
 
 local unload = {}
 
-function stage.exit(player) -- For when a player exits the tutorial instance
-    local pname = player:get_player_name()
-    local num = i_num[pname]
-    if not num or minetest.is_singleplayer() then return end
-    unload[pname] = true
-end
-
 --[[
     singleplayer: this doesn't run.
-    leaves all as-is. need to record i_num and tables for rejoin
+                  leaves all as-is. need to record i_num and tables for rejoin
     hosting: doesn't run for first player, treat him like single player
     multi:
 ]]--
@@ -152,6 +112,183 @@ minetest.register_on_leaveplayer(function(player)
         i_num[pname] = nil
 end)
 
+
+function stage.shutdown(player) -- For when a player quits the tutorial instance
+    local pname = player:get_player_name()
+    local num = i_num[pname]
+    if not num or minetest.is_singleplayer() then return end
+    if instance[num].active == 6 then -- Finished, clear and reset
+        reload(num)
+        save_out(instance[num])
+    else -- Not complete, keep it set up for the player
+        unload[pname] = true
+    end
+end
+
+-- Spawn the landing zone on first load or when requested if /test_tut is used
+local LZ_spawned = mstore:get("tutorial_lz_spawned")
+local enable_tutorial = minetest.settings:get("exile_enabletutorial") or false
+
+local function spawn_lz()
+            print("TUTORIAL_EXILE: Spawning a Landing Zone")
+            loadschem(vector.new(0,9250,0), "landingzone")
+            LZ_spawned = true
+            mstore:set_string("tutorial_lz_spawned", "true")
+end
+
+minetest.after(1, function()
+        if ( not LZ_spawned ) and enable_tutorial then
+            spawn_lz()
+        end
+end)
+
+-- Moving players through the stages -------------------------------------
+
+-- Utilities
+
+-- Clears a player's inv and hud and reset attributes, when moving to a stage
+local function clear(player)
+    local inv = player:get_inventory()
+    inv:set_list("main", {})
+    inv:set_list("cloths", {})
+    player_api.compose_cloth(player)
+    HEALTH.show_hud_elements(player, nil, "all")
+    HEALTH.reset_attributes(player)
+    player:override_day_night_ratio(1)
+end
+
+-- Initialize a tutorial instance for this player, or find his existing one
+local function stage_init(pname, selected_stage)
+    if not pname or not minetest.get_player_by_name(pname) then
+        minetest.log("error",
+                     "Tried to init a tutorial instance for non-existant "..
+                     " player: ",dump(pname))
+        return false
+    end
+    if i_num[pname] then -- we're already set up?
+        return i_num[pname]
+    end
+    -- Find a spot that isn't taken, spawn an instance there
+    local selected = 0
+    if not selected_stage then selected_stage = 0 end -- start at the start
+    local active
+    for i = 1, #instance do
+        if instance[i].in_use == false
+            and instance[i].ready >= selected_stage then
+
+            selected = i
+            instance[i].in_use = true
+            active = instance[i].active -- Don't reload past the last used stage
+            --break
+        end
+    end
+    if selected == 0 then -- didn't find an unused; create new
+        selected = #instance + 1
+        instance[selected] = {
+            in_use = true, active = 0, ready = 0, number = selected,
+            offset = calc_offset(selected)
+        }
+    end
+    i_num[pname] = selected
+    save_out(instance[selected])
+
+    minetest.after(2, add_stage, selected, active)
+    return selected
+end
+
+local function move_to_spawn_pos(player, playername)
+    -- Find the current stage's spawn pos and move the player there
+    local pname = playername player:get_player_name(player)
+    local num = i_num[pname]
+    if not num then
+        num = stage_init(pname)
+    end
+    local inst = instance[num]
+    local act = inst.active
+    local pos = stages[0].start
+    if act > 0 then -- We're in the tutorial, respawn at current stage
+        pos = ( stages[act].start
+                + stages[act].location
+                + inst.offset )
+    end
+
+    -- not currently in, send him to the landing zone
+    print("Moving ",pname," to spawn pos for stage ",
+          act," at ",core.pos_to_string(pos))
+    player:set_pos(pos)
+end
+
+
+local function enter_stage(player, playername, preferred_stage)
+    local pname = playername or player:get_player_name()
+    local num = i_num[pname]
+    local inst = instance[num]
+    if not num or not inst then print("can't enter_stage: ",pname) return end
+
+    if preferred_stage then inst.active = preferred_stage end
+    move_to_spawn_pos(player, pname)
+    if stages[inst.active].splashtext then
+        triggers.hud_splash(player,
+                            stages[inst.active].splashicon,
+                            stages[inst.active].splashtext,
+                            pname)
+    end
+    clear(player)
+
+    if stages[inst.active].entry then
+        stages[inst.active]:entry(player, pname, inst)
+    end
+end
+
+-- called whenever the player moved between stages
+local function stage_change(player, playername)
+    local pname = playername or player:get_player_name()
+    local num = i_num[pname]
+    local inst = instance[num]
+    if not num or not inst then print("can't stage_change: ",pname) return end
+
+    if stages[inst.active].exit then
+        stages[inst.active]:exit(player, playername, inst)
+    end
+
+    inst.active = inst.active + 1
+    player:get_meta():set_string("tutorial_stage", inst.active)
+    if inst.active > #stages then
+        player:get_meta():set_string("tutorial_stage", "")
+        tutorial.exit(player)
+        return
+    end
+    save_out(inst)
+    enter_stage(player, pname)
+end
+
+function stage.open(player) -- called when a player enters the tutorial
+    local function stage_go()
+        local pname = player:get_player_name(player)
+        local current_stage =
+            tonumber(player:get_meta():get("tutorial_stage")) or 0
+        if not i_num[pname] then
+            stage_init(pname, tonumber(current_stage))
+        end
+        enter_stage(player, pname, current_stage)
+    end
+
+    if not LZ_spawned then
+        spawn_lz()
+        -- delay for loading LZ, to avoid slowing the subsequent stage loads
+        minetest.after(1, stage_go, player)
+    else
+        stage_go(player)
+    end
+end
+
+minetest.register_on_respawnplayer(function(player)
+        local meta = player:get_meta()
+        if meta:get_string("playtime_suspended") == "y" then
+            stage.open(player) -- Jump back to the start of the current stage
+        end
+end)
+
 -- Trigger ---------------------------------------------------------------
 
 --     local function mytriggerfunc(player, pname, pos, nmeta, metastring) end
@@ -161,20 +298,40 @@ end)
 
 tutorial = tutorial
 triggers = triggers
+local used_before = {}
+
 local function stage_trigger(player, pname, pos, nmeta, metastring)
     -- Called when a player reaches the stage exit
-    local num = i_num[pname] -- which instance he's in
-    local inst = instance[num]
-    if not num or not inst then return end
-    if inst.active == #stages then tutorial.exit(player) return end
-    print("Leaving stage ",inst.active," of ",#stages)
-    inst.active = inst.active + 1
-    print("Entering stage ",inst.active," at ",
-          minetest.pos_to_string(stages[num].start + stages[num].location
-                                 + inst.offset))
-    player:set_pos(stages[num].start + stages[num].location + inst.offset)
+    if used_before[pname] then
+        return -- prevent player_api calling this again before we're done
+    end
+    used_before[pname] = true
+    stage_change(player, pname)
+    used_before[pname] = nil
 end
 
 triggers.register("tr_tutnext", stage_trigger, true,
                   {"Stage end", "Place at the exit point of a tutorial stage"})
+
+-- Utilities -------------------------------------------------------------
+function stage.distance_to_base(playername)
+    local player = core.get_player_by_name(playername)
+    local num = i_num[playername]
+    local inst = instance[num]
+    if not num or not inst then return nil, ("not in a stage") end
+    local pos = player:get_pos():round()
+    local stagep = stages[inst.active].location
+    if inst.active > 0 then stagep = stagep + inst.offset end -- 0 is hardcoded
+    return vector.subtract(pos, stagep)
+end
+
+
+minetest.register_chatcommand(
+    "tutr_next",{
+        privs = "server",
+        func = function(name,param)
+            if core.check_player_privs(name, "server") == false then return end
+            stage_change(core.get_player_by_name(name), name)
+        end
+})
 return stage

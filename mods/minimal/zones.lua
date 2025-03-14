@@ -48,6 +48,7 @@ local zonedef_default = {
     lasttrigger = vector.new(), -- pos of last seen trigger, for expiration
     midpoint = vector.new(),
     narrowest = 0, -- Narrowest axis, for radial/cylindrical shapes
+    noexpiry = nil, -- This zone uses no triggers and is managed externally
 ]]--
 
 
@@ -55,7 +56,7 @@ local zonelist = {} -- Stores all zones by id, primary store of data for each
 --[[
     ["id"] = { zonedef }
 ]]--
-local zonebytype = -- stores all ids that pertain to a zone type
+local zonebytype = -- lookup, stores all ids that pertain to a zone type
     {
         -- ["ztr_reset"] = { id1 = true, id2 = true, id3 = true, ...}
     }
@@ -83,7 +84,7 @@ local function add_zbts(id)
     end
     for nm, _ in pairs(zoneinfo) do
         local check = zonelist[id]["ztrd_"..nm]
-        if check and check ~= {} and check ~= "" then
+        if check and next(check) ~= nil and check ~= "" then
             zonebytype[nm][id] = true
         end
     end
@@ -251,6 +252,43 @@ function zone.check(pos, zone_type)
     return list
 end
 
+-- Create a zone directly, without the use of triggers.
+function zone.create(name, zonedef)
+    if not zoneinfo[name] then
+        error("Tried to create a non-existant zone type of "..name)
+    end
+    local zdef = table.copy(zonedef)
+    zdef.pos1, zdef.pos2 = vector.sort(zonedef.pos1, zonedef.pos2)
+    zdef.shape = zonedef.shape or zs.absolute
+    zdef.logarithmic = zonedef.logarithmic or "false"
+    zdef.id = generate_id(zonedef.pos1)
+    zdef.noexpiry = "true"
+
+    zonelist[zdef.id] = zdef
+    add_zbts(zdef.id)
+    calc_size(zdef)
+    return zdef.id
+end
+
+function zone.get_data(id)
+    local def = zonelist[id]
+    return def
+end
+function zone.set_data(id, def)
+    zonelist[id] = def
+end
+
+function zone.destroy(id)
+    if not zonelist[id] then return end
+    for rmtype, data in pairs(zonebytype) do -- Remove us from all ZBTs
+        if data[id] then data[id] = nil
+        end
+    end
+    local name = zonelist[id].name
+    if zoneinfo[name] then zoneinfo[name] = nil end
+    zonelist[id] = nil
+end
+
 ------------------------------------------------------------
 -- Loading and saving active zones
 
@@ -352,6 +390,8 @@ end
 
 local function sink_zone(def) -- Write zonedef values out to all known triggers
     if not zonelist[def.id] then return end
+    if def.noexpiry then return end -- Don't save externally managed zones
+
     local triggers = def.triggerpos
     if triggers then
         for c = 1, #triggers do
@@ -526,6 +566,7 @@ end
 local function check_for_expiry()
     local expireme = {}
     for id, testing in pairs(zonelist) do
+        if testing.noexpiry then break end -- Externally managed, no expiration
         local ctime = minetest.get_gametime()
         if not testing.lastcheck or
             ( ctime > (testing.lastcheck + zoneduration)
