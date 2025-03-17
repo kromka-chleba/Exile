@@ -120,7 +120,7 @@ local function restore_player(player)
     meta:set_string("playtime_suspended", "")
     region.enable_spawnex(name)
     mstore:set_string(name, "")
-    player:override_day_night_ratio()
+    player:override_day_night_ratio(nil)
 end
 
 local function read_player_store(name)
