@@ -1,17 +1,19 @@
 # textdomain: animals
 # crafts.lua
-Slaughter the animal="Abattre l'animal"
-@1 Invertebrate="@1 Invertébré(e)"
-Small="Petit(e)"
-Large="Grand(e)"
-@1 Bird="Oiseau de(d')@"
-@1 Fish="Poisson de(d')@1"
-@1 Carcass="Carcasse de(d')@1"
-Cooked @1="@1 cuit(e)"
-Burned @1="@1 brûlé(e)"
+Slaughter the animal=Abattre l'animal
+small invertebrate=petit invertébré
+large invertebrate=grand invertébré
+small bird=petit oiseau
+large bird=grand oiseau
+small fish=petit poisson
+large fish=grand poisson
+
+@1 Carcass=Carcasse de @1
+Cooked @1=@1 cuit
+Burned @1=@1 brûlé
 # api_capture.lua + #api.lua
 @1 Eggs=Œufs de @1
-Live @1="@1 vivant(e)"
+Live @1=@1 vivant
 # darkasthaan.lua
 Darkasthaan=Darkasthaan
 # gundu.lua
@@ -21,16 +23,16 @@ Impethu=Impethu
 # kubwakubwa.lua
 Kubwakubwa=Kubwakubwa
 # pegasun.lua
-Pegasun Egg="Œuf de Pegasun"
-Live Female Pegasun="Femelle Pegasun vivante"
-Female Pegasun="Femelle Pegasun"
-Male Pegasun="Mâle Pegasun"
+Pegasun Egg=Œuf de Pegasun
+Live Female Pegasun=Femelle Pegasun vivante
+Female Pegasun=Femelle Pegasun
+Male Pegasun=Mâle Pegasun
 # sarkamos.lua
 Sarkamos=Sarkamos
 # sneachan.lua
 Sneachan=Sneachan
-Chichasa Egg="Œuf de Chichasa"
-Male Chichasa="Mâle Chichasa"
-Live Darkasthaan="Darkasthaan vivant"
-Female Chichasa="Femelle Chichasa"
-Live Female Chichasa="Femelle Chichasa vivante"
+Chichasa Egg=Œuf de Chichasa
+Male Chichasa=Mâle Chichasa
+Live Darkasthaan=Darkasthaan vivant
+Female Chichasa=Femelle Chichasa
+Live Female Chichasa=Femelle Chichasa vivante

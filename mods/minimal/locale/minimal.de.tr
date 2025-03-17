@@ -4,7 +4,7 @@
 Display the current git revision=Zeigt die aktuelle git-Version an
 This server is currently running git revision=Auf diesem Server läuft aktuell Git-Revision
 #interface/infotext.lua
-Owner="Eigentümer"
+Owner=Eigentümer
 Missing required items!=Es fehlen benötigte Gegenstände!
 Main=Haupt
 Bag1=Tasche1
@@ -117,4 +117,4 @@ Legacy grey=legacy-grau
 New Grey=neugrau
 Label:=Beschriftung:
 Owner:=Eigentümer:
-Legacy Grey="Altgrau"
+Legacy Grey=Altgrau
