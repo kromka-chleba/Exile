@@ -4,11 +4,12 @@
 @1 Eggs=
 Slaughter the animal=
 Live @1=
-@1 Invertebrate=
-Small=
-Large=
-@1 Bird=
-@1 Fish=
+small invertebrate=
+large invertebrate=
+small bird=
+large bird=
+small fish=
+large fish=
 @1 Carcass=
 Cooked @1=
 Burned @1=

@@ -91,7 +91,7 @@ Note: Use a Bowl to Get!=
 # misc use tips
 Eat=Comer
 Drink=
-Create="Crear"
+Create=Crear
 # craft-stations.lua
 Crafting Spot=Lugar para Fabricar
 # Craft station
@@ -110,7 +110,7 @@ Glass furnace=Horno para Vidrio
 Pottery=
 Tools=
 Stations=
-Agriculture="Agricultura"
+Agriculture=Agricultura
 Pickaxe=
 Breadmaking=
 Cannot place here! Needs a whole block of:=

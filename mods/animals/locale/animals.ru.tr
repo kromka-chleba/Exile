@@ -3,11 +3,13 @@
 @1 Eggs=Яйца @1
 Slaughter the animal=Убить животное
 Live @1=Живой @1
-@1 Invertebrate=@1 беспозвоночный
-Small=Маленькая
-Large=Большая
-@1 Bird=@1 птица
-@1 Fish=@1 рыба
+small invertebrate=Маленькая беспозвоночный
+large invertebrate=Большая беспозвоночный
+small bird=Маленькая птица
+large bird=Большая птица
+small fish=Маленькая рыба
+large fish=Большая рыба
+
 @1 Carcass=Туша @1
 Cooked @1=Приготовленный @1
 Burned @1=Сожжённый @1

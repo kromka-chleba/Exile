@@ -2,11 +2,13 @@
 # crafts.lua
 # api_capture.lua
 Slaughter the animal=Das Tier schlachten
-@1 Invertebrate=@1 Wirbelloser
-Small=Kleiner
-Large=Großer
-@1 Bird=@1 Vogel
-@1 Fish=@1 Fisch
+small invertebrate=kleiner Wirbelloser
+large invertebrate=großer Wirbelloser
+small bird=kleiner Vogel
+large bird=großer Vogel
+small fish=kleiner Fisch
+large fish=großer Fisch
+
 @1 Carcass=@1kadaver
 Cooked @1=Gekochter @1
 Burned @1=Verbrannter @1
@@ -30,8 +32,8 @@ Male Pegasun=Männlicher Pegasun
 Sarkamos=Sarkamos
 # sneachan.lua
 Sneachan=Sneachan
-Female Chichasa="Weibliche Chichasa"
-Chichasa Egg="Chichasa-Ei"
-Live Female Chichasa="Lebendige weibliche Chichasa"
-Male Chichasa="Männliche Chichasa"
-Live Darkasthaan="Lebendiger Darkasthaan"
+Female Chichasa=Weibliche Chichasa
+Chichasa Egg=Chichasa-Ei
+Live Female Chichasa=Lebendige weibliche Chichasa
+Male Chichasa=Männliche Chichasa
+Live Darkasthaan=Lebendiger Darkasthaan
