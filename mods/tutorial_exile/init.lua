@@ -176,6 +176,7 @@ end
 
 minetest.register_chatcommand(
     "tutorial",{
+        description = "Start or restart the tutorial",
         func = function(name,param)
             if pstore[name] then
                 tutorial.exit(core.get_player_by_name(name))
@@ -187,6 +188,14 @@ minetest.register_chatcommand(
             disable_tutorial = tmp
         end
 })
+minetest.register_chatcommand(
+    "quit_tutorial",{
+        description = "Exit the tutorial",
+        func = function(name,param)
+            minetest.chat_send_player(name, "Stopping tutorial")
+            tutorial.exit(minetest.get_player_by_name(name))
+        end
+})
 
 __DEBUG__ = __DEBUG__
 if not __DEBUG__ then return end
@@ -194,22 +203,14 @@ if not __DEBUG__ then return end
 --------------------------------------------------------------------------------
 -- Debug commands
 
-minetest.register_chatcommand(
-    "quit_tut",{
-        privs = "server",
-        func = function(name,param)
-            if core.check_player_privs(name, "server") == false then return end
-            minetest.chat_send_player(name, "Stopping tutorial")
-            --read_player_store(name)
-            tutorial.exit(minetest.get_player_by_name(name))
-        end
-})
 
 if minetest.get_modpath("worldedit") then
     worldedit = worldedit
     minetest.register_chatcommand(
         "save_tutr",{
             privs = "server",
+            params = "<filename>",
+            description = "Save a tutorial region bounded by worledit markers",
             func = function(name,param)
                 if core.check_player_privs(name, "server") == false then
                     return
@@ -228,6 +229,8 @@ end
 minetest.register_chatcommand(
     "load_tutr",{
         privs = "server",
+        params = "<filename>",
+        description = "Load a tutorial region and place it at the player",
         func = function(name,param)
             if core.check_player_privs(name, "server") == false then return end
             minetest.chat_send_player(name, "Loading region named "..param)
@@ -241,6 +244,8 @@ minetest.register_chatcommand(
 minetest.register_chatcommand(
     "size_tutr",{
         privs = "server",
+        params = "<filename>",
+        description = "Show the dimensions of a saved tutorial region",
         func = function(name,param)
             if core.check_player_privs(name, "server") == false then return end
             local fname = modpath.."/schematics/"..param..".ex_schm"
