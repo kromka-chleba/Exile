@@ -36,7 +36,7 @@ Thirsty=Assoiffé(e)
 Resting=Se repose
 (Shivering)=(Frissonne)
 poorly=mal
-comfortably=comfortablement
+comfortably=confortablement
 (Sweating)=(Transpire)
 #init.lua
 Hyperthermia=Hyperthermie

@@ -133,7 +133,7 @@ function minimal.protection_key_use( itemstack, user, pos, meta )
     meta:set_string("access_list",
       minetest.write_json(list))
     minetest.chat_send_player(pname,
-      S("@1 granted access",
+      S("@1 has been granted access",
       key))
 end
 
