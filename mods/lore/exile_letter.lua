@@ -539,6 +539,8 @@ minetest.register_on_newplayer(function(player)
 end)
 
 minetest.register_on_respawnplayer(function(player)
+        local meta = player:get_meta()
+        if meta:get("playtime_suspended") then return end
         local inv = player:get_inventory()
         local letter = ItemStack("lore:exile_letter")
         local stack_meta = letter:get_meta()

@@ -58,6 +58,7 @@ end)
 
 minetest.register_on_respawnplayer(function(player)
         local meta = player:get_meta()
+        if meta:get("playtime_suspended") then return end
         meta:set_string("char_name", lore.generate_name(3))
         meta:set_int("char_time_stamp", minetest.get_gametime())
         meta:set_int("char_time_survived", 0)
@@ -68,6 +69,7 @@ end)
 
 minetest.register_on_leaveplayer(function(player)
         local meta = player:get_meta()
+        if meta:get("playtime_suspended") then return end
         local last = tonumber(meta:get_int("char_time_stamp"))
         local difference = minetest.get_gametime() - last
         local time = tonumber(meta:get_int("char_time_survived"))

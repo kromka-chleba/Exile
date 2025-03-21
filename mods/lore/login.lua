@@ -130,6 +130,8 @@ end
 ------------------------------------------------------------------------------
 
 minetest.register_on_respawnplayer(function(player)
+        local meta = player:get_meta()
+        if meta:get("playtime_suspended") then return end
         region.spawn(player)
         minetest.after(0.1, function() doGatewayFX(player) end)
         return true

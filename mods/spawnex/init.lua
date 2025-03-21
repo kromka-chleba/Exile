@@ -716,6 +716,9 @@ end)
 minetest.register_on_dieplayer(function(player)
         local pname = player:get_player_name()
         if disabled[pname] then return end
+        local meta = player:get_meta()
+        if meta:get("playtime_suspended") then return end
+
         pirnt("Player "..pname..
               " died, calling region.prespawn")
         region.prespawn(player)
