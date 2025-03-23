@@ -64,7 +64,7 @@ local function leave_blanket(player, bed_pos, leave_on_bed)
             -- adds blanket to bed's inventory'
             bedInv:set_stack('main',1,blanket)
             -- updates infotext
-            meta_blanket = S("Bed: Contains Blanket")
+            meta_blanket = S("Contains Blanket")
         -- else give it back to the player
         else
             if p_inv:room_for_item("main",blanket) then

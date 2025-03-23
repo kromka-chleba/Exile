@@ -141,9 +141,9 @@ BREAK TIME!=
 You've been here long enough to justify a real break.@nThink of this as a reminder from your better self.@nGo get some rest. Leave Exile behind. You can come back any time.=
 # other messages
 You have no room to hold your blanket, so you drop it.=
-Bed: Contains Blanket=
+Contains Blanket=
 This bed is already occupied!=
-# expects owner name to be after 
+# expects owner name to be after
 Status: Occupied by @1=
 # related to above
 Status: Occupied by @1 (old)=
@@ -151,7 +151,7 @@ Status: Occupied by @1 (old)=
 
 ##### not used anymore #####
 
-# expects owner name to be after 
+# expects owner name to be after
 Status: Occupied by =
 # related to above
 (old)=
