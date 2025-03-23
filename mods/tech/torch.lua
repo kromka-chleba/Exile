@@ -228,9 +228,9 @@ minetest.register_node("tech:torch", {
 		   return itemstack
 		end
 		local def = minetest.registered_nodes[node.name]
-		if def and def.on_rightclick and
-			not (placer and placer:is_player() and
-			placer:get_player_control().sneak) then
+		if def and def.on_rightclick and placer and
+                    not (core.is_player(placer) and
+                         placer:get_player_control().sneak) then
 			return def.on_rightclick(under, node, placer, itemstack,
 				pointed_thing) or itemstack
 		end
