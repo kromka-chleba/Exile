@@ -62,20 +62,12 @@ end
 
 local function decompose_compost(pos, elapsed, dc_name)
     local compdef = minimal.get_nodedef(pos)
-    if not compdef then
-        return false
-    end
-    local decomposed_name = string.gsub(compdef.name,"_undecomposed","")
-    if dc_name then
-        decomposed_name = dc_name
-    end
-    local speed = dry_speed
-    if compdef.groups.undecomposed_compost == 2 then
-        speed = wet_speed
-    end
-    if not minimal.get_nodedef(decomposed_name) then
-        return false
-    end
+    if not compdef then return false end
+    local decomposed_name = dc_name or compdef.name:gsub("_undecomposed","")
+    -- if wet, do wet speed otherwise do dry speed
+    local speed = compdef.groups.undecomposed_compost == 2 and wet_speed
+      or dry_speed
+    if not core.registered_nodes[decomposed_name] then return false end -- could not find decomposed node
     local meta = minetest.get_meta(pos)
     local decomposition = meta:get_int("decomposition")
     local last_updated = meta:get_int("last_updated")
