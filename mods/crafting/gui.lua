@@ -442,7 +442,7 @@ local function FS_recipes_to_cache(cache, player_name, pInv)
         end
     end
     local nb_recipes=#display_list
-    
+
     local columns = 6 -- can show 6 items accross without scrollbar
 
     -- add scrollbar if needed
@@ -1163,7 +1163,7 @@ local function make_tool_formspec(player)
     return tofstring({
             "formspec_version[5]",
             --"size[11.2,10.5]" ..
-            "size[11.2,11]",
+            "size[11.4,11]",
             "position[0.5,0.5]",
             make_inventory_formspec(player, nil, true)
         })
