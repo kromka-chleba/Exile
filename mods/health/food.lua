@@ -128,6 +128,8 @@ function HEALTH.eatdrink_playermade(itemstack, user, pointed_thing)
                                   itemstack:get_name())
         return
     end
+    -- compatibility with old soup system
+    t = HEALTH.get_food_stats(t)
     -- check for any extra stuff we should add to this playermade
     -- used for soups/stews to get proper returned empty + sound
     local extra_stats = HEALTH.get_food_stats(itemstack)
