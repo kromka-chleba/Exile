@@ -108,15 +108,16 @@ local function get_tool_level(tool)
     if not tool then
         return get_tool_level(default_tool)
     -- use the data we already have in local
-    elseif tools_level.tool then
-        return tools_level.tool
+    elseif tools_level[tool] then
+        return tools_level[tool]
     else
         -- go get it in registered table else
         local def = minetest.registered_nodes[tool]
             or minetest.registered_tools[tool]
             or minetest.registered_items[tool]
         if def and def.exile_crafting then
-            return def.exile_crafting.craft_level
+            tools_level[tool] = def.exile_crafting.craft_level
+            return tools_level[tool]
         else
             print('ERROR: Missing exile_crafting level definition for '..tool)
         end
