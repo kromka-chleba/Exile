@@ -1,8 +1,11 @@
 # textdomain: bed_rest
+
 # breaktaker message (requires translation)
 # authors (do not translate most if uses latin alphabet)
 Seneca=Sénèque
+
 # quotes (requires translation)
+
 # latin;
 Sometimes even to live is an act of courage.=Parfois, le simple fait de vivre est un acte de courage.
 Cicero=Cicéron
@@ -12,9 +15,11 @@ Dripping water hollows out stone,@nnot through force but through persistence.=La
 Marcus Aurelius=Marc Aurèle
 Life is a struggle and wandering in a foreign country.=La vie est un combat, une errance dans un pays étranger.
 Hippocrates=Hippocrate
+
 # greek;
 Let food be thy medicine and medicine be thy food.=Que ta nourriture soit ton médicament et que ton médicament soit ta nourriture.
 Sun Tzu=Sun Tzu
+
 # chinese;
 If quick, I survive. If not quick, I am lost.=Si je me hâte, je survis. Si je me relâche, je suis perdu.
 Lao Tzu=Lao Tseu
@@ -29,6 +34,7 @@ Followers of the Dao join together as companions@nbecause they can assist each o
 The Dalai Lama=Le Dalaï Lama
 If you think you are too small to make a difference,@ntry sleeping with a mosquito.=Si tu penses êtes trop petit pour faire une différence,@nessaye de dormir avec un moustique.
 Masanobu Fukuoka=Masanobu Fukuoka
+
 # japanese;
 The ultimate goal of farming is not the growing of crops,@nbut the cultivation and perfection of human beings.=Le but ultime de l’agriculture n’est pas de faire pousser des légumes , mais de cultiver et perfectionner les êtres humains.
 Kazuaki Tanahashi=Kazuaki Tanahashi
@@ -36,17 +42,21 @@ Artist's need the world.=Les artistes ont besoin du monde.
 Kobayashi Issa=Kobayashi Issa
 O snail@nClimb Mount Fuji@nBut slowly, slowly!=Ô escargot@nGrimpez le mont Fuji@nMais lentement, lentement !
 Mahatma Gandhi=Mahatma Gandhi
+
 # indian;
 Each night, when I go to sleep, I die.@nAnd the next morning, when I wake up, I am reborn.=Chaque nuit, quand je m'endors, je meurs.@nEt le lendemain matin, quand je me réveille, je renais.
 Saadi=Saadi
+
 # iranian;
 Whatever is produced in haste goes hastily to waste.=Tout ce qui est produit à la hâte est rapidement gaspillé.
 Nick Joaquín=Nick Joaquín
+
 # filipino;
 The point is not how we use a tool, but how it uses us.=L’important n’est pas de savoir comment nous utilisons un outil, mais comment il nous utilise.
 John Plant=John Plant
 My approach is to look for what I’m interested in using@nand if it’s there I use it.=Mon approche consiste à rechercher ce dont j'ai besoin @n et si je le trouve, je l’utilise.
 Joss Whedon=Joss Whedon
+
 # american;
 Humor keeps us alive. Humor and food.@nDon't forget food. You can go a week without laughing.=L'humour nous maintient en vie. L'humour et la nourriture. N'oublie pas la bouffe. tu peux vivre plus d'une semaine sans rire.
 Carl Sagan=Carl Sagan
@@ -110,6 +120,7 @@ Do not go gentle into that good night.@nRage, rage against the dying of the ligh
 Robert Swan=Robert Swan
 The greatest threat to our planet@nis the belief that someone else will save it.=La plus grande menace pour notre planète est la croyance que c'est quelqu'un d'autre qui va la sauver.
 Victor Hugo=Victor Hugo
+
 # french;
 Emergencies have always been necessary to progress.=L'urgence est une nécessité au progrès.
 Albert Camus=Albert Camus
@@ -137,13 +148,16 @@ Soren Kierkegaard=Soren Kierkegaard
 Life can only be understood backwards; but it must be lived forwards.=La Vie ne peut être comprise qu'en regardant en arrière, mais pour vivre il faut aller de l'avant
 BREAK TIME!=TEMPS MORT !
 You've been here long enough to justify a real break.@nThink of this as a reminder from your better self.@nGo get some rest. Leave Exile behind. You can come back any time.=Vous êtes ici depuis assez longtemps pour justifier une vraie pause.@nConsidérez cela comme un rappel venant de votre meilleur moi.@nAllez vous reposer. Laissez Exile. Vous revenez quand vous voulez.
+
 # other messages
 You have no room to hold your blanket, so you drop it.=Tu es trop encombré pour porter ta couverture, alors tu l'as lâchée.
 You have no room to take the blanket with you, so you left it on the bed.=
-Bed: Contains Blanket=Lit: Équipé d'une Couverture
+Contains Blanket=Équipé d'une Couverture
 This bed is already occupied!=Ce lit est déjà occupé !
-# expects owner name to be after 
+
+# expects owner name to be after
 Status: Occupied by @1=Occupé par @1
+
 # related to above
 Status: Occupied by @1 (old)=Occupé par @1 (vieux)
 My approach is to look for what I’m interested in using@nand if it’s there I use it=Ma méthode consiste à rechercher ce dont j'ai besoin;@n et si c'est là, je l'utilise

@@ -110,6 +110,8 @@ function bed_rest.register_bed(name, def)
             end
 
             minetest.set_node(pos, {name = name .. "_bottom", param2 = dir})
+            -- adds infotext
+            minimal.infotext_set_new(pos)
             minetest.set_node(botpos, {name = name .. "_top", param2 = dir})
 
             if not (minimal.player_in_creative(placer)) then

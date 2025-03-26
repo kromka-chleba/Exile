@@ -40,64 +40,114 @@ local function blanket_find(inv,listName)
     return nil
 end
 
---[[ This function makes me equip a blanket (if possible) when going into bed with donning == true setting.
-    It makes me leave a blanket (if I had one equipped) on the bed when standing up, with donning == false setting. ]]
+--[[ Dealing with my blanket when standing up from a bed
+    * if `leave_on_bed` is true, I leave leave it on the bed
+    * else, I wil take it back
+    Also updates infotext.
+]]
+local function leave_blanket(player, bed_pos, leave_on_bed)
+    -- get player's inv
+    local p_inv = player:get_inventory()
+    -- gets bed's meta and inv
+    local bed_meta = minetest.get_meta(bed_pos)
+    local bedInv = bed_meta:get_inventory()
+    -- to fill meta.blanket for infotext
+    local meta_blanket = ""
+    -- if I had a blanket on me
+    if not p_inv:is_empty('blanket') then
+        local blanket = p_inv:get_stack('blanket',1)
+        -- If we have to leave the blanket on the bed
+        if leave_on_bed then
+            -- Creates a dedicated inventory
+            local bedInv = bed_meta:get_inventory()
+            bedInv:set_size('main',1)
+            -- adds blanket to bed's inventory'
+            bedInv:set_stack('main',1,blanket)
+            -- updates infotext
+            meta_blanket = S("Contains Blanket")
+        -- else give it back to the player
+        else
+            if p_inv:room_for_item("main",blanket) then
+                p_inv:add_item("main",blanket)
+            else
+                core.item_drop(blanket, player, player:get_pos())
+                --minimal.send_message(player, nil, ("Inventory is full : the clothing you wore was thrown on the floor."),2)
+                minimal.warn_inv_full(player)
+            end
+        end
+        -- in any case empty clothing slot
+        p_inv:set_stack('blanket',1,ItemStack(''))
+
+    -- else bed remain empty
+    end
+    bed_meta:set_string("blanket", meta_blanket)
+    minimal.infotext_set_new(bed_pos, bed_meta)
+end
+
+--[[ Dealing with my blanket when going into bed
+    * If a blanket is already on the bed, I will equip that one
+    * Else, I will look in my main inventory to see if I have one to equip, and if yes, equip it
+    Also updates infotext
+]]
+local function equip_blanket(player, bed_pos, bed_meta)
+    -- get player's inv
+    local p_inv = player:get_inventory()
+    -- gets bed's meta and inv
+    local bed_meta = minetest.get_meta(bed_pos)
+    local bedInv = bed_meta:get_inventory()
+
+    local blanket
+    if not bedInv:is_empty("main") then
+        blanket = bedInv:get_stack('main',1)
+    end
+    -- if a blanket is already on the bed, equip that one
+    if blanket and not blanket:is_empty() then
+        p_inv:set_stack('blanket',1,blanket)
+        bedInv:set_stack('main',1,ItemStack(''))
+        -- blanket is on me (or no blanket) and not in the bed's inv anymore
+        bed_meta:set_string("blanket","")
+        minimal.infotext_set_new(bed_pos, bed_meta)
+
+    -- else, try to take one from inventory
+    else
+        -- try to remove one from inventory
+        blanket = blanket_find(p_inv, "main")
+        -- if succeed
+        if blanket and not blanket:is_empty() then
+            -- equip this blanket
+            p_inv:set_stack('blanket',1,blanket)
+
+        -- else, I have no blanket, do nothing
+        else
+            return
+        end
+    end
+end
+
+
+--[[ This function deals with blankets when I go in or out of a bed:
+    * `donning` = `true` if I go IN the bed (tries to equip a blanket)
+    * `donning` = `false` if I go OUT of the bed (leaves it or take it back)
+    ]]
 
 local function wear_blanket(player, bed_pos, donning)
     if not bed_pos then return end
-    local bed_meta = minetest.get_meta(bed_pos)
-    local bedInv = bed_meta:get_inventory()
-    bedInv:set_size('main',1)
-
-    local name = player:get_player_name()
-    local p_inv = player:get_inventory()
-
-    local blanket
 
     --if stand up and leave a blanket in the bed from my cloth inventory
     if donning==false then
-        -- if I had a blanket on me leave it on the bed
-        if not p_inv:is_empty('blanket') then
-            blanket = p_inv:get_stack('blanket',1)
-            -- add blanket to bed
-            bedInv:set_stack('main',1,blanket)
-            bed_meta:set_string("blanket",S("Bed: Contains Blanket"))
-            -- empty clothing slot
-            p_inv:set_stack('blanket',1,ItemStack(''))
-        -- else bed remain empty
-        else -- #TODO  if not updating infostext here I got no infotext anymore
-            bed_meta:set_string("blanket","")
+        -- checking if this is a sleeping spot for divergent behavior
+        -- #TODO adjust code so that setting "leave_on_bed" is in node's def
+        local node = minetest.get_node(bed_pos)
+        local is_sleeping_spot = string.find(node.name, "sleeping_spot")
+        if is_sleeping_spot then
+            leave_blanket(player, bed_pos, false)
+        else
+            leave_blanket(player, bed_pos, true)
         end
-        minimal.infotext_set_new(bed_pos, bed_meta)
-
-        -- empty clothing slot
-        p_inv:set_stack('blanket',1,ItemStack(''))
 
     --if I want to put a blanket on me when going in bed
     else
-        -- if a blanket is already on the bed, equip that one
-        blanket = bedInv:get_stack('main',1)
-        if blanket and not blanket:is_empty() then
-            p_inv:set_stack('blanket',1,blanket)
-            bedInv:set_stack('main',1,ItemStack(''))
-
-        -- else, try to take one from inventory
-        else
-            -- try to remove one from inventory
-            blanket = blanket_find(p_inv, "main")
-            -- if succeed
-            if blanket and not blanket:is_empty() then
-                -- equip this blanket
-                p_inv:set_stack('blanket',1,blanket)
-
-            -- else, I have no blanket, do nothing
-            else
-                return
-            end
-        end
-        -- blanket is on me (or no blanket) and not in the bed's inv
-        bed_meta:set_string("blanket","")
-        minimal.infotext_set_new(bed_pos, bed_meta)
+        equip_blanket(player, bed_pos)
     end
     -- update player look and cloth effects
     player_api.update_player(player)
