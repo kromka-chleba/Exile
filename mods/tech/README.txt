@@ -94,6 +94,12 @@ AspireMint
  * tech_paint_brush_white.png
 --
 
+Voxeel
+(marked CC0)
+ * tech_iron_key.png
+ * tech_iron_nails.png
+--
+
 Jan Wielkiewicz
 (aka lord_of_the_dumpster)
 (marked CC BY-SA 3.0)
@@ -174,12 +180,6 @@ TPH/Dokimi
  * tech_bottle_green_icon.png
  * tech_bottle_clear_icon.png
  --
- 
-izzyb
-(marked CC BY-SA 4.0)
- * tech_iron_key.png
- * tech_iron_nails.png (?)
---
 
 
 
