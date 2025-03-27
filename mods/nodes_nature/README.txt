@@ -193,7 +193,6 @@ Voxeel
 From Minetest Game Default:
   Gambit (CC BY-SA 3.0):
     default_snow.png
-    default_snowball.png
 
 From Australia, by demon_boy (https://github.com/vlapsley) CC BY-SA 3.0:
   jogalan - aus_saltbush.png
