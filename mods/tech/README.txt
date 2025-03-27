@@ -98,6 +98,7 @@ Voxeel
 (marked CC0)
  * tech_iron_key.png
  * tech_iron_nails.png
+ * tech_salt_refined_icon.png
 --
 
 Jan Wielkiewicz
@@ -172,7 +173,6 @@ TPH
  * tech_yeast_dough_overlay.png
  * tech_yeast_dough_spores.png
  * tech_salt_refined.png
- * tech_salt_refined_icon.png
 --
 
 TPH/Dokimi
