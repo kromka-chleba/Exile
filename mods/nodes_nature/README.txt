@@ -184,6 +184,12 @@ From TPH (CC0)
 	nodes_nature_brick_pattern_soft.png
 	nodes_nature_brick_pattern_jade.png
 
+Voxeel
+(marked CC0)
+* nodes_nature_tsaplop.png
+* nodes_nature_tsaplop_seedling.png
+--
+
 From Minetest Game Default:
   Gambit (CC BY-SA 3.0):
     default_snow.png
