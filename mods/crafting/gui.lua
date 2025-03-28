@@ -824,11 +824,12 @@ local function close_inventory_formspec(player)
             if not stack:is_empty() then
                 -- Try to add to main inventory
                 if pInv:room_for_item('main', stack) then
-                    stack = pInv:add_item('main', stack)
-                end
-                -- Drop item if no room in inventory
-                if not stack:is_empty() then
+                    pInv:add_item('main', stack)
+                else
+                    -- Drop item if no room in inventory
                     minetest.item_drop(stack, player, player:get_pos())
+                    -- warns the player it went on the ground
+                    minimal.warn_inv_full(player)
                 end
                 -- Set stack to empty stack in input_items inventory
                 pInv:set_stack('input_items',i,ItemStack(''))
