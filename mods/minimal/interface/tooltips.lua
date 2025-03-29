@@ -5,6 +5,10 @@
 -- crafting/api.lua sets meta description using it which appears with mouseover.
 minetest.register_on_mods_loaded(function()
         for name, def in pairs(minetest.registered_items) do
+            --[[ takes old descriptions to add tool tips to them
+            if not already done
+            that tool_tip adds use/place/dig instructions ]]
+            -- #TODO issue with key is that they had the owner in shortdesc and not desc.
             if def._orig_desc then
                 minetest.log("error","Tried to set tooltips on "..name..
                              " twice!")
@@ -38,4 +42,3 @@ minetest.register_on_mods_loaded(function()
         end
 
 end)
-

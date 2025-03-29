@@ -1011,6 +1011,8 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     -- Take items from inventory
     local taken = {}
 
+    -- Removes item present in founditems from inventories
+    -- Replaces them if need
     for source, items in pairs(founditems) do
         for _,item in pairs(items) do
             local took = inv:remove_item(source, item)
@@ -1023,7 +1025,8 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     for i=1, #crafting.registered_on_crafts do
         crafting.registered_on_crafts[i](name, recipe)
     end
-    -- create item
+
+    -- create item -------------------------------------------------------------
     local material
     if recipe.material then
         local material_def = ItemStack(taken[recipe.material]):get_definition()
@@ -1046,12 +1049,14 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
         make_output = string.gsub(recipe.material_output,
         "%%material%%", material)
     end
+
+    -- get ouptut itemstack, its meta (`imeta`) and short description (`sdesc`)
     local itemstack = ItemStack(make_output)
     local imeta = itemstack:get_meta()
-    local idef = itemstack:get_definition()
     local sdesc = itemstack:get_short_description()
+
     -- Set Creator
-    if minetest.get_item_group(itemstack:get_name(), 'craftedby') > 0 then
+    if core.get_item_group(itemstack:get_name(), 'craftedby') > 0 then
         imeta:set_string('creator', name)
         -- don't add creator name to sort description for single player
         if not minetest.is_singleplayer() then
@@ -1059,6 +1064,19 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
             sdesc = S("@1's @2",name, sdesc)
         end
         imeta:set_string('short_description', sdesc)
+    end
+
+    -- Add Tool Tips to Description
+
+    --[[ changed by Mantar 11 months ago, commented and replaces by get_short function in GUI
+    -- #TODO dig in to see why following part was commented
+    -- related to issue https://codeberg.org/Mantar/Exile/issues/1137
+    ]]
+    local idef = itemstack:get_definition()
+    -- if we already have a tool_tip for the item,
+    -- adds specific meta things to it
+    if idef._tool_tips and idef._tool_tips ~= '' then
+        imeta:set_string('description',sdesc .. idef._tool_tips)
     end
 
     -- set material
@@ -1075,12 +1093,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
 
     end
 
-    -- Add Tool Tips to Description
-
-    if idef._tool_tips and idef._tool_tips ~= '' then
-        --imeta:set_string('description',sdesc .. idef._tool_tips)
-
-    end
+    --end
     local items_to_add = {}
     local count = itemstack:get_count()
     -- fix for tools not being added properly
