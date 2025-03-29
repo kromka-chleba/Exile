@@ -233,7 +233,6 @@ local function enter_stage(player, playername, preferred_stage)
                             stages[inst.active].splashtext,
                             pname)
     end
-    clear(player)
 
     if stages[inst.active].entry then
         stages[inst.active]:entry(player, pname, inst)
@@ -270,6 +269,7 @@ function stage.open(player) -- called when a player enters the tutorial
         if not i_num[pname] then
             stage_init(pname, tonumber(current_stage))
         end
+        clear(player)
         enter_stage(player, pname, current_stage)
     end
 
