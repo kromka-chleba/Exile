@@ -1048,7 +1048,6 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     end
     local itemstack = ItemStack(make_output)
     local imeta = itemstack:get_meta()
-    local idef = itemstack:get_definition()
     local sdesc = itemstack:get_short_description()
     -- Set Creator
     if minetest.get_item_group(itemstack:get_name(), 'craftedby') > 0 then
@@ -1059,6 +1058,21 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
             sdesc = S("@1's @2",name, sdesc)
         end
         imeta:set_string('short_description', sdesc)
+    end
+
+    -- Add Tool Tips to Description
+
+    --[[ changed by Mantar 11 months agao,
+    commented and replaces by get_short function in GUI
+    uncommenting it fixes following issue:
+     https://codeberg.org/Mantar/Exile/issues/1137
+     #TODO check if it breaks something, probably in recipes
+     commit is https://codeberg.org/Mantar/Exile/commit/0561ed75e551705987ff57f0bff97dc6aec99750]]
+    local idef = itemstack:get_definition()
+    -- if we already have a tool_tip for the item,
+    -- adds specific meta things to it
+    if idef._tool_tips and idef._tool_tips ~= '' then
+        imeta:set_string('description',sdesc .. idef._tool_tips)
     end
 
     -- set material
@@ -1075,12 +1089,6 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
 
     end
 
-    -- Add Tool Tips to Description
-
-    if idef._tool_tips and idef._tool_tips ~= '' then
-        --imeta:set_string('description',sdesc .. idef._tool_tips)
-
-    end
     local items_to_add = {}
     local count = itemstack:get_count()
     -- fix for tools not being added properly
