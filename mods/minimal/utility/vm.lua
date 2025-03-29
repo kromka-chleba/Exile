@@ -120,12 +120,19 @@ local function open_region_file(f)
     return input
 end
 
+
+local timer_ids = {}
+
 local function translate_cids(cid_in)
     local out = {}
     for id, name in pairs(cid_in) do
-        if core.registered_nodes[name] then
+        local crn = core.registered_nodes[name]
+        if crn then
             local new_id = core.get_content_id(name)
             out[id] = new_id
+            if crn.groups and crn.groups.timer then
+                timer_ids[id] = crn.groups.timer
+            end
         else
             out[id] = core.get_content_id("air")
             core.log("Warning: Ex_Schm contains unknown node "..name..
@@ -147,6 +154,7 @@ function minimal.load_region(base_raw, file)
     local partway = minetest.get_us_time() - benchmark
     minetest.log("action", "File read time: "..tostring(partway).." us")
 
+    local timers = {}
 
     benchmark = minetest.get_us_time()
 
@@ -185,6 +193,9 @@ function minimal.load_region(base_raw, file)
                     end
                     minetest.get_meta(tpos):from_table(this.meta)
                 end
+                if timer_ids[this.id] then -- it's a timer node, start it
+                    table.insert(timers, {tpos, timer_ids[this.id]} )
+                end
                 count = count + 1
             end
         end
@@ -195,6 +206,9 @@ function minimal.load_region(base_raw, file)
     VoxelManip:write_to_map()
     zone_instance("close") -- close the instancer and fire up all loaded zones
     benchmark = minetest.get_us_time() - benchmark
+    for i = 1, #timers do
+        core.get_node_timer(timers[i][1]):start(timers[i][2])
+    end
     minetest.log("action", "Setup time: "..tostring(benchmark).." us")
 end
 
