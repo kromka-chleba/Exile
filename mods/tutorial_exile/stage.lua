@@ -12,6 +12,8 @@ local stages = dofile(modpath..'/data_stages.lua')
 
 local mstore = minetest.get_mod_storage()
 
+local tutorial_version = 0
+
 -- Loading/unloading areas -----------------------------------------------
 
 local delay = 7 -- number of seconds to wait before loading next stage
@@ -28,20 +30,39 @@ local instance = {} -- track instance contents, to repurpose them. contains:
     }
     }]]--
 
+local tutorial_version_stored = mstore:get("tutorial_exile_version")
+
 -- Save/load instance table via mod storage
 -- load_all_instances
 
-local counter = 0
-repeat
-    counter = counter + 1
-    local inp = mstore:get("inst_"..tostring(counter))
-    if inp then
-        instance[counter] = core.deserialize(inp)
-        instance[counter].in_use = false -- we restarted, nobody's logged in now
-    else -- no more instances tracked
-        counter = -1
-    end
-until counter < 0
+local reloading = false
+if tutorial_version_stored
+    and tonumber(tutorial_version_stored) == tutorial_version then
+    print("RELOADING TUTORIAL STAGES")
+    reloading = true
+else
+    mstore:set_string("exile_tutorial_version", tutorial_version)
+end
+
+local function reload_instances()
+    local counter = 0
+    repeat
+        counter = counter + 1
+        local inp = mstore:get("inst_"..tostring(counter))
+        if inp then
+            instance[counter] = core.deserialize(inp)
+            instance[counter].in_use = false
+            -- we restarted, nobody's logged in now
+            if reloading == true then
+                instance[counter].ready = 0 -- start all instances over
+                instance[counter].active = 0
+            end
+        else -- no more instances tracked
+            counter = -1
+        end
+    until counter < 0
+end
+reload_instances()
 
 
 local function save_out(inst)
@@ -54,10 +75,10 @@ end
 -- Find where the instance goes on the map
 local function calc_offset(num)
     -- Offsets by 2k x 2k, leaving ( 0, 9001, 0 ) empty for now
-    -- Positive direction only, ~30 tutorial spots seems like plenty for now
+    -- Positive direction only, ~256 tutorial spots seems like plenty
     return vector.new(
         2000 * ( num % 16 ),        -- X
-        9251,                       -- Y
+        9281,                       -- Y -- 9281 is a mapchunk boundary
         2000 * math.floor(num / 16) -- Z
     )
 end
