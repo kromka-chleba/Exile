@@ -286,6 +286,7 @@ minetest.register_on_respawnplayer(function(player)
         local meta = player:get_meta()
         if meta:get_string("playtime_suspended") == "y" then
             stage.open(player) -- Jump back to the start of the current stage
+            return true -- Be sure to disable the core respawn function
         end
 end)
 
