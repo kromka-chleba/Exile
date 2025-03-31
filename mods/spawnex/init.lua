@@ -716,8 +716,6 @@ end)
 minetest.register_on_dieplayer(function(player)
         local pname = player:get_player_name()
         if disabled[pname] then return end
-        local meta = player:get_meta()
-        if meta:get("playtime_suspended") then return end
 
         pirnt("Player "..pname..
               " died, calling region.prespawn")
@@ -829,7 +827,6 @@ minetest.register_chatcommand(
         params = "<player> <Hx:Hz>",
         func = function(name,param)
             local pname, tgtstr = unpack(param:split(" ", false, 1))
-            print("Got ",pname," and ",tgtstr)
             local player = minetest.get_player_by_name(pname:gsub(",",""))
             local tgt = string2hex(tgtstr)
             if not tgt or not player then
@@ -1014,9 +1011,9 @@ minetest.register_chatcommand(
                 pirnt(dump(jobs))
             else
                 pirnt("--- Storage (rgn_index) ---")
-                print(storage:get_string("rgn_index"))
+                pirnt(storage:get_string("rgn_index"))
                 pirnt("--- Storage (jobs) ---")
-                print(dump(minetest.deserialize(storage:get_string("jobs"))))
+                pirnt(dump(minetest.deserialize(storage:get_string("jobs"))))
             end
         end
 })

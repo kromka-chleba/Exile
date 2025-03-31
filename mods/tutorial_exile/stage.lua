@@ -30,40 +30,32 @@ local instance = {} -- track instance contents, to repurpose them. contains:
     }
     }]]--
 
-local tutorial_version_stored = mstore:get("tutorial_exile_version")
+
 
 -- Save/load instance table via mod storage
 -- load_all_instances
 
 local reloading = false
-if tutorial_version_stored
-    and tonumber(tutorial_version_stored) == tutorial_version then
+local tutorial_version_stored = tonumber(mstore:get("tutorial_exile_version"))
+if not tutorial_version_stored
+    or tutorial_version_stored < tutorial_version then
     print("RELOADING TUTORIAL STAGES")
-    reloading = true
-else
+    reloading = true -- tutorial's been updated, reload it and restart players
     mstore:set_string("exile_tutorial_version", tutorial_version)
 end
 
-local function reload_instances()
-    local counter = 0
-    repeat
-        counter = counter + 1
-        local inp = mstore:get("inst_"..tostring(counter))
-        if inp then
-            instance[counter] = core.deserialize(inp)
-            instance[counter].in_use = false
-            -- we restarted, nobody's logged in now
-            if reloading == true then
-                instance[counter].ready = 0 -- start all instances over
-                instance[counter].active = 0
-            end
-        else -- no more instances tracked
-            counter = -1
-        end
-    until counter < 0
-end
-reload_instances()
-
+local counter = 0
+repeat
+    counter = counter + 1
+    local inp = mstore:get("inst_"..tostring(counter))
+    if inp and reloading == false then
+        instance[counter] = core.deserialize(inp)
+        instance[counter].in_use = false
+        -- we restarted, nobody's logged in now
+    else -- no more instances tracked
+        counter = -1
+    end
+until counter < 0
 
 local function save_out(inst)
     local key = "inst_"..tostring(inst.number)
@@ -78,7 +70,7 @@ local function calc_offset(num)
     -- Positive direction only, ~256 tutorial spots seems like plenty
     return vector.new(
         2000 * ( num % 16 ),        -- X
-        9281,                       -- Y -- 9281 is a mapchunk boundary
+        9281,                       -- Y -- 9280 is a mapchunk boundary
         2000 * math.floor(num / 16) -- Z
     )
 end
@@ -99,6 +91,7 @@ local function add_stage(num, finish)
     local current = inst.ready + 1
     if stages[current] == nil then return end -- All done
     if finish and current == finish + 1 then
+        print("Finished add_stage on ",current, " vs ",finish)
         inst.in_use = false
         inst.active = 0
         return -- Reloaded a previous stage, set inactive
@@ -106,6 +99,7 @@ local function add_stage(num, finish)
     local anchor = vector.add(inst.offset, stages[current].location)
     loadschem(anchor, stages[current].schem)
     inst.ready = current
+    print("add_stage: Stage #",current," is ready")
     save_out(inst)
     minetest.after(delay, add_stage, num, finish)
 end
@@ -200,11 +194,10 @@ local function stage_init(pname, selected_stage)
             selected = i
             instance[i].in_use = true
             active = instance[i].active -- Don't reload past the last used stage
-            --break
+            break
         end
     end
-    if selected == 0 then -- didn't find an unused; create new
-        selected = #instance + 1
+    if selected == 0 then -- didn't find an unused; start anew
         instance[selected] = {
             in_use = true, active = 0, ready = 0, number = selected,
             offset = calc_offset(selected)
@@ -290,7 +283,9 @@ function stage.open(player) -- called when a player enters the tutorial
         if not i_num[pname] then
             stage_init(pname, tonumber(current_stage))
         end
-        clear(player)
+        if current_stage == 0 then
+            clear(player)
+        end
         enter_stage(player, pname, current_stage)
     end
 

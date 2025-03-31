@@ -114,7 +114,7 @@ local function restore_player(player)
     core.set_player_privs(name, pstore[name].privs)
     pstore[name].privs = nil
 
-    player_api.set_invisible(player, pstore[name].invis)
+    player_api.set_invisible(player, false)
     pstore[name].invis = nil
 
     meta:set_string("playtime_suspended", "")
