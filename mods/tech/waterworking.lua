@@ -486,7 +486,7 @@ minetest.register_node(
 crafting.register_recipe({
         type = {"carpentry_bench","axe"},
         output = "tech:wooden_watering_can",
-        items = {'group:log 2', 'tech:vegetable_oil'},
+        items = {'group:log 2'},
         level = 1,
         always_known = true,
 })

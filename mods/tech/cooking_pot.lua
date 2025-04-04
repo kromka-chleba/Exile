@@ -1287,15 +1287,15 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = {"axe"},
         output = "tech:food_bowl_wooden 3",
-        items = {"group:hard_wood", "tech:vegetable_oil 2"},
+        items = {"group:log"},
         level = 1,
         always_known = true,
 })
 -- more advanced crafting station
 crafting.register_recipe({
         type = {"carpentry_bench"},
-        output = "tech:food_bowl_wooden 5",
-        items = {"group:hard_wood", "tech:vegetable_oil 3"},
+        output = "tech:food_bowl_wooden 6",
+        items = {"group:log"},
         level = 1,
         always_known = true,
 })
