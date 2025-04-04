@@ -170,7 +170,7 @@ for i in ipairs(rock_list) do
                                paramtype = "light",
                                paramtype2 = "facedir",
                                groups = {cracky = hardness, falling_node = 1,
-                                         oddly_breakable_by_hand = 1,
+                                         oddly_breakable_by_hand = 3,
                                          boulder = 1},
                                selection_box = {
                                    type = "fixed",
