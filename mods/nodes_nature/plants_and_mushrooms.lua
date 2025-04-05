@@ -370,7 +370,7 @@ local plant_list = {
     {name = "damo", description = S("Damo"),
      mesh_type = 4, plant_type = "fibrous_plant", waving = true,
      dominant_color = "green", dye_candidate = true,
-     edible_seedling = true, seasonal_type = "whole_season_seedling"},
+     edible_seedling = true, seasonal_type = "long", dry_fruit = true},
 
     {name = "tashvish", description = S("Tashvish"),
      mesh_type = 4, dye_candidate = true,
