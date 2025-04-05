@@ -1,0 +1,10 @@
+# textdomain: tutorial_exile
+Welcome to Exile!=Willkommen bei Exile!
+Exile is an original game with unique mechanics@nthat may be unfamiliar to players of other voxel@ngames. It may be difficult to learn.=Exile ist ein Originalspiel mit einzigartiger Mechanik,@ndie Spielern anderer Voxelspiele ungewohnt erscheinen kann.
+Would you like to enter a tutorial mode@nto learn how to play the game?=Würden Sie den Tutorial-Modus betreten wollen,@num zu lernen wie man das Spiel spielt?
+Press the dig button to pick up or strike things.=Drücken Sie die Grabe-Taste, um Dinge aufzuheben oder zu schlagen.
+Press the place button to put things down.=Drücken Sie die Platzieren-Taste, um Dinge abzulegen.
+Press the use button to activate items and nodes.@n This is E by default on PC, AUX1 or sprint on mobile.=Drücken Sie die Nutze-Taste, um Gegenstände oder Blöcke zu aktivieren oder zu nutzen.@n Das ist normalerweise E auf einem PC, AUX1 oder Rennen auf mobilen Geräten.
+Press the zoom key to see the name of what you're looking at. @n This is Z by default on PC, and the binoculars or magnifying lens on mobile=Drücke die Zoom-Taste, um den Namen von dem zu sehen auf das Sie blicken.@n Das ist normalerweise Z auf dem PC und das Fernglas oder die Lupe auf mobilen Geräten.
+Double-tap sneak to crouch and get through small spaces.@n@nIf server lag makes this hard, you can use the /crouch command, or install exile_csm, theclient-side mod to handle controls locally=Drücken Sie Schleichen doppelt, um sich zu ducken und durch enge Bereiche zu kommen.@n@nFalls die Übertragsungsdauer zum Server dies erschwert, können Sie das Kommando /crouch verwenden oder exile_csm, einen Client-seitigen Mod, um die Bedienelemente lokal zu verarbeiten.
+Disabled in the tutorial=Im Tutorial deaktiviert
