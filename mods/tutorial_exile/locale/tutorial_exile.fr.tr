@@ -4,7 +4,7 @@ Exile is an original game with unique mechanics@nthat may be unfamiliar to playe
 Would you like to enter a tutorial mode@nto learn how to play the game?=Voulez-vous entrer dans un mode tutoriel@npour apprendre à jouer ?
 Press the dig button to pick up or strike things.=Utiliser la touche de minage (clic gauche) pour prendre des objets ou frapper.
 Press the place button to put things down.= 
-Press the use button to activate items and nodes.@n This is E by default on PC, AUX1 or sprint on mobile.=
+Press the use button to activate items and nodes.@n @n This is E by default on PC, AUX1 or sprint on mobile.=
 Press the zoom key to see the name of what you're looking at. @n This is Z by default on PC, and the binoculars or magnifying lens on mobile=
 Double-tap sneak to crouch and get through small spaces.@n@nIf server lag makes this hard, you can use the /crouch command, or install exile_csm, theclient-side mod to handle controls locally=
 Disabled in the tutorial=Désactiver le tutoriel
