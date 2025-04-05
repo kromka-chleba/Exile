@@ -2,29 +2,29 @@
 Select your gender=Wählen Sie Ihr Geschlecht
 Male=Mann
 Female=Frau
-Head=
-Upper=
-Lower=
-Footwear=
-Cape=
-Keeps you warm in bed=
-Unisex=
-Naked=
-(mild)=
-(moderate)=
-(severe)=
-(extreme)=
+Head=Kopf
+Upper=Oberteil
+Lower=Unterteil
+Footwear=Schuhwerk
+Cape=Umhang
+Keeps you warm in bed=Hält Sie im Bett warm
+Unisex=Unisex
+Naked=Nackt
+(mild)=(mild)
+(moderate)=(mäßig)
+(severe)=(schwer)
+(extreme)=(extrem)
 
 #cloths.lua
-Purple Stripe Summer T-shirt=
-Fresh Summer Denim Shorts=
-Common Black Shoes=
-Pink Bow=
-Classic Green Sweater=
-Fine Blue Pants=
+Purple Stripe Summer T-shirt=Violett gestreiftes Sommer-T-Shirt
+Fresh Summer Denim Shorts=Sommerliche Jeansshorts
+Common Black Shoes=Gewöhnliche schwarze Schuhe
+Pink Bow=Rosa Schleife
+Classic Green Sweater=Klassischer grüner Pullover
+Fine Blue Pants=Fine blaue Hose
 
-You can't equip a blanket outside of a bed.=
-
+You can't equip a blanket outside of a bed.=Man kann eine Decke nicht außerhalb eines Bettes nutzen.
+You already wear that!=Das tragen Sie bereits!
 # equip.lua
 Clothing=Kleidung
 Min Temperature Tolerance: @1=Min. Temperaturtoleranz: @1
