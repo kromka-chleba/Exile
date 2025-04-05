@@ -16,6 +16,9 @@ basalt cobble=Basaltfeldstein
 granite cobble=Granitfeldstein
 ironstone cobble=Eisensteinfeldstein
 jade cobble=Jadefeldstein
+coquina cobble=Coquinafeldstein
+fruit=Frucht
+seed=Samen
 #api.lua
 @1's @2=
 Any @1=@1, beliebig
