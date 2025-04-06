@@ -50,6 +50,8 @@ minetest.register_alias("tech:broken_pottery_block",
 --Changed in v4
 minetest.register_alias("tech:paint_scratching",
                         "tech:stone_etcher")
+minetest.register_alias("nodes_nature:damo",
+                        "nodes_nature:damo_fruitless")
 --Changes to v4 during v4 dev
 -- prior rzepicha root craftitems --> actual plant registration
 minetest.register_alias_force("nodes_nature:rzepicha_root","nodes_nature:rzepicha_fruitless")
