@@ -16,6 +16,7 @@ Please be aware: at a surface level Exile is similar to many other games. Howeve
 - Core Values & Goals
 - I Have an Idea for a Feature, What Should I Do?
 - Review and Critique
+- Are You New to the World of Free and Open Source?
 - Quality Standard
 - Places to Get Inspiration
 - Intended Audience
@@ -34,22 +35,22 @@ Please be aware: at a surface level Exile is similar to many other games. Howeve
 - Art Style
 - Controversial and Sensitive Subjects
 - Programming and Code
-- Module Directory
 
 
 
 ## Core Values & Goals
-- Exile's minimum core values are those which are necessary for Exile and Mintest's continued existence. As such, these values are not negotiable. To violate them is self-defeating. Exile will necessarily reflect these values in its design.
+- Exile's minimum core values are those which are necessary for Exile and Luanti's continued existence. As such, these values are not negotiable. To violate them is self-defeating. Exile will necessarily reflect these values in its design.
 
 ### *Exile is free and open source:*
-- The Free and Open Source software movements have a history. Minetest and Exile have emerged out of that history, and would not exist otherwise.
+- The Free and Open Source software movements have a history. Luanti and Exile have emerged out of that history, and would not exist otherwise.
 - Philosophically these movements contain and attract a lot things. At a minimum some core values to consider are freedom, community, and prioritizing the needs of the user.
 
 ### *Exile is created and played by diverse people from around the world:*
 - Acceptance and respect for that diversity is therefore non-negotiable. To do otherwise would be to reject the game's own creators and players.
 
 ### *The aim of Exile is to leave the player better off:*
-- People often use games for escapism from difficult situations (e.g. stress, trauma, disrupted home life, physical or mental illness etc). Exile was originally created to be a safe and positive place for that kind of escapism.
+- Exile's main contribution to people's lives is its capacity to encourage the mindset required to deal with truly difficult situations. Not every player will have this experience with Exile, but for the right person Exile is a meaningful experience in this regard.
+- People often use games for escapism from difficult situations (e.g. stress, trauma, disrupted home life, physical or mental illness etc). Exile was originally created to be a safe and positive place for that kind of escapism, while also encouraging the mindset required to overcome such situations.
 - Excessive escapism is unhealthy, and many commonly available methods of escapism are problematic (e.g. exploitative lootbox games). Destructive forms of escapism make people's lives worse during vulnerable situations. At a minimum Exile is intended to be a form of harm reduction - it's better than what the player might have been doing otherwise.
 - At its best Exile aims to be a life affirming activity e.g. promoting a sense of self-efficacy, endurance, and coping.
 - While you might not relate to the game in this very serious way, please remember, this was why the game was originally created. Well designed features will contribute towards this goal.
@@ -106,9 +107,19 @@ Bad process:
 - acts with pride and domination
 - confuses personal preference for good design
 
+## Are You New to the World of Free and Open Source?
+- You might experience some culture shock if you've only ever worked in top-down school or workplace environments. Here's some basic hints to get you started.
+- No one is "The Boss". No one can give you orders. You never need to beg for permission. You are always free to make what you like, to leave, and to even fork the entire project if you really want to.
+- While no one is "The Boss", you do need to coordinate and cooperate with other contributors. Some contributors are highly skilled in certain areas. Some contributors have historically played a major role in shaping Exile. Even casual players sometimes have unique insights. Welcome to the community. You'll get to know people.
+- People contribute to Exile for their own personal reasons. Their skills and interests vary widely. It's a good idea to respect that diversity.
+- Diverse people come up with diverse ideas. Consider applying the "Yes and..." rule of improv theatre. Accept and build on others ideas rather than shutting them down (unless they're violating core design elements).
+- Things often function as a "Do-ocracy". If you want something done, then do it. If you do something, then you are in charge of it.
+- Consider this Design Guide as setting the boundaries on a large playing field. Within that field you have creative freedom to create whatever you like. Everyone has agreed to play in the same space, and create something together.
+
 ## Quality Standard
 - Exile aims to reach a high standard, with the limitation that it's made by amateurs in their spare time for the joy of it.
 - The game might be eternally unfinished, and rough because of that, but hopefully never clumsy or badly done. New features naturally start out a bit rough. That's okay. But this is different from being sloppy or derivative.
+- Game balance can be a tricky thing in an evolving project. Sometimes new features break balance in the short term to achieve longer term aims. This is a signal to reestablish balance elsewhere, rather than freeze progress.
 - Make something you can be proud to share with the world. This is a place to experiment with things you might never get to do elsewhere.
 
 
@@ -174,6 +185,19 @@ Rather than only coming up with new mechanics, consider ways of deepening intera
 - Character + Dynamism = e.g ??? (meaning + new challenges = insight/revelation)
 - Dynamism + Dynamism = e.g. erupting lava gives warmth in Winter (new challenges + new challenges = chaos)
 
+### *Complexity Rather than Complicatedness:*
+- Sheer quantity of stuff tends to make a game confusing rather than good.
+- A limited set of content that behaves in interesting ways is far better than mere quantity.
+
+### *Pacing*
+- The tempo of the game will vary across time. You can see this as being a split between action and reflection. 
+- Short loop: e.g. Plan/rest/craft in a safe place -> explore/travel/gather out in the world -> return to saftey (reflection -> action -> reflection)
+- Seasonal loop: expansion and exploration during easier seasons -> constriction and retreat during harsh seasons. (action -> reflection)
+- Reflective phases are slower, and encourage thinking.
+- Action phases are faster, and implement whatever thoughts the player came up with while reflecting.
+- Action/Reflection also extends to the game itself. Correct pacing might go so far as to break regular gameplay or even encourage the player to stop playing. e.g. after a moment of serious success or failure the player would need to stop playing in order to reflect on their entire experience of Exile itself.
+
+
 ## Design Principles
 - These principles exist to serve as guides for what is and is not good fit.
 - A well designed feature should be consistent with these principles.
@@ -189,26 +213,26 @@ Rather than only coming up with new mechanics, consider ways of deepening intera
 - The skills required to succeed in the game should match the skills required to live well in general (e.g. setting priorities, self-knowledge, creativity, etc).  
 
 ### *Dark Souls Approach to Mental Wellbeing:*
-Dark Souls is famous for helping people overcome depression. This is achieved by elements such as:
-- High difficultly giving players a sense of accomplishment. The confrontation with the struggle, and learning to overcome can provide a sense of self-efficacy, which is a necessary part of good mental health.
+Dark Souls is famous for helping people overcome issues such as depression. This is achieved by elements such as:
+- High difficultly giving players a sense of accomplishment. The confrontation with the struggle, and learning to overcome builds a sense of self-efficacy. This sense that "I can make decisions. I can take action." is a core element of the mindset required for dealing with real world difficulties.
 - Beauty amidst pain and struggle. Not everything is bad or evil. In fact much remains wonderful, even in the darkest times.
-- Acceptance for failure and brokenness. Two of the biggest fears people have are rejection and failure. Exile starts out by rejecting you, after that you fail repeatedly. You can learn to accept and overcome these fears.
+- Acceptance for failure and tragedy. Two of the biggest fears people have are rejection and failure. Exile starts out by rejecting you, after that you fail repeatedly. You can learn to accept and overcome these fears.
 
 Compare this with games based on wish fulfilment. Success is easy, or everything is happy. This provides escapism, but only by contrasting with the difficulties of your real life. In Exile you are presented with problems worse than your real life, then you discover you can overcome them.
 
 ### *No Toxic Heroism or Excessive Wish-fulfilment:*
-Many games are built around the belief that people want to experience a god-like power fantasy of violent domination. Exile is not that game. This means: no Hero's Journey, no Chosen Ones, no singlehandedly saving the universe. You're character is a small thing in an overwhelming world of vast size and age.
+Many games are built around the belief that people want to experience a god-like power fantasy of violent domination. Exile is not that game. This means: no Hero's Journey, no Chosen Ones, no singlehandedly saving the universe. Your character is a small thing in an overwhelming world of vast size and age.
 - Thinking you are a god should backfire in this game. The entire world-story lore is about why pursuing power for power's sake might be a bad idea.
 - Exile is about growth via overcoming struggle, not "Strength" versus "Weakness".
 - Violence and domination probably are not the answer, or at least will have serious consequences.
-- Exile does not follow the "Prison Island" trope where hardened criminals fight to the death. Exile is about the tragedy of being outcast. Many of the characters did nothing meaningfully wrong.
+- Exile does not follow the "Prison Island" trope where hardened criminals fight to the death. Exile is about the tragedy of being outcast. Many of the characters did nothing meaningfully wrong, or may even have even done something right.
 - Player power is limited. The sense of accomplishment is measured by the difficulty of achieving the goal, not the size of the reward. e.g. compare a game quest that makes you King for massacring a few goblins, versus the feeling Exile gives you for finally making your first clay pot without dying.
 - Despite Exile leaving the player to survive alone, the fantasy of the rugged individual who can successfully do it alone should be shown to be problematic by just how often you end up dead, dying, or diseased.
 
 For more understanding of this perspective, read "The Carrier Bag Theory of Fiction" by Ursula K Le Guin. She makes this anti-heroism argument in an Exile relevant way.
 
 ### *Amor fati (love fate):*
-- Central to good mental health is learning to accept reality (e.g. as in mindfulness meditation).
+- Central to good mental health and good judgement is learning to accept reality (e.g. as in mindfulness meditation).
 - The game might not give you what you wanted, but perhaps you will discover things you didn't know you needed. You don't choose your hand, you choose how you play it. You must learn to accept who your character is, and their tragic fate.
 
 ### *Multiplayer Favours Cooperation Rather Than Conflict:*
@@ -221,13 +245,20 @@ For more understanding of this perspective, read "The Carrier Bag Theory of Fict
 ## Design Principles - Choice
 
 ### *Emphasis on Difficult Choices & Problem Solving:*
-- The player should be thinking more than mindlessly grinding. When the game drifts into mere grind it is drifting away from Exile's minimum core and will struggle to achieve any of its objectives.
+- The player should be making decisions more than mindlessly grinding. When the game drifts into mere grind it is drifting away from Exile's minimum core and will struggle to achieve any of its objectives.
+- Grind is not the same as persistence or patience.
+- Grind tends to be mindless. Grind often results from mechanics that universally reward a behaviour, while artificially slowing it down. e.g. casting a spell 10000 times to earn points to level up.
+- Persistence comes from deciding to commit to an ambitious goal. The player is making a decision, and might re-evaluate that decision.
+- Patience comes from not being able to get everything exactly when you want it. Patience also involves decisions (Is it worth the wait? Do I have other options?)
+- Think of choices like a multi-dimensional possibility space. Those dimensions include: high vs low risk, high vs low reward, travel vs staying put, short vs long term, etc. e.g. a player might face a choice between  staying put with low risk and low reward vs traveling with high risk and high reward. 
+- The best choices are between high contrast options, with unknown outcomes, and where solutions cannot be optimized or made habitual.
 
 ### *Choice-focused Realism:*
 - The game world should make you behave how you would in the real world.
 - Game content should be aim to be scientifically and historically accurate, but with the focus always on how the player interacts with that content. The player choices should be realistic.
 - This is not to be confused with pedantic realism. e.g. having 50 varieties of coal, to match every scientifically possible variety of coal.
 - In contrast to pedantic realism, choice-focused realism would emphasize the fact that coal is non-renewable, so compared with using wood you need to make different choices.
+- A game requires simplification. Therefore accuracy typically means avoiding obviously incorrect things more than getting every detail pedantically correct.
 
 ### *Choice Means the Freedom to Choose:*
 - Real ethical decision making requires confronting ethical ambiguity. That means no Black-n-White or simplistic Good vs Evil morality.
@@ -247,7 +278,7 @@ For more understanding of this perspective, read "The Carrier Bag Theory of Fict
 - Mastering survival and technology is never about levelling up it's about figuring out how the world works. Exile contains secrets to discover and problems to solve.
 
 ### *Appropriate Technology Choices:*
-- The player tries to choose the best technology for the situation, rather than grind up a linear tech tree.
+- The player tries to choose the best technology for the situation, rather than grind up a linear tech tree. Sometimes the best decision might actually be to abandon an "advanced" technology.
 - Naturally some items depend on simpler items, so progression does exist, but that progress is itself a choice.
 - Don't confuse this type of progression for the inbuilt levels many other games use (stone age -> bronze age -> etc).
 
@@ -284,13 +315,9 @@ Even when these relationships are negative towards the player this is not the sa
 ### *Support for Modding and Customization:*
 - You can't please everyone. Ideally the code should be set up in a way that makes it easy for people to create mods, modify, or adjust things.
 
-### *Complexity Rather than Complicatedness:*
-- Sheer quantity of stuff tends to make a game confusing rather than good.
-- A limited set of content that behaves in interesting ways is far better than mere quantity (refer to Core Design Elements section).
-
 ### *Accessibility:*
 Any one should be able to play this game if they want. That means:
-- Free and Open Source values (e.g. no price, source code available)
+- Free and Open Source values (e.g. free versions availabe, source code available)
 - able to run on low-end hardware
 - support for language translations when possible
 - support disabilities when possible
@@ -344,36 +371,7 @@ This resulted in great power, and a series of self-inflicted catastrophes. Each 
 
 The survivors were scattered, transporting themselves via The Gateways to various far off locations. The destruction of the city was an event so traumatic it has haunted every surviving culture for thousands of years.
 
-The Undercity and various ruins are what remains. Littered there are the remnants of the Ancient's attempts at ultimate power. They might have tried things such as:
-- Mining to the centre of the planet
-- Super tall skyscrapers
-- Teleportation
-- Weather control
-- Genetic engineering (including on humans)
-- Synthetic biology
-- Nanotechnology
-- Cyborg implants
-- Autonomous robots
-- Artificial Intelligence
-- Virtual reality
-- Mind uploading
-- Mind control and mind reading
-- Panopticon surveillance
-- Space elevators
-- Space colonization
-- terraforming
-- Nuclear power
-- Weapons of mass destruction
-- Total war
-- Totalitarianism
-- Eugenics
-- Mass slavery
-- Genocide
-- Irrational actions based on conspiracies, delusions, or fanaticism
-- Coups, Rebellions, and Civil War
-- and much more...
-
-Despite their destructiveness the Ancients would also have done many good things. The Ancient's society would have also included many varied factions resistant to the dominant ideology.
+The Undercity and various ruins are what remains. Littered there are the remnants of the Ancient's attempts at ultimate power. Despite their destructiveness the Ancients would also have done many good things. The Ancient's society would have also included many varied factions resistant to the dominant ideology.
 
 ### *Setting: Name of the Ancient's City*
 Currently this is based on corrupted versions of the word Ozymandias (from the poem by Percy Shelley).
@@ -398,8 +396,8 @@ While the mood is appropriate, it might not make much sense to explicitly identi
 
 ### *Setting: Non-exodus Cultures*
 - The Ancient's city in the game is just one city. A civilisation of this sophistication could have controlled an entire planet.
-- This particular city was the capital of an empire. Given their power hungry behaviour they kept most other societies in a weakened and subservient position. After the various planetary catastrophes and the disintegration of the empire these other societies have been focused on their own internal problems.
-- These societies have much better technology than exodus-cultures, but not as advanced as the empire that once ruled over them.
+- This particular city was the capital of an empire. Given their power hungry behaviour they kept most other societies in a weakened and subservient position.
+- These societies have much better technology than exodus-cultures, but have pursued a different course of development than the empire that once ruled over them. They are a messy but best-case scenario of what might emerge out of a planetary hyper-disaster. Think Solarpunk, rather than Mad Max.
 - These cultures do not exile people to the city. To them it is a place to avoid (comparable to the Chernobyl exclusion zone). The entire thing is a forbidden zone. Occasional adventurers might risk a visit. Some people may have tried to heal and remediate this location, and still be trying to do so, though they clearly have not succeeded.
 - Non-exodus cultures could plausibly show up in the game, but generally they stay as far away as possible.
 
@@ -415,13 +413,13 @@ The landscape of the game is the result of various interacting histories:
 - many centuries worth of exiles
 - the surrounding societies efforts to isolate, explore, or heal the area
 
-Character stories might find their conclusion in any one of these aspects. The most obvious is the possibility of getting out alive. e.g. by walking to the edge of the map, getting teleported back through the gateway, going into space (via a spaceship, or space elevator), etc. Many other story types could be possible using the other aspects e.g. joining adventurers, trying to heal the land etc.
+Player character stories will find their conclusion in some aspects of this lore, as they attempt to escape their exile alive.
 
 
 ### *Theme: Tragedy*
 The overarching story is tragedy. The Ancient's are a tragedy. Individual exiles are tragedies.
 
-The core of tragedy is an otherwise admirable person who has a flaw which brings about their downfall. It involves situations such as these:
+The core of tragedy is an otherwise admirable person who either has a flaw or lives in a flawed society which brings about their downfall. It involves situations such as these:
 - Pursuing the wrong thing in the right way.
 - Pursuing the right thing in the wrong way.
 - Pursuing one good thing by neglecting another good thing.
@@ -435,9 +433,9 @@ Exile is very close to being a post-apocalyptic story about crime and punishment
 - It's an interesting coincidence that at least one trauma focused form of psychotherapy (Internal Family Systems) refers to wounded parts of the self as "exiles", with the aim being to bring them home, accept and heal them.
 
 ## Map Context (Climate, Geology, Lifeforms):
-- The extreme climate is consistent with somewhere very far inland and continental, like Mongolia. Extreme seasonality suggests high latitudes, or a planet with an extremely tilted axis of rotation (or some similar effect).
+- The extreme climate is consistent with somewhere very far inland and continental, or high latitudes, or a planet with an extremely tilted axis of rotation (or some similar effect).
 - The sedimentary rock layers are based on places like Cape Kidnappers in New Zealand. These represent young rocks (a few million years old) laid down during periods of varying sea levels, then uplifted and eroded.
-- Highly erodible and porous rock full of caves would explain the lack of surface water - rainfall would quickly end up underground (as is typical in Karst landscapes), and accumulate where it hits impermeable rock.
+- In highly erodible and porous rock full of caves would rainfall would quickly end up underground (as is typical in Karst landscapes), and accumulate where it hits impermeable rock.
 - The hard rock layers represent a plausible basement rock of great age (10s to 100s of million years old).
 - Geologically speaking, the map is consistent with an area that was once an inland sea, which has been uplifted leaving behind only salt lakes. But, given the Ancient's love of megaprojects who knows what might have been done to this landscape.
 - The volcanoes suggest the area has become a volcanic field after the Undercity was built, or is even starting to undergo catastrophic Flood Basalt volcanism (the kind associated with mass extinctions) which would one day bury the entire landscape under several kilometres of basalt.
@@ -446,9 +444,10 @@ Exile is very close to being a post-apocalyptic story about crime and punishment
 
 ## Map Areas
 - Surface World: the ordinary wilderness. Harsh to the unwise, abundant to the experienced. A few signs of prior habitation might be found, but it is mostly wild.
-- Ancient City: A mysterious, awe inspiring and dangerous place. Should feel like *The Zone* from *Roadside Picnic* by the Strugatsky brothers, or like Chernobyl if explored by a cave man, or like the underground machine city of the film *The Forbidden Planet*. This is a place of high risks and high rewards, of follies and greed, of madness, of darkness, and of grandeur. Enter at your own risk.
+- Ancient City: A mysterious, awe inspiring and dangerous place. Should feel like *The Zone* from *Roadside Picnic* by the Strugatsky brothers, or like Chernobyl if explored by a cave man, or like the underground machine city of the film *The Forbidden Planet*. This is a place of high risks and high rewards, of follies and greed, of madness, of darkness, and of grandeur. Enter at your own risk. A model for the undercity would be contemporary megaprojects, such as Neom in Saudi Arabia.
 - Deep Underground: Extremely hot. The map gets deep enough to reach the edge of the Earth's mantle (although this planet could differ).
 - High Altitude: Very cold. High enough to reach the edge of  Earth's atmosphere, but not space proper (although this planet could differ).
+- Exile has capacity for numerous different realms if desired. Each one should be an encounter with a different aspect of reality e.g. surface = nature. Undercity = society.
 
 
 ## Biomes
@@ -575,7 +574,7 @@ Other:
 - Try to match any art with the existing art.
 - Most textures are 16x16 pixels.
 - Complex shapes are typically done with nodeboxes rather than models.
-- The intended artistic vibe might be described as "moody", but this is very subjective.
+- The intended artistic vibe might be described as "moody". To understand the original developper's artisitic sensibility consider the chiaroscuro effect (light vs dark) in Caravaggio, or the feeling of the sublime in Caspar David Friedrich, or the sense of scale in Chinese landscape painting.
 
 Biomes typically follow a color scheme (more or less), with one dominant color, and perhaps one or two minor colors.
 For example...
@@ -668,7 +667,7 @@ Many any other subjects might arise, and need more careful attention one day. e.
 
 ## Programming and Code
 
-### *How to Create Content in Minetest:*
+### *How to Create Content in Luanti:*
 Refer to [Rubenwardy's modding book for a guide](https://rubenwardy.com/minetest_modding_book/en/index.html)
 
 ### *How to Contribute:*
@@ -680,7 +679,7 @@ Refer to [Rubenwardy's modding book for a guide](https://rubenwardy.com/minetest
 
 ### *Hardware Requirements:*
 - Ideally Exile should be playable of low end computers. As a free game many people are here because they do not have access to expensive equipment.
-- However, Exile also contains some ambitious features which does make it heavier than some other Minetest games.
+- However, Exile also contains some ambitious features which does make it heavier than some other Luanti games.
 - Each new addition puts a burden on performance, maintenance, and potentially on player ease of use. We can't add everything. Much of the performance budget has already been spent, or will be needed for future essential content. Don't Blow the Budget!
 - Efficiency and performance improvements are greatly appreciated.
 
