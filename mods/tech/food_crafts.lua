@@ -471,12 +471,12 @@ local function get_dough_on_timer(chance)
 end
 
 local function dough_preserve_metadata(pos, oldnode, oldmeta, drops)
-    local meta = minetest.get_meta(pos)
-    if meta:get_int("ferment") == 0 then return end
-    if meta:get_string('description') == "" then
-      meta:set_string('description',S("Fermenting @1",drops[1]:get_description()))
-    end
-    ncrafting.ferment_preserve_metadata(pos, oldnode, meta, drops[1])
+    oldmeta = oldmeta or {} -- purify
+    if not oldmeta.ferment then return end -- not fermenting
+    oldmeta.baking = nil -- remove baking value
+    -- set description if not set
+    oldmeta.description = oldmeta.description or S("Fermenting @1",drops[1]:get_description())
+    ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, drops[1])
 end
 
 local dough_after_place_node = function(pos, placer, itemstack, pointed_thing)

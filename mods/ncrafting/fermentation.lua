@@ -75,14 +75,21 @@ function ncrafting.ferment_on_construct(pos)
 end
 
 -- custom function that preserves metadata from a replaced node to an itemstack
+
+-- luanti engine confusingly has meta fields be 'oldmeta'
+-- which I didn't realize until way after making this function - TPH
 function ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta,
                                              transferred_stack)
     local imeta = transferred_stack:get_meta()
-    oldmeta = oldmeta:to_table() or {fields={},inventory={}}
-    oldmeta.fields.ferment =
-        ncrafting.get_or_create_ferment(transferred_stack,oldmeta)
-    imeta:from_table(oldmeta)
-    --imeta:set_int("ferment",ncrafting.get_or_create_ferment(transferred_stack,imeta))
+    -- oldmeta will be fields, if not, it's probably an actual meta (as per old usage)
+    if type(oldmeta) ~= "table" then
+        oldmeta = minimal.is_meta(oldmeta) and oldmeta -- if meta
+        oldmeta = oldmeta and oldmeta:to_table() -- to_table() can return nil sometimes
+        oldmeta = oldmeta and oldmeta.fields or {} -- create an empty table on failure
+    end
+    oldmeta = oldmeta.fields or oldmeta -- prefer fields
+    oldmeta.ferment = oldmeta.ferment or ncrafting.get_or_create_ferment(transferred_stack)
+    imeta:from_table({fields=oldmeta})
 end
 
 function ncrafting.ferment_on_timer(pos, elapsed)
