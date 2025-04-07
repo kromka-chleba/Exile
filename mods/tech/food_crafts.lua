@@ -480,10 +480,12 @@ local function dough_preserve_metadata(pos, oldnode, oldmeta, drops)
 end
 
 local dough_after_place_node = function(pos, placer, itemstack, pointed_thing)
+    local sdata = itemstack:get_meta()
+    sdata = sdata:to_table() or {fields={}}
     -- not fermenting, return
-    if itemstack:get_meta():get_int("ferment") == 0 then return end
+    if not sdata.fields.ferment then return end
     -- we're fermenting, run ferment after_place
-    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
+    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, sdata)
 end
 
 local dough_infection = function(player, pos, nodedef, itemstack, idef)

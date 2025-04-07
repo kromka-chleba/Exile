@@ -56,14 +56,18 @@ function ncrafting.get_or_create_ferment(name,meta)
     return ferment
 end
 
---set saved
-function ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
-    local meta = minetest.get_meta(pos)
-    local stack_meta = itemstack:get_meta()
-    stack_meta = stack_meta:to_table() or {fields={},inventory={}}
-    stack_meta.fields.ferment = ncrafting.get_or_create_ferment(
-        itemstack,stack_meta)
-    meta:from_table(stack_meta)
+-- transfer meta from stack to node
+-- permit stack data (to_table of stack meta or is stack meta) and node meta arguments (sdata, nmeta)
+function ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, sdata, nmeta)
+    nmeta = nmeta or core.get_meta(pos)
+    -- not an adequate stack data table
+    if type(sdata) ~= "table" or not sdata.fields then
+        sdata = minimal.is_meta(sdata) and sdata or itemstack:get_meta()
+        sdata = sdata:to_table() or {fields={}}
+    end
+    -- create ferment if none, update node meta
+    sdata.fields.ferment = sdata.fields.ferment or ncrafting.get_or_create_ferment(itemstack)
+    nmeta:from_table(sdata)
 end
 
 function ncrafting.ferment_on_construct(pos)
@@ -85,7 +89,7 @@ function ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta,
     if type(oldmeta) ~= "table" then
         oldmeta = minimal.is_meta(oldmeta) and oldmeta -- if meta
         oldmeta = oldmeta and oldmeta:to_table() -- to_table() can return nil sometimes
-        oldmeta = oldmeta and oldmeta.fields or {} -- create an empty table on failure
+        oldmeta = oldmeta or {} -- create an empty table on failure
     end
     oldmeta = oldmeta.fields or oldmeta -- prefer fields
     oldmeta.ferment = oldmeta.ferment or ncrafting.get_or_create_ferment(transferred_stack)
