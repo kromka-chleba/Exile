@@ -149,3 +149,112 @@ function ncrafting.ferment_on_timer(pos, elapsed)
     end
     return true
 end
+
+-- bread unique
+-------------------------------------------------------------------
+
+-- TODO: better system for fermentation + baking mechanics
+-- returns function to set on_timer with
+function ncrafting.dough_get_on_timer(chance)
+    chance = chance or 0.01 -- provided chance or 1%
+    -- provide function return to run
+    return function(pos, elapsed, ch) -- ch is chance override
+        local node = core.get_node(pos)
+        local meta = core.get_meta(pos)
+        -- unleavened bread baking mechanics
+        local baking_data = HEALTH.bake_table[node.name] -- check if we can bake
+        local temp -- declare here to reuse in later if statement
+        if baking_data then
+            temp = climate.get_point_temp(pos)
+            -- we're actually cooking! (natural temps can't go over 70 anyways)
+            if temp >= 70 then
+                if not meta:contains("baking") then
+                    -- remove any fermentation
+                    local metat = meta:to_table() or {}
+                    -- and add baking int to the cleared fields
+                    metat.fields = {baking = baking_data.time}
+                    meta:from_table(metat)
+                    -- reset timer to be cooking
+                    core.get_node_timer(pos):start(ncrafting.cook_rate)
+                    return false
+                end
+            end
+        end
+        -- WE BAKING!! (if we can bake)
+        if baking_data and meta:contains("baking") then
+            return ncrafting.do_bake(pos, elapsed,
+                                 baking_data.temp, baking_data.time,
+                                 baking_data.cooked, baking_data.burned)
+        end
+
+        ch = (ch and ch < 1.01) or chance -- third paramter "timeout" is added to node timers as of around 5.12
+        if meta:get_int("ferment") ~= 0 then -- we're fermentin'
+            -- we're done fermenting!
+            if not ncrafting.ferment_on_timer(pos, elapsed) then
+                node = core.get_node(pos) -- we're a new node now
+                local metat = meta:to_table()
+                metat.fields = {}
+                -- set baking data if we're a bakeable
+                baking_data = HEALTH.bake_table[node.name]
+                if baking_data then
+                  metat.fields.baking = baking_data.time
+                end
+                meta = meta:from_table(metat)
+                node.param2 = 1 -- set param2 to 1 for "fresh batch"
+                cpre.swap_node(pos,node)
+                return false
+            end
+            -- otherwise continue fermenting
+            return true
+        -- let's try fermenting
+        elseif math.random() <= chance then
+            -- check for temp_range first before trying to ferment
+            local nodedef = minetest.registered_nodes[node.name]
+            local temp_range = nodedef._ferment_temp_range
+            if temp_range then
+                local temp = temp or climate.get_point_temp(pos)
+                if temp <= temp_range.min or temp >= temp_range.max then
+                    -- loop again if conditions not right
+                    return true
+                end
+            end
+            -- chance and temp successful, ferment!
+            ncrafting.ferment_on_construct(pos)
+            return false
+        end
+        -- check again later (40sec to 85sec)
+        core.get_node_timer(pos):start(math.random(40,85))
+        return false
+    end
+end
+
+function ncrafting.dough_infection(player, pos, nodedef, itemstack, idef)
+    idef = idef or itemstack and itemstack:get_definition()
+    if not (idef and idef.groups and idef.groups.infect_dough) then return end
+    local meta = core.get_meta(pos)
+    if meta:contains("ferment") then return end -- already infected
+    -- successful infection
+    ncrafting.ferment_on_construct(pos)
+    return true
+end
+
+-- dough placement functions
+function ncrafting.dough_preserve_metadata(pos, oldnode, oldmeta, drops)
+    oldmeta = oldmeta or {} -- purify
+    if not oldmeta.ferment then return end -- not fermenting
+    oldmeta.baking = nil -- remove baking value
+    -- set description if not set
+    oldmeta.description = oldmeta.description or S("Fermenting @1",drops[1]:get_description())
+    ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, drops[1])
+end
+
+function ncrafting.dough_after_place_node(pos, placer, itemstack, pointed_thing)
+    local sdata = itemstack:get_meta()
+    sdata = sdata:to_table() or {fields={}}
+    -- not fermenting, return
+    if not sdata.fields.ferment then return end
+    -- we're fermenting, run ferment after_place
+    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, sdata)
+end
+
+
