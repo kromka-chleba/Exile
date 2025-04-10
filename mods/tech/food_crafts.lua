@@ -398,7 +398,7 @@ local dough_yeast_temp_range = {min=15, max=40}
 local get_dough_on_timer = ncrafting.dough_get_on_timer -- params; chance
 local dough_infection = ncrafting.dough_infection -- params; player, pos, nodedef, itemstack, idef
 local dough_preserve_metadata = ncrafting.dough_preserve_metadata -- params; pos, oldnode, oldmeta, drops
-local dough_after_place_node -- params; pos, placer, itemstack, pointed_thing
+local dough_after_place_node = ncrafting.dough_after_place_node -- params; pos, placer, itemstack, pointed_thing
 
 minetest.register_node(
     "tech:maraka_dough",  {
@@ -541,28 +541,7 @@ ncrafting.register_spreadable_microbe("yeast_dough",{
 
 ---- FERMENTED DOUGHS
 
-local function ferm_dough_preserve_metadata(pos, oldnode, oldmeta, drops)
-    -- can't get yeast from this, not a fresh batch
-    if not oldnode then return end
-    if oldnode.param2 ~= 1 then return end
-    local nodedef = minetest.registered_nodes[oldnode.name]
-    local get_microbes = nodedef.breads_get_microbes or
-      function()
-          return math.random(1,3)
-      end
-    -- get fresh batch catchable microbes
-    local microbes = get_microbes(pos, oldnode, nodedef)
-    if not microbes then return end
-    microbes = type(microbes) ~= "table" and {microbes}
-    for _,item in pairs(microbes) do
-        if type(item) == "number" then
-            item = "tech:yeast_dough "..item
-        end
-        if type(item) == "string" then
-          drops[#drops + 1] = item
-        end
-    end
-end
+local ferm_dough_preserve_metadata = ncrafting.dough_fermented_preserve_metadata -- params; pos, oldnode, oldmeta, drops
 
 minetest.register_node(
     "tech:maraka_dough_fermented",  {

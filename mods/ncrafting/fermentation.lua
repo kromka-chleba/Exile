@@ -201,7 +201,7 @@ function ncrafting.dough_get_on_timer(chance)
                 end
                 meta = meta:from_table(metat)
                 node.param2 = 1 -- set param2 to 1 for "fresh batch"
-                cpre.swap_node(pos,node)
+                core.swap_node(pos,node)
                 return false
             end
             -- otherwise continue fermenting
@@ -255,6 +255,31 @@ function ncrafting.dough_after_place_node(pos, placer, itemstack, pointed_thing)
     if not sdata.fields.ferment then return end
     -- we're fermenting, run ferment after_place
     ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, sdata)
+end
+
+-- fermented dough functionality
+
+function ncrafting.dough_fermented_preserve_metadata(pos, oldnode, oldmeta, drops)
+    -- can't get yeast from this, not a fresh batch
+    if not oldnode then return end
+    if oldnode.param2 ~= 1 then return end
+    local nodedef = minetest.registered_nodes[oldnode.name]
+    local get_microbes = nodedef.breads_get_microbes or
+      function()
+          return math.random(1,3)
+      end
+    -- get fresh batch catchable microbes
+    local microbes = get_microbes(pos, oldnode, nodedef)
+    if not microbes then return end
+    microbes = type(microbes) ~= "table" and {microbes}
+    for _,item in ipairs(microbes) do
+        if type(item) == "number" then
+            item = "tech:yeast_dough "..item
+        end
+        if type(item) == "string" then
+            drops[#drops + 1] = item
+        end
+    end
 end
 
 
