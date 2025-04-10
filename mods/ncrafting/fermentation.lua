@@ -63,11 +63,12 @@ function ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, sd
     -- not an adequate stack data table
     if type(sdata) ~= "table" or not sdata.fields then
         sdata = minimal.is_meta(sdata) and sdata or itemstack:get_meta()
-        sdata = sdata:to_table() or {fields={}}
+        sdata = sdata:to_table() or {}
     end
+    sdata = sdata.fields or sdata -- prefer fields
     -- create ferment if none, update node meta
-    sdata.fields.ferment = sdata.fields.ferment or ncrafting.get_or_create_ferment(itemstack)
-    nmeta:from_table(sdata)
+    sdata.ferment = sdata.ferment or ncrafting.get_or_create_ferment(itemstack)
+    nmeta:from_table({fields=sdata})
 end
 
 function ncrafting.ferment_on_construct(pos)
