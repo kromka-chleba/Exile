@@ -411,9 +411,8 @@ local function get_dough_on_timer(chance)
                 if not meta:contains("baking") then
                     -- remove any fermentation
                     local metat = meta:to_table() or {}
-                    metat.fields = {}
-                    -- add baking int
-                    metat.fields.baking = baking_data.time
+                    -- and add baking int to the cleared fields
+                    metat.fields = {baking = baking_data.time}
                     meta:from_table(metat)
                     -- reset timer to be cooking
                     minetest.get_node_timer(pos):start(ncrafting.cook_rate)
@@ -428,11 +427,11 @@ local function get_dough_on_timer(chance)
                                  baking_data.cooked, baking_data.burned)
         end
 
-        ch = ch or chance
+        ch = (ch and ch < 1.01) or chance -- third paramter "timeout" is added to node timers as of around 5.12
         if meta:get_int("ferment") ~= 0 then -- we're fermentin'
             -- we're done fermenting!
             if not ncrafting.ferment_on_timer(pos, elapsed) then
-                node = minetest.get_node(pos)
+                node = minetest.get_node(pos) -- we're a new node now
                 local metat = meta:to_table()
                 metat.fields = {}
                 -- set baking data if we're a bakeable
@@ -460,7 +459,6 @@ local function get_dough_on_timer(chance)
                 end
             end
             -- chance and temp successful, ferment!
-            ncrafting.get_or_create_ferment(pos,meta)
             ncrafting.ferment_on_construct(pos)
             return false
         end

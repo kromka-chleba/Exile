@@ -40,18 +40,23 @@ end
 
 -- find ferment or create a ferment meta
 function ncrafting.get_or_create_ferment(name,meta)
-    local ferment = type(meta) == "userdata" and meta:get_int("ferment")
-        or type(meta) == "table" and type(meta.fields) == "table"
-        and meta.fields.ferment
-        or 0
-    if (ferment == 0) then
-        ferment = random(300,360) -- base to return if error
+    -- prefer getting our info from a table, ideally fields
+    -- if not, get_int from a meta
+    local ferment = type(meta) == "table" and (type(meta.fields) == "table" and meta.fields.ferment or meta.ferment) or
+      minimal.is_meta(meta) and meta:get_int("ferment")
+    -- tonumber what we got, otherwise do 0 (call tonumber if ferment was something)
+    ferment = ferment and tonumber(ferment) or 0 -- sometimes they can be string
+    if ferment == 0 then
+        -- base ferment is 300,360
         local ferment_data = ncrafting.get_ferment_data(name)
-        if not ferment_data then return ferment end
+        if not ferment_data then return random(300,360) end
+        -- use a singular type of number for randomization
         ferment = type(ferment_data.time) == "number" and ferment_data.time
+            -- permit randomization if min and max provided
             or type(ferment_data.time) == "table"
             and random(ferment_data.time.min,ferment_data.time.max)
-            or ferment
+            -- couldn't get a proper time, do base ferment randomization
+            or random(300,360)
     end
     return ferment
 end
