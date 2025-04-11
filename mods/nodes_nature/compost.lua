@@ -1,8 +1,12 @@
 -- Compost
 
+local mod_name = core.get_current_modname()
+
 nodes_nature = nodes_nature
+tgcr = tgcr
 local nn = nodes_nature
 local sediment = nn.sediment
+local c = nn.replacement_types
 
 -- Internationalization
 local S = nodes_nature.S
@@ -118,6 +122,7 @@ local base_undecomposed_compost = {
         restore_from_inventory(pos, itemstack)
     end
 }
+
 local base_compost = {
     name = "compost",
     description = S("Compost"),
@@ -140,9 +145,15 @@ local base_compost = {
     end,
     _dig_tip = S("Fertilize soil"),
 }
+
 -- so lazy that I'd rather somewhat badly automate it
 -- decomposed compost
 for i = 1, 4 do
+    -- Another coder here, I believe "i" values mean this:
+    -- 1, 3 - dry
+    -- 2, 4 - wet
+    -- 1, 2 - normal node
+    -- 3, 4 - slab
     local reg_compost = table.copy(base_compost)
     local name = reg_compost.name
     -- wet definitions
@@ -152,6 +163,7 @@ for i = 1, 4 do
         reg_compost.description = S("Wet Compost")
         reg_compost.sounds = sediment.sounds.dirt_wet
         reg_compost.groups.compost = 2
+        reg_compost.groups.wet_sediment = 1
 
         reg_compost._dig_tip = S("Fertilize and soak soil")
         reg_compost.on_use = function(itemstack, user, pointed_thing)
@@ -204,12 +216,13 @@ for i = 1, 4 do
         reg_compost.description = S("Wet Undecomposed Compost")
         reg_compost.sounds = sediment.sounds.dirt_wet
         reg_compost.groups.undecomposed_compost = 2
+        reg_compost.groups.wet_sediment = 1
         -- no other use for undecomposed_compost, let's consider number 2 wet
     end
 
     reg_compost.name = "nodes_nature:"..name
     if i <= 2 then
-        minetest.register_node(reg_compost.name,reg_compost)
+        minetest.register_node(reg_compost.name, reg_compost)
     else
         stairs.register_slab(
             name,
@@ -232,6 +245,19 @@ for i = 1, 4 do
                 after_place_node = reg_compost.after_place_node,
         })
     end
+end
+
+for _, u in ipairs({"", "_undecomposed"}) do
+    local base = "compost"..u
+    local base_wet = base.."_wet"
+    local dry = mod_name..":"..base
+    local wet = mod_name..":"..base_wet
+    local slab_dry = "stairs:slab_"..base
+    local slab_wet = "stairs:slab_"..base_wet
+    tgcr.delayed_register_replacement(dry, wet, c.REPLACEMENT_WET)
+    tgcr.delayed_register_replacement(wet, dry, c.REPLACEMENT_DRY)
+    tgcr.delayed_register_replacement(slab_dry, slab_wet, c.REPLACEMENT_WET)
+    tgcr.delayed_register_replacement(slab_wet, slab_dry, c.REPLACEMENT_DRY)
 end
 
 -- check roots

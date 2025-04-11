@@ -133,3 +133,23 @@ end
     tgcr.constants.REPLACEMENT_AGRICULTURAL = "agricultural"
 --]]
 
+
+local delayed_args = {}
+
+-- Does the same thing as 'tgcr.register_replacement' but the
+-- execution happens after all mods got loaded
+function tgcr.delayed_register_replacement(source_node_name, target_node_name,
+                                           replacement_kind, activation_source_name)
+    table.insert(delayed_args, {
+                     source_node_name,
+                     target_node_name,
+                     replacement_kind,
+                     activation_source_name
+    })
+end
+
+minetest.register_on_mods_loaded(function()
+        for _, arg in ipairs(delayed_args) do
+            tgcr.register_replacement(arg[1], arg[2], arg[3], arg[4])
+        end
+end)
