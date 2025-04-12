@@ -9,10 +9,6 @@ sfinv = sfinv
 
 local creative_mode_cache = minetest.settings:get_bool("creative_mode")
 
-function creative.is_enabled_for(name)
-    return minimal.player_in_creative(name)
-end
-
 -- the strong hands you get from being in creative
 do
     -- Dig time is modified according to difference (leveldiff) between tool
@@ -127,18 +123,18 @@ dofile(minetest.get_modpath("creative") .. "/inventory.lua")
 -- Unlimited node placement
 minetest.register_on_placenode(function(pos, newnode, placer,
                                         oldnode, itemstack)
-        if placer and placer:is_player() then
-            return creative.is_enabled_for(placer:get_player_name())
-        end
+    if not core.is_player(placer) then return end
+    return minimal.player_in_creative(placer)
 end)
 
 -- Don't pick up if the item is already in the inventory
 local old_handle_node_drops = minetest.handle_node_drops
 function minetest.handle_node_drops(pos, drops, digger)
-    if not digger or not digger:is_player() or
-        not creative.is_enabled_for(digger:get_player_name()) then
+    -- not a player or not in creative
+    if not core.is_player(digger) or not minimal.player_in_creative(digger) then
         return old_handle_node_drops(pos, drops, digger)
     end
+    -- we're in CREATIVE BABYYYYYY
     local inv = digger:get_inventory()
     if inv then
         for _, item in ipairs(drops) do
