@@ -102,15 +102,11 @@ function HEALTH.set_default_attributes(player, meta)
     local attrb = HEALTH.get_default_attributes()
     player:set_hp(attrb.health)
     for name,value in pairs(attrb) do
-        if (type(name) ~= "string") then
-            name = tostring(name)
-        end
-        if (type(value) == "number" and name ~= "health") then
-            -- don't try to set an int for health
-
-            value = math.ceil(value)
-            meta:set_int(name,value)
-        elseif (type(value) == "string") then
+        name = type(name) ~= "string" and tostring(name) or name
+        -- don't try to set an int for health
+        if type(value) == "number" and name ~= "health" then
+            HEALTH.set_int(player, meta, name, value) -- utilize HEALTH's function to run stat_changed
+        elseif type(value) == "string" then
             meta:set_string(name,value)
         end
     end
