@@ -66,7 +66,7 @@ minetest.register_on_joinplayer(function(player)
     end
 
     local pinv = player:get_inventory()
-    pinv:set_size("hand", 1)
+    pinv:set_size("hand", 2)
     -- create the "clothes" inventories if needed
     -- also amange migrations issues
     player_api.set_cloths(player) -- init and migrates inv if needed
