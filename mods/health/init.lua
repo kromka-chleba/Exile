@@ -89,7 +89,10 @@ function HEALTH.get_default_attributes()
         move = 0,
         jump = 0,
 
-        --no clothing temperature comfort zone
+        -- Note: maybe use  "comfort_temp" name not "clothing-temp"
+        -- to make it clear this doesn't depend on clothing system
+        -- I didn't do the rename because fear for migration issues
+        --temperature comfort zone for folk without clothing
         clothing_temp_min = 18, -- 20
         clothing_temp_max = 32, -- 30
     }
@@ -156,22 +159,18 @@ function HEALTH.set_meta_stats(player, stats, meta)
     if not (type(stats) == "table" and stats.thirst) then
         error("HEALTH.set_meta_stats: no stats or improper stats given, lacks 'thirst' field and got type '"..type(stats).."'")
     end
-    meta:set_int("thirst", stats.thirst)
-    meta:set_int("hunger", stats.hunger)
-    meta:set_int("energy", stats.energy)
-    meta:set_int("temperature", stats.temperature)
-    meta:set_int("heal_rate", stats.heal_rate)
-    meta:set_int("thirst_rate", stats.thirst_rate)
-    meta:set_int("hunger_rate", stats.hunger_rate)
-    meta:set_int("recovery_rate", stats.recovery_rate)
-    meta:set_int("lives", stats.lives)
-    meta:set_int("move", stats.move)
-    meta:set_int("jump", stats.jump)
-    -- Note: maybe use  "comfort_temp" name not "clothing-temp"
-    -- to make it clear this doesn't depend on clothing system
-    -- I didn't do the rename because fear for migration issues
-    meta:set_int("clothing_temp_min", stats.clothing_temp_min)
-    meta:set_int("clothing_temp_max", stats.clothing_temp_max)
+    local reference = HEALTH.get_default_attributes() -- use to figure out what we should add and what not to add
+    for stat,val in pairs(stats) do
+        -- don't set health, but we can set everything else
+        -- for as long as it's in our reference
+        if stat ~= "health" and reference[stat] then
+            if type(val) == "number" then
+                HEALTH.set_int(player, meta, stat, val)
+            elseif type(val) == "string" then
+                meta:set_string(stat, val)
+            end
+        end
+    end
 end
 
 -- returns player's health stats - meta argument is optional
@@ -191,10 +190,12 @@ function HEALTH.set_player_stats(player, stats, meta)
         error("HEALTH.set_player_stats: not given an active player")
     end
     meta = is_meta(meta) and meta or player:get_meta()
-    if not (type(stats) == "table" and stats.thirst) then
-        error("HEALTH.set_player_stats: no stats or improper stats given, lacks 'thirst' field and got type '"..type(stats).."'")
+    if type(stats) ~= "table" then
+        error("HEALTH.set_player_stats: no stats or improper stats given, got type '"..type(stats).."'")
     end
-    player:set_hp(stats.health)
+    if stats.health and type(stats.health) == "number" then
+        player:set_hp(stats.health)
+    end
     HEALTH.set_meta_stats(player, stats, meta)
 end
 
