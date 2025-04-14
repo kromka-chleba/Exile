@@ -381,6 +381,7 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
               local meta = core.get_meta(pos)
               local eat_value = meta:get_string("eat_value")
               meta:set_string("eat_value","") -- clear as we're consuming
+              meta:set_string("description","") -- clear description
               -- transfer eat_value to ediblestack
               local imeta = ediblestack:get_meta()
               imeta:set_string("eat_value",eat_value)
