@@ -84,13 +84,13 @@ end
     but I think actual craft doesn't use it and is called with inv list
     (#TODO : maybe improve that point, reuniting display and craft process)
     ]]
-function crafting.get_item_hash(pInv, inv_list)
-    if type(inv_list) ~= 'table' then
-        inv_list = {inv_list}
+function crafting.get_item_hash(pInv, inv_lists)
+    if type(inv_lists) ~= 'table' then
+        inv_lists = {inv_lists}
     end
     -- build player items hash
     local item_hash = {}
-    for _,inv_name in ipairs(inv_list) do
+    for _,inv_name in ipairs(inv_lists) do
         if pInv:get_size(inv_name) > 0 then
             crafting.set_item_hashes_from_list(pInv, inv_name, item_hash)
         end
@@ -464,7 +464,8 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     if warn then minimal.warn_inv_full(player) end
     -- get a crafting sound
     local sound = recipe.sound
-    sound = sound or sound ~= false and crafting.sounds[ctype] or nil
+    -- #TODO investigate next line
+    sound = sound or sound ~= false and crafting.get_type(ctype).sound
     if sound then
         minimal.sound_play(minimal.merge_tables(sound, {pos = pos}))
     end

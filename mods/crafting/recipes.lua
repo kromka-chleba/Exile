@@ -1,244 +1,338 @@
 local crafting = crafting
+local S = core.get_translator("crafting")
 
---TYPES and RECIPES registrations and calls ------------------------------------
+-- check craftable states , get details of recipes per player and itemhash -----
+--------------------------------------------------------------------------------
 
-local recipes_by_id = {}
-local recipes_by_output = {}
+-- Items level -----------------------------------------------------------------
 
---[[register craft types (used for stations and tabs):
-    *name : the name of the type
-    *label : what will be displayed in game (tab) and translated
-    *icon_item_name : for image tab
-    *sound
-]]
-function crafting.register_type(name, label, icon_item_name, sound)
-    crafting.recipes[name] = {}
-    -- add a label for tabs - default to the name
-    crafting.tab_labels[name] = (label or name)
-    crafting.icon_item_name[name] = icon_item_name
-    -- set up sound mechanism
-    sound = type(sound) == "string" and {name = sound} or type(sound) == "table" and sound
-    if sound and type(sound.name) == "string" then
-        sound.max_hear_distance = sound.max_hear_distance or 10
-        crafting.sounds[name] = sound
-    end
-end
-
---[[register recipe using `def` table with following fields:
-    * `id`           - ID of recipe, in order of registration'
-    * `type`         - one of the registered types.
-    * `output`       - the result of the craft, eg: `default:stone 3`.
-    * `items`        - A list of ingredients, eg: `{"stone", "wood 3"}`.
-    * `level`        - level of station required.
-    * `always_known` - If true, this recipe will never need to be unlocked.
-    * `replace`
-    * `sound`
-    * `_display`     - string of image to display in recipe panel
-    Register def in
-        recipes_by_output[def.output]
-        recipes_by_id[def.id]
-    Returns id of recipe
-    ]]
-function crafting.register_recipe(def)
-    local function recipe_error(txt)
-        error("crafting.register_recipe: issue with "..def.output.." recipe; "..txt)
-    end
-    -- multiple output items unsupported due to minimal/interface/inventory.lua
-    -- limitations, do replace instead
-    assert(type(def.output) == "string",
-           "crafting.register_recipe: 'output' needed in recipe definition (string only)")
-    if not def.type then
-        recipe_error("'type' is needed in recipe definition!")
-    end
-    if not def.items then
-        recipe_error("'items' needs to be specified in recipe definition!")
-    end
-
-    -- crafting level
-    def.level = def.level or 1
-    if type(def.level) ~= "number" then
-        recipe_error("expected number for 'level', got '"..type(def.level).."'")
-    end
-    -- always_known boolean, set to true unless otherwise specified
-    def.always_known = type(def.always_known) ~= "boolean" and true or def.always_known
-    -- Can be more then one craft station for a recipe
-    -- Need to store as a table.
-    def.type = type(def.type) == 'string' and {def.type} or def.type
-    if type(def.type) ~= "table" then
-        recipe_error("expected string or table for 'type', got '"..type(def.type).."'")
-    end
-    -- items table
-    def.items = type(def.items) == 'string' and {def.items} or def.items
-    if type(def.items) ~= "table" then
-        recipe_error("expected string or table for 'items', got '"..type(def.items).."'")
-    end
-    -- convert into table to iterate through or remove if invalid
-    def.replace = type(def.replace) == "string" and {def.replace} or type(def.replace) == "table" and def.replace or nil
-    -- custom sound per recipe
-    -- permits "false" to prevent playing of crafting station sound
-    def.sound = type(def.sound) == "string" and {name = def.sound} or type(def.sound) == "table" and def.sound or
-        def.sound ~= false and nil
-    if def.sound then
-        def.sound.max_hear_distance = def.sound.max_hear_distance or 10
-    end
-    -- custom preview for formspec
-    def._display = def._display
-
-    def.id = #recipes_by_id + 1
-    recipes_by_output[def.output] = def
-    recipes_by_id[def.id] = def
-    return def.id
-end
-
--- get recipe by ID or output, according to param type
-function crafting.get_recipe(param)
-    if type(param) == "number" then
-        return recipes_by_id[param]
-    elseif type(param) == "string" then
-        return recipes_by_output[param]
-    else
-        core.log("wrong param type in crafting.get_recipe")
+-- test if item is fully available or not in item_hash
+local function test_item (it, needed, item_hash)
+    if not item_hash then
+        core.log("in recipes.lua 'test_item' : item_hash is missing") -- #TODO better check
         return
     end
+    local gstats = it.gstats
+    local have = item_hash[it.name] or 0
+    local available = false
+
+    -- has a specified number (and have isn't 0, don't search unnecessarily)
+    -- search number of group
+    if have > 0 then
+        -- if item is a groupe
+        if (gstats and gstats.num) then
+            have = item_hash[gstats.tag..gstats.num] or 0
+            local cmd = gstats.num_cmd
+            -- found command, check anew
+            if cmd then
+                have = 0
+                -- start at gstats.num (-1 if less, otherwise +1)
+                -- if less than, work down to 1 (-1), otherwise check until 256
+                for i = (cmd == "<" and gstats.num-1 or gstats.num+1),
+                    (cmd == "<" and 1 or 256), (cmd == "<" and -1 or 1)
+                do
+                    have = have + (item_hash[gstats.tag..i] or 0)
+                end
+            end
+        end
+        if (have >= needed) then
+            available = true
+        end
+    end
+
+    return available, have
 end
 
--- return a list with all needed item_names (including in group)
-local function input_item_to_nameslist(recipe_input)
-    local function add_name(item, list)
-        local itemName = ItemStack(item):get_name()
-        local group_stats = crafting.get_group_stats(itemName)
-        if group_stats then
-            for _,it in ipairs(crafting.get_group_items(group_stats.name)) do
-                table.insert(list, ItemStack(it):get_name())
-            end
-        else
-            table.insert(list, itemName)
-        end
+-- updates detailled item list in recipe according to item_hash
+local function update_item (it, item_hash)
+    it.available, it.have = test_item (it, it.need, item_hash)
+    return it
+end
+
+--[[ generate a list per input item of a recipe
+* Returns `items` - a table with
+    * index : item's name
+    * value : a list with those parameters :
+        * `name` = name of the item
+        * `short` = description of the item to be displayed in recipe panel
+        * `need` = the number we need for the recipe
+        -- if itemhash is given (else added in update_item function)
+        * `have` = the number we have in item_hash
+        * `partial` = `true` if we have some of the needed
+        * `available` = `true` if we have more than needed
+This will be used to display custom infotext on recipe panel
+#TODO currently not used in actual crafting I think (lili)
+]]
+local function generate_item_details(input_item, item_hash)
+    local gstats = crafting.get_group_stats(input_item)
+    local stack = ItemStack(input_item)
+    local def = table.copy(stack:get_definition())
+    def.name = gstats and gstats.tag or def.name
+    def.description = (gstats and S("Any @1",gstats.desc)) or def.description
+    def._orig_desc = def._orig_desc or def.description
+    local need =  stack:get_count()
+    local item_details = {
+        name = def.name,
+        gstats = gstats, -- nil if not a group
+        description = def.description,
+        short = def._orig_desc,
+        need = need,
+        -- following are unknown if we didn't check craftability
+        -- update_item(item_details, item_hash) would fill it
+        available = nil,
+        have = nil,
+    }
+    -- if item_hash was given, test craftability
+    if item_hash then
+        update_item(item_details, item_hash)
     end
-    local result={}
-    for i, itema in ipairs(recipe_input) do
-        if type(itema)=="table" then
-            for j,itemb in ipairs(itema) do
-                add_name(itemb, result)
-            end
-        else
-            add_name(itema, result)
+    return item_details
+end
+
+-- Recipes level ---------------------------------------------------------------
+
+local player_recipe = {}
+player_recipe.__index = player_recipe
+
+local function generate_items_table(recipe, item_hash)
+    local items_details = {}
+    for row, rowItems in ipairs(recipe.items) do
+        local t = {}
+        -- single item peeks need to be in table for processing
+        if (type(rowItems) ~= 'table') then
+            rowItems = {rowItems}
         end
+        for _, item in ipairs(rowItems) do
+             t[#t + 1] = generate_item_details(item, item_hash)
+        end
+         -- save items by recipe input row
+        items_details[row] = t
     end
+    return items_details
+end
+
+--[[generate a detailled table associated to the recipe, with following fields:
+    result = {
+        *`recipe`    - recipe def table
+        *`it_details` - list of items as build in get_items_details function
+        *`craftable` - as in player_recipe.update_input_state function
+        *`displayed` - true if recipe should be displayed in GUI
+    }
+]]
+local function generate_p_recipe(recipe, item_hash)
+    local result = {
+        recipe = recipe,
+        it_details = generate_items_table(recipe, item_hash),
+        -- #TODO separate desc and craftable
+        displayed = true
+    }
+    setmetatable(result, player_recipe)
     return result
 end
 
--- to check if no duplicates inputs, which currentldy would make craft do unwated things
-local function check_recipe_def(def)
-    local t = input_item_to_nameslist(def.items)
-    for i, name in ipairs(t) do
-        for j, second in ipairs(t) do
-            if i~=j and name == second then
-                core.log (def.output.. "\'s recipe uses " .. name .. " twice")
-                return false
-            end
+-- list of available------------------------------------------------------------
+
+-- rebuilt at each first request after login
+local p_recipes_per_id = {}
+local p_recipes_per_type = {}
+
+-- initiate p_recipes_per_id and p_recipes_per_type for player_name
+-- #TODO appeler au log ? ou à la demande ?
+local function register_player_recipes(player_name)
+    p_recipes_per_id[player_name] = {}
+    p_recipes_per_type[player_name] = {}
+    local unlocked = crafting.get_unlocked(player_name)
+    for id, recipe in pairs(crafting.get_recipes()) do
+        local result = generate_p_recipe(recipe)
+        -- if I know that recipe, add it to the list, else no
+        if recipe.always_known or unlocked[recipe.output] then
+            result.available = true
+        end
+        -- adds the result to p_recipes_per_id for player
+        p_recipes_per_id[player_name][id] = result
+        -- adds the result to p_recipes_per type for player
+        for _,type in ipairs(recipe.type) do
+            local t = p_recipes_per_type[player_name][type] or {}
+            t[#t+1] = result
+            p_recipes_per_type[player_name][type] = t
         end
     end
-    return true -- recipe is ok
 end
 
--- have to wait for all modules load before generating station lists
-minetest.register_on_mods_loaded( function ()
-        for _,recipe in ipairs(recipes_by_id) do
-            check_recipe_def(recipe)
-            if type(recipe.type) == "string" then
-                recipe.type = { recipe.type }
-            end
-            for _,station in ipairs(recipe.type) do
-                local tab = crafting.recipes[station]
-                assert(tab,        "Unknown craft type " .. station)
-                tab[#tab + 1] = recipe
-            end
-        end
-end)
-
--- LOCK/UNLOCK recipe per player -----------------------------------------------
-
-local unlocked_cache = {}
-
-function crafting.get_unlocked(name)
-    local player = minetest.get_player_by_name(name)
-    if not player then
-        minetest.log(
-            "warning",
-            "Crafting doesn't support getting unlocks for offline players")
-        return {}
-    end
-
-    local retval = unlocked_cache[name]
-    if not retval then
-        retval = minetest.parse_json(
-            player:get_meta():get("crafting:unlocked") or "{}")
-        unlocked_cache[name] = retval
-    end
-
-    assert(retval)
-
-    return retval
-end
-
-if minetest then
-    minetest.register_on_leaveplayer(function(player)
-            unlocked_cache[player:get_player_name()] = nil
+-- #TODO do the same for crafting caches...
+core.register_on_leaveplayer(function(player)
+    local p_name = player:get_player_name()
+        p_recipes_per_id[p_name] = nil
+        p_recipes_per_type[p_name] = nil
     end)
-end
 
-local function write_json_dictionary(value)
-    if next(value) then
-        return minetest.write_json(value)
-    else
-        return "{}"
-    end
-end
-
-function crafting.lock_all(name)
-    local player = minetest.get_player_by_name(name)
-    if not player then
-        minetest.log(
-            "warning",
-            "Crafting doesn't support setting unlocks for offline players")
-        return {}
-    end
-
-    local unlocked = crafting.get_unlocked(name)
-
-    for key, _ in pairs(unlocked) do
-        unlocked[key] = nil
-    end
-
-    unlocked_cache[name] = unlocked
-
-    player:get_meta():set_string("crafting:unlocked",
-                                 write_json_dictionary(unlocked))
-end
-
-function crafting.unlock(name, output)
-    local player = minetest.get_player_by_name(name)
-    if not player then
-        minetest.log(
-            "warning",
-            "Crafting doesn't support setting unlocks for offline players")
-        return {}
-    end
-
-    local unlocked = crafting.get_unlocked(name)
-
-    if type(output) == "table" then
-        for i=1, #output do
-            unlocked[output[i]] = true
-            minetest.chat_send_player(name, "You've unlocked " .. output[i])
+--[[ Parses available items in row @1 and @2 of given where condition
+	to check in any fills it.
+	recipe.where should look something like this:
+		@1.material == @2.material
+		@x where x is the input item row number
+	Returns yes if a combination matches the condition, false else
+	`items` is a list of items as stored in recipe after get_all
+	]]
+local function test_where_condition(recipe, items, criteria)
+    --[[get name of item associated with that group in current itemhash
+        used in player_recipe.update_input_state]]
+    local function get_real_name(name)
+        if name:sub(1, 6) == "group:" then
+            return crafting.item_by_group[name]
         end
-    else
-        unlocked[output] = true
-        minetest.chat_send_player(name, "You've unlocked " .. output)
+        return name
+    end
+	local craftable = false
+	local lParam, lKey, test, rParam, rKey =
+		string.match(recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")
+	--[[lParam is the item row number for first item
+		rParam is the item row number for second item
+		lKey and rKey are the key to check: for example "material"
+		test is the condition to check: "==" or "~="
+	]]
+	--#TODO maybe check format is correct
+
+	-- for each item in row number lParam
+	for _,left in ipairs( items[tonumber(lParam)] ) do
+		--lName is item's name, or if a group, matching item's name
+		local lName = get_real_name(left.name)
+		-- if we have enough of this item,
+		-- then test if condition is filled with him
+		if left[criteria] then
+			-- for each item in row number rParam
+			for _,right in ipairs(items[tonumber(rParam)]) do
+				local rName = get_real_name(right.name)
+				-- if that item is available, test if it matches the condition
+				if right[criteria] then
+					local left_def = ItemStack(lName):get_definition()
+					local lValue = left_def.exile_crafting[lKey]
+					local right_def = ItemStack(rName):get_definition()
+					local rValue = right_def.exile_crafting[rKey]
+					-- find the operator
+					if test == '==' and lValue == rValue then
+						craftable = true
+					end
+					if test == '~=' and lValue ~= rValue then
+						craftable = true
+					end
+				end
+			end
+		end
+	end
+	return craftable
+end
+
+-- #TODO update readme when finished
+--[[Check ingredients in item hash to update result's table for that recipe
+    if `modify` = `true` : update the result table containing craftable state, items and displayed state.
+    #TODO : warning, only check inputs, do not check new unlocked recipes
+    ]]
+player_recipe.update_input_state = function(self, item_hash, modify)
+    if not item_hash then
+        core.log("in 'player_recipe.update_input_state' : item_hash is missing") -- #TODO better check
+        return
+    end
+    local craftable = true
+    -- Check what ingredients are available
+    for row, rowItems in ipairs(self.it_details) do
+        local pickable = false
+        for i, item in ipairs(rowItems) do
+            if modify then
+                update_item(item, item_hash)
+                -- if we have enough ingredient for that item,
+                -- mark it as pickable
+                if item.available then
+                    pickable = true -- at least one item is available
+                    break
+                end
+            else
+                local missing = item.need - item.have
+                -- if we have enough ingredient for that item,
+                -- mark it as pickable
+                item.possible = test_item(item, missing, item_hash)
+                if missing <1 or item.possible then
+                    pickable = true
+                    break
+                end
+            end
+        end
+        -- if none of the item of the row was pickable, recipe is not craftable
+        if not pickable then
+            craftable = false
+        end
+    end
+    -- at this point, craftable and partial are uptodate
+    -- check if we have a where clause only if its craftable
+    -- #TODO needs to be improve for possible recipes.
+    if craftable and self.recipe.where then
+        -- do we check available or possible items
+        local criteria = modify and "available" or "possible"
+        craftable = test_where_condition(self.recipe, self.it_details, criteria)
     end
 
-    unlocked_cache[name] = unlocked
-    player:get_meta():set_string("crafting:unlocked",
-                                 write_json_dictionary(unlocked))
+    if modify then
+        self.craftable = craftable
+    else
+        self.possible = craftable
+    end
+    return craftable
+end
+
+
+player_recipe.available_level = function (self, p_level)
+    return (self.recipe.level <= p_level)
+end
+
+-- Recipe lists part ---------------------------------------------------------
+
+function crafting.recipe_list_update(r_table, item_hash, modify)
+    -- #TODO go back to unchecked list in that case ?
+    if not item_hash then
+        core.log("in 'crafting.recipe_list_update' : item_hash is missing") -- #TODO better check
+        return
+    end
+    if not r_table or type(r_table) ~= "table" then
+        core.log("recipe list to update is missing or wrong format in crafting.list_update_craftable_state")
+        return
+    end
+    for _, r in pairs(r_table) do
+        r:update_input_state(item_hash, modify)
+    end
+end
+
+--[[get a details table of available recipes
+    *`player_name`is mandatory to get available recipes for that player
+    *`level` is optional: if missing, level condition won't be checked
+    *`itemhash` is option: if present, we add craftable infos
+    *return a table with following format :
+    r_list[i] = {
+        *`recipe`    - recipe def table
+        *`items`     - list of items as build in get_items_details function
+        *`craftable` - as in player_recipe.update_input_state function
+        *`displayed` - true if recipe should be displayed in GUI
+    }
+]]
+function crafting.get_player_recipes(player_name, ctype)
+    -- if lists are not generated for player yet
+    local player = core.get_player_by_name(player_name)
+    if not player then
+        minetest.log(
+            "warning",
+            "Can't get recipes of offline players")
+        return {}
+    end
+
+    -- if we didn't initiate the recipes for that player yet, do it
+    if not p_recipes_per_id[player_name]
+                or not p_recipes_per_type[player_name] then
+        register_player_recipes(player:get_player_name())
+    end
+    -- if crafting type is missing, return all recipes
+    if not ctype then
+        return p_recipes_per_id
+    else
+        -- get available list for that player and ctype
+        return p_recipes_per_type[player_name][ctype]
+    end
 end
