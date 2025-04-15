@@ -2,7 +2,6 @@
 
 local minimal = minimal
 local crafting = crafting
-local sfinv = sfinv
 
 local S = minetest.get_translator("crafting")
 local tofstring = function(t) return table.concat(t,"") end
