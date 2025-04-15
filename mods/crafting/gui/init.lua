@@ -33,7 +33,9 @@
 --
 
 local crafting_path = core.get_modpath("crafting")
-dofile(crafting_path .. "/gui/crafting_formspec.lua")
+dofile(crafting_path .. "/gui/crafting_FS.lua")
 dofile(crafting_path .. "/gui/apply_filters.lua")
 dofile(crafting_path .. "/gui/recipes_panel.lua")
 dofile(crafting_path .. "/gui/tools_and_types.lua")
+dofile(crafting_path .. "/gui/inventory_FS.lua")
+dofile(crafting_path .. "/gui/station_FS.lua")

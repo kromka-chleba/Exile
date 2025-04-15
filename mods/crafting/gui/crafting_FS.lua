@@ -44,7 +44,6 @@ local input_options = {
 }
 
 -- Cache initialisations -------------------------------------------------------
---------------------------------------------------------------------------------
 
 -- table of crafting cache per player
 --[[ The inventory formspec is cached for each player like this:
@@ -111,16 +110,12 @@ local input_options = {
         `output` = "",
     }
     If updated,a section should be set to nil to force a redraw.
-    only sections cleared are recreated via make_crafting_formspec
+    only sections cleared are recreated via crafting.make_crafting_formspec
 ]]
 local FS_cache = {}
 
 local cache_func = {}
 cache_func.__index = cache_func
-
-function crafting.register_cache_function (name, func)
-    cache_func[name] = func
-end
 
 -- generate a new cache and put is in FS_cache[player_name]
 local function new_cache(player)
@@ -178,6 +173,7 @@ end
     end)
     ]]
 
+-- get player's cache, or generate it if non existant
 function crafting.get_FS_cache(player)
     if not player then return nil end
     -- get the FS cache if already existant
@@ -190,10 +186,10 @@ function crafting.get_FS_cache(player)
     return cache
 end
 
+-- localize
 local get_FS_cache = crafting.get_FS_cache
 
 --Basic functions --------------------------------------------------------------
---------------------------------------------------------------------------------
 
 --[[return table of inv lists to use for input
 according to player's setting in cache]]
@@ -228,8 +224,13 @@ function cache_func:get_input_hash(pInv)
     return crafting.get_item_hash(pInv, self:get_craft_input())
 end
 
--- Formspec generations -------------------------------------------------------
---------------------------------------------------------------------------------
+-- to register instance functions from outside
+function crafting.register_cache_function (name, func)
+    cache_func[name] = func
+end
+
+-- Formspec generation ---------------------------------------------------------
+
 local esc = minetest.formspec_escape
 
 --[[ This is the function to call to create or update the formspec.
@@ -239,7 +240,7 @@ local esc = minetest.formspec_escape
     * `context` is the context for sfinv if we are in inventory formspec.
     It is set to nil if we are at a station.
     ]]
-local function make_crafting_formspec(player, context)
+function crafting.make_crafting_formspec(player, context)
     local player_name = player:get_player_name()
     local pInv = player:get_inventory()
     if not (player_name and player_name ~= "") then
@@ -264,7 +265,7 @@ local function make_crafting_formspec(player, context)
 
     output[#output + 1] = 'container[0.8,7.2]'
 
-    -- if crafting panel is open
+    -- if crafting panel is open, color it
     if cache.updated == true then
         local input_mode = cache:get_craft_mode()
         local bg_color = input_mode.m_color
@@ -282,8 +283,8 @@ local function make_crafting_formspec(player, context)
     output[#output + 1] = tofstring({
         'style_type[list;size=;spacing=]',
         'list[current_player;main;0,0;8,2;0]'
-    }
-    )
+    })
+
     output[#output + 1] = 'container_end[]'
 
     -- re-add worldedit gui button if that exists ------------------------------
@@ -457,7 +458,7 @@ end
 -- Call when the inventory formspec is closed to clear cache
 -- `player_name` param is optional
 -- #TODO : would be good to still save the curent subtab instead of clearing everything
-local function close_inventory_formspec(player, cache)
+function crafting.close_crafting_formspec(player)
     -- Return Items in input_items list to player
     local pInv = player:get_inventory()
     if not pInv:is_empty('input_items') then
@@ -479,22 +480,12 @@ local function close_inventory_formspec(player, cache)
         end
     end
 
-    --[[ added to reset quantity to "single" when we close the inventory
-    and avoid accidentaly max]]
-    cache.qty = 1
-    -- reset and redraw Search field
-    cache:set_text_search_to(nil)
-    -- update recipe list to have refresh button
-    -- TODO adapt with table
-    if cache.craft_input ~= 2 then cache.updated = false end
-    cache:reset_recipes()
-    -- disable hint on closing
-    -- #TODO could remain as player setting,t hen we would need the recipe button again
-    cache.possible_hint = false
+    -- deleting player's cache
+    FS_cache[player:get_player_name()] = nil
 end
 
 -- return true if something changed, false else
-local function process_receive_fields(player, formname, fields)
+function crafting.process_receive_fields(player, formname, fields)
     --   if formname ~= '' or formname ~= 'exile:crafting' then return false; end -- Not our form.
     local player_name = player:get_player_name()
     local inv = player:get_inventory()
@@ -529,7 +520,7 @@ local function process_receive_fields(player, formname, fields)
     -- Process quit
     -- called when escaping the formspec using inventory key
     if fields.quit then
-        close_inventory_formspec(player, cache)
+        crafting.close_crafting_formspec(player)
         return true
     end
     -- process scrollbar
@@ -660,188 +651,6 @@ local function process_receive_fields(player, formname, fields)
     FS_cache[player_name] = cache
     return true
 end
-
--- Crafting formspec in inventory formspec -------------------------------------
---------------------------------------------------------------------------------
-
--- Register crafting formspec as inv tab
-do
-    if not minetest.global_exists("sfinv") then error("Sfinv is missing?") end
-
-    local homepage = sfinv.get_homepage_name() -- get name of homepage
-    sfinv.remove_page(homepage)
-
-    sfinv.register_page(
-        homepage, {
-            title = S("Crafting"),
-            get = function(self, player, context)
-                local formspec = make_crafting_formspec(player,context)
-                return sfinv.make_formspec_for_exile(player, context,
-                                                     formspec, false)
-            end,
-            on_player_receive_fields = function(self, player,
-                                                context, fields)
-                -- if something changed, redraw the page
-                if process_receive_fields(player, "", fields) then
-                    sfinv.set_player_inventory_formspec(player, context)
-                end
-            end,
-            -- selecting the tab from an other tab
-            on_enter = function(self, player, context)
-                --local player_name = player:get_player_name()
-                print ("--------------------------]ENTER[-------------------")
-                --set_cache(player:get_player_name(),player:get_inventory())
-            end,
-            on_leave = function(self, player, context)
-                --local player_name = player:get_player_name()
-                --cache = "closed" -- #TODO not sure about that
-                print ("--------------------------]LEAVE[-------------------")
-            end,
-            --  on_enter = function(self, player, context)
-            --          local player_name = player:get_player_name()
-            --          local cache= FS_cache[player_name]
-            --          if cache and type(cache) == table then
-            --              cache.c_recipes=nil
-            --              cache.u_recipes=nil
-            --          end
-            --          sfinv.set_player_inventory_formspec(player,context)
-            --  end
-    })
-end
-
--- Crafting formspec on tool station -------------------------------------------
---------------------------------------------------------------------------------
-
--- Generate the formspec outside sfinv
-local function make_tool_formspec(player)
-    local cache = get_FS_cache(player)
-
-    local fs = {"formspec_version[5]",
-                --"size[11.2,10.5]" ..
-                "size[11.4,10]",
-                "position[0.5,0.5]"}
-
-    -- displaying creator above formspec
-    -- #TODO dirty, do better once we decide on definitive behavior
-    if cache.sTool ~= crafting.default_tool then
-        local desc = cache.station.desc
-        local creator = cache.station.creator
-        local title = S("You are using: @1", desc)
-        if creator then
-            title =  title .. "  |  " .. S("Crafted by: @1", creator)
-        end
-        fs[#fs + 1] = "tabheader[0,0;station_tab;" .. title .. ";1;;]"
-    end
-
-    fs[#fs + 1] = make_crafting_formspec(player, nil)
-
-    return tofstring(fs)
-end
-
--- return craftedby info for the given station, nil if not found
--- #TODO not sure it should stay on gui.lua
-local function get_station_info(station, pos)
-    -- if no station, no tag
-    if station == nil then
-        return nil
-    end
-    -- #TODO (for lili) go check on that
-    -- see tech/stations for why we check _station or remove letters from name
-    local idef = core.registered_items[station._tool]
-        or core.registered_items[station:sub(1,-8)]
-        or core.registered_items[station]
-
-    local creator = nil
-    local desc = nil
-    -- if station is registered and has a groups field
-    if idef then
-        -- #TODO how do I get the short description ??
-        desc = ItemStack(idef.name):get_short_description()
-        if idef.groups then
-            -- if there is a craftby field or savemeta in groups
-            if idef.groups.craftedby or idef.groups.savemeta then
-                local meta = core.get_meta(pos)
-                -- get creator string for craftedby mechanics
-                if meta then
-                    creator = meta:get_string("creator")
-                end
-            end
-        end
-    end
-    -- return nil if not found
-    return {desc = desc, creator = creator}
-end
-
-local function cache_on_station(player, placed_tool, pos)
-    if not placed_tool then
-        core.log("invalid empty station to use on right click")
-        return
-    end
-    local cache = get_FS_cache(player)
-    -- adds station info
-    cache.station = get_station_info(placed_tool, pos)
-    cache.updated = true
-    -- generates corresponding tools list
-    cache.tool_list = crafting.generate_tools_list(placed_tool)
-    -- updates cache with new selected `placed_tool` as tool
-    cache:tool_change(placed_tool)
-end
-
--- quit station and reset tools to default
-local function cache_quit_station(cache)
-    -- reset station
-    cache.station = nil
-    -- reset tool list
-    cache.tool_list = crafting.generate_tools_list()
-    -- unselect tool to default
-    cache:tool_change(nil)
-end
-
--- used when inventory tab was opened with right click on a tool
-minetest.register_on_player_receive_fields(function(player, formname, fields)
-        if formname ~= 'exile:crafting' then return false; end -- Not our form.
-
-        local player_name = player:get_player_name()
-        if fields.quit then
-            -- reset tool list
-            local cache = get_FS_cache(player)
-            cache_quit_station(cache)
-            close_inventory_formspec(player, cache)
-            -- updates inventory formspec after reset of the cache
-            -- this is because it won't be regenerated on opening
-            -- (no inventory open callback in luanti, yet)
-            sfinv.set_player_inventory_formspec(player)
-            return true -- cache updated in close
-        end
-
-        if process_receive_fields(player, formname, fields) then
-            local formspec = make_tool_formspec(player)
-            if formspec then
-                minetest.show_formspec(player_name,'exile:crafting',formspec)
-            end
-        end
-end)
-
--- display craft form on right click on a tool
-function crafting.crafting_item_on_rightclick(pos,node,clicker,
-                                             itemstack,pointed_thing)
-    -- did a player click ?
-    if not minetest.is_player(clicker) then
-        return
-    end
-
-    -- #TODO we should check it is a valid node before doingthat,
-    -- since this is a global function
-    cache_on_station(clicker, node.name, pos)
-
-    -- generates and shows station's formspec
-    local formspec = make_tool_formspec(clicker)
-    local player_name = clicker:get_player_name()
-    minetest.show_formspec(player_name,'exile:crafting',formspec)
-
-    return itemstack
-end
-
 --------------------------------------------------------------------------------
 -- #TODO follwing part is for update when inventory actions
 --------------------------------------------------------------------------------
@@ -852,37 +661,25 @@ function crafting.refresh_recipes_FS(player)
     local cache = FS_cache[player_name]
     if cache then
         cache:reset_recipes()
-    end
-    sfinv.set_player_inventory_formspec(player)
-end
-
--- Refresh recipe list when items put in and out the input panel
-local function update_input_list(player)
-    -- #TODO I think it should be replaced by an other refresh on craftable state.
-    -- That part still needs to be cleaned.
-    crafting.refresh_recipes_FS (player)
-
-    -- force redraw f formspec if we were in station
-    local player_name = player:get_player_name()
-    local cache = get_FS_cache(player)
-    if cache.station then
-        core.show_formspec(player_name,'exile:crafting',
-                                        make_tool_formspec(player))
+        sfinv.set_player_inventory_formspec(player)
+        if cache.station then
+            crafting.show_station_formspec (player, player_name, cache)
+        end
     end
 end
 
 minetest.register_on_player_inventory_action(function(player, action,
     inventory, inventory_info)
-    local from_list = inventory_info.from_list
-    local to_list = inventory_info.to_list
-    local listname = inventory_info.listname
-
-    if from_list == "input_items" or to_list == "input_items" then
-        core.after(0.1, update_input_list, player)
-    --if we get or drop things from main inventory, except for internal move to inputs, refresh recipes
-    elseif from_list == "main" or to_list == "main"
-                           or listname == "main" -- usefull ?
-                           or listname == "input_items" then
+    local from_list = inventory_info.from_list -- for move
+    local to_list = inventory_info.to_list -- for move
+    local listname = inventory_info.listname -- for put and take
+    --if we get or drop things from main inventory, or move things betweent main and input_items, refresh recipes
+    if from_list == "main"
+            or to_list == "main"
+            or listname == "main"
+            or from_list == "input_items"
+            or to_list == "input_items"
+            or listname == "input_items" then
         core.after(0.1, crafting.refresh_recipes_FS , player)
     end
 end
