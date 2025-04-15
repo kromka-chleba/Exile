@@ -1,6 +1,8 @@
 -- The hand
+-- does not override core.registered_items[""]
+-- use core.registered_items["player_api:hand"] instead
 minetest.register_item(
-    ":", {
+    "player_api:hand", {
         type = "none",
         wield_image = "wieldhand.png",
         wield_scale = {x=1,y=1,z=2.5},
@@ -24,6 +26,7 @@ minetest.register_item(
             },
             damage_groups = {fleshy=minimal.hand_dmg},
         },
+        groups = {not_in_creative_inventory = 1}
 })
 
 
