@@ -782,19 +782,25 @@ minetest.register_node(
 	end,
 })
 
+
+-- callback to start timer for turning loose tile into non-loose after some time
+local loose_tile_texture = "tech_roof_tiles.png^[colorize:#AAA:40"
+local loose_tile_on_construct = function(pos)
+    minetest.get_node_timer(pos):start(30)
+    --core.log("loose tile timer started")
+end
+
 minetest.register_node(
     "tech:tile_block_loose", {
         description = S("Tile Block (Loose)"),
-	tiles = {"tech_roof_tiles.png^[colorize:#AAA:40"},
-	stack_max = minimal.stack_max_medium/2,
-	drawtype = "normal",
-	paramtype = "light",
-	paramtype2 = "facedir",
-	groups = {cracky = 3, oddly_breakable_by_hand = 3 },
-	sounds = nodes_nature.node_sound_stone_defaults(),
-        on_construct = function(pos)
-            minetest.get_node_timer(pos):start(30)
-        end,
+        tiles = {loose_tile_texture},
+        stack_max = minimal.stack_max_medium/2,
+        drawtype = "normal",
+        paramtype = "light",
+        paramtype2 = "facedir",
+        groups = {cracky = 3, oddly_breakable_by_hand = 3 },
+        sounds = nodes_nature.node_sound_stone_defaults(),
+        on_construct = loose_tile_on_construct,
         on_timer = function(pos, elapsed)
             local p2 = minetest.get_node(pos).param2
             minetest.set_node(pos, { name = "tech:tile_block", param2 = p2 })
@@ -822,6 +828,43 @@ crafting.register_recipe({
         sound = {name = "nodes_nature_dirt_footstep", pitch={0.6, 0.85}}
 })
 
+-- register slab_tile_loose, stair_tile_loose, stair_inner_tile_loose and stair_outer_tile_loose
+stairs.register_stair_and_slab(
+    "tile_loose",
+    "tech:tile_block_loose",
+    "brick_makers_bench_mixing",
+    "true",
+    "brick_makers_bench_mixing",
+    {cracky = 3, oddly_breakable_by_hand = 3},
+    {loose_tile_texture},
+    S("Tile Stair (Loose)"),
+    S("Tile Slab (Loose)"),
+    minimal.stack_max_medium,
+    nodes_nature.node_sound_stone_defaults()
+)
+
+-- add callbacks for slab_tile_loose, stair_tile_loose, stair_inner_tile_loose and stair_outer_tile_loose
+local function add_callbacks_to_loose_tile_stairs()
+    local stairs_type = {"slab", "stair", "stair_inner", "stair_outer"}
+
+    for _, type in pairs(stairs_type) do
+        core.override_item(
+            "stairs:"..type.."_tile_loose",
+            {
+                on_construct = loose_tile_on_construct,
+                on_timer = function(pos, elapsed)
+                    --core.log(type.."_tile_loose to "..type.."_tile")
+                    local p2 = minetest.get_node(pos).param2
+                    minetest.set_node(pos, { name = "stairs:"..type.."_tile", param2 = p2 })
+                end
+            }
+        )
+    end
+end
+
+add_callbacks_to_loose_tile_stairs()
+
+-- non-loose tile slabs and stairs
 stairs.register_stair_and_slab(
     "tile",
     "tech:tile_block",
@@ -835,6 +878,7 @@ stairs.register_stair_and_slab(
     minimal.stack_max_medium,
     nodes_nature.node_sound_stone_defaults()
 )
+
 
 --------------------------------------------------------------------
 --MASONRY WITH MORTAR
