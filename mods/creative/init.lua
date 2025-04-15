@@ -65,7 +65,11 @@ local function update_creative_attributes(plr, granter_name, onnew)
     updating_for[name] = true
     -----------------------------------------
     local in_creative = minimal.player_in_creative(name)
-    if onnew and not in_creative then return end -- if onnew and not in creative, don't run this
+    -- if onnew and not in creative, don't run this
+    if onnew and not in_creative then
+        updating_for[name] = nil
+        return
+    end
     -- do on a delay to prevent conflict with other mods like player_api
     core.after(0, function()
         -- creative menu, or regular!!!
