@@ -507,7 +507,7 @@ function crafting.craft_recipe(btn_id, cache, player, player_name, inv)
     --#TODO I need to improve the way cache.item_hash is assigned/modified
     local item_hash = cache.item_hash or cache:get_input_hash(inv)
     local max_count = get_craft_count(recipe, qty, item_hash)
-
+    -- TODO store max_count in cache ?
     process_count(recipe, max_count, item_hash)
     if not crafting.can_craft(player_name, ctype,
                               sLevel, recipe) then
