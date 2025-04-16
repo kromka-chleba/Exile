@@ -7,6 +7,7 @@ local S = core.get_translator("crafting")
 -- Items level -----------------------------------------------------------------
 
 -- test if item is fully available or not in item_hash
+-- doesn't update the item
 local function test_item (it, needed, item_hash)
     if not item_hash then
         core.log("in recipes.lua 'test_item' : item_hash is missing") -- #TODO better check
@@ -63,6 +64,7 @@ end
 This will be used to display custom infotext on recipe panel
 #TODO currently not used in actual crafting I think (lili)
 ]]
+-- #TODO dscription field could be common for all player, in main recipe
 local function generate_item_details(input_item, item_hash)
     local gstats = crafting.get_group_stats(input_item)
     local stack = ItemStack(input_item)
@@ -70,13 +72,12 @@ local function generate_item_details(input_item, item_hash)
     def.name = gstats and gstats.tag or def.name
     def.description = (gstats and S("Any @1",gstats.desc)) or def.description
     def._orig_desc = def._orig_desc or def.description
-    local need =  stack:get_count()
     local item_details = {
         name = def.name,
         gstats = gstats, -- nil if not a group
         description = def.description,
         short = def._orig_desc,
-        need = need,
+        need = stack:get_count(),
         -- following are unknown if we didn't check craftability
         -- update_item(item_details, item_hash) would fill it
         available = nil,
@@ -183,6 +184,7 @@ local function test_where_condition(recipe, items, criteria)
         end
         return name
     end
+
 	local craftable = false
 	local lParam, lKey, test, rParam, rKey =
 		string.match(recipe.where, "@(%d+)%.(%w+)%s*(.-)%s*@(%d+)%.(%w+)$")

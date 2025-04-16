@@ -357,7 +357,10 @@ end)
 -- Quantity sets single, stack or maximum -- this finds how many we can craft
 -- returns nothing but update recipe.items
 local function process_qty(recipe,qty,item_hash)
-    if qty == 1 then return end -- only one requested? not our problem
+    -- only one requested? not our problem
+    if qty == 1 then
+        return
+    end
 
     -- Find multiplier of input needed to craft one max_stack of output items
     local function calculate_stack_input(item)
