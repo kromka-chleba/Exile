@@ -341,7 +341,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     if recipe.material then
         local material_def = ItemStack(taken[recipe.material]):get_definition()
         material = material_def.exile_crafting
-        and material_def.exile_crafting.material
+        and material_def.exile_crafting.material -- TODO when was it added and why ?
         if not material then -- issue #814
             error("crafting.perform_craft: missing exile_crafting or "
             .."exile_crafting.material but got material '"
@@ -353,11 +353,10 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
         end
     end
 
-
     local make_output = recipe.output
     if recipe.material_output then
         make_output = string.gsub(recipe.material_output,
-        "%%material%%", material)
+                                                "%%material%%", material)
     end
 
     -- get ouptut itemstack, its meta (`imeta`) and short description (`sdesc`)
@@ -390,6 +389,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     end
 
     -- set material
+    --from Izzy to deal with conditional material in recipes
     if material then
         imeta:set_string('material', material)
         if recipe.tiles_name then
@@ -400,8 +400,8 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
             local image = string.gsub(recipe.tiles_name, '%%material%%', material)
             imeta:set_string('inventory_tiles', image)
         end
-
     end
+    -- end of "from Izzy" part
 
     --end
     local items_to_add = {}

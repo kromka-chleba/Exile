@@ -466,11 +466,10 @@ function crafting.close_crafting_formspec(player)
             local stack = pInv:get_stack('input_items', i)
             if not stack:is_empty() then
                 -- Try to add to main inventory
-                if pInv:room_for_item('main', stack) then
-                    pInv:add_item('main', stack)
-                else
+                local left = pInv:add_item('main', stack)
+                if not left:is_empty() then
                     -- Drop item if no room in inventory
-                    minetest.item_drop(stack, player, player:get_pos())
+                    minetest.item_drop(left, player, player:get_pos())
                     -- warns the player it went on the ground
                     minimal.warn_inv_full(player)
                 end
@@ -557,7 +556,7 @@ function crafting.process_receive_fields(player, formname, fields)
             -- refresh input panel
             cache.FS_input_list = nil
             -- refresh recipe panel
-            cache.FS_recipes = nil
+            cache:reset_recipes()
             done=true -- #TODO check the use
         end
     end

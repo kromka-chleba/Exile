@@ -116,7 +116,7 @@ end
     result = {
         *`recipe`    - recipe def table
         *`it_details` - list of items as build in get_items_details function
-        *`craftable` - as in player_recipe.update_input_state function
+        *`craftable` - as in player_recipe.update_craftable_state function
         *`displayed` - true if recipe should be displayed in GUI
     }
 ]]
@@ -177,7 +177,7 @@ core.register_on_leaveplayer(function(player)
 	]]
 local function test_where_condition(recipe, items, criteria)
     --[[get name of item associated with that group in current itemhash
-        used in player_recipe.update_input_state]]
+        used in player_recipe.update_craftable_state]]
     local function get_real_name(name)
         if name:sub(1, 6) == "group:" then
             return crafting.item_by_group[name]
@@ -231,30 +231,64 @@ end
     if `modify` = `true` : update the result table containing craftable state, items and displayed state.
     #TODO : warning, only check inputs, do not check new unlocked recipes
     ]]
-player_recipe.update_input_state = function(self, item_hash, modify)
+player_recipe.update_craftable_state = function(self, item_hash)
     if not item_hash then
-        core.log("in 'player_recipe.update_input_state' : item_hash is missing") -- #TODO better check
+        core.log("in 'player_recipe.update_craftable_state' : item_hash is missing") -- #TODO better check
         return
     end
     local craftable = true
+    local to_take = {} -- store version of recipe to take
     -- Check what ingredients are available
     for row, rowItems in ipairs(self.it_details) do
         local pickable = false
         for i, item in ipairs(rowItems) do
-            if modify then
-                update_item(item, item_hash)
-                -- if we have enough ingredient for that item,
-                -- mark it as pickable
-                if item.available then
-                    pickable = true -- at least one item is available
-                    break
-                end
+            update_item(item, item_hash)
+            item.missing = item.need - item.have
+            -- if we have enough ingredient for that item,
+            -- mark it as pickable
+            if item.available then
+                to_take[#to_take+1] = item -- take that one to craft
+                pickable = true -- at least one item is available
+                break
+            end
+        end
+        -- if none of the item of the row was pickable, recipe is not craftable
+        if not pickable then
+            craftable = false
+            -- do not break we still continue to get full display of "have" in FS
+        end
+    end
+    -- at this point, craftable and partial are uptodate
+    -- check if we have a where clause only if its craftable
+    if craftable and self.recipe.where then
+        craftable = test_where_condition(self.recipe, self.it_details, "available")
+    end
+
+    self.craftable = craftable
+    self.to_take = to_take
+
+    return craftable, to_take
+end
+
+-- same as above but with possible
+player_recipe.update_possible_state = function(self, item_hash)
+    if not item_hash then
+        core.log("in 'player_recipe.update_possible_state' : item_hash is missing") -- #TODO better check
+        return
+    end
+    local possible = true
+    local missing = {} -- to store missing items to move
+    -- Check what ingredients are available
+    for row, rowItems in ipairs(self.it_details) do
+        local pickable = false
+        for i, item in ipairs(rowItems) do
+            if item.available then
+                pickable = true -- at least one item is available
+                break
             else
-                local missing = item.need - item.have
-                -- if we have enough ingredient for that item,
-                -- mark it as pickable
-                item.possible = test_item(item, missing, item_hash)
-                if missing <1 or item.possible then
+                item.possible = test_item(item, item.missing, item_hash)
+                if item.possible then
+                    missing[#missing+1] = item -- take that one to move
                     pickable = true
                     break
                 end
@@ -262,47 +296,28 @@ player_recipe.update_input_state = function(self, item_hash, modify)
         end
         -- if none of the item of the row was pickable, recipe is not craftable
         if not pickable then
-            craftable = false
+            possible = false
+            break
         end
     end
     -- at this point, craftable and partial are uptodate
     -- check if we have a where clause only if its craftable
     -- #TODO needs to be improve for possible recipes.
-    if craftable and self.recipe.where then
-        -- do we check available or possible items
-        local criteria = modify and "available" or "possible"
-        craftable = test_where_condition(self.recipe, self.it_details, criteria)
+    if possible  and self.recipe.where then
+        possible = test_where_condition(self.recipe, self.it_details, "possible")
     end
 
-    if modify then
-        self.craftable = craftable
-    else
-        self.possible = craftable
-    end
-    return craftable
+    self.possible = possible
+    self.to_move = missing
+
+    return possible, missing
 end
-
 
 player_recipe.available_level = function (self, p_level)
     return (self.recipe.level <= p_level)
 end
 
 -- Recipe lists part ---------------------------------------------------------
-
-function crafting.recipe_list_update(r_table, item_hash, modify)
-    -- #TODO go back to unchecked list in that case ?
-    if not item_hash then
-        core.log("in 'crafting.recipe_list_update' : item_hash is missing") -- #TODO better check
-        return
-    end
-    if not r_table or type(r_table) ~= "table" then
-        core.log("recipe list to update is missing or wrong format in crafting.list_update_craftable_state")
-        return
-    end
-    for _, r in pairs(r_table) do
-        r:update_input_state(item_hash, modify)
-    end
-end
 
 --[[get a details table of available recipes
     *`player_name`is mandatory to get available recipes for that player
@@ -312,7 +327,7 @@ end
     r_list[i] = {
         *`recipe`    - recipe def table
         *`items`     - list of items as build in get_items_details function
-        *`craftable` - as in player_recipe.update_input_state function
+        *`craftable` - as in player_recipe.update_craftable_state function
         *`displayed` - true if recipe should be displayed in GUI
     }
 ]]

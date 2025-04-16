@@ -4,76 +4,77 @@ local tofstring = function(t) return table.concat(t,"") end
 
 -- FUNCTIONS -------------------------------------------------------------------
 
-local function get_possible_hash(pInv,cache)
-    return crafting.get_item_hash(pInv, {"main", "input_items"})
-end
-
---[[ take current craftable and uncraftable list and
-    recheck if each one is craftable or not
-    update those lists in cache, without changing the order (keeping ex-craftable one first)
-    #TODO could be solved using single/max etc buttons
-    #TODO : warning, only check inputs, do not check new unlocked recipes or change of level
-]]
-local function update_recipes_lists(player_name, pInv, cache, item_hash)
-    local c_recipes = cache.c_recipes
-    local p_recipes = cache.p_recipes
-    local u_recipes = cache.u_recipes
-    -- updates ingredients state and infotext in first list
-    for i, result in ipairs(c_recipes) do
-        result:update_input_state(item_hash, true)
-        if cache.possible_hint then
-            -- get what is possible using both input + inventory
-            -- #TODO this is only to sued with option one, improve that part
-            local i_s = get_possible_hash(pInv,cache)
-            -- #TODO issue it modified result
-            result.possible = result:update_input_state(i_s, false)
-        else
-            result.possible = nil
-        end
-    end
-
-    -- updates ingredients state and infotext in second list
-    -- and move new craftable recipes to end of first one
-    local new_p={}
-    local new_u={}
-    for _, r_list in ipairs({p_recipes,u_recipes}) do
-        for i, result in ipairs(r_list) do
-            result:update_input_state(item_hash)
-            -- if it became craftable, add to previous list and hide in this one
-            if result.craftable then
-                c_recipes[#c_recipes + 1] = result
-            elseif result.possible then
-                new_p[#new_p + 1] = result
-            else -- else keep it in uncraftable list
-                new_u[#new_u + 1] = result
-            end
-        end
-    end
-    cache.p_recipes = new_p
-    cache.u_recipes = new_u
-end
-
 --[[ take a recipe list with crafting.get_all return format and sort it in 2 lists :
     returns craftable and uncraftable table of results
     format of each table is the one documented for crafting.get_all
+    #TODO could be solved using single/max etc buttons
 ]]
-local function sort_craftable_recipes(t)
-    local craftable_t = {}
-    local possible_t = {}
-    local uncraftable_t = {}
+local function sort_craftable_recipes(cache)
+    local c_recipes = cache.c_recipes
+    local p_recipes = cache.p_recipes
+    local u_recipes = cache.u_recipes
 
-    for _, result in ipairs (t) do
-        -- add recipe to list only if it matchs search
-        if result.craftable then
-            craftable_t[#craftable_t + 1] = result
-        elseif result.possible then
-            possible_t[#possible_t + 1] = result
+    -- if I already had a craftable list, don't change the order to avoid missclick
+    -- #TODO could probably be improved, or solved with craft buttons
+    if c_recipes then
+        -- updates ingredients state and infotext in second list
+        -- and move new craftable recipes to end of first one
+        local new_p={}
+        local new_u={}
+        for _, r_list in ipairs({p_recipes,u_recipes}) do
+            for i, result in ipairs(r_list) do
+                -- if it became craftable, add to previous list and hide in this one
+                if result.craftable then
+                    c_recipes[#c_recipes + 1] = result
+                elseif cache.possible_hint and result.possible then
+                    new_p[#new_p + 1] = result
+                else -- else keep it in uncraftable list
+                    new_u[#new_u + 1] = result
+                end
+            end
+        end
+        cache.p_recipes = new_p
+        cache.u_recipes = new_u
+    else
+        local new_c = {}
+        local new_p = {}
+        local new_u = {}
+        for _, result in ipairs (cache.recipes) do
+            -- add recipe to list only if it matchs search
+            if result.craftable then
+                new_c[#new_c + 1] = result
+            elseif cache.possible_hint and result.possible then
+                new_p[#new_p + 1] = result
+            else
+                new_u[#new_u + 1] = result
+            end
+        end
+        cache.c_recipes = new_c
+        cache.p_recipes = new_p
+        cache.u_recipes = new_u
+    end
+end
+
+-- update possible state if `possible` = true, else updates craftable state
+local function update_list_input_state(r_table, item_hash, possible)
+    -- #TODO go back to unchecked list in that case ?
+    if not item_hash then
+        core.log("in 'crafting.recipe_list_update' : item_hash is missing") -- #TODO better check
+        return
+    end
+    if not r_table or type(r_table) ~= "table" then
+        core.log("recipe list to update is missing or wrong format in crafting.list_update_craftable_state")
+        return
+    end
+    for _, r in pairs(r_table) do
+        if possible then
+            r:update_possible_state(item_hash)
         else
-            uncraftable_t[#uncraftable_t + 1] = result
+            r:update_craftable_state(item_hash)
         end
     end
-    return craftable_t,possible_t, uncraftable_t
 end
+
 
 -- #TODO change what is stored à recipe to store for all tabs and not recheck cratable state on each tab change...
 -- store by ctype
@@ -89,6 +90,7 @@ t[i] = {
 *`recipe`    - recipe def table
 *`displayed` - true if recipe should be displayed in GUI
 ]]
+-- currently only used if cache.update is tru any way
 local function get_recipes_list(cache, pInv)
         local player_name =  cache.player_name
         if not cache.sTab or not cache.cTabs then
@@ -111,52 +113,40 @@ local function get_recipes_list(cache, pInv)
             end
         end
 
+        local t -- will be return as result
+
+        --[[ if we have to dislay/cechk the list the lists,
+            *check craftable and
+            * check possible state if option is on
+            * apply display filters]]
+        -- #TODO could be an ther setting than "updated"
         if cache.updated then
-            -- check craftable state
+            -- update craftable state
             -- #TODO change the way that itemhash is generated
             cache.item_hash = cache:get_input_hash(pInv)
-            crafting.recipe_list_update(cache.recipes, cache.item_hash, true)
-        end
+            update_list_input_state(cache.recipes, cache.item_hash, false)
 
-        -- apply search filters if needed
-        cache:apply_filters(cache.recipes)
-
-        -- get what is possible using both input + inventory
-        -- #TODO this is only to used with option one, improve that part
-        if cache.possible_hint then
-            for _,result in ipairs(cache.recipes) do
-                -- check possible from inv
+            -- get what is possible using both input + inventory
+            -- #TODO this is only to used with option one, improve that part
+            if cache.possible_hint then
+                -- update possible state
                 local i_s = crafting.get_item_hash(pInv, {"main"})
-                result.possible = result:update_input_state (i_s, false)
+                update_list_input_state(cache.recipes, i_s, true)
             end
+
+        -- if we want to sort order per craftability and possible
+        if cache.sorted == true then
+            sort_craftable_recipes(cache)
+            t = {cache.c_recipes, cache.p_recipes, cache.u_recipes}
         end
-
-        -- if we don't want to sort the recipes
-        if not cache.sorted then
-            return {cache.recipes} -- return unsorted list
-
-        -- else sort cache.recipes in craftable, uncraftable and possible lists
-        elseif cache.sorted == true then
-            local c_recipes = cache.c_recipes
-            local u_recipes = cache.u_recipes
-
-            -- #TODO improve with possible recipes
-            if not (c_recipes and u_recipes) then
-                c_recipes, cache.p_recipes, u_recipes =
-                    sort_craftable_recipes(cache.recipes)
-                -- save the lists in the cache
-                cache.c_recipes= c_recipes
-                cache.u_recipes= u_recipes
-            else
-                --[[ #TODO issue here for when we unlock recipes :
-                when updating status only to keep the order,
-                we only have current lists,
-                so newly unlocked recipes won't be added to display.]]
-                update_recipes_lists(player_name, pInv, cache, cache.item_hash)
-            end
-            return {cache.c_recipes, cache.p_recipes, cache.u_recipes}
-        end
+    else
+        t = {cache.recipes}
     end
+    -- apply search filters if needed
+    cache:apply_filters()
+
+    return t
+end
 
 -- FORMSPEC generations --------------------------------------------------------
 local esc = core.formspec_escape
@@ -273,10 +263,10 @@ crafting.register_cache_function("get_recipes_panel",
 
     -- Add recipes list -------------------------------------------------
 
-    -- add Scrollable container for recipes --------------------------
-    -- get recipe list to display
-    -- this list indicates if the recipe is craftable or not
-    -- displayed = true only if the recipes matching the search parameter
+    --[[ get recipes lists to display
+        * `rawlist` is a list of lists to display
+        like {l1, l2, l3} to display in that order
+        * for each, recipes, `displayed` = true only if the recipes matching the filters parameter]]
     local raw_list = get_recipes_list (self, pInv)
     local display_list={}
     for _, r_list in ipairs (raw_list) do
@@ -353,64 +343,101 @@ crafting.register_cache_function("reset_recipes",
     self.sScroll = 0 -- reset scrollbar to top
 end)
 
+-- Find maximum number of outputs we can craft from our inventory
+local function find_max_craftable(recipe, item_hash)
+    --local oItem = ItemStack(recipe.output)
+    --local oName = oItem:get_name()
+    local max_count = 0 -- how many of these we'll try to craft
+    local prior_count -- how many we can do with previous ingredient
+
+    if not item_hash then error() end -- item_hash should never be nil
+
+    -- check each row of input items
+    for i,input in ipairs(recipe.items) do
+        -- single item inputs need to be processed in table form
+        if type(input) == 'string' then
+            input = { input }
+        end
+        local row_max = 0
+        -- adds the max for each item in the or list
+        --   for a combined max per row
+        for j,iRow in ipairs(input) do
+            local iItem = ItemStack(iRow)
+            local iName = iItem:get_name()
+            local iNeed = iItem:get_count()
+            local iHave = item_hash[iName] or 0
+            local max = math.floor(iHave/iNeed)
+            row_max = row_max + max
+        end
+
+        if max_count == 0 or max_count > row_max then
+            max_count = row_max
+            -- can't have a count bigger then any input row.
+        end
+        if prior_count and prior_count < max_count then
+            -- if we could only craft 2 total with the prior ingredient,
+            -- we can't craft 8 now just 'cause we have lots of this one
+            max_count = prior_count
+        else
+            prior_count = max_count
+        end
+    end
+    return max_count
+end
+
+-- Find multiplier of input needed to craft one max_stack of output items
+-- #TODO update for multi output future recipes
+local function calculate_stack_input(item)
+    local output_name = item:get_name()
+    local per_input = item:get_count()
+    local stack_size = core.registered_items[output_name].stack_max
+    return stack_size / per_input
+end
+
+local function get_craft_count(recipe, qty, item_hash)
+    -- more then single requested? find max
+    local max_count = find_max_craftable(recipe, item_hash)
+
+    if qty == 2 then -- stack requested so adjust max to max for stack.
+        local stack_count = calculate_stack_input(ItemStack(recipe.output))
+        if max_count > stack_count then
+            max_count = stack_count
+        end
+    end
+    return max_count
+end
+
+crafting.register_cache_function("get_craft_count",
+    function(self, recipe)
+        local qty = self.qty
+        if not qty then
+            core.log("warning", "cache.qty is not given in 'get_craft_count' function, 1 is used by default")
+            return 1
+        -- only one requested? not our problem
+        elseif qty == 1 then
+            return 1
+        end
+
+        -- more then single requested? find max
+        local item_hash = self.item_hash -- TODO to improve with player inv ?
+        if not item_hash then
+            core.log("warning", "cache.item_hash is not given in 'get_craft_count' function, 1 is used by default")
+            return 1
+        end
+        get_craft_count(recipe, qty, item_hash)
+    end)
+
 --#TODO check how it is done and using itemhash and if it can be improved.
 -- Quantity sets single, stack or maximum -- this finds how many we can craft
 -- returns nothing but update recipe.items
-local function process_qty(recipe,qty,item_hash)
-    -- only one requested? not our problem
-    if qty == 1 then
+local function process_count(recipe, max_count, item_hash)
+    -- TODO check if I change the parameter to "count"
+    if max_count == 1 then
         return
     end
 
-    -- Find multiplier of input needed to craft one max_stack of output items
-    local function calculate_stack_input(item)
-        local output_name = item:get_name()
-        local per_input = item:get_count()
-        local stack_size = core.registered_items[output_name].stack_max
-        return stack_size / per_input
-    end
-
-    -- Find maximum number of outputs we can craft from our inventory
-    local function find_max_craftable()
-        --local oItem = ItemStack(recipe.output)
-        --local oName = oItem:get_name()
-        local max_count = 0 -- how many of these we'll try to craft
-        local prior_count -- how many we can do with previous ingredient
-
-        if not item_hash then error() end -- item_hash should never be nil
-
-        -- check each row of input items
-        for i,input in ipairs(recipe.items) do
-            -- single item inputs need to be processed in table form
-            if type(input) == 'string' then
-                input = { input }
-            end
-            local row_max = 0
-            -- adds the max for each item in the or list
-            --   for a combined max per row
-            for j,iRow in ipairs(input) do
-                local iItem = ItemStack(iRow)
-                local iName = iItem:get_name()
-                local iNeed = iItem:get_count()
-                local iHave = item_hash[iName] or 0
-                local max = math.floor(iHave/iNeed)
-                row_max = row_max + max
-            end
-
-            if max_count == 0 or max_count > row_max then
-                max_count = row_max
-                -- can't have a count bigger then any input row.
-            end
-            if prior_count and prior_count < max_count then
-                -- if we could only craft 2 total with the prior ingredient,
-                -- we can't craft 8 now just 'cause we have lots of this one
-                max_count = prior_count
-            else
-                prior_count = max_count
-            end
-        end
-        return max_count
-    end
+    local oItem = ItemStack(recipe.output)
+    local oName = oItem:get_name()
 
     local function handle_input_alternates(input, craft_count, pItems)
         local row_maxCount = craft_count
@@ -436,17 +463,6 @@ local function process_qty(recipe,qty,item_hash)
         end
     end
 
-    -- more then single requested? find max
-    local oItem = ItemStack(recipe.output)
-    local oName = oItem:get_name()
-    local max_count = find_max_craftable()
-
-    if qty == 2 then -- stack requested so adjust max to max for stack.
-        local stack_count = calculate_stack_input(oItem)
-        if max_count > stack_count then
-            max_count = stack_count
-        end
-    end
     -- set output to max_count
     local per_input = oItem:get_count() -- How many we get for one input set
     recipe.output = oName .." ".. per_input * max_count
@@ -483,8 +499,9 @@ function crafting.craft_recipe(btn_id, cache, player, player_name, inv)
     local qty = cache.qty or 1
     --#TODO I need to improve the way cache.item_hash is assigned/modified
     local item_hash = cache.item_hash or cache:get_input_hash(inv)
+    local max_count = get_craft_count(recipe, qty, item_hash)
 
-    process_qty(recipe, qty, item_hash)
+    process_count(recipe, max_count, item_hash)
     if not crafting.can_craft(player_name, ctype,
                               sLevel, recipe) then
         minetest.log("error", "[inventoryFS] Player clicked a "..
