@@ -783,11 +783,14 @@ minetest.register_node(
 })
 
 
--- callback to start timer for turning loose tile into non-loose after some time
+-- callback to start timer for turning loose tile into non-loose after being placed by a player
 local loose_tile_texture = "tech_roof_tiles.png^[colorize:#AAA:40"
-local loose_tile_on_construct = function(pos)
-    minetest.get_node_timer(pos):start(30)
-    --core.log("loose tile timer started")
+local loose_tile_after_place_node = function(pos, placer, itemstack, pointed_thing)
+    -- placed by player? -> start timer
+    if placer and placer:is_player() then
+        minetest.get_node_timer(pos):start(30)
+        --core.log("loose tile timer started")
+    end
 end
 
 minetest.register_node(
@@ -800,7 +803,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         groups = {cracky = 3, oddly_breakable_by_hand = 3 },
         sounds = nodes_nature.node_sound_stone_defaults(),
-        on_construct = loose_tile_on_construct,
+        after_place_node = loose_tile_after_place_node,
         on_timer = function(pos, elapsed)
             local p2 = minetest.get_node(pos).param2
             minetest.set_node(pos, { name = "tech:tile_block", param2 = p2 })
@@ -851,7 +854,7 @@ local function add_callbacks_to_loose_tile_stairs()
         core.override_item(
             "stairs:"..type.."_tile_loose",
             {
-                on_construct = loose_tile_on_construct,
+                after_place_node = loose_tile_after_place_node,
                 on_timer = function(pos, elapsed)
                     --core.log(type.."_tile_loose to "..type.."_tile")
                     local p2 = minetest.get_node(pos).param2
