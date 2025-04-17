@@ -1,3 +1,6 @@
+minimal = minimal
+health = health
+
 -------------------------------------------------------------------------
 --Dripping Water
 --underground drinkable water drops
@@ -33,6 +36,9 @@ local drop_entity = {
         sploosh = {
             name = "nodes_nature_place_water", gain = {0.1,0.2}, pitch = {1.5, 2.4}
         },
+        consume = {
+            name = "nodes_nature_slurp", max_hear_distance = 3, gain = 0.1, pitch = {0.9,1.1}
+        }
     },
 
     on_activate = function(self, staticdata)
@@ -106,22 +112,18 @@ local drop_entity = {
     on_punch=function(self, puncher, time_from_last_punch,
                       tool_capabilities, dir)
         --drink
+        if not core.is_player(puncher) then return end -- not player, begoneth!
         local meta = puncher:get_meta()
-        if not meta then return end --mobs can punch, but can't drink
+        if not meta then return end -- oh... this is awkward
         local pos = puncher:get_pos()
         local thirst = meta:get_int("thirst")
         --only drink if thirsty
         if thirst < 100 then
 
-            local water = math.random(1,10)
-            thirst = thirst + water
-            if thirst > 100 then
-                thirst = 100
+            HEALTH.modify_int(puncher, meta, "thirst", random(1,10)) -- gives 1 to 10 per slurp
+            if self.sounds and self.sounds.consume then
+                minimal.sound_play(minimal.merge_tables(self.sounds.consume, {object = puncher}))
             end
-
-            meta:set_int("thirst", thirst)
-            minetest.sound_play("nodes_nature_slurp",
-                                {pos = pos, max_hear_distance = 3, gain = 0.1})
             self.object:remove()
 
             --food poisoning
