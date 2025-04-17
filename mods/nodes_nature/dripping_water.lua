@@ -26,32 +26,80 @@ local drop_entity = {
         initial_sprite_basepos = {x=0, y=0},
     },
 
+    sounds = {
+        drip = {
+            name = "nodes_nature_water_drip", gain = {0.5, 2}
+        },
+        sploosh = {
+            name = "nodes_nature_place_water", gain = {0.1,0.2}, pitch = {1.5, 2.4}
+        },
+    },
+
     on_activate = function(self, staticdata)
         self.object:set_sprite({x=0,y=0}, 1, 1, true)
         self.object:set_armor_groups({immortal=1})
+        self.ownpos = self.object:get_pos() -- we literally only need this once (until we fall), so save it!
+        self.check_above, self.check_in = 0.8, 1.2
     end,
 
-    on_step = function(self, dtime)
-        local k = math.random(1,444)
-        local ownpos = self.object:get_pos()
+    fall_detach = function(self)
+        self.falling = true
+        self.ownpos = nil
+        self.object:set_acceleration({x=0, y=-5, z=0})
+    end,
 
-        if k==1 then
-            self.object:set_acceleration({x=0, y=-5, z=0})
+    on_step = function(self, dtime, moveresult)
+        -- random chance of falling
+        if not self.falling then
+            if random(1,444) == 1 then -- 1 in 444 chance
+                return self:fall_detach(self)
+            end
         end
 
-        if minetest.get_node({x=ownpos.x,
-                              y=ownpos.y+0.5,
-                              z=ownpos.z}).name == "air" then
-            self.object:set_acceleration({x=0, y=-5, z=0})
+        -- with ownpos available
+        local ownpos = self.ownpos or self.object:get_pos()
+        if not self.falling then
+            -- check above somewhat regularly
+            self.check_above = self.check_above - dtime
+            if self.check_above < 0 then
+                local above = minimal.get_nodedef({x=ownpos.x, y=ownpos.y+0.5,z=ownpos.z}) or {name="air"}
+                -- we're falling!!!! aaaaa!!!
+                if above.name == "air" or above.drawtype == "airlike" then
+                    return self:fall_detach()
+                end
+                self.check_above = 0.8 -- reset counter
+            end
+            -- check within somewhat regularly
+            self.check_in = self.check_in - dtime
+            if self.check_in < 0 then
+                local inside = minimal.get_nodedef(ownpos) or {name="air"}
+                -- hey! you placed a block into me!!! no drip for u
+                if not (inside.name == "air" or inside.drawtype == "airlike") then
+                    self.object:remove()
+                end
+            end
+            return -- nothing interesting, return
         end
 
-        if minetest.get_node({x=ownpos.x,
-                              y=ownpos.y -0.1,
-                              z=ownpos.z}).name ~= "air" then
-            self.object:remove()
-            minetest.sound_play({name="nodes_nature_water_drip"},
-                {pos = ownpos, gain = math.random(0.5,1),
-                 max_hear_distance = 12})
+        -- we're actually falling!
+        if moveresult and moveresult.collides then
+            local node_pos = moveresult.collisions and moveresult.collisions[1]
+            -- dripped onto something
+            if node_pos then
+                if self.sounds and self.sounds.drip then
+                    minimal.sound_play(minimal.merge_tables(self.sounds.drip, {pos=ownpos}))
+                end
+                return self.object:remove()
+            end
+        end
+        -- let's just keep checking what we're in
+        local inside = minimal.get_nodedef(ownpos) or {name="air"}
+        -- splish splash
+        if (inside.drawtype == "liquid" or inside.drawtype == "flowingliquid") then
+            if self.sounds and self.sounds.sploosh then
+                minimal.sound_play(minimal.merge_tables(self.sounds.sploosh, {pos=ownpos}))
+            end
+            return self.object:remove()
         end
     end,
 
