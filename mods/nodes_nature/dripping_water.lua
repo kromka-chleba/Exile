@@ -9,6 +9,15 @@ local random = math.random
 
 local S = minetest.get_translator("nodes_nature")
 
+-- check if we din dung darn air!
+local function is_air(nodedef)
+    if not nodedef then return end
+    -- YES!
+    if nodedef.name == "air" or nodedef.drawtype == "airlike" then return true end
+    -- weird climate air stuff has "allfaces" as a drawtype
+    if nodedef.name == "climate:air_temp_visible" then return true end
+end
+
 --Drop entities
 local drop_entity = {
     _desc = S("Water drop"),
@@ -68,9 +77,9 @@ local drop_entity = {
             -- check above somewhat regularly
             self.check_above = self.check_above - dtime
             if self.check_above < 0 then
-                local above = minimal.get_nodedef({x=ownpos.x, y=ownpos.y+0.5,z=ownpos.z}) or {name="air"}
+                local above = minimal.get_nodedef({x=ownpos.x, y=ownpos.y+0.5,z=ownpos.z})
                 -- we're falling!!!! aaaaa!!!
-                if above.name == "air" or above.drawtype == "airlike" then
+                if is_air(above) then
                     return self:fall_detach()
                 end
                 self.check_above = 0.8 -- reset counter
@@ -78,9 +87,9 @@ local drop_entity = {
             -- check within somewhat regularly
             self.check_in = self.check_in - dtime
             if self.check_in < 0 then
-                local inside = minimal.get_nodedef(ownpos) or {name="air"}
+                local inside = minimal.get_nodedef(ownpos)
                 -- hey! you placed a block into me!!! no drip for u
-                if not (inside.name == "air" or inside.drawtype == "airlike") then
+                if not is_air(inside) then
                     self.object:remove()
                 end
             end
@@ -88,21 +97,32 @@ local drop_entity = {
         end
 
         -- we're actually falling!
+        -- collided with something
         if moveresult and moveresult.collides then
             local node_pos = moveresult.collisions and moveresult.collisions[1]
+            node_pos = node_pos and node_pos.node_pos
             -- dripped onto something
             if node_pos then
-                if self.sounds and self.sounds.drip then
+                local nodedef, node = minimal.get_nodedef(node_pos)
+                -- will not play sound automatically for any nodes with this callback
+                if nodedef and nodedef.on_water_drop_hit then
+                    nodedef.on_water_drop_hit(node_pos, node, nodedef, self)
+                -- drip drop
+                elseif self.sounds and self.sounds.drip then
                     minimal.sound_play(minimal.merge_tables(self.sounds.drip, {pos=ownpos}))
                 end
                 return self.object:remove()
             end
         end
         -- let's just keep checking what we're in
-        local inside = minimal.get_nodedef(ownpos) or {name="air"}
+        local inside, node = minimal.get_nodedef(ownpos)
         -- splish splash
-        if (inside.drawtype == "liquid" or inside.drawtype == "flowingliquid") then
-            if self.sounds and self.sounds.sploosh then
+        if inside and (inside.drawtype == "liquid" or inside.drawtype == "flowingliquid") then
+            -- ditto for node hits
+            if inside.on_water_drop_splash then
+                -- ownpos will be the position hit, not the exact node pos!
+                inside.on_water_drop_splash(ownpos, node, inside, self)
+            elseif self.sounds and self.sounds.sploosh then
                 minimal.sound_play(minimal.merge_tables(self.sounds.sploosh, {pos=ownpos}))
             end
             return self.object:remove()
