@@ -1333,3 +1333,38 @@ crafting.register_recipe({
         level = 1,
         always_known = true,
 })
+
+-- divide water pots into bowls
+for _, water in pairs({"tech:wooden_water_pot_freshwater", "tech:clay_water_pot_freshwater"}) do
+    local empty = liquid_store.get_sl_def(water).nodename_empty
+    crafting.register_recipe({
+        type = {"hand_mixing"},
+        output = "tech:food_bowl_clay_freshwater 20",
+        items = {water, "tech:food_bowl_clay 20"},
+        replace = empty,
+    })
+    crafting.register_recipe({
+        type = {"hand_mixing"},
+        output = "tech:food_bowl_wooden_freshwater 20",
+        items = {water, "tech:food_bowl_wooden 20"},
+        replace = empty,
+    })
+end
+-- pour 20 bowls into an empty pot
+for _,filled in pairs({"tech:food_bowl_clay_freshwater", "tech:food_bowl_wooden_freshwater"}) do
+    local def = core.registered_nodes[filled]
+    -- 1=filled bowls (to be emptied), 2=empty bowls (result of emptying)
+    local amts = {table.concat({filled," 20"}), table.concat({def.soup_empty," 20"})}
+    crafting.register_recipe({
+        type = {"hand_mixing"},
+        output = "tech:clay_water_pot_freshwater",
+        items = {"tech:clay_water_pot", amts[1]},
+        replace = amts[2],
+    })
+    crafting.register_recipe({
+        type = {"hand_mixing"},
+        output = "tech:wooden_water_pot_freshwater",
+        items = {"tech:wooden_water_pot", amts[1]},
+        replace = amts[2],
+    })
+end
