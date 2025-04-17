@@ -1342,12 +1342,16 @@ for _, water in pairs({"tech:wooden_water_pot_freshwater", "tech:clay_water_pot_
         output = "tech:food_bowl_clay_freshwater 20",
         items = {water, "tech:food_bowl_clay 20"},
         replace = empty,
+        sound = {name="liquid_store_water_pour", pitch = {0.85,1.05},
+          gain = {0.1,0.25}, max_hear_distance = 8}
     })
     crafting.register_recipe({
         type = {"hand_mixing"},
         output = "tech:food_bowl_wooden_freshwater 20",
         items = {water, "tech:food_bowl_wooden 20"},
         replace = empty,
+        sound = {name="liquid_store_water_pour", pitch = {0.85,1.05},
+          gain = {0.1,0.25}, max_hear_distance = 8}
     })
 end
 -- pour 20 bowls into an empty pot
@@ -1360,11 +1364,15 @@ for _,filled in pairs({"tech:food_bowl_clay_freshwater", "tech:food_bowl_wooden_
         output = "tech:clay_water_pot_freshwater",
         items = {"tech:clay_water_pot", amts[1]},
         replace = amts[2],
+        sound = {name="liquid_store_water_pour", pitch = {0.85,1.05},
+          gain = {0.1,0.25}, max_hear_distance = 8}
     })
     crafting.register_recipe({
         type = {"hand_mixing"},
         output = "tech:wooden_water_pot_freshwater",
         items = {"tech:wooden_water_pot", amts[1]},
         replace = amts[2],
+        sound = {name="liquid_store_water_pour", pitch = {0.85,1.05},
+          gain = {0.1,0.25}, max_hear_distance = 8}
     })
 end
