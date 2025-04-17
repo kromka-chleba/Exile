@@ -820,6 +820,7 @@ minetest.register_node(
         paramtype2 = "facedir",
         groups = {cracky = 3},
         sounds = nodes_nature.node_sound_stone_defaults(),
+        drop = "tech:tile_block_loose",
 })
 
 crafting.register_recipe({
@@ -832,6 +833,7 @@ crafting.register_recipe({
 })
 
 -- register slab_tile_loose, stair_tile_loose, stair_inner_tile_loose and stair_outer_tile_loose
+-- before non-loose versions! Otherwise it cannot be registered as drop type of non-loose ones.
 stairs.register_stair_and_slab(
     "tile_loose",
     "tech:tile_block_loose",
@@ -847,9 +849,8 @@ stairs.register_stair_and_slab(
 )
 
 -- add callbacks for slab_tile_loose, stair_tile_loose, stair_inner_tile_loose and stair_outer_tile_loose
+local stairs_type = {"slab", "stair", "stair_inner", "stair_outer"}
 local function add_callbacks_to_loose_tile_stairs()
-    local stairs_type = {"slab", "stair", "stair_inner", "stair_outer"}
-
     for _, type in pairs(stairs_type) do
         core.override_item(
             "stairs:"..type.."_tile_loose",
@@ -868,6 +869,7 @@ end
 add_callbacks_to_loose_tile_stairs()
 
 -- non-loose tile slabs and stairs
+-- dropping loose versions registered above
 stairs.register_stair_and_slab(
     "tile",
     "tech:tile_block",
@@ -879,7 +881,9 @@ stairs.register_stair_and_slab(
     S("Tile Stair"),
     S("Tile Slab"),
     minimal.stack_max_medium,
-    nodes_nature.node_sound_stone_defaults()
+    nodes_nature.node_sound_stone_defaults(),
+    nil,
+    "tech:tile_loose"
 )
 
 
