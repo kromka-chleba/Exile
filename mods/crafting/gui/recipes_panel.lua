@@ -382,6 +382,13 @@ local function find_max_craftable(recipe, item_hash)
             prior_count = max_count
         end
     end
+
+    -- TODO check to do better later
+    -- needed for sleeping spot where `items` is empty
+    if max_count == 0 then
+        max_count = 1
+    end
+
     return max_count
 end
 
