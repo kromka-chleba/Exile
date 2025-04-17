@@ -356,7 +356,8 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
         end
     end
     -- edible functionality
-    food_table = food_table or {}
+    -- only register a food table if not in HEALTH's food table already
+    food_table = not HEALTH.food_table[name] and (food_table or {})
     if def.groups.edible and type(food_table) == "table" then
         -- set up food_table (add replacewithitem, eat_sound if soup)
         food_table.rwi = food_table.rwi or empty.name
@@ -487,6 +488,38 @@ register_food_bowl("food_bowl_wooden",{
     bowl_variant = "wooden"
 })
 minetest.register_alias_force("tech:soup","tech:food_bowl_clay_soup")
+
+-- freshwater variants of bowls
+-- clay
+register_food_bowl_filled("food_bowl_clay_freshwater",{
+    description = S("Bowl of Freshwater"),
+    filled_texture = "tech_bowl_water.png",
+    filled_icon = "tech_bowl_water_icon.png",
+    groups = {edible=1, no_soup=1, drink=1},
+    use_texture_alpha = minimal.compat_alpha and minimal.compat_alpha.clip,
+    -- empty is food_bowl_clay
+    }, "tech:food_bowl_clay",
+    -- food table
+    {
+        th = 5,
+        eat_sound = "nodes_nature_slurp"
+    }
+)
+-- wooden
+register_food_bowl_filled("food_bowl_wooden_freshwater",{
+    description = S("Bowl of Freshwater"),
+    filled_texture = "tech_bowl_water.png",
+    filled_icon = "tech_bowl_water_icon.png",
+    groups = {edible=1, no_soup=1, drink=1},
+    use_texture_alpha = minimal.compat_alpha and minimal.compat_alpha.clip,
+    -- empty is food_bowl_clay
+    }, "tech:food_bowl_wooden",
+    -- food table
+    {
+        th = 5,
+        eat_sound = "nodes_nature_slurp"
+    }
+)
 
 -- # TODO: add options for more or less slots
 local function get_formspec()
