@@ -147,8 +147,13 @@ function crafting.register_recipe(def)
     if def.replace and type(def.replace)== "string" then
         def.replace= {def.replace}
     elseif def.replace and type(def.replace) ~= "table" then
-        core.log("field replace in recipe " .. def.output .. " doesn't have correct format")
+        recipe_error("field 'replace' doesn't have correct format")
         def.replace =nil
+    end
+
+    -- objects useds as tool and not to be consumed
+    if def.tool and type(def.tool) ~= "string" then
+        recipe_error("field 'tool' doesn't have correct format")
     end
 
     -- custom sound per recipe

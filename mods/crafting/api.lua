@@ -235,7 +235,7 @@ end
 
     Returns nil if not found or not enought for recipe
 ]]
-local function find_required_items_in_invs(inv, listname, recipe)
+local function find_required_items_in_invs(inv, listname, items)
         if not listname then
             return nil
         end
@@ -250,8 +250,8 @@ local function find_required_items_in_invs(inv, listname, recipe)
         for i, list in ipairs(listname) do
             found_table[list]={}
         end
-        --print("Recipe Items: "..dump(recipe.items))
-        for i, item in ipairs(recipe.items) do
+
+        for i, item in ipairs(items) do
             -- Conditional input list to process
             local pick_table = pick_alternate_items(inv, listname, item)
             -- if this part is found, add it to found_table
@@ -279,8 +279,8 @@ end
 
     Returns nil if not found or not enought for recipe
 ]]
-function crafting.find_required_items(inv, listname, recipe)
-    local found_table = find_required_items_in_invs(inv, listname, recipe)
+function crafting.find_required_items(inv, listname, items)
+    local found_table = find_required_items_in_invs(inv, listname, items)
     -- Return found list
     if #listname == 1 then
         --if we had only one list, return only a list of stack to keep mod compatibility
@@ -299,31 +299,59 @@ end
 --[[in original mod. Unused in Exile
 Returns true if the listname list in inv contains the required items.]]
 --#TODO could be adapted to check craftable/uncraftable, instead of our additionnal functions
-function crafting.has_required_items(inv, listname, recipe)
-    return crafting.find_required_items(inv, listname, recipe) ~= nil
+function crafting.has_required_items(inv, listname, items)
+    return crafting.find_required_items(inv, listname, items) ~= nil
 end
 
 --[[ In external mod
 * Will try to take itemsfrom `listname` and put output in the `outlistname` list in `inv`.
+*`r` is a player recipe, as in get_all function
 * Returns true on success.
 ]]
-function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
+function crafting.perform_craft(name, inv, listname, outlistname, r, ctype, craft_count)
+    local items, recipe
+    -- if player recipe
+    if r.recipe then
+        items= r.to_take or r.recipe.items
+        recipe = r.recipe
+    else
+        items = r.items
+        recipe = r
+    end
     -- get list of items required for the recipe (if found)
-    local founditems = find_required_items_in_invs(inv, listname, recipe)
+    local founditems = find_required_items_in_invs(inv, listname,  items)
     if not founditems then
         return false
     end
 
     -- Take items from inventory
     local taken = {}
+    local give_back = {}
 
     -- Removes item present in founditems from inventories
     -- Replaces them if need
-    for source, items in pairs(founditems) do
-        for _,item in pairs(items) do
+    for source, s_items in pairs(founditems) do
+        for _,item in pairs(s_items) do
             local took = inv:remove_item(source, item)
-            if took:get_count() > 0 then
+            local nb_took = took:get_count()
+            if nb_took > 0 then
                 taken[#taken + 1] = took
+                -- replace if needed
+                -- #TODO deal with replacement in groups ! (for water pots for example)
+                if recipe.replace then
+                    -- #TODO adjust quantity for max
+                    -- #TODO maybe fill/empty liquid function instead
+                    for input, output in pairs (recipe.replace) do
+                        local i = ItemStack(input)
+                        if i:get_name() == took:get_name() then
+                            local factor = math.floor(nb_took / i:get_count())
+                            local o = ItemStack(output)
+                            o:set_count(o:get_count() * factor)
+                            table.insert (give_back, o)
+                        end
+
+                    end
+                end
             end
         end
     end
@@ -360,12 +388,12 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     end
 
     -- get ouptut itemstack, its meta (`imeta`) and short description (`sdesc`)
-    local itemstack = ItemStack(make_output)
-    local imeta = itemstack:get_meta()
-    local sdesc = itemstack:get_short_description()
+    local output_item = ItemStack(make_output)
+    local imeta = output_item:get_meta()
+    local sdesc = output_item:get_short_description()
 
     -- Set Creator
-    if core.get_item_group(itemstack:get_name(), 'craftedby') > 0 then
+    if core.get_item_group(output_item:get_name(), 'craftedby') > 0 then
         imeta:set_string('creator', name)
         -- don't add creator name to sort description for single player
         if not minetest.is_singleplayer() then
@@ -381,7 +409,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     -- #TODO dig in to see why following part was commented
     -- related to issue https://codeberg.org/Mantar/Exile/issues/1137
     ]]
-    local idef = itemstack:get_definition()
+    local idef = output_item:get_definition()
     -- if we already have a tool_tip for the item,
     -- adds specific meta things to it
     if idef._tool_tips and idef._tool_tips ~= '' then
@@ -405,14 +433,14 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
 
     --end
     local items_to_add = {}
-    local count = itemstack:get_count()
+    local n_tocraft = output_item:get_count() * craft_count
     -- fix for tools not being added properly
     -- (have to manually get the count from the string...)
-    if minetest.registered_tools[itemstack:get_name()]
+    if minetest.registered_tools[output_item:get_name()]
     and string.match(make_output," ") then
-        local toolcount = make_output:sub(#itemstack:get_name()+1,
+        local toolcount = make_output:sub(#output_item:get_name()+1,
         #make_output):gsub(" ", "" )
-        count = ""
+        local count = ""
         for i=1,#toolcount do
             local char = toolcount:sub(i,i) -- individual char
             if #count > 0 and not tonumber(char) then
@@ -423,29 +451,29 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
             end
         end
         -- get itemstack count just incase, don't want nil!
-        count = tonumber(count) or itemstack:get_count()
+        n_tocraft = tonumber(count) or n_tocraft
     end
-    local max_amt = itemstack:get_stack_max() -- use stack's size for iterating
-    local subtract_loop = math.ceil(count / max_amt)
+    local max_amt = output_item:get_stack_max() -- use stack's size for iterating
+    local subtract_loop = math.ceil(n_tocraft / max_amt)
     -- crafted stack size divided by its stack max then ceil'd
     -- (so a stack max and a half will not be 1.5 but rather 2)
     for _ = 1, subtract_loop do
-        local item = ItemStack(itemstack) -- clone locally
-        if count > max_amt then
+        local item = ItemStack(output_item) -- clone locally
+        if n_tocraft > max_amt then
             item:set_count(max_amt) -- set stack to max
-            count = count - max_amt -- lower count by stack max
+            n_tocraft = n_tocraft - max_amt -- lower count by stack max
         else
-            item:set_count(count)
+            item:set_count(n_tocraft)
         end
-        if count > 0 then -- just in case something goes wrong and
+        if n_tocraft > 0 then -- just in case something goes wrong and
             --  an itemstack below or equal to 0 in count is made
             items_to_add[#items_to_add + 1] = item
         end
     end
     -- replace system
-    if recipe.replace then
+    if give_back then
         -- iterate over recipe replace array
-        for _,replace in pairs(recipe.replace) do
+        for _,replace in pairs(give_back) do
             items_to_add[#items_to_add + 1] = ItemStack(replace) -- replace item
         end
     end
@@ -462,10 +490,13 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
         end
     end
     if warn then minimal.warn_inv_full(player) end
-    -- get a crafting sound
+
+    -- get a crafting sound ----------------------------------------------------
     local sound = recipe.sound
-    -- #TODO investigate next line
-    sound = sound or sound ~= false and crafting.get_type(ctype).sound
+    -- if recipe as no sound and not "false", get crafting type's one
+    if not sound and sound ~= false then
+        sound = crafting.get_type(ctype).sound
+    end
     if sound then
         minimal.sound_play(minimal.merge_tables(sound, {pos = pos}))
     end

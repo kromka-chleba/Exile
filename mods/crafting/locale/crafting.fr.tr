@@ -40,6 +40,8 @@ Crafted by: @1= Fabriqué(e) par : @1
 You are using: @1=Vous utilisez : @1
 Filter=Filtrer
 Clear=Effacer
+Tool:=Outil :
+will not be consumed:=ne sera pas consommé
 
 #groups
 limestone cobble=caillou calcaire

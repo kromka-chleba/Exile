@@ -127,6 +127,12 @@ local function generate_p_recipe(recipe, item_hash)
         -- #TODO separate desc and craftable
         displayed = true
     }
+    -- if I have a tool in recipe
+    -- currently I can only have one
+    -- TODO add this limitatin in documentation
+    if recipe.tool then
+        result.tool = generate_item_details(recipe.tool, item_hash)
+    end
     setmetatable(result, player_recipe)
     return result
 end
@@ -226,6 +232,31 @@ local function test_where_condition(recipe, items, criteria)
 	return craftable
 end
 
+local function tool_check(r, item_hash)
+    -- do I have needed tool ?
+    local tool = r.tool
+    if tool then
+        tool = ItemStack(tool)
+        local t_name = tool:get_name()
+        local t_count = tool:get_count()
+        -- store infos for display
+        r.tool.need = t_count
+        r.tool.have = item_hash[t_name] or 0
+        -- if present,
+        -- remove it from item hash so I can't use it as ingredient too
+        if item_hash[t_name] and item_hash[t_name] >= t_count then
+            item_hash[t_name] = item_hash[t_name] - t_count
+            -- TODO check that item_hash is crrectly refreshed for next test
+            return true
+        else -- if not, we can't craft, stop.
+            return false
+        end
+    else
+        return true
+    end
+end
+
+
 -- #TODO update readme when finished
 --[[Check ingredients in item hash to update result's table for that recipe
     if `modify` = `true` : update the result table containing craftable state, items and displayed state.
@@ -236,10 +267,15 @@ player_recipe.update_craftable_state = function(self, item_hash)
         core.log("in 'player_recipe.update_craftable_state' : item_hash is missing") -- #TODO better check
         return
     end
-    local craftable = true
+
+    local craftable = tool_check(self, item_hash)
+    -- at this point maybe craftable = false but we still continue to get state of inputs
+
+    -- if tool is fine, test ingredients
     local to_take = {} -- store version of recipe to take
     -- Check what ingredients are available
     for row, rowItems in ipairs(self.it_details) do
+        local row_t = {}
         local pickable = false
         for i, item in ipairs(rowItems) do
             update_item(item, item_hash)
@@ -247,9 +283,10 @@ player_recipe.update_craftable_state = function(self, item_hash)
             -- if we have enough ingredient for that item,
             -- mark it as pickable
             if item.available then
-                to_take[#to_take+1] = item -- take that one to craft
+                local taking = item.name .." ".. tostring(item.need)
+                row_t[#row_t+1] = taking -- take that one to craft
                 pickable = true -- at least one item is available
-                break
+                -- don't break here, we still want the rest to be checked for recipe display (tooltip)
             end
         end
         -- if none of the item of the row was pickable, recipe is not craftable
@@ -257,6 +294,7 @@ player_recipe.update_craftable_state = function(self, item_hash)
             craftable = false
             -- do not break we still continue to get full display of "have" in FS
         end
+        to_take[#to_take+1] = row_t
     end
     -- at this point, craftable and partial are uptodate
     -- check if we have a where clause only if its craftable
@@ -276,7 +314,13 @@ player_recipe.update_possible_state = function(self, item_hash)
         core.log("in 'player_recipe.update_possible_state' : item_hash is missing") -- #TODO better check
         return
     end
-    local possible = true
+
+    local possible = tool_check(self, item_hash)
+    if not possible then
+        self.possible = false
+        return false
+    end
+
     local missing = {} -- to store missing items to move
     -- Check what ingredients are available
     for row, rowItems in ipairs(self.it_details) do
@@ -288,7 +332,8 @@ player_recipe.update_possible_state = function(self, item_hash)
             else
                 item.possible = test_item(item, item.missing, item_hash)
                 if item.possible then
-                    missing[#missing+1] = item -- take that one to move
+                    local m_item = item.name .." ".. tostring(item.need)
+                    missing[#missing+1] = m_item -- take that one to move
                     pickable = true
                     break
                 end

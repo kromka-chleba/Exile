@@ -544,11 +544,14 @@ function crafting.process_receive_fields(player, formname, fields)
     end
 
     --process input setting
-
     if fields.input_option then
         local option = tonumber(fields.input_option)
         if option ~= cache.craft_input then
             cache.craft_input = option
+            -- update availability or "hint button" if new option forbid it
+            if input_options[option].hint_btn == false then
+                cache.possible_hint = false
+            end
             if option == 2 then cache.updated = true end
             -- save in player's settings
             local meta = player:get_meta()
@@ -640,7 +643,7 @@ function crafting.process_receive_fields(player, formname, fields)
 
             -- if we pushed a recipe button
             elseif btn_type == 'sResult' then
-                return crafting.craft_recipe(btn_id, cache, player,  player_name, inv)
+                return cache:push_recipe(tonumber(btn_id), player,  player_name, inv)
             end
             -- any button pushes require recipes to be redrawn
             -- #TODO was already done in craft_recipe

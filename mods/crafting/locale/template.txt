@@ -34,3 +34,5 @@ Crafted by: @1=
 You are using: @1=
 Filter=
 Clear=
+Tool:=
+will not be consumed:=

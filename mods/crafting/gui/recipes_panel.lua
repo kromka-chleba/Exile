@@ -158,32 +158,58 @@ local color_esc = core.get_color_escape_sequence
 crafting.register_cache_function("get_recipes_panel",
     function(self, pInv)
 
+    local function item_tool_tip(item, j)
+        local s = {} -- future tooltip for that item
+        local h
+        -- adds colors if needed
+        if item.have then
+            local color = item.have >= item.need and "#6f6" or "#f66"
+            s[#s +1] = color_esc(color)
+            h = item.have
+        else -- replace "have" number by "?" if we don't know
+            h = "?"
+        end
+        -- adds "or" if not the first of the line
+        if j ~= 1 then
+            s[#s +1] = S("or") .. " "
+        end
+
+        s[#s +1] = item.short .. ": "
+                            ..  h .."/".. item.need .." "
+                            .. color_esc("#ffffff")
+        return tofstring(s)
+    end
+
+    local function tool_tool_tip(tool)
+        local s = {} -- future tooltip for that item
+        -- adds colors if needed
+        if tool.have then
+            local color = tool.have >= tool.need and "#6f6" or "#f66"
+            s[#s +1] = color_esc(color)
+        end
+
+        s[#s +1] = tool.short
+        s[#s +1] = color_esc("#ffffff")
+        return tofstring(s)
+    end
+
     -- generates tooltip of each recipe
     local function generate_tool_tip(result)
         local item_desc = ItemStack(result.recipe.output):get_description()
         -- add recipe's tooltip part 1 : output's description
         local t = {esc(item_desc .. "\n")}
+        -- add recipe's tool info if needed
+        if result.tool then
+            t[#t+1] = "\n" .. S("Tool (")
+                    .. S("will not be consumed") .."): "
+                    .. tool_tool_tip(result.tool)
+
+        end
         -- add recipe's tooltip part 2 : inputs
         for _, row in ipairs(result.it_details) do
             local tool_tip ="\n"
             for j, item in ipairs(row) do
-                local h
-                -- adds colors if needed
-                if item.have then
-                    local color = item.have >= item.need and "#6f6" or "#f66"
-                    tool_tip = tool_tip .. color_esc(color)
-                    h = item.have
-                else -- replace "have" number by "?" if we don't know
-                    h = "?"
-                end
-                -- adds "or" if not the first of the line
-                if j ~= 1 then
-                    tool_tip = tool_tip .. S("or") .. " "
-                end
-
-                tool_tip = tool_tip ..  item.short .. ": "
-                                    ..  h .."/".. item.need .." "
-                                    .. color_esc("#ffffff")
+                tool_tip = tool_tip .. item_tool_tip(item, j)
             end
             t[#t+1] = esc(tool_tip)
         end
@@ -401,8 +427,23 @@ local function calculate_stack_input(item)
     return stack_size / per_input
 end
 
-local function get_craft_count(recipe, qty, item_hash)
+local function get_craft_count(cache, r, item_hash)
+    local qty = cache.qty
+    if not qty then
+        core.log("warning", "cache.qty is not given in 'get_craft_count' function, 1 is used by default")
+        return 1
+    -- only one requested? not our problem
+    elseif qty == 1 then
+        return 1
+    end
     -- more then single requested? find max
+    item_hash = item_hash or cache.item_hash -- TODO to improve with player inv ?
+    if not item_hash then
+        core.log("warning", "cache.item_hash is not given in 'get_craft_count' function, 1 is used by default")
+        return 1
+    end
+
+    local recipe = r.recipe
     local max_count = find_max_craftable(recipe, item_hash)
 
     if qty == 2 then -- stack requested so adjust max to max for stack.
@@ -414,53 +455,33 @@ local function get_craft_count(recipe, qty, item_hash)
     return max_count
 end
 
-crafting.register_cache_function("get_craft_count",
-    function(self, recipe)
-        local qty = self.qty
-        if not qty then
-            core.log("warning", "cache.qty is not given in 'get_craft_count' function, 1 is used by default")
-            return 1
-        -- only one requested? not our problem
-        elseif qty == 1 then
-            return 1
-        end
-
-        -- more then single requested? find max
-        local item_hash = self.item_hash -- TODO to improve with player inv ?
-        if not item_hash then
-            core.log("warning", "cache.item_hash is not given in 'get_craft_count' function, 1 is used by default")
-            return 1
-        end
-        get_craft_count(recipe, qty, item_hash)
-    end)
+crafting.register_cache_function("get_craft_count", get_craft_count)
 
 --#TODO check how it is done and using itemhash and if it can be improved.
 -- Quantity sets single, stack or maximum -- this finds how many we can craft
 -- returns nothing but update recipe.items
-local function process_count(recipe, max_count, item_hash)
+local function process_count(r, count, item_hash)
     -- TODO check if I change the parameter to "count"
-    if max_count == 1 then
+    if count == 1 then
         return
     end
+    -- set count to know how many output(s) to give
+    r.count = count
 
-    local oItem = ItemStack(recipe.output)
-    local oName = oItem:get_name()
-
-    local function handle_input_alternates(input, craft_count, pItems)
-        local row_maxCount = craft_count
+    local pItems = {} -- picked items list
+    -- set input items to values for max_count
+    for i, row in ipairs(r.it_details) do
+        local row_maxCount = count
         -- use max_count for each row's max
-        for j,iRow in ipairs(input) do
-            local iItem = ItemStack(iRow)
-            local iName = iItem:get_name()
-            local iEach = iItem:get_count()
-            local iHave = item_hash[iName] or 0
-            local ioCount = math.floor(iHave / iEach)
+        for j,it in ipairs(row) do
+            local iHave = item_hash[it.name] or 0
+            local ioCount = math.floor(iHave / it.need)
             if ioCount > 0 then
                 if ioCount > row_maxCount then
                     ioCount = row_maxCount
                     -- no more then max_count should be picked.
                 end
-                local taking = iName .." "..ioCount * iEach
+                local taking = it.name .." "..ioCount * it.need
                 pItems[#pItems+1] = taking
                 row_maxCount = row_maxCount - ioCount
                 if row_maxCount == 0 then
@@ -469,48 +490,57 @@ local function process_count(recipe, max_count, item_hash)
             end
         end
     end
-
-    -- set output to max_count
-    local per_input = oItem:get_count() -- How many we get for one input set
-    recipe.output = oName .." ".. per_input * max_count
-    -- adjust replace
-    for i,rItem in pairs(recipe.replace or {}) do -- index, Replace Item
-        rItem = ItemStack(rItem)
-        rItem:set_count((rItem:get_count() or 1)
-            * max_count)
-        recipe.replace[i] = rItem:to_string()
-    end
-    local pItems = {} -- picked items list
-    -- set input items to values for max_count
-    for i,input in ipairs(recipe.items) do
-        if type(input) == 'string' then
-            local iItem = ItemStack(input)
-            local iCount = iItem:get_count()
-            if iCount > 0 then
-                local count = iCount * max_count
-                local take = iItem:get_name() .. " " .. count
-                pItems[#pItems+1] = take
-            end
-        else
-            handle_input_alternates(input, max_count, pItems)
-        end
-    end
-    recipe.items = pItems
+    r.to_take = pItems
 end
 
--- function called when pushing a recipe button
-function crafting.craft_recipe(btn_id, cache, player, player_name, inv)
-    local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
+-- TODO improve checking craft state
+-- is more "pressing a button" thing I guess.
+local function push_recipe(cache, btn_id, player, player_name, inv)
+    if type(btn_id) ~= "number" then
+        core.log ("btn_id is not a number in cache:craft_recipe")
+    end
+    -- get the recipe we clicked on ---------
+    -- get current craftable recipes table, or if not sorted, full recipes
+    local t = cache.c_recipes or cache.recipes
+    local p_recipe
+    for _, r in pairs(t) do
+        if r.recipe.id == btn_id then
+            p_recipe = r
+            break
+        end
+    end
+
+    -- not craftable
+    if not p_recipe then
+        if cache.p_recipes then
+            -- check possible recipe, to laucnh other action
+            for _, r in pairs(cache.p_recipes) do
+                if r.recipe.id == btn_id then
+                    p_recipe = r
+                    break
+                end
+            end
+            if p_recipe then
+                -- do things with possible recipe
+                return
+            end
+        -- else should be in uncraftable recipe
+        -- #TODO double check that
+        end
+        minimal.warn_message(player, player_name,
+                                 S("Missing required items!"))
+        return
+    end
+
     local ctype = cache.cTabs[cache.sTab]
     local sLevel = cache.sLevel
-    local qty = cache.qty or 1
     --#TODO I need to improve the way cache.item_hash is assigned/modified
     local item_hash = cache.item_hash or cache:get_input_hash(inv)
-    local max_count = get_craft_count(recipe, qty, item_hash)
+    local max_count = get_craft_count(cache, p_recipe, item_hash)
     -- TODO store max_count in cache ?
-    process_count(recipe, max_count, item_hash)
+    process_count(p_recipe, max_count, item_hash)
     if not crafting.can_craft(player_name, ctype,
-                              sLevel, recipe) then
+                              sLevel, p_recipe.recipe) then
         minetest.log("error", "[inventoryFS] Player clicked a "..
                      "button they shouldn't have been able to")
         return true
@@ -518,7 +548,7 @@ function crafting.craft_recipe(btn_id, cache, player, player_name, inv)
     -- cache:get_craft_input() is the input list
     -- 'main' is the output list
     elseif crafting.perform_craft(
-        player_name, inv, cache:get_craft_input(), 'main', recipe, ctype) then
+        player_name, inv, cache:get_craft_input(), 'main', p_recipe, ctype, max_count) then
         cache.FS_recipes = nil
         return true -- crafted
     else
@@ -531,3 +561,39 @@ function crafting.craft_recipe(btn_id, cache, player, player_name, inv)
         return true -- failed but we handled it
     end
 end
+
+crafting.register_cache_function("push_recipe", push_recipe)
+
+-- -- function called when pushing a recipe button
+-- function crafting.craft_recipe(btn_id, cache, player, player_name, inv)
+--     local recipe = table.copy(crafting.get_recipe(tonumber(btn_id)))
+--     local ctype = cache.cTabs[cache.sTab]
+--     local sLevel = cache.sLevel
+--     local qty = cache.qty or 1
+--     --#TODO I need to improve the way cache.item_hash is assigned/modified
+--     local item_hash = cache.item_hash or cache:get_input_hash(inv)
+--     local max_count = get_craft_count(recipe, qty, item_hash)
+--     -- TODO store max_count in cache ?
+--     process_count(recipe, max_count, item_hash)
+--     if not crafting.can_craft(player_name, ctype,
+--                               sLevel, recipe) then
+--         minetest.log("error", "[inventoryFS] Player clicked a "..
+--                      "button they shouldn't have been able to")
+--         return true
+--     -- try to craft
+--     -- cache:get_craft_input() is the input list
+--     -- 'main' is the output list
+--     elseif crafting.perform_craft(
+--         player_name, inv, cache:get_craft_input(), 'main', recipe, ctype) then
+--         cache.FS_recipes = nil
+--         return true -- crafted
+--     else
+--         -- #TODO: see why this is duplicated in crafting/gui.lua
+--         --  since that doesn't seem to be used
+--         minimal.warn_message(player, player_name,
+--                              S("Missing required items!"))
+--         --minetest.chat_send_player(
+--         --    player_name, ("Missing required items!"))
+--         return true -- failed but we handled it
+--     end
+-- end
