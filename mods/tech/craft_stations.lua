@@ -554,7 +554,7 @@ end
 ----------------------------------------------
 
 -- def can be description (tag)
-local function register_mortar_and_pestle(name, def)
+local function register_mortar_and_pestle(name, def, sand_needed)
     def = type(def) == "string" and {tag = def} or type(def) == "table" and def or {}
     def.description = def.description or def.tag and S("@1 Mortar and Pestle", def.tag) or nil
     def.tag = nil -- remove from def
@@ -609,9 +609,12 @@ local function register_mortar_and_pestle(name, def)
     -- register recipe
     recipe.type = recipe.type or {"hand_tools", "grinding_stone"}
     recipe.output = nodename
-    -- return sand if recipe.items not specified
-    recipe.replace = not recipe.items and "nodes_nature:sand" or nil
-    recipe.items = recipe.items or {"nodes_nature:"..name.."_boulder", "group:"..name.."_cobble", "nodes_nature:sand"}
+    -- add sand as tool is sand is needed
+    if sand_needed then
+        recipe.tool = "nodes_nature:sand"
+    end
+    -- recipe.items are given for wooden already, else it is stone ones
+    recipe.items = recipe.items or {"nodes_nature:"..name.."_boulder", "group:"..name.."_cobble"}
     recipe.level = 1
     recipe.always_known = true
     crafting.register_recipe(recipe)
@@ -619,19 +622,23 @@ end
 
 -- need to change old tech:mortar_pestle to tech:mortar_pestle_limestone
 -- less translation work needed if we just use the nodes_nature description lol
-register_mortar_and_pestle("basalt", core.registered_nodes["nodes_nature:basalt"].description)
-register_mortar_and_pestle("granite", core.registered_nodes["nodes_nature:granite"].description)
-register_mortar_and_pestle("limestone", core.registered_nodes["nodes_nature:limestone"].description)
+register_mortar_and_pestle("basalt", core.registered_nodes["nodes_nature:basalt"].description, true)
+register_mortar_and_pestle("granite", core.registered_nodes["nodes_nature:granite"].description, true)
+register_mortar_and_pestle("limestone", core.registered_nodes["nodes_nature:limestone"].description, true)
 -- wooden mortar and pestle
-register_mortar_and_pestle("wooden", {
-    description = S("Wooden Mortar and Pestle"),
-    tiles = {"tech_primitive_wood.png"},
-    sounds = nodes_nature.node_sound_wood_defaults(),
-    recipe = {
-        type = {"axe", "carpentry_bench"},
-        items = {'group:log 2'}
-    }
-})
+register_mortar_and_pestle(
+    "wooden",
+    {
+        description = S("Wooden Mortar and Pestle"),
+        tiles = {"tech_primitive_wood.png"},
+        sounds = nodes_nature.node_sound_wood_defaults(),
+        recipe = {
+            type = {"axe", "carpentry_bench"},
+            items = {'group:log 2'}
+            }
+        },
+    false
+)
 
 
 --------------------------------------------------------------

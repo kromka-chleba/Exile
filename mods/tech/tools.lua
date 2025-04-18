@@ -566,10 +566,10 @@ local function register_adze(suffix, def)
         type = {"hand_tools", "grinding_stone" },
         output = tool,
         items = {"group:" .. suffix .."_cobble",'tech:stick',
-                 'group:fibrous_plant 4', 'nodes_nature:sand'},
+                 'group:fibrous_plant 4'},
         level = 1,
         always_known = true,
-        replace = 'nodes_nature:sand'
+        tool = "nodes_nature:sand"
     })
 end
 -- less uses than granite bc softer stone
@@ -684,10 +684,10 @@ local function register_hammer(suffix, desc)
         type = { "hand_tools", "grinding_stone" },
         output = tool,
         items = {"group:" .. suffix .."_cobble", 'tech:stick',
-        'group:fibrous_plant 4', 'nodes_nature:sand'},
+        'group:fibrous_plant 4'},
         level = 1,
         always_known = true,
-        replace = 'nodes_nature:sand'
+        tool = "nodes_nature:sand"
     })
 end
 -- basalt and granite hammer
@@ -724,10 +724,10 @@ minetest.register_tool("tech:stone_club",
 crafting.register_recipe({
         type = { "hand_tools", "grinding_stone" },
         output = "tech:stone_club",
-        items = {"group:granite_cobble", 'nodes_nature:sand'},
+        items = {"group:granite_cobble"},
         level = 1,
         always_known = true,
-        replace = 'nodes_nature:sand'
+        tool = "nodes_nature:sand"
         }
     )
 
