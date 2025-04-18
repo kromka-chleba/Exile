@@ -1012,24 +1012,33 @@ for dough,flour in pairs(
   ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked",
   ["tech:all_dough"] = "tech:all_flour", ["tech:barszcz_dough"] = "tech:barszcz_flour"}) do
     -- get count from itemstring
-    local count = tonumber(flour:match"%s%d+") -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
+    -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
+    local count = tonumber(flour:match"%s%d+")
     if not count then
         -- otherwise set one and add it to flour
         count = 8
         flour = flour.." "..count
     end
+
+    local recipe_def = {
+        type = "breadmaking",
+        output = dough.." "..count,
+        -- only the freshwater variant
+        items = {flour,{}},
+        replace = {},
+        level = 1,
+        always_known = true
+    }
+
     -- iterate through every empty water pot
     for _,water_pot in pairs({"tech:clay_water_pot", "tech:wooden_water_pot"}) do
-        crafting.register_recipe({
-            type = "breadmaking",
-            output = dough.." "..count,
-            -- only the freshwater variant
-            items = {flour, water_pot.."_freshwater"},
-            replace = water_pot,
-            level = 1,
-            always_known = true
-        })
+        -- adds full pot as possible input
+        table.insert(recipe_def.items[2], water_pot.."_freshwater")
+        -- adds matching empty pot as replacement
+        recipe_def.replace[water_pot.."_freshwater"] = water_pot
     end
+
+    crafting.register_recipe(recipe_def)
 end
 
 -- ANIMAL PRODUCTS
