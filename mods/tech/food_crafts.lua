@@ -998,7 +998,7 @@ crafting.register_recipe({
 -- mix bready flours into all-purpose
 
 crafting.register_recipe({
-    type = "breadmaking",
+    type = {"mortar_and_pestle"},
     output = "tech:all_flour 2",
     items = {'group:bread_flour', 'group:cake_flour'},
     level = 1,
