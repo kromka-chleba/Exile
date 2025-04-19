@@ -787,7 +787,7 @@ minetest.register_node(
 local loose_tile_texture = "tech_roof_tiles.png^[colorize:#AAA:40"
 local loose_tile_after_place_node = function(pos, placer, itemstack, pointed_thing)
     -- placed by player? -> start timer
-    if placer and placer:is_player() then
+    if core.is_player(placer) then
         minetest.get_node_timer(pos):start(30)
         --core.log("loose tile timer started")
     end
@@ -850,23 +850,23 @@ stairs.register_stair_and_slab(
 
 -- add callbacks for slab_tile_loose, stair_tile_loose, stair_inner_tile_loose and stair_outer_tile_loose
 local stairs_type = {"slab", "stair", "stair_inner", "stair_outer"}
-local function add_callbacks_to_loose_tile_stairs()
-    for _, type in pairs(stairs_type) do
-        core.override_item(
-            "stairs:"..type.."_tile_loose",
-            {
-                after_place_node = loose_tile_after_place_node,
-                on_timer = function(pos, elapsed)
-                    --core.log(type.."_tile_loose to "..type.."_tile")
-                    local p2 = minetest.get_node(pos).param2
-                    minetest.set_node(pos, { name = "stairs:"..type.."_tile", param2 = p2 })
-                end
-            }
-        )
-    end
+--local function add_callbacks_to_loose_tile_stairs()
+for _, type in pairs(stairs_type) do
+    core.override_item(
+        "stairs:"..type.."_tile_loose",
+        {
+            after_place_node = loose_tile_after_place_node,
+            on_timer = function(pos, elapsed)
+                --core.log(type.."_tile_loose to "..type.."_tile")
+                local p2 = minetest.get_node(pos).param2
+                minetest.set_node(pos, { name = "stairs:"..type.."_tile", param2 = p2 })
+            end
+        }
+    )
 end
+--end
 
-add_callbacks_to_loose_tile_stairs()
+--add_callbacks_to_loose_tile_stairs()
 
 -- non-loose tile slabs and stairs
 -- dropping loose versions registered above
