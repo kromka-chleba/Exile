@@ -196,6 +196,7 @@ local function test_where_condition(recipe, items, criteria)
 	-- for each item in row number lParam
 	for _,left in ipairs( items[tonumber(lParam)] ) do
 		--lName is item's name, or if a group, matching item's name
+        -- TODO seems wierd since it is the last object used, but maybe not the only one ??
 		local lName = get_real_name(left.name)
 		-- if we have enough of this item,
 		-- then test if condition is filled with him
