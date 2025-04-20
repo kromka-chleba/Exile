@@ -5,6 +5,7 @@ liquid_store.liquids = {}
 liquid_store.stored_liquids = {}
 
 --Liquids that it is possible to put in a bucket
+-- register liquids in liquid_store.liquids
 function liquid_store.register_liquid(source, flowing, force_renew)
     liquid_store.liquids[source] = {
         source = source,
@@ -14,8 +15,9 @@ function liquid_store.register_liquid(source, flowing, force_renew)
 end
 
 local on_scoop_change = {}
+--Transform the named liquid into the replacement when picked up with a pot
+-- stores what need to be changed in on_scop_change table
 function liquid_store.register_scoop_change(name, replacement)
-    --Transform the named liquid into the replacement when picked up with a pot
     if ( not minetest.registered_nodes[name] ) or
         ( not minetest.registered_nodes[replacement] ) then
         minetest.log("error", "liquid_store: tried to register invalid scoop"..
@@ -25,6 +27,11 @@ function liquid_store.register_scoop_change(name, replacement)
     on_scoop_change[name] = replacement
 end
 
+--[[get the source (liquid) of a stored liquid
+    *`nodename` as in  "tech:clay_water_pot_freshwater"
+    * if `nodename` is not a valid sotred liquid, returns `nodename`
+    * else return the source as in "nodes_nature:freshwater_source"
+]]
 function liquid_store.contents(nodename)
     --To be called when you need to know if something's a valid liquid
     --Stores will return their source name; regular nodes will pass through
@@ -109,8 +116,12 @@ local function handle_interaction(player, pointed_thing)
     return pointed_thing.type
 end
 
--- find_stored
--- helps find a stored liquid variant with the provided empty and source
+-- find_stored liquid name
+--[[ helps find a stored liquid variant with the provided empty and source
+    `empty` is the empty container (ex: n"odes_nature:freshwater_source")
+    `source` is the liquid (ex: "tech:clay_water_pot")
+    return the name of the stored lquid (ex: "tech:clay_water_pot_freshwater")
+    ]]
 local function find_stored(empty, source)
     -- allow empty to be a string, or a table or userdata
     --   (usually itemstack) with a "name" index or "get_name" function
@@ -462,15 +473,15 @@ function liquid_store.on_place(itemstack, placer, pointed_thing)
     return itemstack
 end
 
-
-
 -- register_stored_liquid
--- registers a bucket of liquid (hence the name, "stored liquid")
--- registers like a node, except expects 2 additional parameters:
---    empty/nodename_empty: an empty bucket of the stored liquid
---    source: the liquid that gets transferred
--- has an optional boolean value "dumpable";
--- default is true unless source is not a registered node, then defaults to false
+--[[ registers a bucket of liquid (hence the name, "stored liquid")
+    * registers like a node, except expects 2 additional parameters:
+        * empty/nodename_empty: an empty bucket of the stored liquid
+        * source: the liquid that gets transferred
+        * has an optional boolean value "dumpable";
+          default is true
+          unless source is not a registered node, then defaults to false
+]]
 function liquid_store.register_stored_liquid(name,def)
     assert(
         type(name) == "string",
@@ -543,8 +554,6 @@ function liquid_store.register_stored_liquid(name,def)
     minetest.register_node(name,def)
     return minetest.registered_nodes[name]
 end
-
-
 
 
 ---------------------------------------------------------
