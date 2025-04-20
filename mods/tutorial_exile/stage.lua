@@ -82,9 +82,23 @@ local function loadschem(anchor, file)
                         io.open(filename, "rb"))
 end
 
+local function dump_tutorial_state(num)
+    core.log("error", "TUTORIAL error: Instance "..
+             tostring(num).." does not exist!")
+    print("TUTORIAL INSTANCE READOUT")
+    print()
+    print("Players in: ",dump(i_num))
+    print()
+    print("Instance data: ",dump(instance))
+end
+
 local function add_stage(num, finish)
     -- load the next stage, then wait and do it again
     -- finish is the last active stage in an already-setup tutorial area
+
+    if not instance[num] then
+        dump_tutorial_state(num)
+    end
 
     -- #TODO: Shift this into an interruptible job system
     local inst = instance[num]
@@ -106,6 +120,9 @@ end
 
 -- Begin reloading any visited stages
 local function reload(num)
+    if not instance[num] then
+        dump_tutorial_state(num)
+    end
     instance[num].in_use = false
     instance[num].ready = 0
     minetest.after(delay, add_stage, num, instance[num].active)
