@@ -432,8 +432,8 @@ local function get_craft_count(cache, r, item_hash)
     if not qty then
         core.log("warning", "cache.qty is not given in 'get_craft_count' function, 1 is used by default")
         return 1
-    -- only one requested? not our problem
-    elseif qty == 1 then
+    -- only one requested? Max not allowed ? return 1
+        elseif qty == 1 or r.recipe.no_max then
         return 1
     end
     -- more then single requested? find max

@@ -156,6 +156,15 @@ function crafting.register_recipe(def)
         recipe_error("field 'tool' doesn't have correct format")
     end
 
+    -- forbid max for tools outputs
+    -- if not explicitely set on "I want max possible"
+    local o_name = ItemStack(def.output):get_name()
+    if minetest.registered_tools[o_name] then
+        if def.no_max ~= false then
+            def.no_max = true
+        end
+    end
+
     -- custom sound per recipe
     -- permits "false" to prevent playing of crafting station sound
     def.sound = type(def.sound) == "string" and {name = def.sound} or type(def.sound) == "table" and def.sound or
