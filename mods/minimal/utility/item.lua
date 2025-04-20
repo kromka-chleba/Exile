@@ -20,33 +20,27 @@ end
 
 
 function minimal.item_pickup(clicker, pointed_thing)
-    if (minetest.is_player(clicker) and type(pointed_thing) == "table") then
-        if pointed_thing.type == "object" then
-            local pt_ref = pointed_thing.ref
-            local ent
-            if pt_ref then
-                ent = pt_ref:get_luaentity()
-            end
-            if ent then
-                if ent.itemstring and ent.itemstring ~= "" then
-                    -- itemstring seems to save item metadata and wear :o
-                    local itemstack = ItemStack(ent.itemstring)
-                    local inv = clicker:get_inventory()
+    -- no player or no pointed_thing
+    if not (core.is_player(clicker) and type(pointed_thing) == "table") then return false end
+    if pointed_thing.type ~= "object" then return false end -- not an object
+    -- ref will be the object for the entity, check if userdata and has get_luaentity
+    local ent = type(pointed_thing.ref) == "userdata" and pointed_thing.ref.get_luaentity and
+      pointed_thing.ref:get_luaentity()
+    if not ent then return false end -- could not get entity
+    if ent.itemstring == "" or not ent.itemstring then return false end -- no item to pickup
+    -- itemstring seems to save item metadata and wear :o
+    local itemstack = ItemStack(ent.itemstring)
+    local inv = clicker:get_inventory()
 
-                    if inv:room_for_item("main",itemstack) then
-                        inv:add_item("main",itemstack)
-                        pointed_thing.ref:remove()
-                    else
-                        minimal.warn_inv_full(clicker)
-                    end
-
-                    return true
-                end
-            end
-        end
+    -- # should we run the entities :on_punch callback? if so, how do we calculate the needed parameters?
+    if inv:room_for_item("main",itemstack) then
+        inv:add_item("main",itemstack)
+        pointed_thing.ref:remove()
+    else
+        minimal.warn_inv_full(clicker)
     end
 
-    return false
+    return true
 end
 
 -- itemstack storage functions
