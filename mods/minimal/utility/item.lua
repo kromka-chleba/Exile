@@ -1,13 +1,12 @@
 minimal = minimal
 
 function minimal.is_group(name, group_name)
-    if not minetest.registered_items[name] then
-        error("item_group: not a valid item")
+    -- let's not have to make code check for a nil item to prevent crashing
+    if not core.registered_items[name] then
+        return core.log("warning", "minimal.is_group: "..name.." is not a valid item!")
     end
-    local group_val = minetest.get_item_group(name, group_name)
-    if group_val > 0 then 
-        return group_val 
-    end
+    local group_val = core.get_item_group(name, group_name)
+    return group_val > 0 and group_val -- returns false on failure, group number on success
 end
 
 function minimal.swap_tool(player, wielded_item, newtool)
