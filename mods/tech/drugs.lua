@@ -502,21 +502,41 @@ crafting.register_recipe({
         always_known = true,
 })
 
+-- replacement table for tang
+local tang_table = {
+    ["tech:clay_water_pot_freshwater"] = "tech:tang_unfermented",
+    ["tech:wooden_water_pot_freshwater"] = "tech:wooden_tang_unfermented"
+}
+
 --make tang_unfermented
 crafting.register_recipe({
         type = "mortar_and_pestle",
         output = "tech:tang_unfermented",
         items = {'nodes_nature:tangkal_fruit 12',
-                 "tech:clay_water_pot_freshwater"},
+                 "group:freshwater_pot"},
+        replace = tang_table,
+        -- custom output generation function
+        -- has to return output stack as string
+        output_func = function() return nil end,
         level = 1,
         always_known = true,
 })
--- make tang unfermented in wooden pot
-crafting.register_recipe({
-        type = "mortar_and_pestle",
-        output = "tech:wooden_tang_unfermented",
-        items = {'nodes_nature:tangkal_fruit 12',
-                 "tech:wooden_water_pot_freshwater"},
-        level = 1,
-        always_known = true,
-})
+
+-- --make tang_unfermented
+-- crafting.register_recipe({
+--         type = "mortar_and_pestle",
+--         output = "tech:tang_unfermented",
+--         items = {'nodes_nature:tangkal_fruit 12',
+--                  "tech:clay_water_pot_freshwater"},
+--         level = 1,
+--         always_known = true,
+-- })
+-- -- make tang unfermented in wooden pot
+-- crafting.register_recipe({
+--         type = "mortar_and_pestle",
+--         output = "tech:wooden_tang_unfermented",
+--         items = {'nodes_nature:tangkal_fruit 12',
+--                  "tech:wooden_water_pot_freshwater"},
+--         level = 1,
+--         always_known = true,
+-- })
