@@ -430,6 +430,7 @@ local function register_food_bowl(name, def)
     -- dependent on variant
     def.groups.pottery = def.groups.pottery or (variant == "clay" and 1) or nil
     def.groups.flammable = def.groups.flammable or (variant == "wooden" and 2) or nil
+    def.groups.bowl = 1 -- for recipes
     def.sounds = def.sounds or (variant == "wooden" and nodes_nature.node_sound_wood_defaults() or
         tech.node_sound_earthenware_defaults())
     def.tiles = def.tiles or (variant == "wooden" and "tech_primitive_wood.png" or "tech_pottery.png")
@@ -481,6 +482,8 @@ end
 tech.register_food_bowl = register_food_bowl
 
 -- registration of clay + wooden food bowls, and their soup + stew variants
+-- TODO from lili, improve that with groups and materials...
+-- like getting material field
 register_food_bowl("food_bowl_clay")
 register_food_bowl("food_bowl_wooden",{
     bowl_variant = "wooden"
