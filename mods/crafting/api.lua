@@ -410,94 +410,104 @@ function crafting.perform_craft(name, inv, listname, outlistname, r, ctype, craf
     end
 
     local make_output = recipe.output
+
     if recipe.material_output then
         make_output = string.gsub(recipe.material_output,
                                                 "%%material%%", material)
     end
 
-    -- get ouptut itemstack, its meta (`imeta`) and short description (`sdesc`)
-    local output_item = ItemStack(make_output)
-    local imeta = output_item:get_meta()
-    local sdesc = output_item:get_short_description()
-
-    -- Set Creator
-    if core.get_item_group(output_item:get_name(), 'craftedby') > 0 then
-        imeta:set_string('creator', name)
-        -- don't add creator name to sort description for single player
-        if not minetest.is_singleplayer() then
-            -- player's so-and-so
-            sdesc = S("@1's @2",name, sdesc)
-        end
-        imeta:set_string('short_description', sdesc)
+    --if custome output function is here
+    if recipe.output_func then
+        make_output = recipe.output_func()
     end
 
-    -- Add Tool Tips to Description
-
-    --[[ changed by Mantar 11 months ago, commented and replaces by get_short function in GUI
-    -- #TODO dig in to see why following part was commented
-    -- related to issue https://codeberg.org/Mantar/Exile/issues/1137
-    ]]
-    local idef = output_item:get_definition()
-    -- if we already have a tool_tip for the item,
-    -- adds specific meta things to it
-    if idef._tool_tips and idef._tool_tips ~= '' then
-        imeta:set_string('description',sdesc .. idef._tool_tips)
-    end
-
-    -- set material
-    --from Izzy to deal with conditional material in recipes
-    if material then
-        imeta:set_string('material', material)
-        if recipe.tiles_name then
-            local image = string.gsub(recipe.tiles_name, '%%material%%', material)
-            imeta:set_string('inventory_tiles', image)
-        end
-        if recipe.real_name then
-            local image = string.gsub(recipe.tiles_name, '%%material%%', material)
-            imeta:set_string('inventory_tiles', image)
-        end
-    end
-    -- end of "from Izzy" part
-
-    --end
     local items_to_add = {}
-    local n_tocraft = output_item:get_count() * craft_count
-    -- fix for tools not being added properly
-    -- (have to manually get the count from the string...)
-    if minetest.registered_tools[output_item:get_name()]
-    and string.match(make_output," ") then
-        local toolcount = make_output:sub(#output_item:get_name()+1,
-        #make_output):gsub(" ", "" )
-        local count = ""
-        for i=1,#toolcount do
-            local char = toolcount:sub(i,i) -- individual char
-            if #count > 0 and not tonumber(char) then
-                -- we already got a number, we're going too far!
-                break
-            elseif tonumber(char) then
-                count = count..char -- add more numbers
+
+    -- TODO keep meta when keeping pots ? in replacement ?
+    if make_output then
+        -- get ouptut itemstack, its meta (`imeta`) and short description (`sdesc`)
+        local output_item = ItemStack(make_output)
+        local imeta = output_item:get_meta()
+        local sdesc = output_item:get_short_description()
+
+        -- Set Creator
+        if core.get_item_group(output_item:get_name(), 'craftedby') > 0 then
+            imeta:set_string('creator', name)
+            -- don't add creator name to sort description for single player
+            if not minetest.is_singleplayer() then
+                -- player's so-and-so
+                sdesc = S("@1's @2",name, sdesc)
+            end
+            imeta:set_string('short_description', sdesc)
+        end
+
+        -- Add Tool Tips to Description
+
+        --[[ changed by Mantar 11 months ago, commented and replaces by get_short function in GUI
+        -- #TODO dig in to see why following part was commented
+        -- related to issue https://codeberg.org/Mantar/Exile/issues/1137
+        ]]
+        local idef = output_item:get_definition()
+        -- if we already have a tool_tip for the item,
+        -- adds specific meta things to it
+        if idef._tool_tips and idef._tool_tips ~= '' then
+            imeta:set_string('description',sdesc .. idef._tool_tips)
+        end
+
+        -- set material
+        --from Izzy to deal with conditional material in recipes
+        if material then
+            imeta:set_string('material', material)
+            if recipe.tiles_name then
+                local image = string.gsub(recipe.tiles_name, '%%material%%', material)
+                imeta:set_string('inventory_tiles', image)
+            end
+            if recipe.real_name then
+                local image = string.gsub(recipe.tiles_name, '%%material%%', material)
+                imeta:set_string('inventory_tiles', image)
             end
         end
-        -- get itemstack count just incase, don't want nil!
-        n_tocraft = tonumber(count)*n_tocraft or n_tocraft
-    end
-    local max_amt = output_item:get_stack_max() -- use stack's size for iterating
-    local subtract_loop = math.ceil(n_tocraft / max_amt)
-    -- crafted stack size divided by its stack max then ceil'd
-    -- (so a stack max and a half will not be 1.5 but rather 2)
-    for _ = 1, subtract_loop do
-        local item = ItemStack(output_item) -- clone locally
-        if n_tocraft > max_amt then
-            item:set_count(max_amt) -- set stack to max
-            n_tocraft = n_tocraft - max_amt -- lower count by stack max
-        else
-            item:set_count(n_tocraft)
+        -- end of "from Izzy" part
+    --end
+        local n_tocraft = output_item:get_count() * craft_count
+        -- fix for tools not being added properly
+        -- (have to manually get the count from the string...)
+        if minetest.registered_tools[output_item:get_name()]
+        and string.match(make_output," ") then
+            local toolcount = make_output:sub(#output_item:get_name()+1,
+            #make_output):gsub(" ", "" )
+            local count = ""
+            for i=1,#toolcount do
+                local char = toolcount:sub(i,i) -- individual char
+                if #count > 0 and not tonumber(char) then
+                    -- we already got a number, we're going too far!
+                    break
+                elseif tonumber(char) then
+                    count = count..char -- add more numbers
+                end
+            end
+            -- get itemstack count just incase, don't want nil!
+            n_tocraft = tonumber(count) * n_tocraft or n_tocraft
         end
-        if n_tocraft > 0 then -- just in case something goes wrong and
-            --  an itemstack below or equal to 0 in count is made
-            items_to_add[#items_to_add + 1] = item
+        local max_amt = output_item:get_stack_max() -- use stack's size for iterating
+        local subtract_loop = math.ceil(n_tocraft / max_amt)
+        -- crafted stack size divided by its stack max then ceil'd
+        -- (so a stack max and a half will not be 1.5 but rather 2)
+        for _ = 1, subtract_loop do
+            local item = ItemStack(output_item) -- clone locally
+            if n_tocraft > max_amt then
+                item:set_count(max_amt) -- set stack to max
+                n_tocraft = n_tocraft - max_amt -- lower count by stack max
+            else
+                item:set_count(n_tocraft)
+            end
+            if n_tocraft > 0 then -- just in case something goes wrong and
+                --  an itemstack below or equal to 0 in count is made
+                items_to_add[#items_to_add + 1] = item
+            end
         end
     end
+
     -- replace system
     if give_back then
         -- iterate over recipe replace array
