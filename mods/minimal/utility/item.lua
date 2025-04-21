@@ -2,11 +2,11 @@ minimal = minimal
 
 function minimal.is_group(name, group_name)
     if not minetest.registered_items[name] then
-        error("item_group: not a valid item")
+        return
     end
     local group_val = minetest.get_item_group(name, group_name)
-    if group_val > 0 then 
-        return group_val 
+    if group_val > 0 then
+        return group_val
     end
 end
 
