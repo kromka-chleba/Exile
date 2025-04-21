@@ -17,6 +17,8 @@ granite cobble=
 ironstone cobble=
 jade cobble=
 freshwater pot=
+pot=
+bowl=
 
 #api.lua
 @1's @2=
