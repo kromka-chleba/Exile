@@ -77,7 +77,13 @@ minetest.register_node(
             }
         },
         liquids_pointable = true,
-        groups = {dig_immediate = 3, pottery = 1, temp_pass = 1, timer = 45 },
+        groups = {
+                dig_immediate = 3,
+                pottery = 1,
+                temp_pass = 1,
+                timer = 45,
+                pot = 1
+        },
         sounds = tech.node_sound_earthenware_defaults(),
         on_use = function(itemstack, user, pointed_thing)
             return liquid_store.on_use_empty_bucket(itemstack, user,
@@ -222,7 +228,12 @@ liquid_store.register_stored_liquid(
 minetest.register_node(
     "tech:wooden_water_pot", {
         description = S("Wooden Water Pot"),
-        groups = {dig_immediate = 3, flammable = 1, temp_pass = 1},
+        groups = {
+                dig_immediate = 3,
+                flammable = 1,
+                temp_pass = 1,
+                pot = 1
+          },
         sounds = nodes_nature.node_sound_wood_defaults(),
         tiles = {
             "tech_primitive_wood.png^tech_pot_empty.png",
