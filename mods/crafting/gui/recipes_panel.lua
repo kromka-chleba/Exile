@@ -470,7 +470,10 @@ crafting.register_cache_function("get_recipes_panel",
 
     -- generates tooltip of each recipe
     local function generate_tool_tip(result)
-        local item_desc = ItemStack(result.recipe.output):get_description()
+        local item_desc = result.recipe.desc
+        if not item_desc then
+            item_desc = ItemStack(result.recipe.output):get_description()
+        end
         -- add recipe's tooltip part 1 : output's description
         local t = {esc(item_desc .. "\n")}
         -- add recipe's tool info if needed
