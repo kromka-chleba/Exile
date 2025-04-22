@@ -534,12 +534,12 @@ function liquid_store.register_stored_liquid(name,def)
     -- inherit source and empty groups
     if def.source.groups then -- #TODO what if group already present in def ?
         for g, v in pairs(def.source.groups) do
-            def.groups[g] = v
+            def.groups[g] = def.groups[g] or v -- don't erase if present in def
         end
     end
     if def.empty.groups then -- #TODO what if group already present in def ?
         for g, v in pairs(def.empty.groups) do
-            def.groups[g] = v
+            def.groups[g] = def.groups[g] or v -- don't erase if present in def
         end
     end
 
