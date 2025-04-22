@@ -82,9 +82,7 @@ local function loadschem(anchor, file)
                         io.open(filename, "rb"))
 end
 
-local function dump_tutorial_state(num)
-    core.log("error", "TUTORIAL error: Instance "..
-             tostring(num).." does not exist!")
+local function dump_tutorial_state()
     core.log("error", "TUTORIAL INSTANCE READOUT")
     core.log("error", "")
     core.log("error", "Players in: "..dump(i_num))
@@ -92,12 +90,18 @@ local function dump_tutorial_state(num)
     core.log("error", "Instance data: "..dump(instance))
 end
 
+local function error_tutorial_state(num)
+    core.log("error", "TUTORIAL error: Instance "..
+             tostring(num).." does not exist!")
+    dump_tutorial_state()
+end
+
 local function add_stage(num, finish)
     -- load the next stage, then wait and do it again
     -- finish is the last active stage in an already-setup tutorial area
 
     if not instance[num] then
-        dump_tutorial_state(num)
+        error_tutorial_state(num)
         return
     end
 
@@ -122,7 +126,7 @@ end
 -- Begin reloading any visited stages
 local function reload(num)
     if not instance[num] then
-        dump_tutorial_state(num)
+        error_tutorial_state(num)
         return
     end
     instance[num].in_use = false
@@ -350,6 +354,10 @@ triggers.register("tr_tutnext", stage_trigger, true,
                   {"Stage end", "Place at the exit point of a tutorial stage"})
 
 -- Utilities -------------------------------------------------------------
+
+__DEBUG__ = __DEBUG__
+if not __DEBUG__ then return stage end
+
 function stage.distance_to_base(playername)
     local player = core.get_player_by_name(playername)
     local num = i_num[playername]
@@ -370,4 +378,14 @@ minetest.register_chatcommand(
             stage_change(core.get_player_by_name(name), name)
         end
 })
+
+minetest.register_chatcommand(
+    "tutr_dumpstage",{
+        privs = "server",
+        func = function(name,param)
+            if core.check_player_privs(name, "server") == false then return end
+            dump_tutorial_state()
+        end
+})
+
 return stage
