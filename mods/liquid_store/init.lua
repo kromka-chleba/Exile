@@ -4,19 +4,27 @@ liquid_store = {}
 liquid_store.liquids = {}
 liquid_store.stored_liquids = {}
 
+liquid_store.groups = {}
+
 --Liquids that it is possible to put in a bucket
 -- register liquids in liquid_store.liquids
-function liquid_store.register_liquid(source, flowing, force_renew)
+function liquid_store.register_liquid(source, flowing, force_renew, group)
     liquid_store.liquids[source] = {
         source = source,
         flowing = flowing,
         force_renew = force_renew,
+        group = group
     }
+    if group then
+        liquid_store.groups[group] = liquid_store.groups[group] or {}
+        table.insert(liquid_store.groups[group], source)
+    end
 end
 
 local on_scoop_change = {}
 --Transform the named liquid into the replacement when picked up with a pot
--- stores what need to be changed in on_scop_change table
+-- stores what need to be changed in on_scoop_change table
+-- TODO it is never used ?
 function liquid_store.register_scoop_change(name, replacement)
     if ( not minetest.registered_nodes[name] ) or
         ( not minetest.registered_nodes[replacement] ) then
@@ -129,7 +137,7 @@ local function find_stored(empty, source)
         or ( type(empty) == "table"
              or type(empty) == "userdata") and empty.name
         or type(empty.get_name) == "function" and empty:get_name()
-        or nil
+        or nil -- error linie above with empty being nil TODO lili
     empty = empty ~= "" and empty
         or nil -- don't look for a literally empty index lol
     -- allow source to be a string, or a table or userdata (usually itemstack)
@@ -513,6 +521,7 @@ function liquid_store.register_stored_liquid(name,def)
         source = def.source,
         nodename_empty = def.empty,
         dumpable = def.dumpable,
+        group = def.group -- adding groups like "pots", "bottle" "bowl"
     }
 
     -- basic def
@@ -522,6 +531,18 @@ function liquid_store.register_stored_liquid(name,def)
     def.paramtype = def.paramtype or "light"
     def.groups = def.groups or {}
     def.groups.liquid_storage = 1
+    -- inherit source and empty groups
+    if def.source.groups then -- #TODO what if group already present in def ?
+        for g, v in pairs(def.source.groups) do
+            def.groups[g] = v
+        end
+    end
+    if def.empty.groups then -- #TODO what if group already present in def ?
+        for g, v in pairs(def.empty.groups) do
+            def.groups[g] = v
+        end
+    end
+
     -- sounds; get provided or use empty node's sound or node sound defaults
     def.sounds = def.sounds
         or type(minetest.registered_nodes[def.empty].sounds) == "table"
@@ -559,12 +580,16 @@ end
 ---------------------------------------------------------
 --Register liquids
 liquid_store.register_liquid(
-    "nodes_nature:salt_water_source",
-    "nodes_nature:salt_water_flowing",
-    false)
+    "nodes_nature:salt_water_source", -- source
+    "nodes_nature:salt_water_flowing", -- flowing
+    false, -- dumpable
+    "salty_water" -- group
+)
 
 liquid_store.register_liquid(
-    "nodes_nature:freshwater_source",
-    "nodes_nature:freshwater_flowing",
-    false)
+    "nodes_nature:freshwater_source", -- source
+    "nodes_nature:freshwater_flowing", -- flowing
+    false, -- dumpable
+    "freshwater" -- group
+)
 --don't force renew or allows an infinite water supply exploit
