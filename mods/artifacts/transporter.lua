@@ -485,6 +485,11 @@ end
 
 local function active_transporter_rightclick(pos, node, player,
 					     itemstack, pointed_thing)
+        local timer = core.get_node_timer(pos)
+        if not timer:is_started() then
+            timer:start(5) -- Timer died, restart it but quicker
+        end
+
 	--recheck incase it's been buggered with during wait
 	local power, range, _, regulator  = assess_transporter(pos)
 	if power then
