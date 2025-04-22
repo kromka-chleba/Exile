@@ -72,8 +72,8 @@ liquid_store.register_stored_liquid(
         source = "tech:tang_vinegar_liquid",
         empty = "tech:clay_water_pot",
         description = S("Tang Vinegar"),
-        groups = {dig_immediate=2, pottery = 1, temp_pass = 1,
-                  vinegar=1},
+        sl_groups = {"vinegar", "tang_vinegar"}, -- to be added to liquid_stored table
+        groups = {dig_immediate=2, pottery = 1, temp_pass = 1},
         tiles = {
             "tech_pottery.png^tech_pot_empty.png"..
                 "^tech_pot_tang_vinegar.png",
@@ -134,7 +134,8 @@ liquid_store.register_stored_liquid(
         source = "tech:tang_vinegar_liquid",
         empty = "tech:wooden_water_pot",
         description = S("Tang Vinegar"),
-        groups = {dig_immediate=2, temp_pass = 1, vinegar=1},
+        sl_groups = {"vinegar", "tang_vinegar"},  -- to be added to liquid_stored table
+        groups = {dig_immediate=2, temp_pass = 1},
         tiles = {
             "tech_primitive_wood.png^tech_pot_empty.png"..
                 "^tech_pot_tang_vinegar.png",

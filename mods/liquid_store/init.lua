@@ -6,6 +6,14 @@ liquid_store.stored_liquids = {}
 
 liquid_store.groups = {}
 
+local function add_to_groups(group, item)
+    if group then
+        liquid_store.groups[group] = liquid_store.groups[group] or {}
+        table.insert(liquid_store.groups[group], item)
+    end
+end
+
+
 --Liquids that it is possible to put in a bucket
 -- register liquids in liquid_store.liquids
 function liquid_store.register_liquid(source, flowing, force_renew, group)
@@ -15,10 +23,7 @@ function liquid_store.register_liquid(source, flowing, force_renew, group)
         force_renew = force_renew,
         group = group
     }
-    if group then
-        liquid_store.groups[group] = liquid_store.groups[group] or {}
-        table.insert(liquid_store.groups[group], source)
-    end
+    add_to_groups(group, source) -- adds group of stored liquid in lilquids groups for recipes
 end
 
 local on_scoop_change = {}
@@ -521,7 +526,7 @@ function liquid_store.register_stored_liquid(name,def)
         source = def.source,
         nodename_empty = def.empty,
         dumpable = def.dumpable,
-        group = def.group -- adding groups like "pots", "bottle" "bowl"
+        sl_groups = def.sl_groups -- adding groups like "pots", "bottle" "bowl"
     }
 
     -- basic def
@@ -531,6 +536,21 @@ function liquid_store.register_stored_liquid(name,def)
     def.paramtype = def.paramtype or "light"
     def.groups = def.groups or {}
     def.groups.liquid_storage = 1
+    -- adding group if specified
+    if def.sl_groups then
+        if type(def.sl_groups) == "string" then
+            def.groups[def.sl_groups] = 1
+            add_to_groups(def.sl_groups, name) -- adds group of stored liquid in lilquids groups for recipes
+        elseif type(def.sl_groups) == "table" then
+            for _,g in pairs (def.sl_groups) do
+                def.groups[g] = 1
+                add_to_groups(g, name) -- adds group of stored liquid in lilquids groups for recipes
+            end
+        else -- no correct type
+            core.log ("'sl_group' field given for stored liquid is not valid")
+        end
+    end
+    def.sl_groups = nil -- delete then the field
     -- inherit source and empty groups
     if def.source.groups then -- #TODO what if group already present in def ?
         for g, v in pairs(def.source.groups) do

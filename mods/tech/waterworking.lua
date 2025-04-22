@@ -192,7 +192,8 @@ liquid_store.register_stored_liquid(
         source = "nodes_nature:freshwater_source",
         empty = "tech:clay_water_pot",
         description = S("Clay Water Pot with Freshwater"),
-        groups = {dig_immediate = 2, pottery = 1, freshwater_pot = 1},
+        sl_groups = "freshwater_pot",
+        groups = {dig_immediate = 2, pottery = 1},
         tiles = {
             "tech_pottery.png^tech_pot_empty.png^tech_pot_water.png",
             "tech_pottery.png",
@@ -321,7 +322,8 @@ liquid_store.register_stored_liquid(
         source = "nodes_nature:freshwater_source",
         empty = "tech:wooden_water_pot",
         description = S("Wooden Water Pot with Freshwater"),
-        groups = {dig_immediate = 2, freshwater_pot = 1},
+        groups = {dig_immediate = 2},
+        sl_groups = "freshwater_pot",
         tiles = {
             "tech_primitive_wood.png^tech_pot_empty.png^tech_pot_water.png",
             "tech_primitive_wood.png",
