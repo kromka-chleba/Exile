@@ -263,6 +263,7 @@ liquid_store.register_stored_liquid(
         source = "tech:tang_liquid",
         empty = "tech:clay_water_pot",
         description = S("Tang"),
+        sl_groups = {"tang"},  -- to be added to liquid_stored table
         groups = {dig_immediate=2, pottery = 1, temp_pass = 1,
                   drug = 1, timer = 5, edible = 1, no_soup = 1},
         tiles = {
@@ -320,6 +321,7 @@ liquid_store.register_stored_liquid(
         source = "tech:tang_liquid",
         empty = "tech:wooden_water_pot",
         description = S("Tang"),
+        sl_groups = {"tang"},  -- to be added to liquid_stored table
         groups = {dig_immediate=2, temp_pass = 1, drug = 1,
                   timer = 5, edible = 1, no_soup = 1},
         tiles = {
