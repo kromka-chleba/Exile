@@ -144,11 +144,15 @@ function crafting.register_recipe(def)
         recipe_error("expected string or table for 'items', got '"..type(def.items).."'")
     end
     -- convert into table to iterate through or remove if invalid
-    if def.replace and type(def.replace)== "string" then
-        def.replace= {def.replace}
-    elseif def.replace and type(def.replace) ~= "table" then
-        recipe_error("field 'replace' doesn't have correct format")
-        def.replace =nil
+    if def.replace then
+        if type(def.replace) == "string" then
+            def.replace= {def.replace}
+        elseif type(def.replace) == "function" then
+            def.replace = def.replace()
+        elseif type(def.replace) ~= "table" then
+            recipe_error("field 'replace' doesn't have correct format")
+            def.replace =nil
+        end
     end
 
     -- objects useds as tool and not to be consumed
