@@ -613,3 +613,51 @@ liquid_store.register_liquid(
     "freshwater" -- group
 )
 --don't force renew or allows an infinite water supply exploit
+
+-----------------------------------------------------------
+
+-- replacement generation for recipes
+-- generate of modify replacement tables in recipes for stored liquids
+-- gives back empty container if `source` is nil
+function liquid_store.set_recipe_replace (input_sl, new_liquid, replace_t)
+    local t = replace_t or {} -- use existing table if provided
+    if not input_sl then
+        core.log("in liquid_store.set_recipe_replace: no item to be replaced provided")
+        return
+    elseif type(input_sl) == "table" then
+        for _, inputs in pairs(input_sl) do
+            t = liquid_store.set_recipe_replace (inputs, new_liquid, t)
+        end
+        return t
+    elseif type(input_sl) ~= "string" then
+        core.log("in liquid_store.set_recipe_replace: wrong type of input provided")
+        return
+    end
+    -- else input_sl is a string
+    local to_parse = {input_sl}
+    if input_sl:sub(1,6) == "group:" then
+        -- get the name
+        input_sl = input_sl:sub(7,#input_sl)
+        -- get list of item to parse
+        to_parse = liquid_store.groups[input_sl]
+        if not to_parse then
+            core.log ("no liquid group found for " .. input_sl)
+            return
+        end
+    end
+    -- process
+    for _, sl in pairs (to_parse) do
+        local sl_def = liquid_store.get_sl_def(sl)
+        if not sl_def then
+            core.log ("no stored liquid def for " .. sl)
+        else
+            local container = sl_def.nodename_empty
+            if new_liquid then
+                t[sl] =  find_stored(container, new_liquid)
+            else
+                t[sl] = container
+            end
+        end
+    end
+    return t
+end
