@@ -99,6 +99,7 @@ local input_options = {
         -------------------
         `lang` = player's lang code for translation
         `sorted` = true -- do I want the list to be sorted (order) or not ?
+        `to_sort` = true -- d I need to resort it ?
         --#TODO could be put as player setting, or in crafting sfinv as button
 
         `craft_input` = table of inv to use to craft
@@ -135,9 +136,13 @@ local function new_cache(player)
 
     -- player settings
     local meta = player:get_meta()
-    cache.craft_input = meta:get_int("crafting:ingredients") or 1
+    local option = meta:get_int("crafting:ingredients")
+    -- if not found, option is 0. then replace by 1.
+    cache.craft_input = (option ~=0 and option) or 1
     -- #TODO use player's setting instead
-    cache.possible_hint = false
+    cache.possible_hint =
+            input_options[cache.craft_input].hint_btn and meta:get_int("crafting:possible_hint") == 1
+            or false
     cache.input_filter = false
     -- #TODO dirty to say when to trigger recipe_button, do better
     -- recipe button not triggered if "Use only" and hint disabled
@@ -158,6 +163,7 @@ local function new_cache(player)
     -- recipes
     cache.sScroll = 0 -- reset scrollbar to top
     cache.sorted = true -- tell if we sort list or not #TODO for futur setting, currently always true
+    cache.to_sort = true
 
     -- quantity selector
     cache.qty = 1
@@ -433,6 +439,12 @@ function crafting.make_crafting_formspec(player, context)
     output[#output + 1] = cache.FS_input_list
 
     if cache:get_craft_mode().hint_btn  then
+        if cache.possible_hint then
+            output[#output + 1] = "style[hint;bgcolor=white; bgcolor_hovered=white; bgcolor_pressed=white]"
+        else
+            output[#output + 1] = "style[hint;bgimg=;bgcolor=black]"
+        end
+
         output[#output + 1] = 'button[0.6,3.6;1.5,0.5;hint;'.. S("Hint") .. ']'
     end
     --#TODO to replace with proper setting/condition
@@ -482,6 +494,28 @@ function crafting.close_crafting_formspec(player)
     -- deleting player's cache
     FS_cache[player:get_player_name()] = nil
 end
+
+-- TODO pass as player_recipe function, so it can update on various change, like change of input, list, etc
+local function process_max_label (cache, r_lists)
+    if not r_lists then
+        r_lists = {cache.recipes}
+    end
+    if type(r_lists) ~= "table" then
+        core.log ("in process_max_label in crafting, r_lists is not a table")
+        return
+    end
+    for _, r_list in pairs(r_lists) do
+        for _, r in pairs(r_list) do
+            r.count = cache:get_craft_count(r)
+        end
+    end
+    -- TODO better way to refresh recipes panel ?
+    cache.FS_recipes = nil
+    return true -- need to redo formspec ?
+end
+
+-- currently unused, but could be usefull in recipes_panel.lua ?
+cache_func.process_max_label = process_max_label
 
 -- return true if something changed, false else
 function crafting.process_receive_fields(player, formname, fields)
@@ -585,6 +619,9 @@ function crafting.process_receive_fields(player, formname, fields)
     -- process "hint" button"
     if fields.hint then
         cache.possible_hint = not cache.possible_hint
+        -- save in player's settings
+        local meta = player:get_meta()
+        meta:set_int("crafting:possible_hint", cache.possible_hint and 1 or 0)
         -- #TODO improve the temporary part and reset button
         cache:reset_recipes()
         done = true -- #TODO what does it do ? do I want it here ?
@@ -626,15 +663,22 @@ function crafting.process_receive_fields(player, formname, fields)
         -- if user checks something to true, register that in cache
         if cache.qty ~= 1 and fields.qty1=='true' then
             cache.qty = 1
+            process_max_label (cache)
+            cache.FS_recipes = nil
         elseif cache.qty ~= 2 and fields.qty2=='true' then
             cache.qty = 2
+            process_max_label (cache)
+            cache.FS_recipes = nil
         elseif cache.qty ~= 3 and fields.qty3=='true' then
             cache.qty = 3
+            process_max_label (cache)
+            cache.FS_recipes = nil
         --[[ elseif everything is unchecked, delete associated cache
         -- (it would be then put to 1(Single) as defaut in formspec creation.)]]
         elseif (fields.qty1=='false' or fields.qty2=='false' or fields.qty3=='false') then
-            cache.qty = nil
-
+            cache.qty = 1
+            process_max_label (cache)
+            cache.FS_recipes = nil
         elseif btn_type then
             -- if we changed tool
             if btn_type == 'b_sTool' then

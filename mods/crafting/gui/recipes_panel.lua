@@ -19,21 +19,34 @@ local function sort_craftable_recipes(cache)
     if c_recipes then
         -- updates ingredients state and infotext in second list
         -- and move new craftable recipes to end of first one
-        local new_p={}
         local new_u={}
-        for _, r_list in ipairs({p_recipes,u_recipes}) do
-            for i, result in ipairs(r_list) do
-                -- if it became craftable, add to previous list and hide in this one
+        -- deal with old possible list
+        for i, result in ipairs(p_recipes) do
+            -- move only if cache.possible_hint is disabled
+            if not cache.possible_hint then
                 if result.craftable then
                     c_recipes[#c_recipes + 1] = result
-                elseif cache.possible_hint and result.possible then
-                    new_p[#new_p + 1] = result
-                else -- else keep it in uncraftable list
+                else
                     new_u[#new_u + 1] = result
                 end
             end
         end
-        cache.p_recipes = new_p
+        -- deal with old uncraftable list
+        for i, result in ipairs(u_recipes) do
+            -- if we have a possible list, add it at the end of it so that we don't move the rest
+            if result.craftable then
+                if cache.possible_hint and p_recipes and #p_recipes ~=0 then
+                    p_recipes[#p_recipes + 1] = result
+                else
+                    c_recipes[#c_recipes + 1] = result
+                end
+            elseif cache.possible_hint and result.possible then
+                p_recipes = p_recipes or {}
+                p_recipes[#p_recipes + 1] = result
+            else -- else keep it in uncraftable list
+                new_u[#new_u + 1] = result
+            end
+        end
         cache.u_recipes = new_u
     else
         local new_c = {}
@@ -125,6 +138,7 @@ local function get_recipes_list(cache, pInv)
             -- #TODO change the way that itemhash is generated
             cache.item_hash = cache:get_input_hash(pInv)
             update_list_input_state(cache.recipes, cache.item_hash, false)
+            cache:process_max_label ()
 
             -- get what is possible using both input + inventory
             -- #TODO this is only to used with option one, improve that part
@@ -136,7 +150,10 @@ local function get_recipes_list(cache, pInv)
 
         -- if we want to sort order per craftability and possible
         if cache.sorted == true then
-            sort_craftable_recipes(cache)
+            -- if we need to re-sort the list
+            if cache.to_sort == true then
+                sort_craftable_recipes(cache)
+            end
             t = {cache.c_recipes, cache.p_recipes, cache.u_recipes}
         end
     else
@@ -147,211 +164,6 @@ local function get_recipes_list(cache, pInv)
 
     return t
 end
-
--- FORMSPEC generations --------------------------------------------------------
-local esc = core.formspec_escape
-local color_esc = core.get_color_escape_sequence
-
--- `player_name` and `pInv` are optional and would be rebuild from player
--- used only in get_recipes_list
--- #TODO check if I can change that call
-crafting.register_cache_function("get_recipes_panel",
-    function(self, pInv)
-
-    local function item_tool_tip(item, j)
-        local s = {} -- future tooltip for that item
-        local h
-        -- adds colors if needed
-        if item.have then
-            local color = item.have >= item.need and "#6f6" or "#f66"
-            s[#s +1] = color_esc(color)
-            h = item.have
-        else -- replace "have" number by "?" if we don't know
-            h = "?"
-        end
-        -- adds "or" if not the first of the line
-        if j ~= 1 then
-            s[#s +1] = S("or") .. " "
-        end
-
-        s[#s +1] = item.short .. ": "
-                            ..  h .."/".. item.need .." "
-                            .. color_esc("#ffffff")
-        return tofstring(s)
-    end
-
-    local function tool_tool_tip(tool)
-        local s = {} -- future tooltip for that item
-        -- adds colors if needed
-        if tool.have then
-            local color = tool.have >= tool.need and "#6f6" or "#f66"
-            s[#s +1] = color_esc(color)
-        end
-
-        s[#s +1] = tool.short
-        s[#s +1] = color_esc("#ffffff")
-        return tofstring(s)
-    end
-
-    -- generates tooltip of each recipe
-    local function generate_tool_tip(result)
-        local item_desc = ItemStack(result.recipe.output):get_description()
-        -- add recipe's tooltip part 1 : output's description
-        local t = {esc(item_desc .. "\n")}
-        -- add recipe's tool info if needed
-        if result.tool then
-            t[#t+1] = "\n" .. S("Tool (")
-                    .. S("will not be consumed") .."): "
-                    .. tool_tool_tip(result.tool)
-
-        end
-        -- add recipe's tooltip part 2 : inputs
-        for _, row in ipairs(result.it_details) do
-            local tool_tip ="\n"
-            for j, item in ipairs(row) do
-                tool_tip = tool_tip .. item_tool_tip(item, j)
-            end
-            t[#t+1] = esc(tool_tip)
-        end
-        -- return result as string
-        return tofstring(t)
-    end
-
-    --[[ display individual recipe slot
-        Returns associated formspec string
-    ]]
-    local function FS_display_recipe(result, x, y)
-        local form_table={}
-        -- place recipe
-        local id = result.recipe.id
-        local bg_coords =  tostring(x) ..','.. tostring(y + 0.2)
-
-        -- set background image
-        local bg_image
-        local craftable = result.craftable
-        if craftable then
-            bg_image = 'crafting_slot_craftable.png'
-        elseif result.possible and self.possible_hint then
-            bg_image = 'crafting_slot_possible.png'
-        else
-            bg_image = 'crafting_slot_uncraftable.png'
-        end
-
-        if bg_image then
-            form_table[#form_table + 1] = "image[" .. bg_coords .. ";1,1;" .. bg_image .. "]"
-        end
-
-        -- Add button image
-        local btn_coords =
-        tostring( x + 0.1 ) .. ','..
-        tostring( y + 0.3 )
-
-        if result.recipe._display then
-            form_table[#form_table + 1] = tofstring({
-                "style_type[image_button;border=false;bgimg_middle=]",
-                'image_button[',
-                btn_coords,
-                ';.8,.8;',
-                esc(result.recipe._display),
-                ';sResult_',
-                id,
-                ';]'
-            })
-        else
-            form_table[#form_table + 1] = tofstring({
-                "style_type[item_image_button;border=false;bgimg_middle=]",
-                'item_image_button[',
-                btn_coords,
-                ';.8,.8;',
-                result.recipe.output,
-                ';sResult_',
-                id,
-                ';]'
-            })
-        end
-
-        form_table[#form_table + 1] = tofstring({
-            'tooltip[sResult_',
-            id,
-            ';',
-            generate_tool_tip(result),
-            ']'
-            })
-        return  tofstring(form_table)
-    end
-
-    local FS_recipes = {}         -- final fromspec
-    -- this is for more clarity, choice of display settings
-    --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
-    used to place them on a grid, including tabs]]
-    local line_number = 3 -- nb of lines of recipes displayed
-    local grid_size = 1.2
-
-    -- Add recipes list -------------------------------------------------
-
-    --[[ get recipes lists to display
-        * `rawlist` is a list of lists to display
-        like {l1, l2, l3} to display in that order
-        * for each, recipes, `displayed` = true only if the recipes matching the filters parameter]]
-    local raw_list = get_recipes_list (self, pInv)
-    local display_list={}
-    for _, r_list in ipairs (raw_list) do
-        --displays all recipes matchng with search field
-        for i, result in ipairs(r_list) do
-            -- display if this recipe matches the filter
-            if result.displayed == true then
-                display_list[#display_list + 1] = result
-            end
-        end
-    end
-    local nb_recipes=#display_list
-
-    local columns = 6 -- can show 6 items accross without scrollbar
-
-    -- add scrollbar if needed
-    -- #TODO don't reset the recipe lists just because of the scrollbar
-    local sScroll = self.sScroll or 0 -- default to 1 for top of scroll
-    if nb_recipes > columns * line_number then
-        -- columns = columns -1 -- discard a line to make room for scrollbar
-        local scroll_max = math.ceil(nb_recipes / columns)-line_number
-        FS_recipes[#FS_recipes + 1] =
-        'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
-        .. 'smallstep=1;largestep=line_number;thumbsize=1]'
-        FS_recipes[#FS_recipes + 1]
-        = 'scrollbar[7.1,0.95;.5,' .. (1.14*line_number) .. ';vertical;recipes_scroll;'
-        .. sScroll .. ']'
-    end
-
-    -- create scroll container
-    FS_recipes[#FS_recipes + 1] = tofstring({'scroll_container[0,0.75;',
-                                        tostring(columns + 1),',',
-                                        (1.25 * line_number),
-                                        ';recipes_scroll;vertical;',
-                                         grid_size ,
-                                          ']'
-                                        })
-
-    -- Add recipe buttons in container  ------------------------------
-    local x = 0
-    local y = 0
-
-    --#TODO make a version with unique list for non ordered list as asked by Meniptah
-    for i, result in ipairs (display_list) do
-        FS_recipes[#FS_recipes + 1] =
-            FS_display_recipe(result, x * grid_size, y * grid_size)
-
-        x = x + 1
-        if x >= columns  then
-            x = 0
-            y = y + 1
-        end
-    end
-
-    FS_recipes[#FS_recipes + 1] = 'scroll_container_end[]'
-
-    return  tofstring(FS_recipes)
-end)
-
 
 -- PROCESS -----------------------------------------------------------
 -- reset recipes in cache (list and formspec)
@@ -367,6 +179,9 @@ crafting.register_cache_function("reset_recipes",
     self.FS_recipes = nil
     -- reset scroll bar to top
     self.sScroll = 0 -- reset scrollbar to top
+    -- TODO clean because there may be a better place
+    -- make sure we resort recipe order
+    self.to_sort = true
 end)
 
 -- Find maximum number of outputs we can craft from our inventory
@@ -466,6 +281,8 @@ local function process_count(r, count, item_hash)
         return
     end
     -- set count to know how many output(s) to give
+    -- TODO unused yet, not sure if I modifu recipe output, or display detailled items,
+    --meant to display a xcount everywhere
     r.count = count
 
     local pItems = {} -- picked items list
@@ -493,6 +310,9 @@ local function process_count(r, count, item_hash)
     r.to_take = pItems
 end
 
+--TODO temp, put in player_ecipe maybe ?
+crafting.process_count = process_count
+
 -- TODO improve checking craft state
 -- is more "pressing a button" thing I guess.
 local function push_recipe(cache, btn_id, player, player_name, inv)
@@ -501,9 +321,9 @@ local function push_recipe(cache, btn_id, player, player_name, inv)
     end
     -- get the recipe we clicked on ---------
     -- get current craftable recipes table, or if not sorted, full recipes
-    local t = cache.c_recipes or cache.recipes
+    -- TODO better parse
     local p_recipe
-    for _, r in pairs(t) do
+    for _, r in pairs(cache.recipes) do
         if r.recipe.id == btn_id then
             p_recipe = r
             break
@@ -512,53 +332,57 @@ local function push_recipe(cache, btn_id, player, player_name, inv)
 
     -- not craftable
     if not p_recipe then
-        if cache.p_recipes then
-            -- check possible recipe, to laucnh other action
-            for _, r in pairs(cache.p_recipes) do
-                if r.recipe.id == btn_id then
-                    p_recipe = r
-                    break
-                end
-            end
-            if p_recipe then
-                -- do things with possible recipe
-                return
-            end
-        -- else should be in uncraftable recipe
-        -- #TODO double check that
-        end
-        minimal.warn_message(player, player_name,
-                                 S("Missing required items!"))
+        core.log("error in crafting mod, push_recipe: no recipe matching btn_id ".. tostring(btn_id) .." was found")
         return
     end
-
-    local ctype = cache.cTabs[cache.sTab]
-    local sLevel = cache.sLevel
-    --#TODO I need to improve the way cache.item_hash is assigned/modified
-    local item_hash = cache.item_hash or cache:get_input_hash(inv)
-    local max_count = get_craft_count(cache, p_recipe, item_hash)
-    -- TODO store max_count in cache ?
-    process_count(p_recipe, max_count, item_hash)
-    if not crafting.can_craft(player_name, ctype,
-                              sLevel, p_recipe.recipe) then
-        minetest.log("error", "[inventoryFS] Player clicked a "..
-                     "button they shouldn't have been able to")
-        return true
-    -- try to craft
-    -- cache:get_craft_input() is the input list
-    -- 'main' is the output list
-    elseif crafting.perform_craft(
-        player_name, inv, cache:get_craft_input(), 'main', p_recipe, ctype, max_count) then
-        cache.FS_recipes = nil
-        return true -- crafted
+    if p_recipe.craftable then
+        local ctype = cache.cTabs[cache.sTab]
+        local sLevel = cache.sLevel
+        --#TODO I need to improve the way cache.item_hash is assigned/modified
+        local item_hash = cache.item_hash or cache:get_input_hash(inv)
+        local max_count = get_craft_count(cache, p_recipe, item_hash)
+        -- TODO store max_count in cache ?
+        process_count(p_recipe, max_count, item_hash)
+        if not crafting.can_craft(player_name, ctype,
+                                  sLevel, p_recipe.recipe) then
+            minetest.log("error", "[inventoryFS] Player clicked a "..
+                         "button they shouldn't have been able to")
+            return true
+        -- try to craft
+        -- cache:get_craft_input() is the input list
+        -- 'main' is the output list
+        elseif crafting.perform_craft(
+            player_name, inv, cache:get_craft_input(), 'main', p_recipe, ctype, max_count) then
+            -- TODO I think I reset in double ? because I reset after in process
+            cache.FS_recipes = nil
+            cache.to_sort = true
+            return true -- crafted
+        end
+    elseif p_recipe.possible then
+        -- do things with possible recipe
+        local to_move = p_recipe.to_move
+        if not to_move then
+            core.log("shouldn't happen, recipe is possible but no 'to_move' field")
+        else
+            local inputs = cache:get_craft_input()
+            local transfer = crafting.find_required_items(inv, "main", to_move)
+            for _, list in ipairs(inputs) do
+                -- TODO improve because here, groups were replaced with non group items
+                -- maybe we had room for other choices too....
+                -- we could check what is already in input to choose same alternate item from group
+                transfer = crafting.transfer_items(player, list, "main", transfer)
+            end
+            cache.FS_recipes = nil
+            cache.to_sort = false -- to avoid sort
+            -- (was put to true on reset)
+            -- TODO clean that, it is confusing
+            return true -- needed to refresh formspec
+            -- TODO ah but I change order when it passes to craftable !!
+        end
     else
-        -- #TODO: see why this is duplicated in crafting/gui.lua
-        --  since that doesn't seem to be used
-        minimal.warn_message(player, player_name,
-                             S("Missing required items!"))
-        --minetest.chat_send_player(
-        --    player_name, ("Missing required items!"))
+        minimal.warn_message(player, player_name, S("Missing required items!"))
         return true -- failed but we handled it
+        -- #TODO: really ? should be false ?
     end
 end
 
@@ -597,3 +421,229 @@ crafting.register_cache_function("push_recipe", push_recipe)
 --         return true -- failed but we handled it
 --     end
 -- end
+
+
+-- FORMSPEC generations --------------------------------------------------------
+local esc = core.formspec_escape
+local color_esc = core.get_color_escape_sequence
+
+-- `player_name` and `pInv` are optional and would be rebuild from player
+-- used only in get_recipes_list
+-- #TODO check if I can change that call
+crafting.register_cache_function("get_recipes_panel",
+    function(self, pInv)
+
+    local function item_tool_tip(item, j)
+        local s = {} -- future tooltip for that item
+        local h
+        -- adds colors if needed
+        if item.have then
+            local color = item.have >= item.need and "#6f6" or "#f66"
+            s[#s +1] = color_esc(color)
+            h = item.have
+        else -- replace "have" number by "?" if we don't know
+            h = "?"
+        end
+        -- adds "or" if not the first of the line
+        if j ~= 1 then
+            s[#s +1] = S("or") .. " "
+        end
+
+        s[#s +1] = item.short .. ": "
+                            ..  h .."/".. item.need .." "
+                            .. color_esc("#ffffff")
+        return tofstring(s)
+    end
+
+    local function tool_tool_tip(tool)
+        local s = {} -- future tooltip for that item
+        -- adds colors if needed
+        if tool.have then
+            local color = tool.have >= tool.need and "#6f6" or "#f66"
+            s[#s +1] = color_esc(color)
+        end
+
+        s[#s +1] = tool.short
+        s[#s +1] = color_esc("#ffffff")
+        return tofstring(s)
+    end
+
+    -- generates tooltip of each recipe
+    local function generate_tool_tip(result)
+        local item_desc = ItemStack(result.recipe.output):get_description()
+        -- add recipe's tooltip part 1 : output's description
+        local t = {esc(item_desc .. "\n")}
+        -- add recipe's tool info if needed
+        if result.tool then
+            t[#t+1] = "\n" .. S("Tool (")
+                    .. S("will not be consumed") .."): "
+                    .. tool_tool_tip(result.tool)
+
+        end
+        -- add recipe's tooltip part 2 : inputs
+        for _, row in ipairs(result.it_details) do
+            local tool_tip ="\n"
+            for j, item in ipairs(row) do
+                tool_tip = tool_tip .. item_tool_tip(item, j)
+            end
+            t[#t+1] = esc(tool_tip)
+        end
+        -- return result as string
+        return tofstring(t)
+    end
+
+    --[[ display individual recipe slot
+        Returns associated formspec string
+    ]]
+    local function FS_display_recipe(result, x, y)
+        local form_table={}
+        -- place recipe
+        local id = result.recipe.id
+        local bg_coords =  tostring(x) ..','.. tostring(y + 0.2)
+
+        -- set background image
+        local bg_image
+        local craftable = result.craftable
+        if craftable then
+            bg_image = 'crafting_slot_craftable.png'
+        elseif result.possible and self.possible_hint then
+            bg_image = 'crafting_slot_possible.png'
+        else
+            bg_image = 'crafting_slot_uncraftable.png'
+        end
+
+        if bg_image then
+            form_table[#form_table + 1] = "image[" .. bg_coords .. ";1,1;" .. bg_image .. "]"
+        end
+
+        -- Add button image
+        local btn_coords =
+        tostring( x + 0.1 ) .. ','..
+        tostring( y + 0.3 )
+        -- TODO issue doesn't dsplay count if not item image
+        -- TODO dcide if I modify count or put an overlay for max... but then, how ? label ?
+        if result.recipe._display then
+            form_table[#form_table + 1] = tofstring({
+                "style_type[image_button;border=false;bgimg_middle=]",
+                'image_button[',
+                btn_coords,
+                ';.8,.8;',
+                esc(result.recipe._display),
+                ';sResult_',
+                id,
+                ';]'
+            })
+        else
+            form_table[#form_table + 1] = tofstring({
+                "style_type[item_image_button;border=false;bgimg_middle=]",
+                'item_image_button[',
+                btn_coords,
+                ';.8,.8;',
+                result.recipe.output,
+                ';sResult_',
+                id,
+                ';]'
+            })
+        end
+
+        -- multiple craft overlay
+        if self.qty ~=1
+                and result.craftable then
+            if not result.count then
+                result.count = self:get_craft_count(result)
+            end
+            local box_coords = tostring( x ) .. ','
+                                .. tostring( y + 0.2 )
+
+            form_table[#form_table + 1] = "box["
+                                        .. box_coords
+                                        ..";0.65,0.45;#000000]"
+            --form_table[#form_table + 1] = "style_type[label;bgcolor=black]"
+            local label_coords = tostring( x + 0.08 ) .. ','
+                                .. tostring( y + 0.42 )
+            form_table[#form_table + 1] = "label["
+                                        .. label_coords ..";x"
+                                        .. tostring(result.count) .. "]"
+        end
+
+        form_table[#form_table + 1] = tofstring({
+            'tooltip[sResult_',
+            id,
+            ';',
+            generate_tool_tip(result),
+            ']'
+            })
+        return  tofstring(form_table)
+    end
+
+    local FS_recipes = {}         -- final fromspec
+    -- this is for more clarity, choice of display settings
+    --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
+    used to place them on a grid, including tabs]]
+    local line_number = 3 -- nb of lines of recipes displayed
+    local grid_size = 1.2
+
+    -- Add recipes list -------------------------------------------------
+
+    --[[ get recipes lists to display
+        * `rawlist` is a list of lists to display
+        like {l1, l2, l3} to display in that order
+        * for each, recipes, `displayed` = true only if the recipes matching the filters parameter]]
+    local raw_list = get_recipes_list (self, pInv)
+    local display_list={}
+    for _, r_list in ipairs (raw_list) do
+        --displays all recipes matchng with search field
+        for i, result in ipairs(r_list) do
+            -- display if this recipe matches the filter
+            if result.displayed == true then
+                display_list[#display_list + 1] = result
+            end
+        end
+    end
+    local nb_recipes=#display_list
+
+    local columns = 6 -- can show 6 items accross without scrollbar
+
+    -- add scrollbar if needed
+    -- #TODO don't reset the recipe lists just because of the scrollbar
+    local sScroll = self.sScroll or 0 -- default to 1 for top of scroll
+    if nb_recipes > columns * line_number then
+        -- columns = columns -1 -- discard a line to make room for scrollbar
+        local scroll_max = math.ceil(nb_recipes / columns)-line_number
+        FS_recipes[#FS_recipes + 1] =
+        'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
+        .. 'smallstep=1;largestep=line_number;thumbsize=1]'
+        FS_recipes[#FS_recipes + 1]
+        = 'scrollbar[7.1,0.95;.5,' .. (1.14*line_number) .. ';vertical;recipes_scroll;'
+        .. sScroll .. ']'
+    end
+
+    -- create scroll container
+    FS_recipes[#FS_recipes + 1] = tofstring({'scroll_container[0,0.75;',
+                                        tostring(columns + 1),',',
+                                        (1.25 * line_number),
+                                        ';recipes_scroll;vertical;',
+                                         grid_size ,
+                                          ']'
+                                        })
+
+    -- Add recipe buttons in container  ------------------------------
+    local x = 0
+    local y = 0
+
+    --#TODO make a version with unique list for non ordered list as asked by Meniptah
+    for i, result in ipairs (display_list) do
+        FS_recipes[#FS_recipes + 1] =
+            FS_display_recipe(result, x * grid_size, y * grid_size)
+
+        x = x + 1
+        if x >= columns  then
+            x = 0
+            y = y + 1
+        end
+    end
+
+    FS_recipes[#FS_recipes + 1] = 'scroll_container_end[]'
+
+    return  tofstring(FS_recipes)
+end)

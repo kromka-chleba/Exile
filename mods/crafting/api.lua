@@ -236,14 +236,6 @@ end
     Returns nil if not found or not enought for recipe
 ]]
 local function find_required_items_in_invs(inv, listname, items)
-        if not listname then
-            return nil
-        end
-        -- added to deal with multple input lists but keep compatibility
-        if type(listname) ~= 'table' then
-            listname = { listname }
-        end
-
         -- to store found items
         local found_table = {}
         -- initiate found_table
@@ -263,7 +255,7 @@ local function find_required_items_in_invs(inv, listname, items)
                 end
             -- if this part is not found, stop
             else
-                return nil
+                return found_table
             end
         end
 
@@ -280,6 +272,14 @@ end
     Returns nil if not found or not enought for recipe
 ]]
 function crafting.find_required_items(inv, listname, items)
+    if not listname then
+        return nil
+    end
+    -- added to deal with multple input lists but keep compatibility
+    if type(listname) ~= 'table' then
+        listname = { listname }
+    end
+
     local found_table = find_required_items_in_invs(inv, listname, items)
     -- Return found list
     if #listname == 1 then
@@ -301,6 +301,34 @@ Returns true if the listname list in inv contains the required items.]]
 --#TODO could be adapted to check craftable/uncraftable, instead of our additionnal functions
 function crafting.has_required_items(inv, listname, items)
     return crafting.find_required_items(inv, listname, items) ~= nil
+end
+
+--[[transfer all items from `item_list` arraw of items from 'from_list' to 'to_list' in player inventory's, if possible
+return remaining item_list if they didn't all fit in
+]]
+function crafting.transfer_items(player, to_list, from_list, item_list)
+    if not player then
+        core.log ("in crafting.transfer_items, no player to transfer to")
+        return
+    end
+    local pInv = player:get_inventory()
+    -- if no item_list specified, try to transfer everything
+    if not item_list or #item_list == 0 then
+        item_list = pInv:get_list(from_list)
+    end
+    local new_list = {}
+    for _, item in ipairs (item_list) do
+        pInv:remove_item(from_list, item)
+        -- Try to add to main inventory
+        local left = pInv:add_item(to_list, item)
+        if not left:is_empty() then
+            minimal.warn_message("not enough room in to transfer everything")
+            new_list[#new_list + 1] = left:tostring()
+            -- give it back to from_list
+            pInv:add_item(from_list, left)
+        end
+    end
+    return new_list
 end
 
 --[[ In external mod
@@ -451,7 +479,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, r, ctype, craf
             end
         end
         -- get itemstack count just incase, don't want nil!
-        n_tocraft = tonumber(count) or n_tocraft
+        n_tocraft = tonumber(count)*n_tocraft or n_tocraft
     end
     local max_amt = output_item:get_stack_max() -- use stack's size for iterating
     local subtract_loop = math.ceil(n_tocraft / max_amt)

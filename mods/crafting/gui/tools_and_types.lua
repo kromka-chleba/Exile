@@ -223,6 +223,8 @@ crafting.register_cache_function("set_craft_tabs",
     self.cTabs = cTabs or self.cTabs or get_craft_types(self.sTool)
     -- erases craft tabs formspec
     self.FS_ctabs = nil
+    -- reset qty to 1
+    self.qty = 1
     -- reset recipes and erases recipes panel formspec
     self:reset_recipes() -- #TODO
 end)

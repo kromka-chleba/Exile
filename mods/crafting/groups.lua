@@ -5,13 +5,17 @@ local S = minetest.get_translator("crafting")
 -- Note : cobble's group could be passed as nodes_nature:xxx-cobble1
 --   item instead of group since we only can drop cobble1 type
 -- #TODO do we need it this we translation group desc in gstat ?
+-- This is for us as human, by default, desc is group name in code but _ is replaced by " "
 local groupNameForTranslations = {
     S("log"), S("fibrous plant"), S("sand"), S("compostable"),
     S("hard wood"), S("cana"), S("woody plant"), S("woodslab"),
     S("bioluminescent"),  S("pottery"),
     S("gravel"),  S("bundleable fiber"),
     S("limestone cobble"), S("basalt cobble"), S("granite cobble"),
-    S("ironstone cobble"), S("jade cobble")
+    S("ironstone cobble"), S("jade cobble"),
+    S("freshwater pot"), -- group:freshwater_pot
+    S("pot"), -- group:pot (TODO not existing yet)
+    S("bowl") -- group:bowl TODO
 }
 
 --returns table of details relating to information/parameters noted in a string
