@@ -569,7 +569,7 @@ end
 -- adjust baking
 -- ran in pot_on_receive_fields using the total time's worth from all provided ingredients
 -- calculates a difference from subtracting the total by current baking, adds to adjusting values
--- adjusts two values - baking and "base_baking" 
+-- adjusts two values - baking and "base_baking"
 -- "base_baking" is used to determine what the pot should "uncook" back to when opened
 local function adjust_baking(meta, total)
     if type(total) ~= "number" then return end
@@ -949,7 +949,7 @@ local function pot_cook(pos, elapsed)
                 -- now set baking
                 meta:set_int("baking",baking)
             end
-        
+
       end -- 'kind' if statement
   end -- 'finished' if statement
   return true

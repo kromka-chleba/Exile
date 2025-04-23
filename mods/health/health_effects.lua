@@ -31,10 +31,12 @@
 
 
     each health effect has its three functions:
-    - one for adding symptoms and calls for internal adding, swapping, removing (e.g. due to timers)
-    - progression: for adding, worsening effects. Called internally and can be called externally (e.g.  when eating items).
+    - one for adding symptoms and calls for internal adding, swapping, removing
+        (e.g. due to timers)
+    - progression: for adding, worsening effects. Called internally and can be called externally
+        (e.g.  when eating items).
     - regression: for removing, lessening effects. Ditto
-    (can use defaults for progress and regress)
+        (can use defaults for progress and regress)
 
     Any new effect must be listed in:
     - do_effects_list (so it can be run at all)
@@ -1615,17 +1617,17 @@ if __DEBUG__ then
             inventory_image = "tech_vegetable_oil.png",
             stack_max = 500,
             groups = {flammable = 1},
-            
-            
+
+
             on_use = function(itemstack, user, pointed_thing)
-                
+
                 minimal.yes_or_no(user:get_player_name(),
                                   (" Do you want to add "..effects[1].."?"),
                                   add_effect,
                                   1)
             end,
     })
-    
+
     minetest.register_craftitem(
         "health:bug_test_food2", {
             description = "Bug TESTING Panacea",

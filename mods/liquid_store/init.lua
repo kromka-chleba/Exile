@@ -267,7 +267,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
         return new_wield
     -- neither liquid nor a stored liquid
     -- non-liquid nodes will have their on_punch triggered
-    elseif nodedef.on_punch then 
+    elseif nodedef.on_punch then
         return nodedef.on_punch(pointed_thing.under, node, user, pointed_thing)
     end
 

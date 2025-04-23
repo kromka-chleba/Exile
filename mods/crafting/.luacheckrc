@@ -18,3 +18,5 @@ read_globals = {
 	"it",
 	"assert",
 }
+
+exclude_files = {".luacheckrc"}

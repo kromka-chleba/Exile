@@ -18,11 +18,17 @@
 HEALTH = HEALTH
 
 HEALTH.food_table = {
-    -- name: {hp=0,th=0,hu=0,en=0,temp=0,rwi='replaceme',eat_sound=''}
-    -- hp is a player's health, th is thirst, hu is hunger, and en is energy
-    -- temp is how much the player's body temp gets affected upon consuming (see snow)
-    -- rwi aka "replacewithitem" is the name of an itemstack to replace with upon consumption (see skulling a pot of tang)
-    -- eat_sound is what sound instead plays when consumed (see pot of tang)
+--[[ name: {hp=0,th=0,hu=0,en=0,temp=0,rwi='replaceme',eat_sound=''}
+    * `hp` is a player's health:
+    * `th` is thirst
+    * `hu` is hunger
+    * `en` is energy
+    * `temp` is how much the player's body temp gets affected upon consuming (see snow)
+    * `rwi` aka "replacewithitem" is the name of an itemstack to replace with upon consumption
+    (see skulling a pot of tang)
+    * `eat_sound` is what sound instead plays when consumed
+    (see pot of tang)
+    ]]
     -- player crafts
     ["tech:maraka_bread_cooked"] = {hu = 24, en = 14},
     ["tech:maraka_bread_burned"] = {hu = 12, en = 7},
@@ -180,20 +186,42 @@ HEALTH.bake_table = {
     ["animals:carcass_fish_large"] = {temp = 100, time = 18},
     ['tech:yolk_and_albumen'] = {temp = 100, time = 2},
     ['tech:rhuya_flour'] = {temp = 100, time = 5},
-    ['tech:rhuya_wintery_flour'] = {temp = 100, time = 8, burned='tech:rhuya_flour_burned'},
+    ['tech:rhuya_wintery_flour'] = {
+        temp = 100, time = 8, burned='tech:rhuya_flour_burned'
+    },
     -- leavened breads
-    ['tech:maraka_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_crumbly', burned='tech:bread_burned'},
-    ['tech:rhuya_dough_fermented'] = {temp = 110, time = 4, cooked='tech:bread_crumbly', burned='tech:bread_burned'},
-    ['tech:rhuya_wintery_dough_fermented'] = {temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'},
-    ['tech:barszcz_dough_fermented'] = {temp = 110, time = 5, cooked='tech:bread_black', burned='tech:bread_burned'},
+    ['tech:maraka_dough_fermented'] = {
+        temp = 110, time = 6, cooked='tech:bread_crumbly', burned='tech:bread_burned'
+    },
+    ['tech:rhuya_dough_fermented'] = {
+        temp = 110, time = 4, cooked='tech:bread_crumbly', burned='tech:bread_burned'
+    },
+    ['tech:rhuya_wintery_dough_fermented'] = {
+        temp = 110, time = 6, cooked='tech:bread_black', burned='tech:bread_burned'
+    },
+    ['tech:barszcz_dough_fermented'] = {
+        temp = 110, time = 5, cooked='tech:bread_black', burned='tech:bread_burned'
+    },
     -- unleavened breads
-    ['tech:maraka_dough'] = {temp = 110, time = 4, cooked='tech:bread_unleavened_crumbly', burned='tech:bread_burned'},
-    ['tech:rhuya_dough'] = {temp = 110, time = 3, cooked='tech:bread_unleavened_crumbly', burned='tech:bread_burned'},
-    ['tech:rhuya_wintery_dough'] = {temp = 110, time = 4, cooked='tech:bread_unleavened', burned='tech:bread_burned'},
-    ['tech:barszcz_dough'] = {temp = 110, time = 3, cooked='tech:bread_unleavened', burned='tech:bread_burned'},
+    ['tech:maraka_dough'] = {
+        temp = 110, time = 4, cooked='tech:bread_unleavened_crumbly', burned='tech:bread_burned'
+    },
+    ['tech:rhuya_dough'] = {
+        temp = 110, time = 3, cooked='tech:bread_unleavened_crumbly', burned='tech:bread_burned'}
+        ,
+    ['tech:rhuya_wintery_dough'] = {
+        temp = 110, time = 4, cooked='tech:bread_unleavened', burned='tech:bread_burned'
+    },
+    ['tech:barszcz_dough'] = {
+        temp = 110, time = 3, cooked='tech:bread_unleavened', burned='tech:bread_burned'}
+        ,
     -- all-purpose breads
-    ['tech:all_dough'] = {temp = 110, time = 3, cooked='tech:bread_unleavened_all', burned='tech:bread_burned'},
-    ['tech:all_dough_fermented'] = {temp = 110, time = 4, cooked='tech:bread_all', burned='tech:bread_burned'}
+    ['tech:all_dough'] = {
+        temp = 110, time = 3, cooked='tech:bread_unleavened_all', burned='tech:bread_burned'
+    },
+    ['tech:all_dough_fermented'] = {
+        temp = 110, time = 4, cooked='tech:bread_all', burned='tech:bread_burned'
+    }
 }
 
 -- tags (what diseases to spawn, single string or table of diseases), ch=chance, sv=severity

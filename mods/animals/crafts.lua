@@ -20,8 +20,6 @@ animals = animals
 -- Internationalization
 local S = animals.S
 
-local random = math.random
-local floor = math.floor
 --------------------------------------------------------------------------
 --Carcasses
 -------------------------------------------
