@@ -5,11 +5,11 @@ local sqrt = math.sqrt
 
 local abs = math.abs
 local floor = math.floor
-local ceil = math.ceil
-local max = math.max
+-- local ceil = math.ceil
+-- local max = math.max
 local min = math.min
-local tan = math.tan
-local pow = math.pow
+-- local tan = math.tan
+-- local pow = math.pow
 
 local function math_clamp(...) -- num, min, max
     return minimal.math_clamp(...)
@@ -695,7 +695,8 @@ function animals.core_life(self, pos)
 
     -- size difference mechanics, only call upon startup or nil size_dif
     if not self.size_dif then
-        -- "base_size_dif" is a desired size from the usual adult size (say, an adult that grows to be smaller or larger)
+        --[[ "base_size_dif" is a desired size from the usual adult size
+        (say, an adult that grows to be smaller or larger)]]
         self.base_size_dif = self.base_size_dif or mobkit.recall(self,"base_size_dif") or nil
         -- current size_dif, modified by age_mechanics system
         self.size_dif = mobkit.recall(self,"size_dif") or self.base_size_dif
@@ -881,7 +882,7 @@ function animals.place_egg(self, pos, medium, e_ov)
 
     -- remove male or baby identifier when checking names
     local check_name = string.gsub(self.name,"_male","")
-    check_name = string.gsub(self.name,"_baby","")
+    check_name = string.gsub(check_name,"_baby","")
 
     -- number of its kind in an area
     local objcount = #animals.get_entities_inside_radius(check_name,
@@ -1148,7 +1149,7 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
 
         -- remove male or baby identifier when checking names
         local check_name = string.gsub(name,"_male","")
-        check_name = string.gsub(name,"_baby","")
+        check_name = string.gsub(check_name,"_baby","")
 
         -- get specified objcount from objcounts table (of check_name) or set a new one
         local objcount = objcounts[check_name] or #animals.get_entities_inside_radius(check_name, pos, mo_check_radius)
@@ -2846,8 +2847,8 @@ function animals.add_interactors(creature, itype, ...)
         creature = creature.name
     end
     assert(type(creature) == "string",
-        "animals.add_interactors: could not get valid name from creature (not a string or table with .name string). Got '"..
-        tostring(creature).."' type "..type(creature))
+        "animals.add_interactors: could not get valid name from creature (not a string or table with .name string). "
+        .. "Got '".. tostring(creature).."' type "..type(creature))
     -- we only work lowercase
     creature = creature:lower()
 
@@ -2965,8 +2966,8 @@ function animals.get_interactors(creature,itype)
     -- get name of table if table
     creature = type(creature) == "table" and creature.name or creature
     assert(type(creature) == "string",
-        "animals.get_interactors: could not get valid name from creature (not a string or table with .name string). Got '"..
-        tostring(creature).."' type "..type(creature))
+        "animals.get_interactors: could not get valid name from creature (not a string or table with .name string). " ..
+        "Got '".. tostring(creature).."' type "..type(creature))
     -- we only work lowercase
     creature = creature:lower()
 
@@ -3218,7 +3219,9 @@ function animals.vitals(self)
         -- override self.isinliquid from mobkit to account for overhead water
         self.isinliquid = self.isinliquid or drawtype_above == "liquid" or false
         -- do after above calculation for hunting_depth if specified
-        drawtype_above = self.hunting_depth and node_drawtype(minimal.pos_shift(lowpos,{y=self.hunting_depth})) or drawtype_above
+        if self.hunting_depth then
+            drawtype_above = node_drawtype(minimal.pos_shift(lowpos,{y=self.hunting_depth}))
+        end
 
         local oxygen_min = self.oxygen_min or self.lung_capacity
         local breathing_rate = self.breating_rate or 1

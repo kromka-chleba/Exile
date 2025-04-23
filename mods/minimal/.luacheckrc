@@ -2,23 +2,19 @@ unused_args = false
 allow_defined_top = true
 
 globals = {
-	"crafting",
+    "minimal"
 }
 
 read_globals = { -- Read only, writing to them generates a warning
+	"DIR_DELIM",
 	"minetest", "core",
 	"dump", "dump2", "table",
-	"vector", "default",
-
-    -- other exile's mods
-	"minimal",
-	"sfinv",
-	"ItemStack", "awards",
-
-	-- Testing
-	"describe",
-	"it",
-	"assert",
+	"vector", "nodeupdate",
+	"VoxelManip", "VoxelArea",
+	"PseudoRandom", "ItemStack",
+	"intllib", "string.split",
+    -- dependencies in mod.conf
+    
 }
 
 exclude_files = {".luacheckrc"}

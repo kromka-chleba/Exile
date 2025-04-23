@@ -242,7 +242,7 @@ function storage.register_storage(name,def)
             end
             return 0
         end
-        
+
     -- custom storage function for filtering
     -- check minimal/utility/item.lua for what to expect with inv and target_inv
     -- inv is our inventory, index is where in the inventory the itemstack is

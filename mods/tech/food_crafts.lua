@@ -1095,7 +1095,13 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = "mortar_and_pestle",
         output = "tech:yolk_and_albumen",
-        items = {{'animals:pegasun_eggs','animals:chichasa_eggs','animals:kubwakubwa_eggs 2','animals:darkasthaan_eggs 2'}},
+        items = {
+            {'animals:pegasun_eggs',
+            'animals:chichasa_eggs',
+            'animals:kubwakubwa_eggs 2',
+            'animals:darkasthaan_eggs 2'
+            }
+        },
         level = 1,
         always_known = true,
         sound = "animals_hatch_egg"

@@ -1,5 +1,4 @@
 minimal = minimal
-local S = minimal.S
 
 -- functionality for determining if a player is looking in storage
 -- lets you set up proper functionality for when a player is or isn't
