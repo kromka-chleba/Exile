@@ -1024,16 +1024,17 @@ for dough,flour in pairs(
         type = "breadmaking",
         output = dough.." "..count,
         -- only the freshwater variant
-        items = {flour,{}},
+        items = {flour, "group:freshwater_pot"},
         replace = {},
         level = 1,
         always_known = true
     }
 
     -- iterate through every empty water pot
+    --[[TODO cleaner iterate in group:freshwater_pot using crafting.get_group_items(freshwater_pot),
+    but then I need to remove the "_freshwater",
+    do a proper fnction to get empty, as done by TPH ]]
     for _,water_pot in pairs({"tech:clay_water_pot", "tech:wooden_water_pot"}) do
-        -- adds full pot as possible input
-        table.insert(recipe_def.items[2], water_pot.."_freshwater")
         -- adds matching empty pot as replacement
         recipe_def.replace[water_pot.."_freshwater"] = water_pot
     end

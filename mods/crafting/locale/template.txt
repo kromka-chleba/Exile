@@ -16,6 +16,8 @@ basalt cobble=
 granite cobble=
 ironstone cobble=
 jade cobble=
+freshwater pot=
+
 #api.lua
 @1's @2=
 Any @1=
