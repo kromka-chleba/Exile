@@ -5,11 +5,9 @@
 -- When the two blocks of sand are dropped in correctly, the salt water
 --  node rises to the bottom of the entity, and it will allow safe passage
 
-local loaded_ents = {}
-
 local blocker_ent = {
-    initial_properties = {collisionbox = {-0.25, -0.025, -0.25,
-                                          0.25, 0.25, 0.25},
+    initial_properties = {collisionbox = {-0.15, -0.025, -0.15,
+                                          0.15, 0.5, 0.15},
                           visual="sprite",
                           textures = { "empty.png" },
                           pointable = false,
@@ -18,7 +16,13 @@ local blocker_ent = {
                          },
     on_activate = function(self)
         local pos = self.object:get_pos()
-        self.poscheck = vector.new(pos.x, pos.y - 1, pos.z)
+        local nearby = core.get_objects_inside_radius(pos, 1.5)
+        for i = 1, #nearby do
+            if nearby[i] ~= self.object then -- different objectref
+                nearby[i]:remove()
+            end
+        end
+        self.poscheck = vector.new(pos.x, pos.y - 1.5, pos.z)
     end,
     on_step = function(self, dtime, moveresult)
         if self.disabled then -- Old entity, or done existing
@@ -44,6 +48,8 @@ minetest.register_entity("tutorial_exile:place_blocker", blocker_ent)
 
 if minetest.settings:get("exile_debug") ~= "true" then return end
 
+local loaded_ents = {}
+
 minetest.register_chatcommand(
     "place_blocker",{
         privs = "server",
@@ -54,7 +60,7 @@ minetest.register_chatcommand(
             if not ent then return false, "Failed to place!" end
             ent:set_properties({ textures = {"metal_plasma.png"} })
             ent:get_luaentity().debug = true
-            table.insert(loaded_ents , ent)
+            table.insert(loaded_ents, ent)
         end
 
 })

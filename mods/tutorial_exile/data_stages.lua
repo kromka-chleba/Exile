@@ -40,7 +40,7 @@ return
             location = vector.new(0,0,0),
             entry = function(self, player, name, instance)
                 local tgt = instance.offset -- absolute map location
-                    + vector.new(6,4,9) -- where to put the entity
+                    + vector.new(6,4.5,9) -- where to put the entity
                 local ent = minetest.get_objects_inside_radius(tgt, 1)
                 print("ENT: ",dump(ent))
                 if not ent or #ent == 0 then
