@@ -134,6 +134,7 @@ minimal.register_on_joinplayer(function(player)
         local name = player:get_player_name()
         read_player_store(name)
         if pstore[name] then
+            player:override_day_night_ratio(1)
             stage.open(player) -- restart current stage
         end
 end)
