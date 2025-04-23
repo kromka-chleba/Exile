@@ -1,6 +1,7 @@
 -- Here is the inventory tab generated and all the dealing with moving clothing in and out the clothing spots --
 --[[
-Shift moving uses a player's inventory lis "temp_slot" once check that this is a cloth, to automatically redirect it to the correct cloth slot when equipping
+Shift moving uses a player's inventory list "temp_slot":
+Once checked that this is a cloth, it automatically redirects it to the correct cloth slot when equipping.
 
 Only one cloth is allowed in each slot.
 
@@ -214,14 +215,20 @@ minetest.register_on_player_inventory_action(function(player, action,
         player_api.is_clothing_slot(to_list) or
         player_api.is_clothing_slot(listname) then
         -- update texture and temp settings
-        --[[#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus during the process since I added setting button in sfinv : it seems this is linked to the fact that the gear button gets the focus]]
+        --[[#TODO I am not sure why
+        I need a delay to not break shift-click moving by refreshing/loosing focus during the process
+        since I added setting button in sfinv :
+        it seems this is linked to the fact that the gear button gets the focus]]
         core.after(0.1, player_api.update_player, player)
     end
     -- if shift click brought item from inventory to be redirected
     if to_list == "temp_slot" then
         redirect(player,inventory, from_list, inventory_info.from_index,"temp_slot")
         -- update texture and temp settings
-        --[[#TODO I am not sure why I need a delay to not break shift-click moving by refreshing/loosing focus during the process since I added setting button in sfinv : it seems this is linked to the fact that the gear button gets the focus]]
+        --[[#TODO I am not sure why
+        I need a delay to not break shift-click moving by refreshing/loosing focus during the process
+        since I added setting button in sfinv :
+        it seems this is linked to the fact that the gear button gets the focus]]
         core.after(0.1, player_api.update_player, player)
     end
 end)

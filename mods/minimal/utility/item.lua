@@ -219,7 +219,6 @@ local function create_inventory_object(items, lengthoverride)
         mode = type(mode) == "string" and mode:lower() or mode
         mode = mode == "max_count" and "max" or mode
         local data,is_empty = inv:get_item_amounts()
-        local stats = {name = "", num = 0}
         if not is_empty then
             local stats = {name = "", num = 0}
             for item_name, info in pairs(data) do

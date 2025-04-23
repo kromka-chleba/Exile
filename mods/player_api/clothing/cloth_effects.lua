@@ -1,7 +1,4 @@
 -- Regroup all non visual effects of clothes
-
--- Internationalization---------------------------------------------------------
-local S = minetest.get_translator("player_api")
 --------------------------------------------------------------------------------
 
 player_api = player_api

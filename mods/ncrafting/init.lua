@@ -217,7 +217,7 @@ function ncrafting.do_bake(pos, elapsed, heat, length, cookname, burnname)
         local cook_def = minetest.registered_nodes[name_cooked]
         if HEALTH.bake_table[name_cooked] and cook_def
             and cook_def.on_construct then
-            
+
             cook_def.on_construct(pos)
             return false
         end

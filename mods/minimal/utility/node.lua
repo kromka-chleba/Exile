@@ -1,6 +1,5 @@
 minimal = minimal
 wielded_light = wielded_light
-local S = minimal.S
 
 -- check if a valid meta was given
 function minimal.is_meta(meta)

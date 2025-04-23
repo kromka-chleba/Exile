@@ -30,7 +30,7 @@ function animals.node_sound_meat_defaults(table)
     table.footstep = table.footstep or {
         name = "animals_meat_place",
         pitch = 1.5,
-        gain = 0.4        
+        gain = 0.4
     }
     nodes_nature.node_sound_defaults(table)
     return table
