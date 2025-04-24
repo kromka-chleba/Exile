@@ -456,7 +456,7 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
             lightsource.update_fuel_infotext(oil_lamp_data, pos)
         end,
         on_dig = function(pos, node, digger)
-            lightsource.save_to_inventory(oil_lamp_data, pos, digger, true)
+            lightsource.save_to_inventory(oil_lamp_data, pos, digger, false)
         end,
         on_ignite = function(pos, user)
             lightsource.ignite(oil_lamp_data, pos)
@@ -505,6 +505,9 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
     end
 
     minetest.register_node(oil_lamp_data.unlit_name, basedef)
+    litdef.on_dig = function(pos, node, digger)
+            lightsource.save_to_inventory(oil_lamp_data, pos, digger, true)
+    end
     minetest.register_node(oil_lamp_data.lit_name, litdef)
 end
 
