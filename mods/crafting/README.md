@@ -56,8 +56,35 @@ be used twice: `default:wood, group:wood`.
         * `correct`  is a function returning `true` if number condition is verified, `false` else.
         Always returns `true` if no number to test.
 
-* crafting.register_type(name)
-	* Register a type `type` used when searching for recipes
+
+### Crafting types
+
+* crafting.register_type(name, label, icon_item_name, sound)
+	* Register a type `type` used for tabs and recipes sorting
+        * `name`  - name of the type in code
+        * `label` - label of the type displayed in game. Translated
+        * `icon_item_name` - used to be displayed in tab in crafting formspec
+        * `sound` - sound made when we craft this type
+        * `recipes` - array of possible recipes for that crafting type, assigned to {} at registration.
+
+* crafting.reset_craft_types()
+    * Deletes all registered craft types
+
+* crafting.is_type_registered(name)
+    * Returns `true` if type is already registered, `false`else.
+
+* crafting.get_type(name)
+    * Returns the type's table
+    See `crafting.register_type` for the fields
+
+* crafting.get_recipes_by_type(name)
+    * Returns crafting.get_type(name).recipes
+    *  `nil` if `name` is not a registered type
+
+* crafting.get_registered_types_names()
+    * Returns an array of all registered craft types names
+
+### Recipes
 
 * crafting.register_recipe(def)
 	* Returns id.
@@ -66,7 +93,9 @@ be used twice: `default:wood, group:wood`.
 		* `output` - the result of the craft, eg: `default:stone 3`.
 		* `items`  - A list of ingredients, eg: `{"stone", "wood 3"}`.
 		* `level`  - level of station required.
-		* `always_known` - If true, this recipe will never need to be unlocked.
+		* `always_known` - If `true`, this recipe will never need to be unlocked.
+        * `replace`
+        * `sound` - sound to be played when we use that recipe. Overrides default crafting type sound.
         * `_display` - string of image to display in recipe panel
 
 * crafting.get_recipe(id)
@@ -96,6 +125,8 @@ be used twice: `default:wood, group:wood`.
 	* `item_hash` - a table with keys being item names or group names (eg: `group:wood`)
 	                and the value being the number required.
 	* `unlocked`  - a list of outputs the player has unlocked.
+
+## Craft
 
 * crafting.set_item_hashes_from_list(inv, listname, item_hash)
 	* Iterates through the list and adds or updates entries in item_hash

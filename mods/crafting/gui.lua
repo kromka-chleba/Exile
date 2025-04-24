@@ -581,7 +581,7 @@ local function make_inventory_formspec(player,context,istool)
                 ]]
             end
 
-            local item_name = crafting.icon_item_name[cTabs[i]]
+            local item_name = crafting.get_type(cTabs[i]).icon
             or 'crafting:placeholder'
 
             -- checking if given field is an image or not.
@@ -593,7 +593,7 @@ local function make_inventory_formspec(player,context,istool)
             pan_t[#pan_t + 1] = button_type .. coords .. ';0.8,0.8;'.. item_name .. ';sCraftTab_'..i..';]'
 
             pan_t[#pan_t + 1] = 'tooltip[sCraftTab_'.. i ..
-            ';' .. minetest.formspec_escape((crafting.tab_labels[cTabs[i]]
+            ';' .. minetest.formspec_escape((crafting.get_type(cTabs[i]).label
             or cTabs[i])) ..
             ';#000000;#ffffff]'
         end
