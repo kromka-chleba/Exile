@@ -82,27 +82,27 @@ minetest.register_on_generated(function(minp, maxp, seed)
     or maxp.z < ZMIN or minp.z > ZMAX then
         return
     end
-    
+
     --noise does random location, we want it at map center
     --local locnoise = minetest.get_perlin(5839090, 2, 0.5, 3)
     --local noisex = locnoise:get2d({x = 31, y = 23})
     --local noisez = locnoise:get2d({x = 17, y = 11})
     --local cx = cxav-+ math.floor(noisex * xnom) -- chunk co ordinates
     --local cz = czav + math.floor(noisez * znom)
-    
+
     local merux = 80 * cxav + 8
     local meruz = 80 * czav + 8
 
     if COORD then
         print ("[meru] at x " .. merux .. " z " .. meruz)
     end
-    
+
     if minp.x < merux - 120 or minp.x > merux + 40
     or minp.z < meruz - 120 or minp.z > meruz + 40
     or minp.y < YBASE*2 or minp.y > HEIGHT * 1.2 then
         return
     end
-    
+
     local t0 = os.clock()
     local x0 = minp.x
     local y0 = minp.y
@@ -128,9 +128,9 @@ minetest.register_on_generated(function(minp, maxp, seed)
     nobj_fissure = nobj_fissure or minetest.get_perlin_map(np_fissure, chulens3d)
     nobj_biome = nobj_biome or minetest.get_perlin_map(np_biome, chulens3d)
 
-    local nvals_structure = nobj_structure:get3dMap_flat(minpos3d)
-    local nvals_fissure = nobj_fissure:get3dMap_flat(minpos3d)
-    local nvals_biome = nobj_biome:get3dMap_flat(minpos3d)
+    local nvals_structure = nobj_structure:get_3d_map_flat(minpos3d)
+    local nvals_fissure = nobj_fissure:get_3d_map_flat(minpos3d)
+    local nvals_biome = nobj_biome:get_3d_map_flat(minpos3d)
 
     local nixyz = 1 -- 3D noise index
     --local nixz = 1 -- 2D noise index
@@ -154,7 +154,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
                     local n_absfissure = math.abs(nvals_fissure[nixyz])
                     local fisoff = FISOFFBAS + heprop * (FISOFFTOP - FISOFFBAS)
                     local fisexp = FISEXPBAS + heprop * (FISEXPTOP - FISEXPBAS)
-                    
+
                     if n_absfissure - n_offstructure * fisexp - fisoff > 0 then
                         local n_biome = nvals_biome[nixyz]
                         local desert = n_biome > 0.45
@@ -167,11 +167,11 @@ minetest.register_on_generated(function(minp, maxp, seed)
                     else
                         data[vi] = c_air
                     end
-                
+
                 elseif n_offstructure > VOID then
                     data[vi] = c_air
                 end
-                
+
                 nixyz = nixyz + 1
                 --nixz = nixz + 1
                 vi = vi + 1
@@ -180,12 +180,12 @@ minetest.register_on_generated(function(minp, maxp, seed)
         end
         --nixz = nixz + sidelen
     end
-    
+
     vm:set_data(data)
     vm:set_lighting({day = 0, night = 0})
     vm:calc_lighting()
     vm:write_to_map(data)
-    
+
     local chugent = math.ceil((os.clock() - t0) * 1000)
     print ("[meru] " .. chugent .. " ms")
 end)
