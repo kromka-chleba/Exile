@@ -915,6 +915,13 @@ local function process_qty(recipe,qty,item_hash)
                 prior_count = max_count
             end
         end
+
+        -- TODO: little hack here, check if we can do better later
+        -- needed for sleeping spot where `items` is empty, then max just gave 0
+        if max_count == 0 then
+            max_count = 1
+        end
+
         return max_count
     end
 
