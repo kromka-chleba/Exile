@@ -20,22 +20,6 @@
 -- Warning: this is a circular dependency; minimal depends on crafting, too
 --minimal = minimal
 
-crafting = {
-    recipes = {},
-    tab_labels = {},
-    recipes_by_id = {},
-    recipes_by_output = {},
-    registered_on_crafts = {},
-    item_by_group = {}, -- hash group:groupname to an item name.
-    -- only last inventory item from group is stored.
-    sort_order_by_player = {},
-    -- hash of recipe id to display order in sorted array
-    icon_item_name = {},
-    -- hash of node identifiers to display the crafting type in the interface
-    sounds = {},
-    -- sounds to play when something is crafted within a crafting station
-}
-
 local S = minetest.get_translator("crafting")
 
 dofile(minetest.get_modpath("crafting") .. "/groups.lua")
@@ -319,11 +303,14 @@ end
     displayed = displayed -- true if it matches the search filter
     ]]
 function crafting.get_all(ctype, level, item_hash, unlocked, search, lang_code)
-    assert(crafting.recipes[ctype], "No such craft type!")
+    if not crafting.get_type(ctype) then
+        core.log (tostring(ctype) .. "is not registered as craft type")
+        return
+    end
     assert(not search or type(search) == "string", "search need to be a string")
     local t = {}
 
-    for _, recipe in pairs(crafting.recipes[ctype]) do
+    for _, recipe in pairs(crafting.get_recipes_by_type(ctype)) do
         local craftable = true
         -- if no filter is active, always display
         local displayed = (not search) -- true if no search, false else
@@ -818,7 +805,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     if warn then minimal.warn_inv_full(player) end
     -- get a crafting sound
     local sound = recipe.sound
-    sound = sound or sound ~= false and crafting.sounds[ctype] or nil
+    sound = sound or sound ~= false and crafting.get_type(ctype).sound or nil
     if sound then
         minimal.sound_play(minimal.merge_tables(sound, {pos = pos}))
     end

@@ -20,6 +20,15 @@ minetest.register_craftitem("crafting:placeholder",{
                                 inventory_image = "crafting_placeholder.png"
 })
 
+crafting = {
+    default_tool = 'tech:hand',
+    tab_labels = {},
+    -- only last inventory item from group is stored.
+    sort_order_by_player = {},
+    -- hash of recipe id to display order in sorted array
+    icon_item_name = {},
+    -- hash of node identifiers to display the crafting type in the interface
+}
 
 local crafting_path = core.get_modpath("crafting")
 -- define group system for recipes
