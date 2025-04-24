@@ -902,7 +902,7 @@ function animals.place_egg(self, pos, medium, e_ov)
             if tag then
                 -- check if node_name is equal to provided medium tag
                 can_lay = c_node.name == tag
-                -- allow group detection if layable area hasn't been found 
+                -- allow group detection if layable area hasn't been found
                 if can_lay ~= true and tag:sub(1,6) == "group:" then
                     local group = c_node.groups and c_node.groups[tag:sub(7)]
                     can_lay = group and group > 0
@@ -2248,7 +2248,7 @@ function animals.target_in_range(self,tgt)
         return false
     end
     local range = (self.attack and self.attack.range
-                   or 0.1) + ((self.stepheight or 0) * 1.1)
+                   or 0.1) + ((self.object:get_properties().stepheight or 0) * 1.1)
     local pos = self.object:get_pos()
     local tpos = tgt.object:get_pos()
     local selfbox = self.object:get_properties().collisionbox
@@ -2443,7 +2443,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
     end
     local tgtobj = tgt.object
     tgt = tgt.ent
-    
+
     if type(eat) ~= "boolean" then
         eat = minetest.is_player(tgtobj) and self.consume_players == true
 
@@ -3568,7 +3568,11 @@ function animals.register_animal(name,def)
     init_prop.makes_footstep_sound =
         type(init_prop.makes_footstep_sound) ~= "boolean" and true
         or init_prop.makes_footstep_sound
+    init_prop.stepheight = def.stepheight
+        or def.class ~= 2 and 1.05
+        or nil
     init_prop.timeout = 0
+
     def.initial_properties = init_prop
 
     -- animal stats
@@ -3866,12 +3870,7 @@ function animals.register_animal(name,def)
         or def.warn_distance/2
     -- add reference points to initial_properties inside of the entity
     def.max_hp = def.initial_properties.max_hp
-    def.visual_size = def.initial_properties.visual_size
-    def.collisionbox = def.initial_properties.collisionbox
-    -- stepheight
-    def.stepheight = def.stepheight
-        or def.class ~= 2 and 1.05
-        or nil
+
     -- modify functions for event changes or necessary actions
     local on_punch = def.on_punch
     def.on_punch = function(self, puncher, time_from_last_punch,

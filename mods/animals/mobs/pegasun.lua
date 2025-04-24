@@ -215,6 +215,7 @@ local self_data = {
         textures = {"animals_pegasun.png"},
         visual_size = {x = 1.08, y = 1.08},
         makes_footstep_sound = true,
+        stepheight = 0.8,
     },
     _desc = S("Female Pegasun"),
     timeout = 0,
@@ -303,7 +304,6 @@ local self_data = {
     warn_distance = 14,
     player_warn_distance = 10,
     aggression_distance = 5,
-    stepheight = 0.8,
     --attack
     attack={range=0.6, damage_groups={fleshy=2}},
     armor_groups = {fleshy=100},
