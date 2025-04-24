@@ -166,6 +166,14 @@ function crafting.register_recipe(def)
     end
     -- convert into table to iterate through or remove if invalid
     def.replace = type(def.replace) == "string" and {def.replace} or type(def.replace) == "table" and def.replace or nil
+
+    -- forbid max for tools outputs
+    -- if not explicitely set on "I want max possible"
+    local o_name = ItemStack(def.output):get_name()
+    if minetest.registered_tools[o_name] and def.no_max ~= false then
+        def.no_max = true
+    end
+
     -- custom sound per recipe
     -- permits "false" to prevent playing of crafting station sound
     def.sound = type(def.sound) == "string" and {name = def.sound} or type(def.sound) == "table" and def.sound or
