@@ -12,13 +12,13 @@ mobkit.friction = 0.4   -- less is more
 local abs = math.abs
 local pi = math.pi
 local floor = math.floor
-local ceil = math.ceil
+--local ceil = math.ceil
 local random = math.random
 local sqrt = math.sqrt
 local max = math.max
 local min = math.min
 local tan = math.tan
-local pow = math.pow
+--local pow = math.pow
 
 local sign = function(x)
     return (x<0) and -1 or 1
@@ -159,13 +159,14 @@ function mobkit.get_nodes_in_area(pos1,pos2,full)
 end
 
 function mobkit.get_hitbox_bottom(self)
-    local y = self.collisionbox[2]
+    local _collision_box = self.object:get_properties().collisionbox
+    local y = _collision_box[2]
     local pos = self.object:get_pos()
     return {
-        {x=pos.x+self.collisionbox[1],y=pos.y+y,z=pos.z+self.collisionbox[3]},
-        {x=pos.x+self.collisionbox[1],y=pos.y+y,z=pos.z+self.collisionbox[6]},
-        {x=pos.x+self.collisionbox[4],y=pos.y+y,z=pos.z+self.collisionbox[3]},
-        {x=pos.x+self.collisionbox[4],y=pos.y+y,z=pos.z+self.collisionbox[6]},
+        {x=pos.x+_collision_box[1],y=pos.y+y,z=pos.z+_collision_box[3]},
+        {x=pos.x+_collision_box[1],y=pos.y+y,z=pos.z+_collision_box[6]},
+        {x=pos.x+_collision_box[4],y=pos.y+y,z=pos.z+_collision_box[3]},
+        {x=pos.x+_collision_box[4],y=pos.y+y,z=pos.z+_collision_box[6]},
     }
 end
 
