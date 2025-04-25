@@ -21,9 +21,13 @@ minetest.register_craftitem("crafting:placeholder",{
 })
 
 
-dofile(minetest.get_modpath("crafting") .. "/api.lua")
-dofile(minetest.get_modpath("crafting") .. "/async_craft.lua")
-dofile(minetest.get_modpath("crafting") .. "/gui.lua")
+local crafting_path = core.get_modpath("crafting")
+-- define group system for recipes
+dofile(crafting_path .. "/groups.lua")
+dofile(crafting_path .. "/recipes_def.lua")
+dofile(crafting_path .. "/recipes_unlock.lua")
+dofile(crafting_path .. "/api.lua")
+dofile(crafting_path .. "/gui.lua")
 
 if minetest.global_exists("awards") then
     awards.register_on_unlock(function(name, award)
