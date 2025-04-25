@@ -420,7 +420,9 @@ minetest.register_node(
         pointable = false,
         walkable = false,
         buildable_to = false,
+        diggable = false,
         floodable = false,
+        is_ground_content = false,
         groups = {temp_pass = 1, trigger = 1},
         use_texture_alpha = "blend",
 })

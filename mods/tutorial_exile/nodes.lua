@@ -209,7 +209,7 @@ local info = { -- #TODO: set up locales, template.txt etc
                      "and the binoculars or magnifying lens on mobile"),
     ["crawl"] = S("Double-tap sneak to crouch and get through small spaces.@n"..
                   "@nIf server lag makes this hard, you can use the"..
-                  " /crouch command, or install exile_csm, the"..
+                  " /crouch command, or install exile_csm, the "..
                   "client-side mod to handle controls locally"),
     ["movement"] = S("Loss of energy affects move and jump rate"),
     ["torch"] = S("Drop a torch to see what's below")
