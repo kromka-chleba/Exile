@@ -13,13 +13,26 @@ function exile.debug.print(message)
     end
 end
 
-function exile.debug.crafting_stations(station)
-    for _,recipes in pairs(crafting.recipes) do
-        minetest.log('warning', "station: "..station..
-                     "(recipes: "..#recipes..")")
+function exile.register_debug_fun(f_name, f)
+    exile.debug[f_name] = f
+end
+
+exile.register_debug_fun("crafting_stations", function(station)
+    for name, type in pairs(crafting.get_type) do
+        minetest.log('warning', "station: "..name..
+                     "(recipes: "..#type.recipes..")")
     end
     if station then
-        print (dump(crafting.recipes[station]))
+        print (dump(crafting.get_type(station).recipes))
+    end
+end)
+function exile.debug.crafting_stations(station)
+    for name, type in pairs(crafting.get_type) do
+        minetest.log('warning', "station: "..name..
+                     "(recipes: "..#type.recipes..")")
+    end
+    if station then
+        print (dump(crafting.get_type(station).recipes))
     end
 end
 
