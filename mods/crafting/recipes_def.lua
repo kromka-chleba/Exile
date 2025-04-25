@@ -79,10 +79,60 @@ function crafting.register_recipe(def)
     return def.id
 end
 
+--[[ check if no duplicates inputs, which currentldy would make craft do unwanted things
+run after mods loaded
+]]
+local function check_recipe_def(def)
+    -- return a list with all needed item_names (including in group)
+    local function input_item_to_nameslist(recipe_input)
+        local function add_name(item, list)
+            local itemName = ItemStack(item):get_name()
+            local group_stats = crafting.get_group_stats(itemName)
+            if group_stats then
+                local t = crafting.get_group_items(group_stats.name)
+                if not t then
+                    core.log("no items defined for group: "
+                .. group_stats.name .. " in recipe: "
+                .. def.output)
+                else
+                    for _,it in ipairs(t) do
+                        table.insert(list, ItemStack(it):get_name())
+                    end
+                end
+            else
+                table.insert(list, itemName)
+            end
+        end
+        local result={}
+        for i, itema in ipairs(recipe_input) do
+            if type(itema)=="table" then
+                for j,itemb in ipairs(itema) do
+                    add_name(itemb, result)
+                end
+            else
+                add_name(itema, result)
+            end
+        end
+        return result
+    end
+
+    local t = input_item_to_nameslist(def.items)
+    for i, name in ipairs(t) do
+        for j, second in ipairs(t) do
+            if i~=j and name == second then
+                core.log (def.output.. "\'s recipe uses " .. name .. " twice")
+                return false
+            end
+        end
+    end
+    return true -- recipe is ok
+end
+
 -- have to wait for all modules load before generating
 -- station lists
 minetest.register_on_mods_loaded( function ()
         for _,recipe in ipairs(crafting.recipes_by_id) do
+            check_recipe_def(recipe)
             if type(recipe.type) == "string" then
                 recipe.type = { recipe.type }
             end
