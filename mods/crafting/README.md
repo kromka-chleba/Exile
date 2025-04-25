@@ -32,6 +32,30 @@ be used twice: `default:wood, group:wood`.
 
 ## API
 
+### Groups
+
+* crafting.get_group_table(group_name)
+    * Returns list of item names by group
+
+* crafting.get_group_stats(grouptag)
+    * Returns a table of fields included in string grouptag
+
+    * `grouptag` is a string to be used in recipes
+    Format is group:<groupname>,<groupnumcondition>,<desc>
+        * `groupname` is mandatory name of the group
+        * `groupnumcondition` (optional) is required group's number (3,8) or condition (>2 or <6)
+        * `desc` (optional) is a custom description  to display in recipe
+
+    Ex: "group:flammable,1,Flammable>"
+
+    * Following fields are created:
+        * `name` the name of the group (groupname)
+        * `tag` is "group:" .. name
+        * `num_cmd` (can be nil !) condition ">" or "<". if no command, defautl condition is "="
+        * `num` (can be nil !) required group number
+        * `correct`  is a function returning `true` if number condition is verified, `false` else.
+        Always returns `true` if no number to test.
+
 * crafting.register_type(name)
 	* Register a type `type` used when searching for recipes
 
