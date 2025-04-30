@@ -12,11 +12,10 @@ local function trash_encapsulation()
     --Cane schematics
     local canes_list   = { --- Schematics
         -- name                 y  x  z
-        {"nodes_nature:gemedi", 7, 1, 1, 255, 245, 225, 205, 155,  55,  35 },
-        {"nodes_nature:cana"  , 7, 1, 1, 255, 255, 255, 255, 230, 155, 105 },
+        {"nodes_nature:gemedi", 7, 1, 1, 255, 245, 190, 190, 156,  60,  28 },
+        {"nodes_nature:cana"  , 7, 1, 1, 255, 245, 190, 190, 156,  60,  28 },
         {"nodes_nature:tiken" , 7, 1, 1, 255, 255, 255, 255, 230, 155, 105 },
         {"nodes_nature:chalin", 7, 1, 1 ,255, 255, 255, 255, 230, 155, 105 },
-        -- Exile v4 cane plant, found in dry woodlands
     }
 
     local canes = {}
