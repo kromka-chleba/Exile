@@ -553,94 +553,92 @@ end
 -- Mortar and pestle. for grinding food etc ----------------
 ----------------------------------------------
 
--- def can be description (tag)
-local function register_mortar_and_pestle(name, def, sand_needed)
-    def = type(def) == "string" and {tag = def} or type(def) == "table" and def or {}
-    def.description = def.description or def.tag and S("@1 Mortar and Pestle", def.tag) or nil
-    def.tag = nil -- remove from def
-    -- grab recipe if provided
-    local recipe = def.recipe or {}
-    def.recipe = nil
-    -- set up exile crafting
-    local exile_crafting = def.exile_crafting or {}
-    local craft_types = exile_crafting.craft_types or {}
-    craft_types[#craft_types + 1] = 'mortar_and_pestle'
-    craft_types[#craft_types + 1] = 'breadmaking'
-    exile_crafting.craft_types = craft_types
-    exile_crafting.craft_level = exile_crafting.craft_level or 1
-    def.exile_crafting = exile_crafting
-    -- now for actual node things
-    def.drawtype = def.drawtype or "nodebox"
-    def.node_box = def.node_box or def.drawtype == "nodebox" and
-      {
-          type  = "fixed",
-          fixed = {
-              {-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
-              {-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
-              {-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
-              {-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
-              {-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
-              { 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
-              {-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
-          }
-      } or nil
-    def.tiles = def.tiles or {"nodes_nature_"..name..".png"}
-    def.stack_max = def.stack_max or minimal.stack_max_bulky * 2
-    def.paramtype = "light"
-    def.paramtype2 = def.paramtype2 or "facedir"
-    def.sounds = def.sounds or nodes_nature.node_sound_stone_defaults()
-    -- set up groups
-    def.groups = def.groups or {}
-    def.groups.falling_node = def.groups.falling_node or 1
-    def.groups.dig_immediate = def.groups.dig_immediate or 3
-    def.groups.craftedby = def.groups.craftedby or 1
-    -- show crafting
-    def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-        return crafting.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+-- Stone mortar and pestle -----------
+--"" one is default to have a without material display name in crafting formspec (recipes)
+local mortar_and_pestle_mats = {
+    "limestone",
+    "basalt",
+    "granite",
+    "wooden"
+}
+
+local function generate_mortar_def(mat)
+    local def = {}
+    -- item name
+    def.name = "tech:mortar_pestle_" .. mat
+    -- description
+    --local capsmat = mat:gsub("^%l", string.upper).. " "
+    --def.description = S(capsmat .." Mortar and Pestle")
+
+    -- tiles and sounds
+    if mat == "wooden" then
+        def.description = S("Wooden Mortar and Pestle")
+        def.tiles = {"tech_primitive_wood.png"}
+        def.sounds = nodes_nature.node_sound_wood_defaults()
+        def.recipe = {
+            type = {"axe", "carpentry_bench"},
+            output = "tech:mortar_pestle_wooden",
+            items = {'group:log 2'},
+            level = 1,
+            always_known = true,
+        }
+    else
+        local tag = ItemStack("nodes_nature:".. mat):get_short_description()
+        def.description =  S("@1 Mortar and Pestle", tag)
+        def.tiles = {"nodes_nature_" .. mat .. ".png"}
+        def.sounds = nodes_nature.node_sound_stone_defaults()
+        def.recipe = {
+            type   = { "hand_tools", "grinding_stone" },
+            output = def.name,
+            tool = "nodes_nature:sand",
+            items  = {"nodes_nature:" .. mat .. "_boulder","group:" .. mat .. "_cobble"},
+            level  = 1,
+            always_known = true,
+        }
     end
-    -- metadata functions (if craftedby)
-    if def.groups.craftedby > 0 then
-        def.preserve_metadata = station_preserve_metadata
-        def.after_place_node = station_after_place
-    end
-    -- register node
-    local nodename = "tech:mortar_pestle_"..name
-    core.register_node(nodename, def)
-    -- register recipe
-    recipe.type = recipe.type or {"hand_tools", "grinding_stone"}
-    recipe.output = nodename
-    -- add sand as tool is sand is needed
-    if sand_needed then
-        recipe.tool = "nodes_nature:sand"
-    end
-    -- recipe.items are given for wooden already, else it is stone ones
-    recipe.items = recipe.items or {"nodes_nature:"..name.."_boulder", "group:"..name.."_cobble"}
-    recipe.level = 1
-    recipe.always_known = true
-    crafting.register_recipe(recipe)
+    return def
 end
 
--- need to change old tech:mortar_pestle to tech:mortar_pestle_limestone
--- less translation work needed if we just use the nodes_nature description lol
-register_mortar_and_pestle("basalt", core.registered_nodes["nodes_nature:basalt"].description, true)
-register_mortar_and_pestle("granite", core.registered_nodes["nodes_nature:granite"].description, true)
-register_mortar_and_pestle("limestone", core.registered_nodes["nodes_nature:limestone"].description, true)
--- wooden mortar and pestle
-register_mortar_and_pestle(
-    "wooden",
-    {
-        description = S("Wooden Mortar and Pestle"),
-        tiles = {"tech_primitive_wood.png"},
-        sounds = nodes_nature.node_sound_wood_defaults(),
-        recipe = {
-            type = {"axe", "carpentry_bench"},
-            items = {'group:log 2'}
-            }
-        },
-    false
-)
-
-
+-- if we want to have separate recipes, but below code to have only one for all stone ones
+for _, mat in pairs (mortar_and_pestle_mats) do
+    local def = generate_mortar_def(mat)
+    minetest.register_node(
+        def.name,{
+            description   = def.description,
+            exile_crafting = {
+                craft_types = {"mortar_and_pestle", 'breadmaking'},
+                craft_level = 1,
+            },
+            drawtype      = "nodebox",
+            tiles         = def.tiles,
+            stack_max     = minimal.stack_max_bulky *2,
+            paramtype     = "light",
+            paramtype2    = "facedir",
+            groups        = {falling_node = 1, dig_immediate=3, craftedby = 1},
+            node_box      = {
+                type  = "fixed",
+                fixed = {
+                    {-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
+                    {-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
+                    {-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
+                    {-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
+                    {-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
+                    { 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
+                    {-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
+                }
+            },
+            sounds        = def.sounds,
+            on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+                return crafting.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
+            end,
+            -- since we have crafted by in our groups ...
+            preserve_metadata = station_preserve_metadata,
+            after_place_node = station_after_place
+            --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
+        }
+    )
+    crafting.register_recipe(def.recipe)
+end
 --------------------------------------------------------------
 
 --IB-20240226 ---- Boulders ----
