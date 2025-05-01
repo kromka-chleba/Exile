@@ -21,6 +21,18 @@ local fibrous_plants = {
         param2 = 4,
     },
 
+    {--[[wetland:cantapo]]
+        name = "nodes_nature:cantapo",
+        deco_type = "simple",
+        place_on = sna.wetland_on,
+        sidelen = 80,
+        fill_ratio = 0.650000,
+        y_max = sna.lowland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:cantapo",
+        param2 = 4,
+    },
+
     {--[[richforest:damo]]
         name = "nodes_nature:damo",
         deco_type = "simple",
