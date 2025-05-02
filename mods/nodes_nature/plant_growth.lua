@@ -340,6 +340,9 @@ end
 
 function nn.plant.kill(pos, natural_death, pdef, meta)
     local pnode = minetest.get_node(pos)
+    -- plant.kill() is also used with minetest.timer()!
+    -- plant removed or replaced by different thing? -> return
+    if pdef and pnode and (pdef.name ~= pnode.name) then return end
     pdef = pdef or core.registered_nodes[pnode.name]
     meta = meta or minetest.get_meta(pos)
     local groups = pdef and pdef.groups or {}
