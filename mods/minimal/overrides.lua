@@ -12,10 +12,10 @@ local fall_damage_multiplier = 1.5
 minetest.override_item("air", { groups = { air = 1,
                                            not_in_creative_inventory = 1} })
 
---A new item_place that allows disabling sneak-rightclick behavior for nodes
---Needed for tech:stick
-function minetest.item_place(itemstack, placer, pointed_thing, param2)
-    -- Call on_rightclick if the pointed node defines it
+-- check for/do on_rightclick() of pointed_thing,
+-- required for our minetest.item_place() and
+-- for items with a custom on_place() which does not use minetest.item_place()
+function minimal.pointed_thing_on_rightclick(itemstack, placer, pointed_thing)
     if pointed_thing.type == "node" and minetest.is_player(placer) then
         local ndef = minimal.get_nodedef( pointed_thing.under )
 
@@ -28,7 +28,20 @@ function minetest.item_place(itemstack, placer, pointed_thing, param2)
             end
         end
     end
+    -- case not yet handled or on_rightclick() allowed more to be done
+    return false
+end
 
+
+--A new item_place that allows disabling sneak-rightclick behavior for nodes
+--Needed for tech:stick
+function minetest.item_place(itemstack, placer, pointed_thing, param2)
+    -- Call on_rightclick if the pointed node defines it
+    local on_click = minimal.pointed_thing_on_rightclick(itemstack, placer,
+                                                         pointed_thing)
+    if on_click ~= false then
+        return on_click or itemstack
+    end
     if itemstack:get_definition( ).type == "node" then
         return minetest.item_place_node( itemstack, placer,
                                          pointed_thing, param2 )
