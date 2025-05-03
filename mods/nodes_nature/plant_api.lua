@@ -25,23 +25,30 @@ local plant = nodes_nature.plant
 -- Prevent placing seed anywhere but sediment
 --
 local on_place_plant = function(itemstack, placer, pointed_thing)
-    local ground = minimal.get_nodedef(pointed_thing.under)
-    local above = minetest.get_node(pointed_thing.above)
-    if not ( minimal.is_group(ground.name, "sediment")
-             and minimal.is_group(above.name, "air") ) then
-        -- no sediment below/air above
-        if not (minetest.is_player(placer) -- if player not sneakin'
-                and placer:get_player_control().sneak) then
-            local on_click = minimal.on_rightclick(itemstack, placer,
-                                                   pointed_thing)
-            if on_click ~= false then
-                return on_click or itemstack
-            end
-        end
-
+    -- precedence of on_rightclick() of pointed_thing
+    local on_click = minimal.pointed_thing_on_rightclick(itemstack, placer,
+                                                         pointed_thing)
+    if on_click ~= false then
+        return on_click or itemstack
+    end
+    -- do not replace existing plants or grafitti ... or place into liquids or fire
+    -- (more precise, exclude everything that is buildable_to)
+    local under = minetest.get_node(pointed_thing.under)
+    local def_under = core.registered_nodes[under.name]
+    if not def_under or def_under.buildable_to then
         return itemstack
     end
-    return minetest.item_place_node(itemstack, placer, pointed_thing)
+    -- allow placing (sediment and air in front of the pointed face)?
+    local pos_below = minimal.get_pos_under(pointed_thing.above)
+    local is_sediment = minimal.pos_group(pos_below, "sediment")
+    if is_sediment then
+        local above = minetest.get_node(pointed_thing.above)
+        if minimal.is_group(above.name, "air") then
+            return minetest.item_place_node(itemstack, placer, pointed_thing)
+        end
+    end
+    -- no change
+    return itemstack
 end
 
 local sounds = {
