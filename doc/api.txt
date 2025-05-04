@@ -63,6 +63,11 @@ minimal.make_sound(params_table,sound_name)
 --------- utilitynode ---------
 minimal.dig_up(pos, node, digger)
 		- Digs identical nodes up, ignoring lit versions. Used in on_dig
+minimal.pointed_thing_on_rightclick(itemstack, placer, pointed_thing)
+		- Helper for custom on_place() callbacks and mintest.item_place() to
+		  check whether calling minimal.on_rightclick() takes precedence over
+		  placing an item. Returns the result of minimal.on_rightclick() or
+		  false if it was not called.
 minimal.on_rightclick(itemstack, user, pointed_thing, aboveorunder)
 		- looks for a rightclick function, runs it. Returns false
 		  if there is none, or passes the itemstack/etc of on_rightclick
