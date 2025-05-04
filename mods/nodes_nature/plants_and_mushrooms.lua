@@ -453,25 +453,6 @@ plant.register_all(plant_list)
 
 -- Jepiha (Rzepicha) overrides;
 
-local function set_up_jepiha_on_place(alive)
-    alive = type(alive) ~= "boolean" and true or false
-    return function(itemstack, placer, pointed_thing)
-        local above = minetest.get_node(pointed_thing.above)
-        local pos_below = minimal.get_pos_under(pointed_thing.above)
-        local sediment = minimal.pos_group(pos_below, "sediment")
-        if sediment and above.name == "air" then
-            -- place fruitless if alive, seedling5 if dead
-            minetest.set_node(pointed_thing.above,
-                { name = (alive and "nodes_nature:rzepicha_fruitless" or "nodes_nature:rzepicha_seedling5") })
-            plant.set_to_domesticated(pointed_thing.above)
-            if not minimal.player_in_creative(placer) then
-                itemstack:take_item()
-            end
-        end
-        return itemstack
-    end
-end
-
 HEALTH.add_food_hooks("nodes_nature:rzepicha_fruitless")
 HEALTH.add_food_hooks("nodes_nature:rzepicha_dead")
 
@@ -482,7 +463,9 @@ minetest.override_item(
         description = S("@1 Root",S("Jepiha")),
         inventory_image = "nodes_nature_rzepicha_root.png",
         wield_image = "nodes_nature_rzepicha_root.png",
-        on_place = set_up_jepiha_on_place()
+        after_place_node = function(pos)
+            plant.set_to_domesticated(pos)
+        end
     }
 )
 
@@ -492,7 +475,19 @@ minetest.override_item(
         description = S("@1 Root",S("Jepiha")),
         inventory_image = "nodes_nature_rzepicha_root_winter.png",
         wield_image = "nodes_nature_rzepicha_root_winter.png",
-        on_place = set_up_jepiha_on_place(false)
+        on_place = function(itemstack, placer, pointed_thing)
+            local on_prohibited = plant.place_live_prohibited(itemstack, placer, pointed_thing)
+            if on_prohibited ~= false then
+                return on_prohibited or itemstack
+            end
+            -- not prohibited -> place seedling5
+            minetest.set_node(pointed_thing.above, { name = "nodes_nature:rzepicha_seedling5"})
+            plant.set_to_domesticated(pointed_thing.above)
+            if not minimal.player_in_creative(placer) then
+                itemstack:take_item()
+            end
+            return itemstack
+        end
     }
 )
 

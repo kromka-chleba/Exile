@@ -24,7 +24,10 @@ local plant = nodes_nature.plant
 ---------------------------
 -- Prevent placing seed anywhere but sediment
 --
-local on_place_plant = function(itemstack, placer, pointed_thing)
+-- Checks all conditions that may prohibit placing a live plant or its seeds or
+-- seedlings. Returns false if placing is not prohibited or otherwise the given
+-- itemstack or the return value of on_rightclick() of the pointed thing.
+function plant.place_live_prohibited(itemstack, placer, pointed_thing)
     -- precedence of on_rightclick() of pointed_thing
     local on_click = minimal.pointed_thing_on_rightclick(itemstack, placer,
                                                          pointed_thing)
@@ -35,20 +38,30 @@ local on_place_plant = function(itemstack, placer, pointed_thing)
     -- (more precise, exclude everything that is buildable_to)
     local under = minetest.get_node(pointed_thing.under)
     local def_under = core.registered_nodes[under.name]
-    if not def_under or def_under.buildable_to then
-        return itemstack
-    end
-    -- allow placing (sediment and air in front of the pointed face)?
+    if not def_under or def_under.buildable_to then return itemstack end
+    -- implies: item_place_node() will put the plant below pointed_thing.above
+    -- even when pointed_thing.under is not below pointed_thing.above
+    
+    -- no placing if not on sediment
     local pos_below = minimal.get_pos_under(pointed_thing.above)
     local is_sediment = minimal.pos_group(pos_below, "sediment")
-    if is_sediment then
-        local above = minetest.get_node(pointed_thing.above)
-        if minimal.is_group(above.name, "air") then
-            return minetest.item_place_node(itemstack, placer, pointed_thing)
-        end
+    if not is_sediment then return itemstack end
+    -- also, no placing if not air above pos_below
+    local above = minetest.get_node(pointed_thing.above)
+    if not minimal.is_group(above.name, "air") then return itemstack end
+    
+    -- not prohibited
+    return false
+end
+
+-- the actual thing done in on_place()
+local on_place_plant = function(itemstack, placer, pointed_thing)
+    local on_prohibited = plant.place_live_prohibited(itemstack, placer, pointed_thing)
+    if on_prohibited ~= false then
+        return on_prohibited or itemstack
     end
-    -- no change
-    return itemstack
+    -- not prohibited -> do place
+    return minetest.item_place_node(itemstack, placer, pointed_thing)
 end
 
 local sounds = {
