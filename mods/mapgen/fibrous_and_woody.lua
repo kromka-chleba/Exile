@@ -290,6 +290,18 @@ local woody_plants = {
         param2 = 2,
     },
 
+    {--[[Grassland:orylsar]]
+        name = "gr_nn:orylsar",
+        deco_type = "simple",
+        place_on = sna.grassland_on,
+        sidelen = 80,
+        fill_ratio = 0.000100,
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:orylsar",
+        param2 = 3,
+    },
+
     {--[[Shrubland:gitiri]]
         name = "sh_nn:gitiri",
         deco_type = "simple",
@@ -302,6 +314,19 @@ local woody_plants = {
         decoration = "nodes_nature:gitiri",
         param2 = 2,
     },
+
+    {--[[Shrubland:orylsar]]
+        name = "sh_nn:orylsar",
+        deco_type = "simple",
+        place_on = sna.shrubland_on,
+        sidelen = 80,
+        fill_ratio = 0.050000,
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:orylsar",
+        param2 = 3,
+    },
+
 
     {--[[Duneland:Drapacz]]
         name = "dl_nn:drapacz",
