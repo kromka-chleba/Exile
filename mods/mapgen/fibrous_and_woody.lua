@@ -45,6 +45,18 @@ local fibrous_plants = {
         param2 = 4,
     },
 
+    {--[[richforest:jalakin]]
+        name = "rfr_nn:jalakin",
+        deco_type = "simple",
+        place_on = sna.rich_forest_on,
+        sidelen = 80,
+        fill_ratio = 0.650000,
+        y_max = sna.coastal_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:jalakin",
+        param2 = 2,
+    },
+
     {--[[forest:damo]]
         name = "fr_nn:damo",
         deco_type = "simple",
@@ -57,6 +69,18 @@ local fibrous_plants = {
         param2 = 4,
     },
 
+    {--[[forest:jalakin]]
+        name = "fr_nn:jalakin",
+        deco_type = "simple",
+        place_on = sna.forest_on,
+        sidelen = 80,
+        fill_ratio = 0.030000,
+        y_max = sna.coastal_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:jalakin",
+        param2 = 2,
+    },
+
     {--[[woodland:damo]]
         name = "wl_nn:damo",
         deco_type = "simple",
@@ -67,6 +91,18 @@ local fibrous_plants = {
         y_min = sna.beach_max,
         decoration = "nodes_nature:damo",
         param2 = 4,
+    },
+
+    {--[[woodland:jalakin]]
+        name = "wl_nn:jalakin",
+        deco_type = "simple",
+        place_on = sna.woodland_on,
+        sidelen = 80,
+        fill_ratio = 0.300000,
+        y_max = sna.coastal_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:jalakin",
+        param2 = 2,
     },
 
     {--[[woodland:damo upland]]
@@ -151,6 +187,18 @@ local fibrous_plants = {
         y_min = sna.beach_max,
         decoration = "nodes_nature:damo",
         param2 = 4,
+    },
+
+    {--[[shrubland:jalakin]]
+        name = "sh_nn:jalakin",
+        deco_type = "simple",
+        place_on = sna.shrubland_on,
+        sidelen = 80,
+        fill_ratio = 0.100000,
+        y_max = sna.coastal_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:jalakin",
+        param2 = 2,
     },
 
     {--[[Duneland:alaf-highland]]

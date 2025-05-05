@@ -380,6 +380,12 @@ local plant_list = {
      mesh_type = 3, plant_type = "fibrous_plant", waving = true,
      dominant_color = "black", dye_candidate = true,
      growing_time = nn.plant_base_growing_time * 2,
+     texture_scale = 1.8, seasonal_type = "whole_season_seedling"},
+     
+    {name = "jalakin", description = S("Jalakin"),
+     mesh_type = 2, plant_type = "fibrous_plant", waving = true,
+     dominant_color = "black", dye_candidate = true,
+     growing_time = nn.plant_base_growing_time * 2,
      texture_scale = 1.8, seasonal_type = "whole_season_seedling"}, 
 
     {name = "thoka", description = S("Thoka"),
