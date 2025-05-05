@@ -105,6 +105,30 @@ local fibrous_plants = {
         param2 = 2,
     },
 
+    {--[[Grassland:kemta]]
+        name = "gr_nn:kemta",
+        deco_type = "simple",
+        place_on = sna.grassland_on,
+        sidelen = 80,
+        fill_ratio = 0.500000,
+        y_max = sna.coastal_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:kemta",
+        param2 = 3,
+    },
+
+    {--[[Shrubland:kemta]]
+        name = "sh_nn:kemta",
+        deco_type = "simple",
+        place_on = sna.shrubland_on,
+        sidelen = 80,
+        fill_ratio = 0.200000,
+        y_max = sna.coastal_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:kemta",
+        param2 = 3,
+    },
+
     {--[[Shrubland:sari]]
         name = "sh_nn:sari",
         deco_type = "simple",
@@ -122,7 +146,7 @@ local fibrous_plants = {
         deco_type = "simple",
         place_on = sna.shrubland_on,
         sidelen = 80,
-        fill_ratio = 0.200000,
+        fill_ratio = 0.100000,
         y_max = sna.coastal_max,
         y_min = sna.beach_max,
         decoration = "nodes_nature:damo",

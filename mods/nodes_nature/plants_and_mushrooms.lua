@@ -373,8 +373,14 @@ local plant_list = {
     {name = "cantapo", description = S("Cantapo"),
      mesh_type = 4, plant_type = "fibrous_plant", waving = true,
      dominant_color = "black", dye_candidate = true,
-     growing_time = nn.plant_base_growing_time * 1.5,
+     growing_time = nn.plant_base_growing_time * 2,
      texture_scale = 1.8, seasonal_type = "whole_season_seedling"},
+
+    {name = "kemta", description = S("Kemta"),
+     mesh_type = 3, plant_type = "fibrous_plant", waving = true,
+     dominant_color = "black", dye_candidate = true,
+     growing_time = nn.plant_base_growing_time * 2,
+     texture_scale = 1.8, seasonal_type = "whole_season_seedling"}, 
 
     {name = "thoka", description = S("Thoka"),
      mesh_type = 4, dye_candidate = true,
