@@ -43,7 +43,7 @@ local drop_entity = {
             name = "nodes_nature_water_drip", gain = {0.5, 2}
         },
         sploosh = {
-            name = "nodes_nature_place_water", gain = {0.1,0.2}, pitch = {1.5, 2.4}
+            name = "nodes_nature_water_drip_liquid", gain = {0.3,1.5}, pitch = {0.75, 1.05}
         },
         consume = {
             name = "nodes_nature_slurp", max_hear_distance = 3, gain = 0.1, pitch = {0.9,1.1}

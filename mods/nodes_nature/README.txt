@@ -72,6 +72,7 @@ From TPH (CC0)
 	nodes_nature_fruit_break.(0-4).ogg
 	nodes_nature_ice_dug.(0-4).ogg
 	nodes_nature_ice_footstep.(0-6).ogg
+	nodes_nature_water_drip_liquid.(0-3).ogg
 
 Authors of media (textures, models)
 ------------------------
