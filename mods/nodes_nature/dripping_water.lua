@@ -21,13 +21,14 @@ end
 --Drop entities
 local drop_entity = {
     _desc = S("Water drop"),
+    drop_base_size = 0.05,
     initial_properties = {
         hp_max = 2,
-        physical = true,
+        physical = false,
         collide_with_objects = false,
-        collisionbox = {-0.05,-0.05,-0.05,0.05,0.05,0.05},
+        --collisionbox = {-0.05,-0.05,-0.05,0.05,0.05,0.05},
         visual = "cube",
-        visual_size = {x=0.05, y=0.1},
+        --visual_size = {x=0.05, y=0.1},
         textures = {"nodes_nature_freshwater.png",
                     "nodes_nature_freshwater.png",
                     "nodes_nature_freshwater.png",
@@ -54,13 +55,24 @@ local drop_entity = {
         self.object:set_sprite({x=0,y=0}, 1, 1, true)
         self.object:set_armor_groups({immortal=1})
         self.ownpos = self.object:get_pos() -- we literally only need this once (until we fall), so save it!
-        self.check_above, self.check_in = 0.8, 1.2
+        self.check_above, self.check_in = 0.8, 1.2 -- setting up checks for on_step
+        -- set thirst value and water drop size
+        self.thirst = random(1,10)
+        local props = self.object:get_properties()
+        local size = self.drop_base_size * (self.thirst/2/2.5) -- do excessive dividing for lesser size dif between 1-10
+        props.visual_size = {x = size, y = size * 2}
+        props.collision_box = {-size,-size,-size, size,size,size}
+        self.object:set_properties(props)
     end,
 
     fall_detach = function(self)
         self.falling = true
         self.ownpos = nil
         self.object:set_acceleration({x=0, y=-5, z=0})
+        -- make physical on drop
+        local props = self.object:get_properties()
+        props.physical = true
+        self.object:set_properties(props)
     end,
 
     on_step = function(self, dtime, moveresult)
