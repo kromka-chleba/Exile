@@ -26,9 +26,7 @@ local drop_entity = {
         hp_max = 2,
         physical = false,
         collide_with_objects = false,
-        --collisionbox = {-0.05,-0.05,-0.05,0.05,0.05,0.05},
         visual = "cube",
-        --visual_size = {x=0.05, y=0.1},
         textures = {"nodes_nature_freshwater.png",
                     "nodes_nature_freshwater.png",
                     "nodes_nature_freshwater.png",
@@ -41,7 +39,7 @@ local drop_entity = {
 
     sounds = {
         drip = {
-            name = "nodes_nature_water_drip", gain = {0.5, 2}
+            name = "nodes_nature_water_drip", gain = {0.5, 2}, pitch = {0.75, 1.05}
         },
         sploosh = {
             name = "nodes_nature_water_drip_liquid", gain = {0.3,1.5}, pitch = {0.75, 1.05}
@@ -57,11 +55,18 @@ local drop_entity = {
         self.ownpos = self.object:get_pos() -- we literally only need this once (until we fall), so save it!
         self.check_above, self.check_in = 0.8, 1.2 -- setting up checks for on_step
         -- set thirst value and water drop size
-        self.thirst = random(1,10)
+        self.thirst = random(1,10) -- randomize between 1 to 10 units of thirst
         local props = self.object:get_properties()
-        local size = self.drop_base_size * (self.thirst/2/2.5) -- do excessive dividing for lesser size dif between 1-10
+        -- the calculation in the brackets is some mathematical black magic I came up with - TPH
+        -- basically this makes it so the size difference isn't crazy insane
+        -- I don't exactly know how it works as I fooled around with numbers until I got what I want
+        -- and I didn't take notes along the way... it's thirst divided by half of maximum for percentage
+        -- then I have it be added with some weird thing that makes it so little sizes get bigger
+        -- and bigger sizes get smaller, hence the - for negating the value (of which I divide by max)
+        local size = self.drop_base_size * (self.thirst/5 + -(self.thirst-5)/10)
         props.visual_size = {x = size, y = size * 2}
-        props.collision_box = {-size,-size,-size, size,size,size}
+        props.collisionbox = {-size,-size,-size, size,size,size}
+        props.selectionbox = props.collisionbox
         self.object:set_properties(props)
     end,
 
@@ -152,7 +157,7 @@ local drop_entity = {
         --only drink if thirsty
         if thirst < 100 then
 
-            HEALTH.modify_int(puncher, meta, "thirst", random(1,10)) -- gives 1 to 10 per slurp
+            HEALTH.modify_int(puncher, meta, "thirst", self.thirst)
             if self.sounds and self.sounds.consume then
                 minimal.sound_play(minimal.merge_tables(self.sounds.consume, {object = puncher}))
             end
