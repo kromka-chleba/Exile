@@ -486,7 +486,7 @@ local stone_chop2 = crude_chop2 * stone
 -- registers tool, placed, and recipe
 local function register_adze(suffix, def)
     -- tool string
-    local tool = "tech:adze_"..suffix
+    local name = "tech:adze_"..suffix
     -- tool durability
     local uses = def.uses or {}
     def.uses = nil -- remove from definition
@@ -495,7 +495,7 @@ local function register_adze(suffix, def)
     uses.crumbly = uses.crumbly or 1
     -- register tool
     minetest.register_tool(
-        tool, {
+        name, {
             description = S("@1 Adze", def.description),
             inventory_image = "tech_tool_adze_" .. suffix .. ".png",
             tool_capabilities = {
@@ -523,7 +523,7 @@ local function register_adze(suffix, def)
     })
     -- register placed
     minetest.register_node(
-        tool.."_placed", {
+        name.."_placed", {
             description = S("Placed @1 adze", def.description),
             inventory_image = "tech_tool_adze_"..suffix..".png",
             exile_crafting = {
@@ -564,7 +564,7 @@ local function register_adze(suffix, def)
     -- recipe
     crafting.register_recipe({
         type = {"hand_tools", "grinding_stone" },
-        output = tool,
+        output = name,
         items = {"group:" .. suffix .."_cobble",'tech:stick',
                  'group:fibrous_plant 4', 'nodes_nature:sand'},
         level = 1,
@@ -611,9 +611,9 @@ register_adze("granite", {
 -- registers tool, placed, and recipe
 local function register_hammer(suffix, desc)
     -- register tool
-    local tool = "tech:hammer_"..suffix -- used in tool registration, placed, and recipe
+    local name = "tech:hammer_"..suffix -- used in tool registration, placed, and recipe
     minetest.register_tool(
-    tool, {
+    name, {
         description = S("@1 Hammer", desc),
         inventory_image = "tech_tool_hammer_" .. suffix .. ".png",
         tool_capabilities = {
@@ -639,7 +639,7 @@ local function register_hammer(suffix, desc)
     })
     -- register placed
     minetest.register_node(
-        tool.."_placed", {
+        name.."_placed", {
             description = S("Placed @1 Hammer", desc),
         inventory_image = "tech_tool_hammer_" .. suffix .. ".png",
         exile_crafting = {
@@ -682,7 +682,7 @@ local function register_hammer(suffix, desc)
     -- register recipe
     crafting.register_recipe({
         type = { "hand_tools", "grinding_stone" },
-        output = tool,
+        output = name,
         items = {"group:" .. suffix .."_cobble", 'tech:stick',
         'group:fibrous_plant 4', 'nodes_nature:sand'},
         level = 1,
