@@ -44,7 +44,8 @@ crafting.register_type("grinding_stone",
                        "tech:grinding_stone_granite")
 crafting.register_type("mortar_and_pestle",
                        S("Mortar and pestle"),
-                       "tech:mortar_pestle_granite")
+                       "tech:mortar_pestle_granite",
+                       {name = "tech_mortar_pestle_craft", pitch = {0.75,1.05}})
 --crafting.register_type("chopping_block")...has to be done in nodes_nature
 --crafting.register_type("hammering_block")...has to be done in nodes_nature
 crafting.register_type("anvil",
