@@ -141,14 +141,14 @@ local songs_playing = {}
 
 local function play_themesong(name, meta)
     minetest.after(8, function()
-        -- check settings
-        if not meta then
-            local plr = core.get_player_by_name(name)
-            if not core.is_player(plr) then return end -- why are we playing to a player that left?
-            meta = plr:get_meta() -- get meta to check setting
+        local plr = core.get_player_by_name(name)
+        if not core.is_player(plr) then
+            return -- Player left during the 8 second delay timer
         end
-        if meta:get_string("disable_music") == "true" then return end -- no playing music!
-        -- play as we would
+        if not meta then meta = plr:get_meta() end
+        if meta:get_string("disable_music") == "true" then
+            return -- Player turned off music during the delay
+        end
         songs_playing[name] = minetest.sound_play({
                name = "exile_theme", gain = 0.75 },
            { to_player = name })
@@ -163,6 +163,25 @@ function lore.stopmusic(name)
     songs_playing[name] = nil
 end
 
+local function add_media(pname, meta)
+    if meta:get_string("disable_music") == "true" then
+        -- Don't send media to players who've shut it off
+        -- Prevents wasting bandwidth if "exile_always_play_music" is on
+        return
+    end
+    if minetest.features.dynamic_add_media_table then
+        minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
+                                         "/music/exile_theme.ogg",
+                                     to_player = pname
+                                   }, play_themesong )
+    else
+        minetest.dynamic_add_media(minetest.get_modpath("lore")..
+                                   "/music/exile_theme.ogg")
+        play_themesong(pname, meta)
+    end
+end
+
+
 -- stop music if setting changes
 minimal.register_on_player_setting_change(function(player, setting, value, meta)
     if setting ~= "disable_music" or value ~= true then return end
@@ -175,16 +194,7 @@ local function first_spawn(player)
     HEALTH.reset_attributes(player, meta) -- All stats back to starting values
     local pname = player:get_player_name()
     newplayer[pname] = nil
-    if minetest.features.dynamic_add_media_table then
-        minetest.dynamic_add_media({ filepath = minetest.get_modpath("lore")..
-                                         "/music/exile_theme.ogg",
-                                     to_player = pname
-                                   }, play_themesong )
-    else
-        minetest.dynamic_add_media(minetest.get_modpath("lore")..
-                                   "/music/exile_theme.ogg")
-        play_themesong(pname, meta)
-    end
+    add_media(pname, meta)
     -- Bang! new player appears in the world
     minetest.after(0.15, function()
                        -- #TODO: check if this .after() still serves a purpose
@@ -195,6 +205,14 @@ local function first_spawn(player)
                        meta:set_string("spawning", "")
     end)
 end
+
+local function annoy_ihirc(player, name, meta)
+    if not minetest.settings:get_bool("exile_always_play_theme") then
+        return
+    end
+    add_media(name, meta)
+end
+
 
 ------------------------------------------------------------------------------
 -- Login event queue
@@ -296,6 +314,9 @@ minetest.register_on_joinplayer(function(player)
                 queue_push(player, do_tutorial, "tut")
             end
             queue_push(player, first_spawn, "1st")
+        end
+        if not newplayer[name] then
+            annoy_ihirc(player, name, meta)
         end
         queue_start(player)
 end)
