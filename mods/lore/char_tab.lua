@@ -93,6 +93,27 @@ end)
 
 --Forms for sfinv
 
+-- Health effects display
+local function effects_fs(player)
+    local fs = {
+        "image[0,0;0.65,0.65;hud_effects.png]",
+        "label[0.8,0.35; "..S("Health Effects")..":]"
+    }
+
+    local y = 0.8
+    local st = player_api.get_state(player)
+    local labels = st:read_labels()
+    for _, effect in ipairs(labels) do
+        y = y + 0.4
+        fs[#fs+1] = "label[0.8,"..y.."; "
+            .. effect[1]
+            .. (effect[1] ~= "" and " " or "") -- only add a space if effect[1] exists
+            .. (effect[2] or "").."]"
+    end
+
+    return table.concat(fs,"")
+end
+
 --get data and create form
 local function sfinv_get(self, player, context)
     local meta = player:get_meta()
@@ -108,41 +129,29 @@ local function sfinv_get(self, player, context)
         bio = lore.generate_bio(player)
     end
 
-    local y = 0.8
-    local eff_form = ""
-    local st = player_api.get_state(player)
-    local labels = st:read_labels()
-    for _, effect in ipairs(labels) do
-        y = y + 0.4
-        eff_form = eff_form.."label[0.8,"..y.."; "..effect[1]..
-            (effect[1] ~= "" and " " or "") -- only add a space if effect[1] exists
-            ..(effect[2] or "").."]"
-    end
-
     local basetex = minetest.formspec_escape(
         player_api.get_current_texture(player) )
 
-    local formspec =
-        "label[0.5,0.8; "..S("Name").. ": ".. name .. "]"..
+    local formspec = {
+        "label[0.5,0.8; "..S("Name").. ": ".. name .. "]",
         -- #TODO see if I can fix the right corner of the label
         -- with table maybe
-        "label[6,0.8; "..S("Days Survived")..": ".. days .. "]"..
-        "label[6,1.4; "..S("Lives")..": " .. lives .. "]"..
-        "label[0.5,2.4; "..S("Biography")..": " .. bio .. "]"..
+        "label[6,0.8; "..S("Days Survived")..": ".. days .. "]",
+        "label[6,1.4; "..S("Lives")..": " .. lives .. "]",
+        "label[0.5,2.4; "..S("Biography")..": " .. bio .. "]",
 
         -- Health effects display
-        "container[0.5,5.2]" ..
-        "image[0,0;0.65,0.65;hud_effects.png]"..
-        "label[0.8,0.35; "..S("Health Effects")..":]"..
-            eff_form..
-        "container_end[]" ..
+        "container[0.5,5.2]",
+        effects_fs(player),
+        "container_end[]",
 
-
+        -- display of model
         "model[6.7,5.2;2,3;character;character.b3d;"..basetex..
         ";-20,160;;true;;]"
+    }
 
 
-    return formspec
+    return table.concat(formspec,"")
 end
 
 
