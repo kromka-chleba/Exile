@@ -22,10 +22,10 @@ local dyecolor = { [0] = "#ffffff", -- white or none
     [19] = "#202020", [20] = "#404040", [21] = "#606060", -- black/grey
 }
 
-function dye_to_colorstring(palette)
+function ncrafting.dye_to_colorstring(palette)
     if not palette then return end
     if palette > 31 then -- this is from a colorwallmounted param2
-        minetest.log("warning", "dye_to_colorstring run on a param2 "..
+        minetest.log("warning", "ncrafting.dye_to_colorstring run on a param2 "..
                      "palette value not divided by 8!")
         palette = math.floor(palette / 8)
     end
@@ -40,7 +40,7 @@ for name, number in pairs(dyelist) do
     minetest.register_craftitem(":ncrafting:dye_"..name, {
                                     description = S("@1 dye", S(name)),
                                     inventory_image = "blank_dye.png",
-                                    color = dye_to_colorstring(number),
+                                    color = ncrafting.dye_to_colorstring(number),
                                     _ncrafting_dye_color = number
     })
 end
@@ -277,7 +277,7 @@ bundledef = {
 -- Create node definitions for new bundles (nb) and treated bundles (tb)
 for name, number in pairs(bundlelist) do
     local nbdef = table.copy(bundledef)
-    nbdef.color = dye_to_colorstring(number)
+    nbdef.color = ncrafting.dye_to_colorstring(number)
     nbdef._ncrafting_dcolor = name
     local tbdef = table.copy(nbdef) -- don't want the nbdef.on_construct in here
     nbdef.on_construct = function(pos, width, height)
@@ -332,7 +332,7 @@ for name, number in pairs(bundlelist) do
         return continue
     end
     tbdef.description = S("Treated bundle of plants")
-    tbdef.color = dye_to_colorstring(number)
+    tbdef.color = ncrafting.dye_to_colorstring(number)
     tbdef.groups.not_in_creative_inventory = 1
     tbdef._ncrafting_dcolor = name
     tbdef._ncrafting_bundle = 2
