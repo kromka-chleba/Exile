@@ -192,6 +192,9 @@ for _, water in pairs(list) do
                       puts_out_fire = 1, cools_lava = 1},
             sounds = nodes_nature.node_sound_water_defaults(),
     })
+
+    -- water.name will be used as group name
+    crafting.register_group_desc(name, desc)
 end
 
 

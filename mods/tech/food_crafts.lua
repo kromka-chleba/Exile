@@ -1012,24 +1012,30 @@ for dough,flour in pairs(
   ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked",
   ["tech:all_dough"] = "tech:all_flour", ["tech:barszcz_dough"] = "tech:barszcz_flour"}) do
     -- get count from itemstring
-    local count = tonumber(flour:match"%s%d+") -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
+    -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
+    local count = tonumber(flour:match"%s%d+")
     if not count then
         -- otherwise set one and add it to flour
         count = 8
         flour = flour.." "..count
     end
-    -- iterate through every empty water pot
-    for _,water_pot in pairs({"tech:clay_water_pot", "tech:wooden_water_pot"}) do
-        crafting.register_recipe({
-            type = "breadmaking",
-            output = dough.." "..count,
-            -- only the freshwater variant
-            items = {flour, water_pot.."_freshwater"},
-            replace = water_pot,
-            level = 1,
-            always_known = true
-        })
-    end
+
+    local recipe_def = {
+        type = "breadmaking",
+        output = dough.." "..count,
+        -- only the freshwater variant
+        items = {flour, "group:freshwater/pot"},
+        -- replace with empty pot
+        replace = function(stack_name)
+            if crafting.is_item_in_group(stack_name,"freshwater") then
+                -- TODO replace with fill/empty function I guess (meta)
+                return liquid_store.replace(stack_name, "group:freshwater/pot")
+            end
+        end,
+        level = 1,
+        always_known = true
+    }
+    crafting.register_recipe(recipe_def)
 end
 
 -- ANIMAL PRODUCTS

@@ -283,6 +283,10 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
     def.groups.falling_node = def.groups.falling_node or 1
     def.groups.dig_immediate = def.groups.dig_immediate or 3
     def.groups.food_bowl_filled = 1
+    -- since groups are inherited from empty bowl,
+    -- I need to remove 'empty' group from filled bowl
+    def.groups.empty = nil
+
     -- whether or not we should have functions relating to metadata
     -- dependent upon groups for alternative "true" - edible 2 will make it true if not provided
     save_meta = type(save_meta) ~= "boolean" and def.groups.edible == 2 or type(save_meta) == "boolean" and save_meta
@@ -340,6 +344,7 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
             def.groups[ind] = nil
         end
     end
+
     -- register transfer functions + functionality
     if transfer then
         -- set soup functions
@@ -481,12 +486,20 @@ local function register_food_bowl(name, def)
     end
     -- final touches to the empty bowl
     def.on_soup_transfer = def.on_soup_transfer or soup_transfer
+    -- crafting group
+    def.groups.bowl = 1 -- for recipes
+    def.groups.empty = 1 -- needs to not be in filled bowl
+    -- registration
     minetest.register_node(name,def)
 end
 -- namespace
 tech.register_food_bowl = register_food_bowl
 
 -- registration of clay + wooden food bowls, and their soup + stew variants
+-- TODO from lili, improve that with groups and materials...
+-- like getting material field
+-- TODO add group bowl in node
+crafting.register_group_desc("bowl", S("Bowl"))
 register_food_bowl("food_bowl_clay")
 register_food_bowl("food_bowl_wooden",{
     bowl_variant = "wooden"

@@ -1,9 +1,12 @@
 # crafting
 
-Adds semi-realistic crafting with unlockable recipes to Minetest, and removes
-the craft grid.
+Adds semi-realistic crafting with unlockable recipes to Minetest,
+Craft grid becomes otional
 
-By rubenwardy  
+Based on rubenwardy's mod
+Modified for Exile  
+**WARNING : not compatible with original mod anymore**
+
 License: LGPLv2.1+
 
 ![Screenshot](screenshot.png)
@@ -27,26 +30,27 @@ paramat (CC BY-SA 3.0)
 Any recipes must be designed such that any particular item can only be used
 as one of the ingredients.
 
-For example, you can't have the following recipe as `default:wood` could
+For example, you can't have the following recipe, as `default:wood` could
 be used twice: `default:wood, group:wood`.
 
 ## API
 
 ### Groups
 
-* crafting.get_group_table(group_name)
-    * Returns list of item names by group
+* crafting.get_group_items(g_name)
+    * returns a lits of all registered items being in that group
+    * `g_name` is the group's name
 
 * crafting.get_group_stats(grouptag)
     * Returns a table of fields included in string grouptag
 
     * `grouptag` is a string to be used in recipes
-    Format is group:<groupname>,<groupnumcondition>,<desc>
+    Format is group:<groupname>,<groupnumcondition>,<unit>
         * `groupname` is mandatory name of the group
         * `groupnumcondition` (optional) is required group's number (3,8) or condition (>2 or <6)
-        * `desc` (optional) is a custom description  to display in recipe
+        * `unit` (optional) is the unit required. Ex: "pot"
 
-    Ex: "group:flammable,1,Flammable>"
+    Ex: "group:freshwater,1/pot>"
 
     * Following fields are created:
         * `name` the name of the group (groupname)
@@ -54,7 +58,9 @@ be used twice: `default:wood, group:wood`.
         * `num_cmd` (can be nil !) condition ">" or "<". if no command, defautl condition is "="
         * `num` (can be nil !) required group number
         * `correct`  is a function returning `true` if number condition is verified, `false` else.
-        Always returns `true` if no number to test.
+            Always returns `true` if no number to test.
+        * `desc` is generated if group had no desc
+        * `unit` if present
 
 
 ### Crafting types
@@ -71,7 +77,7 @@ be used twice: `default:wood, group:wood`.
     * Deletes all registered craft types
 
 * crafting.is_type_registered(name)
-    * Returns `true` if type is already registered, `false`else.
+    * Returns `true` if type is already registered, `false` else.
 
 * crafting.get_type(name)
     * Returns the type's table
@@ -98,6 +104,9 @@ be used twice: `default:wood, group:wood`.
         * `sound` - sound to be played when we use that recipe. Overrides default crafting type sound.
         * `_display` - string of image to display in recipe panel
 
+* crafting.get_recipes()
+    * Get global recipes table, with id as index
+
 * crafting.get_recipe(id)
 	* Get recipe by ID
 
@@ -105,64 +114,166 @@ be used twice: `default:wood, group:wood`.
 	* `name` is the player's name
 	* Returns a dictionary of recipe output to boolean.
 
+* crafting.lock_all(name)
+    * `name` is the player's name
+
 * crafting.unlock(name, v)
 	* `name` is the player's name
 	* `v` is a single output or list of outputs
 
-* crafting.get_all_for_player(player, type, level)
-	* Returns a list of results, each a table
-		* `items` - a key-value table, key being item name and value being a table:
-			* `have` - how many the player has
-			* `need` - how many of this item needed
-		* `recipe` - the recipe
-		* `craftable` - is craftable?
-		* `displayed` - does is matchs the search (filter) ?      
-	* `craftable` is a table of the items the player can craft with the items they have.
-	* `uncraftable` is a table of items the player knows about, but is missing items for.
+### Player_recipes
 
-* crafting.get_all(type, level, item_hash, unlocked)
-	* Returns same as above.
-	* `item_hash` - a table with keys being item names or group names (eg: `group:wood`)
-	                and the value being the number required.
-	* `unlocked`  - a list of outputs the player has unlocked.
+* crafting.get_player_recipes(player_name, ctype)
+    * Returns a list of `player_recipe` table for `ctype` as craft type
+    * `player_recipe` is a table with following fields:
+        * `recipe`: the common recipe's def table
+        * `it_details`: detailled list of items:
+            * index : item's name
+            * value : a list with those parameters :
+                * `name` = name of the item
+                * `short` = description of the item to be displayed in recipe panel
+                * `need` = the number we need for the recipe
+                -- if itemhash is given (else added in update_item function)
+                * `have` = the number we have in item_hash
+                * `available` = `true` if we have more than needed
+        * `craftable`: craftable state, boolean
+        * `displayed`: true if recipe should be displayed in GUI
+        * `to_take`, `possible`, `to_move` fields can be added later
+        * has following function in metatable.
 
-## Craft
+#### Object `player_recipe` functions
 
-* crafting.set_item_hashes_from_list(inv, listname, item_hash)
+* update_craftable_state (self, item_hash)
+    * Check ingredients in `item_hash` to update `craftable` and `to_take` fields for that recipe
+    * `craftable` is boolean (craftable or not)
+    * `to_take` is a list of items to take to craft it
+    * WARNING: only check inputs, do not check new unlocked recipes
+
+* update_possible_state (self, item_hash)
+    * same as `update_craftable_state` but with `possible` and `to_move` fields
+    * `to_move` is a list of itmes to take in `item_hash` to make the recipe craftable (if `possible`)
+
+* available_level (self, p_level)
+    * returns `true` if recipe's level is <= `p_level`
+
+### Craft (api.lua)
+
+* crafting.register_on_craft(func)
+  * register a function to be called at each craft
+
+* crafting.set_item_hash_from_list(inv, listname, item_hash)
 	* Iterates through the list and adds or updates entries in item_hash
-	  representing the number of items for each names and group.
+	  with follwing format:
+      {[`item name`] = {
+        `count` = item count in inventory
+        `groups` = groups from item's definition table
+      }
+
+* crafting.get_item_hash(pInv, inv_lists)
+    * Returns an item_list from all selected inv list
+    * Like crafting.set_item_hash_from_list but mixing all lists given in inv_list as one list.
+
+* crafting.can_craft(name, ctype, level, recipe)
+    * Returns `true` if
+        * `recipe` is unlocked
+        * and its type matchs with `ctype`
+        * and the level of the recipe is <= to `level`
+
+
+* crafting.find_required_items_inv(inv, listname, recipe)
+    * `listname` can be an inventory list, or a list of inventory lists`
+    * Returns a list of what was found per list
+    {[list1] = {stack1, stack2, ...}, [list2] = {stack1, stack2}, ...}
+    * Returns nil if not found or not enought for recipe
+
 
 * crafting.find_required_items(inv, listname, recipe)
-	* Returns a list of stacks to take, or nil if the required items could not
-	  be found.
+    * `listname` can be an inventory list, or a list of inventory lists`
+    * Returns a list of what was found all lists together :
+    {stack1, stack2, ...}
+    * Returns nil if not found or not enought for recipe
 
 * crafting.has_required_items(inv, listname, recipe)
-	* Returns true if the `"main"` list in `inv` contains the required items.
+	* Returns `true` if the `"main"` list in `inv` contains the required items.
 
-* crafting.perform_craft(name, inv, listname, outlistname, recipe)
+* crafting.transfer_items(player, to_list, from_list, item_list)
+    * Transfers all items from `item_list` arraw of items from `from_list` to `to_list` in player inventory's, if possible
+    * Returns remaining item_list if they didn't all fit in
+
+* crafting.perform_craft(name, inv, listname, outlistname, p_recipe, ctype, craft_count)
 	* Will try to take itemsfrom `listname` and put output in the `outlistname` list in `inv`.
-	* Returns true on success.
+    * `p_recipe` is a player_recipe instance
+    * `ctype` is a crafting type
+    * `craft_count` is the number of output I have to craft
+	* Returns `true` on success.
 
-* crafting.make_result_selector(player, type, level, size, context)
-	* Generates a paginated form which a search box.
-	* `type`    - craft type.
-	* `size`    - how many slots to show on a page.
-	* `context` - server-side storage between show and submit, can be `{}`.
-		* `crafting_page` - page to show
 
-* unused and commented in Exile --------------------------------------------
-* crafting.result_select_on_receive_results(player, type, level, context, fields)
-	* Handles form submissions for the result selector.
-	* Returns true if the formspec should be shown again.
+### Filter (search field)
 
-* crafting.make_on_rightclick(type, level, inv_size)
-	* Returns a function to be used as on_rightclick for node work stations.
+* crafting.get_search_result(p_recipe, search, lang_code, combine)
+    * Modifies displayed setting of recipes in recipe_list
+    * `p_recipe` is a player_recipe
+    * `search` is a string or a table of strings
+    * `lang_code` is the language of the player
+    * `combine` is an optional parameter :
+        used in case of multiple criteria (if search is a table)
+        - `true` means any of the string in the search table has to be found (OR)
+        - `false` (default) means all of them has to match (AND)
+        Return `true` is search was found, `false` else
 
------------------------------------------------------------------------------
+### GUI (inventory formspec and station formspec)
 
-* crafting.create_async_station(name, type, level, def_inactive, def_active)
-	* Makes a station which players put items into and then leave to craft.
-	* Registers two nodes - inactive and active versions of the station.
+* crafting.make_crafting_formspec(player)
+    * Generates crafting formspec (common to stations and inventory formspec) and crafting cache if non existent.
+
+* crafting.close_crafting_formspec(player, generate)
+    * Closes crafting formspec and clear cache
+    * if `generate` is true, then generate new cache if player's cache is nil
+      else, send an error log.
+
+* crafting.process_receive_fields(player, formname, fields)
+    * Processes fields in crafting formspec
+    * Returns `true` if something changed, `false` else
+
+* crafting.refresh_recipes_FS(player)
+    * Refreshes the recipe panel cache in crafting GUI.
+
+#### Stations and tools
+
+* crafting.get_tool_level(tool)
+    * Returns level for that tool
+
+* crafting.generate_tools_list(station)
+    * Generates tool list to display for `station`
+
+* crafting.make_tool_formspec(player, cache)
+    * generates current station's formspec for `player`
+    * `cache` is optional, would be regenerated from player if `nil`
+    * Returns that formspec
+
+* crafting.show_station_formspec(player, player_name)
+    * Shows current station's formspec for `player`
+
+* crafting.crafting_item_on_rightclick(pos,node,clicker, itemstack,pointed_thing)
+    * opens crafting for spec matching the node's name
+
+#### Object `cache` functions
+
+* crafting.register_cache_function (name, func)
+    * Register a `cache` function
+
+* crafting.get_FS_cache(player)
+    * Gets player's crafting cache, or generates it if nil
+
+* apply_filters(self, optional_list)
+    * Applies all filters to player's recipes lists in cache (or given in optional_list)
+
+* set_text_search_to(self, s)
+    * change Search field and reset formspec accordingly
+    * return `true` is any change, to trigger formspec redraw
+
+* many others not documented yet...
+
 
 ## Development
 

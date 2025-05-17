@@ -6,15 +6,18 @@ Liquids and storage items registered separately.
 
 e.g. For freshwater and a pot for freshwater
 liquid_store.register_liquid(
-	"nodes_nature:freshwater_source",
-	"nodes_nature:freshwater_flowing",
-	false)
-
+	source = "nodes_nature:freshwater_source",
+    {
+	   flowing = "nodes_nature:freshwater_flowing",
+	   force_renew = false,
+       groups = {"freshwater"}
+     }
+)
 
 liquid_store.register_stored_liquid(
-	"nodes_nature:freshwater_source",
-	"tech:clay_water_pot_freshwater",
-	"tech:clay_water_pot",
+	source = "nodes_nature:freshwater_source",
+	nodename = "tech:clay_water_pot_freshwater",
+	empty = "tech:clay_water_pot",
 	{
 		"tech_water_pot_water.png",
 		"tech_pottery.png",

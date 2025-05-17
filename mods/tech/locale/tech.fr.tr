@@ -68,11 +68,12 @@ Light Fabric Tunic=Tunique en tissu léger
 Thick Fabric Tunic=Tunique en tissu épais
 # cooking_pot.lua
 Cooking Pot (unfired)=Marmite (non cuite)
-Bowl (unfired)=
+Bowl (unfired)=Bol (non cuit)
 Cooking Pot=Marmite
-Empty Bowl=
+Bowl=Bol
+Empty Bowl=Bol vide
 Bowl of @1 Stew=
-Bowl of @1 Soup=
+Bowl of @1 Soup=Bol de soupe de @1
 #; contents
 Water=
 Contents: @1=Contenu: @1
@@ -146,6 +147,7 @@ Clear Glass Trapdoor=Tappe en verre transparent
 # drugs.lua
 Herbal Medicine=Médecine à base de plantes
 Tiku (stimulant)=Tiku (stimulant)
+Vinegar=Vinaigre
 Tang Vinegar=Vinaigre de Tang
 Tang Vinegar with Mother=Vinaigre de Tang avec mère
 Mother of Tang=Mère de Tang

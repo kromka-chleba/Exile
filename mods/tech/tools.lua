@@ -90,7 +90,7 @@ local function on_dig_tool(pos, node, digger)
         return -- can't dig tools you don't own
     end
     minimal.protection_on_dig(pos,node,digger,meta)
-    -- get data from 
+    -- get data from
     local ndata = meta:to_table()
     if not ndata then return end -- could not get data, return
     local player_inv = digger:get_inventory()
@@ -190,6 +190,18 @@ end
 
 
 -- Tools -----------------------------------------------------------------------
+
+minetest.register_tool("tech:hand",
+        {
+        description = S("Bare Hands"),
+        inventory_image = "tech_hand.png",
+        -- copied from tech:crafting_spot
+        exile_crafting = {
+            craft_types  = {'hand','hand_tools','hand_pottery','hand_mixing',
+                            'weaving_frame','threshing_spot'},
+            craft_level  = 2,
+            }
+        })
 
 --1st level -- Crude emergency tools ------------------------------------------
 --------------------------------------------------------------------------------
@@ -554,10 +566,10 @@ local function register_adze(suffix, def)
         type = {"hand_tools", "grinding_stone" },
         output = tool,
         items = {"group:" .. suffix .."_cobble",'tech:stick',
-                 'group:fibrous_plant 4', 'nodes_nature:sand'},
+                 'group:fibrous_plant 4'},
         level = 1,
         always_known = true,
-        replace = 'nodes_nature:sand'
+        tool = "nodes_nature:sand"
     })
 end
 -- less uses than granite bc softer stone
@@ -672,10 +684,10 @@ local function register_hammer(suffix, desc)
         type = { "hand_tools", "grinding_stone" },
         output = tool,
         items = {"group:" .. suffix .."_cobble", 'tech:stick',
-        'group:fibrous_plant 4', 'nodes_nature:sand'},
+        'group:fibrous_plant 4'},
         level = 1,
         always_known = true,
-        replace = 'nodes_nature:sand'
+        tool = "nodes_nature:sand"
     })
 end
 -- basalt and granite hammer
@@ -712,10 +724,10 @@ minetest.register_tool("tech:stone_club",
 crafting.register_recipe({
         type = { "hand_tools", "grinding_stone" },
         output = "tech:stone_club",
-        items = {"group:granite_cobble", 'nodes_nature:sand'},
+        items = {"group:granite_cobble"},
         level = 1,
         always_known = true,
-        replace = 'nodes_nature:sand'
+        tool = "nodes_nature:sand"
         }
     )
 

@@ -1,4 +1,8 @@
 # textdomain: crafting
+#General format with #
+@1:=@1 :
+Empty @1=@1 vide
+
 log=bûche
 fibrous plant=plante fibreuse
 sand=sable
@@ -9,6 +13,8 @@ woody plant=plante ligneuse
 woodslab=dalle de bois
 
 bioluminescent=bioluminescent
+freshwater pot=pot d'eau fraîche
+Pot=Cruche
 
 pottery=poterie
 gravel=gravier
@@ -16,6 +22,8 @@ gravel=gravier
 bundleable fiber=fibre empaquetable
 #api.lua
 @1's @2=
+#unit of item like "Pot of Freshwater"
+@1 (@2)=@1 (@2)
 Any @1=Tout type de @1
 Missing required items!=Il manque des objets requis!
 
@@ -35,7 +43,12 @@ Stack=Une pile
 Maximum=Le maximum
 Search=Requête
 or=ou
-Crafted by: @1=
+Crafted by: @1= Fabriqué(e) par : @1
+You are using: @1=Vous utilisez : @1
+Filter=Filtrer
+Clear=Effacer
+Tool:=Outil :
+will not be consumed:=ne sera pas consommé
 
 #groups
 limestone cobble=caillou calcaire
