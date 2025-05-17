@@ -275,61 +275,59 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_water_defaults(),
 })
 
--- Solution in pot
-liquid_store.register_stored_liquid(
-    "tech:clay_water_pot_potash",{
+--Register liquids
+liquid_store.register_liquid(
+    "tech:potash_source", -- source
+    {
+        flowing = "tech:potash_flowing", -- flowing
+        force_renew = false, -- dumpable
+        groups = {"potash"} -- groups list
+    }
+)
+
+-- Solution in pot (clay and wooden)
+for _, mat in pairs ({"clay", "wooden"}) do
+    local def = {
         source = "tech:potash_source",
-        empty = "tech:clay_water_pot",
-        description = S("Clay Water Pot with Potash Solution"),
-        groups = {dig_immediate = 2, pottery = 1},
-        tiles = {
+        empty = "tech:".. mat .. "_water_pot",
+        groups = {dig_immediate = 2},
+        node_box = {
+            type = "fixed",
+            fixed = {
+                {-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
+                {-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
+                {-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
+                {-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
+                {-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
+            }
+        }
+    }
+    if mat == "clay" then
+        def.description = S("Clay Water Pot with Potash Solution")
+        def.groups["pottery"] = 1
+        def.tiles = {
             "tech_pottery.png^tech_pot_empty.png^tech_pot_potash.png",
             "tech_pottery.png",
             "tech_pottery.png",
             "tech_pottery.png",
             "tech_pottery.png",
             "tech_pottery.png"
-        },
-        node_box = {
-            type = "fixed",
-            fixed = {
-                {-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
-                {-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
-                {-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
-                {-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
-                {-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
-            }
-        },
-})
--- solution in wooden pot
-liquid_store.register_stored_liquid(
-    "tech:wooden_water_pot_potash",{
-        source = "tech:potash_source",
-        empty = "tech:wooden_water_pot",
-        description = S("Wooden Water Pot with Potash Solution"),
-        groups = {dig_immediate = 2, flammable = 3},
-        sounds = nodes_nature.node_sound_wood_defaults(),
-        tiles = {
+        }
+    elseif mat == "wooden" then
+        def.description = S("Wooden Water Pot with Potash Solution")
+        def.groups["flammable"] = 3
+        def.sounds = nodes_nature.node_sound_wood_defaults() -- not sure I need it
+        def.tiles = {
             "tech_primitive_wood.png^tech_pot_empty.png^tech_pot_potash.png",
             "tech_primitive_wood.png",
             "tech_primitive_wood.png",
             "tech_primitive_wood.png",
             "tech_primitive_wood.png",
             "tech_primitive_wood.png"
-        },
-        node_box = {
-            type = "fixed",
-            fixed = {
-                {-0.25, 0.375, -0.25, 0.25, 0.5, 0.25}, -- NodeBox1
-                {-0.375, -0.25, -0.375, 0.375, 0.3125, 0.375}, -- NodeBox2
-                {-0.3125, -0.375, -0.3125, 0.3125, -0.25, 0.3125}, -- NodeBox3
-                {-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- NodeBox4
-                {-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
-            }
-        },
-})
-
-liquid_store.register_liquid("tech:potash_source", "tech:potash_flowing", false)
+        }
+    end
+    liquid_store.register_stored_liquid("tech:"..mat.. "_water_pot_potash",def)
+end
 
 -- Soak Ash
 local function potash_soak_check(pos, node)
@@ -739,4 +737,3 @@ crafting.register_recipe({
         level = 1,
         always_known = true,
 })
-
