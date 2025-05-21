@@ -17,12 +17,14 @@ local S = nodes_nature.S
 nodes_nature = nodes_nature
 local nn = nodes_nature
 
-nn.trees = {}
+nn.trees = {
+    tree_base_tree_growth = 31000,
+    tree_base_leaf_growth = 21000,
+    tree_base_fruit_growth = 19000,
+    -- list of each registered tree
+    list = {}
+}
 local trees = nn.trees
-
-trees.tree_base_tree_growth = 31000
-trees.tree_base_leaf_growth = 21000
-trees.tree_base_fruit_growth = 19000
 
 local random = math.random
 local seasons = nn.seasons
@@ -567,17 +569,8 @@ function trees.register_tree(name,def)
     -- use for ease of typing + prevent accidental override
 
     -- add mod_origin
-    if not name:match(":") then
-        def.mod_origin = def.mod_origin or "nodes_nature"
-        name = def.mod_origin..":"..name
-        -- create mod_origin (because we use it lol)
-    elseif not def.mod_origin then
-        local firstp = name:find(":")
-        -- get index of first found ":" - defined as "first point"
-
-        -- grab mod_origin from name and set it
-        def.mod_origin = name:sub(1,firstp-1)
-    end
+    def.mod_origin = core.get_current_modname()
+    name = not name:match(":") and def.mod_origin..":"..name or name
     -- set name for original def
     def.name = name.."_tree"
     -- ease of access to defs
@@ -705,4 +698,10 @@ function trees.register_tree(name,def)
         log_def.stack_max * 2, -- twice log_def stackmax
         log_def.sounds
     )
+    -- add to register list
+    -- tree will have different leaves and fruits mentioned
+    trees.list[name] = {
+        tree = def.name,
+        log = log_def.name
+    }
 end
