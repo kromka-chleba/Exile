@@ -66,23 +66,25 @@ local c_ring_i = minetest.get_content_id("rings:moon_glass")
 local c_node_list = {}
 minetest.register_on_mods_loaded(function()
         -- get content ids for all tree types
-        local tree_list = {}
-        tree_list.maraka  = minetest.get_content_id("nodes_nature:maraka_tree" )
-        tree_list.tangkal = minetest.get_content_id("nodes_nature:tangkal_tree")
-        tree_list.sasaran = minetest.get_content_id("nodes_nature:sasaran_tree")
-        tree_list.kagum   = minetest.get_content_id("nodes_nature:kagum_tree" )
-        tree_list.panasee = minetest.get_content_id("nodes_nature:panasee_tree" )
-        tree_list.amma    = minetest.get_content_id("nodes_nature:amma_tree" )
-        tree_list.daoja   = minetest.get_content_id("nodes_nature:daoja_tree" )
-
-        for _ , v in pairs(tree_list) do
-            c_node_list[v] = true
+        for _,treelist in pairs(nodes_nature.trees.list) do
+            local tree = core.registered_nodes[treelist.tree]
+            c_node_list[core.get_content_id(tree.name)] = true
+            -- add leaves and fruits to nodes that can cut through rings
+            if tree.tree_leaves then
+                for _,leaf in ipairs(tree.tree_leaves) do
+                    c_node_list[core.get_content_id(leaf)] = true
+                end
+            end
+            if tree.tree_fruits then
+                for _,fruit in ipairs(tree.tree_fruits) do
+                    c_node_list[core.get_content_id(fruit)] = true
+                end
+            end
         end
 
         -- debug info.  uncomment here and set exile_debug to true to enable
         --exile.debug.log_to_world( "c_ring_o = " .. c_ring_o .. "\n" )
         --exile.debug.log_to_world( "c_ring_i = " .. c_ring_i .. "\n" )
-        --exile.debug.log_to_world( "tree_list = " .. dump(tree_list) .. "\n" )
         --exile.debug.log_to_world( "c_node_list = " .. dump(c_node_list) .. "\n\n" )
 end)
 
