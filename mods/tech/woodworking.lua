@@ -180,8 +180,9 @@ if ucsigns_available then
     print("UCSIGNS AVAILABLE: ",ucsigns_available)
     screwdriver = lever
     ucsigns.register_sign("exile", nil, {
-                              description = "A sign",
-                              tiles = { "tech_oiled_wood.png" },
+        tiles = { "tech_oiled_wood.png" },
+        sounds = nodes_nature.node_sound_wood_defaults(),
+        groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2},
     })
     crafting.register_recipe({
             type = {"chopping_block", "axe"},
