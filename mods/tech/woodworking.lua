@@ -179,6 +179,27 @@ local ucsigns_available = minetest.get_modpath("ucsigns")
 if ucsigns_available then
     print("UCSIGNS AVAILABLE: ",ucsigns_available)
     screwdriver = lever
+    -- colours corresponding to dye numbers
+    -- custom on_rightclick function for editing and colouring
+    local function sign_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
+        local itemdef = itemstack:get_definition()
+        -- we're gon colour this sign the way we want
+        if itemdef.inventory_image == "blank_dye.png" and itemdef.color then
+            -- black defaults to empty string
+            local color = itemdef.color ~= "#202020" and itemdef.color or ""
+            local meta = core.get_meta(pos)
+            if meta:get_string("color") == color then return end
+            meta:set_string("color", color)
+            ucsigns.update_sign(pos)
+            if not minimal.player_in_creative(clicker) then
+                itemstack:take_item()
+            end
+        -- rewrite history!
+        elseif not core.is_protected(pos, clicker) then
+            ucsigns.show_formspec(clicker, pos)
+        end
+    end
+    -- colours the inventory image of the signs
     local signcolors = {
         tangkal = "#8a7362",
         sasaran = "#977961",
@@ -227,7 +248,8 @@ if ucsigns_available then
                 description = S("@1 Sign", ndef.description),
                 tiles = tiles,
                 sounds = nodes_nature.node_sound_wood_defaults(),
-                groups = groups
+                groups = groups,
+                on_rightclick = sign_on_rightclick
             })
             -- ucsigns doesn't properly check and duplicate groups and causes issues
             -- so we'll have to manually add a flag to not be in the creative inventory to declutter
@@ -261,7 +283,8 @@ if ucsigns_available then
         description = S("Oiled Sign"),
         tiles = { "tech_oiled_wood.png" },
         sounds = nodes_nature.node_sound_wood_defaults(),
-        groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2}
+        groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2},
+        on_rightclick = sign_on_rightclick
     })
     -- ditto to above disclaimer for why this needs to be done
     local standdef = core.registered_nodes["ucsigns:standing_sign_exile"]
