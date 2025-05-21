@@ -193,7 +193,7 @@ if ucsigns_available then
     -- sign crafting type
     crafting.register_type("ucsign",
       S("Signs"),
-      "ucsigns:wall_sign_exile_oiled",
+      "ucsigns:wall_sign_exile",
       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}}
     )
     -- sign groups
@@ -257,14 +257,14 @@ if ucsigns_available then
         end
     end
     -- oiled sign (previous default)
-    ucsigns.register_sign("exile_oiled", nil, {
+    ucsigns.register_sign("exile", nil, {
         description = S("Oiled Sign"),
         tiles = { "tech_oiled_wood.png" },
         sounds = nodes_nature.node_sound_wood_defaults(),
         groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2}
     })
     -- ditto to above disclaimer for why this needs to be done
-    local standdef = core.registered_nodes["ucsigns:standing_sign_exile_oiled"]
+    local standdef = core.registered_nodes["ucsigns:standing_sign_exile"]
     local standgroups = table.copy(groups)
     standgroups.not_in_creative_inventory = 1
     core.override_item(standdef.name, {
@@ -273,12 +273,9 @@ if ucsigns_available then
     -- oiled recipe
     crafting.register_recipe({
         type = "ucsign",
-        output = "ucsigns:wall_sign_exile_oiled 1",
+        output = "ucsigns:wall_sign_exile 1",
         items = {"group:log 1", "tech:vegetable_oil"},
         level = 1,
         always_known = true,
     })
-    -- fix old signs
-    core.register_alias_force("ucsigns:standing_sign_exile", "ucsigns:standing_sign_exile_oiled")
-    core.register_alias_force("ucsigns:wall_sign_exile", "ucsigns:wall_sign_exile_oiled")
 end
