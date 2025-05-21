@@ -935,7 +935,7 @@ crafting.register_recipe({
 
 --grind maraka flour
 crafting.register_recipe({
-        type = "mortar_and_pestle",
+        type = "breadmaking",
         output = "tech:maraka_flour_bitter",
         items = {'nodes_nature:maraka_nut 12'},
         level = 1,
@@ -952,7 +952,7 @@ crafting.register_recipe({
 
 --make maraka cakes
 crafting.register_recipe({
-        type = "mortar_and_pestle",
+        type = "breadmaking",
         output = "tech:maraka_bread 6",
         items = {'tech:maraka_flour'},
         level = 1,
@@ -970,7 +970,7 @@ crafting.register_recipe({
 -- grind rhuya flour
 
 crafting.register_recipe({
-    type = "mortar_and_pestle",
+    type = "breadmaking",
     output = "tech:rhuya_flour",
     items = {'nodes_nature:rhuya_seed 12'},
     level = 1,
@@ -978,7 +978,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-    type = "mortar_and_pestle",
+    type = "breadmaking",
     output = "tech:rhuya_flour_wintery",
     items = {'nodes_nature:rhuya_wintery_seed 12'},
     level = 1,
@@ -988,7 +988,7 @@ crafting.register_recipe({
 -- grind barshocha roots into flour
 
 crafting.register_recipe({
-    type = {"mortar_and_pestle"},
+    type = {"breadmaking"},
     output = "tech:barszcz_flour_raw",
     items = {"nodes_nature:barszcz_root 6"},
     level = 1,
@@ -998,7 +998,7 @@ crafting.register_recipe({
 -- mix bready flours into all-purpose
 
 crafting.register_recipe({
-    type = "breadmaking",
+    type = {"breadmaking"},
     output = "tech:all_flour 2",
     items = {'group:bread_flour', 'group:cake_flour'},
     level = 1,
