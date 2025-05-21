@@ -253,9 +253,13 @@ if ucsigns_available then
       "ucsigns:wall_sign_exile",
       {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}}
     )
-    -- sign groups
-    local groups = {
-        oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2
+    -- basic exile brand signdef
+    local signdef = {
+        groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2},
+        sounds = nodes_nature.node_sound_wood_defaults(),
+        on_rightclick = sign_on_rightclick,
+        preserve_metadata = sign_pm,
+        after_place_node = sign_apn
     }
     -- make a unique sign for every tree type
     for nname, ndef in pairs(core.registered_nodes) do
@@ -280,20 +284,14 @@ if ucsigns_available then
             -- permit custom "average_color" (what the node color theoretically should be on a minimap)
             local signcolor = ndef.average_color or signcolors[name] or nil
             name = "exile_"..name
-            ucsigns.register_sign(name, signcolor, {
+            ucsigns.register_sign(name, signcolor, minimal.merge_tables(signdef, {
                 description = S("@1 Sign", ndef.description),
-                tiles = tiles,
-                sounds = nodes_nature.node_sound_wood_defaults(),
-                groups = groups,
-                on_rightclick = sign_on_rightclick,
-                preserve_metadata = sign_pm,
-                after_place_node = sign_apn
-            })
+                tiles = tiles
+            }))
             -- ucsigns doesn't properly check and duplicate groups and causes issues
             -- so we'll have to manually add a flag to not be in the creative inventory to declutter
             local standdef = core.registered_nodes["ucsigns:standing_sign_"..name]
-            local walldef = core.registered_nodes["ucsigns:wall_sign_"..name]
-            local standgroups = table.copy(groups)
+            local standgroups = table.copy(signdef.groups)
             standgroups.not_in_creative_inventory = 1
             core.override_item(standdef.name, {
                 groups = standgroups
@@ -318,18 +316,13 @@ if ucsigns_available then
         end
     end
     -- oiled sign (previous default)
-    ucsigns.register_sign("exile", nil, {
+    ucsigns.register_sign("exile", nil, minimal.merge_tables(signdef, {
         description = S("Oiled Sign"),
-        tiles = { "tech_oiled_wood.png" },
-        sounds = nodes_nature.node_sound_wood_defaults(),
-        groups = groups,
-        on_rightclick = sign_on_rightclick,
-        preserve_metadata = sign_pm,
-        after_place_node = sign_apn
-    })
+        tiles = { "tech_oiled_wood.png" }
+    }))
     -- ditto to above disclaimer for why this needs to be done
     local standdef = core.registered_nodes["ucsigns:standing_sign_exile"]
-    local standgroups = table.copy(groups)
+    local standgroups = table.copy(signdef.groups)
     standgroups.not_in_creative_inventory = 1
     core.override_item(standdef.name, {
         groups = standgroups
