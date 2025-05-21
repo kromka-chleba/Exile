@@ -144,18 +144,16 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = "mortar_and_pestle",
         output = "tech:vegetable_oil",
-        items = {'nodes_nature:vansano_seed 12'},
+        items = {
+            {
+                'nodes_nature:vansano_seed 12',
+                'nodes_nature:maraka_fruit 12'
+            }
+        },
         level = 1,
         always_known = true,
 })
 
-crafting.register_recipe({
-    type = "mortar_and_pestle",
-    output = "tech:vegetable_oil",
-    items = {'nodes_nature:maraka_fruit 12'},
-    level = 1,
-    always_known = true,
-})
 --IB --bulk oil
 --IB crafting.register_recipe({
 --IB    type = "mortar_and_pestle",
