@@ -182,12 +182,14 @@ if ucsigns_available then
     -- colours corresponding to dye numbers
     -- custom on_rightclick function for editing and colouring
     local function sign_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
+        local meta = core.get_meta(pos)
+        -- can't colour or change text (protected)
+        if core.is_protected(pos, clicker, meta) then return end
         local itemdef = itemstack:get_definition()
         -- we're gon colour this sign the way we want
         if itemdef.inventory_image == "blank_dye.png" and itemdef.color then
             -- black defaults to empty string
             local color = itemdef.color ~= "#202020" and itemdef.color or ""
-            local meta = core.get_meta(pos)
             if meta:get_string("color") == color then return end
             meta:set_string("color", color)
             ucsigns.update_sign(pos)
@@ -195,7 +197,7 @@ if ucsigns_available then
                 itemstack:take_item()
             end
         -- rewrite history!
-        elseif not core.is_protected(pos, clicker) then
+        else
             ucsigns.show_formspec(clicker, pos)
         end
     end
