@@ -201,6 +201,40 @@ if ucsigns_available then
             ucsigns.show_formspec(clicker, pos)
         end
     end
+    -- save text colouring
+    local function sign_pm(pos, oldnode, oldmeta, drops) -- preserve_metadata
+        local stack = drops[1]
+        -- not going to using much of meta, save what we want
+        oldmeta = {color=oldmeta.color, nailed = oldmeta.nailed}
+        oldmeta.color = oldmeta.color ~= "" and oldmeta.color or nil -- don't save if no colour
+        -- if protected, give back nails
+        if oldmeta.nailed then
+            oldmeta.nailed = nil
+            drops[#drops + 1] = ItemStack("tech:nails")
+        end
+        if not next(oldmeta) then return end -- nothing to save
+        -- if we keep color as is as variable, it colours the itemstack which we don't want
+        oldmeta.textcolor = oldmeta.color
+        oldmeta.color = nil
+        -- save to meta
+        local imeta = stack:get_meta()
+        imeta:from_table({fields = oldmeta})
+    end
+    local function sign_apn(pos, placer, itemstack, pointed_thing)
+        local oldmeta = itemstack:get_meta()
+        oldmeta = oldmeta:to_table()
+        if not oldmeta then return end -- nothing we can do here
+        -- convert to fields
+        oldmeta = oldmeta.fields
+        if not next(oldmeta) then return end -- nothing to do here
+        -- get text color and remove old textcolor value
+        oldmeta.color = oldmeta.textcolor
+        oldmeta.textcolor = nil
+        -- now set meta
+        local meta = core.get_meta(pos)
+        meta:from_table({fields = oldmeta})
+        ucsigns.update_sign(pos)
+    end
     -- colours the inventory image of the signs
     local signcolors = {
         tangkal = "#8a7362",
@@ -251,11 +285,14 @@ if ucsigns_available then
                 tiles = tiles,
                 sounds = nodes_nature.node_sound_wood_defaults(),
                 groups = groups,
-                on_rightclick = sign_on_rightclick
+                on_rightclick = sign_on_rightclick,
+                preserve_metadata = sign_pm,
+                after_place_node = sign_apn
             })
             -- ucsigns doesn't properly check and duplicate groups and causes issues
             -- so we'll have to manually add a flag to not be in the creative inventory to declutter
             local standdef = core.registered_nodes["ucsigns:standing_sign_"..name]
+            local walldef = core.registered_nodes["ucsigns:wall_sign_"..name]
             local standgroups = table.copy(groups)
             standgroups.not_in_creative_inventory = 1
             core.override_item(standdef.name, {
@@ -285,8 +322,10 @@ if ucsigns_available then
         description = S("Oiled Sign"),
         tiles = { "tech_oiled_wood.png" },
         sounds = nodes_nature.node_sound_wood_defaults(),
-        groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2},
-        on_rightclick = sign_on_rightclick
+        groups = groups,
+        on_rightclick = sign_on_rightclick,
+        preserve_metadata = sign_pm,
+        after_place_node = sign_apn
     })
     -- ditto to above disclaimer for why this needs to be done
     local standdef = core.registered_nodes["ucsigns:standing_sign_exile"]
