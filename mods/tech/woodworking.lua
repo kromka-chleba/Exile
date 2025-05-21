@@ -179,16 +179,106 @@ local ucsigns_available = minetest.get_modpath("ucsigns")
 if ucsigns_available then
     print("UCSIGNS AVAILABLE: ",ucsigns_available)
     screwdriver = lever
-    ucsigns.register_sign("exile", nil, {
+    local signcolors = {
+        tangkal = "#8a7362",
+        sasaran = "#977961",
+        maraka = "#9e8364",
+        kagum = "#8a7957",
+        amma = "#f8dba6",
+        daoja = "#a7875b",
+        jalowiec = "#d9a07b",
+        panasee = "#ae8d62",
+        tulatula = "#77674a",
+    }
+    -- sign crafting type
+    crafting.register_type("ucsign",
+      S("Signs"),
+      "ucsigns:wall_sign_exile_oiled",
+      {name = "nodes_nature_dig_choppy", pitch={0.9,1.3}}
+    )
+    -- sign groups
+    local groups = {
+        oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2
+    }
+    -- make a unique sign for every tree type
+    for nname, ndef in pairs(core.registered_nodes) do
+        if ndef.groups and ndef.groups.log and ndef.tiles and
+          -- if tree variant exists
+          core.registered_nodes[ndef.name:gsub("_log","_tree")] then
+            -- let's dew it!
+            -- remove mod name and _log
+            local name = ndef.name:sub(#ndef.mod_origin+2,-5)
+            -- sign has issues with 16x16, let's increase it twofold
+            local tiles = table.copy(ndef.tiles)
+            for ind,tile in ipairs(tiles) do
+                -- a bunch of weird calculations I did late at night that don't work upscaled - TPH
+                local newtile = "[combine:32x32:"
+                for i=1, 4 do
+                    local x,y = (i > 2 and 16 or 0), (i%2*16)
+                    newtile = newtile..x..","..y.."="..tile
+                    newtile = i ~= 4 and newtile..":" or newtile
+                end
+                tiles[ind] = newtile
+            end
+            -- permit custom "average_color" (what the node color theoretically should be on a minimap)
+            local signcolor = ndef.average_color or signcolors[name] or nil
+            name = "exile_"..name
+            ucsigns.register_sign(name, signcolor, {
+                description = S("@1 Sign", ndef.description),
+                tiles = tiles,
+                sounds = nodes_nature.node_sound_wood_defaults(),
+                groups = groups
+            })
+            -- ucsigns doesn't properly check and duplicate groups and causes issues
+            -- so we'll have to manually add a flag to not be in the creative inventory to declutter
+            local standdef = core.registered_nodes["ucsigns:standing_sign_"..name]
+            local standgroups = table.copy(groups)
+            standgroups.not_in_creative_inventory = 1
+            core.override_item(standdef.name, {
+                groups = standgroups
+            })
+            -- register recipe
+            crafting.register_recipe({
+                    type = "ucsign",
+                    output = "ucsigns:wall_sign_"..name,--"ucsigns:wall_sign_exile 1",
+                    items = {ndef.name},
+                    level = 1,
+                    always_known = true,
+            })
+        -- add ucsigns crafting station to axes and adzes
+        elseif ndef.exile_crafting and ndef.exile_crafting.craft_types and ndef.name:match("placed") then
+            local craftypes = ndef.exile_crafting.craft_types
+            for _,ctype in ipairs(craftypes) do
+                if ctype == "axe" then
+                    craftypes[#craftypes + 1] = "ucsign"
+                    break
+                end
+            end
+        end
+    end
+    -- oiled sign (previous default)
+    ucsigns.register_sign("exile_oiled", nil, {
+        description = S("Oiled Sign"),
         tiles = { "tech_oiled_wood.png" },
         sounds = nodes_nature.node_sound_wood_defaults(),
-        groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2},
+        groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2}
     })
+    -- ditto to above disclaimer for why this needs to be done
+    local standdef = core.registered_nodes["ucsigns:standing_sign_exile_oiled"]
+    local standgroups = table.copy(groups)
+    standgroups.not_in_creative_inventory = 1
+    core.override_item(standdef.name, {
+        groups = standgroups
+    })
+    -- oiled recipe
     crafting.register_recipe({
-            type = {"chopping_block", "axe"},
-            output = "ucsigns:wall_sign_exile 1",
-            items = {'group:log 1'},
-            level = 1,
-            always_known = true,
+        type = "ucsign",
+        output = "ucsigns:wall_sign_exile_oiled 1",
+        items = {"group:log 1", "tech:vegetable_oil"},
+        level = 1,
+        always_known = true,
     })
+    -- fix old signs
+    core.register_alias_force("ucsigns:standing_sign_exile", "ucsigns:standing_sign_exile_oiled")
+    core.register_alias_force("ucsigns:wall_sign_exile", "ucsigns:wall_sign_exile_oiled")
 end
