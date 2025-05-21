@@ -390,7 +390,10 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
               HEALTH.eatdrink(ediblestack, clicker, pointed_thing)
           end
           -- play eating sound
-          local eat_sound = ft.eat_sound
+         if ft.sound then
+           minimal.sound_play(minimal.merge_tables(ft.sound, {pos = pos}))
+         end
+
           minimal.switch_node(pos, node) -- save any meta
       end or nil
     -- misc extra stuff
@@ -569,7 +572,7 @@ end
 -- adjust baking
 -- ran in pot_on_receive_fields using the total time's worth from all provided ingredients
 -- calculates a difference from subtracting the total by current baking, adds to adjusting values
--- adjusts two values - baking and "base_baking" 
+-- adjusts two values - baking and "base_baking"
 -- "base_baking" is used to determine what the pot should "uncook" back to when opened
 local function adjust_baking(meta, total)
     if type(total) ~= "number" then return end
@@ -949,7 +952,7 @@ local function pot_cook(pos, elapsed)
                 -- now set baking
                 meta:set_int("baking",baking)
             end
-        
+
       end -- 'kind' if statement
   end -- 'finished' if statement
   return true
@@ -1226,7 +1229,7 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = {"mixing_spot","hand_pottery"},
         output = "nodes_nature:clay 3",
-        items = {"tech:clay_water_pot_unfired 1"},
+        items = {"tech:cooking_pot_unfired 1"},
         level = 1,
         always_known = true,
 })
