@@ -205,13 +205,8 @@ if ucsigns_available then
     local function sign_pm(pos, oldnode, oldmeta, drops) -- preserve_metadata
         local stack = drops[1]
         -- not going to using much of meta, save what we want
-        oldmeta = {color=oldmeta.color, nailed = oldmeta.nailed}
+        oldmeta = {color=oldmeta.color}
         oldmeta.color = oldmeta.color ~= "" and oldmeta.color or nil -- don't save if no colour
-        -- if protected, give back nails
-        if oldmeta.nailed then
-            oldmeta.nailed = nil
-            drops[#drops + 1] = ItemStack("tech:nails")
-        end
         if not next(oldmeta) then return end -- nothing to save
         -- if we keep color as is as variable, it colours the itemstack which we don't want
         oldmeta.textcolor = oldmeta.color
