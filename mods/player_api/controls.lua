@@ -372,9 +372,8 @@ local function controls(dtime)
 end
 minetest.register_globalstep(controls)
 
-local chan
 minetest.register_on_mods_loaded(function()
-        chan = minetest.mod_channel_join("exilecsm")
+        minetest.mod_channel_join("exilecsm")
 end)
 
 local c_timelimit = {}
