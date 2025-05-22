@@ -259,7 +259,11 @@ if ucsigns_available then
         sounds = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = sign_on_rightclick,
         preserve_metadata = sign_pm,
-        after_place_node = sign_apn
+        after_place_node = sign_apn,
+        -- prevent rotation with levers until either it's fixed upstream or we fixed it
+        on_rotate = function(pos, node, user, mode, new_param2)
+            return
+        end
     }
     -- make a unique sign for every tree type
     for nname, ndef in pairs(core.registered_nodes) do
