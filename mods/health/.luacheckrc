@@ -14,7 +14,7 @@ read_globals = { -- Read only, writing to them generates a warning
 	"PseudoRandom", "ItemStack",
 	"intllib", "string.split",
     -- dependencies in mod.conf
-    "sfinv", "player_monoids", "climate", "bed_rest", "ncrafting"
+    "sfinv", "player_monoids", "climate", "bed_rest", "ncrafting", "minimal"
 }
 
 exclude_files = {".luacheckrc"}
