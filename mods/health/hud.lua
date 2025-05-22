@@ -521,19 +521,30 @@ function HEALTH.hud_update_settings(player_name, table)
     end
 end
 
+--[[Takes a string of elements or "all", sets them blinking
+    * Needs either playername or player to apply changes to
+    * `setblink` is the state: true/false/nil
+]]
 function HEALTH.blink_hud_elements(playername, list, setblink, player)
-    -- Takes a string of elements or "all", sets them blinking
-    -- Needs either playername or player to apply changes to
-    -- setblink is the state, true/false/nil
-    playername = type(playername) == "string" and playername or core.is_player(player) and player:get_player_name() or playername
+    -- Checking player/player name validity
     if type(playername) ~= "string" then
-        error("HEALTH.blink_hud_elements: did not get string for 'playername' or name from player, got '"..
-            type(playername).."'")
+        if core.is_player(player) then
+            playername = player:get_player_name()
+        else
+            error("HEALTH.blink_hud_elements: " ..
+            "did not get string for 'playername' or name from player, got '"
+            .. type(playername) .. "' as playername and '"
+            .. tostring(player) .. "' as player")
+        end
     end
+
     local hud_data = hud[playername]
     if not hud_data then return end -- no hud data to speak of, return don't error
     -- check for and if not specified, get player for meta
-    player = core.is_player(player) and player or core.get_player_by_name(playername)
+    if not core.is_player(player) then
+        player = core.get_player_by_name(playername)
+    end
+
     if not player then return end -- not online, why is there hud_data..?
     -- get and check list
     list = get_list(list)
