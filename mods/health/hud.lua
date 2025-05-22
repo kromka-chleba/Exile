@@ -548,12 +548,12 @@ function HEALTH.blink_hud_elements(playername, list, setblink, player)
     if type(list) ~= "table" then
         error("HEALTH.blink_hud_elements: expected table or 'all' for list, got type '"..type(list).."'")
     end
-    local blink = hud_data.blink
+    local blink_table = hud_data.blink
     -- set up blink table if doesn't exist and we wanna blink or otherwise return if no blink table
-    if not blink then
+    if not blink_table then
         if setblink then
-            blink = {}
-            hud_data.blink = blink
+            blink_table = {}
+            hud_data.blink = blink_table
         -- trying to stop blinking of currently no blinking occurring! just return
         else
             return
@@ -568,13 +568,13 @@ function HEALTH.blink_hud_elements(playername, list, setblink, player)
         local data = stat_funcs[tag] and hud_data[tag]
         if data then
             -- add to blink table if setblink, otherwise remove from blink
-            blink[tag] = setblink and {time = get_time(), bool = true} or nil
+            blink_table[tag] = setblink and {time = get_time(), bool = true} or nil
             -- call function for update
             stat_funcs[tag](player, hud_data, meta, nil, true)
         end
     end
     -- remove blink if empty
-    if next(blink) == nil then
+    if next(blink_table) == nil then
         hud_data.blink = nil
     end
 end
