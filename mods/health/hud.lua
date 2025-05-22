@@ -401,7 +401,10 @@ local stat_funcs = {
         local player_pos = player:get_pos()
         player_pos.y = player_pos.y + 0.6 --adjust to body height
         v = v or math.floor(climate.get_point_temp(player_pos, true))
-        if data.prev_v == v and not forceupdate then return end -- don't update hud if we're the same value (and no forced update)
+        -- don't update hud if we're the same value (and no forced update)
+        if data.prev_v == v and not forceupdate then
+            return
+        end
         data.prev_v = v -- add to prev
         -- get meta and temperature reading
         meta = type(meta) == "userdata" and meta or player:get_meta()
