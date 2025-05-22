@@ -384,6 +384,7 @@ local stat_funcs = {
         local hudtext = data.text
         local hidden = data.hidden
         if not hidden and are_stats_visible(hud_data) then
+            -- TODO this var is unused
             local hudtype = hud_data.p_body_temp_type
             player:hud_change(hudtext, "number", tonumber(concat_text("0x", stat_col)) ) -- colorize
             player:hud_change(hudtext, "text", t)
