@@ -37,8 +37,14 @@ end
 -- Triggers: -------------------------------------------------------------
 
 local health
+local l_climate
+local l_player_api
 -- needed for quick_physics until a full player state api is written
-minetest.register_on_mods_loaded(function() health = HEALTH end)
+minetest.register_on_mods_loaded(function()
+    health = HEALTH
+    l_climate = climate
+    l_player_api = player_api
+end)
 
 local function reset_player(player, pname, pos, nmeta, metastring)
     local pmeta = player:get_meta()
@@ -56,8 +62,6 @@ local function hurt_player(player, pname, pos, nmeta, metastring)
                                damage_groups = {fleshy=damage} }, nil)
     return true
 end
-
-
 
 local function sethealth(player, pname, pos, nmeta, metastring)
     local val = tonumber(metastring) or 20
@@ -100,6 +104,7 @@ local function teleport(player, pname, pos, nmeta, metastring)
     end
     player:set_pos(vec)
 end
+
 local function relaport(player, pname, pos, nmeta, metastring)
     local vec = vector.from_string(metastring)
     if not vec then
@@ -124,9 +129,10 @@ local function clearinv(player, pname, pos, nmeta, metastring)
     end
     if metastring == "cloths" or metastring == "both"  then
         inv:set_list("cloths", {})
-        player_api.compose_cloth(player)
+        l_player_api.compose_cloth(player)
     end
 end
+
 local function setinventory(player, pname, pos, nmeta, metastring)
     metastring = "main" -- until we can set clothing inv too
     local plinv = player:get_inventory()
@@ -147,17 +153,19 @@ local function giveitem(player, pname, pos, nmeta, metastring)
 end
 
 local function setweather(player, pname, pos, nmeta, metastring)
-    climate.set_weather_override(pname, player, metastring)
+    l_climate.set_weather_override(pname, player, metastring)
 end
+
 local function resetweather(player, pname, pos, nmeta, metastring)
-    climate.set_weather_override(pname, player, "")
+    l_climate.set_weather_override(pname, player, "")
 end
 
 local function hide_hud(player, pname, pos, nmeta, metastring)
-    HEALTH.hide_hud_elements(player, nil, metastring)
+    health.hide_hud_elements(player, nil, metastring)
 end
+
 local function showall_hud(player, pname, pos, nmeta, metastring)
-    HEALTH.show_hud_elements(player, nil, "all")
+    health.show_hud_elements(player, nil, "all")
 end
 
 
@@ -317,7 +325,7 @@ function triggers.activate(pos, player, nodemeta)
     end
     triggers.player[pname] = { [posstr] = time }
     if updphys then
-        HEALTH.update_player_physics(player)
+        health.update_player_physics(player)
     end
 end
 
