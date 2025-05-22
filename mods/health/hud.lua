@@ -290,13 +290,12 @@ local function health_hud_change(player, hud_data, htype, color, textval)
     if not (data and data.image and data.text) then return end
     -- get opacity (hidden means opacity of 0)
     local opac = data.hidden and 0 or hud_data.opacity or mthudopacity
-    opac = type(opac) == "number" and opac or tonumber(opac) or 127
+    -- tonumber opac for comparison
+    opac = tonumber(opac) or 127
     -- get blink of temp if body_temp, otherwise assume htype
     local image = concat_text("hud_",htype,".png^[colorize:#",color,
       "^[opacity:",opac,blink(hud_data, htype) )
     player:hud_change(data.image, "text", image) -- update icon
-    -- tonumber opac for comparison
-    opac = type(opac) == "number" and opac or tonumber(opac)
     -- update numbered percentages if text is not hidden and stats visible
     local texthidden = data.hidden
     if not texthidden and are_stats_visible(hud_data) then
@@ -384,7 +383,6 @@ local stat_funcs = {
         local hudtext = data.text
         local hidden = data.hidden
         if not hidden and are_stats_visible(hud_data) then
-            local hudtype = hud_data.p_body_temp_type
             player:hud_change(hudtext, "number", tonumber(concat_text("0x", stat_col)) ) -- colorize
             player:hud_change(hudtext, "text", t)
         else
@@ -520,19 +518,30 @@ function HEALTH.hud_update_settings(player_name, table)
     end
 end
 
+--[[Takes a string of elements or "all", sets them blinking
+    * Needs either playername or player to apply changes to
+    * `setblink` is the state: true/false/nil
+]]
 function HEALTH.blink_hud_elements(playername, list, setblink, player)
-    -- Takes a string of elements or "all", sets them blinking
-    -- Needs either playername or player to apply changes to
-    -- setblink is the state, true/false/nil
-    playername = type(playername) == "string" and playername or core.is_player(player) and player:get_player_name() or playername
+    -- Checking player/player name validity
     if type(playername) ~= "string" then
-        error("HEALTH.blink_hud_elements: did not get string for 'playername' or name from player, got '"..
-            type(playername).."'")
+        if core.is_player(player) then
+            playername = player:get_player_name()
+        else
+            error("HEALTH.blink_hud_elements: " ..
+            "did not get string for 'playername' or name from player, got '"
+            .. type(playername) .. "' as playername and '"
+            .. tostring(player) .. "' as player")
+        end
     end
+
     local hud_data = hud[playername]
     if not hud_data then return end -- no hud data to speak of, return don't error
     -- check for and if not specified, get player for meta
-    player = core.is_player(player) and player or core.get_player_by_name(playername)
+    if not core.is_player(player) then
+        player = core.get_player_by_name(playername)
+    end
+
     if not player then return end -- not online, why is there hud_data..?
     -- get and check list
     list = get_list(list)
