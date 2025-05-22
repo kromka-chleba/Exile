@@ -286,7 +286,7 @@ end
 
 -- player, hud_data, health type (e.g. health or hunger), color, opacity, text value
 -- will do blink for you
-local function health_hud_change(player, hud_data, htype, color, textval)
+local function health_hud_change(player, hud_data, htype, colorval, textval)
     local data = hud_data[htype]
     if not (data and data.image and data.text) then return end
     -- get opacity (hidden means opacity of 0)
@@ -294,13 +294,13 @@ local function health_hud_change(player, hud_data, htype, color, textval)
     -- tonumber opac for comparison
     opac = tonumber(opac) or 127
     -- get blink of temp if body_temp, otherwise assume htype
-    local image = concat_text("hud_",htype,".png^[colorize:#",color,
+    local image = concat_text("hud_",htype,".png^[colorize:#",colorval,
       "^[opacity:",opac,blink(hud_data, htype) )
     player:hud_change(data.image, "text", image) -- update icon
     -- update numbered percentages if text is not hidden and stats visible
     local texthidden = data.hidden
     if not texthidden and are_stats_visible(hud_data) then
-        player:hud_change(data.text, "number", tonumber(concat_text("0x", color)) )
+        player:hud_change(data.text, "number", tonumber(concat_text("0x", colorval)) )
         player:hud_change(data.text, "text", textval)
     -- otherwise hide
     else
