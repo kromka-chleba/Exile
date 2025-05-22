@@ -4,7 +4,6 @@
 
 -- Internationalization
 HEALTH = HEALTH
-local S = HEALTH.S
 
 local hud = {}
 local hudupdateseconds = tonumber(minetest.settings:get("exile_hud_update"))
@@ -572,7 +571,8 @@ end
 -- update placement of hud icons when hud16 (longbar) is modified
 -- value will be false or true
 minimal.register_on_player_setting_change(function(player, setting, value, meta)
-    local hud_data = hud[player:get_player_name()]
+    local name = player:get_player_name()
+    local hud_data = hud[name]
     if not hud_data then return end
     if setting == "hud16" and (hud_data.health and hud_data.effects) then
         player:hud_change(hud_data.health.image, "offset",
@@ -589,6 +589,11 @@ minimal.register_on_player_setting_change(function(player, setting, value, meta)
                            y = hud_vert_pos + hud_text_y + longbarpos[value].y})
     -- modifying opacity or show_stats
     elseif (setting == "hud_opacity" or setting == "hud_show_stats") then
+        if setting == "hud_opacity" then
+            hud_data.opacity = value
+        else -- hud_show_stats then
+            hud_data.showstats = value
+        end
         -- iterate over each hud
         for nm,data in pairs(hud_data) do
             -- if we have a function for it, call it!
