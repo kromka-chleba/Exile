@@ -291,13 +291,12 @@ local function health_hud_change(player, hud_data, htype, color, textval)
     if not (data and data.image and data.text) then return end
     -- get opacity (hidden means opacity of 0)
     local opac = data.hidden and 0 or hud_data.opacity or mthudopacity
-    opac = type(opac) == "number" and opac or tonumber(opac) or 127
+    -- tonumber opac for comparison
+    opac = tonumber(opac) or 127
     -- get blink of temp if body_temp, otherwise assume htype
     local image = concat_text("hud_",htype,".png^[colorize:#",color,
       "^[opacity:",opac,blink(hud_data, htype) )
     player:hud_change(data.image, "text", image) -- update icon
-    -- tonumber opac for comparison
-    opac = type(opac) == "number" and opac or tonumber(opac)
     -- update numbered percentages if text is not hidden and stats visible
     local texthidden = data.hidden
     if not texthidden and are_stats_visible(hud_data) then
