@@ -323,9 +323,11 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_snow_defaults(),
 })
 
--- hand_mixing doesn't exist yet, wait till all mods loaded
+-- hand_mixing
+-- (I think mixing_spot is the old v3 station)
+
 crafting.register_recipe({
-        type = "mixing_spot",
+        type = {"mixing_spot","hand_mixing"},
         output = "nodes_nature:snow_block",
         items = {"nodes_nature:snow 2"},
         level = 1,
@@ -333,7 +335,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-        type = "mixing_spot",
+        type = {"mixing_spot","hand_mixing"},
         output = "nodes_nature:snow 2",
         items = {"nodes_nature:snow_block"},
         level = 1,
@@ -341,7 +343,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-        type = "mixing_spot",
+        type = {"mixing_spot","hand_mixing"},
         output = "nodes_nature:snow_block 2",
         items = {"nodes_nature:ice"},
         level = 1,
@@ -349,7 +351,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-        type = "mixing_spot",
+        type = {"mixing_spot","hand_mixing"},
         output = "nodes_nature:ice",
         items = {"nodes_nature:snow_block 2"},
         level = 1,
