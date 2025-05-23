@@ -2,7 +2,6 @@
 --HUD
 ----------------------------------------------------------------------
 
--- Internationalization
 HEALTH = HEALTH
 
 local hud = {}
