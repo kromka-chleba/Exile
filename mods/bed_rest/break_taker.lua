@@ -243,7 +243,7 @@ local function get_formspec()
         -- random quote for fun
         "label[2.375,5;", minetest.formspec_escape(quote), "]",
         -- disable breaktaker checkbox
-        "checkbox[5.75,8;breaktaker;  "
+        "checkbox[5.75,8.2;breaktaker;  "
         ..S("Disable Break-taker popup")..";"
         .. tostring(false).."]" -- should be unchecked if we see the formspec
     }
