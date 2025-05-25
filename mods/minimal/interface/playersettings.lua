@@ -97,6 +97,12 @@ local function setting_changed(player, name, value, meta)
     end
 end
 
+-- not sure it is good/usefull, but adding global function
+-- to be able to change break_taker setting outside here
+minimal.setting_changed = setting_changed
+-- TODO: probably better to define each function in concerned mod
+-- here, my concern is I think setting changed does nothing for breaktaker, but I am not sure...
+
 minimal.register_on_player_setting_change = function(func)
     if type(func) ~= "function" then
         error("minimal.register_on_player_setting_change: expected function, got type '"..type(func).."'")
@@ -186,7 +192,7 @@ end)
     However, this leads to some issue do to the fact that :
     1) since it is not a real tab (but a button), we can't move to "crafting tab" again when clicking on it, because tab1 is already selected by default.
     This point could change if we one day use buttons instead of tabs
-    2) I didn't find a good way to close/reopen inv formspec to update the theme (refresh) when changing them, without leaving and coming back with inv key. 
+    2) I didn't find a good way to close/reopen inv formspec to update the theme (refresh) when changing them, without leaving and coming back with inv key.
     Manually reopening with minetest.show_formspec(player_name, "", "")
     reopens it but... then the update are not redisplayed, unless we use the inv key to close and reopen again.
     We would need a way to simulate that key, I don't know how to do it, or if it is possible, so this is pending for now.
