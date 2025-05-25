@@ -232,15 +232,41 @@ local function get_formspec()
     local quote = get_quote()
 
     local formspec = {
-        "size[19.5,13]"..
+        "size[16,10.5]"..
             "real_coordinates[true]",
-        "label[9.375,1.5;", minetest.formspec_escape(title), "]",
-        "label[2.375,3.5;", minetest.formspec_escape(message1), "]",
-        "label[2.375,7.5;", minetest.formspec_escape(quote), "]",
+        -- exit button
+        "button_exit[15,0.2;0.8,0.75;exit_form;X]"..
+        -- title
+        "label[7,1;", minetest.formspec_escape(title), "]",
+        -- general message
+        "label[2.375,2.5;", minetest.formspec_escape(message1), "]",
+        -- random quote for fun
+        "label[2.375,5;", minetest.formspec_escape(quote), "]",
+        -- disable breaktaker checkbox
+        "checkbox[5.75,8;breaktaker;  "
+        ..S("Disable Break-taker popup")..";"
+        .. tostring(false).."]" -- should be unchecked if we see the formspec
     }
 
     return table.concat(formspec, "")
 end
+
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname ~= "bed_rest:break_taker" then -- not our form
+		return false
+	else
+        if fields.breaktaker then
+            local setting = (fields.breaktaker == "false")
+
+            local meta = player:get_meta()
+            meta:set_string("breaktaker", tostring(setting))
+            -- not sure it does something
+            -- copied from minimal/playersetting.lua
+            minimal.setting_changed(player, "breaktaker", setting, meta)
+        end
+    end
+end)
 
 --check session length and encourage player to take a real break
 function bed_rest.break_taker(name, enabled)
