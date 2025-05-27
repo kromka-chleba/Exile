@@ -22,14 +22,14 @@ sfinv.register_page(
                 sfinv.set_player_inventory_formspec(player, context)
             end
         end,
-        -- selecting the tab from an other tab
+        -- selecting the tab from an other tab or seting to crafting tab
         on_enter = function(self, player, context)
             print ("--------------------------]ENTER[-------------------")
             -- get or generate cache
             local cache = crafting.get_FS_cache(player, true)
             cache.updated = true -- no need for refresh button
-            -- sfinv refresh
-            sfinv.set_player_inventory_formspec(player)
+            -- formspec will be generated AFTER on_enter call (I think)
+            -- sfinv.set_player_inventory_formspec(player)
 
 
             --set_cache(player:get_player_name(),player:get_inventory())
@@ -37,9 +37,9 @@ sfinv.register_page(
         -- triggered when leaving tab or if we change page in sfinv
         on_leave = function(self, player, context)
             print ("--------------------------]LEAVE[-------------------")
-            -- gives back input panle items and deletes cache
+            -- gives back input panle items
             crafting.close_crafting_formspec(player)
-            --cache = "closed" -- old version
-            -- We may change that and not delete but trigger dfferent things if on leave ?
+            --[[be careful to not update sfinv page here or you may get infinite loop.]]
+            -- TODO We may change that and not delete but trigger dfferent things if on leave ?
         end
 })

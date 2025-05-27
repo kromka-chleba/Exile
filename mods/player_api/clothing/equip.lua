@@ -47,6 +47,15 @@ local function generate_shiftclick_ring()
     return table.concat(ring)
 end
 
+-- return true if something changed, false else
+local function process_receive_fields(player, fields)
+    -- process get recipes button
+    if fields.craft then
+        sfinv.set_page(player, "crafting:crafting")
+        return true
+    end
+end
+
 -- Generate the page container
 local clothing_page = {
     title = S("Clothing"),
@@ -58,9 +67,14 @@ local clothing_page = {
             player_api.get_current_texture(player) )
 
         local formspec = {
-            "container[0,0]",
+            -- button to crafting formsped
+            "button[0.8,0.8;3,1;craft;", S("Craft"), "]",
+            -- clothing_model (right part)
+            "container[1.4,0]",
             "label[4,1;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]",
             "label[4,1.5;" .. FS("Max Temperature Tolerance: @1", cur_tmax) .. " ]",
+
+
 
             --model overview
             -- #TODO do not change rotation angle when changing clothes,
@@ -82,16 +96,25 @@ local clothing_page = {
             --player inventory display : currently done in sfinv/api.lua
             --"list[current_player;main;0.35,7.3;8,1;]"..
             --"list[current_player;main;0.35,8.55;8,3;8]" ..
-            "label[0.35,10.2;Tip : use \"shift\" key to switch clothes]",
+
 
             -- enable equip with "shift" key.
             generate_shiftclick_ring(),
 
-            "container_end[]"
+            "container_end[]",
+
+            -- not sure where to put it without looking ugly
+            -- + would need translation
+            -- "label[0.8,9.75;Tip : use \"shift\" key to switch clothes]"
             }
             -- call a function making a size[10.5,10.9] formspec with that content and adding tabs if needed
         return sfinv.make_formspec_for_exile(player, context,
                                    table.concat(formspec), true)
+    end,
+    on_player_receive_fields = function(self, player,
+                                        context, fields)
+        -- currently only one button, could be more later
+        process_receive_fields(player, fields)
     end
 }
 

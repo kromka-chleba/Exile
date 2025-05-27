@@ -169,6 +169,24 @@ function crafting.register_cache_function (name, func)
     cache_func[name] = func
 end
 
+local function get_hint_state(i_option, player_meta)
+    if input_options[i_option].hint_btn then
+        --  it is on in player_settings (I left with on)
+        -- remember the setting. Note: new player will have 0 in meta
+        return (player_meta:get_int("crafting:possible_hint") == 1)
+        -- cache.possible_hint = false -- alaternative to no rememeber it
+    else
+        return false
+    end
+end
+
+-- saves input option in cache and updates hint button state accordingly
+local function set_cache_input_options(cache, player_meta, option)
+    cache.craft_input = option
+    -- updates Hint button's state
+    cache.possible_hint = get_hint_state(option, player_meta)
+end
+
 -- generate a new cache and put is in FS_cache[player_name]
 local function new_cache(player)
     if not player then
@@ -193,18 +211,7 @@ local function new_cache(player)
         option = default_option
         meta:set_int("crafting:ingredients", option) -- set meta
     end
-    cache.craft_input = option
-
-    -- Hint button --
-    -- if input option allows it
-    if input_options[option].hint_btn then
-        --  it is on in player_settings (I left with on)
-        -- remember the setting. Note: new player will have 0 in meta
-        cache.possible_hint = (meta:get_int("crafting:possible_hint") == 1)
-        -- cache.possible_hint = false -- alaternative to no rememeber it
-    else
-        cache.possible_hint = false
-    end
+    set_cache_input_options(cache, meta, option)
     -- Automatic filter checkbox --
     cache.input_filter = false -- never active on opening.
 
@@ -262,6 +269,10 @@ function crafting.get_FS_cache(player, generate)
         end
     end
     return cache
+end
+
+function crafting.reset_FS_cache(player)
+    FS_cache[player:get_player_name()] = new_cache(player)
 end
 
 -- localize
@@ -514,40 +525,42 @@ local function get_inputs_back_in_inv(player)
     end
 end
 
-local function activate_refresh_page(player, cache)
-    local player_name = player:get_player_name()
-    -- back to clothing tab home_page if updated is false
-    if not cache then -- no cache in param
-        cache = FS_cache[player_name]
-        if not cache then  --- no player's cache ?
-            core.log("in crafting.close_crafting_formspec: "
-            .. player_name .. "'s crafting cache shouldn't be nil")
-            return false
-        end
-    end
-    -- if current craft input option trigger the need of recipe refresh system
-    if not input_options[cache.craft_input].updated(cache) then
-        -- set default page to clothing formspec if mod is here
-        if core.global_exists("player_api") then
-            -- fomspec refreshed to be clothing page
-            sfinv.set_page(player, "clothing:clothing")
-            return true
-        else  -- else, will launch the recipe button
-            return false
-        end
-    end
-end
-
 -- Call when the inventory formspec is closed to clear cache
--- `player_name` param is optional
-function crafting.close_crafting_formspec(player)
+-- returns name of next sfinv opening page
+function crafting.close_crafting_formspec(player, cache)
     -- fives back items in input panel to main inv
     get_inputs_back_in_inv(player)
 
-    -- deleting cache
-    -- setting it to nil also avoid unecesseray update of recipes
-    -- when refresh_recipes_FS is triggeres by inventory changes
-    FS_cache[player:get_player_name()] = nil
+    -- cache changes
+    if not cache then -- no cache in param
+        local player_name = player:get_player_name()
+        cache = FS_cache[player_name]
+
+        -- cache already deleted sometimes when called by "on_leave"
+        if not cache then  --- no player's cache ?
+            -- no change to make
+            return nil -- TODO check if I can imrpove/clarify
+        end
+    end
+
+    --various updates
+    cache:reset_recipes() -- needed after getting back the inputs
+    cache.qty = 1 -- back to "Single" craft
+
+    -- set updated status and next opening page
+    cache.updated = input_options[cache.craft_input].updated(cache)
+    -- if current craft input option trigger the need of recipe refresh system
+    if not cache.updated then
+        -- delete cache
+        FS_cache[player:get_player_name()] = nil
+        -- if clothing page is here
+        if core.global_exists("player_api") then
+            -- set page to clothing formspec
+            return "clothing:clothing"
+        end
+    end
+    -- else open directly on crafting page, with or without recipe button
+    return "crafting:crafting"
 end
 
 -- TODO pass as player_recipe function, so it can update on various change, like change of input, list, etc
@@ -608,9 +621,12 @@ function crafting.process_receive_fields(player, formname, fields)
     -- Process quit
     -- called when escaping the formspec using inventory key
     if fields.quit then
-        local refresh = activate_refresh_page(player, cache)
-        crafting.close_crafting_formspec(player)
-        return not refresh -- trigger sinv fs refresh if not already done
+        -- get input items back in main
+        -- updates/delete player's cache and returns opening page
+        local next_page = crafting.close_crafting_formspec(player, cache)
+        -- updated sfinv page state for next opening
+        sfinv.set_page(player, next_page)
+        return false -- no need to refresh sfinv, it was just done
     end
     -- process scrollbar
     if fields.recipes_scroll then
@@ -637,14 +653,10 @@ function crafting.process_receive_fields(player, formname, fields)
     if fields.input_option then
         local option = tonumber(fields.input_option)
         if option ~= cache.craft_input then
-            cache.craft_input = option
-            -- update availability or "hint button" if new option forbid it
-            if input_options[option].hint_btn == false then
-                cache.possible_hint = false
-            end
-            -- save in player's settings
             local meta = player:get_meta()
-            meta:set_int("crafting:ingredients", option)
+            -- save in player's settings
+            meta:set_int("crafting:ingredients", option)-- updates Hint button's state
+            set_cache_input_options(cache, meta, option)
             -- refresh input panel
             cache.FS_input_list = nil
             -- refresh recipe panel
@@ -769,14 +781,9 @@ end
 --------------------------------------------------------------------------------
 -- following part is for update when inventory actions
 --------------------------------------------------------------------------------
--- update recipe list on inventory action outside the formspec
---[[ #TODO do better when we can
-    This is all because we don't have a callback for inventory opening
-    to come, we hope, a core.register_on_inventory_open(function(inventory)
-]]
 
 -- Delete recipes list cache and update inventory formspec
-function crafting.refresh_recipes_FS(player)
+local function refresh_recipes_FS(player)
     local player_name = player:get_player_name()
     local cache = FS_cache[player_name]
     if cache then
@@ -809,38 +816,7 @@ minetest.register_on_player_inventory_action(function(player, action,
             or from_list == "input_items"
             or to_list == "input_items"
             or listname == "input_items" then
-        core.after(0.1, crafting.refresh_recipes_FS , player)
-    end
-end
-)
-
-if minetest.register_on_item_pickup then
-    minetest.register_on_item_pickup(function(itemstack, picker)
-            if picker and picker:is_player() then
-                core.after(0.1, crafting.refresh_recipes_FS , picker)
-            end
-    end
-    )
-end
-
-minetest.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack, pointed_thing)
-    if placer and placer:is_player() then
-        core.after(0.1, crafting.refresh_recipes_FS , placer)
-    end
-end
-)
-
-minetest.register_on_dignode(function(pos, oldnode, digger)
-    if digger and digger:is_player() then
-        core.after(0.1, crafting.refresh_recipes_FS , digger)
-    end
-end
-)
-
--- #TODO useless for now (we use on_use and _on_consume)
-minetest.register_on_item_eat(function(itemstack, picker)
-    if picker:is_player() then
-        core.after(0.1, crafting.refresh_recipes_FS , picker)
+        core.after(0.1, refresh_recipes_FS , player)
     end
 end
 )

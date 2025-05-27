@@ -90,14 +90,15 @@ local function cache_on_station(player, placed_tool, pos)
     cache:tool_change(placed_tool)
 end
 
--- needed to regenerate cache after closing,
--- in case crafting formspec is default sfinv page
 local function cache_off_station(player)
-    -- reset cache
-    crafting.close_crafting_formspec(player)
-    sfinv.set_player_inventory_formspec(player)
-    --[[used to be more advanced/keeping cache,
-        but cache needs to be reset to refresh sfinv formspec, until "open_inventory" button exist.]]
+    -- get cache if existent
+    local cache = crafting.get_FS_cache(player)
+    -- adds station info
+    cache.station = nil
+    -- generates corresponding tools list
+    cache.tool_list = crafting.generate_tools_list()
+    -- updates cache with new selected `placed_tool` as tool
+    cache:tool_change()
 end
 
 -- used when inventory tab was opened with right click on a tool
@@ -105,11 +106,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         if formname ~= 'exile:crafting' then return false; end -- Not our form.
 
         local player_name = player:get_player_name()
-        -- overrides the default one in crafting.process_receive_fields
+        -- additional stuffs to run before main fields.quit action
         if fields.quit then
-            -- cache reset and giving back items from input panel
             cache_off_station(player)
-            return -- don't launch crafting.process_receive_fields
         end
         -- if other action than close was made, reshow the formspec
         if crafting.process_receive_fields(player, formname, fields) then

@@ -235,9 +235,6 @@ be used twice: `default:wood, group:wood`.
     * Processes fields in crafting formspec
     * Returns `true` if something changed, `false` else
 
-* crafting.refresh_recipes_FS(player)
-    * Refreshes the recipe panel cache in crafting GUI.
-
 #### Stations and tools
 
 * crafting.get_tool_level(tool)
