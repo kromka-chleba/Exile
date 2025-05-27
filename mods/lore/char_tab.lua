@@ -160,3 +160,6 @@ do
             end
     })
 end
+
+-- register the page as "need to be refreshed on globalstep (health changes)"
+player_api.register_page_name("lore:char_tab")

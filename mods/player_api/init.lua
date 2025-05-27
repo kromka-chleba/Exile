@@ -3,6 +3,30 @@
 player_api = {}
 local modpath = minetest.get_modpath("player_api")
 
+-- register the formspec page using player's state to display
+--[[ thoses pages are refreshed on globalsteps (every 1 min and every 4 sec +)
+    --and on join player in HEALTH (init.lua and on_actions.lua),
+    --when the player's state change]]
+local page_list = {}
+function player_api.register_page_name(page_name)
+    table.insert(page_list, page_name)
+end
+
+--[[update formspec display
+    so we can see changes while looking on opened formspec
+    or have correct display on opening (no inventory open callback)]]
+function player_api.refresh_formspec_states(player)
+    --[[since health states are not displayed in every tab,
+    refresh sfinv only if this is the active page.
+    Avoids unecesseray refresh of crafting formspec.]]
+    for _, page_name in pairs(page_list) do
+        if sfinv.get_page(player) == page_name then
+            sfinv.set_player_inventory_formspec(player)
+            break
+        end
+    end
+end
+
 dofile(modpath .. "/states.lua")
 dofile(modpath .. "/hand.lua")
 dofile(modpath .. "/base_texture.lua")
