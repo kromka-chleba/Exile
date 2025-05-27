@@ -369,8 +369,9 @@ local function fast_interval(dtime)
                 HEALTH.set_int(player,meta,"hunger",hunger)
                 HEALTH.set_int(player,meta,"thirst",thirst)
                 player:set_hp(health)
-                --update form so can see change while looking
-                sfinv.set_player_inventory_formspec(player)
+
+                --update formspec display
+                player_api.refresh_formspec_states(player)
             end
 
 
@@ -383,4 +384,3 @@ local function fast_interval(dtime)
     end
 end
 minetest.register_globalstep(fast_interval)
-

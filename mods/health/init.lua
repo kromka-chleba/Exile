@@ -777,8 +777,9 @@ minetest.register_on_joinplayer(function(player)
             end
             meta:set_string("player_velocity", "")
         end
-        -- update player's form to display thoses settings
-        sfinv.set_player_inventory_formspec(player)
+
+        --update formspec display
+        player_api.refresh_formspec_states(player)
 end)
 
 minetest.register_on_dieplayer(function(player)
@@ -873,8 +874,8 @@ minetest.register_globalstep(function(dtime)
                     st:set_progress("hunger", hunger)
                     st:set_progress("thirst", thirst)
 
-                    --update form so can see change while looking
-                    sfinv.set_player_inventory_formspec(player)
+                    --update formspec display
+                    player_api.refresh_formspec_states(player)
                 end
             end
         end
