@@ -213,6 +213,9 @@ creative.register_tab("nodes", S("Nodes"), minetest.registered_nodes)
 creative.register_tab("tools", S("Tools"), minetest.registered_tools)
 creative.register_tab("craftitems", S("Items"), minetest.registered_craftitems)
 
+-- to be used for tab order in sfinv
+creative.tab_list = {"all", "nodes", "tools", "craftitems"}
+
 local old_homepage_name = sfinv.get_homepage_name
 function sfinv.get_homepage_name(player)
     if player then

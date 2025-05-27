@@ -38,6 +38,42 @@ dofile(modpath..'/currentrevision.lua')
 dofile(modpath..'/storage_watcher_api.lua')
 dofile(modpath..'/storage_api.lua')
 
+-- overriding default sfinv homepage
+-- we never see that page, but in case of, one day... since default homepage is not adapted to our craft system
+local homepage_name = sfinv.get_homepage_name()
+
+-- TODO update with better default ?
+-- put recipe refrehs button here ?
+sfinv.override_page(homepage_name, {
+	title = minimal.S("Inventory"),
+	get = function(self, player, context)
+        -- showinv = true
+		return sfinv.make_formspec(player, context, "", true)
+	end
+})
+
+-- to force tabs order in sfinv, not sure where to put that.
+-- adds a dependency to sfinv
+core.register_on_mods_loaded( function ()
+    local tab_list = {}
+    if minetest.is_creative_enabled() and core.global_exists("creative") then
+        for _, name in ipairs(creative.tab_list) do
+            tab_list[#tab_list +1] = "creative:"..name
+        end
+    end
+    -- register Exile's pages
+    if core.global_exists("crafting") then
+         tab_list[#tab_list +1] = "crafting:crafting"
+    end
+    if core.global_exists("player_api") then
+        tab_list[#tab_list +1] = "clothing:clothing"
+    end
+    if core.global_exists("lore") then
+        tab_list[#tab_list +1] = "lore:char_tab"
+    end
+    sfinv.set_tabs(tab_list)
+end)
+
 minetest.register_on_joinplayer(function(player)
         local p_name = player:get_player_name()
         --Custom small inventory
