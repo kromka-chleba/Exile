@@ -370,7 +370,13 @@ local function fast_interval(dtime)
                 HEALTH.set_int(player,meta,"thirst",thirst)
                 player:set_hp(health)
                 --update form so can see change while looking
-                sfinv.set_player_inventory_formspec(player)
+                -- only in case char_tab is active (the one displaying health effect
+                -- TODO proper thing to deal with thoses refreshes
+                -- (lore - player_api - minimal - sfinc - crafting)
+
+                if sfinv.get_page(player) == "lore:char_tab" then
+                    sfinv.set_player_inventory_formspec(player)
+                end
             end
 
 
@@ -383,4 +389,3 @@ local function fast_interval(dtime)
     end
 end
 minetest.register_globalstep(fast_interval)
-

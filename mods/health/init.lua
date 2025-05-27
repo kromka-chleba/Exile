@@ -777,8 +777,12 @@ minetest.register_on_joinplayer(function(player)
             end
             meta:set_string("player_velocity", "")
         end
-        -- update player's form to display thoses settings
-        sfinv.set_player_inventory_formspec(player)
+        -- if we were on char tab before it was set
+        -- (which should not happen, and may trigger an error in generation) TODO improve that ?
+        -- reload it
+        if sfinv.get_page(player) == "lore:char_tab" then
+            sfinv.set_player_inventory_formspec(player)
+        end
 end)
 
 minetest.register_on_dieplayer(function(player)
@@ -874,7 +878,12 @@ minetest.register_globalstep(function(dtime)
                     st:set_progress("thirst", thirst)
 
                     --update form so can see change while looking
-                    sfinv.set_player_inventory_formspec(player)
+                    -- only in case char_tab is active (the one displaying health effect
+                    -- TODO proper thing to deal with thoses refreshes
+                    -- (lore - player_api - minimal - sfinc - crafting)
+                    if sfinv.get_page(player) == "lore:char_tab" then
+                        sfinv.set_player_inventory_formspec(player)
+                    end
                 end
             end
         end
