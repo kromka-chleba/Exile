@@ -68,8 +68,11 @@ player_api.update_equipment_effects = function(player, naked)
     if minetest.settings:get_bool("enable_damage") then
         player:set_armor_groups(armorgroups)
     end
-    -- update clothing tab formspec
-    sfinv.set_player_inventory_formspec(player)
+    -- update clothing tab formspec if that is the one beeing set in sfinv
+    -- if is there to avoid unnecessay refresh of crafting tab/other tabs
+    if sfinv.get_page(player) == "clothing:clothing" then
+        sfinv.set_player_inventory_formspec(player)
+    end
 end
 
 player_api.reset_equipment_effects = function(player)
