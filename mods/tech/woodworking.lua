@@ -201,11 +201,11 @@ if ucsigns_available then
             ucsigns.show_formspec(clicker, pos)
         end
     end
-    -- save text colouring
+    -- save text and text colouring
     local function sign_pm(pos, oldnode, oldmeta, drops) -- preserve_metadata
         local stack = drops[1]
         -- not going to using much of meta, save what we want
-        oldmeta = {color=oldmeta.color}
+        oldmeta = {color=oldmeta.color, text=oldmeta.text}
         oldmeta.color = oldmeta.color ~= "" and oldmeta.color or nil -- don't save if no colour
         if not next(oldmeta) then return end -- nothing to save
         -- if we keep color as is as variable, it colours the itemstack which we don't want
