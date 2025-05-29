@@ -260,6 +260,10 @@ if ucsigns_available then
             return
         end
     }
+    -- rotation fixed upstream, permit rotation
+    if ucsigns.merge_itemdef then
+        signdef.on_rotate = nil
+    end
     -- make a unique sign for every tree type
     for nname, ndef in pairs(core.registered_nodes) do
         if ndef.groups and ndef.groups.log and ndef.tiles and
