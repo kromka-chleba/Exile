@@ -509,19 +509,30 @@ minetest.register_node(
                   temp_effect = 1, temp_pass = 1},
         --cooling
         on_construct = function(pos)
-            minetest.get_node_timer(pos):start(1)
+            -- node timer for solidification (choose timeout as short as
+            -- possible as the molten slag will move out of the timer's
+            -- position within an unspecified short delay and not synchronized
+            -- with evaluation of node timers)
+            minetest.get_node_timer(pos):start(0.1)
         end,
         on_timer = function(pos, elapsed)
-            if math.random()>0.95 then
+            local chance = math.random()
+            -- Chances for solidification into slag:
+            -- With 1 timeout per molten slag and 50 molten slag per mix one
+            -- would get 1 slag per mix on average with a 2% chance per molten
+            -- slag. However, even the short timeout of 0.1 sometimes does not
+            -- result in this function being called. According to some tests a
+            -- slightly higher chance of 2.2% should compensate.
+            if chance>0.978 then
                 minetest.sound_play("nodes_nature_cool_lava",
                                     {pos = pos, max_hear_distance = 8,
                                      gain = 0.1})
                 minetest.set_node(pos, {name = 'tech:slag'})
                 minetest.check_for_falling(pos)
-                return false
-            else
-                return true
             end
+            -- stop timer (otherwise placing of molten slag by the roast
+            -- function allows for exploits to get much more slag)
+            return false
         end,
 })
 
