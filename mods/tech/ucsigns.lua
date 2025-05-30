@@ -164,3 +164,42 @@ crafting.register_recipe({
     level = 1,
     always_known = true,
 })
+
+-- iron sign
+-- can't be dug by hand, requires pickaxe or chisel
+
+-- iron sign tiles
+-- sign has issues with 16x16, let's increase its size by twofold (copy of above for tree-based signs)
+local iron_tiles = {"tech_iron.png"}
+for ind,tile in ipairs(iron_tiles) do
+    -- a bunch of weird calculations I did late at night that don't work upscaled - TPH
+    local newtile = "[combine:32x32:"
+    for i=1, 4 do
+        local x,y = (i > 2 and 16 or 0), (i%2*16)
+        newtile = newtile..x..","..y.."="..tile
+        newtile = i ~= 4 and newtile..":" or newtile
+    end
+    iron_tiles[ind] = newtile
+end
+ucsigns.register_sign("exile_iron", "#686868", minimal.merge_tables(signdef, {
+    description = S("Iron Sign"),
+    tiles = iron_tiles,
+    groups = {choppy=0, oddly_breakable_by_hand=0, handy=0, axey=0, ucsign=1, not_in_creative_inventory=1, cracky=3},
+    sounds = tech.node_sound_metal_hollow_defaults()
+}))
+-- ditto ditto to above disclaimer for why this needs to be done
+local walldef = core.registered_nodes["ucsigns:standing_sign_exile_iron"]
+local wallgroups = table.copy(walldef.groups)
+wallgroups.not_in_creative_inventory = nil
+wallgroups.deco_block = 1
+core.override_item(walldef.name, {
+    groups = wallgroups
+})
+-- iron sign recipe
+crafting.register_recipe({
+    type = "anvil",
+    output = "ucsigns:wall_sign_exile_iron 1",
+    items = {"tech:iron_ingot"},
+    level = 1,
+    always_known = true,
+})
