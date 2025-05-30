@@ -306,18 +306,17 @@ function crafting.make_crafting_formspec(player)
 
     output[#output + 1] = 'container[0.8,7.2]'
 
-    -- if crafting panel is open, color it
-    if cache.updated == true then
-        local input_mode = cache:get_craft_mode()
-        local bg_color = input_mode.m_color
-        -- background color of main inventory list
-        -- #TODO maybe change that in table
-        if cache.possible_hint then
-                bg_color = p_color  -- possible color
-        end
-        if bg_color then
-            output[#output + 1] = "box[-0.18,-0.18;10.1,2.6;".. bg_color .. "]"
-        end
+    -- if needed color the inventory
+
+    local input_mode = cache:get_craft_mode()
+    local bg_color = input_mode.m_color
+    -- background color of main inventory list
+    -- #TODO maybe change that in table
+    if cache.possible_hint then
+            bg_color = p_color  -- possible color
+    end
+    if bg_color then
+        output[#output + 1] = "box[-0.18,-0.18;10.1,2.6;".. bg_color .. "]"
     end
 
     -- display main inventory list
@@ -344,22 +343,6 @@ function crafting.make_crafting_formspec(player)
     output[#output + 1] = 'image[9.6,5.93;0.8,0.8;creative_trash_icon.png]'
     output[#output + 1] ='list[detached:creative_trash;main;9.52,5.8;1,1;]'
 
-    -- stop if not cache.updated -----------------------------------------------
-    -- #TODO needs to be cleaned, doing 2 sperate functions maybe
-    if not cache.updated then
-        output[#output + 1]= tofstring({
-            --'style[refresh_r;bgimg=;bgimg_pressed=;border=;bgcolor=red; sound=]'
-            'button[1.8,1.2;8,4;refresh_r;',
-            S("Open recipes"),
-            ']',
-        })
-
-        output[#output + 1] = 'container_end[]'
-        return tofstring(output)
-    end
-
-    -- continues only if cache.updated -----------------------------------------
-
     -- Tool types part ---------------------------------------------------------
 
     if not cache.FS_tool_panel then
@@ -370,24 +353,30 @@ function crafting.make_crafting_formspec(player)
     output[#output + 1] = cache.FS_tool_panel
     output[#output + 1] = 'container_end[]'
 
-    -- Recipes List part -------------------------------------------------------
+    -- Recipes List part (Tabs + Recipes list block) ---------------------------
+    output[#output + 1] = 'container[3.5, 0.45]'
 
     -- Craft tabs above the recipes panel
     if not cache.FS_ctabs then
         -- in gui/tools_and_types.lua
         cache.FS_ctabs = cache:get_craft_tabs()
     end
+    output[#output + 1] = cache.FS_ctabs
 
-    -- Recipes panel drawing
-    if not cache.FS_recipes then
-        -- in gui/recipes_panel.lua
-        cache.FS_recipes = cache:get_recipes_panel(pInv)
+    -- Recipes panel drawing, button if recipes are not uptodate
+    if not cache.updated then
+        -- recipe refrehs button
+        -- TODO put a textarea : "Click on any tabs or button, inclding this one to get the matching recipes"
+        output[#output + 1]= 'button[0,0.75;7,3.5;refresh_r;'
+                            .. S("Open recipes") ..']'
+    else
+        if not cache.FS_recipes then
+            -- in gui/recipes_panel.lua
+            cache.FS_recipes = cache:get_recipes_panel(pInv)
+        end
+        output[#output + 1] = cache.FS_recipes
     end
 
-    -- Tabs + Recipes list block --
-    output[#output + 1] = 'container[3.5, 0.45]'
-    output[#output + 1] = cache.FS_ctabs
-    output[#output + 1] = cache.FS_recipes
     output[#output + 1] = 'container_end[]'
 
     -- Search field part -------------------------------------------------------
