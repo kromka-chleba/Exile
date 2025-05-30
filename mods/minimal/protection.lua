@@ -162,9 +162,9 @@ end
 
 -- Set owner for protected items.
 function minimal.protection_after_place_node( pos, placer, itemstack,
-                                              pointed_thing )
+                                              pointed_thing, nmeta, imeta )
     local pn = placer:get_player_name()
-    local meta = minetest.get_meta(pos)
+    nmeta = nmeta or core.get_meta(pos)
     meta:set_string("owner", pn)
     minimal.infotext_set_new(pos, meta)
     return minimal.player_in_creative(placer)

@@ -445,17 +445,17 @@ if minetest.is_creative_enabled() then
                 recfields(pos, formname, fields, sender)
                 setformspec(pos)
             end,
-            after_place_node = function(pos, placer, itemstack, pointed_thing)
-                local meta = minetest.get_meta(pos)
-                local imeta = itemstack:get_meta()
-                meta:set_string("tr_label", imeta:get_string("tr_label"))
+            after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+                nmeta = nmeta or core.get_meta(pos)
+                imeta = imeta or itemstack:get_meta()
+                nmeta:set_string("tr_label", imeta:get_string("tr_label"))
                 for nm, _ in pairs(triggers.defs) do
                     local val = imeta:get_string(nm)
                     if val ~= "" then
-                        meta:set_string(nm, val)
+                        nmeta:set_string(nm, val)
                     end
                 end
-                local minv = meta:get_inventory()
+                local minv = nmeta:get_inventory()
                 minv:set_size("main", 8*2)
                 local iinv = minimal.string2invlists(
                     imeta:get_string("inventory"))
@@ -464,35 +464,35 @@ if minetest.is_creative_enabled() then
                 end
                 local infotext = imeta:get_string("description")
                 if infotext ~= "" then
-                    meta:set_string("infotext", infotext)
+                    nmeta:set_string("infotext", infotext)
                 end
-                meta:set_string("tr_selected",imeta:get_string("tr_selected"))
+                nmeta:set_string("tr_selected",imeta:get_string("tr_selected"))
                 setformspec(pos)
             end,
-            preserve_metadata = function(pos, oldnode, oldmeta, drops)
-                local stack_meta = drops[1]:get_meta()
+            preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
+                imeta = imeta or drops[1]:get_meta()
                 local desc = ""
                 local pmcomma = ""
                 for nm, _ in pairs(triggers.defs) do
                     local val = oldmeta[nm] or ""
                     if val ~= "" then
-                        stack_meta:set_string(nm, val)
+                        imeta:set_string(nm, val)
                         desc = desc..pmcomma..nm:gsub("tr_","")
                         pmcomma = ", "
                     end
                 end
                 local oinv = minetest.get_meta(pos):get_inventory()
                 local list = oinv:get_lists()
-                stack_meta:set_string("inventory",
+                imeta:set_string("inventory",
                                       minimal.invlists2string(list))
                 local label = oldmeta["tr_label"]
-                stack_meta:set_string("tr_label", label)
+                imeta:set_string("tr_label", label)
                 local name = label or S("Configured trigger")
                 if desc ~= "" then
-                    stack_meta:set_string("description",
+                    imeta:set_string("description",
                                           name.."\n"..desc)
                 end
-                stack_meta:set_string("tr_selected", oldmeta["tr_selected"])
+                imeta:set_string("tr_selected", oldmeta["tr_selected"])
             end,
     })
 end
