@@ -18,8 +18,10 @@ sfinv.register_page(
         on_player_receive_fields = function(self, player,
                                             context, fields)
             -- if something changed, redraw the page
-            if crafting.process_receive_fields(player, "", fields) then
+            local cache = crafting.process_receive_fields(player, "", fields)
+            if cache then
                 sfinv.set_player_inventory_formspec(player, context)
+                cache.updated = true
             end
         end,
         -- selecting the tab from an other tab or seting to crafting tab

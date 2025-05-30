@@ -362,12 +362,12 @@ function crafting.make_crafting_formspec(player)
         cache.FS_ctabs = cache:get_craft_tabs()
     end
     output[#output + 1] = cache.FS_ctabs
-
     -- Recipes panel drawing, button if recipes are not uptodate
     if not cache.updated then
         -- recipe refrehs button
         -- TODO put a textarea : "Click on any tabs or button, inclding this one to get the matching recipes"
-        output[#output + 1]= 'button[0,0.75;7,3.5;refresh_r;'
+        output[#output + 1]=  "style[refresh_r; border=true]"
+        output[#output + 1]= 'button[0,1;7,3.5;refresh_r;'
                             .. S("Open recipes") ..']'
     else
         if not cache.FS_recipes then
@@ -538,6 +538,7 @@ function crafting.close_crafting_formspec(player, cache)
 
     -- set updated status and next opening page
     cache.updated = input_options[cache.craft_input].updated(cache)
+    --[[ to bring clothing page
     -- if current craft input option trigger the need of recipe refresh system
     if not cache.updated then
         -- delete cache
@@ -548,6 +549,7 @@ function crafting.close_crafting_formspec(player, cache)
             return "clothing:clothing"
         end
     end
+    ]]
     -- else open directly on crafting page, with or without recipe button
     return "crafting:crafting"
 end
@@ -610,12 +612,16 @@ function crafting.process_receive_fields(player, formname, fields)
     -- Process quit
     -- called when escaping the formspec using inventory key
     if fields.quit then
+        --[[ to bring clothing page, with above closing code
         -- get input items back in main
         -- updates/delete player's cache and returns opening page
         local next_page = crafting.close_crafting_formspec(player, cache)
         -- updated sfinv page state for next opening
         sfinv.set_page(player, next_page)
         return false -- no need to refresh sfinv, it was just done
+        ]]
+        crafting.close_crafting_formspec(player, cache)
+        return cache
     end
     -- process scrollbar
     if fields.recipes_scroll then
@@ -694,10 +700,9 @@ function crafting.process_receive_fields(player, formname, fields)
         if fields['sCraftTab_'..i] then
             if cache.sTab ~=i then
                 cache:set_craft_tabs(i, cache.cTabs)
-                -- indicates we need to refresh the form
-                return true
+                return cache -- indicates we need to refresh the form
             end
-            return false
+            -- else do nothing (return nil)
         end
     end
 
@@ -713,16 +718,15 @@ function crafting.process_receive_fields(player, formname, fields)
                     cache.qty = i
                     process_max_label (cache)
                     cache.FS_recipes = nil -- reset recipe panel
-                    return true -- force redraw of formspec
+                    return cache -- force redraw of formspec
                 -- if I desactivate selected qty, pass back to "Single"
                 elseif fields[ibtn] == 'false' then
                     cache.qty = 1
                     process_max_label (cache)
                     cache.FS_recipes = nil -- reset recipe panel
-                    return true -- force redraw of formspec
-                else -- else do nothing
-                    return false
+                    return cache -- force redraw of formspec
                 end
+                -- else do nothing (return nil)
             end
         end
 
@@ -756,7 +760,9 @@ function crafting.process_receive_fields(player, formname, fields)
 
             -- if we pushed a recipe button
             elseif btn_type == 'sResult' then
-                return cache:push_recipe(tonumber(btn_id), player,  player_name)
+                if cache:push_recipe(tonumber(btn_id), player,  player_name) then
+                    return cache
+                end
             end
             -- any button pushes require recipes to be redrawn
             -- #TODO was already done in craft_recipe
@@ -764,7 +770,7 @@ function crafting.process_receive_fields(player, formname, fields)
         end
     end
     FS_cache[player_name] = cache
-    return true
+    return cache
 end
 
 --------------------------------------------------------------------------------

@@ -109,6 +109,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         -- additional stuffs to run before main fields.quit action
         if fields.quit then
             cache_off_station(player)
+            crafting.close_crafting_formspec(player)
+            sfinv.set_player_inventory_formspec(player)
+            return true -- stop running functions
         end
         -- if other action than close was made, reshow the formspec
         if crafting.process_receive_fields(player, formname, fields) then
