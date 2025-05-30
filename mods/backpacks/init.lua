@@ -222,14 +222,14 @@ minetest.register_on_player_receive_fields(function(player,
         clear()
 end)
 
-local after_place_node = function(pos, placer, itemstack, pointed_thing)
+local after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
     local node = minetest.get_node(pos)
-    local meta = minetest.get_meta(pos)
-    local imeta = itemstack:get_meta()
+    nmeta = nmeta or core.get_meta(pos)
+    imeta = imeta or itemstack:get_meta()
 
     -- Load inventory
     local inv_main = imeta:get_string('inv_main')
-    local inv=meta:get_inventory()
+    local inv=nmeta:get_inventory()
     -- compatability for worlds created earlier then v0.3.9
     -- minetest.get_metadata() deprecated but old maps used it
     -- causes contents of backpacks stored in inventory to be forgotton
@@ -259,9 +259,9 @@ local after_place_node = function(pos, placer, itemstack, pointed_thing)
     end
 end
 
-local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
+local preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta, width,height)
     local item = drops[1]
-    local imeta = item:get_meta()
+    imeta = imeta or item:get_meta()
     local idef = item:get_definition()
     local bag_name = idef.description
     -- Transfer inventory to item
@@ -400,8 +400,8 @@ function backpacks.register_backpack(name, def)
             on_dig(pos, node, digger, def.formspec_width, def.formspec_height)
         end
     def.preserve_metadata = def.preserve_metadata
-        or function(pos, oldnode, oldmeta, drops)
-            preserve_metadata(pos, oldnode, oldmeta, drops,
+        or function(pos, oldnode, oldmeta, drops, imeta)
+            preserve_metadata(pos, oldnode, oldmeta, drops, imeta,
                               def.formspec_width, def.formspec_height)
         end
     def._on_use_item = function(player, itemstack, pointed_thing)

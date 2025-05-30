@@ -293,11 +293,12 @@ function storage.register_storage(name,def)
 
     def.after_place_node = def.after_place_node or function(pos, placer,
                                                             itemstack,
-                                                            pointed_thing)
+                                                            pointed_thing, nmeta, imeta)
         --Update formspec and infotext
         if (minetest.is_player(placer) and def.protected == true) then
             local p_name = placer:get_player_name() or ""
-            minetest.get_meta(pos):set_string("owner", p_name)
+            nmeta = nmeta or core.get_meta(pos)
+            nmeta:set_string("owner", p_name)
         end
         storage.on_construct(pos, width, height)
     end
