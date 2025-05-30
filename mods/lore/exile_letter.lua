@@ -480,13 +480,13 @@ local function setup_letter(player, imeta)
 end
 
 -----------------------------------------------
-local after_place = function(pos, placer, itemstack, pointed_thing)
-    local meta = minetest.get_meta(pos)
-    local stack_meta = itemstack:get_meta()
-    local letter_text = setup_letter(placer, stack_meta)
-    local form = get_formspec(meta, letter_text )
-    meta:set_string("formspec", form)
-    meta:set_string("lore:letter_text", letter_text)
+local after_place = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+    nmeta = nmeta or core.get_meta(pos)
+    imeta = imeta or itemstack:get_meta()
+    local letter_text = setup_letter(placer, imeta)
+    local form = get_formspec(nmeta, letter_text )
+    nmeta:set_string("formspec", form)
+    nmeta:set_string("lore:letter_text", letter_text)
 end
 
 local on_secondary_use = function(itemstack, user, pointed_thing)
@@ -519,8 +519,8 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_leaves_defaults(),
         after_place_node = after_place,
         on_secondary_use = on_secondary_use,
-        preserve_metadata = function(pos, oldnode, oldmeta, drops)
-            local imeta = drops[1]:get_meta()
+        preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
+            imeta = imeta or drops[1] and drops[1]:get_meta()
             imeta:from_table({
                     fields = { creator = oldmeta.creator,
                                ["lore:letter_text"] = oldmeta["lore:letter_text"] } })
