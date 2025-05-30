@@ -251,10 +251,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				sfinv.set_page(player, id)
 			end
 		end
-	-- was settings button pushed ?
-	elseif fields.player_settings then
-		--sfinv.set_page(player, "minimal:player_settings")
-        minimal.show_player_settings(name, player:get_meta())
 	else
 		-- Pass event to page
 		local page = sfinv.pages[context.page]
