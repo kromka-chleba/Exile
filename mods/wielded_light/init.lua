@@ -448,6 +448,12 @@ function wielded_light.register_lightable_node(node_name, property_overrides, cu
 	-- If it's a liquid, we need to stop it flowing
 	if new_definition.groups.liquid then
 		new_definition.liquid_range = 0
+		-- on_construct() gets called when a liquid wielded light node gets
+		-- displaced and potentially should return into the original node.
+		new_definition.on_construct = function(pos)
+			-- start node timer for the new position
+			minetest.get_node_timer(pos):start(cleanup_interval)
+		end
 		lightable_liquids[node_name] = true
 	end
 
