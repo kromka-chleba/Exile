@@ -514,6 +514,18 @@ local function get_inputs_back_in_inv(player)
     end
 end
 
+-- TODO maybe make/get a function to get the number from the name ?
+function crafting.set_page(player, selected_tab_number)
+    -- will register cache for player if cache is newly generated
+    local cache = get_FS_cache(player, true)
+    cache.updated = true
+    -- set tab to the selected tab number
+    cache:set_craft_tabs(selected_tab_number)
+    sfinv.set_page(player, "crafting:crafting")
+
+end
+
+
 -- Call when the inventory formspec is closed to clear cache
 -- returns name of next sfinv opening page
 function crafting.close_crafting_formspec(player, cache)

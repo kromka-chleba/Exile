@@ -53,6 +53,12 @@ local function process_receive_fields(player, fields)
     if fields.craft then
         sfinv.set_page(player, "crafting:crafting")
         return true
+    elseif fields.craft_clothes then
+        -- TODO a function to link number and name. 5 ois for cloths here
+        -- TODO dependency on crafting, put an "if" on the button display
+        crafting.set_page(player, 5)
+        sfinv.set_page(player, "crafting:crafting")
+        return true
     end
 end
 
@@ -67,14 +73,11 @@ local clothing_page = {
             player_api.get_current_texture(player) )
 
         local formspec = {
-            -- button to crafting formsped
-            "button[0.8,0.8;3,1;craft;", S("Craft"), "]",
+
             -- clothing_model (right part)
             "container[1.4,0]",
             "label[4,1;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]",
             "label[4,1.5;" .. FS("Max Temperature Tolerance: @1", cur_tmax) .. " ]",
-
-
 
             --model overview
             -- #TODO do not change rotation angle when changing clothes,
@@ -107,6 +110,13 @@ local clothing_page = {
             -- + would need translation
             -- "label[0.8,9.75;Tip : use \"shift\" key to switch clothes]"
             }
+
+        -- buttons to crafting formspec
+        if core.global_exists("crafting") then
+            formspec[#formspec + 1] =
+            "button[0.8,0.8;3,1;craft_clothes;" .. S("Craft clothes") .. "]"
+            --.. "button[0.8,2;3,1;craft;" .. S("Craft others") .. "]"
+        end
             -- call a function making a size[10.5,10.9] formspec with that content and adding tabs if needed
         return sfinv.make_formspec_for_exile(player, context,
                                    table.concat(formspec), true)
