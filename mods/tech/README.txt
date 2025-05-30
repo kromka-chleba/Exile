@@ -51,6 +51,7 @@ tech_bread_footstep.(0-4).ogg
 tech_powder_footstep.(0-4).ogg
 tech_powder_place.ogg
 tech_mortar_pestle_craft.(0-4).ogg
+mortar_and_pestle_craft_seed.(0-4).ogg
 --
 
 
