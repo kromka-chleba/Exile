@@ -9,57 +9,6 @@ if not ucsigns_available then return end
 
 print("UCSIGNS AVAILABLE: ",ucsigns_available)
 screwdriver = lever
--- colours corresponding to dye numbers
--- custom on_rightclick function for editing and colouring
-local function sign_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
-    local meta = core.get_meta(pos)
-    -- can't colour or change text (protected)
-    if core.is_protected(pos, clicker, meta) then return end
-    local itemdef = itemstack:get_definition()
-    -- we're gon colour this sign the way we want
-    if itemdef.inventory_image == "blank_dye.png" and itemdef.color then
-        -- black defaults to empty string
-        local color = itemdef.color ~= "#202020" and itemdef.color or ""
-        if meta:get_string("color") == color then return end
-        meta:set_string("color", color)
-        ucsigns.update_sign(pos)
-        if not minimal.player_in_creative(clicker) then
-            itemstack:take_item()
-        end
-    -- rewrite history!
-    else
-        ucsigns.show_formspec(clicker, pos)
-    end
-end
--- save text and text colouring
-local function sign_pm(pos, oldnode, oldmeta, drops) -- preserve_metadata
-    local stack = drops[1]
-    -- not going to using much of meta, save what we want
-    oldmeta = {color=oldmeta.color, text=oldmeta.text}
-    oldmeta.color = oldmeta.color ~= "" and oldmeta.color or nil -- don't save if no colour
-    if not next(oldmeta) then return end -- nothing to save
-    -- if we keep color as is as variable, it colours the itemstack which we don't want
-    oldmeta.textcolor = oldmeta.color
-    oldmeta.color = nil
-    -- save to meta
-    local imeta = stack:get_meta()
-    imeta:from_table({fields = oldmeta})
-end
-local function sign_apn(pos, placer, itemstack, pointed_thing)
-    local oldmeta = itemstack:get_meta()
-    oldmeta = oldmeta:to_table()
-    if not oldmeta then return end -- nothing we can do here
-    -- convert to fields
-    oldmeta = oldmeta.fields
-    if not next(oldmeta) then return end -- nothing to do here
-    -- get text color and remove old textcolor value
-    oldmeta.color = oldmeta.textcolor
-    oldmeta.textcolor = nil
-    -- now set meta
-    local meta = core.get_meta(pos)
-    meta:from_table({fields = oldmeta})
-    ucsigns.update_sign(pos)
-end
 -- colours the inventory image of the signs
 local signcolors = {
     tangkal = "#8a7362",
@@ -82,9 +31,56 @@ crafting.register_type("ucsign",
 local signdef = {
     groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2},
     sounds = nodes_nature.node_sound_wood_defaults(),
-    on_rightclick = sign_on_rightclick,
-    preserve_metadata = sign_pm,
-    after_place_node = sign_apn,
+    -- custom on_rightclick function for sign text editing and colouring
+    on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        local meta = core.get_meta(pos)
+        -- can't colour or change text (protected)
+        if core.is_protected(pos, clicker, meta) then return end
+        local itemdef = itemstack:get_definition()
+        -- we're gon colour this sign the way we want
+        if itemdef.inventory_image == "blank_dye.png" and itemdef.color then
+            -- black defaults to empty string
+            local color = itemdef.color ~= "#202020" and itemdef.color or ""
+            if meta:get_string("color") == color then return end
+            meta:set_string("color", color)
+            ucsigns.update_sign(pos)
+            if not minimal.player_in_creative(clicker) then
+                itemstack:take_item()
+            end
+        -- rewrite history!
+        else
+            ucsigns.show_formspec(clicker, pos)
+        end
+    end,
+    -- save text and text colouring
+    preserve_metadata = function(pos, oldnode, oldmeta, drops) -- preserve_metadata
+        local stack = drops[1]
+        -- not going to using much of meta, save what we want
+        oldmeta = {color=oldmeta.color, text=oldmeta.text}
+        oldmeta.color = oldmeta.color ~= "" and oldmeta.color or nil -- don't save if no colour
+        if not next(oldmeta) then return end -- nothing to save
+        -- if we keep color as is as variable, it colours the itemstack which we don't want
+        oldmeta.textcolor = oldmeta.color
+        oldmeta.color = nil
+        -- save to meta
+        local imeta = stack:get_meta()
+        imeta:from_table({fields = oldmeta})
+    end,
+    after_place_node = function(pos, placer, itemstack, pointed_thing)
+        local oldmeta = itemstack:get_meta()
+        oldmeta = oldmeta:to_table()
+        if not oldmeta then return end -- nothing we can do here
+        -- convert to fields
+        oldmeta = oldmeta.fields
+        if not next(oldmeta) then return end -- nothing to do here
+        -- get text color and remove old textcolor value
+        oldmeta.color = oldmeta.textcolor
+        oldmeta.textcolor = nil
+        -- now set meta
+        local meta = core.get_meta(pos)
+        meta:from_table({fields = oldmeta})
+        ucsigns.update_sign(pos)
+    end,
     -- prevent rotation with levers until either it's fixed upstream or we fixed it
     on_rotate = function(pos, node, user, mode, new_param2)
         return
