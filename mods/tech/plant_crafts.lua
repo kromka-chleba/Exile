@@ -147,6 +147,7 @@ crafting.register_recipe({
         items = {'nodes_nature:vansano_seed 12'},
         level = 1,
         always_known = true,
+        sound = {name = "mortar_and_pestle_craft_seed", gain = {1, 2}, pitch = {0.9, 1.15}}
 })
 
 crafting.register_recipe({
@@ -155,6 +156,7 @@ crafting.register_recipe({
     items = {'nodes_nature:maraka_fruit 12'},
     level = 1,
     always_known = true,
+    sound = {name = "mortar_and_pestle_craft_seed", gain = {1, 2}, pitch = {0.88, 1.1}}
 })
 --IB --bulk oil
 --IB crafting.register_recipe({
