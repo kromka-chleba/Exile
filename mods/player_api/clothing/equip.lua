@@ -114,8 +114,8 @@ local clothing_page = {
         -- buttons to crafting formspec
         if core.global_exists("crafting") then
             formspec[#formspec + 1] =
-            "button[0.8,0.8;3,1;craft_clothes;" .. S("Craft clothes") .. "]"
-            --.. "button[0.8,2;3,1;craft;" .. S("Craft others") .. "]"
+            "button[0.8,0.8;4,0.8;craft_clothes;" .. S("Craft clothes") .. "]"
+            .. "button[0.8,1.6;4,0.8;craft;" .. S("Craft other things") .. "]"
         end
             -- call a function making a size[10.5,10.9] formspec with that content and adding tabs if needed
         return sfinv.make_formspec_for_exile(player, context,
