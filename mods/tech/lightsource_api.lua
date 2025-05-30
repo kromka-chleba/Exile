@@ -30,19 +30,19 @@ function lightsource.start_burning(desc, pos)
     minetest.get_node_timer(pos):start(desc.burn_rate)
 end
 
-function lightsource.restore_from_inventory(desc, pos, itemstack)
-    local meta = minetest.get_meta(pos)
-    local stack_meta = itemstack:get_meta()
-    local fuel = stack_meta:get_int("fuel")
+function lightsource.restore_from_inventory(desc, pos, itemstack, nmeta, imeta)
+    nmeta = nmeta or core.get_meta(pos)
+    imeta = imeta or itemstack:get_meta()
+    local fuel = imeta:get_int("fuel")
     if not fuel then
-        meta:set_int("fuel", 0)
+        nmeta:set_int("fuel", 0)
     end
     if fuel > 0 then
-        meta:set_int("fuel", fuel)
+        nmeta:set_int("fuel", fuel)
     end
     if itemstack:get_name() == desc.lit_name then
         lightsource.start_burning(desc, pos)
-        lightsource.update_fuel_infotext(desc, pos, meta)
+        lightsource.update_fuel_infotext(desc, pos, nmeta)
     end
 end
 

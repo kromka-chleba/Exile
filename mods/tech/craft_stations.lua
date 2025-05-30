@@ -535,18 +535,18 @@ minetest.register_node(
 --IB
 
 -- used for transferring meta between placeable stations and their itemstacks to save creator meta
-local function station_preserve_metadata(pos, oldnode, oldmeta, drops)
+local function station_preserve_metadata(pos, oldnode, oldmeta, drops, imeta)
     local item = drops[1]
-    local imeta = item:get_meta()
+    imeta = imeta or item:get_meta()
     -- just steal meta from oldmeta (which will be fields)
     imeta:from_table({fields = oldmeta})
 end
 -- ditto to above
-local function station_after_place(pos, placer, itemstack, pointed_thing)
-    local imeta = itemstack:get_meta()
-    local meta = core.get_meta(pos)
+local function station_after_place(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+    imeta = imeta or itemstack:get_meta()
+    nmeta = nmeta or core.get_meta(pos)
     -- transfer from itemstack to node
-    meta:from_table(imeta:to_table())
+    nmeta:from_table(imeta:to_table())
 end
 
 

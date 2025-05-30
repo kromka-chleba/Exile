@@ -289,8 +289,9 @@ liquid_store.register_stored_liquid(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            if itemstack:get_meta():get_int("mothering") ~= 1 then return end
+        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+            imeta = imeta or itemstack:get_meta()
+            if imeta:get_int("mothering") ~= 1 then return end
             ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
         end,
         on_timer = function(pos, elapsed)
@@ -346,8 +347,9 @@ liquid_store.register_stored_liquid(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ncrafting.ferment_interval)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            if itemstack:get_meta():get_int("mothering") ~= 1 then return end
+        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+            imeta = imeta or itemstack:get_meta()
+            if imeta:get_int("mothering") ~= 1 then return end
             ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
         end,
         on_timer = function(pos, elapsed)
