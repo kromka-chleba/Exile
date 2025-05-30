@@ -817,12 +817,12 @@ if minetest.is_creative_enabled() then
         tiles = {
             "tech_paint_gp_spsq.png",
         },
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            local meta = minetest.get_meta(pos)
+        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+            nmeta = nmeta or core.get_node(pos)
             local serpos = minetest.serialize(pos)
-            meta:set_string("ztr_thispos", serpos)
+            nmeta:set_string("ztr_thispos", serpos)
 
-            local imeta = itemstack:get_meta()
+            imeta = imeta or itemstack:get_meta()
             local zoneid = hoist_zone(imeta, pos) -- hoist from inventory
             -- add this node to the zone's list of trigger positions
             local trigpos = zonelist[zoneid].triggerpos
@@ -832,7 +832,7 @@ if minetest.is_creative_enabled() then
             end
             trigpos[tcount] = pos
             -- move inventory, in case items are stored inside for mod triggers
-            local minv = meta:get_inventory()
+            local minv = nmeta:get_inventory()
             minv:set_size("main", 8*2)
             local iinv = minimal.string2invlists(imeta:get_string("inventory"))
             if iinv ~= "" and iinv ~= nil then
@@ -840,15 +840,15 @@ if minetest.is_creative_enabled() then
             end
             sink_zone(zonelist[zoneid]) -- save all new trigger info
         end,
-        preserve_metadata = function(pos, oldnode, oldmeta, drops)
-            local stack_meta = drops[1]:get_meta()
+        preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
+            imeta = imeta or drops[1]:get_meta()
             oldmeta.ztr_thispos = nil
             local def, _ = metaload(oldmeta)
-            metaset(stack_meta, def)
+            metaset(imeta, def)
             local oinv = minetest.get_meta(pos):get_inventory()
             local list = oinv:get_lists() -- #TODO: test when we have inv ztrigs
-            stack_meta:set_string("inventory", minimal.invlists2string(list))
-            stack_meta:set_string("tr_selected", oldmeta["tr_selected"])
+            imeta:set_string("inventory", minimal.invlists2string(list))
+            imeta:set_string("tr_selected", oldmeta["tr_selected"])
         end,
         on_dig = function(pos, node, digger)
             local meta = minetest.get_meta(pos)
