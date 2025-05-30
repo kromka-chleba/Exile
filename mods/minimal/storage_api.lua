@@ -33,6 +33,11 @@ function storage.get_storage_formspec(pos, w, h, meta)
         "field[1.5,"..label_offset..";4,1;label;"..
             S("Label")..":;"..label.."]",
         "field_close_on_enter[label;false]",
+        --[[fake button under Set to put the focus out of the field
+        without putting in on set
+        (which I think we could also could do without much harm)]]
+        'set_focus[labelset;true]',
+        "button[5,;0,0;dummy;]",
         "button[5,"..label_offset..";1,0.25;labelset;"..S("Set").."]",
         --"label["..craftedby_offset_x..","..trash_offset..";Crafted by:]",
         --"label["..creator_offset_x..","..(trash_offset+.35)..";"..creator.."]",
