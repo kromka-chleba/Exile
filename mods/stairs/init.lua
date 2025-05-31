@@ -214,11 +214,11 @@ function stairs.register_slab(subname, recipeitem, craft_station, recycle, recyc
                                        end
 
                                        -- else attempt to place node with proper param2
-                                       minetest.item_place_node(ItemStack(wield_item), placer, pointed_thing, p2)
-                                       if not minimal.player_in_creative(placer) then
-                                           itemstack:take_item()
+                                       if minimal.player_in_creative(placer) then
+                                          minetest.item_place_node(itemstack, placer, pointed_thing, p2)
+                                          return itemstack
                                        end
-                                       return itemstack
+                                       return minetest.item_place_node(itemstack, placer, pointed_thing, p2)
                                    else
                                        return rotate_and_place(itemstack, placer, pointed_thing)
                                    end
