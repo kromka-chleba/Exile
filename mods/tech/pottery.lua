@@ -572,16 +572,14 @@ register_lamps(
                 end
                 return minetest.item_place_node(itemstack, placer, pointed_thing, 0)
             end
-            def.preserve_metadata = function(pos, oldnode, oldmeta, drops)
-                local imeta = drops[1]:get_meta()
-                if (not oldmeta) then return end
-                if oldmeta.fuel then
-                    local loss =   100 + oldmeta.fuel * .05 * math.random(1,6)
-                    -- 100 + 5-30% loss
-                    local fuel = oldmeta.fuel - loss
-                    spilled_oil(pos, loss)
-                    imeta:set_string("fuel", fuel)
-                end
+            def.preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
+                if not (oldmeta and oldmeta.fuel) then return end
+                imeta = imeta or drops[1]:get_meta()
+                local loss =   100 + oldmeta.fuel * .05 * math.random(1,6)
+                -- 100 + 5-30% loss
+                local fuel = oldmeta.fuel - loss
+                spilled_oil(pos, loss)
+                imeta:set_string("fuel", fuel)
             end
             def.on_rotate = false
         end

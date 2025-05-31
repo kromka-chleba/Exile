@@ -200,9 +200,9 @@ minetest.register_node(
             -- lightsource.restore_from_inventory(pos, itemstack)
             lightsource.update_fuel_infotext(lantern_desc, pos)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            lightsource.restore_from_inventory(lantern_desc, pos, itemstack)
-            lightsource.update_fuel_infotext(lantern_desc, pos)
+        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+            lightsource.restore_from_inventory(lantern_desc, pos, itemstack, nmeta, imeta)
+            lightsource.update_fuel_infotext(lantern_desc, pos, nmeta)
         end,
         on_dig = function(pos, node, digger)
             minimal.protection_on_dig(pos,node,digger)
@@ -255,8 +255,8 @@ minetest.register_node(
         on_timer = function(pos, elapsed)
             return lightsource.burn_fuel(lantern_desc, pos)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            lightsource.restore_from_inventory(lantern_desc, pos, itemstack)
+        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+            lightsource.restore_from_inventory(lantern_desc, pos, itemstack, nmeta, imeta)
         end,
         on_dig = function(pos, node, digger)
             minimal.protection_on_dig(pos,node,digger)

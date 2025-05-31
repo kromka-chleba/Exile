@@ -868,12 +868,12 @@ local on_dig_fire = function(pos, node, digger)
 end
 
 --set saved fuel
-local after_place_fire = function(pos, placer, itemstack, pointed_thing)
-    local meta = minetest.get_meta(pos)
-    local stack_meta = itemstack:get_meta()
-    local fuel = stack_meta:get_int("fuel")
+local after_place_fire = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+    nmeta = nmeta or core.get_meta(pos)
+    imeta = imeta or itemstack:get_meta()
+    local fuel = imeta:get_int("fuel")
     if fuel >0 then
-        meta:set_int("fuel", fuel)
+        nmeta:set_int("fuel", fuel)
     end
 end
 

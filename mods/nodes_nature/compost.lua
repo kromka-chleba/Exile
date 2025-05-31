@@ -53,14 +53,14 @@ local function save_to_inventory(pos, node, digger)
     end
 end
 
-local function restore_from_inventory(pos, itemstack)
-    local meta = minetest.get_meta(pos)
-    local stack_meta = itemstack:get_meta()
-    local decomposition = stack_meta:get_int("decomposition")
+local function restore_from_inventory(pos, itemstack, nmeta, imeta)
+    nmeta = nmeta or core.get_meta(pos)
+    imeta = imeta or itemstack:get_meta()
+    local decomposition = imeta:get_int("decomposition")
     if decomposition < 1 then
-        meta:set_int("decomposition", compost_decomposing_time)
+        nmeta:set_int("decomposition", compost_decomposing_time)
     else
-        meta:set_int("decomposition", decomposition)
+        nmeta:set_int("decomposition", decomposition)
     end
 end
 
@@ -118,8 +118,8 @@ local base_undecomposed_compost = {
     on_dig = function(pos, node, digger)
         save_to_inventory(pos, node, digger)
     end,
-    after_place_node = function(pos, placer, itemstack, pointed_thing)
-        restore_from_inventory(pos, itemstack)
+    after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+        restore_from_inventory(pos, itemstack, nmeta, imeta)
     end
 }
 

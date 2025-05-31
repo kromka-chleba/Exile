@@ -54,12 +54,12 @@ end
 
 -- not used by thrown torches
 
-local after_place_node = function(pos, placer, itemstack, pointed_thing)
-    local meta = minetest.get_meta(pos)
-    local stack_meta = itemstack:get_meta()
-    local fuel = tonumber(stack_meta:get("fuel")) or base_fuel
+local after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+    nmeta = nmeta or core.get_meta(pos)
+    imeta = imeta or itemstack:get_meta()
+    local fuel = tonumber(imeta:get("fuel")) or base_fuel
     if fuel >0 then
-        meta:set_int("fuel", fuel)
+        nmeta:set_int("fuel", fuel)
     end
 end
 
@@ -277,9 +277,7 @@ minetest.register_node(
             minetest.get_node_timer(pos):start(
                 math.random(base_burn_rate-1,base_burn_rate+1))
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            after_place_node(pos, placer, itemstack, pointed_thing)
-        end,
+        after_place_node = after_place_node,
         on_timer =function(pos, elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
@@ -333,9 +331,7 @@ minetest.register_node(
             minetest.get_node_timer(pos):start(
                 math.random(base_burn_rate-1,base_burn_rate+1))
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            after_place_node(pos, placer, itemstack, pointed_thing)
-        end,
+        after_place_node = after_place_node,
         on_timer =function(pos, elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
@@ -389,9 +385,7 @@ minetest.register_node(
             minetest.get_node_timer(pos):start(
                 math.random(base_burn_rate-1,base_burn_rate+1))
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            after_place_node(pos, placer, itemstack, pointed_thing)
-        end,
+        after_place_node = after_place_node,
         on_timer =function(pos, elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")

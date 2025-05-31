@@ -64,23 +64,25 @@ local bonedef = {
         return is_owner(pos, name) and inv:is_empty("main")
     end,
 
-    after_place_node = function(pos, placer, itemstack, pointed_thing)
-        local stack_meta = itemstack:get_meta():to_table()
-        minetest.get_meta(pos):from_table(stack_meta)
+    after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+        imeta = imeta or itemstack:get_meta()
+        imeta = imeta:to_table()
+        nmeta = nmeta or core.get_meta(pos)
+        -- transfer data
+        nmeta:from_table(imeta)
     end,
 
-    preserve_metadata = function(pos, oldnode, oldmeta, drops)
-        local imeta = drops[1]:get_meta()
-        if (not oldmeta) then return end
-        if oldmeta.char_name and oldmeta.ex_origin then
-            local info = S("@1 of @2's bones",
-                           oldmeta.char_name, oldmeta.ex_origin)
-            imeta:from_table({
-                    fields = { char_name = oldmeta.char_name,
-                               ex_origin = oldmeta.ex_origin,
-                               description = info,
-                               infotext = info } })
-        end
+    preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
+        if not oldmeta or next(oldmeta) then return end
+        if not (oldmeta.char_name and oldmeta.ex_origin) then return end -- needs origin and name
+        imeta = imeta or drops[1]:get_meta()
+        local info = S("@1 of @2's bones",
+                       oldmeta.char_name, oldmeta.ex_origin)
+        imeta:from_table({
+                fields = { char_name = oldmeta.char_name,
+                           ex_origin = oldmeta.ex_origin,
+                           description = info,
+                           infotext = info } })
     end,
 
     allow_metadata_inventory_move = function(pos, from_list, from_index,

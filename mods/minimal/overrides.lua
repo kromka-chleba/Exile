@@ -139,13 +139,14 @@ minetest.register_on_mods_loaded(function()
             local old_preserve_metadata = override.preserve_metadata
             minetest.override_item(
                 oName, {
-                    preserve_metadata = function(pos, oldNode, oldmeta, drops)
-                        if drops[1] then
-                            local imeta=drops[1]:get_meta()
+                    preserve_metadata = function(pos, oldnode, oldmeta, drops)
+                        local imeta = drops[1] and drops[1]:get_meta()
+                        -- if item meta, provide additional parameter: itemstack meta
+                        if imeta then
                             minimal.metadata.preserve_metadata(imeta,oldmeta)
                             if type(old_preserve_metadata) == 'function' then
-                                old_preserve_metadata(pos, oldNode,
-                                                      oldmeta, drops)
+                                old_preserve_metadata(pos, oldnode,
+                                                      oldmeta, drops, imeta)
                             end
                         end
 
@@ -159,9 +160,10 @@ minetest.register_on_mods_loaded(function()
                         local imeta = itemstack:get_meta()
                         local meta = minetest.get_meta(pos)
                         minimal.metadata.after_place_node(imeta,meta)
+                        -- provides additional parameters: nodemeta, itemstack meta
                         if type(old_after_place_node) == 'function' then
                             old_after_place_node(pos, placer, itemstack,
-                                                 pointed_thing)
+                                                 pointed_thing, meta, imeta)
                         end
                     end,
             })

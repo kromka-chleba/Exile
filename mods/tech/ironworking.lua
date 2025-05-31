@@ -281,12 +281,12 @@ end
 
 --set saved
 local after_place_iron_and_slag = function(pos, placer, itemstack,
-                                           pointed_thing)
-    local meta = minetest.get_meta(pos)
-    local stack_meta = itemstack:get_meta()
-    local roast = stack_meta:get_int("roast")
+                                           pointed_thing, nmeta, imeta)
+    nmeta = nmeta or core.get_meta(pos)
+    imeta = imeta or itemstack:get_meta()
+    local roast = imeta:get_int("roast")
     if roast >0 then
-        meta:set_int("roast", roast)
+        nmeta:set_int("roast", roast)
     end
 end
 

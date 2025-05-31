@@ -19,14 +19,14 @@ local oldonrec = minetest.registered_nodes[tablenode].on_receive_fields
 minetest.override_item(
     tablenode,
     {
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
             if pos.y < 9000 then
                 oldafter(pos, placer, itemstack, pointed_thing)
                 return
             end
-            local meta = minetest.get_meta(pos)
-            meta:set_string("formspec", table_formspec_tutorial)
-            local inv = meta:get_inventory()
+            nmeta = nmeta or core.get_meta(pos)
+            nmeta:set_string("formspec", table_formspec_tutorial)
+            local inv = nmeta:get_inventory()
             inv:set_size("craft", 1)
             inv:set_size("craftresult", 1)
         end,
