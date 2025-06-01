@@ -54,6 +54,7 @@ local function cache_apply_filters(cache, optional_list)
     cache.FS_recipes = nil
     -- reset scroll bar to top
     cache.sScroll = 0 -- reset scrollbar to top
+    return cache
 end
 
 crafting.register_cache_function("apply_filters", cache_apply_filters)

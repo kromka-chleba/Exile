@@ -630,19 +630,22 @@ function crafting.process_receive_fields(player, formname, fields)
     -- process search buttons
     -- clear search
     if fields.search_reset then
-        return cache:set_text_search_to(nil)
+        if cache:set_text_search_to(nil) then
+            return cache
+        end
     end
     -- search field change
-    if fields.craft_filter or
-        fields.key_enter_field == "crafting_search" then
-        return cache:set_text_search_to(fields.crafting_search)
+    if fields.craft_filter or fields.key_enter_field == "crafting_search" then
+        if cache:set_text_search_to(fields.crafting_search) then
+            return cache
+        end
     end
 
     -- process input filter
     if fields.i_filter then
         cache.input_filter = (fields.i_filter == "true")
         -- #TODO improve that and the set_text_search to not recalculate all recipes craftable states
-        cache:apply_filters()
+        return cache:apply_filters()
     end
 
     -- process "hint" button"
