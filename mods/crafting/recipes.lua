@@ -16,6 +16,11 @@ local function generate_pr_item(recipe_item)
 end
 
 local function generate_pr_items(recipe_items)
+    -- could happen if called with recipe.tool and we have no tool
+    if recipe_items == nil then
+        return nil
+    end
+    -- if not nil (ni input should be {}) generate liste
     local pr_items = {}
     for row, rowItems in ipairs(recipe_items) do
         local pr_it = {}
@@ -41,6 +46,8 @@ player_recipe.__index = player_recipe
     }
 ]]
 -- player state
+-- TODO update the doc
+-- WARNING: we can only have one tool
 local function generate_p_recipe(recipe)
     local result = {
         recipe = recipe,
@@ -49,16 +56,11 @@ local function generate_p_recipe(recipe)
            [criteria.. "_have"] - number I have
            [criteria.. "_have"] - max craft number
         ]]
+        pr_tool = generate_pr_item(recipe.tool),
         -- #TODO separate desc and craftable
         unlocked = nil, -- is unlocked
         displayed = true -- will it be displayed in GUI
     }
-    -- if I have a tool in recipe
-    -- currently I can only have one
-    -- TODO add this limitatin in documentation
-    if recipe.tool then
-        result.pr_tool = generate_pr_item(recipe.tool)
-    end
     setmetatable(result, player_recipe)
     return result
 end

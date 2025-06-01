@@ -124,21 +124,16 @@ local item_funcs = {}
 item_funcs.__index = item_funcs
 
 --[[ generate a list per input item of a recipe
-* Returns `items` - a table with
-TODO not uptodate
+* Returns `item_details` - a table with
     * index : item's name
     * value : a list with those parameters :
         * `name` = name of the item
+        * `gstats` = groups stats if item is a group, nil else
+        * `description` = description of the item
         * `short` = description of the item to be displayed in recipe panel
         * `need` = the number we need for the recipe
-        -- if itemhash is given (else added in update_item function)
-        * `have` = the number we have in item_hash
-        * `partial` = `true` if we have some of the needed
-        * `available` = `true` if we have more than needed
 This will be used to display custom infotext on recipe panel
-#TODO currently not used in actual crafting I think (lili)
 ]]
--- #TODO dscription field could be common for all player, in main recipe
 local function generate_item_details(input_item)
     if not input_item then
         return nil
@@ -159,10 +154,10 @@ local function generate_item_details(input_item)
             gstats = gstats, -- nil if not a group
             description = def.description,
             short = def._orig_desc,
-            -- as function to avoid accidental modification
             need = stack:get_count()
         }
     end
+    -- adds item_functs dedicated default functions
     setmetatable(item_details, item_funcs)
     return item_details
 end
@@ -198,6 +193,9 @@ end
     * `type`         - one of the registered types.
     * `output`       - the result of the craft, eg: `default:stone 3`.
     * `items`        - A list of ingredients, eg: `{"stone", "wood 3"}`.
+    * `tool`         - An item used as tool (not consumed)
+                       eg: `"nodes__nature:sand"`.
+                       WARNING: we curently can use only one tool
     * `level`        - level of station required.
     * `always_known` - If true, this recipe will never need to be unlocked.
     * `replace`      - to deal with replacement
@@ -231,7 +229,9 @@ function crafting.register_recipe(def)
         recipe_error("expected number for 'level', got '"..type(def.level).."'")
     end
     -- always_known boolean, set to true unless otherwise specified
-    def.always_known = type(def.always_known) ~= "boolean" and true or def.always_known
+    if type(def.always_known) ~= "boolean" then
+        def.always_known = true
+    end
     -- Can be more then one craft station for a recipe
     -- Need to store as a table.
     def.type = type(def.type) == 'string' and {def.type} or def.type
@@ -271,9 +271,15 @@ function crafting.register_recipe(def)
     end
 
     -- custom sound per recipe
+    if type(def.sound) == "string" then
+        def.sound = {name = def.sound}
+    end
+    -- if invalid sound, remove
     -- permits "false" to prevent playing of crafting station sound
-    def.sound = type(def.sound) == "string" and {name = def.sound} or type(def.sound) == "table" and def.sound or
-        def.sound ~= false and nil
+    if type(def.sound) ~= "table" and def.sound ~= false then
+        def.sound = nil
+    end
+
     if def.sound then
         def.sound.max_hear_distance = def.sound.max_hear_distance or 10
     end
@@ -296,10 +302,10 @@ recipe_funcs.available_level = function (self, p_level)
 end
 
 -- Check of recipe validity ---------------------------------------------------
-
 do
     -- find every variant (item name) of a recipe item, including groups
     local function add_items_names(r_item, list)
+        -- if there is a custome function for that us it
         if r_item.get_items_names then
             local l = r_item.get_items_names()
             for _, name in ipairs(l) do
@@ -309,6 +315,8 @@ do
             local itemName = r_item.name
             local group_stats = crafting.get_group_stats(itemName)
             if group_stats then
+                -- get items matching group name, or item matching unit if nothing in name
+                -- (case of group:/pot for example)
                 local t = crafting.get_group_items(group_stats.name)
                         or crafting.get_group_items(group_stats.unit)
                 if not t then
@@ -328,8 +336,9 @@ do
     end
 
     -- TODO add to readme
-    -- input is item or grouptag
+    -- input is recipe input item or grouptag
     function crafting.get_input_variants(r_item)
+        -- if there is a custome function for that us it
         if r_item.get_items_names then
             return r_item.get_items_names()
         else
@@ -389,12 +398,14 @@ end
 
 -- Testing and Crafting functions -------------------------------------------
 
--- test if item is fully available or not in item_hash
--- doesn't update the item
--- WARNING, tool should not also be used as ingredient, because else it could give false posive
--- TODO maybe copy item_ash to modify it
--- have = 0 if not present
--- returns have --, available (boolean)
+--[[ Returns how many ItemStacks matches with `it` in `item_hash`
+    * doesn't update the item
+    * returns 0 if none present]]
+--[[WARNING, tool should not be also used as ingredient, because else it could give false posive.
+For that, TODO maybe copy item_ash to modify it]]
+
+-- returns have --, available (boolean)]]
+-- TODO (not sure yet if I keep sending the second info or not)
 local function test_item (it, item_hash)
     if not item_hash then
         core.log("in recipes.lua 'test_item' : item_hash is missing") -- #TODO better check
@@ -402,9 +413,11 @@ local function test_item (it, item_hash)
     end
     local have = 0
     local gstats = it.gstats
-    if not gstats then -- if not a group, just take the items
+    -- if it is not a group, just count the number of it I have in item_hash
+    if not gstats then
         have = item_hash[it.name] and item_hash[it.name].count or 0
-    else -- else parse item_hash to find matching items
+    -- else parse item_hash to find matching items with it group
+    else
         for name, t in pairs(item_hash) do
             if t.groups and gstats:does_match(nil, t.groups) then
                 have = have + t.count
@@ -420,10 +433,10 @@ end
 -- have what I initially have (for loops ?)
 item_funcs.test_item = test_item
 
--- Find maximum number of outputs we can craft from our inventory
+-- Find maximum number of times we can craft that recipe with what it in tiem_hash provided
 -- TODO update to not use that weird item_hash format
 -- TODO could be improved to also get to_take table ?
-local find_max_craftable = function (recipe, item_hash)
+recipe_funcs.find_max_craftable = function(recipe, item_hash)
     if not item_hash then
         error("in find_max_craftable for recipe "
         .. recipe.output
@@ -431,10 +444,10 @@ local find_max_craftable = function (recipe, item_hash)
         return
     end
 
-    -- final result
-    local max_count
+    -- final results
+    local max_count -- max time we can craft the recipe
     -- (we will continue parsing even if "false" already to be able to get the recipe_state)
-    local states = {}
+    local states = {} -- recipe state
 
     -- (we will continue parsing even if "false" already to be able to get the recipe_state)
     -- test tool
@@ -446,7 +459,7 @@ local find_max_craftable = function (recipe, item_hash)
         end
     end
 
-    states.items = {}
+    states.items = {} -- stores the have/max state of items
     -- check each row of input items
     for i, row in ipairs(recipe.items) do
         states.items[i] = {}
@@ -480,8 +493,7 @@ local find_max_craftable = function (recipe, item_hash)
         -- elseif previous max_count is inferior to that row, don't up
     end
 
-    --[[ if not item table
-        (like for sleeping spot, free craft)
+    --[[ if not item table (like for sleeping spot, free craft)
         then I didn't parse and max_count was not affected
         -> put 1 as default]]
     if not max_count then
@@ -490,5 +502,3 @@ local find_max_craftable = function (recipe, item_hash)
 
     return max_count, states
 end
-
-recipe_funcs.find_max_craftable = find_max_craftable

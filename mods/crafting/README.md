@@ -37,20 +37,20 @@ be used twice: `default:wood, group:wood`.
 
 ### Groups
 
-* crafting.get_group_items(g_name)
+* crafting.get_group_items(`g_name`)
     * returns a lits of all registered items being in that group
     * `g_name` is the group's name
 
-* crafting.get_group_stats(grouptag)
-    * Returns a table of fields included in string grouptag
+* crafting.get_group_stats(`grouptag`)
+    * Returns a table of fields extracted from given string `grouptag`
 
     * `grouptag` is a string to be used in recipes
-    Format is group:<groupname>,<groupnumcondition>,<unit>
+    Format is `"group:<groupname>,<groupnumcondition>/<unit>"`
         * `groupname` is mandatory name of the group
         * `groupnumcondition` (optional) is required group's number (3,8) or condition (>2 or <6)
         * `unit` (optional) is the unit required. Ex: "pot"
 
-    Ex: "group:freshwater,1/pot>"
+    Ex: `"group:freshwater,1/pot"`
 
     * Following fields are created:
         * `name` the name of the group (groupname)
@@ -65,7 +65,7 @@ be used twice: `default:wood, group:wood`.
 
 ### Crafting types
 
-* crafting.register_type(name, label, icon_item_name, sound)
+* crafting.register_type(`name`, `label`, `icon_item_name`, `sound`)
 	* Register a type `type` used for tabs and recipes sorting
         * `name`  - name of the type in code
         * `label` - label of the type displayed in game. Translated
@@ -76,15 +76,15 @@ be used twice: `default:wood, group:wood`.
 * crafting.reset_craft_types()
     * Deletes all registered craft types
 
-* crafting.is_type_registered(name)
+* crafting.is_type_registered(`name`)
     * Returns `true` if type is already registered, `false` else.
 
-* crafting.get_type(name)
+* crafting.get_type(`name`)
     * Returns the type's table
     See `crafting.register_type` for the fields
 
-* crafting.get_recipes_by_type(name)
-    * Returns crafting.get_type(name).recipes
+* crafting.get_recipes_by_type(`name`)
+    * Returns crafting.get_type(`name`).recipes
     *  `nil` if `name` is not a registered type
 
 * crafting.get_registered_types_names()
@@ -92,17 +92,66 @@ be used twice: `default:wood, group:wood`.
 
 ### Recipes
 
-* crafting.register_recipe(def)
-	* Returns id.
+* crafting.register_recipe(`def`)
 	* `def` a table with the following fields:
 		* `type`   - one of the registered types.
 		* `output` - the result of the craft, eg: `default:stone 3`.
 		* `items`  - A list of ingredients, eg: `{"stone", "wood 3"}`.
+        * `tool`   - An item used as tool (not consumed)
+                     eg: `"nodes__nature:sand"`.
+                     WARNING: we curently can use only one tool
 		* `level`  - level of station required.
 		* `always_known` - If `true`, this recipe will never need to be unlocked.
         * `replace`
         * `sound` - sound to be played when we use that recipe. Overrides default crafting type sound.
         * `_display` - string of image to display in recipe panel
+    * Stores table `def` in recipes_by_id table and returns `id`
+    * Inherits from `recipe_funcs` table
+    * `items` and `tool` will be modified after registration to become table of `recipe_item` objects instead of string (see below)
+
+* `recipe_item` format is the following
+    * index: item's name
+    * value : a list with those parameters :
+        * `name` = name of the item
+        * `gstats` = groups stats if item is a group, nil else
+        * `description` = description of the item
+        * `short` = description of the item to be displayed in recipe panel
+        * `need` = the number we need for the recipe
+    * object inherit functions from `item_funcs` table (see below)
+
+#### `item_funcs` functions
+
+* `recipe_item`:test_item (`item_hash`)
+    * Returns how many ItemStacks matches with our `recipe_item` in `item_hash`
+    * doesn't update the item
+    * `item_hash` has following format:
+            item_hash[itemname] = {
+                count = how manye I have from that item,
+                groups = groups from item's definition table
+                }
+    * returns 0 if none present
+
+#### `recipe_func` functions
+
+* `recipe`:available_level (`player_level`)
+    * Returns `true` is `player_level` is bigger then recipe.level
+
+* `recipe`:find_max_craftable(`item_hash`)
+    * Find maximum number of times we can craft that recipe using `item_hash`
+    * `item_hash` has following format:
+            item_hash[itemname] = {
+                count = how manye I have from that item,
+                groups = groups from item's definition table
+            }
+    * Returns 2 values:
+        1) The max count (number)
+        2) A states table with following format :
+            {
+            tool = {have = number I have}
+            items = {{have = number I have, max = max I can validate}}
+            }
+
+#### Other functions
 
 * crafting.get_recipes()
     * Get global recipes table, with id as index
@@ -110,58 +159,74 @@ be used twice: `default:wood, group:wood`.
 * crafting.get_recipe(id)
 	* Get recipe by ID
 
-* crafting.get_unlocked(name)
+* crafting.get_unlocked(`name`)
 	* `name` is the player's name
 	* Returns a dictionary of recipe output to boolean.
 
-* crafting.lock_all(name)
+* crafting.lock_all(`name`)
     * `name` is the player's name
 
-* crafting.unlock(name, v)
+* crafting.unlock(`name`, `v`)
 	* `name` is the player's name
 	* `v` is a single output or list of outputs
 
+
 ### Player_recipes
 
-* crafting.get_player_recipes(player_name, ctype)
-    * Returns a list of `player_recipe` table for `ctype` as craft type
-    * `player_recipe` is a table with following fields:
-        * `recipe`: the common recipe's def table
-        * `it_details`: detailled list of items:
-            * index : item's name
-            * value : a list with those parameters :
-                * `name` = name of the item
-                * `short` = description of the item to be displayed in recipe panel
-                * `need` = the number we need for the recipe
-                -- if itemhash is given (else added in update_item function)
-                * `have` = the number we have in item_hash
-                * `available` = `true` if we have more than needed
-        * `craftable`: craftable state, boolean
-        * `displayed`: true if recipe should be displayed in GUI
-        * `to_take`, `possible`, `to_move` fields can be added later
-        * has following function in metatable.
+####  `player_recipe` Object
 
-#### Object `player_recipe` functions
+This is meant to have a custom recipe object per player, so we can change craftable/possible state, without impacting registered recipe.
 
-* update_craftable_state (self, item_hash)
-    * Check ingredients in `item_hash` to update `craftable` and `to_take` fields for that recipe
-    * `craftable` is boolean (craftable or not)
-    * `to_take` is a list of items to take to craft it
+* `player_recipe` is a table with following fields :
+{
+    * `recipe` = recipe's defintion as registered,
+    * `pr_items` = table of input items, each item beeing a table with following format :
+        {
+        * `def` = item as in recipe's registration
+        we can add following fields with "criteria_" as prefix
+        * `criteria.. "_have"` - number I have
+        * `criteria.. "_have"` - max craft number
+        acces functions to avoid accidentally update original recipe
+        * `get_name`() = function to acces the item's name
+        * `get_needed`() = function to access required number
+         }
+
+    * `pr_tool` = same format as item but with recipe.tool
+    * `unlocked`  : boolean. `true` if the recipe is unlocked
+    * `displayed`  : boolean. `true` to be displayed in GUI
+}
+
+#### `player_recipe` functions
+
+* `player_recipe`:update_state(`pr`, `item_hash`, `criteria`)
+    * stores the state of a recipe from `recipe`:find_max_craftable(`item_hash`)
+    * criteria can be any string, data will be stored in fields
+        * `criteria .. "_have"`
+        * `criteria .. "_max"`
     * WARNING: only check inputs, do not check new unlocked recipes
 
-* update_possible_state (self, item_hash)
-    * same as `update_craftable_state` but with `possible` and `to_move` fields
-    * `to_move` is a list of itmes to take in `item_hash` to make the recipe craftable (if `possible`)
+* `player_recipe`:get_to_take(`count`)
+    * send the list of item to take to be able to craft the recipe `count` times
 
-* available_level (self, p_level)
-    * returns `true` if recipe's level is <= `p_level`
+* `player_recipe`:get_to_move(`count`)
+    * send the list of item to move to input panel to be able to craft the recipe `count` times
+
+#### Other functions
+
+* crafting.generate_p_recipe(`recipe`)
+    * generates a `player_recipe` object from `recipe`
+    * `recipe` being a recipe object after registration
+
+* crafting.get_player_recipes(`player_name`, `ctype`)
+    * Returns a list of `player_recipe` table for `ctype` as craft type
 
 ### Craft (api.lua)
 
-* crafting.register_on_craft(func)
+
+* crafting.register_on_craft(`func`)
   * register a function to be called at each craft
 
-* crafting.set_item_hash_from_list(inv, listname, item_hash)
+* crafting.set_item_hash_from_list(`inv`, `listname`, `item_hash`)
 	* Iterates through the list and adds or updates entries in item_hash
 	  with follwing format:
       {[`item name`] = {
@@ -169,11 +234,11 @@ be used twice: `default:wood, group:wood`.
         `groups` = groups from item's definition table
       }
 
-* crafting.get_item_hash(pInv, inv_lists)
+* crafting.get_item_hash(`pInv`, `inv_lists`)
     * Returns an item_list from all selected inv list
     * Like crafting.set_item_hash_from_list but mixing all lists given in inv_list as one list.
 
-* crafting.can_craft(name, ctype, level, recipe)
+* crafting.can_craft(`name`, `ctype`, `level`, `recipe`)
     * Returns `true` if
         * `recipe` is unlocked
         * and its type matchs with `ctype`
