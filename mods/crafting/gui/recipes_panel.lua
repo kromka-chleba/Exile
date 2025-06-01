@@ -306,7 +306,7 @@ local function push_recipe(cache, btn_id, player, player_name)
             -- TODO I think I reset in double ? because I reset after in process
             cache.FS_recipes = nil
             cache.to_sort = true
-            return true -- crafted
+            return true -- need to refresh formspec
         end
 
     -- else if recipe is possible, transfer
@@ -336,8 +336,7 @@ local function push_recipe(cache, btn_id, player, player_name)
         -- TODO ah but I change order when it passes to craftable !!
     else
         minimal.warn_message(player, player_name, S("Missing required items!"))
-        return true -- failed but we handled it
-        -- #TODO: really ? should be false ?
+        return false -- do not refresh recipe_panel
     end
 end
 

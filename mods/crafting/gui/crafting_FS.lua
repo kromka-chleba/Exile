@@ -309,14 +309,14 @@ function crafting.make_crafting_formspec(player)
     -- if needed color the inventory
 
     local input_mode = cache:get_craft_mode()
-    local bg_color = input_mode.m_color
+    local main_color = input_mode.m_color
     -- background color of main inventory list
     -- #TODO maybe change that in table
     if cache.possible_hint then
-            bg_color = p_color  -- possible color
+            main_color = p_color  -- possible color
     end
-    if bg_color then
-        output[#output + 1] = "box[-0.18,-0.18;10.1,2.6;".. bg_color .. "]"
+    if main_color then
+        output[#output + 1] = "box[-0.18,-0.18;10.1,2.6;".. main_color .. "]"
     end
 
     -- display main inventory list
@@ -421,9 +421,9 @@ function crafting.make_crafting_formspec(player)
     local function FS_input_list ()
         local fs = {}
         -- background color
-        local bg_color = cache:get_craft_mode().i_color
+        local input_color = cache:get_craft_mode().i_color
         -- #TODO put as setting the color of craftable
-        fs[#fs + 1] = "box[-0.07,-0.4;2.7,3.24;" .. bg_color .. "]"
+        fs[#fs + 1] = "box[-0.07,-0.4;2.7,3.24;" .. input_color .. "]"
 
         -- label
         -- fs[#fs + 1] = 'label[0,0;'..S("Ingredients:")..']',
@@ -525,9 +525,10 @@ function crafting.set_page(player, selected_tab_number)
 
 end
 
-
--- Call when the inventory formspec is closed to clear cache
--- returns name of next sfinv opening page
+--[[ Called when the inventory formspec is closed to clear cache
+    * get input items back in main
+    * returns name of next sfinv opening page
+]]
 function crafting.close_crafting_formspec(player, cache)
     -- fives back items in input panel to main inv
     get_inputs_back_in_inv(player)
@@ -582,11 +583,6 @@ function crafting.process_receive_fields(player, formname, fields)
         return
     end
 
-    -- flag to skip processing buttons and skip to saving changes.
-    -- #TODO can't it be replaced by "return true" ?
-    -- seems we do FS_cache[player_name] = cache first
-    local done = false
-
     -- Process quit
     -- called when escaping the formspec using inventory key
     if fields.quit then
@@ -601,24 +597,17 @@ function crafting.process_receive_fields(player, formname, fields)
         crafting.close_crafting_formspec(player, cache)
         return cache
     end
+
     -- process scrollbar
     if fields.recipes_scroll then
         local value = fields.recipes_scroll
+        -- if there is any change
         local scroll = tonumber(string.match(value, "CHG:([0-9]+)"))
         if scroll and scroll ~= cache.sScroll then
             cache.sScroll = scroll
             cache.FS_recipes = nil
             --stop processing fields and go to saving changes
-            done = true
-        else
-            scroll = tonumber(string.match(value, "VAL:([0-9]+)"))
-            if scroll and scroll ~= cache.sScroll then
-                cache.sScroll = scroll
-                cache.FS_recipes = nil
-                -- continue processing fields
-                done = false
-                -- VAL: scrollbar responses produced on button pushes
-            end
+            return cache
         end
     end
 
@@ -634,7 +623,7 @@ function crafting.process_receive_fields(player, formname, fields)
             cache.FS_input_list = nil
             -- refresh recipe panel
             cache:reset_recipes()
-            done=true -- #TODO check the use
+            return cache
         end
     end
 
@@ -664,14 +653,14 @@ function crafting.process_receive_fields(player, formname, fields)
         meta:set_int("crafting:possible_hint", cache.possible_hint and 1 or 0)
         -- #TODO improve the temporary part and reset button
         cache:reset_recipes()
-        done = true -- #TODO what does it do ? do I want it here ?
+        return cache
     end
 
     -- process get recipes button
     if fields.refresh_r then
         cache.updated = true
         cache:reset_recipes()
-        done = true
+        return cache
     end
     -- process new craft tabs
     for i = 1, #(cache.cTabs), 1 do
@@ -684,69 +673,64 @@ function crafting.process_receive_fields(player, formname, fields)
         end
     end
 
-    -- if skipping button is "false"
-    if not done then
-        -- processing quantity buttons
-        -- if user checks something to true, register that in cache
-        for i, ibtn in ipairs({'qty1','qty2','qty3'}) do
-            -- if we check the box, change the quantity
-            if fields[ibtn] then
-                -- if I activate an other qty
-                if fields[ibtn] == 'true' and cache.qty ~= i then
-                    cache.qty = i
-                    cache:process_max_label ()
-                    return cache -- force redraw of formspec
-                -- if I desactivate selected qty, pass back to "Single"
-                elseif fields[ibtn] == 'false' then
-                    cache.qty = 1
-                    cache:process_max_label ()
-                    return cache -- force redraw of formspec
-                end
-                -- else do nothing (return nil)
+    -- processing quantity buttons
+    -- if user checks something to true, register that in cache
+    for i, ibtn in ipairs({'qty1','qty2','qty3'}) do
+        -- if we check the box, change the quantity
+        if fields[ibtn] then
+            -- if I activate an other qty
+            if fields[ibtn] == 'true' and cache.qty ~= i then
+                cache.qty = i
+                cache:process_max_label ()
+                return cache -- force redraw of formspec
+            -- if I desactivate selected qty, pass back to "Single"
+            elseif fields[ibtn] == 'false' then
+                cache.qty = 1
+                cache:process_max_label ()
+                return cache -- force redraw of formspec
             end
-        end
-
-        local function process_button(key,btypes)
-            for _,prefix in ipairs(btypes) do
-                if key:sub(1, #prefix) == prefix then
-                    local num = string.match(key, prefix.."_([0-9]+)")
-                    if num then
-                        return prefix, num
-                    end
-                end
-            end
-            return nil,nil -- button types not found
-        end
-        --[[ process all fields for button pushes.
-            used for recipes crafting]]
-        local btn_type
-        local btn_id
-        for btn, value in pairs(fields) do
-            btn_type,btn_id = process_button(
-                btn,{'sResult','b_sTool'})
-            if btn_type ~= nil then
-                break       -- We found a button
-            end
-        end
-        if btn_type then
-            -- if we changed tool
-            if btn_type == 'b_sTool' then
-                local tool = cache.tool_list[tonumber(btn_id)]
-                cache:tool_change(tool)
-
-            -- if we pushed a recipe button
-            elseif btn_type == 'sResult' then
-                if cache:push_recipe(tonumber(btn_id), player,  player_name) then
-                    return cache
-                end
-            end
-            -- any button pushes require recipes to be redrawn
-            -- #TODO was already done in craft_recipe
-            cache.FS_recipes = nil
+            -- else do nothing (return nil)
         end
     end
-    FS_cache[player_name] = cache
-    return cache
+
+    -- processin buttons with id
+    local function process_button(key,btypes)
+        for _,prefix in ipairs(btypes) do
+            if key:sub(1, #prefix) == prefix then
+                local num = string.match(key, prefix.."_([0-9]+)")
+                if num then
+                    return prefix, num
+                end
+            end
+        end
+        return nil,nil -- button types not found
+    end
+    --[[ process all fields for button pushes.
+        used for recipes crafting]]
+    local btn_type
+    local btn_id
+    for btn, value in pairs(fields) do
+        btn_type,btn_id = process_button( btn,{'sResult','b_sTool'})
+        if btn_type ~= nil then
+            break       -- We found a button
+        end
+    end
+
+    if btn_type then
+        -- if we changed tool
+        if btn_type == 'b_sTool' then
+            local tool = cache.tool_list[tonumber(btn_id)]
+            if cache:tool_change(tool) then
+                return cache
+            end
+        -- if we pushed a recipe button
+        elseif btn_type == 'sResult' then
+            if cache:push_recipe(tonumber(btn_id), player,  player_name) then
+                return cache
+            end
+        end
+    end
+
 end
 
 --------------------------------------------------------------------------------

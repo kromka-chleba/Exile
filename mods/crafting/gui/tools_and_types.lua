@@ -253,5 +253,8 @@ crafting.register_cache_function("tool_change",
     -- if I don't change the tool, don't change the tabs and recipes
     if self.sTool ~= tool then
         self:set_tool(tool)
+        return true -- refresh formspec
+    else
+        return false -- don't refresh formspec
     end
 end)
