@@ -52,13 +52,14 @@ local function set_item_hash_from_list(inv, listname, item_hash)
             local itemname = stack:get_name()
             local def = minetest.registered_items[itemname]
             if not def then
-                error("no def ! for " .. itemname)
+                -- happends if a mod is missing, with unknown items
+                core.log("no def ! for " .. itemname)
             end
             -- add its count to item_hash[its name]
             if not item_hash[itemname] then
                 item_hash[itemname] = {
                     count = stack:get_count(),
-                    groups = def.groups
+                    groups = def and def.groups or {}
                 }
             else
                 item_hash[itemname].count = item_hash[itemname].count + stack:get_count()
