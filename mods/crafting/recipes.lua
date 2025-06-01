@@ -3,7 +3,11 @@ local crafting = crafting
 -- check craftable states , get details of recipes per player and itemhash -----
 --------------------------------------------------------------------------------
 local function generate_pr_item(recipe_item)
-    return {
+    -- could happen if called with recipe.tool and we have no tool
+    if recipe_item == nil then
+        return nil
+    else
+        return {
              def = recipe_item,
              --[[ we can add following fields with "criteria_" as prefix
                 [criteria.. "_have"] - number I have
@@ -12,15 +16,11 @@ local function generate_pr_item(recipe_item)
              -- acces functions to avoid accidentally update original recipe
              get_name = function() return recipe_item.name end,
              get_needed = function() return recipe_item.need end
-         }
+        }
+    end
 end
 
 local function generate_pr_items(recipe_items)
-    -- could happen if called with recipe.tool and we have no tool
-    if recipe_items == nil then
-        return nil
-    end
-    -- if not nil (ni input should be {}) generate liste
     local pr_items = {}
     for row, rowItems in ipairs(recipe_items) do
         local pr_it = {}

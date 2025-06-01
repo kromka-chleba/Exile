@@ -135,13 +135,14 @@ item_funcs.__index = item_funcs
 This will be used to display custom infotext on recipe panel
 ]]
 local function generate_item_details(input_item)
-    if not input_item then
-        return nil
-    end
     local item_details
     -- if item is a function, use that one to generate
     if type(input_item) == "function" then
         item_details = input_item()
+    -- else if no input_item or type is not string
+    -- (maybe format is alread transdormed if the caller used the same item table for many recipes)
+    elseif type(input_item) ~= "string"  then
+        return nil
     else -- else, use default generation
         local gstats = crafting.get_group_stats(input_item)
         local stack = ItemStack(input_item)
