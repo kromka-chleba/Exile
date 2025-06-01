@@ -56,7 +56,7 @@ sfinv.override_page(homepage_name, {
 -- adds a dependency to sfinv
 core.register_on_mods_loaded( function ()
     local tab_list = {}
-    if minetest.is_creative_enabled() and core.global_exists("creative") then
+    if core.global_exists("creative") then
         for _, name in ipairs(creative.tab_list) do
             tab_list[#tab_list +1] = "creative:"..name
         end
