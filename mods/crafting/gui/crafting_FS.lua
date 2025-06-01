@@ -566,40 +566,6 @@ function crafting.close_crafting_formspec(player, cache)
     return "crafting:crafting"
 end
 
--- TODO pass as player_recipe function, so it can update on various change, like change of input, list, etc
-local function process_max_label (cache, r_lists)
-    if not r_lists then
-        r_lists = {cache.recipes}
-    end
-    if type(r_lists) ~= "table" then
-        core.log ("in process_max_label in crafting, r_lists is not a table")
-        return
-    end
-    local inv = cache.pInv -- TODO improve
-    for _, r_list in pairs(r_lists) do
-        for _, r in pairs(r_list) do
-            if r.craftable then
-                --#TODO I need to improve the way cache.item_hash is assigned/modified
-                if not cache.item_hash then
-                -- TODO shoudln't happen right ?
-                    cache.item_hash = cache:get_input_hash(inv)
-                end
-                r.count = cache:get_craft_count(r, cache.item_hash)
-            elseif r.possible then
-                local item_hash = crafting.get_item_hash(inv, {"main", "input_items"})
-                r.count = cache:get_craft_count(r, item_hash)
-            else
-                r.count = nil
-            end
-        end
-    end
-    -- TODO better way to refresh recipes panel ?
-    cache.FS_recipes = nil
-    return true -- need to redo formspec ?
-end
-
--- currently unused, but could be usefull in recipes_panel.lua ?
-cache_func.process_max_label = process_max_label
 
 -- return true if something changed, false else
 function crafting.process_receive_fields(player, formname, fields)
@@ -728,14 +694,12 @@ function crafting.process_receive_fields(player, formname, fields)
                 -- if I activate an other qty
                 if fields[ibtn] == 'true' and cache.qty ~= i then
                     cache.qty = i
-                    process_max_label (cache)
-                    cache.FS_recipes = nil -- reset recipe panel
+                    cache:process_max_label ()
                     return cache -- force redraw of formspec
                 -- if I desactivate selected qty, pass back to "Single"
                 elseif fields[ibtn] == 'false' then
                     cache.qty = 1
-                    process_max_label (cache)
-                    cache.FS_recipes = nil -- reset recipe panel
+                    cache:process_max_label ()
                     return cache -- force redraw of formspec
                 end
                 -- else do nothing (return nil)
