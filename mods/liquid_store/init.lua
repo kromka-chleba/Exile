@@ -379,8 +379,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
         end
         local def = itemstack:get_definition()
         if def.sounds and def.sounds.pour then
-            local sound = def.sounds.pour
-            minimal.sound_play(minimal.merge_tables(sound,{pos = ppos}))
+            minimal.sound_play(ppos, def.sounds.pour)
         end
         minimal.switch_node(ppos, stored, {user, itemstack, pointed_thing})
         return handle_stacks(user, itemstack, nodename_empty)

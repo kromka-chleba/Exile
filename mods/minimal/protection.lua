@@ -154,7 +154,7 @@ function minimal.protection_nail_use( user, itemstack, pos, meta )
     -- check for hammering sound and play it
     local idef = itemstack:get_definition()
     if idef.sounds and idef.sounds.nail_down then
-        minimal.sound_play(minimal.merge_tables(idef.sounds.nail_down, {pos = pos}))
+        minimal.sound_play(pos, idef.sounds.nail_down)
     end
     return itemstack
 end

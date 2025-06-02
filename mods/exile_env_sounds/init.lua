@@ -116,15 +116,10 @@ local function update_sound(player)
 
         if exotics >= 1 then
 
-            minimal.sound_play(
-                        "env_sounds_exotics",
-                         {
-                            pos = posav(lpos, exotics),
-                            to_player = player_name,
-                            pitch = {0.9,1.1},
-                            gain = min(0.3 + exotics * 0.01, 1),
-                        }
-                    )
+            minimal.sound_play(posav(lpos, exotics), {
+                name = "env_sounds_exotics", to_player = player_name,
+                pitch = {0.9, 1.1}, gain = min(0.3 + exotics * 0.01, 1)
+            })
 
             minetest.add_particlespawner({
                 amount = 12,
@@ -237,47 +232,29 @@ local function update_sound(player)
                 local roll = ran()
                 if roll < 0.25 then
 
-                    minimal.sound_play(
-                        "env_sounds_haunt",
-                         {
-                            pos = ranpos,
-                            to_player = player_name,
-                            pitch = {0.08,0.4},
-                            gain = 1.4-math.abs(r/15),
-                        }
-                    )
+                    minimal.sound_play(ranpos, {
+                        name = "env_sounds_haunt", to_player = player_name,
+                        pitch = {0.08, 0.4}, gain = 1.4-math.abs(r/15)
+                    })
                     
                 elseif roll < 0.5 then
-                    minimal.sound_play(
-                        "env_sounds_haunt2",
-                         {
-                            pos = ranpos,
-                            to_player = player_name,
-                            pitch = {0.08,0.4},
-                            gain = 1.4-math.abs(r/15),
-                        }
-                    )
+                    minimal.sound_play(ranpos, {
+                        name = "env_sounds_haunt2", to_player = player_name,
+                        pitch = {0.08, 0.4}, gain = 1.4-math.abs(r/15)
+                    })
 
                 elseif roll < 0.75 then
-                    minimal.sound_play(
-                        "env_sounds_haunt3",
-                         {
-                            pos = ranpos,
-                            to_player = player_name,
-                            pitch = {0.08,0.4},
-                            gain = 1.4-math.abs(r/15),
-                        }
-                    )
+                    minimal.sound_play(ranpos, {
+                        name = "env_sounds_haunt3", to_player = player_name,
+                        pitch = {0.08, 0.4}, gain = 1.4-math.abs(r/15)
+                    })
+
                 else
-                    minimal.sound_play(
-                        "env_sounds_haunt4",
-                         {
-                            pos = ranpos,
-                            to_player = player_name,
-                            pitch = {0.08,0.4},
-                            gain = 1.4-math.abs(r/15),
-                        }
-                    )
+                    minimal.sound_play(ranpos, {
+                        name = "env_sounds_haunt4", to_player = player_name,
+                        pitch = {0.08, 0.4}, gain = 1.4-math.abs(r/15)
+                    })
+
                 end
 
                 minetest.add_particlespawner({
