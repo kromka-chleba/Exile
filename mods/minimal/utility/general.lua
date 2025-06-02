@@ -186,9 +186,118 @@ function minimal.math_clamp(num,min,max)
     return num
 end
 
+local function value_get_range(value)
+    -- if value is a table and its index 1 and 2 are numbers then
+    -- return a randomized value between them
+    return type(value) == 'table' and type(value[1]) == "number"
+      and type(value[2]) == "number" and
+        (value[1]+math.random()*(value[2]-value[1]) ) or value
+end
 
 -- inspired by mobkit's "make_sound"
 -- intended to play both mob sounds and custom sound files
+-- target will be pos or entity
+local function make_sound(target, spec)
+    -- compatibility-ish
+    -- switch target and spec
+    if type(spec) == "table" and spec.pos then
+        local old = target
+        target = spec.pos
+        spec = old
+    end
+    -- target is soundspec
+    if type(target) == "table" and target.pos then
+        -- target becomes pos, spec is target
+        target, spec = target.pos, target
+    end
+    -- figure out if playing at pos or object
+    local posobj = type(target) == "table" and (target.x and target.y and target.z) and "pos" or
+      type(target) == "table" and target.object and "obj"
+    -- no playing sounds if nil (not pos or valid entity table)
+    if not posobj then return end
+    -- check for sound in entity
+    spec = posobj == "obj" and (type(spec) == "string" and not posobj and target.sounds) and
+      target.sounds[spec] or spec
+    if type(spec) ~= "table" then return end -- can't play (no data)
+    -- multiple sounds
+    if #spec > 0 then
+        local gname = spec.name -- "global" name, name declared in overall spec table
+        spec = spec[math.random(1, #spec)]
+        if type(spec) ~= "table" then return end -- can't play, not a table
+        spec.name = spec.name or gname -- default to "global" name in failure
+    end
+    if not spec.name then return end -- no name, can't play
+    spec = table.copy(spec)
+    -- now add pos or entity's object
+    spec.pos = posobj and target or nil
+    spec.object = posobj == "obj" and target.object or nil
+    -- now to randomize each number table value (or stay the same)
+    for i,v in pairs(spec) do
+        if i ~= "pos" then -- not pos!
+            spec[i] = value_get_range(v)
+        end
+    end
+    -- to_player and exclude_player customization
+    -- convert plural to singular
+    if spec.to_players and not spec.to_player then
+        spec.to_player = spec.to_players
+    end
+    if spec.exclude_players and not spec.exclude_player then
+        spec.exclude_player = spec.exclude_players
+    end
+    -- provided a player, convert to string
+    spec.to_player = spec.to_player and core.is_player(spec.to_player) and spec.to_player:get_player_name() or
+      spec.to_player
+    spec.exclude_player = spec.exclude_player and core.is_player(spec.exclude_player) and
+      spec.exclude_player:get_player_name() or spec.exclude_player
+    -- multi-player exclude_player, convert into to_player table
+    if type(spec.exclude_player) == "table" then
+        local exclude_list = {}
+        for _,plr in ipairs(spec.exclude_player) do
+            plr = type(plr) == "userdata" and core.is_player(plr) and plr:get_player_name() or
+              plr
+            -- only add to list if string
+            if type(plr) == "string" then
+                exclude_list[plr] = true
+            end
+        end
+        -- iterate through connected players, if not found in exclusion list then add
+        -- use to_player to emulate excluding more than 1 player
+        local to_players = {}
+        for _,plr in ipairs(core.get_connected_players()) do
+            plr = plr:get_player_name()
+            if not exclude_list[plr] then
+                to_players[#to_players + 1] = plr
+            end
+        end
+        if #to_players == 0 then return end -- can't play this to anyone, return
+        -- remove exclude_player list, add to_player, will be properly handled in next if statement
+        spec.to_player = to_players
+        spec.exclude_player = nil
+    end
+    -- multi-player to_player, only if exclude_player not defined
+    -- if exclude_player is table, gets converted into to_player table
+    if type(spec.to_player) == "table" and not spec.exclude_player then
+        -- play to each provided player
+        local sounds = {}
+        for _,plr in ipairs(spec.to_player) do
+            -- get player name
+            if type(plr) == "userdata" and core.is_player(plr) then
+                plr = plr:get_player_name()
+            end
+            -- now to play and return handles
+            if type(plr) == "string" then
+                local lspec = table.copy(spec) -- local spec
+                lspec.to_player = plr
+                sounds[#sounds + 1] = core.sound_play(spec.name, lspec)
+            end
+        end
+        -- 1st return is first sound handle, 2nd return is the list
+        return sounds[1], sounds
+    end
+
+    return core.sound_play(spec.name, spec)
+end
 function minimal.make_sound(params_table,sound_name)
     if type(params_table) == "string" and type(sound_name) == "table" then
         -- do a switcheroo for this function
@@ -318,7 +427,7 @@ function minimal.make_sound(params_table,sound_name)
     return minetest.sound_play(sound_spec.name,sound_spec)
 end
 function minimal.sound_play(...)
-    return minimal.make_sound(...)
+    return make_sound(...)
 end
 
 -- filepath_exists
