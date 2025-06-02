@@ -41,21 +41,17 @@ minimal.swap_tool(player, wielded_item, toolname)
 		- Changes the wielded tool into toolname, preserves wear & meta
 minimal.yes_or_no(pname, question, function_call, attached_data_table)
 		- Sends yes/no formspec to the player, see utility.lua for more
-minimal.make_sound(params_table,sound_name)
+minimal.sound_play(target, spec)
 		- adds more functionality to minetest's "sound_play",
                   inspired by mobkit's "make_sound" function
-		if params_table is specified as a string without any
-		corresponding table, will play sound globally gain,
-                max_hear_distance, pitch, fade, and start_time can be
-		set to be random between two
-		values. e.g. "gain={0.5,1.5}" option for multiple
-		players to be specified for to_player and
-		exclude_player within a table
+		any table with numbers will be randomized (e.g. gain, fade,
+		pitch, start_time) to choose a singular result between both
+		e.g. gain={0.5,1.5} may produce a gain of 0.95839
+
+		option for multiple players to be specified for to_player
+		and exclude_player within a table
 		exclude_player={"player1","player2"}
 		can be plural - "to_players={}", "exclude_players={}"
-		params_table and sound_name can be placed reversed
-		(sound_name, params_table) to behave like
-		minetest.sound_play()
 
 		returns sound ID, if multiple players are specified,
 		returns the first played sound's ID and a table of
