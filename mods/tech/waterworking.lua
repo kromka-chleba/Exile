@@ -135,8 +135,9 @@ liquid_store.register_stored_liquid(
             -- change name from clay_water_salt_water to clay_water_pot_dry_salt
             if not ncrafting.roast(pos, name, name:sub(1,#name-10).."pot_dry_salt", nil, 102) then
                 -- complete, play boil sound
-                minimal.sound_play({name = "tech_boil", pos = pos, max_hear_distance = 10,
-                    gain = 0.8, pitch = {0.95,1.2}})
+                minimal.sound_play(pos, {
+                    name = "tech_boil", max_hear_distance = 10, gain = 0.8, pitch = {0.95, 1.2}
+                })
                 return false
             end
             return true

@@ -94,7 +94,5 @@ function minimal.sound_play_watcher(pos, nodedef, open)
         or nodedef.sounds.storage_close
     -- could not get wanted sound
     if not sound then return end
-    sound = table.copy(sound) -- clone for local use
-    sound.pos = pos
-    minimal.sound_play(sound)
+    minimal.sound_play(pos, sound)
 end

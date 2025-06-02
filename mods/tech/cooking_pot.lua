@@ -883,7 +883,7 @@ local function pot_cook(pos, elapsed)
                 -- complete final steps
                 spawn_steam(pos,{amt={22,45}})
                 if sounds.frying_final then
-                    minimal.sound_play(minimal.merge_tables(sounds.frying_final,{pos = pos}))
+                    minimal.sound_play(pos, sounds.frying_final)
                 end
                 -- stew is when hunger content is greater than thirst content
                 kind = total.hu > total.th and "Stew" or kind
@@ -916,7 +916,7 @@ local function pot_cook(pos, elapsed)
                     minimal.infotext_set_new(pos, meta, nil, nil, ndef)
                     spawn_steam(pos,{amt={14,24}})
                     if sounds.frying_start then
-                        minimal.sound_play(minimal.merge_tables(sounds.frying_start,{pos = pos}))
+                        minimal.sound_play(pos, sounds.frying_start)
                     end
                     return true
                 -- already cookin'
@@ -926,10 +926,10 @@ local function pot_cook(pos, elapsed)
                     if sounds.frying then
                         -- play a sound indicating we're opened!
                         if opened and sounds.frying_open then
-                            minimal.sound_play(minimal.merge_tables(sounds.frying_open,{pos = pos}))
+                            minimal.sound_play(pos, sounds.frying_open)
                         -- play as normal
                         else
-                            minimal.sound_play(minimal.merge_tables(sounds.frying,{pos = pos}))
+                            minimal.sound_play(pos, sounds.frying)
                         end
                     end
                 end
@@ -1091,8 +1091,7 @@ minetest.register_node("tech:cooking_pot",{
         -- play pour sounds if provided
         local pourdef = itemstack:get_definition()
         if pourdef and pourdef.sounds and pourdef.sounds.pour then
-            local sound = pourdef.sounds.pour
-            minimal.sound_play(minimal.merge_tables(sound,{pos = pos}))
+            minimal.sound_play(pos, pourdef.sounds.pour)
         end
         -- drain or keep pot depending on if in creative
         if not minimal.player_in_creative(user) then

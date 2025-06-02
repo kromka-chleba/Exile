@@ -22,7 +22,7 @@ local function microbial_infection(player, pos, nodedef, itemstack, idef)
     local infect_sound = nodedef.sounds and nodedef.sounds.place_infect or
       idef.sounds and idef.sounds.infect
     if infect_sound then
-        minimal.sound_play(minimal.merge_tables(infect_sound, {pos = pos}))
+        minimal.sound_play(pos, infect_sound)
     end
     -- successfully infected, take away item and run on_successful_infection
     if type(idef.on_successful_infection) == "function" then
