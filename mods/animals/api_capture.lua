@@ -248,7 +248,7 @@ animals.register_spawnegg = function(name, def, animal)
       if not itemdef then return end
       -- get and play slaughter sound
       if itemdef.sounds.slaughter then
-          minimal.sound_play(itemdef.sounds.slaughter, player:get_pos())
+          minimal.sound_play(player:get_pos(), itemdef.sounds.slaughter)
       end
       -- convert to drops
       local inv = player.get_inventory and player:get_inventory()
@@ -259,7 +259,7 @@ animals.register_spawnegg = function(name, def, animal)
           else
               minetest.add_item(minimal.shift_pos(player:get_pos(), {y=1}), item)
               if itemdef.sounds.slaughter_drop then
-                  minimal.sound_play(itemdef.sounds.slaughter_drop, player:get_pos())
+                  minimal.sound_play(player:get_pos(), itemdef.sounds.slaughter_drop)
               end
           end
       end
