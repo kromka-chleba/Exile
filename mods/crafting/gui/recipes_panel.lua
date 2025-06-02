@@ -468,8 +468,16 @@ local function FS_display_recipe (cache, pr, x, y)
             pr.count = get_craft_count(cache,pr, cache.item_hash)
         end
     end
+    -- copy of output to be displayed
+    local display_o = ItemStack(pr.recipe.output)
+    local o_count = display_o:get_count()
+    local display_count = o_count -- final output count
+    if pr.count and pr.count ~= 0 then -- leave 0 if non craftable
+        display_count = o_count * pr.count
+    end
 
     if pr.recipe._display then
+        -- get fake "inventory image" and display it
         form_table[#form_table + 1] = tofstring({
             "style_type[image_button;border=false;bgimg_middle=]",
             'image_button[',
@@ -480,18 +488,19 @@ local function FS_display_recipe (cache, pr, x, y)
             id,
             ';]'
         })
-        if pr.count and pr.count > 1 then
-            local label_coords = tostring( x + 0.1 ) .. ','
-                            .. tostring( y + 0.45 )
+        -- add a label with the output number
+        if display_count > 1 then -- don't display if 0
+            --local label_coords = tostring( x + 0.1 ) .. ','
+            --                .. tostring( y + 0.45 )
+            local label_coords = tostring( x + 0.2 ) .. ','
+                            .. tostring( y + 0.95 )
             form_table[#form_table + 1] = "label["
                                     .. label_coords ..";"
-                                    .. tostring(pr.count) .. "]"
+                                    .. tostring(display_count) .. "]"
         end
     else
-        local display_o = ItemStack(pr.recipe.output)
-        local count = display_o:get_count()
-        if pr.count and pr.count ~= 0 then -- check when 0 happen
-            display_o:set_count(count * pr.count)
+        if display_count ~= o_count then
+            display_o:set_count(display_count)
         end
         form_table[#form_table + 1] = tofstring({
             "style_type[item_image_button;border=false;bgimg_middle=]",
