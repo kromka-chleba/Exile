@@ -374,7 +374,8 @@ local function fast_interval(dtime)
                 -- TODO proper thing to deal with thoses refreshes
                 -- (lore - player_api - minimal - sfinc - crafting)
 
-                if sfinv.get_page(player) == "lore:char_tab" then
+                if sfinv.get_page(player) == "lore:char_tab"
+                        or sfinv.get_page(player) == "clothing:clothing" then
                     sfinv.set_player_inventory_formspec(player)
                 end
             end

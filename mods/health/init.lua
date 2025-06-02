@@ -778,9 +778,11 @@ minetest.register_on_joinplayer(function(player)
             meta:set_string("player_velocity", "")
         end
         -- if we were on char tab before it was set
-        -- (which should not happen, and may trigger an error in generation) TODO improve that ?
+        -- (which should not happen, and may trigger an error in generation) TODO improve that to check if we have health things, maybe a function in page ? currently "lore:char_tab" and/or "clothing:clothing"
+        -- improve maybe with a player variable indicating if formspec is visible ?
         -- reload it
-        if sfinv.get_page(player) == "lore:char_tab" then
+        if sfinv.get_page(player) == "lore:char_tab"
+                or sfinv.get_page(player) == "clothing:clothing" then
             sfinv.set_player_inventory_formspec(player)
         end
 end)
@@ -881,7 +883,8 @@ minetest.register_globalstep(function(dtime)
                     -- only in case char_tab is active (the one displaying health effect
                     -- TODO proper thing to deal with thoses refreshes
                     -- (lore - player_api - minimal - sfinc - crafting)
-                    if sfinv.get_page(player) == "lore:char_tab" then
+                    if sfinv.get_page(player) == "lore:char_tab"
+                            or sfinv.get_page(player) == "clothing:clothing" then
                         sfinv.set_player_inventory_formspec(player)
                     end
                 end

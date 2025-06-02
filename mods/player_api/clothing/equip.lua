@@ -47,6 +47,33 @@ local function generate_shiftclick_ring()
     return table.concat(ring)
 end
 
+-- Health effects display - copied from lore/char_tab.lua to test option
+-- then modified
+local function effects_fs(player)
+    local fs = {
+        "container[0.8,1.8]",
+        --"box[0,0;4,3;black]",
+        "image[0.1,0.1;0.65,0.65;hud_effects.png]",
+        "style_type[label;font=bold]",
+        "label[1.2,0.3; "..S("Health Effects")..":]",
+        "style_type[label;font=normal]"
+    }
+
+    local y = 0.4
+    local st = player_api.get_state(player)
+    local labels = st:read_labels()
+    for _, effect in ipairs(labels) do
+        y = y + 0.4
+        fs[#fs+1] = "label[1.2,"..y.."; "
+            .. effect[1]
+            .. (effect[1] ~= "" and " " or "") -- only add a space if effect[1] exists
+            .. (effect[2] or "").."]"
+    end
+
+    fs[#fs+1] = "container_end[]"
+    return table.concat(fs,"")
+end
+
 -- return true if something changed, false else
 local function process_receive_fields(player, fields)
     -- process get recipes button
@@ -110,6 +137,9 @@ local clothing_page = {
             -- + would need translation
             -- "label[0.8,9.75;Tip : use \"shift\" key to switch clothes]"
             }
+
+        -- health effects
+        formspec[#formspec + 1] = effects_fs(player)
 
         -- buttons to crafting formspec
         if core.global_exists("crafting") then
