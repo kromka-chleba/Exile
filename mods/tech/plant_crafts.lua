@@ -86,7 +86,7 @@ minetest.register_craftitem("tech:grass_fibre",{
                                 description = S('Grass Fibre'),
                                 inventory_image = "tech_fibrous_bundle.png",
                                 stack_max = minimal.stack_max_medium,
-                                groups = {flammable=1, fibrous_plant=1}
+                                groups = {flammable=1, fibrous_plant=1, compostable = 1}
 })
 
 
