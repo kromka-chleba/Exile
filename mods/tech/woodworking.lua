@@ -174,20 +174,3 @@ crafting.register_recipe({
         always_known = true,
 })
 
-
-local ucsigns_available = minetest.get_modpath("ucsigns")
-if ucsigns_available then
-    print("UCSIGNS AVAILABLE: ",ucsigns_available)
-    screwdriver = lever
-    ucsigns.register_sign("exile", nil, {
-                              description = "A sign",
-                              tiles = { "tech_oiled_wood.png" },
-    })
-    crafting.register_recipe({
-            type = {"chopping_block", "axe"},
-            output = "ucsigns:wall_sign_exile 1",
-            items = {'group:log 1'},
-            level = 1,
-            always_known = true,
-    })
-end
