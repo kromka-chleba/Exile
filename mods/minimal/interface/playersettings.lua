@@ -141,7 +141,6 @@ local function process_receive_fields(player, formname, fields)
         local ev = minetest.explode_scrollbar_event(fields.HudOpac)
         if ev.type == "CHG" then
             meta:set_string("hud_opacity", ev.value)
-            HEALTH.hud_update_settings(name, { opacity = ev.value })
             setting_changed(player, "hud_opacity", tonumber(ev.value), meta)
         end
     end
@@ -154,9 +153,6 @@ local function process_receive_fields(player, formname, fields)
     -- setting numeric stats
     if fields.showstats then
         meta:set_string("hud_show_stats", fields.showstats)
-        HEALTH.hud_update_settings(name,
-        { showstats = tobool(
-        fields.showstats) })
         setting_changed(player, "hud_show_stats", tobool(fields.showstats), meta)
     end
     -- setting Breaktaker pop-up on/off
@@ -173,7 +169,8 @@ local function process_receive_fields(player, formname, fields)
     if fields.nomusic then
         meta:set_string("disable_music", fields.nomusic)
         setting_changed(player, "disable_music", tobool(fields.nomusic), meta)
-        -- #TODO: put music handling into minimal where it belongs (now handled in lore fully instead, what do we do now?)
+        --[[ #TODO: put music handling into minimal where it belongs
+        (now handled in lore fully instead, what do we do now?)]]
     end
 end
 
@@ -190,14 +187,21 @@ end)
 --[[ Following (+ the separation of get_formspec and process_receive_field)
     was made in order to be able to pass that formspec in sfinv.
     However, this leads to some issue do to the fact that :
-    1) since it is not a real tab (but a button), we can't move to "crafting tab" again when clicking on it, because tab1 is already selected by default.
+
+    1) since it is not a real tab (but a button),
+    we can't move to "crafting tab" again when clicking on it,
+    because tab1 is already selected by default.
     This point could change if we one day use buttons instead of tabs
-    2) I didn't find a good way to close/reopen inv formspec to update the theme (refresh) when changing them, without leaving and coming back with inv key.
+
+    2) I didn't find a good way to close/reopen inv formspec to update the theme (refresh) when changing them,
+    without leaving and coming back with inv key.
     Manually reopening with minetest.show_formspec(player_name, "", "")
     reopens it but... then the update are not redisplayed, unless we use the inv key to close and reopen again.
-    We would need a way to simulate that key, I don't know how to do it, or if it is possible, so this is pending for now.
+    We would need a way to simulate that key.
+    I don't know how to do it, or if it is possible, so this is pending for now.
 
-    I leave following code and functions changes in case someone wants to try it again, with more knowledge, or if minetest's code evolves to give us those needed functionnality on closing/reopening inv formspec in code.
+    I leave following code and functions changes in case someone wants to try it again, with more knowledge,
+    or if minetest's code evolves to give us those needed functionnality on closing/reopening inv formspec in code.
     ]]
 
 -- Register player_setting formspec as inv tab

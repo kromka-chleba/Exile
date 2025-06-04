@@ -186,7 +186,7 @@ local soil_list = {
 -- Recipes for loam
 
 crafting.register_recipe({
-        type = "mixing_spot",
+        type = {"mixing_spot","soil_mixing"},
         output = "nodes_nature:loam 3",
         items = {"nodes_nature:clay 1",
                  "nodes_nature:silt 1",
@@ -196,7 +196,7 @@ crafting.register_recipe({
 })
 
 crafting.register_recipe({
-        type = "mixing_spot",
+        type = {"mixing_spot","soil_mixing"},
         output = "nodes_nature:loam_wet 3",
         items = {"nodes_nature:clay_wet 1",
                  "nodes_nature:silt_wet 1",

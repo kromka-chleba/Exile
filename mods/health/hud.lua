@@ -2,9 +2,7 @@
 --HUD
 ----------------------------------------------------------------------
 
--- Internationalization
 HEALTH = HEALTH
-local S = HEALTH.S
 
 local hud = {}
 local hudupdateseconds = tonumber(minetest.settings:get("exile_hud_update"))
@@ -287,22 +285,21 @@ end
 
 -- player, hud_data, health type (e.g. health or hunger), color, opacity, text value
 -- will do blink for you
-local function health_hud_change(player, hud_data, htype, color, textval)
+local function health_hud_change(player, hud_data, htype, colorval, textval)
     local data = hud_data[htype]
     if not (data and data.image and data.text) then return end
     -- get opacity (hidden means opacity of 0)
     local opac = data.hidden and 0 or hud_data.opacity or mthudopacity
-    opac = type(opac) == "number" and opac or tonumber(opac) or 127
+    -- tonumber opac for comparison
+    opac = tonumber(opac) or 127
     -- get blink of temp if body_temp, otherwise assume htype
-    local image = concat_text("hud_",htype,".png^[colorize:#",color,
+    local image = concat_text("hud_",htype,".png^[colorize:#",colorval,
       "^[opacity:",opac,blink(hud_data, htype) )
     player:hud_change(data.image, "text", image) -- update icon
-    -- tonumber opac for comparison
-    opac = type(opac) == "number" and opac or tonumber(opac)
     -- update numbered percentages if text is not hidden and stats visible
     local texthidden = data.hidden
     if not texthidden and are_stats_visible(hud_data) then
-        player:hud_change(data.text, "number", tonumber(concat_text("0x", color)) )
+        player:hud_change(data.text, "number", tonumber(concat_text("0x", colorval)) )
         player:hud_change(data.text, "text", textval)
     -- otherwise hide
     else
@@ -386,7 +383,6 @@ local stat_funcs = {
         local hudtext = data.text
         local hidden = data.hidden
         if not hidden and are_stats_visible(hud_data) then
-            local hudtype = hud_data.p_body_temp_type
             player:hud_change(hudtext, "number", tonumber(concat_text("0x", stat_col)) ) -- colorize
             player:hud_change(hudtext, "text", t)
         else
@@ -402,7 +398,10 @@ local stat_funcs = {
         local player_pos = player:get_pos()
         player_pos.y = player_pos.y + 0.6 --adjust to body height
         v = v or math.floor(climate.get_point_temp(player_pos, true))
-        if data.prev_v == v and not forceupdate then return end -- don't update hud if we're the same value (and no forced update)
+        -- don't update hud if we're the same value (and no forced update)
+        if data.prev_v == v and not forceupdate then
+            return
+        end
         data.prev_v = v -- add to prev
         -- get meta and temperature reading
         meta = type(meta) == "userdata" and meta or player:get_meta()
@@ -519,31 +518,42 @@ function HEALTH.hud_update_settings(player_name, table)
     end
 end
 
+--[[Takes a string of elements or "all", sets them blinking
+    * Needs either playername or player to apply changes to
+    * `setblink` is the state: true/false/nil
+]]
 function HEALTH.blink_hud_elements(playername, list, setblink, player)
-    -- Takes a string of elements or "all", sets them blinking
-    -- Needs either playername or player to apply changes to
-    -- setblink is the state, true/false/nil
-    playername = type(playername) == "string" and playername or core.is_player(player) and player:get_player_name() or playername
+    -- Checking player/player name validity
     if type(playername) ~= "string" then
-        error("HEALTH.blink_hud_elements: did not get string for 'playername' or name from player, got '"..
-            type(playername).."'")
+        if core.is_player(player) then
+            playername = player:get_player_name()
+        else
+            error("HEALTH.blink_hud_elements: " ..
+            "did not get string for 'playername' or name from player, got '"
+            .. type(playername) .. "' as playername and '"
+            .. tostring(player) .. "' as player")
+        end
     end
+
     local hud_data = hud[playername]
     if not hud_data then return end -- no hud data to speak of, return don't error
     -- check for and if not specified, get player for meta
-    player = core.is_player(player) and player or core.get_player_by_name(playername)
+    if not core.is_player(player) then
+        player = core.get_player_by_name(playername)
+    end
+
     if not player then return end -- not online, why is there hud_data..?
     -- get and check list
     list = get_list(list)
     if type(list) ~= "table" then
         error("HEALTH.blink_hud_elements: expected table or 'all' for list, got type '"..type(list).."'")
     end
-    local blink = hud_data.blink
+    local blink_table = hud_data.blink
     -- set up blink table if doesn't exist and we wanna blink or otherwise return if no blink table
-    if not blink then
+    if not blink_table then
         if setblink then
-            blink = {}
-            hud_data.blink = blink
+            blink_table = {}
+            hud_data.blink = blink_table
         -- trying to stop blinking of currently no blinking occurring! just return
         else
             return
@@ -558,13 +568,13 @@ function HEALTH.blink_hud_elements(playername, list, setblink, player)
         local data = stat_funcs[tag] and hud_data[tag]
         if data then
             -- add to blink table if setblink, otherwise remove from blink
-            blink[tag] = setblink and {time = get_time(), bool = true} or nil
+            blink_table[tag] = setblink and {time = get_time(), bool = true} or nil
             -- call function for update
             stat_funcs[tag](player, hud_data, meta, nil, true)
         end
     end
     -- remove blink if empty
-    if next(blink) == nil then
+    if next(blink_table) == nil then
         hud_data.blink = nil
     end
 end
@@ -572,7 +582,8 @@ end
 -- update placement of hud icons when hud16 (longbar) is modified
 -- value will be false or true
 minimal.register_on_player_setting_change(function(player, setting, value, meta)
-    local hud_data = hud[player:get_player_name()]
+    local name = player:get_player_name()
+    local hud_data = hud[name]
     if not hud_data then return end
     if setting == "hud16" and (hud_data.health and hud_data.effects) then
         player:hud_change(hud_data.health.image, "offset",
@@ -589,6 +600,11 @@ minimal.register_on_player_setting_change(function(player, setting, value, meta)
                            y = hud_vert_pos + hud_text_y + longbarpos[value].y})
     -- modifying opacity or show_stats
     elseif (setting == "hud_opacity" or setting == "hud_show_stats") then
+        if setting == "hud_opacity" then
+            hud_data.opacity = value
+        else -- hud_show_stats then
+            hud_data.showstats = value
+        end
         -- iterate over each hud
         for nm,data in pairs(hud_data) do
             -- if we have a function for it, call it!

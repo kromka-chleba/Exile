@@ -283,7 +283,7 @@ local function controls(dtime)
                                          { x=0, y=6.3, z=0 },
                                          { x=0, y=  0, z=0 })
             end
-            local controls = player:get_player_control()
+            local p_controls = player:get_player_control()
             if not player_attached[name] then
                 -- Is the player dead?
                 if player:get_hp() == 0 then
@@ -299,11 +299,11 @@ local function controls(dtime)
                     local on_water, cant_stand, cant_crouch =
                         check_player_surroundings(player, player_pos, name)
 
-                    local moving =  controls.up or controls.down or
-                        controls.left or controls.right
-                    local using_tool = controls.LMB or controls.RMB
+                    local moving =  p_controls.up or p_controls.down or
+                        p_controls.left or p_controls.right
+                    local using_tool = p_controls.LMB or p_controls.RMB
 
-                    local sneaking = controls.sneak
+                    local sneaking = p_controls.sneak
 
                     local cancrawl = not ( pinfo.animation == "lay" or
                                            on_water == true or
@@ -315,11 +315,11 @@ local function controls(dtime)
                         toggle_crawl(player, name, false)
                     end
 
-                    if player_sneak[name] ~= controls.sneak then
+                    if player_sneak[name] ~= p_controls.sneak then
                         -- reset anim when switching sneak on/off. why??
                         -- player_anim[name] = nil
-                        player_sneak[name] = controls.sneak
-                        if controls.sneak and not csm_players[name] then
+                        player_sneak[name] = p_controls.sneak
+                        if p_controls.sneak and not csm_players[name] then
                             -- Double tap to crawl
                             if ( not player_crawl[name] and cancrawl and
                                  minimal.click_count_ready(name, "crawl",
@@ -330,7 +330,7 @@ local function controls(dtime)
                             end
                         end
                     end
-                    if ( controls.jump and player_crawl[name] and
+                    if ( p_controls.jump and player_crawl[name] and
                          not cant_stand ) then -- Stand when jumping
                         toggle_crawl(player, name, false)
                     end
@@ -340,7 +340,7 @@ local function controls(dtime)
                         animation_speed_mod = animation_speed_mod / 2
                     end
 
-                    if controls[USE_KEY] then
+                    if p_controls[USE_KEY] then
                         using_tool = true
                     end
 
@@ -359,10 +359,10 @@ local function controls(dtime)
                 end
             end
             if not csm_players[name] then
-                if controls[USE_KEY] then
+                if p_controls[USE_KEY] then
                     handle_use_key(player, name, use_db[name])
                     use_db[name] = true
-                elseif dtime > 0.35 or not controls[USE_KEY] then
+                elseif dtime > 0.35 or not p_controls[USE_KEY] then
                     use_db[name] = false
                 end
             end
@@ -372,9 +372,8 @@ local function controls(dtime)
 end
 minetest.register_globalstep(controls)
 
-local chan
 minetest.register_on_mods_loaded(function()
-        chan = minetest.mod_channel_join("exilecsm")
+        minetest.mod_channel_join("exilecsm")
 end)
 
 local c_timelimit = {}

@@ -28,8 +28,9 @@ themes.default = themes[minetest.settings:get("exile_default_gui_theme")] or
     themes.Antiglass
 
 -- To allow translation
---[[#TODO descrption field is unused yet,
-    intention was to use it (maybe) to display a description under the dropdown in formspec, for example to explain what "default" theme is]]
+--[[#TODO description field is unused yet,
+    intention was to use it (maybe) to display a description under the dropdown in formspec,
+    for example to explain what "default" theme is]]
 local themes_by_id = {
     {name = "default", title = S('Default'), description = ""},
     {name = "Antiglass" , title = S('Antiglass'), description = ""},

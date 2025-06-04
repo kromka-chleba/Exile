@@ -344,8 +344,11 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
     if transfer then
         -- set soup functions
         -- TODO: modify soup_on_use and soup_on_bowl_empty to have a non-meta equivalent
-        def.on_use = def.on_use or soup_on_use -- used for when clicking on a node
-        def.on_bowl_empty = def.on_bowl_empty or soup_on_bowl_empty -- used for when being grabbed from (being grabbed at)
+
+        -- used for when clicking on a node:
+        def.on_use = def.on_use or soup_on_use
+        -- used for when being grabbed from (being grabbed at):
+        def.on_bowl_empty = def.on_bowl_empty or soup_on_bowl_empty
         -- used for determining whether or not to save unique meta between node and itemstack
         if save_meta then
             -- save nutrition stats/unique meta
