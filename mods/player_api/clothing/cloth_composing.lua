@@ -32,7 +32,7 @@ function player_api.compose_cloth(player)
         --if cloth_type then minetest.chat_send_all(cloth_type) end
         local color = ""
         local indx = stack:get_meta():get_int("palette_index") / 8
-        local dye = dye_to_colorstring(indx)
+        local dye = ncrafting.dye_to_colorstring(indx)
         if indx and indx > 0 and not ( dye == "" ) then
             color = "\\^\\[multiply\\:\\"..dye
         end
