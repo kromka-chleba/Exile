@@ -49,10 +49,18 @@ end
 
 -- prevent one change from overriding te other
 -- e.g. when clothing temp is changed, it changes the max and min simultaneously and both will override eachother
-local updating_for = {}
+local creative_updating_for = {}
+-- check creative updating for - quickie function for handling the above check
+-- value is what value it should be changed to on success
+local function ccuf(name, value)
+    local checked = creative_updating_for[name]
+    if checked == value then return true end -- if value equal to checked, return true
+    creative_updating_for[name] = value -- update
+end
 -- give players the creative menu and funky strong hands
 -- onnew is if this is called when player is joining or respawning
-local function update_creative_attributes(plr, granter_name, onnew)
+-- nonotif prevents message production
+local function update_creative_attributes(plr, granter_name, onnew, nonotif)
     -- permit player or player name argument for plr, save name if string
     local name = type(plr) == "string" and plr
     plr = name and core.get_player_by_name(name) or core.is_player(plr) and plr
@@ -60,18 +68,34 @@ local function update_creative_attributes(plr, granter_name, onnew)
     name = name or plr:get_player_name() -- ensure we get a proper name
     -----------------------------------------
     -- check if we're already doing this
-    local c_updating = updating_for[name]
-    if c_updating then return end -- already doing this, return!
-    updating_for[name] = true
+    if ccuf(name, true) then return end -- already doing this, return!
     -----------------------------------------
     local in_creative = minimal.player_in_creative(name)
     -- if onnew and not in creative, don't run this
     if onnew and not in_creative then
-        updating_for[name] = nil
-        return
+        return ccuf(name, nil)
     end
     -- do on a delay to prevent conflict with other mods like player_api
     core.after(0, function()
+        -- get current hand to check whether or not we were in creative prior
+        local pinv = plr:get_inventory()
+        local chand = pinv:get_stack("hand", 1)
+        local cdef = chand:get_definition() or {} -- current hand definition
+        if cdef.name ~= "creative:hand" and in_creative or -- going into creative
+          -- going out of creative
+          cdef.name == "creative:hand" and not in_creative then
+            if not nonotif then
+                core.chat_send_player(name, "* * * * * *")
+                core.chat_send_player(name, (
+                    in_creative and " You have entered creative mode!" or
+                    " You have successfully left creative mode."
+                ))
+                core.chat_send_player(name, "* * * * * *")
+            end
+        -- oops, got (or lost!) the creative privilege again, don't update!
+        else
+            return ccuf(name, nil) -- remove from updating for list
+        end
         -- creative menu, or regular!!!
         if in_creative then
             sfinv.set_page(plr, sfinv.get_homepage_name(plr))
@@ -79,12 +103,10 @@ local function update_creative_attributes(plr, granter_name, onnew)
             sfinv.set_player_inventory_formspec(plr)
         end
         -- powerful hands handling
-        local pinv = plr:get_inventory()
         -- let us get what we most desire
         if in_creative then
             -- save prior non-creative hand into the inventory
-            local old = pinv:get_stack("hand", 1)
-            pinv:set_stack("hand", 2, old)
+            pinv:set_stack("hand", 2, chand)
             -- powerful hands!
             pinv:set_stack("hand", 1, "creative:hand")
         -- no more powerful hands!
@@ -93,7 +115,7 @@ local function update_creative_attributes(plr, granter_name, onnew)
             pinv:set_stack("hand", 1, replace)
         end
         -- our job here is done
-        updating_for[name] = nil
+        ccuf(name, nil)
     end)
 end
 
@@ -108,7 +130,7 @@ core.after(1, function()
     HEALTH = HEALTH
     HEALTH.register_on_stat_change(function(player, name, value, meta)
         if name == "clothing_temp_max" or name == "clothing_temp_min" then
-            update_creative_attributes(player)
+            update_creative_attributes(player, nil, nil, true)
         end
     end)
 end)
