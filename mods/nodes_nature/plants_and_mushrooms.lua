@@ -336,6 +336,12 @@ local plant_list = {
      mesh_type = 2, growing_time = nn.plant_base_growing_time * 2,
      texture_scale = 1.2, seasonal_type = "whole_season"},
 
+    {name = "orylsar", description = S("Orylsar"),
+     plant_type = "woody_plant", waving = true,
+     dominant_color = "yellow", dye_candidate = true,
+     mesh_type = 3, growing_time = nn.plant_base_growing_time * 3,
+     texture_scale = 1.8, seasonal_type = "early", dry_fruit = true,},
+
     {name = "badyl", description = S("Badyl"),
      plant_type = "woody_plant", waving = true,
      dominant_color = "red", dye_candidate = true,
@@ -373,8 +379,20 @@ local plant_list = {
     {name = "cantapo", description = S("Cantapo"),
      mesh_type = 4, plant_type = "fibrous_plant", waving = true,
      dominant_color = "black", dye_candidate = true,
-     growing_time = nn.plant_base_growing_time * 1.5,
+     growing_time = nn.plant_base_growing_time * 2,
      texture_scale = 1.8, seasonal_type = "whole_season_seedling"},
+
+    {name = "kemta", description = S("Kemta"),
+     mesh_type = 3, plant_type = "fibrous_plant", waving = true,
+     dominant_color = "black", dye_candidate = true,
+     growing_time = nn.plant_base_growing_time * 2,
+     texture_scale = 1.8, seasonal_type = "whole_season_seedling"},
+     
+    {name = "jalakin", description = S("Jalakin"),
+     mesh_type = 2, plant_type = "fibrous_plant", waving = true,
+     dominant_color = "black", dye_candidate = true,
+     growing_time = nn.plant_base_growing_time * 2,
+     texture_scale = 1.8, seasonal_type = "whole_season_seedling"}, 
 
     {name = "thoka", description = S("Thoka"),
      mesh_type = 4, dye_candidate = true,
