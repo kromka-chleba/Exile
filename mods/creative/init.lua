@@ -86,10 +86,19 @@ local function update_creative_attributes(plr, granter_name, onnew, nonotif)
           cdef.name == "creative:hand" and not in_creative then
             if not nonotif then
                 core.chat_send_player(name, "* * * * * *")
-                core.chat_send_player(name, (
-                    in_creative and " You have entered creative mode!" or
-                    " You have successfully left creative mode."
-                ))
+                -- granted
+                if in_creative then
+                    core.chat_send_player(name, "You have entered creative mode!")
+                    core.sound_play({
+                        name = "creative_jingle_grant", to_player = name, pitch = math.random(90,110)/100, gain = 0.1
+                    })
+                -- revoked
+                else
+                    core.chat_send_player(name, "You have had creative mode revoked!")
+                    core.sound_play({
+                        name = "creative_jingle_revoke", to_player = name, pitch = math.random(90,110)/100, gain = 0.1
+                    })
+                end
                 core.chat_send_player(name, "* * * * * *")
             end
         -- oops, got (or lost!) the creative privilege again, don't update!
