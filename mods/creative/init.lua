@@ -116,8 +116,16 @@ local function update_creative_attributes(plr, granter_name, onnew, nonotif)
         if in_creative then
             -- save prior non-creative hand into the inventory
             pinv:set_stack("hand", 2, chand)
+            local cdef = chand:get_definition() -- utilize for wield_image
             -- powerful hands!
-            pinv:set_stack("hand", 1, "creative:hand")
+            local phand = ItemStack("creative:hand")
+            -- copy over wield image to creative hand, making the change seamless
+            if cdef and cdef.wield_image then
+                local phmeta = phand:get_meta() -- power hand meta
+                phmeta:set_string("wield_image", cdef.wield_image)
+            end
+            -- update
+            pinv:set_stack("hand", 1, phand)
         -- no more powerful hands!
         else
             local replace = pinv:get_stack("hand", 2)
