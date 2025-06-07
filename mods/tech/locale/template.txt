@@ -154,6 +154,7 @@ Clear Glass Trapdoor=
 Herbal Medicine=
 Tiku (stimulant)=
 Tang Vinegar=
+Vinegar=
 Tang Vinegar with Mother=
 Mother of Tang=
 Infect Other Pots=
