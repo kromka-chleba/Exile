@@ -585,6 +585,10 @@ function liquid_store.register_stored_liquid(name,def)
 
     -- Appearance -------
 
+    -- specific setting to tell "use the container one"
+    if def.node_box == "container"  then
+        def.node_box = container_def.node_box
+    end
     -- set drawtype to nodebox if node_box is provided or mesh if mesh
     def.drawtype = def.drawtype
                     or def.mesh and "mesh"
