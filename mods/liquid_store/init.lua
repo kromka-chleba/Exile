@@ -36,6 +36,21 @@ function liquid_store.contents(nodename)
     end
 end
 
+--[[get the empty container of a stored liquid
+    *`nodename` as in  "tech:clay_water_pot_freshwater"
+    * if `nodename` is not a valid stored liquid, returns nil
+      else return the container as in "tech:clay_water_pot"
+]]
+function liquid_store.get_empty(nodename)
+    local liquiddef = liquid_store.stored_liquids[nodename]
+    if liquiddef ~= nil then
+        return liquiddef.nodename_empty
+    else
+        core.log(nodename .. "is not a valid registered stored liquid")
+        return nil
+    end
+end
+
 -- get a stored liquid's definition table
 function liquid_store.get_sl_def(nodename,producefake)
     -- get stored liquid definition
