@@ -24,7 +24,8 @@ end
 local on_scoop_change = {}
 --Transform the named liquid into the replacement when picked up with a pot
 -- stores what need to be changed in on_scoop_change table
--- TODO it is never used ?
+-- NOTE: none is currently (2025-06-11) registered.
+-- Do we need to keep it for compatibility reasons ?
 function liquid_store.register_scoop_change(name, replacement)
     if ( not minetest.registered_nodes[name] ) or
         ( not minetest.registered_nodes[replacement] ) then
@@ -142,8 +143,7 @@ local function handle_stacks(player, itemstack, new_item)
                            crafting.refresh_recipes_FS(player) -- #TODO is that dirty to refresh crafting formspec in HEALTH mod ?
         end)
         return new_item
-    -- we're just replacing, no worries :D
-    else
+    else -- we're just replacing, no need to worry about any remaining stack
         return new_item
     end
 end
@@ -278,7 +278,6 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
         --[[ only remove liquid if in creative, fill stack otherwise
         --   however both only if a valid source is found]]
         local plr_creative = minimal.player_in_creative(user)
-
 
         local new_wield = plr_creative and find_stored(itemstack, name)
             or not plr_creative and liquid_store.fill_store(user, itemstack, name)
