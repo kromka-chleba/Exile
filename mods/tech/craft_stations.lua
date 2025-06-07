@@ -675,10 +675,8 @@ local function generate_mortar_def(mat)
             tool = "nodes_nature:sand",
             items  = {
                 "nodes_nature:" .. mat .. "_boulder",
-                "group:" .. mat .. "_cobble",
-                "nodes_nature:sand"
+                "group:" .. mat .. "_cobble"
             },
-            replace = "nodes_nature:sand",
             level  = 1,
             always_known = true,
         }
