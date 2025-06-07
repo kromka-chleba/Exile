@@ -280,7 +280,7 @@ liquid_store.register_liquid("tech:potash_source", -- source
     {
         flowing = "tech:potash_flowing", -- flowing
         force_renew = false, -- do not renew if I take from a potash source
-        -- groups = nil -- liquid group could be added if we need it
+        groups = {"potash"} -- groups list
     }
 )
 
