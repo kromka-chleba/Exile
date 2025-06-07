@@ -539,13 +539,27 @@ function liquid_store.register_stored_liquid(name,def)
         name = minetest.get_current_modname()..":"..name
     end
 
+    -- Container ------------------------------------------------------
+
     -- check def.empty and set
     def.empty = def.empty or def.nodename_empty
-    assert(type(minetest.registered_nodes[def.empty]) == "table",
-        "liquid_store.register_stored_liquid: expected nodedef (could not find) for empty variant of '"..
-        name.."'. Got '"..tostring(def.empty).."' type: "..type(def.empty))
-    def.nodename_empty = nil
+    def.nodename_empty = nil -- deleting now useless field
+    -- check container validity
+    if def.empty == nil then
+        core.log ("missing container to register " .. name
+        .. "It will NOT be registered")
+        return
+    end
+    local container_def = minetest.registered_nodes[def.empty]
+    -- stop if no node's def for container
+    assert(type(container_def) == "table",
+        "liquid_store.register_stored_liquid: expected nodedef"
+        .. "(could not find nodedef for empty variant of '" .. name
+        .. "'. Got '"..tostring(def.empty).."' of type: "..type(def.empty)
+        .. " instead")
 
+
+    -- Liquid  ------------------------------------------------------
     if def.source == "" or not def.source then
         minetest.log("error", name
         ..": does not have a proper source to transfer, "
@@ -560,36 +574,61 @@ function liquid_store.register_stored_liquid(name,def)
         dumpable = def.dumpable
     }
 
-    -- basic def
+    -- Basic definition parameters -------------------------------------
+
+    -- stack size is 1 by default
     def.stack_max = def.stack_max or 1
-    def.liquids_pointable = type(def.liquids_pointable) ~= "boolean" and true
-        or def.liquids_pointable
-    def.paramtype = def.paramtype or "light"
-    def.groups = def.groups or {}
-    def.groups.liquid_storage = 1
-    -- sounds; get provided or use empty node's sound or node sound defaults
+    -- def.liquids_pointable is true by default, false if specified
+    if def.liquids_pointable ~= false then
+        def.liquids_pointable = true
+    end
+
+    -- Appearance -------
+
+    -- set drawtype to nodebox if node_box is provided or mesh if mesh
+    def.drawtype = def.drawtype
+                    or def.mesh and "mesh"
+                    or def.node_box and "nodebox"
+                    or "normal"
+
+    def.paramtype = def.paramtype
+                    or container_def.paramtype
+                    or "light"
+
+    -- Sounds -------
+
+    -- get provided or use empty node's sound or node sound defaults
     def.sounds = def.sounds
-        or type(minetest.registered_nodes[def.empty].sounds) == "table"
-            and table.copy(minetest.registered_nodes[def.empty].sounds)
-        or nodes_nature.node_sound_defaults()
+                    or type(container_def.sounds) == "table"
+                                    and table.copy(container_def.sounds)
+                    or nodes_nature.node_sound_defaults()
     -- if set to false, sets to nil, otherwise adds pour sound
-    def.sounds.pour = def.sounds.pour or def.sounds.pour ~= false and {
-        name = "liquid_store_water_pour",
-        pitch = {0.85,1.05},
-        gain = 0.3,
-        max_hear_distance = 8
-    } or nil
-    -- functions
+    if def.sounds.pour == false then
+        def.sounds.pour = nil
+    else
+        def.sounds.pour =  {
+                            name = "liquid_store_water_pour",
+                            pitch = {0.85,1.05},
+                            gain = 0.3,
+                            max_hear_distance = 8
+                            }
+    end
+
+    -- Groups  ---------------------------------------------------------
+
+    -- groups are the one given in registration, or empty table if nil
+    def.groups = def.groups or {}
+    -- add a "liquid_storage" group
+    def.groups.liquid_storage = 1
+
+    -- Functions ----------------------------------------------------
     def.on_use = def.on_use or function(...)
         return liquid_store.on_use_filled_bucket(...)
     end
+
     def.on_place = def.on_place or function(itemstack, placer, pointed_thing)
         return liquid_store.on_place(itemstack, placer, pointed_thing)
     end
-    def.drawtype = def.drawtype or def.mesh and "mesh"
-        or def.node_box and "nodebox"
-        or "normal"
-    -- set drawtype to nodebox if node_box is provided or mesh if mesh
 
     -- remove from node definition
     def.source = nil
