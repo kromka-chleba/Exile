@@ -61,17 +61,33 @@ function liquid_store.get_empty(nodename)
     end
 end
 
+--[[ allow `input` to be
+    * a string,
+    * or a table or userdata (usually itemstack) with a "name" index or "get_name" function
+]]
+local function check_input(input)
+    if type(input) == "string" then
+        return input
+    elseif  type(input) == "table" or type(input) == "userdata" then
+        input = input.name
+                or type(input.get_name) == "function" and input:get_name()
+                or nil
+        if input == "" then
+            input = nil -- don't look for a literally empty index
+        end
+    end
+    return input
+end
+
 -- get a stored liquid's definition table
 function liquid_store.get_sl_def(nodename,producefake)
     -- get stored liquid definition
     -- permit string, or any table or userdata with a name index or get_name function
-    nodename = type(nodename) == "string" and nodename
-        or (type(nodename) == "table"
-            or type(nodename) == "userdata")
-        and nodename.name
-        or type(nodename.get_name) == "function" and nodename:get_name()
-        or nil
-    local sl_def = liquid_store.stored_liquids[nodename]
+    nodename = check_input(nodename)
+    local sl_def
+    if nodename then
+        sl_def = liquid_store.stored_liquids[nodename]
+    end
     -- return sl_def or if wanted, a fake stored_liquid definition
     if sl_def then
         return sl_def
@@ -151,24 +167,11 @@ end
     return the name of the stored lquid (ex: "tech:clay_water_pot_freshwater")
     ]]
 local function find_stored(empty, source)
-    -- allow empty to be a string, or a table or userdata
-    --   (usually itemstack) with a "name" index or "get_name" function
-    empty = type(empty) == "string" and empty
-        or ( type(empty) == "table"
-             or type(empty) == "userdata") and empty.name
-        or type(empty.get_name) == "function" and empty:get_name()
-        or nil
-    empty = empty ~= "" and empty
-        or nil -- don't look for a literally empty index lol
-    -- allow source to be a string, or a table or userdata (usually itemstack)
-    --   with a "name" index or "get_name" function
-    source = type(source) == "string" and source
-        or (type(source) == "table"
-            or type(source) == "userdata") and source.name
-        or type(source.get_name) == "function" and source:get_name()
-        or nil
-    source = source ~= "" and source
-        or nil
+    -- allow empty and source to be a string, or a table or userdata,
+    -- (usually itemstack) with a "name" index or "get_name" function
+    empty = check_input(empty)
+    source = check_input(source)
+
     if not (empty and source) then return end -- return nothing
 
     for slname,sl in pairs(liquid_store.stored_liquids) do
