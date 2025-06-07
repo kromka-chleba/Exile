@@ -906,18 +906,23 @@ for dough,flour in pairs(
         count = 8
         flour = flour.." "..count
     end
-    -- iterate through every empty water pot
-    for _,water_pot in pairs({"tech:clay_water_pot", "tech:wooden_water_pot"}) do
-        crafting.register_recipe({
-            type = "breadmaking",
-            output = dough.." "..count,
-            -- only the freshwater variant
-            items = {flour, water_pot.."_freshwater"},
-            replace = water_pot,
-            level = 1,
-            always_known = true
-        })
-    end
+
+    local recipe_def = {
+        type = "breadmaking",
+        output = dough.." "..count,
+        -- only the freshwater variant
+        items = {flour, "group:freshwater/pot"},
+        -- replace with empty pot
+        replace = function(item_name)
+            -- replace freshwater container by correct empty version
+            if core.get_item_group(item_name, "freshwater") > 0 then
+                return liquid_store.replace(item_name, nil)
+            end
+        end,
+        level = 1,
+        always_known = true
+    }
+    crafting.register_recipe(recipe_def)
 end
 
 -- ANIMAL PRODUCTS
