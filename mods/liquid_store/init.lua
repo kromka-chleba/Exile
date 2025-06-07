@@ -809,3 +809,46 @@ end
 
 liquid_store.replace = replace
 
+
+--[[ generate a replacement for `item_name` with `new_liquid` if `item_name` matches `condition`.
+    * `item_name` is a string, representing a stored liquid or container
+    * `new_liquid` is the replacement we want.
+    * `condition` is an ItemStack name, grouptag or a table.
+    if it is a table, we will stop ate the first match found.
+see liquid_store.replace for the replacement itself.
+]]
+function liquid_store.replace_if_match(item_name, condition, new_liquid)
+    if not condition then
+        return replace(item_name, new_liquid)
+    end
+    -- table dealing
+    if type(condition) == "table" then
+        for _, input in pairs (condition) do
+            local result = liquid_store.replace_if_match(item_name, input, new_liquid)
+            if result then
+                return result
+            end
+        end
+        return nil -- f not found
+    end
+    -- else, check if this is s string
+   if type(condition) ~= "string" then
+       core.log ("wrong input_sl format in liquid_store.replace_if_match")
+       return nil
+   end
+   -- is the condition a matching item_name ?
+   if item_name == condition then
+       return replace(item_name, new_liquid)
+  end
+   -- Else, is it a grouptag ? check if item_name matches
+   local gstats = crafting.get_group_stats(condition)
+   if gstats then
+       -- if item matchs the grouptag
+       if gstats:does_match(item_name) then
+           return replace(item_name, new_liquid)
+       end
+    else
+        -- if not a group either, return nil
+        return nil -- I know this is "useless code", for human reading
+    end
+end
