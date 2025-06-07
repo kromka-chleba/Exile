@@ -105,14 +105,23 @@ function liquid_store.register_scoop_change(name, replacement)
     on_scoop_change[name] = replacement
 end
 
+--[[get the source (liquid) of a stored liquid
+    *`nodename` as in  "tech:clay_water_pot_freshwater"
+    * if `nodename` is not a valid stored liquid, returns nil
+    * else return the source as in "nodes_nature:freshwater_source"
+    -- #TODO what if empty ? do we have a tag for empty ?
+    -- could be good to adapt that function to get the empty/filled status.
+    -- NOTE it seems to be currently unused,
+    I modified it to send back "nil" instead of returning the node, if this is not a stored liquid.
+    #TODO Is that a problem (compatibility with original mod ? or is it borken already anyway ?)
+]]
 function liquid_store.contents(nodename)
-    --To be called when you need to know if something's a valid liquid
-    --Stores will return their source name; regular nodes will pass through
     local liquiddef = liquid_store.stored_liquids[nodename]
     if liquiddef ~= nil then
         return liquiddef.source
     else
-        return nodename
+        core.log(nodename .. "is not a valid registered stored liquid")
+        return nil
     end
 end
 
