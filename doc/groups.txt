@@ -42,6 +42,7 @@ Liquids:
 `water`: 1 = fresh, 2 = salt
 `liquid_storage`: indicates whether or not a node (bucket) stores liquid
 `empty`: indicates an empty container
+`potash`
 
 Containers:
 --------
