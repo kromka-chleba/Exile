@@ -599,6 +599,20 @@ function liquid_store.register_stored_liquid(name,def)
                     or container_def.paramtype
                     or "light"
 
+    -- adds a tile texture as string, ex: "tech_pot_potash.png"
+    -- will add "^tech_pot_potash.png" on top of the container
+    if def.add_liquid_tile then -- TODO to document
+        def.tiles = table.copy(container_def.tiles)
+        if not def.tiles then
+            core.log ("in liquid_store.register_stored_liquid: "
+            .. "missing tiles for container: " .. def.empty)
+        else
+            def.tiles[1] = def.tiles[1] .. "^" .. def.add_liquid_tile
+        end
+        -- remove def field once used
+        def.add_liquid_tile = nil
+    end
+
     -- Sounds -------
 
     -- get provided or use empty node's sound or node sound defaults
