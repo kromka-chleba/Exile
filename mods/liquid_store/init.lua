@@ -2,6 +2,14 @@
 
 liquid_store = {}
 liquid_store.liquids = {}
+--[[ list of registered stored liquid, table has following format :
+        liquid_store.stored_liquids[name] = {
+            nodename : name of the node, ex "tech:clay_water_pot_freshwater"
+            source : source, ex "nodes_nature:freshwater_source"
+            nodename_empty : container, ex "tech:clay_water_pot"
+            dumpable : is the liquid dumpable
+        }
+]]
 liquid_store.stored_liquids = {}
 
 --Liquids that it is possible to put in a bucket
@@ -14,8 +22,10 @@ function liquid_store.register_liquid(source, flowing, force_renew)
 end
 
 local on_scoop_change = {}
+--Transform the named liquid into the replacement when picked up with a pot
+-- stores what need to be changed in on_scoop_change table
+-- TODO it is never used ?
 function liquid_store.register_scoop_change(name, replacement)
-    --Transform the named liquid into the replacement when picked up with a pot
     if ( not minetest.registered_nodes[name] ) or
         ( not minetest.registered_nodes[replacement] ) then
         minetest.log("error", "liquid_store: tried to register invalid scoop"..
@@ -63,9 +73,16 @@ function liquid_store.get_sl_def(nodename,producefake)
         or nil
     local sl_def = liquid_store.stored_liquids[nodename]
     -- return sl_def or if wanted, a fake stored_liquid definition
-    return sl_def or
-        (producefake == true and {source="",nodename_empty="",dump=false})
-        or nil
+    if sl_def then
+        return sl_def
+    else
+        if producefake == true then
+            return {source="",nodename_empty="",dump=false}
+        else
+            return nil
+        end
+    end
+
 end
 
 local function check_protection(pos, user, text)
@@ -87,7 +104,9 @@ end
 local function handle_stacks(player, itemstack, new_item)
     local inv = player:get_inventory()
     -- new item can be string or an itemstack
-    new_item = type(new_item) == "string" and ItemStack(new_item) or new_item
+    if type(new_item) == "string" then
+        new_item = ItemStack(new_item)
+    end
 
     -- If more than 1, we're going to move the old itemstack to another
     -- inventory slot and replace with the new_item.
@@ -107,7 +126,7 @@ local function handle_stacks(player, itemstack, new_item)
                            crafting.refresh_recipes_FS(player) -- #TODO is that dirty to refresh crafting formspec in HEALTH mod ?
         end)
         return new_item
-        -- we're just replacing, no worries :D
+    -- we're just replacing, no worries :D
     else
         return new_item
     end
@@ -125,8 +144,12 @@ local function handle_interaction(player, pointed_thing)
     return pointed_thing.type
 end
 
--- find_stored
--- helps find a stored liquid variant with the provided empty and source
+-- find_stored liquid name
+--[[ helps find a stored liquid variant with the provided empty and source
+    `empty` is the empty container (ex: "tech:clay_water_pot")
+    `source` is the liquid (ex: nodes_nature:freshwater_source")
+    return the name of the stored lquid (ex: "tech:clay_water_pot_freshwater")
+    ]]
 local function find_stored(empty, source)
     -- allow empty to be a string, or a table or userdata
     --   (usually itemstack) with a "name" index or "get_name" function
@@ -225,7 +248,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
     end
 
     minetest.check_for_falling(pointed_thing.under) -- install gravity
-    -- get nodedef
+    -- get nodedef of pointed_thing
     local nodedef = minetest.registered_nodes[name]
     if not nodedef then return end -- wasn't anything we could anyways
 
@@ -245,18 +268,21 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
     local storeddef = liquid_store.get_sl_def(name)
 
     -- pointing at a liquid
-    if liquiddef and
-        name == liquiddef.source then
-        -- find a registered stored liquid which has an empty that matches
-        -- what we are using and a source that matches our liquid
+    -- NOTE: liquid was registered only in case of water and potash.
+    -- NOTE: source is always be equal to name, from registration function,
+    -- so I removed the "and liquiddef.source == name"
+    if liquiddef then
+        --[[ only remove liquid if in creative, fill stack otherwise
+        --   however both only if a valid source is found]]
         local plr_creative = minimal.player_in_creative(user)
-        -- only remove liquid if in creative, fill stack otherwise
-        --   however both only if a valid source is found
+
+
         local new_wield = plr_creative and find_stored(itemstack, name)
             or not plr_creative and liquid_store.fill_store(user, itemstack, name)
             or nil
         if not new_wield then return end -- nothing matches, return itemstack
 
+        -- takes liquid and renew it (or not)
         -- force_renew requires a source neighbour
         local source_neighbor = liquiddef.force_renew
             and minetest.find_node_near(pointed_thing.under, 1,
@@ -484,15 +510,15 @@ function liquid_store.on_place(itemstack, placer, pointed_thing)
     return itemstack
 end
 
-
-
 -- register_stored_liquid
--- registers a bucket of liquid (hence the name, "stored liquid")
--- registers like a node, except expects 2 additional parameters:
---    empty/nodename_empty: an empty bucket of the stored liquid
---    source: the liquid that gets transferred
--- has an optional boolean value "dumpable";
--- default is true unless source is not a registered node, then defaults to false
+--[[ registers a bucket of liquid (hence the name, "stored liquid")
+    * registers like a node, except expects 2 additional parameters:
+        * empty/nodename_empty: an empty bucket of the stored liquid
+        * source: the liquid that gets transferred
+        * has an optional boolean value "dumpable";
+          default is true
+          unless source is not a registered node, then defaults to false
+]]
 function liquid_store.register_stored_liquid(name,def)
     assert(
         type(name) == "string",
@@ -504,8 +530,11 @@ function liquid_store.register_stored_liquid(name,def)
         type(def))
 
     -- add mod_origin to name
-    name = name:sub(1,1) == ":" and minetest.get_current_modname()..name or
-        (not name:match(":")) and minetest.get_current_modname()..":"..name or name
+    if name:sub(1,1) == ":" then
+        name = minetest.get_current_modname()..name
+    elseif not name:match(":") then
+        name = minetest.get_current_modname()..":"..name
+    end
 
     -- check def.empty and set
     def.empty = def.empty or def.nodename_empty
@@ -515,15 +544,17 @@ function liquid_store.register_stored_liquid(name,def)
     def.nodename_empty = nil
 
     if def.source == "" or not def.source then
-        minetest.log("error",name..": does not have a proper source to transfer, "..
-            "will not be able to transfer liquids properly!")
+        minetest.log("error", name
+        ..": does not have a proper source to transfer, "
+        .." will not be able to transfer liquids properly!")
     end
 
+    -- Register stored liquid in liquid_store table
     liquid_store.stored_liquids[name] = {
         nodename = name,
         source = def.source,
         nodename_empty = def.empty,
-        dumpable = def.dumpable,
+        dumpable = def.dumpable
     }
 
     -- basic def
@@ -565,8 +596,6 @@ function liquid_store.register_stored_liquid(name,def)
     minetest.register_node(name,def)
     return minetest.registered_nodes[name]
 end
-
-
 
 
 ---------------------------------------------------------
