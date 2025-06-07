@@ -164,8 +164,8 @@ function minimal.protection_after_place_node( pos, placer, itemstack,
                                               pointed_thing, nmeta, imeta )
     local pn = placer:get_player_name()
     nmeta = nmeta or core.get_meta(pos)
-    meta:set_string("owner", pn)
-    minimal.infotext_set_new(pos, meta)
+    nmeta:set_string("owner", pn)
+    minimal.infotext_set_new(pos, nmeta)
     return minimal.player_in_creative(placer)
 end
 
