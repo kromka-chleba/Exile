@@ -552,8 +552,82 @@ end
 
 
 -- Mortar and pestle. for grinding food etc ----------------
-----------------------------------------------
+------------------------------------------------------------
 
+--[[ register a mortar and pestle (general function for all mods)
+    * `name`  has to be a valid string
+    * `def` is the definition table to pass to core.register_node
+    * `recipe` can be added to def to give crafting recipe
+    NOTE:
+      * 'mortar_and_pestle' and 'breadmaking' craft types are added any case
+      * it will look and behave like a limestone mortar and pestle by default
+]]
+function tech.register_mortar_pestle(name, def)
+    name = name or def.name
+    if type(name) ~= "string" then
+        core.log ("invalid name in crafting.register_mortar_pestle")
+        return --not registering
+    end
+    def = def or {}
+    def.description = def.description or S("Mortar and Pestle")
+    -- set up exile crafting
+    local exile_crafting = def.exile_crafting or {}
+    local craft_types = exile_crafting.craft_types or {}
+    craft_types[#craft_types + 1] = 'mortar_and_pestle'
+    craft_types[#craft_types + 1] = 'breadmaking'
+    exile_crafting.craft_types = craft_types
+    exile_crafting.craft_level = exile_crafting.craft_level or 1
+    def.exile_crafting = exile_crafting
+    -- node parameters
+    def.stack_max = def.stack_max or minimal.stack_max_bulky *2
+    def.paramtype = def.paramtype or "light"
+    def.paramtype2 = def.paramtype2 or "facedir"
+    -- now for actual node things
+    def.drawtype = def.drawtype or "nodebox"
+    def.node_box = def.node_box
+                or def.drawtype == "nodebox" and  {
+                    type  = "fixed",
+                    fixed = {
+                        {-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
+                        {-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
+                        {-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
+                        {-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
+                        {-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
+                        { 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
+                        {-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
+                    }
+                }
+    def.tiles = def.tiles or {"nodes_nature_limestone.png"}
+    def.sounds = def.sounds or nodes_nature.node_sound_stone_defaults()
+    -- set up groups
+    def.groups = def.groups or {}
+    def.groups.falling_node = def.groups.falling_node or 1
+    def.groups.dig_immediate = def.groups.dig_immediate or 3
+    def.groups.craftedby = def.groups.craftedby or 1
+    -- show crafting formspec
+    def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        return crafting.crafting_item_on_rightclick(pos, node, clicker,
+                                                    itemstack, pointed_thing)
+    end
+    -- metadata functions (if craftedby)
+    if def.groups.craftedby > 0 then
+        def.preserve_metadata = station_preserve_metadata
+        def.after_place_node = station_after_place
+    end
+    -- grab recipe if provided, and delete if from node's definition
+    local recipe = def.recipe
+    def.recipe = nil
+    -- node's registration
+    core.register_node(name,def)
+    -- recipe's registration, if provided
+    if recipe then
+        crafting.register_recipe(recipe)
+    end
+end
+
+-- Exile's defautl registrations:
+
+-- available materials for Exile's registered Mortar and Pestle
 local mortar_and_pestle_mats = {
     "limestone",
     "basalt",
@@ -562,6 +636,17 @@ local mortar_and_pestle_mats = {
 }
 
 -- specific defintion per material
+--[[ #TODO TPH noted:
+    "less translation work needed if we just use the nodes_nature description"
+    and coded like this:
+    `register_mortar_and_pestle("basalt",
+                   core.registered_nodes["nodes_nature:basalt"].description)`
+    Which is fine for most languages, but in French,
+    we may have different Caps/use depending of if we talk of the stone (with caps ?) or the material.
+    Since all languages don't have the same structure as English to permit a word by word translation,
+    I reintrocuded the full string description and edited tr files to add them too.
+    I still left the "@1 Mortar and Pestle" even if unused in this version
+    ]]--
 local function generate_mortar_def(mat)
     local def = {}
     -- item name
@@ -601,45 +686,17 @@ local function generate_mortar_def(mat)
     return def
 end
 
--- mortar and pestle registrations
+-- Mortar and pestle registrations
+--[[ #TODO TPH noted:
+    need to change old tech:mortar_pestle to tech:mortar_pestle_limestone
+    and he deleted that one.
+    It was there to be used as demo object in recipe
+    in order to have only one recipe for all stone mortars.
+    so it could be back (with custom image/texture I guess ?)
+    ]]
 for _, mat in pairs (mortar_and_pestle_mats) do
-    local def = generate_mortar_def(mat)
-    minetest.register_node(
-        def.name,{
-            description   = def.description,
-            exile_crafting = {
-                craft_types = {"mortar_and_pestle", 'breadmaking'},
-                craft_level = 1,
-            },
-            drawtype      = "nodebox",
-            tiles         = def.tiles,
-            stack_max     = minimal.stack_max_bulky *2,
-            paramtype     = "light",
-            paramtype2    = "facedir",
-            groups        = {falling_node = 1, dig_immediate=3, craftedby = 1},
-            node_box      = {
-                type  = "fixed",
-                fixed = {
-                    {-0.3750, -0.5000, -0.3750,  0.3750, -0.4375,  0.3750},
-                    {-0.4375, -0.4375, -0.4375,  0.4375, -0.3125,  0.4375},
-                    {-0.4375, -0.3125, -0.4375,  0.4375,  0.2500, -0.3125},
-                    {-0.4375, -0.3125,  0.3125,  0.4375,  0.2500,  0.4375},
-                    {-0.4375, -0.3125, -0.3125, -0.3125,  0.2500,  0.3125},
-                    { 0.3125, -0.3125, -0.3125,  0.4375,  0.2500,  0.3125},
-                    {-0.2500, -0.3125,  0.1250, -0.0625,  0.4375,  0.3125},
-                }
-            },
-            sounds        = def.sounds,
-            on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-                return crafting.crafting_item_on_rightclick(pos,node,clicker,itemstack,pointed_thing)
-            end,
-            -- since we have crafted by in our groups ...
-            preserve_metadata = station_preserve_metadata,
-            after_place_node = station_after_place
-            --on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
-        }
-    )
-    crafting.register_recipe(def.recipe)
+    tech.register_mortar_pestle("tech:mortar_pestle_" .. mat,  -- name
+                                          generate_mortar_def(mat)) -- def
 end
 --------------------------------------------------------------
 
