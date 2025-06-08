@@ -221,10 +221,17 @@ function minimal.sound_play(target, spec)
     if type(spec) ~= "table" then return end -- can't play (no data)
     -- multiple sounds
     if #spec > 0 then
-        local gname = spec.name -- "global" name, name declared in overall spec table
-        spec = spec[math.random(1, #spec)]
-        if type(spec) ~= "table" then return end -- can't play, not a table
-        spec.name = spec.name or gname -- default to "global" name in failure
+        local lspec = spec[math.random(1, #spec)]
+        if type(lspec) ~= "table" then return end -- can't play, not a table
+        -- get defaults from spec and apply to lspec
+        for stat, val in pairs(spec) do
+            if type(stat) ~= "number" then -- apply if not a numbered index
+                if lspec[stat] == nil then -- permit overrides with boolean false
+                    lspec[stat] = val
+                end
+            end
+        end
+        spec = lspec -- chosen one
     end
     if not spec.name then return end -- no name, can't play
     spec = table.copy(spec)
