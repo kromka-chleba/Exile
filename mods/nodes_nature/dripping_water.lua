@@ -9,15 +9,6 @@ local random = math.random
 
 local S = minetest.get_translator("nodes_nature")
 
--- check if we din dung darn air!
-local function is_air(nodedef)
-    if not nodedef then return end
-    -- YES!
-    if nodedef.name == "air" or nodedef.drawtype == "airlike" then return true end
-    -- weird climate air stuff has "allfaces" as a drawtype
-    if nodedef.name == "climate:air_temp_visible" then return true end
-end
-
 --Drop entities
 local drop_entity = {
     _desc = S("Water drop"),
@@ -96,7 +87,7 @@ local drop_entity = {
             if self.check_above < 0 then
                 local above = minimal.get_nodedef({x=ownpos.x, y=ownpos.y+0.5,z=ownpos.z})
                 -- we're falling!!!! aaaaa!!!
-                if is_air(above) then
+                if above and above.name and minimal.is_group(above.name, "air") then
                     return self:fall_detach()
                 end
                 self.check_above = 0.8 -- reset counter
@@ -106,7 +97,7 @@ local drop_entity = {
             if self.check_in < 0 then
                 local inside = minimal.get_nodedef(ownpos)
                 -- hey! you placed a block into me!!! no drip for u
-                if not is_air(inside) then
+                if not (inside and inside.name and minimal.is_group(inside.name, "air") ) then
                     self.object:remove()
                 end
             end
