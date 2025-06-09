@@ -5,6 +5,11 @@ sfinv = {
 	enabled = true
 }
 
+local homepage_name = "sfinv:crafting"
+
+-- default tab_order will be order of registration
+local tab_order = {homepage_name}
+
 function sfinv.register_page(name, def)
 	assert(name, "Invalid sfinv page. Requires a name")
 	assert(def, "Invalid sfinv page. Requires a def[inition] table")
@@ -13,6 +18,7 @@ function sfinv.register_page(name, def)
 
 	sfinv.pages[name] = def
 	def.name = name
+    table.insert(tab_order, name)
 	table.insert(sfinv.pages_unordered, def)
 end
 
@@ -27,7 +33,9 @@ function sfinv.override_page(name, def)
 end
 
 function sfinv.remove_page(pagename)
-    local def = sfinv.pages[pagename] local removed = false
+    -- remove page from sfinv.pages_unordered array
+    local def = sfinv.pages[pagename]
+    local removed = false
     for i = 1, #sfinv.pages_unordered do
         if not removed then
             if sfinv.pages_unordered[i] == def then
@@ -38,6 +46,19 @@ function sfinv.remove_page(pagename)
             sfinv.pages_unordered[i] = sfinv.pages_unordered[i + 1]
         end
     end
+    -- remove page from tab_order array
+    removed = false
+    for j = 1, #tab_order do
+        if not removed then
+            if tab_order[j] == pagename then
+                removed = true
+            end
+        end
+        if removed == true then
+            tab_order[j] = tab_order[j + 1]
+        end
+    end
+    -- remove page from sfinv.pages
     sfinv.pages[pagename] = nil
 end
 
@@ -115,7 +136,20 @@ end
 --------------------------------------------------------------------------------
 
 function sfinv.get_homepage_name(player)
-	return "sfinv:crafting"
+	return homepage_name
+end
+
+-- in order to be able to set custom tab order
+function sfinv.set_tabs(tab_list)
+    tab_order = {}
+    for _, page_name in ipairs(tab_list) do
+        -- if page is registered
+        if sfinv.pages[page_name] then
+            table.insert(tab_order, page_name)
+        else
+            core.log("in sfinv.set_tabs: we are trying to register a tab with undefined page")
+        end
+    end
 end
 
 function sfinv.get_formspec(player, context)
@@ -123,15 +157,21 @@ function sfinv.get_formspec(player, context)
 	local nav = {}
 	local nav_ids = {}
 	local current_idx = 1
-	for i, pdef in pairs(sfinv.pages_unordered) do
-		if not pdef.is_in_nav or pdef:is_in_nav(player, context) then
+    for i, p_name in ipairs (tab_order) do
+        local pdef = sfinv.pages[p_name]
+        if not pdef then
+            core.log("warning","page " .. p_name
+            .. " is not registered yet, returning empty formspec")
+            return ""
+        end
+        if not pdef.is_in_nav or pdef:is_in_nav(player, context) then
 			nav[#nav + 1] = pdef.title
-			nav_ids[#nav_ids + 1] = pdef.name
-			if pdef.name == context.page then
+			nav_ids[#nav_ids + 1] = p_name
+			if p_name == context.page then
 				current_idx = #nav_ids
 			end
 		end
-	end
+    end
 	context.nav = nav_ids
 	context.nav_titles = nav
 	context.nav_idx = current_idx

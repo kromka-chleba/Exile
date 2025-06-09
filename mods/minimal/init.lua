@@ -38,6 +38,29 @@ dofile(modpath..'/currentrevision.lua')
 dofile(modpath..'/storage_watcher_api.lua')
 dofile(modpath..'/storage_api.lua')
 
+
+-- to force tabs order in sfinv, not sure where to put that.
+-- adds a dependency to sfinv
+core.register_on_mods_loaded( function ()
+    local tab_list = {}
+    if core.global_exists("creative") then
+        for _, name in ipairs(creative.tab_list) do
+            tab_list[#tab_list +1] = "creative:"..name
+        end
+    end
+    -- register Exile's pages
+    if core.global_exists("crafting") then
+         tab_list[#tab_list +1] = "sfinv:crafting"
+    end
+    if core.global_exists("player_api") then
+        tab_list[#tab_list +1] = "clothing:clothing"
+    end
+    if core.global_exists("lore") then
+        tab_list[#tab_list +1] = "lore:char_tab"
+    end
+    sfinv.set_tabs(tab_list)
+end)
+
 minetest.register_on_joinplayer(function(player)
         local p_name = player:get_player_name()
         --Custom small inventory
