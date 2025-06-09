@@ -38,6 +38,19 @@ dofile(modpath..'/currentrevision.lua')
 dofile(modpath..'/storage_watcher_api.lua')
 dofile(modpath..'/storage_api.lua')
 
+-- overriding default sfinv homepage
+-- we never see that page, but in case of, one day... since default homepage is not adapted to our craft system
+local homepage_name = sfinv.get_homepage_name()
+
+-- TODO update with better default ?
+-- put recipe refrehs button here ?
+sfinv.override_page(homepage_name, {
+	title = minimal.S("Inventory"),
+	get = function(self, player, context)
+        -- showinv = true
+		return sfinv.make_formspec(player, context, "", true)
+	end
+})
 
 -- to force tabs order in sfinv, not sure where to put that.
 -- adds a dependency to sfinv
