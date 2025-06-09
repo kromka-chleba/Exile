@@ -48,13 +48,8 @@ local drop_entity = {
         -- set thirst value and water drop size
         self.thirst = random(1,10) -- randomize between 1 to 10 units of thirst
         local props = self.object:get_properties()
-        -- the calculation in the brackets is some mathematical black magic I came up with - TPH
-        -- basically this makes it so the size difference isn't crazy insane
-        -- I don't exactly know how it works as I fooled around with numbers until I got what I want
-        -- and I didn't take notes along the way... it's thirst divided by half of maximum for percentage
-        -- then I have it be added with some weird thing that makes it so little sizes get bigger
-        -- and bigger sizes get smaller, hence the - for negating the value (of which I divide by max)
-        local size = self.drop_base_size * (self.thirst/5 + -(self.thirst-5)/10)
+        -- this calculation makes it so the water droplet is sized proportionately to the amount of thirst it gives
+        local size = self.drop_base_size * (self.thirst / 10 + .5)
         props.visual_size = {x = size, y = size * 2}
         props.collisionbox = {-size,-size,-size, size,size,size}
         props.selectionbox = props.collisionbox
