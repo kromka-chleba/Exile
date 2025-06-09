@@ -50,7 +50,7 @@ core.register_on_mods_loaded( function ()
     end
     -- register Exile's pages
     if core.global_exists("crafting") then
-         tab_list[#tab_list +1] = "sfinv:crafting"
+         tab_list[#tab_list +1] = "crafting:crafting"
     end
     if core.global_exists("player_api") then
         tab_list[#tab_list +1] = "clothing:clothing"

@@ -7,6 +7,10 @@ sfinv = {
 
 local homepage_name = "sfinv:crafting"
 
+function sfinv.set_homepage_name(new_name)
+	homepage_name = new_name
+end
+
 -- default tab_order will be order of registration
 local tab_order = {homepage_name}
 
