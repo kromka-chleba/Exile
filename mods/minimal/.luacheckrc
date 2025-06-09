@@ -14,7 +14,8 @@ read_globals = { -- Read only, writing to them generates a warning
 	"PseudoRandom", "ItemStack",
 	"intllib", "string.split",
     -- dependencies in mod.conf
-    
+    "sfinv"
+
 }
 
 exclude_files = {".luacheckrc"}
