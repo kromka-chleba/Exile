@@ -37,7 +37,8 @@ function storage.get_storage_formspec(pos, w, h, meta)
         without putting in on set
         (which I think we could also could do without much harm)]]
         'set_focus[labelset;true]',
-        "button[5,;0,0;dummy;]",
+        "style[dummy;border=false]",
+        "button[5.5,"..tostring(label_offset +0.1)..";0,0;dummy;]",
         "button[5,"..label_offset..";1,0.25;labelset;"..S("Set").."]",
         --"label["..craftedby_offset_x..","..trash_offset..";Crafted by:]",
         --"label["..creator_offset_x..","..(trash_offset+.35)..";"..creator.."]",
@@ -85,7 +86,7 @@ end
 
 function storage.on_receive_fields(pos, formname, fields, sender, width, height)
     local label = fields.label
-    -- only get meta if label was modified and sender is a player
+    -- only get meta if set label was triggered and sender is a player
     local meta = label and minetest.is_player(sender) and minetest.get_meta(pos)
         or nil
     -- thus we can use meta to check if we can set up the new label
