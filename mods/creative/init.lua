@@ -20,8 +20,9 @@ do
     local digtime = 42
     local caps = {times = {digtime, digtime, digtime},
       uses = 0, maxlevel = 256}
-    core.register_item("creative:hand",{
-        type = "none",
+    -- use register node to have a proper not ugly texture, does not affect hand functionality at all
+    core.register_node("creative:hand",{
+        --type = "none",
         range = 10,
         tool_capabilities = {
             full_punch_interval = 0.5,
@@ -40,9 +41,8 @@ do
             },
             damage_groups = {fleshy = 10},
         },
-        -- base off of hand
-        wield_image = "wieldhand.png",
-        wield_scale = {x=1,y=1,z=2.5},
+        tiles = {"creative_hand.png"},
+        wield_scale = {x=0.5,y=0.9,z=0.5},
         liquids_pointable = true
     })
 end
@@ -116,16 +116,8 @@ local function update_creative_attributes(plr, granter_name, onnew, nonotif)
         if in_creative then
             -- save prior non-creative hand into the inventory
             pinv:set_stack("hand", 2, chand)
-            local cdef = chand:get_definition() -- utilize for wield_image
             -- powerful hands!
-            local phand = ItemStack("creative:hand")
-            -- copy over wield image to creative hand, making the change seamless
-            if cdef and cdef.wield_image then
-                local phmeta = phand:get_meta() -- power hand meta
-                phmeta:set_string("wield_image", cdef.wield_image)
-            end
-            -- update
-            pinv:set_stack("hand", 1, phand)
+            pinv:set_stack("hand", 1, "creative:hand")
         -- no more powerful hands!
         else
             local replace = pinv:get_stack("hand", 2)
