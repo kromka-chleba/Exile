@@ -35,8 +35,7 @@ function creative.init_creative_inventory(player)
         "creative_" .. player_name, {
             allow_move = function(inv, from_list, from_index, to_list,
                                   to_index, count, player2)
-                local name = player2 and player2:get_player_name() or ""
-                if not creative.is_enabled_for(name) or
+                if not minimal.player_in_creative(player2) or
                     to_list == "main" then
                     return 0
                 end
@@ -46,10 +45,7 @@ function creative.init_creative_inventory(player)
                 return 0
             end,
             allow_take = function(inv, listname, index, stack, player2)
-                local name = player2 and player2:get_player_name() or ""
-                if not creative.is_enabled_for(name) then
-                    return 0
-                end
+                if not minimal.player_in_creative(player2) then return end
                 return -1
             end,
             on_move = function(inv, from_list, from_index, to_list,
@@ -122,7 +118,7 @@ function creative.register_tab(name, title, items)
         "creative:" .. name, {
             title = title,
             is_in_nav = function(self, player, context)
-                return creative.is_enabled_for(player:get_player_name())
+                return minimal.player_in_creative(player)
             end,
             get = function(self, player, context)
                 local player_name = player:get_player_name()
@@ -216,7 +212,7 @@ creative.register_tab("craftitems", S("Items"), minetest.registered_craftitems)
 local old_homepage_name = sfinv.get_homepage_name
 function sfinv.get_homepage_name(player)
     if player then
-        if creative.is_enabled_for(player:get_player_name()) then
+        if minimal.player_in_creative(player) then
             return "creative:all"
         end
     end

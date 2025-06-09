@@ -1,6 +1,17 @@
+-- we have to do this because damage groups does not properly transfer for held items
+-- with a custom hand, because yay! Engine!!!
+core.register_item(":",{
+    type = "none",
+    tool_capabilities = {
+        damage_groups = {fleshy=minimal.hand_dmg},
+    },
+    groups = {not_in_creative_inventory = 1}
+})
 -- The hand
+-- does not override core.registered_items[""]
+-- use core.registered_items["player_api:hand"] instead
 minetest.register_item(
-    ":", {
+    "player_api:hand", {
         type = "none",
         wield_image = "wieldhand.png",
         wield_scale = {x=1,y=1,z=2.5},
@@ -21,7 +32,8 @@ minetest.register_item(
                         [2]=minimal.hand_crum*minimal.t_scale2,
                         [3]=minimal.hand_crum}, uses=0
                 },
+                damage_groups = {fleshy=minimal.hand_dmg}
             },
-            damage_groups = {fleshy=minimal.hand_dmg},
         },
+        groups = {not_in_creative_inventory = 1}
 })

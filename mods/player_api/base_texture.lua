@@ -61,13 +61,11 @@ player_api.skin_colors = {
 
 ---register wieldhand skin variants for each skin texture
 for nm, val in pairs(player_api.skin_colors) do
-    local newdef = table.copy(minetest.registered_items[""])
+    local newdef = table.copy(minetest.registered_items["player_api:hand"])
     newdef.wield_image = "wieldhand.png"..
         "^[colorize:"..
         val.color..":"..
         tostring(val.ratio)
-    newdef.groups = { not_in_creative_inventory=1 }
-    newdef.tool_capabilities.full_punch_interval = 5
     minetest.register_item("player_api:hand_"..nm, newdef)
 end
 
