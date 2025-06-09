@@ -1117,10 +1117,12 @@ do
     if not minetest.global_exists("sfinv") then error("Sfinv is missing?") end
 
     local homepage = sfinv.get_homepage_name() -- get name of homepage
+    -- remove it and replace the default homepage by that one
     sfinv.remove_page(homepage)
+    sfinv.set_homepage_name("crafting:crafting")
 
     sfinv.register_page(
-        homepage, {
+        "crafting:crafting", {
             title = S("Crafting"),
             get = function(self, player, context)
                 local formspec = make_inventory_formspec(player,context)
