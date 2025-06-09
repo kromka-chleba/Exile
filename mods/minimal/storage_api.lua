@@ -86,7 +86,7 @@ end
 
 function storage.on_receive_fields(pos, formname, fields, sender, width, height)
     local label = fields.label
-    -- only get meta if label was modified and sender is a player
+    -- only get meta if set label was triggered and sender is a player
     local meta = label and minetest.is_player(sender) and minetest.get_meta(pos)
         or nil
     -- thus we can use meta to check if we can set up the new label
