@@ -18,7 +18,7 @@ end
 function minimal.metadata.preserve_metadata(imeta,oldmeta)
     for _, key in ipairs(copy_list) do
         if key ~= '' then
-            imeta:set_string(key, oldmeta[key])
+            imeta:set_string(key, oldmeta[key] or "")
         end
     end
 end
