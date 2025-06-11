@@ -1,6 +1,7 @@
 [submodule "mods/naturalslopeslib"]
 	path = mods/naturalslopeslib
-	url  = https://files.creativekara.fr/git/naturalslopeslib.git
+#	url  = https://files.creativekara.fr/git/naturalslopeslib.git
+	url = https://codeberg.org/Mantar/naturalslopeslib.git
 [submodule "utilities/minetest_schemedit"]
 	path = utilities/minetest_schemedit
 	url = https://codeberg.org/Wuzzy/minetest_schemedit
