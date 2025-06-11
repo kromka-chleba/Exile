@@ -1,6 +1,3 @@
-minimal = minimal
-health = health
-
 -------------------------------------------------------------------------
 --Dripping Water
 --underground drinkable water drops
