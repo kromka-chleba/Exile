@@ -1,0 +1,9 @@
+when:
+  - event: pull_request
+  - branch: action_test
+steps:
+  - name: luacheck
+    image: registry.gitlab.com/pipeline-components/luacheck:latest
+    commands:
+      - luacheck .
+
