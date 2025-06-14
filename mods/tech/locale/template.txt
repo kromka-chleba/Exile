@@ -70,8 +70,10 @@ Light Fabric Tunic=
 Thick Fabric Tunic=
 # cooking_pot.lua
 Cooking Pot (unfired)=
+Bowl=
 Bowl (unfired)=
 Cooking Pot=
+Bowl=
 Empty Bowl=
 Bowl of @1 Stew=
 Bowl of @1 Soup=
@@ -369,6 +371,9 @@ Till soil quickly=
 Placed Iron Hoe=
 # torch.lua
 Torch=
+
+# waterworking.lua
+Water Pot=
 Clay Water Pot=
 Clay Water Pot with Salt Water=
 Clay Water Pot with Freshwater=
@@ -388,6 +393,7 @@ Green Glass Bottle With Salt Water=
 Clear Glass Bottle With Salt Water=
 Green Glass Bottle With Fresh Water=
 Clear Glass Bottle With Fresh Water=
+
 # woodworking.lua
 Wooden Ladder=
 Wooden Floor Boards=

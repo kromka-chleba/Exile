@@ -66,9 +66,11 @@ Light Fabric Trousers=Leichete Stoffhose
 Thick Fabric Trousers=Dicke Stoffhose
 Light Fabric Tunic=Leiche Stofftunika
 Thick Fabric Tunic=Dicke Stofftunika
+
 # cooking_pot.lua
 Bowl (unfired)=Schale (ungebrannt)
 Empty Bowl=Leere Schale
+Bowl=Schale
 Cooking Pot (unfired)=Kochtopf (ungebrannt)
 Cooking Pot=Kochtopf
 Bowl of @1 Stew=Schale mit @1-Eintopf
@@ -173,6 +175,7 @@ Wattle Door Frame=Flechttürrahmen
 Thatch=Dachstroh
 Thatch Stair=Dachstrohtreppe
 Thatch Slab=Dachstrohplatte
+
 # fibreworking.lua
 Unretted Cana Bundle=Ungeröttetes Canabündel
 Retted Cana Bundle=Geröttetes Canabündel
@@ -180,6 +183,7 @@ Coarse Fibre=Grobe Faser
 Fine Fibre=Dünne Faser
 Coarse Fabric=Grober Stoff
 Fine Fabric=Dünner Stoff
+
 # fires.lua
 Wood Ash Block=Holzascheblock
 Enrich depleted soil=Ausgelaugten Boden aufbessern
@@ -200,6 +204,7 @@ Small Wood Fire (extinguished)=Kleines Holzfeuer (gelöscht)
 Large Wood Fire (extinguished)=Großes Holzfeuer (gelöscht)
 Small Charcoal Fire (extinguished)=Kleines Holzkohlefeuer (gelöscht)
 Large Charcoal Fire (extinguished)=Großes Holzkohlefeuer (gelöscht)
+
 # glassworking.lua
 Green Glass Sand Mix=Grünglassandmischung
 Green Glass Ingot=Grünglasbarren
@@ -219,12 +224,14 @@ Green Glass Pane=Grünglasscheibe
 Clear Glass Pane=Klarglasscheibe
 Green Glass Window=Grünglasfenster
 Clear Glass Window=Klarglasfenster
+
 # graffiti.lua
 Painting Kit (lime white)=Malset (Kalkweiß)
 Painting Kit (glow paint)=Malset (Leuchtfarbe)
 Stone Etcher=Steinkratzer
 Flip to stone knife=Zum Steinmesser umwandeln
 Painting Kit (ochre red)=Malset (Ockerrot)
+
 # ironworking.lua
 Crushed Iron Ore=Zerstampftes Eisenerz
 Roasted Iron Ore=Gebranntes Eisenerz
@@ -243,6 +250,7 @@ Protection Nails=Schutznägel
 Protect Item=Gegenstand schützen
 Iron Key=Eisenschlüssel
 Grant key owner access.=Eigentümer des Schlüssels Zugang gewähren.
+
 # Lantern
 Lantern Case=Laternenrahmen
 Status: needs a clear glass pane and a wick (coarse fibre)!=Zustand: Benötigt eine Klarglasscheibe und einen Docht (grobe Faser)!
@@ -252,6 +260,7 @@ Lantern Case with Glass=Laternenrahmen mit Glas
 Status: needs a wick (coarse fibre)!=Zustand: Benötigt einen Docht (grobe Faser)!
 Unlit Lantern=Nicht angezündete Laterne
 Lit Lantern=Angezündete Laterne
+
 # lever.lua
 lever=Hebelarm
 Rotate face=Seite rotieren
@@ -264,6 +273,7 @@ Apply facing to another node=Ausrichtung auf einen anderen Block anwenden
 Empty=Leer
 fuel left=verbleibender Brennstoff
 Status:=Zustand:
+
 # plant_crafts.lua
 Stick=Stock
 Grass Fibre=Grasfaser
@@ -311,6 +321,7 @@ Infect Dough=zu Teig hinzugeben
 Yeast added to the @1=Hefe zum @1 hinzugegeben
 # Pottery
 Broken Pottery Slab=Zerbrochene Keramikplatte
+
 # pottery.lua
 Broken Pottery=Zerbrochene Keramik
 Clay Water Pot (unfired)=Tonwasservase (ungebrannt)
@@ -322,6 +333,7 @@ Clay Oil Lamp (Lit)=Tonöllampe (an)
 Hanging Oil Lamp=Hängende Öllampe
 Hanging Oil Lamp (Lit)=Hängende Öllampe (an)
 Clay Watering Can (unfired)=Tongießkanne (ungebrannt)
+
 # storage.lua
 Clay Storage Pot=Tonvorratsgefäß
 Primitive Wooden Chest=Primitive Holztruhe
@@ -329,6 +341,7 @@ Wicker Storage Basket=Flechtvorratskorb
 Woven Storage Basket=Webvorratskorb
 Wooden Chest=Holztruhe
 Iron Chest=Eisentruhe
+
 # tools.lua
 Stone Knife=Steinmesser
 Cut plants faster than bare hands=Schneidet Pflanzen schneller als mit den Händen
@@ -372,8 +385,12 @@ Placed Granite Hammer=Platzierter Granithammer
 Placed Basalt Hammer=Platzierter Basalthammer
 Basalt Hammer=Basalthammer
 Granite Hammer=Granithammer
+
 # torch.lua
 Torch=Fackel
+
+# waterworking.lua
+Water Pot=Krug
 Clay Water Pot=Tonwasservase
 Clay Water Pot with Salt Water=Tonwasservase mit Salzwasser
 Clay Water Pot with Freshwater=Tonwasservase mit Süßwasser
@@ -393,6 +410,7 @@ Green Glass Bottle With Salt Water=Grünglasflasche mit Salzwasser
 Clear Glass Bottle With Salt Water=Klarglasflasche mit Salzwasser
 Green Glass Bottle With Fresh Water=Grünglasflasche mit Süßwasser
 Clear Glass Bottle With Fresh Water=Klarglasflasche mit Süßwasser
+
 # woodworking.lua
 Wooden Ladder=Holzleiter
 Wooden Floor Boards=Holzbodenbretter

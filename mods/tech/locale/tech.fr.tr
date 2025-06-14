@@ -3,6 +3,7 @@
 Woven Bag=Sac tissé
 Wicker Bag=Sac en osier
 Fabric Bag=Sac en tissu
+
 # beds.lua
 Sleeping Spot=Coin pour dormir
 Sleeping Mat=Tapis de sol
@@ -42,6 +43,7 @@ Claystone=Argilite
 Siltstone=Lutite
 Sandstone=Grès
 Conglomerate=Conglomérat
+
 # bricks_and_mortar.lua
 Limestone=Calcaire
 Ironstone=Fer
@@ -50,6 +52,7 @@ Basalt=basalte
 Gneiss=gneiss
 Jade=jade
 Combine with another slab=Combiner avec une autre dalle
+
 # clothing.lua
 Woven Hat=Chapeau tissé
 Sun Hat=Chapeau de soleil
@@ -66,13 +69,15 @@ Light Fabric Trousers=Pantalon en tissu léger
 Thick Fabric Trousers=Pantalon en tissu épais
 Light Fabric Tunic=Tunique en tissu léger
 Thick Fabric Tunic=Tunique en tissu épais
+
 # cooking_pot.lua
 Cooking Pot (unfired)=Marmite (non cuite)
-Bowl (unfired)=
+Bowl (unfired)=Bol (non cuit)
 Cooking Pot=Marmite
-Empty Bowl=
+Bowl=Bol
+Empty Bowl=Bol vide
 Bowl of @1 Stew=
-Bowl of @1 Soup=
+Bowl of @1 Soup=Bol de soupe de @1
 #; contents
 Water=
 Contents: @1=Contenu: @1
@@ -377,6 +382,9 @@ Basalt Hammer=Marteau en basalte
 Granite Hammer=Marteau en granite
 # torch.lua
 Torch=Torche
+
+# waterworking.lua
+Water Pot=Cruche
 Clay Water Pot=Cruche en argile
 Clay Water Pot with Salt Water=Cruche en argile avec eau salée
 Clay Water Pot with Freshwater=Cruche en argile avec eau douce
@@ -396,6 +404,7 @@ Green Glass Bottle With Salt Water=Bouteille en verre vert avec eau salée
 Clear Glass Bottle With Salt Water=Bouteille en verre transparent avec eau salée
 Green Glass Bottle With Fresh Water=Bouteille en verre vert avec eau douce
 Clear Glass Bottle With Fresh Water=Bouteille en verre transparent avec eau douce
+
 # woodworking.lua
 Wooden Ladder=Échelle en bois
 Wooden Floor Boards=Planches de plancher en bois
