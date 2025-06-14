@@ -1,6 +1,7 @@
 
 
 liquid_store = {}
+liquid_store.containers = {}
 liquid_store.liquids = {}
 --[[ list of registered stored liquid, table has following format :
         liquid_store.stored_liquids[name] = {
@@ -12,12 +13,56 @@ liquid_store.liquids = {}
 ]]
 liquid_store.stored_liquids = {}
 
+-- registering containers and their groups to be used in crafting/unit
+function liquid_store.register_container(name, groups)
+    if not name then
+        core.log("in liquid_store.register_container: "
+            .. "missing name, registration cancelled")
+        return
+    end
+    if not groups then
+        groups = {}
+    elseif type(groups) ~= "table" then
+        core.log("in liquid_store.register_container: "
+            .. "group given doesn't have correct format: "
+            .. "Table expected, got: " .. type(groups))
+        groups = {}
+    end
+    -- Add container groups to be inherited by filled versions
+    -- and used in crafting recipes
+    liquid_store.containers[name] = groups
+end
+
 --Liquids that it is possible to put in a bucket
-function liquid_store.register_liquid(source, flowing, force_renew)
+-- register liquids in liquid_store.liquids
+-- all group organization still to improve
+function liquid_store.register_liquid(source, def)
+    if not source then
+        core.log ("missing source in liquid_store.register_liquid")
+        return
+    end
+    -- try to get info frome node's definition if missing
+    if not def then
+        def = {}
+    end
+
+    -- will remain nil if not registered as node
+    if def.flowing == nil then -- warning, could be 'false', don't replace by "if not ..."
+        local i_def = core.registered_nodes[source]
+        if i_def then
+            def.flowing = i_def.liquid_alternative_flowing
+        end
+    end
+
+    -- adds group of stored liquid in liquids groups for recipes
+    local groups = def.groups or {}
+
     liquid_store.liquids[source] = {
         source = source,
-        flowing = flowing,
-        force_renew = force_renew,
+        flowing = def.flowing,
+        force_renew = def.force_renew, -- default is false
+        description = def.description,
+        groups = groups
     }
 end
 
@@ -521,6 +566,10 @@ end
           default is true
           unless source is not a registered node, then defaults to false
 ]]
+    --[[ #TODO We could maybe only allow registration of stored liquid
+    -- if container and liquid are both already registered,
+    -- instead of registering them with empty def during registration
+    -- if not present]]
 function liquid_store.register_stored_liquid(name,def)
     assert(
         type(name) == "string",
@@ -638,6 +687,46 @@ function liquid_store.register_stored_liquid(name,def)
     -- add a "liquid_storage" group
     def.groups.liquid_storage = 1
 
+    -- inherit source groups from liquid_store tables only
+    local source_def = liquid_store.liquids[def.source]
+    -- if souce is not registered do it
+    if not source_def then
+        -- default registration (to keep ?)
+            -- core.log("warning",
+            --     "When registering " .. name
+            --     .. ", liquid " .. def.source
+            --     .. " was not registered.\n"
+            --     .. "Registering with default settings")
+                liquid_store.register_liquid(def.source)
+    else -- else take source groups
+        -- add source groups if not already present in def.groups
+        for _, g in pairs(source_def.groups) do
+            if not def.groups[g] then -- don't erase if present in def
+                def.groups[g] = 1
+            end
+        end
+    end
+
+    -- inherit container groups from liquid_store tables only
+    local container_groups = liquid_store.containers[def.empty]
+    -- register container if not done yet (empty def table)
+    if not container_groups then
+        -- core.log("warning",
+        --     "When registering " .. name
+        --     .. ", container " .. def.empty
+        --     .. " was not registered.\n"
+        --     .. "Registering container with empty groups")
+        -- registering with empty groups
+        liquid_store.register_container(def.empty)
+    else
+        for _, g in pairs(container_groups) do
+            -- add container groups if not already present in def.groups
+            if not def.groups[g] then -- don't erase if present in def
+                def.groups[g] = 1
+            end
+        end
+    end
+
     -- Functions ----------------------------------------------------
     def.on_use = def.on_use or function(...)
         return liquid_store.on_use_filled_bucket(...)
@@ -660,12 +749,20 @@ end
 ---------------------------------------------------------
 --Register liquids
 liquid_store.register_liquid(
-    "nodes_nature:salt_water_source",
-    "nodes_nature:salt_water_flowing",
-    false)
+    "nodes_nature:salt_water_source", -- source
+    {
+        flowing = "nodes_nature:salt_water_flowing", -- flowing
+        force_renew = false, -- not renewable: avoid infinite source
+        groups = {"salt_water"} -- groups list
+    }
+)
 
 liquid_store.register_liquid(
-    "nodes_nature:freshwater_source",
-    "nodes_nature:freshwater_flowing",
-    false)
+    "nodes_nature:freshwater_source", -- source
+    {
+        flowing = "nodes_nature:freshwater_flowing", -- flowing
+        force_renew = false, -- not renewable: avoid infinite source
+        groups = {"freshwater"} --groups list
+    }
+)
 --don't force renew or allows an infinite water supply exploit
