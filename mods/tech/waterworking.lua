@@ -193,6 +193,9 @@ for _, container in pairs ({"water_pot", "watering_can"}) do
     end
 end
 
+-- adding custom group description to be used in crafting recipes
+crafting.register_group_desc("pot", S("Water Pot"))
+
 -- Wodden pot recipe
 --[[Clay pot/watering_can is cooked, so not registered as recipe
     see pottery.lua for them]]
