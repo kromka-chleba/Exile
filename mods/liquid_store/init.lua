@@ -13,6 +13,26 @@ liquid_store.liquids = {}
 ]]
 liquid_store.stored_liquids = {}
 
+liquid_store.groups = {}
+
+-- add the item to groups table. `groups` can be a string or a table
+-- TODO warning possibility of duplicate in it !
+local function add_to_groups(groups, item)
+    if groups then
+        if type(groups) == "string" then
+            groups = {groups}
+        end
+        if type(groups) == "table" then
+            for _ , g in pairs(groups) do
+                liquid_store.groups[g] = liquid_store.groups[g] or {}
+                table.insert(liquid_store.groups[g], item)
+            end
+        else
+            core.log ("in liquid_store add_to_groups: invalid group " .. tostring(groups))
+        end
+    end
+end
+
 -- registering containers and their groups to be used in crafting/unit
 function liquid_store.register_container(name, groups)
     if not name then
@@ -28,9 +48,10 @@ function liquid_store.register_container(name, groups)
             .. "Table expected, got: " .. type(groups))
         groups = {}
     end
+    liquid_store.containers[name] = groups
     -- Add container groups to be inherited by filled versions
     -- and used in crafting recipes
-    liquid_store.containers[name] = groups
+    add_to_groups(groups, name)
 end
 
 --Liquids that it is possible to put in a bucket
@@ -54,7 +75,6 @@ function liquid_store.register_liquid(source, def)
         end
     end
 
-    -- adds group of stored liquid in liquids groups for recipes
     local groups = def.groups or {}
 
     liquid_store.liquids[source] = {
@@ -64,6 +84,10 @@ function liquid_store.register_liquid(source, def)
         description = def.description,
         groups = groups
     }
+
+    -- adds group of stored liquid in liquids groups for recipes
+    add_to_groups(groups, source)
+
 end
 
 local on_scoop_change = {}
