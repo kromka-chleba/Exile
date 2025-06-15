@@ -451,22 +451,38 @@ local function FS_recipes_to_cache(cache, player_name, pInv)
     if nb_recipes > columns * line_number then
         -- columns = columns -1 -- discard a line to make room for scrollbar
         local scroll_max = math.ceil(nb_recipes / columns)-line_number
-        recipesFS[#recipesFS + 1] =
-        'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
-        .. 'smallstep=1;largestep=line_number;thumbsize=1]'
-        recipesFS[#recipesFS + 1]
-        = 'scrollbar[7.1,0.95;.5,' .. (1.14*line_number) .. ';vertical;recipes_scroll;'
-        .. sScroll .. ']'
+        recipesFS[#recipesFS + 1] = tofstring(
+            {
+                'scrollbaroptions[',
+                'max=' .. tonumber(scroll_max) .. ';', -- max
+                -- move with click/mouse scroll
+                'smallstep=1;',
+                -- move with page up/down key
+                'largestep=' .. line_number .. ';', -- move with page up/down key
+                'thumbsize=1]'
+            })
+
+        recipesFS[#recipesFS + 1] = tofstring(
+            {
+                'scrollbar[',
+                '7.1,0.95;', -- position
+                '0.5,' .. (1.14*line_number).. ';', -- width/height
+                'vertical;', -- orientation
+                'recipes_scroll;', -- name
+                sScroll .. ']' -- value
+            })
     end
 
     -- create scroll container
-    recipesFS[#recipesFS + 1] = tofstring({'scroll_container[0,0.75;',
-                                        tostring(columns + 1),',',
-                                        (1.25 * line_number),
-                                        ';recipes_scroll;vertical;',
-                                         grid_size ,
-                                          ']'
-                                        })
+    recipesFS[#recipesFS + 1] = tofstring(
+        {
+            'scroll_container[0,0.75;', --X,Y position
+            tostring(columns + 1),',', -- Width
+            (1.25 * line_number), -- Height
+            ';recipes_scroll;vertical;', -- scrollbar name and orientation
+            grid_size , --optional scrollfactor
+            ']'
+        })
 
     -- Add recipe buttons in container  ------------------------------
     local x = 0
