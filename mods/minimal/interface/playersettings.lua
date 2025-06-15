@@ -47,11 +47,12 @@ local function get_form(playername, meta)
     local themenum = tostring(theme_tonum[theme])
     local opacity = tostring(meta:get("hud_opacity") or mthudopacity)
     local invburst = tostring(meta:get("drop_on_full_inv") or mtinvburst)
+    local recipe_order = meta:get_string("crafting:no_reorder")
     local nomusic = tostring(meta:get("disable_music") or mtnomusic )
 
     local spec =
         "formspec_version[6]"..
-        "size[10,7]"..
+        "size[10,8]"..
         "button_exit[9,0.2;0.8,0.75;exit_form;X]"..
         -- Wide HUDbar
         "checkbox[1,1;hud16;  "..
@@ -66,19 +67,22 @@ local function get_form(playername, meta)
         "checkbox[1,2.5;invburst;  "..
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
+        -- Fix order for recipes
+        "checkbox[1,3;recipe_order;  "..
+        S("Keep fixed order for recipes")..";".. recipe_order.."]"..
         -- Music setting
-        "checkbox[1,3;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
+        "checkbox[1,3.5;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
         -- Temperature scale setting
-        "label[1,3.75;"..S("Temperature scale")..":]"..
-        "dropdown[5,3.5;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
+        "label[1,4.25;"..S("Temperature scale")..":]"..
+        "dropdown[5,4;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
         tempnum..";true]"..
         -- GUI theme setting
-        "label[1,4.25;"..S("GUI theme")..":]"..
-        "dropdown[5,4;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+        "label[1,4.75;"..S("GUI theme")..":]"..
+        "dropdown[5,4.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
         -- HUD Opacity
-        "label[1,5;"..S("HUD Opacity")..":]"..
+        "label[1,5.5;"..S("HUD Opacity")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
-        "scrollbar[2,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
+        "scrollbar[2,6;5,0.5;horizontal;HudOpac;"..opacity.."]"
     return spec
 end
 
@@ -202,6 +206,10 @@ local function process_receive_fields(player, formname, fields)
     if fields.invburst then
         meta:set_string("drop_on_full_inv", fields.invburst)
         setting_changed(player, "drop_on_full_inv", tobool(fields.invburst), meta)
+    end
+    if fields.recipe_order then
+        meta:set_string("crafting:no_reorder", fields.recipe_order)
+        setting_changed(player, "crafting:no_reorder", tobool(fields.recipe_order), meta)
     end
     -- setting music on/off
     if fields.nomusic then
