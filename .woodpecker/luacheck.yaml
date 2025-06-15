@@ -5,5 +5,5 @@ steps:
   - name: luacheck
     image: registry.gitlab.com/pipeline-components/luacheck:latest
     commands:
-      - luacheck ${CI_PIPELINE_FILES}
+      - luacheck `echo ${CI_PIPELINE_FILES} | tr -d "[],"`
 
