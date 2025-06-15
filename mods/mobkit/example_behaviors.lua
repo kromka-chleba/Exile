@@ -1,14 +1,8 @@
 local abs = math.abs
 local pi = math.pi
-local floor = math.floor
 local ceil = math.ceil
 local random = math.random
 local sqrt = math.sqrt
-local max = math.max
-local min = math.min
-local tan = math.tan
-local pow = math.pow
-local dbg = minetest.chat_send_all
 
 local abr = tonumber(minetest.get_mapgen_setting('active_block_range')) or 3
 
@@ -69,7 +63,8 @@ function mobkit.is_neighbor_node_reachable(self,neighbor)
         if tpos.y+self.height-pos.y > 1 then
             -- if head in next node above, else no point checking headroom
             local snpos = mobkit.get_node_pos(pos)
-            local pos1 = {x=pos.x,y=snpos.y+1,z=pos.z}                                             -- current pos plus node up
+            local pos1 = {x=pos.x,y=snpos.y+1,z=pos.z}
+            -- current pos plus node up
             local pos2 = {x=tpos.x,y=tpos.y+self.height,z=tpos.z}                  -- target head pos
 
             local nodes = mobkit.get_nodes_in_area(pos1,pos2,true)
@@ -95,8 +90,8 @@ function mobkit.get_next_waypoint(self,tpos)
     local pos = mobkit.get_stand_pos(self)
     local dir=vector.direction(pos,tpos)
     local neighbor = mobkit.dir2neighbor(dir)
-    local function update_pos_history(self,pos)
-        table.insert(self.pos_history,1,pos)
+    local function update_pos_history(update_pos)
+        table.insert(self.pos_history,1,update_pos)
         if #self.pos_history > 2 then
             table.remove(self.pos_history,#self.pos_history)
         end
@@ -236,7 +231,7 @@ end
 ----------------------------
 
 function mobkit.lq_turn2pos(self,tpos)
-    local func=function(self)
+    local func=function()
         local pos = self.object:get_pos()
         return mobkit.turn2yaw(self,
                                minetest.dir_to_yaw(vector.direction(pos,tpos)))
@@ -247,7 +242,7 @@ end
 function mobkit.lq_idle(self,duration,anim)
     anim = anim or 'stand'
     local init = true
-    local func=function(self)
+    local func=function()
         if init then
             mobkit.animate(self,anim)
             init=false
@@ -261,7 +256,7 @@ end
 function mobkit.lq_dumbwalk(self,dest,speed_factor)
     local timer = 3                      -- failsafe
     speed_factor = speed_factor or 1
-    local func=function(self)
+    local func=function()
         mobkit.animate(self,'walk')
         timer = timer - self.dtime
         if timer < 0 then return true end
@@ -298,7 +293,7 @@ end
 function mobkit.lq_dumbjump(self,height,anim)
     anim = anim or 'stand'
     local jump = true
-    local func=function(self)
+    local func=function()
         local yaw = self.object:get_yaw()
         if self.isonground then
             if jump then
@@ -325,7 +320,7 @@ end
 
 function mobkit.lq_jumpout(self)
     local phase = 1
-    local func=function(self)
+    local func=function()
         local vel=self.object:get_velocity()
         if phase == 1 then
             vel.y=vel.y+5
@@ -343,7 +338,7 @@ end
 
 function mobkit.lq_freejump(self)
     local phase = 1
-    local func=function(self)
+    local func=function()
         local vel=self.object:get_velocity()
         if phase == 1 then
             vel.y=vel.y+6
@@ -361,13 +356,11 @@ end
 
 function mobkit.lq_jumpattack(self,height,target)
     local init=true
-    local timer=0.5
     local tgtbox = target:get_properties().collisionbox
-    local func=function(self)
+    local func=function()
         if not mobkit.is_alive(target) then return true end
         if self.isonground then
             if init then   -- collision bug workaround
-                local vel = self.object:get_velocity()
                 local dir = minetest.yaw_to_dir(self.object:get_yaw())
                 dir=vector.multiply(dir,6)
                 dir.y = -mobkit.gravity*sqrt(height*2/-mobkit.gravity)
@@ -403,7 +396,7 @@ end
 function mobkit.lq_fallover(self)
     local zrot = 0
     local init = true
-    local func=function(self)
+    local func=function()
         if init then
             local vel = self.object:get_velocity()
             self.object:set_velocity(mobkit.pos_shift(vel,{y=1}))
@@ -434,9 +427,8 @@ function mobkit.dumbstep(self,height,tpos,speed_factor,idle_duration)
 end
 
 function mobkit.hq_roam(self,prty)
-    local func=function(self)
+    local func=function()
         if mobkit.is_queue_empty_low(self) and self.isonground then
-            local pos = mobkit.get_stand_pos(self)
             local neighbor = random(8)
 
             local height, tpos, liquidflag = mobkit.is_neighbor_node_reachable(self,neighbor)
@@ -447,7 +439,7 @@ function mobkit.hq_roam(self,prty)
 end
 
 function mobkit.hq_follow0(self,tgtobj) -- probably delete this one
-    local func = function(self)
+    local func = function()
         if not tgtobj then return true end
         if mobkit.is_queue_empty_low(self) and self.isonground then
             local pos = mobkit.get_stand_pos(self)
@@ -478,7 +470,7 @@ function mobkit.hq_follow0(self,tgtobj) -- probably delete this one
 end
 
 function mobkit.hq_follow(self,prty,tgtobj)
-    local func = function(self)
+    local func = function()
         if not mobkit.is_alive(tgtobj) then return true end
         if mobkit.is_queue_empty_low(self) and self.isonground then
             local pos = mobkit.get_stand_pos(self)
@@ -494,7 +486,7 @@ function mobkit.hq_follow(self,prty,tgtobj)
 end
 
 function mobkit.hq_goto(self,prty,tpos)
-    local func = function(self)
+    local func = function()
         if mobkit.is_queue_empty_low(self) and self.isonground then
             local pos = mobkit.get_stand_pos(self)
             if vector.distance(pos,tpos) > 3 then
@@ -510,7 +502,7 @@ end
 function mobkit.hq_runfrom(self,prty,tgtobj)
     local init=true
     local timer=6
-    local func = function(self)
+    local func = function()
 
         if not mobkit.is_alive(tgtobj) then return true end
         if init then
@@ -540,7 +532,7 @@ function mobkit.hq_runfrom(self,prty,tgtobj)
 end
 
 function mobkit.hq_hunt(self,prty,tgtobj)
-    local func = function(self)
+    local func = function()
         if not mobkit.is_alive(tgtobj) then return true end
         if mobkit.is_queue_empty_low(self) and self.isonground then
             local pos = mobkit.get_stand_pos(self)
@@ -562,7 +554,7 @@ function mobkit.hq_warn(self,prty,tgtobj)
     local timer=0
     local tgttime = 0
     local init = true
-    local func = function(self)
+    local func = function()
         if not mobkit.is_alive(tgtobj) then return true end
         if init then
             mobkit.animate(self,'stand')
@@ -599,10 +591,10 @@ end
 function mobkit.hq_die(self)
     local timer = 3
     local start = true
-    local func = function(self)
+    local func = function()
         if start then
             mobkit.lq_fallover(self)
-            self.logic = function(self) end        -- brain dead as well
+            self.logic = function() end        -- brain dead as well
             start=false
         end
         timer = timer-self.dtime
@@ -612,7 +604,7 @@ function mobkit.hq_die(self)
 end
 
 function mobkit.hq_attack(self,prty,tgtobj)
-    local func = function(self)
+    local func = function()
         if not mobkit.is_alive(tgtobj) then return true end
         if mobkit.is_queue_empty_low(self) then
             local pos = mobkit.get_stand_pos(self)
@@ -640,7 +632,7 @@ end
 function mobkit.hq_liquid_recovery(self,prty)   -- scan for nearest land
     local radius = 1
     local yaw = 0
-    local func = function(self)
+    local func = function()
         if not self.isinliquid then return true end
         local pos=self.object:get_pos()
         local vec = minetest.yaw_to_dir(yaw)
@@ -666,7 +658,7 @@ end
 function mobkit.hq_swimto(self,prty,tpos)
     local box = self.object:get_properties().collisionbox
     local cols = {}
-    local func = function(self)
+    local func = function()
         if not self.isinliquid then
             if self.isonground then return true end
             return false
@@ -682,7 +674,7 @@ function mobkit.hq_swimto(self,prty,tpos)
             cols = mobkit.get_box_displace_cols(pos,box,dir,1)
             for _,p in ipairs(cols[1]) do
                 p.y=pos.y
-                local h,l = mobkit.get_terrain_height(p)
+                local h,_ = mobkit.get_terrain_height(p)
                 if h and h>pos.y and self.isinliquid then
                     mobkit.lq_freejump(self)
                     break
@@ -718,7 +710,7 @@ local function aqua_radar_dumb(pos,yaw,range,reverse)
                     return false
                 end
             else
-                local h,l = mobkit.get_terrain_height(p)
+                local h,_ = mobkit.get_terrain_height(p)
                 if h then
                     local node2 = mobkit.nodeatpos({x=p.x,y=h+1.99,z=p.z})
                     if node2 and node2.drawtype == 'liquid' then return true, h end
@@ -741,7 +733,7 @@ local function aqua_radar_dumb(pos,yaw,range,reverse)
             ffrom, fto, fstep = 1,3,1
         end
         for i=ffrom, fto, fstep  do
-            local ok,h = okpos(mobkit.pos_translate2d(pos,yaw+i,range))
+            ok,h = okpos(mobkit.pos_translate2d(pos,yaw+i,range))
             if ok then return yaw+i,h end
             ok,h = okpos(mobkit.pos_translate2d(pos,yaw-i,range))
             if ok then return yaw-i,h end
@@ -774,7 +766,7 @@ function mobkit.hq_aqua_roam(self,prty,speed)
     local init = true
     local prvscanpos = {x=0,y=0,z=0}
     local center = self.object:get_pos()
-    local func = function(self)
+    local func = function()
         if init then
             mobkit.animate(self,'def')
             init = false
@@ -816,7 +808,7 @@ function mobkit.hq_aqua_roam(self,prty,speed)
 end
 
 function mobkit.hq_aqua_turn(self,prty,tyaw,speed)
-    local func = function(self)
+    local func = function()
         local finished=mobkit.turn2yaw(self,tyaw)
         --                local yaw = self.object:get_yaw()
         mobkit.go_forward_horizontal(self,speed)
@@ -830,7 +822,7 @@ function mobkit.hq_aqua_attack(self,prty,tgtobj,speed)
     local prvscanpos = {x=0,y=0,z=0}
     local init = true
     local tgtbox = tgtobj:get_properties().collisionbox
-    local func = function(self)
+    local func = function()
         if not mobkit.is_alive(tgtobj) then return true end
         if init then
             mobkit.animate(self,'fast')
@@ -856,9 +848,9 @@ function mobkit.hq_aqua_attack(self,prty,tgtobj,speed)
         end
 
         local tpos = tgtobj:get_pos()
-        local tyaw=minetest.dir_to_yaw(vector.direction(pos,tpos))
+        tyaw=minetest.dir_to_yaw(vector.direction(pos,tpos))
         mobkit.turn2yaw(self,tyaw,3)
-        local yaw = self.object:get_yaw()
+        yaw = self.object:get_yaw()
         if mobkit.timer(self,1) then
             if not mobkit.is_in_deep(tgtobj) then return true end
             local vel = self.object:get_velocity()
