@@ -267,6 +267,9 @@ local function new_cache(player)
     -- player settings and input mode ---------------------
     -- input mode--
     local meta = player:get_meta()
+    -- do we want recipes to be reordered by crafting state ?
+    -- order, unless explicity specifiate not too (no_order == "false")
+    cache.order = (meta:get_string("crafting:no_reorder") ~= "true")
     local option = meta:get_int("crafting:ingredients")
     if option == 0 then -- if field was not present in meta
         option = default_option
@@ -280,11 +283,6 @@ local function new_cache(player)
     -- depends on activated options
     -- used to trigger refresh recipe button/system
     cache.updated = input_options[option].updated(cache)
-
-    -- do we want recipes to be reordered by crafting state ?
-    -- could be a player setting, but currently hardcoded to "true"
-    cache.order = true
-
 
     -- adds modification and initiate functions metatable
     setmetatable(cache, cache_func)
@@ -340,6 +338,18 @@ end
 -- localize
 local get_FS_cache = crafting.get_FS_cache
 
+-- register action in case order field is changed in player_setting
+minimal.register_on_player_setting_change(
+    function(player, meta_name, value, meta)
+        if meta_name == "crafting:no_reorder" then
+            local cache = crafting.get_FS_cache(player)
+            -- no need to change if no cache
+            -- field will be check when cache is generated
+            if cache then
+                cache.order =  not value
+            end
+        end
+    end)
 
 -- Formspec generation ---------------------------------------------------------
 
