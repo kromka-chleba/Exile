@@ -188,6 +188,28 @@ local function reset_recipes_states(cache, criteria)
     end
 end
 
+-- updates one recipe state
+-- #TODO recipe.count could be updated in update_state I guesss
+local function update_recipe_state(cache, p_recipe, criteria)
+    if criteria ~= "possible" then -- craftable by default
+        if not cache.item_hash then
+            cache.item_hash = cache:get_input_hash()
+        end
+        -- updates craftable state
+        p_recipe:update_state(cache.item_hash)
+        -- update count label
+        p_recipe.count = get_craft_count(cache, p_recipe, cache.item_hash)
+    else -- "possible"
+        if not cache.possible_hash then
+            cache.possible_hash = cache:get_input_hash("total")
+        end
+        p_recipe:update_state(cache.possible_hash, "possible")
+        -- update count label
+        p_recipe.count = get_craft_count(cache, p_recipe, cache.possible_hash)
+    end
+
+end
+
 --[[ updates recipes states.
     * renew item_hash if nil
 ]]
@@ -591,7 +613,20 @@ local function push_recipe(cache, btn_id, player, player_name)
             return true -- need to refresh formspec
         end
     -- else if recipe is possible, transfer
-    elseif p_recipe.possible then
+    elseif p_recipe.possible ~= false then
+        -- indicates we have no possible state (hint button off)
+        if p_recipe.possible == nil then
+            -- lets still transfer it if possible !
+            -- update possible state
+            update_recipe_state(cache, p_recipe, "possible")
+            -- if after that, still not possible -> impossible
+            if p_recipe.possible == false then
+                minimal.warn_message(player, player_name, S("Missing required items!"))
+                return false -- do not refresh recipe_panel
+            end
+            --else continue #TODO make separate function for clarity
+        end
+
         -- get possible count
         local count = get_craft_count(cache, p_recipe, cache.possible_hash)
         local inputs = cache:get_craft_input()
