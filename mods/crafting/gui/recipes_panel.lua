@@ -439,7 +439,7 @@ do
         --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
         used to place them on a grid, including tabs]]
         local line_number = 3 -- nb of lines of recipes displayed
-        local grid_size = 1.2
+        local grid_size = 1.2 -- size of a tile of the grid
 
         -- Add recipes list -------------------------------------------------
 
@@ -471,22 +471,39 @@ do
         if nb_recipes > columns * line_number then
             -- columns = columns -1 -- discard a line to make room for scrollbar
             local scroll_max = math.ceil(nb_recipes / columns)-line_number
-            FS_recipes[#FS_recipes + 1] =
-            'scrollbaroptions[max=' .. tonumber(scroll_max) .. ';'
-            .. 'smallstep=1;largestep=line_number;thumbsize=1]'
-            FS_recipes[#FS_recipes + 1]
-            = 'scrollbar[7.1,0.95;.5,' .. (1.14*line_number) .. ';vertical;recipes_scroll;'
-            .. sScroll .. ']'
+
+            FS_recipes[#FS_recipes + 1] = tofstring(
+                {
+                    'scrollbaroptions[',
+                    'max=' .. tonumber(scroll_max) .. ';', -- max
+                    -- move with click/mouse scroll
+                    'smallstep=' .. line_number .. ';',
+                    -- move with page up/down key
+                    'largestep=' .. line_number .. ';',
+                    'thumbsize=1]'
+                })
+
+            FS_recipes[#FS_recipes + 1] = tofstring(
+                {
+                    'scrollbar[',
+                    '7.1,0.95;', -- position
+                    '0.5,' .. (1.14*line_number).. ';', -- width/height
+                    'vertical;', -- orientation
+                    'recipes_scroll;', -- name
+                    sScroll .. ']' -- value
+                })
         end
 
         -- create scroll container
-        FS_recipes[#FS_recipes + 1] = tofstring({'scroll_container[0,0.75;',
-                                            tostring(columns + 1),',',
-                                            (1.25 * line_number),
-                                            ';recipes_scroll;vertical;',
-                                             grid_size ,
-                                              ']'
-                                            })
+        FS_recipes[#FS_recipes + 1] = tofstring(
+            {
+                'scroll_container[0,0.75;', --X,Y position
+                tostring(columns + 1),',', -- Width
+                (1.25 * line_number), -- Height
+                ';recipes_scroll;vertical;', -- scrollbar name and orientation
+                grid_size , --optional scrollfactor
+                ']'
+            })
 
         -- Add recipe buttons in container  ------------------------------
         local x = 0
