@@ -11,6 +11,7 @@ Enable wide HUDbar=
 Show numeric stats=
 Enable Break-taker popup=
 Allow digging with a full inventory=
+Keep fixed order for recipes=
 Disable music=
 Temperature scale=
 GUI theme=
