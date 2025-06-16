@@ -149,6 +149,11 @@ local default_option = 1
         `to_sort` = true -- do I need to resort order of the recipes ?
         `order` -- do we want recipes to be ordered by crafting state ?
 
+        `closed` -- is the cache closed.
+        Will be reopen by any action on the formspec
+        (since no open inventory callback, it seems to be the best we can do)
+        WARNING: Will be "nil" at cache creation,
+        probably ok since currently cache is created only on first arrival on the page (clothing page as default)
     }
     If updated,a section should be set to nil to force a redraw.
     only sections cleared are recreated via crafting.make_crafting_formspec
@@ -349,6 +354,7 @@ function crafting.make_crafting_formspec(player, open)
         -- updates item_hash and recipes
         cache:reset_recipes()
         cache.updated = true -- no need for refresh button
+        cache.closed = false -- formspec open
     end
 
     -- output will be the formspec string
@@ -610,6 +616,8 @@ function crafting.close_crafting_formspec(player, cache)
     -- set updated status and next opening page
     cache.updated = input_options[cache.craft_input].updated(cache)
 
+    cache.closed = true -- formspec closed
+
     -- put below things to do in that case
     ------------------------------------
     --[[ to bring clothing page
@@ -659,6 +667,8 @@ function crafting.process_receive_fields(player, formname, fields)
         crafting.close_crafting_formspec(player, cache)
         return cache
     end
+    -- else mark formspec as open
+    cache.closed = false
 
     -- process scrollbar
     if fields.recipes_scroll then
@@ -820,6 +830,10 @@ function crafting.refresh_recipes_FS(player)
     local player_name = player:get_player_name()
     local cache = FS_cache[player_name]
     if cache then
+        -- do nothing if cache is closed and doesn't need an update
+        if cache.closed and cache.updated then
+            return
+        end
         -- reset item_hashes and recipe panel, and reorder
         cache:reset_recipes()
         -- refresh formspec
@@ -850,6 +864,25 @@ minetest.register_on_player_inventory_action(function(player, action,
             or from_list == "input_items"
             or to_list == "input_items"
             or listname == "input_items" then
+
+        -- if input_items is concerned, it means formspec is open
+        if from_list == "input_items"
+                or to_list == "input_items"
+                or listname == "input_items" then
+            local cache = FS_cache[player:get_player_name()]
+            -- cache shouldn't be nil anyway, if we have access to input_list
+            if cache then
+                cache.closed = false
+            else
+                core.log("cache shouldn't be nil "
+                .. "since we moved things in input_items list (in on_player_inventory_action)")
+                return
+            end
+        end
+
+        --[[ #TODO could be improved to not update if internal move in the same inventory.
+        I am not sure if this triggers it anyway.]]
+
         core.after(0.1, crafting.refresh_recipes_FS , player)
     end
 end

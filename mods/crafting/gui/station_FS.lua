@@ -84,6 +84,7 @@ local function cache_on_station(player, placed_tool, pos)
     cache.station = get_station_info(placed_tool, pos)
     -- don't have refresh recip button but display directly craftable state
     cache.updated = true
+    cache.closed = false -- formspec opened
     -- generates corresponding tools list
     cache.tool_list = crafting.generate_tools_list(placed_tool)
     -- updates cache with new selected `placed_tool` as tool
