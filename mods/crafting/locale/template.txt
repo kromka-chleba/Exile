@@ -1,4 +1,9 @@
 # textdomain: crafting
+
+#General format with ":"
+@1:=
+Empty @1=
+
 log=
 fibrous plant=
 sand=
@@ -26,7 +31,16 @@ Stack=
 Maximum=
 Quantity=
 Use first:=
+
 #gui.lua
+#unit of item like "Freshwater (Pot)"
+@1 (@2)=
+
 Missing required items!=
 Crafting=
 Crafted by: @1=
+You are using: @1=
+Filter=
+Clear=
+Tool:=
+will not be consumed:=

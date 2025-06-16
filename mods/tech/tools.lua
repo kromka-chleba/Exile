@@ -191,6 +191,18 @@ end
 
 -- Tools -----------------------------------------------------------------------
 
+minetest.register_tool("tech:hand",
+        {
+        description = S("Bare Hands"),
+        inventory_image = "tech_hand.png",
+        -- copied from tech:crafting_spot
+        exile_crafting = {
+            craft_types  = {'hand','hand_tools','hand_pottery','hand_mixing',
+                            'weaving_frame','threshing_spot'},
+            craft_level  = 2,
+            }
+        })
+
 --1st level -- Crude emergency tools ------------------------------------------
 --------------------------------------------------------------------------------
 
