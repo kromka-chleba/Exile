@@ -35,8 +35,10 @@ local crafting_path = core.get_modpath("crafting")
 dofile(crafting_path .. "/groups.lua")
 dofile(crafting_path .. "/recipes_def.lua")
 dofile(crafting_path .. "/recipes_unlock.lua")
+dofile(crafting_path .. "/recipes.lua")
 dofile(crafting_path .. "/api.lua")
-dofile(crafting_path .. "/gui.lua")
+dofile(crafting_path .. "/search_filter.lua")
+dofile(crafting_path .. "/gui/init.lua")
 
 if minetest.global_exists("awards") then
     awards.register_on_unlock(function(name, award)

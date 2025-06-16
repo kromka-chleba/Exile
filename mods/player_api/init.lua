@@ -30,10 +30,9 @@ end
 dofile(modpath .. "/states.lua")
 dofile(modpath .. "/hand.lua")
 dofile(modpath .. "/base_texture.lua")
-dofile(modpath .. "/clothing/init.lua") -- ex cloths.lua + ex "clothing" mod
 dofile(modpath .. "/api.lua")
 dofile(modpath .. "/controls.lua")
-
+dofile(modpath .. "/clothing/init.lua") -- ex cloths.lua + ex "clothing" mod
 
 animation_table = {
     -- Standard animations.
@@ -80,8 +79,7 @@ player_api.register_model("character-f.b3d", {
     eye_height = 1.38,
 })
 
--- Update appearance when the player joins
-minetest.register_on_joinplayer(function(player)
+local function initialize_player (player)
     local player_name = player:get_player_name()
     player_api.player_attached[player_name] = false
     local gender = player_api.get_gender(player)
@@ -104,4 +102,16 @@ minetest.register_on_joinplayer(function(player)
     local gender_model = player_api.get_gender_model(gender)
     player_api.registered_models[gender_model].textures[1] = cloth
     player_api.set_model(player, gender_model)
+end
+
+-- Update appearance when the player joins
+minetest.register_on_joinplayer(function(player)
+    initialize_player (player)
+
+    --[[by default, if no context is created,
+        we get the defautl sfinv homepage.
+    set our page to clothing formspec while player is initialized
+    (the formspec needs the texture to display the model)
+        ]]
+    sfinv.set_page(player, "clothing:clothing")
 end)

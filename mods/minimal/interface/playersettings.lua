@@ -111,6 +111,31 @@ minimal.register_on_player_setting_change = function(func)
     changed_callbacks[#changed_callbacks + 1] = func
 end
 
+-- to deal with clicking on the button in sfinv
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+    -- check if we are in sfinv form
+	if formname ~= "" or not sfinv.enabled then
+		return false
+	end
+    -- Get Context
+    local name = player:get_player_name()
+    local context = sfinv.contexts[name]
+    if not context then -- shouldn't happen since opening sfinv generates it
+        return false
+    end
+    -- was settings button pushed ?
+    if fields.player_settings then
+        -- leave current page (= run the function to close them)
+        local oldpage = sfinv.pages[context.page]
+        if oldpage and oldpage.on_leave then
+            oldpage:on_leave(player, context)
+        end
+        --sfinv.set_page(player, "minimal:player_settings")
+        minimal.show_player_settings(name, player:get_meta())
+        return true -- don't call remaining functions
+    end
+end)
+
 -- return true if something changed, false else
 -- see (*) comment below on why this is a separate function
 local function process_receive_fields(player, formname, fields)
@@ -134,6 +159,19 @@ local function process_receive_fields(player, formname, fields)
     if temp_fromnum[num] and temp_fromnum[num] ~= oldtempscale then
         meta:set_string("tempscale", temp_fromnum[num])
         setting_changed(player, "tempscale", temp_fromnum[num], meta)
+    end
+
+    -- close crafting formspec on quit (if not already done)
+    --[[This is because opening player setting only leaves the tab, but doesn't run closing crafting function,
+    and I can't trigger come back to the tab in current luanti engin
+    (I would need to trigger inventory formspec from outside and I can't)
+    Else, ideal would be to come back to "oldpage"]]
+    if fields.quit then
+        -- returns nil if no cache (already closed)
+        -- #TODO that could probably be improved t depend less on what we do on crafting side.
+        if crafting.close_crafting_formspec(player) then
+            sfinv.set_player_inventory_formspec(player)
+        end
     end
 
     -- setting HUD Opacity
