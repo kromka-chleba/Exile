@@ -47,6 +47,46 @@ local function generate_shiftclick_ring()
     return table.concat(ring)
 end
 
+-- Health effects display - copied from lore/char_tab.lua to test option
+-- then modified
+local function effects_fs(player)
+    local fs = {
+        --"box[0,0;4,3;black]",
+        "image[0.1,0.1;0.65,0.65;hud_effects.png]",
+        "style_type[label;font=bold]",
+        "label[1.05,0.3; "..S("Health Effects")..":]",
+        "style_type[label;font=normal]"
+    }
+
+    local y = 0.4
+    local st = player_api.get_state(player)
+    local labels = st:read_labels()
+    for _, effect in ipairs(labels) do
+        y = y + 0.4
+        fs[#fs+1] = "label[1.05,"..y.."; "
+            .. effect[1]
+            .. (effect[1] ~= "" and " " or "") -- only add a space if effect[1] exists
+            .. (effect[2] or "").."]"
+    end
+
+    return table.concat(fs,"")
+end
+
+-- return true if something changed, false else
+local function process_receive_fields(player, fields)
+    -- process get recipes button
+    if fields.craft then
+        sfinv.set_page(player, "crafting:crafting")
+        return true
+    elseif fields.craft_clothes then
+        -- TODO a function to link number and name. 5 ois for cloths here
+        -- TODO dependency on crafting, put an "if" on the button display
+        crafting.set_page(player, 5)
+        sfinv.set_page(player, "crafting:crafting")
+        return true
+    end
+end
+
 -- Generate the page container
 local clothing_page = {
     title = S("Clothing"),
@@ -58,7 +98,9 @@ local clothing_page = {
             player_api.get_current_texture(player) )
 
         local formspec = {
-            "container[0,0]",
+
+            -- clothing_model (right part)
+            "container[0.8,0]",
             "label[4,1;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]",
             "label[4,1.5;" .. FS("Max Temperature Tolerance: @1", cur_tmax) .. " ]",
 
@@ -82,21 +124,46 @@ local clothing_page = {
             --player inventory display : currently done in sfinv/api.lua
             --"list[current_player;main;0.35,7.3;8,1;]"..
             --"list[current_player;main;0.35,8.55;8,3;8]" ..
-            "label[0.35,10.2;Tip : use \"shift\" key to switch clothes]",
+
 
             -- enable equip with "shift" key.
             generate_shiftclick_ring(),
 
-            "container_end[]"
+            "container_end[]",
+
+            -- not sure where to put it without looking ugly
+            -- + would need translation
+            -- "label[0.8,9.75;Tip : use \"shift\" key to switch clothes]"
             }
+
+        -- health effects
+        formspec[#formspec + 1] = "container[0.8,2]"
+        formspec[#formspec + 1] = effects_fs(player)
+        formspec[#formspec + 1] = "container_end[]"
+
+        -- buttons to crafting formspec
+        if core.global_exists("crafting") then
+            formspec[#formspec + 1] =
+            "button[1.2,0.8;3,0.8;craft_clothes;" .. S("Craft clothes") .. "]"
+            --.. "button[0.8,1.6;4,0.8;craft;" .. S("Craft other things") .. "]"
+        end
             -- call a function making a size[10.5,10.9] formspec with that content and adding tabs if needed
         return sfinv.make_formspec_for_exile(player, context,
                                    table.concat(formspec), true)
+    end,
+    on_player_receive_fields = function(self, player,
+                                        context, fields)
+        -- currently only one button, could be more later
+        process_receive_fields(player, fields)
     end
 }
 
 --register the page as tab in the formspec called when pressing "inventory" key
 sfinv.register_page("clothing:clothing", clothing_page)
+
+-- register the page as "need to be refreshed on globalstep (health changes)"
+player_api.register_page_name("clothing:clothing")
+
 --------------------------------------------------------------------------------
 
 -- Equip/unequip system --------------------------------------------------------
