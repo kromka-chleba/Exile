@@ -861,13 +861,17 @@ function crafting.refresh_recipes_FS(player)
 end
 
 -- Refresh recipe list when items are moved/dragged in and out of main and input panel inventories
--- #TODO could be improve to not trigger a refresh in case of internal move in the same list
 minetest.register_on_player_inventory_action(function(player, action,
                                                     inventory, inventory_info)
     local from_list = inventory_info.from_list -- for move
     local to_list = inventory_info.to_list -- for move
     local listname = inventory_info.listname -- for put and take
     --if we get or drop things from main inventory, or move things between main and input_items, refresh recipes
+    -- do nothing if the move is inside the same list
+    if from_list == to_list and from_list ~= nil then
+        return
+    end
+
     if from_list == "main"
             or to_list == "main"
             or listname == "main"
@@ -889,9 +893,6 @@ minetest.register_on_player_inventory_action(function(player, action,
                 return
             end
         end
-
-        --[[ #TODO could be improved to not update if internal move in the same inventory.
-        I am not sure if this triggers it anyway.]]
 
         core.after(0.1, crafting.refresh_recipes_FS , player)
     end
