@@ -7,6 +7,7 @@ not_in_creative_inventory
 slippery
 falling_node
 attached_node
+craft_ground - Nodes with a solid flat surface - appropriate for simple crafting tasks.
 craftedby - Add creator meta data to node; used for crafted by labels and keys
 edible - Nodes that are edible - auto adds on_use callbacks to eat
 `nobones`: Don't put this item into bones piles. e.g. crafting spots

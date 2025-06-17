@@ -26,7 +26,7 @@ local moon_glass = {
     sunlight_propagates  = true,
     use_texture_alpha = c_alpha.blend,
     sounds = nodes_nature.node_sound_glass_defaults(),
-    groups = {cracky = 1,},
+    groups = {cracky = 1, craft_ground = 1},
     after_place_node = minimal.protection_after_place_node,
 }
 minetest.register_node("artifacts:moon_glass", moon_glass)
@@ -163,7 +163,7 @@ local antiq = {
     tiles = {"artifacts_antiquorium.png"},
     stack_max = minimal.stack_max_bulky *4,
     sounds = nodes_nature.node_sound_glass_defaults(),
-    groups = {cracky = 1,},
+    groups = {cracky = 1, craft_ground = 1},
     after_place_node = minimal.protection_after_place_node,
 }
 minetest.register_node("artifacts:antiquorium", antiq)

@@ -390,7 +390,7 @@ minetest.register_node(
                 {-0.0625, 0.25, 0, 0.1875, 0.5, 0.5}, -- NodeBox38
             }
         },
-        groups = {oddly_breakable_by_hand = 3, falling_node = 1},
+        groups = {oddly_breakable_by_hand = 3, falling_node = 1, craft_ground = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
@@ -405,7 +405,7 @@ minetest.register_node("tech:bricks_and_mortar", {
                            stack_max = minimal.stack_max_bulky * 4,
                            paramtype2 = "facedir",
                            drop = "tech:loose_brick",
-                           groups = {cracky = 2, masonry = 1},
+                           groups = {cracky = 2, masonry = 1, craft_ground = 1},
                            sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
@@ -416,7 +416,7 @@ stairs.register_stair_and_slab(
     "brick_makers_bench",
     "true",
     "brick_makers_bench_mixing",
-    {cracky = 2},
+    {cracky = 2, craft_ground = 1},
     {"tech_bricks_and_mortar.png"},
     S("Brick and Mortar Stair"),
     S("Brick and Mortar Slab"),
@@ -801,7 +801,7 @@ minetest.register_node(
         drawtype = "normal",
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {cracky = 3, oddly_breakable_by_hand = 3 },
+        groups = {cracky = 3, oddly_breakable_by_hand = 3, craft_ground = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
         after_place_node = loose_tile_after_place_node,
         on_timer = function(pos, elapsed)
@@ -818,7 +818,7 @@ minetest.register_node(
         drawtype = "normal",
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {cracky = 3},
+        groups = {cracky = 3, craft_ground = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
         drop = "tech:tile_block_loose",
 })
@@ -840,7 +840,7 @@ stairs.register_stair_and_slab(
     "brick_makers_bench_mixing",
     "true",
     "brick_makers_bench_mixing",
-    {cracky = 3, oddly_breakable_by_hand = 3},
+    {cracky = 3, oddly_breakable_by_hand = 3, craft_ground = 1},
     {loose_tile_texture},
     S("Tile Stair (Loose)"),
     S("Tile Slab (Loose)"),
@@ -876,7 +876,7 @@ stairs.register_stair_and_slab(
     "brick_makers_bench_mixing",
     "true",
     "brick_makers_bench_mixing",
-    {cracky = 3},
+    {cracky = 3, craft_ground = 1},
     {"tech_roof_tiles.png"},
     S("Tile Stair"),
     S("Tile Slab"),
@@ -916,7 +916,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
                 drop = brick.name,
                 paramtype2 = "facedir",
                 stack_max = minimal.stack_max_bulky *3,
-                groups = {cracky = hardness, masonry = 1},
+                groups = {cracky = hardness, masonry = 1, craft_ground = 1},
                 sounds = nodes_nature.node_sound_stone_defaults(),
         })
 
@@ -928,7 +928,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
                 paramtype2 = "facedir",
                 drop = block.name,
                 stack_max = minimal.stack_max_bulky *2,
-                groups = {cracky = hardness, masonry = 1},
+                groups = {cracky = hardness, masonry = 1, craft_ground = 1},
                 sounds = nodes_nature.node_sound_stone_defaults(),
         })
 
@@ -958,7 +958,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
             brick_mortar_type,
             "true",
             brick_mortar_recycle_type,
-            {cracky = hardness},
+            {cracky = hardness, craft_ground = 1},
             {brick.tiles[1].."^tech_mortar_brick.png"},
             S("@1 Brick with Mortar Stair", desc),
             S("@1 Brick with Mortar Slab", desc),
@@ -976,7 +976,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
                 block_mortar_type,
                 "false",
                 block_mortar_recycle_type,
-                {cracky = hardness},
+                {cracky = hardness, craft_ground = 1},
                 {block.tiles[1].."^tech_mortar_block.png"},
                 S("@1 Block with Mortar Stair", desc),
                 S("@1 Block with Mortar Slab", desc),

@@ -72,23 +72,29 @@ local function get_station_info(station, pos)
     return {desc = desc, creator = creator}
 end
 
--- generates cache and set it for crafting formspec
+-- generates cache and set it for crafting formspec for crafting by hand and
+-- with an optional tool 'placed_tool'
 local function cache_on_station(player, placed_tool, pos)
-    if not placed_tool then
-        core.log("invalid empty station to use on right click")
-        return
-    end
     -- get or generate cache if non existent
     local cache = crafting.get_FS_cache(player, true)
-    -- adds station info
-    cache.station = get_station_info(placed_tool, pos)
     -- don't have refresh recip button but display directly craftable state
     cache.updated = true
     cache.closed = false -- formspec opened
-    -- generates corresponding tools list
-    cache.tool_list = crafting.generate_tools_list(placed_tool)
-    -- updates cache with new selected `placed_tool` as tool
-    cache:set_tool(placed_tool)
+
+    -- add a tool to the formspec?
+    if placed_tool then
+        -- adds station info
+        cache.station = get_station_info(placed_tool, pos)
+        -- generates corresponding tools list
+        cache.tool_list = crafting.generate_tools_list(placed_tool)
+        -- updates cache with new selected `placed_tool` as tool
+        cache:set_tool(placed_tool)
+    else
+        -- in crafting.refresh_recipes_FS() cache.station must not be nil,
+        -- otherwise inventory formspec will be updated instead of the displayed
+        -- #TODO Remove this, when we remove crafting from inventory formspec
+        cache.station = {}
+    end
 end
 
 local function cache_off_station(player)
@@ -102,7 +108,8 @@ local function cache_off_station(player)
     cache:set_tool()
 end
 
--- used when inventory tab was opened with right click on a tool
+-- used when inventory tab was opened with right click on a tool or on
+-- crafting ground
 minetest.register_on_player_receive_fields(function(player, formname, fields)
         if formname ~= 'exile:crafting' then return false; end -- Not our form.
 
@@ -123,17 +130,28 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         end
 end)
 
--- display craft form on right click on a tool
+-- display craft form on right click on a tool node or only for
+-- crafting types supported by tech:hand - with node == {}
 function crafting.crafting_item_on_rightclick(pos,node,clicker,
-                                             itemstack,pointed_thing)
-    -- did a player click ?
+                                              itemstack,pointed_thing)
+    -- #TODO this function requires only a name not a node or pointed_thing
+    assert(node, "crafting.crafting_item_on_rightclick: invalid node provided")
+    local tool_name = node.name
+
+    -- did a player click?
     if not minetest.is_player(clicker) then
         return
     end
 
-    -- #TODO we should check it is a valid node before doingthat,
-    -- since this is a global function
-    cache_on_station(clicker, node.name, pos)
+    -- tool_name must be nil or refer to a node with crafting properties set
+    if not tool_name == nil then
+        local def = minetest.registered_nodes[tool_name]
+        if not def or not def.exile_crafting then
+            error("invalid crafting tool: " .. tool_name)
+        end
+    end
+    -- update cache before showing formspec
+    cache_on_station(clicker, tool_name, pos)
 
     -- generates and shows station's formspec
     local formspec = make_tool_formspec(clicker)
@@ -142,3 +160,7 @@ function crafting.crafting_item_on_rightclick(pos,node,clicker,
 
     return itemstack
 end
+
+-- set minimal's function to open crafting formspec on right click with empty
+-- hand on a proper crafting ground
+minimal.set_crafting_ground_on_rightclick(crafting.crafting_item_on_rightclick)

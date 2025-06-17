@@ -21,7 +21,7 @@ minetest.register_node(
         tiles = {"tech_drystack.png"},
         stack_max = minimal.stack_max_bulky *1.5,
         groups = {cracky = 3, crumbly = 1, falling_node = 1,
-                  oddly_breakable_by_hand = 1},
+                  oddly_breakable_by_hand = 1, craft_ground = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
@@ -34,7 +34,8 @@ stairs.register_stair_and_slab(
     {"hand_mixing","mixing_spot"},
     "true",
     {"hand_mixing","mixing_spot"},
-    {cracky = 3, crumbly = 1, oddly_breakable_by_hand = 1, falling_node = 1},
+    {cracky = 3, crumbly = 1, oddly_breakable_by_hand = 1,
+     falling_node = 1, craft_ground = 1},
     {"tech_drystack.png"},
     S("Drystack Stair"),
     S("Drystack Slab"),
@@ -52,7 +53,8 @@ minetest.register_node(
         tiles = {"tech_mudbrick.png"},
         drop = "nodes_nature:clay",
         stack_max = minimal.stack_max_bulky *2,
-        groups = {crumbly = 2, cracky = 3, oddly_breakable_by_hand = 1,},
+        groups = {crumbly = 2, cracky = 3,
+                  oddly_breakable_by_hand = 1, craft_ground = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
 })
 
@@ -62,7 +64,7 @@ stairs.register_stair_and_slab(
     {"brick_makers_bench_mixing","mixing_spot"},
     "true",
     {"brick_makers_bench_mixing","mixing_spot"},
-    {crumbly = 2, cracky = 3, oddly_breakable_by_hand = 1,},
+    {crumbly = 2, cracky = 3, oddly_breakable_by_hand = 1, craft_ground = 1},
     {"tech_mudbrick.png"},
     S("Mudbrick Stair"),
     S("Mudbrick Slab"),
@@ -86,7 +88,8 @@ minetest.register_node('tech:rammed_earth', {
                                "tech_rammed_earth_side.png"
                            },
                            stack_max = minimal.stack_max_bulky *1.5,
-                           groups = {crumbly = 1, cracky = 3, falling_node = 1},
+                           groups = {crumbly = 1, cracky = 3,
+                                     falling_node = 1, craft_ground = 1},
                            sounds = nodes_nature.node_sound_dirt_defaults(),
 })
 
@@ -98,7 +101,7 @@ stairs.register_stair_and_slab(
     {"brick_makers_bench_mixing","mixing_spot"},
     "true",
     {"brick_makers_bench_mixing","mixing_spot"},
-    {crumbly = 1, cracky = 3, falling_node = 1},
+    {crumbly = 1, cracky = 3, falling_node = 1, craft_ground = 1},
     {
         "tech_rammed_earth.png",
         "tech_rammed_earth_side.png",

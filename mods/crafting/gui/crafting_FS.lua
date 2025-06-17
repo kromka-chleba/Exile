@@ -864,6 +864,7 @@ function crafting.refresh_recipes_FS(player)
         -- reset item_hashes and recipe panel, and reorder
         cache:reset_recipes()
         -- refresh formspec
+        -- #TODO remove check and second case when crafting in inventory gets removed
         if cache.station then --TODO may not be the proper way
             core.show_formspec(player_name,'exile:crafting',
                             crafting.make_tool_formspec(player, cache))

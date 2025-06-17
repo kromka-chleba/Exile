@@ -50,7 +50,7 @@ for i in ipairs(stone_list) do
     local brick = raw[1].."_brick"
     brick = {brick, raw[2].."^"..brickpattern}
     -- group
-    g = {cracky = hardness, crumbly = 1, soft_stone = 1}
+    g = {cracky = hardness, crumbly = 1, soft_stone = 1, craft_ground = 1}
     dropped = { max_items = 1,
                 items = {
                     { tools = { "artifacts:antiquorium_chisel" },
@@ -81,7 +81,7 @@ for i in ipairs(stone_list) do
                                stack_max = minimal.stack_max_bulky *3,
                                groups = {cracky = hardness, falling_node = 1,
                                          oddly_breakable_by_hand = 1,
-                                         masonry = 1},
+                                         masonry = 1, craft_ground = 1},
                                sounds = nodes_nature.node_sound_stone_defaults(),
     })
 
@@ -92,7 +92,7 @@ for i in ipairs(stone_list) do
                                stack_max = minimal.stack_max_bulky *2,
                                groups = {cracky = hardness, falling_node = 1,
                                          oddly_breakable_by_hand = 1,
-                                         masonry = 1},
+                                         masonry = 1, craft_ground = 1},
                                sounds = nodes_nature.node_sound_stone_defaults(),
     })
 
@@ -103,7 +103,8 @@ for i in ipairs(stone_list) do
         "masonry_bench_bricks",
         "true",
         "masonry_bench_bricks",
-        {cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
+        {cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1,
+         craft_ground = 1},
         {brick[2]}, -- tiles
         S("@1 Brick Stair",desc),
         S("@1 Brick Slab",desc),
@@ -135,7 +136,7 @@ for i in ipairs(rock_list) do
       "nodes_nature_block_pattern.png"
 
     --harder rocks drop boulders
-    local g = {cracky = hardness, stone = 1}
+    local g = {cracky = hardness, stone = 1, craft_ground = 1}
     local s = nodes_nature.node_sound_stone_defaults()
 
     local raw = core.get_current_modname()..":"..name
@@ -196,7 +197,7 @@ for i in ipairs(rock_list) do
                                stack_max = minimal.stack_max_bulky *3,
                                groups = {cracky = hardness, falling_node = 1,
                                          oddly_breakable_by_hand = 1,
-                                         masonry = 1},
+                                         masonry = 1, craft_ground = 1},
                                sounds = nodes_nature.node_sound_stone_defaults(),
     })
 
@@ -224,7 +225,7 @@ for i in ipairs(rock_list) do
                                stack_max = minimal.stack_max_bulky *2,
                                groups = {cracky = hardness, falling_node = 1,
                                          oddly_breakable_by_hand = 1,
-                                         masonry = 1},
+                                         masonry = 1, craft_ground = 1},
                                sounds = nodes_nature.node_sound_stone_defaults(),
     })
 
@@ -279,7 +280,8 @@ for i in ipairs(rock_list) do
         "masonry_bench_bricks",
         "true",
         "masonry_bench_mixing",
-        {cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
+        {cracky = hardness, falling_node = 1,
+         oddly_breakable_by_hand = 1, craft_ground = 1},
         {brick[2]},
         S("@1 Brick Stair", desc),
         S("@1 Brick Slab", desc),
@@ -294,7 +296,8 @@ for i in ipairs(rock_list) do
         "masonry_bench_blocks",
         "false",
         "masonry_bench_mixing",
-        {cracky = hardness, falling_node = 1, oddly_breakable_by_hand = 1},
+        {cracky = hardness, falling_node = 1,
+         oddly_breakable_by_hand = 1, craft_ground = 1},
         {block[2]},
         S("@1 Block Stair", desc),
         S("@1 Block Slab", desc),

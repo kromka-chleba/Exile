@@ -120,7 +120,7 @@ minetest.register_node(
         stack_max = minimal.stack_max_medium,
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {choppy=2, flammable=3},
+        groups = {choppy=2, flammable=3, craft_ground = 1},
         sounds = nodes_nature.node_sound_wood_defaults(),
 
 })

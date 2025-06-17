@@ -9,6 +9,8 @@ core = core
 
 local fall_damage_multiplier = 1.5
 
+local S = minimal.S
+
 minetest.override_item("air", { groups = { air = 1,
                                            not_in_creative_inventory = 1} })
 
@@ -32,16 +34,90 @@ function minimal.pointed_thing_on_rightclick(itemstack, placer, pointed_thing)
     return false
 end
 
+-- fool-proof approach to avoid circular dependency with crafting
+local craft_ground_on_rightclick = nil
+function minimal.set_crafting_ground_on_rightclick(func)
+    craft_ground_on_rightclick = function (pos, tool_node, clicker,
+                                           empty_stack, pointed_thing)
+        func(pos, tool_node, clicker, empty_stack, pointed_thing)
+    end
+end
 
---A new item_place that allows disabling sneak-rightclick behavior for nodes
---Needed for tech:stick
+-- Helper for minetest.item_place
+-- Opens crafting when the player pointed on top of a node of group
+-- 'craft_ground' (while excluding stairs and slopes), if air is above that
+-- node and the node is within a range of 2.8.
+-- returns: false if conditions are not met or true otherwise
+local hand_on_rightclick = function(clicker, pointed_thing)
+    if not minetest.is_player(clicker) or not pointed_thing
+        or pointed_thing.type ~= "node" then
+        return false
+    end
+
+    -- position invalid?
+    local under = pointed_thing.under
+    if not vector.check(under) then return false end
+
+    -- ground not appropriate?
+    local node = core.get_node(under)
+    if not node or not node.name
+        or not (core.get_item_group(node.name, "craft_ground") > 0)
+        or (core.get_item_group(node.name, "stair") > 0)
+        or (core.get_item_group(node.name, "natural_slope") > 0) then
+        return false
+    end
+    -- not slabs with inappropriate orientation?
+    if (core.get_item_group(node.name, "slab") > 0)
+        and (node.param2 > 3) and (node.param2 < 20) then
+        return false
+    end
+
+    -- no space to sit on top/in front of pointed node?
+    local above = pointed_thing.above
+    if not vector.check(above) then return false end
+    if not minimal.pos_group(above, "air") then return false end
+
+    -- not pointed onto top of a node?
+    if not (vector.direction(above, under).y == -1) then return false end
+
+    -- to far? (allow from within beds but not on other side of a canyon)
+    if vector.distance(clicker:get_pos(), under) > 2.8 then
+        minimal.send_message(clicker, clicker:get_player_name(), S("Too far away!"), 1)
+        return false
+    end
+
+    -- ground supports crafting? -> open station with nil as tool name
+    if not craft_ground_on_rightclick then return false end
+    local tool_node = {}
+    craft_ground_on_rightclick(under, tool_node, clicker,
+                               ItemStack(), pointed_thing)
+    return true
+end
+
+--A new item_place that allows disabling sneak-rightclick behavior for nodes.
+--Needed for tech:stick. Also on_place() for empty hand is handled specially
+--to open crafting.
+--As an additional option it enables to supports replacements for on_rightclick()
+--whose return value could indicate whether it does also permit item_place_node()
+--(unless the wielded item does override on_place() to not call item_place()).
 function minetest.item_place(itemstack, placer, pointed_thing, param2)
+    --core.log("Exile.item_place")
     -- Call on_rightclick if the pointed node defines it
     local on_click = minimal.pointed_thing_on_rightclick(itemstack, placer,
                                                          pointed_thing)
     if on_click ~= false then
         return on_click or itemstack
     end
+
+    -- item is a type of an empty hand?
+    -- -> try to open crafting (default behaviour for external mods, too)
+    if itemstack:is_empty() then
+        if hand_on_rightclick(placer, pointed_thing) then
+            return itemstack, nil
+        end
+    end
+
+    -- no interaction with pointed thing -> just place a node
     if itemstack:get_definition( ).type == "node" then
         return minetest.item_place_node( itemstack, placer,
                                          pointed_thing, param2 )

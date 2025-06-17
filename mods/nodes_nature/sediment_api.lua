@@ -170,6 +170,7 @@ function sediment.new(args)
          fertility = args.fertility, -- values 0-4 (+ 2 for fertile soils)
          density = args.density,
          -- soil density (clay - dense, loam - not), values 0-4
+         craft_ground = 1, -- allow crafting on sediment
         }
     -- added support for the sediment data table containing groups.
     if args.groups ~= nil then
@@ -308,7 +309,7 @@ function sediment.register_stair_and_slab(sed)
         {"mixing_spot","soil_mixing"},
         "true",
         {"mixing_spot","soil_mixing"},
-        {falling_node = 1, crumbly = sed.hardness},
+        {falling_node = 1, crumbly = sed.hardness, craft_ground = 1},
         {sediment.get_dry_texture_name(sed.name)},
         S("@1 Stair", sed.description),
         S("@1 Slab", sed.description),

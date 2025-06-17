@@ -639,6 +639,7 @@ function trees.register_tree(name,def)
     log_def.groups.choppy = log_def.groups.choppy or def.groups.choppy
     log_def.groups.flammable = log_def.groups.flamamble or def.groups.flammable
     log_def.groups.hard_wood = def.groups.hard_tree and 1 or nil
+    log_def.groups.craft_ground = 1
     log_def.tiles = log_def.tiles or {
         texture_base.."_log_top.png",
         texture_base.."_log_top.png",
@@ -691,7 +692,7 @@ function trees.register_tree(name,def)
         {"chopping_block","axe_mixing"},--..(def.groups.hard_tree and " 2" or "")},
         {choppy = log_def.groups.choppy,
          flammable = log_def.groups.flammable - 2,
-         woodslab = 1},
+         woodslab = 1, craft_ground = 1},
         log_def.tiles,
         S("@1 Log Stair", def.description),
         S("@1 Log Slab", def.description),

@@ -373,7 +373,7 @@ minetest.register_node(
         tiles = {"tech_iron_and_slag.png"},
         stack_max = minimal.stack_max_bulky,
         paramtype = "light",
-        groups = {cracky = 3, falling_node = 1, crumbly = 1},
+        groups = {cracky = 3, falling_node = 1, crumbly = 1, craft_ground = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
@@ -383,7 +383,7 @@ stairs.register_stair_and_slab(
     "anvil_mixing",
     "true",
     "anvil_mixing",
-    {cracky = 3, falling_node = 1, crumbly = 1},
+    {cracky = 3, falling_node = 1, crumbly = 1, craft_ground = 1},
     {"tech_iron_and_slag.png"},
     S("Slag Stair"),
     S("Slag Slab"),
