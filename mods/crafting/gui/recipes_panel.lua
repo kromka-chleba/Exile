@@ -252,9 +252,7 @@ local function get_recipes_lists(cache)
         end
     end
 
-    -- reset search filter (displayed state in recipe)
-    cache:apply_filters()
-
+    local result
     if cache.sorted then -- currenlty hardcoded as true
         -- update craftable state
         update_recipes_states(cache)
@@ -265,16 +263,22 @@ local function get_recipes_lists(cache)
             if cache.to_sort == true then
                 sort_craftable_recipes(cache)
             end
-            return {cache.c_recipes, cache.p_recipes, cache.u_recipes}
+            result = {cache.c_recipes, cache.p_recipes, cache.u_recipes}
         else
-            return {cache.recipes}
+            result = {cache.recipes}
         end
     else
         --#TODO maybe we don't want to do the reset each time we display them
         -- that reset should be made elsewhere, when we trigger the "unsort" button, which currently doesn't exist.
         reset_recipes_states(cache)
-        return {cache.recipes}
+        result = {cache.recipes}
     end
+
+    -- reset search filter (displayed state in recipe)
+    -- NOTE: needs to be after state update now that we use the state to filter per input
+    cache:apply_filters()
+
+    return result
 end
 
 -- FORMSPEC generation ---------------------------------------------------------

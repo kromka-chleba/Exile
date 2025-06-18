@@ -1,5 +1,7 @@
 local crafting = crafting
 
+
+
 -- get a table of item names from an inv list
 local function get_stringtable(inv, lists)
     local s = {}
@@ -19,7 +21,24 @@ local function get_stringtable(inv, lists)
     end
 end
 
--- old version
+-- filter recipes, displaying only the one using items in input list
+-- we can use "total" item using criteria parameter.
+-- NOTE: we could add old check on recipes description to also test the output
+local function filter_per_input_list(cache, pr, criteria)
+    criteria = criteria or "craftable"
+    -- if recipe is not tested yet, test it:
+    if pr[criteria .. "_partial"] == nil then
+        pr:update_state(cache:get_input_hash(criteria), criteria)
+    end
+    if pr[criteria .. "_partial"] then
+        pr.displayed = true
+    else
+        pr.displayed = false
+    end
+    return pr.displayed
+end
+
+--[[ old version
 -- `pr` is a player recipe
 local function filter_per_input_list_as_string(cache, pr, criteria)
     -- using input items
@@ -27,6 +46,7 @@ local function filter_per_input_list_as_string(cache, pr, criteria)
     local i_filter = get_stringtable(cache.pInv, item_list)
     return crafting.get_search_result(pr, i_filter, cache.lang, true)
 end
+]]--
 
 -- apply filters : search bar + panel filter if activated
 local function apply_filters_to_list(cache, r_list)
@@ -43,7 +63,8 @@ local function apply_filters_to_list(cache, r_list)
         -- apply input panel's filter
         -- currently using nil as criteria (= "input" panel)
         if r.displayed and cache.input_filter then
-            r.displayed = filter_per_input_list_as_string(cache, r)
+            -- r.displayed = filter_per_input_list_as_string(cache, r)
+            filter_per_input_list(cache, r)
         end
         -- apply search field's filter
         if r.displayed then
