@@ -229,16 +229,13 @@ function crafting.register_cache_function (name, func)
 end
 
 local function get_hint_state(i_option, player_meta)
-    --[[ option to initiate with player's meta
     if input_options[i_option].hint_btn then
         --  it is on in player_settings (I left with on)
         -- remember the setting. Note: new player will have 0 in meta
         return (player_meta:get_int("crafting:possible_hint") == 1)
     else
         return false
-    end]]
-    -- option to initiate it with always false
-    return false
+    end
 end
 
 -- saves input option in cache and updates hint button state accordingly
@@ -635,7 +632,6 @@ function crafting.close_crafting_formspec(player, cache)
     end
 
     --various updates
-    cache.possible_hint = false -- disable "hint"
     cache.input_filter = false -- disable filter
     cache.qty = 1 -- back to "Single" craft
     cache:reset_recipes() -- needed after getting back the inputs
@@ -750,11 +746,10 @@ function crafting.process_receive_fields(player, formname, fields)
     -- process "hint" button"
     if fields.hint then
         cache.possible_hint = not cache.possible_hint
-        --[[ activate that to save in player's meta
         -- save in player's settings
         local meta = player:get_meta()
         meta:set_int("crafting:possible_hint", cache.possible_hint and 1 or 0)
-        ]]--
+        --
 
         -- reset recipes panel, but keep existing cache's item_hashes
         cache:reset_recipes(false)
