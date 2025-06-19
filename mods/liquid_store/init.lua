@@ -766,3 +766,47 @@ liquid_store.register_liquid(
     }
 )
 --don't force renew or allows an infinite water supply exploit
+
+-----------------------------------------------------------
+
+-- replacement generation for recipes
+--[[ generate a replacement for `input_sl` with `new_liquid`
+    * `input_sl` is a string, representing a stored liquid or container
+    * `new_liquid` is the replacement we want.
+    * gives back empty container if `new_liquid` is nil
+    * doesn't preserve metadata (yet)
+]]
+local function replace (input_sl, new_liquid)
+    if not input_sl then
+        core.log("in liquid_store.replace: no item to be replaced provided")
+        return
+    -- if input_sl is nor a table, nore a string, it is invalid
+    elseif type(input_sl) ~= "string" then
+        core.log("in liquid_store.replace: wrong type of input provided")
+        return
+    end
+
+    -- process
+    local sl_def = liquid_store.get_sl_def(input_sl)
+    local container
+    -- if not a stored liquid, is it a container ?
+    if not sl_def then
+        if not liquid_store.containers[input_sl] then
+            core.log (input_sl .. " given is not a valid stored liquid or container")
+            return
+        else
+            container = input_sl
+        end
+    else
+        container = sl_def.nodename_empty
+    end
+    -- change liquid if needed, else return empty one
+    if new_liquid then
+        return find_stored(container, new_liquid)
+    else
+        return container
+    end
+end
+
+liquid_store.replace = replace
+
