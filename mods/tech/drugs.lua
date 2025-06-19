@@ -292,14 +292,14 @@ liquid_store.register_stored_liquid(
         after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
             imeta = imeta or itemstack:get_meta()
             if imeta:get_int("mothering") ~= 1 then return end
-            ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
+            ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, nmeta, imeta)
         end,
         on_timer = function(pos, elapsed)
             return mother_on_timer(pos, elapsed)
         end,
-        preserve_metadata = function(pos, oldnode, oldmeta, drops)
+        preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
             ncrafting.ferment_preserve_metadata(
-                pos, oldnode, minetest.get_meta(pos), drops[1])
+                pos, oldnode, oldmeta, drops[1], imeta)
         end,
         _preserve_metadata = function(pos, oldnode, oldmeta, transferred_stack)
             -- for liquid store interactions
@@ -350,14 +350,14 @@ liquid_store.register_stored_liquid(
         after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
             imeta = imeta or itemstack:get_meta()
             if imeta:get_int("mothering") ~= 1 then return end
-            ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
+            ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, nmeta, imeta)
         end,
         on_timer = function(pos, elapsed)
             return mother_on_timer(pos, elapsed)
         end,
-        preserve_metadata = function(pos, oldnode, oldmeta, drops)
+        preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
             ncrafting.ferment_preserve_metadata(
-                pos, oldnode, minetest.get_meta(pos), drops[1])
+                pos, oldnode, oldmeta, drops[1], imeta)
         end,
         _preserve_metadata = function(pos, oldnode, oldmeta, transferred_stack)
             -- for liquid store interactions
@@ -408,15 +408,15 @@ liquid_store.register_stored_liquid(
         on_construct = function(pos)
             ncrafting.ferment_on_construct(pos)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+            ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, nmeta, imeta)
         end,
         on_timer = function(pos, elapsed)
             return ncrafting.ferment_on_timer(pos, elapsed)
         end,
-        preserve_metadata = function(pos, oldnode, oldmeta, drops)
+        preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
             ncrafting.ferment_preserve_metadata(
-                pos, oldnode, minetest.get_meta(pos), drops[1])
+                pos, oldnode, oldmeta, drops[1], imeta)
         end,
         _preserve_metadata = function(...) -- for liquid store interactions
             ncrafting.ferment_preserve_metadata(...)
@@ -453,16 +453,16 @@ liquid_store.register_stored_liquid(
         on_construct = function(pos)
             ncrafting.ferment_on_construct(pos)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
-            ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+            ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, nmeta, imeta)
         end,
         on_timer = function(pos, elapsed)
             return ncrafting.ferment_on_timer(pos, elapsed)
         end,
-        preserve_metadata = function(pos, oldnode, oldmeta, drops)
+        preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
             ncrafting.ferment_preserve_metadata(pos, oldnode,
-                                                minetest.get_meta(pos),
-                                                drops[1])
+                                                oldmeta,
+                                                drops[1], imeta)
         end,
         _preserve_metadata = function(...) -- for liquid store interactions
             ncrafting.ferment_preserve_metadata(...)
