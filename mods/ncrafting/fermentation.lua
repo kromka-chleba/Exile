@@ -62,8 +62,8 @@ function ncrafting.get_or_create_ferment(name,meta)
 end
 
 -- transfer meta from stack to node
--- permit stack data (to_table of stack meta or is stack meta) and node meta arguments (sdata, nmeta)
-function ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, sdata, nmeta)
+-- permit stack data (to_table of stack meta or is stack meta) and node meta arguments (nmeta, sdata)
+function ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, nmeta, sdata)
     nmeta = nmeta or core.get_meta(pos)
     -- not an adequate stack data table
     if type(sdata) ~= "table" or not sdata.fields then
@@ -89,8 +89,8 @@ end
 -- luanti engine confusingly has meta fields be 'oldmeta'
 -- which I didn't realize until way after making this function - TPH
 function ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta,
-                                             transferred_stack)
-    local imeta = transferred_stack:get_meta()
+                                             transferred_stack, imeta)
+    imeta = imeta or transferred_stack:get_meta()
     -- oldmeta will be fields, if not, it's probably an actual meta (as per old usage)
     if type(oldmeta) ~= "table" then
         oldmeta = minimal.is_meta(oldmeta) and oldmeta -- if meta
@@ -239,22 +239,22 @@ function ncrafting.dough_infection(player, pos, nodedef, itemstack, idef)
 end
 
 -- dough placement functions
-function ncrafting.dough_preserve_metadata(pos, oldnode, oldmeta, drops)
+function ncrafting.dough_preserve_metadata(pos, oldnode, oldmeta, drops, imeta)
     oldmeta = oldmeta or {} -- purify
     if not oldmeta.ferment then return end -- not fermenting
     oldmeta.baking = nil -- remove baking value
     -- set description if not set
     oldmeta.description = oldmeta.description or S("Fermenting @1",drops[1]:get_description())
-    ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, drops[1])
+    ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta, drops[1], imeta)
 end
 
-function ncrafting.dough_after_place_node(pos, placer, itemstack, pointed_thing)
-    local sdata = itemstack:get_meta()
+function ncrafting.dough_after_place_node(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+    local sdata = imeta or itemstack:get_meta()
     sdata = sdata:to_table() or {fields={}}
     -- not fermenting, return
     if not sdata.fields.ferment then return end
     -- we're fermenting, run ferment after_place
-    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, sdata)
+    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, nmeta, sdata)
 end
 
 -- fermented dough functionality
