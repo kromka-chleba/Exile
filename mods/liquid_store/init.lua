@@ -115,38 +115,6 @@ local function check_protection(pos, user, text)
     return false
 end
 
--- handle stacks
--- player, itemstack, new item to replace itemstack with
-local function handle_stacks(player, itemstack, new_item)
-    local inv = player:get_inventory()
-    -- new item can be string or an itemstack
-    if type(new_item) == "string" then
-        new_item = ItemStack(new_item)
-    end
-
-    -- If more than 1, we're going to move the old itemstack to another
-    -- inventory slot and replace with the new_item.
-    -- This is to allow functions like liquid_preserve_metadata to save metadata
-    -- properly.
-    -- Less convenient for players, but keeps the game functional
-    if itemstack:get_count() > 1 then
-        itemstack:take_item()
-        -- run on delay so that it does not conflict with replacing itemstack
-        minetest.after(0,function()
-                           if inv:room_for_item("main",itemstack) then
-                               inv:add_item("main",itemstack)
-                           else
-                               minetest.add_item(player:get_pos(), itemstack)
-                               minimal.warn_inv_full(player)
-                           end
-                           crafting.refresh_recipes_FS(player) -- #TODO is that dirty to refresh crafting formspec in HEALTH mod ?
-        end)
-        return new_item
-    -- we're just replacing, no worries :D
-    else
-        return new_item
-    end
-end
 -- handle punching + finding if it is a node
 local function handle_interaction(player, pointed_thing)
     if not pointed_thing then
@@ -188,12 +156,14 @@ liquid_store.find_stored = find_stored
 -- liquid_metadata
 -- pos, oldnode, transferred_stack
 -- store metadata into a provided stack (grab liquid)
--- provided stack can be a string - will be converted into an ItemStack
 local function liquid_metadata(pos, oldnode, t_stack)
     local nodedata = minetest.registered_nodes[oldnode.name]
-    t_stack = type(t_stack) == "string" and ItemStack(t_stack)
-        or t_stack
-    if (type(nodedata) ~= "table" and type(t_stack) ~= "userdata") then
+    if type(t_stack) ~= "userdata" then
+        core.log("in liquid_store liquid_metadata, t_stack needs to be an ItemStack to have metadat transferred to it")
+        return
+    end
+    if type(nodedata) ~= "table"  then
+        core.log("in liquid_store liquid_metadata, oldnode's def couldn't be found")
         return
     end
 
@@ -201,36 +171,68 @@ local function liquid_metadata(pos, oldnode, t_stack)
     if (type(nodedata._preserve_metadata) == "function") then
         local oldmeta = minetest.get_meta(pos)
 
-        return nodedata._preserve_metadata(pos, oldnode, oldmeta, t_stack)
+        -- I removed the return, since called functions (fermentation) don't return anything, it was confusing...
+        nodedata._preserve_metadata(pos, oldnode, oldmeta, t_stack)
     end
 end
+
+-- handles liquid transfer in case we had a stack in hand
+-- NOTE: it was copy pasted from soup_handle_inventory in tech/cookig_pot.lua
+-- #TODO it should probably be a more general function, in minimal maybe.
+-- itemstack is what will be depleted/replaced
+-- adding is what we're adding to the player's inventory
+-- user is the player/entity performing this action
+-- NOT REQUIRED PARAMETER: inv is the inventory of "user" - will be grabbed from "user" if not provided
+local function handle_newstack(itemstack, adding, user, inv)
+    -- get inventory if not provided (permits use by custom entities)
+    inv = inv or (type(user) == "table" or type(user) == "userdata")
+        and user.get_inventory and user:get_inventory()
+    if not inv then return end
+    -- inventory functionality
+    local plr_creative = minimal.player_in_creative(user)
+    local deplete_stack = false -- depleting instead of replacing
+    --[[if we had a stack in hand, or player is in creative,
+    original item will not be replaced,
+    new one will be added elsewhere in inventory]]
+    if itemstack:get_count() > 1 or plr_creative then
+        if inv:room_for_item("main", adding) then
+            deplete_stack = not plr_creative and true
+            inv:add_item("main", adding)
+        -- can't add, warn player
+        elseif core.is_player(user) then
+            deplete_stack = not plr_creative and true -- deplete anyways but one day fix this
+            -- also drop at feet
+            core.add_item(user:get_pos(), adding)
+            minimal.warn_inv_full(user)
+        end
+    --else, lets just replace theone we had in hand
+    else
+        itemstack = adding
+    end
+    -- take away 1 itm of the stack if needed
+    if deplete_stack then
+        itemstack:take_item()
+    end
+    -- returns new itemstack to replace old one
+    return itemstack
+end
+
+liquid_store.handle_newstack = handle_newstack
+
 
 function liquid_store.drain_store(player, itemstack)
     local itemname = itemstack:get_name()
     local sdef = liquid_store.get_sl_def(itemname)
+    local adding = ItemStack(sdef.nodename_empty) --#TODO
+    -- check if above is needed (does transfer_handle.. accept string ?)
+    -- also I would need to change that if I want to preserve meta from container.
+
+    -- if itemstack is a stored liquid
     if sdef then
-        return handle_stacks(player, itemstack, sdef.nodename_empty)
+        return handle_newstack(itemstack, adding, player)
     else
         return itemstack
     end
-end
-
--- fill store
--- uses an 'empty' itemstack and fills it up with the corresponding source
---   or stored_liquid
--- returns filled itemstack on success, return nil otherwise
-function liquid_store.fill_store(player, itemstack, source, returnnil)
-    local stored = liquid_store.get_sl_def(source)
-    -- couldn't confirm source was a stored liquid,
-    --   check if source is a correlating source liquid
-    if not stored then
-        stored = find_stored(itemstack, source)
-    end
-    -- modify inventory accordingly
-    if stored then
-        return handle_stacks(player, itemstack, stored)
-    end
-    return
 end
 
 --Function for empty buckets to call on_use... as return (so gives item)
@@ -278,12 +280,10 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
         --[[ only remove liquid if in creative, fill stack otherwise
         --   however both only if a valid source is found]]
         local plr_creative = minimal.player_in_creative(user)
-
-
-        local new_wield = plr_creative and find_stored(itemstack, name)
-            or not plr_creative and liquid_store.fill_store(user, itemstack, name)
-            or nil
-        if not new_wield then return end -- nothing matches, return itemstack
+        -- get stored liquid version with that source
+        local new_wield = find_stored(itemstack, name)
+        -- if none, do nothing and stop
+        if not new_wield then return end
 
         -- takes liquid and renew it (or not)
         -- force_renew requires a source neighbour
@@ -295,20 +295,28 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
             minetest.add_node(pointed_thing.under, {name = "air"})
         end
 
+        --[[only remove source liqui if in creative
+        -- also fill stack if not in creative]]
         if not plr_creative then
+            -- transfer metadata from liquid to new_wield
+            new_wield = ItemStack(new_wield) -- need to convert before
             liquid_metadata(pointed_thing.under,node,new_wield)
-            return new_wield
+            -- deal with the fact that we maybe had a stack when we tried to fill, to generate proper replacement
+            return handle_newstack(itemstack, new_wield, user)
         end
     -- pointing at a stored liquid
     elseif storeddef then
-        local new_wield = liquid_store.fill_store(user, itemstack,
-                                                  storeddef.source)
+        -- #TODO could be replaced by replace function ?
+        local new_wield = find_stored(itemstack, storeddef.source)
         if not new_wield then return end -- nothing matches
-        -- clear out pot at pos
-        minimal.switch_node(pointed_thing.under, storeddef.nodename_empty)
 
+        -- transfer metadata from old pot to new_wield
+        new_wield = ItemStack(new_wield) -- need to convert before
         liquid_metadata(pointed_thing.under,node,new_wield)
-        return new_wield
+        -- clear out pot at pos
+        minimal.switch_node(pointed_thing.under,  storeddef.nodename_empty)
+        -- deal with the fact that we maybe had a stack when we tried to fill, to generate proper replacement
+        return handle_newstack(itemstack, new_wield, user)
     -- neither liquid nor a stored liquid
     -- non-liquid nodes will have their on_punch triggered
     elseif nodedef.on_punch then
@@ -328,21 +336,27 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
     end
     -- get storeddef or create a fake one
     local storeddef = liquid_store.get_sl_def(itemstack,true)
-    -- permit overrides
-    source = type(source) == "string" and source or storeddef.source
-    nodename_empty = type(nodename_empty) == "string" and nodename_empty
-        or storeddef.nodename_empty
-    -- if dump isn't a specified boolean, set to true
-    -- (can be set to false so liquid stores such as watering cans
-    --   do not dump their contents)
-    -- if dump isn't specified, check storeddef.dumpable
-    -- if that isn't specified, set to true
-    dump = type(dump) ~= "boolean" and storeddef.dumpable or dump
+    -- get source and empty if invalid parameters or nil
+    if type(source) ~= "string" then
+        source = storeddef.source
+    end
+    if type(nodename_empty) ~= "string" then
+        nodename_empty = storeddef.nodename_empty
+    end
+
+    --[[ if dump isn't specified, check storeddef.dumpable
+        if result isn't a specified boolean, set to true
+        (can be set to false so liquid stores such as watering cans do not dump their contents)
+    ]]--
+    if type(dump) ~= "boolean" then
+        dump =  storeddef.dumpable
+    end
     dump = type(dump) ~= "boolean" and true or dump
+
     -- get liquid source definition
     local sourcedef = minetest.registered_nodes[source]
     -- do not dump an unregistered source! set to false
-    dump = sourcedef and dump or false
+    if not sourcedef then dump = false end
 
     local ppos = pointed_thing.under -- place_pos
     local buildable_to = true -- allow for replacing nil nodes
@@ -426,8 +440,10 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
             local sound = def.sounds.pour
             minimal.sound_play(minimal.merge_tables(sound,{pos = ppos}))
         end
+        -- #TODO could be improved to transfer liquid meta but not pot
         minimal.switch_node(ppos, stored, {user, itemstack, pointed_thing})
-        return handle_stacks(user, itemstack, nodename_empty)
+
+        return handle_newstack(itemstack, nodename_empty, user)
 
         -- can replace the node
         -- dump the water ONLY if "dump" is true (if false, do not dump)
@@ -449,7 +465,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
             return itemstack
         end
 
-        return handle_stacks(user, itemstack, nodename_empty)
+        return handle_newstack(itemstack, nodename_empty, user)
     end
 end
 

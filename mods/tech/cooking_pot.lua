@@ -112,34 +112,7 @@ end
 -- user is the player/entity performing this action
 -- NOT REQUIRED PARAMETER: inv is the inventory of "user" - will be grabbed from "user" if not provided
 local function soup_handle_inventory(itemstack, adding, user, inv)
-    -- get inventory if not provided (permits use by custom entities)
-    inv = inv or (type(user) == "table" or type(user) == "userdata")
-        and user.get_inventory and user:get_inventory()
-    if not inv then return end
-    -- inventory functionality
-    local plr_creative = minimal.player_in_creative(user)
-    local deplete_stack = false -- depleting instead of replacing
-    -- original bowl will not be replaced (more than 1 or player in creative)
-    if itemstack:get_count() > 1 or plr_creative then
-        if inv:room_for_item("main", adding) then
-            deplete_stack = not plr_creative and true
-            inv:add_item("main", adding)
-        -- can't add, warn player
-        elseif core.is_player(user) then
-            deplete_stack = not plr_creative and true -- deplete anyways but one day fix this
-            -- also drop at feet
-            core.add_item(user:get_pos(), adding)
-            minimal.warn_inv_full(user)
-        end
-    -- bowl will be depleted, simply replace instead
-    else
-        itemstack = adding
-    end
-    -- take away 1 bowl
-    if deplete_stack then
-        itemstack:take_item()
-    end
-    return itemstack
+    return liquid_store.handle_newstack(itemstack, adding, user, inv)
 end
 
 -- soup node functions
