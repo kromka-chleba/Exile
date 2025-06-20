@@ -43,7 +43,6 @@ do
         },
         tiles = {"creative_hand.png"},
         wield_scale = {x=0.5,y=0.9,z=0.5},
-        liquids_pointable = true
     })
 end
 
