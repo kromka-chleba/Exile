@@ -78,6 +78,7 @@ local function update_creative_attributes(plr, granter_name, onnew, nonotif)
     -- do on a delay to prevent conflict with other mods like player_api
     core.after(0, function()
         -- get current hand to check whether or not we were in creative prior
+        if not core.is_player(plr) then return end
         local pinv = plr:get_inventory()
         local chand = pinv:get_stack("hand", 1)
         local cdef = chand:get_definition() or {} -- current hand definition
