@@ -394,107 +394,11 @@ minetest.register_node(
 -- dough fermentation mechanics
 local dough_yeast_temp_range = {min=15, max=40}
 
--- TODO: better system for fermentation + baking mechanics
-local function get_dough_on_timer(chance)
-    chance = chance or 0.01 -- provided chance or 1%
-    -- provide function return to run
-    return function(pos, elapsed, ch) -- ch is chance override
-        local node = minetest.get_node(pos)
-        local meta = minetest.get_meta(pos)
-        -- unleavened bread baking mechanics
-        local baking_data = HEALTH.bake_table[node.name] -- check if we can bake
-        local temp -- declare here to reuse in later if statement
-        if baking_data then
-            temp = climate.get_point_temp(pos)
-            -- we're actually cooking! (natural temps can't go over 70 anyways)
-            if temp >= 70 then
-                if not meta:contains("baking") then
-                    -- remove any fermentation
-                    local metat = meta:to_table() or {}
-                    metat.fields = {}
-                    -- add baking int
-                    metat.fields.baking = baking_data.time
-                    meta:from_table(metat)
-                    -- reset timer to be cooking
-                    minetest.get_node_timer(pos):start(ncrafting.cook_rate)
-                    return false
-                end
-            end
-        end
-        -- WE BAKING!! (if we can bake)
-        if baking_data and meta:contains("baking") then
-            return ncrafting.do_bake(pos, elapsed,
-                                 baking_data.temp, baking_data.time,
-                                 baking_data.cooked, baking_data.burned)
-        end
-
-        ch = ch or chance
-        if meta:get_int("ferment") ~= 0 then -- we're fermentin'
-            -- we're done fermenting!
-            if not ncrafting.ferment_on_timer(pos, elapsed) then
-                node = minetest.get_node(pos)
-                local metat = meta:to_table()
-                metat.fields = {}
-                -- set baking data if we're a bakeable
-                baking_data = HEALTH.bake_table[node.name]
-                if baking_data then
-                  metat.fields.baking = baking_data.time
-                end
-                meta = meta:from_table(metat)
-                node.param2 = 1 -- set param2 to 1 for "fresh batch"
-                minetest.swap_node(pos,node)
-                return false
-            end
-            -- otherwise continue fermenting
-            return true
-        -- let's try fermenting
-        elseif math.random() <= chance then
-            -- check for temp_range first before trying to ferment
-            local nodedef = minetest.registered_nodes[node.name]
-            local temp_range = nodedef._ferment_temp_range
-            if temp_range then
-                local temp = temp or climate.get_point_temp(pos)
-                if temp <= temp_range.min or temp >= temp_range.max then
-                    -- loop again if conditions not right
-                    return true
-                end
-            end
-            -- chance and temp successful, ferment!
-            ncrafting.get_or_create_ferment(pos,meta)
-            ncrafting.ferment_on_construct(pos)
-            return false
-        end
-        -- check again later (40sec to 85sec)
-        minetest.get_node_timer(pos):start(math.random(40,85))
-        return false
-    end
-end
-
-local function dough_preserve_metadata(pos, oldnode, oldmeta, drops)
-    local meta = minetest.get_meta(pos)
-    if meta:get_int("ferment") == 0 then return end
-    if meta:get_string('description') == "" then
-      meta:set_string('description',S("Fermenting @1",drops[1]:get_description()))
-    end
-    ncrafting.ferment_preserve_metadata(pos, oldnode, meta, drops[1])
-end
-
-local dough_after_place_node = function(pos, placer, itemstack, pointed_thing)
-    -- not fermenting, return
-    if itemstack:get_meta():get_int("ferment") == 0 then return end
-    -- we're fermenting, run ferment after_place
-    ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing)
-end
-
-local dough_infection = function(player, pos, nodedef, itemstack, idef)
-    idef = idef or itemstack and itemstack:get_definition()
-    if not (idef and idef.groups and idef.groups.infect_dough) then return end
-    local meta = core.get_meta(pos)
-    if meta:contains("ferment") then return end -- already infected
-    -- successful infection
-    ncrafting.ferment_on_construct(pos)
-    return true
-end
+-- these are functions, see ncrafting/fermentation.lua
+local get_dough_on_timer = ncrafting.dough_get_on_timer -- params; chance
+local dough_infection = ncrafting.dough_infection -- params; player, pos, nodedef, itemstack, idef
+local dough_preserve_metadata = ncrafting.dough_preserve_metadata -- params; pos, oldnode, oldmeta, drops
+local dough_after_place_node = ncrafting.dough_after_place_node -- params; pos, placer, itemstack, pointed_thing
 
 minetest.register_node(
     "tech:maraka_dough",  {
@@ -637,28 +541,7 @@ ncrafting.register_spreadable_microbe("yeast_dough",{
 
 ---- FERMENTED DOUGHS
 
-local function ferm_dough_preserve_metadata(pos, oldnode, oldmeta, drops)
-    -- can't get yeast from this, not a fresh batch
-    if not oldnode then return end
-    if oldnode.param2 ~= 1 then return end
-    local nodedef = minetest.registered_nodes[oldnode.name]
-    local get_microbes = nodedef.breads_get_microbes or
-      function()
-          return math.random(1,3)
-      end
-    -- get fresh batch catchable microbes
-    local microbes = get_microbes(pos, oldnode, nodedef)
-    if not microbes then return end
-    microbes = type(microbes) ~= "table" and {microbes}
-    for _,item in pairs(microbes) do
-        if type(item) == "number" then
-            item = "tech:yeast_dough "..item
-        end
-        if type(item) == "string" then
-          drops[#drops + 1] = item
-        end
-    end
-end
+local ferm_dough_preserve_metadata = ncrafting.dough_fermented_preserve_metadata -- params; pos, oldnode, oldmeta, drops
 
 minetest.register_node(
     "tech:maraka_dough_fermented",  {
