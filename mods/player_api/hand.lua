@@ -5,7 +5,8 @@ core.register_item(":",{
     tool_capabilities = {
         damage_groups = {fleshy=minimal.hand_dmg},
     },
-    groups = {not_in_creative_inventory = 1}
+    groups = {not_in_creative_inventory = 1},
+    liquids_pointable = true,
 })
 -- The hand
 -- does not override core.registered_items[""]
