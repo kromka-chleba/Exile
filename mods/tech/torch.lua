@@ -105,10 +105,10 @@ local function on_throw(itemstack, dropper, pos)
     -- newpos = {x = pos.x, y = pos.y+1.5, z=pos.z} -- Add vector to put it forward
     local obj = minetest.add_entity({x = pos.x, y = pos.y+1.5, z = pos.z},
         "tech:torch_entity")
+    --fuel of thrown torch is current fuel, or base_fuel if new torch
     local fuel = tonumber(itemstack:get_meta():get("fuel")) or base_fuel
-    if fuel then
-        obj:get_luaentity(obj):set_fuel(fuel)
-    end
+    obj:get_luaentity(obj):set_fuel(fuel)
+
     local vectors = dropper:get_look_dir()
     local velocity = 10
     obj:set_velocity({x = vectors.x * velocity,
