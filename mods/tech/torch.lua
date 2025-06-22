@@ -57,10 +57,13 @@ end
 local after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
     nmeta = nmeta or core.get_meta(pos)
     imeta = imeta or itemstack:get_meta()
+    --[[if item placed had a "fuel" meta value,
+    --  then override node's one by this one ]]
+    --[[#TODO question: should we delete that in on_construct
+    -- and only put it-- here ? Else, the "or base_fuel" seems useless
+    -- because done on on_construct which is called before after_place_node.]]--
     local fuel = tonumber(imeta:get("fuel")) or base_fuel
-    if fuel >0 then
-        nmeta:set_int("fuel", fuel)
-    end
+    nmeta:set_int("fuel", fuel)
 end
 
 -------------------------------------------
@@ -102,10 +105,10 @@ local function on_throw(itemstack, dropper, pos)
     -- newpos = {x = pos.x, y = pos.y+1.5, z=pos.z} -- Add vector to put it forward
     local obj = minetest.add_entity({x = pos.x, y = pos.y+1.5, z = pos.z},
         "tech:torch_entity")
+    --fuel of thrown torch is current fuel, or base_fuel if new torch
     local fuel = tonumber(itemstack:get_meta():get("fuel")) or base_fuel
-    if fuel then
-        obj:get_luaentity(obj):set_fuel(fuel)
-    end
+    obj:get_luaentity(obj):set_fuel(fuel)
+
     local vectors = dropper:get_look_dir()
     local velocity = 10
     obj:set_velocity({x = vectors.x * velocity,

@@ -24,22 +24,14 @@ end
 lightsource = {}
 
 function lightsource.start_burning(desc, pos)
-    local meta = minetest.get_meta(pos)
-    local fuel = meta:get_int("fuel")
-    meta:set_int("fuel", fuel)
     minetest.get_node_timer(pos):start(desc.burn_rate)
 end
 
 function lightsource.restore_from_inventory(desc, pos, itemstack, nmeta, imeta)
     nmeta = nmeta or core.get_meta(pos)
     imeta = imeta or itemstack:get_meta()
-    local fuel = imeta:get_int("fuel")
-    if not fuel then
-        nmeta:set_int("fuel", 0)
-    end
-    if fuel > 0 then
-        nmeta:set_int("fuel", fuel)
-    end
+    -- transfer meta from item to node
+    nmeta:set_int("fuel", imeta:get_int("fuel"))
     if itemstack:get_name() == desc.lit_name then
         lightsource.start_burning(desc, pos)
         lightsource.update_fuel_infotext(desc, pos, nmeta)
@@ -50,8 +42,8 @@ end
 function lightsource.update_fuel_infotext(desc, pos, meta)
     local fuel_string
     meta = meta or minetest.get_meta(pos)
-    local fuel = meta:get_int("fuel")
-    if not fuel or fuel < 1 then
+    local fuel = meta:get_int("fuel") -- 0 if meta field not present
+    if fuel < 1 then
         fuel_string = S("Empty")
     else
         fuel_string = S("@1% fuel left",math.floor(fuel / desc.max_fuel * 100))
@@ -67,6 +59,7 @@ function lightsource.save_to_inventory(desc, pos, digger, lit)
     if minetest.is_protected(pos, digger:get_player_name()) then
         return false
     end
+    -- get node's meta
     local meta = minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
     local new_stack
@@ -75,6 +68,7 @@ function lightsource.save_to_inventory(desc, pos, digger, lit)
     else
         new_stack = ItemStack(desc.unlit_name)
     end
+    -- transfer node's meta to item
     local stack_meta = new_stack:get_meta()
     stack_meta:set_int("fuel", fuel)
     local player_inv = digger:get_inventory()
@@ -131,8 +125,8 @@ end
 
 function lightsource.ignite(desc, pos, meta)
     meta = meta or minetest.get_meta(pos)
-    local fuel = meta:get_int("fuel")
-    if fuel and fuel > 0 then
+    local fuel = meta:get_int("fuel") -- 0 if non existant
+    if fuel > 0 then
         local node = minetest.get_node(pos)
         node.name = desc.lit_name
         minimal.switch_node(pos, node) -- preserve param2
@@ -145,9 +139,9 @@ function lightsource.refill(desc, pos, clicker, itemstack)
     --hit it with oil to restore
     local stack_name = itemstack:get_name()
     local meta = minetest.get_meta(pos)
-    local fuel = meta:get_int("fuel")
+    local fuel = meta:get_int("fuel") -- 0 if non existant
     if stack_name == desc.fuel_name then
-        if fuel and fuel < desc.max_fuel then
+        if fuel < desc.max_fuel then
             fuel = fuel + desc.refill_ratio * desc.max_fuel
             if fuel > desc.max_fuel then
                 fuel = desc.max_fuel -- yeah, I know lol
