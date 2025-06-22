@@ -57,10 +57,13 @@ end
 local after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
     nmeta = nmeta or core.get_meta(pos)
     imeta = imeta or itemstack:get_meta()
+    --[[if item placed had a "fuel" meta value,
+    --  then override node's one by this one ]]
+    --[[#TODO question: should we delete that in on_construct
+    -- and only put it-- here ? Else, the "or base_fuel" seems useless
+    -- because done on on_construct which is called before after_place_node.]]--
     local fuel = tonumber(imeta:get("fuel")) or base_fuel
-    if fuel >0 then
-        nmeta:set_int("fuel", fuel)
-    end
+    nmeta:set_int("fuel", fuel)
 end
 
 -------------------------------------------
