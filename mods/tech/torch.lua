@@ -186,223 +186,168 @@ end
 
 
 -------------------------------------------
-
-minetest.register_node(
-    "tech:torch", {
-        description = S("Torch"),
+-- Register torches (common def)
+local function register_torch_node (name, given_def)
+    local def = {
         drawtype = "mesh",
-        mesh = "torch_floor.obj",
-        inventory_image = "tech_torch_on_floor.png",
-        wield_image = "tech_torch_on_floor.png",
         tiles = {{
-                name = "tech_torch_on_floor_animated.png",
-                animation = {type = "vertical_frames",
-                             aspect_w = 16, aspect_h = 16,
-                             length = 3.3}
-        }},
-        stack_max = minimal.stack_max_medium,
+            name = "tech_torch_on_floor_animated.png",
+            animation = {type = "vertical_frames",
+                         aspect_w = 16, aspect_h = 16,
+                         length = 3.3}
+                     }},
+
         use_texture_alpha = c_alpha.clip,
         paramtype = "light",
         paramtype2 = "wallmounted",
         sunlight_propagates = true,
         walkable = false,
-        liquids_pointable = false,
         light_source = light_power,
         temp_effect = temp,
         temp_effect_max = heat,
-        groups = {choppy=2, dig_immediate=3, attached_node=1,
-                  torch=1, temp_effect = 1, temp_pass = 1},
+
+        groups = {
+            choppy=2,
+            dig_immediate=3,
+            attached_node=1,
+            torch=1,
+            temp_effect = 1,
+            temp_pass = 1
+        },
+
         drop = "tech:torch",
-        on_drop = function(itemstack, dropper, pos)
-            on_throw(itemstack, dropper, pos)
-            local pname = dropper:get_player_name()
-            if not minimal.player_in_creative(dropper) then
-                itemstack:take_item()
-                return itemstack
+
+        sounds = nodes_nature.node_sound_wood_defaults(),
+        floodable = true,
+        on_flood = on_flood,
+        on_dig = on_dig,
+
+        on_construct = function(pos)
+            --duration of burn
+            local meta = minetest.get_meta(pos)
+            meta:set_int("fuel", base_fuel)
+            --fire effects..
+            minetest.get_node_timer(pos):start(
+                math.random(base_burn_rate-1,base_burn_rate+1))
+        end,
+
+        after_place_node = after_place_node,
+
+        on_timer =function(pos, elapsed)
+            local meta = minetest.get_meta(pos)
+            local fuel = meta:get_int("fuel")
+            if fuel < 1 then
+                minetest.set_node(pos, {name = "tech:wood_ash"})
+                minetest.check_for_falling(pos)
+                return false
+            elseif can_burn_air(pos, meta, "tech:wood_ash" ) then
+                torch_fire_on(pos)
+                meta:set_int("fuel", fuel - 1)
+                -- Restart timer
+                return true
             end
         end,
-        selection_box = {
-            type = "wallmounted",
-            wall_bottom = {-1/8, -1/2, -1/8, 1/8, 2/16, 1/8},
-        },
-        sounds = nodes_nature.node_sound_wood_defaults(),
-        on_dig = on_dig,
-        on_place = function(itemstack, placer, pointed_thing)
-            local under = pointed_thing.under
-            local above = pointed_thing.above
+    }
 
-            if minimal.pos_group(above, "water") then
-                on_throw(itemstack, placer, pointed_thing.under)
-                if not minimal.player_in_creative(placer) then
-                    itemstack:take_item(1)
-                end
-                return itemstack
+    -- complete/override def fields with given_def values and groups
+    for field, value in pairs(given_def) do
+        if field ~= "groups" then
+            def[field] = value
+        else -- groups field, add them
+            for g,v in pairs(def.groups) do
+                def.groups[g] = v
             end
-            if ( minetest.is_player(placer)
-                 and not placer:get_player_control().sneak) then
-                local on_click = minimal.on_rightclick(itemstack, placer,
-                                                       pointed_thing)
-                if on_click ~= false then
-                    return on_click or itemstack
-                end
-            end
-            --local def = minetest.registered_nodes[node.name]
-            --if def and def.on_rightclick and
-            --not (placer and placer:is_player() and
-            --placer:get_player_control().sneak) then
-            --return def.on_rightclick(under, node, placer, itemstack,
-            --pointed_thing) or itemstack
-            --end
-            local wdir = minetest.dir_to_wallmounted(
-                vector.subtract(under, above))
-            local fakestack = itemstack
-            if wdir == 0 then
-                fakestack:set_name("tech:torch_ceiling")
-            elseif wdir == 1 then
-                fakestack:set_name("tech:torch")
-            else
-                fakestack:set_name("tech:torch_wall")
-            end
+        end
+    end
 
-            itemstack = minetest.item_place(
-                fakestack, placer, pointed_thing, wdir)
-            itemstack:set_name("tech:torch")
+    core.register_node(name, def)
+end
 
+-- base item + floor torch definition
+register_torch_node("tech:torch", {
+    mesh = "torch_floor.obj",
+    selection_box = {
+        type = "wallmounted",
+        wall_bottom = {-1/8, -1/2, -1/8, 1/8, 2/16, 1/8},
+    },
+
+    description = S("Torch"),
+    inventory_image = "tech_torch_on_floor.png",
+    wield_image = "tech_torch_on_floor.png",
+    stack_max = minimal.stack_max_medium,
+    liquids_pointable = false,
+
+    on_drop = function(itemstack, dropper, pos)
+        on_throw(itemstack, dropper, pos)
+        if not minimal.player_in_creative(dropper) then
+            itemstack:take_item()
             return itemstack
-        end,
-        floodable = true,
-        on_flood = on_flood,
-        on_construct = function(pos)
-            --duration of burn
-            local meta = minetest.get_meta(pos)
-            meta:set_int("fuel", base_fuel)
-            --fire effects..
-            minetest.get_node_timer(pos):start(
-                math.random(base_burn_rate-1,base_burn_rate+1))
-        end,
-        after_place_node = after_place_node,
-        on_timer =function(pos, elapsed)
-            local meta = minetest.get_meta(pos)
-            local fuel = meta:get_int("fuel")
-            if fuel < 1 then
-                minetest.set_node(pos, {name = "tech:wood_ash"})
-                minetest.check_for_falling(pos)
-                return false
-            elseif can_burn_air(pos, meta, "tech:wood_ash" ) then
-                torch_fire_on(pos)
-                meta:set_int("fuel", fuel - 1)
-                -- Restart timer
-                return true
+        end
+    end,
+
+    on_place = function(itemstack, placer, pointed_thing)
+        local under = pointed_thing.under
+        local above = pointed_thing.above
+
+        if minimal.pos_group(above, "water") then
+            on_throw(itemstack, placer, pointed_thing.under)
+            if not minimal.player_in_creative(placer) then
+                itemstack:take_item(1)
             end
-        end,
+            return itemstack
+        end
+        if ( minetest.is_player(placer)
+             and not placer:get_player_control().sneak) then
+            local on_click = minimal.on_rightclick(itemstack, placer,
+                                                   pointed_thing)
+            if on_click ~= false then
+                return on_click or itemstack
+            end
+        end
+        --local def = minetest.registered_nodes[node.name]
+        --if def and def.on_rightclick and
+        --not (placer and placer:is_player() and
+        --placer:get_player_control().sneak) then
+        --return def.on_rightclick(under, node, placer, itemstack,
+        --pointed_thing) or itemstack
+        --end
+        local wdir = minetest.dir_to_wallmounted(
+            vector.subtract(under, above))
+        local fakestack = itemstack
+        if wdir == 0 then
+            fakestack:set_name("tech:torch_ceiling")
+        elseif wdir == 1 then
+            fakestack:set_name("tech:torch")
+        else
+            fakestack:set_name("tech:torch_wall")
+        end
+
+        itemstack = minetest.item_place(
+            fakestack, placer, pointed_thing, wdir)
+        itemstack:set_name("tech:torch")
+
+        return itemstack
+    end,
 })
 
-minetest.register_node(
-    "tech:torch_wall", {
-        drawtype = "mesh",
-        mesh = "torch_wall.obj",
-        tiles = {{
-                name = "tech_torch_on_floor_animated.png",
-                animation = {type = "vertical_frames",
-                             aspect_w = 16, aspect_h = 16,
-                             length = 3.3}
-        }},
-        paramtype = "light",
-        paramtype2 = "wallmounted",
-        use_texture_alpha = c_alpha.clip,
-        sunlight_propagates = true,
-        walkable = false,
-        light_source = light_power,
-        temp_effect = temp,
-        temp_effect_max = heat,
-        groups = {choppy=2, dig_immediate=3, not_in_creative_inventory=1,
-                  attached_node=1, torch=1, temp_effect = 1, temp_pass = 1},
-        drop = "tech:torch",
-        selection_box = {
-            type = "wallmounted",
-            wall_side = {-1/2, -1/2, -1/8, -1/8, 1/8, 1/8},
-        },
-        sounds = nodes_nature.node_sound_wood_defaults(),
-        floodable = true,
-        on_flood = on_flood,
-        on_dig = on_dig,
-        on_construct = function(pos)
-            --duration of burn
-            local meta = minetest.get_meta(pos)
-            meta:set_int("fuel", base_fuel)
-            --fire effects..
-            minetest.get_node_timer(pos):start(
-                math.random(base_burn_rate-1,base_burn_rate+1))
-        end,
-        after_place_node = after_place_node,
-        on_timer =function(pos, elapsed)
-            local meta = minetest.get_meta(pos)
-            local fuel = meta:get_int("fuel")
-            if fuel < 1 then
-                minetest.set_node(pos, {name = "tech:wood_ash"})
-                minetest.check_for_falling(pos)
-                return false
-            elseif can_burn_air(pos, meta, "tech:wood_ash" ) then
-                torch_fire_on(pos)
-                meta:set_int("fuel", fuel - 1)
-                -- Restart timer
-                return true
-            end
-        end,
+-- torch on a wall
+register_torch_node("tech:torch_wall", {
+    mesh = "torch_wall.obj",
+    selection_box = {
+        type = "wallmounted",
+        wall_side = {-1/2, -1/2, -1/8, -1/8, 1/8, 1/8},
+    },
+    groups = {not_in_creative_inventory = 1}
 })
 
-minetest.register_node(
-    "tech:torch_ceiling", {
-        drawtype = "mesh",
-        mesh = "torch_ceiling.obj",
-        tiles = {{
-                name = "tech_torch_on_floor_animated.png",
-                animation = {type = "vertical_frames",
-                             aspect_w = 16, aspect_h = 16,
-                             length = 3.3}
-        }},
-        paramtype = "light",
-        paramtype2 = "wallmounted",
-        use_texture_alpha = c_alpha.clip,
-        sunlight_propagates = true,
-        walkable = false,
-        light_source = light_power,
-        temp_effect = temp,
-        temp_effect_max = heat,
-        groups = {choppy=2, dig_immediate=3, not_in_creative_inventory=1,
-                  attached_node=1, torch=1, temp_effect = 1, temp_pass = 1},
-        drop = "tech:torch",
-        selection_box = {
-            type = "wallmounted",
-            wall_top = {-1/8, -1/16, -5/16, 1/8, 1/2, 1/8},
-        },
-        sounds = nodes_nature.node_sound_wood_defaults(),
-        floodable = true,
-        on_flood = on_flood,
-        on_dig = on_dig,
-        on_construct = function(pos)
-            --duration of burn
-            local meta = minetest.get_meta(pos)
-            meta:set_int("fuel", base_fuel)
-            --fire effects..
-            minetest.get_node_timer(pos):start(
-                math.random(base_burn_rate-1,base_burn_rate+1))
-        end,
-        after_place_node = after_place_node,
-        on_timer =function(pos, elapsed)
-            local meta = minetest.get_meta(pos)
-            local fuel = meta:get_int("fuel")
-            if fuel < 1 then
-                minetest.set_node(pos, {name = "tech:wood_ash"})
-                minetest.check_for_falling(pos)
-                return false
-            elseif can_burn_air(pos, meta, "tech:wood_ash" ) then
-                torch_fire_on(pos)
-                meta:set_int("fuel", fuel - 1)
-                -- Restart timer
-                return true
-            end
-        end,
+-- torch under a ceiling
+register_torch_node("tech:torch_ceiling", {
+    mesh = "torch_ceiling.obj",
+    selection_box = {
+        type = "wallmounted",
+        wall_top = {-1/8, -1/16, -5/16, 1/8, 1/2, 1/8},
+    },
+    groups = {not_in_creative_inventory = 1},
 })
 
 
