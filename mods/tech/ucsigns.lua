@@ -121,7 +121,9 @@ for nname, ndef in pairs(core.registered_nodes) do
         -- so we'll have to manually add a flag to not be in the creative inventory to declutter
         local standdef = core.registered_nodes["ucsigns:standing_sign_"..name]
         local standgroups = table.copy(signdef.groups)
-        standgroups.not_in_creative_inventory = 1
+        if not ucsigns.merge_itemdef then -- unless we're modernized
+            standgroups.not_in_creative_inventory = 1
+        end
         core.override_item(standdef.name, {
             groups = standgroups
         })
