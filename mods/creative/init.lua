@@ -89,14 +89,14 @@ local function update_creative_attributes(plr, granter_name, onnew, nonotif)
                 -- granted
                 if in_creative then
                     core.chat_send_player(name, "You have entered creative mode!")
-                    core.sound_play({
-                        name = "creative_jingle_grant", to_player = name, pitch = math.random(90,110)/100, gain = 0.1
+                    core.sound_play("creative_jingle_grant", {
+                        to_player = name, pitch = math.random(90,110)/100, gain = 0.1
                     })
                 -- revoked
                 else
                     core.chat_send_player(name, "You have had creative mode revoked!")
-                    core.sound_play({
-                        name = "creative_jingle_revoke", to_player = name, pitch = math.random(90,110)/100, gain = 0.1
+                    core.sound_play("creative_jingle_revoke", {
+                        to_player = name, pitch = math.random(90,110)/100, gain = 0.1
                     })
                 end
                 core.chat_send_player(name, "* * * * * *")
