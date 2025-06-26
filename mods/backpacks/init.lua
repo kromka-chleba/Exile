@@ -96,14 +96,25 @@ local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef
         -- set inventory
         imeta:set_string('inv_main', item_inv:convert())
     end
-    bag_desc = label ~= '' and bag_desc.." - "..label or bag_desc
-    bag_desc = type(add_string) == "string" and bag_desc..add_string or bag_desc
-    bag_desc = type(idef.backpack_use_tip) == "string" and
-        bag_desc.."\n"..idef.backpack_use_tip or bag_desc
-    bag_desc = type(idef.backpack_dig_tip) == "string" and
-        bag_desc.."\n"..idef.backpack_dig_tip or bag_desc
-    bag_desc = type(idef.backpack_place_tip) == "string" and
-        bag_desc.."\n"..idef.backpack_place_tip or bag_desc
+    -- adds label if not empty
+    if label ~= '' then
+        bag_desc = bag_desc.." - "..label
+    end
+    -- adds add_string if valid
+    if type(add_string) == "string" then
+        bag_desc = bag_desc .. add_string
+    end
+    -- adds tooltips if any
+    if type(idef.backpack_use_tip) == "string" then
+        bag_desc = bag_desc.."\n"..idef.backpack_use_tip
+    end
+    if type(idef.backpack_dig_tip) == "string" then
+        bag_desc = bag_desc.."\n"..idef.backpack_dig_tip
+    end
+    if type(idef.backpack_place_tip) == "string" then
+        bag_desc = bag_desc.."\n"..idef.backpack_place_tip
+    end
+
     imeta:set_string('description', bag_desc)
 end
 
@@ -263,7 +274,6 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta, width,he
     local item = drops[1]
     imeta = imeta or item:get_meta()
     local idef = item:get_definition()
-    local bag_name = idef.description
     -- Transfer inventory to item
     local meta = minetest.get_meta(pos)
     local inv = minimal.convert_node_inventory(meta)
@@ -359,26 +369,47 @@ function backpacks.register_backpack(name, def)
     -- can_dump and can_pack
     def.can_dump = type(def.can_dump) ~= "boolean" and true or def.can_dump
     def.can_pack = type(def.can_pack) ~= "boolean" and true or def.can_pack
+
     -- tooltips
-    def.backpack_place_tip = def._place_tip and minetest.colorize("#ccccff", "v : "..def._place_tip) or nil
-    def.backpack_dig_tip = def._dig_tip and minetest.colorize("#ccccff", "^ : "..def._dig_tip) or nil
-    if not def._use_tip then
-        def._use_tip = (def.can_dump and def.can_pack and "Dump or pack"
-            or def.can_dump and "Dump" or def.can_pack and "Pack") or nil
-        def._use_tip = def._use_tip and S("@1 contents into storage", S(def._use_tip)) or nil
+    if def._place_tip then
+        def.backpack_place_tip = core.colorize("#ccccff","v : "..def._place_tip)
     end
-    def.backpack_use_tip = def._use_tip and minetest.colorize("#ccccff", "◊ : "..def._use_tip) or nil
+    -- delete initial field so it is not re-added in minimal/tooltips.lua
+    def._place_tip = nil
+    if def._dig_tip then
+        def.backpack_dig_tip = core.colorize("#ccccff", "^ : "..def._dig_tip)
+    end
+    -- delete initial field so it is not re-added in minimal/tooltips.lua
+    def._dig_tip = nil
+    -- What this item/node does when used AUX1/"Use" key
+    if not def._use_tip then
+        if def.can_dump then
+            if def.can_pack then
+                def._use_tip = "Dump or pack"
+            else
+                def._use_tip = "Pack"
+            end
+        end
+        -- if at this point a use_tip was affected, translate
+        -- #TODO we should probably just have full sentence in translation ?
+        if def._use_tip then
+            def._use_tip = S("@1 contents into storage", S(def._use_tip))
+        end
+    end
+    if def._use_tip then
+        def.backpack_use_tip = core.colorize("#ccccff","◊ : "..def._use_tip)
+    end
+    -- delete initial field so it is not re-added in minimal/tooltips.lua
+    def._use_tip = nil
+
     -- formspec params
     def.formspec_width = def.formspec_width or def.width
+    def.width = nil -- cleanup of def
     def.formspec_height = def.formspec_height or def.height
+    def.height = nil -- cleanup of def
     -- cleanup of def
     def.empty_name = nil
     def.full_name = nil
-    def.width = nil
-    def.height = nil
-    def._use_tip = nil
-    def._place_tip = nil
-    def._dig_tip = nil
     -- basic def stuff
     def.paramtype2 = def.paramtype2 or "colorwallmounted"
     def.palette = "natural_dyes.png"
