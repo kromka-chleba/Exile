@@ -214,8 +214,7 @@ function storage.register_storage(name,def)
     -- automatic protection
     def.protected = def.protected == true and true or false
     -- can be dug if there's itemstacks inside (default false)
-    def.can_dig_when_inventory =
-        def.can_dig_when_inventory == true and true or false
+    def.can_dig_when_inventory = (def.can_dig_when_inventory == true)
     -- legacy usage for flammable setting
     def.groups.flammable = def.groups.flammable or def.burnable and 1
     def.burnable = nil
