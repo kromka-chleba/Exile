@@ -41,28 +41,32 @@ end
 function minimal.infotext_update_params(meta, params)
     -- create new params if it isn't a table
     if type(params) ~= "table" then
-        params = meta:to_table()
-        params = type(params) == "table" and params.fields
-        -- merge params with old meta
+        params = meta:to_table() -- returns a table or nil on failure
+        params = params and params.fields -- now nil or table
+    -- else merge params with old meta
     else
-        local merge_params = meta:to_table()
-        -- merge with current meta or if unable to get table,
-        --   return regular params
-        params = merge_params and minimal.merge_tables(merge_params.fields,
-                                                       params)
-            or params
+        local meta_params = meta:to_table()
+        -- merge params with current meta fields if some are present
+        -- params fields will override meta fields
+        if meta_params then
+            params = minimal.merge_tables(meta_params.fields, params)
+        end
     end
     return params
 end
+
 -- local quick access
 local infotext_upd_params = minimal.infotext_update_params
 
 -- filters and sets up base param values (description, owner, label)
 -- translation handled, now for the programmer to organize them how they wish
 function minimal.infotext_get_base_params(stack, meta, params)
-    -- create params if does not exist
-    params = type(params) == "table" and params or infotext_upd_params(meta)
-    if not params then return end -- no params to use
+    -- create params from meta table if does not exist
+    if type(params) ~= "table" then
+        params = infotext_upd_params(meta)
+    end
+    -- if still no params, stop
+    if not params then return end
     -- get proper description if description not provided
     params.description = params.description or params.desc or get_desc(stack)
     -- set up params w/ translations
@@ -89,8 +93,13 @@ end
 -- sends a formatted string for basic infotext
 function minimal.infotext_get_base_string(stack, meta, params)
     -- get filtered params
-    params = type(params) == "table" and table.copy(params)
-        or nil -- don't overwrite provided params table
+    if type(params) == "table" then
+        -- don't overwrite provided params table
+        params = table.copy(params)
+    else
+        params = nil
+    end
+
     params = minimal.infotext_get_base_params(stack, meta, params)
     -- create and return full infotext
     return (params.description or "")..
@@ -113,34 +122,47 @@ end
 
 -- returns false on failure, infotext string on success
 function minimal.infotext_set_new(pos, meta, params, func, nodedef, stack)
-    nodedef = type(nodedef) == "table" and nodedef
-        or minimal.get_nodedef(pos) -- just to confirm
-    if type(nodedef) ~= "table" then return false end -- no success
-    stack = type(stack) == "userdata" and stack
-        or nodedef
-    -- allow for itemstackstack option or default to nodedef table
+    -- get meta if not given
+    if type(meta) ~= "userdata" then
+        meta = minetest.get_meta(pos)
+    end
+    -- get params from meta table if not provided
+    if type(params) ~= "table" then
+        params = infotext_upd_params(meta)
+    end
+    -- remove empty strings
+    params = minimal.infotext_purify_params(params)
 
-    -- get meta
-    meta = type(meta) == "userdata" and meta or minetest.get_meta(pos)
-    -- use or get params
-    params = type(params) == "table" and params
-        or infotext_upd_params(meta)
-    params = minimal.infotext_purify_params(params) -- remove empty strings
+    -- get nodedef/stack
+    if type(nodedef) ~= "table" then
+        nodedef = minimal.get_nodedef(pos) -- just to confirm
+    end
+    -- stop if we failed to get a proper nodedef
+    if type(nodedef) ~= "table" then return false end
+    -- allow for itemstackstack option or default to nodedef table
+    if type(stack) ~= "userdata" then
+        stack = nodedef
+    end
+
     -- custom function or nodedef on_infotext function
-    func = type(func) == "function" and func
-        or type(nodedef.on_infotext) == "function" and nodedef.on_infotext
-    -- infotext will be the provided func
-    local infotext = func and func(pos, nodedef, meta, params)
-        or nil
+    if type(func) ~= "function" then
+        func = nodedef.on_infotext
+    end
+
+    -- get infotext from provided function, if valid function, nil else
+    local infotext = nil
+    if type(func) == "function" then
+        infotext = func(pos, nodedef, meta, params)
+    end
     -- if false then return false
     if infotext == false then
         return false
-        -- otherwise didn't get string, do infotext base
+    -- if the function returned an invalid string, or we had no function
+    -- use default infotext
     elseif type(infotext) ~= "string" then
         infotext = minimal.infotext_get_base_string(stack, meta, params)
     end
 
-    if type(infotext) ~= "string" then return false end
     meta:set_string("infotext",infotext)
     return infotext
 end
