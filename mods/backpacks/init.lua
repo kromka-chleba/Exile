@@ -35,6 +35,7 @@ local function get_formspec(pos, w, h)
         "listring[current_name;main]",
         "listring[current_player;main]",
     }
+    -- #TODO why is it called here ?
     minimal.infotext_set_new(pos, meta)
     return table.concat(formspec, "")
 end
@@ -381,9 +382,10 @@ function backpacks.register_backpack(name, def)
     -- custom "empty_name" and "full_name"
     def._empty_name = def._empty_name or def.empty_name or S("Empty @1", def.description)
     def._full_name = def._full_name or def.full_name or S("Full @1",def.description)
-    -- can_dump and can_pack
-    def.can_dump = type(def.can_dump) ~= "boolean" and true or def.can_dump
-    def.can_pack = type(def.can_pack) ~= "boolean" and true or def.can_pack
+    -- can_dump and can_pack, true by default
+    -- also unused in registrations for now
+    def.can_dump = (def.can_dump ~= false)
+    def.can_pack = (def.can_pack ~= false)
 
     -- tooltips
     if def._place_tip then
@@ -430,11 +432,12 @@ function backpacks.register_backpack(name, def)
     def.palette = "natural_dyes.png"
     def.drawtype = def.drawtype or "nodebox"
     def.node_box = def.node_box or def.drawtype == "nodebox" and wallmount_box
+    -- #TODO stack empty bags could be great !
     def.stack_max = def.stack_max or 1
     def.node_placement_prediction = def.node_placement_prediction or ""
-    def.can_dig_when_inventory =
-        type(def.can_dig_when_inventory) ~= "boolean" and true
-        or def.can_dig_when_inventory
+    -- true by default
+    def.can_dig_when_inventory = (def.can_dig_when_inventory ~= false)
+
     -- functions
     def.after_place_node = def.after_place_node
         or function(pos, placer, itemstack, pointed_thing)
@@ -467,9 +470,16 @@ function backpacks.register_backpack(name, def)
                                 and not ndef.groups.no_pack))
     end
     -- infotext handling
+    -- What I understand is that it is only used by backpack (so should be def._on_infotext ? #TODO)
+    -- and used to replace meta description field by this one.
+    -- this is so we don't display the custom full/partial/empty thing in infotext
     def.on_infotext = def.on_infotext or function(pos, nodedef, meta, params)
+        -- this is called with params given to minimal.infotext_set_new
+        -- or params from meta as in minimal.infotext_update_params
         params.description = def.description
+        -- #TODO followwing line seems useless as already done before the call of the function
         params = minimal.infotext_update_params(meta, params)
+        -- this function returns params.description + owner field + label
         return minimal.infotext_get_base_string(nil, meta, params)
     end
     -- register backpack through storage.register_storage()
