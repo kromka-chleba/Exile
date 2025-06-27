@@ -1,7 +1,7 @@
 minimal=minimal
 
 minimal.metadata={}
-local copy_list={'creator','label','short_description','description'}
+local copy_list={'creator','label','short_description','description', 'custom_name'}
 
 
 -- copy itemes metadata to nodes metadata.
