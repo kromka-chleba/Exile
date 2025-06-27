@@ -20,37 +20,37 @@ local recipe2 = {
 }
 
 describe("Recipes and types", function()
-             crafting.recipes = {}
+            crafting.reset_craft_types()
 
              it("can register type", function()
-                    assert.is_nil(crafting.recipes["test"])
+                    assert.is_nil(crafting.get_recipes_by_type("test"))
                     crafting.register_type("test")
-                    assert.is_not_nil(crafting.recipes["test"])
+                    assert.is_not_nil(crafting.get_recipes_by_type("test"))
              end)
 
              it("can register type", function()
-                    assert(not crafting.recipes["test"][1])
+                    assert(not crafting.get_recipes_by_type("test")[1])
                     crafting.register_recipe(recipe1)
-                    assert.is_not_nil(crafting.recipes["test"][1])
-                    assert.equals(crafting.recipes["test"][1].output, recipe1.output)
+                    assert.is_not_nil(crafting.get_recipes_by_type("test")[1])
+                    assert.equals(crafting.get_recipes_by_type("test")[1].output, recipe1.output)
              end)
 end)
 
 
 describe("Getting all outputs", function()
-             crafting.recipes = {}
+             crafting.reset_craft_types()
              crafting.register_type("test")
 
              -- Recipe 1
              crafting.register_recipe(recipe1)
-             assert.equals(#crafting.recipes["test"], 1)
-             assert.equals(crafting.recipes["test"][1].output, recipe1.output)
+             assert.equals(#crafting.get_recipes_by_type("test"), 1)
+             assert.equals(crafting.get_recipes_by_type("test")[1].output, recipe1.output)
 
              -- Recipe 2
              crafting.register_recipe(recipe2)
-             assert.equals(#crafting.recipes["test"], 2)
-             assert.equals(crafting.recipes["test"][1].output, recipe1.output)
-             assert.equals(crafting.recipes["test"][2].output, recipe2.output)
+             assert.equals(#crafting.get_recipes_by_type("test"), 2)
+             assert.equals(crafting.get_recipes_by_type("test")[1].output, recipe1.output)
+             assert.equals(crafting.get_recipes_by_type("test")[2].output, recipe2.output)
 
              it("get with no items", function()
                     local recipes = crafting.get_all("test", 1, {}, {})

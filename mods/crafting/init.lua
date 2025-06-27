@@ -20,10 +20,25 @@ minetest.register_craftitem("crafting:placeholder",{
                                 inventory_image = "crafting_placeholder.png"
 })
 
+crafting = {
+    default_tool = 'tech:hand',
+    tab_labels = {},
+    -- only last inventory item from group is stored.
+    sort_order_by_player = {},
+    -- hash of recipe id to display order in sorted array
+    icon_item_name = {},
+    -- hash of node identifiers to display the crafting type in the interface
+}
 
-dofile(minetest.get_modpath("crafting") .. "/api.lua")
-dofile(minetest.get_modpath("crafting") .. "/async_craft.lua")
-dofile(minetest.get_modpath("crafting") .. "/gui.lua")
+local crafting_path = core.get_modpath("crafting")
+-- define group system for recipes
+dofile(crafting_path .. "/groups.lua")
+dofile(crafting_path .. "/recipes_def.lua")
+dofile(crafting_path .. "/recipes_unlock.lua")
+dofile(crafting_path .. "/recipes.lua")
+dofile(crafting_path .. "/api.lua")
+dofile(crafting_path .. "/search_filter.lua")
+dofile(crafting_path .. "/gui/init.lua")
 
 if minetest.global_exists("awards") then
     awards.register_on_unlock(function(name, award)

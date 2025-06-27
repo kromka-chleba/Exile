@@ -47,11 +47,12 @@ local function get_form(playername, meta)
     local themenum = tostring(theme_tonum[theme])
     local opacity = tostring(meta:get("hud_opacity") or mthudopacity)
     local invburst = tostring(meta:get("drop_on_full_inv") or mtinvburst)
+    local recipe_order = meta:get_string("crafting:no_reorder")
     local nomusic = tostring(meta:get("disable_music") or mtnomusic )
 
     local spec =
         "formspec_version[6]"..
-        "size[10,7]"..
+        "size[10,8]"..
         "button_exit[9,0.2;0.8,0.75;exit_form;X]"..
         -- Wide HUDbar
         "checkbox[1,1;hud16;  "..
@@ -66,19 +67,22 @@ local function get_form(playername, meta)
         "checkbox[1,2.5;invburst;  "..
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
+        -- Fix order for recipes
+        "checkbox[1,3;recipe_order;  "..
+        S("Keep fixed order for recipes")..";".. recipe_order.."]"..
         -- Music setting
-        "checkbox[1,3;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
+        "checkbox[1,3.5;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
         -- Temperature scale setting
-        "label[1,3.75;"..S("Temperature scale")..":]"..
-        "dropdown[5,3.5;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
+        "label[1,4.25;"..S("Temperature scale")..":]"..
+        "dropdown[5,4;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
         tempnum..";true]"..
         -- GUI theme setting
-        "label[1,4.25;"..S("GUI theme")..":]"..
-        "dropdown[5,4;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+        "label[1,4.75;"..S("GUI theme")..":]"..
+        "dropdown[5,4.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
         -- HUD Opacity
-        "label[1,5;"..S("HUD Opacity")..":]"..
+        "label[1,5.5;"..S("HUD Opacity")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
-        "scrollbar[2,5.5.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
+        "scrollbar[2,6;5,0.5;horizontal;HudOpac;"..opacity.."]"
     return spec
 end
 
@@ -111,6 +115,31 @@ minimal.register_on_player_setting_change = function(func)
     changed_callbacks[#changed_callbacks + 1] = func
 end
 
+-- to deal with clicking on the button in sfinv
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+    -- check if we are in sfinv form
+	if formname ~= "" or not sfinv.enabled then
+		return false
+	end
+    -- Get Context
+    local name = player:get_player_name()
+    local context = sfinv.contexts[name]
+    if not context then -- shouldn't happen since opening sfinv generates it
+        return false
+    end
+    -- was settings button pushed ?
+    if fields.player_settings then
+        -- leave current page (= run the function to close them)
+        local oldpage = sfinv.pages[context.page]
+        if oldpage and oldpage.on_leave then
+            oldpage:on_leave(player, context)
+        end
+        --sfinv.set_page(player, "minimal:player_settings")
+        minimal.show_player_settings(name, player:get_meta())
+        return true -- don't call remaining functions
+    end
+end)
+
 -- return true if something changed, false else
 -- see (*) comment below on why this is a separate function
 local function process_receive_fields(player, formname, fields)
@@ -134,6 +163,19 @@ local function process_receive_fields(player, formname, fields)
     if temp_fromnum[num] and temp_fromnum[num] ~= oldtempscale then
         meta:set_string("tempscale", temp_fromnum[num])
         setting_changed(player, "tempscale", temp_fromnum[num], meta)
+    end
+
+    -- close crafting formspec on quit (if not already done)
+    --[[This is because opening player setting only leaves the tab, but doesn't run closing crafting function,
+    and I can't trigger come back to the tab in current luanti engin
+    (I would need to trigger inventory formspec from outside and I can't)
+    Else, ideal would be to come back to "oldpage"]]
+    if fields.quit then
+        -- returns nil if no cache (already closed)
+        -- #TODO that could probably be improved t depend less on what we do on crafting side.
+        if crafting.close_crafting_formspec(player) then
+            sfinv.set_player_inventory_formspec(player)
+        end
     end
 
     -- setting HUD Opacity
@@ -164,6 +206,10 @@ local function process_receive_fields(player, formname, fields)
     if fields.invburst then
         meta:set_string("drop_on_full_inv", fields.invburst)
         setting_changed(player, "drop_on_full_inv", tobool(fields.invburst), meta)
+    end
+    if fields.recipe_order then
+        meta:set_string("crafting:no_reorder", fields.recipe_order)
+        setting_changed(player, "crafting:no_reorder", tobool(fields.recipe_order), meta)
     end
     -- setting music on/off
     if fields.nomusic then
