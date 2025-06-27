@@ -4,6 +4,7 @@
 
 -- crafting/api.lua sets meta description using it which appears with mouseover.
 minetest.register_on_mods_loaded(function()
+        local color_esc = core.get_color_escape_sequence
         for name, def in pairs(minetest.registered_items) do
             --[[ takes old descriptions to add tool tips to them
             if not already done
@@ -27,17 +28,27 @@ minetest.register_on_mods_loaded(function()
                     if placetip then
                         ttip = ttip.."\n  v : "..placetip
                     end
+
+                    ttip = color_esc("#ccccff")
+                            .. ttip
+                            .. color_esc("#ffffff")
+                    --[[
+                    -- the following breaks the formspec if we use item_iùage_button,
+                    --for some unexplained reason, we then get
+                    -- "Ignoring escape sequence 'c@#ccccff' in translation"
+                    --local esc = core.formspec_escape
+                    --ttip = esc(core.colorize("#ccccff", ttip))
+                    --]]
                     local orig_desc = def.description
                     local new_desc = orig_desc..ttip
+
                     minetest.override_item(
                         name, {
-                            _tool_tips=minetest.colorize("#ccccff",
-                                                         ttip),
+                            _tool_tips = ttip,
                             description = new_desc,
                             _orig_desc = orig_desc
                     })
                 end
             end
         end
-
 end)
