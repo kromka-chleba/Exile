@@ -6,9 +6,12 @@ local S = minetest.get_translator("backpacks")
 local more_info = minetest.settings:get_bool('exile_backpacks_spreadsheet')
 
 local colours = {
-    full = "#90c8fc", -- pastel blue
-    partial = "#90fca0", -- pastel green
-    neutral = "#ffffff", -- white
+    -- full = "#90c8fc", -- pastel blue
+    full = "#7F00FF", -- dark purple
+    --partial = "#90fca0", -- pastel green
+    partial = "#F7A400",
+    --neutral = "#ffffff", -- white
+    neutral = "#9FE7F5",
     item_name = "#ffff7a" -- pastel yellow
 }
 
