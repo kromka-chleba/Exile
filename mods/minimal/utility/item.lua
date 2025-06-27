@@ -407,10 +407,16 @@ function minimal.get_item_inventory(itemstack, metadata, inv_name)
                               "not an ItemStack, got '"..
                               tostring(itemstack).."'",2))
     end
-    metadata = type(metadata) == "userdata" and metadata
-        or itemstack:get_meta()
-    inv_name = type(inv_name) == "string" and inv_name
-        or "inv_main"
+    -- get meta if not given or valid
+    if type(metadata) ~= "userdata" then
+        metadata =itemstack:get_meta()
+    end
+
+    -- if inv_name not given or invalid string, set to default
+    if type(inv_name) ~= "string" then
+        inv_name = "inv_main"
+    end
+
     local inv = metadata:get(inv_name)
     if not inv then
         return
@@ -472,9 +478,12 @@ end
 -- convert_node_inventory - convert node inventory
 -- inventory is expected to be metadata or the :get_inventory() result from a metadata - also accepts position
 -- (OPTIONAL) inv_name is the name of the node's inventory to be accessed (default "main")
-function minimal.convert_node_inventory(inventory,inv_name)
+function minimal.convert_node_inventory(inventory, inv_name)
     -- gets and converts a node's metadata into a custom inventory
-    inv_name = type(inv_name) == "string" and inv_name or "main"
+    if type(inv_name) ~= "string" then
+        inv_name = "main"
+    end
+
     if type(inventory) == "table" then
         -- get pos if provided
         if type(inventory.x) == "number"
