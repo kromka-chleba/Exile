@@ -45,57 +45,67 @@ end
 -- imeta or item_inv aren't needed either but are good to specify
 local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef, label)
     imeta = imeta or item:get_meta()
-    item_inv = item_inv or minimal.get_item_inventory(item, imeta)
+
     idef = idef or item:get_definition()
     label = label or imeta:get_string('label')
-    local bag_desc = idef.description
-    local add_string -- used for additional info
-    local counts = item_inv:get_full_partial_empty_count()
-    counts.size = item_inv:get_size()
-    -- actually empty
-    if counts.size == counts.empty then
-        -- empty; no items, return empty_name
-        imeta:set_string("inv_main","")
-        bag_desc = idef._empty_name
-    else
-        if counts.size == (counts.full + counts.partial) then
-            bag_desc = idef._full_name
-        end
-        -- set up text colours that'll be used
-        local text_colours = {
-            minetest.get_color_escape_sequence(colours["full"]), -- full
-            minetest.get_color_escape_sequence(colours["partial"]), -- partial
-            minetest.get_color_escape_sequence(colours["neutral"]), -- empty
-            minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
-        }
-        -- get translated or regular stats
-        local slots = {
-            text_colours[1]..(more_info and S("@1 full", counts.full) or counts.full),
-            text_colours[2]..(more_info and S("@1 partial", counts.partial) or counts.partial),
-            text_colours[3]..(more_info and S("@1 empty", counts.empty) or counts.empty)
-        }
-        -- more descriptive information wanted
-        if more_info then
-              local most_popular = item_inv:get_most_popular_stats()
-              -- turn to number indexed table
-              most_popular = {
-                  -- convert name to ItemStack
-                  ItemStack(most_popular.name),
-                  most_popular.count,
-                  most_popular.max
-              }
-              -- get description, add colour
-              most_popular[1] = text_colours[4]..(most_popular[1]:get_short_description()
-                  or most_popular[1]:get_description())
-              -- add slots
-              slots = text_colours[3]..S("Slots: @1, @2, @3", slots[1], slots[2], slots[3])
-              add_string = S("@n@1 @2/@3 @n@4", most_popular[1], most_popular[2], most_popular[3], slots)
-        -- basic information
+    -- #TODO check if possible that I have no _origdesc
+    -- since it should be done in minimal/tooltips.lua
+    if not idef._orig_desc then
+        core.log("warning", "no _orig_desc for " .. item:get_name() )
+    end
+    local bag_desc = idef._orig_desc or idef.description
+
+    local add_string -- used for additional info from bag's inventory
+    item_inv = item_inv or minimal.get_item_inventory(item, imeta)
+    if item_inv then --#TODO I got it nil testing, not sure why
+        -- maybe because we do get on "" string in minimal.get_item_inventory ?
+        local counts = item_inv:get_full_partial_empty_count()
+        counts.size = item_inv:get_size()
+        -- actually empty
+        if counts.size == counts.empty then
+            -- empty; no items, return empty_name
+            imeta:set_string("inv_main","")
+            bag_desc = idef._empty_name
         else
-            add_string = " "..S("- @1/@2/@3", slots[1], slots[2], slots[3])
+            if counts.size == (counts.full + counts.partial) then
+                bag_desc = idef._full_name
+            end
+            -- set up text colours that'll be used
+            local text_colours = {
+                minetest.get_color_escape_sequence(colours["full"]), -- full
+                minetest.get_color_escape_sequence(colours["partial"]), -- partial
+                minetest.get_color_escape_sequence(colours["neutral"]), -- empty
+                minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
+            }
+            -- get translated or regular stats
+            local slots = {
+                text_colours[1]..(more_info and S("@1 full", counts.full) or counts.full),
+                text_colours[2]..(more_info and S("@1 partial", counts.partial) or counts.partial),
+                text_colours[3]..(more_info and S("@1 empty", counts.empty) or counts.empty)
+            }
+            -- more descriptive information wanted
+            if more_info then
+                  local most_popular = item_inv:get_most_popular_stats()
+                  -- turn to number indexed table
+                  most_popular = {
+                      -- convert name to ItemStack
+                      ItemStack(most_popular.name),
+                      most_popular.count,
+                      most_popular.max
+                  }
+                  -- get description, add colour
+                  most_popular[1] = text_colours[4]..(most_popular[1]:get_short_description()
+                      or most_popular[1]:get_description())
+                  -- add slots
+                  slots = text_colours[3]..S("Slots: @1, @2, @3", slots[1], slots[2], slots[3])
+                  add_string = S("@n@1 @2/@3 @n@4", most_popular[1], most_popular[2], most_popular[3], slots)
+            -- basic information
+            else
+                add_string = " "..S("- @1/@2/@3", slots[1], slots[2], slots[3])
+            end
+            -- set inventory
+            imeta:set_string('inv_main', item_inv:convert())
         end
-        -- set inventory
-        imeta:set_string('inv_main', item_inv:convert())
     end
     -- adds label if not empty
     if label ~= '' then
@@ -106,14 +116,8 @@ local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef
         bag_desc = bag_desc .. add_string
     end
     -- adds tooltips if any
-    if type(idef.backpack_use_tip) == "string" then
-        bag_desc = bag_desc.."\n"..idef.backpack_use_tip
-    end
-    if type(idef.backpack_dig_tip) == "string" then
-        bag_desc = bag_desc.."\n"..idef.backpack_dig_tip
-    end
-    if type(idef.backpack_place_tip) == "string" then
-        bag_desc = bag_desc.."\n"..idef.backpack_place_tip
+    if idef._tool_tips and idef._tool_tips ~= '' then
+        bag_desc = bag_desc .. idef._tool_tips
     end
 
     imeta:set_string('description', bag_desc)
@@ -389,17 +393,7 @@ function backpacks.register_backpack(name, def)
     def.can_dump = (def.can_dump ~= false)
     def.can_pack = (def.can_pack ~= false)
 
-    -- tooltips
-    if def._place_tip then
-        def.backpack_place_tip = core.colorize("#ccccff","v : "..def._place_tip)
-    end
-    -- delete initial field so it is not re-added in minimal/tooltips.lua
-    def._place_tip = nil
-    if def._dig_tip then
-        def.backpack_dig_tip = core.colorize("#ccccff", "^ : "..def._dig_tip)
-    end
-    -- delete initial field so it is not re-added in minimal/tooltips.lua
-    def._dig_tip = nil
+    -- tooltips, to be added then by minimal/tooltips.lua in def._tool_tips
     -- What this item/node does when used AUX1/"Use" key
     if not def._use_tip then
         if def.can_dump then
@@ -415,11 +409,6 @@ function backpacks.register_backpack(name, def)
             def._use_tip = S("@1 contents into storage", S(def._use_tip))
         end
     end
-    if def._use_tip then
-        def.backpack_use_tip = core.colorize("#ccccff","◊ : "..def._use_tip)
-    end
-    -- delete initial field so it is not re-added in minimal/tooltips.lua
-    def._use_tip = nil
 
     -- formspec params
     def.formspec_width = def.formspec_width or def.width
@@ -475,7 +464,7 @@ function backpacks.register_backpack(name, def)
     def.on_infotext = def.on_infotext or function(pos, nodedef, meta, params)
         -- this is called with params given to minimal.infotext_set_new
         -- or params from meta as in minimal.infotext_update_params
-        params.description = def.description
+        params.description = def._orig_desc or def.description
         -- #TODO followwing line seems useless as already done before the call of the function
         params = minimal.infotext_update_params(meta, params)
         -- this function returns params.description + owner field + label
