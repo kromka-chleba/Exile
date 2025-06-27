@@ -78,45 +78,48 @@ local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef
         if counts.size == counts.empty then
             -- empty; no items, return empty_name
             imeta:set_string("inv_main","")
-            bag_desc = idef._empty_name
+            add_string = " (" .. S("Empty") ..")" -- #TODO to translate
+            -- bag_desc = idef._empty_name
         else
-            if counts.size == (counts.full + counts.partial) then
-                bag_desc = idef._full_name
-            end
-            -- set up text colours that'll be used
-            local text_colours = {
-                minetest.get_color_escape_sequence(colours["full"]), -- full
-                minetest.get_color_escape_sequence(colours["partial"]), -- partial
-                minetest.get_color_escape_sequence(colours["neutral"]), -- empty
-                minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
-            }
-            -- get translated or regular stats
-            local slots = {
-                text_colours[1]..(more_info and S("@1 full", counts.full) or counts.full),
-                text_colours[2]..(more_info and S("@1 partial", counts.partial) or counts.partial),
-                text_colours[3]..(more_info and S("@1 empty", counts.empty) or counts.empty)
-            }
-            -- more descriptive information wanted
-            if more_info then
-                  local most_popular = item_inv:get_most_popular_stats()
-                  -- turn to number indexed table
-                  most_popular = {
-                      -- convert name to ItemStack
-                      ItemStack(most_popular.name),
-                      most_popular.count,
-                      most_popular.max
-                  }
-                  -- get description, add colour
-                  most_popular[1] = text_colours[4]..(most_popular[1]:get_short_description()
-                      or most_popular[1]:get_description())
-                  -- add slots
-                  slots = text_colours[3]..S("Slots: @1, @2, @3", slots[1], slots[2], slots[3])
-                  add_string = S("@n@1 @2/@3 @n@4", most_popular[1], most_popular[2], most_popular[3], slots)
-            -- basic information
+            if counts.size == counts.full then
+                add_string = " (" .. S("Full") ..")" -- #TODO to translate
+                -- bag_desc = idef._full_name
             else
-                add_string = " "..S("- @1/@2/@3", slots[1], slots[2], slots[3])
+                -- set up text colours that'll be used
+                local text_colours = {
+                    minetest.get_color_escape_sequence(colours["full"]), -- full
+                    minetest.get_color_escape_sequence(colours["partial"]), -- partial
+                    minetest.get_color_escape_sequence(colours["neutral"]), -- empty
+                    minetest.get_color_escape_sequence(colours["item_name"]) -- item_name
+                }
+                -- get translated or regular stats
+                local slots = {
+                    text_colours[1]..(more_info and S("@1 full", counts.full) or counts.full),
+                    text_colours[2]..(more_info and S("@1 partial", counts.partial) or counts.partial),
+                    text_colours[3]..(more_info and S("@1 empty", counts.empty) or counts.empty)
+                }
+                -- more descriptive information wanted
+                if more_info then
+                      local most_popular = item_inv:get_most_popular_stats()
+                      -- turn to number indexed table
+                      most_popular = {
+                          -- convert name to ItemStack
+                          ItemStack(most_popular.name),
+                          most_popular.count,
+                          most_popular.max
+                      }
+                      -- get description, add colour
+                      most_popular[1] = text_colours[4]..(most_popular[1]:get_short_description()
+                          or most_popular[1]:get_description())
+                      -- add slots
+                      slots = text_colours[3]..S("Slots: @1, @2, @3", slots[1], slots[2], slots[3])
+                      add_string = S("@n@1 @2/@3 @n@4", most_popular[1], most_popular[2], most_popular[3], slots)
+                -- basic information
+                else
+                    add_string = " "..S("- @1/@2/@3", slots[1], slots[2], slots[3])
+                end
             end
-            -- set inventory
+            -- set inventory if not empty (full or not)
             imeta:set_string('inv_main', item_inv:convert())
         end
     end
