@@ -356,13 +356,9 @@ function backpacks.register_backpack(name, def)
         def.groups.dig_immediate and (def.groups.dig_immediate > 0
                                       and def.groups.dig_immediate or nil)
         or 3
-    -- permit texture/textures, def.tiles string
-    def.texture = def.texture or
-        def.textures
-        or type(def.tiles) == "string" and def.tiles
-    -- permit a tiles override
-    if type(def.tiles) ~= "table" then -- create one
-        def.tiles = {
+
+    -- tiles and texture
+    def.tiles = {
             -- rotated onto its back for correct wallmounted dirs
             "backpacks_backpack_front.png", -- Front
             "backpacks_backpack_back.png",      -- Back
@@ -371,17 +367,23 @@ function backpacks.register_backpack(name, def)
             "backpacks_backpack_topbottom.png", -- Top
             "backpacks_backpack_topbottom.png", -- Bottom
         }
-        local texture = def.texture
-        if type(texture) == "string" then
-            -- add texture to backpack
-            for tile_index,tile in pairs(def.tiles) do
-                def.tiles[tile_index] = texture.."^"..tile
-            end
+    local texture = def.texture
+    if type(texture) == "string" then
+        -- add texture to backpack
+        for tile_index,tile in pairs(def.tiles) do
+            def.tiles[tile_index] = texture.."^"..tile
         end
     end
+
     -- custom "empty_name" and "full_name"
-    def._empty_name = def._empty_name or def.empty_name or S("Empty @1", def.description)
-    def._full_name = def._full_name or def.full_name or S("Full @1",def.description)
+    -- NOTE: they are currently both unused
+    if not def._empty_name then
+        def._empty_name = S("Empty @1", def.description)
+    end
+    if not def._full_name then
+        def._full_name = S("Full @1",def.description)
+    end
+
     -- can_dump and can_pack, true by default
     -- also unused in registrations for now
     def.can_dump = (def.can_dump ~= false)
@@ -424,9 +426,6 @@ function backpacks.register_backpack(name, def)
     def.width = nil -- cleanup of def
     def.formspec_height = def.formspec_height or def.height
     def.height = nil -- cleanup of def
-    -- cleanup of def
-    def.empty_name = nil
-    def.full_name = nil
     -- basic def stuff
     def.paramtype2 = def.paramtype2 or "colorwallmounted"
     def.palette = "natural_dyes.png"
