@@ -12,49 +12,62 @@ local colours = {
     item_name = "#ffff7a" -- pastel yellow
 }
 
-local function get_formspec(pos, w, h)
-    local meta = minetest.get_meta(pos)
-    local creator = meta:get_string('creator')
-    local label = minimal.sanitize_string(meta:get_string('label'))
+-- imeta is the item's meta
+-- idef is the item's definition table
+-- item is given item (optional but needed if no idef)
+-- build a custome name with creator's + desc is custom_name is undefined
+local function get_custom_name(imeta, idef, item)
+    -- `custom_name` could be used to engrave/mark objects with custom names
+    -- so we would have the instead of "creator's bag"
+    -- could be set in crafting already
+    local custom_name = imeta:get_string("custom_name")
+    if custom_name ~= "" then
+        return custom_name
+    else
+        -- build it in case it is needed (creator)
+        -- or returns desc
+        local desc
+        idef = idef or item and item:get_definition()
+        if not idef then
+            core.log("you forgot to give `idef` or `item` param to get_custom_name")
+        end
+        -- #TODO check if possible that I have no _orig_desc
+        -- since it should be done in minimal/tooltips.lua
+        if not idef._orig_desc then
+            core.log("warning", "no _orig_desc for " .. item:get_name() )
+        end
+        desc = idef._orig_desc or idef.description
+        -- if owner, display it:
+        local creator = imeta:get_string('creator')
+        if creator ~= "" then
+            -- TODO translation
+            desc = S("@1's @2", creator, desc)
+            -- save new built desc
+            imeta:set_string("custom_name", desc)
+        end
+        -- returns built desc
+        return desc
+    end
 
-    local formspec_size_h = 3.85 + h
-    local main_offset = 1.85 + h
-    local label_offset = 0.85 + h
-    local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
-    local craftedby_offset_x = 6.05 -- 3*(30-string.len('crafted by'))/30/2 + 5
-
-    local formspec = {
-        "size[8,"..formspec_size_h.."]",
-        "list[current_name;main;0,0.3;"..w..","..h.."]",
-        "field[0.5,"..label_offset..";5,1;label;Label:;"..label.."]",
-        "field_close_on_enter[label;false]",
-        "button[5,"..label_offset..";1,0.25;labelset;Set]",
-        "label["..craftedby_offset_x..","..(label_offset-.35)..";Crafted by:]",
-        "label["..creator_offset_x..","..label_offset..";"..creator.."]",
-        "list[current_player;main;0,"..main_offset..";8,2]",
-        "listring[current_name;main]",
-        "listring[current_player;main]",
-    }
-    -- #TODO why is it called here ?
-    minimal.infotext_set_new(pos, meta)
-    return table.concat(formspec, "")
 end
 
 -- set bag itemstack description + inventory
 -- idef, label are not needed but can be specified to speed up process
 -- imeta or item_inv aren't needed either but are good to specify
-local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef, label)
+local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef)
     imeta = imeta or item:get_meta()
-
     idef = idef or item:get_definition()
-    label = label or imeta:get_string('label')
-    -- #TODO check if possible that I have no _origdesc
-    -- since it should be done in minimal/tooltips.lua
-    if not idef._orig_desc then
-        core.log("warning", "no _orig_desc for " .. item:get_name() )
-    end
-    local bag_desc = idef._orig_desc or idef.description
+    -- get (or set if it was nil) the custom nam to display
+    -- us it to initiate the description field that will be save in meta
+    local bag_desc = get_custom_name(imeta, nil, item)
 
+    -- adds label if not empty
+    local label = imeta:get_string('label')
+    if label ~= '' then
+        bag_desc = bag_desc.." - "..label
+    end
+
+    -- Adds full/partial/empty tag if needed
     local add_string -- used for additional info from bag's inventory
     item_inv = item_inv or minimal.get_item_inventory(item, imeta)
     if item_inv then --#TODO I got it nil testing, not sure why
@@ -107,14 +120,11 @@ local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef
             imeta:set_string('inv_main', item_inv:convert())
         end
     end
-    -- adds label if not empty
-    if label ~= '' then
-        bag_desc = bag_desc.." - "..label
-    end
     -- adds add_string if valid
     if type(add_string) == "string" then
         bag_desc = bag_desc .. add_string
     end
+
     -- adds tooltips if any
     if idef._tool_tips and idef._tool_tips ~= '' then
         bag_desc = bag_desc .. idef._tool_tips
@@ -290,21 +300,27 @@ local after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, 
     end
 end
 
-local preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta, width,height)
+-- is called after minimal overrides version
+-- it means that {'creator','label','short_description','description'}
+-- are already copied in drops[1] from oldnode
+local preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
     local item = drops[1]
     imeta = imeta or item:get_meta()
-    local idef = item:get_definition()
-    -- Transfer inventory to item
-    local meta = minetest.get_meta(pos)
-    local inv = minimal.convert_node_inventory(meta)
+
     -- Set color
     local color = minetest.strip_param2_color(oldnode.param2,
                                               "colorwallmounted")
     imeta:set_int('palette_index', color)
-    -- set description
-    bagitem_set_description_and_inventory(item, imeta, inv, idef, meta:get_string('label'))
-    -- Set Formspec
-    imeta:set_string('formspec', get_formspec(pos,width,height))
+    -- set description from inventory (colored status)
+    -- get node's inventory "main" list to set item's inventory
+    -- NOTE: we get meta from the pos instead of using oldmeta
+    -- because oldmeta doesn't seem to contain the inventory meta field
+    -- but only meta:to_table().fields...
+    local meta = minetest.get_meta(pos)
+    local inv = minimal.convert_node_inventory(meta)
+
+    -- local inv = minimal.convert_node_inventory(oldmeta)
+    bagitem_set_description_and_inventory(item, imeta, inv)
 end
 
 local on_dig = function(pos, node, digger, width, height)
@@ -436,11 +452,7 @@ function backpacks.register_backpack(name, def)
         function(pos, node, digger)
             on_dig(pos, node, digger, def.formspec_width, def.formspec_height)
         end
-    def.preserve_metadata = def.preserve_metadata
-        or function(pos, oldnode, oldmeta, drops, imeta)
-            preserve_metadata(pos, oldnode, oldmeta, drops, imeta,
-                              def.formspec_width, def.formspec_height)
-        end
+    def.preserve_metadata = def.preserve_metadata or preserve_metadata
     def._on_use_item = function(player, itemstack, pointed_thing)
         if not (pointed_thing and pointed_thing.under) then return end
         local pos = pointed_thing.under
@@ -458,15 +470,13 @@ function backpacks.register_backpack(name, def)
                                 and not ndef.groups.no_pack))
     end
     -- infotext handling
-    -- What I understand is that it is only used by backpack (so should be def._on_infotext ? #TODO)
-    -- and used to replace meta description field by this one.
     -- this is so we don't display the custom full/partial/empty thing in infotext
     def.on_infotext = def.on_infotext or function(pos, nodedef, meta, params)
-        -- this is called with params given to minimal.infotext_set_new
-        -- or params from meta as in minimal.infotext_update_params
-        params.description = def._orig_desc or def.description
         -- #TODO followwing line seems useless as already done before the call of the function
         params = minimal.infotext_update_params(meta, params)
+        -- Here we change the desc
+        -- to not have the full/partial/empty info in infotext
+        params.description = get_custom_name(meta, def, nil)
         -- this function returns params.description + owner field + label
         return minimal.infotext_get_base_string(nil, meta, params)
     end
