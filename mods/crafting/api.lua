@@ -1051,28 +1051,27 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe, ctype)
     local sdesc = itemstack:get_short_description()
     -- Set Creator
     if minetest.get_item_group(itemstack:get_name(), 'craftedby') > 0 then
-        imeta:set_string('creator', name)
-        -- don't add creator name to sort description for single player
+        -- add creator name to sort description only if multiplayer game
         if not minetest.is_singleplayer() then
+            imeta:set_string('creator', name)
             -- player's so-and-so
             sdesc = S("@1's @2",name, sdesc)
+            -- #TODO I am not sure I have to add both short_desc and desc meta
+            -- in case we want to override short_desc later, it could probably be rebuilt
+            -- I commented it because, right now, backpack code updated description meta but not shot_desc meta
+            -- so that we loose the detailled info in shot desc if we erase if we set it here.
+            --[[
+            imeta:set_string('short_description', sdesc)
+            --]]
+
+            -- if we already have a tool_tip for the item,
+            -- readd it to the new def
+            local idef = itemstack:get_definition()
+            if idef._tool_tips and idef._tool_tips ~= '' then
+                sdesc = sdesc .. idef._tool_tips
+            end
+            imeta:set_string('description',sdesc)
         end
-        imeta:set_string('short_description', sdesc)
-    end
-
-    -- Add Tool Tips to Description
-
-    --[[ changed by Mantar 11 months agao,
-    commented and replaces by get_short function in GUI
-    uncommenting it fixes following issue:
-     https://codeberg.org/Mantar/Exile/issues/1137
-     #TODO check if it breaks something, probably in recipes
-     commit is https://codeberg.org/Mantar/Exile/commit/0561ed75e551705987ff57f0bff97dc6aec99750]]
-    local idef = itemstack:get_definition()
-    -- if we already have a tool_tip for the item,
-    -- adds specific meta things to it
-    if idef._tool_tips and idef._tool_tips ~= '' then
-        imeta:set_string('description',sdesc .. idef._tool_tips)
     end
 
     -- set material
