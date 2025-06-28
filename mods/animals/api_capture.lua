@@ -68,8 +68,7 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
     if self.no_interact then return end
     local item = clicker:get_wielded_item()
     local item_name = item:get_name()
-    tool_capabilities = type(tool_capabilities) == "table" and tool_capabilities
-        or {full_punch_interval = 1}
+    tool_capabilities = tool_capabilities or {}
     if not self.capture_interactions then
         return false,false -- creature can't be captured + is not captured
     end
@@ -111,9 +110,9 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
     -- modify success_rate according to tool_capabilities (if not in creative)
     -- 100% is 100%, you've whacked em good, no need to worry about last click!
     if success_rate < 1 and not minimal.player_in_creative(clicker) then
+        local fpi = tool_capabilities.full_punch_interval or 1.0
         success_rate = success_rate *
-            math_clamp(time_from_last_click
-                       / tool_capabilities.full_punch_interval, 0, 1)
+            math_clamp(time_from_last_click / fpi, 0, 1)
     end
     if self.hp <= self.max_hp*0.75 then -- if less than 3 quarters of full HP
         -- then calculate damage-based capture success
