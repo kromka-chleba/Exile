@@ -17,12 +17,21 @@ local function item_does_match (search, lang_code, name, desc)
     end
 
     search = minimal.make_search_string(search) -- already done in cache.sSearch
-    desc = desc or ItemStack(name):get_short_description()
 
     -- used for the case of check with items name in inv
     if name == search then
         return true
-    elseif desc then
+    end
+
+    -- else check item's desc to compare with search
+    desc = desc or ItemStack(name):get_short_description()
+    -- do not use unknown Item to search
+    -- could happen if called with name not being a real item name
+    -- (fake output for example)
+    if desc == "Unknown Item" then
+        desc = nil
+    end
+    if desc then
         -- #TODO warning maybe not compatible with old clients
         local tr_desc =  core.get_translated_string(lang_code or "en", desc)
         -- search should have had  minimal.make_search_string applied already
@@ -38,7 +47,7 @@ end
 local function r_item_does_match(r_item, search, lang_code)
     -- check if search string matches the name or desc
     -- WARNING in case of custome item, name will be "function"
-    if item_does_match (search, lang_code, r_item.name, r_item.desc) then
+    if item_does_match (search, lang_code, r_item.name, r_item.short) then
         return true
     end
     -- if item/group's name didn't match, check list of item variants
