@@ -29,23 +29,27 @@ minetest.register_on_mods_loaded(function()
                         ttip = ttip.."\n  v : "..placetip
                     end
 
+                    -- the following gives error if some of the tool_tips had
+                    -- "\n" IN the S(...) translation thing
+                    -- like S("blabla\n thing")
+                    -- while S("blabla") .. "\n" .. "S(thing)" will be fine
+                    -- I changed it in the hammer that was raising it but...
+                    -- in case of some other are left/may happen in the future,
+                    -- I also stopped using colorize here.
                     ttip = color_esc("#ccccff")
                             .. ttip
                             .. color_esc("#ffffff")
-                    --[[
-                    -- the following breaks the formspec if we use item_iùage_button,
-                    --for some unexplained reason, we then get
-                    -- "Ignoring escape sequence 'c@#ccccff' in translation"
+                    -- [[
                     --local esc = core.formspec_escape
                     --ttip = esc(core.colorize("#ccccff", ttip))
                     --]]
+
                     local orig_desc = def.description
-                    local new_desc = orig_desc..ttip
 
                     minetest.override_item(
                         name, {
                             _tool_tips = ttip,
-                            description = new_desc,
+                            description = orig_desc..ttip,
                             _orig_desc = orig_desc
                     })
                 end
