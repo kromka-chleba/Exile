@@ -629,8 +629,21 @@ local function register_hammer(suffix, desc)
             damage_groups = {fleshy=stone_dmg + 1},
             -- +1 was added in new default hammer, legacy one had only stone_dmg
         },
+        -- NOTE: don't put "\n" in the translation here,
+        -- because then, it will fail once inside a "core.colorize" function.
+        -- it works with core.get_color_escape_sequence(color)
+        -- then text (even with \n)
+        -- then core.get_color_escape_sequence(white)
+        -- so we changed it in minimaltooltips.lua already
+        -- but in case someone wants to put colorize again,
+        -- I changed it here too
+        -- please leave that comment so that next one doesn't loose time fnding again this tricky behavior
+        --[[
         _place_tip = S("Stun animals\n"..
         " or Place on solid surface for hammering crafts"),
+        --]]
+        _place_tip = S("Stun animals") .. "\n "..
+        S("or Place on solid surface for hammering crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing)
         end,
