@@ -66,6 +66,14 @@ local function place_tool(itemstack, placer, pointed_thing)
     -- adds wear to meta
     idata.fields.wear = itemstack:get_wear()
     idata.fields.wear = idata.fields.wear ~= 0 and idata.fields.wear or nil -- remove if no wear at all
+
+    -- temp thing to fix meta on Ex-E
+    if idef._tool_tips then
+        local new_desc = itemstack:get_short_description()
+        idata.fields.description = new_desc .. idef._tool_tips
+    end
+    --
+
     -- take and place tool
     itemstack:take_item(1)
     local ppos = pointed_thing.above
